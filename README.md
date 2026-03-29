@@ -41,3 +41,11 @@ npm run typecheck  # TypeScript type checking
 - `@/` → `src/`
 - `@data/` → `data/`
 - `@assets/` → `assets/`
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+LolRogue is a non-commercial fan project inspired by League of Legends (© Riot Games).
+League of Legends and all related assets are trademarks of Riot Games, Inc.
+This project is not affiliated with or endorsed by Riot Games.
