@@ -191,12 +191,13 @@ describe('Initiative & Turn Order', () => {
     p2.currentHp = 0;
     p2.isDefeated = true;
 
-    // Rebuild turn order via round increment
-    // Start new round by processing all turns
-    while (bm.turnIndex < bm.turnOrder.length) {
+    // Process current round with safety to avoid infinite loop
+    let safety = 50;
+    while (bm.phase === BattlePhase.TurnActive && safety-- > 0) {
       bm.processCurrentTurn();
     }
-    // After new round starts, P2 should not appear
+
+    // After new round starts, P2 should not appear in turn order
     const ids = bm.turnOrder.map(e => e.champion.id);
     expect(ids).not.toContain('P2');
   });
