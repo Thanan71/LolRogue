@@ -253,7 +253,12 @@ describe('0 HP Defeat Condition', () => {
 
     const enemy = bm.getCombatantState('E1', 'enemy')!;
     enemy.currentHp = 1;
-    bm.processCurrentTurn();
+
+    // Process enough turns for the kill to land (enemy may go first)
+    let safety = 10;
+    while (safety-- > 0 && bm.phase !== BattlePhase.Finished) {
+      bm.processCurrentTurn();
+    }
 
     const defeat = events.find(e => e.type === 'defeat');
     expect(defeat).toBeDefined();
