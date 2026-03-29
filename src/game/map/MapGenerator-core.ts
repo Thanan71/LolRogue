@@ -29,9 +29,7 @@ const SHOP_ITEMS = [
   { itemId: 'bf_sword', name: 'B.F. Sword', description: 'Greatly increases attack damage', price: 250, iconUrl: '', stats: { atk: 30 } },
 ];
 
-const RECRUITABLE_CHAMPIONS = [
-  'Darius', 'Garen', 'Malphite', 'Annie', 'Lux', 'Jinx', 'Ashe', 'Leona', 'Soraka', 'Warwick',
-];
+// Recruit champions are now generated dynamically via RecruitmentService
 
 function generateShopEncounter(biome: Biome, runLevel: number, rand: () => number): ShopEncounter {
   const itemCount = 2 + Math.floor(rand() * 3);
@@ -41,12 +39,7 @@ function generateShopEncounter(biome: Biome, runLevel: number, rand: () => numbe
     price: Math.round(item.price * (0.8 + runLevel * 0.15)),
   }));
 
-  const recruitCount = 1 + Math.floor(rand() * 2);
-  const shuffledChamps = [...RECRUITABLE_CHAMPIONS].sort(() => rand() - 0.5);
-  const recruitableChampions = shuffledChamps.slice(0, recruitCount).map((id) => ({
-    championId: id,
-    cost: Math.round(150 + runLevel * 50 + rand() * 100),
-  }));
+  const recruitableChampions = generateShopRotation(biome, runLevel, [], 1 + Math.floor(rand() * 2), rand);
 
   const shopNames: Record<Biome, string> = {
     top_lane: 'The Armory',
@@ -117,7 +110,7 @@ function generateEventEncounter(biome: Biome, runLevel: number, rand: () => numb
       outcomes: [
         { type: 'stat_boost', weight: 3, description: 'The altar grants you strength!', statBoost: { stat: 'def', amount: 8 } },
         { type: 'gold_cost', weight: 2, description: 'The altar demands an offering.', goldAmount: -(20 + runLevel * 10) },
-        { type: 'champion_recruit', weight: 1, description: 'A champion appears from the altar!', championId: RECRUITABLE_CHAMPIONS[Math.floor(rand() * RECRUITABLE_CHAMPIONS.length)] },
+        { type: 'champion_recruit', weight: 1, description: 'A champion appears from the altar!', championId: implementedChampions[Math.floor(rand() * implementedChampions.length)].id },
       ],
     },
     {
@@ -143,10 +136,11 @@ function generateEventEncounter(biome: Biome, runLevel: number, rand: () => numb
 }
 
 function generateRecruitEncounter(biome: Biome, runLevel: number, rand: () => number): RecruitEncounter {
-  const championId = RECRUITABLE_CHAMPIONS[Math.floor(rand() * RECRUITABLE_CHAMPIONS.length)];
-  const cost = Math.round(100 + runLevel * 40 + rand() * 80);
-  const successChance = 0.6 + rand() * 0.3;
-  const statMultiplier = 0.8 + rand() * 0.4;
+  const recruit = generateWildRecruit(biome, runLevel, [], rand);
+  const championId = recruit?.championId ?? 'Garen';
+  const cost = recruit?.cost ?? Math.round(100 + runLevel * 40);
+  const successChance = recruit?.successChance ?? 0.75;
+  const statMultiplier = recruit?.statMultiplier ?? 1.0;
 
   return {
     id: `recruit_${biome}_${championId}_${Math.floor(rand() * 10000)}`,
@@ -156,8 +150,8 @@ function generateRecruitEncounter(biome: Biome, runLevel: number, rand: () => nu
     minRunLevel: 1,
     championId,
     cost,
-    successChance: Math.round(successChance * 100) / 100,
-    statMultiplier: Math.round(statMultiplier * 100) / 100,
+    successChance,
+    statMultiplier,
   };
 }
 
