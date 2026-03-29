@@ -1,0 +1,6840 @@
+[
+  {
+    "id": "Aatrox",
+    "key": "266",
+    "name": "Aatrox",
+    "title": "Épée des Darkin",
+    "tags": [
+      "Fighter"
+    ],
+    "resourceType": "Puits de sang",
+    "stats": {
+      "hp": 650,
+      "mp": 0,
+      "moveSpeed": 345,
+      "armor": 38,
+      "magicResist": 32,
+      "attackDamage": 60,
+      "attackSpeed": 0.651,
+      "attackRange": 175,
+      "hpPerLevel": 114,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.8,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 3,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Aatrox.png"
+  },
+  {
+    "id": "Ahri",
+    "key": "103",
+    "name": "Ahri",
+    "title": "Renarde à neuf queues",
+    "tags": [
+      "Mage",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 590,
+      "mp": 418,
+      "moveSpeed": 330,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 53,
+      "attackSpeed": 0.668,
+      "attackRange": 550,
+      "hpPerLevel": 104,
+      "mpPerLevel": 25,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.2,
+      "hpRegen": 2.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ahri.png"
+  },
+  {
+    "id": "Akali",
+    "key": "84",
+    "name": "Akali",
+    "title": "Assassine rebelle",
+    "tags": [
+      "Assassin"
+    ],
+    "resourceType": "Énergie",
+    "stats": {
+      "hp": 600,
+      "mp": 200,
+      "moveSpeed": 345,
+      "armor": 23,
+      "magicResist": 37,
+      "attackDamage": 62,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 119,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.2,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 50,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Akali.png"
+  },
+  {
+    "id": "Akshan",
+    "key": "166",
+    "name": "Akshan",
+    "title": "Sentinelle rebelle",
+    "tags": [
+      "Marksman",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 350,
+      "moveSpeed": 330,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 52,
+      "attackSpeed": 0.638,
+      "attackRange": 500,
+      "hpPerLevel": 107,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 4,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 8.2,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Akshan.png"
+  },
+  {
+    "id": "Alistar",
+    "key": "12",
+    "name": "Alistar",
+    "title": "Minotaure",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 685,
+      "mp": 350,
+      "moveSpeed": 330,
+      "armor": 40,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 120,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.125,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.85,
+      "mpRegen": 8.5,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Alistar.png"
+  },
+  {
+    "id": "Ambessa",
+    "key": "799",
+    "name": "Ambessa",
+    "title": "Matriarche de guerre",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Énergie",
+    "stats": {
+      "hp": 630,
+      "mp": 200,
+      "moveSpeed": 335,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 110,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.9,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 50,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ambessa.png"
+  },
+  {
+    "id": "Amumu",
+    "key": "32",
+    "name": "Amumu",
+    "title": "Momie mélancolique",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 685,
+      "mp": 285,
+      "moveSpeed": 335,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 57,
+      "attackSpeed": 0.736,
+      "attackRange": 125,
+      "hpPerLevel": 94,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.18,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.85,
+      "mpRegen": 7.4,
+      "mpRegenPerLevel": 0.55,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Amumu.png"
+  },
+  {
+    "id": "Anivia",
+    "key": "34",
+    "name": "Anivia",
+    "title": "Cryophénix",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 550,
+      "mp": 495,
+      "moveSpeed": 325,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 51,
+      "attackSpeed": 0.658,
+      "attackRange": 600,
+      "hpPerLevel": 92,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.68,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Anivia.png"
+  },
+  {
+    "id": "Annie",
+    "key": "1",
+    "name": "Annie",
+    "title": "Enfant des ténèbres",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 560,
+      "mp": 418,
+      "moveSpeed": 335,
+      "armor": 23,
+      "magicResist": 30,
+      "attackDamage": 50,
+      "attackSpeed": 0.61,
+      "attackRange": 625,
+      "hpPerLevel": 96,
+      "mpPerLevel": 25,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.36,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Annie.png"
+  },
+  {
+    "id": "Aphelios",
+    "key": "523",
+    "name": "Aphelios",
+    "title": "Arme des Lunaris",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 348,
+      "moveSpeed": 325,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.665,
+      "attackRange": 550,
+      "hpPerLevel": 102,
+      "mpPerLevel": 42,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.1,
+      "hpRegen": 3.25,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 6.5,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Aphelios.png"
+  },
+  {
+    "id": "Ashe",
+    "key": "22",
+    "name": "Ashe",
+    "title": "Archère de givre",
+    "tags": [
+      "Marksman",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 280,
+      "moveSpeed": 325,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 59,
+      "attackSpeed": 0.658,
+      "attackRange": 600,
+      "hpPerLevel": 101,
+      "mpPerLevel": 35,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 3.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.65,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ashe.png"
+  },
+  {
+    "id": "AurelionSol",
+    "key": "136",
+    "name": "Aurelion Sol",
+    "title": "Forgeur d'étoiles",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 530,
+      "moveSpeed": 340,
+      "armor": 22,
+      "magicResist": 30,
+      "attackDamage": 58,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 90,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.5,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/AurelionSol.png"
+  },
+  {
+    "id": "Aurora",
+    "key": "893",
+    "name": "Aurora",
+    "title": "Sorcière d'entre les mondes",
+    "tags": [
+      "Mage",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 607,
+      "mp": 475,
+      "moveSpeed": 335,
+      "armor": 23,
+      "magicResist": 32,
+      "attackDamage": 53,
+      "attackSpeed": 0.668,
+      "attackRange": 550,
+      "hpPerLevel": 110,
+      "mpPerLevel": 30,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Aurora.png"
+  },
+  {
+    "id": "Azir",
+    "key": "268",
+    "name": "Azir",
+    "title": "Empereur des sables",
+    "tags": [
+      "Mage",
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 575,
+      "mp": 320,
+      "moveSpeed": 330,
+      "armor": 25,
+      "magicResist": 30,
+      "attackDamage": 56,
+      "attackSpeed": 0.625,
+      "attackRange": 525,
+      "hpPerLevel": 108,
+      "mpPerLevel": 40,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 5,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Azir.png"
+  },
+  {
+    "id": "Bard",
+    "key": "432",
+    "name": "Bard",
+    "title": "Gardien errant",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 350,
+      "moveSpeed": 335,
+      "armor": 34,
+      "magicResist": 30,
+      "attackDamage": 52,
+      "attackSpeed": 0.658,
+      "attackRange": 500,
+      "hpPerLevel": 103,
+      "mpPerLevel": 50,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Bard.png"
+  },
+  {
+    "id": "Belveth",
+    "key": "200",
+    "name": "Bel'Veth",
+    "title": "Impératrice du Néant",
+    "tags": [
+      "Fighter"
+    ],
+    "resourceType": "None",
+    "stats": {
+      "hp": 610,
+      "mp": 60,
+      "moveSpeed": 340,
+      "armor": 32,
+      "magicResist": 32,
+      "attackDamage": 60,
+      "attackSpeed": 0.85,
+      "attackRange": 150,
+      "hpPerLevel": 105,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 0,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Belveth.png"
+  },
+  {
+    "id": "Blitzcrank",
+    "key": "53",
+    "name": "Blitzcrank",
+    "title": "Golem de vapeur",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 267,
+      "moveSpeed": 325,
+      "armor": 37,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 109,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.13,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 8.5,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Blitzcrank.png"
+  },
+  {
+    "id": "Brand",
+    "key": "63",
+    "name": "Brand",
+    "title": "Vengeur flamboyant",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 570,
+      "mp": 469,
+      "moveSpeed": 340,
+      "armor": 27,
+      "magicResist": 30,
+      "attackDamage": 57,
+      "attackSpeed": 0.681,
+      "attackRange": 550,
+      "hpPerLevel": 105,
+      "mpPerLevel": 21,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 9,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Brand.png"
+  },
+  {
+    "id": "Braum",
+    "key": "201",
+    "name": "Braum",
+    "title": "Cœur de Freljord",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 311,
+      "moveSpeed": 335,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 55,
+      "attackSpeed": 0.644,
+      "attackRange": 125,
+      "hpPerLevel": 112,
+      "mpPerLevel": 45,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 1,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Braum.png"
+  },
+  {
+    "id": "Briar",
+    "key": "233",
+    "name": "Briar",
+    "title": "Faim insatiable",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Fureur",
+    "stats": {
+      "hp": 625,
+      "mp": 0,
+      "moveSpeed": 340,
+      "armor": 30,
+      "magicResist": 32,
+      "attackDamage": 60,
+      "attackSpeed": 0.644,
+      "attackRange": 125,
+      "hpPerLevel": 100,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 0,
+      "hpRegenPerLevel": 0,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Briar.png"
+  },
+  {
+    "id": "Caitlyn",
+    "key": "51",
+    "name": "Caitlyn",
+    "title": "Shérif de Piltover",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 580,
+      "mp": 315,
+      "moveSpeed": 325,
+      "armor": 27,
+      "magicResist": 30,
+      "attackDamage": 62,
+      "attackSpeed": 0.681,
+      "attackRange": 650,
+      "hpPerLevel": 107,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 4,
+      "hpRegen": 3.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7.4,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Caitlyn.png"
+  },
+  {
+    "id": "Camille",
+    "key": "164",
+    "name": "Camille",
+    "title": "Ombre d'acier",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 339,
+      "moveSpeed": 340,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 68,
+      "attackSpeed": 0.644,
+      "attackRange": 125,
+      "hpPerLevel": 99,
+      "mpPerLevel": 52,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 8.15,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Camille.png"
+  },
+  {
+    "id": "Cassiopeia",
+    "key": "69",
+    "name": "Cassiopeia",
+    "title": "Étreinte du serpent",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 450,
+      "moveSpeed": 335,
+      "armor": 18,
+      "magicResist": 32,
+      "attackDamage": 53,
+      "attackSpeed": 0.647,
+      "attackRange": 550,
+      "hpPerLevel": 104,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.5,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Cassiopeia.png"
+  },
+  {
+    "id": "Chogath",
+    "key": "31",
+    "name": "Cho'Gath",
+    "title": "Terreur noire",
+    "tags": [
+      "Tank",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 644,
+      "mp": 270,
+      "moveSpeed": 345,
+      "armor": 38,
+      "magicResist": 32,
+      "attackDamage": 69,
+      "attackSpeed": 0.658,
+      "attackRange": 125,
+      "hpPerLevel": 94,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.44,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.85,
+      "mpRegen": 7.2,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Chogath.png"
+  },
+  {
+    "id": "Corki",
+    "key": "42",
+    "name": "Corki",
+    "title": "Artilleur téméraire",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 350,
+      "moveSpeed": 325,
+      "armor": 27,
+      "magicResist": 30,
+      "attackDamage": 52,
+      "attackSpeed": 0.644,
+      "attackRange": 550,
+      "hpPerLevel": 100,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.8,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7.4,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Corki.png"
+  },
+  {
+    "id": "Darius",
+    "key": "122",
+    "name": "Darius",
+    "title": "Main de Noxus",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 652,
+      "mp": 263,
+      "moveSpeed": 340,
+      "armor": 37,
+      "magicResist": 32,
+      "attackDamage": 64,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 114,
+      "mpPerLevel": 58,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1,
+      "hpRegen": 10,
+      "hpRegenPerLevel": 0.95,
+      "mpRegen": 6.6,
+      "mpRegenPerLevel": 0.35,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Darius.png"
+  },
+  {
+    "id": "Diana",
+    "key": "131",
+    "name": "Diana",
+    "title": "Mépris de la lune",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 375,
+      "moveSpeed": 345,
+      "armor": 31,
+      "magicResist": 32,
+      "attackDamage": 57,
+      "attackSpeed": 0.625,
+      "attackRange": 150,
+      "hpPerLevel": 109,
+      "mpPerLevel": 25,
+      "armorPerLevel": 4.3,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.85,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Diana.png"
+  },
+  {
+    "id": "DrMundo",
+    "key": "36",
+    "name": "Dr. Mundo",
+    "title": "Dément de Zaun",
+    "tags": [
+      "Tank",
+      "Fighter"
+    ],
+    "resourceType": "Aucune",
+    "stats": {
+      "hp": 640,
+      "mp": 0,
+      "moveSpeed": 345,
+      "armor": 32,
+      "magicResist": 29,
+      "attackDamage": 61,
+      "attackSpeed": 0.67,
+      "attackRange": 125,
+      "hpPerLevel": 103,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.3,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/DrMundo.png"
+  },
+  {
+    "id": "Draven",
+    "key": "119",
+    "name": "Draven",
+    "title": "Glorieux exécuteur",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 675,
+      "mp": 361,
+      "moveSpeed": 330,
+      "armor": 29,
+      "magicResist": 30,
+      "attackDamage": 62,
+      "attackSpeed": 0.679,
+      "attackRange": 550,
+      "hpPerLevel": 104,
+      "mpPerLevel": 39,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.7,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 8.05,
+      "mpRegenPerLevel": 0.65,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Draven.png"
+  },
+  {
+    "id": "Ekko",
+    "key": "245",
+    "name": "Ekko",
+    "title": "Fractureur du temps",
+    "tags": [
+      "Assassin",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 655,
+      "mp": 280,
+      "moveSpeed": 340,
+      "armor": 32,
+      "magicResist": 32,
+      "attackDamage": 58,
+      "attackSpeed": 0.688,
+      "attackRange": 125,
+      "hpPerLevel": 99,
+      "mpPerLevel": 70,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.3,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ekko.png"
+  },
+  {
+    "id": "Elise",
+    "key": "60",
+    "name": "Elise",
+    "title": "Reine araignée",
+    "tags": [
+      "Assassin",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 324,
+      "moveSpeed": 330,
+      "armor": 30,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 109,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.75,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Elise.png"
+  },
+  {
+    "id": "Evelynn",
+    "key": "28",
+    "name": "Evelynn",
+    "title": "Démon sadique",
+    "tags": [
+      "Assassin",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 642,
+      "mp": 315,
+      "moveSpeed": 335,
+      "armor": 37,
+      "magicResist": 32,
+      "attackDamage": 61,
+      "attackSpeed": 0.667,
+      "attackRange": 125,
+      "hpPerLevel": 98,
+      "mpPerLevel": 42,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.1,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 8.11,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Evelynn.png"
+  },
+  {
+    "id": "Ezreal",
+    "key": "81",
+    "name": "Ezreal",
+    "title": "Explorateur prodigue",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 375,
+      "moveSpeed": 325,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 60,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 102,
+      "mpPerLevel": 70,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 4,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 8.5,
+      "mpRegenPerLevel": 1,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ezreal.png"
+  },
+  {
+    "id": "Fiddlesticks",
+    "key": "9",
+    "name": "Fiddlesticks",
+    "title": "Effroi nocturne",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 500,
+      "moveSpeed": 335,
+      "armor": 34,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.625,
+      "attackRange": 480,
+      "hpPerLevel": 106,
+      "mpPerLevel": 28,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.11,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Fiddlesticks.png"
+  },
+  {
+    "id": "Fiora",
+    "key": "114",
+    "name": "Fiora",
+    "title": "Sublime bretteuse",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 300,
+      "moveSpeed": 345,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 66,
+      "attackSpeed": 0.69,
+      "attackRange": 150,
+      "hpPerLevel": 99,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.2,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Fiora.png"
+  },
+  {
+    "id": "Fizz",
+    "key": "105",
+    "name": "Fizz",
+    "title": "Filou des mers",
+    "tags": [
+      "Assassin",
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 317,
+      "moveSpeed": 335,
+      "armor": 26,
+      "magicResist": 32,
+      "attackDamage": 58,
+      "attackSpeed": 0.658,
+      "attackRange": 175,
+      "hpPerLevel": 106,
+      "mpPerLevel": 52,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.1,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Fizz.png"
+  },
+  {
+    "id": "Galio",
+    "key": "3",
+    "name": "Galio",
+    "title": "Colosse",
+    "tags": [
+      "Tank",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 410,
+      "moveSpeed": 340,
+      "armor": 24,
+      "magicResist": 32,
+      "attackDamage": 59,
+      "attackSpeed": 0.625,
+      "attackRange": 150,
+      "hpPerLevel": 126,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.5,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 9.5,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Galio.png"
+  },
+  {
+    "id": "Gangplank",
+    "key": "41",
+    "name": "Gangplank",
+    "title": "Fléau des mers",
+    "tags": [
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 280,
+      "moveSpeed": 345,
+      "armor": 31,
+      "magicResist": 32,
+      "attackDamage": 64,
+      "attackSpeed": 0.658,
+      "attackRange": 125,
+      "hpPerLevel": 114,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.2,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Gangplank.png"
+  },
+  {
+    "id": "Garen",
+    "key": "86",
+    "name": "Garen",
+    "title": "Force de Demacia",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Aucune",
+    "stats": {
+      "hp": 690,
+      "mp": 0,
+      "moveSpeed": 340,
+      "armor": 38,
+      "magicResist": 32,
+      "attackDamage": 69,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 98,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.55,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.65,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Garen.png"
+  },
+  {
+    "id": "Gnar",
+    "key": "150",
+    "name": "Gnar",
+    "title": "Chaînon manquant",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Rage",
+    "stats": {
+      "hp": 540,
+      "mp": 100,
+      "moveSpeed": 335,
+      "armor": 32,
+      "magicResist": 30,
+      "attackDamage": 60,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 79,
+      "mpPerLevel": 0,
+      "armorPerLevel": 3.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 6,
+      "hpRegen": 4.5,
+      "hpRegenPerLevel": 1.25,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Gnar.png"
+  },
+  {
+    "id": "Gragas",
+    "key": "79",
+    "name": "Gragas",
+    "title": "Agitateur",
+    "tags": [
+      "Fighter",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 400,
+      "moveSpeed": 330,
+      "armor": 38,
+      "magicResist": 32,
+      "attackDamage": 64,
+      "attackSpeed": 0.675,
+      "attackRange": 125,
+      "hpPerLevel": 115,
+      "mpPerLevel": 47,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.05,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Gragas.png"
+  },
+  {
+    "id": "Graves",
+    "key": "104",
+    "name": "Graves",
+    "title": "Hors-la-loi",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 625,
+      "mp": 325,
+      "moveSpeed": 340,
+      "armor": 33,
+      "magicResist": 30,
+      "attackDamage": 68,
+      "attackSpeed": 0.475,
+      "attackRange": 425,
+      "hpPerLevel": 106,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Graves.png"
+  },
+  {
+    "id": "Gwen",
+    "key": "887",
+    "name": "Gwen",
+    "title": "Couturière sacrée",
+    "tags": [
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 330,
+      "moveSpeed": 340,
+      "armor": 39,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.69,
+      "attackRange": 150,
+      "hpPerLevel": 115,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.9,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.25,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Gwen.png"
+  },
+  {
+    "id": "Hecarim",
+    "key": "120",
+    "name": "Hecarim",
+    "title": "Ombre de la guerre",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 625,
+      "mp": 280,
+      "moveSpeed": 345,
+      "armor": 32,
+      "magicResist": 32,
+      "attackDamage": 66,
+      "attackSpeed": 0.67,
+      "attackRange": 175,
+      "hpPerLevel": 106,
+      "mpPerLevel": 40,
+      "armorPerLevel": 5.45,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Hecarim.png"
+  },
+  {
+    "id": "Heimerdinger",
+    "key": "74",
+    "name": "Heimerdinger",
+    "title": "Inventeur réputé",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 558,
+      "mp": 385,
+      "moveSpeed": 340,
+      "armor": 19,
+      "magicResist": 30,
+      "attackDamage": 56,
+      "attackSpeed": 0.658,
+      "attackRange": 550,
+      "hpPerLevel": 105,
+      "mpPerLevel": 20,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.36,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Heimerdinger.png"
+  },
+  {
+    "id": "Hwei",
+    "key": "910",
+    "name": "Hwei",
+    "title": "Visionnaire",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 580,
+      "mp": 480,
+      "moveSpeed": 330,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 54,
+      "attackSpeed": 0.69,
+      "attackRange": 550,
+      "hpPerLevel": 109,
+      "mpPerLevel": 30,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Hwei.png"
+  },
+  {
+    "id": "Illaoi",
+    "key": "420",
+    "name": "Illaoi",
+    "title": "Prêtresse du kraken",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 656,
+      "mp": 350,
+      "moveSpeed": 350,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 65,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 115,
+      "mpPerLevel": 50,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 9.5,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Illaoi.png"
+  },
+  {
+    "id": "Irelia",
+    "key": "39",
+    "name": "Irelia",
+    "title": "Danseuse des lames",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 350,
+      "moveSpeed": 335,
+      "armor": 36,
+      "magicResist": 30,
+      "attackDamage": 65,
+      "attackSpeed": 0.656,
+      "attackRange": 200,
+      "hpPerLevel": 115,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 3.5,
+      "hpRegenPerLevel": 0.85,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Irelia.png"
+  },
+  {
+    "id": "Ivern",
+    "key": "427",
+    "name": "Ivern",
+    "title": "Aîné de la forêt",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 450,
+      "moveSpeed": 330,
+      "armor": 27,
+      "magicResist": 30,
+      "attackDamage": 50,
+      "attackSpeed": 0.644,
+      "attackRange": 475,
+      "hpPerLevel": 99,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.4,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.85,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ivern.png"
+  },
+  {
+    "id": "Janna",
+    "key": "40",
+    "name": "Janna",
+    "title": "Avatar de l'air",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 570,
+      "mp": 360,
+      "moveSpeed": 325,
+      "armor": 28,
+      "magicResist": 30,
+      "attackDamage": 47,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 90,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Janna.png"
+  },
+  {
+    "id": "JarvanIV",
+    "key": "59",
+    "name": "Jarvan IV",
+    "title": "Exemple demacien",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 300,
+      "moveSpeed": 340,
+      "armor": 36,
+      "magicResist": 32,
+      "attackDamage": 64,
+      "attackSpeed": 0.658,
+      "attackRange": 175,
+      "hpPerLevel": 104,
+      "mpPerLevel": 55,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 6.5,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/JarvanIV.png"
+  },
+  {
+    "id": "Jax",
+    "key": "24",
+    "name": "Jax",
+    "title": "Maître d'armes",
+    "tags": [
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 339,
+      "moveSpeed": 350,
+      "armor": 36,
+      "magicResist": 32,
+      "attackDamage": 68,
+      "attackSpeed": 0.638,
+      "attackRange": 125,
+      "hpPerLevel": 103,
+      "mpPerLevel": 52,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.4,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8.2,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Jax.png"
+  },
+  {
+    "id": "Jayce",
+    "key": "126",
+    "name": "Jayce",
+    "title": "Protecteur du futur",
+    "tags": [
+      "Fighter",
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 590,
+      "mp": 375,
+      "moveSpeed": 335,
+      "armor": 22,
+      "magicResist": 30,
+      "attackDamage": 59,
+      "attackSpeed": 0.658,
+      "attackRange": 125,
+      "hpPerLevel": 109,
+      "mpPerLevel": 45,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Jayce.png"
+  },
+  {
+    "id": "Jhin",
+    "key": "202",
+    "name": "Jhin",
+    "title": "Virtuose",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 655,
+      "mp": 300,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 61,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 107,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 0,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Jhin.png"
+  },
+  {
+    "id": "Jinx",
+    "key": "222",
+    "name": "Jinx",
+    "title": "Gâchette folle",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 260,
+      "moveSpeed": 325,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 59,
+      "attackSpeed": 0.625,
+      "attackRange": 525,
+      "hpPerLevel": 105,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 6.7,
+      "mpRegenPerLevel": 1,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Jinx.png"
+  },
+  {
+    "id": "KSante",
+    "key": "897",
+    "name": "K'Santé",
+    "title": "Fierté de Nazumah",
+    "tags": [
+      "Tank",
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 625,
+      "mp": 320,
+      "moveSpeed": 330,
+      "armor": 36,
+      "magicResist": 30,
+      "attackDamage": 64,
+      "attackSpeed": 0.688,
+      "attackRange": 150,
+      "hpPerLevel": 120,
+      "mpPerLevel": 60,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 2.1,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 9.5,
+      "hpRegenPerLevel": 1,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 1,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/KSante.png"
+  },
+  {
+    "id": "Kaisa",
+    "key": "145",
+    "name": "Kai'Sa",
+    "title": "Fille du Néant",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 345,
+      "moveSpeed": 335,
+      "armor": 25,
+      "magicResist": 30,
+      "attackDamage": 59,
+      "attackSpeed": 0.644,
+      "attackRange": 525,
+      "hpPerLevel": 102,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.8,
+      "hpRegen": 4,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8.2,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Kaisa.png"
+  },
+  {
+    "id": "Kalista",
+    "key": "429",
+    "name": "Kalista",
+    "title": "Lance de la vengeance",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 560,
+      "mp": 300,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 57,
+      "attackSpeed": 0.694,
+      "attackRange": 525,
+      "hpPerLevel": 114,
+      "mpPerLevel": 45,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 4.5,
+      "hpRegen": 4,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 6.3,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Kalista.png"
+  },
+  {
+    "id": "Karma",
+    "key": "43",
+    "name": "Karma",
+    "title": "Sagesse incarnée",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 374,
+      "moveSpeed": 335,
+      "armor": 28,
+      "magicResist": 30,
+      "attackDamage": 51,
+      "attackSpeed": 0.625,
+      "attackRange": 525,
+      "hpPerLevel": 109,
+      "mpPerLevel": 40,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.3,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 13,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Karma.png"
+  },
+  {
+    "id": "Karthus",
+    "key": "30",
+    "name": "Karthus",
+    "title": "Liche",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 467,
+      "moveSpeed": 335,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 46,
+      "attackSpeed": 0.625,
+      "attackRange": 450,
+      "hpPerLevel": 110,
+      "mpPerLevel": 31,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.11,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Karthus.png"
+  },
+  {
+    "id": "Kassadin",
+    "key": "38",
+    "name": "Kassadin",
+    "title": "Chasseur du Néant",
+    "tags": [
+      "Assassin",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 646,
+      "mp": 400,
+      "moveSpeed": 335,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 59,
+      "attackSpeed": 0.64,
+      "attackRange": 150,
+      "hpPerLevel": 113,
+      "mpPerLevel": 87,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.7,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Kassadin.png"
+  },
+  {
+    "id": "Katarina",
+    "key": "55",
+    "name": "Katarina",
+    "title": "Lame sinistre",
+    "tags": [
+      "Assassin",
+      "Mage"
+    ],
+    "resourceType": "Aucune",
+    "stats": {
+      "hp": 672,
+      "mp": 0,
+      "moveSpeed": 335,
+      "armor": 32,
+      "magicResist": 32,
+      "attackDamage": 58,
+      "attackSpeed": 0.658,
+      "attackRange": 125,
+      "hpPerLevel": 108,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.74,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Katarina.png"
+  },
+  {
+    "id": "Kayle",
+    "key": "10",
+    "name": "Kayle",
+    "title": "Vertueuse",
+    "tags": [
+      "Mage",
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 670,
+      "mp": 330,
+      "moveSpeed": 335,
+      "armor": 26,
+      "magicResist": 22,
+      "attackDamage": 50,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 92,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.5,
+      "hpRegen": 5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Kayle.png"
+  },
+  {
+    "id": "Kayn",
+    "key": "141",
+    "name": "Kayn",
+    "title": "Faucheur de l'ombre",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 655,
+      "mp": 410,
+      "moveSpeed": 340,
+      "armor": 38,
+      "magicResist": 32,
+      "attackDamage": 68,
+      "attackSpeed": 0.669,
+      "attackRange": 175,
+      "hpPerLevel": 103,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.7,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.95,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Kayn.png"
+  },
+  {
+    "id": "Kennen",
+    "key": "85",
+    "name": "Kennen",
+    "title": "Cœur de la tempête",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Énergie",
+    "stats": {
+      "hp": 580,
+      "mp": 200,
+      "moveSpeed": 335,
+      "armor": 29,
+      "magicResist": 30,
+      "attackDamage": 48,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 98,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.95,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.4,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 50,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Kennen.png"
+  },
+  {
+    "id": "Khazix",
+    "key": "121",
+    "name": "Kha'Zix",
+    "title": "Faucheur du Néant",
+    "tags": [
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 643,
+      "mp": 327,
+      "moveSpeed": 345,
+      "armor": 32,
+      "magicResist": 32,
+      "attackDamage": 60,
+      "attackSpeed": 0.668,
+      "attackRange": 125,
+      "hpPerLevel": 99,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.7,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7.59,
+      "mpRegenPerLevel": 0.5,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Khazix.png"
+  },
+  {
+    "id": "Kindred",
+    "key": "203",
+    "name": "Kindred",
+    "title": "Chasseurs éternels",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 595,
+      "mp": 300,
+      "moveSpeed": 325,
+      "armor": 29,
+      "magicResist": 30,
+      "attackDamage": 65,
+      "attackSpeed": 0.625,
+      "attackRange": 500,
+      "hpPerLevel": 104,
+      "mpPerLevel": 35,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Kindred.png"
+  },
+  {
+    "id": "Kled",
+    "key": "240",
+    "name": "Kled",
+    "title": "Cavalier colérique",
+    "tags": [
+      "Fighter"
+    ],
+    "resourceType": "Courage",
+    "stats": {
+      "hp": 410,
+      "mp": 100,
+      "moveSpeed": 345,
+      "armor": 35,
+      "magicResist": 28,
+      "attackDamage": 65,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 84,
+      "mpPerLevel": 0,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Kled.png"
+  },
+  {
+    "id": "KogMaw",
+    "key": "96",
+    "name": "Kog'Maw",
+    "title": "Gueule des abysses",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 635,
+      "mp": 325,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 61,
+      "attackSpeed": 0.665,
+      "attackRange": 500,
+      "hpPerLevel": 99,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.45,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.65,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8.75,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/KogMaw.png"
+  },
+  {
+    "id": "Leblanc",
+    "key": "7",
+    "name": "LeBlanc",
+    "title": "Manipulatrice",
+    "tags": [
+      "Assassin",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 598,
+      "mp": 400,
+      "moveSpeed": 340,
+      "armor": 22,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.658,
+      "attackRange": 525,
+      "hpPerLevel": 108,
+      "mpPerLevel": 25,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.35,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Leblanc.png"
+  },
+  {
+    "id": "LeeSin",
+    "key": "64",
+    "name": "Lee Sin",
+    "title": "Moine aveugle",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Énergie",
+    "stats": {
+      "hp": 645,
+      "mp": 200,
+      "moveSpeed": 345,
+      "armor": 36,
+      "magicResist": 32,
+      "attackDamage": 66,
+      "attackSpeed": 0.651,
+      "attackRange": 125,
+      "hpPerLevel": 108,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 50,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/LeeSin.png"
+  },
+  {
+    "id": "Leona",
+    "key": "89",
+    "name": "Leona",
+    "title": "Aube radieuse",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 646,
+      "mp": 302,
+      "moveSpeed": 335,
+      "armor": 43,
+      "magicResist": 32,
+      "attackDamage": 60,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 101,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.8,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.9,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.85,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Leona.png"
+  },
+  {
+    "id": "Lillia",
+    "key": "876",
+    "name": "Lillia",
+    "title": "Fleur timide",
+    "tags": [
+      "Fighter",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 605,
+      "mp": 410,
+      "moveSpeed": 330,
+      "armor": 22,
+      "magicResist": 32,
+      "attackDamage": 61,
+      "attackSpeed": 0.625,
+      "attackRange": 325,
+      "hpPerLevel": 105,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 1.55,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.7,
+      "hpRegen": 2.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.95,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Lillia.png"
+  },
+  {
+    "id": "Lissandra",
+    "key": "127",
+    "name": "Lissandra",
+    "title": "Sorcière de glace",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 475,
+      "moveSpeed": 325,
+      "armor": 22,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.656,
+      "attackRange": 550,
+      "hpPerLevel": 110,
+      "mpPerLevel": 30,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.5,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Lissandra.png"
+  },
+  {
+    "id": "Lucian",
+    "key": "236",
+    "name": "Lucian",
+    "title": "Purificateur",
+    "tags": [
+      "Marksman",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 641,
+      "mp": 320,
+      "moveSpeed": 335,
+      "armor": 28,
+      "magicResist": 30,
+      "attackDamage": 60,
+      "attackSpeed": 0.638,
+      "attackRange": 500,
+      "hpPerLevel": 100,
+      "mpPerLevel": 43,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Lucian.png"
+  },
+  {
+    "id": "Lulu",
+    "key": "117",
+    "name": "Lulu",
+    "title": "Sorcière féérique",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 565,
+      "mp": 350,
+      "moveSpeed": 330,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 47,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 92,
+      "mpPerLevel": 55,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.25,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 11,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Lulu.png"
+  },
+  {
+    "id": "Lux",
+    "key": "99",
+    "name": "Lux",
+    "title": "Dame de lumière",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 580,
+      "mp": 440,
+      "moveSpeed": 330,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 54,
+      "attackSpeed": 0.669,
+      "attackRange": 550,
+      "hpPerLevel": 99,
+      "mpPerLevel": 23.5,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 9,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Lux.png"
+  },
+  {
+    "id": "MasterYi",
+    "key": "11",
+    "name": "Maître Yi",
+    "title": "Fine lame Wuju",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 251,
+      "moveSpeed": 355,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 65,
+      "attackSpeed": 0.679,
+      "attackRange": 175,
+      "hpPerLevel": 105,
+      "mpPerLevel": 42,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 7.25,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/MasterYi.png"
+  },
+  {
+    "id": "Malphite",
+    "key": "54",
+    "name": "Malphite",
+    "title": "Éclat du monolithe",
+    "tags": [
+      "Tank",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 665,
+      "mp": 280,
+      "moveSpeed": 335,
+      "armor": 40,
+      "magicResist": 28,
+      "attackDamage": 62,
+      "attackSpeed": 0.736,
+      "attackRange": 125,
+      "hpPerLevel": 104,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.95,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.4,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7.3,
+      "mpRegenPerLevel": 0.55,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Malphite.png"
+  },
+  {
+    "id": "Malzahar",
+    "key": "90",
+    "name": "Malzahar",
+    "title": "Prophète du Néant",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 580,
+      "mp": 375,
+      "moveSpeed": 335,
+      "armor": 18,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.625,
+      "attackRange": 500,
+      "hpPerLevel": 101,
+      "mpPerLevel": 28,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.5,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Malzahar.png"
+  },
+  {
+    "id": "Maokai",
+    "key": "57",
+    "name": "Maokai",
+    "title": "Tréant torturé",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 665,
+      "mp": 375,
+      "moveSpeed": 335,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 64,
+      "attackSpeed": 0.8,
+      "attackRange": 125,
+      "hpPerLevel": 109,
+      "mpPerLevel": 43,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.125,
+      "hpRegen": 5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Maokai.png"
+  },
+  {
+    "id": "Mel",
+    "key": "800",
+    "name": "Mel",
+    "title": "Reflet de l'âme",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 480,
+      "moveSpeed": 330,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 54,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 99,
+      "mpPerLevel": 28,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 9,
+      "mpRegenPerLevel": 0.9,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Mel.png"
+  },
+  {
+    "id": "Milio",
+    "key": "902",
+    "name": "Milio",
+    "title": "Douce flamme",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 560,
+      "mp": 365,
+      "moveSpeed": 330,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 48,
+      "attackSpeed": 0.625,
+      "attackRange": 525,
+      "hpPerLevel": 88,
+      "mpPerLevel": 43,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Milio.png"
+  },
+  {
+    "id": "MissFortune",
+    "key": "21",
+    "name": "Miss Fortune",
+    "title": "Chasseuse de primes",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 625,
+      "mp": 300,
+      "moveSpeed": 325,
+      "armor": 25,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.656,
+      "attackRange": 550,
+      "hpPerLevel": 100,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/MissFortune.png"
+  },
+  {
+    "id": "Mordekaiser",
+    "key": "82",
+    "name": "Mordekaiser",
+    "title": "Revenant de fer",
+    "tags": [
+      "Fighter",
+      "Mage"
+    ],
+    "resourceType": "Bouclier",
+    "stats": {
+      "hp": 645,
+      "mp": 100,
+      "moveSpeed": 335,
+      "armor": 37,
+      "magicResist": 32,
+      "attackDamage": 61,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 104,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1,
+      "hpRegen": 5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Mordekaiser.png"
+  },
+  {
+    "id": "Morgana",
+    "key": "25",
+    "name": "Morgana",
+    "title": "Déchue",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 340,
+      "moveSpeed": 335,
+      "armor": 25,
+      "magicResist": 30,
+      "attackDamage": 56,
+      "attackSpeed": 0.625,
+      "attackRange": 450,
+      "hpPerLevel": 104,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.53,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.4,
+      "mpRegen": 11,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Morgana.png"
+  },
+  {
+    "id": "Naafiri",
+    "key": "950",
+    "name": "Naafiri",
+    "title": "la meute de fer",
+    "tags": [
+      "Assassin",
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 400,
+      "moveSpeed": 340,
+      "armor": 28,
+      "magicResist": 32,
+      "attackDamage": 55,
+      "attackSpeed": 0.663,
+      "attackRange": 125,
+      "hpPerLevel": 105,
+      "mpPerLevel": 55,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.1,
+      "hpRegen": 6.25,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 1,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Naafiri.png"
+  },
+  {
+    "id": "Nami",
+    "key": "267",
+    "name": "Nami",
+    "title": "Aquamancienne",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 560,
+      "mp": 365,
+      "moveSpeed": 335,
+      "armor": 29,
+      "magicResist": 30,
+      "attackDamage": 54,
+      "attackSpeed": 0.644,
+      "attackRange": 550,
+      "hpPerLevel": 88,
+      "mpPerLevel": 43,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.61,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Nami.png"
+  },
+  {
+    "id": "Nasus",
+    "key": "75",
+    "name": "Nasus",
+    "title": "Gardien des sables",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 326,
+      "moveSpeed": 350,
+      "armor": 34,
+      "magicResist": 32,
+      "attackDamage": 67,
+      "attackSpeed": 0.638,
+      "attackRange": 125,
+      "hpPerLevel": 104,
+      "mpPerLevel": 62,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.48,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 7.45,
+      "mpRegenPerLevel": 0.5,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Nasus.png"
+  },
+  {
+    "id": "Nautilus",
+    "key": "111",
+    "name": "Nautilus",
+    "title": "Titan des profondeurs",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 646,
+      "mp": 400,
+      "moveSpeed": 325,
+      "armor": 39,
+      "magicResist": 32,
+      "attackDamage": 61,
+      "attackSpeed": 0.706,
+      "attackRange": 175,
+      "hpPerLevel": 100,
+      "mpPerLevel": 47,
+      "armorPerLevel": 4.95,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8.65,
+      "mpRegenPerLevel": 0.5,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Nautilus.png"
+  },
+  {
+    "id": "Neeko",
+    "key": "518",
+    "name": "Neeko",
+    "title": "Caméléon curieux",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 450,
+      "moveSpeed": 340,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 48,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 104,
+      "mpPerLevel": 30,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Neeko.png"
+  },
+  {
+    "id": "Nidalee",
+    "key": "76",
+    "name": "Nidalee",
+    "title": "Chasseresse bestiale",
+    "tags": [
+      "Assassin",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 295,
+      "moveSpeed": 335,
+      "armor": 32,
+      "magicResist": 30,
+      "attackDamage": 58,
+      "attackSpeed": 0.638,
+      "attackRange": 525,
+      "hpPerLevel": 109,
+      "mpPerLevel": 45,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 1.45,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.22,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Nidalee.png"
+  },
+  {
+    "id": "Nilah",
+    "key": "895",
+    "name": "Nilah",
+    "title": "Joie incarnée",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 570,
+      "mp": 350,
+      "moveSpeed": 340,
+      "armor": 27,
+      "magicResist": 32,
+      "attackDamage": 58,
+      "attackSpeed": 0.697,
+      "attackRange": 225,
+      "hpPerLevel": 101,
+      "mpPerLevel": 35,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.25,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 8.2,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Nilah.png"
+  },
+  {
+    "id": "Nocturne",
+    "key": "56",
+    "name": "Nocturne",
+    "title": "Éternel cauchemar",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 655,
+      "mp": 275,
+      "moveSpeed": 345,
+      "armor": 38,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.721,
+      "attackRange": 125,
+      "hpPerLevel": 109,
+      "mpPerLevel": 35,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.55,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.7,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Nocturne.png"
+  },
+  {
+    "id": "Nunu",
+    "key": "20",
+    "name": "Nunu et Willump",
+    "title": "Le Garçon et son yéti",
+    "tags": [
+      "Tank",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 280,
+      "moveSpeed": 345,
+      "armor": 29,
+      "magicResist": 32,
+      "attackDamage": 61,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 90,
+      "mpPerLevel": 42,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.25,
+      "hpRegen": 5,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.5,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Nunu.png"
+  },
+  {
+    "id": "Olaf",
+    "key": "2",
+    "name": "Olaf",
+    "title": "Berzerker",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 645,
+      "mp": 316,
+      "moveSpeed": 350,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 68,
+      "attackSpeed": 0.72,
+      "attackRange": 125,
+      "hpPerLevel": 119,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.7,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Olaf.png"
+  },
+  {
+    "id": "Orianna",
+    "key": "61",
+    "name": "Orianna",
+    "title": "Demoiselle mécanique",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 585,
+      "mp": 418,
+      "moveSpeed": 325,
+      "armor": 20,
+      "magicResist": 26,
+      "attackDamage": 44,
+      "attackSpeed": 0.658,
+      "attackRange": 525,
+      "hpPerLevel": 110,
+      "mpPerLevel": 25,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Orianna.png"
+  },
+  {
+    "id": "Ornn",
+    "key": "516",
+    "name": "Ornn",
+    "title": "Dieu de la forge volcanique",
+    "tags": [
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 660,
+      "mp": 341,
+      "moveSpeed": 335,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 69,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 109,
+      "mpPerLevel": 65,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ornn.png"
+  },
+  {
+    "id": "Pantheon",
+    "key": "80",
+    "name": "Pantheon",
+    "title": "Lance éternelle",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 317,
+      "moveSpeed": 345,
+      "armor": 40,
+      "magicResist": 28,
+      "attackDamage": 64,
+      "attackSpeed": 0.658,
+      "attackRange": 175,
+      "hpPerLevel": 109,
+      "mpPerLevel": 31,
+      "armorPerLevel": 4.95,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.95,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 7.35,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Pantheon.png"
+  },
+  {
+    "id": "Poppy",
+    "key": "78",
+    "name": "Poppy",
+    "title": "Gardienne du marteau",
+    "tags": [
+      "Tank",
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 280,
+      "moveSpeed": 345,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 60,
+      "attackSpeed": 0.658,
+      "attackRange": 125,
+      "hpPerLevel": 110,
+      "mpPerLevel": 40,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Poppy.png"
+  },
+  {
+    "id": "Pyke",
+    "key": "555",
+    "name": "Pyke",
+    "title": "Éventreur des abysses",
+    "tags": [
+      "Support",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 670,
+      "mp": 415,
+      "moveSpeed": 330,
+      "armor": 37,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.667,
+      "attackRange": 150,
+      "hpPerLevel": 110,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 1,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Pyke.png"
+  },
+  {
+    "id": "Qiyana",
+    "key": "246",
+    "name": "Qiyana",
+    "title": "Impératrice des éléments",
+    "tags": [
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 590,
+      "mp": 375,
+      "moveSpeed": 335,
+      "armor": 31,
+      "magicResist": 32,
+      "attackDamage": 64,
+      "attackSpeed": 0.688,
+      "attackRange": 150,
+      "hpPerLevel": 115,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.1,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Qiyana.png"
+  },
+  {
+    "id": "Quinn",
+    "key": "133",
+    "name": "Quinn",
+    "title": "Ailes de Demacia",
+    "tags": [
+      "Marksman",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 565,
+      "mp": 269,
+      "moveSpeed": 330,
+      "armor": 28,
+      "magicResist": 30,
+      "attackDamage": 59,
+      "attackSpeed": 0.668,
+      "attackRange": 525,
+      "hpPerLevel": 107,
+      "mpPerLevel": 35,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.1,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Quinn.png"
+  },
+  {
+    "id": "Rakan",
+    "key": "497",
+    "name": "Rakan",
+    "title": "Charmeur",
+    "tags": [
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 315,
+      "moveSpeed": 335,
+      "armor": 30,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.635,
+      "attackRange": 300,
+      "hpPerLevel": 99,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.9,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 8.75,
+      "mpRegenPerLevel": 0.5,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Rakan.png"
+  },
+  {
+    "id": "Rammus",
+    "key": "33",
+    "name": "Rammus",
+    "title": "Tatou blindé",
+    "tags": [
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 645,
+      "mp": 310,
+      "moveSpeed": 335,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 65,
+      "attackSpeed": 0.7,
+      "attackRange": 125,
+      "hpPerLevel": 100,
+      "mpPerLevel": 33,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.215,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7.85,
+      "mpRegenPerLevel": 0.5,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Rammus.png"
+  },
+  {
+    "id": "RekSai",
+    "key": "421",
+    "name": "Rek'Sai",
+    "title": "Traqueuse du Néant",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Rage",
+    "stats": {
+      "hp": 600,
+      "mp": 100,
+      "moveSpeed": 340,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.667,
+      "attackRange": 175,
+      "hpPerLevel": 99,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 2.5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/RekSai.png"
+  },
+  {
+    "id": "Rell",
+    "key": "526",
+    "name": "Rell",
+    "title": "Vierge de fer",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 320,
+      "moveSpeed": 315,
+      "armor": 30,
+      "magicResist": 28,
+      "attackDamage": 55,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 104,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.8,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.85,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Rell.png"
+  },
+  {
+    "id": "Renata",
+    "key": "888",
+    "name": "Renata Glasc",
+    "title": "Baronne de la chimie",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 545,
+      "mp": 350,
+      "moveSpeed": 330,
+      "armor": 27,
+      "magicResist": 30,
+      "attackDamage": 49,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 94,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.11,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.5,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Renata.png"
+  },
+  {
+    "id": "Renekton",
+    "key": "58",
+    "name": "Renekton",
+    "title": "Dévoreur des sables",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Fureur",
+    "stats": {
+      "hp": 660,
+      "mp": 100,
+      "moveSpeed": 345,
+      "armor": 35,
+      "magicResist": 28,
+      "attackDamage": 69,
+      "attackSpeed": 0.665,
+      "attackRange": 125,
+      "hpPerLevel": 111,
+      "mpPerLevel": 0,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.75,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Renekton.png"
+  },
+  {
+    "id": "Rengar",
+    "key": "107",
+    "name": "Rengar",
+    "title": "Fier traqueur",
+    "tags": [
+      "Assassin",
+      "Fighter"
+    ],
+    "resourceType": "Férocité",
+    "stats": {
+      "hp": 590,
+      "mp": 4,
+      "moveSpeed": 345,
+      "armor": 34,
+      "magicResist": 32,
+      "attackDamage": 68,
+      "attackSpeed": 0.667,
+      "attackRange": 125,
+      "hpPerLevel": 104,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Rengar.png"
+  },
+  {
+    "id": "Riven",
+    "key": "92",
+    "name": "Riven",
+    "title": "Exilée brisée",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Aucune",
+    "stats": {
+      "hp": 630,
+      "mp": 0,
+      "moveSpeed": 340,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 64,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 100,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.4,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Riven.png"
+  },
+  {
+    "id": "Rumble",
+    "key": "68",
+    "name": "Rumble",
+    "title": "Menace mécanisée",
+    "tags": [
+      "Fighter",
+      "Mage"
+    ],
+    "resourceType": "Vapeur",
+    "stats": {
+      "hp": 640,
+      "mp": 150,
+      "moveSpeed": 345,
+      "armor": 36,
+      "magicResist": 28,
+      "attackDamage": 64,
+      "attackSpeed": 0.644,
+      "attackRange": 125,
+      "hpPerLevel": 105,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.55,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.85,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Rumble.png"
+  },
+  {
+    "id": "Ryze",
+    "key": "13",
+    "name": "Ryze",
+    "title": "Mage runique",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 645,
+      "mp": 300,
+      "moveSpeed": 340,
+      "armor": 22,
+      "magicResist": 32,
+      "attackDamage": 58,
+      "attackSpeed": 0.658,
+      "attackRange": 550,
+      "hpPerLevel": 124,
+      "mpPerLevel": 70,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.11,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 1,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ryze.png"
+  },
+  {
+    "id": "Samira",
+    "key": "360",
+    "name": "Samira",
+    "title": "Rose du désert",
+    "tags": [
+      "Marksman",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 349,
+      "moveSpeed": 335,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 57,
+      "attackSpeed": 0.658,
+      "attackRange": 500,
+      "hpPerLevel": 108,
+      "mpPerLevel": 38,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.3,
+      "hpRegen": 3.25,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8.2,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Samira.png"
+  },
+  {
+    "id": "Sejuani",
+    "key": "113",
+    "name": "Sejuani",
+    "title": "Fureur du nord",
+    "tags": [
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 400,
+      "moveSpeed": 340,
+      "armor": 34,
+      "magicResist": 32,
+      "attackDamage": 66,
+      "attackSpeed": 0.688,
+      "attackRange": 150,
+      "hpPerLevel": 114,
+      "mpPerLevel": 40,
+      "armorPerLevel": 5.45,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 1,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Sejuani.png"
+  },
+  {
+    "id": "Senna",
+    "key": "235",
+    "name": "Senna",
+    "title": "Rédemptrice",
+    "tags": [
+      "Support",
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 530,
+      "mp": 350,
+      "moveSpeed": 330,
+      "armor": 25,
+      "magicResist": 30,
+      "attackDamage": 50,
+      "attackSpeed": 0.625,
+      "attackRange": 600,
+      "hpPerLevel": 89,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.6,
+      "hpRegen": 3.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Senna.png"
+  },
+  {
+    "id": "Seraphine",
+    "key": "147",
+    "name": "Séraphine",
+    "title": "Chanteuse rêveuse",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 570,
+      "mp": 360,
+      "moveSpeed": 330,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 50,
+      "attackSpeed": 0.669,
+      "attackRange": 525,
+      "hpPerLevel": 95,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.95,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Seraphine.png"
+  },
+  {
+    "id": "Sett",
+    "key": "875",
+    "name": "Sett",
+    "title": "Patron",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Agressivité",
+    "stats": {
+      "hp": 670,
+      "mp": 0,
+      "moveSpeed": 340,
+      "armor": 33,
+      "magicResist": 28,
+      "attackDamage": 60,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 114,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.75,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Sett.png"
+  },
+  {
+    "id": "Shaco",
+    "key": "35",
+    "name": "Shaco",
+    "title": "Bouffon des ténèbres",
+    "tags": [
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 297,
+      "moveSpeed": 345,
+      "armor": 30,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.694,
+      "attackRange": 125,
+      "hpPerLevel": 99,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.35,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Shaco.png"
+  },
+  {
+    "id": "Shen",
+    "key": "98",
+    "name": "Shen",
+    "title": "Œil du crépuscule",
+    "tags": [
+      "Tank"
+    ],
+    "resourceType": "Énergie",
+    "stats": {
+      "hp": 610,
+      "mp": 400,
+      "moveSpeed": 340,
+      "armor": 34,
+      "magicResist": 32,
+      "attackDamage": 64,
+      "attackSpeed": 0.751,
+      "attackRange": 125,
+      "hpPerLevel": 99,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 50,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Shen.png"
+  },
+  {
+    "id": "Shyvana",
+    "key": "102",
+    "name": "Shyvana",
+    "title": "Demi-dragon",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Fureur",
+    "stats": {
+      "hp": 625,
+      "mp": 100,
+      "moveSpeed": 350,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.625,
+      "attackRange": 150,
+      "hpPerLevel": 100,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Shyvana.png"
+  },
+  {
+    "id": "Singed",
+    "key": "27",
+    "name": "Singed",
+    "title": "Chimiste fou",
+    "tags": [
+      "Tank",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 330,
+      "moveSpeed": 345,
+      "armor": 34,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.7,
+      "attackRange": 125,
+      "hpPerLevel": 96,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.9,
+      "hpRegen": 9.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.55,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Singed.png"
+  },
+  {
+    "id": "Sion",
+    "key": "14",
+    "name": "Sion",
+    "title": "Colosse mort-vivant",
+    "tags": [
+      "Tank",
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 655,
+      "mp": 400,
+      "moveSpeed": 345,
+      "armor": 36,
+      "magicResist": 32,
+      "attackDamage": 68,
+      "attackSpeed": 0.679,
+      "attackRange": 175,
+      "hpPerLevel": 87,
+      "mpPerLevel": 52,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.3,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Sion.png"
+  },
+  {
+    "id": "Sivir",
+    "key": "15",
+    "name": "Sivir",
+    "title": "Mercenaire du désert",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 340,
+      "moveSpeed": 335,
+      "armor": 30,
+      "magicResist": 30,
+      "attackDamage": 60,
+      "attackSpeed": 0.625,
+      "attackRange": 500,
+      "hpPerLevel": 104,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.6,
+      "hpRegen": 3.25,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Sivir.png"
+  },
+  {
+    "id": "Skarner",
+    "key": "72",
+    "name": "Skarner",
+    "title": "Souverain originel",
+    "tags": [
+      "Tank",
+      "Fighter"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 320,
+      "moveSpeed": 335,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.625,
+      "attackRange": 150,
+      "hpPerLevel": 110,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7.2,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Skarner.png"
+  },
+  {
+    "id": "Smolder",
+    "key": "901",
+    "name": "Smolder",
+    "title": "Dragonnet flamboyant",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 575,
+      "mp": 300,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 60,
+      "attackSpeed": 0.638,
+      "attackRange": 550,
+      "hpPerLevel": 100,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 4,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8.5,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Smolder.png"
+  },
+  {
+    "id": "Sona",
+    "key": "37",
+    "name": "Sona",
+    "title": "Virtuose de la harpe",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 550,
+      "mp": 340,
+      "moveSpeed": 325,
+      "armor": 26,
+      "magicResist": 30,
+      "attackDamage": 49,
+      "attackSpeed": 0.644,
+      "attackRange": 550,
+      "hpPerLevel": 91,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.3,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Sona.png"
+  },
+  {
+    "id": "Soraka",
+    "key": "16",
+    "name": "Soraka",
+    "title": "Enfant des étoiles",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 605,
+      "mp": 425,
+      "moveSpeed": 325,
+      "armor": 32,
+      "magicResist": 30,
+      "attackDamage": 50,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 88,
+      "mpPerLevel": 40,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.14,
+      "hpRegen": 2.5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 11.5,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Soraka.png"
+  },
+  {
+    "id": "Swain",
+    "key": "50",
+    "name": "Swain",
+    "title": "Grand général noxien",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 595,
+      "mp": 400,
+      "moveSpeed": 330,
+      "armor": 25,
+      "magicResist": 31,
+      "attackDamage": 58,
+      "attackSpeed": 0.625,
+      "attackRange": 525,
+      "hpPerLevel": 99,
+      "mpPerLevel": 29,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.55,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.11,
+      "hpRegen": 3,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 10,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Swain.png"
+  },
+  {
+    "id": "Sylas",
+    "key": "517",
+    "name": "Sylas",
+    "title": "Révolutionnaire déchaîné",
+    "tags": [
+      "Mage",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 400,
+      "moveSpeed": 340,
+      "armor": 29,
+      "magicResist": 32,
+      "attackDamage": 61,
+      "attackSpeed": 0.645,
+      "attackRange": 175,
+      "hpPerLevel": 122,
+      "mpPerLevel": 70,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 2.55,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Sylas.png"
+  },
+  {
+    "id": "Syndra",
+    "key": "134",
+    "name": "Syndra",
+    "title": "Souveraine obscure",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 563,
+      "mp": 480,
+      "moveSpeed": 330,
+      "armor": 25,
+      "magicResist": 30,
+      "attackDamage": 54,
+      "attackSpeed": 0.658,
+      "attackRange": 550,
+      "hpPerLevel": 100,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Syndra.png"
+  },
+  {
+    "id": "TahmKench",
+    "key": "223",
+    "name": "Tahm Kench",
+    "title": "Roi des rivières",
+    "tags": [
+      "Tank",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 325,
+      "moveSpeed": 335,
+      "armor": 39,
+      "magicResist": 32,
+      "attackDamage": 56,
+      "attackSpeed": 0.658,
+      "attackRange": 175,
+      "hpPerLevel": 103,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 1,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/TahmKench.png"
+  },
+  {
+    "id": "Taliyah",
+    "key": "163",
+    "name": "Taliyah",
+    "title": "Tisseuse de pierres",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 550,
+      "mp": 470,
+      "moveSpeed": 330,
+      "armor": 18,
+      "magicResist": 28,
+      "attackDamage": 58,
+      "attackSpeed": 0.658,
+      "attackRange": 525,
+      "hpPerLevel": 104,
+      "mpPerLevel": 30,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.36,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Taliyah.png"
+  },
+  {
+    "id": "Talon",
+    "key": "91",
+    "name": "Talon",
+    "title": "Lame des ténèbres",
+    "tags": [
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 658,
+      "mp": 400,
+      "moveSpeed": 335,
+      "armor": 30,
+      "magicResist": 36,
+      "attackDamage": 68,
+      "attackSpeed": 0.625,
+      "attackRange": 125,
+      "hpPerLevel": 109,
+      "mpPerLevel": 37,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.9,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7.6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Talon.png"
+  },
+  {
+    "id": "Taric",
+    "key": "44",
+    "name": "Taric",
+    "title": "Bouclier de Valoran",
+    "tags": [
+      "Support",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 645,
+      "mp": 300,
+      "moveSpeed": 340,
+      "armor": 40,
+      "magicResist": 28,
+      "attackDamage": 55,
+      "attackSpeed": 0.625,
+      "attackRange": 150,
+      "hpPerLevel": 99,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.3,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 8.5,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Taric.png"
+  },
+  {
+    "id": "Teemo",
+    "key": "17",
+    "name": "Teemo",
+    "title": "Éclaireur de Bandle",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 615,
+      "mp": 334,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 54,
+      "attackSpeed": 0.69,
+      "attackRange": 500,
+      "hpPerLevel": 104,
+      "mpPerLevel": 25,
+      "armorPerLevel": 4.95,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.38,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 9.6,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Teemo.png"
+  },
+  {
+    "id": "Thresh",
+    "key": "412",
+    "name": "Thresh",
+    "title": "Garde aux chaînes",
+    "tags": [
+      "Support",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 274,
+      "moveSpeed": 330,
+      "armor": 33,
+      "magicResist": 30,
+      "attackDamage": 56,
+      "attackSpeed": 0.625,
+      "attackRange": 450,
+      "hpPerLevel": 120,
+      "mpPerLevel": 44,
+      "armorPerLevel": 0,
+      "magicResistPerLevel": 1.55,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Thresh.png"
+  },
+  {
+    "id": "Tristana",
+    "key": "18",
+    "name": "Tristana",
+    "title": "Canonnière yordle",
+    "tags": [
+      "Marksman",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 300,
+      "moveSpeed": 325,
+      "armor": 30,
+      "magicResist": 28,
+      "attackDamage": 60,
+      "attackSpeed": 0.656,
+      "attackRange": 550,
+      "hpPerLevel": 102,
+      "mpPerLevel": 32,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.5,
+      "hpRegen": 4,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 7.2,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Tristana.png"
+  },
+  {
+    "id": "Trundle",
+    "key": "48",
+    "name": "Trundle",
+    "title": "Roi des trolls",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 340,
+      "moveSpeed": 350,
+      "armor": 37,
+      "magicResist": 32,
+      "attackDamage": 68,
+      "attackSpeed": 0.67,
+      "attackRange": 175,
+      "hpPerLevel": 110,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.9,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Trundle.png"
+  },
+  {
+    "id": "Tryndamere",
+    "key": "23",
+    "name": "Tryndamere",
+    "title": "Roi barbare",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Fureur",
+    "stats": {
+      "hp": 696,
+      "mp": 100,
+      "moveSpeed": 345,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 66,
+      "attackSpeed": 0.67,
+      "attackRange": 175,
+      "hpPerLevel": 108,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.8,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.4,
+      "hpRegen": 8.5,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Tryndamere.png"
+  },
+  {
+    "id": "TwistedFate",
+    "key": "4",
+    "name": "Twisted Fate",
+    "title": "Maître des cartes",
+    "tags": [
+      "Mage",
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 604,
+      "mp": 333,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 52,
+      "attackSpeed": 0.625,
+      "attackRange": 525,
+      "hpPerLevel": 108,
+      "mpPerLevel": 39,
+      "armorPerLevel": 4.35,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/TwistedFate.png"
+  },
+  {
+    "id": "Twitch",
+    "key": "29",
+    "name": "Twitch",
+    "title": "Semeur de peste",
+    "tags": [
+      "Marksman",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 300,
+      "moveSpeed": 330,
+      "armor": 27,
+      "magicResist": 30,
+      "attackDamage": 59,
+      "attackSpeed": 0.679,
+      "attackRange": 550,
+      "hpPerLevel": 98,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 3.75,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 7.25,
+      "mpRegenPerLevel": 0.7,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Twitch.png"
+  },
+  {
+    "id": "Udyr",
+    "key": "77",
+    "name": "Udyr",
+    "title": "Gardien des esprits",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 664,
+      "mp": 271,
+      "moveSpeed": 350,
+      "armor": 31,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.65,
+      "attackRange": 125,
+      "hpPerLevel": 92,
+      "mpPerLevel": 50,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 6,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Udyr.png"
+  },
+  {
+    "id": "Urgot",
+    "key": "6",
+    "name": "Urgot",
+    "title": "Broyeur",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 655,
+      "mp": 340,
+      "moveSpeed": 330,
+      "armor": 36,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.625,
+      "attackRange": 350,
+      "hpPerLevel": 102,
+      "mpPerLevel": 45,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.75,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 7.25,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Urgot.png"
+  },
+  {
+    "id": "Varus",
+    "key": "110",
+    "name": "Varus",
+    "title": "Flèche de la vengeance",
+    "tags": [
+      "Marksman",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 320,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 59,
+      "attackSpeed": 0.658,
+      "attackRange": 575,
+      "hpPerLevel": 105,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 3.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Varus.png"
+  },
+  {
+    "id": "Vayne",
+    "key": "67",
+    "name": "Vayne",
+    "title": "Chasseresse nocturne",
+    "tags": [
+      "Marksman",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 550,
+      "mp": 232,
+      "moveSpeed": 330,
+      "armor": 23,
+      "magicResist": 30,
+      "attackDamage": 60,
+      "attackSpeed": 0.658,
+      "attackRange": 550,
+      "hpPerLevel": 103,
+      "mpPerLevel": 35,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.3,
+      "hpRegen": 3.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Vayne.png"
+  },
+  {
+    "id": "Veigar",
+    "key": "45",
+    "name": "Veigar",
+    "title": "Seigneur des maléfices",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 580,
+      "mp": 490,
+      "moveSpeed": 340,
+      "armor": 18,
+      "magicResist": 32,
+      "attackDamage": 52,
+      "attackSpeed": 0.625,
+      "attackRange": 550,
+      "hpPerLevel": 108,
+      "mpPerLevel": 26,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.24,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Veigar.png"
+  },
+  {
+    "id": "Velkoz",
+    "key": "161",
+    "name": "Vel'Koz",
+    "title": "Œil du Néant",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 590,
+      "mp": 469,
+      "moveSpeed": 340,
+      "armor": 22,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.643,
+      "attackRange": 525,
+      "hpPerLevel": 102,
+      "mpPerLevel": 21,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.59,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Velkoz.png"
+  },
+  {
+    "id": "Vex",
+    "key": "711",
+    "name": "Vex",
+    "title": "Ombre du désespoir",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 590,
+      "mp": 490,
+      "moveSpeed": 335,
+      "armor": 23,
+      "magicResist": 28,
+      "attackDamage": 54,
+      "attackSpeed": 0.669,
+      "attackRange": 550,
+      "hpPerLevel": 104,
+      "mpPerLevel": 32,
+      "armorPerLevel": 4.45,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Vex.png"
+  },
+  {
+    "id": "Vi",
+    "key": "254",
+    "name": "Vi",
+    "title": "Pacifieuse de Piltover",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 655,
+      "mp": 295,
+      "moveSpeed": 340,
+      "armor": 30,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.644,
+      "attackRange": 125,
+      "hpPerLevel": 105,
+      "mpPerLevel": 65,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 10,
+      "hpRegenPerLevel": 1,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.65,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Vi.png"
+  },
+  {
+    "id": "Viego",
+    "key": "234",
+    "name": "Viego",
+    "title": "Roi déchu",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Aucune",
+    "stats": {
+      "hp": 630,
+      "mp": 10000,
+      "moveSpeed": 345,
+      "armor": 34,
+      "magicResist": 32,
+      "attackDamage": 57,
+      "attackSpeed": 0.658,
+      "attackRange": 200,
+      "hpPerLevel": 109,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.75,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Viego.png"
+  },
+  {
+    "id": "Viktor",
+    "key": "112",
+    "name": "Viktor",
+    "title": "Héraut de l'arcane",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 405,
+      "moveSpeed": 335,
+      "armor": 23,
+      "magicResist": 30,
+      "attackDamage": 53,
+      "attackSpeed": 0.658,
+      "attackRange": 525,
+      "hpPerLevel": 100,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4.4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.11,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Viktor.png"
+  },
+  {
+    "id": "Vladimir",
+    "key": "8",
+    "name": "Vladimir",
+    "title": "Saigneur pourpre",
+    "tags": [
+      "Mage",
+      "Fighter"
+    ],
+    "resourceType": "Afflux sanguin",
+    "stats": {
+      "hp": 600,
+      "mp": 2,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.658,
+      "attackRange": 450,
+      "hpPerLevel": 110,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Vladimir.png"
+  },
+  {
+    "id": "Volibear",
+    "key": "106",
+    "name": "Volibear",
+    "title": "Tempête impitoyable",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 350,
+      "moveSpeed": 340,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 65,
+      "attackSpeed": 0.625,
+      "attackRange": 150,
+      "hpPerLevel": 104,
+      "mpPerLevel": 70,
+      "armorPerLevel": 5.2,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 9,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 6.25,
+      "mpRegenPerLevel": 0.5,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Volibear.png"
+  },
+  {
+    "id": "Warwick",
+    "key": "19",
+    "name": "Warwick",
+    "title": "Fureur déchaînée de Zaun",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 280,
+      "moveSpeed": 335,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 65,
+      "attackSpeed": 0.638,
+      "attackRange": 125,
+      "hpPerLevel": 99,
+      "mpPerLevel": 35,
+      "armorPerLevel": 4.4,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 4,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 7.45,
+      "mpRegenPerLevel": 0.6,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Warwick.png"
+  },
+  {
+    "id": "MonkeyKing",
+    "key": "62",
+    "name": "Wukong",
+    "title": "Roi des singes",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 610,
+      "mp": 330,
+      "moveSpeed": 340,
+      "armor": 31,
+      "magicResist": 28,
+      "attackDamage": 66,
+      "attackSpeed": 0.69,
+      "attackRange": 175,
+      "hpPerLevel": 99,
+      "mpPerLevel": 65,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3,
+      "hpRegen": 3.5,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/MonkeyKing.png"
+  },
+  {
+    "id": "Xayah",
+    "key": "498",
+    "name": "Xayah",
+    "title": "Rebelle",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 340,
+      "moveSpeed": 330,
+      "armor": 25,
+      "magicResist": 30,
+      "attackDamage": 60,
+      "attackSpeed": 0.658,
+      "attackRange": 525,
+      "hpPerLevel": 107,
+      "mpPerLevel": 40,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.9,
+      "hpRegen": 3.25,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 8.25,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Xayah.png"
+  },
+  {
+    "id": "Xerath",
+    "key": "101",
+    "name": "Xerath",
+    "title": "Mage suprême",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 596,
+      "mp": 400,
+      "moveSpeed": 340,
+      "armor": 22,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.658,
+      "attackRange": 525,
+      "hpPerLevel": 106,
+      "mpPerLevel": 22,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.36,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 6.85,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Xerath.png"
+  },
+  {
+    "id": "XinZhao",
+    "key": "5",
+    "name": "Xin Zhao",
+    "title": "Sénéchal de Demacia",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 620,
+      "mp": 274,
+      "moveSpeed": 345,
+      "armor": 35,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.645,
+      "attackRange": 175,
+      "hpPerLevel": 106,
+      "mpPerLevel": 55,
+      "armorPerLevel": 4.4,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 7.25,
+      "mpRegenPerLevel": 0.45,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/XinZhao.png"
+  },
+  {
+    "id": "Yasuo",
+    "key": "157",
+    "name": "Yasuo",
+    "title": "Disgracié",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Impulsion",
+    "stats": {
+      "hp": 590,
+      "mp": 100,
+      "moveSpeed": 345,
+      "armor": 32,
+      "magicResist": 32,
+      "attackDamage": 60,
+      "attackSpeed": 0.697,
+      "attackRange": 175,
+      "hpPerLevel": 110,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.9,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Yasuo.png"
+  },
+  {
+    "id": "Yone",
+    "key": "777",
+    "name": "Yone",
+    "title": "Inoublié",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Impulsion",
+    "stats": {
+      "hp": 620,
+      "mp": 500,
+      "moveSpeed": 345,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 105,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.6,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.5,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.75,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Yone.png"
+  },
+  {
+    "id": "Yorick",
+    "key": "83",
+    "name": "Yorick",
+    "title": "Berger des âmes",
+    "tags": [
+      "Fighter",
+      "Tank"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 650,
+      "mp": 300,
+      "moveSpeed": 340,
+      "armor": 36,
+      "magicResist": 32,
+      "attackDamage": 62,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 114,
+      "mpPerLevel": 60,
+      "armorPerLevel": 4.5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 8,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Yorick.png"
+  },
+  {
+    "id": "Yunara",
+    "key": "804",
+    "name": "Yunara",
+    "title": "Foi inébranlable",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 590,
+      "mp": 275,
+      "moveSpeed": 325,
+      "armor": 25,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.65,
+      "attackRange": 575,
+      "hpPerLevel": 110,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4.4,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 4,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 7.5,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Yunara.png"
+  },
+  {
+    "id": "Yuumi",
+    "key": "350",
+    "name": "Yuumi",
+    "title": "Gardienne du Grimoire",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 500,
+      "mp": 440,
+      "moveSpeed": 330,
+      "armor": 25,
+      "magicResist": 25,
+      "attackDamage": 49,
+      "attackSpeed": 0.625,
+      "attackRange": 425,
+      "hpPerLevel": 69,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.1,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1,
+      "hpRegen": 5,
+      "hpRegenPerLevel": 0.55,
+      "mpRegen": 10,
+      "mpRegenPerLevel": 0.4,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Yuumi.png"
+  },
+  {
+    "id": "Zaahen",
+    "key": "904",
+    "name": "Zaahen",
+    "title": "Incorruptible",
+    "tags": [
+      "Fighter",
+      "Assassin"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 640,
+      "mp": 350,
+      "moveSpeed": 345,
+      "armor": 36,
+      "magicResist": 32,
+      "attackDamage": 63,
+      "attackSpeed": 0.625,
+      "attackRange": 175,
+      "hpPerLevel": 114,
+      "mpPerLevel": 55,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.8,
+      "mpRegen": 8.15,
+      "mpRegenPerLevel": 0.75,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Zaahen.png"
+  },
+  {
+    "id": "Zac",
+    "key": "154",
+    "name": "Zac",
+    "title": "Arme secrète",
+    "tags": [
+      "Tank",
+      "Fighter"
+    ],
+    "resourceType": "Aucune",
+    "stats": {
+      "hp": 685,
+      "mp": 0,
+      "moveSpeed": 340,
+      "armor": 33,
+      "magicResist": 32,
+      "attackDamage": 60,
+      "attackSpeed": 0.736,
+      "attackRange": 175,
+      "hpPerLevel": 109,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 1.6,
+      "hpRegen": 5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 0,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Zac.png"
+  },
+  {
+    "id": "Zed",
+    "key": "238",
+    "name": "Zed",
+    "title": "Maître des ombres",
+    "tags": [
+      "Assassin"
+    ],
+    "resourceType": "Énergie",
+    "stats": {
+      "hp": 654,
+      "mp": 200,
+      "moveSpeed": 345,
+      "armor": 32,
+      "magicResist": 29,
+      "attackDamage": 63,
+      "attackSpeed": 0.651,
+      "attackRange": 125,
+      "hpPerLevel": 99,
+      "mpPerLevel": 0,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 2.05,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 3.3,
+      "hpRegen": 7,
+      "hpRegenPerLevel": 0.65,
+      "mpRegen": 50,
+      "mpRegenPerLevel": 0,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Zed.png"
+  },
+  {
+    "id": "Zeri",
+    "key": "221",
+    "name": "Zeri",
+    "title": "Étincelle de Zaun",
+    "tags": [
+      "Marksman"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 600,
+      "mp": 250,
+      "moveSpeed": 330,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 56,
+      "attackSpeed": 0.658,
+      "attackRange": 500,
+      "hpPerLevel": 110,
+      "mpPerLevel": 45,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 3.25,
+      "hpRegenPerLevel": 0.7,
+      "mpRegen": 6,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Zeri.png"
+  },
+  {
+    "id": "Ziggs",
+    "key": "115",
+    "name": "Ziggs",
+    "title": "Expert des Hexplosifs",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 606,
+      "mp": 480,
+      "moveSpeed": 325,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 55,
+      "attackSpeed": 0.656,
+      "attackRange": 550,
+      "hpPerLevel": 106,
+      "mpPerLevel": 23.5,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2,
+      "hpRegen": 6.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Ziggs.png"
+  },
+  {
+    "id": "Zilean",
+    "key": "26",
+    "name": "Zilean",
+    "title": "Gardien du Temps",
+    "tags": [
+      "Support",
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 574,
+      "mp": 452,
+      "moveSpeed": 335,
+      "armor": 24,
+      "magicResist": 30,
+      "attackDamage": 52,
+      "attackSpeed": 0.658,
+      "attackRange": 550,
+      "hpPerLevel": 96,
+      "mpPerLevel": 50,
+      "armorPerLevel": 5,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.13,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 11.35,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Zilean.png"
+  },
+  {
+    "id": "Zoe",
+    "key": "142",
+    "name": "Zoé",
+    "title": "Manifestation du Crépuscule",
+    "tags": [
+      "Mage"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 630,
+      "mp": 425,
+      "moveSpeed": 340,
+      "armor": 21,
+      "magicResist": 30,
+      "attackDamage": 58,
+      "attackSpeed": 0.658,
+      "attackRange": 550,
+      "hpPerLevel": 106,
+      "mpPerLevel": 25,
+      "armorPerLevel": 4.7,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.5,
+      "hpRegen": 7.5,
+      "hpRegenPerLevel": 0.6,
+      "mpRegen": 8,
+      "mpRegenPerLevel": 0.65,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Zoe.png"
+  },
+  {
+    "id": "Zyra",
+    "key": "143",
+    "name": "Zyra",
+    "title": "Dame aux ronces",
+    "tags": [
+      "Mage",
+      "Support"
+    ],
+    "resourceType": "Mana",
+    "stats": {
+      "hp": 574,
+      "mp": 418,
+      "moveSpeed": 340,
+      "armor": 29,
+      "magicResist": 30,
+      "attackDamage": 53,
+      "attackSpeed": 0.681,
+      "attackRange": 575,
+      "hpPerLevel": 93,
+      "mpPerLevel": 25,
+      "armorPerLevel": 4.2,
+      "magicResistPerLevel": 1.3,
+      "attackDamagePerLevel": 0,
+      "attackSpeedPerLevel": 2.11,
+      "hpRegen": 5.5,
+      "hpRegenPerLevel": 0.5,
+      "mpRegen": 7,
+      "mpRegenPerLevel": 0.8,
+      "crit": 0,
+      "critPerLevel": 0
+    },
+    "spells": [],
+    "passive": {
+      "name": "",
+      "description": "",
+      "image": ""
+    },
+    "iconUrl": "/data/lol/img/champions/Zyra.png"
+  }
+]
