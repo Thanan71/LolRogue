@@ -16,6 +16,10 @@ import {
   type BattleResult,
   type BattleAction,
 } from './types';
+import {
+  calculateADDamage,
+  critDamage,
+} from '@/utils/damage';
 
 type EventCallback = (event: BattleEvent) => void;
 type ActionCallback = (
@@ -333,13 +337,14 @@ export class BattleManager {
     const atkStats = attacker.champion.getStats();
     const defStats = target.champion.getStats();
 
-    const baseDmg = atkStats.attackDamage * multiplier;
-    const defMitigation = defStats.armor / (defStats.armor + 100);
-    const mitigatedDmg = baseDmg * (1 - defMitigation);
-
+    // Apply critical strike to raw damage before armor mitigation
+    const baseRaw = atkStats.attackDamage * multiplier;
     const critChance = Math.min(100, atkStats.crit) / 100;
     const isCrit = Math.random() < critChance;
-    const finalDmg = Math.round(mitigatedDmg * (isCrit ? 2 : 1));
+    const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
+
+    // Mitigate through armor: AD * ratio * 100/(100+armor)
+    const finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
 
     target.currentHp = Math.max(0, target.currentHp - finalDmg);
 
