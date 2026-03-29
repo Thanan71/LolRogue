@@ -1,22 +1,36 @@
 /**
  * BattleManager — core combat engine for 5v5 battles.
  *
- * Manages teams, round counter, turn order (speed-based),
- * damage calculation, and victory detection.
+ * Phase 2: Initiative & turn-by-turn system.
  */
 
 import type { ChampionInstance } from '../ChampionInstance';
 import {
   BattlePhase,
+  ActionType,
   type BattleTeam,
   type BattleEvent,
   type CombatantState,
   type TeamSide,
   type TurnEntry,
   type BattleResult,
+  type BattleAction,
 } from './types';
 
 type EventCallback = (event: BattleEvent) => void;
+type ActionCallback = (
+  champion: ChampionInstance,
+  side: TeamSide,
+  availableEnemies: CombatantState[],
+  availableAllies: CombatantState[],
+) => BattleAction | null;
+
+export interface BattleManagerOptions {
+  autoActions?: boolean;
+  turnDelay?: number;
+  maxRounds?: number;
+  maxTeamSize?: number;
+}
 
 export class BattleManager {
   private _phase: BattlePhase = BattlePhase.Idle;
@@ -27,17 +41,21 @@ export class BattleManager {
   private _enemyCombatants: CombatantState[] = [];
   private _log: BattleEvent[] = [];
   private _listeners: Map<string, EventCallback[]> = new Map();
-  private readonly _maxTeamSize = 5;
-  private readonly _maxRounds = 50;
+  private readonly _autoActions: boolean;
+  private readonly _maxRounds: number;
+  private readonly _maxTeamSize: number;
+  private _actionCallback: ActionCallback | null = null;
 
   constructor(
     private readonly _playerTeam: BattleTeam,
     private readonly _enemyTeam: BattleTeam,
+    options: BattleManagerOptions = {},
   ) {
+    this._autoActions = options.autoActions ?? true;
+    this._maxRounds = options.maxRounds ?? 50;
+    this._maxTeamSize = options.maxTeamSize ?? 5;
     this._initCombatants();
   }
-
-  // --- Public getters ---
 
   get phase(): BattlePhase { return this._phase; }
   get round(): number { return this._round; }
@@ -55,15 +73,31 @@ export class BattleManager {
     };
   }
 
+  get currentTurnEntry(): TurnEntry | null {
+    return this._turnOrder[this._turnIndex] ?? null;
+  }
+
+  get currentCombatant(): CombatantState | null {
+    const entry = this.currentTurnEntry;
+    if (!entry) return null;
+    return this._getCombatant(entry.champion.id, entry.side) ?? null;
+  }
+
   getPlayerCombatants(): CombatantState[] { return this._playerCombatants; }
   getEnemyCombatants(): CombatantState[] { return this._enemyCombatants; }
 
   getCombatantState(id: string, side: TeamSide): CombatantState | undefined {
-    const list = side === 'player' ? this._playerCombatants : this._enemyCombatants;
-    return list.find(c => c.champion.id === id);
+    return this._getCombatant(id, side);
   }
 
-  // --- Event system ---
+  getAliveCombatants(side: TeamSide): CombatantState[] {
+    const list = side === 'player' ? this._playerCombatants : this._enemyCombatants;
+    return list.filter(c => !c.isDefeated);
+  }
+
+  getAliveEnemies(side: TeamSide): CombatantState[] {
+    return this.getAliveCombatants(side === 'player' ? 'enemy' : 'player');
+  }
 
   on(event: string, cb: EventCallback): void {
     if (!this._listeners.has(event)) this._listeners.set(event, []);
@@ -84,7 +118,26 @@ export class BattleManager {
     if (cbs) cbs.forEach(cb => cb(event));
   }
 
-  // --- Core API ---
+  setActionCallback(cb: ActionCallback): void {
+    this._actionCallback = cb;
+  }
+
+  getAvailableActions(champion: ChampionInstance): BattleAction[] {
+    const actions: BattleAction[] = [{ type: ActionType.BasicAttack, cost: 0 }];
+    const slots: Array<{ slot: 'Q' | 'W' | 'E' | 'R'; type: ActionType }> = [
+      { slot: 'Q', type: ActionType.SpellQ },
+      { slot: 'W', type: ActionType.SpellW },
+      { slot: 'E', type: ActionType.SpellE },
+      { slot: 'R', type: ActionType.SpellR },
+    ];
+    for (const { slot, type } of slots) {
+      const spell = champion.getSpell(slot);
+      if (spell) {
+        actions.push({ type, cost: spell.cost.length > 0 ? spell.cost[0] : 0 });
+      }
+    }
+    return actions;
+  }
 
   startBattle(): void {
     if (this._phase !== BattlePhase.Idle) return;
@@ -95,70 +148,62 @@ export class BattleManager {
     this._nextRound();
   }
 
-  nextTurn(): void {
-    if (this._phase !== BattlePhase.TurnActive) return;
-    this._turnIndex++;
-    if (this._turnIndex >= this._turnOrder.length) {
-      this._nextRound();
-    } else {
-      this._startCurrentTurn();
-    }
-  }
-
-  executeCurrentTurn(): void {
+  processCurrentTurn(): void {
     if (this._phase !== BattlePhase.TurnActive) return;
     const entry = this._turnOrder[this._turnIndex];
-    if (!entry || entry.champion.getStats().hp <= 0) {
-      this.nextTurn();
-      return;
+    if (!entry) { this._nextTurn(); return; }
+
+    const attackerState = this._getCombatant(entry.champion.id, entry.side);
+    if (!attackerState || attackerState.isDefeated) { this._nextTurn(); return; }
+
+    const enemies = this.getAliveEnemies(entry.side);
+    const allies = this.getAliveCombatants(entry.side);
+    if (enemies.length === 0) { this._nextTurn(); return; }
+
+    let action: BattleAction | null = null;
+    if (!this._autoActions && entry.side === 'player' && this._actionCallback) {
+      action = this._actionCallback(entry.champion, entry.side, enemies, allies);
     }
+    if (!action) action = this._selectAIAction(entry.champion, enemies);
 
-    const attacker = entry;
-    const attackerState = this._getCombatant(attacker.champion.id, attacker.side);
-    if (!attackerState || attackerState.isDefeated) {
-      this.nextTurn();
-      return;
-    }
+    this._emit({
+      type: 'action_select',
+      champion: entry.champion.id,
+      side: entry.side,
+      action: action.type,
+    });
 
-    const target = this._pickTarget(attacker.side);
-    if (!target) {
-      this.nextTurn();
-      return;
-    }
+    this._executeAction(attackerState, action, enemies);
+    if (this._checkVictory()) return;
+    this._nextTurn();
+  }
 
-    this._performAttack(attackerState, target);
+  submitAction(action: BattleAction): boolean {
+    if (this._phase !== BattlePhase.TurnActive) return false;
+    const entry = this._turnOrder[this._turnIndex];
+    if (!entry || entry.side !== 'player') return false;
 
-    if (this.checkVictory()) return;
-    this.nextTurn();
+    const attackerState = this._getCombatant(entry.champion.id, entry.side);
+    if (!attackerState || attackerState.isDefeated) return false;
+
+    const enemies = this.getAliveEnemies(entry.side);
+    if (enemies.length === 0) return false;
+
+    this._emit({
+      type: 'action_select',
+      champion: entry.champion.id,
+      side: entry.side,
+      action: action.type,
+    });
+
+    this._executeAction(attackerState, action, enemies);
+    if (this._checkVictory()) return true;
+    this._nextTurn();
+    return true;
   }
 
   checkVictory(): boolean {
-    const playerAlive = this._playerCombatants.some(c => !c.isDefeated);
-    const enemyAlive = this._enemyCombatants.some(c => !c.isDefeated);
-
-    if (!playerAlive || !enemyAlive) {
-      this._phase = BattlePhase.Finished;
-      const winner: TeamSide | 'draw' = !playerAlive && !enemyAlive
-        ? 'draw'
-        : playerAlive
-          ? 'player'
-          : 'enemy';
-
-      this._emit({
-        type: 'battle_end',
-        winner,
-        rounds: this._round,
-      });
-      return true;
-    }
-
-    if (this._round >= this._maxRounds) {
-      this._phase = BattlePhase.Finished;
-      this._emit({ type: 'battle_end', winner: 'draw', rounds: this._round });
-      return true;
-    }
-
-    return false;
+    return this._checkVictory();
   }
 
   getResult(): BattleResult | null {
@@ -168,60 +213,62 @@ export class BattleManager {
     return { winner: last.winner, totalRounds: last.rounds, log: [...this._log] };
   }
 
-  // --- Internals ---
-
   private _initCombatants(): void {
-    this._playerCombatants = this._playerTeam.champions.slice(0, this._maxTeamSize).map(c => ({
-      champion: c,
-      side: 'player' as TeamSide,
-      currentHp: c.getStats().hp,
-      maxHp: c.getStats().hp,
-      isDefeated: false,
-    }));
-
-    this._enemyCombatants = this._enemyTeam.champions.slice(0, this._maxTeamSize).map(c => ({
-      champion: c,
-      side: 'enemy' as TeamSide,
-      currentHp: c.getStats().hp,
-      maxHp: c.getStats().hp,
-      isDefeated: false,
-    }));
+    this._playerCombatants = this._playerTeam.champions
+      .slice(0, this._maxTeamSize)
+      .map(c => ({
+        champion: c, side: 'player' as TeamSide,
+        currentHp: c.getStats().hp, maxHp: c.getStats().hp, isDefeated: false,
+      }));
+    this._enemyCombatants = this._enemyTeam.champions
+      .slice(0, this._maxTeamSize)
+      .map(c => ({
+        champion: c, side: 'enemy' as TeamSide,
+        currentHp: c.getStats().hp, maxHp: c.getStats().hp, isDefeated: false,
+      }));
   }
 
   private _nextRound(): void {
     this._round++;
     this._turnIndex = 0;
     this._buildTurnOrder();
+    if (this._checkVictory()) return;
 
-    if (this.checkVictory()) return;
+    this._emit({
+      type: 'round_start',
+      round: this._round,
+      turnOrder: this._turnOrder.map(e => ({
+        champion: e.champion.id, side: e.side, speedValue: e.speedValue,
+      })),
+    });
 
     this._phase = BattlePhase.TurnActive;
     this._startCurrentTurn();
   }
 
+  private _nextTurn(): void {
+    this._turnIndex++;
+    if (this._turnIndex >= this._turnOrder.length) {
+      this._nextRound();
+    } else {
+      this._startCurrentTurn();
+    }
+  }
+
   private _buildTurnOrder(): void {
     const all: TurnEntry[] = [];
-
     for (const c of this._playerCombatants) {
       if (!c.isDefeated) {
-        all.push({
-          champion: c.champion,
-          side: 'player',
-          speedValue: this._calcSpeedPriority(c.champion),
-        });
+        all.push({ champion: c.champion, side: 'player',
+          speedValue: this._calcSpeedPriority(c.champion) });
       }
     }
-
     for (const c of this._enemyCombatants) {
       if (!c.isDefeated) {
-        all.push({
-          champion: c.champion,
-          side: 'enemy',
-          speedValue: this._calcSpeedPriority(c.champion),
-        });
+        all.push({ champion: c.champion, side: 'enemy',
+          speedValue: this._calcSpeedPriority(c.champion) });
       }
     }
-
     all.sort((a, b) => b.speedValue - a.speedValue);
     this._turnOrder = all;
   }
@@ -235,7 +282,6 @@ export class BattleManager {
   private _startCurrentTurn(): void {
     const entry = this._turnOrder[this._turnIndex];
     if (!entry) return;
-
     this._emit({
       type: 'turn_start',
       champion: entry.champion.id,
@@ -244,23 +290,50 @@ export class BattleManager {
     });
   }
 
-  private _getCombatant(id: string, side: TeamSide): CombatantState | undefined {
-    const list = side === 'player' ? this._playerCombatants : this._enemyCombatants;
-    return list.find(c => c.champion.id === id);
+  private _selectAIAction(
+    champion: ChampionInstance,
+    _enemies: CombatantState[],
+  ): BattleAction {
+    const rSpell = champion.getSpell('R');
+    if (rSpell) return { type: ActionType.SpellR, cost: rSpell.cost[0] ?? 0 };
+    return { type: ActionType.BasicAttack, cost: 0 };
   }
 
-  private _pickTarget(attackerSide: TeamSide): CombatantState | null {
-    const enemies = attackerSide === 'player' ? this._enemyCombatants : this._playerCombatants;
+  private _executeAction(
+    attacker: CombatantState,
+    action: BattleAction,
+    enemies: CombatantState[],
+  ): void {
+    if (enemies.length === 0) return;
+    const target = this._pickTarget(enemies);
+    if (!target) return;
+
+    const multipliers: Record<ActionType, number> = {
+      [ActionType.BasicAttack]: 1.0,
+      [ActionType.SpellQ]: 1.3,
+      [ActionType.SpellW]: 1.2,
+      [ActionType.SpellE]: 1.4,
+      [ActionType.SpellR]: 2.0,
+    };
+    const mult = multipliers[action.type] ?? 1.0;
+    this._performAttack(attacker, target, mult);
+  }
+
+  private _pickTarget(enemies: CombatantState[]): CombatantState | null {
     const alive = enemies.filter(c => !c.isDefeated);
     if (alive.length === 0) return null;
     return alive[Math.floor(Math.random() * alive.length)];
   }
 
-  private _performAttack(attacker: CombatantState, target: CombatantState): void {
+  private _performAttack(
+    attacker: CombatantState,
+    target: CombatantState,
+    multiplier: number = 1.0,
+  ): void {
     const atkStats = attacker.champion.getStats();
     const defStats = target.champion.getStats();
 
-    const baseDmg = atkStats.attackDamage;
+    const baseDmg = atkStats.attackDamage * multiplier;
     const defMitigation = defStats.armor / (defStats.armor + 100);
     const mitigatedDmg = baseDmg * (1 - defMitigation);
 
@@ -288,5 +361,30 @@ export class BattleManager {
         side: target.side,
       });
     }
+  }
+
+  private _checkVictory(): boolean {
+    const playerAlive = this._playerCombatants.some(c => !c.isDefeated);
+    const enemyAlive = this._enemyCombatants.some(c => !c.isDefeated);
+
+    if (!playerAlive || !enemyAlive) {
+      this._phase = BattlePhase.Finished;
+      const winner: TeamSide | 'draw' =
+        !playerAlive && !enemyAlive ? 'draw' : playerAlive ? 'player' : 'enemy';
+      this._emit({ type: 'battle_end', winner, rounds: this._round });
+      return true;
+    }
+
+    if (this._round >= this._maxRounds) {
+      this._phase = BattlePhase.Finished;
+      this._emit({ type: 'battle_end', winner: 'draw', rounds: this._round });
+      return true;
+    }
+    return false;
+  }
+
+  private _getCombatant(id: string, side: TeamSide): CombatantState | undefined {
+    const list = side === 'player' ? this._playerCombatants : this._enemyCombatants;
+    return list.find(c => c.champion.id === id);
   }
 }

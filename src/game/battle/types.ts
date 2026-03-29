@@ -41,6 +41,24 @@ export interface TurnEntry {
   speedValue: number;
 }
 
+// ─── Actions ────────────────────────────────────────────────────────────────
+
+/** Available action types a champion can perform on their turn. */
+export enum ActionType {
+  BasicAttack = 'basic_attack',
+  SpellQ = 'spell_q',
+  SpellW = 'spell_w',
+  SpellE = 'spell_e',
+  SpellR = 'spell_r',
+}
+
+/** A battle action chosen by a player or AI. */
+export interface BattleAction {
+  type: ActionType;
+  /** Mana cost to execute (0 for basic attacks). */
+  cost: number;
+}
+
 // ─── Combatant State (runtime HP tracking) ──────────────────────────────────
 
 export interface CombatantState {
@@ -85,11 +103,27 @@ export interface TurnStartEvent {
   turnIndex: number;
 }
 
+export interface RoundStartEvent {
+  type: 'round_start';
+  round: number;
+  /** The turn order for this round (alive champions only). */
+  turnOrder: { champion: string; side: TeamSide; speedValue: number }[];
+}
+
+export interface ActionSelectEvent {
+  type: 'action_select';
+  champion: string;
+  side: TeamSide;
+  action: ActionType;
+}
+
 export type BattleEvent =
   | DamageEvent
   | DefeatEvent
   | BattleEndEvent
-  | TurnStartEvent;
+  | TurnStartEvent
+  | RoundStartEvent
+  | ActionSelectEvent;
 
 // ─── Battle Result ──────────────────────────────────────────────────────────
 

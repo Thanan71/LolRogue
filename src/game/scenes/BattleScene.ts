@@ -125,10 +125,10 @@ export class BattleScene extends Phaser.Scene {
   private buildBtns(w: number, h: number): void {
     const by = h - 175;
     const nb = this.add.text(w - 25, by, '[ Next Turn ]', { fontSize: '13px', color: COLORS.gold, backgroundColor: '#1a1a2e', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
-    nb.on('pointerdown', () => { if (this.bm.phase === BattlePhase.TurnActive && !this.busy) this.bm.executeCurrentTurn(); });
+    nb.on('pointerdown', () => { if (this.bm.phase === BattlePhase.TurnActive && !this.busy) this.bm.processCurrentTurn(); });
     nb.on('pointerover', () => nb.setColor('#ffffff')); nb.on('pointerout', () => nb.setColor(COLORS.gold));
     const ab = this.add.text(25, by, '[ Auto: ' + (this.autoPlay ? 'ON' : 'OFF') + ' ]', { fontSize: '13px', color: this.autoPlay ? '#22c55e' : '#ef4444', backgroundColor: '#1a1a2e', padding: { x: 10, y: 5 } }).setOrigin(0, 0).setInteractive({ useHandCursor: true });
-    ab.on('pointerdown', () => { this.autoPlay = !this.autoPlay; ab.setText('[ Auto: ' + (this.autoPlay ? 'ON' : 'OFF') + ' ]'); ab.setColor(this.autoPlay ? '#22c55e' : '#ef4444'); if (this.autoPlay && this.bm.phase === BattlePhase.TurnActive) this.bm.executeCurrentTurn(); });
+    ab.on('pointerdown', () => { this.autoPlay = !this.autoPlay; ab.setText('[ Auto: ' + (this.autoPlay ? 'ON' : 'OFF') + ' ]'); ab.setColor(this.autoPlay ? '#22c55e' : '#ef4444'); if (this.autoPlay && this.bm.phase === BattlePhase.TurnActive) this.bm.processCurrentTurn(); });
     ab.on('pointerover', () => ab.setColor('#ffffff')); ab.on('pointerout', () => ab.setColor(this.autoPlay ? '#22c55e' : '#ef4444'));
   }
 
@@ -149,7 +149,7 @@ export class BattleScene extends Phaser.Scene {
     this.statusText.setText('Phase: ' + this.bm.phase);
     this.vis.forEach((v, k) => { const a = k === e.side + '-' + e.champion; v.container.setScale(a ? 1.15 : 1); v.container.setAlpha(a ? 1 : 0.6); });
     this.log('> ' + e.champion + "'s turn (" + e.side + ')');
-    if (this.autoPlay) this.time.delayedCall(400, () => { if (this.bm.phase === BattlePhase.TurnActive) this.bm.executeCurrentTurn(); });
+    if (this.autoPlay) this.time.delayedCall(400, () => { if (this.bm.phase === BattlePhase.TurnActive) this.bm.processCurrentTurn(); });
     this.busy = false; this.tick();
   }
 

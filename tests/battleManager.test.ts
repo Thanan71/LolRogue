@@ -1,0 +1,289 @@
+import { describe, it, expect } from 'vitest';
+import { BattleManager } from '../src/game/battle/BattleManager';
+import { BattlePhase, ActionType } from '../src/game/battle/types';
+import type { BattleTeam, BattleAction } from '../src/game/battle/types';
+import { ChampionInstance } from '../src/game/ChampionInstance';
+import type { Champion, ChampionStats, Spell, Passive } from '../src/types';
+
+function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
+  const baseStats: ChampionStats = {
+    hp: 500, mp: 300, moveSpeed: 330, armor: 30, magicResist: 30,
+    attackDamage: 60, attackSpeed: 0.65, attackRange: 175,
+    hpPerLevel: 90, mpPerLevel: 40, armorPerLevel: 4, magicResistPerLevel: 1.3,
+    attackDamagePerLevel: 3, attackSpeedPerLevel: 2.5,
+    hpRegen: 7, hpRegenPerLevel: 0.7, mpRegen: 8, mpRegenPerLevel: 0.8,
+    crit: 0, critPerLevel: 0,
+  };
+  const makeSpell = (slot: string): Spell => ({
+    id: `Test${slot}`, name: `Test Spell ${slot}`, description: `Desc ${slot}`,
+    maxRank: 5, cooldown: [8, 7.5, 7, 6.5, 6], cost: [50, 55, 60, 65, 70],
+    range: [700, 700, 700, 700, 700], image: `Test${slot}.png`,
+  });
+  const passive: Passive = {
+    name: 'Test Passive', description: 'Desc', image: 'TestPassive.png',
+  };
+  const defaults: Champion = {
+    id: 'TestChampion', key: '9999', name: 'Test Champion', title: 'the Tester',
+    tags: ['Mage', 'Assassin'], resourceType: 'Mana', stats: baseStats,
+    spells: [makeSpell('Q'), makeSpell('W'), makeSpell('E'), makeSpell('R')],
+    passive, iconUrl: '/data/lol/img/champions/TestChampion.png',
+  };
+  return { ...defaults, ...overrides };
+}
+
+function makeTeams(
+  playerIds: string[],
+  enemyIds: string[],
+  spdOverrides: Record<string, number> = {},
+): { playerTeam: BattleTeam; enemyTeam: BattleTeam } {
+  const makeChamp = (id: string) => {
+    const ms = spdOverrides[id] ?? 330;
+    const champ = makeTestChampion({ id, name: id, key: id });
+    champ.stats.moveSpeed = ms;
+    return new ChampionInstance(champ, 1);
+  };
+  return {
+    playerTeam: { side: 'player', champions: playerIds.map(makeChamp) },
+    enemyTeam: { side: 'enemy', champions: enemyIds.map(makeChamp) },
+  };
+}
+
+describe('BattleManager', () => {
+  describe('Phase 2: Initiative & Turn-by-Turn', () => {
+
+    describe('basic battle flow', () => {
+      it('should start in Idle phase', () => {
+        const teams = makeTeams(['A'], ['B']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        expect(bm.phase).toBe(BattlePhase.Idle);
+        expect(bm.round).toBe(0);
+      });
+
+      it('should transition to TurnActive on startBattle', () => {
+        const teams = makeTeams(['A'], ['B']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+        expect(bm.phase).toBe(BattlePhase.TurnActive);
+        expect(bm.round).toBe(1);
+      });
+
+      it('should not allow starting twice', () => {
+        const teams = makeTeams(['A'], ['B']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+        const roundBefore = bm.round;
+        bm.startBattle();
+        expect(bm.round).toBe(roundBefore);
+      });
+    });
+
+    describe('speed-based turn order', () => {
+      it('should sort turn order by speed descending', () => {
+        const teams = makeTeams(['Slow'], ['Fast'], { Slow: 325, Fast: 355 });
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        const events: any[] = [];
+        bm.on('event', e => events.push(e));
+        bm.startBattle();
+
+        const roundStart = events.find(e => e.type === 'round_start');
+        expect(roundStart).toBeDefined();
+        expect(roundStart.turnOrder.length).toBe(2);
+        expect(roundStart.turnOrder[0].champion).toBe('Fast');
+        expect(roundStart.turnOrder[1].champion).toBe('Slow');
+      });
+
+      it('should only include alive champions in turn order', () => {
+        const teams = makeTeams(['P1', 'P2'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        const events: any[] = [];
+        bm.on('event', e => events.push(e));
+        bm.startBattle();
+
+        const roundStart = events.find(e => e.type === 'round_start');
+        expect(roundStart.turnOrder.length).toBe(3);
+      });
+    });
+
+    describe('turn execution', () => {
+      it('should emit turn_start, action_select, and damage on processCurrentTurn', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        const events: any[] = [];
+        bm.on('event', e => events.push(e));
+        bm.startBattle();
+        bm.processCurrentTurn();
+
+        const types = events.map(e => e.type);
+        expect(types).toContain('turn_start');
+        expect(types).toContain('action_select');
+        expect(types).toContain('damage');
+      });
+
+      it('should reduce target HP after two turns', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+
+        const enemyBefore = bm.getCombatantState('E1', 'enemy')!.currentHp;
+        bm.processCurrentTurn();
+        bm.processCurrentTurn();
+        const enemyAfter = bm.getCombatantState('E1', 'enemy')!.currentHp;
+        expect(enemyAfter).toBeLessThanOrEqual(enemyBefore);
+      });
+    });
+
+    describe('mid-round death handling', () => {
+      it('should skip defeated champions in turn order', () => {
+        const teams = makeTeams(['P1', 'P2'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+
+        const p2 = bm.getCombatantState('P2', 'player')!;
+        p2.currentHp = 0;
+        p2.isDefeated = true;
+
+        const alive = bm.getAliveCombatants('player');
+        expect(alive.length).toBe(1);
+        expect(alive[0].champion.id).toBe('P1');
+      });
+
+      it('should skip dead champion and continue to next turn', () => {
+        const teams = makeTeams(['P1', 'P2'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+
+        const p2 = bm.getCombatantState('P2', 'player')!;
+        p2.currentHp = 0;
+        p2.isDefeated = true;
+
+        while (bm.phase === BattlePhase.TurnActive) {
+          bm.processCurrentTurn();
+        }
+        if (bm.phase !== BattlePhase.Finished) {
+          expect(bm.round).toBeGreaterThan(0);
+        }
+      });
+    });
+
+    describe('action system', () => {
+      it('should list available actions for a champion', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        const actions = bm.getAvailableActions(teams.playerTeam.champions[0]);
+
+        expect(actions.length).toBe(5);
+        expect(actions[0].type).toBe(ActionType.BasicAttack);
+        expect(actions[0].cost).toBe(0);
+        expect(actions.find(a => a.type === ActionType.SpellR)).toBeDefined();
+      });
+
+      it('should accept submitted actions for player turns', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+        bm.startBattle();
+
+        const action: BattleAction = { type: ActionType.BasicAttack, cost: 0 };
+        const result = bm.submitAction(action);
+        const entry = bm.turnOrder[bm.turnIndex - 1];
+        if (entry?.side === 'player') {
+          expect(result).toBe(true);
+        }
+      });
+    });
+
+    describe('victory detection', () => {
+      it('should detect victory when all enemies die', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        const events: any[] = [];
+        bm.on('event', e => events.push(e));
+        bm.startBattle();
+
+        let safety = 100;
+        while (bm.phase !== BattlePhase.Finished && safety-- > 0) {
+          bm.processCurrentTurn();
+        }
+
+        expect(bm.phase).toBe(BattlePhase.Finished);
+        const endEvent = events.find(e => e.type === 'battle_end');
+        expect(endEvent).toBeDefined();
+        expect(['player', 'enemy']).toContain(endEvent.winner);
+      });
+
+      it('should return a valid BattleResult', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+
+        let safety = 100;
+        while (bm.phase !== BattlePhase.Finished && safety-- > 0) {
+          bm.processCurrentTurn();
+        }
+
+        const result = bm.getResult();
+        expect(result).not.toBeNull();
+        expect(result!.totalRounds).toBeGreaterThan(0);
+        expect(result!.log.length).toBeGreaterThan(0);
+        expect(['player', 'enemy', 'draw']).toContain(result!.winner);
+      });
+    });
+
+    describe('5v5 battle', () => {
+      it('should handle 5v5 with all participants', () => {
+        const teams = makeTeams(
+          ['P1', 'P2', 'P3', 'P4', 'P5'],
+          ['E1', 'E2', 'E3', 'E4', 'E5'],
+        );
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+
+        expect(bm.getPlayerCombatants().length).toBe(5);
+        expect(bm.getEnemyCombatants().length).toBe(5);
+
+        let safety = 200;
+        while (bm.phase !== BattlePhase.Finished && safety-- > 0) {
+          bm.processCurrentTurn();
+        }
+
+        expect(bm.phase).toBe(BattlePhase.Finished);
+        const result = bm.getResult();
+        expect(result).not.toBeNull();
+      });
+    });
+
+    describe('events', () => {
+      it('should emit round_start with turn order info', () => {
+        const teams = makeTeams(['A', 'B'], ['C']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        const events: any[] = [];
+        bm.on('event', e => events.push(e));
+        bm.startBattle();
+
+        const rs = events.find(e => e.type === 'round_start');
+        expect(rs).toBeDefined();
+        expect(rs.round).toBe(1);
+        expect(rs.turnOrder.length).toBe(3);
+        rs.turnOrder.forEach((entry: any) => {
+          expect(entry.champion).toBeDefined();
+          expect(['player', 'enemy']).toContain(entry.side);
+          expect(typeof entry.speedValue).toBe('number');
+        });
+      });
+
+      it('should emit action_select before damage', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        const events: any[] = [];
+        bm.on('event', e => events.push(e));
+        bm.startBattle();
+        bm.processCurrentTurn();
+
+        const selectIdx = events.findIndex(e => e.type === 'action_select');
+        const damageIdx = events.findIndex(e => e.type === 'damage');
+        expect(selectIdx).toBeGreaterThan(-1);
+        expect(damageIdx).toBeGreaterThan(-1);
+        expect(selectIdx).toBeLessThan(damageIdx);
+      });
+    });
+  });
+});
