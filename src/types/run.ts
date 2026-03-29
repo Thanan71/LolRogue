@@ -3,19 +3,84 @@
 /** Maximum number of champions in a team */
 export const MAX_TEAM_SIZE = 5;
 
-// ─── Biome ──────────────────────────────────────────────────────────────────
+// ─── Biome (LoL Lane Zones) ─────────────────────────────────────────────────
 
+/**
+ * The 6 lane-based zones in a LoL roguelike run.
+ * Each zone has unique encounters, themes, and difficulty scaling.
+ */
 export const BIOMES = [
-  'forest',
-  'desert',
-  'tundra',
-  'volcano',
-  'swamp',
-  'ruins',
-  'abyss',
+  'top_lane',
+  'jungle',
+  'mid_lane',
+  'bot_lane',
+  'river',
+  'base', // Boss zone
 ] as const;
 
 export type Biome = (typeof BIOMES)[number];
+
+/** Display metadata for each biome */
+export interface BiomeInfo {
+  id: Biome;
+  name: string;
+  description: string;
+  icon: string; // emoji or icon identifier
+  difficultyMultiplier: number;
+  /** Number of nodes in this biome's map */
+  nodeCount: { min: number; max: number };
+}
+
+export const BIOME_INFO: Record<Biome, BiomeInfo> = {
+  top_lane: {
+    id: 'top_lane',
+    name: 'Top Lane',
+    description: 'A lonely path guarded by powerful duelists and tanks.',
+    icon: '🛡️',
+    difficultyMultiplier: 1.0,
+    nodeCount: { min: 6, max: 8 },
+  },
+  jungle: {
+    id: 'jungle',
+    name: 'Jungle',
+    description: 'Dense forests filled with beasts and elusive assassins.',
+    icon: '🌿',
+    difficultyMultiplier: 1.1,
+    nodeCount: { min: 7, max: 10 },
+  },
+  mid_lane: {
+    id: 'mid_lane',
+    name: 'Mid Lane',
+    description: 'The central corridor where mages and assassins clash.',
+    icon: '⚡',
+    difficultyMultiplier: 1.2,
+    nodeCount: { min: 5, max: 7 },
+  },
+  bot_lane: {
+    id: 'bot_lane',
+    name: 'Bot Lane',
+    description: 'A duo lane defended by marksmen and their supports.',
+    icon: '🏹',
+    difficultyMultiplier: 1.1,
+    nodeCount: { min: 6, max: 8 },
+  },
+  river: {
+    id: 'river',
+    name: 'River',
+    description: 'Treacherous waters home to elemental drakes and scuttle crabs.',
+    icon: '🌊',
+    difficultyMultiplier: 1.3,
+    nodeCount: { min: 4, max: 6 },
+  },
+  base: {
+    id: 'base',
+    name: 'Enemy Base',
+    description: 'The final stronghold. Defeat the enemy Nexus to win!',
+    icon: '🏰',
+    difficultyMultiplier: 1.5,
+    nodeCount: { min: 3, max: 4 },
+  },
+};
 
 // ─── Item ───────────────────────────────────────────────────────────────────
 

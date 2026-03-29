@@ -1,0 +1,139 @@
+/**
+ * Map Generation Tests
+ */
+
+import { BIOMES } from '../src/types/run';
+import {
+  generateMap,
+  generateRunMap,
+  NodeType,
+  BIOME_MAP_CONFIGS,
+  ENCOUNTER_POOLS,
+  getEligibleEncounters,
+  getBiomeBoss,
+  findNode,
+  getAccessibleNodes,
+  completeNode,
+  isMapComplete,
+  getNextOptions,
+  countRemainingEncounters,
+} from '../src/game/map';
+
+describe('Map Generation', () => {
+  describe('generateMap', () => {
+    it('should generate valid map for each biome', () => {
+      for (const biome of BIOMES) {
+        const map = generateMap(biome, 1, 42);
+        expect(map.biome).toBe(biome);
+        expect(map.nodes.length).toBeGreaterThan(0);
+        expect(map.columns).toBeGreaterThan(0);
+
+        const config = BIOME_MAP_CONFIGS[biome];
+        expect(map.columns).toBeGreaterThanOrEqual(config.minColumns);
+        expect(map.columns).toBeLessThanOrEqual(config.maxColumns);
+
+        const startNode = findNode(map, map.startNodeId);
+        expect(startNode).toBeDefined();
+        expect(startNode!.type).toBe(NodeType.Start);
+
+        const exitNode = findNode(map, map.exitNodeId);
+        expect(exitNode).toBeDefined();
+        expect([NodeType.Exit, NodeType.Boss]).toContain(exitNode!.type);
+      }
+    });
+
+    it('should have consistent node connections', () => {
+      const map = generateMap('jungle', 2, 123);
+      for (const node of map.nodes) {
+        for (const nextId of node.nextNodeIds) {
+          const nextNode = findNode(map, nextId);
+          expect(nextNode).toBeDefined();
+          expect(nextNode!.prevNodeIds).toContain(node.id);
+          expect(nextNode!.column).toBe(node.column + 1);
+        }
+      }
+    });
+
+    it('should be deterministic with same seed', () => {
+      const map1 = generateMap('mid_lane', 3, 999);
+      const map2 = generateMap('mid_lane', 3, 999);
+      expect(map1.nodes.length).toBe(map2.nodes.length);
+      expect(map1.columns).toBe(map2.columns);
+      for (let i = 0; i < map1.nodes.length; i++) {
+        expect(map1.nodes[i].type).toBe(map2.nodes[i].type);
+      }
+    });
+  });
+
+  describe('generateRunMap', () => {
+    it('should generate 6 biome maps', () => {
+      const maps = generateRunMap(42);
+      expect(maps.length).toBe(6);
+      const biomeOrder = ['top_lane', 'jungle', 'mid_lane', 'bot_lane', 'river', 'base'];
+      maps.forEach((map, i) => expect(map.biome).toBe(biomeOrder[i]));
+    });
+  });
+
+  describe('Encounter Pools', () => {
+    it('should have encounters for each biome', () => {
+      for (const biome of BIOMES) {
+        expect(ENCOUNTER_POOLS[biome].length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should filter by run level', () => {
+      const eligible = getEligibleEncounters('top_lane', 1);
+      expect(eligible.every((e) => e.minRunLevel <= 1)).toBe(true);
+      const all = getEligibleEncounters('top_lane', 10);
+      expect(all.length).toBeGreaterThanOrEqual(eligible.length);
+    });
+
+    it('should generate boss encounters', () => {
+      const boss = getBiomeBoss('base', 6);
+      expect(boss.id).toBe('base_nexus_guardians');
+      const laneBoss = getBiomeBoss('top_lane', 3);
+      expect(laneBoss.id).toContain('_boss');
+    });
+  });
+
+  describe('Map Navigation', () => {
+    it('should track accessible nodes', () => {
+      const map = generateMap('mid_lane', 1, 42);
+      const accessible = getAccessibleNodes(map, []);
+      expect(accessible.length).toBeGreaterThan(0);
+    });
+
+    it('should complete nodes and unlock next', () => {
+      const map = generateMap('top_lane', 1, 42);
+      const startNode = findNode(map, map.startNodeId)!;
+      const newlyAccessible = completeNode(map, startNode.id);
+      expect(startNode.completed).toBe(true);
+      expect(newlyAccessible.length).toBeGreaterThan(0);
+    });
+
+    it('should detect map completion', () => {
+      const map = generateMap('base', 5, 42);
+      expect(isMapComplete(map)).toBe(false);
+      for (const node of map.nodes) node.completed = true;
+      expect(isMapComplete(map)).toBe(true);
+    });
+
+    it('should count remaining encounters', () => {
+      const map = generateMap('jungle', 2, 42);
+      const total = countRemainingEncounters(map);
+      expect(total).toBeGreaterThan(0);
+      const combatNode = map.nodes.find((n) => n.type === NodeType.Combat);
+      if (combatNode) {
+        combatNode.completed = true;
+        expect(countRemainingEncounters(map)).toBe(total - 1);
+      }
+    });
+
+    it('should get next options from a node', () => {
+      const map = generateMap('bot_lane', 1, 42);
+      const startNode = findNode(map, map.startNodeId)!;
+      const options = getNextOptions(map, startNode.id);
+      expect(options.length).toBeGreaterThan(0);
+    });
+  });
+});
