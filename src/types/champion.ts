@@ -81,6 +81,8 @@ export interface SpellEffect {
   values?: number[];
   /** Buff/debuff duration in seconds */
   buffDuration?: number;
+  /** Execute threshold as percentage of target max HP */
+  threshold?: number;
 }
 
 // ─── Champion Stats (base + per-level growth) ───────────────────────────────
