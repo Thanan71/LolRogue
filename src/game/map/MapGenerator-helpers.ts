@@ -39,10 +39,11 @@ export function getNodeMetadata(type: NodeType, biome: Biome): NodeMetadata {
     [NodeType.Combat]: { title: 'Combat', description: 'Fight enemy champions', icon: '⚔️' },
     [NodeType.Elite]: { title: 'Elite', description: 'A powerful enemy awaits', icon: '💀' },
     [NodeType.Boss]: { title: 'Boss', description: 'The final challenge', icon: '👑' },
-    [NodeType.Shop]: { title: 'Shop', description: 'Spend your gold', icon: '🛒' },
+    [NodeType.Shop]: { title: 'Shop', description: 'Spend your gold on items and recruits', icon: '🛒' },
     [NodeType.Rest]: { title: 'Rest', description: 'Heal your champions', icon: '💚' },
-    [NodeType.Event]: { title: 'Mystery', description: 'A mysterious encounter', icon: '❓' },
+    [NodeType.Event]: { title: 'Mystery', description: 'A mysterious encounter awaits', icon: '❓' },
     [NodeType.Treasure]: { title: 'Treasure', description: 'A free reward awaits', icon: '💎' },
+    [NodeType.Recruit]: { title: 'Recruit', description: 'A wild champion seeks a team', icon: '🤝' },
     [NodeType.Exit]: { title: 'Exit', description: 'Proceed to the next zone', icon: '➡️' },
   };
 
@@ -78,6 +79,8 @@ export function selectColumnType(
   if (roll < cumulative) return NodeType.Treasure;
   cumulative += config.eliteChance;
   if (roll < cumulative) return NodeType.Elite;
+  cumulative += config.recruitChance;
+  if (roll < cumulative) return NodeType.Recruit;
   return NodeType.Combat;
 }
 

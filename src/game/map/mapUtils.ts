@@ -5,6 +5,7 @@
  */
 
 import type { NodeMap, MapNode } from './types';
+import { NodeType } from './types';
 
 /**
  * Find a node by ID in a NodeMap.
@@ -78,21 +79,48 @@ export function getNextOptions(map: NodeMap, currentNodeId: string): MapNode[] {
 }
 
 /**
- * Get all combat/elite nodes in a map (for encounter planning).
+ * Get all combat nodes in a map (combat, elite, boss).
  */
 export function getCombatNodes(map: NodeMap): MapNode[] {
   return map.nodes.filter(
-    (n) => n.type === 'combat' || n.type === 'elite' || n.type === 'boss'
+    (n) => n.type === NodeType.Combat || n.type === NodeType.Elite || n.type === NodeType.Boss
   );
 }
 
 /**
- * Count remaining encounters in a map.
+ * Get all shop nodes in a map.
+ */
+export function getShopNodes(map: NodeMap): MapNode[] {
+  return map.nodes.filter((n) => n.type === NodeType.Shop);
+}
+
+/**
+ * Get all rest nodes in a map.
+ */
+export function getRestNodes(map: NodeMap): MapNode[] {
+  return map.nodes.filter((n) => n.type === NodeType.Rest);
+}
+
+/**
+ * Get all event nodes in a map.
+ */
+export function getEventNodes(map: NodeMap): MapNode[] {
+  return map.nodes.filter((n) => n.type === NodeType.Event);
+}
+
+/**
+ * Get all recruit nodes in a map.
+ */
+export function getRecruitNodes(map: NodeMap): MapNode[] {
+  return map.nodes.filter((n) => n.type === NodeType.Recruit);
+}
+
+/**
+ * Count remaining encounters in a map (all non-completed nodes with encounters).
  */
 export function countRemainingEncounters(map: NodeMap): number {
   return map.nodes.filter(
     (n) =>
-      !n.completed &&
-      (n.type === 'combat' || n.type === 'elite' || n.type === 'boss')
+      !n.completed && n.encounter !== null
   ).length;
 }

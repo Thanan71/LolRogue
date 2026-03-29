@@ -41,5 +41,15 @@ export {
   getNodesInColumn,
   getNextOptions,
   getCombatNodes,
+  getShopNodes,
+  getRestNodes,
+  getEventNodes,
+  getRecruitNodes,
   countRemainingEncounters,
 } from './mapUtils';
+
+// Encounter Manager
+export {
+  EncounterManager,
+  resolveEventOutcome,
+} from './EncounterManager';

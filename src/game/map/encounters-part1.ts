@@ -2,14 +2,16 @@
  * Encounter Pools - Part 1: Top Lane & Jungle
  */
 
-import type { Encounter } from './types';
+import type { CombatEncounter } from './types';
 
 // ─── Top Lane Pool ───────────────────────────────────────────────────────────
 
-export const TOP_LANE_ENCOUNTERS: Encounter[] = [
+export const TOP_LANE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'top_darius',
     name: 'The Noxian Guillotine',
+    description: 'Darius stands ready with his axe, eager for a duel.',
+    type: 'combat',
     enemies: [{ championId: 'Darius', statMultiplier: 1.2 }],
     goldReward: 25,
     itemDropChance: 0.15,
@@ -18,6 +20,8 @@ export const TOP_LANE_ENCOUNTERS: Encounter[] = [
   {
     id: 'top_garen',
     name: 'Demacian Justice',
+    description: 'Garen charges forward with unwavering resolve.',
+    type: 'combat',
     enemies: [{ championId: 'Garen', statMultiplier: 1.1 }],
     goldReward: 20,
     itemDropChance: 0.12,
@@ -26,6 +30,8 @@ export const TOP_LANE_ENCOUNTERS: Encounter[] = [
   {
     id: 'top_malphite',
     name: 'Unstoppable Force',
+    description: 'A massive stone golem blocks your path.',
+    type: 'combat',
     enemies: [{ championId: 'Malphite', statMultiplier: 1.3 }],
     goldReward: 30,
     itemDropChance: 0.18,
@@ -34,6 +40,8 @@ export const TOP_LANE_ENCOUNTERS: Encounter[] = [
   {
     id: 'top_warwick',
     name: 'The Uncaged Wrath',
+    description: 'Warwick catches your scent and pounces.',
+    type: 'combat',
     enemies: [{ championId: 'Warwick', statMultiplier: 1.15 }],
     goldReward: 22,
     itemDropChance: 0.14,
@@ -42,6 +50,8 @@ export const TOP_LANE_ENCOUNTERS: Encounter[] = [
   {
     id: 'top_duo_fighters',
     name: 'Top Lane Brawl',
+    description: 'Two fighters block the lane together.',
+    type: 'combat',
     enemies: [
       { championId: 'Darius', statMultiplier: 0.9 },
       { championId: 'Garen', statMultiplier: 0.9 },
@@ -54,10 +64,12 @@ export const TOP_LANE_ENCOUNTERS: Encounter[] = [
 
 // ─── Jungle Pool ─────────────────────────────────────────────────────────────
 
-export const JUNGLE_ENCOUNTERS: Encounter[] = [
+export const JUNGLE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'jungle_warwick',
     name: 'Blood Hunt',
+    description: 'Warwick hunts you through the undergrowth.',
+    type: 'combat',
     enemies: [{ championId: 'Warwick', statMultiplier: 1.25 }],
     goldReward: 28,
     itemDropChance: 0.16,
@@ -66,6 +78,8 @@ export const JUNGLE_ENCOUNTERS: Encounter[] = [
   {
     id: 'jungle_scuttle',
     name: 'Scuttle Crab',
+    description: 'A skittish scuttle crab blocks the river crossing.',
+    type: 'combat',
     enemies: [{ championId: 'Malphite', statMultiplier: 0.6 }],
     goldReward: 15,
     itemDropChance: 0.05,
@@ -74,6 +88,8 @@ export const JUNGLE_ENCOUNTERS: Encounter[] = [
   {
     id: 'jungle_ambush',
     name: 'Jungle Ambush',
+    description: 'An ambush from the bushes! Multiple enemies attack at once.',
+    type: 'combat',
     enemies: [
       { championId: 'Warwick', statMultiplier: 1.0 },
       { championId: 'Annie', statMultiplier: 0.8 },
@@ -85,6 +101,8 @@ export const JUNGLE_ENCOUNTERS: Encounter[] = [
   {
     id: 'jungle_monster_camp',
     name: 'Monster Camp',
+    description: 'A den of stone creatures guards the jungle camp.',
+    type: 'combat',
     enemies: [
       { championId: 'Malphite', statMultiplier: 0.7 },
       { championId: 'Malphite', statMultiplier: 0.5 },
@@ -96,6 +114,8 @@ export const JUNGLE_ENCOUNTERS: Encounter[] = [
   {
     id: 'jungle_gank',
     name: 'Surprise Gank',
+    description: 'A coordinated gank catches you off guard!',
+    type: 'combat',
     enemies: [
       { championId: 'Warwick', statMultiplier: 1.1 },
       { championId: 'Lux', statMultiplier: 0.9 },

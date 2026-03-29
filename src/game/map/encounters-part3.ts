@@ -2,14 +2,16 @@
  * Encounter Pools - Part 3: River & Base (Boss)
  */
 
-import type { Encounter } from './types';
+import type { CombatEncounter } from './types';
 
 // ─── River Pool ──────────────────────────────────────────────────────────────
 
-export const RIVER_ENCOUNTERS: Encounter[] = [
+export const RIVER_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'river_scuttle',
     name: 'Scuttle Crab',
+    description: 'A scuttle crab skitters across the river path.',
+    type: 'combat',
     enemies: [{ championId: 'Malphite', statMultiplier: 0.7 }],
     goldReward: 18,
     itemDropChance: 0.08,
@@ -18,6 +20,8 @@ export const RIVER_ENCOUNTERS: Encounter[] = [
   {
     id: 'river_drake_infernal',
     name: 'Infernal Drake',
+    description: 'The Infernal Drake breathes fire across the river.',
+    type: 'combat',
     enemies: [{ championId: 'Annie', statMultiplier: 1.4 }],
     goldReward: 40,
     itemDropChance: 0.25,
@@ -26,6 +30,8 @@ export const RIVER_ENCOUNTERS: Encounter[] = [
   {
     id: 'river_drake_ocean',
     name: 'Ocean Drake',
+    description: 'The Ocean Drake surges with tidal power.',
+    type: 'combat',
     enemies: [{ championId: 'Soraka', statMultiplier: 1.3 }],
     goldReward: 35,
     itemDropChance: 0.22,
@@ -34,6 +40,8 @@ export const RIVER_ENCOUNTERS: Encounter[] = [
   {
     id: 'river_drake_mountain',
     name: 'Mountain Drake',
+    description: 'The Mountain Drake stomps with earth-shaking force.',
+    type: 'combat',
     enemies: [{ championId: 'Malphite', statMultiplier: 1.5 }],
     goldReward: 45,
     itemDropChance: 0.28,
@@ -42,6 +50,8 @@ export const RIVER_ENCOUNTERS: Encounter[] = [
   {
     id: 'river_elder_dragon',
     name: 'Elder Dragon',
+    description: 'The Elder Dragon awakens with devastating power.',
+    type: 'combat',
     enemies: [
       { championId: 'Malphite', statMultiplier: 1.3 },
       { championId: 'Annie', statMultiplier: 1.2 },
@@ -54,10 +64,12 @@ export const RIVER_ENCOUNTERS: Encounter[] = [
 
 // ─── Base (Boss) Pool ────────────────────────────────────────────────────────
 
-export const BASE_ENCOUNTERS: Encounter[] = [
+export const BASE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'base_turret_guardian',
     name: 'Turret Guardian',
+    description: 'The turret guardians stand watch over the base.',
+    type: 'combat',
     enemies: [
       { championId: 'Leona', statMultiplier: 1.4 },
       { championId: 'Malphite', statMultiplier: 1.2 },
@@ -69,6 +81,8 @@ export const BASE_ENCOUNTERS: Encounter[] = [
   {
     id: 'base_inhibitor_defense',
     name: 'Inhibitor Defense',
+    description: 'The inhibitor defenders rally to protect the base.',
+    type: 'combat',
     enemies: [
       { championId: 'Garen', statMultiplier: 1.2 },
       { championId: 'Lux', statMultiplier: 1.2 },
@@ -81,6 +95,8 @@ export const BASE_ENCOUNTERS: Encounter[] = [
   {
     id: 'base_nexus_guardians',
     name: 'Nexus Guardians',
+    description: 'The final guardians protect the Nexus at all costs.',
+    type: 'combat',
     enemies: [
       { championId: 'Leona', statMultiplier: 1.3 },
       { championId: 'Darius', statMultiplier: 1.3 },

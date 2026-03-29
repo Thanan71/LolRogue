@@ -5,7 +5,7 @@
  */
 
 import type { Biome } from '../../types/run';
-import type { Encounter } from './types';
+import type { CombatEncounter, Encounter } from './types';
 import { TOP_LANE_ENCOUNTERS, JUNGLE_ENCOUNTERS } from './encounters-part1';
 import { MID_LANE_ENCOUNTERS, BOT_LANE_ENCOUNTERS } from './encounters-part2';
 import { RIVER_ENCOUNTERS, BASE_ENCOUNTERS } from './encounters-part3';
@@ -13,10 +13,10 @@ import { RIVER_ENCOUNTERS, BASE_ENCOUNTERS } from './encounters-part3';
 // ─── Export Pool Map ─────────────────────────────────────────────────────────
 
 /**
- * Encounter pool for each biome.
- * Used by the map generator to populate combat nodes.
+ * Combat encounter pool for each biome.
+ * Used by the map generator to populate combat/elite/boss nodes.
  */
-export const ENCOUNTER_POOLS: Record<Biome, Encounter[]> = {
+export const ENCOUNTER_POOLS: Record<Biome, CombatEncounter[]> = {
   top_lane: TOP_LANE_ENCOUNTERS,
   jungle: JUNGLE_ENCOUNTERS,
   mid_lane: MID_LANE_ENCOUNTERS,
@@ -28,9 +28,9 @@ export const ENCOUNTER_POOLS: Record<Biome, Encounter[]> = {
 // ─── Utility Functions ───────────────────────────────────────────────────────
 
 /**
- * Get eligible encounters for a biome and run level.
+ * Get eligible combat encounters for a biome and run level.
  */
-export function getEligibleEncounters(biome: Biome, runLevel: number): Encounter[] {
+export function getEligibleEncounters(biome: Biome, runLevel: number): CombatEncounter[] {
   return ENCOUNTER_POOLS[biome].filter((enc) => enc.minRunLevel <= runLevel);
 }
 
@@ -38,7 +38,7 @@ export function getEligibleEncounters(biome: Biome, runLevel: number): Encounter
  * Get the boss encounter for a biome.
  * Base biome has the final boss; other biomes use a boosted elite.
  */
-export function getBiomeBoss(biome: Biome, runLevel: number): Encounter {
+export function getBiomeBoss(biome: Biome, runLevel: number): CombatEncounter {
   if (biome === 'base') {
     const baseEncounters = getEligibleEncounters('base', runLevel);
     return baseEncounters[baseEncounters.length - 1];
@@ -64,9 +64,9 @@ export function getBiomeBoss(biome: Biome, runLevel: number): Encounter {
 }
 
 /**
- * Select a random encounter from eligible pool.
+ * Select a random combat encounter from eligible pool.
  */
-export function getRandomEncounter(biome: Biome, runLevel: number): Encounter {
+export function getRandomEncounter(biome: Biome, runLevel: number): CombatEncounter {
   const eligible = getEligibleEncounters(biome, runLevel);
   return eligible[Math.floor(Math.random() * eligible.length)];
 }
