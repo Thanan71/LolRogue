@@ -15,9 +15,15 @@ function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
     id: `Test${slot}`, name: `Test Spell ${slot}`, description: `Desc ${slot}`,
     maxRank: 5, cooldown: [8, 7.5, 7, 6.5, 6], cost: [50, 55, 60, 65, 70],
     range: [700, 700, 700, 700, 700], image: `Test${slot}.png`,
+    targeting: 'enemy' as any,
+    scaling: { adRatio: 0.5, apRatio: 0.0 },
+    effects: [{ type: 'damage', damageType: 'physical', adRatio: 0.5, apRatio: 0.0, baseDamage: [50, 75, 100, 125, 150] }],
   });
   const passive: Passive = {
     name: 'Test Passive', description: 'Desc', image: 'TestPassive.png',
+    targeting: 'passive' as any,
+    scaling: { adRatio: 0.0, apRatio: 0.0 },
+    effects: [],
   };
   const defaults: Champion = {
     id: 'TestChampion', key: '9999', name: 'Test Champion', title: 'the Tester',

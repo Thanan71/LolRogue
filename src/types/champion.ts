@@ -37,6 +37,52 @@ export const RESOURCE_TYPES = [
 
 export type ResourceType = (typeof RESOURCE_TYPES)[number];
 
+// ─── Targeting Types ───────────────────────────────────────────────────────
+
+export enum TargetingType {
+  /** Self-buff or self-targeted ability */
+  Self = 'self',
+  /** Targets an allied champion */
+  Ally = 'ally',
+  /** Skillshot or targeted ability against an enemy */
+  Enemy = 'enemy',
+  /** Area of effect ability */
+  Area = 'area',
+  /** Passive — always active, no targeting */
+  Passive = 'passive',
+}
+
+// ─── Spell Effect ─────────────────────────────────────────────────────────
+
+export interface SpellEffect {
+  /** Effect category: damage, heal, shield, cc, buff, debuff, execute */
+  type: string;
+  /** Damage type: physical, magical, true (for damage effects) */
+  damageType?: string;
+  /** AD ratio (e.g. 0.40 = 40% AD) */
+  adRatio?: number;
+  /** AP ratio (e.g. 0.60 = 60% AP) */
+  apRatio?: number;
+  /** Base damage values per rank */
+  baseDamage?: number[];
+  /** Crowd control type: stun, snare, knockup, slow, silence */
+  ccType?: string;
+  /** CC duration in seconds */
+  ccDuration?: number;
+  /** Slow percentage (0-1) */
+  slowPercent?: number;
+  /** Heal/shield base values per rank */
+  baseValue?: number[];
+  /** Buff/debuff stat key */
+  stat?: string;
+  /** Buff/debuff modifier type */
+  modifierType?: 'flat' | 'percent';
+  /** Buff/debuff values per rank */
+  values?: number[];
+  /** Buff/debuff duration in seconds */
+  buffDuration?: number;
+}
+
 // ─── Champion Stats (base + per-level growth) ───────────────────────────────
 
 export interface ChampionStats {
@@ -69,7 +115,7 @@ export interface ChampionStats {
   critPerLevel: number;
 }
 
-// ─── Spell ──────────────────────────────────────────────────────────────────
+// ─── Spell ────────────────────────────────────────────────────────────────
 
 export interface Spell {
   id: string;
@@ -80,6 +126,15 @@ export interface Spell {
   cost: number[];           // per rank
   range: number[];          // per rank
   image: string;            // filename e.g. "AhriQ.png"
+  /** How the spell is targeted */
+  targeting: TargetingType;
+  /** AD/AP scaling ratios */
+  scaling: {
+    adRatio: number;
+    apRatio: number;
+  };
+  /** Structured effects this spell produces */
+  effects: SpellEffect[];
 }
 
 // ─── Passive ────────────────────────────────────────────────────────────────
@@ -88,6 +143,15 @@ export interface Passive {
   name: string;
   description: string;
   image: string; // filename e.g. "Ahri_SoulEater2.png"
+  /** How the passive triggers */
+  targeting: TargetingType;
+  /** AD/AP scaling ratios */
+  scaling: {
+    adRatio: number;
+    apRatio: number;
+  };
+  /** Structured effects this passive produces */
+  effects: SpellEffect[];
 }
 
 // ─── Champion (fully parsed) ────────────────────────────────────────────────

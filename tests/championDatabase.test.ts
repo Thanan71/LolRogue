@@ -19,7 +19,7 @@ const FIXTURES: Champion[] = [
       mpRegen: 8, mpRegenPerLevel: 0.8, crit: 0, critPerLevel: 0,
     },
     spells: [],
-    passive: { name: '', description: '', image: '' },
+    passive: { name: '', description: '', image: '', targeting: 'passive' as any, scaling: { adRatio: 0, apRatio: 0 }, effects: [] },
     iconUrl: '/data/lol/img/champions/Ahri.png',
   },
   {
@@ -38,7 +38,7 @@ const FIXTURES: Champion[] = [
       mpRegen: 0, mpRegenPerLevel: 0, crit: 0, critPerLevel: 0,
     },
     spells: [],
-    passive: { name: '', description: '', image: '' },
+    passive: { name: '', description: '', image: '', targeting: 'passive' as any, scaling: { adRatio: 0, apRatio: 0 }, effects: [] },
     iconUrl: '/data/lol/img/champions/Darius.png',
   },
   {
@@ -57,7 +57,7 @@ const FIXTURES: Champion[] = [
       mpRegen: 6.7, mpRegenPerLevel: 0.4, crit: 0, critPerLevel: 0,
     },
     spells: [],
-    passive: { name: '', description: '', image: '' },
+    passive: { name: '', description: '', image: '', targeting: 'passive' as any, scaling: { adRatio: 0, apRatio: 0 }, effects: [] },
     iconUrl: '/data/lol/img/champions/Jinx.png',
   },
 ];
