@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.starter-select {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0a0a1a 0%, #0d1117 50%, #1a1a2e 100%);
+  color: #e0d5b7;
+  font-family: 'Cinzel', 'Georgia', serif;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.starter-select__title {
+  font-size: 2.8rem;
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(180deg, #f0e6d2 0%, #c8aa6e 40%, #7a5c2e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.starter-select__subtitle {
+  font-size: 1rem;
+  color: #7a6f55;
+  text-align: center;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.starter-select__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1100px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+  .starter-select__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .starter-select__grid { grid-template-columns: 1fr; max-width: 380px; }
+}
+
+.champion-card {
+  position: relative;
+  border: 2px solid #2a2520;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #141425 0%, #0d0d1a 100%);
+  cursor: pointer;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.champion-card:hover {
+  transform: translateY(-6px);
+  border-color: #c8aa6e;
+  box-shadow: 0 8px 30px rgba(200, 170, 110, 0.25), 0 0 15px rgba(200, 170, 110, 0.1);
+}
+
+.champion-card--selected {
+  border-color: #ffd700;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(255, 215, 0, 0.15);
+  transform: translateY(-6px) scale(1.02);
+}
+
+.champion-card--selected::after {
+  content: '\2713  CHOISI';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #c8aa6e, #ffd700);
+  color: #0a0a1a;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.champion-card__splash-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+
+.champion-card__splash {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.4s;
+}
+
+.champion-card:hover .champion-card__splash {
+  transform: scale(1.05);
+}
+
+.champion-card__splash-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, transparent 40%, rgba(10,10,26,0.7) 75%, rgba(10,10,26,0.95) 100%);
+  pointer-events: none;
+}
+
+.champion-card__info {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.champion-card__name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f0e6d2;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.champion-card__title-text {
+  font-size: 0.75rem;
+  color: #7a6f55;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.champion-card__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.champion-card__tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+
+.champion-card__tag--Fighter  { color: #e8a033; border-color: #e8a033; background: rgba(232,160,51,0.1); }
+.champion-card__tag--Mage     { color: #5b9bd5; border-color: #5b9bd5; background: rgba(91,155,213,0.1); }
+.champion-card__tag--Assassin { color: #c84040; border-color: #c84040; background: rgba(200,64,64,0.1); }
+.champion-card__tag--Tank     { color: #4caf50; border-color: #4caf50; background: rgba(76,175,80,0.1); }
+.champion-card__tag--Marksman { color: #e05555; border-color: #e05555; background: rgba(224,85,85,0.1); }
+.champion-card__tag--Support  { color: #b88fdc; border-color: #b88fdc; background: rgba(184,143,220,0.1); }
+
+.champion-card__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+}
+
+.champion-card__stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.champion-card__stat-label {
+  color: #7a6f55;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.champion-card__stat-value {
+  color: #c8aa6e;
+  font-weight: 700;
+}
+
+.starter-select__actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.starter-select__confirm {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #0a0a1a;
+  background: linear-gradient(135deg, #c8aa6e 0%, #ffd700 50%, #c8aa6e 100%);
+  background-size: 200% 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 14px 48px;
+  cursor: pointer;
+  transition: background-position 0.3s, box-shadow 0.3s, transform 0.2s;
+  box-shadow: 0 4px 20px rgba(200, 170, 110, 0.3);
+}
+
+.starter-select__confirm:hover {
+  background-position: 100% 0;
+  box-shadow: 0 6px 30px rgba(255, 215, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.starter-select__confirm:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.starter-select__confirm:disabled:hover {
+  background-position: 0 0;
+  box-shadow: none;
+}
+
+.starter-select__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+}
+
+.starter-select__loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #2a2520;
+  border-top-color: #c8aa6e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.starter-select__loading-text {
+  font-size: 1rem;
+  color: #7a6f55;
+  letter-spacing: 0.1em;
+}
