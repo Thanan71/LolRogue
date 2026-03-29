@@ -43,6 +43,79 @@ async function downloadEndpoint(version, endpoint, filename) {
 }
 
 /**
+ * Télécharge les icônes des champions (120x120)
+ */
+async function downloadChampionIcons(version, championData) {
+  const iconsDir = path.join(OUTPUT_DIR, 'img', 'champions');
+  await fs.mkdir(iconsDir, { recursive: true });
+
+  const champions = Object.values(championData.data);
+  console.log(`\n🖼️  Downloading ${champions.length} champion icons...`);
+
+  let downloaded = 0;
+  for (const champion of champions) {
+    const iconFilename = champion.image.full;
+    const url = `${DDRAGON_BASE}/cdn/${version}/img/champion/${iconFilename}`;
+    const outputPath = path.join(iconsDir, iconFilename);
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.warn(`  ⚠️  Failed to download ${iconFilename}: ${response.status}`);
+        continue;
+      }
+      const buffer = Buffer.from(await response.arrayBuffer());
+      await fs.writeFile(outputPath, buffer);
+      downloaded++;
+      if (downloaded % 20 === 0 || downloaded === champions.length) {
+        console.log(`  📥 ${downloaded}/${champions.length} icons downloaded`);
+      }
+    } catch (err) {
+      console.warn(`  ⚠️  Error downloading ${iconFilename}: ${err.message}`);
+    }
+  }
+
+  console.log(`✓ Downloaded ${downloaded} champion icons to img/champions/`);
+}
+
+/**
+ * Télécharge les icônes des items (64x64)
+ */
+async function downloadItemIcons(version, itemData) {
+  const iconsDir = path.join(OUTPUT_DIR, 'img', 'items');
+  await fs.mkdir(iconsDir, { recursive: true });
+
+  const items = Object.entries(itemData.data);
+  console.log(`\n🖼️  Downloading ${items.length} item icons...`);
+
+  let downloaded = 0;
+  for (const [id, item] of items) {
+    if (!item.image || !item.image.full) continue;
+    const iconFilename = item.image.full;
+    const url = `${DDRAGON_BASE}/cdn/${version}/img/item/${iconFilename}`;
+    const outputPath = path.join(iconsDir, iconFilename);
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.warn(`  ⚠️  Failed to download item ${iconFilename}: ${response.status}`);
+        continue;
+      }
+      const buffer = Buffer.from(await response.arrayBuffer());
+      await fs.writeFile(outputPath, buffer);
+      downloaded++;
+      if (downloaded % 50 === 0 || downloaded === items.length) {
+        console.log(`  📥 ${downloaded}/${items.length} item icons downloaded`);
+      }
+    } catch (err) {
+      console.warn(`  ⚠️  Error downloading item ${iconFilename}: ${err.message}`);
+    }
+  }
+
+  console.log(`✓ Downloaded ${downloaded} item icons to img/items/`);
+}
+
+/**
  * Point d'entrée principal
  */
 async function main() {
@@ -66,8 +139,19 @@ async function main() {
       { endpoint: 'summoner', filename: 'summoner-spells.json' },
     ];
 
+    const downloadedData = {};
     for (const { endpoint, filename } of endpoints) {
-      await downloadEndpoint(version, endpoint, filename);
+      downloadedData[filename] = await downloadEndpoint(version, endpoint, filename);
+    }
+
+    // Télécharger les icônes des champions
+    if (downloadedData['champions.json']) {
+      await downloadChampionIcons(version, downloadedData['champions.json']);
+    }
+
+    // Télécharger les icônes des items
+    if (downloadedData['items.json']) {
+      await downloadItemIcons(version, downloadedData['items.json']);
     }
 
     // Sauvegarder les métadonnées (version, date)

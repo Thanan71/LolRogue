@@ -33,3 +33,6 @@ data/lol/items.json
 data/lol/runes.json
 data/lol/summoner-spells.json
 data/lol/metadata.json
+
+# Data Dragon images (downloaded via script)
+data/lol/img/
