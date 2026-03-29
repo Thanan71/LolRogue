@@ -53,7 +53,7 @@ function extractEffects(rawSpell, tooltip, cdSpell) {
   if (/<shield>/i.test(tooltip||'')||/bouclier|shield/i.test(rawSpell.description||'')) {
     effects.push({type:'shield',apRatio:0,baseValue:extractEffectValues(cdSpell,rawSpell.maxrank)});
   }
-  const ccMap=[{p:/\b(étourdi|stun)\b/i,t:'stun'},{p:/\b(enracin|snare|root)\b/i,t:'snare'},{p:/\b(knock[- ]?up|déstabilis)\b/i,t:'knockup'},{p:/\b(ralent|slow)\b/i,t:'slow'},{p:/\b(charm|charme)\b/i,t:'charm'},{p:/\b(silence)\b/i,t:'silence'}];
+  const ccMap=[{p:/\b(étourdi|stun)\b/i,t:'stun'},{p:/\b(enracin|snare|root|immobilis)\b/i,t:'snare'},{p:/\b(knock[- ]?up|déstabilis)\b/i,t:'knockup'},{p:/\b(ralent|slow)\b/i,t:'slow'},{p:/\b(charm|charme)\b/i,t:'charm'},{p:/\b(silence)\b/i,t:'silence'}];
   for (const {p,t} of ccMap) {
     if (p.test(tooltip||'')||p.test(rawSpell.description||'')) {
       const e={type:'cc',ccType:t};
@@ -66,7 +66,104 @@ function extractEffects(rawSpell, tooltip, cdSpell) {
   return effects;
 }
 
-function parseSpell(rawSpell, cdSpell) {
+// Post-processing functions to automatically fix problematic values
+
+/**
+ * Fix negative scaling ratios by setting them to 0
+ */
+function fixNegativeScaling(parsed) {
+  for (const champ of parsed) {
+    for (const spell of champ.spells) {
+      if (spell.scaling.adRatio < 0) spell.scaling.adRatio = 0;
+      if (spell.scaling.apRatio < 0) spell.scaling.apRatio = 0;
+      for (const effect of spell.effects) {
+        if (effect.adRatio !== undefined && effect.adRatio < 0) effect.adRatio = 0;
+        if (effect.apRatio !== undefined && effect.apRatio < 0) effect.apRatio = 0;
+      }
+    }
+    if (champ.passive) {
+      if (champ.passive.scaling.adRatio < 0) champ.passive.scaling.adRatio = 0;
+      if (champ.passive.scaling.apRatio < 0) champ.passive.scaling.apRatio = 0;
+    }
+  }
+}
+
+/**
+ * Fix passive targeting: if passive has heal effect and description mentions self-heal, set targeting to 'self'
+ */
+function fixPassiveTargeting(parsed) {
+  for (const champ of parsed) {
+    if (champ.passive) {
+      const desc = (champ.passive.description || '').toLowerCase();
+      const hasHealEffect = champ.passive.effects.some(e => e.type === 'heal');
+      
+      // If passive has heal effect and description mentions self-healing keywords
+      if (hasHealEffect && (/\b(se |soi|récupère|gagne)\b/.test(desc) && !/\b(ennemi|adversaire)\b/.test(desc))) {
+        champ.passive.targeting = 'self';
+      }
+    }
+  }
+}
+
+/**
+ * Add missing CC effects based on spell descriptions
+ */
+function addMissingCCEffects(parsed) {
+  const ccPatterns = [
+    { pattern: /\b(immobilis|étourdi|stun)\b/i, ccType: 'stun' },
+    { pattern: /\b(enracin|snare|root)\b/i, ccType: 'snare' },
+    { pattern: /\b(knock[- ]?up|déstabilis)\b/i, ccType: 'knockup' },
+    { pattern: /\b(ralent|slow)\b/i, ccType: 'slow' },
+    { pattern: /\b(charm|charme)\b/i, ccType: 'charm' },
+    { pattern: /\b(silence)\b/i, ccType: 'silence' }
+  ];
+  
+  for (const champ of parsed) {
+    for (const spell of champ.spells) {
+      const desc = (spell.description || '').toLowerCase();
+      const tooltip = (spell.tooltip || '').toLowerCase();
+      const text = desc + ' ' + tooltip;
+      
+      // Check if spell already has a CC effect
+      const hasCC = spell.effects.some(e => e.type === 'cc');
+      
+      if (!hasCC) {
+        // Check for CC patterns in description
+        for (const { pattern, ccType } of ccPatterns) {
+          if (pattern.test(text)) {
+            spell.effects.push({ type: 'cc', ccType });
+            break; // Only add one CC effect per spell
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Ensure all spells have at least one damage effect if they have scaling
+ */
+function ensureDamageEffects(parsed) {
+  for (const champ of parsed) {
+    for (const spell of champ.spells) {
+      const hasDamage = spell.effects.some(e => e.type === 'damage');
+      const hasScaling = spell.scaling.adRatio > 0 || spell.scaling.apRatio > 0;
+      
+      if (!hasDamage && hasScaling) {
+        const damageType = spell.scaling.apRatio > 0 ? 'magical' : 'physical';
+        spell.effects.push({
+          type: 'damage',
+          damageType,
+          adRatio: spell.scaling.adRatio,
+          apRatio: spell.scaling.apRatio,
+          baseDamage: []
+        });
+      }
+    }
+  }
+}
+
+function parseSpell(rawSpell, cdSpell, champId) {
   const tooltip = rawSpell.tooltip || '';
   const maxRank = rawSpell.maxrank || 5;
   const cooldown = (rawSpell.cooldown||[]).slice(0,maxRank);
@@ -74,10 +171,17 @@ function parseSpell(rawSpell, cdSpell) {
   const range = (rawSpell.range||[]).slice(0,maxRank);
   const targeting = detectTargeting(rawSpell, tooltip);
   const scaling = {adRatio:0,apRatio:0};
-  if (cdSpell?.coefficients) { scaling.adRatio=cdSpell.coefficients.coefficient1||0; scaling.apRatio=cdSpell.coefficients.coefficient2||0; }
+  
+  // Extract scaling from Community Dragon data
+  if (cdSpell?.coefficients) {
+    scaling.adRatio = cdSpell.coefficients.coefficient1 || 0;
+    scaling.apRatio = cdSpell.coefficients.coefficient2 || 0;
+  }
+  
   const effects = extractEffects(rawSpell, tooltip, cdSpell);
-  if (effects.length===0 && (scaling.adRatio>0||scaling.apRatio>0)) {
-    effects.push({type:'damage',damageType:scaling.apRatio>0?'magical':'physical',adRatio:scaling.adRatio,apRatio:scaling.apRatio,baseDamage:extractBaseDamage(cdSpell,maxRank)});
+  
+  if (effects.length === 0 && (scaling.adRatio > 0 || scaling.apRatio > 0)) {
+    effects.push({type:'damage',damageType:scaling.apRatio > 0 ? 'magical' : 'physical',adRatio:scaling.adRatio,apRatio:scaling.apRatio,baseDamage:extractBaseDamage(cdSpell,maxRank)});
   }
   return {id:rawSpell.id,name:rawSpell.name,description:rawSpell.description,maxRank,cooldown,cost,range,image:rawSpell.image?.full||(rawSpell.id+'.png'),targeting,scaling,effects};
 }
@@ -125,7 +229,7 @@ async function main() {
       const spells=[];
       if (detail) {
         for (let i=0;i<detail.spells.length;i++) {
-          const parsedSpell=parseSpell(detail.spells[i],cdData?.spells?.[i]||null);
+          const parsedSpell=parseSpell(detail.spells[i],cdData?.spells?.[i]||null,raw.id);
           spells.push(parsedSpell);
           spellCount++;
         }
@@ -134,6 +238,12 @@ async function main() {
       if (detail?.passive) passive=parsePassive(detail.passive,null,raw.id);
       parsed.push({id:raw.id,key:raw.key,name:raw.name,title:raw.title,tags:parseTags(raw.tags),resourceType:raw.partype||'None',stats:parseStats(raw.stats),spells,passive,iconUrl:'/data/lol/img/champions/'+raw.image.full});
     }
+    // Apply post-processing fixes
+    fixNegativeScaling(parsed);
+    fixPassiveTargeting(parsed);
+    addMissingCCEffects(parsed);
+    ensureDamageEffects(parsed);
+    
     parsed.sort((a,b)=>a.name.localeCompare(b.name));
     await fs.writeFile(path.join(OUTPUT_DIR,'champions-parsed.json'),JSON.stringify(parsed,null,2),'utf-8');
     console.log('Parsed '+parsed.length+' champions');

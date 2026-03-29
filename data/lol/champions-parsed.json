@@ -188,6 +188,13 @@
             "modifierType": "percent",
             "values": [],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       }
@@ -570,6 +577,13 @@
               140
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1.2,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -1096,7 +1110,7 @@
       "name": "Cri triomphant",
       "description": "Alistar charge son cri en étourdissant ou en déplaçant des champions ennemis ou quand des ennemis proches meurent. Quand le cri est pleinement chargé, Alistar se soigne et soigne tous les champions alliés proches.",
       "image": "Alistar_E.png",
-      "targeting": "area",
+      "targeting": "self",
       "scaling": {
         "adRatio": 0,
         "apRatio": 0
@@ -2772,6 +2786,13 @@
             "modifierType": "percent",
             "values": [],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 0.3,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -4229,6 +4250,13 @@
               3.75
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0.6,
+            "apRatio": 0.3,
+            "baseDamage": []
           }
         ]
       },
@@ -4655,6 +4683,10 @@
               2,
               2
             ]
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -6494,6 +6526,13 @@
               65
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -9807,7 +9846,7 @@
       "name": "Mille coupures",
       "description": "Les attaques de Gwen infligent des dégâts magiques supplémentaires selon les PV de la cible. Gwen récupère des PV équivalents à une partie des dégâts que cet effet inflige aux champions. ",
       "image": "Gwen_Passive.png",
-      "targeting": "passive",
+      "targeting": "self",
       "scaling": {
         "adRatio": 0,
         "apRatio": 0
@@ -10358,6 +10397,10 @@
             "adRatio": 0,
             "apRatio": 0,
             "baseDamage": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -11024,6 +11067,10 @@
             "adRatio": 0,
             "apRatio": 0,
             "baseDamage": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -11365,6 +11412,13 @@
               300,
               450
             ]
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0.5,
+            "apRatio": 1.5,
+            "baseDamage": []
           }
         ]
       }
@@ -11514,6 +11568,13 @@
               100,
               120
             ]
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 0.8,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -12161,6 +12222,10 @@
             "adRatio": 0.5,
             "apRatio": 0,
             "baseDamage": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -12868,6 +12933,13 @@
               0.7
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 1,
+            "apRatio": 1.5,
+            "baseDamage": []
           }
         ]
       },
@@ -12902,6 +12974,13 @@
             "type": "shield",
             "apRatio": 0,
             "baseValue": []
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 1,
+            "apRatio": 0.5,
+            "baseDamage": []
           }
         ]
       }
@@ -13252,6 +13331,10 @@
             "type": "heal",
             "apRatio": 0,
             "baseValue": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -14465,6 +14548,13 @@
               40
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 0.4,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -15223,6 +15313,13 @@
               225,
               300
             ]
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0.22,
+            "apRatio": 0.33,
+            "baseDamage": []
           }
         ]
       }
@@ -16027,6 +16124,13 @@
             "type": "shield",
             "apRatio": 0,
             "baseValue": []
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 0.8,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -16318,6 +16422,10 @@
               130,
               170
             ]
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -17225,6 +17333,13 @@
               0.25
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0.6,
+            "apRatio": 0.05,
+            "baseDamage": []
           }
         ]
       },
@@ -17455,6 +17570,13 @@
               6,
               8
             ]
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0,
+            "apRatio": 0.4,
+            "baseDamage": []
           }
         ]
       },
@@ -18823,6 +18945,13 @@
             "type": "heal",
             "apRatio": 1,
             "baseValue": []
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -18904,6 +19033,13 @@
             "type": "heal",
             "apRatio": 1,
             "baseValue": []
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       }
@@ -19572,7 +19708,7 @@
       "name": "Siphon d'âme",
       "description": "Morgana peut drainer l'esprit de ses ennemis. Elle récupère des PV quand elle blesse des champions, des grands sbires et des monstres grands ou moyens de la jungle.",
       "image": "FallenAngel_Empathize.png",
-      "targeting": "passive",
+      "targeting": "self",
       "scaling": {
         "adRatio": 0,
         "apRatio": 0
@@ -21760,6 +21896,13 @@
             "type": "shield",
             "apRatio": 0,
             "baseValue": []
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -22916,6 +23059,13 @@
               45
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 2,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -23379,6 +23529,13 @@
               2
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 0.9,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -24556,6 +24713,13 @@
             "modifierType": "percent",
             "values": [],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0.2,
+            "apRatio": 0.05,
+            "baseDamage": []
           }
         ]
       },
@@ -25279,6 +25443,13 @@
               120,
               145
             ]
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1.1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -25475,6 +25646,13 @@
               150
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 0.3,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -25710,6 +25888,10 @@
             "adRatio": 0,
             "apRatio": 0,
             "baseDamage": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -26397,6 +26579,10 @@
             "adRatio": 0,
             "apRatio": 0,
             "baseDamage": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -26439,6 +26625,13 @@
             "modifierType": "percent",
             "values": [],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0.75,
+            "apRatio": 0.5,
+            "baseDamage": []
           }
         ]
       },
@@ -26671,6 +26864,10 @@
             "adRatio": 0,
             "apRatio": 0,
             "baseDamage": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -27373,6 +27570,13 @@
             "type": "shield",
             "apRatio": 0,
             "baseValue": []
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1.35,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       }
@@ -27785,6 +27989,10 @@
               70,
               80
             ]
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -27821,6 +28029,13 @@
             "modifierType": "percent",
             "values": [],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       }
@@ -28280,6 +28495,13 @@
             "modifierType": "percent",
             "values": [],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       }
@@ -29162,6 +29384,10 @@
           },
           {
             "type": "cc",
+            "ccType": "snare"
+          },
+          {
+            "type": "cc",
             "ccType": "silence"
           }
         ]
@@ -29376,6 +29602,10 @@
             "adRatio": 0,
             "apRatio": 0,
             "baseDamage": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -30253,14 +30483,14 @@
         "targeting": "area",
         "scaling": {
           "adRatio": 0.4,
-          "apRatio": -0.04
+          "apRatio": 0
         },
         "effects": [
           {
             "type": "damage",
             "damageType": "magical",
             "adRatio": 0.4,
-            "apRatio": -0.04,
+            "apRatio": 0,
             "baseDamage": []
           }
         ]
@@ -30291,7 +30521,12 @@
           "adRatio": 0,
           "apRatio": 0
         },
-        "effects": []
+        "effects": [
+          {
+            "type": "cc",
+            "ccType": "snare"
+          }
+        ]
       }
     ],
     "passive": {
@@ -30654,6 +30889,13 @@
               9,
               10
             ]
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0.3,
+            "apRatio": 0.1,
+            "baseDamage": []
           }
         ]
       },
@@ -31607,7 +31849,7 @@
       "name": "Tribut du roi",
       "description": "Quand une unité ennemie meurt près de Trundle, il récupère un pourcentage des PV max de celle-ci.",
       "image": "Trundle_Passive.png",
-      "targeting": "passive",
+      "targeting": "self",
       "scaling": {
         "adRatio": 0,
         "apRatio": 0
@@ -31692,6 +31934,13 @@
             "type": "heal",
             "apRatio": 0.3,
             "baseValue": []
+          },
+          {
+            "type": "damage",
+            "damageType": "magical",
+            "adRatio": 0.3,
+            "apRatio": 0.012,
+            "baseDamage": []
           }
         ]
       },
@@ -32395,6 +32644,13 @@
             "type": "shield",
             "apRatio": 0,
             "baseValue": []
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 0.45,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -32440,6 +32696,13 @@
             "modifierType": "percent",
             "values": [],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -32949,6 +33212,10 @@
               150,
               250
             ]
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       }
@@ -35148,6 +35415,13 @@
               57.5
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 0.75,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
@@ -35644,6 +35918,10 @@
             "adRatio": 0.6,
             "apRatio": 0,
             "baseDamage": []
+          },
+          {
+            "type": "cc",
+            "ccType": "snare"
           }
         ]
       },
@@ -36134,7 +36412,7 @@
       "name": "Détermination",
       "description": "Toutes les 3 attaques, Xin Zhao inflige des dégâts supplémentaires et récupère des PV.",
       "image": "XinZhaoReworkP.XinZhaoRework.png",
-      "targeting": "passive",
+      "targeting": "self",
       "scaling": {
         "adRatio": 0,
         "apRatio": 0
@@ -37263,7 +37541,7 @@
       "name": "Chat-maraderie",
       "description": "Périodiquement, quand Yuumi frappe un champion avec une attaque ou une compétence, elle récupère des PV et soigne le prochain allié auquel elle s'attache.<br><br>Lorsque Yuumi est attachée à un allié, elle génère un lien spécial avec lui. L'allié avec lequel son lien est le plus fort renforce les compétences de Yuumi quand elle est attachée à lui.",
       "image": "YuumiP2.png",
-      "targeting": "ally",
+      "targeting": "self",
       "scaling": {
         "adRatio": 0,
         "apRatio": 0
@@ -38615,6 +38893,13 @@
               2.5
             ],
             "buffDuration": 3
+          },
+          {
+            "type": "damage",
+            "damageType": "physical",
+            "adRatio": 1,
+            "apRatio": 0,
+            "baseDamage": []
           }
         ]
       },
