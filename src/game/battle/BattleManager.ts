@@ -2,7 +2,6 @@
  * BattleManager — core combat engine for 5v5 battles.
  *
  * Phase 2: Initiative & turn-by-turn system.
- * Phase 3: Cooldown system integration.
  */
 
 import type { ChampionInstance, SpellSlot } from '../ChampionInstance';
@@ -37,8 +36,8 @@ export interface BattleManagerOptions {
   maxTeamSize?: number;
 }
 
-/** Maps ActionType to the corresponding SpellSlot (or null for basic attack). */
-function actionToSlot(action: ActionType): SpellSlot | null {
+/** Map ActionType to its corresponding SpellSlot (or null for basic attacks). */
+function actionToSpellSlot(action: ActionType): SpellSlot | null {
   switch (action) {
     case ActionType.SpellQ: return 'Q';
     case ActionType.SpellW: return 'W';
@@ -242,16 +241,17 @@ export class BattleManager {
         champion: c, side: 'enemy' as TeamSide,
         currentHp: c.getStats().hp, maxHp: c.getStats().hp, isDefeated: false,
       }));
+    // Reset all cooldowns at battle start
+    this._resetAllCooldowns();
   }
 
   private _nextRound(): void {
-    // Tick cooldowns for all alive combatants at the start of a new round
-    this._tickAllCooldowns();
-
     this._round++;
     this._turnIndex = 0;
     this._buildTurnOrder();
     if (this._checkVictory()) return;
+
+    this._tickAllCooldowns();
 
     this._emit({
       type: 'round_start',
@@ -313,14 +313,14 @@ export class BattleManager {
     champion: ChampionInstance,
     _enemies: CombatantState[],
   ): BattleAction {
-    // AI tries spells in priority order: R > E > W > Q, respecting cooldowns
-    const spellPriority: Array<{ slot: SpellSlot; type: ActionType }> = [
-      { slot: 'R', type: ActionType.SpellR },
-      { slot: 'E', type: ActionType.SpellE },
-      { slot: 'W', type: ActionType.SpellW },
-      { slot: 'Q', type: ActionType.SpellQ },
+    // AI tries spells in reverse order (R > E > W > Q), respecting cooldowns
+    const actionPriority = [
+      { type: ActionType.SpellR, slot: 'R' as const },
+      { type: ActionType.SpellE, slot: 'E' as const },
+      { type: ActionType.SpellW, slot: 'W' as const },
+      { type: ActionType.SpellQ, slot: 'Q' as const },
     ];
-    for (const { slot, type } of spellPriority) {
+    for (const { type, slot } of actionPriority) {
       const spell = champion.getSpell(slot);
       if (spell && champion.isSpellReady(slot)) {
         return { type, cost: spell.cost[0] ?? 0 };
@@ -338,10 +338,9 @@ export class BattleManager {
     const target = this._pickTarget(enemies);
     if (!target) return;
 
-    // If this is a spell action, consume the spell (set its cooldown)
-    const slot = actionToSlot(action.type);
-    if (slot) {
-      attacker.champion.useSpell(slot);
+    const spellSlot = actionToSpellSlot(action.type);
+    if (spellSlot) {
+      attacker.champion.useSpell(spellSlot);
     }
 
     const multipliers: Record<ActionType, number> = {
@@ -400,12 +399,19 @@ export class BattleManager {
     }
   }
 
+  /** Tick cooldowns for all alive combatants at round start. */
   private _tickAllCooldowns(): void {
-    for (const c of this._playerCombatants) {
-      if (!c.isDefeated) c.champion.tickCooldowns();
+    for (const c of [...this._playerCombatants, ...this._enemyCombatants]) {
+      if (!c.isDefeated) {
+        c.champion.tickCooldowns();
+      }
     }
-    for (const c of this._enemyCombatants) {
-      if (!c.isDefeated) c.champion.tickCooldowns();
+  }
+
+  /** Reset cooldowns for all combatants (end of battle). */
+  private _resetAllCooldowns(): void {
+    for (const c of [...this._playerCombatants, ...this._enemyCombatants]) {
+      c.champion.resetCooldowns();
     }
   }
 
@@ -415,7 +421,6 @@ export class BattleManager {
 
     if (!playerAlive || !enemyAlive) {
       this._phase = BattlePhase.Finished;
-      // Reset cooldowns for all combatants at end of combat
       this._resetAllCooldowns();
       const winner: TeamSide | 'draw' =
         !playerAlive && !enemyAlive ? 'draw' : playerAlive ? 'player' : 'enemy';
@@ -425,21 +430,11 @@ export class BattleManager {
 
     if (this._round >= this._maxRounds) {
       this._phase = BattlePhase.Finished;
-      // Reset cooldowns for all combatants at end of combat
       this._resetAllCooldowns();
       this._emit({ type: 'battle_end', winner: 'draw', rounds: this._round });
       return true;
     }
     return false;
-  }
-
-  private _resetAllCooldowns(): void {
-    for (const c of this._playerCombatants) {
-      c.champion.resetCooldowns();
-    }
-    for (const c of this._enemyCombatants) {
-      c.champion.resetCooldowns();
-    }
   }
 
   private _getCombatant(id: string, side: TeamSide): CombatantState | undefined {
