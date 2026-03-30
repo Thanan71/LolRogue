@@ -151,7 +151,10 @@ export class BattleManager {
     for (const { slot, type } of slots) {
       const spell = champion.getSpell(slot);
       if (spell && champion.isSpellReady(slot)) {
-        actions.push({ type, cost: spell.cost.length > 0 ? spell.cost[0] : 0 });
+        const manaCost = spell.cost.length > 0 ? spell.cost[0] : 0;
+        const combatant = this._findCombatant(champion.id);
+        if (!combatant || combatant.currentMp < manaCost) continue;
+        actions.push({ type, cost: manaCost });
       }
     }
     return actions;
@@ -237,14 +240,18 @@ export class BattleManager {
       .slice(0, this._maxTeamSize)
       .map(c => ({
         champion: c, side: 'player' as TeamSide,
-        currentHp: c.getStats().hp, maxHp: c.getStats().hp, isDefeated: false,
+        currentHp: c.getStats().hp, maxHp: c.getStats().hp,
+        currentMp: c.getStats().mp, maxMp: c.getStats().mp,
+        isDefeated: false,
         currentShield: 0,
       }));
     this._enemyCombatants = this._enemyTeam.champions
       .slice(0, this._maxTeamSize)
       .map(c => ({
         champion: c, side: 'enemy' as TeamSide,
-        currentHp: c.getStats().hp, maxHp: c.getStats().hp, isDefeated: false,
+        currentHp: c.getStats().hp, maxHp: c.getStats().hp,
+        currentMp: c.getStats().mp, maxMp: c.getStats().mp,
+        isDefeated: false,
         currentShield: 0,
       }));
     // Reset all cooldowns at battle start
@@ -329,7 +336,10 @@ export class BattleManager {
     for (const { type, slot } of actionPriority) {
       const spell = champion.getSpell(slot);
       if (spell && champion.isSpellReady(slot)) {
-        return { type, cost: spell.cost[0] ?? 0 };
+        const manaCost = spell.cost[0] ?? 0;
+        const combatant = this._findCombatant(champion.id);
+        if (combatant && combatant.currentMp < manaCost) continue;
+        return { type, cost: manaCost };
       }
     }
     return { type: ActionType.BasicAttack, cost: 0 };
@@ -357,6 +367,10 @@ export class BattleManager {
     if (!spell) return;
 
     attacker.champion.useSpell(spellSlot);
+
+    // Deduct mana cost
+    const manaCost = spell.cost.length > 0 ? spell.cost[0] : 0;
+    attacker.currentMp = Math.max(0, attacker.currentMp - manaCost);
 
     const atkStats = attacker.champion.getStats();
     const rankIdx = 0; // simplified: always rank-1 stats
@@ -558,6 +572,11 @@ export class BattleManager {
       return true;
     }
     return false;
+  }
+
+  private _findCombatant(id: string): CombatantState | undefined {
+    return this._playerCombatants.find(c => c.champion.id === id)
+      ?? this._enemyCombatants.find(c => c.champion.id === id);
   }
 
   private _getCombatant(id: string, side: TeamSide): CombatantState | undefined {

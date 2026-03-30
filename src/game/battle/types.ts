@@ -68,6 +68,10 @@ export interface CombatantState {
   currentHp: number;
   /** Maximum HP at battle start. */
   maxHp: number;
+  /** Current MP (starts at max). */
+  currentMp: number;
+  /** Maximum MP at battle start. */
+  maxMp: number;
   /** Whether this combatant has been defeated. */
   isDefeated: boolean;
   /** Shield HP remaining (absorbs damage before HP). */
