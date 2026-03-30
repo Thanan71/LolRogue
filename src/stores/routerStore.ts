@@ -9,6 +9,8 @@ export const ROUTES = {
   COMBAT: '/combat',
   GAME_OVER: '/game-over',
   DATABASE: '/database',
+  SETTINGS: '/settings',
+  CREDITS: '/credits',
 } as const;
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];

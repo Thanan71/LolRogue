@@ -6,6 +6,8 @@ import { RunPage } from './pages/RunPage';
 import { CombatPage } from './pages/CombatPage';
 import { GameOverPage } from './pages/GameOverPage';
 import { DatabasePage } from './pages/DatabasePage';
+import { SettingsPage } from './pages/SettingsPage';
+import { CreditsPage } from './pages/CreditsPage';
 import './styles/starter-select.css';
 
 export default function App() {
@@ -19,6 +21,8 @@ export default function App() {
         <Route path="/combat" element={<CombatPage />} />
         <Route path="/game-over" element={<GameOverPage />} />
         <Route path="/database" element={<DatabasePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/credits" element={<CreditsPage />} />
       </Routes>
     </div>
   );
