@@ -8,6 +8,8 @@ import Phaser from 'phaser';
 import { BattleManager } from '../../game/battle/BattleManager';
 import type { BattleTeam, BattleEvent, CombatantState } from '../../game/battle/types';
 import { BattlePhase } from '../../game/battle/types';
+import type { RunSummary, ChampionRunStats, Biome } from '@/types/run';
+import { useRunStore } from '@/stores/runStore';
 
 const COLORS = {
   background: 0x0a0a1a,
@@ -191,6 +193,82 @@ export class BattleScene extends Phaser.Scene {
     this.tweens.add({ targets: [rl, rd], alpha: 1, duration: 500, ease: 'Power2' });
     this.log('\n' + rt + ' after ' + e.rounds + ' rounds!');
     this.autoPlay = false; this.busy = false;
+
+    // Transition to GameOverScene after a brief delay
+    this.time.delayedCall(1500, () => {
+      const summary = this.buildRunSummary(e);
+      this.scene.start('GameOverScene', { summary });
+    });
+  }
+
+  /**
+   * Build a RunSummary from the battle result and run store state.
+   * Extracts per-champion stats from the battle log.
+   */
+  private buildRunSummary(e: Extract<BattleEvent, { type: 'battle_end' }>): RunSummary {
+    const runStore = useRunStore.getState();
+    const log = this.bm.getResult()?.log ?? [];
+
+    // Build per-champion stats from the battle log
+    const playerCombatants = this.bm.getPlayerCombatants();
+    const championStatsMap = new Map<string, ChampionRunStats>();
+
+    for (const cb of playerCombatants) {
+      championStatsMap.set(cb.champion.id, {
+        championId: cb.champion.id,
+        kills: 0,
+        totalDamage: 0,
+        survived: !cb.isDefeated,
+      });
+    }
+
+    // Parse battle log for kills and damage
+    for (const event of log) {
+      if (event.type === 'damage' && event.sourceSide === 'player') {
+        const stats = championStatsMap.get(event.source);
+        if (stats) {
+          stats.totalDamage += event.amount;
+        }
+      }
+      if (event.type === 'defeat' && event.side === 'enemy') {
+        // Attribute kill to the last player that dealt damage to this enemy
+        // Simple approach: find the last damage event targeting this champion
+        for (let i = log.indexOf(event) - 1; i >= 0; i--) {
+          const prev = log[i];
+          if (prev.type === 'damage' && prev.target === event.champion && prev.sourceSide === 'player') {
+            const stats = championStatsMap.get(prev.source);
+            if (stats) {
+              stats.kills += 1;
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    const championStats = Array.from(championStatsMap.values());
+    const totalKills = championStats.reduce((sum, s) => sum + s.kills, 0);
+    const totalDamage = championStats.reduce((sum, s) => sum + s.totalDamage, 0);
+
+    // Capture run state BEFORE resetting
+    const wavesCompleted = runStore.totalWavesCompleted;
+    const biomesVisited = [...runStore.biomesVisited] as Biome[];
+    const goldEarned = runStore.gold;
+    const runLevel = runStore.runLevel;
+
+    // End the run in the store
+    runStore.endRun();
+
+    return {
+      won: e.winner === 'player',
+      wavesCompleted,
+      biomesVisited,
+      championStats,
+      totalKills,
+      totalDamage,
+      goldEarned,
+      runLevel,
+    };
   }
 
   private hud(): void { const s = this.bm.state; this.roundText.setText('Round: ' + s.round); this.statusText.setText('Phase: ' + s.phase); }

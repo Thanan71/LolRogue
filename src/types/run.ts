@@ -228,3 +228,58 @@ export interface RunActions {
 }
 
 export type RunStore = RunState & RunActions;
+
+
+// ─── Per-Champion Run Statistics ──────────────────────────────────────
+
+/** Stats tracked per champion during a run */
+export interface ChampionRunStats {
+  championId: string;
+  /** Total kills attributed to this champion */
+  kills: number;
+  /** Total damage dealt by this champion */
+  totalDamage: number;
+  /** Whether this champion survived the run */
+  survived: boolean;
+}
+
+// ─── Run Summary (shown on Game Over screen) ──────────────────────────
+
+/** Complete summary of a finished run */
+export interface RunSummary {
+  /** Whether the run was won (true) or lost (false) */
+  won: boolean;
+  /** Total waves completed */
+  wavesCompleted: number;
+  /** Biomes visited */
+  biomesVisited: Biome[];
+  /** Per-champion stats */
+  championStats: ChampionRunStats[];
+  /** Total kills across all champions */
+  totalKills: number;
+  /** Total damage across all champions */
+  totalDamage: number;
+  /** Gold earned during the run */
+  goldEarned: number;
+  /** Run level reached */
+  runLevel: number;
+}
+
+// ─── Permanent Rewards (persist between runs) ────────────────────────
+
+/** Permanent currencies earned from completed runs */
+export interface PermanentRewards {
+  /** Candies - universal currency, earned from kills and waves */
+  candies: number;
+  /** Mastery points - earned from champion performance, per champion */
+  mastery: Record<string, number>;
+}
+
+export interface PermanentRewardsStore extends PermanentRewards {
+  /** Add candies to the permanent stash */
+  addCandies: (amount: number) => void;
+  /** Add mastery points for a specific champion */
+  addMastery: (championId: string, points: number) => void;
+  /** Reset all permanent rewards (dev/debug) */
+  resetRewards: () => void;
+}

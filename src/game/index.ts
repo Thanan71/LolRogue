@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { BattleScene } from './scenes/BattleScene';
+import { GameOverScene } from './scenes/GameOverScene';
 
 export function initGame(parent: HTMLElement): Phaser.Game {
   const config: Phaser.Types.Core.GameConfig = {
@@ -9,7 +10,7 @@ export function initGame(parent: HTMLElement): Phaser.Game {
     width: 800,
     height: 600,
     backgroundColor: '#1a1a2e',
-    scene: [BootScene, BattleScene],
+    scene: [BootScene, BattleScene, GameOverScene],
     physics: {
       default: 'arcade',
       arcade: {
