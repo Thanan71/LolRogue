@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useRunStore } from '@/stores/runStore';
+import { useGameStore } from '@/stores/gameStore';
 import { championDB } from '@/data/championDatabase';
 import type { NodeType } from '@/types/run';
 
@@ -25,6 +26,8 @@ export function RunMapScreen() {
   const generateMap = useRunStore((s) => s.generateMap);
   const moveToNode = useRunStore((s) => s.moveToNode);
   const completeNode = useRunStore((s) => s.completeNode);
+
+  const setPhase = useGameStore((s) => s.setPhase);
 
   const handleNodeClick = useCallback(
     (nodeId: string) => {
@@ -58,6 +61,13 @@ export function RunMapScreen() {
         </div>
         <div style={mainStyle}>
           <div style={headerStyle}>
+            <button
+              style={{ ...btnStyle, padding: '4px 12px', fontSize: 12 }}
+              onClick={() => setPhase('menu')}
+              title="Save & return to menu"
+            >
+              ← Menu
+            </button>
             <span style={{ color: "#ffd700", fontWeight: 700 }}>Gold: {gold}</span>
             <span style={{ color: "#c8aa6e", fontWeight: 700 }}>Wave {currentWave}</span>
             <span style={{ color: "#8b949e" }}>{currentBiome ? currentBiome.charAt(0).toUpperCase() + currentBiome.slice(1) : "???"}</span>

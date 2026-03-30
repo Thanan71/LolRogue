@@ -19,7 +19,7 @@ export function StarterSelect() {
   function handleConfirm() {
     if (!selectedStarterId) return;
     startRun([selectedStarterId]);
-    setPhase('combat');
+    setPhase('run');
   }
 
   return (

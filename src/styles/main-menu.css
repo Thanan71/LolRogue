@@ -249,3 +249,71 @@
   .main-menu__btn--play { font-size: 1rem; }
   .main-menu__icon { width: 60px; height: 60px; }
 }
+
+/* Continue / New Run Buttons */
+
+.main-menu__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 320px;
+}
+
+.main-menu__btn--continue {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+  box-shadow: 0 4px 25px rgba(34, 197, 94, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.main-menu__btn--continue:hover {
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 35px rgba(74, 222, 128, 0.55), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.main-menu__btn--new {
+  background: linear-gradient(180deg, #c8aa6e 0%, #a88a4e 100%);
+  color: #0a1428;
+  box-shadow: 0 4px 20px rgba(200, 170, 110, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.main-menu__btn--new:hover {
+  background: linear-gradient(180deg, #d4bc8a 0%, #c8aa6e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(255, 215, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.main-menu__btn-icon {
+  font-size: 1.1rem;
+  margin-bottom: -2px;
+}
+
+.main-menu__btn-info {
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+  text-transform: none;
+  margin-top: 2px;
+}
+
+.main-menu__logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.main-menu__logo-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 20px rgba(200, 170, 110, 0.5));
+}
+
+.main-menu__tagline {
+  font-size: 0.85rem;
+  color: #7a6f55;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}

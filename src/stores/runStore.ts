@@ -58,6 +58,8 @@ export const useRunStore = create<RunStore>()(
           gold: 0,
           currentWave: 1,
           totalWavesCompleted: 0,
+          map: null,
+          mapPosition: null,
         });
       },
 
@@ -274,6 +276,8 @@ export const useRunStore = create<RunStore>()(
         gold: state.gold,
         currentWave: state.currentWave,
         totalWavesCompleted: state.totalWavesCompleted,
+        map: state.map,
+        mapPosition: state.mapPosition,
       }),
     },
   ),
