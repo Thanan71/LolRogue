@@ -264,8 +264,6 @@ export class BattleManager {
     this._buildTurnOrder();
     if (this._checkVictory()) return;
 
-    this._tickAllCooldowns();
-
     this._emit({
       type: 'round_start',
       round: this._round,
@@ -281,6 +279,8 @@ export class BattleManager {
   private _nextTurn(): void {
     this._turnIndex++;
     if (this._turnIndex >= this._turnOrder.length) {
+      // Tick cooldowns at the END of the round, after all turns have completed
+      this._tickAllCooldowns();
       this._nextRound();
     } else {
       this._startCurrentTurn();
@@ -536,7 +536,7 @@ export class BattleManager {
     }
   }
 
-  /** Tick cooldowns for all alive combatants at round start. */
+  /** Tick cooldowns for all alive combatants at end of round (after all turns complete). */
   private _tickAllCooldowns(): void {
     for (const c of [...this._playerCombatants, ...this._enemyCombatants]) {
       if (!c.isDefeated) {

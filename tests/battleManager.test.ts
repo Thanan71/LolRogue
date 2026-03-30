@@ -291,5 +291,42 @@ describe('BattleManager', () => {
         expect(selectIdx).toBeLessThan(damageIdx);
       });
     });
+
+    describe('cooldown timing', () => {
+      it('should tick cooldowns at END of round, not start (LoL behavior)', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle(); // round 1 starts
+
+        const p1 = teams.playerTeam.champions[0];
+        // Use Q spell (cooldown 8 at rank 1)
+        p1.useSpell('Q');
+        expect(p1.isSpellReady('Q')).toBe(false);
+
+        // Process all turns in round 1 (P1 turn, then E1 turn)
+        bm.processCurrentTurn(); // P1's turn
+        bm.processCurrentTurn(); // E1's turn
+
+        // After round 1 ends, cooldowns tick. The spell used mid-round
+        // should have 1 tick applied at round end.
+        // Verify we're now in round 2
+        expect(bm.round).toBe(2);
+        // The spell should still be on cooldown (8 - 1 = 7 remaining)
+        expect(p1.isSpellReady('Q')).toBe(false);
+      });
+
+      it('should NOT tick cooldowns before first round executes', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+
+        const p1 = teams.playerTeam.champions[0];
+        // All spells should be ready at battle start (no premature tick)
+        expect(p1.isSpellReady('Q')).toBe(true);
+        expect(p1.isSpellReady('W')).toBe(true);
+        expect(p1.isSpellReady('E')).toBe(true);
+        expect(p1.isSpellReady('R')).toBe(true);
+      });
+    });
   });
 });
