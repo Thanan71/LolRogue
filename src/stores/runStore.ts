@@ -9,6 +9,7 @@ import {
   MAX_TEAM_SIZE,
 } from '@/types/run';
 import { generateRunMap, updateReachability, findNode } from '@/utils/runMapUtils';
+import { useMasteryStore } from './masteryStore';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
 
@@ -60,7 +61,21 @@ export const useRunStore = create<RunStore>()(
         });
       },
 
-      endRun: () => {
+      endRun: (won = false) => {
+        const state = get();
+        const championIds = state.team.map((m) => m.championId);
+
+        // Award mastery candies before resetting
+        if (championIds.length > 0 && state.totalWavesCompleted > 0) {
+          const masteryStore = useMasteryStore.getState();
+          masteryStore.awardCandies(
+            championIds,
+            state.totalWavesCompleted,
+            state.biomesVisited.length,
+            won,
+          );
+        }
+
         set({ ...INITIAL_STATE });
       },
 

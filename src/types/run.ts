@@ -193,8 +193,8 @@ export interface RunState {
 export interface RunActions {
   /** Start a new run with champion IDs (validated ≤ MAX_TEAM_SIZE) */
   startRun: (championIds: string[]) => void;
-  /** End the current run and reset state */
-  endRun: () => void;
+  /** End the current run and reset state, optionally marking it as won */
+  endRun: (won?: boolean) => void;
   /** Add a champion to the team (if not full). Returns true if added. */
   addChampion: (championId: string) => boolean;
   /** Remove a champion from the team by champion ID */
