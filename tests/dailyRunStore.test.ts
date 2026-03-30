@@ -15,6 +15,10 @@ const localStorageMock = vi.hoisted(() => {
 });
 vi.stubGlobal('localStorage', localStorageMock);
 
+// ─── Set fake time BEFORE importing the store so getInitialState() uses it ──
+vi.useFakeTimers();
+vi.setSystemTime(new Date('2026-03-30T12:00:00'));
+
 const { calculateDailyScore } = await import('../src/stores/dailyRunStore');
 
 
