@@ -4,12 +4,15 @@ import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
 import { useBattleStore } from '@/stores/battleStore';
 import { useBattleManager } from '@/hooks/useBattleManager';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { championDB } from '@/data';
 import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
 import { AbilityBar } from '@/components/CombatUI/AbilityBar';
 import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { CombatLog } from '@/components/CombatUI/CombatLog';
+import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { ActionType } from '@/game/battle/types';
 
 function buildTeamInstances(championIds: string[]): ChampionInstance[] {
@@ -77,6 +80,25 @@ export function CombatPage() {
   }, [submitAction]);
 
   const currentChampion = [...playerTeam, ...enemyTeam].find(c => c.id === currentTurnChampionId);
+  const currentSpell = currentChampion?.spells;
+
+  // Keyboard shortcuts
+  const canCast = isPlayerTurn && battlePhase === 'turn_active';
+  const canCastSlot = useCallback((slot: 'Q' | 'W' | 'E' | 'R') => {
+    if (!canCast || !currentSpell) return false;
+    const sp = currentSpell.find(s => s.slot === slot);
+    return !!sp && sp.isReady;
+  }, [canCast, currentSpell]);
+
+  useKeyboardShortcuts({
+    onCastQ: canCastSlot('Q') ? () => handleCast('Q') : undefined,
+    onCastW: canCastSlot('W') ? () => handleCast('W') : undefined,
+    onCastE: canCastSlot('E') ? () => handleCast('E') : undefined,
+    onCastR: canCastSlot('R') ? () => handleCast('R') : undefined,
+    onNextTurn: isPlayerTurn && battlePhase === 'turn_active' ? processTurn : undefined,
+    onBack: () => navigate(ROUTES.RUN),
+    enabled: battlePhase !== 'finished',
+  });
 
   if (!isActive) return null;
 
@@ -84,9 +106,10 @@ export function CombatPage() {
     <div style={containerStyle}>
       {/* Header */}
       <div style={headerStyle}>
-        <button style={backBtnStyle} onClick={() => navigate(ROUTES.RUN)}>← Map</button>
+        <button style={backBtnStyle} onClick={() => navigate(ROUTES.RUN)} aria-label="Back to map">← Map</button>
         <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Combat — Round {round}</span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
+        <BattleSpeedControl />
       </div>
 
       {/* Main area */}
@@ -119,7 +142,10 @@ export function CombatPage() {
               )}
               {isPlayerTurn && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                  <button onClick={processTurn} style={nextTurnBtnStyle}>▶ Exécuter le tour</button>
+                  <button onClick={processTurn} style={nextTurnBtnStyle} aria-label="Execute turn (Space)">
+                    ▶ Exécuter le tour
+                    <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.6 }}>[Space]</span>
+                  </button>
                 </div>
               )}
             </div>
