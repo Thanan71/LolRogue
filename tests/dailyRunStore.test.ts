@@ -1,18 +1,23 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { calculateDailyScore } from '../src/stores/dailyRunStore';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { InventoryEntry } from '../src/types/run';
 
-// ─── Mock localStorage for node environment ─────────────────────────────────
-const storage: Record<string, string> = {};
-const localStorageMock = {
-  getItem: (key: string) => storage[key] ?? null,
-  setItem: (key: string, value: string) => { storage[key] = value; },
-  removeItem: (key: string) => { delete storage[key]; },
-  clear: () => { for (const k of Object.keys(storage)) delete storage[k]; },
-  get length() { return Object.keys(storage).length; },
-  key: (index: number) => Object.keys(storage)[index] ?? null,
-};
-Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true });
+// ─── Hoisted localStorage mock (runs before module evaluation) ─────────────
+const localStorageMock = vi.hoisted(() => {
+  const store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, value: string) => { store[key] = value; },
+    removeItem: (key: string) => { delete store[key]; },
+    clear: () => { for (const k of Object.keys(store)) delete store[k]; },
+    get length() { return Object.keys(store).length; },
+    key: (index: number) => Object.keys(store)[index] ?? null,
+  };
+});
+vi.stubGlobal('localStorage', localStorageMock);
+
+const { calculateDailyScore } = await import('../src/stores/dailyRunStore');
+
+
 
 describe('calculateDailyScore', () => {
   const makeInventory = (count: number): InventoryEntry[] =>
