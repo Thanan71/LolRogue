@@ -117,13 +117,33 @@ export interface ActionSelectEvent {
   action: ActionType;
 }
 
+export interface HealEvent {
+  type: 'heal';
+  source: string;   // champion id
+  target: string;   // champion id
+  amount: number;
+  sourceSide: TeamSide;
+  targetSide: TeamSide;
+}
+
+export interface ShieldEvent {
+  type: 'shield';
+  source: string;   // champion id
+  target: string;   // champion id
+  amount: number;   // shield HP applied
+  sourceSide: TeamSide;
+  targetSide: TeamSide;
+}
+
 export type BattleEvent =
   | DamageEvent
   | DefeatEvent
   | BattleEndEvent
   | TurnStartEvent
   | RoundStartEvent
-  | ActionSelectEvent;
+  | ActionSelectEvent
+  | HealEvent
+  | ShieldEvent;
 
 // ─── Battle Result ──────────────────────────────────────────────────────────
 

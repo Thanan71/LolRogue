@@ -10,6 +10,7 @@ import type { BattleTeam, BattleEvent, CombatantState } from '../../game/battle/
 import { BattlePhase } from '../../game/battle/types';
 import type { RunSummary, ChampionRunStats, Biome } from '@/types/run';
 import { useRunStore } from '@/stores/runStore';
+import { CombatAnimationManager } from './animations/CombatAnimationManager';
 
 const COLORS = {
   background: 0x0a0a1a,
@@ -27,6 +28,12 @@ const COLORS = {
   defeat: '#ef4444',
   panelBg: 0x1a1a2e,
   panelBorder: 0x333355,
+  heal: 0x22c55e,
+  healText: '#22c55e',
+  shield: 0x60a5fa,
+  shieldText: '#60a5fa',
+  projectile: 0xffd700,
+  projectileCrit: 0xff6b6b,
 };
 
 const ICON_SIZE = 48;
@@ -44,6 +51,7 @@ interface Vis {
 
 export class BattleScene extends Phaser.Scene {
   private bm!: BattleManager;
+  private anim!: CombatAnimationManager;
   private vis: Map<string, Vis> = new Map();
   private logText!: Phaser.GameObjects.Text;
   private roundText!: Phaser.GameObjects.Text;
@@ -91,6 +99,7 @@ export class BattleScene extends Phaser.Scene {
       fontSize: '11px', color: COLORS.textSecondary, wordWrap: { width: w - 60 }, lineSpacing: 2,
     });
 
+    this.anim = new CombatAnimationManager(this);
     this.buildBtns(w, h);
     this.time.delayedCall(500, () => { this.bm.startBattle(); this.hud(); });
   }
@@ -141,8 +150,11 @@ export class BattleScene extends Phaser.Scene {
     switch (e.type) {
       case 'turn_start': this.onTurn(e); break;
       case 'damage': this.onDmg(e); break;
+      case 'heal': this.onHeal(e); break;
+      case 'shield': this.onShield(e); break;
       case 'defeat': this.onDef(e); break;
       case 'battle_end': this.onEnd(e); break;
+      default: this.busy = false; this.tick();
     }
   }
 
@@ -156,17 +168,59 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private onDmg(e: Extract<BattleEvent, { type: 'damage' }>): void {
-    const v = this.vis.get(e.targetSide + '-' + e.target);
-    if (v) {
-      this.tweens.add({ targets: v.container, alpha: 0.3, duration: 80, yoyo: true, repeat: 1 });
+    const src = this.vis.get(e.sourceSide + '-' + e.source);
+    const tgt = this.vis.get(e.targetSide + '-' + e.target);
+    if (src && tgt) {
+      const srcPos = { x: src.container.x, y: src.container.y };
+      const tgtPos = { x: tgt.container.x, y: tgt.container.y };
+      this.anim.playProjectile(srcPos, tgtPos, e.isCrit, () => {
+        this.anim.playImpact(tgtPos, e.isCrit ? 0xff4444 : 0xffaa00);
+        this.tweens.add({ targets: tgt.container, alpha: 0.3, duration: 80, yoyo: true, repeat: 1 });
+        const col = e.isCrit ? COLORS.crit : COLORS.damage;
+        const t = this.add.text(tgtPos.x + 20, tgtPos.y - 10, e.isCrit ? e.amount + '! CRIT!' : '-' + e.amount, { fontSize: e.isCrit ? '16px' : '13px', color: col, fontStyle: 'bold' }).setOrigin(0.5);
+        this.tweens.add({ targets: t, y: t.y - 35, alpha: 0, duration: 700, ease: 'Power2', onComplete: () => t.destroy() });
+        const c = this.bm.getCombatantState(e.target, e.targetSide);
+        if (c) { this.drawBar(tgt.barFill, tgt.side, c.currentHp / c.maxHp); tgt.hpText.setText(Math.round(c.currentHp) + '/' + Math.round(c.maxHp)); }
+        this.time.delayedCall(150, () => { this.busy = false; this.tick(); });
+      });
+    } else if (tgt) {
+      this.tweens.add({ targets: tgt.container, alpha: 0.3, duration: 80, yoyo: true, repeat: 1 });
       const col = e.isCrit ? COLORS.crit : COLORS.damage;
-      const t = this.add.text(v.container.x + 20, v.container.y - 10, e.isCrit ? e.amount + '! CRIT!' : '-' + e.amount, { fontSize: e.isCrit ? '16px' : '13px', color: col, fontStyle: 'bold' }).setOrigin(0.5);
+      const t = this.add.text(tgt.container.x + 20, tgt.container.y - 10, e.isCrit ? e.amount + '! CRIT!' : '-' + e.amount, { fontSize: e.isCrit ? '16px' : '13px', color: col, fontStyle: 'bold' }).setOrigin(0.5);
       this.tweens.add({ targets: t, y: t.y - 35, alpha: 0, duration: 700, ease: 'Power2', onComplete: () => t.destroy() });
       const c = this.bm.getCombatantState(e.target, e.targetSide);
-      if (c) { this.drawBar(v.barFill, v.side, c.currentHp / c.maxHp); v.hpText.setText(Math.round(c.currentHp) + '/' + Math.round(c.maxHp)); }
+      if (c) { this.drawBar(tgt.barFill, tgt.side, c.currentHp / c.maxHp); tgt.hpText.setText(Math.round(c.currentHp) + '/' + Math.round(c.maxHp)); }
+      this.time.delayedCall(250, () => { this.busy = false; this.tick(); });
+    } else {
+      this.time.delayedCall(150, () => { this.busy = false; this.tick(); });
     }
     this.log('  ' + e.source + ' -> ' + e.target + ': ' + e.amount + ' dmg' + (e.isCrit ? ' CRIT!' : ''));
-    this.time.delayedCall(250, () => { this.busy = false; this.tick(); });
+  }
+
+  private onHeal(e: Extract<BattleEvent, { type: 'heal' }>): void {
+    const v = this.vis.get(e.targetSide + '-' + e.target);
+    if (v) {
+      this.anim.playHeal({ x: v.container.x, y: v.container.y }, e.amount, () => {
+        const c = this.bm.getCombatantState(e.target, e.targetSide);
+        if (c) { this.drawBar(v.barFill, v.side, c.currentHp / c.maxHp); v.hpText.setText(Math.round(c.currentHp) + '/' + Math.round(c.maxHp)); }
+        this.busy = false; this.tick();
+      });
+    } else {
+      this.busy = false; this.tick();
+    }
+    this.log('  ' + e.source + ' heals ' + e.target + ': +' + e.amount + ' HP');
+  }
+
+  private onShield(e: Extract<BattleEvent, { type: 'shield' }>): void {
+    const v = this.vis.get(e.targetSide + '-' + e.target);
+    if (v) {
+      this.anim.playShield({ x: v.container.x, y: v.container.y }, e.amount, () => {
+        this.busy = false; this.tick();
+      });
+    } else {
+      this.busy = false; this.tick();
+    }
+    this.log('  ' + e.source + ' shields ' + e.target + ': +' + e.amount + ' shield');
   }
 
   private onDef(e: Extract<BattleEvent, { type: 'defeat' }>): void {
