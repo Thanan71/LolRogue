@@ -5,7 +5,6 @@
 import {
   type ItemDefinition,
   type InventoryItem,
-  type ItemStatBonus,
 } from '@/types/inventory';
 import type { StatKey } from '@/game/effects/types';
 

@@ -15,7 +15,6 @@
 
 import type { Biome } from '@/types/run';
 import type { Champion, ChampionTag } from '@/types/champion';
-import { championDB } from '@/data/championDatabase';
 import { implementedChampions } from '@/data/champion';
 
 // ─── Types ────────────────────────────────────────────────────────────────

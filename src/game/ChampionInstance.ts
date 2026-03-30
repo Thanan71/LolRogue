@@ -5,7 +5,7 @@
  * and computes level-scaled stats using the LoL growth formula.
  */
 
-import type { Champion, ChampionStats, Spell, Passive, ChampionTag, ResourceType } from '@/types';
+import type { Champion, ChampionStats, Spell, Passive, ChampionTag } from '@/types';
 import { calculateStats, type CalculatedStats } from '@/utils/champion';
 
 /** Valid spell slots matching LoL key bindings. */

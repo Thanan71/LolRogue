@@ -5,7 +5,7 @@
  */
 
 import type { Biome } from '../../types/run';
-import type { CombatEncounter, Encounter } from './types';
+import type { CombatEncounter } from './types';
 import { TOP_LANE_ENCOUNTERS, JUNGLE_ENCOUNTERS } from './encounters-part1';
 import { MID_LANE_ENCOUNTERS, BOT_LANE_ENCOUNTERS } from './encounters-part2';
 import { RIVER_ENCOUNTERS, BASE_ENCOUNTERS } from './encounters-part3';

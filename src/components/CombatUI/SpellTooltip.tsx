@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import type { SpellInfo } from '../../stores/battleStore';
 import { useSettingsStore, scaleFontSize } from '../../stores/settingsStore';
 
@@ -27,7 +27,6 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
     setPosition(null);
   };
 
-  const baseFontSize = scaleFontSize(12, textSize);
   const smallFontSize = scaleFontSize(10, textSize);
   const titleFontSize = scaleFontSize(13, textSize);
 

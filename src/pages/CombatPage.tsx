@@ -5,7 +5,6 @@ import { useRunStore } from '@/stores/runStore';
 import { useBattleStore } from '@/stores/battleStore';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useSettingsStore } from '@/stores/settingsStore';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { championDB } from '@/data';
 import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';

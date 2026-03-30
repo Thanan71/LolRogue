@@ -8,7 +8,6 @@
 import {
   NodeType,
   type MapNode,
-  type Encounter,
   type CombatEncounter,
   type ShopEncounter,
   type RestEncounter,
