@@ -111,7 +111,7 @@ interface DailyRunActions {
   /** Recalculate score from current state */
   recalcScore: () => void;
   /** Check if today's daily run was already completed */
-  hasCompletedToday: () => boolean;
+  checkHasCompletedToday: () => boolean;
   /** Get current leaderboard */
   getLeaderboard: () => DailyLeaderboardEntry[];
   /** Reset state if the date changed (called automatically on rehydration) */
@@ -294,7 +294,7 @@ export const useDailyRunStore = create<DailyRunStore>()(
         set((state) => ({ score: calculateDailyScore(state) }));
       },
 
-      hasCompletedToday: () => {
+      checkHasCompletedToday: () => {
         const state = get();
         return isToday(state.dateKey) && state.hasCompletedToday;
       },
