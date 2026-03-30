@@ -14,6 +14,7 @@ import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { ActionType } from '@/game/battle/types';
+import { playUIClick } from '@/audio';
 
 function buildTeamInstances(championIds: string[]): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
@@ -106,7 +107,7 @@ export function CombatPage() {
     <div style={containerStyle}>
       {/* Header */}
       <div style={headerStyle}>
-        <button style={backBtnStyle} onClick={() => navigate(ROUTES.RUN)} aria-label="Back to map">← Map</button>
+        <button style={backBtnStyle} onClick={() => { playUIClick(); navigate(ROUTES.RUN); }} aria-label="Back to map">← Map</button>
         <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Combat — Round {round}</span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />

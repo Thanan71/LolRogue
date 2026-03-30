@@ -1,6 +1,8 @@
 import { useRunStore } from '@/stores/runStore';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
+import { playSFX, playUIClick } from '@/audio';
+import { useEffect } from 'react';
 
 export function GameOverPage() {
   const isActive = useRunStore((s) => s.isActive);
@@ -12,12 +14,18 @@ export function GameOverPage() {
   const endRun = useRunStore((s) => s.endRun);
   const navigate = useAppNavigate();
 
+  useEffect(() => {
+    playSFX('defeat');
+  }, []);
+
   function handleNewRun() {
+    playUIClick();
     endRun();
     navigate(ROUTES.STARTER_SELECT);
   }
 
   function handleMenu() {
+    playUIClick();
     endRun();
     navigate(ROUTES.MENU);
   }

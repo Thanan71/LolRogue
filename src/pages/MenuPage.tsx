@@ -2,6 +2,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import '@/styles/main-menu.css';
+import { playUIClick } from '@/audio';
 
 /* Inline SVG for the LoLRogue icon (shield + crossed swords motif) */
 function LolRogueIcon() {
@@ -53,28 +54,28 @@ export function MenuPage() {
       <div className="main-menu__buttons">
         <button
           className="main-menu__btn main-menu__btn--play"
-          onClick={() => navigate(ROUTES.STARTER_SELECT)}
+          onClick={() => { playUIClick(); navigate(ROUTES.STARTER_SELECT); }}
         >
           Play
         </button>
 
         <button
           className="main-menu__btn main-menu__btn--database"
-          onClick={() => navigate(ROUTES.DATABASE)}
+          onClick={() => { playUIClick(); navigate(ROUTES.DATABASE); }}
         >
           Database
         </button>
 
         <button
           className="main-menu__btn main-menu__btn--ghost"
-          onClick={() => navigate(ROUTES.SETTINGS)}
+          onClick={() => { playUIClick(); navigate(ROUTES.SETTINGS); }}
         >
           Settings
         </button>
 
         <button
           className="main-menu__btn main-menu__btn--ghost"
-          onClick={() => navigate(ROUTES.CREDITS)}
+          onClick={() => { playUIClick(); navigate(ROUTES.CREDITS); }}
         >
           Credits
         </button>

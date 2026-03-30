@@ -1,9 +1,15 @@
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
+import { useAudioStore } from '@/stores/audioStore';
+import { playUIClick } from '@/audio';
 import '@/styles/main-menu.css';
 
 export function SettingsPage() {
   const navigate = useAppNavigate();
+  const sfxVolume = useAudioStore((s) => s.sfxVolume);
+  const musicVolume = useAudioStore((s) => s.musicVolume);
+  const setSfxVolume = useAudioStore((s) => s.setSfxVolume);
+  const setMusicVolume = useAudioStore((s) => s.setMusicVolume);
 
   return (
     <div className="main-menu">
@@ -21,7 +27,8 @@ export function SettingsPage() {
             type="range"
             min="0"
             max="100"
-            defaultValue="70"
+            value={musicVolume}
+            onChange={(e) => setMusicVolume(Number(e.target.value))}
             style={sliderStyle}
           />
         </div>
@@ -32,7 +39,8 @@ export function SettingsPage() {
             type="range"
             min="0"
             max="100"
-            defaultValue="80"
+            value={sfxVolume}
+            onChange={(e) => setSfxVolume(Number(e.target.value))}
             style={sliderStyle}
           />
         </div>
@@ -60,7 +68,7 @@ export function SettingsPage() {
       <div style={{ position: 'relative', zIndex: 2, marginTop: '2rem' }}>
         <button
           className="main-menu__btn main-menu__btn--ghost"
-          onClick={() => navigate(ROUTES.MENU)}
+          onClick={() => { playUIClick(); navigate(ROUTES.MENU); }}
           style={{ width: 200 }}
         >
           Back to Menu

@@ -8,6 +8,7 @@ import { championDB } from '@/data/championDatabase';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
 import '@/styles/starter-select.css';
+import { playUIClick } from '@/audio';
 
 function pickRandom<T>(arr: T[], count: number): T[] {
   const shuffled = [...arr].sort(() => Math.random() - 0.5);
@@ -21,12 +22,14 @@ export function StarterSelectPage() {
   const navigate = useAppNavigate();
 
   function handleConfirm() {
+    playUIClick();
     if (!selectedStarterId) return;
     startRun([selectedStarterId]);
     navigate(ROUTES.RUN);
   }
 
   function handleBack() {
+    playUIClick();
     navigate(ROUTES.MENU);
   }
 
