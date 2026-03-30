@@ -7,6 +7,79 @@ const __dirname = path.dirname(__filename);
 const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'lol');
 const CD_BASE = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1';
 
+/**
+ * Known ability data overrides. Both Riot Data Dragon and Community Dragon
+ * zero-out all coefficients/effectAmounts, so we hardcode known values.
+ * Key format: "ChampionId:spellIndex" (0-3 for Q/W/E/R) or "ChampionId:passive".
+ *
+ * Each override may contain:
+ *   - adRatio, apRatio: scaling for the spell's main scaling block
+ *   - targeting: override targeting type
+ *   - effects: array of additional effects to inject (e.g. cc)
+ *   - effectOverrides: array to replace/merge into existing effects
+ */
+const ABILITY_OVERRIDES = {
+  // ── Ahri ───────────────────────────────────────────────────────────
+  'Ahri:0': { adRatio: 0, apRatio: 0.4 },
+  'Ahri:1': { adRatio: 0, apRatio: 0.3 },
+  'Ahri:2': { adRatio: 0, apRatio: 0.4, effects: [{ type: 'cc', ccType: 'charm', ccDuration: 1.4 }] },
+  'Ahri:3': { adRatio: 0, apRatio: 0.35 },
+  'Ahri:passive': { targeting: 'self' },
+
+  // ── Aatrox ─────────────────────────────────────────────────────────
+  'Aatrox:0': { adRatio: 0.6, apRatio: 0 },
+  'Aatrox:1': { adRatio: 0, apRatio: 0 },
+  'Aatrox:2': { adRatio: 0, apRatio: 0 },
+  'Aatrox:3': { adRatio: 0, apRatio: 0 },
+
+  // ── Akali ──────────────────────────────────────────────────────────
+  'Akali:0': { adRatio: 0.6, apRatio: 0.65 },
+  'Akali:1': { adRatio: 0, apRatio: 0 },
+  'Akali:2': { adRatio: 0.3, apRatio: 0.25 },
+  'Akali:3': { adRatio: 0, apRatio: 0.5, effects: [{ type: 'execute', threshold: 0.3 }] },
+
+  // ── Lux ────────────────────────────────────────────────────────────
+  'Lux:0': { adRatio: 0, apRatio: 0.6, effects: [{ type: 'cc', ccType: 'snare', ccDuration: 2 }] },
+  'Lux:1': { adRatio: 0, apRatio: 0.35 },
+  'Lux:2': { adRatio: 0, apRatio: 0.7 },
+  'Lux:3': { adRatio: 0, apRatio: 1.0 },
+};
+
+// Auto-generate AD/AP ratios based on champion archetype and tooltip damage type
+function generateRatios(champId, tags, slotIdx, tooltip) {
+  const hasAP = /<magicDamage>/i.test(tooltip||'');
+  const hasAD = /<physicalDamage>/i.test(tooltip||'');
+  const hasTrue = /<trueDamage>/i.test(tooltip||'');
+  const hasDmg = hasAP || hasAD || hasTrue;
+  const hasHeal = /<heal>/i.test(tooltip||'');
+  const hasShield = /<shield>/i.test(tooltip||'');
+  const isUtil = !hasDmg && (hasHeal || hasShield || /<speed>/i.test(tooltip||''));
+  const tagSet = new Set(tags);
+  const isMage = tagSet.has('Mage');
+  const isSupport = tagSet.has('Support');
+  const isMarksman = tagSet.has('Marksman');
+  const isFighter = tagSet.has('Fighter');
+  const isTank = tagSet.has('Tank');
+  const isAssassin = tagSet.has('Assassin');
+  let adRatio = 0, apRatio = 0;
+  if (!hasDmg && !isUtil) return { adRatio, apRatio };
+  if (isUtil) {
+    apRatio = isSupport || isMage ? [0, 0.45, 0.4, 0][slotIdx] || 0.35 : 0;
+    return { adRatio, apRatio };
+  }
+  if (hasAP && !hasAD) {
+    apRatio = [0.65, 0.55, 0.5, 0.8][slotIdx];
+    if (isMarksman || isFighter) apRatio *= 0.6;
+  } else if (hasAD && !hasAP) {
+    adRatio = [0.7, 0.6, 0.5, 0.85][slotIdx];
+    if (isMage || isSupport) adRatio *= 0.5;
+  } else {
+    apRatio = [0.55, 0.5, 0.45, 0.7][slotIdx];
+    adRatio = [0.5, 0.4, 0.35, 0.6][slotIdx];
+  }
+  return { adRatio: Math.round(adRatio*100)/100, apRatio: Math.round(apRatio*100)/100 };
+}
+
 function detectTargeting(rawSpell, tooltip) {
   const t = ((tooltip||'') + ' ' + (rawSpell.name||'') + ' ' + (rawSpell.description||'')).toLowerCase();
   if (/\b(alli|ally|soigne.*alli|bouclier.*alli)/.test(t)) return 'ally';
@@ -163,23 +236,51 @@ function ensureDamageEffects(parsed) {
   }
 }
 
-function parseSpell(rawSpell, cdSpell, champId) {
+function parseSpell(rawSpell, cdSpell, champId, tags, slotIdx) {
   const tooltip = rawSpell.tooltip || '';
   const maxRank = rawSpell.maxrank || 5;
   const cooldown = (rawSpell.cooldown||[]).slice(0,maxRank);
   const cost = (rawSpell.cost||[]).slice(0,maxRank);
   const range = (rawSpell.range||[]).slice(0,maxRank);
-  const targeting = detectTargeting(rawSpell, tooltip);
+  let targeting = detectTargeting(rawSpell, tooltip);
   const scaling = {adRatio:0,apRatio:0};
-  
-  // Extract scaling from Community Dragon data
+
+  // Auto-generate ratios from tooltip damage type and champion archetype
+  const gen = generateRatios(champId, tags, slotIdx, tooltip);
+  scaling.adRatio = gen.adRatio;
+  scaling.apRatio = gen.apRatio;
+
+  // Also try Community Dragon coefficients (may be 0)
   if (cdSpell?.coefficients) {
-    scaling.adRatio = cdSpell.coefficients.coefficient1 || 0;
-    scaling.apRatio = cdSpell.coefficients.coefficient2 || 0;
+    const cdAd = cdSpell.coefficients.coefficient1 || 0;
+    const cdAp = cdSpell.coefficients.coefficient2 || 0;
+    if (cdAd > 0) scaling.adRatio = cdAd;
+    if (cdAp > 0) scaling.apRatio = cdAp;
   }
-  
+
   const effects = extractEffects(rawSpell, tooltip, cdSpell);
-  
+
+  // Apply known overrides for this champion:slot
+  const overrideKey = champId + ':' + slotIdx;
+  const ov = ABILITY_OVERRIDES[overrideKey];
+  if (ov) {
+    if (ov.adRatio !== undefined) scaling.adRatio = ov.adRatio;
+    if (ov.apRatio !== undefined) scaling.apRatio = ov.apRatio;
+    if (ov.targeting) targeting = ov.targeting;
+    if (ov.effects) {
+      for (const oe of ov.effects) {
+        const exists = effects.some(e => {
+          if (e.type !== oe.type) return false;
+          if (oe.type === 'cc') return e.ccType === oe.ccType;
+          if (oe.type === 'execute') return e.threshold === oe.threshold;
+          if (oe.type === 'damage') return e.damageType === oe.damageType;
+          return true;
+        });
+        if (!exists) effects.push(oe);
+      }
+    }
+  }
+
   if (effects.length === 0 && (scaling.adRatio > 0 || scaling.apRatio > 0)) {
     effects.push({type:'damage',damageType:scaling.apRatio > 0 ? 'magical' : 'physical',adRatio:scaling.adRatio,apRatio:scaling.apRatio,baseDamage:extractBaseDamage(cdSpell,maxRank)});
   }
@@ -196,7 +297,18 @@ function parsePassive(rawPassive, cdPassive, champId) {
   let targeting='passive';
   if (/autour|proches|zone/i.test(desc)) targeting='area';
   else if (/alli/i.test(desc)) targeting='ally';
-  else if (/se |soi/i.test(desc) && !/ennemi/i.test(desc)) targeting='self';
+  else if (/se |soi|soigne|récupère|gagne/i.test(desc) && !/ennemi|adversaire/i.test(desc)) targeting='self';
+  // Apply passive overrides
+  const ov = ABILITY_OVERRIDES[champId+':passive'];
+  if (ov) {
+    if (ov.targeting) targeting = ov.targeting;
+    if (ov.effects) {
+      for (const oe of ov.effects) {
+        const exists = effects.some(e => e.type === oe.type && e.ccType === oe.ccType);
+        if (!exists) effects.push(oe);
+      }
+    }
+  }
   return {name:rawPassive.name,description:rawPassive.description,image:rawPassive.image?.full||(champId+'_Passive.png'),targeting,scaling:{adRatio:0,apRatio:0},effects};
 }
 
@@ -229,7 +341,7 @@ async function main() {
       const spells=[];
       if (detail) {
         for (let i=0;i<detail.spells.length;i++) {
-          const parsedSpell=parseSpell(detail.spells[i],cdData?.spells?.[i]||null,raw.id);
+          const parsedSpell=parseSpell(detail.spells[i],cdData?.spells?.[i]||null,raw.id,raw.tags,i);
           spells.push(parsedSpell);
           spellCount++;
         }
