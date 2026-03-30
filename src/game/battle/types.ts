@@ -70,6 +70,8 @@ export interface CombatantState {
   maxHp: number;
   /** Whether this combatant has been defeated. */
   isDefeated: boolean;
+  /** Shield HP remaining (absorbs damage before HP). */
+  currentShield: number;
 }
 
 // ─── Damage / Action Log ───────────────────────────────────────────────────

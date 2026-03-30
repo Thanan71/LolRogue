@@ -30,6 +30,7 @@ export interface CalculatedStats {
   attackDamage: number;
   attackSpeed: number;
   attackRange: number;
+  abilityPower: number;
   hpRegen: number;
   mpRegen: number;
   crit: number;
@@ -48,6 +49,7 @@ export function calculateStats(stats: ChampionStats, level: number): CalculatedS
     attackDamage: statAtLevel(stats.attackDamage, stats.attackDamagePerLevel, level),
     attackSpeed: attackSpeedAtLevel(stats.attackSpeed, stats.attackSpeedPerLevel, level),
     attackRange: stats.attackRange,
+    abilityPower: Math.round(statAtLevel(stats.mp, stats.mpPerLevel, level) * 0.03),
     hpRegen: statAtLevel(stats.hpRegen, stats.hpRegenPerLevel, level),
     mpRegen: statAtLevel(stats.mpRegen, stats.mpRegenPerLevel, level),
     crit: statAtLevel(stats.crit, stats.critPerLevel, level),

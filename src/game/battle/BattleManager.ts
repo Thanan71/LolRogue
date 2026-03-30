@@ -16,8 +16,11 @@ import {
   type BattleResult,
   type BattleAction,
 } from './types';
+import type { SpellEffect } from '@/types/champion';
 import {
   calculateADDamage,
+  calculateAPDamage,
+  calculateTrueDamage,
   critDamage,
 } from '@/utils/damage';
 
@@ -188,7 +191,7 @@ export class BattleManager {
       action: action.type,
     });
 
-    this._executeAction(attackerState, action, enemies);
+    this._executeAction(attackerState, action, enemies, allies);
     if (this._checkVictory()) return;
     this._nextTurn();
   }
@@ -202,6 +205,7 @@ export class BattleManager {
     if (!attackerState || attackerState.isDefeated) return false;
 
     const enemies = this.getAliveEnemies(entry.side);
+    const allies = this.getAliveCombatants(entry.side);
     if (enemies.length === 0) return false;
 
     this._emit({
@@ -211,7 +215,7 @@ export class BattleManager {
       action: action.type,
     });
 
-    this._executeAction(attackerState, action, enemies);
+    this._executeAction(attackerState, action, enemies, allies);
     if (this._checkVictory()) return true;
     this._nextTurn();
     return true;
@@ -234,12 +238,14 @@ export class BattleManager {
       .map(c => ({
         champion: c, side: 'player' as TeamSide,
         currentHp: c.getStats().hp, maxHp: c.getStats().hp, isDefeated: false,
+        currentShield: 0,
       }));
     this._enemyCombatants = this._enemyTeam.champions
       .slice(0, this._maxTeamSize)
       .map(c => ({
         champion: c, side: 'enemy' as TeamSide,
         currentHp: c.getStats().hp, maxHp: c.getStats().hp, isDefeated: false,
+        currentShield: 0,
       }));
     // Reset all cooldowns at battle start
     this._resetAllCooldowns();
@@ -333,69 +339,186 @@ export class BattleManager {
     attacker: CombatantState,
     action: BattleAction,
     enemies: CombatantState[],
+    allies: CombatantState[],
   ): void {
-    if (enemies.length === 0) return;
-    const target = this._pickTarget(enemies);
-    if (!target) return;
-
     const spellSlot = actionToSpellSlot(action.type);
-    if (spellSlot) {
-      attacker.champion.useSpell(spellSlot);
+
+    // ── Basic Attack: keep existing AD-only logic ──
+    if (action.type === ActionType.BasicAttack) {
+      const target = this._pickTarget(enemies);
+      if (!target) return;
+      this._performBasicAttack(attacker, target);
+      return;
     }
 
-    const multipliers: Record<ActionType, number> = {
-      [ActionType.BasicAttack]: 1.0,
-      [ActionType.SpellQ]: 1.3,
-      [ActionType.SpellW]: 1.2,
-      [ActionType.SpellE]: 1.4,
-      [ActionType.SpellR]: 2.0,
-    };
-    const mult = multipliers[action.type] ?? 1.0;
-    this._performAttack(attacker, target, mult);
+    // ── Spell Action: read spell definition and process effects ──
+    if (!spellSlot) return;
+    const spell = attacker.champion.getSpell(spellSlot);
+    if (!spell) return;
+
+    attacker.champion.useSpell(spellSlot);
+
+    const atkStats = attacker.champion.getStats();
+    const rankIdx = 0; // simplified: always rank-1 stats
+
+    for (const effect of spell.effects) {
+      this._applySpellEffect(effect, attacker, enemies, allies, atkStats, rankIdx);
+    }
   }
 
-  private _pickTarget(enemies: CombatantState[]): CombatantState | null {
-    const alive = enemies.filter(c => !c.isDefeated);
+  private _pickTarget(candidates: CombatantState[]): CombatantState | null {
+    const alive = candidates.filter(c => !c.isDefeated);
     if (alive.length === 0) return null;
     return alive[Math.floor(Math.random() * alive.length)];
   }
 
-  private _performAttack(
+  /**
+   * Apply a single SpellEffect. Handles damage, heal, shield, cc.
+   */
+  private _applySpellEffect(
+    effect: SpellEffect,
+    attacker: CombatantState,
+    enemies: CombatantState[],
+    allies: CombatantState[],
+    atkStats: ReturnType<ChampionInstance['getStats']>,
+    rankIdx: number,
+  ): void {
+    switch (effect.type) {
+      case 'damage': {
+        const target = this._pickTarget(enemies);
+        if (!target) return;
+        const defStats = target.champion.getStats();
+
+        const baseDmg = effect.baseDamage?.[rankIdx] ?? 0;
+        const adRatio = effect.adRatio ?? 0;
+        const apRatio = effect.apRatio ?? 0;
+        const statDmg = atkStats.attackDamage * adRatio + atkStats.abilityPower * apRatio;
+        const rawDmg = baseDmg + statDmg;
+
+        let finalDmg: number;
+        const dmgType = effect.damageType ?? 'physical';
+        if (dmgType === 'magical') {
+          finalDmg = calculateAPDamage(rawDmg, 1.0, defStats.magicResist);
+        } else if (dmgType === 'true') {
+          finalDmg = calculateTrueDamage(rawDmg);
+        } else {
+          finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
+        }
+        this._applyDamageToTarget(attacker, target, finalDmg);
+        break;
+      }
+      case 'heal': {
+        const healTarget = allies.length > 0 ? this._pickTarget(allies) : attacker;
+        if (!healTarget) return;
+        const baseHeal = effect.baseValue?.[rankIdx] ?? 0;
+        const apRatio = effect.apRatio ?? 0;
+        const healAmount = Math.round(baseHeal + atkStats.abilityPower * apRatio);
+        if (healAmount <= 0) return;
+        healTarget.currentHp = Math.min(healTarget.maxHp, healTarget.currentHp + healAmount);
+        this._emit({
+          type: 'heal', source: attacker.champion.id,
+          target: healTarget.champion.id, amount: healAmount,
+          sourceSide: attacker.side, targetSide: healTarget.side,
+        });
+        break;
+      }
+      case 'shield': {
+        const shieldTarget = allies.length > 0 ? this._pickTarget(allies) : attacker;
+        if (!shieldTarget) return;
+        const baseShield = effect.baseValue?.[rankIdx] ?? 0;
+        const apRatio = effect.apRatio ?? 0;
+        const shieldAmount = Math.round(baseShield + atkStats.abilityPower * apRatio);
+        if (shieldAmount <= 0) return;
+        shieldTarget.currentShield += shieldAmount;
+        this._emit({
+          type: 'shield', source: attacker.champion.id,
+          target: shieldTarget.champion.id, amount: shieldAmount,
+          sourceSide: attacker.side, targetSide: shieldTarget.side,
+        });
+        break;
+      }
+      case 'cc': {
+        const ccTarget = this._pickTarget(enemies);
+        if (!ccTarget) return;
+        // CC is logged but not mechanically enforced in this engine
+        this._emit({
+          type: 'damage', source: attacker.champion.id,
+          target: ccTarget.champion.id, amount: 0, isCrit: false,
+          sourceSide: attacker.side, targetSide: ccTarget.side,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  /** Apply damage to a target, absorbing into shield first. */
+  private _applyDamageToTarget(
     attacker: CombatantState,
     target: CombatantState,
-    multiplier: number = 1.0,
+    damage: number,
+  ): void {
+    let remaining = damage;
+    if (target.currentShield > 0 && remaining > 0) {
+      if (target.currentShield >= remaining) {
+        target.currentShield -= remaining;
+        remaining = 0;
+      } else {
+        remaining -= target.currentShield;
+        target.currentShield = 0;
+      }
+    }
+    if (remaining > 0) {
+      target.currentHp = Math.max(0, target.currentHp - remaining);
+    }
+    if (damage > 0) {
+      this._emit({
+        type: 'damage', source: attacker.champion.id,
+        target: target.champion.id, amount: damage, isCrit: false,
+        sourceSide: attacker.side, targetSide: target.side,
+      });
+    }
+    if (target.currentHp <= 0) {
+      target.isDefeated = true;
+      this._emit({ type: 'defeat', champion: target.champion.id, side: target.side });
+    }
+  }
+
+  /** Basic attack: AD-only with crit, mitigated by armor. */
+  private _performBasicAttack(
+    attacker: CombatantState,
+    target: CombatantState,
   ): void {
     const atkStats = attacker.champion.getStats();
     const defStats = target.champion.getStats();
 
-    // Apply critical strike to raw damage before armor mitigation
-    const baseRaw = atkStats.attackDamage * multiplier;
+    const baseRaw = atkStats.attackDamage;
     const critChance = Math.min(100, atkStats.crit) / 100;
     const isCrit = Math.random() < critChance;
     const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
-
-    // Mitigate through armor: AD * ratio * 100/(100+armor)
     const finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
 
-    target.currentHp = Math.max(0, target.currentHp - finalDmg);
+    let remaining = finalDmg;
+    if (target.currentShield > 0 && remaining > 0) {
+      if (target.currentShield >= remaining) {
+        target.currentShield -= remaining;
+        remaining = 0;
+      } else {
+        remaining -= target.currentShield;
+        target.currentShield = 0;
+      }
+    }
+    target.currentHp = Math.max(0, target.currentHp - remaining);
 
     this._emit({
-      type: 'damage',
-      source: attacker.champion.id,
-      target: target.champion.id,
-      amount: finalDmg,
-      isCrit,
-      sourceSide: attacker.side,
-      targetSide: target.side,
+      type: 'damage', source: attacker.champion.id,
+      target: target.champion.id, amount: finalDmg, isCrit,
+      sourceSide: attacker.side, targetSide: target.side,
     });
-
     if (target.currentHp <= 0) {
       target.isDefeated = true;
-      this._emit({
-        type: 'defeat',
-        champion: target.champion.id,
-        side: target.side,
-      });
+      this._emit({ type: 'defeat', champion: target.champion.id, side: target.side });
     }
   }
 
