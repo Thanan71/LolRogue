@@ -138,6 +138,17 @@ export class ChampionInstance {
   }
 
   /**
+   * Get the base cooldown for a spell slot at rank 1.
+   * @param slot — spell slot to check.
+   * @returns The base cooldown value, or 0 if spell doesn't exist.
+   */
+  getMaxCooldown(slot: SpellSlot): number {
+    const spell = this._spells[slot];
+    if (!spell || !spell.cooldown || spell.cooldown.length === 0) return 0;
+    return spell.cooldown[0];
+  }
+
+  /**
    * Get the cooldown map (readonly snapshot).
    */
   getCooldowns(): Readonly<Record<SpellSlot, number>> {
