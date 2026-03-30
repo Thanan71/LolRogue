@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
@@ -14,6 +14,7 @@ import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { ActionType } from '@/game/battle/types';
+import { SeededRNG } from '@/utils/seededRandom';
 import { playUIClick } from '@/audio';
 import type { Item, ItemStatBonuses } from '@/types/run';
 
@@ -26,10 +27,11 @@ function buildTeamInstances(championIds: string[]): ChampionInstance[] {
   return instances;
 }
 
-function generateEnemyTeam(round: number): string[] {
+function generateEnemyTeam(round: number, seed: number): string[] {
   const all = championDB.getAll();
   const count = Math.min(5, 1 + Math.floor(round / 2));
-  const shuffled = [...all].sort(() => Math.random() - 0.5);
+  const rng = new SeededRNG(seed);
+  const shuffled = rng.shuffle(all);
   return shuffled.slice(0, count).map(c => c.id);
 }
 
@@ -60,7 +62,18 @@ export function CombatPage() {
   }, [isActive, navigate]);
 
   const playerInstances = useMemo(() => buildTeamInstances(team.map(m => m.championId)), [team]);
-  const enemyInstances = useMemo(() => buildTeamInstances(generateEnemyTeam(runLevel)), [runLevel]);
+  // Use useState to store enemy team so it doesn't regenerate on re-render.
+  // Seed is derived from runLevel for determinism in daily runs.
+  const [enemyInstances, setEnemyInstances] = useState<ChampionInstance[]>(() =>
+    buildTeamInstances(generateEnemyTeam(runLevel, runLevel * 31 + 7))
+  );
+
+  // Regenerate enemy team when runLevel changes (new combat encounter)
+  const [prevRunLevel, setPrevRunLevel] = useState(runLevel);
+  if (runLevel !== prevRunLevel) {
+    setPrevRunLevel(runLevel);
+    setEnemyInstances(buildTeamInstances(generateEnemyTeam(runLevel, runLevel * 31 + 7)));
+  }
 
   const handleComplete = useCallback((w: 'player' | 'enemy' | 'draw') => {
     if (w === 'player') {
