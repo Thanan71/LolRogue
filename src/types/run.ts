@@ -186,6 +186,8 @@ export interface RunState {
   map: RunMap | null;
   /** Current position on the map */
   mapPosition: RunMapPosition | null;
+  /** Currently active encounter (null if no encounter pending) */
+  pendingEncounter: { nodeId: string; nodeType: NodeType } | null;
 }
 
 // ─── Run Store Actions ──────────────────────────────────────────────────────
@@ -225,6 +227,10 @@ export interface RunActions {
   moveToNode: (nodeId: string) => boolean;
   /** Mark a node as completed and unlock next nodes */
   completeNode: (nodeId: string) => void;
+  /** Start an encounter for a given node (sets pendingEncounter) */
+  startEncounter: (nodeId: string, nodeType: NodeType) => void;
+  /** Resolve the current encounter (clears pendingEncounter and completes the node) */
+  resolveEncounter: () => void;
 }
 
 export type RunStore = RunState & RunActions;

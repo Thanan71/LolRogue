@@ -91,7 +91,7 @@ export function CombatPage() {
       if (map && mapPosition) {
         const currentNode = map[mapPosition.column]?.nodes[mapPosition.row];
         if (currentNode) {
-          runStore.completeNode(currentNode.id);
+          runStore.resolveEncounter();
         }
 
         // 4. Item drop chance (~20%)
@@ -133,8 +133,8 @@ export function CombatPage() {
         }
       }
 
-      // Navigate back to run page
-      navigate(ROUTES.RUN);
+      // Navigation handled by UI buttons
+
     } else {
       // On draw or loss, end the run
       useRunStore.getState().endRun(w === 'draw');
@@ -240,7 +240,7 @@ export function CombatPage() {
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 {winner === 'player' && (
-                  <button onClick={() => navigate(ROUTES.RUN)} style={nextBtnStyle}>Continuer →</button>
+                  <button onClick={() => { playUIClick(); useRunStore.getState().resolveEncounter(); navigate(ROUTES.RUN); }} style={nextBtnStyle}>Continuer →</button>
                 )}
                 <button onClick={() => navigate(ROUTES.MENU)} style={backBtnStyle2}>Menu</button>
               </div>

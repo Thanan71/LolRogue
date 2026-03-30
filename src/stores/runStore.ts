@@ -7,6 +7,7 @@ import {
   InventoryEntry,
   RunMapPosition,
   MAX_TEAM_SIZE,
+  NodeType,
 } from '@/types/run';
 import { generateRunMap, updateReachability, findNode } from '@/utils/runMapUtils';
 import { useMasteryStore } from './masteryStore';
@@ -25,6 +26,7 @@ const INITIAL_STATE: RunState = {
   totalWavesCompleted: 0,
   map: null,
   mapPosition: null,
+  pendingEncounter: null,
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -60,6 +62,7 @@ export const useRunStore = create<RunStore>()(
           totalWavesCompleted: 0,
           map: null,
           mapPosition: null,
+          pendingEncounter: null,
         });
       },
 
@@ -261,6 +264,18 @@ export const useRunStore = create<RunStore>()(
           currentBiome: newBiome,
         });
       },
+
+      startEncounter: (nodeId, nodeType) => {
+        set({ pendingEncounter: { nodeId, nodeType } });
+      },
+
+      resolveEncounter: () => {
+        const { pendingEncounter } = get();
+        if (pendingEncounter) {
+          get().completeNode(pendingEncounter.nodeId);
+          set({ pendingEncounter: null });
+        }
+      },
     }),
     {
       name: 'lolrogue-run-storage',
@@ -278,6 +293,7 @@ export const useRunStore = create<RunStore>()(
         totalWavesCompleted: state.totalWavesCompleted,
         map: state.map,
         mapPosition: state.mapPosition,
+        pendingEncounter: state.pendingEncounter,
       }),
     },
   ),
