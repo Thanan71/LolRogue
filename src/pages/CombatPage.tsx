@@ -7,6 +7,7 @@ import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { championDB } from '@/data';
+import { ITEM_DATABASE } from '@/data/items';
 import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
 import { AbilityBar } from '@/components/CombatUI/AbilityBar';
 import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
@@ -14,6 +15,7 @@ import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { ActionType } from '@/game/battle/types';
 import { playUIClick } from '@/audio';
+import type { Item, ItemStatBonuses } from '@/types/run';
 
 function buildTeamInstances(championIds: string[]): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
@@ -62,13 +64,62 @@ export function CombatPage() {
 
   const handleComplete = useCallback((w: 'player' | 'enemy' | 'draw') => {
     if (w === 'player') {
-      // Award gold: 50 + runLevel * 10
+      const runStore = useRunStore.getState();
+
+      // 1. Award gold: 50 + runLevel * 10
       const goldReward = 50 + runLevel * 10;
-      useRunStore.getState().addGold(goldReward);
-      
-      // Advance wave
-      useRunStore.getState().nextWave();
-      
+      runStore.addGold(goldReward);
+
+      // 2. Advance wave
+      runStore.nextWave();
+
+      // 3. Complete current map node (unlocks next nodes)
+      const { map, mapPosition } = runStore;
+      if (map && mapPosition) {
+        const currentNode = map[mapPosition.column]?.nodes[mapPosition.row];
+        if (currentNode) {
+          runStore.completeNode(currentNode.id);
+        }
+
+        // 4. Item drop chance (~20%)
+        if (Math.random() < 0.2) {
+          const itemDefs = Object.values(ITEM_DATABASE);
+          if (itemDefs.length > 0) {
+            const drop = itemDefs[Math.floor(Math.random() * itemDefs.length)];
+            const item: Item = {
+              id: drop.id,
+              name: drop.name,
+              description: drop.description,
+              iconUrl: drop.iconUrl,
+              stats: drop.stats.reduce<ItemStatBonuses>((acc, s) => {
+                const key = s.stat as keyof ItemStatBonuses;
+                acc[key] = (acc[key] ?? 0) + s.value;
+                return acc;
+              }, {}),
+              passiveId: drop.passive?.id,
+              goldValue: drop.goldValue,
+            };
+            runStore.addItem(item);
+          }
+        }
+
+        // 5. Check if we just completed the boss (last column = biome transition)
+        const isBossNode = currentNode?.type === 'boss';
+        if (isBossNode) {
+          // Save biome history before generateMap resets it
+          const oldBiomes = [...runStore.biomesVisited];
+          // Increment run level and generate a new map for the next biome
+          runStore.incrementRunLevel();
+          runStore.generateMap();
+          // Restore biome history: old biomes + new biome from fresh map
+          const freshState = useRunStore.getState();
+          const newBiomes = freshState.biomesVisited;
+          useRunStore.setState({
+            biomesVisited: [...oldBiomes, ...newBiomes],
+          });
+        }
+      }
+
       // Navigate back to run page
       navigate(ROUTES.RUN);
     } else {
