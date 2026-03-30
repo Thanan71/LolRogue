@@ -62,9 +62,21 @@ export function CombatPage() {
 
   const handleComplete = useCallback((w: 'player' | 'enemy' | 'draw') => {
     if (w === 'player') {
+      // Award gold: 50 + runLevel * 10
+      const goldReward = 50 + runLevel * 10;
+      useRunStore.getState().addGold(goldReward);
       
+      // Advance wave
+      useRunStore.getState().nextWave();
+      
+      // Navigate back to run page
+      navigate(ROUTES.RUN);
+    } else {
+      // On draw or loss, end the run
+      useRunStore.getState().endRun(w === 'draw');
+      navigate(ROUTES.GAME_OVER);
     }
-  }, []);
+  }, [runLevel, navigate]);
 
   const { processTurn, submitAction } = useBattleManager({
     playerTeam: playerInstances,
