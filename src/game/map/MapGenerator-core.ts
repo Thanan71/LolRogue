@@ -15,6 +15,8 @@ import {
 } from './types';
 import { getRandomEncounter, getBiomeBoss } from './encounters';
 import { mulberry32, getNodeMetadata, selectColumnType, buildConfig } from './MapGenerator-helpers';
+import { generateShopRotation, generateWildRecruit } from '../recruitment/RecruitmentService';
+import { implementedChampions } from '@/data/champion';
 
 // ─── Non-combat Encounter Generators ────────────────────────────────────────
 
