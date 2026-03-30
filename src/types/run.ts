@@ -120,6 +120,41 @@ export interface InventoryEntry {
   equippedToChampionId: string | null;
 }
 
+// ─── Run Map (Biome Nodes) ────────────────────────────────────────────────
+
+export type NodeType = 'combat' | 'elite' | 'shop' | 'rest' | 'event' | 'boss';
+
+export interface RunMapNode {
+  id: string;
+  type: NodeType;
+  biome: Biome;
+  /** Column index (0 = first biome, starts from left) */
+  column: number;
+  /** Row index within the column (for branching paths) */
+  row: number;
+  /** IDs of nodes in the next column this node connects to */
+  nextNodeIds: string[];
+  /** Whether this node has been completed */
+  completed: boolean;
+  /** Whether this node is reachable from the current position */
+  reachable: boolean;
+}
+
+export interface RunMapColumn {
+  nodes: RunMapNode[];
+}
+
+/** Full run map: an array of columns (left to right) */
+export type RunMap = RunMapColumn[];
+
+/** Which node the player is currently on */
+export interface RunMapPosition {
+  /** Column index */
+  column: number;
+  /** Row index */
+  row: number;
+}
+
 // ─── Run State ──────────────────────────────────────────────────────────────
 
 /** Serializable team member (stores only the champion ID) */
@@ -147,6 +182,10 @@ export interface RunState {
   currentWave: number;
   /** Total waves completed across the entire run */
   totalWavesCompleted: number;
+  /** The procedurally generated run map */
+  map: RunMap | null;
+  /** Current position on the map */
+  mapPosition: RunMapPosition | null;
 }
 
 // ─── Run Store Actions ──────────────────────────────────────────────────────
@@ -180,6 +219,12 @@ export interface RunActions {
   nextWave: () => void;
   /** Increment the run level */
   incrementRunLevel: () => void;
+  /** Generate a new run map and set position to start */
+  generateMap: () => void;
+  /** Move to a specific node on the map (validates reachability) */
+  moveToNode: (nodeId: string) => boolean;
+  /** Mark a node as completed and unlock next nodes */
+  completeNode: (nodeId: string) => void;
 }
 
 export type RunStore = RunState & RunActions;

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 interface GameState {
-  phase: 'menu' | 'starterSelect' | 'combat' | 'shop' | 'inventory';
+  phase: 'menu' | 'starterSelect' | 'combat' | 'shop' | 'inventory' | 'run';
   currentLevel: number;
   score: number;
   gold: number;

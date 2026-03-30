@@ -5,8 +5,10 @@ import {
   RunStore,
   TeamMember,
   InventoryEntry,
+  RunMapPosition,
   MAX_TEAM_SIZE,
 } from '@/types/run';
+import { generateRunMap, updateReachability, findNode } from '@/utils/runMapUtils';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
 
@@ -20,6 +22,8 @@ const INITIAL_STATE: RunState = {
   gold: 0,
   currentWave: 1,
   totalWavesCompleted: 0,
+  map: null,
+  mapPosition: null,
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -172,6 +176,73 @@ export const useRunStore = create<RunStore>()(
 
       incrementRunLevel: () => {
         set((state) => ({ runLevel: state.runLevel + 1 }));
+      },
+
+      // ── Run Map ─────────────────────────────────────────────────────────
+
+      generateMap: () => {
+        const map = generateRunMap();
+        // Start at the first node (column 0, row 0)
+        const position: RunMapPosition = { column: 0, row: 0 };
+        // Mark the start node as reachable and advance biome to its biome
+        if (map[0]?.nodes[0]) {
+          map[0].nodes[0].reachable = true;
+          const startBiome = map[0].nodes[0].biome;
+          set({
+            map,
+            mapPosition: position,
+            currentBiome: startBiome,
+            biomesVisited: [startBiome],
+          });
+        } else {
+          set({ map, mapPosition: position });
+        }
+      },
+
+      moveToNode: (nodeId) => {
+        const { map, mapPosition } = get();
+        if (!map) return false;
+
+        const found = findNode(map, nodeId);
+        if (!found) return false;
+
+        // Node must be reachable
+        if (!found.node.reachable) return false;
+
+        // Must be in the next column relative to current position
+        if (mapPosition && found.column !== mapPosition.column + 1) return false;
+
+        set({
+          mapPosition: { column: found.column, row: found.row },
+          currentBiome: found.node.biome,
+        });
+        return true;
+      },
+
+      completeNode: (nodeId) => {
+        const { map, mapPosition } = get();
+        if (!map || !mapPosition) return;
+
+        const found = findNode(map, nodeId);
+        if (!found) return;
+
+        // Mark node completed
+        const updatedMap = updateReachability(map, found.column, found.row);
+
+        // Also mark the completed node
+        const target = updatedMap[found.column]?.nodes[found.row];
+        if (target) {
+          target.completed = true;
+          target.reachable = false;
+        }
+
+        // Update biome if we're moving
+        const newBiome = target?.biome ?? get().currentBiome;
+
+        set({
+          map: updatedMap,
+          currentBiome: newBiome,
+        });
       },
     }),
     {
