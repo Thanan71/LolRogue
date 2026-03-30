@@ -1,5 +1,6 @@
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
+import { useRunStore } from '@/stores/runStore';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
@@ -38,6 +39,24 @@ function LolRogueIcon() {
 
 export function MenuPage() {
   const navigate = useAppNavigate();
+  const isActive = useRunStore((s) => s.isActive);
+  const runLevel = useRunStore((s) => s.runLevel);
+  const currentBiome = useRunStore((s) => s.currentBiome);
+  const team = useRunStore((s) => s.team);
+  const endRun = useRunStore((s) => s.endRun);
+
+  function handleContinue() {
+    playUIClick();
+    navigate(ROUTES.RUN);
+  }
+
+  function handleNewRun() {
+    playUIClick();
+    if (isActive) {
+      endRun();
+    }
+    navigate(ROUTES.STARTER_SELECT);
+  }
 
   return (
     <div className="main-menu">
@@ -52,11 +71,25 @@ export function MenuPage() {
       <div className="main-menu__divider" />
 
       <div className="main-menu__buttons">
+        {isActive && (
+          <button
+            className="main-menu__btn main-menu__btn--continue"
+            onClick={handleContinue}
+          >
+            <span className="main-menu__btn-icon">▶</span>
+            Continue Run
+            <span className="main-menu__btn-info">
+              Lv.{runLevel} · {currentBiome ? currentBiome.replace('_', ' ') : '???'} · {team.length} champ{team.length !== 1 ? 's' : ''}
+            </span>
+          </button>
+        )}
+
         <button
-          className="main-menu__btn main-menu__btn--play"
-          onClick={() => { playUIClick(); navigate(ROUTES.STARTER_SELECT); }}
+          className={`main-menu__btn ${isActive ? 'main-menu__btn--new' : 'main-menu__btn--play'}`}
+          onClick={handleNewRun}
         >
-          Play
+          <span className="main-menu__btn-icon">⚔</span>
+          {isActive ? 'Abandon & New Run' : 'Play'}
         </button>
 
         <button
