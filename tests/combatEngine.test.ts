@@ -8,24 +8,25 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BattleManager } from '../src/game/battle/BattleManager';
-import { BattlePhase, ActionType } from '../src/game/battle/types';
-import type { BattleTeam, BattleAction, BattleEvent } from '../src/game/battle/types';
+import { BattlePhase } from '../src/game/battle/types';
+import type { BattleTeam, BattleEvent } from '../src/game/battle/types';
 import { ChampionInstance } from '../src/game/ChampionInstance';
 import { EffectManager } from '../src/game/effects/EffectManager';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
 import { HealEffect } from '../src/game/effects/HealEffect';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
 import { CCEffect } from '../src/game/effects/CCEffect';
-import { BuffDebuffEffect, createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
+import { createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
 import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
 import {
-  EffectCategory, DamageType, CCType, type EffectEvent,
+  EffectCategory, DamageType, CCType,
 } from '../src/game/effects/types';
 import {
-  calculArmorReduction, calculMReduction, critDamage,
+  calculArmorReduction, critDamage,
   calculateADDamage, calculateAPDamage, calculateTrueDamage,
 } from '../src/utils/damage';
 import type { Champion, ChampionStats, Spell, Passive } from '../src/types';
+import { TargetingType, type SpellEffect } from '../src/types';
 
 // ─── Test Fixtures ──────────────────────────────────────────────────────────
 
@@ -42,9 +43,15 @@ function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
     id: `Test${slot}`, name: `Test Spell ${slot}`, description: `Desc ${slot}`,
     maxRank: 5, cooldown: [8, 7.5, 7, 6.5, 6], cost: [50, 55, 60, 65, 70],
     range: [700, 700, 700, 700, 700], image: `Test${slot}.png`,
+    targeting: TargetingType.Enemy,
+    scaling: { adRatio: 0, apRatio: 0 },
+    effects: [] as SpellEffect[],
   });
   const passive: Passive = {
     name: 'Test Passive', description: 'Desc', image: 'TestPassive.png',
+    targeting: TargetingType.Passive,
+    scaling: { adRatio: 0, apRatio: 0 },
+    effects: [] as SpellEffect[],
   };
   const defaults: Champion = {
     id: 'TestChampion', key: '9999', name: 'Test Champion', title: 'the Tester',
@@ -238,11 +245,6 @@ describe('Initiative & Turn Order', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('0 HP Defeat Condition', () => {
-  let manager: EffectManager;
-
-  beforeEach(() => {
-    manager = new EffectManager('champ-1');
-  });
 
   it('damage reducing HP to exactly 0 triggers defeat', () => {
     const teams = makeTeams(['P1'], ['E1']);
