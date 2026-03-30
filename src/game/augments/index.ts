@@ -1,0 +1,1 @@
+export { AugmentManager } from './AugmentManager';
