@@ -1,12 +1,14 @@
 import type { Biome, NodeType, RunMap, RunMapColumn, RunMapNode } from '@/types/run';
-const BIOMES_MUTABLE: Biome[] = ['forest','desert','tundra','volcano','swamp','ruins','abyss'];
+import { BIOMES } from '@/types/run';
+
+const BIOMES_MUTABLE: Biome[] = BIOMES.filter((b): b is Biome => b !== 'base');
 
 const TOTAL_COLUMNS = 8;
 const NODES_PER_COLUMN_MIN = 2;
 const NODES_PER_COLUMN_MAX = 4;
 
 const NODE_TYPES: NodeType[] = ['combat', 'combat', 'combat', 'elite', 'shop', 'rest', 'event'];
-const BOSS_BIOMES: Biome[] = ['volcano', 'abyss'];
+const BOSS_BIOMES: Biome[] = ['base'];
 
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -22,9 +24,9 @@ function nodeId(col: number, row: number): string {
 
 function pickBiome(column: number): Biome {
   // Biomes shift as you progress deeper
-  if (column <= 1) return 'forest';
-  if (column <= 3) return pickRandom(['forest', 'desert', 'tundra'] as Biome[]);
-  if (column <= 5) return pickRandom(['desert', 'tundra', 'swamp', 'ruins'] as Biome[]);
+  if (column <= 1) return 'top_lane';
+  if (column <= 3) return pickRandom(['top_lane', 'jungle', 'mid_lane'] as Biome[]);
+  if (column <= 5) return pickRandom(['mid_lane', 'bot_lane', 'river'] as Biome[]);
   if (column === TOTAL_COLUMNS - 1) return pickRandom(BOSS_BIOMES);
   return pickRandom(BIOMES_MUTABLE);
 }
