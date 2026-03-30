@@ -116,7 +116,12 @@ describe('dailyRunStore (integration)', () => {
   it('should have correct initial shape', async () => {
     const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
     const state = useDailyRunStore.getState();
-    expect(state.dateKey).toBe('2026-03-30');
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const expectedDateKey = `${year}-${month}-${day}`;
+    expect(state.dateKey).toBe(expectedDateKey);
     expect(typeof state.seed).toBe('number');
     expect(state.seed).toBeGreaterThan(0);
   });
