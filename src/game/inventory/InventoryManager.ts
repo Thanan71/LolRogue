@@ -141,6 +141,13 @@ export class InventoryManager {
         if (bonus.type === 'flat') result[bonus.stat].flat += total;
         else result[bonus.stat].percent += total;
       }
+      if (item.definition.passive?.modifiers) {
+        for (const mod of item.definition.passive.modifiers) {
+          if (!result[mod.stat]) result[mod.stat] = { flat: 0, percent: 0 };
+          if (mod.type === 'percent') result[mod.stat].percent += mod.value;
+          else result[mod.stat].flat += mod.value;
+        }
+      }
     }
     return result as Record<StatKey, { flat: number; percent: number }>;
   }
