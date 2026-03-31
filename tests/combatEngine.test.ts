@@ -705,6 +705,13 @@ describe('BattleManager Critical Strike', () => {
     const events: BattleEvent[] = [];
     bm.on('event', e => events.push(e));
     bm.startBattle();
+
+    // Force AI to basic-attack by putting all spells on cooldown
+    const critter = teams.playerTeam.champions[0];
+    for (const slot of SPELL_SLOTS) {
+      critter.useSpell(slot);
+    }
+
     bm.processCurrentTurn();
 
     const dmgEvent = events.find(e => e.type === 'damage');
@@ -725,6 +732,13 @@ describe('BattleManager Critical Strike', () => {
     const events: BattleEvent[] = [];
     bm.on('event', e => events.push(e));
     bm.startBattle();
+
+    // Force AI to basic-attack by putting all spells on cooldown
+    const noCritter = teams.playerTeam.champions[0];
+    for (const slot of SPELL_SLOTS) {
+      noCritter.useSpell(slot);
+    }
+
     bm.processCurrentTurn();
 
     const dmgEvent = events.find(e => e.type === 'damage');
@@ -749,6 +763,9 @@ describe('BattleManager Critical Strike', () => {
       const evts1: BattleEvent[] = [];
       bm1.on('event', e => evts1.push(e));
       bm1.startBattle();
+      // Force AI to basic-attack by putting all spells on cooldown
+      const c1 = teams1.playerTeam.champions[0];
+      for (const slot of SPELL_SLOTS) { c1.useSpell(slot); }
       bm1.processCurrentTurn();
       const d1 = evts1.find(e => e.type === 'damage');
       if (d1 && 'amount' in d1) withCritDmg.push(d1.amount);
@@ -763,6 +780,9 @@ describe('BattleManager Critical Strike', () => {
       const evts2: BattleEvent[] = [];
       bm2.on('event', e => evts2.push(e));
       bm2.startBattle();
+      // Force AI to basic-attack by putting all spells on cooldown
+      const c2 = teams2.playerTeam.champions[0];
+      for (const slot of SPELL_SLOTS) { c2.useSpell(slot); }
       bm2.processCurrentTurn();
       const d2 = evts2.find(e => e.type === 'damage');
       if (d2 && 'amount' in d2) noCritDmg.push(d2.amount);
