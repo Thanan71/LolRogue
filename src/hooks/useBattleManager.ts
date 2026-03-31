@@ -4,6 +4,7 @@ import type { BattleTeam, BattleEvent, BattleAction } from '@/game/battle/types'
 import { BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
 import { useBattleStore, type CombatantInfo, type SpellInfo } from '@/stores/battleStore';
+import { runStatsTracker } from '@/services/RunStatsTracker';
 
 /** Convert a ChampionInstance + combatant state to CombatantInfo for the UI */
 function toCombatantInfo(champ: ChampionInstance, side: 'player' | 'enemy', currentHp: number, maxHp: number, isDefeated: boolean): CombatantInfo {
@@ -81,6 +82,10 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
         amount: event.amount,
         isCrit: event.isCrit,
       });
+      // Track damage for player champions
+      if (event.sourceSide === 'player') {
+        runStatsTracker.recordDamage(event.source, event.amount);
+      }
       break;
 
     case 'heal':
@@ -104,6 +109,10 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
     case 'defeat':
       syncTeams(bm);
       store.addLog({ type: 'defeat', message: `${event.champion} a été vaincu !` });
+      // Track kill: credit the player champion who dealt the killing blow
+      if (event.side === 'enemy' && event.defeatedBy) {
+        runStatsTracker.recordKill(event.defeatedBy);
+      }
       break;
 
     case 'battle_end':

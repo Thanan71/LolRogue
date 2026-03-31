@@ -16,6 +16,7 @@ import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { ActionType } from '@/game/battle/types';
 import { SeededRNG } from '@/utils/seededRandom';
 import { playUIClick } from '@/audio';
+import { runStatsTracker } from '@/services/RunStatsTracker';
 import type { Item, ItemStatBonuses, RunSummary, ChampionRunStats } from '@/types/run';
 
 function buildTeamInstances(championIds: string[], levels?: Record<string, number>): ChampionInstance[] {
@@ -137,31 +138,48 @@ export function CombatPage() {
         }
       }
 
+      // 7. Build RunSummary for victory display
+      // Mark surviving player champions
+      const rs2 = useRunStore.getState();
+      const aliveIds = rs2.team.filter(m => (m.currentHp ?? 0) > 0).map(m => m.championId);
+      runStatsTracker.markSurvived(aliveIds);
+      const victorySummary: RunSummary = runStatsTracker.buildSummary({
+        won: true,
+        wavesCompleted: rs2.totalWavesCompleted,
+        biomesVisited: rs2.biomesVisited as any,
+        goldEarned: rs2.gold,
+        runLevel: rs2.runLevel,
+      });
+      // If this was the boss, show game-over with full stats
+      if (isBossNode) {
+        navigate(ROUTES.GAME_OVER, { state: { summary: victorySummary } });
+        rs2.endRun();
+        runStatsTracker.reset();
+        return;
+      }
+      // Reset tracker for next combat
+      runStatsTracker.reset();
+
       // Navigation handled by UI buttons
 
     } else {
-      // On draw or loss: build RunSummary, navigate with state, then end the run
+      // On draw or loss: build RunSummary from tracked stats, navigate with state, then end the run
       const rs = useRunStore.getState();
-      const championStats: ChampionRunStats[] = rs.team.map((m) => ({
-        championId: m.championId,
-        kills: 0,
-        totalDamage: 0,
-        survived: false,
-      }));
-      const summary: RunSummary = {
+      // Mark all player champions as dead (none survived)
+      runStatsTracker.markSurvived([]);
+      const summary: RunSummary = runStatsTracker.buildSummary({
         won: false,
         wavesCompleted: rs.totalWavesCompleted,
-        biomesVisited: rs.biomesVisited,
-        championStats,
-        totalKills: 0,
-        totalDamage: 0,
+        biomesVisited: rs.biomesVisited as any,
         goldEarned: rs.gold,
         runLevel: rs.runLevel,
-      };
+      });
       // Navigate FIRST with summary state, BEFORE endRun() resets isActive
       navigate(ROUTES.GAME_OVER, { state: { summary } });
       // Now end the run (resets isActive, team, gold, etc.)
       rs.endRun(w === 'draw');
+      // Reset tracker for next run
+      runStatsTracker.reset();
     }
   }, [runLevel, navigate]);
 

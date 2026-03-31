@@ -588,7 +588,7 @@ export class BattleManager {
     }
     if (target.currentHp <= 0) {
       target.isDefeated = true;
-      this._emit({ type: 'defeat', champion: target.champion.id, side: target.side });
+      this._emit({ type: 'defeat', champion: target.champion.id, side: target.side, defeatedBy: attacker.champion.id });
     }
   }
 
@@ -625,7 +625,7 @@ export class BattleManager {
     });
     if (target.currentHp <= 0) {
       target.isDefeated = true;
-      this._emit({ type: 'defeat', champion: target.champion.id, side: target.side });
+      this._emit({ type: 'defeat', champion: target.champion.id, side: target.side, defeatedBy: attacker.champion.id });
     }
   }
 

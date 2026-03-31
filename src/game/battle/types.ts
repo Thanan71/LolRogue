@@ -99,6 +99,8 @@ export interface DefeatEvent {
   type: 'defeat';
   champion: string; // champion id
   side: TeamSide;
+  /** ID of the player champion that dealt the killing blow */
+  defeatedBy?: string;
 }
 
 export interface BattleEndEvent {
