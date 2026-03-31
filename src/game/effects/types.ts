@@ -165,6 +165,10 @@ export interface EffectAppliedEvent {
   target: string;
   magnitude: number;
   duration: number;
+  /** Optional numeric value for convenience (e.g. actual applied amount) */
+  value?: number;
+  /** Optional detail string for logging */
+  detail?: string;
 }
 
 export interface EffectTickEvent {
@@ -183,6 +187,10 @@ export interface EffectExpiredEvent {
   effectId: string;
   effectName: string;
   target: string;
+  /** Optional numeric value for convenience */
+  value?: number;
+  /** Optional detail string for logging */
+  detail?: string;
 }
 
 export type EffectEvent =
