@@ -77,5 +77,5 @@ export const soraka: Champion = {
       { type: 'buff', stat: 'moveSpeed', modifierType: 'percent', values: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70], buffDuration: 0 },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Soraka.png',
+  iconUrl: '/lol/data/img/champions/Soraka.png',
 };

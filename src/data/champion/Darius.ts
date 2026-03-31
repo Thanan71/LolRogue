@@ -77,5 +77,5 @@ export const darius: Champion = {
       { type: 'buff', stat: 'attackDamage', modifierType: 'percent', values: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20], buffDuration: 5 },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Darius.png',
+  iconUrl: '/lol/data/img/champions/Darius.png',
 };

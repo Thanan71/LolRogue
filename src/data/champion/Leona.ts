@@ -78,5 +78,5 @@ export const leona: Champion = {
       { type: 'damage', damageType: 'magical', adRatio: 0, apRatio: 0, baseDamage: [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25] },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Leona.png',
+  iconUrl: '/lol/data/img/champions/Leona.png',
 };

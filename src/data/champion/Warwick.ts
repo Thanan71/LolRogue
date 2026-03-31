@@ -79,5 +79,5 @@ export const warwick: Champion = {
       { type: 'heal', baseValue: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10], apRatio: 0.15 },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Warwick.png',
+  iconUrl: '/lol/data/img/champions/Warwick.png',
 };

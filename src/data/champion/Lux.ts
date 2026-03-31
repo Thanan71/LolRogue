@@ -75,5 +75,5 @@ export const lux: Champion = {
       { type: 'damage', damageType: 'magical', adRatio: 0, apRatio: 0.2, baseDamage: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20] },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Lux.png',
+  iconUrl: '/lol/data/img/champions/Lux.png',
 };

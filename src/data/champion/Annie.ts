@@ -74,5 +74,5 @@ export const annie: Champion = {
       { type: 'cc', ccType: 'stun', ccDuration: 1.75 },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Annie.png',
+  iconUrl: '/lol/data/img/champions/Annie.png',
 };

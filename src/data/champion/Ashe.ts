@@ -74,5 +74,5 @@ export const ashe: Champion = {
       { type: 'cc', ccType: 'slow', slowPercent: 20, ccDuration: 2 },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Ashe.png',
+  iconUrl: '/lol/data/img/champions/Ashe.png',
 };

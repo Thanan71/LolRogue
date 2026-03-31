@@ -78,5 +78,5 @@ export const malphite: Champion = {
       { type: 'shield', baseValue: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10], apRatio: 0 },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Malphite.png',
+  iconUrl: '/lol/data/img/champions/Malphite.png',
 };

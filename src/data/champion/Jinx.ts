@@ -78,5 +78,5 @@ export const jinx: Champion = {
       { type: 'buff', stat: 'attackSpeed', modifierType: 'percent', values: [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25], buffDuration: 6 },
     ],
   },
-  iconUrl: '/data/lol/img/champions/Jinx.png',
+  iconUrl: '/lol/data/img/champions/Jinx.png',
 };
