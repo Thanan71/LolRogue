@@ -57,6 +57,7 @@ export function CombatPage() {
   const winner = useBattleStore(s => s.winner);
   const isPlayerTurn = useBattleStore(s => s.isPlayerTurn);
 
+  const [autoPlay, setAutoPlay] = useState(true);
   useEffect(() => {
     if (!isActive) navigate(ROUTES.STARTER_SELECT);
   }, [isActive, navigate]);
@@ -164,7 +165,7 @@ export function CombatPage() {
   const { processTurn, submitAction } = useBattleManager({
     playerTeam: playerInstances,
     enemyTeam: enemyInstances,
-    autoPlay: true,
+    autoPlay: autoPlay,
     onComplete: handleComplete,
   });
 
@@ -173,6 +174,14 @@ export function CombatPage() {
     if (!actionType) return;
     submitAction({ type: actionType, cost: 0 });
   }, [submitAction]);
+
+  // Auto-process all turns when autoPlay is enabled
+  useEffect(() => {
+    if (autoPlay && battlePhase === 'turn_active') {
+      const timer = setTimeout(() => processTurn(), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [autoPlay, battlePhase, processTurn]);
 
   const currentChampion = [...playerTeam, ...enemyTeam].find(c => c.id === currentTurnChampionId);
   const currentSpell = currentChampion?.spells;
@@ -190,7 +199,7 @@ export function CombatPage() {
     onCastW: canCastSlot('W') ? () => handleCast('W') : undefined,
     onCastE: canCastSlot('E') ? () => handleCast('E') : undefined,
     onCastR: canCastSlot('R') ? () => handleCast('R') : undefined,
-    onNextTurn: isPlayerTurn && battlePhase === 'turn_active' ? processTurn : undefined,
+    onNextTurn: (!autoPlay || isPlayerTurn) && battlePhase === 'turn_active' ? processTurn : undefined,
     onBack: () => navigate(ROUTES.RUN),
     enabled: battlePhase !== 'finished',
   });
@@ -205,6 +214,22 @@ export function CombatPage() {
         <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Combat — Round {round}</span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
+        <button
+          onClick={() => { playUIClick(); setAutoPlay(!autoPlay); }}
+          style={{
+            padding: '4px 10px',
+            background: 'transparent',
+            color: autoPlay ? '#22c55e' : '#ef4444',
+            border: '1px solid ' + (autoPlay ? '#22c55e' : '#ef4444'),
+            borderRadius: 4,
+            fontSize: 11,
+            fontWeight: 'bold',
+            cursor: 'pointer',
+          }}
+          aria-label="Toggle auto-play"
+        >
+          Auto: {autoPlay ? 'ON' : 'OFF'}
+        </button>
       </div>
 
       {/* Main area */}
@@ -235,7 +260,7 @@ export function CombatPage() {
               {currentChampion && (
                 <div style={{ fontSize: 14, color: '#fff', marginTop: 8 }}>{currentChampion.name}</div>
               )}
-              {isPlayerTurn && (
+              {(!autoPlay || isPlayerTurn) && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
                   <button onClick={processTurn} style={nextTurnBtnStyle} aria-label="Execute turn (Space)">
                     ▶ Exécuter le tour
