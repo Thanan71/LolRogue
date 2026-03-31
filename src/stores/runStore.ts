@@ -6,6 +6,7 @@ import {
   TeamMember,
   InventoryEntry,
   MAX_TEAM_SIZE,
+  MAX_ITEMS_PER_CHAMPION,
 } from '@/types/run';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import {
@@ -160,23 +161,46 @@ export const useRunStore = create<RunStore>()(
       },
 
       equipItem: (instanceId, championId) => {
-        set((state) => ({
-          inventory: state.inventory.map((entry) =>
+        const { inventory } = get();
+
+        // Check if item exists
+        const item = inventory.find((entry) => entry.instanceId === instanceId);
+        if (!item) return false;
+
+        // Already equipped to this champion
+        if (item.equippedToChampionId === championId) return false;
+
+        // Count items already equipped to this champion
+        const equippedCount = inventory.filter(
+          (entry) => entry.equippedToChampionId === championId,
+        ).length;
+
+        // Respect max items per champion
+        if (equippedCount >= MAX_ITEMS_PER_CHAMPION) return false;
+
+        set({
+          inventory: inventory.map((entry) =>
             entry.instanceId === instanceId
               ? { ...entry, equippedToChampionId: championId }
               : entry,
           ),
-        }));
+        });
+        return true;
       },
 
       unequipItem: (instanceId) => {
-        set((state) => ({
-          inventory: state.inventory.map((entry) =>
+        const { inventory } = get();
+        const item = inventory.find((entry) => entry.instanceId === instanceId);
+        if (!item || item.equippedToChampionId === null) return false;
+
+        set({
+          inventory: inventory.map((entry) =>
             entry.instanceId === instanceId
               ? { ...entry, equippedToChampionId: null }
               : entry,
           ),
-        }));
+        });
+        return true;
       },
 
       // ── Gold ────────────────────────────────────────────────────────────

@@ -3,6 +3,9 @@
 /** Maximum number of champions in a team */
 export const MAX_TEAM_SIZE = 5;
 
+/** Maximum number of items a champion can have equipped */
+export const MAX_ITEMS_PER_CHAMPION = 6;
+
 // ─── Biome (LoL Lane Zones) ─────────────────────────────────────────────────
 
 /**
@@ -193,8 +196,8 @@ export interface RunActions {
   addItem: (item: Item) => string;
   /** Remove an item by instance ID */
   removeItem: (instanceId: string) => void;
-  /** Equip an item to a champion */
-  equipItem: (instanceId: string, championId: string) => void;
+  /** Equip an item to a champion. Returns false if slot limit reached or item not found. */
+  equipItem: (instanceId: string, championId: string) => boolean;
   /** Unequip an item (move to bag) */
   unequipItem: (instanceId: string) => void;
   /** Add gold */
