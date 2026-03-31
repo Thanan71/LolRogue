@@ -35,8 +35,8 @@ export const DDRAGON_CONFIG = {
     return `${this.baseUrl}/cdn/img/champion/loading/${championId}_${skinNum}.jpg`;
   },
 
-  /** Local path prefix for champion icons (served by Vite from data/) */
-  localChampionIconPath: '/data/lol/img/champions',
+  /** Local path prefix for champion icons (served by Vite from public/) */
+  localChampionIconPath: '/lol/data/img/champions',
 } as const;
 
 /** Latest version placeholder — will be resolved at runtime */
