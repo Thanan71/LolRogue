@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 import type { Champion } from '../src/types';
-import championsRaw from '../data/lol/champions-parsed.json';
+import championsRaw from '../public/lol/data/champions-parsed.json';
 
 const champions = championsRaw as Champion[];
 
