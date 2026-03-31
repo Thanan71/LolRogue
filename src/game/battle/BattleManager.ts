@@ -23,6 +23,8 @@ import {
   calculateTrueDamage,
   critDamage,
 } from '@/utils/damage';
+import { createBuff, createDebuff } from '@/game/effects/BuffDebuffEffect';
+import type { StatKey } from '@/game/effects/types';
 
 type EventCallback = (event: BattleEvent) => void;
 type ActionCallback = (
@@ -494,6 +496,62 @@ export class BattleManager {
           type: 'damage', source: attacker.champion.id,
           target: ccTarget.champion.id, amount: 0, isCrit: false,
           sourceSide: attacker.side, targetSide: ccTarget.side,
+        });
+        break;
+      }
+      case 'buff': {
+        const buffTarget = this._pickTarget(allies) ?? attacker;
+        if (!buffTarget || buffTarget.isDefeated) return;
+        const stat = (effect.stat ?? 'atk') as StatKey;
+        const modifierType = effect.modifierType ?? 'flat';
+        const rawValue = effect.values?.[rankIdx] ?? 0;
+        if (rawValue === 0) return;
+        const duration = Math.max(1, Math.round(effect.buffDuration ?? 3));
+        const bdEffect = createBuff(
+          `${attacker.champion.id}_buff_${stat}`,
+          attacker.champion.id,
+          buffTarget.champion.id,
+          stat,
+          rawValue,
+          modifierType,
+          duration,
+        );
+        buffTarget.effectManager.apply(bdEffect);
+        this._emit({
+          type: 'shield', // reuse existing event type for UI feedback
+          source: attacker.champion.id,
+          target: buffTarget.champion.id,
+          amount: rawValue,
+          sourceSide: attacker.side,
+          targetSide: buffTarget.side,
+        });
+        break;
+      }
+      case 'debuff': {
+        const debuffTarget = this._pickTarget(enemies);
+        if (!debuffTarget || debuffTarget.isDefeated) return;
+        const stat = (effect.stat ?? 'def') as StatKey;
+        const modifierType = effect.modifierType ?? 'flat';
+        const rawValue = effect.values?.[rankIdx] ?? 0;
+        if (rawValue === 0) return;
+        const duration = Math.max(1, Math.round(effect.buffDuration ?? 3));
+        const bdEffect = createDebuff(
+          `${attacker.champion.id}_debuff_${stat}`,
+          attacker.champion.id,
+          debuffTarget.champion.id,
+          stat,
+          rawValue,
+          modifierType,
+          duration,
+        );
+        debuffTarget.effectManager.apply(bdEffect);
+        this._emit({
+          type: 'shield', // reuse existing event type for UI feedback
+          source: attacker.champion.id,
+          target: debuffTarget.champion.id,
+          amount: rawValue,
+          sourceSide: attacker.side,
+          targetSide: debuffTarget.side,
         });
         break;
       }
