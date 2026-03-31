@@ -162,7 +162,7 @@ export function CombatPage() {
   const { processTurn, submitAction } = useBattleManager({
     playerTeam: playerInstances,
     enemyTeam: enemyInstances,
-    autoPlay: false,
+    autoPlay: true,
     onComplete: handleComplete,
   });
 
