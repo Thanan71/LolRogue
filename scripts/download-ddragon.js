@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 const DDRAGON_BASE = 'https://ddragon.leagueoflegends.com';
 const LANG = 'fr_FR';
-const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'lol');
+const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'lol', 'data');
 
 /**
  * Récupère la dernière version de Data Dragon
