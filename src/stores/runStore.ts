@@ -207,6 +207,14 @@ export const useRunStore = create<RunStore>()(
         // Mark the start node as reachable and advance biome to its biome
         if (map[0]?.nodes[0]) {
           map[0].nodes[0].reachable = true;
+          // Mark nodes in column 1 connected to start as reachable
+          const startNode = map[0].nodes[0];
+          for (const nextId of startNode.nextNodeIds) {
+            const found = findNode(map, nextId);
+            if (found && !found.node.completed) {
+              found.node.reachable = true;
+            }
+          }
           const startBiome = map[0].nodes[0].biome;
           set({
             map,
