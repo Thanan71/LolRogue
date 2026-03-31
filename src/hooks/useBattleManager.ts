@@ -131,6 +131,7 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
   autoPlayRef.current = autoPlay;
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const hasCompletedRef = useRef(false);
 
   /**
    * Lifecycle: BattleManager is created once on mount and destroyed on unmount.
@@ -149,6 +150,8 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
    */
   useEffect(() => {
     if (playerTeam.length === 0) return;
+
+    hasCompletedRef.current = false;
 
     const playerBTeam: BattleTeam = { side: 'player', champions: playerTeam };
     const enemyBTeam: BattleTeam = { side: 'enemy', champions: enemyTeam };
@@ -182,7 +185,8 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
 
   // Check for battle completion
   useEffect(() => {
-    if (store.phase === 'finished' && store.winner && onCompleteRef.current) {
+    if (store.phase === 'finished' && store.winner && onCompleteRef.current && !hasCompletedRef.current) {
+      hasCompletedRef.current = true;
       onCompleteRef.current(store.winner);
     }
   }, [store.phase, store.winner]);
