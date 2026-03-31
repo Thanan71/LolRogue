@@ -120,40 +120,10 @@ export interface InventoryEntry {
   equippedToChampionId: string | null;
 }
 
-// ─── Run Map (Biome Nodes) ────────────────────────────────────────────────
+// ─── Run Map ────────────────────────────────────────────────────────────────
 
+/** Node type for map nodes (mirrors the enum strings in game/map/types) */
 export type NodeType = 'combat' | 'elite' | 'shop' | 'rest' | 'event' | 'boss';
-
-export interface RunMapNode {
-  id: string;
-  type: NodeType;
-  biome: Biome;
-  /** Column index (0 = first biome, starts from left) */
-  column: number;
-  /** Row index within the column (for branching paths) */
-  row: number;
-  /** IDs of nodes in the next column this node connects to */
-  nextNodeIds: string[];
-  /** Whether this node has been completed */
-  completed: boolean;
-  /** Whether this node is reachable from the current position */
-  reachable: boolean;
-}
-
-export interface RunMapColumn {
-  nodes: RunMapNode[];
-}
-
-/** Full run map: an array of columns (left to right) */
-export type RunMap = RunMapColumn[];
-
-/** Which node the player is currently on */
-export interface RunMapPosition {
-  /** Column index */
-  column: number;
-  /** Row index */
-  row: number;
-}
 
 // ─── Run State ──────────────────────────────────────────────────────────────
 
@@ -182,10 +152,18 @@ export interface RunState {
   currentWave: number;
   /** Total waves completed across the entire run */
   totalWavesCompleted: number;
-  /** The procedurally generated run map */
-  map: RunMap | null;
-  /** Current position on the map */
-  mapPosition: RunMapPosition | null;
+
+  // ── Map state (using NodeMap from game/map/types) ──
+
+  /** All biome maps for this run (one per biome, in order) */
+  biomeMaps: import('@/game/map/types').NodeMap[];
+  /** Index of the current biome map */
+  currentBiomeIndex: number;
+  /** ID of the current node within the current biome map */
+  currentNodeId: string | null;
+  /** IDs of nodes that have been completed (across all biomes) */
+  completedNodeIds: string[];
+
   /** Currently active encounter (null if no encounter pending) */
   pendingEncounter: { nodeId: string; nodeType: NodeType } | null;
 }
@@ -221,16 +199,23 @@ export interface RunActions {
   nextWave: () => void;
   /** Increment the run level */
   incrementRunLevel: () => void;
-  /** Generate a new run map and set position to start */
-  generateMap: () => void;
-  /** Move to a specific node on the map (validates reachability) */
+
+  /** Generate the full run map (all biome maps) and set position to start */
+  generateRunMap: (seed?: number) => void;
+  /** Move to a specific node on the map (validates accessibility) */
   moveToNode: (nodeId: string) => boolean;
-  /** Mark a node as completed and unlock next nodes */
-  completeNode: (nodeId: string) => void;
+  /** Mark the current node as completed and unlock next nodes */
+  completeCurrentNode: () => void;
   /** Start an encounter for a given node (sets pendingEncounter) */
   startEncounter: (nodeId: string, nodeType: NodeType) => void;
   /** Resolve the current encounter (clears pendingEncounter and completes the node) */
   resolveEncounter: () => void;
+  /** Advance to the next biome map */
+  advanceToNextBiome: () => boolean;
+  /** Get the current biome's NodeMap */
+  getCurrentMap: () => import('@/game/map/types').NodeMap | null;
+  /** Get the current MapNode */
+  getCurrentNode: () => import('@/game/map/types').MapNode | null;
 }
 
 export type RunStore = RunState & RunActions;
