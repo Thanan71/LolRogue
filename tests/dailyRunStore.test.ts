@@ -157,10 +157,10 @@ describe('dailyRunStore (integration)', () => {
     const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
     useDailyRunStore.setState({ hasCompletedToday: false });
     useDailyRunStore.getState().startDailyRun(['garen']);
-    useDailyRunStore.getState().advanceDailyBiome('forest');
+    useDailyRunStore.getState().advanceDailyBiome('jungle');
     const state = useDailyRunStore.getState();
-    expect(state.currentBiome).toBe('forest');
-    expect(state.biomesVisited).toEqual(['forest']);
+    expect(state.currentBiome).toBe('jungle');
+    expect(state.biomesVisited).toEqual(['jungle']);
     expect(state.currentWave).toBe(1);
   });
 

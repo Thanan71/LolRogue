@@ -7,7 +7,6 @@ import { useLocation } from 'react-router-dom';
 import type { RunSummary } from '@/types/run';
 
 export function GameOverPage() {
-  const isActive = useRunStore((s) => s.isActive);
   const navigate = useAppNavigate();
   const location = useLocation();
   const summary: RunSummary | undefined = (location.state as { summary?: RunSummary } | null)?.summary;
