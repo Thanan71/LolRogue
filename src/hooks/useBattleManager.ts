@@ -133,20 +133,11 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
   onCompleteRef.current = onComplete;
   const hasCompletedRef = useRef(false);
 
-  /**
-   * Lifecycle: BattleManager is created once on mount and destroyed on unmount.
+  /** Lifecycle: BattleManager is recreated whenever playerTeam or enemyTeam
+   *  references change. This ensures a new combat gets fresh teams.
    *
-   * This effect intentionally runs only on mount (empty deps). The playerTeam
-   * and enemyTeam arrays received from the parent (CombatPage) are used to
-   * initialise the battle state. If the parent re-renders (e.g. from runStore
-   * changes), the team arrays may be new references but the underlying
-   * ChampionInstance objects are the same (CombatPage memoizes them). Since
-   * the battle state is fully managed inside the BattleManager instance, it is
-   * correct to NOT recreate it on every render — doing so would reset mid-battle
-   * progress.
-   *
-   * onComplete is read via a ref so the latest callback is always invoked
-   * without needing to recreate the effect.
+   *  onComplete is read via a ref so the latest callback is always invoked
+   *  without needing to recreate the effect.
    */
   useEffect(() => {
     if (playerTeam.length === 0) return;
@@ -180,8 +171,7 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
       clearTimeout(timer);
       bmRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentionally empty — see lifecycle comment above
+  }, [playerTeam, enemyTeam]);
 
   // Check for battle completion
   useEffect(() => {
