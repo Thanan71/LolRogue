@@ -177,6 +177,13 @@ export class BattleManager {
     const attackerState = this._getCombatant(entry.champion.id, entry.side);
     if (!attackerState || attackerState.isDefeated) { this._nextTurn(); return; }
 
+    // CC check: if stunned, skip this turn and decrement counter
+    if (attackerState.ccTurnsLeft > 0) {
+      attackerState.ccTurnsLeft--;
+      this._nextTurn();
+      return;
+    }
+
     const enemies = this.getAliveEnemies(entry.side);
     const allies = this.getAliveCombatants(entry.side);
     if (enemies.length === 0) { this._nextTurn(); return; }

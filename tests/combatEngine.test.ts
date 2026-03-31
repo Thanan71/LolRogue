@@ -781,7 +781,8 @@ describe('BattleManager Critical Strike', () => {
 
 describe('BattleManager Spell Effect Application', () => {
 
-  // Force AI to pick a specific spell by putting others on cooldown
+  // Force AI to pick a specific spell by putting others on cooldown.
+  // Must be called AFTER startBattle() since startBattle resets cooldowns.
   function forceSpellSlot(c: ChampionInstance, targetSlot: SpellSlot): void {
     for (const slot of SPELL_SLOTS) {
       if (slot !== targetSlot) {
@@ -790,7 +791,8 @@ describe('BattleManager Spell Effect Application', () => {
     }
   }
 
-  // Create a champion with effects on a specific spell slot
+  // Create a champion with effects on a specific spell slot.
+  // casterSpeed defaults to 400 (always goes first vs default 330).
   function makeEffectChamp(
     id: string,
     spellSlot: SpellSlot,
@@ -827,29 +829,26 @@ describe('BattleManager Spell Effect Application', () => {
     }, 1);
   }
 
-  function pairTeams(p: ChampionInstance, e: ChampionInstance) {
-    return {
-      playerTeam: { side: 'player' as const, champions: [p] },
-      enemyTeam: { side: 'enemy' as const, champions: [e] },
-    };
-  }
-
   // ── 1. AP damage goes through magicResist, not armor ──
 
   describe('AP damage uses magicResist', () => {
     it('magical damage is reduced by magicResist, not armor', () => {
+      // Caster with high speed (400) always goes first
       const mage = makeEffectChamp('Mage', 'Q', [
         { type: 'damage', damageType: 'magical', baseDamage: [100] },
-      ]);
+      ], { moveSpeed: 400 });
       const target = makeEffectChamp('Target', 'Q', [], {
         armor: 0, magicResist: 50, hp: 2000,
       });
-      const { playerTeam, enemyTeam } = pairTeams(mage, target);
-      const bm = new BattleManager(playerTeam, enemyTeam);
+      const bm = new BattleManager(
+        { side: 'player', champions: [mage] },
+        { side: 'enemy', champions: [target] },
+      );
       const events: BattleEvent[] = [];
       bm.on('event', e => events.push(e));
       bm.startBattle();
 
+      // Mage goes first (400 > 330), force Q spell
       forceSpellSlot(mage, 'Q');
       bm.processCurrentTurn();
 
@@ -867,12 +866,14 @@ describe('BattleManager Spell Effect Application', () => {
     it('physical damage uses armor, not magicResist', () => {
       const bruiser = makeEffectChamp('Bruiser', 'Q', [
         { type: 'damage', damageType: 'physical', baseDamage: [100] },
-      ]);
+      ], { moveSpeed: 400 });
       const target = makeEffectChamp('Target', 'Q', [], {
         armor: 50, magicResist: 0, hp: 2000,
       });
-      const { playerTeam, enemyTeam } = pairTeams(bruiser, target);
-      const bm = new BattleManager(playerTeam, enemyTeam);
+      const bm = new BattleManager(
+        { side: 'player', champions: [bruiser] },
+        { side: 'enemy', champions: [target] },
+      );
       const events: BattleEvent[] = [];
       bm.on('event', e => events.push(e));
       bm.startBattle();
@@ -897,10 +898,12 @@ describe('BattleManager Spell Effect Application', () => {
     it('spell with heal effect restores ally HP', () => {
       const healer = makeEffectChamp('Healer', 'W', [
         { type: 'heal', baseValue: [100], apRatio: 0 },
-      ]);
+      ], { moveSpeed: 400 });
       const enemy = makeEffectChamp('Enemy', 'Q', []);
-      const { playerTeam, enemyTeam } = pairTeams(healer, enemy);
-      const bm = new BattleManager(playerTeam, enemyTeam);
+      const bm = new BattleManager(
+        { side: 'player', champions: [healer] },
+        { side: 'enemy', champions: [enemy] },
+      );
       const events: BattleEvent[] = [];
       bm.on('event', e => events.push(e));
 
@@ -923,10 +926,12 @@ describe('BattleManager Spell Effect Application', () => {
     it('heal does not exceed maxHp', () => {
       const healer = makeEffectChamp('Healer', 'W', [
         { type: 'heal', baseValue: [9999], apRatio: 0 },
-      ]);
+      ], { moveSpeed: 400 });
       const enemy = makeEffectChamp('Enemy', 'Q', []);
-      const { playerTeam, enemyTeam } = pairTeams(healer, enemy);
-      const bm = new BattleManager(playerTeam, enemyTeam);
+      const bm = new BattleManager(
+        { side: 'player', champions: [healer] },
+        { side: 'enemy', champions: [enemy] },
+      );
 
       bm.startBattle();
       const hs = bm.getCombatantState('Healer', 'player')!;
@@ -945,23 +950,28 @@ describe('BattleManager Spell Effect Application', () => {
     it('shield absorbs incoming damage before HP', () => {
       const shielder = makeEffectChamp('Shielder', 'W', [
         { type: 'shield', baseValue: [80], apRatio: 0 },
-      ]);
+      ], { moveSpeed: 400 });
       const attacker = makeEffectChamp('Attacker', 'Q', [
         { type: 'damage', damageType: 'true', baseDamage: [100] },
-      ]);
-      const { playerTeam, enemyTeam } = pairTeams(shielder, attacker);
-      const bm = new BattleManager(playerTeam, enemyTeam);
+      ], { moveSpeed: 310 });
+      const bm = new BattleManager(
+        { side: 'player', champions: [shielder] },
+        { side: 'enemy', champions: [attacker] },
+      );
 
       bm.startBattle();
       const ss = bm.getCombatantState('Shielder', 'player')!;
 
+      // Shielder (400 speed) goes first, applies shield
       forceSpellSlot(shielder, 'W');
       bm.processCurrentTurn();
       expect(ss.currentShield).toBe(80);
       const hpAfterShield = ss.currentHp;
 
+      // Attacker (310 speed) goes second, 100 true damage
       forceSpellSlot(attacker, 'Q');
       bm.processCurrentTurn();
+      // Shield absorbs 80, 20 passes to HP
       expect(ss.currentShield).toBe(0);
       expect(ss.currentHp).toBe(hpAfterShield - 20);
     });
@@ -969,12 +979,14 @@ describe('BattleManager Spell Effect Application', () => {
     it('damage fully absorbed by shield leaves HP unchanged', () => {
       const shielder = makeEffectChamp('Shielder', 'W', [
         { type: 'shield', baseValue: [100], apRatio: 0 },
-      ]);
+      ], { moveSpeed: 400 });
       const attacker = makeEffectChamp('Attacker', 'Q', [
         { type: 'damage', damageType: 'true', baseDamage: [30] },
-      ]);
-      const { playerTeam, enemyTeam } = pairTeams(shielder, attacker);
-      const bm = new BattleManager(playerTeam, enemyTeam);
+      ], { moveSpeed: 310 });
+      const bm = new BattleManager(
+        { side: 'player', champions: [shielder] },
+        { side: 'enemy', champions: [attacker] },
+      );
 
       bm.startBattle();
       const ss = bm.getCombatantState('Shielder', 'player')!;
@@ -997,10 +1009,12 @@ describe('BattleManager Spell Effect Application', () => {
     it('stun sets ccTurnsLeft on target', () => {
       const stunner = makeEffectChamp('Stunner', 'Q', [
         { type: 'cc', ccType: 'stun', ccDuration: 1 },
-      ]);
+      ], { moveSpeed: 400 });
       const victim = makeEffectChamp('Victim', 'Q', []);
-      const { playerTeam, enemyTeam } = pairTeams(stunner, victim);
-      const bm = new BattleManager(playerTeam, enemyTeam);
+      const bm = new BattleManager(
+        { side: 'player', champions: [stunner] },
+        { side: 'enemy', champions: [victim] },
+      );
 
       bm.startBattle();
       const vs = bm.getCombatantState('Victim', 'enemy')!;
@@ -1029,15 +1043,18 @@ describe('BattleManager Spell Effect Application', () => {
       const ss = bm.getCombatantState('Stunner', 'player')!;
       const vs = bm.getCombatantState('Victim', 'enemy')!;
 
+      const stunnerHpBefore = ss.currentHp;
+
+      // Stunner (400) goes first, stuns victim
       forceSpellSlot(stunner, 'Q');
       bm.processCurrentTurn();
       expect(vs.ccTurnsLeft).toBeGreaterThan(0);
 
-      const stunnerHpBefore = ss.currentHp;
-
+      // Victim's turn: skipped due to stun
       forceSpellSlot(victim, 'Q');
       bm.processCurrentTurn();
 
+      // Stunner took no damage because victim was CC'd
       expect(ss.currentHp).toBe(stunnerHpBefore);
     });
 
@@ -1057,11 +1074,11 @@ describe('BattleManager Spell Effect Application', () => {
       const ks = bm.getCombatantState('Knocker', 'player')!;
       const vs = bm.getCombatantState('Victim', 'enemy')!;
 
+      const knockerHpBefore = ks.currentHp;
       forceSpellSlot(knocker, 'E');
       bm.processCurrentTurn();
       expect(vs.ccTurnsLeft).toBeGreaterThan(0);
 
-      const knockerHpBefore = ks.currentHp;
       forceSpellSlot(victim, 'Q');
       bm.processCurrentTurn();
       expect(ks.currentHp).toBe(knockerHpBefore);
@@ -1070,10 +1087,12 @@ describe('BattleManager Spell Effect Application', () => {
     it('snare does NOT set ccTurnsLeft (soft CC only)', () => {
       const snarer = makeEffectChamp('Snarer', 'Q', [
         { type: 'cc', ccType: 'snare', ccDuration: 2 },
-      ]);
+      ], { moveSpeed: 400 });
       const victim = makeEffectChamp('Victim', 'Q', []);
-      const { playerTeam, enemyTeam } = pairTeams(snarer, victim);
-      const bm = new BattleManager(playerTeam, enemyTeam);
+      const bm = new BattleManager(
+        { side: 'player', champions: [snarer] },
+        { side: 'enemy', champions: [victim] },
+      );
 
       bm.startBattle();
       const vs = bm.getCombatantState('Victim', 'enemy')!;
