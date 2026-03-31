@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, type NavigateOptions } from "react-router-dom";
 import { useRouterStore, RoutePath } from '@/stores/routerStore';
 
 /**
@@ -9,9 +9,9 @@ export function useAppNavigate() {
   const navigate = useNavigate();
   const { navigateTo, setNavigating } = useRouterStore();
 
-  return (route: RoutePath) => {
+  return (route: RoutePath, options?: NavigateOptions) => {
     setNavigating(true);
     navigateTo(route);
-    navigate(route);
+    navigate(route, options);
   };
 }

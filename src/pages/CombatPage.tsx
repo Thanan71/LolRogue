@@ -16,7 +16,7 @@ import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { ActionType } from '@/game/battle/types';
 import { SeededRNG } from '@/utils/seededRandom';
 import { playUIClick } from '@/audio';
-import type { Item, ItemStatBonuses } from '@/types/run';
+import type { Item, ItemStatBonuses, RunSummary, ChampionRunStats } from '@/types/run';
 
 function buildTeamInstances(championIds: string[]): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
@@ -136,9 +136,28 @@ export function CombatPage() {
       // Navigation handled by UI buttons
 
     } else {
-      // On draw or loss, end the run
-      useRunStore.getState().endRun(w === 'draw');
-      navigate(ROUTES.GAME_OVER);
+      // On draw or loss: build RunSummary, navigate with state, then end the run
+      const rs = useRunStore.getState();
+      const championStats: ChampionRunStats[] = rs.team.map((m) => ({
+        championId: m.championId,
+        kills: 0,
+        totalDamage: 0,
+        survived: false,
+      }));
+      const summary: RunSummary = {
+        won: false,
+        wavesCompleted: rs.totalWavesCompleted,
+        biomesVisited: rs.biomesVisited,
+        championStats,
+        totalKills: 0,
+        totalDamage: 0,
+        goldEarned: rs.gold,
+        runLevel: rs.runLevel,
+      };
+      // Navigate FIRST with summary state, BEFORE endRun() resets isActive
+      navigate(ROUTES.GAME_OVER, { state: { summary } });
+      // Now end the run (resets isActive, team, gold, etc.)
+      rs.endRun(w === 'draw');
     }
   }, [runLevel, navigate]);
 
