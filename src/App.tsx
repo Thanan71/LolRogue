@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { RouteSync } from './components/RouteSync';
 import { MenuPage } from './pages/MenuPage';
 import { StarterSelectPage } from './pages/StarterSelectPage';
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/credits" element={<CreditsPage />} />
       </Routes>
+      <SpeedInsights />
     </div>
   );
 }
