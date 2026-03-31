@@ -26,7 +26,7 @@ export interface CombatantInfo {
 export interface LogEntry {
   id: number;
   timestamp: number;
-  type: 'damage' | 'defeat' | 'turn_start' | 'round_start' | 'battle_end' | 'action' | 'info';
+  type: 'damage' | 'defeat' | 'turn_start' | 'round_start' | 'battle_end' | 'action' | 'info' | 'heal' | 'shield';
   message: string;
   amount?: number;
   isCrit?: boolean;

@@ -83,6 +83,24 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       });
       break;
 
+    case 'heal':
+      syncTeams(bm);
+      store.addLog({
+        type: 'heal',
+        message: `${event.source} → ${event.target}: +${event.amount} HP`,
+        amount: event.amount,
+      });
+      break;
+
+    case 'shield':
+      syncTeams(bm);
+      store.addLog({
+        type: 'shield',
+        message: `${event.source} → ${event.target}: +${event.amount} bouclier`,
+        amount: event.amount,
+      });
+      break;
+
     case 'defeat':
       syncTeams(bm);
       store.addLog({ type: 'defeat', message: `${event.champion} a été vaincu !` });

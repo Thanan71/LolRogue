@@ -9,6 +9,8 @@ const colors: Record<string, string> = {
   battle_end: '#22c55e',
   action: '#8b949e',
   info: '#aaa',
+  heal: '#22c55e',
+  shield: '#60a5fa',
 };
 
 const icons: Record<string, string> = {
@@ -19,6 +21,8 @@ const icons: Record<string, string> = {
   battle_end: '\u2605',
   action: '\u2022',
   info: '\u2022',
+  heal: '\u2764',
+  shield: '\uD83D\uDEE1',
 };
 
 export const CombatLog: React.FC = () => {
