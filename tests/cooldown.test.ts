@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ChampionInstance, SPELL_SLOTS } from '../src/game/ChampionInstance';
-import type { Champion, ChampionStats, Spell, Passive, SpellSlot } from '../src/types';
+import type { Champion, ChampionStats, Spell, Passive } from '../src/types';
+import type { SpellSlot } from '../src/game/ChampionInstance';
 
 function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
   const baseStats: ChampionStats = {
