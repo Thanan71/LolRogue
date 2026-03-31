@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { InventoryManager } from '../src/game/inventory/InventoryManager';
-import { RuneManager, type RuneContext } from '../src/game/runes/RuneManager';
+import { RuneManager } from '../src/game/runes/RuneManager';
 import { AugmentManager } from '../src/game/augments/AugmentManager';
 import {
   ITEM_DATABASE, getItemDefinition, getStackableItems, getItemsByCategory,
@@ -17,8 +17,7 @@ import {
 } from '../src/data/items/augmentDatabase';
 import {
   ItemCategory, ItemRarity, RunePath, RuneConditionType,
-  AugmentTier, AugmentEffectType, DEFAULT_MAX_ITEMS_PER_CHAMPION,
-  DEFAULT_MAX_RUNES_PER_CHAMPION, DEFAULT_MAX_AUGMENTS,
+  AugmentTier,
 } from '../src/types/inventory';
 
 describe('Item Database', () => {

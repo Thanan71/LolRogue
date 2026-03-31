@@ -1,32 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { ChampionStats } from '../src/types';
-import {
-  lolStatsToGameStats,
-  gameStatsAtLevel,
-  gameStatsForAllLevels,
-} from '../src/utils/statConversion';
-
-// ─── Fixtures ────────────────────────────────────────────────────────────
-
-/** Aatrox-like fighter (melee bruiser) */
-const FIGHTER_STATS: ChampionStats = {
-  hp: 650, mp: 0, moveSpeed: 345, armor: 38, magicResist: 32,
-  attackDamage: 60, attackSpeed: 0.651, attackRange: 175,
-  hpPerLevel: 114, mpPerLevel: 0, armorPerLevel: 4.8,
-  magicResistPerLevel: 2.05, attackDamagePerLevel: 0,
-  attackSpeedPerLevel: 2.5, hpRegen: 3, hpRegenPerLevel: 0.5,
-  mpRegen: 0, mpRegenPerLevel: 0, crit: 0, critPerLevel: 0,
-};
-
-/** Anivia-like mage (squishy caster) */
-const MAGE_STATS: ChampionStats = {
-  hp: 550, mp: 495, moveSpeed: 325, armor: 21, magicResist: 30,
-  attackDamage: 51, attackSpeed: 0.658, attackRange: 600,
-  hpPerLevel: 92, mpPerLevel: 45, armorPerLevel: 4.5,
-  magicResistPerLevel: 1.3, attackDamagePerLevel: 0,
-  attackSpeedPerLevel: 1.68, hpRegen: 5.5, hpRegenPerLevel: 0.55,
-  mpRegen: 8, mpRegenPerLevel: 0.8, crit: 0, critPerLevel: 0,
-};
+import { lolStatsToGameStats } from '../src/utils/statConversion';
 
 describe('lolStatsToGameStats', () => {
   it('should map HP directly', () => {

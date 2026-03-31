@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { InventoryEntry } from '../src/types/run';
 
 // ─── Hoisted localStorage mock (runs before module evaluation) ─────────────
