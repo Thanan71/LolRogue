@@ -298,6 +298,22 @@ export const useRunStore = create<RunStore>()(
         const currentMap = biomeMaps[currentBiomeIndex];
         if (!currentMap) return null;
         return findNode(currentMap, currentNodeId) ?? null;
+updateTeamAfterCombat: (updates) => {
+        set((state) => ({
+          team: state.team.map((m) => {
+            const update = updates.find((u) => u.championId === m.championId);
+            if (update) {
+              return {
+                ...m,
+                currentHp: update.currentHp,
+                level: update.level,
+                currentXp: update.currentXp,
+              };
+            }
+            return m;
+          }),
+        }));
+      },
       },
     }),
     {

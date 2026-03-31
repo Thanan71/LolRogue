@@ -37,6 +37,8 @@ export interface BattleManagerOptions {
   turnDelay?: number;
   maxRounds?: number;
   maxTeamSize?: number;
+  /** Map of championId -> initial HP (for persisting HP between combats). */
+  initialHpOverrides?: Record<string, number>;
 }
 
 /** Map ActionType to its corresponding SpellSlot (or null for basic attacks). */
@@ -62,6 +64,7 @@ export class BattleManager {
   private readonly _autoActions: boolean;
   private readonly _maxRounds: number;
   private readonly _maxTeamSize: number;
+  private readonly _initialHpOverrides: Record<string, number> | undefined;
   private _actionCallback: ActionCallback | null = null;
 
   constructor(
@@ -72,6 +75,7 @@ export class BattleManager {
     this._autoActions = options.autoActions ?? true;
     this._maxRounds = options.maxRounds ?? 50;
     this._maxTeamSize = options.maxTeamSize ?? 5;
+    this._initialHpOverrides = options.initialHpOverrides;
     this._initCombatants();
   }
 
@@ -103,6 +107,15 @@ export class BattleManager {
 
   getPlayerCombatants(): CombatantState[] { return this._playerCombatants; }
   getEnemyCombatants(): CombatantState[] { return this._enemyCombatants; }
+
+  /** Get final HP state for each player champion (for persistence between combats). */
+  getFinalPlayerStates(): { championId: string; currentHp: number; maxHp: number }[] {
+    return this._playerCombatants.map(c => ({
+      championId: c.champion.id,
+      currentHp: c.isDefeated ? 0 : c.currentHp,
+      maxHp: c.maxHp,
+    }));
+  }
 
   getCombatantState(id: string, side: TeamSide): CombatantState | undefined {
     return this._getCombatant(id, side);
@@ -243,16 +256,22 @@ export class BattleManager {
   }
 
   private _initCombatants(): void {
+    const hpOverrides = this._initialHpOverrides;
     this._playerCombatants = this._playerTeam.champions
       .slice(0, this._maxTeamSize)
-      .map(c => ({
-        champion: c, side: 'player' as TeamSide,
-        currentHp: c.getStats().hp, maxHp: c.getStats().hp,
-        currentMp: c.getStats().mp, maxMp: c.getStats().mp,
-        isDefeated: false,
-        currentShield: 0,
-        ccTurnsLeft: 0,
-      }));
+      .map(c => {
+        const stats = c.getStats();
+        const overriddenHp = hpOverrides?.[c.id];
+        const initHp = overriddenHp !== undefined ? Math.min(overriddenHp, stats.hp) : stats.hp;
+        return {
+          champion: c, side: 'player' as TeamSide,
+          currentHp: initHp, maxHp: stats.hp,
+          currentMp: stats.mp, maxMp: stats.mp,
+          isDefeated: initHp <= 0,
+          currentShield: 0,
+          ccTurnsLeft: 0,
+        };
+      });
     this._enemyCombatants = this._enemyTeam.champions
       .slice(0, this._maxTeamSize)
       .map(c => ({

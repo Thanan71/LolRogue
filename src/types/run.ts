@@ -127,9 +127,15 @@ export type NodeType = 'combat' | 'elite' | 'shop' | 'rest' | 'event' | 'boss';
 
 // ─── Run State ──────────────────────────────────────────────────────────────
 
-/** Serializable team member (stores only the champion ID) */
+/** Serializable team member (stores champion ID + persisted combat state) */
 export interface TeamMember {
   championId: string;
+  /** Current HP (persisted between combats). If undefined, defaults to max at combat start. */
+  currentHp?: number;
+  /** Champion level (persisted between combats). Defaults to 1. */
+  level?: number;
+  /** Current XP toward next level (persisted between combats). Defaults to 0. */
+  currentXp?: number;
 }
 
 /** The full state of a single roguelike run */
@@ -210,12 +216,14 @@ export interface RunActions {
   startEncounter: (nodeId: string, nodeType: NodeType) => void;
   /** Resolve the current encounter (clears pendingEncounter and completes the node) */
   resolveEncounter: () => void;
-  /** Advance to the next biome map */
+/** Advance to the next biome map */
   advanceToNextBiome: () => boolean;
   /** Get the current biome's NodeMap */
   getCurrentMap: () => import('@/game/map/types').NodeMap | null;
   /** Get the current MapNode */
   getCurrentNode: () => import('@/game/map/types').MapNode | null;
+/** Update team member HP/level/xp after combat ends */
+  updateTeamAfterCombat: (updates: { championId: string; currentHp: number; level: number; currentXp: number }[]) => void;
 }
 
 export type RunStore = RunState & RunActions;

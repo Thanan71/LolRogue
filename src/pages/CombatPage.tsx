@@ -18,11 +18,11 @@ import { SeededRNG } from '@/utils/seededRandom';
 import { playUIClick } from '@/audio';
 import type { Item, ItemStatBonuses, RunSummary, ChampionRunStats } from '@/types/run';
 
-function buildTeamInstances(championIds: string[]): ChampionInstance[] {
+function buildTeamInstances(championIds: string[], levels?: Record<string, number>): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
   for (const id of championIds) {
     const champ = championDB.getById(id);
-    if (champ) instances.push(new ChampionInstance(champ));
+    if (champ) instances.push(new ChampionInstance(champ, levels?.[id] ?? 1));
   }
   return instances;
 }
@@ -62,7 +62,21 @@ export function CombatPage() {
     if (!isActive) navigate(ROUTES.STARTER_SELECT);
   }, [isActive, navigate]);
 
-  const playerInstances = useMemo(() => buildTeamInstances(team.map(m => m.championId)), [team]);
+  // Build player instances with persisted levels
+  const teamLevels = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const t of team) { m[t.championId] = t.level ?? 1; }
+    return m;
+  }, [team]);
+  const playerInstances = useMemo(() => buildTeamInstances(team.map(m => m.championId), teamLevels), [team, teamLevels]);
+  // Build HP overrides from persisted team state
+  const initialHpOverrides = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const t of team) {
+      if (t.currentHp !== undefined) m[t.championId] = t.currentHp;
+    }
+    return Object.keys(m).length > 0 ? m : undefined;
+  }, [team]);
   // Use useState to store enemy team so it doesn't regenerate on re-render.
   // Seed is derived from runLevel for determinism in daily runs.
   const [enemyInstances, setEnemyInstances] = useState<ChampionInstance[]>(() =>
@@ -151,11 +165,12 @@ export function CombatPage() {
     }
   }, [runLevel, navigate]);
 
-  const { processTurn, submitAction } = useBattleManager({
+  const { processTurn, submitAction, getManager } = useBattleManager({
     playerTeam: playerInstances,
     enemyTeam: enemyInstances,
     autoPlay: autoPlay,
     onComplete: handleComplete,
+    initialHpOverrides,
   });
 
   const handleCast = useCallback((slot: 'Q' | 'W' | 'E' | 'R') => {
@@ -171,6 +186,26 @@ export function CombatPage() {
       return () => clearTimeout(timer);
     }
   }, [autoPlay, battlePhase, processTurn]);
+
+  // Save final HP states when battle finishes with player victory
+  useEffect(() => {
+    if (battlePhase === 'finished' && winner === 'player') {
+      const bm = getManager();
+      if (!bm) return;
+      const finalStates = bm.getFinalPlayerStates();
+      if (finalStates.length > 0) {
+        const runStore = useRunStore.getState();
+        runStore.updateTeamAfterCombat(
+          finalStates.map(s => ({
+            championId: s.championId,
+            currentHp: s.currentHp,
+            level: teamLevels[s.championId] ?? 1,
+            currentXp: runStore.team.find(m => m.championId === s.championId)?.currentXp ?? 0,
+          }))
+        );
+      }
+    }
+  }, [battlePhase, winner, getManager, teamLevels]);
 
   const currentChampion = [...playerTeam, ...enemyTeam].find(c => c.id === currentTurnChampionId);
   const currentSpell = currentChampion?.spells;

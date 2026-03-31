@@ -122,9 +122,11 @@ interface UseBattleManagerOptions {
   enemyTeam: ChampionInstance[];
   autoPlay?: boolean;
   onComplete?: (winner: 'player' | 'enemy' | 'draw') => void;
+  /** Map of championId -> initial HP for persisting HP between combats. */
+  initialHpOverrides?: Record<string, number>;
 }
 
-export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onComplete }: UseBattleManagerOptions) {
+export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onComplete, initialHpOverrides }: UseBattleManagerOptions) {
   const bmRef = useRef<BattleManager | null>(null);
   const store = useBattleStore();
   const autoPlayRef = useRef(autoPlay);
@@ -149,6 +151,7 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
 
     const bm = new BattleManager(playerBTeam, enemyBTeam, {
       autoActions: autoPlayRef.current,
+      initialHpOverrides,
     });
 
     bm.on('event', (e: BattleEvent) => handleEvent(bm, e));
@@ -208,6 +211,12 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
     processTurn,
     submitAction,
     getAvailableActions,
+    /** Get final HP state for player champions after battle. */
+    getFinalPlayerStates: () => {
+      const bm = bmRef.current;
+      if (!bm) return [];
+      return bm.getFinalPlayerStates();
+    },
     /** Safe accessor — returns current BattleManager or null. Always call this
      *  inside event handlers/callbacks; never store the value in a local var
      *  that outlives the current synchronous execution. */
