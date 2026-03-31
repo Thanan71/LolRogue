@@ -76,6 +76,8 @@ export interface CombatantState {
   isDefeated: boolean;
   /** Shield HP remaining (absorbs damage before HP). */
   currentShield: number;
+  /** Number of turns remaining for crowd control (stun, knockup, charm). */
+  ccTurnsLeft: number;
 }
 
 // ─── Damage / Action Log ───────────────────────────────────────────────────
