@@ -257,7 +257,7 @@ export function CombatPage() {
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 {winner === 'player' && (
-                  <button onClick={() => { playUIClick(); useRunStore.getState().resolveEncounter(); navigate(ROUTES.RUN); }} style={nextBtnStyle}>Continuer →</button>
+                  <button onClick={() => { playUIClick();  navigate(ROUTES.RUN); }} style={nextBtnStyle}>Continuer →</button>
                 )}
                 <button onClick={() => navigate(ROUTES.MENU)} style={backBtnStyle2}>Menu</button>
               </div>
