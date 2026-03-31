@@ -95,11 +95,12 @@ export function CombatPage() {
           runStore.resolveEncounter();
         }
 
-        // 4. Item drop chance (~20%)
-        if (Math.random() < 0.2) {
+        // 4. Item drop chance (~20%) — deterministic for daily runs
+        const itemRng = new SeededRNG(runLevel * 1000 + runStore.totalWavesCompleted);
+        if (itemRng.next() < 0.2) {
           const itemDefs = Object.values(ITEM_DATABASE);
           if (itemDefs.length > 0) {
-            const drop = itemDefs[Math.floor(Math.random() * itemDefs.length)];
+            const drop = itemDefs[Math.floor(itemRng.next() * itemDefs.length)];
             const item: Item = {
               id: drop.id,
               name: drop.name,
