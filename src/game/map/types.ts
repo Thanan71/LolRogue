@@ -189,13 +189,6 @@ export interface NodeMap {
   rows: number;
 }
 
-export interface RunMap {
-  biomeMaps: NodeMap[];
-  currentBiomeIndex: number;
-  currentNodeId: string | null;
-  completedNodeIds: string[];
-}
-
 // ─── Generation Config ──────────────────────────────────────────────────────
 
 export interface MapGenConfig {

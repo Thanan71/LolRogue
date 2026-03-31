@@ -78,10 +78,6 @@ export function CombatPage() {
     if (w === 'player') {
       const runStore = useRunStore.getState();
 
-      // Capture all run state BEFORE any mutations
-      const { map, mapPosition, biomesVisited: preBiomes } = runStore;
-      const oldBiomes = [...preBiomes];
-
       // 1. Award gold: 50 + runLevel * 10
       const goldReward = 50 + runLevel * 10;
       runStore.addGold(goldReward);
@@ -90,11 +86,8 @@ export function CombatPage() {
       runStore.nextWave();
 
       // 3. Complete current map node (unlocks next nodes)
-      if (map && mapPosition) {
-        const currentNode = map[mapPosition.column]?.nodes[mapPosition.row];
-        if (currentNode) {
-          runStore.resolveEncounter();
-        }
+      const currentNode = runStore.getCurrentNode();
+      if (currentNode) {
 
         // 4. Item drop chance (~20%) — deterministic for daily runs
         const itemRng = new SeededRNG(runLevel * 1000 + runStore.totalWavesCompleted);
@@ -119,18 +112,14 @@ export function CombatPage() {
           }
         }
 
-        // 5. Check if we just completed the boss (last column = biome transition)
-        const isBossNode = currentNode?.type === 'boss';
+        // 5. Resolve encounter (completes the node)
+        runStore.resolveEncounter();
+
+        // 6. Check if we just completed the boss -- advance to next biome
+        const isBossNode = currentNode.type === 'boss';
         if (isBossNode) {
-          // Increment run level and generate a new map for the next biome
           runStore.incrementRunLevel();
-          runStore.generateMap();
-          // Restore biome history: old biomes + new biome from fresh map
-          const freshState = useRunStore.getState();
-          const newBiomes = freshState.biomesVisited;
-          useRunStore.setState({
-            biomesVisited: [...oldBiomes, ...newBiomes],
-          });
+          runStore.advanceToNextBiome();
         }
       }
 

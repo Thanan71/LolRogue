@@ -5,10 +5,16 @@ import {
   RunStore,
   TeamMember,
   InventoryEntry,
-  RunMapPosition,
   MAX_TEAM_SIZE,
 } from '@/types/run';
-import { generateRunMap, updateReachability, findNode } from '@/utils/runMapUtils';
+import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
+import {
+  findNode,
+  getAccessibleNodes,
+  completeNode as completeNodeUtil,
+  isMapComplete,
+} from '@/game/map/mapUtils';
+import type { MapNode } from '@/game/map/types';
 import { useMasteryStore } from './masteryStore';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
@@ -23,8 +29,10 @@ const INITIAL_STATE: RunState = {
   gold: 0,
   currentWave: 1,
   totalWavesCompleted: 0,
-  map: null,
-  mapPosition: null,
+  biomeMaps: [],
+  currentBiomeIndex: 0,
+  currentNodeId: null,
+  completedNodeIds: [],
   pendingEncounter: null,
 };
 
@@ -59,8 +67,10 @@ export const useRunStore = create<RunStore>()(
           gold: 0,
           currentWave: 1,
           totalWavesCompleted: 0,
-          map: null,
-          mapPosition: null,
+          biomeMaps: [],
+          currentBiomeIndex: 0,
+          currentNodeId: null,
+          completedNodeIds: [],
           pendingEncounter: null,
         });
       },
@@ -197,78 +207,53 @@ export const useRunStore = create<RunStore>()(
         set((state) => ({ runLevel: state.runLevel + 1 }));
       },
 
-      // ── Run Map ─────────────────────────────────────────────────────────
+      // ── Run Map (using MapGenerator-core + mapUtils) ────────────────────
 
-      generateMap: () => {
-        const map = generateRunMap();
-        // Start at the first node (column 0, row 0)
-        const position: RunMapPosition = { column: 0, row: 0 };
-        // Mark the start node as reachable and advance biome to its biome
-        if (map[0]?.nodes[0]) {
-          map[0].nodes[0].reachable = true;
-          // Mark nodes in column 1 connected to start as reachable
-          const startNode = map[0].nodes[0];
-          for (const nextId of startNode.nextNodeIds) {
-            const found = findNode(map, nextId);
-            if (found && !found.node.completed) {
-              found.node.reachable = true;
-            }
-          }
-          const startBiome = map[0].nodes[0].biome;
-          set({
-            map,
-            mapPosition: position,
-            currentBiome: startBiome,
-            biomesVisited: [startBiome],
-          });
-        } else {
-          set({ map, mapPosition: position });
-        }
+      generateRunMap: (seed?: number) => {
+        const biomeMaps = generateBiomeMaps(seed);
+        const startNodeId = biomeMaps[0]?.startNodeId ?? null;
+        const startBiome = biomeMaps[0]?.biome ?? null;
+        set({
+          biomeMaps,
+          currentBiomeIndex: 0,
+          currentNodeId: startNodeId,
+          completedNodeIds: [],
+          currentBiome: startBiome,
+          biomesVisited: startBiome ? [startBiome] : [],
+        });
       },
 
       moveToNode: (nodeId) => {
-        const { map, mapPosition } = get();
-        if (!map) return false;
+        const { biomeMaps, currentBiomeIndex, completedNodeIds } = get();
+        const currentMap = biomeMaps[currentBiomeIndex];
+        if (!currentMap) return false;
 
-        const found = findNode(map, nodeId);
-        if (!found) return false;
+        // Check if the node is accessible
+        const accessible = getAccessibleNodes(currentMap, completedNodeIds);
+        if (!accessible.some((n) => n.id === nodeId)) return false;
 
-        // Node must be reachable
-        if (!found.node.reachable) return false;
-
-        // Must be in the next column relative to current position
-        if (mapPosition && found.column !== mapPosition.column + 1) return false;
+        const node = findNode(currentMap, nodeId);
+        if (!node) return false;
 
         set({
-          mapPosition: { column: found.column, row: found.row },
-          currentBiome: found.node.biome,
+          currentNodeId: nodeId,
+          currentBiome: node.biome,
         });
         return true;
       },
 
-      completeNode: (nodeId) => {
-        const { map, mapPosition } = get();
-        if (!map || !mapPosition) return;
+      completeCurrentNode: () => {
+        const { biomeMaps, currentBiomeIndex, currentNodeId, completedNodeIds } = get();
+        if (!currentNodeId) return;
+        const currentMap = biomeMaps[currentBiomeIndex];
+        if (!currentMap) return;
 
-        const found = findNode(map, nodeId);
-        if (!found) return;
-
-        // Mark node completed
-        const updatedMap = updateReachability(map, found.column, found.row);
-
-        // Also mark the completed node
-        const target = updatedMap[found.column]?.nodes[found.row];
-        if (target) {
-          target.completed = true;
-          target.reachable = false;
-        }
-
-        // Update biome if we're moving
-        const newBiome = target?.biome ?? get().currentBiome;
+        // Mark node as completed and update accessibility
+        completeNodeUtil(currentMap, currentNodeId);
 
         set({
-          map: updatedMap,
-          currentBiome: newBiome,
+          biomeMaps: [...biomeMaps],
+          completedNodeIds: [...completedNodeIds, currentNodeId],
         });
       },
 
@@ -279,9 +264,40 @@ export const useRunStore = create<RunStore>()(
       resolveEncounter: () => {
         const { pendingEncounter } = get();
         if (pendingEncounter) {
-          get().completeNode(pendingEncounter.nodeId);
+          get().completeCurrentNode();
           set({ pendingEncounter: null });
         }
+      },
+
+      advanceToNextBiome: () => {
+        const { biomeMaps, currentBiomeIndex } = get();
+        const currentMap = biomeMaps[currentBiomeIndex];
+        if (!currentMap || !isMapComplete(currentMap)) return false;
+
+        const nextIndex = currentBiomeIndex + 1;
+        if (nextIndex >= biomeMaps.length) return false;
+
+        const nextMap = biomeMaps[nextIndex];
+        set({
+          currentBiomeIndex: nextIndex,
+          currentNodeId: nextMap.startNodeId,
+          currentBiome: nextMap.biome,
+          biomesVisited: [...get().biomesVisited, nextMap.biome],
+        });
+        return true;
+      },
+
+      getCurrentMap: () => {
+        const { biomeMaps, currentBiomeIndex } = get();
+        return biomeMaps[currentBiomeIndex] ?? null;
+      },
+
+      getCurrentNode: () => {
+        const { biomeMaps, currentBiomeIndex, currentNodeId } = get();
+        if (!currentNodeId) return null;
+        const currentMap = biomeMaps[currentBiomeIndex];
+        if (!currentMap) return null;
+        return findNode(currentMap, currentNodeId) ?? null;
       },
     }),
     {
@@ -298,8 +314,10 @@ export const useRunStore = create<RunStore>()(
         gold: state.gold,
         currentWave: state.currentWave,
         totalWavesCompleted: state.totalWavesCompleted,
-        map: state.map,
-        mapPosition: state.mapPosition,
+        biomeMaps: state.biomeMaps,
+        currentBiomeIndex: state.currentBiomeIndex,
+        currentNodeId: state.currentNodeId,
+        completedNodeIds: state.completedNodeIds,
         pendingEncounter: state.pendingEncounter,
       }),
     },
