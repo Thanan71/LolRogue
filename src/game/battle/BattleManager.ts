@@ -244,6 +244,7 @@ export class BattleManager {
         currentMp: c.getStats().mp, maxMp: c.getStats().mp,
         isDefeated: false,
         currentShield: 0,
+        ccTurnsLeft: 0,
       }));
     this._enemyCombatants = this._enemyTeam.champions
       .slice(0, this._maxTeamSize)
@@ -253,6 +254,7 @@ export class BattleManager {
         currentMp: c.getStats().mp, maxMp: c.getStats().mp,
         isDefeated: false,
         currentShield: 0,
+        ccTurnsLeft: 0,
       }));
     // Reset all cooldowns at battle start
     this._resetAllCooldowns();
@@ -454,7 +456,14 @@ export class BattleManager {
       case 'cc': {
         const ccTarget = this._pickTarget(enemies);
         if (!ccTarget) return;
-        // CC is logged but not mechanically enforced in this engine
+        // Hard CC (stun, knockup, charm) sets ccTurnsLeft so processCurrentTurn skips the turn
+        const ccDuration = effect.ccDuration ?? 1;
+        const ccTurns = Math.max(1, Math.round(ccDuration));
+        const ccType = (effect.ccType ?? '').toLowerCase();
+        const hardCC = ['stun', 'knockup', 'charm'].includes(ccType);
+        if (hardCC) {
+          ccTarget.ccTurnsLeft = Math.max(ccTarget.ccTurnsLeft, ccTurns);
+        }
         this._emit({
           type: 'damage', source: attacker.champion.id,
           target: ccTarget.champion.id, amount: 0, isCrit: false,

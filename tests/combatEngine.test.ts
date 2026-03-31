@@ -9,8 +9,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BattleManager } from '../src/game/battle/BattleManager';
 import { BattlePhase } from '../src/game/battle/types';
-import type { BattleTeam, BattleEvent } from '../src/game/battle/types';
-import { ChampionInstance } from '../src/game/ChampionInstance';
+import type { BattleTeam, BattleEvent, DamageEvent, TeamSide } from '../src/game/battle/types';
+import { ChampionInstance, SPELL_SLOTS, type SpellSlot } from '../src/game/ChampionInstance';
 import { EffectManager } from '../src/game/effects/EffectManager';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
 import { HealEffect } from '../src/game/effects/HealEffect';
@@ -772,5 +772,317 @@ describe('BattleManager Critical Strike', () => {
     const avgCrit = withCritDmg.reduce((a, b) => a + b, 0) / withCritDmg.length;
     const avgNoCrit = noCritDmg.reduce((a, b) => a + b, 0) / noCritDmg.length;
     expect(avgCrit).toBeGreaterThan(avgNoCrit);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 9. BATTLEMANAGER SPELL EFFECT APPLICATION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe('BattleManager Spell Effect Application', () => {
+
+  // Force AI to pick a specific spell by putting others on cooldown
+  function forceSpellSlot(c: ChampionInstance, targetSlot: SpellSlot): void {
+    for (const slot of SPELL_SLOTS) {
+      if (slot !== targetSlot) {
+        c.useSpell(slot);
+      }
+    }
+  }
+
+  // Create a champion with effects on a specific spell slot
+  function makeEffectChamp(
+    id: string,
+    spellSlot: SpellSlot,
+    effects: SpellEffect[],
+    statOverrides: Partial<ChampionStats> = {},
+  ): ChampionInstance {
+    const baseStats: ChampionStats = {
+      hp: 500, mp: 300, moveSpeed: 330, armor: 30, magicResist: 30,
+      attackDamage: 60, attackSpeed: 0.65, attackRange: 175,
+      hpPerLevel: 90, mpPerLevel: 40, armorPerLevel: 4, magicResistPerLevel: 1.3,
+      attackDamagePerLevel: 3, attackSpeedPerLevel: 2.5,
+      hpRegen: 7, hpRegenPerLevel: 0.7, mpRegen: 8, mpRegenPerLevel: 0.8,
+      crit: 0, critPerLevel: 0,
+    };
+    Object.assign(baseStats, statOverrides);
+    const mk = (s: string, o: Partial<Spell> = {}): Spell => ({
+      id: `${id}_${s}`, name: `Spell ${s}`, description: 'test',
+      maxRank: 5, cooldown: [8], cost: [0], range: [700], image: `${s}.png`,
+      targeting: TargetingType.Enemy, scaling: { adRatio: 0, apRatio: 0 },
+      effects: [] as SpellEffect[], ...o,
+    });
+    const spells = (['Q','W','E','R'] as const).map(s =>
+      s === spellSlot ? mk(s, { effects }) : mk(s)
+    );
+    const passive: Passive = {
+      name: 'P', description: 'p', image: 'P.png',
+      targeting: TargetingType.Passive,
+      scaling: { adRatio: 0, apRatio: 0 }, effects: [],
+    };
+    return new ChampionInstance({
+      id, key: id, name: id, title: 't',
+      tags: ['Mage'], resourceType: 'Mana', stats: baseStats,
+      spells, passive, iconUrl: '/test.png',
+    }, 1);
+  }
+
+  function pairTeams(p: ChampionInstance, e: ChampionInstance) {
+    return {
+      playerTeam: { side: 'player' as const, champions: [p] },
+      enemyTeam: { side: 'enemy' as const, champions: [e] },
+    };
+  }
+
+  // ── 1. AP damage goes through magicResist, not armor ──
+
+  describe('AP damage uses magicResist', () => {
+    it('magical damage is reduced by magicResist, not armor', () => {
+      const mage = makeEffectChamp('Mage', 'Q', [
+        { type: 'damage', damageType: 'magical', baseDamage: [100] },
+      ]);
+      const target = makeEffectChamp('Target', 'Q', [], {
+        armor: 0, magicResist: 50, hp: 2000,
+      });
+      const { playerTeam, enemyTeam } = pairTeams(mage, target);
+      const bm = new BattleManager(playerTeam, enemyTeam);
+      const events: BattleEvent[] = [];
+      bm.on('event', e => events.push(e));
+      bm.startBattle();
+
+      forceSpellSlot(mage, 'Q');
+      bm.processCurrentTurn();
+
+      const dmg = events.filter(
+        (e): e is DamageEvent => e.type === 'damage' && e.amount > 0,
+      );
+      expect(dmg.length).toBeGreaterThan(0);
+      const mageDmg = dmg.find(d => d.source === 'Mage');
+      expect(mageDmg).toBeDefined();
+      // 100 vs 50 MR: 100*100/150 = 67. If armor was used: 100 vs 0 = 100
+      expect(mageDmg!.amount).toBeLessThan(100);
+      expect(mageDmg!.amount).toBeGreaterThan(50);
+    });
+
+    it('physical damage uses armor, not magicResist', () => {
+      const bruiser = makeEffectChamp('Bruiser', 'Q', [
+        { type: 'damage', damageType: 'physical', baseDamage: [100] },
+      ]);
+      const target = makeEffectChamp('Target', 'Q', [], {
+        armor: 50, magicResist: 0, hp: 2000,
+      });
+      const { playerTeam, enemyTeam } = pairTeams(bruiser, target);
+      const bm = new BattleManager(playerTeam, enemyTeam);
+      const events: BattleEvent[] = [];
+      bm.on('event', e => events.push(e));
+      bm.startBattle();
+
+      forceSpellSlot(bruiser, 'Q');
+      bm.processCurrentTurn();
+
+      const dmg = events.filter(
+        (e): e is DamageEvent => e.type === 'damage' && e.amount > 0,
+      );
+      const bruiserDmg = dmg.find(d => d.source === 'Bruiser');
+      expect(bruiserDmg).toBeDefined();
+      // 100 vs 50 armor: 100*100/150 = 67. If MR was used: 100 vs 0 = 100
+      expect(bruiserDmg!.amount).toBeLessThan(100);
+      expect(bruiserDmg!.amount).toBeGreaterThan(50);
+    });
+  });
+
+  // ── 2. Heal effects restore HP ──
+
+  describe('Heal effects restore HP', () => {
+    it('spell with heal effect restores ally HP', () => {
+      const healer = makeEffectChamp('Healer', 'W', [
+        { type: 'heal', baseValue: [100], apRatio: 0 },
+      ]);
+      const enemy = makeEffectChamp('Enemy', 'Q', []);
+      const { playerTeam, enemyTeam } = pairTeams(healer, enemy);
+      const bm = new BattleManager(playerTeam, enemyTeam);
+      const events: BattleEvent[] = [];
+      bm.on('event', e => events.push(e));
+
+      bm.startBattle();
+      const hs = bm.getCombatantState('Healer', 'player')!;
+      hs.currentHp = hs.maxHp - 200;
+      const hpBefore = hs.currentHp;
+
+      forceSpellSlot(healer, 'W');
+      bm.processCurrentTurn();
+
+      expect(hs.currentHp).toBeGreaterThan(hpBefore);
+      const heals = events.filter(
+        (e): e is Extract<BattleEvent, {type:'heal'}> => e.type === 'heal',
+      );
+      expect(heals.length).toBeGreaterThan(0);
+      expect(heals[0].amount).toBe(100);
+    });
+
+    it('heal does not exceed maxHp', () => {
+      const healer = makeEffectChamp('Healer', 'W', [
+        { type: 'heal', baseValue: [9999], apRatio: 0 },
+      ]);
+      const enemy = makeEffectChamp('Enemy', 'Q', []);
+      const { playerTeam, enemyTeam } = pairTeams(healer, enemy);
+      const bm = new BattleManager(playerTeam, enemyTeam);
+
+      bm.startBattle();
+      const hs = bm.getCombatantState('Healer', 'player')!;
+      hs.currentHp = hs.maxHp - 50;
+
+      forceSpellSlot(healer, 'W');
+      bm.processCurrentTurn();
+
+      expect(hs.currentHp).toBe(hs.maxHp);
+    });
+  });
+
+  // ── 3. Shield effects absorb damage ──
+
+  describe('Shield effects absorb damage', () => {
+    it('shield absorbs incoming damage before HP', () => {
+      const shielder = makeEffectChamp('Shielder', 'W', [
+        { type: 'shield', baseValue: [80], apRatio: 0 },
+      ]);
+      const attacker = makeEffectChamp('Attacker', 'Q', [
+        { type: 'damage', damageType: 'true', baseDamage: [100] },
+      ]);
+      const { playerTeam, enemyTeam } = pairTeams(shielder, attacker);
+      const bm = new BattleManager(playerTeam, enemyTeam);
+
+      bm.startBattle();
+      const ss = bm.getCombatantState('Shielder', 'player')!;
+
+      forceSpellSlot(shielder, 'W');
+      bm.processCurrentTurn();
+      expect(ss.currentShield).toBe(80);
+      const hpAfterShield = ss.currentHp;
+
+      forceSpellSlot(attacker, 'Q');
+      bm.processCurrentTurn();
+      expect(ss.currentShield).toBe(0);
+      expect(ss.currentHp).toBe(hpAfterShield - 20);
+    });
+
+    it('damage fully absorbed by shield leaves HP unchanged', () => {
+      const shielder = makeEffectChamp('Shielder', 'W', [
+        { type: 'shield', baseValue: [100], apRatio: 0 },
+      ]);
+      const attacker = makeEffectChamp('Attacker', 'Q', [
+        { type: 'damage', damageType: 'true', baseDamage: [30] },
+      ]);
+      const { playerTeam, enemyTeam } = pairTeams(shielder, attacker);
+      const bm = new BattleManager(playerTeam, enemyTeam);
+
+      bm.startBattle();
+      const ss = bm.getCombatantState('Shielder', 'player')!;
+
+      forceSpellSlot(shielder, 'W');
+      bm.processCurrentTurn();
+      expect(ss.currentShield).toBe(100);
+      const hpAfterShield = ss.currentHp;
+
+      forceSpellSlot(attacker, 'Q');
+      bm.processCurrentTurn();
+      expect(ss.currentShield).toBe(70);
+      expect(ss.currentHp).toBe(hpAfterShield);
+    });
+  });
+
+  // ── 4. CC effects prevent actions ──
+
+  describe('CC effects prevent actions', () => {
+    it('stun sets ccTurnsLeft on target', () => {
+      const stunner = makeEffectChamp('Stunner', 'Q', [
+        { type: 'cc', ccType: 'stun', ccDuration: 1 },
+      ]);
+      const victim = makeEffectChamp('Victim', 'Q', []);
+      const { playerTeam, enemyTeam } = pairTeams(stunner, victim);
+      const bm = new BattleManager(playerTeam, enemyTeam);
+
+      bm.startBattle();
+      const vs = bm.getCombatantState('Victim', 'enemy')!;
+      expect(vs.ccTurnsLeft).toBe(0);
+
+      forceSpellSlot(stunner, 'Q');
+      bm.processCurrentTurn();
+
+      expect(vs.ccTurnsLeft).toBeGreaterThan(0);
+    });
+
+    it('CC stun prevents victim from acting on their turn', () => {
+      const stunner = makeEffectChamp('Stunner', 'Q', [
+        { type: 'cc', ccType: 'stun', ccDuration: 1 },
+      ], { moveSpeed: 400 });
+      const victim = makeEffectChamp('Victim', 'Q', [
+        { type: 'damage', damageType: 'true', baseDamage: [9999] },
+      ], { moveSpeed: 310 });
+
+      const bm = new BattleManager(
+        { side: 'player', champions: [stunner] },
+        { side: 'enemy', champions: [victim] },
+      );
+
+      bm.startBattle();
+      const ss = bm.getCombatantState('Stunner', 'player')!;
+      const vs = bm.getCombatantState('Victim', 'enemy')!;
+
+      forceSpellSlot(stunner, 'Q');
+      bm.processCurrentTurn();
+      expect(vs.ccTurnsLeft).toBeGreaterThan(0);
+
+      const stunnerHpBefore = ss.currentHp;
+
+      forceSpellSlot(victim, 'Q');
+      bm.processCurrentTurn();
+
+      expect(ss.currentHp).toBe(stunnerHpBefore);
+    });
+
+    it('knockup also prevents actions', () => {
+      const knocker = makeEffectChamp('Knocker', 'E', [
+        { type: 'cc', ccType: 'knockup', ccDuration: 1 },
+      ], { moveSpeed: 400 });
+      const victim = makeEffectChamp('Victim', 'Q', [
+        { type: 'damage', damageType: 'true', baseDamage: [9999] },
+      ], { moveSpeed: 310 });
+
+      const bm = new BattleManager(
+        { side: 'player', champions: [knocker] },
+        { side: 'enemy', champions: [victim] },
+      );
+      bm.startBattle();
+      const ks = bm.getCombatantState('Knocker', 'player')!;
+      const vs = bm.getCombatantState('Victim', 'enemy')!;
+
+      forceSpellSlot(knocker, 'E');
+      bm.processCurrentTurn();
+      expect(vs.ccTurnsLeft).toBeGreaterThan(0);
+
+      const knockerHpBefore = ks.currentHp;
+      forceSpellSlot(victim, 'Q');
+      bm.processCurrentTurn();
+      expect(ks.currentHp).toBe(knockerHpBefore);
+    });
+
+    it('snare does NOT set ccTurnsLeft (soft CC only)', () => {
+      const snarer = makeEffectChamp('Snarer', 'Q', [
+        { type: 'cc', ccType: 'snare', ccDuration: 2 },
+      ]);
+      const victim = makeEffectChamp('Victim', 'Q', []);
+      const { playerTeam, enemyTeam } = pairTeams(snarer, victim);
+      const bm = new BattleManager(playerTeam, enemyTeam);
+
+      bm.startBattle();
+      const vs = bm.getCombatantState('Victim', 'enemy')!;
+
+      forceSpellSlot(snarer, 'Q');
+      bm.processCurrentTurn();
+
+      // Snare is soft CC, should not set ccTurnsLeft
+      expect(vs.ccTurnsLeft).toBe(0);
+    });
   });
 });
