@@ -96,6 +96,20 @@ const DAGGER: ItemDefinition = {
   tier: 1,
 };
 
+const BF_SWORD: ItemDefinition = {
+  id: 'bf_sword',
+  name: 'B.F. Sword',
+  description: 'A massive blade that greatly increases attack damage.',
+  iconUrl: '/assets/items/bf_sword.png',
+  category: ItemCategory.Weapon,
+  rarity: ItemRarity.Uncommon,
+  stats: [{ stat: 'atk', value: 40, type: 'flat' }],
+  goldValue: 1300,
+  stackable: true,
+  maxStacks: 5,
+  tier: 1,
+};
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 2 — COMPLETED ITEMS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -312,6 +326,7 @@ export const ITEM_DATABASE: Record<string, ItemDefinition> = {
   ruby_crystal: RUBY_CRYSTAL,
   boots: BOOTS,
   dagger: DAGGER,
+  bf_sword: BF_SWORD,
   infinity_edge: INFINITY_EDGE,
   rabaddons_deathcap: RABADONS_DEATHCAP,
   sunfire_aegis: SUNFIRE_AEGIS,

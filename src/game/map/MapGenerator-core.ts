@@ -9,6 +9,7 @@ import {
   type NodeMap,
   type Encounter,
   type ShopEncounter,
+  type ShopItem,
   type RestEncounter,
   type EventEncounter,
   type RecruitEncounter,
@@ -17,29 +18,45 @@ import { getRandomEncounter, getBiomeBoss } from './encounters';
 import { mulberry32, getNodeMetadata, selectColumnType, buildConfig } from './MapGenerator-helpers';
 import { generateShopRotation, generateWildRecruit } from '../recruitment/RecruitmentService';
 import { implementedChampions } from '@/data/champion';
+import { ITEM_DATABASE, getItemDefinition } from '@/data/items';
 
 // ─── Non-combat Encounter Generators ────────────────────────────────────────
 
-const SHOP_ITEMS = [
-  { itemId: 'health_potion', name: 'Health Potion', description: 'Restores a small amount of HP', price: 50, iconUrl: '', stats: { hp: 50 } },
-  { itemId: 'long_sword', name: 'Long Sword', description: 'Increases attack damage', price: 100, iconUrl: '', stats: { atk: 15 } },
-  { itemId: 'cloth_armor', name: 'Cloth Armor', description: 'Increases defense', price: 100, iconUrl: '', stats: { def: 15 } },
-  { itemId: 'amplifying_tome', name: 'Amplifying Tome', description: 'Increases ability power', price: 100, iconUrl: '', stats: { ap: 10 } },
-  { itemId: 'boots', name: 'Boots of Speed', description: 'Increases speed', price: 80, iconUrl: '', stats: { spd: 2 } },
-  { itemId: 'dagger', name: 'Dagger', description: 'Increases critical chance', price: 90, iconUrl: '', stats: { crit: 5 } },
-  { itemId: 'ruby_crystal', name: 'Ruby Crystal', description: 'Increases maximum HP', price: 120, iconUrl: '', stats: { hp: 100 } },
-  { itemId: 'bf_sword', name: 'B.F. Sword', description: 'Greatly increases attack damage', price: 250, iconUrl: '', stats: { atk: 30 } },
-];
+/** Convert an ItemDefinition to a ShopItem for display in shops/events. */
+function itemDefToShopItem(itemId: string, priceOverride?: number): ShopItem {
+  const def = getItemDefinition(itemId);
+  if (!def) {
+    return { itemId, name: itemId, description: 'Unknown item', price: priceOverride ?? 100, iconUrl: '', stats: {} };
+  }
+  const stats: ShopItem['stats'] = {};
+  for (const s of def.stats) {
+    stats[s.stat as keyof ShopItem['stats']] = (stats[s.stat as keyof ShopItem['stats']] ?? 0) + s.value;
+  }
+  return {
+    itemId: def.id,
+    name: def.name,
+    description: def.description,
+    price: priceOverride ?? def.goldValue,
+    iconUrl: def.iconUrl,
+    stats,
+    passiveId: def.passive?.id,
+  };
+}
+
+/** All shopable item IDs (tier 1 components + consumables). */
+const SHOPABLE_ITEM_IDS = Object.values(ITEM_DATABASE)
+  .filter((item) => item.tier === 1 || item.category === 'consumable')
+  .map((item) => item.id);
 
 // Recruit champions are now generated dynamically via RecruitmentService
 
 function generateShopEncounter(biome: Biome, runLevel: number, rand: () => number): ShopEncounter {
   const itemCount = 2 + Math.floor(rand() * 3);
-  const shuffled = [...SHOP_ITEMS].sort(() => rand() - 0.5);
-  const items = shuffled.slice(0, itemCount).map((item) => ({
-    ...item,
-    price: Math.round(item.price * (0.8 + runLevel * 0.15)),
-  }));
+  const shuffled = [...SHOPABLE_ITEM_IDS].sort(() => rand() - 0.5);
+  const items = shuffled.slice(0, itemCount).map((id) => {
+    const base = itemDefToShopItem(id);
+    return { ...base, price: Math.round(base.price * (0.8 + runLevel * 0.15)) };
+  });
 
   const recruitableChampions = generateShopRotation(biome, runLevel, [], 1 + Math.floor(rand() * 2), rand);
 
@@ -92,7 +109,7 @@ function generateEventEncounter(biome: Biome, runLevel: number, rand: () => numb
       description: 'A glowing chest sits in your path. Do you open it?',
       outcomes: [
         { type: 'gold_reward', weight: 3, description: 'You find gold inside!', goldAmount: 30 + runLevel * 15 },
-        { type: 'item_reward', weight: 2, description: 'An item glows inside!', item: SHOP_ITEMS[Math.floor(rand() * SHOP_ITEMS.length)] },
+        { type: 'item_reward', weight: 2, description: 'An item glows inside!', item: itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)]) },
         { type: 'damage', weight: 2, description: 'A trap! The chest explodes!', damagePercent: 0.15 },
         { type: 'nothing', weight: 1, description: 'The chest is empty...' },
       ],
@@ -120,7 +137,7 @@ function generateEventEncounter(biome: Biome, runLevel: number, rand: () => numb
       description: 'A small creature scurries past with a bag of gold!',
       outcomes: [
         { type: 'gold_reward', weight: 4, description: 'You catch the goblin!', goldAmount: 40 + runLevel * 20 },
-        { type: 'item_reward', weight: 2, description: 'The goblin drops its bag!', item: SHOP_ITEMS[Math.floor(rand() * SHOP_ITEMS.length)] },
+        { type: 'item_reward', weight: 2, description: 'The goblin drops its bag!', item: itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)]) },
         { type: 'nothing', weight: 1, description: 'The goblin escapes too fast...' },
       ],
     },
