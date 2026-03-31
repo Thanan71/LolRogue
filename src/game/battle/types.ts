@@ -5,6 +5,7 @@
  */
 
 import type { ChampionInstance } from '../ChampionInstance';
+import type { EffectManager } from '../effects/EffectManager';
 
 // ─── Teams ──────────────────────────────────────────────────────────────────
 
@@ -78,6 +79,8 @@ export interface CombatantState {
   currentShield: number;
   /** Number of turns remaining for crowd control (stun, knockup, charm). */
   ccTurnsLeft: number;
+  /** Effect manager for tracking buffs, debuffs, DoTs, HoTs, shields, CC. */
+  effectManager: EffectManager;
 }
 
 // ─── Damage / Action Log ───────────────────────────────────────────────────
