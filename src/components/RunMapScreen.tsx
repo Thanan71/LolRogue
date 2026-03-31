@@ -84,6 +84,9 @@ export function RunMapScreen() {
         case NodeType.Event:
           navigate(ROUTES.EVENT);
           break;
+        case NodeType.Recruit:
+          navigate(ROUTES.RECRUIT);
+          break;
         default:
           // Unknown or non-interactive node type
           break;

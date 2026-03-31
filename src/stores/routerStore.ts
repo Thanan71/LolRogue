@@ -10,6 +10,7 @@ export const ROUTES = {
   SHOP: '/shop',
   REST: '/rest',
   EVENT: '/event',
+  RECRUIT: '/recruit',
   GAME_OVER: '/game-over',
   DATABASE: '/database',
   SETTINGS: '/settings',

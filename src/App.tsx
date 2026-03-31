@@ -7,6 +7,7 @@ import { StarterSelectPage } from './pages/StarterSelectPage';
 import { RunPage } from './pages/RunPage';
 import { CombatPage } from './pages/CombatPage';
 import { ShopPage } from './pages/ShopPage';
+import { RecruitPage } from './pages/RecruitPage';
 import { RestPage } from './pages/RestPage';
 import { EventPage } from './pages/EventPage';
 import { GameOverPage } from './pages/GameOverPage';
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/run" element={<RunPage />} />
         <Route path="/combat" element={<CombatPage />} />
         <Route path="/shop" element={<ShopPage />} />
+        <Route path="/recruit" element={<RecruitPage />} />
         <Route path="/rest" element={<RestPage />} />
         <Route path="/event" element={<EventPage />} />
         <Route path="/game-over" element={<GameOverPage />} />
