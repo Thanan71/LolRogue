@@ -7,16 +7,29 @@ import { ROUTES } from '@/stores/routerStore';
 import { championDB } from '@/data/championDatabase';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
+import { createDailyRNG } from '@/utils/dailySeed';
+import { SeededRNG } from '@/utils/seededRandom';
 import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
 
-function pickRandom<T>(arr: T[], count: number): T[] {
+/**
+ * Pick `count` random elements from `arr`.
+ * If an `rng` (SeededRNG) is provided, uses it for deterministic selection;
+ * otherwise falls back to Math.random (non-deterministic).
+ */
+function pickRandom<T>(arr: T[], count: number, rng?: SeededRNG): T[] {
+  if (rng) {
+    return rng.pickN(arr, count);
+  }
   const shuffled = [...arr].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 }
 
 export function StarterSelectPage() {
-  const choices = useMemo(() => pickRandom(championDB.getAll(), 6), []);
+  const choices = useMemo(() => {
+    const rng = createDailyRNG();
+    return pickRandom(championDB.getAll(), 6, rng);
+  }, []);
   const { selectedStarterId, setSelectedStarterId } = useGameStore();
   const startRun = useRunStore((s) => s.startRun);
   const navigate = useAppNavigate();
