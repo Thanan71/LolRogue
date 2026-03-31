@@ -77,6 +77,10 @@ export function CombatPage() {
     if (w === 'player') {
       const runStore = useRunStore.getState();
 
+      // Capture all run state BEFORE any mutations
+      const { map, mapPosition, biomesVisited: preBiomes } = runStore;
+      const oldBiomes = [...preBiomes];
+
       // 1. Award gold: 50 + runLevel * 10
       const goldReward = 50 + runLevel * 10;
       runStore.addGold(goldReward);
@@ -85,7 +89,6 @@ export function CombatPage() {
       runStore.nextWave();
 
       // 3. Complete current map node (unlocks next nodes)
-      const { map, mapPosition } = runStore;
       if (map && mapPosition) {
         const currentNode = map[mapPosition.column]?.nodes[mapPosition.row];
         if (currentNode) {
@@ -117,8 +120,6 @@ export function CombatPage() {
         // 5. Check if we just completed the boss (last column = biome transition)
         const isBossNode = currentNode?.type === 'boss';
         if (isBossNode) {
-          // Save biome history before generateMap resets it
-          const oldBiomes = [...runStore.biomesVisited];
           // Increment run level and generate a new map for the next biome
           runStore.incrementRunLevel();
           runStore.generateMap();
