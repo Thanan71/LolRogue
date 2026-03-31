@@ -36,7 +36,7 @@ export const DDRAGON_CONFIG = {
   },
 
   /** Local path prefix for champion icons (served by Vite from public/) */
-  localChampionIconPath: '/lol/data/img/champions',
+  localChampionIconPath: 'public/lol/data/img/champions',
 } as const;
 
 /** Latest version placeholder — will be resolved at runtime */

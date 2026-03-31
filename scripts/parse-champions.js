@@ -348,7 +348,7 @@ async function main() {
       }
       let passive={name:'',description:'',image:'',targeting:'passive',scaling:{adRatio:0,apRatio:0},effects:[]};
       if (detail?.passive) passive=parsePassive(detail.passive,null,raw.id);
-      parsed.push({id:raw.id,key:raw.key,name:raw.name,title:raw.title,tags:parseTags(raw.tags),resourceType:raw.partype||'None',stats:parseStats(raw.stats),spells,passive,iconUrl:'/data/lol/img/champions/'+raw.image.full});
+      parsed.push({id:raw.id,key:raw.key,name:raw.name,title:raw.title,tags:parseTags(raw.tags),resourceType:raw.partype||'None',stats:parseStats(raw.stats),spells,passive,iconUrl:'public/lol/data/img/champions/'+raw.image.full});
     }
     // Apply post-processing fixes
     fixNegativeScaling(parsed);
