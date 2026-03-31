@@ -11,7 +11,7 @@
  */
 
 import type { Champion, ChampionTag, ResourceType } from '@/types';
-import championsRaw from '../../data/lol/champions-parsed.json';
+import championsRaw from '../../public/lol/data/champions-parsed.json';
 
 // --- Filter Criteria ---------------------------------------------------------
 
