@@ -9,7 +9,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BattleManager } from '../src/game/battle/BattleManager';
 import { BattlePhase } from '../src/game/battle/types';
-import type { BattleTeam, BattleEvent, DamageEvent, TeamSide } from '../src/game/battle/types';
+import type { BattleTeam, BattleEvent, DamageEvent } from '../src/game/battle/types';
 import { ChampionInstance, SPELL_SLOTS, type SpellSlot } from '../src/game/ChampionInstance';
 import { EffectManager } from '../src/game/effects/EffectManager';
 import { DamageEffect } from '../src/game/effects/DamageEffect';

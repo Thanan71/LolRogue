@@ -7,7 +7,6 @@ import {
   InventoryEntry,
   RunMapPosition,
   MAX_TEAM_SIZE,
-  NodeType,
 } from '@/types/run';
 import { generateRunMap, updateReachability, findNode } from '@/utils/runMapUtils';
 import { useMasteryStore } from './masteryStore';
