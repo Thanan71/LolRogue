@@ -69,11 +69,9 @@ export function CombatPage() {
   );
 
   // Regenerate enemy team when runLevel changes (new combat encounter)
-  const [prevRunLevel, setPrevRunLevel] = useState(runLevel);
-  if (runLevel !== prevRunLevel) {
-    setPrevRunLevel(runLevel);
+  useEffect(() => {
     setEnemyInstances(buildTeamInstances(generateEnemyTeam(runLevel, runLevel * 31 + 7)));
-  }
+  }, [runLevel]);
 
   const handleComplete = useCallback((w: 'player' | 'enemy' | 'draw') => {
     if (w === 'player') {
