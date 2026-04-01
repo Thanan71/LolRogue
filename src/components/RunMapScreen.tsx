@@ -72,6 +72,43 @@ export function RunMapScreen() {
       const node = findNode(currentMap, nodeId);
       if (!node) return;
 
+      // Start node: complete it and immediately enter its first encounter.
+      if (node.type === NodeType.Start) {
+        completeCurrentNode();
+        const firstNodeId = node.nextNodeIds[0];
+        if (!firstNodeId || !moveToNode(firstNodeId)) return;
+
+        const firstNode = findNode(currentMap, firstNodeId);
+        if (!firstNode) return;
+
+        if (
+          (firstNode.type === NodeType.Combat
+            || firstNode.type === NodeType.Elite
+            || firstNode.type === NodeType.Boss)
+          && firstNode.encounter
+        ) {
+          startEncounter(
+            firstNodeId,
+            firstNode.type as unknown as RunNodeType,
+            firstNode.encounter as CombatEncounter,
+          );
+        } else {
+          startEncounter(firstNodeId, firstNode.type as unknown as RunNodeType);
+        }
+
+        if (
+          firstNode.type === NodeType.Combat
+          || firstNode.type === NodeType.Elite
+          || firstNode.type === NodeType.Boss
+        ) navigate(ROUTES.COMBAT);
+        else if (firstNode.type === NodeType.Shop) navigate(ROUTES.SHOP);
+        else if (firstNode.type === NodeType.Rest) navigate(ROUTES.REST);
+        else if (firstNode.type === NodeType.Event) navigate(ROUTES.EVENT);
+        else if (firstNode.type === NodeType.Recruit) navigate(ROUTES.RECRUIT);
+        else if (firstNode.type === NodeType.Treasure) navigate(ROUTES.TREASURE);
+        return;
+      }
+
       // Start encounter tracking (pass encounter data for combat nodes)
       if (node.type === NodeType.Combat || node.type === NodeType.Elite || node.type === NodeType.Boss) {
         // Only pass encounter data if it exists
@@ -126,7 +163,15 @@ export function RunMapScreen() {
           break;
       }
     },
-    [moveToNode, startEncounter, navigate, currentMap],
+    [
+      moveToNode,
+      startEncounter,
+      navigate,
+      currentMap,
+      completeCurrentNode,
+      advanceToNextBiome,
+      setPhase,
+    ],
   );
 
   if (!currentMap) {
