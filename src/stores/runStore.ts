@@ -118,6 +118,9 @@ export const useRunStore = create<RunStore>()(
           pendingEncounter: null,
           currentEncounter: null,
         });
+
+        // Generate the run map so the map screen has nodes to display
+        get().generateRunMap();
       },
 
       endRun: async (won = false, expectedRunId?: string) => {
