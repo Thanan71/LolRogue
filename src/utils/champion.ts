@@ -37,20 +37,6 @@ export interface CalculatedStats {
 }
 
 /**
- * Default attack damage per level based on champion role.
- * Used when the parsed data has 0 (which is common due to Data Dragon limitations).
- * These values are based on typical LoL champion scaling patterns.
- */
-const DEFAULT_AD_PER_LEVEL_BY_TAG: Record<string, number> = {
-  'Fighter': 3.5,
-  'Mage': 2.5,
-  'Assassin': 3.5,
-  'Tank': 3.0,
-  'Marksman': 3.0,
-  'Support': 2.5,
-};
-
-/**
  * Get effective attack damage per level, using defaults when parsed data is 0.
  */
 function getEffectiveAdPerLevel(stats: ChampionStats): number {
