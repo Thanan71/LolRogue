@@ -17,6 +17,7 @@ import { ActionType } from '@/game/battle/types';
 import { SeededRNG } from '@/utils/seededRandom';
 import { playUIClick } from '@/audio';
 import { runStatsTracker } from '@/services/RunStatsTracker';
+import { calculateXpGain, addXp } from '@/utils/xpSystem';
 import type { Item, ItemStatBonuses, RunSummary } from '@/types/run';
 
 function buildTeamInstances(championIds: string[], levels?: Record<string, number>): ChampionInstance[] {
@@ -120,16 +121,34 @@ export function CombatPage() {
       const goldReward = 50 + runLevel * 10;
       runStore.addGold(goldReward);
 
-      // 2. Advance wave
+      // 2. Award XP to all surviving player champions
+      const currentNode = runStore.getCurrentNode();
+      const isBossNode = currentNode?.type === 'boss';
+      const isEliteNode = currentNode?.type === 'elite';
+      const xpGain = calculateXpGain(runLevel, isEliteNode, isBossNode);
+      
+      // Update each team member with XP and potential level-ups
+      const teamUpdates = runStore.team.map(member => {
+        const currentLevel = member.level ?? 1;
+        const currentXp = member.currentXp ?? 0;
+        const result = addXp(currentLevel, currentXp, xpGain);
+        
+        return {
+          championId: member.championId,
+          currentHp: member.currentHp ?? 0,
+          level: result.newLevel,
+          currentXp: result.remainingXp,
+        };
+      });
+      
+      runStore.updateTeamAfterCombat(teamUpdates);
+
+      // 3. Advance wave
       runStore.nextWave();
 
-      // 3. Complete current map node (unlocks next nodes)
-      const currentNode = runStore.getCurrentNode();
-      let isBossNode = false;
+      // 4. Complete current map node (unlocks next nodes)
       if (currentNode) {
-        isBossNode = currentNode.type === 'boss';
-
-        // 4. Item drop chance (~20%) — deterministic for daily runs
+        // 5. Item drop chance (~20%) — deterministic for daily runs
         const itemRng = new SeededRNG(runLevel * 1000 + runStore.totalWavesCompleted);
         if (itemRng.next() < 0.2) {
           const itemDefs = Object.values(ITEM_DATABASE);
@@ -152,17 +171,17 @@ export function CombatPage() {
           }
         }
 
-        // 5. Resolve encounter (completes the node)
+        // 6. Resolve encounter (completes the node)
         runStore.resolveEncounter();
 
-        // 6. Check if we just completed the boss -- advance to next biome
+        // 7. Check if we just completed the boss -- advance to next biome
         if (isBossNode) {
           runStore.incrementRunLevel();
           runStore.advanceToNextBiome();
         }
       }
 
-      // 7. Build RunSummary for victory display
+      // 8. Build RunSummary for victory display
       // Mark surviving player champions
       const rs2 = useRunStore.getState();
       const aliveIds = rs2.team.filter(m => (m.currentHp ?? 0) > 0).map(m => m.championId);

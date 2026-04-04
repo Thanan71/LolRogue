@@ -37,18 +37,50 @@ export interface CalculatedStats {
 }
 
 /**
+ * Default attack damage per level based on champion role.
+ * Used when the parsed data has 0 (which is common due to Data Dragon limitations).
+ * These values are based on typical LoL champion scaling patterns.
+ */
+const DEFAULT_AD_PER_LEVEL_BY_TAG: Record<string, number> = {
+  'Fighter': 3.5,
+  'Mage': 2.5,
+  'Assassin': 3.5,
+  'Tank': 3.0,
+  'Marksman': 3.0,
+  'Support': 2.5,
+};
+
+/**
+ * Get effective attack damage per level, using defaults when parsed data is 0.
+ */
+function getEffectiveAdPerLevel(stats: ChampionStats): number {
+  if (stats.attackDamagePerLevel > 0) {
+    return stats.attackDamagePerLevel;
+  }
+  // Default AD growth based on base AD (higher base AD = higher growth typically)
+  const baseAD = stats.attackDamage;
+  if (baseAD >= 65) return 3.5;  // High base AD champs (fighters, bruisers)
+  if (baseAD >= 60) return 3.0;  // Medium base AD champs
+  return 2.5;  // Low base AD champs (mages, supports)
+}
+
+/**
  * Compute all stats for a champion at a given level.
  */
 export function calculateStats(stats: ChampionStats, level: number): CalculatedStats {
   // Calculate scaled mana first, then derive AP from it
   const scaledMp = statAtLevel(stats.mp, stats.mpPerLevel, level);
+  
+  // Use effective AD per level (fallback to default when parsed data is 0)
+  const effectiveAdPerLevel = getEffectiveAdPerLevel(stats);
+  
   return {
     hp: statAtLevel(stats.hp, stats.hpPerLevel, level),
     mp: scaledMp,
     moveSpeed: stats.moveSpeed,
     armor: statAtLevel(stats.armor, stats.armorPerLevel, level),
     magicResist: statAtLevel(stats.magicResist, stats.magicResistPerLevel, level),
-    attackDamage: statAtLevel(stats.attackDamage, stats.attackDamagePerLevel, level),
+    attackDamage: statAtLevel(stats.attackDamage, effectiveAdPerLevel, level),
     attackSpeed: attackSpeedAtLevel(stats.attackSpeed, stats.attackSpeedPerLevel, level),
     attackRange: stats.attackRange,
     abilityPower: Math.round(scaledMp * 0.03),  // AP derived from scaled mana (3% ratio)

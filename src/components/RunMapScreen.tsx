@@ -9,6 +9,7 @@ import { championDB } from '@/data/championDatabase';
 import { NodeType } from '@/game/map/types';
 import type { NodeMap } from '@/game/map/types';
 import type { NodeType as RunNodeType } from '@/types/run';
+import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
 
 // Map game/map NodeType enum to CSS colors
 const NODE_COLORS: Record<string, string> = {
@@ -224,24 +225,66 @@ export function RunMapScreen() {
   );
 }
 
-function TeamPanel({ team }: { team: { championId: string }[] }) {
+function TeamPanel({ team }: { team: { championId: string; level?: number; currentXp?: number; currentHp?: number }[] }) {
   return (
     <div style={panelStyle}>
       <div style={panelTitle}>Equipe</div>
       {team.length === 0 && <div style={{ color: "#484f58", fontSize: 12, padding: 8 }}>No champions</div>}
       {team.map((m) => {
         const champ = championDB.getById(m.championId);
+        const level = m.level ?? 1;
+        const currentXp = m.currentXp ?? 0;
+        const xpProgress = getXpProgress(level, currentXp);
+        const xpDisplay = formatXpDisplay(level, currentXp);
+        const hpPercent = champ ? Math.min(100, Math.max(0, ((m.currentHp ?? champ.stats.hp) / champ.stats.hp) * 100)) : 100;
+        
         return (
           <div key={m.championId} style={teamMemberStyle}>
-            <img src={champ?.iconUrl ?? ""} alt={champ?.name ?? m.championId}
-              style={{ width: 40, height: 40, borderRadius: 4 }}
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <div style={{ position: 'relative' }}>
+              <img src={champ?.iconUrl ?? ""} alt={champ?.name ?? m.championId}
+                style={{ width: 40, height: 40, borderRadius: 4 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+              <div style={{ 
+                position: 'absolute', 
+                bottom: -2, 
+                right: -2, 
+                background: '#1a1a2e', 
+                color: '#ffd700', 
+                fontSize: 9, 
+                fontWeight: 'bold', 
+                padding: '1px 3px', 
+                borderRadius: 3,
+                border: '1px solid #ffd70044',
+                minWidth: 14,
+                textAlign: 'center',
+              }}>{level}</div>
+            </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ color: "#e6edf3", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {champ?.name ?? m.championId}
               </div>
-              <div style={hpBarBg}><div style={{ ...hpBarFill, width: "100%" }} /></div>
-              <div style={{ color: "#8b949e", fontSize: 10 }}>HP: {champ?.stats.hp ?? "???"}</div>
+              {/* HP Bar */}
+              <div style={hpBarBg}>
+                <div style={{ ...hpBarFill, width: `${hpPercent}%`, background: hpPercent > 50 ? '#22c55e' : hpPercent > 25 ? '#eab308' : '#ef4444' }} />
+              </div>
+              {/* XP Bar */}
+              <div style={{ width: "100%", height: 4, background: "#21262d", borderRadius: 2, marginTop: 1, marginBottom: 1, overflow: 'hidden' }}>
+                <div style={{ 
+                  width: `${xpProgress}%`, 
+                  height: '100%', 
+                  background: level >= 18 ? '#9333ea' : '#3b82f6', 
+                  borderRadius: 1, 
+                  transition: 'width 0.3s' 
+                }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ color: "#8b949e", fontSize: 9 }}>
+                  {level >= 18 ? 'MAX' : xpDisplay}
+                </div>
+                <div style={{ color: "#484f58", fontSize: 9 }}>
+                  {Math.round(m.currentHp ?? 0)}/{champ?.stats.hp ?? 0}
+                </div>
+              </div>
             </div>
           </div>
         );
