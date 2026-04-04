@@ -5,6 +5,7 @@ import { useRunStore } from '@/stores/runStore';
 import { useBattleStore } from '@/stores/battleStore';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { championDB } from '@/data';
 import { ITEM_DATABASE } from '@/data/items';
@@ -58,8 +59,10 @@ export function CombatPage() {
   const currentTurnSide = useBattleStore(s => s.currentTurnSide);
   const winner = useBattleStore(s => s.winner);
   const isPlayerTurn = useBattleStore(s => s.isPlayerTurn);
+  const battleSpeed = useSettingsStore(s => s.battleSpeed);
 
   const [autoPlay, setAutoPlay] = useState(true);
+  const [turnTick, setTurnTick] = useState(0);
   const hasNavigatedAfterLossRef = useRef(false);
   const endRunTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -76,6 +79,7 @@ export function CombatPage() {
   useEffect(() => {
     if (battlePhase === 'starting') {
       hasNavigatedAfterLossRef.current = false;
+      setTurnTick(0); // Reset turn tick for new battle
     }
   }, [battlePhase]);
   
@@ -247,10 +251,14 @@ export function CombatPage() {
   // Auto-process all turns when autoPlay is enabled
   useEffect(() => {
     if (autoPlay && battlePhase === 'turn_active') {
-      const timer = setTimeout(() => processTurn(), 400);
+      const delay = Math.max(50, 400 / battleSpeed);
+      const timer = setTimeout(() => {
+        processTurn();
+        setTurnTick(t => t + 1);
+      }, delay);
       return () => clearTimeout(timer);
     }
-  }, [autoPlay, battlePhase, processTurn]);
+  }, [autoPlay, battlePhase, processTurn, turnTick, battleSpeed]);
 
   // Save final HP states when battle finishes with player victory
   useEffect(() => {

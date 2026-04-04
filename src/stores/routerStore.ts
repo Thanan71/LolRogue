@@ -11,6 +11,7 @@ export const ROUTES = {
   REST: '/rest',
   EVENT: '/event',
   RECRUIT: '/recruit',
+  TREASURE: '/treasure',
   GAME_OVER: '/game-over',
   DATABASE: '/database',
   SETTINGS: '/settings',

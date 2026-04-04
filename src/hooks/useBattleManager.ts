@@ -61,6 +61,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
   switch (event.type) {
     case 'round_start':
       store.setRound(event.round);
+      store.setPhase('turn_active');
       store.addLog({ type: 'round_start', message: `=== Round ${event.round} ===` });
       syncTeams(bm);
       break;

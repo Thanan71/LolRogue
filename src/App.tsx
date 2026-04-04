@@ -10,6 +10,7 @@ import { ShopPage } from './pages/ShopPage';
 import { RecruitPage } from './pages/RecruitPage';
 import { RestPage } from './pages/RestPage';
 import { EventPage } from './pages/EventPage';
+import { TreasurePage } from './pages/TreasurePage';
 import { GameOverPage } from './pages/GameOverPage';
 import { DatabasePage } from './pages/DatabasePage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/recruit" element={<RecruitPage />} />
         <Route path="/rest" element={<RestPage />} />
         <Route path="/event" element={<EventPage />} />
+        <Route path="/treasure" element={<TreasurePage />} />
         <Route path="/game-over" element={<GameOverPage />} />
         <Route path="/database" element={<DatabasePage />} />
         <Route path="/settings" element={<SettingsPage />} />

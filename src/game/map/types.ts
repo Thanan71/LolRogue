@@ -17,6 +17,15 @@ export enum NodeType {
   Exit = 'exit',
 }
 
+/** Treasure encounter: free rewards (gold and/or items) */
+export interface TreasureEncounter extends BaseEncounter {
+  type: 'treasure';
+  /** Gold amount to award */
+  gold: number;
+  /** Optional item reward */
+  item?: ShopItem;
+}
+
 export interface EnemyDefinition {
   championId: string;
   statMultiplier: number;
@@ -25,7 +34,7 @@ export interface EnemyDefinition {
 
 // ─── Encounter Types ────────────────────────────────────────────────────────
 
-export type EncounterType = 'combat' | 'shop' | 'recruit' | 'event' | 'rest';
+export type EncounterType = 'combat' | 'shop' | 'recruit' | 'event' | 'rest' | 'treasure';
 
 /** Base interface for all encounters */
 export interface BaseEncounter {
@@ -142,7 +151,8 @@ export type Encounter =
   | ShopEncounter
   | RecruitEncounter
   | EventEncounter
-  | RestEncounter;
+  | RestEncounter
+  | TreasureEncounter;
 
 // ─── Encounter Pool by Biome ────────────────────────────────────────────────
 

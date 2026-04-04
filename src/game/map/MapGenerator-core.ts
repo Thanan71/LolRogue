@@ -13,6 +13,7 @@ import {
   type RestEncounter,
   type EventEncounter,
   type RecruitEncounter,
+  type TreasureEncounter,
 } from './types';
 import { getRandomEncounter, getBiomeBoss } from './encounters';
 import { mulberry32, getNodeMetadata, selectColumnType, buildConfig } from './MapGenerator-helpers';
@@ -174,6 +175,38 @@ function generateRecruitEncounter(biome: Biome, runLevel: number, rand: () => nu
   };
 }
 
+function generateTreasureEncounter(biome: Biome, runLevel: number, rand: () => number): TreasureEncounter {
+  // Gold reward scales with run level
+  const gold = Math.round(50 + runLevel * 25 + rand() * 50);
+  
+  // 40% chance to also give an item
+  const hasItem = rand() < 0.4;
+  const item = hasItem
+    ? itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)])
+    : undefined;
+
+  const treasureNames = [
+    'Shimmering Chest',
+    'Golden Cache',
+    'Forgotten Hoard',
+    'Mystic Treasure',
+    'Ancient Stash',
+    'Goblin Stash',
+    "Dragon's Bounty",
+  ];
+  const name = treasureNames[Math.floor(rand() * treasureNames.length)];
+
+  return {
+    id: `treasure_${biome}_${Date.now()}_${Math.floor(rand() * 10000)}`,
+    name,
+    description: `A ${name.toLowerCase()} glimmers in the ${biome.replace('_', ' ')}.`,
+    type: 'treasure',
+    minRunLevel: 1,
+    gold,
+    item,
+  };
+}
+
 function generateEncounterForNode(
   nodeType: NodeType,
   biome: Biome,
@@ -195,6 +228,7 @@ function generateEncounterForNode(
     case NodeType.Recruit:
       return generateRecruitEncounter(biome, runLevel, rand);
     case NodeType.Treasure:
+      return generateTreasureEncounter(biome, runLevel, rand);
     case NodeType.Start:
     case NodeType.Exit:
     default:

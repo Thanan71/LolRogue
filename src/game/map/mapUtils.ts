@@ -56,10 +56,18 @@ export function completeNode(map: NodeMap, nodeId: string): MapNode[] {
 
 /**
  * Check if biome map is complete.
+ * A map is complete when any Exit or Boss node has been completed.
  */
 export function isMapComplete(map: NodeMap): boolean {
+  // Check if the designated exit node is completed
   const exitNode = findNode(map, map.exitNodeId);
-  return exitNode?.completed ?? false;
+  if (exitNode?.completed) return true;
+
+  // Also check for any completed Exit or Boss node (handles multi-node last columns)
+  return map.nodes.some(
+    (n) =>
+      (n.type === NodeType.Exit || n.type === NodeType.Boss) && n.completed
+  );
 }
 
 /**

@@ -92,14 +92,8 @@ export function RunMapScreen() {
           navigate(ROUTES.RECRUIT);
           break;
         case NodeType.Treasure:
-          // Treasure nodes give immediate reward and return to map
-          // The reward is handled by resolveEncounter
-          useRunStore.getState().resolveEncounter();
-          // Award treasure gold (from encounter data)
-          const treasureEncounter = node.encounter;
-          if (treasureEncounter && 'gold' in treasureEncounter) {
-            useRunStore.getState().addGold(treasureEncounter.gold as number);
-          }
+          // Navigate to treasure page to display rewards
+          navigate(ROUTES.TREASURE);
           break;
         case NodeType.Exit:
           // Complete the current node and advance to the next biome
