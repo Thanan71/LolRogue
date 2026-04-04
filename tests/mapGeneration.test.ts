@@ -34,7 +34,8 @@ describe('Map Generation', () => {
 
         const startNode = findNode(map, map.startNodeId);
         expect(startNode).toBeDefined();
-        expect(startNode!.type).toBe(NodeType.Start);
+        // First node is now a combat node to allow immediate fighting
+        expect(startNode!.type).toBe(NodeType.Combat);
 
         const exitNode = findNode(map, map.exitNodeId);
         expect(exitNode).toBeDefined();

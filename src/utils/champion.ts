@@ -40,16 +40,18 @@ export interface CalculatedStats {
  * Compute all stats for a champion at a given level.
  */
 export function calculateStats(stats: ChampionStats, level: number): CalculatedStats {
+  // Calculate scaled mana first, then derive AP from it
+  const scaledMp = statAtLevel(stats.mp, stats.mpPerLevel, level);
   return {
     hp: statAtLevel(stats.hp, stats.hpPerLevel, level),
-    mp: statAtLevel(stats.mp, stats.mpPerLevel, level),
+    mp: scaledMp,
     moveSpeed: stats.moveSpeed,
     armor: statAtLevel(stats.armor, stats.armorPerLevel, level),
     magicResist: statAtLevel(stats.magicResist, stats.magicResistPerLevel, level),
     attackDamage: statAtLevel(stats.attackDamage, stats.attackDamagePerLevel, level),
     attackSpeed: attackSpeedAtLevel(stats.attackSpeed, stats.attackSpeedPerLevel, level),
     attackRange: stats.attackRange,
-    abilityPower: Math.round(statAtLevel(stats.mp, stats.mpPerLevel, level) * 0.03),
+    abilityPower: Math.round(scaledMp * 0.03),  // AP derived from scaled mana (3% ratio)
     hpRegen: statAtLevel(stats.hpRegen, stats.hpRegenPerLevel, level),
     mpRegen: statAtLevel(stats.mpRegen, stats.mpRegenPerLevel, level),
     crit: statAtLevel(stats.crit, stats.critPerLevel, level),

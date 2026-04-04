@@ -24,6 +24,7 @@ import {
   critDamage,
 } from '@/utils/damage';
 import { createBuff, createDebuff } from '@/game/effects/BuffDebuffEffect';
+import { EffectManager } from '@/game/effects/EffectManager';
 import type { StatKey } from '@/game/effects/types';
 
 type EventCallback = (event: BattleEvent) => void;
@@ -272,6 +273,7 @@ export class BattleManager {
           isDefeated: initHp <= 0,
           currentShield: 0,
           ccTurnsLeft: 0,
+          effectManager: new EffectManager(c.id),
         };
       });
     this._enemyCombatants = this._enemyTeam.champions
@@ -283,6 +285,7 @@ export class BattleManager {
         isDefeated: false,
         currentShield: 0,
         ccTurnsLeft: 0,
+        effectManager: new EffectManager(c.id),
       }));
     // Reset all cooldowns at battle start
     this._resetAllCooldowns();
@@ -441,11 +444,13 @@ export class BattleManager {
 
         let finalDmg: number;
         const dmgType = effect.damageType ?? 'physical';
-        if (dmgType === 'magical') {
+        // Handle both 'magical'/'ap' for magic damage and 'true' for true damage
+        if (dmgType === 'magical' || dmgType === 'ap') {
           finalDmg = calculateAPDamage(rawDmg, 1.0, defStats.magicResist);
         } else if (dmgType === 'true') {
           finalDmg = calculateTrueDamage(rawDmg);
         } else {
+          // Default to physical/AD damage
           finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
         }
         this._applyDamageToTarget(attacker, target, finalDmg);

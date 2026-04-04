@@ -15,7 +15,6 @@ import {
   completeNode as completeNodeUtil,
   isMapComplete,
 } from '@/game/map/mapUtils';
-import type { MapNode } from '@/game/map/types';
 import { useMasteryStore } from './masteryStore';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
@@ -286,10 +285,35 @@ export const useRunStore = create<RunStore>()(
       },
 
       resolveEncounter: () => {
-        const { pendingEncounter } = get();
-        if (pendingEncounter) {
-          get().completeCurrentNode();
-          set({ pendingEncounter: null });
+        const { pendingEncounter, biomeMaps, currentBiomeIndex, currentNodeId, completedNodeIds } = get();
+        if (pendingEncounter && currentNodeId) {
+          // Complete the current node
+          completeNodeUtil(biomeMaps[currentBiomeIndex], currentNodeId);
+          
+          // Update completedNodeIds (filter out nulls)
+          const newCompletedNodeIds = [...completedNodeIds, currentNodeId].filter((id): id is string => id !== null);
+          
+          // Find next accessible nodes after completion
+          const currentMap = biomeMaps[currentBiomeIndex];
+          if (currentMap) {
+            const accessible = getAccessibleNodes(currentMap, newCompletedNodeIds);
+            // Set currentNodeId to the first accessible node (usually the one we just unlocked)
+            if (accessible.length > 0) {
+              set({
+                biomeMaps: [...biomeMaps],
+                completedNodeIds: newCompletedNodeIds,
+                currentNodeId: accessible[0].id,
+                pendingEncounter: null,
+              });
+              return;
+            }
+          }
+          
+          set({
+            biomeMaps: [...biomeMaps],
+            completedNodeIds: newCompletedNodeIds,
+            pendingEncounter: null,
+          });
         }
       },
 

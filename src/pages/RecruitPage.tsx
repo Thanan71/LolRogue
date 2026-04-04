@@ -94,6 +94,9 @@ export function RecruitPage() {
             <div style={{ fontSize: 14, color: '#c8aa6e', marginBottom: 8, textAlign: 'center', maxWidth: 400 }}>
               {encounter?.description ?? 'A wild champion appears!'}
             </div>
+            <div style={{ fontSize: 16, color: '#ffd700', marginBottom: 12, fontWeight: 700 }}>
+              Cost: {encounter?.cost ?? 0}g
+            </div>
             <div style={{ fontSize: 13, color: clr, marginBottom: 20 }}>
               Success chance: {pct}%{pct < 70 ? ' (may flee!)' : ''}
             </div>

@@ -7,7 +7,8 @@ import { useRunStore } from '@/stores/runStore';
 import { useGameStore } from '@/stores/gameStore';
 import { championDB } from '@/data/championDatabase';
 import { NodeType } from '@/game/map/types';
-import type { MapNode, NodeMap } from '@/game/map/types';
+import type { NodeMap } from '@/game/map/types';
+import type { NodeType as RunNodeType } from '@/types/run';
 
 // Map game/map NodeType enum to CSS colors
 const NODE_COLORS: Record<string, string> = {
@@ -40,7 +41,7 @@ export function RunMapScreen() {
   const biomeMaps = useRunStore((s) => s.biomeMaps);
   const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
-  const completedNodeIds = useRunStore((s) => s.completedNodeIds);
+  // completedNodeIds is available but not currently used in rendering
   const team = useRunStore((s) => s.team);
   const inventory = useRunStore((s) => s.inventory);
   const gold = useRunStore((s) => s.gold);
@@ -49,6 +50,8 @@ export function RunMapScreen() {
   const generateRunMap = useRunStore((s) => s.generateRunMap);
   const moveToNode = useRunStore((s) => s.moveToNode);
   const startEncounter = useRunStore((s) => s.startEncounter);
+  const advanceToNextBiome = useRunStore((s) => s.advanceToNextBiome);
+  const completeCurrentNode = useRunStore((s) => s.completeCurrentNode);
 
   const setPhase = useGameStore((s) => s.setPhase);
   const navigate = useNavigate();
@@ -66,7 +69,7 @@ export function RunMapScreen() {
       if (!node) return;
 
       // Start encounter tracking
-      startEncounter(nodeId, node.type as string);
+      startEncounter(nodeId, node.type as unknown as RunNodeType);
 
       // Navigate to the appropriate encounter page
       switch (node.type) {
@@ -86,6 +89,28 @@ export function RunMapScreen() {
           break;
         case NodeType.Recruit:
           navigate(ROUTES.RECRUIT);
+          break;
+        case NodeType.Treasure:
+          // Treasure nodes give immediate reward and return to map
+          // The reward is handled by resolveEncounter
+          useRunStore.getState().resolveEncounter();
+          // Award treasure gold (from encounter data)
+          const treasureEncounter = node.encounter;
+          if (treasureEncounter && 'gold' in treasureEncounter) {
+            useRunStore.getState().addGold(treasureEncounter.gold as number);
+          }
+          break;
+        case NodeType.Exit:
+          // Complete the current node and advance to the next biome
+          completeCurrentNode();
+          if (!advanceToNextBiome()) {
+            // If there's no next biome, the run is complete
+            // Navigate to a victory/end screen or back to menu
+            setPhase('menu');
+            navigate(ROUTES.MENU);
+          }
+          // If advanceToNextBiome succeeded, we're now on the new biome map
+          // No additional navigation needed - the map will re-render with the new biome
           break;
         default:
           // Unknown or non-interactive node type

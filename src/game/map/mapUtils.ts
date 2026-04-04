@@ -21,6 +21,7 @@ export function getAccessibleNodes(map: NodeMap, completedNodeIds: string[]): Ma
   return map.nodes.filter((node) => {
     if (node.completed) return false;
     if (node.prevNodeIds.length === 0) return node.id === map.startNodeId;
+    // A node is accessible if AT LEAST ONE of its previous nodes is completed
     return node.prevNodeIds.some((prevId) => completedNodeIds.includes(prevId));
   });
 }
@@ -38,11 +39,12 @@ export function completeNode(map: NodeMap, nodeId: string): MapNode[] {
   const newlyAccessible: MapNode[] = [];
   for (const nextId of node.nextNodeIds) {
     const nextNode = findNode(map, nextId);
-    if (nextNode && !nextNode.completed) {
-      const allPrereqsCompleted = nextNode.prevNodeIds.every(
+    if (nextNode && !nextNode.completed && !nextNode.accessible) {
+      // A node becomes accessible if AT LEAST ONE of its previous nodes is completed
+      const anyPrereqCompleted = nextNode.prevNodeIds.some(
         (prevId) => findNode(map, prevId)?.completed ?? false
       );
-      if (allPrereqsCompleted) {
+      if (anyPrereqCompleted) {
         nextNode.accessible = true;
         newlyAccessible.push(nextNode);
       }

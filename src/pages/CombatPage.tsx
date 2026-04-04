@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback, useState } from 'react';
+import { useEffect, useMemo, useCallback, useState, useRef } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
@@ -17,7 +17,7 @@ import { ActionType } from '@/game/battle/types';
 import { SeededRNG } from '@/utils/seededRandom';
 import { playUIClick } from '@/audio';
 import { runStatsTracker } from '@/services/RunStatsTracker';
-import type { Item, ItemStatBonuses, RunSummary, ChampionRunStats } from '@/types/run';
+import type { Item, ItemStatBonuses, RunSummary } from '@/types/run';
 
 function buildTeamInstances(championIds: string[], levels?: Record<string, number>): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
@@ -59,8 +59,31 @@ export function CombatPage() {
   const isPlayerTurn = useBattleStore(s => s.isPlayerTurn);
 
   const [autoPlay, setAutoPlay] = useState(true);
+  const hasNavigatedAfterLossRef = useRef(false);
+  const endRunTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear any pending endRun timeout on mount
   useEffect(() => {
-    if (!isActive) navigate(ROUTES.STARTER_SELECT);
+    return () => {
+      if (endRunTimeoutRef.current) {
+        clearTimeout(endRunTimeoutRef.current);
+      }
+    };
+  }, []);
+  
+  // Reset the ref when battlePhase changes to starting (new combat)
+  useEffect(() => {
+    if (battlePhase === 'starting') {
+      hasNavigatedAfterLossRef.current = false;
+    }
+  }, [battlePhase]);
+  
+  // Navigate away if the run is no longer active (only once after a loss)
+  useEffect(() => {
+    if (!isActive && !hasNavigatedAfterLossRef.current) {
+      hasNavigatedAfterLossRef.current = true;
+      navigate(ROUTES.STARTER_SELECT);
+    }
   }, [isActive, navigate]);
 
   // Build player instances with persisted levels
@@ -102,7 +125,9 @@ export function CombatPage() {
 
       // 3. Complete current map node (unlocks next nodes)
       const currentNode = runStore.getCurrentNode();
+      let isBossNode = false;
       if (currentNode) {
+        isBossNode = currentNode.type === 'boss';
 
         // 4. Item drop chance (~20%) — deterministic for daily runs
         const itemRng = new SeededRNG(runLevel * 1000 + runStore.totalWavesCompleted);
@@ -131,7 +156,6 @@ export function CombatPage() {
         runStore.resolveEncounter();
 
         // 6. Check if we just completed the boss -- advance to next biome
-        const isBossNode = currentNode.type === 'boss';
         if (isBossNode) {
           runStore.incrementRunLevel();
           runStore.advanceToNextBiome();
@@ -160,10 +184,11 @@ export function CombatPage() {
       // Reset tracker for next combat
       runStatsTracker.reset();
 
-      // Navigation handled by UI buttons
+      // Navigate back to the map to choose the next node
+      navigate(ROUTES.RUN);
 
     } else {
-      // On draw or loss: build RunSummary from tracked stats, navigate with state, then end the run
+      // On draw or loss: build RunSummary from tracked stats, navigate with state
       const rs = useRunStore.getState();
       // Mark all player champions as dead (none survived)
       runStatsTracker.markSurvived([]);
@@ -174,12 +199,15 @@ export function CombatPage() {
         goldEarned: rs.gold,
         runLevel: rs.runLevel,
       });
-      // Navigate FIRST with summary state, BEFORE endRun() resets isActive
+      // Navigate to game over screen
       navigate(ROUTES.GAME_OVER, { state: { summary } });
-      // Now end the run (resets isActive, team, gold, etc.)
-      rs.endRun(w === 'draw');
-      // Reset tracker for next run
-      runStatsTracker.reset();
+      // End the run (resets isActive, team, gold, etc.) - delayed to avoid race conditions
+      // Store the timeout reference so it can be cleared if player starts a new run
+      endRunTimeoutRef.current = setTimeout(() => {
+        rs.endRun(w === 'draw');
+        runStatsTracker.reset();
+        endRunTimeoutRef.current = null;
+      }, 100);
     }
   }, [runLevel, navigate]);
 

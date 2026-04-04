@@ -153,6 +153,9 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
   useEffect(() => {
     if (playerTeam.length === 0) return;
 
+    // Reset battle store FIRST, before any other operations
+    // This ensures no stale state from previous battles can trigger completion checks
+    store.resetBattle();
     hasCompletedRef.current = false;
 
     const playerBTeam: BattleTeam = { side: 'player', champions: playerTeam };
@@ -165,7 +168,7 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
 
     bm.on('event', (e: BattleEvent) => handleEvent(bm, e));
 
-    store.resetBattle();
+    // Set phase to starting (resetBattle already set it to idle)
     store.setPhase('starting');
 
     // Sync initial teams
@@ -183,7 +186,7 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
       clearTimeout(timer);
       bmRef.current = null;
     };
-  }, [playerTeam, enemyTeam]);
+  }, [playerTeam, enemyTeam, initialHpOverrides]);
 
   // Check for battle completion
   useEffect(() => {

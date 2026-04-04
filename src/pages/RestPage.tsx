@@ -106,13 +106,19 @@ export function RestPage() {
           })}
         </div>
 
-        {!healed ? (
-          <button style={{ ...restBtnStyle, opacity: canAfford ? 1 : 0.4, cursor: canAfford ? 'pointer' : 'not-allowed' }}
-            onClick={handleRest} disabled={!canAfford}>
-            {goldCost > 0 ? `Rest (${goldCost}g)` : 'Rest'}</button>
-        ) : (
-          <button style={continueBtnStyle} onClick={handleContinue}>Continue</button>
-        )}
+        <div style={{ display: 'flex', gap: 12, flexDirection: 'row' }}>
+          {!healed ? (
+            <button style={{ ...restBtnStyle, opacity: canAfford ? 1 : 0.4, cursor: canAfford ? 'pointer' : 'not-allowed' }}
+              onClick={handleRest} disabled={!canAfford}>
+              {goldCost > 0 ? `Rest (${goldCost}g)` : 'Rest'}
+            </button>
+          ) : (
+            <button style={continueBtnStyle} onClick={handleContinue}>Continue</button>
+          )}
+          <button style={skipBtnStyle} onClick={handleContinue}>
+            {healed ? 'Done' : 'Skip'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -145,5 +151,9 @@ const restBtnStyle: React.CSSProperties = {
 };
 const continueBtnStyle: React.CSSProperties = {
   padding: '14px 40px', background: '#3b82f6', color: '#fff',
+  border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: 'pointer',
+};
+const skipBtnStyle: React.CSSProperties = {
+  padding: '14px 40px', background: '#484f58', color: '#e6edf3',
   border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: 'pointer',
 };

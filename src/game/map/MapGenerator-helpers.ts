@@ -58,7 +58,8 @@ export function selectColumnType(
   columnIndex: number,
   totalColumns: number,
 ): NodeType {
-  if (columnIndex === 0) return NodeType.Start;
+  // First node should be a combat to allow players to start fighting immediately
+  if (columnIndex === 0) return NodeType.Combat;
   if (columnIndex === totalColumns - 1) {
     return config.biome === 'base' ? NodeType.Boss : NodeType.Exit;
   }
