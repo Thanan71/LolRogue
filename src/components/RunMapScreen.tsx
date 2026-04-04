@@ -69,8 +69,12 @@ export function RunMapScreen() {
       const node = findNode(currentMap, nodeId);
       if (!node) return;
 
-      // Start encounter tracking
-      startEncounter(nodeId, node.type as unknown as RunNodeType);
+      // Start encounter tracking (pass encounter data for combat nodes)
+      if (node.type === NodeType.Combat || node.type === NodeType.Elite || node.type === NodeType.Boss) {
+        startEncounter(nodeId, node.type as unknown as RunNodeType, node.encounter as any);
+      } else {
+        startEncounter(nodeId, node.type as unknown as RunNodeType);
+      }
 
       // Navigate to the appropriate encounter page
       switch (node.type) {

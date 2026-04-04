@@ -20,6 +20,7 @@ import { playUIClick } from '@/audio';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { calculateXpGain, addXp } from '@/utils/xpSystem';
 import type { Item, ItemStatBonuses, RunSummary } from '@/types/run';
+import type { CombatEncounter } from '@/game/map/types';
 
 function buildTeamInstances(championIds: string[], levels?: Record<string, number>): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
@@ -30,12 +31,22 @@ function buildTeamInstances(championIds: string[], levels?: Record<string, numbe
   return instances;
 }
 
-function generateEnemyTeam(round: number, seed: number): string[] {
-  const all = championDB.getAll();
-  const count = Math.min(5, 1 + Math.floor(round / 2));
-  const rng = new SeededRNG(seed);
-  const shuffled = rng.shuffle(all);
-  return shuffled.slice(0, count).map(c => c.id);
+/** Build enemy team from encounter data */
+function buildEnemyTeamFromEncounter(encounter: CombatEncounter): ChampionInstance[] {
+  const instances: ChampionInstance[] = [];
+  for (const enemy of encounter.enemies) {
+    const champ = championDB.getById(enemy.championId);
+    if (champ) {
+      // Use level from enemy definition, defaulting to 1
+      // Scale level by statMultiplier to approximate stat increase
+      // e.g., level 1 with 1.5x stats ≈ level 8 stats
+      const baseLevel = enemy.level ?? 1;
+      const effectiveLevel = Math.min(18, Math.max(1, Math.round(baseLevel * enemy.statMultiplier)));
+      const instance = new ChampionInstance(champ, effectiveLevel);
+      instances.push(instance);
+    }
+  }
+  return instances;
 }
 
 const SLOT_TO_ACTION: Record<string, ActionType> = {
@@ -106,16 +117,25 @@ export function CombatPage() {
     }
     return Object.keys(m).length > 0 ? m : undefined;
   }, [team]);
+  
+  // Get encounter data from store
+  const currentEncounter = useRunStore(s => s.currentEncounter);
+  
   // Use useState to store enemy team so it doesn't regenerate on re-render.
-  // Seed is derived from runLevel for determinism in daily runs.
-  const [enemyInstances, setEnemyInstances] = useState<ChampionInstance[]>(() =>
-    buildTeamInstances(generateEnemyTeam(runLevel, runLevel * 31 + 7))
-  );
+  // Build enemy team from encounter data if available, otherwise fallback to empty
+  const [enemyInstances, setEnemyInstances] = useState<ChampionInstance[]>(() => {
+    if (currentEncounter && currentEncounter.type === 'combat') {
+      return buildEnemyTeamFromEncounter(currentEncounter);
+    }
+    return [];
+  });
 
-  // Regenerate enemy team when runLevel changes (new combat encounter)
+  // Regenerate enemy team when encounter changes (new combat encounter)
   useEffect(() => {
-    setEnemyInstances(buildTeamInstances(generateEnemyTeam(runLevel, runLevel * 31 + 7)));
-  }, [runLevel]);
+    if (currentEncounter && currentEncounter.type === 'combat') {
+      setEnemyInstances(buildEnemyTeamFromEncounter(currentEncounter));
+    }
+  }, [currentEncounter]);
 
   const handleComplete = useCallback((w: 'player' | 'enemy' | 'draw') => {
     if (w === 'player') {

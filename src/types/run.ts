@@ -175,6 +175,8 @@ export interface RunState {
 
   /** Currently active encounter (null if no encounter pending) */
   pendingEncounter: { nodeId: string; nodeType: NodeType } | null;
+  /** The encounter data for the current combat (enemies, rewards, etc.) */
+  currentEncounter: import('@/game/map/types').CombatEncounter | null;
 }
 
 // ─── Run Store Actions ──────────────────────────────────────────────────────
@@ -215,8 +217,8 @@ export interface RunActions {
   moveToNode: (nodeId: string) => boolean;
   /** Mark the current node as completed and unlock next nodes */
   completeCurrentNode: () => void;
-  /** Start an encounter for a given node (sets pendingEncounter) */
-  startEncounter: (nodeId: string, nodeType: NodeType) => void;
+  /** Start an encounter for a given node (sets pendingEncounter and currentEncounter) */
+  startEncounter: (nodeId: string, nodeType: NodeType, encounterData?: import('@/game/map/types').CombatEncounter) => void;
   /** Resolve the current encounter (clears pendingEncounter and completes the node) */
   resolveEncounter: () => void;
 /** Advance to the next biome map */

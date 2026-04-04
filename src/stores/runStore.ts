@@ -34,6 +34,7 @@ const INITIAL_STATE: RunState = {
   currentNodeId: null,
   completedNodeIds: [],
   pendingEncounter: null,
+  currentEncounter: null,
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -280,8 +281,8 @@ export const useRunStore = create<RunStore>()(
         });
       },
 
-      startEncounter: (nodeId, nodeType) => {
-        set({ pendingEncounter: { nodeId, nodeType } });
+      startEncounter: (nodeId, nodeType, encounterData?) => {
+        set({ pendingEncounter: { nodeId, nodeType }, currentEncounter: encounterData ?? null });
       },
 
       resolveEncounter: () => {
@@ -304,6 +305,7 @@ export const useRunStore = create<RunStore>()(
                 completedNodeIds: newCompletedNodeIds,
                 currentNodeId: accessible[0].id,
                 pendingEncounter: null,
+                currentEncounter: null,
               });
               return;
             }
@@ -313,6 +315,7 @@ export const useRunStore = create<RunStore>()(
             biomeMaps: [...biomeMaps],
             completedNodeIds: newCompletedNodeIds,
             pendingEncounter: null,
+            currentEncounter: null,
           });
         }
       },
