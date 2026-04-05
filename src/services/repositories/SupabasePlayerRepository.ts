@@ -21,9 +21,13 @@ export class SupabasePlayerRepository implements IPlayerRepository {
       .from('players')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle(); // Utiliser maybeSingle() au lieu de single() pour éviter l'erreur 406 si aucun résultat
 
     if (error) {
+      // Ignorer l'erreur PGRST116 (aucune ligne trouvée) qui n'est pas une vraie erreur
+      if (error.code === 'PGRST116') {
+        return { data: null, error: null };
+      }
       return { data: null, error };
     }
 

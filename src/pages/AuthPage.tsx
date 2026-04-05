@@ -48,9 +48,11 @@ export function AuthPage() {
     isAuthenticated,
     isLoading,
     error,
+    successMessage,
     login,
     signUp,
     clearError,
+    clearSuccessMessage,
   } = useAuthStore();
   
   const endRun = useRunStore((s) => s.endRun);
@@ -69,6 +71,7 @@ export function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
+    clearSuccessMessage();
     playUIClick();
 
     if (mode === 'login') {
@@ -89,6 +92,8 @@ export function AuthPage() {
         // Use React Router navigation instead of window.location
         navigate(ROUTES.MENU);
       }
+      // If needsConfirmation, the store already set the successMessage
+      // so we just stay on the page to show it
     }
   };
 
@@ -123,13 +128,13 @@ export function AuthPage() {
         <div className="auth-page__tabs">
           <button
             className={`auth-page__tab ${mode === 'login' ? 'auth-page__tab--active' : ''}`}
-            onClick={() => { playUIClick(); setMode('login'); clearError(); }}
+            onClick={() => { playUIClick(); setMode('login'); clearError(); clearSuccessMessage(); }}
           >
             Login
           </button>
           <button
             className={`auth-page__tab ${mode === 'signup' ? 'auth-page__tab--active' : ''}`}
-            onClick={() => { playUIClick(); setMode('signup'); clearError(); }}
+            onClick={() => { playUIClick(); setMode('signup'); clearError(); clearSuccessMessage(); }}
           >
             Sign Up
           </button>
@@ -139,6 +144,13 @@ export function AuthPage() {
         {error && (
           <div className="auth-page__error">
             {error}
+          </div>
+        )}
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="auth-page__success">
+            {successMessage}
           </div>
         )}
 

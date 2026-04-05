@@ -22,14 +22,16 @@ export interface AuthState {
   isAuthenticated: boolean;
   isAdmin: boolean;
   error: string | null;
+  successMessage: string | null;
 }
 
 export interface AuthActions {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<{ success: boolean; error?: string; needsConfirmation?: boolean }>;
   logout: () => Promise<void>;
   refreshPlayer: () => Promise<void>;
   clearError: () => void;
+  clearSuccessMessage: () => void;
   checkSession: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
 }
@@ -43,6 +45,7 @@ const INITIAL_STATE: AuthState = {
   isAuthenticated: false,
   isAdmin: false,
   error: null,
+  successMessage: null,
 };
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -110,13 +113,59 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (result.error) throw result.error;
 
       if (result.user) {
-        // The handle_new_user trigger should create the player record
-        // But we'll wait a moment and then fetch it
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Vérifier si l'email doit être confirmé
+        // Si email_confirmed_at est null, l'utilisateur doit confirmer son email
+        const needsEmailConfirmation = !result.user.email_confirmed_at;
         
-        const { data: playerData } = await playerRepository.getPlayer(result.user.id);
+        if (needsEmailConfirmation) {
+          // L'utilisateur doit confirmer son email avant de se connecter
+          // Le player sera créé après la confirmation via le trigger ou le listener
+          set({
+            user: result.user,
+            player: null,
+            isAuthenticated: false, // Pas encore authentifié tant que l'email n'est pas confirmé
+            isAdmin: false,
+            isLoading: false,
+            error: null,
+            successMessage: 'Account created! Please check your email and click the confirmation link to complete your registration.',
+          });
+          
+          return { 
+            success: false, 
+            needsConfirmation: true 
+          };
+        }
 
-        // Check admin status (new users are not admins by default)
+        // Si pas de confirmation email requise, attendre que le trigger crée le player
+        let playerData = null;
+        const maxRetries = 10;
+        const retryDelay = 300;
+        
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          const { data, error } = await playerRepository.getPlayer(result.user.id);
+          
+          if (data) {
+            playerData = data;
+            break;
+          }
+          
+          if (error && error.message !== 'No rows found') {
+            console.warn(`[AuthStore] Attempt ${attempt + 1}/${maxRetries}: Error fetching player:`, error.message);
+          }
+          
+          if (attempt === maxRetries - 1 && !playerData) {
+            console.error('[AuthStore] Player record not created after signup. Trigger is failing.');
+            
+            set({ 
+              isLoading: false, 
+              error: 'Account created but player profile could not be initialized. Please try logging in.',
+              isAuthenticated: false 
+            });
+            return { success: false, error: 'Player profile initialization failed. Please try logging in.' };
+          }
+        }
+
         const isAdmin = playerData?.is_admin === true;
 
         set({
@@ -176,6 +225,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  clearSuccessMessage: () => {
+    set({ successMessage: null });
   },
 
   checkSession: async () => {
