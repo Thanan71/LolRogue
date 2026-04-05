@@ -5043,7 +5043,7 @@
     "resourceType": "Mana",
     "stats": {
       "hp": 630,
-      "mp": 450,
+      "mp": 480,
       "moveSpeed": 335,
       "armor": 18,
       "magicResist": 32,
@@ -9457,7 +9457,7 @@
       "moveSpeed": 340,
       "armor": 33,
       "magicResist": 30,
-      "attackDamage": 68,
+      "attackDamage": 66,
       "attackSpeed": 0.475,
       "attackRange": 425,
       "hpPerLevel": 106,
@@ -33749,8 +33749,8 @@
         "description": "Lance de l'énergie explosive sur le champion ennemi ciblé, infligeant d'importants dégâts magiques qui augmentent avec les PV manquants de la cible.",
         "maxRank": 3,
         "cooldown": [
-          100,
-          80,
+          120,
+          90,
           60
         ],
         "cost": [

@@ -1,12 +1,19 @@
 /**
  * Auth Store -- Zustand store for authentication state.
  * Manages user session, login/logout, and syncs with Supabase auth.
+ * 
+ * Uses the repository pattern for data access, following SOLID principles.
  */
 
 import { create } from 'zustand';
-import { supabase, getPlayer, updatePlayer } from '@/services/supabaseClient';
+import { supabase } from '@/services/supabaseClient';
+import { SupabaseAuthRepository, SupabasePlayerRepository } from '@/services/repositories';
 import type { User } from '@supabase/supabase-js';
 import type { Player } from '@/types/database';
+
+// Create repositories for data access
+const authRepository = new SupabaseAuthRepository(supabase);
+const playerRepository = new SupabasePlayerRepository(supabase);
 
 export interface AuthState {
   user: User | null;
@@ -41,24 +48,21 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const result = await authRepository.signIn(email, password);
 
-      if (error) throw error;
+      if (result.error) throw result.error;
 
-      if (data.user) {
-        // Fetch player data
-        const { data: playerData } = await getPlayer(data.user.id);
+      if (result.user) {
+        // Fetch player data using repository
+        const { data: playerData } = await playerRepository.getPlayer(result.user.id);
         
-        // Update last login
+        // Update last login using repository
         if (playerData) {
-          await updatePlayer(data.user.id, { last_login_at: new Date().toISOString() });
+          await playerRepository.updatePlayer(result.user.id, { last_login_at: new Date().toISOString() });
         }
 
         set({
-          user: data.user,
+          user: result.user,
           player: playerData || null,
           isAuthenticated: true,
           isLoading: false,
@@ -81,28 +85,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signUp: async (email: string, password: string, username: string, displayName?: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-            display_name: displayName || username,
-          },
-        },
-      });
+      const result = await authRepository.signUp(email, password, { username, display_name: displayName || username });
 
-      if (error) throw error;
+      if (result.error) throw result.error;
 
-      if (data.user) {
+      if (result.user) {
         // The handle_new_user trigger should create the player record
         // But we'll wait a moment and then fetch it
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        const { data: playerData } = await getPlayer(data.user.id);
+        const { data: playerData } = await playerRepository.getPlayer(result.user.id);
 
         set({
-          user: data.user,
+          user: result.user,
           player: playerData || null,
           isAuthenticated: true,
           isLoading: false,
@@ -125,7 +120,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
-      await supabase.auth.signOut();
+      await authRepository.signOut();
       set({
         user: null,
         player: null,
@@ -146,7 +141,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     if (!user) return;
 
     try {
-      const { data: playerData } = await getPlayer(user.id);
+      const { data: playerData } = await playerRepository.getPlayer(user.id);
       set({ player: playerData || null });
     } catch (error) {
       console.error('[AuthStore] Failed to refresh player:', error);
@@ -165,14 +160,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { session } = await authRepository.getSession();
 
       if (session?.user) {
-        const { data: playerData } = await getPlayer(session.user.id);
+        const { data: playerData } = await playerRepository.getPlayer(session.user.id);
         
-        // Update last login
+        // Update last login using repository
         if (playerData) {
-          await updatePlayer(session.user.id, { last_login_at: new Date().toISOString() });
+          await playerRepository.updatePlayer(session.user.id, { last_login_at: new Date().toISOString() });
         }
 
         set({
@@ -203,7 +198,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
 // Set up auth state change listener
 // Only update state on explicit events, don't override during login/signup flow
-supabase.auth.onAuthStateChange(async (event, session) => {
+authRepository.onAuthStateChange(async (event, session) => {
   const currentState = useAuthStore.getState();
   
   // Skip if we're already in the middle of a login/signup operation
@@ -214,7 +209,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session?.user) {
     // Only update if not already authenticated with this user
     if (currentState.user?.id !== session.user.id) {
-      const { data: playerData } = await getPlayer(session.user.id);
+      const { data: playerData } = await playerRepository.getPlayer(session.user.id);
       useAuthStore.setState({
         user: session.user,
         player: playerData || null,
@@ -237,7 +232,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     });
   } else if (event === 'USER_UPDATED' && session?.user) {
     // Refresh player data on user update
-    const { data: playerData } = await getPlayer(session.user.id);
+    const { data: playerData } = await playerRepository.getPlayer(session.user.id);
     useAuthStore.setState({
       player: playerData || null,
     });
