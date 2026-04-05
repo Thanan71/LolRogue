@@ -17,6 +17,9 @@ import {
 } from '@/game/map/mapUtils';
 import { useMasteryStore } from './masteryStore';
 import { championDB } from '@/data';
+import { runStatsTracker } from '@/services/RunStatsTracker';
+import { saveRunToDatabase } from '@/services/runService';
+import { useAuthStore } from './authStore';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
 
@@ -39,6 +42,9 @@ const INITIAL_STATE: RunState = {
   currentEncounter: null,
 };
 
+// Track when the current run started (for database recording)
+let runStartTime: string | null = null;
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Generate a unique instance ID for inventory items */
@@ -55,7 +61,17 @@ export const useRunStore = create<RunStore>()(
 
       // ── Run Lifecycle ───────────────────────────────────────────────────
 
-      startRun: (championIds) => {
+      startRun: async (championIds) => {
+        // If there's an active run, end it first (this will save it if conditions are met)
+        const currentState = get();
+        if (currentState.isActive) {
+          console.log('[runStore.startRun] Active run detected, ending current run first');
+          // End the current run (loss, since user is abandoning it to start new)
+          // Note: endRun is async, but we don't await it to avoid blocking the UI
+          // The run will be saved in the background
+          get().endRun(false, currentState.runId);
+        }
+        
         // Validate champion IDs - filter out any invalid IDs
         const validChampionIds = championIds.filter((id) => {
           if (!id || typeof id !== 'string') return false;
@@ -78,6 +94,12 @@ export const useRunStore = create<RunStore>()(
         const startNodeId = biomeMaps[0]?.startNodeId ?? null;
         const startBiome = biomeMaps[0]?.biome ?? null;
         
+        // Record run start time for database
+        runStartTime = new Date().toISOString();
+        
+        // Reset stats tracker for new run
+        runStatsTracker.reset();
+        
         set({
           isActive: true,
           runId,
@@ -98,7 +120,7 @@ export const useRunStore = create<RunStore>()(
         });
       },
 
-      endRun: (won = false, expectedRunId?: string) => {
+      endRun: async (won = false, expectedRunId?: string) => {
         const state = get();
         
         // Guard: Don't end a run that's already ended
@@ -114,6 +136,18 @@ export const useRunStore = create<RunStore>()(
         
         const championIds = state.team.map((m) => m.championId);
 
+        // Mark survived champions in stats tracker
+        runStatsTracker.markSurvived(championIds);
+
+        // Build run summary from stats tracker
+        const summary = runStatsTracker.buildSummary({
+          won,
+          wavesCompleted: state.totalWavesCompleted,
+          biomesVisited: state.biomesVisited,
+          goldEarned: state.gold,
+          runLevel: state.runLevel,
+        });
+
         // Award mastery candies before resetting
         if (championIds.length > 0 && state.totalWavesCompleted > 0) {
           const masteryStore = useMasteryStore.getState();
@@ -124,6 +158,51 @@ export const useRunStore = create<RunStore>()(
             won,
           );
         }
+
+        // Save run to database (if user is authenticated)
+        const { isAuthenticated, user, player } = useAuthStore.getState();
+        console.log('[runStore.endRun] Checking save conditions:', {
+          isAuthenticated,
+          hasUser: !!user,
+          hasPlayer: !!player,
+          hasRunStartTime: !!runStartTime,
+          totalWavesCompleted: state.totalWavesCompleted,
+          runId: state.runId,
+          won,
+        });
+        
+        if (isAuthenticated && user && player && runStartTime) {
+          try {
+            // Get current HP for each team member from the store or default to max
+            const teamMembers = state.team.map(member => {
+              const champ = championDB.getById(member.championId);
+              const maxHp = champ?.stats.hp ?? 100;
+              return {
+                championId: member.championId,
+                level: member.level ?? 1,
+                currentHp: member.currentHp ?? maxHp,
+                maxHp,
+              };
+            });
+
+            await saveRunToDatabase({
+              runId: state.runId,
+              won,
+              runLevel: state.runLevel,
+              wavesCompleted: state.totalWavesCompleted,
+              biomesVisited: state.biomesVisited,
+              goldEarned: state.gold,
+              summary,
+              teamMembers,
+              startedAt: runStartTime,
+            });
+          } catch (error) {
+            console.error('[runStore.endRun] Failed to save run to database:', error);
+          }
+        }
+
+        // Reset run start time
+        runStartTime = null;
 
         set({ ...INITIAL_STATE });
       },

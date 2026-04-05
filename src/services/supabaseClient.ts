@@ -4,8 +4,8 @@
  * This file sets up the Supabase client for database operations.
  */
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database';
+import { createClient } from '@supabase/supabase-js';
+import type { Player, Run, RunInsert, RunTeamMemberInsert, DailyRun, ChampionMastery, LeaderboardEntry } from '@/types/database';
 
 // Extend ImportMetaEnv for Vite
 interface ImportMetaEnv {
@@ -28,7 +28,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Create Supabase client
-export const supabase = createClient<Database>(
+export const supabase = createClient(
   supabaseUrl || 'https://curffughsmpukeprryaq.supabase.co',
   supabaseAnonKey || ''
 );
@@ -93,7 +93,7 @@ export const getPlayer = async (userId: string) => {
 /**
  * Update player data
  */
-export const updatePlayer = async (userId: string, updates: Partial<Database['players']>) => {
+export const updatePlayer = async (userId: string, updates: Partial<Player>) => {
   return await supabase
     .from('players')
     .update(updates)
@@ -133,7 +133,7 @@ export const getChampionMasteryByChampion = async (playerId: string, championId:
 export const upsertChampionMastery = async (
   playerId: string,
   championId: string,
-  updates: Partial<Database['champion_mastery']>
+  updates: Partial<ChampionMastery>
 ) => {
   return await supabase
     .from('champion_mastery')
@@ -203,7 +203,7 @@ export const hasUnlock = async (playerId: string, unlockType: 'starter' | 'skin'
 /**
  * Create a new run record
  */
-export const createRun = async (runData: Database['runs']) => {
+export const createRun = async (runData: RunInsert) => {
   return await supabase
     .from('runs')
     .insert(runData)
@@ -237,7 +237,7 @@ export const getRun = async (runId: string) => {
 /**
  * Update a run
  */
-export const updateRun = async (runId: string, updates: Partial<Database['runs']>) => {
+export const updateRun = async (runId: string, updates: Partial<Run>) => {
   return await supabase
     .from('runs')
     .update(updates)
@@ -251,7 +251,7 @@ export const updateRun = async (runId: string, updates: Partial<Database['runs']
 /**
  * Add team members to a run
  */
-export const addRunTeamMembers = async (teamMembers: Database['run_team_members'][]) => {
+export const addRunTeamMembers = async (teamMembers: RunTeamMemberInsert[]) => {
   return await supabase
     .from('run_team_members')
     .insert(teamMembers)
@@ -286,7 +286,7 @@ export const getTodayDailyRun = async (playerId: string) => {
 /**
  * Create or update a daily run
  */
-export const upsertDailyRun = async (dailyRunData: Omit<Database['daily_runs'], 'id' | 'created_at'>) => {
+export const upsertDailyRun = async (dailyRunData: Omit<DailyRun, 'id' | 'created_at'>) => {
   return await supabase
     .from('daily_runs')
     .upsert(dailyRunData)
@@ -320,11 +320,11 @@ export const getDailyLeaderboard = async (date: string, limit = 10) => {
 /**
  * Get the global leaderboard
  */
-export const getLeaderboard = async (limit = 10, offset = 0) => {
+export const getLeaderboard = async (limit = 10, offset = 0): Promise<{ data: LeaderboardEntry[] | null; error: any }> => {
   return await supabase
     .from('leaderboard')
     .select('*')
-    .range(offset, offset + limit - 1);
+    .range(offset, offset + limit - 1) as any;
 };
 
 /**
