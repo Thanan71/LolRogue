@@ -1,6 +1,7 @@
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
+import { useAuthStore } from '@/stores/authStore';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
@@ -44,6 +45,7 @@ export function MenuPage() {
   const currentBiome = useRunStore((s) => s.currentBiome);
   const team = useRunStore((s) => s.team);
   const endRun = useRunStore((s) => s.endRun);
+  const { user, player, logout, isAuthenticated } = useAuthStore();
 
   function handleContinue() {
     playUIClick();
@@ -58,6 +60,18 @@ export function MenuPage() {
     navigate(ROUTES.STARTER_SELECT);
   }
 
+  async function handleLogout() {
+    playUIClick();
+    if (isActive) {
+      endRun();
+    }
+    await logout();
+    navigate(ROUTES.AUTH);
+  }
+
+  const displayName = player?.display_name || user?.email?.split('@')[0] || 'Player';
+  const isGuest = !isAuthenticated;
+
   return (
     <div className="main-menu">
       <ParticleBackground particleCount={80} />
@@ -67,6 +81,29 @@ export function MenuPage() {
         <h1 className="main-menu__title">LoL Rogue</h1>
         <p className="main-menu__subtitle">A League of Legends Roguelike</p>
       </div>
+
+      {/* User Info */}
+      {!isGuest && player && (
+        <div className="main-menu__user-info">
+          <div className="main-menu__user-avatar">
+            {player.avatar_url ? (
+              <img src={player.avatar_url} alt={displayName} />
+            ) : (
+              <span>{displayName.charAt(0).toUpperCase()}</span>
+            )}
+          </div>
+          <div className="main-menu__user-details">
+            <span className="main-menu__user-name">{displayName}</span>
+            <span className="main-menu__user-level">Level {player.level}</span>
+          </div>
+        </div>
+      )}
+
+      {isGuest && (
+        <div className="main-menu__guest-badge">
+          <span>Guest Mode</span>
+        </div>
+      )}
 
       <div className="main-menu__divider" />
 
@@ -112,6 +149,15 @@ export function MenuPage() {
         >
           Credits
         </button>
+
+        {!isGuest && (
+          <button
+            className="main-menu__btn main-menu__btn--logout"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        )}
       </div>
 
       <div className="main-menu__footer">

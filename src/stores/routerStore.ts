@@ -4,6 +4,7 @@ import { create } from 'zustand';
 
 export const ROUTES = {
   MENU: '/',
+  AUTH: '/auth',
   STARTER_SELECT: '/starter-select',
   RUN: '/run',
   COMBAT: '/combat',

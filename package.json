@@ -5,18 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": " tsc && npm run ddragon:download && npm run ddragon:parse && vite build",
+    "build": "tsc && npm run ddragon:download && npm run ddragon:parse && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "migrate": "node scripts/migrate-db.js",
     "ddragon:download": "node scripts/download-ddragon.js",
     "ddragon:parse": "node scripts/parse-champions.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "dotenv": "^17.4.0",
+    "pg": "^8.20.0",
     "phaser": "^3.80.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
