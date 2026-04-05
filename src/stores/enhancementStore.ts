@@ -20,19 +20,6 @@ import type { IRepositoryContainer } from '@/services/interfaces';
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
-// ─── Helper Functions ────────────────────────────────────────────────────────
-
-/**
- * Calculate mastery level from total candies spent on a champion.
- * This is a simple formula: level = floor(totalCandiesSpent / 100)
- * Adjust the divisor based on your game's balance needs.
- */
-function calculateMasteryLevelFromCandies(totalCandiesSpent: number): number {
-  // Example formula: every 100 candies spent = 1 mastery level
-  // You can adjust this formula based on your game's progression curve
-  return Math.floor(totalCandiesSpent / 100);
-}
-
 // ─── Enhancement Store State ─────────────────────────────────────────────────
 
 interface EnhancementStoreState {
@@ -108,14 +95,24 @@ export const useEnhancementStore = create<EnhancementStore>()(
         // Fetch all enhancement states from database
         const states = await container.enhancement.getAllEnhancementStates(playerId);
         
+        // Fetch all champion mastery levels from the champion_mastery table
+        const { data: masteryData, error: masteryError } = await container.mastery.getChampionMastery(playerId);
+        
         const enhancements: Record<string, PlayerEnhancementState> = {};
         const championMasteryLevels: Record<string, number> = {};
         
+        // Populate enhancement states
         states.forEach((state, championId) => {
           enhancements[championId] = state;
-          // Get mastery level from the enhancement state's totalCandiesSpent
-          championMasteryLevels[championId] = calculateMasteryLevelFromCandies(state.totalCandiesSpent || 0);
         });
+        
+        // Get mastery levels from the champion_mastery table (database source of truth)
+        if (masteryData && !masteryError) {
+          for (const mastery of masteryData) {
+            championMasteryLevels[mastery.champion_id] = mastery.mastery_level;
+          }
+        }
+        // If no mastery entry exists in database, mastery level defaults to 0 (no fallback calculation)
         
         // Get available candies from mastery system
         const { player } = useAuthStore.getState();
@@ -250,19 +247,14 @@ export const useEnhancementStore = create<EnhancementStore>()(
         return false;
       }
       
-      // Update local state
-      const newTotalCandiesSpent = (currentState.totalCandiesSpent || 0) + candyCost;
-      const newMasteryLevel = calculateMasteryLevelFromCandies(newTotalCandiesSpent);
-      
+      // Update local state (mastery level comes from database, not calculated)
       set({
         enhancements: {
           ...enhancements,
           [selectedChampion.id]: newState,
         },
-        championMasteryLevels: {
-          ...championMasteryLevels,
-          [selectedChampion.id]: newMasteryLevel,
-        },
+        // Keep existing mastery level (from database)
+        championMasteryLevels: championMasteryLevels,
         availableCandies: availableCandies - candyCost,
       });
       

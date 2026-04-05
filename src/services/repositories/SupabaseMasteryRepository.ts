@@ -17,15 +17,39 @@ export class SupabaseMasteryRepository implements IMasteryRepository {
   }
 
   async getChampionMastery(
-    playerId: string
+    userId: string
   ): Promise<{ data: ChampionMastery[] | null; error: Error | null }> {
+    // First, get the player id from the players table using user_id
+    const { data: playerData, error: playerError } = await this.supabase
+      .from('players')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (playerError) {
+      // Ignore PGRST116 (no rows found) - not a real error
+      if (playerError.code === 'PGRST116') {
+        return { data: [], error: null };
+      }
+      return { data: null, error: playerError };
+    }
+
+    if (!playerData) {
+      return { data: [], error: null };
+    }
+
+    // Then query champion_mastery using the player id
     const { data, error } = await this.supabase
       .from('champion_mastery')
       .select('*')
-      .eq('player_id', playerId)
+      .eq('player_id', playerData.id)
       .order('mastery_level', { ascending: false });
 
     if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows found - return empty array
+        return { data: [], error: null };
+      }
       return { data: null, error };
     }
 
