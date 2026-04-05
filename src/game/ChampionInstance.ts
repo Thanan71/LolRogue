@@ -3,9 +3,11 @@
  *
  * Tracks the current level, exposes spells keyed by slot (Q/W/E/R),
  * and computes level-scaled stats using the LoL growth formula.
+ * Also supports enhancement bonuses from the enhancement tree system.
  */
 
 import type { Champion, ChampionStats, Spell, Passive, ChampionTag } from '@/types';
+import type { EnhancementStatBonuses } from '@/types/enhancementTree';
 import { calculateStats, type CalculatedStats } from '@/utils/champion';
 
 /** Valid spell slots matching LoL key bindings. */
@@ -34,6 +36,8 @@ export class ChampionInstance {
   private readonly _spells: SpellMap;
   /** Remaining cooldown turns per spell slot (0 = ready). */
   private readonly _cooldowns: Record<SpellSlot, number>;
+  /** Enhancement bonuses from the enhancement tree system */
+  private _enhancementBonuses: EnhancementStatBonuses | null = null;
 
   constructor(champion: Champion, startingLevel = 1) {
     this.id = champion.id;
@@ -100,6 +104,70 @@ export class ChampionInstance {
   /** Compute stats at an arbitrary level without changing current level. */
   getStatsAtLevel(level: number): CalculatedStats {
     return calculateStats(this.baseStats, clampLevel(level));
+  }
+
+  /**
+   * Compute stats with enhancement bonuses applied.
+   * @param bonuses - Enhancement stat bonuses to apply.
+   * @returns Stats with both level scaling and enhancement bonuses.
+   */
+  getStatsWithEnhancements(bonuses: EnhancementStatBonuses): CalculatedStats {
+    const baseStats = this.getStats();
+    return this._applyEnhancementBonuses(baseStats, bonuses);
+  }
+
+  /**
+   * Set enhancement bonuses for this champion instance.
+   * @param bonuses - Enhancement stat bonuses from the enhancement tree.
+   */
+  setEnhancementBonuses(bonuses: EnhancementStatBonuses): void {
+    this._enhancementBonuses = bonuses;
+  }
+
+  /**
+   * Get stats with currently set enhancement bonuses.
+   * @returns Stats with enhancements applied, or base stats if none set.
+   */
+  getEnhancedStats(): CalculatedStats {
+    if (!this._enhancementBonuses) {
+      return this.getStats();
+    }
+    return this.getStatsWithEnhancements(this._enhancementBonuses);
+  }
+
+  /**
+   * Clear enhancement bonuses.
+   */
+  clearEnhancementBonuses(): void {
+    this._enhancementBonuses = null;
+  }
+
+  /**
+   * Apply enhancement bonuses to a stats object.
+   */
+  private _applyEnhancementBonuses(
+    baseStats: CalculatedStats,
+    bonuses: EnhancementStatBonuses
+  ): CalculatedStats {
+    const result = { ...baseStats };
+
+    // Apply flat bonuses
+    for (const [stat, value] of Object.entries(bonuses.flat)) {
+      if (stat in result) {
+        result[stat as keyof CalculatedStats] = 
+          (result[stat as keyof CalculatedStats] as number) + value;
+      }
+    }
+
+    // Apply percentage bonuses
+    for (const [stat, percent] of Object.entries(bonuses.percent)) {
+      if (stat in result) {
+        result[stat as keyof CalculatedStats] = 
+          (result[stat as keyof CalculatedStats] as number) * (1 + percent);
+      }
+    }
+
+    return result;
   }
 
   // ── Spells ───────────────────────────────────────────────────────────────

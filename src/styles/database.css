@@ -1,0 +1,512 @@
+/* Database Page Styles */
+
+.database-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0d1117;
+  color: #e6edf3;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.database-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: #161b22;
+  border-bottom: 1px solid #1e2a3a;
+  flex-shrink: 0;
+}
+
+.database-back-btn {
+  padding: 6px 12px;
+  background: #21262d;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.database-back-btn:hover {
+  background: #30363d;
+  border-color: #484f58;
+}
+
+.database-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.database-sidebar {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #1e2a3a;
+  flex-shrink: 0;
+}
+
+.database-search {
+  padding: 8px 12px;
+  background: #161b22;
+  border: none;
+  border-bottom: 1px solid #1e2a3a;
+  color: #e6edf3;
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.database-search:focus {
+  background: #1c2128;
+}
+
+.database-list {
+  flex: 1;
+  overflow: auto;
+}
+
+.database-list-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #1e2a3a;
+  transition: background 0.2s;
+}
+
+.database-list-item:hover {
+  background: #1c2128;
+}
+
+.database-list-item.selected {
+  background: #1e2a3a;
+}
+
+.database-list-item img {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.database-list-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.database-list-item-name {
+  color: #e6edf3;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.database-list-item-tags {
+  color: #8b949e;
+  font-size: 11px;
+}
+
+.database-detail {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.database-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  flex-direction: column;
+  gap: 8px;
+  color: #8b949e;
+}
+
+/* Champion Detail */
+
+.champion-detail-header {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.champion-detail-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.champion-detail-info h2 {
+  color: #c8aa6e;
+  margin: 0 0 4px 0;
+  font-size: 20px;
+}
+
+.champion-detail-title {
+  color: #8b949e;
+  margin: 0 0 8px 0;
+  font-style: italic;
+  font-size: 14px;
+}
+
+.champion-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.champion-tag {
+  background: #21262d;
+  color: #e6edf3;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Stats Grid */
+
+.section-title {
+  color: #c8aa6e;
+  font-size: 14px;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat-block {
+  background: #0d1117;
+  border-radius: 6px;
+  padding: 8px;
+  text-align: center;
+}
+
+.stat-label {
+  color: #8b949e;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  color: #e6edf3;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Abilities */
+
+.abilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ability-card {
+  background: #0d1117;
+  border-radius: 6px;
+  padding: 10px;
+  border: 1px solid #1e2a3a;
+}
+
+.ability-name {
+  color: #e6edf3;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.ability-description {
+  color: #8b949e;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Tabs */
+
+.database-tabs {
+  display: flex;
+  border-bottom: 1px solid #1e2a3a;
+  margin-bottom: 16px;
+}
+
+.database-tab {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+
+.database-tab:hover {
+  color: #e6edf3;
+}
+
+.database-tab.active {
+  color: #c8aa6e;
+  border-bottom-color: #c8aa6e;
+  background: #1e2a3a;
+}
+
+/* Enhancement Tree Specific */
+
+.enhancement-tree {
+  padding: 0;
+}
+
+.enhancement-tree-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.enhancement-tree-title {
+  color: #c8aa6e;
+  font-size: 16px;
+  margin: 0;
+}
+
+.enhancement-info {
+  display: flex;
+  gap: 8px;
+}
+
+.candy-badge {
+  background: #F5E6B3;
+  color: #0d1117;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.level-badge {
+  background: #21262d;
+  color: #c8aa6e;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.enhancement-section {
+  margin-bottom: 16px;
+}
+
+.enhancement-section-title {
+  color: #8b949e;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.core-nodes-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.branch-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.branch-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  background: transparent;
+  color: #8b949e;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.branch-tab:hover {
+  border-color: #484f58;
+}
+
+.branch-tab.active {
+  background: rgba(245, 230, 179, 0.1);
+  border-color: #F5E6B3;
+  color: #F5E6B3;
+}
+
+.branch-content {
+  background: #161b22;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.branch-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.branch-description {
+  color: #8b949e;
+  font-size: 11px;
+  margin-left: auto;
+}
+
+.branch-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.node-connector {
+  width: 2px;
+  height: 16px;
+  background: #30363d;
+}
+
+/* Node Card */
+
+.node-card {
+  width: 200px;
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.node-card:hover {
+  transform: translateY(-2px);
+}
+
+.node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.node-name {
+  color: #e6edf3;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ultimate-badge {
+  background: #C43C3C;
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.node-description {
+  color: #8b949e;
+  font-size: 11px;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.node-stat-bonuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.node-stat-bonus {
+  background: #21262d;
+  color: #4A9F6F;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.node-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.node-cost {
+  color: #F5E6B3;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.node-maxed {
+  background: #4A9F6F;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.node-unlock-btn {
+  padding: 3px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.node-unlock-btn:enabled {
+  cursor: pointer;
+}
+
+.node-unlock-btn:enabled:hover {
+  transform: scale(1.05);
+}
+
+/* Scrollbar */
+
+.database-list::-webkit-scrollbar,
+.database-detail::-webkit-scrollbar {
+  width: 8px;
+}
+
+.database-list::-webkit-scrollbar-track,
+.database-detail::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+
+.database-list::-webkit-scrollbar-thumb,
+.database-detail::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+.database-list::-webkit-scrollbar-thumb:hover,
+.database-detail::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}

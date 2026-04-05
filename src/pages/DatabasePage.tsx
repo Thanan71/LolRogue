@@ -1,15 +1,45 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { championDB } from '@/data/championDatabase';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
+import { EnhancementTree } from '@/components/EnhancementTree';
+import { useEnhancementStore, useChampionEnhancements } from '@/stores/enhancementStore';
+import { useAuthStore } from '@/stores/authStore';
 import type { Champion } from '@/types/champion';
+import '@/styles/database.css';
 
 export function DatabasePage() {
   const navigate = useAppNavigate();
   const [search, setSearch] = useState('');
   const [selectedChampion, setSelectedChampion] = useState<Champion | null>(null);
+  const [activeTab, setActiveTab] = useState<'info' | 'enhancements'>('info');
+
+  // Enhancement store
+  const { player, user } = useAuthStore();
+  const initializeEnhancements = useEnhancementStore((s) => s.initialize);
+  const setAvailableCandies = useEnhancementStore((s) => s.setAvailableCandies);
+  const { 
+    state: enhancementState, 
+    availableCandies, 
+    isLoading: isEnhancementLoading,
+    unlockNode,
+  } = useChampionEnhancements(selectedChampion);
+
+  // Initialize enhancement store on mount
+  useEffect(() => {
+    if (user?.id) {
+      initializeEnhancements(user.id);
+    }
+  }, [user?.id, initializeEnhancements]);
+
+  // Sync candies from auth store
+  useEffect(() => {
+    if (player?.total_candies !== undefined) {
+      setAvailableCandies(player.total_candies);
+    }
+  }, [player?.total_candies, setAvailableCandies]);
 
   const allChampions = useMemo(() => championDB.getAll(), []);
 
@@ -23,6 +53,13 @@ export function DatabasePage() {
         c.tags.some((t) => t.toLowerCase().includes(q)),
     );
   }, [allChampions, search]);
+
+  const handleUnlockNode = useCallback(async (nodeId: string, candyCost: number) => {
+    const success = await unlockNode(nodeId, candyCost);
+    if (!success) {
+      console.error('Failed to unlock node');
+    }
+  }, [unlockNode]);
 
   return (
     <div style={containerStyle}>
@@ -51,7 +88,10 @@ export function DatabasePage() {
                   ...listItemStyle,
                   background: selectedChampion?.id === champ.id ? '#1e2a3a' : 'transparent',
                 }}
-                onClick={() => setSelectedChampion(champ)}
+                onClick={() => {
+                  setSelectedChampion(champ);
+                  setActiveTab('info');
+                }}
               >
                 <img
                   src={champ.iconUrl}
@@ -72,10 +112,49 @@ export function DatabasePage() {
 
         <div style={detailStyle}>
           {selectedChampion ? (
-            <ChampionDetail champion={selectedChampion} />
+            <>
+              <div style={tabsStyle}>
+                <button
+                  style={{
+                    ...tabStyle,
+                    background: activeTab === 'info' ? '#1e2a3a' : 'transparent',
+                    color: activeTab === 'info' ? '#c8aa6e' : '#8b949e',
+                  }}
+                  onClick={() => setActiveTab('info')}
+                >
+                  📖 Infos
+                </button>
+                <button
+                  style={{
+                    ...tabStyle,
+                    background: activeTab === 'enhancements' ? '#1e2a3a' : 'transparent',
+                    color: activeTab === 'enhancements' ? '#c8aa6e' : '#8b949e',
+                  }}
+                  onClick={() => setActiveTab('enhancements')}
+                >
+                  🌟 Améliorations
+                </button>
+              </div>
+
+              {activeTab === 'info' ? (
+                <ChampionDetail champion={selectedChampion} />
+              ) : (
+                <EnhancementTree
+                  champion={selectedChampion}
+                  playerCandies={availableCandies}
+                  masteryLevel={player?.level || 0}
+                  enhancementState={enhancementState || { unlockedNodes: {}, totalCandiesSpent: 0 }}
+                  onUnlockNode={handleUnlockNode}
+                  isLoading={isEnhancementLoading}
+                />
+              )}
+            </>
           ) : (
             <div style={placeholderStyle}>
               <p style={{ color: '#8b949e' }}>Select a champion to view details</p>
+              <p style={{ color: '#484f58', fontSize: 12, marginTop: 8 }}>
+                Use the search bar to find champions by name or role
+              </p>
             </div>
           )}
         </div>
@@ -180,6 +259,7 @@ const listItemStyle: React.CSSProperties = {
 const detailStyle: React.CSSProperties = { flex: 1, overflow: 'auto' };
 const placeholderStyle: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%',
+  flexDirection: 'column', gap: 8,
 };
 const sectionTitleStyle: React.CSSProperties = { color: '#c8aa6e', fontSize: 14, marginBottom: 8 };
 const statsGridStyle: React.CSSProperties = {
@@ -193,4 +273,21 @@ const statValueStyle: React.CSSProperties = { color: '#e6edf3', fontSize: 18, fo
 const abilityCardStyle: React.CSSProperties = { background: '#0d1117', borderRadius: 6, padding: 10 };
 const tagStyle: React.CSSProperties = {
   background: '#21262d', color: '#e6edf3', padding: '2px 8px', borderRadius: 4, fontSize: 11,
+};
+
+const tabsStyle: React.CSSProperties = {
+  display: 'flex',
+  borderBottom: '1px solid #1e2a3a',
+  padding: '0 16px',
+};
+
+const tabStyle: React.CSSProperties = {
+  padding: '12px 16px',
+  background: 'transparent',
+  border: 'none',
+  color: '#8b949e',
+  fontSize: 13,
+  cursor: 'pointer',
+  borderBottom: '2px solid transparent',
+  transition: 'all 0.2s',
 };

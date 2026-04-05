@@ -20,6 +20,15 @@ export { SupabaseMasteryRepository, SupabasePlayerUnlockRepository } from './Sup
 // Daily Run and Leaderboard Repositories
 export { SupabaseDailyRunRepository, SupabaseLeaderboardRepository } from './SupabaseDailyRunRepository';
 
+// Enhancement Repository
+export { 
+  SupabaseEnhancementRepository, 
+  supabaseEnhancementRepository,
+  type ChampionEnhancementDB,
+  type ChampionEnhancementInsert,
+  type ChampionEnhancementUpdate,
+} from './SupabaseEnhancementRepository';
+
 // ─── Repository Factory ──────────────────────────────────────────────────────
 
 import { SupabaseClient } from '@supabase/supabase-js';

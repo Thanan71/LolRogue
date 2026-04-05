@@ -23,6 +23,21 @@ export type { SaveRunData } from './runService';
 // Mastery Service - Handles mastery calculations
 export * from './masteryService';
 
+// Enhancement Service - Handles champion enhancement tree business logic
+export { 
+  EnhancementService, 
+  EnhancementTreeProvider,
+  enhancementService,
+  enhancementTreeProvider,
+  createEnhancementService,
+} from './enhancementService';
+
+// Enhancement Repository - Supabase implementation
+export { 
+  SupabaseEnhancementRepository,
+  supabaseEnhancementRepository,
+} from './repositories';
+
 // ─── Other Services ──────────────────────────────────────────────────────────
 // Image loading services
 export { imageLoader, ImageLoader } from './imageLoader';

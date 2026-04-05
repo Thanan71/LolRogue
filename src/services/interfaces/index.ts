@@ -19,3 +19,6 @@ export * from './IMasteryRepository';
 
 // DailyRun and Leaderboard interfaces and types
 export * from './IDailyRunRepository';
+
+// Enhancement interfaces and types
+export * from './IEnhancementRepository';
