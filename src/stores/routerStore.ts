@@ -17,6 +17,7 @@ export const ROUTES = {
   DATABASE: '/database',
   SETTINGS: '/settings',
   CREDITS: '/credits',
+  ADMIN: '/admin',
 } as const;
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];

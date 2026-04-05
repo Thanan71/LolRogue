@@ -20,6 +20,7 @@ export interface AuthState {
   player: Player | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   error: string | null;
 }
 
@@ -30,6 +31,7 @@ export interface AuthActions {
   refreshPlayer: () => Promise<void>;
   clearError: () => void;
   checkSession: () => Promise<void>;
+  checkAdminStatus: () => Promise<boolean>;
 }
 
 export type AuthStore = AuthState & AuthActions;
@@ -39,11 +41,25 @@ const INITIAL_STATE: AuthState = {
   player: null,
   isLoading: true,
   isAuthenticated: false,
+  isAdmin: false,
   error: null,
 };
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   ...INITIAL_STATE,
+
+  checkAdminStatus: async () => {
+    const { user, player } = get();
+    if (!user || !player) {
+      set({ isAdmin: false });
+      return false;
+    }
+    
+    // Check if player has admin flag
+    const isAdmin = player.is_admin === true;
+    set({ isAdmin });
+    return isAdmin;
+  },
 
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
@@ -61,10 +77,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           await playerRepository.updatePlayer(result.user.id, { last_login_at: new Date().toISOString() });
         }
 
+        // Check admin status
+        const isAdmin = playerData?.is_admin === true;
+
         set({
           user: result.user,
           player: playerData || null,
           isAuthenticated: true,
+          isAdmin,
           isLoading: false,
         });
 
@@ -96,10 +116,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         
         const { data: playerData } = await playerRepository.getPlayer(result.user.id);
 
+        // Check admin status (new users are not admins by default)
+        const isAdmin = playerData?.is_admin === true;
+
         set({
           user: result.user,
           player: playerData || null,
           isAuthenticated: true,
+          isAdmin,
           isLoading: false,
         });
 
@@ -125,6 +149,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         user: null,
         player: null,
         isAuthenticated: false,
+        isAdmin: false,
         isLoading: false,
         error: null,
       });
@@ -142,7 +167,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const { data: playerData } = await playerRepository.getPlayer(user.id);
-      set({ player: playerData || null });
+      const isAdmin = playerData?.is_admin === true;
+      set({ player: playerData || null, isAdmin });
     } catch (error) {
       console.error('[AuthStore] Failed to refresh player:', error);
     }
@@ -170,10 +196,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           await playerRepository.updatePlayer(session.user.id, { last_login_at: new Date().toISOString() });
         }
 
+        // Check admin status
+        const isAdmin = playerData?.is_admin === true;
+
         set({
           user: session.user,
           player: playerData || null,
           isAuthenticated: true,
+          isAdmin,
           isLoading: false,
         });
       } else {
@@ -181,6 +211,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           user: null,
           player: null,
           isAuthenticated: false,
+          isAdmin: false,
           isLoading: false,
         });
       }
@@ -190,6 +221,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         user: null,
         player: null,
         isAuthenticated: false,
+        isAdmin: false,
         isLoading: false,
       });
     }
@@ -210,10 +242,12 @@ authRepository.onAuthStateChange(async (event, session) => {
     // Only update if not already authenticated with this user
     if (currentState.user?.id !== session.user.id) {
       const { data: playerData } = await playerRepository.getPlayer(session.user.id);
+      const isAdmin = playerData?.is_admin === true;
       useAuthStore.setState({
         user: session.user,
         player: playerData || null,
         isAuthenticated: true,
+        isAdmin,
         isLoading: false,
       });
     }
@@ -222,6 +256,7 @@ authRepository.onAuthStateChange(async (event, session) => {
       user: null,
       player: null,
       isAuthenticated: false,
+      isAdmin: false,
       isLoading: false,
       error: null,
     });
@@ -233,8 +268,10 @@ authRepository.onAuthStateChange(async (event, session) => {
   } else if (event === 'USER_UPDATED' && session?.user) {
     // Refresh player data on user update
     const { data: playerData } = await playerRepository.getPlayer(session.user.id);
+    const isAdmin = playerData?.is_admin === true;
     useAuthStore.setState({
       player: playerData || null,
+      isAdmin,
     });
   }
 });

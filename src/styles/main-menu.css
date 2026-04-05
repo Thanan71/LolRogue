@@ -413,3 +413,25 @@
 .main-menu__btn--logout:active {
   transform: translateY(0);
 }
+
+/* ─── Admin Button ────────────────────────────────────────────────────── */
+
+.main-menu__btn--admin {
+  background: linear-gradient(180deg, #8e44ad 0%, #6c3483 100%);
+  color: #f0e6d2;
+  border: 1px solid rgba(142, 68, 173, 0.4);
+  box-shadow: 0 2px 15px rgba(142, 68, 173, 0.3);
+  font-size: 0.95rem;
+}
+
+.main-menu__btn--admin:hover {
+  background: linear-gradient(180deg, #9b59b6 0%, #8e44ad 100%);
+  border-color: rgba(142, 68, 173, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 25px rgba(142, 68, 173, 0.5);
+}
+
+.main-menu__btn--admin:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(142, 68, 173, 0.3);
+}

@@ -3,6 +3,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import { RouteSync } from './components/RouteSync';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminRoute } from './components/AdminRoute';
 import { AuthPage } from './pages/AuthPage';
 import { MenuPage } from './pages/MenuPage';
 import { StarterSelectPage } from './pages/StarterSelectPage';
@@ -17,6 +18,7 @@ import { GameOverPage } from './pages/GameOverPage';
 import { DatabasePage } from './pages/DatabasePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { CreditsPage } from './pages/CreditsPage';
+import { AdminPage } from './pages/AdminPage';
 import './styles/starter-select.css';
 
 export default function App() {
@@ -96,6 +98,13 @@ export default function App() {
           <ProtectedRoute>
             <CreditsPage />
           </ProtectedRoute>
+        } />
+        
+        {/* Admin page - requires admin privileges */}
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminPage />
+          </AdminRoute>
         } />
       </Routes>
       <SpeedInsights />

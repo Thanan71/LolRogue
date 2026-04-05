@@ -150,6 +150,15 @@ export function MenuPage() {
           Credits
         </button>
 
+        {player?.is_admin && (
+          <button
+            className="main-menu__btn main-menu__btn--admin"
+            onClick={() => { playUIClick(); navigate(ROUTES.ADMIN); }}
+          >
+            🛡️ Admin Panel
+          </button>
+        )}
+
         {!isGuest && (
           <button
             className="main-menu__btn main-menu__btn--logout"

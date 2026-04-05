@@ -21,6 +21,7 @@ export interface Player {
   created_at: string;
   updated_at: string;
   last_login_at: string | null;
+  is_admin: boolean;
 }
 
 export interface PlayerInsert {
@@ -33,6 +34,7 @@ export interface PlayerInsert {
   total_runs_completed?: number;
   total_wins?: number;
   total_waves_completed?: number;
+  is_admin?: boolean;
 }
 
 export interface PlayerUpdate {
@@ -44,6 +46,7 @@ export interface PlayerUpdate {
   total_wins?: number;
   total_waves_completed?: number;
   last_login_at?: string | null;
+  is_admin?: boolean;
 }
 
 // ─── Champion Mastery ─────────────────────────────────────────────────────────
@@ -304,6 +307,50 @@ export interface ChampionStat {
   masteryLevel: number;
 }
 
+// ─── Admin Types ──────────────────────────────────────────────────────────────
+
+export interface AdminStat {
+  stat_name: string;
+  stat_value: string;
+}
+
+export interface AdminPlayerStat {
+  id: string;
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  level: number;
+  total_candies: number;
+  total_runs_completed: number;
+  total_wins: number;
+  total_waves_completed: number;
+  created_at: string;
+  last_login_at: string | null;
+  win_rate: number;
+  recent_runs: number;
+  favorite_champion: string | null;
+  is_admin: boolean;
+}
+
+// ─── Log Types ────────────────────────────────────────────────────────────────
+
+export interface Log {
+  id: string;
+  created_at: string;
+  level: 'debug' | 'info' | 'warn' | 'error';
+  repository: string;
+  method: string;
+  table_name: string | null;
+  operation: 'select' | 'insert' | 'update' | 'upsert' | 'delete' | 'auth' | 'other';
+  duration_ms: number | null;
+  error_message: string | null;
+  error_stack: string | null;
+  details: Record<string, any>;
+  user_id: string | null;
+  player_id: string | null;
+  session_id: string;
+}
+
 // ─── Database Schema Summary ──────────────────────────────────────────────────
 
 export interface Database {
@@ -314,4 +361,7 @@ export interface Database {
   run_team_members: RunTeamMember;
   daily_runs: DailyRun;
   leaderboard: LeaderboardEntry;
+  admin_stats: AdminStat;
+  admin_player_stats: AdminPlayerStat;
+  logs: Log;
 }
