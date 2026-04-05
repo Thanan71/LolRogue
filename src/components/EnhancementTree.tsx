@@ -7,6 +7,8 @@ import type {
 import { 
   getEnhancementTreeForRole,
   canUnlockNode,
+  getLockReason,
+  type LockReason,
 } from '@/data/enhancementTrees';
 import { 
   BRANCH_THEME_COLORS, 
@@ -41,10 +43,12 @@ export function EnhancementTree({
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <h3 style={titleStyle}>Arbre d'Amélioration - {champion.name}</h3>
-        <div style={infoStyle}>
-          <span style={candyBadgeStyle}>{playerCandies} 🍬</span>
-          <span style={levelBadgeStyle}>Niveau {masteryLevel}</span>
+        <div>
+          <h3 style={titleStyle}>Arbre d'Amélioration - {champion.name}</h3>
+          <div style={playerStatsStyle}>
+            <span style={candyBadgeStyle}>{playerCandies} 🍬</span>
+            <span style={levelBadgeStyle}>Maîtrise: Niveau {masteryLevel}</span>
+          </div>
         </div>
       </div>
 
@@ -52,15 +56,20 @@ export function EnhancementTree({
       <div style={sectionStyle}>
         <h4 style={sectionTitleStyle}>⚡ Nœuds de Base</h4>
         <div style={nodesRowStyle}>
-          {tree.coreNodes.map((node) => (
-            <NodeCard
-              key={node.id}
-              node={node}
-              unlocked={enhancementState.unlockedNodes[node.id] || 0}
-              canUnlock={canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies)}
-              onUnlock={() => handleUnlock(node)}
-            />
-          ))}
+          {tree.coreNodes.map((node) => {
+            const canUnlock = canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies);
+            const lockReason = getLockReason(node, enhancementState.unlockedNodes, masteryLevel, playerCandies);
+            return (
+              <NodeCard
+                key={node.id}
+                node={node}
+                unlocked={enhancementState.unlockedNodes[node.id] || 0}
+                canUnlock={canUnlock}
+                lockReason={lockReason}
+                onUnlock={() => handleUnlock(node)}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -97,18 +106,23 @@ export function EnhancementTree({
               <span style={branchDescStyle}>{branch.description}</span>
             </div>
             <div style={branchNodesStyle}>
-              {branch.nodes.map((node, index) => (
-                <React.Fragment key={node.id}>
-                  {index > 0 && <div style={connectorStyle} />}
-                  <NodeCard
-                    node={node}
-                    unlocked={enhancementState.unlockedNodes[node.id] || 0}
-                    canUnlock={canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies)}
-                    onUnlock={() => handleUnlock(node)}
-                    isUltimate={node.type === 'ultimate'}
-                  />
-                </React.Fragment>
-              ))}
+              {branch.nodes.map((node, index) => {
+                const canUnlock = canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies);
+                const lockReason = getLockReason(node, enhancementState.unlockedNodes, masteryLevel, playerCandies);
+                return (
+                  <React.Fragment key={node.id}>
+                    {index > 0 && <div style={connectorStyle} />}
+                    <NodeCard
+                      node={node}
+                      unlocked={enhancementState.unlockedNodes[node.id] || 0}
+                      canUnlock={canUnlock}
+                      lockReason={lockReason}
+                      onUnlock={() => handleUnlock(node)}
+                      isUltimate={node.type === 'ultimate'}
+                    />
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
         );
@@ -123,11 +137,12 @@ interface NodeCardProps {
   node: EnhancementNode;
   unlocked: number;
   canUnlock: boolean;
+  lockReason: LockReason | null;
   onUnlock: () => void;
   isUltimate?: boolean;
 }
 
-function NodeCard({ node, unlocked, canUnlock, onUnlock, isUltimate }: NodeCardProps) {
+function NodeCard({ node, unlocked, canUnlock, lockReason, onUnlock, isUltimate }: NodeCardProps) {
   const maxRanks = node.maxRanks || 1;
   const isMaxed = unlocked >= maxRanks;
   const isLocked = unlocked === 0;
@@ -138,6 +153,18 @@ function NodeCard({ node, unlocked, canUnlock, onUnlock, isUltimate }: NodeCardP
     return '#30363d';
   };
 
+  // Build tooltip text that includes the lock reason if applicable
+  const getTooltip = () => {
+    let tooltip = node.name;
+    if (node.description) tooltip += `\n${node.description}`;
+    if (!canUnlock && lockReason) {
+      tooltip += `\n\n🔒 ${lockReason.message}`;
+      if (lockReason.details) tooltip += `\n${lockReason.details}`;
+    }
+    if (isMaxed) tooltip += `\n\n✅ Maximum atteint`;
+    return tooltip;
+  };
+
   return (
     <div
       style={{
@@ -146,7 +173,7 @@ function NodeCard({ node, unlocked, canUnlock, onUnlock, isUltimate }: NodeCardP
         background: isMaxed ? getStatusColor() + '20' : '#0d1117',
         opacity: isLocked && !canUnlock ? 0.5 : 1,
       }}
-      title={node.description}
+      title={getTooltip()}
     >
       <div style={nodeHeaderStyle}>
         <span style={nodeNameStyle}>{node.name}</span>
@@ -167,18 +194,25 @@ function NodeCard({ node, unlocked, canUnlock, onUnlock, isUltimate }: NodeCardP
         {isMaxed ? (
           <span style={maxedStyle}>MAX</span>
         ) : (
-          <button
-            onClick={onUnlock}
-            disabled={!canUnlock}
-            style={{
-              ...unlockButtonStyle,
-              background: canUnlock ? '#F5E6B3' : '#21262d',
-              color: canUnlock ? '#0d1117' : '#484f58',
-              cursor: canUnlock ? 'pointer' : 'not-allowed',
-            }}
-          >
-            {unlocked > 0 ? `Niv ${unlocked + 1}/${maxRanks}` : `Débloquer`}
-          </button>
+          <div style={buttonContainerStyle}>
+            <button
+              onClick={onUnlock}
+              disabled={!canUnlock}
+              style={{
+                ...unlockButtonStyle,
+                background: canUnlock ? '#F5E6B3' : '#21262d',
+                color: canUnlock ? '#0d1117' : '#484f58',
+                cursor: canUnlock ? 'pointer' : 'not-allowed',
+              }}
+            >
+              {unlocked > 0 ? `Niv ${unlocked + 1}/${maxRanks}` : `Débloquer`}
+            </button>
+            {!canUnlock && lockReason && (
+              <span style={getLockReasonStyle(lockReason.type)}>
+                {lockReason.message}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>
@@ -207,9 +241,10 @@ const titleStyle: React.CSSProperties = {
   margin: 0,
 };
 
-const infoStyle: React.CSSProperties = {
+const playerStatsStyle: React.CSSProperties = {
   display: 'flex',
   gap: 8,
+  marginTop: 8,
 };
 
 const candyBadgeStyle: React.CSSProperties = {
@@ -383,3 +418,21 @@ const unlockButtonStyle: React.CSSProperties = {
   fontWeight: 600,
   transition: 'all 0.2s',
 };
+
+const buttonContainerStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 2,
+  alignItems: 'flex-end',
+};
+
+const getLockReasonStyle = (type: string): React.CSSProperties => ({
+  fontSize: 9,
+  padding: '1px 4px',
+  borderRadius: 3,
+  fontWeight: 600,
+  ...(type === 'mastery_level' ? { background: '#C43C3C30', color: '#C43C3C' } :
+    type === 'candies' ? { background: '#F5E6B330', color: '#F5E6B3' } :
+    type === 'prerequisite' ? { background: '#8b949e30', color: '#8b949e' } :
+    { background: '#4A9F6F30', color: '#4A9F6F' }),
+});

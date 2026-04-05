@@ -1181,22 +1181,107 @@ export function canUnlockNode(
   masteryLevel: number,
   availableCandies: number
 ): boolean {
-  // Check mastery level requirement
-  if (masteryLevel < node.requiredMasteryLevel) return false;
-  
-  // Check candy cost
-  if (availableCandies < node.candyCost) return false;
-  
+  return !getLockReason(node, unlockedNodes, masteryLevel, availableCandies);
+}
+
+/**
+ * Get the reason why a node cannot be unlocked, or null if it can be unlocked.
+ */
+export type LockReason = {
+  type: 'mastery_level' | 'candies' | 'prerequisite' | 'maxed';
+  message: string;
+  details?: string;
+};
+
+export function getLockReason(
+  node: EnhancementNode,
+  unlockedNodes: Record<string, number>,
+  masteryLevel: number,
+  availableCandies: number
+): LockReason | null {
   // Check if already maxed
   const maxRanks = node.maxRanks || 1;
   const currentRank = unlockedNodes[node.id] || 0;
-  if (currentRank >= maxRanks) return false;
-  
+  if (currentRank >= maxRanks) {
+    return {
+      type: 'maxed',
+      message: 'Maximum atteint',
+      details: `Ce nœud est déjà au niveau maximum (${maxRanks}/${maxRanks})`
+    };
+  }
+
+  // Check mastery level requirement
+  if (masteryLevel < node.requiredMasteryLevel) {
+    return {
+      type: 'mastery_level',
+      message: 'Niveau de maîtrise insuffisant',
+      details: `Requis: Niveau ${node.requiredMasteryLevel} (actuel: Niveau ${masteryLevel})`
+    };
+  }
+
+  // Check candy cost
+  if (availableCandies < node.candyCost) {
+    return {
+      type: 'candies',
+      message: 'Bonbons insuffisants',
+      details: `Requis: ${node.candyCost} 🍬 (actuel: ${availableCandies} 🍬)`
+    };
+  }
+
   // Check prerequisites
   for (const prereqId of node.prerequisites) {
     const prereqRank = unlockedNodes[prereqId] || 0;
-    if (prereqRank === 0) return false;
+    if (prereqRank === 0) {
+      // Find the prerequisite node name and its requirements for better messaging
+      const tree = getTreeForNode(prereqId);
+      const prereqNode = tree ? findNodeInTree(tree, prereqId) : null;
+      const prereqName = prereqNode?.name || prereqId;
+      const prereqMasteryReq = prereqNode?.requiredMasteryLevel || 0;
+      const prereqCost = prereqNode?.candyCost || 0;
+      
+      let details = `📌 ${prereqName}`;
+      if (prereqMasteryReq > 0) {
+        details += ` (Maîtrise ${prereqMasteryReq} requise)`;
+      }
+      details += ` - ${prereqCost} 🍬`;
+      
+      return {
+        type: 'prerequisite',
+        message: 'Prérequis non débloqué',
+        details: details
+      };
+    }
   }
-  
-  return true;
+
+  return null;
+}
+
+/**
+ * Find the tree that contains a node with the given ID.
+ */
+function getTreeForNode(nodeId: string): ChampionEnhancementTree | null {
+  const trees = Object.values(ENHANCEMENT_TREES_BY_ROLE);
+  for (const tree of trees) {
+    if (findNodeInTree(tree, nodeId)) {
+      return tree;
+    }
+  }
+  return null;
+}
+
+/**
+ * Find a node in a tree by ID.
+ */
+function findNodeInTree(tree: ChampionEnhancementTree, nodeId: string): EnhancementNode | null {
+  // Check core nodes
+  for (const node of tree.coreNodes) {
+    if (node.id === nodeId) return node;
+  }
+  // Check branch nodes
+  for (const branch of tree.branches) {
+    for (const node of branch.nodes) {
+      if (node.id === nodeId) return node;
+    }
+  }
+  return null;
 }

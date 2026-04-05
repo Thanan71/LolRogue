@@ -23,6 +23,7 @@ export function DatabasePage() {
   const { 
     state: enhancementState, 
     availableCandies, 
+    masteryLevel,
     isLoading: isEnhancementLoading,
     unlockNode,
   } = useChampionEnhancements(selectedChampion);
@@ -142,7 +143,7 @@ export function DatabasePage() {
                 <EnhancementTree
                   champion={selectedChampion}
                   playerCandies={availableCandies}
-                  masteryLevel={player?.level || 0}
+                  masteryLevel={masteryLevel}
                   enhancementState={enhancementState || { unlockedNodes: {}, totalCandiesSpent: 0 }}
                   onUnlockNode={handleUnlockNode}
                   isLoading={isEnhancementLoading}

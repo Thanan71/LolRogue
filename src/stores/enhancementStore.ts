@@ -20,11 +20,27 @@ import type { IRepositoryContainer } from '@/services/interfaces';
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
+// ─── Helper Functions ────────────────────────────────────────────────────────
+
+/**
+ * Calculate mastery level from total candies spent on a champion.
+ * This is a simple formula: level = floor(totalCandiesSpent / 100)
+ * Adjust the divisor based on your game's balance needs.
+ */
+function calculateMasteryLevelFromCandies(totalCandiesSpent: number): number {
+  // Example formula: every 100 candies spent = 1 mastery level
+  // You can adjust this formula based on your game's progression curve
+  return Math.floor(totalCandiesSpent / 100);
+}
+
 // ─── Enhancement Store State ─────────────────────────────────────────────────
 
 interface EnhancementStoreState {
   /** Map of championId -> enhancement state */
   enhancements: Record<string, PlayerEnhancementState>;
+  
+  /** Map of championId -> mastery level for that champion */
+  championMasteryLevels: Record<string, number>;
   
   /** Available candies for enhancements (from mastery) */
   availableCandies: number;
@@ -47,6 +63,9 @@ interface EnhancementStoreActions {
   
   /** Get enhancement state for a champion */
   getEnhancementState: (championId: string) => PlayerEnhancementState;
+  
+  /** Get mastery level for a specific champion */
+  getChampionMasteryLevel: (championId: string) => number;
   
   /** Get enhancement tree for selected champion */
   getSelectedChampionTree: () => ChampionEnhancementTree | null;
@@ -73,8 +92,9 @@ export type EnhancementStore = EnhancementStoreState & EnhancementStoreActions;
 
 export const useEnhancementStore = create<EnhancementStore>()(
   (set, get) => ({
-    // Initial state
+  // Initial state
     enhancements: {},
+    championMasteryLevels: {},
     availableCandies: 0,
     isLoading: false,
     error: null,
@@ -89,15 +109,19 @@ export const useEnhancementStore = create<EnhancementStore>()(
         const states = await container.enhancement.getAllEnhancementStates(playerId);
         
         const enhancements: Record<string, PlayerEnhancementState> = {};
+        const championMasteryLevels: Record<string, number> = {};
+        
         states.forEach((state, championId) => {
           enhancements[championId] = state;
+          // Get mastery level from the enhancement state's totalCandiesSpent
+          championMasteryLevels[championId] = calculateMasteryLevelFromCandies(state.totalCandiesSpent || 0);
         });
         
         // Get available candies from mastery system
         const { player } = useAuthStore.getState();
         const availableCandies = player?.total_candies || 0;
         
-        set({ enhancements, availableCandies, isLoading: false });
+        set({ enhancements, championMasteryLevels, availableCandies, isLoading: false });
       } catch (error) {
         console.error('[EnhancementStore] Failed to initialize:', error);
         set({ 
@@ -116,6 +140,12 @@ export const useEnhancementStore = create<EnhancementStore>()(
       };
     },
 
+    // Get mastery level for a specific champion
+    getChampionMasteryLevel: (championId: string) => {
+      const { championMasteryLevels } = get();
+      return championMasteryLevels[championId] || 0;
+    },
+
     // Get enhancement tree for selected champion
     getSelectedChampionTree: () => {
       const { selectedChampion } = get();
@@ -125,7 +155,7 @@ export const useEnhancementStore = create<EnhancementStore>()(
 
     // Check if a node can be unlocked
     canUnlockNode: (node: EnhancementNode) => {
-      const { selectedChampion, availableCandies, enhancements } = get();
+      const { selectedChampion, availableCandies, enhancements, championMasteryLevels } = get();
       if (!selectedChampion) return false;
       
       const state = enhancements[selectedChampion.id] || {
@@ -133,7 +163,8 @@ export const useEnhancementStore = create<EnhancementStore>()(
         totalCandiesSpent: 0,
       };
       
-      const masteryLevel = useAuthStore.getState().player?.level || 0;
+      // Use champion-specific mastery level instead of global player level
+      const masteryLevel = championMasteryLevels[selectedChampion.id] || 0;
       
       return enhancementService.validateUnlock(
         node,
@@ -145,7 +176,7 @@ export const useEnhancementStore = create<EnhancementStore>()(
 
     // Unlock a node
     unlockNode: async (nodeId: string, candyCost: number) => {
-      const { selectedChampion, availableCandies, enhancements } = get();
+      const { selectedChampion, availableCandies, enhancements, championMasteryLevels } = get();
       if (!selectedChampion) return false;
       
       const currentState = enhancements[selectedChampion.id] || {
@@ -153,7 +184,8 @@ export const useEnhancementStore = create<EnhancementStore>()(
         totalCandiesSpent: 0,
       };
       
-      const masteryLevel = useAuthStore.getState().player?.level || 0;
+      // Use champion-specific mastery level instead of global player level
+      const masteryLevel = championMasteryLevels[selectedChampion.id] || 0;
       
       // Get the actual node to validate
       const tree = enhancementTreeProvider.getTreeForChampion(selectedChampion);
@@ -219,10 +251,17 @@ export const useEnhancementStore = create<EnhancementStore>()(
       }
       
       // Update local state
+      const newTotalCandiesSpent = (currentState.totalCandiesSpent || 0) + candyCost;
+      const newMasteryLevel = calculateMasteryLevelFromCandies(newTotalCandiesSpent);
+      
       set({
         enhancements: {
           ...enhancements,
           [selectedChampion.id]: newState,
+        },
+        championMasteryLevels: {
+          ...championMasteryLevels,
+          [selectedChampion.id]: newMasteryLevel,
         },
         availableCandies: availableCandies - candyCost,
       });
@@ -259,6 +298,7 @@ export const useEnhancementStore = create<EnhancementStore>()(
     reset: () => {
       set({
         enhancements: {},
+        championMasteryLevels: {},
         availableCandies: 0,
         isLoading: false,
         error: null,
@@ -279,6 +319,7 @@ export function useChampionEnhancements(champion: Champion | null) {
   const selectedChampion = useEnhancementStore((s) => s.selectedChampion);
   const setSelectedChampion = useEnhancementStore((s) => s.setSelectedChampion);
   const getEnhancementState = useEnhancementStore((s) => s.getEnhancementState);
+  const getChampionMasteryLevel = useEnhancementStore((s) => s.getChampionMasteryLevel);
   const getSelectedChampionTree = useEnhancementStore((s) => s.getSelectedChampionTree);
   const canUnlockNode = useEnhancementStore((s) => s.canUnlockNode);
   const unlockNode = useEnhancementStore((s) => s.unlockNode);
@@ -305,11 +346,13 @@ export function useChampionEnhancements(champion: Champion | null) {
   }, [champion, setSelectedChampion]);
 
   const state = champion ? getEnhancementState(champion.id) : null;
+  const masteryLevel = champion ? getChampionMasteryLevel(champion.id) : 0;
   const tree = champion ? getSelectedChampionTree() : null;
 
   return {
     state,
     tree,
+    masteryLevel,
     availableCandies,
     isLoading,
     error,

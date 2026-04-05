@@ -4,9 +4,10 @@ import type { CombatantInfo } from '../../stores/battleStore';
 interface Props {
   combatant: CombatantInfo;
   isActive: boolean;
+  enhancementBonuses?: string[];
 }
 
-export const CombatantPortrait: React.FC<Props> = ({ combatant, isActive }) => {
+export const CombatantPortrait: React.FC<Props> = ({ combatant, isActive, enhancementBonuses }) => {
   const { name, level, currentHp, maxHp, currentMp, maxMp, iconUrl, isDefeated, side } = combatant;
   const hpPct = maxHp > 0 ? (currentHp / maxHp) * 100 : 0;
   const mpPct = maxMp > 0 ? (currentMp / maxMp) * 100 : 0;
@@ -49,6 +50,25 @@ export const CombatantPortrait: React.FC<Props> = ({ combatant, isActive }) => {
               <div style={{ width: `${mpPct}%`, height: '100%', background: '#3b82f6', borderRadius: 1, transition: 'width 0.3s' }} />
             </div>
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 6, fontWeight: 'bold', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>{Math.round(currentMp)} / {Math.round(maxMp)}</div>
+          </div>
+        )}
+        {enhancementBonuses && enhancementBonuses.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginTop: 2 }}>
+            {enhancementBonuses.slice(0, 3).map((bonus, i) => (
+              <span key={i} style={{
+                fontSize: 7,
+                padding: '1px 3px',
+                background: 'rgba(200,170,110,0.2)',
+                color: '#c8aa6e',
+                borderRadius: 2,
+                border: '1px solid rgba(200,170,110,0.3)',
+              }}>
+                {bonus}
+              </span>
+            ))}
+            {enhancementBonuses.length > 3 && (
+              <span style={{ fontSize: 7, color: '#888' }}>+{enhancementBonuses.length - 3}</span>
+            )}
           </div>
         )}
       </div>

@@ -21,6 +21,8 @@ import { runStatsTracker } from '@/services/RunStatsTracker';
 import { calculateXpGain, addXp } from '@/utils/xpSystem';
 import type { Item, ItemStatBonuses, RunSummary } from '@/types/run';
 import type { CombatEncounter } from '@/game/map/types';
+import { useEnhancementStore } from '@/stores/enhancementStore';
+import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 
 function buildTeamInstances(championIds: string[], levels?: Record<string, number>): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
@@ -29,6 +31,92 @@ function buildTeamInstances(championIds: string[], levels?: Record<string, numbe
     if (champ) instances.push(new ChampionInstance(champ, levels?.[id] ?? 1));
   }
   return instances;
+}
+
+/**
+ * Apply enhancement bonuses to champion instances.
+ * Retrieves enhancement state from the store and applies stat bonuses.
+ */
+function applyEnhancementsToTeam(instances: ChampionInstance[]): void {
+  const enhancementStore = useEnhancementStore.getState();
+  
+  for (const instance of instances) {
+    const champ = championDB.getById(instance.id);
+    if (!champ) continue;
+    
+    // Get enhancement state for this champion
+    const enhancementState = enhancementStore.getEnhancementState(instance.id);
+    
+    // If no enhancements unlocked, skip
+    if (Object.keys(enhancementState.unlockedNodes).length === 0) continue;
+    
+    // Get the enhancement tree for this champion's role
+    const tree = enhancementTreeProvider.getTreeForChampion(champ);
+    
+    // Calculate stat bonuses from unlocked nodes
+    const bonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
+    
+    // Apply bonuses to the champion instance
+    instance.setEnhancementBonuses(bonuses);
+  }
+}
+
+/**
+ * Get enhancement bonus descriptions for a champion instance.
+ * Returns an array of short description strings for UI display.
+ */
+function getEnhancementDescriptions(championId: string): string[] {
+  const enhancementStore = useEnhancementStore.getState();
+  const enhancementState = enhancementStore.getEnhancementState(championId);
+  
+  if (Object.keys(enhancementState.unlockedNodes).length === 0) return [];
+  
+  const champ = championDB.getById(championId);
+  if (!champ) return [];
+  
+  const tree = enhancementTreeProvider.getTreeForChampion(champ);
+  const bonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
+  
+  const descriptions: string[] = [];
+  
+  // Add flat stat bonuses
+  for (const [stat, value] of Object.entries(bonuses.flat)) {
+    if (value > 0) {
+      const statNames: Record<string, string> = {
+        hp: 'PV', mp: 'PM', atk: 'AD', ap: 'AP', def: 'Armure', mr: 'RM',
+        spd: 'Vitesse', crit: 'Critique', attackSpeed: 'Vitesse ATQ',
+        hpRegen: 'Regen PV', mpRegen: 'Regen PM', armorPen: 'Pen. Armure',
+        magicPen: 'Pen. Magique', lifesteal: 'Vol de vie', omnivamp: 'Omnivamp',
+        tenacity: 'Ténacité', abilityHaste: 'Hâte', attackRange: 'Portée',
+      };
+      const name = statNames[stat] || stat;
+      descriptions.push(`+${value} ${name}`);
+    }
+  }
+  
+  // Add percentage bonuses
+  for (const [stat, percent] of Object.entries(bonuses.percent)) {
+    if (percent > 0) {
+      const statNames: Record<string, string> = {
+        hp: 'PV', mp: 'PM', atk: 'AD', ap: 'AP', def: 'Armure', mr: 'RM',
+        spd: 'Vitesse', crit: 'Critique', attackSpeed: 'Vitesse ATQ',
+        hpRegen: 'Regen PV', mpRegen: 'Regen PM', armorPen: 'Pen. Armure',
+        magicPen: 'Pen. Magique', lifesteal: 'Vol de vie', omnivamp: 'Omnivamp',
+        tenacity: 'Ténacité', abilityHaste: 'Hâte', attackRange: 'Portée',
+      };
+      const name = statNames[stat] || stat;
+      descriptions.push(`+${Math.round(percent * 100)}% ${name}`);
+    }
+  }
+  
+  // Add effect descriptions
+  for (const effect of bonuses.effects) {
+    if (effect.description) {
+      descriptions.push(effect.description);
+    }
+  }
+  
+  return descriptions;
 }
 
 /** Build enemy team from encounter data */
@@ -111,9 +199,24 @@ export function CombatPage() {
   
   const playerInstances = useMemo(() => {
     const instances = buildTeamInstances(team.map(m => m.championId), teamLevels);
+    // Apply enhancement bonuses to player champions
+    applyEnhancementsToTeam(instances);
     return instances;
     // Only recreate when team content actually changes, not just reference
   }, [team.map(t => t.championId).join(','), teamLevels]);
+
+  // Get enhancement descriptions for each player champion (memoized)
+  const playerEnhancementBonuses = useMemo(() => {
+    const bonuses: Record<string, string[]> = {};
+    for (const member of team) {
+      const descs = getEnhancementDescriptions(member.championId);
+      bonuses[member.championId] = descs;
+      if (descs.length > 0) {
+        console.log('[CombatPage] Enhancement bonuses for', member.championId, ':', descs);
+      }
+    }
+    return bonuses;
+  }, [team.map(t => t.championId).join(',')]);
   
   // Check for empty player team (invalid champion ID) - navigate to game over
   useEffect(() => {
@@ -394,7 +497,12 @@ export function CombatPage() {
         <div style={leftPanelStyle}>
           <div style={teamTitleStyle('#3b82f6')}>Votre équipe</div>
           {playerTeam.map(c => (
-            <CombatantPortrait key={c.id} combatant={c} isActive={c.id === currentTurnChampionId} />
+            <CombatantPortrait 
+              key={c.id} 
+              combatant={c} 
+              isActive={c.id === currentTurnChampionId}
+              enhancementBonuses={playerEnhancementBonuses[c.id] || []}
+            />
           ))}
           {playerTeam.length === 0 && <div style={emptyStyle}>Aucun champion</div>}
         </div>

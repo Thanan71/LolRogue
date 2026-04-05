@@ -263,7 +263,8 @@ export class BattleManager {
     this._playerCombatants = this._playerTeam.champions
       .slice(0, this._maxTeamSize)
       .map(c => {
-        const stats = c.getStats();
+        // Use enhanced stats if available, otherwise fall back to base stats
+        const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
         const overriddenHp = hpOverrides?.[c.id];
         const initHp = overriddenHp !== undefined ? Math.min(overriddenHp, stats.hp) : stats.hp;
         return {
@@ -278,15 +279,19 @@ export class BattleManager {
       });
     this._enemyCombatants = this._enemyTeam.champions
       .slice(0, this._maxTeamSize)
-      .map(c => ({
-        champion: c, side: 'enemy' as TeamSide,
-        currentHp: c.getStats().hp, maxHp: c.getStats().hp,
-        currentMp: c.getStats().mp, maxMp: c.getStats().mp,
-        isDefeated: false,
-        currentShield: 0,
-        ccTurnsLeft: 0,
-        effectManager: new EffectManager(c.id),
-      }));
+      .map(c => {
+        // Use enhanced stats if available, otherwise fall back to base stats
+        const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
+        return {
+          champion: c, side: 'enemy' as TeamSide,
+          currentHp: stats.hp, maxHp: stats.hp,
+          currentMp: stats.mp, maxMp: stats.mp,
+          isDefeated: false,
+          currentShield: 0,
+          ccTurnsLeft: 0,
+          effectManager: new EffectManager(c.id),
+        };
+      });
     // Reset all cooldowns at battle start
     this._resetAllCooldowns();
   }
@@ -339,7 +344,8 @@ export class BattleManager {
   }
 
   private _calcSpeedPriority(champion: ChampionInstance): number {
-    const stats = champion.getStats();
+    // Use enhanced stats if available for speed calculation
+    const stats = champion.getEnhancedStats ? champion.getEnhancedStats() : champion.getStats();
     const jitter = Math.random() * 0.5;
     return stats.moveSpeed + jitter;
   }
@@ -405,7 +411,8 @@ export class BattleManager {
     const manaCost = spell.cost.length > 0 ? spell.cost[0] : 0;
     attacker.currentMp = Math.max(0, attacker.currentMp - manaCost);
 
-    const atkStats = attacker.champion.getStats();
+    // Use enhanced stats for spell damage calculation
+    const atkStats = attacker.champion.getEnhancedStats ? attacker.champion.getEnhancedStats() : attacker.champion.getStats();
     const rankIdx = 0; // simplified: always rank-1 stats
 
     for (const effect of spell.effects) {
@@ -434,7 +441,8 @@ export class BattleManager {
       case 'damage': {
         const target = this._pickTarget(enemies);
         if (!target) return;
-        const defStats = target.champion.getStats();
+        // Use enhanced stats for defense calculation
+        const defStats = target.champion.getEnhancedStats ? target.champion.getEnhancedStats() : target.champion.getStats();
 
         const baseDmg = effect.baseDamage?.[rankIdx] ?? 0;
         const adRatio = effect.adRatio ?? 0;
@@ -602,8 +610,9 @@ export class BattleManager {
     attacker: CombatantState,
     target: CombatantState,
   ): void {
-    const atkStats = attacker.champion.getStats();
-    const defStats = target.champion.getStats();
+    // Use enhanced stats for both attack and defense
+    const atkStats = attacker.champion.getEnhancedStats ? attacker.champion.getEnhancedStats() : attacker.champion.getStats();
+    const defStats = target.champion.getEnhancedStats ? target.champion.getEnhancedStats() : target.champion.getStats();
 
     const baseRaw = atkStats.attackDamage;
     const critChance = Math.min(100, atkStats.crit) / 100;
