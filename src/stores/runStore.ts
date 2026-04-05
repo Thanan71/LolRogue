@@ -16,11 +16,13 @@ import {
   isMapComplete,
 } from '@/game/map/mapUtils';
 import { useMasteryStore } from './masteryStore';
+import { championDB } from '@/data';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
 
 const INITIAL_STATE: RunState = {
   isActive: false,
+  runId: '',
   team: [],
   runLevel: 1,
   biomesVisited: [],
@@ -54,30 +56,62 @@ export const useRunStore = create<RunStore>()(
       // ── Run Lifecycle ───────────────────────────────────────────────────
 
       startRun: (championIds) => {
-        const team: TeamMember[] = championIds
+        // Validate champion IDs - filter out any invalid IDs
+        const validChampionIds = championIds.filter((id) => {
+          if (!id || typeof id !== 'string') return false;
+          const champ = championDB.getById(id);
+          if (!champ) {
+            console.warn(`[runStore.startRun] Invalid champion ID "${id}" - champion not found in database`);
+          }
+          return !!champ;
+        });
+        
+        const team: TeamMember[] = validChampionIds
           .slice(0, MAX_TEAM_SIZE)
           .map((id) => ({ championId: id }));
 
+        // Generate a unique run ID to prevent stale timeouts from affecting new runs
+        const runId = `run_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+
+        // Generate the map first to get the start node
+        const biomeMaps = generateBiomeMaps();
+        const startNodeId = biomeMaps[0]?.startNodeId ?? null;
+        const startBiome = biomeMaps[0]?.biome ?? null;
+        
         set({
           isActive: true,
+          runId,
           team,
           runLevel: 1,
-          biomesVisited: [],
-          currentBiome: null,
+          biomesVisited: startBiome ? [startBiome] : [],
+          currentBiome: startBiome,
           inventory: [],
           gold: 0,
           currentWave: 1,
           totalWavesCompleted: 0,
-          biomeMaps: [],
+          biomeMaps,
           currentBiomeIndex: 0,
-          currentNodeId: null,
+          currentNodeId: startNodeId,
           completedNodeIds: [],
           pendingEncounter: null,
+          currentEncounter: null,
         });
       },
 
-      endRun: (won = false) => {
+      endRun: (won = false, expectedRunId?: string) => {
         const state = get();
+        
+        // Guard: Don't end a run that's already ended
+        if (!state.isActive) {
+          return;
+        }
+        
+        // Guard: If a runId is provided, only end the run if it matches the current run
+        // This prevents stale timeouts from previous runs from ending a new run
+        if (expectedRunId !== undefined && state.runId !== expectedRunId) {
+          return;
+        }
+        
         const championIds = state.team.map((m) => m.championId);
 
         // Award mastery candies before resetting

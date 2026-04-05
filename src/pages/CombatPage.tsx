@@ -93,7 +93,7 @@ export function CombatPage() {
       setTurnTick(0); // Reset turn tick for new battle
     }
   }, [battlePhase]);
-  
+
   // Navigate away if the run is no longer active (only once after a loss)
   useEffect(() => {
     if (!isActive && !hasNavigatedAfterLossRef.current) {
@@ -108,7 +108,45 @@ export function CombatPage() {
     for (const t of team) { m[t.championId] = t.level ?? 1; }
     return m;
   }, [team]);
-  const playerInstances = useMemo(() => buildTeamInstances(team.map(m => m.championId), teamLevels), [team, teamLevels]);
+  
+  const playerInstances = useMemo(() => {
+    const instances = buildTeamInstances(team.map(m => m.championId), teamLevels);
+    return instances;
+    // Only recreate when team content actually changes, not just reference
+  }, [team.map(t => t.championId).join(','), teamLevels]);
+  
+  // Check for empty player team (invalid champion ID) - navigate to game over
+  useEffect(() => {
+    if (isActive && playerInstances.length === 0 && team.length > 0 && !hasNavigatedAfterLossRef.current) {
+      // Player team is empty but should have champions - invalid champion ID
+      const championIds = team.map(m => m.championId);
+      console.error('CombatPage: Player team is empty but run has champions.');
+      console.error('Champion IDs in team:', championIds);
+      console.error('Champion DB size:', championDB.count());
+      // Try to look up each champion to see which ones are missing
+      for (const id of championIds) {
+        const champ = championDB.getById(id);
+        console.error(`Champion "${id}" lookup result:`, champ ? 'FOUND' : 'NOT FOUND');
+      }
+      // Build a summary and navigate to game over
+      const rs = useRunStore.getState();
+      runStatsTracker.markSurvived([]);
+      const summary: RunSummary = runStatsTracker.buildSummary({
+        won: false,
+        wavesCompleted: rs.totalWavesCompleted,
+        biomesVisited: rs.biomesVisited as any,
+        goldEarned: rs.gold,
+        runLevel: rs.runLevel,
+      });
+      navigate(ROUTES.GAME_OVER, { state: { summary } });
+      hasNavigatedAfterLossRef.current = true;
+      setTimeout(() => {
+        rs.endRun(false);
+        runStatsTracker.reset();
+      }, 100);
+    }
+  }, [isActive, playerInstances.length, team.length, team, navigate]);
+
   // Build HP overrides from persisted team state
   const initialHpOverrides = useMemo(() => {
     const m: Record<string, number> = {};
@@ -121,23 +159,21 @@ export function CombatPage() {
   // Get encounter data from store
   const currentEncounter = useRunStore(s => s.currentEncounter);
   
-  // Use useState to store enemy team so it doesn't regenerate on re-render.
-  // Build enemy team from encounter data if available, otherwise fallback to empty
-  const [enemyInstances, setEnemyInstances] = useState<ChampionInstance[]>(() => {
+  // Memoize enemy instances to prevent recreation on every render
+  const enemyInstances = useMemo(() => {
     if (currentEncounter && currentEncounter.type === 'combat') {
       return buildEnemyTeamFromEncounter(currentEncounter);
     }
     return [];
-  });
-
-  // Regenerate enemy team when encounter changes (new combat encounter)
-  useEffect(() => {
-    if (currentEncounter && currentEncounter.type === 'combat') {
-      setEnemyInstances(buildEnemyTeamFromEncounter(currentEncounter));
-    }
-  }, [currentEncounter]);
+  }, [currentEncounter?.id, currentEncounter?.type, currentEncounter?.enemies?.map(e => e.championId).join(',')]);
 
   const handleComplete = useCallback((w: 'player' | 'enemy' | 'draw') => {
+    // Clear any pending endRun timeout from a previous combat
+    if (endRunTimeoutRef.current) {
+      clearTimeout(endRunTimeoutRef.current);
+      endRunTimeoutRef.current = null;
+    }
+
     if (w === 'player') {
       const runStore = useRunStore.getState();
 
@@ -233,6 +269,8 @@ export function CombatPage() {
     } else {
       // On draw or loss: build RunSummary from tracked stats, navigate with state
       const rs = useRunStore.getState();
+      // Capture the current runId to prevent stale timeouts from affecting new runs
+      const currentRunId = rs.runId;
       // Mark all player champions as dead (none survived)
       runStatsTracker.markSurvived([]);
       const summary: RunSummary = runStatsTracker.buildSummary({
@@ -246,8 +284,9 @@ export function CombatPage() {
       navigate(ROUTES.GAME_OVER, { state: { summary } });
       // End the run (resets isActive, team, gold, etc.) - delayed to avoid race conditions
       // Store the timeout reference so it can be cleared if player starts a new run
+      // Pass the runId to ensure only the correct run is ended
       endRunTimeoutRef.current = setTimeout(() => {
-        rs.endRun(w === 'draw');
+        rs.endRun(w === 'draw', currentRunId);
         runStatsTracker.reset();
         endRunTimeoutRef.current = null;
       }, 100);

@@ -145,6 +145,8 @@ export interface TeamMember {
 export interface RunState {
   /** Whether a run is currently active */
   isActive: boolean;
+  /** Unique ID for this run instance (used to prevent stale timeouts from affecting new runs) */
+  runId: string;
   /** The team of up to 5 champions */
   team: TeamMember[];
   /** Current run level (acts as difficulty/progression indicator) */
@@ -184,8 +186,9 @@ export interface RunState {
 export interface RunActions {
   /** Start a new run with champion IDs (validated ≤ MAX_TEAM_SIZE) */
   startRun: (championIds: string[]) => void;
-  /** End the current run and reset state, optionally marking it as won */
-  endRun: (won?: boolean) => void;
+  /** End the current run and reset state, optionally marking it as won. 
+   *  If expectedRunId is provided, only ends the run if it matches the current runId. */
+  endRun: (won?: boolean, expectedRunId?: string) => void;
   /** Add a champion to the team (if not full). Returns true if added. */
   addChampion: (championId: string) => boolean;
   /** Remove a champion from the team by champion ID */

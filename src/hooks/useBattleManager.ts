@@ -152,12 +152,13 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
    *  without needing to recreate the effect.
    */
   useEffect(() => {
+    // If no player team, don't start a battle
     if (playerTeam.length === 0) return;
 
-    // Reset battle store FIRST, before any other operations
-    // This ensures no stale state from previous battles can trigger completion checks
+    // Reset the battle store and completion flag
     store.resetBattle();
     hasCompletedRef.current = false;
+
 
     const playerBTeam: BattleTeam = { side: 'player', champions: playerTeam };
     const enemyBTeam: BattleTeam = { side: 'enemy', champions: enemyTeam };
@@ -175,11 +176,12 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
     // Sync initial teams
     syncTeams(bm);
 
-    // Start battle after short delay
+    // Start battle after a longer delay to ensure UI is rendered first
+    // This prevents the battle from ending before the combat screen is visible
     const timer = setTimeout(() => {
       bm.startBattle();
       syncTeams(bm);
-    }, 300);
+    }, 2000);
 
     bmRef.current = bm;
 
@@ -187,13 +189,25 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
       clearTimeout(timer);
       bmRef.current = null;
     };
-  }, [playerTeam, enemyTeam, initialHpOverrides]);
+  }, [playerTeam, enemyTeam]);
 
   // Check for battle completion
   useEffect(() => {
-    if (store.phase === 'finished' && store.winner && onCompleteRef.current && !hasCompletedRef.current) {
+    // Get fresh state from the store (not from closure)
+    const currentState = useBattleStore.getState();
+    
+    // Skip if we haven't started a battle yet (phase is still idle or just starting)
+    if (currentState.phase === 'idle' || currentState.phase === 'starting') return;
+    
+    if (currentState.phase === 'finished' && currentState.winner && onCompleteRef.current && !hasCompletedRef.current) {
       hasCompletedRef.current = true;
-      onCompleteRef.current(store.winner);
+      const winner = currentState.winner;
+      // Add a small delay before calling onComplete to ensure UI has time to render the finished state
+      setTimeout(() => {
+        if (onCompleteRef.current && winner) {
+          onCompleteRef.current(winner);
+        }
+      }, 500);
     }
   }, [store.phase, store.winner]);
 
