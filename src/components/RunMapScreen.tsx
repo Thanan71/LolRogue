@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { findNode } from '@/game/map/mapUtils';
 import { ROUTES } from '@/stores/routerStore';
@@ -8,11 +8,11 @@ import { useGameStore } from '@/stores/gameStore';
 import { championDB } from '@/data/championDatabase';
 import { NodeType } from '@/game/map/types';
 import type { NodeMap } from '@/game/map/types';
-import type { NodeType as RunNodeType } from '@/types/run';
+import type { NodeType as RunNodeType, InventoryEntry } from '@/types/run';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { calculateStats } from '@/utils/champion';
+import { calculateMaxHP } from '@/utils/statCalculator';
 
 // Map game/map NodeType enum to CSS colors
 const NODE_COLORS: Record<string, string> = {
@@ -144,7 +144,7 @@ export function RunMapScreen() {
     <div style={overlayStyle}>
       <div style={layoutStyle}>
         <div style={sidebarStyle}>
-          <TeamPanel team={team} />
+          <TeamPanel team={team} inventory={inventory} />
           <InventoryPanel inventory={inventory} />
         </div>
         <div style={mainStyle}>
@@ -226,8 +226,8 @@ export function RunMapScreen() {
   );
 }
 
-function TeamPanel({ team }: { team: { championId: string; level?: number; currentXp?: number; currentHp?: number }[] }) {
-  // Calculate enhanced max HP for each team member
+function TeamPanel({ team, inventory }: { team: { championId: string; level?: number; currentXp?: number; currentHp?: number; statBoosts?: Record<string, number> }[]; inventory: InventoryEntry[] }) {
+  // Calculate enhanced max HP for each team member (with level, enhancements, items, and event stat boosts)
   const enhancedHpMap = useMemo(() => {
     const map: Record<string, number> = {};
     for (const member of team) {
@@ -236,29 +236,21 @@ function TeamPanel({ team }: { team: { championId: string; level?: number; curre
       
       const level = member.level ?? 1;
       
-      // Get base stats at current level
-      const baseStats = calculateStats(champ.stats, level);
-      
       // Get enhancement bonuses
       const enhancementStore = useEnhancementStore.getState();
       const enhancementState = enhancementStore.getEnhancementState(member.championId);
       
+      let enhancementBonuses = undefined;
       if (Object.keys(enhancementState.unlockedNodes).length > 0) {
         const tree = enhancementTreeProvider.getTreeForChampion(champ);
-        const bonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
-        
-        // Apply HP bonus
-        let enhancedHp = baseStats.hp;
-        if (bonuses.flat.hp) enhancedHp += bonuses.flat.hp;
-        if (bonuses.percent.hp) enhancedHp *= (1 + bonuses.percent.hp);
-        
-        map[member.championId] = Math.round(enhancedHp);
-      } else {
-        map[member.championId] = Math.round(baseStats.hp);
+        enhancementBonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
       }
+      
+      // Use calculateMaxHP which handles level, enhancements, items, and event stat boosts
+      map[member.championId] = calculateMaxHP(champ, level, enhancementBonuses, inventory, member.championId, member.statBoosts);
     }
     return map;
-  }, [team]);
+  }, [team, inventory]);
 
   return (
     <div style={panelStyle}>
@@ -270,7 +262,7 @@ function TeamPanel({ team }: { team: { championId: string; level?: number; curre
         const currentXp = m.currentXp ?? 0;
         const xpProgress = getXpProgress(level, currentXp);
         const xpDisplay = formatXpDisplay(level, currentXp);
-        const maxHp = enhancedHpMap[m.championId] ?? (champ ? Math.round(calculateStats(champ.stats, level).hp) : 100);
+        const maxHp = enhancedHpMap[m.championId] ?? 100;
         const hpPercent = champ ? Math.min(100, Math.max(0, ((m.currentHp ?? maxHp) / maxHp) * 100)) : 100;
         
         return (
@@ -328,17 +320,89 @@ function TeamPanel({ team }: { team: { championId: string; level?: number; curre
   );
 }
 
-function InventoryPanel({ inventory }: { inventory: { instanceId: string; item: { name: string; goldValue: number } }[] }) {
+function InventoryPanel({ inventory }: { inventory: InventoryEntry[] }) {
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+  // Stat name translations
+  const statNames: Record<string, string> = {
+    hp: 'Points de vie',
+    mp: 'Points de mana',
+    atk: 'Dégâts d\'attaque',
+    ap: 'Puissance ability',
+    def: 'Armure',
+    mr: 'Résistance magique',
+    spd: 'Vitesse de déplacement',
+    crit: 'Chance de critique',
+    attackSpeed: 'Vitesse d\'attaque',
+    hpRegen: 'Régénération PV',
+    mpRegen: 'Régénération PM',
+    armorPen: 'Pénétration d\'armure',
+    magicPen: 'Pénétration magique',
+    lifesteal: 'Vol de vie',
+    omnivamp: 'Omnivamp',
+    tenacity: 'Ténacité',
+    abilityHaste: 'Hâte d\'ability',
+    attackRange: 'Portée d\'attaque',
+  };
+
+  const getHoveredEntry = () => {
+    if (!hoveredItem) return null;
+    return inventory.find(e => e.instanceId === hoveredItem);
+  };
+
+  const hoveredEntry = getHoveredEntry();
+
   return (
-    <div style={{ ...panelStyle, flex: 1, overflow: "auto" }}>
+    <div style={{ ...panelStyle, flex: 1, overflow: "auto", position: "relative" }}>
       <div style={panelTitle}>Inventaire ({inventory.length})</div>
       {inventory.length === 0 && <div style={{ color: "#484f58", fontSize: 12, padding: 8 }}>Empty</div>}
       {inventory.map((entry) => (
-        <div key={entry.instanceId} style={inventoryItemStyle}>
+        <div
+          key={entry.instanceId}
+          style={{
+            ...inventoryItemStyle,
+            cursor: 'help',
+            border: hoveredItem === entry.instanceId ? '1px solid #c8aa6e' : 'none',
+            background: hoveredItem === entry.instanceId ? '#1a2332' : '#0d1117',
+          }}
+          onMouseEnter={() => setHoveredItem(entry.instanceId)}
+          onMouseLeave={() => setHoveredItem(null)}
+        >
           <div style={{ color: "#e6edf3", fontSize: 11 }}>{entry.item.name}</div>
           <div style={{ color: "#8b949e", fontSize: 10 }}>{entry.item.goldValue}g</div>
         </div>
       ))}
+
+      {/* Item Tooltip */}
+      {hoveredItem && hoveredEntry && (
+        <div style={tooltipStyle}>
+          <div style={{ color: "#ffd700", fontSize: 12, fontWeight: "bold", marginBottom: 4 }}>
+            {hoveredEntry.item.name}
+          </div>
+          {hoveredEntry.item.description && (
+            <div style={{ color: "#8b949e", fontSize: 10, marginBottom: 6, fontStyle: "italic" }}>
+              {hoveredEntry.item.description}
+            </div>
+          )}
+          {Object.entries(hoveredEntry.item.stats).length > 0 && (
+            <div style={{ borderTop: "1px solid #30363d", paddingTop: 4 }}>
+              {Object.entries(hoveredEntry.item.stats).map(([key, value]) => {
+                if (value === 0) return null;
+                const statName = statNames[key] || key;
+                const sign = value > 0 ? '+' : '';
+                return (
+                  <div key={key} style={{ color: "#22c55e", fontSize: 10, lineHeight: 1.4 }}>
+                    {sign}{value} {statName}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div style={{ color: "#8b949e", fontSize: 9, marginTop: 4, borderTop: "1px solid #30363d", paddingTop: 4 }}>
+            Valeur: {hoveredEntry.item.goldValue}g
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -356,3 +420,17 @@ const hpBarBg: React.CSSProperties = { width: "100%", height: 6, background: "#2
 const hpBarFill: React.CSSProperties = { height: "100%", background: "#22c55e", borderRadius: 3, transition: "width 0.3s" };
 const inventoryItemStyle: React.CSSProperties = { padding: "4px 8px", background: "#0d1117", borderRadius: 4, marginBottom: 3, display: "flex", justifyContent: "space-between", alignItems: "center" };
 const btnStyle: React.CSSProperties = { padding: "10px 24px", background: "#c8aa6e", color: "#0d1117", border: "none", borderRadius: 6, fontSize: 14, fontWeight: 700, cursor: "pointer" };
+const tooltipStyle: React.CSSProperties = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  background: "#1e2a3a",
+  border: "1px solid #c8aa6e",
+  borderRadius: 8,
+  padding: 10,
+  minWidth: 160,
+  maxWidth: 220,
+  zIndex: 100,
+  boxShadow: "0 4px 16px rgba(0,0,0,0.6)",
+};

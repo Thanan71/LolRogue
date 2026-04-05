@@ -2,17 +2,22 @@ import { useState, useCallback, useMemo } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
+import { useEnhancementStore } from '@/stores/enhancementStore';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
+import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
+import { calculateMaxHP } from '@/utils/statCalculator';
 import type { RestEncounter } from '@/game/map/types';
 
 export function RestPage() {
   const isActive = useRunStore(s => s.isActive);
   const team = useRunStore(s => s.team);
+  const inventory = useRunStore(s => s.inventory);
   const gold = useRunStore(s => s.gold);
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore(s => s.getCurrentNode);
   const spendGold = useRunStore(s => s.spendGold);
+  const getEnhancementState = useEnhancementStore(s => s.getEnhancementState);
 
   const [healed, setHealed] = useState(false);
 
@@ -27,6 +32,26 @@ export function RestPage() {
   const fullHeal = encounter?.fullHeal ?? false;
   const canAfford = gold >= goldCost;
 
+  // Helper function to calculate max HP for a team member with all modifiers
+  const getMemberMaxHP = useCallback((member: typeof team[0]) => {
+    const champ = championDB.getById(member.championId);
+    if (!champ) return 100;
+
+    const level = member.level ?? 1;
+    
+    // Get enhancement bonuses for this champion
+    const enhancementState = getEnhancementState(member.championId);
+    const tree = enhancementTreeProvider.getTreeForChampion(champ);
+    const enhancementBonuses = enhancementService.calculateStatBonuses(
+      tree,
+      enhancementState.unlockedNodes
+    );
+
+    // Calculate max HP with level, enhancements, items, and event stat boosts
+    const eventStatBoosts = member.statBoosts;
+    return calculateMaxHP(champ, level, enhancementBonuses, inventory, member.championId, eventStatBoosts);
+  }, [getEnhancementState, inventory]);
+
   const handleRest = useCallback(() => {
     if (!canAfford && goldCost > 0) return;
     if (healed) return;
@@ -36,14 +61,26 @@ export function RestPage() {
       spendGold(goldCost);
     }
 
-    // Heal each team member
+    // Heal each team member using accurate max HP calculation
     const state = useRunStore.getState();
     const updates = state.team.map(member => {
       const champ = championDB.getById(member.championId);
-      const maxHp = champ?.stats.hp ?? 100;
+      const level = member.level ?? 1;
+      
+      // Get enhancement bonuses for this champion
+      const enhancementState = getEnhancementState(member.championId);
+      const tree = enhancementTreeProvider.getTreeForChampion(champ!);
+      const enhancementBonuses = enhancementService.calculateStatBonuses(
+        tree,
+        enhancementState.unlockedNodes
+      );
+
+      // Calculate max HP with all modifiers (including event stat boosts)
+      const maxHp = calculateMaxHP(champ, level, enhancementBonuses, state.inventory, member.championId, member.statBoosts);
       const currentHp = member.currentHp ?? maxHp;
       const healAmount = fullHeal ? maxHp - currentHp : Math.floor(maxHp * healPercent);
       const newHp = Math.min(maxHp, currentHp + healAmount);
+      
       return {
         championId: member.championId,
         currentHp: newHp,
@@ -54,7 +91,7 @@ export function RestPage() {
 
     state.updateTeamAfterCombat(updates);
     setHealed(true);
-  }, [canAfford, healed, goldCost, spendGold, healPercent, fullHeal]);
+  }, [canAfford, healed, goldCost, spendGold, healPercent, fullHeal, getEnhancementState]);
 
   const handleContinue = useCallback(() => {
     playUIClick();
@@ -88,14 +125,14 @@ export function RestPage() {
         {/* Team HP Display */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24, width: '100%', maxWidth: 400 }}>
           {team.map(member => {
-            const champ = championDB.getById(member.championId);
-            const maxHp = champ?.stats.hp ?? 100;
+            const maxHp = getMemberMaxHP(member);
             const currentHp = member.currentHp ?? maxHp;
             const pct = Math.round((currentHp / maxHp) * 100);
+            const champ = championDB.getById(member.championId);
             return (
               <div key={member.championId} style={memberRowStyle}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#e6edf3', marginBottom: 4 }}>
-                  {champ?.name ?? member.championId}
+                  {champ?.name ?? member.championId} (Lv.{member.level ?? 1})
                 </div>
                 <div style={hpBarBg}>
                   <div style={{ ...hpBarFill, width: `${pct}%`, background: pct < 30 ? '#ef4444' : pct < 60 ? '#facc15' : '#22c55e' }} />

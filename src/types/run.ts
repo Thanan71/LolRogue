@@ -139,6 +139,8 @@ export interface TeamMember {
   level?: number;
   /** Current XP toward next level (persisted between combats). Defaults to 0. */
   currentXp?: number;
+  /** Stat boosts gained from events during the run (persisted between combats) */
+  statBoosts?: Record<string, number>;
 }
 
 /** The full state of a single roguelike run */

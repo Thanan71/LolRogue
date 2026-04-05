@@ -79,6 +79,27 @@ export function EventPage() {
         if (resolved.championId && state.team.length < 5) addChampion(resolved.championId);
         break;
       }
+      case 'stat_boost': {
+        if (resolved.statBoost) {
+          const { stat, amount } = resolved.statBoost;
+          // Apply stat boost to all team members
+          const updates = state.team.map(member => {
+            const existingBoosts = member.statBoosts || {};
+            return {
+              championId: member.championId,
+              currentHp: member.currentHp ?? 0,
+              level: member.level ?? 1,
+              currentXp: member.currentXp ?? 0,
+              statBoosts: {
+                ...existingBoosts,
+                [stat]: (existingBoosts[stat] || 0) + amount,
+              },
+            };
+          });
+          state.updateTeamAfterCombat(updates);
+        }
+        break;
+      }
     }
   }, [encounter, outcome, addGold, spendGold, addItem, addChampion]);
 

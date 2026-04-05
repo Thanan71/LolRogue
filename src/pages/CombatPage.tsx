@@ -34,10 +34,14 @@ function buildTeamInstances(championIds: string[], levels?: Record<string, numbe
 }
 
 /**
- * Apply enhancement bonuses to champion instances.
+ * Apply enhancement bonuses and item bonuses to champion instances.
  * Retrieves enhancement state from the store and applies stat bonuses.
+ * Also applies item bonuses from equipped items.
  */
-function applyEnhancementsToTeam(instances: ChampionInstance[]): void {
+function applyEnhancementsToTeam(
+  instances: ChampionInstance[], 
+  inventory: import('@/types/run').InventoryEntry[]
+): void {
   const enhancementStore = useEnhancementStore.getState();
   
   for (const instance of instances) {
@@ -47,17 +51,39 @@ function applyEnhancementsToTeam(instances: ChampionInstance[]): void {
     // Get enhancement state for this champion
     const enhancementState = enhancementStore.getEnhancementState(instance.id);
     
-    // If no enhancements unlocked, skip
-    if (Object.keys(enhancementState.unlockedNodes).length === 0) continue;
-    
     // Get the enhancement tree for this champion's role
     const tree = enhancementTreeProvider.getTreeForChampion(champ);
     
     // Calculate stat bonuses from unlocked nodes
-    const bonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
+    const enhancementBonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
     
-    // Apply bonuses to the champion instance
-    instance.setEnhancementBonuses(bonuses);
+    // Calculate item bonuses
+    const equippedItems = inventory.filter(entry => entry.equippedToChampionId === instance.id);
+    for (const entry of equippedItems) {
+      const itemStats = entry.item.stats;
+      // Map item stat keys to CalculatedStats keys (used by ChampionInstance)
+      const itemStatMap: Record<string, keyof import('@/utils/champion').CalculatedStats> = {
+        hp: 'hp',
+        atk: 'attackDamage',
+        def: 'armor',
+        ap: 'abilityPower',
+        spd: 'moveSpeed',
+        crit: 'crit',
+      };
+      for (const [key, value] of Object.entries(itemStats)) {
+        const calcStatsKey = itemStatMap[key];
+        if (calcStatsKey && value) {
+          // EnhancementStatBonuses.flat uses StatType keys, but ChampionInstance
+          // applies them by casting to keyof CalculatedStats, so we need to use
+          // the CalculatedStats key names
+          (enhancementBonuses.flat as any)[calcStatsKey] = 
+            ((enhancementBonuses.flat as any)[calcStatsKey] || 0) + value;
+        }
+      }
+    }
+    
+    // Apply combined bonuses to the champion instance
+    instance.setEnhancementBonuses(enhancementBonuses);
   }
 }
 
@@ -238,12 +264,15 @@ export function CombatPage() {
     return team.map(t => `${t.championId}:${t.level ?? 1}`).join(',');
   }, [team]);
 
+  // Get inventory for item bonuses
+  const inventory = useRunStore(s => s.inventory);
+
   const playerInstances = useMemo(() => {
     const instances = buildTeamInstances(team.map(m => m.championId), teamLevels);
-    // Apply enhancement bonuses to player champions
-    applyEnhancementsToTeam(instances);
+    // Apply enhancement bonuses and item bonuses to player champions
+    applyEnhancementsToTeam(instances, inventory);
     return instances;
-  }, [teamKey, teamLevels]);
+  }, [teamKey, teamLevels, inventory]);
 
   // Get enhancement descriptions for each player champion (memoized)
   // Use teamKey to ensure this updates when team composition or levels change
@@ -539,7 +568,7 @@ export function CombatPage() {
           <div style={teamTitleStyle('#3b82f6')}>Votre équipe</div>
           {playerTeam.map(c => (
             <CombatantPortrait 
-              key={c.id} 
+              key={`player-${c.id}`} 
               combatant={c} 
               isActive={c.id === currentTurnChampionId}
               enhancementBonuses={playerEnhancementBonuses[c.id] || []}
@@ -600,8 +629,8 @@ export function CombatPage() {
         {/* Enemy team panel */}
         <div style={rightPanelStyle}>
           <div style={teamTitleStyle('#ef4444')}>Ennemis</div>
-          {enemyTeam.map(c => (
-            <CombatantPortrait key={c.id} combatant={c} isActive={c.id === currentTurnChampionId} />
+          {enemyTeam.map((c, i) => (
+            <CombatantPortrait key={`${c.id}-${i}`} combatant={c} isActive={c.id === currentTurnChampionId} />
           ))}
           {enemyTeam.length === 0 && <div style={emptyStyle}>Aucun ennemi</div>}
         </div>
