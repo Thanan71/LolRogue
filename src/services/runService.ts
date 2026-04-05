@@ -8,16 +8,18 @@
  * - Recording run team members
  * 
  * It uses the repository pattern for data access, following SOLID principles.
+ * Dependencies are injected via the RepositoryContainer for better testability.
  */
 
 import { supabase } from './supabaseClient';
-import { createRepositories } from './repositories';
+import { RepositoryContainerFactory } from './container';
 import type { RunInsert, RunTeamMemberInsert, ChampionMasteryUpdate } from '@/types/database';
 import type { RunSummary, Biome } from '@/types/run';
 import { useAuthStore } from '@/stores/authStore';
+import type { IRepositoryContainer } from './interfaces';
 
-// Create repositories (in a real app, this could be done via dependency injection)
-const repositories = createRepositories(supabase);
+// Create repository container for dependency injection
+const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
 export interface SaveRunData {
   /** The client-side run ID (UUID) */
@@ -93,7 +95,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
       completed_at: completedAt,
     };
 
-    const { data: runResult, error: runError } = await repositories.run.createRun(runData);
+    const { data: runResult, error: runError } = await container.run.createRun(runData);
     
     if (runError || !runResult) {
       console.error('[RunService] Failed to create run:', runError);
@@ -118,7 +120,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
       };
     });
 
-    const { error: teamError } = await repositories.run.addRunTeamMembers(teamMembers);
+    const { error: teamError } = await container.run.addRunTeamMembers(teamMembers);
     
     if (teamError) {
       console.error('[RunService] Failed to create team member records:', teamError);
@@ -132,7 +134,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
       total_waves_completed: player.total_waves_completed + data.wavesCompleted,
     };
 
-    const { error: playerError } = await repositories.player.updatePlayer(user.id, playerUpdates);
+    const { error: playerError } = await container.player.updatePlayer(user.id, playerUpdates);
     
     if (playerError) {
       console.error('[RunService] Failed to update player stats:', playerError);
@@ -158,7 +160,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
         total_damage_dealt: championStat.totalDamage,
       };
       
-      const { error: masteryError } = await repositories.mastery.upsertChampionMastery(
+      const { error: masteryError } = await container.mastery.upsertChampionMastery(
         player.id,
         championStat.championId,
         masteryUpdate
@@ -187,7 +189,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
           total_damage_dealt: 0,
         };
         
-        const { error: masteryError } = await repositories.mastery.upsertChampionMastery(
+        const { error: masteryError } = await container.mastery.upsertChampionMastery(
           player.id,
           member.championId,
           masteryUpdate
@@ -200,7 +202,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
     }
 
     // Update player's total candies using repository
-    const { error: candiesError } = await repositories.player.updatePlayer(user.id, {
+    const { error: candiesError } = await container.player.updatePlayer(user.id, {
       total_candies: masteryStore.totalCandiesEarned,
     });
 
@@ -237,7 +239,7 @@ export async function getPlayerRunHistory(limit = 10, offset = 0) {
   }
 
   try {
-    const { data, error } = await repositories.run.getPlayerRuns(player.id, limit, offset);
+    const { data, error } = await container.run.getPlayerRuns(player.id, limit, offset);
 
     if (error) {
       return { data: [], error: error.message };
@@ -254,7 +256,7 @@ export async function getPlayerRunHistory(limit = 10, offset = 0) {
  */
 export async function getRunDetails(runId: string) {
   try {
-    const { data, error } = await repositories.runStats.getRunDetails(runId);
+    const { data, error } = await container.runStats.getRunDetails(runId);
 
     if (error || !data) {
       return { run: null, teamMembers: [], error: error?.message || 'Run not found' };
@@ -290,7 +292,7 @@ export async function getPlayerRunStats() {
   }
 
   try {
-    const { data, error } = await repositories.runStats.getPlayerRunStats(player.id);
+    const { data, error } = await container.runStats.getPlayerRunStats(player.id);
 
     if (error || !data) {
       // Fallback to player data

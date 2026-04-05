@@ -52,6 +52,12 @@ export interface IEnhancementRepository {
   getEnhancementState(playerId: string, championId: string): Promise<PlayerEnhancementState | null>;
   
   /**
+   * Get all enhancement states for a player
+   * Returns a Map of championId -> enhancement state
+   */
+  getAllEnhancementStates(playerId: string): Promise<Map<string, PlayerEnhancementState>>;
+  
+  /**
    * Save or update enhancement state
    */
   saveEnhancementState(
@@ -67,7 +73,8 @@ export interface IEnhancementRepository {
     playerId: string,
     championId: string,
     nodeId: string,
-    candyCost: number
+    candyCost: number,
+    currentState: PlayerEnhancementState
   ): Promise<UnlockNodeResult>;
 }
 

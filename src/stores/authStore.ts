@@ -3,17 +3,18 @@
  * Manages user session, login/logout, and syncs with Supabase auth.
  * 
  * Uses the repository pattern for data access, following SOLID principles.
+ * Dependencies are injected via the container for better testability.
  */
 
 import { create } from 'zustand';
 import { supabase } from '@/services/supabaseClient';
-import { SupabaseAuthRepository, SupabasePlayerRepository } from '@/services/repositories';
+import { RepositoryContainerFactory } from '@/services/container';
 import type { User } from '@supabase/supabase-js';
 import type { Player } from '@/types/database';
+import type { IRepositoryContainer } from '@/services/interfaces';
 
-// Create repositories for data access
-const authRepository = new SupabaseAuthRepository(supabase);
-const playerRepository = new SupabasePlayerRepository(supabase);
+// Create repository container for dependency injection
+const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
 export interface AuthState {
   user: User | null;
@@ -67,17 +68,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const result = await authRepository.signIn(email, password);
+      const result = await container.auth.signIn(email, password);
 
       if (result.error) throw result.error;
 
       if (result.user) {
         // Fetch player data using repository
-        const { data: playerData } = await playerRepository.getPlayer(result.user.id);
+        const { data: playerData } = await container.player.getPlayer(result.user.id);
         
         // Update last login using repository
         if (playerData) {
-          await playerRepository.updatePlayer(result.user.id, { last_login_at: new Date().toISOString() });
+          await container.player.updatePlayer(result.user.id, { last_login_at: new Date().toISOString() });
         }
 
         // Check admin status
@@ -108,7 +109,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signUp: async (email: string, password: string, username: string, displayName?: string) => {
     set({ isLoading: true, error: null });
     try {
-      const result = await authRepository.signUp(email, password, { username, display_name: displayName || username });
+      const result = await container.auth.signUp(email, password, { username, display_name: displayName || username });
 
       if (result.error) throw result.error;
 
@@ -143,7 +144,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         
         for (let attempt = 0; attempt < maxRetries; attempt++) {
           await new Promise(resolve => setTimeout(resolve, retryDelay));
-          const { data, error } = await playerRepository.getPlayer(result.user.id);
+          const { data, error } = await container.player.getPlayer(result.user.id);
           
           if (data) {
             playerData = data;
@@ -193,7 +194,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
-      await authRepository.signOut();
+      await container.auth.signOut();
       set({
         user: null,
         player: null,
@@ -215,7 +216,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     if (!user) return;
 
     try {
-      const { data: playerData } = await playerRepository.getPlayer(user.id);
+      const { data: playerData } = await container.player.getPlayer(user.id);
       const isAdmin = playerData?.is_admin === true;
       set({ player: playerData || null, isAdmin });
     } catch (error) {
@@ -239,14 +240,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
     
     try {
-      const { session } = await authRepository.getSession();
+      const { session } = await container.auth.getSession();
 
       if (session?.user) {
-        const { data: playerData } = await playerRepository.getPlayer(session.user.id);
+        const { data: playerData } = await container.player.getPlayer(session.user.id);
         
         // Update last login using repository
         if (playerData) {
-          await playerRepository.updatePlayer(session.user.id, { last_login_at: new Date().toISOString() });
+          await container.player.updatePlayer(session.user.id, { last_login_at: new Date().toISOString() });
         }
 
         // Check admin status
@@ -283,7 +284,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
 // Set up auth state change listener
 // Only update state on explicit events, don't override during login/signup flow
-authRepository.onAuthStateChange(async (event, session) => {
+container.auth.onAuthStateChange(async (event, session) => {
   const currentState = useAuthStore.getState();
   
   // Skip if we're already in the middle of a login/signup operation
@@ -294,7 +295,7 @@ authRepository.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session?.user) {
     // Only update if not already authenticated with this user
     if (currentState.user?.id !== session.user.id) {
-      const { data: playerData } = await playerRepository.getPlayer(session.user.id);
+      const { data: playerData } = await container.player.getPlayer(session.user.id);
       const isAdmin = playerData?.is_admin === true;
       useAuthStore.setState({
         user: session.user,
@@ -320,7 +321,7 @@ authRepository.onAuthStateChange(async (event, session) => {
     });
   } else if (event === 'USER_UPDATED' && session?.user) {
     // Refresh player data on user update
-    const { data: playerData } = await playerRepository.getPlayer(session.user.id);
+    const { data: playerData } = await container.player.getPlayer(session.user.id);
     const isAdmin = playerData?.is_admin === true;
     useAuthStore.setState({
       player: playerData || null,

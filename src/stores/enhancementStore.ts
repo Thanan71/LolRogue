@@ -3,20 +3,22 @@
  * 
  * Manages enhancement state with real-time candy tracking and
  * database persistence integration.
+ * 
+ * Uses dependency injection via RepositoryContainer for better testability.
  */
 
 import { create } from 'zustand';
 import { supabase } from '@/services/supabaseClient';
-import { SupabasePlayerRepository } from '@/services/repositories';
+import { RepositoryContainerFactory } from '@/services/container';
 import type { Champion } from '@/types/champion';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
 import type { ChampionEnhancementTree, EnhancementNode } from '@/types/enhancementTree';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { supabaseEnhancementRepository } from '@/services/repositories/SupabaseEnhancementRepository';
 import { useAuthStore } from '@/stores/authStore';
+import type { IRepositoryContainer } from '@/services/interfaces';
 
-// Create player repository for updating candies
-const playerRepository = new SupabasePlayerRepository(supabase);
+// Create repository container for dependency injection
+const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
 // ─── Enhancement Store State ─────────────────────────────────────────────────
 
@@ -79,12 +81,12 @@ export const useEnhancementStore = create<EnhancementStore>()(
     selectedChampion: null,
 
     // Initialize with player data
-    initialize: async (userId: string) => {
+    initialize: async (playerId: string) => {
       set({ isLoading: true, error: null });
       
       try {
         // Fetch all enhancement states from database
-        const states = await supabaseEnhancementRepository.getAllEnhancementStates(userId);
+        const states = await container.enhancement.getAllEnhancementStates(playerId);
         
         const enhancements: Record<string, PlayerEnhancementState> = {};
         states.forEach((state, championId) => {
@@ -203,7 +205,7 @@ export const useEnhancementStore = create<EnhancementStore>()(
       const { user: currentUser } = useAuthStore.getState();
       if (!currentUser) return false;
       
-      const result = await supabaseEnhancementRepository.unlockNode(
+      const result = await container.enhancement.unlockNode(
         currentUser.id,
         selectedChampion.id,
         nodeId,
@@ -230,7 +232,7 @@ export const useEnhancementStore = create<EnhancementStore>()(
       const { refreshPlayer } = useAuthStore.getState();
       if (currentUser) {
         try {
-          await playerRepository.updatePlayer(currentUser.id, {
+          await container.player.updatePlayer(currentUser.id, {
             total_candies: Math.max(0, (get().availableCandies)),
           });
           // Refresh the player data in the auth store

@@ -41,17 +41,17 @@ export class SupabaseEnhancementRepository {
   private static readonly TABLE_NAME = 'champion_enhancements';
 
   /**
-   * Get enhancement state for a user-champion pair
+   * Get enhancement state for a player-champion pair
    */
   async getEnhancementState(
-    userId: string,
+    playerId: string,
     championId: string
   ): Promise<PlayerEnhancementState | null> {
     try {
       const { data, error } = await supabase
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', playerId)
         .eq('champion_id', championId)
         .single();
 
@@ -78,13 +78,13 @@ export class SupabaseEnhancementRepository {
    * Save or update enhancement state
    */
   async saveEnhancementState(
-    userId: string,
+    playerId: string,
     championId: string,
     state: PlayerEnhancementState
   ): Promise<boolean> {
     try {
       const upsertData: ChampionEnhancementInsert = {
-        user_id: userId,
+        user_id: playerId,
         champion_id: championId,
         unlocked_nodes: state.unlockedNodes,
         total_candies_spent: state.totalCandiesSpent,
@@ -113,7 +113,7 @@ export class SupabaseEnhancementRepository {
    * Also deducts candies from player's mastery
    */
   async unlockNode(
-    userId: string,
+    playerId: string,
     championId: string,
     nodeId: string,
     candyCost: number,
@@ -128,7 +128,7 @@ export class SupabaseEnhancementRepository {
     };
 
     // Save to database
-    const saved = await this.saveEnhancementState(userId, championId, newState);
+    const saved = await this.saveEnhancementState(playerId, championId, newState);
 
     if (!saved) {
       return {
@@ -149,14 +149,14 @@ export class SupabaseEnhancementRepository {
   }
 
   /**
-   * Get all enhancement states for a user
+   * Get all enhancement states for a player
    */
-  async getAllEnhancementStates(userId: string): Promise<Map<string, PlayerEnhancementState>> {
+  async getAllEnhancementStates(playerId: string): Promise<Map<string, PlayerEnhancementState>> {
     try {
       const { data, error } = await supabase
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', playerId);
 
       if (error) {
         console.error('[SupabaseEnhancementRepository] Error fetching all enhancement states:', error);
@@ -182,14 +182,14 @@ export class SupabaseEnhancementRepository {
    * Reset enhancement state for a champion (for testing/debug)
    */
   async resetEnhancementState(
-    userId: string,
+    playerId: string,
     championId: string
   ): Promise<boolean> {
     try {
       const { error } = await supabase
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .delete()
-        .eq('user_id', userId)
+        .eq('user_id', playerId)
         .eq('champion_id', championId);
 
       if (error) {

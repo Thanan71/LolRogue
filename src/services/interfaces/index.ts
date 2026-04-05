@@ -5,6 +5,9 @@
  * This enables clean imports and dependency inversion.
  */
 
+// Container interfaces
+export * from './IRepositoryContainer';
+
 // Auth interfaces and types
 export * from './IAuthRepository';
 
