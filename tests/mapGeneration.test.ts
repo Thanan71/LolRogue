@@ -64,6 +64,20 @@ describe('Map Generation', () => {
         expect(map1.nodes[i].type).toBe(map2.nodes[i].type);
       }
     });
+
+    it('should have exactly 1 node in the first column', () => {
+      for (const biome of BIOMES) {
+        const map = generateMap(biome, 1, 42);
+        const firstColumnNodes = map.nodes.filter((n) => n.column === 0);
+        expect(firstColumnNodes.length).toBe(1);
+      }
+      // Test with multiple seeds to ensure consistency
+      for (let seed = 0; seed < 10; seed++) {
+        const map = generateMap('jungle', 2, seed);
+        const firstColumnNodes = map.nodes.filter((n) => n.column === 0);
+        expect(firstColumnNodes.length).toBe(1);
+      }
+    });
   });
 
   describe('generateRunMap', () => {

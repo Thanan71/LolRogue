@@ -252,7 +252,8 @@ export function generateMap(biome: Biome, runLevel: number, seed?: number): Node
   const allNodes: MapNode[] = [];
 
   for (let col = 0; col < columns; col++) {
-    const nodeCount = Math.floor(
+    // First column always has exactly 1 node
+    const nodeCount = col === 0 ? 1 : Math.floor(
       rand() * (config.maxNodesPerColumn - config.minNodesPerColumn + 1) +
       config.minNodesPerColumn
     );
