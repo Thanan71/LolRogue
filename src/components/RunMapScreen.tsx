@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { findNode } from '@/game/map/mapUtils';
 import { ROUTES } from '@/stores/routerStore';
@@ -10,6 +10,9 @@ import { NodeType } from '@/game/map/types';
 import type { NodeMap } from '@/game/map/types';
 import type { NodeType as RunNodeType } from '@/types/run';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
+import { useEnhancementStore } from '@/stores/enhancementStore';
+import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
+import { calculateStats } from '@/utils/champion';
 
 // Map game/map NodeType enum to CSS colors
 const NODE_COLORS: Record<string, string> = {
@@ -224,6 +227,39 @@ export function RunMapScreen() {
 }
 
 function TeamPanel({ team }: { team: { championId: string; level?: number; currentXp?: number; currentHp?: number }[] }) {
+  // Calculate enhanced max HP for each team member
+  const enhancedHpMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const member of team) {
+      const champ = championDB.getById(member.championId);
+      if (!champ) continue;
+      
+      const level = member.level ?? 1;
+      
+      // Get base stats at current level
+      const baseStats = calculateStats(champ.stats, level);
+      
+      // Get enhancement bonuses
+      const enhancementStore = useEnhancementStore.getState();
+      const enhancementState = enhancementStore.getEnhancementState(member.championId);
+      
+      if (Object.keys(enhancementState.unlockedNodes).length > 0) {
+        const tree = enhancementTreeProvider.getTreeForChampion(champ);
+        const bonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
+        
+        // Apply HP bonus
+        let enhancedHp = baseStats.hp;
+        if (bonuses.flat.hp) enhancedHp += bonuses.flat.hp;
+        if (bonuses.percent.hp) enhancedHp *= (1 + bonuses.percent.hp);
+        
+        map[member.championId] = Math.round(enhancedHp);
+      } else {
+        map[member.championId] = Math.round(baseStats.hp);
+      }
+    }
+    return map;
+  }, [team]);
+
   return (
     <div style={panelStyle}>
       <div style={panelTitle}>Equipe</div>
@@ -234,7 +270,8 @@ function TeamPanel({ team }: { team: { championId: string; level?: number; curre
         const currentXp = m.currentXp ?? 0;
         const xpProgress = getXpProgress(level, currentXp);
         const xpDisplay = formatXpDisplay(level, currentXp);
-        const hpPercent = champ ? Math.min(100, Math.max(0, ((m.currentHp ?? champ.stats.hp) / champ.stats.hp) * 100)) : 100;
+        const maxHp = enhancedHpMap[m.championId] ?? (champ ? Math.round(calculateStats(champ.stats, level).hp) : 100);
+        const hpPercent = champ ? Math.min(100, Math.max(0, ((m.currentHp ?? maxHp) / maxHp) * 100)) : 100;
         
         return (
           <div key={m.championId} style={teamMemberStyle}>
@@ -280,7 +317,7 @@ function TeamPanel({ team }: { team: { championId: string; level?: number; curre
                   {level >= 18 ? 'MAX' : xpDisplay}
                 </div>
                 <div style={{ color: "#484f58", fontSize: 9 }}>
-                  {Math.round(m.currentHp ?? 0)}/{champ?.stats.hp ?? 0}
+                  {Math.round(m.currentHp ?? 0)}/{maxHp}
                 </div>
               </div>
             </div>

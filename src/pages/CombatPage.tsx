@@ -125,13 +125,48 @@ function buildEnemyTeamFromEncounter(encounter: CombatEncounter): ChampionInstan
   for (const enemy of encounter.enemies) {
     const champ = championDB.getById(enemy.championId);
     if (champ) {
-      // Use level from enemy definition, defaulting to 1
-      // Scale level by statMultiplier to approximate stat increase
-      // e.g., level 1 with 1.5x stats ≈ level 8 stats
+      // Enemy level scales with run level and node difficulty
+      // Base level is 1 for normal combats
       const baseLevel = enemy.level ?? 1;
-      const effectiveLevel = Math.min(18, Math.max(1, Math.round(baseLevel * enemy.statMultiplier)));
-      const instance = new ChampionInstance(champ, effectiveLevel);
-      instances.push(instance);
+      const instance = new ChampionInstance(champ, baseLevel);
+      
+      // Apply stat multiplier by directly modifying the champion's base stats
+      // This is more reliable than using enhancement bonuses with mismatched stat names
+      if (enemy.statMultiplier && enemy.statMultiplier !== 1.0) {
+        const multiplier = enemy.statMultiplier;
+        const baseStats = champ.stats;
+        
+        // Create a modified champion with scaled stats
+        const scaledChamp = {
+          ...champ,
+          stats: {
+            ...baseStats,
+            hp: Math.round(baseStats.hp * multiplier),
+            hpPerLevel: Math.round(baseStats.hpPerLevel * multiplier),
+            mp: Math.round(baseStats.mp * multiplier),
+            mpPerLevel: Math.round(baseStats.mpPerLevel * multiplier),
+            armor: Math.round(baseStats.armor * multiplier),
+            armorPerLevel: Math.round(baseStats.armorPerLevel * multiplier),
+            magicResist: Math.round(baseStats.magicResist * multiplier),
+            magicResistPerLevel: Math.round(baseStats.magicResistPerLevel * multiplier),
+            attackDamage: Math.round(baseStats.attackDamage * multiplier),
+            attackDamagePerLevel: Math.round(baseStats.attackDamagePerLevel * multiplier),
+            attackSpeed: Math.round(baseStats.attackSpeed * multiplier * 100) / 100,
+            attackSpeedPerLevel: Math.round(baseStats.attackSpeedPerLevel * multiplier * 100) / 100,
+            hpRegen: Math.round(baseStats.hpRegen * multiplier * 10) / 10,
+            hpRegenPerLevel: Math.round(baseStats.hpRegenPerLevel * multiplier * 10) / 10,
+            mpRegen: Math.round(baseStats.mpRegen * multiplier * 10) / 10,
+            mpRegenPerLevel: Math.round(baseStats.mpRegenPerLevel * multiplier * 10) / 10,
+            crit: Math.round(baseStats.crit * multiplier * 10) / 10,
+            critPerLevel: Math.round(baseStats.critPerLevel * multiplier * 10) / 10,
+          },
+        };
+        
+        const scaledInstance = new ChampionInstance(scaledChamp, baseLevel);
+        instances.push(scaledInstance);
+      } else {
+        instances.push(instance);
+      }
     }
   }
   return instances;
@@ -197,15 +232,21 @@ export function CombatPage() {
     return m;
   }, [team]);
   
+  // Create a stable string key that includes both championIds and their levels
+  // This ensures playerInstances is recreated when levels change
+  const teamKey = useMemo(() => {
+    return team.map(t => `${t.championId}:${t.level ?? 1}`).join(',');
+  }, [team]);
+
   const playerInstances = useMemo(() => {
     const instances = buildTeamInstances(team.map(m => m.championId), teamLevels);
     // Apply enhancement bonuses to player champions
     applyEnhancementsToTeam(instances);
     return instances;
-    // Only recreate when team content actually changes, not just reference
-  }, [team.map(t => t.championId).join(','), teamLevels]);
+  }, [teamKey, teamLevels]);
 
   // Get enhancement descriptions for each player champion (memoized)
+  // Use teamKey to ensure this updates when team composition or levels change
   const playerEnhancementBonuses = useMemo(() => {
     const bonuses: Record<string, string[]> = {};
     for (const member of team) {
@@ -216,7 +257,7 @@ export function CombatPage() {
       }
     }
     return bonuses;
-  }, [team.map(t => t.championId).join(',')]);
+  }, [teamKey]);
   
   // Check for empty player team (invalid champion ID) - navigate to game over
   useEffect(() => {
