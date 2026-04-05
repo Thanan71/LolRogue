@@ -190,19 +190,12 @@ export class SupabaseRunStatsRepository implements IRunStatsRepository {
       .select('*')
       .eq('run_id', runId);
 
-    if (teamError) {
-      return {
-        data: { run: run as Run, teamMembers: [] },
-        error: teamError,
-      };
-    }
-
     return {
       data: {
         run: run as Run,
-        teamMembers: teamMembers as RunTeamMember[],
+        teamMembers: (teamMembers || []) as RunTeamMember[],
       },
-      error: null,
+      error: teamError,
     };
   }
 }
