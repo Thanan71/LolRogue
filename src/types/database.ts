@@ -131,6 +131,21 @@ export interface Run {
   completed_at: string;
   duration_seconds: number | null;
   created_at: string;
+  
+  // Phase 1: Additional fields for better balancing
+  seed?: number;
+  node_types_visited?: string[];
+  nodes_completed?: number;
+  combats_won?: number;
+  combats_lost?: number;
+  champions_recruited?: number;
+  items_purchased?: number;
+  total_gold_spent?: number;
+  total_healing_done?: number;
+  total_healing_received?: number;
+  total_damage_received?: number;
+  elite_kills?: number;
+  boss_kills?: number;
 }
 
 export interface RunInsert {
@@ -146,6 +161,20 @@ export interface RunInsert {
   candies_earned?: number;
   started_at?: string;
   completed_at?: string;
+  // Phase 1: Additional fields
+  seed?: number;
+  node_types_visited?: string[];
+  nodes_completed?: number;
+  combats_won?: number;
+  combats_lost?: number;
+  champions_recruited?: number;
+  items_purchased?: number;
+  total_gold_spent?: number;
+  total_healing_done?: number;
+  total_healing_received?: number;
+  total_damage_received?: number;
+  elite_kills?: number;
+  boss_kills?: number;
 }
 
 export interface RunUpdate {
@@ -158,6 +187,20 @@ export interface RunUpdate {
   total_damage_dealt?: number;
   candies_earned?: number;
   completed_at?: string;
+  // Phase 1: Additional fields
+  seed?: number;
+  node_types_visited?: string[];
+  nodes_completed?: number;
+  combats_won?: number;
+  combats_lost?: number;
+  champions_recruited?: number;
+  items_purchased?: number;
+  total_gold_spent?: number;
+  total_healing_done?: number;
+  total_healing_received?: number;
+  total_damage_received?: number;
+  elite_kills?: number;
+  boss_kills?: number;
 }
 
 // ─── Run Team Members ─────────────────────────────────────────────────────────
@@ -172,6 +215,15 @@ export interface RunTeamMember {
   kills: number;
   damage_dealt: number;
   items_collected: string[];
+  
+  // Phase 3: Additional combat tracking fields
+  damage_received?: number;
+  healing_done?: number;
+  healing_received?: number;
+  time_alive_seconds?: number;
+  crowd_control_duration?: number;
+  gold_earned?: number;
+  cs_score?: number;
 }
 
 export interface RunTeamMemberInsert {
@@ -183,6 +235,14 @@ export interface RunTeamMemberInsert {
   kills?: number;
   damage_dealt?: number;
   items_collected?: string[];
+  // Phase 3: Additional combat tracking fields
+  damage_received?: number;
+  healing_done?: number;
+  healing_received?: number;
+  time_alive_seconds?: number;
+  crowd_control_duration?: number;
+  gold_earned?: number;
+  cs_score?: number;
 }
 
 export interface RunTeamMemberUpdate {
@@ -192,6 +252,14 @@ export interface RunTeamMemberUpdate {
   kills?: number;
   damage_dealt?: number;
   items_collected?: string[];
+  // Phase 3: Additional combat tracking fields
+  damage_received?: number;
+  healing_done?: number;
+  healing_received?: number;
+  time_alive_seconds?: number;
+  crowd_control_duration?: number;
+  gold_earned?: number;
+  cs_score?: number;
 }
 
 // ─── Daily Runs ───────────────────────────────────────────────────────────────
