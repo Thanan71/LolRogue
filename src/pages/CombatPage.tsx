@@ -76,8 +76,8 @@ function applyEnhancementsToTeam(
           // EnhancementStatBonuses.flat uses StatType keys, but ChampionInstance
           // applies them by casting to keyof CalculatedStats, so we need to use
           // the CalculatedStats key names
-          (enhancementBonuses.flat as any)[calcStatsKey] = 
-            ((enhancementBonuses.flat as any)[calcStatsKey] || 0) + value;
+          const flatBonuses = enhancementBonuses.flat as Record<string, number>;
+          flatBonuses[calcStatsKey] = (flatBonuses[calcStatsKey] || 0) + value;
         }
       }
     }
@@ -307,7 +307,7 @@ export function CombatPage() {
       const summary: RunSummary = runStatsTracker.buildSummary({
         won: false,
         wavesCompleted: rs.totalWavesCompleted,
-        biomesVisited: rs.biomesVisited as any,
+        biomesVisited: rs.biomesVisited,
         goldEarned: rs.gold,
         runLevel: rs.runLevel,
       });
@@ -320,11 +320,24 @@ export function CombatPage() {
     }
   }, [isActive, playerInstances.length, team.length, team, navigate]);
 
-  // Build HP overrides from persisted team state
+  // Build HP overrides from persisted team state, clamped to max HP
   const initialHpOverrides = useMemo(() => {
     const m: Record<string, number> = {};
     for (const t of team) {
-      if (t.currentHp !== undefined) m[t.championId] = t.currentHp;
+      if (t.currentHp !== undefined) {
+        const champ = championDB.getById(t.championId);
+        if (champ) {
+          const level = t.level ?? 1;
+          // Calculate max HP at current level using LoL growth formula
+          const baseHp = champ.stats.hp;
+          const hpPerLevel = champ.stats.hpPerLevel;
+          const maxHp = Math.round(baseHp + hpPerLevel * (level - 1));
+          // Clamp current HP to max HP to prevent exceeding maximum after level up
+          m[t.championId] = Math.min(t.currentHp, maxHp);
+        } else {
+          m[t.championId] = t.currentHp;
+        }
+      }
     }
     return Object.keys(m).length > 0 ? m : undefined;
   }, [team]);
@@ -422,7 +435,7 @@ export function CombatPage() {
       const victorySummary: RunSummary = runStatsTracker.buildSummary({
         won: true,
         wavesCompleted: rs2.totalWavesCompleted,
-        biomesVisited: rs2.biomesVisited as any,
+        biomesVisited: rs2.biomesVisited,
         goldEarned: rs2.gold,
         runLevel: rs2.runLevel,
       });
@@ -449,7 +462,7 @@ export function CombatPage() {
       const summary: RunSummary = runStatsTracker.buildSummary({
         won: false,
         wavesCompleted: rs.totalWavesCompleted,
-        biomesVisited: rs.biomesVisited as any,
+        biomesVisited: rs.biomesVisited,
         goldEarned: rs.gold,
         runLevel: rs.runLevel,
       });

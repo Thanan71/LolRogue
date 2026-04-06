@@ -27,6 +27,11 @@ import { createBuff, createDebuff } from '@/game/effects/BuffDebuffEffect';
 import { EffectManager } from '@/game/effects/EffectManager';
 import type { StatKey } from '@/game/effects/types';
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+/** Maximum random speed jitter added to turn order calculation (in speed units) */
+const SPEED_JITTER_MAX = 0.5;
+
 type EventCallback = (event: BattleEvent) => void;
 type ActionCallback = (
   champion: ChampionInstance,
@@ -344,9 +349,9 @@ export class BattleManager {
   }
 
   private _calcSpeedPriority(champion: ChampionInstance): number {
-    // Use enhanced stats if available for speed calculation
-    const stats = champion.getEnhancedStats ? champion.getEnhancedStats() : champion.getStats();
-    const jitter = Math.random() * 0.5;
+    // Use enhanced stats (getEnhancedStats always returns valid stats, falling back to base stats if no bonuses)
+    const stats = champion.getEnhancedStats();
+    const jitter = Math.random() * SPEED_JITTER_MAX;
     return stats.moveSpeed + jitter;
   }
 
@@ -411,8 +416,8 @@ export class BattleManager {
     const manaCost = spell.cost.length > 0 ? spell.cost[0] : 0;
     attacker.currentMp = Math.max(0, attacker.currentMp - manaCost);
 
-    // Use enhanced stats for spell damage calculation
-    const atkStats = attacker.champion.getEnhancedStats ? attacker.champion.getEnhancedStats() : attacker.champion.getStats();
+    // Use enhanced stats for spell damage calculation (getEnhancedStats always returns valid stats)
+    const atkStats = attacker.champion.getEnhancedStats();
     const rankIdx = 0; // simplified: always rank-1 stats
 
     for (const effect of spell.effects) {
@@ -441,8 +446,8 @@ export class BattleManager {
       case 'damage': {
         const target = this._pickTarget(enemies);
         if (!target) return;
-        // Use enhanced stats for defense calculation
-        const defStats = target.champion.getEnhancedStats ? target.champion.getEnhancedStats() : target.champion.getStats();
+        // Use enhanced stats for defense calculation (getEnhancedStats always returns valid stats)
+        const defStats = target.champion.getEnhancedStats();
 
         const baseDmg = effect.baseDamage?.[rankIdx] ?? 0;
         const adRatio = effect.adRatio ?? 0;
@@ -610,9 +615,9 @@ export class BattleManager {
     attacker: CombatantState,
     target: CombatantState,
   ): void {
-    // Use enhanced stats for both attack and defense
-    const atkStats = attacker.champion.getEnhancedStats ? attacker.champion.getEnhancedStats() : attacker.champion.getStats();
-    const defStats = target.champion.getEnhancedStats ? target.champion.getEnhancedStats() : target.champion.getStats();
+    // Use enhanced stats for both attack and defense (getEnhancedStats always returns valid stats)
+    const atkStats = attacker.champion.getEnhancedStats();
+    const defStats = target.champion.getEnhancedStats();
 
     const baseRaw = atkStats.attackDamage;
     const critChance = Math.min(100, atkStats.crit) / 100;

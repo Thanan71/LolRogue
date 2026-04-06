@@ -183,22 +183,32 @@ function extractLogDetails(methodName: string, args: any[], result: any): Record
 }
 
 /**
+ * Validates if a string is a proper UUID format
+ * UUID format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+ */
+function isValidUUID(str: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
+/**
  * Extracts user ID from arguments or result
+ * Only returns proper UUIDs, not email addresses or other string formats
  */
 function extractUserId(args: any[], result: any): string | undefined {
-  // Check if any argument looks like a user ID
-  for (const arg of args) {
-    if (typeof arg === 'string' && (arg.includes('@') || arg.startsWith('user-') || arg.length === 36)) {
-      return arg;
-    }
-  }
-  
-  // Check result for user ID
-  if (result?.user?.id) {
+  // Check result for user ID first (most reliable source)
+  if (result?.user?.id && isValidUUID(result.user.id)) {
     return result.user.id;
   }
-  if (result?.session?.user?.id) {
+  if (result?.session?.user?.id && isValidUUID(result.session.user.id)) {
     return result.session.user.id;
+  }
+  
+  // Check if any argument is a valid UUID (skip emails and other formats)
+  for (const arg of args) {
+    if (typeof arg === 'string' && isValidUUID(arg)) {
+      return arg;
+    }
   }
   
   return undefined;
@@ -206,21 +216,22 @@ function extractUserId(args: any[], result: any): string | undefined {
 
 /**
  * Extracts player ID from arguments or result
+ * Only returns valid UUIDs, not arbitrary strings
  */
 function extractPlayerId(args: any[], result: any): string | undefined {
-  // Common patterns for player ID in arguments
-  for (const arg of args) {
-    if (typeof arg === 'string' && !arg.includes('@') && arg.length > 10) {
-      return arg;
-    }
-  }
-  
-  // Check result for player ID
-  if (result?.data?.player_id) {
+  // Check result for player ID first (most reliable source)
+  if (result?.data?.player_id && isValidUUID(result.data.player_id)) {
     return result.data.player_id;
   }
-  if (result?.data?.id && !result?.data?.email) {
+  if (result?.data?.id && isValidUUID(result.data.id) && !result?.data?.email) {
     return result.data.id;
+  }
+  
+  // Check if any argument is a valid UUID (skip emails and other formats)
+  for (const arg of args) {
+    if (typeof arg === 'string' && isValidUUID(arg)) {
+      return arg;
+    }
   }
   
   return undefined;

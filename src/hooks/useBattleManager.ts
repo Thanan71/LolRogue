@@ -6,6 +6,11 @@ import type { ChampionInstance } from '@/game/ChampionInstance';
 import { useBattleStore, type CombatantInfo, type SpellInfo } from '@/stores/battleStore';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+/** Delay in ms before calling onComplete after battle finishes (allows UI to render) */
+const BATTLE_END_UI_DELAY_MS = 500;
+
 /** Convert a ChampionInstance + combatant state to CombatantInfo for the UI */
 function toCombatantInfo(champ: ChampionInstance, side: 'player' | 'enemy', currentHp: number, maxHp: number, isDefeated: boolean): CombatantInfo {
   const stats = champ.getStats();
@@ -168,7 +173,8 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
       initialHpOverrides,
     });
 
-    bm.on('event', (e: BattleEvent) => handleEvent(bm, e));
+    const eventHandler = (e: BattleEvent) => handleEvent(bm, e);
+    bm.on('event', eventHandler);
 
     // Set phase to starting (resetBattle already set it to idle)
     store.setPhase('starting');
@@ -187,6 +193,7 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
 
     return () => {
       clearTimeout(timer);
+      bm.off('event', eventHandler);
       bmRef.current = null;
     };
   }, [playerTeam, enemyTeam]);
@@ -207,7 +214,7 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
         if (onCompleteRef.current && winner) {
           onCompleteRef.current(winner);
         }
-      }, 500);
+      }, BATTLE_END_UI_DELAY_MS);
     }
   }, [store.phase, store.winner]);
 

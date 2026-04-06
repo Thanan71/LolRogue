@@ -21,6 +21,14 @@ import type { IRepositoryContainer } from './interfaces';
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
+/** Result of saving a run, including any non-critical errors */
+export interface SaveRunResult {
+  success: boolean;
+  error?: string;
+  /** Non-critical errors that occurred during save (data may be incomplete) */
+  nonCriticalErrors?: string[];
+}
+
 export interface SaveRunData {
   /** The client-side run ID (UUID) */
   runId: string;
@@ -55,7 +63,7 @@ export interface SaveRunData {
  * 3. Updating player statistics
  * 4. Updating champion mastery
  */
-export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: boolean; error?: string }> {
+export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResult> {
   const { user, player, refreshPlayer } = useAuthStore.getState();
   
   console.log('[RunService] Attempting to save run:', {
@@ -79,6 +87,9 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
   const completedAt = new Date().toISOString();
   
   try {
+    // Track non-critical errors to report them without failing the entire save
+    const nonCriticalErrors: string[] = [];
+
     // 1. Create the run record using repository
     const runData: RunInsert = {
       player_id: player.id,
@@ -124,6 +135,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
     
     if (teamError) {
       console.error('[RunService] Failed to create team member records:', teamError);
+      nonCriticalErrors.push('Failed to save team member records');
       // Don't fail the entire save if team members fail - the run is still recorded
     }
 
@@ -138,6 +150,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
     
     if (playerError) {
       console.error('[RunService] Failed to update player stats:', playerError);
+      nonCriticalErrors.push('Failed to update player statistics');
       // Don't fail the entire save if player update fails
     }
 
@@ -168,6 +181,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
 
       if (masteryError) {
         console.error('[RunService] Failed to save mastery for champion:', championStat.championId, masteryError);
+        nonCriticalErrors.push(`Failed to save mastery for champion ${championStat.championId}`);
       }
     }
     
@@ -197,6 +211,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
 
         if (masteryError) {
           console.error('[RunService] Failed to save mastery for champion:', member.championId, masteryError);
+          nonCriticalErrors.push(`Failed to save mastery for champion ${member.championId}`);
         }
       }
     }
@@ -208,6 +223,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
 
     if (candiesError) {
       console.error('[RunService] Failed to update player candies:', candiesError);
+      nonCriticalErrors.push('Failed to update player candies');
     }
 
     // Refresh player data to get updated stats
@@ -221,7 +237,10 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<{ success: b
       totalCandies: masteryStore.totalCandiesEarned,
     });
 
-    return { success: true };
+    return { 
+      success: true,
+      nonCriticalErrors: nonCriticalErrors.length > 0 ? nonCriticalErrors : undefined,
+    };
   } catch (error: any) {
     console.error('[RunService] Unexpected error saving run:', error);
     return { success: false, error: error.message || 'Unexpected error saving run' };

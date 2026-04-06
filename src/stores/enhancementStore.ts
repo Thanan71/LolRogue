@@ -260,11 +260,14 @@ export const useEnhancementStore = create<EnhancementStore>()(
       
       // Also update the player's candies in the database
       // This ensures the candies are persisted
+      // Use the already calculated value (availableCandies - candyCost) instead of get().availableCandies
+      // to avoid race conditions where the state hasn't been updated yet
+      const newCandyCount = Math.max(0, availableCandies - candyCost);
       const { refreshPlayer } = useAuthStore.getState();
       if (currentUser) {
         try {
           await container.player.updatePlayer(currentUser.id, {
-            total_candies: Math.max(0, (get().availableCandies)),
+            total_candies: newCandyCount,
           });
           // Refresh the player data in the auth store
           await refreshPlayer();

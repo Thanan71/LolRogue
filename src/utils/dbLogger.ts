@@ -187,10 +187,30 @@ class DatabaseLogger {
   }
 
   /**
+   * Check if user is authenticated
+   */
+  private async isAuthenticated(): Promise<boolean> {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session !== null;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Flush the log buffer to the database
    */
   async flushBuffer(): Promise<void> {
     if (this.isFlushing || this.logBuffer.length === 0) return;
+
+    // Skip database insert if user is not authenticated
+    const authenticated = await this.isAuthenticated();
+    if (!authenticated) {
+      // Clear buffer when not authenticated to prevent accumulation
+      this.logBuffer = [];
+      return;
+    }
 
     this.isFlushing = true;
 

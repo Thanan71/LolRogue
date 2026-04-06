@@ -7,7 +7,7 @@ import { useRunStore } from '@/stores/runStore';
 import { useGameStore } from '@/stores/gameStore';
 import { championDB } from '@/data/championDatabase';
 import { NodeType } from '@/game/map/types';
-import type { NodeMap } from '@/game/map/types';
+import type { NodeMap, CombatEncounter } from '@/game/map/types';
 import type { NodeType as RunNodeType, InventoryEntry } from '@/types/run';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -74,7 +74,14 @@ export function RunMapScreen() {
 
       // Start encounter tracking (pass encounter data for combat nodes)
       if (node.type === NodeType.Combat || node.type === NodeType.Elite || node.type === NodeType.Boss) {
-        startEncounter(nodeId, node.type as unknown as RunNodeType, node.encounter as any);
+        // Only pass encounter data if it exists
+        if (node.encounter) {
+          startEncounter(nodeId, node.type as unknown as RunNodeType, node.encounter as CombatEncounter);
+        } else {
+          // Fallback for edge case where combat node has no encounter data
+          console.warn(`[RunMapScreen] Combat node ${nodeId} has no encounter data`);
+          startEncounter(nodeId, node.type as unknown as RunNodeType);
+        }
       } else {
         startEncounter(nodeId, node.type as unknown as RunNodeType);
       }

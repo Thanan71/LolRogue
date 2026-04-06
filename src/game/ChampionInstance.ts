@@ -108,12 +108,13 @@ export class ChampionInstance {
 
   /**
    * Compute stats with enhancement bonuses applied.
+   * Uses the shared _applyEnhancementBonuses method to apply bonuses to base stats.
    * @param bonuses - Enhancement stat bonuses to apply.
    * @returns Stats with both level scaling and enhancement bonuses.
    */
   getStatsWithEnhancements(bonuses: EnhancementStatBonuses): CalculatedStats {
     const baseStats = this.getStats();
-    return this._applyEnhancementBonuses(baseStats, bonuses);
+    return ChampionInstance.applyEnhancementBonuses(baseStats, bonuses);
   }
 
   /**
@@ -144,8 +145,12 @@ export class ChampionInstance {
 
   /**
    * Apply enhancement bonuses to a stats object.
+   * This is a static utility method that can be used independently of champion instances.
+   * @param baseStats - The base stats to enhance.
+   * @param bonuses - Enhancement stat bonuses to apply.
+   * @returns A new stats object with bonuses applied.
    */
-  private _applyEnhancementBonuses(
+  static applyEnhancementBonuses(
     baseStats: CalculatedStats,
     bonuses: EnhancementStatBonuses
   ): CalculatedStats {

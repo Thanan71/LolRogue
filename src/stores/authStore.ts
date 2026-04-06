@@ -66,6 +66,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   login: async (email: string, password: string) => {
+    activeAuthOperation = 'login';
+    lastAuthOperationTimestamp = Date.now();
     set({ isLoading: true, error: null });
     try {
       const result = await container.auth.signIn(email, password);
@@ -103,10 +105,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isAuthenticated: false 
       });
       return { success: false, error: error.message };
+    } finally {
+      activeAuthOperation = null;
     }
   },
 
   signUp: async (email: string, password: string, username: string, displayName?: string) => {
+    activeAuthOperation = 'signup';
+    lastAuthOperationTimestamp = Date.now();
     set({ isLoading: true, error: null });
     try {
       const result = await container.auth.signUp(email, password, { username, display_name: displayName || username });
@@ -188,10 +194,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isAuthenticated: false 
       });
       return { success: false, error: error.message };
+    } finally {
+      activeAuthOperation = null;
     }
   },
 
   logout: async () => {
+    activeAuthOperation = 'logout';
+    lastAuthOperationTimestamp = Date.now();
     set({ isLoading: true });
     try {
       await container.auth.signOut();
@@ -208,6 +218,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isLoading: false, 
         error: error.message || 'Logout failed' 
       });
+    } finally {
+      activeAuthOperation = null;
     }
   },
 
@@ -282,13 +294,29 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 }));
 
+// Track active auth operations to prevent race conditions
+let activeAuthOperation: 'login' | 'signup' | 'logout' | null = null;
+let lastAuthOperationTimestamp = 0;
+const RACE_CONDITION_WINDOW_MS = 2000; // Window to ignore listener after operation
+
 // Set up auth state change listener
 // Only update state on explicit events, don't override during login/signup flow
 container.auth.onAuthStateChange(async (event, session) => {
+  const now = Date.now();
   const currentState = useAuthStore.getState();
   
-  // Skip if we're already in the middle of a login/signup operation
-  if (currentState.isLoading) {
+  // Skip if we're actively in a login/signup/logout operation
+  if (activeAuthOperation) {
+    // If the operation started recently, skip to avoid race condition
+    if (now - lastAuthOperationTimestamp < RACE_CONDITION_WINDOW_MS) {
+      return;
+    }
+    // If the operation was too long ago, clear it (safety mechanism)
+    activeAuthOperation = null;
+  }
+
+  // Skip if we're in a loading state from a recent operation
+  if (currentState.isLoading && now - lastAuthOperationTimestamp < RACE_CONDITION_WINDOW_MS) {
     return;
   }
 
@@ -316,9 +344,12 @@ container.auth.onAuthStateChange(async (event, session) => {
     });
   } else if (event === 'TOKEN_REFRESHED' && session?.user) {
     // Update user session but don't change loading state
-    useAuthStore.setState({
-      user: session.user,
-    });
+    // Only update if the session is different to avoid unnecessary re-renders
+    if (currentState.user?.id !== session.user.id) {
+      useAuthStore.setState({
+        user: session.user,
+      });
+    }
   } else if (event === 'USER_UPDATED' && session?.user) {
     // Refresh player data on user update
     const { data: playerData } = await container.player.getPlayer(session.user.id);
