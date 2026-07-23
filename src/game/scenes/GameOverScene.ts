@@ -12,7 +12,7 @@
 
 import Phaser from 'phaser';
 import type { RunSummary, ChampionRunStats } from '@/types/run';
-import { useRewardsStore, calculateRunRewards } from '@/stores/rewardsStore';
+import { calculateRunCandyRewards } from '@/game/run/runRewards';
 
 // ─── Color Palette ───────────────────────────────────────────────────
 
@@ -41,7 +41,6 @@ const FONT = 'Arial, Helvetica, sans-serif';
 
 export class GameOverScene extends Phaser.Scene {
   private summary!: RunSummary;
-  private rewardsCalculated = false;
 
   constructor() {
     super({ key: 'GameOverScene' });
@@ -49,7 +48,6 @@ export class GameOverScene extends Phaser.Scene {
 
   init(data: { summary: RunSummary }): void {
     this.summary = data.summary;
-    this.rewardsCalculated = false;
   }
 
   create(): void {
@@ -57,12 +55,6 @@ export class GameOverScene extends Phaser.Scene {
 
     // Background
     this.add.rectangle(w / 2, h / 2, w, h, COLORS.background);
-
-    // Calculate and distribute rewards
-    if (!this.rewardsCalculated) {
-      this.distributeRewards();
-      this.rewardsCalculated = true;
-    }
 
     // Build the UI sections
     this.drawTitle(w, h);
@@ -234,11 +226,7 @@ export class GameOverScene extends Phaser.Scene {
   // ── Permanent Rewards ──────────────────────────────────────────────
 
   private drawRewards(w: number, h: number): void {
-    const rewards = calculateRunRewards({
-      wavesCompleted: this.summary.wavesCompleted,
-      totalKills: this.summary.totalKills,
-      championStats: this.summary.championStats,
-    });
+    const rewards = calculateRunCandyRewards(this.summary);
 
     const panelY = h - 170;
     const panelH = 80;
@@ -261,7 +249,7 @@ export class GameOverScene extends Phaser.Scene {
 
     // Candies
     this.add
-      .text(w * 0.3, panelY + 42, `🍬 ${rewards.candies} Candies`, {
+      .text(w / 2, panelY + 42, `🍬 ${rewards.total} Mastery Candies`, {
         fontSize: '16px',
         color: COLORS.candy,
         fontStyle: 'bold',
@@ -269,16 +257,6 @@ export class GameOverScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Mastery total
-    const totalMastery = Object.values(rewards.mastery).reduce((a, b) => a + b, 0);
-    this.add
-      .text(w * 0.7, panelY + 42, `⭐ ${totalMastery} Mastery`, {
-        fontSize: '16px',
-        color: COLORS.mastery,
-        fontStyle: 'bold',
-        fontFamily: FONT,
-      })
-      .setOrigin(0.5);
   }
 
   // ── Return to Menu Button ──────────────────────────────────────────
@@ -332,20 +310,6 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   // ── Helpers ────────────────────────────────────────────────────────
-
-  private distributeRewards(): void {
-    const rewards = calculateRunRewards({
-      wavesCompleted: this.summary.wavesCompleted,
-      totalKills: this.summary.totalKills,
-      championStats: this.summary.championStats,
-    });
-
-    const store = useRewardsStore.getState();
-    store.addCandies(rewards.candies);
-    for (const [championId, points] of Object.entries(rewards.mastery)) {
-      store.addMastery(championId, points);
-    }
-  }
 
   private handleReturnToMenu(): void {
     // Clean up: stop this scene and return to boot/menu

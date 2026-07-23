@@ -284,22 +284,3 @@ export interface RunSummary {
   /** Run level reached */
   runLevel: number;
 }
-
-// ─── Permanent Rewards (persist between runs) ────────────────────────
-
-/** Permanent currencies earned from completed runs */
-export interface PermanentRewards {
-  /** Candies - universal currency, earned from kills and waves */
-  candies: number;
-  /** Mastery points - earned from champion performance, per champion */
-  mastery: Record<string, number>;
-}
-
-export interface PermanentRewardsStore extends PermanentRewards {
-  /** Add candies to the permanent stash */
-  addCandies: (amount: number) => void;
-  /** Add mastery points for a specific champion */
-  addMastery: (championId: string, points: number) => void;
-  /** Reset all permanent rewards (dev/debug) */
-  resetRewards: () => void;
-}

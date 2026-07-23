@@ -2,10 +2,10 @@ import { useRunStore } from '@/stores/runStore';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { playSFX, playUIClick } from '@/audio';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { RunSummary } from '@/types/run';
-import { useRewardsStore, calculateRunRewards } from '@/stores/rewardsStore';
+import { calculateRunCandyRewards } from '@/game/run/runRewards';
 
 export function GameOverPage() {
   const navigate = useAppNavigate();
@@ -14,23 +14,14 @@ export function GameOverPage() {
   const saveStatus = useRunStore((state) => state.saveStatus);
   const saveError = useRunStore((state) => state.saveError);
   const activeRunId = useRunStore((state) => state.runId);
+  const rewards = useMemo(
+    () => summary ? calculateRunCandyRewards(summary) : null,
+    [summary],
+  );
 
   useEffect(() => {
     playSFX('defeat');
-    // Calculate and distribute permanent rewards from the run summary
-    if (summary) {
-      const rewards = calculateRunRewards({
-        wavesCompleted: summary.wavesCompleted,
-        totalKills: summary.totalKills,
-        championStats: summary.championStats,
-      });
-      const store = useRewardsStore.getState();
-      store.addCandies(rewards.candies);
-      for (const [championId, points] of Object.entries(rewards.mastery)) {
-        store.addMastery(championId, points);
-      }
-    }
-  }, [summary]);
+  }, []);
 
   function handleNewRun() {
     playUIClick();
@@ -108,33 +99,26 @@ export function GameOverPage() {
           </div>
         )}
 
-        {summary && (() => {
-          const rewards = calculateRunRewards({
-            wavesCompleted: summary.wavesCompleted,
-            totalKills: summary.totalKills,
-            championStats: summary.championStats,
-          });
-          return (
+        {rewards && (
             <div style={{ marginBottom: 24 }}>
               <div style={{ color: '#c8aa6e', fontSize: 13, fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
                 Rewards Earned
               </div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 8 }}>
-                <span style={{ color: '#fbbf24', fontSize: 16, fontWeight: 700 }}>🍬 {rewards.candies} Candies</span>
+                <span style={{ color: '#fbbf24', fontSize: 16, fontWeight: 700 }}>🍬 {rewards.total} Candies</span>
               </div>
-              {Object.keys(rewards.mastery).length > 0 && (
+              {Object.keys(rewards.byChampion).length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {Object.entries(rewards.mastery).map(([id, pts]) => pts > 0 && (
+                  {Object.entries(rewards.byChampion).map(([id, candies]) => candies > 0 && (
                     <div key={id} style={championRowStyle}>
                       <span style={{ color: '#e6edf3', fontSize: 13 }}>{id}</span>
-                      <span style={{ color: '#a78bfa', fontSize: 12 }}>+{pts} Mastery</span>
+                      <span style={{ color: '#a78bfa', fontSize: 12 }}>+{candies} candies</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-          );
-        })()}
+        )}
 
         <div style={actionsStyle}>
           <button
