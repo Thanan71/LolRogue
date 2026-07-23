@@ -21,7 +21,7 @@ import { useBattleStore } from '@/stores/battleStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
-import { useSettingsStore } from '@/stores/settingsStore';
+import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
 import type { Item, ItemStatBonuses, RunSummary, TeamMember } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateEventStatBonuses } from '@/utils/statCalculator';
@@ -191,7 +191,10 @@ function getEnhancementDescriptions(championId: string): string[] {
 }
 
 /** Build enemy team from encounter data */
-function buildEnemyTeamFromEncounter(encounter: CombatEncounter): ChampionInstance[] {
+function buildEnemyTeamFromEncounter(
+  encounter: CombatEncounter,
+  difficultyMultiplier: number,
+): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
   for (const enemy of encounter.enemies) {
     const champ = championDB.getById(enemy.championId);
@@ -203,8 +206,8 @@ function buildEnemyTeamFromEncounter(encounter: CombatEncounter): ChampionInstan
 
       // Apply stat multiplier by directly modifying the champion's base stats
       // This is more reliable than using enhancement bonuses with mismatched stat names
-      if (enemy.statMultiplier && enemy.statMultiplier !== 1.0) {
-        const multiplier = enemy.statMultiplier;
+      const multiplier = (enemy.statMultiplier || 1) * difficultyMultiplier;
+      if (multiplier !== 1.0) {
         const baseStats = champ.stats;
 
         // Create a modified champion with scaled stats
@@ -265,6 +268,8 @@ export function CombatPage() {
   const winner = useBattleStore((s) => s.winner);
   const isPlayerTurn = useBattleStore((s) => s.isPlayerTurn);
   const battleSpeed = useSettingsStore((s) => s.battleSpeed);
+  const difficulty = useSettingsStore((s) => s.difficulty);
+  const difficultyMultiplier = getDifficultyMultiplier(difficulty);
 
   const [autoPlay, setAutoPlay] = useState(true);
   const [turnTick, setTurnTick] = useState(0);
@@ -417,13 +422,14 @@ export function CombatPage() {
   // Memoize enemy instances to prevent recreation on every render
   const enemyInstances = useMemo(() => {
     if (currentEncounter && currentEncounter.type === 'combat') {
-      return buildEnemyTeamFromEncounter(currentEncounter);
+      return buildEnemyTeamFromEncounter(currentEncounter, difficultyMultiplier);
     }
     return [];
   }, [
     currentEncounter?.id,
     currentEncounter?.type,
     currentEncounter?.enemies?.map((e) => e.championId).join(','),
+    difficultyMultiplier,
   ]);
 
   const handleComplete = useCallback(

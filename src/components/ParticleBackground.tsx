@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 interface Particle {
   x: number;
@@ -22,6 +23,7 @@ export function ParticleBackground({ particleCount = 80, className }: ParticleBa
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animationRef = useRef<number>(0);
+  const particlesEnabled = useSettingsStore((state) => state.particlesEnabled);
 
   const createParticle = useCallback((width: number, height: number): Particle => {
     const isGold = Math.random() > 0.3;
@@ -44,6 +46,7 @@ export function ParticleBackground({ particleCount = 80, className }: ParticleBa
   }, []);
 
   useEffect(() => {
+    if (!particlesEnabled || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -139,7 +142,9 @@ export function ParticleBackground({ particleCount = 80, className }: ParticleBa
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationRef.current);
     };
-  }, [particleCount, createParticle]);
+  }, [particleCount, createParticle, particlesEnabled]);
+
+  if (!particlesEnabled) return null;
 
   return (
     <canvas

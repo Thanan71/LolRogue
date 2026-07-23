@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Route, Routes } from 'react-router-dom';
@@ -23,9 +24,19 @@ import { SettingsPage } from './pages/SettingsPage';
 import { ShopPage } from './pages/ShopPage';
 import { StarterSelectPage } from './pages/StarterSelectPage';
 import { TreasurePage } from './pages/TreasurePage';
+import { getTextSizeMultiplier, useSettingsStore } from './stores/settingsStore';
 import './styles/starter-select.css';
 
 export default function App() {
+  const textSize = useSettingsStore((state) => state.textSize);
+
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${16 * getTextSizeMultiplier(textSize)}px`;
+    return () => {
+      document.documentElement.style.removeProperty('font-size');
+    };
+  }, [textSize]);
+
   return (
     <div id="app">
       <RouteSync />

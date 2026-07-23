@@ -2,14 +2,30 @@ import { playUIClick } from '@/audio';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAudioStore } from '@/stores/audioStore';
 import { ROUTES } from '@/stores/routerStore';
+import {
+  type BattleSpeed,
+  type Difficulty,
+  type TextSize,
+  useSettingsStore,
+} from '@/stores/settingsStore';
 import '@/styles/main-menu.css';
 
 export function SettingsPage() {
   const navigate = useAppNavigate();
   const sfxVolume = useAudioStore((s) => s.sfxVolume);
-  const musicVolume = useAudioStore((s) => s.musicVolume);
   const setSfxVolume = useAudioStore((s) => s.setSfxVolume);
-  const setMusicVolume = useAudioStore((s) => s.setMusicVolume);
+  const sfxMuted = useAudioStore((s) => s.sfxMuted);
+  const toggleSfxMute = useAudioStore((s) => s.toggleSfxMute);
+  const {
+    difficulty,
+    particlesEnabled,
+    textSize,
+    battleSpeed,
+    setDifficulty,
+    setParticlesEnabled,
+    setTextSize,
+    setBattleSpeed,
+  } = useSettingsStore();
 
   return (
     <div className="main-menu">
@@ -24,32 +40,34 @@ export function SettingsPage() {
 
       <div style={{ position: 'relative', zIndex: 2, width: 360, maxWidth: '90%' }}>
         <div style={settingRowStyle}>
-          <span style={labelStyle}>Music Volume</span>
+          <label htmlFor="sfx-volume" style={labelStyle}>
+            SFX Volume
+          </label>
           <input
-            type="range"
-            min="0"
-            max="100"
-            value={musicVolume}
-            onChange={(e) => setMusicVolume(Number(e.target.value))}
-            style={sliderStyle}
-          />
-        </div>
-
-        <div style={settingRowStyle}>
-          <span style={labelStyle}>SFX Volume</span>
-          <input
+            id="sfx-volume"
             type="range"
             min="0"
             max="100"
             value={sfxVolume}
             onChange={(e) => setSfxVolume(Number(e.target.value))}
             style={sliderStyle}
+            aria-valuetext={`${sfxVolume}%`}
           />
+          <button style={muteButtonStyle} onClick={toggleSfxMute} aria-pressed={sfxMuted}>
+            {sfxMuted ? 'Unmute' : 'Mute'}
+          </button>
         </div>
 
         <div style={settingRowStyle}>
-          <span style={labelStyle}>Difficulty</span>
-          <select style={selectStyle} defaultValue="normal">
+          <label htmlFor="difficulty" style={labelStyle}>
+            Difficulty
+          </label>
+          <select
+            id="difficulty"
+            style={selectStyle}
+            value={difficulty}
+            onChange={(event) => setDifficulty(event.target.value as Difficulty)}
+          >
             <option value="easy">Easy</option>
             <option value="normal">Normal</option>
             <option value="hard">Hard</option>
@@ -57,13 +75,63 @@ export function SettingsPage() {
         </div>
 
         <div style={settingRowStyle}>
-          <span style={labelStyle}>Particles</span>
+          <span id="particles-label" style={labelStyle}>
+            Particles
+          </span>
           <label style={toggleLabelStyle}>
-            <input type="checkbox" defaultChecked style={checkboxStyle} />
-            <span style={toggleTrackStyle}>
-              <span style={toggleThumbStyle} />
+            <input
+              type="checkbox"
+              checked={particlesEnabled}
+              onChange={(event) => setParticlesEnabled(event.target.checked)}
+              style={checkboxStyle}
+              aria-labelledby="particles-label"
+            />
+            <span
+              style={{
+                ...toggleTrackStyle,
+                background: particlesEnabled ? '#3a664f' : '#1a2a42',
+              }}
+            >
+              <span
+                style={{
+                  ...toggleThumbStyle,
+                  left: particlesEnabled ? 22 : 2,
+                }}
+              />
             </span>
           </label>
+        </div>
+
+        <div style={settingRowStyle}>
+          <label htmlFor="text-size" style={labelStyle}>
+            Text Size
+          </label>
+          <select
+            id="text-size"
+            style={selectStyle}
+            value={textSize}
+            onChange={(event) => setTextSize(event.target.value as TextSize)}
+          >
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+          </select>
+        </div>
+
+        <div style={settingRowStyle}>
+          <label htmlFor="battle-speed" style={labelStyle}>
+            Battle Speed
+          </label>
+          <select
+            id="battle-speed"
+            style={selectStyle}
+            value={battleSpeed}
+            onChange={(event) => setBattleSpeed(Number(event.target.value) as BattleSpeed)}
+          >
+            <option value={1}>1×</option>
+            <option value={2}>2×</option>
+            <option value={3}>3×</option>
+          </select>
         </div>
       </div>
 
@@ -146,4 +214,9 @@ const toggleThumbStyle: React.CSSProperties = {
   top: 2,
   left: 2,
   transition: 'left 0.3s',
+};
+
+const muteButtonStyle: React.CSSProperties = {
+  ...selectStyle,
+  minWidth: 76,
 };

@@ -129,12 +129,12 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Paramètres, accessibilité et audio
 
-- [ ] Connecter Difficulty et Particles à un store; ils restent décoratifs.
-- [ ] Ajouter `textSize` et `battleSpeed` à la page Settings.
-- [ ] Ajouter les contrôles mute/unmute déjà présents dans `audioStore`.
-- [ ] Implémenter la musique ou retirer temporairement son slider.
-- [ ] Corriger le rendu du toggle Particles pour refléter son état réel.
-- [ ] Respecter `prefers-reduced-motion` dans les particules, animations SVG et transitions.
+- [x] Connecter Difficulty et Particles à un store; ils restent décoratifs.
+- [x] Ajouter `textSize` et `battleSpeed` à la page Settings.
+- [x] Ajouter les contrôles mute/unmute déjà présents dans `audioStore`.
+- [x] Implémenter la musique ou retirer temporairement son slider.
+- [x] Corriger le rendu du toggle Particles pour refléter son état réel.
+- [x] Respecter `prefers-reduced-motion` dans les particules, animations SVG et transitions.
 - [ ] Ajouter navigation clavier, focus visible et libellés accessibles aux contrôles interactifs.
 
 ### Architecture
