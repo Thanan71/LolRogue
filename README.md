@@ -36,6 +36,33 @@ npm test           # Run tests
 npm run typecheck  # TypeScript type checking
 ```
 
+## Supabase database
+
+The initial PostgreSQL migration is located in
+`supabase/migrations/20260723190000_initial_schema.sql`. It references Supabase
+Auth, creates the game tables, enables Row Level Security, and installs the
+profile creation trigger.
+
+```bash
+supabase link --project-ref YOUR_PROJECT_REF
+supabase db push
+```
+
+Copy `.env.example` to `.env.local` and configure the browser client with
+`VITE_PUBLIC_SUPABASE_URL` and `VITE_PUBLIC_SUPABASE_ANON_KEY`. Never expose
+the service-role key through a `VITE_` variable.
+
+The regular test suite checks the migration structure without credentials.
+The database command below uses `@supabase/supabase-js` against the configured
+Supabase project, creates isolated test data, verifies all tables, then removes
+the test user and its cascaded data:
+
+```bash
+VITE_PUBLIC_SUPABASE_URL="https://YOUR_PROJECT_REF.supabase.co" \
+SUPABASE_SERVICE_ROLE_KEY="YOUR_SERVICE_ROLE_KEY" \
+npm run test:db
+```
+
 ## Path Aliases
 
 - `@/` → `src/`
