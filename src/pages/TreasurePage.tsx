@@ -12,8 +12,12 @@ export function TreasurePage() {
   const addItem = useRunStore((s) => s.addItem);
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore((s) => s.getCurrentNode);
+  const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const wasClaimed = useRunStore(
+    (s) => currentNodeId !== null && (s.claimedEncounterNodeIds ?? []).includes(currentNodeId),
+  );
 
-  const [collected, setCollected] = useState(false);
+  const [collected, setCollected] = useState(wasClaimed);
 
   const encounter = useMemo(() => {
     const node = getCurrentNode();
@@ -24,6 +28,7 @@ export function TreasurePage() {
   const handleCollect = useCallback(() => {
     if (!encounter || collected) return;
     playUIClick();
+    if (!useRunStore.getState().claimCurrentEncounter()) return;
 
     // Award gold
     if (encounter.gold > 0) {

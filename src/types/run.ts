@@ -199,6 +199,8 @@ export interface RunState {
   currentNodeId: string | null;
   /** IDs of nodes that have been completed (across all biomes) */
   completedNodeIds: string[];
+  /** Encounter rewards/actions already consumed, persisted across refreshes. */
+  claimedEncounterNodeIds: string[];
 
   /** Currently active encounter (null if no encounter pending) */
   pendingEncounter: { nodeId: string; nodeType: NodeType } | null;
@@ -241,6 +243,8 @@ export interface RunActions {
   nextWave: () => void;
   /** Increment the run level */
   incrementRunLevel: () => void;
+  /** Atomically reserve the current encounter reward/action once. */
+  claimCurrentEncounter: () => boolean;
 
   /** Generate the full run map (all biome maps) and set position to start */
   generateRunMap: (seed?: number) => void;

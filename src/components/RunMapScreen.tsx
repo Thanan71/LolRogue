@@ -159,10 +159,14 @@ export function RunMapScreen() {
           // Complete the current node and advance to the next biome
           completeCurrentNode();
           if (!advanceToNextBiome()) {
-            // If there's no next biome, the run is complete
-            // Navigate to a victory/end screen or back to menu
-            setPhase('menu');
-            navigate(ROUTES.MENU);
+            // A configuration without another biome still ends in a persisted victory.
+            const runState = useRunStore.getState();
+            void runState.endRun(true, runState.runId).then((saved) => {
+              if (saved) {
+                setPhase('menu');
+                navigate(ROUTES.MENU);
+              }
+            });
           }
           // If advanceToNextBiome succeeded, we're now on the new biome map
           // No additional navigation needed - the map will re-render with the new biome

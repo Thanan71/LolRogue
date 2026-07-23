@@ -8,7 +8,11 @@ import {
   getAccessibleNodes,
   isMapComplete,
 } from '@/game/map/mapUtils';
-import { getSurvivingChampionIds, shouldApplyRunRewards } from '@/game/run/runState';
+import {
+  canClaimEncounterReward,
+  getSurvivingChampionIds,
+  shouldApplyRunRewards,
+} from '@/game/run/runState';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { saveRunToDatabase } from '@/services/runService';
@@ -50,6 +54,7 @@ const INITIAL_STATE: RunState = {
   currentBiomeIndex: 0,
   currentNodeId: null,
   completedNodeIds: [],
+  claimedEncounterNodeIds: [],
   pendingEncounter: null,
   currentEncounter: null,
 };
@@ -127,6 +132,7 @@ export const useRunStore = create<RunStore>()(
           currentBiomeIndex: 0,
           currentNodeId: startNodeId,
           completedNodeIds: [],
+          claimedEncounterNodeIds: [],
           pendingEncounter: null,
           currentEncounter: null,
         });
@@ -529,6 +535,16 @@ export const useRunStore = create<RunStore>()(
         }
       },
 
+      claimCurrentEncounter: () => {
+        const { currentNodeId, pendingEncounter, claimedEncounterNodeIds } = get();
+        const claimed = claimedEncounterNodeIds ?? [];
+        if (!canClaimEncounterReward(currentNodeId, pendingEncounter?.nodeId ?? null, claimed)) {
+          return false;
+        }
+        set({ claimedEncounterNodeIds: [...claimed, currentNodeId!] });
+        return true;
+      },
+
       advanceToNextBiome: () => {
         const { biomeMaps, currentBiomeIndex } = get();
         const currentMap = biomeMaps[currentBiomeIndex];
@@ -603,6 +619,7 @@ export const useRunStore = create<RunStore>()(
         currentBiomeIndex: state.currentBiomeIndex,
         currentNodeId: state.currentNodeId,
         completedNodeIds: state.completedNodeIds,
+        claimedEncounterNodeIds: state.claimedEncounterNodeIds,
         pendingEncounter: state.pendingEncounter,
         currentEncounter: state.currentEncounter,
       }),

@@ -16,10 +16,14 @@ export function RestPage() {
   const gold = useRunStore((s) => s.gold);
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore((s) => s.getCurrentNode);
+  const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const wasClaimed = useRunStore(
+    (s) => currentNodeId !== null && (s.claimedEncounterNodeIds ?? []).includes(currentNodeId),
+  );
   const spendGold = useRunStore((s) => s.spendGold);
   const getEnhancementState = useEnhancementStore((s) => s.getEnhancementState);
 
-  const [healed, setHealed] = useState(false);
+  const [healed, setHealed] = useState(wasClaimed);
 
   const encounter = useMemo(() => {
     const node = getCurrentNode();
@@ -66,6 +70,7 @@ export function RestPage() {
     if (!canAfford && goldCost > 0) return;
     if (healed) return;
     playUIClick();
+    if (!useRunStore.getState().claimCurrentEncounter()) return;
 
     if (goldCost > 0) {
       spendGold(goldCost);

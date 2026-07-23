@@ -13,3 +13,16 @@ export function shouldApplyRunRewards(
 ): boolean {
   return !rewardsApplied && championCount > 0 && wavesCompleted > 0;
 }
+
+export function canClaimEncounterReward(
+  currentNodeId: string | null,
+  pendingNodeId: string | null,
+  claimedNodeIds: readonly string[],
+): boolean {
+  return Boolean(
+    currentNodeId &&
+      pendingNodeId &&
+      currentNodeId === pendingNodeId &&
+      !claimedNodeIds.includes(currentNodeId),
+  );
+}

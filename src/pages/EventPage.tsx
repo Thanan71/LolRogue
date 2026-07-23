@@ -12,6 +12,10 @@ export function EventPage() {
   const isActive = useRunStore((s) => s.isActive);
   const gold = useRunStore((s) => s.gold);
   const team = useRunStore((s) => s.team);
+  const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const wasClaimed = useRunStore(
+    (s) => currentNodeId !== null && (s.claimedEncounterNodeIds ?? []).includes(currentNodeId),
+  );
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore((s) => s.getCurrentNode);
   const addGold = useRunStore((s) => s.addGold);
@@ -28,9 +32,10 @@ export function EventPage() {
   }, [getCurrentNode]);
 
   const handleInvestigate = useCallback(() => {
-    if (!encounter || outcome) return;
+    if (!encounter || outcome || wasClaimed) return;
     playUIClick();
     const state = useRunStore.getState();
+    if (!state.claimCurrentEncounter()) return;
     const rng = createScopedRunRng(state.seed, `event:${encounter.id}:outcome`);
     const resolved = resolveEventOutcome(encounter.outcomes, () => rng.next());
     setOutcome(resolved);
@@ -117,7 +122,7 @@ export function EventPage() {
         break;
       }
     }
-  }, [encounter, outcome, addGold, spendGold, addItem, addChampion]);
+  }, [encounter, outcome, wasClaimed, addGold, spendGold, addItem, addChampion]);
 
   const handleContinue = useCallback(() => {
     playUIClick();
@@ -157,7 +162,7 @@ export function EventPage() {
         <span style={{ color: '#ffd700', fontWeight: 700 }}>Gold: {gold}</span>
       </div>
       <div style={contentStyle}>
-        {!outcome ? (
+        {!outcome && !wasClaimed ? (
           <>
             <div style={{ fontSize: 48, marginBottom: 16 }}>{'\u2753'}</div>
             <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
@@ -170,7 +175,7 @@ export function EventPage() {
               Investigate
             </button>
           </>
-        ) : (
+        ) : outcome ? (
           <>
             <div style={{ fontSize: 48, marginBottom: 16 }}>
               {typeIcons[outcome.type] ?? '\u2753'}
@@ -249,6 +254,16 @@ export function EventPage() {
                 })}
               </div>
             )}
+            <button style={continueBtnStyle} onClick={handleContinue}>
+              Continue
+            </button>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
+            <div style={{ color: '#22c55e', marginBottom: 24 }}>
+              This event was already resolved.
+            </div>
             <button style={continueBtnStyle} onClick={handleContinue}>
               Continue
             </button>

@@ -11,6 +11,10 @@ export function RecruitPage() {
   const isActive = useRunStore((s) => s.isActive);
   const gold = useRunStore((s) => s.gold);
   const team = useRunStore((s) => s.team);
+  const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const wasClaimed = useRunStore(
+    (s) => currentNodeId !== null && (s.claimedEncounterNodeIds ?? []).includes(currentNodeId),
+  );
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore((s) => s.getCurrentNode);
   const spendGold = useRunStore((s) => s.spendGold);
@@ -27,12 +31,14 @@ export function RecruitPage() {
   const teamFull = team.length >= 5;
   const alreadyOnTeam = team.some((m) => m.championId === encounter?.championId);
   const canAfford = encounter ? gold >= encounter.cost : false;
-  const disabled = !encounter || teamFull || alreadyOnTeam || !canAfford || result !== null;
+  const disabled =
+    !encounter || teamFull || alreadyOnTeam || !canAfford || result !== null || wasClaimed;
 
   const handleRecruit = useCallback(() => {
     if (disabled || !encounter) return;
     playUIClick();
     const state = useRunStore.getState();
+    if (!state.claimCurrentEncounter()) return;
     const rng = createScopedRunRng(state.seed, `recruit:${encounter.id}:attempt`);
     if (rng.next() < encounter.successChance) {
       spendGold(encounter.cost);
@@ -57,6 +63,7 @@ export function RecruitPage() {
   else if (!canAfford) label = 'Not enough gold';
   else if (result === 'success') label = 'Recruited!';
   else if (result === 'fail') label = 'Failed';
+  else if (wasClaimed) label = 'Attempt already used';
   else label = 'Recruit - ' + (encounter?.cost ?? 0) + 'g';
 
   const pct = Math.round((encounter?.successChance ?? 0.75) * 100);
