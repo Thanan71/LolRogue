@@ -174,20 +174,40 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $$
+DECLARE
+  requested_username TEXT;
+  fallback_username TEXT;
+  requested_display_name TEXT;
 BEGIN
-  INSERT INTO public.players (user_id, username, display_name)
-  VALUES (
-    NEW.id,
+  requested_username := LEFT(
     COALESCE(
       NULLIF(TRIM(NEW.raw_user_meta_data ->> 'username'), ''),
       'Player_' || SUBSTRING(NEW.id::TEXT, 1, 8)
     ),
+    50
+  );
+  fallback_username :=
+    LEFT(requested_username, 41) || '_' || SUBSTRING(NEW.id::TEXT, 1, 8);
+  requested_display_name := LEFT(
     COALESCE(
       NULLIF(TRIM(NEW.raw_user_meta_data ->> 'display_name'), ''),
-      NULLIF(TRIM(NEW.raw_user_meta_data ->> 'username'), ''),
+      requested_username,
       'Player'
-    )
+    ),
+    100
   );
+
+  BEGIN
+    INSERT INTO public.players (user_id, username, display_name)
+    VALUES (NEW.id, requested_username, requested_display_name)
+    ON CONFLICT (user_id) DO NOTHING;
+  EXCEPTION
+    WHEN unique_violation THEN
+      INSERT INTO public.players (user_id, username, display_name)
+      VALUES (NEW.id, fallback_username, requested_display_name)
+      ON CONFLICT (user_id) DO NOTHING;
+  END;
+
   RETURN NEW;
 END;
 $$;

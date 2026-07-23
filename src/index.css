@@ -33,34 +33,19 @@
   --transition-normal: 300ms ease;
 }
 
-/* Font Faces */
-@font-face {
-  font-family: 'Beaufort for LOL';
-  src: url('/fonts/BeaufortforLOL-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Beaufort for LOL';
-  src: url('/fonts/BeaufortforLOL-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-display: swap;
-}
-
 /* Base Styles */
 @layer base {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 16px; -webkit-font-smoothing: antialiased; }
   body {
-    font-family: 'Beaufort for LOL', Georgia, serif;
+    font-family: Georgia, 'Times New Roman', serif;
     background-color: var(--color-background);
     color: var(--color-text-primary);
     min-height: 100vh;
   }
   #root { min-height: 100vh; display: flex; flex-direction: column; }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Beaufort for LOL', Georgia, serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-weight: 700;
     color: var(--color-primary);
     letter-spacing: 0.02em;

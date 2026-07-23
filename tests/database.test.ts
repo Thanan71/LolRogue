@@ -62,6 +62,8 @@ describe('Supabase init migration', () => {
     expect(migrationSql).toContain('auth.uid()');
     expect(migrationSql).toContain('AFTER INSERT ON auth.users');
     expect(migrationSql).not.toContain('email_confirmed_at');
+    expect(migrationSql).toContain('WHEN unique_violation THEN');
+    expect(migrationSql).toContain('ON CONFLICT (user_id) DO NOTHING');
   });
 
   it('does not grant clients access to the is_admin column', () => {
