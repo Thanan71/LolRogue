@@ -3,6 +3,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Route, Routes } from 'react-router-dom';
 import { AdminRoute } from './components/AdminRoute';
 import { AuthBootstrap } from './components/AuthBootstrap';
+import { EncounterRoute } from './components/EncounterRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RouteSync } from './components/RouteSync';
 import { AdminPage } from './pages/AdminPage';
@@ -14,6 +15,7 @@ import { DailyRunPage } from './pages/DailyRunPage';
 import { EventPage } from './pages/EventPage';
 import { GameOverPage } from './pages/GameOverPage';
 import { MenuPage } from './pages/MenuPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { RecruitPage } from './pages/RecruitPage';
 import { RestPage } from './pages/RestPage';
 import { RunPage } from './pages/RunPage';
@@ -68,7 +70,9 @@ export default function App() {
           path="/combat"
           element={
             <ProtectedRoute>
-              <CombatPage />
+              <EncounterRoute expectedTypes={['combat', 'elite', 'boss']}>
+                <CombatPage />
+              </EncounterRoute>
             </ProtectedRoute>
           }
         />
@@ -76,7 +80,9 @@ export default function App() {
           path="/shop"
           element={
             <ProtectedRoute>
-              <ShopPage />
+              <EncounterRoute expectedTypes={['shop']}>
+                <ShopPage />
+              </EncounterRoute>
             </ProtectedRoute>
           }
         />
@@ -84,7 +90,9 @@ export default function App() {
           path="/recruit"
           element={
             <ProtectedRoute>
-              <RecruitPage />
+              <EncounterRoute expectedTypes={['recruit']}>
+                <RecruitPage />
+              </EncounterRoute>
             </ProtectedRoute>
           }
         />
@@ -92,7 +100,9 @@ export default function App() {
           path="/rest"
           element={
             <ProtectedRoute>
-              <RestPage />
+              <EncounterRoute expectedTypes={['rest']}>
+                <RestPage />
+              </EncounterRoute>
             </ProtectedRoute>
           }
         />
@@ -100,7 +110,9 @@ export default function App() {
           path="/event"
           element={
             <ProtectedRoute>
-              <EventPage />
+              <EncounterRoute expectedTypes={['event']}>
+                <EventPage />
+              </EncounterRoute>
             </ProtectedRoute>
           }
         />
@@ -108,7 +120,9 @@ export default function App() {
           path="/treasure"
           element={
             <ProtectedRoute>
-              <TreasurePage />
+              <EncounterRoute expectedTypes={['treasure']}>
+                <TreasurePage />
+              </EncounterRoute>
             </ProtectedRoute>
           }
         />
@@ -162,6 +176,7 @@ export default function App() {
             </AdminRoute>
           }
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <SpeedInsights />
       <Analytics />

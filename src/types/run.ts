@@ -126,7 +126,15 @@ export interface InventoryEntry {
 // ─── Run Map ────────────────────────────────────────────────────────────────
 
 /** Node type for map nodes (mirrors the enum strings in game/map/types) */
-export type NodeType = 'combat' | 'elite' | 'shop' | 'rest' | 'event' | 'boss';
+export type NodeType =
+  | 'combat'
+  | 'elite'
+  | 'shop'
+  | 'rest'
+  | 'event'
+  | 'boss'
+  | 'recruit'
+  | 'treasure';
 
 // ─── Run State ──────────────────────────────────────────────────────────────
 

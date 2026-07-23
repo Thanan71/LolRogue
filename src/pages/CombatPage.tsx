@@ -8,6 +8,7 @@ import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { championDB } from '@/data';
 import { ITEM_DATABASE } from '@/data/items';
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
+import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import type { CombatEncounter } from '@/game/map/types';
@@ -600,7 +601,7 @@ export function CombatPage() {
     onCastR: canCastSlot('R') ? () => handleCast('R') : undefined,
     onNextTurn:
       (!autoPlay || isPlayerTurn) && battlePhase === 'turn_active' ? processTurn : undefined,
-    onBack: () => navigate(ROUTES.RUN),
+    onBack: canLeaveActiveCombat(battlePhase) ? () => navigate(ROUTES.RUN) : undefined,
     enabled: battlePhase !== 'finished',
   });
 
@@ -612,11 +613,17 @@ export function CombatPage() {
       <div style={headerStyle}>
         <button
           style={backBtnStyle}
+          disabled={!canLeaveActiveCombat(battlePhase)}
           onClick={() => {
             playUIClick();
             navigate(ROUTES.RUN);
           }}
           aria-label="Back to map"
+          title={
+            canLeaveActiveCombat(battlePhase)
+              ? 'Back to map'
+              : 'Finish the active combat before returning to the map'
+          }
         >
           ← Map
         </button>

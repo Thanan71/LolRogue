@@ -62,7 +62,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Ajouter un bouton « Daily Run » au menu.
 - [x] Connecter `dailyRunStore` et `SupabaseDailyRunRepository` au lancement et à la fin des runs.
 - [x] Afficher `DailyLeaderboard`; le composant existe mais n'est monté nulle part.
-- [ ] Remplacer le leaderboard localStorage par Supabase pour les joueurs connectés, avec fallback local explicite pour les invités.
+- [x] Remplacer le leaderboard localStorage par Supabase pour les joueurs connectés, avec fallback local explicite pour les invités.
 - [ ] Utiliser une seed unique persistée pour carte, encounters, ennemis, boutiques, événements et drops.
 - [x] Empêcher plusieurs scores quotidiens par joueur ou définir une règle « meilleur score » atomique.
 - [x] Ajouter protection anti-triche minimale et validation serveur du score si le classement devient public.
@@ -85,7 +85,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [ ] Ajouter un récapitulatif des XP, niveaux, gold et objets après chaque combat.
 - [ ] Vérifier l'équilibrage distinct des combats normaux, élites et boss avec des simulations.
 - [ ] Ajouter une gestion claire d'une équipe entièrement KO avant une nouvelle rencontre.
-- [ ] Empêcher de quitter un combat actif vers la carte pour contourner la rencontre.
+- [x] Empêcher de quitter un combat actif vers la carte pour contourner la rencontre.
 
 ### Contenu et expérience utilisateur
 
@@ -93,7 +93,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [ ] Étendre les rencontres, événements, trésors, objets, runes et augments par biome.
 - [ ] Ajouter un tutoriel et une légende interactive de la carte.
 - [x] Ajouter une confirmation avant abandon, logout ou démarrage d'une nouvelle run active.
-- [ ] Ajouter une page 404 et des garde-routes spécifiques aux encounters.
+- [x] Ajouter une page 404 et des garde-routes spécifiques aux encounters.
 - [ ] Ajouter notifications/toasts pour les erreurs Supabase, sauvegardes et déblocages.
 - [ ] Ajouter un historique des runs et un profil joueur accessible hors du panneau admin.
 - [ ] Ajouter une interface responsive et tactile pour mobile.
@@ -107,7 +107,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [ ] Remplacer les identifiants et tirages fondés sur `Date.now()`/`Math.random()` par le RNG seedé lorsqu'ils influencent une run.
 - [x] Remplacer `.sort(() => rand() - 0.5)` par un mélange Fisher–Yates déterministe.
 - [ ] Gérer explicitement la sortie du dernier biome et la victoire si la configuration des biomes change.
-- [ ] Refuser l'accès direct à une page d'encounter qui ne correspond pas à `currentEncounter`.
+- [x] Refuser l'accès direct à une page d'encounter qui ne correspond pas à `currentEncounter`.
 - [ ] Empêcher la double collecte/résolution après refresh ou navigation arrière.
 
 ### Événements, repos et recrutement
