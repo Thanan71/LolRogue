@@ -5,7 +5,7 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { DailyRun, DailyRunInsert } from '@/types/database';
+import type { DailyRun, DailyRunInsert } from '@/types/models';
 
 export interface IDailyRunRepository {
   /**

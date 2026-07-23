@@ -5,7 +5,7 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { Player, PlayerUpdate } from '@/types/database';
+import type { Player, PlayerUpdate } from '@/types/models';
 
 export interface IPlayerRepository {
   /**

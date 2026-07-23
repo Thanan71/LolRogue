@@ -12,7 +12,7 @@
  */
 
 import { useAuthStore } from '@/stores/authStore';
-import type { RunInsert, RunTeamMemberInsert } from '@/types/database';
+import type { RunInsert, RunTeamMemberInsert } from '@/types/models';
 import type { Biome, RunSummary } from '@/types/run';
 import { RepositoryContainerFactory } from './container';
 import type { IRepositoryContainer } from './interfaces';

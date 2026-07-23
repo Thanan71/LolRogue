@@ -5,7 +5,7 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { ChampionMastery, ChampionMasteryUpdate } from '@/types/database';
+import type { ChampionMastery, ChampionMasteryUpdate } from '@/types/models';
 
 export interface IMasteryRepository {
   /**

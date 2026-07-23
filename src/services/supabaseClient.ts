@@ -5,6 +5,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
 
 // Environment variables
 const supabaseUrl = import.meta.env.VITE_PUBLIC_SUPABASE_URL;
@@ -20,7 +21,7 @@ if (!isSupabaseConfigured) {
 
 // Repositories share one client. The non-empty offline values prevent an
 // invalid empty-key client while route/auth logic keeps network calls disabled.
-export const supabase = createClient(
+export const supabase = createClient<Database>(
   supabaseUrl || 'http://127.0.0.1:54321',
   supabaseAnonKey || 'offline-anon-key',
 );

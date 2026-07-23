@@ -7,7 +7,17 @@
 
 import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
 import { supabase } from '@/services/supabaseClient';
+import type { Json } from '@/types/database';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
+
+function toNumberRecord(value: Json): Record<string, number> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      (entry): entry is [string, number] => typeof entry[1] === 'number',
+    ),
+  );
+}
 
 /**
  * Database schema for champion enhancements
@@ -65,7 +75,7 @@ export class SupabaseEnhancementRepository {
       }
 
       return {
-        unlockedNodes: data.unlocked_nodes || {},
+        unlockedNodes: toNumberRecord(data.unlocked_nodes),
         totalCandiesSpent: data.total_candies_spent || 0,
       };
     } catch (error) {
@@ -169,7 +179,7 @@ export class SupabaseEnhancementRepository {
       const states = new Map<string, PlayerEnhancementState>();
       for (const row of data || []) {
         states.set(row.champion_id, {
-          unlockedNodes: row.unlocked_nodes || {},
+          unlockedNodes: toNumberRecord(row.unlocked_nodes),
           totalCandiesSpent: row.total_candies_spent || 0,
         });
       }

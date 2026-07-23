@@ -3,7 +3,7 @@
 LolRogue uses a clean initialization migration:
 
 ```text
-supabase/migrations/00000000000000_init.sql
+supabase/migrations/00000000000000_schema.sql
 ```
 
 It creates the player, run, mastery, unlock, daily-run, enhancement and log
@@ -17,6 +17,7 @@ an older version of the initialization script:
 supabase/migrations/20260723000000_fix_signup_trigger.sql
 supabase/migrations/20260723010000_harden_admin_access.sql
 supabase/migrations/20260723020000_atomic_run_save.sql
+supabase/migrations/20260723030000_grant_service_role.sql
 ```
 
 ## Fresh local database
@@ -34,11 +35,25 @@ supabase db push
 ```
 
 `supabase db push` applies only migrations that are not already recorded in the
-remote migration history. The signup upgrade replaces the existing function
-and trigger without deleting users or application data.
+remote migration history. The versioned upgrades preserve existing users and
+application data. Reset only a disposable or new project; apply the upgrade
+migrations to an existing production database.
 
 It can also be copied directly into the hosted project's SQL Editor and run
 once if the original initialization was executed manually.
+
+## Local validation and generated types
+
+```bash
+npm run db:start
+npm run db:validate
+npm run db:types
+```
+
+`db:validate` resets only the local LolRogue database, lints the PostgreSQL
+schema and runs the live Auth/RLS/repository tests. `src/types/database.ts` is
+generated from that local schema; application-specific models live separately
+in `src/types/models.ts`.
 
 ## Authentication without email messages
 

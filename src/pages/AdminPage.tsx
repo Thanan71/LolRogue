@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { ROUTES, useRouterStore } from '@/stores/routerStore';
-import type { AdminPlayerStat, AdminStat, Log, Run, RunTeamMember } from '@/types/database';
+import type { AdminPlayerStat, Log, Run, RunTeamMember } from '@/types/models';
 import '@/styles/admin.css';
 
 // Extended run type with player info for admin view
@@ -57,8 +57,10 @@ export function AdminPage() {
       if (error) throw error;
 
       const statsMap: Record<string, string> = {};
-      data?.forEach((stat: AdminStat) => {
-        statsMap[stat.stat_name] = stat.stat_value;
+      data?.forEach((stat) => {
+        if (stat.stat_name && stat.stat_value) {
+          statsMap[stat.stat_name] = stat.stat_value;
+        }
       });
       setStats(statsMap);
     } catch (error) {
@@ -77,7 +79,7 @@ export function AdminPage() {
         .limit(100);
 
       if (error) throw error;
-      setPlayerStats(data || []);
+      setPlayerStats((data || []) as AdminPlayerStat[]);
     } catch (error) {
       console.error('[AdminPage] Error fetching player stats:', error);
     } finally {
@@ -105,7 +107,7 @@ export function AdminPage() {
       const { data, error } = await query;
 
       if (error) throw error;
-      setLogs(data || []);
+      setLogs((data || []) as Log[]);
     } catch (error) {
       console.error('[AdminPage] Error fetching logs:', error);
     } finally {
@@ -168,7 +170,7 @@ export function AdminPage() {
         team_members: teamMembers.filter((tm) => tm.run_id === run.id),
       }));
 
-      setRuns(runsWithTeam);
+      setRuns(runsWithTeam as AdminRun[]);
     } catch (error) {
       console.error('[AdminPage] Error fetching runs:', error);
       setRuns([]);

@@ -11,7 +11,7 @@ import { create } from 'zustand';
 import { RepositoryContainerFactory } from '@/services/container';
 import type { IRepositoryContainer } from '@/services/interfaces';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
-import type { Player } from '@/types/database';
+import type { Player } from '@/types/models';
 
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);

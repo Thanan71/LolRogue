@@ -5,13 +5,7 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type {
-  Run,
-  RunInsert,
-  RunTeamMember,
-  RunTeamMemberInsert,
-  RunUpdate,
-} from '@/types/database';
+import type { Run, RunInsert, RunTeamMember, RunTeamMemberInsert, RunUpdate } from '@/types/models';
 
 export interface IRunRepository {
   saveCompletedRun(

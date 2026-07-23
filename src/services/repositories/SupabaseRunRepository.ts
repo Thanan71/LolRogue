@@ -6,13 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type {
-  Run,
-  RunInsert,
-  RunTeamMember,
-  RunTeamMemberInsert,
-  RunUpdate,
-} from '@/types/database';
+import type { Run, RunInsert, RunTeamMember, RunTeamMemberInsert, RunUpdate } from '@/types/models';
 import type { IRunRepository, IRunStatsRepository } from '../interfaces/IRunRepository';
 
 export class SupabaseRunRepository implements IRunRepository {

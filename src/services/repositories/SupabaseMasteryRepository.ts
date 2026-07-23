@@ -6,7 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ChampionMastery, ChampionMasteryUpdate } from '@/types/database';
+import type { ChampionMastery, ChampionMasteryUpdate } from '@/types/models';
 import type { IMasteryRepository, IPlayerUnlockRepository } from '../interfaces/IMasteryRepository';
 
 export class SupabaseMasteryRepository implements IMasteryRepository {

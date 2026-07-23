@@ -29,3 +29,7 @@ coverage/
 
 # Data Dragon images (downloaded via script)
 public/lol/data/
+
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/

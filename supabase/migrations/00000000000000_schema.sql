@@ -510,4 +510,10 @@ GRANT SELECT ON public.leaderboard TO anon, authenticated;
 GRANT SELECT ON public.admin_stats, public.admin_player_stats TO authenticated;
 GRANT EXECUTE ON FUNCTION public.is_current_user_admin() TO authenticated;
 
+-- Server-side jobs and integration tests use service_role. RLS bypass alone
+-- does not grant SQL privileges on objects created by this migration.
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO service_role;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO service_role;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO service_role;
+
 COMMIT;

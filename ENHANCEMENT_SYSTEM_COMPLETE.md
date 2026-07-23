@@ -128,7 +128,7 @@ Exécutez la migration pour créer la table :
 supabase migration up
 
 # Ou manuellement dans le dashboard Supabase
-# Le schéma est inclus dans supabase/migrations/00000000000000_init.sql
+# Le schéma est inclus dans supabase/migrations/00000000000000_schema.sql
 ```
 
 ## Exemple d'Arbre (Assassin)

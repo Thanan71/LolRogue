@@ -21,7 +21,7 @@ First, apply the admin migration to your Supabase database:
 npm run migrate
 ```
 
-The admin schema and policies are included in `supabase/migrations/00000000000000_init.sql`.
+The admin schema and policies are included in `supabase/migrations/00000000000000_schema.sql`.
 
 This migration:
 - Adds `is_admin` column to the `players` table

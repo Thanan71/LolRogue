@@ -5,6 +5,7 @@ import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
+import { confirmRunAbandonment } from '@/game/run/abandonment';
 
 /* Inline SVG for the LoLRogue icon (shield + crossed swords motif) */
 function LolRogueIcon() {
@@ -84,18 +85,34 @@ export function MenuPage() {
     navigate(ROUTES.RUN);
   }
 
-  function handleNewRun() {
+  async function handleNewRun() {
     playUIClick();
-    if (isActive) {
-      endRun();
+    if (
+      !confirmRunAbandonment(isActive, () =>
+        window.confirm(
+          'Abandon this run? It will be recorded as a defeat and completed waves will still grant rewards.',
+        ),
+      )
+    ) {
+      return;
+    }
+    if (isActive && !(await endRun(false, useRunStore.getState().runId))) {
+      return;
     }
     navigate(ROUTES.STARTER_SELECT);
   }
 
   async function handleLogout() {
     playUIClick();
-    if (isActive) {
-      endRun();
+    if (
+      !confirmRunAbandonment(isActive, () =>
+        window.confirm('Logout and abandon this run? It will be recorded as a defeat.'),
+      )
+    ) {
+      return;
+    }
+    if (isActive && !(await endRun(false, useRunStore.getState().runId))) {
+      return;
     }
     await logout();
     navigate(ROUTES.AUTH);

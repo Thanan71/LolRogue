@@ -134,17 +134,17 @@ export const useRunStore = create<RunStore>()(
 
         // Guard: Don't end a run that's already ended
         if (!state.isActive) {
-          return;
+          return true;
         }
 
         if (state.isEnding) {
-          return;
+          return false;
         }
 
         // Guard: If a runId is provided, only end the run if it matches the current run
         // This prevents stale timeouts from previous runs from ending a new run
         if (expectedRunId !== undefined && state.runId !== expectedRunId) {
-          return;
+          return false;
         }
 
         set({ isEnding: true, saveStatus: 'saving', saveError: null });
@@ -196,7 +196,7 @@ export const useRunStore = create<RunStore>()(
             saveStatus: 'error',
             saveError: 'Authenticated run is missing required save data',
           });
-          return;
+          return false;
         }
 
         if (isAuthenticated && user && player && state.startedAt) {
@@ -231,7 +231,7 @@ export const useRunStore = create<RunStore>()(
                 saveStatus: 'error',
                 saveError: result.error ?? 'Run save failed',
               });
-              return;
+              return false;
             }
           } catch (error) {
             console.error('[runStore.endRun] Failed to save run to database:', error);
@@ -240,7 +240,7 @@ export const useRunStore = create<RunStore>()(
               saveStatus: 'error',
               saveError: error instanceof Error ? error.message : 'Run save failed',
             });
-            return;
+            return false;
           }
         }
 
@@ -248,6 +248,7 @@ export const useRunStore = create<RunStore>()(
           ...INITIAL_STATE,
           saveStatus: isAuthenticated ? 'success' : 'idle',
         });
+        return true;
       },
 
       // ── Team Management ─────────────────────────────────────────────────

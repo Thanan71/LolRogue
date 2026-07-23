@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 
 const migrationSql = readFileSync(
-  new URL('../supabase/migrations/00000000000000_init.sql', import.meta.url),
+  new URL('../supabase/migrations/00000000000000_schema.sql', import.meta.url),
   'utf8',
 );
 const signupUpgradeSql = readFileSync(
@@ -17,14 +17,19 @@ const atomicRunUpgradeSql = readFileSync(
   new URL('../supabase/migrations/20260723020000_atomic_run_save.sql', import.meta.url),
   'utf8',
 );
+const serviceRoleUpgradeSql = readFileSync(
+  new URL('../supabase/migrations/20260723030000_grant_service_role.sql', import.meta.url),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
+const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const hasSupabaseCredentials = Boolean(supabaseUrl && serviceRoleKey);
+const hasSupabaseCredentials = Boolean(supabaseUrl && anonKey && serviceRoleKey);
 
 if (process.env.DB_TEST_REQUIRED === '1' && !hasSupabaseCredentials) {
   throw new Error(
-    'VITE_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for npm run test:db',
+    'VITE_PUBLIC_SUPABASE_URL, VITE_PUBLIC_SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are required for npm run test:db',
   );
 }
 
@@ -32,10 +37,11 @@ describe('Supabase init migration', () => {
   it('keeps one clean init followed by the signup upgrade', () => {
     const migrationFiles = import.meta.glob('../supabase/migrations/*.sql');
     expect(Object.keys(migrationFiles).sort()).toEqual([
-      '../supabase/migrations/00000000000000_init.sql',
+      '../supabase/migrations/00000000000000_schema.sql',
       '../supabase/migrations/20260723000000_fix_signup_trigger.sql',
       '../supabase/migrations/20260723010000_harden_admin_access.sql',
       '../supabase/migrations/20260723020000_atomic_run_save.sql',
+      '../supabase/migrations/20260723030000_grant_service_role.sql',
     ]);
   });
 
@@ -125,6 +131,17 @@ describe('Supabase existing database upgrade', () => {
     );
     expect(atomicRunUpgradeSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
   });
+
+  it('grants server-side access without exposing service credentials', () => {
+    expect(serviceRoleUpgradeSql).toContain(
+      'GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO service_role',
+    );
+    expect(serviceRoleUpgradeSql).toContain(
+      'GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO service_role',
+    );
+    expect(serviceRoleUpgradeSql).not.toContain('anon');
+    expect(serviceRoleUpgradeSql).not.toContain('authenticated');
+  });
 });
 
 const describeLive = hasSupabaseCredentials ? describe : describe.skip;
@@ -140,12 +157,11 @@ describeLive('Supabase live integration', () => {
       },
     },
   );
-  let testUserId: string | undefined;
+  const testUserIds: string[] = [];
 
   afterEach(async () => {
-    if (testUserId) {
-      await supabase.auth.admin.deleteUser(testUserId);
-      testUserId = undefined;
+    for (const userId of testUserIds.splice(0)) {
+      await supabase.auth.admin.deleteUser(userId);
     }
   });
 
@@ -179,7 +195,8 @@ describeLive('Supabase live integration', () => {
     });
 
     expect(authError).toBeNull();
-    testUserId = authData.user?.id;
+    const testUserId = authData.user?.id;
+    if (testUserId) testUserIds.push(testUserId);
     expect(testUserId).toBeTruthy();
 
     const { data: player, error: playerError } = await supabase
@@ -246,5 +263,92 @@ describeLive('Supabase live integration', () => {
       waves_completed: 24,
       run_level_reached: 6,
     });
+  });
+
+  it('supports immediate signup, session restoration, logout and admin RLS', async () => {
+    const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const email = `lolrogue-auth-${suffix}@example.test`;
+    const password = 'Test-password-42!';
+    const username = `auth-test-${suffix}`.slice(0, 50);
+    const userClient = createClient(supabaseUrl!, anonKey!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    const { data: signup, error: signupError } = await userClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username, display_name: 'Auth Integration Test' },
+      },
+    });
+
+    expect(signupError).toBeNull();
+    expect(signup.session).not.toBeNull();
+    expect(signup.user?.email_confirmed_at).toBeTruthy();
+    if (signup.user) testUserIds.push(signup.user.id);
+
+    const { data: profile, error: profileError } = await userClient
+      .from('players')
+      .select('id, username, is_admin')
+      .eq('user_id', signup.user!.id)
+      .single();
+    expect(profileError).toBeNull();
+    expect(profile).toMatchObject({ username, is_admin: false });
+
+    const { error: escalationError } = await userClient
+      .from('players')
+      .update({ is_admin: true })
+      .eq('user_id', signup.user!.id);
+    expect(escalationError).not.toBeNull();
+
+    const { data: hiddenStats, error: hiddenStatsError } = await userClient
+      .from('admin_stats')
+      .select('*');
+    const { data: hiddenPlayers, error: hiddenPlayersError } = await userClient
+      .from('admin_player_stats')
+      .select('*');
+    expect(hiddenStatsError).toBeNull();
+    expect(hiddenPlayersError).toBeNull();
+    expect(hiddenStats).toEqual([]);
+    expect(hiddenPlayers).toEqual([]);
+
+    await userClient.auth.signOut();
+    const loginClient = createClient(supabaseUrl!, anonKey!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { data: login, error: loginError } = await loginClient.auth.signInWithPassword({
+      email,
+      password,
+    });
+    expect(loginError).toBeNull();
+    expect(login.session?.user.id).toBe(signup.user!.id);
+
+    const restoredClient = createClient(supabaseUrl!, anonKey!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { error: restoreError } = await restoredClient.auth.setSession({
+      access_token: login.session!.access_token,
+      refresh_token: login.session!.refresh_token,
+    });
+    expect(restoreError).toBeNull();
+    const { data: restored } = await restoredClient.auth.getSession();
+    expect(restored.session?.user.id).toBe(signup.user!.id);
+
+    const { error: promoteError } = await supabase
+      .from('players')
+      .update({ is_admin: true })
+      .eq('user_id', signup.user!.id);
+    expect(promoteError).toBeNull();
+
+    const { data: adminStats, error: adminStatsError } = await restoredClient
+      .from('admin_stats')
+      .select('*');
+    expect(adminStatsError).toBeNull();
+    expect(adminStats?.length).toBeGreaterThan(0);
+
+    const { error: logoutError } = await restoredClient.auth.signOut();
+    expect(logoutError).toBeNull();
+    const { data: loggedOut } = await restoredClient.auth.getSession();
+    expect(loggedOut.session).toBeNull();
   });
 });

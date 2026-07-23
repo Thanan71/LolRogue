@@ -6,7 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Player, PlayerUpdate } from '@/types/database';
+import type { Player, PlayerUpdate } from '@/types/models';
 import type { IPlayerRepository } from '../interfaces/IPlayerRepository';
 
 export class SupabasePlayerRepository implements IPlayerRepository {

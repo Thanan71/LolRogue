@@ -201,7 +201,7 @@ export interface RunActions {
   startRun: (championIds: string[]) => Promise<void>;
   /** End the current run and reset state, optionally marking it as won.
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
-  endRun: (won?: boolean, expectedRunId?: string) => Promise<void>;
+  endRun: (won?: boolean, expectedRunId?: string) => Promise<boolean>;
   /** Add a champion to the team (if not full). Returns true if added. */
   addChampion: (championId: string) => boolean;
   /** Remove a champion from the team by champion ID */

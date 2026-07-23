@@ -7,6 +7,7 @@
  */
 
 import { supabase } from '@/services/supabaseClient';
+import type { Json, TablesInsert } from '@/types/database';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -24,21 +25,7 @@ export interface LogEntry {
   playerId?: string;
 }
 
-export interface LogInsert {
-  created_at: string;
-  level: string;
-  repository: string;
-  method: string;
-  table_name?: string;
-  operation: string;
-  duration_ms?: number;
-  error_message?: string;
-  error_stack?: string;
-  details: Record<string, unknown>;
-  user_id?: string;
-  player_id?: string;
-  session_id: string;
-}
+export type LogInsert = TablesInsert<'logs'>;
 
 export interface LoggerConfig {
   enabled: boolean;
@@ -172,7 +159,7 @@ class DatabaseLogger {
       duration_ms: entry.duration,
       error_message: entry.error?.message,
       error_stack: entry.error?.stack,
-      details: entry.details || {},
+      details: JSON.parse(JSON.stringify(entry.details || {})) as Json,
       user_id: entry.userId,
       player_id: entry.playerId,
       session_id: this.sessionId,

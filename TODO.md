@@ -18,14 +18,14 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Maintenir la migration Supabase unique
 
-- [x] Consolider le schéma utilisé par l'application dans `00000000000000_init.sql`.
+- [x] Consolider le schéma utilisé par l'application dans `00000000000000_schema.sql`.
 - [x] Supprimer les migrations historiques et les scripts SQL ponctuels de correction.
 - [x] Conserver les UUID et les tables attendues par les repositories (`players`, `runs`, `run_team_members`, `daily_runs`).
-- [ ] Valider la migration sur une instance locale neuve avec `supabase db reset`.
-- [ ] Documenter qu'une ancienne base doit être réinitialisée avant d'appliquer ce nouveau schéma.
-- [ ] Générer les types Supabase depuis le schéma avec `supabase gen types typescript` au lieu de maintenir manuellement `src/types/database.ts`.
-- [ ] Ajouter `supabase db reset` et `supabase db lint` à la validation CI.
-- [ ] Faire exécuter les tests live sur le même schéma que les repositories; les tests actuels vérifient les nouvelles tables incompatibles.
+- [x] Valider toutes les migrations sur une instance locale neuve avec `supabase db reset`.
+- [x] Documenter le reset local et les migrations non destructives pour une ancienne base de production.
+- [x] Générer `src/types/database.ts` depuis le schéma avec `supabase gen types typescript`.
+- [x] Ajouter `supabase db reset` et `supabase db lint` à la validation CI.
+- [x] Exécuter les tests live contre le même schéma local que les repositories.
 
 ### Fermer l'escalade de privilèges admin
 
@@ -33,7 +33,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Retirer `is_admin` de `PlayerInsert` et `PlayerUpdate` côté client.
 - [x] Limiter explicitement par privilèges de colonnes les champs `players` modifiables par le client.
 - [x] Réserver l'attribution/retrait du rôle admin à la service role ou au SQL administrateur.
-- [ ] Tester en SQL/RLS qu'un utilisateur normal ne peut ni devenir admin ni lire les vues admin.
+- [x] Tester en SQL/RLS qu'un utilisateur normal ne peut ni devenir admin ni lire les vues admin.
 - [x] Définir les vues admin en `security_invoker = true` et les filtrer par le contrôle admin serveur.
 
 ### Corriger Auth et le mode invité
@@ -42,8 +42,8 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Corriger `handleGuestPlay` afin que la navigation vers `/` ne reboucle plus vers `/auth`.
 - [x] Ne pas construire le client Supabase avec une clé vide et afficher le mode hors ligne lorsque les variables sont absentes.
 - [x] Remplacer les deux variables globales `authCheckInitialized` par une initialisation de session unique dans l'application.
-- [ ] Tester login, inscription immédiate sans confirmation, restauration de session, logout, mode invité et accès admin.
-- [ ] Nettoyer les scripts SQL ponctuels de correction d'inscription après intégration dans une migration officielle.
+- [x] Tester login, inscription immédiate sans confirmation, restauration de session, logout, mode invité et accès admin.
+- [x] Nettoyer les scripts SQL ponctuels de correction d'inscription après intégration dans les migrations officielles.
 
 ### Corriger la fin et la sauvegarde des runs
 
@@ -53,7 +53,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Rendre la sauvegarde idempotente avec la contrainte unique `run_uuid` et un traitement contrôlé côté RPC.
 - [x] Ne pas marquer tous les champions comme survivants dans `runStore.endRun`; utiliser leurs PV finaux.
 - [x] Persister l'heure de départ dans le store afin qu'un rechargement n'empêche plus l'enregistrement.
-- [ ] Clarifier et tester l'abandon d'une run : résultat, récompenses, statistiques et sauvegarde (une défaite et un match nul sont désormais enregistrés avec `won = false`).
+- [x] Clarifier et tester l'abandon : confirmation obligatoire, `won = false`, récompenses des vagues conservées et navigation annulée si la sauvegarde échoue.
 
 ## P1 — fonctionnalités à ajouter
 

@@ -39,7 +39,7 @@ npm run typecheck  # TypeScript type checking
 ## Supabase database
 
 The complete PostgreSQL schema is defined by the single migration
-`supabase/migrations/00000000000000_init.sql`. It creates the game tables,
+`supabase/migrations/00000000000000_schema.sql`. It creates the game tables,
 views, triggers and Row Level Security policies.
 
 ```bash

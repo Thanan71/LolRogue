@@ -6,7 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { DailyRun, DailyRunInsert } from '@/types/database';
+import type { DailyRun, DailyRunInsert } from '@/types/models';
 import type {
   IDailyRunRepository,
   ILeaderboardRepository,

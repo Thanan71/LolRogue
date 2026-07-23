@@ -1,4 +1,4 @@
--- Upgrade for databases that already ran 00000000000000_init.sql before the
+-- Upgrade for databases that already ran the initial schema before the
 -- signup collision fix. This migration preserves all existing users and data.
 
 BEGIN;
