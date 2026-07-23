@@ -22,7 +22,7 @@ describe('documentation maintenue', () => {
     }
   });
 
-  it('référence les documents durables et clôt le bloc Documentation', () => {
+  it('référence les documents durables et expose un backlog auditable', () => {
     const readme = read('README.md');
     const todo = read('TODO.md');
 
@@ -37,11 +37,12 @@ describe('documentation maintenue', () => {
       expect(existsSync(resolve(root, path))).toBe(true);
     }
 
-    const documentationBlock = todo
-      .split('### Documentation')[1]
-      ?.split('## Ordre de réalisation recommandé')[0];
-    expect(documentationBlock).toBeDefined();
-    expect(documentationBlock).not.toContain('- [ ]');
+    expect(todo).toContain('### Définition de Done');
+    expect(todo).toContain('## P0');
+    expect(todo).toContain('## P1');
+    expect(todo).toContain('## P2');
+    expect(todo).toContain('## Ordre de réalisation recommandé');
+    expect(todo).toContain('- [ ]');
   });
 
   it('ne réintroduit pas les guides historiques ponctuels', () => {
