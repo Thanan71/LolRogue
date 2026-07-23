@@ -21,5 +21,22 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    setupFiles: ['./tests/setup/react.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      include: [
+        'src/game/**/*.ts',
+        'src/services/**/*.ts',
+        'src/stores/**/*.ts',
+        'src/utils/**/*.ts',
+      ],
+      thresholds: {
+        statements: 45,
+        branches: 40,
+        functions: 45,
+        lines: 45,
+      },
+    },
   },
 });

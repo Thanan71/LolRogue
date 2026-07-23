@@ -382,7 +382,7 @@ describe('BattleManager', () => {
 
 describe('P1 manual combat choices', () => {
   it('attacks the explicit target selected by the player', () => {
-    const teams = makeTeams(['P1'], ['E1', 'E2']);
+    const teams = makeTeams(['P1'], ['E1', 'E2'], { P1: 400 });
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
     bm.startBattle();
 
@@ -394,8 +394,8 @@ describe('P1 manual combat choices', () => {
   });
 
   it('uses the selected spell rank for damage values', () => {
-    const levelOneTeams = makeTeams(['P1'], ['E1']);
-    const upgradedTeams = makeTeams(['P2'], ['E2']);
+    const levelOneTeams = makeTeams(['P1'], ['E1'], { P1: 400 });
+    const upgradedTeams = makeTeams(['P2'], ['E2'], { P2: 400 });
     upgradedTeams.playerTeam.champions[0].setSpellRank('Q', 3);
     const first = new BattleManager(levelOneTeams.playerTeam, levelOneTeams.enemyTeam, {
       autoActions: false,
