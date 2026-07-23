@@ -15,7 +15,7 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
 
   const handleClick = (slot: 'Q' | 'W' | 'E' | 'R') => {
     const spell = champion.spells.find((s) => s.slot === slot);
-    if (!spell || !spell.isReady) return;
+    if (!spell || !spell.isReady || champion.currentMp < spell.cost) return;
     onCast?.(slot);
   };
 
@@ -42,7 +42,8 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
         const spell = champion.spells.find((s) => s.slot === slot);
         const cd = spell?.cooldownCurrent ?? 0;
         const onCooldown = cd > 0;
-        const disabled = !spell || onCooldown;
+        const lacksMana = Boolean(spell && champion.currentMp < spell.cost);
+        const disabled = !spell || onCooldown || lacksMana;
         const isUlt = slot === 'R';
 
         const slotButton = (
@@ -50,7 +51,7 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
             key={slot}
             onClick={() => handleClick(slot)}
             disabled={disabled}
-            aria-label={`Spell ${slot}${spell ? `: ${spell.name}` : ''}${onCooldown ? ` (${cd}s cooldown)` : ''}${spell && !spell.isReady ? ' on cooldown' : ' ready'}`}
+            aria-label={`Spell ${slot}${spell ? `: ${spell.name}` : ''}${onCooldown ? ` (${cd}s cooldown)` : ''}${lacksMana ? ' mana insuffisant' : spell && !spell.isReady ? ' on cooldown' : ' ready'}`}
             aria-keyshortcuts={slot}
             style={{
               position: 'relative',

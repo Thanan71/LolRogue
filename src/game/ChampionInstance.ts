@@ -36,6 +36,7 @@ export class ChampionInstance {
   private readonly _spells: SpellMap;
   /** Remaining cooldown turns per spell slot (0 = ready). */
   private readonly _cooldowns: Record<SpellSlot, number>;
+  private readonly _spellRanks: Record<SpellSlot, number>;
   /** Enhancement bonuses from the enhancement tree system */
   private _enhancementBonuses: EnhancementStatBonuses | null = null;
   private readonly _statMultiplier: number;
@@ -63,6 +64,7 @@ export class ChampionInstance {
 
     // Initialize all cooldowns to 0 (ready)
     this._cooldowns = { Q: 0, W: 0, E: 0, R: 0 };
+    this._spellRanks = { Q: 1, W: 1, E: 1, R: 1 };
   }
 
   // ── Level ────────────────────────────────────────────────────────────────
@@ -149,6 +151,14 @@ export class ChampionInstance {
    */
   clearEnhancementBonuses(): void {
     this._enhancementBonuses = null;
+  }
+
+  setSpellRank(slot: SpellSlot, rank: number): void {
+    this._spellRanks[slot] = Math.max(1, Math.min(slot === 'R' ? 3 : 5, Math.floor(rank)));
+  }
+
+  getSpellRank(slot: SpellSlot): number {
+    return this._spellRanks[slot];
   }
 
   /**

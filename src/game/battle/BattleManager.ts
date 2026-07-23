@@ -438,7 +438,7 @@ export class BattleManager {
 
     // ── Basic Attack: keep existing AD-only logic ──
     if (action.type === ActionType.BasicAttack) {
-      const target = this._pickTarget(enemies);
+      const target = this._pickTarget(enemies, action.targetId);
       if (!target) return;
       this._performBasicAttack(attacker, target);
       return;
@@ -457,16 +457,21 @@ export class BattleManager {
 
     // Use enhanced stats for spell damage calculation (getEnhancedStats always returns valid stats)
     const atkStats = attacker.champion.getEnhancedStats();
-    const rankIdx = 0; // simplified: always rank-1 stats
+    const rankIdx = attacker.champion.getSpellRank(spellSlot) - 1;
 
     for (const effect of spell.effects) {
-      this._applySpellEffect(effect, attacker, enemies, allies, atkStats, rankIdx);
+      this._applySpellEffect(effect, attacker, enemies, allies, atkStats, rankIdx, action.targetId);
     }
   }
 
-  private _pickTarget(candidates: CombatantState[]): CombatantState | null {
+  private _pickTarget(
+    candidates: CombatantState[],
+    preferredTargetId?: string,
+  ): CombatantState | null {
     const alive = candidates.filter((c) => !c.isDefeated);
     if (alive.length === 0) return null;
+    const preferred = alive.find((candidate) => candidate.champion.id === preferredTargetId);
+    if (preferred) return preferred;
     return alive[Math.floor(this._random() * alive.length)];
   }
 
@@ -480,36 +485,45 @@ export class BattleManager {
     allies: CombatantState[],
     atkStats: ReturnType<ChampionInstance['getStats']>,
     rankIdx: number,
+    preferredTargetId?: string,
   ): void {
     switch (effect.type) {
       case 'damage': {
-        const target = this._pickTarget(enemies);
-        if (!target) return;
-        // Use enhanced stats for defense calculation (getEnhancedStats always returns valid stats)
-        const defStats = target.champion.getEnhancedStats();
+        const targets =
+          preferredTargetId === 'all'
+            ? enemies.filter((candidate) => !candidate.isDefeated)
+            : [this._pickTarget(enemies, preferredTargetId)].filter(
+                (candidate): candidate is CombatantState => candidate !== null,
+              );
+        if (targets.length === 0) return;
+        for (const target of targets) {
+          // Use enhanced stats for defense calculation (getEnhancedStats always returns valid stats)
+          const defStats = target.champion.getEnhancedStats();
 
-        const baseDmg = effect.baseDamage?.[rankIdx] ?? 0;
-        const adRatio = effect.adRatio ?? 0;
-        const apRatio = effect.apRatio ?? 0;
-        const statDmg = atkStats.attackDamage * adRatio + atkStats.abilityPower * apRatio;
-        const rawDmg = baseDmg + statDmg;
+          const baseDmg = effect.baseDamage?.[rankIdx] ?? 0;
+          const adRatio = effect.adRatio ?? 0;
+          const apRatio = effect.apRatio ?? 0;
+          const statDmg = atkStats.attackDamage * adRatio + atkStats.abilityPower * apRatio;
+          const rawDmg = baseDmg + statDmg;
 
-        let finalDmg: number;
-        const dmgType = effect.damageType ?? 'physical';
-        // Handle both 'magical'/'ap' for magic damage and 'true' for true damage
-        if (dmgType === 'magical' || dmgType === 'ap') {
-          finalDmg = calculateAPDamage(rawDmg, 1.0, defStats.magicResist);
-        } else if (dmgType === 'true') {
-          finalDmg = calculateTrueDamage(rawDmg);
-        } else {
-          // Default to physical/AD damage
-          finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
+          let finalDmg: number;
+          const dmgType = effect.damageType ?? 'physical';
+          // Handle both 'magical'/'ap' for magic damage and 'true' for true damage
+          if (dmgType === 'magical' || dmgType === 'ap') {
+            finalDmg = calculateAPDamage(rawDmg, 1.0, defStats.magicResist);
+          } else if (dmgType === 'true') {
+            finalDmg = calculateTrueDamage(rawDmg);
+          } else {
+            // Default to physical/AD damage
+            finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
+          }
+          this._applyDamageToTarget(attacker, target, finalDmg);
         }
-        this._applyDamageToTarget(attacker, target, finalDmg);
         break;
       }
       case 'heal': {
-        const healTarget = allies.length > 0 ? this._pickTarget(allies) : attacker;
+        const healTarget =
+          allies.length > 0 ? this._pickTarget(allies, preferredTargetId) : attacker;
         if (!healTarget) return;
         const baseHeal = effect.baseValue?.[rankIdx] ?? 0;
         const apRatio = effect.apRatio ?? 0;
@@ -527,7 +541,8 @@ export class BattleManager {
         break;
       }
       case 'shield': {
-        const shieldTarget = allies.length > 0 ? this._pickTarget(allies) : attacker;
+        const shieldTarget =
+          allies.length > 0 ? this._pickTarget(allies, preferredTargetId) : attacker;
         if (!shieldTarget) return;
         const baseShield = effect.baseValue?.[rankIdx] ?? 0;
         const apRatio = effect.apRatio ?? 0;

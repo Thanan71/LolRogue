@@ -452,6 +452,8 @@ export type Database = {
           nodes_completed: number;
           player_id: string;
           run_level: number;
+          rune_ids: string[];
+          augment_ids: string[];
           run_uuid: string;
           seed: number | null;
           started_at: string;
@@ -482,6 +484,8 @@ export type Database = {
           nodes_completed?: number;
           player_id: string;
           run_level?: number;
+          rune_ids?: string[];
+          augment_ids?: string[];
           run_uuid: string;
           seed?: number | null;
           started_at?: string;
@@ -512,6 +516,8 @@ export type Database = {
           nodes_completed?: number;
           player_id?: string;
           run_level?: number;
+          rune_ids?: string[];
+          augment_ids?: string[];
           run_uuid?: string;
           seed?: number | null;
           started_at?: string;
@@ -676,6 +682,10 @@ export type Database = {
           p_total_candies: number;
         };
         Returns: string;
+      };
+      save_run_loadout: {
+        Args: { p_augment_ids: string[]; p_run_uuid: string; p_rune_ids: string[] };
+        Returns: undefined;
       };
       submit_daily_run: {
         Args: {

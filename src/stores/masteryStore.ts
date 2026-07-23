@@ -11,6 +11,7 @@ import {
   getStatBonusForLevel,
 } from '@/services/masteryService';
 import type { MasteryState, MasteryStore } from '@/types/mastery';
+import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
 
 const INITIAL_STATE: MasteryState = {
   champions: {},
@@ -105,7 +106,9 @@ export const useMasteryStore = create<MasteryStore>()(
     }),
     {
       name: 'lolrogue-mastery-storage',
-      storage: createJSONStorage(() => localStorage),
+      version: 1,
+      storage: createJSONStorage(() => safeLocalStorage),
+      migrate: (persisted) => recoverPersistedState(persisted, INITIAL_STATE),
       partialize: (state) => ({
         champions: state.champions,
         unlockedStarters: state.unlockedStarters,

@@ -379,3 +379,38 @@ describe('BattleManager', () => {
     });
   });
 });
+
+describe('P1 manual combat choices', () => {
+  it('attacks the explicit target selected by the player', () => {
+    const teams = makeTeams(['P1'], ['E1', 'E2']);
+    const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+    bm.startBattle();
+
+    expect(bm.submitAction({ type: ActionType.BasicAttack, cost: 0, targetId: 'E2' })).toBe(true);
+
+    const enemies = bm.getEnemyCombatants();
+    expect(enemies.find((enemy) => enemy.champion.id === 'E1')?.currentHp).toBe(500);
+    expect(enemies.find((enemy) => enemy.champion.id === 'E2')?.currentHp).toBeLessThan(500);
+  });
+
+  it('uses the selected spell rank for damage values', () => {
+    const levelOneTeams = makeTeams(['P1'], ['E1']);
+    const upgradedTeams = makeTeams(['P2'], ['E2']);
+    upgradedTeams.playerTeam.champions[0].setSpellRank('Q', 3);
+    const first = new BattleManager(levelOneTeams.playerTeam, levelOneTeams.enemyTeam, {
+      autoActions: false,
+    });
+    const upgraded = new BattleManager(upgradedTeams.playerTeam, upgradedTeams.enemyTeam, {
+      autoActions: false,
+    });
+    first.startBattle();
+    upgraded.startBattle();
+
+    first.submitAction({ type: ActionType.SpellQ, cost: 50, targetId: 'E1' });
+    upgraded.submitAction({ type: ActionType.SpellQ, cost: 50, targetId: 'E2' });
+
+    expect(upgraded.getEnemyCombatants()[0].currentHp).toBeLessThan(
+      first.getEnemyCombatants()[0].currentHp,
+    );
+  });
+});

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
 import type { DailyLeaderboard, DailyLeaderboardEntry, DailyRunState } from '@/types/dailyRun';
 import type { Biome, InventoryEntry } from '@/types/run';
 import { MAX_TEAM_SIZE } from '@/types/run';
@@ -310,7 +311,9 @@ export const useDailyRunStore = create<DailyRunStore>()(
     }),
     {
       name: STORAGE_KEY,
-      storage: createJSONStorage(() => localStorage),
+      version: 1,
+      storage: createJSONStorage(() => safeLocalStorage),
+      migrate: (persisted) => recoverPersistedState(persisted, getInitialState()),
       partialize: (state) => ({
         isActive: state.isActive,
         dateKey: state.dateKey,

@@ -33,6 +33,10 @@ const atomicMasteryEnhancementsSql = readFileSync(
   new URL('../supabase/migrations/20260723060000_atomic_mastery_enhancements.sql', import.meta.url),
   'utf8',
 );
+const runLoadoutSql = readFileSync(
+  new URL('../supabase/migrations/20260723070000_run_loadout.sql', import.meta.url),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -57,6 +61,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260723040000_daily_leaderboard_read.sql',
       '../supabase/migrations/20260723050000_atomic_daily_submission.sql',
       '../supabase/migrations/20260723060000_atomic_mastery_enhancements.sql',
+      '../supabase/migrations/20260723070000_run_loadout.sql',
     ]);
   });
 
@@ -203,6 +208,13 @@ describe('Supabase existing database upgrade', () => {
       'REVOKE UPDATE (total_candies) ON public.players FROM authenticated',
     );
     expect(atomicMasteryEnhancementsSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
+  });
+
+  it('persists rune and augment loadouts for owned runs', () => {
+    expect(runLoadoutSql).toContain('ADD COLUMN IF NOT EXISTS rune_ids');
+    expect(runLoadoutSql).toContain('ADD COLUMN IF NOT EXISTS augment_ids');
+    expect(runLoadoutSql).toContain('player.user_id = (SELECT auth.uid())');
+    expect(runLoadoutSql).toContain('GRANT EXECUTE ON FUNCTION public.save_run_loadout');
   });
 });
 

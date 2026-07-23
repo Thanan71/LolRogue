@@ -6,6 +6,7 @@ import { AdminRoute } from './components/AdminRoute';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { EncounterRoute } from './components/EncounterRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { NotificationRegion } from './components/NotificationRegion';
 import { AdminPage } from './pages/AdminPage';
 import { AuthPage } from './pages/AuthPage';
 import { CombatPage } from './pages/CombatPage';
@@ -16,6 +17,7 @@ import { EventPage } from './pages/EventPage';
 import { GameOverPage } from './pages/GameOverPage';
 import { MenuPage } from './pages/MenuPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { RecruitPage } from './pages/RecruitPage';
 import { RestPage } from './pages/RestPage';
 import { RunPage } from './pages/RunPage';
@@ -39,6 +41,7 @@ export default function App() {
   return (
     <div id="app">
       <AuthBootstrap />
+      <NotificationRegion />
       <Routes>
         {/* Auth page - accessible without authentication */}
         <Route
@@ -148,6 +151,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <DailyRunPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

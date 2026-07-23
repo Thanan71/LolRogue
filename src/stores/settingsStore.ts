@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
 
 export type BattleSpeed = 1 | 2 | 3;
 export type TextSize = 'small' | 'medium' | 'large';
@@ -40,6 +41,15 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'lolrogue-settings',
+      version: 1,
+      storage: createJSONStorage(() => safeLocalStorage),
+      migrate: (persisted) =>
+        recoverPersistedState(persisted, {
+          textSize: 'medium',
+          battleSpeed: 1,
+          difficulty: 'normal',
+          particlesEnabled: true,
+        }),
     },
   ),
 );

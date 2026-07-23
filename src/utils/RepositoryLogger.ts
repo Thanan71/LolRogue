@@ -22,13 +22,13 @@ import { dbLogger } from './dbLogger';
 export function createLoggedRepository<T extends object>(repository: T, repositoryName: string): T {
   // Get all methods from the repository
   const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(repository)).filter(
-    (prop) => typeof (repository as any)[prop] === 'function' && prop !== 'constructor',
+    (prop) => typeof Reflect.get(repository, prop) === 'function' && prop !== 'constructor',
   );
 
   // Create a proxy that intercepts method calls
   const handler: ProxyHandler<T> = {
     get(target, prop, receiver) {
-      const originalMethod = (target as any)[prop];
+      const originalMethod = Reflect.get(target, prop, receiver);
 
       // If it's not a method we should log, return as-is
       if (!methods.includes(prop as string) || typeof originalMethod !== 'function') {
@@ -36,7 +36,7 @@ export function createLoggedRepository<T extends object>(repository: T, reposito
       }
 
       // Return a wrapped version of the method
-      return async function (...args: any[]) {
+      return async function (...args: unknown[]) {
         const methodName = prop as string;
         const timerId = `${repositoryName}.${methodName}.${Date.now()}`;
 
@@ -45,7 +45,10 @@ export function createLoggedRepository<T extends object>(repository: T, reposito
 
         try {
           // Execute the original method
-          const result = await originalMethod.apply(target, args);
+          const result = await (originalMethod as (...values: unknown[]) => unknown).apply(
+            target,
+            args,
+          );
 
           // End timing
           const duration = dbLogger.endTimer(timerId);
@@ -92,7 +95,7 @@ export function createLoggedRepository<T extends object>(repository: T, reposito
  */
 function determineOperation(
   methodName: string,
-  _result: any,
+  _result: unknown,
 ): 'select' | 'insert' | 'update' | 'upsert' | 'delete' | 'auth' | 'other' {
   const lowerName = methodName.toLowerCase();
 
@@ -159,7 +162,15 @@ function determineOperationFromName(
 /**
  * Extracts relevant details from method arguments and result for logging
  */
-function extractLogDetails(methodName: string, args: any[], result: any): Record<string, unknown> {
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === 'object' ? (value as Record<string, unknown>) : null;
+}
+
+function extractLogDetails(
+  methodName: string,
+  args: unknown[],
+  result: unknown,
+): Record<string, unknown> {
   const details: Record<string, unknown> = {};
   const lowerName = methodName.toLowerCase();
 
@@ -169,7 +180,7 @@ function extractLogDetails(methodName: string, args: any[], result: any): Record
   }
 
   if (lowerName.includes('update') && args.length > 1) {
-    details.updateKeys = Object.keys(args[1] || {});
+    details.updateKeys = Object.keys(asRecord(args[1]) ?? {});
   }
 
   if (lowerName.includes('create') && args.length > 0) {
@@ -177,14 +188,15 @@ function extractLogDetails(methodName: string, args: any[], result: any): Record
   }
 
   // Add result-specific details
-  if (result) {
-    if (result.error) {
+  const resultRecord = asRecord(result);
+  if (resultRecord) {
+    if (resultRecord.error) {
       details.hasError = true;
     }
-    if (result.data !== undefined) {
-      if (Array.isArray(result.data)) {
-        details.resultCount = result.data.length;
-      } else if (result.data !== null) {
+    if (resultRecord.data !== undefined) {
+      if (Array.isArray(resultRecord.data)) {
+        details.resultCount = resultRecord.data.length;
+      } else if (resultRecord.data !== null) {
         details.hasResult = true;
       }
     }
@@ -206,13 +218,17 @@ function isValidUUID(str: string): boolean {
  * Extracts user ID from arguments or result
  * Only returns proper UUIDs, not email addresses or other string formats
  */
-function extractUserId(args: any[], result: any): string | undefined {
+function extractUserId(args: unknown[], result: unknown): string | undefined {
+  const resultRecord = asRecord(result);
+  const user = asRecord(resultRecord?.user);
+  const session = asRecord(resultRecord?.session);
+  const sessionUser = asRecord(session?.user);
   // Check result for user ID first (most reliable source)
-  if (result?.user?.id && isValidUUID(result.user.id)) {
-    return result.user.id;
+  if (typeof user?.id === 'string' && isValidUUID(user.id)) {
+    return user.id;
   }
-  if (result?.session?.user?.id && isValidUUID(result.session.user.id)) {
-    return result.session.user.id;
+  if (typeof sessionUser?.id === 'string' && isValidUUID(sessionUser.id)) {
+    return sessionUser.id;
   }
 
   // Check if any argument is a valid UUID (skip emails and other formats)
@@ -229,13 +245,15 @@ function extractUserId(args: any[], result: any): string | undefined {
  * Extracts player ID from arguments or result
  * Only returns valid UUIDs, not arbitrary strings
  */
-function extractPlayerId(args: any[], result: any): string | undefined {
+function extractPlayerId(args: unknown[], result: unknown): string | undefined {
+  const resultRecord = asRecord(result);
+  const data = asRecord(resultRecord?.data);
   // Check result for player ID first (most reliable source)
-  if (result?.data?.player_id && isValidUUID(result.data.player_id)) {
-    return result.data.player_id;
+  if (typeof data?.player_id === 'string' && isValidUUID(data.player_id)) {
+    return data.player_id;
   }
-  if (result?.data?.id && isValidUUID(result.data.id) && !result?.data?.email) {
-    return result.data.id;
+  if (typeof data?.id === 'string' && isValidUUID(data.id) && !data.email) {
+    return data.id;
   }
 
   // Check if any argument is a valid UUID (skip emails and other formats)
@@ -251,13 +269,13 @@ function extractPlayerId(args: any[], result: any): string | undefined {
 /**
  * Sanitizes arguments for logging (removes sensitive data)
  */
-function sanitizeArgs(args: any[]): any {
+function sanitizeArgs(args: unknown[]): unknown[] {
   return args.map((arg) => {
     if (typeof arg === 'string' && arg.includes('@')) {
       return '[EMAIL]';
     }
     if (typeof arg === 'object' && arg !== null) {
-      const sanitized = { ...arg };
+      const sanitized = { ...(arg as Record<string, unknown>) };
       // Remove potential passwords
       delete sanitized.password;
       delete sanitized.confirmPassword;

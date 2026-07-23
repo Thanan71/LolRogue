@@ -7,6 +7,28 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { createScopedRunRng } from '@/utils/runRandom';
+import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
+import { useEnhancementStore } from '@/stores/enhancementStore';
+import { calculateMaxHP } from '@/utils/statCalculator';
+
+function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
+  const champion = championDB.getById(member.championId);
+  if (!champion) return 100;
+  const enhancementState = useEnhancementStore.getState().getEnhancementState(member.championId);
+  const enhancementBonuses = enhancementService.calculateStatBonuses(
+    enhancementTreeProvider.getTreeForChampion(champion),
+    enhancementState.unlockedNodes,
+  );
+  return calculateMaxHP(
+    champion,
+    member.level ?? 1,
+    enhancementBonuses,
+    useRunStore.getState().inventory,
+    member.championId,
+    member.statBoosts,
+    member.statMultiplier,
+  );
+}
 
 export function EventPage() {
   const isActive = useRunStore((s) => s.isActive);
@@ -55,8 +77,7 @@ export function EventPage() {
       case 'heal': {
         const healPct = resolved.healPercent ?? 0.3;
         const updates = state.team.map((member) => {
-          const champ = championDB.getById(member.championId);
-          const maxHp = champ?.stats.hp ?? 100;
+          const maxHp = getMemberMaxHp(member);
           const currentHp = member.currentHp ?? maxHp;
           return {
             championId: member.championId,
@@ -71,8 +92,7 @@ export function EventPage() {
       case 'damage': {
         const dmgPct = resolved.damagePercent ?? 0.15;
         const updates = state.team.map((member) => {
-          const champ = championDB.getById(member.championId);
-          const maxHp = champ?.stats.hp ?? 100;
+          const maxHp = getMemberMaxHp(member);
           const currentHp = member.currentHp ?? maxHp;
           return {
             championId: member.championId,
@@ -229,7 +249,7 @@ export function EventPage() {
               >
                 {team.map((member) => {
                   const champ = championDB.getById(member.championId);
-                  const maxHp = champ?.stats.hp ?? 100;
+                  const maxHp = getMemberMaxHp(member);
                   const currentHp = member.currentHp ?? maxHp;
                   const pct = Math.round((currentHp / maxHp) * 100);
                   return (

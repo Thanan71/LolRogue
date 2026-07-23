@@ -103,7 +103,10 @@ export class SupabaseLeaderboardRepository implements ILeaderboardRepository {
   async getLeaderboard(
     limit = 10,
     offset = 0,
-  ): Promise<{ data: any[] | null; error: Error | null }> {
+  ): Promise<{
+    data: import('@/types/database').Tables<'leaderboard'>[] | null;
+    error: Error | null;
+  }> {
     const { data, error } = await this.supabase
       .from('leaderboard')
       .select('*')

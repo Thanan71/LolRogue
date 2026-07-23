@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
+import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { findNode } from '@/game/map/mapUtils';
 import type { CombatEncounter, NodeMap } from '@/game/map/types';
 import { NodeType } from '@/game/map/types';
@@ -41,6 +42,7 @@ const NODE_LABELS: Record<string, string> = {
 };
 
 export function RunMapScreen() {
+  const [showLegend, setShowLegend] = useState(false);
   const biomeMaps = useRunStore((s) => s.biomeMaps);
   const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
@@ -55,6 +57,14 @@ export function RunMapScreen() {
   const startEncounter = useRunStore((s) => s.startEncounter);
   const advanceToNextBiome = useRunStore((s) => s.advanceToNextBiome);
   const completeCurrentNode = useRunStore((s) => s.completeCurrentNode);
+  const pendingAugmentIds = useRunStore((s) => s.pendingAugmentIds);
+  const augmentIds = useRunStore((s) => s.augmentIds);
+  const runeIds = useRunStore((s) => s.runeIds);
+  const chooseAugment = useRunStore((s) => s.chooseAugment);
+  const lastCombatRewards = useRunStore((s) => s.lastCombatRewards);
+  const setLastCombatRewards = useRunStore((s) => s.setLastCombatRewards);
+  const pendingSpellUpgradeChampionIds = useRunStore((s) => s.pendingSpellUpgradeChampionIds);
+  const upgradeSpell = useRunStore((s) => s.upgradeSpell);
 
   const navigate = useNavigate();
 
@@ -198,10 +208,10 @@ export function RunMapScreen() {
 
   return (
     <div style={overlayStyle}>
-      <div style={layoutStyle}>
-        <div style={sidebarStyle}>
+      <div className="run-map-layout" style={layoutStyle}>
+        <div className="run-map-sidebar" style={sidebarStyle}>
           <TeamPanel team={team} inventory={inventory} />
-          <InventoryPanel inventory={inventory} />
+          <InventoryPanel inventory={inventory} team={team} />
         </div>
         <div style={mainStyle}>
           <div style={headerStyle}>
@@ -213,6 +223,14 @@ export function RunMapScreen() {
               ← Menu
             </button>
             <span style={{ color: '#ffd700', fontWeight: 700 }}>Gold: {gold}</span>
+            <button
+              type="button"
+              onClick={() => setShowLegend((visible) => !visible)}
+              aria-expanded={showLegend}
+              aria-controls="map-legend"
+            >
+              ? Aide
+            </button>
             <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Wave {currentWave}</span>
             <span style={{ color: '#8b949e' }}>
               {currentBiome ? currentBiome.charAt(0).toUpperCase() + currentBiome.slice(1) : '???'}
@@ -223,6 +241,78 @@ export function RunMapScreen() {
               </span>
             )}
           </div>
+          {showLegend && (
+            <aside
+              id="map-legend"
+              style={{ ...panelStyle, marginBottom: 8 }}
+              aria-label="Tutoriel et légende de la carte"
+            >
+              <strong>Comment jouer</strong>
+              <p>
+                Choisissez un nœud entouré en vert. Terminez sa rencontre pour ouvrir le chemin
+                suivant. Le boss permet de passer au biome suivant.
+              </p>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {Object.entries(NODE_LABELS).map(([type, label]) => (
+                  <span key={type}>
+                    {label} {type}
+                  </span>
+                ))}
+              </div>
+            </aside>
+          )}
+          <div style={{ ...panelStyle, marginBottom: 8 }}>
+            <strong>Runes :</strong> {runeIds.join(', ') || 'aucune'} · <strong>Augments :</strong>{' '}
+            {augmentIds.join(', ') || 'aucun'}
+          </div>
+          {pendingAugmentIds.length > 0 && (
+            <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Choix d'augment">
+              <h2>Choisissez un augment</h2>
+              {pendingAugmentIds.map((id) => {
+                const augment = AUGMENT_DATABASE[id];
+                return (
+                  <button
+                    type="button"
+                    key={id}
+                    onClick={() => chooseAugment(id)}
+                    style={{ display: 'block', margin: 8 }}
+                  >
+                    <strong>{augment?.name ?? id}</strong> — {augment?.description}
+                  </button>
+                );
+              })}
+            </section>
+          )}
+          {lastCombatRewards && (
+            <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Récompenses du combat">
+              <strong>Combat terminé :</strong> +{lastCombatRewards.gold} gold, +
+              {lastCombatRewards.xp} XP
+              {lastCombatRewards.levelsGained > 0 &&
+                `, ${lastCombatRewards.levelsGained} niveau(x) gagné(s)`}
+              {lastCombatRewards.itemName && `, objet : ${lastCombatRewards.itemName}`}
+              <button type="button" onClick={() => setLastCombatRewards(null)}>
+                Fermer
+              </button>
+            </section>
+          )}
+          {pendingSpellUpgradeChampionIds[0] && (
+            <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Amélioration de sort">
+              <strong>
+                Améliorez un sort de{' '}
+                {championDB.getById(pendingSpellUpgradeChampionIds[0])?.name ??
+                  pendingSpellUpgradeChampionIds[0]}
+              </strong>
+              {(['Q', 'W', 'E', 'R'] as const).map((slot) => (
+                <button
+                  type="button"
+                  key={slot}
+                  onClick={() => upgradeSpell(pendingSpellUpgradeChampionIds[0], slot)}
+                >
+                  {slot}
+                </button>
+              ))}
+            </section>
+          )}
           <div style={mapContainerStyle}>
             <svg width={svgW} height={svgH} style={{ display: 'block' }}>
               {/* Draw edges */}
@@ -261,6 +351,16 @@ export function RunMapScreen() {
                     key={node.id}
                     style={{ cursor: isAccessible ? 'pointer' : 'default' }}
                     onClick={() => isAccessible && handleNodeClick(node.id)}
+                    onKeyDown={(event) => {
+                      if (isAccessible && (event.key === 'Enter' || event.key === ' ')) {
+                        event.preventDefault();
+                        handleNodeClick(node.id);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={isAccessible ? 0 : -1}
+                    aria-disabled={!isAccessible}
+                    aria-label={`${node.type}${isDone ? ', terminé' : ''}`}
                   >
                     {isCurrent && (
                       <circle
@@ -488,8 +588,12 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
   );
 }
 
-function InventoryPanel({ inventory }: { inventory: InventoryEntry[] }) {
+function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team: TeamMember[] }) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const equipItem = useRunStore((state) => state.equipItem);
+  const unequipItem = useRunStore((state) => state.unequipItem);
+  const sellItem = useRunStore((state) => state.sellItem);
+  const sortInventory = useRunStore((state) => state.sortInventory);
 
   // Stat name translations
   const statNames: Record<string, string> = {
@@ -522,7 +626,12 @@ function InventoryPanel({ inventory }: { inventory: InventoryEntry[] }) {
 
   return (
     <div style={{ ...panelStyle, flex: 1, overflow: 'auto', position: 'relative' }}>
-      <div style={panelTitle}>Inventaire ({inventory.length})</div>
+      <div style={{ ...panelTitle, display: 'flex', justifyContent: 'space-between' }}>
+        <span>Inventaire ({inventory.length}/20)</span>
+        <button type="button" onClick={sortInventory} aria-label="Trier l'inventaire">
+          Trier
+        </button>
+      </div>
       {inventory.length === 0 && (
         <div style={{ color: '#484f58', fontSize: 12, padding: 8 }}>Empty</div>
       )}
@@ -540,6 +649,32 @@ function InventoryPanel({ inventory }: { inventory: InventoryEntry[] }) {
         >
           <div style={{ color: '#e6edf3', fontSize: 11 }}>{entry.item.name}</div>
           <div style={{ color: '#8b949e', fontSize: 10 }}>{entry.item.goldValue}g</div>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            {entry.equippedToChampionId ? (
+              <button type="button" onClick={() => unequipItem(entry.instanceId)}>
+                Déséquiper
+              </button>
+            ) : (
+              team.map((member) => (
+                <button
+                  type="button"
+                  key={member.championId}
+                  onClick={() => equipItem(entry.instanceId, member.championId)}
+                >
+                  Équiper {championDB.getById(member.championId)?.name ?? member.championId}
+                </button>
+              ))
+            )}
+            <button type="button" onClick={() => sellItem(entry.instanceId)}>
+              Vendre {Math.max(1, Math.floor(entry.item.goldValue / 2))}g
+            </button>
+          </div>
+          {entry.equippedToChampionId && (
+            <div style={{ color: '#22c55e', fontSize: 10 }}>
+              Équipé :{' '}
+              {championDB.getById(entry.equippedToChampionId)?.name ?? entry.equippedToChampionId}
+            </div>
+          )}
         </div>
       ))}
 

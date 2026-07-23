@@ -33,6 +33,47 @@
   --transition-normal: 300ms ease;
 }
 
+:where(button, a, input, select, textarea, [role="button"]):focus-visible {
+  outline: 3px solid var(--lol-teal-light, #0ac8b9);
+  outline-offset: 3px;
+}
+
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  a {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 760px) {
+  .run-map-layout {
+    flex-direction: column !important;
+    overflow: auto;
+  }
+
+  .run-map-sidebar {
+    width: 100% !important;
+    max-height: 42vh;
+    flex-direction: row !important;
+  }
+
+  .combat-layout {
+    overflow: auto !important;
+    flex-wrap: wrap;
+  }
+
+  .combat-team-panel {
+    width: calc(50% - 12px) !important;
+    min-width: 150px;
+  }
+}
+
 :focus-visible {
   outline: 3px solid var(--lol-teal);
   outline-offset: 3px;

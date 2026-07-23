@@ -109,7 +109,9 @@ export class SupabasePlayerUnlockRepository implements IPlayerUnlockRepository {
     this.supabase = supabase;
   }
 
-  async getPlayerUnlocks(playerId: string): Promise<{ data: any[] | null; error: Error | null }> {
+  async getPlayerUnlocks(
+    playerId: string,
+  ): Promise<{ data: import('@/types/models').PlayerUnlock[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('player_unlocks')
       .select('*')
@@ -128,7 +130,7 @@ export class SupabasePlayerUnlockRepository implements IPlayerUnlockRepository {
     unlockId: string,
     championId?: string,
     skinId?: string,
-  ): Promise<{ data: any | null; error: Error | null }> {
+  ): Promise<{ data: import('@/types/models').PlayerUnlock | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('player_unlocks')
       .insert({

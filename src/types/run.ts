@@ -5,6 +5,7 @@ export const MAX_TEAM_SIZE = 5;
 
 /** Maximum number of items a champion can have equipped */
 export const MAX_ITEMS_PER_CHAMPION = 6;
+export const MAX_INVENTORY_ITEMS = 20;
 
 // ─── Biome (LoL Lane Zones) ─────────────────────────────────────────────────
 
@@ -151,6 +152,7 @@ export interface TeamMember {
   statBoosts?: Record<string, number>;
   /** Base-stat quality rolled when this champion was recruited. */
   statMultiplier?: number;
+  spellRanks?: Partial<Record<'Q' | 'W' | 'E' | 'R', number>>;
 }
 
 /** The full state of a single roguelike run */
@@ -184,6 +186,19 @@ export interface RunState {
   currentBiome: Biome | null;
   /** Inventory of items (some equipped, some in bag) */
   inventory: InventoryEntry[];
+  /** Rune loadout selected before the run. */
+  runeIds: string[];
+  /** Augments acquired during the run. */
+  augmentIds: string[];
+  /** Augment choices awaiting a player decision. */
+  pendingAugmentIds: string[];
+  lastCombatRewards: {
+    xp: number;
+    gold: number;
+    itemName: string | null;
+    levelsGained: number;
+  } | null;
+  pendingSpellUpgradeChampionIds: string[];
   /** Current gold amount */
   gold: number;
   /** Current wave number within the current biome */
@@ -216,7 +231,7 @@ export interface RunActions {
   /** Start a new run with champion IDs (validated ≤ MAX_TEAM_SIZE) */
   startRun: (
     championIds: string[],
-    options?: { mode?: RunState['mode']; seed?: number },
+    options?: { mode?: RunState['mode']; seed?: number; runeIds?: string[] },
   ) => Promise<void>;
   /** End the current run and reset state, optionally marking it as won.
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
@@ -237,6 +252,15 @@ export interface RunActions {
   equipItem: (instanceId: string, championId: string) => boolean;
   /** Unequip an item (move to bag) */
   unequipItem: (instanceId: string) => void;
+  /** Sell an item for half its shop value. */
+  sellItem: (instanceId: string) => boolean;
+  /** Sort inventory by equipment state, rarity, then name. */
+  sortInventory: () => void;
+  /** Acquire one of the pending augment choices. */
+  chooseAugment: (augmentId: string) => boolean;
+  setLastCombatRewards: (rewards: RunState['lastCombatRewards']) => void;
+  queueSpellUpgrades: (championIds: string[]) => void;
+  upgradeSpell: (championId: string, slot: 'Q' | 'W' | 'E' | 'R') => boolean;
   /** Add gold */
   addGold: (amount: number) => void;
   /** Spend gold (returns false if insufficient) */

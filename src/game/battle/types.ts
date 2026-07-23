@@ -58,6 +58,8 @@ export interface BattleAction {
   type: ActionType;
   /** Mana cost to execute (0 for basic attacks). */
   cost: number;
+  /** Explicit target selected by the player, or "all" for an area action. */
+  targetId?: string | 'all';
 }
 
 // ─── Combatant State (runtime HP tracking) ──────────────────────────────────

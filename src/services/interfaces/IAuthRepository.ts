@@ -5,7 +5,7 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { Session, User } from '@supabase/supabase-js';
+import type { Session, Subscription, User } from '@supabase/supabase-js';
 
 export interface SignUpMetadata {
   username?: string;
@@ -48,6 +48,6 @@ export interface IAuthRepository {
    * Subscribe to auth state changes
    */
   onAuthStateChange(callback: (event: string, session: Session | null) => void): {
-    subscription: any;
+    subscription: Subscription;
   };
 }

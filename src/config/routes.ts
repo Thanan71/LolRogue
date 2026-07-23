@@ -14,6 +14,7 @@ export const ROUTES = {
   TREASURE: '/treasure',
   GAME_OVER: '/game-over',
   DATABASE: '/database',
+  PROFILE: '/profile',
   SETTINGS: '/settings',
   CREDITS: '/credits',
   ADMIN: '/admin',

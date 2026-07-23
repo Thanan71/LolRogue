@@ -205,6 +205,16 @@ export function MenuPage() {
           className="main-menu__btn main-menu__btn--ghost"
           onClick={() => {
             playUIClick();
+            navigate(ROUTES.PROFILE);
+          }}
+        >
+          Profile & Run History
+        </button>
+
+        <button
+          className="main-menu__btn main-menu__btn--ghost"
+          onClick={() => {
+            playUIClick();
             navigate(ROUTES.SETTINGS);
           }}
         >

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
 import { championDB } from '@/data/championDatabase';
+import { getKeystoneRunes } from '@/data/items/runeDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { supabase } from '@/services/supabaseClient';
@@ -31,6 +32,7 @@ export function StarterSelectPage() {
     return pickRandom(championDB.getAll(), 6, rng);
   }, [isDaily, selectionSeed]);
   const [selectedStarterId, setSelectedStarterId] = useState<string | null>(null);
+  const [selectedRuneIds, setSelectedRuneIds] = useState<string[]>([]);
   const startRun = useRunStore((s) => s.startRun);
   const startDailyRun = useDailyRunStore((state) => state.startDailyRun);
   const hasCompletedToday = useDailyRunStore((state) => state.hasCompletedToday);
@@ -70,9 +72,13 @@ export function StarterSelectPage() {
         setIsStarting(false);
         return;
       }
-      await startRun([selectedStarterId], { mode: 'daily', seed: getDailySeed() });
+      await startRun([selectedStarterId], {
+        mode: 'daily',
+        seed: getDailySeed(),
+        runeIds: selectedRuneIds,
+      });
     } else {
-      await startRun([selectedStarterId], { seed: selectionSeed });
+      await startRun([selectedStarterId], { seed: selectionSeed, runeIds: selectedRuneIds });
     }
 
     navigate(ROUTES.RUN);
@@ -111,6 +117,26 @@ export function StarterSelectPage() {
       </div>
 
       <div className="starter-select__actions">
+        <fieldset>
+          <legend>Runes (3 maximum)</legend>
+          {getKeystoneRunes().map((rune) => (
+            <label key={rune.id} style={{ display: 'block' }}>
+              <input
+                type="checkbox"
+                checked={selectedRuneIds.includes(rune.id)}
+                disabled={!selectedRuneIds.includes(rune.id) && selectedRuneIds.length >= 3}
+                onChange={() =>
+                  setSelectedRuneIds((current) =>
+                    current.includes(rune.id)
+                      ? current.filter((id) => id !== rune.id)
+                      : [...current, rune.id],
+                  )
+                }
+              />{' '}
+              {rune.name} — {rune.description}
+            </label>
+          ))}
+        </fieldset>
         {error && <p role="alert">{error}</p>}
         <button
           className="starter-select__confirm"
@@ -146,9 +172,12 @@ function ChampionCard({
   ];
 
   return (
-    <div
+    <button
+      type="button"
       className={`champion-card${selected ? ' champion-card--selected' : ''}`}
       onClick={onSelect}
+      aria-pressed={selected}
+      aria-label={`Choisir ${champion.name}`}
     >
       <div className="champion-card__splash-wrapper">
         <img className="champion-card__splash" src={splashUrl} alt={champion.name} loading="lazy" />
@@ -176,6 +205,6 @@ function ChampionCard({
           ))}
         </div>
       </div>
-    </div>
+    </button>
   );
 }

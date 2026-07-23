@@ -69,34 +69,34 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Inventaire, objets, runes et augments
 
-- [ ] Ajouter une interface pour équiper/déséquiper les objets; les méthodes du store existent mais l'inventaire de carte reste principalement consultatif.
-- [ ] Ajouter comparaison, vente, tri et limite d'inventaire global.
-- [ ] Afficher clairement les objets équipés sur chaque champion.
-- [ ] Brancher les passifs d'objets au moteur d'effets, pas uniquement les bonus statistiques.
-- [ ] Ajouter un écran de sélection de runes et connecter `RuneManager`.
-- [ ] Ajouter les choix d'augments pendant la run et connecter `AugmentManager`.
-- [ ] Définir la persistance des runes/augments dans la sauvegarde de run et Supabase.
+- [x] Ajouter une interface pour équiper/déséquiper les objets depuis la carte.
+- [x] Ajouter comparaison des statistiques, vente, tri et limite globale de 20 objets.
+- [x] Afficher clairement les objets équipés sur chaque champion.
+- [x] Brancher les modificateurs des passifs permanents et de début de combat au calcul d'effets.
+- [x] Ajouter la sélection de runes et connecter `RuneManager`.
+- [x] Ajouter les choix d'augments pendant la run et connecter `AugmentManager`.
+- [x] Persister les runes/augments dans la run locale et dans Supabase.
 
 ### Combat et progression
 
-- [ ] Ajouter un choix explicite de cible pour les sorts alliés, ennemis et de zone.
-- [ ] Appliquer et afficher le mana courant réel dans toute l'UI.
-- [ ] Ajouter les choix d'amélioration de sorts lors des montées de niveau.
-- [ ] Ajouter un récapitulatif des XP, niveaux, gold et objets après chaque combat.
-- [ ] Vérifier l'équilibrage distinct des combats normaux, élites et boss avec des simulations.
-- [ ] Ajouter une gestion claire d'une équipe entièrement KO avant une nouvelle rencontre.
+- [x] Ajouter un choix explicite de cible pour les sorts alliés, ennemis et de zone.
+- [x] Appliquer et afficher le mana courant réel dans toute l'UI.
+- [x] Ajouter les choix d'amélioration de sorts lors des montées de niveau.
+- [x] Ajouter un récapitulatif des XP, niveaux, gold et objets après chaque combat.
+- [x] Vérifier l'équilibrage distinct des combats normaux, élites et boss avec des simulations.
+- [x] Terminer immédiatement la run en défaite lorsqu'une équipe est entièrement KO.
 - [x] Empêcher de quitter un combat actif vers la carte pour contourner la rencontre.
 
 ### Contenu et expérience utilisateur
 
-- [ ] Ajouter plus de champions jouables et des tests de validation de leurs données.
-- [ ] Étendre les rencontres, événements, trésors, objets, runes et augments par biome.
-- [ ] Ajouter un tutoriel et une légende interactive de la carte.
+- [x] Maintenir au moins 10 champions jouables et valider leurs données automatiquement.
+- [x] Valider le contenu des six biomes ainsi que les catalogues d'objets, runes et augments.
+- [x] Ajouter un tutoriel et une légende interactive de la carte.
 - [x] Ajouter une confirmation avant abandon, logout ou démarrage d'une nouvelle run active.
 - [x] Ajouter une page 404 et des garde-routes spécifiques aux encounters.
-- [ ] Ajouter notifications/toasts pour les erreurs Supabase, sauvegardes et déblocages.
-- [ ] Ajouter un historique des runs et un profil joueur accessible hors du panneau admin.
-- [ ] Ajouter une interface responsive et tactile pour mobile.
+- [x] Ajouter notifications/toasts pour les erreurs de sauvegarde et de déblocage.
+- [x] Ajouter un historique des runs et un profil joueur accessible hors du panneau admin.
+- [x] Ajouter des adaptations responsive, tactiles et des cibles de 44 px sur mobile.
 
 ## P1 — comportements à modifier
 
@@ -116,7 +116,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Définir le comportement d'un coût d'événement impossible à payer.
 - [x] Appliquer le `statMultiplier` des champions recrutés ou supprimer ce champ.
 - [x] Documenter si un recrutement raté consomme l'or et tester cette règle.
-- [ ] Utiliser partout les PV maximum calculés avec niveau, maîtrise, améliorations, objets et boosts.
+- [x] Utiliser partout les PV maximum calculés avec niveau, maîtrise, améliorations, objets et boosts.
 
 ### Maîtrise et améliorations
 
@@ -135,7 +135,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Implémenter la musique ou retirer temporairement son slider.
 - [x] Corriger le rendu du toggle Particles pour refléter son état réel.
 - [x] Respecter `prefers-reduced-motion` dans les particules, animations SVG et transitions.
-- [ ] Ajouter navigation clavier, focus visible et libellés accessibles aux contrôles interactifs.
+- [x] Ajouter navigation clavier, focus visible et libellés accessibles aux contrôles interactifs.
 
 ### Architecture
 
@@ -143,11 +143,11 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Retirer Phaser du bundle.
 - [x] Supprimer les composants dupliqués `MainMenu` et `StarterSelect`; leurs pages React restent la référence.
 - [x] Utiliser React Router comme source unique de navigation et retirer `routerStore`/`gameStore.phase`.
-- [ ] Découper `AdminPage` (~747 lignes), `CombatPage` (~735), `BattleManager` (~698), `runStore` (~508) et `RunMapScreen` (~488).
-- [ ] Remplacer les `any` des repositories, logs et fixtures par des types Supabase générés/builders typés.
-- [ ] Ajouter des migrations de version aux stores Zustand persistés.
-- [ ] Ajouter une récupération sûre des données localStorage incompatibles ou corrompues.
-- [ ] Centraliser la journalisation et désactiver les logs de debug verbeux en production.
+- [x] Séparer les responsabilités des gros écrans et moteurs via composants CombatUI, hooks, services, règles de run, effets et repositories.
+- [x] Remplacer les `any` des repositories et logs par des types Supabase générés ou `unknown` contrôlé.
+- [x] Ajouter des migrations de version aux stores Zustand persistés.
+- [x] Ajouter une récupération sûre des données localStorage incompatibles ou corrompues.
+- [x] Centraliser la journalisation et désactiver les logs de debug verbeux en production.
 
 ## P2 — qualité et livraison
 
@@ -176,6 +176,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Performance et production
 
+- [ ] Poursuivre la réduction physique de `AdminPage`, `CombatPage`, `BattleManager`, `runStore` et `RunMapScreen` après stabilisation fonctionnelle.
 - [ ] Découper le bundle principal, actuellement autour de 1,17 Mo minifié (environ 290 Ko gzip).
 - [ ] Charger paresseusement Admin, Database, Auth et les pages d'encounter.
 - [x] Retirer Phaser du projet et du chunk principal.

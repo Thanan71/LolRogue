@@ -49,6 +49,8 @@ export interface AuthActions {
 export type AuthStore = AuthState & AuthActions;
 
 const GUEST_MODE_KEY = 'lolrogue-guest-mode';
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 function readGuestMode(): boolean {
   return typeof window !== 'undefined' && window.localStorage.getItem(GUEST_MODE_KEY) === 'true';
@@ -153,13 +155,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       throw new Error('No user data returned');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
       set({
         isLoading: false,
-        error: error.message || 'Login failed',
+        error: message || 'Login failed',
         isAuthenticated: false,
       });
-      return { success: false, error: error.message };
+      return { success: false, error: message };
     } finally {
       activeAuthOperation = null;
     }
@@ -247,13 +250,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       throw new Error('No user data returned');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
       set({
         isLoading: false,
-        error: error.message || 'Sign up failed',
+        error: message || 'Sign up failed',
         isAuthenticated: false,
       });
-      return { success: false, error: error.message };
+      return { success: false, error: message };
     } finally {
       activeAuthOperation = null;
     }
@@ -278,10 +282,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isLoading: false,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Logout failed',
+        error: getErrorMessage(error) || 'Logout failed',
       });
     } finally {
       activeAuthOperation = null;

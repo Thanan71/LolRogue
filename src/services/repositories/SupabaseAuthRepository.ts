@@ -5,7 +5,7 @@
  * This class handles all authentication operations.
  */
 
-import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
+import type { Session, Subscription, SupabaseClient, User } from '@supabase/supabase-js';
 import type {
   AuthResponseResult,
   IAuthRepository,
@@ -73,9 +73,9 @@ export class SupabaseAuthRepository implements IAuthRepository {
   }
 
   onAuthStateChange(callback: (event: string, session: Session | null) => void): {
-    subscription: any;
+    subscription: Subscription;
   } {
-    const { data: subscription } = this.supabase.auth.onAuthStateChange(callback);
-    return { subscription };
+    const { data } = this.supabase.auth.onAuthStateChange(callback);
+    return { subscription: data.subscription };
   }
 }

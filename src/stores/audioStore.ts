@@ -4,7 +4,8 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
 
 export interface AudioState {
   sfxVolume: number; // 0-100
@@ -31,6 +32,17 @@ export const useAudioStore = create<AudioState>()(
       setMusicVolume: (v) => set({ musicVolume: Math.max(0, Math.min(100, Math.round(v))) }),
       toggleMusicMute: () => set((s) => ({ musicMuted: !s.musicMuted })),
     }),
-    { name: 'lolrogue-audio' },
+    {
+      name: 'lolrogue-audio',
+      version: 1,
+      storage: createJSONStorage(() => safeLocalStorage),
+      migrate: (persisted) =>
+        recoverPersistedState(persisted, {
+          sfxVolume: 80,
+          sfxMuted: false,
+          musicVolume: 70,
+          musicMuted: false,
+        }),
+    },
   ),
 );

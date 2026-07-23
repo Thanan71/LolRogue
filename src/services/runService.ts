@@ -14,6 +14,7 @@
 import { useAuthStore } from '@/stores/authStore';
 import type { RunInsert, RunTeamMemberInsert } from '@/types/models';
 import type { Biome, RunSummary } from '@/types/run';
+import { logger } from '@/utils/logger';
 import { calculateCandiesForTeam } from './masteryService';
 import { RepositoryContainerFactory } from './container';
 import type { IRepositoryContainer } from './interfaces';
@@ -21,6 +22,8 @@ import { supabase } from './supabaseClient';
 
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
+const errorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 /** Result of saving a run, including any non-critical errors */
 export interface SaveRunResult {
@@ -69,7 +72,7 @@ export interface SaveRunData {
 export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResult> {
   const { user, player, refreshPlayer } = useAuthStore.getState();
 
-  console.log('[RunService] Attempting to save run:', {
+  logger.debug('[RunService] Attempting to save run:', {
     hasUser: !!user,
     hasPlayer: !!player,
     userId: user?.id,
@@ -80,7 +83,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
   });
 
   if (!user || !player) {
-    console.error('[RunService] Cannot save run: User not authenticated or player data missing', {
+    logger.error('[RunService] Cannot save run: User not authenticated or player data missing', {
       userExists: !!user,
       playerExists: !!player,
     });
@@ -155,11 +158,21 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
     );
 
     if (saveError || !databaseRunId) {
-      console.error('[RunService] Atomic run save failed:', saveError);
+      logger.error('[RunService] Atomic run save failed:', saveError);
       return {
         success: false,
         error: saveError?.message || 'Failed to save completed run',
       };
+    }
+
+    const runState = (await import('@/stores/runStore')).useRunStore.getState();
+    const { error: loadoutError } = await supabase.rpc('save_run_loadout', {
+      p_run_uuid: data.runId,
+      p_rune_ids: runState.runeIds,
+      p_augment_ids: runState.augmentIds,
+    });
+    if (loadoutError) {
+      logger.error('[RunService] Failed to persist run loadout:', loadoutError);
     }
 
     // Mastery and player counters are updated inside the same database
@@ -174,7 +187,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
       useMasteryStore.getState().hydrateFromDatabase(persistedMastery);
     }
 
-    console.log('[RunService] Run saved successfully:', {
+    logger.debug('[RunService] Run saved successfully:', {
       runId: data.runId,
       databaseRunId,
       won: data.won,
@@ -183,9 +196,9 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
     });
 
     return { success: true };
-  } catch (error: any) {
-    console.error('[RunService] Unexpected error saving run:', error);
-    return { success: false, error: error.message || 'Unexpected error saving run' };
+  } catch (error: unknown) {
+    logger.error('[RunService] Unexpected error saving run:', error);
+    return { success: false, error: errorMessage(error) || 'Unexpected error saving run' };
   }
 }
 
@@ -207,8 +220,8 @@ export async function getPlayerRunHistory(limit = 10, offset = 0) {
     }
 
     return { data: data || [], error: null };
-  } catch (error: any) {
-    return { data: [], error: error.message };
+  } catch (error: unknown) {
+    return { data: [], error: errorMessage(error) };
   }
 }
 
@@ -228,8 +241,8 @@ export async function getRunDetails(runId: string) {
       teamMembers: data.teamMembers,
       error: null,
     };
-  } catch (error: any) {
-    return { run: null, teamMembers: [], error: error.message };
+  } catch (error: unknown) {
+    return { run: null, teamMembers: [], error: errorMessage(error) };
   }
 }
 
@@ -282,7 +295,7 @@ export async function getPlayerRunStats() {
       totalDamage: data.totalDamage,
       error: null,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       totalRuns: player.total_runs_completed,
       totalWins: player.total_wins,
@@ -291,7 +304,7 @@ export async function getPlayerRunStats() {
       bestRunLevel: 0,
       totalKills: 0,
       totalDamage: 0,
-      error: error.message,
+      error: errorMessage(error),
     };
   }
 }

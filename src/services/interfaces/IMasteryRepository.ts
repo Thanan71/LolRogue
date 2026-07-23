@@ -6,6 +6,7 @@
  */
 
 import type { ChampionMastery, ChampionMasteryUpdate } from '@/types/models';
+import type { PlayerUnlock } from '@/types/models';
 
 export interface IMasteryRepository {
   /**
@@ -37,7 +38,7 @@ export interface IPlayerUnlockRepository {
   /**
    * Get all unlocks for a player
    */
-  getPlayerUnlocks(playerId: string): Promise<{ data: any[] | null; error: Error | null }>;
+  getPlayerUnlocks(playerId: string): Promise<{ data: PlayerUnlock[] | null; error: Error | null }>;
 
   /**
    * Add an unlock for a player
@@ -48,7 +49,7 @@ export interface IPlayerUnlockRepository {
     unlockId: string,
     championId?: string,
     skinId?: string,
-  ): Promise<{ data: any | null; error: Error | null }>;
+  ): Promise<{ data: PlayerUnlock | null; error: Error | null }>;
 
   /**
    * Check if a player has an unlock

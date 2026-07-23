@@ -411,7 +411,7 @@ export interface Log {
   duration_ms: number | null;
   error_message: string | null;
   error_stack: string | null;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   user_id: string | null;
   player_id: string | null;
   session_id: string;

@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
+import { logger } from '@/utils/logger';
+import { calculateMaxHP } from '@/utils/statCalculator';
 import { championDB } from '@/data';
+import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
+import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import {
   completeNode as completeNodeUtil,
@@ -19,6 +24,7 @@ import { saveRunToDatabase } from '@/services/runService';
 import { supabase } from '@/services/supabaseClient';
 import {
   type InventoryEntry,
+  MAX_INVENTORY_ITEMS,
   MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
   type RunState,
@@ -27,6 +33,7 @@ import {
 } from '@/types/run';
 import { useAuthStore } from './authStore';
 import { calculateDailyScore, useDailyRunStore } from './dailyRunStore';
+import { useEnhancementStore } from './enhancementStore';
 import { useMasteryStore } from './masteryStore';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
@@ -47,6 +54,11 @@ const INITIAL_STATE: RunState = {
   biomesVisited: [],
   currentBiome: null,
   inventory: [],
+  runeIds: [],
+  augmentIds: [],
+  pendingAugmentIds: [],
+  lastCombatRewards: null,
+  pendingSpellUpgradeChampionIds: [],
   gold: 0,
   currentWave: 1,
   totalWavesCompleted: 0,
@@ -74,7 +86,7 @@ export const useRunStore = create<RunStore>()(
         // If there's an active run, end it first (this will save it if conditions are met)
         const currentState = get();
         if (currentState.isActive) {
-          console.log('[runStore.startRun] Active run detected, ending current run first');
+          logger.debug('[runStore.startRun] Active run detected, ending current run first');
           // End the current run (loss, since user is abandoning it to start new)
           await get().endRun(false, currentState.runId);
         }
@@ -84,7 +96,7 @@ export const useRunStore = create<RunStore>()(
           if (!id || typeof id !== 'string') return false;
           const champ = championDB.getById(id);
           if (!champ) {
-            console.warn(
+            logger.warn(
               `[runStore.startRun] Invalid champion ID "${id}" - champion not found in database`,
             );
           }
@@ -125,6 +137,11 @@ export const useRunStore = create<RunStore>()(
           biomesVisited: startBiome ? [startBiome] : [],
           currentBiome: startBiome,
           inventory: [],
+          runeIds: (options.runeIds ?? []).filter((id) => id).slice(0, 3),
+          augmentIds: [],
+          pendingAugmentIds: [],
+          lastCombatRewards: null,
+          pendingSpellUpgradeChampionIds: [],
           gold: 0,
           currentWave: 1,
           totalWavesCompleted: 0,
@@ -189,7 +206,7 @@ export const useRunStore = create<RunStore>()(
 
         // Save run to database (if user is authenticated)
         const { isAuthenticated, user, player } = useAuthStore.getState();
-        console.log('[runStore.endRun] Checking save conditions:', {
+        logger.debug('[runStore.endRun] Checking save conditions:', {
           isAuthenticated,
           hasUser: !!user,
           hasPlayer: !!player,
@@ -213,7 +230,26 @@ export const useRunStore = create<RunStore>()(
             // Get current HP for each team member from the store or default to max
             const teamMembers = state.team.map((member) => {
               const champ = championDB.getById(member.championId);
-              const maxHp = champ?.stats.hp ?? 100;
+              const enhancementState = useEnhancementStore
+                .getState()
+                .getEnhancementState(member.championId);
+              const enhancementBonuses = champ
+                ? enhancementService.calculateStatBonuses(
+                    enhancementTreeProvider.getTreeForChampion(champ),
+                    enhancementState.unlockedNodes,
+                  )
+                : undefined;
+              const maxHp = champ
+                ? calculateMaxHP(
+                    champ,
+                    member.level ?? 1,
+                    enhancementBonuses,
+                    state.inventory,
+                    member.championId,
+                    member.statBoosts,
+                    member.statMultiplier,
+                  )
+                : 100;
               return {
                 championId: member.championId,
                 level: member.level ?? 1,
@@ -243,7 +279,7 @@ export const useRunStore = create<RunStore>()(
               return false;
             }
           } catch (error) {
-            console.error('[runStore.endRun] Failed to save run to database:', error);
+            logger.error('[runStore.endRun] Failed to save run to database:', error);
             set({
               isEnding: false,
               saveStatus: 'error',
@@ -354,6 +390,7 @@ export const useRunStore = create<RunStore>()(
       // ── Inventory ───────────────────────────────────────────────────────
 
       addItem: (item) => {
+        if (get().inventory.length >= MAX_INVENTORY_ITEMS) return '';
         const { runId, nextItemInstanceId } = get();
         const instanceId = `item_${runId}_${nextItemInstanceId}`;
         const entry: InventoryEntry = {
@@ -415,6 +452,69 @@ export const useRunStore = create<RunStore>()(
         return true;
       },
 
+      sellItem: (instanceId) => {
+        const entry = get().inventory.find((item) => item.instanceId === instanceId);
+        if (!entry) return false;
+        set((state) => ({
+          inventory: state.inventory.filter((item) => item.instanceId !== instanceId),
+          gold: state.gold + Math.max(1, Math.floor(entry.item.goldValue / 2)),
+        }));
+        return true;
+      },
+
+      sortInventory: () => {
+        set((state) => ({
+          inventory: [...state.inventory].sort(
+            (left, right) =>
+              Number(Boolean(right.equippedToChampionId)) -
+                Number(Boolean(left.equippedToChampionId)) ||
+              right.item.goldValue - left.item.goldValue ||
+              left.item.name.localeCompare(right.item.name),
+          ),
+        }));
+      },
+
+      chooseAugment: (augmentId) => {
+        const state = get();
+        if (!state.pendingAugmentIds.includes(augmentId) || !AUGMENT_DATABASE[augmentId]) {
+          return false;
+        }
+        set({
+          augmentIds: [...state.augmentIds, augmentId],
+          pendingAugmentIds: [],
+        });
+        return true;
+      },
+
+      setLastCombatRewards: (lastCombatRewards) => set({ lastCombatRewards }),
+
+      queueSpellUpgrades: (championIds) =>
+        set((state) => ({
+          pendingSpellUpgradeChampionIds: [...state.pendingSpellUpgradeChampionIds, ...championIds],
+        })),
+
+      upgradeSpell: (championId, slot) => {
+        const state = get();
+        if (!state.pendingSpellUpgradeChampionIds.includes(championId)) return false;
+        set({
+          team: state.team.map((member) =>
+            member.championId === championId
+              ? {
+                  ...member,
+                  spellRanks: {
+                    ...member.spellRanks,
+                    [slot]: Math.min(slot === 'R' ? 3 : 5, (member.spellRanks?.[slot] ?? 1) + 1),
+                  },
+                }
+              : member,
+          ),
+          pendingSpellUpgradeChampionIds: state.pendingSpellUpgradeChampionIds.filter(
+            (id) => id !== championId,
+          ),
+        });
+        return true;
+      },
+
       // ── Gold ────────────────────────────────────────────────────────────
 
       addGold: (amount) => {
@@ -440,7 +540,13 @@ export const useRunStore = create<RunStore>()(
       // ── Run Level ───────────────────────────────────────────────────────
 
       incrementRunLevel: () => {
-        set((state) => ({ runLevel: state.runLevel + 1 }));
+        set((state) => {
+          const choices = Object.keys(AUGMENT_DATABASE)
+            .filter((id) => !state.augmentIds.includes(id))
+            .sort()
+            .slice((state.runLevel * 3) % Math.max(1, Object.keys(AUGMENT_DATABASE).length - 3), 3);
+          return { runLevel: state.runLevel + 1, pendingAugmentIds: choices };
+        });
       },
 
       // ── Run Map (using MapGenerator-core + mapUtils) ────────────────────
@@ -593,7 +699,9 @@ export const useRunStore = create<RunStore>()(
     }),
     {
       name: 'lolrogue-run-storage',
-      storage: createJSONStorage(() => localStorage),
+      version: 1,
+      storage: createJSONStorage(() => safeLocalStorage),
+      migrate: (persisted) => recoverPersistedState(persisted, INITIAL_STATE),
       // Only persist the serializable state, not functions
       partialize: (state) => ({
         isActive: state.isActive,
@@ -610,6 +718,11 @@ export const useRunStore = create<RunStore>()(
         biomesVisited: state.biomesVisited,
         currentBiome: state.currentBiome,
         inventory: state.inventory,
+        runeIds: state.runeIds,
+        augmentIds: state.augmentIds,
+        pendingAugmentIds: state.pendingAugmentIds,
+        lastCombatRewards: state.lastCombatRewards,
+        pendingSpellUpgradeChampionIds: state.pendingSpellUpgradeChampionIds,
         gold: state.gold,
         currentWave: state.currentWave,
         totalWavesCompleted: state.totalWavesCompleted,

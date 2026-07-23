@@ -5,9 +5,17 @@ interface Props {
   combatant: CombatantInfo;
   isActive: boolean;
   enhancementBonuses?: string[];
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
-export const CombatantPortrait: React.FC<Props> = ({ combatant, isActive, enhancementBonuses }) => {
+export const CombatantPortrait: React.FC<Props> = ({
+  combatant,
+  isActive,
+  enhancementBonuses,
+  isSelected,
+  onSelect,
+}) => {
   const { name, level, currentHp, maxHp, currentMp, maxMp, iconUrl, isDefeated, side } = combatant;
   const hpPct = maxHp > 0 ? (currentHp / maxHp) * 100 : 0;
   const mpPct = maxMp > 0 ? (currentMp / maxMp) * 100 : 0;
@@ -16,6 +24,14 @@ export const CombatantPortrait: React.FC<Props> = ({ combatant, isActive, enhanc
 
   return (
     <div
+      role={onSelect ? 'button' : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      aria-pressed={onSelect ? isSelected : undefined}
+      aria-label={onSelect ? `Cibler ${name}` : undefined}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (onSelect && (event.key === 'Enter' || event.key === ' ')) onSelect();
+      }}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -25,7 +41,11 @@ export const CombatantPortrait: React.FC<Props> = ({ combatant, isActive, enhanc
         transition: 'transform 0.2s, opacity 0.3s',
         padding: 4,
         borderRadius: 8,
-        background: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
+        background: isSelected
+          ? 'rgba(200,170,110,0.22)'
+          : isActive
+            ? 'rgba(255,255,255,0.06)'
+            : 'transparent',
       }}
     >
       <div

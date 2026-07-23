@@ -7,6 +7,7 @@
 
 import type { DailyRun } from '@/types/models';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
+import type { Tables } from '@/types/database';
 
 export interface IDailyRunRepository {
   /**
@@ -41,7 +42,7 @@ export interface ILeaderboardRepository {
   getLeaderboard(
     limit?: number,
     offset?: number,
-  ): Promise<{ data: any[] | null; error: Error | null }>;
+  ): Promise<{ data: Tables<'leaderboard'>[] | null; error: Error | null }>;
 
   /**
    * Get a player's rank

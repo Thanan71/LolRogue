@@ -7,10 +7,14 @@ import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { championDB } from '@/data';
 import { ITEM_DATABASE } from '@/data/items';
+import { getAugmentDefinition } from '@/data/items/augmentDatabase';
+import { getRuneDefinition } from '@/data/items/runeDatabase';
+import { AugmentManager } from '@/game/augments/AugmentManager';
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
+import { RuneManager } from '@/game/runes/RuneManager';
 import type { CombatEncounter } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
@@ -25,6 +29,7 @@ import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStor
 import type { Item, ItemStatBonuses, RunSummary, TeamMember } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateEventStatBonuses } from '@/utils/statCalculator';
+import { logger } from '@/utils/logger';
 import { addXp, calculateXpGain } from '@/utils/xpSystem';
 
 function buildTeamInstances(
@@ -53,6 +58,14 @@ function applyEnhancementsToTeam(
   team: TeamMember[],
 ): void {
   const enhancementStore = useEnhancementStore.getState();
+  const runState = useRunStore.getState();
+  const augmentManager = new AugmentManager();
+  for (const id of runState.augmentIds) {
+    const augment = getAugmentDefinition(id);
+    if (augment)
+      augmentManager.acquireAugment(augment, runState.currentBiome ?? 'unknown', runState.runLevel);
+  }
+  augmentManager.biomesCleared = runState.currentBiomeIndex;
 
   for (const instance of instances) {
     const champ = championDB.getById(instance.id);
@@ -70,6 +83,48 @@ function applyEnhancementsToTeam(
       enhancementState.unlockedNodes,
     );
     const flatBonuses = enhancementBonuses.flat as Record<string, number>;
+    const percentBonuses = enhancementBonuses.percent as Record<string, number>;
+    const statKeyMap: Record<string, string> = {
+      hp: 'hp',
+      atk: 'attackDamage',
+      def: 'armor',
+      ap: 'abilityPower',
+      spd: 'moveSpeed',
+      crit: 'crit',
+    };
+
+    const augmentBonuses = augmentManager.getTeamStatBonuses();
+    for (const [stat, bonus] of Object.entries(augmentBonuses)) {
+      const target = statKeyMap[stat] ?? stat;
+      flatBonuses[target] = (flatBonuses[target] || 0) + bonus.flat;
+      percentBonuses[target] = (percentBonuses[target] || 0) + bonus.percent;
+    }
+
+    const runeManager = new RuneManager();
+    for (const id of runState.runeIds) {
+      const rune = getRuneDefinition(id);
+      if (rune) runeManager.equipRune(rune);
+    }
+    const baseStats = instance.getStats();
+    runeManager.evaluateConditions({
+      currentHp: baseStats.hp,
+      maxHp: baseStats.hp,
+      turnNumber: 1,
+      totalDamageDealt: 0,
+      totalDamageTaken: 0,
+      killsThisBattle: 0,
+      abilitiesCastThisBattle: 0,
+      isBuffed: false,
+      isCCd: false,
+      alliesAlive: instances.length,
+      totalAllies: instances.length,
+      lastActionWasCrit: false,
+    });
+    for (const [stat, bonus] of Object.entries(runeManager.getActiveStatBonuses())) {
+      const target = statKeyMap[stat] ?? stat;
+      flatBonuses[target] = (flatBonuses[target] || 0) + bonus.flat;
+      percentBonuses[target] = (percentBonuses[target] || 0) + bonus.percent;
+    }
 
     // Calculate item bonuses
     const equippedItems = inventory.filter((entry) => entry.equippedToChampionId === instance.id);
@@ -92,6 +147,22 @@ function applyEnhancementsToTeam(
           // the CalculatedStats key names
           flatBonuses[calcStatsKey] = (flatBonuses[calcStatsKey] || 0) + value;
         }
+      }
+      const passive = ITEM_DATABASE[entry.item.id]?.passive;
+      if (passive && (passive.trigger === 'always' || passive.trigger === 'combat_start')) {
+        for (const modifier of passive.modifiers) {
+          const target = itemStatMap[modifier.stat] ?? modifier.stat;
+          if (modifier.type === 'flat') {
+            flatBonuses[target] = (flatBonuses[target] || 0) + modifier.value;
+          } else {
+            percentBonuses[target] = (percentBonuses[target] || 0) + modifier.value;
+          }
+        }
+        enhancementBonuses.effects.push({
+          type: `item:${passive.trigger}`,
+          description: passive.description,
+          value: passive.flatValue,
+        });
       }
     }
 
@@ -273,6 +344,7 @@ export function CombatPage() {
 
   const [autoPlay, setAutoPlay] = useState(true);
   const [turnTick, setTurnTick] = useState(0);
+  const [selectedTargetId, setSelectedTargetId] = useState<string | 'all'>('all');
   const hasNavigatedAfterLossRef = useRef(false);
   const endRunTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -329,6 +401,12 @@ export function CombatPage() {
       teamLevels,
       teamStatMultipliers,
     );
+    for (const instance of instances) {
+      const ranks = team.find((member) => member.championId === instance.id)?.spellRanks;
+      for (const slot of ['Q', 'W', 'E', 'R'] as const) {
+        instance.setSpellRank(slot, ranks?.[slot] ?? 1);
+      }
+    }
     // Apply enhancement bonuses and item bonuses to player champions
     applyEnhancementsToTeam(instances, inventory, team);
     return instances;
@@ -342,7 +420,7 @@ export function CombatPage() {
       const descs = getEnhancementDescriptions(member.championId);
       bonuses[member.championId] = descs;
       if (descs.length > 0) {
-        console.log('[CombatPage] Enhancement bonuses for', member.championId, ':', descs);
+        logger.debug('[CombatPage] Enhancement bonuses for', member.championId, ':', descs);
       }
     }
     return bonuses;
@@ -358,13 +436,13 @@ export function CombatPage() {
     ) {
       // Player team is empty but should have champions - invalid champion ID
       const championIds = team.map((m) => m.championId);
-      console.error('CombatPage: Player team is empty but run has champions.');
-      console.error('Champion IDs in team:', championIds);
-      console.error('Champion DB size:', championDB.count());
+      logger.error('CombatPage: Player team is empty but run has champions.');
+      logger.debug('Champion IDs in team:', championIds);
+      logger.debug('Champion DB size:', championDB.count());
       // Try to look up each champion to see which ones are missing
       for (const id of championIds) {
         const champ = championDB.getById(id);
-        console.error(`Champion "${id}" lookup result:`, champ ? 'FOUND' : 'NOT FOUND');
+        logger.debug(`Champion "${id}" lookup result:`, champ ? 'FOUND' : 'NOT FOUND');
       }
       // Build a summary and navigate to game over
       const rs = useRunStore.getState();
@@ -390,13 +468,9 @@ export function CombatPage() {
     const m: Record<string, number> = {};
     for (const t of team) {
       if (t.currentHp !== undefined) {
-        const champ = championDB.getById(t.championId);
-        if (champ) {
-          const level = t.level ?? 1;
-          // Calculate max HP at current level using LoL growth formula
-          const baseHp = champ.stats.hp;
-          const hpPerLevel = champ.stats.hpPerLevel;
-          const maxHp = Math.round(baseHp + hpPerLevel * (level - 1));
+        const instance = playerInstances.find((champion) => champion.id === t.championId);
+        if (instance) {
+          const maxHp = instance.getEnhancedStats().hp;
           // Clamp current HP to max HP to prevent exceeding maximum after level up
           m[t.championId] = Math.min(t.currentHp, maxHp);
         } else {
@@ -405,7 +479,7 @@ export function CombatPage() {
       }
     }
     return Object.keys(m).length > 0 ? m : undefined;
-  }, [team]);
+  }, [team, playerInstances]);
 
   // Get encounter data from store
   const currentEncounter = useRunStore((s) => s.currentEncounter);
@@ -468,6 +542,16 @@ export function CombatPage() {
         });
 
         runStore.updateTeamAfterCombat(teamUpdates);
+        const levelsGained = teamUpdates.reduce(
+          (total, update, index) =>
+            total + Math.max(0, update.level - (runStore.team[index]?.level ?? 1)),
+          0,
+        );
+        runStore.queueSpellUpgrades(
+          teamUpdates
+            .filter((update, index) => update.level > (runStore.team[index]?.level ?? 1))
+            .map((update) => update.championId),
+        );
 
         // 3. Advance wave
         runStore.nextWave();
@@ -480,6 +564,7 @@ export function CombatPage() {
             runStore.seed,
             `drop:${currentNode.id}:${runStore.totalWavesCompleted}`,
           );
+          let droppedItemName: string | null = null;
           if (itemRng.next() < 0.2) {
             const itemDefs = Object.values(ITEM_DATABASE);
             if (itemDefs.length > 0) {
@@ -498,8 +583,15 @@ export function CombatPage() {
                 goldValue: drop.goldValue,
               };
               runStore.addItem(item);
+              droppedItemName = item.name;
             }
           }
+          runStore.setLastCombatRewards({
+            xp: xpGain,
+            gold: goldReward,
+            itemName: droppedItemName,
+            levelsGained,
+          });
 
           // 6. Resolve encounter (completes the node)
           runStore.resolveEncounter();
@@ -578,9 +670,9 @@ export function CombatPage() {
     (slot: 'Q' | 'W' | 'E' | 'R') => {
       const actionType = SLOT_TO_ACTION[slot];
       if (!actionType) return;
-      submitAction({ type: actionType, cost: 0 });
+      submitAction({ type: actionType, cost: 0, targetId: selectedTargetId });
     },
-    [submitAction],
+    [submitAction, selectedTargetId],
   );
 
   // Auto-process all turns when autoPlay is enabled
@@ -687,9 +779,9 @@ export function CombatPage() {
       </div>
 
       {/* Main area */}
-      <div style={mainStyle}>
+      <div className="combat-layout" style={mainStyle}>
         {/* Player team panel */}
-        <div style={leftPanelStyle}>
+        <div className="combat-team-panel" style={leftPanelStyle}>
           <div style={teamTitleStyle('#3b82f6')}>Votre équipe</div>
           {playerTeam.map((c) => (
             <CombatantPortrait
@@ -697,6 +789,8 @@ export function CombatPage() {
               combatant={c}
               isActive={c.id === currentTurnChampionId}
               enhancementBonuses={playerEnhancementBonuses[c.id] || []}
+              isSelected={selectedTargetId === c.id}
+              onSelect={() => setSelectedTargetId(c.id)}
             />
           ))}
           {playerTeam.length === 0 && <div style={emptyStyle}>Aucun champion</div>}
@@ -778,13 +872,15 @@ export function CombatPage() {
         </div>
 
         {/* Enemy team panel */}
-        <div style={rightPanelStyle}>
+        <div className="combat-team-panel" style={rightPanelStyle}>
           <div style={teamTitleStyle('#ef4444')}>Ennemis</div>
           {enemyTeam.map((c, i) => (
             <CombatantPortrait
               key={`${c.id}-${i}`}
               combatant={c}
               isActive={c.id === currentTurnChampionId}
+              isSelected={selectedTargetId === c.id}
+              onSelect={() => setSelectedTargetId(c.id)}
             />
           ))}
           {enemyTeam.length === 0 && <div style={emptyStyle}>Aucun ennemi</div>}
@@ -794,7 +890,14 @@ export function CombatPage() {
       {/* Bottom: ability bar + log */}
       <div style={bottomStyle}>
         {isPlayerTurn && currentChampion && !currentChampion.isDefeated && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+            <button
+              type="button"
+              aria-pressed={selectedTargetId === 'all'}
+              onClick={() => setSelectedTargetId('all')}
+            >
+              Zone
+            </button>
             <AbilityBar champion={currentChampion} onCast={handleCast} />
           </div>
         )}

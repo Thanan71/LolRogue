@@ -17,6 +17,7 @@ function toCombatantInfo(
   side: 'player' | 'enemy',
   currentHp: number,
   maxHp: number,
+  currentMp: number,
   isDefeated: boolean,
 ): CombatantInfo {
   const stats = champ.getStats();
@@ -41,7 +42,7 @@ function toCombatantInfo(
     level: champ.level,
     currentHp,
     maxHp,
-    currentMp: stats.mp,
+    currentMp,
     maxMp: stats.mp,
     iconUrl: champ.iconUrl,
     isDefeated,
@@ -54,10 +55,14 @@ function syncTeams(bm: BattleManager): void {
   const store = useBattleStore.getState();
   const player = bm
     .getPlayerCombatants()
-    .map((c) => toCombatantInfo(c.champion, 'player', c.currentHp, c.maxHp, c.isDefeated));
+    .map((c) =>
+      toCombatantInfo(c.champion, 'player', c.currentHp, c.maxHp, c.currentMp, c.isDefeated),
+    );
   const enemy = bm
     .getEnemyCombatants()
-    .map((c) => toCombatantInfo(c.champion, 'enemy', c.currentHp, c.maxHp, c.isDefeated));
+    .map((c) =>
+      toCombatantInfo(c.champion, 'enemy', c.currentHp, c.maxHp, c.currentMp, c.isDefeated),
+    );
   store.setTeams(player, enemy);
 }
 
