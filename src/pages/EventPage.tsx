@@ -6,6 +6,7 @@ import type { EventEncounter, EventOutcome } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
+import { createScopedRunRng } from '@/utils/runRandom';
 
 export function EventPage() {
   const isActive = useRunStore((s) => s.isActive);
@@ -29,9 +30,10 @@ export function EventPage() {
   const handleInvestigate = useCallback(() => {
     if (!encounter || outcome) return;
     playUIClick();
-    const resolved = resolveEventOutcome(encounter.outcomes);
-    setOutcome(resolved);
     const state = useRunStore.getState();
+    const rng = createScopedRunRng(state.seed, `event:${encounter.id}:outcome`);
+    const resolved = resolveEventOutcome(encounter.outcomes, () => rng.next());
+    setOutcome(resolved);
     switch (resolved.type) {
       case 'gold_reward': {
         const amount = resolved.goldAmount ?? 0;

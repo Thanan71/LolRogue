@@ -118,6 +118,24 @@ describe('BattleManager', () => {
     });
 
     describe('speed-based turn order', () => {
+      it('uses the injected run RNG for reproducible initiative', () => {
+        const teams = makeTeams(['Player'], ['Enemy'], { Player: 330, Enemy: 330 });
+        const rolls = [0.1, 0.9];
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, {
+          random: () => rolls.shift() ?? 0,
+        });
+        const events: any[] = [];
+        bm.on('event', (event) => events.push(event));
+
+        bm.startBattle();
+
+        const roundStart = events.find((event) => event.type === 'round_start');
+        expect(roundStart.turnOrder.map((entry: { champion: string }) => entry.champion)).toEqual([
+          'Enemy',
+          'Player',
+        ]);
+      });
+
       it('should sort turn order by speed descending', () => {
         const teams = makeTeams(['Slow'], ['Fast'], { Slow: 325, Fast: 355 });
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);

@@ -47,6 +47,8 @@ export interface BattleManagerOptions {
   maxTeamSize?: number;
   /** Map of championId -> initial HP (for persisting HP between combats). */
   initialHpOverrides?: Record<string, number>;
+  /** Injectable random source so a seeded run can reproduce combat exactly. */
+  random?: () => number;
 }
 
 /** Map ActionType to its corresponding SpellSlot (or null for basic attacks). */
@@ -78,6 +80,7 @@ export class BattleManager {
   private readonly _maxRounds: number;
   private readonly _maxTeamSize: number;
   private readonly _initialHpOverrides: Record<string, number> | undefined;
+  private readonly _random: () => number;
   private _actionCallback: ActionCallback | null = null;
 
   constructor(
@@ -89,6 +92,7 @@ export class BattleManager {
     this._maxRounds = options.maxRounds ?? 50;
     this._maxTeamSize = options.maxTeamSize ?? 5;
     this._initialHpOverrides = options.initialHpOverrides;
+    this._random = options.random ?? Math.random;
     this._initCombatants();
   }
 
@@ -389,7 +393,7 @@ export class BattleManager {
   private _calcSpeedPriority(champion: ChampionInstance): number {
     // Use enhanced stats (getEnhancedStats always returns valid stats, falling back to base stats if no bonuses)
     const stats = champion.getEnhancedStats();
-    const jitter = Math.random() * SPEED_JITTER_MAX;
+    const jitter = this._random() * SPEED_JITTER_MAX;
     return stats.moveSpeed + jitter;
   }
 
@@ -463,7 +467,7 @@ export class BattleManager {
   private _pickTarget(candidates: CombatantState[]): CombatantState | null {
     const alive = candidates.filter((c) => !c.isDefeated);
     if (alive.length === 0) return null;
-    return alive[Math.floor(Math.random() * alive.length)];
+    return alive[Math.floor(this._random() * alive.length)];
   }
 
   /**
@@ -672,7 +676,7 @@ export class BattleManager {
 
     const baseRaw = atkStats.attackDamage;
     const critChance = Math.min(100, atkStats.crit) / 100;
-    const isCrit = Math.random() < critChance;
+    const isCrit = this._random() < critChance;
     const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
     const finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
 

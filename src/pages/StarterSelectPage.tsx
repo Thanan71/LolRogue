@@ -12,22 +12,13 @@ import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
 import type { Champion } from '@/types/champion';
 import { createDailyRNG, getDailySeed } from '@/utils/dailySeed';
-import type { SeededRNG } from '@/utils/seededRandom';
+import { SeededRNG } from '@/utils/seededRandom';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
 
-/**
- * Pick `count` random elements from `arr`.
- * If an `rng` (SeededRNG) is provided, uses it for deterministic selection;
- * otherwise falls back to Math.random (non-deterministic).
- */
-function pickRandom<T>(arr: T[], count: number, rng?: SeededRNG): T[] {
-  if (rng) {
-    return rng.pickN(arr, count);
-  }
-  const shuffled = [...arr].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+function pickRandom<T>(arr: T[], count: number, rng: SeededRNG): T[] {
+  return rng.pickN(arr, count);
 }
 
 export function StarterSelectPage() {
@@ -35,9 +26,11 @@ export function StarterSelectPage() {
   const isDaily =
     new URLSearchParams(location.search).get('mode') === 'daily' ||
     (location.state as { mode?: string } | null)?.mode === 'daily';
+  const [selectionSeed] = useState(() => (isDaily ? getDailySeed() : Date.now()));
   const choices = useMemo(() => {
-    return pickRandom(championDB.getAll(), 6, isDaily ? createDailyRNG() : undefined);
-  }, [isDaily]);
+    const rng = isDaily ? createDailyRNG() : new SeededRNG(selectionSeed);
+    return pickRandom(championDB.getAll(), 6, rng);
+  }, [isDaily, selectionSeed]);
   const { selectedStarterId, setSelectedStarterId } = useGameStore();
   const startRun = useRunStore((s) => s.startRun);
   const startDailyRun = useDailyRunStore((state) => state.startDailyRun);
@@ -80,7 +73,7 @@ export function StarterSelectPage() {
       }
       await startRun([selectedStarterId], { mode: 'daily', seed: getDailySeed() });
     } else {
-      await startRun([selectedStarterId]);
+      await startRun([selectedStarterId], { seed: selectionSeed });
     }
 
     navigate(ROUTES.RUN);

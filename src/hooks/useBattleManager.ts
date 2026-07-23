@@ -157,6 +157,7 @@ interface UseBattleManagerOptions {
   onComplete?: (winner: 'player' | 'enemy' | 'draw') => void;
   /** Map of championId -> initial HP for persisting HP between combats. */
   initialHpOverrides?: Record<string, number>;
+  random?: () => number;
 }
 
 export function useBattleManager({
@@ -165,6 +166,7 @@ export function useBattleManager({
   autoPlay = true,
   onComplete,
   initialHpOverrides,
+  random,
 }: UseBattleManagerOptions) {
   const bmRef = useRef<BattleManager | null>(null);
   const store = useBattleStore();
@@ -194,6 +196,7 @@ export function useBattleManager({
     const bm = new BattleManager(playerBTeam, enemyBTeam, {
       autoActions: autoPlayRef.current,
       initialHpOverrides,
+      random,
     });
 
     const eventHandler = (e: BattleEvent) => handleEvent(bm, e);
@@ -219,7 +222,7 @@ export function useBattleManager({
       bm.off('event', eventHandler);
       bmRef.current = null;
     };
-  }, [playerTeam, enemyTeam]);
+  }, [playerTeam, enemyTeam, random]);
 
   // Check for battle completion
   useEffect(() => {

@@ -170,6 +170,8 @@ export interface RunState {
   saveError: string | null;
   /** Prevents rewards from being granted again when retrying a failed save. */
   rewardsApplied: boolean;
+  /** Monotonic counter used for deterministic, collision-free item instance IDs. */
+  nextItemInstanceId: number;
   /** The team of up to 5 champions */
   team: TeamMember[];
   /** Current run level (acts as difficulty/progression indicator) */

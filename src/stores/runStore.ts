@@ -37,6 +37,7 @@ const INITIAL_STATE: RunState = {
   saveStatus: 'idle',
   saveError: null,
   rewardsApplied: false,
+  nextItemInstanceId: 1,
   team: [],
   runLevel: 1,
   biomesVisited: [],
@@ -54,11 +55,6 @@ const INITIAL_STATE: RunState = {
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-/** Generate a unique instance ID for inventory items */
-function generateInstanceId(): string {
-  return `item_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-}
 
 // ─── Store ──────────────────────────────────────────────────────────────────
 
@@ -118,6 +114,7 @@ export const useRunStore = create<RunStore>()(
           saveStatus: 'idle',
           saveError: null,
           rewardsApplied: false,
+          nextItemInstanceId: 1,
           team,
           runLevel: 1,
           biomesVisited: startBiome ? [startBiome] : [],
@@ -351,7 +348,8 @@ export const useRunStore = create<RunStore>()(
       // ── Inventory ───────────────────────────────────────────────────────
 
       addItem: (item) => {
-        const instanceId = generateInstanceId();
+        const { runId, nextItemInstanceId } = get();
+        const instanceId = `item_${runId}_${nextItemInstanceId}`;
         const entry: InventoryEntry = {
           instanceId,
           item,
@@ -359,6 +357,7 @@ export const useRunStore = create<RunStore>()(
         };
         set((state) => ({
           inventory: [...state.inventory, entry],
+          nextItemInstanceId: state.nextItemInstanceId + 1,
         }));
         return instanceId;
       },
@@ -591,6 +590,7 @@ export const useRunStore = create<RunStore>()(
         saveStatus: state.saveStatus,
         saveError: state.saveError,
         rewardsApplied: state.rewardsApplied,
+        nextItemInstanceId: state.nextItemInstanceId,
         team: state.team,
         runLevel: state.runLevel,
         biomesVisited: state.biomesVisited,
@@ -604,6 +604,7 @@ export const useRunStore = create<RunStore>()(
         currentNodeId: state.currentNodeId,
         completedNodeIds: state.completedNodeIds,
         pendingEncounter: state.pendingEncounter,
+        currentEncounter: state.currentEncounter,
       }),
     },
   ),

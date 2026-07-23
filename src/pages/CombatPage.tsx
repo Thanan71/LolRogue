@@ -23,7 +23,7 @@ import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import type { Item, ItemStatBonuses, RunSummary } from '@/types/run';
-import { SeededRNG } from '@/utils/seededRandom';
+import { createScopedRunRng } from '@/utils/runRandom';
 import { addXp, calculateXpGain } from '@/utils/xpSystem';
 
 function buildTeamInstances(
@@ -388,6 +388,15 @@ export function CombatPage() {
 
   // Get encounter data from store
   const currentEncounter = useRunStore((s) => s.currentEncounter);
+  const runSeed = useRunStore((s) => s.seed);
+  const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const battleRandom = useMemo(() => {
+    const rng = createScopedRunRng(
+      runSeed,
+      `combat:${currentEncounter?.id ?? currentNodeId ?? 'unknown'}`,
+    );
+    return () => rng.next();
+  }, [currentEncounter?.id, currentNodeId, runSeed]);
 
   // Memoize enemy instances to prevent recreation on every render
   const enemyInstances = useMemo(() => {
@@ -444,8 +453,11 @@ export function CombatPage() {
         // 4. Complete current map node (unlocks next nodes)
         let advancedToNextBiome = false;
         if (currentNode) {
-          // 5. Item drop chance (~20%) — deterministic for daily runs
-          const itemRng = new SeededRNG(runLevel * 1000 + runStore.totalWavesCompleted);
+          // 5. Item drop chance (~20%) — scoped to this run and encounter.
+          const itemRng = createScopedRunRng(
+            runStore.seed,
+            `drop:${currentNode.id}:${runStore.totalWavesCompleted}`,
+          );
           if (itemRng.next() < 0.2) {
             const itemDefs = Object.values(ITEM_DATABASE);
             if (itemDefs.length > 0) {
@@ -537,6 +549,7 @@ export function CombatPage() {
     autoPlay: autoPlay,
     onComplete: handleComplete,
     initialHpOverrides,
+    random: battleRandom,
   });
 
   const handleCast = useCallback(

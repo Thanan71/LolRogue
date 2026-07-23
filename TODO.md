@@ -63,7 +63,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Connecter `dailyRunStore` et `SupabaseDailyRunRepository` au lancement et à la fin des runs.
 - [x] Afficher `DailyLeaderboard`; le composant existe mais n'est monté nulle part.
 - [x] Remplacer le leaderboard localStorage par Supabase pour les joueurs connectés, avec fallback local explicite pour les invités.
-- [ ] Utiliser une seed unique persistée pour carte, encounters, ennemis, boutiques, événements et drops.
+- [x] Utiliser une seed unique persistée pour carte, encounters, ennemis, boutiques, événements et drops.
 - [x] Empêcher plusieurs scores quotidiens par joueur ou définir une règle « meilleur score » atomique.
 - [x] Ajouter protection anti-triche minimale et validation serveur du score si le classement devient public.
 
@@ -104,7 +104,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 - [x] Supprimer la double génération de carte dans `startRun`.
 - [x] Stocker la seed dans `runStore` et dans la sauvegarde en base.
-- [ ] Remplacer les identifiants et tirages fondés sur `Date.now()`/`Math.random()` par le RNG seedé lorsqu'ils influencent une run.
+- [x] Remplacer les identifiants et tirages fondés sur `Date.now()`/`Math.random()` par le RNG seedé lorsqu'ils influencent une run.
 - [x] Remplacer `.sort(() => rand() - 0.5)` par un mélange Fisher–Yates déterministe.
 - [ ] Gérer explicitement la sortie du dernier biome et la victoire si la configuration des biomes change.
 - [x] Refuser l'accès direct à une page d'encounter qui ne correspond pas à `currentEncounter`.

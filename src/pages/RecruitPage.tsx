@@ -5,6 +5,7 @@ import type { RecruitEncounter } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
+import { createScopedRunRng } from '@/utils/runRandom';
 
 export function RecruitPage() {
   const isActive = useRunStore((s) => s.isActive);
@@ -31,7 +32,9 @@ export function RecruitPage() {
   const handleRecruit = useCallback(() => {
     if (disabled || !encounter) return;
     playUIClick();
-    if (Math.random() < encounter.successChance) {
+    const state = useRunStore.getState();
+    const rng = createScopedRunRng(state.seed, `recruit:${encounter.id}:attempt`);
+    if (rng.next() < encounter.successChance) {
       spendGold(encounter.cost);
       addChampion(encounter.championId);
       setResult('success');
