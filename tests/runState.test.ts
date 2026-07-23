@@ -1,4 +1,7 @@
-import { getSurvivingChampionIds } from '../src/game/run/runState';
+import {
+  getSurvivingChampionIds,
+  shouldApplyRunRewards,
+} from '../src/game/run/runState';
 
 describe('persisted run state helpers', () => {
   it('keeps champions with positive or not-yet-initialized HP alive', () => {
@@ -18,5 +21,15 @@ describe('persisted run state helpers', () => {
         { championId: 'Ahri', currentHp: 1 },
       ]),
     ).toEqual(['Ahri']);
+  });
+
+  it('applies rewards only once, even when a save is retried', () => {
+    expect(shouldApplyRunRewards(false, 2, 5)).toBe(true);
+    expect(shouldApplyRunRewards(true, 2, 5)).toBe(false);
+  });
+
+  it('does not apply run rewards without a team or completed wave', () => {
+    expect(shouldApplyRunRewards(false, 0, 5)).toBe(false);
+    expect(shouldApplyRunRewards(false, 2, 0)).toBe(false);
   });
 });

@@ -20,7 +20,10 @@ import { championDB } from '@/data';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { saveRunToDatabase } from '@/services/runService';
 import { useAuthStore } from './authStore';
-import { getSurvivingChampionIds } from '@/game/run/runState';
+import {
+  getSurvivingChampionIds,
+  shouldApplyRunRewards,
+} from '@/game/run/runState';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
 
@@ -29,6 +32,10 @@ const INITIAL_STATE: RunState = {
   runId: '',
   seed: null,
   startedAt: null,
+  isEnding: false,
+  saveStatus: 'idle',
+  saveError: null,
+  rewardsApplied: false,
   team: [],
   runLevel: 1,
   biomesVisited: [],
@@ -102,6 +109,10 @@ export const useRunStore = create<RunStore>()(
           runId,
           seed,
           startedAt,
+          isEnding: false,
+          saveStatus: 'idle',
+          saveError: null,
+          rewardsApplied: false,
           team,
           runLevel: 1,
           biomesVisited: startBiome ? [startBiome] : [],
@@ -127,12 +138,18 @@ export const useRunStore = create<RunStore>()(
         if (!state.isActive) {
           return;
         }
+
+        if (state.isEnding) {
+          return;
+        }
         
         // Guard: If a runId is provided, only end the run if it matches the current run
         // This prevents stale timeouts from previous runs from ending a new run
         if (expectedRunId !== undefined && state.runId !== expectedRunId) {
           return;
         }
+
+        set({ isEnding: true, saveStatus: 'saving', saveError: null });
         
         const championIds = state.team.map((m) => m.championId);
         const survivingChampionIds = getSurvivingChampionIds(state.team);
@@ -150,7 +167,11 @@ export const useRunStore = create<RunStore>()(
         });
 
         // Award mastery candies before resetting
-        if (championIds.length > 0 && state.totalWavesCompleted > 0) {
+        if (shouldApplyRunRewards(
+          state.rewardsApplied,
+          championIds.length,
+          state.totalWavesCompleted,
+        )) {
           const masteryStore = useMasteryStore.getState();
           masteryStore.awardCandies(
             championIds,
@@ -158,6 +179,7 @@ export const useRunStore = create<RunStore>()(
             state.biomesVisited.length,
             won,
           );
+          set({ rewardsApplied: true });
         }
 
         // Save run to database (if user is authenticated)
@@ -172,6 +194,15 @@ export const useRunStore = create<RunStore>()(
           won,
         });
         
+        if (isAuthenticated && (!user || !player || !state.startedAt)) {
+          set({
+            isEnding: false,
+            saveStatus: 'error',
+            saveError: 'Authenticated run is missing required save data',
+          });
+          return;
+        }
+
         if (isAuthenticated && user && player && state.startedAt) {
           try {
             // Get current HP for each team member from the store or default to max
@@ -186,7 +217,7 @@ export const useRunStore = create<RunStore>()(
               };
             });
 
-            await saveRunToDatabase({
+            const result = await saveRunToDatabase({
               runId: state.runId,
               won,
               runLevel: state.runLevel,
@@ -198,12 +229,30 @@ export const useRunStore = create<RunStore>()(
               startedAt: state.startedAt,
               seed: state.seed,
             });
+            if (!result.success) {
+              set({
+                isEnding: false,
+                saveStatus: 'error',
+                saveError: result.error ?? 'Run save failed',
+              });
+              return;
+            }
           } catch (error) {
             console.error('[runStore.endRun] Failed to save run to database:', error);
+            set({
+              isEnding: false,
+              saveStatus: 'error',
+              saveError:
+                error instanceof Error ? error.message : 'Run save failed',
+            });
+            return;
           }
         }
 
-        set({ ...INITIAL_STATE });
+        set({
+          ...INITIAL_STATE,
+          saveStatus: isAuthenticated ? 'success' : 'idle',
+        });
       },
 
       // ── Team Management ─────────────────────────────────────────────────
@@ -489,6 +538,9 @@ export const useRunStore = create<RunStore>()(
         runId: state.runId,
         seed: state.seed,
         startedAt: state.startedAt,
+        saveStatus: state.saveStatus,
+        saveError: state.saveError,
+        rewardsApplied: state.rewardsApplied,
         team: state.team,
         runLevel: state.runLevel,
         biomesVisited: state.biomesVisited,

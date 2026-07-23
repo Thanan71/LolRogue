@@ -5,3 +5,11 @@ export function getSurvivingChampionIds(team: TeamMember[]): string[] {
     .filter((member) => member.currentHp === undefined || member.currentHp > 0)
     .map((member) => member.championId);
 }
+
+export function shouldApplyRunRewards(
+  rewardsApplied: boolean,
+  championCount: number,
+  wavesCompleted: number,
+): boolean {
+  return !rewardsApplied && championCount > 0 && wavesCompleted > 0;
+}

@@ -48,7 +48,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 ### Corriger la fin et la sauvegarde des runs
 
 - [x] Appeler `endRun(true, runId)` après la victoire finale et continuer après les boss intermédiaires.
-- [ ] Attendre la sauvegarde Supabase avant de perdre l'état utile, avec un retour visuel en cas d'échec.
+- [x] Attendre la sauvegarde Supabase avant de perdre l'état utile, afficher son statut et permettre une nouvelle tentative en cas d'échec.
 - [x] Rendre la sauvegarde d'une run atomique via une RPC/transaction pour la run, l'équipe, les statistiques joueur et la maîtrise.
 - [x] Rendre la sauvegarde idempotente avec la contrainte unique `run_uuid` et un traitement contrôlé côté RPC.
 - [x] Ne pas marquer tous les champions comme survivants dans `runStore.endRun`; utiliser leurs PV finaux.

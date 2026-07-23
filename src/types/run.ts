@@ -153,6 +153,13 @@ export interface RunState {
   seed: number | null;
   /** ISO timestamp persisted so a reloaded run can still be saved */
   startedAt: string | null;
+  /** Prevents duplicate completion/reward processing. */
+  isEnding: boolean;
+  /** Current persistence state for the completed run. */
+  saveStatus: 'idle' | 'saving' | 'success' | 'error';
+  saveError: string | null;
+  /** Prevents rewards from being granted again when retrying a failed save. */
+  rewardsApplied: boolean;
   /** The team of up to 5 champions */
   team: TeamMember[];
   /** Current run level (acts as difficulty/progression indicator) */

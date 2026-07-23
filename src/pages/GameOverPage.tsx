@@ -11,6 +11,9 @@ export function GameOverPage() {
   const navigate = useAppNavigate();
   const location = useLocation();
   const summary: RunSummary | undefined = (location.state as { summary?: RunSummary } | null)?.summary;
+  const saveStatus = useRunStore((state) => state.saveStatus);
+  const saveError = useRunStore((state) => state.saveError);
+  const activeRunId = useRunStore((state) => state.runId);
 
   useEffect(() => {
     playSFX('defeat');
@@ -31,14 +34,17 @@ export function GameOverPage() {
 
   function handleNewRun() {
     playUIClick();
-    useRunStore.getState().endRun();
     navigate(ROUTES.STARTER_SELECT);
   }
 
   function handleMenu() {
     playUIClick();
-    useRunStore.getState().endRun();
     navigate(ROUTES.MENU);
+  }
+
+  function handleRetrySave() {
+    playUIClick();
+    void useRunStore.getState().endRun(summary?.won ?? false, activeRunId);
   }
 
   const runLevel = summary?.runLevel ?? 1;
@@ -58,6 +64,21 @@ export function GameOverPage() {
         <p style={{ color: '#8b949e', marginBottom: 24, fontSize: 14 }}>
           Your run has come to an end.
         </p>
+
+        {saveStatus === 'saving' && (
+          <p role="status" style={savingStyle}>Saving your run…</p>
+        )}
+        {saveStatus === 'success' && (
+          <p role="status" style={successStyle}>Run saved successfully.</p>
+        )}
+        {saveStatus === 'error' && (
+          <div role="alert" style={errorStyle}>
+            <div>Unable to save this run: {saveError}</div>
+            <button style={retryBtnStyle} onClick={handleRetrySave}>
+              Retry Save
+            </button>
+          </div>
+        )}
 
         <div style={statsGridStyle}>
           <StatBlock label="Level Reached" value={runLevel} />
@@ -116,10 +137,18 @@ export function GameOverPage() {
         })()}
 
         <div style={actionsStyle}>
-          <button style={primaryBtnStyle} onClick={handleNewRun}>
+          <button
+            style={primaryBtnStyle}
+            onClick={handleNewRun}
+            disabled={saveStatus === 'saving' || saveStatus === 'error'}
+          >
             New Run
           </button>
-          <button style={secondaryBtnStyle} onClick={handleMenu}>
+          <button
+            style={secondaryBtnStyle}
+            onClick={handleMenu}
+            disabled={saveStatus === 'saving' || saveStatus === 'error'}
+          >
             Main Menu
           </button>
         </div>
@@ -187,6 +216,35 @@ const actionsStyle: React.CSSProperties = {
   display: 'flex',
   gap: 12,
   justifyContent: 'center',
+};
+
+const savingStyle: React.CSSProperties = {
+  color: '#c8aa6e',
+  marginBottom: 20,
+};
+
+const successStyle: React.CSSProperties = {
+  color: '#4ade80',
+  marginBottom: 20,
+};
+
+const errorStyle: React.CSSProperties = {
+  color: '#fca5a5',
+  background: '#3f1518',
+  border: '1px solid #7f1d1d',
+  borderRadius: 8,
+  padding: 12,
+  marginBottom: 20,
+};
+
+const retryBtnStyle: React.CSSProperties = {
+  marginTop: 10,
+  padding: '8px 16px',
+  background: '#ef4444',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 6,
+  cursor: 'pointer',
 };
 
 const primaryBtnStyle: React.CSSProperties = {
