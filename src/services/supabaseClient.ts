@@ -10,14 +10,17 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseConfigured) {
   console.warn(
-    '[Supabase] Missing environment variables. Please set VITE_PUBLIC_SUPABASE_URL and VITE_PUBLIC_SUPABASE_ANON_KEY in your .env file.'
+    '[Supabase] Online features are disabled. Set VITE_PUBLIC_SUPABASE_URL and VITE_PUBLIC_SUPABASE_ANON_KEY to enable them.'
   );
 }
 
-// Create Supabase client
+// Repositories share one client. The non-empty offline values prevent an
+// invalid empty-key client while route/auth logic keeps network calls disabled.
 export const supabase = createClient(
-  supabaseUrl || 'https://example.supabase.co',
-  supabaseAnonKey || ''
+  supabaseUrl || 'http://127.0.0.1:54321',
+  supabaseAnonKey || 'offline-anon-key',
 );

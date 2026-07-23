@@ -38,10 +38,10 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Corriger Auth et le mode invité
 
-- [ ] Persister explicitement un état `isGuest`, ou rendre les routes de jeu réellement accessibles sans session.
-- [ ] Corriger `handleGuestPlay` : il navigue vers `/`, puis `ProtectedRoute` renvoie l'utilisateur non authentifié vers `/auth`.
-- [ ] Ne pas construire le client Supabase avec une clé vide lorsque les variables sont absentes; afficher un écran de configuration ou activer proprement le mode hors ligne.
-- [ ] Remplacer les deux variables globales `authCheckInitialized` distinctes de `ProtectedRoute` et `AdminRoute` par une initialisation de session unique dans l'application.
+- [x] Persister explicitement un état `isGuest` et autoriser les routes de jeu pour ce mode.
+- [x] Corriger `handleGuestPlay` afin que la navigation vers `/` ne reboucle plus vers `/auth`.
+- [x] Ne pas construire le client Supabase avec une clé vide et afficher le mode hors ligne lorsque les variables sont absentes.
+- [x] Remplacer les deux variables globales `authCheckInitialized` par une initialisation de session unique dans l'application.
 - [ ] Tester login, inscription immédiate sans confirmation, restauration de session, logout, mode invité et accès admin.
 - [ ] Nettoyer les scripts SQL ponctuels de correction d'inscription après intégration dans une migration officielle.
 

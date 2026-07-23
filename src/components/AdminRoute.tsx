@@ -1,70 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { useRouterStore, RoutePath } from '@/stores/routerStore';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { ROUTES } from '@/stores/routerStore';
+import { getAdminRouteAccess } from '@/auth/routeAccess';
 
 interface AdminRouteProps {
   children: React.ReactNode;
 }
 
-// Track if auth check has been initialized globally
-let authCheckInitialized = false;
-
 export function AdminRoute({ children }: AdminRouteProps) {
-  const navigate = useNavigate();
-  const { isAuthenticated, isLoading, isAdmin, checkSession } = useAuthStore();
-  const { navigateTo } = useRouterStore();
-  const [isChecking, setIsChecking] = useState(!authCheckInitialized);
-  const [shouldRedirect, setShouldRedirect] = useState<RoutePath | null>(null);
-  const hasInitialized = useRef(authCheckInitialized);
-
-  useEffect(() => {
-    // Only initialize auth check once across all AdminRoute instances
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      authCheckInitialized = true;
-      
-      const initAuth = async () => {
-        try {
-          await checkSession();
-        } catch (error) {
-          console.error('[AdminRoute] Auth check failed:', error);
-        }
-        // Set local state to false - auth check is complete
-        setIsChecking(false);
-      };
-      initAuth();
-    } else {
-      // Already initialized, just update local state
-      setIsChecking(false);
-    }
-  }, []); // Only run once on mount
-
-  // Check if we need to redirect (outside of render)
-  useEffect(() => {
-    if (!isChecking) {
-      if (!isAuthenticated) {
-        // Not authenticated, redirect to auth
-        setShouldRedirect(ROUTES.AUTH);
-      } else if (!isAdmin) {
-        // Authenticated but not admin, redirect to menu
-        setShouldRedirect(ROUTES.MENU);
-      }
-    }
-  }, [isChecking, isAuthenticated, isAdmin]);
-
-  // Perform redirect in useEffect, not during render
-  useEffect(() => {
-    if (shouldRedirect) {
-      navigateTo(shouldRedirect);
-      navigate(shouldRedirect);
-      setShouldRedirect(null);
-    }
-  }, [shouldRedirect, navigate, navigateTo]);
+  const auth = useAuthStore();
+  const access = getAdminRouteAccess(auth);
 
   // Show loading state ONLY while initial auth check is happening
-  if (isChecking || (authCheckInitialized && isLoading && !isAuthenticated)) {
+  if (access === 'loading') {
     return (
       <div style={{
         position: 'fixed',
@@ -100,33 +48,12 @@ export function AdminRoute({ children }: AdminRouteProps) {
     );
   }
 
-  // If we're waiting to redirect, show nothing (useEffect will handle it)
-  if (shouldRedirect) {
-    return null;
+  if (access === 'auth') {
+    return <Navigate to={ROUTES.AUTH} replace />;
   }
 
-  // If user is not admin, show forbidden message briefly before redirect
-  if (!isAdmin && isAuthenticated) {
-    return (
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#0a1428',
-        color: '#c8aa6e',
-        fontFamily: 'Cinzel, Georgia, serif',
-        fontSize: '1.5rem',
-        letterSpacing: '0.15em',
-        textAlign: 'center',
-      }}>
-        <div>
-          <div style={{ marginBottom: '1rem', color: '#e74c3c' }}>⛔ Access Denied</div>
-          <div style={{ fontSize: '1rem' }}>Admin privileges required</div>
-        </div>
-      </div>
-    );
+  if (access === 'menu') {
+    return <Navigate to={ROUTES.MENU} replace />;
   }
 
   return <>{children}</>;

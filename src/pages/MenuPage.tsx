@@ -45,7 +45,7 @@ export function MenuPage() {
   const currentBiome = useRunStore((s) => s.currentBiome);
   const team = useRunStore((s) => s.team);
   const endRun = useRunStore((s) => s.endRun);
-  const { user, player, logout, isAuthenticated } = useAuthStore();
+  const { user, player, logout, isGuest, exitGuestMode } = useAuthStore();
 
   function handleContinue() {
     playUIClick();
@@ -69,9 +69,13 @@ export function MenuPage() {
     navigate(ROUTES.AUTH);
   }
 
-  const displayName = player?.display_name || user?.email?.split('@')[0] || 'Player';
-  const isGuest = !isAuthenticated;
+  function handleGuestLogin() {
+    playUIClick();
+    exitGuestMode();
+    navigate(ROUTES.AUTH);
+  }
 
+  const displayName = player?.display_name || user?.email?.split('@')[0] || 'Player';
   return (
     <div className="main-menu">
       <ParticleBackground particleCount={80} />
@@ -165,6 +169,15 @@ export function MenuPage() {
             onClick={handleLogout}
           >
             Logout
+          </button>
+        )}
+
+        {isGuest && (
+          <button
+            className="main-menu__btn main-menu__btn--logout"
+            onClick={handleGuestLogin}
+          >
+            Login / Create Account
           </button>
         )}
       </div>

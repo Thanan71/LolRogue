@@ -7,7 +7,7 @@
  */
 
 import { create } from 'zustand';
-import { supabase } from '@/services/supabaseClient';
+import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
 import { RepositoryContainerFactory } from '@/services/container';
 import type { User } from '@supabase/supabase-js';
 import type { Player } from '@/types/database';
@@ -21,6 +21,8 @@ export interface AuthState {
   player: Player | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isGuest: boolean;
+  isInitialized: boolean;
   isAdmin: boolean;
   error: string | null;
   successMessage: string | null;
@@ -35,15 +37,35 @@ export interface AuthActions {
   clearSuccessMessage: () => void;
   checkSession: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
+  enterGuestMode: () => void;
+  exitGuestMode: () => void;
 }
 
 export type AuthStore = AuthState & AuthActions;
+
+const GUEST_MODE_KEY = 'lolrogue-guest-mode';
+
+function readGuestMode(): boolean {
+  return typeof window !== 'undefined'
+    && window.localStorage.getItem(GUEST_MODE_KEY) === 'true';
+}
+
+function setStoredGuestMode(enabled: boolean): void {
+  if (typeof window === 'undefined') return;
+  if (enabled) {
+    window.localStorage.setItem(GUEST_MODE_KEY, 'true');
+  } else {
+    window.localStorage.removeItem(GUEST_MODE_KEY);
+  }
+}
 
 const INITIAL_STATE: AuthState = {
   user: null,
   player: null,
   isLoading: true,
   isAuthenticated: false,
+  isGuest: readGuestMode(),
+  isInitialized: false,
   isAdmin: false,
   error: null,
   successMessage: null,
@@ -51,6 +73,25 @@ const INITIAL_STATE: AuthState = {
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   ...INITIAL_STATE,
+
+  enterGuestMode: () => {
+    setStoredGuestMode(true);
+    set({
+      user: null,
+      player: null,
+      isAuthenticated: false,
+      isGuest: true,
+      isAdmin: false,
+      isLoading: false,
+      isInitialized: true,
+      error: null,
+    });
+  },
+
+  exitGuestMode: () => {
+    setStoredGuestMode(false);
+    set({ isGuest: false });
+  },
 
   checkAdminStatus: async () => {
     const { user, player } = get();
@@ -66,6 +107,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   login: async (email: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      const error = 'Supabase is not configured. Guest mode is still available.';
+      set({ error, isLoading: false, isInitialized: true });
+      return { success: false, error };
+    }
     activeAuthOperation = 'login';
     lastAuthOperationTimestamp = Date.now();
     set({ isLoading: true, error: null });
@@ -90,9 +136,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           user: result.user,
           player: playerData || null,
           isAuthenticated: true,
+          isGuest: false,
+          isInitialized: true,
           isAdmin,
           isLoading: false,
         });
+        setStoredGuestMode(false);
 
         return { success: true };
       }
@@ -111,6 +160,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   signUp: async (email: string, password: string, username: string, displayName?: string) => {
+    if (!isSupabaseConfigured) {
+      const error = 'Supabase is not configured. Guest mode is still available.';
+      set({ error, isLoading: false, isInitialized: true });
+      return { success: false, error };
+    }
     activeAuthOperation = 'signup';
     lastAuthOperationTimestamp = Date.now();
     set({ isLoading: true, error: null });
@@ -164,9 +218,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           user: result.user,
           player: playerData || null,
           isAuthenticated: true,
+          isGuest: false,
+          isInitialized: true,
           isAdmin,
           isLoading: false,
         });
+        setStoredGuestMode(false);
 
         return { success: true };
       }
@@ -189,11 +246,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     lastAuthOperationTimestamp = Date.now();
     set({ isLoading: true });
     try {
-      await container.auth.signOut();
+      if (isSupabaseConfigured) {
+        await container.auth.signOut();
+      }
+      setStoredGuestMode(false);
       set({
         user: null,
         player: null,
         isAuthenticated: false,
+        isGuest: false,
+        isInitialized: true,
         isAdmin: false,
         isLoading: false,
         error: null,
@@ -230,6 +292,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   checkSession: async () => {
+    if (!isSupabaseConfigured) {
+      set({
+        user: null,
+        player: null,
+        isAuthenticated: false,
+        isAdmin: false,
+        isLoading: false,
+        isInitialized: true,
+      });
+      return;
+    }
     // Don't set isLoading if we're already loading (from login/signup)
     const currentState = get();
     if (!currentState.isLoading) {
@@ -254,14 +327,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           user: session.user,
           player: playerData || null,
           isAuthenticated: true,
+          isGuest: false,
+          isInitialized: true,
           isAdmin,
           isLoading: false,
         });
+        setStoredGuestMode(false);
       } else {
         set({
           user: null,
           player: null,
           isAuthenticated: false,
+          isGuest: get().isGuest,
+          isInitialized: true,
           isAdmin: false,
           isLoading: false,
         });
@@ -272,6 +350,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         user: null,
         player: null,
         isAuthenticated: false,
+        isGuest: get().isGuest,
+        isInitialized: true,
         isAdmin: false,
         isLoading: false,
       });
@@ -314,15 +394,20 @@ container.auth.onAuthStateChange(async (event, session) => {
         user: session.user,
         player: playerData || null,
         isAuthenticated: true,
+        isGuest: false,
+        isInitialized: true,
         isAdmin,
         isLoading: false,
       });
+      setStoredGuestMode(false);
     }
   } else if (event === 'SIGNED_OUT') {
     useAuthStore.setState({
       user: null,
       player: null,
       isAuthenticated: false,
+      isGuest: currentState.isGuest,
+      isInitialized: true,
       isAdmin: false,
       isLoading: false,
       error: null,

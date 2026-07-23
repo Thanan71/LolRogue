@@ -5,6 +5,7 @@ import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { playUIClick } from '@/audio';
+import { isSupabaseConfigured } from '@/services/supabaseClient';
 import '@/styles/auth.css';
 
 type AuthMode = 'login' | 'signup';
@@ -53,6 +54,7 @@ export function AuthPage() {
     signUp,
     clearError,
     clearSuccessMessage,
+    enterGuestMode,
   } = useAuthStore();
   
   const endRun = useRunStore((s) => s.endRun);
@@ -98,7 +100,8 @@ export function AuthPage() {
   const handleGuestPlay = () => {
     playUIClick();
     // End any active run when switching to guest
-    endRun();
+    void endRun();
+    enterGuestMode();
     navigate(ROUTES.MENU);
   };
 
@@ -122,6 +125,12 @@ export function AuthPage() {
 
       {/* Auth Form Container */}
       <div className="auth-page__container">
+        {!isSupabaseConfigured && (
+          <div className="auth-page__error">
+            Online accounts are unavailable because Supabase is not configured.
+            Guest mode remains available.
+          </div>
+        )}
         {/* Tabs */}
         <div className="auth-page__tabs">
           <button
@@ -225,7 +234,7 @@ export function AuthPage() {
           <button
             type="submit"
             className="auth-page__submit"
-            disabled={isLoading || !isFormValid()}
+            disabled={!isSupabaseConfigured || isLoading || !isFormValid()}
           >
             {isLoading ? (
               <>

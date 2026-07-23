@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { RouteSync } from './components/RouteSync';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminRoute } from './components/AdminRoute';
+import { AuthBootstrap } from './components/AuthBootstrap';
 import { AuthPage } from './pages/AuthPage';
 import { MenuPage } from './pages/MenuPage';
 import { StarterSelectPage } from './pages/StarterSelectPage';
@@ -25,6 +26,7 @@ export default function App() {
   return (
     <div id="app">
       <RouteSync />
+      <AuthBootstrap />
       <Routes>
         {/* Auth page - accessible without authentication */}
         <Route path="/auth" element={
