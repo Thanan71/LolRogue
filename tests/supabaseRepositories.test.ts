@@ -127,6 +127,43 @@ describe('SupabaseRunRepository', () => {
     expect(result).toEqual({ data: null, error });
     expect(mockSupabase.from).not.toHaveBeenCalled();
   });
+
+  it('normalizes decimal combat statistics before calling the integer-based RPC', async () => {
+    const { mockSupabase } = createMockSupabaseClient();
+    const rpc = vi.mocked(mockSupabase.rpc);
+    rpc.mockResolvedValue({ data: 'database-run-id', error: null } as never);
+    const repository = new SupabaseRunRepository(mockSupabase);
+
+    await repository.saveCompletedRun(
+      {
+        player_id: 'player-1',
+        run_uuid: 'client-run-id',
+        total_damage_dealt: 42.51740000000018,
+      },
+      [
+        {
+          run_id: 'placeholder',
+          champion_id: 'Garen',
+          final_hp: 99.6,
+          damage_dealt: 42.51740000000018,
+        },
+      ],
+      [{ champion_id: 'Garen', total_damage: 42.51740000000018 }],
+      12.4,
+    );
+
+    expect(rpc).toHaveBeenCalledWith('save_completed_run', {
+      p_run: expect.objectContaining({ total_damage_dealt: 43 }),
+      p_team_members: [
+        expect.objectContaining({
+          final_hp: 100,
+          damage_dealt: 43,
+        }),
+      ],
+      p_mastery: [expect.objectContaining({ total_damage: 43 })],
+      p_total_candies: 12,
+    });
+  });
 });
 
 describe('SupabaseEnhancementRepository', () => {

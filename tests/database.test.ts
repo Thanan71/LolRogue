@@ -37,6 +37,13 @@ const runLoadoutSql = readFileSync(
   new URL('../supabase/migrations/20260723070000_run_loadout.sql', import.meta.url),
   'utf8',
 );
+const normalizedRunPayloadSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260723080000_normalize_run_integer_payload.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -62,6 +69,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260723050000_atomic_daily_submission.sql',
       '../supabase/migrations/20260723060000_atomic_mastery_enhancements.sql',
       '../supabase/migrations/20260723070000_run_loadout.sql',
+      '../supabase/migrations/20260723080000_normalize_run_integer_payload.sql',
     ]);
   });
 
@@ -162,6 +170,19 @@ describe('Supabase existing database upgrade', () => {
       'games_played = public.champion_mastery.games_played + 1',
     );
     expect(atomicRunUpgradeSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
+  });
+
+  it('normalizes decimal combat statistics before integer database casts', () => {
+    expect(normalizedRunPayloadSql).toContain('RENAME TO save_completed_run_integer_payload');
+    expect(normalizedRunPayloadSql).toContain(
+      "ROUND(COALESCE((v_run ->> 'total_damage_dealt')::NUMERIC, 0))",
+    );
+    expect(normalizedRunPayloadSql).toContain(
+      "ROUND(COALESCE((value ->> 'damage_dealt')::NUMERIC, 0))",
+    );
+    expect(normalizedRunPayloadSql).toContain(
+      "ROUND(COALESCE((value ->> 'total_damage')::NUMERIC, 0))",
+    );
   });
 
   it('grants server-side access without exposing service credentials', () => {
@@ -368,6 +389,54 @@ describeLive('Supabase live integration', () => {
       .single();
     expect(profileError).toBeNull();
     expect(profile).toMatchObject({ username, is_admin: false });
+
+    const decimalRunUuid = `decimal-${suffix}`;
+    const { data: decimalRunId, error: decimalRunError } = await userClient.rpc(
+      'save_completed_run',
+      {
+        p_run: {
+          player_id: profile!.id,
+          run_uuid: decimalRunUuid,
+          won: false,
+          run_level: 2,
+          waves_completed: 1,
+          biomes_visited: ['top_lane'],
+          gold_earned: 10,
+          total_kills: 1,
+          total_damage_dealt: 42.51740000000018,
+        },
+        p_team_members: [
+          {
+            champion_id: 'Garen',
+            final_level: 2,
+            final_hp: 99.6,
+            survived: true,
+            kills: 1,
+            damage_dealt: 42.51740000000018,
+            items_collected: [],
+          },
+        ],
+        p_mastery: [
+          {
+            champion_id: 'Garen',
+            candies_earned: 0,
+            kills: 1,
+            total_damage: 42.51740000000018,
+          },
+        ],
+        p_total_candies: 0,
+      },
+    );
+    expect(decimalRunError).toBeNull();
+    expect(decimalRunId).toBeTruthy();
+
+    const { data: decimalRun, error: decimalRunReadError } = await userClient
+      .from('runs')
+      .select('total_damage_dealt')
+      .eq('run_uuid', decimalRunUuid)
+      .single();
+    expect(decimalRunReadError).toBeNull();
+    expect(decimalRun?.total_damage_dealt).toBe(43);
 
     const { error: escalationError } = await userClient
       .from('players')

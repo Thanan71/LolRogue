@@ -9,6 +9,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Run, RunInsert, RunTeamMember, RunTeamMemberInsert, RunUpdate } from '@/types/models';
 import type { IRunRepository, IRunStatsRepository } from '../interfaces/IRunRepository';
 
+function toDatabaseInteger(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : 0;
+}
+
 export class SupabaseRunRepository implements IRunRepository {
   private supabase: SupabaseClient;
 
@@ -22,11 +26,51 @@ export class SupabaseRunRepository implements IRunRepository {
     mastery: Record<string, unknown>[],
     totalCandies: number,
   ): Promise<{ data: string | null; error: Error | null }> {
+    const normalizedRun = {
+      ...runData,
+      ...(runData.run_level == null ? {} : { run_level: toDatabaseInteger(runData.run_level) }),
+      ...(runData.waves_completed == null
+        ? {}
+        : { waves_completed: toDatabaseInteger(runData.waves_completed) }),
+      ...(runData.gold_earned == null
+        ? {}
+        : { gold_earned: toDatabaseInteger(runData.gold_earned) }),
+      ...(runData.total_kills == null
+        ? {}
+        : { total_kills: toDatabaseInteger(runData.total_kills) }),
+      ...(runData.total_damage_dealt == null
+        ? {}
+        : { total_damage_dealt: toDatabaseInteger(runData.total_damage_dealt) }),
+      ...(runData.candies_earned == null
+        ? {}
+        : { candies_earned: toDatabaseInteger(runData.candies_earned) }),
+      ...(runData.seed == null ? {} : { seed: toDatabaseInteger(runData.seed) }),
+    };
+    const normalizedTeamMembers = teamMembers.map(({ run_id: _runId, ...member }) => ({
+      ...member,
+      ...(member.final_level == null ? {} : { final_level: toDatabaseInteger(member.final_level) }),
+      ...(member.final_hp == null ? {} : { final_hp: toDatabaseInteger(member.final_hp) }),
+      ...(member.kills == null ? {} : { kills: toDatabaseInteger(member.kills) }),
+      ...(member.damage_dealt == null
+        ? {}
+        : { damage_dealt: toDatabaseInteger(member.damage_dealt) }),
+    }));
+    const normalizedMastery = mastery.map((entry) => ({
+      ...entry,
+      ...(entry.candies_earned == null
+        ? {}
+        : { candies_earned: toDatabaseInteger(entry.candies_earned) }),
+      ...(entry.kills == null ? {} : { kills: toDatabaseInteger(entry.kills) }),
+      ...(entry.total_damage == null
+        ? {}
+        : { total_damage: toDatabaseInteger(entry.total_damage) }),
+    }));
+
     const { data, error } = await this.supabase.rpc('save_completed_run', {
-      p_run: runData,
-      p_team_members: teamMembers.map(({ run_id: _runId, ...member }) => member),
-      p_mastery: mastery,
-      p_total_candies: totalCandies,
+      p_run: normalizedRun,
+      p_team_members: normalizedTeamMembers,
+      p_mastery: normalizedMastery,
+      p_total_candies: toDatabaseInteger(totalCandies),
     });
 
     return error ? { data: null, error } : { data: data as string, error: null };
