@@ -5,6 +5,13 @@ const migrationSql = readFileSync(
   new URL('../supabase/migrations/00000000000000_init.sql', import.meta.url),
   'utf8',
 );
+const signupUpgradeSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260723000000_fix_signup_trigger.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -17,10 +24,12 @@ if (process.env.DB_TEST_REQUIRED === '1' && !hasSupabaseCredentials) {
 }
 
 describe('Supabase init migration', () => {
-  it('is the only SQL migration', () => {
+  it('keeps one clean init followed by the signup upgrade', () => {
     const migrationFiles = import.meta.glob('../supabase/migrations/*.sql');
-    expect(Object.keys(migrationFiles)).toHaveLength(1);
-    expect(Object.keys(migrationFiles)[0]).toContain('00000000000000_init.sql');
+    expect(Object.keys(migrationFiles).sort()).toEqual([
+      '../supabase/migrations/00000000000000_init.sql',
+      '../supabase/migrations/20260723000000_fix_signup_trigger.sql',
+    ]);
   });
 
   it('creates every table used by the application', () => {
@@ -72,6 +81,23 @@ describe('Supabase init migration', () => {
     );
     expect(playerGrant).not.toBeNull();
     expect(playerGrant?.[1]).not.toContain('is_admin');
+  });
+});
+
+describe('Supabase existing database upgrade', () => {
+  it('replaces the signup function without deleting existing data', () => {
+    expect(signupUpgradeSql).toContain(
+      'CREATE OR REPLACE FUNCTION public.handle_new_user()',
+    );
+    expect(signupUpgradeSql).toContain(
+      'DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users',
+    );
+    expect(signupUpgradeSql).toContain('WHEN unique_violation THEN');
+    expect(signupUpgradeSql).toContain(
+      'ON CONFLICT (user_id) DO NOTHING',
+    );
+    expect(signupUpgradeSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
+    expect(signupUpgradeSql).not.toMatch(/\bDELETE\s+FROM\b/i);
   });
 });
 

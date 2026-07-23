@@ -1,6 +1,6 @@
 # Supabase setup
 
-LolRogue uses one database migration:
+LolRogue uses a clean initialization migration:
 
 ```text
 supabase/migrations/00000000000000_init.sql
@@ -9,6 +9,13 @@ supabase/migrations/00000000000000_init.sql
 It creates the player, run, mastery, unlock, daily-run, enhancement and log
 tables, plus the leaderboard/admin views, triggers and Row Level Security
 policies.
+
+The following non-destructive upgrade is provided for databases that executed
+an older version of the initialization script:
+
+```text
+supabase/migrations/20260723000000_fix_signup_trigger.sql
+```
 
 ## Fresh local database
 
@@ -24,8 +31,12 @@ supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
 
-This migration is intended for a clean database. If an older LolRogue schema
-has already been deployed, reset the project database before applying it.
+`supabase db push` applies only migrations that are not already recorded in the
+remote migration history. The signup upgrade replaces the existing function
+and trigger without deleting users or application data.
+
+It can also be copied directly into the hosted project's SQL Editor and run
+once if the original initialization was executed manually.
 
 ## Authentication without email messages
 
