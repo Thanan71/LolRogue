@@ -20,6 +20,9 @@ supabase/migrations/20260723020000_atomic_run_save.sql
 supabase/migrations/20260723030000_grant_service_role.sql
 supabase/migrations/20260723040000_daily_leaderboard_read.sql
 supabase/migrations/20260723050000_atomic_daily_submission.sql
+supabase/migrations/20260723060000_atomic_mastery_enhancements.sql
+supabase/migrations/20260723070000_run_loadout.sql
+supabase/migrations/20260723080000_normalize_run_integer_payload.sql
 ```
 
 ## Fresh local database
@@ -41,8 +44,12 @@ remote migration history. The versioned upgrades preserve existing users and
 application data. Reset only a disposable or new project; apply the upgrade
 migrations to an existing production database.
 
-It can also be copied directly into the hosted project's SQL Editor and run
-once if the original initialization was executed manually.
+Une base créée avec une ancienne version du fichier initial doit exécuter les
+migrations horodatées dans l'ordre. Si l'ancien script a été lancé manuellement
+dans le SQL Editor et n'apparaît pas dans l'historique de la CLI, appliquer
+également les montées de version manuellement, une seule fois, puis réparer
+l'historique avant le prochain `db push`. Ne jamais rejouer le schéma initial sur
+une base contenant des données.
 
 ## Local validation and generated types
 

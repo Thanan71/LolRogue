@@ -188,12 +188,12 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Documentation
 
-- [ ] Réécrire le README : structure des assets, Auth, mode invité, Supabase local, migrations, tests et déploiement.
-- [ ] Fusionner les nombreux guides ponctuels (`*_FIX*`, `*_COMPLETE*`) en documentation maintenue.
-- [ ] Documenter la source de vérité de chaque donnée : run locale, profil, maîtrise, améliorations et leaderboard.
-- [ ] Documenter les règles de combat, XP, récompenses, probabilités et progression.
-- [ ] Documenter la procédure de promotion admin sécurisée.
-- [ ] Ajouter une roadmap par jalons et une checklist de release.
+- [x] Réécrire le README : structure des assets, Auth, mode invité, Supabase local, migrations, tests et déploiement.
+- [x] Fusionner les nombreux guides ponctuels (`*_FIX*`, `*_COMPLETE*`) en documentation maintenue.
+- [x] Documenter la source de vérité de chaque donnée : run locale, profil, maîtrise, améliorations et leaderboard.
+- [x] Documenter les règles de combat, XP, récompenses, probabilités et progression.
+- [x] Documenter la procédure de promotion admin sécurisée.
+- [x] Ajouter une roadmap par jalons et une checklist de release.
 
 ## Ordre de réalisation recommandé
 
