@@ -8,7 +8,7 @@
   height: 100%;
   background: #0d1117;
   color: #e6edf3;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
 }
@@ -294,7 +294,7 @@
 }
 
 .candy-badge {
-  background: #F5E6B3;
+  background: #f5e6b3;
   color: #0d1117;
   padding: 2px 8px;
   border-radius: 12px;
@@ -355,8 +355,8 @@
 
 .branch-tab.active {
   background: rgba(245, 230, 179, 0.1);
-  border-color: #F5E6B3;
-  color: #F5E6B3;
+  border-color: #f5e6b3;
+  color: #f5e6b3;
 }
 
 .branch-content {
@@ -420,7 +420,7 @@
 }
 
 .ultimate-badge {
-  background: #C43C3C;
+  background: #c43c3c;
   color: #fff;
   padding: 1px 4px;
   border-radius: 4px;
@@ -444,7 +444,7 @@
 
 .node-stat-bonus {
   background: #21262d;
-  color: #4A9F6F;
+  color: #4a9f6f;
   padding: 1px 4px;
   border-radius: 3px;
   font-size: 10px;
@@ -457,13 +457,13 @@
 }
 
 .node-cost {
-  color: #F5E6B3;
+  color: #f5e6b3;
   font-size: 12px;
   font-weight: 600;
 }
 
 .node-maxed {
-  background: #4A9F6F;
+  background: #4a9f6f;
   color: #fff;
   padding: 2px 8px;
   border-radius: 4px;

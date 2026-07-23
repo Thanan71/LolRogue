@@ -2,20 +2,15 @@
  * Effect System — comprehensive unit tests.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { EffectManager } from '../src/game/effects/EffectManager';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { BuffDebuffEffect, createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
+import { CCEffect } from '../src/game/effects/CCEffect';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
+import { EffectManager } from '../src/game/effects/EffectManager';
+import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
 import { HealEffect } from '../src/game/effects/HealEffect';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
-import { CCEffect } from '../src/game/effects/CCEffect';
-import { BuffDebuffEffect, createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
-import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
-import {
-  EffectCategory,
-  DamageType,
-  CCType,
-  type EffectEvent,
-} from '../src/game/effects/types';
+import { CCType, DamageType, EffectCategory, type EffectEvent } from '../src/game/effects/types';
 
 describe('Effect System', () => {
   let manager: EffectManager;
@@ -31,8 +26,10 @@ describe('Effect System', () => {
   describe('DamageEffect', () => {
     it('should create an instant AD damage effect', () => {
       const dmg = new DamageEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 100, damageType: DamageType.AD,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 100,
+        damageType: DamageType.AD,
       });
       expect(dmg.category).toBe(EffectCategory.Damage);
       expect(dmg.damageType).toBe(DamageType.AD);
@@ -43,8 +40,11 @@ describe('Effect System', () => {
 
     it('should create a True damage effect that cannot crit', () => {
       const dmg = new DamageEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 200, damageType: DamageType.True, canCrit: false,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 200,
+        damageType: DamageType.True,
+        canCrit: false,
       });
       expect(dmg.damageType).toBe(DamageType.True);
       expect(dmg.canCrit).toBe(false);
@@ -52,8 +52,10 @@ describe('Effect System', () => {
 
     it('should apply instant damage via applyInstantDamage()', () => {
       const dmg = new DamageEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 150, damageType: DamageType.AP,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 150,
+        damageType: DamageType.AP,
       });
       const events: EffectEvent[] = [];
       dmg.onTick((e) => events.push(e));
@@ -68,8 +70,11 @@ describe('Effect System', () => {
 
     it('should create a DoT effect (duration > 0)', () => {
       const dmg = new DamageEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 300, damageType: DamageType.AP, duration: 3,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 300,
+        damageType: DamageType.AP,
+        duration: 3,
       });
       expect(dmg.isInstant).toBe(false);
       expect(dmg.duration).toBe(3);
@@ -78,8 +83,11 @@ describe('Effect System', () => {
 
     it('should tick DoT effect each round', () => {
       const dmg = new DamageEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 300, damageType: DamageType.AP, duration: 3,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 300,
+        damageType: DamageType.AP,
+        duration: 3,
       });
       const ev1 = dmg.tick();
       expect(ev1?.value).toBe(100);
@@ -99,7 +107,9 @@ describe('Effect System', () => {
   describe('HealEffect', () => {
     it('should create an instant heal effect', () => {
       const heal = new HealEffect({
-        sourceId: 'src', targetId: 'tgt', magnitude: 200,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 200,
       });
       expect(heal.category).toBe(EffectCategory.Heal);
       expect(heal.isInstant).toBe(true);
@@ -108,8 +118,11 @@ describe('Effect System', () => {
 
     it('should create a HoT effect', () => {
       const heal = new HealEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 150, duration: 3, hot: true,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 150,
+        duration: 3,
+        hot: true,
       });
       expect(heal.hot).toBe(true);
       expect(heal.isInstant).toBe(false);
@@ -117,14 +130,19 @@ describe('Effect System', () => {
 
     it('should auto-detect hot from duration > 0', () => {
       const heal = new HealEffect({
-        sourceId: 'src', targetId: 'tgt', magnitude: 100, duration: 2,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 100,
+        duration: 2,
       });
       expect(heal.hot).toBe(true);
     });
 
     it('should apply instant heal', () => {
       const heal = new HealEffect({
-        sourceId: 'src', targetId: 'tgt', magnitude: 200,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 200,
       });
       const ev = heal.applyInstantHeal(200);
       expect(ev.type).toBe('effect_tick');
@@ -135,8 +153,11 @@ describe('Effect System', () => {
 
     it('should tick HoT effect', () => {
       const heal = new HealEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 150, duration: 3, hot: true,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 150,
+        duration: 3,
+        hot: true,
       });
       const ev = heal.tick();
       expect(ev?.value).toBe(50);
@@ -151,8 +172,10 @@ describe('Effect System', () => {
   describe('ShieldEffect', () => {
     it('should create a shield with HP pool', () => {
       const shield = new ShieldEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 500, duration: 5,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 500,
+        duration: 5,
       });
       expect(shield.category).toBe(EffectCategory.Shield);
       expect(shield.remainingShield).toBe(500);
@@ -161,8 +184,10 @@ describe('Effect System', () => {
 
     it('should absorb all damage if shield HP > damage', () => {
       const shield = new ShieldEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 500, duration: 5,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 500,
+        duration: 5,
       });
       const result = shield.absorbDamage(200);
       expect(result.absorbed).toBe(200);
@@ -173,8 +198,10 @@ describe('Effect System', () => {
 
     it('should partially absorb if damage > shield HP', () => {
       const shield = new ShieldEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 100, duration: 5,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 100,
+        duration: 5,
       });
       const result = shield.absorbDamage(300);
       expect(result.absorbed).toBe(100);
@@ -185,8 +212,10 @@ describe('Effect System', () => {
 
     it('should tick down duration and expire', () => {
       const shield = new ShieldEffect({
-        sourceId: 'src', targetId: 'tgt',
-        magnitude: 500, duration: 2,
+        sourceId: 'src',
+        targetId: 'tgt',
+        magnitude: 500,
+        duration: 2,
       });
       const ev1 = shield.tick();
       expect(shield.ticksElapsed).toBe(1);
@@ -202,8 +231,10 @@ describe('Effect System', () => {
   describe('CCEffect', () => {
     it('should create a Stun (hard CC)', () => {
       const stun = new CCEffect({
-        sourceId: 'src', targetId: 'tgt',
-        ccType: CCType.Stun, duration: 2,
+        sourceId: 'src',
+        targetId: 'tgt',
+        ccType: CCType.Stun,
+        duration: 2,
       });
       expect(stun.category).toBe(EffectCategory.CC);
       expect(stun.isHardCC()).toBe(true);
@@ -213,8 +244,10 @@ describe('Effect System', () => {
 
     it('should create a Snare', () => {
       const snare = new CCEffect({
-        sourceId: 'src', targetId: 'tgt',
-        ccType: CCType.Snare, duration: 1,
+        sourceId: 'src',
+        targetId: 'tgt',
+        ccType: CCType.Snare,
+        duration: 1,
       });
       expect(snare.isHardCC()).toBe(false);
       expect(snare.preventsMovement()).toBe(true);
@@ -223,8 +256,10 @@ describe('Effect System', () => {
 
     it('should create a Silence', () => {
       const silence = new CCEffect({
-        sourceId: 'src', targetId: 'tgt',
-        ccType: CCType.Silence, duration: 2,
+        sourceId: 'src',
+        targetId: 'tgt',
+        ccType: CCType.Silence,
+        duration: 2,
       });
       expect(silence.isHardCC()).toBe(false);
       expect(silence.preventsCasting()).toBe(true);
@@ -233,8 +268,11 @@ describe('Effect System', () => {
 
     it('should create a Slow with magnitude', () => {
       const slow = new CCEffect({
-        sourceId: 'src', targetId: 'tgt',
-        ccType: CCType.Slow, duration: 3, slowAmount: 0.4,
+        sourceId: 'src',
+        targetId: 'tgt',
+        ccType: CCType.Slow,
+        duration: 3,
+        slowAmount: 0.4,
       });
       expect(slow.isHardCC()).toBe(false);
       expect(slow.slowAmount).toBe(0.4);
@@ -243,16 +281,20 @@ describe('Effect System', () => {
 
     it('should create a Knockup (hard CC)', () => {
       const knockup = new CCEffect({
-        sourceId: 'src', targetId: 'tgt',
-        ccType: CCType.Knockup, duration: 1,
+        sourceId: 'src',
+        targetId: 'tgt',
+        ccType: CCType.Knockup,
+        duration: 1,
       });
       expect(knockup.isHardCC()).toBe(true);
     });
 
     it('should tick and expire after duration', () => {
       const stun = new CCEffect({
-        sourceId: 'src', targetId: 'tgt',
-        ccType: CCType.Stun, duration: 2,
+        sourceId: 'src',
+        targetId: 'tgt',
+        ccType: CCType.Stun,
+        duration: 2,
       });
       stun.tick();
       expect(stun.ticksElapsed).toBe(1);
@@ -279,9 +321,12 @@ describe('Effect System', () => {
 
     it('should support stacking', () => {
       const buff = new BuffDebuffEffect({
-        name: 'Conqueror', sourceId: 'src', targetId: 'tgt',
+        name: 'Conqueror',
+        sourceId: 'src',
+        targetId: 'tgt',
         modifiers: [{ stat: 'atk', type: 'flat', value: 5 }],
-        duration: 5, maxStacks: 10,
+        duration: 5,
+        maxStacks: 10,
       });
       expect(buff.stacks).toBe(1);
       buff.addStack();
@@ -292,20 +337,28 @@ describe('Effect System', () => {
 
     it('should compute effective modifiers with stacks', () => {
       const buff = new BuffDebuffEffect({
-        name: 'Stacked', sourceId: 'src', targetId: 'tgt',
+        name: 'Stacked',
+        sourceId: 'src',
+        targetId: 'tgt',
         modifiers: [{ stat: 'atk', type: 'flat', value: 10 }],
-        duration: 5, maxStacks: 5,
+        duration: 5,
+        maxStacks: 5,
       });
-      buff.addStack(); buff.addStack(); // 3 stacks
+      buff.addStack();
+      buff.addStack(); // 3 stacks
       const effective = buff.getEffectiveModifiers();
       expect(effective[0].value).toBe(30); // 10 * 3
     });
 
     it('should remove stacks and expire at 0', () => {
       const buff = new BuffDebuffEffect({
-        name: 'Stacking', sourceId: 'src', targetId: 'tgt',
+        name: 'Stacking',
+        sourceId: 'src',
+        targetId: 'tgt',
         modifiers: [{ stat: 'atk', type: 'flat', value: 5 }],
-        duration: 10, maxStacks: 3, stacks: 3,
+        duration: 10,
+        maxStacks: 3,
+        stacks: 3,
       });
       expect(buff.removeStack()).toBe(2);
       expect(buff.removeStack()).toBe(1);
@@ -325,7 +378,9 @@ describe('Effect System', () => {
   describe('ExecuteEffect', () => {
     it('should create an execute effect', () => {
       const exec = new ExecuteEffect({
-        sourceId: 'src', targetId: 'tgt', threshold: 0.3,
+        sourceId: 'src',
+        targetId: 'tgt',
+        threshold: 0.3,
       });
       expect(exec.category).toBe(EffectCategory.Execute);
       expect(exec.threshold).toBe(0.3);
@@ -334,7 +389,9 @@ describe('Effect System', () => {
 
     it('should trigger when HP below threshold', () => {
       const exec = new ExecuteEffect({
-        sourceId: 'src', targetId: 'tgt', threshold: 0.3,
+        sourceId: 'src',
+        targetId: 'tgt',
+        threshold: 0.3,
       });
       expect(exec.canExecute(250, 1000)).toBe(true);
       expect(exec.canExecute(300, 1000)).toBe(true);
@@ -343,7 +400,9 @@ describe('Effect System', () => {
 
     it('should emit execute_triggered on success', () => {
       const exec = new ExecuteEffect({
-        sourceId: 'src', targetId: 'tgt', threshold: 0.3,
+        sourceId: 'src',
+        targetId: 'tgt',
+        threshold: 0.3,
       });
       const ev = exec.evaluate(200, 1000);
       expect(ev.detail).toBe('execute_triggered');
@@ -353,7 +412,9 @@ describe('Effect System', () => {
 
     it('should emit execute_failed on failure', () => {
       const exec = new ExecuteEffect({
-        sourceId: 'src', targetId: 'tgt', threshold: 0.3,
+        sourceId: 'src',
+        targetId: 'tgt',
+        threshold: 0.3,
       });
       const ev = exec.evaluate(500, 1000);
       expect(ev.detail).toContain('execute_failed');
@@ -369,38 +430,54 @@ describe('Effect System', () => {
     });
 
     it('should apply and track shield', () => {
-      manager.apply(new ShieldEffect({
-        sourceId: 'src', targetId: 'champion-1',
-        magnitude: 300, duration: 3,
-      }));
+      manager.apply(
+        new ShieldEffect({
+          sourceId: 'src',
+          targetId: 'champion-1',
+          magnitude: 300,
+          duration: 3,
+        }),
+      );
       expect(manager.shields.length).toBe(1);
     });
 
     it('should absorb damage through shields', () => {
-      manager.apply(new ShieldEffect({
-        sourceId: 'src', targetId: 'champion-1',
-        magnitude: 200, duration: 5,
-      }));
+      manager.apply(
+        new ShieldEffect({
+          sourceId: 'src',
+          targetId: 'champion-1',
+          magnitude: 200,
+          duration: 5,
+        }),
+      );
       const result = manager.absorbWithShields(150);
       expect(result.totalAbsorbed).toBe(150);
       expect(result.finalDamage).toBe(0);
     });
 
     it('should pass damage beyond shields', () => {
-      manager.apply(new ShieldEffect({
-        sourceId: 'src', targetId: 'champion-1',
-        magnitude: 100, duration: 5,
-      }));
+      manager.apply(
+        new ShieldEffect({
+          sourceId: 'src',
+          targetId: 'champion-1',
+          magnitude: 100,
+          duration: 5,
+        }),
+      );
       const result = manager.absorbWithShields(300);
       expect(result.totalAbsorbed).toBe(100);
       expect(result.finalDamage).toBe(200);
     });
 
     it('should report canAct=false when stunned', () => {
-      manager.apply(new CCEffect({
-        sourceId: 'src', targetId: 'champion-1',
-        ccType: CCType.Stun, duration: 2,
-      }));
+      manager.apply(
+        new CCEffect({
+          sourceId: 'src',
+          targetId: 'champion-1',
+          ccType: CCType.Stun,
+          duration: 2,
+        }),
+      );
       expect(manager.canAct()).toBe(false);
       expect(manager.canCast()).toBe(false);
       expect(manager.canMove()).toBe(false);
@@ -408,23 +485,37 @@ describe('Effect System', () => {
     });
 
     it('should report canAct=true when snared', () => {
-      manager.apply(new CCEffect({
-        sourceId: 'src', targetId: 'champion-1',
-        ccType: CCType.Snare, duration: 2,
-      }));
+      manager.apply(
+        new CCEffect({
+          sourceId: 'src',
+          targetId: 'champion-1',
+          ccType: CCType.Snare,
+          duration: 2,
+        }),
+      );
       expect(manager.canAct()).toBe(true);
       expect(manager.canMove()).toBe(false);
     });
 
     it('should compute speed multiplier from slows', () => {
-      manager.apply(new CCEffect({
-        sourceId: 's1', targetId: 'champion-1',
-        ccType: CCType.Slow, duration: 2, slowAmount: 0.3,
-      }));
-      manager.apply(new CCEffect({
-        sourceId: 's2', targetId: 'champion-1',
-        ccType: CCType.Slow, duration: 2, slowAmount: 0.2,
-      }));
+      manager.apply(
+        new CCEffect({
+          sourceId: 's1',
+          targetId: 'champion-1',
+          ccType: CCType.Slow,
+          duration: 2,
+          slowAmount: 0.3,
+        }),
+      );
+      manager.apply(
+        new CCEffect({
+          sourceId: 's2',
+          targetId: 'champion-1',
+          ccType: CCType.Slow,
+          duration: 2,
+          slowAmount: 0.2,
+        }),
+      );
       expect(manager.getSpeedMultiplier()).toBeCloseTo(0.5, 2);
     });
 
@@ -434,20 +525,28 @@ describe('Effect System', () => {
     });
 
     it('should apply percent modifiers', () => {
-      manager.apply(new BuffDebuffEffect({
-        name: 'Speed', sourceId: 'src', targetId: 'champion-1',
-        modifiers: [{ stat: 'spd', type: 'percent', value: 0.25 }],
-        duration: 3,
-      }));
+      manager.apply(
+        new BuffDebuffEffect({
+          name: 'Speed',
+          sourceId: 'src',
+          targetId: 'champion-1',
+          modifiers: [{ stat: 'spd', type: 'percent', value: 0.25 }],
+          duration: 3,
+        }),
+      );
       expect(manager.modifyStat('spd', 4)).toBe(5);
     });
 
     it('should stack same-name buffs', () => {
-      const mk = () => new BuffDebuffEffect({
-        name: 'Conqueror', sourceId: 'src', targetId: 'champion-1',
-        modifiers: [{ stat: 'atk', type: 'flat', value: 5 }],
-        duration: 5, maxStacks: 10,
-      });
+      const mk = () =>
+        new BuffDebuffEffect({
+          name: 'Conqueror',
+          sourceId: 'src',
+          targetId: 'champion-1',
+          modifiers: [{ stat: 'atk', type: 'flat', value: 5 }],
+          duration: 5,
+          maxStacks: 10,
+        });
       manager.apply(mk());
       manager.apply(mk());
       manager.apply(mk());
@@ -456,19 +555,28 @@ describe('Effect System', () => {
     });
 
     it('should tick duration effects', () => {
-      manager.apply(new DamageEffect({
-        sourceId: 'src', targetId: 'champion-1',
-        magnitude: 90, damageType: DamageType.AP, duration: 3,
-      }));
+      manager.apply(
+        new DamageEffect({
+          sourceId: 'src',
+          targetId: 'champion-1',
+          magnitude: 90,
+          damageType: DamageType.AP,
+          duration: 3,
+        }),
+      );
       const events = manager.tickAll();
       expect(events.length).toBe(1);
     });
 
     it('should auto-expire CC after duration', () => {
-      manager.apply(new CCEffect({
-        sourceId: 'src', targetId: 'champion-1',
-        ccType: CCType.Stun, duration: 2,
-      }));
+      manager.apply(
+        new CCEffect({
+          sourceId: 'src',
+          targetId: 'champion-1',
+          ccType: CCType.Stun,
+          duration: 2,
+        }),
+      );
       manager.tickAll();
       expect(manager.ccEffects.length).toBe(1);
       manager.tickAll();
@@ -501,23 +609,30 @@ describe('Effect System', () => {
       const events: EffectEvent[] = [];
       manager.on((e) => events.push(e));
       const dot = new DamageEffect({
-        sourceId: 'src', targetId: 'champion-1',
-        magnitude: 90, damageType: DamageType.True, duration: 2,
+        sourceId: 'src',
+        targetId: 'champion-1',
+        magnitude: 90,
+        damageType: DamageType.True,
+        duration: 2,
       });
       manager.apply(dot);
-      expect(events.filter(e => e.type === 'effect_applied').length).toBe(1);
+      expect(events.filter((e) => e.type === 'effect_applied').length).toBe(1);
       manager.tickAll();
-      expect(events.filter(e => e.type === 'effect_tick').length).toBe(1);
+      expect(events.filter((e) => e.type === 'effect_tick').length).toBe(1);
     });
   });
 
   // Integration
   describe('Integration', () => {
     it('stun expires → canAct restored', () => {
-      manager.apply(new CCEffect({
-        sourceId: 'enemy', targetId: 'champion-1',
-        ccType: CCType.Stun, duration: 2,
-      }));
+      manager.apply(
+        new CCEffect({
+          sourceId: 'enemy',
+          targetId: 'champion-1',
+          ccType: CCType.Stun,
+          duration: 2,
+        }),
+      );
       expect(manager.canAct()).toBe(false);
       manager.tickAll();
       manager.tickAll();
@@ -525,10 +640,14 @@ describe('Effect System', () => {
     });
 
     it('shield breaks then damage passes', () => {
-      manager.apply(new ShieldEffect({
-        sourceId: 'ally', targetId: 'champion-1',
-        magnitude: 200, duration: 10,
-      }));
+      manager.apply(
+        new ShieldEffect({
+          sourceId: 'ally',
+          targetId: 'champion-1',
+          magnitude: 200,
+          duration: 10,
+        }),
+      );
       expect(manager.absorbWithShields(150).finalDamage).toBe(0);
       const r = manager.absorbWithShields(100);
       expect(r.totalAbsorbed).toBe(50);
@@ -537,11 +656,15 @@ describe('Effect System', () => {
 
     it('flat + percent buffs on same stat', () => {
       manager.apply(createBuff('Flat', 's1', 'champion-1', 'atk', 20, 'flat', 5));
-      manager.apply(new BuffDebuffEffect({
-        name: 'Percent', sourceId: 's2', targetId: 'champion-1',
-        modifiers: [{ stat: 'atk', type: 'percent', value: 0.10 }],
-        duration: 3,
-      }));
+      manager.apply(
+        new BuffDebuffEffect({
+          name: 'Percent',
+          sourceId: 's2',
+          targetId: 'champion-1',
+          modifiers: [{ stat: 'atk', type: 'percent', value: 0.1 }],
+          duration: 3,
+        }),
+      );
       expect(manager.modifyStat('atk', 60)).toBe(88);
     });
   });

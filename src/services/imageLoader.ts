@@ -1,11 +1,11 @@
 import {
+  createPlaceholderSvg,
+  type ImageLoaderStats,
   type LoadOptions,
   type LoadResult,
-  type ImageLoaderStats,
-  createPlaceholderSvg,
 } from './imageLoader.types';
 
-export type { LoadOptions, LoadResult, ImageLoaderStats };
+export type { ImageLoaderStats, LoadOptions, LoadResult };
 
 export class ImageLoader {
   private cache = new Map<string, string>();

@@ -6,14 +6,14 @@
  */
 
 import {
-  NodeType,
-  type MapNode,
   type CombatEncounter,
-  type ShopEncounter,
-  type RestEncounter,
   type EventEncounter,
-  type RecruitEncounter,
   type EventOutcome,
+  type MapNode,
+  NodeType,
+  type RecruitEncounter,
+  type RestEncounter,
+  type ShopEncounter,
 } from './types';
 
 // ─── Result Types ────────────────────────────────────────────────────────────
@@ -94,9 +94,7 @@ export function resolveEventOutcome(
 // ─── Encounter Manager ──────────────────────────────────────────────────────
 
 export class EncounterManager {
-  constructor(
-    private readonly rand: () => number = Math.random,
-  ) {}
+  constructor(private readonly rand: () => number = Math.random) {}
 
   resolveNode(node: MapNode): EncounterResult | null {
     if (!node.encounter) {
@@ -182,9 +180,8 @@ export class EncounterManager {
     }
 
     const itemReceived = outcome.type === 'item_reward' && !!outcome.item;
-    const championRecruited = outcome.type === 'champion_recruit'
-      ? outcome.championId ?? null
-      : null;
+    const championRecruited =
+      outcome.type === 'champion_recruit' ? (outcome.championId ?? null) : null;
 
     return {
       type: 'event',

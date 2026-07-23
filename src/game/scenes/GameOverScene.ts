@@ -11,8 +11,8 @@
  */
 
 import Phaser from 'phaser';
-import type { RunSummary, ChampionRunStats } from '@/types/run';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
+import type { ChampionRunStats, RunSummary } from '@/types/run';
 
 // ─── Color Palette ───────────────────────────────────────────────────
 
@@ -83,11 +83,16 @@ export class GameOverScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(w / 2, 65, `Run Level ${this.summary.runLevel} — ${this.summary.wavesCompleted} waves completed`, {
-        fontSize: '14px',
-        color: COLORS.textSecondary,
-        fontFamily: FONT,
-      })
+      .text(
+        w / 2,
+        65,
+        `Run Level ${this.summary.runLevel} — ${this.summary.wavesCompleted} waves completed`,
+        {
+          fontSize: '14px',
+          color: COLORS.textSecondary,
+          fontFamily: FONT,
+        },
+      )
       .setOrigin(0.5);
   }
 
@@ -97,7 +102,11 @@ export class GameOverScene extends Phaser.Scene {
     const y = 105;
     const cols = [
       { label: 'Total Kills', value: String(this.summary.totalKills), color: COLORS.defeat },
-      { label: 'Total Damage', value: this.formatNumber(this.summary.totalDamage), color: COLORS.gold },
+      {
+        label: 'Total Damage',
+        value: this.formatNumber(this.summary.totalDamage),
+        color: COLORS.gold,
+      },
       { label: 'Gold Earned', value: String(this.summary.goldEarned), color: COLORS.gold },
       { label: 'Biomes', value: String(this.summary.biomesVisited.length), color: COLORS.mastery },
     ];
@@ -125,7 +134,9 @@ export class GameOverScene extends Phaser.Scene {
 
     // Biomes visited row
     if (this.summary.biomesVisited.length > 0) {
-      const bioText = this.summary.biomesVisited.map((b) => b.charAt(0).toUpperCase() + b.slice(1)).join('  →  ');
+      const bioText = this.summary.biomesVisited
+        .map((b) => b.charAt(0).toUpperCase() + b.slice(1))
+        .join('  →  ');
       this.add
         .text(w / 2, y + 58, bioText, {
           fontSize: '11px',
@@ -256,7 +267,6 @@ export class GameOverScene extends Phaser.Scene {
         fontFamily: FONT,
       })
       .setOrigin(0.5);
-
   }
 
   // ── Return to Menu Button ──────────────────────────────────────────

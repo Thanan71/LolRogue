@@ -5,7 +5,7 @@
  * then produces a RunSummary when the run ends.
  */
 
-import type { ChampionRunStats, RunSummary, Biome } from '@/types/run';
+import type { Biome, ChampionRunStats, RunSummary } from '@/types/run';
 
 export class RunStatsTracker {
   /** championId → accumulated stats */

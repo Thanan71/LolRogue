@@ -1,13 +1,9 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import type {
-  DailyRunState,
-  DailyLeaderboardEntry,
-  DailyLeaderboard,
-} from '@/types/dailyRun';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import type { DailyLeaderboard, DailyLeaderboardEntry, DailyRunState } from '@/types/dailyRun';
 import type { Biome, InventoryEntry } from '@/types/run';
 import { MAX_TEAM_SIZE } from '@/types/run';
-import { getTodayKey, getDailySeed, isToday } from '@/utils/dailySeed';
+import { getDailySeed, getTodayKey, isToday } from '@/utils/dailySeed';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -241,9 +237,7 @@ export const useDailyRunStore = create<DailyRunStore>()(
       equipDailyItem: (instanceId, championId) => {
         set((state) => ({
           inventory: state.inventory.map((e) =>
-            e.instanceId === instanceId
-              ? { ...e, equippedToChampionId: championId }
-              : e,
+            e.instanceId === instanceId ? { ...e, equippedToChampionId: championId } : e,
           ),
         }));
       },
@@ -251,9 +245,7 @@ export const useDailyRunStore = create<DailyRunStore>()(
       unequipDailyItem: (instanceId) => {
         set((state) => ({
           inventory: state.inventory.map((e) =>
-            e.instanceId === instanceId
-              ? { ...e, equippedToChampionId: null }
-              : e,
+            e.instanceId === instanceId ? { ...e, equippedToChampionId: null } : e,
           ),
         }));
       },

@@ -1,13 +1,14 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
-import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
-import { championDB } from '@/data/championDatabase';
-import { gameStatsAtLevel } from '@/utils/statConversion';
-import { DDRAGON_CONFIG } from '@/config/ddragon';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EnhancementTree } from '@/components/EnhancementTree';
-import { useEnhancementStore, useChampionEnhancements } from '@/stores/enhancementStore';
+import { DDRAGON_CONFIG } from '@/config/ddragon';
+import { championDB } from '@/data/championDatabase';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuthStore } from '@/stores/authStore';
+import { useChampionEnhancements, useEnhancementStore } from '@/stores/enhancementStore';
+import { ROUTES } from '@/stores/routerStore';
 import type { Champion } from '@/types/champion';
+import { gameStatsAtLevel } from '@/utils/statConversion';
+import { stripMarkup } from '@/utils/text';
 import '@/styles/database.css';
 
 export function DatabasePage() {
@@ -20,9 +21,9 @@ export function DatabasePage() {
   const { player, user } = useAuthStore();
   const initializeEnhancements = useEnhancementStore((s) => s.initialize);
   const setAvailableCandies = useEnhancementStore((s) => s.setAvailableCandies);
-  const { 
-    state: enhancementState, 
-    availableCandies, 
+  const {
+    state: enhancementState,
+    availableCandies,
     masteryLevel,
     isLoading: isEnhancementLoading,
     unlockNode,
@@ -55,12 +56,15 @@ export function DatabasePage() {
     );
   }, [allChampions, search]);
 
-  const handleUnlockNode = useCallback(async (nodeId: string, candyCost: number) => {
-    const success = await unlockNode(nodeId, candyCost);
-    if (!success) {
-      console.error('Failed to unlock node');
-    }
-  }, [unlockNode]);
+  const handleUnlockNode = useCallback(
+    async (nodeId: string, candyCost: number) => {
+      const success = await unlockNode(nodeId, candyCost);
+      if (!success) {
+        console.error('Failed to unlock node');
+      }
+    },
+    [unlockNode],
+  );
 
   return (
     <div style={containerStyle}>
@@ -103,7 +107,9 @@ export function DatabasePage() {
                   }}
                 />
                 <div>
-                  <div style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>{champ.name}</div>
+                  <div style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>
+                    {champ.name}
+                  </div>
                   <div style={{ color: '#8b949e', fontSize: 11 }}>{champ.tags.join(', ')}</div>
                 </div>
               </div>
@@ -175,14 +181,20 @@ function ChampionDetail({ champion }: { champion: Champion }) {
           src={splashUrl}
           alt={champion.name}
           style={{ width: 120, height: 120, borderRadius: 8, objectFit: 'cover' }}
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
         />
         <div>
           <h2 style={{ color: '#c8aa6e', margin: '0 0 4px 0' }}>{champion.name}</h2>
-          <p style={{ color: '#8b949e', margin: '0 0 8px 0', fontStyle: 'italic' }}>{champion.title}</p>
+          <p style={{ color: '#8b949e', margin: '0 0 8px 0', fontStyle: 'italic' }}>
+            {champion.title}
+          </p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {champion.tags.map((tag) => (
-              <span key={tag} style={tagStyle}>{tag}</span>
+              <span key={tag} style={tagStyle}>
+                {tag}
+              </span>
             ))}
           </div>
         </div>
@@ -210,20 +222,18 @@ function ChampionDetail({ champion }: { champion: Champion }) {
         {champion.spells.map((spell) => (
           <div key={spell.id} style={abilityCardStyle}>
             <div style={{ color: '#e6edf3', fontWeight: 600, fontSize: 13 }}>{spell.name}</div>
-            <div
-              style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}
-              dangerouslySetInnerHTML={{ __html: spell.description }}
-            />
+            <div style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}>
+              {stripMarkup(spell.description)}
+            </div>
           </div>
         ))}
         <div style={abilityCardStyle}>
           <div style={{ color: '#e6edf3', fontWeight: 600, fontSize: 13 }}>
             Passive: {champion.passive.name}
           </div>
-          <div
-            style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}
-            dangerouslySetInnerHTML={{ __html: champion.passive.description }}
-          />
+          <div style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}>
+            {stripMarkup(champion.passive.description)}
+          </div>
         </div>
       </div>
     </div>
@@ -231,49 +241,100 @@ function ChampionDetail({ champion }: { champion: Champion }) {
 }
 
 const containerStyle: React.CSSProperties = {
-  position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-  background: '#0d1117', color: '#e6edf3', fontFamily: 'sans-serif',
-  display: 'flex', flexDirection: 'column',
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  background: '#0d1117',
+  color: '#e6edf3',
+  fontFamily: 'sans-serif',
+  display: 'flex',
+  flexDirection: 'column',
 };
 const headerStyle: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 16, padding: '8px 16px',
-  background: '#161b22', borderBottom: '1px solid #1e2a3a', flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 16,
+  padding: '8px 16px',
+  background: '#161b22',
+  borderBottom: '1px solid #1e2a3a',
+  flexShrink: 0,
 };
 const backBtnStyle: React.CSSProperties = {
-  padding: '6px 12px', background: '#21262d', color: '#e6edf3',
-  border: '1px solid #30363d', borderRadius: 6, fontSize: 12, cursor: 'pointer',
+  padding: '6px 12px',
+  background: '#21262d',
+  color: '#e6edf3',
+  border: '1px solid #30363d',
+  borderRadius: 6,
+  fontSize: 12,
+  cursor: 'pointer',
 };
 const bodyStyle: React.CSSProperties = { flex: 1, display: 'flex', overflow: 'hidden' };
 const sidebarStyle: React.CSSProperties = {
-  width: 260, display: 'flex', flexDirection: 'column',
-  borderRight: '1px solid #1e2a3a', flexShrink: 0,
+  width: 260,
+  display: 'flex',
+  flexDirection: 'column',
+  borderRight: '1px solid #1e2a3a',
+  flexShrink: 0,
 };
 const searchStyle: React.CSSProperties = {
-  padding: '8px 12px', background: '#161b22', border: 'none',
-  borderBottom: '1px solid #1e2a3a', color: '#e6edf3', fontSize: 13, outline: 'none',
+  padding: '8px 12px',
+  background: '#161b22',
+  border: 'none',
+  borderBottom: '1px solid #1e2a3a',
+  color: '#e6edf3',
+  fontSize: 13,
+  outline: 'none',
 };
 const listStyle: React.CSSProperties = { flex: 1, overflow: 'auto' };
 const listItemStyle: React.CSSProperties = {
-  display: 'flex', gap: 10, alignItems: 'center',
-  padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #1e2a3a',
+  display: 'flex',
+  gap: 10,
+  alignItems: 'center',
+  padding: '8px 12px',
+  cursor: 'pointer',
+  borderBottom: '1px solid #1e2a3a',
 };
 const detailStyle: React.CSSProperties = { flex: 1, overflow: 'auto' };
 const placeholderStyle: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%',
-  flexDirection: 'column', gap: 8,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+  flexDirection: 'column',
+  gap: 8,
 };
 const sectionTitleStyle: React.CSSProperties = { color: '#c8aa6e', fontSize: 14, marginBottom: 8 };
 const statsGridStyle: React.CSSProperties = {
-  display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16,
+  display: 'grid',
+  gridTemplateColumns: 'repeat(3, 1fr)',
+  gap: 8,
+  marginBottom: 16,
 };
 const statBlockStyle: React.CSSProperties = {
-  background: '#0d1117', borderRadius: 6, padding: 8, textAlign: 'center',
+  background: '#0d1117',
+  borderRadius: 6,
+  padding: 8,
+  textAlign: 'center',
 };
-const statLabelStyle: React.CSSProperties = { color: '#8b949e', fontSize: 10, textTransform: 'uppercase' as const };
+const statLabelStyle: React.CSSProperties = {
+  color: '#8b949e',
+  fontSize: 10,
+  textTransform: 'uppercase' as const,
+};
 const statValueStyle: React.CSSProperties = { color: '#e6edf3', fontSize: 18, fontWeight: 700 };
-const abilityCardStyle: React.CSSProperties = { background: '#0d1117', borderRadius: 6, padding: 10 };
+const abilityCardStyle: React.CSSProperties = {
+  background: '#0d1117',
+  borderRadius: 6,
+  padding: 10,
+};
 const tagStyle: React.CSSProperties = {
-  background: '#21262d', color: '#e6edf3', padding: '2px 8px', borderRadius: 4, fontSize: 11,
+  background: '#21262d',
+  color: '#e6edf3',
+  padding: '2px 8px',
+  borderRadius: 4,
+  fontSize: 11,
 };
 
 const tabsStyle: React.CSSProperties = {

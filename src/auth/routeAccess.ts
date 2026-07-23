@@ -7,10 +7,7 @@ export interface RouteAuthState {
 
 export type RouteAccess = 'loading' | 'allowed' | 'auth' | 'menu';
 
-export function getProtectedRouteAccess(
-  state: RouteAuthState,
-  allowPublic = false,
-): RouteAccess {
+export function getProtectedRouteAccess(state: RouteAuthState, allowPublic = false): RouteAccess {
   if (!state.isInitialized) return 'loading';
   if (allowPublic || state.isAuthenticated || state.isGuest) return 'allowed';
   return 'auth';

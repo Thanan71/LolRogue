@@ -1,23 +1,23 @@
-import { useState, useCallback, useMemo } from 'react';
-import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
-import { useRunStore } from '@/stores/runStore';
-import { useEnhancementStore } from '@/stores/enhancementStore';
+import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
-import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { calculateMaxHP } from '@/utils/statCalculator';
 import type { RestEncounter } from '@/game/map/types';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
+import { useEnhancementStore } from '@/stores/enhancementStore';
+import { ROUTES } from '@/stores/routerStore';
+import { useRunStore } from '@/stores/runStore';
+import { calculateMaxHP } from '@/utils/statCalculator';
 
 export function RestPage() {
-  const isActive = useRunStore(s => s.isActive);
-  const team = useRunStore(s => s.team);
-  const inventory = useRunStore(s => s.inventory);
-  const gold = useRunStore(s => s.gold);
+  const isActive = useRunStore((s) => s.isActive);
+  const team = useRunStore((s) => s.team);
+  const inventory = useRunStore((s) => s.inventory);
+  const gold = useRunStore((s) => s.gold);
   const navigate = useAppNavigate();
-  const getCurrentNode = useRunStore(s => s.getCurrentNode);
-  const spendGold = useRunStore(s => s.spendGold);
-  const getEnhancementState = useEnhancementStore(s => s.getEnhancementState);
+  const getCurrentNode = useRunStore((s) => s.getCurrentNode);
+  const spendGold = useRunStore((s) => s.spendGold);
+  const getEnhancementState = useEnhancementStore((s) => s.getEnhancementState);
 
   const [healed, setHealed] = useState(false);
 
@@ -33,24 +33,34 @@ export function RestPage() {
   const canAfford = gold >= goldCost;
 
   // Helper function to calculate max HP for a team member with all modifiers
-  const getMemberMaxHP = useCallback((member: typeof team[0]) => {
-    const champ = championDB.getById(member.championId);
-    if (!champ) return 100;
+  const getMemberMaxHP = useCallback(
+    (member: (typeof team)[0]) => {
+      const champ = championDB.getById(member.championId);
+      if (!champ) return 100;
 
-    const level = member.level ?? 1;
-    
-    // Get enhancement bonuses for this champion
-    const enhancementState = getEnhancementState(member.championId);
-    const tree = enhancementTreeProvider.getTreeForChampion(champ);
-    const enhancementBonuses = enhancementService.calculateStatBonuses(
-      tree,
-      enhancementState.unlockedNodes
-    );
+      const level = member.level ?? 1;
 
-    // Calculate max HP with level, enhancements, items, and event stat boosts
-    const eventStatBoosts = member.statBoosts;
-    return calculateMaxHP(champ, level, enhancementBonuses, inventory, member.championId, eventStatBoosts);
-  }, [getEnhancementState, inventory]);
+      // Get enhancement bonuses for this champion
+      const enhancementState = getEnhancementState(member.championId);
+      const tree = enhancementTreeProvider.getTreeForChampion(champ);
+      const enhancementBonuses = enhancementService.calculateStatBonuses(
+        tree,
+        enhancementState.unlockedNodes,
+      );
+
+      // Calculate max HP with level, enhancements, items, and event stat boosts
+      const eventStatBoosts = member.statBoosts;
+      return calculateMaxHP(
+        champ,
+        level,
+        enhancementBonuses,
+        inventory,
+        member.championId,
+        eventStatBoosts,
+      );
+    },
+    [getEnhancementState, inventory],
+  );
 
   const handleRest = useCallback(() => {
     if (!canAfford && goldCost > 0) return;
@@ -63,24 +73,31 @@ export function RestPage() {
 
     // Heal each team member using accurate max HP calculation
     const state = useRunStore.getState();
-    const updates = state.team.map(member => {
+    const updates = state.team.map((member) => {
       const champ = championDB.getById(member.championId);
       const level = member.level ?? 1;
-      
+
       // Get enhancement bonuses for this champion
       const enhancementState = getEnhancementState(member.championId);
       const tree = enhancementTreeProvider.getTreeForChampion(champ!);
       const enhancementBonuses = enhancementService.calculateStatBonuses(
         tree,
-        enhancementState.unlockedNodes
+        enhancementState.unlockedNodes,
       );
 
       // Calculate max HP with all modifiers (including event stat boosts)
-      const maxHp = calculateMaxHP(champ, level, enhancementBonuses, state.inventory, member.championId, member.statBoosts);
+      const maxHp = calculateMaxHP(
+        champ,
+        level,
+        enhancementBonuses,
+        state.inventory,
+        member.championId,
+        member.statBoosts,
+      );
       const currentHp = member.currentHp ?? maxHp;
       const healAmount = fullHeal ? maxHp - currentHp : Math.floor(maxHp * healPercent);
       const newHp = Math.min(maxHp, currentHp + healAmount);
-      
+
       return {
         championId: member.championId,
         currentHp: newHp,
@@ -104,18 +121,26 @@ export function RestPage() {
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <span style={{ color: '#22c55e', fontWeight: 700, fontSize: 20 }}>Rest — {encounter?.name ?? 'Campfire'}</span>
+        <span style={{ color: '#22c55e', fontWeight: 700, fontSize: 20 }}>
+          Rest — {encounter?.name ?? 'Campfire'}
+        </span>
         <span style={{ color: '#ffd700', fontWeight: 700 }}>Gold: {gold}</span>
       </div>
       <div style={contentStyle}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>Rest</div>
-        <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>{encounter?.description ?? 'A moment of respite'}</div>
+        <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
+          {encounter?.description ?? 'A moment of respite'}
+        </div>
 
         <div style={{ marginBottom: 24, textAlign: 'center' }}>
           {fullHeal ? (
-            <div style={{ fontSize: 24, color: '#22c55e', fontWeight: 700, marginBottom: 8 }}>Full Heal!</div>
+            <div style={{ fontSize: 24, color: '#22c55e', fontWeight: 700, marginBottom: 8 }}>
+              Full Heal!
+            </div>
           ) : (
-            <div style={{ fontSize: 24, color: '#22c55e', fontWeight: 700, marginBottom: 8 }}>Heal {Math.round(healPercent * 100)}% HP</div>
+            <div style={{ fontSize: 24, color: '#22c55e', fontWeight: 700, marginBottom: 8 }}>
+              Heal {Math.round(healPercent * 100)}% HP
+            </div>
           )}
           {goldCost > 0 && (
             <div style={{ fontSize: 14, color: '#8b949e' }}>Cost: {goldCost} gold</div>
@@ -123,8 +148,17 @@ export function RestPage() {
         </div>
 
         {/* Team HP Display */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24, width: '100%', maxWidth: 400 }}>
-          {team.map(member => {
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            marginBottom: 24,
+            width: '100%',
+            maxWidth: 400,
+          }}
+        >
+          {team.map((member) => {
             const maxHp = getMemberMaxHP(member);
             const currentHp = member.currentHp ?? maxHp;
             const pct = Math.round((currentHp / maxHp) * 100);
@@ -135,9 +169,17 @@ export function RestPage() {
                   {champ?.name ?? member.championId} (Lv.{member.level ?? 1})
                 </div>
                 <div style={hpBarBg}>
-                  <div style={{ ...hpBarFill, width: `${pct}%`, background: pct < 30 ? '#ef4444' : pct < 60 ? '#facc15' : '#22c55e' }} />
+                  <div
+                    style={{
+                      ...hpBarFill,
+                      width: `${pct}%`,
+                      background: pct < 30 ? '#ef4444' : pct < 60 ? '#facc15' : '#22c55e',
+                    }}
+                  />
                 </div>
-                <div style={{ fontSize: 11, color: '#8b949e', marginTop: 2 }}>{currentHp} / {maxHp} HP</div>
+                <div style={{ fontSize: 11, color: '#8b949e', marginTop: 2 }}>
+                  {currentHp} / {maxHp} HP
+                </div>
               </div>
             );
           })}
@@ -145,12 +187,21 @@ export function RestPage() {
 
         <div style={{ display: 'flex', gap: 12, flexDirection: 'row' }}>
           {!healed ? (
-            <button style={{ ...restBtnStyle, opacity: canAfford ? 1 : 0.4, cursor: canAfford ? 'pointer' : 'not-allowed' }}
-              onClick={handleRest} disabled={!canAfford}>
+            <button
+              style={{
+                ...restBtnStyle,
+                opacity: canAfford ? 1 : 0.4,
+                cursor: canAfford ? 'pointer' : 'not-allowed',
+              }}
+              onClick={handleRest}
+              disabled={!canAfford}
+            >
               {goldCost > 0 ? `Rest (${goldCost}g)` : 'Rest'}
             </button>
           ) : (
-            <button style={continueBtnStyle} onClick={handleContinue}>Continue</button>
+            <button style={continueBtnStyle} onClick={handleContinue}>
+              Continue
+            </button>
           )}
           <button style={skipBtnStyle} onClick={handleContinue}>
             {healed ? 'Done' : 'Skip'}
@@ -162,35 +213,77 @@ export function RestPage() {
 }
 
 const containerStyle: React.CSSProperties = {
-  position: 'absolute', inset: 0, background: '#0d1117', color: '#e6edf3',
-  fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column',
+  position: 'absolute',
+  inset: 0,
+  background: '#0d1117',
+  color: '#e6edf3',
+  fontFamily: 'sans-serif',
+  display: 'flex',
+  flexDirection: 'column',
 };
 const headerStyle: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-  padding: '12px 24px', background: '#161b22', borderBottom: '1px solid #1e2a3a', flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '12px 24px',
+  background: '#161b22',
+  borderBottom: '1px solid #1e2a3a',
+  flexShrink: 0,
 };
 const contentStyle: React.CSSProperties = {
-  flex: 1, display: 'flex', flexDirection: 'column',
-  alignItems: 'center', justifyContent: 'center', padding: 40,
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 40,
 };
 const memberRowStyle: React.CSSProperties = {
-  background: '#161b22', padding: '8px 12px', borderRadius: 8, border: '1px solid #1e2a3a', width: '100%',
+  background: '#161b22',
+  padding: '8px 12px',
+  borderRadius: 8,
+  border: '1px solid #1e2a3a',
+  width: '100%',
 };
 const hpBarBg: React.CSSProperties = {
-  width: '100%', height: 8, background: '#21262d', borderRadius: 4, overflow: 'hidden',
+  width: '100%',
+  height: 8,
+  background: '#21262d',
+  borderRadius: 4,
+  overflow: 'hidden',
 };
 const hpBarFill: React.CSSProperties = {
-  height: '100%', borderRadius: 4, transition: 'width 0.5s ease',
+  height: '100%',
+  borderRadius: 4,
+  transition: 'width 0.5s ease',
 };
 const restBtnStyle: React.CSSProperties = {
-  padding: '14px 40px', background: '#22c55e', color: '#fff',
-  border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: 'pointer',
+  padding: '14px 40px',
+  background: '#22c55e',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 8,
+  fontSize: 16,
+  fontWeight: 700,
+  cursor: 'pointer',
 };
 const continueBtnStyle: React.CSSProperties = {
-  padding: '14px 40px', background: '#3b82f6', color: '#fff',
-  border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: 'pointer',
+  padding: '14px 40px',
+  background: '#3b82f6',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 8,
+  fontSize: 16,
+  fontWeight: 700,
+  cursor: 'pointer',
 };
 const skipBtnStyle: React.CSSProperties = {
-  padding: '14px 40px', background: '#484f58', color: '#e6edf3',
-  border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: 'pointer',
+  padding: '14px 40px',
+  background: '#484f58',
+  color: '#e6edf3',
+  border: 'none',
+  borderRadius: 8,
+  fontSize: 16,
+  fontWeight: 700,
+  cursor: 'pointer',
 };

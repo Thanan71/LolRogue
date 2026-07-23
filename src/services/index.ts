@@ -1,56 +1,53 @@
 /**
  * Services Barrel Export
- * 
+ *
  * Central export point for all services, repositories, and interfaces.
  * This enables clean imports throughout the application.
  */
 
-// ─── Supabase Client ─────────────────────────────────────────────────────────
-// The base Supabase client (deprecated functions are also exported for backward compatibility)
-export { supabase } from './supabaseClient';
-
-// ─── Interfaces (Repository Contracts) ───────────────────────────────────────
-export * from './interfaces';
-
-// ─── Repositories (Data Access Layer) ────────────────────────────────────────
-export * from './repositories';
-
-// ─── Domain Services ─────────────────────────────────────────────────────────
-// Run Service - Handles run-related business logic
-export { saveRunToDatabase, getPlayerRunHistory, getRunDetails, getPlayerRunStats } from './runService';
-export type { SaveRunData } from './runService';
-
-// Mastery Service - Handles mastery calculations
-export * from './masteryService';
-
+export {
+  getCachedChampionIcon,
+  isChampionIconCached,
+  loadChampionIcon,
+  loadChampionLoading,
+  loadChampionSplash,
+  preloadChampionIcons,
+} from './championImageLoader';
 // Enhancement Service - Handles champion enhancement tree business logic
-export { 
-  EnhancementService, 
+export {
+  createEnhancementService,
+  EnhancementService,
   EnhancementTreeProvider,
   enhancementService,
   enhancementTreeProvider,
-  createEnhancementService,
 } from './enhancementService';
-
+// ─── Other Services ──────────────────────────────────────────────────────────
+// Image loading services
+export { ImageLoader, imageLoader } from './imageLoader';
+export type { ImageLoaderStats, ImageType, LoadOptions, LoadResult } from './imageLoader.types';
+export { createPlaceholderSvg } from './imageLoader.types';
+// ─── Interfaces (Repository Contracts) ───────────────────────────────────────
+export * from './interfaces';
+// Mastery Service - Handles mastery calculations
+export * from './masteryService';
+// Run Stats Tracker
+export { RunStatsTracker, runStatsTracker } from './RunStatsTracker';
+// ─── Repositories (Data Access Layer) ────────────────────────────────────────
+export * from './repositories';
 // Enhancement Repository - Supabase implementation
-export { 
+export {
   SupabaseEnhancementRepository,
   supabaseEnhancementRepository,
 } from './repositories';
-
-// ─── Other Services ──────────────────────────────────────────────────────────
-// Image loading services
-export { imageLoader, ImageLoader } from './imageLoader';
-export type { LoadOptions, LoadResult, ImageLoaderStats, ImageType } from './imageLoader.types';
-export { createPlaceholderSvg } from './imageLoader.types';
+export type { SaveRunData } from './runService';
+// ─── Domain Services ─────────────────────────────────────────────────────────
+// Run Service - Handles run-related business logic
 export {
-  loadChampionIcon,
-  loadChampionSplash,
-  loadChampionLoading,
-  preloadChampionIcons,
-  isChampionIconCached,
-  getCachedChampionIcon,
-} from './championImageLoader';
-
-// Run Stats Tracker
-export { RunStatsTracker, runStatsTracker } from './RunStatsTracker';
+  getPlayerRunHistory,
+  getPlayerRunStats,
+  getRunDetails,
+  saveRunToDatabase,
+} from './runService';
+// ─── Supabase Client ─────────────────────────────────────────────────────────
+// The base Supabase client (deprecated functions are also exported for backward compatibility)
+export { supabase } from './supabaseClient';

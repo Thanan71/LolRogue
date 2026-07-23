@@ -5,7 +5,10 @@ import '@/styles/main-menu.css';
 const credits = [
   { section: 'Game Design & Development', entries: ['LolRogue Team'] },
   { section: 'Built With', entries: ['React 18', 'TypeScript', 'Vite', 'Zustand', 'Phaser 3'] },
-  { section: 'Inspiration', entries: ['League of Legends — Riot Games', 'Pokémon Rogue (Pokémon community)'] },
+  {
+    section: 'Inspiration',
+    entries: ['League of Legends — Riot Games', 'Pokémon Rogue (Pokémon community)'],
+  },
   { section: 'Art & Assets', entries: ['Riot Games — League of Legends Data Dragon'] },
 ];
 
@@ -15,7 +18,9 @@ export function CreditsPage() {
   return (
     <div className="main-menu">
       <div className="main-menu__logo-section">
-        <h1 className="main-menu__title" style={{ fontSize: '2.5rem' }}>Credits</h1>
+        <h1 className="main-menu__title" style={{ fontSize: '2.5rem' }}>
+          Credits
+        </h1>
         <p className="main-menu__subtitle">Acknowledgements</p>
       </div>
 
@@ -26,15 +31,17 @@ export function CreditsPage() {
           <div key={group.section} style={groupStyle}>
             <h2 style={sectionTitleStyle}>{group.section}</h2>
             {group.entries.map((entry) => (
-              <p key={entry} style={entryStyle}>{entry}</p>
+              <p key={entry} style={entryStyle}>
+                {entry}
+              </p>
             ))}
           </div>
         ))}
 
         <div style={disclaimerStyle}>
-          LolRogue is a non-commercial fan project inspired by League of Legends
-          (© Riot Games). League of Legends and all related assets are trademarks
-          of Riot Games, Inc. This project is not affiliated with or endorsed by Riot Games.
+          LolRogue is a non-commercial fan project inspired by League of Legends (© Riot Games).
+          League of Legends and all related assets are trademarks of Riot Games, Inc. This project
+          is not affiliated with or endorsed by Riot Games.
         </div>
       </div>
 

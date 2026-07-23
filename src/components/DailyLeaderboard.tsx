@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
-import { getTodayKey, msUntilMidnight } from '@/utils/dailySeed';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
+import { getTodayKey, msUntilMidnight } from '@/utils/dailySeed';
 
 /**
  * DailyLeaderboard — displays today's daily run scores.
@@ -58,7 +58,10 @@ export function DailyLeaderboard() {
           </thead>
           <tbody>
             {entries.map((entry, i) => (
-              <tr key={`${entry.playerName}-${entry.completedAt}`} style={i < 3 ? styles.topRow : undefined}>
+              <tr
+                key={`${entry.playerName}-${entry.completedAt}`}
+                style={i < 3 ? styles.topRow : undefined}
+              >
                 <td style={styles.td}>{i + 1}</td>
                 <td style={styles.td}>{entry.playerName}</td>
                 <td style={styles.td}>{entry.score.toLocaleString()}</td>

@@ -1,6 +1,6 @@
 /**
  * Enhancement Service
- * 
+ *
  * Business logic for champion enhancement system.
  * Follows SOLID principles:
  * - Single Responsibility: Only handles enhancement calculations
@@ -10,23 +10,23 @@
  * - Dependency Inversion: Depends on abstractions
  */
 
-import type { 
-  ChampionEnhancementTree, 
+import {
+  getNodeTotalCost as calculateTotalCost,
+  canUnlockNode as checkCanUnlock,
+  getEnhancementTreeForRole,
+} from '@/data/enhancementTrees';
+import type {
+  EnhancementStatBonuses,
+  IEnhancementService,
+  IEnhancementTreeProvider,
+} from '@/services/interfaces/IEnhancementRepository';
+import type { Champion } from '@/types/champion';
+import type {
+  ChampionEnhancementTree,
   EnhancementNode,
   PlayerEnhancementState,
-  StatType 
+  StatType,
 } from '@/types/enhancementTree';
-import type { Champion } from '@/types/champion';
-import { 
-  getEnhancementTreeForRole,
-  canUnlockNode as checkCanUnlock,
-  getNodeTotalCost as calculateTotalCost,
-} from '@/data/enhancementTrees';
-import type { 
-  IEnhancementService, 
-  IEnhancementTreeProvider,
-  EnhancementStatBonuses 
-} from '@/services/interfaces/IEnhancementRepository';
 
 /**
  * Enhancement Tree Provider
@@ -50,7 +50,7 @@ export class EnhancementTreeProvider implements IEnhancementTreeProvider {
     node: EnhancementNode,
     unlockedNodes: Record<string, number>,
     masteryLevel: number,
-    availableCandies: number
+    availableCandies: number,
   ): boolean {
     return checkCanUnlock(node, unlockedNodes, masteryLevel, availableCandies);
   }
@@ -71,7 +71,7 @@ export class EnhancementService implements IEnhancementService {
    */
   calculateStatBonuses(
     tree: ChampionEnhancementTree,
-    unlockedNodes: Record<string, number>
+    unlockedNodes: Record<string, number>,
   ): EnhancementStatBonuses {
     const result: EnhancementStatBonuses = {
       flat: {},
@@ -96,7 +96,7 @@ export class EnhancementService implements IEnhancementService {
   private _processNodes(
     nodes: EnhancementNode[],
     unlockedNodes: Record<string, number>,
-    result: EnhancementStatBonuses
+    result: EnhancementStatBonuses,
   ): void {
     for (const node of nodes) {
       const rank = unlockedNodes[node.id] || 0;
@@ -106,7 +106,7 @@ export class EnhancementService implements IEnhancementService {
       if (node.statBonuses) {
         for (const [stat, value] of Object.entries(node.statBonuses)) {
           const key = stat as StatType;
-          result.flat[key] = (result.flat[key] || 0) + (value * rank);
+          result.flat[key] = (result.flat[key] || 0) + value * rank;
         }
       }
 
@@ -114,7 +114,7 @@ export class EnhancementService implements IEnhancementService {
       if (node.percentBonuses) {
         for (const [stat, value] of Object.entries(node.percentBonuses)) {
           const key = stat as StatType;
-          result.percent[key] = (result.percent[key] || 0) + (value * rank);
+          result.percent[key] = (result.percent[key] || 0) + value * rank;
         }
       }
 
@@ -136,7 +136,7 @@ export class EnhancementService implements IEnhancementService {
   private _getEffectDescription(
     node: EnhancementNode,
     effect: { description: string },
-    rank: number
+    rank: number,
   ): string {
     const maxRanks = node.maxRanks || 1;
     if (maxRanks > 1 && rank < maxRanks) {
@@ -160,7 +160,7 @@ export class EnhancementService implements IEnhancementService {
     node: EnhancementNode,
     state: PlayerEnhancementState,
     masteryLevel: number,
-    availableCandies: number
+    availableCandies: number,
   ): { valid: boolean; error?: string } {
     // Check mastery level requirement
     if (masteryLevel < node.requiredMasteryLevel) {
@@ -208,7 +208,7 @@ export class EnhancementService implements IEnhancementService {
    */
   applyEnhancementBonuses<T extends Record<string, number>>(
     baseStats: T,
-    bonuses: EnhancementStatBonuses
+    bonuses: EnhancementStatBonuses,
   ): T {
     const result = { ...baseStats } as Record<string, number>;
 
@@ -236,7 +236,7 @@ export class EnhancementService implements IEnhancementService {
   unlockNode(
     state: PlayerEnhancementState,
     nodeId: string,
-    candyCost: number
+    candyCost: number,
   ): PlayerEnhancementState {
     return {
       unlockedNodes: {
@@ -252,7 +252,7 @@ export class EnhancementService implements IEnhancementService {
    */
   getEnhancementSummary(
     tree: ChampionEnhancementTree,
-    unlockedNodes: Record<string, number>
+    unlockedNodes: Record<string, number>,
   ): {
     totalNodesUnlocked: number;
     totalNodesAvailable: number;
@@ -280,7 +280,7 @@ export class EnhancementService implements IEnhancementService {
     }
 
     // Count branch nodes
-    const branchesProgress = tree.branches.map(branch => {
+    const branchesProgress = tree.branches.map((branch) => {
       let branchUnlocked = 0;
       for (const node of branch.nodes) {
         const rank = unlockedNodes[node.id] || 0;

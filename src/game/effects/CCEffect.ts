@@ -3,12 +3,7 @@
  */
 
 import { Effect, generateEffectId } from './Effect';
-import {
-  EffectCategory,
-  CCType,
-  type CCEffectData,
-  type EffectEvent,
-} from './types';
+import { type CCEffectData, CCType, EffectCategory, type EffectEvent } from './types';
 
 export interface CCEffectParams {
   name?: string;
@@ -23,9 +18,7 @@ export interface CCEffectParams {
 export class CCEffect extends Effect<CCEffectData> {
   constructor(params: CCEffectParams) {
     // Compute magnitude from slow amount or default 1 for hard CC.
-    const magnitude = params.ccType === CCType.Slow
-      ? (params.slowAmount ?? 0.3)
-      : 1;
+    const magnitude = params.ccType === CCType.Slow ? (params.slowAmount ?? 0.3) : 1;
 
     super({
       id: generateEffectId('cc'),
@@ -42,8 +35,12 @@ export class CCEffect extends Effect<CCEffectData> {
     });
   }
 
-  get ccType(): CCType { return this.data.ccType; }
-  get slowAmount(): number | undefined { return this.data.slowAmount; }
+  get ccType(): CCType {
+    return this.data.ccType;
+  }
+  get slowAmount(): number | undefined {
+    return this.data.slowAmount;
+  }
 
   /** Does this CC prevent all actions? */
   isHardCC(): boolean {

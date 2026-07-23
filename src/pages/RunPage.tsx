@@ -1,8 +1,8 @@
-import { useRunStore } from '@/stores/runStore';
+import { playUIClick } from '@/audio';
+import { RunMapScreen } from '@/components/RunMapScreen';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
-import { RunMapScreen } from '@/components/RunMapScreen';
-import { playUIClick } from '@/audio';
+import { useRunStore } from '@/stores/runStore';
 
 export function RunPage() {
   const isActive = useRunStore((s) => s.isActive);
@@ -13,8 +13,16 @@ export function RunPage() {
       <div style={containerStyle}>
         <div style={centerStyle}>
           <h2 style={{ color: '#c8aa6e', fontSize: 24, marginBottom: 16 }}>No Active Run</h2>
-          <p style={{ color: '#8b949e', marginBottom: 24 }}>Start a new run to begin your adventure.</p>
-          <button style={btnStyle} onClick={() => { playUIClick(); navigate(ROUTES.STARTER_SELECT); }}>
+          <p style={{ color: '#8b949e', marginBottom: 24 }}>
+            Start a new run to begin your adventure.
+          </p>
+          <button
+            style={btnStyle}
+            onClick={() => {
+              playUIClick();
+              navigate(ROUTES.STARTER_SELECT);
+            }}
+          >
             Start New Run
           </button>
         </div>

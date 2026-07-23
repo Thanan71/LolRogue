@@ -1,6 +1,6 @@
 /**
  * Database Logger Utility
- * 
+ *
  * Provides a centralized logging system for all database operations.
  * Logs are stored in the database for persistent tracking and analysis.
  * Supports different log levels, performance tracking, and batch processing.
@@ -80,9 +80,9 @@ class DatabaseLogger {
    * Generate a unique session ID for grouping logs from the same session
    */
   private generateSessionId(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
   }
@@ -92,7 +92,7 @@ class DatabaseLogger {
    */
   configure(config: Partial<LoggerConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     // Restart batch timer if interval changed
     if (config.batchInterval !== undefined) {
       this.startBatchTimer();
@@ -119,7 +119,7 @@ class DatabaseLogger {
   endTimer(operationId: string): number | undefined {
     const startTime = this.performanceTimers.get(operationId);
     if (startTime === undefined) return undefined;
-    
+
     const duration = performance.now() - startTime;
     this.performanceTimers.delete(operationId);
     return duration;
@@ -191,7 +191,9 @@ class DatabaseLogger {
    */
   private async isAuthenticated(): Promise<boolean> {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       return session !== null;
     } catch {
       return false;
@@ -218,9 +220,7 @@ class DatabaseLogger {
       const logsToInsert = [...this.logBuffer];
       this.logBuffer = [];
 
-      const { error } = await supabase
-        .from('logs')
-        .insert(logsToInsert);
+      const { error } = await supabase.from('logs').insert(logsToInsert);
 
       if (error) {
         console.error('[DB Logger] Failed to insert logs:', error);
@@ -256,7 +256,7 @@ class DatabaseLogger {
     repository: string,
     method: string,
     message: string,
-    details?: Record<string, unknown>
+    details?: Record<string, unknown>,
   ): void {
     this.log({
       level: 'info',
@@ -274,7 +274,7 @@ class DatabaseLogger {
     repository: string,
     method: string,
     message: string,
-    details?: Record<string, unknown>
+    details?: Record<string, unknown>,
   ): void {
     this.log({
       level: 'debug',
@@ -292,7 +292,7 @@ class DatabaseLogger {
     repository: string,
     method: string,
     message: string,
-    details?: Record<string, unknown>
+    details?: Record<string, unknown>,
   ): void {
     this.log({
       level: 'warn',
@@ -310,7 +310,7 @@ class DatabaseLogger {
     repository: string,
     method: string,
     error: Error | null,
-    details?: Record<string, unknown>
+    details?: Record<string, unknown>,
   ): void {
     this.log({
       level: 'error',
@@ -327,8 +327,8 @@ class DatabaseLogger {
    */
   getHistory(filter?: Partial<LogEntry>): LogEntry[] {
     if (!filter) return [...this.history];
-    
-    return this.history.filter(entry => {
+
+    return this.history.filter((entry) => {
       for (const [key, value] of Object.entries(filter)) {
         if (entry[key as keyof LogEntry] !== value) {
           return false;
@@ -342,9 +342,7 @@ class DatabaseLogger {
    * Get recent errors from local history
    */
   getErrors(limit = 50): LogEntry[] {
-    return this.history
-      .filter(entry => entry.level === 'error' || entry.error)
-      .slice(-limit);
+    return this.history.filter((entry) => entry.level === 'error' || entry.error).slice(-limit);
   }
 
   /**
@@ -356,20 +354,19 @@ class DatabaseLogger {
     totalOperations: number;
     operationsByType: Record<string, number>;
   } {
-    const entriesWithDuration = this.history.filter(e => e.duration !== undefined);
+    const entriesWithDuration = this.history.filter((e) => e.duration !== undefined);
     const totalDuration = entriesWithDuration.reduce((sum, e) => sum + (e.duration || 0), 0);
-    
+
     const operationsByType: Record<string, number> = {};
-    this.history.forEach(entry => {
+    this.history.forEach((entry) => {
       operationsByType[entry.operation] = (operationsByType[entry.operation] || 0) + 1;
     });
 
     return {
-      averageDuration: entriesWithDuration.length > 0 
-        ? totalDuration / entriesWithDuration.length 
-        : 0,
+      averageDuration:
+        entriesWithDuration.length > 0 ? totalDuration / entriesWithDuration.length : 0,
       slowestOperations: [...this.history]
-        .filter(e => e.duration !== undefined)
+        .filter((e) => e.duration !== undefined)
         .sort((a, b) => (b.duration || 0) - (a.duration || 0))
         .slice(0, 10),
       totalOperations: this.history.length,
@@ -406,7 +403,7 @@ class DatabaseLogger {
   private printToConsole(entry: LogEntry): void {
     const time = entry.timestamp.toTimeString().split(' ')[0];
     const prefix = `[${time}] [${entry.level.toUpperCase()}] [${entry.repository}.${entry.method}]`;
-    
+
     switch (entry.level) {
       case 'error':
         console.error(prefix, this.formatDetails(entry));
@@ -427,14 +424,14 @@ class DatabaseLogger {
    */
   private formatDetails(entry: LogEntry): string {
     const parts: string[] = [];
-    
+
     if (entry.table) parts.push(`table: ${entry.table}`);
     if (entry.operation) parts.push(`op: ${entry.operation}`);
     if (entry.duration !== undefined) parts.push(`duration: ${entry.duration.toFixed(2)}ms`);
     if (entry.error) parts.push(`error: ${entry.error.message}`);
     if (entry.userId) parts.push(`user: ${entry.userId}`);
     if (entry.playerId) parts.push(`player: ${entry.playerId}`);
-    
+
     if (entry.details) {
       const detailStr = JSON.stringify(entry.details);
       if (detailStr.length < 100) {
@@ -443,7 +440,7 @@ class DatabaseLogger {
         parts.push(`details: ${detailStr.substring(0, 100)}...`);
       }
     }
-    
+
     return parts.join(' | ');
   }
 

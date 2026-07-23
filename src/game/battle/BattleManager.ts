@@ -4,18 +4,9 @@
  * Phase 2: Initiative & turn-by-turn system.
  */
 
-import type { ChampionInstance, SpellSlot } from '../ChampionInstance';
-import {
-  BattlePhase,
-  ActionType,
-  type BattleTeam,
-  type BattleEvent,
-  type CombatantState,
-  type TeamSide,
-  type TurnEntry,
-  type BattleResult,
-  type BattleAction,
-} from './types';
+import { createBuff, createDebuff } from '@/game/effects/BuffDebuffEffect';
+import { EffectManager } from '@/game/effects/EffectManager';
+import type { StatKey } from '@/game/effects/types';
 import type { SpellEffect } from '@/types/champion';
 import {
   calculateADDamage,
@@ -23,9 +14,18 @@ import {
   calculateTrueDamage,
   critDamage,
 } from '@/utils/damage';
-import { createBuff, createDebuff } from '@/game/effects/BuffDebuffEffect';
-import { EffectManager } from '@/game/effects/EffectManager';
-import type { StatKey } from '@/game/effects/types';
+import type { ChampionInstance, SpellSlot } from '../ChampionInstance';
+import {
+  ActionType,
+  type BattleAction,
+  type BattleEvent,
+  BattlePhase,
+  type BattleResult,
+  type BattleTeam,
+  type CombatantState,
+  type TeamSide,
+  type TurnEntry,
+} from './types';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -52,11 +52,16 @@ export interface BattleManagerOptions {
 /** Map ActionType to its corresponding SpellSlot (or null for basic attacks). */
 function actionToSpellSlot(action: ActionType): SpellSlot | null {
   switch (action) {
-    case ActionType.SpellQ: return 'Q';
-    case ActionType.SpellW: return 'W';
-    case ActionType.SpellE: return 'E';
-    case ActionType.SpellR: return 'R';
-    default: return null;
+    case ActionType.SpellQ:
+      return 'Q';
+    case ActionType.SpellW:
+      return 'W';
+    case ActionType.SpellE:
+      return 'E';
+    case ActionType.SpellR:
+      return 'R';
+    default:
+      return null;
   }
 }
 
@@ -87,19 +92,29 @@ export class BattleManager {
     this._initCombatants();
   }
 
-  get phase(): BattlePhase { return this._phase; }
-  get round(): number { return this._round; }
-  get turnIndex(): number { return this._turnIndex; }
-  get turnOrder(): ReadonlyArray<TurnEntry> { return this._turnOrder; }
-  get log(): ReadonlyArray<BattleEvent> { return this._log; }
+  get phase(): BattlePhase {
+    return this._phase;
+  }
+  get round(): number {
+    return this._round;
+  }
+  get turnIndex(): number {
+    return this._turnIndex;
+  }
+  get turnOrder(): ReadonlyArray<TurnEntry> {
+    return this._turnOrder;
+  }
+  get log(): ReadonlyArray<BattleEvent> {
+    return this._log;
+  }
 
   get state() {
     return {
       phase: this._phase,
       round: this._round,
       turnIndex: this._turnIndex,
-      playerAlive: this._playerCombatants.filter(c => !c.isDefeated).length,
-      enemyAlive: this._enemyCombatants.filter(c => !c.isDefeated).length,
+      playerAlive: this._playerCombatants.filter((c) => !c.isDefeated).length,
+      enemyAlive: this._enemyCombatants.filter((c) => !c.isDefeated).length,
     };
   }
 
@@ -113,12 +128,16 @@ export class BattleManager {
     return this._getCombatant(entry.champion.id, entry.side) ?? null;
   }
 
-  getPlayerCombatants(): CombatantState[] { return this._playerCombatants; }
-  getEnemyCombatants(): CombatantState[] { return this._enemyCombatants; }
+  getPlayerCombatants(): CombatantState[] {
+    return this._playerCombatants;
+  }
+  getEnemyCombatants(): CombatantState[] {
+    return this._enemyCombatants;
+  }
 
   /** Get final HP state for each player champion (for persistence between combats). */
   getFinalPlayerStates(): { championId: string; currentHp: number; maxHp: number }[] {
-    return this._playerCombatants.map(c => ({
+    return this._playerCombatants.map((c) => ({
       championId: c.champion.id,
       currentHp: c.isDefeated ? 0 : c.currentHp,
       maxHp: c.maxHp,
@@ -131,7 +150,7 @@ export class BattleManager {
 
   getAliveCombatants(side: TeamSide): CombatantState[] {
     const list = side === 'player' ? this._playerCombatants : this._enemyCombatants;
-    return list.filter(c => !c.isDefeated);
+    return list.filter((c) => !c.isDefeated);
   }
 
   getAliveEnemies(side: TeamSide): CombatantState[] {
@@ -154,7 +173,7 @@ export class BattleManager {
   private _emit(event: BattleEvent): void {
     this._log.push(event);
     const cbs = this._listeners.get('event');
-    if (cbs) cbs.forEach(cb => cb(event));
+    if (cbs) cbs.forEach((cb) => cb(event));
   }
 
   setActionCallback(cb: ActionCallback): void {
@@ -193,10 +212,16 @@ export class BattleManager {
   processCurrentTurn(): void {
     if (this._phase !== BattlePhase.TurnActive) return;
     const entry = this._turnOrder[this._turnIndex];
-    if (!entry) { this._nextTurn(); return; }
+    if (!entry) {
+      this._nextTurn();
+      return;
+    }
 
     const attackerState = this._getCombatant(entry.champion.id, entry.side);
-    if (!attackerState || attackerState.isDefeated) { this._nextTurn(); return; }
+    if (!attackerState || attackerState.isDefeated) {
+      this._nextTurn();
+      return;
+    }
 
     // CC check: if stunned, skip this turn and decrement counter
     if (attackerState.ccTurnsLeft > 0) {
@@ -207,7 +232,10 @@ export class BattleManager {
 
     const enemies = this.getAliveEnemies(entry.side);
     const allies = this.getAliveCombatants(entry.side);
-    if (enemies.length === 0) { this._nextTurn(); return; }
+    if (enemies.length === 0) {
+      this._nextTurn();
+      return;
+    }
 
     let action: BattleAction | null = null;
     if (!this._autoActions && entry.side === 'player' && this._actionCallback) {
@@ -265,38 +293,40 @@ export class BattleManager {
 
   private _initCombatants(): void {
     const hpOverrides = this._initialHpOverrides;
-    this._playerCombatants = this._playerTeam.champions
-      .slice(0, this._maxTeamSize)
-      .map(c => {
-        // Use enhanced stats if available, otherwise fall back to base stats
-        const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
-        const overriddenHp = hpOverrides?.[c.id];
-        const initHp = overriddenHp !== undefined ? Math.min(overriddenHp, stats.hp) : stats.hp;
-        return {
-          champion: c, side: 'player' as TeamSide,
-          currentHp: initHp, maxHp: stats.hp,
-          currentMp: stats.mp, maxMp: stats.mp,
-          isDefeated: initHp <= 0,
-          currentShield: 0,
-          ccTurnsLeft: 0,
-          effectManager: new EffectManager(c.id),
-        };
-      });
-    this._enemyCombatants = this._enemyTeam.champions
-      .slice(0, this._maxTeamSize)
-      .map(c => {
-        // Use enhanced stats if available, otherwise fall back to base stats
-        const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
-        return {
-          champion: c, side: 'enemy' as TeamSide,
-          currentHp: stats.hp, maxHp: stats.hp,
-          currentMp: stats.mp, maxMp: stats.mp,
-          isDefeated: false,
-          currentShield: 0,
-          ccTurnsLeft: 0,
-          effectManager: new EffectManager(c.id),
-        };
-      });
+    this._playerCombatants = this._playerTeam.champions.slice(0, this._maxTeamSize).map((c) => {
+      // Use enhanced stats if available, otherwise fall back to base stats
+      const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
+      const overriddenHp = hpOverrides?.[c.id];
+      const initHp = overriddenHp !== undefined ? Math.min(overriddenHp, stats.hp) : stats.hp;
+      return {
+        champion: c,
+        side: 'player' as TeamSide,
+        currentHp: initHp,
+        maxHp: stats.hp,
+        currentMp: stats.mp,
+        maxMp: stats.mp,
+        isDefeated: initHp <= 0,
+        currentShield: 0,
+        ccTurnsLeft: 0,
+        effectManager: new EffectManager(c.id),
+      };
+    });
+    this._enemyCombatants = this._enemyTeam.champions.slice(0, this._maxTeamSize).map((c) => {
+      // Use enhanced stats if available, otherwise fall back to base stats
+      const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
+      return {
+        champion: c,
+        side: 'enemy' as TeamSide,
+        currentHp: stats.hp,
+        maxHp: stats.hp,
+        currentMp: stats.mp,
+        maxMp: stats.mp,
+        isDefeated: false,
+        currentShield: 0,
+        ccTurnsLeft: 0,
+        effectManager: new EffectManager(c.id),
+      };
+    });
     // Reset all cooldowns at battle start
     this._resetAllCooldowns();
   }
@@ -310,8 +340,10 @@ export class BattleManager {
     this._emit({
       type: 'round_start',
       round: this._round,
-      turnOrder: this._turnOrder.map(e => ({
-        champion: e.champion.id, side: e.side, speedValue: e.speedValue,
+      turnOrder: this._turnOrder.map((e) => ({
+        champion: e.champion.id,
+        side: e.side,
+        speedValue: e.speedValue,
       })),
     });
 
@@ -334,14 +366,20 @@ export class BattleManager {
     const all: TurnEntry[] = [];
     for (const c of this._playerCombatants) {
       if (!c.isDefeated) {
-        all.push({ champion: c.champion, side: 'player',
-          speedValue: this._calcSpeedPriority(c.champion) });
+        all.push({
+          champion: c.champion,
+          side: 'player',
+          speedValue: this._calcSpeedPriority(c.champion),
+        });
       }
     }
     for (const c of this._enemyCombatants) {
       if (!c.isDefeated) {
-        all.push({ champion: c.champion, side: 'enemy',
-          speedValue: this._calcSpeedPriority(c.champion) });
+        all.push({
+          champion: c.champion,
+          side: 'enemy',
+          speedValue: this._calcSpeedPriority(c.champion),
+        });
       }
     }
     all.sort((a, b) => b.speedValue - a.speedValue);
@@ -366,10 +404,7 @@ export class BattleManager {
     });
   }
 
-  private _selectAIAction(
-    champion: ChampionInstance,
-    _enemies: CombatantState[],
-  ): BattleAction {
+  private _selectAIAction(champion: ChampionInstance, _enemies: CombatantState[]): BattleAction {
     // AI tries spells in reverse order (R > E > W > Q), respecting cooldowns
     const actionPriority = [
       { type: ActionType.SpellR, slot: 'R' as const },
@@ -426,7 +461,7 @@ export class BattleManager {
   }
 
   private _pickTarget(candidates: CombatantState[]): CombatantState | null {
-    const alive = candidates.filter(c => !c.isDefeated);
+    const alive = candidates.filter((c) => !c.isDefeated);
     if (alive.length === 0) return null;
     return alive[Math.floor(Math.random() * alive.length)];
   }
@@ -478,9 +513,12 @@ export class BattleManager {
         if (healAmount <= 0) return;
         healTarget.currentHp = Math.min(healTarget.maxHp, healTarget.currentHp + healAmount);
         this._emit({
-          type: 'heal', source: attacker.champion.id,
-          target: healTarget.champion.id, amount: healAmount,
-          sourceSide: attacker.side, targetSide: healTarget.side,
+          type: 'heal',
+          source: attacker.champion.id,
+          target: healTarget.champion.id,
+          amount: healAmount,
+          sourceSide: attacker.side,
+          targetSide: healTarget.side,
         });
         break;
       }
@@ -493,9 +531,12 @@ export class BattleManager {
         if (shieldAmount <= 0) return;
         shieldTarget.currentShield += shieldAmount;
         this._emit({
-          type: 'shield', source: attacker.champion.id,
-          target: shieldTarget.champion.id, amount: shieldAmount,
-          sourceSide: attacker.side, targetSide: shieldTarget.side,
+          type: 'shield',
+          source: attacker.champion.id,
+          target: shieldTarget.champion.id,
+          amount: shieldAmount,
+          sourceSide: attacker.side,
+          targetSide: shieldTarget.side,
         });
         break;
       }
@@ -511,9 +552,13 @@ export class BattleManager {
           ccTarget.ccTurnsLeft = Math.max(ccTarget.ccTurnsLeft, ccTurns);
         }
         this._emit({
-          type: 'damage', source: attacker.champion.id,
-          target: ccTarget.champion.id, amount: 0, isCrit: false,
-          sourceSide: attacker.side, targetSide: ccTarget.side,
+          type: 'damage',
+          source: attacker.champion.id,
+          target: ccTarget.champion.id,
+          amount: 0,
+          isCrit: false,
+          sourceSide: attacker.side,
+          targetSide: ccTarget.side,
         });
         break;
       }
@@ -599,22 +644,28 @@ export class BattleManager {
     }
     if (damage > 0) {
       this._emit({
-        type: 'damage', source: attacker.champion.id,
-        target: target.champion.id, amount: damage, isCrit: false,
-        sourceSide: attacker.side, targetSide: target.side,
+        type: 'damage',
+        source: attacker.champion.id,
+        target: target.champion.id,
+        amount: damage,
+        isCrit: false,
+        sourceSide: attacker.side,
+        targetSide: target.side,
       });
     }
     if (target.currentHp <= 0) {
       target.isDefeated = true;
-      this._emit({ type: 'defeat', champion: target.champion.id, side: target.side, defeatedBy: attacker.champion.id });
+      this._emit({
+        type: 'defeat',
+        champion: target.champion.id,
+        side: target.side,
+        defeatedBy: attacker.champion.id,
+      });
     }
   }
 
   /** Basic attack: AD-only with crit, mitigated by armor. */
-  private _performBasicAttack(
-    attacker: CombatantState,
-    target: CombatantState,
-  ): void {
+  private _performBasicAttack(attacker: CombatantState, target: CombatantState): void {
     // Use enhanced stats for both attack and defense (getEnhancedStats always returns valid stats)
     const atkStats = attacker.champion.getEnhancedStats();
     const defStats = target.champion.getEnhancedStats();
@@ -638,13 +689,22 @@ export class BattleManager {
     target.currentHp = Math.max(0, target.currentHp - remaining);
 
     this._emit({
-      type: 'damage', source: attacker.champion.id,
-      target: target.champion.id, amount: finalDmg, isCrit,
-      sourceSide: attacker.side, targetSide: target.side,
+      type: 'damage',
+      source: attacker.champion.id,
+      target: target.champion.id,
+      amount: finalDmg,
+      isCrit,
+      sourceSide: attacker.side,
+      targetSide: target.side,
     });
     if (target.currentHp <= 0) {
       target.isDefeated = true;
-      this._emit({ type: 'defeat', champion: target.champion.id, side: target.side, defeatedBy: attacker.champion.id });
+      this._emit({
+        type: 'defeat',
+        champion: target.champion.id,
+        side: target.side,
+        defeatedBy: attacker.champion.id,
+      });
     }
   }
 
@@ -665,8 +725,8 @@ export class BattleManager {
   }
 
   private _checkVictory(): boolean {
-    const playerAlive = this._playerCombatants.some(c => !c.isDefeated);
-    const enemyAlive = this._enemyCombatants.some(c => !c.isDefeated);
+    const playerAlive = this._playerCombatants.some((c) => !c.isDefeated);
+    const enemyAlive = this._enemyCombatants.some((c) => !c.isDefeated);
 
     if (!playerAlive || !enemyAlive) {
       this._phase = BattlePhase.Finished;
@@ -687,12 +747,14 @@ export class BattleManager {
   }
 
   private _findCombatant(id: string): CombatantState | undefined {
-    return this._playerCombatants.find(c => c.champion.id === id)
-      ?? this._enemyCombatants.find(c => c.champion.id === id);
+    return (
+      this._playerCombatants.find((c) => c.champion.id === id) ??
+      this._enemyCombatants.find((c) => c.champion.id === id)
+    );
   }
 
   private _getCombatant(id: string, side: TeamSide): CombatantState | undefined {
     const list = side === 'player' ? this._playerCombatants : this._enemyCombatants;
-    return list.find(c => c.champion.id === id);
+    return list.find((c) => c.champion.id === id);
   }
 }

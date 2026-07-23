@@ -163,15 +163,16 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Outillage et CI
 
-- [ ] Ajouter une CI exécutant `typecheck`, tests, build Vite, `supabase db reset` et `supabase db lint`.
-- [ ] Ajouter Biome comme outil unique de lint et de formatage pour TypeScript/React.
-- [ ] Configurer les règles Biome utiles, les imports organisés et les commandes `lint`, `format` et `format:check`.
-- [ ] Ajouter une commande `check` regroupant toutes les validations.
-- [ ] Séparer le téléchargement Data Dragon du build normal; le build ne doit pas dépendre du réseau ni modifier `public`.
+- [x] Ajouter une CI Node 22 exécutant formatage, lint, `typecheck`, tests et build Vite.
+- [ ] Ajouter `supabase db reset` et `supabase db lint` à la CI avec une instance locale.
+- [x] Ajouter Biome comme outil unique de lint et de formatage pour TypeScript/React.
+- [x] Configurer les règles Biome utiles, les imports organisés et les commandes `lint`, `format` et `format:check`.
+- [x] Ajouter une commande `check` regroupant toutes les validations.
+- [x] Séparer le téléchargement Data Dragon du build normal; utiliser `assets:update` pour sa mise à jour.
 - [ ] Épingler la version Data Dragon et documenter sa mise à jour.
 - [ ] Installer/pinner Supabase CLI au lieu de dépendre implicitement de `npx`.
 - [ ] Auditer les 9 vulnérabilités npm signalées (1 low, 3 moderate, 4 high, 1 critical) sans appliquer de mise à jour forcée non vérifiée.
-- [ ] Utiliser une version Node LTS; Node 23 déclenche des avertissements de compatibilité avec les paquets Jest.
+- [x] Utiliser Node 22 LTS via `.nvmrc`, `package.json` et la CI.
 
 ### Performance et production
 

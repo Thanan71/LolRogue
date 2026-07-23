@@ -4,21 +4,24 @@
  * Procedural map generation and navigation system.
  */
 
-// Types
-export * from './types';
+// Encounter Manager
+export {
+  EncounterManager,
+  resolveEventOutcome,
+} from './EncounterManager';
 
 // Encounter pools
 export {
+  BASE_ENCOUNTERS,
+  BOT_LANE_ENCOUNTERS,
   ENCOUNTER_POOLS,
-  getEligibleEncounters,
   getBiomeBoss,
+  getEligibleEncounters,
   getRandomEncounter,
-  TOP_LANE_ENCOUNTERS,
   JUNGLE_ENCOUNTERS,
   MID_LANE_ENCOUNTERS,
-  BOT_LANE_ENCOUNTERS,
   RIVER_ENCOUNTERS,
-  BASE_ENCOUNTERS,
+  TOP_LANE_ENCOUNTERS,
 } from './encounters';
 
 // Generator
@@ -26,30 +29,26 @@ export { generateMap, generateRunMap } from './MapGenerator-core';
 
 // Helpers
 export {
-  mulberry32,
-  getNodeMetadata,
-  selectColumnType,
   buildConfig,
+  getNodeMetadata,
+  mulberry32,
+  selectColumnType,
 } from './MapGenerator-helpers';
 
 // Utilities
 export {
+  completeNode,
+  countRemainingEncounters,
   findNode,
   getAccessibleNodes,
-  completeNode,
-  isMapComplete,
-  getNodesInColumn,
-  getNextOptions,
   getCombatNodes,
-  getShopNodes,
-  getRestNodes,
   getEventNodes,
+  getNextOptions,
+  getNodesInColumn,
   getRecruitNodes,
-  countRemainingEncounters,
+  getRestNodes,
+  getShopNodes,
+  isMapComplete,
 } from './mapUtils';
-
-// Encounter Manager
-export {
-  EncounterManager,
-  resolveEventOutcome,
-} from './EncounterManager';
+// Types
+export * from './types';

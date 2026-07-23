@@ -31,8 +31,8 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'lolrogue-settings',
-    }
-  )
+    },
+  ),
 );
 
 export function getTextSizeMultiplier(size: TextSize): number {

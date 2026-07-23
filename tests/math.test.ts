@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { clamp, randomInt, randomElement, shuffle } from '../src/utils/math';
+import { describe, expect, it } from 'vitest';
+import { clamp, randomElement, randomInt, shuffle } from '../src/utils/math';
 
 describe('math utilities', () => {
   it('clamp should constrain value within bounds', () => {

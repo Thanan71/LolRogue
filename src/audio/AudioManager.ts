@@ -4,15 +4,30 @@
  */
 
 import { useAudioStore } from '@/stores/audioStore';
-import { playAttack, playSpell, playCrit, playEnemyDefeat, playRoundStart } from './combat-sfx';
-import { playClick, playHover, playVictory, playDefeat } from './ui-sfx';
+import { playAttack, playCrit, playEnemyDefeat, playRoundStart, playSpell } from './combat-sfx';
+import { playClick, playDefeat, playHover, playVictory } from './ui-sfx';
 
-export type SFXName = 'attack' | 'spell' | 'click' | 'hover' | 'victory' | 'defeat' | 'crit' | 'enemyDefeat' | 'roundStart';
+export type SFXName =
+  | 'attack'
+  | 'spell'
+  | 'click'
+  | 'hover'
+  | 'victory'
+  | 'defeat'
+  | 'crit'
+  | 'enemyDefeat'
+  | 'roundStart';
 
 const sfxPlayers: Record<SFXName, (v: number) => void> = {
-  attack: playAttack, spell: playSpell, click: playClick, hover: playHover,
-  victory: playVictory, defeat: playDefeat, crit: playCrit,
-  enemyDefeat: playEnemyDefeat, roundStart: playRoundStart,
+  attack: playAttack,
+  spell: playSpell,
+  click: playClick,
+  hover: playHover,
+  victory: playVictory,
+  defeat: playDefeat,
+  crit: playCrit,
+  enemyDefeat: playEnemyDefeat,
+  roundStart: playRoundStart,
 };
 
 export function playSFX(name: SFXName): void {
@@ -21,13 +36,21 @@ export function playSFX(name: SFXName): void {
   sfxPlayers[name]?.(sfxVolume / 100);
 }
 
-export function playUIClick(): void { playSFX('click'); }
-export function playUIHover(): void { playSFX('hover'); }
+export function playUIClick(): void {
+  playSFX('click');
+}
+export function playUIHover(): void {
+  playSFX('hover');
+}
 
 export function initAudio(): void {
   const handler = () => {
     // Trigger AudioContext creation on first user interaction
-    try { new AudioContext(); } catch { /* ignore */ }
+    try {
+      new AudioContext();
+    } catch {
+      /* ignore */
+    }
     document.removeEventListener('click', handler);
     document.removeEventListener('keydown', handler);
   };

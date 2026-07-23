@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface Particle {
   x: number;
@@ -59,7 +59,7 @@ export function ParticleBackground({ particleCount = 80, className }: ParticleBa
 
     // Initialize particles
     particlesRef.current = Array.from({ length: particleCount }, () =>
-      createParticle(canvas.width, canvas.height)
+      createParticle(canvas.width, canvas.height),
     );
 
     let time = 0;

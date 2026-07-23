@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { DDRAGON_CONFIG, DDRAGON_VERSION, setDdragonVersion } from '../src/config/ddragon';
 import { ImageLoader } from '../src/services/imageLoader';
 import { createPlaceholderSvg } from '../src/services/imageLoader.types';
-import { DDRAGON_CONFIG, setDdragonVersion, DDRAGON_VERSION } from '../src/config/ddragon';
 
 describe('createPlaceholderSvg', () => {
   it('should generate a valid data URL', () => {
@@ -116,23 +116,17 @@ describe('DDragon Config', () => {
 
   it('should build correct champion icon URL', () => {
     const url = DDRAGON_CONFIG.championIconUrl('14.5.1', 'Ahri');
-    expect(url).toBe(
-      'https://ddragon.leagueoflegends.com/cdn/14.5.1/img/champion/Ahri.png',
-    );
+    expect(url).toBe('https://ddragon.leagueoflegends.com/cdn/14.5.1/img/champion/Ahri.png');
   });
 
   it('should build correct splash URL', () => {
     const url = DDRAGON_CONFIG.championSplashUrl('Ahri', 0);
-    expect(url).toBe(
-      'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg',
-    );
+    expect(url).toBe('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg');
   });
 
   it('should build correct loading screen URL', () => {
     const url = DDRAGON_CONFIG.championLoadingUrl('Darius', 1);
-    expect(url).toBe(
-      'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Darius_1.jpg',
-    );
+    expect(url).toBe('https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Darius_1.jpg');
   });
 
   it('should update version', () => {

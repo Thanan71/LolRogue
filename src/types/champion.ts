@@ -124,10 +124,10 @@ export interface Spell {
   name: string;
   description: string;
   maxRank: number;
-  cooldown: number[];       // per rank
-  cost: number[];           // per rank
-  range: number[];          // per rank
-  image: string;            // filename e.g. "AhriQ.png"
+  cooldown: number[]; // per rank
+  cost: number[]; // per rank
+  range: number[]; // per rank
+  image: string; // filename e.g. "AhriQ.png"
   /** How the spell is targeted */
   targeting: TargetingType;
   /** AD/AP scaling ratios */
@@ -159,16 +159,16 @@ export interface Passive {
 // ─── Champion (fully parsed) ────────────────────────────────────────────────
 
 export interface Champion {
-  id: string;               // e.g. "Ahri"
-  key: string;              // numeric key as string, e.g. "103"
-  name: string;             // display name
-  title: string;            // e.g. "the Nine-Tailed Fox"
+  id: string; // e.g. "Ahri"
+  key: string; // numeric key as string, e.g. "103"
+  name: string; // display name
+  title: string; // e.g. "the Nine-Tailed Fox"
   tags: ChampionTag[];
   resourceType: ResourceType;
   stats: ChampionStats;
   spells: Spell[];
   passive: Passive;
-  iconUrl: string;          // e.g. "/data/lol/img/champions/Ahri.png"
+  iconUrl: string; // e.g. "/data/lol/img/champions/Ahri.png"
 }
 
 // ─── Raw Data Dragon types (for parsing) ────────────────────────────────────

@@ -9,13 +9,13 @@
   justify-content: center;
   background: radial-gradient(ellipse at 50% 30%, #0f1a2e 0%, #0a1428 50%, #060d1a 100%);
   color: #f0e6d2;
-  font-family: 'Cinzel', 'Georgia', serif;
+  font-family: "Cinzel", "Georgia", serif;
   overflow: hidden;
   z-index: 1;
 }
 
 .auth-page::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 15%;
   left: 50%;
@@ -40,8 +40,14 @@
 }
 
 @keyframes authLogoIn {
-  from { opacity: 0; transform: translateY(-30px) scale(0.9); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .auth-page__icon {
@@ -56,7 +62,14 @@
   font-weight: 900;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  background: linear-gradient(180deg, #f0e6d2 0%, #d4bc8a 25%, #c8aa6e 50%, #a88a4e 75%, #7a5c2e 100%);
+  background: linear-gradient(
+    180deg,
+    #f0e6d2 0%,
+    #d4bc8a 25%,
+    #c8aa6e 50%,
+    #a88a4e 75%,
+    #7a5c2e 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -83,8 +96,14 @@
 }
 
 @keyframes authFormIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ─── Tabs ──────────────────────────────────────────────────────────── */
@@ -99,7 +118,7 @@
 .auth-page__tab {
   flex: 1;
   padding: 0.75rem 1rem;
-  font-family: 'Cinzel', 'Georgia', serif;
+  font-family: "Cinzel", "Georgia", serif;
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -123,7 +142,7 @@
 }
 
 .auth-page__tab--active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -1px;
   left: 0;
@@ -157,7 +176,7 @@
 .auth-page__input {
   width: 100%;
   padding: 0.875rem 1rem;
-  font-family: 'Cinzel', 'Georgia', serif;
+  font-family: "Cinzel", "Georgia", serif;
   font-size: 0.95rem;
   color: #f0e6d2;
   background: rgba(15, 26, 46, 0.8);
@@ -174,7 +193,9 @@
 
 .auth-page__input:focus {
   border-color: #c8aa6e66;
-  box-shadow: 0 0 0 2px rgba(200, 170, 110, 0.1), 0 0 20px rgba(200, 170, 110, 0.05);
+  box-shadow:
+    0 0 0 2px rgba(200, 170, 110, 0.1),
+    0 0 20px rgba(200, 170, 110, 0.05);
 }
 
 .auth-page__input:hover:not(:focus) {
@@ -207,9 +228,16 @@
 }
 
 @keyframes errorShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 /* ─── Submit Button ─────────────────────────────────────────────────── */
@@ -217,7 +245,7 @@
 .auth-page__submit {
   width: 100%;
   padding: 1rem 2rem;
-  font-family: 'Cinzel', 'Georgia', serif;
+  font-family: "Cinzel", "Georgia", serif;
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -230,25 +258,29 @@
   position: relative;
   overflow: hidden;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 20px rgba(200, 170, 110, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow:
+    0 4px 20px rgba(200, 170, 110, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .auth-page__submit::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
 }
 
 .auth-page__submit::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
   transition: left 0.5s ease;
 }
 
@@ -259,7 +291,9 @@
 .auth-page__submit:hover:not(:disabled) {
   background: linear-gradient(180deg, #d4bc8a 0%, #c8aa6e 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(200, 170, 110, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow:
+    0 6px 30px rgba(200, 170, 110, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .auth-page__submit:active:not(:disabled) {
@@ -300,7 +334,7 @@
 .auth-page__guest-btn {
   width: 100%;
   padding: 0.875rem 2rem;
-  font-family: 'Cinzel', 'Georgia', serif;
+  font-family: "Cinzel", "Georgia", serif;
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.15em;
@@ -353,15 +387,30 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ─── Responsive ───────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
-  .auth-page__title { font-size: 2rem; }
-  .auth-page__container { max-width: 320px; padding: 0 1rem; }
-  .auth-page__icon { width: 50px; height: 50px; }
-  .auth-page__input { font-size: 0.9rem; padding: 0.75rem 0.875rem; }
-  .auth-page__submit { font-size: 0.95rem; }
+  .auth-page__title {
+    font-size: 2rem;
+  }
+  .auth-page__container {
+    max-width: 320px;
+    padding: 0 1rem;
+  }
+  .auth-page__icon {
+    width: 50px;
+    height: 50px;
+  }
+  .auth-page__input {
+    font-size: 0.9rem;
+    padding: 0.75rem 0.875rem;
+  }
+  .auth-page__submit {
+    font-size: 0.95rem;
+  }
 }

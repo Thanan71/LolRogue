@@ -6,24 +6,15 @@ const migrationSql = readFileSync(
   'utf8',
 );
 const signupUpgradeSql = readFileSync(
-  new URL(
-    '../supabase/migrations/20260723000000_fix_signup_trigger.sql',
-    import.meta.url,
-  ),
+  new URL('../supabase/migrations/20260723000000_fix_signup_trigger.sql', import.meta.url),
   'utf8',
 );
 const adminUpgradeSql = readFileSync(
-  new URL(
-    '../supabase/migrations/20260723010000_harden_admin_access.sql',
-    import.meta.url,
-  ),
+  new URL('../supabase/migrations/20260723010000_harden_admin_access.sql', import.meta.url),
   'utf8',
 );
 const atomicRunUpgradeSql = readFileSync(
-  new URL(
-    '../supabase/migrations/20260723020000_atomic_run_save.sql',
-    import.meta.url,
-  ),
+  new URL('../supabase/migrations/20260723020000_atomic_run_save.sql', import.meta.url),
   'utf8',
 );
 
@@ -61,9 +52,7 @@ describe('Supabase init migration', () => {
     ];
 
     for (const table of requiredTables) {
-      expect(migrationSql).toMatch(
-        new RegExp(`CREATE TABLE public\\.${table}\\s*\\(`),
-      );
+      expect(migrationSql).toMatch(new RegExp(`CREATE TABLE public\\.${table}\\s*\\(`));
     }
   });
 
@@ -80,9 +69,7 @@ describe('Supabase init migration', () => {
     ];
 
     for (const table of protectedTables) {
-      expect(migrationSql).toContain(
-        `ALTER TABLE public.${table} ENABLE ROW LEVEL SECURITY`,
-      );
+      expect(migrationSql).toContain(`ALTER TABLE public.${table} ENABLE ROW LEVEL SECURITY`);
     }
     expect(migrationSql).toContain('auth.uid()');
     expect(migrationSql).toContain('AFTER INSERT ON auth.users');
@@ -97,9 +84,7 @@ describe('Supabase init migration', () => {
     );
     expect(playerGrant).not.toBeNull();
     expect(playerGrant?.[1]).not.toContain('is_admin');
-    expect(migrationSql).toContain(
-      'REVOKE UPDATE (is_admin) ON public.players FROM authenticated',
-    );
+    expect(migrationSql).toContain('REVOKE UPDATE (is_admin) ON public.players FROM authenticated');
   });
 
   it('filters admin views by the server-side admin check', () => {
@@ -113,16 +98,10 @@ describe('Supabase init migration', () => {
 
 describe('Supabase existing database upgrade', () => {
   it('replaces the signup function without deleting existing data', () => {
-    expect(signupUpgradeSql).toContain(
-      'CREATE OR REPLACE FUNCTION public.handle_new_user()',
-    );
-    expect(signupUpgradeSql).toContain(
-      'DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users',
-    );
+    expect(signupUpgradeSql).toContain('CREATE OR REPLACE FUNCTION public.handle_new_user()');
+    expect(signupUpgradeSql).toContain('DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users');
     expect(signupUpgradeSql).toContain('WHEN unique_violation THEN');
-    expect(signupUpgradeSql).toContain(
-      'ON CONFLICT (user_id) DO NOTHING',
-    );
+    expect(signupUpgradeSql).toContain('ON CONFLICT (user_id) DO NOTHING');
     expect(signupUpgradeSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
     expect(signupUpgradeSql).not.toMatch(/\bDELETE\s+FROM\b/i);
   });
@@ -131,24 +110,16 @@ describe('Supabase existing database upgrade', () => {
     expect(adminUpgradeSql).toContain(
       'REVOKE UPDATE (is_admin) ON public.players FROM anon, authenticated',
     );
-    expect(
-      adminUpgradeSql.match(/WHERE public\.is_current_user_admin\(\)/g),
-    ).toHaveLength(2);
+    expect(adminUpgradeSql.match(/WHERE public\.is_current_user_admin\(\)/g)).toHaveLength(2);
     expect(adminUpgradeSql).toContain('WITH (security_invoker = true)');
     expect(adminUpgradeSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
     expect(adminUpgradeSql).not.toMatch(/\bDELETE\s+FROM\b/i);
   });
 
   it('saves completed runs atomically and idempotently', () => {
-    expect(atomicRunUpgradeSql).toContain(
-      'CREATE OR REPLACE FUNCTION public.save_completed_run',
-    );
-    expect(atomicRunUpgradeSql).toContain(
-      'ON CONFLICT (run_uuid) DO NOTHING',
-    );
-    expect(atomicRunUpgradeSql).toContain(
-      'GRANT EXECUTE ON FUNCTION public.save_completed_run',
-    );
+    expect(atomicRunUpgradeSql).toContain('CREATE OR REPLACE FUNCTION public.save_completed_run');
+    expect(atomicRunUpgradeSql).toContain('ON CONFLICT (run_uuid) DO NOTHING');
+    expect(atomicRunUpgradeSql).toContain('GRANT EXECUTE ON FUNCTION public.save_completed_run');
     expect(atomicRunUpgradeSql).toContain(
       'games_played = public.champion_mastery.games_played + 1',
     );
@@ -191,24 +162,21 @@ describeLive('Supabase live integration', () => {
     ] as const;
 
     for (const table of tables) {
-      const { error } = await supabase
-        .from(table)
-        .select('*', { count: 'exact', head: true });
+      const { error } = await supabase.from(table).select('*', { count: 'exact', head: true });
       if (error) throw new Error(`${table}: ${error.message}`);
     }
   });
 
   it('creates a player and stores a complete daily run', async () => {
     const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const { data: authData, error: authError } =
-      await supabase.auth.admin.createUser({
-        email: `lolrogue-db-test-${suffix}@example.invalid`,
-        email_confirm: true,
-        user_metadata: {
-          username: `db-test-${suffix}`,
-          display_name: 'Database Test',
-        },
-      });
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: `lolrogue-db-test-${suffix}@example.invalid`,
+      email_confirm: true,
+      user_metadata: {
+        username: `db-test-${suffix}`,
+        display_name: 'Database Test',
+      },
+    });
 
     expect(authError).toBeNull();
     testUserId = authData.user?.id;
@@ -244,31 +212,27 @@ describeLive('Supabase live integration', () => {
     expect(runError).toBeNull();
     expect(run?.id).toBeTruthy();
 
-    const { error: teamError } = await supabase
-      .from('run_team_members')
-      .insert({
-        run_id: run!.id,
-        champion_id: 'Garen',
-        final_level: 6,
-        final_hp: 340,
-        survived: true,
-        kills: 8,
-        damage_dealt: 12500,
-      });
+    const { error: teamError } = await supabase.from('run_team_members').insert({
+      run_id: run!.id,
+      champion_id: 'Garen',
+      final_level: 6,
+      final_hp: 340,
+      survived: true,
+      kills: 8,
+      damage_dealt: 12500,
+    });
     expect(teamError).toBeNull();
 
-    const { error: dailyError } = await supabase
-      .from('daily_runs')
-      .insert({
-        player_id: player!.id,
-        daily_date: '2026-07-23',
-        daily_seed: 20260723,
-        score: 4200,
-        won: true,
-        run_level_reached: 6,
-        waves_completed: 24,
-        completed_at: new Date().toISOString(),
-      });
+    const { error: dailyError } = await supabase.from('daily_runs').insert({
+      player_id: player!.id,
+      daily_date: '2026-07-23',
+      daily_seed: 20260723,
+      score: 4200,
+      won: true,
+      run_level_reached: 6,
+      waves_completed: 24,
+      completed_at: new Date().toISOString(),
+    });
     expect(dailyError).toBeNull();
 
     const { data: result, error: resultError } = await supabase

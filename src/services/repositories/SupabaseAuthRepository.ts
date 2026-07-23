@@ -1,12 +1,16 @@
 /**
  * Supabase Auth Repository Implementation
- * 
+ *
  * Implements IAuthRepository using Supabase client.
  * This class handles all authentication operations.
  */
 
-import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
-import type { IAuthRepository, AuthResponseResult, SignUpMetadata } from '../interfaces/IAuthRepository';
+import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
+import type {
+  AuthResponseResult,
+  IAuthRepository,
+  SignUpMetadata,
+} from '../interfaces/IAuthRepository';
 
 export class SupabaseAuthRepository implements IAuthRepository {
   private supabase: SupabaseClient;
@@ -18,7 +22,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
   async signUp(
     email: string,
     password: string,
-    metadata?: SignUpMetadata
+    metadata?: SignUpMetadata,
   ): Promise<AuthResponseResult> {
     const { data, error } = await this.supabase.auth.signUp({
       email,
@@ -68,9 +72,9 @@ export class SupabaseAuthRepository implements IAuthRepository {
     return data.user;
   }
 
-  onAuthStateChange(
-    callback: (event: string, session: Session | null) => void
-  ): { subscription: any } {
+  onAuthStateChange(callback: (event: string, session: Session | null) => void): {
+    subscription: any;
+  } {
     const { data: subscription } = this.supabase.auth.onAuthStateChange(callback);
     return { subscription };
   }

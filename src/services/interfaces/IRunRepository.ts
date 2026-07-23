@@ -1,11 +1,17 @@
 /**
  * Run Repository Interface
- * 
+ *
  * Defines the contract for run data operations.
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { Run, RunInsert, RunUpdate, RunTeamMember, RunTeamMemberInsert } from '@/types/database';
+import type {
+  Run,
+  RunInsert,
+  RunTeamMember,
+  RunTeamMemberInsert,
+  RunUpdate,
+} from '@/types/database';
 
 export interface IRunRepository {
   saveCompletedRun(
@@ -31,7 +37,7 @@ export interface IRunRepository {
   getPlayerRuns(
     playerId: string,
     limit?: number,
-    offset?: number
+    offset?: number,
   ): Promise<{ data: Run[] | null; error: Error | null }>;
 
   /**
@@ -43,7 +49,7 @@ export interface IRunRepository {
    * Add team members to a run
    */
   addRunTeamMembers(
-    teamMembers: RunTeamMemberInsert[]
+    teamMembers: RunTeamMemberInsert[],
   ): Promise<{ data: RunTeamMember[] | null; error: Error | null }>;
 
   /**

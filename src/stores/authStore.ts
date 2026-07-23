@@ -1,17 +1,17 @@
 /**
  * Auth Store -- Zustand store for authentication state.
  * Manages user session, login/logout, and syncs with Supabase auth.
- * 
+ *
  * Uses the repository pattern for data access, following SOLID principles.
  * Dependencies are injected via the container for better testability.
  */
 
-import { create } from 'zustand';
-import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
-import { RepositoryContainerFactory } from '@/services/container';
 import type { User } from '@supabase/supabase-js';
-import type { Player } from '@/types/database';
+import { create } from 'zustand';
+import { RepositoryContainerFactory } from '@/services/container';
 import type { IRepositoryContainer } from '@/services/interfaces';
+import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
+import type { Player } from '@/types/database';
 
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
@@ -30,7 +30,12 @@ export interface AuthState {
 
 export interface AuthActions {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (
+    email: string,
+    password: string,
+    username: string,
+    displayName?: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshPlayer: () => Promise<void>;
   clearError: () => void;
@@ -46,8 +51,7 @@ export type AuthStore = AuthState & AuthActions;
 const GUEST_MODE_KEY = 'lolrogue-guest-mode';
 
 function readGuestMode(): boolean {
-  return typeof window !== 'undefined'
-    && window.localStorage.getItem(GUEST_MODE_KEY) === 'true';
+  return typeof window !== 'undefined' && window.localStorage.getItem(GUEST_MODE_KEY) === 'true';
 }
 
 function setStoredGuestMode(enabled: boolean): void {
@@ -99,7 +103,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ isAdmin: false });
       return false;
     }
-    
+
     // Check if player has admin flag
     const isAdmin = player.is_admin === true;
     set({ isAdmin });
@@ -123,10 +127,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (result.user) {
         // Fetch player data using repository
         const { data: playerData } = await container.player.getPlayer(result.user.id);
-        
+
         // Update last login using repository
         if (playerData) {
-          await container.player.updatePlayer(result.user.id, { last_login_at: new Date().toISOString() });
+          await container.player.updatePlayer(result.user.id, {
+            last_login_at: new Date().toISOString(),
+          });
         }
 
         // Check admin status
@@ -148,10 +154,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       throw new Error('No user data returned');
     } catch (error: any) {
-      set({ 
-        isLoading: false, 
+      set({
+        isLoading: false,
         error: error.message || 'Login failed',
-        isAuthenticated: false 
+        isAuthenticated: false,
       });
       return { success: false, error: error.message };
     } finally {
@@ -169,7 +175,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     lastAuthOperationTimestamp = Date.now();
     set({ isLoading: true, error: null });
     try {
-      const result = await container.auth.signUp(email, password, { username, display_name: displayName || username });
+      const result = await container.auth.signUp(email, password, {
+        username,
+        display_name: displayName || username,
+      });
 
       if (result.error) throw result.error;
 
@@ -186,29 +195,38 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         let playerData = null;
         const maxRetries = 10;
         const retryDelay = 300;
-        
+
         for (let attempt = 0; attempt < maxRetries; attempt++) {
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
           const { data, error } = await container.player.getPlayer(result.user.id);
-          
+
           if (data) {
             playerData = data;
             break;
           }
-          
+
           if (error && error.message !== 'No rows found') {
-            console.warn(`[AuthStore] Attempt ${attempt + 1}/${maxRetries}: Error fetching player:`, error.message);
+            console.warn(
+              `[AuthStore] Attempt ${attempt + 1}/${maxRetries}: Error fetching player:`,
+              error.message,
+            );
           }
-          
+
           if (attempt === maxRetries - 1 && !playerData) {
-            console.error('[AuthStore] Player record not created after signup. Trigger is failing.');
-            
-            set({ 
-              isLoading: false, 
-              error: 'Account created but player profile could not be initialized. Please try logging in.',
-              isAuthenticated: false 
+            console.error(
+              '[AuthStore] Player record not created after signup. Trigger is failing.',
+            );
+
+            set({
+              isLoading: false,
+              error:
+                'Account created but player profile could not be initialized. Please try logging in.',
+              isAuthenticated: false,
             });
-            return { success: false, error: 'Player profile initialization failed. Please try logging in.' };
+            return {
+              success: false,
+              error: 'Player profile initialization failed. Please try logging in.',
+            };
           }
         }
 
@@ -230,10 +248,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       throw new Error('No user data returned');
     } catch (error: any) {
-      set({ 
-        isLoading: false, 
+      set({
+        isLoading: false,
         error: error.message || 'Sign up failed',
-        isAuthenticated: false 
+        isAuthenticated: false,
       });
       return { success: false, error: error.message };
     } finally {
@@ -261,9 +279,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         error: null,
       });
     } catch (error: any) {
-      set({ 
-        isLoading: false, 
-        error: error.message || 'Logout failed' 
+      set({
+        isLoading: false,
+        error: error.message || 'Logout failed',
       });
     } finally {
       activeAuthOperation = null;
@@ -308,16 +326,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     if (!currentState.isLoading) {
       set({ isLoading: true });
     }
-    
+
     try {
       const { session } = await container.auth.getSession();
 
       if (session?.user) {
         const { data: playerData } = await container.player.getPlayer(session.user.id);
-        
+
         // Update last login using repository
         if (playerData) {
-          await container.player.updatePlayer(session.user.id, { last_login_at: new Date().toISOString() });
+          await container.player.updatePlayer(session.user.id, {
+            last_login_at: new Date().toISOString(),
+          });
         }
 
         // Check admin status
@@ -369,7 +389,7 @@ const RACE_CONDITION_WINDOW_MS = 2000; // Window to ignore listener after operat
 container.auth.onAuthStateChange(async (event, session) => {
   const now = Date.now();
   const currentState = useAuthStore.getState();
-  
+
   // Skip if we're actively in a login/signup/logout operation
   if (activeAuthOperation) {
     // If the operation started recently, skip to avoid race condition

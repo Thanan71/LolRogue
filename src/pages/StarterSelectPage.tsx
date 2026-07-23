@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
-import { Champion } from '@/types/champion';
-import { useGameStore } from '@/stores/gameStore';
-import { useRunStore } from '@/stores/runStore';
-import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
-import { championDB } from '@/data/championDatabase';
-import { gameStatsAtLevel } from '@/utils/statConversion';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
+import { championDB } from '@/data/championDatabase';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useGameStore } from '@/stores/gameStore';
+import { ROUTES } from '@/stores/routerStore';
+import { useRunStore } from '@/stores/runStore';
+import type { Champion } from '@/types/champion';
 import { createDailyRNG } from '@/utils/dailySeed';
-import { SeededRNG } from '@/utils/seededRandom';
+import type { SeededRNG } from '@/utils/seededRandom';
+import { gameStatsAtLevel } from '@/utils/statConversion';
 import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
 
@@ -107,12 +107,7 @@ function ChampionCard({
       onClick={onSelect}
     >
       <div className="champion-card__splash-wrapper">
-        <img
-          className="champion-card__splash"
-          src={splashUrl}
-          alt={champion.name}
-          loading="lazy"
-        />
+        <img className="champion-card__splash" src={splashUrl} alt={champion.name} loading="lazy" />
         <div className="champion-card__splash-overlay" />
       </div>
 

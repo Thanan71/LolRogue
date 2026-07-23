@@ -2,22 +2,22 @@
  * Map Generation Tests
  */
 
-import { BIOMES } from '../src/types/run';
 import {
+  BIOME_MAP_CONFIGS,
+  completeNode,
+  countRemainingEncounters,
+  ENCOUNTER_POOLS,
+  findNode,
   generateMap,
   generateRunMap,
-  NodeType,
-  BIOME_MAP_CONFIGS,
-  ENCOUNTER_POOLS,
-  getEligibleEncounters,
-  getBiomeBoss,
-  findNode,
   getAccessibleNodes,
-  completeNode,
-  isMapComplete,
+  getBiomeBoss,
+  getEligibleEncounters,
   getNextOptions,
-  countRemainingEncounters,
+  isMapComplete,
+  NodeType,
 } from '../src/game/map';
+import { BIOMES } from '../src/types/run';
 
 describe('Map Generation', () => {
   describe('generateMap', () => {

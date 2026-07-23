@@ -193,7 +193,4 @@ export interface EffectExpiredEvent {
   detail?: string;
 }
 
-export type EffectEvent =
-  | EffectAppliedEvent
-  | EffectTickEvent
-  | EffectExpiredEvent;
+export type EffectEvent = EffectAppliedEvent | EffectTickEvent | EffectExpiredEvent;

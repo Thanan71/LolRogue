@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { BootScene } from './scenes/BootScene';
 import { BattleScene } from './scenes/BattleScene';
+import { BootScene } from './scenes/BootScene';
 import { GameOverScene } from './scenes/GameOverScene';
 
 export function initGame(parent: HTMLElement): Phaser.Game {

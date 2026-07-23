@@ -87,8 +87,8 @@ export interface CombatantState {
 
 export interface DamageEvent {
   type: 'damage';
-  source: string;   // champion id
-  target: string;   // champion id
+  source: string; // champion id
+  target: string; // champion id
   amount: number;
   isCrit: boolean;
   sourceSide: TeamSide;
@@ -132,8 +132,8 @@ export interface ActionSelectEvent {
 
 export interface HealEvent {
   type: 'heal';
-  source: string;   // champion id
-  target: string;   // champion id
+  source: string; // champion id
+  target: string; // champion id
   amount: number;
   sourceSide: TeamSide;
   targetSide: TeamSide;
@@ -141,9 +141,9 @@ export interface HealEvent {
 
 export interface ShieldEvent {
   type: 'shield';
-  source: string;   // champion id
-  target: string;   // champion id
-  amount: number;   // shield HP applied
+  source: string; // champion id
+  target: string; // champion id
+  amount: number; // shield HP applied
   sourceSide: TeamSide;
   targetSide: TeamSide;
 }

@@ -2,11 +2,8 @@
  * InventoryManager — handles item equip/unequip, stacking, stat aggregation.
  */
 
-import {
-  type ItemDefinition,
-  type InventoryItem,
-} from '@/types/inventory';
 import type { StatKey } from '@/game/effects/types';
+import type { InventoryItem, ItemDefinition } from '@/types/inventory';
 
 let _nextInstanceId = 1;
 
@@ -48,7 +45,9 @@ export class InventoryManager {
   addItem(definition: ItemDefinition, stacks = 1): string | null {
     if (definition.stackable) {
       const existing = this._items.find(
-        (i) => i.definition.id === definition.id && i.equippedToChampionId === null &&
+        (i) =>
+          i.definition.id === definition.id &&
+          i.equippedToChampionId === null &&
           i.stacks < definition.maxStacks,
       );
       if (existing) {
@@ -190,7 +189,12 @@ export class InventoryManager {
   /**
    * Serialize to plain objects.
    */
-  toJSON(): Array<{ instanceId: string; itemId: string; stacks: number; equippedTo: string | null }> {
+  toJSON(): Array<{
+    instanceId: string;
+    itemId: string;
+    stacks: number;
+    equippedTo: string | null;
+  }> {
     return this._items.map((i) => ({
       instanceId: i.instanceId,
       itemId: i.definition.id,

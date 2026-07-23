@@ -2,11 +2,7 @@
  * Rune Database — conditional bonus runes for champions.
  */
 
-import {
-  type RuneDefinition,
-  RunePath,
-  RuneConditionType,
-} from '@/types/inventory';
+import { RuneConditionType, type RuneDefinition, RunePath } from '@/types/inventory';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PRECISION — Sustained damage and attack speed
@@ -189,7 +185,7 @@ const TRANSCENDENCE: RuneDefinition = {
   row: 2,
   condition: { type: RuneConditionType.EveryNTurns, param: 8 },
   bonus: {
-    modifiers: [{ stat: 'ap', value: 0.10, type: 'percent' }],
+    modifiers: [{ stat: 'ap', value: 0.1, type: 'percent' }],
     duration: 0,
     stacks: false,
     maxStacks: 1,
@@ -348,7 +344,7 @@ const TIME_WARP_TONIC: RuneDefinition = {
   row: 3,
   condition: { type: RuneConditionType.WhileCCd },
   bonus: {
-    modifiers: [{ stat: 'def', value: 0.20, type: 'percent' }],
+    modifiers: [{ stat: 'def', value: 0.2, type: 'percent' }],
     duration: 0,
     stacks: false,
     maxStacks: 1,

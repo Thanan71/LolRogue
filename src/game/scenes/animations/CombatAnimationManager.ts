@@ -5,7 +5,7 @@
  * shield (pulsing barrier), death (fade + particles).
  */
 
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 const ICON_SIZE = 48;
 
@@ -42,11 +42,21 @@ export class CombatAnimationManager {
     const proj = this.scene.add.graphics();
     proj.fillStyle(col, 1).fillCircle(0, 0, r).setPosition(source.x, source.y);
     const glow = this.scene.add.graphics();
-    glow.fillStyle(col, 0.3).fillCircle(0, 0, r * 2).setPosition(source.x, source.y);
+    glow
+      .fillStyle(col, 0.3)
+      .fillCircle(0, 0, r * 2)
+      .setPosition(source.x, source.y);
     this.scene.tweens.add({
-      targets: [proj, glow], x: target.x, y: target.y,
-      duration: 250, ease: 'Quad.easeIn',
-      onComplete: () => { proj.destroy(); glow.destroy(); cb?.(); },
+      targets: [proj, glow],
+      x: target.x,
+      y: target.y,
+      duration: 250,
+      ease: 'Quad.easeIn',
+      onComplete: () => {
+        proj.destroy();
+        glow.destroy();
+        cb?.();
+      },
     });
   }
 
@@ -55,17 +65,30 @@ export class CombatAnimationManager {
     const ring = this.scene.add.graphics();
     ring.lineStyle(3, color, 1).strokeCircle(0, 0, 5).setPosition(pos.x, pos.y);
     this.scene.tweens.add({
-      targets: ring, scaleX: 3, scaleY: 3, alpha: 0,
-      duration: 180, ease: 'Quad.easeOut', onComplete: () => ring.destroy(),
+      targets: ring,
+      scaleX: 3,
+      scaleY: 3,
+      alpha: 0,
+      duration: 180,
+      ease: 'Quad.easeOut',
+      onComplete: () => ring.destroy(),
     });
     for (let i = 0; i < 6; i++) {
       const a = (Math.PI * 2 * i) / 6 + Math.random() * 0.3;
       const d = 15 + Math.random() * 15;
       const p = this.scene.add.graphics();
-      p.fillStyle(color, 1).fillCircle(0, 0, 2 + Math.random() * 2).setPosition(pos.x, pos.y);
+      p.fillStyle(color, 1)
+        .fillCircle(0, 0, 2 + Math.random() * 2)
+        .setPosition(pos.x, pos.y);
       this.scene.tweens.add({
-        targets: p, x: pos.x + Math.cos(a) * d, y: pos.y + Math.sin(a) * d,
-        alpha: 0, scaleX: 0.3, scaleY: 0.3, duration: 280, ease: 'Quad.easeOut',
+        targets: p,
+        x: pos.x + Math.cos(a) * d,
+        y: pos.y + Math.sin(a) * d,
+        alpha: 0,
+        scaleX: 0.3,
+        scaleY: 0.3,
+        duration: 280,
+        ease: 'Quad.easeOut',
         onComplete: () => p.destroy(),
       });
     }
@@ -82,11 +105,21 @@ export class CombatAnimationManager {
       p.setPosition(sx, sy).setAlpha(0);
       this.scene.time.delayedCall(delay, () => {
         this.scene.tweens.add({
-          targets: p, y: sy - 30 - Math.random() * 20, x: sx + (Math.random() - 0.5) * 20,
-          alpha: 1, scaleX: 0.8, scaleY: 0.8, duration: 160, ease: 'Quad.easeOut',
+          targets: p,
+          y: sy - 30 - Math.random() * 20,
+          x: sx + (Math.random() - 0.5) * 20,
+          alpha: 1,
+          scaleX: 0.8,
+          scaleY: 0.8,
+          duration: 160,
+          ease: 'Quad.easeOut',
           onComplete: () => {
             this.scene.tweens.add({
-              targets: p, alpha: 0, y: p.y - 15, duration: 240, ease: 'Quad.easeIn',
+              targets: p,
+              alpha: 0,
+              y: p.y - 15,
+              duration: 240,
+              ease: 'Quad.easeIn',
               onComplete: () => p.destroy(),
             });
           },
@@ -94,17 +127,36 @@ export class CombatAnimationManager {
       });
     }
     const flash = this.scene.add.graphics();
-    flash.fillStyle(COL.heal, 0.25).fillCircle(0, 0, ICON_SIZE / 2 + 5).setPosition(pos.x, pos.y);
+    flash
+      .fillStyle(COL.heal, 0.25)
+      .fillCircle(0, 0, ICON_SIZE / 2 + 5)
+      .setPosition(pos.x, pos.y);
     this.scene.tweens.add({
-      targets: flash, alpha: 0, scaleX: 1.5, scaleY: 1.5,
-      duration: 600, ease: 'Quad.easeOut', onComplete: () => flash.destroy(),
+      targets: flash,
+      alpha: 0,
+      scaleX: 1.5,
+      scaleY: 1.5,
+      duration: 600,
+      ease: 'Quad.easeOut',
+      onComplete: () => flash.destroy(),
     });
-    const ht = this.scene.add.text(pos.x + 20, pos.y - 10, '+' + Math.round(amount), {
-      fontSize: '14px', color: COL.healText, fontStyle: 'bold',
-    }).setOrigin(0.5);
+    const ht = this.scene.add
+      .text(pos.x + 20, pos.y - 10, '+' + Math.round(amount), {
+        fontSize: '14px',
+        color: COL.healText,
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5);
     this.scene.tweens.add({
-      targets: ht, y: ht.y - 35, alpha: 0, duration: 700, ease: 'Power2',
-      onComplete: () => { ht.destroy(); cb?.(); },
+      targets: ht,
+      y: ht.y - 35,
+      alpha: 0,
+      duration: 700,
+      ease: 'Power2',
+      onComplete: () => {
+        ht.destroy();
+        cb?.();
+      },
     });
   }
 
@@ -120,17 +172,34 @@ export class CombatAnimationManager {
     inner.setPosition(pos.x, pos.y).setScale(0.5).setAlpha(0);
 
     this.scene.tweens.add({
-      targets: [barrier, inner], scaleX: 1, scaleY: 1, alpha: 1,
-      duration: 150, ease: 'Back.easeOut',
+      targets: [barrier, inner],
+      scaleX: 1,
+      scaleY: 1,
+      alpha: 1,
+      duration: 150,
+      ease: 'Back.easeOut',
       onComplete: () => {
         this.scene.tweens.add({
-          targets: barrier, scaleX: 1.08, scaleY: 1.08,
-          duration: 125, yoyo: true, ease: 'Sine.easeInOut', repeat: 1,
+          targets: barrier,
+          scaleX: 1.08,
+          scaleY: 1.08,
+          duration: 125,
+          yoyo: true,
+          ease: 'Sine.easeInOut',
+          repeat: 1,
           onComplete: () => {
             this.scene.tweens.add({
-              targets: [barrier, inner], alpha: 0, scaleX: 1.3, scaleY: 1.3,
-              duration: 200, ease: 'Quad.easeIn',
-              onComplete: () => { barrier.destroy(); inner.destroy(); cb?.(); },
+              targets: [barrier, inner],
+              alpha: 0,
+              scaleX: 1.3,
+              scaleY: 1.3,
+              duration: 200,
+              ease: 'Quad.easeIn',
+              onComplete: () => {
+                barrier.destroy();
+                inner.destroy();
+                cb?.();
+              },
             });
           },
         });
@@ -144,16 +213,28 @@ export class CombatAnimationManager {
       sp.fillStyle(COL.shield, 1).fillCircle(0, 0, 2).setPosition(sx, sy).setAlpha(0);
       this.scene.time.delayedCall(i * 40, () => {
         this.scene.tweens.add({
-          targets: sp, alpha: 1, duration: 100, yoyo: true, ease: 'Sine.easeInOut',
+          targets: sp,
+          alpha: 1,
+          duration: 100,
+          yoyo: true,
+          ease: 'Sine.easeInOut',
           onComplete: () => sp.destroy(),
         });
       });
     }
-    const st = this.scene.add.text(pos.x, pos.y - ICON_SIZE / 2 - 15, '🛡 +' + Math.round(amount), {
-      fontSize: '12px', color: COL.shieldText, fontStyle: 'bold',
-    }).setOrigin(0.5);
+    const st = this.scene.add
+      .text(pos.x, pos.y - ICON_SIZE / 2 - 15, '🛡 +' + Math.round(amount), {
+        fontSize: '12px',
+        color: COL.shieldText,
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5);
     this.scene.tweens.add({
-      targets: st, y: st.y - 25, alpha: 0, duration: 700, ease: 'Power2',
+      targets: st,
+      y: st.y - 25,
+      alpha: 0,
+      duration: 700,
+      ease: 'Power2',
       onComplete: () => st.destroy(),
     });
   }
@@ -162,27 +243,54 @@ export class CombatAnimationManager {
   playDeath(vis: VisEntry, cb?: () => void): void {
     const p = this.pos(vis);
     this.scene.tweens.add({
-      targets: vis.container, alpha: 0.15, scaleX: 0.6, scaleY: 0.6,
-      duration: 500, ease: 'Power2',
+      targets: vis.container,
+      alpha: 0.15,
+      scaleX: 0.6,
+      scaleY: 0.6,
+      duration: 500,
+      ease: 'Power2',
     });
-    const xm = this.scene.add.text(p.x, p.y, '✕', {
-      fontSize: '28px', color: '#ff0000', fontStyle: 'bold',
-    }).setOrigin(0.5).setAlpha(0).setScale(0.5);
+    const xm = this.scene.add
+      .text(p.x, p.y, '✕', {
+        fontSize: '28px',
+        color: '#ff0000',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5)
+      .setAlpha(0)
+      .setScale(0.5);
     this.scene.tweens.add({
-      targets: xm, alpha: 1, scaleX: 1.2, scaleY: 1.2,
-      duration: 250, ease: 'Back.easeOut',
+      targets: xm,
+      alpha: 1,
+      scaleX: 1.2,
+      scaleY: 1.2,
+      duration: 250,
+      ease: 'Back.easeOut',
       onComplete: () => {
-        this.scene.tweens.add({ targets: xm, scaleX: 1, scaleY: 1, duration: 150, ease: 'Sine.easeOut' });
+        this.scene.tweens.add({
+          targets: xm,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 150,
+          ease: 'Sine.easeOut',
+        });
       },
     });
     for (let i = 0; i < 8; i++) {
       const a = (Math.PI * 2 * i) / 8;
       const d = 20 + Math.random() * 15;
       const pt = this.scene.add.graphics();
-      pt.fillStyle(0xff0000, 0.7).fillCircle(0, 0, 2 + Math.random() * 2).setPosition(p.x, p.y);
+      pt.fillStyle(0xff0000, 0.7)
+        .fillCircle(0, 0, 2 + Math.random() * 2)
+        .setPosition(p.x, p.y);
       this.scene.tweens.add({
-        targets: pt, x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d,
-        alpha: 0, duration: 650, ease: 'Quad.easeOut', onComplete: () => pt.destroy(),
+        targets: pt,
+        x: p.x + Math.cos(a) * d,
+        y: p.y + Math.sin(a) * d,
+        alpha: 0,
+        duration: 650,
+        ease: 'Quad.easeOut',
+        onComplete: () => pt.destroy(),
       });
     }
     this.scene.time.delayedCall(600, () => cb?.());

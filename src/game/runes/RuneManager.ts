@@ -2,12 +2,8 @@
  * RuneManager — evaluates rune conditions and computes active bonuses.
  */
 
-import {
-  type RuneDefinition,
-  type EquippedRune,
-  RuneConditionType,
-} from '@/types/inventory';
 import type { StatKey } from '@/game/effects/types';
+import { type EquippedRune, RuneConditionType, type RuneDefinition } from '@/types/inventory';
 
 export interface RuneContext {
   currentHp: number;

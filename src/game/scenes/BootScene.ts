@@ -54,12 +54,10 @@ export class BootScene extends Phaser.Scene {
     });
     title.setOrigin(0.5);
 
-    const subtitle = this.add.text(
-      width / 2,
-      height / 2 - 30,
-      'Press any key to start',
-      { fontSize: '18px', color: '#cccccc' },
-    );
+    const subtitle = this.add.text(width / 2, height / 2 - 30, 'Press any key to start', {
+      fontSize: '18px',
+      color: '#cccccc',
+    });
     subtitle.setOrigin(0.5);
 
     this._displayChampionGrid(width, height);

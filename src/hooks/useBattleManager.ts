@@ -1,10 +1,10 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { BattleManager } from '@/game/battle/BattleManager';
-import type { BattleTeam, BattleEvent, BattleAction } from '@/game/battle/types';
+import type { BattleAction, BattleEvent, BattleTeam } from '@/game/battle/types';
 import { BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
-import { useBattleStore, type CombatantInfo, type SpellInfo } from '@/stores/battleStore';
 import { runStatsTracker } from '@/services/RunStatsTracker';
+import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/battleStore';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -12,7 +12,13 @@ import { runStatsTracker } from '@/services/RunStatsTracker';
 const BATTLE_END_UI_DELAY_MS = 500;
 
 /** Convert a ChampionInstance + combatant state to CombatantInfo for the UI */
-function toCombatantInfo(champ: ChampionInstance, side: 'player' | 'enemy', currentHp: number, maxHp: number, isDefeated: boolean): CombatantInfo {
+function toCombatantInfo(
+  champ: ChampionInstance,
+  side: 'player' | 'enemy',
+  currentHp: number,
+  maxHp: number,
+  isDefeated: boolean,
+): CombatantInfo {
   const stats = champ.getStats();
   const slots: Array<'Q' | 'W' | 'E' | 'R'> = ['Q', 'W', 'E', 'R'];
   const spells: SpellInfo[] = [];
@@ -46,8 +52,12 @@ function toCombatantInfo(champ: ChampionInstance, side: 'player' | 'enemy', curr
 
 function syncTeams(bm: BattleManager): void {
   const store = useBattleStore.getState();
-  const player = bm.getPlayerCombatants().map(c => toCombatantInfo(c.champion, 'player', c.currentHp, c.maxHp, c.isDefeated));
-  const enemy = bm.getEnemyCombatants().map(c => toCombatantInfo(c.champion, 'enemy', c.currentHp, c.maxHp, c.isDefeated));
+  const player = bm
+    .getPlayerCombatants()
+    .map((c) => toCombatantInfo(c.champion, 'player', c.currentHp, c.maxHp, c.isDefeated));
+  const enemy = bm
+    .getEnemyCombatants()
+    .map((c) => toCombatantInfo(c.champion, 'enemy', c.currentHp, c.maxHp, c.isDefeated));
   store.setTeams(player, enemy);
 }
 
@@ -77,7 +87,10 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       break;
 
     case 'action_select':
-      store.addLog({ type: 'action', message: `${event.champion}: ${getActionLabel(event.action)}` });
+      store.addLog({
+        type: 'action',
+        message: `${event.champion}: ${getActionLabel(event.action)}`,
+      });
       break;
 
     case 'damage':
@@ -126,7 +139,12 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       store.setWinner(event.winner);
       store.addLog({
         type: 'battle_end',
-        message: event.winner === 'draw' ? 'Égalité !' : event.winner === 'player' ? 'Victoire !' : 'Défaite !',
+        message:
+          event.winner === 'draw'
+            ? 'Égalité !'
+            : event.winner === 'player'
+              ? 'Victoire !'
+              : 'Défaite !',
       });
       break;
   }
@@ -141,7 +159,13 @@ interface UseBattleManagerOptions {
   initialHpOverrides?: Record<string, number>;
 }
 
-export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onComplete, initialHpOverrides }: UseBattleManagerOptions) {
+export function useBattleManager({
+  playerTeam,
+  enemyTeam,
+  autoPlay = true,
+  onComplete,
+  initialHpOverrides,
+}: UseBattleManagerOptions) {
   const bmRef = useRef<BattleManager | null>(null);
   const store = useBattleStore();
   const autoPlayRef = useRef(autoPlay);
@@ -163,7 +187,6 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
     // Reset the battle store and completion flag
     store.resetBattle();
     hasCompletedRef.current = false;
-
 
     const playerBTeam: BattleTeam = { side: 'player', champions: playerTeam };
     const enemyBTeam: BattleTeam = { side: 'enemy', champions: enemyTeam };
@@ -202,11 +225,16 @@ export function useBattleManager({ playerTeam, enemyTeam, autoPlay = true, onCom
   useEffect(() => {
     // Get fresh state from the store (not from closure)
     const currentState = useBattleStore.getState();
-    
+
     // Skip if we haven't started a battle yet (phase is still idle or just starting)
     if (currentState.phase === 'idle' || currentState.phase === 'starting') return;
-    
-    if (currentState.phase === 'finished' && currentState.winner && onCompleteRef.current && !hasCompletedRef.current) {
+
+    if (
+      currentState.phase === 'finished' &&
+      currentState.winner &&
+      onCompleteRef.current &&
+      !hasCompletedRef.current
+    ) {
       hasCompletedRef.current = true;
       const winner = currentState.winner;
       // Add a small delay before calling onComplete to ensure UI has time to render the finished state

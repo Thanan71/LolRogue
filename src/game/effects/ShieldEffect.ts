@@ -6,18 +6,14 @@
  */
 
 import { Effect, generateEffectId } from './Effect';
-import {
-  EffectCategory,
-  type ShieldEffectData,
-  type EffectEvent,
-} from './types';
+import { EffectCategory, type EffectEvent, type ShieldEffectData } from './types';
 
 export interface ShieldEffectParams {
   name?: string;
   sourceId: string;
   targetId: string;
   magnitude: number; // shield HP
-  duration: number;  // rounds until expiry
+  duration: number; // rounds until expiry
 }
 
 export class ShieldEffect extends Effect<ShieldEffectData> {
@@ -36,7 +32,9 @@ export class ShieldEffect extends Effect<ShieldEffectData> {
     });
   }
 
-  get remainingShield(): number { return this.data.remainingShield; }
+  get remainingShield(): number {
+    return this.data.remainingShield;
+  }
 
   /**
    * Absorb incoming damage.

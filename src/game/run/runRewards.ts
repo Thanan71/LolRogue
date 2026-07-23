@@ -6,9 +6,7 @@ export interface RunCandyRewards {
   byChampion: Record<string, number>;
 }
 
-export function calculateRunCandyRewards(
-  summary: RunSummary,
-): RunCandyRewards {
+export function calculateRunCandyRewards(summary: RunSummary): RunCandyRewards {
   const byChampion = calculateCandiesForTeam(
     summary.championStats.map((stats) => stats.championId),
     summary.wavesCompleted,

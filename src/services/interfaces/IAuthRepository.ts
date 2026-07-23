@@ -1,11 +1,11 @@
 /**
  * Auth Repository Interface
- * 
+ *
  * Defines the contract for authentication operations.
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { User, Session } from '@supabase/supabase-js';
+import type { Session, User } from '@supabase/supabase-js';
 
 export interface SignUpMetadata {
   username?: string;
@@ -22,11 +22,7 @@ export interface IAuthRepository {
   /**
    * Sign up a new user
    */
-  signUp(
-    email: string,
-    password: string,
-    metadata?: SignUpMetadata
-  ): Promise<AuthResponseResult>;
+  signUp(email: string, password: string, metadata?: SignUpMetadata): Promise<AuthResponseResult>;
 
   /**
    * Sign in a user
@@ -51,7 +47,7 @@ export interface IAuthRepository {
   /**
    * Subscribe to auth state changes
    */
-  onAuthStateChange(
-    callback: (event: string, session: Session | null) => void
-  ): { subscription: any };
+  onAuthStateChange(callback: (event: string, session: Session | null) => void): {
+    subscription: any;
+  };
 }

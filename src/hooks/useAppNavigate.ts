@@ -1,5 +1,5 @@
-import { useNavigate, type NavigateOptions } from "react-router-dom";
-import { useRouterStore, RoutePath } from '@/stores/routerStore';
+import { type NavigateOptions, useNavigate } from 'react-router-dom';
+import { type RoutePath, useRouterStore } from '@/stores/routerStore';
 
 /**
  * Custom hook that combines React Router's navigate with Zustand state.

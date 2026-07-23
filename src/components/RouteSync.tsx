@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useRouterStore, RoutePath } from '@/stores/routerStore';
+import { type RoutePath, useRouterStore } from '@/stores/routerStore';
 
 /**
  * Synchronizes React Router's location with Zustand router store.

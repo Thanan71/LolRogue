@@ -7,12 +7,12 @@
 
 import { Effect, generateEffectId } from './Effect';
 import {
-  EffectCategory,
   type BuffDebuffEffectData,
-  type StatModifier,
+  EffectCategory,
+  type EffectEvent,
   type ModifierType,
   type StatKey,
-  type EffectEvent,
+  type StatModifier,
 } from './types';
 
 export interface BuffDebuffParams {
@@ -33,10 +33,7 @@ export class BuffDebuffEffect extends Effect<BuffDebuffEffectData> {
     const category = params.isDebuff ? EffectCategory.Debuff : EffectCategory.Buff;
 
     // Compute magnitude as sum of absolute modifier values (for display)
-    const magnitude = params.modifiers.reduce(
-      (sum, m) => sum + Math.abs(m.value),
-      0,
-    );
+    const magnitude = params.modifiers.reduce((sum, m) => sum + Math.abs(m.value), 0);
 
     const stacks = params.stacks ?? 1;
     const maxStacks = params.maxStacks ?? 1;
@@ -57,10 +54,18 @@ export class BuffDebuffEffect extends Effect<BuffDebuffEffectData> {
     });
   }
 
-  get modifiers(): StatModifier[] { return this.data.modifiers; }
-  get stacks(): number { return this.data.stacks; }
-  get maxStacks(): number { return this.data.maxStacks; }
-  get isDebuff(): boolean { return this.data.category === EffectCategory.Debuff; }
+  get modifiers(): StatModifier[] {
+    return this.data.modifiers;
+  }
+  get stacks(): number {
+    return this.data.stacks;
+  }
+  get maxStacks(): number {
+    return this.data.maxStacks;
+  }
+  get isDebuff(): boolean {
+    return this.data.category === EffectCategory.Debuff;
+  }
 
   /**
    * Add a stack (if under maxStacks).
@@ -90,7 +95,7 @@ export class BuffDebuffEffect extends Effect<BuffDebuffEffectData> {
    * Compute the effective modifier for a given stat, accounting for stacks.
    */
   getEffectiveModifiers(): StatModifier[] {
-    return this.data.modifiers.map(m => ({
+    return this.data.modifiers.map((m) => ({
       stat: m.stat,
       type: m.type,
       value: m.value * this.data.stacks,

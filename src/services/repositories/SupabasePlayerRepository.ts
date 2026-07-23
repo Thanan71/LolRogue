@@ -1,13 +1,13 @@
 /**
  * Supabase Player Repository Implementation
- * 
+ *
  * Implements IPlayerRepository using Supabase client.
  * This class handles all player data operations.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { IPlayerRepository } from '../interfaces/IPlayerRepository';
 import type { Player, PlayerUpdate } from '@/types/database';
+import type { IPlayerRepository } from '../interfaces/IPlayerRepository';
 
 export class SupabasePlayerRepository implements IPlayerRepository {
   private supabase: SupabaseClient;
@@ -36,7 +36,7 @@ export class SupabasePlayerRepository implements IPlayerRepository {
 
   async updatePlayer(
     userId: string,
-    updates: PlayerUpdate
+    updates: PlayerUpdate,
   ): Promise<{ data: Player | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('players')
@@ -78,9 +78,8 @@ export class SupabasePlayerRepository implements IPlayerRepository {
     }
 
     // Calculate statistics
-    const winRate = player.total_runs_completed > 0
-      ? (player.total_wins / player.total_runs_completed) * 100
-      : 0;
+    const winRate =
+      player.total_runs_completed > 0 ? (player.total_wins / player.total_runs_completed) * 100 : 0;
 
     return {
       data: {

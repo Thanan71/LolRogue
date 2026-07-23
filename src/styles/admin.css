@@ -45,7 +45,7 @@
   border: 1px solid rgba(200, 170, 110, 0.3);
   color: #c8aa6e;
   font-size: 0.9rem;
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: "Cinzel", Georgia, serif;
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.3s ease;
@@ -84,7 +84,7 @@
   border: 2px solid rgba(200, 170, 110, 0.3);
   color: #c8aa6e;
   font-size: 1rem;
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: "Cinzel", Georgia, serif;
   cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 8px;
@@ -129,7 +129,9 @@
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .stat-card:hover {
@@ -177,11 +179,13 @@
   border: none;
   color: #0a1428;
   font-size: 1rem;
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: "Cinzel", Georgia, serif;
   cursor: pointer;
   border-radius: 8px;
   font-weight: bold;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .action-buttons button:hover {
@@ -222,7 +226,7 @@
   border: 1px solid rgba(200, 170, 110, 0.3);
   color: #c8aa6e;
   border-radius: 6px;
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: "Cinzel", Georgia, serif;
   font-size: 0.9rem;
   cursor: pointer;
 }
@@ -381,8 +385,10 @@
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  font-family: 'Cinzel', Georgia, serif;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  font-family: "Cinzel", Georgia, serif;
 }
 
 .runs-actions button:hover:not(:disabled) {

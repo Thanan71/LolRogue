@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from 'react';
 import type { CombatantInfo } from '../../stores/battleStore';
-import { useSettingsStore, scaleFontSize } from '../../stores/settingsStore';
+import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
 import { SpellTooltip } from './SpellTooltip';
 
 interface Props {
@@ -11,10 +11,10 @@ interface Props {
 const SLOTS: Array<'Q' | 'W' | 'E' | 'R'> = ['Q', 'W', 'E', 'R'];
 
 export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
-  const textSize = useSettingsStore(s => s.textSize);
+  const textSize = useSettingsStore((s) => s.textSize);
 
   const handleClick = (slot: 'Q' | 'W' | 'E' | 'R') => {
-    const spell = champion.spells.find(s => s.slot === slot);
+    const spell = champion.spells.find((s) => s.slot === slot);
     if (!spell || !spell.isReady) return;
     onCast?.(slot);
   };
@@ -38,8 +38,8 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
         boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
       }}
     >
-      {SLOTS.map(slot => {
-        const spell = champion.spells.find(s => s.slot === slot);
+      {SLOTS.map((slot) => {
+        const spell = champion.spells.find((s) => s.slot === slot);
         const cd = spell?.cooldownCurrent ?? 0;
         const onCooldown = cd > 0;
         const disabled = !spell || onCooldown;
@@ -90,7 +90,9 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
                 overflow: 'hidden',
                 border: `2px solid ${disabled ? '#333' : isUlt ? '#ffd700' : '#555'}`,
                 boxShadow: isUlt && !disabled ? '0 0 8px rgba(255,215,0,0.3)' : 'none',
-                background: isUlt ? 'linear-gradient(135deg,#4a3728,#2a1f18)' : 'linear-gradient(135deg,#1a2a3a,#0f1520)',
+                background: isUlt
+                  ? 'linear-gradient(135deg,#4a3728,#2a1f18)'
+                  : 'linear-gradient(135deg,#1a2a3a,#0f1520)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

@@ -1,6 +1,6 @@
 /**
  * Mastery Repository Interface
- * 
+ *
  * Defines the contract for champion mastery operations.
  * Follows the Repository pattern for dependency inversion.
  */
@@ -12,7 +12,7 @@ export interface IMasteryRepository {
    * Get all champion mastery for a player
    */
   getChampionMastery(
-    playerId: string
+    playerId: string,
   ): Promise<{ data: ChampionMastery[] | null; error: Error | null }>;
 
   /**
@@ -20,7 +20,7 @@ export interface IMasteryRepository {
    */
   getChampionMasteryByChampion(
     playerId: string,
-    championId: string
+    championId: string,
   ): Promise<{ data: ChampionMastery | null; error: Error | null }>;
 
   /**
@@ -29,7 +29,7 @@ export interface IMasteryRepository {
   upsertChampionMastery(
     playerId: string,
     championId: string,
-    updates: ChampionMasteryUpdate
+    updates: ChampionMasteryUpdate,
   ): Promise<{ data: ChampionMastery | null; error: Error | null }>;
 }
 
@@ -47,15 +47,11 @@ export interface IPlayerUnlockRepository {
     unlockType: 'starter' | 'skin',
     unlockId: string,
     championId?: string,
-    skinId?: string
+    skinId?: string,
   ): Promise<{ data: any | null; error: Error | null }>;
 
   /**
    * Check if a player has an unlock
    */
-  hasUnlock(
-    playerId: string,
-    unlockType: 'starter' | 'skin',
-    unlockId: string
-  ): Promise<boolean>;
+  hasUnlock(playerId: string, unlockType: 'starter' | 'skin', unlockId: string): Promise<boolean>;
 }

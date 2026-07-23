@@ -1,38 +1,73 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { BattleManager } from '../src/game/battle/BattleManager';
-import { BattlePhase, ActionType } from '../src/game/battle/types';
-import type { BattleTeam, BattleAction } from '../src/game/battle/types';
+import type { BattleAction, BattleTeam } from '../src/game/battle/types';
+import { ActionType, BattlePhase } from '../src/game/battle/types';
 import { ChampionInstance } from '../src/game/ChampionInstance';
-import type { Champion, ChampionStats, Spell, Passive } from '../src/types';
+import type { Champion, ChampionStats, Passive, Spell } from '../src/types';
 
 function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
   const baseStats: ChampionStats = {
-    hp: 500, mp: 300, moveSpeed: 330, armor: 30, magicResist: 30,
-    attackDamage: 60, attackSpeed: 0.65, attackRange: 175,
-    hpPerLevel: 90, mpPerLevel: 40, armorPerLevel: 4, magicResistPerLevel: 1.3,
-    attackDamagePerLevel: 3, attackSpeedPerLevel: 2.5,
-    hpRegen: 7, hpRegenPerLevel: 0.7, mpRegen: 8, mpRegenPerLevel: 0.8,
-    crit: 0, critPerLevel: 0,
+    hp: 500,
+    mp: 300,
+    moveSpeed: 330,
+    armor: 30,
+    magicResist: 30,
+    attackDamage: 60,
+    attackSpeed: 0.65,
+    attackRange: 175,
+    hpPerLevel: 90,
+    mpPerLevel: 40,
+    armorPerLevel: 4,
+    magicResistPerLevel: 1.3,
+    attackDamagePerLevel: 3,
+    attackSpeedPerLevel: 2.5,
+    hpRegen: 7,
+    hpRegenPerLevel: 0.7,
+    mpRegen: 8,
+    mpRegenPerLevel: 0.8,
+    crit: 0,
+    critPerLevel: 0,
   };
   const makeSpell = (slot: string): Spell => ({
-    id: `Test${slot}`, name: `Test Spell ${slot}`, description: `Desc ${slot}`,
-    maxRank: 5, cooldown: [8, 7.5, 7, 6.5, 6], cost: [50, 55, 60, 65, 70],
-    range: [700, 700, 700, 700, 700], image: `Test${slot}.png`,
+    id: `Test${slot}`,
+    name: `Test Spell ${slot}`,
+    description: `Desc ${slot}`,
+    maxRank: 5,
+    cooldown: [8, 7.5, 7, 6.5, 6],
+    cost: [50, 55, 60, 65, 70],
+    range: [700, 700, 700, 700, 700],
+    image: `Test${slot}.png`,
     targeting: 'enemy' as any,
     scaling: { adRatio: 0.5, apRatio: 0.0 },
-    effects: [{ type: 'damage', damageType: 'physical', adRatio: 0.5, apRatio: 0.0, baseDamage: [50, 75, 100, 125, 150] }],
+    effects: [
+      {
+        type: 'damage',
+        damageType: 'physical',
+        adRatio: 0.5,
+        apRatio: 0.0,
+        baseDamage: [50, 75, 100, 125, 150],
+      },
+    ],
   });
   const passive: Passive = {
-    name: 'Test Passive', description: 'Desc', image: 'TestPassive.png',
+    name: 'Test Passive',
+    description: 'Desc',
+    image: 'TestPassive.png',
     targeting: 'passive' as any,
     scaling: { adRatio: 0.0, apRatio: 0.0 },
     effects: [],
   };
   const defaults: Champion = {
-    id: 'TestChampion', key: '9999', name: 'Test Champion', title: 'the Tester',
-    tags: ['Mage', 'Assassin'], resourceType: 'Mana', stats: baseStats,
+    id: 'TestChampion',
+    key: '9999',
+    name: 'Test Champion',
+    title: 'the Tester',
+    tags: ['Mage', 'Assassin'],
+    resourceType: 'Mana',
+    stats: baseStats,
     spells: [makeSpell('Q'), makeSpell('W'), makeSpell('E'), makeSpell('R')],
-    passive, iconUrl: '/data/lol/img/champions/TestChampion.png',
+    passive,
+    iconUrl: '/data/lol/img/champions/TestChampion.png',
   };
   return { ...defaults, ...overrides };
 }
@@ -56,7 +91,6 @@ function makeTeams(
 
 describe('BattleManager', () => {
   describe('Phase 2: Initiative & Turn-by-Turn', () => {
-
     describe('basic battle flow', () => {
       it('should start in Idle phase', () => {
         const teams = makeTeams(['A'], ['B']);
@@ -88,10 +122,10 @@ describe('BattleManager', () => {
         const teams = makeTeams(['Slow'], ['Fast'], { Slow: 325, Fast: 355 });
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
         const events: any[] = [];
-        bm.on('event', e => events.push(e));
+        bm.on('event', (e) => events.push(e));
         bm.startBattle();
 
-        const roundStart = events.find(e => e.type === 'round_start');
+        const roundStart = events.find((e) => e.type === 'round_start');
         expect(roundStart).toBeDefined();
         expect(roundStart.turnOrder.length).toBe(2);
         expect(roundStart.turnOrder[0].champion).toBe('Fast');
@@ -102,10 +136,10 @@ describe('BattleManager', () => {
         const teams = makeTeams(['P1', 'P2'], ['E1']);
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
         const events: any[] = [];
-        bm.on('event', e => events.push(e));
+        bm.on('event', (e) => events.push(e));
         bm.startBattle();
 
-        const roundStart = events.find(e => e.type === 'round_start');
+        const roundStart = events.find((e) => e.type === 'round_start');
         expect(roundStart.turnOrder.length).toBe(3);
       });
     });
@@ -115,11 +149,11 @@ describe('BattleManager', () => {
         const teams = makeTeams(['P1'], ['E1']);
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
         const events: any[] = [];
-        bm.on('event', e => events.push(e));
+        bm.on('event', (e) => events.push(e));
         bm.startBattle();
         bm.processCurrentTurn();
 
-        const types = events.map(e => e.type);
+        const types = events.map((e) => e.type);
         expect(types).toContain('turn_start');
         expect(types).toContain('action_select');
         expect(types).toContain('damage');
@@ -180,7 +214,7 @@ describe('BattleManager', () => {
         expect(actions.length).toBe(5);
         expect(actions[0].type).toBe(ActionType.BasicAttack);
         expect(actions[0].cost).toBe(0);
-        expect(actions.find(a => a.type === ActionType.SpellR)).toBeDefined();
+        expect(actions.find((a) => a.type === ActionType.SpellR)).toBeDefined();
       });
 
       it('should accept submitted actions for player turns', () => {
@@ -202,7 +236,7 @@ describe('BattleManager', () => {
         const teams = makeTeams(['P1'], ['E1']);
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
         const events: any[] = [];
-        bm.on('event', e => events.push(e));
+        bm.on('event', (e) => events.push(e));
         bm.startBattle();
 
         let safety = 100;
@@ -211,7 +245,7 @@ describe('BattleManager', () => {
         }
 
         expect(bm.phase).toBe(BattlePhase.Finished);
-        const endEvent = events.find(e => e.type === 'battle_end');
+        const endEvent = events.find((e) => e.type === 'battle_end');
         expect(endEvent).toBeDefined();
         expect(['player', 'enemy']).toContain(endEvent.winner);
       });
@@ -236,10 +270,7 @@ describe('BattleManager', () => {
 
     describe('5v5 battle', () => {
       it('should handle 5v5 with all participants', () => {
-        const teams = makeTeams(
-          ['P1', 'P2', 'P3', 'P4', 'P5'],
-          ['E1', 'E2', 'E3', 'E4', 'E5'],
-        );
+        const teams = makeTeams(['P1', 'P2', 'P3', 'P4', 'P5'], ['E1', 'E2', 'E3', 'E4', 'E5']);
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
         bm.startBattle();
 
@@ -262,10 +293,10 @@ describe('BattleManager', () => {
         const teams = makeTeams(['A', 'B'], ['C']);
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
         const events: any[] = [];
-        bm.on('event', e => events.push(e));
+        bm.on('event', (e) => events.push(e));
         bm.startBattle();
 
-        const rs = events.find(e => e.type === 'round_start');
+        const rs = events.find((e) => e.type === 'round_start');
         expect(rs).toBeDefined();
         expect(rs.round).toBe(1);
         expect(rs.turnOrder.length).toBe(3);
@@ -280,12 +311,12 @@ describe('BattleManager', () => {
         const teams = makeTeams(['P1'], ['E1']);
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
         const events: any[] = [];
-        bm.on('event', e => events.push(e));
+        bm.on('event', (e) => events.push(e));
         bm.startBattle();
         bm.processCurrentTurn();
 
-        const selectIdx = events.findIndex(e => e.type === 'action_select');
-        const damageIdx = events.findIndex(e => e.type === 'damage');
+        const selectIdx = events.findIndex((e) => e.type === 'action_select');
+        const damageIdx = events.findIndex((e) => e.type === 'damage');
         expect(selectIdx).toBeGreaterThan(-1);
         expect(damageIdx).toBeGreaterThan(-1);
         expect(selectIdx).toBeLessThan(damageIdx);

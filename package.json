@@ -3,17 +3,25 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && npm run ddragon:download && npm run ddragon:parse && vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:db": "DB_TEST_REQUIRED=1 vitest run tests/database.test.ts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
     "migrate": "npx supabase db push",
     "ddragon:download": "node scripts/download-ddragon.js",
-    "ddragon:parse": "node scripts/parse-champions.js"
+    "ddragon:parse": "node scripts/parse-champions.js",
+    "assets:update": "npm run ddragon:download && npm run ddragon:parse"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.8",
@@ -27,6 +35,7 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.5",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.5.0",
     "@types/react": "^18.3.3",

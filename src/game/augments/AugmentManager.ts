@@ -2,13 +2,13 @@
  * AugmentManager — manages acquired augments and computes team-wide bonuses.
  */
 
+import type { StatKey } from '@/game/effects/types';
 import {
-  type AugmentDefinition,
   type AcquiredAugment,
+  type AugmentDefinition,
   AugmentEffectType,
   DEFAULT_MAX_AUGMENTS,
 } from '@/types/inventory';
-import type { StatKey } from '@/game/effects/types';
 
 let _nextInstanceId = 1;
 
@@ -50,11 +50,7 @@ export class AugmentManager {
    * If already owned and stackable, adds a stack.
    * @returns true if successful.
    */
-  acquireAugment(
-    definition: AugmentDefinition,
-    currentBiome = 'unknown',
-    runLevel = 1,
-  ): boolean {
+  acquireAugment(definition: AugmentDefinition, currentBiome = 'unknown', runLevel = 1): boolean {
     const existing = this._augments.find((a) => a.definition.id === definition.id);
 
     if (existing) {
@@ -129,7 +125,7 @@ export class AugmentManager {
         }
       }
     }
-    return Math.min(reduction, 0.80);
+    return Math.min(reduction, 0.8);
   }
 
   /**
@@ -173,7 +169,8 @@ export class AugmentManager {
             if (effect.flatValue) result[effect.stat].flat += effect.flatValue * acquired.stacks;
             break;
           case AugmentEffectType.TeamStatPercent:
-            if (effect.percentValue) result[effect.stat].percent += effect.percentValue * acquired.stacks;
+            if (effect.percentValue)
+              result[effect.stat].percent += effect.percentValue * acquired.stacks;
             break;
           case AugmentEffectType.ScalingStatFlat:
             if (effect.flatValue) {

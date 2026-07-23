@@ -6,66 +6,91 @@
  * victory conditions, 0 HP, overflow shields, CC chains.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BattleManager } from '../src/game/battle/BattleManager';
+import type { BattleEvent, BattleTeam, DamageEvent } from '../src/game/battle/types';
 import { BattlePhase } from '../src/game/battle/types';
-import type { BattleTeam, BattleEvent, DamageEvent } from '../src/game/battle/types';
 import { ChampionInstance, SPELL_SLOTS, type SpellSlot } from '../src/game/ChampionInstance';
-import { EffectManager } from '../src/game/effects/EffectManager';
+import { createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
+import { CCEffect } from '../src/game/effects/CCEffect';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
+import { EffectManager } from '../src/game/effects/EffectManager';
+import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
 import { HealEffect } from '../src/game/effects/HealEffect';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
-import { CCEffect } from '../src/game/effects/CCEffect';
-import { createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
-import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
+import { CCType, DamageType, EffectCategory } from '../src/game/effects/types';
+import type { Champion, ChampionStats, Passive, Spell } from '../src/types';
+import { type SpellEffect, TargetingType } from '../src/types';
 import {
-  EffectCategory, DamageType, CCType,
-} from '../src/game/effects/types';
-import {
-  calculArmorReduction, critDamage,
-  calculateADDamage, calculateAPDamage, calculateTrueDamage,
+  calculArmorReduction,
+  calculateADDamage,
+  calculateAPDamage,
+  calculateTrueDamage,
+  critDamage,
 } from '../src/utils/damage';
-import type { Champion, ChampionStats, Spell, Passive } from '../src/types';
-import { TargetingType, type SpellEffect } from '../src/types';
 
 // ─── Test Fixtures ──────────────────────────────────────────────────────────
 
 function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
   const baseStats: ChampionStats = {
-    hp: 500, mp: 300, moveSpeed: 330, armor: 30, magicResist: 30,
-    attackDamage: 60, attackSpeed: 0.65, attackRange: 175,
-    hpPerLevel: 90, mpPerLevel: 40, armorPerLevel: 4, magicResistPerLevel: 1.3,
-    attackDamagePerLevel: 3, attackSpeedPerLevel: 2.5,
-    hpRegen: 7, hpRegenPerLevel: 0.7, mpRegen: 8, mpRegenPerLevel: 0.8,
-    crit: 0, critPerLevel: 0,
+    hp: 500,
+    mp: 300,
+    moveSpeed: 330,
+    armor: 30,
+    magicResist: 30,
+    attackDamage: 60,
+    attackSpeed: 0.65,
+    attackRange: 175,
+    hpPerLevel: 90,
+    mpPerLevel: 40,
+    armorPerLevel: 4,
+    magicResistPerLevel: 1.3,
+    attackDamagePerLevel: 3,
+    attackSpeedPerLevel: 2.5,
+    hpRegen: 7,
+    hpRegenPerLevel: 0.7,
+    mpRegen: 8,
+    mpRegenPerLevel: 0.8,
+    crit: 0,
+    critPerLevel: 0,
   };
   const makeSpell = (slot: string): Spell => ({
-    id: `Test${slot}`, name: `Test Spell ${slot}`, description: `Desc ${slot}`,
-    maxRank: 5, cooldown: [8, 7.5, 7, 6.5, 6], cost: [50, 55, 60, 65, 70],
-    range: [700, 700, 700, 700, 700], image: `Test${slot}.png`,
+    id: `Test${slot}`,
+    name: `Test Spell ${slot}`,
+    description: `Desc ${slot}`,
+    maxRank: 5,
+    cooldown: [8, 7.5, 7, 6.5, 6],
+    cost: [50, 55, 60, 65, 70],
+    range: [700, 700, 700, 700, 700],
+    image: `Test${slot}.png`,
     targeting: TargetingType.Enemy,
     scaling: { adRatio: 0, apRatio: 0 },
     effects: [] as SpellEffect[],
   });
   const passive: Passive = {
-    name: 'Test Passive', description: 'Desc', image: 'TestPassive.png',
+    name: 'Test Passive',
+    description: 'Desc',
+    image: 'TestPassive.png',
     targeting: TargetingType.Passive,
     scaling: { adRatio: 0, apRatio: 0 },
     effects: [] as SpellEffect[],
   };
   const defaults: Champion = {
-    id: 'TestChampion', key: '9999', name: 'Test Champion', title: 'the Tester',
-    tags: ['Mage', 'Assassin'], resourceType: 'Mana', stats: baseStats,
+    id: 'TestChampion',
+    key: '9999',
+    name: 'Test Champion',
+    title: 'the Tester',
+    tags: ['Mage', 'Assassin'],
+    resourceType: 'Mana',
+    stats: baseStats,
     spells: [makeSpell('Q'), makeSpell('W'), makeSpell('E'), makeSpell('R')],
-    passive, iconUrl: '/data/lol/img/champions/TestChampion.png',
+    passive,
+    iconUrl: '/data/lol/img/champions/TestChampion.png',
   };
   return { ...defaults, ...overrides };
 }
 
-function makeChampion(
-  id: string,
-  statOverrides: Partial<ChampionStats> = {},
-): ChampionInstance {
+function makeChampion(id: string, statOverrides: Partial<ChampionStats> = {}): ChampionInstance {
   const champ = makeTestChampion({ id, name: id, key: id });
   Object.assign(champ.stats, statOverrides);
   return new ChampionInstance(champ, 1);
@@ -79,11 +104,11 @@ function makeTeams(
   return {
     playerTeam: {
       side: 'player',
-      champions: playerIds.map(id => makeChampion(id, statOverrides[id] ?? {})),
+      champions: playerIds.map((id) => makeChampion(id, statOverrides[id] ?? {})),
     },
     enemyTeam: {
       side: 'enemy',
-      champions: enemyIds.map(id => makeChampion(id, statOverrides[id] ?? {})),
+      champions: enemyIds.map((id) => makeChampion(id, statOverrides[id] ?? {})),
     },
   };
 }
@@ -93,7 +118,6 @@ function makeTeams(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('Damage Formula Edge Cases', () => {
-
   describe('armor reduction — extreme values', () => {
     it('returns 0 reduction at armor = 0', () => {
       expect(calculArmorReduction(100, 0)).toBe(0);
@@ -171,14 +195,12 @@ describe('Damage Formula Edge Cases', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('Initiative & Turn Order', () => {
-
   it('higher speed always goes first (statistical)', () => {
     // With 30 speed difference, the faster champ should almost always go first
-    const teams = makeTeams(
-      ['Fast'],
-      ['Slow'],
-      { Fast: { moveSpeed: 355 }, Slow: { moveSpeed: 325 } },
-    );
+    const teams = makeTeams(['Fast'], ['Slow'], {
+      Fast: { moveSpeed: 355 },
+      Slow: { moveSpeed: 325 },
+    });
     for (let i = 0; i < 50; i++) {
       const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
       bm.startBattle();
@@ -205,7 +227,7 @@ describe('Initiative & Turn Order', () => {
     }
 
     // After new round starts, P2 should not appear in turn order
-    const ids = bm.turnOrder.map(e => e.champion.id);
+    const ids = bm.turnOrder.map((e) => e.champion.id);
     expect(ids).not.toContain('P2');
   });
 
@@ -220,7 +242,7 @@ describe('Initiative & Turn Order', () => {
     const teams = makeTeams(['P1', 'P2', 'P3'], ['E1']);
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
     const events: BattleEvent[] = [];
-    bm.on('event', e => events.push(e));
+    bm.on('event', (e) => events.push(e));
     bm.startBattle();
 
     let safety = 50;
@@ -245,12 +267,11 @@ describe('Initiative & Turn Order', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('0 HP Defeat Condition', () => {
-
   it('damage reducing HP to exactly 0 triggers defeat', () => {
     const teams = makeTeams(['P1'], ['E1']);
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
     const events: BattleEvent[] = [];
-    bm.on('event', e => events.push(e));
+    bm.on('event', (e) => events.push(e));
     bm.startBattle();
 
     const enemy = bm.getCombatantState('E1', 'enemy')!;
@@ -262,7 +283,7 @@ describe('0 HP Defeat Condition', () => {
       bm.processCurrentTurn();
     }
 
-    const defeat = events.find(e => e.type === 'defeat');
+    const defeat = events.find((e) => e.type === 'defeat');
     expect(defeat).toBeDefined();
   });
 
@@ -306,24 +327,38 @@ describe('Overflow Shields', () => {
   });
 
   it('damage exceeding shield passes remainder', () => {
-    manager.apply(new ShieldEffect({
-      sourceId: 'ally', targetId: 'champ-1',
-      magnitude: 100, duration: 5,
-    }));
+    manager.apply(
+      new ShieldEffect({
+        sourceId: 'ally',
+        targetId: 'champ-1',
+        magnitude: 100,
+        duration: 5,
+      }),
+    );
     const result = manager.absorbWithShields(300);
     expect(result.totalAbsorbed).toBe(100);
     expect(result.finalDamage).toBe(200);
   });
 
   it('multiple shields absorb sequentially', () => {
-    manager.apply(new ShieldEffect({
-      name: 'S1', sourceId: 's1', targetId: 'champ-1',
-      magnitude: 100, duration: 5,
-    }));
-    manager.apply(new ShieldEffect({
-      name: 'S2', sourceId: 's2', targetId: 'champ-1',
-      magnitude: 150, duration: 5,
-    }));
+    manager.apply(
+      new ShieldEffect({
+        name: 'S1',
+        sourceId: 's1',
+        targetId: 'champ-1',
+        magnitude: 100,
+        duration: 5,
+      }),
+    );
+    manager.apply(
+      new ShieldEffect({
+        name: 'S2',
+        sourceId: 's2',
+        targetId: 'champ-1',
+        magnitude: 150,
+        duration: 5,
+      }),
+    );
     const result = manager.absorbWithShields(300);
     expect(result.totalAbsorbed).toBe(250);
     expect(result.finalDamage).toBe(50);
@@ -331,8 +366,10 @@ describe('Overflow Shields', () => {
 
   it('exactly consumed shield expires', () => {
     const shield = new ShieldEffect({
-      sourceId: 'ally', targetId: 'champ-1',
-      magnitude: 200, duration: 5,
+      sourceId: 'ally',
+      targetId: 'champ-1',
+      magnitude: 200,
+      duration: 5,
     });
     manager.apply(shield);
     manager.absorbWithShields(200);
@@ -342,8 +379,10 @@ describe('Overflow Shields', () => {
 
   it('0 damage does not break shield', () => {
     const shield = new ShieldEffect({
-      sourceId: 'ally', targetId: 'champ-1',
-      magnitude: 500, duration: 5,
+      sourceId: 'ally',
+      targetId: 'champ-1',
+      magnitude: 500,
+      duration: 5,
     });
     manager.apply(shield);
     const result = manager.absorbWithShields(0);
@@ -353,8 +392,10 @@ describe('Overflow Shields', () => {
 
   it('expired shield absorbs nothing', () => {
     const shield = new ShieldEffect({
-      sourceId: 'ally', targetId: 'champ-1',
-      magnitude: 500, duration: 5,
+      sourceId: 'ally',
+      targetId: 'champ-1',
+      magnitude: 500,
+      duration: 5,
     });
     shield.data.expired = true;
     const result = shield.absorbDamage(100);
@@ -364,8 +405,10 @@ describe('Overflow Shields', () => {
 
   it('shield duration expiry works with HP remaining', () => {
     const shield = new ShieldEffect({
-      sourceId: 'ally', targetId: 'champ-1',
-      magnitude: 500, duration: 2,
+      sourceId: 'ally',
+      targetId: 'champ-1',
+      magnitude: 500,
+      duration: 2,
     });
     manager.apply(shield);
     manager.tickAll();
@@ -375,10 +418,14 @@ describe('Overflow Shields', () => {
   });
 
   it('absorbWithShields cleans expired shields', () => {
-    manager.apply(new ShieldEffect({
-      sourceId: 'ally', targetId: 'champ-1',
-      magnitude: 100, duration: 5,
-    }));
+    manager.apply(
+      new ShieldEffect({
+        sourceId: 'ally',
+        targetId: 'champ-1',
+        magnitude: 100,
+        duration: 5,
+      }),
+    );
     manager.absorbWithShields(100);
     expect(manager.shields.length).toBe(0);
   });
@@ -396,14 +443,22 @@ describe('CC Chains', () => {
   });
 
   it('stacking two stuns keeps canAct false throughout', () => {
-    manager.apply(new CCEffect({
-      sourceId: 'src1', targetId: 'champ-1',
-      ccType: CCType.Stun, duration: 2,
-    }));
-    manager.apply(new CCEffect({
-      sourceId: 'src2', targetId: 'champ-1',
-      ccType: CCType.Stun, duration: 3,
-    }));
+    manager.apply(
+      new CCEffect({
+        sourceId: 'src1',
+        targetId: 'champ-1',
+        ccType: CCType.Stun,
+        duration: 2,
+      }),
+    );
+    manager.apply(
+      new CCEffect({
+        sourceId: 'src2',
+        targetId: 'champ-1',
+        ccType: CCType.Stun,
+        duration: 3,
+      }),
+    );
     expect(manager.canAct()).toBe(false);
 
     // Tick stun 1 twice — it expires
@@ -419,19 +474,27 @@ describe('CC Chains', () => {
   });
 
   it('stun → knockup → stun chain', () => {
-    manager.apply(new CCEffect({
-      sourceId: 's1', targetId: 'champ-1',
-      ccType: CCType.Stun, duration: 1,
-    }));
+    manager.apply(
+      new CCEffect({
+        sourceId: 's1',
+        targetId: 'champ-1',
+        ccType: CCType.Stun,
+        duration: 1,
+      }),
+    );
     expect(manager.canAct()).toBe(false);
     expect(manager.isHardCCd()).toBe(true);
 
     manager.tickAll(); // stun expires
 
-    manager.apply(new CCEffect({
-      sourceId: 's2', targetId: 'champ-1',
-      ccType: CCType.Knockup, duration: 1,
-    }));
+    manager.apply(
+      new CCEffect({
+        sourceId: 's2',
+        targetId: 'champ-1',
+        ccType: CCType.Knockup,
+        duration: 1,
+      }),
+    );
     expect(manager.canAct()).toBe(false);
     expect(manager.isHardCCd()).toBe(true);
 
@@ -440,57 +503,88 @@ describe('CC Chains', () => {
   });
 
   it('snare allows acting but not moving', () => {
-    manager.apply(new CCEffect({
-      sourceId: 's', targetId: 'champ-1',
-      ccType: CCType.Snare, duration: 2,
-    }));
+    manager.apply(
+      new CCEffect({
+        sourceId: 's',
+        targetId: 'champ-1',
+        ccType: CCType.Snare,
+        duration: 2,
+      }),
+    );
     expect(manager.canAct()).toBe(true);
     expect(manager.canCast()).toBe(true);
     expect(manager.canMove()).toBe(false);
   });
 
   it('silence prevents casting but allows movement', () => {
-    manager.apply(new CCEffect({
-      sourceId: 's', targetId: 'champ-1',
-      ccType: CCType.Silence, duration: 2,
-    }));
+    manager.apply(
+      new CCEffect({
+        sourceId: 's',
+        targetId: 'champ-1',
+        ccType: CCType.Silence,
+        duration: 2,
+      }),
+    );
     expect(manager.canAct()).toBe(true);
     expect(manager.canMove()).toBe(true);
     expect(manager.canCast()).toBe(false);
   });
 
   it('slow does not prevent any actions', () => {
-    manager.apply(new CCEffect({
-      sourceId: 's', targetId: 'champ-1',
-      ccType: CCType.Slow, duration: 2, slowAmount: 0.5,
-    }));
+    manager.apply(
+      new CCEffect({
+        sourceId: 's',
+        targetId: 'champ-1',
+        ccType: CCType.Slow,
+        duration: 2,
+        slowAmount: 0.5,
+      }),
+    );
     expect(manager.canAct()).toBe(true);
     expect(manager.canCast()).toBe(true);
     expect(manager.canMove()).toBe(true);
   });
 
   it('multiple slows stack but cap at 99%', () => {
-    manager.apply(new CCEffect({
-      sourceId: 's1', targetId: 'champ-1',
-      ccType: CCType.Slow, duration: 3, slowAmount: 0.6,
-    }));
-    manager.apply(new CCEffect({
-      sourceId: 's2', targetId: 'champ-1',
-      ccType: CCType.Slow, duration: 3, slowAmount: 0.5,
-    }));
+    manager.apply(
+      new CCEffect({
+        sourceId: 's1',
+        targetId: 'champ-1',
+        ccType: CCType.Slow,
+        duration: 3,
+        slowAmount: 0.6,
+      }),
+    );
+    manager.apply(
+      new CCEffect({
+        sourceId: 's2',
+        targetId: 'champ-1',
+        ccType: CCType.Slow,
+        duration: 3,
+        slowAmount: 0.5,
+      }),
+    );
     // total slow = 1.1, capped at 0.99 → multiplier = 0.01
     expect(manager.getSpeedMultiplier()).toBeCloseTo(0.01, 2);
   });
 
   it('snare + silence together blocks move and cast', () => {
-    manager.apply(new CCEffect({
-      sourceId: 's1', targetId: 'champ-1',
-      ccType: CCType.Snare, duration: 2,
-    }));
-    manager.apply(new CCEffect({
-      sourceId: 's2', targetId: 'champ-1',
-      ccType: CCType.Silence, duration: 2,
-    }));
+    manager.apply(
+      new CCEffect({
+        sourceId: 's1',
+        targetId: 'champ-1',
+        ccType: CCType.Snare,
+        duration: 2,
+      }),
+    );
+    manager.apply(
+      new CCEffect({
+        sourceId: 's2',
+        targetId: 'champ-1',
+        ccType: CCType.Silence,
+        duration: 2,
+      }),
+    );
     expect(manager.canAct()).toBe(true); // neither is hard CC
     expect(manager.canMove()).toBe(false); // snare
     expect(manager.canCast()).toBe(false); // silence
@@ -502,12 +596,11 @@ describe('CC Chains', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('Victory Conditions', () => {
-
   it('detects player victory when all enemies die', () => {
     const teams = makeTeams(['P1', 'P2'], ['E1']);
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
     const events: BattleEvent[] = [];
-    bm.on('event', e => events.push(e));
+    bm.on('event', (e) => events.push(e));
     bm.startBattle();
 
     let safety = 200;
@@ -516,7 +609,7 @@ describe('Victory Conditions', () => {
     }
 
     expect(bm.phase).toBe(BattlePhase.Finished);
-    const endEvent = events.find(e => e.type === 'battle_end');
+    const endEvent = events.find((e) => e.type === 'battle_end');
     expect(endEvent).toBeDefined();
     if (endEvent && 'winner' in endEvent) {
       expect(endEvent.winner).toBe('player');
@@ -524,13 +617,10 @@ describe('Victory Conditions', () => {
   });
 
   it('detects enemy victory when all players die', () => {
-    const teams = makeTeams(
-      ['P1'],
-      ['E1', 'E2', 'E3', 'E4', 'E5'],
-    );
+    const teams = makeTeams(['P1'], ['E1', 'E2', 'E3', 'E4', 'E5']);
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
     const events: BattleEvent[] = [];
-    bm.on('event', e => events.push(e));
+    bm.on('event', (e) => events.push(e));
     bm.startBattle();
 
     let safety = 500;
@@ -539,7 +629,7 @@ describe('Victory Conditions', () => {
     }
 
     expect(bm.phase).toBe(BattlePhase.Finished);
-    const endEvent = events.find(e => e.type === 'battle_end');
+    const endEvent = events.find((e) => e.type === 'battle_end');
     expect(endEvent).toBeDefined();
     if (endEvent && 'winner' in endEvent) {
       expect(endEvent.winner).toBe('enemy');
@@ -570,14 +660,10 @@ describe('Victory Conditions', () => {
   });
 
   it('maxRounds forces draw', () => {
-    const teams = makeTeams(
-      ['Tank1'],
-      ['Tank2'],
-      {
-        Tank1: { hp: 99999, armor: 999, attackDamage: 1, moveSpeed: 330 },
-        Tank2: { hp: 99999, armor: 999, attackDamage: 1, moveSpeed: 330 },
-      },
-    );
+    const teams = makeTeams(['Tank1'], ['Tank2'], {
+      Tank1: { hp: 99999, armor: 999, attackDamage: 1, moveSpeed: 330 },
+      Tank2: { hp: 99999, armor: 999, attackDamage: 1, moveSpeed: 330 },
+    });
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, {
       maxRounds: 5,
     });
@@ -607,8 +693,11 @@ describe('Effect Application Integration', () => {
 
   it('DoT deals total damage equal to magnitude over duration', () => {
     const dot = new DamageEffect({
-      sourceId: 'src', targetId: 'champ-1',
-      magnitude: 300, damageType: DamageType.True, duration: 3,
+      sourceId: 'src',
+      targetId: 'champ-1',
+      magnitude: 300,
+      damageType: DamageType.True,
+      duration: 3,
     });
     manager.apply(dot);
 
@@ -627,8 +716,11 @@ describe('Effect Application Integration', () => {
 
   it('HoT heals total equal to magnitude over duration', () => {
     const hot = new HealEffect({
-      sourceId: 'src', targetId: 'champ-1',
-      magnitude: 150, duration: 3, hot: true,
+      sourceId: 'src',
+      targetId: 'champ-1',
+      magnitude: 150,
+      duration: 3,
+      hot: true,
     });
     manager.apply(hot);
 
@@ -647,7 +739,9 @@ describe('Effect Application Integration', () => {
 
   it('execute triggers only below threshold', () => {
     const exec = new ExecuteEffect({
-      sourceId: 'src', targetId: 'champ-1', threshold: 0.25,
+      sourceId: 'src',
+      targetId: 'champ-1',
+      threshold: 0.25,
     });
     expect(exec.canExecute(500, 1000)).toBe(false);
     expect(exec.canExecute(250, 1000)).toBe(true);
@@ -656,7 +750,9 @@ describe('Effect Application Integration', () => {
 
   it('execute with 0 maxHp returns false', () => {
     const exec = new ExecuteEffect({
-      sourceId: 'src', targetId: 'champ-1', threshold: 0.3,
+      sourceId: 'src',
+      targetId: 'champ-1',
+      threshold: 0.3,
     });
     expect(exec.canExecute(0, 0)).toBe(false);
   });
@@ -677,13 +773,17 @@ describe('Effect Application Integration', () => {
   });
 
   it('tickAll skips instant effects', () => {
-    manager.apply(new DamageEffect({
-      sourceId: 'src', targetId: 'champ-1',
-      magnitude: 100, damageType: DamageType.AD,
-    }));
+    manager.apply(
+      new DamageEffect({
+        sourceId: 'src',
+        targetId: 'champ-1',
+        magnitude: 100,
+        damageType: DamageType.AD,
+      }),
+    );
     const events = manager.tickAll();
     const dmgEvents = events.filter(
-      e => e.type === 'effect_tick' && e.category === EffectCategory.Damage,
+      (e) => e.type === 'effect_tick' && e.category === EffectCategory.Damage,
     );
     expect(dmgEvents.length).toBe(0);
   });
@@ -694,7 +794,6 @@ describe('Effect Application Integration', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('BattleManager Critical Strike', () => {
-
   it('crit chance 100% always crits', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.0);
     const teams = makeTeams(['Critter'], ['Target'], {
@@ -703,7 +802,7 @@ describe('BattleManager Critical Strike', () => {
     });
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
     const events: BattleEvent[] = [];
-    bm.on('event', e => events.push(e));
+    bm.on('event', (e) => events.push(e));
     bm.startBattle();
 
     // Force AI to basic-attack by putting all spells on cooldown
@@ -714,7 +813,7 @@ describe('BattleManager Critical Strike', () => {
 
     bm.processCurrentTurn();
 
-    const dmgEvent = events.find(e => e.type === 'damage');
+    const dmgEvent = events.find((e) => e.type === 'damage');
     expect(dmgEvent).toBeDefined();
     if (dmgEvent && 'isCrit' in dmgEvent) {
       expect(dmgEvent.isCrit).toBe(true);
@@ -730,7 +829,7 @@ describe('BattleManager Critical Strike', () => {
     });
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
     const events: BattleEvent[] = [];
-    bm.on('event', e => events.push(e));
+    bm.on('event', (e) => events.push(e));
     bm.startBattle();
 
     // Force AI to basic-attack by putting all spells on cooldown
@@ -741,7 +840,7 @@ describe('BattleManager Critical Strike', () => {
 
     bm.processCurrentTurn();
 
-    const dmgEvent = events.find(e => e.type === 'damage');
+    const dmgEvent = events.find((e) => e.type === 'damage');
     expect(dmgEvent).toBeDefined();
     if (dmgEvent && 'isCrit' in dmgEvent) {
       expect(dmgEvent.isCrit).toBe(false);
@@ -761,13 +860,15 @@ describe('BattleManager Critical Strike', () => {
       });
       const bm1 = new BattleManager(teams1.playerTeam, teams1.enemyTeam);
       const evts1: BattleEvent[] = [];
-      bm1.on('event', e => evts1.push(e));
+      bm1.on('event', (e) => evts1.push(e));
       bm1.startBattle();
       // Force AI to basic-attack by putting all spells on cooldown
       const c1 = teams1.playerTeam.champions[0];
-      for (const slot of SPELL_SLOTS) { c1.useSpell(slot); }
+      for (const slot of SPELL_SLOTS) {
+        c1.useSpell(slot);
+      }
       bm1.processCurrentTurn();
-      const d1 = evts1.find(e => e.type === 'damage');
+      const d1 = evts1.find((e) => e.type === 'damage');
       if (d1 && 'amount' in d1) withCritDmg.push(d1.amount);
       vi.restoreAllMocks();
 
@@ -778,13 +879,15 @@ describe('BattleManager Critical Strike', () => {
       });
       const bm2 = new BattleManager(teams2.playerTeam, teams2.enemyTeam);
       const evts2: BattleEvent[] = [];
-      bm2.on('event', e => evts2.push(e));
+      bm2.on('event', (e) => evts2.push(e));
       bm2.startBattle();
       // Force AI to basic-attack by putting all spells on cooldown
       const c2 = teams2.playerTeam.champions[0];
-      for (const slot of SPELL_SLOTS) { c2.useSpell(slot); }
+      for (const slot of SPELL_SLOTS) {
+        c2.useSpell(slot);
+      }
       bm2.processCurrentTurn();
-      const d2 = evts2.find(e => e.type === 'damage');
+      const d2 = evts2.find((e) => e.type === 'damage');
       if (d2 && 'amount' in d2) noCritDmg.push(d2.amount);
       vi.restoreAllMocks();
     }
@@ -800,7 +903,6 @@ describe('BattleManager Critical Strike', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('BattleManager Spell Effect Application', () => {
-
   // Force AI to pick a specific spell by putting others on cooldown.
   // Must be called AFTER startBattle() since startBattle resets cooldowns.
   function forceSpellSlot(c: ChampionInstance, targetSlot: SpellSlot): void {
@@ -820,33 +922,68 @@ describe('BattleManager Spell Effect Application', () => {
     statOverrides: Partial<ChampionStats> = {},
   ): ChampionInstance {
     const baseStats: ChampionStats = {
-      hp: 500, mp: 300, moveSpeed: 330, armor: 30, magicResist: 30,
-      attackDamage: 60, attackSpeed: 0.65, attackRange: 175,
-      hpPerLevel: 90, mpPerLevel: 40, armorPerLevel: 4, magicResistPerLevel: 1.3,
-      attackDamagePerLevel: 3, attackSpeedPerLevel: 2.5,
-      hpRegen: 7, hpRegenPerLevel: 0.7, mpRegen: 8, mpRegenPerLevel: 0.8,
-      crit: 0, critPerLevel: 0,
+      hp: 500,
+      mp: 300,
+      moveSpeed: 330,
+      armor: 30,
+      magicResist: 30,
+      attackDamage: 60,
+      attackSpeed: 0.65,
+      attackRange: 175,
+      hpPerLevel: 90,
+      mpPerLevel: 40,
+      armorPerLevel: 4,
+      magicResistPerLevel: 1.3,
+      attackDamagePerLevel: 3,
+      attackSpeedPerLevel: 2.5,
+      hpRegen: 7,
+      hpRegenPerLevel: 0.7,
+      mpRegen: 8,
+      mpRegenPerLevel: 0.8,
+      crit: 0,
+      critPerLevel: 0,
     };
     Object.assign(baseStats, statOverrides);
     const mk = (s: string, o: Partial<Spell> = {}): Spell => ({
-      id: `${id}_${s}`, name: `Spell ${s}`, description: 'test',
-      maxRank: 5, cooldown: [8], cost: [0], range: [700], image: `${s}.png`,
-      targeting: TargetingType.Enemy, scaling: { adRatio: 0, apRatio: 0 },
-      effects: [] as SpellEffect[], ...o,
+      id: `${id}_${s}`,
+      name: `Spell ${s}`,
+      description: 'test',
+      maxRank: 5,
+      cooldown: [8],
+      cost: [0],
+      range: [700],
+      image: `${s}.png`,
+      targeting: TargetingType.Enemy,
+      scaling: { adRatio: 0, apRatio: 0 },
+      effects: [] as SpellEffect[],
+      ...o,
     });
-    const spells = (['Q','W','E','R'] as const).map(s =>
-      s === spellSlot ? mk(s, { effects }) : mk(s)
+    const spells = (['Q', 'W', 'E', 'R'] as const).map((s) =>
+      s === spellSlot ? mk(s, { effects }) : mk(s),
     );
     const passive: Passive = {
-      name: 'P', description: 'p', image: 'P.png',
+      name: 'P',
+      description: 'p',
+      image: 'P.png',
       targeting: TargetingType.Passive,
-      scaling: { adRatio: 0, apRatio: 0 }, effects: [],
+      scaling: { adRatio: 0, apRatio: 0 },
+      effects: [],
     };
-    return new ChampionInstance({
-      id, key: id, name: id, title: 't',
-      tags: ['Mage'], resourceType: 'Mana', stats: baseStats,
-      spells, passive, iconUrl: '/test.png',
-    }, 1);
+    return new ChampionInstance(
+      {
+        id,
+        key: id,
+        name: id,
+        title: 't',
+        tags: ['Mage'],
+        resourceType: 'Mana',
+        stats: baseStats,
+        spells,
+        passive,
+        iconUrl: '/test.png',
+      },
+      1,
+    );
   }
 
   // ── 1. AP damage goes through magicResist, not armor ──
@@ -854,29 +991,32 @@ describe('BattleManager Spell Effect Application', () => {
   describe('AP damage uses magicResist', () => {
     it('magical damage is reduced by magicResist, not armor', () => {
       // Caster with high speed (400) always goes first
-      const mage = makeEffectChamp('Mage', 'Q', [
-        { type: 'damage', damageType: 'magical', baseDamage: [100] },
-      ], { moveSpeed: 400 });
+      const mage = makeEffectChamp(
+        'Mage',
+        'Q',
+        [{ type: 'damage', damageType: 'magical', baseDamage: [100] }],
+        { moveSpeed: 400 },
+      );
       const target = makeEffectChamp('Target', 'Q', [], {
-        armor: 0, magicResist: 50, hp: 2000,
+        armor: 0,
+        magicResist: 50,
+        hp: 2000,
       });
       const bm = new BattleManager(
         { side: 'player', champions: [mage] },
         { side: 'enemy', champions: [target] },
       );
       const events: BattleEvent[] = [];
-      bm.on('event', e => events.push(e));
+      bm.on('event', (e) => events.push(e));
       bm.startBattle();
 
       // Mage goes first (400 > 330), force Q spell
       forceSpellSlot(mage, 'Q');
       bm.processCurrentTurn();
 
-      const dmg = events.filter(
-        (e): e is DamageEvent => e.type === 'damage' && e.amount > 0,
-      );
+      const dmg = events.filter((e): e is DamageEvent => e.type === 'damage' && e.amount > 0);
       expect(dmg.length).toBeGreaterThan(0);
-      const mageDmg = dmg.find(d => d.source === 'Mage');
+      const mageDmg = dmg.find((d) => d.source === 'Mage');
       expect(mageDmg).toBeDefined();
       // 100 vs 50 MR: 100*100/150 = 67. If armor was used: 100 vs 0 = 100
       expect(mageDmg!.amount).toBeLessThan(100);
@@ -884,27 +1024,30 @@ describe('BattleManager Spell Effect Application', () => {
     });
 
     it('physical damage uses armor, not magicResist', () => {
-      const bruiser = makeEffectChamp('Bruiser', 'Q', [
-        { type: 'damage', damageType: 'physical', baseDamage: [100] },
-      ], { moveSpeed: 400 });
+      const bruiser = makeEffectChamp(
+        'Bruiser',
+        'Q',
+        [{ type: 'damage', damageType: 'physical', baseDamage: [100] }],
+        { moveSpeed: 400 },
+      );
       const target = makeEffectChamp('Target', 'Q', [], {
-        armor: 50, magicResist: 0, hp: 2000,
+        armor: 50,
+        magicResist: 0,
+        hp: 2000,
       });
       const bm = new BattleManager(
         { side: 'player', champions: [bruiser] },
         { side: 'enemy', champions: [target] },
       );
       const events: BattleEvent[] = [];
-      bm.on('event', e => events.push(e));
+      bm.on('event', (e) => events.push(e));
       bm.startBattle();
 
       forceSpellSlot(bruiser, 'Q');
       bm.processCurrentTurn();
 
-      const dmg = events.filter(
-        (e): e is DamageEvent => e.type === 'damage' && e.amount > 0,
-      );
-      const bruiserDmg = dmg.find(d => d.source === 'Bruiser');
+      const dmg = events.filter((e): e is DamageEvent => e.type === 'damage' && e.amount > 0);
+      const bruiserDmg = dmg.find((d) => d.source === 'Bruiser');
       expect(bruiserDmg).toBeDefined();
       // 100 vs 50 armor: 100*100/150 = 67. If MR was used: 100 vs 0 = 100
       expect(bruiserDmg!.amount).toBeLessThan(100);
@@ -916,16 +1059,19 @@ describe('BattleManager Spell Effect Application', () => {
 
   describe('Heal effects restore HP', () => {
     it('spell with heal effect restores ally HP', () => {
-      const healer = makeEffectChamp('Healer', 'W', [
-        { type: 'heal', baseValue: [100], apRatio: 0 },
-      ], { moveSpeed: 400 });
+      const healer = makeEffectChamp(
+        'Healer',
+        'W',
+        [{ type: 'heal', baseValue: [100], apRatio: 0 }],
+        { moveSpeed: 400 },
+      );
       const enemy = makeEffectChamp('Enemy', 'Q', []);
       const bm = new BattleManager(
         { side: 'player', champions: [healer] },
         { side: 'enemy', champions: [enemy] },
       );
       const events: BattleEvent[] = [];
-      bm.on('event', e => events.push(e));
+      bm.on('event', (e) => events.push(e));
 
       bm.startBattle();
       const hs = bm.getCombatantState('Healer', 'player')!;
@@ -937,16 +1083,19 @@ describe('BattleManager Spell Effect Application', () => {
 
       expect(hs.currentHp).toBeGreaterThan(hpBefore);
       const heals = events.filter(
-        (e): e is Extract<BattleEvent, {type:'heal'}> => e.type === 'heal',
+        (e): e is Extract<BattleEvent, { type: 'heal' }> => e.type === 'heal',
       );
       expect(heals.length).toBeGreaterThan(0);
       expect(heals[0].amount).toBe(100);
     });
 
     it('heal does not exceed maxHp', () => {
-      const healer = makeEffectChamp('Healer', 'W', [
-        { type: 'heal', baseValue: [9999], apRatio: 0 },
-      ], { moveSpeed: 400 });
+      const healer = makeEffectChamp(
+        'Healer',
+        'W',
+        [{ type: 'heal', baseValue: [9999], apRatio: 0 }],
+        { moveSpeed: 400 },
+      );
       const enemy = makeEffectChamp('Enemy', 'Q', []);
       const bm = new BattleManager(
         { side: 'player', champions: [healer] },
@@ -968,12 +1117,18 @@ describe('BattleManager Spell Effect Application', () => {
 
   describe('Shield effects absorb damage', () => {
     it('shield absorbs incoming damage before HP', () => {
-      const shielder = makeEffectChamp('Shielder', 'W', [
-        { type: 'shield', baseValue: [80], apRatio: 0 },
-      ], { moveSpeed: 400 });
-      const attacker = makeEffectChamp('Attacker', 'Q', [
-        { type: 'damage', damageType: 'true', baseDamage: [100] },
-      ], { moveSpeed: 310 });
+      const shielder = makeEffectChamp(
+        'Shielder',
+        'W',
+        [{ type: 'shield', baseValue: [80], apRatio: 0 }],
+        { moveSpeed: 400 },
+      );
+      const attacker = makeEffectChamp(
+        'Attacker',
+        'Q',
+        [{ type: 'damage', damageType: 'true', baseDamage: [100] }],
+        { moveSpeed: 310 },
+      );
       const bm = new BattleManager(
         { side: 'player', champions: [shielder] },
         { side: 'enemy', champions: [attacker] },
@@ -997,12 +1152,18 @@ describe('BattleManager Spell Effect Application', () => {
     });
 
     it('damage fully absorbed by shield leaves HP unchanged', () => {
-      const shielder = makeEffectChamp('Shielder', 'W', [
-        { type: 'shield', baseValue: [100], apRatio: 0 },
-      ], { moveSpeed: 400 });
-      const attacker = makeEffectChamp('Attacker', 'Q', [
-        { type: 'damage', damageType: 'true', baseDamage: [30] },
-      ], { moveSpeed: 310 });
+      const shielder = makeEffectChamp(
+        'Shielder',
+        'W',
+        [{ type: 'shield', baseValue: [100], apRatio: 0 }],
+        { moveSpeed: 400 },
+      );
+      const attacker = makeEffectChamp(
+        'Attacker',
+        'Q',
+        [{ type: 'damage', damageType: 'true', baseDamage: [30] }],
+        { moveSpeed: 310 },
+      );
       const bm = new BattleManager(
         { side: 'player', champions: [shielder] },
         { side: 'enemy', champions: [attacker] },
@@ -1027,9 +1188,12 @@ describe('BattleManager Spell Effect Application', () => {
 
   describe('CC effects prevent actions', () => {
     it('stun sets ccTurnsLeft on target', () => {
-      const stunner = makeEffectChamp('Stunner', 'Q', [
-        { type: 'cc', ccType: 'stun', ccDuration: 1 },
-      ], { moveSpeed: 400 });
+      const stunner = makeEffectChamp(
+        'Stunner',
+        'Q',
+        [{ type: 'cc', ccType: 'stun', ccDuration: 1 }],
+        { moveSpeed: 400 },
+      );
       const victim = makeEffectChamp('Victim', 'Q', []);
       const bm = new BattleManager(
         { side: 'player', champions: [stunner] },
@@ -1047,12 +1211,18 @@ describe('BattleManager Spell Effect Application', () => {
     });
 
     it('CC stun prevents victim from acting on their turn', () => {
-      const stunner = makeEffectChamp('Stunner', 'Q', [
-        { type: 'cc', ccType: 'stun', ccDuration: 1 },
-      ], { moveSpeed: 400 });
-      const victim = makeEffectChamp('Victim', 'Q', [
-        { type: 'damage', damageType: 'true', baseDamage: [9999] },
-      ], { moveSpeed: 310 });
+      const stunner = makeEffectChamp(
+        'Stunner',
+        'Q',
+        [{ type: 'cc', ccType: 'stun', ccDuration: 1 }],
+        { moveSpeed: 400 },
+      );
+      const victim = makeEffectChamp(
+        'Victim',
+        'Q',
+        [{ type: 'damage', damageType: 'true', baseDamage: [9999] }],
+        { moveSpeed: 310 },
+      );
 
       const bm = new BattleManager(
         { side: 'player', champions: [stunner] },
@@ -1079,12 +1249,18 @@ describe('BattleManager Spell Effect Application', () => {
     });
 
     it('knockup also prevents actions', () => {
-      const knocker = makeEffectChamp('Knocker', 'E', [
-        { type: 'cc', ccType: 'knockup', ccDuration: 1 },
-      ], { moveSpeed: 400 });
-      const victim = makeEffectChamp('Victim', 'Q', [
-        { type: 'damage', damageType: 'true', baseDamage: [9999] },
-      ], { moveSpeed: 310 });
+      const knocker = makeEffectChamp(
+        'Knocker',
+        'E',
+        [{ type: 'cc', ccType: 'knockup', ccDuration: 1 }],
+        { moveSpeed: 400 },
+      );
+      const victim = makeEffectChamp(
+        'Victim',
+        'Q',
+        [{ type: 'damage', damageType: 'true', baseDamage: [9999] }],
+        { moveSpeed: 310 },
+      );
 
       const bm = new BattleManager(
         { side: 'player', champions: [knocker] },
@@ -1105,9 +1281,12 @@ describe('BattleManager Spell Effect Application', () => {
     });
 
     it('snare does NOT set ccTurnsLeft (soft CC only)', () => {
-      const snarer = makeEffectChamp('Snarer', 'Q', [
-        { type: 'cc', ccType: 'snare', ccDuration: 2 },
-      ], { moveSpeed: 400 });
+      const snarer = makeEffectChamp(
+        'Snarer',
+        'Q',
+        [{ type: 'cc', ccType: 'snare', ccDuration: 2 }],
+        { moveSpeed: 400 },
+      );
       const victim = makeEffectChamp('Victim', 'Q', []);
       const bm = new BattleManager(
         { side: 'player', champions: [snarer] },

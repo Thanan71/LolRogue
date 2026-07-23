@@ -9,13 +9,13 @@
   justify-content: center;
   background: radial-gradient(ellipse at 50% 30%, #0f1a2e 0%, #0a1428 50%, #060d1a 100%);
   color: #f0e6d2;
-  font-family: 'Cinzel', 'Georgia', serif;
+  font-family: "Cinzel", "Georgia", serif;
   overflow: hidden;
   z-index: 1;
 }
 
 .main-menu::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 15%;
   left: 50%;
@@ -40,8 +40,14 @@
 }
 
 @keyframes menuLogoIn {
-  from { opacity: 0; transform: translateY(-30px) scale(0.9); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .main-menu__icon {
@@ -53,8 +59,13 @@
 }
 
 @keyframes menuIconPulse {
-  0%, 100% { filter: drop-shadow(0 0 15px rgba(200, 170, 110, 0.3)); }
-  50% { filter: drop-shadow(0 0 30px rgba(200, 170, 110, 0.6)); }
+  0%,
+  100% {
+    filter: drop-shadow(0 0 15px rgba(200, 170, 110, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(200, 170, 110, 0.6));
+  }
 }
 
 .main-menu__title {
@@ -62,7 +73,14 @@
   font-weight: 900;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  background: linear-gradient(180deg, #f0e6d2 0%, #d4bc8a 25%, #c8aa6e 50%, #a88a4e 75%, #7a5c2e 100%);
+  background: linear-gradient(
+    180deg,
+    #f0e6d2 0%,
+    #d4bc8a 25%,
+    #c8aa6e 50%,
+    #a88a4e 75%,
+    #7a5c2e 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -72,7 +90,7 @@
 }
 
 .main-menu__title::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -8px;
   left: 50%;
@@ -105,7 +123,7 @@
 .main-menu__btn {
   width: 100%;
   padding: 1rem 2rem;
-  font-family: 'Cinzel', 'Georgia', serif;
+  font-family: "Cinzel", "Georgia", serif;
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -119,43 +137,63 @@
   animation: menuBtnIn 0.6s ease-out both;
 }
 
-.main-menu__btn:nth-child(1) { animation-delay: 0.4s; }
-.main-menu__btn:nth-child(2) { animation-delay: 0.55s; }
-.main-menu__btn:nth-child(3) { animation-delay: 0.7s; }
-.main-menu__btn:nth-child(4) { animation-delay: 0.85s; }
+.main-menu__btn:nth-child(1) {
+  animation-delay: 0.4s;
+}
+.main-menu__btn:nth-child(2) {
+  animation-delay: 0.55s;
+}
+.main-menu__btn:nth-child(3) {
+  animation-delay: 0.7s;
+}
+.main-menu__btn:nth-child(4) {
+  animation-delay: 0.85s;
+}
 
 @keyframes menuBtnIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .main-menu__btn::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
 }
 
 .main-menu__btn::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
   transition: left 0.5s ease;
 }
 
-.main-menu__btn:hover::after { left: 100%; }
+.main-menu__btn:hover::after {
+  left: 100%;
+}
 
 /* ─── Play Button (Primary Gold) ────────────────────────────────────── */
 
 .main-menu__btn--play {
   background: linear-gradient(180deg, #c8aa6e 0%, #a88a4e 100%);
   color: #0a1428;
-  box-shadow: 0 4px 20px rgba(200, 170, 110, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow:
+    0 4px 20px rgba(200, 170, 110, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   font-size: 1.2rem;
   padding: 1.1rem 2rem;
 }
@@ -163,7 +201,9 @@
 .main-menu__btn--play:hover {
   background: linear-gradient(180deg, #d4bc8a 0%, #c8aa6e 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(200, 170, 110, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow:
+    0 6px 30px rgba(200, 170, 110, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .main-menu__btn--play:active {
@@ -243,11 +283,23 @@
 /* ─── Responsive ───────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
-  .main-menu__title { font-size: 2.5rem; }
-  .main-menu__buttons { width: 260px; }
-  .main-menu__btn { font-size: 0.9rem; padding: 0.85rem 1.5rem; }
-  .main-menu__btn--play { font-size: 1rem; }
-  .main-menu__icon { width: 60px; height: 60px; }
+  .main-menu__title {
+    font-size: 2.5rem;
+  }
+  .main-menu__buttons {
+    width: 260px;
+  }
+  .main-menu__btn {
+    font-size: 0.9rem;
+    padding: 0.85rem 1.5rem;
+  }
+  .main-menu__btn--play {
+    font-size: 1rem;
+  }
+  .main-menu__icon {
+    width: 60px;
+    height: 60px;
+  }
 }
 
 /* Continue / New Run Buttons */
@@ -262,25 +314,33 @@
 .main-menu__btn--continue {
   background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
   color: #fff;
-  box-shadow: 0 4px 25px rgba(34, 197, 94, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow:
+    0 4px 25px rgba(34, 197, 94, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .main-menu__btn--continue:hover {
   background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 35px rgba(74, 222, 128, 0.55), inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow:
+    0 6px 35px rgba(74, 222, 128, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .main-menu__btn--new {
   background: linear-gradient(180deg, #c8aa6e 0%, #a88a4e 100%);
   color: #0a1428;
-  box-shadow: 0 4px 20px rgba(200, 170, 110, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow:
+    0 4px 20px rgba(200, 170, 110, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .main-menu__btn--new:hover {
   background: linear-gradient(180deg, #d4bc8a 0%, #c8aa6e 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(255, 215, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow:
+    0 6px 30px rgba(255, 215, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .main-menu__btn-icon {

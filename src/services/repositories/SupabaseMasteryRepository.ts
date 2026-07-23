@@ -1,13 +1,13 @@
 /**
  * Supabase Mastery Repository Implementation
- * 
+ *
  * Implements IMasteryRepository and IPlayerUnlockRepository using Supabase client.
  * This class handles all champion mastery and player unlock operations.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { IMasteryRepository, IPlayerUnlockRepository } from '../interfaces/IMasteryRepository';
 import type { ChampionMastery, ChampionMasteryUpdate } from '@/types/database';
+import type { IMasteryRepository, IPlayerUnlockRepository } from '../interfaces/IMasteryRepository';
 
 export class SupabaseMasteryRepository implements IMasteryRepository {
   private supabase: SupabaseClient;
@@ -17,7 +17,7 @@ export class SupabaseMasteryRepository implements IMasteryRepository {
   }
 
   async getChampionMastery(
-    userId: string
+    userId: string,
   ): Promise<{ data: ChampionMastery[] | null; error: Error | null }> {
     // First, get the player id from the players table using user_id
     const { data: playerData, error: playerError } = await this.supabase
@@ -58,7 +58,7 @@ export class SupabaseMasteryRepository implements IMasteryRepository {
 
   async getChampionMasteryByChampion(
     playerId: string,
-    championId: string
+    championId: string,
   ): Promise<{ data: ChampionMastery | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('champion_mastery')
@@ -77,17 +77,20 @@ export class SupabaseMasteryRepository implements IMasteryRepository {
   async upsertChampionMastery(
     playerId: string,
     championId: string,
-    updates: ChampionMasteryUpdate
+    updates: ChampionMasteryUpdate,
   ): Promise<{ data: ChampionMastery | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('champion_mastery')
-      .upsert({
-        player_id: playerId,
-        champion_id: championId,
-        ...updates,
-      }, {
-        onConflict: 'player_id,champion_id',
-      })
+      .upsert(
+        {
+          player_id: playerId,
+          champion_id: championId,
+          ...updates,
+        },
+        {
+          onConflict: 'player_id,champion_id',
+        },
+      )
       .select()
       .single();
 
@@ -124,7 +127,7 @@ export class SupabasePlayerUnlockRepository implements IPlayerUnlockRepository {
     unlockType: 'starter' | 'skin',
     unlockId: string,
     championId?: string,
-    skinId?: string
+    skinId?: string,
   ): Promise<{ data: any | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('player_unlocks')
@@ -148,7 +151,7 @@ export class SupabasePlayerUnlockRepository implements IPlayerUnlockRepository {
   async hasUnlock(
     playerId: string,
     unlockType: 'starter' | 'skin',
-    unlockId: string
+    unlockId: string,
   ): Promise<boolean> {
     const { data } = await this.supabase
       .from('player_unlocks')

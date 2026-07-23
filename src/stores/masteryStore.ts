@@ -4,16 +4,13 @@
  */
 
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import type {
-  MasteryState,
-  MasteryStore,
-} from '@/types/mastery';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import {
-  buildChampionMastery,
   awardCandies as awardCandiesService,
+  buildChampionMastery,
   getStatBonusForLevel,
 } from '@/services/masteryService';
+import type { MasteryState, MasteryStore } from '@/types/mastery';
 
 const INITIAL_STATE: MasteryState = {
   champions: {},

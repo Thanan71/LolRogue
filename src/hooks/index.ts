@@ -1,2 +1,2 @@
-export { useChampionDB } from './useChampionDB';
 export type { UseChampionDBReturn } from './useChampionDB';
+export { useChampionDB } from './useChampionDB';

@@ -1,6 +1,6 @@
 /**
  * Enhancement Tree System — champion-specific upgrade paths.
- * 
+ *
  * Each champion has a unique enhancement tree based on their primary role/tag.
  * Players can spend mastery candies to unlock nodes in the tree, providing
  * permanent stat bonuses and special effects for that champion.
@@ -10,18 +10,32 @@ import type { ChampionTag } from './champion';
 
 // ─── Enhancement Node Types ──────────────────────────────────────────────────
 
-export type EnhancementNodeType = 
-  | 'stat'      // Basic stat increase
-  | 'keystone'  // Major unlock that enables new branches
-  | 'ultimate'  // Final node in a branch
-  | 'passive'   // Always active effect
-  | 'active'    // Conditional effect
-  ;
+export type EnhancementNodeType =
+  | 'stat' // Basic stat increase
+  | 'keystone' // Major unlock that enables new branches
+  | 'ultimate' // Final node in a branch
+  | 'passive' // Always active effect
+  | 'active'; // Conditional effect
 
-export type StatType = 
-  | 'hp' | 'mp' | 'atk' | 'ap' | 'def' | 'mr' | 'spd' | 'crit' 
-  | 'attackSpeed' | 'hpRegen' | 'mpRegen' | 'armorPen' | 'magicPen'
-  | 'lifesteal' | 'omnivamp' | 'tenacity' | 'abilityHaste' | 'attackRange';
+export type StatType =
+  | 'hp'
+  | 'mp'
+  | 'atk'
+  | 'ap'
+  | 'def'
+  | 'mr'
+  | 'spd'
+  | 'crit'
+  | 'attackSpeed'
+  | 'hpRegen'
+  | 'mpRegen'
+  | 'armorPen'
+  | 'magicPen'
+  | 'lifesteal'
+  | 'omnivamp'
+  | 'tenacity'
+  | 'abilityHaste'
+  | 'attackRange';
 
 // ─── Enhancement Node ────────────────────────────────────────────────────────
 
@@ -119,11 +133,11 @@ export interface PlayerEnhancementState {
 // ─── Enhancement Tree Theme Colors ───────────────────────────────────────────
 
 export const BRANCH_THEME_COLORS: Record<EnhancementBranch['theme'], string> = {
-  precision: '#F5E6B3',    // Gold
-  domination: '#C43C3C',   // Red
-  resolve: '#4A9F6F',      // Green
-  sorcery: '#4A7F9F',      // Blue
-  inspiration: '#E8D48C',  // Yellow
+  precision: '#F5E6B3', // Gold
+  domination: '#C43C3C', // Red
+  resolve: '#4A9F6F', // Green
+  sorcery: '#4A7F9F', // Blue
+  inspiration: '#E8D48C', // Yellow
 };
 
 export const BRANCH_THEME_ICONS: Record<EnhancementBranch['theme'], string> = {

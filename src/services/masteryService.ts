@@ -4,15 +4,15 @@
  */
 
 import {
+  BASE_CANDIES,
+  CANDIES_PER_BIOME,
+  CANDIES_PER_WAVE,
+  type ChampionMastery,
   MASTERY_THRESHOLDS,
   MAX_MASTERY_LEVEL,
-  BASE_CANDIES,
-  CANDIES_PER_WAVE,
-  VICTORY_BONUS,
-  CANDIES_PER_BIOME,
-  STAT_BONUS_PER_LEVEL,
-  type ChampionMastery,
   type MasteryUnlock,
+  STAT_BONUS_PER_LEVEL,
+  VICTORY_BONUS,
 } from '@/types/mastery';
 
 // ─── Default Unlocks ────────────────────────────────────────────────────────
@@ -119,19 +119,13 @@ export function calculateLevel(totalCandies: number): number {
 }
 
 /** Calculate candies earned within the current level. */
-export function calculateCurrentLevelCandies(
-  totalCandies: number,
-  level: number,
-): number {
+export function calculateCurrentLevelCandies(totalCandies: number, level: number): number {
   if (level >= MAX_MASTERY_LEVEL) return 0;
   return totalCandies - MASTERY_THRESHOLDS[level];
 }
 
 /** Calculate candies needed to reach the next level. */
-export function calculateCandiesToNext(
-  totalCandies: number,
-  level: number,
-): number {
+export function calculateCandiesToNext(totalCandies: number, level: number): number {
   if (level >= MAX_MASTERY_LEVEL) return 0;
   return MASTERY_THRESHOLDS[level + 1] - totalCandies;
 }
@@ -178,9 +172,7 @@ export function getNewUnlocks(
   newLevel: number,
   unlocks: MasteryUnlock[] = DEFAULT_UNLOCKS,
 ): MasteryUnlock[] {
-  return unlocks.filter(
-    (u) => u.requiredLevel > oldLevel && u.requiredLevel <= newLevel,
-  );
+  return unlocks.filter((u) => u.requiredLevel > oldLevel && u.requiredLevel <= newLevel);
 }
 
 /** Determine unlock IDs for a given level. */
@@ -207,12 +199,7 @@ export function awardCandies(
   won: boolean,
   unlocks: MasteryUnlock[] = DEFAULT_UNLOCKS,
 ): CandyAwardResult {
-  const candiesAwarded = calculateCandiesForTeam(
-    championIds,
-    wavesCompleted,
-    biomesVisited,
-    won,
-  );
+  const candiesAwarded = calculateCandiesForTeam(championIds, wavesCompleted, biomesVisited, won);
   const updatedMasteries: Record<string, ChampionMastery> = { ...currentMasteries };
   const newUnlocks: MasteryUnlock[] = [];
   for (const id of championIds) {

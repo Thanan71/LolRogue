@@ -7,11 +7,7 @@
  */
 
 import { Effect, generateEffectId } from './Effect';
-import {
-  EffectCategory,
-  type ExecuteEffectData,
-  type EffectEvent,
-} from './types';
+import { EffectCategory, type EffectEvent, type ExecuteEffectData } from './types';
 
 export interface ExecuteEffectParams {
   name?: string;
@@ -39,7 +35,9 @@ export class ExecuteEffect extends Effect<ExecuteEffectData> {
     });
   }
 
-  get threshold(): number { return this.data.threshold; }
+  get threshold(): number {
+    return this.data.threshold;
+  }
 
   /**
    * Check if the target can be executed.
@@ -48,7 +46,7 @@ export class ExecuteEffect extends Effect<ExecuteEffectData> {
    */
   canExecute(currentHp: number, maxHp: number): boolean {
     if (maxHp <= 0) return false;
-    return (currentHp / maxHp) <= this.data.threshold;
+    return currentHp / maxHp <= this.data.threshold;
   }
 
   /**

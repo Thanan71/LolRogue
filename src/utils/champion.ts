@@ -45,9 +45,9 @@ function getEffectiveAdPerLevel(stats: ChampionStats): number {
   }
   // Default AD growth based on base AD (higher base AD = higher growth typically)
   const baseAD = stats.attackDamage;
-  if (baseAD >= 65) return 3.5;  // High base AD champs (fighters, bruisers)
-  if (baseAD >= 60) return 3.0;  // Medium base AD champs
-  return 2.5;  // Low base AD champs (mages, supports)
+  if (baseAD >= 65) return 3.5; // High base AD champs (fighters, bruisers)
+  if (baseAD >= 60) return 3.0; // Medium base AD champs
+  return 2.5; // Low base AD champs (mages, supports)
 }
 
 /**
@@ -56,10 +56,10 @@ function getEffectiveAdPerLevel(stats: ChampionStats): number {
 export function calculateStats(stats: ChampionStats, level: number): CalculatedStats {
   // Calculate scaled mana first, then derive AP from it
   const scaledMp = statAtLevel(stats.mp, stats.mpPerLevel, level);
-  
+
   // Use effective AD per level (fallback to default when parsed data is 0)
   const effectiveAdPerLevel = getEffectiveAdPerLevel(stats);
-  
+
   return {
     hp: statAtLevel(stats.hp, stats.hpPerLevel, level),
     mp: scaledMp,
@@ -69,7 +69,7 @@ export function calculateStats(stats: ChampionStats, level: number): CalculatedS
     attackDamage: statAtLevel(stats.attackDamage, effectiveAdPerLevel, level),
     attackSpeed: attackSpeedAtLevel(stats.attackSpeed, stats.attackSpeedPerLevel, level),
     attackRange: stats.attackRange,
-    abilityPower: Math.round(scaledMp * 0.03),  // AP derived from scaled mana (3% ratio)
+    abilityPower: Math.round(scaledMp * 0.03), // AP derived from scaled mana (3% ratio)
     hpRegen: statAtLevel(stats.hpRegen, stats.hpRegenPerLevel, level),
     mpRegen: statAtLevel(stats.mpRegen, stats.mpRegenPerLevel, level),
     crit: statAtLevel(stats.crit, stats.critPerLevel, level),

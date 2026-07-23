@@ -7,9 +7,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface AudioState {
-  sfxVolume: number;      // 0-100
+  sfxVolume: number; // 0-100
   sfxMuted: boolean;
-  musicVolume: number;    // 0-100
+  musicVolume: number; // 0-100
   musicMuted: boolean;
 
   setSfxVolume: (v: number) => void;

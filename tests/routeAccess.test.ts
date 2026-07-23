@@ -13,15 +13,11 @@ const anonymous: RouteAuthState = {
 
 describe('route access', () => {
   it('waits for the centralized session initialization', () => {
-    expect(
-      getProtectedRouteAccess({ ...anonymous, isInitialized: false }),
-    ).toBe('loading');
+    expect(getProtectedRouteAccess({ ...anonymous, isInitialized: false })).toBe('loading');
   });
 
   it('allows an explicit guest into game routes', () => {
-    expect(getProtectedRouteAccess({ ...anonymous, isGuest: true })).toBe(
-      'allowed',
-    );
+    expect(getProtectedRouteAccess({ ...anonymous, isGuest: true })).toBe('allowed');
   });
 
   it('redirects an anonymous visitor to authentication', () => {
@@ -33,9 +29,7 @@ describe('route access', () => {
   });
 
   it('redirects a connected non-admin to the menu', () => {
-    expect(
-      getAdminRouteAccess({ ...anonymous, isAuthenticated: true }),
-    ).toBe('menu');
+    expect(getAdminRouteAccess({ ...anonymous, isAuthenticated: true })).toBe('menu');
   });
 
   it('allows only a connected admin into admin routes', () => {

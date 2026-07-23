@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { calculateStats, statAtLevel } from '../src/utils/champion';
+import { describe, expect, it } from 'vitest';
 import { championDB } from '../src/data/championDatabase';
+import { calculateStats, statAtLevel } from '../src/utils/champion';
 
 describe('Stat Scaling with Level', () => {
   describe('statAtLevel', () => {
@@ -41,12 +41,12 @@ describe('Stat Scaling with Level', () => {
       const champions = championDB.getAll();
       // Test a few champions
       const testChampions = champions.slice(0, 5);
-      
+
       for (const champ of testChampions) {
         const stats1 = calculateStats(champ.stats, 1);
         const stats9 = calculateStats(champ.stats, 9);
         const stats18 = calculateStats(champ.stats, 18);
-        
+
         // Attack damage should increase with level
         expect(stats9.attackDamage).toBeGreaterThan(stats1.attackDamage);
         expect(stats18.attackDamage).toBeGreaterThan(stats9.attackDamage);
@@ -56,12 +56,12 @@ describe('Stat Scaling with Level', () => {
     it('should have higher HP at higher levels', () => {
       const champions = championDB.getAll();
       const testChampions = champions.slice(0, 5);
-      
+
       for (const champ of testChampions) {
         const stats1 = calculateStats(champ.stats, 1);
         const stats9 = calculateStats(champ.stats, 9);
         const stats18 = calculateStats(champ.stats, 18);
-        
+
         // HP should increase with level
         expect(stats9.hp).toBeGreaterThan(stats1.hp);
         expect(stats18.hp).toBeGreaterThan(stats9.hp);
@@ -71,12 +71,12 @@ describe('Stat Scaling with Level', () => {
     it('should have higher armor at higher levels', () => {
       const champions = championDB.getAll();
       const testChampions = champions.slice(0, 5);
-      
+
       for (const champ of testChampions) {
         const stats1 = calculateStats(champ.stats, 1);
         const stats9 = calculateStats(champ.stats, 9);
         const stats18 = calculateStats(champ.stats, 18);
-        
+
         // Armor should increase with level
         expect(stats9.armor).toBeGreaterThan(stats1.armor);
         expect(stats18.armor).toBeGreaterThan(stats9.armor);
@@ -86,10 +86,10 @@ describe('Stat Scaling with Level', () => {
     it('should scale Garen stats correctly', () => {
       const garen = championDB.getById('Garen');
       expect(garen).toBeDefined();
-      
+
       const stats1 = calculateStats(garen!.stats, 1);
       const stats18 = calculateStats(garen!.stats, 18);
-      
+
       // Garen has base AD of ~68
       // Since parsed data has 0 for attackDamagePerLevel, our fallback uses ~3.0-3.5
       // At level 1: ~68 AD
@@ -97,7 +97,7 @@ describe('Stat Scaling with Level', () => {
       // Or with 3.5 growth: ~68 + 59.5 = ~127.5
       expect(stats1.attackDamage).toBeGreaterThan(60);
       expect(stats1.attackDamage).toBeLessThan(80);
-      
+
       // AD should increase significantly by level 18
       expect(stats18.attackDamage).toBeGreaterThan(stats1.attackDamage + 40);
       expect(stats18.attackDamage).toBeLessThan(160);

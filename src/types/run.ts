@@ -199,7 +199,7 @@ export interface RunState {
 export interface RunActions {
   /** Start a new run with champion IDs (validated ≤ MAX_TEAM_SIZE) */
   startRun: (championIds: string[]) => Promise<void>;
-  /** End the current run and reset state, optionally marking it as won. 
+  /** End the current run and reset state, optionally marking it as won.
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
   endRun: (won?: boolean, expectedRunId?: string) => Promise<void>;
   /** Add a champion to the team (if not full). Returns true if added. */
@@ -234,21 +234,26 @@ export interface RunActions {
   /** Mark the current node as completed and unlock next nodes */
   completeCurrentNode: () => void;
   /** Start an encounter for a given node (sets pendingEncounter and currentEncounter) */
-  startEncounter: (nodeId: string, nodeType: NodeType, encounterData?: import('@/game/map/types').CombatEncounter) => void;
+  startEncounter: (
+    nodeId: string,
+    nodeType: NodeType,
+    encounterData?: import('@/game/map/types').CombatEncounter,
+  ) => void;
   /** Resolve the current encounter (clears pendingEncounter and completes the node) */
   resolveEncounter: () => void;
-/** Advance to the next biome map */
+  /** Advance to the next biome map */
   advanceToNextBiome: () => boolean;
   /** Get the current biome's NodeMap */
   getCurrentMap: () => import('@/game/map/types').NodeMap | null;
   /** Get the current MapNode */
   getCurrentNode: () => import('@/game/map/types').MapNode | null;
-/** Update team member HP/level/xp after combat ends */
-  updateTeamAfterCombat: (updates: { championId: string; currentHp: number; level: number; currentXp: number }[]) => void;
+  /** Update team member HP/level/xp after combat ends */
+  updateTeamAfterCombat: (
+    updates: { championId: string; currentHp: number; level: number; currentXp: number }[],
+  ) => void;
 }
 
 export type RunStore = RunState & RunActions;
-
 
 // ─── Per-Champion Run Statistics ──────────────────────────────────────
 

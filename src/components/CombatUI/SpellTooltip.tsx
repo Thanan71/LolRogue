@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import type React from 'react';
+import { useRef, useState } from 'react';
 import type { SpellInfo } from '../../stores/battleStore';
-import { useSettingsStore, scaleFontSize } from '../../stores/settingsStore';
+import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
 
 interface Props {
   spell: SpellInfo;
@@ -11,7 +12,7 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const textSize = useSettingsStore(s => s.textSize);
+  const textSize = useSettingsStore((s) => s.textSize);
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     setVisible(true);
@@ -114,7 +115,8 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
               textAlign: 'center',
             }}
           >
-            Appuyez sur <kbd style={{ color: '#ffd700', fontWeight: 'bold' }}>{spell.slot}</kbd> pour lancer
+            Appuyez sur <kbd style={{ color: '#ffd700', fontWeight: 'bold' }}>{spell.slot}</kbd>{' '}
+            pour lancer
           </div>
         </div>
       )}

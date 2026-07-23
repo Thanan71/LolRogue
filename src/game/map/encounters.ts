@@ -5,10 +5,10 @@
  */
 
 import type { Biome } from '../../types/run';
+import { JUNGLE_ENCOUNTERS, TOP_LANE_ENCOUNTERS } from './encounters-part1';
+import { BOT_LANE_ENCOUNTERS, MID_LANE_ENCOUNTERS } from './encounters-part2';
+import { BASE_ENCOUNTERS, RIVER_ENCOUNTERS } from './encounters-part3';
 import type { CombatEncounter } from './types';
-import { TOP_LANE_ENCOUNTERS, JUNGLE_ENCOUNTERS } from './encounters-part1';
-import { MID_LANE_ENCOUNTERS, BOT_LANE_ENCOUNTERS } from './encounters-part2';
-import { RIVER_ENCOUNTERS, BASE_ENCOUNTERS } from './encounters-part3';
 
 // ─── Export Pool Map ─────────────────────────────────────────────────────────
 
@@ -47,7 +47,9 @@ export function getBiomeBoss(biome: Biome, runLevel: number): CombatEncounter {
   const eligible = getEligibleEncounters(biome, runLevel);
   const hardest = eligible.reduce((a, b) =>
     a.enemies.reduce((s, e) => s + e.statMultiplier, 0) >
-    b.enemies.reduce((s, e) => s + e.statMultiplier, 0) ? a : b
+    b.enemies.reduce((s, e) => s + e.statMultiplier, 0)
+      ? a
+      : b,
   );
 
   return {
@@ -76,6 +78,6 @@ export function getRandomEncounter(
 }
 
 // Re-export individual pools
-export { TOP_LANE_ENCOUNTERS, JUNGLE_ENCOUNTERS } from './encounters-part1';
-export { MID_LANE_ENCOUNTERS, BOT_LANE_ENCOUNTERS } from './encounters-part2';
-export { RIVER_ENCOUNTERS, BASE_ENCOUNTERS } from './encounters-part3';
+export { JUNGLE_ENCOUNTERS, TOP_LANE_ENCOUNTERS } from './encounters-part1';
+export { BOT_LANE_ENCOUNTERS, MID_LANE_ENCOUNTERS } from './encounters-part2';
+export { BASE_ENCOUNTERS, RIVER_ENCOUNTERS } from './encounters-part3';

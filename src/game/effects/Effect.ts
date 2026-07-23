@@ -5,11 +5,7 @@
  * Subclasses implement tick() and onApply().
  */
 
-import {
-  EffectCategory,
-  type EffectData,
-  type EffectEvent,
-} from './types';
+import type { EffectCategory, EffectData, EffectEvent } from './types';
 
 let _nextId = 1;
 
@@ -30,16 +26,36 @@ export abstract class Effect<T extends EffectData = EffectData> {
 
   // ── Getters ──────────────────────────────────────────────────────────────
 
-  get id(): string { return this.data.id; }
-  get name(): string { return this.data.name; }
-  get category(): EffectCategory { return this.data.category; }
-  get duration(): number { return this.data.duration; }
-  get magnitude(): number { return this.data.magnitude; }
-  get sourceId(): string { return this.data.sourceId; }
-  get targetId(): string { return this.data.targetId; }
-  get ticksElapsed(): number { return this.data.ticksElapsed; }
-  get expired(): boolean { return this.data.expired; }
-  get isInstant(): boolean { return this.data.duration === 0; }
+  get id(): string {
+    return this.data.id;
+  }
+  get name(): string {
+    return this.data.name;
+  }
+  get category(): EffectCategory {
+    return this.data.category;
+  }
+  get duration(): number {
+    return this.data.duration;
+  }
+  get magnitude(): number {
+    return this.data.magnitude;
+  }
+  get sourceId(): string {
+    return this.data.sourceId;
+  }
+  get targetId(): string {
+    return this.data.targetId;
+  }
+  get ticksElapsed(): number {
+    return this.data.ticksElapsed;
+  }
+  get expired(): boolean {
+    return this.data.expired;
+  }
+  get isInstant(): boolean {
+    return this.data.duration === 0;
+  }
 
   /** Remaining rounds (including current). */
   get remainingRounds(): number {

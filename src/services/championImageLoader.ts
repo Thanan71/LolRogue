@@ -5,8 +5,8 @@
  * using the generic ImageLoader + DDragon config.
  */
 
-import { imageLoader, type LoadResult } from './imageLoader';
 import { DDRAGON_CONFIG, DDRAGON_VERSION } from '../config/ddragon';
+import { imageLoader, type LoadResult } from './imageLoader';
 
 /** Cache key prefix for champion icons */
 const ICON_PREFIX = 'champion-icon';

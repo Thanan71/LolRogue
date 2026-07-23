@@ -9,9 +9,9 @@
  */
 
 import { useMemo } from 'react';
+import type { ChampionFilter, SortOptions } from '@/data/championDatabase';
 import { championDB } from '@/data/championDatabase';
 import type { Champion, ChampionTag, ResourceType } from '@/types';
-import type { ChampionFilter, SortOptions } from '@/data/championDatabase';
 
 export interface UseChampionDBReturn {
   champions: Champion[];
@@ -50,6 +50,6 @@ export function useChampionDB(): UseChampionDBReturn {
         championDB.query(search, criteria, sort),
       sort: (list: Champion[], options: SortOptions) => championDB.sort(list, options),
     }),
-    []
+    [],
   );
 }

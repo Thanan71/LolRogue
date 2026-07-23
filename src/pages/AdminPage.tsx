@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
-import { useRouterStore, ROUTES } from '@/stores/routerStore';
-import { useNavigate } from 'react-router-dom';
-import type { AdminStat, AdminPlayerStat, Log, Run, RunTeamMember } from '@/types/database';
+import { ROUTES, useRouterStore } from '@/stores/routerStore';
+import type { AdminPlayerStat, AdminStat, Log, Run, RunTeamMember } from '@/types/database';
 import '@/styles/admin.css';
 
 // Extended run type with player info for admin view
@@ -52,12 +52,10 @@ export function AdminPage() {
   // Fetch dashboard stats
   const fetchStats = async () => {
     try {
-      const { data, error } = await supabase
-        .from('admin_stats')
-        .select('*');
-      
+      const { data, error } = await supabase.from('admin_stats').select('*');
+
       if (error) throw error;
-      
+
       const statsMap: Record<string, string> = {};
       data?.forEach((stat: AdminStat) => {
         statsMap[stat.stat_name] = stat.stat_value;
@@ -77,7 +75,7 @@ export function AdminPage() {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
-      
+
       if (error) throw error;
       setPlayerStats(data || []);
     } catch (error) {
@@ -105,7 +103,7 @@ export function AdminPage() {
       }
 
       const { data, error } = await query;
-      
+
       if (error) throw error;
       setLogs(data || []);
     } catch (error) {
@@ -144,30 +142,30 @@ export function AdminPage() {
       }
 
       const { data: runsData, error: runsError } = await query;
-      
+
       if (runsError) throw runsError;
 
       // Fetch team members for each run
-      const runIds = runsData?.map(r => r.id) || [];
+      const runIds = runsData?.map((r) => r.id) || [];
       let teamMembers: RunTeamMember[] = [];
-      
+
       if (runIds.length > 0) {
         const { data: tmData, error: tmError } = await supabase
           .from('run_team_members')
           .select('*')
           .in('run_id', runIds);
-        
+
         if (!tmError && tmData) {
           teamMembers = tmData;
         }
       }
 
       // Combine runs with team members
-      const runsWithTeam = (runsData || []).map(run => ({
+      const runsWithTeam = (runsData || []).map((run) => ({
         ...run,
         player_username: run.player_username?.username || 'Unknown',
         player_display_name: run.player_display_name?.display_name || null,
-        team_members: teamMembers.filter(tm => tm.run_id === run.id)
+        team_members: teamMembers.filter((tm) => tm.run_id === run.id),
       }));
 
       setRuns(runsWithTeam);
@@ -212,16 +210,20 @@ export function AdminPage() {
       'Champions Recrutés',
       'Items Achetés',
       'Équipe (Champions)',
-      'Détails Champions'
+      'Détails Champions',
     ];
 
     // CSV Rows
-    const rows = runs.map(run => {
+    const rows = runs.map((run) => {
       const biomesVisited = run.biomes_visited?.join('; ') || '';
-      const champions = run.team_members?.map(tm => tm.champion_id).join('; ') || '';
-      const championDetails = run.team_members?.map(tm => 
-        `${tm.champion_id}: Niv${tm.final_level} ${tm.survived ? '✓' : '✗'} K:${tm.kills} D:${tm.damage_dealt} DR:${tm.damage_received || 0} H:${tm.healing_done || 0} HP:${tm.final_hp}`
-      ).join(' | ') || '';
+      const champions = run.team_members?.map((tm) => tm.champion_id).join('; ') || '';
+      const championDetails =
+        run.team_members
+          ?.map(
+            (tm) =>
+              `${tm.champion_id}: Niv${tm.final_level} ${tm.survived ? '✓' : '✗'} K:${tm.kills} D:${tm.damage_dealt} DR:${tm.damage_received || 0} H:${tm.healing_done || 0} HP:${tm.final_hp}`,
+          )
+          .join(' | ') || '';
 
       return [
         run.run_uuid,
@@ -251,8 +253,10 @@ export function AdminPage() {
         run.champions_recruited || 0,
         run.items_purchased || 0,
         champions,
-        championDetails
-      ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(',');
+        championDetails,
+      ]
+        .map((field) => `"${String(field).replace(/"/g, '""')}"`)
+        .join(',');
     });
 
     const csvContent = [headers.join(','), ...rows].join('\n');
@@ -307,11 +311,16 @@ export function AdminPage() {
   // Get log level color
   const getLogLevelColor = (level: string) => {
     switch (level) {
-      case 'error': return '#e74c3c';
-      case 'warn': return '#f39c12';
-      case 'info': return '#3498db';
-      case 'debug': return '#95a5a6';
-      default: return '#c8aa6e';
+      case 'error':
+        return '#e74c3c';
+      case 'warn':
+        return '#f39c12';
+      case 'info':
+        return '#3498db';
+      case 'debug':
+        return '#95a5a6';
+      default:
+        return '#c8aa6e';
     }
   };
 
@@ -342,25 +351,25 @@ export function AdminPage() {
       </div>
 
       <div className="admin-nav">
-        <button 
+        <button
           className={activeTab === 'dashboard' ? 'active' : ''}
           onClick={() => setActiveTab('dashboard')}
         >
           📊 Tableau de bord
         </button>
-        <button 
+        <button
           className={activeTab === 'logs' ? 'active' : ''}
           onClick={() => setActiveTab('logs')}
         >
           📋 Logs
         </button>
-        <button 
+        <button
           className={activeTab === 'players' ? 'active' : ''}
           onClick={() => setActiveTab('players')}
         >
           👥 Joueurs
         </button>
-        <button 
+        <button
           className={activeTab === 'runs' ? 'active' : ''}
           onClick={() => setActiveTab('runs')}
         >
@@ -405,15 +414,9 @@ export function AdminPage() {
             <div className="admin-quick-actions">
               <h3>Actions Rapides</h3>
               <div className="action-buttons">
-                <button onClick={() => setActiveTab('logs')}>
-                  Voir les Logs
-                </button>
-                <button onClick={() => setActiveTab('players')}>
-                  Gérer les Joueurs
-                </button>
-                <button onClick={fetchStats}>
-                  Rafraîchir les Stats
-                </button>
+                <button onClick={() => setActiveTab('logs')}>Voir les Logs</button>
+                <button onClick={() => setActiveTab('players')}>Gérer les Joueurs</button>
+                <button onClick={fetchStats}>Rafraîchir les Stats</button>
               </div>
             </div>
           </div>
@@ -425,9 +428,9 @@ export function AdminPage() {
               <h3>Filtres</h3>
               <div className="filter-row">
                 <label>Niveau:</label>
-                <select 
-                  value={logFilter.level} 
-                  onChange={(e) => setLogFilter({...logFilter, level: e.target.value})}
+                <select
+                  value={logFilter.level}
+                  onChange={(e) => setLogFilter({ ...logFilter, level: e.target.value })}
                 >
                   <option value="all">Tous</option>
                   <option value="error">Erreur</option>
@@ -437,9 +440,9 @@ export function AdminPage() {
                 </select>
 
                 <label>Opération:</label>
-                <select 
-                  value={logFilter.operation} 
-                  onChange={(e) => setLogFilter({...logFilter, operation: e.target.value})}
+                <select
+                  value={logFilter.operation}
+                  onChange={(e) => setLogFilter({ ...logFilter, operation: e.target.value })}
                 >
                   <option value="all">Toutes</option>
                   <option value="select">SELECT</option>
@@ -451,9 +454,9 @@ export function AdminPage() {
                 </select>
 
                 <label>Limite:</label>
-                <select 
-                  value={logFilter.limit} 
-                  onChange={(e) => setLogFilter({...logFilter, limit: parseInt(e.target.value)})}
+                <select
+                  value={logFilter.limit}
+                  onChange={(e) => setLogFilter({ ...logFilter, limit: parseInt(e.target.value) })}
                 >
                   <option value="50">50</option>
                   <option value="100">100</option>
@@ -492,16 +495,12 @@ export function AdminPage() {
                         <td>{log.method}</td>
                         <td>{log.operation}</td>
                         <td>{log.duration_ms ? `${log.duration_ms}ms` : '-'}</td>
-                        <td title={log.error_stack || ''}>
-                          {log.error_message ? '❌' : '-'}
-                        </td>
+                        <td title={log.error_stack || ''}>{log.error_message ? '❌' : '-'}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                {logs.length === 0 && (
-                  <div className="no-data">Aucun log trouvé</div>
-                )}
+                {logs.length === 0 && <div className="no-data">Aucun log trouvé</div>}
               </div>
             )}
           </div>
@@ -551,9 +550,7 @@ export function AdminPage() {
                     ))}
                   </tbody>
                 </table>
-                {playerStats.length === 0 && (
-                  <div className="no-data">Aucun joueur trouvé</div>
-                )}
+                {playerStats.length === 0 && <div className="no-data">Aucun joueur trouvé</div>}
               </div>
             )}
           </div>
@@ -564,17 +561,15 @@ export function AdminPage() {
             <div className="runs-header">
               <h3>Historique des Runs</h3>
               <div className="runs-actions">
-                <button 
+                <button
                   className="export-btn"
-                  onClick={exportRunsToCSV} 
+                  onClick={exportRunsToCSV}
                   disabled={runs.length === 0}
                   title="Exporter les données en CSV"
                 >
                   📥 Exporter CSV
                 </button>
-                <button onClick={fetchRuns}>
-                  🔄 Rafraîchir
-                </button>
+                <button onClick={fetchRuns}>🔄 Rafraîchir</button>
               </div>
             </div>
 
@@ -582,9 +577,11 @@ export function AdminPage() {
               <h4>Filtres</h4>
               <div className="filter-row">
                 <label>Résultat:</label>
-                <select 
-                  value={runFilter.won} 
-                  onChange={(e) => setRunFilter({...runFilter, won: e.target.value as 'all' | 'true' | 'false'})}
+                <select
+                  value={runFilter.won}
+                  onChange={(e) =>
+                    setRunFilter({ ...runFilter, won: e.target.value as 'all' | 'true' | 'false' })
+                  }
                 >
                   <option value="all">Tous</option>
                   <option value="true">Victoires uniquement</option>
@@ -592,12 +589,12 @@ export function AdminPage() {
                 </select>
 
                 <label>Min Vagues:</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   min="0"
                   placeholder="0"
                   value={runFilter.minWaves}
-                  onChange={(e) => setRunFilter({...runFilter, minWaves: e.target.value})}
+                  onChange={(e) => setRunFilter({ ...runFilter, minWaves: e.target.value })}
                   style={{
                     width: '60px',
                     padding: '0.5rem',
@@ -605,17 +602,17 @@ export function AdminPage() {
                     border: '1px solid rgba(200, 170, 110, 0.3)',
                     color: '#c8aa6e',
                     borderRadius: '4px',
-                    fontFamily: 'Cinzel, Georgia, serif'
+                    fontFamily: 'Cinzel, Georgia, serif',
                   }}
                 />
 
                 <label>Max Vagues:</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   min="0"
                   placeholder="∞"
                   value={runFilter.maxWaves}
-                  onChange={(e) => setRunFilter({...runFilter, maxWaves: e.target.value})}
+                  onChange={(e) => setRunFilter({ ...runFilter, maxWaves: e.target.value })}
                   style={{
                     width: '60px',
                     padding: '0.5rem',
@@ -623,14 +620,19 @@ export function AdminPage() {
                     border: '1px solid rgba(200, 170, 110, 0.3)',
                     color: '#c8aa6e',
                     borderRadius: '4px',
-                    fontFamily: 'Cinzel, Georgia, serif'
+                    fontFamily: 'Cinzel, Georgia, serif',
                   }}
                 />
 
                 <label>Trier par:</label>
-                <select 
-                  value={runFilter.sortBy} 
-                  onChange={(e) => setRunFilter({...runFilter, sortBy: e.target.value as 'completed_at' | 'waves_completed' | 'run_level'})}
+                <select
+                  value={runFilter.sortBy}
+                  onChange={(e) =>
+                    setRunFilter({
+                      ...runFilter,
+                      sortBy: e.target.value as 'completed_at' | 'waves_completed' | 'run_level',
+                    })
+                  }
                 >
                   <option value="completed_at">Date de fin</option>
                   <option value="waves_completed">Vagues complétées</option>
@@ -638,18 +640,20 @@ export function AdminPage() {
                 </select>
 
                 <label>Ordre:</label>
-                <select 
-                  value={runFilter.sortOrder} 
-                  onChange={(e) => setRunFilter({...runFilter, sortOrder: e.target.value as 'asc' | 'desc'})}
+                <select
+                  value={runFilter.sortOrder}
+                  onChange={(e) =>
+                    setRunFilter({ ...runFilter, sortOrder: e.target.value as 'asc' | 'desc' })
+                  }
                 >
                   <option value="desc">Descendant</option>
                   <option value="asc">Ascendant</option>
                 </select>
 
                 <label>Limite:</label>
-                <select 
-                  value={runFilter.limit} 
-                  onChange={(e) => setRunFilter({...runFilter, limit: parseInt(e.target.value)})}
+                <select
+                  value={runFilter.limit}
+                  onChange={(e) => setRunFilter({ ...runFilter, limit: parseInt(e.target.value) })}
                 >
                   <option value="50">50</option>
                   <option value="100">100</option>
@@ -667,15 +671,20 @@ export function AdminPage() {
               <>
                 <div className="runs-summary">
                   <span className="summary-text">
-                    {runs.length} run{runs.length > 1 ? 's' : ''} affiché{runs.length > 1 ? 's' : ''}
+                    {runs.length} run{runs.length > 1 ? 's' : ''} affiché
+                    {runs.length > 1 ? 's' : ''}
                   </span>
                   {runs.length > 0 && (
                     <>
                       <span className="summary-stat">
-                        Taux de victoire: {(runs.filter(r => r.won).length / runs.length * 100).toFixed(1)}%
+                        Taux de victoire:{' '}
+                        {((runs.filter((r) => r.won).length / runs.length) * 100).toFixed(1)}%
                       </span>
                       <span className="summary-stat">
-                        Moyenne vagues: {(runs.reduce((sum, r) => sum + (r.waves_completed || 0), 0) / runs.length).toFixed(1)}
+                        Moyenne vagues:{' '}
+                        {(
+                          runs.reduce((sum, r) => sum + (r.waves_completed || 0), 0) / runs.length
+                        ).toFixed(1)}
                       </span>
                     </>
                   )}
@@ -722,21 +731,27 @@ export function AdminPage() {
                           <td>{(run.total_damage_dealt || 0).toLocaleString()}</td>
                           <td>{run.gold_earned || 0}</td>
                           <td className="candies-cell">{run.candies_earned || 0}</td>
-                          <td>{run.duration_seconds ? `${Math.floor(run.duration_seconds / 60)}min` : '-'}</td>
-                          <td className="team-cell" title={
-                            run.team_members?.map(tm => 
-                              `${tm.champion_id}: Niv${tm.final_level} ${tm.survived ? '✓' : '✗'} (K:${tm.kills} D:${tm.damage_dealt})`
-                            ).join('\n')
-                          }>
+                          <td>
+                            {run.duration_seconds
+                              ? `${Math.floor(run.duration_seconds / 60)}min`
+                              : '-'}
+                          </td>
+                          <td
+                            className="team-cell"
+                            title={run.team_members
+                              ?.map(
+                                (tm) =>
+                                  `${tm.champion_id}: Niv${tm.final_level} ${tm.survived ? '✓' : '✗'} (K:${tm.kills} D:${tm.damage_dealt})`,
+                              )
+                              .join('\n')}
+                          >
                             {run.team_members?.length || 0} champions
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  {runs.length === 0 && (
-                    <div className="no-data">Aucun run trouvé</div>
-                  )}
+                  {runs.length === 0 && <div className="no-data">Aucun run trouvé</div>}
                 </div>
               </>
             )}

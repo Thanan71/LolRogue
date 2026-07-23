@@ -1,8 +1,8 @@
+import { ParticleBackground } from '@/components/ParticleBackground';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useAuthStore } from '@/stores/authStore';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
-import { useAuthStore } from '@/stores/authStore';
-import { ParticleBackground } from '@/components/ParticleBackground';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
 
@@ -26,11 +26,43 @@ function LolRogueIcon() {
         opacity="0.5"
       />
       {/* Sword 1 - diagonal */}
-      <line x1="35" y1="30" x2="65" y2="72" stroke="#D4BC8A" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="65" y1="72" x2="67" y2="74" stroke="#D4BC8A" strokeWidth="4" strokeLinecap="round" />
+      <line
+        x1="35"
+        y1="30"
+        x2="65"
+        y2="72"
+        stroke="#D4BC8A"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+      <line
+        x1="65"
+        y1="72"
+        x2="67"
+        y2="74"
+        stroke="#D4BC8A"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
       {/* Sword 2 - other diagonal */}
-      <line x1="65" y1="30" x2="35" y2="72" stroke="#D4BC8A" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="35" y1="72" x2="33" y2="74" stroke="#D4BC8A" strokeWidth="4" strokeLinecap="round" />
+      <line
+        x1="65"
+        y1="30"
+        x2="35"
+        y2="72"
+        stroke="#D4BC8A"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+      <line
+        x1="35"
+        y1="72"
+        x2="33"
+        y2="74"
+        stroke="#D4BC8A"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
       {/* Center gem */}
       <circle cx="50" cy="50" r="5" fill="#C8AA6E" />
       <circle cx="50" cy="50" r="3" fill="#FFD700" opacity="0.6" />
@@ -113,14 +145,12 @@ export function MenuPage() {
 
       <div className="main-menu__buttons">
         {isActive && (
-          <button
-            className="main-menu__btn main-menu__btn--continue"
-            onClick={handleContinue}
-          >
+          <button className="main-menu__btn main-menu__btn--continue" onClick={handleContinue}>
             <span className="main-menu__btn-icon">▶</span>
             Continue Run
             <span className="main-menu__btn-info">
-              Lv.{runLevel} · {currentBiome ? currentBiome.replace('_', ' ') : '???'} · {team.length} champ{team.length !== 1 ? 's' : ''}
+              Lv.{runLevel} · {currentBiome ? currentBiome.replace('_', ' ') : '???'} ·{' '}
+              {team.length} champ{team.length !== 1 ? 's' : ''}
             </span>
           </button>
         )}
@@ -135,21 +165,30 @@ export function MenuPage() {
 
         <button
           className="main-menu__btn main-menu__btn--database"
-          onClick={() => { playUIClick(); navigate(ROUTES.DATABASE); }}
+          onClick={() => {
+            playUIClick();
+            navigate(ROUTES.DATABASE);
+          }}
         >
           Database
         </button>
 
         <button
           className="main-menu__btn main-menu__btn--ghost"
-          onClick={() => { playUIClick(); navigate(ROUTES.SETTINGS); }}
+          onClick={() => {
+            playUIClick();
+            navigate(ROUTES.SETTINGS);
+          }}
         >
           Settings
         </button>
 
         <button
           className="main-menu__btn main-menu__btn--ghost"
-          onClick={() => { playUIClick(); navigate(ROUTES.CREDITS); }}
+          onClick={() => {
+            playUIClick();
+            navigate(ROUTES.CREDITS);
+          }}
         >
           Credits
         </button>
@@ -157,26 +196,23 @@ export function MenuPage() {
         {player?.is_admin && (
           <button
             className="main-menu__btn main-menu__btn--admin"
-            onClick={() => { playUIClick(); navigate(ROUTES.ADMIN); }}
+            onClick={() => {
+              playUIClick();
+              navigate(ROUTES.ADMIN);
+            }}
           >
             🛡️ Admin Panel
           </button>
         )}
 
         {!isGuest && (
-          <button
-            className="main-menu__btn main-menu__btn--logout"
-            onClick={handleLogout}
-          >
+          <button className="main-menu__btn main-menu__btn--logout" onClick={handleLogout}>
             Logout
           </button>
         )}
 
         {isGuest && (
-          <button
-            className="main-menu__btn main-menu__btn--logout"
-            onClick={handleGuestLogin}
-          >
+          <button className="main-menu__btn main-menu__btn--logout" onClick={handleGuestLogin}>
             Login / Create Account
           </button>
         )}
@@ -184,9 +220,7 @@ export function MenuPage() {
 
       <div className="main-menu__footer">
         <div className="main-menu__version">v0.1.0</div>
-        <div className="main-menu__disclaimer">
-          Fan project — not affiliated with Riot Games
-        </div>
+        <div className="main-menu__disclaimer">Fan project — not affiliated with Riot Games</div>
       </div>
     </div>
   );

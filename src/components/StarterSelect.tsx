@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import { Champion } from '@/types/champion';
+import { DDRAGON_CONFIG } from '@/config/ddragon';
+import { championDB } from '@/data/championDatabase';
 import { useGameStore } from '@/stores/gameStore';
 import { useRunStore } from '@/stores/runStore';
-import { championDB } from '@/data/championDatabase';
+import type { Champion } from '@/types/champion';
 import { gameStatsAtLevel } from '@/utils/statConversion';
-import { DDRAGON_CONFIG } from '@/config/ddragon';
 
 function pickRandom<T>(arr: T[], count: number): T[] {
   const shuffled = [...arr].sort(() => Math.random() - 0.5);
@@ -78,12 +78,7 @@ function ChampionCard({
       onClick={onSelect}
     >
       <div className="champion-card__splash-wrapper">
-        <img
-          className="champion-card__splash"
-          src={splashUrl}
-          alt={champion.name}
-          loading="lazy"
-        />
+        <img className="champion-card__splash" src={splashUrl} alt={champion.name} loading="lazy" />
         <div className="champion-card__splash-overlay" />
       </div>
 

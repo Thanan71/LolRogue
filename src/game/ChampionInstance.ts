@@ -6,9 +6,9 @@
  * Also supports enhancement bonuses from the enhancement tree system.
  */
 
-import type { Champion, ChampionStats, Spell, Passive, ChampionTag } from '@/types';
+import type { Champion, ChampionStats, ChampionTag, Passive, Spell } from '@/types';
 import type { EnhancementStatBonuses } from '@/types/enhancementTree';
-import { calculateStats, type CalculatedStats } from '@/utils/champion';
+import { type CalculatedStats, calculateStats } from '@/utils/champion';
 
 /** Valid spell slots matching LoL key bindings. */
 export type SpellSlot = 'Q' | 'W' | 'E' | 'R';
@@ -152,14 +152,14 @@ export class ChampionInstance {
    */
   static applyEnhancementBonuses(
     baseStats: CalculatedStats,
-    bonuses: EnhancementStatBonuses
+    bonuses: EnhancementStatBonuses,
   ): CalculatedStats {
     const result = { ...baseStats };
 
     // Apply flat bonuses
     for (const [stat, value] of Object.entries(bonuses.flat)) {
       if (stat in result) {
-        result[stat as keyof CalculatedStats] = 
+        result[stat as keyof CalculatedStats] =
           (result[stat as keyof CalculatedStats] as number) + value;
       }
     }
@@ -167,7 +167,7 @@ export class ChampionInstance {
     // Apply percentage bonuses
     for (const [stat, percent] of Object.entries(bonuses.percent)) {
       if (stat in result) {
-        result[stat as keyof CalculatedStats] = 
+        result[stat as keyof CalculatedStats] =
           (result[stat as keyof CalculatedStats] as number) * (1 + percent);
       }
     }

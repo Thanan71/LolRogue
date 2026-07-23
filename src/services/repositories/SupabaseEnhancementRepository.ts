@@ -1,13 +1,13 @@
 /**
  * Supabase Enhancement Repository
- * 
+ *
  * Implementation of IEnhancementRepository for Supabase.
  * Handles persistence of enhancement states to the database.
  */
 
+import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
 import { supabase } from '@/services/supabaseClient';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
-import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
 
 /**
  * Database schema for champion enhancements
@@ -45,7 +45,7 @@ export class SupabaseEnhancementRepository {
    */
   async getEnhancementState(
     playerId: string,
-    championId: string
+    championId: string,
   ): Promise<PlayerEnhancementState | null> {
     try {
       const { data, error } = await supabase
@@ -80,7 +80,7 @@ export class SupabaseEnhancementRepository {
   async saveEnhancementState(
     playerId: string,
     championId: string,
-    state: PlayerEnhancementState
+    state: PlayerEnhancementState,
   ): Promise<boolean> {
     try {
       const upsertData: ChampionEnhancementInsert = {
@@ -117,7 +117,7 @@ export class SupabaseEnhancementRepository {
     championId: string,
     nodeId: string,
     candyCost: number,
-    currentState: PlayerEnhancementState
+    currentState: PlayerEnhancementState,
   ): Promise<UnlockNodeResult> {
     const newState: PlayerEnhancementState = {
       unlockedNodes: {
@@ -159,7 +159,10 @@ export class SupabaseEnhancementRepository {
         .eq('user_id', playerId);
 
       if (error) {
-        console.error('[SupabaseEnhancementRepository] Error fetching all enhancement states:', error);
+        console.error(
+          '[SupabaseEnhancementRepository] Error fetching all enhancement states:',
+          error,
+        );
         return new Map();
       }
 
@@ -181,10 +184,7 @@ export class SupabaseEnhancementRepository {
   /**
    * Reset enhancement state for a champion (for testing/debug)
    */
-  async resetEnhancementState(
-    playerId: string,
-    championId: string
-  ): Promise<boolean> {
+  async resetEnhancementState(playerId: string, championId: string): Promise<boolean> {
     try {
       const { error } = await supabase
         .from(SupabaseEnhancementRepository.TABLE_NAME)

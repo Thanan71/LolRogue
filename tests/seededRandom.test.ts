@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { SeededRNG } from '../src/utils/seededRandom';
+import { describe, expect, it } from 'vitest';
 import { mulberry32, seededShuffle } from '../src/game/map/MapGenerator-helpers';
+import { SeededRNG } from '../src/utils/seededRandom';
 
 describe('SeededRNG', () => {
   it('should produce identical sequences for the same seed', () => {

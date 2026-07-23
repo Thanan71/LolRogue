@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { ChampionDatabase, championDB } from '../src/data/championDatabase';
 import type { Champion } from '../src/types';
 
@@ -11,15 +11,36 @@ const FIXTURES: Champion[] = [
     tags: ['Mage', 'Assassin'],
     resourceType: 'Mana',
     stats: {
-      hp: 590, mp: 418, moveSpeed: 330, armor: 21, magicResist: 30,
-      attackDamage: 53, attackSpeed: 0.668, attackRange: 550,
-      hpPerLevel: 104, mpPerLevel: 25, armorPerLevel: 4.2,
-      magicResistPerLevel: 1.3, attackDamagePerLevel: 0,
-      attackSpeedPerLevel: 2.2, hpRegen: 2.5, hpRegenPerLevel: 0.6,
-      mpRegen: 8, mpRegenPerLevel: 0.8, crit: 0, critPerLevel: 0,
+      hp: 590,
+      mp: 418,
+      moveSpeed: 330,
+      armor: 21,
+      magicResist: 30,
+      attackDamage: 53,
+      attackSpeed: 0.668,
+      attackRange: 550,
+      hpPerLevel: 104,
+      mpPerLevel: 25,
+      armorPerLevel: 4.2,
+      magicResistPerLevel: 1.3,
+      attackDamagePerLevel: 0,
+      attackSpeedPerLevel: 2.2,
+      hpRegen: 2.5,
+      hpRegenPerLevel: 0.6,
+      mpRegen: 8,
+      mpRegenPerLevel: 0.8,
+      crit: 0,
+      critPerLevel: 0,
     },
     spells: [],
-    passive: { name: '', description: '', image: '', targeting: 'passive' as any, scaling: { adRatio: 0, apRatio: 0 }, effects: [] },
+    passive: {
+      name: '',
+      description: '',
+      image: '',
+      targeting: 'passive' as any,
+      scaling: { adRatio: 0, apRatio: 0 },
+      effects: [],
+    },
     iconUrl: '/data/lol/img/champions/Ahri.png',
   },
   {
@@ -30,15 +51,36 @@ const FIXTURES: Champion[] = [
     tags: ['Fighter', 'Tank'],
     resourceType: 'Mana',
     stats: {
-      hp: 650, mp: 0, moveSpeed: 340, armor: 39, magicResist: 32,
-      attackDamage: 64, attackSpeed: 0.625, attackRange: 175,
-      hpPerLevel: 120, mpPerLevel: 0, armorPerLevel: 5.2,
-      magicResistPerLevel: 2.05, attackDamagePerLevel: 5,
-      attackSpeedPerLevel: 1, hpRegen: 3, hpRegenPerLevel: 0.5,
-      mpRegen: 0, mpRegenPerLevel: 0, crit: 0, critPerLevel: 0,
+      hp: 650,
+      mp: 0,
+      moveSpeed: 340,
+      armor: 39,
+      magicResist: 32,
+      attackDamage: 64,
+      attackSpeed: 0.625,
+      attackRange: 175,
+      hpPerLevel: 120,
+      mpPerLevel: 0,
+      armorPerLevel: 5.2,
+      magicResistPerLevel: 2.05,
+      attackDamagePerLevel: 5,
+      attackSpeedPerLevel: 1,
+      hpRegen: 3,
+      hpRegenPerLevel: 0.5,
+      mpRegen: 0,
+      mpRegenPerLevel: 0,
+      crit: 0,
+      critPerLevel: 0,
     },
     spells: [],
-    passive: { name: '', description: '', image: '', targeting: 'passive' as any, scaling: { adRatio: 0, apRatio: 0 }, effects: [] },
+    passive: {
+      name: '',
+      description: '',
+      image: '',
+      targeting: 'passive' as any,
+      scaling: { adRatio: 0, apRatio: 0 },
+      effects: [],
+    },
     iconUrl: '/data/lol/img/champions/Darius.png',
   },
   {
@@ -49,15 +91,36 @@ const FIXTURES: Champion[] = [
     tags: ['Marksman'],
     resourceType: 'Mana',
     stats: {
-      hp: 510, mp: 245, moveSpeed: 325, armor: 26, magicResist: 30,
-      attackDamage: 59, attackSpeed: 0.625, attackRange: 525,
-      hpPerLevel: 100, mpPerLevel: 30, armorPerLevel: 4.7,
-      magicResistPerLevel: 1.3, attackDamagePerLevel: 0,
-      attackSpeedPerLevel: 1, hpRegen: 3.75, hpRegenPerLevel: 0.5,
-      mpRegen: 6.7, mpRegenPerLevel: 0.4, crit: 0, critPerLevel: 0,
+      hp: 510,
+      mp: 245,
+      moveSpeed: 325,
+      armor: 26,
+      magicResist: 30,
+      attackDamage: 59,
+      attackSpeed: 0.625,
+      attackRange: 525,
+      hpPerLevel: 100,
+      mpPerLevel: 30,
+      armorPerLevel: 4.7,
+      magicResistPerLevel: 1.3,
+      attackDamagePerLevel: 0,
+      attackSpeedPerLevel: 1,
+      hpRegen: 3.75,
+      hpRegenPerLevel: 0.5,
+      mpRegen: 6.7,
+      mpRegenPerLevel: 0.4,
+      crit: 0,
+      critPerLevel: 0,
     },
     spells: [],
-    passive: { name: '', description: '', image: '', targeting: 'passive' as any, scaling: { adRatio: 0, apRatio: 0 }, effects: [] },
+    passive: {
+      name: '',
+      description: '',
+      image: '',
+      targeting: 'passive' as any,
+      scaling: { adRatio: 0, apRatio: 0 },
+      effects: [],
+    },
     iconUrl: '/data/lol/img/champions/Jinx.png',
   },
 ];
@@ -266,14 +329,22 @@ describe('ChampionDatabase (fixtures)', () => {
   // --- Full Pipeline (query) ---
 
   it('query should combine search + filter + sort', () => {
-    const result = db.query('', { tagsAny: ['Mage', 'Fighter'] }, { field: 'hp', direction: 'desc' });
+    const result = db.query(
+      '',
+      { tagsAny: ['Mage', 'Fighter'] },
+      { field: 'hp', direction: 'desc' },
+    );
     expect(result.length).toBe(2);
     expect(result[0].id).toBe('Darius');
     expect(result[1].id).toBe('Ahri');
   });
 
   it('query with search should narrow results', () => {
-    const result = db.query('ri', { tagsAny: ['Mage', 'Fighter'] }, { field: 'hp', direction: 'asc' });
+    const result = db.query(
+      'ri',
+      { tagsAny: ['Mage', 'Fighter'] },
+      { field: 'hp', direction: 'asc' },
+    );
     expect(result.length).toBe(2);
     expect(result[0].id).toBe('Ahri');
   });

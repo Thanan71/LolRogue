@@ -1,6 +1,6 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,18 +27,18 @@ async function getLatestVersion() {
 async function downloadEndpoint(version, endpoint, filename) {
   const url = `${DDRAGON_BASE}/cdn/${version}/data/${LANG}/${endpoint}.json`;
   console.log(`Downloading ${endpoint} from ${url}...`);
-  
+
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText}`);
   }
-  
+
   const data = await response.json();
   const outputPath = path.join(OUTPUT_DIR, filename);
-  
+
   await fs.writeFile(outputPath, JSON.stringify(data, null, 2), 'utf-8');
   console.log(`✓ Saved ${filename}`);
-  
+
   return data;
 }
 
@@ -124,7 +124,7 @@ async function downloadItemIcons(version, itemData) {
   console.log(`\n🖼️  Downloading ${items.length} item icons...`);
 
   let downloaded = 0;
-  for (const [id, item] of items) {
+  for (const [, item] of items) {
     if (!item.image || !item.image.full) continue;
     const iconFilename = item.image.full;
     const url = `${DDRAGON_BASE}/cdn/${version}/img/item/${iconFilename}`;
@@ -199,13 +199,13 @@ async function main() {
       version,
       language: LANG,
       downloadedAt: new Date().toISOString(),
-      files: endpoints.map(e => e.filename),
+      files: endpoints.map((e) => e.filename),
     };
-    
+
     await fs.writeFile(
       path.join(OUTPUT_DIR, 'metadata.json'),
       JSON.stringify(metadata, null, 2),
-      'utf-8'
+      'utf-8',
     );
     console.log('\n✓ Saved metadata.json');
 

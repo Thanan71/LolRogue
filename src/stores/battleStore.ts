@@ -26,7 +26,16 @@ export interface CombatantInfo {
 export interface LogEntry {
   id: number;
   timestamp: number;
-  type: 'damage' | 'defeat' | 'turn_start' | 'round_start' | 'battle_end' | 'action' | 'info' | 'heal' | 'shield';
+  type:
+    | 'damage'
+    | 'defeat'
+    | 'turn_start'
+    | 'round_start'
+    | 'battle_end'
+    | 'action'
+    | 'info'
+    | 'heal'
+    | 'shield';
   message: string;
   amount?: number;
   isCrit?: boolean;
@@ -47,7 +56,11 @@ interface BattleState {
 
   setPhase: (phase: BattleState['phase']) => void;
   setRound: (round: number) => void;
-  setTurnInfo: (turnIndex: number, championId: string | null, side: 'player' | 'enemy' | null) => void;
+  setTurnInfo: (
+    turnIndex: number,
+    championId: string | null,
+    side: 'player' | 'enemy' | null,
+  ) => void;
   setTeams: (player: CombatantInfo[], enemy: CombatantInfo[]) => void;
   addLog: (entry: Omit<LogEntry, 'id' | 'timestamp'>) => void;
   setWinner: (winner: 'player' | 'enemy' | 'draw') => void;
@@ -72,17 +85,19 @@ export const useBattleStore = create<BattleState>((set) => ({
   ...init,
   setPhase: (phase) => set({ phase }),
   setRound: (round) => set({ round }),
-  setTurnInfo: (turnIndex, championId, side) => set({
-    turnIndex,
-    currentTurnChampionId: championId,
-    currentTurnSide: side,
-    isPlayerTurn: side === 'player',
-  }),
+  setTurnInfo: (turnIndex, championId, side) =>
+    set({
+      turnIndex,
+      currentTurnChampionId: championId,
+      currentTurnSide: side,
+      isPlayerTurn: side === 'player',
+    }),
   setTeams: (player, enemy) => set({ playerTeam: player, enemyTeam: enemy }),
-  addLog: (entry) => set((state) => ({
-    log: [...state.log, { ...entry, id: state.logIdCounter + 1, timestamp: Date.now() }],
-    logIdCounter: state.logIdCounter + 1,
-  })),
+  addLog: (entry) =>
+    set((state) => ({
+      log: [...state.log, { ...entry, id: state.logIdCounter + 1, timestamp: Date.now() }],
+      logIdCounter: state.logIdCounter + 1,
+    })),
   setWinner: (winner) => set({ winner, phase: 'finished' }),
   resetBattle: () => set(init),
 }));

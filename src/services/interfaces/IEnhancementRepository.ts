@@ -1,18 +1,18 @@
 /**
  * Enhancement Repository Interface
- * 
+ *
  * Defines the contract for enhancement-related data operations.
  * Follows Dependency Inversion Principle (DIP) - high-level modules
  * depend on abstractions, not concretions.
  */
 
-import type { 
-  ChampionEnhancementTree, 
+import type { Champion } from '@/types/champion';
+import type {
+  ChampionEnhancementTree,
   EnhancementNode,
   PlayerEnhancementState,
-  StatType 
+  StatType,
 } from '@/types/enhancementTree';
-import type { Champion } from '@/types/champion';
 
 /**
  * Result of unlocking an enhancement node
@@ -50,22 +50,22 @@ export interface IEnhancementRepository {
    * Get enhancement state for a player-champion pair
    */
   getEnhancementState(playerId: string, championId: string): Promise<PlayerEnhancementState | null>;
-  
+
   /**
    * Get all enhancement states for a player
    * Returns a Map of championId -> enhancement state
    */
   getAllEnhancementStates(playerId: string): Promise<Map<string, PlayerEnhancementState>>;
-  
+
   /**
    * Save or update enhancement state
    */
   saveEnhancementState(
-    playerId: string, 
-    championId: string, 
-    state: PlayerEnhancementState
+    playerId: string,
+    championId: string,
+    state: PlayerEnhancementState,
   ): Promise<boolean>;
-  
+
   /**
    * Unlock a specific node
    */
@@ -74,7 +74,7 @@ export interface IEnhancementRepository {
     championId: string,
     nodeId: string,
     candyCost: number,
-    currentState: PlayerEnhancementState
+    currentState: PlayerEnhancementState,
   ): Promise<UnlockNodeResult>;
 }
 
@@ -87,17 +87,17 @@ export interface IEnhancementTreeProvider {
    * Get the enhancement tree for a champion
    */
   getTreeForChampion(champion: Champion): ChampionEnhancementTree;
-  
+
   /**
    * Get tree by role name
    */
   getTreeByRole(role: string): ChampionEnhancementTree;
-  
+
   /**
    * Get all available roles
    */
   getAllRoles(): string[];
-  
+
   /**
    * Check if a node can be unlocked
    */
@@ -105,7 +105,7 @@ export interface IEnhancementTreeProvider {
     node: EnhancementNode,
     unlockedNodes: Record<string, number>,
     masteryLevel: number,
-    availableCandies: number
+    availableCandies: number,
   ): boolean;
 }
 
@@ -119,14 +119,14 @@ export interface IEnhancementService {
    */
   calculateStatBonuses(
     tree: ChampionEnhancementTree,
-    unlockedNodes: Record<string, number>
+    unlockedNodes: Record<string, number>,
   ): EnhancementStatBonuses;
-  
+
   /**
    * Get total candy cost to unlock a node
    */
   getNodeTotalCost(node: EnhancementNode, currentRank: number): number;
-  
+
   /**
    * Validate if an unlock is allowed
    */
@@ -134,14 +134,14 @@ export interface IEnhancementService {
     node: EnhancementNode,
     state: PlayerEnhancementState,
     masteryLevel: number,
-    availableCandies: number
+    availableCandies: number,
   ): { valid: boolean; error?: string };
-  
+
   /**
    * Apply enhancement bonuses to champion stats
    */
   applyEnhancementBonuses<T extends Record<string, number>>(
     baseStats: T,
-    bonuses: EnhancementStatBonuses
+    bonuses: EnhancementStatBonuses,
   ): T;
 }

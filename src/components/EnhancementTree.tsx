@@ -1,19 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import type { Champion } from '@/types/champion';
-import type { 
-  EnhancementNode, 
-  PlayerEnhancementState 
-} from '@/types/enhancementTree';
-import { 
-  getEnhancementTreeForRole,
+import React, { useMemo, useState } from 'react';
+import {
   canUnlockNode,
+  getEnhancementTreeForRole,
   getLockReason,
   type LockReason,
 } from '@/data/enhancementTrees';
-import { 
-  BRANCH_THEME_COLORS, 
-  BRANCH_THEME_ICONS 
-} from '@/types/enhancementTree';
+import type { Champion } from '@/types/champion';
+import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';
+import { BRANCH_THEME_COLORS, BRANCH_THEME_ICONS } from '@/types/enhancementTree';
 
 interface EnhancementTreeProps {
   champion: Champion;
@@ -57,8 +51,18 @@ export function EnhancementTree({
         <h4 style={sectionTitleStyle}>⚡ Nœuds de Base</h4>
         <div style={nodesRowStyle}>
           {tree.coreNodes.map((node) => {
-            const canUnlock = canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies);
-            const lockReason = getLockReason(node, enhancementState.unlockedNodes, masteryLevel, playerCandies);
+            const canUnlock = canUnlockNode(
+              node,
+              enhancementState.unlockedNodes,
+              masteryLevel,
+              playerCandies,
+            );
+            const lockReason = getLockReason(
+              node,
+              enhancementState.unlockedNodes,
+              masteryLevel,
+              playerCandies,
+            );
             return (
               <NodeCard
                 key={node.id}
@@ -107,8 +111,18 @@ export function EnhancementTree({
             </div>
             <div style={branchNodesStyle}>
               {branch.nodes.map((node, index) => {
-                const canUnlock = canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies);
-                const lockReason = getLockReason(node, enhancementState.unlockedNodes, masteryLevel, playerCandies);
+                const canUnlock = canUnlockNode(
+                  node,
+                  enhancementState.unlockedNodes,
+                  masteryLevel,
+                  playerCandies,
+                );
+                const lockReason = getLockReason(
+                  node,
+                  enhancementState.unlockedNodes,
+                  masteryLevel,
+                  playerCandies,
+                );
                 return (
                   <React.Fragment key={node.id}>
                     {index > 0 && <div style={connectorStyle} />}
@@ -180,11 +194,13 @@ function NodeCard({ node, unlocked, canUnlock, lockReason, onUnlock, isUltimate 
         {isUltimate && <span style={ultimateBadgeStyle}>ULTI</span>}
       </div>
       <div style={nodeDescStyle}>{node.description}</div>
-      
+
       {node.statBonuses && Object.entries(node.statBonuses).length > 0 && (
         <div style={statBonusesStyle}>
           {Object.entries(node.statBonuses).map(([stat, value]) => (
-            <span key={stat} style={statBonusStyle}>+{value} {stat.toUpperCase()}</span>
+            <span key={stat} style={statBonusStyle}>
+              +{value} {stat.toUpperCase()}
+            </span>
           ))}
         </div>
       )}
@@ -208,9 +224,7 @@ function NodeCard({ node, unlocked, canUnlock, lockReason, onUnlock, isUltimate 
               {unlocked > 0 ? `Niv ${unlocked + 1}/${maxRanks}` : `Débloquer`}
             </button>
             {!canUnlock && lockReason && (
-              <span style={getLockReasonStyle(lockReason.type)}>
-                {lockReason.message}
-              </span>
+              <span style={getLockReasonStyle(lockReason.type)}>{lockReason.message}</span>
             )}
           </div>
         )}
@@ -431,8 +445,11 @@ const getLockReasonStyle = (type: string): React.CSSProperties => ({
   padding: '1px 4px',
   borderRadius: 3,
   fontWeight: 600,
-  ...(type === 'mastery_level' ? { background: '#C43C3C30', color: '#C43C3C' } :
-    type === 'candies' ? { background: '#F5E6B330', color: '#F5E6B3' } :
-    type === 'prerequisite' ? { background: '#8b949e30', color: '#8b949e' } :
-    { background: '#4A9F6F30', color: '#4A9F6F' }),
+  ...(type === 'mastery_level'
+    ? { background: '#C43C3C30', color: '#C43C3C' }
+    : type === 'candies'
+      ? { background: '#F5E6B330', color: '#F5E6B3' }
+      : type === 'prerequisite'
+        ? { background: '#8b949e30', color: '#8b949e' }
+        : { background: '#4A9F6F30', color: '#4A9F6F' }),
 });

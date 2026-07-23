@@ -1,6 +1,6 @@
 /**
  * Stat Calculator - Utility for calculating champion stats with all modifiers
- * 
+ *
  * This module provides functions to calculate accurate champion stats
  * considering level scaling, enhancement bonuses, and item bonuses.
  */
@@ -28,13 +28,11 @@ const ITEM_STAT_MAP: Record<string, keyof CalculatedStats> = {
  */
 export function calculateItemBonuses(
   inventory: InventoryEntry[],
-  championId: string
+  championId: string,
 ): Partial<CalculatedStats> {
   const bonuses: Partial<CalculatedStats> = {};
 
-  const equippedItems = inventory.filter(
-    (entry) => entry.equippedToChampionId === championId
-  );
+  const equippedItems = inventory.filter((entry) => entry.equippedToChampionId === championId);
 
   for (const entry of equippedItems) {
     const stats = entry.item.stats;
@@ -54,7 +52,7 @@ export function calculateItemBonuses(
  */
 export function applyEnhancementBonuses(
   baseStats: CalculatedStats,
-  bonuses: EnhancementStatBonuses
+  bonuses: EnhancementStatBonuses,
 ): CalculatedStats {
   const result = { ...baseStats };
 
@@ -86,7 +84,7 @@ export function applyEnhancementBonuses(
  */
 export function applyItemBonuses(
   baseStats: CalculatedStats,
-  bonuses: Partial<CalculatedStats>
+  bonuses: Partial<CalculatedStats>,
 ): CalculatedStats {
   const result = { ...baseStats };
   for (const [key, value] of Object.entries(bonuses)) {
@@ -122,7 +120,7 @@ const EVENT_STAT_MAP: Record<string, keyof CalculatedStats> = {
  * Calculate event stat bonuses for a specific champion
  */
 export function calculateEventStatBonuses(
-  statBoosts?: Record<string, number> | null
+  statBoosts?: Record<string, number> | null,
 ): Partial<CalculatedStats> {
   const bonuses: Partial<CalculatedStats> = {};
   if (!statBoosts) return bonuses;
@@ -139,7 +137,7 @@ export function calculateEventStatBonuses(
 
 /**
  * Get the total max HP for a champion considering all modifiers
- * 
+ *
  * @param champion - The champion definition
  * @param level - Current champion level (1-18)
  * @param enhancementBonuses - Optional enhancement/mastery bonuses
@@ -154,7 +152,7 @@ export function calculateMaxHP(
   enhancementBonuses?: EnhancementStatBonuses | null,
   inventory?: InventoryEntry[],
   championId?: string,
-  eventStatBoosts?: Record<string, number> | null
+  eventStatBoosts?: Record<string, number> | null,
 ): number {
   if (!champion) return 100;
 
@@ -183,7 +181,7 @@ export function calculateMaxHP(
 
 /**
  * Get the complete stats for a champion considering all modifiers
- * 
+ *
  * @param champion - The champion definition
  * @param level - Current champion level (1-18)
  * @param enhancementBonuses - Optional enhancement/mastery bonuses
@@ -196,7 +194,7 @@ export function calculateFullStats(
   level: number = 1,
   enhancementBonuses?: EnhancementStatBonuses | null,
   inventory?: InventoryEntry[],
-  championId?: string
+  championId?: string,
 ): CalculatedStats {
   if (!champion) {
     return {

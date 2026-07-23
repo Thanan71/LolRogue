@@ -1,15 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   calculArmorReduction,
-  calculMReduction,
-  critDamage,
   calculateADDamage,
   calculateAPDamage,
   calculateTrueDamage,
+  calculMReduction,
+  critDamage,
 } from '../src/utils/damage';
 
 describe('Damage Calculations', () => {
-
   describe('calculArmorReduction', () => {
     it('should return 0 when armor is 0', () => {
       expect(calculArmorReduction(100, 0)).toBe(0);

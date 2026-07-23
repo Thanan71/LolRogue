@@ -2,22 +2,33 @@
  * Inventory System — comprehensive unit tests.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { InventoryManager } from '../src/game/inventory/InventoryManager';
-import { RuneManager } from '../src/game/runes/RuneManager';
-import { AugmentManager } from '../src/game/augments/AugmentManager';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  ITEM_DATABASE, getItemDefinition, getStackableItems, getItemsByCategory,
-} from '../src/data/items/itemDatabase';
-import {
-  RUNE_DATABASE, getRuneDefinition, getKeystoneRunes, getRunesByPath,
-} from '../src/data/items/runeDatabase';
-import {
-  AUGMENT_DATABASE, getAugmentDefinition, getAugmentsByTier,
+  AUGMENT_DATABASE,
+  getAugmentDefinition,
+  getAugmentsByTier,
 } from '../src/data/items/augmentDatabase';
 import {
-  ItemCategory, ItemRarity, RunePath, RuneConditionType,
+  getItemDefinition,
+  getItemsByCategory,
+  getStackableItems,
+  ITEM_DATABASE,
+} from '../src/data/items/itemDatabase';
+import {
+  getKeystoneRunes,
+  getRuneDefinition,
+  getRunesByPath,
+  RUNE_DATABASE,
+} from '../src/data/items/runeDatabase';
+import { AugmentManager } from '../src/game/augments/AugmentManager';
+import { InventoryManager } from '../src/game/inventory/InventoryManager';
+import { RuneManager } from '../src/game/runes/RuneManager';
+import {
   AugmentTier,
+  ItemCategory,
+  ItemRarity,
+  RuneConditionType,
+  RunePath,
 } from '../src/types/inventory';
 
 describe('Item Database', () => {
@@ -58,7 +69,6 @@ describe('Item Database', () => {
     expect(getItemDefinition('nonexistent')).toBeUndefined();
   });
 });
-
 
 describe('InventoryManager', () => {
   let manager: InventoryManager;
@@ -239,10 +249,15 @@ describe('InventoryManager', () => {
   });
 });
 
-
 describe('Rune Database', () => {
   it('should have runes registered for all 5 paths', () => {
-    const paths = [RunePath.Precision, RunePath.Domination, RunePath.Sorcery, RunePath.Resolve, RunePath.Inspiration];
+    const paths = [
+      RunePath.Precision,
+      RunePath.Domination,
+      RunePath.Sorcery,
+      RunePath.Resolve,
+      RunePath.Inspiration,
+    ];
     for (const path of paths) {
       const runes = getRunesByPath(path);
       expect(runes.length).toBeGreaterThanOrEqual(4);
@@ -271,12 +286,21 @@ describe('Rune Database', () => {
 describe('RuneManager', () => {
   let runeManager: RuneManager;
 
-  const makeContext = (overrides: Partial<import('../src/game/runes/RuneManager').RuneContext> = {}) => ({
-    currentHp: 1000, maxHp: 1000, turnNumber: 1,
-    totalDamageDealt: 0, totalDamageTaken: 0,
-    killsThisBattle: 0, abilitiesCastThisBattle: 0,
-    isBuffed: false, isCCd: false,
-    alliesAlive: 5, totalAllies: 5, lastActionWasCrit: false,
+  const makeContext = (
+    overrides: Partial<import('../src/game/runes/RuneManager').RuneContext> = {},
+  ) => ({
+    currentHp: 1000,
+    maxHp: 1000,
+    turnNumber: 1,
+    totalDamageDealt: 0,
+    totalDamageTaken: 0,
+    killsThisBattle: 0,
+    abilitiesCastThisBattle: 0,
+    isBuffed: false,
+    isCCd: false,
+    alliesAlive: 5,
+    totalAllies: 5,
+    lastActionWasCrit: false,
     ...overrides,
   });
 
@@ -480,7 +504,7 @@ describe('AugmentManager', () => {
 
   it('should compute damage reduction capped at 80%', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['unstoppable']);
-    expect(augManager.getDamageReduction()).toBe(0.20);
+    expect(augManager.getDamageReduction()).toBe(0.2);
   });
 
   it('should detect extra revive augment', () => {
@@ -498,7 +522,7 @@ describe('AugmentManager', () => {
   it('should aggregate team stat bonuses (percent)', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['warlord']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.percent).toBe(0.10);
+    expect(bonuses.atk.percent).toBe(0.1);
   });
 
   it('should handle scaling stat bonuses based on biomes cleared', () => {
@@ -550,11 +574,18 @@ describe('Integration: Items + Runes + Augments', () => {
     runes.equipRune(RUNE_DATABASE['eyeball_collection']);
     for (let i = 0; i < 3; i++) {
       runes.evaluateConditions({
-        currentHp: 1000, maxHp: 1000, turnNumber: 5,
-        totalDamageDealt: 0, totalDamageTaken: 0,
-        killsThisBattle: 1, abilitiesCastThisBattle: 0,
-        isBuffed: false, isCCd: false,
-        alliesAlive: 5, totalAllies: 5, lastActionWasCrit: false,
+        currentHp: 1000,
+        maxHp: 1000,
+        turnNumber: 5,
+        totalDamageDealt: 0,
+        totalDamageTaken: 0,
+        killsThisBattle: 1,
+        abilitiesCastThisBattle: 0,
+        isBuffed: false,
+        isCCd: false,
+        alliesAlive: 5,
+        totalAllies: 5,
+        lastActionWasCrit: false,
       });
     }
 
@@ -575,6 +606,6 @@ describe('Integration: Items + Runes + Augments', () => {
     // Verify augment bonuses
     const augmentBonuses = augments.getTeamStatBonuses();
     expect(augmentBonuses.ap.flat).toBe(20);
-    expect(augmentBonuses.atk.percent).toBe(0.10);
+    expect(augmentBonuses.atk.percent).toBe(0.1);
   });
 });

@@ -1,9 +1,9 @@
-import React from 'react';
-import { useSettingsStore, type BattleSpeed } from '../../stores/settingsStore';
+import type React from 'react';
+import { type BattleSpeed, useSettingsStore } from '../../stores/settingsStore';
 
 export const BattleSpeedControl: React.FC = () => {
-  const speed = useSettingsStore(s => s.battleSpeed);
-  const setSpeed = useSettingsStore(s => s.setBattleSpeed);
+  const speed = useSettingsStore((s) => s.battleSpeed);
+  const setSpeed = useSettingsStore((s) => s.setBattleSpeed);
 
   const speeds: BattleSpeed[] = [1, 2, 3];
 
@@ -21,10 +21,8 @@ export const BattleSpeedControl: React.FC = () => {
         border: '1px solid #333355',
       }}
     >
-      <span style={{ fontSize: 10, color: '#888', marginRight: 4, fontWeight: 'bold' }}>
-        ⚡
-      </span>
-      {speeds.map(s => (
+      <span style={{ fontSize: 10, color: '#888', marginRight: 4, fontWeight: 'bold' }}>⚡</span>
+      {speeds.map((s) => (
         <button
           key={s}
           onClick={() => setSpeed(s)}

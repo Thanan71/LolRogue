@@ -1,13 +1,19 @@
 /**
  * Supabase Run Repository Implementation
- * 
+ *
  * Implements IRunRepository and IRunStatsRepository using Supabase client.
  * This class handles all run data operations.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type {
+  Run,
+  RunInsert,
+  RunTeamMember,
+  RunTeamMemberInsert,
+  RunUpdate,
+} from '@/types/database';
 import type { IRunRepository, IRunStatsRepository } from '../interfaces/IRunRepository';
-import type { Run, RunInsert, RunUpdate, RunTeamMember, RunTeamMemberInsert } from '@/types/database';
 
 export class SupabaseRunRepository implements IRunRepository {
   private supabase: SupabaseClient;
@@ -29,17 +35,11 @@ export class SupabaseRunRepository implements IRunRepository {
       p_total_candies: totalCandies,
     });
 
-    return error
-      ? { data: null, error }
-      : { data: data as string, error: null };
+    return error ? { data: null, error } : { data: data as string, error: null };
   }
 
   async createRun(runData: RunInsert): Promise<{ data: Run | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('runs')
-      .insert(runData)
-      .select()
-      .single();
+    const { data, error } = await this.supabase.from('runs').insert(runData).select().single();
 
     if (error) {
       return { data: null, error };
@@ -49,11 +49,7 @@ export class SupabaseRunRepository implements IRunRepository {
   }
 
   async getRun(runId: string): Promise<{ data: Run | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('runs')
-      .select('*')
-      .eq('id', runId)
-      .single();
+    const { data, error } = await this.supabase.from('runs').select('*').eq('id', runId).single();
 
     if (error) {
       return { data: null, error };
@@ -65,7 +61,7 @@ export class SupabaseRunRepository implements IRunRepository {
   async getPlayerRuns(
     playerId: string,
     limit = 10,
-    offset = 0
+    offset = 0,
   ): Promise<{ data: Run[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('runs')
@@ -83,7 +79,7 @@ export class SupabaseRunRepository implements IRunRepository {
 
   async updateRun(
     runId: string,
-    updates: RunUpdate
+    updates: RunUpdate,
   ): Promise<{ data: Run | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('runs')
@@ -100,7 +96,7 @@ export class SupabaseRunRepository implements IRunRepository {
   }
 
   async addRunTeamMembers(
-    teamMembers: RunTeamMemberInsert[]
+    teamMembers: RunTeamMemberInsert[],
   ): Promise<{ data: RunTeamMember[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('run_team_members')
@@ -114,7 +110,9 @@ export class SupabaseRunRepository implements IRunRepository {
     return { data: data as RunTeamMember[], error: null };
   }
 
-  async getRunTeamMembers(runId: string): Promise<{ data: RunTeamMember[] | null; error: Error | null }> {
+  async getRunTeamMembers(
+    runId: string,
+  ): Promise<{ data: RunTeamMember[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('run_team_members')
       .select('*')
@@ -161,9 +159,9 @@ export class SupabaseRunStatsRepository implements IRunStatsRepository {
 
     // Calculate statistics
     const totalRuns = runs.length;
-    const totalWins = runs.filter(r => r.won).length;
+    const totalWins = runs.filter((r) => r.won).length;
     const totalWaves = runs.reduce((sum, r) => sum + r.waves_completed, 0);
-    const bestRunLevel = Math.max(...runs.map(r => r.run_level), 0);
+    const bestRunLevel = Math.max(...runs.map((r) => r.run_level), 0);
     const totalKills = runs.reduce((sum, r) => sum + (r.total_kills || 0), 0);
     const totalDamage = runs.reduce((sum, r) => sum + (r.total_damage_dealt || 0), 0);
 

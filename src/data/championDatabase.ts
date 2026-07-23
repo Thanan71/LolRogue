@@ -103,13 +103,17 @@ export class ChampionDatabase {
   getByTag(tag: ChampionTag): Champion[] {
     const ids = this.byTag.get(tag);
     if (!ids) return [];
-    return Array.from(ids).map((id) => this.getById(id)!).filter(Boolean);
+    return Array.from(ids)
+      .map((id) => this.getById(id)!)
+      .filter(Boolean);
   }
 
   getByResourceType(type: ResourceType): Champion[] {
     const ids = this.byResource.get(type);
     if (!ids) return [];
-    return Array.from(ids).map((id) => this.getById(id)!).filter(Boolean);
+    return Array.from(ids)
+      .map((id) => this.getById(id)!)
+      .filter(Boolean);
   }
 
   getAllTags(): ChampionTag[] {
@@ -137,7 +141,7 @@ export class ChampionDatabase {
       (c) =>
         c.name.toLowerCase().includes(lower) ||
         c.id.toLowerCase().includes(lower) ||
-        c.title.toLowerCase().includes(lower)
+        c.title.toLowerCase().includes(lower),
     );
   }
 
@@ -172,8 +176,10 @@ export class ChampionDatabase {
     }
     if (criteria.minHp !== undefined && stats.hp < criteria.minHp) return false;
     if (criteria.maxHp !== undefined && stats.hp > criteria.maxHp) return false;
-    if (criteria.minAttackDamage !== undefined && stats.attackDamage < criteria.minAttackDamage) return false;
-    if (criteria.maxAttackDamage !== undefined && stats.attackDamage > criteria.maxAttackDamage) return false;
+    if (criteria.minAttackDamage !== undefined && stats.attackDamage < criteria.minAttackDamage)
+      return false;
+    if (criteria.maxAttackDamage !== undefined && stats.attackDamage > criteria.maxAttackDamage)
+      return false;
     if (criteria.minArmor !== undefined && stats.armor < criteria.minArmor) return false;
     if (criteria.maxArmor !== undefined && stats.armor > criteria.maxArmor) return false;
     return true;
@@ -205,7 +211,7 @@ export class ChampionDatabase {
   query(
     searchQuery: string = '',
     criteria: ChampionFilter = {},
-    sortOptions?: SortOptions
+    sortOptions?: SortOptions,
   ): Champion[] {
     let results = this.searchAndFilter(searchQuery, criteria);
     if (sortOptions) {

@@ -1,24 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  calculateLevel,
-  calculateCurrentLevelCandies,
-  calculateCandiesToNext,
+  awardCandies,
+  buildChampionMastery,
   calculateCandiesForChampion,
   calculateCandiesForTeam,
-  buildChampionMastery,
-  getStatBonusForLevel,
-  getUnlocksForLevel,
-  getNewUnlocks,
-  getUnlockIdsForLevel,
-  awardCandies,
+  calculateCandiesToNext,
+  calculateCurrentLevelCandies,
+  calculateLevel,
   DEFAULT_UNLOCKS,
+  getNewUnlocks,
+  getStatBonusForLevel,
+  getUnlockIdsForLevel,
+  getUnlocksForLevel,
 } from '../src/services/masteryService';
-import {
-  MASTERY_THRESHOLDS,
-  MAX_MASTERY_LEVEL,
-  STAT_BONUS_PER_LEVEL,
-} from '../src/types/mastery';
 import type { ChampionMastery } from '../src/types/mastery';
+import { MASTERY_THRESHOLDS, MAX_MASTERY_LEVEL, STAT_BONUS_PER_LEVEL } from '../src/types/mastery';
 
 describe('Mastery Constants', () => {
   it('should have 5 mastery levels (0-4)', () => {
@@ -36,34 +32,72 @@ describe('Mastery Constants', () => {
 });
 
 describe('calculateLevel', () => {
-  it('should return level 0 at 0 candies', () => { expect(calculateLevel(0)).toBe(0); });
-  it('should return level 0 below first threshold', () => { expect(calculateLevel(49)).toBe(0); });
-  it('should return level 1 at first threshold', () => { expect(calculateLevel(50)).toBe(1); });
-  it('should return level 2 at 150 candies', () => { expect(calculateLevel(150)).toBe(2); });
-  it('should return level 3 at 350 candies', () => { expect(calculateLevel(350)).toBe(3); });
-  it('should return level 4 at 700 candies', () => { expect(calculateLevel(700)).toBe(4); });
-  it('should cap at max level', () => { expect(calculateLevel(9999)).toBe(4); });
+  it('should return level 0 at 0 candies', () => {
+    expect(calculateLevel(0)).toBe(0);
+  });
+  it('should return level 0 below first threshold', () => {
+    expect(calculateLevel(49)).toBe(0);
+  });
+  it('should return level 1 at first threshold', () => {
+    expect(calculateLevel(50)).toBe(1);
+  });
+  it('should return level 2 at 150 candies', () => {
+    expect(calculateLevel(150)).toBe(2);
+  });
+  it('should return level 3 at 350 candies', () => {
+    expect(calculateLevel(350)).toBe(3);
+  });
+  it('should return level 4 at 700 candies', () => {
+    expect(calculateLevel(700)).toBe(4);
+  });
+  it('should cap at max level', () => {
+    expect(calculateLevel(9999)).toBe(4);
+  });
 });
 
 describe('calculateCurrentLevelCandies', () => {
-  it('should return candies within current level', () => { expect(calculateCurrentLevelCandies(80, 1)).toBe(30); });
-  it('should return 0 at max level', () => { expect(calculateCurrentLevelCandies(700, 4)).toBe(0); });
-  it('should return total at level 0', () => { expect(calculateCurrentLevelCandies(25, 0)).toBe(25); });
+  it('should return candies within current level', () => {
+    expect(calculateCurrentLevelCandies(80, 1)).toBe(30);
+  });
+  it('should return 0 at max level', () => {
+    expect(calculateCurrentLevelCandies(700, 4)).toBe(0);
+  });
+  it('should return total at level 0', () => {
+    expect(calculateCurrentLevelCandies(25, 0)).toBe(25);
+  });
 });
 
 describe('calculateCandiesToNext', () => {
-  it('should return candies needed for next level', () => { expect(calculateCandiesToNext(10, 0)).toBe(40); });
-  it('should return 0 at max level', () => { expect(calculateCandiesToNext(700, 4)).toBe(0); });
-  it('should return small number when close to level up', () => { expect(calculateCandiesToNext(345, 2)).toBe(5); });
+  it('should return candies needed for next level', () => {
+    expect(calculateCandiesToNext(10, 0)).toBe(40);
+  });
+  it('should return 0 at max level', () => {
+    expect(calculateCandiesToNext(700, 4)).toBe(0);
+  });
+  it('should return small number when close to level up', () => {
+    expect(calculateCandiesToNext(345, 2)).toBe(5);
+  });
 });
 
 describe('calculateCandiesForChampion', () => {
-  it('should calculate base candies', () => { expect(calculateCandiesForChampion(1, 0, 0, false)).toBe(10); });
-  it('should add wave bonuses', () => { expect(calculateCandiesForChampion(1, 5, 0, false)).toBe(15); });
-  it('should add biome bonuses', () => { expect(calculateCandiesForChampion(1, 0, 3, false)).toBe(16); });
-  it('should add victory bonus', () => { expect(calculateCandiesForChampion(1, 0, 0, true)).toBe(15); });
-  it('should split among team', () => { expect(calculateCandiesForChampion(3, 10, 4, true)).toBe(11); });
-  it('should guarantee minimum 1', () => { expect(calculateCandiesForChampion(20, 0, 0, false)).toBe(1); });
+  it('should calculate base candies', () => {
+    expect(calculateCandiesForChampion(1, 0, 0, false)).toBe(10);
+  });
+  it('should add wave bonuses', () => {
+    expect(calculateCandiesForChampion(1, 5, 0, false)).toBe(15);
+  });
+  it('should add biome bonuses', () => {
+    expect(calculateCandiesForChampion(1, 0, 3, false)).toBe(16);
+  });
+  it('should add victory bonus', () => {
+    expect(calculateCandiesForChampion(1, 0, 0, true)).toBe(15);
+  });
+  it('should split among team', () => {
+    expect(calculateCandiesForChampion(3, 10, 4, true)).toBe(11);
+  });
+  it('should guarantee minimum 1', () => {
+    expect(calculateCandiesForChampion(20, 0, 0, false)).toBe(1);
+  });
 });
 
 describe('calculateCandiesForTeam', () => {
@@ -100,7 +134,9 @@ describe('buildChampionMastery', () => {
 });
 
 describe('getStatBonusForLevel', () => {
-  it('should return 0 at level 0', () => { expect(getStatBonusForLevel(0)).toBe(0); });
+  it('should return 0 at level 0', () => {
+    expect(getStatBonusForLevel(0)).toBe(0);
+  });
   it('should return 2% per level', () => {
     expect(getStatBonusForLevel(1)).toBe(0.02);
     expect(getStatBonusForLevel(4)).toBe(0.08);
@@ -111,18 +147,22 @@ describe('getStatBonusForLevel', () => {
 });
 
 describe('Unlocks', () => {
-  it('should have 4 default unlocks', () => { expect(DEFAULT_UNLOCKS).toHaveLength(4); });
+  it('should have 4 default unlocks', () => {
+    expect(DEFAULT_UNLOCKS).toHaveLength(4);
+  });
   it('getUnlocksForLevel returns unlocks up to level', () => {
     const l2 = getUnlocksForLevel(2);
     expect(l2).toHaveLength(2);
-    expect(l2.map(u => u.id)).toEqual(['starter_slot_2', 'skin_chroma_1']);
+    expect(l2.map((u) => u.id)).toEqual(['starter_slot_2', 'skin_chroma_1']);
   });
   it('getNewUnlocks returns only new ones', () => {
     const n = getNewUnlocks(1, 3);
     expect(n).toHaveLength(2);
-    expect(n.map(u => u.id)).toEqual(['skin_chroma_1', 'starter_slot_3']);
+    expect(n.map((u) => u.id)).toEqual(['skin_chroma_1', 'starter_slot_3']);
   });
-  it('getNewUnlocks empty if no change', () => { expect(getNewUnlocks(2, 2)).toHaveLength(0); });
+  it('getNewUnlocks empty if no change', () => {
+    expect(getNewUnlocks(2, 2)).toHaveLength(0);
+  });
   it('getUnlockIdsForLevel returns IDs', () => {
     expect(getUnlockIdsForLevel(3)).toEqual(['starter_slot_2', 'skin_chroma_1', 'starter_slot_3']);
   });
@@ -144,7 +184,7 @@ describe('awardCandies', () => {
   it('should trigger unlocks on level up', () => {
     const cur: Record<string, ChampionMastery> = { Garen: buildChampionMastery('Garen', 45) };
     const r = awardCandies(cur, ['Garen'], 10, 0, false);
-    expect(r.newUnlocks.map(u => u.id)).toContain('starter_slot_2');
+    expect(r.newUnlocks.map((u) => u.id)).toContain('starter_slot_2');
   });
   it('should handle multi-champion teams', () => {
     const r = awardCandies({}, ['Garen', 'Lux', 'Jinx'], 20, 3, true);
@@ -153,9 +193,11 @@ describe('awardCandies', () => {
     expect(r.candiesAwarded['Jinx']).toBe(13);
   });
   it('should not duplicate unlock IDs', () => {
-    const cur: Record<string, ChampionMastery> = { Garen: buildChampionMastery('Garen', 45, ['starter_slot_2']) };
+    const cur: Record<string, ChampionMastery> = {
+      Garen: buildChampionMastery('Garen', 45, ['starter_slot_2']),
+    };
     const r = awardCandies(cur, ['Garen'], 10, 0, false);
     const ids = r.updatedMasteries['Garen'].unlockedIds;
-    expect(ids.filter(id => id === 'starter_slot_2').length).toBe(1);
+    expect(ids.filter((id) => id === 'starter_slot_2').length).toBe(1);
   });
 });

@@ -4,7 +4,7 @@
  * Phase 3: Items + Runes + Augments with stackable mechanics.
  */
 
-import type { StatKey, ModifierType } from '@/game/effects/types';
+import type { ModifierType, StatKey } from '@/game/effects/types';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ITEMS

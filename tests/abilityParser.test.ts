@@ -6,9 +6,9 @@
  *  - 1 passive with targeting, scaling, effects
  */
 
-import { describe, it, expect } from 'vitest';
-import type { Champion } from '../src/types';
+import { describe, expect, it } from 'vitest';
 import championsRaw from '../public/lol/data/champions-parsed.json';
+import type { Champion } from '../src/types';
 
 const champions = championsRaw as Champion[];
 
@@ -121,10 +121,10 @@ describe('Ability Parser — champions-parsed.json structure', () => {
   });
 
   describe('Specific champion data (enriched)', () => {
-    const ahri = champions.find(c => c.id === 'Ahri')!;
-    const aatrox = champions.find(c => c.id === 'Aatrox')!;
-    const akali = champions.find(c => c.id === 'Akali')!;
-    const lux = champions.find(c => c.id === 'Lux')!;
+    const ahri = champions.find((c) => c.id === 'Ahri')!;
+    const aatrox = champions.find((c) => c.id === 'Aatrox')!;
+    const akali = champions.find((c) => c.id === 'Akali')!;
+    const lux = champions.find((c) => c.id === 'Lux')!;
 
     it('Ahri Q should be enemy targeting with AP scaling and 1 damage effect', () => {
       const q = ahri.spells[0];
@@ -138,7 +138,7 @@ describe('Ability Parser — champions-parsed.json structure', () => {
 
     it('Ahri E should have charm CC effect', () => {
       const e = ahri.spells[2];
-      const ccEffect = e.effects.find(eff => eff.type === 'cc');
+      const ccEffect = e.effects.find((eff) => eff.type === 'cc');
       expect(ccEffect).toBeDefined();
       expect(ccEffect!.ccType).toBe('charm');
     });
@@ -159,7 +159,7 @@ describe('Ability Parser — champions-parsed.json structure', () => {
 
     it('Akali R should have execute effect', () => {
       const r = akali.spells[3];
-      const execEffect = r.effects.find(eff => eff.type === 'execute');
+      const execEffect = r.effects.find((eff) => eff.type === 'execute');
       expect(execEffect).toBeDefined();
       expect(execEffect!.threshold).toBeGreaterThan(0);
     });
@@ -172,14 +172,14 @@ describe('Ability Parser — champions-parsed.json structure', () => {
 
     it('Lux Q should have snare CC', () => {
       const q = lux.spells[0];
-      const ccEffect = q.effects.find(eff => eff.type === 'cc');
+      const ccEffect = q.effects.find((eff) => eff.type === 'cc');
       expect(ccEffect).toBeDefined();
       expect(ccEffect!.ccType).toBe('snare');
     });
 
     it('Ahri passive should be self-targeted heal', () => {
       expect(ahri.passive.targeting).toBe('self');
-      const healEffect = ahri.passive.effects.find(eff => eff.type === 'heal');
+      const healEffect = ahri.passive.effects.find((eff) => eff.type === 'heal');
       expect(healEffect).toBeDefined();
     });
   });

@@ -6,12 +6,7 @@
  */
 
 import { Effect, generateEffectId } from './Effect';
-import {
-  EffectCategory,
-  DamageType,
-  type DamageEffectData,
-  type EffectEvent,
-} from './types';
+import { type DamageEffectData, type DamageType, EffectCategory, type EffectEvent } from './types';
 
 export interface DamageEffectParams {
   name?: string;
@@ -40,8 +35,12 @@ export class DamageEffect extends Effect<DamageEffectData> {
     });
   }
 
-  get damageType(): DamageType { return this.data.damageType; }
-  get canCrit(): boolean { return this.data.canCrit; }
+  get damageType(): DamageType {
+    return this.data.damageType;
+  }
+  get canCrit(): boolean {
+    return this.data.canCrit;
+  }
 
   tick(): EffectEvent {
     // For DoT: each tick deals magnitude / duration damage

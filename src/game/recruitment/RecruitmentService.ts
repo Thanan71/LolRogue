@@ -13,9 +13,9 @@
  *   base      → (uniform — all roles equally likely)
  */
 
-import type { Biome } from '@/types/run';
-import type { Champion, ChampionTag } from '@/types/champion';
 import { implementedChampions } from '@/data/champion';
+import type { Champion, ChampionTag } from '@/types/champion';
+import type { Biome } from '@/types/run';
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -58,22 +58,52 @@ export const DEFAULT_RECRUITMENT_CONFIG: RecruitmentConfig = {
  */
 export const BIOME_TAG_WEIGHTS: Record<Biome, Partial<Record<ChampionTag, number>>> = {
   top_lane: {
-    Fighter: 3.0, Tank: 2.5, Mage: 0.5, Marksman: 0.3, Support: 0.4, Assassin: 0.5,
+    Fighter: 3.0,
+    Tank: 2.5,
+    Mage: 0.5,
+    Marksman: 0.3,
+    Support: 0.4,
+    Assassin: 0.5,
   },
   jungle: {
-    Fighter: 2.0, Assassin: 2.5, Tank: 1.5, Mage: 0.7, Marksman: 0.5, Support: 0.3,
+    Fighter: 2.0,
+    Assassin: 2.5,
+    Tank: 1.5,
+    Mage: 0.7,
+    Marksman: 0.5,
+    Support: 0.3,
   },
   mid_lane: {
-    Mage: 3.0, Assassin: 2.5, Fighter: 0.8, Marksman: 0.5, Tank: 0.5, Support: 0.6,
+    Mage: 3.0,
+    Assassin: 2.5,
+    Fighter: 0.8,
+    Marksman: 0.5,
+    Tank: 0.5,
+    Support: 0.6,
   },
   bot_lane: {
-    Marksman: 3.0, Support: 2.5, Mage: 1.0, Fighter: 0.4, Tank: 0.5, Assassin: 0.6,
+    Marksman: 3.0,
+    Support: 2.5,
+    Mage: 1.0,
+    Fighter: 0.4,
+    Tank: 0.5,
+    Assassin: 0.6,
   },
   river: {
-    Fighter: 1.5, Mage: 1.5, Tank: 1.2, Assassin: 1.2, Marksman: 0.8, Support: 0.8,
+    Fighter: 1.5,
+    Mage: 1.5,
+    Tank: 1.2,
+    Assassin: 1.2,
+    Marksman: 0.8,
+    Support: 0.8,
   },
   base: {
-    Fighter: 1.0, Mage: 1.0, Assassin: 1.0, Tank: 1.0, Marksman: 1.0, Support: 1.0,
+    Fighter: 1.0,
+    Mage: 1.0,
+    Assassin: 1.0,
+    Tank: 1.0,
+    Marksman: 1.0,
+    Support: 1.0,
   },
 };
 
@@ -212,7 +242,13 @@ export function generateWildRecruit(
   if (pool.length === 0) return null;
   const chosen = weightedPick(pool, rand);
   if (!chosen) return null;
-  const cost = calculateRecruitCost(chosen.champion, runLevel, biome, DEFAULT_RECRUITMENT_CONFIG, rand);
+  const cost = calculateRecruitCost(
+    chosen.champion,
+    runLevel,
+    biome,
+    DEFAULT_RECRUITMENT_CONFIG,
+    rand,
+  );
   const baseChance = 0.85 - runLevel * 0.03;
   const successChance = Math.max(0.5, Math.min(0.95, baseChance + (rand() * 0.2 - 0.1)));
   const statMultiplier = Math.round((0.8 + rand() * 0.4) * 100) / 100;

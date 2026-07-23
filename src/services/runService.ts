@@ -1,22 +1,22 @@
 /**
  * Run Service - Handles saving run data to the database
- * 
+ *
  * This service is responsible for:
  * - Saving completed runs to the database
  * - Updating player statistics
  * - Updating champion mastery
  * - Recording run team members
- * 
+ *
  * It uses the repository pattern for data access, following SOLID principles.
  * Dependencies are injected via the RepositoryContainer for better testability.
  */
 
-import { supabase } from './supabaseClient';
-import { RepositoryContainerFactory } from './container';
-import type { RunInsert, RunTeamMemberInsert } from '@/types/database';
-import type { RunSummary, Biome } from '@/types/run';
 import { useAuthStore } from '@/stores/authStore';
+import type { RunInsert, RunTeamMemberInsert } from '@/types/database';
+import type { Biome, RunSummary } from '@/types/run';
+import { RepositoryContainerFactory } from './container';
 import type { IRepositoryContainer } from './interfaces';
+import { supabase } from './supabaseClient';
 
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
@@ -67,7 +67,7 @@ export interface SaveRunData {
  */
 export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResult> {
   const { user, player, refreshPlayer } = useAuthStore.getState();
-  
+
   console.log('[RunService] Attempting to save run:', {
     hasUser: !!user,
     hasPlayer: !!player,
@@ -77,7 +77,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
     won: data.won,
     wavesCompleted: data.wavesCompleted,
   });
-  
+
   if (!user || !player) {
     console.error('[RunService] Cannot save run: User not authenticated or player data missing', {
       userExists: !!user,
@@ -87,7 +87,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
   }
 
   const completedAt = new Date().toISOString();
-  
+
   try {
     const runData: RunInsert = {
       player_id: player.id,
@@ -105,9 +105,11 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
       seed: data.seed ?? undefined,
     };
 
-    const teamMembers: RunTeamMemberInsert[] = data.teamMembers.map(member => {
-      const championStats = data.summary.championStats.find(s => s.championId === member.championId);
-      
+    const teamMembers: RunTeamMemberInsert[] = data.teamMembers.map((member) => {
+      const championStats = data.summary.championStats.find(
+        (s) => s.championId === member.championId,
+      );
+
       return {
         run_id: data.runId,
         champion_id: member.championId,
@@ -139,13 +141,12 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
       };
     });
 
-    const { data: databaseRunId, error: saveError } =
-      await container.run.saveCompletedRun(
-        runData,
-        teamMembers,
-        mastery,
-        masteryStore.totalCandiesEarned,
-      );
+    const { data: databaseRunId, error: saveError } = await container.run.saveCompletedRun(
+      runData,
+      teamMembers,
+      mastery,
+      masteryStore.totalCandiesEarned,
+    );
 
     if (saveError || !databaseRunId) {
       console.error('[RunService] Atomic run save failed:', saveError);
@@ -181,7 +182,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
  */
 export async function getPlayerRunHistory(limit = 10, offset = 0) {
   const { player } = useAuthStore.getState();
-  
+
   if (!player) {
     return { data: [], error: 'Not authenticated' };
   }
@@ -210,10 +211,10 @@ export async function getRunDetails(runId: string) {
       return { run: null, teamMembers: [], error: error?.message || 'Run not found' };
     }
 
-    return { 
-      run: data.run, 
-      teamMembers: data.teamMembers, 
-      error: null 
+    return {
+      run: data.run,
+      teamMembers: data.teamMembers,
+      error: null,
     };
   } catch (error: any) {
     return { run: null, teamMembers: [], error: error.message };
@@ -225,7 +226,7 @@ export async function getRunDetails(runId: string) {
  */
 export async function getPlayerRunStats() {
   const { player } = useAuthStore.getState();
-  
+
   if (!player) {
     return {
       totalRuns: 0,
@@ -247,9 +248,10 @@ export async function getPlayerRunStats() {
       return {
         totalRuns: player.total_runs_completed,
         totalWins: player.total_wins,
-        winRate: player.total_runs_completed > 0 
-          ? Math.round((player.total_wins / player.total_runs_completed) * 100 * 100) / 100 
-          : 0,
+        winRate:
+          player.total_runs_completed > 0
+            ? Math.round((player.total_wins / player.total_runs_completed) * 100 * 100) / 100
+            : 0,
         totalWaves: player.total_waves_completed,
         bestRunLevel: 0,
         totalKills: 0,

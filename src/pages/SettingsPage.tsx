@@ -1,7 +1,7 @@
-import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
-import { useAudioStore } from '@/stores/audioStore';
 import { playUIClick } from '@/audio';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useAudioStore } from '@/stores/audioStore';
+import { ROUTES } from '@/stores/routerStore';
 import '@/styles/main-menu.css';
 
 export function SettingsPage() {
@@ -14,7 +14,9 @@ export function SettingsPage() {
   return (
     <div className="main-menu">
       <div className="main-menu__logo-section">
-        <h1 className="main-menu__title" style={{ fontSize: '2.5rem' }}>Settings</h1>
+        <h1 className="main-menu__title" style={{ fontSize: '2.5rem' }}>
+          Settings
+        </h1>
         <p className="main-menu__subtitle">Game configuration</p>
       </div>
 
@@ -68,7 +70,10 @@ export function SettingsPage() {
       <div style={{ position: 'relative', zIndex: 2, marginTop: '2rem' }}>
         <button
           className="main-menu__btn main-menu__btn--ghost"
-          onClick={() => { playUIClick(); navigate(ROUTES.MENU); }}
+          onClick={() => {
+            playUIClick();
+            navigate(ROUTES.MENU);
+          }}
           style={{ width: 200 }}
         >
           Back to Menu

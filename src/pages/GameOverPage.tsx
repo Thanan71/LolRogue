@@ -1,23 +1,21 @@
-import { useRunStore } from '@/stores/runStore';
-import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
-import { playSFX, playUIClick } from '@/audio';
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import type { RunSummary } from '@/types/run';
+import { playSFX, playUIClick } from '@/audio';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { ROUTES } from '@/stores/routerStore';
+import { useRunStore } from '@/stores/runStore';
+import type { RunSummary } from '@/types/run';
 
 export function GameOverPage() {
   const navigate = useAppNavigate();
   const location = useLocation();
-  const summary: RunSummary | undefined = (location.state as { summary?: RunSummary } | null)?.summary;
+  const summary: RunSummary | undefined = (location.state as { summary?: RunSummary } | null)
+    ?.summary;
   const saveStatus = useRunStore((state) => state.saveStatus);
   const saveError = useRunStore((state) => state.saveError);
   const activeRunId = useRunStore((state) => state.runId);
-  const rewards = useMemo(
-    () => summary ? calculateRunCandyRewards(summary) : null,
-    [summary],
-  );
+  const rewards = useMemo(() => (summary ? calculateRunCandyRewards(summary) : null), [summary]);
 
   useEffect(() => {
     playSFX('defeat');
@@ -57,10 +55,14 @@ export function GameOverPage() {
         </p>
 
         {saveStatus === 'saving' && (
-          <p role="status" style={savingStyle}>Saving your run…</p>
+          <p role="status" style={savingStyle}>
+            Saving your run…
+          </p>
         )}
         {saveStatus === 'success' && (
-          <p role="status" style={successStyle}>Run saved successfully.</p>
+          <p role="status" style={successStyle}>
+            Run saved successfully.
+          </p>
         )}
         {saveStatus === 'error' && (
           <div role="alert" style={errorStyle}>
@@ -83,13 +85,24 @@ export function GameOverPage() {
 
         {summary?.championStats && summary.championStats.length > 0 && (
           <div style={{ marginBottom: 24 }}>
-            <div style={{ color: '#c8aa6e', fontSize: 13, fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+            <div
+              style={{
+                color: '#c8aa6e',
+                fontSize: 13,
+                fontWeight: 700,
+                marginBottom: 8,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+              }}
+            >
               Champion Stats
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {summary.championStats.map((cs) => (
                 <div key={cs.championId} style={championRowStyle}>
-                  <span style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>{cs.championId}</span>
+                  <span style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>
+                    {cs.championId}
+                  </span>
                   <span style={{ color: '#8b949e', fontSize: 12 }}>
                     Kills: {cs.kills} · Dmg: {cs.totalDamage}
                   </span>
@@ -100,24 +113,38 @@ export function GameOverPage() {
         )}
 
         {rewards && (
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ color: '#c8aa6e', fontSize: 13, fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
-                Rewards Earned
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 8 }}>
-                <span style={{ color: '#fbbf24', fontSize: 16, fontWeight: 700 }}>🍬 {rewards.total} Candies</span>
-              </div>
-              {Object.keys(rewards.byChampion).length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {Object.entries(rewards.byChampion).map(([id, candies]) => candies > 0 && (
-                    <div key={id} style={championRowStyle}>
-                      <span style={{ color: '#e6edf3', fontSize: 13 }}>{id}</span>
-                      <span style={{ color: '#a78bfa', fontSize: 12 }}>+{candies} candies</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+          <div style={{ marginBottom: 24 }}>
+            <div
+              style={{
+                color: '#c8aa6e',
+                fontSize: 13,
+                fontWeight: 700,
+                marginBottom: 8,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+              }}
+            >
+              Rewards Earned
             </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 8 }}>
+              <span style={{ color: '#fbbf24', fontSize: 16, fontWeight: 700 }}>
+                🍬 {rewards.total} Candies
+              </span>
+            </div>
+            {Object.keys(rewards.byChampion).length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {Object.entries(rewards.byChampion).map(
+                  ([id, candies]) =>
+                    candies > 0 && (
+                      <div key={id} style={championRowStyle}>
+                        <span style={{ color: '#e6edf3', fontSize: 13 }}>{id}</span>
+                        <span style={{ color: '#a78bfa', fontSize: 12 }}>+{candies} candies</span>
+                      </div>
+                    ),
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         <div style={actionsStyle}>

@@ -2,18 +2,13 @@
  * EffectManager — tracks and processes active effects on a combatant.
  */
 
-import { Effect } from './Effect';
-import { ShieldEffect } from './ShieldEffect';
-import { CCEffect } from './CCEffect';
 import { BuffDebuffEffect } from './BuffDebuffEffect';
+import { CCEffect } from './CCEffect';
 import { DamageEffect } from './DamageEffect';
+import type { Effect } from './Effect';
 import { HealEffect } from './HealEffect';
-import {
-  EffectCategory,
-  CCType,
-  type EffectEvent,
-  type StatKey,
-} from './types';
+import { ShieldEffect } from './ShieldEffect';
+import { CCType, type EffectCategory, type EffectEvent, type StatKey } from './types';
 
 export type EffectManagerEventCallback = (event: EffectEvent) => void;
 
@@ -29,23 +24,19 @@ export class EffectManager {
   // ── Accessors ────────────────────────────────────────────────────────────
 
   get effects(): ReadonlyArray<Effect> {
-    return this._effects.filter(e => !e.expired);
+    return this._effects.filter((e) => !e.expired);
   }
 
   getByCategory(category: EffectCategory): Effect[] {
-    return this._effects.filter(e => e.category === category && !e.expired);
+    return this._effects.filter((e) => e.category === category && !e.expired);
   }
 
   get shields(): ShieldEffect[] {
-    return this._effects.filter(
-      (e): e is ShieldEffect => e instanceof ShieldEffect && !e.expired,
-    );
+    return this._effects.filter((e): e is ShieldEffect => e instanceof ShieldEffect && !e.expired);
   }
 
   get ccEffects(): CCEffect[] {
-    return this._effects.filter(
-      (e): e is CCEffect => e instanceof CCEffect && !e.expired,
-    );
+    return this._effects.filter((e): e is CCEffect => e instanceof CCEffect && !e.expired);
   }
 
   get buffDebuffs(): BuffDebuffEffect[] {
@@ -88,8 +79,10 @@ export class EffectManager {
     if (effect instanceof BuffDebuffEffect) {
       const existing = this._effects.find(
         (e): e is BuffDebuffEffect =>
-          e instanceof BuffDebuffEffect && !e.expired &&
-          e.name === effect.name && e.sourceId === effect.sourceId,
+          e instanceof BuffDebuffEffect &&
+          !e.expired &&
+          e.name === effect.name &&
+          e.sourceId === effect.sourceId,
       );
       if (existing) {
         existing.addStack();
@@ -134,7 +127,7 @@ export class EffectManager {
   }
 
   remove(effectId: string): boolean {
-    const idx = this._effects.findIndex(e => e.id === effectId);
+    const idx = this._effects.findIndex((e) => e.id === effectId);
     if (idx === -1) return false;
     this._effects[idx].onExpire();
     return true;
@@ -152,7 +145,7 @@ export class EffectManager {
   }
 
   cleanExpired(): void {
-    this._effects = this._effects.filter(e => !e.expired);
+    this._effects = this._effects.filter((e) => !e.expired);
   }
 
   tickAll(): EffectEvent[] {
@@ -179,10 +172,18 @@ export class EffectManager {
     return { finalDamage: remaining, totalAbsorbed };
   }
 
-  canAct(): boolean { return !this.ccEffects.some(cc => cc.isHardCC()); }
-  canCast(): boolean { return !this.ccEffects.some(cc => cc.preventsCasting()); }
-  canMove(): boolean { return !this.ccEffects.some(cc => cc.preventsMovement()); }
-  isHardCCd(): boolean { return this.ccEffects.some(cc => cc.isHardCC()); }
+  canAct(): boolean {
+    return !this.ccEffects.some((cc) => cc.isHardCC());
+  }
+  canCast(): boolean {
+    return !this.ccEffects.some((cc) => cc.preventsCasting());
+  }
+  canMove(): boolean {
+    return !this.ccEffects.some((cc) => cc.preventsMovement());
+  }
+  isHardCCd(): boolean {
+    return this.ccEffects.some((cc) => cc.isHardCC());
+  }
 
   getSpeedMultiplier(): number {
     let totalSlow = 0;
@@ -214,13 +215,19 @@ export class EffectManager {
   }
 
   clear(): void {
-    for (const e of this._effects) { if (!e.expired) e.onExpire(); }
+    for (const e of this._effects) {
+      if (!e.expired) e.onExpire();
+    }
     this._effects = [];
   }
 
-  get size(): number { return this.effects.length; }
-  hasEffects(): boolean { return this.effects.length > 0; }
+  get size(): number {
+    return this.effects.length;
+  }
+  hasEffects(): boolean {
+    return this.effects.length > 0;
+  }
   hasEffect(effectId: string): boolean {
-    return this._effects.some(e => e.id === effectId && !e.expired);
+    return this._effects.some((e) => e.id === effectId && !e.expired);
   }
 }

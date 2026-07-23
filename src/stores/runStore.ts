@@ -1,29 +1,26 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import {
-  RunState,
-  RunStore,
-  TeamMember,
-  InventoryEntry,
-  MAX_TEAM_SIZE,
-  MAX_ITEMS_PER_CHAMPION,
-} from '@/types/run';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { championDB } from '@/data';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import {
+  completeNode as completeNodeUtil,
   findNode,
   getAccessibleNodes,
-  completeNode as completeNodeUtil,
   isMapComplete,
 } from '@/game/map/mapUtils';
-import { useMasteryStore } from './masteryStore';
-import { championDB } from '@/data';
+import { getSurvivingChampionIds, shouldApplyRunRewards } from '@/game/run/runState';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { saveRunToDatabase } from '@/services/runService';
-import { useAuthStore } from './authStore';
 import {
-  getSurvivingChampionIds,
-  shouldApplyRunRewards,
-} from '@/game/run/runState';
+  type InventoryEntry,
+  MAX_ITEMS_PER_CHAMPION,
+  MAX_TEAM_SIZE,
+  type RunState,
+  type RunStore,
+  type TeamMember,
+} from '@/types/run';
+import { useAuthStore } from './authStore';
+import { useMasteryStore } from './masteryStore';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
 
@@ -76,17 +73,19 @@ export const useRunStore = create<RunStore>()(
           // End the current run (loss, since user is abandoning it to start new)
           await get().endRun(false, currentState.runId);
         }
-        
+
         // Validate champion IDs - filter out any invalid IDs
         const validChampionIds = championIds.filter((id) => {
           if (!id || typeof id !== 'string') return false;
           const champ = championDB.getById(id);
           if (!champ) {
-            console.warn(`[runStore.startRun] Invalid champion ID "${id}" - champion not found in database`);
+            console.warn(
+              `[runStore.startRun] Invalid champion ID "${id}" - champion not found in database`,
+            );
           }
           return !!champ;
         });
-        
+
         const team: TeamMember[] = validChampionIds
           .slice(0, MAX_TEAM_SIZE)
           .map((id) => ({ championId: id }));
@@ -100,10 +99,10 @@ export const useRunStore = create<RunStore>()(
         const biomeMaps = generateBiomeMaps(seed);
         const startNodeId = biomeMaps[0]?.startNodeId ?? null;
         const startBiome = biomeMaps[0]?.biome ?? null;
-        
+
         // Reset stats tracker for new run
         runStatsTracker.reset();
-        
+
         set({
           isActive: true,
           runId,
@@ -128,12 +127,11 @@ export const useRunStore = create<RunStore>()(
           pendingEncounter: null,
           currentEncounter: null,
         });
-
       },
 
       endRun: async (won = false, expectedRunId?: string) => {
         const state = get();
-        
+
         // Guard: Don't end a run that's already ended
         if (!state.isActive) {
           return;
@@ -142,7 +140,7 @@ export const useRunStore = create<RunStore>()(
         if (state.isEnding) {
           return;
         }
-        
+
         // Guard: If a runId is provided, only end the run if it matches the current run
         // This prevents stale timeouts from previous runs from ending a new run
         if (expectedRunId !== undefined && state.runId !== expectedRunId) {
@@ -150,7 +148,7 @@ export const useRunStore = create<RunStore>()(
         }
 
         set({ isEnding: true, saveStatus: 'saving', saveError: null });
-        
+
         const championIds = state.team.map((m) => m.championId);
         const survivingChampionIds = getSurvivingChampionIds(state.team);
 
@@ -167,11 +165,9 @@ export const useRunStore = create<RunStore>()(
         });
 
         // Award mastery candies before resetting
-        if (shouldApplyRunRewards(
-          state.rewardsApplied,
-          championIds.length,
-          state.totalWavesCompleted,
-        )) {
+        if (
+          shouldApplyRunRewards(state.rewardsApplied, championIds.length, state.totalWavesCompleted)
+        ) {
           const masteryStore = useMasteryStore.getState();
           masteryStore.awardCandies(
             championIds,
@@ -193,7 +189,7 @@ export const useRunStore = create<RunStore>()(
           runId: state.runId,
           won,
         });
-        
+
         if (isAuthenticated && (!user || !player || !state.startedAt)) {
           set({
             isEnding: false,
@@ -206,7 +202,7 @@ export const useRunStore = create<RunStore>()(
         if (isAuthenticated && user && player && state.startedAt) {
           try {
             // Get current HP for each team member from the store or default to max
-            const teamMembers = state.team.map(member => {
+            const teamMembers = state.team.map((member) => {
               const champ = championDB.getById(member.championId);
               const maxHp = champ?.stats.hp ?? 100;
               return {
@@ -242,8 +238,7 @@ export const useRunStore = create<RunStore>()(
             set({
               isEnding: false,
               saveStatus: 'error',
-              saveError:
-                error instanceof Error ? error.message : 'Run save failed',
+              saveError: error instanceof Error ? error.message : 'Run save failed',
             });
             return;
           }
@@ -315,9 +310,7 @@ export const useRunStore = create<RunStore>()(
 
       removeItem: (instanceId) => {
         set((state) => ({
-          inventory: state.inventory.filter(
-            (entry) => entry.instanceId !== instanceId,
-          ),
+          inventory: state.inventory.filter((entry) => entry.instanceId !== instanceId),
         }));
       },
 
@@ -356,9 +349,7 @@ export const useRunStore = create<RunStore>()(
 
         set({
           inventory: inventory.map((entry) =>
-            entry.instanceId === instanceId
-              ? { ...entry, equippedToChampionId: null }
-              : entry,
+            entry.instanceId === instanceId ? { ...entry, equippedToChampionId: null } : entry,
           ),
         });
         return true;
@@ -447,14 +438,17 @@ export const useRunStore = create<RunStore>()(
       },
 
       resolveEncounter: () => {
-        const { pendingEncounter, biomeMaps, currentBiomeIndex, currentNodeId, completedNodeIds } = get();
+        const { pendingEncounter, biomeMaps, currentBiomeIndex, currentNodeId, completedNodeIds } =
+          get();
         if (pendingEncounter && currentNodeId) {
           // Complete the current node
           completeNodeUtil(biomeMaps[currentBiomeIndex], currentNodeId);
-          
+
           // Update completedNodeIds (filter out nulls)
-          const newCompletedNodeIds = [...completedNodeIds, currentNodeId].filter((id): id is string => id !== null);
-          
+          const newCompletedNodeIds = [...completedNodeIds, currentNodeId].filter(
+            (id): id is string => id !== null,
+          );
+
           // Find next accessible nodes after completion
           const currentMap = biomeMaps[currentBiomeIndex];
           if (currentMap) {
@@ -471,7 +465,7 @@ export const useRunStore = create<RunStore>()(
               return;
             }
           }
-          
+
           set({
             biomeMaps: [...biomeMaps],
             completedNodeIds: newCompletedNodeIds,

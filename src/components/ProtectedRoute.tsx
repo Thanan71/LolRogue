@@ -1,7 +1,7 @@
-import { useAuthStore } from '@/stores/authStore';
 import { Navigate } from 'react-router-dom';
-import { ROUTES } from '@/stores/routerStore';
 import { getProtectedRouteAccess } from '@/auth/routeAccess';
+import { useAuthStore } from '@/stores/authStore';
+import { ROUTES } from '@/stores/routerStore';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -16,18 +16,20 @@ export function ProtectedRoute({ children, allowGuest = false }: ProtectedRouteP
   // Also respect the store's isLoading state during the initial check
   if (access === 'loading') {
     return (
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#0a1428',
-        color: '#c8aa6e',
-        fontFamily: 'Cinzel, Georgia, serif',
-        fontSize: '1.2rem',
-        letterSpacing: '0.15em',
-      }}>
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#0a1428',
+          color: '#c8aa6e',
+          fontFamily: 'Cinzel, Georgia, serif',
+          fontSize: '1.2rem',
+          letterSpacing: '0.15em',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div
             style={{

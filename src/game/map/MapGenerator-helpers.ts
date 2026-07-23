@@ -3,12 +3,7 @@
  */
 
 import type { Biome } from '../../types/run';
-import {
-  NodeType,
-  type MapGenConfig,
-  type NodeMetadata,
-  BIOME_MAP_CONFIGS,
-} from './types';
+import { BIOME_MAP_CONFIGS, type MapGenConfig, type NodeMetadata, NodeType } from './types';
 
 // ─── Seeded PRNG ─────────────────────────────────────────────────────────────
 
@@ -22,17 +17,11 @@ export function mulberry32(seed: number): () => number {
   };
 }
 
-export function seededShuffle<T>(
-  values: readonly T[],
-  rand: () => number,
-): T[] {
+export function seededShuffle<T>(values: readonly T[], rand: () => number): T[] {
   const shuffled = [...values];
   for (let index = shuffled.length - 1; index > 0; index--) {
     const swapIndex = Math.floor(rand() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [
-      shuffled[swapIndex],
-      shuffled[index],
-    ];
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
   }
   return shuffled;
 }
@@ -50,15 +39,31 @@ export function getNodeMetadata(type: NodeType, biome: Biome): NodeMetadata {
   };
 
   const metadata: Record<NodeType, NodeMetadata> = {
-    [NodeType.Start]: { title: 'Entrance', description: `Enter the ${biomeNames[biome]}`, icon: '🚪' },
+    [NodeType.Start]: {
+      title: 'Entrance',
+      description: `Enter the ${biomeNames[biome]}`,
+      icon: '🚪',
+    },
     [NodeType.Combat]: { title: 'Combat', description: 'Fight enemy champions', icon: '⚔️' },
     [NodeType.Elite]: { title: 'Elite', description: 'A powerful enemy awaits', icon: '💀' },
     [NodeType.Boss]: { title: 'Boss', description: 'The final challenge', icon: '👑' },
-    [NodeType.Shop]: { title: 'Shop', description: 'Spend your gold on items and recruits', icon: '🛒' },
+    [NodeType.Shop]: {
+      title: 'Shop',
+      description: 'Spend your gold on items and recruits',
+      icon: '🛒',
+    },
     [NodeType.Rest]: { title: 'Rest', description: 'Heal your champions', icon: '💚' },
-    [NodeType.Event]: { title: 'Mystery', description: 'A mysterious encounter awaits', icon: '❓' },
+    [NodeType.Event]: {
+      title: 'Mystery',
+      description: 'A mysterious encounter awaits',
+      icon: '❓',
+    },
     [NodeType.Treasure]: { title: 'Treasure', description: 'A free reward awaits', icon: '💎' },
-    [NodeType.Recruit]: { title: 'Recruit', description: 'A wild champion seeks a team', icon: '🤝' },
+    [NodeType.Recruit]: {
+      title: 'Recruit',
+      description: 'A wild champion seeks a team',
+      icon: '🤝',
+    },
     [NodeType.Exit]: { title: 'Exit', description: 'Proceed to the next zone', icon: '➡️' },
   };
 

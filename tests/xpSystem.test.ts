@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  getXpForNextLevel,
-  getTotalXpForLevel,
-  calculateXpGain,
   addXp,
-  getXpProgress,
+  calculateXpGain,
   formatXpDisplay,
+  getTotalXpForLevel,
+  getXpForNextLevel,
+  getXpProgress,
 } from '../src/utils/xpSystem';
 
 describe('XP System', () => {

@@ -2,11 +2,7 @@
  * Item Database — all item definitions for the roguelike run.
  */
 
-import {
-  type ItemDefinition,
-  ItemCategory,
-  ItemRarity,
-} from '@/types/inventory';
+import { ItemCategory, type ItemDefinition, ItemRarity } from '@/types/inventory';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1 — COMPONENTS
@@ -205,7 +201,7 @@ const GUARDIAN_ANGEL: ItemDefinition = {
     description: 'Upon taking lethal damage, revive with 30% HP.',
     trigger: 'below_hp_threshold',
     modifiers: [],
-    flatValue: 0.30,
+    flatValue: 0.3,
     cooldown: 999,
     procChance: 1,
   },
@@ -354,7 +350,5 @@ export function getStackableItems(): ItemDefinition[] {
 }
 
 export function getItemsWithComponent(componentId: string): ItemDefinition[] {
-  return Object.values(ITEM_DATABASE).filter(
-    (item) => item.components?.includes(componentId),
-  );
+  return Object.values(ITEM_DATABASE).filter((item) => item.components?.includes(componentId));
 }

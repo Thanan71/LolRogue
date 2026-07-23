@@ -1,5 +1,5 @@
-export { CombatUI } from './CombatUI';
-export { CombatantPortrait } from './CombatantPortrait';
 export { AbilityBar } from './AbilityBar';
-export { TurnIndicator } from './TurnIndicator';
+export { CombatantPortrait } from './CombatantPortrait';
 export { CombatLog } from './CombatLog';
+export { CombatUI } from './CombatUI';
+export { TurnIndicator } from './TurnIndicator';

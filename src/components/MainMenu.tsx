@@ -32,7 +32,8 @@ export function MainMenu() {
             <span className="main-menu__btn-icon">▶</span>
             Continue Run
             <span className="main-menu__btn-info">
-              Lv.{runLevel} · {currentBiome ? currentBiome.replace('_', ' ') : '???'} · {team.length} champ{team.length !== 1 ? 's' : ''}
+              Lv.{runLevel} · {currentBiome ? currentBiome.replace('_', ' ') : '???'} ·{' '}
+              {team.length} champ{team.length !== 1 ? 's' : ''}
             </span>
           </button>
         )}

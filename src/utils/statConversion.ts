@@ -48,7 +48,7 @@ export function lolStatsToGameStats(
     atk: attackDamage,
     def: Math.round((armor + magicResist) / 2),
     ap: Math.round(mp * 0.03),
-    spd: Math.max(1, Math.min(10, Math.round((moveSpeed - 325) * 10 / 30))),
+    spd: Math.max(1, Math.min(10, Math.round(((moveSpeed - 325) * 10) / 30))),
     crit: Math.max(0, Math.min(100, crit)),
   };
 }
@@ -62,8 +62,16 @@ export function gameStatsAtLevel(champStats: ChampionStats, level: number): Game
 
   const hp = statAtLevel(champStats.hp, champStats.hpPerLevel, clampedLevel);
   const armor = statAtLevel(champStats.armor, champStats.armorPerLevel, clampedLevel);
-  const magicResist = statAtLevel(champStats.magicResist, champStats.magicResistPerLevel, clampedLevel);
-  const attackDamage = statAtLevel(champStats.attackDamage, champStats.attackDamagePerLevel, clampedLevel);
+  const magicResist = statAtLevel(
+    champStats.magicResist,
+    champStats.magicResistPerLevel,
+    clampedLevel,
+  );
+  const attackDamage = statAtLevel(
+    champStats.attackDamage,
+    champStats.attackDamagePerLevel,
+    clampedLevel,
+  );
   // moveSpeed and mp/crit are handled below (mp crit scale, moveSpeed does not)
   const mp = statAtLevel(champStats.mp, champStats.mpPerLevel, clampedLevel);
   const crit = statAtLevel(champStats.crit, champStats.critPerLevel, clampedLevel);

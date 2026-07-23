@@ -1,13 +1,16 @@
 /**
  * Supabase Daily Run Repository Implementation
- * 
+ *
  * Implements IDailyRunRepository and ILeaderboardRepository using Supabase client.
  * This class handles all daily run and leaderboard operations.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { IDailyRunRepository, ILeaderboardRepository } from '../interfaces/IDailyRunRepository';
 import type { DailyRun, DailyRunInsert } from '@/types/database';
+import type {
+  IDailyRunRepository,
+  ILeaderboardRepository,
+} from '../interfaces/IDailyRunRepository';
 
 export class SupabaseDailyRunRepository implements IDailyRunRepository {
   private supabase: SupabaseClient;
@@ -17,7 +20,7 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
   }
 
   async getTodayDailyRun(
-    playerId: string
+    playerId: string,
   ): Promise<{ data: DailyRun | null; error: Error | null }> {
     const today = new Date().toISOString().split('T')[0];
     const { data, error } = await this.supabase
@@ -35,7 +38,7 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
   }
 
   async upsertDailyRun(
-    dailyRunData: Omit<DailyRunInsert, 'id' | 'created_at'>
+    dailyRunData: Omit<DailyRunInsert, 'id' | 'created_at'>,
   ): Promise<{ data: DailyRun | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('daily_runs')
@@ -54,7 +57,7 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
 
   async getDailyLeaderboard(
     date: string,
-    limit = 10
+    limit = 10,
   ): Promise<{ data: any[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('daily_runs')
@@ -87,7 +90,7 @@ export class SupabaseLeaderboardRepository implements ILeaderboardRepository {
 
   async getLeaderboard(
     limit = 10,
-    offset = 0
+    offset = 0,
   ): Promise<{ data: any[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('leaderboard')

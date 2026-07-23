@@ -5,11 +5,7 @@
  */
 
 import { Effect, generateEffectId } from './Effect';
-import {
-  EffectCategory,
-  type HealEffectData,
-  type EffectEvent,
-} from './types';
+import { EffectCategory, type EffectEvent, type HealEffectData } from './types';
 
 export interface HealEffectParams {
   name?: string;
@@ -17,7 +13,7 @@ export interface HealEffectParams {
   targetId: string;
   magnitude: number;
   duration?: number; // 0 = instant
-  hot?: boolean;     // true = heal over time
+  hot?: boolean; // true = heal over time
 }
 
 export class HealEffect extends Effect<HealEffectData> {
@@ -37,7 +33,9 @@ export class HealEffect extends Effect<HealEffectData> {
     });
   }
 
-  get hot(): boolean { return this.data.hot; }
+  get hot(): boolean {
+    return this.data.hot;
+  }
 
   tick(): EffectEvent {
     const perTick = this.isInstant

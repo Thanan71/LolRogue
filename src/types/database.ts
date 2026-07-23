@@ -1,6 +1,6 @@
 /**
  * Database Types for Supabase
- * 
+ *
  * These types mirror the database schema and provide type safety
  * when interacting with Supabase tables.
  */
@@ -129,7 +129,7 @@ export interface Run {
   completed_at: string;
   duration_seconds: number | null;
   created_at: string;
-  
+
   // Phase 1: Additional fields for better balancing
   seed?: number;
   node_types_visited?: string[];
@@ -213,7 +213,7 @@ export interface RunTeamMember {
   kills: number;
   damage_dealt: number;
   items_collected: string[];
-  
+
   // Phase 3: Additional combat tracking fields
   damage_received?: number;
   healing_done?: number;

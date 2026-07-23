@@ -1,35 +1,70 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { ChampionInstance, SPELL_SLOTS } from '../src/game/ChampionInstance';
-import type { Champion, ChampionStats, Spell, Passive } from '../src/types';
+import type { Champion, ChampionStats, Passive, Spell } from '../src/types';
 
 function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
   const baseStats: ChampionStats = {
-    hp: 500, mp: 300, moveSpeed: 330, armor: 30, magicResist: 30,
-    attackDamage: 60, attackSpeed: 0.65, attackRange: 175,
-    hpPerLevel: 90, mpPerLevel: 40, armorPerLevel: 4, magicResistPerLevel: 1.3,
-    attackDamagePerLevel: 3, attackSpeedPerLevel: 2.5,
-    hpRegen: 7, hpRegenPerLevel: 0.7, mpRegen: 8, mpRegenPerLevel: 0.8,
-    crit: 0, critPerLevel: 0,
+    hp: 500,
+    mp: 300,
+    moveSpeed: 330,
+    armor: 30,
+    magicResist: 30,
+    attackDamage: 60,
+    attackSpeed: 0.65,
+    attackRange: 175,
+    hpPerLevel: 90,
+    mpPerLevel: 40,
+    armorPerLevel: 4,
+    magicResistPerLevel: 1.3,
+    attackDamagePerLevel: 3,
+    attackSpeedPerLevel: 2.5,
+    hpRegen: 7,
+    hpRegenPerLevel: 0.7,
+    mpRegen: 8,
+    mpRegenPerLevel: 0.8,
+    crit: 0,
+    critPerLevel: 0,
   };
   const makeSpell = (slot: string): Spell => ({
-    id: `Test${slot}`, name: `Test Spell ${slot}`, description: `Desc ${slot}`,
-    maxRank: 5, cooldown: [8, 7.5, 7, 6.5, 6], cost: [50, 55, 60, 65, 70],
-    range: [700, 700, 700, 700, 700], image: `Test${slot}.png`,
+    id: `Test${slot}`,
+    name: `Test Spell ${slot}`,
+    description: `Desc ${slot}`,
+    maxRank: 5,
+    cooldown: [8, 7.5, 7, 6.5, 6],
+    cost: [50, 55, 60, 65, 70],
+    range: [700, 700, 700, 700, 700],
+    image: `Test${slot}.png`,
     targeting: 'enemy' as any,
     scaling: { adRatio: 0.5, apRatio: 0.0 },
-    effects: [{ type: 'damage', damageType: 'physical', adRatio: 0.5, apRatio: 0.0, baseDamage: [50, 75, 100, 125, 150] }],
+    effects: [
+      {
+        type: 'damage',
+        damageType: 'physical',
+        adRatio: 0.5,
+        apRatio: 0.0,
+        baseDamage: [50, 75, 100, 125, 150],
+      },
+    ],
   });
   const passive: Passive = {
-    name: 'Test Passive', description: 'Desc', image: 'TestPassive.png',
+    name: 'Test Passive',
+    description: 'Desc',
+    image: 'TestPassive.png',
     targeting: 'passive' as any,
     scaling: { adRatio: 0.0, apRatio: 0.0 },
     effects: [],
   };
   const defaults: Champion = {
-    id: 'TestChampion', key: '9999', name: 'Test Champion', title: 'the Tester',
-    tags: ['Mage', 'Assassin'], resourceType: 'Mana', stats: baseStats,
+    id: 'TestChampion',
+    key: '9999',
+    name: 'Test Champion',
+    title: 'the Tester',
+    tags: ['Mage', 'Assassin'],
+    resourceType: 'Mana',
+    stats: baseStats,
     spells: [makeSpell('Q'), makeSpell('W'), makeSpell('E'), makeSpell('R')],
-    passive, iconUrl: '/data/lol/img/champions/TestChampion.png',
+    passive,
+    iconUrl: '/data/lol/img/champions/TestChampion.png',
   };
   return { ...defaults, ...overrides };
 }

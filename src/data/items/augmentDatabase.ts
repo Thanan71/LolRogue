@@ -3,10 +3,10 @@
  */
 
 import {
-  type AugmentDefinition,
-  AugmentTier,
   AugmentCategory,
+  type AugmentDefinition,
   AugmentEffectType,
+  AugmentTier,
 } from '@/types/inventory';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -20,11 +20,13 @@ const BRUTE_FORCE: AugmentDefinition = {
   iconUrl: '/assets/augments/brute_force.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatFlat,
-    stat: 'atk',
-    flatValue: 15,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatFlat,
+      stat: 'atk',
+      flatValue: 15,
+    },
+  ],
   stackable: true,
   maxStacks: 3,
   tags: ['stats', 'attack'],
@@ -37,11 +39,13 @@ const IRON_SKIN: AugmentDefinition = {
   iconUrl: '/assets/augments/iron_skin.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatFlat,
-    stat: 'def',
-    flatValue: 12,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatFlat,
+      stat: 'def',
+      flatValue: 12,
+    },
+  ],
   stackable: true,
   maxStacks: 3,
   tags: ['stats', 'defense'],
@@ -54,11 +58,13 @@ const ARCANE_MIND: AugmentDefinition = {
   iconUrl: '/assets/augments/arcane_mind.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatFlat,
-    stat: 'ap',
-    flatValue: 20,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatFlat,
+      stat: 'ap',
+      flatValue: 20,
+    },
+  ],
   stackable: true,
   maxStacks: 3,
   tags: ['stats', 'magic'],
@@ -71,11 +77,13 @@ const VITALITY_BOOST: AugmentDefinition = {
   iconUrl: '/assets/augments/vitality_boost.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatFlat,
-    stat: 'hp',
-    flatValue: 200,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatFlat,
+      stat: 'hp',
+      flatValue: 200,
+    },
+  ],
   stackable: true,
   maxStacks: 3,
   tags: ['stats', 'health'],
@@ -88,11 +96,13 @@ const SWIFT_FEET: AugmentDefinition = {
   iconUrl: '/assets/augments/swift_feet.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatFlat,
-    stat: 'spd',
-    flatValue: 2,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatFlat,
+      stat: 'spd',
+      flatValue: 2,
+    },
+  ],
   stackable: true,
   maxStacks: 3,
   tags: ['stats', 'speed'],
@@ -105,11 +115,13 @@ const CRITICAL_FOCUS: AugmentDefinition = {
   iconUrl: '/assets/augments/critical_focus.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatFlat,
-    stat: 'crit',
-    flatValue: 10,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatFlat,
+      stat: 'crit',
+      flatValue: 10,
+    },
+  ],
   stackable: true,
   maxStacks: 3,
   tags: ['stats', 'crit'],
@@ -122,10 +134,12 @@ const GOLDEN_TOUCH: AugmentDefinition = {
   iconUrl: '/assets/augments/golden_touch.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Economy,
-  effects: [{
-    type: AugmentEffectType.BonusGold,
-    flatValue: 50,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.BonusGold,
+      flatValue: 50,
+    },
+  ],
   stackable: true,
   maxStacks: 5,
   tags: ['economy', 'gold'],
@@ -138,10 +152,12 @@ const FIELD_MEDIC: AugmentDefinition = {
   iconUrl: '/assets/augments/field_medic.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Utility,
-  effects: [{
-    type: AugmentEffectType.HealAfterBattle,
-    percentValue: 0.10,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.HealAfterBattle,
+      percentValue: 0.1,
+    },
+  ],
   stackable: true,
   maxStacks: 3,
   tags: ['utility', 'heal'],
@@ -158,11 +174,13 @@ const WARLORD: AugmentDefinition = {
   iconUrl: '/assets/augments/warlord.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatPercent,
-    stat: 'atk',
-    percentValue: 0.10,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatPercent,
+      stat: 'atk',
+      percentValue: 0.1,
+    },
+  ],
   stackable: true,
   maxStacks: 2,
   tags: ['stats', 'attack', 'percent'],
@@ -175,11 +193,13 @@ const BULWARK: AugmentDefinition = {
   iconUrl: '/assets/augments/bulwark.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatPercent,
-    stat: 'def',
-    percentValue: 0.10,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatPercent,
+      stat: 'def',
+      percentValue: 0.1,
+    },
+  ],
   stackable: true,
   maxStacks: 2,
   tags: ['stats', 'defense', 'percent'],
@@ -192,11 +212,13 @@ const SORCERY_SUPREME: AugmentDefinition = {
   iconUrl: '/assets/augments/sorcery_supreme.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
-  effects: [{
-    type: AugmentEffectType.TeamStatPercent,
-    stat: 'ap',
-    percentValue: 0.12,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.TeamStatPercent,
+      stat: 'ap',
+      percentValue: 0.12,
+    },
+  ],
   stackable: true,
   maxStacks: 2,
   tags: ['stats', 'magic', 'percent'],
@@ -210,8 +232,8 @@ const GLASS_CANNON: AugmentDefinition = {
   tier: AugmentTier.Gold,
   category: AugmentCategory.Combat,
   effects: [
-    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.20 },
-    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: -0.10 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.2 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: -0.1 },
   ],
   stackable: false,
   maxStacks: 1,
@@ -225,10 +247,12 @@ const FORTUNE: AugmentDefinition = {
   iconUrl: '/assets/augments/fortune.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Economy,
-  effects: [{
-    type: AugmentEffectType.BonusGold,
-    flatValue: 100,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.BonusGold,
+      flatValue: 100,
+    },
+  ],
   stackable: true,
   maxStacks: 3,
   tags: ['economy', 'gold'],
@@ -278,10 +302,12 @@ const PHOENIX_HEART: AugmentDefinition = {
   iconUrl: '/assets/augments/phoenix_heart.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Combat,
-  effects: [{
-    type: AugmentEffectType.ExtraRevive,
-    percentValue: 0.50,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.ExtraRevive,
+      percentValue: 0.5,
+    },
+  ],
   stackable: false,
   maxStacks: 1,
   tags: ['combat', 'revive', 'premium'],
@@ -294,10 +320,12 @@ const HYPER_CARRY: AugmentDefinition = {
   iconUrl: '/assets/augments/hyper_carry.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Combat,
-  effects: [{
-    type: AugmentEffectType.DamagePercent,
-    percentValue: 0.25,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.DamagePercent,
+      percentValue: 0.25,
+    },
+  ],
   stackable: false,
   maxStacks: 1,
   tags: ['combat', 'damage', 'premium'],
@@ -310,10 +338,12 @@ const UNSTOPPABLE: AugmentDefinition = {
   iconUrl: '/assets/augments/unstoppable.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Combat,
-  effects: [{
-    type: AugmentEffectType.DamageReduction,
-    percentValue: 0.20,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.DamageReduction,
+      percentValue: 0.2,
+    },
+  ],
   stackable: false,
   maxStacks: 1,
   tags: ['combat', 'defense', 'premium'],
@@ -326,10 +356,12 @@ const GOLDEN_AGE: AugmentDefinition = {
   iconUrl: '/assets/augments/golden_age.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Economy,
-  effects: [{
-    type: AugmentEffectType.BonusGold,
-    flatValue: 200,
-  }],
+  effects: [
+    {
+      type: AugmentEffectType.BonusGold,
+      flatValue: 200,
+    },
+  ],
   stackable: false,
   maxStacks: 1,
   tags: ['economy', 'gold', 'premium'],

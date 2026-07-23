@@ -1,17 +1,20 @@
 /**
  * Unit Tests for Supabase Repository Classes
- * 
+ *
  * These tests use mocking to simulate Supabase client behavior
  * without requiring an actual database connection.
- * 
+ *
  * Note: All tests use vi.fn() mocks and do NOT connect to real Supabase.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SupabasePlayerRepository } from '@/services/repositories/SupabasePlayerRepository';
-import { SupabaseMasteryRepository, SupabasePlayerUnlockRepository } from '@/services/repositories/SupabaseMasteryRepository';
-import { SupabaseRunRepository } from '@/services/repositories/SupabaseRunRepository';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  SupabaseMasteryRepository,
+  SupabasePlayerUnlockRepository,
+} from '@/services/repositories/SupabaseMasteryRepository';
+import { SupabasePlayerRepository } from '@/services/repositories/SupabasePlayerRepository';
+import { SupabaseRunRepository } from '@/services/repositories/SupabaseRunRepository';
 
 // ─── Mock Helpers ────────────────────────────────────────────────────────────
 
@@ -34,7 +37,7 @@ function createMockQueryChain() {
 /** Create a mock Supabase client with chainable query builder */
 function createMockSupabaseClient() {
   const queryChain = createMockQueryChain();
-  
+
   const mockSupabase = {
     from: vi.fn(() => queryChain),
     rpc: vi.fn(),
@@ -53,17 +56,14 @@ describe('SupabaseRunRepository', () => {
       player_id: 'player-1',
       run_uuid: 'client-run-id',
     };
-    const team = [{
-      run_id: 'placeholder',
-      champion_id: 'Garen',
-    }];
+    const team = [
+      {
+        run_id: 'placeholder',
+        champion_id: 'Garen',
+      },
+    ];
 
-    const result = await repository.saveCompletedRun(
-      run,
-      team,
-      [{ champion_id: 'Garen' }],
-      25,
-    );
+    const result = await repository.saveCompletedRun(run, team, [{ champion_id: 'Garen' }], 25);
 
     expect(result).toEqual({ data: 'database-run-id', error: null });
     expect(rpc).toHaveBeenCalledWith('save_completed_run', {
@@ -120,9 +120,9 @@ describe('SupabasePlayerRepository', () => {
     });
 
     it('should return null when player not found (PGRST116)', async () => {
-      queryChain.maybeSingle.mockResolvedValue({ 
-        data: null, 
-        error: { code: 'PGRST116', message: 'No rows found' } 
+      queryChain.maybeSingle.mockResolvedValue({
+        data: null,
+        error: { code: 'PGRST116', message: 'No rows found' },
       });
 
       const result = await repository.getPlayer('user-123');
@@ -132,9 +132,9 @@ describe('SupabasePlayerRepository', () => {
     });
 
     it('should return error for other database errors', async () => {
-      queryChain.maybeSingle.mockResolvedValue({ 
-        data: null, 
-        error: { code: '500', message: 'Internal server error' } 
+      queryChain.maybeSingle.mockResolvedValue({
+        data: null,
+        error: { code: '500', message: 'Internal server error' },
       });
 
       const result = await repository.getPlayer('user-123');
@@ -146,7 +146,12 @@ describe('SupabasePlayerRepository', () => {
 
   describe('updatePlayer', () => {
     it('should update player and return updated data', async () => {
-      const mockUpdatedPlayer = { id: '1', user_id: 'user-123', level: 6, total_runs_completed: 11 };
+      const mockUpdatedPlayer = {
+        id: '1',
+        user_id: 'user-123',
+        level: 6,
+        total_runs_completed: 11,
+      };
       queryChain.single.mockResolvedValue({ data: mockUpdatedPlayer, error: null });
 
       const result = await repository.updatePlayer('user-123', { level: 6 });
@@ -156,9 +161,9 @@ describe('SupabasePlayerRepository', () => {
     });
 
     it('should return error when update fails', async () => {
-      queryChain.single.mockResolvedValue({ 
-        data: null, 
-        error: { message: 'Update failed' } 
+      queryChain.single.mockResolvedValue({
+        data: null,
+        error: { message: 'Update failed' },
       });
 
       const result = await repository.updatePlayer('user-123', { level: 6 });
@@ -170,13 +175,13 @@ describe('SupabasePlayerRepository', () => {
 
   describe('getPlayerStats', () => {
     it('should calculate and return player statistics', async () => {
-      const mockPlayer = { 
-        id: 'player-1', 
-        total_runs_completed: 10, 
-        total_wins: 7, 
-        total_waves_completed: 50, 
-        total_candies: 100, 
-        level: 5 
+      const mockPlayer = {
+        id: 'player-1',
+        total_runs_completed: 10,
+        total_wins: 7,
+        total_waves_completed: 50,
+        total_candies: 100,
+        level: 5,
       };
       queryChain.single.mockResolvedValue({ data: mockPlayer, error: null });
 
@@ -194,13 +199,13 @@ describe('SupabasePlayerRepository', () => {
     });
 
     it('should return 0 winRate when no runs completed', async () => {
-      const mockPlayer = { 
-        id: 'player-1', 
-        total_runs_completed: 0, 
-        total_wins: 0, 
-        total_waves_completed: 0, 
-        total_candies: 0, 
-        level: 1 
+      const mockPlayer = {
+        id: 'player-1',
+        total_runs_completed: 0,
+        total_wins: 0,
+        total_waves_completed: 0,
+        total_candies: 0,
+        level: 1,
       };
       queryChain.single.mockResolvedValue({ data: mockPlayer, error: null });
 
@@ -210,9 +215,9 @@ describe('SupabasePlayerRepository', () => {
     });
 
     it('should return error when player not found', async () => {
-      queryChain.single.mockResolvedValue({ 
-        data: null, 
-        error: { message: 'Player not found' } 
+      queryChain.single.mockResolvedValue({
+        data: null,
+        error: { message: 'Player not found' },
       });
 
       const result = await repository.getPlayerStats('player-1');
@@ -249,9 +254,9 @@ describe('SupabaseMasteryRepository', () => {
     });
 
     it('should return error when query fails', async () => {
-      queryChain.single.mockResolvedValueOnce({ 
-        data: null, 
-        error: { message: 'Query failed' } 
+      queryChain.single.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Query failed' },
       });
 
       const result = await repository.getChampionMasteryByChampion('player-1', 'Ahri');
@@ -282,9 +287,9 @@ describe('SupabaseMasteryRepository', () => {
     });
 
     it('should return error when upsert fails', async () => {
-      queryChain.single.mockResolvedValueOnce({ 
-        data: null, 
-        error: { message: 'Upsert failed' } 
+      queryChain.single.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Upsert failed' },
       });
 
       const result = await repository.upsertChampionMastery('player-1', 'Ahri', {
@@ -330,9 +335,9 @@ describe('SupabasePlayerUnlockRepository', () => {
     });
 
     it('should return error when insert fails', async () => {
-      queryChain.single.mockResolvedValueOnce({ 
-        data: null, 
-        error: { message: 'Insert failed' } 
+      queryChain.single.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Insert failed' },
       });
 
       const result = await repository.addPlayerUnlock('player-1', 'starter', 'Ashe');

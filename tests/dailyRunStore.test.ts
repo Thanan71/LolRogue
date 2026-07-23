@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { InventoryEntry } from '../src/types/run';
 
 // ─── Hoisted localStorage mock (runs before module evaluation) ─────────────
@@ -6,10 +6,18 @@ const localStorageMock = vi.hoisted(() => {
   const store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { for (const k of Object.keys(store)) delete store[k]; },
-    get length() { return Object.keys(store).length; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      for (const k of Object.keys(store)) delete store[k];
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
     key: (index: number) => Object.keys(store)[index] ?? null,
   };
 });
@@ -20,8 +28,6 @@ vi.useFakeTimers();
 vi.setSystemTime(new Date('2026-03-30T12:00:00'));
 
 const { calculateDailyScore } = await import('../src/stores/dailyRunStore');
-
-
 
 describe('calculateDailyScore', () => {
   const makeInventory = (count: number): InventoryEntry[] =>

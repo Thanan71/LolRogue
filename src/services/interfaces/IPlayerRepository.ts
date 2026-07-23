@@ -1,6 +1,6 @@
 /**
  * Player Repository Interface
- * 
+ *
  * Defines the contract for player data operations.
  * Follows the Repository pattern for dependency inversion.
  */
@@ -18,7 +18,7 @@ export interface IPlayerRepository {
    */
   updatePlayer(
     userId: string,
-    updates: PlayerUpdate
+    updates: PlayerUpdate,
   ): Promise<{ data: Player | null; error: Error | null }>;
 
   /**

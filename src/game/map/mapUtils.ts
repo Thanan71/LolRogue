@@ -4,7 +4,7 @@
  * Helper functions for map navigation and state management.
  */
 
-import type { NodeMap, MapNode } from './types';
+import type { MapNode, NodeMap } from './types';
 import { NodeType } from './types';
 
 /**
@@ -42,7 +42,7 @@ export function completeNode(map: NodeMap, nodeId: string): MapNode[] {
     if (nextNode && !nextNode.completed && !nextNode.accessible) {
       // A node becomes accessible if AT LEAST ONE of its previous nodes is completed
       const anyPrereqCompleted = nextNode.prevNodeIds.some(
-        (prevId) => findNode(map, prevId)?.completed ?? false
+        (prevId) => findNode(map, prevId)?.completed ?? false,
       );
       if (anyPrereqCompleted) {
         nextNode.accessible = true;
@@ -65,8 +65,7 @@ export function isMapComplete(map: NodeMap): boolean {
 
   // Also check for any completed Exit or Boss node (handles multi-node last columns)
   return map.nodes.some(
-    (n) =>
-      (n.type === NodeType.Exit || n.type === NodeType.Boss) && n.completed
+    (n) => (n.type === NodeType.Exit || n.type === NodeType.Boss) && n.completed,
   );
 }
 
@@ -93,7 +92,7 @@ export function getNextOptions(map: NodeMap, currentNodeId: string): MapNode[] {
  */
 export function getCombatNodes(map: NodeMap): MapNode[] {
   return map.nodes.filter(
-    (n) => n.type === NodeType.Combat || n.type === NodeType.Elite || n.type === NodeType.Boss
+    (n) => n.type === NodeType.Combat || n.type === NodeType.Elite || n.type === NodeType.Boss,
   );
 }
 
@@ -129,8 +128,5 @@ export function getRecruitNodes(map: NodeMap): MapNode[] {
  * Count remaining encounters in a map (all non-completed nodes with encounters).
  */
 export function countRemainingEncounters(map: NodeMap): number {
-  return map.nodes.filter(
-    (n) =>
-      !n.completed && n.encounter !== null
-  ).length;
+  return map.nodes.filter((n) => !n.completed && n.encounter !== null).length;
 }

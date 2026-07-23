@@ -13,17 +13,17 @@
  * Index 0 = XP needed to go from level 1 to 2
  */
 const XP_PER_LEVEL: number[] = [
-  100,  // Level 1 → 2
-  140,  // Level 2 → 3
-  190,  // Level 3 → 4
-  250,  // Level 4 → 5
-  320,  // Level 5 → 6
-  400,  // Level 6 → 7
-  490,  // Level 7 → 8
-  590,  // Level 8 → 9
-  700,  // Level 9 → 10
-  820,  // Level 10 → 11
-  950,  // Level 11 → 12
+  100, // Level 1 → 2
+  140, // Level 2 → 3
+  190, // Level 3 → 4
+  250, // Level 4 → 5
+  320, // Level 5 → 6
+  400, // Level 6 → 7
+  490, // Level 7 → 8
+  590, // Level 8 → 9
+  700, // Level 9 → 10
+  820, // Level 10 → 11
+  950, // Level 11 → 12
   1090, // Level 12 → 13
   1240, // Level 13 → 14
   1400, // Level 14 → 15
@@ -51,7 +51,7 @@ export function getXpForNextLevel(currentLevel: number): number {
 export function getTotalXpForLevel(targetLevel: number): number {
   if (targetLevel <= 1) return 0;
   if (targetLevel > 18) targetLevel = 18;
-  
+
   let total = 0;
   for (let i = 1; i < targetLevel; i++) {
     total += XP_PER_LEVEL[i - 1];
@@ -72,17 +72,17 @@ export function getTotalXpForLevel(targetLevel: number): number {
 export function calculateXpGain(runLevel: number, isElite = false, isBoss = false): number {
   // Base XP scales with run level
   let baseXp = 60 + runLevel * 15;
-  
+
   // Elite enemies give 50% more XP
   if (isElite) {
     baseXp = Math.floor(baseXp * 1.5);
   }
-  
+
   // Boss enemies give double XP
   if (isBoss) {
     baseXp = Math.floor(baseXp * 2);
   }
-  
+
   return baseXp;
 }
 
@@ -115,14 +115,14 @@ export function addXp(currentLevel: number, currentXp: number, xpGained: number)
   let level = Math.max(1, Math.min(18, currentLevel));
   let xp = currentXp + xpGained;
   let levelsGained = 0;
-  
+
   // Process level-ups (can level up multiple times if enough XP)
   while (level < 18 && xp >= getXpForNextLevel(level)) {
     xp -= getXpForNextLevel(level);
     level += 1;
     levelsGained += 1;
   }
-  
+
   return {
     previousLevel: currentLevel,
     newLevel: level,
@@ -140,10 +140,10 @@ export function addXp(currentLevel: number, currentXp: number, xpGained: number)
  */
 export function getXpProgress(currentLevel: number, currentXp: number): number {
   if (currentLevel >= 18) return 100;
-  
+
   const xpNeeded = getXpForNextLevel(currentLevel);
   if (xpNeeded === Infinity || xpNeeded === 0) return 0;
-  
+
   return Math.min(100, Math.round((currentXp / xpNeeded) * 100));
 }
 
@@ -155,7 +155,7 @@ export function getXpProgress(currentLevel: number, currentXp: number): number {
  */
 export function formatXpDisplay(currentLevel: number, currentXp: number): string {
   if (currentLevel >= 18) return 'MAX';
-  
+
   const xpNeeded = getXpForNextLevel(currentLevel);
   return `${currentXp}/${xpNeeded} XP`;
 }

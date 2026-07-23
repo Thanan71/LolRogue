@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface UseKeyboardShortcutsOptions {
   onCastQ?: () => void;
@@ -42,47 +42,54 @@ export function useKeyboardShortcuts({
     onBack,
   };
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!enabled) return;
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!enabled) return;
 
-    // Don't capture keys when typing in inputs
-    const target = e.target as HTMLElement;
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
-      return;
-    }
+      // Don't capture keys when typing in inputs
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT'
+      ) {
+        return;
+      }
 
-    const key = e.key.toLowerCase();
-    const h = handlersRef.current;
+      const key = e.key.toLowerCase();
+      const h = handlersRef.current;
 
-    switch (key) {
-      case 'q':
-        e.preventDefault();
-        h.onCastQ?.();
-        break;
-      case 'w':
-        e.preventDefault();
-        h.onCastW?.();
-        break;
-      case 'e':
-        e.preventDefault();
-        h.onCastE?.();
-        break;
-      case 'r':
-        e.preventDefault();
-        h.onCastR?.();
-        break;
-      case ' ':
-      case 'enter':
-        e.preventDefault();
-        h.onNextTurn?.();
-        h.onConfirm?.();
-        break;
-      case 'escape':
-        e.preventDefault();
-        h.onBack?.();
-        break;
-    }
-  }, [enabled]);
+      switch (key) {
+        case 'q':
+          e.preventDefault();
+          h.onCastQ?.();
+          break;
+        case 'w':
+          e.preventDefault();
+          h.onCastW?.();
+          break;
+        case 'e':
+          e.preventDefault();
+          h.onCastE?.();
+          break;
+        case 'r':
+          e.preventDefault();
+          h.onCastR?.();
+          break;
+        case ' ':
+        case 'enter':
+          e.preventDefault();
+          h.onNextTurn?.();
+          h.onConfirm?.();
+          break;
+        case 'escape':
+          e.preventDefault();
+          h.onBack?.();
+          break;
+      }
+    },
+    [enabled],
+  );
 
   useEffect(() => {
     if (!enabled) return;

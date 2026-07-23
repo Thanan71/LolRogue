@@ -1,6 +1,6 @@
 /**
  * Supabase Client Configuration
- * 
+ *
  * This file sets up the Supabase client for database operations.
  */
 
@@ -14,7 +14,7 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
 if (!isSupabaseConfigured) {
   console.warn(
-    '[Supabase] Online features are disabled. Set VITE_PUBLIC_SUPABASE_URL and VITE_PUBLIC_SUPABASE_ANON_KEY to enable them.'
+    '[Supabase] Online features are disabled. Set VITE_PUBLIC_SUPABASE_URL and VITE_PUBLIC_SUPABASE_ANON_KEY to enable them.',
   );
 }
 

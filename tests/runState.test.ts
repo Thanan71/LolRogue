@@ -1,15 +1,9 @@
-import {
-  getSurvivingChampionIds,
-  shouldApplyRunRewards,
-} from '../src/game/run/runState';
+import { getSurvivingChampionIds, shouldApplyRunRewards } from '../src/game/run/runState';
 
 describe('persisted run state helpers', () => {
   it('keeps champions with positive or not-yet-initialized HP alive', () => {
     expect(
-      getSurvivingChampionIds([
-        { championId: 'Garen', currentHp: 120 },
-        { championId: 'Lux' },
-      ]),
+      getSurvivingChampionIds([{ championId: 'Garen', currentHp: 120 }, { championId: 'Lux' }]),
     ).toEqual(['Garen', 'Lux']);
   });
 

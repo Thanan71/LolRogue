@@ -1,31 +1,34 @@
-import { useEffect, useMemo, useCallback, useState, useRef } from 'react';
-import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
-import { useRunStore } from '@/stores/runStore';
-import { useBattleStore } from '@/stores/battleStore';
-import { useBattleManager } from '@/hooks/useBattleManager';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useSettingsStore } from '@/stores/settingsStore';
-import { ChampionInstance } from '@/game/ChampionInstance';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { playUIClick } from '@/audio';
+import { AbilityBar } from '@/components/CombatUI/AbilityBar';
+import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
+import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
+import { CombatLog } from '@/components/CombatUI/CombatLog';
+import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { championDB } from '@/data';
 import { ITEM_DATABASE } from '@/data/items';
-import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
-import { AbilityBar } from '@/components/CombatUI/AbilityBar';
-import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
-import { CombatLog } from '@/components/CombatUI/CombatLog';
-import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
-import { ActionType } from '@/game/battle/types';
-import { SeededRNG } from '@/utils/seededRandom';
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
-import { playUIClick } from '@/audio';
-import { runStatsTracker } from '@/services/RunStatsTracker';
-import { calculateXpGain, addXp } from '@/utils/xpSystem';
-import type { Item, ItemStatBonuses, RunSummary } from '@/types/run';
+import { ActionType } from '@/game/battle/types';
+import { ChampionInstance } from '@/game/ChampionInstance';
 import type { CombatEncounter } from '@/game/map/types';
-import { useEnhancementStore } from '@/stores/enhancementStore';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useBattleManager } from '@/hooks/useBattleManager';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
+import { runStatsTracker } from '@/services/RunStatsTracker';
+import { useBattleStore } from '@/stores/battleStore';
+import { useEnhancementStore } from '@/stores/enhancementStore';
+import { ROUTES } from '@/stores/routerStore';
+import { useRunStore } from '@/stores/runStore';
+import { useSettingsStore } from '@/stores/settingsStore';
+import type { Item, ItemStatBonuses, RunSummary } from '@/types/run';
+import { SeededRNG } from '@/utils/seededRandom';
+import { addXp, calculateXpGain } from '@/utils/xpSystem';
 
-function buildTeamInstances(championIds: string[], levels?: Record<string, number>): ChampionInstance[] {
+function buildTeamInstances(
+  championIds: string[],
+  levels?: Record<string, number>,
+): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
   for (const id of championIds) {
     const champ = championDB.getById(id);
@@ -40,26 +43,29 @@ function buildTeamInstances(championIds: string[], levels?: Record<string, numbe
  * Also applies item bonuses from equipped items.
  */
 function applyEnhancementsToTeam(
-  instances: ChampionInstance[], 
-  inventory: import('@/types/run').InventoryEntry[]
+  instances: ChampionInstance[],
+  inventory: import('@/types/run').InventoryEntry[],
 ): void {
   const enhancementStore = useEnhancementStore.getState();
-  
+
   for (const instance of instances) {
     const champ = championDB.getById(instance.id);
     if (!champ) continue;
-    
+
     // Get enhancement state for this champion
     const enhancementState = enhancementStore.getEnhancementState(instance.id);
-    
+
     // Get the enhancement tree for this champion's role
     const tree = enhancementTreeProvider.getTreeForChampion(champ);
-    
+
     // Calculate stat bonuses from unlocked nodes
-    const enhancementBonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
-    
+    const enhancementBonuses = enhancementService.calculateStatBonuses(
+      tree,
+      enhancementState.unlockedNodes,
+    );
+
     // Calculate item bonuses
-    const equippedItems = inventory.filter(entry => entry.equippedToChampionId === instance.id);
+    const equippedItems = inventory.filter((entry) => entry.equippedToChampionId === instance.id);
     for (const entry of equippedItems) {
       const itemStats = entry.item.stats;
       // Map item stat keys to CalculatedStats keys (used by ChampionInstance)
@@ -82,7 +88,7 @@ function applyEnhancementsToTeam(
         }
       }
     }
-    
+
     // Apply combined bonuses to the champion instance
     instance.setEnhancementBonuses(enhancementBonuses);
   }
@@ -95,54 +101,80 @@ function applyEnhancementsToTeam(
 function getEnhancementDescriptions(championId: string): string[] {
   const enhancementStore = useEnhancementStore.getState();
   const enhancementState = enhancementStore.getEnhancementState(championId);
-  
+
   if (Object.keys(enhancementState.unlockedNodes).length === 0) return [];
-  
+
   const champ = championDB.getById(championId);
   if (!champ) return [];
-  
+
   const tree = enhancementTreeProvider.getTreeForChampion(champ);
   const bonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
-  
+
   const descriptions: string[] = [];
-  
+
   // Add flat stat bonuses
   for (const [stat, value] of Object.entries(bonuses.flat)) {
     if (value > 0) {
       const statNames: Record<string, string> = {
-        hp: 'PV', mp: 'PM', atk: 'AD', ap: 'AP', def: 'Armure', mr: 'RM',
-        spd: 'Vitesse', crit: 'Critique', attackSpeed: 'Vitesse ATQ',
-        hpRegen: 'Regen PV', mpRegen: 'Regen PM', armorPen: 'Pen. Armure',
-        magicPen: 'Pen. Magique', lifesteal: 'Vol de vie', omnivamp: 'Omnivamp',
-        tenacity: 'Ténacité', abilityHaste: 'Hâte', attackRange: 'Portée',
+        hp: 'PV',
+        mp: 'PM',
+        atk: 'AD',
+        ap: 'AP',
+        def: 'Armure',
+        mr: 'RM',
+        spd: 'Vitesse',
+        crit: 'Critique',
+        attackSpeed: 'Vitesse ATQ',
+        hpRegen: 'Regen PV',
+        mpRegen: 'Regen PM',
+        armorPen: 'Pen. Armure',
+        magicPen: 'Pen. Magique',
+        lifesteal: 'Vol de vie',
+        omnivamp: 'Omnivamp',
+        tenacity: 'Ténacité',
+        abilityHaste: 'Hâte',
+        attackRange: 'Portée',
       };
       const name = statNames[stat] || stat;
       descriptions.push(`+${value} ${name}`);
     }
   }
-  
+
   // Add percentage bonuses
   for (const [stat, percent] of Object.entries(bonuses.percent)) {
     if (percent > 0) {
       const statNames: Record<string, string> = {
-        hp: 'PV', mp: 'PM', atk: 'AD', ap: 'AP', def: 'Armure', mr: 'RM',
-        spd: 'Vitesse', crit: 'Critique', attackSpeed: 'Vitesse ATQ',
-        hpRegen: 'Regen PV', mpRegen: 'Regen PM', armorPen: 'Pen. Armure',
-        magicPen: 'Pen. Magique', lifesteal: 'Vol de vie', omnivamp: 'Omnivamp',
-        tenacity: 'Ténacité', abilityHaste: 'Hâte', attackRange: 'Portée',
+        hp: 'PV',
+        mp: 'PM',
+        atk: 'AD',
+        ap: 'AP',
+        def: 'Armure',
+        mr: 'RM',
+        spd: 'Vitesse',
+        crit: 'Critique',
+        attackSpeed: 'Vitesse ATQ',
+        hpRegen: 'Regen PV',
+        mpRegen: 'Regen PM',
+        armorPen: 'Pen. Armure',
+        magicPen: 'Pen. Magique',
+        lifesteal: 'Vol de vie',
+        omnivamp: 'Omnivamp',
+        tenacity: 'Ténacité',
+        abilityHaste: 'Hâte',
+        attackRange: 'Portée',
       };
       const name = statNames[stat] || stat;
       descriptions.push(`+${Math.round(percent * 100)}% ${name}`);
     }
   }
-  
+
   // Add effect descriptions
   for (const effect of bonuses.effects) {
     if (effect.description) {
       descriptions.push(effect.description);
     }
   }
-  
+
   return descriptions;
 }
 
@@ -156,13 +188,13 @@ function buildEnemyTeamFromEncounter(encounter: CombatEncounter): ChampionInstan
       // Base level is 1 for normal combats
       const baseLevel = enemy.level ?? 1;
       const instance = new ChampionInstance(champ, baseLevel);
-      
+
       // Apply stat multiplier by directly modifying the champion's base stats
       // This is more reliable than using enhancement bonuses with mismatched stat names
       if (enemy.statMultiplier && enemy.statMultiplier !== 1.0) {
         const multiplier = enemy.statMultiplier;
         const baseStats = champ.stats;
-        
+
         // Create a modified champion with scaled stats
         const scaledChamp = {
           ...champ,
@@ -188,7 +220,7 @@ function buildEnemyTeamFromEncounter(encounter: CombatEncounter): ChampionInstan
             critPerLevel: Math.round(baseStats.critPerLevel * multiplier * 10) / 10,
           },
         };
-        
+
         const scaledInstance = new ChampionInstance(scaledChamp, baseLevel);
         instances.push(scaledInstance);
       } else {
@@ -207,20 +239,20 @@ const SLOT_TO_ACTION: Record<string, ActionType> = {
 };
 
 export function CombatPage() {
-  const isActive = useRunStore(s => s.isActive);
-  const team = useRunStore(s => s.team);
-  const runLevel = useRunStore(s => s.runLevel);
+  const isActive = useRunStore((s) => s.isActive);
+  const team = useRunStore((s) => s.team);
+  const runLevel = useRunStore((s) => s.runLevel);
   const navigate = useAppNavigate();
 
-  const battlePhase = useBattleStore(s => s.phase);
-  const round = useBattleStore(s => s.round);
-  const playerTeam = useBattleStore(s => s.playerTeam);
-  const enemyTeam = useBattleStore(s => s.enemyTeam);
-  const currentTurnChampionId = useBattleStore(s => s.currentTurnChampionId);
-  const currentTurnSide = useBattleStore(s => s.currentTurnSide);
-  const winner = useBattleStore(s => s.winner);
-  const isPlayerTurn = useBattleStore(s => s.isPlayerTurn);
-  const battleSpeed = useSettingsStore(s => s.battleSpeed);
+  const battlePhase = useBattleStore((s) => s.phase);
+  const round = useBattleStore((s) => s.round);
+  const playerTeam = useBattleStore((s) => s.playerTeam);
+  const enemyTeam = useBattleStore((s) => s.enemyTeam);
+  const currentTurnChampionId = useBattleStore((s) => s.currentTurnChampionId);
+  const currentTurnSide = useBattleStore((s) => s.currentTurnSide);
+  const winner = useBattleStore((s) => s.winner);
+  const isPlayerTurn = useBattleStore((s) => s.isPlayerTurn);
+  const battleSpeed = useSettingsStore((s) => s.battleSpeed);
 
   const [autoPlay, setAutoPlay] = useState(true);
   const [turnTick, setTurnTick] = useState(0);
@@ -235,7 +267,7 @@ export function CombatPage() {
       }
     };
   }, []);
-  
+
   // Reset the ref when battlePhase changes to starting (new combat)
   useEffect(() => {
     if (battlePhase === 'starting') {
@@ -255,21 +287,26 @@ export function CombatPage() {
   // Build player instances with persisted levels
   const teamLevels = useMemo(() => {
     const m: Record<string, number> = {};
-    for (const t of team) { m[t.championId] = t.level ?? 1; }
+    for (const t of team) {
+      m[t.championId] = t.level ?? 1;
+    }
     return m;
   }, [team]);
-  
+
   // Create a stable string key that includes both championIds and their levels
   // This ensures playerInstances is recreated when levels change
   const teamKey = useMemo(() => {
-    return team.map(t => `${t.championId}:${t.level ?? 1}`).join(',');
+    return team.map((t) => `${t.championId}:${t.level ?? 1}`).join(',');
   }, [team]);
 
   // Get inventory for item bonuses
-  const inventory = useRunStore(s => s.inventory);
+  const inventory = useRunStore((s) => s.inventory);
 
   const playerInstances = useMemo(() => {
-    const instances = buildTeamInstances(team.map(m => m.championId), teamLevels);
+    const instances = buildTeamInstances(
+      team.map((m) => m.championId),
+      teamLevels,
+    );
     // Apply enhancement bonuses and item bonuses to player champions
     applyEnhancementsToTeam(instances, inventory);
     return instances;
@@ -288,12 +325,17 @@ export function CombatPage() {
     }
     return bonuses;
   }, [teamKey]);
-  
+
   // Check for empty player team (invalid champion ID) - navigate to game over
   useEffect(() => {
-    if (isActive && playerInstances.length === 0 && team.length > 0 && !hasNavigatedAfterLossRef.current) {
+    if (
+      isActive &&
+      playerInstances.length === 0 &&
+      team.length > 0 &&
+      !hasNavigatedAfterLossRef.current
+    ) {
       // Player team is empty but should have champions - invalid champion ID
-      const championIds = team.map(m => m.championId);
+      const championIds = team.map((m) => m.championId);
       console.error('CombatPage: Player team is empty but run has champions.');
       console.error('Champion IDs in team:', championIds);
       console.error('Champion DB size:', championDB.count());
@@ -342,145 +384,151 @@ export function CombatPage() {
     }
     return Object.keys(m).length > 0 ? m : undefined;
   }, [team]);
-  
+
   // Get encounter data from store
-  const currentEncounter = useRunStore(s => s.currentEncounter);
-  
+  const currentEncounter = useRunStore((s) => s.currentEncounter);
+
   // Memoize enemy instances to prevent recreation on every render
   const enemyInstances = useMemo(() => {
     if (currentEncounter && currentEncounter.type === 'combat') {
       return buildEnemyTeamFromEncounter(currentEncounter);
     }
     return [];
-  }, [currentEncounter?.id, currentEncounter?.type, currentEncounter?.enemies?.map(e => e.championId).join(',')]);
+  }, [
+    currentEncounter?.id,
+    currentEncounter?.type,
+    currentEncounter?.enemies?.map((e) => e.championId).join(','),
+  ]);
 
-  const handleComplete = useCallback((w: 'player' | 'enemy' | 'draw') => {
-    // Clear any pending endRun timeout from a previous combat
-    if (endRunTimeoutRef.current) {
-      clearTimeout(endRunTimeoutRef.current);
-      endRunTimeoutRef.current = null;
-    }
+  const handleComplete = useCallback(
+    (w: 'player' | 'enemy' | 'draw') => {
+      // Clear any pending endRun timeout from a previous combat
+      if (endRunTimeoutRef.current) {
+        clearTimeout(endRunTimeoutRef.current);
+        endRunTimeoutRef.current = null;
+      }
 
-    if (w === 'player') {
-      const runStore = useRunStore.getState();
+      if (w === 'player') {
+        const runStore = useRunStore.getState();
 
-      // 1. Award gold: 50 + runLevel * 10
-      const goldReward = 50 + runLevel * 10;
-      runStore.addGold(goldReward);
+        // 1. Award gold: 50 + runLevel * 10
+        const goldReward = 50 + runLevel * 10;
+        runStore.addGold(goldReward);
 
-      // 2. Award XP to all surviving player champions
-      const currentNode = runStore.getCurrentNode();
-      const isBossNode = currentNode?.type === 'boss';
-      const isEliteNode = currentNode?.type === 'elite';
-      const xpGain = calculateXpGain(runLevel, isEliteNode, isBossNode);
-      
-      // Update each team member with XP and potential level-ups
-      const teamUpdates = runStore.team.map(member => {
-        const currentLevel = member.level ?? 1;
-        const currentXp = member.currentXp ?? 0;
-        const result = addXp(currentLevel, currentXp, xpGain);
-        
-        return {
-          championId: member.championId,
-          currentHp: member.currentHp ?? 0,
-          level: result.newLevel,
-          currentXp: result.remainingXp,
-        };
-      });
-      
-      runStore.updateTeamAfterCombat(teamUpdates);
+        // 2. Award XP to all surviving player champions
+        const currentNode = runStore.getCurrentNode();
+        const isBossNode = currentNode?.type === 'boss';
+        const isEliteNode = currentNode?.type === 'elite';
+        const xpGain = calculateXpGain(runLevel, isEliteNode, isBossNode);
 
-      // 3. Advance wave
-      runStore.nextWave();
+        // Update each team member with XP and potential level-ups
+        const teamUpdates = runStore.team.map((member) => {
+          const currentLevel = member.level ?? 1;
+          const currentXp = member.currentXp ?? 0;
+          const result = addXp(currentLevel, currentXp, xpGain);
 
-      // 4. Complete current map node (unlocks next nodes)
-      let advancedToNextBiome = false;
-      if (currentNode) {
-        // 5. Item drop chance (~20%) — deterministic for daily runs
-        const itemRng = new SeededRNG(runLevel * 1000 + runStore.totalWavesCompleted);
-        if (itemRng.next() < 0.2) {
-          const itemDefs = Object.values(ITEM_DATABASE);
-          if (itemDefs.length > 0) {
-            const drop = itemDefs[Math.floor(itemRng.next() * itemDefs.length)];
-            const item: Item = {
-              id: drop.id,
-              name: drop.name,
-              description: drop.description,
-              iconUrl: drop.iconUrl,
-              stats: drop.stats.reduce<ItemStatBonuses>((acc, s) => {
-                const key = s.stat as keyof ItemStatBonuses;
-                acc[key] = (acc[key] ?? 0) + s.value;
-                return acc;
-              }, {}),
-              passiveId: drop.passive?.id,
-              goldValue: drop.goldValue,
-            };
-            runStore.addItem(item);
+          return {
+            championId: member.championId,
+            currentHp: member.currentHp ?? 0,
+            level: result.newLevel,
+            currentXp: result.remainingXp,
+          };
+        });
+
+        runStore.updateTeamAfterCombat(teamUpdates);
+
+        // 3. Advance wave
+        runStore.nextWave();
+
+        // 4. Complete current map node (unlocks next nodes)
+        let advancedToNextBiome = false;
+        if (currentNode) {
+          // 5. Item drop chance (~20%) — deterministic for daily runs
+          const itemRng = new SeededRNG(runLevel * 1000 + runStore.totalWavesCompleted);
+          if (itemRng.next() < 0.2) {
+            const itemDefs = Object.values(ITEM_DATABASE);
+            if (itemDefs.length > 0) {
+              const drop = itemDefs[Math.floor(itemRng.next() * itemDefs.length)];
+              const item: Item = {
+                id: drop.id,
+                name: drop.name,
+                description: drop.description,
+                iconUrl: drop.iconUrl,
+                stats: drop.stats.reduce<ItemStatBonuses>((acc, s) => {
+                  const key = s.stat as keyof ItemStatBonuses;
+                  acc[key] = (acc[key] ?? 0) + s.value;
+                  return acc;
+                }, {}),
+                passiveId: drop.passive?.id,
+                goldValue: drop.goldValue,
+              };
+              runStore.addItem(item);
+            }
+          }
+
+          // 6. Resolve encounter (completes the node)
+          runStore.resolveEncounter();
+
+          // 7. Check if we just completed the boss -- advance to next biome
+          if (isBossNode) {
+            runStore.incrementRunLevel();
+            advancedToNextBiome = runStore.advanceToNextBiome();
           }
         }
 
-        // 6. Resolve encounter (completes the node)
-        runStore.resolveEncounter();
-
-        // 7. Check if we just completed the boss -- advance to next biome
-        if (isBossNode) {
-          runStore.incrementRunLevel();
-          advancedToNextBiome = runStore.advanceToNextBiome();
+        // 8. Build RunSummary for victory display
+        // Mark surviving player champions
+        const rs2 = useRunStore.getState();
+        const aliveIds = rs2.team.filter((m) => (m.currentHp ?? 0) > 0).map((m) => m.championId);
+        runStatsTracker.markSurvived(aliveIds);
+        const victorySummary: RunSummary = runStatsTracker.buildSummary({
+          won: true,
+          wavesCompleted: rs2.totalWavesCompleted,
+          biomesVisited: rs2.biomesVisited,
+          goldEarned: rs2.gold,
+          runLevel: rs2.runLevel,
+        });
+        // Only the boss of the last biome ends the run.
+        if (isFinalRunVictory(isBossNode, advancedToNextBiome)) {
+          const completedRunId = rs2.runId;
+          navigate(ROUTES.GAME_OVER, { state: { summary: victorySummary } });
+          void rs2.endRun(true, completedRunId);
+          runStatsTracker.reset();
+          return;
         }
-      }
-
-      // 8. Build RunSummary for victory display
-      // Mark surviving player champions
-      const rs2 = useRunStore.getState();
-      const aliveIds = rs2.team.filter(m => (m.currentHp ?? 0) > 0).map(m => m.championId);
-      runStatsTracker.markSurvived(aliveIds);
-      const victorySummary: RunSummary = runStatsTracker.buildSummary({
-        won: true,
-        wavesCompleted: rs2.totalWavesCompleted,
-        biomesVisited: rs2.biomesVisited,
-        goldEarned: rs2.gold,
-        runLevel: rs2.runLevel,
-      });
-      // Only the boss of the last biome ends the run.
-      if (isFinalRunVictory(isBossNode, advancedToNextBiome)) {
-        const completedRunId = rs2.runId;
-        navigate(ROUTES.GAME_OVER, { state: { summary: victorySummary } });
-        void rs2.endRun(true, completedRunId);
+        // Reset tracker for next combat
         runStatsTracker.reset();
-        return;
+
+        // Navigate back to the map to choose the next node
+        navigate(ROUTES.RUN);
+      } else {
+        // On draw or loss: build RunSummary from tracked stats, navigate with state
+        const rs = useRunStore.getState();
+        // Capture the current runId to prevent stale timeouts from affecting new runs
+        const currentRunId = rs.runId;
+        // Mark all player champions as dead (none survived)
+        runStatsTracker.markSurvived([]);
+        const summary: RunSummary = runStatsTracker.buildSummary({
+          won: false,
+          wavesCompleted: rs.totalWavesCompleted,
+          biomesVisited: rs.biomesVisited,
+          goldEarned: rs.gold,
+          runLevel: rs.runLevel,
+        });
+        // Navigate to game over screen
+        navigate(ROUTES.GAME_OVER, { state: { summary } });
+        // End the run (resets isActive, team, gold, etc.) - delayed to avoid race conditions
+        // Store the timeout reference so it can be cleared if player starts a new run
+        // Pass the runId to ensure only the correct run is ended
+        endRunTimeoutRef.current = setTimeout(() => {
+          void rs.endRun(false, currentRunId);
+          runStatsTracker.reset();
+          endRunTimeoutRef.current = null;
+        }, 100);
       }
-      // Reset tracker for next combat
-      runStatsTracker.reset();
-
-      // Navigate back to the map to choose the next node
-      navigate(ROUTES.RUN);
-
-    } else {
-      // On draw or loss: build RunSummary from tracked stats, navigate with state
-      const rs = useRunStore.getState();
-      // Capture the current runId to prevent stale timeouts from affecting new runs
-      const currentRunId = rs.runId;
-      // Mark all player champions as dead (none survived)
-      runStatsTracker.markSurvived([]);
-      const summary: RunSummary = runStatsTracker.buildSummary({
-        won: false,
-        wavesCompleted: rs.totalWavesCompleted,
-        biomesVisited: rs.biomesVisited,
-        goldEarned: rs.gold,
-        runLevel: rs.runLevel,
-      });
-      // Navigate to game over screen
-      navigate(ROUTES.GAME_OVER, { state: { summary } });
-      // End the run (resets isActive, team, gold, etc.) - delayed to avoid race conditions
-      // Store the timeout reference so it can be cleared if player starts a new run
-      // Pass the runId to ensure only the correct run is ended
-      endRunTimeoutRef.current = setTimeout(() => {
-        void rs.endRun(false, currentRunId);
-        runStatsTracker.reset();
-        endRunTimeoutRef.current = null;
-      }, 100);
-    }
-  }, [runLevel, navigate]);
+    },
+    [runLevel, navigate],
+  );
 
   const { processTurn, submitAction, getManager } = useBattleManager({
     playerTeam: playerInstances,
@@ -490,11 +538,14 @@ export function CombatPage() {
     initialHpOverrides,
   });
 
-  const handleCast = useCallback((slot: 'Q' | 'W' | 'E' | 'R') => {
-    const actionType = SLOT_TO_ACTION[slot];
-    if (!actionType) return;
-    submitAction({ type: actionType, cost: 0 });
-  }, [submitAction]);
+  const handleCast = useCallback(
+    (slot: 'Q' | 'W' | 'E' | 'R') => {
+      const actionType = SLOT_TO_ACTION[slot];
+      if (!actionType) return;
+      submitAction({ type: actionType, cost: 0 });
+    },
+    [submitAction],
+  );
 
   // Auto-process all turns when autoPlay is enabled
   useEffect(() => {
@@ -502,7 +553,7 @@ export function CombatPage() {
       const delay = Math.max(50, 400 / battleSpeed);
       const timer = setTimeout(() => {
         processTurn();
-        setTurnTick(t => t + 1);
+        setTurnTick((t) => t + 1);
       }, delay);
       return () => clearTimeout(timer);
     }
@@ -517,34 +568,38 @@ export function CombatPage() {
       if (finalStates.length > 0) {
         const runStore = useRunStore.getState();
         runStore.updateTeamAfterCombat(
-          finalStates.map(s => ({
+          finalStates.map((s) => ({
             championId: s.championId,
             currentHp: s.currentHp,
             level: teamLevels[s.championId] ?? 1,
-            currentXp: runStore.team.find(m => m.championId === s.championId)?.currentXp ?? 0,
-          }))
+            currentXp: runStore.team.find((m) => m.championId === s.championId)?.currentXp ?? 0,
+          })),
         );
       }
     }
   }, [battlePhase, winner, getManager, teamLevels]);
 
-  const currentChampion = [...playerTeam, ...enemyTeam].find(c => c.id === currentTurnChampionId);
+  const currentChampion = [...playerTeam, ...enemyTeam].find((c) => c.id === currentTurnChampionId);
   const currentSpell = currentChampion?.spells;
 
   // Keyboard shortcuts
   const canCast = isPlayerTurn && battlePhase === 'turn_active';
-  const canCastSlot = useCallback((slot: 'Q' | 'W' | 'E' | 'R') => {
-    if (!canCast || !currentSpell) return false;
-    const sp = currentSpell.find(s => s.slot === slot);
-    return !!sp && sp.isReady;
-  }, [canCast, currentSpell]);
+  const canCastSlot = useCallback(
+    (slot: 'Q' | 'W' | 'E' | 'R') => {
+      if (!canCast || !currentSpell) return false;
+      const sp = currentSpell.find((s) => s.slot === slot);
+      return !!sp && sp.isReady;
+    },
+    [canCast, currentSpell],
+  );
 
   useKeyboardShortcuts({
     onCastQ: canCastSlot('Q') ? () => handleCast('Q') : undefined,
     onCastW: canCastSlot('W') ? () => handleCast('W') : undefined,
     onCastE: canCastSlot('E') ? () => handleCast('E') : undefined,
     onCastR: canCastSlot('R') ? () => handleCast('R') : undefined,
-    onNextTurn: (!autoPlay || isPlayerTurn) && battlePhase === 'turn_active' ? processTurn : undefined,
+    onNextTurn:
+      (!autoPlay || isPlayerTurn) && battlePhase === 'turn_active' ? processTurn : undefined,
     onBack: () => navigate(ROUTES.RUN),
     enabled: battlePhase !== 'finished',
   });
@@ -555,12 +610,24 @@ export function CombatPage() {
     <div style={containerStyle}>
       {/* Header */}
       <div style={headerStyle}>
-        <button style={backBtnStyle} onClick={() => { playUIClick(); navigate(ROUTES.RUN); }} aria-label="Back to map">← Map</button>
+        <button
+          style={backBtnStyle}
+          onClick={() => {
+            playUIClick();
+            navigate(ROUTES.RUN);
+          }}
+          aria-label="Back to map"
+        >
+          ← Map
+        </button>
         <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Combat — Round {round}</span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
         <button
-          onClick={() => { playUIClick(); setAutoPlay(!autoPlay); }}
+          onClick={() => {
+            playUIClick();
+            setAutoPlay(!autoPlay);
+          }}
           style={{
             padding: '4px 10px',
             background: 'transparent',
@@ -582,10 +649,10 @@ export function CombatPage() {
         {/* Player team panel */}
         <div style={leftPanelStyle}>
           <div style={teamTitleStyle('#3b82f6')}>Votre équipe</div>
-          {playerTeam.map(c => (
-            <CombatantPortrait 
-              key={`player-${c.id}`} 
-              combatant={c} 
+          {playerTeam.map((c) => (
+            <CombatantPortrait
+              key={`player-${c.id}`}
+              combatant={c}
               isActive={c.id === currentTurnChampionId}
               enhancementBonuses={playerEnhancementBonuses[c.id] || []}
             />
@@ -598,21 +665,33 @@ export function CombatPage() {
           {battlePhase === 'idle' && (
             <div style={arenaPlaceholderStyle}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>⚔️</div>
-              <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>Préparation du combat...</div>
+              <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
+                Préparation du combat...
+              </div>
             </div>
           )}
-          {(battlePhase === 'turn_active' || battlePhase === 'starting' || battlePhase === 'turn_transition') && (
+          {(battlePhase === 'turn_active' ||
+            battlePhase === 'starting' ||
+            battlePhase === 'turn_transition') && (
             <div style={arenaPlaceholderStyle}>
-              <div style={{ fontSize: 48, marginBottom: 16, animation: 'pulse 1.5s infinite' }}>⚔️</div>
+              <div style={{ fontSize: 48, marginBottom: 16, animation: 'pulse 1.5s infinite' }}>
+                ⚔️
+              </div>
               <div style={{ fontSize: 16, color: '#ffd700', fontWeight: 'bold' }}>
-                {currentTurnSide === 'player' ? 'À votre tour !' : 'Tour de l\'ennemi...'}
+                {currentTurnSide === 'player' ? 'À votre tour !' : "Tour de l'ennemi..."}
               </div>
               {currentChampion && (
-                <div style={{ fontSize: 14, color: '#fff', marginTop: 8 }}>{currentChampion.name}</div>
+                <div style={{ fontSize: 14, color: '#fff', marginTop: 8 }}>
+                  {currentChampion.name}
+                </div>
               )}
               {(!autoPlay || isPlayerTurn) && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                  <button onClick={processTurn} style={nextTurnBtnStyle} aria-label="Execute turn (Space)">
+                  <button
+                    onClick={processTurn}
+                    style={nextTurnBtnStyle}
+                    aria-label="Execute turn (Space)"
+                  >
                     ▶ Exécuter le tour
                     <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.6 }}>[Space]</span>
                   </button>
@@ -625,18 +704,32 @@ export function CombatPage() {
               <div style={{ fontSize: 48, marginBottom: 16 }}>
                 {winner === 'player' ? '🏆' : winner === 'draw' ? '🤝' : '💀'}
               </div>
-              <div style={{
-                fontSize: 28, fontWeight: 'bold',
-                color: winner === 'player' ? '#22c55e' : winner === 'draw' ? '#ffd700' : '#ef4444',
-                marginBottom: 12,
-              }}>
+              <div
+                style={{
+                  fontSize: 28,
+                  fontWeight: 'bold',
+                  color:
+                    winner === 'player' ? '#22c55e' : winner === 'draw' ? '#ffd700' : '#ef4444',
+                  marginBottom: 12,
+                }}
+              >
                 {winner === 'player' ? 'VICTOIRE !' : winner === 'draw' ? 'ÉGALITÉ' : 'DÉFAITE'}
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 {winner === 'player' && (
-                  <button onClick={() => { playUIClick();  navigate(ROUTES.RUN); }} style={nextBtnStyle}>Continuer →</button>
+                  <button
+                    onClick={() => {
+                      playUIClick();
+                      navigate(ROUTES.RUN);
+                    }}
+                    style={nextBtnStyle}
+                  >
+                    Continuer →
+                  </button>
                 )}
-                <button onClick={() => navigate(ROUTES.MENU)} style={backBtnStyle2}>Menu</button>
+                <button onClick={() => navigate(ROUTES.MENU)} style={backBtnStyle2}>
+                  Menu
+                </button>
               </div>
             </div>
           )}
@@ -646,7 +739,11 @@ export function CombatPage() {
         <div style={rightPanelStyle}>
           <div style={teamTitleStyle('#ef4444')}>Ennemis</div>
           {enemyTeam.map((c, i) => (
-            <CombatantPortrait key={`${c.id}-${i}`} combatant={c} isActive={c.id === currentTurnChampionId} />
+            <CombatantPortrait
+              key={`${c.id}-${i}`}
+              combatant={c}
+              isActive={c.id === currentTurnChampionId}
+            />
           ))}
           {enemyTeam.length === 0 && <div style={emptyStyle}>Aucun ennemi</div>}
         </div>
@@ -670,69 +767,140 @@ export function CombatPage() {
 // ── Styles ──────────────────────────────────────────────────────────
 
 const containerStyle: React.CSSProperties = {
-  position: 'absolute', inset: 0,
-  background: '#0d1117', color: '#e6edf3',
-  fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column',
+  position: 'absolute',
+  inset: 0,
+  background: '#0d1117',
+  color: '#e6edf3',
+  fontFamily: 'sans-serif',
+  display: 'flex',
+  flexDirection: 'column',
 };
 
 const headerStyle: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 16, padding: '8px 16px',
-  background: '#161b22', borderBottom: '1px solid #1e2a3a', flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 16,
+  padding: '8px 16px',
+  background: '#161b22',
+  borderBottom: '1px solid #1e2a3a',
+  flexShrink: 0,
 };
 
 const backBtnStyle: React.CSSProperties = {
-  padding: '6px 12px', background: '#21262d', color: '#e6edf3',
-  border: '1px solid #30363d', borderRadius: 6, fontSize: 12, cursor: 'pointer',
+  padding: '6px 12px',
+  background: '#21262d',
+  color: '#e6edf3',
+  border: '1px solid #30363d',
+  borderRadius: 6,
+  fontSize: 12,
+  cursor: 'pointer',
 };
 
 const mainStyle: React.CSSProperties = {
-  flex: 1, display: 'flex', gap: 8, padding: 8, overflow: 'hidden',
+  flex: 1,
+  display: 'flex',
+  gap: 8,
+  padding: 8,
+  overflow: 'hidden',
 };
 
 const leftPanelStyle: React.CSSProperties = {
-  width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 4,
-  background: '#161b22', borderRadius: 8, border: '1px solid #30363d', padding: 8, overflow: 'auto',
+  width: 220,
+  flexShrink: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  background: '#161b22',
+  borderRadius: 8,
+  border: '1px solid #30363d',
+  padding: 8,
+  overflow: 'auto',
 };
 
 const rightPanelStyle: React.CSSProperties = {
-  width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 4,
-  background: '#161b22', borderRadius: 8, border: '1px solid #30363d', padding: 8, overflow: 'auto',
+  width: 220,
+  flexShrink: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  background: '#161b22',
+  borderRadius: 8,
+  border: '1px solid #30363d',
+  padding: 8,
+  overflow: 'auto',
 };
 
 const centerStyle: React.CSSProperties = {
-  flex: 1, display: 'flex', flexDirection: 'column',
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
 };
 
 const teamTitleStyle = (color: string): React.CSSProperties => ({
-  fontSize: 11, fontWeight: 'bold', color, textTransform: 'uppercase',
-  letterSpacing: 1, marginBottom: 4, paddingBottom: 4, borderBottom: '1px solid #30363d',
+  fontSize: 11,
+  fontWeight: 'bold',
+  color,
+  textTransform: 'uppercase',
+  letterSpacing: 1,
+  marginBottom: 4,
+  paddingBottom: 4,
+  borderBottom: '1px solid #30363d',
 });
 
 const emptyStyle: React.CSSProperties = {
-  fontSize: 12, color: '#555', textAlign: 'center', padding: 20,
+  fontSize: 12,
+  color: '#555',
+  textAlign: 'center',
+  padding: 20,
 };
 
 const arenaPlaceholderStyle: React.CSSProperties = {
-  flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-  background: '#161b22', borderRadius: 8, border: '1px solid #30363d',
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: '#161b22',
+  borderRadius: 8,
+  border: '1px solid #30363d',
 };
 
 const nextTurnBtnStyle: React.CSSProperties = {
-  padding: '8px 20px', background: '#c89033', color: '#fff',
-  border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 'bold', cursor: 'pointer',
+  padding: '8px 20px',
+  background: '#c89033',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 6,
+  fontSize: 13,
+  fontWeight: 'bold',
+  cursor: 'pointer',
 };
 
 const nextBtnStyle: React.CSSProperties = {
-  padding: '10px 24px', background: '#22c55e', color: '#fff',
-  border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 'bold', cursor: 'pointer',
+  padding: '10px 24px',
+  background: '#22c55e',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 6,
+  fontSize: 14,
+  fontWeight: 'bold',
+  cursor: 'pointer',
 };
 
 const backBtnStyle2: React.CSSProperties = {
-  padding: '10px 24px', background: '#21262d', color: '#e6edf3',
-  border: '1px solid #30363d', borderRadius: 6, fontSize: 14, cursor: 'pointer',
+  padding: '10px 24px',
+  background: '#21262d',
+  color: '#e6edf3',
+  border: '1px solid #30363d',
+  borderRadius: 6,
+  fontSize: 14,
+  cursor: 'pointer',
 };
 
 const bottomStyle: React.CSSProperties = {
-  height: 220, display: 'flex', flexDirection: 'column',
-  padding: '0 8px 8px', flexShrink: 0,
+  height: 220,
+  display: 'flex',
+  flexDirection: 'column',
+  padding: '0 8px 8px',
+  flexShrink: 0,
 };

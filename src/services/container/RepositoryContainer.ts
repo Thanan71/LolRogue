@@ -1,11 +1,11 @@
 /**
  * Repository Container
- * 
+ *
  * Implements a dependency injection container for all repositories.
  * This follows the Dependency Inversion Principle (DIP):
  * - High-level modules depend on this abstraction
  * - Low-level modules (repositories) are registered here
- * 
+ *
  * Features:
  * - Centralized repository management
  * - Optional logging wrapper
@@ -13,21 +13,35 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { IRepositoryContainer, RepositoryContainerOptions } from '../interfaces/IRepositoryContainer';
-import type { IAuthRepository } from '../interfaces/IAuthRepository';
-import type { IPlayerRepository } from '../interfaces/IPlayerRepository';
-import type { IRunRepository, IRunStatsRepository } from '../interfaces/IRunRepository';
-import type { IMasteryRepository, IPlayerUnlockRepository } from '../interfaces/IMasteryRepository';
-import type { IDailyRunRepository, ILeaderboardRepository } from '../interfaces/IDailyRunRepository';
-import type { IEnhancementRepository } from '../interfaces/IEnhancementRepository';
-
-import { SupabaseAuthRepository } from '../repositories/SupabaseAuthRepository';
-import { SupabasePlayerRepository } from '../repositories/SupabasePlayerRepository';
-import { SupabaseRunRepository, SupabaseRunStatsRepository } from '../repositories/SupabaseRunRepository';
-import { SupabaseMasteryRepository, SupabasePlayerUnlockRepository } from '../repositories/SupabaseMasteryRepository';
-import { SupabaseDailyRunRepository, SupabaseLeaderboardRepository } from '../repositories/SupabaseDailyRunRepository';
-import { SupabaseEnhancementRepository } from '../repositories/SupabaseEnhancementRepository';
 import { createLoggedRepository } from '@/utils/RepositoryLogger';
+import type { IAuthRepository } from '../interfaces/IAuthRepository';
+import type {
+  IDailyRunRepository,
+  ILeaderboardRepository,
+} from '../interfaces/IDailyRunRepository';
+import type { IEnhancementRepository } from '../interfaces/IEnhancementRepository';
+import type { IMasteryRepository, IPlayerUnlockRepository } from '../interfaces/IMasteryRepository';
+import type { IPlayerRepository } from '../interfaces/IPlayerRepository';
+import type {
+  IRepositoryContainer,
+  RepositoryContainerOptions,
+} from '../interfaces/IRepositoryContainer';
+import type { IRunRepository, IRunStatsRepository } from '../interfaces/IRunRepository';
+import { SupabaseAuthRepository } from '../repositories/SupabaseAuthRepository';
+import {
+  SupabaseDailyRunRepository,
+  SupabaseLeaderboardRepository,
+} from '../repositories/SupabaseDailyRunRepository';
+import { SupabaseEnhancementRepository } from '../repositories/SupabaseEnhancementRepository';
+import {
+  SupabaseMasteryRepository,
+  SupabasePlayerUnlockRepository,
+} from '../repositories/SupabaseMasteryRepository';
+import { SupabasePlayerRepository } from '../repositories/SupabasePlayerRepository';
+import {
+  SupabaseRunRepository,
+  SupabaseRunStatsRepository,
+} from '../repositories/SupabaseRunRepository';
 
 /**
  * Default implementation of the repository container
@@ -46,7 +60,7 @@ export class RepositoryContainer implements IRepositoryContainer {
 
   constructor(
     private readonly supabase: SupabaseClient,
-    private readonly options: RepositoryContainerOptions = {}
+    private readonly options: RepositoryContainerOptions = {},
   ) {}
 
   /**
@@ -55,7 +69,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get auth(): IAuthRepository {
     if (!this._auth) {
       const repo = new SupabaseAuthRepository(this.supabase);
-      this._auth = this.options.enableLogging 
+      this._auth = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabaseAuthRepository')
         : repo;
     }
@@ -68,7 +82,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get player(): IPlayerRepository {
     if (!this._player) {
       const repo = new SupabasePlayerRepository(this.supabase);
-      this._player = this.options.enableLogging 
+      this._player = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabasePlayerRepository')
         : repo;
     }
@@ -81,7 +95,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get run(): IRunRepository {
     if (!this._run) {
       const repo = new SupabaseRunRepository(this.supabase);
-      this._run = this.options.enableLogging 
+      this._run = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabaseRunRepository')
         : repo;
     }
@@ -94,7 +108,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get runStats(): IRunStatsRepository {
     if (!this._runStats) {
       const repo = new SupabaseRunStatsRepository(this.supabase);
-      this._runStats = this.options.enableLogging 
+      this._runStats = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabaseRunStatsRepository')
         : repo;
     }
@@ -107,7 +121,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get mastery(): IMasteryRepository {
     if (!this._mastery) {
       const repo = new SupabaseMasteryRepository(this.supabase);
-      this._mastery = this.options.enableLogging 
+      this._mastery = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabaseMasteryRepository')
         : repo;
     }
@@ -120,7 +134,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get playerUnlock(): IPlayerUnlockRepository {
     if (!this._playerUnlock) {
       const repo = new SupabasePlayerUnlockRepository(this.supabase);
-      this._playerUnlock = this.options.enableLogging 
+      this._playerUnlock = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabasePlayerUnlockRepository')
         : repo;
     }
@@ -133,7 +147,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get dailyRun(): IDailyRunRepository {
     if (!this._dailyRun) {
       const repo = new SupabaseDailyRunRepository(this.supabase);
-      this._dailyRun = this.options.enableLogging 
+      this._dailyRun = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabaseDailyRunRepository')
         : repo;
     }
@@ -146,7 +160,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get leaderboard(): ILeaderboardRepository {
     if (!this._leaderboard) {
       const repo = new SupabaseLeaderboardRepository(this.supabase);
-      this._leaderboard = this.options.enableLogging 
+      this._leaderboard = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabaseLeaderboardRepository')
         : repo;
     }
@@ -160,7 +174,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   get enhancement(): IEnhancementRepository {
     if (!this._enhancement) {
       const repo = new SupabaseEnhancementRepository();
-      this._enhancement = this.options.enableLogging 
+      this._enhancement = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabaseEnhancementRepository')
         : repo;
     }
@@ -197,11 +211,13 @@ export class RepositoryContainerFactory {
    */
   static create(
     supabase: SupabaseClient,
-    options: RepositoryContainerOptions = {}
+    options: RepositoryContainerOptions = {},
   ): IRepositoryContainer {
     // Use default options if not provided
     const finalOptions: RepositoryContainerOptions = {
-      enableLogging: options.enableLogging ?? (import.meta.env.DEV || import.meta.env.VITE_ENABLE_DB_LOGGING === 'true'),
+      enableLogging:
+        options.enableLogging ??
+        (import.meta.env.DEV || import.meta.env.VITE_ENABLE_DB_LOGGING === 'true'),
       enableCaching: options.enableCaching ?? false,
       cacheTTL: options.cacheTTL ?? 60000, // 1 minute default
       ...options,
@@ -216,7 +232,7 @@ export class RepositoryContainerFactory {
    */
   static getInstance(
     supabase: SupabaseClient,
-    options: RepositoryContainerOptions = {}
+    options: RepositoryContainerOptions = {},
   ): IRepositoryContainer {
     if (!RepositoryContainerFactory.instance) {
       RepositoryContainerFactory.instance = this.create(supabase, options);
