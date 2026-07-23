@@ -149,6 +149,10 @@ export interface RunState {
   isActive: boolean;
   /** Unique ID for this run instance (used to prevent stale timeouts from affecting new runs) */
   runId: string;
+  /** Deterministic seed used to generate this run */
+  seed: number | null;
+  /** ISO timestamp persisted so a reloaded run can still be saved */
+  startedAt: string | null;
   /** The team of up to 5 champions */
   team: TeamMember[];
   /** Current run level (acts as difficulty/progression indicator) */
@@ -187,10 +191,10 @@ export interface RunState {
 
 export interface RunActions {
   /** Start a new run with champion IDs (validated ≤ MAX_TEAM_SIZE) */
-  startRun: (championIds: string[]) => void;
+  startRun: (championIds: string[]) => Promise<void>;
   /** End the current run and reset state, optionally marking it as won. 
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
-  endRun: (won?: boolean, expectedRunId?: string) => void;
+  endRun: (won?: boolean, expectedRunId?: string) => Promise<void>;
   /** Add a champion to the team (if not full). Returns true if added. */
   addChampion: (championId: string) => boolean;
   /** Remove a champion from the team by champion ID */

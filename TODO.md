@@ -51,8 +51,8 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [ ] Attendre la sauvegarde Supabase avant de perdre l'état utile, avec un retour visuel en cas d'échec.
 - [ ] Rendre la sauvegarde d'une run atomique via une RPC/transaction : run, équipe, statistiques joueur et maîtrise peuvent actuellement être partiellement enregistrées.
 - [ ] Rendre la sauvegarde idempotente avec la contrainte unique `run_uuid` et un upsert contrôlé.
-- [ ] Ne pas marquer tous les champions comme survivants dans `runStore.endRun`; utiliser leurs PV finaux.
-- [ ] Persister `runStartTime` dans le store : un rechargement de page le remet actuellement à `null` et empêche l'enregistrement.
+- [x] Ne pas marquer tous les champions comme survivants dans `runStore.endRun`; utiliser leurs PV finaux.
+- [x] Persister l'heure de départ dans le store afin qu'un rechargement n'empêche plus l'enregistrement.
 - [ ] Clarifier et tester l'abandon d'une run : résultat, récompenses, statistiques et sauvegarde (une défaite et un match nul sont désormais enregistrés avec `won = false`).
 
 ## P1 — fonctionnalités à ajouter
@@ -102,8 +102,8 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Carte et déterminisme
 
-- [ ] Supprimer la double génération de carte dans `startRun` : une carte est créée directement puis `generateRunMap()` est rappelée.
-- [ ] Stocker la seed dans `runStore` et dans la base dès le démarrage.
+- [x] Supprimer la double génération de carte dans `startRun`.
+- [x] Stocker la seed dans `runStore` et dans la sauvegarde en base.
 - [ ] Remplacer les identifiants et tirages fondés sur `Date.now()`/`Math.random()` par le RNG seedé lorsqu'ils influencent une run.
 - [ ] Remplacer `.sort(() => rand() - 0.5)` par un mélange Fisher–Yates déterministe.
 - [ ] Gérer explicitement la sortie du dernier biome et la victoire si la configuration des biomes change.

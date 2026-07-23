@@ -53,6 +53,8 @@ export interface SaveRunData {
   }>;
   /** When the run started */
   startedAt: string;
+  /** Deterministic seed used for this run */
+  seed: number | null;
 }
 
 /**
@@ -104,6 +106,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
       candies_earned: 0, // Will be calculated by mastery store
       started_at: data.startedAt,
       completed_at: completedAt,
+      seed: data.seed ?? undefined,
     };
 
     const { data: runResult, error: runError } = await container.run.createRun(runData);

@@ -20,12 +20,15 @@ import { championDB } from '@/data';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { saveRunToDatabase } from '@/services/runService';
 import { useAuthStore } from './authStore';
+import { getSurvivingChampionIds } from '@/game/run/runState';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
 
 const INITIAL_STATE: RunState = {
   isActive: false,
   runId: '',
+  seed: null,
+  startedAt: null,
   team: [],
   runLevel: 1,
   biomesVisited: [],
@@ -41,9 +44,6 @@ const INITIAL_STATE: RunState = {
   pendingEncounter: null,
   currentEncounter: null,
 };
-
-// Track when the current run started (for database recording)
-let runStartTime: string | null = null;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -67,9 +67,7 @@ export const useRunStore = create<RunStore>()(
         if (currentState.isActive) {
           console.log('[runStore.startRun] Active run detected, ending current run first');
           // End the current run (loss, since user is abandoning it to start new)
-          // Note: endRun is async, but we don't await it to avoid blocking the UI
-          // The run will be saved in the background
-          get().endRun(false, currentState.runId);
+          await get().endRun(false, currentState.runId);
         }
         
         // Validate champion IDs - filter out any invalid IDs
@@ -86,16 +84,15 @@ export const useRunStore = create<RunStore>()(
           .slice(0, MAX_TEAM_SIZE)
           .map((id) => ({ championId: id }));
 
-        // Generate a unique run ID to prevent stale timeouts from affecting new runs
+        // Generate and persist the run identity before generating deterministic content.
         const runId = `run_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        const seed = Date.now();
+        const startedAt = new Date().toISOString();
 
-        // Generate the map first to get the start node
-        const biomeMaps = generateBiomeMaps();
+        // Generate the map exactly once from the stored seed.
+        const biomeMaps = generateBiomeMaps(seed);
         const startNodeId = biomeMaps[0]?.startNodeId ?? null;
         const startBiome = biomeMaps[0]?.biome ?? null;
-        
-        // Record run start time for database
-        runStartTime = new Date().toISOString();
         
         // Reset stats tracker for new run
         runStatsTracker.reset();
@@ -103,6 +100,8 @@ export const useRunStore = create<RunStore>()(
         set({
           isActive: true,
           runId,
+          seed,
+          startedAt,
           team,
           runLevel: 1,
           biomesVisited: startBiome ? [startBiome] : [],
@@ -119,8 +118,6 @@ export const useRunStore = create<RunStore>()(
           currentEncounter: null,
         });
 
-        // Generate the run map so the map screen has nodes to display
-        get().generateRunMap();
       },
 
       endRun: async (won = false, expectedRunId?: string) => {
@@ -138,9 +135,10 @@ export const useRunStore = create<RunStore>()(
         }
         
         const championIds = state.team.map((m) => m.championId);
+        const survivingChampionIds = getSurvivingChampionIds(state.team);
 
         // Mark survived champions in stats tracker
-        runStatsTracker.markSurvived(championIds);
+        runStatsTracker.markSurvived(survivingChampionIds);
 
         // Build run summary from stats tracker
         const summary = runStatsTracker.buildSummary({
@@ -168,13 +166,13 @@ export const useRunStore = create<RunStore>()(
           isAuthenticated,
           hasUser: !!user,
           hasPlayer: !!player,
-          hasRunStartTime: !!runStartTime,
+          hasRunStartTime: !!state.startedAt,
           totalWavesCompleted: state.totalWavesCompleted,
           runId: state.runId,
           won,
         });
         
-        if (isAuthenticated && user && player && runStartTime) {
+        if (isAuthenticated && user && player && state.startedAt) {
           try {
             // Get current HP for each team member from the store or default to max
             const teamMembers = state.team.map(member => {
@@ -197,15 +195,13 @@ export const useRunStore = create<RunStore>()(
               goldEarned: state.gold,
               summary,
               teamMembers,
-              startedAt: runStartTime,
+              startedAt: state.startedAt,
+              seed: state.seed,
             });
           } catch (error) {
             console.error('[runStore.endRun] Failed to save run to database:', error);
           }
         }
-
-        // Reset run start time
-        runStartTime = null;
 
         set({ ...INITIAL_STATE });
       },
@@ -490,6 +486,9 @@ export const useRunStore = create<RunStore>()(
       // Only persist the serializable state, not functions
       partialize: (state) => ({
         isActive: state.isActive,
+        runId: state.runId,
+        seed: state.seed,
+        startedAt: state.startedAt,
         team: state.team,
         runLevel: state.runLevel,
         biomesVisited: state.biomesVisited,
