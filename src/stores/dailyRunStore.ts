@@ -85,7 +85,10 @@ interface DailyRunActions {
   /** End the daily run (voluntary quit — does NOT submit to leaderboard) */
   endDailyRun: () => void;
   /** Complete the daily run (defeat) and submit score to leaderboard */
-  completeDailyRun: (playerName: string) => DailyLeaderboardEntry;
+  completeDailyRun: (
+    playerName: string,
+    persistInLocalLeaderboard?: boolean,
+  ) => DailyLeaderboardEntry;
   /** Advance to the next biome */
   advanceDailyBiome: (nextBiome: Biome) => void;
   /** Add item to inventory */
@@ -169,7 +172,7 @@ export const useDailyRunStore = create<DailyRunStore>()(
         });
       },
 
-      completeDailyRun: (playerName) => {
+      completeDailyRun: (playerName, persistInLocalLeaderboard = true) => {
         const state = get();
         const score = calculateDailyScore(state);
         const entry: DailyLeaderboardEntry = {
@@ -180,14 +183,15 @@ export const useDailyRunStore = create<DailyRunStore>()(
           completedAt: Date.now(),
         };
 
-        // Add to leaderboard
-        const leaderboard = loadLeaderboard();
-        leaderboard.entries.push(entry);
-        leaderboard.entries.sort((a, b) => b.score - a.score);
-        if (leaderboard.entries.length > MAX_LEADERBOARD_ENTRIES) {
-          leaderboard.entries = leaderboard.entries.slice(0, MAX_LEADERBOARD_ENTRIES);
+        if (persistInLocalLeaderboard) {
+          const leaderboard = loadLeaderboard();
+          leaderboard.entries.push(entry);
+          leaderboard.entries.sort((a, b) => b.score - a.score);
+          if (leaderboard.entries.length > MAX_LEADERBOARD_ENTRIES) {
+            leaderboard.entries = leaderboard.entries.slice(0, MAX_LEADERBOARD_ENTRIES);
+          }
+          saveLeaderboard(leaderboard);
         }
-        saveLeaderboard(leaderboard);
 
         // Mark as completed and reset run state
         set({

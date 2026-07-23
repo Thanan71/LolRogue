@@ -36,12 +36,59 @@
   cursor: pointer;
 }
 
+.daily-run-page__challenge {
+  width: min(100%, 760px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(200, 170, 110, 0.28);
+  border-radius: 10px;
+  background: rgba(16, 28, 46, 0.9);
+}
+
+.daily-run-page__challenge h2,
+.daily-run-page__challenge p {
+  margin: 0;
+}
+
+.daily-run-page__challenge p {
+  margin-top: 0.35rem;
+  color: #8b949e;
+}
+
+.daily-run-page__start {
+  flex: 0 0 auto;
+  border: 1px solid #c8aa6e;
+  border-radius: 6px;
+  padding: 0.8rem 1.2rem;
+  background: linear-gradient(180deg, #c8aa6e, #a88a4e);
+  color: #07111f;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.daily-run-page__start:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.daily-run-page__error {
+  color: #ff8a8a !important;
+}
+
 @media (max-width: 520px) {
   .daily-run-page {
     padding: 1.5rem 0.75rem;
   }
 
   .daily-run-page__header {
+    flex-direction: column;
+  }
+
+  .daily-run-page__challenge {
+    align-items: stretch;
     flex-direction: column;
   }
 

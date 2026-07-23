@@ -1,12 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
 import { championDB } from '@/data/championDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
+import { supabase } from '@/services/supabaseClient';
+import { useAuthStore } from '@/stores/authStore';
+import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { useGameStore } from '@/stores/gameStore';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
 import type { Champion } from '@/types/champion';
-import { createDailyRNG } from '@/utils/dailySeed';
+import { createDailyRNG, getDailySeed } from '@/utils/dailySeed';
 import type { SeededRNG } from '@/utils/seededRandom';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import '@/styles/starter-select.css';
@@ -26,18 +31,58 @@ function pickRandom<T>(arr: T[], count: number, rng?: SeededRNG): T[] {
 }
 
 export function StarterSelectPage() {
+  const location = useLocation();
+  const isDaily =
+    new URLSearchParams(location.search).get('mode') === 'daily' ||
+    (location.state as { mode?: string } | null)?.mode === 'daily';
   const choices = useMemo(() => {
-    const rng = createDailyRNG();
-    return pickRandom(championDB.getAll(), 6, rng);
-  }, []);
+    return pickRandom(championDB.getAll(), 6, isDaily ? createDailyRNG() : undefined);
+  }, [isDaily]);
   const { selectedStarterId, setSelectedStarterId } = useGameStore();
   const startRun = useRunStore((s) => s.startRun);
+  const startDailyRun = useDailyRunStore((state) => state.startDailyRun);
+  const hasCompletedToday = useDailyRunStore((state) => state.hasCompletedToday);
+  const { isGuest, player } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
   const navigate = useAppNavigate();
 
-  function handleConfirm() {
+  async function handleConfirm() {
     playUIClick();
     if (!selectedStarterId) return;
-    startRun([selectedStarterId]);
+    setError(null);
+    setIsStarting(true);
+
+    if (isDaily) {
+      if (hasCompletedToday) {
+        setError("Today's Daily Run has already been completed.");
+        setIsStarting(false);
+        return;
+      }
+      if (!isGuest && player) {
+        const result = await new SupabaseDailyRunRepository(supabase).getTodayDailyRun(player.id);
+        if (result.error) {
+          setError('Unable to verify Daily Run availability.');
+          setIsStarting(false);
+          return;
+        }
+        if (result.data?.completed_at) {
+          useDailyRunStore.setState({ hasCompletedToday: true });
+          setError("Today's Daily Run has already been completed.");
+          setIsStarting(false);
+          return;
+        }
+      }
+      if (!startDailyRun([selectedStarterId])) {
+        setError("Today's Daily Run has already been completed.");
+        setIsStarting(false);
+        return;
+      }
+      await startRun([selectedStarterId], { mode: 'daily', seed: getDailySeed() });
+    } else {
+      await startRun([selectedStarterId]);
+    }
+
     navigate(ROUTES.RUN);
   }
 
@@ -52,9 +97,15 @@ export function StarterSelectPage() {
         <button className="starter-select__back" onClick={handleBack}>
           ← Back
         </button>
-        <h1 className="starter-select__title">Choisis ton Champion</h1>
+        <h1 className="starter-select__title">
+          {isDaily ? 'Choisis ton Champion du jour' : 'Choisis ton Champion'}
+        </h1>
       </div>
-      <p className="starter-select__subtitle">Sélectionne ton starter pour la run</p>
+      <p className="starter-select__subtitle">
+        {isDaily
+          ? 'Tous les joueurs affrontent la même seed quotidienne'
+          : 'Sélectionne ton starter pour la run'}
+      </p>
 
       <div className="starter-select__grid">
         {choices.map((champ) => (
@@ -68,12 +119,13 @@ export function StarterSelectPage() {
       </div>
 
       <div className="starter-select__actions">
+        {error && <p role="alert">{error}</p>}
         <button
           className="starter-select__confirm"
-          disabled={!selectedStarterId}
-          onClick={handleConfirm}
+          disabled={!selectedStarterId || isStarting}
+          onClick={() => void handleConfirm()}
         >
-          Confirmer le choix
+          {isStarting ? 'Vérification…' : 'Confirmer le choix'}
         </button>
       </div>
     </div>

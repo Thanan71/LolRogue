@@ -40,9 +40,7 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
   ): Promise<{ data: DailyRun | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('daily_runs')
-      .upsert(dailyRunData)
-      .eq('player_id', dailyRunData.player_id)
-      .eq('daily_date', dailyRunData.daily_date)
+      .upsert(dailyRunData, { onConflict: 'player_id,daily_date' })
       .select()
       .single();
 

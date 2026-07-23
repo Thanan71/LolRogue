@@ -208,4 +208,14 @@ describe('dailyRunStore (integration)', () => {
     expect(entry.score).toBeGreaterThan(0);
     expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
   });
+
+  it('does not mix authenticated scores into the guest leaderboard', async () => {
+    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
+    useDailyRunStore.setState({ hasCompletedToday: false });
+    useDailyRunStore.getState().startDailyRun(['garen']);
+    useDailyRunStore.getState().completeDailyRun('OnlinePlayer', false);
+
+    expect(useDailyRunStore.getState().getLeaderboard()).toEqual([]);
+    expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
+  });
 });

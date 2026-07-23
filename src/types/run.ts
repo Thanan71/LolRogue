@@ -147,6 +147,8 @@ export interface TeamMember {
 export interface RunState {
   /** Whether a run is currently active */
   isActive: boolean;
+  /** Normal progression or the shared daily challenge. */
+  mode: 'normal' | 'daily';
   /** Unique ID for this run instance (used to prevent stale timeouts from affecting new runs) */
   runId: string;
   /** Deterministic seed used to generate this run */
@@ -198,7 +200,10 @@ export interface RunState {
 
 export interface RunActions {
   /** Start a new run with champion IDs (validated ≤ MAX_TEAM_SIZE) */
-  startRun: (championIds: string[]) => Promise<void>;
+  startRun: (
+    championIds: string[],
+    options?: { mode?: RunState['mode']; seed?: number },
+  ) => Promise<void>;
   /** End the current run and reset state, optionally marking it as won.
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
   endRun: (won?: boolean, expectedRunId?: string) => Promise<boolean>;

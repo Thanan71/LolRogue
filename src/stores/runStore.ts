@@ -10,7 +10,9 @@ import {
 } from '@/game/map/mapUtils';
 import { getSurvivingChampionIds, shouldApplyRunRewards } from '@/game/run/runState';
 import { runStatsTracker } from '@/services/RunStatsTracker';
+import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { saveRunToDatabase } from '@/services/runService';
+import { supabase } from '@/services/supabaseClient';
 import {
   type InventoryEntry,
   MAX_ITEMS_PER_CHAMPION,
@@ -20,12 +22,14 @@ import {
   type TeamMember,
 } from '@/types/run';
 import { useAuthStore } from './authStore';
+import { calculateDailyScore, useDailyRunStore } from './dailyRunStore';
 import { useMasteryStore } from './masteryStore';
 
 // ─── Initial State ──────────────────────────────────────────────────────────
 
 const INITIAL_STATE: RunState = {
   isActive: false,
+  mode: 'normal',
   runId: '',
   seed: null,
   startedAt: null,
@@ -65,7 +69,7 @@ export const useRunStore = create<RunStore>()(
 
       // ── Run Lifecycle ───────────────────────────────────────────────────
 
-      startRun: async (championIds) => {
+      startRun: async (championIds, options = {}) => {
         // If there's an active run, end it first (this will save it if conditions are met)
         const currentState = get();
         if (currentState.isActive) {
@@ -92,7 +96,8 @@ export const useRunStore = create<RunStore>()(
 
         // Generate and persist the run identity before generating deterministic content.
         const runId = `run_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-        const seed = Date.now();
+        const mode = options.mode ?? 'normal';
+        const seed = options.seed ?? Date.now();
         const startedAt = new Date().toISOString();
 
         // Generate the map exactly once from the stored seed.
@@ -105,6 +110,7 @@ export const useRunStore = create<RunStore>()(
 
         set({
           isActive: true,
+          mode,
           runId,
           seed,
           startedAt,
@@ -242,6 +248,55 @@ export const useRunStore = create<RunStore>()(
             });
             return false;
           }
+        }
+
+        if (state.mode === 'daily') {
+          const dailyState = useDailyRunStore.getState();
+          const score = calculateDailyScore({
+            totalWavesCompleted: state.totalWavesCompleted,
+            runLevel: state.runLevel,
+            gold: state.gold,
+            inventory: state.inventory,
+          });
+
+          if (isAuthenticated && player) {
+            const repository = new SupabaseDailyRunRepository(supabase);
+            const result = await repository.upsertDailyRun({
+              player_id: player.id,
+              daily_date: dailyState.dateKey,
+              daily_seed: state.seed ?? dailyState.seed,
+              score,
+              won,
+              run_level_reached: state.runLevel,
+              waves_completed: state.totalWavesCompleted,
+              completed_at: new Date().toISOString(),
+            });
+            if (result.error) {
+              set({
+                isEnding: false,
+                saveStatus: 'error',
+                saveError: `Daily score save failed: ${result.error.message}`,
+              });
+              return false;
+            }
+          }
+
+          useDailyRunStore.setState({
+            runLevel: state.runLevel,
+            biomesVisited: state.biomesVisited,
+            currentBiome: state.currentBiome,
+            inventory: state.inventory,
+            gold: state.gold,
+            currentWave: state.currentWave,
+            totalWavesCompleted: state.totalWavesCompleted,
+            score,
+          });
+          useDailyRunStore
+            .getState()
+            .completeDailyRun(
+              player?.display_name || player?.username || 'Guest',
+              !isAuthenticated,
+            );
         }
 
         set({
@@ -530,6 +585,7 @@ export const useRunStore = create<RunStore>()(
       // Only persist the serializable state, not functions
       partialize: (state) => ({
         isActive: state.isActive,
+        mode: state.mode,
         runId: state.runId,
         seed: state.seed,
         startedAt: state.startedAt,

@@ -9,6 +9,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import {
   SupabaseMasteryRepository,
   SupabasePlayerUnlockRepository,
@@ -25,6 +26,7 @@ function createMockQueryChain() {
     from: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
+    not: vi.fn().mockReturnThis(),
     single: vi.fn(),
     maybeSingle: vi.fn(),
     update: vi.fn().mockReturnThis(),
@@ -45,6 +47,28 @@ function createMockSupabaseClient() {
 
   return { mockSupabase, queryChain };
 }
+
+describe('SupabaseDailyRunRepository', () => {
+  it('upserts a single attempt for each player and date', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    const repository = new SupabaseDailyRunRepository(mockSupabase);
+    const dailyRun = {
+      player_id: 'player-1',
+      daily_date: '2026-07-23',
+      daily_seed: 1234,
+      score: 4200,
+      completed_at: '2026-07-23T12:00:00.000Z',
+    };
+    queryChain.single.mockResolvedValue({ data: { id: 'daily-1', ...dailyRun }, error: null });
+
+    const result = await repository.upsertDailyRun(dailyRun);
+
+    expect(queryChain.upsert).toHaveBeenCalledWith(dailyRun, {
+      onConflict: 'player_id,daily_date',
+    });
+    expect(result.error).toBeNull();
+  });
+});
 
 describe('SupabaseRunRepository', () => {
   it('uses the atomic save RPC with an idempotent run payload', async () => {

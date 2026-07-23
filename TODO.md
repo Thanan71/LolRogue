@@ -60,7 +60,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 ### Daily run et classements
 
 - [x] Ajouter un bouton « Daily Run » au menu.
-- [ ] Connecter `dailyRunStore` et `SupabaseDailyRunRepository` au lancement et à la fin des runs.
+- [x] Connecter `dailyRunStore` et `SupabaseDailyRunRepository` au lancement et à la fin des runs.
 - [x] Afficher `DailyLeaderboard`; le composant existe mais n'est monté nulle part.
 - [ ] Remplacer le leaderboard localStorage par Supabase pour les joueurs connectés, avec fallback local explicite pour les invités.
 - [ ] Utiliser une seed unique persistée pour carte, encounters, ennemis, boutiques, événements et drops.
