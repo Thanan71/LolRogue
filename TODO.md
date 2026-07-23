@@ -49,8 +49,8 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 - [x] Appeler `endRun(true, runId)` après la victoire finale et continuer après les boss intermédiaires.
 - [ ] Attendre la sauvegarde Supabase avant de perdre l'état utile, avec un retour visuel en cas d'échec.
-- [ ] Rendre la sauvegarde d'une run atomique via une RPC/transaction : run, équipe, statistiques joueur et maîtrise peuvent actuellement être partiellement enregistrées.
-- [ ] Rendre la sauvegarde idempotente avec la contrainte unique `run_uuid` et un upsert contrôlé.
+- [x] Rendre la sauvegarde d'une run atomique via une RPC/transaction pour la run, l'équipe, les statistiques joueur et la maîtrise.
+- [x] Rendre la sauvegarde idempotente avec la contrainte unique `run_uuid` et un traitement contrôlé côté RPC.
 - [x] Ne pas marquer tous les champions comme survivants dans `runStore.endRun`; utiliser leurs PV finaux.
 - [x] Persister l'heure de départ dans le store afin qu'un rechargement n'empêche plus l'enregistrement.
 - [ ] Clarifier et tester l'abandon d'une run : résultat, récompenses, statistiques et sauvegarde (une défaite et un match nul sont désormais enregistrés avec `won = false`).

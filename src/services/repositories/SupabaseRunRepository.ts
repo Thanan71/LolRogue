@@ -16,6 +16,24 @@ export class SupabaseRunRepository implements IRunRepository {
     this.supabase = supabase;
   }
 
+  async saveCompletedRun(
+    runData: RunInsert,
+    teamMembers: RunTeamMemberInsert[],
+    mastery: Record<string, unknown>[],
+    totalCandies: number,
+  ): Promise<{ data: string | null; error: Error | null }> {
+    const { data, error } = await this.supabase.rpc('save_completed_run', {
+      p_run: runData,
+      p_team_members: teamMembers.map(({ run_id: _runId, ...member }) => member),
+      p_mastery: mastery,
+      p_total_candies: totalCandies,
+    });
+
+    return error
+      ? { data: null, error }
+      : { data: data as string, error: null };
+  }
+
   async createRun(runData: RunInsert): Promise<{ data: Run | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('runs')

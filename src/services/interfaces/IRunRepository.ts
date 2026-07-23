@@ -8,6 +8,13 @@
 import type { Run, RunInsert, RunUpdate, RunTeamMember, RunTeamMemberInsert } from '@/types/database';
 
 export interface IRunRepository {
+  saveCompletedRun(
+    runData: RunInsert,
+    teamMembers: RunTeamMemberInsert[],
+    mastery: Record<string, unknown>[],
+    totalCandies: number,
+  ): Promise<{ data: string | null; error: Error | null }>;
+
   /**
    * Create a new run record
    */

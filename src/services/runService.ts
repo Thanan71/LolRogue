@@ -13,7 +13,7 @@
 
 import { supabase } from './supabaseClient';
 import { RepositoryContainerFactory } from './container';
-import type { RunInsert, RunTeamMemberInsert, ChampionMasteryUpdate } from '@/types/database';
+import type { RunInsert, RunTeamMemberInsert } from '@/types/database';
 import type { RunSummary, Biome } from '@/types/run';
 import { useAuthStore } from '@/stores/authStore';
 import type { IRepositoryContainer } from './interfaces';
@@ -89,10 +89,6 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
   const completedAt = new Date().toISOString();
   
   try {
-    // Track non-critical errors to report them without failing the entire save
-    const nonCriticalErrors: string[] = [];
-
-    // 1. Create the run record using repository
     const runData: RunInsert = {
       player_id: player.id,
       run_uuid: data.runId,
@@ -109,21 +105,11 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
       seed: data.seed ?? undefined,
     };
 
-    const { data: runResult, error: runError } = await container.run.createRun(runData);
-    
-    if (runError || !runResult) {
-      console.error('[RunService] Failed to create run:', runError);
-      return { success: false, error: runError?.message || 'Failed to create run record' };
-    }
-
-    const runId = runResult.id;
-
-    // 2. Create run team member records using repository
     const teamMembers: RunTeamMemberInsert[] = data.teamMembers.map(member => {
       const championStats = data.summary.championStats.find(s => s.championId === member.championId);
       
       return {
-        run_id: runId,
+        run_id: data.runId,
         champion_id: member.championId,
         final_level: member.level,
         final_hp: member.currentHp,
@@ -134,116 +120,56 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
       };
     });
 
-    const { error: teamError } = await container.run.addRunTeamMembers(teamMembers);
-    
-    if (teamError) {
-      console.error('[RunService] Failed to create team member records:', teamError);
-      nonCriticalErrors.push('Failed to save team member records');
-      // Don't fail the entire save if team members fail - the run is still recorded
-    }
-
-    // 3. Update player statistics using repository
-    const playerUpdates = {
-      total_runs_completed: player.total_runs_completed + 1,
-      total_wins: player.total_wins + (data.won ? 1 : 0),
-      total_waves_completed: player.total_waves_completed + data.wavesCompleted,
-    };
-
-    const { error: playerError } = await container.player.updatePlayer(user.id, playerUpdates);
-    
-    if (playerError) {
-      console.error('[RunService] Failed to update player stats:', playerError);
-      nonCriticalErrors.push('Failed to update player statistics');
-      // Don't fail the entire save if player update fails
-    }
-
-    // 4. Save champion mastery and candies using repository
     const { useMasteryStore } = await import('@/stores/masteryStore');
     const masteryStore = useMasteryStore.getState();
-    
-    // Save mastery for each champion that participated in the run
-    for (const championStat of data.summary.championStats) {
-      const mastery = masteryStore.getChampionMastery(championStat.championId);
-      
-      const masteryUpdate: ChampionMasteryUpdate = {
-        total_candies: mastery.totalCandies,
-        mastery_level: mastery.level,
-        current_level_candies: mastery.currentLevelCandies,
-        unlocked_ids: mastery.unlockedIds,
-        games_played: 1, // This run counts as 1 game
-        games_won: data.won ? 1 : 0,
-        total_kills: championStat.kills,
-        total_damage_dealt: championStat.totalDamage,
-      };
-      
-      const { error: masteryError } = await container.mastery.upsertChampionMastery(
-        player.id,
-        championStat.championId,
-        masteryUpdate
+
+    const mastery = data.teamMembers.map((member) => {
+      const current = masteryStore.getChampionMastery(member.championId);
+      const stats = data.summary.championStats.find(
+        (entry) => entry.championId === member.championId,
       );
-
-      if (masteryError) {
-        console.error('[RunService] Failed to save mastery for champion:', championStat.championId, masteryError);
-        nonCriticalErrors.push(`Failed to save mastery for champion ${championStat.championId}`);
-      }
-    }
-    
-    // Also save mastery for all team members (even if they didn't get stats)
-    for (const member of data.teamMembers) {
-      const mastery = masteryStore.getChampionMastery(member.championId);
-      
-      // Skip if already saved above
-      const alreadySaved = data.summary.championStats.some(s => s.championId === member.championId);
-      if (!alreadySaved) {
-        const masteryUpdate: ChampionMasteryUpdate = {
-          total_candies: mastery.totalCandies,
-          mastery_level: mastery.level,
-          current_level_candies: mastery.currentLevelCandies,
-          unlocked_ids: mastery.unlockedIds,
-          games_played: 1,
-          games_won: data.won ? 1 : 0,
-          total_kills: 0,
-          total_damage_dealt: 0,
-        };
-        
-        const { error: masteryError } = await container.mastery.upsertChampionMastery(
-          player.id,
-          member.championId,
-          masteryUpdate
-        );
-
-        if (masteryError) {
-          console.error('[RunService] Failed to save mastery for champion:', member.championId, masteryError);
-          nonCriticalErrors.push(`Failed to save mastery for champion ${member.championId}`);
-        }
-      }
-    }
-
-    // Update player's total candies using repository
-    const { error: candiesError } = await container.player.updatePlayer(user.id, {
-      total_candies: masteryStore.totalCandiesEarned,
+      return {
+        champion_id: member.championId,
+        total_candies: current.totalCandies,
+        mastery_level: current.level,
+        current_level_candies: current.currentLevelCandies,
+        unlocked_ids: current.unlockedIds,
+        kills: stats?.kills ?? 0,
+        total_damage: stats?.totalDamage ?? 0,
+      };
     });
 
-    if (candiesError) {
-      console.error('[RunService] Failed to update player candies:', candiesError);
-      nonCriticalErrors.push('Failed to update player candies');
+    const { data: databaseRunId, error: saveError } =
+      await container.run.saveCompletedRun(
+        runData,
+        teamMembers,
+        mastery,
+        masteryStore.totalCandiesEarned,
+      );
+
+    if (saveError || !databaseRunId) {
+      console.error('[RunService] Atomic run save failed:', saveError);
+      return {
+        success: false,
+        error: saveError?.message || 'Failed to save completed run',
+      };
     }
+
+    // Mastery and player counters are updated inside the same database
+    // transaction. Replaying an existing run_uuid performs no increments.
 
     // Refresh player data to get updated stats
     await refreshPlayer();
 
     console.log('[RunService] Run saved successfully:', {
       runId: data.runId,
-      databaseRunId: runId,
+      databaseRunId,
       won: data.won,
       wavesCompleted: data.wavesCompleted,
       totalCandies: masteryStore.totalCandiesEarned,
     });
 
-    return { 
-      success: true,
-      nonCriticalErrors: nonCriticalErrors.length > 0 ? nonCriticalErrors : undefined,
-    };
+    return { success: true };
   } catch (error: any) {
     console.error('[RunService] Unexpected error saving run:', error);
     return { success: false, error: error.message || 'Unexpected error saving run' };

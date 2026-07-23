@@ -10,6 +10,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SupabasePlayerRepository } from '@/services/repositories/SupabasePlayerRepository';
 import { SupabaseMasteryRepository, SupabasePlayerUnlockRepository } from '@/services/repositories/SupabaseMasteryRepository';
+import { SupabaseRunRepository } from '@/services/repositories/SupabaseRunRepository';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ─── Mock Helpers ────────────────────────────────────────────────────────────
@@ -36,10 +37,61 @@ function createMockSupabaseClient() {
   
   const mockSupabase = {
     from: vi.fn(() => queryChain),
+    rpc: vi.fn(),
   } as unknown as SupabaseClient;
 
   return { mockSupabase, queryChain };
 }
+
+describe('SupabaseRunRepository', () => {
+  it('uses the atomic save RPC with an idempotent run payload', async () => {
+    const { mockSupabase } = createMockSupabaseClient();
+    const rpc = vi.mocked(mockSupabase.rpc);
+    rpc.mockResolvedValue({ data: 'database-run-id', error: null } as never);
+    const repository = new SupabaseRunRepository(mockSupabase);
+    const run = {
+      player_id: 'player-1',
+      run_uuid: 'client-run-id',
+    };
+    const team = [{
+      run_id: 'placeholder',
+      champion_id: 'Garen',
+    }];
+
+    const result = await repository.saveCompletedRun(
+      run,
+      team,
+      [{ champion_id: 'Garen' }],
+      25,
+    );
+
+    expect(result).toEqual({ data: 'database-run-id', error: null });
+    expect(rpc).toHaveBeenCalledWith('save_completed_run', {
+      p_run: run,
+      p_team_members: [{ champion_id: 'Garen' }],
+      p_mastery: [{ champion_id: 'Garen' }],
+      p_total_candies: 25,
+    });
+  });
+
+  it('returns an RPC failure without attempting table writes', async () => {
+    const { mockSupabase } = createMockSupabaseClient();
+    const rpc = vi.mocked(mockSupabase.rpc);
+    const error = new Error('transaction failed');
+    rpc.mockResolvedValue({ data: null, error } as never);
+    const repository = new SupabaseRunRepository(mockSupabase);
+
+    const result = await repository.saveCompletedRun(
+      { player_id: 'player-1', run_uuid: 'client-run-id' },
+      [],
+      [],
+      0,
+    );
+
+    expect(result).toEqual({ data: null, error });
+    expect(mockSupabase.from).not.toHaveBeenCalled();
+  });
+});
 
 // ─── SupabasePlayerRepository Tests ──────────────────────────────────────────
 

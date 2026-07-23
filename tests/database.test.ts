@@ -19,6 +19,13 @@ const adminUpgradeSql = readFileSync(
   ),
   'utf8',
 );
+const atomicRunUpgradeSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260723020000_atomic_run_save.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -37,6 +44,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/00000000000000_init.sql',
       '../supabase/migrations/20260723000000_fix_signup_trigger.sql',
       '../supabase/migrations/20260723010000_harden_admin_access.sql',
+      '../supabase/migrations/20260723020000_atomic_run_save.sql',
     ]);
   });
 
@@ -129,6 +137,22 @@ describe('Supabase existing database upgrade', () => {
     expect(adminUpgradeSql).toContain('WITH (security_invoker = true)');
     expect(adminUpgradeSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
     expect(adminUpgradeSql).not.toMatch(/\bDELETE\s+FROM\b/i);
+  });
+
+  it('saves completed runs atomically and idempotently', () => {
+    expect(atomicRunUpgradeSql).toContain(
+      'CREATE OR REPLACE FUNCTION public.save_completed_run',
+    );
+    expect(atomicRunUpgradeSql).toContain(
+      'ON CONFLICT (run_uuid) DO NOTHING',
+    );
+    expect(atomicRunUpgradeSql).toContain(
+      'GRANT EXECUTE ON FUNCTION public.save_completed_run',
+    );
+    expect(atomicRunUpgradeSql).toContain(
+      'games_played = public.champion_mastery.games_played + 1',
+    );
+    expect(atomicRunUpgradeSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
   });
 });
 
