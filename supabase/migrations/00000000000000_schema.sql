@@ -368,23 +368,6 @@ CREATE POLICY "Daily runs read"
   ON public.daily_runs FOR SELECT TO authenticated
   USING (true);
 
-CREATE POLICY "Daily runs write own"
-  ON public.daily_runs FOR ALL TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.players
-      WHERE players.id = daily_runs.player_id
-        AND players.user_id = (SELECT auth.uid())
-    )
-  )
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.players
-      WHERE players.id = daily_runs.player_id
-        AND players.user_id = (SELECT auth.uid())
-    )
-  );
-
 CREATE POLICY "Enhancements manage own"
   ON public.champion_enhancements FOR ALL TO authenticated
   USING (user_id = (SELECT auth.uid()))
@@ -494,7 +477,7 @@ GRANT SELECT, INSERT, UPDATE ON public.champion_mastery TO authenticated;
 GRANT SELECT, INSERT ON public.player_unlocks TO authenticated;
 GRANT SELECT, INSERT ON public.runs TO authenticated;
 GRANT SELECT, INSERT ON public.run_team_members TO authenticated;
-GRANT SELECT, INSERT, UPDATE ON public.daily_runs TO authenticated;
+GRANT SELECT ON public.daily_runs TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.champion_enhancements TO authenticated;
 GRANT SELECT, INSERT, DELETE ON public.logs TO authenticated;
 GRANT SELECT ON public.leaderboard TO anon, authenticated;

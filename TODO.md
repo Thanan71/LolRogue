@@ -64,8 +64,8 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Afficher `DailyLeaderboard`; le composant existe mais n'est monté nulle part.
 - [ ] Remplacer le leaderboard localStorage par Supabase pour les joueurs connectés, avec fallback local explicite pour les invités.
 - [ ] Utiliser une seed unique persistée pour carte, encounters, ennemis, boutiques, événements et drops.
-- [ ] Empêcher plusieurs scores quotidiens par joueur ou définir une règle « meilleur score » atomique.
-- [ ] Ajouter protection anti-triche minimale et validation serveur du score si le classement devient public.
+- [x] Empêcher plusieurs scores quotidiens par joueur ou définir une règle « meilleur score » atomique.
+- [x] Ajouter protection anti-triche minimale et validation serveur du score si le classement devient public.
 
 ### Inventaire, objets, runes et augments
 

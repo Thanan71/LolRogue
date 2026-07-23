@@ -8,7 +8,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
-import type { DailyRun, DailyRunInsert } from '@/types/models';
+import type { DailyRun } from '@/types/models';
 import type {
   IDailyRunRepository,
   ILeaderboardRepository,
@@ -35,14 +35,24 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
     return { data: data as DailyRun, error: null };
   }
 
-  async upsertDailyRun(
-    dailyRunData: Omit<DailyRunInsert, 'id' | 'created_at'>,
-  ): Promise<{ data: DailyRun | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('daily_runs')
-      .upsert(dailyRunData, { onConflict: 'player_id,daily_date' })
-      .select()
-      .single();
+  async submitDailyRun(input: {
+    dailyDate: string;
+    dailySeed: number;
+    won: boolean;
+    runLevel: number;
+    wavesCompleted: number;
+    gold: number;
+    itemCount: number;
+  }): Promise<{ data: DailyRun | null; error: Error | null }> {
+    const { data, error } = await this.supabase.rpc('submit_daily_run', {
+      p_daily_date: input.dailyDate,
+      p_daily_seed: input.dailySeed,
+      p_won: input.won,
+      p_run_level: input.runLevel,
+      p_waves_completed: input.wavesCompleted,
+      p_gold: input.gold,
+      p_item_count: input.itemCount,
+    });
 
     if (error) {
       return { data: null, error };

@@ -49,22 +49,33 @@ function createMockSupabaseClient() {
 }
 
 describe('SupabaseDailyRunRepository', () => {
-  it('upserts a single attempt for each player and date', async () => {
-    const { mockSupabase, queryChain } = createMockSupabaseClient();
+  it('submits metrics to the atomic server-side score RPC', async () => {
+    const { mockSupabase } = createMockSupabaseClient();
     const repository = new SupabaseDailyRunRepository(mockSupabase);
-    const dailyRun = {
-      player_id: 'player-1',
-      daily_date: '2026-07-23',
-      daily_seed: 1234,
-      score: 4200,
-      completed_at: '2026-07-23T12:00:00.000Z',
+    const submission = {
+      dailyDate: '2026-07-23',
+      dailySeed: 1234,
+      won: true,
+      runLevel: 4,
+      wavesCompleted: 10,
+      gold: 200,
+      itemCount: 2,
     };
-    queryChain.single.mockResolvedValue({ data: { id: 'daily-1', ...dailyRun }, error: null });
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({
+      data: { id: 'daily-1', score: 3300 },
+      error: null,
+    } as never);
 
-    const result = await repository.upsertDailyRun(dailyRun);
+    const result = await repository.submitDailyRun(submission);
 
-    expect(queryChain.upsert).toHaveBeenCalledWith(dailyRun, {
-      onConflict: 'player_id,daily_date',
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('submit_daily_run', {
+      p_daily_date: '2026-07-23',
+      p_daily_seed: 1234,
+      p_won: true,
+      p_run_level: 4,
+      p_waves_completed: 10,
+      p_gold: 200,
+      p_item_count: 2,
     });
     expect(result.error).toBeNull();
   });

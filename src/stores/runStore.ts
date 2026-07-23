@@ -261,15 +261,14 @@ export const useRunStore = create<RunStore>()(
 
           if (isAuthenticated && player) {
             const repository = new SupabaseDailyRunRepository(supabase);
-            const result = await repository.upsertDailyRun({
-              player_id: player.id,
-              daily_date: dailyState.dateKey,
-              daily_seed: state.seed ?? dailyState.seed,
-              score,
+            const result = await repository.submitDailyRun({
+              dailyDate: dailyState.dateKey,
+              dailySeed: state.seed ?? dailyState.seed,
               won,
-              run_level_reached: state.runLevel,
-              waves_completed: state.totalWavesCompleted,
-              completed_at: new Date().toISOString(),
+              runLevel: state.runLevel,
+              wavesCompleted: state.totalWavesCompleted,
+              gold: state.gold,
+              itemCount: state.inventory.length,
             });
             if (result.error) {
               set({

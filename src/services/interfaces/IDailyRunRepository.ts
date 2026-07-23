@@ -5,7 +5,7 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { DailyRun, DailyRunInsert } from '@/types/models';
+import type { DailyRun } from '@/types/models';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
 
 export interface IDailyRunRepository {
@@ -14,12 +14,16 @@ export interface IDailyRunRepository {
    */
   getTodayDailyRun(playerId: string): Promise<{ data: DailyRun | null; error: Error | null }>;
 
-  /**
-   * Create or update a daily run
-   */
-  upsertDailyRun(
-    dailyRunData: Omit<DailyRunInsert, 'id' | 'created_at'>,
-  ): Promise<{ data: DailyRun | null; error: Error | null }>;
+  /** Submit one immutable daily score, calculated atomically by PostgreSQL. */
+  submitDailyRun(input: {
+    dailyDate: string;
+    dailySeed: number;
+    won: boolean;
+    runLevel: number;
+    wavesCompleted: number;
+    gold: number;
+    itemCount: number;
+  }): Promise<{ data: DailyRun | null; error: Error | null }>;
 
   /**
    * Get daily run leaderboard for a specific date

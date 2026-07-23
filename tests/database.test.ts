@@ -25,6 +25,10 @@ const dailyLeaderboardUpgradeSql = readFileSync(
   new URL('../supabase/migrations/20260723040000_daily_leaderboard_read.sql', import.meta.url),
   'utf8',
 );
+const atomicDailyUpgradeSql = readFileSync(
+  new URL('../supabase/migrations/20260723050000_atomic_daily_submission.sql', import.meta.url),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -47,6 +51,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260723020000_atomic_run_save.sql',
       '../supabase/migrations/20260723030000_grant_service_role.sql',
       '../supabase/migrations/20260723040000_daily_leaderboard_read.sql',
+      '../supabase/migrations/20260723050000_atomic_daily_submission.sql',
     ]);
   });
 
@@ -158,6 +163,17 @@ describe('Supabase existing database upgrade', () => {
     );
     expect(serviceRoleUpgradeSql).not.toContain('anon');
     expect(serviceRoleUpgradeSql).not.toContain('authenticated');
+  });
+
+  it('calculates one immutable daily score on the server', () => {
+    expect(atomicDailyUpgradeSql).toContain('CREATE OR REPLACE FUNCTION public.submit_daily_run');
+    expect(atomicDailyUpgradeSql).toContain('ON CONFLICT (player_id, daily_date) DO NOTHING');
+    expect(atomicDailyUpgradeSql).toContain('daily_run_already_submitted');
+    expect(atomicDailyUpgradeSql).toContain(
+      'REVOKE INSERT, UPDATE, DELETE ON public.daily_runs FROM authenticated',
+    );
+    expect(atomicDailyUpgradeSql).toContain('(p_waves_completed * 100)');
+    expect(atomicDailyUpgradeSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
   });
 });
 
@@ -350,6 +366,32 @@ describeLive('Supabase live integration', () => {
     expect(restoreError).toBeNull();
     const { data: restored } = await restoredClient.auth.getSession();
     expect(restored.session?.user.id).toBe(signup.user!.id);
+
+    const today = new Date().toISOString().slice(0, 10);
+    const dailyArgs = {
+      p_daily_date: today,
+      p_daily_seed: 20260723,
+      p_won: true,
+      p_run_level: 4,
+      p_waves_completed: 10,
+      p_gold: 200,
+      p_item_count: 2,
+    };
+    const { data: dailyScore, error: dailyScoreError } = await restoredClient.rpc(
+      'submit_daily_run',
+      dailyArgs,
+    );
+    expect(dailyScoreError).toBeNull();
+    expect(dailyScore?.score).toBe(3300);
+
+    const { error: duplicateDailyError } = await restoredClient.rpc('submit_daily_run', dailyArgs);
+    expect(duplicateDailyError?.message).toContain('daily_run_already_submitted');
+
+    const { error: directDailyWriteError } = await restoredClient
+      .from('daily_runs')
+      .update({ score: 999999 })
+      .eq('id', dailyScore!.id);
+    expect(directDailyWriteError).not.toBeNull();
 
     const { error: promoteError } = await supabase
       .from('players')
