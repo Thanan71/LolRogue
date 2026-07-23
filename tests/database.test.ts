@@ -21,6 +21,10 @@ const serviceRoleUpgradeSql = readFileSync(
   new URL('../supabase/migrations/20260723030000_grant_service_role.sql', import.meta.url),
   'utf8',
 );
+const dailyLeaderboardUpgradeSql = readFileSync(
+  new URL('../supabase/migrations/20260723040000_daily_leaderboard_read.sql', import.meta.url),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -42,6 +46,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260723010000_harden_admin_access.sql',
       '../supabase/migrations/20260723020000_atomic_run_save.sql',
       '../supabase/migrations/20260723030000_grant_service_role.sql',
+      '../supabase/migrations/20260723040000_daily_leaderboard_read.sql',
     ]);
   });
 
@@ -99,6 +104,18 @@ describe('Supabase init migration', () => {
       migrationSql.indexOf('REVOKE ALL ON public.players'),
     );
     expect(adminViews.match(/WHERE public\.is_current_user_admin\(\)/g)).toHaveLength(2);
+  });
+
+  it('shares daily scores without opening writes to other players', () => {
+    expect(migrationSql).toContain(
+      'ON public.daily_runs FOR SELECT TO authenticated\n  USING (true)',
+    );
+    expect(dailyLeaderboardUpgradeSql).toContain(
+      'DROP POLICY IF EXISTS "Daily runs read" ON public.daily_runs',
+    );
+    expect(dailyLeaderboardUpgradeSql).toContain('USING (true)');
+    expect(dailyLeaderboardUpgradeSql).not.toContain('FOR INSERT');
+    expect(dailyLeaderboardUpgradeSql).not.toContain('FOR UPDATE');
   });
 });
 

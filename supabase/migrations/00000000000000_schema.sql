@@ -366,16 +366,7 @@ CREATE POLICY "Run team insert own"
 
 CREATE POLICY "Daily runs read"
   ON public.daily_runs FOR SELECT TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.players
-      WHERE players.id = daily_runs.player_id
-        AND (
-          players.user_id = (SELECT auth.uid())
-          OR public.is_current_user_admin()
-        )
-    )
-  );
+  USING (true);
 
 CREATE POLICY "Daily runs write own"
   ON public.daily_runs FOR ALL TO authenticated

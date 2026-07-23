@@ -181,6 +181,17 @@ export function MenuPage() {
         </button>
 
         <button
+          className="main-menu__btn main-menu__btn--daily"
+          onClick={() => {
+            playUIClick();
+            navigate(ROUTES.DAILY_RUN);
+          }}
+        >
+          <span className="main-menu__btn-icon">☀</span>
+          Daily Run
+        </button>
+
+        <button
           className="main-menu__btn main-menu__btn--database"
           onClick={() => {
             playUIClick();

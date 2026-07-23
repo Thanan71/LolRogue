@@ -6,6 +6,7 @@ export const ROUTES = {
   MENU: '/',
   AUTH: '/auth',
   STARTER_SELECT: '/starter-select',
+  DAILY_RUN: '/daily-run',
   RUN: '/run',
   COMBAT: '/combat',
   SHOP: '/shop',

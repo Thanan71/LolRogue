@@ -1,0 +1,53 @@
+.daily-run-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 3rem 1.5rem;
+  background: radial-gradient(circle at top, rgba(200, 170, 110, 0.12), transparent 42%), #07111f;
+  color: #e6edf3;
+}
+
+.daily-run-page__header {
+  width: min(100%, 760px);
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.daily-run-page__header h1 {
+  margin: 0;
+  color: #c8aa6e;
+  font-size: 2rem;
+}
+
+.daily-run-page__header p {
+  margin: 0.4rem 0 0;
+  color: #8b949e;
+}
+
+.daily-run-page__back {
+  border: 1px solid rgba(200, 170, 110, 0.35);
+  border-radius: 6px;
+  padding: 0.65rem 1rem;
+  background: #101c2e;
+  color: #c8aa6e;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .daily-run-page {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .daily-run-page__header {
+    flex-direction: column;
+  }
+
+  .daily-run-page > div {
+    min-width: 0 !important;
+    width: 100%;
+    overflow-x: auto;
+  }
+}

@@ -10,6 +10,7 @@ import { AuthPage } from './pages/AuthPage';
 import { CombatPage } from './pages/CombatPage';
 import { CreditsPage } from './pages/CreditsPage';
 import { DatabasePage } from './pages/DatabasePage';
+import { DailyRunPage } from './pages/DailyRunPage';
 import { EventPage } from './pages/EventPage';
 import { GameOverPage } from './pages/GameOverPage';
 import { MenuPage } from './pages/MenuPage';
@@ -116,6 +117,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <GameOverPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/daily-run"
+          element={
+            <ProtectedRoute>
+              <DailyRunPage />
             </ProtectedRoute>
           }
         />

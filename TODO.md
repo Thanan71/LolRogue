@@ -59,9 +59,9 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Daily run et classements
 
-- [ ] Ajouter un bouton « Daily Run » au menu.
+- [x] Ajouter un bouton « Daily Run » au menu.
 - [ ] Connecter `dailyRunStore` et `SupabaseDailyRunRepository` au lancement et à la fin des runs.
-- [ ] Afficher `DailyLeaderboard`; le composant existe mais n'est monté nulle part.
+- [x] Afficher `DailyLeaderboard`; le composant existe mais n'est monté nulle part.
 - [ ] Remplacer le leaderboard localStorage par Supabase pour les joueurs connectés, avec fallback local explicite pour les invités.
 - [ ] Utiliser une seed unique persistée pour carte, encounters, ennemis, boutiques, événements et drops.
 - [ ] Empêcher plusieurs scores quotidiens par joueur ou définir une règle « meilleur score » atomique.
@@ -92,7 +92,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [ ] Ajouter plus de champions jouables et des tests de validation de leurs données.
 - [ ] Étendre les rencontres, événements, trésors, objets, runes et augments par biome.
 - [ ] Ajouter un tutoriel et une légende interactive de la carte.
-- [ ] Ajouter une confirmation avant abandon, logout ou démarrage d'une nouvelle run active.
+- [x] Ajouter une confirmation avant abandon, logout ou démarrage d'une nouvelle run active.
 - [ ] Ajouter une page 404 et des garde-routes spécifiques aux encounters.
 - [ ] Ajouter notifications/toasts pour les erreurs Supabase, sauvegardes et déblocages.
 - [ ] Ajouter un historique des runs et un profil joueur accessible hors du panneau admin.

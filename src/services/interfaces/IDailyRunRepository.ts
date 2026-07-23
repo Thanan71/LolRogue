@@ -6,6 +6,7 @@
  */
 
 import type { DailyRun, DailyRunInsert } from '@/types/models';
+import type { DailyLeaderboardEntry } from '@/types/dailyRun';
 
 export interface IDailyRunRepository {
   /**
@@ -26,7 +27,7 @@ export interface IDailyRunRepository {
   getDailyLeaderboard(
     date: string,
     limit?: number,
-  ): Promise<{ data: any[] | null; error: Error | null }>;
+  ): Promise<{ data: DailyLeaderboardEntry[] | null; error: Error | null }>;
 }
 
 export interface ILeaderboardRepository {

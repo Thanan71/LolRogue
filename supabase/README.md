@@ -18,6 +18,7 @@ supabase/migrations/20260723000000_fix_signup_trigger.sql
 supabase/migrations/20260723010000_harden_admin_access.sql
 supabase/migrations/20260723020000_atomic_run_save.sql
 supabase/migrations/20260723030000_grant_service_role.sql
+supabase/migrations/20260723040000_daily_leaderboard_read.sql
 ```
 
 ## Fresh local database

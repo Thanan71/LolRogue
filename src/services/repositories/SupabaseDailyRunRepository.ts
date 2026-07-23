@@ -6,6 +6,8 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
+import type { DailyLeaderboardEntry } from '@/types/dailyRun';
 import type { DailyRun, DailyRunInsert } from '@/types/models';
 import type {
   IDailyRunRepository,
@@ -13,11 +15,7 @@ import type {
 } from '../interfaces/IDailyRunRepository';
 
 export class SupabaseDailyRunRepository implements IDailyRunRepository {
-  private supabase: SupabaseClient;
-
-  constructor(supabase: SupabaseClient) {
-    this.supabase = supabase;
-  }
+  constructor(private readonly supabase: SupabaseClient<Database>) {}
 
   async getTodayDailyRun(
     playerId: string,
@@ -28,7 +26,7 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
       .select('*')
       .eq('player_id', playerId)
       .eq('daily_date', today)
-      .single();
+      .maybeSingle();
 
     if (error) {
       return { data: null, error };
@@ -58,26 +56,32 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
   async getDailyLeaderboard(
     date: string,
     limit = 10,
-  ): Promise<{ data: any[] | null; error: Error | null }> {
+  ): Promise<{ data: DailyLeaderboardEntry[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('daily_runs')
-      .select(`
-        *,
-        players (
-          username,
-          display_name,
-          avatar_url
-        )
-      `)
+      .select(
+        'score, waves_completed, run_level_reached, completed_at, players(username, display_name)',
+      )
       .eq('daily_date', date)
+      .not('completed_at', 'is', null)
       .order('score', { ascending: false })
+      .order('completed_at', { ascending: true })
       .limit(limit);
 
     if (error) {
       return { data: null, error };
     }
 
-    return { data: data || [], error: null };
+    return {
+      data: (data ?? []).map((row) => ({
+        playerName: row.players.display_name || row.players.username,
+        score: row.score,
+        wavesCompleted: row.waves_completed,
+        runLevel: row.run_level_reached,
+        completedAt: row.completed_at ? Date.parse(row.completed_at) : 0,
+      })),
+      error: null,
+    };
   }
 }
 

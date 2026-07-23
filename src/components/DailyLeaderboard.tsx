@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
+import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
+import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
 import { getTodayKey, msUntilMidnight } from '@/utils/dailySeed';
@@ -10,16 +13,37 @@ import { getTodayKey, msUntilMidnight } from '@/utils/dailySeed';
 export function DailyLeaderboard() {
   const [entries, setEntries] = useState<DailyLeaderboardEntry[]>([]);
   const [countdown, setCountdown] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const todayKey = getTodayKey();
   const getLeaderboard = useDailyRunStore((s) => s.getLeaderboard);
+  const isGuest = useAuthStore((state) => state.isGuest);
 
-  // Refresh entries
-  const refresh = useCallback(() => {
-    setEntries(getLeaderboard());
-  }, [getLeaderboard]);
+  const usesLocalLeaderboard = isGuest || !isSupabaseConfigured;
+
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    if (usesLocalLeaderboard) {
+      setEntries(getLeaderboard());
+      setIsLoading(false);
+      return;
+    }
+
+    const repository = new SupabaseDailyRunRepository(supabase);
+    const result = await repository.getDailyLeaderboard(todayKey, 100);
+    if (result.error) {
+      setError('Unable to load the online leaderboard.');
+      setEntries([]);
+    } else {
+      setEntries(result.data ?? []);
+    }
+    setIsLoading(false);
+  }, [getLeaderboard, todayKey, usesLocalLeaderboard]);
 
   useEffect(() => {
-    refresh();
+    void refresh();
   }, [refresh]);
 
   // Countdown timer
@@ -42,8 +66,21 @@ export function DailyLeaderboard() {
     <div style={styles.container}>
       <h2 style={styles.title}>Daily Run — {todayKey}</h2>
       <p style={styles.countdown}>Resets in: {countdown}</p>
+      <p style={styles.source}>
+        {usesLocalLeaderboard
+          ? 'Guest leaderboard — stored only on this device'
+          : 'Online leaderboard — synced with Supabase'}
+      </p>
 
-      {entries.length === 0 ? (
+      {isLoading ? (
+        <p role="status" style={styles.empty}>
+          Loading leaderboard…
+        </p>
+      ) : error ? (
+        <p role="alert" style={styles.error}>
+          {error}
+        </p>
+      ) : entries.length === 0 ? (
         <p style={styles.empty}>No runs completed yet. Be the first!</p>
       ) : (
         <table style={styles.table}>
@@ -73,7 +110,7 @@ export function DailyLeaderboard() {
         </table>
       )}
 
-      <button style={styles.refreshBtn} onClick={refresh}>
+      <button style={styles.refreshBtn} onClick={() => void refresh()} disabled={isLoading}>
         Refresh
       </button>
     </div>
@@ -98,6 +135,14 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#ff6b6b',
     fontSize: 14,
     marginBottom: 16,
+  },
+  source: {
+    color: '#8b949e',
+    fontSize: 12,
+    marginBottom: 16,
+  },
+  error: {
+    color: '#ff8a8a',
   },
   empty: {
     color: '#888',

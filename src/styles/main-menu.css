@@ -227,6 +227,18 @@
   box-shadow: 0 4px 20px rgba(200, 170, 110, 0.2);
 }
 
+.main-menu__btn--daily {
+  background: linear-gradient(180deg, #183b55 0%, #10283d 100%);
+  color: #f2d58a;
+  border: 1px solid rgba(242, 213, 138, 0.35);
+}
+
+.main-menu__btn--daily:hover {
+  background: linear-gradient(180deg, #214d6d 0%, #183b55 100%);
+  border-color: rgba(242, 213, 138, 0.65);
+  transform: translateY(-2px);
+}
+
 /* ─── Ghost Buttons (Settings / Credits) ───────────────────────────── */
 
 .main-menu__btn--ghost {
