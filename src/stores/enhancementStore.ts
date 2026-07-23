@@ -13,6 +13,7 @@ import { enhancementService, enhancementTreeProvider } from '@/services/enhancem
 import type { IRepositoryContainer } from '@/services/interfaces';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
+import { useMasteryStore } from '@/stores/masteryStore';
 import type { Champion } from '@/types/champion';
 import type {
   ChampionEnhancementTree,
@@ -114,6 +115,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         for (const mastery of masteryData) {
           championMasteryLevels[mastery.champion_id] = mastery.mastery_level;
         }
+        useMasteryStore.getState().hydrateFromDatabase(masteryData);
       }
       // If no mastery entry exists in database, mastery level defaults to 0 (no fallback calculation)
 
@@ -227,19 +229,18 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       return false;
     }
 
-    // Calculate new state
-    const newState = enhancementService.unlockNode(currentState, nodeId, candyCost);
-
-    // Save to database
-    const { user: currentUser } = useAuthStore.getState();
-    if (!currentUser) return false;
+    const { user: currentUser, isGuest } = useAuthStore.getState();
+    if (isGuest || !currentUser) {
+      set({ error: 'Les améliorations permanentes nécessitent un compte.' });
+      return false;
+    }
 
     const result = await container.enhancement.unlockNode(
       currentUser.id,
       selectedChampion.id,
       nodeId,
       candyCost,
-      currentState,
+      nodeToUnlock.maxRanks ?? 1,
     );
 
     if (!result.success) {
@@ -251,30 +252,15 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     set({
       enhancements: {
         ...enhancements,
-        [selectedChampion.id]: newState,
+        [selectedChampion.id]: result.newState,
       },
       // Keep existing mastery level (from database)
       championMasteryLevels: championMasteryLevels,
-      availableCandies: availableCandies - candyCost,
+      availableCandies: result.remainingCandies ?? availableCandies - candyCost,
     });
 
-    // Also update the player's candies in the database
-    // This ensures the candies are persisted
-    // Use the already calculated value (availableCandies - candyCost) instead of get().availableCandies
-    // to avoid race conditions where the state hasn't been updated yet
-    const newCandyCount = Math.max(0, availableCandies - candyCost);
     const { refreshPlayer } = useAuthStore.getState();
-    if (currentUser) {
-      try {
-        await container.player.updatePlayer(currentUser.id, {
-          total_candies: newCandyCount,
-        });
-        // Refresh the player data in the auth store
-        await refreshPlayer();
-      } catch (error) {
-        console.error('[EnhancementStore] Failed to update player candies:', error);
-      }
-    }
+    await refreshPlayer();
 
     return true;
   },

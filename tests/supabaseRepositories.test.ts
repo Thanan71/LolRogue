@@ -10,6 +10,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
+import { SupabaseEnhancementRepository } from '@/services/repositories/SupabaseEnhancementRepository';
 import {
   SupabaseMasteryRepository,
   SupabasePlayerUnlockRepository,
@@ -124,6 +125,36 @@ describe('SupabaseRunRepository', () => {
     );
 
     expect(result).toEqual({ data: null, error });
+    expect(mockSupabase.from).not.toHaveBeenCalled();
+  });
+});
+
+describe('SupabaseEnhancementRepository', () => {
+  it('unlocks a node and spends candies through one atomic RPC', async () => {
+    const { mockSupabase } = createMockSupabaseClient();
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({
+      data: {
+        unlocked_nodes: { health_core: 1 },
+        total_candies_spent: 75,
+        remaining_candies: 25,
+      },
+      error: null,
+    } as never);
+    const repository = new SupabaseEnhancementRepository(mockSupabase);
+
+    const result = await repository.unlockNode('user-1', 'Garen', 'health_core', 75, 3);
+
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('unlock_champion_enhancement', {
+      p_champion_id: 'Garen',
+      p_node_id: 'health_core',
+      p_candy_cost: 75,
+      p_max_rank: 3,
+    });
+    expect(result).toMatchObject({
+      success: true,
+      newState: { unlockedNodes: { health_core: 1 }, totalCandiesSpent: 75 },
+      remainingCandies: 25,
+    });
     expect(mockSupabase.from).not.toHaveBeenCalled();
   });
 });

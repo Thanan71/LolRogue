@@ -22,6 +22,7 @@ export interface UnlockNodeResult {
   newState: PlayerEnhancementState;
   candyCost: number;
   nodeId: string;
+  remainingCandies?: number;
   error?: string;
 }
 
@@ -74,7 +75,7 @@ export interface IEnhancementRepository {
     championId: string,
     nodeId: string,
     candyCost: number,
-    currentState: PlayerEnhancementState,
+    maxRank: number,
   ): Promise<UnlockNodeResult>;
 }
 

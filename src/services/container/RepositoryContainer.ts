@@ -169,11 +169,10 @@ export class RepositoryContainer implements IRepositoryContainer {
 
   /**
    * Get the enhancement repository (lazy initialized)
-   * Note: SupabaseEnhancementRepository uses its own internal supabase client
    */
   get enhancement(): IEnhancementRepository {
     if (!this._enhancement) {
-      const repo = new SupabaseEnhancementRepository();
+      const repo = new SupabaseEnhancementRepository(this.supabase);
       this._enhancement = this.options.enableLogging
         ? createLoggedRepository(repo, 'SupabaseEnhancementRepository')
         : repo;

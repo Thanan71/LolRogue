@@ -109,6 +109,15 @@ export interface MasteryState {
 // ─── Mastery Store Actions ─────────────────────────────────────────────────
 
 export interface MasteryActions {
+  /** Replace the local cache with mastery values loaded from Supabase. */
+  hydrateFromDatabase: (
+    masteries: Array<{
+      champion_id: string;
+      total_candies: number;
+      unlocked_ids: string[];
+    }>,
+  ) => void;
+
   /**
    * Award candies to champions after a run ends.
    * @param championIds — IDs of champions used in the run.

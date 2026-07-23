@@ -120,12 +120,12 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Maîtrise et améliorations
 
-- [ ] Désigner une source de vérité unique pour les candies et la maîtrise : store local, `players.total_candies` et `champion_mastery` peuvent diverger.
-- [ ] Mettre à jour la maîtrise avec des incréments atomiques plutôt qu'avec des valeurs calculées côté client.
-- [ ] Vérifier que `games_played`, `games_won`, kills et dégâts sont additionnés et non écrasés à chaque run.
+- [x] Désigner Supabase comme source de vérité pour les candies et la maîtrise; le store local reste un cache et le mode invité ne persiste pas de progression.
+- [x] Mettre à jour la maîtrise avec des incréments atomiques plutôt qu'avec des valeurs calculées côté client.
+- [x] Vérifier que `games_played`, `games_won`, kills et dégâts sont additionnés et non écrasés à chaque run.
 - [x] Éviter la double attribution : `masteryStore` calcule les récompenses, la RPC les persiste et l'écran final ne fait que les afficher.
-- [ ] Ajouter des tests d'intégration pour le déblocage d'un nœud d'amélioration et la dépense concurrente de candies.
-- [ ] Prévoir le comportement des améliorations pour un joueur invité.
+- [x] Ajouter des tests d'intégration pour le déblocage d'un nœud d'amélioration et la dépense concurrente de candies.
+- [x] Prévoir le comportement des améliorations pour un joueur invité : consultation autorisée, déblocage permanent réservé aux comptes.
 
 ### Paramètres, accessibilité et audio
 

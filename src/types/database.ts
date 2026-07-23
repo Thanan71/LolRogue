@@ -656,6 +656,18 @@ export type Database = {
     };
     Functions: {
       is_current_user_admin: { Args: never; Returns: boolean };
+      mastery_current_level_candies: { Args: { p_candies: number }; Returns: number };
+      mastery_level_from_candies: { Args: { p_candies: number }; Returns: number };
+      mastery_unlock_ids: { Args: { p_candies: number }; Returns: string[] };
+      unlock_champion_enhancement: {
+        Args: {
+          p_candy_cost: number;
+          p_champion_id: string;
+          p_max_rank: number;
+          p_node_id: string;
+        };
+        Returns: Json;
+      };
       save_completed_run: {
         Args: {
           p_mastery: Json;

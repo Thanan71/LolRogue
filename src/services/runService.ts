@@ -14,6 +14,7 @@
 import { useAuthStore } from '@/stores/authStore';
 import type { RunInsert, RunTeamMemberInsert } from '@/types/models';
 import type { Biome, RunSummary } from '@/types/run';
+import { calculateCandiesForTeam } from './masteryService';
 import { RepositoryContainerFactory } from './container';
 import type { IRepositoryContainer } from './interfaces';
 import { supabase } from './supabaseClient';
@@ -99,7 +100,7 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
       gold_earned: data.goldEarned,
       total_kills: data.summary.totalKills,
       total_damage_dealt: data.summary.totalDamage,
-      candies_earned: 0, // Will be calculated by mastery store
+      candies_earned: 0, // Calculated and persisted atomically by the database RPC
       started_at: data.startedAt,
       completed_at: completedAt,
       seed: data.seed ?? undefined,
@@ -122,30 +123,35 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
       };
     });
 
-    const { useMasteryStore } = await import('@/stores/masteryStore');
-    const masteryStore = useMasteryStore.getState();
+    const championIds = data.teamMembers.map((member) => member.championId);
+    const candiesAwarded = calculateCandiesForTeam(
+      championIds,
+      data.wavesCompleted,
+      data.biomesVisited.length,
+      data.won,
+    );
 
     const mastery = data.teamMembers.map((member) => {
-      const current = masteryStore.getChampionMastery(member.championId);
       const stats = data.summary.championStats.find(
         (entry) => entry.championId === member.championId,
       );
       return {
         champion_id: member.championId,
-        total_candies: current.totalCandies,
-        mastery_level: current.level,
-        current_level_candies: current.currentLevelCandies,
-        unlocked_ids: current.unlockedIds,
+        candies_earned: candiesAwarded[member.championId] ?? 0,
         kills: stats?.kills ?? 0,
         total_damage: stats?.totalDamage ?? 0,
       };
     });
+    const totalCandiesAwarded = Object.values(candiesAwarded).reduce(
+      (sum, value) => sum + value,
+      0,
+    );
 
     const { data: databaseRunId, error: saveError } = await container.run.saveCompletedRun(
       runData,
       teamMembers,
       mastery,
-      masteryStore.totalCandiesEarned,
+      totalCandiesAwarded,
     );
 
     if (saveError || !databaseRunId) {
@@ -161,13 +167,19 @@ export async function saveRunToDatabase(data: SaveRunData): Promise<SaveRunResul
 
     // Refresh player data to get updated stats
     await refreshPlayer();
+    const { data: persistedMastery, error: masteryError } =
+      await container.mastery.getChampionMastery(user.id);
+    if (persistedMastery && !masteryError) {
+      const { useMasteryStore } = await import('@/stores/masteryStore');
+      useMasteryStore.getState().hydrateFromDatabase(persistedMastery);
+    }
 
     console.log('[RunService] Run saved successfully:', {
       runId: data.runId,
       databaseRunId,
       won: data.won,
       wavesCompleted: data.wavesCompleted,
-      totalCandies: masteryStore.totalCandiesEarned,
+      candiesAwarded: totalCandiesAwarded,
     });
 
     return { success: true };

@@ -25,6 +25,16 @@ export const useMasteryStore = create<MasteryStore>()(
     (set, get) => ({
       ...INITIAL_STATE,
 
+      hydrateFromDatabase: (masteries) => {
+        const champions = Object.fromEntries(
+          masteries.map((mastery) => [
+            mastery.champion_id,
+            buildChampionMastery(mastery.champion_id, mastery.total_candies, mastery.unlocked_ids),
+          ]),
+        );
+        set({ champions });
+      },
+
       awardCandies: (championIds, wavesCompleted, biomesVisited, won) => {
         const state = get();
         const result = awardCandiesService(

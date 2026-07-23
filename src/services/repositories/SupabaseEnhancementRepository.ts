@@ -6,6 +6,7 @@
  */
 
 import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '@/services/supabaseClient';
 import type { Json } from '@/types/database';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
@@ -50,6 +51,8 @@ export interface ChampionEnhancementUpdate {
 export class SupabaseEnhancementRepository {
   private static readonly TABLE_NAME = 'champion_enhancements';
 
+  constructor(private readonly client: SupabaseClient = supabase) {}
+
   /**
    * Get enhancement state for a player-champion pair
    */
@@ -58,7 +61,7 @@ export class SupabaseEnhancementRepository {
     championId: string,
   ): Promise<PlayerEnhancementState | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.client
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .select('*')
         .eq('user_id', playerId)
@@ -100,7 +103,7 @@ export class SupabaseEnhancementRepository {
         total_candies_spent: state.totalCandiesSpent,
       };
 
-      const { error } = await supabase
+      const { error } = await this.client
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .upsert(upsertData, {
           onConflict: 'user_id,champion_id',
@@ -127,34 +130,42 @@ export class SupabaseEnhancementRepository {
     championId: string,
     nodeId: string,
     candyCost: number,
-    currentState: PlayerEnhancementState,
+    maxRank: number,
   ): Promise<UnlockNodeResult> {
-    const newState: PlayerEnhancementState = {
-      unlockedNodes: {
-        ...currentState.unlockedNodes,
-        [nodeId]: (currentState.unlockedNodes[nodeId] || 0) + 1,
-      },
-      totalCandiesSpent: currentState.totalCandiesSpent + candyCost,
-    };
+    const { data, error } = await this.client.rpc('unlock_champion_enhancement', {
+      p_champion_id: championId,
+      p_node_id: nodeId,
+      p_candy_cost: candyCost,
+      p_max_rank: maxRank,
+    });
+    const result = data as {
+      unlocked_nodes?: Json;
+      total_candies_spent?: number;
+      remaining_candies?: number;
+    } | null;
 
-    // Save to database
-    const saved = await this.saveEnhancementState(playerId, championId, newState);
-
-    if (!saved) {
+    if (error || !result) {
       return {
         success: false,
-        newState: currentState,
+        newState: (await this.getEnhancementState(playerId, championId)) ?? {
+          unlockedNodes: {},
+          totalCandiesSpent: 0,
+        },
         candyCost,
         nodeId,
-        error: 'Failed to save enhancement state',
+        error: error?.message || 'Failed to unlock enhancement',
       };
     }
 
     return {
       success: true,
-      newState,
+      newState: {
+        unlockedNodes: toNumberRecord(result.unlocked_nodes ?? {}),
+        totalCandiesSpent: result.total_candies_spent ?? 0,
+      },
       candyCost,
       nodeId,
+      remainingCandies: result.remaining_candies,
     };
   }
 
@@ -163,7 +174,7 @@ export class SupabaseEnhancementRepository {
    */
   async getAllEnhancementStates(playerId: string): Promise<Map<string, PlayerEnhancementState>> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.client
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .select('*')
         .eq('user_id', playerId);
@@ -196,7 +207,7 @@ export class SupabaseEnhancementRepository {
    */
   async resetEnhancementState(playerId: string, championId: string): Promise<boolean> {
     try {
-      const { error } = await supabase
+      const { error } = await this.client
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .delete()
         .eq('user_id', playerId)

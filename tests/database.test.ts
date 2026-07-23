@@ -29,6 +29,10 @@ const atomicDailyUpgradeSql = readFileSync(
   new URL('../supabase/migrations/20260723050000_atomic_daily_submission.sql', import.meta.url),
   'utf8',
 );
+const atomicMasteryEnhancementsSql = readFileSync(
+  new URL('../supabase/migrations/20260723060000_atomic_mastery_enhancements.sql', import.meta.url),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -52,6 +56,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260723030000_grant_service_role.sql',
       '../supabase/migrations/20260723040000_daily_leaderboard_read.sql',
       '../supabase/migrations/20260723050000_atomic_daily_submission.sql',
+      '../supabase/migrations/20260723060000_atomic_mastery_enhancements.sql',
     ]);
   });
 
@@ -174,6 +179,30 @@ describe('Supabase existing database upgrade', () => {
     );
     expect(atomicDailyUpgradeSql).toContain('(p_waves_completed * 100)');
     expect(atomicDailyUpgradeSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
+  });
+
+  it('increments mastery and spends enhancement candies atomically', () => {
+    expect(atomicMasteryEnhancementsSql).toContain(
+      'total_candies = public.champion_mastery.total_candies + EXCLUDED.total_candies',
+    );
+    expect(atomicMasteryEnhancementsSql).toContain(
+      'games_played = public.champion_mastery.games_played + 1',
+    );
+    expect(atomicMasteryEnhancementsSql).toContain(
+      'total_kills = public.champion_mastery.total_kills + EXCLUDED.total_kills',
+    );
+    expect(atomicMasteryEnhancementsSql).toContain(
+      'total_damage_dealt = public.champion_mastery.total_damage_dealt + EXCLUDED.total_damage_dealt',
+    );
+    expect(atomicMasteryEnhancementsSql).toContain(
+      'CREATE OR REPLACE FUNCTION public.unlock_champion_enhancement',
+    );
+    expect(atomicMasteryEnhancementsSql).toContain('FOR UPDATE');
+    expect(atomicMasteryEnhancementsSql).toContain("RAISE EXCEPTION 'insufficient_candies'");
+    expect(atomicMasteryEnhancementsSql).toContain(
+      'REVOKE UPDATE (total_candies) ON public.players FROM authenticated',
+    );
+    expect(atomicMasteryEnhancementsSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
   });
 });
 
@@ -366,6 +395,46 @@ describeLive('Supabase live integration', () => {
     expect(restoreError).toBeNull();
     const { data: restored } = await restoredClient.auth.getSession();
     expect(restored.session?.user.id).toBe(signup.user!.id);
+
+    const { error: fundError } = await supabase
+      .from('players')
+      .update({ total_candies: 100 })
+      .eq('user_id', signup.user!.id);
+    expect(fundError).toBeNull();
+
+    const concurrentUnlocks = await Promise.all([
+      restoredClient.rpc('unlock_champion_enhancement', {
+        p_champion_id: 'Garen',
+        p_node_id: 'health_core',
+        p_candy_cost: 75,
+        p_max_rank: 1,
+      }),
+      restoredClient.rpc('unlock_champion_enhancement', {
+        p_champion_id: 'Garen',
+        p_node_id: 'damage_core',
+        p_candy_cost: 75,
+        p_max_rank: 1,
+      }),
+    ]);
+    expect(concurrentUnlocks.filter((result) => !result.error)).toHaveLength(1);
+    expect(concurrentUnlocks.filter((result) => result.error)).toHaveLength(1);
+
+    const { data: candyBalance, error: candyBalanceError } = await supabase
+      .from('players')
+      .select('total_candies')
+      .eq('user_id', signup.user!.id)
+      .single();
+    expect(candyBalanceError).toBeNull();
+    expect(candyBalance?.total_candies).toBe(25);
+
+    const { data: enhancement, error: enhancementError } = await restoredClient
+      .from('champion_enhancements')
+      .select('unlocked_nodes, total_candies_spent')
+      .eq('champion_id', 'Garen')
+      .single();
+    expect(enhancementError).toBeNull();
+    expect(enhancement?.total_candies_spent).toBe(75);
+    expect(Object.values(enhancement?.unlocked_nodes ?? {})).toEqual([1]);
 
     const today = new Date().toISOString().slice(0, 10);
     const dailyArgs = {
