@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SeededRNG } from '../src/utils/seededRandom';
+import { mulberry32, seededShuffle } from '../src/game/map/MapGenerator-helpers';
 
 describe('SeededRNG', () => {
   it('should produce identical sequences for the same seed', () => {
@@ -107,5 +108,17 @@ describe('SeededRNG', () => {
     const arr = [1, 2, 3];
     const picked = rng.pickN(arr, 10);
     expect(picked).toHaveLength(3);
+  });
+});
+
+describe('map seeded shuffle', () => {
+  it('uses deterministic Fisher-Yates without mutating the source', () => {
+    const source = ['a', 'b', 'c', 'd', 'e'];
+    const first = seededShuffle(source, mulberry32(42));
+    const second = seededShuffle(source, mulberry32(42));
+
+    expect(first).toEqual(second);
+    expect(source).toEqual(['a', 'b', 'c', 'd', 'e']);
+    expect([...first].sort()).toEqual(source);
   });
 });

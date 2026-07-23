@@ -16,7 +16,13 @@ import {
   type TreasureEncounter,
 } from './types';
 import { getRandomEncounter, getBiomeBoss } from './encounters';
-import { mulberry32, getNodeMetadata, selectColumnType, buildConfig } from './MapGenerator-helpers';
+import {
+  mulberry32,
+  seededShuffle,
+  getNodeMetadata,
+  selectColumnType,
+  buildConfig,
+} from './MapGenerator-helpers';
 import { generateShopRotation, generateWildRecruit } from '../recruitment/RecruitmentService';
 import { implementedChampions } from '@/data/champion';
 import { ITEM_DATABASE, getItemDefinition } from '@/data/items';
@@ -51,9 +57,17 @@ const SHOPABLE_ITEM_IDS = Object.values(ITEM_DATABASE)
 
 // Recruit champions are now generated dynamically via RecruitmentService
 
+function createEncounterId(
+  type: string,
+  biome: Biome,
+  rand: () => number,
+): string {
+  return `${type}_${biome}_${Math.floor(rand() * 1_000_000_000).toString(36)}`;
+}
+
 function generateShopEncounter(biome: Biome, runLevel: number, rand: () => number): ShopEncounter {
   const itemCount = 2 + Math.floor(rand() * 3);
-  const shuffled = [...SHOPABLE_ITEM_IDS].sort(() => rand() - 0.5);
+  const shuffled = seededShuffle(SHOPABLE_ITEM_IDS, rand);
   const items = shuffled.slice(0, itemCount).map((id) => {
     const base = itemDefToShopItem(id);
     return { ...base, price: Math.round(base.price * (0.8 + runLevel * 0.15)) };
@@ -71,7 +85,7 @@ function generateShopEncounter(biome: Biome, runLevel: number, rand: () => numbe
   };
 
   return {
-    id: `shop_${biome}_${Date.now()}_${Math.floor(rand() * 10000)}`,
+    id: createEncounterId('shop', biome, rand),
     name: shopNames[biome],
     description: `A merchant appears with wares from the ${biome.replace('_', ' ')}.`,
     type: 'shop',
@@ -92,7 +106,7 @@ function generateRestEncounter(biome: Biome, runLevel: number, rand: () => numbe
   const name = restNames[Math.floor(rand() * restNames.length)];
 
   return {
-    id: `rest_${biome}_${Date.now()}_${Math.floor(rand() * 10000)}`,
+    id: createEncounterId('rest', biome, rand),
     name,
     description: fullHeal ? 'A sacred place that fully restores your team.' : 'A moment of respite to tend your wounds.',
     type: 'rest',
@@ -146,7 +160,7 @@ function generateEventEncounter(biome: Biome, runLevel: number, rand: () => numb
 
   const chosen = eventPool[Math.floor(rand() * eventPool.length)];
   return {
-    id: `event_${biome}_${Date.now()}_${Math.floor(rand() * 10000)}`,
+    id: createEncounterId('event', biome, rand),
     name: chosen.name,
     description: chosen.description,
     type: 'event',
@@ -197,7 +211,7 @@ function generateTreasureEncounter(biome: Biome, runLevel: number, rand: () => n
   const name = treasureNames[Math.floor(rand() * treasureNames.length)];
 
   return {
-    id: `treasure_${biome}_${Date.now()}_${Math.floor(rand() * 10000)}`,
+    id: createEncounterId('treasure', biome, rand),
     name,
     description: `A ${name.toLowerCase()} glimmers in the ${biome.replace('_', ' ')}.`,
     type: 'treasure',
@@ -216,7 +230,7 @@ function generateEncounterForNode(
   switch (nodeType) {
     case NodeType.Combat:
     case NodeType.Elite:
-      return getRandomEncounter(biome, runLevel);
+      return getRandomEncounter(biome, runLevel, rand);
     case NodeType.Boss:
       return getBiomeBoss(biome, runLevel);
     case NodeType.Shop:

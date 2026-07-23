@@ -66,9 +66,13 @@ export function getBiomeBoss(biome: Biome, runLevel: number): CombatEncounter {
 /**
  * Select a random combat encounter from eligible pool.
  */
-export function getRandomEncounter(biome: Biome, runLevel: number): CombatEncounter {
+export function getRandomEncounter(
+  biome: Biome,
+  runLevel: number,
+  rand: () => number = Math.random,
+): CombatEncounter {
   const eligible = getEligibleEncounters(biome, runLevel);
-  return eligible[Math.floor(Math.random() * eligible.length)];
+  return eligible[Math.floor(rand() * eligible.length)];
 }
 
 // Re-export individual pools

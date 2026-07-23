@@ -22,6 +22,21 @@ export function mulberry32(seed: number): () => number {
   };
 }
 
+export function seededShuffle<T>(
+  values: readonly T[],
+  rand: () => number,
+): T[] {
+  const shuffled = [...values];
+  for (let index = shuffled.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(rand() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [
+      shuffled[swapIndex],
+      shuffled[index],
+    ];
+  }
+  return shuffled;
+}
+
 // ─── Node Metadata Helpers ──────────────────────────────────────────────────
 
 export function getNodeMetadata(type: NodeType, biome: Biome): NodeMetadata {

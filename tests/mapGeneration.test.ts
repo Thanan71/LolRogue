@@ -87,6 +87,14 @@ describe('Map Generation', () => {
       const biomeOrder = ['top_lane', 'jungle', 'mid_lane', 'bot_lane', 'river', 'base'];
       maps.forEach((map, i) => expect(map.biome).toBe(biomeOrder[i]));
     });
+
+    it('generates identical maps and encounter content from the same seed', () => {
+      expect(generateRunMap(20260723)).toEqual(generateRunMap(20260723));
+    });
+
+    it('generates different content from a different seed', () => {
+      expect(generateRunMap(20260723)).not.toEqual(generateRunMap(20260724));
+    });
   });
 
   describe('Encounter Pools', () => {

@@ -105,7 +105,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Supprimer la double génération de carte dans `startRun`.
 - [x] Stocker la seed dans `runStore` et dans la sauvegarde en base.
 - [ ] Remplacer les identifiants et tirages fondés sur `Date.now()`/`Math.random()` par le RNG seedé lorsqu'ils influencent une run.
-- [ ] Remplacer `.sort(() => rand() - 0.5)` par un mélange Fisher–Yates déterministe.
+- [x] Remplacer `.sort(() => rand() - 0.5)` par un mélange Fisher–Yates déterministe.
 - [ ] Gérer explicitement la sortie du dernier biome et la victoire si la configuration des biomes change.
 - [ ] Refuser l'accès direct à une page d'encounter qui ne correspond pas à `currentEncounter`.
 - [ ] Empêcher la double collecte/résolution après refresh ou navigation arrière.
