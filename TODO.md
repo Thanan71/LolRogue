@@ -169,9 +169,9 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Configurer les règles Biome utiles, les imports organisés et les commandes `lint`, `format` et `format:check`.
 - [x] Ajouter une commande `check` regroupant toutes les validations.
 - [x] Séparer le téléchargement Data Dragon du build normal; utiliser `assets:update` pour sa mise à jour.
-- [ ] Épingler la version Data Dragon et documenter sa mise à jour.
+- [x] Épingler la version Data Dragon et documenter sa mise à jour.
 - [x] Installer/pinner Supabase CLI au lieu de dépendre implicitement de `npx`.
-- [ ] Auditer les 9 vulnérabilités npm signalées (1 low, 3 moderate, 4 high, 1 critical) sans appliquer de mise à jour forcée non vérifiée.
+- [x] Auditer les vulnérabilités npm sans mise à jour forcée et documenter les six alertes de développement restantes.
 - [x] Utiliser Node 22 LTS via `.nvmrc`, `package.json` et la CI.
 
 ### Performance et production

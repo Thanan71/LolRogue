@@ -8,17 +8,17 @@ const __dirname = path.dirname(__filename);
 const DDRAGON_BASE = 'https://ddragon.leagueoflegends.com';
 const LANG = 'fr_FR';
 const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'lol', 'data');
+const VERSION_FILE = path.join(__dirname, 'ddragon-version.json');
 
 /**
- * Récupère la dernière version de Data Dragon
+ * Lit la version épinglée pour garantir des assets reproductibles.
  */
-async function getLatestVersion() {
-  const response = await fetch(`${DDRAGON_BASE}/api/versions.json`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch versions: ${response.status} ${response.statusText}`);
+async function getPinnedVersion() {
+  const versions = JSON.parse(await fs.readFile(VERSION_FILE, 'utf-8'));
+  if (!/^\d+\.\d+\.\d+$/.test(versions.dataDragon ?? '')) {
+    throw new Error('Invalid dataDragon version in scripts/ddragon-version.json');
   }
-  const versions = await response.json();
-  return versions[0];
+  return versions.dataDragon;
 }
 
 /**
@@ -162,9 +162,9 @@ async function main() {
     await fs.mkdir(OUTPUT_DIR, { recursive: true });
     console.log(`📁 Output directory: ${OUTPUT_DIR}\n`);
 
-    // Récupérer la dernière version
-    const version = await getLatestVersion();
-    console.log(`📌 Latest version: ${version}\n`);
+    // Utiliser uniquement la version validée dans le dépôt.
+    const version = await getPinnedVersion();
+    console.log(`📌 Pinned version: ${version}\n`);
 
     // Télécharger chaque endpoint
     const endpoints = [

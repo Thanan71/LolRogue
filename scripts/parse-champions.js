@@ -5,8 +5,12 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'lol', 'data');
-const CD_BASE =
-  'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1';
+const VERSION_FILE = path.join(__dirname, 'ddragon-version.json');
+const versions = JSON.parse(await fs.readFile(VERSION_FILE, 'utf-8'));
+if (!/^\d+\.\d+$/.test(versions.communityDragon ?? '')) {
+  throw new Error('Invalid communityDragon version in scripts/ddragon-version.json');
+}
+const CD_BASE = `https://raw.communitydragon.org/${versions.communityDragon}/plugins/rcp-be-lol-game-data/global/default/v1`;
 
 /**
  * Known ability data overrides. Both Riot Data Dragon and Community Dragon
