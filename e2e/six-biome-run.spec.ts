@@ -1,0 +1,71 @@
+import { expect, test } from '@playwright/test';
+
+const BIOME_LABELS = ['Top_lane', 'Jungle', 'Mid_lane', 'Bot_lane', 'River', 'Base'];
+
+test('a guest run progresses deterministically through all six biomes', async ({ page }) => {
+  await page.goto('/auth');
+
+  await page.evaluate(async () => {
+    const { useAuthStore } = await import('/src/stores/authStore.ts');
+    const { useRunStore } = await import('/src/stores/runStore.ts');
+
+    useAuthStore.getState().enterGuestMode();
+    await useRunStore.getState().startRun(['Garen'], { seed: 20260723 });
+  });
+
+  await page.goto('/run');
+  await expect(page.getByRole('button', { name: /aide/i })).toBeVisible();
+
+  for (const [index, biomeLabel] of BIOME_LABELS.entries()) {
+    await expect(page.getByText(biomeLabel, { exact: true })).toBeVisible();
+
+    const transition = await page.evaluate(async () => {
+      const { useRunStore } = await import('/src/stores/runStore.ts');
+      const state = useRunStore.getState();
+      const map = state.biomeMaps[state.currentBiomeIndex];
+      const completedMap = {
+        ...map,
+        nodes: map.nodes.map((node) => ({ ...node, completed: true })),
+      };
+      const biomeMaps = [...state.biomeMaps];
+      biomeMaps[state.currentBiomeIndex] = completedMap;
+      useRunStore.setState({
+        biomeMaps,
+        completedNodeIds: [
+          ...new Set([...state.completedNodeIds, ...completedMap.nodes.map((node) => node.id)]),
+        ],
+      });
+
+      if (state.currentBiomeIndex === state.biomeMaps.length - 1) {
+        return {
+          advanced: false,
+          index: state.currentBiomeIndex,
+          total: state.biomeMaps.length,
+        };
+      }
+
+      const advanced = useRunStore.getState().advanceToNextBiome();
+      return {
+        advanced,
+        index: useRunStore.getState().currentBiomeIndex,
+        total: useRunStore.getState().biomeMaps.length,
+      };
+    });
+
+    expect(transition.total).toBe(6);
+    if (index < BIOME_LABELS.length - 1) {
+      expect(transition).toMatchObject({ advanced: true, index: index + 1 });
+    } else {
+      expect(transition).toMatchObject({ advanced: false, index: 5 });
+    }
+  }
+
+  const completed = await page.evaluate(async () => {
+    const { useRunStore } = await import('/src/stores/runStore.ts');
+    const runId = useRunStore.getState().runId;
+    const saved = await useRunStore.getState().endRun(true, runId);
+    return { saved, isActive: useRunStore.getState().isActive };
+  });
+
+  expect(completed).toEqual({ saved: true, isActive: false });
+});

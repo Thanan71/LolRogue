@@ -154,8 +154,8 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 ### Tests
 
 - [x] Ajouter des tests React avec Testing Library pour Auth, Menu, Map, Shop, Rest, Event, Treasure et Game Over.
-- [ ] Ajouter un test Playwright/Cypress d'une run complète sur les six biomes.
-- [ ] Ajouter un test E2E Supabase : inscription, trigger player, RLS, run, maîtrise, amélioration et suppression.
+- [x] Ajouter un test Playwright/Cypress d'une run complète sur les six biomes.
+- [x] Ajouter un test E2E Supabase : inscription, trigger player, RLS, run, maîtrise, amélioration et suppression.
 - [x] Tester la reprise après rechargement pendant une run et pendant un encounter.
 - [x] Tester les erreurs réseau et la reprise d'une sauvegarde partielle.
 - [x] Ajouter la couverture avec seuils par module.
