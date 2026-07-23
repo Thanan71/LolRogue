@@ -5,14 +5,14 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 ## État actuel vérifié
 
 - [x] TypeScript compile sans erreur avec `npm run typecheck`.
-- [x] 503 tests passent; 2 tests Supabase live sont ignorés sans identifiants.
+- [x] 582 tests passent; 3 tests Supabase live sont ignorés hors environnement d'intégration.
 - [x] Le build Vite hors téléchargement Data Dragon réussit.
 - [x] Les combats utilisent maintenant les encounters générés et les bonus d'amélioration/objets.
 - [x] Les nœuds `Start`, `Exit` et `Treasure` ont un flux applicatif.
 - [x] Supabase Auth, repositories, maîtrise, améliorations et panneau admin sont présents.
 - [x] Le schéma Supabase possède désormais une migration initiale unique.
-- [ ] Le mode invité, la fin de run et plusieurs politiques de sécurité doivent être corrigés.
-- [ ] La boucle complète doit encore être validée par des tests d'intégration navigateur.
+- [x] Le mode invité, la fin de run et les politiques de sécurité ont été corrigés et testés.
+- [x] La boucle complète est validée par un test d'intégration navigateur sur les six biomes.
 
 ## P0 — bloquants et sécurité
 
