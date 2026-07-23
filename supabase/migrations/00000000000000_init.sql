@@ -436,15 +436,19 @@ ORDER BY total_wins DESC, total_waves_completed DESC;
 CREATE VIEW public.admin_stats
 WITH (security_invoker = true)
 AS
-SELECT 'total_players' AS stat_name, COUNT(*)::TEXT AS stat_value FROM public.players
-UNION ALL
-SELECT 'total_runs', COUNT(*)::TEXT FROM public.runs
-UNION ALL
-SELECT 'total_daily_runs', COUNT(*)::TEXT FROM public.daily_runs
-UNION ALL
-SELECT 'total_wins', COALESCE(SUM(total_wins), 0)::TEXT FROM public.players
-UNION ALL
-SELECT 'total_candies_earned', COALESCE(SUM(total_candies), 0)::TEXT FROM public.players;
+SELECT stats.stat_name, stats.stat_value
+FROM (
+  SELECT 'total_players' AS stat_name, COUNT(*)::TEXT AS stat_value FROM public.players
+  UNION ALL
+  SELECT 'total_runs', COUNT(*)::TEXT FROM public.runs
+  UNION ALL
+  SELECT 'total_daily_runs', COUNT(*)::TEXT FROM public.daily_runs
+  UNION ALL
+  SELECT 'total_wins', COALESCE(SUM(total_wins), 0)::TEXT FROM public.players
+  UNION ALL
+  SELECT 'total_candies_earned', COALESCE(SUM(total_candies), 0)::TEXT FROM public.players
+) AS stats
+WHERE public.is_current_user_admin();
 
 CREATE VIEW public.admin_player_stats
 WITH (security_invoker = true)
@@ -478,9 +482,11 @@ SELECT
     ORDER BY games_played DESC
     LIMIT 1
   ) AS favorite_champion
-FROM public.players p;
+FROM public.players p
+WHERE public.is_current_user_admin();
 
 REVOKE ALL ON public.players FROM authenticated;
+REVOKE UPDATE (is_admin) ON public.players FROM authenticated;
 GRANT SELECT ON public.players TO authenticated;
 GRANT UPDATE (
   display_name,

@@ -16,6 +16,7 @@ import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { ActionType } from '@/game/battle/types';
 import { SeededRNG } from '@/utils/seededRandom';
+import { isFinalRunVictory } from '@/game/battle/runOutcome';
 import { playUIClick } from '@/audio';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { calculateXpGain, addXp } from '@/utils/xpSystem';
@@ -393,6 +394,7 @@ export function CombatPage() {
       runStore.nextWave();
 
       // 4. Complete current map node (unlocks next nodes)
+      let advancedToNextBiome = false;
       if (currentNode) {
         // 5. Item drop chance (~20%) — deterministic for daily runs
         const itemRng = new SeededRNG(runLevel * 1000 + runStore.totalWavesCompleted);
@@ -423,7 +425,7 @@ export function CombatPage() {
         // 7. Check if we just completed the boss -- advance to next biome
         if (isBossNode) {
           runStore.incrementRunLevel();
-          runStore.advanceToNextBiome();
+          advancedToNextBiome = runStore.advanceToNextBiome();
         }
       }
 
@@ -439,10 +441,11 @@ export function CombatPage() {
         goldEarned: rs2.gold,
         runLevel: rs2.runLevel,
       });
-      // If this was the boss, show game-over with full stats
-      if (isBossNode) {
+      // Only the boss of the last biome ends the run.
+      if (isFinalRunVictory(isBossNode, advancedToNextBiome)) {
+        const completedRunId = rs2.runId;
         navigate(ROUTES.GAME_OVER, { state: { summary: victorySummary } });
-        rs2.endRun();
+        void rs2.endRun(true, completedRunId);
         runStatsTracker.reset();
         return;
       }
@@ -472,7 +475,7 @@ export function CombatPage() {
       // Store the timeout reference so it can be cleared if player starts a new run
       // Pass the runId to ensure only the correct run is ended
       endRunTimeoutRef.current = setTimeout(() => {
-        rs.endRun(w === 'draw', currentRunId);
+        void rs.endRun(false, currentRunId);
         runStatsTracker.reset();
         endRunTimeoutRef.current = null;
       }, 100);

@@ -29,12 +29,12 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Fermer l'escalade de privilèges admin
 
-- [ ] Empêcher un utilisateur de modifier sa propre colonne `players.is_admin`.
-- [ ] Retirer `is_admin` de `PlayerUpdate` côté client.
-- [ ] Remplacer la policy UPDATE générale de `players` par une policy/une fonction qui limite explicitement les colonnes modifiables.
-- [ ] Réserver l'attribution/retrait du rôle admin à une Edge Function, une RPC sécurisée ou la service role.
+- [x] Empêcher un utilisateur de modifier sa propre colonne `players.is_admin`.
+- [x] Retirer `is_admin` de `PlayerInsert` et `PlayerUpdate` côté client.
+- [x] Limiter explicitement par privilèges de colonnes les champs `players` modifiables par le client.
+- [x] Réserver l'attribution/retrait du rôle admin à la service role ou au SQL administrateur.
 - [ ] Tester en SQL/RLS qu'un utilisateur normal ne peut ni devenir admin ni lire les vues admin.
-- [ ] Définir les vues admin en `security_invoker = true` ou révoquer leur accès public si nécessaire.
+- [x] Définir les vues admin en `security_invoker = true` et les filtrer par le contrôle admin serveur.
 
 ### Corriger Auth et le mode invité
 
@@ -47,13 +47,13 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Corriger la fin et la sauvegarde des runs
 
-- [ ] Appeler `endRun(true, runId)` après la victoire finale; `CombatPage` appelle actuellement `endRun()` et sauvegarde donc la victoire comme une défaite.
+- [x] Appeler `endRun(true, runId)` après la victoire finale et continuer après les boss intermédiaires.
 - [ ] Attendre la sauvegarde Supabase avant de perdre l'état utile, avec un retour visuel en cas d'échec.
 - [ ] Rendre la sauvegarde d'une run atomique via une RPC/transaction : run, équipe, statistiques joueur et maîtrise peuvent actuellement être partiellement enregistrées.
 - [ ] Rendre la sauvegarde idempotente avec la contrainte unique `run_uuid` et un upsert contrôlé.
 - [ ] Ne pas marquer tous les champions comme survivants dans `runStore.endRun`; utiliser leurs PV finaux.
 - [ ] Persister `runStartTime` dans le store : un rechargement de page le remet actuellement à `null` et empêche l'enregistrement.
-- [ ] Clarifier et tester l'abandon d'une run : résultat, récompenses, statistiques et sauvegarde.
+- [ ] Clarifier et tester l'abandon d'une run : résultat, récompenses, statistiques et sauvegarde (une défaite et un match nul sont désormais enregistrés avec `won = false`).
 
 ## P1 — fonctionnalités à ajouter
 

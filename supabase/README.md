@@ -15,6 +15,7 @@ an older version of the initialization script:
 
 ```text
 supabase/migrations/20260723000000_fix_signup_trigger.sql
+supabase/migrations/20260723010000_harden_admin_access.sql
 ```
 
 ## Fresh local database

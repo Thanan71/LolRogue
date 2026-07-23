@@ -12,6 +12,13 @@ const signupUpgradeSql = readFileSync(
   ),
   'utf8',
 );
+const adminUpgradeSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260723010000_harden_admin_access.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -29,6 +36,7 @@ describe('Supabase init migration', () => {
     expect(Object.keys(migrationFiles).sort()).toEqual([
       '../supabase/migrations/00000000000000_init.sql',
       '../supabase/migrations/20260723000000_fix_signup_trigger.sql',
+      '../supabase/migrations/20260723010000_harden_admin_access.sql',
     ]);
   });
 
@@ -81,6 +89,17 @@ describe('Supabase init migration', () => {
     );
     expect(playerGrant).not.toBeNull();
     expect(playerGrant?.[1]).not.toContain('is_admin');
+    expect(migrationSql).toContain(
+      'REVOKE UPDATE (is_admin) ON public.players FROM authenticated',
+    );
+  });
+
+  it('filters admin views by the server-side admin check', () => {
+    const adminViews = migrationSql.slice(
+      migrationSql.indexOf('CREATE VIEW public.admin_stats'),
+      migrationSql.indexOf('REVOKE ALL ON public.players'),
+    );
+    expect(adminViews.match(/WHERE public\.is_current_user_admin\(\)/g)).toHaveLength(2);
   });
 });
 
@@ -98,6 +117,18 @@ describe('Supabase existing database upgrade', () => {
     );
     expect(signupUpgradeSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
     expect(signupUpgradeSql).not.toMatch(/\bDELETE\s+FROM\b/i);
+  });
+
+  it('hardens admin permissions without deleting data', () => {
+    expect(adminUpgradeSql).toContain(
+      'REVOKE UPDATE (is_admin) ON public.players FROM anon, authenticated',
+    );
+    expect(
+      adminUpgradeSql.match(/WHERE public\.is_current_user_admin\(\)/g),
+    ).toHaveLength(2);
+    expect(adminUpgradeSql).toContain('WITH (security_invoker = true)');
+    expect(adminUpgradeSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
+    expect(adminUpgradeSql).not.toMatch(/\bDELETE\s+FROM\b/i);
   });
 });
 

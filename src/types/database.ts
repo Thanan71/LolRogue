@@ -34,7 +34,6 @@ export interface PlayerInsert {
   total_runs_completed?: number;
   total_wins?: number;
   total_waves_completed?: number;
-  is_admin?: boolean;
 }
 
 export interface PlayerUpdate {
@@ -46,7 +45,6 @@ export interface PlayerUpdate {
   total_wins?: number;
   total_waves_completed?: number;
   last_login_at?: string | null;
-  is_admin?: boolean;
 }
 
 // ─── Champion Mastery ─────────────────────────────────────────────────────────
