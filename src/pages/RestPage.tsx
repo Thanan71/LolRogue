@@ -5,7 +5,7 @@ import type { RestEncounter } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { calculateMaxHP } from '@/utils/statCalculator';
 

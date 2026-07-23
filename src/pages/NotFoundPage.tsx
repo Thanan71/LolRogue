@@ -1,7 +1,7 @@
 import { playUIClick } from '@/audio';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuthStore } from '@/stores/authStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 
 export function NotFoundPage() {
   const navigate = useAppNavigate();

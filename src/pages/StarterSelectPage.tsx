@@ -7,8 +7,7 @@ import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDail
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
-import { useGameStore } from '@/stores/gameStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import type { Champion } from '@/types/champion';
 import { createDailyRNG, getDailySeed } from '@/utils/dailySeed';
@@ -31,7 +30,7 @@ export function StarterSelectPage() {
     const rng = isDaily ? createDailyRNG() : new SeededRNG(selectionSeed);
     return pickRandom(championDB.getAll(), 6, rng);
   }, [isDaily, selectionSeed]);
-  const { selectedStarterId, setSelectedStarterId } = useGameStore();
+  const [selectedStarterId, setSelectedStarterId] = useState<string | null>(null);
   const startRun = useRunStore((s) => s.startRun);
   const startDailyRun = useDailyRunStore((state) => state.startDailyRun);
   const hasCompletedToday = useDailyRunStore((state) => state.hasCompletedToday);

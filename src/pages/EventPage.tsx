@@ -4,7 +4,7 @@ import { championDB } from '@/data/championDatabase';
 import { resolveAffordableEventOutcome } from '@/game/map/EncounterManager';
 import type { EventEncounter, EventOutcome } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { createScopedRunRng } from '@/utils/runRandom';
 

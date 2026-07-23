@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
-import { ROUTES, useRouterStore } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import type { AdminPlayerStat, Log, Run, RunTeamMember } from '@/types/models';
 import '@/styles/admin.css';
 
@@ -17,7 +17,6 @@ type TabType = 'dashboard' | 'logs' | 'players' | 'runs';
 
 export function AdminPage() {
   const { player, isAdmin } = useAuthStore();
-  const { navigateTo } = useRouterStore();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [stats, setStats] = useState<Record<string, string>>({});
@@ -338,7 +337,6 @@ export function AdminPage() {
   }
 
   const handleGoHome = () => {
-    navigateTo(ROUTES.MENU);
     navigate(ROUTES.MENU);
   };
 

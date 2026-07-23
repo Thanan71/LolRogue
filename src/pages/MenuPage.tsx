@@ -1,7 +1,7 @@
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuthStore } from '@/stores/authStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';

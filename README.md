@@ -1,23 +1,25 @@
 # LolRogue
 
-A roguelike game built with **TypeScript + React + Vite + Phaser 3**, themed around League of Legends.
+A League of Legends-themed roguelike built with **TypeScript, React and Vite**.
 
 ## Tech Stack
 
-- **React 18** — UI layer (menus, HUD)
-- **Phaser 3** — Game engine (combat, world rendering)
+- **React 18** — UI, encounters and combat rendering
+- **React Router** — Application navigation
 - **Vite** — Build tool & dev server
-- **Zustand** — Lightweight state management
+- **Zustand** — Run and application state
+- **Supabase** — Authentication and persistent progression
 - **Vitest** — Testing framework
 
 ## Project Structure
 
 ```
 src/
-├── components/    # React UI components
-├── game/          # Phaser scenes & game logic
-│   └── scenes/    # Phaser Scene classes
+├── components/    # Shared React UI components
+├── pages/         # React Router screens
+├── game/          # Framework-independent game rules and engines
 ├── data/          # Runtime game data
+├── services/      # Supabase repositories and application services
 ├── utils/         # Shared utility functions
 └── stores/        # Zustand stores
 data/
@@ -62,6 +64,7 @@ the test user and its cascaded data:
 
 ```bash
 VITE_PUBLIC_SUPABASE_URL="https://YOUR_PROJECT_REF.supabase.co" \
+VITE_PUBLIC_SUPABASE_ANON_KEY="YOUR_ANON_KEY" \
 SUPABASE_SERVICE_ROLE_KEY="YOUR_SERVICE_ROLE_KEY" \
 npm run test:db
 ```

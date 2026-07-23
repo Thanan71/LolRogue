@@ -3,7 +3,7 @@ import { playUIClick } from '@/audio';
 import { RunMapScreen } from '@/components/RunMapScreen';
 import { getPendingEncounterRoute } from '@/game/run/routeAccess';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 
 export function RunPage() {

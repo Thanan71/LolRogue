@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { getAdminRouteAccess } from '@/auth/routeAccess';
 import { useAuthStore } from '@/stores/authStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 
 interface AdminRouteProps {
   children: React.ReactNode;

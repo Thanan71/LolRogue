@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { playSFX, playUIClick } from '@/audio';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import type { RunSummary } from '@/types/run';
 

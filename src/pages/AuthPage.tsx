@@ -4,7 +4,7 @@ import { ParticleBackground } from '@/components/ParticleBackground';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/auth.css';
 

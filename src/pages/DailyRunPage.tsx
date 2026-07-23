@@ -6,7 +6,7 @@ import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDail
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import '@/styles/daily-run.css';
 
 export function DailyRunPage() {

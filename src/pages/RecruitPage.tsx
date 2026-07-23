@@ -4,7 +4,7 @@ import { championDB } from '@/data/championDatabase';
 import type { RecruitEncounter } from '@/game/map/types';
 import { getRecruitmentGoldCost } from '@/game/recruitment/recruitmentRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { createScopedRunRng } from '@/utils/runRandom';
 

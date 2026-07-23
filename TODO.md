@@ -139,10 +139,10 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Architecture
 
-- [ ] Choisir entre React et les scènes Phaser non montées (`BootScene`, `BattleScene`, `GameOverScene`).
-- [ ] Retirer Phaser du bundle si ces scènes restent inutilisées.
-- [ ] Supprimer ou intégrer les composants dupliqués `MainMenu`/`MenuPage` et `StarterSelect`/`StarterSelectPage`.
-- [ ] Simplifier la navigation : React Router, `routerStore` et `gameStore.phase` se chevauchent encore.
+- [x] Choisir React pour le rendu du jeu et retirer les scènes Phaser non montées.
+- [x] Retirer Phaser du bundle.
+- [x] Supprimer les composants dupliqués `MainMenu` et `StarterSelect`; leurs pages React restent la référence.
+- [x] Utiliser React Router comme source unique de navigation et retirer `routerStore`/`gameStore.phase`.
 - [ ] Découper `AdminPage` (~747 lignes), `CombatPage` (~735), `BattleManager` (~698), `runStore` (~508) et `RunMapScreen` (~488).
 - [ ] Remplacer les `any` des repositories, logs et fixtures par des types Supabase générés/builders typés.
 - [ ] Ajouter des migrations de version aux stores Zustand persistés.
@@ -178,7 +178,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 - [ ] Découper le bundle principal, actuellement autour de 1,17 Mo minifié (environ 290 Ko gzip).
 - [ ] Charger paresseusement Admin, Database, Auth et les pages d'encounter.
-- [ ] Isoler ou retirer Phaser du chunk principal.
+- [x] Retirer Phaser du projet et du chunk principal.
 - [ ] Corriger les polices Beaufort manquantes sous `public/fonts`.
 - [ ] Ajouter un Error Boundary React et des fallbacks de chargement par route.
 - [ ] Optimiser le préchargement des images aux champions/objets nécessaires.
@@ -201,5 +201,5 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 3. Rendre la sauvegarde de run atomique, idempotente et restaurable.
 4. Ajouter les tests E2E Auth/RLS et run complète.
 5. Finaliser inventaire, runes, augments et daily run.
-6. Unifier navigation, stores de progression et architecture React/Phaser.
+6. Unifier navigation, stores de progression et architecture React.
 7. Ajouter CI, lint, formatage, code splitting et documentation de release.

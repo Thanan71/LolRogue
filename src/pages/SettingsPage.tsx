@@ -1,7 +1,7 @@
 import { playUIClick } from '@/audio';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAudioStore } from '@/stores/audioStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import {
   type BattleSpeed,
   type Difficulty,

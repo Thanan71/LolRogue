@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import type { TreasureEncounter } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 
 export function TreasurePage() {

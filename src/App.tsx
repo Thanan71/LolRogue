@@ -6,7 +6,6 @@ import { AdminRoute } from './components/AdminRoute';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { EncounterRoute } from './components/EncounterRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { RouteSync } from './components/RouteSync';
 import { AdminPage } from './pages/AdminPage';
 import { AuthPage } from './pages/AuthPage';
 import { CombatPage } from './pages/CombatPage';
@@ -39,7 +38,6 @@ export default function App() {
 
   return (
     <div id="app">
-      <RouteSync />
       <AuthBootstrap />
       <Routes>
         {/* Auth page - accessible without authentication */}

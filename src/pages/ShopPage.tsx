@@ -3,7 +3,7 @@ import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
 import type { ShopEncounter, ShopItem } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 
 // ─── Helper Components ─────────────────────────────────────────────────────

@@ -1,10 +1,10 @@
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import '@/styles/main-menu.css';
 
 const credits = [
   { section: 'Game Design & Development', entries: ['LolRogue Team'] },
-  { section: 'Built With', entries: ['React 18', 'TypeScript', 'Vite', 'Zustand', 'Phaser 3'] },
+  { section: 'Built With', entries: ['React 18', 'TypeScript', 'Vite', 'Zustand'] },
   {
     section: 'Inspiration',
     entries: ['League of Legends — Riot Games', 'Pokémon Rogue (Pokémon community)'],

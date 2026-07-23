@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { getProtectedRouteAccess } from '@/auth/routeAccess';
 import { useAuthStore } from '@/stores/authStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

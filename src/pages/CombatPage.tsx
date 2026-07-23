@@ -19,7 +19,7 @@ import { enhancementService, enhancementTreeProvider } from '@/services/enhancem
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useBattleStore } from '@/stores/battleStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
 import type { Item, ItemStatBonuses, RunSummary, TeamMember } from '@/types/run';

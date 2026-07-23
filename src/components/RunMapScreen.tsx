@@ -7,8 +7,7 @@ import type { CombatEncounter, NodeMap } from '@/game/map/types';
 import { NodeType } from '@/game/map/types';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
-import { useGameStore } from '@/stores/gameStore';
-import { ROUTES } from '@/stores/routerStore';
+import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import type { InventoryEntry, NodeType as RunNodeType, TeamMember } from '@/types/run';
 import { calculateMaxHP } from '@/utils/statCalculator';
@@ -57,7 +56,6 @@ export function RunMapScreen() {
   const advanceToNextBiome = useRunStore((s) => s.advanceToNextBiome);
   const completeCurrentNode = useRunStore((s) => s.completeCurrentNode);
 
-  const setPhase = useGameStore((s) => s.setPhase);
   const navigate = useNavigate();
 
   const currentMap: NodeMap | null = biomeMaps[currentBiomeIndex] ?? null;
@@ -163,7 +161,6 @@ export function RunMapScreen() {
             const runState = useRunStore.getState();
             void runState.endRun(true, runState.runId).then((saved) => {
               if (saved) {
-                setPhase('menu');
                 navigate(ROUTES.MENU);
               }
             });
@@ -176,15 +173,7 @@ export function RunMapScreen() {
           break;
       }
     },
-    [
-      moveToNode,
-      startEncounter,
-      navigate,
-      currentMap,
-      completeCurrentNode,
-      advanceToNextBiome,
-      setPhase,
-    ],
+    [moveToNode, startEncounter, navigate, currentMap, completeCurrentNode, advanceToNextBiome],
   );
 
   if (!currentMap) {
@@ -218,7 +207,7 @@ export function RunMapScreen() {
           <div style={headerStyle}>
             <button
               style={{ ...btnStyle, padding: '4px 12px', fontSize: 12 }}
-              onClick={() => setPhase('menu')}
+              onClick={() => navigate(ROUTES.MENU)}
               title="Save & return to menu"
             >
               ← Menu
