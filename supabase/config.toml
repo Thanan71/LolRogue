@@ -1,0 +1,10 @@
+project_id = "lolrogue"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+double_confirm_changes = false

@@ -128,7 +128,7 @@ Exécutez la migration pour créer la table :
 supabase migration up
 
 # Ou manuellement dans le dashboard Supabase
-# Copiez le contenu de supabase/migrations/007_create_champion_enhancements.sql
+# Le schéma est inclus dans supabase/migrations/00000000000000_init.sql
 ```
 
 ## Exemple d'Arbre (Assassin)

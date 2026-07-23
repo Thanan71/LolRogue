@@ -2,10 +2,7 @@ import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 
 const migrationSql = readFileSync(
-  new URL(
-    '../supabase/migrations/20260723190000_initial_schema.sql',
-    import.meta.url,
-  ),
+  new URL('../supabase/migrations/00000000000000_init.sql', import.meta.url),
   'utf8',
 );
 
@@ -19,15 +16,23 @@ if (process.env.DB_TEST_REQUIRED === '1' && !hasSupabaseCredentials) {
   );
 }
 
-describe('Supabase migration', () => {
-  it('creates every required game table', () => {
+describe('Supabase init migration', () => {
+  it('is the only SQL migration', () => {
+    const migrationFiles = import.meta.glob('../supabase/migrations/*.sql');
+    expect(Object.keys(migrationFiles)).toHaveLength(1);
+    expect(Object.keys(migrationFiles)[0]).toContain('00000000000000_init.sql');
+  });
+
+  it('creates every table used by the application', () => {
     const requiredTables = [
-      'profiles',
-      'runs',
-      'run_champions',
-      'run_inventory',
+      'players',
       'champion_mastery',
-      'daily_leaderboard',
+      'player_unlocks',
+      'runs',
+      'run_team_members',
+      'daily_runs',
+      'champion_enhancements',
+      'logs',
     ];
 
     for (const table of requiredTables) {
@@ -37,14 +42,16 @@ describe('Supabase migration', () => {
     }
   });
 
-  it('enables RLS and auth.uid policies for every exposed table', () => {
+  it('enables RLS and creates the signup profile trigger', () => {
     const protectedTables = [
-      'profiles',
-      'runs',
-      'run_champions',
-      'run_inventory',
+      'players',
       'champion_mastery',
-      'daily_leaderboard',
+      'player_unlocks',
+      'runs',
+      'run_team_members',
+      'daily_runs',
+      'champion_enhancements',
+      'logs',
     ];
 
     for (const table of protectedTables) {
@@ -54,6 +61,15 @@ describe('Supabase migration', () => {
     }
     expect(migrationSql).toContain('auth.uid()');
     expect(migrationSql).toContain('AFTER INSERT ON auth.users');
+    expect(migrationSql).not.toContain('email_confirmed_at');
+  });
+
+  it('does not grant clients access to the is_admin column', () => {
+    const playerGrant = migrationSql.match(
+      /GRANT UPDATE \(([\s\S]*?)\) ON public\.players TO authenticated;/,
+    );
+    expect(playerGrant).not.toBeNull();
+    expect(playerGrant?.[1]).not.toContain('is_admin');
   });
 });
 
@@ -64,10 +80,10 @@ describeLive('Supabase live integration', () => {
     supabaseUrl ?? 'http://127.0.0.1:54321',
     serviceRoleKey ?? 'integration-test-not-configured',
     {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
     },
   );
   let testUserId: string | undefined;
@@ -81,115 +97,107 @@ describeLive('Supabase live integration', () => {
 
   it('can access all initialized tables', async () => {
     const tables = [
-      'profiles',
-      'runs',
-      'run_champions',
-      'run_inventory',
+      'players',
       'champion_mastery',
-      'daily_leaderboard',
+      'player_unlocks',
+      'runs',
+      'run_team_members',
+      'daily_runs',
+      'champion_enhancements',
+      'logs',
     ] as const;
 
     for (const table of tables) {
       const { error } = await supabase
         .from(table)
         .select('*', { count: 'exact', head: true });
-      if (error) {
-        throw new Error(`${table}: ${error.message}`);
-      }
-      expect(error).toBeNull();
+      if (error) throw new Error(`${table}: ${error.message}`);
     }
   });
 
-  it('creates a user profile and stores a complete daily run', async () => {
+  it('creates a player and stores a complete daily run', async () => {
     const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const { data: authData, error: authError } =
       await supabase.auth.admin.createUser({
         email: `lolrogue-db-test-${suffix}@example.invalid`,
         email_confirm: true,
-        user_metadata: { display_name: 'Database Test' },
+        user_metadata: {
+          username: `db-test-${suffix}`,
+          display_name: 'Database Test',
+        },
       });
 
     expect(authError).toBeNull();
     testUserId = authData.user?.id;
     expect(testUserId).toBeTruthy();
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, display_name')
-      .eq('id', testUserId!)
+    const { data: player, error: playerError } = await supabase
+      .from('players')
+      .select('id, user_id, display_name')
+      .eq('user_id', testUserId!)
       .single();
-    expect(profileError).toBeNull();
-    expect(profile).toMatchObject({
-      id: testUserId,
+    expect(playerError).toBeNull();
+    expect(player).toMatchObject({
+      user_id: testUserId,
       display_name: 'Database Test',
     });
 
     const { data: run, error: runError } = await supabase
       .from('runs')
       .insert({
-        user_id: testUserId,
-        mode: 'daily',
-        daily_key: '2026-07-23',
-        seed: 20260723,
-        status: 'completed',
+        player_id: player!.id,
+        run_uuid: `run-${suffix}`,
         won: true,
         run_level: 6,
         waves_completed: 24,
-        gold_earned: 850,
-        score: 4200,
         biomes_visited: ['top_lane', 'jungle', 'base'],
-        completed_at: new Date().toISOString(),
+        gold_earned: 850,
+        total_kills: 8,
+        total_damage_dealt: 12500,
+        seed: 20260723,
       })
       .select('id')
       .single();
     expect(runError).toBeNull();
     expect(run?.id).toBeTruthy();
 
-    const { error: championError } = await supabase
-      .from('run_champions')
+    const { error: teamError } = await supabase
+      .from('run_team_members')
       .insert({
         run_id: run!.id,
         champion_id: 'Garen',
-        team_position: 1,
-        champion_level: 6,
-        current_hp: 340,
+        final_level: 6,
+        final_hp: 340,
+        survived: true,
         kills: 8,
-        total_damage: 12500,
+        damage_dealt: 12500,
       });
-    expect(championError).toBeNull();
+    expect(teamError).toBeNull();
 
-    const { error: inventoryError } = await supabase
-      .from('run_inventory')
+    const { error: dailyError } = await supabase
+      .from('daily_runs')
       .insert({
-        run_id: run!.id,
-        instance_id: `item-${suffix}`,
-        item_id: 'BF_SWORD',
-        equipped_to_champion_id: 'Garen',
-      });
-    expect(inventoryError).toBeNull();
-
-    const { error: leaderboardError } = await supabase
-      .from('daily_leaderboard')
-      .insert({
-        daily_key: '2026-07-23',
-        user_id: testUserId,
-        run_id: run!.id,
+        player_id: player!.id,
+        daily_date: '2026-07-23',
+        daily_seed: 20260723,
         score: 4200,
+        won: true,
+        run_level_reached: 6,
         waves_completed: 24,
-        run_level: 6,
+        completed_at: new Date().toISOString(),
       });
-    expect(leaderboardError).toBeNull();
+    expect(dailyError).toBeNull();
 
     const { data: result, error: resultError } = await supabase
-      .from('daily_leaderboard')
-      .select('score, waves_completed, run_level')
-      .eq('run_id', run!.id)
+      .from('daily_runs')
+      .select('score, waves_completed, run_level_reached')
+      .eq('player_id', player!.id)
       .single();
     expect(resultError).toBeNull();
     expect(result).toEqual({
       score: 4200,
       waves_completed: 24,
-      run_level: 6,
+      run_level_reached: 6,
     });
   });
 });

@@ -92,8 +92,6 @@ export function AuthPage() {
         // Use React Router navigation instead of window.location
         navigate(ROUTES.MENU);
       }
-      // If needsConfirmation, the store already set the successMessage
-      // so we just stay on the page to show it
     }
   };
 

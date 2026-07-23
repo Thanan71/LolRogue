@@ -10,19 +10,19 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [x] Les combats utilisent maintenant les encounters générés et les bonus d'amélioration/objets.
 - [x] Les nœuds `Start`, `Exit` et `Treasure` ont un flux applicatif.
 - [x] Supabase Auth, repositories, maîtrise, améliorations et panneau admin sont présents.
-- [ ] Le schéma Supabase n'a pas une source de vérité unique et déployable.
+- [x] Le schéma Supabase possède désormais une migration initiale unique.
 - [ ] Le mode invité, la fin de run et plusieurs politiques de sécurité doivent être corrigés.
 - [ ] La boucle complète doit encore être validée par des tests d'intégration navigateur.
 
 ## P0 — bloquants et sécurité
 
-### Unifier les migrations Supabase
+### Maintenir la migration Supabase unique
 
-- [ ] Supprimer ou refondre `20260723190000_initial_schema.sql` : elle entre en conflit avec les migrations `001–008`.
-- [ ] Choisir le schéma réellement utilisé par l'application : `players`, `runs` UUID, `run_team_members` et `daily_runs` correspondent actuellement aux repositories TypeScript.
-- [ ] Ne pas recréer `runs` avec un identifiant BIGINT après que `001_create_player_accounts.sql` l'a créée avec un UUID.
-- [ ] Ne pas créer en parallèle `profiles`/`run_champions`/`daily_leaderboard` si l'application utilise `players`/`run_team_members`/`daily_runs`.
-- [ ] Produire une migration de consolidation applicable sur une base Supabase neuve et une migration corrective pour une base existante.
+- [x] Consolider le schéma utilisé par l'application dans `00000000000000_init.sql`.
+- [x] Supprimer les migrations historiques et les scripts SQL ponctuels de correction.
+- [x] Conserver les UUID et les tables attendues par les repositories (`players`, `runs`, `run_team_members`, `daily_runs`).
+- [ ] Valider la migration sur une instance locale neuve avec `supabase db reset`.
+- [ ] Documenter qu'une ancienne base doit être réinitialisée avant d'appliquer ce nouveau schéma.
 - [ ] Générer les types Supabase depuis le schéma avec `supabase gen types typescript` au lieu de maintenir manuellement `src/types/database.ts`.
 - [ ] Ajouter `supabase db reset` et `supabase db lint` à la validation CI.
 - [ ] Faire exécuter les tests live sur le même schéma que les repositories; les tests actuels vérifient les nouvelles tables incompatibles.
@@ -42,7 +42,7 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 - [ ] Corriger `handleGuestPlay` : il navigue vers `/`, puis `ProtectedRoute` renvoie l'utilisateur non authentifié vers `/auth`.
 - [ ] Ne pas construire le client Supabase avec une clé vide lorsque les variables sont absentes; afficher un écran de configuration ou activer proprement le mode hors ligne.
 - [ ] Remplacer les deux variables globales `authCheckInitialized` distinctes de `ProtectedRoute` et `AdminRoute` par une initialisation de session unique dans l'application.
-- [ ] Tester login, inscription avec confirmation email, restauration de session, logout, mode invité et accès admin.
+- [ ] Tester login, inscription immédiate sans confirmation, restauration de session, logout, mode invité et accès admin.
 - [ ] Nettoyer les scripts SQL ponctuels de correction d'inscription après intégration dans une migration officielle.
 
 ### Corriger la fin et la sauvegarde des runs
@@ -164,8 +164,8 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 ### Outillage et CI
 
 - [ ] Ajouter une CI exécutant `typecheck`, tests, build Vite, `supabase db reset` et `supabase db lint`.
-- [ ] Ajouter ESLint avec TypeScript, React Hooks et accessibilité.
-- [ ] Ajouter Prettier ou Biome et une commande `format:check`.
+- [ ] Ajouter Biome comme outil unique de lint et de formatage pour TypeScript/React.
+- [ ] Configurer les règles Biome utiles, les imports organisés et les commandes `lint`, `format` et `format:check`.
 - [ ] Ajouter une commande `check` regroupant toutes les validations.
 - [ ] Séparer le téléchargement Data Dragon du build normal; le build ne doit pas dépendre du réseau ni modifier `public`.
 - [ ] Épingler la version Data Dragon et documenter sa mise à jour.

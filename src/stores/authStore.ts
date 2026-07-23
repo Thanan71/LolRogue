@@ -28,7 +28,7 @@ export interface AuthState {
 
 export interface AuthActions {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<{ success: boolean; error?: string; needsConfirmation?: boolean }>;
+  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshPlayer: () => Promise<void>;
   clearError: () => void;
@@ -120,30 +120,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (result.error) throw result.error;
 
       if (result.user) {
-        // Vérifier si l'email doit être confirmé
-        // Si email_confirmed_at est null, l'utilisateur doit confirmer son email
-        const needsEmailConfirmation = !result.user.email_confirmed_at;
-        
-        if (needsEmailConfirmation) {
-          // L'utilisateur doit confirmer son email avant de se connecter
-          // Le player sera créé après la confirmation via le trigger ou le listener
-          set({
-            user: result.user,
-            player: null,
-            isAuthenticated: false, // Pas encore authentifié tant que l'email n'est pas confirmé
-            isAdmin: false,
-            isLoading: false,
-            error: null,
-            successMessage: 'Account created! Please check your email and click the confirmation link to complete your registration.',
-          });
-          
-          return { 
-            success: false, 
-            needsConfirmation: true 
-          };
+        // LolRogue does not use confirmation emails. Supabase must return a
+        // session immediately after signup.
+        if (!result.session) {
+          throw new Error(
+            'Signup did not return a session. Disable Confirm email in Supabase Auth settings.',
+          );
         }
 
-        // Si pas de confirmation email requise, attendre que le trigger crée le player
+        // Wait for the database trigger to create the player profile.
         let playerData = null;
         const maxRetries = 10;
         const retryDelay = 300;

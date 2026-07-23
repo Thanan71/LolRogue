@@ -38,15 +38,18 @@ npm run typecheck  # TypeScript type checking
 
 ## Supabase database
 
-The initial PostgreSQL migration is located in
-`supabase/migrations/20260723190000_initial_schema.sql`. It references Supabase
-Auth, creates the game tables, enables Row Level Security, and installs the
-profile creation trigger.
+The complete PostgreSQL schema is defined by the single migration
+`supabase/migrations/00000000000000_init.sql`. It creates the game tables,
+views, triggers and Row Level Security policies.
 
 ```bash
 supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
+
+The project does not send confirmation emails. Disable **Confirm email** in
+the hosted Supabase Email provider settings. Local development already uses
+`enable_confirmations = false` in `supabase/config.toml`.
 
 Copy `.env.example` to `.env.local` and configure the browser client with
 `VITE_PUBLIC_SUPABASE_URL` and `VITE_PUBLIC_SUPABASE_ANON_KEY`. Never expose

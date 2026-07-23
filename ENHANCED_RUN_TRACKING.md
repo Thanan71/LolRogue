@@ -9,7 +9,7 @@ This document describes the comprehensive run tracking system implemented for ga
 Run the migration to add all new tracking tables and columns:
 
 ```bash
-# The migration file is: supabase/migrations/006_add_enhanced_run_tracking.sql
+# The schema is included in: supabase/migrations/00000000000000_init.sql
 # It will be automatically applied when you run your Supabase migrations
 ```
 
