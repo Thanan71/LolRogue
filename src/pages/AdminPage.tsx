@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { ROUTES } from '@/config/routes';
-import type { AdminPlayerStat, Log, Run, RunTeamMember } from '@/types/models';
+import type { AdminPlayerStat, Log, RunTeamMember } from '@/types/models';
+import {
+  type AdminRun,
+  exportRunsToCSV,
+  formatAdminDate,
+  getLogLevelColor,
+} from './adminPageUtils';
 import '@/styles/admin.css';
-
-// Extended run type with player info for admin view
-interface AdminRun extends Run {
-  player_username: string;
-  player_display_name: string | null;
-  team_members: RunTeamMember[];
-}
 
 type TabType = 'dashboard' | 'logs' | 'players' | 'runs';
 
@@ -178,100 +177,6 @@ export function AdminPage() {
     }
   };
 
-  // Export runs to CSV
-  const exportRunsToCSV = () => {
-    if (runs.length === 0) return;
-
-    // CSV Header - Comprehensive data for game balancing
-    const headers = [
-      'Run ID',
-      'Seed',
-      'Joueur',
-      'Nom Affiché',
-      'Victoire',
-      'Niveau de Run',
-      'Vagues Complétées',
-      'Biomes Visités',
-      'Nodes Complétés',
-      'Combats Gagnés',
-      'Combats Perdus',
-      'Elite Kills',
-      'Boss Kills',
-      'Or Gagné',
-      'Or Dépensé',
-      'Total Kills',
-      'Dégâts Infligés',
-      'Dégâts Reçus',
-      'Soins Donnés',
-      'Soins Reçus',
-      'Candies Gagnés',
-      'Durée (secondes)',
-      'Commencé le',
-      'Complété le',
-      'Champions Recrutés',
-      'Items Achetés',
-      'Équipe (Champions)',
-      'Détails Champions',
-    ];
-
-    // CSV Rows
-    const rows = runs.map((run) => {
-      const biomesVisited = run.biomes_visited?.join('; ') || '';
-      const champions = run.team_members?.map((tm) => tm.champion_id).join('; ') || '';
-      const championDetails =
-        run.team_members
-          ?.map(
-            (tm) =>
-              `${tm.champion_id}: Niv${tm.final_level} ${tm.survived ? '✓' : '✗'} K:${tm.kills} D:${tm.damage_dealt} DR:${tm.damage_received || 0} H:${tm.healing_done || 0} HP:${tm.final_hp}`,
-          )
-          .join(' | ') || '';
-
-      return [
-        run.run_uuid,
-        run.seed || '',
-        run.player_username || 'Unknown',
-        run.player_display_name || run.player_username || 'Unknown',
-        run.won ? 'Oui' : 'Non',
-        run.run_level || 0,
-        run.waves_completed || 0,
-        biomesVisited,
-        run.nodes_completed || 0,
-        run.combats_won || 0,
-        run.combats_lost || 0,
-        run.elite_kills || 0,
-        run.boss_kills || 0,
-        run.gold_earned || 0,
-        run.total_gold_spent || 0,
-        run.total_kills || 0,
-        run.total_damage_dealt || 0,
-        run.total_damage_received || 0,
-        run.total_healing_done || 0,
-        run.total_healing_received || 0,
-        run.candies_earned || 0,
-        run.duration_seconds || '',
-        run.started_at ? formatDate(run.started_at) : '',
-        run.completed_at ? formatDate(run.completed_at) : '',
-        run.champions_recruited || 0,
-        run.items_purchased || 0,
-        champions,
-        championDetails,
-      ]
-        .map((field) => `"${String(field).replace(/"/g, '""')}"`)
-        .join(',');
-    });
-
-    const csvContent = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `runs_export_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
   // Initial data fetch
   useEffect(() => {
     if (isAdmin) {
@@ -297,33 +202,6 @@ export function AdminPage() {
       }
     }
   }, [activeTab, logFilter, runFilter]);
-
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('fr-FR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  // Get log level color
-  const getLogLevelColor = (level: string) => {
-    switch (level) {
-      case 'error':
-        return '#e74c3c';
-      case 'warn':
-        return '#f39c12';
-      case 'info':
-        return '#3498db';
-      case 'debug':
-        return '#95a5a6';
-      default:
-        return '#c8aa6e';
-    }
-  };
 
   if (!isAdmin) {
     return (
@@ -487,7 +365,7 @@ export function AdminPage() {
                   <tbody>
                     {logs.map((log) => (
                       <tr key={log.id}>
-                        <td>{formatDate(log.created_at)}</td>
+                        <td>{formatAdminDate(log.created_at)}</td>
                         <td style={{ color: getLogLevelColor(log.level) }}>
                           {log.level.toUpperCase()}
                         </td>
@@ -544,8 +422,8 @@ export function AdminPage() {
                         <td>{p.total_wins}</td>
                         <td>{p.win_rate.toFixed(1)}%</td>
                         <td>{p.total_candies}</td>
-                        <td>{p.last_login_at ? formatDate(p.last_login_at) : 'Jamais'}</td>
-                        <td>{formatDate(p.created_at)}</td>
+                        <td>{p.last_login_at ? formatAdminDate(p.last_login_at) : 'Jamais'}</td>
+                        <td>{formatAdminDate(p.created_at)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -563,7 +441,7 @@ export function AdminPage() {
               <div className="runs-actions">
                 <button
                   className="export-btn"
-                  onClick={exportRunsToCSV}
+                  onClick={() => exportRunsToCSV(runs)}
                   disabled={runs.length === 0}
                   title="Exporter les données en CSV"
                 >
@@ -711,7 +589,7 @@ export function AdminPage() {
                     <tbody>
                       {runs.map((run) => (
                         <tr key={run.id} className={run.won ? 'win-row' : 'loss-row'}>
-                          <td>{run.completed_at ? formatDate(run.completed_at) : '-'}</td>
+                          <td>{run.completed_at ? formatAdminDate(run.completed_at) : '-'}</td>
                           <td>
                             <div className="player-name">
                               {run.player_display_name || run.player_username || 'Unknown'}

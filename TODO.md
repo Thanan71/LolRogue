@@ -176,15 +176,15 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Performance et production
 
-- [ ] Poursuivre la réduction physique de `AdminPage`, `CombatPage`, `BattleManager`, `runStore` et `RunMapScreen` après stabilisation fonctionnelle.
-- [ ] Découper le bundle principal, actuellement autour de 1,17 Mo minifié (environ 290 Ko gzip).
-- [ ] Charger paresseusement Admin, Database, Auth et les pages d'encounter.
+- [x] Poursuivre la réduction physique de `AdminPage`, `CombatPage`, `BattleManager`, `runStore` et `RunMapScreen` après stabilisation fonctionnelle.
+- [x] Découper le bundle principal en chunks React, Supabase, données champions et routes; l'entrée est passée d'environ 1,22 Mo à 44,5 Ko minifiés.
+- [x] Charger paresseusement Admin, Database, Auth et les pages d'encounter.
 - [x] Retirer Phaser du projet et du chunk principal.
-- [ ] Corriger les polices Beaufort manquantes sous `public/fonts`.
-- [ ] Ajouter un Error Boundary React et des fallbacks de chargement par route.
-- [ ] Optimiser le préchargement des images aux champions/objets nécessaires.
-- [ ] Ajouter les en-têtes de sécurité, CSP et une configuration SPA de réécriture vers `index.html`.
-- [ ] Ajouter une politique de confidentialité ou désactiver Analytics/Speed Insights tant que la télémétrie n'est pas documentée.
+- [x] Supprimer les références aux polices Beaufort absentes et utiliser des polices système sans requêtes 404.
+- [x] Ajouter un Error Boundary React et des fallbacks de chargement par route.
+- [x] Optimiser le préchargement des images aux champions nécessaires à la run et à l'encounter.
+- [x] Ajouter les en-têtes de sécurité, CSP et une configuration SPA de réécriture vers `index.html`.
+- [x] Désactiver Analytics/Speed Insights tant que la télémétrie et la confidentialité ne sont pas documentées.
 
 ### Documentation
 

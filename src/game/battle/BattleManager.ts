@@ -14,7 +14,8 @@ import {
   calculateTrueDamage,
   critDamage,
 } from '@/utils/damage';
-import type { ChampionInstance, SpellSlot } from '../ChampionInstance';
+import type { ChampionInstance } from '../ChampionInstance';
+import { actionToSpellSlot } from './actionSlots';
 import {
   ActionType,
   type BattleAction,
@@ -49,22 +50,6 @@ export interface BattleManagerOptions {
   initialHpOverrides?: Record<string, number>;
   /** Injectable random source so a seeded run can reproduce combat exactly. */
   random?: () => number;
-}
-
-/** Map ActionType to its corresponding SpellSlot (or null for basic attacks). */
-function actionToSpellSlot(action: ActionType): SpellSlot | null {
-  switch (action) {
-    case ActionType.SpellQ:
-      return 'Q';
-    case ActionType.SpellW:
-      return 'W';
-    case ActionType.SpellE:
-      return 'E';
-    case ActionType.SpellR:
-      return 'R';
-    default:
-      return null;
-  }
 }
 
 export class BattleManager {

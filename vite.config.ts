@@ -14,6 +14,22 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('champions-parsed.json')) return 'champion-data';
+          if (id.includes('/node_modules/@supabase/')) return 'supabase-vendor';
+          if (
+            id.includes('/node_modules/react/') ||
+            id.includes('/node_modules/react-dom/') ||
+            id.includes('/node_modules/react-router') ||
+            id.includes('/node_modules/zustand/')
+          ) {
+            return 'react-vendor';
+          }
+        },
+      },
+    },
   },
   server: {
     port: 3000,

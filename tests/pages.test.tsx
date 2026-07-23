@@ -12,6 +12,7 @@ import { RestPage } from '@/pages/RestPage';
 import { ShopPage } from '@/pages/ShopPage';
 import { TreasurePage } from '@/pages/TreasurePage';
 import { RunMapScreen } from '@/components/RunMapScreen';
+import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import type { RunSummary } from '@/types/run';
@@ -113,5 +114,24 @@ describe('P2 page smoke tests', () => {
     );
     expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
     expect(screen.getByText('8')).toBeInTheDocument();
+  });
+});
+
+describe('application error fallback', () => {
+  it('renders a recoverable fallback when a route crashes', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const BrokenRoute = () => {
+      throw new Error('route failed');
+    };
+
+    render(
+      <AppErrorBoundary>
+        <BrokenRoute />
+      </AppErrorBoundary>,
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Une erreur inattendue est survenue');
+    expect(screen.getByRole('button', { name: 'Retour au menu' })).toBeInTheDocument();
+    consoleError.mockRestore();
   });
 });

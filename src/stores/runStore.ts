@@ -27,7 +27,6 @@ import {
   MAX_INVENTORY_ITEMS,
   MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
-  type RunState,
   type RunStore,
   type TeamMember,
 } from '@/types/run';
@@ -35,41 +34,7 @@ import { useAuthStore } from './authStore';
 import { calculateDailyScore, useDailyRunStore } from './dailyRunStore';
 import { useEnhancementStore } from './enhancementStore';
 import { useMasteryStore } from './masteryStore';
-
-// ─── Initial State ──────────────────────────────────────────────────────────
-
-const INITIAL_STATE: RunState = {
-  isActive: false,
-  mode: 'normal',
-  runId: '',
-  seed: null,
-  startedAt: null,
-  isEnding: false,
-  saveStatus: 'idle',
-  saveError: null,
-  rewardsApplied: false,
-  nextItemInstanceId: 1,
-  team: [],
-  runLevel: 1,
-  biomesVisited: [],
-  currentBiome: null,
-  inventory: [],
-  runeIds: [],
-  augmentIds: [],
-  pendingAugmentIds: [],
-  lastCombatRewards: null,
-  pendingSpellUpgradeChampionIds: [],
-  gold: 0,
-  currentWave: 1,
-  totalWavesCompleted: 0,
-  biomeMaps: [],
-  currentBiomeIndex: 0,
-  currentNodeId: null,
-  completedNodeIds: [],
-  claimedEncounterNodeIds: [],
-  pendingEncounter: null,
-  currentEncounter: null,
-};
+import { RUN_INITIAL_STATE } from './runInitialState';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -78,7 +43,7 @@ const INITIAL_STATE: RunState = {
 export const useRunStore = create<RunStore>()(
   persist(
     (set, get) => ({
-      ...INITIAL_STATE,
+      ...RUN_INITIAL_STATE,
 
       // ── Run Lifecycle ───────────────────────────────────────────────────
 
@@ -338,7 +303,7 @@ export const useRunStore = create<RunStore>()(
         }
 
         set({
-          ...INITIAL_STATE,
+          ...RUN_INITIAL_STATE,
           saveStatus: isAuthenticated ? 'success' : 'idle',
         });
         return true;
@@ -707,7 +672,7 @@ export const useRunStore = create<RunStore>()(
       name: 'lolrogue-run-storage',
       version: 1,
       storage: createJSONStorage(() => safeLocalStorage),
-      migrate: (persisted) => recoverPersistedState(persisted, INITIAL_STATE),
+      migrate: (persisted) => recoverPersistedState(persisted, RUN_INITIAL_STATE),
       // Only persist the serializable state, not functions
       partialize: (state) => ({
         isActive: state.isActive,

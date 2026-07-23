@@ -19,6 +19,7 @@ import type { CombatEncounter } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useRunImagePreload } from '@/hooks/useRunImagePreload';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useBattleStore } from '@/stores/battleStore';
@@ -31,6 +32,22 @@ import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateEventStatBonuses } from '@/utils/statCalculator';
 import { logger } from '@/utils/logger';
 import { addXp, calculateXpGain } from '@/utils/xpSystem';
+import {
+  arenaPlaceholderStyle,
+  backBtnStyle,
+  backBtnStyle2,
+  bottomStyle,
+  centerStyle,
+  containerStyle,
+  emptyStyle,
+  headerStyle,
+  leftPanelStyle,
+  mainStyle,
+  nextBtnStyle,
+  nextTurnBtnStyle,
+  rightPanelStyle,
+  teamTitleStyle,
+} from './combatPageStyles';
 
 function buildTeamInstances(
   championIds: string[],
@@ -325,6 +342,7 @@ const SLOT_TO_ACTION: Record<string, ActionType> = {
 };
 
 export function CombatPage() {
+  useRunImagePreload();
   const isActive = useRunStore((s) => s.isActive);
   const team = useRunStore((s) => s.team);
   const runLevel = useRunStore((s) => s.runLevel);
@@ -908,144 +926,3 @@ export function CombatPage() {
     </div>
   );
 }
-
-// ── Styles ──────────────────────────────────────────────────────────
-
-const containerStyle: React.CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-  display: 'flex',
-  flexDirection: 'column',
-};
-
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 16,
-  padding: '8px 16px',
-  background: '#161b22',
-  borderBottom: '1px solid #1e2a3a',
-  flexShrink: 0,
-};
-
-const backBtnStyle: React.CSSProperties = {
-  padding: '6px 12px',
-  background: '#21262d',
-  color: '#e6edf3',
-  border: '1px solid #30363d',
-  borderRadius: 6,
-  fontSize: 12,
-  cursor: 'pointer',
-};
-
-const mainStyle: React.CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  gap: 8,
-  padding: 8,
-  overflow: 'hidden',
-};
-
-const leftPanelStyle: React.CSSProperties = {
-  width: 220,
-  flexShrink: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  background: '#161b22',
-  borderRadius: 8,
-  border: '1px solid #30363d',
-  padding: 8,
-  overflow: 'auto',
-};
-
-const rightPanelStyle: React.CSSProperties = {
-  width: 220,
-  flexShrink: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  background: '#161b22',
-  borderRadius: 8,
-  border: '1px solid #30363d',
-  padding: 8,
-  overflow: 'auto',
-};
-
-const centerStyle: React.CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-};
-
-const teamTitleStyle = (color: string): React.CSSProperties => ({
-  fontSize: 11,
-  fontWeight: 'bold',
-  color,
-  textTransform: 'uppercase',
-  letterSpacing: 1,
-  marginBottom: 4,
-  paddingBottom: 4,
-  borderBottom: '1px solid #30363d',
-});
-
-const emptyStyle: React.CSSProperties = {
-  fontSize: 12,
-  color: '#555',
-  textAlign: 'center',
-  padding: 20,
-};
-
-const arenaPlaceholderStyle: React.CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: '#161b22',
-  borderRadius: 8,
-  border: '1px solid #30363d',
-};
-
-const nextTurnBtnStyle: React.CSSProperties = {
-  padding: '8px 20px',
-  background: '#c89033',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 6,
-  fontSize: 13,
-  fontWeight: 'bold',
-  cursor: 'pointer',
-};
-
-const nextBtnStyle: React.CSSProperties = {
-  padding: '10px 24px',
-  background: '#22c55e',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 6,
-  fontSize: 14,
-  fontWeight: 'bold',
-  cursor: 'pointer',
-};
-
-const backBtnStyle2: React.CSSProperties = {
-  padding: '10px 24px',
-  background: '#21262d',
-  color: '#e6edf3',
-  border: '1px solid #30363d',
-  borderRadius: 6,
-  fontSize: 14,
-  cursor: 'pointer',
-};
-
-const bottomStyle: React.CSSProperties = {
-  height: 220,
-  display: 'flex',
-  flexDirection: 'column',
-  padding: '0 8px 8px',
-  flexShrink: 0,
-};

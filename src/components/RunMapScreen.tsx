@@ -13,6 +13,22 @@ import { useRunStore } from '@/stores/runStore';
 import type { InventoryEntry, NodeType as RunNodeType, TeamMember } from '@/types/run';
 import { calculateMaxHP } from '@/utils/statCalculator';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
+import {
+  btnStyle,
+  headerStyle,
+  hpBarBg,
+  hpBarFill,
+  inventoryItemStyle,
+  layoutStyle,
+  mainStyle,
+  mapContainerStyle,
+  overlayStyle,
+  panelStyle,
+  panelTitle,
+  sidebarStyle,
+  teamMemberStyle,
+  tooltipStyle,
+} from './runMapStyles';
 
 // Map game/map NodeType enum to CSS colors
 const NODE_COLORS: Record<string, string> = {
@@ -720,126 +736,3 @@ function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team
     </div>
   );
 }
-
-const overlayStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-  overflow: 'hidden',
-};
-const layoutStyle: React.CSSProperties = {
-  display: 'flex',
-  height: '100%',
-  gap: 16,
-  padding: 16,
-  boxSizing: 'border-box',
-};
-const sidebarStyle: React.CSSProperties = {
-  width: 220,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12,
-  flexShrink: 0,
-};
-const mainStyle: React.CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  minWidth: 0,
-  minHeight: 0,
-  overflowY: 'auto',
-};
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 20,
-  alignItems: 'center',
-  padding: '8px 16px',
-  background: '#161b22',
-  borderRadius: 8,
-  marginBottom: 8,
-  fontSize: 14,
-  flexShrink: 0,
-};
-const mapContainerStyle: React.CSSProperties = {
-  flex: 1,
-  minHeight: 320,
-  overflow: 'auto',
-  background: '#0d1117',
-  borderRadius: 8,
-  border: '1px solid #1e2a3a',
-};
-const panelStyle: React.CSSProperties = {
-  background: '#161b22',
-  borderRadius: 8,
-  border: '1px solid #1e2a3a',
-  padding: 8,
-  overflow: 'auto',
-};
-const panelTitle: React.CSSProperties = {
-  color: '#c8aa6e',
-  fontSize: 13,
-  fontWeight: 700,
-  marginBottom: 8,
-  padding: '0 4px',
-};
-const teamMemberStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 8,
-  alignItems: 'center',
-  padding: 6,
-  borderRadius: 6,
-  background: '#0d1117',
-  marginBottom: 4,
-};
-const hpBarBg: React.CSSProperties = {
-  width: '100%',
-  height: 6,
-  background: '#21262d',
-  borderRadius: 3,
-  marginTop: 2,
-  marginBottom: 1,
-};
-const hpBarFill: React.CSSProperties = {
-  height: '100%',
-  background: '#22c55e',
-  borderRadius: 3,
-  transition: 'width 0.3s',
-};
-const inventoryItemStyle: React.CSSProperties = {
-  padding: '4px 8px',
-  background: '#0d1117',
-  borderRadius: 4,
-  marginBottom: 3,
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-};
-const btnStyle: React.CSSProperties = {
-  padding: '10px 24px',
-  background: '#c8aa6e',
-  color: '#0d1117',
-  border: 'none',
-  borderRadius: 6,
-  fontSize: 14,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const tooltipStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  background: '#1e2a3a',
-  border: '1px solid #c8aa6e',
-  borderRadius: 8,
-  padding: 10,
-  minWidth: 160,
-  maxWidth: 220,
-  zIndex: 100,
-  boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
-};
