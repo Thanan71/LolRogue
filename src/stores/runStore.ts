@@ -660,11 +660,17 @@ export const useRunStore = create<RunStore>()(
         if (nextIndex >= biomeMaps.length) return false;
 
         const nextMap = biomeMaps[nextIndex];
+        const nextStartNode = findNode(nextMap, nextMap.startNodeId);
+        if (!nextStartNode) return false;
+        nextStartNode.accessible = true;
         set({
+          biomeMaps: [...biomeMaps],
           currentBiomeIndex: nextIndex,
           currentNodeId: nextMap.startNodeId,
           currentBiome: nextMap.biome,
           biomesVisited: [...get().biomesVisited, nextMap.biome],
+          pendingEncounter: null,
+          currentEncounter: null,
         });
         return true;
       },

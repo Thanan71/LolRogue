@@ -751,6 +751,8 @@ const mainStyle: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   minWidth: 0,
+  minHeight: 0,
+  overflowY: 'auto',
 };
 const headerStyle: React.CSSProperties = {
   display: 'flex',
@@ -765,6 +767,7 @@ const headerStyle: React.CSSProperties = {
 };
 const mapContainerStyle: React.CSSProperties = {
   flex: 1,
+  minHeight: 320,
   overflow: 'auto',
   background: '#0d1117',
   borderRadius: 8,
