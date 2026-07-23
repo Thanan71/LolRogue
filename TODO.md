@@ -1,170 +1,204 @@
 # TODO — audit complet de LolRogue
 
-Audit réalisé le 23 juillet 2026 sur l'état actuel du dépôt.
+Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
-## État constaté
+## État actuel vérifié
 
-- [x] 17 fichiers de tests passent, soit 447 tests.
-- [ ] Le typecheck échoue actuellement avec 8 erreurs TypeScript.
-- [ ] Le build de production est bloqué par le typecheck.
-- [ ] La boucle complète d'une run sur les 6 biomes n'est pas jouable jusqu'au bout.
-- [ ] Les systèmes déjà codés (objets, runes, augments, maîtrise, daily run, Phaser) ne sont pas tous reliés à l'interface principale.
+- [x] TypeScript compile sans erreur avec `npm run typecheck`.
+- [x] 503 tests passent; 2 tests Supabase live sont ignorés sans identifiants.
+- [x] Le build Vite hors téléchargement Data Dragon réussit.
+- [x] Les combats utilisent maintenant les encounters générés et les bonus d'amélioration/objets.
+- [x] Les nœuds `Start`, `Exit` et `Treasure` ont un flux applicatif.
+- [x] Supabase Auth, repositories, maîtrise, améliorations et panneau admin sont présents.
+- [ ] Le schéma Supabase n'a pas une source de vérité unique et déployable.
+- [ ] Le mode invité, la fin de run et plusieurs politiques de sécurité doivent être corrigés.
+- [ ] La boucle complète doit encore être validée par des tests d'intégration navigateur.
 
-## P0 — bloquants à corriger
+## P0 — bloquants et sécurité
 
-### Compilation
+### Unifier les migrations Supabase
 
-- [ ] Corriger les imports/variables inutilisés dans `RunMapScreen.tsx`, `CombatPage.tsx` et `runStore.ts`.
-- [ ] Faire accepter un `NodeType` à `startEncounter` au lieu d'un `string`, puis supprimer les casts dans `RunMapScreen`.
-- [ ] Initialiser `effectManager` pour chaque `CombatantState` créé dans `BattleManager._initCombatants`.
-- [ ] Ajouter une commande CI qui exécute au minimum `npm run typecheck`, `npm test` et le build Vite.
+- [ ] Supprimer ou refondre `20260723190000_initial_schema.sql` : elle entre en conflit avec les migrations `001–008`.
+- [ ] Choisir le schéma réellement utilisé par l'application : `players`, `runs` UUID, `run_team_members` et `daily_runs` correspondent actuellement aux repositories TypeScript.
+- [ ] Ne pas recréer `runs` avec un identifiant BIGINT après que `001_create_player_accounts.sql` l'a créée avec un UUID.
+- [ ] Ne pas créer en parallèle `profiles`/`run_champions`/`daily_leaderboard` si l'application utilise `players`/`run_team_members`/`daily_runs`.
+- [ ] Produire une migration de consolidation applicable sur une base Supabase neuve et une migration corrective pour une base existante.
+- [ ] Générer les types Supabase depuis le schéma avec `supabase gen types typescript` au lieu de maintenir manuellement `src/types/database.ts`.
+- [ ] Ajouter `supabase db reset` et `supabase db lint` à la validation CI.
+- [ ] Faire exécuter les tests live sur le même schéma que les repositories; les tests actuels vérifient les nouvelles tables incompatibles.
 
-### Progression de la carte
+### Fermer l'escalade de privilèges admin
 
-- [ ] Implémenter le comportement des nœuds `Treasure` : attribuer une récompense, résoudre le nœud et afficher le résultat.
-- [ ] Implémenter le comportement des nœuds `Exit` : terminer le biome courant et charger le suivant.
-- [ ] Réserver `Boss` au dernier biome, ou définir clairement un boss par biome. Actuellement les biomes ordinaires terminent par `Exit`, mais seul le boss déclenche `advanceToNextBiome`.
-- [ ] Ne terminer la run qu'après le boss final. `CombatPage` envoie actuellement vers Game Over dès qu'un nœud de type `boss` est vaincu.
-- [ ] Ajouter un écran/état de victoire distinct d'une fin de run après défaite.
-- [ ] Empêcher un retour libre vers la carte pendant un combat non résolu, qui permet de contourner la rencontre.
-- [ ] Garantir qu'un encounter correspond au nœud courant et refuser les accès directs incohérents à `/combat`, `/shop`, `/rest`, `/event` et `/recruit`.
-- [ ] Dédupliquer `completedNodeIds` et éviter la mutation profonde directe de `biomeMaps` dans `completeCurrentNode`.
+- [ ] Empêcher un utilisateur de modifier sa propre colonne `players.is_admin`.
+- [ ] Retirer `is_admin` de `PlayerUpdate` côté client.
+- [ ] Remplacer la policy UPDATE générale de `players` par une policy/une fonction qui limite explicitement les colonnes modifiables.
+- [ ] Réserver l'attribution/retrait du rôle admin à une Edge Function, une RPC sécurisée ou la service role.
+- [ ] Tester en SQL/RLS qu'un utilisateur normal ne peut ni devenir admin ni lire les vues admin.
+- [ ] Définir les vues admin en `security_invoker = true` ou révoquer leur accès public si nécessaire.
 
-### Cohérence du combat
+### Corriger Auth et le mode invité
 
-- [ ] Utiliser les ennemis définis par `CombatEncounter.enemies` au lieu de générer une équipe uniquement depuis `runLevel`.
-- [ ] Appliquer `statMultiplier`, le niveau et les récompenses définis dans l'encounter.
-- [ ] Différencier réellement les combats normaux, élites et boss (difficulté, composition, récompenses).
-- [ ] Conserver les PV au bon moment : la fin de combat et `onComplete` peuvent précéder l'effet React qui copie les PV finaux dans `runStore`.
-- [ ] Gérer les champions à 0 PV avant le début d'un combat et empêcher une équipe entièrement KO d'entrer en rencontre.
-- [ ] Utiliser le mana réel dans l'UI et les actions : `toCombatantInfo` réinitialise actuellement l'affichage au mana maximum.
-- [ ] Relier le contrôle de vitesse aux délais d'auto-combat; `battleSpeed` existe mais l'auto-play reste fixé à 400 ms.
+- [ ] Persister explicitement un état `isGuest`, ou rendre les routes de jeu réellement accessibles sans session.
+- [ ] Corriger `handleGuestPlay` : il navigue vers `/`, puis `ProtectedRoute` renvoie l'utilisateur non authentifié vers `/auth`.
+- [ ] Ne pas construire le client Supabase avec une clé vide lorsque les variables sont absentes; afficher un écran de configuration ou activer proprement le mode hors ligne.
+- [ ] Remplacer les deux variables globales `authCheckInitialized` distinctes de `ProtectedRoute` et `AdminRoute` par une initialisation de session unique dans l'application.
+- [ ] Tester login, inscription avec confirmation email, restauration de session, logout, mode invité et accès admin.
+- [ ] Nettoyer les scripts SQL ponctuels de correction d'inscription après intégration dans une migration officielle.
+
+### Corriger la fin et la sauvegarde des runs
+
+- [ ] Appeler `endRun(true, runId)` après la victoire finale; `CombatPage` appelle actuellement `endRun()` et sauvegarde donc la victoire comme une défaite.
+- [ ] Attendre la sauvegarde Supabase avant de perdre l'état utile, avec un retour visuel en cas d'échec.
+- [ ] Rendre la sauvegarde d'une run atomique via une RPC/transaction : run, équipe, statistiques joueur et maîtrise peuvent actuellement être partiellement enregistrées.
+- [ ] Rendre la sauvegarde idempotente avec la contrainte unique `run_uuid` et un upsert contrôlé.
+- [ ] Ne pas marquer tous les champions comme survivants dans `runStore.endRun`; utiliser leurs PV finaux.
+- [ ] Persister `runStartTime` dans le store : un rechargement de page le remet actuellement à `null` et empêche l'enregistrement.
+- [ ] Clarifier et tester l'abandon d'une run : résultat, récompenses, statistiques et sauvegarde.
 
 ## P1 — fonctionnalités à ajouter
 
-### Inventaire et équipement
+### Daily run et classements
 
-- [ ] Ajouter un véritable écran/panneau d'inventaire interactif.
-- [ ] Permettre d'équiper, déséquiper, vendre et comparer les objets depuis l'interface.
-- [ ] Afficher les emplacements utilisés et la limite d'objets par champion.
-- [ ] Brancher les bonus d'objets de `runStore.inventory` sur les statistiques des `ChampionInstance` en combat.
-- [ ] Brancher les passifs d'objets sur le moteur d'effets.
-- [ ] Définir la capacité maximale de l'inventaire global et le comportement lorsque celui-ci est plein.
+- [ ] Ajouter un bouton « Daily Run » au menu.
+- [ ] Connecter `dailyRunStore` et `SupabaseDailyRunRepository` au lancement et à la fin des runs.
+- [ ] Afficher `DailyLeaderboard`; le composant existe mais n'est monté nulle part.
+- [ ] Remplacer le leaderboard localStorage par Supabase pour les joueurs connectés, avec fallback local explicite pour les invités.
+- [ ] Utiliser une seed unique persistée pour carte, encounters, ennemis, boutiques, événements et drops.
+- [ ] Empêcher plusieurs scores quotidiens par joueur ou définir une règle « meilleur score » atomique.
+- [ ] Ajouter protection anti-triche minimale et validation serveur du score si le classement devient public.
 
-### Progression roguelike
+### Inventaire, objets, runes et augments
 
-- [ ] Ajouter un choix d'augmentations pendant la run et connecter `AugmentManager` au combat.
-- [ ] Ajouter un choix/équipement de runes et connecter `RuneManager`.
-- [ ] Ajouter l'expérience, la montée de niveau et les choix d'amélioration de sorts; les champs existent mais la progression n'est pas alimentée.
-- [ ] Afficher la maîtrise des champions, les candies, les paliers et les bonus permanents.
-- [ ] Unifier les deux systèmes de récompenses/maîtrise (`masteryStore` et `rewardsStore`) afin d'éviter les doubles récompenses.
-- [ ] Appliquer effectivement les bonus de maîtrise aux champions.
-- [ ] Ajouter une page de méta-progression et de déblocages.
+- [ ] Ajouter une interface pour équiper/déséquiper les objets; les méthodes du store existent mais l'inventaire de carte reste principalement consultatif.
+- [ ] Ajouter comparaison, vente, tri et limite d'inventaire global.
+- [ ] Afficher clairement les objets équipés sur chaque champion.
+- [ ] Brancher les passifs d'objets au moteur d'effets, pas uniquement les bonus statistiques.
+- [ ] Ajouter un écran de sélection de runes et connecter `RuneManager`.
+- [ ] Ajouter les choix d'augments pendant la run et connecter `AugmentManager`.
+- [ ] Définir la persistance des runes/augments dans la sauvegarde de run et Supabase.
 
-### Daily run
+### Combat et progression
 
-- [ ] Ajouter une entrée « Daily Run » au menu.
-- [ ] Connecter `dailyRunStore` au lancement et à la fin d'une run.
-- [ ] Afficher `DailyLeaderboard`; le composant existe mais n'est rendu nulle part.
-- [ ] Utiliser une seed de run unique et persistée pour la carte, les combats, boutiques, événements et récompenses.
-- [ ] Remplacer tous les `Date.now()` et `Math.random()` du chemin daily par le générateur seedé.
-- [ ] Clarifier que le leaderboard actuel est local au navigateur, ou ajouter un backend si un classement partagé est voulu.
+- [ ] Ajouter un choix explicite de cible pour les sorts alliés, ennemis et de zone.
+- [ ] Appliquer et afficher le mana courant réel dans toute l'UI.
+- [ ] Ajouter les choix d'amélioration de sorts lors des montées de niveau.
+- [ ] Ajouter un récapitulatif des XP, niveaux, gold et objets après chaque combat.
+- [ ] Vérifier l'équilibrage distinct des combats normaux, élites et boss avec des simulations.
+- [ ] Ajouter une gestion claire d'une équipe entièrement KO avant une nouvelle rencontre.
+- [ ] Empêcher de quitter un combat actif vers la carte pour contourner la rencontre.
 
-### Contenu et UX
+### Contenu et expérience utilisateur
 
-- [ ] Ajouter davantage de champions jouables et valider leurs compétences avec des tests de données.
-- [ ] Enrichir les rencontres, événements, objets, runes et augments avec une progression par biome.
-- [ ] Ajouter les écrans de choix de cible pour les compétences alliées/ennemies et les compétences de zone.
-- [ ] Ajouter un récapitulatif de récompenses après chaque rencontre.
-- [ ] Ajouter une confirmation avant d'abandonner une run active.
-- [ ] Ajouter une page 404 et des garde-routes.
-- [ ] Ajouter des états de chargement/erreur explicites pour Data Dragon et les images.
-- [ ] Ajouter un tutoriel court et une légende interactive de la carte.
-- [ ] Ajouter une interface responsive pour mobile et petits écrans.
+- [ ] Ajouter plus de champions jouables et des tests de validation de leurs données.
+- [ ] Étendre les rencontres, événements, trésors, objets, runes et augments par biome.
+- [ ] Ajouter un tutoriel et une légende interactive de la carte.
+- [ ] Ajouter une confirmation avant abandon, logout ou démarrage d'une nouvelle run active.
+- [ ] Ajouter une page 404 et des garde-routes spécifiques aux encounters.
+- [ ] Ajouter notifications/toasts pour les erreurs Supabase, sauvegardes et déblocages.
+- [ ] Ajouter un historique des runs et un profil joueur accessible hors du panneau admin.
+- [ ] Ajouter une interface responsive et tactile pour mobile.
 
-## P1 — comportements existants à modifier
+## P1 — comportements à modifier
 
-### Carte et génération
+### Carte et déterminisme
 
-- [ ] Générer des identifiants d'encounter déterministes; ils utilisent actuellement `Date.now()`.
-- [ ] Éviter `.sort(() => rand() - 0.5)` pour les mélanges seedés et utiliser Fisher–Yates/`SeededRNG.shuffle`.
-- [ ] S'assurer qu'il n'existe qu'un vrai nœud `Start` et un vrai nœud final par biome.
-- [ ] Tester que toute carte générée possède au moins un chemin jouable du départ à la sortie.
-- [ ] Tester la progression inter-biomes, les trésors, les sorties et le boss final.
+- [ ] Supprimer la double génération de carte dans `startRun` : une carte est créée directement puis `generateRunMap()` est rappelée.
+- [ ] Stocker la seed dans `runStore` et dans la base dès le démarrage.
+- [ ] Remplacer les identifiants et tirages fondés sur `Date.now()`/`Math.random()` par le RNG seedé lorsqu'ils influencent une run.
+- [ ] Remplacer `.sort(() => rand() - 0.5)` par un mélange Fisher–Yates déterministe.
+- [ ] Gérer explicitement la sortie du dernier biome et la victoire si la configuration des biomes change.
+- [ ] Refuser l'accès direct à une page d'encounter qui ne correspond pas à `currentEncounter`.
+- [ ] Empêcher la double collecte/résolution après refresh ou navigation arrière.
 
 ### Événements, repos et recrutement
 
-- [ ] Persister les bonus de statistiques issus des événements `stat_boost`; ils sont actuellement annoncés mais non appliqués.
-- [ ] Définir le comportement d'un `gold_cost` impossible à payer au lieu de laisser `spendGold` échouer silencieusement.
-- [ ] Initialiser les PV maximum avec les statistiques au niveau courant, bonus compris, dans Rest/Event/RunMap.
-- [ ] Appliquer `statMultiplier` au champion recruté.
-- [ ] Déterminer si l'échec d'un recrutement consomme l'or; documenter et tester la règle.
-- [ ] Empêcher qu'une page de rencontre soit résolue plusieurs fois après rechargement/navigation.
+- [ ] Vérifier que tous les `stat_boost` sont persistés, appliqués au combat et sauvegardés.
+- [ ] Définir le comportement d'un coût d'événement impossible à payer.
+- [ ] Appliquer le `statMultiplier` des champions recrutés ou supprimer ce champ.
+- [ ] Documenter si un recrutement raté consomme l'or et tester cette règle.
+- [ ] Utiliser partout les PV maximum calculés avec niveau, maîtrise, améliorations, objets et boosts.
 
-### Paramètres et audio
+### Maîtrise et améliorations
 
-- [ ] Relier les contrôles Difficulty et Particles à un store; ils sont actuellement décoratifs.
-- [ ] Exposer et connecter `textSize` et `battleSpeed` dans la page Settings.
-- [ ] Ajouter les boutons mute/unmute déjà prévus dans `audioStore`.
-- [ ] Implémenter la musique ou retirer temporairement le volume de musique, qui ne contrôle aucune piste.
-- [ ] Corriger le toggle visuel Particles : son curseur ne reflète pas l'état de la checkbox.
-- [ ] Respecter `prefers-reduced-motion` pour les particules et animations SVG.
+- [ ] Désigner une source de vérité unique pour les candies et la maîtrise : store local, `players.total_candies` et `champion_mastery` peuvent diverger.
+- [ ] Mettre à jour la maîtrise avec des incréments atomiques plutôt qu'avec des valeurs calculées côté client.
+- [ ] Vérifier que `games_played`, `games_won`, kills et dégâts sont additionnés et non écrasés à chaque run.
+- [ ] Éviter la double attribution entre `runStore.endRun`, `masteryStore`, `rewardsStore` et `runService`.
+- [ ] Ajouter des tests d'intégration pour le déblocage d'un nœud d'amélioration et la dépense concurrente de candies.
+- [ ] Prévoir le comportement des améliorations pour un joueur invité.
+
+### Paramètres, accessibilité et audio
+
+- [ ] Connecter Difficulty et Particles à un store; ils restent décoratifs.
+- [ ] Ajouter `textSize` et `battleSpeed` à la page Settings.
+- [ ] Ajouter les contrôles mute/unmute déjà présents dans `audioStore`.
+- [ ] Implémenter la musique ou retirer temporairement son slider.
+- [ ] Corriger le rendu du toggle Particles pour refléter son état réel.
+- [ ] Respecter `prefers-reduced-motion` dans les particules, animations SVG et transitions.
+- [ ] Ajouter navigation clavier, focus visible et libellés accessibles aux contrôles interactifs.
 
 ### Architecture
 
-- [ ] Choisir une seule interface de jeu principale : React est utilisée, tandis que `BootScene`, `BattleScene` et `GameOverScene` Phaser ne sont jamais montées.
-- [ ] Supprimer ou intégrer les composants dupliqués non utilisés (`MainMenu`/`MenuPage`, `StarterSelect`/`StarterSelectPage`).
-- [ ] Simplifier la navigation : React Router, `routerStore` et `gameStore.phase` se chevauchent et peuvent diverger.
-- [ ] Supprimer les casts `as any` applicatifs, notamment pour `biomesVisited`, en alignant `Biome` et les types de résumé.
-- [ ] Ajouter une version de schéma et des migrations aux stores Zustand persistés.
-- [ ] Ajouter une récupération sûre des données `localStorage` corrompues ou devenues incompatibles.
-- [ ] Réinitialiser explicitement tous les stores temporaires lors d'une nouvelle run.
-- [ ] Découper `CombatPage` et `BattleManager`, devenus des points de concentration de logique.
+- [ ] Choisir entre React et les scènes Phaser non montées (`BootScene`, `BattleScene`, `GameOverScene`).
+- [ ] Retirer Phaser du bundle si ces scènes restent inutilisées.
+- [ ] Supprimer ou intégrer les composants dupliqués `MainMenu`/`MenuPage` et `StarterSelect`/`StarterSelectPage`.
+- [ ] Simplifier la navigation : React Router, `routerStore` et `gameStore.phase` se chevauchent encore.
+- [ ] Découper `AdminPage` (~747 lignes), `CombatPage` (~735), `BattleManager` (~698), `runStore` (~508) et `RunMapScreen` (~488).
+- [ ] Remplacer les `any` des repositories, logs et fixtures par des types Supabase générés/builders typés.
+- [ ] Ajouter des migrations de version aux stores Zustand persistés.
+- [ ] Ajouter une récupération sûre des données localStorage incompatibles ou corrompues.
+- [ ] Centraliser la journalisation et désactiver les logs de debug verbeux en production.
 
-## P2 — qualité, livraison et maintenance
+## P2 — qualité et livraison
 
 ### Tests
 
-- [ ] Ajouter des tests d'intégration React avec navigation réelle entre menu, carte, rencontres et Game Over.
-- [ ] Ajouter un test end-to-end d'une run complète sur les 6 biomes.
-- [ ] Ajouter des tests de persistance/reprise après rechargement.
-- [ ] Ajouter des tests pour les pages Shop, Recruit, Rest et Event.
-- [ ] Réduire les `any` dans les fixtures de tests avec des builders typés.
-- [ ] Ajouter une couverture de code avec des seuils CI.
+- [ ] Ajouter des tests React avec Testing Library pour Auth, Menu, Map, Shop, Rest, Event, Treasure et Game Over.
+- [ ] Ajouter un test Playwright/Cypress d'une run complète sur les six biomes.
+- [ ] Ajouter un test E2E Supabase : inscription, trigger player, RLS, run, maîtrise, amélioration et suppression.
+- [ ] Tester la reprise après rechargement pendant une run et pendant un encounter.
+- [ ] Tester les erreurs réseau et la reprise d'une sauvegarde partielle.
+- [ ] Ajouter la couverture avec seuils par module.
+- [ ] Exécuter réellement les 2 tests Supabase live en CI sur un projet local éphémère.
 
-### Outillage
+### Outillage et CI
 
-- [ ] Ajouter ESLint avec règles React Hooks, TypeScript et accessibilité.
+- [ ] Ajouter une CI exécutant `typecheck`, tests, build Vite, `supabase db reset` et `supabase db lint`.
+- [ ] Ajouter ESLint avec TypeScript, React Hooks et accessibilité.
 - [ ] Ajouter Prettier ou Biome et une commande `format:check`.
-- [ ] Séparer le téléchargement Data Dragon du build normal : un build ne devrait pas dépendre du réseau ni modifier les assets.
-- [ ] Épingler une version Data Dragon reproductible avec une commande explicite de mise à jour.
-- [ ] Ajouter des scripts `check` et `build:offline`.
-- [ ] Ajouter Dependabot/Renovate et un audit périodique des dépendances.
+- [ ] Ajouter une commande `check` regroupant toutes les validations.
+- [ ] Séparer le téléchargement Data Dragon du build normal; le build ne doit pas dépendre du réseau ni modifier `public`.
+- [ ] Épingler la version Data Dragon et documenter sa mise à jour.
+- [ ] Installer/pinner Supabase CLI au lieu de dépendre implicitement de `npx`.
+- [ ] Auditer les 9 vulnérabilités npm signalées (1 low, 3 moderate, 4 high, 1 critical) sans appliquer de mise à jour forcée non vérifiée.
+- [ ] Utiliser une version Node LTS; Node 23 déclenche des avertissements de compatibilité avec les paquets Jest.
 
 ### Performance et production
 
-- [ ] Charger les pages lourdes en lazy loading.
-- [ ] Vérifier le poids du bundle Phaser; le retirer du bundle principal s'il reste inutilisé.
-- [ ] Optimiser/précharger uniquement les images nécessaires à la rencontre courante.
-- [ ] Ajouter un Error Boundary React.
-- [ ] Ajouter les métadonnées SEO/PWA utiles (favicon, manifest, thème, partage social) si le jeu doit être publié.
-- [ ] Ajouter une politique de confidentialité ou désactiver Analytics/Speed Insights si le déploiement ne doit pas collecter de télémétrie.
-- [ ] Documenter le déploiement SPA et la réécriture de toutes les routes vers `index.html`.
+- [ ] Découper le bundle principal, actuellement autour de 1,17 Mo minifié (environ 290 Ko gzip).
+- [ ] Charger paresseusement Admin, Database, Auth et les pages d'encounter.
+- [ ] Isoler ou retirer Phaser du chunk principal.
+- [ ] Corriger les polices Beaufort manquantes sous `public/fonts`.
+- [ ] Ajouter un Error Boundary React et des fallbacks de chargement par route.
+- [ ] Optimiser le préchargement des images aux champions/objets nécessaires.
+- [ ] Ajouter les en-têtes de sécurité, CSP et une configuration SPA de réécriture vers `index.html`.
+- [ ] Ajouter une politique de confidentialité ou désactiver Analytics/Speed Insights tant que la télémétrie n'est pas documentée.
 
 ### Documentation
 
-- [ ] Corriger le README : les dossiers `data/` décrits n'existent pas dans l'état suivi, et les assets réels sont sous `public/lol`.
-- [ ] Documenter l'architecture retenue, la boucle de jeu et la source de vérité de chaque store.
-- [ ] Documenter les règles de combat, formules, probabilités et progression.
-- [ ] Ajouter les instructions de mise à jour Data Dragon et les contraintes de licence des assets Riot.
+- [ ] Réécrire le README : structure des assets, Auth, mode invité, Supabase local, migrations, tests et déploiement.
+- [ ] Fusionner les nombreux guides ponctuels (`*_FIX*`, `*_COMPLETE*`) en documentation maintenue.
+- [ ] Documenter la source de vérité de chaque donnée : run locale, profil, maîtrise, améliorations et leaderboard.
+- [ ] Documenter les règles de combat, XP, récompenses, probabilités et progression.
+- [ ] Documenter la procédure de promotion admin sécurisée.
 - [ ] Ajouter une roadmap par jalons et une checklist de release.
 
-## Ordre de réalisation conseillé
+## Ordre de réalisation recommandé
 
-1. Rétablir le typecheck et le build.
-2. Réparer `Exit`/`Treasure` et terminer correctement les 6 biomes.
-3. Aligner les encounters générés avec les combats réellement joués.
-4. Fiabiliser la persistance des PV, rencontres et sauvegardes.
-5. Brancher inventaire, objets, progression et maîtrise au moteur.
-6. Intégrer daily run, paramètres et écrans de méta-progression.
-7. Ajouter tests d'intégration, CI, lint et optimisation de production.
+1. Consolider les migrations Supabase et fermer l'escalade admin.
+2. Corriger mode invité, configuration Supabase et victoire enregistrée comme défaite.
+3. Rendre la sauvegarde de run atomique, idempotente et restaurable.
+4. Ajouter les tests E2E Auth/RLS et run complète.
+5. Finaliser inventaire, runes, augments et daily run.
+6. Unifier navigation, stores de progression et architecture React/Phaser.
+7. Ajouter CI, lint, formatage, code splitting et documentation de release.
