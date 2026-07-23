@@ -310,12 +310,12 @@ export const useRunStore = create<RunStore>()(
 
       // ── Team Management ─────────────────────────────────────────────────
 
-      addChampion: (championId) => {
+      addChampion: (championId, statMultiplier = 1) => {
         const { team } = get();
         if (team.length >= MAX_TEAM_SIZE) return false;
         if (team.some((m) => m.championId === championId)) return false;
 
-        set({ team: [...team, { championId }] });
+        set({ team: [...team, { championId, statMultiplier }] });
         return true;
       },
 
@@ -583,9 +583,7 @@ export const useRunStore = create<RunStore>()(
             if (update) {
               return {
                 ...m,
-                currentHp: update.currentHp,
-                level: update.level,
-                currentXp: update.currentXp,
+                ...update,
               };
             }
             return m;

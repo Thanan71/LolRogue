@@ -91,6 +91,24 @@ export function resolveEventOutcome(
   return outcomes[outcomes.length - 1];
 }
 
+export function resolveAffordableEventOutcome(
+  outcomes: EventOutcome[],
+  availableGold: number,
+  rand: () => number = Math.random,
+): EventOutcome {
+  const affordable = outcomes.filter(
+    (outcome) =>
+      outcome.type !== 'gold_cost' ||
+      Math.abs(outcome.goldAmount ?? 0) <= Math.max(0, availableGold),
+  );
+  if (affordable.length > 0) return resolveEventOutcome(affordable, rand);
+  return {
+    type: 'nothing',
+    weight: 1,
+    description: 'You cannot afford any available outcome, so nothing happens.',
+  };
+}
+
 // ─── Encounter Manager ──────────────────────────────────────────────────────
 
 export class EncounterManager {

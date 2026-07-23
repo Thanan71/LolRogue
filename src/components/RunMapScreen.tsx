@@ -10,7 +10,7 @@ import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useGameStore } from '@/stores/gameStore';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
-import type { InventoryEntry, NodeType as RunNodeType } from '@/types/run';
+import type { InventoryEntry, NodeType as RunNodeType, TeamMember } from '@/types/run';
 import { calculateMaxHP } from '@/utils/statCalculator';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
 
@@ -352,19 +352,7 @@ export function RunMapScreen() {
   );
 }
 
-function TeamPanel({
-  team,
-  inventory,
-}: {
-  team: {
-    championId: string;
-    level?: number;
-    currentXp?: number;
-    currentHp?: number;
-    statBoosts?: Record<string, number>;
-  }[];
-  inventory: InventoryEntry[];
-}) {
+function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: InventoryEntry[] }) {
   // Calculate enhanced max HP for each team member (with level, enhancements, items, and event stat boosts)
   const enhancedHpMap = useMemo(() => {
     const map: Record<string, number> = {};
@@ -395,6 +383,7 @@ function TeamPanel({
         inventory,
         member.championId,
         member.statBoosts,
+        member.statMultiplier,
       );
     }
     return map;

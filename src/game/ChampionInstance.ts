@@ -38,8 +38,9 @@ export class ChampionInstance {
   private readonly _cooldowns: Record<SpellSlot, number>;
   /** Enhancement bonuses from the enhancement tree system */
   private _enhancementBonuses: EnhancementStatBonuses | null = null;
+  private readonly _statMultiplier: number;
 
-  constructor(champion: Champion, startingLevel = 1) {
+  constructor(champion: Champion, startingLevel = 1, statMultiplier = 1) {
     this.id = champion.id;
     this.key = champion.key;
     this.name = champion.name;
@@ -51,6 +52,7 @@ export class ChampionInstance {
     this.iconUrl = champion.iconUrl;
 
     this._level = clampLevel(startingLevel);
+    this._statMultiplier = Math.max(0.1, statMultiplier);
 
     // Map the spells array [Q, W, E, R] to the slot keys.
     // Data Dragon always provides 4 spells in order: Q, W, E, R.
@@ -98,12 +100,18 @@ export class ChampionInstance {
 
   /** Compute stats scaled to the current level. */
   getStats(): CalculatedStats {
-    return calculateStats(this.baseStats, this._level);
+    return ChampionInstance.applyStatMultiplier(
+      calculateStats(this.baseStats, this._level),
+      this._statMultiplier,
+    );
   }
 
   /** Compute stats at an arbitrary level without changing current level. */
   getStatsAtLevel(level: number): CalculatedStats {
-    return calculateStats(this.baseStats, clampLevel(level));
+    return ChampionInstance.applyStatMultiplier(
+      calculateStats(this.baseStats, clampLevel(level)),
+      this._statMultiplier,
+    );
   }
 
   /**
@@ -173,6 +181,13 @@ export class ChampionInstance {
     }
 
     return result;
+  }
+
+  private static applyStatMultiplier(stats: CalculatedStats, multiplier: number): CalculatedStats {
+    if (multiplier === 1) return stats;
+    return Object.fromEntries(
+      Object.entries(stats).map(([key, value]) => [key, value * multiplier]),
+    ) as unknown as CalculatedStats;
   }
 
   // ── Spells ───────────────────────────────────────────────────────────────

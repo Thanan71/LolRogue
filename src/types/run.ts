@@ -149,6 +149,8 @@ export interface TeamMember {
   currentXp?: number;
   /** Stat boosts gained from events during the run (persisted between combats) */
   statBoosts?: Record<string, number>;
+  /** Base-stat quality rolled when this champion was recruited. */
+  statMultiplier?: number;
 }
 
 /** The full state of a single roguelike run */
@@ -220,7 +222,7 @@ export interface RunActions {
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
   endRun: (won?: boolean, expectedRunId?: string) => Promise<boolean>;
   /** Add a champion to the team (if not full). Returns true if added. */
-  addChampion: (championId: string) => boolean;
+  addChampion: (championId: string, statMultiplier?: number) => boolean;
   /** Remove a champion from the team by champion ID */
   removeChampion: (championId: string) => void;
   /** Replace the entire team (capped at MAX_TEAM_SIZE) */
@@ -268,7 +270,13 @@ export interface RunActions {
   getCurrentNode: () => import('@/game/map/types').MapNode | null;
   /** Update team member HP/level/xp after combat ends */
   updateTeamAfterCombat: (
-    updates: { championId: string; currentHp: number; level: number; currentXp: number }[],
+    updates: {
+      championId: string;
+      currentHp: number;
+      level: number;
+      currentXp: number;
+      statBoosts?: Record<string, number>;
+    }[],
   ) => void;
 }
 

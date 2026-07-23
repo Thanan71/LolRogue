@@ -112,10 +112,10 @@ Audit mis à jour le 23 juillet 2026 après le rebase de `developpement`.
 
 ### Événements, repos et recrutement
 
-- [ ] Vérifier que tous les `stat_boost` sont persistés, appliqués au combat et sauvegardés.
-- [ ] Définir le comportement d'un coût d'événement impossible à payer.
-- [ ] Appliquer le `statMultiplier` des champions recrutés ou supprimer ce champ.
-- [ ] Documenter si un recrutement raté consomme l'or et tester cette règle.
+- [x] Vérifier que tous les `stat_boost` sont persistés, appliqués au combat et sauvegardés.
+- [x] Définir le comportement d'un coût d'événement impossible à payer.
+- [x] Appliquer le `statMultiplier` des champions recrutés ou supprimer ce champ.
+- [x] Documenter si un recrutement raté consomme l'or et tester cette règle.
 - [ ] Utiliser partout les PV maximum calculés avec niveau, maîtrise, améliorations, objets et boosts.
 
 ### Maîtrise et améliorations

@@ -153,11 +153,13 @@ export function calculateMaxHP(
   inventory?: InventoryEntry[],
   championId?: string,
   eventStatBoosts?: Record<string, number> | null,
+  statMultiplier: number = 1,
 ): number {
   if (!champion) return 100;
 
   // Step 1: Calculate base stats at current level
   let stats = calculateStats(champion.stats, level);
+  stats = { ...stats, hp: stats.hp * Math.max(0.1, statMultiplier) };
 
   // Step 2: Apply enhancement bonuses
   if (enhancementBonuses) {

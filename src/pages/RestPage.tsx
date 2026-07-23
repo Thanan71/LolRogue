@@ -61,6 +61,7 @@ export function RestPage() {
         inventory,
         member.championId,
         eventStatBoosts,
+        member.statMultiplier,
       );
     },
     [getEnhancementState, inventory],
@@ -98,6 +99,7 @@ export function RestPage() {
         state.inventory,
         member.championId,
         member.statBoosts,
+        member.statMultiplier,
       );
       const currentHp = member.currentHp ?? maxHp;
       const healAmount = fullHeal ? maxHp - currentHp : Math.floor(maxHp * healPercent);

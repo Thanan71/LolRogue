@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
-import { resolveEventOutcome } from '@/game/map/EncounterManager';
+import { resolveAffordableEventOutcome } from '@/game/map/EncounterManager';
 import type { EventEncounter, EventOutcome } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
@@ -37,7 +37,9 @@ export function EventPage() {
     const state = useRunStore.getState();
     if (!state.claimCurrentEncounter()) return;
     const rng = createScopedRunRng(state.seed, `event:${encounter.id}:outcome`);
-    const resolved = resolveEventOutcome(encounter.outcomes, () => rng.next());
+    const resolved = resolveAffordableEventOutcome(encounter.outcomes, state.gold, () =>
+      rng.next(),
+    );
     setOutcome(resolved);
     switch (resolved.type) {
       case 'gold_reward': {

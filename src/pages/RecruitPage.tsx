@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
 import type { RecruitEncounter } from '@/game/map/types';
+import { getRecruitmentGoldCost } from '@/game/recruitment/recruitmentRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
@@ -40,9 +41,11 @@ export function RecruitPage() {
     const state = useRunStore.getState();
     if (!state.claimCurrentEncounter()) return;
     const rng = createScopedRunRng(state.seed, `recruit:${encounter.id}:attempt`);
-    if (rng.next() < encounter.successChance) {
-      spendGold(encounter.cost);
-      addChampion(encounter.championId);
+    const success = rng.next() < encounter.successChance;
+    const cost = getRecruitmentGoldCost(encounter.cost, success);
+    if (success) {
+      spendGold(cost);
+      addChampion(encounter.championId, encounter.statMultiplier);
       setResult('success');
     } else {
       setResult('fail');
@@ -162,6 +165,9 @@ export function RecruitPage() {
             </div>
             <div style={{ fontSize: 13, color: clr, marginBottom: 20 }}>
               Success chance: {pct}%{pct < 70 ? ' (may flee!)' : ''}
+              <div style={{ color: '#8b949e', marginTop: 6 }}>
+                Gold is charged only when recruitment succeeds.
+              </div>
             </div>
             <div style={{ display: 'flex', gap: 16 }}>
               <button

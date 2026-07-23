@@ -22,18 +22,22 @@ import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/stores/routerStore';
 import { useRunStore } from '@/stores/runStore';
 import { useSettingsStore } from '@/stores/settingsStore';
-import type { Item, ItemStatBonuses, RunSummary } from '@/types/run';
+import type { Item, ItemStatBonuses, RunSummary, TeamMember } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
+import { calculateEventStatBonuses } from '@/utils/statCalculator';
 import { addXp, calculateXpGain } from '@/utils/xpSystem';
 
 function buildTeamInstances(
   championIds: string[],
   levels?: Record<string, number>,
+  statMultipliers?: Record<string, number>,
 ): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
   for (const id of championIds) {
     const champ = championDB.getById(id);
-    if (champ) instances.push(new ChampionInstance(champ, levels?.[id] ?? 1));
+    if (champ) {
+      instances.push(new ChampionInstance(champ, levels?.[id] ?? 1, statMultipliers?.[id] ?? 1));
+    }
   }
   return instances;
 }
@@ -46,6 +50,7 @@ function buildTeamInstances(
 function applyEnhancementsToTeam(
   instances: ChampionInstance[],
   inventory: import('@/types/run').InventoryEntry[],
+  team: TeamMember[],
 ): void {
   const enhancementStore = useEnhancementStore.getState();
 
@@ -64,6 +69,7 @@ function applyEnhancementsToTeam(
       tree,
       enhancementState.unlockedNodes,
     );
+    const flatBonuses = enhancementBonuses.flat as Record<string, number>;
 
     // Calculate item bonuses
     const equippedItems = inventory.filter((entry) => entry.equippedToChampionId === instance.id);
@@ -84,10 +90,15 @@ function applyEnhancementsToTeam(
           // EnhancementStatBonuses.flat uses StatType keys, but ChampionInstance
           // applies them by casting to keyof CalculatedStats, so we need to use
           // the CalculatedStats key names
-          const flatBonuses = enhancementBonuses.flat as Record<string, number>;
           flatBonuses[calcStatsKey] = (flatBonuses[calcStatsKey] || 0) + value;
         }
       }
+    }
+
+    const runMember = team.find((member) => member.championId === instance.id);
+    const eventBonuses = calculateEventStatBonuses(runMember?.statBoosts);
+    for (const [stat, value] of Object.entries(eventBonuses)) {
+      flatBonuses[stat] = (flatBonuses[stat] || 0) + value;
     }
 
     // Apply combined bonuses to the champion instance
@@ -293,6 +304,10 @@ export function CombatPage() {
     }
     return m;
   }, [team]);
+  const teamStatMultipliers = useMemo(
+    () => Object.fromEntries(team.map((member) => [member.championId, member.statMultiplier ?? 1])),
+    [team],
+  );
 
   // Create a stable string key that includes both championIds and their levels
   // This ensures playerInstances is recreated when levels change
@@ -307,11 +322,12 @@ export function CombatPage() {
     const instances = buildTeamInstances(
       team.map((m) => m.championId),
       teamLevels,
+      teamStatMultipliers,
     );
     // Apply enhancement bonuses and item bonuses to player champions
-    applyEnhancementsToTeam(instances, inventory);
+    applyEnhancementsToTeam(instances, inventory, team);
     return instances;
-  }, [teamKey, teamLevels, inventory]);
+  }, [teamKey, teamLevels, teamStatMultipliers, inventory]);
 
   // Get enhancement descriptions for each player champion (memoized)
   // Use teamKey to ensure this updates when team composition or levels change
