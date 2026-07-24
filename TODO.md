@@ -65,8 +65,10 @@ Une case ne peut être cochée que si :
   versionne pas ces fichiers alors que la documentation affirme le contraire.
 - Les ACL/policies de l'instance Supabase locale et les migrations/RPC ont été lues,
   mais aucun `db reset` destructif n'a été lancé sur cette instance existante.
-- Cet audit montre que les résultats envoyés par le navigateur sont encore trop
-  largement considérés comme fiables ; les tests live hostiles restent à écrire.
+- Le constat initial sur la progression a été corrigé le 24 juillet 2026 :
+  les nouvelles runs connectées passent désormais par un attempt serveur, un
+  journal rejoué et une écriture `verified`. Les autres frontières de confiance,
+  notamment le classement daily, restent suivies par leurs tickets dédiés.
 
 ---
 
@@ -80,11 +82,12 @@ d'insérer des runs. `save_completed_run` acceptait des statistiques et candies
 calculées par le client. `unlock_champion_enhancement` acceptait le coût, le rang
 maximal et l'identité du nœud envoyés par le client.
 
-**État au 23 juillet 2026 :** le durcissement des droits et des commandes est
-implémenté. Les nouvelles runs sont volontairement marquées `client_reported` :
-leurs récompenses sont calculées par PostgreSQL, mais la réalité du combat n'est pas
-encore rejouée côté serveur. Le ticket reste donc ouvert jusqu'à l'attestation du
-gameplay.
+**État au 24 juillet 2026 : clôturé dans le code.** Une run connectée est créée
+par PostgreSQL avec seed, équipe, runes, difficulté, versions et améliorations
+figées. Le navigateur ne transmet plus un résultat à créditer : il journalise des
+intentions sémantiques, puis l'Edge Function rejoue le moteur déterministe et
+PostgreSQL persiste atomiquement le seul résultat `verified`. Les runs invitées
+restent locales et ne peuvent pas créditer un compte.
 
 - [x] Ajouter une migration corrective append-only ; ne jamais réécrire une
   migration déjà potentiellement appliquée en production.
@@ -115,23 +118,29 @@ gameplay.
 - [x] Propager les types Supabase générés aux repositories et distinguer
   explicitement `auth.users.id` de `players.id` dans leurs contrats.
 - [x] Ajouter des tests SQL adversariaux avec les rôles `anon` et `authenticated`.
-- [ ] Créer un `run_attempt` côté serveur au démarrage avec seed, ruleset, équipe et
+- [x] Créer un `run_attempt` côté serveur au démarrage avec seed, ruleset, équipe et
   séquence attendue figés.
-- [ ] Enregistrer des commandes de partie séquencées et rejouer le moteur
+- [x] Enregistrer des commandes de partie séquencées et rejouer le moteur
   déterministe dans une Edge Function ou un service de confiance.
-- [ ] Réserver `progression_source = 'verified'` aux résultats rejoués et décider si
+- [x] Réserver `progression_source = 'verified'` aux résultats rejoués et décider si
   les runs `client_reported` peuvent encore créditer une progression permanente.
-- [ ] Auditer ou recalculer la progression historique héritée : les valeurs
+- [x] Auditer ou recalculer la progression historique héritée : les valeurs
   antérieures à la migration ne peuvent pas être distinguées rétroactivement des
   valeurs éventuellement forgées sans règle produit de remise à niveau.
 
-**Acceptation intermédiaire atteinte :** un client ne peut plus écrire directement
-la progression, choisir ses candies, son coût d'amélioration ou son rang. Les
-écritures valides passent une seule fois, y compris sous concurrence.
+**Décision historique :** les compteurs et runs antérieurs sont conservés sans
+remise à zéro rétroactive sous la baseline
+`grandfather_legacy_no_retroactive_reset`. Après le cutoff enregistré par la
+migration, l'ancien RPC `save_completed_run_v2` est révoqué pour tous les rôles et
+aucune run `client_reported` ne peut ajouter de progression. Les anciens rangs
+d'amélioration non prouvés par une commande serveur sont archivés pour audit mais
+quarantainés des nouveaux attempts ; les snapshots ouverts avant cette décision
+expirent.
 
-**Acceptation finale restante :** un client modifié ne peut pas fabriquer une run
-plausible pour recevoir des récompenses ; seules les runs rejouées et vérifiées côté
-serveur créditent la progression.
+**Acceptation finale atteinte :** les combats des runs connectées sont automatiques
+et rejoués côté serveur ; une séquence impossible, altérée, incomplète ou issue
+d'une autre version est rejetée sans récompense. Le scellement, la vérification et
+le crédit sont idempotents, y compris après une réponse perdue ou un rechargement.
 
 ### P0-SEC-02 — Sécuriser le daily leaderboard
 

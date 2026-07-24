@@ -1,3 +1,5 @@
+import type { PendingRunAttemptStart, RunAuthorityAttempt, RunCommandInput } from './runAttempt';
+
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 /** Maximum number of champions in a team */
@@ -167,11 +169,16 @@ export interface RunState {
   seed: number | null;
   /** ISO timestamp persisted so a reloaded run can still be saved */
   startedAt: string | null;
+  /** Server-owned attempt and append-only command journal for an authenticated run. */
+  authorityAttempt: RunAuthorityAttempt | null;
+  /** Stable start command retained when the start RPC response is uncertain. */
+  pendingAuthorityStart: PendingRunAttemptStart | null;
   /** Prevents duplicate completion/reward processing. */
   isEnding: boolean;
   /** Current persistence state for the completed run. */
   saveStatus: 'idle' | 'saving' | 'success' | 'error';
   saveError: string | null;
+  saveFailureKind: 'retryable' | 'terminal' | null;
   /**
    * Immutable completion payload. It is created before the first save attempt,
    * persisted for retries/reloads, and kept for the Game Over screen until the
@@ -242,7 +249,9 @@ export interface RunActions {
   startRun: (
     championIds: string[],
     options?: { mode?: RunState['mode']; seed?: number; runeIds?: string[] },
-  ) => Promise<void>;
+  ) => Promise<{ success: boolean; error?: string }>;
+  /** Append one validated semantic command to the authenticated attempt journal. */
+  recordRunCommand: (command: RunCommandInput, dedupeKey?: string) => boolean;
   /** End the current run and reset state, optionally marking it as won.
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
   endRun: (
@@ -298,8 +307,8 @@ export interface RunActions {
     nodeType: NodeType,
     encounterData?: import('@/game/map/types').CombatEncounter,
   ) => void;
-  /** Resolve the current encounter (clears pendingEncounter and completes the node) */
-  resolveEncounter: () => void;
+  /** Resolve the current encounter (clears it and completes the node). */
+  resolveEncounter: () => boolean;
   /** Advance to the next biome map */
   advanceToNextBiome: () => boolean;
   /** Get the current biome's NodeMap */
@@ -362,7 +371,7 @@ export interface RunSaveTeamMember {
   currentHp: number;
 }
 
-/** Immutable payload sent to save_completed_run_v2. */
+/** Immutable local display snapshot captured when a run first ends. */
 export interface RunSavePayload {
   runId: string;
   won: boolean;
@@ -402,5 +411,5 @@ export interface ServerRunProgression {
   candiesEarned: number;
   candiesPerChampion: number;
   progressionVersion: number;
-  progressionSource: 'client_reported' | 'verified';
+  progressionSource: 'verified';
 }

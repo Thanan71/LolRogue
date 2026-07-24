@@ -7,50 +7,7 @@
 
 import type { Run, RunTeamMember } from '@/types/models';
 
-/**
- * Client-reported run fields accepted by the authoritative completion command.
- * Player ownership, aggregate statistics, rewards and completion time are
- * deliberately absent because the database derives them.
- */
-export interface CompletedRunCommand {
-  run_uuid: string;
-  won: boolean;
-  run_level: number;
-  waves_completed: number;
-  biomes_visited: string[];
-  gold_earned: number;
-  seed?: number;
-  started_at: string;
-}
-
-/** Per-champion facts accepted by the authoritative completion command. */
-export interface CompletedRunTeamMemberCommand {
-  champion_id: string;
-  final_level: number;
-  final_hp: number;
-  kills: number;
-  damage_dealt: number;
-  items_collected: string[];
-}
-
-/** Canonical progression outcome returned by save_completed_run_v2. */
-export interface CompletedRunResult {
-  runId: string;
-  replayed: boolean;
-  candiesEarned: number;
-  candiesPerChampion: number;
-  progressionVersion: number;
-  progressionSource: 'client_reported' | 'verified';
-}
-
 export interface IRunRepository {
-  saveCompletedRun(
-    runData: CompletedRunCommand,
-    teamMembers: CompletedRunTeamMemberCommand[],
-    runeIds: string[],
-    augmentIds: string[],
-  ): Promise<{ data: CompletedRunResult | null; error: Error | null }>;
-
   /**
    * Get a single run by ID
    */

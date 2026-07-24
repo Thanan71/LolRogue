@@ -8,9 +8,6 @@ import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/bat
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-/** Delay in ms before calling onComplete after battle finishes (allows UI to render) */
-const BATTLE_END_UI_DELAY_MS = 500;
-
 /** Convert a ChampionInstance + combatant state to CombatantInfo for the UI */
 function toCombatantInfo(
   champ: ChampionInstance,
@@ -159,7 +156,10 @@ interface UseBattleManagerOptions {
   playerTeam: ChampionInstance[];
   enemyTeam: ChampionInstance[];
   autoPlay?: boolean;
-  onComplete?: (winner: 'player' | 'enemy' | 'draw') => void;
+  onComplete?: (
+    winner: 'player' | 'enemy' | 'draw',
+    finalPlayerStates: { championId: string; currentHp: number; maxHp: number }[],
+  ) => void;
   /** Map of championId -> initial HP for persisting HP between combats. */
   initialHpOverrides?: Record<string, number>;
   random?: () => number;
@@ -245,12 +245,10 @@ export function useBattleManager({
     ) {
       hasCompletedRef.current = true;
       const winner = currentState.winner;
-      // Add a small delay before calling onComplete to ensure UI has time to render the finished state
-      setTimeout(() => {
-        if (onCompleteRef.current && winner) {
-          onCompleteRef.current(winner);
-        }
-      }, BATTLE_END_UI_DELAY_MS);
+      // Capture from this BattleManager instance before any route transition can
+      // unmount/remount combat and reset the global battle store.
+      const finalPlayerStates = bmRef.current?.getFinalPlayerStates() ?? [];
+      onCompleteRef.current(winner, finalPlayerStates);
     }
   }, [store.phase, store.winner]);
 

@@ -38,24 +38,44 @@ export function RecruitPage() {
   const handleRecruit = useCallback(() => {
     if (disabled || !encounter) return;
     playUIClick();
-    const state = useRunStore.getState();
-    if (!state.claimCurrentEncounter()) return;
-    const rng = createScopedRunRng(state.seed, `recruit:${encounter.id}:attempt`);
+    const previous = useRunStore.getState();
+    if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
+    const rng = createScopedRunRng(previous.seed, `recruit:${encounter.id}:attempt`);
     const success = rng.next() < encounter.successChance;
     const cost = getRecruitmentGoldCost(encounter.cost, success);
     if (success) {
-      spendGold(cost);
-      addChampion(encounter.championId, encounter.statMultiplier);
-      setResult('success');
-    } else {
-      setResult('fail');
+      if (!spendGold(cost) || !addChampion(encounter.championId, encounter.statMultiplier)) {
+        useRunStore.setState({
+          team: previous.team,
+          gold: previous.gold,
+          claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
+        });
+        return;
+      }
     }
+    if (
+      !useRunStore
+        .getState()
+        .recordRunCommand(
+          { kind: 'recruit', nodeId: previous.currentNodeId },
+          `recruit:${previous.currentBiomeIndex}:${previous.currentNodeId}`,
+        )
+    ) {
+      useRunStore.setState({
+        team: previous.team,
+        gold: previous.gold,
+        claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
+      });
+      return;
+    }
+    setResult(success ? 'success' : 'fail');
   }, [disabled, encounter, spendGold, addChampion]);
 
   const handleLeave = useCallback(() => {
     playUIClick();
-    useRunStore.getState().resolveEncounter();
-    navigate(ROUTES.RUN);
+    if (useRunStore.getState().resolveEncounter()) {
+      navigate(ROUTES.RUN);
+    }
   }, [navigate]);
 
   if (!isActive) return null;

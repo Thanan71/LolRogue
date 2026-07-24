@@ -28,7 +28,8 @@ export function TreasurePage() {
   const handleCollect = useCallback(() => {
     if (!encounter || collected) return;
     playUIClick();
-    if (!useRunStore.getState().claimCurrentEncounter()) return;
+    const previous = useRunStore.getState();
+    if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
 
     // Award gold
     if (encounter.gold > 0) {
@@ -48,13 +49,30 @@ export function TreasurePage() {
       });
     }
 
+    if (
+      !useRunStore
+        .getState()
+        .recordRunCommand(
+          { kind: 'treasure', nodeId: previous.currentNodeId },
+          `treasure:${previous.currentBiomeIndex}:${previous.currentNodeId}`,
+        )
+    ) {
+      useRunStore.setState({
+        gold: previous.gold,
+        inventory: previous.inventory,
+        nextItemInstanceId: previous.nextItemInstanceId,
+        claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
+      });
+      return;
+    }
     setCollected(true);
   }, [encounter, collected, addGold, addItem]);
 
   const handleContinue = useCallback(() => {
     playUIClick();
-    useRunStore.getState().resolveEncounter();
-    navigate(ROUTES.RUN);
+    if (useRunStore.getState().resolveEncounter()) {
+      navigate(ROUTES.RUN);
+    }
   }, [navigate]);
 
   // Auto-collect on mount for better UX

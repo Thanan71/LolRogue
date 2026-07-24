@@ -128,6 +128,8 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260723070000_run_loadout.sql',
       '../supabase/migrations/20260723080000_normalize_run_integer_payload.sql',
       '../supabase/migrations/20260723090000_server_authoritative_progression.sql',
+      '../supabase/migrations/20260724090000_verified_run_attempts.sql',
+      '../supabase/migrations/20260724190000_harden_verified_attempt_contract.sql',
     ]);
   });
 
@@ -867,15 +869,11 @@ describeLive('Supabase live integration', () => {
         p_augment_ids: [],
       }),
     ]);
-    expect(hostilePayloads[0].error?.message).toContain('unknown_champion:DefinitelyNotAChampion');
-    expect(hostilePayloads[1].error?.message).toContain('duplicate_champion:Garen');
-    expect(hostilePayloads[2].error?.message).toContain('invalid_victory_claim');
-    expect(hostilePayloads[3].error?.message).toContain('invalid_progression_field:biomes_visited');
-    expect(hostilePayloads[4].error?.message).toContain(
-      'invalid_progression_field:items_collected',
-    );
-    expect(hostilePayloads[5].error?.message).toContain('invalid_run_level_claim');
-    expect(hostilePayloads[6].error?.message).toContain('invalid_victory_claim');
+    expect(
+      hostilePayloads.every(({ error }) =>
+        error?.message.includes('permission denied for function save_completed_run_v2'),
+      ),
+    ).toBe(true);
 
     const [
       { data: progressionAfterRejectedRuns, error: rejectedProgressionError },
@@ -906,112 +904,6 @@ describeLive('Supabase live integration', () => {
     });
     expect(rejectedRunCount).toBe(0);
     expect(rejectedMasteryCount).toBe(0);
-
-    const decimalRunUuid = `decimal-${suffix}`;
-    const runArgs = {
-      p_run: {
-        run_uuid: decimalRunUuid,
-        won: false,
-        run_level: 1,
-        waves_completed: 1,
-        biomes_visited: ['top_lane'],
-        gold_earned: 10,
-        seed: 20260723,
-        started_at: new Date().toISOString(),
-      },
-      p_team_members: [
-        {
-          champion_id: 'Garen',
-          final_level: 2,
-          final_hp: 99.6,
-          kills: 1,
-          damage_dealt: 42.51740000000018,
-          items_collected: [],
-        },
-      ],
-      p_rune_ids: ['conqueror'],
-      p_augment_ids: [],
-    };
-    const { data: decimalRunResult, error: decimalRunError } = await userClient.rpc(
-      'save_completed_run_v2',
-      runArgs,
-    );
-    expect(decimalRunError).toBeNull();
-    expect(decimalRunResult).toMatchObject({
-      replayed: false,
-      candies_earned: 13,
-      candies_per_champion: 13,
-      progression_version: 1,
-      progression_source: 'client_reported',
-    });
-    expect(decimalRunResult?.run_id).toBeTruthy();
-
-    const { data: decimalRun, error: decimalRunReadError } = await userClient
-      .from('runs')
-      .select(
-        'player_id, total_kills, total_damage_dealt, candies_earned, rune_ids, progression_version, progression_source',
-      )
-      .eq('run_uuid', decimalRunUuid)
-      .single();
-    expect(decimalRunReadError).toBeNull();
-    expect(decimalRun).toMatchObject({
-      player_id: profile!.id,
-      total_kills: 1,
-      total_damage_dealt: 43,
-      candies_earned: 13,
-      rune_ids: ['conqueror'],
-      progression_version: 1,
-      progression_source: 'client_reported',
-    });
-
-    const { data: firstProgression, error: firstProgressionError } = await userClient
-      .from('players')
-      .select('total_runs_completed, total_wins, total_waves_completed, total_candies')
-      .eq('user_id', signup.user!.id)
-      .single();
-    expect(firstProgressionError).toBeNull();
-    expect(firstProgression).toMatchObject({
-      total_runs_completed: 1,
-      total_wins: 0,
-      total_waves_completed: 1,
-      total_candies: 13,
-    });
-
-    const replay = await userClient.rpc('save_completed_run_v2', runArgs);
-    expect(replay.error).toBeNull();
-    expect(replay.data).toMatchObject({
-      run_id: decimalRunResult!.run_id,
-      replayed: true,
-      candies_earned: 13,
-    });
-
-    const { data: progressionAfterReplay, error: progressionAfterReplayError } = await userClient
-      .from('players')
-      .select('total_runs_completed, total_waves_completed, total_candies')
-      .eq('user_id', signup.user!.id)
-      .single();
-    expect(progressionAfterReplayError).toBeNull();
-    expect(progressionAfterReplay).toMatchObject({
-      total_runs_completed: 1,
-      total_waves_completed: 1,
-      total_candies: 13,
-    });
-
-    const changedReplay = await userClient.rpc('save_completed_run_v2', {
-      ...runArgs,
-      p_run: { ...runArgs.p_run, gold_earned: 11 },
-    });
-    expect(changedReplay.error?.message).toContain('idempotency_key_reused');
-
-    const forgedReward = await userClient.rpc('save_completed_run_v2', {
-      ...runArgs,
-      p_run: {
-        ...runArgs.p_run,
-        run_uuid: `reward-${suffix}`,
-        candies_earned: 999999,
-      },
-    });
-    expect(forgedReward.error?.message).toContain('unexpected_run_field:candies_earned');
 
     const { data: touchedAt, error: touchError } = await userClient.rpc('touch_player_last_login');
     expect(touchError).toBeNull();

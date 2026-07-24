@@ -85,9 +85,12 @@ export function RunMapScreen() {
   const navigate = useNavigate();
 
   const currentMap: NodeMap | null = biomeMaps[currentBiomeIndex] ?? null;
+  const hasPendingChoice =
+    pendingAugmentIds.length > 0 || pendingSpellUpgradeChampionIds.length > 0;
 
   const handleNodeClick = useCallback(
     (nodeId: string) => {
+      if (hasPendingChoice) return;
       playUIClick();
       if (!moveToNode(nodeId)) return;
 
@@ -199,7 +202,15 @@ export function RunMapScreen() {
           break;
       }
     },
-    [moveToNode, startEncounter, navigate, currentMap, completeCurrentNode, advanceToNextBiome],
+    [
+      hasPendingChoice,
+      moveToNode,
+      startEncounter,
+      navigate,
+      currentMap,
+      completeCurrentNode,
+      advanceToNextBiome,
+    ],
   );
 
   if (!currentMap) {
@@ -322,6 +333,10 @@ export function RunMapScreen() {
                 <button
                   type="button"
                   key={slot}
+                  disabled={
+                    (team.find((member) => member.championId === pendingSpellUpgradeChampionIds[0])
+                      ?.spellRanks?.[slot] ?? 1) >= (slot === 'R' ? 3 : 5)
+                  }
                   onClick={() => upgradeSpell(pendingSpellUpgradeChampionIds[0], slot)}
                 >
                   {slot}
@@ -362,20 +377,21 @@ export function RunMapScreen() {
                 const isCurrent = currentNodeId === node.id;
                 const isAccessible = node.accessible;
                 const isDone = node.completed;
+                const isSelectable = isAccessible && !hasPendingChoice;
                 return (
                   <g
                     key={node.id}
-                    style={{ cursor: isAccessible ? 'pointer' : 'default' }}
-                    onClick={() => isAccessible && handleNodeClick(node.id)}
+                    style={{ cursor: isSelectable ? 'pointer' : 'default' }}
+                    onClick={() => isSelectable && handleNodeClick(node.id)}
                     onKeyDown={(event) => {
-                      if (isAccessible && (event.key === 'Enter' || event.key === ' ')) {
+                      if (isSelectable && (event.key === 'Enter' || event.key === ' ')) {
                         event.preventDefault();
                         handleNodeClick(node.id);
                       }
                     }}
                     role="button"
-                    tabIndex={isAccessible ? 0 : -1}
-                    aria-disabled={!isAccessible}
+                    tabIndex={isSelectable ? 0 : -1}
+                    aria-disabled={!isSelectable}
                     aria-label={`${node.type}${isDone ? ', terminé' : ''}`}
                   >
                     {isCurrent && (
@@ -458,6 +474,7 @@ export function RunMapScreen() {
 }
 
 function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: InventoryEntry[] }) {
+  const authorityAttempt = useRunStore((state) => state.authorityAttempt);
   // Calculate enhanced max HP for each team member (with level, enhancements, items, and event stat boosts)
   const enhancedHpMap = useMemo(() => {
     const map: Record<string, number> = {};
@@ -468,16 +485,16 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
       const level = member.level ?? 1;
 
       // Get enhancement bonuses
-      const enhancementStore = useEnhancementStore.getState();
-      const enhancementState = enhancementStore.getEnhancementState(member.championId);
+      const unlockedNodes = authorityAttempt
+        ? (authorityAttempt.enhancementSnapshot[member.championId] ??
+          authorityAttempt.enhancementSnapshot[member.championId.toLowerCase()] ??
+          {})
+        : useEnhancementStore.getState().getEnhancementState(member.championId).unlockedNodes;
 
       let enhancementBonuses = undefined;
-      if (Object.keys(enhancementState.unlockedNodes).length > 0) {
+      if (Object.keys(unlockedNodes).length > 0) {
         const tree = enhancementTreeProvider.getTreeForChampion(champ);
-        enhancementBonuses = enhancementService.calculateStatBonuses(
-          tree,
-          enhancementState.unlockedNodes,
-        );
+        enhancementBonuses = enhancementService.calculateStatBonuses(tree, unlockedNodes);
       }
 
       // Use calculateMaxHP which handles level, enhancements, items, and event stat boosts
@@ -492,7 +509,7 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
       );
     }
     return map;
-  }, [team, inventory]);
+  }, [authorityAttempt, team, inventory]);
 
   return (
     <div style={panelStyle}>

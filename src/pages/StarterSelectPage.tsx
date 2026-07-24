@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
 import { championDB } from '@/data/championDatabase';
@@ -23,23 +23,40 @@ function pickRandom<T>(arr: T[], count: number, rng: SeededRNG): T[] {
 
 export function StarterSelectPage() {
   const location = useLocation();
-  const isDaily =
+  const requestedDaily =
     new URLSearchParams(location.search).get('mode') === 'daily' ||
     (location.state as { mode?: string } | null)?.mode === 'daily';
+  const { isGuest, player, user } = useAuthStore();
+  const pendingAuthorityStart = useRunStore((state) => state.pendingAuthorityStart);
+  const resumableStart =
+    user && pendingAuthorityStart?.ownerUserId === user.id ? pendingAuthorityStart : null;
+  const isDaily = resumableStart ? resumableStart.mode === 'daily' : requestedDaily;
   const [selectionSeed] = useState(() => (isDaily ? getDailySeed() : Date.now()));
   const choices = useMemo(() => {
+    if (resumableStart) {
+      return resumableStart.team
+        .map((championId) => championDB.getById(championId))
+        .filter((champion): champion is Champion => champion !== undefined);
+    }
     const rng = isDaily ? createDailyRNG() : new SeededRNG(selectionSeed);
     return pickRandom(championDB.getAll(), 6, rng);
-  }, [isDaily, selectionSeed]);
-  const [selectedStarterId, setSelectedStarterId] = useState<string | null>(null);
-  const [selectedRuneIds, setSelectedRuneIds] = useState<string[]>([]);
+  }, [isDaily, resumableStart, selectionSeed]);
+  const [selectedStarterId, setSelectedStarterId] = useState<string | null>(
+    resumableStart?.team[0] ?? null,
+  );
+  const [selectedRuneIds, setSelectedRuneIds] = useState<string[]>(resumableStart?.runeIds ?? []);
   const startRun = useRunStore((s) => s.startRun);
   const startDailyRun = useDailyRunStore((state) => state.startDailyRun);
   const hasCompletedToday = useDailyRunStore((state) => state.hasCompletedToday);
-  const { isGuest, player } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const navigate = useAppNavigate();
+
+  useEffect(() => {
+    if (!resumableStart) return;
+    setSelectedStarterId(resumableStart.team[0] ?? null);
+    setSelectedRuneIds([...resumableStart.runeIds]);
+  }, [resumableStart]);
 
   async function handleConfirm() {
     playUIClick();
@@ -67,18 +84,27 @@ export function StarterSelectPage() {
           return;
         }
       }
-      if (!startDailyRun([selectedStarterId])) {
-        setError("Today's Daily Run has already been completed.");
-        setIsStarting(false);
-        return;
-      }
-      await startRun([selectedStarterId], {
+      const result = await startRun([selectedStarterId], {
         mode: 'daily',
         seed: getDailySeed(),
         runeIds: selectedRuneIds,
       });
+      if (!result.success) {
+        setError(result.error ?? 'Unable to start a verified Daily Run.');
+        setIsStarting(false);
+        return;
+      }
+      startDailyRun([selectedStarterId]);
     } else {
-      await startRun([selectedStarterId], { seed: selectionSeed, runeIds: selectedRuneIds });
+      const result = await startRun([selectedStarterId], {
+        seed: selectionSeed,
+        runeIds: selectedRuneIds,
+      });
+      if (!result.success) {
+        setError(result.error ?? 'Unable to start a verified run.');
+        setIsStarting(false);
+        return;
+      }
     }
 
     navigate(ROUTES.RUN);
@@ -100,9 +126,11 @@ export function StarterSelectPage() {
         </h1>
       </div>
       <p className="starter-select__subtitle">
-        {isDaily
-          ? 'Tous les joueurs affrontent la même seed quotidienne'
-          : 'Sélectionne ton starter pour la run'}
+        {resumableStart
+          ? 'Une tentative vérifiée interrompue est prête à reprendre avec ses choix d’origine.'
+          : isDaily
+            ? 'Tous les joueurs affrontent la même seed quotidienne'
+            : 'Sélectionne ton starter pour la run'}
       </p>
 
       <div className="starter-select__grid">
@@ -124,7 +152,10 @@ export function StarterSelectPage() {
               <input
                 type="checkbox"
                 checked={selectedRuneIds.includes(rune.id)}
-                disabled={!selectedRuneIds.includes(rune.id) && selectedRuneIds.length >= 3}
+                disabled={
+                  resumableStart !== null ||
+                  (!selectedRuneIds.includes(rune.id) && selectedRuneIds.length >= 3)
+                }
                 onChange={() =>
                   setSelectedRuneIds((current) =>
                     current.includes(rune.id)
@@ -143,7 +174,11 @@ export function StarterSelectPage() {
           disabled={!selectedStarterId || isStarting}
           onClick={() => void handleConfirm()}
         >
-          {isStarting ? 'Vérification…' : 'Confirmer le choix'}
+          {isStarting
+            ? 'Vérification…'
+            : resumableStart
+              ? 'Reprendre la run vérifiée'
+              : 'Confirmer le choix'}
         </button>
       </div>
     </div>

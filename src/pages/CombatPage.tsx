@@ -89,7 +89,14 @@ function applyEnhancementsToTeam(
     if (!champ) continue;
 
     // Get enhancement state for this champion
-    const enhancementState = enhancementStore.getEnhancementState(instance.id);
+    const enhancementState = runState.authorityAttempt
+      ? {
+          unlockedNodes:
+            runState.authorityAttempt.enhancementSnapshot[instance.id] ??
+            runState.authorityAttempt.enhancementSnapshot[instance.id.toLowerCase()] ??
+            {},
+        }
+      : enhancementStore.getEnhancementState(instance.id);
 
     // Get the enhancement tree for this champion's role
     const tree = enhancementTreeProvider.getTreeForChampion(champ);
@@ -199,16 +206,20 @@ function applyEnhancementsToTeam(
  * Returns an array of short description strings for UI display.
  */
 function getEnhancementDescriptions(championId: string): string[] {
-  const enhancementStore = useEnhancementStore.getState();
-  const enhancementState = enhancementStore.getEnhancementState(championId);
+  const runState = useRunStore.getState();
+  const unlockedNodes = runState.authorityAttempt
+    ? (runState.authorityAttempt.enhancementSnapshot[championId] ??
+      runState.authorityAttempt.enhancementSnapshot[championId.toLowerCase()] ??
+      {})
+    : useEnhancementStore.getState().getEnhancementState(championId).unlockedNodes;
 
-  if (Object.keys(enhancementState.unlockedNodes).length === 0) return [];
+  if (Object.keys(unlockedNodes).length === 0) return [];
 
   const champ = championDB.getById(championId);
   if (!champ) return [];
 
   const tree = enhancementTreeProvider.getTreeForChampion(champ);
-  const bonuses = enhancementService.calculateStatBonuses(tree, enhancementState.unlockedNodes);
+  const bonuses = enhancementService.calculateStatBonuses(tree, unlockedNodes);
 
   const descriptions: string[] = [];
 
@@ -347,6 +358,7 @@ export function CombatPage() {
   const team = useRunStore((s) => s.team);
   const runLevel = useRunStore((s) => s.runLevel);
   const completedCombatStats = useRunStore((s) => s.completedCombatStats);
+  const authorityAttempt = useRunStore((s) => s.authorityAttempt);
   const navigate = useAppNavigate();
 
   const battlePhase = useBattleStore((s) => s.phase);
@@ -359,13 +371,13 @@ export function CombatPage() {
   const isPlayerTurn = useBattleStore((s) => s.isPlayerTurn);
   const battleSpeed = useSettingsStore((s) => s.battleSpeed);
   const difficulty = useSettingsStore((s) => s.difficulty);
-  const difficultyMultiplier = getDifficultyMultiplier(difficulty);
+  const difficultyMultiplier = getDifficultyMultiplier(authorityAttempt?.difficulty ?? difficulty);
+  const isAuthorityRun = authorityAttempt !== null;
 
   const [autoPlay, setAutoPlay] = useState(true);
   const [turnTick, setTurnTick] = useState(0);
   const [selectedTargetId, setSelectedTargetId] = useState<string | 'all'>('all');
   const hasNavigatedAfterLossRef = useRef(false);
-  const endRunTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Restore statistics from encounters completed before a reload/navigation.
   // The current encounter is intentionally not persisted until it is won.
@@ -374,15 +386,6 @@ export function CombatPage() {
       runStatsTracker.restore(completedCombatStats);
     }
   }, [completedCombatStats, isActive]);
-
-  // Clear any pending endRun timeout on mount
-  useEffect(() => {
-    return () => {
-      if (endRunTimeoutRef.current) {
-        clearTimeout(endRunTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Reset the ref when battlePhase changes to starting (new combat)
   useEffect(() => {
@@ -483,10 +486,8 @@ export function CombatPage() {
       });
       navigate(ROUTES.GAME_OVER, { state: { summary } });
       hasNavigatedAfterLossRef.current = true;
-      setTimeout(() => {
-        void rs.endRun(false, rs.runId, summary);
-        runStatsTracker.reset();
-      }, 100);
+      void rs.endRun(false, rs.runId, summary);
+      runStatsTracker.reset();
     }
   }, [isActive, playerInstances.length, team.length, team, navigate]);
 
@@ -534,15 +535,28 @@ export function CombatPage() {
   ]);
 
   const handleComplete = useCallback(
-    (w: 'player' | 'enemy' | 'draw') => {
-      // Clear any pending endRun timeout from a previous combat
-      if (endRunTimeoutRef.current) {
-        clearTimeout(endRunTimeoutRef.current);
-        endRunTimeoutRef.current = null;
+    (
+      w: 'player' | 'enemy' | 'draw',
+      finalPlayerStates: { championId: string; currentHp: number; maxHp: number }[],
+    ) => {
+      const commandState = useRunStore.getState();
+      const combatNodeId = commandState.currentNodeId;
+      if (
+        combatNodeId &&
+        !commandState.recordRunCommand(
+          { kind: 'resolve_combat', nodeId: combatNodeId },
+          `resolve_combat:${commandState.currentBiomeIndex}:${combatNodeId}`,
+        )
+      ) {
+        logger.error('CombatPage: unable to record the authoritative combat resolution.');
+        return;
       }
 
       if (w === 'player') {
         const runStore = useRunStore.getState();
+        const finalHpByChampionId = new Map(
+          finalPlayerStates.map((champion) => [champion.championId, champion.currentHp] as const),
+        );
 
         // 1. Award gold: 50 + runLevel * 10
         const goldReward = 50 + runLevel * 10;
@@ -555,30 +569,31 @@ export function CombatPage() {
         const xpGain = calculateXpGain(runLevel, isEliteNode, isBossNode);
 
         // Update each team member with XP and potential level-ups
-        const teamUpdates = runStore.team.map((member) => {
+        const previousTeam = runStore.team;
+        const teamUpdates = previousTeam.map((member) => {
           const currentLevel = member.level ?? 1;
           const currentXp = member.currentXp ?? 0;
           const result = addXp(currentLevel, currentXp, xpGain);
 
           return {
             championId: member.championId,
-            currentHp: member.currentHp ?? 0,
+            currentHp: finalHpByChampionId.get(member.championId) ?? member.currentHp ?? 0,
             level: result.newLevel,
             currentXp: result.remainingXp,
           };
         });
 
         runStore.updateTeamAfterCombat(teamUpdates);
-        const levelsGained = teamUpdates.reduce(
-          (total, update, index) =>
-            total + Math.max(0, update.level - (runStore.team[index]?.level ?? 1)),
-          0,
+        const pendingSpellUpgrades = teamUpdates.flatMap((update, index) =>
+          Array.from(
+            {
+              length: Math.max(0, update.level - (previousTeam[index]?.level ?? 1)),
+            },
+            () => update.championId,
+          ),
         );
-        runStore.queueSpellUpgrades(
-          teamUpdates
-            .filter((update, index) => update.level > (runStore.team[index]?.level ?? 1))
-            .map((update) => update.championId),
-        );
+        const levelsGained = pendingSpellUpgrades.length;
+        runStore.queueSpellUpgrades(pendingSpellUpgrades);
 
         // 3. Advance wave
         runStore.nextWave();
@@ -587,9 +602,10 @@ export function CombatPage() {
         let advancedToNextBiome = false;
         if (currentNode) {
           // 5. Item drop chance (~20%) — scoped to this run and encounter.
+          const completedWaveCount = useRunStore.getState().totalWavesCompleted;
           const itemRng = createScopedRunRng(
             runStore.seed,
-            `drop:${currentNode.id}:${runStore.totalWavesCompleted}`,
+            `drop:${currentNode.id}:${completedWaveCount}`,
           );
           let droppedItemName: string | null = null;
           if (itemRng.next() < 0.2) {
@@ -621,7 +637,10 @@ export function CombatPage() {
           });
 
           // 6. Resolve encounter (completes the node)
-          runStore.resolveEncounter();
+          if (!runStore.resolveEncounter()) {
+            logger.error('CombatPage: unable to record the completed combat node.');
+            return;
+          }
 
           // 7. Check if we just completed the boss -- advance to next biome
           if (isBossNode) {
@@ -672,23 +691,18 @@ export function CombatPage() {
         });
         // Navigate to game over screen
         navigate(ROUTES.GAME_OVER, { state: { summary } });
-        // End the run (resets isActive, team, gold, etc.) - delayed to avoid race conditions
-        // Store the timeout reference so it can be cleared if player starts a new run
-        // Pass the runId to ensure only the correct run is ended
-        endRunTimeoutRef.current = setTimeout(() => {
-          void rs.endRun(false, currentRunId, summary);
-          runStatsTracker.reset();
-          endRunTimeoutRef.current = null;
-        }, 100);
+        // Start finalization synchronously so route unmount cannot cancel it.
+        void rs.endRun(false, currentRunId, summary);
+        runStatsTracker.reset();
       }
     },
     [runLevel, navigate],
   );
 
-  const { processTurn, submitAction, getManager } = useBattleManager({
+  const { processTurn, submitAction } = useBattleManager({
     playerTeam: playerInstances,
     enemyTeam: enemyInstances,
-    autoPlay: autoPlay,
+    autoPlay: isAuthorityRun ? true : autoPlay,
     onComplete: handleComplete,
     initialHpOverrides,
     random: battleRandom,
@@ -696,16 +710,17 @@ export function CombatPage() {
 
   const handleCast = useCallback(
     (slot: 'Q' | 'W' | 'E' | 'R') => {
+      if (isAuthorityRun) return;
       const actionType = SLOT_TO_ACTION[slot];
       if (!actionType) return;
       submitAction({ type: actionType, cost: 0, targetId: selectedTargetId });
     },
-    [submitAction, selectedTargetId],
+    [isAuthorityRun, submitAction, selectedTargetId],
   );
 
   // Auto-process all turns when autoPlay is enabled
   useEffect(() => {
-    if (autoPlay && battlePhase === 'turn_active') {
+    if ((isAuthorityRun || autoPlay) && battlePhase === 'turn_active') {
       const delay = Math.max(50, 400 / battleSpeed);
       const timer = setTimeout(() => {
         processTurn();
@@ -713,33 +728,13 @@ export function CombatPage() {
       }, delay);
       return () => clearTimeout(timer);
     }
-  }, [autoPlay, battlePhase, processTurn, turnTick, battleSpeed]);
-
-  // Save final HP states when battle finishes with player victory
-  useEffect(() => {
-    if (battlePhase === 'finished' && winner === 'player') {
-      const bm = getManager();
-      if (!bm) return;
-      const finalStates = bm.getFinalPlayerStates();
-      if (finalStates.length > 0) {
-        const runStore = useRunStore.getState();
-        runStore.updateTeamAfterCombat(
-          finalStates.map((s) => ({
-            championId: s.championId,
-            currentHp: s.currentHp,
-            level: teamLevels[s.championId] ?? 1,
-            currentXp: runStore.team.find((m) => m.championId === s.championId)?.currentXp ?? 0,
-          })),
-        );
-      }
-    }
-  }, [battlePhase, winner, getManager, teamLevels]);
+  }, [autoPlay, isAuthorityRun, battlePhase, processTurn, turnTick, battleSpeed]);
 
   const currentChampion = [...playerTeam, ...enemyTeam].find((c) => c.id === currentTurnChampionId);
   const currentSpell = currentChampion?.spells;
 
   // Keyboard shortcuts
-  const canCast = isPlayerTurn && battlePhase === 'turn_active';
+  const canCast = !isAuthorityRun && isPlayerTurn && battlePhase === 'turn_active';
   const canCastSlot = useCallback(
     (slot: 'Q' | 'W' | 'E' | 'R') => {
       if (!canCast || !currentSpell) return false;
@@ -755,7 +750,9 @@ export function CombatPage() {
     onCastE: canCastSlot('E') ? () => handleCast('E') : undefined,
     onCastR: canCastSlot('R') ? () => handleCast('R') : undefined,
     onNextTurn:
-      (!autoPlay || isPlayerTurn) && battlePhase === 'turn_active' ? processTurn : undefined,
+      !isAuthorityRun && (!autoPlay || isPlayerTurn) && battlePhase === 'turn_active'
+        ? processTurn
+        : undefined,
     onBack: canLeaveActiveCombat(battlePhase) ? () => navigate(ROUTES.RUN) : undefined,
     enabled: battlePhase !== 'finished',
   });
@@ -786,7 +783,9 @@ export function CombatPage() {
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
         <button
+          disabled={isAuthorityRun}
           onClick={() => {
+            if (isAuthorityRun) return;
             playUIClick();
             setAutoPlay(!autoPlay);
           }}
@@ -798,11 +797,11 @@ export function CombatPage() {
             borderRadius: 4,
             fontSize: 11,
             fontWeight: 'bold',
-            cursor: 'pointer',
+            cursor: isAuthorityRun ? 'not-allowed' : 'pointer',
           }}
           aria-label="Toggle auto-play"
         >
-          Auto: {autoPlay ? 'ON' : 'OFF'}
+          Auto: {isAuthorityRun || autoPlay ? 'ON' : 'OFF'}
         </button>
       </div>
 
@@ -849,7 +848,7 @@ export function CombatPage() {
                   {currentChampion.name}
                 </div>
               )}
-              {(!autoPlay || isPlayerTurn) && (
+              {!isAuthorityRun && (!autoPlay || isPlayerTurn) && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
                   <button
                     onClick={processTurn}
@@ -917,7 +916,7 @@ export function CombatPage() {
 
       {/* Bottom: ability bar + log */}
       <div style={bottomStyle}>
-        {isPlayerTurn && currentChampion && !currentChampion.isDefeated && (
+        {!isAuthorityRun && isPlayerTurn && currentChampion && !currentChampion.isDefeated && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
             <button
               type="button"

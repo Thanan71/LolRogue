@@ -27,3 +27,6 @@ site_url = "http://localhost:3000"
 enable_signup = true
 enable_confirmations = false
 double_confirm_changes = false
+
+[functions.verify-run]
+verify_jwt = true

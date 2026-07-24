@@ -2,71 +2,162 @@ import type { User } from '@supabase/supabase-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useAuthStore } from '@/stores/authStore';
-import { useDailyRunStore } from '@/stores/dailyRunStore';
+import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import type { Player } from '@/types/models';
+import type { RunAuthorityAttempt } from '@/types/runAttempt';
 
-const saveRunToDatabase = vi.hoisted(() => vi.fn());
-const submitDailyRun = vi.hoisted(() => vi.fn());
-const getDailyRunForDate = vi.hoisted(() => vi.fn());
+const attemptMocks = vi.hoisted(() => {
+  class RejectedError extends Error {
+    readonly terminal = true;
 
-vi.mock('@/services/runService', () => ({
-  saveRunToDatabase,
+    constructor(
+      readonly code: string,
+      message: string,
+    ) {
+      super(message);
+      this.name = 'RunVerificationRejectedError';
+    }
+  }
+
+  return {
+    start: vi.fn(),
+    append: vi.fn(),
+    seal: vi.fn(),
+    verify: vi.fn(),
+    recover: vi.fn(),
+    RejectedError,
+  };
+});
+const getChampionMastery = vi.hoisted(() => vi.fn());
+
+vi.mock('@/services/runAttemptService', () => ({
+  startRunAttempt: attemptMocks.start,
+  appendRunAttemptCommands: attemptMocks.append,
+  sealRunAttempt: attemptMocks.seal,
+  verifyRunAttempt: attemptMocks.verify,
+  recoverVerifiedRunAttempt: attemptMocks.recover,
+  RunVerificationRejectedError: attemptMocks.RejectedError,
 }));
 
-vi.mock('@/services/repositories/SupabaseDailyRunRepository', () => ({
-  SupabaseDailyRunRepository: class {
-    submitDailyRun = submitDailyRun;
-    getDailyRunForDate = getDailyRunForDate;
+vi.mock('@/services/container', () => ({
+  RepositoryContainerFactory: {
+    create: () => ({
+      auth: { onAuthStateChange: vi.fn() },
+      mastery: { getChampionMastery },
+    }),
   },
 }));
 
-describe('completed run save recovery', () => {
+vi.mock('@/services/supabaseClient', () => ({ supabase: {} }));
+
+const ATTEMPT_ID = '11111111-1111-4111-8111-111111111111';
+const RUN_UUID = '22222222-2222-4222-8222-222222222222';
+
+function authorityAttempt(overrides: Partial<RunAuthorityAttempt> = {}): RunAuthorityAttempt {
+  return {
+    attemptId: ATTEMPT_ID,
+    runUuid: RUN_UUID,
+    ownerUserId: 'user-1',
+    seed: 4242,
+    rulesetVersion: 1,
+    engineVersion: 'run-engine-v1',
+    difficulty: 'normal',
+    mode: 'normal',
+    initialTeam: ['Garen'],
+    runeIds: ['press_the_attack'],
+    enhancementSnapshot: { Garen: {} },
+    startedAt: '2026-07-23T12:00:00.000Z',
+    expiresAt: '2026-07-24T12:00:00.000Z',
+    status: 'started',
+    commands: [],
+    nextSequence: 1,
+    lastAcknowledgedSequence: 0,
+    journalHash: 'initial-hash',
+    finishCommandId: null,
+    ...overrides,
+  };
+}
+
+function setActiveVerifiedRun(): void {
+  useRunStore.setState({
+    ...RUN_INITIAL_STATE,
+    isActive: true,
+    mode: 'normal',
+    runId: RUN_UUID,
+    seed: 4242,
+    startedAt: '2026-07-23T12:00:00.000Z',
+    authorityAttempt: authorityAttempt(),
+    team: [{ championId: 'Garen', currentHp: 320, level: 2 }],
+    runLevel: 2,
+    biomesVisited: ['top_lane'],
+    currentBiome: 'top_lane',
+    runeIds: ['press_the_attack'],
+    augmentIds: ['golden_touch'],
+    gold: 120,
+    currentWave: 4,
+    totalWavesCompleted: 3,
+  });
+}
+
+const progression = {
+  runId: '33333333-3333-4333-8333-333333333333',
+  replayed: false,
+  candiesEarned: 13,
+  candiesPerChampion: 13,
+  progressionVersion: 1,
+  progressionSource: 'verified' as const,
+};
+
+describe('authoritative run lifecycle and recovery', () => {
   beforeEach(() => {
-    saveRunToDatabase.mockReset();
-    submitDailyRun.mockReset();
-    getDailyRunForDate.mockReset();
+    vi.clearAllMocks();
+    getChampionMastery.mockResolvedValue({ data: [], error: null });
+    attemptMocks.append.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        status: 'started',
+        lastSequence: 1,
+        journalHash: 'journal-1',
+        accepted: 1,
+        replayed: false,
+      },
+      error: null,
+    });
+    attemptMocks.seal.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        runUuid: RUN_UUID,
+        status: 'finished',
+        lastSequence: 1,
+        journalHash: 'journal-1',
+        accepted: true,
+        replayed: false,
+      },
+      error: null,
+    });
+    attemptMocks.verify.mockResolvedValue({
+      data: { progression, summary: null },
+      error: null,
+    });
+    attemptMocks.recover.mockResolvedValue({
+      data: { progression: { ...progression, replayed: true }, summary: null },
+      error: null,
+    });
     runStatsTracker.reset();
     useAuthStore.setState({
       isAuthenticated: true,
       isGuest: false,
       user: { id: 'user-1' } as User,
       player: { id: 'player-1' } as Player,
+      refreshPlayer: vi.fn().mockResolvedValue(undefined),
     });
-    useRunStore.setState({
-      isActive: true,
-      mode: 'normal',
-      runId: 'retryable-run',
-      seed: 42,
-      startedAt: '2026-07-23T12:00:00.000Z',
-      isEnding: false,
-      saveStatus: 'idle',
-      saveError: null,
-      completedRunSnapshot: null,
-      serverProgression: null,
-      rewardsApplied: false,
-      completedCombatStats: [],
-      team: [{ championId: 'Garen', currentHp: 320, level: 2 }],
-      runLevel: 2,
-      biomesVisited: ['top_lane'],
-      currentBiome: 'top_lane',
-      inventory: [],
-      runeIds: ['conqueror'],
-      augmentIds: ['golden_touch'],
-      gold: 120,
-      currentWave: 4,
-      totalWavesCompleted: 3,
-    });
-    useDailyRunStore.setState({
-      isActive: false,
-      dateKey: '2026-07-23',
-      seed: 20260723,
-      hasCompletedToday: false,
-    });
+    setActiveVerifiedRun();
   });
 
   afterEach(() => {
     runStatsTracker.reset();
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
     useAuthStore.setState({
       isAuthenticated: false,
       isGuest: false,
@@ -75,207 +166,227 @@ describe('completed run save recovery', () => {
     });
   });
 
-  it('keeps the completed run retryable after a network error and saves it once recovered', async () => {
-    const progression = {
-      runId: 'database-run-id',
-      replayed: true,
-      candiesEarned: 13,
-      candiesPerChampion: 13,
-      progressionVersion: 1,
-      progressionSource: 'client_reported' as const,
-    };
+  it('keeps a frozen snapshot and retries the same journal after a network failure', async () => {
+    attemptMocks.append
+      .mockResolvedValueOnce({ data: null, error: new TypeError('Failed to fetch') })
+      .mockResolvedValueOnce({
+        data: {
+          attemptId: ATTEMPT_ID,
+          status: 'started',
+          lastSequence: 1,
+          journalHash: 'journal-1',
+          accepted: 1,
+          replayed: false,
+        },
+        error: null,
+      });
     runStatsTracker.recordKill('Garen');
     runStatsTracker.recordDamage('Garen', 450);
-    runStatsTracker.markSurvived(['Garen']);
-    const displayedSummary = runStatsTracker.buildSummary({
+    const summary = runStatsTracker.buildSummary({
       won: false,
       wavesCompleted: 3,
       biomesVisited: ['top_lane'],
       goldEarned: 120,
       runLevel: 2,
     });
-    saveRunToDatabase
-      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-      .mockResolvedValueOnce({ success: true, progression });
 
-    await expect(
-      useRunStore.getState().endRun(false, 'retryable-run', displayedSummary),
-    ).resolves.toBe(false);
-    const firstPayload = structuredClone(saveRunToDatabase.mock.calls[0][0]);
+    await expect(useRunStore.getState().endRun(false, RUN_UUID, summary)).resolves.toBe(false);
+    const frozenSnapshot = structuredClone(useRunStore.getState().completedRunSnapshot);
     expect(useRunStore.getState()).toMatchObject({
       isActive: true,
       isEnding: false,
       saveStatus: 'error',
-      saveError: 'Failed to fetch',
+      saveFailureKind: 'retryable',
     });
+    expect(
+      useRunStore
+        .getState()
+        .authorityAttempt?.commands.filter((command) => command.kind === 'abandon_run'),
+    ).toHaveLength(1);
 
-    // The combat page clears its singleton after navigating to Game Over. Any
-    // later store changes must not alter the retry command either.
-    runStatsTracker.reset();
-    runStatsTracker.recordDamage('Garen', 9999);
-    useRunStore.setState({
-      gold: 999,
-      totalWavesCompleted: 99,
-      runeIds: ['changed-rune'],
-      augmentIds: [],
-      team: [],
-    });
+    useRunStore.setState({ gold: 999, totalWavesCompleted: 99, team: [] });
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toBe(true);
 
-    await expect(useRunStore.getState().endRun(false, 'retryable-run')).resolves.toBe(true);
-    expect(saveRunToDatabase).toHaveBeenCalledTimes(2);
-    expect(saveRunToDatabase.mock.calls[1][0]).toEqual(firstPayload);
-    expect(firstPayload.summary).toMatchObject({
-      totalKills: 1,
-      totalDamage: 450,
-      championStats: [
-        {
-          championId: 'Garen',
-          kills: 1,
-          totalDamage: 450,
-          survived: true,
-        },
-      ],
-    });
+    expect(attemptMocks.append).toHaveBeenCalledTimes(2);
+    expect(attemptMocks.append.mock.calls[1][1]).toHaveLength(1);
+    expect(attemptMocks.seal).toHaveBeenCalledTimes(1);
+    expect(attemptMocks.verify).toHaveBeenCalledWith(ATTEMPT_ID);
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
       saveStatus: 'success',
-      saveError: null,
-      completedRunSnapshot: firstPayload,
+      completedRunSnapshot: frozenSnapshot,
       serverProgression: progression,
     });
   });
 
-  it('submits an authenticated daily run even while the player cache is empty', async () => {
-    const progression = {
-      runId: 'database-daily-run',
-      replayed: false,
-      candiesEarned: 13,
-      candiesPerChampion: 13,
-      progressionVersion: 1,
-      progressionSource: 'client_reported' as const,
-    };
-    saveRunToDatabase.mockResolvedValue({ success: true, progression });
-    submitDailyRun.mockResolvedValue({ data: { id: 'daily-1' }, error: null });
-    useAuthStore.setState({
-      isAuthenticated: false,
-      isGuest: false,
-      user: { id: 'user-1', email: 'runner@example.com' } as User,
-      player: null,
-    });
-    useRunStore.setState({
-      mode: 'daily',
-      seed: 20260723,
-    });
-    const completeDailyRun = vi.spyOn(useDailyRunStore.getState(), 'completeDailyRun');
-
-    await expect(useRunStore.getState().endRun(false, 'retryable-run')).resolves.toBe(true);
-
-    expect(submitDailyRun).toHaveBeenCalledWith({
-      dailyDate: '2026-07-23',
-      dailySeed: 20260723,
-      won: false,
-      runLevel: 2,
-      wavesCompleted: 3,
-      gold: 120,
-      itemCount: 0,
-    });
-    expect(completeDailyRun).toHaveBeenCalledWith('runner', false);
-    expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
-    expect(useRunStore.getState()).toMatchObject({
-      isActive: false,
-      saveStatus: 'success',
-      serverProgression: progression,
-    });
-    completeDailyRun.mockRestore();
-  });
-
-  it('includes persisted completed-combat statistics when ending after a reload', async () => {
-    const progression = {
-      runId: 'database-run-id',
-      replayed: false,
-      candiesEarned: 13,
-      candiesPerChampion: 13,
-      progressionVersion: 1,
-      progressionSource: 'client_reported' as const,
-    };
-    saveRunToDatabase.mockResolvedValue({ success: true, progression });
-    useRunStore.setState({
-      completedCombatStats: [
-        {
-          championId: 'Garen',
-          kills: 2,
-          totalDamage: 640,
-          survived: false,
-        },
-      ],
-    });
-    runStatsTracker.reset();
-
-    await expect(useRunStore.getState().endRun(false, 'retryable-run')).resolves.toBe(true);
-
-    expect(saveRunToDatabase.mock.calls[0][0].summary).toMatchObject({
-      totalKills: 2,
-      totalDamage: 640,
-      championStats: [
-        {
-          championId: 'Garen',
-          kills: 2,
-          totalDamage: 640,
-          survived: true,
-        },
-      ],
-    });
-  });
-
-  it('recovers a daily submission whose successful response was lost', async () => {
-    const progression = {
-      runId: 'database-daily-run',
-      replayed: true,
-      candiesEarned: 13,
-      candiesPerChampion: 13,
-      progressionVersion: 1,
-      progressionSource: 'client_reported' as const,
-    };
-    saveRunToDatabase.mockResolvedValue({ success: true, progression });
-    submitDailyRun.mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValueOnce({
-      data: null,
-      error: new Error('daily_run_already_submitted'),
-    });
-    getDailyRunForDate.mockResolvedValue({
+  it('recovers an already verified seal without invoking Edge again', async () => {
+    attemptMocks.seal.mockResolvedValue({
       data: {
-        id: 'daily-1',
-        player_id: 'player-1',
-        daily_date: '2026-07-23',
-        daily_seed: 20260723,
-        score: 1420,
-        won: false,
-        run_level_reached: 2,
-        waves_completed: 3,
-        completed_at: '2026-07-23T12:05:00.000Z',
-        created_at: '2026-07-23T12:05:00.000Z',
+        attemptId: ATTEMPT_ID,
+        runUuid: RUN_UUID,
+        status: 'verified',
+        lastSequence: 1,
+        journalHash: 'journal-1',
+        accepted: true,
+        replayed: true,
       },
       error: null,
     });
-    useRunStore.setState({ mode: 'daily', seed: 20260723 });
 
-    await expect(useRunStore.getState().endRun(false, 'retryable-run')).resolves.toBe(false);
-    const firstPayload = structuredClone(saveRunToDatabase.mock.calls[0][0]);
-    expect(useRunStore.getState()).toMatchObject({
-      isActive: true,
-      isEnding: false,
-      saveStatus: 'error',
-      saveError: 'Daily score save failed: Failed to fetch',
-      serverProgression: progression,
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toBe(true);
+
+    expect(attemptMocks.recover).toHaveBeenCalledWith(ATTEMPT_ID);
+    expect(attemptMocks.verify).not.toHaveBeenCalled();
+    expect(useRunStore.getState().serverProgression).toMatchObject({
+      progressionSource: 'verified',
+      replayed: true,
+    });
+  });
+
+  it('closes a rejected attempt without granting progression and without offering a retry', async () => {
+    attemptMocks.verify.mockResolvedValue({
+      data: null,
+      error: new attemptMocks.RejectedError('illegal_trace', 'The run trace was rejected.'),
     });
 
-    await expect(useRunStore.getState().endRun(false, 'retryable-run')).resolves.toBe(true);
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toBe(true);
 
-    expect(saveRunToDatabase.mock.calls[1][0]).toEqual(firstPayload);
-    expect(getDailyRunForDate).toHaveBeenCalledWith('player-1', '2026-07-23');
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
-      saveStatus: 'success',
-      serverProgression: progression,
+      saveStatus: 'error',
+      saveFailureKind: 'terminal',
+      serverProgression: null,
+      rewardsApplied: false,
+    });
+    expect(useRunStore.getState().completedRunSnapshot?.runId).toBe(RUN_UUID);
+  });
+
+  it('starts authenticated gameplay only from the canonical server seed and run UUID', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    attemptMocks.start.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        runUuid: RUN_UUID,
+        status: 'started',
+        rulesetVersion: 1,
+        engineVersion: 'run-engine-v1',
+        seed: 987654,
+        mode: 'normal',
+        difficulty: 'normal',
+        initialTeam: ['Garen'],
+        runeIds: ['press_the_attack'],
+        enhancementSnapshot: { Garen: { hp_1: 1 } },
+        startedAt: '2026-07-23T12:00:00.000Z',
+        expiresAt: '2026-07-24T12:00:00.000Z',
+        lastSequence: 0,
+        journalHash: 'initial-hash',
+        replayed: false,
+      },
+      error: null,
+    });
+
+    await expect(
+      useRunStore.getState().startRun(['Garen'], {
+        seed: 123,
+        runeIds: ['press_the_attack'],
+      }),
+    ).resolves.toEqual({ success: true });
+
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: true,
+      runId: RUN_UUID,
+      seed: 987654,
+      startedAt: '2026-07-23T12:00:00.000Z',
+      team: [{ championId: 'Garen' }],
+      authorityAttempt: {
+        attemptId: ATTEMPT_ID,
+        ownerUserId: 'user-1',
+        enhancementSnapshot: { Garen: { hp_1: 1 } },
+      },
+    });
+  });
+
+  it('keeps the start idempotency key and does not create a local run when start fails', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    attemptMocks.start.mockResolvedValue({
+      data: null,
+      error: new TypeError('Failed to fetch'),
+    });
+
+    await expect(useRunStore.getState().startRun(['Garen'])).resolves.toMatchObject({
+      success: false,
+    });
+    const firstCommandId = attemptMocks.start.mock.calls[0][0].commandId;
+    await expect(useRunStore.getState().startRun(['Garen'])).resolves.toMatchObject({
+      success: false,
+    });
+
+    expect(attemptMocks.start.mock.calls[1][0].commandId).toBe(firstCommandId);
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      runId: '',
+      biomeMaps: [],
+      authorityAttempt: null,
+      pendingAuthorityStart: { commandId: firstCommandId },
+    });
+  });
+
+  it('replays the exact pending start after a torn response instead of opening another attempt', async () => {
+    const pendingCommandId = '44444444-4444-4444-8444-444444444444';
+    useRunStore.setState({
+      ...RUN_INITIAL_STATE,
+      pendingAuthorityStart: {
+        commandId: pendingCommandId,
+        ownerUserId: 'user-1',
+        mode: 'daily',
+        team: ['Garen'],
+        runeIds: ['press_the_attack'],
+        difficulty: 'hard',
+      },
+    });
+    attemptMocks.start.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        runUuid: RUN_UUID,
+        status: 'started',
+        rulesetVersion: 1,
+        engineVersion: 'run-engine-v1',
+        seed: 987654,
+        mode: 'daily',
+        difficulty: 'hard',
+        initialTeam: ['Garen'],
+        runeIds: ['press_the_attack'],
+        enhancementSnapshot: { Garen: {} },
+        startedAt: '2026-07-23T12:00:00.000Z',
+        expiresAt: '2026-07-24T12:00:00.000Z',
+        lastSequence: 0,
+        journalHash: 'initial-hash',
+        replayed: true,
+      },
+      error: null,
+    });
+
+    await expect(
+      useRunStore.getState().startRun(['Lux'], {
+        mode: 'normal',
+        runeIds: [],
+      }),
+    ).resolves.toEqual({ success: true });
+
+    expect(attemptMocks.start).toHaveBeenCalledWith({
+      commandId: pendingCommandId,
+      mode: 'daily',
+      team: ['Garen'],
+      runeIds: ['press_the_attack'],
+      difficulty: 'hard',
+    });
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: true,
+      mode: 'daily',
+      runId: RUN_UUID,
+      team: [{ championId: 'Garen' }],
+      runeIds: ['press_the_attack'],
+      pendingAuthorityStart: null,
     });
   });
 });

@@ -12,18 +12,23 @@ import { useEnhancementStore } from '@/stores/enhancementStore';
 import { calculateMaxHP } from '@/utils/statCalculator';
 
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
+  const state = useRunStore.getState();
   const champion = championDB.getById(member.championId);
   if (!champion) return 100;
-  const enhancementState = useEnhancementStore.getState().getEnhancementState(member.championId);
+  const unlockedNodes = state.authorityAttempt
+    ? (state.authorityAttempt.enhancementSnapshot[member.championId] ??
+      state.authorityAttempt.enhancementSnapshot[member.championId.toLowerCase()] ??
+      {})
+    : useEnhancementStore.getState().getEnhancementState(member.championId).unlockedNodes;
   const enhancementBonuses = enhancementService.calculateStatBonuses(
     enhancementTreeProvider.getTreeForChampion(champion),
-    enhancementState.unlockedNodes,
+    unlockedNodes,
   );
   return calculateMaxHP(
     champion,
     member.level ?? 1,
     enhancementBonuses,
-    useRunStore.getState().inventory,
+    state.inventory,
     member.championId,
     member.statBoosts,
     member.statMultiplier,
@@ -56,13 +61,14 @@ export function EventPage() {
   const handleInvestigate = useCallback(() => {
     if (!encounter || outcome || wasClaimed) return;
     playUIClick();
+    const previous = useRunStore.getState();
+    if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
     const state = useRunStore.getState();
-    if (!state.claimCurrentEncounter()) return;
-    const rng = createScopedRunRng(state.seed, `event:${encounter.id}:outcome`);
-    const resolved = resolveAffordableEventOutcome(encounter.outcomes, state.gold, () =>
+    const rng = createScopedRunRng(previous.seed, `event:${encounter.id}:outcome`);
+    const resolved = resolveAffordableEventOutcome(encounter.outcomes, previous.gold, () =>
       rng.next(),
     );
-    setOutcome(resolved);
+    let mutationSucceeded = true;
     switch (resolved.type) {
       case 'gold_reward': {
         const amount = resolved.goldAmount ?? 0;
@@ -71,7 +77,7 @@ export function EventPage() {
       }
       case 'gold_cost': {
         const amount = Math.abs(resolved.goldAmount ?? 0);
-        if (amount > 0) spendGold(amount);
+        if (amount > 0) mutationSucceeded = spendGold(amount);
         break;
       }
       case 'heal': {
@@ -125,18 +131,18 @@ export function EventPage() {
       case 'stat_boost': {
         if (resolved.statBoost) {
           const { stat, amount } = resolved.statBoost;
-          // Apply stat boost to all team members
           const updates = state.team.map((member) => {
             const existingBoosts = member.statBoosts || {};
+            const statBoosts = {
+              ...existingBoosts,
+              [stat]: (existingBoosts[stat] || 0) + amount,
+            };
             return {
               championId: member.championId,
-              currentHp: member.currentHp ?? 0,
+              currentHp: member.currentHp ?? getMemberMaxHp({ ...member, statBoosts }),
               level: member.level ?? 1,
               currentXp: member.currentXp ?? 0,
-              statBoosts: {
-                ...existingBoosts,
-                [stat]: (existingBoosts[stat] || 0) + amount,
-              },
+              statBoosts,
             };
           });
           state.updateTeamAfterCombat(updates);
@@ -144,12 +150,32 @@ export function EventPage() {
         break;
       }
     }
+    if (
+      !mutationSucceeded ||
+      !useRunStore
+        .getState()
+        .recordRunCommand(
+          { kind: 'event', nodeId: previous.currentNodeId },
+          `event:${previous.currentBiomeIndex}:${previous.currentNodeId}`,
+        )
+    ) {
+      useRunStore.setState({
+        gold: previous.gold,
+        team: previous.team,
+        inventory: previous.inventory,
+        nextItemInstanceId: previous.nextItemInstanceId,
+        claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
+      });
+      return;
+    }
+    setOutcome(resolved);
   }, [encounter, outcome, wasClaimed, addGold, spendGold, addItem, addChampion]);
 
   const handleContinue = useCallback(() => {
     playUIClick();
-    useRunStore.getState().resolveEncounter();
-    navigate(ROUTES.RUN);
+    if (useRunStore.getState().resolveEncounter()) {
+      navigate(ROUTES.RUN);
+    }
   }, [navigate]);
 
   if (!isActive) return null;

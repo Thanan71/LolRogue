@@ -9,10 +9,33 @@ import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { calculateMaxHP } from '@/utils/statCalculator';
 
+function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
+  const state = useRunStore.getState();
+  const champion = championDB.getById(member.championId);
+  if (!champion) return 100;
+  const unlockedNodes = state.authorityAttempt
+    ? (state.authorityAttempt.enhancementSnapshot[member.championId] ??
+      state.authorityAttempt.enhancementSnapshot[member.championId.toLowerCase()] ??
+      {})
+    : useEnhancementStore.getState().getEnhancementState(member.championId).unlockedNodes;
+  const enhancementBonuses = enhancementService.calculateStatBonuses(
+    enhancementTreeProvider.getTreeForChampion(champion),
+    unlockedNodes,
+  );
+  return calculateMaxHP(
+    champion,
+    member.level ?? 1,
+    enhancementBonuses,
+    state.inventory,
+    member.championId,
+    member.statBoosts,
+    member.statMultiplier,
+  );
+}
+
 export function RestPage() {
   const isActive = useRunStore((s) => s.isActive);
   const team = useRunStore((s) => s.team);
-  const inventory = useRunStore((s) => s.inventory);
   const gold = useRunStore((s) => s.gold);
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore((s) => s.getCurrentNode);
@@ -21,7 +44,6 @@ export function RestPage() {
     (s) => currentNodeId !== null && (s.claimedEncounterNodeIds ?? []).includes(currentNodeId),
   );
   const spendGold = useRunStore((s) => s.spendGold);
-  const getEnhancementState = useEnhancementStore((s) => s.getEnhancementState);
 
   const [healed, setHealed] = useState(wasClaimed);
 
@@ -36,71 +58,22 @@ export function RestPage() {
   const fullHeal = encounter?.fullHeal ?? false;
   const canAfford = gold >= goldCost;
 
-  // Helper function to calculate max HP for a team member with all modifiers
-  const getMemberMaxHP = useCallback(
-    (member: (typeof team)[0]) => {
-      const champ = championDB.getById(member.championId);
-      if (!champ) return 100;
-
-      const level = member.level ?? 1;
-
-      // Get enhancement bonuses for this champion
-      const enhancementState = getEnhancementState(member.championId);
-      const tree = enhancementTreeProvider.getTreeForChampion(champ);
-      const enhancementBonuses = enhancementService.calculateStatBonuses(
-        tree,
-        enhancementState.unlockedNodes,
-      );
-
-      // Calculate max HP with level, enhancements, items, and event stat boosts
-      const eventStatBoosts = member.statBoosts;
-      return calculateMaxHP(
-        champ,
-        level,
-        enhancementBonuses,
-        inventory,
-        member.championId,
-        eventStatBoosts,
-        member.statMultiplier,
-      );
-    },
-    [getEnhancementState, inventory],
-  );
-
   const handleRest = useCallback(() => {
     if (!canAfford && goldCost > 0) return;
     if (healed) return;
     playUIClick();
-    if (!useRunStore.getState().claimCurrentEncounter()) return;
+    const previous = useRunStore.getState();
+    if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
 
-    if (goldCost > 0) {
-      spendGold(goldCost);
+    if (goldCost > 0 && !spendGold(goldCost)) {
+      useRunStore.setState({ claimedEncounterNodeIds: previous.claimedEncounterNodeIds });
+      return;
     }
 
     // Heal each team member using accurate max HP calculation
     const state = useRunStore.getState();
     const updates = state.team.map((member) => {
-      const champ = championDB.getById(member.championId);
-      const level = member.level ?? 1;
-
-      // Get enhancement bonuses for this champion
-      const enhancementState = getEnhancementState(member.championId);
-      const tree = enhancementTreeProvider.getTreeForChampion(champ!);
-      const enhancementBonuses = enhancementService.calculateStatBonuses(
-        tree,
-        enhancementState.unlockedNodes,
-      );
-
-      // Calculate max HP with all modifiers (including event stat boosts)
-      const maxHp = calculateMaxHP(
-        champ,
-        level,
-        enhancementBonuses,
-        state.inventory,
-        member.championId,
-        member.statBoosts,
-        member.statMultiplier,
-      );
+      const maxHp = getMemberMaxHp(member);
       const currentHp = member.currentHp ?? maxHp;
       const healAmount = fullHeal ? maxHp - currentHp : Math.floor(maxHp * healPercent);
       const newHp = Math.min(maxHp, currentHp + healAmount);
@@ -114,13 +87,29 @@ export function RestPage() {
     });
 
     state.updateTeamAfterCombat(updates);
+    if (
+      !useRunStore
+        .getState()
+        .recordRunCommand(
+          { kind: 'rest', nodeId: previous.currentNodeId },
+          `rest:${previous.currentBiomeIndex}:${previous.currentNodeId}`,
+        )
+    ) {
+      useRunStore.setState({
+        team: previous.team,
+        gold: previous.gold,
+        claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
+      });
+      return;
+    }
     setHealed(true);
-  }, [canAfford, healed, goldCost, spendGold, healPercent, fullHeal, getEnhancementState]);
+  }, [canAfford, healed, goldCost, spendGold, healPercent, fullHeal]);
 
   const handleContinue = useCallback(() => {
     playUIClick();
-    useRunStore.getState().resolveEncounter();
-    navigate(ROUTES.RUN);
+    if (useRunStore.getState().resolveEncounter()) {
+      navigate(ROUTES.RUN);
+    }
   }, [navigate]);
 
   if (!isActive) return null;
@@ -166,7 +155,7 @@ export function RestPage() {
           }}
         >
           {team.map((member) => {
-            const maxHp = getMemberMaxHP(member);
+            const maxHp = getMemberMaxHp(member);
             const currentHp = member.currentHp ?? maxHp;
             const pct = Math.round((currentHp / maxHp) * 100);
             const champ = championDB.getById(member.championId);

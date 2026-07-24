@@ -23,6 +23,9 @@ supabase/migrations/20260723050000_atomic_daily_submission.sql
 supabase/migrations/20260723060000_atomic_mastery_enhancements.sql
 supabase/migrations/20260723070000_run_loadout.sql
 supabase/migrations/20260723080000_normalize_run_integer_payload.sql
+supabase/migrations/20260723090000_server_authoritative_progression.sql
+supabase/migrations/20260724090000_verified_run_attempts.sql
+supabase/migrations/20260724190000_harden_verified_attempt_contract.sql
 ```
 
 ## Fresh local database
@@ -57,12 +60,35 @@ une base contenant des données.
 npm run db:start
 npm run db:validate
 npm run db:types
+npm run edge:bundle
 ```
 
 `db:validate` resets only the local LolRogue database, lints the PostgreSQL
-schema and runs the live Auth/RLS/repository tests. `src/types/database.ts` is
-generated from that local schema; application-specific models live separately
-in `src/types/models.ts`.
+schema and runs the live Auth/RLS/repository/attempt tests.
+`src/types/database.ts` is generated from that local schema; application-specific
+models live separately in `src/types/models.ts`.
+
+`edge:bundle` génère le moteur déterministe consommé par `verify-run` et vérifie
+que son hash correspond au ruleset SQL. Le fichier généré est volontairement
+ignoré par Git : `edge:serve` et `edge:deploy` le reconstruisent toujours depuis
+les sources versionnées.
+
+Pour tester localement la fonction avec Supabase déjà démarré :
+
+```bash
+npm run edge:serve
+```
+
+Pour un projet hébergé, déployer la fonction avant la migration qui révoque
+l'ancien chemin de sauvegarde, puis publier immédiatement le client compatible :
+
+```bash
+npm run edge:deploy
+npm run migrate
+```
+
+La variable `SUPABASE_SERVICE_ROLE_KEY` est fournie au runtime de la fonction par
+Supabase. Elle ne doit jamais être ajoutée aux variables `VITE_*`.
 
 ## Authentication without email messages
 

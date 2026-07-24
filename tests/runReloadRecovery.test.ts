@@ -146,6 +146,36 @@ describe('run reload recovery', () => {
       isEnding: false,
       saveStatus: 'error',
       saveError: 'Run save was interrupted. Retry to continue.',
+      saveFailureKind: 'retryable',
+    });
+  });
+
+  it('restores an interrupted authoritative start with its exact idempotency payload', async () => {
+    useRunStore.setState({
+      isActive: false,
+      pendingAuthorityStart: {
+        commandId: '44444444-4444-4444-8444-444444444444',
+        ownerUserId: 'user-1',
+        mode: 'daily',
+        team: ['Garen'],
+        runeIds: ['press_the_attack'],
+        difficulty: 'hard',
+      },
+    });
+    const persistedStart = localStorage.getItem(RUN_STORAGE_KEY);
+    expect(persistedStart).not.toBeNull();
+
+    useRunStore.setState({ pendingAuthorityStart: null });
+    localStorage.setItem(RUN_STORAGE_KEY, persistedStart!);
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState().pendingAuthorityStart).toEqual({
+      commandId: '44444444-4444-4444-8444-444444444444',
+      ownerUserId: 'user-1',
+      mode: 'daily',
+      team: ['Garen'],
+      runeIds: ['press_the_attack'],
+      difficulty: 'hard',
     });
   });
 
@@ -188,7 +218,7 @@ describe('run reload recovery', () => {
         teamMembers: [{ championId: 'Garen', level: 2, currentHp: 0 }],
         startedAt: '2026-07-23T12:00:00.000Z',
         seed: 42,
-        runeIds: ['conqueror'],
+        runeIds: ['press_the_attack'],
         augmentIds: ['golden_touch'],
         daily: null,
       },
@@ -198,7 +228,7 @@ describe('run reload recovery', () => {
         candiesEarned: 14,
         candiesPerChampion: 14,
         progressionVersion: 1,
-        progressionSource: 'client_reported',
+        progressionSource: 'verified',
       },
     });
     const persistedCompletion = localStorage.getItem(RUN_STORAGE_KEY);
@@ -219,7 +249,7 @@ describe('run reload recovery', () => {
     expect(useRunStore.getState().serverProgression).toMatchObject({
       candiesEarned: 14,
       progressionVersion: 1,
-      progressionSource: 'client_reported',
+      progressionSource: 'verified',
     });
     expect(useRunStore.getState().completedCombatStats).toEqual([
       {
@@ -242,6 +272,65 @@ describe('run reload recovery', () => {
     ).toMatchObject({
       totalKills: 3,
       totalDamage: 640,
+    });
+  });
+
+  it('restores the authority journal, sequence and frozen enhancement snapshot', async () => {
+    useRunStore.setState({
+      isActive: true,
+      runId: '22222222-2222-4222-8222-222222222222',
+      seed: 4242,
+      startedAt: '2026-07-23T12:00:00.000Z',
+      authorityAttempt: {
+        attemptId: '11111111-1111-4111-8111-111111111111',
+        runUuid: '22222222-2222-4222-8222-222222222222',
+        ownerUserId: 'user-1',
+        seed: 4242,
+        rulesetVersion: 1,
+        engineVersion: 'run-engine-v1',
+        difficulty: 'hard',
+        mode: 'normal',
+        initialTeam: ['Garen'],
+        runeIds: ['press_the_attack'],
+        enhancementSnapshot: { Garen: { hp_1: 2 } },
+        startedAt: '2026-07-23T12:00:00.000Z',
+        expiresAt: '2026-07-24T12:00:00.000Z',
+        status: 'started',
+        commands: [
+          {
+            commandId: '33333333-3333-4333-8333-333333333333',
+            sequence: 1,
+            kind: 'move_node',
+            payload: { node_id: 'top_lane_start' },
+            dedupeKey: 'move_node:0:top_lane_start',
+          },
+        ],
+        nextSequence: 2,
+        lastAcknowledgedSequence: 0,
+        journalHash: 'initial-hash',
+        finishCommandId: null,
+      },
+    });
+    const persisted = localStorage.getItem(RUN_STORAGE_KEY);
+    expect(persisted).not.toBeNull();
+
+    useRunStore.setState({ authorityAttempt: null, isActive: false });
+    localStorage.setItem(RUN_STORAGE_KEY, persisted!);
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState().authorityAttempt).toMatchObject({
+      ownerUserId: 'user-1',
+      difficulty: 'hard',
+      enhancementSnapshot: { Garen: { hp_1: 2 } },
+      nextSequence: 2,
+      lastAcknowledgedSequence: 0,
+      commands: [
+        {
+          sequence: 1,
+          kind: 'move_node',
+          payload: { node_id: 'top_lane_start' },
+        },
+      ],
     });
   });
 });

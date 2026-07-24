@@ -32,6 +32,7 @@ export * from './interfaces';
 export * from './masteryService';
 // Run Stats Tracker
 export { RunStatsTracker, runStatsTracker } from './RunStatsTracker';
+export * from './runAttemptService';
 // ─── Repositories (Data Access Layer) ────────────────────────────────────────
 export * from './repositories';
 // Enhancement Repository - Supabase implementation
@@ -39,15 +40,9 @@ export {
   SupabaseEnhancementRepository,
   supabaseEnhancementRepository,
 } from './repositories';
-export type { SaveRunData } from './runService';
 // ─── Domain Services ─────────────────────────────────────────────────────────
 // Run Service - Handles run-related business logic
-export {
-  getPlayerRunHistory,
-  getPlayerRunStats,
-  getRunDetails,
-  saveRunToDatabase,
-} from './runService';
+export { getPlayerRunHistory, getPlayerRunStats, getRunDetails } from './runService';
 // ─── Supabase Client ─────────────────────────────────────────────────────────
 // The base Supabase client (deprecated functions are also exported for backward compatibility)
 export { supabase } from './supabaseClient';

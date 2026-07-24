@@ -49,6 +49,7 @@ npm run db:start
 npm run db:reset
 npm run db:lint
 npm run db:types
+npm run edge:serve
 npm run db:stop
 ```
 
@@ -75,6 +76,7 @@ npm test              # tests unitaires et tests de structure SQL
 npm run test:coverage # tests avec seuils de couverture
 npm run test:e2e      # parcours navigateur des six biomes
 npm run test:db       # intégration Auth/RLS sur une vraie instance de test
+npm run edge:bundle   # bundle du replay serveur + contrôle du hash de contenu
 npm run check         # format, lint, types, couverture et build
 ```
 
@@ -88,7 +90,7 @@ recrée automatiquement une instance locale jetable.
 src/
 ├── components/          composants React partagés et gardes de routes
 ├── data/                définitions de champions, objets, runes et augments
-├── game/                règles déterministes indépendantes de React
+├── game/                règles déterministes et replay autoritaire
 ├── pages/               écrans chargés paresseusement par React Router
 ├── services/
 │   ├── interfaces/      contrats des dépôts
@@ -98,6 +100,7 @@ src/
 ├── types/               modèles applicatifs et types Supabase générés
 └── utils/               calculs et utilitaires transverses
 public/lol/data/         données et images Riot épinglées
+supabase/functions/      vérification Edge des journaux scellés
 supabase/migrations/     schéma initial et montées de version
 tests/                   tests Vitest
 e2e/                     tests Playwright

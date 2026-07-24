@@ -12,6 +12,7 @@ import { GameOverPage } from '@/pages/GameOverPage';
 import { MenuPage } from '@/pages/MenuPage';
 import { RestPage } from '@/pages/RestPage';
 import { ShopPage } from '@/pages/ShopPage';
+import { StarterSelectPage } from '@/pages/StarterSelectPage';
 import { TreasurePage } from '@/pages/TreasurePage';
 import { RunMapScreen } from '@/components/RunMapScreen';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
@@ -80,8 +81,10 @@ describe('P2 page smoke tests', () => {
       gold: 0,
       saveStatus: 'idle',
       saveError: null,
+      saveFailureKind: null,
       completedRunSnapshot: null,
       serverProgression: null,
+      pendingAuthorityStart: null,
     });
   });
 
@@ -112,6 +115,32 @@ describe('P2 page smoke tests', () => {
     expect(screen.getByRole('button', { name: /aide/i })).toBeInTheDocument();
     expect(screen.getByText('Top_lane')).toBeInTheDocument();
     expect(document.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('shows a persisted verified start as an explicit locked recovery choice', () => {
+    useAuthStore.setState({
+      user: { id: 'user-1' } as User,
+      isAuthenticated: true,
+      isGuest: false,
+    });
+    useRunStore.setState({
+      pendingAuthorityStart: {
+        commandId: '44444444-4444-4444-8444-444444444444',
+        ownerUserId: 'user-1',
+        mode: 'normal',
+        team: ['Garen'],
+        runeIds: ['press_the_attack'],
+        difficulty: 'hard',
+      },
+    });
+
+    renderAt(<StarterSelectPage />, '/starter-select');
+
+    expect(screen.getByText(/tentative vérifiée interrompue/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /reprendre la run vérifiée/i })).toBeEnabled();
+    const rune = screen.getByRole('checkbox', { name: /press the attack/i });
+    expect(rune).toBeChecked();
+    expect(rune).toBeDisabled();
   });
 
   it.each([
@@ -258,6 +287,7 @@ describe('P2 page smoke tests', () => {
       runId: 'completed-run',
       saveStatus: 'error',
       saveError: 'network unavailable',
+      saveFailureKind: 'retryable',
       completedRunSnapshot: completedSnapshot(summary, ['Garen']),
       serverProgression: null,
     });
@@ -269,7 +299,45 @@ describe('P2 page smoke tests', () => {
     );
 
     expect(screen.getByRole('alert')).toHaveTextContent('network unavailable');
+    expect(screen.getByRole('button', { name: 'Retry Verification' })).toBeInTheDocument();
     expect(screen.queryByText(/Candies/)).not.toBeInTheDocument();
+  });
+
+  it('allows leaving a terminally rejected run without offering a retry', () => {
+    const summary: RunSummary = {
+      won: false,
+      runLevel: 1,
+      wavesCompleted: 2,
+      biomesVisited: ['top_lane'],
+      goldEarned: 50,
+      totalKills: 0,
+      totalDamage: 100,
+      championStats: [],
+    };
+    useAuthStore.setState({
+      user: { id: 'user-1' } as User,
+      isAuthenticated: true,
+      isGuest: false,
+    });
+    useRunStore.setState({
+      isActive: false,
+      saveStatus: 'error',
+      saveError: 'illegal trace',
+      saveFailureKind: 'terminal',
+      completedRunSnapshot: completedSnapshot(summary, ['Garen']),
+      serverProgression: null,
+    });
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/game-over', state: { summary } }]}>
+        <GameOverPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent('No authenticated progression was awarded');
+    expect(screen.queryByRole('button', { name: /Retry/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'New Run' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Main Menu' })).toBeEnabled();
   });
 });
 

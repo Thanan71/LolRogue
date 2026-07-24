@@ -15,6 +15,7 @@ export function GameOverPage() {
     ?.summary;
   const saveStatus = useRunStore((state) => state.saveStatus);
   const saveError = useRunStore((state) => state.saveError);
+  const saveFailureKind = useRunStore((state) => state.saveFailureKind);
   const activeRunId = useRunStore((state) => state.runId);
   const completedRunSnapshot = useRunStore((state) => state.completedRunSnapshot);
   const serverProgression = useRunStore((state) => state.serverProgression);
@@ -71,6 +72,7 @@ export function GameOverPage() {
   const totalKills = summary?.totalKills ?? 0;
   const totalDamage = summary?.totalDamage ?? 0;
   const goldEarned = summary?.goldEarned ?? 0;
+  const isRetryableSaveError = saveStatus === 'error' && saveFailureKind !== 'terminal';
 
   return (
     <div style={containerStyle}>
@@ -89,15 +91,21 @@ export function GameOverPage() {
         )}
         {saveStatus === 'success' && (
           <p role="status" style={successStyle}>
-            Run saved successfully.
+            Run verified and progression saved.
           </p>
         )}
         {saveStatus === 'error' && (
           <div role="alert" style={errorStyle}>
-            <div>Unable to save this run: {saveError}</div>
-            <button style={retryBtnStyle} onClick={handleRetrySave}>
-              Retry Save
-            </button>
+            <div>
+              {saveFailureKind === 'terminal'
+                ? `Run not verified. No authenticated progression was awarded: ${saveError}`
+                : `Unable to verify this run yet: ${saveError}`}
+            </div>
+            {isRetryableSaveError && (
+              <button style={retryBtnStyle} onClick={handleRetrySave}>
+                Retry Verification
+              </button>
+            )}
           </div>
         )}
 
@@ -174,10 +182,7 @@ export function GameOverPage() {
             )}
             {serverProgression && (
               <div data-testid="server-progression" style={progressionMetadataStyle}>
-                Progression v{serverProgression.progressionVersion} ·{' '}
-                {serverProgression.progressionSource === 'verified'
-                  ? 'Verified'
-                  : 'Client report recorded by server'}
+                Progression v{serverProgression.progressionVersion} · Verified
               </div>
             )}
           </div>
@@ -187,14 +192,14 @@ export function GameOverPage() {
           <button
             style={primaryBtnStyle}
             onClick={handleNewRun}
-            disabled={saveStatus === 'saving' || saveStatus === 'error'}
+            disabled={saveStatus === 'saving' || isRetryableSaveError}
           >
             New Run
           </button>
           <button
             style={secondaryBtnStyle}
             onClick={handleMenu}
-            disabled={saveStatus === 'saving' || saveStatus === 'error'}
+            disabled={saveStatus === 'saving' || isRetryableSaveError}
           >
             Main Menu
           </button>

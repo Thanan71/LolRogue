@@ -5,6 +5,7 @@ import type { ShopEncounter, ShopItem } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
+import { MAX_INVENTORY_ITEMS } from '@/types/run';
 
 // ─── Helper Components ─────────────────────────────────────────────────────
 
@@ -110,14 +111,43 @@ export function ShopPage() {
   const isActive = useRunStore((s) => s.isActive);
   const gold = useRunStore((s) => s.gold);
   const team = useRunStore((s) => s.team);
+  const inventorySize = useRunStore((s) => s.inventory.length);
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore((s) => s.getCurrentNode);
   const spendGold = useRunStore((s) => s.spendGold);
   const addItem = useRunStore((s) => s.addItem);
   const addChampion = useRunStore((s) => s.addChampion);
+  const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const authorityCommands = useRunStore((s) => s.authorityAttempt?.commands ?? []);
 
-  const [purchased, setPurchased] = useState<Set<string>>(new Set());
-  const [recruited, setRecruited] = useState<Set<string>>(new Set());
+  const [locallyPurchased, setLocallyPurchased] = useState<Set<string>>(new Set());
+  const [locallyRecruited, setLocallyRecruited] = useState<Set<string>>(new Set());
+  const purchased = useMemo(() => {
+    const result = new Set(locallyPurchased);
+    for (const command of authorityCommands) {
+      if (
+        command.kind === 'shop_buy_item' &&
+        command.payload.node_id === currentNodeId &&
+        command.payload.item_id
+      ) {
+        result.add(command.payload.item_id);
+      }
+    }
+    return result;
+  }, [authorityCommands, currentNodeId, locallyPurchased]);
+  const recruited = useMemo(() => {
+    const result = new Set(locallyRecruited);
+    for (const command of authorityCommands) {
+      if (
+        command.kind === 'shop_recruit' &&
+        command.payload.node_id === currentNodeId &&
+        command.payload.champion_id
+      ) {
+        result.add(command.payload.champion_id);
+      }
+    }
+    return result;
+  }, [authorityCommands, currentNodeId, locallyRecruited]);
 
   const encounter = useMemo(() => {
     const node = getCurrentNode();
@@ -131,10 +161,13 @@ export function ShopPage() {
 
   const handleBuyItem = useCallback(
     (item: ShopItem) => {
+      if (!currentNodeId) return;
       const cost = Math.round(item.price * priceMultiplier);
+      const before = useRunStore.getState();
+      if (before.inventory.length >= MAX_INVENTORY_ITEMS) return;
       if (!spendGold(cost)) return;
       playUIClick();
-      addItem({
+      const instanceId = addItem({
         id: item.itemId,
         name: item.name,
         description: item.description,
@@ -143,26 +176,57 @@ export function ShopPage() {
         passiveId: item.passiveId,
         goldValue: item.price,
       });
-      setPurchased((prev) => new Set(prev).add(item.itemId));
+      if (!instanceId) {
+        useRunStore.getState().addGold(cost);
+        return;
+      }
+      const state = useRunStore.getState();
+      if (
+        !state.recordRunCommand(
+          { kind: 'shop_buy_item', nodeId: currentNodeId, itemId: item.itemId },
+          `shop_buy_item:${currentNodeId}:${item.itemId}`,
+        )
+      ) {
+        state.removeItem(instanceId);
+        state.addGold(cost);
+        return;
+      }
+      setLocallyPurchased((prev) => new Set(prev).add(item.itemId));
     },
-    [spendGold, addItem, priceMultiplier],
+    [spendGold, addItem, priceMultiplier, currentNodeId],
   );
 
   const handleRecruit = useCallback(
     (champId: string, cost: number) => {
+      if (!currentNodeId) return;
       const finalCost = Math.round(cost * priceMultiplier);
       if (!spendGold(finalCost)) return;
       playUIClick();
-      addChampion(champId);
-      setRecruited((prev) => new Set(prev).add(champId));
+      if (!addChampion(champId)) {
+        useRunStore.getState().addGold(finalCost);
+        return;
+      }
+      const state = useRunStore.getState();
+      if (
+        !state.recordRunCommand(
+          { kind: 'shop_recruit', nodeId: currentNodeId, championId: champId },
+          `shop_recruit:${currentNodeId}:${champId}`,
+        )
+      ) {
+        state.removeChampion(champId);
+        state.addGold(finalCost);
+        return;
+      }
+      setLocallyRecruited((prev) => new Set(prev).add(champId));
     },
-    [spendGold, addChampion, priceMultiplier],
+    [spendGold, addChampion, priceMultiplier, currentNodeId],
   );
 
   const handleLeave = useCallback(() => {
     playUIClick();
-    useRunStore.getState().resolveEncounter();
-    navigate(ROUTES.RUN);
+    if (useRunStore.getState().resolveEncounter()) {
+      navigate(ROUTES.RUN);
+    }
   }, [navigate]);
 
   if (!isActive) return null;
@@ -186,7 +250,9 @@ export function ShopPage() {
                 item={item}
                 priceMultiplier={priceMultiplier}
                 canAfford={
-                  gold >= Math.round(item.price * priceMultiplier) && !purchased.has(item.itemId)
+                  inventorySize < MAX_INVENTORY_ITEMS &&
+                  gold >= Math.round(item.price * priceMultiplier) &&
+                  !purchased.has(item.itemId)
                 }
                 onBuy={() => handleBuyItem(item)}
               />

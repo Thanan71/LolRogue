@@ -236,6 +236,71 @@ export type Database = {
           },
         ];
       };
+      gameplay_content_catalog: {
+        Row: {
+          active: boolean;
+          content_id: string;
+          content_type: string;
+          gameplay_ruleset_version: number;
+        };
+        Insert: {
+          active?: boolean;
+          content_id: string;
+          content_type: string;
+          gameplay_ruleset_version: number;
+        };
+        Update: {
+          active?: boolean;
+          content_id?: string;
+          content_type?: string;
+          gameplay_ruleset_version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'gameplay_content_catalog_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
+      gameplay_rulesets: {
+        Row: {
+          attempt_ttl: string;
+          code: string;
+          command_schema_version: number;
+          content_hash: string;
+          created_at: string;
+          engine_version: string;
+          is_active: boolean;
+          max_commands: number;
+          version: number;
+        };
+        Insert: {
+          attempt_ttl?: string;
+          code: string;
+          command_schema_version: number;
+          content_hash: string;
+          created_at?: string;
+          engine_version: string;
+          is_active?: boolean;
+          max_commands?: number;
+          version: number;
+        };
+        Update: {
+          attempt_ttl?: string;
+          code?: string;
+          command_schema_version?: number;
+          content_hash?: string;
+          created_at?: string;
+          engine_version?: string;
+          is_active?: boolean;
+          max_commands?: number;
+          version?: number;
+        };
+        Relationships: [];
+      };
       logs: {
         Row: {
           created_at: string;
@@ -488,6 +553,36 @@ export type Database = {
           },
         ];
       };
+      progression_enhancement_security_baselines: {
+        Row: {
+          baseline_code: string;
+          captured_at: string;
+          champion_id: string;
+          original_unlocked_nodes: Json;
+          policy: string;
+          retained_verified_nodes: Json;
+          user_id: string;
+        };
+        Insert: {
+          baseline_code: string;
+          captured_at?: string;
+          champion_id: string;
+          original_unlocked_nodes: Json;
+          policy: string;
+          retained_verified_nodes: Json;
+          user_id: string;
+        };
+        Update: {
+          baseline_code?: string;
+          captured_at?: string;
+          champion_id?: string;
+          original_unlocked_nodes?: Json;
+          policy?: string;
+          retained_verified_nodes?: Json;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       progression_rulesets: {
         Row: {
           base_candies: number;
@@ -532,6 +627,252 @@ export type Database = {
           victory_bonus?: number;
         };
         Relationships: [];
+      };
+      progression_security_baselines: {
+        Row: {
+          baseline_code: string;
+          created_at: string;
+          cutoff_at: string;
+          migration_version: string;
+          notes: string;
+          policy: string;
+        };
+        Insert: {
+          baseline_code: string;
+          created_at?: string;
+          cutoff_at: string;
+          migration_version: string;
+          notes: string;
+          policy: string;
+        };
+        Update: {
+          baseline_code?: string;
+          created_at?: string;
+          cutoff_at?: string;
+          migration_version?: string;
+          notes?: string;
+          policy?: string;
+        };
+        Relationships: [];
+      };
+      run_attempt_commands: {
+        Row: {
+          attempt_id: string;
+          chain_hash: string;
+          command_id: string;
+          kind: string;
+          payload: Json;
+          payload_hash: string;
+          previous_hash: string;
+          received_at: string;
+          sequence: number;
+        };
+        Insert: {
+          attempt_id: string;
+          chain_hash: string;
+          command_id: string;
+          kind: string;
+          payload: Json;
+          payload_hash: string;
+          previous_hash: string;
+          received_at?: string;
+          sequence: number;
+        };
+        Update: {
+          attempt_id?: string;
+          chain_hash?: string;
+          command_id?: string;
+          kind?: string;
+          payload?: Json;
+          payload_hash?: string;
+          previous_hash?: string;
+          received_at?: string;
+          sequence?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'run_attempt_commands_attempt_id_fkey';
+            columns: ['attempt_id'];
+            isOneToOne: false;
+            referencedRelation: 'run_attempts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      run_attempts: {
+        Row: {
+          command_schema_version: number;
+          created_at: string;
+          difficulty: string;
+          engine_version: string;
+          enhancement_snapshot: Json;
+          expired_at: string | null;
+          expires_at: string;
+          finish_command_id: string | null;
+          finished_at: string | null;
+          gameplay_content_hash: string;
+          gameplay_ruleset_version: number;
+          id: string;
+          initial_team: string[];
+          journal_bytes: number;
+          journal_hash: string;
+          last_sequence: number;
+          lease_expires_at: string | null;
+          lease_token: string | null;
+          lease_worker_id: string | null;
+          mode: string;
+          player_id: string;
+          rejected_at: string | null;
+          rejection_code: string | null;
+          response: Json | null;
+          result: Json | null;
+          result_hash: string | null;
+          result_run_id: string | null;
+          ruleset_version: number;
+          run_uuid: string;
+          rune_ids: string[];
+          sealed_journal_hash: string | null;
+          sealed_sequence: number | null;
+          seed: number;
+          start_command_id: string;
+          start_payload_hash: string;
+          started_at: string;
+          status: string;
+          updated_at: string;
+          user_id: string;
+          verification_attempts: number;
+          verified_at: string | null;
+        };
+        Insert: {
+          command_schema_version: number;
+          created_at?: string;
+          difficulty: string;
+          engine_version: string;
+          enhancement_snapshot?: Json;
+          expired_at?: string | null;
+          expires_at: string;
+          finish_command_id?: string | null;
+          finished_at?: string | null;
+          gameplay_content_hash: string;
+          gameplay_ruleset_version: number;
+          id?: string;
+          initial_team: string[];
+          journal_bytes?: number;
+          journal_hash: string;
+          last_sequence?: number;
+          lease_expires_at?: string | null;
+          lease_token?: string | null;
+          lease_worker_id?: string | null;
+          mode: string;
+          player_id: string;
+          rejected_at?: string | null;
+          rejection_code?: string | null;
+          response?: Json | null;
+          result?: Json | null;
+          result_hash?: string | null;
+          result_run_id?: string | null;
+          ruleset_version: number;
+          run_uuid: string;
+          rune_ids?: string[];
+          sealed_journal_hash?: string | null;
+          sealed_sequence?: number | null;
+          seed: number;
+          start_command_id: string;
+          start_payload_hash: string;
+          started_at?: string;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+          verification_attempts?: number;
+          verified_at?: string | null;
+        };
+        Update: {
+          command_schema_version?: number;
+          created_at?: string;
+          difficulty?: string;
+          engine_version?: string;
+          enhancement_snapshot?: Json;
+          expired_at?: string | null;
+          expires_at?: string;
+          finish_command_id?: string | null;
+          finished_at?: string | null;
+          gameplay_content_hash?: string;
+          gameplay_ruleset_version?: number;
+          id?: string;
+          initial_team?: string[];
+          journal_bytes?: number;
+          journal_hash?: string;
+          last_sequence?: number;
+          lease_expires_at?: string | null;
+          lease_token?: string | null;
+          lease_worker_id?: string | null;
+          mode?: string;
+          player_id?: string;
+          rejected_at?: string | null;
+          rejection_code?: string | null;
+          response?: Json | null;
+          result?: Json | null;
+          result_hash?: string | null;
+          result_run_id?: string | null;
+          ruleset_version?: number;
+          run_uuid?: string;
+          rune_ids?: string[];
+          sealed_journal_hash?: string | null;
+          sealed_sequence?: number | null;
+          seed?: number;
+          start_command_id?: string;
+          start_payload_hash?: string;
+          started_at?: string;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+          verification_attempts?: number;
+          verified_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+          {
+            foreignKeyName: 'run_attempts_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: false;
+            referencedRelation: 'admin_player_stats';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'run_attempts_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: false;
+            referencedRelation: 'leaderboard';
+            referencedColumns: ['player_id'];
+          },
+          {
+            foreignKeyName: 'run_attempts_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: false;
+            referencedRelation: 'players';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'run_attempts_result_run_id_fkey';
+            columns: ['result_run_id'];
+            isOneToOne: true;
+            referencedRelation: 'runs';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'run_attempts_ruleset_version_fkey';
+            columns: ['ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'progression_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
       };
       run_team_members: {
         Row: {
@@ -623,6 +964,7 @@ export type Database = {
           progression_payload_hash: string | null;
           progression_source: string;
           progression_version: number;
+          run_attempt_id: string | null;
           run_level: number;
           run_uuid: string;
           rune_ids: string[];
@@ -658,6 +1000,7 @@ export type Database = {
           progression_payload_hash?: string | null;
           progression_source?: string;
           progression_version?: number;
+          run_attempt_id?: string | null;
           run_level?: number;
           run_uuid: string;
           rune_ids?: string[];
@@ -693,6 +1036,7 @@ export type Database = {
           progression_payload_hash?: string | null;
           progression_source?: string;
           progression_version?: number;
+          run_attempt_id?: string | null;
           run_level?: number;
           run_uuid?: string;
           rune_ids?: string[];
@@ -727,6 +1071,13 @@ export type Database = {
             columns: ['player_id'];
             isOneToOne: false;
             referencedRelation: 'players';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'runs_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: true;
+            referencedRelation: 'run_attempts';
             referencedColumns: ['id'];
           },
         ];
@@ -838,6 +1189,25 @@ export type Database = {
       };
     };
     Functions: {
+      append_run_attempt_commands: {
+        Args: { p_attempt_id: string; p_commands: Json };
+        Returns: Json;
+      };
+      claim_run_verification: {
+        Args: { p_attempt_id: string; p_worker_id: string };
+        Returns: Json;
+      };
+      complete_run_verification: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      expire_stale_run_attempts: { Args: never; Returns: Json };
+      get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       is_current_user_admin: { Args: never; Returns: boolean };
       mastery_current_level_candies: {
         Args: { p_candies: number };
@@ -857,6 +1227,14 @@ export type Database = {
           p_value: Json;
         };
         Returns: number;
+      };
+      reject_run_verification: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_rejection_code: string;
+        };
+        Returns: Json;
       };
       save_completed_run: {
         Args: {
@@ -892,6 +1270,24 @@ export type Database = {
           p_rune_ids: string[];
         };
         Returns: undefined;
+      };
+      seal_run_attempt: {
+        Args: {
+          p_attempt_id: string;
+          p_expected_sequence: number;
+          p_finish_command_id: string;
+        };
+        Returns: Json;
+      };
+      start_run_attempt: {
+        Args: {
+          p_command_id: string;
+          p_difficulty: string;
+          p_mode?: string;
+          p_rune_ids: string[];
+          p_team: string[];
+        };
+        Returns: Json;
       };
       submit_daily_run: {
         Args: {

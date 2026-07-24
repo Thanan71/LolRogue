@@ -10,8 +10,14 @@ import { useRunStore } from '@/stores/runStore';
 export function RunPage() {
   useRunImagePreload();
   const isActive = useRunStore((s) => s.isActive);
+  const runId = useRunStore((s) => s.runId);
+  const completedRunSnapshot = useRunStore((s) => s.completedRunSnapshot);
   const pendingEncounter = useRunStore((s) => s.pendingEncounter);
   const navigate = useAppNavigate();
+
+  if (isActive && completedRunSnapshot?.runId === runId) {
+    return <Navigate to={ROUTES.GAME_OVER} replace />;
+  }
 
   if (!isActive) {
     return (

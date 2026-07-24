@@ -13,8 +13,14 @@ export function EncounterRoute({
   children: ReactNode;
 }) {
   const isActive = useRunStore((state) => state.isActive);
+  const runId = useRunStore((state) => state.runId);
+  const completedRunSnapshot = useRunStore((state) => state.completedRunSnapshot);
   const currentNodeId = useRunStore((state) => state.currentNodeId);
   const pendingEncounter = useRunStore((state) => state.pendingEncounter);
+
+  if (isActive && completedRunSnapshot?.runId === runId) {
+    return <Navigate to={ROUTES.GAME_OVER} replace />;
+  }
 
   if (
     !isEncounterRouteAllowed({
