@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { championDB } from '@/data';
+import { championDB, implementedChampions } from '@/data';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import {
@@ -150,6 +150,7 @@ export const useRunStore = create<RunStore>()(
         const requestedChampionIds = resumableStart?.team ?? championIds;
 
         // Validate champion IDs - filter out any invalid IDs
+        const supportedChampionIds = new Set(implementedChampions.map((champion) => champion.id));
         const validChampionIds = requestedChampionIds.filter((id) => {
           if (!id || typeof id !== 'string') return false;
           const champ = championDB.getById(id);
@@ -157,8 +158,15 @@ export const useRunStore = create<RunStore>()(
             logger.warn(
               `[runStore.startRun] Invalid champion ID "${id}" - champion not found in database`,
             );
+            return false;
           }
-          return !!champ;
+          if (!supportedChampionIds.has(champ.id)) {
+            logger.warn(
+              `[runStore.startRun] Unsupported champion ID "${id}" - not in implemented champion list`,
+            );
+            return false;
+          }
+          return true;
         });
 
         const team: TeamMember[] = validChampionIds

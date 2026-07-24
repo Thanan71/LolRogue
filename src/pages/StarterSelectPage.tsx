@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
 import { championDB } from '@/data/championDatabase';
+import { implementedChampions } from '@/data/champion';
 import { getKeystoneRunes } from '@/data/items/runeDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
@@ -39,7 +40,7 @@ export function StarterSelectPage() {
         .filter((champion): champion is Champion => champion !== undefined);
     }
     const rng = isDaily ? createDailyRNG() : new SeededRNG(selectionSeed);
-    return pickRandom(championDB.getAll(), 6, rng);
+    return pickRandom(implementedChampions, 6, rng);
   }, [isDaily, resumableStart, selectionSeed]);
   const [selectedStarterId, setSelectedStarterId] = useState<string | null>(
     resumableStart?.team[0] ?? null,
