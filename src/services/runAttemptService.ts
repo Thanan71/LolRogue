@@ -89,6 +89,21 @@ function isStarterRuneIds(value: unknown): value is string[] {
   );
 }
 
+function normalizeRpcError(error: unknown): Error {
+  if (error instanceof Error) return error;
+  if (error && typeof error === 'object') {
+    const rpcError = error as Record<string, unknown>;
+    const message = typeof rpcError.message === 'string' ? rpcError.message : '';
+    const details = typeof rpcError.details === 'string' ? rpcError.details : '';
+    const hint = typeof rpcError.hint === 'string' ? rpcError.hint : '';
+    const code = typeof rpcError.code === 'string' ? rpcError.code : '';
+    const status = rpcError.status != null ? `status=${rpcError.status}` : '';
+    const parts = [message, details, hint, code, status].filter(Boolean);
+    return new Error(parts.join(' | ') || JSON.stringify(rpcError));
+  }
+  return new Error(String(error));
+}
+
 function parseEnhancementSnapshot(value: unknown): RunEnhancementSnapshot | null {
   const champions = asRecord(value);
   if (!champions) return null;
@@ -256,11 +271,11 @@ async function callAttemptRpc(
 ): Promise<{ data: unknown; error: Error | null }> {
   try {
     const { data, error } = await supabase.rpc(name as never, args as never);
-    return { data, error };
+    return { data, error: error ? normalizeRpcError(error) : null };
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error : new Error(String(error)),
+      error: normalizeRpcError(error),
     };
   }
 }
