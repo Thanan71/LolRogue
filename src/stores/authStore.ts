@@ -52,6 +52,23 @@ const GUEST_MODE_KEY = 'lolrogue-guest-mode';
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
+function getAuthErrorMessage(error: unknown): string {
+  const message = getErrorMessage(error);
+  if (/invalid login credentials/i.test(message)) {
+    return 'Identifiants incorrects.';
+  }
+  if (/user.*not found|invalid.*email|invalid email/i.test(message)) {
+    return 'E-mail ou mot de passe invalide.';
+  }
+  if (/unconfirmed|confirm.*email|email.*not.*confirmed/i.test(message)) {
+    return 'Veuillez confirmer votre adresse e-mail avant de vous connecter.';
+  }
+  if (/network|failed to fetch|request failed/i.test(message)) {
+    return 'Erreur réseau. Vérifiez votre connexion et réessayez.';
+  }
+  return message || 'Une erreur est survenue lors de la connexion.';
+}
+
 async function touchPlayerLastLogin(): Promise<string | null> {
   const { data, error } = await container.player.touchLastLogin();
   if (error) {
@@ -137,7 +154,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const result = await container.auth.signIn(email, password);
 
-      if (result.error) throw result.error;
+      if (result.error) {
+        console.warn('[AuthStore] Supabase signIn error:', result.error);
+        throw result.error;
+      }
 
       if (result.user) {
         // Fetch player data using repository
@@ -166,10 +186,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       throw new Error('No user data returned');
     } catch (error: unknown) {
-      const message = getErrorMessage(error);
+      const message = getAuthErrorMessage(error);
       set({
         isLoading: false,
-        error: message || 'Login failed',
+        error: message,
         isAuthenticated: false,
       });
       return { success: false, error: message };

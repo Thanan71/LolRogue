@@ -46,9 +46,9 @@ export class SupabaseAuthRepository implements IAuthRepository {
     });
 
     return {
-      user: data.user,
-      session: data.session,
-      error: error,
+      user: data?.user ?? null,
+      session: data?.session ?? null,
+      error: error ?? null,
     };
   }
 
