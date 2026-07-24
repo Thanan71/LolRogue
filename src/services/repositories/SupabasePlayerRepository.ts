@@ -6,13 +6,14 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Player, PlayerUpdate } from '@/types/models';
+import type { Database } from '@/types/database';
+import type { Player, PlayerProfileUpdate } from '@/types/models';
 import type { IPlayerRepository } from '../interfaces/IPlayerRepository';
 
 export class SupabasePlayerRepository implements IPlayerRepository {
-  private supabase: SupabaseClient;
+  private supabase: SupabaseClient<Database>;
 
-  constructor(supabase: SupabaseClient) {
+  constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase;
   }
 
@@ -34,9 +35,9 @@ export class SupabasePlayerRepository implements IPlayerRepository {
     return { data: data as Player, error: null };
   }
 
-  async updatePlayer(
+  async updateProfile(
     userId: string,
-    updates: PlayerUpdate,
+    updates: PlayerProfileUpdate,
   ): Promise<{ data: Player | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('players')
@@ -50,6 +51,18 @@ export class SupabasePlayerRepository implements IPlayerRepository {
     }
 
     return { data: data as Player, error: null };
+  }
+
+  async touchLastLogin(): Promise<{ data: string | null; error: Error | null }> {
+    const { data, error } = await this.supabase.rpc('touch_player_last_login');
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return typeof data === 'string'
+      ? { data, error: null }
+      : { data: null, error: new Error('Invalid touch_player_last_login response') };
   }
 
   async getPlayerStats(playerId: string): Promise<{

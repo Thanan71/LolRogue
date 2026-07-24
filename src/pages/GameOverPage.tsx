@@ -4,18 +4,43 @@ import { playSFX, playUIClick } from '@/audio';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
+import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import type { RunSummary } from '@/types/run';
 
 export function GameOverPage() {
   const navigate = useAppNavigate();
   const location = useLocation();
-  const summary: RunSummary | undefined = (location.state as { summary?: RunSummary } | null)
+  const routeSummary: RunSummary | undefined = (location.state as { summary?: RunSummary } | null)
     ?.summary;
   const saveStatus = useRunStore((state) => state.saveStatus);
   const saveError = useRunStore((state) => state.saveError);
   const activeRunId = useRunStore((state) => state.runId);
-  const rewards = useMemo(() => (summary ? calculateRunCandyRewards(summary) : null), [summary]);
+  const completedRunSnapshot = useRunStore((state) => state.completedRunSnapshot);
+  const serverProgression = useRunStore((state) => state.serverProgression);
+  const hasAuthenticatedAccount = useAuthStore((state) => state.user !== null);
+  const summary = completedRunSnapshot?.summary ?? routeSummary;
+  const rewards = useMemo(() => {
+    if (!summary) return null;
+    if (serverProgression) {
+      const championIds = [
+        ...new Set(
+          (
+            completedRunSnapshot?.teamMembers.map((member) => member.championId) ??
+            summary.championStats.map((stats) => stats.championId)
+          ).filter(Boolean),
+        ),
+      ];
+      return {
+        total: serverProgression.candiesEarned,
+        byChampion: Object.fromEntries(
+          championIds.map((championId) => [championId, serverProgression.candiesPerChampion]),
+        ),
+      };
+    }
+    // An authenticated account must never see a speculative local reward.
+    return hasAuthenticatedAccount ? null : calculateRunCandyRewards(summary);
+  }, [completedRunSnapshot, hasAuthenticatedAccount, serverProgression, summary]);
 
   useEffect(() => {
     playSFX('defeat');
@@ -33,13 +58,16 @@ export function GameOverPage() {
 
   function handleRetrySave() {
     playUIClick();
-    void useRunStore.getState().endRun(summary?.won ?? false, activeRunId);
+    void useRunStore
+      .getState()
+      .endRun(summary?.won ?? false, completedRunSnapshot?.runId ?? activeRunId, summary);
   }
 
   const runLevel = summary?.runLevel ?? 1;
   const totalWavesCompleted = summary?.wavesCompleted ?? 0;
   const biomesCount = summary?.biomesVisited?.length ?? 0;
-  const championCount = summary?.championStats?.length ?? 0;
+  const championCount =
+    completedRunSnapshot?.teamMembers.length ?? summary?.championStats?.length ?? 0;
   const totalKills = summary?.totalKills ?? 0;
   const totalDamage = summary?.totalDamage ?? 0;
   const goldEarned = summary?.goldEarned ?? 0;
@@ -144,6 +172,14 @@ export function GameOverPage() {
                 )}
               </div>
             )}
+            {serverProgression && (
+              <div data-testid="server-progression" style={progressionMetadataStyle}>
+                Progression v{serverProgression.progressionVersion} ·{' '}
+                {serverProgression.progressionSource === 'verified'
+                  ? 'Verified'
+                  : 'Client report recorded by server'}
+              </div>
+            )}
           </div>
         )}
 
@@ -221,6 +257,12 @@ const championRowStyle: React.CSSProperties = {
   background: '#0d1117',
   borderRadius: 6,
   padding: '6px 12px',
+};
+
+const progressionMetadataStyle: React.CSSProperties = {
+  color: '#8b949e',
+  fontSize: 11,
+  marginTop: 10,
 };
 
 const actionsStyle: React.CSSProperties = {

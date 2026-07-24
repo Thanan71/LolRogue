@@ -5,10 +5,13 @@
  * Handles persistence of enhancement states to the database.
  */
 
-import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type {
+  IEnhancementRepository,
+  UnlockNodeResult,
+} from '@/services/interfaces/IEnhancementRepository';
 import { supabase } from '@/services/supabaseClient';
-import type { Json } from '@/types/database';
+import type { Database, Json } from '@/types/database';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
 
 function toNumberRecord(value: Json): Record<string, number> {
@@ -18,6 +21,21 @@ function toNumberRecord(value: Json): Record<string, number> {
       (entry): entry is [string, number] => typeof entry[1] === 'number',
     ),
   );
+}
+
+function isRankRecord(value: Json | undefined): value is Record<string, number> {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.values(value).every(
+      (rank) => typeof rank === 'number' && Number.isInteger(rank) && rank >= 0,
+    )
+  );
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0;
 }
 
 /**
@@ -33,38 +51,26 @@ export interface ChampionEnhancementDB {
   updated_at: string;
 }
 
-export interface ChampionEnhancementInsert {
-  user_id: string;
-  champion_id: string;
-  unlocked_nodes?: Record<string, number>;
-  total_candies_spent?: number;
-}
-
-export interface ChampionEnhancementUpdate {
-  unlocked_nodes?: Record<string, number>;
-  total_candies_spent?: number;
-}
-
 /**
  * Supabase implementation of enhancement repository
  */
-export class SupabaseEnhancementRepository {
+export class SupabaseEnhancementRepository implements IEnhancementRepository {
   private static readonly TABLE_NAME = 'champion_enhancements';
 
-  constructor(private readonly client: SupabaseClient = supabase) {}
+  constructor(private readonly client: SupabaseClient<Database> = supabase) {}
 
   /**
-   * Get enhancement state for a player-champion pair
+   * Get enhancement state for an authenticated account/champion pair.
    */
   async getEnhancementState(
-    playerId: string,
+    authUserId: string,
     championId: string,
   ): Promise<PlayerEnhancementState | null> {
     try {
       const { data, error } = await this.client
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .select('*')
-        .eq('user_id', playerId)
+        .eq('user_id', authUserId)
         .eq('champion_id', championId)
         .single();
 
@@ -88,96 +94,106 @@ export class SupabaseEnhancementRepository {
   }
 
   /**
-   * Save or update enhancement state
-   */
-  async saveEnhancementState(
-    playerId: string,
-    championId: string,
-    state: PlayerEnhancementState,
-  ): Promise<boolean> {
-    try {
-      const upsertData: ChampionEnhancementInsert = {
-        user_id: playerId,
-        champion_id: championId,
-        unlocked_nodes: state.unlockedNodes,
-        total_candies_spent: state.totalCandiesSpent,
-      };
-
-      const { error } = await this.client
-        .from(SupabaseEnhancementRepository.TABLE_NAME)
-        .upsert(upsertData, {
-          onConflict: 'user_id,champion_id',
-        });
-
-      if (error) {
-        console.error('[SupabaseEnhancementRepository] Error saving enhancement state:', error);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('[SupabaseEnhancementRepository] Unexpected error:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Unlock a node and update database
-   * Also deducts candies from player's mastery
+   * Unlock a node through the canonical, idempotent server command.
    */
   async unlockNode(
-    playerId: string,
+    authUserId: string,
     championId: string,
     nodeId: string,
-    candyCost: number,
-    maxRank: number,
+    expectedRank: number,
+    commandId: string,
   ): Promise<UnlockNodeResult> {
     const { data, error } = await this.client.rpc('unlock_champion_enhancement', {
       p_champion_id: championId,
       p_node_id: nodeId,
-      p_candy_cost: candyCost,
-      p_max_rank: maxRank,
+      p_expected_rank: expectedRank,
+      p_command_id: commandId,
     });
     const result = data as {
+      command_id?: string;
+      champion_id?: string;
+      node_id?: string;
+      current_rank?: number;
+      candy_cost?: number;
+      max_rank?: number;
       unlocked_nodes?: Json;
       total_candies_spent?: number;
       remaining_candies?: number;
+      catalog_version?: number;
+      replayed?: boolean;
     } | null;
 
     if (error || !result) {
       return {
         success: false,
-        newState: (await this.getEnhancementState(playerId, championId)) ?? {
+        newState: (await this.getEnhancementState(authUserId, championId)) ?? {
           unlockedNodes: {},
           totalCandiesSpent: 0,
         },
-        candyCost,
+        candyCost: 0,
         nodeId,
         error: error?.message || 'Failed to unlock enhancement',
+      };
+    }
+
+    const candyCost = result.candy_cost;
+    const currentRank = result.current_rank;
+    if (
+      result.command_id !== commandId ||
+      result.champion_id !== championId ||
+      result.node_id !== nodeId ||
+      !isNonNegativeInteger(currentRank) ||
+      currentRank !== expectedRank + 1 ||
+      !isNonNegativeInteger(candyCost) ||
+      candyCost === 0 ||
+      !isNonNegativeInteger(result.max_rank) ||
+      currentRank > result.max_rank ||
+      !isRankRecord(result.unlocked_nodes) ||
+      result.unlocked_nodes[nodeId] !== currentRank ||
+      !isNonNegativeInteger(result.total_candies_spent) ||
+      !isNonNegativeInteger(result.remaining_candies) ||
+      !isNonNegativeInteger(result.catalog_version) ||
+      result.catalog_version === 0 ||
+      typeof result.replayed !== 'boolean'
+    ) {
+      return {
+        success: false,
+        newState: (await this.getEnhancementState(authUserId, championId)) ?? {
+          unlockedNodes: {},
+          totalCandiesSpent: 0,
+        },
+        candyCost: 0,
+        nodeId,
+        error: 'Invalid unlock_champion_enhancement response',
       };
     }
 
     return {
       success: true,
       newState: {
-        unlockedNodes: toNumberRecord(result.unlocked_nodes ?? {}),
-        totalCandiesSpent: result.total_candies_spent ?? 0,
+        unlockedNodes: toNumberRecord(result.unlocked_nodes),
+        totalCandiesSpent: result.total_candies_spent,
       },
       candyCost,
       nodeId,
+      currentRank,
+      maxRank: result.max_rank,
       remainingCandies: result.remaining_candies,
+      catalogVersion: result.catalog_version,
+      replayed: result.replayed,
+      commandId: result.command_id,
     };
   }
 
   /**
-   * Get all enhancement states for a player
+   * Get all enhancement states for an authenticated account.
    */
-  async getAllEnhancementStates(playerId: string): Promise<Map<string, PlayerEnhancementState>> {
+  async getAllEnhancementStates(authUserId: string): Promise<Map<string, PlayerEnhancementState>> {
     try {
       const { data, error } = await this.client
         .from(SupabaseEnhancementRepository.TABLE_NAME)
         .select('*')
-        .eq('user_id', playerId);
+        .eq('user_id', authUserId);
 
       if (error) {
         console.error(
@@ -199,29 +215,6 @@ export class SupabaseEnhancementRepository {
     } catch (error) {
       console.error('[SupabaseEnhancementRepository] Unexpected error:', error);
       return new Map();
-    }
-  }
-
-  /**
-   * Reset enhancement state for a champion (for testing/debug)
-   */
-  async resetEnhancementState(playerId: string, championId: string): Promise<boolean> {
-    try {
-      const { error } = await this.client
-        .from(SupabaseEnhancementRepository.TABLE_NAME)
-        .delete()
-        .eq('user_id', playerId)
-        .eq('champion_id', championId);
-
-      if (error) {
-        console.error('[SupabaseEnhancementRepository] Error resetting enhancement state:', error);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('[SupabaseEnhancementRepository] Unexpected error:', error);
-      return false;
     }
   }
 }

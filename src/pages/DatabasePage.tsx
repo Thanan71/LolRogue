@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EnhancementTree } from '@/components/EnhancementTree';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
+import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuthStore } from '@/stores/authStore';
 import { useChampionEnhancements, useEnhancementStore } from '@/stores/enhancementStore';
-import { ROUTES } from '@/config/routes';
 import type { Champion } from '@/types/champion';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import { stripMarkup } from '@/utils/text';
@@ -57,8 +57,8 @@ export function DatabasePage() {
   }, [allChampions, search]);
 
   const handleUnlockNode = useCallback(
-    async (nodeId: string, candyCost: number) => {
-      const success = await unlockNode(nodeId, candyCost);
+    async (nodeId: string) => {
+      const success = await unlockNode(nodeId);
       if (!success) {
         console.error('Failed to unlock node');
       }

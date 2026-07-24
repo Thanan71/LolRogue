@@ -6,84 +6,98 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Run, RunInsert, RunTeamMember, RunTeamMemberInsert, RunUpdate } from '@/types/models';
-import type { IRunRepository, IRunStatsRepository } from '../interfaces/IRunRepository';
+import type { Database, Json } from '@/types/database';
+import type { Run, RunTeamMember } from '@/types/models';
+import type {
+  CompletedRunCommand,
+  CompletedRunResult,
+  CompletedRunTeamMemberCommand,
+  IRunRepository,
+  IRunStatsRepository,
+} from '../interfaces/IRunRepository';
 
 function toDatabaseInteger(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : 0;
 }
 
-export class SupabaseRunRepository implements IRunRepository {
-  private supabase: SupabaseClient;
+function parseCompletedRunResult(value: Json): CompletedRunResult | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  constructor(supabase: SupabaseClient) {
+  const {
+    run_id: runId,
+    replayed,
+    candies_earned: candiesEarned,
+    candies_per_champion: candiesPerChampion,
+    progression_version: progressionVersion,
+    progression_source: progressionSource,
+  } = value;
+
+  if (
+    typeof runId !== 'string' ||
+    typeof replayed !== 'boolean' ||
+    typeof candiesEarned !== 'number' ||
+    typeof candiesPerChampion !== 'number' ||
+    typeof progressionVersion !== 'number' ||
+    (progressionSource !== 'client_reported' && progressionSource !== 'verified')
+  ) {
+    return null;
+  }
+
+  return {
+    runId,
+    replayed,
+    candiesEarned,
+    candiesPerChampion,
+    progressionVersion,
+    progressionSource,
+  };
+}
+
+export class SupabaseRunRepository implements IRunRepository {
+  private supabase: SupabaseClient<Database>;
+
+  constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase;
   }
 
   async saveCompletedRun(
-    runData: RunInsert,
-    teamMembers: RunTeamMemberInsert[],
-    mastery: Record<string, unknown>[],
-    totalCandies: number,
-  ): Promise<{ data: string | null; error: Error | null }> {
+    runData: CompletedRunCommand,
+    teamMembers: CompletedRunTeamMemberCommand[],
+    runeIds: string[],
+    augmentIds: string[],
+  ): Promise<{ data: CompletedRunResult | null; error: Error | null }> {
     const normalizedRun = {
-      ...runData,
-      ...(runData.run_level == null ? {} : { run_level: toDatabaseInteger(runData.run_level) }),
-      ...(runData.waves_completed == null
-        ? {}
-        : { waves_completed: toDatabaseInteger(runData.waves_completed) }),
-      ...(runData.gold_earned == null
-        ? {}
-        : { gold_earned: toDatabaseInteger(runData.gold_earned) }),
-      ...(runData.total_kills == null
-        ? {}
-        : { total_kills: toDatabaseInteger(runData.total_kills) }),
-      ...(runData.total_damage_dealt == null
-        ? {}
-        : { total_damage_dealt: toDatabaseInteger(runData.total_damage_dealt) }),
-      ...(runData.candies_earned == null
-        ? {}
-        : { candies_earned: toDatabaseInteger(runData.candies_earned) }),
+      run_uuid: runData.run_uuid,
+      won: runData.won,
+      run_level: toDatabaseInteger(runData.run_level),
+      waves_completed: toDatabaseInteger(runData.waves_completed),
+      biomes_visited: [...runData.biomes_visited],
+      gold_earned: toDatabaseInteger(runData.gold_earned),
       ...(runData.seed == null ? {} : { seed: toDatabaseInteger(runData.seed) }),
+      started_at: runData.started_at,
     };
-    const normalizedTeamMembers = teamMembers.map(({ run_id: _runId, ...member }) => ({
-      ...member,
-      ...(member.final_level == null ? {} : { final_level: toDatabaseInteger(member.final_level) }),
-      ...(member.final_hp == null ? {} : { final_hp: toDatabaseInteger(member.final_hp) }),
-      ...(member.kills == null ? {} : { kills: toDatabaseInteger(member.kills) }),
-      ...(member.damage_dealt == null
-        ? {}
-        : { damage_dealt: toDatabaseInteger(member.damage_dealt) }),
-    }));
-    const normalizedMastery = mastery.map((entry) => ({
-      ...entry,
-      ...(entry.candies_earned == null
-        ? {}
-        : { candies_earned: toDatabaseInteger(entry.candies_earned) }),
-      ...(entry.kills == null ? {} : { kills: toDatabaseInteger(entry.kills) }),
-      ...(entry.total_damage == null
-        ? {}
-        : { total_damage: toDatabaseInteger(entry.total_damage) }),
+    const normalizedTeamMembers = teamMembers.map((member) => ({
+      champion_id: member.champion_id,
+      final_level: toDatabaseInteger(member.final_level),
+      final_hp: toDatabaseInteger(member.final_hp),
+      kills: toDatabaseInteger(member.kills),
+      damage_dealt: toDatabaseInteger(member.damage_dealt),
+      items_collected: [...member.items_collected],
     }));
 
-    const { data, error } = await this.supabase.rpc('save_completed_run', {
+    const { data, error } = await this.supabase.rpc('save_completed_run_v2', {
       p_run: normalizedRun,
       p_team_members: normalizedTeamMembers,
-      p_mastery: normalizedMastery,
-      p_total_candies: toDatabaseInteger(totalCandies),
+      p_rune_ids: [...runeIds],
+      p_augment_ids: [...augmentIds],
     });
 
-    return error ? { data: null, error } : { data: data as string, error: null };
-  }
+    if (error) return { data: null, error };
 
-  async createRun(runData: RunInsert): Promise<{ data: Run | null; error: Error | null }> {
-    const { data, error } = await this.supabase.from('runs').insert(runData).select().single();
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data: data as Run, error: null };
+    const result = parseCompletedRunResult(data);
+    return result
+      ? { data: result, error: null }
+      : { data: null, error: new Error('Invalid save_completed_run_v2 response') };
   }
 
   async getRun(runId: string): Promise<{ data: Run | null; error: Error | null }> {
@@ -115,39 +129,6 @@ export class SupabaseRunRepository implements IRunRepository {
     return { data: data as Run[], error: null };
   }
 
-  async updateRun(
-    runId: string,
-    updates: RunUpdate,
-  ): Promise<{ data: Run | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('runs')
-      .update(updates)
-      .eq('id', runId)
-      .select()
-      .single();
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data: data as Run, error: null };
-  }
-
-  async addRunTeamMembers(
-    teamMembers: RunTeamMemberInsert[],
-  ): Promise<{ data: RunTeamMember[] | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('run_team_members')
-      .insert(teamMembers)
-      .select();
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data: data as RunTeamMember[], error: null };
-  }
-
   async getRunTeamMembers(
     runId: string,
   ): Promise<{ data: RunTeamMember[] | null; error: Error | null }> {
@@ -165,9 +146,9 @@ export class SupabaseRunRepository implements IRunRepository {
 }
 
 export class SupabaseRunStatsRepository implements IRunStatsRepository {
-  private supabase: SupabaseClient;
+  private supabase: SupabaseClient<Database>;
 
-  constructor(supabase: SupabaseClient) {
+  constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase;
   }
 

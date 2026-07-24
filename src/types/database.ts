@@ -189,6 +189,53 @@ export type Database = {
           },
         ];
       };
+      enhancement_node_catalog: {
+        Row: {
+          active: boolean;
+          candy_cost: number;
+          champion_role: string;
+          created_at: string;
+          max_rank: number;
+          node_id: string;
+          prerequisite_node_ids: string[];
+          required_mastery_level: number;
+          ruleset_version: number;
+          updated_at: string;
+        };
+        Insert: {
+          active?: boolean;
+          candy_cost: number;
+          champion_role: string;
+          created_at?: string;
+          max_rank?: number;
+          node_id: string;
+          prerequisite_node_ids?: string[];
+          required_mastery_level?: number;
+          ruleset_version?: number;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          candy_cost?: number;
+          champion_role?: string;
+          created_at?: string;
+          max_rank?: number;
+          node_id?: string;
+          prerequisite_node_ids?: string[];
+          required_mastery_level?: number;
+          ruleset_version?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'enhancement_node_catalog_ruleset_version_fkey';
+            columns: ['ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'progression_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
       logs: {
         Row: {
           created_at: string;
@@ -365,6 +412,127 @@ export type Database = {
         };
         Relationships: [];
       };
+      progression_champion_catalog: {
+        Row: {
+          active: boolean;
+          champion_id: string;
+          created_at: string;
+          primary_role: string;
+          ruleset_version: number;
+          updated_at: string;
+        };
+        Insert: {
+          active?: boolean;
+          champion_id: string;
+          created_at?: string;
+          primary_role: string;
+          ruleset_version?: number;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          champion_id?: string;
+          created_at?: string;
+          primary_role?: string;
+          ruleset_version?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'progression_champion_catalog_ruleset_version_fkey';
+            columns: ['ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'progression_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
+      progression_commands: {
+        Row: {
+          command_id: string;
+          command_type: string;
+          completed_at: string | null;
+          created_at: string;
+          payload_hash: string;
+          response: Json | null;
+          ruleset_version: number;
+          user_id: string;
+        };
+        Insert: {
+          command_id: string;
+          command_type: string;
+          completed_at?: string | null;
+          created_at?: string;
+          payload_hash: string;
+          response?: Json | null;
+          ruleset_version: number;
+          user_id: string;
+        };
+        Update: {
+          command_id?: string;
+          command_type?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          payload_hash?: string;
+          response?: Json | null;
+          ruleset_version?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'progression_commands_ruleset_version_fkey';
+            columns: ['ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'progression_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
+      progression_rulesets: {
+        Row: {
+          base_candies: number;
+          candies_per_biome: number;
+          candies_per_wave: number;
+          code: string;
+          created_at: string;
+          is_active: boolean;
+          max_run_level: number;
+          max_team_size: number;
+          max_waves_by_biome: number[];
+          min_victory_waves: number;
+          version: number;
+          victory_bonus: number;
+        };
+        Insert: {
+          base_candies: number;
+          candies_per_biome: number;
+          candies_per_wave: number;
+          code: string;
+          created_at?: string;
+          is_active?: boolean;
+          max_run_level: number;
+          max_team_size: number;
+          max_waves_by_biome: number[];
+          min_victory_waves: number;
+          version: number;
+          victory_bonus: number;
+        };
+        Update: {
+          base_candies?: number;
+          candies_per_biome?: number;
+          candies_per_wave?: number;
+          code?: string;
+          created_at?: string;
+          is_active?: boolean;
+          max_run_level?: number;
+          max_team_size?: number;
+          max_waves_by_biome?: number[];
+          min_victory_waves?: number;
+          version?: number;
+          victory_bonus?: number;
+        };
+        Relationships: [];
+      };
       run_team_members: {
         Row: {
           champion_id: string;
@@ -435,6 +603,7 @@ export type Database = {
       };
       runs: {
         Row: {
+          augment_ids: string[];
           biomes_visited: string[];
           boss_kills: number;
           candies_earned: number;
@@ -451,10 +620,12 @@ export type Database = {
           node_types_visited: string[];
           nodes_completed: number;
           player_id: string;
+          progression_payload_hash: string | null;
+          progression_source: string;
+          progression_version: number;
           run_level: number;
-          rune_ids: string[];
-          augment_ids: string[];
           run_uuid: string;
+          rune_ids: string[];
           seed: number | null;
           started_at: string;
           total_damage_dealt: number;
@@ -467,6 +638,7 @@ export type Database = {
           won: boolean;
         };
         Insert: {
+          augment_ids?: string[];
           biomes_visited?: string[];
           boss_kills?: number;
           candies_earned?: number;
@@ -483,10 +655,12 @@ export type Database = {
           node_types_visited?: string[];
           nodes_completed?: number;
           player_id: string;
+          progression_payload_hash?: string | null;
+          progression_source?: string;
+          progression_version?: number;
           run_level?: number;
-          rune_ids?: string[];
-          augment_ids?: string[];
           run_uuid: string;
+          rune_ids?: string[];
           seed?: number | null;
           started_at?: string;
           total_damage_dealt?: number;
@@ -499,6 +673,7 @@ export type Database = {
           won?: boolean;
         };
         Update: {
+          augment_ids?: string[];
           biomes_visited?: string[];
           boss_kills?: number;
           candies_earned?: number;
@@ -515,10 +690,12 @@ export type Database = {
           node_types_visited?: string[];
           nodes_completed?: number;
           player_id?: string;
+          progression_payload_hash?: string | null;
+          progression_source?: string;
+          progression_version?: number;
           run_level?: number;
-          rune_ids?: string[];
-          augment_ids?: string[];
           run_uuid?: string;
+          rune_ids?: string[];
           seed?: number | null;
           started_at?: string;
           total_damage_dealt?: number;
@@ -662,17 +839,24 @@ export type Database = {
     };
     Functions: {
       is_current_user_admin: { Args: never; Returns: boolean };
-      mastery_current_level_candies: { Args: { p_candies: number }; Returns: number };
-      mastery_level_from_candies: { Args: { p_candies: number }; Returns: number };
+      mastery_current_level_candies: {
+        Args: { p_candies: number };
+        Returns: number;
+      };
+      mastery_level_from_candies: {
+        Args: { p_candies: number };
+        Returns: number;
+      };
       mastery_unlock_ids: { Args: { p_candies: number }; Returns: string[] };
-      unlock_champion_enhancement: {
+      progression_integer: {
         Args: {
-          p_candy_cost: number;
-          p_champion_id: string;
-          p_max_rank: number;
-          p_node_id: string;
+          p_default: number;
+          p_field_name: string;
+          p_maximum: number;
+          p_minimum: number;
+          p_value: Json;
         };
-        Returns: Json;
+        Returns: number;
       };
       save_completed_run: {
         Args: {
@@ -683,8 +867,30 @@ export type Database = {
         };
         Returns: string;
       };
+      save_completed_run_integer_payload: {
+        Args: {
+          p_mastery: Json;
+          p_run: Json;
+          p_team_members: Json;
+          p_total_candies: number;
+        };
+        Returns: string;
+      };
+      save_completed_run_v2: {
+        Args: {
+          p_augment_ids: string[];
+          p_run: Json;
+          p_rune_ids: string[];
+          p_team_members: Json;
+        };
+        Returns: Json;
+      };
       save_run_loadout: {
-        Args: { p_augment_ids: string[]; p_run_uuid: string; p_rune_ids: string[] };
+        Args: {
+          p_augment_ids: string[];
+          p_run_uuid: string;
+          p_rune_ids: string[];
+        };
         Returns: undefined;
       };
       submit_daily_run: {
@@ -716,6 +922,26 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      touch_player_last_login: { Args: never; Returns: string };
+      unlock_champion_enhancement:
+        | {
+            Args: {
+              p_candy_cost: number;
+              p_champion_id: string;
+              p_max_rank: number;
+              p_node_id: string;
+            };
+            Returns: Json;
+          }
+        | {
+            Args: {
+              p_champion_id: string;
+              p_command_id: string;
+              p_expected_rank: number;
+              p_node_id: string;
+            };
+            Returns: Json;
+          };
     };
     Enums: {
       [_ in never]: never;

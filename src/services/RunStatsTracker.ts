@@ -75,7 +75,15 @@ export class RunStatsTracker {
 
   /** Export current stats as a plain array */
   toArray(): ChampionRunStats[] {
-    return Array.from(this.stats.values());
+    return Array.from(this.stats.values(), (stats) => ({ ...stats }));
+  }
+
+  /** Restore statistics persisted after previously completed encounters. */
+  restore(stats: ChampionRunStats[]): void {
+    this.stats.clear();
+    for (const championStats of stats) {
+      this.stats.set(championStats.championId, { ...championStats });
+    }
   }
 
   private getOrCreate(championId: string): ChampionRunStats {

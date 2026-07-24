@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import type { CombatEncounter } from '@/game/map/types';
+import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useRunStore } from '@/stores/runStore';
 
 const RUN_STORAGE_KEY = 'lolrogue-run-storage';
@@ -22,10 +23,17 @@ function createLocalStorage() {
 describe('run reload recovery', () => {
   beforeEach(() => {
     vi.stubGlobal('localStorage', createLocalStorage());
+    runStatsTracker.reset();
+    useRunStore.setState({
+      completedRunSnapshot: null,
+      serverProgression: null,
+      completedCombatStats: [],
+    });
   });
 
   afterEach(() => {
     useRunStore.persist.clearStorage();
+    runStatsTracker.reset();
     vi.unstubAllGlobals();
   });
 
@@ -116,5 +124,124 @@ describe('run reload recovery', () => {
       nodeType: 'combat',
     });
     expect(useRunStore.getState().currentEncounter).toEqual(encounter);
+  });
+
+  it('turns an interrupted in-flight save into a retryable state after reload', async () => {
+    useRunStore.setState({
+      isActive: true,
+      runId: 'interrupted-save',
+      saveStatus: 'saving',
+      saveError: null,
+    });
+    const persistedSave = localStorage.getItem(RUN_STORAGE_KEY);
+    expect(persistedSave).not.toBeNull();
+
+    useRunStore.setState({ saveStatus: 'idle', saveError: null });
+    localStorage.setItem(RUN_STORAGE_KEY, persistedSave!);
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: true,
+      runId: 'interrupted-save',
+      isEnding: false,
+      saveStatus: 'error',
+      saveError: 'Run save was interrupted. Retry to continue.',
+    });
+  });
+
+  it('restores the frozen completion payload and canonical progression', async () => {
+    useRunStore.setState({
+      isActive: false,
+      completedCombatStats: [
+        {
+          championId: 'Garen',
+          kills: 2,
+          totalDamage: 640,
+          survived: false,
+        },
+      ],
+      completedRunSnapshot: {
+        mode: 'normal',
+        runId: 'persisted-completion',
+        won: false,
+        runLevel: 2,
+        wavesCompleted: 4,
+        biomesVisited: ['top_lane'],
+        goldEarned: 125,
+        summary: {
+          won: false,
+          runLevel: 2,
+          wavesCompleted: 4,
+          biomesVisited: ['top_lane'],
+          goldEarned: 125,
+          totalKills: 2,
+          totalDamage: 640,
+          championStats: [
+            {
+              championId: 'Garen',
+              kills: 2,
+              totalDamage: 640,
+              survived: false,
+            },
+          ],
+        },
+        teamMembers: [{ championId: 'Garen', level: 2, currentHp: 0 }],
+        startedAt: '2026-07-23T12:00:00.000Z',
+        seed: 42,
+        runeIds: ['conqueror'],
+        augmentIds: ['golden_touch'],
+        daily: null,
+      },
+      serverProgression: {
+        runId: 'database-run',
+        replayed: false,
+        candiesEarned: 14,
+        candiesPerChampion: 14,
+        progressionVersion: 1,
+        progressionSource: 'client_reported',
+      },
+    });
+    const persistedCompletion = localStorage.getItem(RUN_STORAGE_KEY);
+    expect(persistedCompletion).not.toBeNull();
+
+    useRunStore.setState({
+      completedRunSnapshot: null,
+      serverProgression: null,
+      completedCombatStats: [],
+    });
+    localStorage.setItem(RUN_STORAGE_KEY, persistedCompletion!);
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState().completedRunSnapshot).toMatchObject({
+      runId: 'persisted-completion',
+      summary: { totalKills: 2, totalDamage: 640 },
+    });
+    expect(useRunStore.getState().serverProgression).toMatchObject({
+      candiesEarned: 14,
+      progressionVersion: 1,
+      progressionSource: 'client_reported',
+    });
+    expect(useRunStore.getState().completedCombatStats).toEqual([
+      {
+        championId: 'Garen',
+        kills: 2,
+        totalDamage: 640,
+        survived: false,
+      },
+    ]);
+    runStatsTracker.restore(useRunStore.getState().completedCombatStats);
+    runStatsTracker.recordKill('Garen');
+    expect(
+      runStatsTracker.buildSummary({
+        won: false,
+        wavesCompleted: 5,
+        biomesVisited: ['top_lane'],
+        goldEarned: 150,
+        runLevel: 2,
+      }),
+    ).toMatchObject({
+      totalKills: 3,
+      totalDamage: 640,
+    });
   });
 });

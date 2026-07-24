@@ -5,54 +5,34 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { ChampionMastery, ChampionMasteryUpdate } from '@/types/models';
-import type { PlayerUnlock } from '@/types/models';
+import type { ChampionMastery, PlayerUnlock } from '@/types/models';
 
 export interface IMasteryRepository {
   /**
-   * Get all champion mastery for a player
+   * Get all champion mastery for an authenticated account.
+   * `authUserId` is resolved to the public `players.id` by the repository.
    */
   getChampionMastery(
-    playerId: string,
+    authUserId: string,
   ): Promise<{ data: ChampionMastery[] | null; error: Error | null }>;
 
   /**
-   * Get mastery for a specific champion
+   * Get mastery for a specific champion by public `players.id`.
    */
   getChampionMasteryByChampion(
     playerId: string,
     championId: string,
   ): Promise<{ data: ChampionMastery | null; error: Error | null }>;
-
-  /**
-   * Upsert champion mastery (insert or update)
-   */
-  upsertChampionMastery(
-    playerId: string,
-    championId: string,
-    updates: ChampionMasteryUpdate,
-  ): Promise<{ data: ChampionMastery | null; error: Error | null }>;
 }
 
 export interface IPlayerUnlockRepository {
   /**
-   * Get all unlocks for a player
+   * Get all unlocks by public `players.id`.
    */
   getPlayerUnlocks(playerId: string): Promise<{ data: PlayerUnlock[] | null; error: Error | null }>;
 
   /**
-   * Add an unlock for a player
-   */
-  addPlayerUnlock(
-    playerId: string,
-    unlockType: 'starter' | 'skin',
-    unlockId: string,
-    championId?: string,
-    skinId?: string,
-  ): Promise<{ data: PlayerUnlock | null; error: Error | null }>;
-
-  /**
-   * Check if a player has an unlock
+   * Check for an unlock by public `players.id`.
    */
   hasUnlock(playerId: string, unlockType: 'starter' | 'skin', unlockId: string): Promise<boolean>;
 }

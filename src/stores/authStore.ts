@@ -52,6 +52,19 @@ const GUEST_MODE_KEY = 'lolrogue-guest-mode';
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
+async function touchPlayerLastLogin(): Promise<string | null> {
+  const { data, error } = await container.player.touchLastLogin();
+  if (error) {
+    console.warn('[AuthStore] Failed to update last login:', error.message);
+    return null;
+  }
+  return data;
+}
+
+function withLastLogin(player: Player | null, lastLoginAt: string | null): Player | null {
+  return player && lastLoginAt ? { ...player, last_login_at: lastLoginAt } : player;
+}
+
 function readGuestMode(): boolean {
   return typeof window !== 'undefined' && window.localStorage.getItem(GUEST_MODE_KEY) === 'true';
 }
@@ -130,19 +143,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         // Fetch player data using repository
         const { data: playerData } = await container.player.getPlayer(result.user.id);
 
-        // Update last login using repository
-        if (playerData) {
-          await container.player.updatePlayer(result.user.id, {
-            last_login_at: new Date().toISOString(),
-          });
-        }
+        // Derived timestamps are updated by a narrow server command.
+        const lastLoginAt = playerData ? await touchPlayerLastLogin() : null;
+        const refreshedPlayer = withLastLogin(playerData, lastLoginAt);
 
         // Check admin status
-        const isAdmin = playerData?.is_admin === true;
+        const isAdmin = refreshedPlayer?.is_admin === true;
 
         set({
           user: result.user,
-          player: playerData || null,
+          player: refreshedPlayer,
           isAuthenticated: true,
           isGuest: false,
           isInitialized: true,
@@ -233,11 +243,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           }
         }
 
-        const isAdmin = playerData?.is_admin === true;
+        const lastLoginAt = playerData ? await touchPlayerLastLogin() : null;
+        const refreshedPlayer = withLastLogin(playerData, lastLoginAt);
+        const isAdmin = refreshedPlayer?.is_admin === true;
 
         set({
           user: result.user,
-          player: playerData || null,
+          player: refreshedPlayer,
           isAuthenticated: true,
           isGuest: false,
           isInitialized: true,
@@ -337,19 +349,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (session?.user) {
         const { data: playerData } = await container.player.getPlayer(session.user.id);
 
-        // Update last login using repository
-        if (playerData) {
-          await container.player.updatePlayer(session.user.id, {
-            last_login_at: new Date().toISOString(),
-          });
-        }
+        // Derived timestamps are updated by a narrow server command.
+        const lastLoginAt = playerData ? await touchPlayerLastLogin() : null;
+        const refreshedPlayer = withLastLogin(playerData, lastLoginAt);
 
         // Check admin status
-        const isAdmin = playerData?.is_admin === true;
+        const isAdmin = refreshedPlayer?.is_admin === true;
 
         set({
           user: session.user,
-          player: playerData || null,
+          player: refreshedPlayer,
           isAuthenticated: true,
           isGuest: false,
           isInitialized: true,
@@ -413,10 +422,12 @@ container.auth.onAuthStateChange(async (event, session) => {
     // Only update if not already authenticated with this user
     if (currentState.user?.id !== session.user.id) {
       const { data: playerData } = await container.player.getPlayer(session.user.id);
-      const isAdmin = playerData?.is_admin === true;
+      const lastLoginAt = playerData ? await touchPlayerLastLogin() : null;
+      const refreshedPlayer = withLastLogin(playerData, lastLoginAt);
+      const isAdmin = refreshedPlayer?.is_admin === true;
       useAuthStore.setState({
         user: session.user,
-        player: playerData || null,
+        player: refreshedPlayer,
         isAuthenticated: true,
         isGuest: false,
         isInitialized: true,

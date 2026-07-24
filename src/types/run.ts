@@ -172,8 +172,18 @@ export interface RunState {
   /** Current persistence state for the completed run. */
   saveStatus: 'idle' | 'saving' | 'success' | 'error';
   saveError: string | null;
+  /**
+   * Immutable completion payload. It is created before the first save attempt,
+   * persisted for retries/reloads, and kept for the Game Over screen until the
+   * next run starts.
+   */
+  completedRunSnapshot: CompletedRunSnapshot | null;
+  /** Canonical progression granted by the server for an authenticated run. */
+  serverProgression: ServerRunProgression | null;
   /** Prevents rewards from being granted again when retrying a failed save. */
   rewardsApplied: boolean;
+  /** Cumulative statistics from encounters that were fully completed. */
+  completedCombatStats: ChampionRunStats[];
   /** Monotonic counter used for deterministic, collision-free item instance IDs. */
   nextItemInstanceId: number;
   /** The team of up to 5 champions */
@@ -235,7 +245,11 @@ export interface RunActions {
   ) => Promise<void>;
   /** End the current run and reset state, optionally marking it as won.
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
-  endRun: (won?: boolean, expectedRunId?: string) => Promise<boolean>;
+  endRun: (
+    won?: boolean,
+    expectedRunId?: string,
+    displayedSummary?: RunSummary,
+  ) => Promise<boolean>;
   /** Add a champion to the team (if not full). Returns true if added. */
   addChampion: (championId: string, statMultiplier?: number) => boolean;
   /** Remove a champion from the team by champion ID */
@@ -339,4 +353,54 @@ export interface RunSummary {
   goldEarned: number;
   /** Run level reached */
   runLevel: number;
+}
+
+/** Serializable team facts sent to the completed-run command. */
+export interface RunSaveTeamMember {
+  championId: string;
+  level: number;
+  currentHp: number;
+}
+
+/** Immutable payload sent to save_completed_run_v2. */
+export interface RunSavePayload {
+  runId: string;
+  won: boolean;
+  runLevel: number;
+  wavesCompleted: number;
+  biomesVisited: Biome[];
+  goldEarned: number;
+  summary: RunSummary;
+  teamMembers: RunSaveTeamMember[];
+  startedAt: string | null;
+  seed: number | null;
+  runeIds: string[];
+  augmentIds: string[];
+}
+
+/** Daily-specific facts frozen alongside the normal completed-run payload. */
+export interface DailyRunCompletionSnapshot {
+  dateKey: string;
+  dailySeed: number;
+  itemCount: number;
+  currentBiome: Biome | null;
+  currentWave: number;
+  inventory: InventoryEntry[];
+  score: number;
+}
+
+/** Complete immutable representation of a run at its first completion attempt. */
+export interface CompletedRunSnapshot extends RunSavePayload {
+  mode: RunState['mode'];
+  daily: DailyRunCompletionSnapshot | null;
+}
+
+/** Canonical progression outcome returned by the authoritative server command. */
+export interface ServerRunProgression {
+  runId: string;
+  replayed: boolean;
+  candiesEarned: number;
+  candiesPerChampion: number;
+  progressionVersion: number;
+  progressionSource: 'client_reported' | 'verified';
 }

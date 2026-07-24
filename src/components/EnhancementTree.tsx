@@ -14,7 +14,7 @@ interface EnhancementTreeProps {
   playerCandies: number;
   masteryLevel: number;
   enhancementState: PlayerEnhancementState;
-  onUnlockNode: (nodeId: string, candyCost: number) => Promise<void>;
+  onUnlockNode: (nodeId: string) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -24,13 +24,17 @@ export function EnhancementTree({
   masteryLevel,
   enhancementState,
   onUnlockNode,
+  isLoading = false,
 }: EnhancementTreeProps) {
   const tree = useMemo(() => getEnhancementTreeForRole(champion.tags[0]), [champion.tags]);
   const [activeBranch, setActiveBranch] = useState<string>(tree.branches[0]?.id);
 
   const handleUnlock = (node: EnhancementNode) => {
-    if (canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies)) {
-      onUnlockNode(node.id, node.candyCost);
+    if (
+      !isLoading &&
+      canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies)
+    ) {
+      void onUnlockNode(node.id);
     }
   };
 
@@ -71,6 +75,7 @@ export function EnhancementTree({
                 canUnlock={canUnlock}
                 lockReason={lockReason}
                 onUnlock={() => handleUnlock(node)}
+                isLoading={isLoading}
               />
             );
           })}
@@ -133,6 +138,7 @@ export function EnhancementTree({
                       lockReason={lockReason}
                       onUnlock={() => handleUnlock(node)}
                       isUltimate={node.type === 'ultimate'}
+                      isLoading={isLoading}
                     />
                   </React.Fragment>
                 );
@@ -154,9 +160,18 @@ interface NodeCardProps {
   lockReason: LockReason | null;
   onUnlock: () => void;
   isUltimate?: boolean;
+  isLoading: boolean;
 }
 
-function NodeCard({ node, unlocked, canUnlock, lockReason, onUnlock, isUltimate }: NodeCardProps) {
+function NodeCard({
+  node,
+  unlocked,
+  canUnlock,
+  lockReason,
+  onUnlock,
+  isUltimate,
+  isLoading,
+}: NodeCardProps) {
   const maxRanks = node.maxRanks || 1;
   const isMaxed = unlocked >= maxRanks;
   const isLocked = unlocked === 0;
@@ -213,15 +228,19 @@ function NodeCard({ node, unlocked, canUnlock, lockReason, onUnlock, isUltimate 
           <div style={buttonContainerStyle}>
             <button
               onClick={onUnlock}
-              disabled={!canUnlock}
+              disabled={!canUnlock || isLoading}
               style={{
                 ...unlockButtonStyle,
                 background: canUnlock ? '#F5E6B3' : '#21262d',
                 color: canUnlock ? '#0d1117' : '#484f58',
-                cursor: canUnlock ? 'pointer' : 'not-allowed',
+                cursor: canUnlock && !isLoading ? 'pointer' : 'not-allowed',
               }}
             >
-              {unlocked > 0 ? `Niv ${unlocked + 1}/${maxRanks}` : `Débloquer`}
+              {isLoading
+                ? 'Enregistrement…'
+                : unlocked > 0
+                  ? `Niv ${unlocked + 1}/${maxRanks}`
+                  : `Débloquer`}
             </button>
             {!canUnlock && lockReason && (
               <span style={getLockReasonStyle(lockReason.type)}>{lockReason.message}</span>

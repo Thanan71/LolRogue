@@ -3,7 +3,9 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
+import type { User } from '@supabase/supabase-js';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
+import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { AuthPage } from '@/pages/AuthPage';
 import { EventPage } from '@/pages/EventPage';
 import { GameOverPage } from '@/pages/GameOverPage';
@@ -15,7 +17,7 @@ import { RunMapScreen } from '@/components/RunMapScreen';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
-import type { RunSummary } from '@/types/run';
+import type { CompletedRunSnapshot, RunSummary } from '@/types/run';
 
 vi.mock('@/audio/AudioManager', () => ({
   playSFX: vi.fn(),
@@ -29,6 +31,29 @@ vi.mock('@/components/ParticleBackground', () => ({
 
 function renderAt(element: React.ReactNode, path = '/') {
   return render(<MemoryRouter initialEntries={[path]}>{element}</MemoryRouter>);
+}
+
+function completedSnapshot(summary: RunSummary, championIds: string[]): CompletedRunSnapshot {
+  return {
+    mode: 'normal',
+    runId: 'completed-run',
+    won: summary.won,
+    runLevel: summary.runLevel,
+    wavesCompleted: summary.wavesCompleted,
+    biomesVisited: summary.biomesVisited,
+    goldEarned: summary.goldEarned,
+    summary,
+    teamMembers: championIds.map((championId) => ({
+      championId,
+      level: 1,
+      currentHp: 100,
+    })),
+    startedAt: '2026-07-23T12:00:00.000Z',
+    seed: 42,
+    runeIds: [],
+    augmentIds: [],
+    daily: null,
+  };
 }
 
 describe('P2 page smoke tests', () => {
@@ -53,6 +78,10 @@ describe('P2 page smoke tests', () => {
       team: [],
       inventory: [],
       gold: 0,
+      saveStatus: 'idle',
+      saveError: null,
+      completedRunSnapshot: null,
+      serverProgression: null,
     });
   });
 
@@ -114,6 +143,133 @@ describe('P2 page smoke tests', () => {
     );
     expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
     expect(screen.getByText('8')).toBeInTheDocument();
+  });
+
+  it('uses canonical server rewards and the snapshot team for an authenticated run', () => {
+    const summary: RunSummary = {
+      won: true,
+      runLevel: 2,
+      wavesCompleted: 7,
+      biomesVisited: ['top_lane'],
+      goldEarned: 180,
+      totalKills: 3,
+      totalDamage: 900,
+      // Lux did not emit a combat statistic, but was still part of the saved team.
+      championStats: [
+        {
+          championId: 'Garen',
+          kills: 3,
+          totalDamage: 900,
+          survived: true,
+        },
+      ],
+    };
+    useAuthStore.setState({
+      user: { id: 'user-1' } as User,
+      isAuthenticated: true,
+      isGuest: false,
+    });
+    useRunStore.setState({
+      saveStatus: 'success',
+      completedRunSnapshot: completedSnapshot(summary, ['Garen', 'Lux']),
+      serverProgression: {
+        runId: 'database-run',
+        replayed: false,
+        candiesEarned: 78,
+        candiesPerChampion: 39,
+        progressionVersion: 7,
+        progressionSource: 'verified',
+      },
+    });
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/game-over', state: { summary } }]}>
+        <GameOverPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText(/🍬 78 Candies/)).toBeInTheDocument();
+    expect(screen.getAllByText('+39 candies')).toHaveLength(2);
+    expect(screen.getByText('Team Size').parentElement).toHaveTextContent('2');
+    expect(screen.getByTestId('server-progression')).toHaveTextContent('Progression v7 · Verified');
+  });
+
+  it('keeps local reward calculation for a guest run', () => {
+    const summary: RunSummary = {
+      won: false,
+      runLevel: 1,
+      wavesCompleted: 3,
+      biomesVisited: ['top_lane'],
+      goldEarned: 80,
+      totalKills: 1,
+      totalDamage: 250,
+      championStats: [
+        {
+          championId: 'Garen',
+          kills: 1,
+          totalDamage: 250,
+          survived: false,
+        },
+      ],
+    };
+    const localRewards = calculateRunCandyRewards(summary);
+    useAuthStore.setState({
+      user: null,
+      player: null,
+      isAuthenticated: false,
+      isGuest: true,
+    });
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/game-over', state: { summary } }]}>
+        <GameOverPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText(new RegExp(`🍬 ${localRewards.total} Candies`))).toBeInTheDocument();
+    expect(screen.queryByTestId('server-progression')).not.toBeInTheDocument();
+  });
+
+  it('does not show speculative local rewards while an authenticated save is in error', () => {
+    const summary: RunSummary = {
+      won: false,
+      runLevel: 1,
+      wavesCompleted: 3,
+      biomesVisited: ['top_lane'],
+      goldEarned: 80,
+      totalKills: 1,
+      totalDamage: 250,
+      championStats: [
+        {
+          championId: 'Garen',
+          kills: 1,
+          totalDamage: 250,
+          survived: false,
+        },
+      ],
+    };
+    useAuthStore.setState({
+      user: { id: 'user-1' } as User,
+      isAuthenticated: true,
+      isGuest: false,
+    });
+    useRunStore.setState({
+      isActive: true,
+      runId: 'completed-run',
+      saveStatus: 'error',
+      saveError: 'network unavailable',
+      completedRunSnapshot: completedSnapshot(summary, ['Garen']),
+      serverProgression: null,
+    });
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/game-over', state: { summary } }]}>
+        <GameOverPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent('network unavailable');
+    expect(screen.queryByText(/Candies/)).not.toBeInTheDocument();
   });
 });
 

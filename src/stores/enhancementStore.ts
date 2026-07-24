@@ -24,6 +24,31 @@ import type {
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
+interface PendingUnlockCommand {
+  commandId: string;
+  expectedRank: number;
+}
+
+/**
+ * Keep an uncertain command stable across retries. If the RPC committed but
+ * its response was lost, replaying this id returns the original server result
+ * instead of attempting (and charging for) a second rank.
+ */
+const pendingUnlockCommands = new Map<string, PendingUnlockCommand>();
+
+function getPendingUnlockKey(userId: string, championId: string, nodeId: string): string {
+  return `${userId}:${championId}:${nodeId}`;
+}
+
+async function refreshCanonicalCandyBalance(): Promise<number | undefined> {
+  try {
+    await useAuthStore.getState().refreshPlayer();
+  } catch (error) {
+    console.warn('[EnhancementStore] Failed to refresh candy balance:', error);
+  }
+  return useAuthStore.getState().player?.total_candies;
+}
+
 // ─── Enhancement Store State ─────────────────────────────────────────────────
 
 interface EnhancementStoreState {
@@ -65,7 +90,7 @@ interface EnhancementStoreActions {
   canUnlockNode: (node: EnhancementNode) => boolean;
 
   /** Unlock a node */
-  unlockNode: (nodeId: string, candyCost: number) => Promise<boolean>;
+  unlockNode: (nodeId: string) => Promise<boolean>;
 
   /** Set available candies (called when mastery updates) */
   setAvailableCandies: (candies: number) => void;
@@ -174,9 +199,10 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
   },
 
   // Unlock a node
-  unlockNode: async (nodeId: string, candyCost: number) => {
-    const { selectedChampion, availableCandies, enhancements, championMasteryLevels } = get();
-    if (!selectedChampion) return false;
+  unlockNode: async (nodeId: string) => {
+    const { selectedChampion, availableCandies, enhancements, championMasteryLevels, isLoading } =
+      get();
+    if (!selectedChampion || isLoading) return false;
 
     const currentState = enhancements[selectedChampion.id] || {
       unlockedNodes: {},
@@ -216,53 +242,115 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       return false;
     }
 
-    // Validate unlock
-    const validation = enhancementService.validateUnlock(
-      nodeToUnlock,
-      currentState,
-      masteryLevel,
-      availableCandies,
-    );
-
-    if (!validation.valid) {
-      set({ error: validation.error || 'Cannot unlock node' });
-      return false;
-    }
-
     const { user: currentUser, isGuest } = useAuthStore.getState();
     if (isGuest || !currentUser) {
       set({ error: 'Les améliorations permanentes nécessitent un compte.' });
       return false;
     }
 
-    const result = await container.enhancement.unlockNode(
-      currentUser.id,
-      selectedChampion.id,
-      nodeId,
-      candyCost,
-      nodeToUnlock.maxRanks ?? 1,
-    );
+    const expectedRank = currentState.unlockedNodes[nodeId] ?? 0;
+    const pendingKey = getPendingUnlockKey(currentUser.id, selectedChampion.id, nodeId);
+    const existingCommand = pendingUnlockCommands.get(pendingKey);
+    const retryCommand =
+      existingCommand?.expectedRank === expectedRank ? existingCommand : undefined;
 
-    if (!result.success) {
-      set({ error: result.error || 'Failed to save enhancement' });
+    if (existingCommand && !retryCommand) {
+      pendingUnlockCommands.delete(pendingKey);
+    }
+
+    // A replay keeps the exact original command and must reach the server even
+    // if the local balance became stale after a response was lost.
+    if (!retryCommand) {
+      const validation = enhancementService.validateUnlock(
+        nodeToUnlock,
+        currentState,
+        masteryLevel,
+        availableCandies,
+      );
+
+      if (!validation.valid) {
+        set({ error: validation.error || 'Cannot unlock node' });
+        return false;
+      }
+    }
+
+    if (!retryCommand && !globalThis.crypto?.randomUUID) {
+      set({ error: 'Ce navigateur ne permet pas de sécuriser la commande.' });
       return false;
     }
 
-    // Update local state (mastery level comes from database, not calculated)
-    set({
-      enhancements: {
-        ...enhancements,
-        [selectedChampion.id]: result.newState,
-      },
-      // Keep existing mastery level (from database)
-      championMasteryLevels: championMasteryLevels,
-      availableCandies: result.remainingCandies ?? availableCandies - candyCost,
-    });
+    const commandId = retryCommand?.commandId ?? globalThis.crypto.randomUUID();
+    pendingUnlockCommands.set(pendingKey, { expectedRank, commandId });
+    set({ isLoading: true, error: null });
 
-    const { refreshPlayer } = useAuthStore.getState();
-    await refreshPlayer();
+    try {
+      const result = await container.enhancement.unlockNode(
+        currentUser.id,
+        selectedChampion.id,
+        nodeId,
+        expectedRank,
+        commandId,
+      );
 
-    return true;
+      if (!result.success) {
+        // A transport error may happen after the database committed. The
+        // repository refetches the server state on errors; reaching the target
+        // rank is therefore a successful reconciliation, not a failed retry.
+        const reconciledRank = result.newState.unlockedNodes[nodeId] ?? 0;
+        if (reconciledRank > expectedRank) {
+          pendingUnlockCommands.delete(pendingKey);
+          set((current) => ({
+            enhancements: {
+              ...current.enhancements,
+              [selectedChampion.id]: result.newState,
+            },
+            error: null,
+          }));
+
+          const refreshedCandies = await refreshCanonicalCandyBalance();
+          if (refreshedCandies !== undefined) {
+            set({ availableCandies: refreshedCandies });
+          }
+          return true;
+        }
+
+        // The outcome is still uncertain. Keep the command id so the next
+        // click replays this exact request instead of creating a second debit.
+        const refreshedCandies = await refreshCanonicalCandyBalance();
+        set((current) => ({
+          availableCandies: refreshedCandies ?? current.availableCandies,
+          error: result.error || 'Failed to save enhancement',
+        }));
+        return false;
+      }
+
+      pendingUnlockCommands.delete(pendingKey);
+
+      // Cost, resulting rank and remaining balance all come from the server.
+      set((current) => ({
+        enhancements: {
+          ...current.enhancements,
+          [selectedChampion.id]: result.newState,
+        },
+        availableCandies:
+          result.remainingCandies ?? Math.max(0, availableCandies - result.candyCost),
+      }));
+
+      const refreshedCandies = await refreshCanonicalCandyBalance();
+      if (refreshedCandies !== undefined) {
+        set({ availableCandies: refreshedCandies });
+      }
+
+      return true;
+    } catch (error) {
+      console.error('[EnhancementStore] Failed to unlock node:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to save enhancement',
+      });
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
   },
 
   // Set available candies
@@ -277,6 +365,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
   // Reset store
   reset: () => {
+    pendingUnlockCommands.clear();
     set({
       enhancements: {},
       championMasteryLevels: {},

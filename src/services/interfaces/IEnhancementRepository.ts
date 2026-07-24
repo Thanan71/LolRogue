@@ -22,7 +22,12 @@ export interface UnlockNodeResult {
   newState: PlayerEnhancementState;
   candyCost: number;
   nodeId: string;
+  currentRank?: number;
+  maxRank?: number;
   remainingCandies?: number;
+  catalogVersion?: number;
+  replayed?: boolean;
+  commandId?: string;
   error?: string;
 }
 
@@ -48,34 +53,29 @@ export interface EnhancementStatBonuses {
  */
 export interface IEnhancementRepository {
   /**
-   * Get enhancement state for a player-champion pair
+   * Get enhancement state for an authenticated account/champion pair.
+   * `authUserId` is the UUID from `auth.users.id`, not `players.id`.
    */
-  getEnhancementState(playerId: string, championId: string): Promise<PlayerEnhancementState | null>;
+  getEnhancementState(
+    authUserId: string,
+    championId: string,
+  ): Promise<PlayerEnhancementState | null>;
 
   /**
-   * Get all enhancement states for a player
+   * Get all enhancement states for an authenticated account.
    * Returns a Map of championId -> enhancement state
    */
-  getAllEnhancementStates(playerId: string): Promise<Map<string, PlayerEnhancementState>>;
+  getAllEnhancementStates(authUserId: string): Promise<Map<string, PlayerEnhancementState>>;
 
   /**
-   * Save or update enhancement state
-   */
-  saveEnhancementState(
-    playerId: string,
-    championId: string,
-    state: PlayerEnhancementState,
-  ): Promise<boolean>;
-
-  /**
-   * Unlock a specific node
+   * Unlock a specific node for the authenticated account.
    */
   unlockNode(
-    playerId: string,
+    authUserId: string,
     championId: string,
     nodeId: string,
-    candyCost: number,
-    maxRank: number,
+    expectedRank: number,
+    commandId: string,
   ): Promise<UnlockNodeResult>;
 }
 

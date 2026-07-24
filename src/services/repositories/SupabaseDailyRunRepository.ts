@@ -21,11 +21,18 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
     playerId: string,
   ): Promise<{ data: DailyRun | null; error: Error | null }> {
     const today = new Date().toISOString().split('T')[0];
+    return this.getDailyRunForDate(playerId, today);
+  }
+
+  async getDailyRunForDate(
+    playerId: string,
+    date: string,
+  ): Promise<{ data: DailyRun | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('daily_runs')
       .select('*')
       .eq('player_id', playerId)
-      .eq('daily_date', today)
+      .eq('daily_date', date)
       .maybeSingle();
 
     if (error) {
@@ -94,9 +101,9 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
 }
 
 export class SupabaseLeaderboardRepository implements ILeaderboardRepository {
-  private supabase: SupabaseClient;
+  private supabase: SupabaseClient<Database>;
 
-  constructor(supabase: SupabaseClient) {
+  constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase;
   }
 
@@ -131,7 +138,7 @@ export class SupabaseLeaderboardRepository implements ILeaderboardRepository {
       return null;
     }
 
-    const rank = allPlayers.findIndex((p: { player_id: string }) => p.player_id === playerId) + 1;
+    const rank = allPlayers.findIndex((player) => player.player_id === playerId) + 1;
     return rank > 0 ? rank : null;
   }
 }

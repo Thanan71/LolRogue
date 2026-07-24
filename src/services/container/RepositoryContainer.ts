@@ -13,6 +13,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
 import { createLoggedRepository } from '@/utils/RepositoryLogger';
 import type { IAuthRepository } from '../interfaces/IAuthRepository';
 import type {
@@ -59,7 +60,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   private _enhancement?: IEnhancementRepository;
 
   constructor(
-    private readonly supabase: SupabaseClient,
+    private readonly supabase: SupabaseClient<Database>,
     private readonly options: RepositoryContainerOptions = {},
   ) {}
 
@@ -209,7 +210,7 @@ export class RepositoryContainerFactory {
    * @returns A new repository container instance
    */
   static create(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     options: RepositoryContainerOptions = {},
   ): IRepositoryContainer {
     // Use default options if not provided
@@ -230,7 +231,7 @@ export class RepositoryContainerFactory {
    * Useful for applications that need a single shared container
    */
   static getInstance(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     options: RepositoryContainerOptions = {},
   ): IRepositoryContainer {
     if (!RepositoryContainerFactory.instance) {

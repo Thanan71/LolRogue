@@ -74,33 +74,64 @@ Une case ne peut être cochée que si :
 
 ### P0-SEC-01 — Rendre le serveur autoritaire sur la progression
 
-**Constat :** les grants/policies permettent encore à un utilisateur authentifié de
-modifier ses compteurs `players`, d'écrire sa maîtrise et ses unlocks, ou d'insérer
-des runs. `save_completed_run` accepte des statistiques et candies calculées par le
-client. `unlock_champion_enhancement` accepte le coût, le rang maximal et l'identité
-du nœud envoyés par le client.
+**Constat initial :** les grants/policies permettaient à un utilisateur authentifié
+de modifier ses compteurs `players`, d'écrire sa maîtrise et ses unlocks, ou
+d'insérer des runs. `save_completed_run` acceptait des statistiques et candies
+calculées par le client. `unlock_champion_enhancement` acceptait le coût, le rang
+maximal et l'identité du nœud envoyés par le client.
 
-- [ ] Ajouter une migration corrective append-only ; ne jamais réécrire une
+**État au 23 juillet 2026 :** le durcissement des droits et des commandes est
+implémenté. Les nouvelles runs sont volontairement marquées `client_reported` :
+leurs récompenses sont calculées par PostgreSQL, mais la réalité du combat n'est pas
+encore rejouée côté serveur. Le ticket reste donc ouvert jusqu'à l'attestation du
+gameplay.
+
+- [x] Ajouter une migration corrective append-only ; ne jamais réécrire une
   migration déjà potentiellement appliquée en production.
-- [ ] Révoquer les écritures directes sur les colonnes dérivées de `players`
+- [x] Révoquer les écritures directes sur les colonnes dérivées de `players`
   (`level`, runs, victoires, vagues, candies et statistiques).
-- [ ] Révoquer les mutations directes de `champion_mastery`, `player_unlocks`,
+- [x] Révoquer les mutations directes de `champion_mastery`, `player_unlocks`,
   `runs` et `run_team_members` pour les rôles client.
-- [ ] Ne garder que des RPC étroites pour les mutations de progression.
-- [ ] Retirer des repositories et modèles client les méthodes d'écriture directe
+- [x] Révoquer aussi les mutations directes de `champion_enhancements` et les
+  anciens RPC de sauvegarde, d'équipement et d'achat pour `anon`/`authenticated`.
+- [x] Ne garder que des RPC étroites pour les mutations de progression.
+- [x] Retirer des repositories et modèles client les méthodes d'écriture directe
   devenues interdites.
-- [ ] Calculer côté serveur les candies, statistiques joueur, mastery, survivants et
+- [x] Calculer côté serveur les candies, statistiques joueur, mastery, survivants et
   compteurs à partir d'un résultat validé.
-- [ ] Stocker un catalogue serveur versionné des améliorations et y résoudre coût,
+- [x] Stocker un catalogue serveur versionné des améliorations et y résoudre coût,
   rang maximal, niveau de maîtrise et prérequis.
-- [ ] Rejeter tout champion, nœud, rang, coût ou identifiant qui n'appartient pas au
+- [x] Rejeter tout champion, nœud, rang, coût ou identifiant qui n'appartient pas au
   catalogue canonique.
-- [ ] Ajouter une clé d'idempotence par commande et tester deux appels concurrents.
-- [ ] Ajouter des tests SQL adversariaux avec les rôles `anon` et `authenticated`.
+- [x] Ajouter une clé d'idempotence par commande et tester deux appels concurrents.
+- [x] Rendre les replays stables après rotation du ruleset et renvoyer les valeurs
+  réellement persistées.
+- [x] Figer et persister le payload de fin de run avant le premier envoi afin que
+  tout retry, y compris après rechargement, rejoue strictement la même commande.
+- [x] Réutiliser la même commande d'achat après une réponse perdue et réconcilier
+  l'état/solde canonique sans second débit.
+- [x] Afficher les récompenses serveur pour les comptes connectés et ne jamais
+  présenter un calcul local spéculatif comme une progression enregistrée.
+- [x] Propager les types Supabase générés aux repositories et distinguer
+  explicitement `auth.users.id` de `players.id` dans leurs contrats.
+- [x] Ajouter des tests SQL adversariaux avec les rôles `anon` et `authenticated`.
+- [ ] Créer un `run_attempt` côté serveur au démarrage avec seed, ruleset, équipe et
+  séquence attendue figés.
+- [ ] Enregistrer des commandes de partie séquencées et rejouer le moteur
+  déterministe dans une Edge Function ou un service de confiance.
+- [ ] Réserver `progression_source = 'verified'` aux résultats rejoués et décider si
+  les runs `client_reported` peuvent encore créditer une progression permanente.
+- [ ] Auditer ou recalculer la progression historique héritée : les valeurs
+  antérieures à la migration ne peuvent pas être distinguées rétroactivement des
+  valeurs éventuellement forgées sans règle produit de remise à niveau.
 
-**Acceptation :** un client modifié ne peut ni s'attribuer de candies, ni falsifier
-une run, ni débloquer un nœud à prix réduit. Les écritures valides passent une seule
-fois, y compris sous concurrence.
+**Acceptation intermédiaire atteinte :** un client ne peut plus écrire directement
+la progression, choisir ses candies, son coût d'amélioration ou son rang. Les
+écritures valides passent une seule fois, y compris sous concurrence.
+
+**Acceptation finale restante :** un client modifié ne peut pas fabriquer une run
+plausible pour recevoir des récompenses ; seules les runs rejouées et vérifiées côté
+serveur créditent la progression.
 
 ### P0-SEC-02 — Sécuriser le daily leaderboard
 

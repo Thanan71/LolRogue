@@ -5,7 +5,7 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { Player, PlayerUpdate } from '@/types/models';
+import type { Player, PlayerProfileUpdate } from '@/types/models';
 
 export interface IPlayerRepository {
   /**
@@ -13,13 +13,16 @@ export interface IPlayerRepository {
    */
   getPlayer(userId: string): Promise<{ data: Player | null; error: Error | null }>;
 
-  /**
-   * Update player data
-   */
-  updatePlayer(
+  /** Update only the authenticated player's editable profile fields. */
+  updateProfile(
     userId: string,
-    updates: PlayerUpdate,
+    updates: PlayerProfileUpdate,
   ): Promise<{ data: Player | null; error: Error | null }>;
+
+  /**
+   * Ask the server to update the authenticated player's last-login timestamp.
+   */
+  touchLastLogin(): Promise<{ data: string | null; error: Error | null }>;
 
   /**
    * Get player statistics

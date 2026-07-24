@@ -15,6 +15,14 @@ export interface IDailyRunRepository {
    */
   getTodayDailyRun(playerId: string): Promise<{ data: DailyRun | null; error: Error | null }>;
 
+  /**
+   * Get the daily run for an explicit UTC date.
+   */
+  getDailyRunForDate(
+    playerId: string,
+    date: string,
+  ): Promise<{ data: DailyRun | null; error: Error | null }>;
+
   /** Submit one immutable daily score, calculated atomically by PostgreSQL. */
   submitDailyRun(input: {
     dailyDate: string;

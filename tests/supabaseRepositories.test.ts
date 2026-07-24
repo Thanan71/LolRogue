@@ -17,6 +17,7 @@ import {
 } from '@/services/repositories/SupabaseMasteryRepository';
 import { SupabasePlayerRepository } from '@/services/repositories/SupabasePlayerRepository';
 import { SupabaseRunRepository } from '@/services/repositories/SupabaseRunRepository';
+import type { Database } from '@/types/database';
 
 // ─── Mock Helpers ────────────────────────────────────────────────────────────
 
@@ -44,7 +45,7 @@ function createMockSupabaseClient() {
   const mockSupabase = {
     from: vi.fn(() => queryChain),
     rpc: vi.fn(),
-  } as unknown as SupabaseClient;
+  } as unknown as SupabaseClient<Database>;
 
   return { mockSupabase, queryChain };
 }
@@ -83,31 +84,68 @@ describe('SupabaseDailyRunRepository', () => {
 });
 
 describe('SupabaseRunRepository', () => {
-  it('uses the atomic save RPC with an idempotent run payload', async () => {
+  it('uses the authoritative RPC without sending ownership, mastery or candy totals', async () => {
     const { mockSupabase } = createMockSupabaseClient();
     const rpc = vi.mocked(mockSupabase.rpc);
-    rpc.mockResolvedValue({ data: 'database-run-id', error: null } as never);
+    rpc.mockResolvedValue({
+      data: {
+        run_id: 'database-run-id',
+        replayed: false,
+        candies_earned: 13,
+        candies_per_champion: 13,
+        progression_version: 1,
+        progression_source: 'client_reported',
+      },
+      error: null,
+    } as never);
     const repository = new SupabaseRunRepository(mockSupabase);
     const run = {
-      player_id: 'player-1',
       run_uuid: 'client-run-id',
+      won: false,
+      run_level: 2,
+      waves_completed: 1,
+      biomes_visited: ['top_lane'],
+      gold_earned: 10,
+      seed: 20260723,
+      started_at: '2026-07-23T08:00:00.000Z',
     };
     const team = [
       {
-        run_id: 'placeholder',
         champion_id: 'Garen',
+        final_level: 2,
+        final_hp: 100,
+        kills: 1,
+        damage_dealt: 43,
+        items_collected: [],
       },
     ];
 
-    const result = await repository.saveCompletedRun(run, team, [{ champion_id: 'Garen' }], 25);
+    const result = await repository.saveCompletedRun(run, team, ['conqueror'], ['golden_touch']);
 
-    expect(result).toEqual({ data: 'database-run-id', error: null });
-    expect(rpc).toHaveBeenCalledWith('save_completed_run', {
-      p_run: run,
-      p_team_members: [{ champion_id: 'Garen' }],
-      p_mastery: [{ champion_id: 'Garen' }],
-      p_total_candies: 25,
+    expect(result).toEqual({
+      data: {
+        runId: 'database-run-id',
+        replayed: false,
+        candiesEarned: 13,
+        candiesPerChampion: 13,
+        progressionVersion: 1,
+        progressionSource: 'client_reported',
+      },
+      error: null,
     });
+    expect(rpc).toHaveBeenCalledWith('save_completed_run_v2', {
+      p_run: run,
+      p_team_members: team,
+      p_rune_ids: ['conqueror'],
+      p_augment_ids: ['golden_touch'],
+    });
+    const rpcPayload = rpc.mock.calls[0]?.[1] as
+      | Database['public']['Functions']['save_completed_run_v2']['Args']
+      | undefined;
+    expect(rpcPayload).not.toHaveProperty('p_mastery');
+    expect(rpcPayload).not.toHaveProperty('p_total_candies');
+    expect(rpcPayload?.p_run).not.toHaveProperty('player_id');
+    expect(rpcPayload?.p_run).not.toHaveProperty('candies_earned');
   });
 
   it('returns an RPC failure without attempting table writes', async () => {
@@ -118,10 +156,27 @@ describe('SupabaseRunRepository', () => {
     const repository = new SupabaseRunRepository(mockSupabase);
 
     const result = await repository.saveCompletedRun(
-      { player_id: 'player-1', run_uuid: 'client-run-id' },
+      {
+        run_uuid: 'client-run-id',
+        won: false,
+        run_level: 1,
+        waves_completed: 0,
+        biomes_visited: [],
+        gold_earned: 0,
+        started_at: '2026-07-23T08:00:00.000Z',
+      },
+      [
+        {
+          champion_id: 'Garen',
+          final_level: 1,
+          final_hp: 100,
+          kills: 0,
+          damage_dealt: 0,
+          items_collected: [],
+        },
+      ],
       [],
       [],
-      0,
     );
 
     expect(result).toEqual({ data: null, error });
@@ -131,75 +186,193 @@ describe('SupabaseRunRepository', () => {
   it('normalizes decimal combat statistics before calling the integer-based RPC', async () => {
     const { mockSupabase } = createMockSupabaseClient();
     const rpc = vi.mocked(mockSupabase.rpc);
-    rpc.mockResolvedValue({ data: 'database-run-id', error: null } as never);
+    rpc.mockResolvedValue({
+      data: {
+        run_id: 'database-run-id',
+        replayed: false,
+        candies_earned: 13,
+        candies_per_champion: 13,
+        progression_version: 1,
+        progression_source: 'client_reported',
+      },
+      error: null,
+    } as never);
     const repository = new SupabaseRunRepository(mockSupabase);
 
     await repository.saveCompletedRun(
       {
-        player_id: 'player-1',
         run_uuid: 'client-run-id',
-        total_damage_dealt: 42.51740000000018,
+        won: false,
+        run_level: 1.6,
+        waves_completed: 1.2,
+        biomes_visited: ['top_lane'],
+        gold_earned: 10.6,
+        seed: 20260723.4,
+        started_at: '2026-07-23T08:00:00.000Z',
       },
       [
         {
-          run_id: 'placeholder',
           champion_id: 'Garen',
+          final_level: 1.6,
           final_hp: 99.6,
+          kills: 0.6,
           damage_dealt: 42.51740000000018,
+          items_collected: [],
         },
       ],
-      [{ champion_id: 'Garen', total_damage: 42.51740000000018 }],
-      12.4,
+      [],
+      [],
     );
 
-    expect(rpc).toHaveBeenCalledWith('save_completed_run', {
-      p_run: expect.objectContaining({ total_damage_dealt: 43 }),
+    expect(rpc).toHaveBeenCalledWith('save_completed_run_v2', {
+      p_run: expect.objectContaining({
+        run_level: 2,
+        waves_completed: 1,
+        gold_earned: 11,
+        seed: 20260723,
+      }),
       p_team_members: [
         expect.objectContaining({
+          final_level: 2,
           final_hp: 100,
+          kills: 1,
           damage_dealt: 43,
         }),
       ],
-      p_mastery: [expect.objectContaining({ total_damage: 43 })],
-      p_total_candies: 12,
+      p_rune_ids: [],
+      p_augment_ids: [],
     });
+  });
+
+  it('rejects a malformed canonical response instead of trusting it', async () => {
+    const { mockSupabase } = createMockSupabaseClient();
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({
+      data: { run_id: 'database-run-id', candies_earned: 999 },
+      error: null,
+    } as never);
+    const repository = new SupabaseRunRepository(mockSupabase);
+
+    const result = await repository.saveCompletedRun(
+      {
+        run_uuid: 'client-run-id',
+        won: false,
+        run_level: 1,
+        waves_completed: 0,
+        biomes_visited: [],
+        gold_earned: 0,
+        started_at: '2026-07-23T08:00:00.000Z',
+      },
+      [
+        {
+          champion_id: 'Garen',
+          final_level: 1,
+          final_hp: 100,
+          kills: 0,
+          damage_dealt: 0,
+          items_collected: [],
+        },
+      ],
+      [],
+      [],
+    );
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toContain('Invalid save_completed_run_v2 response');
   });
 });
 
 describe('SupabaseEnhancementRepository', () => {
-  it('unlocks a node and spends candies through one atomic RPC', async () => {
+  it('unlocks a node with optimistic rank and idempotency but no client-owned price', async () => {
     const { mockSupabase } = createMockSupabaseClient();
+    const commandId = '01234567-89ab-4def-8123-456789abcdef';
     vi.mocked(mockSupabase.rpc).mockResolvedValue({
       data: {
-        unlocked_nodes: { health_core: 1 },
-        total_candies_spent: 75,
-        remaining_candies: 25,
+        command_id: commandId,
+        champion_id: 'Garen',
+        node_id: 'fighter_core_1',
+        current_rank: 1,
+        candy_cost: 20,
+        max_rank: 1,
+        unlocked_nodes: { fighter_core_1: 1 },
+        total_candies_spent: 20,
+        remaining_candies: 80,
+        catalog_version: 1,
+        replayed: false,
       },
       error: null,
     } as never);
     const repository = new SupabaseEnhancementRepository(mockSupabase);
 
-    const result = await repository.unlockNode('user-1', 'Garen', 'health_core', 75, 3);
+    const result = await repository.unlockNode('user-1', 'Garen', 'fighter_core_1', 0, commandId);
 
     expect(mockSupabase.rpc).toHaveBeenCalledWith('unlock_champion_enhancement', {
       p_champion_id: 'Garen',
-      p_node_id: 'health_core',
-      p_candy_cost: 75,
-      p_max_rank: 3,
+      p_node_id: 'fighter_core_1',
+      p_expected_rank: 0,
+      p_command_id: commandId,
     });
+    const rpcPayload = vi.mocked(mockSupabase.rpc).mock.calls[0]?.[1];
+    expect(rpcPayload).not.toHaveProperty('p_candy_cost');
+    expect(rpcPayload).not.toHaveProperty('p_max_rank');
     expect(result).toMatchObject({
       success: true,
-      newState: { unlockedNodes: { health_core: 1 }, totalCandiesSpent: 75 },
-      remainingCandies: 25,
+      newState: { unlockedNodes: { fighter_core_1: 1 }, totalCandiesSpent: 20 },
+      candyCost: 20,
+      nodeId: 'fighter_core_1',
+      currentRank: 1,
+      maxRank: 1,
+      remainingCandies: 80,
+      catalogVersion: 1,
+      commandId,
+      replayed: false,
     });
     expect(mockSupabase.from).not.toHaveBeenCalled();
+  });
+
+  it('rejects a mismatched command response and refetches the readable state', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({
+      data: {
+        command_id: '01234567-89ab-4def-8123-456789abcdef',
+        node_id: 'mage_core_1',
+        current_rank: 1,
+        candy_cost: 20,
+      },
+      error: null,
+    } as never);
+    queryChain.single.mockResolvedValue({
+      data: {
+        unlocked_nodes: {},
+        total_candies_spent: 0,
+      },
+      error: null,
+    });
+    const repository = new SupabaseEnhancementRepository(mockSupabase);
+
+    const result = await repository.unlockNode(
+      'user-1',
+      'Garen',
+      'fighter_core_1',
+      0,
+      '01234567-89ab-4def-8123-456789abcdef',
+    );
+
+    expect(result).toMatchObject({
+      success: false,
+      newState: { unlockedNodes: {}, totalCandiesSpent: 0 },
+      candyCost: 0,
+      nodeId: 'fighter_core_1',
+      error: 'Invalid unlock_champion_enhancement response',
+    });
+    expect(queryChain.update).not.toHaveBeenCalled();
+    expect(queryChain.upsert).not.toHaveBeenCalled();
   });
 });
 
 // ─── SupabasePlayerRepository Tests ──────────────────────────────────────────
 
 describe('SupabasePlayerRepository', () => {
-  let mockSupabase: SupabaseClient;
+  let mockSupabase: SupabaseClient<Database>;
   let queryChain: ReturnType<typeof createMockSupabaseClient>['queryChain'];
   let repository: SupabasePlayerRepository;
 
@@ -247,32 +420,64 @@ describe('SupabasePlayerRepository', () => {
     });
   });
 
-  describe('updatePlayer', () => {
-    it('should update player and return updated data', async () => {
+  describe('updateProfile', () => {
+    it('updates only the editable profile fields and returns updated data', async () => {
       const mockUpdatedPlayer = {
         id: '1',
         user_id: 'user-123',
-        level: 6,
-        total_runs_completed: 11,
+        display_name: 'New display name',
+        avatar_url: 'https://example.test/avatar.png',
       };
       queryChain.single.mockResolvedValue({ data: mockUpdatedPlayer, error: null });
 
-      const result = await repository.updatePlayer('user-123', { level: 6 });
+      const result = await repository.updateProfile('user-123', {
+        display_name: 'New display name',
+        avatar_url: 'https://example.test/avatar.png',
+      });
 
       expect(result.data).toEqual(mockUpdatedPlayer);
       expect(result.error).toBeNull();
+      expect(queryChain.update).toHaveBeenCalledWith({
+        display_name: 'New display name',
+        avatar_url: 'https://example.test/avatar.png',
+      });
     });
 
-    it('should return error when update fails', async () => {
+    it('returns an error when the profile update fails', async () => {
       queryChain.single.mockResolvedValue({
         data: null,
         error: { message: 'Update failed' },
       });
 
-      const result = await repository.updatePlayer('user-123', { level: 6 });
+      const result = await repository.updateProfile('user-123', {
+        display_name: 'New display name',
+      });
 
       expect(result.data).toBeNull();
       expect(result.error).toBeDefined();
+    });
+  });
+
+  describe('touchLastLogin', () => {
+    it('updates last_login_at through the narrow server command', async () => {
+      const touchedAt = '2026-07-23T08:00:00.000Z';
+      vi.mocked(mockSupabase.rpc).mockResolvedValue({ data: touchedAt, error: null } as never);
+
+      const result = await repository.touchLastLogin();
+
+      expect(mockSupabase.rpc).toHaveBeenCalledWith('touch_player_last_login');
+      expect(mockSupabase.from).not.toHaveBeenCalled();
+      expect(result).toEqual({ data: touchedAt, error: null });
+    });
+
+    it('returns a command error without falling back to a direct table update', async () => {
+      const error = new Error('touch failed');
+      vi.mocked(mockSupabase.rpc).mockResolvedValue({ data: null, error } as never);
+
+      const result = await repository.touchLastLogin();
+
+      expect(result).toEqual({ data: null, error });
+      expect(queryChain.update).not.toHaveBeenCalled();
     });
   });
 
@@ -334,7 +539,7 @@ describe('SupabasePlayerRepository', () => {
 // ─── SupabaseMasteryRepository Tests ─────────────────────────────────────────
 
 describe('SupabaseMasteryRepository', () => {
-  let mockSupabase: SupabaseClient;
+  let mockSupabase: SupabaseClient<Database>;
   let queryChain: ReturnType<typeof createMockSupabaseClient>['queryChain'];
   let repository: SupabaseMasteryRepository;
 
@@ -343,6 +548,28 @@ describe('SupabaseMasteryRepository', () => {
     mockSupabase = ms;
     queryChain = qc;
     repository = new SupabaseMasteryRepository(mockSupabase);
+  });
+
+  describe('getChampionMastery', () => {
+    it('resolves an auth user ID before querying mastery by public player ID', async () => {
+      const mockMastery = {
+        id: 'mastery-1',
+        player_id: 'player-1',
+        champion_id: 'Ahri',
+        mastery_level: 5,
+      };
+      queryChain.maybeSingle.mockResolvedValueOnce({
+        data: { id: 'player-1' },
+        error: null,
+      });
+      queryChain.order.mockResolvedValueOnce({ data: [mockMastery], error: null });
+
+      const result = await repository.getChampionMastery('auth-user-1');
+
+      expect(queryChain.eq).toHaveBeenNthCalledWith(1, 'user_id', 'auth-user-1');
+      expect(queryChain.eq).toHaveBeenNthCalledWith(2, 'player_id', 'player-1');
+      expect(result).toEqual({ data: [mockMastery], error: null });
+    });
   });
 
   describe('getChampionMasteryByChampion', () => {
@@ -368,54 +595,12 @@ describe('SupabaseMasteryRepository', () => {
       expect(result.error).toBeDefined();
     });
   });
-
-  describe('upsertChampionMastery', () => {
-    it('should upsert champion mastery data', async () => {
-      const mockResult = { champion_id: 'Ahri', mastery_level: 5, total_candies: 100 };
-      queryChain.single.mockResolvedValueOnce({ data: mockResult, error: null });
-
-      const result = await repository.upsertChampionMastery('player-1', 'Ahri', {
-        total_candies: 100,
-        mastery_level: 5,
-        current_level_candies: 50,
-        unlocked_ids: ['node1', 'node2'],
-        games_played: 10,
-        games_won: 7,
-        total_kills: 50,
-        total_damage_dealt: 10000,
-      });
-
-      expect(result.data).toEqual(mockResult);
-      expect(result.error).toBeNull();
-    });
-
-    it('should return error when upsert fails', async () => {
-      queryChain.single.mockResolvedValueOnce({
-        data: null,
-        error: { message: 'Upsert failed' },
-      });
-
-      const result = await repository.upsertChampionMastery('player-1', 'Ahri', {
-        total_candies: 100,
-        mastery_level: 5,
-        current_level_candies: 50,
-        unlocked_ids: [],
-        games_played: 10,
-        games_won: 7,
-        total_kills: 50,
-        total_damage_dealt: 10000,
-      });
-
-      expect(result.data).toBeNull();
-      expect(result.error).toBeDefined();
-    });
-  });
 });
 
 // ─── SupabasePlayerUnlockRepository Tests ────────────────────────────────────
 
 describe('SupabasePlayerUnlockRepository', () => {
-  let mockSupabase: SupabaseClient;
+  let mockSupabase: SupabaseClient<Database>;
   let queryChain: ReturnType<typeof createMockSupabaseClient>['queryChain'];
   let repository: SupabasePlayerUnlockRepository;
 
@@ -424,30 +609,6 @@ describe('SupabasePlayerUnlockRepository', () => {
     mockSupabase = ms;
     queryChain = qc;
     repository = new SupabasePlayerUnlockRepository(mockSupabase);
-  });
-
-  describe('addPlayerUnlock', () => {
-    it('should add a new player unlock', async () => {
-      const mockResult = { id: '1', unlock_type: 'starter', unlock_id: 'Ashe' };
-      queryChain.single.mockResolvedValueOnce({ data: mockResult, error: null });
-
-      const result = await repository.addPlayerUnlock('player-1', 'starter', 'Ashe');
-
-      expect(result.data).toEqual(mockResult);
-      expect(result.error).toBeNull();
-    });
-
-    it('should return error when insert fails', async () => {
-      queryChain.single.mockResolvedValueOnce({
-        data: null,
-        error: { message: 'Insert failed' },
-      });
-
-      const result = await repository.addPlayerUnlock('player-1', 'starter', 'Ashe');
-
-      expect(result.data).toBeNull();
-      expect(result.error).toBeDefined();
-    });
   });
 
   describe('hasUnlock', () => {
@@ -466,5 +627,24 @@ describe('SupabasePlayerUnlockRepository', () => {
 
       expect(result).toBe(false);
     });
+  });
+});
+
+describe('server-owned progression repository surface', () => {
+  it('does not expose direct client mutation helpers for derived records', () => {
+    const { mockSupabase } = createMockSupabaseClient();
+
+    expect(new SupabaseRunRepository(mockSupabase)).not.toHaveProperty('createRun');
+    expect(new SupabaseRunRepository(mockSupabase)).not.toHaveProperty('updateRun');
+    expect(new SupabaseRunRepository(mockSupabase)).not.toHaveProperty('addRunTeamMembers');
+    expect(new SupabaseMasteryRepository(mockSupabase)).not.toHaveProperty('upsertChampionMastery');
+    expect(new SupabasePlayerUnlockRepository(mockSupabase)).not.toHaveProperty('addPlayerUnlock');
+    expect(new SupabaseEnhancementRepository(mockSupabase)).not.toHaveProperty(
+      'saveEnhancementState',
+    );
+    expect(new SupabaseEnhancementRepository(mockSupabase)).not.toHaveProperty(
+      'resetEnhancementState',
+    );
+    expect(new SupabasePlayerRepository(mockSupabase)).not.toHaveProperty('updatePlayer');
   });
 });

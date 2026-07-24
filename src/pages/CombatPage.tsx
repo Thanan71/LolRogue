@@ -346,6 +346,7 @@ export function CombatPage() {
   const isActive = useRunStore((s) => s.isActive);
   const team = useRunStore((s) => s.team);
   const runLevel = useRunStore((s) => s.runLevel);
+  const completedCombatStats = useRunStore((s) => s.completedCombatStats);
   const navigate = useAppNavigate();
 
   const battlePhase = useBattleStore((s) => s.phase);
@@ -365,6 +366,14 @@ export function CombatPage() {
   const [selectedTargetId, setSelectedTargetId] = useState<string | 'all'>('all');
   const hasNavigatedAfterLossRef = useRef(false);
   const endRunTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Restore statistics from encounters completed before a reload/navigation.
+  // The current encounter is intentionally not persisted until it is won.
+  useEffect(() => {
+    if (isActive) {
+      runStatsTracker.restore(completedCombatStats);
+    }
+  }, [completedCombatStats, isActive]);
 
   // Clear any pending endRun timeout on mount
   useEffect(() => {
@@ -475,7 +484,7 @@ export function CombatPage() {
       navigate(ROUTES.GAME_OVER, { state: { summary } });
       hasNavigatedAfterLossRef.current = true;
       setTimeout(() => {
-        rs.endRun(false);
+        void rs.endRun(false, rs.runId, summary);
         runStatsTracker.reset();
       }, 100);
     }
@@ -621,28 +630,29 @@ export function CombatPage() {
           }
         }
 
-        // 8. Build RunSummary for victory display
-        // Mark surviving player champions
-        const rs2 = useRunStore.getState();
-        const aliveIds = rs2.team.filter((m) => (m.currentHp ?? 0) > 0).map((m) => m.championId);
-        runStatsTracker.markSurvived(aliveIds);
-        const victorySummary: RunSummary = runStatsTracker.buildSummary({
-          won: true,
-          wavesCompleted: rs2.totalWavesCompleted,
-          biomesVisited: rs2.biomesVisited,
-          goldEarned: rs2.gold,
-          runLevel: rs2.runLevel,
-        });
         // Only the boss of the last biome ends the run.
         if (isFinalRunVictory(isBossNode, advancedToNextBiome)) {
+          const rs2 = useRunStore.getState();
+          const aliveIds = rs2.team
+            .filter((member) => (member.currentHp ?? 0) > 0)
+            .map((member) => member.championId);
+          runStatsTracker.markSurvived(aliveIds);
+          const victorySummary: RunSummary = runStatsTracker.buildSummary({
+            won: true,
+            wavesCompleted: rs2.totalWavesCompleted,
+            biomesVisited: rs2.biomesVisited,
+            goldEarned: rs2.gold,
+            runLevel: rs2.runLevel,
+          });
           const completedRunId = rs2.runId;
           navigate(ROUTES.GAME_OVER, { state: { summary: victorySummary } });
-          void rs2.endRun(true, completedRunId);
+          void rs2.endRun(true, completedRunId, victorySummary);
           runStatsTracker.reset();
           return;
         }
-        // Reset tracker for next combat
-        runStatsTracker.reset();
+
+        // Persist the cumulative stats only after the encounter has completed.
+        useRunStore.setState({ completedCombatStats: runStatsTracker.toArray() });
 
         // Navigate back to the map to choose the next node
         navigate(ROUTES.RUN);
@@ -666,7 +676,7 @@ export function CombatPage() {
         // Store the timeout reference so it can be cleared if player starts a new run
         // Pass the runId to ensure only the correct run is ended
         endRunTimeoutRef.current = setTimeout(() => {
-          void rs.endRun(false, currentRunId);
+          void rs.endRun(false, currentRunId, summary);
           runStatsTracker.reset();
           endRunTimeoutRef.current = null;
         }, 100);

@@ -15,8 +15,6 @@ export {
 // Enhancement Repository
 export {
   type ChampionEnhancementDB,
-  type ChampionEnhancementInsert,
-  type ChampionEnhancementUpdate,
   SupabaseEnhancementRepository,
   supabaseEnhancementRepository,
 } from './SupabaseEnhancementRepository';
@@ -34,6 +32,7 @@ export { SupabaseRunRepository, SupabaseRunStatsRepository } from './SupabaseRun
 // ─── Repository Factory ──────────────────────────────────────────────────────
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
 import { createLoggedRepository } from '@/utils/RepositoryLogger';
 import { SupabaseAuthRepository } from './SupabaseAuthRepository';
 import {
@@ -55,7 +54,7 @@ import { SupabaseRunRepository, SupabaseRunStatsRepository } from './SupabaseRun
  * Set enableLogging to false to disable logging.
  */
 export function createRepositories(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<Database>,
   enableLogging: boolean = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DB_LOGGING === 'true',
 ) {
   // Create base repositories

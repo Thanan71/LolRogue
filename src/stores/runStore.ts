@@ -1,11 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
-import { logger } from '@/utils/logger';
-import { calculateMaxHP } from '@/utils/statCalculator';
 import { championDB } from '@/data';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
-import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import {
   completeNode as completeNodeUtil,
@@ -18,6 +14,7 @@ import {
   getSurvivingChampionIds,
   shouldApplyRunRewards,
 } from '@/game/run/runState';
+import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { saveRunToDatabase } from '@/services/runService';
@@ -27,9 +24,15 @@ import {
   MAX_INVENTORY_ITEMS,
   MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
+  type CompletedRunSnapshot,
+  type RunSummary,
   type RunStore,
   type TeamMember,
 } from '@/types/run';
+import type { DailyRun } from '@/types/models';
+import { logger } from '@/utils/logger';
+import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
+import { calculateMaxHP } from '@/utils/statCalculator';
 import { useAuthStore } from './authStore';
 import { calculateDailyScore, useDailyRunStore } from './dailyRunStore';
 import { useEnhancementStore } from './enhancementStore';
@@ -37,6 +40,27 @@ import { useMasteryStore } from './masteryStore';
 import { RUN_INITIAL_STATE } from './runInitialState';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+function cloneRunSummary(summary: RunSummary): RunSummary {
+  return {
+    ...summary,
+    biomesVisited: [...summary.biomesVisited],
+    championStats: summary.championStats.map((stats) => ({ ...stats })),
+  };
+}
+
+function matchesDailySnapshot(run: DailyRun, snapshot: CompletedRunSnapshot): boolean {
+  const daily = snapshot.daily;
+  return (
+    daily !== null &&
+    run.daily_date === daily.dateKey &&
+    run.daily_seed === daily.dailySeed &&
+    run.won === snapshot.won &&
+    run.run_level_reached === snapshot.runLevel &&
+    run.waves_completed === snapshot.wavesCompleted &&
+    run.score === daily.score
+  );
+}
 
 // ─── Store ──────────────────────────────────────────────────────────────────
 
@@ -53,7 +77,13 @@ export const useRunStore = create<RunStore>()(
         if (currentState.isActive) {
           logger.debug('[runStore.startRun] Active run detected, ending current run first');
           // End the current run (loss, since user is abandoning it to start new)
-          await get().endRun(false, currentState.runId);
+          const saved = await get().endRun(false, currentState.runId);
+          if (!saved) {
+            logger.warn(
+              '[runStore.startRun] The active run could not be saved; keeping it retryable',
+            );
+            return;
+          }
         }
 
         // Validate champion IDs - filter out any invalid IDs
@@ -95,7 +125,10 @@ export const useRunStore = create<RunStore>()(
           isEnding: false,
           saveStatus: 'idle',
           saveError: null,
+          completedRunSnapshot: null,
+          serverProgression: null,
           rewardsApplied: false,
+          completedCombatStats: [],
           nextItemInstanceId: 1,
           team,
           runLevel: 1,
@@ -120,7 +153,7 @@ export const useRunStore = create<RunStore>()(
         });
       },
 
-      endRun: async (won = false, expectedRunId?: string) => {
+      endRun: async (won = false, expectedRunId?: string, displayedSummary?: RunSummary) => {
         const state = get();
 
         // Guard: Don't end a run that's already ended
@@ -140,48 +173,125 @@ export const useRunStore = create<RunStore>()(
 
         set({ isEnding: true, saveStatus: 'saving', saveError: null });
 
-        const championIds = state.team.map((m) => m.championId);
-        const survivingChampionIds = getSurvivingChampionIds(state.team);
+        let snapshot =
+          state.completedRunSnapshot?.runId === state.runId ? state.completedRunSnapshot : null;
 
-        // Mark survived champions in stats tracker
-        runStatsTracker.markSurvived(survivingChampionIds);
+        if (!snapshot) {
+          let summary = displayedSummary;
+          if (!summary) {
+            // A completion triggered outside CombatPage (for example, an
+            // abandonment after reload) starts from the persisted encounters.
+            runStatsTracker.restore(state.completedCombatStats);
+            runStatsTracker.markSurvived(getSurvivingChampionIds(state.team));
+            summary = runStatsTracker.buildSummary({
+              won,
+              wavesCompleted: state.totalWavesCompleted,
+              biomesVisited: state.biomesVisited,
+              goldEarned: state.gold,
+              runLevel: state.runLevel,
+            });
+          }
 
-        // Build run summary from stats tracker
-        const summary = runStatsTracker.buildSummary({
-          won,
-          wavesCompleted: state.totalWavesCompleted,
-          biomesVisited: state.biomesVisited,
-          goldEarned: state.gold,
-          runLevel: state.runLevel,
-        });
+          const teamMembers = state.team.map((member) => {
+            const champ = championDB.getById(member.championId);
+            const enhancementState = useEnhancementStore
+              .getState()
+              .getEnhancementState(member.championId);
+            const enhancementBonuses = champ
+              ? enhancementService.calculateStatBonuses(
+                  enhancementTreeProvider.getTreeForChampion(champ),
+                  enhancementState.unlockedNodes,
+                )
+              : undefined;
+            const maxHp = champ
+              ? calculateMaxHP(
+                  champ,
+                  member.level ?? 1,
+                  enhancementBonuses,
+                  state.inventory,
+                  member.championId,
+                  member.statBoosts,
+                  member.statMultiplier,
+                )
+              : 100;
+            return {
+              championId: member.championId,
+              level: member.level ?? 1,
+              currentHp: member.currentHp ?? maxHp,
+            };
+          });
 
-        // Award mastery candies before resetting
+          const dailyState = useDailyRunStore.getState();
+          snapshot = {
+            mode: state.mode,
+            runId: state.runId,
+            won,
+            runLevel: state.runLevel,
+            wavesCompleted: state.totalWavesCompleted,
+            biomesVisited: [...state.biomesVisited],
+            goldEarned: state.gold,
+            summary: cloneRunSummary(summary),
+            teamMembers,
+            startedAt: state.startedAt,
+            seed: state.seed,
+            runeIds: [...state.runeIds],
+            augmentIds: [...state.augmentIds],
+            daily:
+              state.mode === 'daily'
+                ? {
+                    dateKey: dailyState.dateKey,
+                    dailySeed: state.seed ?? dailyState.seed,
+                    itemCount: state.inventory.length,
+                    currentBiome: state.currentBiome,
+                    currentWave: state.currentWave,
+                    inventory: [...state.inventory],
+                    score: calculateDailyScore({
+                      totalWavesCompleted: state.totalWavesCompleted,
+                      runLevel: state.runLevel,
+                      gold: state.gold,
+                      inventory: state.inventory,
+                    }),
+                  }
+                : null,
+          } satisfies CompletedRunSnapshot;
+          set({ completedRunSnapshot: snapshot, serverProgression: null });
+        }
+
+        const { isAuthenticated, isGuest, user, player } = useAuthStore.getState();
+        // The Supabase user is the session identity. A player profile can be
+        // temporarily absent while its cache is refreshing.
+        const hasAuthenticatedAccount = user !== null;
+        const championIds = snapshot.teamMembers.map((member) => member.championId);
+
+        // Guest progression remains local. Authenticated progression is only
+        // applied after the authoritative database command succeeds.
         if (
-          shouldApplyRunRewards(state.rewardsApplied, championIds.length, state.totalWavesCompleted)
+          !hasAuthenticatedAccount &&
+          shouldApplyRunRewards(state.rewardsApplied, championIds.length, snapshot.wavesCompleted)
         ) {
           const masteryStore = useMasteryStore.getState();
           masteryStore.awardCandies(
             championIds,
-            state.totalWavesCompleted,
-            state.biomesVisited.length,
-            won,
+            snapshot.wavesCompleted,
+            snapshot.biomesVisited.length,
+            snapshot.won,
           );
           set({ rewardsApplied: true });
         }
 
         // Save run to database (if user is authenticated)
-        const { isAuthenticated, user, player } = useAuthStore.getState();
         logger.debug('[runStore.endRun] Checking save conditions:', {
           isAuthenticated,
+          isGuest,
           hasUser: !!user,
           hasPlayer: !!player,
-          hasRunStartTime: !!state.startedAt,
-          totalWavesCompleted: state.totalWavesCompleted,
-          runId: state.runId,
-          won,
+          hasRunStartTime: !!snapshot.startedAt,
+          totalWavesCompleted: snapshot.wavesCompleted,
+          runId: snapshot.runId,
+          won: snapshot.won,
         });
 
-        if (isAuthenticated && (!user || !player || !state.startedAt)) {
+        if (hasAuthenticatedAccount && !snapshot.startedAt) {
           set({
             isEnding: false,
             saveStatus: 'error',
@@ -190,59 +300,27 @@ export const useRunStore = create<RunStore>()(
           return false;
         }
 
-        if (isAuthenticated && user && player && state.startedAt) {
+        let serverProgression = state.serverProgression;
+        if (hasAuthenticatedAccount && snapshot.startedAt) {
           try {
-            // Get current HP for each team member from the store or default to max
-            const teamMembers = state.team.map((member) => {
-              const champ = championDB.getById(member.championId);
-              const enhancementState = useEnhancementStore
-                .getState()
-                .getEnhancementState(member.championId);
-              const enhancementBonuses = champ
-                ? enhancementService.calculateStatBonuses(
-                    enhancementTreeProvider.getTreeForChampion(champ),
-                    enhancementState.unlockedNodes,
-                  )
-                : undefined;
-              const maxHp = champ
-                ? calculateMaxHP(
-                    champ,
-                    member.level ?? 1,
-                    enhancementBonuses,
-                    state.inventory,
-                    member.championId,
-                    member.statBoosts,
-                    member.statMultiplier,
-                  )
-                : 100;
-              return {
-                championId: member.championId,
-                level: member.level ?? 1,
-                currentHp: member.currentHp ?? maxHp,
-                maxHp,
-              };
-            });
-
             const result = await saveRunToDatabase({
-              runId: state.runId,
-              won,
-              runLevel: state.runLevel,
-              wavesCompleted: state.totalWavesCompleted,
-              biomesVisited: state.biomesVisited,
-              goldEarned: state.gold,
-              summary,
-              teamMembers,
-              startedAt: state.startedAt,
-              seed: state.seed,
+              ...snapshot,
+              startedAt: snapshot.startedAt,
             });
-            if (!result.success) {
+            if (!result.success || !result.progression) {
               set({
                 isEnding: false,
                 saveStatus: 'error',
-                saveError: result.error ?? 'Run save failed',
+                saveError:
+                  result.error ??
+                  (result.success
+                    ? 'Run save returned no authoritative progression'
+                    : 'Run save failed'),
               });
               return false;
             }
+            serverProgression = result.progression;
+            set({ serverProgression });
           } catch (error) {
             logger.error('[runStore.endRun] Failed to save run to database:', error);
             set({
@@ -254,57 +332,90 @@ export const useRunStore = create<RunStore>()(
           }
         }
 
-        if (state.mode === 'daily') {
-          const dailyState = useDailyRunStore.getState();
-          const score = calculateDailyScore({
-            totalWavesCompleted: state.totalWavesCompleted,
-            runLevel: state.runLevel,
-            gold: state.gold,
-            inventory: state.inventory,
-          });
-
-          if (isAuthenticated && player) {
+        if (snapshot.mode === 'daily' && snapshot.daily) {
+          if (hasAuthenticatedAccount) {
             const repository = new SupabaseDailyRunRepository(supabase);
-            const result = await repository.submitDailyRun({
-              dailyDate: dailyState.dateKey,
-              dailySeed: state.seed ?? dailyState.seed,
-              won,
-              runLevel: state.runLevel,
-              wavesCompleted: state.totalWavesCompleted,
-              gold: state.gold,
-              itemCount: state.inventory.length,
-            });
-            if (result.error) {
+            let dailySaveError: Error | null = null;
+            try {
+              const result = await repository.submitDailyRun({
+                dailyDate: snapshot.daily.dateKey,
+                dailySeed: snapshot.daily.dailySeed,
+                won: snapshot.won,
+                runLevel: snapshot.runLevel,
+                wavesCompleted: snapshot.wavesCompleted,
+                gold: snapshot.goldEarned,
+                itemCount: snapshot.daily.itemCount,
+              });
+              dailySaveError = result.error;
+            } catch (error) {
+              dailySaveError =
+                error instanceof Error ? error : new Error('Daily score save failed');
+            }
+
+            // The insert may have committed even if its response was lost. On
+            // the duplicate retry, accept only the exact immutable daily result.
+            if (dailySaveError?.message.includes('daily_run_already_submitted')) {
+              let dailyPlayer = useAuthStore.getState().player;
+              if (!dailyPlayer) {
+                await useAuthStore.getState().refreshPlayer();
+                dailyPlayer = useAuthStore.getState().player;
+              }
+              if (dailyPlayer) {
+                try {
+                  const existing = await repository.getDailyRunForDate(
+                    dailyPlayer.id,
+                    snapshot.daily.dateKey,
+                  );
+                  if (
+                    existing.data &&
+                    !existing.error &&
+                    matchesDailySnapshot(existing.data, snapshot)
+                  ) {
+                    dailySaveError = null;
+                  }
+                } catch {
+                  // Keep the original duplicate error when verification fails.
+                }
+              }
+            }
+
+            if (dailySaveError) {
               set({
                 isEnding: false,
                 saveStatus: 'error',
-                saveError: `Daily score save failed: ${result.error.message}`,
+                saveError: `Daily score save failed: ${dailySaveError.message}`,
               });
               return false;
             }
           }
 
           useDailyRunStore.setState({
-            runLevel: state.runLevel,
-            biomesVisited: state.biomesVisited,
-            currentBiome: state.currentBiome,
-            inventory: state.inventory,
-            gold: state.gold,
-            currentWave: state.currentWave,
-            totalWavesCompleted: state.totalWavesCompleted,
-            score,
+            runLevel: snapshot.runLevel,
+            biomesVisited: snapshot.biomesVisited,
+            currentBiome: snapshot.daily.currentBiome,
+            inventory: snapshot.daily.inventory,
+            gold: snapshot.goldEarned,
+            currentWave: snapshot.daily.currentWave,
+            totalWavesCompleted: snapshot.wavesCompleted,
+            score: snapshot.daily.score,
           });
+          const refreshedPlayer = useAuthStore.getState().player;
           useDailyRunStore
             .getState()
             .completeDailyRun(
-              player?.display_name || player?.username || 'Guest',
-              !isAuthenticated,
+              refreshedPlayer?.display_name ||
+                refreshedPlayer?.username ||
+                user?.email?.split('@')[0] ||
+                'Guest',
+              !hasAuthenticatedAccount,
             );
         }
 
         set({
           ...RUN_INITIAL_STATE,
-          saveStatus: isAuthenticated ? 'success' : 'idle',
+          completedRunSnapshot: snapshot,
+          serverProgression,
+          saveStatus: hasAuthenticatedAccount ? 'success' : 'idle',
         });
         return true;
       },
@@ -680,9 +791,17 @@ export const useRunStore = create<RunStore>()(
         runId: state.runId,
         seed: state.seed,
         startedAt: state.startedAt,
-        saveStatus: state.saveStatus,
-        saveError: state.saveError,
+        // A page reload interrupts any in-flight promise. Persist it as a
+        // retryable error instead of leaving Game Over stuck on "saving".
+        saveStatus: state.saveStatus === 'saving' ? 'error' : state.saveStatus,
+        saveError:
+          state.saveStatus === 'saving'
+            ? 'Run save was interrupted. Retry to continue.'
+            : state.saveError,
+        completedRunSnapshot: state.completedRunSnapshot,
+        serverProgression: state.serverProgression,
         rewardsApplied: state.rewardsApplied,
+        completedCombatStats: state.completedCombatStats,
         nextItemInstanceId: state.nextItemInstanceId,
         team: state.team,
         runLevel: state.runLevel,

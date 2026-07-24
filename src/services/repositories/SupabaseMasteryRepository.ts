@@ -6,24 +6,25 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ChampionMastery, ChampionMasteryUpdate } from '@/types/models';
+import type { Database } from '@/types/database';
+import type { ChampionMastery, PlayerUnlock } from '@/types/models';
 import type { IMasteryRepository, IPlayerUnlockRepository } from '../interfaces/IMasteryRepository';
 
 export class SupabaseMasteryRepository implements IMasteryRepository {
-  private supabase: SupabaseClient;
+  private supabase: SupabaseClient<Database>;
 
-  constructor(supabase: SupabaseClient) {
+  constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase;
   }
 
   async getChampionMastery(
-    userId: string,
+    authUserId: string,
   ): Promise<{ data: ChampionMastery[] | null; error: Error | null }> {
-    // First, get the player id from the players table using user_id
+    // Resolve the auth account UUID to the public player UUID first.
     const { data: playerData, error: playerError } = await this.supabase
       .from('players')
       .select('id')
-      .eq('user_id', userId)
+      .eq('user_id', authUserId)
       .maybeSingle();
 
     if (playerError) {
@@ -73,45 +74,18 @@ export class SupabaseMasteryRepository implements IMasteryRepository {
 
     return { data: data as ChampionMastery, error: null };
   }
-
-  async upsertChampionMastery(
-    playerId: string,
-    championId: string,
-    updates: ChampionMasteryUpdate,
-  ): Promise<{ data: ChampionMastery | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('champion_mastery')
-      .upsert(
-        {
-          player_id: playerId,
-          champion_id: championId,
-          ...updates,
-        },
-        {
-          onConflict: 'player_id,champion_id',
-        },
-      )
-      .select()
-      .single();
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data: data as ChampionMastery, error: null };
-  }
 }
 
 export class SupabasePlayerUnlockRepository implements IPlayerUnlockRepository {
-  private supabase: SupabaseClient;
+  private supabase: SupabaseClient<Database>;
 
-  constructor(supabase: SupabaseClient) {
+  constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase;
   }
 
   async getPlayerUnlocks(
     playerId: string,
-  ): Promise<{ data: import('@/types/models').PlayerUnlock[] | null; error: Error | null }> {
+  ): Promise<{ data: PlayerUnlock[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('player_unlocks')
       .select('*')
@@ -121,33 +95,7 @@ export class SupabasePlayerUnlockRepository implements IPlayerUnlockRepository {
       return { data: null, error };
     }
 
-    return { data: data || [], error: null };
-  }
-
-  async addPlayerUnlock(
-    playerId: string,
-    unlockType: 'starter' | 'skin',
-    unlockId: string,
-    championId?: string,
-    skinId?: string,
-  ): Promise<{ data: import('@/types/models').PlayerUnlock | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('player_unlocks')
-      .insert({
-        player_id: playerId,
-        unlock_type: unlockType,
-        unlock_id: unlockId,
-        champion_id: championId,
-        skin_id: skinId,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data: data, error: null };
+    return { data: (data || []) as PlayerUnlock[], error: null };
   }
 
   async hasUnlock(

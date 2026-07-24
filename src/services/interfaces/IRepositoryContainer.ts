@@ -9,6 +9,8 @@
  * - Low-level modules (repositories) are registered here
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
 // Import all repository interfaces
 import type { IAuthRepository } from './IAuthRepository';
 import type { IDailyRunRepository, ILeaderboardRepository } from './IDailyRunRepository';
@@ -57,10 +59,14 @@ export interface IRepositoryContainer {
 export interface IRepositoryContainerFactory {
   /**
    * Create a new repository container
+   * @param supabase - Schema-aware Supabase client instance
    * @param options - Configuration options for the container
    * @returns A new repository container instance
    */
-  create(options?: RepositoryContainerOptions): IRepositoryContainer;
+  create(
+    supabase: SupabaseClient<Database>,
+    options?: RepositoryContainerOptions,
+  ): IRepositoryContainer;
 }
 
 /**
