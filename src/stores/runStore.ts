@@ -14,26 +14,26 @@ import {
   getSurvivingChampionIds,
   shouldApplyRunRewards,
 } from '@/game/run/runState';
+import { RepositoryContainerFactory } from '@/services/container';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import {
   appendRunAttemptCommands,
-  recoverVerifiedRunAttempt,
   RunVerificationRejectedError,
+  recoverVerifiedRunAttempt,
   sealRunAttempt,
   startRunAttempt,
   verifyRunAttempt,
 } from '@/services/runAttemptService';
-import { RepositoryContainerFactory } from '@/services/container';
 import { supabase } from '@/services/supabaseClient';
 import {
+  type CompletedRunSnapshot,
   type InventoryEntry,
   MAX_INVENTORY_ITEMS,
   MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
-  type CompletedRunSnapshot,
-  type RunSummary,
   type RunStore,
+  type RunSummary,
   type TeamMember,
 } from '@/types/run';
 import type {
