@@ -9,6 +9,7 @@
  */
 
 import { dbLogger } from './dbLogger';
+import { sanitizeLogValue } from './logSanitizer';
 
 /**
  * Creates a logging wrapper around any repository instance.
@@ -61,8 +62,6 @@ export function createLoggedRepository<T extends object>(repository: T, reposito
             operation: determineOperation(methodName, result),
             duration,
             details: extractLogDetails(methodName, args, result),
-            userId: extractUserId(args, result),
-            playerId: extractPlayerId(args, result),
           });
 
           return result;
@@ -206,81 +205,8 @@ function extractLogDetails(
 }
 
 /**
- * Validates if a string is a proper UUID format
- * UUID format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
- */
-function isValidUUID(str: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(str);
-}
-
-/**
- * Extracts user ID from arguments or result
- * Only returns proper UUIDs, not email addresses or other string formats
- */
-function extractUserId(args: unknown[], result: unknown): string | undefined {
-  const resultRecord = asRecord(result);
-  const user = asRecord(resultRecord?.user);
-  const session = asRecord(resultRecord?.session);
-  const sessionUser = asRecord(session?.user);
-  // Check result for user ID first (most reliable source)
-  if (typeof user?.id === 'string' && isValidUUID(user.id)) {
-    return user.id;
-  }
-  if (typeof sessionUser?.id === 'string' && isValidUUID(sessionUser.id)) {
-    return sessionUser.id;
-  }
-
-  // Check if any argument is a valid UUID (skip emails and other formats)
-  for (const arg of args) {
-    if (typeof arg === 'string' && isValidUUID(arg)) {
-      return arg;
-    }
-  }
-
-  return undefined;
-}
-
-/**
- * Extracts player ID from arguments or result
- * Only returns valid UUIDs, not arbitrary strings
- */
-function extractPlayerId(args: unknown[], result: unknown): string | undefined {
-  const resultRecord = asRecord(result);
-  const data = asRecord(resultRecord?.data);
-  // Check result for player ID first (most reliable source)
-  if (typeof data?.player_id === 'string' && isValidUUID(data.player_id)) {
-    return data.player_id;
-  }
-  if (typeof data?.id === 'string' && isValidUUID(data.id) && !data.email) {
-    return data.id;
-  }
-
-  // Check if any argument is a valid UUID (skip emails and other formats)
-  for (const arg of args) {
-    if (typeof arg === 'string' && isValidUUID(arg)) {
-      return arg;
-    }
-  }
-
-  return undefined;
-}
-
-/**
  * Sanitizes arguments for logging (removes sensitive data)
  */
 function sanitizeArgs(args: unknown[]): unknown[] {
-  return args.map((arg) => {
-    if (typeof arg === 'string' && arg.includes('@')) {
-      return '[EMAIL]';
-    }
-    if (typeof arg === 'object' && arg !== null) {
-      const sanitized = { ...(arg as Record<string, unknown>) };
-      // Remove potential passwords
-      delete sanitized.password;
-      delete sanitized.confirmPassword;
-      return sanitized;
-    }
-    return arg;
-  });
+  return sanitizeLogValue(args) as unknown[];
 }

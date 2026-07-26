@@ -83,6 +83,9 @@ révocation est urgente.
   de l'appelant et filtrent par la fonction admin.
 - Les politiques des runs, joueurs, maîtrises et logs n'accordent la lecture
   globale qu'aux admins.
+- Les clients n'insèrent jamais directement dans `logs`; la RPC attribue chaque
+  ligne à la session. Les diagnostics expirent après 14 jours et disparaissent
+  immédiatement avec le compte concerné.
 - Les exports CSV sont produits après une lecture déjà autorisée par la base.
 - Les migrations de durcissement doivent être appliquées avant d'activer le
   panneau sur un ancien projet Supabase.

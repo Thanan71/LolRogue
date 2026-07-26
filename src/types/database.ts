@@ -116,13 +116,6 @@ export type Database = {
             foreignKeyName: 'champion_mastery_player_id_fkey';
             columns: ['player_id'];
             isOneToOne: false;
-            referencedRelation: 'leaderboard';
-            referencedColumns: ['player_id'];
-          },
-          {
-            foreignKeyName: 'champion_mastery_player_id_fkey';
-            columns: ['player_id'];
-            isOneToOne: false;
             referencedRelation: 'players';
             referencedColumns: ['id'];
           },
@@ -257,13 +250,6 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'admin_player_stats';
             referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'daily_runs_player_id_fkey';
-            columns: ['player_id'];
-            isOneToOne: false;
-            referencedRelation: 'leaderboard';
-            referencedColumns: ['player_id'];
           },
           {
             foreignKeyName: 'daily_runs_player_id_fkey';
@@ -461,13 +447,6 @@ export type Database = {
             foreignKeyName: 'logs_player_id_fkey';
             columns: ['player_id'];
             isOneToOne: false;
-            referencedRelation: 'leaderboard';
-            referencedColumns: ['player_id'];
-          },
-          {
-            foreignKeyName: 'logs_player_id_fkey';
-            columns: ['player_id'];
-            isOneToOne: false;
             referencedRelation: 'players';
             referencedColumns: ['id'];
           },
@@ -508,13 +487,6 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'admin_player_stats';
             referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'player_unlocks_player_id_fkey';
-            columns: ['player_id'];
-            isOneToOne: false;
-            referencedRelation: 'leaderboard';
-            referencedColumns: ['player_id'];
           },
           {
             foreignKeyName: 'player_unlocks_player_id_fkey';
@@ -966,13 +938,6 @@ export type Database = {
             foreignKeyName: 'run_attempts_player_id_fkey';
             columns: ['player_id'];
             isOneToOne: false;
-            referencedRelation: 'leaderboard';
-            referencedColumns: ['player_id'];
-          },
-          {
-            foreignKeyName: 'run_attempts_player_id_fkey';
-            columns: ['player_id'];
-            isOneToOne: false;
             referencedRelation: 'players';
             referencedColumns: ['id'];
           },
@@ -1181,13 +1146,6 @@ export type Database = {
             foreignKeyName: 'runs_player_id_fkey';
             columns: ['player_id'];
             isOneToOne: false;
-            referencedRelation: 'leaderboard';
-            referencedColumns: ['player_id'];
-          },
-          {
-            foreignKeyName: 'runs_player_id_fkey';
-            columns: ['player_id'];
-            isOneToOne: false;
             referencedRelation: 'players';
             referencedColumns: ['id'];
           },
@@ -1279,42 +1237,13 @@ export type Database = {
       leaderboard: {
         Row: {
           avatar_url: string | null;
-          display_name: string | null;
-          last_login_at: string | null;
           level: number | null;
-          player_id: string | null;
-          total_candies: number | null;
+          player_name: string | null;
+          rank: number | null;
           total_runs_completed: number | null;
           total_waves_completed: number | null;
           total_wins: number | null;
-          username: string | null;
           win_rate: number | null;
-        };
-        Insert: {
-          avatar_url?: string | null;
-          display_name?: string | null;
-          last_login_at?: string | null;
-          level?: number | null;
-          player_id?: string | null;
-          total_candies?: number | null;
-          total_runs_completed?: number | null;
-          total_waves_completed?: number | null;
-          total_wins?: number | null;
-          username?: string | null;
-          win_rate?: never;
-        };
-        Update: {
-          avatar_url?: string | null;
-          display_name?: string | null;
-          last_login_at?: string | null;
-          level?: number | null;
-          player_id?: string | null;
-          total_candies?: number | null;
-          total_runs_completed?: number | null;
-          total_waves_completed?: number | null;
-          total_wins?: number | null;
-          username?: string | null;
-          win_rate?: never;
         };
         Relationships: [];
       };
@@ -1349,6 +1278,7 @@ export type Database = {
       daily_utc_expiration: { Args: { p_daily_date: string }; Returns: string };
       expire_stale_run_attempts: { Args: never; Returns: Json };
       get_daily_challenge: { Args: never; Returns: Json };
+      get_my_leaderboard_rank: { Args: never; Returns: number };
       get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       is_current_user_admin: { Args: never; Returns: boolean };
       mastery_current_level_candies: {
@@ -1370,6 +1300,7 @@ export type Database = {
         };
         Returns: number;
       };
+      purge_expired_logs: { Args: never; Returns: number };
       reject_run_verification: {
         Args: {
           p_attempt_id: string;
@@ -1377,6 +1308,14 @@ export type Database = {
           p_rejection_code: string;
         };
         Returns: Json;
+      };
+      sanitize_log_jsonb: {
+        Args: { p_depth?: number; p_value: Json };
+        Returns: Json;
+      };
+      sanitize_log_text: {
+        Args: { p_max_length: number; p_value: string };
+        Returns: string;
       };
       save_completed_run: {
         Args: {
@@ -1435,6 +1374,7 @@ export type Database = {
         };
         Returns: Json;
       };
+      submit_client_logs: { Args: { p_logs: Json }; Returns: number };
       touch_player_last_login: { Args: never; Returns: string };
       unlock_champion_enhancement:
         | {

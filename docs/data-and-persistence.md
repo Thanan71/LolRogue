@@ -16,6 +16,7 @@ persistance doit conserver cette séparation et mettre à jour les tests associ�
 | Daily run en cours | `dailyRunStore` et `runStore` | attempt serveur avec seed UTC | `lolrogue-daily-run` | même journal vérifié qu'une run normale |
 | Classement daily | store après lecture | vue sanitisée `daily_leaderboard` issue des runs vérifiées | `lolrogue-daily-leaderboard` | trigger serveur après replay autoritaire |
 | Leaderboard normal | écran après lecture | vue `leaderboard` dérivée de `runs` | lecture éventuelle seulement | aucune écriture directe |
+| Diagnostics client | buffer mémoire borné | `logs`, 14 jours maximum | désactivés | RPC `submit_client_logs` authentifiée |
 | Réglages audio/UI | stores dédiés | aucune | `localStorage` | stores client |
 | Catalogue de jeu | imports TypeScript/JSON | fichiers versionnés dans `src/data` et `public/lol/data` | identique | scripts d'assets ou code |
 
@@ -96,7 +97,13 @@ pas modifier rétroactivement les règles d'un attempt déjà ouvert.
 ## Classements
 
 Le leaderboard normal est une vue calculée à partir des runs enregistrés; il n'est
-jamais écrit par le navigateur. Pour un compte connecté, `get_daily_challenge`
+jamais écrit par le navigateur. Son contrat public se limite à `rank`,
+`player_name`, `avatar_url`, `level`, `total_wins`, `total_runs_completed`,
+`win_rate` et `total_waves_completed`. Il n'expose aucun identifiant interne,
+login, solde de candies ou date de connexion. Le rang du compte courant est lu par
+`get_my_leaderboard_rank` sans télécharger les identifiants des autres joueurs.
+
+Pour un compte connecté, `get_daily_challenge`
 expose la date et l'expiration UTC, la seed, la difficulté, les six starters et les
 versions de ruleset et de score. `start_daily_run_attempt` crée la seule tentative
 officielle du joueur pour cette date et le trigger de départ recalcule toujours ces
@@ -128,10 +135,13 @@ publiques ont la RLS activée :
 - la fonction `verify-run` est la seule à utiliser le `service_role` pour réclamer
   puis finaliser un journal scellé ;
 - les vues admin vérifient `is_current_user_admin()` ;
+- l'écriture directe de `logs` est révoquée : `submit_client_logs` déduit
+  `user_id` et `player_id` de la session et ignore les identités déclarées ;
 - la clé anonyme est publique et dépend entièrement des politiques RLS ;
 - seule la clé service-role peut contourner ces règles, et elle reste côté CI ou
   runtime Supabase, jamais dans le bundle Vite.
 
 Le schéma SQL et les tests `database.test.ts`,
-`verifiedRunAttempts.database.test.ts`, `authoritativeDaily.database.test.ts` et
-`authorityRunEngine.test.ts` font autorité si ce document diverge.
+`verifiedRunAttempts.database.test.ts`, `authoritativeDaily.database.test.ts`,
+`logSecurity.database.test.ts` et `authorityRunEngine.test.ts` font autorité si
+ce document diverge.

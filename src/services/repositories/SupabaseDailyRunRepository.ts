@@ -165,19 +165,8 @@ export class SupabaseLeaderboardRepository implements ILeaderboardRepository {
     return { data: data || [], error: null };
   }
 
-  async getPlayerRank(playerId: string): Promise<number | null> {
-    // Get all players ordered by wins and find the position of this player
-    const { data: allPlayers, error } = await this.supabase
-      .from('leaderboard')
-      .select('player_id')
-      .order('total_wins', { ascending: false })
-      .order('total_waves_completed', { ascending: false });
-
-    if (error || !allPlayers) {
-      return null;
-    }
-
-    const rank = allPlayers.findIndex((player) => player.player_id === playerId) + 1;
-    return rank > 0 ? rank : null;
+  async getPlayerRank(): Promise<number | null> {
+    const { data, error } = await this.supabase.rpc('get_my_leaderboard_rank');
+    return error || !Number.isSafeInteger(data) ? null : data;
   }
 }

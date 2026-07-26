@@ -27,6 +27,7 @@ supabase/migrations/20260723090000_server_authoritative_progression.sql
 supabase/migrations/20260724090000_verified_run_attempts.sql
 supabase/migrations/20260724190000_harden_verified_attempt_contract.sql
 supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql
+supabase/migrations/20260726180000_minimize_public_data_and_harden_logs.sql
 ```
 
 ## Fresh local database
@@ -116,3 +117,8 @@ VITE_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY
 
 `SUPABASE_SERVICE_ROLE_KEY` is only used by live database tests. Never expose
 it through a variable prefixed with `VITE_`.
+
+Database diagnostics are disabled by default. Set
+`VITE_ENABLE_DB_LOGGING=true` only when authenticated client telemetry is
+explicitly required; the server enforces attribution, quotas, sanitation and
+14-day retention.

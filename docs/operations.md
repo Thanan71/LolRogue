@@ -45,6 +45,11 @@ supprime aussi `submit_daily_run`. Le client compatible doit utiliser
 mais seules celles liées à une run vérifiée apparaissent dans le classement
 officiel.
 
+La migration `20260726180000_minimize_public_data_and_harden_logs.sql` remplace
+également le contrat du leaderboard normal. Déployer migration et client ensemble :
+l'ancien client qui attend `player_id` ne peut plus calculer le rang localement et
+doit appeler `get_my_leaderboard_rank`.
+
 `vercel.json` réécrit toutes les routes vers `index.html`, ce qui permet d'ouvrir
 directement `/auth`, `/run` ou `/admin`. Il définit également CSP, protection
 anti-frame, politique de permissions, referrer policy et `nosniff`. Toute nouvelle
@@ -70,6 +75,11 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
   consommée sans publication dans le leaderboard ;
 - vérifier qu'un non-admin ne peut ni lire ni insérer directement dans
   `daily_runs` ;
+- lire `leaderboard` avec la clé anonyme et confirmer l'absence d'identifiants,
+  candies et dates de connexion ;
+- si les diagnostics sont activés, confirmer qu'un `INSERT` direct dans `logs`
+  échoue, qu'une soumission RPC reçoit l'identité de la session et que le job de
+  purge est actif ;
 - contrôler le profil, la maîtrise et les classements ;
 - vérifier qu'un non-admin reçoit un refus sur les lectures admin ;
 - examiner la console et l'onglet réseau : aucun asset 404, aucune erreur CSP et
@@ -100,9 +110,29 @@ Ne pas réinitialiser la base de production pour revenir en arrière.
 ## Observabilité et confidentialité
 
 Analytics et Speed Insights sont désactivés tant qu'une politique de confidentialité
-et une base légale ne sont pas définies. Les logs applicatifs Supabase peuvent
-contenir des identifiants techniques et des erreurs : limiter leur accès, leur
-durée de conservation et ne jamais y envoyer de secret, mot de passe ou token.
+et une base légale ne sont pas définies. Le logging applicatif en base est lui aussi
+désactivé par défaut. Pour l'activer explicitement :
+
+```env
+VITE_ENABLE_DB_LOGGING=true
+VITE_DB_LOG_LEVEL=warn
+```
+
+Le navigateur conserve au plus 100 entrées en attente, envoie des lots de 10
+maximum et ne retente que deux fois une erreur réseau temporaire. La RPC refuse
+les clients anonymes et les écritures directes, impose l'identité de la session,
+sanitise récursivement messages, stack et metadata, puis applique :
+
+- 30 lignes par minute et 500 par période de 24 heures et par utilisateur ;
+- 1 000 lignes globales par minute ;
+- 64 Kio par lot, 32 Kio de metadata avant sanitation et 8 Kio après ;
+- 2 000 lignes maximum par utilisateur et une rétention de 14 jours.
+
+Le job PostgreSQL `lolrogue-purge-expired-client-logs` exécute la purge chaque
+jour à 03:17 UTC ; une soumission déclenche aussi une purge opportuniste. Les logs
+d'un compte sont supprimés avec celui-ci. Les valeurs sensibles sont filtrées
+côté client puis à nouveau côté serveur, mais il faut toujours éviter d'y envoyer
+un secret, mot de passe, token ou donnée personnelle.
 
 Pour un incident :
 

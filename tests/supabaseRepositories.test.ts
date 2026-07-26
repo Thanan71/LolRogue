@@ -9,7 +9,10 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
+import {
+  SupabaseDailyRunRepository,
+  SupabaseLeaderboardRepository,
+} from '@/services/repositories/SupabaseDailyRunRepository';
 import { SupabaseEnhancementRepository } from '@/services/repositories/SupabaseEnhancementRepository';
 import {
   SupabaseMasteryRepository,
@@ -29,6 +32,7 @@ function createMockQueryChain() {
     eq: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
+    range: vi.fn(),
     not: vi.fn().mockReturnThis(),
     single: vi.fn(),
     maybeSingle: vi.fn(),
@@ -127,6 +131,39 @@ describe('SupabaseDailyRunRepository', () => {
       ],
       error: null,
     });
+  });
+});
+
+describe('SupabaseLeaderboardRepository', () => {
+  it('reads the minimal public view and resolves only the caller rank through RPC', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    queryChain.range.mockResolvedValue({
+      data: [
+        {
+          rank: 1,
+          player_name: 'Public Player',
+          avatar_url: null,
+          level: 3,
+          total_wins: 2,
+          total_runs_completed: 4,
+          win_rate: 50,
+          total_waves_completed: 12,
+        },
+      ],
+      error: null,
+    });
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({ data: 7, error: null } as never);
+    const repository = new SupabaseLeaderboardRepository(mockSupabase);
+
+    const leaderboard = await repository.getLeaderboard();
+    const rank = await repository.getPlayerRank();
+
+    expect(mockSupabase.from).toHaveBeenCalledWith('leaderboard');
+    expect(queryChain.select).toHaveBeenCalledWith('*');
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('get_my_leaderboard_rank');
+    expect(leaderboard.data?.[0]).not.toHaveProperty('player_id');
+    expect(leaderboard.data?.[0]).not.toHaveProperty('last_login_at');
+    expect(rank).toBe(7);
   });
 });
 

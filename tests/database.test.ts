@@ -61,6 +61,13 @@ const authoritativeDailySql = readFileSync(
   ),
   'utf8',
 );
+const hardenedPublicDataSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260726180000_minimize_public_data_and_harden_logs.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -138,6 +145,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260724090000_verified_run_attempts.sql',
       '../supabase/migrations/20260724190000_harden_verified_attempt_contract.sql',
       '../supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql',
+      '../supabase/migrations/20260726180000_minimize_public_data_and_harden_logs.sql',
     ]);
   });
 
@@ -287,6 +295,31 @@ describe('Supabase existing database upgrade', () => {
     expect(authoritativeDailySql).toContain('DROP FUNCTION public.submit_daily_run');
     expect(authoritativeDailySql).toContain('REVOKE ALL ON TABLE public.daily_runs');
     expect(authoritativeDailySql).not.toMatch(/\bDELETE\s+FROM\b/i);
+  });
+
+  it('minimizes public leaderboard data and hardens client diagnostics', () => {
+    const leaderboardSql = hardenedPublicDataSql.slice(
+      hardenedPublicDataSql.indexOf('CREATE VIEW public.leaderboard'),
+      hardenedPublicDataSql.indexOf('CREATE FUNCTION public.get_my_leaderboard_rank'),
+    );
+
+    expect(leaderboardSql).toContain('player_name');
+    expect(leaderboardSql).toContain('total_wins');
+    expect(leaderboardSql).not.toContain('last_login_at');
+    expect(leaderboardSql).not.toContain('total_candies');
+    expect(leaderboardSql).not.toContain('player_id');
+    expect(leaderboardSql).not.toContain('user_id');
+    expect(hardenedPublicDataSql).toContain('v_user_id UUID := (SELECT auth.uid())');
+    expect(hardenedPublicDataSql).toContain('REVOKE INSERT ON TABLE public.logs');
+    expect(hardenedPublicDataSql).toContain('CREATE FUNCTION public.submit_client_logs');
+    expect(hardenedPublicDataSql).toContain('v_recent_minute + v_batch_size > 30');
+    expect(hardenedPublicDataSql).toContain('OCTET_LENGTH(p_logs::TEXT) > 65536');
+    expect(hardenedPublicDataSql).toContain('public.sanitize_log_jsonb');
+    expect(hardenedPublicDataSql).toContain("INTERVAL '14 days'");
+    expect(hardenedPublicDataSql).toContain("'lolrogue-purge-expired-client-logs'");
+    expect(hardenedPublicDataSql).toContain('OFFSET 2000');
+    expect(hardenedPublicDataSql).toContain('v_user_id,');
+    expect(hardenedPublicDataSql).toContain('v_player_id,');
   });
 
   it('increments mastery and spends enhancement candies atomically', () => {

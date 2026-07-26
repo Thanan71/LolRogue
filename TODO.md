@@ -198,19 +198,24 @@ nouvelle alerte et l'expiration de l'unique exception RSC.
 
 ### P0-SEC-04 — Réduire les données publiques et durcir les logs
 
+**État au 26 juillet 2026 : fermé.** Les deux vues de classement exposent un
+contrat public minimal. Les diagnostics client passent par une RPC qui impose
+`auth.uid()`, sanitize à nouveau le contenu, applique les quotas et conserve les
+lignes quatorze jours au maximum. Le logger navigateur est opt-in et borné.
+
 **Constat :** la vue leaderboard publique expose notamment `last_login_at` et les
 candies. Un utilisateur peut insérer certains logs sans `user_id`, la sanitation des
 détails est superficielle et aucune rétention serveur n'est définie.
 
-- [ ] Définir le contrat public minimal des leaderboards et supprimer toute donnée
+- [x] Définir le contrat public minimal des leaderboards et supprimer toute donnée
   non nécessaire, notamment la dernière connexion.
-- [ ] Forcer l'identité d'un log à `auth.uid()` côté serveur ; ne jamais accepter
+- [x] Forcer l'identité d'un log à `auth.uid()` côté serveur ; ne jamais accepter
   l'identité déclarée par le payload.
-- [ ] Ajouter quotas/rate limiting, taille maximale et politique de rétention.
-- [ ] Sanitize récursivement messages, stack et metadata avant envoi.
-- [ ] Borner le retry des logs et éviter toute réinsertion infinie du même lot.
-- [ ] Désactiver le logging DB par défaut dans l'exemple d'environnement.
-- [ ] Tester spam, payload volumineux, secrets imbriqués et usurpation d'identité.
+- [x] Ajouter quotas/rate limiting, taille maximale et politique de rétention.
+- [x] Sanitize récursivement messages, stack et metadata avant envoi.
+- [x] Borner le retry des logs et éviter toute réinsertion infinie du même lot.
+- [x] Désactiver le logging DB par défaut dans l'exemple d'environnement.
+- [x] Tester spam, payload volumineux, secrets imbriqués et usurpation d'identité.
 
 **Acceptation :** seules les données nécessaires sont publiques et un client ne peut
 ni usurper/anonymiser son identité de log, ni saturer durablement la table.

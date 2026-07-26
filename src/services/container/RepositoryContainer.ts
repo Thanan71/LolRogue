@@ -215,9 +215,7 @@ export class RepositoryContainerFactory {
   ): IRepositoryContainer {
     // Use default options if not provided
     const finalOptions: RepositoryContainerOptions = {
-      enableLogging:
-        options.enableLogging ??
-        (import.meta.env.DEV || import.meta.env.VITE_ENABLE_DB_LOGGING === 'true'),
+      enableLogging: options.enableLogging ?? import.meta.env.VITE_ENABLE_DB_LOGGING === 'true',
       enableCaching: options.enableCaching ?? false,
       cacheTTL: options.cacheTTL ?? 60000, // 1 minute default
       ...options,

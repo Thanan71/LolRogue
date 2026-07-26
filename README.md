@@ -33,14 +33,18 @@ VITE_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 VITE_PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
-Seules ces deux valeurs publiques peuvent être préfixées par `VITE_`. La clé
-`SUPABASE_SERVICE_ROLE_KEY` contourne les RLS : elle est réservée aux tests
-d'intégration et ne doit jamais être placée dans le bundle ou dans Vercel côté
-client.
+Seules les valeurs explicitement destinées au navigateur peuvent être préfixées
+par `VITE_`. La clé `SUPABASE_SERVICE_ROLE_KEY` contourne les RLS : elle est
+réservée aux tests d'intégration et ne doit jamais être placée dans le bundle ou
+dans Vercel côté client.
 
 Sans configuration Supabase valide, l'application reste utilisable en mode invité.
 L'état de la partie, la maîtrise et les réglages sont alors conservés dans le
 `localStorage` du navigateur. Effacer les données du site les supprime.
+
+Les diagnostics applicatifs en base sont désactivés par défaut. Leur activation
+est un opt-in via `VITE_ENABLE_DB_LOGGING=true`; ils sont alors attribués par le
+serveur, limités, sanitisés et supprimés après 14 jours.
 
 ## Supabase local et migrations
 

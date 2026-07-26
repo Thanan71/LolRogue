@@ -30,8 +30,6 @@ export interface ILeaderboardRepository {
     offset?: number,
   ): Promise<{ data: Tables<'leaderboard'>[] | null; error: Error | null }>;
 
-  /**
-   * Get a player's rank
-   */
-  getPlayerRank(playerId: string): Promise<number | null>;
+  /** Get the authenticated player's rank without exposing player identifiers. */
+  getPlayerRank(): Promise<number | null>;
 }

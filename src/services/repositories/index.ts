@@ -55,7 +55,7 @@ import { SupabaseRunRepository, SupabaseRunStatsRepository } from './SupabaseRun
  */
 export function createRepositories(
   supabase: SupabaseClient<Database>,
-  enableLogging: boolean = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DB_LOGGING === 'true',
+  enableLogging: boolean = import.meta.env.VITE_ENABLE_DB_LOGGING === 'true',
 ) {
   // Create base repositories
   const repositories = {
