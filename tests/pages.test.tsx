@@ -48,6 +48,7 @@ function completedSnapshot(summary: RunSummary, championIds: string[]): Complete
       championId,
       level: 1,
       currentHp: 100,
+      currentMp: 100,
     })),
     startedAt: '2026-07-23T12:00:00.000Z',
     seed: 42,
@@ -174,6 +175,29 @@ describe('P2 page smoke tests', () => {
     expect(screen.getByText('8')).toBeInTheDocument();
   });
 
+  it('restores Game Over from the persisted snapshot without router state', () => {
+    const summary: RunSummary = {
+      won: true,
+      runLevel: 4,
+      wavesCompleted: 12,
+      biomesVisited: ['top_lane', 'jungle'],
+      goldEarned: 320,
+      totalKills: 9,
+      totalDamage: 2400,
+      championStats: [],
+    };
+    useRunStore.setState({
+      saveStatus: 'saved',
+      completedRunSnapshot: completedSnapshot(summary, ['Garen']),
+    });
+
+    renderAt(<GameOverPage />, '/game-over');
+
+    expect(screen.getByRole('heading', { name: 'Victory!' })).toBeInTheDocument();
+    expect(screen.getByText('12')).toBeInTheDocument();
+    expect(screen.getByText('Run saved.')).toBeInTheDocument();
+  });
+
   it('uses canonical server rewards and the snapshot team for an authenticated run', () => {
     const summary: RunSummary = {
       won: true,
@@ -199,7 +223,7 @@ describe('P2 page smoke tests', () => {
       isGuest: false,
     });
     useRunStore.setState({
-      saveStatus: 'success',
+      saveStatus: 'saved',
       completedRunSnapshot: completedSnapshot(summary, ['Garen', 'Lux']),
       serverProgression: {
         runId: 'database-run',
@@ -285,7 +309,7 @@ describe('P2 page smoke tests', () => {
     useRunStore.setState({
       isActive: true,
       runId: 'completed-run',
-      saveStatus: 'error',
+      saveStatus: 'failed',
       saveError: 'network unavailable',
       saveFailureKind: 'retryable',
       completedRunSnapshot: completedSnapshot(summary, ['Garen']),
@@ -321,7 +345,7 @@ describe('P2 page smoke tests', () => {
     });
     useRunStore.setState({
       isActive: false,
-      saveStatus: 'error',
+      saveStatus: 'failed',
       saveError: 'illegal trace',
       saveFailureKind: 'terminal',
       completedRunSnapshot: completedSnapshot(summary, ['Garen']),

@@ -50,6 +50,13 @@ La migration `20260726180000_minimize_public_data_and_harden_logs.sql` remplace
 l'ancien client qui attend `player_id` ne peut plus calculer le rang localement et
 doit appeler `get_my_leaderboard_rank`.
 
+La migration `20260726210000_atomic_run_finalization.sql` supprime l'ancien RPC
+`save_run_loadout`. Vérifier avant déploiement que le client publié utilise
+uniquement la finalisation autoritaire. Une run dont la vérification dépasse
+15 secondes reste localement en échec retryable : ne pas effacer le stockage du
+navigateur avant que l'utilisateur ait relancé la vérification ou que le statut
+serveur soit récupéré.
+
 `vercel.json` réécrit toutes les routes vers `index.html`, ce qui permet d'ouvrir
 directement `/auth`, `/run` ou `/admin`. Il définit également CSP, protection
 anti-frame, politique de permissions, referrer policy et `nosniff`. Toute nouvelle
@@ -65,6 +72,10 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 - terminer une run connectée et vérifier un statut `verified`, une seule ligne
   `runs` avec `progression_source = 'verified'`, puis rejouer la requête de
   vérification pour confirmer l'absence de doublon ;
+- terminer une victoire et une défaite, recharger directement `/game-over` et
+  confirmer que le même résumé réapparaît depuis le snapshot local ;
+- simuler une coupure réseau pendant la fin, confirmer l'état `failed`, puis
+  relancer et observer `retrying → saved` sans seconde run ni double récompense ;
 - soumettre une trace impossible sur un compte de test et confirmer le statut
   `rejected` sans candies, maîtrise ni compteur supplémentaire ;
 - ouvrir le daily avec deux comptes et confirmer la même date UTC, la même seed,

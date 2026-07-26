@@ -28,6 +28,7 @@ const ATTEMPT_STATUSES: readonly RunAttemptStatus[] = [
 ];
 const DIFFICULTIES: readonly AuthorityDifficulty[] = ['easy', 'normal', 'hard'];
 const MODES: readonly AuthorityRunMode[] = ['normal', 'daily'];
+export const RUN_FINALIZATION_REQUEST_TIMEOUT_MS = 15_000;
 const STARTER_RUNE_IDS = new Set([
   'press_the_attack',
   'electrocute',
@@ -102,6 +103,23 @@ function normalizeRpcError(error: unknown): Error {
     return new Error(parts.join(' | ') || JSON.stringify(rpcError));
   }
   return new Error(String(error));
+}
+
+async function withRunRequestTimeout<T>(operation: PromiseLike<T>, label: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      Promise.resolve(operation),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error(`${label} timed out; the run remains retryable.`)),
+          RUN_FINALIZATION_REQUEST_TIMEOUT_MS,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
 }
 
 function parseEnhancementSnapshot(value: unknown): RunEnhancementSnapshot | null {
@@ -289,7 +307,10 @@ async function callAttemptRpc(
   args: Record<string, unknown>,
 ): Promise<{ data: unknown; error: Error | null }> {
   try {
-    const { data, error } = await supabase.rpc(name as never, args as never);
+    const { data, error } = await withRunRequestTimeout(
+      supabase.rpc(name as never, args as never),
+      name,
+    );
     return { data, error: error ? normalizeRpcError(error) : null };
   } catch (error) {
     return {
@@ -539,9 +560,12 @@ export async function verifyRunAttempt(
   attemptId: string,
 ): Promise<{ data: VerifyRunAttemptResult | null; error: Error | null }> {
   try {
-    const { data, error } = await supabase.functions.invoke('verify-run', {
-      body: { attempt_id: attemptId },
-    });
+    const { data, error } = await withRunRequestTimeout(
+      supabase.functions.invoke('verify-run', {
+        body: { attempt_id: attemptId },
+      }),
+      'verify-run',
+    );
     if (error) {
       const terminalError = await parseFunctionTerminalError(error);
       return { data: null, error: terminalError ?? error };

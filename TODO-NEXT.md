@@ -42,10 +42,10 @@ Le Daily ne doit pas introduire un deuxième système d'autorité. Toute Daily a
 Le constat historique sur le timeout annulé au démontage de `CombatPage` doit être réévalué : la finalisation est désormais déclenchée immédiatement via `endRun` lors de la victoire/défaite.
 
 - [x] Ne plus dépendre d'un timeout annulable par le démontage de `CombatPage` pour démarrer la finalisation.
-- [ ] Vérifier que toute navigation immédiate après victoire/défaite conserve une finalisation retryable et observable.
-- [ ] Vérifier le comportement après refresh pendant `saving`, après perte réseau et après réponse serveur perdue.
-- [ ] Vérifier que `/game-over` peut restaurer un résultat durable sans dépendre uniquement du state React Router.
-- [ ] Confirmer qu'aucun chemin de fin ne peut récompenser deux fois ou abandonner silencieusement une sauvegarde.
+- [x] Vérifier que toute navigation immédiate après victoire/défaite conserve une finalisation retryable et observable.
+- [x] Vérifier le comportement après refresh pendant `saving`, après perte réseau et après réponse serveur perdue.
+- [x] Vérifier que `/game-over` peut restaurer un résultat durable sans dépendre uniquement du state React Router.
+- [x] Confirmer qu'aucun chemin de fin ne peut récompenser deux fois ou abandonner silencieusement une sauvegarde.
 
 **Acceptation :** le ticket P0-RUN-01 ne conserve comme cases ouvertes que des bugs encore reproductibles sur le code actuel.
 

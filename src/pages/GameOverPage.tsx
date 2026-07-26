@@ -44,8 +44,8 @@ export function GameOverPage() {
   }, [completedRunSnapshot, hasAuthenticatedAccount, serverProgression, summary]);
 
   useEffect(() => {
-    playSFX('defeat');
-  }, []);
+    playSFX(summary?.won ? 'victory' : 'defeat');
+  }, [summary?.won]);
 
   function handleNewRun() {
     playUIClick();
@@ -72,7 +72,8 @@ export function GameOverPage() {
   const totalKills = summary?.totalKills ?? 0;
   const totalDamage = summary?.totalDamage ?? 0;
   const goldEarned = summary?.goldEarned ?? 0;
-  const isRetryableSaveError = saveStatus === 'error' && saveFailureKind !== 'terminal';
+  const isBusy = saveStatus === 'saving' || saveStatus === 'retrying';
+  const isRetryableSaveError = saveStatus === 'failed' && saveFailureKind !== 'terminal';
 
   return (
     <div style={containerStyle}>
@@ -84,17 +85,17 @@ export function GameOverPage() {
           Your run has come to an end.
         </p>
 
-        {saveStatus === 'saving' && (
+        {isBusy && (
           <p role="status" style={savingStyle}>
-            Saving your run…
+            {saveStatus === 'retrying' ? 'Retrying run verification…' : 'Saving your run…'}
           </p>
         )}
-        {saveStatus === 'success' && (
+        {saveStatus === 'saved' && (
           <p role="status" style={successStyle}>
-            Run verified and progression saved.
+            {serverProgression ? 'Run verified and progression saved.' : 'Run saved.'}
           </p>
         )}
-        {saveStatus === 'error' && (
+        {saveStatus === 'failed' && (
           <div role="alert" style={errorStyle}>
             <div>
               {saveFailureKind === 'terminal'
@@ -192,14 +193,14 @@ export function GameOverPage() {
           <button
             style={primaryBtnStyle}
             onClick={handleNewRun}
-            disabled={saveStatus === 'saving' || isRetryableSaveError}
+            disabled={isBusy || isRetryableSaveError}
           >
             New Run
           </button>
           <button
             style={secondaryBtnStyle}
             onClick={handleMenu}
-            disabled={saveStatus === 'saving' || isRetryableSaveError}
+            disabled={isBusy || isRetryableSaveError}
           >
             Main Menu
           </button>

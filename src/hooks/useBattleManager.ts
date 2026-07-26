@@ -5,6 +5,7 @@ import { BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/battleStore';
+import type { FinalCombatantState } from '@/types/run';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -61,6 +62,23 @@ function syncTeams(bm: BattleManager): void {
       toCombatantInfo(c.champion, 'enemy', c.currentHp, c.maxHp, c.currentMp, c.isDefeated),
     );
   store.setTeams(player, enemy);
+}
+
+function getFinalCombatantStates(bm: BattleManager): FinalCombatantState[] {
+  const resources = new Map(
+    bm
+      .getPlayerCombatants()
+      .map((combatant) => [
+        combatant.champion.id,
+        { currentMp: combatant.currentMp, maxMp: combatant.maxMp },
+      ]),
+  );
+
+  return bm.getFinalPlayerStates().map((state) => ({
+    ...state,
+    currentMp: resources.get(state.championId)?.currentMp ?? 0,
+    maxMp: resources.get(state.championId)?.maxMp ?? 0,
+  }));
 }
 
 function getActionLabel(action: string): string {
@@ -158,7 +176,7 @@ interface UseBattleManagerOptions {
   autoPlay?: boolean;
   onComplete?: (
     winner: 'player' | 'enemy' | 'draw',
-    finalPlayerStates: { championId: string; currentHp: number; maxHp: number }[],
+    finalPlayerStates: FinalCombatantState[],
   ) => void;
   /** Map of championId -> initial HP for persisting HP between combats. */
   initialHpOverrides?: Record<string, number>;
@@ -247,7 +265,8 @@ export function useBattleManager({
       const winner = currentState.winner;
       // Capture from this BattleManager instance before any route transition can
       // unmount/remount combat and reset the global battle store.
-      const finalPlayerStates = bmRef.current?.getFinalPlayerStates() ?? [];
+      const manager = bmRef.current;
+      const finalPlayerStates = manager ? getFinalCombatantStates(manager) : [];
       onCompleteRef.current(winner, finalPlayerStates);
     }
   }, [store.phase, store.winner]);
@@ -279,11 +298,11 @@ export function useBattleManager({
     processTurn,
     submitAction,
     getAvailableActions,
-    /** Get final HP state for player champions after battle. */
+    /** Get final HP and mana state for player champions after battle. */
     getFinalPlayerStates: () => {
       const bm = bmRef.current;
       if (!bm) return [];
-      return bm.getFinalPlayerStates();
+      return getFinalCombatantStates(bm);
     },
     /** Safe accessor — returns current BattleManager or null. Always call this
      *  inside event handlers/callbacks; never store the value in a local var

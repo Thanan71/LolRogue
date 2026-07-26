@@ -54,6 +54,10 @@ const authoritativeProgressionSql = readFileSync(
   ),
   'utf8',
 );
+const verifiedRunAttemptsSql = readFileSync(
+  new URL('../supabase/migrations/20260724090000_verified_run_attempts.sql', import.meta.url),
+  'utf8',
+);
 const authoritativeDailySql = readFileSync(
   new URL(
     '../supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql',
@@ -66,6 +70,10 @@ const hardenedPublicDataSql = readFileSync(
     '../supabase/migrations/20260726180000_minimize_public_data_and_harden_logs.sql',
     import.meta.url,
   ),
+  'utf8',
+);
+const atomicRunFinalizationSql = readFileSync(
+  new URL('../supabase/migrations/20260726210000_atomic_run_finalization.sql', import.meta.url),
   'utf8',
 );
 
@@ -146,6 +154,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260724190000_harden_verified_attempt_contract.sql',
       '../supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql',
       '../supabase/migrations/20260726180000_minimize_public_data_and_harden_logs.sql',
+      '../supabase/migrations/20260726210000_atomic_run_finalization.sql',
     ]);
   });
 
@@ -320,6 +329,29 @@ describe('Supabase existing database upgrade', () => {
     expect(hardenedPublicDataSql).toContain('OFFSET 2000');
     expect(hardenedPublicDataSql).toContain('v_user_id,');
     expect(hardenedPublicDataSql).toContain('v_player_id,');
+  });
+
+  it('persists terminal resources in the verified run transaction', () => {
+    expect(atomicRunFinalizationSql).toContain(
+      'DROP FUNCTION public.save_run_loadout(TEXT, TEXT[], TEXT[])',
+    );
+    expect(atomicRunFinalizationSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
+
+    const completionStart = verifiedRunAttemptsSql.indexOf(
+      'CREATE FUNCTION public.complete_run_verification(',
+    );
+    const completionEnd = verifiedRunAttemptsSql.indexOf(
+      'REVOKE ALL ON FUNCTION public.complete_run_verification',
+      completionStart,
+    );
+    const completionBody = verifiedRunAttemptsSql.slice(completionStart, completionEnd);
+    expect(completionBody).toContain('INSERT INTO public.runs');
+    expect(completionBody).toContain('v_attempt.rune_ids');
+    expect(completionBody).toContain('v_augments');
+    expect(completionBody).toContain('INSERT INTO public.run_team_members');
+    expect(completionBody).toContain('items_collected');
+    expect(completionBody).toContain('UPDATE public.players');
+    expect(completionBody).toContain('INSERT INTO public.champion_mastery');
   });
 
   it('increments mastery and spends enhancement candies atomically', () => {

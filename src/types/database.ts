@@ -1344,14 +1344,6 @@ export type Database = {
         };
         Returns: Json;
       };
-      save_run_loadout: {
-        Args: {
-          p_augment_ids: string[];
-          p_run_uuid: string;
-          p_rune_ids: string[];
-        };
-        Returns: undefined;
-      };
       seal_run_attempt: {
         Args: {
           p_attempt_id: string;

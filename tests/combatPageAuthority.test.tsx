@@ -10,17 +10,15 @@ import { useBattleStore } from '@/stores/battleStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import { ROUTES } from '@/config/routes';
+import type { FinalCombatantState } from '@/types/run';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
 
 const combatMocks = vi.hoisted(() => ({
   navigate: vi.fn(),
   onComplete: null as
     | null
-    | ((
-        winner: 'player' | 'enemy' | 'draw',
-        finalPlayerStates: { championId: string; currentHp: number; maxHp: number }[],
-      ) => void),
-  finalPlayerStates: [] as Array<{ championId: string; currentHp: number }>,
+    | ((winner: 'player' | 'enemy' | 'draw', finalPlayerStates: FinalCombatantState[]) => void),
+  finalPlayerStates: [] as FinalCombatantState[],
 }));
 
 vi.mock('@/audio', () => ({
@@ -35,7 +33,7 @@ vi.mock('@/hooks/useBattleManager', () => ({
   useBattleManager: (options: {
     onComplete?: (
       winner: 'player' | 'enemy' | 'draw',
-      finalPlayerStates: { championId: string; currentHp: number; maxHp: number }[],
+      finalPlayerStates: FinalCombatantState[],
     ) => void;
   }) => {
     combatMocks.onComplete = options.onComplete ?? null;
@@ -145,27 +143,46 @@ describe('CombatPage authority finalization', () => {
     });
   });
 
-  it('starts endRun synchronously on defeat so route unmount cannot cancel finalization', () => {
+  it('persists before navigation and route unmount cannot cancel finalization', async () => {
+    let resolveSave: ((saved: boolean) => void) | undefined;
+    const endRun = vi.fn(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+    useRunStore.setState({ endRun });
     const view = render(<CombatPage />);
     expect(combatMocks.onComplete).not.toBeNull();
 
     act(() => {
-      combatMocks.onComplete?.('enemy', []);
+      combatMocks.onComplete?.('enemy', [
+        { championId: 'Garen', currentHp: 0, maxHp: 620, currentMp: 17, maxMp: 100 },
+      ]);
     });
 
-    const endRun = useRunStore.getState().endRun;
     expect(endRun).toHaveBeenCalledWith(false, RUN_UUID, expect.objectContaining({ won: false }));
+    expect(combatMocks.navigate).not.toHaveBeenCalled();
+    expect(useRunStore.getState().team[0]).toMatchObject({ currentHp: 0, currentMp: 17 });
+    view.unmount();
+
+    await act(async () => {
+      resolveSave?.(true);
+      await Promise.resolve();
+    });
+
     expect(combatMocks.navigate).toHaveBeenCalledWith(
       ROUTES.GAME_OVER,
       expect.objectContaining({ state: expect.any(Object) }),
     );
-    view.unmount();
     expect(endRun).toHaveBeenCalledTimes(1);
   });
 
   it('keeps pre-combat HP persisted until the delayed completion callback runs', () => {
     useRunStore.setState({ team: [{ championId: 'Garen', currentHp: 400 }] });
-    combatMocks.finalPlayerStates = [{ championId: 'Garen', currentHp: 12 }];
+    combatMocks.finalPlayerStates = [
+      { championId: 'Garen', currentHp: 12, maxHp: 620, currentMp: 8, maxMp: 100 },
+    ];
     useBattleStore.setState({
       phase: 'finished',
       winner: 'player',
@@ -224,10 +241,13 @@ describe('CombatPage authority finalization', () => {
       });
     });
     act(() => {
-      completedCallback?.('player', [{ championId: 'Garen', currentHp: 12, maxHp: 620 }]);
+      completedCallback?.('player', [
+        { championId: 'Garen', currentHp: 12, maxHp: 620, currentMp: 8, maxMp: 100 },
+      ]);
     });
 
     expect(useRunStore.getState().team[0]?.currentHp).toBe(12);
+    expect(useRunStore.getState().team[0]?.currentMp).toBe(8);
     view.unmount();
   });
 });

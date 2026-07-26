@@ -126,29 +126,32 @@ describe('run reload recovery', () => {
     expect(useRunStore.getState().currentEncounter).toEqual(encounter);
   });
 
-  it('turns an interrupted in-flight save into a retryable state after reload', async () => {
-    useRunStore.setState({
-      isActive: true,
-      runId: 'interrupted-save',
-      saveStatus: 'saving',
-      saveError: null,
-    });
-    const persistedSave = localStorage.getItem(RUN_STORAGE_KEY);
-    expect(persistedSave).not.toBeNull();
+  it.each(['saving', 'retrying'] as const)(
+    'turns an interrupted %s operation into a retryable state after reload',
+    async (saveStatus) => {
+      useRunStore.setState({
+        isActive: true,
+        runId: 'interrupted-save',
+        saveStatus,
+        saveError: null,
+      });
+      const persistedSave = localStorage.getItem(RUN_STORAGE_KEY);
+      expect(persistedSave).not.toBeNull();
 
-    useRunStore.setState({ saveStatus: 'idle', saveError: null });
-    localStorage.setItem(RUN_STORAGE_KEY, persistedSave!);
-    await useRunStore.persist.rehydrate();
+      useRunStore.setState({ saveStatus: 'idle', saveError: null });
+      localStorage.setItem(RUN_STORAGE_KEY, persistedSave!);
+      await useRunStore.persist.rehydrate();
 
-    expect(useRunStore.getState()).toMatchObject({
-      isActive: true,
-      runId: 'interrupted-save',
-      isEnding: false,
-      saveStatus: 'error',
-      saveError: 'Run save was interrupted. Retry to continue.',
-      saveFailureKind: 'retryable',
-    });
-  });
+      expect(useRunStore.getState()).toMatchObject({
+        isActive: true,
+        runId: 'interrupted-save',
+        isEnding: false,
+        saveStatus: 'failed',
+        saveError: 'Run save was interrupted. Retry to continue.',
+        saveFailureKind: 'retryable',
+      });
+    },
+  );
 
   it('restores an interrupted authoritative start with its exact idempotency payload', async () => {
     useRunStore.setState({
@@ -215,7 +218,7 @@ describe('run reload recovery', () => {
             },
           ],
         },
-        teamMembers: [{ championId: 'Garen', level: 2, currentHp: 0 }],
+        teamMembers: [{ championId: 'Garen', level: 2, currentHp: 0, currentMp: 0 }],
         startedAt: '2026-07-23T12:00:00.000Z',
         seed: 42,
         runeIds: ['press_the_attack'],

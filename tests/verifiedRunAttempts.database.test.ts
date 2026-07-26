@@ -340,6 +340,14 @@ describeWithSupabase('verified run attempt live security', () => {
         run_attempt_id: start.attempt_id,
       });
 
+      const persistedMember = await admin
+        .from('run_team_members')
+        .select('final_hp')
+        .eq('run_id', (completionReplay.data as { run_id: string }).run_id)
+        .single();
+      expect(persistedMember.error).toBeNull();
+      expect(persistedMember.data).toEqual({ final_hp: 100 });
+
       const player = await admin
         .from('players')
         .select('total_runs_completed, total_waves_completed, total_candies')

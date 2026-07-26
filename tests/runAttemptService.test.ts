@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   appendRunAttemptCommands,
   recoverVerifiedRunAttempt,
+  RUN_FINALIZATION_REQUEST_TIMEOUT_MS,
   RunVerificationRejectedError,
   sealRunAttempt,
   startRunAttempt,
@@ -81,6 +82,10 @@ function statusResponse(overrides: Record<string, unknown> = {}) {
 describe('runAttemptService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('starts an attempt with the narrow RPC contract and parses canonical fields', async () => {
@@ -266,6 +271,19 @@ describe('runAttemptService', () => {
         },
       },
     });
+  });
+
+  it('turns a hanging verification request into a retryable timeout', async () => {
+    vi.useFakeTimers();
+    supabaseMocks.invoke.mockReturnValue(new Promise(() => undefined));
+
+    const verification = verifyRunAttempt(ATTEMPT_ID);
+    await vi.advanceTimersByTimeAsync(RUN_FINALIZATION_REQUEST_TIMEOUT_MS);
+    const result = await verification;
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toContain('timed out');
+    expect(result.error).not.toBeInstanceOf(RunVerificationRejectedError);
   });
 
   it('classifies an Edge rejection or expiry as terminal', async () => {

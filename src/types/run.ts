@@ -146,6 +146,8 @@ export interface TeamMember {
   championId: string;
   /** Current HP (persisted between combats). If undefined, defaults to max at combat start. */
   currentHp?: number;
+  /** Current mana (persisted between combats). If undefined, defaults to max at combat start. */
+  currentMp?: number;
   /** Champion level (persisted between combats). Defaults to 1. */
   level?: number;
   /** Current XP toward next level (persisted between combats). Defaults to 0. */
@@ -176,7 +178,7 @@ export interface RunState {
   /** Prevents duplicate completion/reward processing. */
   isEnding: boolean;
   /** Current persistence state for the completed run. */
-  saveStatus: 'idle' | 'saving' | 'success' | 'error';
+  saveStatus: 'idle' | 'saving' | 'saved' | 'failed' | 'retrying';
   saveError: string | null;
   saveFailureKind: 'retryable' | 'terminal' | null;
   /**
@@ -324,7 +326,8 @@ export interface RunActions {
   updateTeamAfterCombat: (
     updates: {
       championId: string;
-      currentHp: number;
+      currentHp?: number;
+      currentMp?: number;
       level: number;
       currentXp: number;
       statBoosts?: Record<string, number>;
@@ -374,6 +377,16 @@ export interface RunSaveTeamMember {
   championId: string;
   level: number;
   currentHp: number;
+  currentMp: number;
+}
+
+/** Resources captured from the live combat before its page can unmount. */
+export interface FinalCombatantState {
+  championId: string;
+  currentHp: number;
+  maxHp: number;
+  currentMp: number;
+  maxMp: number;
 }
 
 /** Immutable local display snapshot captured when a run first ends. */

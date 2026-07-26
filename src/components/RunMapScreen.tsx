@@ -6,6 +6,7 @@ import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { findNode } from '@/game/map/mapUtils';
 import type { CombatEncounter, NodeMap } from '@/game/map/types';
 import { NodeType } from '@/game/map/types';
+import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/config/routes';
@@ -187,10 +188,9 @@ export function RunMapScreen() {
           completeCurrentNode();
           if (!advanceToNextBiome()) {
             // A configuration without another biome still ends in a persisted victory.
-            const runState = useRunStore.getState();
-            void runState.endRun(true, runState.runId).then((saved) => {
-              if (saved) {
-                navigate(ROUTES.MENU);
+            void finalizeCombatRun('player', []).then((outcome) => {
+              if (outcome.completed || outcome.queuedForRetry) {
+                navigate(ROUTES.GAME_OVER, { state: { summary: outcome.summary } });
               }
             });
           }

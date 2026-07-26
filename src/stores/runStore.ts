@@ -118,6 +118,33 @@ function isValidCommand(command: RunCommandInput): boolean {
   );
 }
 
+async function refreshVerifiedProgression(userId: string): Promise<void> {
+  try {
+    await useAuthStore.getState().refreshPlayer();
+    if (useAuthStore.getState().user?.id !== userId) return;
+
+    const masteryResult =
+      await RepositoryContainerFactory.create(supabase).mastery.getChampionMastery(userId);
+    if (useAuthStore.getState().user?.id !== userId) return;
+
+    if (masteryResult.data && !masteryResult.error) {
+      useMasteryStore.getState().hydrateFromDatabase(masteryResult.data);
+    } else if (masteryResult.error) {
+      logger.warn(
+        '[runStore.endRun] Verified progression was saved, but mastery refresh failed:',
+        masteryResult.error,
+      );
+    }
+  } catch (error) {
+    logger.warn(
+      '[runStore.endRun] Verified progression was saved, but profile refresh failed:',
+      error,
+    );
+  }
+}
+
+let inFlightFinalization: { runId: string; promise: Promise<boolean> } | null = null;
+
 // ─── Store ──────────────────────────────────────────────────────────────────
 
 export const useRunStore = create<RunStore>()(
@@ -370,416 +397,423 @@ export const useRunStore = create<RunStore>()(
       },
 
       endRun: async (won = false, expectedRunId?: string, displayedSummary?: RunSummary) => {
-        let state = get();
-
-        // Guard: Don't end a run that's already ended
-        if (!state.isActive) {
-          return true;
+        const requestedRunId = expectedRunId ?? get().runId;
+        if (inFlightFinalization) {
+          return inFlightFinalization.runId === requestedRunId
+            ? inFlightFinalization.promise
+            : false;
         }
 
-        if (state.isEnding) {
-          return false;
-        }
+        const operation = (async (): Promise<boolean> => {
+          let state = get();
 
-        // Guard: If a runId is provided, only end the run if it matches the current run
-        // This prevents stale timeouts from previous runs from ending a new run
-        if (expectedRunId !== undefined && state.runId !== expectedRunId) {
-          return false;
-        }
-
-        const authorityCommands = state.authorityAttempt?.commands ?? [];
-        const lastCommand = authorityCommands[authorityCommands.length - 1];
-        const abandonDedupeKey = `abandon_run:${state.runId}`;
-        const hasRecordedAbandonment = authorityCommands.some(
-          (command) => command.dedupeKey === abandonDedupeKey,
-        );
-        const pendingNodeType = state.pendingEncounter?.nodeType;
-        const isImmediateCombatLoss =
-          (pendingNodeType === 'combat' ||
-            pendingNodeType === 'elite' ||
-            pendingNodeType === 'boss') &&
-          lastCommand?.kind === 'resolve_combat' &&
-          lastCommand.payload.node_id === state.pendingEncounter?.nodeId;
-        const isExplicitAbandonment =
-          !won && displayedSummary === undefined && !isImmediateCombatLoss;
-        if (
-          !won &&
-          state.authorityAttempt &&
-          !isImmediateCombatLoss &&
-          !hasRecordedAbandonment &&
-          !get().recordRunCommand({ kind: 'abandon_run' }, abandonDedupeKey)
-        ) {
-          set({
-            saveStatus: 'error',
-            saveError: 'The run abandonment could not be recorded.',
-            saveFailureKind: 'retryable',
-          });
-          return false;
-        }
-        state = get();
-
-        set({
-          isEnding: true,
-          saveStatus: 'saving',
-          saveError: null,
-          saveFailureKind: null,
-        });
-
-        let snapshot =
-          state.completedRunSnapshot?.runId === state.runId ? state.completedRunSnapshot : null;
-
-        if (!snapshot) {
-          let summary = displayedSummary;
-          if (!summary) {
-            // A completion triggered outside CombatPage (for example, an
-            // abandonment after reload) starts from the persisted encounters.
-            runStatsTracker.restore(state.completedCombatStats);
-            runStatsTracker.markSurvived(getSurvivingChampionIds(state.team));
-            summary = runStatsTracker.buildSummary({
-              won,
-              wavesCompleted: state.totalWavesCompleted,
-              biomesVisited: state.biomesVisited,
-              goldEarned: state.gold,
-              runLevel: state.runLevel,
-            });
+          // Guard: Don't end a run that's already ended
+          if (!state.isActive) {
+            return true;
           }
 
-          const teamMembers = state.team.map((member) => {
-            const champ = championDB.getById(member.championId);
-            const enhancementState = state.authorityAttempt
-              ? {
-                  unlockedNodes:
-                    state.authorityAttempt.enhancementSnapshot[member.championId] ??
-                    state.authorityAttempt.enhancementSnapshot[member.championId.toLowerCase()] ??
-                    {},
-                }
-              : useEnhancementStore.getState().getEnhancementState(member.championId);
-            const enhancementBonuses = champ
-              ? enhancementService.calculateStatBonuses(
-                  enhancementTreeProvider.getTreeForChampion(champ),
-                  enhancementState.unlockedNodes,
-                )
-              : undefined;
-            const maxHp = champ
-              ? calculateMaxHP(
-                  champ,
-                  member.level ?? 1,
-                  enhancementBonuses,
-                  state.inventory,
-                  member.championId,
-                  member.statBoosts,
-                  member.statMultiplier,
-                )
-              : 100;
-            return {
-              championId: member.championId,
-              level: member.level ?? 1,
-              currentHp: member.currentHp ?? maxHp,
-            };
-          });
+          // This prevents stale callbacks from a previous run ending a new one.
+          if (expectedRunId !== undefined && state.runId !== expectedRunId) {
+            return false;
+          }
 
-          const dailyState = useDailyRunStore.getState();
-          snapshot = {
-            mode: state.mode,
-            runId: state.runId,
-            won,
-            runLevel: state.runLevel,
-            wavesCompleted: state.totalWavesCompleted,
-            biomesVisited: [...state.biomesVisited],
-            goldEarned: state.gold,
-            summary: cloneRunSummary(summary),
-            teamMembers,
-            startedAt: state.startedAt,
-            seed: state.seed,
-            runeIds: [...state.runeIds],
-            augmentIds: [...state.augmentIds],
-            daily:
-              state.mode === 'daily'
-                ? {
-                    dateKey: dailyState.dateKey,
-                    dailySeed: state.seed ?? dailyState.seed,
-                    abandoned: isExplicitAbandonment,
-                    itemCount: state.inventory.length,
-                    currentBiome: state.currentBiome,
-                    currentWave: state.currentWave,
-                    inventory: [...state.inventory],
-                    score: calculateDailyScore({
-                      totalWavesCompleted: state.totalWavesCompleted,
-                      runLevel: state.runLevel,
-                      gold: state.gold,
-                      inventory: state.inventory,
-                    }),
-                  }
-                : null,
-          } satisfies CompletedRunSnapshot;
-          set({ completedRunSnapshot: snapshot, serverProgression: null });
-        }
-
-        const { user, player } = useAuthStore.getState();
-        const authorityAttempt = state.authorityAttempt;
-        const hasAuthenticatedAccount = user !== null;
-        const isVerifiedRun = authorityAttempt !== null;
-        const championIds = snapshot.teamMembers.map((member) => member.championId);
-
-        // Only a run that was started without an authenticated account may use
-        // local progression. A legacy/authenticated run cannot be promoted into
-        // a verified attempt at completion time.
-        if (
-          !hasAuthenticatedAccount &&
-          !isVerifiedRun &&
-          shouldApplyRunRewards(state.rewardsApplied, championIds.length, snapshot.wavesCompleted)
-        ) {
-          const masteryStore = useMasteryStore.getState();
-          masteryStore.awardCandies(
-            championIds,
-            snapshot.wavesCompleted,
-            snapshot.biomesVisited.length,
-            snapshot.won,
+          const authorityCommands = state.authorityAttempt?.commands ?? [];
+          const lastCommand = authorityCommands[authorityCommands.length - 1];
+          const abandonDedupeKey = `abandon_run:${state.runId}`;
+          const hasRecordedAbandonment = authorityCommands.some(
+            (command) => command.dedupeKey === abandonDedupeKey,
           );
-          set({ rewardsApplied: true });
-        }
-
-        // Save run to database (if user is authenticated)
-        logger.debug('[runStore.endRun] Checking save conditions:', {
-          hasUser: !!user,
-          hasPlayer: !!player,
-          hasAuthorityAttempt: isVerifiedRun,
-          hasRunStartTime: !!snapshot.startedAt,
-          totalWavesCompleted: snapshot.wavesCompleted,
-          runId: snapshot.runId,
-          won: snapshot.won,
-        });
-
-        if (hasAuthenticatedAccount && !snapshot.startedAt) {
-          set({
-            ...RUN_INITIAL_STATE,
-            completedRunSnapshot: snapshot,
-            saveStatus: 'error',
-            saveError: 'Authenticated run is missing required save data',
-            saveFailureKind: 'terminal',
-          });
-          return true;
-        }
-
-        let serverProgression = state.serverProgression;
-        if (hasAuthenticatedAccount && !authorityAttempt) {
-          set({
-            ...RUN_INITIAL_STATE,
-            completedRunSnapshot: snapshot,
-            saveStatus: 'error',
-            saveError: 'This run has no server attempt and cannot grant authenticated progression.',
-            saveFailureKind: 'terminal',
-          });
-          return true;
-        }
-
-        if (authorityAttempt) {
-          if (!user || user.id !== authorityAttempt.ownerUserId) {
+          const pendingNodeType = state.pendingEncounter?.nodeType;
+          const isImmediateCombatLoss =
+            (pendingNodeType === 'combat' ||
+              pendingNodeType === 'elite' ||
+              pendingNodeType === 'boss') &&
+            lastCommand?.kind === 'resolve_combat' &&
+            lastCommand.payload.node_id === state.pendingEncounter?.nodeId;
+          const isExplicitAbandonment =
+            !won && displayedSummary === undefined && !isImmediateCombatLoss;
+          if (
+            !won &&
+            state.authorityAttempt &&
+            !isImmediateCombatLoss &&
+            !hasRecordedAbandonment &&
+            !get().recordRunCommand({ kind: 'abandon_run' }, abandonDedupeKey)
+          ) {
             set({
-              isEnding: false,
-              saveStatus: 'error',
-              saveError: 'This run attempt belongs to another authenticated account.',
+              saveStatus: 'failed',
+              saveError: 'The run abandonment could not be recorded.',
               saveFailureKind: 'retryable',
             });
             return false;
           }
+          state = get();
 
-          let syncedAttempt = authorityAttempt;
-          let finishCommandId = syncedAttempt.finishCommandId;
-          if (!finishCommandId) {
-            finishCommandId = createCommandId();
-            if (!finishCommandId) {
-              set({
-                ...RUN_INITIAL_STATE,
-                completedRunSnapshot: snapshot,
-                saveStatus: 'error',
-                saveError: 'This browser cannot create a secure finish command.',
-                saveFailureKind: 'terminal',
+          set({
+            isEnding: true,
+            saveStatus: state.completedRunSnapshot?.runId === state.runId ? 'retrying' : 'saving',
+            saveError: null,
+            saveFailureKind: null,
+          });
+
+          let snapshot =
+            state.completedRunSnapshot?.runId === state.runId ? state.completedRunSnapshot : null;
+
+          if (!snapshot) {
+            let summary = displayedSummary;
+            if (!summary) {
+              // A completion triggered outside CombatPage (for example, an
+              // abandonment after reload) starts from the persisted encounters.
+              runStatsTracker.restore(state.completedCombatStats);
+              runStatsTracker.markSurvived(getSurvivingChampionIds(state.team));
+              summary = runStatsTracker.buildSummary({
+                won,
+                wavesCompleted: state.totalWavesCompleted,
+                biomesVisited: state.biomesVisited,
+                goldEarned: state.gold,
+                runLevel: state.runLevel,
               });
-              return true;
             }
-            syncedAttempt = { ...syncedAttempt, finishCommandId };
-            set({ authorityAttempt: syncedAttempt });
+
+            const teamMembers = state.team.map((member) => {
+              const champ = championDB.getById(member.championId);
+              const enhancementState = state.authorityAttempt
+                ? {
+                    unlockedNodes:
+                      state.authorityAttempt.enhancementSnapshot[member.championId] ??
+                      state.authorityAttempt.enhancementSnapshot[member.championId.toLowerCase()] ??
+                      {},
+                  }
+                : useEnhancementStore.getState().getEnhancementState(member.championId);
+              const enhancementBonuses = champ
+                ? enhancementService.calculateStatBonuses(
+                    enhancementTreeProvider.getTreeForChampion(champ),
+                    enhancementState.unlockedNodes,
+                  )
+                : undefined;
+              const maxHp = champ
+                ? calculateMaxHP(
+                    champ,
+                    member.level ?? 1,
+                    enhancementBonuses,
+                    state.inventory,
+                    member.championId,
+                    member.statBoosts,
+                    member.statMultiplier,
+                  )
+                : 100;
+              return {
+                championId: member.championId,
+                level: member.level ?? 1,
+                currentHp: member.currentHp ?? maxHp,
+                currentMp: member.currentMp ?? champ?.stats.mp ?? 0,
+              };
+            });
+
+            const dailyState = useDailyRunStore.getState();
+            snapshot = {
+              mode: state.mode,
+              runId: state.runId,
+              won,
+              runLevel: state.runLevel,
+              wavesCompleted: state.totalWavesCompleted,
+              biomesVisited: [...state.biomesVisited],
+              goldEarned: state.gold,
+              summary: cloneRunSummary(summary),
+              teamMembers,
+              startedAt: state.startedAt,
+              seed: state.seed,
+              runeIds: [...state.runeIds],
+              augmentIds: [...state.augmentIds],
+              daily:
+                state.mode === 'daily'
+                  ? {
+                      dateKey: dailyState.dateKey,
+                      dailySeed: state.seed ?? dailyState.seed,
+                      abandoned: isExplicitAbandonment,
+                      itemCount: state.inventory.length,
+                      currentBiome: state.currentBiome,
+                      currentWave: state.currentWave,
+                      inventory: [...state.inventory],
+                      score: calculateDailyScore({
+                        totalWavesCompleted: state.totalWavesCompleted,
+                        runLevel: state.runLevel,
+                        gold: state.gold,
+                        inventory: state.inventory,
+                      }),
+                    }
+                  : null,
+            } satisfies CompletedRunSnapshot;
+            set({ completedRunSnapshot: snapshot, serverProgression: null });
           }
 
-          const pendingCommands = syncedAttempt.commands.filter(
-            (command) => command.sequence > syncedAttempt.lastAcknowledgedSequence,
-          );
-          for (let offset = 0; offset < pendingCommands.length; offset += 50) {
-            const batch = pendingCommands.slice(offset, offset + 50);
-            const appendResult = await appendRunAttemptCommands(syncedAttempt.attemptId, batch);
-            if (
-              appendResult.data?.status === 'expired' ||
-              appendResult.data?.status === 'rejected'
-            ) {
+          const { user, player } = useAuthStore.getState();
+          const authorityAttempt = state.authorityAttempt;
+          const hasAuthenticatedAccount = user !== null;
+          const isVerifiedRun = authorityAttempt !== null;
+          const championIds = snapshot.teamMembers.map((member) => member.championId);
+
+          // Only a run that was started without an authenticated account may use
+          // local progression. A legacy/authenticated run cannot be promoted into
+          // a verified attempt at completion time.
+          if (
+            !hasAuthenticatedAccount &&
+            !isVerifiedRun &&
+            shouldApplyRunRewards(state.rewardsApplied, championIds.length, snapshot.wavesCompleted)
+          ) {
+            const masteryStore = useMasteryStore.getState();
+            masteryStore.awardCandies(
+              championIds,
+              snapshot.wavesCompleted,
+              snapshot.biomesVisited.length,
+              snapshot.won,
+            );
+            set({ rewardsApplied: true });
+          }
+
+          // Save run to database (if user is authenticated)
+          logger.debug('[runStore.endRun] Checking save conditions:', {
+            hasUser: !!user,
+            hasPlayer: !!player,
+            hasAuthorityAttempt: isVerifiedRun,
+            hasRunStartTime: !!snapshot.startedAt,
+            totalWavesCompleted: snapshot.wavesCompleted,
+            runId: snapshot.runId,
+            won: snapshot.won,
+          });
+
+          if (hasAuthenticatedAccount && !snapshot.startedAt) {
+            set({
+              ...RUN_INITIAL_STATE,
+              completedRunSnapshot: snapshot,
+              saveStatus: 'failed',
+              saveError: 'Authenticated run is missing required save data',
+              saveFailureKind: 'terminal',
+            });
+            return true;
+          }
+
+          let serverProgression = state.serverProgression;
+          if (hasAuthenticatedAccount && !authorityAttempt) {
+            set({
+              ...RUN_INITIAL_STATE,
+              completedRunSnapshot: snapshot,
+              saveStatus: 'failed',
+              saveError:
+                'This run has no server attempt and cannot grant authenticated progression.',
+              saveFailureKind: 'terminal',
+            });
+            return true;
+          }
+
+          if (authorityAttempt) {
+            if (!user || user.id !== authorityAttempt.ownerUserId) {
+              set({
+                isEnding: false,
+                saveStatus: 'failed',
+                saveError: 'This run attempt belongs to another authenticated account.',
+                saveFailureKind: 'retryable',
+              });
+              return false;
+            }
+
+            let syncedAttempt = authorityAttempt;
+            let finishCommandId = syncedAttempt.finishCommandId;
+            if (!finishCommandId) {
+              finishCommandId = createCommandId();
+              if (!finishCommandId) {
+                set({
+                  ...RUN_INITIAL_STATE,
+                  completedRunSnapshot: snapshot,
+                  saveStatus: 'failed',
+                  saveError: 'This browser cannot create a secure finish command.',
+                  saveFailureKind: 'terminal',
+                });
+                return true;
+              }
+              syncedAttempt = { ...syncedAttempt, finishCommandId };
+              set({ authorityAttempt: syncedAttempt });
+            }
+
+            const pendingCommands = syncedAttempt.commands.filter(
+              (command) => command.sequence > syncedAttempt.lastAcknowledgedSequence,
+            );
+            for (let offset = 0; offset < pendingCommands.length; offset += 50) {
+              const batch = pendingCommands.slice(offset, offset + 50);
+              const appendResult = await appendRunAttemptCommands(syncedAttempt.attemptId, batch);
+              if (
+                appendResult.data?.status === 'expired' ||
+                appendResult.data?.status === 'rejected'
+              ) {
+                set({
+                  ...RUN_INITIAL_STATE,
+                  completedRunSnapshot: snapshot,
+                  saveStatus: 'failed',
+                  saveError:
+                    appendResult.data.status === 'expired'
+                      ? 'This verified run attempt has expired.'
+                      : 'The run trace was rejected.',
+                  saveFailureKind: 'terminal',
+                });
+                return true;
+              }
+              if (appendResult.error || !appendResult.data) {
+                set({
+                  isEnding: false,
+                  saveStatus: 'failed',
+                  saveError:
+                    appendResult.error?.message ??
+                    'The run command journal could not be synchronized.',
+                  saveFailureKind: 'retryable',
+                });
+                return false;
+              }
+              syncedAttempt = {
+                ...syncedAttempt,
+                status: appendResult.data.status,
+                lastAcknowledgedSequence: appendResult.data.lastSequence,
+                journalHash: appendResult.data.journalHash,
+              };
+              set({ authorityAttempt: syncedAttempt });
+            }
+
+            const expectedSequence = syncedAttempt.nextSequence - 1;
+            const sealResult = await sealRunAttempt(
+              syncedAttempt.attemptId,
+              finishCommandId,
+              expectedSequence,
+            );
+            if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
               set({
                 ...RUN_INITIAL_STATE,
                 completedRunSnapshot: snapshot,
-                saveStatus: 'error',
+                saveStatus: 'failed',
                 saveError:
-                  appendResult.data.status === 'expired'
+                  sealResult.data.status === 'expired'
                     ? 'This verified run attempt has expired.'
                     : 'The run trace was rejected.',
                 saveFailureKind: 'terminal',
               });
               return true;
             }
-            if (appendResult.error || !appendResult.data) {
+            if (sealResult.error || !sealResult.data) {
               set({
                 isEnding: false,
-                saveStatus: 'error',
-                saveError:
-                  appendResult.error?.message ??
-                  'The run command journal could not be synchronized.',
+                saveStatus: 'failed',
+                saveError: sealResult.error?.message ?? 'The run attempt could not be sealed.',
                 saveFailureKind: 'retryable',
+                authorityAttempt: syncedAttempt,
               });
               return false;
             }
+
             syncedAttempt = {
               ...syncedAttempt,
-              status: appendResult.data.status,
-              lastAcknowledgedSequence: appendResult.data.lastSequence,
-              journalHash: appendResult.data.journalHash,
+              status: sealResult.data.status === 'verified' ? 'verified' : 'verifying',
+              lastAcknowledgedSequence: sealResult.data.lastSequence,
+              journalHash: sealResult.data.journalHash,
             };
             set({ authorityAttempt: syncedAttempt });
-          }
 
-          const expectedSequence = syncedAttempt.nextSequence - 1;
-          const sealResult = await sealRunAttempt(
-            syncedAttempt.attemptId,
-            finishCommandId,
-            expectedSequence,
-          );
-          if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
-            set({
-              ...RUN_INITIAL_STATE,
-              completedRunSnapshot: snapshot,
-              saveStatus: 'error',
-              saveError:
-                sealResult.data.status === 'expired'
-                  ? 'This verified run attempt has expired.'
-                  : 'The run trace was rejected.',
-              saveFailureKind: 'terminal',
-            });
-            return true;
-          }
-          if (sealResult.error || !sealResult.data) {
-            set({
-              isEnding: false,
-              saveStatus: 'error',
-              saveError: sealResult.error?.message ?? 'The run attempt could not be sealed.',
-              saveFailureKind: 'retryable',
-              authorityAttempt: syncedAttempt,
-            });
-            return false;
-          }
-
-          syncedAttempt = {
-            ...syncedAttempt,
-            status: sealResult.data.status === 'verified' ? 'verified' : 'verifying',
-            lastAcknowledgedSequence: sealResult.data.lastSequence,
-            journalHash: sealResult.data.journalHash,
-          };
-          set({ authorityAttempt: syncedAttempt });
-
-          const verification =
-            sealResult.data.status === 'verified'
-              ? await recoverVerifiedRunAttempt(syncedAttempt.attemptId)
-              : await verifyRunAttempt(syncedAttempt.attemptId);
-          if (verification.error || !verification.data) {
-            if (verification.error instanceof RunVerificationRejectedError) {
+            const verification =
+              sealResult.data.status === 'verified'
+                ? await recoverVerifiedRunAttempt(syncedAttempt.attemptId)
+                : await verifyRunAttempt(syncedAttempt.attemptId);
+            if (verification.error || !verification.data) {
+              if (verification.error instanceof RunVerificationRejectedError) {
+                set({
+                  ...RUN_INITIAL_STATE,
+                  completedRunSnapshot: snapshot,
+                  saveStatus: 'failed',
+                  saveError: verification.error.message,
+                  saveFailureKind: 'terminal',
+                });
+                return true;
+              }
               set({
-                ...RUN_INITIAL_STATE,
-                completedRunSnapshot: snapshot,
-                saveStatus: 'error',
-                saveError: verification.error.message,
-                saveFailureKind: 'terminal',
+                isEnding: false,
+                saveStatus: 'failed',
+                saveError: verification.error?.message ?? 'The run could not be verified.',
+                saveFailureKind: 'retryable',
+                authorityAttempt: syncedAttempt,
               });
-              return true;
+              return false;
+            }
+
+            serverProgression = verification.data.progression;
+            if (verification.data.summary) {
+              const canonicalSummary = cloneRunSummary(verification.data.summary);
+              snapshot = {
+                ...snapshot,
+                won: canonicalSummary.won,
+                runLevel: canonicalSummary.runLevel,
+                wavesCompleted: canonicalSummary.wavesCompleted,
+                biomesVisited: [...canonicalSummary.biomesVisited],
+                goldEarned: canonicalSummary.goldEarned,
+                summary: canonicalSummary,
+              };
+              set({ completedRunSnapshot: snapshot });
             }
             set({
-              isEnding: false,
-              saveStatus: 'error',
-              saveError: verification.error?.message ?? 'The run could not be verified.',
-              saveFailureKind: 'retryable',
-              authorityAttempt: syncedAttempt,
+              serverProgression,
+              authorityAttempt: { ...syncedAttempt, status: 'verified' },
             });
-            return false;
+            // The durable server result is the completion boundary. Profile and
+            // mastery hydration are best-effort and must never block Game Over.
+            void refreshVerifiedProgression(user.id);
           }
 
-          serverProgression = verification.data.progression;
-          if (verification.data.summary) {
-            const canonicalSummary = cloneRunSummary(verification.data.summary);
-            snapshot = {
-              ...snapshot,
-              won: canonicalSummary.won,
-              runLevel: canonicalSummary.runLevel,
-              wavesCompleted: canonicalSummary.wavesCompleted,
-              biomesVisited: [...canonicalSummary.biomesVisited],
-              goldEarned: canonicalSummary.goldEarned,
-              summary: canonicalSummary,
-            };
-            set({ completedRunSnapshot: snapshot });
-          }
-          set({
-            serverProgression,
-            authorityAttempt: { ...syncedAttempt, status: 'verified' },
-          });
-          await useAuthStore.getState().refreshPlayer();
-          try {
-            const masteryResult = await RepositoryContainerFactory.create(
-              supabase,
-            ).mastery.getChampionMastery(user.id);
-            if (masteryResult.data && !masteryResult.error) {
-              useMasteryStore.getState().hydrateFromDatabase(masteryResult.data);
-            } else if (masteryResult.error) {
-              logger.warn(
-                '[runStore.endRun] Verified progression was saved, but mastery refresh failed:',
-                masteryResult.error,
-              );
+          if (snapshot.mode === 'daily' && snapshot.daily) {
+            useDailyRunStore.setState({
+              runLevel: snapshot.runLevel,
+              biomesVisited: snapshot.biomesVisited,
+              currentBiome: snapshot.daily.currentBiome,
+              inventory: snapshot.daily.inventory,
+              gold: snapshot.goldEarned,
+              currentWave: snapshot.daily.currentWave,
+              totalWavesCompleted: snapshot.wavesCompleted,
+              score: snapshot.daily.score,
+            });
+            if (!isVerifiedRun && snapshot.daily.abandoned) {
+              useDailyRunStore.getState().endDailyRun();
+            } else {
+              const refreshedPlayer = useAuthStore.getState().player;
+              useDailyRunStore
+                .getState()
+                .completeDailyRun(
+                  refreshedPlayer?.display_name ||
+                    refreshedPlayer?.username ||
+                    user?.email?.split('@')[0] ||
+                    'Guest',
+                  !isVerifiedRun,
+                );
             }
-          } catch (error) {
-            logger.warn(
-              '[runStore.endRun] Verified progression was saved, but mastery refresh failed:',
-              error,
-            );
           }
-        }
 
-        if (snapshot.mode === 'daily' && snapshot.daily) {
-          useDailyRunStore.setState({
-            runLevel: snapshot.runLevel,
-            biomesVisited: snapshot.biomesVisited,
-            currentBiome: snapshot.daily.currentBiome,
-            inventory: snapshot.daily.inventory,
-            gold: snapshot.goldEarned,
-            currentWave: snapshot.daily.currentWave,
-            totalWavesCompleted: snapshot.wavesCompleted,
-            score: snapshot.daily.score,
+          set({
+            ...RUN_INITIAL_STATE,
+            completedRunSnapshot: snapshot,
+            serverProgression,
+            saveStatus: 'saved',
           });
-          if (!isVerifiedRun && snapshot.daily.abandoned) {
-            useDailyRunStore.getState().endDailyRun();
-          } else {
-            const refreshedPlayer = useAuthStore.getState().player;
-            useDailyRunStore
-              .getState()
-              .completeDailyRun(
-                refreshedPlayer?.display_name ||
-                  refreshedPlayer?.username ||
-                  user?.email?.split('@')[0] ||
-                  'Guest',
-                !isVerifiedRun,
-              );
-          }
-        }
+          return true;
+        })();
 
-        set({
-          ...RUN_INITIAL_STATE,
-          completedRunSnapshot: snapshot,
-          serverProgression,
-          saveStatus: isVerifiedRun ? 'success' : 'idle',
-        });
-        return true;
+        inFlightFinalization = { runId: requestedRunId, promise: operation };
+        try {
+          return await operation;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          logger.error('[runStore.endRun] Unexpected finalization failure:', error);
+          set({
+            isEnding: false,
+            saveStatus: 'failed',
+            saveError: message || 'The run could not be finalized.',
+            saveFailureKind: 'retryable',
+          });
+          return false;
+        } finally {
+          if (inFlightFinalization?.promise === operation) inFlightFinalization = null;
+        }
       },
 
       // ── Team Management ─────────────────────────────────────────────────
@@ -1200,9 +1234,12 @@ export const useRunStore = create<RunStore>()(
           team: state.team.map((m) => {
             const update = updates.find((u) => u.championId === m.championId);
             if (update) {
+              const { currentHp, currentMp, ...rest } = update;
               return {
                 ...m,
-                ...update,
+                ...rest,
+                ...(currentHp === undefined ? {} : { currentHp }),
+                ...(currentMp === undefined ? {} : { currentMp }),
               };
             }
             return m;
@@ -1226,12 +1263,18 @@ export const useRunStore = create<RunStore>()(
         pendingAuthorityStart: state.pendingAuthorityStart,
         // A page reload interrupts any in-flight promise. Persist it as a
         // retryable error instead of leaving Game Over stuck on "saving".
-        saveStatus: state.saveStatus === 'saving' ? 'error' : state.saveStatus,
+        saveStatus:
+          state.saveStatus === 'saving' || state.saveStatus === 'retrying'
+            ? 'failed'
+            : state.saveStatus,
         saveError:
-          state.saveStatus === 'saving'
+          state.saveStatus === 'saving' || state.saveStatus === 'retrying'
             ? 'Run save was interrupted. Retry to continue.'
             : state.saveError,
-        saveFailureKind: state.saveStatus === 'saving' ? 'retryable' : state.saveFailureKind,
+        saveFailureKind:
+          state.saveStatus === 'saving' || state.saveStatus === 'retrying'
+            ? 'retryable'
+            : state.saveFailureKind,
         completedRunSnapshot: state.completedRunSnapshot,
         serverProgression: state.serverProgression,
         rewardsApplied: state.rewardsApplied,

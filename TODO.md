@@ -228,23 +228,28 @@ ni usurper/anonymiser son identité de log, ni saturer durablement la table.
 `endRun`. Le démontage de la page annule ce timeout : la run peut rester active,
 sans sauvegarde ni récompense.
 
-- [ ] Déplacer l'orchestration de fin hors du cycle de vie de `CombatPage`.
-- [ ] Finaliser et persister la run avant la navigation vers Game Over.
-- [ ] Rendre la commande `endRun` idempotente et observable (`idle`, `saving`,
+- [x] Déplacer l'orchestration de fin hors du cycle de vie de `CombatPage`.
+- [x] Finaliser et persister la run avant la navigation vers Game Over.
+- [x] Rendre la commande `endRun` idempotente et observable (`idle`, `saving`,
   `saved`, `failed`, `retrying`).
-- [ ] Sauvegarder run, équipe, loadout, runes, augments, statistiques et progression
+- [x] Sauvegarder run, équipe, loadout, runes, augments, statistiques et progression
   dans une seule transaction ; supprimer le second RPC « best effort » du loadout.
-- [ ] Toujours recopier les PV/PM finaux, y compris après une défaite.
-- [ ] Persister un snapshot de résumé ou un identifiant de résultat afin que
+- [x] Toujours recopier les PV/PM finaux, y compris après une défaite.
+- [x] Persister un snapshot de résumé ou un identifiant de résultat afin que
   `/game-over` survive à un refresh.
-- [ ] Ne réinitialiser l'état actif qu'après confirmation durable de sauvegarde, ou
+- [x] Ne réinitialiser l'état actif qu'après confirmation durable de sauvegarde, ou
   après mise en file locale d'une outbox récupérable.
-- [ ] Ajouter une reprise explicite si le navigateur recharge pendant `saving`.
-- [ ] Tester victoire, défaite, abandon, double appel, navigation immédiate, timeout,
+- [x] Ajouter une reprise explicite si le navigateur recharge pendant `saving`.
+- [x] Tester victoire, défaite, abandon, double appel, navigation immédiate, timeout,
   erreur réseau et retry.
 
 **Acceptation :** chaque run produit exactement un résultat durable ; aucune
 navigation ou fermeture de composant ne peut annuler la finalisation.
+
+**Statut : terminé.** L'orchestrateur de fin capture les ressources du combat,
+attend le résultat durable ou l'outbox locale avant de naviguer, et les appels
+concurrents partagent la même promesse. La transaction de vérification reste la
+seule écriture distante et l'ancien RPC séparé de loadout est supprimé.
 
 ### P0-RUN-02 — Empêcher l'écrasement d'une run active
 

@@ -49,6 +49,27 @@ rechargement peut relire le statut puis afficher exactement la progression déj�
 persistée, sans double crédit. Une trace rejetée ou expirée est terminale et ne
 crédite rien.
 
+La finalisation côté application ne dépend pas du cycle de vie de la page de
+combat. Elle capture d'abord les PV et PM finaux, fige le résumé et l'équipe dans
+`completedRunSnapshot`, puis appelle `endRun`. Les appels simultanés pour le même
+`runId` partagent une seule opération. La navigation vers `/game-over` n'a lieu
+qu'après une confirmation durable ou après conservation d'une outbox locale
+retryable ; le démontage de la page ne peut donc plus annuler l'opération.
+
+La machine d'état exposée est `idle → saving → saved` ou
+`idle/saving → failed → retrying`. Chaque requête de finalisation est bornée à
+15 secondes. Une erreur réseau ou un timeout conserve la run active, le snapshot
+figé et le journal pour un nouvel essai. Lors d'une hydratation, un état
+`saving`/`retrying` interrompu devient explicitement `failed` retryable. Game Over
+lit en priorité le snapshot persisté et survit ainsi à un rechargement sans
+`location.state`.
+
+`complete_run_verification` écrit déjà la run, l'équipe et ses objets, les runes,
+les augments, les statistiques agrégées et la progression dans sa transaction
+unique. La migration `20260726210000_atomic_run_finalization.sql` supprime
+définitivement l'ancien RPC `save_run_loadout`, afin qu'aucune seconde écriture
+« best effort » ne puisse recréer un résultat partiel.
+
 Une partie invitée ne contacte pas la base. Seul le navigateur courant possède
 l'état et la progression; aucune fusion automatique n'est faite lors de la
 création ultérieure d'un compte.

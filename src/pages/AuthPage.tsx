@@ -134,10 +134,11 @@ export function AuthPage() {
     }
   };
 
-  const handleGuestPlay = () => {
+  const handleGuestPlay = async () => {
     playUIClick();
     // End any active run when switching to guest
-    void endRun();
+    const runState = useRunStore.getState();
+    if (runState.isActive && !(await endRun(false, runState.runId))) return;
     enterGuestMode();
     navigate(ROUTES.MENU);
   };

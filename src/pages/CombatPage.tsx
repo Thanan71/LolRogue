@@ -11,6 +11,7 @@ import { getAugmentDefinition } from '@/data/items/augmentDatabase';
 import { getRuneDefinition } from '@/data/items/runeDatabase';
 import { AugmentManager } from '@/game/augments/AugmentManager';
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
+import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
@@ -27,7 +28,7 @@ import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
-import type { Item, ItemStatBonuses, RunSummary, TeamMember } from '@/types/run';
+import type { FinalCombatantState, Item, ItemStatBonuses, TeamMember } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateEventStatBonuses } from '@/utils/statCalculator';
 import { logger } from '@/utils/logger';
@@ -474,20 +475,12 @@ export function CombatPage() {
         const champ = championDB.getById(id);
         logger.debug(`Champion "${id}" lookup result:`, champ ? 'FOUND' : 'NOT FOUND');
       }
-      // Build a summary and navigate to game over
-      const rs = useRunStore.getState();
-      runStatsTracker.markSurvived([]);
-      const summary: RunSummary = runStatsTracker.buildSummary({
-        won: false,
-        wavesCompleted: rs.totalWavesCompleted,
-        biomesVisited: rs.biomesVisited,
-        goldEarned: rs.gold,
-        runLevel: rs.runLevel,
-      });
-      navigate(ROUTES.GAME_OVER, { state: { summary } });
       hasNavigatedAfterLossRef.current = true;
-      void rs.endRun(false, rs.runId, summary);
-      runStatsTracker.reset();
+      void finalizeCombatRun('enemy', []).then((outcome) => {
+        if (outcome.completed || outcome.queuedForRetry) {
+          navigate(ROUTES.GAME_OVER, { state: { summary: outcome.summary } });
+        }
+      });
     }
   }, [isActive, playerInstances.length, team.length, team, navigate]);
 
@@ -508,7 +501,6 @@ export function CombatPage() {
     }
     return Object.keys(m).length > 0 ? m : undefined;
   }, [team, playerInstances]);
-
   // Get encounter data from store
   const currentEncounter = useRunStore((s) => s.currentEncounter);
   const runSeed = useRunStore((s) => s.seed);
@@ -535,10 +527,7 @@ export function CombatPage() {
   ]);
 
   const handleComplete = useCallback(
-    (
-      w: 'player' | 'enemy' | 'draw',
-      finalPlayerStates: { championId: string; currentHp: number; maxHp: number }[],
-    ) => {
+    (w: 'player' | 'enemy' | 'draw', finalPlayerStates: FinalCombatantState[]) => {
       const commandState = useRunStore.getState();
       const combatNodeId = commandState.currentNodeId;
       if (
@@ -578,6 +567,11 @@ export function CombatPage() {
           return {
             championId: member.championId,
             currentHp: finalHpByChampionId.get(member.championId) ?? member.currentHp ?? 0,
+            currentMp:
+              finalPlayerStates.find((champion) => champion.championId === member.championId)
+                ?.currentMp ??
+              member.currentMp ??
+              0,
             level: result.newLevel,
             currentXp: result.remainingXp,
           };
@@ -651,22 +645,11 @@ export function CombatPage() {
 
         // Only the boss of the last biome ends the run.
         if (isFinalRunVictory(isBossNode, advancedToNextBiome)) {
-          const rs2 = useRunStore.getState();
-          const aliveIds = rs2.team
-            .filter((member) => (member.currentHp ?? 0) > 0)
-            .map((member) => member.championId);
-          runStatsTracker.markSurvived(aliveIds);
-          const victorySummary: RunSummary = runStatsTracker.buildSummary({
-            won: true,
-            wavesCompleted: rs2.totalWavesCompleted,
-            biomesVisited: rs2.biomesVisited,
-            goldEarned: rs2.gold,
-            runLevel: rs2.runLevel,
+          void finalizeCombatRun('player', finalPlayerStates).then((outcome) => {
+            if (outcome.completed || outcome.queuedForRetry) {
+              navigate(ROUTES.GAME_OVER, { state: { summary: outcome.summary } });
+            }
           });
-          const completedRunId = rs2.runId;
-          navigate(ROUTES.GAME_OVER, { state: { summary: victorySummary } });
-          void rs2.endRun(true, completedRunId, victorySummary);
-          runStatsTracker.reset();
           return;
         }
 
@@ -676,24 +659,11 @@ export function CombatPage() {
         // Navigate back to the map to choose the next node
         navigate(ROUTES.RUN);
       } else {
-        // On draw or loss: build RunSummary from tracked stats, navigate with state
-        const rs = useRunStore.getState();
-        // Capture the current runId to prevent stale timeouts from affecting new runs
-        const currentRunId = rs.runId;
-        // Mark all player champions as dead (none survived)
-        runStatsTracker.markSurvived([]);
-        const summary: RunSummary = runStatsTracker.buildSummary({
-          won: false,
-          wavesCompleted: rs.totalWavesCompleted,
-          biomesVisited: rs.biomesVisited,
-          goldEarned: rs.gold,
-          runLevel: rs.runLevel,
+        void finalizeCombatRun(w, finalPlayerStates).then((outcome) => {
+          if (outcome.completed || outcome.queuedForRetry) {
+            navigate(ROUTES.GAME_OVER, { state: { summary: outcome.summary } });
+          }
         });
-        // Navigate to game over screen
-        navigate(ROUTES.GAME_OVER, { state: { summary } });
-        // Start finalization synchronously so route unmount cannot cancel it.
-        void rs.endRun(false, currentRunId, summary);
-        runStatsTracker.reset();
       }
     },
     [runLevel, navigate],

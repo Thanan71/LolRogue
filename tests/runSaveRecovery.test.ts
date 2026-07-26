@@ -167,19 +167,27 @@ describe('authoritative run lifecycle and recovery', () => {
   });
 
   it('keeps a frozen snapshot and retries the same journal after a network failure', async () => {
+    let releaseRetry:
+      | ((value: {
+          data: {
+            attemptId: string;
+            status: string;
+            lastSequence: number;
+            journalHash: string;
+            accepted: number;
+            replayed: boolean;
+          };
+          error: null;
+        }) => void)
+      | undefined;
     attemptMocks.append
       .mockResolvedValueOnce({ data: null, error: new TypeError('Failed to fetch') })
-      .mockResolvedValueOnce({
-        data: {
-          attemptId: ATTEMPT_ID,
-          status: 'started',
-          lastSequence: 1,
-          journalHash: 'journal-1',
-          accepted: 1,
-          replayed: false,
-        },
-        error: null,
-      });
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            releaseRetry = resolve;
+          }),
+      );
     runStatsTracker.recordKill('Garen');
     runStatsTracker.recordDamage('Garen', 450);
     const summary = runStatsTracker.buildSummary({
@@ -195,7 +203,7 @@ describe('authoritative run lifecycle and recovery', () => {
     expect(useRunStore.getState()).toMatchObject({
       isActive: true,
       isEnding: false,
-      saveStatus: 'error',
+      saveStatus: 'failed',
       saveFailureKind: 'retryable',
     });
     expect(
@@ -205,7 +213,20 @@ describe('authoritative run lifecycle and recovery', () => {
     ).toHaveLength(1);
 
     useRunStore.setState({ gold: 999, totalWavesCompleted: 99, team: [] });
-    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toBe(true);
+    const retry = useRunStore.getState().endRun(false, RUN_UUID);
+    expect(useRunStore.getState().saveStatus).toBe('retrying');
+    releaseRetry?.({
+      data: {
+        attemptId: ATTEMPT_ID,
+        status: 'started',
+        lastSequence: 1,
+        journalHash: 'journal-1',
+        accepted: 1,
+        replayed: false,
+      },
+      error: null,
+    });
+    await expect(retry).resolves.toBe(true);
 
     expect(attemptMocks.append).toHaveBeenCalledTimes(2);
     expect(attemptMocks.append.mock.calls[1][1]).toHaveLength(1);
@@ -213,7 +234,7 @@ describe('authoritative run lifecycle and recovery', () => {
     expect(attemptMocks.verify).toHaveBeenCalledWith(ATTEMPT_ID);
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
-      saveStatus: 'success',
+      saveStatus: 'saved',
       completedRunSnapshot: frozenSnapshot,
       serverProgression: progression,
     });
@@ -243,6 +264,63 @@ describe('authoritative run lifecycle and recovery', () => {
     });
   });
 
+  it('does not let a hanging profile refresh block a durable verification', async () => {
+    useAuthStore.setState({ refreshPlayer: vi.fn(() => new Promise<void>(() => undefined)) });
+
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toBe(true);
+
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      saveStatus: 'saved',
+      serverProgression: progression,
+    });
+  });
+
+  it('coalesces simultaneous end commands into one persisted result', async () => {
+    let releaseAppend:
+      | ((value: {
+          data: {
+            attemptId: string;
+            status: string;
+            lastSequence: number;
+            journalHash: string;
+            accepted: number;
+            replayed: boolean;
+          };
+          error: null;
+        }) => void)
+      | undefined;
+    attemptMocks.append.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseAppend = resolve;
+        }),
+    );
+
+    const first = useRunStore.getState().endRun(false, RUN_UUID);
+    const second = useRunStore.getState().endRun(false, RUN_UUID);
+
+    expect(useRunStore.getState().saveStatus).toBe('saving');
+    expect(attemptMocks.append).toHaveBeenCalledOnce();
+    releaseAppend?.({
+      data: {
+        attemptId: ATTEMPT_ID,
+        status: 'started',
+        lastSequence: 1,
+        journalHash: 'journal-1',
+        accepted: 1,
+        replayed: false,
+      },
+      error: null,
+    });
+
+    await expect(Promise.all([first, second])).resolves.toEqual([true, true]);
+    expect(attemptMocks.append).toHaveBeenCalledOnce();
+    expect(attemptMocks.seal).toHaveBeenCalledOnce();
+    expect(attemptMocks.verify).toHaveBeenCalledOnce();
+    expect(useRunStore.getState().saveStatus).toBe('saved');
+  });
+
   it('closes a rejected attempt without granting progression and without offering a retry', async () => {
     attemptMocks.verify.mockResolvedValue({
       data: null,
@@ -253,7 +331,7 @@ describe('authoritative run lifecycle and recovery', () => {
 
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
-      saveStatus: 'error',
+      saveStatus: 'failed',
       saveFailureKind: 'terminal',
       serverProgression: null,
       rewardsApplied: false,

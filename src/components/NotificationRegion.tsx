@@ -9,8 +9,8 @@ export function NotificationRegion() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (saveStatus === 'success') setMessage('Run sauvegardée.');
-    if (saveStatus === 'error') setMessage(saveError || 'La sauvegarde a échoué.');
+    if (saveStatus === 'saved') setMessage('Run sauvegardée.');
+    if (saveStatus === 'failed') setMessage(saveError || 'La sauvegarde a échoué.');
   }, [saveStatus, saveError]);
 
   useEffect(() => {
