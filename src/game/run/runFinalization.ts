@@ -53,7 +53,8 @@ export async function finalizeCombatRun(
     runLevel: terminalState.runLevel,
   });
 
-  const completed = await terminalState.endRun(won, runId, summary);
+  const completion = await terminalState.endRun(won, runId, summary);
+  const completed = completion.success;
   const after = useRunStore.getState();
   const queuedForRetry =
     !completed &&

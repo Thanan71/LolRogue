@@ -257,18 +257,23 @@ seule écriture distante et l'ancien RPC séparé de loadout est supprimé.
 remplacer l'état. Le flux Daily est accessible pendant une run et peut déclencher ce
 cas. Le store accepte aussi une équipe vide, des doublons et des IDs inconnus.
 
-- [ ] Faire retourner un `Result` typé et asynchrone à `startRun`/`endRun`.
-- [ ] Refuser une nouvelle run tant que sauvegarde ou abandon n'a pas abouti.
-- [ ] Demander une confirmation unique avant Normal, Daily, logout ou nouvelle run.
-- [ ] Annuler la navigation et conserver l'ancienne run si la sauvegarde échoue.
-- [ ] Valider côté domaine une équipe non vide, unique, connue et conforme au nombre
+- [x] Faire retourner un `Result` typé et asynchrone à `startRun`/`endRun`.
+- [x] Refuser une nouvelle run tant que sauvegarde ou abandon n'a pas abouti.
+- [x] Demander une confirmation unique avant Normal, Daily, logout ou nouvelle run.
+- [x] Annuler la navigation et conserver l'ancienne run si la sauvegarde échoue.
+- [x] Valider côté domaine une équipe non vide, unique, connue et conforme au nombre
   de slots débloqués.
-- [ ] Rendre les garde-routes dépendantes de la machine d'état, pas de conditions
+- [x] Rendre les garde-routes dépendantes de la machine d'état, pas de conditions
   dispersées dans les pages.
-- [ ] Tester erreur réseau, double clic, deux onglets et accès direct par URL.
+- [x] Tester erreur réseau, double clic, deux onglets et accès direct par URL.
 
 **Acceptation :** aucune commande ou route ne peut remplacer silencieusement une run
 active ou créer un état de départ invalide.
+
+**Statut : terminé.** Un départ ne termine plus implicitement la run courante :
+l'abandon explicite et sa confirmation précèdent la transition. Les départs sont
+sérialisés dans l'onglet et entre onglets, les routes suivent une phase de cycle de
+vie unique, et le serveur conserve le verrou jusqu'à la fin de la vérification.
 
 ### P0-RUN-03 — Fermer l'exploitation de la carte
 

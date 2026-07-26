@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi } from 'vitest';
 import type { User } from '@supabase/supabase-js';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
@@ -101,6 +101,58 @@ describe('P2 page smoke tests', () => {
     expect(screen.getByRole('heading', { name: 'LoL Rogue' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /play$/i })).toBeInTheDocument();
     expect(screen.getByText('Guest Mode')).toBeInTheDocument();
+  });
+
+  it('resumes an active Daily without asking to abandon it', async () => {
+    const confirm = vi.spyOn(window, 'confirm');
+    useRunStore.setState({
+      isActive: true,
+      mode: 'daily',
+      runId: 'daily-active',
+      team: [{ championId: 'Garen' }],
+    });
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<MenuPage />} />
+          <Route path="/run" element={<div>Daily run resumed</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Daily Run/i }));
+
+    expect(await screen.findByText('Daily run resumed')).toBeInTheDocument();
+    expect(confirm).not.toHaveBeenCalled();
+    confirm.mockRestore();
+  });
+
+  it('keeps a Normal run when the Daily switch confirmation is cancelled', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    useRunStore.setState({
+      isActive: true,
+      mode: 'normal',
+      runId: 'normal-active',
+      team: [{ championId: 'Garen' }],
+    });
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<MenuPage />} />
+          <Route path="/daily-run" element={<div>Daily destination</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Daily Run/i }));
+
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Daily destination')).not.toBeInTheDocument();
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: true,
+      runId: 'normal-active',
+    });
+    confirm.mockRestore();
   });
 
   it('renders an active run map', () => {

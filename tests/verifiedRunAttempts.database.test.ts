@@ -13,6 +13,10 @@ const hardeningSql = readFileSync(
   ),
   'utf8',
 );
+const protectedRunStartSql = readFileSync(
+  new URL('../supabase/migrations/20260726220000_protect_active_run_start.sql', import.meta.url),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -101,11 +105,72 @@ describe('verified run attempt migration', () => {
     expect(hardeningSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
     expect(hardeningSql).not.toMatch(/\bDELETE\s+FROM\b/i);
   });
+
+  it('keeps one attempt open through verification and derives starter slots from mastery', () => {
+    expect(protectedRunStartSql).toContain("'started', 'finished', 'verifying'");
+    expect(protectedRunStartSql).toContain('reject_concurrent_run_attempt_start');
+    expect(protectedRunStartSql).toContain("'starter_slot_2'");
+    expect(protectedRunStartSql).toContain("'starter_slot_3'");
+    expect(protectedRunStartSql).toContain("'starter_slots_locked'");
+  });
 });
 
 const describeWithSupabase = hasSupabaseCredentials ? describe : describe.skip;
 
 describeWithSupabase('verified run attempt live security', () => {
+  it('allows earned starter slots while keeping concurrent starts closed', async () => {
+    const admin = createClient(supabaseUrl!, serviceRoleKey!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const userClient = createClient(supabaseUrl!, anonKey!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    let userId: string | null = null;
+
+    try {
+      const signup = await userClient.auth.signUp({
+        email: `starter-slots-${suffix}@example.test`,
+        password: 'Test-password-42!',
+        options: { data: { username: `slots-${suffix}`.slice(0, 50) } },
+      });
+      expect(signup.error).toBeNull();
+      userId = signup.data.user!.id;
+
+      const profile = await admin.from('players').select('id').eq('user_id', userId).single();
+      expect(profile.error).toBeNull();
+      const mastery = await admin.from('champion_mastery').insert({
+        player_id: profile.data!.id,
+        champion_id: 'Garen',
+        total_candies: 50,
+        mastery_level: 1,
+        current_level_candies: 0,
+        unlocked_ids: ['starter_slot_2'],
+      });
+      expect(mastery.error).toBeNull();
+
+      const started = await userClient.rpc('start_run_attempt', {
+        p_command_id: randomUUID(),
+        p_team: ['Garen', 'Annie'],
+        p_rune_ids: [],
+        p_difficulty: 'normal',
+        p_mode: 'normal',
+      });
+      expect(started.error).toBeNull();
+
+      const concurrent = await userClient.rpc('start_run_attempt', {
+        p_command_id: randomUUID(),
+        p_team: ['Lux'],
+        p_rune_ids: [],
+        p_difficulty: 'normal',
+        p_mode: 'normal',
+      });
+      expect(concurrent.error?.message).toContain('run_attempt_already_open');
+    } finally {
+      if (userId) await admin.auth.admin.deleteUser(userId);
+    }
+  });
+
   it('denies client forgery and credits one claimed result exactly once', async () => {
     const admin = createClient(supabaseUrl!, serviceRoleKey!, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -156,7 +221,7 @@ describeWithSupabase('verified run attempt live security', () => {
         p_difficulty: 'normal',
         p_mode: 'normal',
       });
-      expect(oversizedStarter.error?.message).toContain('verified_run_requires_one_starter');
+      expect(oversizedStarter.error?.message).toContain('starter_slots_locked');
 
       const nonKeystoneRune = await userClient.rpc('start_run_attempt', {
         p_command_id: randomUUID(),

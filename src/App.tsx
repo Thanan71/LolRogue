@@ -4,6 +4,7 @@ import { AdminRoute } from './components/AdminRoute';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RouteLoadingFallback } from './components/AppErrorBoundary';
+import { RunLifecycleRoute } from './components/RunLifecycleRoute';
 import { getTextSizeMultiplier, useSettingsStore } from './stores/settingsStore';
 import './styles/starter-select.css';
 
@@ -111,7 +112,9 @@ export default function App() {
             path="/starter-select"
             element={
               <ProtectedRoute>
-                <StarterSelectPage />
+                <RunLifecycleRoute intent="start">
+                  <StarterSelectPage />
+                </RunLifecycleRoute>
               </ProtectedRoute>
             }
           />
@@ -187,7 +190,9 @@ export default function App() {
             path="/game-over"
             element={
               <ProtectedRoute>
-                <GameOverPage />
+                <RunLifecycleRoute intent="game-over">
+                  <GameOverPage />
+                </RunLifecycleRoute>
               </ProtectedRoute>
             }
           />
@@ -195,7 +200,9 @@ export default function App() {
             path="/daily-run"
             element={
               <ProtectedRoute>
-                <DailyRunPage />
+                <RunLifecycleRoute intent="daily">
+                  <DailyRunPage />
+                </RunLifecycleRoute>
               </ProtectedRoute>
             }
           />

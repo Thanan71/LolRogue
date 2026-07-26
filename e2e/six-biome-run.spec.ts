@@ -63,9 +63,13 @@ test('a guest run progresses deterministically through all six biomes', async ({
   const completed = await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');
     const runId = useRunStore.getState().runId;
-    const saved = await useRunStore.getState().endRun(true, runId);
-    return { saved, isActive: useRunStore.getState().isActive };
+    const result = await useRunStore.getState().endRun(true, runId);
+    return {
+      saved: result.success,
+      outcome: result.success ? result.outcome : result.code,
+      isActive: useRunStore.getState().isActive,
+    };
   });
 
-  expect(completed).toEqual({ saved: true, isActive: false });
+  expect(completed).toEqual({ saved: true, outcome: 'saved', isActive: false });
 });

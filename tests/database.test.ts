@@ -76,6 +76,10 @@ const atomicRunFinalizationSql = readFileSync(
   new URL('../supabase/migrations/20260726210000_atomic_run_finalization.sql', import.meta.url),
   'utf8',
 );
+const protectedRunStartSql = readFileSync(
+  new URL('../supabase/migrations/20260726220000_protect_active_run_start.sql', import.meta.url),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -155,6 +159,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql',
       '../supabase/migrations/20260726180000_minimize_public_data_and_harden_logs.sql',
       '../supabase/migrations/20260726210000_atomic_run_finalization.sql',
+      '../supabase/migrations/20260726220000_protect_active_run_start.sql',
     ]);
   });
 
@@ -352,6 +357,19 @@ describe('Supabase existing database upgrade', () => {
     expect(completionBody).toContain('items_collected');
     expect(completionBody).toContain('UPDATE public.players');
     expect(completionBody).toContain('INSERT INTO public.champion_mastery');
+  });
+
+  it('serializes starts through verification and enforces unlocked starter slots', () => {
+    expect(protectedRunStartSql).toContain("WHERE status IN ('started', 'finished', 'verifying')");
+    expect(protectedRunStartSql).toContain('CREATE UNIQUE INDEX run_attempts_one_open_per_user');
+    expect(protectedRunStartSql).toContain(
+      'CREATE FUNCTION public.reject_concurrent_run_attempt_start',
+    );
+    expect(protectedRunStartSql).toContain("RAISE EXCEPTION 'run_attempt_already_open'");
+    expect(protectedRunStartSql).toContain("'starter_slot_2' = ANY(mastery.unlocked_ids)");
+    expect(protectedRunStartSql).toContain("'starter_slot_3' = ANY(mastery.unlocked_ids)");
+    expect(protectedRunStartSql).toContain("RAISE EXCEPTION 'starter_slots_locked'");
+    expect(protectedRunStartSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
   });
 
   it('increments mastery and spends enhancement candies atomically', () => {

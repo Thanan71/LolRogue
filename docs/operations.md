@@ -57,6 +57,12 @@ uniquement la finalisation autoritaire. Une run dont la vérification dépasse
 navigateur avant que l'utilisateur ait relancé la vérification ou que le statut
 serveur soit récupéré.
 
+La migration `20260726220000_protect_active_run_start.sql` étend l'unicité d'une
+tentative ouverte au statut `verifying`, rejette les départs concurrents et
+calcule les slots de starter depuis la maîtrise serveur. Déployer cette migration
+avec le client qui interprète les résultats typés `active_run`,
+`active_run_another_tab` et `start_in_progress`.
+
 `vercel.json` réécrit toutes les routes vers `index.html`, ce qui permet d'ouvrir
 directement `/auth`, `/run` ou `/admin`. Il définit également CSP, protection
 anti-frame, politique de permissions, referrer policy et `nosniff`. Toute nouvelle
@@ -76,6 +82,10 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
   confirmer que le même résumé réapparaît depuis le snapshot local ;
 - simuler une coupure réseau pendant la fin, confirmer l'état `failed`, puis
   relancer et observer `retrying → saved` sans seconde run ni double récompense ;
+- ouvrir deux onglets, lancer simultanément Normal puis Daily et confirmer qu'une
+  seule run devient active ; le second onglet doit proposer de reprendre ;
+- tenter d'ouvrir directement `/starter-select`, `/daily-run` et `/game-over`
+  pendant une run et confirmer le retour vers la run active ;
 - soumettre une trace impossible sur un compte de test et confirmer le statut
   `rejected` sans candies, maîtrise ni compteur supplémentaire ;
 - ouvrir le daily avec deux comptes et confirmer la même date UTC, la même seed,

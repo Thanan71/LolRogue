@@ -1,11 +1,12 @@
+import { useRef, useState } from 'react';
 import { ParticleBackground } from '@/components/ParticleBackground';
+import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuthStore } from '@/stores/authStore';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
-import { confirmRunAbandonment } from '@/game/run/abandonment';
 
 /* Inline SVG for the LoLRogue icon (shield + crossed swords motif) */
 function LolRogueIcon() {
@@ -79,49 +80,62 @@ export function MenuPage() {
   const team = useRunStore((s) => s.team);
   const endRun = useRunStore((s) => s.endRun);
   const { user, player, logout, isGuest, exitGuestMode } = useAuthStore();
+  const transitionRef = useRef(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   function handleContinue() {
     playUIClick();
     navigate(ROUTES.RUN);
   }
 
+  async function runTransition(transition: () => void | Promise<void>) {
+    if (transitionRef.current) return;
+    transitionRef.current = true;
+    setIsTransitioning(true);
+    try {
+      const state = useRunStore.getState();
+      const canContinue = await finalizeActiveRunBeforeTransition({
+        isActive: state.isActive,
+        runId: state.runId,
+        confirm: (message) => window.confirm(message),
+        endRun: (runId) => endRun(false, runId),
+      });
+      if (canContinue) await transition();
+    } finally {
+      transitionRef.current = false;
+      setIsTransitioning(false);
+    }
+  }
+
   async function handleNewRun() {
     playUIClick();
-    if (
-      !confirmRunAbandonment(isActive, () =>
-        window.confirm(
-          'Abandon this run? It will be recorded as a defeat and completed waves will still grant rewards.',
-        ),
-      )
-    ) {
-      return;
-    }
-    if (isActive && !(await endRun(false, useRunStore.getState().runId))) {
-      return;
-    }
-    navigate(ROUTES.STARTER_SELECT);
+    await runTransition(() => navigate(ROUTES.STARTER_SELECT));
   }
 
   async function handleLogout() {
     playUIClick();
-    if (
-      !confirmRunAbandonment(isActive, () =>
-        window.confirm('Logout and abandon this run? It will be recorded as a defeat.'),
-      )
-    ) {
-      return;
-    }
-    if (isActive && !(await endRun(false, useRunStore.getState().runId))) {
-      return;
-    }
-    await logout();
-    navigate(ROUTES.AUTH);
+    await runTransition(async () => {
+      await logout();
+      navigate(ROUTES.AUTH);
+    });
   }
 
-  function handleGuestLogin() {
+  async function handleGuestLogin() {
     playUIClick();
-    exitGuestMode();
-    navigate(ROUTES.AUTH);
+    await runTransition(() => {
+      exitGuestMode();
+      navigate(ROUTES.AUTH);
+    });
+  }
+
+  async function handleDailyRun() {
+    playUIClick();
+    const state = useRunStore.getState();
+    if (state.isActive && state.mode === 'daily') {
+      navigate(ROUTES.RUN);
+      return;
+    }
+    await runTransition(() => navigate(ROUTES.DAILY_RUN));
   }
 
   const displayName = player?.display_name || user?.email?.split('@')[0] || 'Player';
@@ -175,6 +189,7 @@ export function MenuPage() {
         <button
           className={`main-menu__btn ${isActive ? 'main-menu__btn--new' : 'main-menu__btn--play'}`}
           onClick={handleNewRun}
+          disabled={isTransitioning}
         >
           <span className="main-menu__btn-icon">⚔</span>
           {isActive ? 'Abandon & New Run' : 'Play'}
@@ -182,10 +197,8 @@ export function MenuPage() {
 
         <button
           className="main-menu__btn main-menu__btn--daily"
-          onClick={() => {
-            playUIClick();
-            navigate(ROUTES.DAILY_RUN);
-          }}
+          onClick={handleDailyRun}
+          disabled={isTransitioning}
         >
           <span className="main-menu__btn-icon">☀</span>
           Daily Run
@@ -244,13 +257,21 @@ export function MenuPage() {
         )}
 
         {!isGuest && (
-          <button className="main-menu__btn main-menu__btn--logout" onClick={handleLogout}>
+          <button
+            className="main-menu__btn main-menu__btn--logout"
+            onClick={handleLogout}
+            disabled={isTransitioning}
+          >
             Logout
           </button>
         )}
 
         {isGuest && (
-          <button className="main-menu__btn main-menu__btn--logout" onClick={handleGuestLogin}>
+          <button
+            className="main-menu__btn main-menu__btn--logout"
+            onClick={handleGuestLogin}
+            disabled={isTransitioning}
+          >
             Login / Create Account
           </button>
         )}

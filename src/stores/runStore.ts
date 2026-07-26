@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { championDB, implementedChampions } from '@/data';
+import { championDB } from '@/data';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import {
@@ -14,6 +14,8 @@ import {
   getSurvivingChampionIds,
   shouldApplyRunRewards,
 } from '@/game/run/runState';
+import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStartCoordinator';
+import { getUnlockedStarterSlotCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { RepositoryContainerFactory } from '@/services/container';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { runStatsTracker } from '@/services/RunStatsTracker';
@@ -33,6 +35,9 @@ import {
   MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
   type RunStore,
+  type RunEndResult,
+  type RunLifecycleErrorCode,
+  type RunStartResult,
   type RunSummary,
   type TeamMember,
 } from '@/types/run';
@@ -118,6 +123,23 @@ function isValidCommand(command: RunCommandInput): boolean {
   );
 }
 
+function startFailure(
+  code: RunLifecycleErrorCode,
+  error: string,
+  retryable = false,
+): RunStartResult {
+  return { success: false, code, error, retryable };
+}
+
+function endFailure(
+  runId: string,
+  code: RunLifecycleErrorCode,
+  error: string,
+  retryable = false,
+): RunEndResult {
+  return { success: false, runId, code, error, retryable };
+}
+
 async function refreshVerifiedProgression(userId: string): Promise<void> {
   try {
     await useAuthStore.getState().refreshPlayer();
@@ -144,6 +166,7 @@ async function refreshVerifiedProgression(userId: string): Promise<void> {
 }
 
 let inFlightFinalization: { runId: string; promise: Promise<boolean> } | null = null;
+let isRunStartInFlight = false;
 
 // ─── Store ──────────────────────────────────────────────────────────────────
 
@@ -155,194 +178,196 @@ export const useRunStore = create<RunStore>()(
       // ── Run Lifecycle ───────────────────────────────────────────────────
 
       startRun: async (championIds, options = {}) => {
-        // If there's an active run, end it first (this will save it if conditions are met)
-        const currentState = get();
-        if (currentState.isActive) {
-          logger.debug('[runStore.startRun] Active run detected, ending current run first');
-          // End the current run (loss, since user is abandoning it to start new)
-          const saved = await get().endRun(false, currentState.runId);
-          if (!saved) {
-            logger.warn(
-              '[runStore.startRun] The active run could not be saved; keeping it retryable',
-            );
-            return { success: false, error: 'The active run could not be finalized.' };
-          }
+        if (isRunStartInFlight) {
+          return startFailure('start_in_progress', 'A run start is already being verified.', true);
         }
+        isRunStartInFlight = true;
+        try {
+          return await withExclusiveRunStart(async () => {
+            const currentState = get();
+            if (currentState.isActive || currentState.isEnding) {
+              return startFailure(
+                'active_run',
+                'Finish or explicitly abandon the active run before starting another.',
+                currentState.isEnding,
+              );
+            }
+            const persistedActiveRun = getPersistedActiveRun();
+            if (persistedActiveRun) {
+              return startFailure(
+                'active_run_another_tab',
+                `Run ${persistedActiveRun.runId} is active in another tab. Resume it instead of starting a new one.`,
+                true,
+              );
+            }
 
-        const authUser = useAuthStore.getState().user;
-        const resumableStart =
-          authUser && get().pendingAuthorityStart?.ownerUserId === authUser.id
-            ? get().pendingAuthorityStart
-            : null;
-        const requestedChampionIds = resumableStart?.team ?? championIds;
-
-        // Validate champion IDs - filter out any invalid IDs
-        const supportedChampionIds = new Set(implementedChampions.map((champion) => champion.id));
-        const validChampionIds = requestedChampionIds.filter((id) => {
-          if (!id || typeof id !== 'string') return false;
-          const champ = championDB.getById(id);
-          if (!champ) {
-            logger.warn(
-              `[runStore.startRun] Invalid champion ID "${id}" - champion not found in database`,
+            const authUser = useAuthStore.getState().user;
+            const resumableStart =
+              authUser && get().pendingAuthorityStart?.ownerUserId === authUser.id
+                ? get().pendingAuthorityStart
+                : null;
+            const requestedChampionIds = resumableStart?.team ?? championIds;
+            const unlockedIds = Object.values(useMasteryStore.getState().champions).flatMap(
+              (mastery) => mastery.unlockedIds,
             );
-            return false;
-          }
-          if (!supportedChampionIds.has(champ.id)) {
-            logger.warn(
-              `[runStore.startRun] Unsupported champion ID "${id}" - not in implemented champion list`,
+            const teamValidation = validateRunStartTeam(
+              requestedChampionIds,
+              getUnlockedStarterSlotCount(unlockedIds),
             );
-            return false;
-          }
-          return true;
-        });
+            if (!teamValidation.valid) {
+              return startFailure(
+                teamValidation.code ?? 'invalid_team_size',
+                teamValidation.error ?? 'The starting team is invalid.',
+              );
+            }
+            const team: TeamMember[] = teamValidation.championIds.map((id) => ({
+              championId: id,
+            }));
 
-        const team: TeamMember[] = validChampionIds
-          .slice(0, MAX_TEAM_SIZE)
-          .map((id) => ({ championId: id }));
-        if (team.length === 0) {
-          return { success: false, error: 'Select at least one valid champion.' };
-        }
+            const mode = resumableStart?.mode ?? options.mode ?? 'normal';
+            let canonicalMode = mode;
+            const requestedRuneIds = resumableStart
+              ? [...resumableStart.runeIds]
+              : [...new Set((options.runeIds ?? []).filter(Boolean))].slice(0, 3);
 
-        const mode = resumableStart?.mode ?? options.mode ?? 'normal';
-        let canonicalMode = mode;
-        const requestedRuneIds = resumableStart
-          ? [...resumableStart.runeIds]
-          : [...new Set((options.runeIds ?? []).filter(Boolean))].slice(0, 3);
+            let runId: string;
+            let seed: number;
+            let startedAt: string;
+            let authorityAttempt: RunAuthorityAttempt | null = null;
+            let canonicalTeam = team;
+            let canonicalRuneIds = requestedRuneIds;
 
-        let runId: string;
-        let seed: number;
-        let startedAt: string;
-        let authorityAttempt: RunAuthorityAttempt | null = null;
-        let canonicalTeam = team;
-        let canonicalRuneIds = requestedRuneIds;
+            if (authUser) {
+              const difficulty =
+                resumableStart?.difficulty ??
+                options.difficulty ??
+                useSettingsStore.getState().difficulty;
+              const requestedStart = {
+                ownerUserId: authUser.id,
+                mode,
+                team: team.map((member) => member.championId),
+                runeIds: requestedRuneIds,
+                difficulty,
+              } satisfies Omit<PendingRunAttemptStart, 'commandId'>;
+              const pending = get().pendingAuthorityStart;
+              const commandId =
+                resumableStart?.commandId ??
+                (samePendingStart(pending, requestedStart) ? pending.commandId : createCommandId());
+              if (!commandId) {
+                const error = 'This browser cannot create a secure run command.';
+                set({ saveError: error });
+                return startFailure('secure_command_unavailable', error);
+              }
 
-        if (authUser) {
-          const difficulty =
-            resumableStart?.difficulty ??
-            options.difficulty ??
-            useSettingsStore.getState().difficulty;
-          const requestedStart = {
-            ownerUserId: authUser.id,
-            mode,
-            team: team.map((member) => member.championId),
-            runeIds: requestedRuneIds,
-            difficulty,
-          } satisfies Omit<PendingRunAttemptStart, 'commandId'>;
-          const pending = get().pendingAuthorityStart;
-          const commandId =
-            resumableStart?.commandId ??
-            (samePendingStart(pending, requestedStart) ? pending.commandId : createCommandId());
-          if (!commandId) {
-            const error = 'This browser cannot create a secure run command.';
-            set({ saveError: error });
-            return { success: false, error };
-          }
+              const pendingAuthorityStart = { commandId, ...requestedStart };
+              set({ pendingAuthorityStart, saveError: null });
+              const attemptResult = await startRunAttempt({
+                commandId,
+                mode,
+                team: requestedStart.team,
+                runeIds: requestedRuneIds,
+                difficulty,
+              });
+              if (attemptResult.error || !attemptResult.data) {
+                const error = attemptResult.error?.message ?? 'Unable to start a verified run.';
+                set({ saveError: error });
+                return startFailure('start_failed', error, true);
+              }
+              if (useAuthStore.getState().user?.id !== authUser.id) {
+                const error = 'The authenticated account changed while starting the run.';
+                set({ saveError: error });
+                return startFailure('account_changed', error, true);
+              }
 
-          const pendingAuthorityStart = { commandId, ...requestedStart };
-          set({ pendingAuthorityStart, saveError: null });
-          const attemptResult = await startRunAttempt({
-            commandId,
-            mode,
-            team: requestedStart.team,
-            runeIds: requestedRuneIds,
-            difficulty,
+              const attempt = attemptResult.data;
+              canonicalMode = attempt.mode;
+              runId = attempt.runUuid;
+              seed = attempt.seed;
+              startedAt = attempt.startedAt;
+              canonicalTeam = attempt.initialTeam.map((championId) => ({ championId }));
+              canonicalRuneIds = attempt.runeIds;
+              authorityAttempt = {
+                attemptId: attempt.attemptId,
+                runUuid: attempt.runUuid,
+                ownerUserId: authUser.id,
+                seed: attempt.seed,
+                rulesetVersion: attempt.rulesetVersion,
+                engineVersion: attempt.engineVersion,
+                difficulty: attempt.difficulty,
+                mode: attempt.mode,
+                dailyDate: attempt.dailyDate,
+                dailyRulesetVersion: attempt.dailyRulesetVersion,
+                dailyScoreVersion: attempt.dailyScoreVersion,
+                initialTeam: [...attempt.initialTeam],
+                runeIds: [...attempt.runeIds],
+                enhancementSnapshot: attempt.enhancementSnapshot,
+                startedAt: attempt.startedAt,
+                expiresAt: attempt.expiresAt,
+                status: attempt.status,
+                commands: [],
+                nextSequence: attempt.lastSequence + 1,
+                lastAcknowledgedSequence: attempt.lastSequence,
+                journalHash: attempt.journalHash,
+                finishCommandId: null,
+              };
+            } else {
+              runId = `run_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+              seed = options.seed ?? Date.now();
+              startedAt = new Date().toISOString();
+            }
+
+            // Authenticated content is generated only after the server has frozen
+            // the seed/ruleset; guest mode keeps its local deterministic seed.
+            const biomeMaps = generateBiomeMaps(seed);
+            const startNodeId = biomeMaps[0]?.startNodeId ?? null;
+            const startBiome = biomeMaps[0]?.biome ?? null;
+
+            // Reset stats tracker for new run
+            runStatsTracker.reset();
+
+            set({
+              isActive: true,
+              mode: canonicalMode,
+              runId,
+              seed,
+              startedAt,
+              authorityAttempt,
+              pendingAuthorityStart: null,
+              isEnding: false,
+              saveStatus: 'idle',
+              saveError: null,
+              saveFailureKind: null,
+              completedRunSnapshot: null,
+              serverProgression: null,
+              rewardsApplied: false,
+              completedCombatStats: [],
+              nextItemInstanceId: 1,
+              team: canonicalTeam,
+              runLevel: 1,
+              biomesVisited: startBiome ? [startBiome] : [],
+              currentBiome: startBiome,
+              inventory: [],
+              runeIds: canonicalRuneIds,
+              augmentIds: [],
+              pendingAugmentIds: [],
+              lastCombatRewards: null,
+              pendingSpellUpgradeChampionIds: [],
+              gold: 0,
+              currentWave: 1,
+              totalWavesCompleted: 0,
+              biomeMaps,
+              currentBiomeIndex: 0,
+              currentNodeId: startNodeId,
+              completedNodeIds: [],
+              claimedEncounterNodeIds: [],
+              pendingEncounter: null,
+              currentEncounter: null,
+            });
+            return { success: true, runId, mode: canonicalMode };
           });
-          if (attemptResult.error || !attemptResult.data) {
-            const error = attemptResult.error?.message ?? 'Unable to start a verified run.';
-            set({ saveError: error });
-            return { success: false, error };
-          }
-          if (useAuthStore.getState().user?.id !== authUser.id) {
-            const error = 'The authenticated account changed while starting the run.';
-            set({ saveError: error });
-            return { success: false, error };
-          }
-
-          const attempt = attemptResult.data;
-          canonicalMode = attempt.mode;
-          runId = attempt.runUuid;
-          seed = attempt.seed;
-          startedAt = attempt.startedAt;
-          canonicalTeam = attempt.initialTeam.map((championId) => ({ championId }));
-          canonicalRuneIds = attempt.runeIds;
-          authorityAttempt = {
-            attemptId: attempt.attemptId,
-            runUuid: attempt.runUuid,
-            ownerUserId: authUser.id,
-            seed: attempt.seed,
-            rulesetVersion: attempt.rulesetVersion,
-            engineVersion: attempt.engineVersion,
-            difficulty: attempt.difficulty,
-            mode: attempt.mode,
-            dailyDate: attempt.dailyDate,
-            dailyRulesetVersion: attempt.dailyRulesetVersion,
-            dailyScoreVersion: attempt.dailyScoreVersion,
-            initialTeam: [...attempt.initialTeam],
-            runeIds: [...attempt.runeIds],
-            enhancementSnapshot: attempt.enhancementSnapshot,
-            startedAt: attempt.startedAt,
-            expiresAt: attempt.expiresAt,
-            status: attempt.status,
-            commands: [],
-            nextSequence: attempt.lastSequence + 1,
-            lastAcknowledgedSequence: attempt.lastSequence,
-            journalHash: attempt.journalHash,
-            finishCommandId: null,
-          };
-        } else {
-          runId = `run_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-          seed = options.seed ?? Date.now();
-          startedAt = new Date().toISOString();
+        } finally {
+          isRunStartInFlight = false;
         }
-
-        // Authenticated content is generated only after the server has frozen
-        // the seed/ruleset; guest mode keeps its local deterministic seed.
-        const biomeMaps = generateBiomeMaps(seed);
-        const startNodeId = biomeMaps[0]?.startNodeId ?? null;
-        const startBiome = biomeMaps[0]?.biome ?? null;
-
-        // Reset stats tracker for new run
-        runStatsTracker.reset();
-
-        set({
-          isActive: true,
-          mode: canonicalMode,
-          runId,
-          seed,
-          startedAt,
-          authorityAttempt,
-          pendingAuthorityStart: null,
-          isEnding: false,
-          saveStatus: 'idle',
-          saveError: null,
-          saveFailureKind: null,
-          completedRunSnapshot: null,
-          serverProgression: null,
-          rewardsApplied: false,
-          completedCombatStats: [],
-          nextItemInstanceId: 1,
-          team: canonicalTeam,
-          runLevel: 1,
-          biomesVisited: startBiome ? [startBiome] : [],
-          currentBiome: startBiome,
-          inventory: [],
-          runeIds: canonicalRuneIds,
-          augmentIds: [],
-          pendingAugmentIds: [],
-          lastCombatRewards: null,
-          pendingSpellUpgradeChampionIds: [],
-          gold: 0,
-          currentWave: 1,
-          totalWavesCompleted: 0,
-          biomeMaps,
-          currentBiomeIndex: 0,
-          currentNodeId: startNodeId,
-          completedNodeIds: [],
-          claimedEncounterNodeIds: [],
-          pendingEncounter: null,
-          currentEncounter: null,
-        });
-        return { success: true };
       },
 
       recordRunCommand: (command, explicitDedupeKey) => {
@@ -398,10 +423,43 @@ export const useRunStore = create<RunStore>()(
 
       endRun: async (won = false, expectedRunId?: string, displayedSummary?: RunSummary) => {
         const requestedRunId = expectedRunId ?? get().runId;
+        if (expectedRunId !== undefined && get().runId !== expectedRunId) {
+          return endFailure(
+            requestedRunId,
+            'stale_run',
+            'The requested run is no longer the active run.',
+          );
+        }
+        if (!get().isActive) {
+          return {
+            success: true,
+            runId: requestedRunId,
+            outcome: 'already_finalized',
+          };
+        }
         if (inFlightFinalization) {
-          return inFlightFinalization.runId === requestedRunId
-            ? inFlightFinalization.promise
-            : false;
+          if (inFlightFinalization.runId !== requestedRunId) {
+            return endFailure(
+              requestedRunId,
+              'finalization_in_progress',
+              'Another run finalization is already in progress.',
+              true,
+            );
+          }
+          const succeeded = await inFlightFinalization.promise;
+          const state = get();
+          return succeeded
+            ? {
+                success: true,
+                runId: requestedRunId,
+                outcome: state.saveFailureKind === 'terminal' ? 'terminal' : 'saved',
+              }
+            : endFailure(
+                requestedRunId,
+                'finalization_failed',
+                state.saveError ?? 'The run could not be finalized.',
+                state.saveFailureKind !== 'terminal',
+              );
         }
 
         const operation = (async (): Promise<boolean> => {
@@ -800,7 +858,20 @@ export const useRunStore = create<RunStore>()(
 
         inFlightFinalization = { runId: requestedRunId, promise: operation };
         try {
-          return await operation;
+          const succeeded = await operation;
+          const state = get();
+          return succeeded
+            ? {
+                success: true,
+                runId: requestedRunId,
+                outcome: state.saveFailureKind === 'terminal' ? 'terminal' : 'saved',
+              }
+            : endFailure(
+                requestedRunId,
+                'finalization_failed',
+                state.saveError ?? 'The run could not be finalized.',
+                state.saveFailureKind !== 'terminal',
+              );
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           logger.error('[runStore.endRun] Unexpected finalization failure:', error);
@@ -810,7 +881,12 @@ export const useRunStore = create<RunStore>()(
             saveError: message || 'The run could not be finalized.',
             saveFailureKind: 'retryable',
           });
-          return false;
+          return endFailure(
+            requestedRunId,
+            'finalization_failed',
+            message || 'The run could not be finalized.',
+            true,
+          );
         } finally {
           if (inFlightFinalization?.promise === operation) inFlightFinalization = null;
         }

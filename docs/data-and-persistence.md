@@ -74,6 +74,30 @@ Une partie invitée ne contacte pas la base. Seul le navigateur courant possède
 l'état et la progression; aucune fusion automatique n'est faite lors de la
 création ultérieure d'un compte.
 
+## Démarrage et remplacement d'une run
+
+`startRun` et `endRun` retournent des résultats discriminés et asynchrones. Le
+store ne transforme jamais implicitement une run active en défaite pour en
+démarrer une autre. Normal, Daily, logout et changement d'identité passent par la
+même confirmation d'abandon ; la transition est annulée si la finalisation reste
+retryable.
+
+La phase de cycle de vie (`inactive`, `starting`, `active`, `finalizing`,
+`recovery`, `completed`) est dérivée dans un seul module et pilote les
+garde-routes. Un accès direct à Starter, Daily ou Game Over ne peut donc ni
+contourner une run active, ni rouvrir un encounter terminal.
+
+Les doubles clics sont refusés par un verrou mémoire. Entre onglets, le navigateur
+utilise Web Locks puis relit `lolrogue-run-storage` dans la section critique : le
+second onglet reprend la run persistée au lieu de la remplacer. Pour un compte
+connecté, la base ajoute une seconde frontière : l'index et le trigger
+`run_attempts_one_open_per_user` couvrent `started`, `finished` et `verifying`.
+
+L'équipe initiale est validée sans filtrage silencieux : au moins un champion,
+aucun doublon, IDs connus et implémentés, et nombre de slots effectivement
+débloqués. La même limite est recalculée depuis `champion_mastery.unlocked_ids`
+par le trigger serveur ; un payload navigateur ne peut donc inventer un slot.
+
 ## Versions et historique
 
 `gameplay_rulesets` relie chaque attempt à une version de moteur et à un hash du

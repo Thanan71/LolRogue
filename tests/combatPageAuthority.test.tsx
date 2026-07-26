@@ -127,7 +127,11 @@ describe('CombatPage authority finalization', () => {
         goldReward: 50,
         itemDropChance: 0,
       },
-      endRun: vi.fn().mockResolvedValue(true),
+      endRun: vi.fn().mockResolvedValue({
+        success: true,
+        runId: RUN_UUID,
+        outcome: 'saved',
+      }),
     });
   });
 
@@ -144,10 +148,10 @@ describe('CombatPage authority finalization', () => {
   });
 
   it('persists before navigation and route unmount cannot cancel finalization', async () => {
-    let resolveSave: ((saved: boolean) => void) | undefined;
+    let resolveSave: ((saved: Awaited<ReturnType<typeof realEndRun>>) => void) | undefined;
     const endRun = vi.fn(
       () =>
-        new Promise<boolean>((resolve) => {
+        new Promise<Awaited<ReturnType<typeof realEndRun>>>((resolve) => {
           resolveSave = resolve;
         }),
     );
@@ -167,7 +171,7 @@ describe('CombatPage authority finalization', () => {
     view.unmount();
 
     await act(async () => {
-      resolveSave?.(true);
+      resolveSave?.({ success: true, runId: RUN_UUID, outcome: 'saved' });
       await Promise.resolve();
     });
 

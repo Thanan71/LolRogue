@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { ParticleBackground } from '@/components/ParticleBackground';
+import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
@@ -91,6 +92,7 @@ export function AuthPage() {
 
   const endRun = useRunStore((s) => s.endRun);
   const hasRedirected = useRef(false);
+  const identityTransitionRef = useRef(false);
 
   // Redirect if already authenticated (only once)
   useEffect(() => {
@@ -135,12 +137,23 @@ export function AuthPage() {
   };
 
   const handleGuestPlay = async () => {
+    if (identityTransitionRef.current) return;
+    identityTransitionRef.current = true;
     playUIClick();
-    // End any active run when switching to guest
-    const runState = useRunStore.getState();
-    if (runState.isActive && !(await endRun(false, runState.runId))) return;
-    enterGuestMode();
-    navigate(ROUTES.MENU);
+    try {
+      const runState = useRunStore.getState();
+      const canContinue = await finalizeActiveRunBeforeTransition({
+        isActive: runState.isActive,
+        runId: runState.runId,
+        confirm: (message) => window.confirm(message),
+        endRun: (runId) => endRun(false, runId),
+      });
+      if (!canContinue) return;
+      enterGuestMode();
+      navigate(ROUTES.MENU);
+    } finally {
+      identityTransitionRef.current = false;
+    }
   };
 
   const isFormValid = () => {

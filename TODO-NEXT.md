@@ -58,11 +58,11 @@ Le constat historique doit être mis à jour : `startRun` attend désormais `end
 - [x] Attendre le résultat de `endRun` avant de remplacer une run active.
 - [x] Annuler le nouveau départ si la finalisation de la run précédente échoue.
 - [x] Refuser un départ sans au moins un champion valide et filtrer les champions non implémentés.
-- [ ] Vérifier les doublons et contraintes de slots au niveau domaine/serveur, pas seulement dans l'UI.
-- [ ] Bloquer ou arbitrer explicitement les courses entre deux onglets.
-- [ ] Uniformiser la confirmation avant Normal, Daily, logout, changement de compte ou nouvelle run.
-- [ ] Centraliser les garde-routes autour d'une machine d'état unique de la run.
-- [ ] Tester double clic, erreur réseau, accès direct URL et changement d'identité pendant une finalisation.
+- [x] Vérifier les doublons et contraintes de slots au niveau domaine/serveur, pas seulement dans l'UI.
+- [x] Bloquer ou arbitrer explicitement les courses entre deux onglets.
+- [x] Uniformiser la confirmation avant Normal, Daily, logout, changement de compte ou nouvelle run.
+- [x] Centraliser les garde-routes autour d'une machine d'état unique de la run.
+- [x] Tester double clic, erreur réseau, accès direct URL et changement d'identité pendant une finalisation.
 
 **Acceptation :** le ticket reflète l'état actuel du code et ne garde pas ouverts des constats déjà corrigés.
 

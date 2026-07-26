@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EncounterRoute } from '@/components/EncounterRoute';
+import { RunLifecycleRoute } from '@/components/RunLifecycleRoute';
 import { RunPage } from '@/pages/RunPage';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -137,6 +138,63 @@ describe('terminal run route guards', () => {
 
     expect(screen.getByText('Run map content')).toBeInTheDocument();
     expect(screen.queryByText('Terminal Game Over')).not.toBeInTheDocument();
+    view.unmount();
+  });
+
+  it.each([
+    ['/starter-select', 'start' as const],
+    ['/daily-run', 'daily' as const],
+    ['/game-over', 'game-over' as const],
+  ])('redirects direct %s access back to the active run', async (path, intent) => {
+    useRunStore.setState({
+      ...RUN_INITIAL_STATE,
+      isActive: true,
+      runId: 'active-run',
+      team: [{ championId: 'Garen' }],
+    });
+
+    const view = render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route
+            path={path}
+            element={
+              <RunLifecycleRoute intent={intent}>
+                <div>Protected lifecycle content</div>
+              </RunLifecycleRoute>
+            }
+          />
+          <Route path="/run" element={<div>Existing active run</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText('Existing active run')).toBeInTheDocument();
+    expect(screen.queryByText('Protected lifecycle content')).not.toBeInTheDocument();
+    view.unmount();
+  });
+
+  it('redirects start routes to Game Over while finalization recovery is pending', async () => {
+    setRetryableTerminalRun();
+
+    const view = render(
+      <MemoryRouter initialEntries={['/starter-select']}>
+        <Routes>
+          <Route
+            path="/starter-select"
+            element={
+              <RunLifecycleRoute intent="start">
+                <div>Starter content</div>
+              </RunLifecycleRoute>
+            }
+          />
+          <Route path="/game-over" element={<div>Recover finalization first</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText('Recover finalization first')).toBeInTheDocument();
+    expect(screen.queryByText('Starter content')).not.toBeInTheDocument();
     view.unmount();
   });
 });

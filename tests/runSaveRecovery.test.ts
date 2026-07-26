@@ -109,6 +109,30 @@ const progression = {
   progressionSource: 'verified' as const,
 };
 
+function verifiedStartResponse() {
+  return {
+    data: {
+      attemptId: ATTEMPT_ID,
+      runUuid: RUN_UUID,
+      status: 'started' as const,
+      rulesetVersion: 1,
+      engineVersion: 'run-engine-v1',
+      seed: 987654,
+      mode: 'normal' as const,
+      difficulty: 'normal' as const,
+      initialTeam: ['Garen'],
+      runeIds: [],
+      enhancementSnapshot: { Garen: {} },
+      startedAt: '2026-07-23T12:00:00.000Z',
+      expiresAt: '2026-07-24T12:00:00.000Z',
+      lastSequence: 0,
+      journalHash: 'initial-hash',
+      replayed: false,
+    },
+    error: null,
+  };
+}
+
 describe('authoritative run lifecycle and recovery', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -157,6 +181,7 @@ describe('authoritative run lifecycle and recovery', () => {
 
   afterEach(() => {
     runStatsTracker.reset();
+    vi.unstubAllGlobals();
     useRunStore.setState({ ...RUN_INITIAL_STATE });
     useAuthStore.setState({
       isAuthenticated: false,
@@ -198,7 +223,11 @@ describe('authoritative run lifecycle and recovery', () => {
       runLevel: 2,
     });
 
-    await expect(useRunStore.getState().endRun(false, RUN_UUID, summary)).resolves.toBe(false);
+    await expect(useRunStore.getState().endRun(false, RUN_UUID, summary)).resolves.toMatchObject({
+      success: false,
+      code: 'finalization_failed',
+      retryable: true,
+    });
     const frozenSnapshot = structuredClone(useRunStore.getState().completedRunSnapshot);
     expect(useRunStore.getState()).toMatchObject({
       isActive: true,
@@ -211,6 +240,12 @@ describe('authoritative run lifecycle and recovery', () => {
         .getState()
         .authorityAttempt?.commands.filter((command) => command.kind === 'abandon_run'),
     ).toHaveLength(1);
+    await expect(useRunStore.getState().startRun(['Lux'])).resolves.toMatchObject({
+      success: false,
+      code: 'active_run',
+    });
+    expect(useRunStore.getState().completedRunSnapshot).toEqual(frozenSnapshot);
+    expect(attemptMocks.start).not.toHaveBeenCalled();
 
     useRunStore.setState({ gold: 999, totalWavesCompleted: 99, team: [] });
     const retry = useRunStore.getState().endRun(false, RUN_UUID);
@@ -226,7 +261,7 @@ describe('authoritative run lifecycle and recovery', () => {
       },
       error: null,
     });
-    await expect(retry).resolves.toBe(true);
+    await expect(retry).resolves.toMatchObject({ success: true, outcome: 'saved' });
 
     expect(attemptMocks.append).toHaveBeenCalledTimes(2);
     expect(attemptMocks.append.mock.calls[1][1]).toHaveLength(1);
@@ -254,7 +289,10 @@ describe('authoritative run lifecycle and recovery', () => {
       error: null,
     });
 
-    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toBe(true);
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: true,
+      outcome: 'saved',
+    });
 
     expect(attemptMocks.recover).toHaveBeenCalledWith(ATTEMPT_ID);
     expect(attemptMocks.verify).not.toHaveBeenCalled();
@@ -267,7 +305,10 @@ describe('authoritative run lifecycle and recovery', () => {
   it('does not let a hanging profile refresh block a durable verification', async () => {
     useAuthStore.setState({ refreshPlayer: vi.fn(() => new Promise<void>(() => undefined)) });
 
-    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toBe(true);
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: true,
+      outcome: 'saved',
+    });
 
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
@@ -314,7 +355,10 @@ describe('authoritative run lifecycle and recovery', () => {
       error: null,
     });
 
-    await expect(Promise.all([first, second])).resolves.toEqual([true, true]);
+    await expect(Promise.all([first, second])).resolves.toEqual([
+      { success: true, runId: RUN_UUID, outcome: 'saved' },
+      { success: true, runId: RUN_UUID, outcome: 'saved' },
+    ]);
     expect(attemptMocks.append).toHaveBeenCalledOnce();
     expect(attemptMocks.seal).toHaveBeenCalledOnce();
     expect(attemptMocks.verify).toHaveBeenCalledOnce();
@@ -327,7 +371,10 @@ describe('authoritative run lifecycle and recovery', () => {
       error: new attemptMocks.RejectedError('illegal_trace', 'The run trace was rejected.'),
     });
 
-    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toBe(true);
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: true,
+      outcome: 'terminal',
+    });
 
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
@@ -337,6 +384,103 @@ describe('authoritative run lifecycle and recovery', () => {
       rewardsApplied: false,
     });
     expect(useRunStore.getState().completedRunSnapshot?.runId).toBe(RUN_UUID);
+  });
+
+  it('refuses to replace an active run without an explicit abandonment', async () => {
+    const before = structuredClone({
+      runId: useRunStore.getState().runId,
+      team: useRunStore.getState().team,
+      authorityAttempt: useRunStore.getState().authorityAttempt,
+    });
+
+    await expect(useRunStore.getState().startRun(['Lux'])).resolves.toMatchObject({
+      success: false,
+      code: 'active_run',
+    });
+
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: true,
+      runId: before.runId,
+      team: before.team,
+      authorityAttempt: before.authorityAttempt,
+    });
+  });
+
+  it('allows only one start command during a same-tab double click', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    let releaseStart: ((value: ReturnType<typeof verifiedStartResponse>) => void) | undefined;
+    attemptMocks.start.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseStart = resolve;
+        }),
+    );
+
+    const first = useRunStore.getState().startRun(['Garen']);
+    const second = useRunStore.getState().startRun(['Garen']);
+    await expect(second).resolves.toMatchObject({
+      success: false,
+      code: 'start_in_progress',
+      retryable: true,
+    });
+    expect(attemptMocks.start).toHaveBeenCalledOnce();
+
+    releaseStart?.(verifiedStartResponse());
+    await expect(first).resolves.toMatchObject({
+      success: true,
+      runId: RUN_UUID,
+    });
+    expect(useRunStore.getState().runId).toBe(RUN_UUID);
+  });
+
+  it('does not activate a run if identity changes while the start is in flight', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    let releaseStart: ((value: ReturnType<typeof verifiedStartResponse>) => void) | undefined;
+    attemptMocks.start.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseStart = resolve;
+        }),
+    );
+
+    const start = useRunStore.getState().startRun(['Garen']);
+    useAuthStore.setState({ user: { id: 'user-2' } as User });
+    releaseStart?.(verifiedStartResponse());
+
+    await expect(start).resolves.toMatchObject({
+      success: false,
+      code: 'account_changed',
+      retryable: true,
+    });
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      runId: '',
+      authorityAttempt: null,
+      pendingAuthorityStart: { ownerUserId: 'user-1' },
+    });
+  });
+
+  it('refuses a start when persisted state reports an active run in another tab', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    vi.stubGlobal('localStorage', {
+      getItem: vi.fn(() =>
+        JSON.stringify({
+          state: { isActive: true, runId: 'other-tab-run', mode: 'daily' },
+          version: 2,
+        }),
+      ),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    });
+
+    await expect(useRunStore.getState().startRun(['Garen'])).resolves.toMatchObject({
+      success: false,
+      code: 'active_run_another_tab',
+      retryable: true,
+    });
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+    expect(useRunStore.getState().isActive).toBe(false);
   });
 
   it('starts authenticated gameplay only from the canonical server seed and run UUID', async () => {
@@ -368,7 +512,7 @@ describe('authoritative run lifecycle and recovery', () => {
         seed: 123,
         runeIds: ['press_the_attack'],
       }),
-    ).resolves.toEqual({ success: true });
+    ).resolves.toEqual({ success: true, runId: RUN_UUID, mode: 'normal' });
 
     expect(useRunStore.getState()).toMatchObject({
       isActive: true,
@@ -449,7 +593,7 @@ describe('authoritative run lifecycle and recovery', () => {
         mode: 'normal',
         runeIds: [],
       }),
-    ).resolves.toEqual({ success: true });
+    ).resolves.toEqual({ success: true, runId: RUN_UUID, mode: 'daily' });
 
     expect(attemptMocks.start).toHaveBeenCalledWith({
       commandId: pendingCommandId,

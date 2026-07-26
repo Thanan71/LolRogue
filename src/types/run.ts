@@ -244,6 +244,45 @@ export interface RunState {
   currentEncounter: import('@/game/map/types').CombatEncounter | null;
 }
 
+export type RunLifecycleErrorCode =
+  | 'active_run'
+  | 'active_run_another_tab'
+  | 'start_in_progress'
+  | 'invalid_team_size'
+  | 'duplicate_champion'
+  | 'unknown_champion'
+  | 'unsupported_champion'
+  | 'starter_slots_locked'
+  | 'secure_command_unavailable'
+  | 'start_failed'
+  | 'account_changed'
+  | 'stale_run'
+  | 'finalization_in_progress'
+  | 'finalization_failed';
+
+export type RunStartResult =
+  | { success: true; runId: string; mode: RunState['mode'] }
+  | {
+      success: false;
+      code: RunLifecycleErrorCode;
+      error: string;
+      retryable: boolean;
+    };
+
+export type RunEndResult =
+  | {
+      success: true;
+      runId: string;
+      outcome: 'saved' | 'already_finalized' | 'terminal';
+    }
+  | {
+      success: false;
+      runId: string;
+      code: RunLifecycleErrorCode;
+      error: string;
+      retryable: boolean;
+    };
+
 // ─── Run Store Actions ──────────────────────────────────────────────────────
 
 export interface RunActions {
@@ -256,7 +295,7 @@ export interface RunActions {
       runeIds?: string[];
       difficulty?: import('./runAttempt').AuthorityDifficulty;
     },
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<RunStartResult>;
   /** Append one validated semantic command to the authenticated attempt journal. */
   recordRunCommand: (command: RunCommandInput, dedupeKey?: string) => boolean;
   /** End the current run and reset state, optionally marking it as won.
@@ -265,7 +304,7 @@ export interface RunActions {
     won?: boolean,
     expectedRunId?: string,
     displayedSummary?: RunSummary,
-  ) => Promise<boolean>;
+  ) => Promise<RunEndResult>;
   /** Add a champion to the team (if not full). Returns true if added. */
   addChampion: (championId: string, statMultiplier?: number) => boolean;
   /** Remove a champion from the team by champion ID */

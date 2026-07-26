@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { playUIClick } from '@/audio';
 import { RunMapScreen } from '@/components/RunMapScreen';
+import { getRunLifecyclePhase } from '@/game/run/runLifecycle';
 import { getPendingEncounterRoute } from '@/game/run/routeAccess';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
@@ -9,14 +10,17 @@ import { useRunStore } from '@/stores/runStore';
 
 export function RunPage() {
   useRunImagePreload();
-  const isActive = useRunStore((s) => s.isActive);
-  const runId = useRunStore((s) => s.runId);
-  const completedRunSnapshot = useRunStore((s) => s.completedRunSnapshot);
+  const phase = useRunStore(getRunLifecyclePhase);
+  const isActive = phase === 'active';
   const pendingEncounter = useRunStore((s) => s.pendingEncounter);
   const navigate = useAppNavigate();
 
-  if (isActive && completedRunSnapshot?.runId === runId) {
+  if (phase === 'finalizing' || phase === 'recovery' || phase === 'completed') {
     return <Navigate to={ROUTES.GAME_OVER} replace />;
+  }
+
+  if (phase === 'starting') {
+    return <Navigate to={ROUTES.STARTER_SELECT} replace />;
   }
 
   if (!isActive) {
