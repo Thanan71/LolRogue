@@ -44,7 +44,8 @@ checklist ci-dessous passe sur `main`.
 - [ ] `npm ci`, `npm run check` et `npm run test:e2e` réussissent avec Node 22.
 - [ ] Les changements de gameplay ont des tests déterministes.
 - [ ] Les versions d'assets sont épinglées et leurs licences/sources respectées.
-- [ ] `npm audit --omit=dev` ne signale pas de vulnérabilité de production.
+- [ ] `npm run audit:security` ne signale aucune vulnérabilité critique/haute non
+      acceptée et aucune exception dépassée.
 
 ### Supabase
 

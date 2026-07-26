@@ -7,7 +7,7 @@ sans compte avec une sauvegarde limitée au navigateur.
 
 ## Stack et prérequis
 
-- Node.js 22 et npm ;
+- Node.js 22.12 ou supérieur dans la branche 22, et npm ;
 - React 18, TypeScript, Vite et React Router ;
 - Zustand pour l'état client ;
 - Supabase pour Auth, PostgreSQL et les règles RLS ;
@@ -25,8 +25,8 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Le serveur Vite indique son URL dans le terminal. Les variables publiques attendues
-sont :
+Le serveur Vite reste lié à `127.0.0.1` et indique son URL dans le terminal. Les
+variables publiques attendues sont :
 
 ```env
 VITE_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
@@ -77,7 +77,8 @@ npm run test:coverage # tests avec seuils de couverture
 npm run test:e2e      # parcours navigateur des six biomes
 npm run test:db       # intégration Auth/RLS sur une vraie instance de test
 npm run edge:bundle   # bundle du replay serveur + contrôle du hash de contenu
-npm run check         # format, lint, types, couverture et build
+npm run audit:security # audit critique/haut et contrôle des exceptions bornées
+npm run check         # format, lint, types, audit, couverture et build
 ```
 
 Pour les tests de base en local, démarrer Supabase puis exporter les valeurs

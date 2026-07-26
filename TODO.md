@@ -179,16 +179,22 @@ cas d'abandon explicite.
 
 ### P0-SEC-03 — Mettre à niveau l'outillage vulnérable
 
-- [ ] Planifier la montée conjointe Vite/Vitest/coverage vers des versions corrigées.
-- [ ] Vérifier les breaking changes, Node 22, les plugins Vite et la configuration de
+**État au 26 juillet 2026 : fermé.** Vite 8, Vitest 4, le plugin React, la
+couverture V8 et esbuild sont montés conjointement et épinglés. Le seul avis
+haut restant concerne exclusivement le mode serveur RSC de React Router, absent
+de cette SPA ; son exception automatisée expire le 10 août 2026.
+
+- [x] Planifier la montée conjointe Vite/Vitest/coverage vers des versions corrigées.
+- [x] Vérifier les breaking changes, Node 22, les plugins Vite et la configuration de
   couverture avant merge.
-- [ ] Confirmer `npm audit` sans vulnérabilité critique/haute, ou documenter une
+- [x] Confirmer `npm audit` sans vulnérabilité critique/haute, ou documenter une
   exception bornée avec exposition et échéance.
-- [ ] Ne jamais exposer le serveur Vite/Vitest de développement sur un réseau non
+- [x] Ne jamais exposer le serveur Vite/Vitest de développement sur un réseau non
   maîtrisé tant que les versions vulnérables restent installées.
 
 **Acceptation :** les validations restent vertes après upgrade et aucune alerte
-critique/haute non acceptée ne demeure.
+critique/haute non acceptée ne demeure. `npm run audit:security` bloque toute
+nouvelle alerte et l'expiration de l'unique exception RSC.
 
 ### P0-SEC-04 — Réduire les données publiques et durcir les logs
 
