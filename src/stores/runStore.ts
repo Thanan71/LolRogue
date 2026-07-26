@@ -190,7 +190,10 @@ export const useRunStore = create<RunStore>()(
         let canonicalRuneIds = requestedRuneIds;
 
         if (authUser) {
-          const difficulty = resumableStart?.difficulty ?? useSettingsStore.getState().difficulty;
+          const difficulty =
+            resumableStart?.difficulty ??
+            options.difficulty ??
+            useSettingsStore.getState().difficulty;
           const requestedStart = {
             ownerUserId: authUser.id,
             mode,
@@ -244,6 +247,9 @@ export const useRunStore = create<RunStore>()(
             engineVersion: attempt.engineVersion,
             difficulty: attempt.difficulty,
             mode: attempt.mode,
+            dailyDate: attempt.dailyDate,
+            dailyRulesetVersion: attempt.dailyRulesetVersion,
+            dailyScoreVersion: attempt.dailyScoreVersion,
             initialTeam: [...attempt.initialTeam],
             runeIds: [...attempt.runeIds],
             enhancementSnapshot: attempt.enhancementSnapshot,
@@ -394,6 +400,8 @@ export const useRunStore = create<RunStore>()(
             pendingNodeType === 'boss') &&
           lastCommand?.kind === 'resolve_combat' &&
           lastCommand.payload.node_id === state.pendingEncounter?.nodeId;
+        const isExplicitAbandonment =
+          !won && displayedSummary === undefined && !isImmediateCombatLoss;
         if (
           !won &&
           state.authorityAttempt &&
@@ -490,6 +498,7 @@ export const useRunStore = create<RunStore>()(
                 ? {
                     dateKey: dailyState.dateKey,
                     dailySeed: state.seed ?? dailyState.seed,
+                    abandoned: isExplicitAbandonment,
                     itemCount: state.inventory.length,
                     currentBiome: state.currentBiome,
                     currentWave: state.currentWave,
@@ -748,16 +757,20 @@ export const useRunStore = create<RunStore>()(
             totalWavesCompleted: snapshot.wavesCompleted,
             score: snapshot.daily.score,
           });
-          const refreshedPlayer = useAuthStore.getState().player;
-          useDailyRunStore
-            .getState()
-            .completeDailyRun(
-              refreshedPlayer?.display_name ||
-                refreshedPlayer?.username ||
-                user?.email?.split('@')[0] ||
-                'Guest',
-              !isVerifiedRun,
-            );
+          if (!isVerifiedRun && snapshot.daily.abandoned) {
+            useDailyRunStore.getState().endDailyRun();
+          } else {
+            const refreshedPlayer = useAuthStore.getState().player;
+            useDailyRunStore
+              .getState()
+              .completeDailyRun(
+                refreshedPlayer?.display_name ||
+                  refreshedPlayer?.username ||
+                  user?.email?.split('@')[0] ||
+                  'Guest',
+                !isVerifiedRun,
+              );
+          }
         }
 
         set({

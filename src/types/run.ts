@@ -248,7 +248,12 @@ export interface RunActions {
   /** Start a new run with champion IDs (validated ≤ MAX_TEAM_SIZE) */
   startRun: (
     championIds: string[],
-    options?: { mode?: RunState['mode']; seed?: number; runeIds?: string[] },
+    options?: {
+      mode?: RunState['mode'];
+      seed?: number;
+      runeIds?: string[];
+      difficulty?: import('./runAttempt').AuthorityDifficulty;
+    },
   ) => Promise<{ success: boolean; error?: string }>;
   /** Append one validated semantic command to the authenticated attempt journal. */
   recordRunCommand: (command: RunCommandInput, dedupeKey?: string) => boolean;
@@ -391,6 +396,8 @@ export interface RunSavePayload {
 export interface DailyRunCompletionSnapshot {
   dateKey: string;
   dailySeed: number;
+  /** True when the player voluntarily ended the attempt outside a terminal fight. */
+  abandoned: boolean;
   itemCount: number;
   currentBiome: Biome | null;
   currentWave: number;

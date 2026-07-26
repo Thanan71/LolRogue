@@ -5,34 +5,12 @@
  * Follows the Repository pattern for dependency inversion.
  */
 
-import type { DailyRun } from '@/types/models';
-import type { DailyLeaderboardEntry } from '@/types/dailyRun';
+import type { DailyChallenge, DailyLeaderboardEntry } from '@/types/dailyRun';
 import type { Tables } from '@/types/database';
 
 export interface IDailyRunRepository {
-  /**
-   * Get today's daily run for a player
-   */
-  getTodayDailyRun(playerId: string): Promise<{ data: DailyRun | null; error: Error | null }>;
-
-  /**
-   * Get the daily run for an explicit UTC date.
-   */
-  getDailyRunForDate(
-    playerId: string,
-    date: string,
-  ): Promise<{ data: DailyRun | null; error: Error | null }>;
-
-  /** Submit one immutable daily score, calculated atomically by PostgreSQL. */
-  submitDailyRun(input: {
-    dailyDate: string;
-    dailySeed: number;
-    won: boolean;
-    runLevel: number;
-    wavesCompleted: number;
-    gold: number;
-    itemCount: number;
-  }): Promise<{ data: DailyRun | null; error: Error | null }>;
+  /** Read the single canonical UTC challenge and the caller's attempt status. */
+  getDailyChallenge(): Promise<{ data: DailyChallenge | null; error: Error | null }>;
 
   /**
    * Get daily run leaderboard for a specific date

@@ -47,6 +47,9 @@ export interface RunAuthorityAttempt {
   engineVersion: string;
   difficulty: AuthorityDifficulty;
   mode: AuthorityRunMode;
+  dailyDate?: string | null;
+  dailyRulesetVersion?: number | null;
+  dailyScoreVersion?: number | null;
   initialTeam: string[];
   runeIds: string[];
   enhancementSnapshot: RunEnhancementSnapshot;
@@ -86,6 +89,9 @@ export interface StartRunAttemptResult {
   seed: number;
   mode: AuthorityRunMode;
   difficulty: AuthorityDifficulty;
+  dailyDate: string | null;
+  dailyRulesetVersion: number | null;
+  dailyScoreVersion: number | null;
   initialTeam: string[];
   runeIds: string[];
   enhancementSnapshot: RunEnhancementSnapshot;

@@ -116,6 +116,66 @@ describe('runAttemptService', () => {
     });
   });
 
+  it('starts Daily through the dedicated RPC and requires its canonical UTC contract', async () => {
+    supabaseMocks.rpc
+      .mockResolvedValueOnce({ data: { expired: 0 }, error: null })
+      .mockResolvedValueOnce({
+        data: startResponse({
+          mode: 'daily',
+          difficulty: 'normal',
+          enhancement_snapshot: {},
+          daily_date: '2026-07-26',
+          daily_ruleset_version: 1,
+          daily_score_version: 1,
+          expires_at: '2026-07-27T00:00:00.000Z',
+        }),
+        error: null,
+      });
+
+    const result = await startRunAttempt({
+      commandId: COMMAND_ID,
+      mode: 'daily',
+      team: ['Garen'],
+      runeIds: [],
+      difficulty: 'hard',
+    });
+
+    expect(supabaseMocks.rpc).toHaveBeenNthCalledWith(2, 'start_daily_run_attempt', {
+      p_command_id: COMMAND_ID,
+      p_team: ['Garen'],
+      p_rune_ids: [],
+    });
+    expect(supabaseMocks.rpc.mock.calls[1]?.[1]).not.toHaveProperty('p_difficulty');
+    expect(result).toMatchObject({
+      error: null,
+      data: {
+        mode: 'daily',
+        difficulty: 'normal',
+        dailyDate: '2026-07-26',
+        dailyRulesetVersion: 1,
+        dailyScoreVersion: 1,
+        enhancementSnapshot: {},
+      },
+    });
+
+    supabaseMocks.rpc
+      .mockReset()
+      .mockResolvedValueOnce({ data: { expired: 0 }, error: null })
+      .mockResolvedValueOnce({
+        data: startResponse({ mode: 'daily', difficulty: 'normal' }),
+        error: null,
+      });
+    const malformed = await startRunAttempt({
+      commandId: COMMAND_ID,
+      mode: 'daily',
+      team: ['Garen'],
+      runeIds: [],
+      difficulty: 'normal',
+    });
+    expect(malformed.data).toBeNull();
+    expect(malformed.error?.message).toBe('Invalid start_run_attempt response');
+  });
+
   it('appends only command identity, sequence, kind and payload', async () => {
     supabaseMocks.rpc.mockResolvedValue({
       data: {

@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { useRunStore } from '@/stores/runStore';
 import type { Champion } from '@/types/champion';
+import type { DailyChallenge } from '@/types/dailyRun';
 import { createDailyRNG, getDailySeed } from '@/utils/dailySeed';
 import { SeededRNG } from '@/utils/seededRandom';
 import { gameStatsAtLevel } from '@/utils/statConversion';
@@ -27,21 +28,28 @@ export function StarterSelectPage() {
   const requestedDaily =
     new URLSearchParams(location.search).get('mode') === 'daily' ||
     (location.state as { mode?: string } | null)?.mode === 'daily';
-  const { isGuest, player, user } = useAuthStore();
+  const { isGuest, isInitialized, isLoading: isAuthLoading, user } = useAuthStore();
   const pendingAuthorityStart = useRunStore((state) => state.pendingAuthorityStart);
   const resumableStart =
     user && pendingAuthorityStart?.ownerUserId === user.id ? pendingAuthorityStart : null;
   const isDaily = resumableStart ? resumableStart.mode === 'daily' : requestedDaily;
   const [selectionSeed] = useState(() => (isDaily ? getDailySeed() : Date.now()));
+  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null);
+  const [isLoadingDaily, setIsLoadingDaily] = useState(isDaily && !isGuest);
   const choices = useMemo(() => {
     if (resumableStart) {
       return resumableStart.team
         .map((championId) => championDB.getById(championId))
         .filter((champion): champion is Champion => champion !== undefined);
     }
+    if (isDaily && !isGuest) {
+      return (dailyChallenge?.starterIds ?? [])
+        .map((championId) => championDB.getById(championId))
+        .filter((champion): champion is Champion => champion !== undefined);
+    }
     const rng = isDaily ? createDailyRNG() : new SeededRNG(selectionSeed);
     return pickRandom(implementedChampions, 6, rng);
-  }, [isDaily, resumableStart, selectionSeed]);
+  }, [dailyChallenge, isDaily, isGuest, resumableStart, selectionSeed]);
   const [selectedStarterId, setSelectedStarterId] = useState<string | null>(
     resumableStart?.team[0] ?? null,
   );
@@ -59,6 +67,33 @@ export function StarterSelectPage() {
     setSelectedRuneIds([...resumableStart.runeIds]);
   }, [resumableStart]);
 
+  useEffect(() => {
+    if (!isDaily || isGuest) {
+      setIsLoadingDaily(false);
+      return;
+    }
+    if (!isInitialized || isAuthLoading) {
+      setIsLoadingDaily(true);
+      return;
+    }
+
+    let cancelled = false;
+    setIsLoadingDaily(true);
+    void new SupabaseDailyRunRepository(supabase).getDailyChallenge().then((result) => {
+      if (cancelled) return;
+      if (result.error || !result.data) {
+        setError('Unable to load the authoritative Daily challenge.');
+      } else {
+        setDailyChallenge(result.data);
+        useDailyRunStore.getState().syncChallenge(result.data);
+      }
+      setIsLoadingDaily(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthLoading, isDaily, isGuest, isInitialized, user?.id]);
+
   async function handleConfirm() {
     playUIClick();
     if (!selectedStarterId) return;
@@ -66,36 +101,48 @@ export function StarterSelectPage() {
     setIsStarting(true);
 
     if (isDaily) {
-      if (hasCompletedToday) {
+      if (hasCompletedToday && !resumableStart) {
         setError("Today's Daily Run has already been completed.");
         setIsStarting(false);
         return;
       }
-      if (!isGuest && player) {
-        const result = await new SupabaseDailyRunRepository(supabase).getTodayDailyRun(player.id);
-        if (result.error) {
-          setError('Unable to verify Daily Run availability.');
-          setIsStarting(false);
-          return;
-        }
-        if (result.data?.completed_at) {
-          useDailyRunStore.setState({ hasCompletedToday: true });
-          setError("Today's Daily Run has already been completed.");
-          setIsStarting(false);
-          return;
-        }
+      if (!isGuest && (!dailyChallenge || (dailyChallenge.hasAttempted && !resumableStart))) {
+        setError(
+          dailyChallenge?.hasAttempted
+            ? "Today's official attempt has already been used."
+            : 'Unable to verify Daily Run availability.',
+        );
+        setIsStarting(false);
+        return;
       }
       const result = await startRun([selectedStarterId], {
         mode: 'daily',
-        seed: getDailySeed(),
+        seed: dailyChallenge?.seed ?? getDailySeed(),
         runeIds: selectedRuneIds,
+        difficulty: dailyChallenge?.difficulty,
       });
       if (!result.success) {
         setError(result.error ?? 'Unable to start a verified Daily Run.');
         setIsStarting(false);
         return;
       }
-      startDailyRun([selectedStarterId]);
+      const attempt = useRunStore.getState().authorityAttempt;
+      startDailyRun(
+        [selectedStarterId],
+        attempt?.mode === 'daily' && attempt.dailyDate
+          ? {
+              dailyDate: attempt.dailyDate,
+              seed: attempt.seed,
+              expiresAt: attempt.expiresAt,
+            }
+          : dailyChallenge
+            ? {
+                dailyDate: dailyChallenge.dailyDate,
+                seed: dailyChallenge.seed,
+                expiresAt: dailyChallenge.expiresAt,
+              }
+            : undefined,
+      );
     } else {
       const result = await startRun([selectedStarterId], {
         seed: selectionSeed,
@@ -172,14 +219,16 @@ export function StarterSelectPage() {
         {error && <p role="alert">{error}</p>}
         <button
           className="starter-select__confirm"
-          disabled={!selectedStarterId || isStarting}
+          disabled={!selectedStarterId || isStarting || isLoadingDaily}
           onClick={() => void handleConfirm()}
         >
-          {isStarting
-            ? 'Vérification…'
-            : resumableStart
-              ? 'Reprendre la run vérifiée'
-              : 'Confirmer le choix'}
+          {isLoadingDaily
+            ? 'Chargement du challenge…'
+            : isStarting
+              ? 'Vérification…'
+              : resumableStart
+                ? 'Reprendre la run vérifiée'
+                : 'Confirmer le choix'}
         </button>
       </div>
     </div>

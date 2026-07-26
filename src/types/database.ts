@@ -128,16 +128,77 @@ export type Database = {
           },
         ];
       };
+      daily_challenge_rulesets: {
+        Row: {
+          biome_points: number;
+          code: string;
+          created_at: string;
+          difficulty: string;
+          gameplay_ruleset_version: number;
+          gold_points: number;
+          is_active: boolean;
+          run_level_points: number;
+          score_version: number;
+          seed_namespace: string;
+          version: number;
+          victory_bonus: number;
+          wave_points: number;
+        };
+        Insert: {
+          biome_points: number;
+          code: string;
+          created_at?: string;
+          difficulty: string;
+          gameplay_ruleset_version: number;
+          gold_points: number;
+          is_active?: boolean;
+          run_level_points: number;
+          score_version: number;
+          seed_namespace: string;
+          version: number;
+          victory_bonus: number;
+          wave_points: number;
+        };
+        Update: {
+          biome_points?: number;
+          code?: string;
+          created_at?: string;
+          difficulty?: string;
+          gameplay_ruleset_version?: number;
+          gold_points?: number;
+          is_active?: boolean;
+          run_level_points?: number;
+          score_version?: number;
+          seed_namespace?: string;
+          version?: number;
+          victory_bonus?: number;
+          wave_points?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'daily_challenge_rulesets_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
       daily_runs: {
         Row: {
           completed_at: string | null;
           created_at: string;
           daily_date: string;
+          daily_ruleset_version: number | null;
           daily_seed: number;
+          gameplay_ruleset_version: number | null;
           id: string;
           player_id: string;
+          run_attempt_id: string | null;
+          run_id: string | null;
           run_level_reached: number;
           score: number;
+          score_version: number | null;
           waves_completed: number;
           won: boolean;
         };
@@ -145,11 +206,16 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string;
           daily_date: string;
+          daily_ruleset_version?: number | null;
           daily_seed: number;
+          gameplay_ruleset_version?: number | null;
           id?: string;
           player_id: string;
+          run_attempt_id?: string | null;
+          run_id?: string | null;
           run_level_reached?: number;
           score?: number;
+          score_version?: number | null;
           waves_completed?: number;
           won?: boolean;
         };
@@ -157,15 +223,34 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string;
           daily_date?: string;
+          daily_ruleset_version?: number | null;
           daily_seed?: number;
+          gameplay_ruleset_version?: number | null;
           id?: string;
           player_id?: string;
+          run_attempt_id?: string | null;
+          run_id?: string | null;
           run_level_reached?: number;
           score?: number;
+          score_version?: number | null;
           waves_completed?: number;
           won?: boolean;
         };
         Relationships: [
+          {
+            foreignKeyName: 'daily_runs_daily_ruleset_version_fkey';
+            columns: ['daily_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'daily_challenge_rulesets';
+            referencedColumns: ['version'];
+          },
+          {
+            foreignKeyName: 'daily_runs_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
           {
             foreignKeyName: 'daily_runs_player_id_fkey';
             columns: ['player_id'];
@@ -185,6 +270,20 @@ export type Database = {
             columns: ['player_id'];
             isOneToOne: false;
             referencedRelation: 'players';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'daily_runs_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: false;
+            referencedRelation: 'run_attempts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'daily_runs_run_id_fkey';
+            columns: ['run_id'];
+            isOneToOne: false;
+            referencedRelation: 'runs';
             referencedColumns: ['id'];
           },
         ];
@@ -703,6 +802,10 @@ export type Database = {
         Row: {
           command_schema_version: number;
           created_at: string;
+          daily_date: string | null;
+          daily_official: boolean;
+          daily_ruleset_version: number | null;
+          daily_score_version: number | null;
           difficulty: string;
           engine_version: string;
           enhancement_snapshot: Json;
@@ -746,6 +849,10 @@ export type Database = {
         Insert: {
           command_schema_version: number;
           created_at?: string;
+          daily_date?: string | null;
+          daily_official?: boolean;
+          daily_ruleset_version?: number | null;
+          daily_score_version?: number | null;
           difficulty: string;
           engine_version: string;
           enhancement_snapshot?: Json;
@@ -789,6 +896,10 @@ export type Database = {
         Update: {
           command_schema_version?: number;
           created_at?: string;
+          daily_date?: string | null;
+          daily_official?: boolean;
+          daily_ruleset_version?: number | null;
+          daily_score_version?: number | null;
           difficulty?: string;
           engine_version?: string;
           enhancement_snapshot?: Json;
@@ -830,6 +941,13 @@ export type Database = {
           verified_at?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: 'run_attempts_daily_ruleset_fk';
+            columns: ['daily_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'daily_challenge_rulesets';
+            referencedColumns: ['version'];
+          },
           {
             foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
             columns: ['gameplay_ruleset_version'];
@@ -1145,6 +1263,19 @@ export type Database = {
         };
         Relationships: [];
       };
+      daily_leaderboard: {
+        Row: {
+          daily_date: string | null;
+          player_name: string | null;
+          rank: number | null;
+          run_level_reached: number | null;
+          score: number | null;
+          score_version: number | null;
+          waves_completed: number | null;
+          won: boolean | null;
+        };
+        Relationships: [];
+      };
       leaderboard: {
         Row: {
           avatar_url: string | null;
@@ -1206,7 +1337,18 @@ export type Database = {
         };
         Returns: Json;
       };
+      daily_seed_for_date: {
+        Args: { p_daily_date: string; p_seed_namespace: string };
+        Returns: number;
+      };
+      daily_starter_ids: {
+        Args: { p_daily_date: string; p_ruleset_version: number };
+        Returns: string[];
+      };
+      daily_utc_date: { Args: { p_instant: string }; Returns: string };
+      daily_utc_expiration: { Args: { p_daily_date: string }; Returns: string };
       expire_stale_run_attempts: { Args: never; Returns: Json };
+      get_daily_challenge: { Args: never; Returns: Json };
       get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       is_current_user_admin: { Args: never; Returns: boolean };
       mastery_current_level_candies: {
@@ -1279,6 +1421,10 @@ export type Database = {
         };
         Returns: Json;
       };
+      start_daily_run_attempt: {
+        Args: { p_command_id: string; p_rune_ids: string[]; p_team: string[] };
+        Returns: Json;
+      };
       start_run_attempt: {
         Args: {
           p_command_id: string;
@@ -1288,35 +1434,6 @@ export type Database = {
           p_team: string[];
         };
         Returns: Json;
-      };
-      submit_daily_run: {
-        Args: {
-          p_daily_date: string;
-          p_daily_seed: number;
-          p_gold: number;
-          p_item_count: number;
-          p_run_level: number;
-          p_waves_completed: number;
-          p_won: boolean;
-        };
-        Returns: {
-          completed_at: string | null;
-          created_at: string;
-          daily_date: string;
-          daily_seed: number;
-          id: string;
-          player_id: string;
-          run_level_reached: number;
-          score: number;
-          waves_completed: number;
-          won: boolean;
-        };
-        SetofOptions: {
-          from: '*';
-          to: 'daily_runs';
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
       };
       touch_player_last_login: { Args: never; Returns: string };
       unlock_champion_enhancement:

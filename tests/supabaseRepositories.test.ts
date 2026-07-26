@@ -28,6 +28,7 @@ function createMockQueryChain() {
     from: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
     not: vi.fn().mockReturnThis(),
     single: vi.fn(),
     maybeSingle: vi.fn(),
@@ -51,35 +52,81 @@ function createMockSupabaseClient() {
 }
 
 describe('SupabaseDailyRunRepository', () => {
-  it('submits metrics to the atomic server-side score RPC', async () => {
+  it('reads the canonical challenge instead of submitting client metrics', async () => {
     const { mockSupabase } = createMockSupabaseClient();
     const repository = new SupabaseDailyRunRepository(mockSupabase);
-    const submission = {
-      dailyDate: '2026-07-23',
-      dailySeed: 1234,
-      won: true,
-      runLevel: 4,
-      wavesCompleted: 10,
-      gold: 200,
-      itemCount: 2,
-    };
     vi.mocked(mockSupabase.rpc).mockResolvedValue({
-      data: { id: 'daily-1', score: 3300 },
+      data: {
+        daily_date: '2026-07-26',
+        seed: 1234,
+        starts_at: '2026-07-26T00:00:00.000Z',
+        expires_at: '2026-07-27T00:00:00.000Z',
+        difficulty: 'normal',
+        daily_ruleset_version: 1,
+        gameplay_ruleset_version: 1,
+        engine_version: 'run-engine-v1',
+        gameplay_content_hash: 'a'.repeat(64),
+        score_version: 1,
+        starter_ids: ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', 'Soraka'],
+        attempt_policy: 'one_official_attempt_per_utc_day',
+        has_attempted: false,
+        attempt_id: null,
+        attempt_status: null,
+        published: false,
+        score: null,
+      },
       error: null,
     } as never);
 
-    const result = await repository.submitDailyRun(submission);
+    const result = await repository.getDailyChallenge();
 
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('submit_daily_run', {
-      p_daily_date: '2026-07-23',
-      p_daily_seed: 1234,
-      p_won: true,
-      p_run_level: 4,
-      p_waves_completed: 10,
-      p_gold: 200,
-      p_item_count: 2,
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('get_daily_challenge');
+    expect(result.data).toMatchObject({
+      dailyDate: '2026-07-26',
+      seed: 1234,
+      difficulty: 'normal',
+      starterIds: ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', 'Soraka'],
+      hasAttempted: false,
     });
     expect(result.error).toBeNull();
+  });
+
+  it('reads only the sanitized ranked Daily view', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    queryChain.limit.mockResolvedValue({
+      data: [
+        {
+          rank: 1,
+          player_name: 'Public Player',
+          score: 1360,
+          waves_completed: 1,
+          run_level_reached: 1,
+          score_version: 1,
+        },
+      ],
+      error: null,
+    });
+    const repository = new SupabaseDailyRunRepository(mockSupabase);
+
+    const result = await repository.getDailyLeaderboard('2026-07-26', 10);
+
+    expect(mockSupabase.from).toHaveBeenCalledWith('daily_leaderboard');
+    expect(queryChain.select).toHaveBeenCalledWith(
+      'rank, player_name, score, waves_completed, run_level_reached, score_version',
+    );
+    expect(result).toEqual({
+      data: [
+        {
+          rank: 1,
+          playerName: 'Public Player',
+          score: 1360,
+          wavesCompleted: 1,
+          runLevel: 1,
+          scoreVersion: 1,
+        },
+      ],
+      error: null,
+    });
   });
 });
 

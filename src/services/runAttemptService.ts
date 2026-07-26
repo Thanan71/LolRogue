@@ -125,6 +125,13 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
   const result = asRecord(value);
   if (!result) return null;
   const enhancementSnapshot = parseEnhancementSnapshot(result.enhancement_snapshot);
+  const dailyDate = typeof result.daily_date === 'string' ? result.daily_date : null;
+  const dailyRulesetVersion = isInteger(result.daily_ruleset_version)
+    ? result.daily_ruleset_version
+    : null;
+  const dailyScoreVersion = isInteger(result.daily_score_version)
+    ? result.daily_score_version
+    : null;
   if (
     !isUuid(result.attempt_id) ||
     !isRunUuid(result.run_uuid) ||
@@ -146,6 +153,14 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
   ) {
     return null;
   }
+  if (
+    (result.mode === 'daily' &&
+      (!dailyDate || dailyRulesetVersion === null || dailyScoreVersion === null)) ||
+    (result.mode === 'normal' &&
+      (dailyDate !== null || dailyRulesetVersion !== null || dailyScoreVersion !== null))
+  ) {
+    return null;
+  }
 
   return {
     attemptId: result.attempt_id,
@@ -156,6 +171,9 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
     seed: result.seed,
     mode: result.mode,
     difficulty: result.difficulty,
+    dailyDate,
+    dailyRulesetVersion,
+    dailyScoreVersion,
     initialTeam: result.initial_team,
     runeIds: result.rune_ids,
     enhancementSnapshot,
@@ -263,6 +281,7 @@ function parseStatusResult(value: unknown): RunAttemptStatusResult | null {
 async function callAttemptRpc(
   name:
     | 'start_run_attempt'
+    | 'start_daily_run_attempt'
     | 'append_run_attempt_commands'
     | 'seal_run_attempt'
     | 'get_run_attempt_status'
@@ -286,13 +305,20 @@ export async function startRunAttempt(
   const expiry = await callAttemptRpc('expire_stale_run_attempts', {});
   if (expiry.error) return { data: null, error: expiry.error };
 
-  const result = await callAttemptRpc('start_run_attempt', {
-    p_command_id: input.commandId,
-    p_team: input.team,
-    p_rune_ids: input.runeIds,
-    p_difficulty: input.difficulty,
-    p_mode: input.mode,
-  });
+  const result =
+    input.mode === 'daily'
+      ? await callAttemptRpc('start_daily_run_attempt', {
+          p_command_id: input.commandId,
+          p_team: input.team,
+          p_rune_ids: input.runeIds,
+        })
+      : await callAttemptRpc('start_run_attempt', {
+          p_command_id: input.commandId,
+          p_team: input.team,
+          p_rune_ids: input.runeIds,
+          p_difficulty: input.difficulty,
+          p_mode: input.mode,
+        });
   if (result.error) return { data: null, error: result.error };
   const parsed = parseStartResult(result.data);
   return parsed

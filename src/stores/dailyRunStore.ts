@@ -1,7 +1,12 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
-import type { DailyLeaderboard, DailyLeaderboardEntry, DailyRunState } from '@/types/dailyRun';
+import type {
+  DailyChallenge,
+  DailyLeaderboard,
+  DailyLeaderboardEntry,
+  DailyRunState,
+} from '@/types/dailyRun';
 import type { Biome, InventoryEntry } from '@/types/run';
 import { MAX_TEAM_SIZE } from '@/types/run';
 import { getDailySeed, getTodayKey, isToday } from '@/utils/dailySeed';
@@ -52,6 +57,7 @@ function getInitialState(): DailyRunState {
     totalWavesCompleted: 0,
     score: 0,
     hasCompletedToday: false,
+    expiresAt: null,
   };
 }
 
@@ -75,14 +81,24 @@ function loadLeaderboard(): DailyLeaderboard {
 }
 
 function saveLeaderboard(leaderboard: DailyLeaderboard): void {
-  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
+  try {
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
+  } catch {
+    // Guest competition remains usable in memory when storage is unavailable
+    // or full. Authenticated scores never use this fallback.
+  }
 }
 
 // ─── Store ──────────────────────────────────────────────────────────────────
 
 interface DailyRunActions {
   /** Start a new daily run (only if not already completed today) */
-  startDailyRun: (championIds: string[]) => boolean;
+  startDailyRun: (
+    championIds: string[],
+    challenge?: Pick<DailyChallenge, 'dailyDate' | 'seed' | 'expiresAt'>,
+  ) => boolean;
+  /** Synchronize the persisted guest-oriented state with the server UTC contract. */
+  syncChallenge: (challenge: DailyChallenge) => void;
   /** End the daily run (voluntary quit — does NOT submit to leaderboard) */
   endDailyRun: () => void;
   /** Complete the daily run (defeat) and submit score to leaderboard */
@@ -129,10 +145,12 @@ export const useDailyRunStore = create<DailyRunStore>()(
     (set, get) => ({
       ...getInitialState(),
 
-      startDailyRun: (championIds) => {
+      startDailyRun: (championIds, challenge) => {
         const state = get();
         // Check if today's daily run was already completed
-        if (!isToday(state.dateKey)) {
+        const challengeExpired =
+          state.expiresAt !== null && Date.now() >= Date.parse(state.expiresAt);
+        if (challengeExpired || (state.expiresAt === null && !isToday(state.dateKey))) {
           // Date changed — reset everything
           set({ ...getInitialState() });
         }
@@ -152,8 +170,40 @@ export const useDailyRunStore = create<DailyRunStore>()(
           currentWave: 1,
           totalWavesCompleted: 0,
           score: 0,
+          ...(challenge
+            ? {
+                dateKey: challenge.dailyDate,
+                seed: challenge.seed,
+                expiresAt: challenge.expiresAt,
+              }
+            : null),
         });
         return true;
+      },
+
+      syncChallenge: (challenge) => {
+        const state = get();
+        const changed = state.dateKey !== challenge.dailyDate;
+        set({
+          ...(changed
+            ? {
+                isActive: false,
+                team: [],
+                runLevel: 1,
+                biomesVisited: [],
+                currentBiome: null,
+                inventory: [],
+                gold: 0,
+                currentWave: 1,
+                totalWavesCompleted: 0,
+                score: 0,
+              }
+            : null),
+          dateKey: challenge.dailyDate,
+          seed: challenge.seed,
+          expiresAt: challenge.expiresAt,
+          hasCompletedToday: challenge.hasAttempted,
+        });
       },
 
       endDailyRun: () => {
@@ -293,6 +343,9 @@ export const useDailyRunStore = create<DailyRunStore>()(
 
       checkHasCompletedToday: () => {
         const state = get();
+        if (state.expiresAt) {
+          return Date.now() < Date.parse(state.expiresAt) && state.hasCompletedToday;
+        }
         return isToday(state.dateKey) && state.hasCompletedToday;
       },
 
@@ -303,7 +356,10 @@ export const useDailyRunStore = create<DailyRunStore>()(
 
       checkDateReset: () => {
         const state = get();
-        if (!isToday(state.dateKey)) {
+        const expired = state.expiresAt
+          ? Date.now() >= Date.parse(state.expiresAt)
+          : !isToday(state.dateKey);
+        if (expired) {
           // New day — full reset
           set({ ...getInitialState() });
         }
@@ -328,6 +384,7 @@ export const useDailyRunStore = create<DailyRunStore>()(
         totalWavesCompleted: state.totalWavesCompleted,
         score: state.score,
         hasCompletedToday: state.hasCompletedToday,
+        expiresAt: state.expiresAt,
       }),
       onRehydrateStorage: () => (state) => {
         // Auto-reset if the date changed while the app was closed

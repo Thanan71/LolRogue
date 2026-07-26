@@ -26,6 +26,7 @@ supabase/migrations/20260723080000_normalize_run_integer_payload.sql
 supabase/migrations/20260723090000_server_authoritative_progression.sql
 supabase/migrations/20260724090000_verified_run_attempts.sql
 supabase/migrations/20260724190000_harden_verified_attempt_contract.sql
+supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql
 ```
 
 ## Fresh local database

@@ -54,6 +54,13 @@ const authoritativeProgressionSql = readFileSync(
   ),
   'utf8',
 );
+const authoritativeDailySql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -130,6 +137,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260723090000_server_authoritative_progression.sql',
       '../supabase/migrations/20260724090000_verified_run_attempts.sql',
       '../supabase/migrations/20260724190000_harden_verified_attempt_contract.sql',
+      '../supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql',
     ]);
   });
 
@@ -265,6 +273,20 @@ describe('Supabase existing database upgrade', () => {
     );
     expect(atomicDailyUpgradeSql).toContain('(p_waves_completed * 100)');
     expect(atomicDailyUpgradeSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
+  });
+
+  it('retires metric submission and derives the leaderboard from verified attempts', () => {
+    expect(authoritativeDailySql).toContain('CREATE TABLE public.daily_challenge_rulesets');
+    expect(authoritativeDailySql).toContain('CREATE FUNCTION public.get_daily_challenge()');
+    expect(authoritativeDailySql).toContain('CREATE FUNCTION public.start_daily_run_attempt');
+    expect(authoritativeDailySql).toContain('CREATE FUNCTION public.record_verified_daily_run()');
+    expect(authoritativeDailySql).toContain("NEW.mode <> 'daily'");
+    expect(authoritativeDailySql).toContain("'one_official_attempt_per_utc_day'");
+    expect(authoritativeDailySql).toContain("v_last_command_kind = 'abandon_run'");
+    expect(authoritativeDailySql).toContain('CREATE VIEW public.daily_leaderboard');
+    expect(authoritativeDailySql).toContain('DROP FUNCTION public.submit_daily_run');
+    expect(authoritativeDailySql).toContain('REVOKE ALL ON TABLE public.daily_runs');
+    expect(authoritativeDailySql).not.toMatch(/\bDELETE\s+FROM\b/i);
   });
 
   it('increments mastery and spends enhancement candies atomically', () => {
@@ -1048,31 +1070,34 @@ describeLive('Supabase live integration', () => {
     expect(enhancement?.total_candies_spent).toBe(20);
     expect(Object.values(enhancement?.unlocked_nodes ?? {})).toEqual([1]);
 
-    const today = new Date().toISOString().slice(0, 10);
-    const dailyArgs = {
-      p_daily_date: today,
-      p_daily_seed: 20260723,
-      p_won: true,
-      p_run_level: 4,
-      p_waves_completed: 10,
-      p_gold: 200,
-      p_item_count: 2,
-    };
-    const { data: dailyScore, error: dailyScoreError } = await restoredClient.rpc(
-      'submit_daily_run',
-      dailyArgs,
+    const retiredDailySubmission = await restoredClient.rpc(
+      'submit_daily_run' as never,
+      {
+        p_daily_date: new Date().toISOString().slice(0, 10),
+        p_daily_seed: 20260723,
+        p_won: true,
+        p_run_level: 100,
+        p_waves_completed: 1000,
+        p_gold: 1000000,
+        p_item_count: 100,
+      } as never,
     );
-    expect(dailyScoreError).toBeNull();
-    expect(dailyScore?.score).toBe(3300);
+    expect(retiredDailySubmission.error).not.toBeNull();
 
-    const { error: duplicateDailyError } = await restoredClient.rpc('submit_daily_run', dailyArgs);
-    expect(duplicateDailyError?.message).toContain('daily_run_already_submitted');
-
-    const { error: directDailyWriteError } = await restoredClient
-      .from('daily_runs')
-      .update({ score: 999999 })
-      .eq('id', dailyScore!.id);
+    const { error: directDailyWriteError } = await restoredClient.from('daily_runs').insert({
+      player_id: randomUUID(),
+      daily_date: new Date().toISOString().slice(0, 10),
+      daily_seed: 1,
+      score: 999999,
+    });
     expect(directDailyWriteError).not.toBeNull();
+
+    const challenge = await restoredClient.rpc('get_daily_challenge');
+    expect(challenge.error).toBeNull();
+    expect(challenge.data).toMatchObject({
+      difficulty: 'normal',
+      attempt_policy: 'one_official_attempt_per_utc_day',
+    });
 
     const { error: promoteError } = await supabase
       .from('players')

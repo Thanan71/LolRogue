@@ -14,7 +14,7 @@ persistance doit conserver cette séparation et mettre à jour les tests associ�
 | Maîtrise | `masteryStore` | `champion_mastery` et `player_unlocks` | `lolrogue-mastery-storage` | crédit atomique d'une run vérifiée |
 | Améliorations | `enhancementStore` | `champion_enhancements`; solde dans `players.total_candies` | indisponible sans compte | RPC `unlock_champion_enhancement` |
 | Daily run en cours | `dailyRunStore` et `runStore` | attempt serveur avec seed UTC | `lolrogue-daily-run` | même journal vérifié qu'une run normale |
-| Classement daily | store après lecture | `daily_runs` via la vue/RPC autorisée | `lolrogue-daily-leaderboard` | RPC `submit_daily_run` |
+| Classement daily | store après lecture | vue sanitisée `daily_leaderboard` issue des runs vérifiées | `lolrogue-daily-leaderboard` | trigger serveur après replay autoritaire |
 | Leaderboard normal | écran après lecture | vue `leaderboard` dérivée de `runs` | lecture éventuelle seulement | aucune écriture directe |
 | Réglages audio/UI | stores dédiés | aucune | `localStorage` | stores client |
 | Catalogue de jeu | imports TypeScript/JSON | fichiers versionnés dans `src/data` et `public/lol/data` | identique | scripts d'assets ou code |
@@ -96,10 +96,19 @@ pas modifier rétroactivement les règles d'un attempt déjà ouvert.
 ## Classements
 
 Le leaderboard normal est une vue calculée à partir des runs enregistrés; il n'est
-jamais écrit par le navigateur. Le daily leaderboard est public en lecture pour le
-jour concerné, mais une soumission nécessite un utilisateur authentifié et passe
-par `submit_daily_run`, qui applique la règle d'une participation par joueur et par
-date.
+jamais écrit par le navigateur. Pour un compte connecté, `get_daily_challenge`
+expose la date et l'expiration UTC, la seed, la difficulté, les six starters et les
+versions de ruleset et de score. `start_daily_run_attempt` crée la seule tentative
+officielle du joueur pour cette date et le trigger de départ recalcule toujours ces
+valeurs côté serveur, même si un ancien client appelle le RPC générique.
+
+Le navigateur ne soumet aucun score daily. Après le replay autoritaire,
+`complete_run_verification` insère la run vérifiée et un trigger calcule le score
+versionné dans la même transaction. Les métriques proviennent donc du moteur
+rejoué, et non d'un payload déclaratif. Une commande finale `abandon_run` consomme
+la tentative sans publier de ligne. La vue publique `daily_leaderboard` ne restitue
+que le rang, le nom public et les métriques nécessaires ; la table brute
+`daily_runs` reste inaccessible aux non-administrateurs.
 
 En mode invité, le classement daily local sert uniquement de retour d'interface.
 Il ne constitue pas un score officiel et peut être effacé avec le stockage du
@@ -124,5 +133,5 @@ publiques ont la RLS activée :
   runtime Supabase, jamais dans le bundle Vite.
 
 Le schéma SQL et les tests `database.test.ts`,
-`verifiedRunAttempts.database.test.ts` et `authorityRunEngine.test.ts` font
-autorité si ce document diverge.
+`verifiedRunAttempts.database.test.ts`, `authoritativeDaily.database.test.ts` et
+`authorityRunEngine.test.ts` font autorité si ce document diverge.

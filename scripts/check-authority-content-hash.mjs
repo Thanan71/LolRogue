@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
-const BUNDLE_PATH = 'supabase/functions/_shared/run-authority.bundle.js';
+const BUNDLE_PATH = 'supabase/functions/verify-run/run-authority.bundle.js';
 const ENGINE_PATH = 'src/game/authority/AuthorityRunEngine.ts';
 const MIGRATION_PATH = 'supabase/migrations/20260724090000_verified_run_attempts.sql';
 const HASH_PATTERN = '[0-9a-f]{64}';

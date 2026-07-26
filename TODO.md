@@ -148,28 +148,34 @@ le crédit sont idempotents, y compris après une réponse perdue ou un recharge
 métriques très larges. La date locale du navigateur diverge de `CURRENT_DATE`/UTC,
 et le réglage de difficulté local change le combat sans séparer les classements.
 
-- [ ] Définir le jour daily en UTC côté serveur et exposer date, seed et expiration
+**État au 26 juillet 2026 : fermé.** Le daily connecté utilise désormais un
+contrat UTC versionné et le même journal rejoué que la progression autoritaire.
+Les anciennes entrées restent historiques, mais sont exclues de la vue officielle.
+
+- [x] Définir le jour daily en UTC côté serveur et exposer date, seed et expiration
   depuis une seule source.
-- [ ] Dériver la seed côté serveur à partir de la date et d'une version de ruleset.
-- [ ] Fixer difficulté, contenu et version du calcul de score pour tous les joueurs.
-- [ ] Créer l'attempt côté serveur au lancement et l'associer au résultat soumis.
-- [ ] Rendre la règle « une tentative » ou « meilleur score » explicite et atomique.
-- [ ] Rendre atomiques/cohérentes la sauvegarde de run normale et la soumission daily
+- [x] Dériver la seed côté serveur à partir de la date et d'une version de ruleset.
+- [x] Fixer difficulté, contenu et version du calcul de score pour tous les joueurs.
+- [x] Créer l'attempt côté serveur au lancement et l'associer au résultat soumis.
+- [x] Rendre la règle « une tentative » ou « meilleur score » explicite et atomique.
+- [x] Rendre atomiques/cohérentes la sauvegarde de run normale et la soumission daily
   afin qu'un échec de la seconde ne laisse pas l'utilisateur dans un état bloqué.
-- [ ] Ne jamais publier un abandon sauf si cette règle produit est volontaire.
-- [ ] Valider les métriques par rapport aux limites réelles d'une run et non avec
+- [x] Ne jamais publier un abandon sauf si cette règle produit est volontaire.
+- [x] Valider les métriques par rapport aux limites réelles d'une run et non avec
   des plafonds arbitraires.
-- [ ] Prévoir une stratégie d'autorité suffisante avant de qualifier le classement
+- [x] Prévoir une stratégie d'autorité suffisante avant de qualifier le classement
   de compétitif : exécution serveur, journal d'actions vérifiable ou attestation.
-- [ ] Tester trois fuseaux horaires, minuit UTC, double soumission, seed falsifiée,
+- [x] Tester trois fuseaux horaires, minuit UTC, double soumission, seed falsifiée,
   difficulté modifiée et payload extrême.
-- [ ] Exposer une vue de leaderboard minimale et sanitisée qui restitue réellement
+- [x] Exposer une vue de leaderboard minimale et sanitisée qui restitue réellement
   les noms publics sans contourner la RLS de `players`.
-- [ ] Encapsuler le fallback `localStorage` invité et traiter quota, mode privé et
+- [x] Encapsuler le fallback `localStorage` invité et traiter quota, mode privé et
   `SecurityError`.
 
 **Acceptation :** deux joueurs au même instant reçoivent la même run et les scores
-incompatibles avec son ruleset sont refusés.
+incompatibles avec son ruleset sont refusés. Une tentative officielle est consommée
+dès son lancement ; son score est publié atomiquement après vérification, sauf en
+cas d'abandon explicite.
 
 ### P0-SEC-03 — Mettre à niveau l'outillage vulnérable
 

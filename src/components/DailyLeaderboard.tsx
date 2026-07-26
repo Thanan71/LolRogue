@@ -15,7 +15,8 @@ export function DailyLeaderboard() {
   const [countdown, setCountdown] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const todayKey = getTodayKey();
+  const [dailyDate, setDailyDate] = useState(getTodayKey);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const getLeaderboard = useDailyRunStore((s) => s.getLeaderboard);
   const isGuest = useAuthStore((state) => state.isGuest);
 
@@ -26,13 +27,24 @@ export function DailyLeaderboard() {
     setError(null);
 
     if (usesLocalLeaderboard) {
+      setDailyDate(getTodayKey());
+      setExpiresAt(null);
       setEntries(getLeaderboard());
       setIsLoading(false);
       return;
     }
 
     const repository = new SupabaseDailyRunRepository(supabase);
-    const result = await repository.getDailyLeaderboard(todayKey, 100);
+    const challenge = await repository.getDailyChallenge();
+    if (challenge.error || !challenge.data) {
+      setError('Unable to load the online Daily challenge.');
+      setEntries([]);
+      setIsLoading(false);
+      return;
+    }
+    setDailyDate(challenge.data.dailyDate);
+    setExpiresAt(challenge.data.expiresAt);
+    const result = await repository.getDailyLeaderboard(challenge.data.dailyDate, 100);
     if (result.error) {
       setError('Unable to load the online leaderboard.');
       setEntries([]);
@@ -40,7 +52,7 @@ export function DailyLeaderboard() {
       setEntries(result.data ?? []);
     }
     setIsLoading(false);
-  }, [getLeaderboard, todayKey, usesLocalLeaderboard]);
+  }, [getLeaderboard, usesLocalLeaderboard]);
 
   useEffect(() => {
     void refresh();
@@ -49,7 +61,7 @@ export function DailyLeaderboard() {
   // Countdown timer
   useEffect(() => {
     function updateCountdown() {
-      const ms = msUntilMidnight();
+      const ms = expiresAt ? Math.max(0, Date.parse(expiresAt) - Date.now()) : msUntilMidnight();
       const hours = Math.floor(ms / 3_600_000);
       const minutes = Math.floor((ms % 3_600_000) / 60_000);
       const seconds = Math.floor((ms % 60_000) / 1_000);
@@ -60,11 +72,11 @@ export function DailyLeaderboard() {
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [expiresAt]);
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Daily Run — {todayKey}</h2>
+      <h2 style={styles.title}>Daily Run — {dailyDate} UTC</h2>
       <p style={styles.countdown}>Resets in: {countdown}</p>
       <p style={styles.source}>
         {usesLocalLeaderboard
@@ -96,10 +108,10 @@ export function DailyLeaderboard() {
           <tbody>
             {entries.map((entry, i) => (
               <tr
-                key={`${entry.playerName}-${entry.completedAt}`}
+                key={`${entry.rank ?? i + 1}-${entry.playerName}`}
                 style={i < 3 ? styles.topRow : undefined}
               >
-                <td style={styles.td}>{i + 1}</td>
+                <td style={styles.td}>{entry.rank ?? i + 1}</td>
                 <td style={styles.td}>{entry.playerName}</td>
                 <td style={styles.td}>{entry.score.toLocaleString()}</td>
                 <td style={styles.td}>{entry.wavesCompleted}</td>

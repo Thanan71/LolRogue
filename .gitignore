@@ -40,4 +40,4 @@ supabase/.branches/
 supabase/.temp/
 
 # Generated deterministic engine bundle consumed by the Edge Function
-supabase/functions/_shared/run-authority.bundle.js
+supabase/functions/verify-run/run-authority.bundle.js

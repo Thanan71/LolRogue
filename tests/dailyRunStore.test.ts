@@ -218,4 +218,52 @@ describe('dailyRunStore (integration)', () => {
     expect(useDailyRunStore.getState().getLeaderboard()).toEqual([]);
     expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
   });
+
+  it('uses the server UTC expiration instead of the browser local date', async () => {
+    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
+    useDailyRunStore.getState().syncChallenge({
+      dailyDate: '2026-03-30',
+      seed: 1234,
+      startsAt: '2026-03-30T00:00:00.000Z',
+      expiresAt: '2026-03-31T00:00:00.000Z',
+      difficulty: 'normal',
+      dailyRulesetVersion: 1,
+      gameplayRulesetVersion: 1,
+      engineVersion: 'run-engine-v1',
+      gameplayContentHash: 'a'.repeat(64),
+      scoreVersion: 1,
+      starterIds: ['Garen'],
+      attemptPolicy: 'one_official_attempt_per_utc_day',
+      hasAttempted: true,
+      attemptId: '11111111-1111-4111-8111-111111111111',
+      attemptStatus: 'verified',
+      published: true,
+      score: 1360,
+    });
+
+    expect(useDailyRunStore.getState()).toMatchObject({
+      dateKey: '2026-03-30',
+      seed: 1234,
+      expiresAt: '2026-03-31T00:00:00.000Z',
+      hasCompletedToday: true,
+    });
+    vi.setSystemTime(new Date('2026-03-30T23:59:59.999Z'));
+    expect(useDailyRunStore.getState().checkHasCompletedToday()).toBe(true);
+    vi.setSystemTime(new Date('2026-03-31T00:00:00.000Z'));
+    useDailyRunStore.getState().checkDateReset();
+    expect(useDailyRunStore.getState().hasCompletedToday).toBe(false);
+  });
+
+  it('does not crash when guest leaderboard storage rejects writes', async () => {
+    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
+    const setItem = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new DOMException('Quota exceeded', 'QuotaExceededError');
+    });
+    useDailyRunStore.setState({ hasCompletedToday: false });
+    useDailyRunStore.getState().startDailyRun(['Garen']);
+
+    expect(() => useDailyRunStore.getState().completeDailyRun('Guest')).not.toThrow();
+    expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
+    setItem.mockRestore();
+  });
 });

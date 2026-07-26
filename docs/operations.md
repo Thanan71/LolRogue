@@ -38,6 +38,13 @@ pas déployer le nouveau client avant la migration : il ne trouverait pas les RP
 d'attempt. Ne pas laisser durablement l'ancien client après la migration : ses
 sauvegardes connectées seront volontairement refusées.
 
+La migration `20260726090000_authoritative_daily_leaderboard.sql` révoque et
+supprime aussi `submit_daily_run`. Le client compatible doit utiliser
+`get_daily_challenge`, `start_daily_run_attempt` et la vue
+`daily_leaderboard`. Les anciennes lignes daily restent conservées pour audit,
+mais seules celles liées à une run vérifiée apparaissent dans le classement
+officiel.
+
 `vercel.json` réécrit toutes les routes vers `index.html`, ce qui permet d'ouvrir
 directement `/auth`, `/run` ou `/admin`. Il définit également CSP, protection
 anti-frame, politique de permissions, referrer policy et `nosniff`. Toute nouvelle
@@ -55,6 +62,14 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
   vérification pour confirmer l'absence de doublon ;
 - soumettre une trace impossible sur un compte de test et confirmer le statut
   `rejected` sans candies, maîtrise ni compteur supplémentaire ;
+- ouvrir le daily avec deux comptes et confirmer la même date UTC, la même seed,
+  la difficulté `normal`, les mêmes six starters et la même version de score ;
+- terminer un daily et vérifier une seule ligne dans `daily_leaderboard`, puis
+  confirmer qu'un second départ est refusé ;
+- abandonner un daily avec un compte de test et confirmer que la tentative est
+  consommée sans publication dans le leaderboard ;
+- vérifier qu'un non-admin ne peut ni lire ni insérer directement dans
+  `daily_runs` ;
 - contrôler le profil, la maîtrise et les classements ;
 - vérifier qu'un non-admin reçoit un refus sur les lectures admin ;
 - examiner la console et l'onglet réseau : aucun asset 404, aucune erreur CSP et
