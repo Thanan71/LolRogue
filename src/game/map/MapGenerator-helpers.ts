@@ -78,9 +78,11 @@ export function selectColumnType(
   columnIndex: number,
   totalColumns: number,
 ): NodeType {
-  // First node should be a combat to allow players to start fighting immediately
+  // `startNodeId` identifies this playable entry encounter. NodeType.Start is
+  // retained only for recovery of legacy structural maps.
   if (columnIndex === 0) return NodeType.Combat;
   if (columnIndex === totalColumns - 1) {
+    // Exits advance between biomes; the only Boss column ends the final biome.
     return config.biome === 'base' ? NodeType.Boss : NodeType.Exit;
   }
   if (columnIndex === totalColumns - 2) {

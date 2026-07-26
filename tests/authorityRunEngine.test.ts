@@ -179,6 +179,64 @@ describe('authority run engine', () => {
     });
   });
 
+  it('locks the unchosen sibling even after the selected encounter is resolved', () => {
+    let branchAttempt: AuthorityRunAttempt | null = null;
+    let selectedNodeId = '';
+    let siblingNodeId = '';
+    for (let seed = 0; seed < 2_000 && !branchAttempt; seed++) {
+      const map = generateRunMap(seed)[0];
+      const start = map.nodes.find((node) => node.id === map.startNodeId)!;
+      if (start.nextNodeIds.length < 2) continue;
+      const selected = start.nextNodeIds
+        .map((id) => map.nodes.find((node) => node.id === id))
+        .find(
+          (node) =>
+            node &&
+            [NodeType.Shop, NodeType.Rest, NodeType.Event, NodeType.Recruit].includes(node.type),
+        );
+      if (!selected) continue;
+      branchAttempt = { ...ATTEMPT, seed };
+      selectedNodeId = selected.id;
+      siblingNodeId = start.nextNodeIds.find((id) => id !== selected.id)!;
+    }
+    expect(branchAttempt).not.toBeNull();
+
+    const startNodeId = generateRunMap(branchAttempt!.seed)[0].startNodeId;
+    const commands: AuthorityRunCommand[] = [
+      { sequence: 1, kind: 'move_node', payload: { node_id: startNodeId } },
+      { sequence: 2, kind: 'resolve_combat', payload: { node_id: startNodeId } },
+      { sequence: 3, kind: 'resolve_node', payload: { node_id: startNodeId } },
+      { sequence: 4, kind: 'move_node', payload: { node_id: selectedNodeId } },
+      { sequence: 5, kind: 'resolve_node', payload: { node_id: selectedNodeId } },
+      { sequence: 6, kind: 'move_node', payload: { node_id: siblingNodeId } },
+    ];
+
+    expect(verifyAuthorityRun(branchAttempt!, commands, { requireTerminal: false })).toMatchObject({
+      ok: false,
+      error: { code: 'node_not_reachable', commandIndex: 5 },
+    });
+  });
+
+  it('cannot resolve or claim the same completed node twice', () => {
+    expect(
+      verifyAuthorityRun(
+        ATTEMPT,
+        [
+          ...firstCombatTrace(),
+          {
+            sequence: 4,
+            kind: 'resolve_combat',
+            payload: { node_id: generateRunMap(ATTEMPT.seed)[0].startNodeId },
+          },
+        ],
+        { requireTerminal: false },
+      ),
+    ).toMatchObject({
+      ok: false,
+      error: { code: 'wrong_pending_node', commandIndex: 3 },
+    });
+  });
+
   it('keeps Exit pending until resolve_node, then advances to the next biome', () => {
     const trace = buildStrongTeamTrace(true);
     const exitResolution = trace[trace.length - 1];

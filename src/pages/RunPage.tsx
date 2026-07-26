@@ -3,6 +3,7 @@ import { playUIClick } from '@/audio';
 import { RunMapScreen } from '@/components/RunMapScreen';
 import { getRunLifecyclePhase } from '@/game/run/runLifecycle';
 import { getPendingEncounterRoute } from '@/game/run/routeAccess';
+import { isCurrentEncounterValid } from '@/game/map/mapProgression';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
 import { ROUTES } from '@/config/routes';
@@ -13,6 +14,10 @@ export function RunPage() {
   const phase = useRunStore(getRunLifecyclePhase);
   const isActive = phase === 'active';
   const pendingEncounter = useRunStore((s) => s.pendingEncounter);
+  const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
+  const biomeMaps = useRunStore((s) => s.biomeMaps);
+  const completedNodeIds = useRunStore((s) => s.completedNodeIds);
   const navigate = useAppNavigate();
 
   if (phase === 'finalizing' || phase === 'recovery' || phase === 'completed') {
@@ -45,7 +50,15 @@ export function RunPage() {
     );
   }
 
-  if (pendingEncounter) {
+  if (
+    pendingEncounter &&
+    isCurrentEncounterValid({
+      map: biomeMaps[currentBiomeIndex],
+      currentNodeId,
+      pendingEncounter,
+      completedNodeIds,
+    })
+  ) {
     return <Navigate to={getPendingEncounterRoute(pendingEncounter.nodeType)} replace />;
   }
 

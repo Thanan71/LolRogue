@@ -29,7 +29,10 @@ describe('biome transition', () => {
       currentBiomeIndex: 0,
       currentBiome: currentMap.biome,
       currentNodeId: exit!.id,
-      pendingEncounter: { nodeId: exit!.id, nodeType: 'boss' },
+      frontierNodeIds: [],
+      chosenPathNodeIds: [exit!.id],
+      completedNodeIds: [exit!.id],
+      pendingEncounter: null,
     });
 
     expect(useRunStore.getState().advanceToNextBiome()).toBe(true);
@@ -39,7 +42,8 @@ describe('biome transition', () => {
 
     expect(state.currentBiomeIndex).toBe(1);
     expect(state.currentBiome).toBe(nextMap.biome);
-    expect(state.currentNodeId).toBe(nextMap.startNodeId);
+    expect(state.currentNodeId).toBeNull();
+    expect(state.frontierNodeIds).toEqual([nextMap.startNodeId]);
     expect(nextStart?.accessible).toBe(true);
     expect(state.pendingEncounter).toBeNull();
   });

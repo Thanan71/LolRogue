@@ -164,6 +164,8 @@ describe('authoritative client journal', () => {
       currentBiomeIndex: 0,
       currentNodeId: 'b',
       currentBiome: 'top_lane',
+      frontierNodeIds: ['d'],
+      chosenPathNodeIds: ['a', 'b'],
       completedNodeIds: ['a', 'b'],
     });
 
@@ -186,6 +188,8 @@ describe('authoritative client journal', () => {
       currentBiomeIndex: 0,
       currentNodeId: 'a',
       currentBiome: 'top_lane',
+      frontierNodeIds: ['b'],
+      chosenPathNodeIds: ['a'],
       completedNodeIds: ['a'],
       pendingSpellUpgradeChampionIds: ['Garen'],
     });
@@ -248,6 +252,8 @@ describe('authoritative client journal', () => {
       ],
       currentBiomeIndex: 0,
       currentNodeId: 'fight',
+      frontierNodeIds: [],
+      chosenPathNodeIds: ['fight'],
       pendingEncounter: { nodeId: 'fight', nodeType: 'combat' },
       currentEncounter: combatNode.encounter,
     });
@@ -258,6 +264,7 @@ describe('authoritative client journal', () => {
         .getState()
         .recordRunCommand({ kind: 'resolve_combat', nodeId: 'fight' }, 'resolve_combat:0:fight'),
     ).toBe(true);
+    expect(useRunStore.getState().claimCurrentEncounter()).toBe(true);
     expect(
       useRunStore
         .getState()
@@ -272,5 +279,109 @@ describe('authoritative client journal', () => {
     expect(
       useRunStore.getState().authorityAttempt?.commands.map((command) => command.kind),
     ).toEqual(['resolve_combat', 'resolve_node']);
+    expect(useRunStore.getState().resolveEncounter()).toBe(false);
+  });
+
+  it('binds encounter start and resolution to the selected canonical node', () => {
+    const eventNode: MapNode = {
+      ...node('event', 0, [], ['after']),
+      type: NodeType.Event,
+      encounter: {
+        id: 'event-encounter',
+        name: 'Event',
+        description: 'Event',
+        type: 'event',
+        minRunLevel: 1,
+        outcomes: [{ type: 'nothing', weight: 1, description: 'Nothing' }],
+      },
+    };
+    const afterNode = node('after', 1, ['event'], []);
+    useRunStore.setState({
+      biomeMaps: [
+        {
+          biome: 'top_lane',
+          startNodeId: 'event',
+          exitNodeId: 'after',
+          columns: 2,
+          rows: 1,
+          nodes: [eventNode, afterNode],
+        },
+      ],
+      currentBiomeIndex: 0,
+      currentNodeId: 'event',
+      frontierNodeIds: [],
+      chosenPathNodeIds: ['event'],
+      completedNodeIds: [],
+    });
+
+    expect(useRunStore.getState().startEncounter('after', 'event')).toBe(false);
+    expect(useRunStore.getState().startEncounter('event', 'shop')).toBe(false);
+    expect(useRunStore.getState().startEncounter('event', 'event')).toBe(true);
+
+    useRunStore.setState({ currentNodeId: 'after' });
+    expect(useRunStore.getState().resolveEncounter()).toBe(false);
+    useRunStore.setState({ currentNodeId: 'event' });
+    expect(useRunStore.getState().resolveEncounter()).toBe(true);
+    expect(useRunStore.getState()).toMatchObject({
+      completedNodeIds: ['event'],
+      frontierNodeIds: ['after'],
+      pendingEncounter: null,
+    });
+    expect(useRunStore.getState().resolveEncounter()).toBe(false);
+  });
+
+  it('persists and consumes each canonical shop offer only once', () => {
+    const shopNode: MapNode = {
+      ...node('shop', 0, [], []),
+      type: NodeType.Shop,
+      encounter: {
+        id: 'shop-encounter',
+        name: 'Shop',
+        description: 'Shop',
+        type: 'shop',
+        minRunLevel: 1,
+        priceMultiplier: 1,
+        items: [
+          {
+            itemId: 'long_sword',
+            name: 'Long Sword',
+            description: 'Sword',
+            price: 100,
+            iconUrl: '',
+            stats: { atk: 10 },
+          },
+        ],
+        recruitableChampions: [{ championId: 'Ashe', cost: 100 }],
+      },
+    };
+    useRunStore.setState({
+      biomeMaps: [
+        {
+          biome: 'top_lane',
+          startNodeId: 'shop',
+          exitNodeId: 'shop',
+          columns: 1,
+          rows: 1,
+          nodes: [shopNode],
+        },
+      ],
+      currentNodeId: 'shop',
+      frontierNodeIds: [],
+      chosenPathNodeIds: ['shop'],
+      pendingEncounter: null,
+    });
+
+    expect(useRunStore.getState().startEncounter('shop', 'shop')).toBe(true);
+    expect(useRunStore.getState().shopNodeStates.shop?.visited).toBe(true);
+    expect(useRunStore.getState().claimCurrentShopOffer('item', 'forged_item')).toBe(false);
+    expect(useRunStore.getState().claimCurrentShopOffer('item', 'long_sword')).toBe(true);
+    expect(useRunStore.getState().claimCurrentShopOffer('item', 'long_sword')).toBe(false);
+    expect(useRunStore.getState().claimCurrentShopOffer('champion', 'Ashe')).toBe(true);
+    expect(useRunStore.getState().claimCurrentShopOffer('champion', 'Ashe')).toBe(false);
+    expect(useRunStore.getState().shopNodeStates.shop).toEqual({
+      visited: true,
+      purchasedItemIds: ['long_sword'],
+      recruitedChampionIds: ['Ashe'],
+    });
   });
 });

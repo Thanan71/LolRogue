@@ -281,22 +281,28 @@ vie unique, et le serveur conserve le verrou jusqu'à la fin de la vérification
 accessibles. Le joueur peut nettoyer plusieurs branches, rejouer le shop après
 refresh et accumuler des récompenses hors chemin roguelike.
 
-- [ ] Modéliser explicitement la position courante, les arêtes autorisées et le
+- [x] Modéliser explicitement la position courante, les arêtes autorisées et le
   frontier choisi.
-- [ ] Exiger que `moveToNode` suive une arête depuis le nœud courant.
-- [ ] Verrouiller définitivement les branches sœurs après le choix d'une branche.
-- [ ] Vérifier que le `pendingEncounter.nodeId` correspond au nœud courant avant
+- [x] Exiger que `moveToNode` suive une arête depuis le nœud courant.
+- [x] Verrouiller définitivement les branches sœurs après le choix d'une branche.
+- [x] Vérifier que le `pendingEncounter.nodeId` correspond au nœud courant avant
   toute résolution.
-- [ ] Rendre la résolution et la collecte idempotentes par nœud.
-- [ ] Persister le stock, les achats et l'état visité d'un shop dans la run.
-- [ ] Unifier le rôle des nœuds `Start`, `Exit` et `Boss` entre types, générateur,
+- [x] Rendre la résolution et la collecte idempotentes par nœud.
+- [x] Persister le stock, les achats et l'état visité d'un shop dans la run.
+- [x] Unifier le rôle des nœuds `Start`, `Exit` et `Boss` entre types, générateur,
   légende et transitions de biome.
-- [ ] Ne pas choisir arbitrairement le « premier nœud accessible » après résolution.
-- [ ] Ajouter des tests de propriétés : pas de saut, pas de sibling farm, pas de
+- [x] Ne pas choisir arbitrairement le « premier nœud accessible » après résolution.
+- [x] Ajouter des tests de propriétés : pas de saut, pas de sibling farm, pas de
   replay, pas de double claim, y compris après refresh.
 
 **Acceptation :** une run suit un chemin continu unique et la somme maximale de
 récompenses est bornée par ce chemin.
+
+**Statut : terminé.** Le store persiste désormais une frontière exacte et le
+chemin choisi. Sélectionner un nœud consomme cette frontière, puis seule la liste
+de ses arêtes sortantes peut être ouverte après résolution. Les rencontres,
+récompenses et offres de shop sont liées au nœud courant et consommées une seule
+fois ; le replay autoritaire applique les mêmes refus aux journaux falsifiés.
 
 ### P0-RUN-04 — Corriger les pertes et gains silencieux
 

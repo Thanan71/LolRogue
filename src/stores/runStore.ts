@@ -3,12 +3,14 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { championDB } from '@/data';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
+import { completeNode as completeNodeUtil, findNode, isMapComplete } from '@/game/map/mapUtils';
 import {
-  completeNode as completeNodeUtil,
-  findNode,
-  getAccessibleNodes,
-  isMapComplete,
-} from '@/game/map/mapUtils';
+  deriveLegacyFrontier,
+  isCurrentEncounterValid,
+  isFrontierMoveAllowed,
+  synchronizeMapFrontier,
+  toEncounterNodeType,
+} from '@/game/map/mapProgression';
 import {
   canClaimEncounterReward,
   getSurvivingChampionIds,
@@ -35,6 +37,7 @@ import {
   MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
   type RunStore,
+  type RunState,
   type RunEndResult,
   type RunLifecycleErrorCode,
   type RunStartResult,
@@ -138,6 +141,147 @@ function endFailure(
   retryable = false,
 ): RunEndResult {
   return { success: false, runId, code, error, retryable };
+}
+
+function migratePersistedRunState(persisted: unknown, version: number): RunState {
+  const state = recoverPersistedState(persisted, RUN_INITIAL_STATE);
+  const currentMap = state.biomeMaps[state.currentBiomeIndex];
+  const persistedFrontier =
+    version >= 3 && Array.isArray(state.frontierNodeIds)
+      ? state.frontierNodeIds.filter((id) => Boolean(currentMap && findNode(currentMap, id)))
+      : deriveLegacyFrontier({
+          map: currentMap,
+          currentNodeId: state.currentNodeId,
+          completedNodeIds: state.completedNodeIds ?? [],
+          pendingNodeId: state.pendingEncounter?.nodeId ?? null,
+        });
+  let currentNodeId = state.currentNodeId;
+  let pendingEncounter = state.pendingEncounter;
+  let currentEncounter = state.currentEncounter;
+  const currentNode = currentMap && currentNodeId ? findNode(currentMap, currentNodeId) : undefined;
+  const canonicalNodeType = currentNode ? toEncounterNodeType(currentNode) : null;
+  const pendingIsValid = isCurrentEncounterValid({
+    map: currentMap,
+    currentNodeId,
+    pendingEncounter,
+    completedNodeIds: state.completedNodeIds ?? [],
+  });
+
+  if (!pendingIsValid) {
+    pendingEncounter = null;
+    currentEncounter = null;
+    // A refresh may land between the atomic movement state change and the page
+    // transition. Recreate only the canonical encounter stored on the node.
+    if (
+      currentNode &&
+      canonicalNodeType &&
+      currentNode.encounter &&
+      !currentNode.completed &&
+      !(state.completedNodeIds ?? []).includes(currentNode.id) &&
+      persistedFrontier.length === 0
+    ) {
+      pendingEncounter = { nodeId: currentNode.id, nodeType: canonicalNodeType };
+      if (
+        canonicalNodeType === 'combat' ||
+        canonicalNodeType === 'elite' ||
+        canonicalNodeType === 'boss'
+      ) {
+        currentEncounter = currentNode.encounter as import('@/game/map/types').CombatEncounter;
+      }
+    } else if (
+      currentNode &&
+      currentNode.id === currentMap?.startNodeId &&
+      persistedFrontier.includes(currentNode.id)
+    ) {
+      // Version 2 stored the unselected entry node as the current position.
+      currentNodeId = null;
+    }
+  } else if (
+    canonicalNodeType === 'combat' ||
+    canonicalNodeType === 'elite' ||
+    canonicalNodeType === 'boss'
+  ) {
+    currentEncounter =
+      (currentNode?.encounter as import('@/game/map/types').CombatEncounter | undefined) ?? null;
+  } else {
+    currentEncounter = null;
+  }
+
+  const commandPath =
+    state.authorityAttempt?.commands
+      .filter((command) => command.kind === 'move_node')
+      .map((command) => command.payload.node_id)
+      .filter(Boolean) ?? [];
+  const chosenPathNodeIds =
+    version >= 3 && Array.isArray(state.chosenPathNodeIds)
+      ? [...new Set(state.chosenPathNodeIds)]
+      : [
+          ...new Set(
+            commandPath.length > 0
+              ? commandPath
+              : [...(state.completedNodeIds ?? []), state.currentNodeId].filter(
+                  (id): id is string => Boolean(id),
+                ),
+          ),
+        ];
+
+  const shopNodeStates = { ...(state.shopNodeStates ?? {}) };
+  for (const command of state.authorityAttempt?.commands ?? []) {
+    if (command.kind !== 'shop_buy_item' && command.kind !== 'shop_recruit') continue;
+    const nodeId = command.payload.node_id;
+    const offerId =
+      command.kind === 'shop_buy_item' ? command.payload.item_id : command.payload.champion_id;
+    if (!nodeId || !offerId) continue;
+    const previous = shopNodeStates[nodeId] ?? {
+      visited: true,
+      purchasedItemIds: [],
+      recruitedChampionIds: [],
+    };
+    shopNodeStates[nodeId] = {
+      visited: true,
+      purchasedItemIds:
+        command.kind === 'shop_buy_item'
+          ? [...new Set([...previous.purchasedItemIds, offerId])]
+          : [...previous.purchasedItemIds],
+      recruitedChampionIds:
+        command.kind === 'shop_recruit'
+          ? [...new Set([...previous.recruitedChampionIds, offerId])]
+          : [...previous.recruitedChampionIds],
+    };
+  }
+
+  // A legacy guest shop did not persist purchases. Closing its remaining stock
+  // is the only safe recovery: otherwise a refresh would recreate every offer.
+  if (
+    version < 3 &&
+    !state.authorityAttempt &&
+    state.pendingEncounter?.nodeType === 'shop' &&
+    currentMap
+  ) {
+    const node = findNode(currentMap, state.pendingEncounter.nodeId);
+    if (node?.encounter?.type === 'shop') {
+      shopNodeStates[node.id] = {
+        visited: true,
+        purchasedItemIds: node.encounter.items.map((item) => item.itemId),
+        recruitedChampionIds: node.encounter.recruitableChampions.map(
+          (champion) => champion.championId,
+        ),
+      };
+    }
+  }
+
+  synchronizeMapFrontier(state.biomeMaps, state.currentBiomeIndex, persistedFrontier);
+  return {
+    ...state,
+    currentNodeId,
+    frontierNodeIds: persistedFrontier,
+    chosenPathNodeIds,
+    completedNodeIds: [...new Set(state.completedNodeIds ?? [])],
+    claimedEncounterNodeIds: [...new Set(state.claimedEncounterNodeIds ?? [])],
+    shopNodeStates,
+    pendingEncounter,
+    currentEncounter,
+  };
 }
 
 async function refreshVerifiedProgression(userId: string): Promise<void> {
@@ -319,8 +463,9 @@ export const useRunStore = create<RunStore>()(
             // Authenticated content is generated only after the server has frozen
             // the seed/ruleset; guest mode keeps its local deterministic seed.
             const biomeMaps = generateBiomeMaps(seed);
-            const startNodeId = biomeMaps[0]?.startNodeId ?? null;
             const startBiome = biomeMaps[0]?.biome ?? null;
+            const frontierNodeIds = biomeMaps[0]?.startNodeId ? [biomeMaps[0].startNodeId] : [];
+            synchronizeMapFrontier(biomeMaps, 0, frontierNodeIds);
 
             // Reset stats tracker for new run
             runStatsTracker.reset();
@@ -357,9 +502,12 @@ export const useRunStore = create<RunStore>()(
               totalWavesCompleted: 0,
               biomeMaps,
               currentBiomeIndex: 0,
-              currentNodeId: startNodeId,
+              currentNodeId: null,
+              frontierNodeIds,
+              chosenPathNodeIds: [],
               completedNodeIds: [],
               claimedEncounterNodeIds: [],
+              shopNodeStates: {},
               pendingEncounter: null,
               currentEncounter: null,
             });
@@ -1125,15 +1273,22 @@ export const useRunStore = create<RunStore>()(
 
       generateRunMap: (seed?: number) => {
         const biomeMaps = generateBiomeMaps(get().authorityAttempt?.seed ?? seed);
-        const startNodeId = biomeMaps[0]?.startNodeId ?? null;
         const startBiome = biomeMaps[0]?.biome ?? null;
+        const frontierNodeIds = biomeMaps[0]?.startNodeId ? [biomeMaps[0].startNodeId] : [];
+        synchronizeMapFrontier(biomeMaps, 0, frontierNodeIds);
         set({
           biomeMaps,
           currentBiomeIndex: 0,
-          currentNodeId: startNodeId,
+          currentNodeId: null,
+          frontierNodeIds,
+          chosenPathNodeIds: [],
           completedNodeIds: [],
+          claimedEncounterNodeIds: [],
+          shopNodeStates: {},
           currentBiome: startBiome,
           biomesVisited: startBiome ? [startBiome] : [],
+          pendingEncounter: null,
+          currentEncounter: null,
         });
       },
 
@@ -1143,32 +1298,35 @@ export const useRunStore = create<RunStore>()(
           currentBiomeIndex,
           completedNodeIds,
           currentNodeId,
+          frontierNodeIds,
+          chosenPathNodeIds,
+          pendingEncounter,
           pendingAugmentIds,
           pendingSpellUpgradeChampionIds,
         } = get();
-        if (pendingAugmentIds.length > 0 || pendingSpellUpgradeChampionIds.length > 0) return false;
+        if (
+          pendingEncounter ||
+          pendingAugmentIds.length > 0 ||
+          pendingSpellUpgradeChampionIds.length > 0
+        ) {
+          return false;
+        }
         const currentMap = biomeMaps[currentBiomeIndex];
         if (!currentMap) return false;
 
         const targetNode = findNode(currentMap, nodeId);
-        const currentNode = currentNodeId ? findNode(currentMap, currentNodeId) : undefined;
-        if (!targetNode) return false;
-
-        // A branch can only continue from the node that was just completed.
-        // getAccessibleNodes alone is too broad because it also includes nodes
-        // unlocked by an older predecessor on an abandoned branch.
-        const accessible = getAccessibleNodes(currentMap, completedNodeIds);
-        const isImmediatelyAccessible = accessible.some((node) => node.id === nodeId);
-        const isCurrentStart =
-          nodeId === currentNodeId &&
-          nodeId === currentMap.startNodeId &&
-          !completedNodeIds.includes(nodeId);
-        const followsCurrentCompletedNode =
-          currentNode !== undefined &&
-          (currentNode.completed || completedNodeIds.includes(currentNode.id)) &&
-          currentNode.nextNodeIds.includes(nodeId) &&
-          isImmediatelyAccessible;
-        if (!isCurrentStart && !followsCurrentCompletedNode) return false;
+        if (
+          !targetNode ||
+          !isFrontierMoveAllowed({
+            map: currentMap,
+            currentNodeId,
+            completedNodeIds,
+            frontierNodeIds,
+            targetNodeId: nodeId,
+          })
+        ) {
+          return false;
+        }
         if (
           !get().recordRunCommand(
             { kind: 'move_node', nodeId },
@@ -1178,49 +1336,128 @@ export const useRunStore = create<RunStore>()(
           return false;
         }
 
+        synchronizeMapFrontier(biomeMaps, currentBiomeIndex, []);
         set({
+          biomeMaps: [...biomeMaps],
           currentNodeId: nodeId,
+          frontierNodeIds: [],
+          chosenPathNodeIds: chosenPathNodeIds.includes(nodeId)
+            ? chosenPathNodeIds
+            : [...chosenPathNodeIds, nodeId],
           currentBiome: targetNode.biome,
         });
         return true;
       },
 
       completeCurrentNode: () => {
-        const { biomeMaps, currentBiomeIndex, currentNodeId, completedNodeIds } = get();
-        if (!currentNodeId) return;
+        const { biomeMaps, currentBiomeIndex, currentNodeId, chosenPathNodeIds, completedNodeIds } =
+          get();
+        if (!currentNodeId) return false;
         const currentMap = biomeMaps[currentBiomeIndex];
-        if (!currentMap) return;
+        if (!currentMap) return false;
+        const currentNode = findNode(currentMap, currentNodeId);
+        if (
+          !currentNode ||
+          currentNode.completed ||
+          completedNodeIds.includes(currentNodeId) ||
+          !chosenPathNodeIds.includes(currentNodeId) ||
+          get().pendingEncounter ||
+          (currentNode.type !== 'start' && currentNode.type !== 'exit')
+        ) {
+          return false;
+        }
         if (
           !get().recordRunCommand(
             { kind: 'resolve_node', nodeId: currentNodeId },
             `resolve_node:${currentBiomeIndex}:${currentNodeId}`,
           )
         ) {
-          return;
+          return false;
         }
 
-        // Mark node as completed and update accessibility
-        completeNodeUtil(currentMap, currentNodeId);
+        const frontierNodeIds = completeNodeUtil(currentMap, currentNodeId).map((node) => node.id);
+        synchronizeMapFrontier(biomeMaps, currentBiomeIndex, frontierNodeIds);
 
         set({
           biomeMaps: [...biomeMaps],
+          frontierNodeIds,
           completedNodeIds: [...completedNodeIds, currentNodeId],
         });
+        return true;
       },
 
-      startEncounter: (nodeId, nodeType, encounterData?) => {
-        set({ pendingEncounter: { nodeId, nodeType }, currentEncounter: encounterData ?? null });
+      startEncounter: (nodeId, nodeType) => {
+        const state = get();
+        const map = state.biomeMaps[state.currentBiomeIndex];
+        const node = map ? findNode(map, nodeId) : undefined;
+        const canonicalType = node ? toEncounterNodeType(node) : null;
+        if (
+          !state.isActive ||
+          state.pendingEncounter !== null ||
+          state.currentNodeId !== nodeId ||
+          state.frontierNodeIds.length !== 0 ||
+          !node ||
+          node.completed ||
+          state.completedNodeIds.includes(nodeId) ||
+          !state.chosenPathNodeIds.includes(nodeId) ||
+          canonicalType !== nodeType ||
+          !node.encounter
+        ) {
+          return false;
+        }
+        const shopNodeStates =
+          canonicalType === 'shop'
+            ? {
+                ...state.shopNodeStates,
+                [nodeId]: {
+                  visited: true,
+                  purchasedItemIds: [...(state.shopNodeStates[nodeId]?.purchasedItemIds ?? [])],
+                  recruitedChampionIds: [
+                    ...(state.shopNodeStates[nodeId]?.recruitedChampionIds ?? []),
+                  ],
+                },
+              }
+            : state.shopNodeStates;
+        set({
+          pendingEncounter: { nodeId, nodeType: canonicalType },
+          currentEncounter:
+            canonicalType === 'combat' || canonicalType === 'elite' || canonicalType === 'boss'
+              ? (node.encounter as import('@/game/map/types').CombatEncounter)
+              : null,
+          shopNodeStates,
+        });
+        return true;
       },
 
       resolveEncounter: () => {
-        const { pendingEncounter, biomeMaps, currentBiomeIndex, currentNodeId, completedNodeIds } =
-          get();
-        if (pendingEncounter && currentNodeId) {
+        const {
+          pendingEncounter,
+          biomeMaps,
+          currentBiomeIndex,
+          currentNodeId,
+          chosenPathNodeIds,
+          completedNodeIds,
+        } = get();
+        const currentMap = biomeMaps[currentBiomeIndex];
+        if (
+          pendingEncounter &&
+          currentNodeId &&
+          chosenPathNodeIds.includes(currentNodeId) &&
+          isCurrentEncounterValid({
+            map: currentMap,
+            currentNodeId,
+            pendingEncounter,
+            completedNodeIds,
+          })
+        ) {
           const authorityAttempt = get().authorityAttempt;
           const isCombatEncounter =
             pendingEncounter.nodeType === 'combat' ||
             pendingEncounter.nodeType === 'elite' ||
             pendingEncounter.nodeType === 'boss';
+          if (isCombatEncounter && !get().claimedEncounterNodeIds.includes(currentNodeId)) {
+            return false;
+          }
           if (
             authorityAttempt &&
             isCombatEncounter &&
@@ -1240,7 +1477,10 @@ export const useRunStore = create<RunStore>()(
             return false;
           }
           // Complete the current node
-          completeNodeUtil(biomeMaps[currentBiomeIndex], currentNodeId);
+          const frontierNodeIds = completeNodeUtil(currentMap, currentNodeId).map(
+            (node) => node.id,
+          );
+          synchronizeMapFrontier(biomeMaps, currentBiomeIndex, frontierNodeIds);
 
           // Update completedNodeIds (filter out nulls)
           const newCompletedNodeIds = [...completedNodeIds, currentNodeId].filter(
@@ -1249,6 +1489,7 @@ export const useRunStore = create<RunStore>()(
 
           set({
             biomeMaps: [...biomeMaps],
+            frontierNodeIds,
             completedNodeIds: newCompletedNodeIds,
             pendingEncounter: null,
             currentEncounter: null,
@@ -1259,19 +1500,108 @@ export const useRunStore = create<RunStore>()(
       },
 
       claimCurrentEncounter: () => {
-        const { currentNodeId, pendingEncounter, claimedEncounterNodeIds } = get();
+        const {
+          biomeMaps,
+          currentBiomeIndex,
+          currentNodeId,
+          pendingEncounter,
+          claimedEncounterNodeIds,
+          chosenPathNodeIds,
+          completedNodeIds,
+        } = get();
         const claimed = claimedEncounterNodeIds ?? [];
-        if (!canClaimEncounterReward(currentNodeId, pendingEncounter?.nodeId ?? null, claimed)) {
+        if (
+          !canClaimEncounterReward(currentNodeId, pendingEncounter?.nodeId ?? null, claimed) ||
+          !currentNodeId ||
+          !chosenPathNodeIds.includes(currentNodeId) ||
+          !isCurrentEncounterValid({
+            map: biomeMaps[currentBiomeIndex],
+            currentNodeId,
+            pendingEncounter,
+            completedNodeIds,
+          })
+        ) {
           return false;
         }
         set({ claimedEncounterNodeIds: [...claimed, currentNodeId!] });
         return true;
       },
 
+      claimCurrentShopOffer: (offerType, offerId) => {
+        const state = get();
+        const map = state.biomeMaps[state.currentBiomeIndex];
+        const node = map && state.currentNodeId ? findNode(map, state.currentNodeId) : undefined;
+        if (
+          !node ||
+          node.encounter?.type !== 'shop' ||
+          !state.chosenPathNodeIds.includes(node.id) ||
+          !isCurrentEncounterValid({
+            map,
+            currentNodeId: state.currentNodeId,
+            pendingEncounter: state.pendingEncounter,
+            completedNodeIds: state.completedNodeIds,
+          })
+        ) {
+          return false;
+        }
+        const previous = state.shopNodeStates[node.id] ?? {
+          visited: true,
+          purchasedItemIds: [],
+          recruitedChampionIds: [],
+        };
+        const isCanonicalOffer =
+          offerType === 'item'
+            ? node.encounter.items.some((item) => item.itemId === offerId)
+            : node.encounter.recruitableChampions.some(
+                (champion) => champion.championId === offerId,
+              );
+        const alreadyClaimed =
+          offerType === 'item'
+            ? previous.purchasedItemIds.includes(offerId)
+            : previous.recruitedChampionIds.includes(offerId);
+        if (!isCanonicalOffer || alreadyClaimed) return false;
+        set({
+          shopNodeStates: {
+            ...state.shopNodeStates,
+            [node.id]: {
+              visited: true,
+              purchasedItemIds:
+                offerType === 'item'
+                  ? [...previous.purchasedItemIds, offerId]
+                  : previous.purchasedItemIds,
+              recruitedChampionIds:
+                offerType === 'champion'
+                  ? [...previous.recruitedChampionIds, offerId]
+                  : previous.recruitedChampionIds,
+            },
+          },
+        });
+        return true;
+      },
+
       advanceToNextBiome: () => {
-        const { biomeMaps, currentBiomeIndex } = get();
+        const {
+          biomeMaps,
+          currentBiomeIndex,
+          currentNodeId,
+          chosenPathNodeIds,
+          completedNodeIds,
+          pendingEncounter,
+        } = get();
         const currentMap = biomeMaps[currentBiomeIndex];
-        if (!currentMap || !isMapComplete(currentMap)) return false;
+        const currentNode =
+          currentMap && currentNodeId ? findNode(currentMap, currentNodeId) : undefined;
+        if (
+          !currentMap ||
+          !currentNode ||
+          currentNode.type !== 'exit' ||
+          !chosenPathNodeIds.includes(currentNode.id) ||
+          (!currentNode.completed && !completedNodeIds.includes(currentNode.id)) ||
+          pendingEncounter ||
+          !isMapComplete(currentMap)
+        ) {
+          return false;
+        }
 
         const nextIndex = currentBiomeIndex + 1;
         if (nextIndex >= biomeMaps.length) return false;
@@ -1279,11 +1609,13 @@ export const useRunStore = create<RunStore>()(
         const nextMap = biomeMaps[nextIndex];
         const nextStartNode = findNode(nextMap, nextMap.startNodeId);
         if (!nextStartNode) return false;
-        nextStartNode.accessible = true;
+        const frontierNodeIds = [nextMap.startNodeId];
+        synchronizeMapFrontier(biomeMaps, nextIndex, frontierNodeIds);
         set({
           biomeMaps: [...biomeMaps],
           currentBiomeIndex: nextIndex,
-          currentNodeId: nextMap.startNodeId,
+          currentNodeId: null,
+          frontierNodeIds,
           currentBiome: nextMap.biome,
           biomesVisited: [...get().biomesVisited, nextMap.biome],
           pendingEncounter: null,
@@ -1325,9 +1657,9 @@ export const useRunStore = create<RunStore>()(
     }),
     {
       name: 'lolrogue-run-storage',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => safeLocalStorage),
-      migrate: (persisted) => recoverPersistedState(persisted, RUN_INITIAL_STATE),
+      migrate: (persisted, version) => migratePersistedRunState(persisted, version),
       // Only persist the serializable state, not functions
       partialize: (state) => ({
         isActive: state.isActive,
@@ -1372,8 +1704,11 @@ export const useRunStore = create<RunStore>()(
         biomeMaps: state.biomeMaps,
         currentBiomeIndex: state.currentBiomeIndex,
         currentNodeId: state.currentNodeId,
+        frontierNodeIds: state.frontierNodeIds,
+        chosenPathNodeIds: state.chosenPathNodeIds,
         completedNodeIds: state.completedNodeIds,
         claimedEncounterNodeIds: state.claimedEncounterNodeIds,
+        shopNodeStates: state.shopNodeStates,
         pendingEncounter: state.pendingEncounter,
         currentEncounter: state.currentEncounter,
       }),

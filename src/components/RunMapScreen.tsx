@@ -4,7 +4,7 @@ import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { findNode } from '@/game/map/mapUtils';
-import type { CombatEncounter, NodeMap } from '@/game/map/types';
+import type { NodeMap } from '@/game/map/types';
 import { NodeType } from '@/game/map/types';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
@@ -63,7 +63,7 @@ export function RunMapScreen() {
   const biomeMaps = useRunStore((s) => s.biomeMaps);
   const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
-  // completedNodeIds is available but not currently used in rendering
+  const frontierNodeIds = useRunStore((s) => s.frontierNodeIds);
   const team = useRunStore((s) => s.team);
   const inventory = useRunStore((s) => s.inventory);
   const gold = useRunStore((s) => s.gold);
@@ -100,41 +100,10 @@ export function RunMapScreen() {
       const node = findNode(currentMap, nodeId);
       if (!node) return;
 
-      // Start node: complete it and immediately enter its first encounter.
+      // Legacy structural Start nodes open their frontier but never choose a
+      // branch on behalf of the player.
       if (node.type === NodeType.Start) {
         completeCurrentNode();
-        const firstNodeId = node.nextNodeIds[0];
-        if (!firstNodeId || !moveToNode(firstNodeId)) return;
-
-        const firstNode = findNode(currentMap, firstNodeId);
-        if (!firstNode) return;
-
-        if (
-          (firstNode.type === NodeType.Combat ||
-            firstNode.type === NodeType.Elite ||
-            firstNode.type === NodeType.Boss) &&
-          firstNode.encounter
-        ) {
-          startEncounter(
-            firstNodeId,
-            firstNode.type as unknown as RunNodeType,
-            firstNode.encounter as CombatEncounter,
-          );
-        } else {
-          startEncounter(firstNodeId, firstNode.type as unknown as RunNodeType);
-        }
-
-        if (
-          firstNode.type === NodeType.Combat ||
-          firstNode.type === NodeType.Elite ||
-          firstNode.type === NodeType.Boss
-        )
-          navigate(ROUTES.COMBAT);
-        else if (firstNode.type === NodeType.Shop) navigate(ROUTES.SHOP);
-        else if (firstNode.type === NodeType.Rest) navigate(ROUTES.REST);
-        else if (firstNode.type === NodeType.Event) navigate(ROUTES.EVENT);
-        else if (firstNode.type === NodeType.Recruit) navigate(ROUTES.RECRUIT);
-        else if (firstNode.type === NodeType.Treasure) navigate(ROUTES.TREASURE);
         return;
       }
 
@@ -146,18 +115,18 @@ export function RunMapScreen() {
       ) {
         // Only pass encounter data if it exists
         if (node.encounter) {
-          startEncounter(
-            nodeId,
-            node.type as unknown as RunNodeType,
-            node.encounter as CombatEncounter,
-          );
+          if (!startEncounter(nodeId, node.type as unknown as RunNodeType)) {
+            return;
+          }
         } else {
           // Fallback for edge case where combat node has no encounter data
           console.warn(`[RunMapScreen] Combat node ${nodeId} has no encounter data`);
-          startEncounter(nodeId, node.type as unknown as RunNodeType);
+          return;
         }
       } else {
-        startEncounter(nodeId, node.type as unknown as RunNodeType);
+        if (node.type !== NodeType.Exit && !startEncounter(nodeId, node.type as RunNodeType)) {
+          return;
+        }
       }
 
       // Navigate to the appropriate encounter page
@@ -185,7 +154,7 @@ export function RunMapScreen() {
           break;
         case NodeType.Exit:
           // Complete the current node and advance to the next biome
-          completeCurrentNode();
+          if (!completeCurrentNode()) return;
           if (!advanceToNextBiome()) {
             // A configuration without another biome still ends in a persisted victory.
             void finalizeCombatRun('player', []).then((outcome) => {
@@ -276,8 +245,8 @@ export function RunMapScreen() {
             >
               <strong>Comment jouer</strong>
               <p>
-                Choisissez un nœud entouré en vert. Terminez sa rencontre pour ouvrir le chemin
-                suivant. Le boss permet de passer au biome suivant.
+                Choisissez uniquement un nœud entouré en vert. Votre choix verrouille les branches
+                sœurs. Une sortie mène au biome suivant ; le boss final termine la run.
               </p>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 {Object.entries(NODE_LABELS).map(([type, label]) => (
@@ -375,9 +344,10 @@ export function RunMapScreen() {
                 const cx = 20 + node.column * 110 + 55;
                 const cy = 20 + node.row * 80 + 40;
                 const isCurrent = currentNodeId === node.id;
-                const isAccessible = node.accessible;
+                const isAccessible = frontierNodeIds.includes(node.id);
                 const isDone = node.completed;
                 const isSelectable = isAccessible && !hasPendingChoice;
+                const isEntry = node.id === currentMap.startNodeId;
                 return (
                   <g
                     key={node.id}
@@ -392,7 +362,7 @@ export function RunMapScreen() {
                     role="button"
                     tabIndex={isSelectable ? 0 : -1}
                     aria-disabled={!isSelectable}
-                    aria-label={`${node.type}${isDone ? ', terminé' : ''}`}
+                    aria-label={`${node.type}${isEntry ? ', départ du biome' : ''}${isDone ? ', terminé' : ''}`}
                   >
                     {isCurrent && (
                       <circle
@@ -451,6 +421,18 @@ export function RunMapScreen() {
                     >
                       {isDone ? '✓' : (NODE_LABELS[node.type] ?? '?')}
                     </text>
+                    {isEntry && (
+                      <text
+                        x={cx}
+                        y={cy - 24}
+                        textAnchor="middle"
+                        fill="#c8aa6e"
+                        fontSize={10}
+                        fontWeight={700}
+                      >
+                        DÉPART
+                      </text>
+                    )}
                     <text
                       x={cx}
                       y={cy + 30}

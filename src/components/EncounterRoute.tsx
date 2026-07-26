@@ -17,6 +17,8 @@ export function EncounterRoute({
   const isActive = phase === 'active';
   const currentNodeId = useRunStore((state) => state.currentNodeId);
   const pendingEncounter = useRunStore((state) => state.pendingEncounter);
+  const currentNode = useRunStore((state) => state.getCurrentNode());
+  const completedNodeIds = useRunStore((state) => state.completedNodeIds);
 
   if (phase === 'finalizing' || phase === 'recovery' || phase === 'completed') {
     return <Navigate to={ROUTES.GAME_OVER} replace />;
@@ -27,6 +29,13 @@ export function EncounterRoute({
       isActive,
       currentNodeId,
       pendingEncounter,
+      actualNodeType:
+        currentNode?.type === 'start' || currentNode?.type === 'exit'
+          ? null
+          : (currentNode?.type ?? null),
+      nodeCompleted:
+        currentNode?.completed === true ||
+        (currentNodeId !== null && completedNodeIds.includes(currentNodeId)),
       expectedTypes,
     })
   ) {

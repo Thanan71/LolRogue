@@ -15,15 +15,13 @@ export function findNode(map: NodeMap, nodeId: string): MapNode | undefined {
 }
 
 /**
- * Get all accessible nodes from completed nodes.
+ * Get the exact persisted frontier.
+ *
+ * `completedNodeIds` is retained in the signature for backwards compatibility,
+ * but old completed parents must never reopen abandoned sibling branches.
  */
-export function getAccessibleNodes(map: NodeMap, completedNodeIds: string[]): MapNode[] {
-  return map.nodes.filter((node) => {
-    if (node.completed) return false;
-    if (node.prevNodeIds.length === 0) return node.id === map.startNodeId;
-    // A node is accessible if AT LEAST ONE of its previous nodes is completed
-    return node.prevNodeIds.some((prevId) => completedNodeIds.includes(prevId));
-  });
+export function getAccessibleNodes(map: NodeMap, _completedNodeIds: string[]): MapNode[] {
+  return map.nodes.filter((node) => node.accessible && !node.completed);
 }
 
 /**
@@ -31,23 +29,19 @@ export function getAccessibleNodes(map: NodeMap, completedNodeIds: string[]): Ma
  */
 export function completeNode(map: NodeMap, nodeId: string): MapNode[] {
   const node = findNode(map, nodeId);
-  if (!node) return [];
+  if (!node || node.completed) return [];
 
   node.completed = true;
-  node.accessible = false;
+  // Completing a node replaces the frontier. Nodes exposed by any older
+  // predecessor are locked permanently, including sibling branches.
+  for (const mapNode of map.nodes) mapNode.accessible = false;
 
   const newlyAccessible: MapNode[] = [];
   for (const nextId of node.nextNodeIds) {
     const nextNode = findNode(map, nextId);
-    if (nextNode && !nextNode.completed && !nextNode.accessible) {
-      // A node becomes accessible if AT LEAST ONE of its previous nodes is completed
-      const anyPrereqCompleted = nextNode.prevNodeIds.some(
-        (prevId) => findNode(map, prevId)?.completed ?? false,
-      );
-      if (anyPrereqCompleted) {
-        nextNode.accessible = true;
-        newlyAccessible.push(nextNode);
-      }
+    if (nextNode && !nextNode.completed) {
+      nextNode.accessible = true;
+      newlyAccessible.push(nextNode);
     }
   }
 

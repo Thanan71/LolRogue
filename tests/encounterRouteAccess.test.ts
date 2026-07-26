@@ -22,6 +22,8 @@ describe('encounter route access', () => {
       isActive: true,
       currentNodeId: 'node-2',
       pendingEncounter: { nodeId: 'node-2', nodeType: 'elite' as const },
+      actualNodeType: 'elite' as const,
+      nodeCompleted: false,
     };
 
     expect(isEncounterRouteAllowed({ ...base, expectedTypes: ['combat', 'elite', 'boss'] })).toBe(
@@ -36,6 +38,8 @@ describe('encounter route access', () => {
         isActive: true,
         currentNodeId: 'node-3',
         pendingEncounter: { nodeId: 'node-2', nodeType: 'event' },
+        actualNodeType: 'event',
+        nodeCompleted: false,
         expectedTypes: ['event'],
       }),
     ).toBe(false);
@@ -44,6 +48,18 @@ describe('encounter route access', () => {
         isActive: false,
         currentNodeId: 'node-2',
         pendingEncounter: { nodeId: 'node-2', nodeType: 'event' },
+        actualNodeType: 'event',
+        nodeCompleted: false,
+        expectedTypes: ['event'],
+      }),
+    ).toBe(false);
+    expect(
+      isEncounterRouteAllowed({
+        isActive: true,
+        currentNodeId: 'node-2',
+        pendingEncounter: { nodeId: 'node-2', nodeType: 'event' },
+        actualNodeType: 'shop',
+        nodeCompleted: false,
         expectedTypes: ['event'],
       }),
     ).toBe(false);

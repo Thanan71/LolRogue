@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi } from 'vitest';
 import type { User } from '@supabase/supabase-js';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
+import { NodeType, type NodeMap } from '@/game/map/types';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { AuthPage } from '@/pages/AuthPage';
 import { EventPage } from '@/pages/EventPage';
@@ -74,6 +75,11 @@ describe('P2 page smoke tests', () => {
       biomeMaps: [],
       currentBiomeIndex: 0,
       currentNodeId: null,
+      frontierNodeIds: [],
+      chosenPathNodeIds: [],
+      completedNodeIds: [],
+      claimedEncounterNodeIds: [],
+      shopNodeStates: {},
       currentBiome: null,
       pendingEncounter: null,
       currentEncounter: null,
@@ -162,12 +168,83 @@ describe('P2 page smoke tests', () => {
       biomeMaps: maps,
       currentBiomeIndex: 0,
       currentBiome: maps[0].biome,
-      currentNodeId: maps[0].startNodeId,
+      currentNodeId: null,
+      frontierNodeIds: [maps[0].startNodeId],
     });
     renderAt(<RunMapScreen />, '/run');
     expect(screen.getByRole('button', { name: /aide/i })).toBeInTheDocument();
     expect(screen.getByText('Top_lane')).toBeInTheDocument();
     expect(document.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('never auto-selects the first child of a structural start node', () => {
+    const map: NodeMap = {
+      biome: 'top_lane',
+      startNodeId: 'start',
+      exitNodeId: 'left',
+      columns: 2,
+      rows: 2,
+      nodes: [
+        {
+          id: 'start',
+          type: NodeType.Start,
+          column: 0,
+          row: 0,
+          nextNodeIds: ['left', 'right'],
+          prevNodeIds: [],
+          biome: 'top_lane',
+          completed: false,
+          accessible: true,
+          encounter: null,
+          metadata: { title: 'Start', description: 'Start', icon: '▶' },
+        },
+        {
+          id: 'left',
+          type: NodeType.Exit,
+          column: 1,
+          row: 0,
+          nextNodeIds: [],
+          prevNodeIds: ['start'],
+          biome: 'top_lane',
+          completed: false,
+          accessible: false,
+          encounter: null,
+          metadata: { title: 'Left', description: 'Left', icon: '■' },
+        },
+        {
+          id: 'right',
+          type: NodeType.Exit,
+          column: 1,
+          row: 1,
+          nextNodeIds: [],
+          prevNodeIds: ['start'],
+          biome: 'top_lane',
+          completed: false,
+          accessible: false,
+          encounter: null,
+          metadata: { title: 'Right', description: 'Right', icon: '■' },
+        },
+      ],
+    };
+    useRunStore.setState({
+      isActive: true,
+      biomeMaps: [map],
+      currentBiomeIndex: 0,
+      currentBiome: 'top_lane',
+      currentNodeId: null,
+      frontierNodeIds: ['start'],
+    });
+
+    renderAt(<RunMapScreen />, '/run');
+    fireEvent.click(screen.getByRole('button', { name: /start, départ du biome/i }));
+
+    expect(useRunStore.getState()).toMatchObject({
+      currentNodeId: 'start',
+      frontierNodeIds: ['left', 'right'],
+      chosenPathNodeIds: ['start'],
+      completedNodeIds: ['start'],
+      pendingEncounter: null,
+    });
   });
 
   it('shows a persisted verified start as an explicit locked recovery choice', () => {

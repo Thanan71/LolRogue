@@ -23,17 +23,26 @@ test('a guest run progresses deterministically through all six biomes', async ({
       const { useRunStore } = await import('/src/stores/runStore.ts');
       const state = useRunStore.getState();
       const map = state.biomeMaps[state.currentBiomeIndex];
+      const terminalNode = map.nodes.find((node) => node.id === map.exitNodeId);
+      if (!terminalNode) throw new Error('Generated map has no terminal node.');
       const completedMap = {
         ...map,
-        nodes: map.nodes.map((node) => ({ ...node, completed: true })),
+        nodes: map.nodes.map((node) => ({
+          ...node,
+          completed: node.id === terminalNode.id ? true : node.completed,
+          accessible: false,
+        })),
       };
       const biomeMaps = [...state.biomeMaps];
       biomeMaps[state.currentBiomeIndex] = completedMap;
       useRunStore.setState({
         biomeMaps,
-        completedNodeIds: [
-          ...new Set([...state.completedNodeIds, ...completedMap.nodes.map((node) => node.id)]),
-        ],
+        currentNodeId: terminalNode.id,
+        frontierNodeIds: [],
+        chosenPathNodeIds: [...new Set([...state.chosenPathNodeIds, terminalNode.id])],
+        completedNodeIds: [...new Set([...state.completedNodeIds, terminalNode.id])],
+        pendingEncounter: null,
+        currentEncounter: null,
       });
 
       if (state.currentBiomeIndex === state.biomeMaps.length - 1) {

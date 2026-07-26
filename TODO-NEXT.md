@@ -68,6 +68,20 @@ Le constat historique doit être mis à jour : `startRun` attend désormais `end
 
 ---
 
+## Réaudit P0-RUN-03 — Exploitation de la carte
+
+- [x] Persister `currentNodeId`, la frontière exacte et le chemin choisi.
+- [x] Refuser tout saut ou déplacement qui ne suit pas une arête sortante du nœud courant.
+- [x] Consommer la frontière au choix et ne rouvrir aucune branche sœur.
+- [x] Lier chaque encounter, résolution, récompense et offre de shop au nœud courant.
+- [x] Persister visites, stock et offres consommées du shop, y compris après refresh.
+- [x] Aligner l'entrée jouable, les sorties inter-biomes et le boss final dans le modèle et l'UI.
+- [x] Prouver par tests client et replay autoritaire : pas de saut, sibling farm, replay ou double claim.
+
+**Acceptation :** une seule chaîne continue de nœuds peut produire des récompenses, localement comme lors du replay serveur.
+
+---
+
 ## P1-GAME-05 — Garantir la parité client / authority
 
 ### Objectif

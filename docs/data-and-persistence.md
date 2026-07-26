@@ -98,6 +98,40 @@ aucun doublon, IDs connus et implémentés, et nombre de slots effectivement
 débloqués. La même limite est recalculée depuis `champion_mastery.unlocked_ids`
 par le trigger serveur ; un payload navigateur ne peut donc inventer un slot.
 
+## Chemin de carte et rencontres
+
+La progression locale ne dérive plus les nœuds accessibles de tous les parents
+historiquement terminés. `currentNodeId` représente la position, `frontierNodeIds`
+la seule liste sélectionnable et `chosenPathNodeIds` la chaîne ordonnée retenue.
+Un déplacement consomme entièrement la frontière. Après résolution, seules les
+arêtes sortantes du nœud courant deviennent la nouvelle frontière ; une branche
+sœur abandonnée ne peut donc jamais redevenir accessible.
+
+`pendingEncounter` est accepté uniquement si son ID et son type correspondent au
+nœud courant canonique, non terminé. Le démarrage d'une rencontre ne reçoit plus
+son contenu depuis la page : il relit l'encounter seedé dans `biomeMaps`. Les
+routes, claims et résolutions appliquent la même identité. `completedNodeIds`,
+`claimedEncounterNodeIds` et les clés de commandes rendent résolution et
+collecte idempotentes, y compris après refresh.
+
+Le stock seedé reste dans `biomeMaps`. `shopNodeStates` persiste en plus la visite,
+les IDs d'objets achetés et les champions recrutés. La version 3 du stockage
+reconstruit ces consommations depuis le journal autoritaire. Pour un ancien shop
+invité dont les achats n'étaient pas traçables, la migration ferme
+conservativement les offres restantes au lieu de les recréer.
+
+`startNodeId` désigne l'encounter jouable d'entrée des nouvelles cartes ;
+`NodeType.Start` est réservé à la reprise d'anciennes cartes structurelles et ne
+sélectionne jamais automatiquement son premier enfant. Les nœuds `Exit` terminent
+les cinq premiers biomes et les nœuds `Boss` terminent uniquement le biome final.
+La légende et les transitions utilisent ces mêmes rôles.
+
+Pour une run connectée, ces protections d'interface ne sont pas la frontière de
+confiance : `AuthorityRunEngine` conserve sa propre frontière `expectedNodeIds`,
+refuse une seconde sélection, vérifie le nœud pending de chaque commande et
+rejoue les claims/achats avec des ensembles idempotents. Une trace de saut, de
+sibling farm ou de double claim est rejetée avant tout crédit.
+
 ## Versions et historique
 
 `gameplay_rulesets` relie chaque attempt à une version de moteur et à un hash du

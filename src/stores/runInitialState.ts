@@ -33,8 +33,11 @@ export const RUN_INITIAL_STATE: RunState = {
   biomeMaps: [],
   currentBiomeIndex: 0,
   currentNodeId: null,
+  frontierNodeIds: [],
+  chosenPathNodeIds: [],
   completedNodeIds: [],
   claimedEncounterNodeIds: [],
+  shopNodeStates: {},
   pendingEncounter: null,
   currentEncounter: null,
 };

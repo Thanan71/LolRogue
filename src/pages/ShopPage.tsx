@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
 import type { ShopEncounter, ShopItem } from '@/game/map/types';
@@ -117,37 +117,20 @@ export function ShopPage() {
   const spendGold = useRunStore((s) => s.spendGold);
   const addItem = useRunStore((s) => s.addItem);
   const addChampion = useRunStore((s) => s.addChampion);
+  const claimCurrentShopOffer = useRunStore((s) => s.claimCurrentShopOffer);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
-  const authorityCommands = useRunStore((s) => s.authorityAttempt?.commands ?? []);
+  const shopNodeState = useRunStore((s) =>
+    currentNodeId ? s.shopNodeStates[currentNodeId] : undefined,
+  );
 
-  const [locallyPurchased, setLocallyPurchased] = useState<Set<string>>(new Set());
-  const [locallyRecruited, setLocallyRecruited] = useState<Set<string>>(new Set());
-  const purchased = useMemo(() => {
-    const result = new Set(locallyPurchased);
-    for (const command of authorityCommands) {
-      if (
-        command.kind === 'shop_buy_item' &&
-        command.payload.node_id === currentNodeId &&
-        command.payload.item_id
-      ) {
-        result.add(command.payload.item_id);
-      }
-    }
-    return result;
-  }, [authorityCommands, currentNodeId, locallyPurchased]);
-  const recruited = useMemo(() => {
-    const result = new Set(locallyRecruited);
-    for (const command of authorityCommands) {
-      if (
-        command.kind === 'shop_recruit' &&
-        command.payload.node_id === currentNodeId &&
-        command.payload.champion_id
-      ) {
-        result.add(command.payload.champion_id);
-      }
-    }
-    return result;
-  }, [authorityCommands, currentNodeId, locallyRecruited]);
+  const purchased = useMemo(
+    () => new Set(shopNodeState?.purchasedItemIds ?? []),
+    [shopNodeState?.purchasedItemIds],
+  );
+  const recruited = useMemo(
+    () => new Set(shopNodeState?.recruitedChampionIds ?? []),
+    [shopNodeState?.recruitedChampionIds],
+  );
 
   const encounter = useMemo(() => {
     const node = getCurrentNode();
@@ -165,7 +148,11 @@ export function ShopPage() {
       const cost = Math.round(item.price * priceMultiplier);
       const before = useRunStore.getState();
       if (before.inventory.length >= MAX_INVENTORY_ITEMS) return;
-      if (!spendGold(cost)) return;
+      if (!claimCurrentShopOffer('item', item.itemId)) return;
+      if (!spendGold(cost)) {
+        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
+        return;
+      }
       playUIClick();
       const instanceId = addItem({
         id: item.itemId,
@@ -178,6 +165,7 @@ export function ShopPage() {
       });
       if (!instanceId) {
         useRunStore.getState().addGold(cost);
+        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
         return;
       }
       const state = useRunStore.getState();
@@ -189,21 +177,27 @@ export function ShopPage() {
       ) {
         state.removeItem(instanceId);
         state.addGold(cost);
+        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
         return;
       }
-      setLocallyPurchased((prev) => new Set(prev).add(item.itemId));
     },
-    [spendGold, addItem, priceMultiplier, currentNodeId],
+    [spendGold, addItem, claimCurrentShopOffer, priceMultiplier, currentNodeId],
   );
 
   const handleRecruit = useCallback(
     (champId: string, cost: number) => {
       if (!currentNodeId) return;
       const finalCost = Math.round(cost * priceMultiplier);
-      if (!spendGold(finalCost)) return;
+      const before = useRunStore.getState();
+      if (!claimCurrentShopOffer('champion', champId)) return;
+      if (!spendGold(finalCost)) {
+        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
+        return;
+      }
       playUIClick();
       if (!addChampion(champId)) {
         useRunStore.getState().addGold(finalCost);
+        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
         return;
       }
       const state = useRunStore.getState();
@@ -215,11 +209,11 @@ export function ShopPage() {
       ) {
         state.removeChampion(champId);
         state.addGold(finalCost);
+        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
         return;
       }
-      setLocallyRecruited((prev) => new Set(prev).add(champId));
     },
-    [spendGold, addChampion, priceMultiplier, currentNodeId],
+    [spendGold, addChampion, claimCurrentShopOffer, priceMultiplier, currentNodeId],
   );
 
   const handleLeave = useCallback(() => {

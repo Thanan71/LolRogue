@@ -3,6 +3,7 @@
 import type { User } from '@supabase/supabase-js';
 import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NodeType } from '@/game/map/types';
 import { CombatPage } from '@/pages/CombatPage';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useAuthStore } from '@/stores/authStore';
@@ -116,6 +117,41 @@ describe('CombatPage authority finalization', () => {
       currentBiome: 'top_lane',
       currentBiomeIndex: 0,
       currentNodeId: 'fight',
+      frontierNodeIds: [],
+      chosenPathNodeIds: ['fight'],
+      biomeMaps: [
+        {
+          biome: 'top_lane',
+          startNodeId: 'fight',
+          exitNodeId: 'fight',
+          columns: 1,
+          rows: 1,
+          nodes: [
+            {
+              id: 'fight',
+              type: NodeType.Combat,
+              column: 0,
+              row: 0,
+              nextNodeIds: [],
+              prevNodeIds: [],
+              biome: 'top_lane',
+              completed: false,
+              accessible: false,
+              encounter: {
+                id: 'fight',
+                name: 'Fight',
+                description: 'Fight',
+                type: 'combat',
+                minRunLevel: 1,
+                enemies: [{ championId: 'Garen', statMultiplier: 1 }],
+                goldReward: 50,
+                itemDropChance: 0,
+              },
+              metadata: { title: 'Fight', description: 'Fight', icon: '⚔️' },
+            },
+          ],
+        },
+      ],
       pendingEncounter: { nodeId: 'fight', nodeType: 'combat' },
       currentEncounter: {
         id: 'fight',

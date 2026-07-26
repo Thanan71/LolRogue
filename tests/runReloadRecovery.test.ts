@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import type { CombatEncounter } from '@/game/map/types';
 import { runStatsTracker } from '@/services/RunStatsTracker';
+import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 
 const RUN_STORAGE_KEY = 'lolrogue-run-storage';
@@ -51,6 +52,8 @@ describe('run reload recovery', () => {
       currentBiomeIndex: 2,
       currentBiome: currentMap.biome,
       currentNodeId,
+      frontierNodeIds: [],
+      chosenPathNodeIds: [currentNodeId],
       biomesVisited: maps.slice(0, 3).map((map) => map.biome),
       gold: 275,
       totalWavesCompleted: 9,
@@ -65,6 +68,8 @@ describe('run reload recovery', () => {
       currentBiomeIndex: 0,
       currentBiome: null,
       currentNodeId: null,
+      frontierNodeIds: [],
+      chosenPathNodeIds: [],
       biomesVisited: [],
       gold: 0,
       totalWavesCompleted: 0,
@@ -78,6 +83,8 @@ describe('run reload recovery', () => {
       currentBiomeIndex: 2,
       currentBiome: currentMap.biome,
       currentNodeId,
+      frontierNodeIds: [],
+      chosenPathNodeIds: [currentNodeId],
       gold: 275,
       totalWavesCompleted: 9,
     });
@@ -124,6 +131,76 @@ describe('run reload recovery', () => {
       nodeType: 'combat',
     });
     expect(useRunStore.getState().currentEncounter).toEqual(encounter);
+  });
+
+  it('keeps shop stock and consumed offers closed after refresh', async () => {
+    let maps = generateRunMap(1);
+    let shop = maps[0].nodes.find((node) => node.encounter?.type === 'shop');
+    for (let seed = 2; !shop && seed < 500; seed++) {
+      maps = generateRunMap(seed);
+      shop = maps[0].nodes.find((node) => node.encounter?.type === 'shop');
+    }
+    expect(shop?.encounter?.type).toBe('shop');
+    const itemId =
+      shop?.encounter?.type === 'shop' ? (shop.encounter.items[0]?.itemId ?? 'sold-item') : '';
+
+    useRunStore.setState({
+      ...RUN_INITIAL_STATE,
+      isActive: true,
+      runId: 'reload-shop',
+      biomeMaps: maps,
+      currentBiomeIndex: 0,
+      currentBiome: maps[0].biome,
+      currentNodeId: shop!.id,
+      frontierNodeIds: [],
+      chosenPathNodeIds: [shop!.id],
+      pendingEncounter: { nodeId: shop!.id, nodeType: 'shop' },
+      shopNodeStates: {
+        [shop!.id]: {
+          visited: true,
+          purchasedItemIds: [itemId],
+          recruitedChampionIds: [],
+        },
+      },
+    });
+    const persistedShop = localStorage.getItem(RUN_STORAGE_KEY);
+    expect(persistedShop).not.toBeNull();
+
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    localStorage.setItem(RUN_STORAGE_KEY, persistedShop!);
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState().shopNodeStates[shop!.id]).toEqual({
+      visited: true,
+      purchasedItemIds: [itemId],
+      recruitedChampionIds: [],
+    });
+    expect(useRunStore.getState().pendingEncounter).toEqual({
+      nodeId: shop!.id,
+      nodeType: 'shop',
+    });
+    expect(useRunStore.getState().claimCurrentShopOffer('item', itemId)).toBe(false);
+
+    const legacyPayload = JSON.parse(persistedShop!) as {
+      version: number;
+      state: Record<string, unknown>;
+    };
+    legacyPayload.version = 2;
+    delete legacyPayload.state.frontierNodeIds;
+    delete legacyPayload.state.chosenPathNodeIds;
+    delete legacyPayload.state.shopNodeStates;
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    localStorage.setItem(RUN_STORAGE_KEY, JSON.stringify(legacyPayload));
+    await useRunStore.persist.rehydrate();
+
+    const legacyShopState = useRunStore.getState().shopNodeStates[shop!.id];
+    if (shop!.encounter?.type !== 'shop') throw new Error('Expected a shop encounter.');
+    expect(legacyShopState?.purchasedItemIds).toEqual(
+      shop!.encounter.items.map((item) => item.itemId),
+    );
+    expect(legacyShopState?.recruitedChampionIds).toEqual(
+      shop!.encounter.recruitableChampions.map((champion) => champion.championId),
+    );
   });
 
   it.each(['saving', 'retrying'] as const)(

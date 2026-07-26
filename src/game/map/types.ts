@@ -13,7 +13,9 @@ export enum NodeType {
   Event = 'event',
   Treasure = 'treasure',
   Recruit = 'recruit',
+  /** Legacy structural entry node. New maps use `NodeMap.startNodeId` on a playable encounter. */
   Start = 'start',
+  /** Non-combat terminal that advances to the next biome. */
   Exit = 'exit',
 }
 
@@ -193,7 +195,9 @@ export interface NodeMetadata {
 export interface NodeMap {
   biome: Biome;
   nodes: MapNode[];
+  /** Entry position for this biome; it is a selectable playable node in generated maps. */
   startNodeId: string;
+  /** Representative terminal ID; every generated last-column node has the same terminal role. */
   exitNodeId: string;
   columns: number;
   rows: number;

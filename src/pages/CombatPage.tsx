@@ -530,13 +530,18 @@ export function CombatPage() {
     (w: 'player' | 'enemy' | 'draw', finalPlayerStates: FinalCombatantState[]) => {
       const commandState = useRunStore.getState();
       const combatNodeId = commandState.currentNodeId;
+      const previousClaims = commandState.claimedEncounterNodeIds;
       if (
-        combatNodeId &&
-        !commandState.recordRunCommand(
-          { kind: 'resolve_combat', nodeId: combatNodeId },
-          `resolve_combat:${commandState.currentBiomeIndex}:${combatNodeId}`,
-        )
+        !combatNodeId ||
+        !commandState.claimCurrentEncounter() ||
+        !useRunStore
+          .getState()
+          .recordRunCommand(
+            { kind: 'resolve_combat', nodeId: combatNodeId },
+            `resolve_combat:${commandState.currentBiomeIndex}:${combatNodeId}`,
+          )
       ) {
+        useRunStore.setState({ claimedEncounterNodeIds: previousClaims });
         logger.error('CombatPage: unable to record the authoritative combat resolution.');
         return;
       }

@@ -233,10 +233,23 @@ export interface RunState {
   currentBiomeIndex: number;
   /** ID of the current node within the current biome map */
   currentNodeId: string | null;
+  /** Exact nodes that may be selected next from the current position. */
+  frontierNodeIds: string[];
+  /** Ordered nodes selected by the player; sibling branches never enter this path. */
+  chosenPathNodeIds: string[];
   /** IDs of nodes that have been completed (across all biomes) */
   completedNodeIds: string[];
   /** Encounter rewards/actions already consumed, persisted across refreshes. */
   claimedEncounterNodeIds: string[];
+  /** Persistent per-shop visit and offer consumption state. */
+  shopNodeStates: Record<
+    string,
+    {
+      visited: boolean;
+      purchasedItemIds: string[];
+      recruitedChampionIds: string[];
+    }
+  >;
 
   /** Currently active encounter (null if no encounter pending) */
   pendingEncounter: { nodeId: string; nodeType: NodeType } | null;
@@ -346,17 +359,15 @@ export interface RunActions {
   /** Move to a specific node on the map (validates accessibility) */
   moveToNode: (nodeId: string) => boolean;
   /** Mark the current node as completed and unlock next nodes */
-  completeCurrentNode: () => void;
+  completeCurrentNode: () => boolean;
   /** Start an encounter for a given node (sets pendingEncounter and currentEncounter) */
-  startEncounter: (
-    nodeId: string,
-    nodeType: NodeType,
-    encounterData?: import('@/game/map/types').CombatEncounter,
-  ) => void;
+  startEncounter: (nodeId: string, nodeType: NodeType) => boolean;
   /** Resolve the current encounter (clears it and completes the node). */
   resolveEncounter: () => boolean;
   /** Advance to the next biome map */
   advanceToNextBiome: () => boolean;
+  /** Reserve a shop offer once; persisted so refresh cannot restore it. */
+  claimCurrentShopOffer: (offerType: 'item' | 'champion', offerId: string) => boolean;
   /** Get the current biome's NodeMap */
   getCurrentMap: () => import('@/game/map/types').NodeMap | null;
   /** Get the current MapNode */

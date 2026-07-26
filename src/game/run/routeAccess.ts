@@ -19,12 +19,16 @@ export function isEncounterRouteAllowed(input: {
   isActive: boolean;
   currentNodeId: string | null;
   pendingEncounter: { nodeId: string; nodeType: NodeType } | null;
+  actualNodeType: NodeType | null;
+  nodeCompleted: boolean;
   expectedTypes: readonly NodeType[];
 }): boolean {
   return Boolean(
     input.isActive &&
       input.pendingEncounter &&
       input.currentNodeId === input.pendingEncounter.nodeId &&
+      input.actualNodeType === input.pendingEncounter.nodeType &&
+      !input.nodeCompleted &&
       input.expectedTypes.includes(input.pendingEncounter.nodeType),
   );
 }
