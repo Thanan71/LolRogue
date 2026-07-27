@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { BattleManager } from '@/game/battle/BattleManager';
+import { isActionTargeting } from '@/game/battle/targetResolver';
 import type { BattleAction, BattleEvent, BattleTeam } from '@/game/battle/types';
 import { BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
@@ -12,6 +13,7 @@ import type { FinalCombatantState } from '@/types/run';
 /** Convert a ChampionInstance + combatant state to CombatantInfo for the UI */
 function toCombatantInfo(
   champ: ChampionInstance,
+  targetId: string,
   side: 'player' | 'enemy',
   currentHp: number,
   maxHp: number,
@@ -23,18 +25,22 @@ function toCombatantInfo(
   const spells: SpellInfo[] = [];
   for (const slot of slots) {
     const spell = champ.getSpell(slot);
-    if (spell) {
+    if (spell && isActionTargeting(spell.targeting)) {
+      const rank = champ.getSpellRank(slot);
+      const cost = spell.cost[rank - 1] ?? spell.cost[spell.cost.length - 1] ?? 0;
       spells.push({
         slot,
         name: spell.name,
-        cooldownMax: spell.cooldown[0] ?? 0,
+        cooldownMax: champ.getMaxCooldown(slot),
         cooldownCurrent: champ.getCooldown(slot),
-        cost: spell.cost[0] ?? 0,
-        isReady: champ.isSpellReady(slot),
+        cost,
+        isReady: champ.isSpellReady(slot) && currentMp >= cost,
+        targeting: spell.targeting,
       });
     }
   }
   return {
+    targetId,
     id: champ.id,
     name: champ.name,
     level: champ.level,
@@ -54,12 +60,28 @@ function syncTeams(bm: BattleManager): void {
   const player = bm
     .getPlayerCombatants()
     .map((c) =>
-      toCombatantInfo(c.champion, 'player', c.currentHp, c.maxHp, c.currentMp, c.isDefeated),
+      toCombatantInfo(
+        c.champion,
+        c.targetId,
+        'player',
+        c.currentHp,
+        c.maxHp,
+        c.currentMp,
+        c.isDefeated,
+      ),
     );
   const enemy = bm
     .getEnemyCombatants()
     .map((c) =>
-      toCombatantInfo(c.champion, 'enemy', c.currentHp, c.maxHp, c.currentMp, c.isDefeated),
+      toCombatantInfo(
+        c.champion,
+        c.targetId,
+        'enemy',
+        c.currentHp,
+        c.maxHp,
+        c.currentMp,
+        c.isDefeated,
+      ),
     );
   store.setTeams(player, enemy);
 }

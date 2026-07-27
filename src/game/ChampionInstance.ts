@@ -154,7 +154,8 @@ export class ChampionInstance {
   }
 
   setSpellRank(slot: SpellSlot, rank: number): void {
-    this._spellRanks[slot] = Math.max(1, Math.min(slot === 'R' ? 3 : 5, Math.floor(rank)));
+    const maxRank = this._spells[slot]?.maxRank ?? (slot === 'R' ? 3 : 5);
+    this._spellRanks[slot] = Math.max(1, Math.min(maxRank, Math.floor(rank)));
   }
 
   getSpellRank(slot: SpellSlot): number {
@@ -236,14 +237,14 @@ export class ChampionInstance {
   }
 
   /**
-   * Get the base cooldown for a spell slot at rank 1.
+   * Get the base cooldown for a spell slot at its current rank.
    * @param slot — spell slot to check.
    * @returns The base cooldown value, or 0 if spell doesn't exist.
    */
   getMaxCooldown(slot: SpellSlot): number {
     const spell = this._spells[slot];
     if (!spell || !spell.cooldown || spell.cooldown.length === 0) return 0;
-    return spell.cooldown[0];
+    return getRankValue(spell.cooldown, this._spellRanks[slot]);
   }
 
   /**
@@ -254,7 +255,7 @@ export class ChampionInstance {
   }
 
   /**
-   * Use a spell: set its cooldown from the spell data (rank 0 index).
+   * Use a spell: set its cooldown from the spell data at the current rank.
    * @param slot — spell slot to use.
    * @returns true if the spell was used (was ready), false if on cooldown.
    */
@@ -263,9 +264,7 @@ export class ChampionInstance {
     if (!spell) return false;
     if (!this.isSpellReady(slot)) return false;
 
-    // Set cooldown from the first cooldown value (rank 0)
-    // If cooldown array is empty or missing, set to 0
-    const cooldownValue = spell.cooldown[0] ?? 0;
+    const cooldownValue = getRankValue(spell.cooldown, this._spellRanks[slot]);
     this._cooldowns[slot] = cooldownValue;
     return true;
   }
@@ -318,6 +317,11 @@ export class ChampionInstance {
 
 function clampLevel(level: number): number {
   return Math.max(1, Math.min(18, Math.floor(level)));
+}
+
+function getRankValue(values: readonly number[], rank: number): number {
+  if (values.length === 0) return 0;
+  return values[rank - 1] ?? values[values.length - 1] ?? 0;
 }
 
 // ── Supporting types ───────────────────────────────────────────────────────

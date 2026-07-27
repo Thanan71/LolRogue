@@ -225,8 +225,9 @@ describe('BattleManager', () => {
 
     describe('action system', () => {
       it('should list available actions for a champion', () => {
-        const teams = makeTeams(['P1'], ['E1']);
+        const teams = makeTeams(['P1'], ['E1'], { P1: 400, E1: 300 });
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
         const actions = bm.getAvailableActions(teams.playerTeam.champions[0]);
 
         expect(actions.length).toBe(5);
@@ -240,7 +241,11 @@ describe('BattleManager', () => {
         const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
         bm.startBattle();
 
-        const action: BattleAction = { type: ActionType.BasicAttack, cost: 0 };
+        const action: BattleAction = {
+          type: ActionType.BasicAttack,
+          cost: 0,
+          targetId: 'E1',
+        };
         const result = bm.submitAction(action);
         const entry = bm.turnOrder[bm.turnIndex - 1];
         if (entry?.side === 'player') {
@@ -393,6 +398,17 @@ describe('P1 manual combat choices', () => {
     expect(enemies.find((enemy) => enemy.champion.id === 'E2')?.currentHp).toBeLessThan(500);
   });
 
+  it('assigns stable target ids when the same champion appears more than once', () => {
+    const teams = makeTeams(['P1'], ['E1', 'E1'], { P1: 400, E1: 300 });
+    const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+    bm.startBattle();
+
+    expect(bm.getAvailableTargets(ActionType.BasicAttack)).toEqual(['E1#1', 'E1#2']);
+    expect(bm.submitAction({ type: ActionType.BasicAttack, targetId: 'E1#2' })).toBe(true);
+    expect(bm.getEnemyCombatants()[0].currentHp).toBe(500);
+    expect(bm.getEnemyCombatants()[1].currentHp).toBeLessThan(500);
+  });
+
   it('uses the selected spell rank for damage values', () => {
     const levelOneTeams = makeTeams(['P1'], ['E1'], { P1: 400 });
     const upgradedTeams = makeTeams(['P2'], ['E2'], { P2: 400 });
@@ -412,5 +428,102 @@ describe('P1 manual combat choices', () => {
     expect(upgraded.getEnemyCombatants()[0].currentHp).toBeLessThan(
       first.getEnemyCombatants()[0].currentHp,
     );
+  });
+
+  it('derives mana cost and cooldown from the current rank, ignoring forged cost', () => {
+    const teams = makeTeams(['P1'], ['E1'], { P1: 400, E1: 300 });
+    const champion = teams.playerTeam.champions[0];
+    champion.setSpellRank('Q', 3);
+    const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+    bm.startBattle();
+
+    const option = bm
+      .getAvailableActions(champion)
+      .find((candidate) => candidate.type === ActionType.SpellQ);
+    expect(option).toMatchObject({ cost: 60, cooldown: 7, validTargetIds: ['E1'] });
+
+    expect(bm.submitAction({ type: ActionType.SpellQ, cost: 0, targetId: 'E1' })).toBe(true);
+    expect(bm.getCombatantState('P1', 'player')?.currentMp).toBe(240);
+    expect(champion.getCooldown('Q')).toBe(7);
+  });
+
+  it('rejects forged targets before emitting, spending resources, or advancing the turn', () => {
+    const teams = makeTeams(['P1'], ['E1', 'E2'], { P1: 400, E1: 300, E2: 290 });
+    const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+    bm.startBattle();
+    const actor = bm.getCombatantState('P1', 'player')!;
+    const logLength = bm.log.length;
+    const turnIndex = bm.turnIndex;
+
+    expect(bm.submitAction({ type: ActionType.BasicAttack })).toBe(false);
+    expect(bm.submitAction({ type: ActionType.BasicAttack, targetId: 'all' })).toBe(false);
+    expect(bm.submitAction({ type: ActionType.SpellQ, cost: 9999, targetId: 'P1' })).toBe(false);
+
+    const deadEnemy = bm.getCombatantState('E1', 'enemy')!;
+    deadEnemy.currentHp = 0;
+    deadEnemy.isDefeated = true;
+    expect(bm.submitAction({ type: ActionType.SpellQ, cost: 0, targetId: 'E1' })).toBe(false);
+
+    expect(actor.currentMp).toBe(actor.maxMp);
+    expect(actor.champion.getCooldown('Q')).toBe(0);
+    expect(bm.turnIndex).toBe(turnIndex);
+    expect(bm.log).toHaveLength(logLength);
+  });
+
+  it('rejects cooldown, mana, and invalid-rank actions without consuming the turn', () => {
+    const makeBattle = () => {
+      const teams = makeTeams(['P1'], ['E1'], { P1: 400, E1: 300 });
+      const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+      bm.startBattle();
+      return { teams, bm, actor: bm.getCombatantState('P1', 'player')! };
+    };
+
+    const cooldownBattle = makeBattle();
+    cooldownBattle.teams.playerTeam.champions[0].useSpell('Q');
+    expect(cooldownBattle.bm.submitAction({ type: ActionType.SpellQ, targetId: 'E1' })).toBe(false);
+    expect(cooldownBattle.bm.turnIndex).toBe(0);
+
+    const manaBattle = makeBattle();
+    manaBattle.actor.currentMp = 0;
+    expect(manaBattle.bm.submitAction({ type: ActionType.SpellQ, targetId: 'E1' })).toBe(false);
+    expect(manaBattle.teams.playerTeam.champions[0].getCooldown('Q')).toBe(0);
+
+    const rankBattle = makeBattle();
+    (
+      rankBattle.teams.playerTeam.champions[0] as unknown as {
+        _spellRanks: Record<string, number>;
+      }
+    )._spellRanks.Q = 99;
+    expect(rankBattle.bm.submitAction({ type: ActionType.SpellQ, targetId: 'E1' })).toBe(false);
+    expect(rankBattle.actor.currentMp).toBe(rankBattle.actor.maxMp);
+  });
+
+  it('applies ally effects to the selected ally instead of a random recipient', () => {
+    const teams = makeTeams(['P1', 'P2'], ['E1'], { P1: 400, P2: 350, E1: 300 });
+    const shield = teams.playerTeam.champions[0].getSpell('Q')!;
+    shield.targeting = 'ally' as any;
+    shield.effects = [{ type: 'shield', baseValue: [75], apRatio: 0 }];
+    const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+    bm.startBattle();
+
+    expect(bm.getAvailableTargets(ActionType.SpellQ)).toEqual(['P1', 'P2']);
+    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'P2' })).toBe(true);
+    expect(bm.getCombatantState('P1', 'player')?.currentShield).toBe(0);
+    expect(bm.getCombatantState('P2', 'player')?.currentShield).toBe(75);
+  });
+
+  it('resolves area effects against every living enemy and rejects a single-target override', () => {
+    const teams = makeTeams(['P1'], ['E1', 'E2'], { P1: 400, E1: 300, E2: 290 });
+    const area = teams.playerTeam.champions[0].getSpell('Q')!;
+    area.targeting = 'area' as any;
+    const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+    bm.startBattle();
+    const actor = bm.getCombatantState('P1', 'player')!;
+
+    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'E1' })).toBe(false);
+    expect(actor.currentMp).toBe(actor.maxMp);
+    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'all' })).toBe(true);
+    expect(bm.getCombatantState('E1', 'enemy')?.currentHp).toBeLessThan(500);
+    expect(bm.getCombatantState('E2', 'enemy')?.currentHp).toBeLessThan(500);
   });
 });

@@ -438,19 +438,29 @@ heals/shields peuvent sélectionner un allié aléatoire et certains effets igno
 la cible choisie. Le moteur ne rejette pas toujours une action invalide avant son
 coût/cooldown.
 
-- [ ] Définir un résolveur de cibles canonique pour `self`, `ally`, `allies`,
+- [x] Définir un résolveur de cibles canonique pour `self`, `ally`, `allies`,
   `enemy`, `enemies` et `area`.
-- [ ] Dériver les cibles proposées dans l'UI de ce même résolveur.
-- [ ] Valider acteur vivant, tour, mana, cooldown, rang, type de cible et cible
+- [x] Dériver les cibles proposées dans l'UI de ce même résolveur.
+- [x] Valider acteur vivant, tour, mana, cooldown, rang, type de cible et cible
   vivante avant toute mutation.
-- [ ] Ne consommer mana/cooldown que si l'action est acceptée.
-- [ ] Utiliser coût et cooldown du rang courant, pas systématiquement l'index 0.
-- [ ] Ajouter l'attaque de base et les actions réellement autorisées à une API de
+- [x] Ne consommer mana/cooldown que si l'action est acceptée.
+- [x] Utiliser coût et cooldown du rang courant, pas systématiquement l'index 0.
+- [x] Ajouter l'attaque de base et les actions réellement autorisées à une API de
   commandes unique.
-- [ ] Couvrir la matrice de ciblage et les payloads falsifiés par des tests.
+- [x] Couvrir la matrice de ciblage et les payloads falsifiés par des tests.
 
 **Acceptation :** aucune action envoyée manuellement au store/moteur ne peut
 contourner les règles visibles dans l'UI.
+
+**Statut : terminé.** `BattleManager` expose désormais une seule description
+autoritaire des actions et de leurs cibles. Le moteur rejette tout payload incomplet
+ou falsifié avant émission d'événement, avance de tour, coût ou cooldown, puis
+résout tous les effets sur les cibles validées. L'UI consomme cette même liste,
+inclut l'attaque de base et demande une cible seulement pour les actions
+mono-cible. Les combattants dupliqués reçoivent aussi un identifiant de cible
+stable afin que chaque portrait reste adressable. La matrice complète, les cibles
+mortes, les mauvais camps, `all` détourné, le coût forgé, le mana, le cooldown et
+le rang courant sont couverts par des régressions.
 
 ### P1-GAME-02 — Connecter réellement effets et passifs
 

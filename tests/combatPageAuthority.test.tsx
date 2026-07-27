@@ -228,6 +228,7 @@ describe('CombatPage authority finalization', () => {
       winner: 'player',
       playerTeam: [
         {
+          targetId: 'Garen',
           id: 'Garen',
           name: 'Garen',
           level: 1,
@@ -265,6 +266,7 @@ describe('CombatPage authority finalization', () => {
       useBattleStore.setState({
         playerTeam: [
           {
+            targetId: 'Garen',
             id: 'Garen',
             name: 'Different combat',
             level: 1,

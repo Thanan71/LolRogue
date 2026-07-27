@@ -44,8 +44,12 @@ export enum TargetingType {
   Self = 'self',
   /** Targets an allied champion */
   Ally = 'ally',
+  /** Targets every living allied champion */
+  Allies = 'allies',
   /** Skillshot or targeted ability against an enemy */
   Enemy = 'enemy',
+  /** Targets every living enemy champion */
+  Enemies = 'enemies',
   /** Area of effect ability */
   Area = 'area',
   /** Passive — always active, no targeting */

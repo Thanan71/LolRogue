@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { ActionTargeting } from '@/game/battle/types';
 
 export interface SpellInfo {
   slot: 'Q' | 'W' | 'E' | 'R';
@@ -7,9 +8,11 @@ export interface SpellInfo {
   cooldownCurrent: number;
   cost: number;
   isReady: boolean;
+  targeting: ActionTargeting;
 }
 
 export interface CombatantInfo {
+  targetId: string;
   id: string;
   name: string;
   level: number;

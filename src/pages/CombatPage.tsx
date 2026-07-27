@@ -377,7 +377,8 @@ export function CombatPage() {
 
   const [autoPlay, setAutoPlay] = useState(true);
   const [turnTick, setTurnTick] = useState(0);
-  const [selectedTargetId, setSelectedTargetId] = useState<string | 'all'>('all');
+  const [selectedTargetId, setSelectedTargetId] = useState<string>();
+  const [pendingActionType, setPendingActionType] = useState<ActionType>();
   const hasNavigatedAfterLossRef = useRef(false);
 
   // Restore statistics from encounters completed before a reload/navigation.
@@ -395,6 +396,11 @@ export function CombatPage() {
       setTurnTick(0); // Reset turn tick for new battle
     }
   }, [battlePhase]);
+
+  useEffect(() => {
+    setSelectedTargetId(undefined);
+    setPendingActionType(undefined);
+  }, [currentTurnChampionId, currentTurnSide]);
 
   // Navigate away if the run is no longer active (only once after a loss)
   useEffect(() => {
@@ -679,7 +685,7 @@ export function CombatPage() {
     [runLevel, navigate],
   );
 
-  const { processTurn, submitAction } = useBattleManager({
+  const { processTurn, submitAction, getAvailableActions } = useBattleManager({
     playerTeam: playerInstances,
     enemyTeam: enemyInstances,
     autoPlay: isAuthorityRun ? true : autoPlay,
@@ -688,14 +694,63 @@ export function CombatPage() {
     random: battleRandom,
   });
 
+  const currentChampion = [...playerTeam, ...enemyTeam].find(
+    (c) => c.targetId === currentTurnChampionId && c.side === currentTurnSide,
+  );
+  const currentSpell = currentChampion?.spells;
+
+  const chooseAction = useCallback(
+    (actionType: ActionType) => {
+      if (isAuthorityRun) return;
+      const option = getAvailableActions().find((candidate) => candidate.type === actionType);
+      if (!option) return;
+
+      if (option.requiresTarget && !option.validTargetIds.includes(selectedTargetId ?? '')) {
+        setSelectedTargetId(undefined);
+        setPendingActionType(actionType);
+        return;
+      }
+
+      const accepted = submitAction({
+        type: actionType,
+        targetId: option.requiresTarget ? selectedTargetId : undefined,
+      });
+      if (accepted) {
+        setSelectedTargetId(undefined);
+        setPendingActionType(undefined);
+      }
+    },
+    [getAvailableActions, isAuthorityRun, selectedTargetId, submitAction],
+  );
+
   const handleCast = useCallback(
     (slot: 'Q' | 'W' | 'E' | 'R') => {
-      if (isAuthorityRun) return;
       const actionType = SLOT_TO_ACTION[slot];
       if (!actionType) return;
-      submitAction({ type: actionType, cost: 0, targetId: selectedTargetId });
+      chooseAction(actionType);
     },
-    [isAuthorityRun, submitAction, selectedTargetId],
+    [chooseAction],
+  );
+
+  const handleTargetSelect = useCallback(
+    (targetId: string) => {
+      const options = getAvailableActions();
+      if (pendingActionType) {
+        const pending = options.find((candidate) => candidate.type === pendingActionType);
+        if (!pending?.validTargetIds.includes(targetId)) return;
+        const accepted = submitAction({ type: pendingActionType, targetId });
+        if (accepted) {
+          setSelectedTargetId(undefined);
+          setPendingActionType(undefined);
+        }
+        return;
+      }
+
+      if (options.some((option) => option.validTargetIds.includes(targetId))) {
+        setSelectedTargetId(targetId);
+      }
+    },
+    [getAvailableActions, pendingActionType, submitAction],
   );
 
   // Auto-process all turns when autoPlay is enabled
@@ -709,9 +764,6 @@ export function CombatPage() {
       return () => clearTimeout(timer);
     }
   }, [autoPlay, isAuthorityRun, battlePhase, processTurn, turnTick, battleSpeed]);
-
-  const currentChampion = [...playerTeam, ...enemyTeam].find((c) => c.id === currentTurnChampionId);
-  const currentSpell = currentChampion?.spells;
 
   // Keyboard shortcuts
   const canCast = !isAuthorityRun && isPlayerTurn && battlePhase === 'turn_active';
@@ -738,6 +790,17 @@ export function CombatPage() {
   });
 
   if (!isActive) return null;
+
+  const visibleActionOptions =
+    !isAuthorityRun && isPlayerTurn && battlePhase === 'turn_active' ? getAvailableActions() : [];
+  const pendingOption = visibleActionOptions.find(
+    (candidate) => candidate.type === pendingActionType,
+  );
+  const selectableTargetIds = new Set(
+    pendingOption
+      ? pendingOption.validTargetIds
+      : visibleActionOptions.flatMap((option) => option.validTargetIds),
+  );
 
   return (
     <div style={containerStyle}>
@@ -792,12 +855,16 @@ export function CombatPage() {
           <div style={teamTitleStyle('#3b82f6')}>Votre équipe</div>
           {playerTeam.map((c) => (
             <CombatantPortrait
-              key={`player-${c.id}`}
+              key={`player-${c.targetId}`}
               combatant={c}
-              isActive={c.id === currentTurnChampionId}
+              isActive={c.targetId === currentTurnChampionId}
               enhancementBonuses={playerEnhancementBonuses[c.id] || []}
-              isSelected={selectedTargetId === c.id}
-              onSelect={() => setSelectedTargetId(c.id)}
+              isSelected={selectedTargetId === c.targetId}
+              onSelect={
+                !c.isDefeated && selectableTargetIds.has(c.targetId)
+                  ? () => handleTargetSelect(c.targetId)
+                  : undefined
+              }
             />
           ))}
           {playerTeam.length === 0 && <div style={emptyStyle}>Aucun champion</div>}
@@ -881,13 +948,17 @@ export function CombatPage() {
         {/* Enemy team panel */}
         <div className="combat-team-panel" style={rightPanelStyle}>
           <div style={teamTitleStyle('#ef4444')}>Ennemis</div>
-          {enemyTeam.map((c, i) => (
+          {enemyTeam.map((c) => (
             <CombatantPortrait
-              key={`${c.id}-${i}`}
+              key={`enemy-${c.targetId}`}
               combatant={c}
-              isActive={c.id === currentTurnChampionId}
-              isSelected={selectedTargetId === c.id}
-              onSelect={() => setSelectedTargetId(c.id)}
+              isActive={c.targetId === currentTurnChampionId}
+              isSelected={selectedTargetId === c.targetId}
+              onSelect={
+                !c.isDefeated && selectableTargetIds.has(c.targetId)
+                  ? () => handleTargetSelect(c.targetId)
+                  : undefined
+              }
             />
           ))}
           {enemyTeam.length === 0 && <div style={emptyStyle}>Aucun ennemi</div>}
@@ -897,15 +968,36 @@ export function CombatPage() {
       {/* Bottom: ability bar + log */}
       <div style={bottomStyle}>
         {!isAuthorityRun && isPlayerTurn && currentChampion && !currentChampion.isDefeated && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              marginBottom: 8,
+            }}
+          >
             <button
               type="button"
-              aria-pressed={selectedTargetId === 'all'}
-              onClick={() => setSelectedTargetId('all')}
+              disabled={
+                !visibleActionOptions.some((candidate) => candidate.type === ActionType.BasicAttack)
+              }
+              onClick={() => chooseAction(ActionType.BasicAttack)}
+              style={nextTurnBtnStyle}
+              aria-label="Attaque de base"
             >
-              Zone
+              ⚔ Attaque
             </button>
             <AbilityBar champion={currentChampion} onCast={handleCast} />
+            {pendingOption && (
+              <div
+                role="status"
+                style={{ width: '100%', textAlign: 'center', color: '#c8aa6e', fontSize: 12 }}
+              >
+                Choisissez une cible valide.
+              </div>
+            )}
           </div>
         )}
         <div style={{ flex: 1, minHeight: 0 }}>

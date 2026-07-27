@@ -100,6 +100,14 @@ describe('Cooldown System', () => {
       expect(champ.isSpellReady('Q')).toBe(false);
     });
 
+    it('should use the cooldown at the current spell rank', () => {
+      champ.setSpellRank('Q', 3);
+
+      expect(champ.getMaxCooldown('Q')).toBe(7);
+      expect(champ.useSpell('Q')).toBe(true);
+      expect(champ.getCooldown('Q')).toBe(7);
+    });
+
     it('should fail if spell is already on cooldown', () => {
       champ.useSpell('Q');
       const result = champ.useSpell('Q');

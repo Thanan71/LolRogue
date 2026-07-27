@@ -6,6 +6,7 @@
 
 import type { ChampionInstance } from '../ChampionInstance';
 import type { EffectManager } from '../effects/EffectManager';
+import type { TargetingType } from '../../types/champion';
 
 // ─── Teams ──────────────────────────────────────────────────────────────────
 
@@ -56,15 +57,38 @@ export enum ActionType {
 /** A battle action chosen by a player or AI. */
 export interface BattleAction {
   type: ActionType;
-  /** Mana cost to execute (0 for basic attacks). */
-  cost: number;
+  /**
+   * Legacy display value. The engine never trusts it and derives the real cost
+   * from the spell rank.
+   */
+  cost?: number;
   /** Explicit target selected by the player, or "all" for an area action. */
   targetId?: string | 'all';
+}
+
+export type ActionTargeting =
+  | TargetingType.Self
+  | TargetingType.Ally
+  | TargetingType.Allies
+  | TargetingType.Enemy
+  | TargetingType.Enemies
+  | TargetingType.Area;
+
+/** Canonical action metadata exposed to both the UI and automated actors. */
+export interface BattleActionOption {
+  type: ActionType;
+  cost: number;
+  cooldown: number;
+  targeting: ActionTargeting;
+  requiresTarget: boolean;
+  validTargetIds: string[];
 }
 
 // ─── Combatant State (runtime HP tracking) ──────────────────────────────────
 
 export interface CombatantState {
+  /** Unique identifier for this combatant within its team (supports duplicate champions). */
+  targetId: string;
   champion: ChampionInstance;
   side: TeamSide;
   /** Current HP (starts at max). */

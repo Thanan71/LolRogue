@@ -24,7 +24,9 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
     isPlayerTurn,
   } = useBattleStore();
 
-  const currentChampion = [...playerTeam, ...enemyTeam].find((c) => c.id === currentTurnChampionId);
+  const currentChampion = [...playerTeam, ...enemyTeam].find(
+    (c) => c.targetId === currentTurnChampionId,
+  );
 
   return (
     <div
@@ -98,7 +100,11 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
           YOUR TEAM
         </div>
         {playerTeam.map((c) => (
-          <CombatantPortrait key={c.id} combatant={c} isActive={c.id === currentTurnChampionId} />
+          <CombatantPortrait
+            key={c.targetId}
+            combatant={c}
+            isActive={c.targetId === currentTurnChampionId}
+          />
         ))}
       </div>
 
@@ -129,7 +135,11 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
           ENEMY TEAM
         </div>
         {enemyTeam.map((c) => (
-          <CombatantPortrait key={c.id} combatant={c} isActive={c.id === currentTurnChampionId} />
+          <CombatantPortrait
+            key={c.targetId}
+            combatant={c}
+            isActive={c.targetId === currentTurnChampionId}
+          />
         ))}
       </div>
 
