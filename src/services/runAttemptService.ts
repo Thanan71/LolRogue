@@ -412,6 +412,19 @@ export class RunVerificationRejectedError extends Error {
   }
 }
 
+export class RunVerificationRetryableError extends Error {
+  readonly terminal = false;
+
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly retryAfterSeconds: number | null = null,
+  ) {
+    super(message);
+    this.name = 'RunVerificationRetryableError';
+  }
+}
+
 function parseVerificationRejection(value: unknown): RunVerificationRejectedError | null {
   const envelope = asRecord(value);
   if (!envelope) return null;
@@ -438,9 +451,35 @@ function parseVerificationRejection(value: unknown): RunVerificationRejectedErro
   );
 }
 
-async function parseFunctionTerminalError(
-  error: unknown,
-): Promise<RunVerificationRejectedError | null> {
+function parseVerificationRetryableError(value: unknown): RunVerificationRetryableError | null {
+  const envelope = asRecord(value);
+  if (!envelope) return null;
+  const code = typeof envelope.error === 'string' ? envelope.error : null;
+  if (!code) return null;
+
+  const retryAfterSeconds =
+    isInteger(envelope.retry_after_seconds) && envelope.retry_after_seconds > 0
+      ? envelope.retry_after_seconds
+      : null;
+  const fallbackMessages: Record<string, string> = {
+    verification_in_progress: retryAfterSeconds
+      ? `Verification is already in progress. Retry in about ${retryAfterSeconds} seconds.`
+      : 'Verification is already in progress. Retry in a few seconds.',
+    unsupported_attempt_version:
+      'The verifier is being updated for this run version. Retry shortly.',
+    run_attempt_not_sealed: 'The run journal has not been sealed yet. Retry verification.',
+  };
+  const message =
+    typeof envelope.message === 'string' && envelope.message
+      ? retryAfterSeconds && code === 'verification_in_progress'
+        ? `${envelope.message} Retry in about ${retryAfterSeconds} seconds.`
+        : envelope.message
+      : fallbackMessages[code];
+
+  return message ? new RunVerificationRetryableError(code, message, retryAfterSeconds) : null;
+}
+
+async function parseFunctionError(error: unknown): Promise<Error | null> {
   if (!error || typeof error !== 'object') return null;
   const context = (error as { context?: unknown }).context;
   if (!context || typeof context !== 'object') return null;
@@ -449,12 +488,10 @@ async function parseFunctionTerminalError(
     clone?: () => { json?: () => Promise<unknown> };
     json?: () => Promise<unknown>;
   };
-  if (typeof response.status === 'number' && response.status >= 500) return null;
-
   try {
     const clone = typeof response.clone === 'function' ? response.clone() : response;
     const body = typeof clone.json === 'function' ? await clone.json() : null;
-    return parseVerificationRejection(body);
+    return parseVerificationRejection(body) ?? parseVerificationRetryableError(body);
   } catch {
     return null;
   }
@@ -567,8 +604,8 @@ export async function verifyRunAttempt(
       'verify-run',
     );
     if (error) {
-      const terminalError = await parseFunctionTerminalError(error);
-      return { data: null, error: terminalError ?? error };
+      const functionError = await parseFunctionError(error);
+      return { data: null, error: functionError ?? error };
     }
     const rejection = parseVerificationRejection(data);
     if (rejection) return { data: null, error: rejection };

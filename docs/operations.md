@@ -121,6 +121,13 @@ catalogue et la migration correspondante, conserver l'ancien vérificateur dans 
 registre pendant au moins la durée maximale d'un attempt, puis seulement activer
 la nouvelle version.
 
+Le déploiement autoritaire se fait avec `npm run backend:deploy` après avoir lié
+le bon projet Supabase. Cette commande applique d'abord les migrations, puis
+reconstruit et publie `verify-run`; cet ordre évite qu'une tentative reçoive une
+version de ruleset que la fonction Edge ne sait pas encore vérifier. Les bundles
+historiques importés par la fonction restent immuables et sont contrôlés par
+`npm run edge:bundle`.
+
 Une migration destructive doit inclure une sauvegarde, une estimation d'impact et
 une procédure de restauration. Le retour arrière applicatif se fait en redéployant
 un commit précédent compatible avec le schéma courant. Une fois l'ancien RPC

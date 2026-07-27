@@ -4,6 +4,7 @@ import {
   recoverVerifiedRunAttempt,
   RUN_FINALIZATION_REQUEST_TIMEOUT_MS,
   RunVerificationRejectedError,
+  RunVerificationRetryableError,
   sealRunAttempt,
   startRunAttempt,
   verifyRunAttempt,
@@ -316,6 +317,33 @@ describe('runAttemptService', () => {
     const expired = await verifyRunAttempt(ATTEMPT_ID);
     expect(expired.error).toBeInstanceOf(RunVerificationRejectedError);
     expect((expired.error as RunVerificationRejectedError).code).toBe('run_attempt_expired');
+  });
+
+  it('surfaces an Edge conflict as an actionable retryable verification error', async () => {
+    supabaseMocks.invoke.mockResolvedValue({
+      data: null,
+      error: {
+        context: new Response(
+          JSON.stringify({
+            error: 'verification_in_progress',
+            message: 'Verification is already in progress.',
+            retryable: true,
+            retry_after_seconds: 12,
+          }),
+          { status: 409, headers: { 'Content-Type': 'application/json' } },
+        ),
+      },
+    });
+
+    const result = await verifyRunAttempt(ATTEMPT_ID);
+
+    expect(result.data).toBeNull();
+    expect(result.error).toBeInstanceOf(RunVerificationRetryableError);
+    expect(result.error).toMatchObject({
+      code: 'verification_in_progress',
+      retryAfterSeconds: 12,
+      message: 'Verification is already in progress. Retry in about 12 seconds.',
+    });
   });
 
   it('recovers a canonical response through status without calling Edge', async () => {
