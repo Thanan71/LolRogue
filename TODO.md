@@ -407,17 +407,25 @@ horizontal sur les quatre viewports demandés ainsi qu'à l'équivalent d'un zoo
 mobile. À 390 px, les runes occupent environ 123 px de large et le bouton est étiré
 sur environ 794 px de haut.
 
-- [ ] Concevoir le bloc rune comme un vrai groupe de choix responsive.
-- [ ] Passer les actions en colonne sous le breakpoint mobile.
-- [ ] Garder le CTA entre 44 et 56 px de haut et éventuellement sticky sans masquer
+- [x] Concevoir le bloc rune comme un vrai groupe de choix responsive.
+- [x] Passer les actions en colonne sous le breakpoint mobile.
+- [x] Garder le CTA entre 44 et 56 px de haut et éventuellement sticky sans masquer
   le dernier choix.
-- [ ] Réduire la longueur de la page : cartes compactes, accordéon/détail ou grille
+- [x] Réduire la longueur de la page : cartes compactes, accordéon/détail ou grille
   adaptée au lieu de splashes géants.
-- [ ] Styliser et aligner le bouton Retour avec le design du produit.
-- [ ] Tester sélection, erreur et confirmation au clavier et au tactile dès 320 px.
+- [x] Styliser et aligner le bouton Retour avec le design du produit.
+- [x] Tester sélection, erreur et confirmation au clavier et au tactile dès 320 px.
 
 **Acceptation :** aucune description n'est réduite à une colonne illisible, aucun
 bouton n'est étiré ou superposé, et la sélection complète reste réalisable.
+
+**Statut : terminé.** La sélection mobile affiche désormais les champions dans une
+grille compacte à deux colonnes avec les portraits locaux, puis un groupe de
+cartes-checkbox runes pleine largeur avec compteur et limite explicite. Les actions
+restent en colonne, le CTA mesure de 48 à 56 px et le bouton Retour dispose d'une
+cible de 44 px cohérente avec le thème. Les scénarios Playwright couvrent le
+clavier et le tactile à 320/390 px, y compris sélection, limite, erreur, retour et
+confirmation.
 
 ---
 

@@ -60,6 +60,7 @@ export function StarterSelectPage() {
   const [error, setError] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const navigate = useAppNavigate();
+  const selectedStarter = choices.find((champion) => champion.id === selectedStarterId);
 
   useEffect(() => {
     if (!resumableStart) return;
@@ -165,14 +166,15 @@ export function StarterSelectPage() {
 
   return (
     <div className="starter-select">
-      <div className="starter-select__header">
-        <button className="starter-select__back" onClick={handleBack}>
+      <header className="starter-select__header">
+        <button type="button" className="starter-select__back" onClick={handleBack}>
           ← Back
         </button>
         <h1 className="starter-select__title">
           {isDaily ? 'Choisis ton Champion du jour' : 'Choisis ton Champion'}
         </h1>
-      </div>
+        <span className="starter-select__header-spacer" aria-hidden="true" />
+      </header>
       <p className="starter-select__subtitle">
         {resumableStart
           ? 'Une tentative vérifiée interrompue est prête à reprendre avec ses choix d’origine.'
@@ -193,43 +195,76 @@ export function StarterSelectPage() {
       </div>
 
       <div className="starter-select__actions">
-        <fieldset>
-          <legend>Runes (3 maximum)</legend>
-          {getKeystoneRunes().map((rune) => (
-            <label key={rune.id} style={{ display: 'block' }}>
-              <input
-                type="checkbox"
-                checked={selectedRuneIds.includes(rune.id)}
-                disabled={
-                  resumableStart !== null ||
-                  (!selectedRuneIds.includes(rune.id) && selectedRuneIds.length >= 3)
-                }
-                onChange={() =>
-                  setSelectedRuneIds((current) =>
-                    current.includes(rune.id)
-                      ? current.filter((id) => id !== rune.id)
-                      : [...current, rune.id],
-                  )
-                }
-              />{' '}
-              {rune.name} — {rune.description}
-            </label>
-          ))}
+        <fieldset className="starter-select__runes" aria-describedby="starter-runes-help">
+          <legend className="starter-select__runes-title">Choisis tes runes</legend>
+          <div className="starter-select__runes-heading">
+            <p id="starter-runes-help">Jusqu’à 3 runes optionnelles pour personnaliser ta run.</p>
+            <output className="starter-select__runes-count" aria-live="polite">
+              {selectedRuneIds.length}/3 sélectionnées
+            </output>
+          </div>
+          <div className="starter-select__rune-grid">
+            {getKeystoneRunes().map((rune) => {
+              const selected = selectedRuneIds.includes(rune.id);
+              const disabled =
+                resumableStart !== null || (!selected && selectedRuneIds.length >= 3);
+
+              return (
+                <label
+                  key={rune.id}
+                  className={`starter-rune${selected ? ' starter-rune--selected' : ''}${
+                    disabled ? ' starter-rune--disabled' : ''
+                  }`}
+                >
+                  <input
+                    className="starter-rune__input"
+                    type="checkbox"
+                    checked={selected}
+                    disabled={disabled}
+                    onChange={() =>
+                      setSelectedRuneIds((current) =>
+                        current.includes(rune.id)
+                          ? current.filter((id) => id !== rune.id)
+                          : [...current, rune.id],
+                      )
+                    }
+                  />
+                  <span className="starter-rune__indicator" aria-hidden="true" />
+                  <span className="starter-rune__content">
+                    <span className="starter-rune__name">{rune.name}</span>
+                    <span className="starter-rune__description">{rune.description}</span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
         </fieldset>
-        {error && <p role="alert">{error}</p>}
-        <button
-          className="starter-select__confirm"
-          disabled={!selectedStarterId || isStarting || isLoadingDaily}
-          onClick={() => void handleConfirm()}
-        >
-          {isLoadingDaily
-            ? 'Chargement du challenge…'
-            : isStarting
-              ? 'Vérification…'
-              : resumableStart
-                ? 'Reprendre la run vérifiée'
-                : 'Confirmer le choix'}
-        </button>
+
+        <div className="starter-select__action-footer">
+          {error && (
+            <p className="starter-select__error" role="alert">
+              {error}
+            </p>
+          )}
+          <p className="starter-select__selection-status" aria-live="polite">
+            {selectedStarter
+              ? `${selectedStarter.name} sélectionné`
+              : 'Sélectionne un champion pour continuer'}
+          </p>
+          <button
+            className="starter-select__confirm"
+            disabled={!selectedStarterId || isStarting || isLoadingDaily}
+            onClick={() => void handleConfirm()}
+          >
+            {isLoadingDaily
+              ? 'Chargement du challenge…'
+              : isStarting
+                ? 'Vérification…'
+                : resumableStart
+                  ? 'Reprendre la run vérifiée'
+                  : 'Confirmer le choix'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -265,19 +300,22 @@ function ChampionCard({
       aria-label={`Choisir ${champion.name}`}
     >
       <div className="champion-card__splash-wrapper">
-        <img
-          className="champion-card__splash"
-          src={splashUrl}
-          alt={champion.name}
-          loading="lazy"
-          onError={(event) => {
-            const image = event.currentTarget;
-            if (image.dataset.localFallback !== 'true') {
-              image.dataset.localFallback = 'true';
-              image.src = champion.iconUrl;
-            }
-          }}
-        />
+        <picture>
+          <source media="(max-width: 700px)" srcSet={champion.iconUrl} />
+          <img
+            className="champion-card__splash"
+            src={splashUrl}
+            alt={champion.name}
+            loading="lazy"
+            onError={(event) => {
+              const image = event.currentTarget;
+              if (image.dataset.localFallback !== 'true') {
+                image.dataset.localFallback = 'true';
+                image.src = champion.iconUrl;
+              }
+            }}
+          />
+        </picture>
         <div className="champion-card__splash-overlay" />
       </div>
 

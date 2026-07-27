@@ -279,6 +279,29 @@ describe('P2 page smoke tests', () => {
     expect(rune).toBeDisabled();
   });
 
+  it('keeps starter and rune selection explicit and enforces the three-rune limit', () => {
+    renderAt(<StarterSelectPage />, '/starter-select');
+
+    const confirm = screen.getByRole('button', { name: /confirmer le choix/i });
+    expect(confirm).toBeDisabled();
+
+    fireEvent.click(screen.getAllByRole('button', { name: /^Choisir /i })[0]);
+    expect(confirm).toBeEnabled();
+    expect(screen.getByText(/sélectionné$/i)).toBeInTheDocument();
+
+    const runes = screen.getAllByRole('checkbox');
+    fireEvent.click(runes[0]);
+    fireEvent.click(runes[1]);
+    fireEvent.click(runes[2]);
+
+    expect(screen.getByText('3/3 sélectionnées')).toBeInTheDocument();
+    expect(runes[3]).toBeDisabled();
+
+    fireEvent.click(runes[0]);
+    expect(screen.getByText('2/3 sélectionnées')).toBeInTheDocument();
+    expect(runes[3]).toBeEnabled();
+  });
+
   it.each([
     ['Shop', <ShopPage />],
     ['Rest', <RestPage />],
