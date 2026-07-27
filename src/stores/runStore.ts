@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { championDB } from '@/data';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
+import { ITEM_DATABASE } from '@/data/items/itemDatabase';
+import { AugmentManager } from '@/game/augments/AugmentManager';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import { completeNode as completeNodeUtil, findNode, isMapComplete } from '@/game/map/mapUtils';
 import {
@@ -20,6 +22,7 @@ import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStar
 import { getUnlockedStarterSlotCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { RepositoryContainerFactory } from '@/services/container';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
+import { validateItemAddition } from '@/game/inventory/inventoryRules';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import {
   appendRunAttemptCommands,
@@ -30,6 +33,7 @@ import {
   verifyRunAttempt,
 } from '@/services/runAttemptService';
 import { supabase } from '@/services/supabaseClient';
+import { DEFAULT_MAX_AUGMENTS } from '@/types/inventory';
 import {
   type CompletedRunSnapshot,
   type InventoryEntry,
@@ -555,6 +559,7 @@ export const useRunStore = create<RunStore>()(
               currentBiome: startBiome,
               inventory: [],
               runeIds: canonicalRuneIds,
+              runeStacks: {},
               augmentIds: [],
               pendingAugmentIds: [],
               lastCombatRewards: null,
@@ -1114,6 +1119,8 @@ export const useRunStore = create<RunStore>()(
         if (get().inventory.length >= MAX_INVENTORY_ITEMS) {
           return mutationFailure('inventory_full', 'The inventory is already full.');
         }
+        const addition = validateItemAddition(get().inventory, item);
+        if (!addition.valid) return mutationFailure(addition.code, addition.message);
         const { runId, nextItemInstanceId } = get();
         const instanceId = `item_${runId}_${nextItemInstanceId}`;
         const entry: InventoryEntry = {
@@ -1134,6 +1141,16 @@ export const useRunStore = create<RunStore>()(
         }));
       },
 
+      consumeItems: (instanceIds) => {
+        const consumed = new Set(instanceIds);
+        if (consumed.size === 0) return;
+        set((state) => ({
+          inventory: state.inventory.filter((entry) => !consumed.has(entry.instanceId)),
+        }));
+      },
+
+      setRuneStacks: (runeStacks) => set({ runeStacks }),
+
       equipItem: (instanceId, championId) => {
         const { inventory } = get();
 
@@ -1143,6 +1160,19 @@ export const useRunStore = create<RunStore>()(
 
         // Already equipped to this champion
         if (item.equippedToChampionId === championId) return false;
+        const definition = ITEM_DATABASE[item.item.id];
+        if (
+          definition &&
+          (definition.unique ?? !definition.stackable) &&
+          inventory.some(
+            (entry) =>
+              entry.instanceId !== instanceId &&
+              entry.item.id === item.item.id &&
+              entry.equippedToChampionId === championId,
+          )
+        ) {
+          return false;
+        }
 
         // Count items already equipped to this champion
         const equippedCount = inventory.filter(
@@ -1208,7 +1238,16 @@ export const useRunStore = create<RunStore>()(
 
       chooseAugment: (augmentId) => {
         const state = get();
-        if (!state.pendingAugmentIds.includes(augmentId) || !AUGMENT_DATABASE[augmentId]) {
+        const definition = AUGMENT_DATABASE[augmentId];
+        const stacks = state.augmentIds.filter((id) => id === augmentId).length;
+        const distinctAugments = new Set(state.augmentIds).size;
+        if (
+          !state.pendingAugmentIds.includes(augmentId) ||
+          !definition ||
+          (stacks === 0 && distinctAugments >= DEFAULT_MAX_AUGMENTS) ||
+          (!definition.stackable && stacks > 0) ||
+          stacks >= definition.maxStacks
+        ) {
           return false;
         }
         set({
@@ -1300,7 +1339,16 @@ export const useRunStore = create<RunStore>()(
       incrementRunLevel: () => {
         set((state) => {
           const choices = Object.keys(AUGMENT_DATABASE)
-            .filter((id) => !state.augmentIds.includes(id))
+            .filter((id) => {
+              const definition = AUGMENT_DATABASE[id];
+              const stacks = state.augmentIds.filter((ownedId) => ownedId === id).length;
+              if (stacks === 0 && new Set(state.augmentIds).size >= DEFAULT_MAX_AUGMENTS) {
+                return false;
+              }
+              return definition.stackable
+                ? stacks < definition.maxStacks
+                : !state.augmentIds.includes(id);
+            })
             .sort()
             .slice((state.runLevel * 3) % Math.max(1, Object.keys(AUGMENT_DATABASE).length - 3), 3);
           return { runLevel: state.runLevel + 1, pendingAugmentIds: choices };
@@ -1596,7 +1644,18 @@ export const useRunStore = create<RunStore>()(
         if (state.inventory.length >= MAX_INVENTORY_ITEMS) {
           return mutationFailure('inventory_full', 'The inventory is full; no gold was spent.');
         }
-        const price = Math.round(offer.price * node.encounter.priceMultiplier);
+        const addition = validateItemAddition(state.inventory, { id: offer.itemId });
+        if (!addition.valid) return mutationFailure(addition.code, addition.message);
+        const augmentManager = new AugmentManager(Math.max(4, state.augmentIds.length));
+        for (const augmentId of state.augmentIds) {
+          const augment = AUGMENT_DATABASE[augmentId];
+          if (augment) augmentManager.acquireAugment(augment);
+        }
+        const price = Math.round(
+          offer.price *
+            node.encounter.priceMultiplier *
+            (1 - augmentManager.getShopDiscountPercent()),
+        );
         if (state.gold < price) {
           return mutationFailure('insufficient_gold', 'There is not enough gold.');
         }
@@ -1826,6 +1885,7 @@ export const useRunStore = create<RunStore>()(
         currentBiome: state.currentBiome,
         inventory: state.inventory,
         runeIds: state.runeIds,
+        runeStacks: state.runeStacks,
         augmentIds: state.augmentIds,
         pendingAugmentIds: state.pendingAugmentIds,
         lastCombatRewards: state.lastCombatRewards,

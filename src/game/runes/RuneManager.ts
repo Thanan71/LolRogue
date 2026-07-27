@@ -18,7 +18,20 @@ export interface RuneContext {
   alliesAlive: number;
   totalAllies: number;
   lastActionWasCrit: boolean;
+  /** Number of separate damaging hits, distinct from their total amount. */
+  damageEventsDealt?: number;
+  damageEventsTaken?: number;
 }
+
+export type RuneEvaluationEvent =
+  | 'battle_start'
+  | 'turn_start'
+  | 'damage_dealt'
+  | 'damage_taken'
+  | 'kill'
+  | 'ability_cast'
+  | 'crit'
+  | 'state_change';
 
 export class RuneManager {
   private _runes: EquippedRune[] = [];
@@ -75,11 +88,12 @@ export class RuneManager {
    * Evaluate all rune conditions against the current context.
    * Updates active states and stack counts.
    */
-  evaluateConditions(context: RuneContext): void {
+  evaluateConditions(context: RuneContext, event?: RuneEvaluationEvent): void {
     for (const equipped of this._runes) {
       const met = this._checkCondition(equipped.rune, context);
+      const canFire = !event || this._matchesEvent(equipped.rune, event);
 
-      if (met) {
+      if (met && canFire) {
         if (equipped.rune.bonus.stacks) {
           if (equipped.currentStacks < equipped.rune.bonus.maxStacks) {
             equipped.currentStacks++;
@@ -89,13 +103,12 @@ export class RuneManager {
         if (equipped.rune.bonus.duration > 0) {
           equipped.turnsRemaining = equipped.rune.bonus.duration;
         }
-      } else {
-        if (equipped.turnsRemaining > 0) {
-          equipped.turnsRemaining--;
-          if (equipped.turnsRemaining <= 0 && equipped.rune.bonus.duration > 0) {
-            equipped.isActive = false;
-          }
-        } else if (!equipped.rune.bonus.stacks) {
+      } else if (
+        equipped.rune.bonus.duration === 0 &&
+        !equipped.rune.bonus.stacks &&
+        this._isStateCondition(equipped.rune)
+      ) {
+        if (!met) {
           equipped.isActive = false;
         }
       }
@@ -143,6 +156,7 @@ export class RuneManager {
   resetBattleState(): void {
     for (const equipped of this._runes) {
       equipped.isActive = false;
+      equipped.currentStacks = 0;
       equipped.turnsRemaining = 0;
     }
   }
@@ -168,11 +182,11 @@ export class RuneManager {
       }
       case RuneConditionType.AfterDealingDamage: {
         const threshold = condition.threshold ?? 1;
-        return ctx.totalDamageDealt >= threshold;
+        return (ctx.damageEventsDealt ?? ctx.totalDamageDealt) >= threshold;
       }
       case RuneConditionType.AfterTakingDamage: {
         const threshold = condition.threshold ?? 1;
-        return ctx.totalDamageTaken >= threshold;
+        return (ctx.damageEventsTaken ?? ctx.totalDamageTaken) >= threshold;
       }
       case RuneConditionType.OnKill: {
         return ctx.killsThisBattle > 0;
@@ -206,5 +220,37 @@ export class RuneManager {
       default:
         return false;
     }
+  }
+
+  private _matchesEvent(rune: RuneDefinition, event: RuneEvaluationEvent): boolean {
+    switch (rune.condition.type) {
+      case RuneConditionType.BattleStart:
+        return event === 'battle_start';
+      case RuneConditionType.EveryTurn:
+      case RuneConditionType.EveryNTurns:
+        return event === 'turn_start';
+      case RuneConditionType.AfterDealingDamage:
+        return event === 'damage_dealt';
+      case RuneConditionType.AfterTakingDamage:
+        return event === 'damage_taken';
+      case RuneConditionType.OnKill:
+        return event === 'kill';
+      case RuneConditionType.OnAbilityCast:
+        return event === 'ability_cast';
+      case RuneConditionType.OnCrit:
+        return event === 'crit';
+      default:
+        return event === 'state_change';
+    }
+  }
+
+  private _isStateCondition(rune: RuneDefinition): boolean {
+    return [
+      RuneConditionType.HpBelowPercent,
+      RuneConditionType.HpAbovePercent,
+      RuneConditionType.WhileBuffed,
+      RuneConditionType.WhileCCd,
+      RuneConditionType.LowAllies,
+    ].includes(rune.condition.type);
   }
 }

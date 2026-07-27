@@ -504,19 +504,19 @@ factice. Seuls certains bonus de stats des augments/objets sont lus. Les hooks
 consommables sont généralement inertes. Les effets spéciaux des arbres
 d'amélioration ne sont qu'affichés.
 
-- [ ] Créer un bus d'événements de combat/run commun et typé.
-- [ ] Lister les triggers officiellement supportés par chaque catalogue.
-- [ ] Réévaluer conditions, stacks, cooldowns et durées au bon événement.
-- [ ] Intégrer multiplicateurs de dégâts, réduction, gold, soin post-combat, revive,
+- [x] Créer un bus d'événements de combat/run commun et typé.
+- [x] Lister les triggers officiellement supportés par chaque catalogue.
+- [x] Réévaluer conditions, stacks, cooldowns et durées au bon événement.
+- [x] Intégrer multiplicateurs de dégâts, réduction, gold, soin post-combat, revive,
   on-hit/on-kill/turn-start et consommables.
-- [ ] Consommer les potions et autres objets à usage unique.
-- [ ] Appliquer `unique`, `stackable` et `maxStacks` dans la commande d'inventaire.
-- [ ] Mapper les clés d'amélioration (`atk`, `def`, `ap`, `spd`, `mr`, etc.) vers un
+- [x] Consommer les potions et autres objets à usage unique.
+- [x] Appliquer `unique`, `stackable` et `maxStacks` dans la commande d'inventaire.
+- [x] Mapper les clés d'amélioration (`atk`, `def`, `ap`, `spd`, `mr`, etc.) vers un
   modèle de stats unique, validé à la compilation.
-- [ ] Charger les améliorations au bootstrap du compte, sans imposer une visite à
+- [x] Charger les améliorations au bootstrap du compte, sans imposer une visite à
   la page Database.
-- [ ] Ajouter une validation de catalogue qui refuse tout effet sans handler.
-- [ ] Ajouter des tests d'intégration par trigger, durée, stack, consommation et
+- [x] Ajouter une validation de catalogue qui refuse tout effet sans handler.
+- [x] Ajouter des tests d'intégration par trigger, durée, stack, consommation et
   revive.
 
 **Acceptation :** une entrée disponible au joueur est soit pleinement appliquée et

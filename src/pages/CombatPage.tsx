@@ -8,14 +8,14 @@ import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { championDB } from '@/data';
 import { ITEM_DATABASE } from '@/data/items';
 import { getAugmentDefinition } from '@/data/items/augmentDatabase';
-import { getRuneDefinition } from '@/data/items/runeDatabase';
 import { AugmentManager } from '@/game/augments/AugmentManager';
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
-import { RuneManager } from '@/game/runes/RuneManager';
+import { buildCombatRuleLoadout } from '@/game/rules/loadout';
+import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
 import type { CombatEncounter } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
@@ -30,7 +30,7 @@ import { useRunStore } from '@/stores/runStore';
 import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
 import type { FinalCombatantState, Item, ItemStatBonuses, TeamMember } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
-import { calculateEventStatBonuses } from '@/utils/statCalculator';
+import { calculateEventStatBonuses, toCombatStatKey } from '@/utils/statCalculator';
 import { logger } from '@/utils/logger';
 import { addXp, calculateXpGain } from '@/utils/xpSystem';
 import {
@@ -109,44 +109,9 @@ function applyEnhancementsToTeam(
     );
     const flatBonuses = enhancementBonuses.flat as Record<string, number>;
     const percentBonuses = enhancementBonuses.percent as Record<string, number>;
-    const statKeyMap: Record<string, string> = {
-      hp: 'hp',
-      atk: 'attackDamage',
-      def: 'armor',
-      ap: 'abilityPower',
-      spd: 'moveSpeed',
-      crit: 'crit',
-    };
-
     const augmentBonuses = augmentManager.getTeamStatBonuses();
     for (const [stat, bonus] of Object.entries(augmentBonuses)) {
-      const target = statKeyMap[stat] ?? stat;
-      flatBonuses[target] = (flatBonuses[target] || 0) + bonus.flat;
-      percentBonuses[target] = (percentBonuses[target] || 0) + bonus.percent;
-    }
-
-    const runeManager = new RuneManager();
-    for (const id of runState.runeIds) {
-      const rune = getRuneDefinition(id);
-      if (rune) runeManager.equipRune(rune);
-    }
-    const baseStats = instance.getStats();
-    runeManager.evaluateConditions({
-      currentHp: baseStats.hp,
-      maxHp: baseStats.hp,
-      turnNumber: 1,
-      totalDamageDealt: 0,
-      totalDamageTaken: 0,
-      killsThisBattle: 0,
-      abilitiesCastThisBattle: 0,
-      isBuffed: false,
-      isCCd: false,
-      alliesAlive: instances.length,
-      totalAllies: instances.length,
-      lastActionWasCrit: false,
-    });
-    for (const [stat, bonus] of Object.entries(runeManager.getActiveStatBonuses())) {
-      const target = statKeyMap[stat] ?? stat;
+      const target = toCombatStatKey(stat) ?? stat;
       flatBonuses[target] = (flatBonuses[target] || 0) + bonus.flat;
       percentBonuses[target] = (percentBonuses[target] || 0) + bonus.percent;
     }
@@ -156,16 +121,8 @@ function applyEnhancementsToTeam(
     for (const entry of equippedItems) {
       const itemStats = entry.item.stats;
       // Map item stat keys to CalculatedStats keys (used by ChampionInstance)
-      const itemStatMap: Record<string, keyof import('@/utils/champion').CalculatedStats> = {
-        hp: 'hp',
-        atk: 'attackDamage',
-        def: 'armor',
-        ap: 'abilityPower',
-        spd: 'moveSpeed',
-        crit: 'crit',
-      };
       for (const [key, value] of Object.entries(itemStats)) {
-        const calcStatsKey = itemStatMap[key];
+        const calcStatsKey = toCombatStatKey(key);
         if (calcStatsKey && value) {
           // EnhancementStatBonuses.flat uses StatType keys, but ChampionInstance
           // applies them by casting to keyof CalculatedStats, so we need to use
@@ -174,9 +131,9 @@ function applyEnhancementsToTeam(
         }
       }
       const passive = ITEM_DATABASE[entry.item.id]?.passive;
-      if (passive && (passive.trigger === 'always' || passive.trigger === 'combat_start')) {
+      if (passive?.trigger === 'always') {
         for (const modifier of passive.modifiers) {
-          const target = itemStatMap[modifier.stat] ?? modifier.stat;
+          const target = toCombatStatKey(modifier.stat) ?? modifier.stat;
           if (modifier.type === 'flat') {
             flatBonuses[target] = (flatBonuses[target] || 0) + modifier.value;
           } else {
@@ -248,7 +205,9 @@ function getEnhancementDescriptions(championId: string): string[] {
         attackRange: 'Portée',
       };
       const name = statNames[stat] || stat;
-      descriptions.push(`+${value} ${name}`);
+      descriptions.push(
+        stat === 'attackRange' ? `+${value} ${name} (indisponible)` : `+${value} ${name}`,
+      );
     }
   }
 
@@ -276,14 +235,22 @@ function getEnhancementDescriptions(championId: string): string[] {
         attackRange: 'Portée',
       };
       const name = statNames[stat] || stat;
-      descriptions.push(`+${Math.round(percent * 100)}% ${name}`);
+      descriptions.push(
+        stat === 'attackRange'
+          ? `+${Math.round(percent * 100)}% ${name} (indisponible)`
+          : `+${Math.round(percent * 100)}% ${name}`,
+      );
     }
   }
 
   // Add effect descriptions
   for (const effect of bonuses.effects) {
     if (effect.description) {
-      descriptions.push(effect.description);
+      descriptions.push(
+        UNAVAILABLE_ENHANCEMENT_EFFECTS.has(effect.type)
+          ? `${effect.description} (indisponible)`
+          : effect.description,
+      );
     }
   }
 
@@ -360,6 +327,10 @@ export function CombatPage() {
   const runLevel = useRunStore((s) => s.runLevel);
   const completedCombatStats = useRunStore((s) => s.completedCombatStats);
   const authorityAttempt = useRunStore((s) => s.authorityAttempt);
+  const runeIds = useRunStore((s) => s.runeIds);
+  const runeStacks = useRunStore((s) => s.runeStacks);
+  const augmentIds = useRunStore((s) => s.augmentIds);
+  const enhancementStates = useEnhancementStore((s) => s.enhancements);
   const navigate = useAppNavigate();
 
   const battlePhase = useBattleStore((s) => s.phase);
@@ -431,6 +402,23 @@ export function CombatPage() {
 
   // Get inventory for item bonuses
   const inventory = useRunStore((s) => s.inventory);
+  const ruleLoadout = useMemo(
+    () =>
+      buildCombatRuleLoadout({
+        championIds: team.map((member) => member.championId),
+        runeIds,
+        runeStacks,
+        augmentIds,
+        inventory,
+        getUnlockedEnhancements: (championId) =>
+          authorityAttempt
+            ? (authorityAttempt.enhancementSnapshot[championId] ??
+              authorityAttempt.enhancementSnapshot[championId.toLowerCase()] ??
+              {})
+            : (enhancementStates[championId]?.unlockedNodes ?? {}),
+      }),
+    [augmentIds, authorityAttempt, enhancementStates, inventory, runeIds, runeStacks, team],
+  );
 
   const playerInstances = useMemo(() => {
     const instances = buildTeamInstances(
@@ -533,7 +521,12 @@ export function CombatPage() {
   ]);
 
   const handleComplete = useCallback(
-    (w: 'player' | 'enemy' | 'draw', finalPlayerStates: FinalCombatantState[]) => {
+    (
+      w: 'player' | 'enemy' | 'draw',
+      finalPlayerStates: FinalCombatantState[],
+      consumedItemInstanceIds: string[],
+      nextRuneStacks: Record<string, Record<string, number>>,
+    ) => {
       const commandState = useRunStore.getState();
       const combatNodeId = commandState.currentNodeId;
       const previousClaims = commandState.claimedEncounterNodeIds;
@@ -551,6 +544,8 @@ export function CombatPage() {
         logger.error('CombatPage: unable to record the authoritative combat resolution.');
         return;
       }
+      useRunStore.getState().consumeItems(consumedItemInstanceIds);
+      useRunStore.getState().setRuneStacks(nextRuneStacks);
 
       if (w === 'player') {
         const runStore = useRunStore.getState();
@@ -559,7 +554,12 @@ export function CombatPage() {
         );
 
         // 1. Award gold: 50 + runLevel * 10
-        const goldReward = 50 + runLevel * 10;
+        const augmentManager = new AugmentManager();
+        for (const id of runStore.augmentIds) {
+          const definition = getAugmentDefinition(id);
+          if (definition) augmentManager.acquireAugment(definition);
+        }
+        const goldReward = 50 + runLevel * 10 + augmentManager.getBonusGold();
         runStore.addGold(goldReward);
 
         // 2. Award XP to all surviving player champions
@@ -581,8 +581,11 @@ export function CombatPage() {
 
           return {
             championId: member.championId,
-            currentHp:
-              finalHpByChampionId.get(member.championId) ?? member.currentHp ?? implicitMaxHp,
+            currentHp: Math.min(
+              implicitMaxHp,
+              (finalHpByChampionId.get(member.championId) ?? member.currentHp ?? implicitMaxHp) +
+                implicitMaxHp * augmentManager.getHealAfterBattlePercent(),
+            ),
             currentMp:
               finalPlayerStates.find((champion) => champion.championId === member.championId)
                 ?.currentMp ??
@@ -692,6 +695,7 @@ export function CombatPage() {
     onComplete: handleComplete,
     initialHpOverrides,
     random: battleRandom,
+    ruleLoadout,
   });
 
   const currentChampion = [...playerTeam, ...enemyTeam].find(

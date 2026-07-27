@@ -361,6 +361,10 @@ const GOLDEN_AGE: AugmentDefinition = {
       type: AugmentEffectType.BonusGold,
       flatValue: 200,
     },
+    {
+      type: AugmentEffectType.ShopDiscount,
+      percentValue: 0.15,
+    },
   ],
   stackable: false,
   maxStacks: 1,

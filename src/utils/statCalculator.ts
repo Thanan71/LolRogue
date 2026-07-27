@@ -6,7 +6,7 @@
  */
 
 import type { Champion } from '@/types';
-import type { EnhancementStatBonuses } from '@/types/enhancementTree';
+import type { EnhancementStatBonuses, StatType } from '@/types/enhancementTree';
 import type { InventoryEntry } from '@/types/run';
 import type { CalculatedStats } from '@/utils/champion';
 import { calculateStats } from '@/utils/champion';
@@ -22,6 +22,56 @@ const ITEM_STAT_MAP: Record<string, keyof CalculatedStats> = {
   spd: 'moveSpeed',
   crit: 'crit',
 };
+
+/** Canonical mapping used by enhancements, items, augments and event rewards. */
+export const COMBAT_STAT_KEY_MAP = {
+  hp: 'hp',
+  mp: 'mp',
+  atk: 'attackDamage',
+  attackDamage: 'attackDamage',
+  ap: 'abilityPower',
+  abilityPower: 'abilityPower',
+  def: 'armor',
+  armor: 'armor',
+  mr: 'magicResist',
+  magicResist: 'magicResist',
+  spd: 'moveSpeed',
+  moveSpeed: 'moveSpeed',
+  crit: 'crit',
+  attackSpeed: 'attackSpeed',
+  hpRegen: 'hpRegen',
+  mpRegen: 'mpRegen',
+  attackRange: 'attackRange',
+} as const satisfies Record<string, keyof CalculatedStats>;
+
+export const ENHANCEMENT_STAT_KEY_MAP = {
+  hp: 'hp',
+  mp: 'mp',
+  atk: 'attackDamage',
+  ap: 'abilityPower',
+  def: 'armor',
+  mr: 'magicResist',
+  spd: 'moveSpeed',
+  crit: 'crit',
+  attackSpeed: 'attackSpeed',
+  hpRegen: 'hpRegen',
+  mpRegen: 'mpRegen',
+  attackRange: 'attackRange',
+  armorPen: null,
+  magicPen: null,
+  lifesteal: null,
+  omnivamp: null,
+  tenacity: null,
+  abilityHaste: null,
+} as const satisfies Record<StatType, keyof CalculatedStats | null>;
+
+export function toCombatStatKey(stat: string): keyof CalculatedStats | null {
+  return (
+    COMBAT_STAT_KEY_MAP[stat as keyof typeof COMBAT_STAT_KEY_MAP] ??
+    ENHANCEMENT_STAT_KEY_MAP[stat as StatType] ??
+    null
+  );
+}
 
 /**
  * Calculate item stat bonuses for a specific champion from inventory
@@ -59,8 +109,8 @@ export function applyEnhancementBonuses(
   // Apply flat bonuses
   if (bonuses.flat) {
     for (const [stat, value] of Object.entries(bonuses.flat)) {
-      const statKey = stat as keyof CalculatedStats;
-      if (statKey in result) {
+      const statKey = toCombatStatKey(stat);
+      if (statKey) {
         result[statKey] = result[statKey] + value;
       }
     }
@@ -69,8 +119,8 @@ export function applyEnhancementBonuses(
   // Apply percentage bonuses
   if (bonuses.percent) {
     for (const [stat, percent] of Object.entries(bonuses.percent)) {
-      const statKey = stat as keyof CalculatedStats;
-      if (statKey in result) {
+      const statKey = toCombatStatKey(stat);
+      if (statKey) {
         result[statKey] = result[statKey] * (1 + percent);
       }
     }

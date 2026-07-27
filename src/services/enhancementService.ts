@@ -27,6 +27,7 @@ import type {
   PlayerEnhancementState,
   StatType,
 } from '@/types/enhancementTree';
+import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
 
 /**
  * Enhancement Tree Provider
@@ -162,6 +163,12 @@ export class EnhancementService implements IEnhancementService {
     masteryLevel: number,
     availableCandies: number,
   ): { valid: boolean; error?: string } {
+    if (getEnhancementNodeUnavailableReasons(node).length > 0) {
+      return {
+        valid: false,
+        error: "Cette amélioration n'est pas disponible dans le moteur de combat actuel",
+      };
+    }
     // Check mastery level requirement
     if (masteryLevel < node.requiredMasteryLevel) {
       return {

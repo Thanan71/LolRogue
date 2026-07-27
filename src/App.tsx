@@ -6,7 +6,10 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { RouteLoadingFallback } from './components/AppErrorBoundary';
 import { RunLifecycleRoute } from './components/RunLifecycleRoute';
 import { getTextSizeMultiplier, useSettingsStore } from './stores/settingsStore';
+import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
 import './styles/starter-select.css';
+
+assertValidRuleCatalogs();
 
 const AdminPage = lazy(() =>
   import('./pages/AdminPage').then((module) => ({ default: module.AdminPage })),

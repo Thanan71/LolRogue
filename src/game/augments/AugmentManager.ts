@@ -143,6 +143,18 @@ export class AugmentManager {
     return total;
   }
 
+  getShopDiscountPercent(): number {
+    let total = 0;
+    for (const acquired of this._augments) {
+      for (const effect of acquired.definition.effects) {
+        if (effect.type === AugmentEffectType.ShopDiscount && effect.percentValue) {
+          total += effect.percentValue * acquired.stacks;
+        }
+      }
+    }
+    return Math.min(total, 0.8);
+  }
+
   /**
    * Check if team has an extra revive augment.
    */
@@ -174,7 +186,7 @@ export class AugmentManager {
             break;
           case AugmentEffectType.ScalingStatFlat:
             if (effect.flatValue) {
-              result[effect.stat].flat += effect.flatValue * this._biomesCleared;
+              result[effect.stat].flat += effect.flatValue * this._biomesCleared * acquired.stacks;
             }
             break;
         }

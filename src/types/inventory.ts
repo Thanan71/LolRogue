@@ -69,6 +69,8 @@ export interface ItemDefinition {
   stats: ItemStatBonus[];
   passive?: ItemPassive;
   goldValue: number;
+  /** Only one copy may exist in the run inventory. Defaults to !stackable. */
+  unique?: boolean;
   stackable: boolean;
   maxStacks: number;
   components?: string[];
@@ -127,6 +129,11 @@ export interface RuneCondition {
 /** Bonus granted when a rune condition is met. */
 export interface RuneBonus {
   modifiers: ItemStatBonus[];
+  /** Instant rule resolved when the condition fires instead of pretending it is a stat. */
+  triggeredEffect?: {
+    type: 'heal_max_hp' | 'bonus_magic_damage';
+    value: number;
+  };
   duration: number;
   stacks: boolean;
   maxStacks: number;
@@ -181,6 +188,7 @@ export enum AugmentEffectType {
   HealAfterBattle = 'heal_after_battle',
   ExtraRevive = 'extra_revive',
   CooldownReduction = 'cooldown_reduction',
+  ShopDiscount = 'shop_discount',
   Custom = 'custom',
 }
 

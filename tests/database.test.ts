@@ -160,6 +160,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260726180000_minimize_public_data_and_harden_logs.sql',
       '../supabase/migrations/20260726210000_atomic_run_finalization.sql',
       '../supabase/migrations/20260726220000_protect_active_run_start.sql',
+      '../supabase/migrations/20260727170000_gameplay_ruleset_v2.sql',
     ]);
   });
 

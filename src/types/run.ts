@@ -207,6 +207,8 @@ export interface RunState {
   inventory: InventoryEntry[];
   /** Rune loadout selected before the run. */
   runeIds: string[];
+  /** Run-persistent stacks for runes whose catalogue duration is permanent. */
+  runeStacks: Record<string, Record<string, number>>;
   /** Augments acquired during the run. */
   augmentIds: string[];
   /** Augment choices awaiting a player decision. */
@@ -300,6 +302,8 @@ export type RunMutationErrorCode =
   | 'invalid_amount'
   | 'insufficient_gold'
   | 'inventory_full'
+  | 'unique_item'
+  | 'max_stacks'
   | 'team_full'
   | 'duplicate_champion'
   | 'invalid_encounter'
@@ -353,6 +357,10 @@ export interface RunActions {
   addItem: (item: Item) => RunMutationResult<{ instanceId: string }>;
   /** Remove an item by instance ID */
   removeItem: (instanceId: string) => void;
+  /** Consume exact one-use item instances after the combat rule bus used them. */
+  consumeItems: (instanceIds: readonly string[]) => void;
+  /** Persist permanent rune stacks exported by the combat rule bus. */
+  setRuneStacks: (stacks: Record<string, Record<string, number>>) => void;
   /** Equip an item to a champion. Returns false if slot limit reached or item not found. */
   equipItem: (instanceId: string, championId: string) => boolean;
   /** Unequip an item (move to bag) */

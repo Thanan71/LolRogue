@@ -5,6 +5,8 @@ import { isActionTargeting } from '@/game/battle/targetResolver';
 import type { BattleAction, BattleEvent, BattleTeam } from '@/game/battle/types';
 import { BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
+import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
+import type { CombatRuleLoadout } from '@/game/rules/types';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/battleStore';
 import type { FinalCombatantState } from '@/types/run';
@@ -213,10 +215,13 @@ interface UseBattleManagerOptions {
   onComplete?: (
     winner: 'player' | 'enemy' | 'draw',
     finalPlayerStates: FinalCombatantState[],
+    consumedItemInstanceIds: string[],
+    runeStacks: Record<string, Record<string, number>>,
   ) => void;
   /** Map of championId -> initial HP for persisting HP between combats. */
   initialHpOverrides?: Record<string, number>;
   random?: () => number;
+  ruleLoadout?: CombatRuleLoadout;
 }
 
 export function useBattleManager({
@@ -226,6 +231,7 @@ export function useBattleManager({
   onComplete,
   initialHpOverrides,
   random,
+  ruleLoadout,
 }: UseBattleManagerOptions) {
   const bmRef = useRef<BattleManager | null>(null);
   const store = useBattleStore();
@@ -256,6 +262,7 @@ export function useBattleManager({
       autoActions: autoPlayRef.current,
       initialHpOverrides,
       random,
+      rules: ruleLoadout ? new CombatRuleRuntime(ruleLoadout, random) : undefined,
     });
 
     const eventHandler = (e: BattleEvent) => handleEvent(bm, e);
@@ -281,7 +288,7 @@ export function useBattleManager({
       bm.off('event', eventHandler);
       bmRef.current = null;
     };
-  }, [playerTeam, enemyTeam, random]);
+  }, [playerTeam, enemyTeam, random, ruleLoadout]);
 
   // Check for battle completion
   useEffect(() => {
@@ -303,7 +310,12 @@ export function useBattleManager({
       // unmount/remount combat and reset the global battle store.
       const manager = bmRef.current;
       const finalPlayerStates = manager ? getFinalCombatantStates(manager) : [];
-      onCompleteRef.current(winner, finalPlayerStates);
+      onCompleteRef.current(
+        winner,
+        finalPlayerStates,
+        manager?.getConsumedItemInstanceIds() ?? [],
+        manager?.getRuneStacks() ?? {},
+      );
     }
   }, [store.phase, store.winner]);
 

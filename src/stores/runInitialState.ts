@@ -23,6 +23,7 @@ export const RUN_INITIAL_STATE: RunState = {
   currentBiome: null,
   inventory: [],
   runeIds: [],
+  runeStacks: {},
   augmentIds: [],
   pendingAugmentIds: [],
   lastCombatRewards: null,

@@ -33,7 +33,8 @@ const TRIUMPH: RuneDefinition = {
   row: 1,
   condition: { type: RuneConditionType.OnKill },
   bonus: {
-    modifiers: [{ stat: 'hp', value: 0.12, type: 'percent' }],
+    modifiers: [],
+    triggeredEffect: { type: 'heal_max_hp', value: 0.12 },
     duration: 1,
     stacks: false,
     maxStacks: 1,
@@ -85,7 +86,8 @@ const ELECTROCUTE: RuneDefinition = {
   row: 0,
   condition: { type: RuneConditionType.OnAbilityCast, threshold: 3 },
   bonus: {
-    modifiers: [{ stat: 'ap', value: 40, type: 'flat' }],
+    modifiers: [],
+    triggeredEffect: { type: 'bonus_magic_damage', value: 40 },
     duration: 1,
     stacks: false,
     maxStacks: 1,

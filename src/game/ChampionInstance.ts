@@ -259,13 +259,13 @@ export class ChampionInstance {
    * @param slot — spell slot to use.
    * @returns true if the spell was used (was ready), false if on cooldown.
    */
-  useSpell(slot: SpellSlot): boolean {
+  useSpell(slot: SpellSlot, cooldownMultiplier = 1): boolean {
     const spell = this._spells[slot];
     if (!spell) return false;
     if (!this.isSpellReady(slot)) return false;
 
     const cooldownValue = getRankValue(spell.cooldown, this._spellRanks[slot]);
-    this._cooldowns[slot] = cooldownValue;
+    this._cooldowns[slot] = Math.max(0, cooldownValue * Math.max(0, cooldownMultiplier));
     return true;
   }
 

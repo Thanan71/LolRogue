@@ -1,3 +1,1356 @@
+// src/data/generated/riot-assets-manifest.json
+var riot_assets_manifest_default = {
+  schemaVersion: 1,
+  dataDragonVersion: "16.6.1",
+  communityDragonVersion: "16.6",
+  locale: "fr_FR",
+  champions: [
+    "Aatrox",
+    "Ahri",
+    "Akali",
+    "Akshan",
+    "Alistar",
+    "Ambessa",
+    "Amumu",
+    "Anivia",
+    "Annie",
+    "Aphelios",
+    "Ashe",
+    "AurelionSol",
+    "Aurora",
+    "Azir",
+    "Bard",
+    "Belveth",
+    "Blitzcrank",
+    "Brand",
+    "Braum",
+    "Briar",
+    "Caitlyn",
+    "Camille",
+    "Cassiopeia",
+    "Chogath",
+    "Corki",
+    "Darius",
+    "Diana",
+    "DrMundo",
+    "Draven",
+    "Ekko",
+    "Elise",
+    "Evelynn",
+    "Ezreal",
+    "Fiddlesticks",
+    "Fiora",
+    "Fizz",
+    "Galio",
+    "Gangplank",
+    "Garen",
+    "Gnar",
+    "Gragas",
+    "Graves",
+    "Gwen",
+    "Hecarim",
+    "Heimerdinger",
+    "Hwei",
+    "Illaoi",
+    "Irelia",
+    "Ivern",
+    "Janna",
+    "JarvanIV",
+    "Jax",
+    "Jayce",
+    "Jhin",
+    "Jinx",
+    "KSante",
+    "Kaisa",
+    "Kalista",
+    "Karma",
+    "Karthus",
+    "Kassadin",
+    "Katarina",
+    "Kayle",
+    "Kayn",
+    "Kennen",
+    "Khazix",
+    "Kindred",
+    "Kled",
+    "KogMaw",
+    "Leblanc",
+    "LeeSin",
+    "Leona",
+    "Lillia",
+    "Lissandra",
+    "Lucian",
+    "Lulu",
+    "Lux",
+    "MasterYi",
+    "Malphite",
+    "Malzahar",
+    "Maokai",
+    "Mel",
+    "Milio",
+    "MissFortune",
+    "Mordekaiser",
+    "Morgana",
+    "Naafiri",
+    "Nami",
+    "Nasus",
+    "Nautilus",
+    "Neeko",
+    "Nidalee",
+    "Nilah",
+    "Nocturne",
+    "Nunu",
+    "Olaf",
+    "Orianna",
+    "Ornn",
+    "Pantheon",
+    "Poppy",
+    "Pyke",
+    "Qiyana",
+    "Quinn",
+    "Rakan",
+    "Rammus",
+    "RekSai",
+    "Rell",
+    "Renata",
+    "Renekton",
+    "Rengar",
+    "Riven",
+    "Rumble",
+    "Ryze",
+    "Samira",
+    "Sejuani",
+    "Senna",
+    "Seraphine",
+    "Sett",
+    "Shaco",
+    "Shen",
+    "Shyvana",
+    "Singed",
+    "Sion",
+    "Sivir",
+    "Skarner",
+    "Smolder",
+    "Sona",
+    "Soraka",
+    "Swain",
+    "Sylas",
+    "Syndra",
+    "TahmKench",
+    "Taliyah",
+    "Talon",
+    "Taric",
+    "Teemo",
+    "Thresh",
+    "Tristana",
+    "Trundle",
+    "Tryndamere",
+    "TwistedFate",
+    "Twitch",
+    "Udyr",
+    "Urgot",
+    "Varus",
+    "Vayne",
+    "Veigar",
+    "Velkoz",
+    "Vex",
+    "Vi",
+    "Viego",
+    "Viktor",
+    "Vladimir",
+    "Volibear",
+    "Warwick",
+    "MonkeyKing",
+    "Xayah",
+    "Xerath",
+    "XinZhao",
+    "Yasuo",
+    "Yone",
+    "Yorick",
+    "Yunara",
+    "Yuumi",
+    "Zaahen",
+    "Zac",
+    "Zed",
+    "Zeri",
+    "Ziggs",
+    "Zilean",
+    "Zoe",
+    "Zyra"
+  ],
+  implementedChampions: [
+    "Annie",
+    "Ashe",
+    "Darius",
+    "Garen",
+    "Jinx",
+    "Leona",
+    "Lux",
+    "Malphite",
+    "Soraka",
+    "Warwick"
+  ],
+  items: {
+    boots: "1001",
+    ruby_crystal: "1028",
+    cloth_armor: "1029",
+    bf_sword: "1038",
+    long_sword: "1036",
+    dagger: "1042",
+    amplifying_tome: "1052",
+    health_potion: "2003",
+    elixir_of_wrath: "2140",
+    guardian_angel: "3026",
+    infinity_edge: "3031",
+    spirit_visage: "3065",
+    sunfire_aegis: "3068",
+    bloodthirster: "3072",
+    rabaddons_deathcap: "3089"
+  },
+  championCatalog: {
+    path: "src/data/generated/champions-parsed.json",
+    bytes: 945048,
+    sha256: "c8cd99bad7bbdf5f40642a60c242447524935fc768f3a3f4b9dcaa78469060c7"
+  },
+  files: [
+    {
+      path: "assets/riot/16.6.1/champions/Aatrox.png",
+      bytes: 25644,
+      sha256: "852d739fb696684549064266851df91ecd03729e06b1a192dc14af01549b7f3f",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Aatrox.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ahri.png",
+      bytes: 28511,
+      sha256: "8e93368d97e3d302463c4e83ac5980d1f0a3a0aaf92ac44435730fecbd55b565",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ahri.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Akali.png",
+      bytes: 27191,
+      sha256: "a62acc32c454b5cc39cebd0769f940b34f3d39ddaf157b95acb176027f81e17a",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Akali.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Akshan.png",
+      bytes: 25518,
+      sha256: "da9a6cec8d8085b85e35b7ef0f4fb0ef368992b86760ea72a6539095482e5043",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Akshan.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Alistar.png",
+      bytes: 28116,
+      sha256: "a1b9e0dc85d186fea8b7eccb91b7dc770ea6d3c5d5b53d9698cdf33524879259",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Alistar.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ambessa.png",
+      bytes: 20689,
+      sha256: "ce2bf0adfc1cb9e46430f318e73ec1c0bf257e5afe84b584acb88f15bfdb3646",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ambessa.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Amumu.png",
+      bytes: 24683,
+      sha256: "bb20e52d6f4808d3c3cb5038397fdbff174544ee7c9cf9271deee9240a4b1204",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Amumu.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Anivia.png",
+      bytes: 27008,
+      sha256: "f10e316692a616d9f27ff5548a52aa128e794ce736b8daa3e1a2b86217a406d5",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Anivia.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Annie.png",
+      bytes: 30267,
+      sha256: "97720fcc698033b18382e7475800d4aac6c436712d997d99df4a0ae99f6829e2",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Annie.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Aphelios.png",
+      bytes: 25225,
+      sha256: "1db20831bdc7a01918adac84c3afffe3ce4ea8e2f2bee54d70dec220bd1ea6fc",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Aphelios.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ashe.png",
+      bytes: 32121,
+      sha256: "423666bdb0685355be4576f78eb6406fd49469b4f6e9f780f1c5eb4349fed91f",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ashe.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/AurelionSol.png",
+      bytes: 26953,
+      sha256: "a8888510b555c75b35f291a1474e28f46875a543eafcbf4d3595a71654856d7c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/AurelionSol.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Aurora.png",
+      bytes: 31037,
+      sha256: "cb291047d565205ffe91bbbd3fc34592452b2f55b7706430a31c8ac188d99a33",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Aurora.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Azir.png",
+      bytes: 25934,
+      sha256: "fa90e249ef38adeabd757f24fc4069db8caccdf64353868d9683a5a9c4c81a35",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Azir.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Bard.png",
+      bytes: 31628,
+      sha256: "18ee517f6453831c0730d73cbf1628001e53a5acced928d4d78e34a28051094d",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Bard.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Belveth.png",
+      bytes: 25348,
+      sha256: "9959345f8316af4ff29d9bf68ab6c8450c85a3742ba4f3e6952ab19d4d0057f1",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Belveth.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Blitzcrank.png",
+      bytes: 29858,
+      sha256: "753db19576c52ab7af43bd5ec2631023654567ecb2e0d83389d016927610d74c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Blitzcrank.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Brand.png",
+      bytes: 30626,
+      sha256: "c50bbafb3ed2beea470479b28cd9b2e233a9f88760e61a76cd413d68bafbac52",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Brand.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Braum.png",
+      bytes: 23674,
+      sha256: "1ada9222fe928d32cca4b91fc374fb41cacb6157f0122a390ca611c3e2c29daa",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Braum.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Briar.png",
+      bytes: 31369,
+      sha256: "dbecebf6559e79383b208ea340c1cffeea0867b757dff0b8525dd0e0a751ff1c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Briar.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Caitlyn.png",
+      bytes: 25976,
+      sha256: "f7a515360f30f33dfe5ab4e8886ce59a70c2d333f924252f48f5f9a2fbc6edf4",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Caitlyn.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Camille.png",
+      bytes: 26879,
+      sha256: "54bfa2dc66fc3885279d4546a4d9651f3a16bd4e4474ceaf2e319bf7f673138a",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Camille.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Cassiopeia.png",
+      bytes: 26205,
+      sha256: "da2ad096fc5237e31a1e9d9ebb9b6db6de65e2cab126c9a607c3fa7a36bc8e54",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Cassiopeia.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Chogath.png",
+      bytes: 32006,
+      sha256: "f5381fea0255a8a903381728fec79862dc5c426e25774c5e18def583fb3b1dfb",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Chogath.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Corki.png",
+      bytes: 28457,
+      sha256: "db997e48b9a4cda57b6e934c131d4718aca559f2b5bdaacc8e81a19d3c2953bb",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Corki.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Darius.png",
+      bytes: 27666,
+      sha256: "4c73167413335e00b3ece58fadaa495a0c3fe05184b246b0f8b9af923a0d3d81",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Darius.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Diana.png",
+      bytes: 24762,
+      sha256: "d967ef71d043a49c60dce6f19725fd17d8e8362ea3c059f9ba38906688905d93",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Diana.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Draven.png",
+      bytes: 26400,
+      sha256: "9b62ecd81173ff55d83a7a9e42d7f9553288856e8365cc3bcbbf4ce3bf4091a6",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Draven.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/DrMundo.png",
+      bytes: 30630,
+      sha256: "496b97ef027d5f90b583329269714623701ad12d013c610ee4c7465916ecb8e0",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/DrMundo.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ekko.png",
+      bytes: 26511,
+      sha256: "6b2219dd6a3888d5572a2b2f2f522c3eeac490578f82f58171adfdf8e647b093",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ekko.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Elise.png",
+      bytes: 27566,
+      sha256: "cb7e3ec0658c4e8cf86f2829b12203af68cfc9ab95b98579957427134d00c6e0",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Elise.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Evelynn.png",
+      bytes: 27174,
+      sha256: "7b09f45c7350fe57217f6833fb97427ea6cc8312b902f7fb8bbbf2a6d5c2f506",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Evelynn.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ezreal.png",
+      bytes: 31064,
+      sha256: "676467c4362b8745a27db93a44619179820add83be95583d7b2adcfcb4eb7e35",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ezreal.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Fiddlesticks.png",
+      bytes: 27884,
+      sha256: "681544df2412f89a96052e835abe3327cfdd73801868aad20d07576a8157cc32",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Fiddlesticks.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Fiora.png",
+      bytes: 28094,
+      sha256: "b76387ea62f007ece3e06e589ac15bc9bf5452472b70a0d847d096b06f6785b7",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Fiora.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Fizz.png",
+      bytes: 27947,
+      sha256: "447fa01c18cc5bdcd0e014825f7825a93f05d32bde8226bb69fdf58fd6412999",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Fizz.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Galio.png",
+      bytes: 24739,
+      sha256: "25b4acea5a0d8d2b4de819e62fbf7e7bb4afdb94e0d18e8896cb28112a13dc3f",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Galio.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Gangplank.png",
+      bytes: 28742,
+      sha256: "f2bed51abb3d68897a161e152f03e9c9e0bc13039e6b709f551397a52e5aeb39",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Gangplank.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Garen.png",
+      bytes: 30705,
+      sha256: "53018603962e1867b391071f159bb4c60d57919422585c33bfd36551e97f3752",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Garen.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Gnar.png",
+      bytes: 25845,
+      sha256: "d566858ab7ae4a6887f3490cedcd9a7097f5b5214d78c0b7f1b631567f8d739e",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Gnar.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Gragas.png",
+      bytes: 28755,
+      sha256: "06599cb8a6b083a3250c3bcd701b1bab1c8f9dab6ea52c7709ac2c895431f4f6",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Gragas.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Graves.png",
+      bytes: 28267,
+      sha256: "6f171c830d729e9b8b23c6a4d772f2bd44f90304101f1e6a299920b4ecda67d9",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Graves.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Gwen.png",
+      bytes: 31229,
+      sha256: "a7bba2bc0970bc5098396a4578a2cb72908630125011502bd2c0ee183ceb29d9",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Gwen.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Hecarim.png",
+      bytes: 28985,
+      sha256: "ba5b2d3fd406fdd81e52e359231024ef4877009bdcf61c9d7ca389916fe61509",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Hecarim.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Heimerdinger.png",
+      bytes: 32532,
+      sha256: "3e54bea65546474fa1154f9ac25c73bd51aff36db5c808377553b1e9f252c56d",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Heimerdinger.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Hwei.png",
+      bytes: 24613,
+      sha256: "c8aeb272d4f4990ee87b7b7f857840d214e99f1707c9aebb6529ac6e0bc5f5ff",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Hwei.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Illaoi.png",
+      bytes: 25338,
+      sha256: "1334b302ec0fb4895e15033351122427786cfc25c6c30b4f9b43e2a8212314c1",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Illaoi.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Irelia.png",
+      bytes: 29037,
+      sha256: "a8cd7e83c7b327516869d67eb9cd96499bcf720d799b814830373cb200a98c9c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Irelia.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ivern.png",
+      bytes: 25942,
+      sha256: "a79756ca23f8f93a882f47e4ce5d4228b70bf002a1ea320d5a69fa16491c5df4",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ivern.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Janna.png",
+      bytes: 28129,
+      sha256: "d0a7b79a9d7673b429fc94bb2718a27bff8cdbbbafe9fac294f1cf0cc1982d83",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Janna.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/JarvanIV.png",
+      bytes: 28504,
+      sha256: "9da74ae808585eff7f130f47ce4c6c3ddab0b302b1d39902e273ae0253592764",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/JarvanIV.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Jax.png",
+      bytes: 27107,
+      sha256: "441e8d865d461bc338a2d2d5a2a09f6151bbfdb4795ec8b59e66ee8654eebcca",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Jax.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Jayce.png",
+      bytes: 23552,
+      sha256: "81301e79adf1c92dd700defb5e1ee11cb8b7ef04b7034554aacb067c66256a38",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Jayce.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Jhin.png",
+      bytes: 25526,
+      sha256: "dd24ce955ba61995956f1a48cb9b90b9b52936bb23bf05e0cb74cfc9c74a4b0c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Jhin.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Jinx.png",
+      bytes: 27938,
+      sha256: "2777d44345974b93f8af378430811670566d0451b6410b2caff2984e93797357",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Jinx.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Kaisa.png",
+      bytes: 26828,
+      sha256: "e0e86ccb7143d20bcbd83f192530f9712bf4b1d6306ec07a06992d4b72676443",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Kaisa.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Kalista.png",
+      bytes: 28603,
+      sha256: "3809361a78dfb97d3660fd47345145287d48af10909426d353b451cf52dc093b",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Kalista.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Karma.png",
+      bytes: 30154,
+      sha256: "e1df55d95c9a90445b59615db2984c3a8a9d8df3578faf968872bbe2e0075bc0",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Karma.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Karthus.png",
+      bytes: 28743,
+      sha256: "2b7015e102317b52900f9c69adfe462426301ac0f62c54502fdeae518d30392e",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Karthus.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Kassadin.png",
+      bytes: 29874,
+      sha256: "a7616e721346eef6a2af65470f98757e4ad184a53685d412edec583dd5989a15",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Kassadin.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Katarina.png",
+      bytes: 26732,
+      sha256: "998f3a479b5441f86f4031aace49bbd70bb83a76c05d39b0697288fe50ba029e",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Katarina.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Kayle.png",
+      bytes: 24103,
+      sha256: "63dd90ebddcf8fcda57aa20f6f6b490ceea0958a45f9411946d4b9bd0d1293c6",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Kayle.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Kayn.png",
+      bytes: 25653,
+      sha256: "7a7e6e8f8df01879296ed9de5710329a2f3c541418ae277c65175e1ba2212982",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Kayn.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Kennen.png",
+      bytes: 26105,
+      sha256: "71239ebd9236d5d0fdbccfb8741727e6f13dd007a4d6905e5aa82f6b36aceebd",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Kennen.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Khazix.png",
+      bytes: 23545,
+      sha256: "30007408b2c91e58a8036116f222f70b1d148699b994a109a30eacb4eff6bb63",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Khazix.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Kindred.png",
+      bytes: 29250,
+      sha256: "a789f7340a9e390c8627be587cb4f236736f55907c8e36b792ca1f6221ade4ed",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Kindred.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Kled.png",
+      bytes: 28478,
+      sha256: "4d71421e5e0a4fd8092fc9b6d91cc10fb36a067fc8a74b5e2fce2e718d3f2566",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Kled.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/KogMaw.png",
+      bytes: 29237,
+      sha256: "a5836dd40801e9f6275c1b74de8ba6de2de09ab2d24ec2e9695f958917348f1a",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/KogMaw.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/KSante.png",
+      bytes: 25880,
+      sha256: "d7d62b07df5b66497195c68e3e2bbdc8c3d6078066aa2ed170cfbcb0fc2f5ddf",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/KSante.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Leblanc.png",
+      bytes: 36027,
+      sha256: "e48b97ce2451c37d4e4a747b37663bd1095730b4182b2805f397f60fd12c7c5d",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Leblanc.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/LeeSin.png",
+      bytes: 24979,
+      sha256: "890f439dd16bfa686b3c6f06f9749eb5477e5b706a8ff85cb8161f91adcff9a8",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/LeeSin.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Leona.png",
+      bytes: 31573,
+      sha256: "d7e170e1d5c37b243663e03d480a4befe727d86d0733e3e411b90297cb192461",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Leona.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Lillia.png",
+      bytes: 28814,
+      sha256: "b270de6af7ec29bb2fb91d6effec79f3c0b6d93811315dc54d101ee55f61fb31",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Lillia.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Lissandra.png",
+      bytes: 28806,
+      sha256: "ece7fc0269138d30380dbb0420ccf822e7ca95819d7d911a0e29f7d10cf7445d",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Lissandra.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Lucian.png",
+      bytes: 27998,
+      sha256: "75e3de3e43f732f815293472167e0022118a0be55a627f10794bc8043e2602cb",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Lucian.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Lulu.png",
+      bytes: 29539,
+      sha256: "ca22c4a042d66085ef7794c8b351b57880739be454aa4128fbdd7506c02d1a50",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Lulu.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Lux.png",
+      bytes: 29188,
+      sha256: "64639bea2aa7d622dd07287de7a7820950e567f0993c7dcc422e1e699fd743fd",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Lux.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Malphite.png",
+      bytes: 26063,
+      sha256: "233005b989ae25fc6e5e22d1325291bce2d64e49767ebb83413c0f91e1b157c6",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Malphite.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Malzahar.png",
+      bytes: 27604,
+      sha256: "c0f9eb031b22805d1bbed0cd0ee2a7f148541076c1655271665325e2dbf06911",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Malzahar.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Maokai.png",
+      bytes: 27854,
+      sha256: "7e68c320efa332ba9126c6d2d6ccd3a51939d7d1f2b31785fbec8594a0e6f6b3",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Maokai.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/MasterYi.png",
+      bytes: 29421,
+      sha256: "1c23534926a7956a260591fb3cee8f38cb6de3d9d4f064fe93fb88c8f76b1b66",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/MasterYi.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Mel.png",
+      bytes: 29534,
+      sha256: "e464fe1e53f45f3c603cdf1bab1cd182ce6a429840e008d30ed41411d4a68ea0",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Mel.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Milio.png",
+      bytes: 27199,
+      sha256: "86517cc10c6c5670dcd6821a2e5c7bbb9e16aac597cda5d04578933bd5861343",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Milio.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/MissFortune.png",
+      bytes: 25963,
+      sha256: "a8c3048bfb76b4e8b34e00193ed2febe69669918055ffda835ddb24905588733",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/MissFortune.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/MonkeyKing.png",
+      bytes: 29161,
+      sha256: "2264db1ffde08659aee3380c8ac5643771d872d95a9c9090951d7f2849e61353",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/MonkeyKing.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Mordekaiser.png",
+      bytes: 26259,
+      sha256: "3d3521dedf02d446ae2a506b8b5395a9fba690567dbf6be3cf4523e8c439d9b8",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Mordekaiser.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Morgana.png",
+      bytes: 26025,
+      sha256: "bd170027904c2e5a354e53dca0f5d50516a4f3d60a4fbb0c286c9eb32d8d8954",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Morgana.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Naafiri.png",
+      bytes: 23851,
+      sha256: "75a82287766d7bc333305390675eb5bd3a0b7522d0a69a46543e7bdc301a4ed7",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Naafiri.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Nami.png",
+      bytes: 28176,
+      sha256: "f43e652c61cd4998274e966a1e91e00fb3d51cc6202f7e53a5f2c7da160ddd23",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Nami.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Nasus.png",
+      bytes: 29763,
+      sha256: "80b838812e5f14b1e37900d1c14c54835b535d5bd36af6ace19fd23344989be3",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Nasus.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Nautilus.png",
+      bytes: 28532,
+      sha256: "6e8dfa2e6ba3d4564745fe69ace7c796898aa023a2af2727b0be127316712c2c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Nautilus.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Neeko.png",
+      bytes: 28615,
+      sha256: "0fd600e0aeeca36f9245bcbc02ca666a2493b2b68a60ecd298a2ad26c33c8a92",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Neeko.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Nidalee.png",
+      bytes: 26077,
+      sha256: "f6291b72f4ea9ea1fa272f61443bc3580e3f61b870be31c0743824a1c25abf33",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Nidalee.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Nilah.png",
+      bytes: 28372,
+      sha256: "564103bc6f32863242ea0d39fc40eb39c70cf4a1f28297c756f83d44195048b2",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Nilah.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Nocturne.png",
+      bytes: 27356,
+      sha256: "b9968b3e2bd60257ed23cede9e69b184ef78096bc196d157c1f6eff9b3d900d5",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Nocturne.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Nunu.png",
+      bytes: 27502,
+      sha256: "dab4f686598e93d0d430db32d824a98f34b5a0055331a654c84ea3759fe6ed6a",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Nunu.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Olaf.png",
+      bytes: 30509,
+      sha256: "17d439590f461a2d4d5bdacd33d4d2c31009ea8f57b46a6a427b0db96f6bd0ab",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Olaf.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Orianna.png",
+      bytes: 21902,
+      sha256: "7d70d8bcb2991de3f3512efb565c453a9d470dca78088c05aec3691d22dd7511",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Orianna.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ornn.png",
+      bytes: 25086,
+      sha256: "91374f0919871a6490ac7b8ff9b073efb8b6a797f28302cc3751294c47c58d6e",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ornn.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Pantheon.png",
+      bytes: 28793,
+      sha256: "0ab8b436d5d7dd0a4163ec105a4977fc77abfd16757d46a9e958242f2d6858c1",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Pantheon.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Poppy.png",
+      bytes: 31447,
+      sha256: "c2cdd3a868b4b9ac5f1f3fef5ca77e930f32b0c98a5c3b83bcb099f75a4b6b7c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Poppy.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Pyke.png",
+      bytes: 29162,
+      sha256: "384a69fbcbfed183b2ef591923e51cb56d5f55835a4dae2da716f858cd8a7a6f",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Pyke.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Qiyana.png",
+      bytes: 30662,
+      sha256: "b7bc7f2b7b4acd45b994005e87710c779c1c9bb89343e02f1fd1e98533a1f93f",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Qiyana.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Quinn.png",
+      bytes: 30154,
+      sha256: "69ac72c21c771fe80492a7a6316dbe7053c0f20f0bb35ecb59d43f6d916d90e4",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Quinn.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Rakan.png",
+      bytes: 28472,
+      sha256: "b0252249ed33b226421595e5cf4f7a6b4e4fbe9441140e65cee05f82463f87fd",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Rakan.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Rammus.png",
+      bytes: 27369,
+      sha256: "911faa8b6e8a2b5e018fa1c5f36617488036782e163faa8029d1475885cef6ab",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Rammus.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/RekSai.png",
+      bytes: 27922,
+      sha256: "881fcd45ab0566be11312e358b9fe33f61656bbafe5b0ae4c95e5b3ca9cacfc3",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/RekSai.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Rell.png",
+      bytes: 29915,
+      sha256: "47c0724d3b71c8b4d2ae4eed8d3b793550e1f4ef0e2bf3807696c6bf2ebaa91c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Rell.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Renata.png",
+      bytes: 27669,
+      sha256: "59f70a9f29de3a7740594e7f0a635e2d75f7e32b44c04f1d5b2576e91494baf0",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Renata.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Renekton.png",
+      bytes: 29409,
+      sha256: "a3b94121970f7649896ef8c695be265d31c617e33ff9c7c86cff56d1e19724fd",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Renekton.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Rengar.png",
+      bytes: 31091,
+      sha256: "afc37ac7e29cbc58e31e3d127e26a9c1e09f05fcc489adbb512ad6710b63ff5e",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Rengar.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Riven.png",
+      bytes: 27993,
+      sha256: "4527ba3804c0b78e0127608708b2a425d1c6eef5f95925c5dcfd707f5fa32139",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Riven.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Rumble.png",
+      bytes: 29584,
+      sha256: "e14a39464abbdb4aba3ac5827e8f717ff7ce5b13d9c6a932da3fc13caa783f36",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Rumble.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ryze.png",
+      bytes: 25185,
+      sha256: "abb747c8b8402625d4cc6b5b3c48950b192823216532c74f26d4b5ccf8851290",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ryze.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Samira.png",
+      bytes: 24690,
+      sha256: "0a30028f649d72534fddf5c66e713792511dc79cb4ce882b7b7828eeabe35aa7",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Samira.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Sejuani.png",
+      bytes: 31761,
+      sha256: "a84f6106746dd2cc0c173e6a995d7310a2ee676c7a22630f041fa1869bc6ef86",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Sejuani.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Senna.png",
+      bytes: 23661,
+      sha256: "9ea2bd78c36f3c9b466a0f6df52154007663bb77cab7c07d87496885f0f86683",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Senna.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Seraphine.png",
+      bytes: 27763,
+      sha256: "87bfe49f6595aa4b3b002f9768487d5d410badf25dfbb0f7bb54de11b0d50254",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Seraphine.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Sett.png",
+      bytes: 26531,
+      sha256: "95823a0688664a52d1d46ebb0392c3cc45e26ab7e7a2510292a4f36239d9eea0",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Sett.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Shaco.png",
+      bytes: 28951,
+      sha256: "83ad990c0196b9b33c06b6cdf672db2d1ab3025cde131961ba767ddfff9c7a8a",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Shaco.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Shen.png",
+      bytes: 25298,
+      sha256: "6570a91fb958ef079805dadd8c7a628da569d9601883b6b24610f0858bda8239",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Shen.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Shyvana.png",
+      bytes: 39720,
+      sha256: "f65317e9ded51d97ea2e53293984b7a5c640242a7099df7fb3de0aad356594b0",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Shyvana.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Singed.png",
+      bytes: 27610,
+      sha256: "0429cad926e909454d99f3286b091a143780b87f67f867b54ab4ee152bdbec99",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Singed.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Sion.png",
+      bytes: 26066,
+      sha256: "4908e30a48ec3cbdb080de1667833e2d018ea03fb296e9760066a46793adb528",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Sion.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Sivir.png",
+      bytes: 28166,
+      sha256: "dd8642cd3fb6df0d85d1837dc94c7128e4292554a93451081a5537d0b888172b",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Sivir.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Skarner.png",
+      bytes: 29500,
+      sha256: "cefd97204e9634f6d46216b736279b988f5e0f3ce1ca49ed43a519effd6f05c9",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Skarner.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Smolder.png",
+      bytes: 29635,
+      sha256: "8a7ffc62f2fe7904aee014201fe75e138b2bf82710d2bc3a6cf34d50d171e076",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Smolder.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Sona.png",
+      bytes: 26340,
+      sha256: "e77557069fdc32b412190e8218d2df235d89265100758f0fd8a3399e7b585548",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Sona.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Soraka.png",
+      bytes: 31969,
+      sha256: "ca2774023350198da7025b950c85be65e3506e2f40947ca4151f0e8df4a8be15",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Soraka.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Swain.png",
+      bytes: 24066,
+      sha256: "9f4550dd903cf19ee587bd0870f630ce90d6f62fac2a2d07fe46bda153db8f9b",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Swain.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Sylas.png",
+      bytes: 27292,
+      sha256: "3e724fcd4fffd0b36ea3dd2a60d7d3ed9aeb20ebc5e2dec2e8019b31c3097647",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Sylas.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Syndra.png",
+      bytes: 30524,
+      sha256: "51424965682912746a4ac1a66c9c7d4e3d08333aaf8a59b9865725166580f7b3",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Syndra.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/TahmKench.png",
+      bytes: 27628,
+      sha256: "138eaa3abe89c804e7ef287f8d3bf69172be797965df958b259663c3d4389e42",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/TahmKench.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Taliyah.png",
+      bytes: 24435,
+      sha256: "436958c1d99411e473c7065bd969cec65ebdf61702d5b266db7e0720a3937c85",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Taliyah.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Talon.png",
+      bytes: 26989,
+      sha256: "fc05e5ae6e6d4705a9db3a842fdbce11f429bf333b278f8183caef1d669919d9",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Talon.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Taric.png",
+      bytes: 27875,
+      sha256: "3a91b21a88d562717fb78ada18c95a0b7a077e0c3b941d34829ba5e4d7eceaed",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Taric.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Teemo.png",
+      bytes: 21456,
+      sha256: "bbf4b7238b1f62dc02b39208db764588d18a712a7ea96205f5932730c08a62ee",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Teemo.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Thresh.png",
+      bytes: 26720,
+      sha256: "27f9bfc32eb28d9e17e42e29f8d555c91110e040991d56577f433ddc9eca6c7e",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Thresh.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Tristana.png",
+      bytes: 30313,
+      sha256: "9f46e6dd9d49bf8fd2c6dc7397fa4badb35bf0f355334301782c7f9e13f00aa5",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Tristana.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Trundle.png",
+      bytes: 28260,
+      sha256: "e77d99af3ac328a80a247fafec728df7be4eda7200300a597b38f093fffe234e",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Trundle.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Tryndamere.png",
+      bytes: 31840,
+      sha256: "e715ed3a7eb5f3a0dcfb6da2a9c8ae05d9c197ef514f959d5a94bff38d4dff48",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Tryndamere.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/TwistedFate.png",
+      bytes: 24949,
+      sha256: "5f5944763b0d7c8fc68edad413a908799e2cfcae8a850a6ff746a16afc553670",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/TwistedFate.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Twitch.png",
+      bytes: 28474,
+      sha256: "823c7394b6cdc9fcc0b70f0e71578d8fbe1f06533e1010aa7785ebae4d1209ad",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Twitch.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Udyr.png",
+      bytes: 29169,
+      sha256: "5fa439ae56b9b7a7bdc2ee35661caf8080c19bf2ef5fc0b87ad0315271ac9b93",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Udyr.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Urgot.png",
+      bytes: 25786,
+      sha256: "35d3f774ca9b1430aa32fcacb9add8daa7cecb51411985a178e0d72d5571ec3d",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Urgot.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Varus.png",
+      bytes: 28137,
+      sha256: "1a300d007f9a3bc76342534a16cdf025ac111e733f69667bb4f065869a5ae9f4",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Varus.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Vayne.png",
+      bytes: 28367,
+      sha256: "d9ea091b8d2eddbf7d08001866d7a0798f2649a7067c61dce15ac92fbc3cb723",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Vayne.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Veigar.png",
+      bytes: 26807,
+      sha256: "ace2c32c06d8a96b4de943228b01812f220adf3a4dfaa396e922f7c696221024",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Veigar.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Velkoz.png",
+      bytes: 29187,
+      sha256: "263e174bec40da4a00656390621f4bb7e81677c39527ed98ad63ed12c52308ee",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Velkoz.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Vex.png",
+      bytes: 29332,
+      sha256: "aaa93d7fab2d5d469778128ccdbe59bde00e601da065d17e3ae7bce4fe53c758",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Vex.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Vi.png",
+      bytes: 33358,
+      sha256: "282bd7a3e6a3bdd309f90eebf03b1fb7009a5357e6f53e158dd8c7df8103b4ab",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Vi.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Viego.png",
+      bytes: 28601,
+      sha256: "582fda91453e711bf45146e75ae7b0db0a2aa148499cffd4919050a1b96e9316",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Viego.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Viktor.png",
+      bytes: 30530,
+      sha256: "caf7df593c7713892aac575d1031e9693066c57b86c25ff19542f4ca98c2159a",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Viktor.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Vladimir.png",
+      bytes: 24626,
+      sha256: "eebcd73ab4ba404c4c5b45b7665e5f31399515402b36d9ff8953bb02d4d4c0b3",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Vladimir.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Volibear.png",
+      bytes: 29127,
+      sha256: "36ab730707d6835a6a6fefe216ae3d8bf9d416970fc3223c857f109f404ee5ab",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Volibear.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Warwick.png",
+      bytes: 24895,
+      sha256: "f5df0cb82ea9fba63308254d04d68307c09d1b17b1a28426d1550da39d9c79b8",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Warwick.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Xayah.png",
+      bytes: 26882,
+      sha256: "4ecd1e37697ebc5ee54ca05f1914101ee49be334798287bb8a432f8dd42a5b3d",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Xayah.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Xerath.png",
+      bytes: 24656,
+      sha256: "b204c7007dfe3dd7203c36a65ac6798f39fd96ba10ab981fa82e488aa170ed38",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Xerath.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/XinZhao.png",
+      bytes: 35410,
+      sha256: "f70e9570c60a33328b4e0c0437bcb33cc2320056ba0724e0279e553436da5667",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/XinZhao.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Yasuo.png",
+      bytes: 28213,
+      sha256: "25a7597bfbd3198740b56d369734542f9e7b2100645d9f1199d969c7e1538ffb",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Yasuo.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Yone.png",
+      bytes: 26864,
+      sha256: "cc02f91c39f7336562fb8fa5792eeaeeb1540517a54e7713f7c70732add51c6d",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Yone.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Yorick.png",
+      bytes: 26344,
+      sha256: "151b64e886222db394d6397734f5297862ddc4216fcc1db4a6ad5d33d5dc241a",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Yorick.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Yunara.png",
+      bytes: 39524,
+      sha256: "1502b9641f838af84749a8b10db447942fa8f1661c1fc9c3d43330489427a9d5",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Yunara.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Yuumi.png",
+      bytes: 28605,
+      sha256: "63283c06c2b3a4873a83cb9d00b2ee5892f7bcd7cd009fd8b6ff893f92138b9e",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Yuumi.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Zaahen.png",
+      bytes: 40550,
+      sha256: "2028854176d35cf2f1f926044f071bcd0b7cc8eed839590296e64852bedd35d4",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Zaahen.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Zac.png",
+      bytes: 25794,
+      sha256: "be2426155e937aa048cd22cab2342dd7ecbc591a90c5417d0bd3759ab5876aa6",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Zac.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Zed.png",
+      bytes: 28879,
+      sha256: "3ad3e956e9ad5ca3127d8f685faf69d4251fb726e9b4f0be989764f0027e9c5f",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Zed.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Zeri.png",
+      bytes: 28570,
+      sha256: "5fc4e7ed3b8184495375ea0b8e35a625521cddc7d17d1d6e30e13b683b36100c",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Zeri.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Ziggs.png",
+      bytes: 28542,
+      sha256: "cc3ea57671db30642002b5c36c0a6c851aacb7b2d6a5af10069f9f00b00775a9",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Ziggs.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Zilean.png",
+      bytes: 32671,
+      sha256: "07c45f7285e5d741f17ebdc07889971c46c67f09846fdb9a3f0f0123aedd8850",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Zilean.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Zoe.png",
+      bytes: 27849,
+      sha256: "2413cb98c5f863b8570a012e1927e4908ee78be0f7619ab3ce471e8c7da56bb2",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Zoe.png"
+    },
+    {
+      path: "assets/riot/16.6.1/champions/Zyra.png",
+      bytes: 26347,
+      sha256: "9993a6caf52f955ad41077e56b56f2472c07c1a589fb4d1c66097ddf775feda4",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/champion/Zyra.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/1001.png",
+      bytes: 4537,
+      sha256: "f2b2a8ba7ae715c8906d3037d38778aa545f3d0740091640484aa3d126396ad0",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/1001.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/1028.png",
+      bytes: 4070,
+      sha256: "90f702e7d757914c96e546ae4076b624800dafc140edffac70733f104684b412",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/1028.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/1029.png",
+      bytes: 5078,
+      sha256: "3b89234b2be140f17b06a92297abdc54ce23e6034b6b80335d612fac3d20720d",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/1029.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/1036.png",
+      bytes: 5334,
+      sha256: "c57b71ae65b3b38241f8ed97fe6fb5ae78db5a82002be392d91ebb6f5ffde8af",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/1036.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/1038.png",
+      bytes: 4983,
+      sha256: "521ede3bac2e64d7b4dc5cc047c57abd7d17bb6a59ff0f6f24a569e41ab0cfe8",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/1038.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/1042.png",
+      bytes: 4228,
+      sha256: "b62b8823a2728891fa67c83054f8ae1d2f7656424b84b5288a5900529cd8a264",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/1042.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/1052.png",
+      bytes: 5490,
+      sha256: "5b6d009e518f50c73db3b4a7442d3bff0928fb2ea527babd77140ce817562e8a",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/1052.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/2003.png",
+      bytes: 4964,
+      sha256: "4ef383b62d2631f0e224cc1a4020faf785e56c5ce5cbf01ae63a79840b96deaf",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/2003.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/2140.png",
+      bytes: 6281,
+      sha256: "e58952c339cec2243484faf8b1435ca35f3d566b63a1fdec0521076b906a9137",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/2140.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/3026.png",
+      bytes: 6600,
+      sha256: "2b0333182d1b97b1b7717b2f7b999dc7147722159605887cf6c1216a55df1743",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3026.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/3031.png",
+      bytes: 7104,
+      sha256: "39382e1bef39a48d14e6d37e52e9d02068df9153ca60c2bcca033dd276fae5df",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3031.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/3065.png",
+      bytes: 7502,
+      sha256: "2e42844fe60ba038f5a3402abb4d1e42578acb032ad934c6e5cf883a7df92421",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3065.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/3068.png",
+      bytes: 5400,
+      sha256: "58468a9b834718c2081c267cfc07db7ca039d3e5b6306cb3682747ea477f0f56",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3068.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/3072.png",
+      bytes: 6532,
+      sha256: "adcf226cf9ca11cf22c840d56e94a5a240212f4503fca8b90ad3463b87b28180",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3072.png"
+    },
+    {
+      path: "assets/riot/16.6.1/items/3089.png",
+      bytes: 6981,
+      sha256: "ad77331bb9a325db9536f5614f3ca3516e24279406123f2892eb33ee419d369b",
+      source: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3089.png"
+    }
+  ]
+};
+
+// src/config/riotAssets.ts
+var manifest = riot_assets_manifest_default;
+var RIOT_ASSET_VERSION = manifest.dataDragonVersion;
+var RIOT_CHAMPION_IDS = Object.freeze([...manifest.champions]);
+function riotChampionIconUrl(championId) {
+  return `/assets/riot/${RIOT_ASSET_VERSION}/champions/${championId}.png`;
+}
+function riotItemIconUrl(itemId) {
+  const dataDragonId = manifest.items[itemId];
+  if (!dataDragonId) throw new Error(`Missing Riot asset mapping for item "${itemId}".`);
+  return `/assets/riot/${RIOT_ASSET_VERSION}/items/${dataDragonId}.png`;
+}
+
 // src/data/champion/Annie.ts
 var annie = {
   id: "Annie",
@@ -123,7 +1476,7 @@ var annie = {
     scaling: { adRatio: 0, apRatio: 0 },
     effects: [{ type: "cc", ccType: "stun", ccDuration: 1.75 }]
   },
-  iconUrl: "/lol/data/img/champions/Annie.png"
+  iconUrl: riotChampionIconUrl("Annie")
 };
 
 // src/data/champion/Ashe.ts
@@ -251,7 +1604,7 @@ var ashe = {
     scaling: { adRatio: 0, apRatio: 0 },
     effects: [{ type: "cc", ccType: "slow", slowPercent: 20, ccDuration: 2 }]
   },
-  iconUrl: "/lol/data/img/champions/Ashe.png"
+  iconUrl: riotChampionIconUrl("Ashe")
 };
 
 // src/data/champion/Darius.ts
@@ -396,7 +1749,7 @@ var darius = {
       }
     ]
   },
-  iconUrl: "/lol/data/img/champions/Darius.png"
+  iconUrl: riotChampionIconUrl("Darius")
 };
 
 // src/data/champion/Garen.ts
@@ -533,7 +1886,7 @@ var garen = {
       }
     ]
   },
-  iconUrl: "/lol/data/img/champions/Garen.png"
+  iconUrl: riotChampionIconUrl("Garen")
 };
 
 // src/data/champion/Jinx.ts
@@ -704,7 +2057,7 @@ var jinx = {
       }
     ]
   },
-  iconUrl: "/lol/data/img/champions/Jinx.png"
+  iconUrl: riotChampionIconUrl("Jinx")
 };
 
 // src/data/champion/Leona.ts
@@ -844,7 +2197,7 @@ var leona = {
       }
     ]
   },
-  iconUrl: "/lol/data/img/champions/Leona.png"
+  iconUrl: riotChampionIconUrl("Leona")
 };
 
 // src/data/champion/Lux.ts
@@ -973,7 +2326,7 @@ var lux = {
       }
     ]
   },
-  iconUrl: "/lol/data/img/champions/Lux.png"
+  iconUrl: riotChampionIconUrl("Lux")
 };
 
 // src/data/champion/Malphite.ts
@@ -1123,7 +2476,7 @@ var malphite = {
       }
     ]
   },
-  iconUrl: "/lol/data/img/champions/Malphite.png"
+  iconUrl: riotChampionIconUrl("Malphite")
 };
 
 // src/data/champion/Soraka.ts
@@ -1246,7 +2599,7 @@ var soraka = {
       }
     ]
   },
-  iconUrl: "/lol/data/img/champions/Soraka.png"
+  iconUrl: riotChampionIconUrl("Soraka")
 };
 
 // src/data/champion/Warwick.ts
@@ -1397,7 +2750,7 @@ var warwick = {
       }
     ]
   },
-  iconUrl: "/lol/data/img/champions/Warwick.png"
+  iconUrl: riotChampionIconUrl("Warwick")
 };
 
 // src/data/champion/index.ts
@@ -1414,7 +2767,7 @@ var implementedChampions = [
   warwick
 ];
 
-// public/lol/data/champions-parsed.json
+// src/data/generated/champions-parsed.json
 var champions_parsed_default = [
   {
     id: "Aatrox",
@@ -1633,7 +2986,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Aatrox.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Aatrox.png"
   },
   {
     id: "Ahri",
@@ -1866,7 +3219,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Ahri.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ahri.png"
   },
   {
     id: "Akali",
@@ -2092,7 +3445,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Akali.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Akali.png"
   },
   {
     id: "Akshan",
@@ -2313,7 +3666,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Akshan.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Akshan.png"
   },
   {
     id: "Alistar",
@@ -2526,7 +3879,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Alistar.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Alistar.png"
   },
   {
     id: "Ambessa",
@@ -2748,7 +4101,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Ambessa.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ambessa.png"
   },
   {
     id: "Amumu",
@@ -2977,7 +4330,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Amumu.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Amumu.png"
   },
   {
     id: "Anivia",
@@ -3185,7 +4538,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Anivia.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Anivia.png"
   },
   {
     id: "Annie",
@@ -3413,7 +4766,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Annie.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Annie.png"
   },
   {
     id: "Aphelios",
@@ -3622,7 +4975,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Aphelios.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Aphelios.png"
   },
   {
     id: "Ashe",
@@ -3861,7 +5214,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Ashe.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ashe.png"
   },
   {
     id: "AurelionSol",
@@ -4073,7 +5426,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/AurelionSol.png"
+    iconUrl: "/assets/riot/16.6.1/champions/AurelionSol.png"
   },
   {
     id: "Aurora",
@@ -4295,7 +5648,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Aurora.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Aurora.png"
   },
   {
     id: "Azir",
@@ -4531,7 +5884,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Azir.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Azir.png"
   },
   {
     id: "Bard",
@@ -4782,7 +6135,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Bard.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Bard.png"
   },
   {
     id: "Belveth",
@@ -4997,7 +6350,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Belveth.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Belveth.png"
   },
   {
     id: "Blitzcrank",
@@ -5234,7 +6587,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Blitzcrank.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Blitzcrank.png"
   },
   {
     id: "Brand",
@@ -5469,7 +6822,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Brand.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Brand.png"
   },
   {
     id: "Braum",
@@ -5733,7 +7086,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Braum.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Braum.png"
   },
   {
     id: "Briar",
@@ -5979,7 +7332,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Briar.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Briar.png"
   },
   {
     id: "Caitlyn",
@@ -6211,7 +7564,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Caitlyn.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Caitlyn.png"
   },
   {
     id: "Camille",
@@ -6447,7 +7800,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Camille.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Camille.png"
   },
   {
     id: "Cassiopeia",
@@ -6680,7 +8033,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Cassiopeia.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Cassiopeia.png"
   },
   {
     id: "Chogath",
@@ -6905,7 +8258,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Chogath.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Chogath.png"
   },
   {
     id: "Corki",
@@ -7122,7 +8475,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Corki.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Corki.png"
   },
   {
     id: "Darius",
@@ -7357,7 +8710,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Darius.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Darius.png"
   },
   {
     id: "Diana",
@@ -7607,7 +8960,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Diana.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Diana.png"
   },
   {
     id: "DrMundo",
@@ -7816,7 +9169,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/DrMundo.png"
+    iconUrl: "/assets/riot/16.6.1/champions/DrMundo.png"
   },
   {
     id: "Draven",
@@ -8053,7 +9406,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Draven.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Draven.png"
   },
   {
     id: "Ekko",
@@ -8299,7 +9652,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Ekko.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ekko.png"
   },
   {
     id: "Elise",
@@ -8536,7 +9889,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Elise.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Elise.png"
   },
   {
     id: "Evelynn",
@@ -8784,7 +10137,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Evelynn.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Evelynn.png"
   },
   {
     id: "Ezreal",
@@ -8999,7 +10352,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Ezreal.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ezreal.png"
   },
   {
     id: "Fiddlesticks",
@@ -9220,7 +10573,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Fiddlesticks.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Fiddlesticks.png"
   },
   {
     id: "Fiora",
@@ -9454,7 +10807,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Fiora.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Fiora.png"
   },
   {
     id: "Fizz",
@@ -9690,7 +11043,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Fizz.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Fizz.png"
   },
   {
     id: "Galio",
@@ -9929,7 +11282,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Galio.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Galio.png"
   },
   {
     id: "Gangplank",
@@ -10173,7 +11526,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Gangplank.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Gangplank.png"
   },
   {
     id: "Garen",
@@ -10407,7 +11760,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Garen.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Garen.png"
   },
   {
     id: "Gnar",
@@ -10630,7 +11983,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Gnar.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Gnar.png"
   },
   {
     id: "Gragas",
@@ -10857,7 +12210,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Gragas.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Gragas.png"
   },
   {
     id: "Graves",
@@ -11063,7 +12416,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Graves.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Graves.png"
   },
   {
     id: "Gwen",
@@ -11283,7 +12636,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Gwen.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Gwen.png"
   },
   {
     id: "Hecarim",
@@ -11529,7 +12882,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Hecarim.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Hecarim.png"
   },
   {
     id: "Heimerdinger",
@@ -11740,7 +13093,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Heimerdinger.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Heimerdinger.png"
   },
   {
     id: "Hwei",
@@ -11973,7 +13326,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Hwei.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Hwei.png"
   },
   {
     id: "Illaoi",
@@ -12193,7 +13546,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Illaoi.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Illaoi.png"
   },
   {
     id: "Irelia",
@@ -12410,7 +13763,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Irelia.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Irelia.png"
   },
   {
     id: "Ivern",
@@ -12628,7 +13981,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Ivern.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ivern.png"
   },
   {
     id: "Janna",
@@ -12866,7 +14219,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Janna.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Janna.png"
   },
   {
     id: "JarvanIV",
@@ -13106,7 +14459,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/JarvanIV.png"
+    iconUrl: "/assets/riot/16.6.1/champions/JarvanIV.png"
   },
   {
     id: "Jax",
@@ -13314,7 +14667,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Jax.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Jax.png"
   },
   {
     id: "Jayce",
@@ -13530,7 +14883,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Jayce.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Jayce.png"
   },
   {
     id: "Jhin",
@@ -13751,7 +15104,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Jhin.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Jhin.png"
   },
   {
     id: "Jinx",
@@ -13959,7 +15312,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Jinx.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Jinx.png"
   },
   {
     id: "KSante",
@@ -14181,7 +15534,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/KSante.png"
+    iconUrl: "/assets/riot/16.6.1/champions/KSante.png"
   },
   {
     id: "Kaisa",
@@ -14428,7 +15781,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Kaisa.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Kaisa.png"
   },
   {
     id: "Kalista",
@@ -14634,7 +15987,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Kalista.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Kalista.png"
   },
   {
     id: "Karma",
@@ -14887,7 +16240,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Karma.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Karma.png"
   },
   {
     id: "Karthus",
@@ -15113,7 +16466,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Karthus.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Karthus.png"
   },
   {
     id: "Kassadin",
@@ -15359,7 +16712,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Kassadin.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Kassadin.png"
   },
   {
     id: "Katarina",
@@ -15596,7 +16949,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Katarina.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Katarina.png"
   },
   {
     id: "Kayle",
@@ -15817,7 +17170,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Kayle.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Kayle.png"
   },
   {
     id: "Kayn",
@@ -16063,7 +17416,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Kayn.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Kayn.png"
   },
   {
     id: "Kennen",
@@ -16302,7 +17655,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Kennen.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Kennen.png"
   },
   {
     id: "Khazix",
@@ -16551,7 +17904,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Khazix.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Khazix.png"
   },
   {
     id: "Kindred",
@@ -16780,7 +18133,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Kindred.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Kindred.png"
   },
   {
     id: "Kled",
@@ -17015,7 +18368,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Kled.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Kled.png"
   },
   {
     id: "KogMaw",
@@ -17232,7 +18585,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/KogMaw.png"
+    iconUrl: "/assets/riot/16.6.1/champions/KogMaw.png"
   },
   {
     id: "Leblanc",
@@ -17455,7 +18808,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Leblanc.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Leblanc.png"
   },
   {
     id: "LeeSin",
@@ -17669,7 +19022,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/LeeSin.png"
+    iconUrl: "/assets/riot/16.6.1/champions/LeeSin.png"
   },
   {
     id: "Leona",
@@ -17930,7 +19283,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Leona.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Leona.png"
   },
   {
     id: "Lillia",
@@ -18161,7 +19514,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Lillia.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Lillia.png"
   },
   {
     id: "Lissandra",
@@ -18404,7 +19757,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Lissandra.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Lissandra.png"
   },
   {
     id: "Lucian",
@@ -18656,7 +20009,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Lucian.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Lucian.png"
   },
   {
     id: "Lulu",
@@ -18895,7 +20248,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Lulu.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Lulu.png"
   },
   {
     id: "Lux",
@@ -19134,7 +20487,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Lux.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Lux.png"
   },
   {
     id: "MasterYi",
@@ -19343,7 +20696,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/MasterYi.png"
+    iconUrl: "/assets/riot/16.6.1/champions/MasterYi.png"
   },
   {
     id: "Malphite",
@@ -19588,7 +20941,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Malphite.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Malphite.png"
   },
   {
     id: "Malzahar",
@@ -19814,7 +21167,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Malzahar.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Malzahar.png"
   },
   {
     id: "Maokai",
@@ -20052,7 +21405,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Maokai.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Maokai.png"
   },
   {
     id: "Mel",
@@ -20281,7 +21634,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Mel.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Mel.png"
   },
   {
     id: "Milio",
@@ -20520,7 +21873,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Milio.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Milio.png"
   },
   {
     id: "MissFortune",
@@ -20750,7 +22103,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/MissFortune.png"
+    iconUrl: "/assets/riot/16.6.1/champions/MissFortune.png"
   },
   {
     id: "Mordekaiser",
@@ -20972,7 +22325,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Mordekaiser.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Mordekaiser.png"
   },
   {
     id: "Morgana",
@@ -21199,7 +22552,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Morgana.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Morgana.png"
   },
   {
     id: "Naafiri",
@@ -21425,7 +22778,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Naafiri.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Naafiri.png"
   },
   {
     id: "Nami",
@@ -21655,7 +23008,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Nami.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Nami.png"
   },
   {
     id: "Nasus",
@@ -21870,7 +23223,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Nasus.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Nasus.png"
   },
   {
     id: "Nautilus",
@@ -22098,7 +23451,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Nautilus.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Nautilus.png"
   },
   {
     id: "Neeko",
@@ -22322,7 +23675,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Neeko.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Neeko.png"
   },
   {
     id: "Nidalee",
@@ -22538,7 +23891,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Nidalee.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Nidalee.png"
   },
   {
     id: "Nilah",
@@ -22770,7 +24123,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Nilah.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Nilah.png"
   },
   {
     id: "Nocturne",
@@ -23031,7 +24384,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Nocturne.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Nocturne.png"
   },
   {
     id: "Nunu",
@@ -23260,7 +24613,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Nunu.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Nunu.png"
   },
   {
     id: "Olaf",
@@ -23480,7 +24833,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Olaf.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Olaf.png"
   },
   {
     id: "Orianna",
@@ -23727,7 +25080,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Orianna.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Orianna.png"
   },
   {
     id: "Ornn",
@@ -23941,7 +25294,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Ornn.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ornn.png"
   },
   {
     id: "Pantheon",
@@ -24169,7 +25522,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Pantheon.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Pantheon.png"
   },
   {
     id: "Poppy",
@@ -24415,7 +25768,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Poppy.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Poppy.png"
   },
   {
     id: "Pyke",
@@ -24655,7 +26008,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Pyke.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Pyke.png"
   },
   {
     id: "Qiyana",
@@ -24885,7 +26238,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Qiyana.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Qiyana.png"
   },
   {
     id: "Quinn",
@@ -25128,7 +26481,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Quinn.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Quinn.png"
   },
   {
     id: "Rakan",
@@ -25383,7 +26736,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Rakan.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Rakan.png"
   },
   {
     id: "Rammus",
@@ -25619,7 +26972,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Rammus.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Rammus.png"
   },
   {
     id: "RekSai",
@@ -25841,7 +27194,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/RekSai.png"
+    iconUrl: "/assets/riot/16.6.1/champions/RekSai.png"
   },
   {
     id: "Rell",
@@ -26082,7 +27435,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Rell.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Rell.png"
   },
   {
     id: "Renata",
@@ -26311,7 +27664,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Renata.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Renata.png"
   },
   {
     id: "Renekton",
@@ -26530,7 +27883,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Renekton.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Renekton.png"
   },
   {
     id: "Rengar",
@@ -26754,7 +28107,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Rengar.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Rengar.png"
   },
   {
     id: "Riven",
@@ -26998,7 +28351,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Riven.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Riven.png"
   },
   {
     id: "Rumble",
@@ -27239,7 +28592,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Rumble.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Rumble.png"
   },
   {
     id: "Ryze",
@@ -27484,7 +28837,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Ryze.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ryze.png"
   },
   {
     id: "Samira",
@@ -27701,7 +29054,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Samira.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Samira.png"
   },
   {
     id: "Sejuani",
@@ -27943,7 +29296,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Sejuani.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Sejuani.png"
   },
   {
     id: "Senna",
@@ -28181,7 +29534,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Senna.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Senna.png"
   },
   {
     id: "Seraphine",
@@ -28423,7 +29776,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Seraphine.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Seraphine.png"
   },
   {
     id: "Sett",
@@ -28651,7 +30004,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Sett.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Sett.png"
   },
   {
     id: "Shaco",
@@ -28873,7 +30226,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Shaco.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Shaco.png"
   },
   {
     id: "Shen",
@@ -29090,7 +30443,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Shen.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Shen.png"
   },
   {
     id: "Shyvana",
@@ -29325,7 +30678,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Shyvana.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Shyvana.png"
   },
   {
     id: "Singed",
@@ -29543,7 +30896,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Singed.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Singed.png"
   },
   {
     id: "Sion",
@@ -29788,7 +31141,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Sion.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Sion.png"
   },
   {
     id: "Sivir",
@@ -30009,7 +31362,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Sivir.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Sivir.png"
   },
   {
     id: "Skarner",
@@ -30238,7 +31591,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Skarner.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Skarner.png"
   },
   {
     id: "Smolder",
@@ -30490,7 +31843,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Smolder.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Smolder.png"
   },
   {
     id: "Sona",
@@ -30724,7 +32077,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Sona.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Sona.png"
   },
   {
     id: "Soraka",
@@ -30946,7 +32299,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Soraka.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Soraka.png"
   },
   {
     id: "Swain",
@@ -31163,7 +32516,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Swain.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Swain.png"
   },
   {
     id: "Sylas",
@@ -31380,7 +32733,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Sylas.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Sylas.png"
   },
   {
     id: "Syndra",
@@ -31607,7 +32960,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Syndra.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Syndra.png"
   },
   {
     id: "TahmKench",
@@ -31841,7 +33194,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/TahmKench.png"
+    iconUrl: "/assets/riot/16.6.1/champions/TahmKench.png"
   },
   {
     id: "Taliyah",
@@ -32053,7 +33406,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Taliyah.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Taliyah.png"
   },
   {
     id: "Talon",
@@ -32276,7 +33629,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Talon.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Talon.png"
   },
   {
     id: "Taric",
@@ -32516,7 +33869,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Taric.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Taric.png"
   },
   {
     id: "Teemo",
@@ -32732,7 +34085,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Teemo.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Teemo.png"
   },
   {
     id: "Thresh",
@@ -32968,7 +34321,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Thresh.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Thresh.png"
   },
   {
     id: "Tristana",
@@ -33176,7 +34529,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Tristana.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Tristana.png"
   },
   {
     id: "Trundle",
@@ -33389,7 +34742,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Trundle.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Trundle.png"
   },
   {
     id: "Tryndamere",
@@ -33595,7 +34948,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Tryndamere.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Tryndamere.png"
   },
   {
     id: "TwistedFate",
@@ -33814,7 +35167,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/TwistedFate.png"
+    iconUrl: "/assets/riot/16.6.1/champions/TwistedFate.png"
   },
   {
     id: "Twitch",
@@ -34044,7 +35397,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Twitch.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Twitch.png"
   },
   {
     id: "Udyr",
@@ -34290,7 +35643,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Udyr.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Udyr.png"
   },
   {
     id: "Urgot",
@@ -34535,7 +35888,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Urgot.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Urgot.png"
   },
   {
     id: "Varus",
@@ -34766,7 +36119,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Varus.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Varus.png"
   },
   {
     id: "Vayne",
@@ -34982,7 +36335,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Vayne.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Vayne.png"
   },
   {
     id: "Veigar",
@@ -35208,7 +36561,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Veigar.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Veigar.png"
   },
   {
     id: "Velkoz",
@@ -35446,7 +36799,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Velkoz.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Velkoz.png"
   },
   {
     id: "Vex",
@@ -35667,7 +37020,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Vex.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Vex.png"
   },
   {
     id: "Vi",
@@ -35882,7 +37235,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Vi.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Vi.png"
   },
   {
     id: "Viego",
@@ -36095,7 +37448,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Viego.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Viego.png"
   },
   {
     id: "Viktor",
@@ -36331,7 +37684,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Viktor.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Viktor.png"
   },
   {
     id: "Vladimir",
@@ -36576,7 +37929,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Vladimir.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Vladimir.png"
   },
   {
     id: "Volibear",
@@ -36814,7 +38167,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Volibear.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Volibear.png"
   },
   {
     id: "Warwick",
@@ -37068,7 +38421,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Warwick.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Warwick.png"
   },
   {
     id: "MonkeyKing",
@@ -37276,7 +38629,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/MonkeyKing.png"
+    iconUrl: "/assets/riot/16.6.1/champions/MonkeyKing.png"
   },
   {
     id: "Xayah",
@@ -37500,7 +38853,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Xayah.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Xayah.png"
   },
   {
     id: "Xerath",
@@ -37725,7 +39078,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Xerath.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Xerath.png"
   },
   {
     id: "XinZhao",
@@ -37959,7 +39312,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/XinZhao.png"
+    iconUrl: "/assets/riot/16.6.1/champions/XinZhao.png"
   },
   {
     id: "Yasuo",
@@ -38179,7 +39532,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Yasuo.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Yasuo.png"
   },
   {
     id: "Yone",
@@ -38415,7 +39768,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Yone.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Yone.png"
   },
   {
     id: "Yorick",
@@ -38628,7 +39981,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Yorick.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Yorick.png"
   },
   {
     id: "Yunara",
@@ -38843,7 +40196,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Yunara.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Yunara.png"
   },
   {
     id: "Yuumi",
@@ -39081,7 +40434,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Yuumi.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Yuumi.png"
   },
   {
     id: "Zaahen",
@@ -39310,7 +40663,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Zaahen.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Zaahen.png"
   },
   {
     id: "Zac",
@@ -39560,7 +40913,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Zac.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Zac.png"
   },
   {
     id: "Zed",
@@ -39782,7 +41135,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Zed.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Zed.png"
   },
   {
     id: "Zeri",
@@ -40012,7 +41365,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Zeri.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Zeri.png"
   },
   {
     id: "Ziggs",
@@ -40244,7 +41597,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Ziggs.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Ziggs.png"
   },
   {
     id: "Zilean",
@@ -40478,7 +41831,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Zilean.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Zilean.png"
   },
   {
     id: "Zoe",
@@ -40736,7 +42089,7 @@ var champions_parsed_default = [
         }
       ]
     },
-    iconUrl: "lol/data/img/champions/Zoe.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Zoe.png"
   },
   {
     id: "Zyra",
@@ -40967,7 +42320,7 @@ var champions_parsed_default = [
       },
       effects: []
     },
-    iconUrl: "lol/data/img/champions/Zyra.png"
+    iconUrl: "/assets/riot/16.6.1/champions/Zyra.png"
   }
 ];
 
@@ -40978,8 +42331,12 @@ var ChampionDatabase = class {
   byKey;
   byTag;
   byResource;
-  constructor(rawData = champions_parsed_default) {
-    this.champions = rawData;
+  constructor(rawData) {
+    const source = rawData ?? champions_parsed_default;
+    const maintainedById = new Map(
+      implementedChampions.map((champion) => [champion.id.toLowerCase(), champion])
+    );
+    this.champions = rawData ? source : source.map((champion) => maintainedById.get(champion.id.toLowerCase()) ?? champion);
     this.byId = /* @__PURE__ */ new Map();
     this.byKey = /* @__PURE__ */ new Map();
     this.byTag = /* @__PURE__ */ new Map();
@@ -41110,6 +42467,40 @@ var ChampionDatabase = class {
   }
 };
 var championDB = new ChampionDatabase();
+
+// src/types/inventory.ts
+var RuneConditionType = /* @__PURE__ */ ((RuneConditionType2) => {
+  RuneConditionType2["HpBelowPercent"] = "hp_below_percent";
+  RuneConditionType2["HpAbovePercent"] = "hp_above_percent";
+  RuneConditionType2["AfterDealingDamage"] = "after_dealing_damage";
+  RuneConditionType2["AfterTakingDamage"] = "after_taking_damage";
+  RuneConditionType2["OnKill"] = "on_kill";
+  RuneConditionType2["OnAbilityCast"] = "on_ability_cast";
+  RuneConditionType2["BattleStart"] = "battle_start";
+  RuneConditionType2["EveryTurn"] = "every_turn";
+  RuneConditionType2["EveryNTurns"] = "every_n_turns";
+  RuneConditionType2["WhileBuffed"] = "while_buffed";
+  RuneConditionType2["WhileCCd"] = "while_ccd";
+  RuneConditionType2["OnCrit"] = "on_crit";
+  RuneConditionType2["LowAllies"] = "low_allies";
+  return RuneConditionType2;
+})(RuneConditionType || {});
+var AugmentEffectType = /* @__PURE__ */ ((AugmentEffectType2) => {
+  AugmentEffectType2["TeamStatFlat"] = "team_stat_flat";
+  AugmentEffectType2["TeamStatPercent"] = "team_stat_percent";
+  AugmentEffectType2["ScalingStatFlat"] = "scaling_stat_flat";
+  AugmentEffectType2["DamagePercent"] = "damage_percent";
+  AugmentEffectType2["DamageReduction"] = "damage_reduction";
+  AugmentEffectType2["BonusGold"] = "bonus_gold";
+  AugmentEffectType2["FreeItem"] = "free_item";
+  AugmentEffectType2["HealAfterBattle"] = "heal_after_battle";
+  AugmentEffectType2["ExtraRevive"] = "extra_revive";
+  AugmentEffectType2["CooldownReduction"] = "cooldown_reduction";
+  AugmentEffectType2["ShopDiscount"] = "shop_discount";
+  AugmentEffectType2["Custom"] = "custom";
+  return AugmentEffectType2;
+})(AugmentEffectType || {});
+var DEFAULT_MAX_AUGMENTS = 4;
 
 // src/data/items/augmentDatabase.ts
 var BRUTE_FORCE = {
@@ -41433,6 +42824,10 @@ var GOLDEN_AGE = {
     {
       type: "bonus_gold" /* BonusGold */,
       flatValue: 200
+    },
+    {
+      type: "shop_discount" /* ShopDiscount */,
+      percentValue: 0.15
     }
   ],
   stackable: false,
@@ -41469,7 +42864,7 @@ var LONG_SWORD = {
   id: "long_sword",
   name: "Long Sword",
   description: "A simple blade that increases attack power.",
-  iconUrl: "/assets/items/long_sword.png",
+  iconUrl: riotItemIconUrl("long_sword"),
   category: "weapon" /* Weapon */,
   rarity: "common" /* Common */,
   stats: [{ stat: "atk", value: 10, type: "flat" }],
@@ -41482,7 +42877,7 @@ var AMPLIFYING_TOME = {
   id: "amplifying_tome",
   name: "Amplifying Tome",
   description: "A magical tome that enhances spell power.",
-  iconUrl: "/assets/items/amplifying_tome.png",
+  iconUrl: riotItemIconUrl("amplifying_tome"),
   category: "weapon" /* Weapon */,
   rarity: "common" /* Common */,
   stats: [{ stat: "ap", value: 20, type: "flat" }],
@@ -41495,7 +42890,7 @@ var CLOTH_ARMOR = {
   id: "cloth_armor",
   name: "Cloth Armor",
   description: "A simple cloth vest that provides basic protection.",
-  iconUrl: "/assets/items/cloth_armor.png",
+  iconUrl: riotItemIconUrl("cloth_armor"),
   category: "armor" /* Armor */,
   rarity: "common" /* Common */,
   stats: [{ stat: "def", value: 15, type: "flat" }],
@@ -41508,7 +42903,7 @@ var RUBY_CRYSTAL = {
   id: "ruby_crystal",
   name: "Ruby Crystal",
   description: "A radiant crystal that bolsters vitality.",
-  iconUrl: "/assets/items/ruby_crystal.png",
+  iconUrl: riotItemIconUrl("ruby_crystal"),
   category: "accessory" /* Accessory */,
   rarity: "common" /* Common */,
   stats: [{ stat: "hp", value: 150, type: "flat" }],
@@ -41521,11 +42916,12 @@ var BOOTS = {
   id: "boots",
   name: "Boots",
   description: "Basic footwear that increases movement speed.",
-  iconUrl: "/assets/items/boots.png",
+  iconUrl: riotItemIconUrl("boots"),
   category: "accessory" /* Accessory */,
   rarity: "common" /* Common */,
   stats: [{ stat: "spd", value: 2, type: "flat" }],
   goldValue: 300,
+  unique: true,
   stackable: false,
   maxStacks: 1,
   tier: 1
@@ -41534,7 +42930,7 @@ var DAGGER = {
   id: "dagger",
   name: "Dagger",
   description: "A quick blade that improves critical strike chance.",
-  iconUrl: "/assets/items/dagger.png",
+  iconUrl: riotItemIconUrl("dagger"),
   category: "weapon" /* Weapon */,
   rarity: "common" /* Common */,
   stats: [{ stat: "crit", value: 10, type: "flat" }],
@@ -41547,7 +42943,7 @@ var BF_SWORD = {
   id: "bf_sword",
   name: "B.F. Sword",
   description: "A massive blade that greatly increases attack damage.",
-  iconUrl: "/assets/items/bf_sword.png",
+  iconUrl: riotItemIconUrl("bf_sword"),
   category: "weapon" /* Weapon */,
   rarity: "uncommon" /* Uncommon */,
   stats: [{ stat: "atk", value: 40, type: "flat" }],
@@ -41560,7 +42956,7 @@ var INFINITY_EDGE = {
   id: "infinity_edge",
   name: "Infinity Edge",
   description: "Massively increases critical strike damage.",
-  iconUrl: "/assets/items/infinity_edge.png",
+  iconUrl: riotItemIconUrl("infinity_edge"),
   category: "weapon" /* Weapon */,
   rarity: "legendary" /* Legendary */,
   stats: [
@@ -41576,6 +42972,7 @@ var INFINITY_EDGE = {
     flatValue: 0.35
   },
   goldValue: 3400,
+  unique: true,
   stackable: false,
   maxStacks: 1,
   components: ["long_sword", "dagger"],
@@ -41585,7 +42982,7 @@ var RABADONS_DEATHCAP = {
   id: "rabaddons_deathcap",
   name: "Rabadon's Deathcap",
   description: "Dramatically increases ability power.",
-  iconUrl: "/assets/items/rabadons_deathcap.png",
+  iconUrl: riotItemIconUrl("rabaddons_deathcap"),
   category: "weapon" /* Weapon */,
   rarity: "legendary" /* Legendary */,
   stats: [{ stat: "ap", value: 120, type: "flat" }],
@@ -41597,6 +42994,7 @@ var RABADONS_DEATHCAP = {
     modifiers: [{ stat: "ap", value: 0.35, type: "percent" }]
   },
   goldValue: 3600,
+  unique: true,
   stackable: false,
   maxStacks: 1,
   components: ["amplifying_tome"],
@@ -41606,7 +43004,7 @@ var SUNFIRE_AEGIS = {
   id: "sunfire_aegis",
   name: "Sunfire Aegis",
   description: "Burn nearby enemies and gain defensive stats.",
-  iconUrl: "/assets/items/sunfire_aegis.png",
+  iconUrl: riotItemIconUrl("sunfire_aegis"),
   category: "armor" /* Armor */,
   rarity: "epic" /* Epic */,
   stats: [
@@ -41622,6 +43020,7 @@ var SUNFIRE_AEGIS = {
     flatValue: 15
   },
   goldValue: 2700,
+  unique: true,
   stackable: false,
   maxStacks: 1,
   components: ["ruby_crystal", "cloth_armor"],
@@ -41631,7 +43030,7 @@ var GUARDIAN_ANGEL = {
   id: "guardian_angel",
   name: "Guardian Angel",
   description: "Revives the holder upon death with 30% HP.",
-  iconUrl: "/assets/items/guardian_angel.png",
+  iconUrl: riotItemIconUrl("guardian_angel"),
   category: "armor" /* Armor */,
   rarity: "legendary" /* Legendary */,
   stats: [
@@ -41649,6 +43048,7 @@ var GUARDIAN_ANGEL = {
     procChance: 1
   },
   goldValue: 2800,
+  unique: true,
   stackable: false,
   maxStacks: 1,
   components: ["long_sword", "cloth_armor"],
@@ -41658,7 +43058,7 @@ var BLOODTHIRSTER = {
   id: "bloodthirster",
   name: "Bloodthirster",
   description: "Gain lifesteal on attacks.",
-  iconUrl: "/assets/items/bloodthirster.png",
+  iconUrl: riotItemIconUrl("bloodthirster"),
   category: "weapon" /* Weapon */,
   rarity: "legendary" /* Legendary */,
   stats: [
@@ -41674,6 +43074,7 @@ var BLOODTHIRSTER = {
     flatValue: 0.18
   },
   goldValue: 3400,
+  unique: true,
   stackable: false,
   maxStacks: 1,
   components: ["long_sword", "dagger"],
@@ -41683,7 +43084,7 @@ var SPIRIT_VISAGE = {
   id: "spirit_visage",
   name: "Spirit Visage",
   description: "Increases all healing received.",
-  iconUrl: "/assets/items/spirit_visage.png",
+  iconUrl: riotItemIconUrl("spirit_visage"),
   category: "armor" /* Armor */,
   rarity: "epic" /* Epic */,
   stats: [
@@ -41699,6 +43100,7 @@ var SPIRIT_VISAGE = {
     flatValue: 0.25
   },
   goldValue: 2800,
+  unique: true,
   stackable: false,
   maxStacks: 1,
   components: ["ruby_crystal"],
@@ -41708,7 +43110,7 @@ var HEALTH_POTION = {
   id: "health_potion",
   name: "Health Potion",
   description: "Restores 150 HP over 3 turns.",
-  iconUrl: "/assets/items/health_potion.png",
+  iconUrl: riotItemIconUrl("health_potion"),
   category: "consumable" /* Consumable */,
   rarity: "common" /* Common */,
   stats: [],
@@ -41729,7 +43131,7 @@ var ELIXIR_OF_WRATH = {
   id: "elixir_of_wrath",
   name: "Elixir of Wrath",
   description: "Temporarily grants bonus attack damage.",
-  iconUrl: "/assets/items/elixir_of_wrath.png",
+  iconUrl: riotItemIconUrl("elixir_of_wrath"),
   category: "consumable" /* Consumable */,
   rarity: "uncommon" /* Uncommon */,
   stats: [],
@@ -41791,7 +43193,8 @@ var TRIUMPH = {
   row: 1,
   condition: { type: "on_kill" /* OnKill */ },
   bonus: {
-    modifiers: [{ stat: "hp", value: 0.12, type: "percent" }],
+    modifiers: [],
+    triggeredEffect: { type: "heal_max_hp", value: 0.12 },
     duration: 1,
     stacks: false,
     maxStacks: 1
@@ -41836,7 +43239,8 @@ var ELECTROCUTE = {
   row: 0,
   condition: { type: "on_ability_cast" /* OnAbilityCast */, threshold: 3 },
   bonus: {
-    modifiers: [{ stat: "ap", value: 40, type: "flat" }],
+    modifiers: [],
+    triggeredEffect: { type: "bonus_magic_damage", value: 40 },
     duration: 1,
     stacks: false,
     maxStacks: 1
@@ -42187,6 +43591,12 @@ var Effect = class {
       this.data.expired = true;
     }
   }
+  /** Refresh a duration effect without changing its stacks or magnitude. */
+  refresh() {
+    if (this.data.duration <= 0) return;
+    this.data.ticksElapsed = 0;
+    this.data.expired = false;
+  }
 };
 
 // src/game/effects/BuffDebuffEffect.ts
@@ -42318,7 +43728,7 @@ var CCEffect = class extends Effect {
   }
   /** Does this CC prevent all actions? */
   isHardCC() {
-    return this.data.ccType === "stun" /* Stun */ || this.data.ccType === "knockup" /* Knockup */;
+    return this.data.ccType === "stun" /* Stun */ || this.data.ccType === "knockup" /* Knockup */ || this.data.ccType === "fear" /* Fear */ || this.data.ccType === "charm" /* Charm */;
   }
   /** Does this CC prevent movement? */
   preventsMovement() {
@@ -42565,6 +43975,7 @@ var EffectManager = class {
       );
       if (existing) {
         existing.addStack();
+        existing.refresh();
         const event = {
           type: "effect_applied",
           effectId: existing.id,
@@ -42620,14 +44031,19 @@ var EffectManager = class {
     this._effects = this._effects.filter((e) => !e.expired);
   }
   tickAll() {
-    const events = [];
+    return this.tickSelected(this.effects.map((effect) => effect.id)).map((result) => result.event);
+  }
+  /** Tick only effects present at the beginning of a combatant's turn. */
+  tickSelected(effectIds) {
+    const selected = new Set(effectIds);
+    const results = [];
     for (const effect of this._effects) {
-      if (effect.expired || effect.isInstant) continue;
-      const ev = effect.tick();
-      if (ev) events.push(ev);
+      if (effect.expired || effect.isInstant || !selected.has(effect.id)) continue;
+      const event = effect.tick();
+      if (event) results.push({ effect, event });
     }
     this.cleanExpired();
-    return events;
+    return results;
   }
   absorbWithShields(incoming) {
     let remaining = incoming;
@@ -42652,6 +44068,18 @@ var EffectManager = class {
   }
   isHardCCd() {
     return this.ccEffects.some((cc) => cc.isHardCC());
+  }
+  dispel(categories) {
+    const allowed = new Set(categories);
+    let removed = 0;
+    for (const effect of this._effects) {
+      if (!effect.expired && allowed.has(effect.category)) {
+        effect.onExpire();
+        removed++;
+      }
+    }
+    this.cleanExpired();
+    return removed;
   }
   getSpeedMultiplier() {
     let totalSlow = 0;
@@ -42696,6 +44124,123 @@ var EffectManager = class {
   }
 };
 
+// src/game/effects/effectUnits.ts
+function normalizePercent(value, fallback = 0) {
+  if (value === void 0 || !Number.isFinite(value)) return fallback;
+  const fraction = Math.abs(value) > 1 ? value / 100 : value;
+  return Math.max(-1, Math.min(10, fraction));
+}
+function normalizeTurnDuration(value, fallback = 1) {
+  if (value === void 0 || !Number.isFinite(value)) return fallback;
+  if (value <= 0) return 0;
+  return Math.max(1, Math.ceil(value));
+}
+function normalizeThreshold(value, fallback = 0) {
+  return Math.max(0, Math.min(1, normalizePercent(value, fallback)));
+}
+
+// src/game/effects/ExecuteEffect.ts
+var ExecuteEffect = class extends Effect {
+  constructor(params) {
+    super({
+      id: generateEffectId("exec"),
+      name: params.name ?? "Execute",
+      category: "execute" /* Execute */,
+      duration: 0,
+      // always instant
+      magnitude: params.magnitude ?? 0,
+      sourceId: params.sourceId,
+      targetId: params.targetId,
+      ticksElapsed: 0,
+      expired: false,
+      threshold: params.threshold
+    });
+  }
+  get threshold() {
+    return this.data.threshold;
+  }
+  /**
+   * Check if the target can be executed.
+   * @param currentHp — target's current HP.
+   * @param maxHp — target's max HP.
+   */
+  canExecute(currentHp, maxHp) {
+    if (maxHp <= 0) return false;
+    return currentHp / maxHp <= this.data.threshold;
+  }
+  /**
+   * Evaluate the execute effect against a target.
+   * Returns the event to emit.
+   */
+  evaluate(currentHp, maxHp) {
+    const canExec = this.canExecute(currentHp, maxHp);
+    const event = {
+      type: "effect_tick",
+      effectId: this.data.id,
+      effectName: this.data.name,
+      category: "execute" /* Execute */,
+      target: this.data.targetId,
+      value: canExec ? currentHp : 0,
+      detail: canExec ? "execute_triggered" : `execute_failed_above_threshold_${Math.round(this.data.threshold * 100)}%`
+    };
+    this._emit(event);
+    this.data.expired = true;
+    return event;
+  }
+  tick() {
+    this.data.expired = true;
+    return {
+      type: "effect_tick",
+      effectId: this.data.id,
+      effectName: this.data.name,
+      category: "execute" /* Execute */,
+      target: this.data.targetId,
+      value: 0,
+      detail: "execute_no_op"
+    };
+  }
+};
+
+// src/game/effects/ReviveEffect.ts
+var ReviveEffect = class extends Effect {
+  constructor(params) {
+    const hpFraction = normalizeThreshold(params.hpFraction, 0.25);
+    super({
+      id: generateEffectId("revive"),
+      name: params.name ?? "Revive",
+      category: "revive" /* Revive */,
+      duration: 0,
+      magnitude: hpFraction,
+      sourceId: params.sourceId,
+      targetId: params.targetId,
+      ticksElapsed: 0,
+      expired: false,
+      hpFraction
+    });
+  }
+  get hpFraction() {
+    return this.data.hpFraction;
+  }
+  evaluate(isDefeated, maxHp) {
+    const restoredHp = isDefeated ? Math.max(1, Math.round(maxHp * this.hpFraction)) : 0;
+    this.data.expired = true;
+    const event = {
+      type: "effect_tick",
+      effectId: this.id,
+      effectName: this.name,
+      category: "revive" /* Revive */,
+      target: this.targetId,
+      value: restoredHp,
+      detail: restoredHp > 0 ? "revive_triggered" : "revive_target_alive"
+    };
+    this._emit(event);
+    return event;
+  }
+  tick() {
+    return this.evaluate(false, 0);
+  }
+};
+
 // src/utils/damage.ts
 function calculArmorReduction(rawDamage, armor) {
   if (armor <= 0) return 0;
@@ -42722,6 +44267,16 @@ function calculateTrueDamage(damage) {
   return Math.max(0, Math.round(damage));
 }
 
+// src/game/battle/types.ts
+var ActionType = /* @__PURE__ */ ((ActionType2) => {
+  ActionType2["BasicAttack"] = "basic_attack";
+  ActionType2["SpellQ"] = "spell_q";
+  ActionType2["SpellW"] = "spell_w";
+  ActionType2["SpellE"] = "spell_e";
+  ActionType2["SpellR"] = "spell_r";
+  return ActionType2;
+})(ActionType || {});
+
 // src/game/battle/actionSlots.ts
 function actionToSpellSlot(action) {
   switch (action) {
@@ -42738,6 +44293,117 @@ function actionToSpellSlot(action) {
   }
 }
 
+// src/game/battle/combatContentSupport.ts
+var IMPLEMENTED_PASSIVE_CHAMPIONS = /* @__PURE__ */ new Set([
+  "Annie",
+  "Ashe",
+  "Darius",
+  "Garen",
+  "Jinx",
+  "Leona",
+  "Lux",
+  "Malphite",
+  "Soraka",
+  "Warwick"
+]);
+var SUPPORTED_EFFECT_TYPES = /* @__PURE__ */ new Set([
+  "damage",
+  "heal",
+  "shield",
+  "execute",
+  "cc",
+  "buff",
+  "debuff",
+  "dot",
+  "hot",
+  "revive"
+]);
+function rankValue(values, rankIndex) {
+  if (!values || values.length === 0) return void 0;
+  return values[rankIndex] ?? values[values.length - 1];
+}
+function isSpellEffectConfigured(effect, rankIndex) {
+  if (!SUPPORTED_EFFECT_TYPES.has(effect.type)) return false;
+  switch (effect.type) {
+    case "damage":
+      return Number.isFinite(rankValue(effect.baseDamage, rankIndex)) || (effect.adRatio ?? 0) !== 0 || (effect.apRatio ?? 0) !== 0;
+    case "dot":
+      return (effect.duration ?? 0) > 0 && (Number.isFinite(rankValue(effect.baseDamage, rankIndex)) || (effect.adRatio ?? 0) !== 0 || (effect.apRatio ?? 0) !== 0);
+    case "heal":
+    case "shield":
+      return Number.isFinite(rankValue(effect.baseValue, rankIndex)) || (effect.apRatio ?? 0) !== 0;
+    case "hot":
+      return (effect.duration ?? 0) > 0 && (Number.isFinite(rankValue(effect.baseValue, rankIndex)) || (effect.apRatio ?? 0) !== 0);
+    case "cc":
+      return typeof effect.ccType === "string" && effect.ccType.length > 0;
+    case "buff":
+    case "debuff":
+      return typeof effect.stat === "string" && Number.isFinite(rankValue(effect.values, rankIndex)) && rankValue(effect.values, rankIndex) !== 0;
+    case "execute":
+      return Number.isFinite(effect.threshold) && (effect.threshold ?? 0) > 0;
+    case "revive":
+      return Number.isFinite(effect.revivePercent) && (effect.revivePercent ?? 0) > 0;
+    default:
+      return false;
+  }
+}
+function isSpellCombatReady(spell, rank = 1) {
+  const rankIndex = Math.max(0, rank - 1);
+  return spell.effects.length > 0 && spell.effects.every((effect) => isSpellEffectConfigured(effect, rankIndex));
+}
+function isPassiveCombatReady(championId, passive) {
+  return IMPLEMENTED_PASSIVE_CHAMPIONS.has(championId) && passive.effects.length > 0 && passive.effects.every((effect) => isSpellEffectConfigured(effect, 0));
+}
+
+// src/game/battle/targetResolver.ts
+function isActionTargeting(value) {
+  return value === "self" /* Self */ || value === "ally" /* Ally */ || value === "allies" /* Allies */ || value === "enemy" /* Enemy */ || value === "enemies" /* Enemies */ || value === "area" /* Area */;
+}
+function actionRequiresTarget(targeting) {
+  return targeting === "ally" /* Ally */ || targeting === "enemy" /* Enemy */;
+}
+function resolveBattleTargets(combatants, actorId, actorSide, targeting, requestedTargetId, options = {}) {
+  const actor = combatants.find(
+    (candidate) => candidate.id === actorId && candidate.side === actorSide && !candidate.isDefeated
+  );
+  const requiresTarget = actionRequiresTarget(targeting);
+  if (!actor) {
+    return { ok: false, requiresTarget, legalTargets: [], targets: [], error: "invalid_actor" };
+  }
+  const targetPool = options.includeDefeated ? [...combatants] : combatants.filter((candidate) => !candidate.isDefeated);
+  let legalTargets;
+  switch (targeting) {
+    case "self" /* Self */:
+      legalTargets = [actor];
+      break;
+    case "ally" /* Ally */:
+    case "allies" /* Allies */:
+      legalTargets = targetPool.filter((candidate) => candidate.side === actorSide);
+      break;
+    case "enemy" /* Enemy */:
+    case "enemies" /* Enemies */:
+    case "area" /* Area */:
+      legalTargets = targetPool.filter((candidate) => candidate.side !== actorSide);
+      break;
+  }
+  if (legalTargets.length === 0) {
+    return { ok: false, requiresTarget, legalTargets, targets: [], error: "no_target" };
+  }
+  if (requiresTarget) {
+    if (!requestedTargetId || requestedTargetId === "all") {
+      return { ok: false, requiresTarget, legalTargets, targets: [], error: "missing_target" };
+    }
+    const target = legalTargets.find((candidate) => candidate.id === requestedTargetId);
+    return target ? { ok: true, requiresTarget, legalTargets, targets: [target] } : { ok: false, requiresTarget, legalTargets, targets: [], error: "invalid_target" };
+  }
+  if (targeting === "self" /* Self */) {
+    const validRequest = requestedTargetId === void 0 || requestedTargetId === actor.id;
+    return validRequest ? { ok: true, requiresTarget, legalTargets, targets: [actor] } : { ok: false, requiresTarget, legalTargets, targets: [], error: "invalid_target" };
+  }
+  const validGroupRequest = requestedTargetId === void 0 || requestedTargetId === "all";
+  return validGroupRequest ? { ok: true, requiresTarget, legalTargets, targets: legalTargets } : { ok: false, requiresTarget, legalTargets, targets: [], error: "invalid_target" };
+}
+
 // src/game/battle/BattleManager.ts
 var SPEED_JITTER_MAX = 0.5;
 var BattleManager = class {
@@ -42749,6 +44415,7 @@ var BattleManager = class {
     this._maxTeamSize = options.maxTeamSize ?? 5;
     this._initialHpOverrides = options.initialHpOverrides;
     this._random = options.random ?? Math.random;
+    this._rules = options.rules ?? null;
     this._initCombatants();
   }
   _phase = "idle" /* Idle */;
@@ -42764,7 +44431,13 @@ var BattleManager = class {
   _maxTeamSize;
   _initialHpOverrides;
   _random;
+  _rules;
+  _activeActionType = null;
   _actionCallback = null;
+  _lastDamagedRound = /* @__PURE__ */ new Map();
+  _passiveCounters = /* @__PURE__ */ new Map();
+  _preserveHpOnRuleInitialization = /* @__PURE__ */ new Set();
+  _passiveMarks = /* @__PURE__ */ new Map();
   get phase() {
     return this._phase;
   }
@@ -42795,7 +44468,7 @@ var BattleManager = class {
   get currentCombatant() {
     const entry = this.currentTurnEntry;
     if (!entry) return null;
-    return this._getCombatant(entry.champion.id, entry.side) ?? null;
+    return this._findCombatantForChampion(entry.champion) ?? null;
   }
   getPlayerCombatants() {
     return this._playerCombatants;
@@ -42810,6 +44483,12 @@ var BattleManager = class {
       currentHp: c.isDefeated ? 0 : c.currentHp,
       maxHp: c.maxHp
     }));
+  }
+  getConsumedItemInstanceIds() {
+    return this._rules?.consumedItemInstanceIds ?? [];
+  }
+  getRuneStacks() {
+    return this._rules?.getRuneStacks() ?? {};
   }
   getCombatantState(id, side) {
     return this._getCombatant(id, side);
@@ -42841,23 +44520,50 @@ var BattleManager = class {
     this._actionCallback = cb;
   }
   getAvailableActions(champion) {
-    const actions = [{ type: "basic_attack" /* BasicAttack */, cost: 0 }];
-    const slots = [
-      { slot: "Q", type: "spell_q" /* SpellQ */ },
-      { slot: "W", type: "spell_w" /* SpellW */ },
-      { slot: "E", type: "spell_e" /* SpellE */ },
-      { slot: "R", type: "spell_r" /* SpellR */ }
-    ];
-    for (const { slot, type } of slots) {
-      const spell = champion.getSpell(slot);
-      if (spell && champion.isSpellReady(slot)) {
-        const manaCost = spell.cost.length > 0 ? spell.cost[0] : 0;
-        const combatant = this._findCombatant(champion.id);
-        if (!combatant || combatant.currentMp < manaCost) continue;
-        actions.push({ type, cost: manaCost });
-      }
+    const combatant = this._findCombatantForChampion(champion);
+    if (!combatant || this._phase !== "turn_active" /* TurnActive */ || this.currentCombatant !== combatant || combatant.isDefeated || !combatant.effectManager.canAct()) {
+      return [];
     }
-    return actions;
+    const actionTypes = [
+      "basic_attack" /* BasicAttack */,
+      "spell_q" /* SpellQ */,
+      "spell_w" /* SpellW */,
+      "spell_e" /* SpellE */,
+      "spell_r" /* SpellR */
+    ];
+    return actionTypes.flatMap((type) => {
+      const definition = this._getActionDefinition(combatant, type);
+      if (!definition) return [];
+      if (type === "basic_attack" /* BasicAttack */ && !combatant.effectManager.canMove()) return [];
+      if (definition.spellSlot && (!champion.isSpellReady(definition.spellSlot) || combatant.currentMp < definition.cost || !combatant.effectManager.canCast())) {
+        return [];
+      }
+      const resolution = resolveBattleTargets(
+        this._getTargetableCombatants(),
+        combatant.targetId,
+        combatant.side,
+        definition.targeting,
+        void 0,
+        { includeDefeated: definition.includeDefeatedTargets }
+      );
+      if (resolution.legalTargets.length === 0) return [];
+      return [
+        {
+          type,
+          cost: definition.cost,
+          cooldown: definition.cooldown,
+          targeting: definition.targeting,
+          requiresTarget: resolution.requiresTarget,
+          validTargetIds: resolution.legalTargets.map((target) => target.id)
+        }
+      ];
+    });
+  }
+  /** Valid target ids for the current actor and action, sourced from the canonical resolver. */
+  getAvailableTargets(type) {
+    const attacker = this.currentCombatant;
+    if (!attacker || attacker.isDefeated) return [];
+    return this.getAvailableActions(attacker.champion).find((action) => action.type === type)?.validTargetIds ?? [];
   }
   startBattle() {
     if (this._phase !== "idle" /* Idle */) return;
@@ -42865,6 +44571,13 @@ var BattleManager = class {
     this._round = 0;
     this._log = [];
     this._initCombatants();
+    this._rules?.reset();
+    const battleStart = this._rules?.dispatch({
+      type: "battle_start",
+      actors: this._getRuleActors()
+    });
+    if (battleStart) this._resolveRuleEffects(battleStart);
+    this._initializePassives();
     this._nextRound();
   }
   processCurrentTurn() {
@@ -42874,13 +44587,17 @@ var BattleManager = class {
       this._nextTurn();
       return;
     }
-    const attackerState = this._getCombatant(entry.champion.id, entry.side);
+    const attackerState = this._findCombatantForChampion(entry.champion);
     if (!attackerState || attackerState.isDefeated) {
       this._nextTurn();
       return;
     }
-    if (attackerState.ccTurnsLeft > 0) {
-      attackerState.ccTurnsLeft--;
+    const turnEffectIds = attackerState.effectManager.effects.map((effect) => effect.id);
+    if (!attackerState.effectManager.canAct()) {
+      this._applyTurnEndPassives(attackerState);
+      this._dispatchTurnEnd(attackerState);
+      this._tickTurnEffects(attackerState, turnEffectIds);
+      if (this._checkVictory()) return;
       this._nextTurn();
       return;
     }
@@ -42894,14 +44611,30 @@ var BattleManager = class {
     if (!this._autoActions && entry.side === "player" && this._actionCallback) {
       action = this._actionCallback(entry.champion, entry.side, enemies, allies);
     }
-    if (!action) action = this._selectAIAction(entry.champion, enemies);
+    let validated = action ? this._validateAction(attackerState, action) : null;
+    if (!validated) {
+      action = this._selectAIAction(attackerState);
+      validated = action ? this._validateAction(attackerState, action) : null;
+    }
+    if (!action || !validated) {
+      this._applyTurnEndPassives(attackerState);
+      this._dispatchTurnEnd(attackerState);
+      this._tickTurnEffects(attackerState, turnEffectIds);
+      if (this._checkVictory()) return;
+      this._nextTurn();
+      return;
+    }
     this._emit({
       type: "action_select",
       champion: entry.champion.id,
       side: entry.side,
       action: action.type
     });
-    this._executeAction(attackerState, action, enemies, allies);
+    this._executeAction(attackerState, validated);
+    if (this._checkVictory()) return;
+    this._applyTurnEndPassives(attackerState);
+    this._dispatchTurnEnd(attackerState);
+    this._tickTurnEffects(attackerState, turnEffectIds);
     if (this._checkVictory()) return;
     this._nextTurn();
   }
@@ -42909,18 +44642,22 @@ var BattleManager = class {
     if (this._phase !== "turn_active" /* TurnActive */) return false;
     const entry = this._turnOrder[this._turnIndex];
     if (!entry || entry.side !== "player") return false;
-    const attackerState = this._getCombatant(entry.champion.id, entry.side);
-    if (!attackerState || attackerState.isDefeated) return false;
-    const enemies = this.getAliveEnemies(entry.side);
-    const allies = this.getAliveCombatants(entry.side);
-    if (enemies.length === 0) return false;
+    const attackerState = this._findCombatantForChampion(entry.champion);
+    if (!attackerState) return false;
+    const turnEffectIds = attackerState.effectManager.effects.map((effect) => effect.id);
+    const validated = this._validateAction(attackerState, action);
+    if (!validated) return false;
     this._emit({
       type: "action_select",
       champion: entry.champion.id,
       side: entry.side,
       action: action.type
     });
-    this._executeAction(attackerState, action, enemies, allies);
+    this._executeAction(attackerState, validated);
+    if (this._checkVictory()) return true;
+    this._applyTurnEndPassives(attackerState);
+    this._dispatchTurnEnd(attackerState);
+    this._tickTurnEffects(attackerState, turnEffectIds);
     if (this._checkVictory()) return true;
     this._nextTurn();
     return true;
@@ -42935,12 +44672,22 @@ var BattleManager = class {
     return { winner: last.winner, totalRounds: last.rounds, log: [...this._log] };
   }
   _initCombatants() {
+    this._lastDamagedRound.clear();
+    this._passiveCounters.clear();
+    this._passiveMarks.clear();
+    this._preserveHpOnRuleInitialization.clear();
     const hpOverrides = this._initialHpOverrides;
-    this._playerCombatants = this._playerTeam.champions.slice(0, this._maxTeamSize).map((c) => {
+    const playerChampions = this._playerTeam.champions.slice(0, this._maxTeamSize);
+    this._playerCombatants = playerChampions.map((c, index) => {
       const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
       const overriddenHp = hpOverrides?.[c.id];
-      const initHp = overriddenHp !== void 0 ? Math.min(overriddenHp, stats.hp) : stats.hp;
+      const initHp = overriddenHp !== void 0 ? this._rules ? Math.max(0, overriddenHp) : Math.min(overriddenHp, stats.hp) : stats.hp;
+      const targetId = getUniqueTargetId(playerChampions, index);
+      if (overriddenHp !== void 0 && this._rules) {
+        this._preserveHpOnRuleInitialization.add(targetId);
+      }
       return {
+        targetId,
         champion: c,
         side: "player",
         currentHp: initHp,
@@ -42950,12 +44697,15 @@ var BattleManager = class {
         isDefeated: initHp <= 0,
         currentShield: 0,
         ccTurnsLeft: 0,
-        effectManager: new EffectManager(c.id)
+        effectManager: new EffectManager(targetId)
       };
     });
-    this._enemyCombatants = this._enemyTeam.champions.slice(0, this._maxTeamSize).map((c) => {
+    const enemyChampions = this._enemyTeam.champions.slice(0, this._maxTeamSize);
+    this._enemyCombatants = enemyChampions.map((c, index) => {
       const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
+      const targetId = getUniqueTargetId(enemyChampions, index);
       return {
+        targetId,
         champion: c,
         side: "enemy",
         currentHp: stats.hp,
@@ -42965,7 +44715,7 @@ var BattleManager = class {
         isDefeated: false,
         currentShield: 0,
         ccTurnsLeft: 0,
-        effectManager: new EffectManager(c.id)
+        effectManager: new EffectManager(targetId)
       };
     });
     this._resetAllCooldowns();
@@ -42979,7 +44729,7 @@ var BattleManager = class {
       type: "round_start",
       round: this._round,
       turnOrder: this._turnOrder.map((e) => ({
-        champion: e.champion.id,
+        champion: this._findCombatantForChampion(e.champion)?.targetId ?? e.champion.id,
         side: e.side,
         speedValue: e.speedValue
       }))
@@ -43003,7 +44753,7 @@ var BattleManager = class {
         all.push({
           champion: c.champion,
           side: "player",
-          speedValue: this._calcSpeedPriority(c.champion)
+          speedValue: this._calcSpeedPriority(c)
         });
       }
     }
@@ -43012,216 +44762,396 @@ var BattleManager = class {
         all.push({
           champion: c.champion,
           side: "enemy",
-          speedValue: this._calcSpeedPriority(c.champion)
+          speedValue: this._calcSpeedPriority(c)
         });
       }
     }
     all.sort((a, b) => b.speedValue - a.speedValue);
     this._turnOrder = all;
   }
-  _calcSpeedPriority(champion) {
-    const stats = champion.getEnhancedStats();
+  _calcSpeedPriority(combatant) {
+    const stats = this._getCombatStats(combatant);
     const jitter = this._random() * SPEED_JITTER_MAX;
-    return stats.moveSpeed + jitter;
+    return stats.moveSpeed + stats.attackSpeed * 10 + jitter;
   }
   _startCurrentTurn() {
     const entry = this._turnOrder[this._turnIndex];
     if (!entry) return;
+    const combatant = this._findCombatantForChampion(entry.champion);
+    if (combatant && this._rules) {
+      const resolution = this._rules.dispatch({
+        type: "turn_start",
+        actor: this._toRuleActor(combatant),
+        actors: this._getRuleActors(),
+        turn: this._round
+      });
+      this._resolveRuleEffects(resolution);
+      if (this._checkVictory()) return;
+    }
     this._emit({
       type: "turn_start",
-      champion: entry.champion.id,
+      champion: combatant?.targetId ?? entry.champion.id,
       side: entry.side,
       turnIndex: this._turnIndex
     });
   }
-  _selectAIAction(champion, _enemies) {
-    const actionPriority = [
-      { type: "spell_r" /* SpellR */, slot: "R" },
-      { type: "spell_e" /* SpellE */, slot: "E" },
-      { type: "spell_w" /* SpellW */, slot: "W" },
-      { type: "spell_q" /* SpellQ */, slot: "Q" }
-    ];
-    for (const { type, slot } of actionPriority) {
-      const spell = champion.getSpell(slot);
-      if (spell && champion.isSpellReady(slot)) {
-        const manaCost = spell.cost[0] ?? 0;
-        const combatant = this._findCombatant(champion.id);
-        if (combatant && combatant.currentMp < manaCost) continue;
-        return { type, cost: manaCost };
-      }
+  _validateAction(attacker, action) {
+    const entry = this.currentTurnEntry;
+    if (this._phase !== "turn_active" /* TurnActive */ || !entry || entry.champion !== attacker.champion || entry.side !== attacker.side || attacker.isDefeated || !attacker.effectManager.canAct() || !Object.values(ActionType).includes(action.type)) {
+      return null;
     }
-    return { type: "basic_attack" /* BasicAttack */, cost: 0 };
+    const definition = this._getActionDefinition(attacker, action.type);
+    if (!definition) return null;
+    if (action.type === "basic_attack" /* BasicAttack */ && !attacker.effectManager.canMove()) return null;
+    if (definition.spellSlot && (!attacker.champion.isSpellReady(definition.spellSlot) || attacker.currentMp < definition.cost || !attacker.effectManager.canCast())) {
+      return null;
+    }
+    const resolution = resolveBattleTargets(
+      this._getTargetableCombatants(),
+      attacker.targetId,
+      attacker.side,
+      definition.targeting,
+      action.targetId,
+      { includeDefeated: definition.includeDefeatedTargets }
+    );
+    if (!resolution.ok || resolution.targets.length === 0) return null;
+    return {
+      ...definition,
+      targets: resolution.targets.map((target) => target.state)
+    };
   }
-  _executeAction(attacker, action, enemies, allies) {
-    const spellSlot = actionToSpellSlot(action.type);
+  _getActionDefinition(attacker, type) {
+    if (type === "basic_attack" /* BasicAttack */) {
+      return {
+        type,
+        cost: 0,
+        cooldown: 0,
+        targeting: "enemy" /* Enemy */,
+        rankIndex: 0,
+        includeDefeatedTargets: false
+      };
+    }
+    const spellSlot = actionToSpellSlot(type);
+    if (!spellSlot) return null;
+    const spell = attacker.champion.getSpell(spellSlot);
+    if (!spell || !isActionTargeting(spell.targeting)) return null;
+    const rank = attacker.champion.getSpellRank(spellSlot);
+    if (!Number.isInteger(rank) || rank < 1 || rank > spell.maxRank) return null;
+    if (!isSpellCombatReady(spell, rank)) return null;
+    return {
+      type,
+      cost: getRankValue(spell.cost, rank),
+      cooldown: getRankValue(spell.cooldown, rank),
+      targeting: spell.targeting,
+      spellSlot,
+      rankIndex: rank - 1,
+      includeDefeatedTargets: spell.effects.some((effect) => effect.type === "revive")
+    };
+  }
+  _getTargetableCombatants() {
+    return [...this._playerCombatants, ...this._enemyCombatants].map((state) => ({
+      id: state.targetId,
+      side: state.side,
+      isDefeated: state.isDefeated,
+      state
+    }));
+  }
+  _selectAIAction(attacker) {
+    const priority = [
+      "spell_r" /* SpellR */,
+      "spell_e" /* SpellE */,
+      "spell_w" /* SpellW */,
+      "spell_q" /* SpellQ */,
+      "basic_attack" /* BasicAttack */
+    ];
+    const available = this.getAvailableActions(attacker.champion);
+    for (const type of priority) {
+      const option = available.find((candidate) => candidate.type === type);
+      if (!option) continue;
+      const targetId = option.requiresTarget ? option.validTargetIds[Math.floor(this._random() * option.validTargetIds.length)] : void 0;
+      return { type, targetId };
+    }
+    return null;
+  }
+  _executeAction(attacker, action) {
+    this._activeActionType = action.type;
+    this._applyBeforeActionPassives(attacker, action);
     if (action.type === "basic_attack" /* BasicAttack */) {
-      const target = this._pickTarget(enemies, action.targetId);
-      if (!target) return;
+      const target = action.targets[0];
       this._performBasicAttack(attacker, target);
+      this._applyAfterBasicAttackPassives(attacker, target);
+      this._activeActionType = null;
       return;
     }
-    if (!spellSlot) return;
-    const spell = attacker.champion.getSpell(spellSlot);
-    if (!spell) return;
-    attacker.champion.useSpell(spellSlot);
-    const manaCost = spell.cost.length > 0 ? spell.cost[0] : 0;
-    attacker.currentMp = Math.max(0, attacker.currentMp - manaCost);
-    const atkStats = attacker.champion.getEnhancedStats();
-    const rankIdx = attacker.champion.getSpellRank(spellSlot) - 1;
-    for (const effect of spell.effects) {
-      this._applySpellEffect(effect, attacker, enemies, allies, atkStats, rankIdx, action.targetId);
+    const spellSlot = action.spellSlot;
+    if (!spellSlot) {
+      this._activeActionType = null;
+      return;
     }
+    const spell = attacker.champion.getSpell(spellSlot);
+    if (!spell) {
+      this._activeActionType = null;
+      return;
+    }
+    if (!attacker.champion.useSpell(
+      spellSlot,
+      this._rules?.getCooldownMultiplier(attacker.champion.id, spellSlot === "R") ?? 1
+    )) {
+      this._activeActionType = null;
+      return;
+    }
+    attacker.currentMp = Math.max(0, attacker.currentMp - action.cost);
+    this._rules?.dispatch({
+      type: "ability_cast",
+      actor: this._toRuleActor(attacker),
+      action: action.type
+    });
+    const atkStats = this._getCombatStats(attacker);
+    for (const effect of spell.effects) {
+      this._applySpellEffect(effect, attacker, action.targets, atkStats, action.rankIndex);
+    }
+    this._applyAfterSpellPassives(attacker, action);
+    this._activeActionType = null;
   }
-  _pickTarget(candidates, preferredTargetId) {
-    const alive = candidates.filter((c) => !c.isDefeated);
-    if (alive.length === 0) return null;
-    const preferred = alive.find((candidate) => candidate.champion.id === preferredTargetId);
-    if (preferred) return preferred;
-    return alive[Math.floor(this._random() * alive.length)];
-  }
-  /**
-   * Apply a single SpellEffect. Handles damage, heal, shield, cc.
-   */
-  _applySpellEffect(effect, attacker, enemies, allies, atkStats, rankIdx, preferredTargetId) {
+  /** Resolve every published spell-effect family against validated targets. */
+  _applySpellEffect(effect, attacker, primaryTargets, atkStats, rankIdx) {
+    const hostileTargets = primaryTargets.filter(
+      (candidate) => candidate.side !== attacker.side && !candidate.isDefeated
+    );
+    const alliedTargets = primaryTargets.filter(
+      (candidate) => candidate.side === attacker.side && !candidate.isDefeated
+    );
+    const positiveTargets = alliedTargets.length > 0 ? alliedTargets : [attacker];
     switch (effect.type) {
       case "damage": {
-        const targets = preferredTargetId === "all" ? enemies.filter((candidate) => !candidate.isDefeated) : [this._pickTarget(enemies, preferredTargetId)].filter(
-          (candidate) => candidate !== null
-        );
-        if (targets.length === 0) return;
-        for (const target of targets) {
-          const defStats = target.champion.getEnhancedStats();
-          const baseDmg = effect.baseDamage?.[rankIdx] ?? 0;
-          const adRatio = effect.adRatio ?? 0;
-          const apRatio = effect.apRatio ?? 0;
-          const statDmg = atkStats.attackDamage * adRatio + atkStats.abilityPower * apRatio;
-          const rawDmg = baseDmg + statDmg;
-          let finalDmg;
-          const dmgType = effect.damageType ?? "physical";
-          if (dmgType === "magical" || dmgType === "ap") {
-            finalDmg = calculateAPDamage(rawDmg, 1, defStats.magicResist);
-          } else if (dmgType === "true") {
-            finalDmg = calculateTrueDamage(rawDmg);
-          } else {
-            finalDmg = calculateADDamage(rawDmg, 1, defStats.armor);
-          }
-          this._applyDamageToTarget(attacker, target, finalDmg);
+        for (const target of hostileTargets) {
+          this._applyDamageToTarget(
+            attacker,
+            target,
+            this._calculateEffectDamage(effect, atkStats, target, rankIdx)
+          );
         }
         break;
       }
       case "heal": {
-        const healTarget = allies.length > 0 ? this._pickTarget(allies, preferredTargetId) : attacker;
-        if (!healTarget) return;
-        const baseHeal = effect.baseValue?.[rankIdx] ?? 0;
-        const apRatio = effect.apRatio ?? 0;
-        const healAmount = Math.round(baseHeal + atkStats.abilityPower * apRatio);
-        if (healAmount <= 0) return;
-        healTarget.currentHp = Math.min(healTarget.maxHp, healTarget.currentHp + healAmount);
-        this._emit({
-          type: "heal",
-          source: attacker.champion.id,
-          target: healTarget.champion.id,
-          amount: healAmount,
-          sourceSide: attacker.side,
-          targetSide: healTarget.side
-        });
+        for (const healTarget of positiveTargets) {
+          const baseHeal = effect.baseValue?.[rankIdx] ?? 0;
+          const apRatio = effect.apRatio ?? 0;
+          const healAmount = Math.round(baseHeal + atkStats.abilityPower * apRatio);
+          this._applyHeal(attacker, healTarget, healAmount);
+        }
         break;
       }
       case "shield": {
-        const shieldTarget = allies.length > 0 ? this._pickTarget(allies, preferredTargetId) : attacker;
-        if (!shieldTarget) return;
-        const baseShield = effect.baseValue?.[rankIdx] ?? 0;
-        const apRatio = effect.apRatio ?? 0;
-        const shieldAmount = Math.round(baseShield + atkStats.abilityPower * apRatio);
-        if (shieldAmount <= 0) return;
-        shieldTarget.currentShield += shieldAmount;
-        this._emit({
-          type: "shield",
-          source: attacker.champion.id,
-          target: shieldTarget.champion.id,
-          amount: shieldAmount,
-          sourceSide: attacker.side,
-          targetSide: shieldTarget.side
-        });
+        for (const shieldTarget of positiveTargets) {
+          const baseShield = effect.baseValue?.[rankIdx] ?? 0;
+          const apRatio = effect.apRatio ?? 0;
+          const shieldAmount = Math.round(baseShield + atkStats.abilityPower * apRatio);
+          const shieldRules = this._rules?.dispatch({
+            type: "before_shield",
+            source: this._toRuleActor(attacker),
+            target: this._toRuleActor(shieldTarget),
+            amount: shieldAmount
+          });
+          const finalShieldAmount = Math.round(shieldAmount * (shieldRules?.shieldMultiplier ?? 1));
+          if (finalShieldAmount <= 0) continue;
+          shieldTarget.effectManager.apply(
+            new ShieldEffect({
+              name: `${attacker.champion.id} shield`,
+              sourceId: attacker.targetId,
+              targetId: shieldTarget.targetId,
+              magnitude: finalShieldAmount,
+              duration: Math.max(
+                1,
+                normalizeTurnDuration(effect.duration ?? effect.buffDuration, 3)
+              )
+            })
+          );
+          this._syncEffectState(shieldTarget);
+          this._emit({
+            type: "shield",
+            source: attacker.champion.id,
+            target: shieldTarget.champion.id,
+            amount: finalShieldAmount,
+            sourceSide: attacker.side,
+            targetSide: shieldTarget.side
+          });
+        }
         break;
       }
       case "cc": {
-        const ccTarget = this._pickTarget(enemies);
-        if (!ccTarget) return;
-        const ccDuration = effect.ccDuration ?? 1;
-        const ccTurns = Math.max(1, Math.round(ccDuration));
-        const ccType = (effect.ccType ?? "").toLowerCase();
-        const hardCC = ["stun", "knockup", "charm"].includes(ccType);
-        if (hardCC) {
-          ccTarget.ccTurnsLeft = Math.max(ccTarget.ccTurnsLeft, ccTurns);
+        for (const ccTarget of hostileTargets) {
+          const ccType = toCCType(effect.ccType);
+          if (!ccType) continue;
+          ccTarget.effectManager.apply(
+            new CCEffect({
+              name: `${attacker.champion.id} ${ccType}`,
+              sourceId: attacker.targetId,
+              targetId: ccTarget.targetId,
+              ccType,
+              duration: Math.max(
+                1,
+                normalizeTurnDuration(effect.ccDuration, 1) * (this._rules?.getAppliedControlDurationMultiplier(attacker.champion.id) ?? 1) * (this._rules?.getControlDurationMultiplier(ccTarget.champion.id) ?? 1)
+              ),
+              slowAmount: ccType === "slow" /* Slow */ ? normalizePercent(effect.slowPercent, 0.3) : void 0
+            })
+          );
+          this._syncEffectState(ccTarget);
+          this._emit({
+            type: "damage",
+            source: attacker.champion.id,
+            target: ccTarget.champion.id,
+            amount: 0,
+            isCrit: false,
+            sourceSide: attacker.side,
+            targetSide: ccTarget.side
+          });
         }
-        this._emit({
-          type: "damage",
-          source: attacker.champion.id,
-          target: ccTarget.champion.id,
-          amount: 0,
-          isCrit: false,
-          sourceSide: attacker.side,
-          targetSide: ccTarget.side
-        });
         break;
       }
       case "buff": {
-        const buffTarget = this._pickTarget(allies) ?? attacker;
-        if (!buffTarget || buffTarget.isDefeated) return;
-        const stat = effect.stat ?? "atk";
-        const modifierType = effect.modifierType ?? "flat";
-        const rawValue = effect.values?.[rankIdx] ?? 0;
-        if (rawValue === 0) return;
-        const duration = Math.max(1, Math.round(effect.buffDuration ?? 3));
-        const bdEffect = createBuff(
-          `${attacker.champion.id}_buff_${stat}`,
-          attacker.champion.id,
-          buffTarget.champion.id,
-          stat,
-          rawValue,
-          modifierType,
-          duration
-        );
-        buffTarget.effectManager.apply(bdEffect);
-        this._emit({
-          type: "shield",
-          // reuse existing event type for UI feedback
-          source: attacker.champion.id,
-          target: buffTarget.champion.id,
-          amount: rawValue,
-          sourceSide: attacker.side,
-          targetSide: buffTarget.side
-        });
+        for (const buffTarget of positiveTargets) {
+          const stat = effect.stat ?? "atk";
+          const modifierType = effect.modifierType ?? "flat";
+          const sourceValue = effect.values?.[rankIdx] ?? 0;
+          const rawValue = modifierType === "percent" ? normalizePercent(sourceValue) : sourceValue;
+          if (rawValue === 0) continue;
+          const duration = Math.max(
+            1,
+            normalizeTurnDuration(effect.buffDuration ?? effect.duration, 3)
+          );
+          const bdEffect = createBuff(
+            `${attacker.champion.id}_buff_${stat}`,
+            attacker.targetId,
+            buffTarget.targetId,
+            stat,
+            rawValue,
+            modifierType,
+            duration
+          );
+          buffTarget.effectManager.apply(bdEffect);
+          this._emit({
+            type: "shield",
+            // reuse existing event type for UI feedback
+            source: attacker.champion.id,
+            target: buffTarget.champion.id,
+            amount: rawValue,
+            sourceSide: attacker.side,
+            targetSide: buffTarget.side
+          });
+        }
         break;
       }
       case "debuff": {
-        const debuffTarget = this._pickTarget(enemies);
-        if (!debuffTarget || debuffTarget.isDefeated) return;
-        const stat = effect.stat ?? "def";
-        const modifierType = effect.modifierType ?? "flat";
-        const rawValue = effect.values?.[rankIdx] ?? 0;
-        if (rawValue === 0) return;
-        const duration = Math.max(1, Math.round(effect.buffDuration ?? 3));
-        const bdEffect = createDebuff(
-          `${attacker.champion.id}_debuff_${stat}`,
-          attacker.champion.id,
-          debuffTarget.champion.id,
-          stat,
-          rawValue,
-          modifierType,
-          duration
+        for (const debuffTarget of hostileTargets) {
+          const stat = effect.stat ?? "def";
+          const modifierType = effect.modifierType ?? "flat";
+          const sourceValue = effect.values?.[rankIdx] ?? 0;
+          const rawValue = modifierType === "percent" ? normalizePercent(sourceValue) : sourceValue;
+          if (rawValue === 0) continue;
+          const duration = Math.max(
+            1,
+            normalizeTurnDuration(effect.buffDuration ?? effect.duration, 3)
+          );
+          const bdEffect = createDebuff(
+            `${attacker.champion.id}_debuff_${stat}`,
+            attacker.targetId,
+            debuffTarget.targetId,
+            stat,
+            rawValue,
+            modifierType,
+            duration
+          );
+          debuffTarget.effectManager.apply(bdEffect);
+          this._emit({
+            type: "shield",
+            // reuse existing event type for UI feedback
+            source: attacker.champion.id,
+            target: debuffTarget.champion.id,
+            amount: rawValue,
+            sourceSide: attacker.side,
+            targetSide: debuffTarget.side
+          });
+        }
+        break;
+      }
+      case "execute": {
+        for (const target of hostileTargets) {
+          const execute = new ExecuteEffect({
+            sourceId: attacker.targetId,
+            targetId: target.targetId,
+            threshold: normalizeThreshold(effect.threshold, 0)
+          });
+          const result = execute.evaluate(target.currentHp, target.maxHp);
+          if ((result.value ?? 0) > 0) {
+            this._applyDamageToTarget(attacker, target, target.currentHp, false);
+          }
+        }
+        break;
+      }
+      case "dot": {
+        const duration = normalizeTurnDuration(effect.duration, 1);
+        for (const target of hostileTargets) {
+          const totalDamage = this._calculateEffectDamage(effect, atkStats, target, rankIdx);
+          if (totalDamage <= 0 || duration <= 0) continue;
+          target.effectManager.apply(
+            new DamageEffect({
+              name: `${attacker.champion.id} DoT`,
+              sourceId: attacker.targetId,
+              targetId: target.targetId,
+              magnitude: totalDamage,
+              damageType: "true" /* True */,
+              duration,
+              canCrit: false
+            })
+          );
+        }
+        break;
+      }
+      case "hot": {
+        const duration = normalizeTurnDuration(effect.duration, 1);
+        for (const target of positiveTargets) {
+          const amount = Math.round(
+            (effect.baseValue?.[rankIdx] ?? 0) + atkStats.abilityPower * (effect.apRatio ?? 0)
+          );
+          if (amount <= 0 || duration <= 0) continue;
+          target.effectManager.apply(
+            new HealEffect({
+              name: `${attacker.champion.id} HoT`,
+              sourceId: attacker.targetId,
+              targetId: target.targetId,
+              magnitude: amount,
+              duration,
+              hot: true
+            })
+          );
+        }
+        break;
+      }
+      case "revive": {
+        const defeatedAllies = primaryTargets.filter(
+          (candidate) => candidate.side === attacker.side && candidate.isDefeated
         );
-        debuffTarget.effectManager.apply(bdEffect);
-        this._emit({
-          type: "shield",
-          // reuse existing event type for UI feedback
-          source: attacker.champion.id,
-          target: debuffTarget.champion.id,
-          amount: rawValue,
-          sourceSide: attacker.side,
-          targetSide: debuffTarget.side
-        });
+        for (const target of defeatedAllies) {
+          const revive = new ReviveEffect({
+            sourceId: attacker.targetId,
+            targetId: target.targetId,
+            hpFraction: effect.revivePercent ?? 0.25
+          });
+          const result = revive.evaluate(target.isDefeated, target.maxHp);
+          const restoredHp = result.value ?? 0;
+          if (restoredHp <= 0) continue;
+          target.isDefeated = false;
+          target.currentHp = restoredHp;
+          this._emit({
+            type: "revive",
+            source: attacker.champion.id,
+            target: target.champion.id,
+            amount: restoredHp,
+            sourceSide: attacker.side,
+            targetSide: target.side
+          });
+        }
         break;
       }
       default:
@@ -43229,79 +45159,419 @@ var BattleManager = class {
     }
   }
   /** Apply damage to a target, absorbing into shield first. */
-  _applyDamageToTarget(attacker, target, damage) {
-    let remaining = damage;
-    if (target.currentShield > 0 && remaining > 0) {
-      if (target.currentShield >= remaining) {
-        target.currentShield -= remaining;
-        remaining = 0;
-      } else {
-        remaining -= target.currentShield;
-        target.currentShield = 0;
-      }
-    }
+  _applyDamageToTarget(attacker, target, damage, triggerPassives = true, isCrit = false, triggerRules = true) {
+    if (damage <= 0 || target.isDefeated) return;
+    const wasDefeated = target.isDefeated;
+    const beforeRules = triggerRules && this._rules ? this._rules.dispatch({
+      type: "before_damage",
+      source: this._toRuleActor(attacker),
+      target: this._toRuleActor(target),
+      amount: damage,
+      action: this._activeActionType,
+      isCrit,
+      actors: this._getRuleActors()
+    }) : null;
+    const ruledDamage = Math.max(
+      0,
+      Math.round(
+        damage * (beforeRules?.damageMultiplier ?? 1) * (1 - (beforeRules?.damageReduction ?? 0))
+      )
+    );
+    if (ruledDamage <= 0) return;
+    this._lastDamagedRound.set(target.targetId, this._round);
+    const { finalDamage: remaining } = target.effectManager.absorbWithShields(ruledDamage);
+    this._syncEffectState(target);
     if (remaining > 0) {
       target.currentHp = Math.max(0, target.currentHp - remaining);
     }
-    if (damage > 0) {
-      this._emit({
-        type: "damage",
-        source: attacker.champion.id,
-        target: target.champion.id,
-        amount: damage,
-        isCrit: false,
-        sourceSide: attacker.side,
-        targetSide: target.side
-      });
+    this._emit({
+      type: "damage",
+      source: attacker.champion.id,
+      target: target.champion.id,
+      amount: ruledDamage,
+      isCrit,
+      sourceSide: attacker.side,
+      targetSide: target.side
+    });
+    if (triggerPassives && remaining > 0) {
+      this._applyOnDamagePassives(attacker, target);
     }
-    if (target.currentHp <= 0) {
-      target.isDefeated = true;
-      this._emit({
-        type: "defeat",
-        champion: target.champion.id,
-        side: target.side,
-        defeatedBy: attacker.champion.id
-      });
+    const afterRules = triggerRules && remaining > 0 && this._rules ? this._rules.dispatch({
+      type: "damage_dealt",
+      source: this._toRuleActor(attacker),
+      target: this._toRuleActor(target),
+      amount: remaining,
+      action: this._activeActionType,
+      isCrit,
+      actors: this._getRuleActors()
+    }) : null;
+    if (target.currentHp <= 0 && !wasDefeated) {
+      const defeatRules = this._rules ? this._rules.dispatch({
+        type: "before_defeat",
+        source: this._toRuleActor(attacker),
+        target: this._toRuleActor(target),
+        actors: this._getRuleActors()
+      }) : null;
+      if ((defeatRules?.preventDefeatHp ?? 0) > 0) {
+        target.currentHp = Math.min(target.maxHp, Math.round(defeatRules.preventDefeatHp));
+        this._emit({
+          type: "revive",
+          source: target.champion.id,
+          target: target.champion.id,
+          amount: target.currentHp,
+          sourceSide: target.side,
+          targetSide: target.side
+        });
+      } else {
+        target.isDefeated = true;
+        this._emit({
+          type: "defeat",
+          champion: target.champion.id,
+          side: target.side,
+          defeatedBy: attacker.champion.id
+        });
+        this._applyOnKillPassives(attacker);
+        if (this._rules) {
+          this._resolveRuleEffects(
+            this._rules.dispatch({
+              type: "kill",
+              source: this._toRuleActor(attacker),
+              target: this._toRuleActor(target),
+              actors: this._getRuleActors()
+            })
+          );
+        }
+      }
     }
+    if (afterRules) this._resolveRuleEffects(afterRules);
   }
   /** Basic attack: AD-only with crit, mitigated by armor. */
   _performBasicAttack(attacker, target) {
-    const atkStats = attacker.champion.getEnhancedStats();
-    const defStats = target.champion.getEnhancedStats();
+    const atkStats = this._getCombatStats(attacker);
+    const defStats = this._getCombatStats(target);
     const baseRaw = atkStats.attackDamage;
     const critChance = Math.min(100, atkStats.crit) / 100;
     const isCrit = this._random() < critChance;
     const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
     const finalDmg = calculateADDamage(rawDmg, 1, defStats.armor);
-    let remaining = finalDmg;
-    if (target.currentShield > 0 && remaining > 0) {
-      if (target.currentShield >= remaining) {
-        target.currentShield -= remaining;
-        remaining = 0;
-      } else {
-        remaining -= target.currentShield;
-        target.currentShield = 0;
+    this._applyDamageToTarget(attacker, target, finalDmg, true, isCrit);
+  }
+  _getCombatStats(combatant) {
+    const stats = { ...combatant.champion.getEnhancedStats() };
+    const aliases = {
+      hp: "hp",
+      atk: "attackDamage",
+      attackDamage: "attackDamage",
+      def: "armor",
+      armor: "armor",
+      ap: "abilityPower",
+      spd: "moveSpeed",
+      moveSpeed: "moveSpeed",
+      magicResist: "magicResist",
+      attackSpeed: "attackSpeed",
+      crit: "crit"
+    };
+    const grouped = /* @__PURE__ */ new Map();
+    for (const [stat, modifier] of combatant.effectManager.getStatModifiers()) {
+      const key = aliases[stat];
+      if (!key) continue;
+      const entry = grouped.get(key) ?? { flat: 0, percent: 0 };
+      entry.flat += modifier.flat;
+      entry.percent += modifier.percent;
+      grouped.set(key, entry);
+    }
+    for (const [key, modifier] of grouped) {
+      const value = stats[key];
+      if (typeof value === "number") {
+        stats[key] = Math.max(0, (value + modifier.flat) * (1 + modifier.percent));
       }
     }
-    target.currentHp = Math.max(0, target.currentHp - remaining);
+    for (const modifier of this._rules?.getStatBonuses(combatant.champion.id) ?? []) {
+      const key = aliases[modifier.stat];
+      if (!key) continue;
+      const value = stats[key];
+      if (typeof value === "number") {
+        stats[key] = Math.max(0, (value + modifier.flat) * (1 + modifier.percent));
+      }
+    }
+    if (combatant.champion.id === "Soraka" && isPassiveCombatReady(combatant.champion.id, combatant.champion.getPassive()) && this.getAliveCombatants(combatant.side).some(
+      (ally) => ally !== combatant && ally.currentHp / ally.maxHp < 0.4
+    )) {
+      stats.moveSpeed *= 1.7;
+    }
+    stats.moveSpeed *= combatant.effectManager.getSpeedMultiplier();
+    return stats;
+  }
+  _calculateEffectDamage(effect, attackerStats, target, rankIndex) {
+    const baseDamage = effect.baseDamage?.[rankIndex] ?? effect.baseDamage?.[effect.baseDamage.length - 1] ?? 0;
+    const rawDamage = baseDamage + attackerStats.attackDamage * (effect.adRatio ?? 0) + attackerStats.abilityPower * (effect.apRatio ?? 0);
+    const defense = this._getCombatStats(target);
+    if (effect.damageType === "magical" || effect.damageType === "ap") {
+      return calculateAPDamage(rawDamage, 1, defense.magicResist);
+    }
+    if (effect.damageType === "true") return calculateTrueDamage(rawDamage);
+    return calculateADDamage(rawDamage, 1, defense.armor);
+  }
+  _applyHeal(source, target, amount) {
+    if (amount <= 0 || target.isDefeated) return;
+    const healRules = this._rules?.dispatch({
+      type: "before_heal",
+      source: this._toRuleActor(source),
+      target: this._toRuleActor(target),
+      amount
+    });
+    const finalAmount = Math.round(amount * (healRules?.healMultiplier ?? 1));
+    const previousHp = target.currentHp;
+    target.currentHp = Math.min(target.maxHp, target.currentHp + finalAmount);
+    const applied = target.currentHp - previousHp;
+    if (applied <= 0) return;
     this._emit({
-      type: "damage",
-      source: attacker.champion.id,
+      type: "heal",
+      source: source.champion.id,
       target: target.champion.id,
-      amount: finalDmg,
-      isCrit,
-      sourceSide: attacker.side,
+      amount: applied,
+      sourceSide: source.side,
       targetSide: target.side
     });
-    if (target.currentHp <= 0) {
-      target.isDefeated = true;
-      this._emit({
-        type: "defeat",
-        champion: target.champion.id,
-        side: target.side,
-        defeatedBy: attacker.champion.id
-      });
+  }
+  _syncEffectState(combatant) {
+    combatant.currentShield = combatant.effectManager.shields.reduce(
+      (sum, shield) => sum + shield.remainingShield,
+      0
+    );
+    combatant.ccTurnsLeft = combatant.effectManager.ccEffects.filter((effect) => effect.isHardCC()).reduce((max, effect) => Math.max(max, effect.remainingRounds), 0);
+  }
+  _tickTurnEffects(combatant, effectIds) {
+    const results = combatant.effectManager.tickSelected(effectIds);
+    for (const { effect, event } of results) {
+      const source = this._findCombatantByTargetId(effect.sourceId) ?? combatant;
+      const value = event.value ?? 0;
+      if (effect instanceof DamageEffect && value > 0 && !combatant.isDefeated) {
+        this._applyDamageToTarget(source, combatant, value, false);
+      } else if (effect instanceof HealEffect && value > 0) {
+        this._applyHeal(source, combatant, value);
+      }
     }
+    this._syncEffectState(combatant);
+  }
+  _initializePassives() {
+    for (const combatant of [...this._playerCombatants, ...this._enemyCombatants]) {
+      if (combatant.isDefeated || !isPassiveCombatReady(combatant.champion.id, combatant.champion.getPassive())) {
+        continue;
+      }
+      this._lastDamagedRound.set(combatant.targetId, Number.NEGATIVE_INFINITY);
+      this._passiveCounters.set(combatant.targetId, 0);
+      if (combatant.champion.id === "Malphite") {
+        this._applyMalphiteShield(combatant);
+      }
+    }
+  }
+  _applyBeforeActionPassives(attacker, action) {
+    if (attacker.champion.id !== "Annie" || action.type === "basic_attack" /* BasicAttack */ || (this._passiveCounters.get(attacker.targetId) ?? 0) < 4 || !action.targets.some((target) => target.side !== attacker.side && !target.isDefeated)) {
+      return;
+    }
+    const passiveEffect = attacker.champion.getPassive().effects.find((effect) => effect.type === "cc");
+    if (passiveEffect) {
+      this._applySpellEffect(
+        passiveEffect,
+        attacker,
+        action.targets,
+        this._getCombatStats(attacker),
+        attacker.champion.level - 1
+      );
+    }
+    this._passiveCounters.set(attacker.targetId, -1);
+  }
+  _applyAfterSpellPassives(attacker, action) {
+    if (!isPassiveCombatReady(attacker.champion.id, attacker.champion.getPassive())) return;
+    if (attacker.champion.id === "Annie") {
+      const counter = this._passiveCounters.get(attacker.targetId) ?? 0;
+      this._passiveCounters.set(attacker.targetId, counter === -1 ? 0 : counter + 1);
+    }
+    const hostileTargets = action.targets.filter(
+      (target) => target.side !== attacker.side && !target.isDefeated
+    );
+    if (attacker.champion.id === "Lux") {
+      for (const target of hostileTargets) {
+        const mark = this._passiveMarks.get(target.targetId) ?? {};
+        mark.luxSourceId = attacker.targetId;
+        mark.luxExpiresRound = this._round + 3;
+        this._passiveMarks.set(target.targetId, mark);
+      }
+    }
+    if (attacker.champion.id === "Leona") {
+      for (const target of hostileTargets) {
+        const mark = this._passiveMarks.get(target.targetId) ?? {};
+        mark.leonaSourceId = attacker.targetId;
+        mark.leonaExpiresRound = this._round + 2;
+        this._passiveMarks.set(target.targetId, mark);
+      }
+    }
+  }
+  _applyAfterBasicAttackPassives(attacker, target) {
+    if (!isPassiveCombatReady(attacker.champion.id, attacker.champion.getPassive())) return;
+    const passive = attacker.champion.getPassive();
+    const rankIndex = attacker.champion.level - 1;
+    if (attacker.champion.id === "Ashe" && !target.isDefeated) {
+      const slow = passive.effects.find((effect) => effect.type === "cc");
+      if (slow) {
+        this._applySpellEffect(slow, attacker, [target], this._getCombatStats(attacker), rankIndex);
+      }
+    }
+    if (attacker.champion.id === "Warwick" && !target.isDefeated) {
+      const damageEffect = passive.effects.find((effect) => effect.type === "damage");
+      if (damageEffect) {
+        const amount = this._calculateEffectDamage(
+          damageEffect,
+          this._getCombatStats(attacker),
+          target,
+          rankIndex
+        );
+        this._applyDamageToTarget(attacker, target, amount, false);
+        if (attacker.currentHp / attacker.maxHp < 0.5) {
+          this._applyHeal(
+            attacker,
+            attacker,
+            amount * (attacker.currentHp / attacker.maxHp < 0.25 ? 3 : 1)
+          );
+        }
+      }
+    }
+    const mark = this._passiveMarks.get(target.targetId);
+    if (attacker.champion.id === "Lux" && mark?.luxSourceId === attacker.targetId && (mark.luxExpiresRound ?? 0) >= this._round && !target.isDefeated) {
+      const effect = passive.effects.find((candidate) => candidate.type === "damage");
+      if (effect) {
+        this._applyDamageToTarget(
+          attacker,
+          target,
+          this._calculateEffectDamage(effect, this._getCombatStats(attacker), target, rankIndex),
+          false
+        );
+      }
+      delete mark.luxSourceId;
+      delete mark.luxExpiresRound;
+    }
+  }
+  _applyOnDamagePassives(attacker, target) {
+    if (attacker.champion.id === "Darius" && isPassiveCombatReady(attacker.champion.id, attacker.champion.getPassive()) && !target.isDefeated) {
+      const passiveDamage = attacker.champion.getPassive().effects.find((effect) => effect.type === "damage");
+      const stackName = `${attacker.targetId}_hemorrhage`;
+      const stacks = target.effectManager.dots.filter(
+        (effect) => effect.name === stackName && effect.sourceId === attacker.targetId
+      ).length;
+      if (passiveDamage && stacks < 5) {
+        const totalDamage = this._calculateEffectDamage(
+          passiveDamage,
+          this._getCombatStats(attacker),
+          target,
+          attacker.champion.level - 1
+        );
+        target.effectManager.apply(
+          new DamageEffect({
+            name: stackName,
+            sourceId: attacker.targetId,
+            targetId: target.targetId,
+            magnitude: totalDamage,
+            damageType: "true" /* True */,
+            duration: 5,
+            canCrit: false
+          })
+        );
+        if (stacks + 1 === 5) {
+          const buff = attacker.champion.getPassive().effects.find((effect) => effect.type === "buff");
+          const value = normalizePercent(buff?.values?.[attacker.champion.level - 1] ?? 0);
+          if (buff && value > 0) {
+            attacker.effectManager.apply(
+              createBuff(
+                `${attacker.targetId}_noxian_might`,
+                attacker.targetId,
+                attacker.targetId,
+                "attackDamage",
+                value,
+                "percent",
+                normalizeTurnDuration(buff.buffDuration, 5)
+              )
+            );
+          }
+        }
+      }
+    }
+    const mark = this._passiveMarks.get(target.targetId);
+    if (mark?.leonaSourceId && (mark.leonaExpiresRound ?? 0) >= this._round && attacker.targetId !== mark.leonaSourceId) {
+      const leona2 = this._findCombatantByTargetId(mark.leonaSourceId);
+      if (leona2 && leona2.side === attacker.side) {
+        const effect = leona2.champion.getPassive().effects.find((candidate) => candidate.type === "damage");
+        if (effect) {
+          this._applyDamageToTarget(
+            leona2,
+            target,
+            this._calculateEffectDamage(
+              effect,
+              this._getCombatStats(leona2),
+              target,
+              leona2.champion.level - 1
+            ),
+            false
+          );
+        }
+        delete mark.leonaSourceId;
+        delete mark.leonaExpiresRound;
+      }
+    }
+  }
+  _applyOnKillPassives(attacker) {
+    if (attacker.champion.id !== "Jinx" || !isPassiveCombatReady(attacker.champion.id, attacker.champion.getPassive())) {
+      return;
+    }
+    for (const effect of attacker.champion.getPassive().effects.filter((candidate) => candidate.type === "buff")) {
+      const value = effect.values?.[attacker.champion.level - 1] ?? 0;
+      const modifierType = effect.modifierType ?? "flat";
+      attacker.effectManager.apply(
+        createBuff(
+          `${attacker.targetId}_get_excited_${effect.stat}`,
+          attacker.targetId,
+          attacker.targetId,
+          effect.stat ?? "moveSpeed",
+          modifierType === "percent" ? normalizePercent(value) : value,
+          modifierType,
+          normalizeTurnDuration(effect.buffDuration, 6)
+        )
+      );
+    }
+  }
+  _applyTurnEndPassives(combatant) {
+    if (combatant.isDefeated || !isPassiveCombatReady(combatant.champion.id, combatant.champion.getPassive())) {
+      return;
+    }
+    const roundsSinceDamage = this._round - (this._lastDamagedRound.get(combatant.targetId) ?? Number.NEGATIVE_INFINITY);
+    if (combatant.champion.id === "Garen" && roundsSinceDamage >= 2) {
+      const heal = combatant.champion.getPassive().effects.find((effect) => effect.type === "heal");
+      const percent = normalizePercent(heal?.baseValue?.[combatant.champion.level - 1] ?? 0);
+      this._applyHeal(combatant, combatant, combatant.maxHp * percent);
+    }
+    if (combatant.champion.id === "Malphite" && combatant.currentShield <= 0 && roundsSinceDamage >= 2) {
+      this._applyMalphiteShield(combatant);
+    }
+  }
+  _applyMalphiteShield(combatant) {
+    const effect = combatant.champion.getPassive().effects.find((candidate) => candidate.type === "shield");
+    const percent = normalizePercent(effect?.baseValue?.[combatant.champion.level - 1] ?? 10);
+    const amount = Math.round(combatant.maxHp * percent);
+    combatant.effectManager.apply(
+      new ShieldEffect({
+        name: `${combatant.targetId}_granite_shield`,
+        sourceId: combatant.targetId,
+        targetId: combatant.targetId,
+        magnitude: amount,
+        duration: 999
+      })
+    );
+    this._syncEffectState(combatant);
+  }
+  _findCombatantByTargetId(targetId) {
+    return [...this._playerCombatants, ...this._enemyCombatants].find(
+      (combatant) => combatant.targetId === targetId
+    );
   }
   /** Tick cooldowns for all alive combatants at end of round (after all turns complete). */
   _tickAllCooldowns() {
@@ -43324,25 +45594,152 @@ var BattleManager = class {
       this._phase = "finished" /* Finished */;
       this._resetAllCooldowns();
       const winner = !playerAlive && !enemyAlive ? "draw" : playerAlive ? "player" : "enemy";
+      this._rules?.dispatch({ type: "battle_end", winner, actors: this._getRuleActors() });
       this._emit({ type: "battle_end", winner, rounds: this._round });
       return true;
     }
     if (this._round >= this._maxRounds) {
       this._phase = "finished" /* Finished */;
       this._resetAllCooldowns();
+      this._rules?.dispatch({ type: "battle_end", winner: "draw", actors: this._getRuleActors() });
       this._emit({ type: "battle_end", winner: "draw", rounds: this._round });
       return true;
     }
     return false;
   }
-  _findCombatant(id) {
-    return this._playerCombatants.find((c) => c.champion.id === id) ?? this._enemyCombatants.find((c) => c.champion.id === id);
+  _dispatchTurnEnd(combatant) {
+    this._rules?.dispatch({ type: "turn_end", actor: this._toRuleActor(combatant) });
+  }
+  _toRuleActor(combatant) {
+    return {
+      id: combatant.champion.id,
+      side: combatant.side,
+      currentHp: combatant.currentHp,
+      maxHp: combatant.maxHp,
+      currentMp: combatant.currentMp,
+      maxMp: combatant.maxMp,
+      isDefeated: combatant.isDefeated,
+      isBuffed: combatant.effectManager.buffDebuffs.some((effect) => !effect.isDebuff),
+      isCCd: combatant.effectManager.ccEffects.length > 0
+    };
+  }
+  _getRuleActors() {
+    return [...this._playerCombatants, ...this._enemyCombatants].map(
+      (combatant) => this._toRuleActor(combatant)
+    );
+  }
+  _resolveRuleEffects(resolution) {
+    this._refreshRuleMaxHp();
+    for (const effect of resolution.instantEffects) this._resolveRuleEffect(effect);
+    this._refreshRuleMaxHp();
+  }
+  _refreshRuleMaxHp() {
+    if (!this._rules) return;
+    for (const combatant of this._playerCombatants) {
+      const nextMaxHp = Math.max(1, Math.round(this._getCombatStats(combatant).hp));
+      const preserveCurrentHp = this._preserveHpOnRuleInitialization.delete(combatant.targetId);
+      if (nextMaxHp === combatant.maxHp) continue;
+      const delta = nextMaxHp - combatant.maxHp;
+      combatant.maxHp = nextMaxHp;
+      if (!preserveCurrentHp && !combatant.isDefeated && delta > 0) {
+        combatant.currentHp += delta;
+      }
+      combatant.currentHp = Math.min(combatant.currentHp, combatant.maxHp);
+    }
+  }
+  _resolveRuleEffect(effect) {
+    const source = this._findCombatantByChampionId(effect.sourceId);
+    const target = this._findCombatantByChampionId(effect.targetId);
+    if (!source || !target || effect.amount <= 0) return;
+    if (effect.type === "heal") {
+      this._applyHeal(source, target, effect.amount);
+    } else if (effect.type === "damage") {
+      this._applyDamageToTarget(source, target, effect.amount, false, false, false);
+    } else if (effect.type === "mana") {
+      target.currentMp = Math.min(target.maxMp, target.currentMp + effect.amount);
+    } else if (effect.type === "shield" && !target.isDefeated) {
+      target.effectManager.apply(
+        new ShieldEffect({
+          name: "Rule shield",
+          sourceId: source.targetId,
+          targetId: target.targetId,
+          magnitude: effect.amount,
+          duration: 2
+        })
+      );
+      this._syncEffectState(target);
+    } else if (effect.type === "dot" && !target.isDefeated) {
+      target.effectManager.apply(
+        new DamageEffect({
+          name: "Rule damage over time",
+          sourceId: source.targetId,
+          targetId: target.targetId,
+          magnitude: effect.amount,
+          damageType: "true" /* True */,
+          duration: Math.max(1, Math.round(effect.duration ?? 1)),
+          canCrit: false
+        })
+      );
+    } else if ((effect.type === "slow" || effect.type === "snare") && !target.isDefeated) {
+      target.effectManager.apply(
+        new CCEffect({
+          name: `Rule ${effect.type}`,
+          sourceId: source.targetId,
+          targetId: target.targetId,
+          ccType: effect.type === "slow" ? "slow" /* Slow */ : "snare" /* Snare */,
+          duration: Math.max(1, Math.round(effect.duration ?? 1)),
+          slowAmount: effect.type === "slow" ? effect.amount : void 0
+        })
+      );
+      this._syncEffectState(target);
+    }
+  }
+  _findCombatantByChampionId(championId) {
+    return [...this._playerCombatants, ...this._enemyCombatants].find(
+      (combatant) => combatant.champion.id === championId
+    );
+  }
+  _findCombatantForChampion(champion) {
+    return [...this._playerCombatants, ...this._enemyCombatants].find(
+      (combatant) => combatant.champion === champion
+    );
   }
   _getCombatant(id, side) {
     const list = side === "player" ? this._playerCombatants : this._enemyCombatants;
-    return list.find((c) => c.champion.id === id);
+    return list.find((c) => c.targetId === id || c.champion.id === id);
   }
 };
+function getRankValue(values, rank) {
+  if (values.length === 0) return 0;
+  return values[rank - 1] ?? values[values.length - 1] ?? 0;
+}
+function getUniqueTargetId(champions, index) {
+  const championId = champions[index].id;
+  if (champions.filter((champion) => champion.id === championId).length === 1) return championId;
+  const occurrence = champions.slice(0, index + 1).filter((champion) => champion.id === championId).length;
+  return `${championId}#${occurrence}`;
+}
+function toCCType(value) {
+  switch (value?.toLowerCase()) {
+    case "stun":
+      return "stun" /* Stun */;
+    case "snare":
+    case "root":
+      return "snare" /* Snare */;
+    case "silence":
+      return "silence" /* Silence */;
+    case "slow":
+      return "slow" /* Slow */;
+    case "knockup":
+      return "knockup" /* Knockup */;
+    case "fear":
+      return "fear" /* Fear */;
+    case "charm":
+      return "charm" /* Charm */;
+    default:
+      return null;
+  }
+}
 
 // src/utils/champion.ts
 function statAtLevel(base, perLevel, level) {
@@ -43498,7 +45895,8 @@ var ChampionInstance = class _ChampionInstance {
     this._enhancementBonuses = null;
   }
   setSpellRank(slot, rank) {
-    this._spellRanks[slot] = Math.max(1, Math.min(slot === "R" ? 3 : 5, Math.floor(rank)));
+    const maxRank = this._spells[slot]?.maxRank ?? (slot === "R" ? 3 : 5);
+    this._spellRanks[slot] = Math.max(1, Math.min(maxRank, Math.floor(rank)));
   }
   getSpellRank(slot) {
     return this._spellRanks[slot];
@@ -43559,14 +45957,14 @@ var ChampionInstance = class _ChampionInstance {
     return this._cooldowns[slot];
   }
   /**
-   * Get the base cooldown for a spell slot at rank 1.
+   * Get the base cooldown for a spell slot at its current rank.
    * @param slot — spell slot to check.
    * @returns The base cooldown value, or 0 if spell doesn't exist.
    */
   getMaxCooldown(slot) {
     const spell = this._spells[slot];
     if (!spell || !spell.cooldown || spell.cooldown.length === 0) return 0;
-    return spell.cooldown[0];
+    return getRankValue2(spell.cooldown, this._spellRanks[slot]);
   }
   /**
    * Get the cooldown map (readonly snapshot).
@@ -43575,16 +45973,16 @@ var ChampionInstance = class _ChampionInstance {
     return { ...this._cooldowns };
   }
   /**
-   * Use a spell: set its cooldown from the spell data (rank 0 index).
+   * Use a spell: set its cooldown from the spell data at the current rank.
    * @param slot — spell slot to use.
    * @returns true if the spell was used (was ready), false if on cooldown.
    */
-  useSpell(slot) {
+  useSpell(slot, cooldownMultiplier = 1) {
     const spell = this._spells[slot];
     if (!spell) return false;
     if (!this.isSpellReady(slot)) return false;
-    const cooldownValue = spell.cooldown[0] ?? 0;
-    this._cooldowns[slot] = cooldownValue;
+    const cooldownValue = getRankValue2(spell.cooldown, this._spellRanks[slot]);
+    this._cooldowns[slot] = Math.max(0, cooldownValue * Math.max(0, cooldownMultiplier));
     return true;
   }
   /**
@@ -43630,1078 +46028,203 @@ var ChampionInstance = class _ChampionInstance {
 function clampLevel(level) {
   return Math.max(1, Math.min(18, Math.floor(level)));
 }
-
-// src/game/map/types.ts
-var BIOME_MAP_CONFIGS = {
-  top_lane: {
-    minColumns: 6,
-    maxColumns: 8,
-    minNodesPerColumn: 1,
-    maxNodesPerColumn: 3,
-    branchChance: 0.3,
-    eliteChance: 0.15,
-    shopChance: 0.08,
-    restChance: 0.1,
-    eventChance: 0.1,
-    treasureChance: 0.07,
-    recruitChance: 0.08
-  },
-  jungle: {
-    minColumns: 7,
-    maxColumns: 10,
-    minNodesPerColumn: 2,
-    maxNodesPerColumn: 4,
-    branchChance: 0.5,
-    eliteChance: 0.12,
-    shopChance: 0.05,
-    restChance: 0.08,
-    eventChance: 0.15,
-    treasureChance: 0.1,
-    recruitChance: 0.1
-  },
-  mid_lane: {
-    minColumns: 5,
-    maxColumns: 7,
-    minNodesPerColumn: 1,
-    maxNodesPerColumn: 2,
-    branchChance: 0.2,
-    eliteChance: 0.18,
-    shopChance: 0.1,
-    restChance: 0.12,
-    eventChance: 0.08,
-    treasureChance: 0.07,
-    recruitChance: 0.06
-  },
-  bot_lane: {
-    minColumns: 6,
-    maxColumns: 8,
-    minNodesPerColumn: 1,
-    maxNodesPerColumn: 3,
-    branchChance: 0.35,
-    eliteChance: 0.12,
-    shopChance: 0.1,
-    restChance: 0.1,
-    eventChance: 0.12,
-    treasureChance: 0.08,
-    recruitChance: 0.08
-  },
-  river: {
-    minColumns: 4,
-    maxColumns: 6,
-    minNodesPerColumn: 1,
-    maxNodesPerColumn: 3,
-    branchChance: 0.25,
-    eliteChance: 0.2,
-    shopChance: 0.05,
-    restChance: 0.15,
-    eventChance: 0.1,
-    treasureChance: 0.1,
-    recruitChance: 0.05
-  },
-  base: {
-    minColumns: 3,
-    maxColumns: 4,
-    minNodesPerColumn: 1,
-    maxNodesPerColumn: 2,
-    branchChance: 0.1,
-    eliteChance: 0.25,
-    shopChance: 0.1,
-    restChance: 0.15,
-    eventChance: 0,
-    treasureChance: 0.1,
-    recruitChance: 0.03
-  }
-};
-
-// src/game/map/EncounterManager.ts
-function resolveEventOutcome(outcomes, rand = Math.random) {
-  const totalWeight = outcomes.reduce((sum, o) => sum + o.weight, 0);
-  let roll = rand() * totalWeight;
-  for (const outcome of outcomes) {
-    roll -= outcome.weight;
-    if (roll <= 0) return outcome;
-  }
-  return outcomes[outcomes.length - 1];
-}
-function resolveAffordableEventOutcome(outcomes, availableGold, rand = Math.random) {
-  const affordable = outcomes.filter(
-    (outcome) => outcome.type !== "gold_cost" || Math.abs(outcome.goldAmount ?? 0) <= Math.max(0, availableGold)
-  );
-  if (affordable.length > 0) return resolveEventOutcome(affordable, rand);
-  return {
-    type: "nothing",
-    weight: 1,
-    description: "You cannot afford any available outcome, so nothing happens."
-  };
+function getRankValue2(values, rank) {
+  if (values.length === 0) return 0;
+  return values[rank - 1] ?? values[values.length - 1] ?? 0;
 }
 
-// src/game/recruitment/RecruitmentService.ts
-var DEFAULT_RECRUITMENT_CONFIG = {
-  offerCount: 3,
-  baseCost: 100,
-  costPerLevel: 35,
-  costVariance: 0.25,
-  priceMultiplier: 1
-};
-var BIOME_TAG_WEIGHTS = {
-  top_lane: {
-    Fighter: 3,
-    Tank: 2.5,
-    Mage: 0.5,
-    Marksman: 0.3,
-    Support: 0.4,
-    Assassin: 0.5
-  },
-  jungle: {
-    Fighter: 2,
-    Assassin: 2.5,
-    Tank: 1.5,
-    Mage: 0.7,
-    Marksman: 0.5,
-    Support: 0.3
-  },
-  mid_lane: {
-    Mage: 3,
-    Assassin: 2.5,
-    Fighter: 0.8,
-    Marksman: 0.5,
-    Tank: 0.5,
-    Support: 0.6
-  },
-  bot_lane: {
-    Marksman: 3,
-    Support: 2.5,
-    Mage: 1,
-    Fighter: 0.4,
-    Tank: 0.5,
-    Assassin: 0.6
-  },
-  river: {
-    Fighter: 1.5,
-    Mage: 1.5,
-    Tank: 1.2,
-    Assassin: 1.2,
-    Marksman: 0.8,
-    Support: 0.8
-  },
-  base: {
-    Fighter: 1,
-    Mage: 1,
-    Assassin: 1,
-    Tank: 1,
-    Marksman: 1,
-    Support: 1
+// src/game/augments/AugmentManager.ts
+var _nextInstanceId = 1;
+function generateInstanceId() {
+  return `augment_${Date.now()}_${_nextInstanceId++}`;
+}
+var AugmentManager = class {
+  _augments = [];
+  _maxAugments;
+  _biomesCleared = 0;
+  constructor(maxAugments = DEFAULT_MAX_AUGMENTS) {
+    this._maxAugments = maxAugments;
   }
-};
-function getChampionWeight(champion, biome) {
-  const weights = BIOME_TAG_WEIGHTS[biome];
-  let totalWeight = 0;
-  for (const tag of champion.tags) {
-    totalWeight += weights[tag] ?? 1;
+  get augments() {
+    return this._augments;
   }
-  return totalWeight / Math.max(1, champion.tags.length);
-}
-function calculateRecruitCost(champion, runLevel, biome, config = DEFAULT_RECRUITMENT_CONFIG, rand = Math.random) {
-  const base = config.baseCost + runLevel * config.costPerLevel;
-  const rarityFactor = champion.tags.length >= 2 ? 0.9 : 1;
-  const biomeRelevance = getBiomeRelevanceFactor(champion, biome);
-  const variance = 1 + (rand() * 2 - 1) * config.costVariance;
-  const cost = base * config.priceMultiplier * rarityFactor * biomeRelevance * variance;
-  return Math.round(cost / 5) * 5;
-}
-function getBiomeRelevanceFactor(champion, biome) {
-  const weights = BIOME_TAG_WEIGHTS[biome];
-  let maxWeight = 0;
-  for (const tag of champion.tags) {
-    const w = weights[tag] ?? 1;
-    if (w > maxWeight) maxWeight = w;
+  get slotCount() {
+    return this._augments.length;
   }
-  if (maxWeight >= 2.5) return 0.85;
-  if (maxWeight >= 2) return 0.9;
-  if (maxWeight >= 1.5) return 0.95;
-  return 1.1;
-}
-function getWeightedPool(biome, excludeIds) {
-  const exclude = new Set(excludeIds.map((id) => id.toLowerCase()));
-  return implementedChampions.filter((c) => !exclude.has(c.id.toLowerCase())).map((champion) => ({
-    champion,
-    weight: getChampionWeight(champion, biome)
-  }));
-}
-function weightedPick(pool, rand, exclude = /* @__PURE__ */ new Set()) {
-  const eligible = pool.filter((e) => !exclude.has(e.champion.id));
-  if (eligible.length === 0) return null;
-  const totalWeight = eligible.reduce((sum, e) => sum + e.weight, 0);
-  let roll = rand() * totalWeight;
-  for (const entry of eligible) {
-    roll -= entry.weight;
-    if (roll <= 0) return entry;
+  get availableSlots() {
+    return this._maxAugments - this._augments.length;
   }
-  return eligible[eligible.length - 1];
-}
-function generateRecruitOffers(biome, runLevel, excludeIds = [], config = DEFAULT_RECRUITMENT_CONFIG, rand = Math.random) {
-  const pool = getWeightedPool(biome, excludeIds);
-  if (pool.length === 0) return [];
-  const offerCount = Math.min(config.offerCount, pool.length);
-  const offers = [];
-  const selected = /* @__PURE__ */ new Set();
-  for (let i = 0; i < offerCount; i++) {
-    const chosen = weightedPick(pool, rand, selected);
-    if (!chosen) break;
-    selected.add(chosen.champion.id);
-    offers.push({
-      champion: chosen.champion,
-      cost: calculateRecruitCost(chosen.champion, runLevel, biome, config, rand),
-      weight: chosen.weight
+  get biomesCleared() {
+    return this._biomesCleared;
+  }
+  set biomesCleared(value) {
+    this._biomesCleared = Math.max(0, Math.floor(value));
+  }
+  /**
+   * Acquire an augment.
+   * If already owned and stackable, adds a stack.
+   * @returns true if successful.
+   */
+  acquireAugment(definition, currentBiome = "unknown", runLevel = 1) {
+    const existing = this._augments.find((a) => a.definition.id === definition.id);
+    if (existing) {
+      if (!definition.stackable) return false;
+      if (existing.stacks >= definition.maxStacks) return false;
+      existing.stacks++;
+      return true;
+    }
+    if (this._augments.length >= this._maxAugments) return false;
+    this._augments.push({
+      instanceId: generateInstanceId(),
+      definition,
+      stacks: 1,
+      acquiredAt: { biome: currentBiome, runLevel }
     });
+    return true;
   }
-  return offers;
-}
-function generateShopRotation(biome, runLevel, teamIds = [], count = 2, rand = Math.random) {
-  const config = {
-    ...DEFAULT_RECRUITMENT_CONFIG,
-    offerCount: count,
-    priceMultiplier: 1
-  };
-  const offers = generateRecruitOffers(biome, runLevel, teamIds, config, rand);
-  return offers.map((offer) => ({
-    championId: offer.champion.id,
-    cost: offer.cost
-  }));
-}
-function generateWildRecruit(biome, runLevel, teamIds = [], rand = Math.random) {
-  const pool = getWeightedPool(biome, teamIds);
-  if (pool.length === 0) return null;
-  const chosen = weightedPick(pool, rand);
-  if (!chosen) return null;
-  const cost = calculateRecruitCost(
-    chosen.champion,
-    runLevel,
-    biome,
-    DEFAULT_RECRUITMENT_CONFIG,
-    rand
-  );
-  const baseChance = 0.85 - runLevel * 0.03;
-  const successChance = Math.max(0.5, Math.min(0.95, baseChance + (rand() * 0.2 - 0.1)));
-  const statMultiplier = Math.round((0.8 + rand() * 0.4) * 100) / 100;
-  return {
-    championId: chosen.champion.id,
-    cost,
-    successChance: Math.round(successChance * 100) / 100,
-    statMultiplier
-  };
-}
-
-// src/game/map/encounters-part1.ts
-var TOP_LANE_ENCOUNTERS = [
-  {
-    id: "top_darius",
-    name: "The Noxian Guillotine",
-    description: "Darius stands ready with his axe, eager for a duel.",
-    type: "combat",
-    enemies: [{ championId: "Darius", statMultiplier: 0.85 }],
-    goldReward: 25,
-    itemDropChance: 0.15,
-    minRunLevel: 1
-  },
-  {
-    id: "top_garen",
-    name: "Demacian Justice",
-    description: "Garen charges forward with unwavering resolve.",
-    type: "combat",
-    enemies: [{ championId: "Garen", statMultiplier: 0.8 }],
-    goldReward: 20,
-    itemDropChance: 0.12,
-    minRunLevel: 1
-  },
-  {
-    id: "top_malphite",
-    name: "Unstoppable Force",
-    description: "A massive stone golem blocks your path.",
-    type: "combat",
-    enemies: [{ championId: "Malphite", statMultiplier: 0.9 }],
-    goldReward: 30,
-    itemDropChance: 0.18,
-    minRunLevel: 2
-  },
-  {
-    id: "top_warwick",
-    name: "The Uncaged Wrath",
-    description: "Warwick catches your scent and pounces.",
-    type: "combat",
-    enemies: [{ championId: "Warwick", statMultiplier: 0.8 }],
-    goldReward: 22,
-    itemDropChance: 0.14,
-    minRunLevel: 1
-  },
-  {
-    id: "top_duo_fighters",
-    name: "Top Lane Brawl",
-    description: "Two fighters block the lane together.",
-    type: "combat",
-    enemies: [
-      { championId: "Darius", statMultiplier: 0.7 },
-      { championId: "Garen", statMultiplier: 0.7 }
-    ],
-    goldReward: 45,
-    itemDropChance: 0.25,
-    minRunLevel: 3
+  /**
+   * Remove an augment by instance ID.
+   */
+  removeAugment(instanceId) {
+    const idx = this._augments.findIndex((a) => a.instanceId === instanceId);
+    if (idx === -1) return false;
+    this._augments.splice(idx, 1);
+    return true;
   }
-];
-var JUNGLE_ENCOUNTERS = [
-  {
-    id: "jungle_warwick",
-    name: "Blood Hunt",
-    description: "Warwick hunts you through the undergrowth.",
-    type: "combat",
-    enemies: [{ championId: "Warwick", statMultiplier: 0.85 }],
-    goldReward: 28,
-    itemDropChance: 0.16,
-    minRunLevel: 1
-  },
-  {
-    id: "jungle_scuttle",
-    name: "Scuttle Crab",
-    description: "A skittish scuttle crab blocks the river crossing.",
-    type: "combat",
-    enemies: [{ championId: "Malphite", statMultiplier: 0.5 }],
-    goldReward: 15,
-    itemDropChance: 0.05,
-    minRunLevel: 1
-  },
-  {
-    id: "jungle_ambush",
-    name: "Jungle Ambush",
-    description: "An ambush from the bushes! Multiple enemies attack at once.",
-    type: "combat",
-    enemies: [
-      { championId: "Warwick", statMultiplier: 0.75 },
-      { championId: "Annie", statMultiplier: 0.65 }
-    ],
-    goldReward: 40,
-    itemDropChance: 0.22,
-    minRunLevel: 2
-  },
-  {
-    id: "jungle_monster_camp",
-    name: "Monster Camp",
-    description: "A den of stone creatures guards the jungle camp.",
-    type: "combat",
-    enemies: [
-      { championId: "Malphite", statMultiplier: 0.55 },
-      { championId: "Malphite", statMultiplier: 0.4 }
-    ],
-    goldReward: 30,
-    itemDropChance: 0.12,
-    minRunLevel: 1
-  },
-  {
-    id: "jungle_gank",
-    name: "Surprise Gank",
-    description: "A coordinated gank catches you off guard!",
-    type: "combat",
-    enemies: [
-      { championId: "Warwick", statMultiplier: 0.8 },
-      { championId: "Lux", statMultiplier: 0.7 }
-    ],
-    goldReward: 50,
-    itemDropChance: 0.28,
-    minRunLevel: 3
+  /**
+   * Get total bonus gold from augments.
+   */
+  getBonusGold() {
+    let total = 0;
+    for (const acquired of this._augments) {
+      for (const effect of acquired.definition.effects) {
+        if (effect.type === "bonus_gold" /* BonusGold */ && effect.flatValue) {
+          total += effect.flatValue * acquired.stacks;
+        }
+      }
+    }
+    return total;
   }
-];
-
-// src/game/map/encounters-part2.ts
-var MID_LANE_ENCOUNTERS = [
-  {
-    id: "mid_lux",
-    name: "Final Spark",
-    description: "A blinding light erupts from the mid lane.",
-    type: "combat",
-    enemies: [{ championId: "Lux", statMultiplier: 0.85 }],
-    goldReward: 25,
-    itemDropChance: 0.15,
-    minRunLevel: 1
-  },
-  {
-    id: "mid_annie",
-    name: "Tibbers!",
-    description: "Annie summons her fiery bear companion.",
-    type: "combat",
-    enemies: [{ championId: "Annie", statMultiplier: 0.8 }],
-    goldReward: 24,
-    itemDropChance: 0.14,
-    minRunLevel: 1
-  },
-  {
-    id: "mid_mage_duel",
-    name: "Mage Duel",
-    description: "Two powerful mages clash in a battle of magic.",
-    type: "combat",
-    enemies: [
-      { championId: "Lux", statMultiplier: 0.75 },
-      { championId: "Annie", statMultiplier: 0.75 }
-    ],
-    goldReward: 48,
-    itemDropChance: 0.26,
-    minRunLevel: 2
-  },
-  {
-    id: "mid_arcane_barrage",
-    name: "Arcane Barrage",
-    description: "A devastating barrage of arcane energy fills the air.",
-    type: "combat",
-    enemies: [{ championId: "Lux", statMultiplier: 1 }],
-    goldReward: 35,
-    itemDropChance: 0.2,
-    minRunLevel: 3
-  },
-  {
-    id: "mid_assassin_threat",
-    name: "Shadow Assassin",
-    description: "A shadowy figure emerges from the darkness.",
-    type: "combat",
-    enemies: [{ championId: "Annie", statMultiplier: 0.9 }],
-    goldReward: 32,
-    itemDropChance: 0.18,
-    minRunLevel: 2
+  /**
+   * Get total damage multiplier from augments.
+   * @returns multiplier (1.0 = no change, 1.25 = +25%)
+   */
+  getDamageMultiplier() {
+    let mult = 1;
+    for (const acquired of this._augments) {
+      for (const effect of acquired.definition.effects) {
+        if (effect.type === "damage_percent" /* DamagePercent */ && effect.percentValue) {
+          mult += effect.percentValue * acquired.stacks;
+        }
+      }
+    }
+    return mult;
   }
-];
-var BOT_LANE_ENCOUNTERS = [
-  {
-    id: "bot_jinx",
-    name: "Get Excited!",
-    description: "Jinx rockets toward you with chaotic glee.",
-    type: "combat",
-    enemies: [{ championId: "Jinx", statMultiplier: 0.85 }],
-    goldReward: 28,
-    itemDropChance: 0.16,
-    minRunLevel: 1
-  },
-  {
-    id: "bot_ashe",
-    name: "Enchanted Crystal Arrow",
-    description: "An enchanted arrow streaks across the battlefield.",
-    type: "combat",
-    enemies: [{ championId: "Ashe", statMultiplier: 0.8 }],
-    goldReward: 25,
-    itemDropChance: 0.15,
-    minRunLevel: 1
-  },
-  {
-    id: "bot_duo_lane",
-    name: "Bot Lane Duo",
-    description: "A marksman and support pair guard the lane.",
-    type: "combat",
-    enemies: [
-      { championId: "Jinx", statMultiplier: 0.75 },
-      { championId: "Soraka", statMultiplier: 0.65 }
-    ],
-    goldReward: 45,
-    itemDropChance: 0.24,
-    minRunLevel: 2
-  },
-  {
-    id: "bot_protected_carry",
-    name: "Protected Carry",
-    description: "A well-protected carry stands behind a stalwart defender.",
-    type: "combat",
-    enemies: [
-      { championId: "Ashe", statMultiplier: 0.8 },
-      { championId: "Leona", statMultiplier: 0.7 }
-    ],
-    goldReward: 48,
-    itemDropChance: 0.26,
-    minRunLevel: 2
-  },
-  {
-    id: "bot_full_team",
-    name: "Full Bot Lane",
-    description: "The entire bot lane squad is assembled against you.",
-    type: "combat",
-    enemies: [
-      { championId: "Jinx", statMultiplier: 0.75 },
-      { championId: "Leona", statMultiplier: 0.65 },
-      { championId: "Soraka", statMultiplier: 0.55 }
-    ],
-    goldReward: 65,
-    itemDropChance: 0.35,
-    minRunLevel: 4
+  /**
+   * Get total damage reduction from augments.
+   * @returns reduction fraction (0 = no reduction, 0.20 = -20% damage taken)
+   */
+  getDamageReduction() {
+    let reduction = 0;
+    for (const acquired of this._augments) {
+      for (const effect of acquired.definition.effects) {
+        if (effect.type === "damage_reduction" /* DamageReduction */ && effect.percentValue) {
+          reduction += effect.percentValue * acquired.stacks;
+        }
+      }
+    }
+    return Math.min(reduction, 0.8);
   }
-];
-
-// src/game/map/encounters-part3.ts
-var RIVER_ENCOUNTERS = [
-  {
-    id: "river_scuttle",
-    name: "Scuttle Crab",
-    description: "A scuttle crab skitters across the river path.",
-    type: "combat",
-    enemies: [{ championId: "Malphite", statMultiplier: 0.55 }],
-    goldReward: 18,
-    itemDropChance: 0.08,
-    minRunLevel: 1
-  },
-  {
-    id: "river_drake_infernal",
-    name: "Infernal Drake",
-    description: "The Infernal Drake breathes fire across the river.",
-    type: "combat",
-    enemies: [{ championId: "Annie", statMultiplier: 1 }],
-    goldReward: 40,
-    itemDropChance: 0.25,
-    minRunLevel: 2
-  },
-  {
-    id: "river_drake_ocean",
-    name: "Ocean Drake",
-    description: "The Ocean Drake surges with tidal power.",
-    type: "combat",
-    enemies: [{ championId: "Soraka", statMultiplier: 0.95 }],
-    goldReward: 35,
-    itemDropChance: 0.22,
-    minRunLevel: 2
-  },
-  {
-    id: "river_drake_mountain",
-    name: "Mountain Drake",
-    description: "The Mountain Drake stomps with earth-shaking force.",
-    type: "combat",
-    enemies: [{ championId: "Malphite", statMultiplier: 1.1 }],
-    goldReward: 45,
-    itemDropChance: 0.28,
-    minRunLevel: 3
-  },
-  {
-    id: "river_elder_dragon",
-    name: "Elder Dragon",
-    description: "The Elder Dragon awakens with devastating power.",
-    type: "combat",
-    enemies: [
-      { championId: "Malphite", statMultiplier: 0.95 },
-      { championId: "Annie", statMultiplier: 0.9 }
-    ],
-    goldReward: 80,
-    itemDropChance: 0.45,
-    minRunLevel: 5
+  /**
+   * Get heal percentage after battle.
+   */
+  getHealAfterBattlePercent() {
+    let total = 0;
+    for (const acquired of this._augments) {
+      for (const effect of acquired.definition.effects) {
+        if (effect.type === "heal_after_battle" /* HealAfterBattle */ && effect.percentValue) {
+          total += effect.percentValue * acquired.stacks;
+        }
+      }
+    }
+    return total;
   }
-];
-var BASE_ENCOUNTERS = [
-  {
-    id: "base_turret_guardian",
-    name: "Turret Guardian",
-    description: "The turret guardians stand watch over the base.",
-    type: "combat",
-    enemies: [
-      { championId: "Leona", statMultiplier: 1 },
-      { championId: "Malphite", statMultiplier: 0.9 }
-    ],
-    goldReward: 60,
-    itemDropChance: 0.3,
-    minRunLevel: 4
-  },
-  {
-    id: "base_inhibitor_defense",
-    name: "Inhibitor Defense",
-    description: "The inhibitor defenders rally to protect the base.",
-    type: "combat",
-    enemies: [
-      { championId: "Garen", statMultiplier: 0.9 },
-      { championId: "Lux", statMultiplier: 0.9 },
-      { championId: "Jinx", statMultiplier: 0.85 }
-    ],
-    goldReward: 80,
-    itemDropChance: 0.35,
-    minRunLevel: 5
-  },
-  {
-    id: "base_nexus_guardians",
-    name: "Nexus Guardians",
-    description: "The final guardians protect the Nexus at all costs.",
-    type: "combat",
-    enemies: [
-      { championId: "Leona", statMultiplier: 0.95 },
-      { championId: "Darius", statMultiplier: 0.95 },
-      { championId: "Ashe", statMultiplier: 0.9 },
-      { championId: "Lux", statMultiplier: 0.9 }
-    ],
-    goldReward: 100,
-    itemDropChance: 0.5,
-    minRunLevel: 6
+  getShopDiscountPercent() {
+    let total = 0;
+    for (const acquired of this._augments) {
+      for (const effect of acquired.definition.effects) {
+        if (effect.type === "shop_discount" /* ShopDiscount */ && effect.percentValue) {
+          total += effect.percentValue * acquired.stacks;
+        }
+      }
+    }
+    return Math.min(total, 0.8);
   }
-];
-
-// src/game/map/encounters.ts
-var ENCOUNTER_POOLS = {
-  top_lane: TOP_LANE_ENCOUNTERS,
-  jungle: JUNGLE_ENCOUNTERS,
-  mid_lane: MID_LANE_ENCOUNTERS,
-  bot_lane: BOT_LANE_ENCOUNTERS,
-  river: RIVER_ENCOUNTERS,
-  base: BASE_ENCOUNTERS
+  /**
+   * Check if team has an extra revive augment.
+   */
+  hasExtraRevive() {
+    return this._augments.some(
+      (a) => a.definition.effects.some((e) => e.type === "extra_revive" /* ExtraRevive */)
+    );
+  }
+  /**
+   * Get team-wide stat bonuses from all augments.
+   * Includes scaling effects based on biomes cleared.
+   */
+  getTeamStatBonuses() {
+    const result = {};
+    for (const acquired of this._augments) {
+      for (const effect of acquired.definition.effects) {
+        if (!effect.stat) continue;
+        if (!result[effect.stat]) result[effect.stat] = { flat: 0, percent: 0 };
+        switch (effect.type) {
+          case "team_stat_flat" /* TeamStatFlat */:
+            if (effect.flatValue) result[effect.stat].flat += effect.flatValue * acquired.stacks;
+            break;
+          case "team_stat_percent" /* TeamStatPercent */:
+            if (effect.percentValue)
+              result[effect.stat].percent += effect.percentValue * acquired.stacks;
+            break;
+          case "scaling_stat_flat" /* ScalingStatFlat */:
+            if (effect.flatValue) {
+              result[effect.stat].flat += effect.flatValue * this._biomesCleared * acquired.stacks;
+            }
+            break;
+        }
+      }
+    }
+    return result;
+  }
+  /**
+   * Clear all augments.
+   */
+  clear() {
+    this._augments = [];
+    this._biomesCleared = 0;
+  }
 };
-function getEligibleEncounters(biome, runLevel) {
-  return ENCOUNTER_POOLS[biome].filter((enc) => enc.minRunLevel <= runLevel);
-}
-function getBiomeBoss(biome, runLevel) {
-  if (biome === "base") {
-    const baseEncounters = getEligibleEncounters("base", runLevel);
-    return baseEncounters[baseEncounters.length - 1];
-  }
-  const eligible = getEligibleEncounters(biome, runLevel);
-  const hardest = eligible.reduce(
-    (a, b) => a.enemies.reduce((s, e) => s + e.statMultiplier, 0) > b.enemies.reduce((s, e) => s + e.statMultiplier, 0) ? a : b
-  );
-  return {
-    ...hardest,
-    id: `${biome}_boss`,
-    name: `${hardest.name} (Elite)`,
-    enemies: hardest.enemies.map((e) => ({
-      ...e,
-      statMultiplier: e.statMultiplier * 1.3
-    })),
-    goldReward: Math.round(hardest.goldReward * 2),
-    itemDropChance: Math.min(1, hardest.itemDropChance * 2)
-  };
-}
-function getRandomEncounter(biome, runLevel, rand = Math.random) {
-  const eligible = getEligibleEncounters(biome, runLevel);
-  return eligible[Math.floor(rand() * eligible.length)];
-}
 
-// src/game/map/MapGenerator-helpers.ts
-function mulberry32(seed) {
-  return () => {
-    seed |= 0;
-    seed = seed + 1831565813 | 0;
-    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  };
-}
-function seededShuffle(values, rand) {
-  const shuffled = [...values];
-  for (let index = shuffled.length - 1; index > 0; index--) {
-    const swapIndex = Math.floor(rand() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-  return shuffled;
-}
-function getNodeMetadata(type, biome) {
-  const biomeNames = {
-    top_lane: "Top Lane",
-    jungle: "Jungle",
-    mid_lane: "Mid Lane",
-    bot_lane: "Bot Lane",
-    river: "River",
-    base: "Enemy Base"
-  };
-  const metadata = {
-    ["start" /* Start */]: {
-      title: "Entrance",
-      description: `Enter the ${biomeNames[biome]}`,
-      icon: "\u{1F6AA}"
-    },
-    ["combat" /* Combat */]: { title: "Combat", description: "Fight enemy champions", icon: "\u2694\uFE0F" },
-    ["elite" /* Elite */]: { title: "Elite", description: "A powerful enemy awaits", icon: "\u{1F480}" },
-    ["boss" /* Boss */]: { title: "Boss", description: "The final challenge", icon: "\u{1F451}" },
-    ["shop" /* Shop */]: {
-      title: "Shop",
-      description: "Spend your gold on items and recruits",
-      icon: "\u{1F6D2}"
-    },
-    ["rest" /* Rest */]: { title: "Rest", description: "Heal your champions", icon: "\u{1F49A}" },
-    ["event" /* Event */]: {
-      title: "Mystery",
-      description: "A mysterious encounter awaits",
-      icon: "\u2753"
-    },
-    ["treasure" /* Treasure */]: { title: "Treasure", description: "A free reward awaits", icon: "\u{1F48E}" },
-    ["recruit" /* Recruit */]: {
-      title: "Recruit",
-      description: "A wild champion seeks a team",
-      icon: "\u{1F91D}"
-    },
-    ["exit" /* Exit */]: { title: "Exit", description: "Proceed to the next zone", icon: "\u27A1\uFE0F" }
-  };
-  return metadata[type];
-}
-function selectColumnType(config, rand, columnIndex, totalColumns) {
-  if (columnIndex === 0) return "combat" /* Combat */;
-  if (columnIndex === totalColumns - 1) {
-    return config.biome === "base" ? "boss" /* Boss */ : "exit" /* Exit */;
-  }
-  if (columnIndex === totalColumns - 2) {
-    if (rand() < 0.5) return "rest" /* Rest */;
-    return "combat" /* Combat */;
-  }
-  const roll = rand();
-  let cumulative = 0;
-  cumulative += config.shopChance;
-  if (roll < cumulative) return "shop" /* Shop */;
-  cumulative += config.restChance;
-  if (roll < cumulative) return "rest" /* Rest */;
-  cumulative += config.eventChance;
-  if (roll < cumulative) return "event" /* Event */;
-  cumulative += config.treasureChance;
-  if (roll < cumulative) return "treasure" /* Treasure */;
-  cumulative += config.eliteChance;
-  if (roll < cumulative) return "elite" /* Elite */;
-  cumulative += config.recruitChance;
-  if (roll < cumulative) return "recruit" /* Recruit */;
-  return "combat" /* Combat */;
-}
-function buildConfig(biome, runLevel, seed) {
-  const biomeConfig = BIOME_MAP_CONFIGS[biome];
-  return { ...biomeConfig, biome, runLevel, seed };
-}
-
-// src/game/map/MapGenerator-core.ts
-function itemDefToShopItem(itemId, priceOverride) {
-  const def = getItemDefinition(itemId);
-  if (!def) {
+// src/game/inventory/inventoryRules.ts
+function validateItemAddition(inventory, item) {
+  const definition = ITEM_DATABASE[item.id];
+  if (!definition) return { valid: true };
+  const copies = inventory.filter((entry) => entry.item.id === item.id).length;
+  if ((definition.unique ?? !definition.stackable) && copies > 0) {
     return {
-      itemId,
-      name: itemId,
-      description: "Unknown item",
-      price: priceOverride ?? 100,
-      iconUrl: "",
-      stats: {}
+      valid: false,
+      code: "unique_item",
+      message: `${definition.name} est un objet unique.`
     };
   }
-  const stats = {};
-  for (const s of def.stats) {
-    stats[s.stat] = (stats[s.stat] ?? 0) + s.value;
+  if (definition.stackable && copies >= definition.maxStacks) {
+    return {
+      valid: false,
+      code: "max_stacks",
+      message: `${definition.name} a atteint sa limite de ${definition.maxStacks}.`
+    };
   }
-  return {
-    itemId: def.id,
-    name: def.name,
-    description: def.description,
-    price: priceOverride ?? def.goldValue,
-    iconUrl: def.iconUrl,
-    stats,
-    passiveId: def.passive?.id
-  };
-}
-var SHOPABLE_ITEM_IDS = Object.values(ITEM_DATABASE).filter((item) => item.tier === 1 || item.category === "consumable").map((item) => item.id);
-function createEncounterId(type, biome, rand) {
-  return `${type}_${biome}_${Math.floor(rand() * 1e9).toString(36)}`;
-}
-function generateShopEncounter(biome, runLevel, rand) {
-  const itemCount = 2 + Math.floor(rand() * 3);
-  const shuffled = seededShuffle(SHOPABLE_ITEM_IDS, rand);
-  const items = shuffled.slice(0, itemCount).map((id) => {
-    const base = itemDefToShopItem(id);
-    return { ...base, price: Math.round(base.price * (0.8 + runLevel * 0.15)) };
-  });
-  const recruitableChampions = generateShopRotation(
-    biome,
-    runLevel,
-    [],
-    1 + Math.floor(rand() * 2),
-    rand
-  );
-  const shopNames = {
-    top_lane: "The Armory",
-    jungle: "Nomad Trader",
-    mid_lane: "Arcane Emporium",
-    bot_lane: "Market Stalls",
-    river: "River Merchant",
-    base: "Black Market"
-  };
-  return {
-    id: createEncounterId("shop", biome, rand),
-    name: shopNames[biome],
-    description: `A merchant appears with wares from the ${biome.replace("_", " ")}.`,
-    type: "shop",
-    minRunLevel: 1,
-    items,
-    recruitableChampions,
-    priceMultiplier: rand() < 0.2 ? 0.8 : 1
-  };
-}
-function generateRestEncounter(biome, runLevel, rand) {
-  const roll = rand();
-  const fullHeal = roll < 0.2;
-  const healPercent = fullHeal ? 1 : 0.25 + rand() * 0.5;
-  const goldCost = fullHeal ? Math.round(50 + runLevel * 20) : Math.round(20 + runLevel * 10);
-  const restNames = [
-    "Campfire",
-    "Meditation Shrine",
-    "Healing Spring",
-    "Safe Haven",
-    "Temple of Renewal"
-  ];
-  const name = restNames[Math.floor(rand() * restNames.length)];
-  return {
-    id: createEncounterId("rest", biome, rand),
-    name,
-    description: fullHeal ? "A sacred place that fully restores your team." : "A moment of respite to tend your wounds.",
-    type: "rest",
-    minRunLevel: 1,
-    healPercent: Math.round(healPercent * 100) / 100,
-    goldCost,
-    fullHeal
-  };
-}
-function generateEventEncounter(biome, runLevel, rand) {
-  const eventPool = [
-    {
-      name: "Mysterious Chest",
-      description: "A glowing chest sits in your path. Do you open it?",
-      outcomes: [
-        {
-          type: "gold_reward",
-          weight: 3,
-          description: "You find gold inside!",
-          goldAmount: 30 + runLevel * 15
-        },
-        {
-          type: "item_reward",
-          weight: 2,
-          description: "An item glows inside!",
-          item: itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)])
-        },
-        {
-          type: "damage",
-          weight: 2,
-          description: "A trap! The chest explodes!",
-          damagePercent: 0.15
-        },
-        { type: "nothing", weight: 1, description: "The chest is empty..." }
-      ]
-    },
-    {
-      name: "Wandering Spirit",
-      description: "A friendly spirit offers to help your team.",
-      outcomes: [
-        { type: "heal", weight: 3, description: "The spirit heals your team!", healPercent: 0.3 },
-        {
-          type: "stat_boost",
-          weight: 2,
-          description: "The spirit empowers your team!",
-          statBoost: { stat: "atk", amount: 5 }
-        },
-        {
-          type: "gold_reward",
-          weight: 1,
-          description: "The spirit drops gold.",
-          goldAmount: 20 + runLevel * 10
-        }
-      ]
-    },
-    {
-      name: "Runic Altar",
-      description: "An ancient altar pulses with power.",
-      outcomes: [
-        {
-          type: "stat_boost",
-          weight: 3,
-          description: "The altar grants you strength!",
-          statBoost: { stat: "def", amount: 8 }
-        },
-        {
-          type: "gold_cost",
-          weight: 2,
-          description: "The altar demands an offering.",
-          goldAmount: -(20 + runLevel * 10)
-        },
-        {
-          type: "champion_recruit",
-          weight: 1,
-          description: "A champion appears from the altar!",
-          championId: implementedChampions[Math.floor(rand() * implementedChampions.length)].id
-        }
-      ]
-    },
-    {
-      name: "Loot Goblin",
-      description: "A small creature scurries past with a bag of gold!",
-      outcomes: [
-        {
-          type: "gold_reward",
-          weight: 4,
-          description: "You catch the goblin!",
-          goldAmount: 40 + runLevel * 20
-        },
-        {
-          type: "item_reward",
-          weight: 2,
-          description: "The goblin drops its bag!",
-          item: itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)])
-        },
-        { type: "nothing", weight: 1, description: "The goblin escapes too fast..." }
-      ]
-    }
-  ];
-  const chosen = eventPool[Math.floor(rand() * eventPool.length)];
-  return {
-    id: createEncounterId("event", biome, rand),
-    name: chosen.name,
-    description: chosen.description,
-    type: "event",
-    minRunLevel: 1,
-    outcomes: chosen.outcomes
-  };
-}
-function generateRecruitEncounter(biome, runLevel, rand) {
-  const recruit = generateWildRecruit(biome, runLevel, [], rand);
-  const championId = recruit?.championId ?? "Garen";
-  const cost = recruit?.cost ?? Math.round(100 + runLevel * 40);
-  const successChance = recruit?.successChance ?? 0.75;
-  const statMultiplier = recruit?.statMultiplier ?? 1;
-  return {
-    id: `recruit_${biome}_${championId}_${Math.floor(rand() * 1e4)}`,
-    name: `Wild ${championId}`,
-    description: `${championId} appears and may join your team... for a price.`,
-    type: "recruit",
-    minRunLevel: 1,
-    championId,
-    cost,
-    successChance,
-    statMultiplier
-  };
-}
-function generateTreasureEncounter(biome, runLevel, rand) {
-  const gold = Math.round(50 + runLevel * 25 + rand() * 50);
-  const hasItem = rand() < 0.4;
-  const item = hasItem ? itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)]) : void 0;
-  const treasureNames = [
-    "Shimmering Chest",
-    "Golden Cache",
-    "Forgotten Hoard",
-    "Mystic Treasure",
-    "Ancient Stash",
-    "Goblin Stash",
-    "Dragon's Bounty"
-  ];
-  const name = treasureNames[Math.floor(rand() * treasureNames.length)];
-  return {
-    id: createEncounterId("treasure", biome, rand),
-    name,
-    description: `A ${name.toLowerCase()} glimmers in the ${biome.replace("_", " ")}.`,
-    type: "treasure",
-    minRunLevel: 1,
-    gold,
-    item
-  };
-}
-function generateEncounterForNode(nodeType, biome, runLevel, rand) {
-  switch (nodeType) {
-    case "combat" /* Combat */:
-    case "elite" /* Elite */:
-      return getRandomEncounter(biome, runLevel, rand);
-    case "boss" /* Boss */:
-      return getBiomeBoss(biome, runLevel);
-    case "shop" /* Shop */:
-      return generateShopEncounter(biome, runLevel, rand);
-    case "rest" /* Rest */:
-      return generateRestEncounter(biome, runLevel, rand);
-    case "event" /* Event */:
-      return generateEventEncounter(biome, runLevel, rand);
-    case "recruit" /* Recruit */:
-      return generateRecruitEncounter(biome, runLevel, rand);
-    case "treasure" /* Treasure */:
-      return generateTreasureEncounter(biome, runLevel, rand);
-    case "start" /* Start */:
-    case "exit" /* Exit */:
-    default:
-      return null;
-  }
-}
-function generateMap(biome, runLevel, seed) {
-  const effectiveSeed = seed ?? Date.now();
-  const rand = mulberry32(effectiveSeed);
-  const config = buildConfig(biome, runLevel, effectiveSeed);
-  const columns = Math.floor(
-    rand() * (config.maxColumns - config.minColumns + 1) + config.minColumns
-  );
-  const columnNodes = [];
-  let nodeIdCounter = 0;
-  const allNodes = [];
-  for (let col = 0; col < columns; col++) {
-    const nodeCount = col === 0 ? 1 : Math.floor(
-      rand() * (config.maxNodesPerColumn - config.minNodesPerColumn + 1) + config.minNodesPerColumn
-    );
-    const nodesInColumn = [];
-    for (let row = 0; row < nodeCount; row++) {
-      const nodeType = selectColumnType(config, rand, col, columns);
-      const encounter = generateEncounterForNode(nodeType, biome, runLevel, rand);
-      const node = {
-        id: `node_${biome}_${nodeIdCounter++}`,
-        type: nodeType,
-        column: col,
-        row,
-        nextNodeIds: [],
-        prevNodeIds: [],
-        biome,
-        completed: false,
-        accessible: col === 0,
-        encounter,
-        metadata: getNodeMetadata(nodeType, biome)
-      };
-      nodesInColumn.push(node);
-      allNodes.push(node);
-    }
-    columnNodes.push(nodesInColumn);
-  }
-  for (let col = 0; col < columns - 1; col++) {
-    const currentColumn = columnNodes[col];
-    const nextColumn = columnNodes[col + 1];
-    for (const node of currentColumn) {
-      const availableTargets = nextColumn.filter((t) => t.prevNodeIds.length < 3);
-      if (availableTargets.length === 0) {
-        const target = nextColumn[0];
-        node.nextNodeIds.push(target.id);
-        target.prevNodeIds.push(node.id);
-        continue;
-      }
-      const primaryTarget = availableTargets[Math.floor(rand() * availableTargets.length)];
-      node.nextNodeIds.push(primaryTarget.id);
-      primaryTarget.prevNodeIds.push(node.id);
-      if (rand() < config.branchChance && availableTargets.length > 1) {
-        const otherTargets = availableTargets.filter((t) => t.id !== primaryTarget.id);
-        if (otherTargets.length > 0) {
-          const branchTarget = otherTargets[Math.floor(rand() * otherTargets.length)];
-          if (!node.nextNodeIds.includes(branchTarget.id)) {
-            node.nextNodeIds.push(branchTarget.id);
-            branchTarget.prevNodeIds.push(node.id);
-          }
-        }
-      }
-    }
-    for (const nextNode of nextColumn) {
-      if (nextNode.prevNodeIds.length === 0) {
-        const source = currentColumn[Math.floor(rand() * currentColumn.length)];
-        source.nextNodeIds.push(nextNode.id);
-        nextNode.prevNodeIds.push(source.id);
-      }
-    }
-  }
-  const startNode = columnNodes[0][0];
-  const lastColumn = columnNodes[columns - 1];
-  const exitNode = lastColumn.find((n) => n.type === "exit" /* Exit */ || n.type === "boss" /* Boss */) ?? lastColumn[0];
-  return {
-    biome,
-    nodes: allNodes,
-    startNodeId: startNode.id,
-    exitNodeId: exitNode.id,
-    columns,
-    rows: Math.max(...columnNodes.map((col) => col.length))
-  };
-}
-function generateRunMap(seed) {
-  const biomeOrder = ["top_lane", "jungle", "mid_lane", "bot_lane", "river", "base"];
-  const effectiveSeed = seed ?? Date.now();
-  return biomeOrder.map((biome, index) => {
-    const biomeSeed = effectiveSeed + index * 1e3;
-    const runLevel = index + 1;
-    return generateMap(biome, runLevel, biomeSeed);
-  });
-}
-
-// src/game/map/mapUtils.ts
-function findNode(map, nodeId) {
-  return map.nodes.find((n) => n.id === nodeId);
+  return { valid: true };
 }
 
 // src/game/runes/RuneManager.ts
@@ -44751,10 +46274,11 @@ var RuneManager = class {
    * Evaluate all rune conditions against the current context.
    * Updates active states and stack counts.
    */
-  evaluateConditions(context) {
+  evaluateConditions(context, event) {
     for (const equipped of this._runes) {
       const met = this._checkCondition(equipped.rune, context);
-      if (met) {
+      const canFire = !event || this._matchesEvent(equipped.rune, event);
+      if (met && canFire) {
         if (equipped.rune.bonus.stacks) {
           if (equipped.currentStacks < equipped.rune.bonus.maxStacks) {
             equipped.currentStacks++;
@@ -44764,13 +46288,8 @@ var RuneManager = class {
         if (equipped.rune.bonus.duration > 0) {
           equipped.turnsRemaining = equipped.rune.bonus.duration;
         }
-      } else {
-        if (equipped.turnsRemaining > 0) {
-          equipped.turnsRemaining--;
-          if (equipped.turnsRemaining <= 0 && equipped.rune.bonus.duration > 0) {
-            equipped.isActive = false;
-          }
-        } else if (!equipped.rune.bonus.stacks) {
+      } else if (equipped.rune.bonus.duration === 0 && !equipped.rune.bonus.stacks && this._isStateCondition(equipped.rune)) {
+        if (!met) {
           equipped.isActive = false;
         }
       }
@@ -44812,6 +46331,7 @@ var RuneManager = class {
   resetBattleState() {
     for (const equipped of this._runes) {
       equipped.isActive = false;
+      equipped.currentStacks = 0;
       equipped.turnsRemaining = 0;
     }
   }
@@ -44834,11 +46354,11 @@ var RuneManager = class {
       }
       case "after_dealing_damage" /* AfterDealingDamage */: {
         const threshold = condition.threshold ?? 1;
-        return ctx.totalDamageDealt >= threshold;
+        return (ctx.damageEventsDealt ?? ctx.totalDamageDealt) >= threshold;
       }
       case "after_taking_damage" /* AfterTakingDamage */: {
         const threshold = condition.threshold ?? 1;
-        return ctx.totalDamageTaken >= threshold;
+        return (ctx.damageEventsTaken ?? ctx.totalDamageTaken) >= threshold;
       }
       case "on_kill" /* OnKill */: {
         return ctx.killsThisBattle > 0;
@@ -44872,6 +46392,613 @@ var RuneManager = class {
       default:
         return false;
     }
+  }
+  _matchesEvent(rune, event) {
+    switch (rune.condition.type) {
+      case "battle_start" /* BattleStart */:
+        return event === "battle_start";
+      case "every_turn" /* EveryTurn */:
+      case "every_n_turns" /* EveryNTurns */:
+        return event === "turn_start";
+      case "after_dealing_damage" /* AfterDealingDamage */:
+        return event === "damage_dealt";
+      case "after_taking_damage" /* AfterTakingDamage */:
+        return event === "damage_taken";
+      case "on_kill" /* OnKill */:
+        return event === "kill";
+      case "on_ability_cast" /* OnAbilityCast */:
+        return event === "ability_cast";
+      case "on_crit" /* OnCrit */:
+        return event === "crit";
+      default:
+        return event === "state_change";
+    }
+  }
+  _isStateCondition(rune) {
+    return [
+      "hp_below_percent" /* HpBelowPercent */,
+      "hp_above_percent" /* HpAbovePercent */,
+      "while_buffed" /* WhileBuffed */,
+      "while_ccd" /* WhileCCd */,
+      "low_allies" /* LowAllies */
+    ].includes(rune.condition.type);
+  }
+};
+
+// src/game/rules/catalogSupport.ts
+var SUPPORTED_ENHANCEMENT_EFFECTS = /* @__PURE__ */ new Set([
+  "execute_damage",
+  "burst_amplify",
+  "survival_shield",
+  "revive",
+  "ally_damage_reduction",
+  "thornmail",
+  "burn_reflect",
+  "vengeance_burst",
+  "slow",
+  "root_chance",
+  "mana_restore",
+  "cdr_ultimate",
+  "attack_speed_on_kill",
+  "bleed",
+  "dodge",
+  "berserker",
+  "champion_damage",
+  "duelist",
+  "heal_on_kill",
+  "heal_amp",
+  "shield_amp",
+  "damage_aura",
+  "cc_extension"
+]);
+var UNAVAILABLE_ENHANCEMENT_EFFECTS = /* @__PURE__ */ new Set([
+  "out_of_combat_speed",
+  "ambush_damage",
+  "stealth_on_kill",
+  "heal_share",
+  "damage_intercept",
+  "spell_echo",
+  "pierce",
+  "long_range_damage",
+  "riposte",
+  "smoke_screen",
+  "damage_sacrifice",
+  "bush_vision",
+  "aoe_slow",
+  "cc_aoe"
+]);
+var OFFICIALLY_SUPPORTED_RULE_TRIGGERS = {
+  runes: Object.values(RuneConditionType),
+  items: [
+    "always",
+    "on_hit",
+    "on_damage_taken",
+    "on_kill",
+    "on_ability_cast",
+    "turn_start",
+    "below_hp_threshold",
+    "combat_start"
+  ],
+  augments: Object.values(AugmentEffectType),
+  enhancements: [...SUPPORTED_ENHANCEMENT_EFFECTS]
+};
+function getUnavailableEnhancementEffects(effects) {
+  return (effects ?? []).filter((effect) => UNAVAILABLE_ENHANCEMENT_EFFECTS.has(effect.type));
+}
+function getEnhancementNodeUnavailableReasons(node) {
+  const reasons = getUnavailableEnhancementEffects(node.effects).map(
+    (effect) => effect.description
+  );
+  if (node.statBonuses?.attackRange || node.percentBonuses?.attackRange) {
+    reasons.push("La port\xE9e spatiale n\u2019est pas repr\xE9sent\xE9e dans ce mode de combat");
+  }
+  return reasons;
+}
+
+// src/game/rules/CombatRuleRuntime.ts
+function emptyResolution() {
+  return {
+    damageMultiplier: 1,
+    damageReduction: 0,
+    healMultiplier: 1,
+    shieldMultiplier: 1,
+    preventDefeatHp: 0,
+    instantEffects: [],
+    consumedItemInstanceIds: []
+  };
+}
+function defaultMetrics() {
+  return {
+    damageDealt: 0,
+    damageTaken: 0,
+    damageEventsDealt: 0,
+    damageEventsTaken: 0,
+    kills: 0,
+    abilitiesCast: 0,
+    turn: 0,
+    lastCrit: false
+  };
+}
+function mergeBonus(result, stat, flat, percent) {
+  const current = result.get(stat) ?? { flat: 0, percent: 0 };
+  current.flat += flat;
+  current.percent += percent;
+  result.set(stat, current);
+}
+var CombatRuleRuntime = class {
+  constructor(loadout, random = Math.random) {
+    this.loadout = loadout;
+    this.random = random;
+  }
+  runeManagers = /* @__PURE__ */ new Map();
+  runeMetrics = /* @__PURE__ */ new Map();
+  consumedItems = /* @__PURE__ */ new Set();
+  potionTurns = /* @__PURE__ */ new Map();
+  usedRevives = /* @__PURE__ */ new Set();
+  usedEnhancementCooldowns = /* @__PURE__ */ new Set();
+  temporaryStats = /* @__PURE__ */ new Map();
+  pendingRuneDamage = /* @__PURE__ */ new Map();
+  damageTaken = /* @__PURE__ */ new Map();
+  reset() {
+    this.runeManagers.clear();
+    this.runeMetrics.clear();
+    this.consumedItems.clear();
+    this.potionTurns.clear();
+    this.usedRevives.clear();
+    this.usedEnhancementCooldowns.clear();
+    this.temporaryStats.clear();
+    this.pendingRuneDamage.clear();
+    this.damageTaken.clear();
+  }
+  get consumedItemInstanceIds() {
+    return [...this.consumedItems];
+  }
+  getRuneStacks() {
+    const result = {};
+    for (const [championId, manager] of this.runeManagers) {
+      for (const equipped of manager.runes) {
+        if (equipped.rune.bonus.duration !== 0) continue;
+        const value = equipped.rune.bonus.stacks ? equipped.currentStacks : equipped.isActive ? 1 : 0;
+        if (value <= 0) continue;
+        result[championId] ??= {};
+        result[championId][equipped.rune.id] = value;
+      }
+    }
+    return result;
+  }
+  getCooldownMultiplier(championId, isUltimate) {
+    const stats = this.loadout.enhancementStats[championId];
+    const haste = (stats?.flat.abilityHaste ?? 0) + (stats?.percent.abilityHaste ?? 0) * 100;
+    const ultimateReduction = isUltimate ? this.getEnhancements(championId).filter((effect) => effect.type === "cdr_ultimate").reduce((sum, effect) => sum + (effect.value ?? 0), 0) : 0;
+    return Math.max(0.1, 100 / (100 + Math.max(0, haste)) * (1 - ultimateReduction));
+  }
+  getControlDurationMultiplier(championId) {
+    const tenacity = this.loadout.enhancementStats[championId]?.flat.tenacity ?? 0;
+    return Math.max(0.2, 1 - Math.max(0, tenacity) / 100);
+  }
+  getAppliedControlDurationMultiplier(championId) {
+    const extension = this.getEnhancements(championId).filter((effect) => effect.type === "cc_extension").reduce((sum, effect) => sum + (effect.value ?? 0), 0);
+    return 1 + extension;
+  }
+  getStatBonuses(championId) {
+    const result = /* @__PURE__ */ new Map();
+    const runeBonuses = this.runeManagers.get(championId)?.getActiveStatBonuses() ?? {};
+    for (const [stat, bonus] of Object.entries(runeBonuses)) {
+      mergeBonus(result, stat, bonus.flat, bonus.percent);
+    }
+    for (const bonus of this.temporaryStats.get(championId)?.entries() ?? []) {
+      mergeBonus(result, bonus[0], bonus[1].flat, bonus[1].percent);
+    }
+    return [...result].map(([stat, value]) => ({ stat, ...value }));
+  }
+  dispatch(event) {
+    const resolution = emptyResolution();
+    switch (event.type) {
+      case "battle_start":
+        this.onBattleStart(event.actors, resolution);
+        break;
+      case "turn_start":
+        this.onTurnStart(event.actor, event.actors, event.turn, resolution);
+        break;
+      case "turn_end":
+        this.onTurnEnd(event.actor);
+        break;
+      case "ability_cast":
+        this.onAbilityCast(event.actor);
+        break;
+      case "before_damage":
+        this.beforeDamage(event, resolution);
+        break;
+      case "damage_dealt":
+        this.afterDamage(event, resolution);
+        break;
+      case "kill":
+        this.onKill(event.source, event.actors, resolution);
+        break;
+      case "before_heal":
+        resolution.healMultiplier = this.getHealMultiplier(event.source.id, event.target.id);
+        break;
+      case "before_shield":
+        resolution.shieldMultiplier = this.getShieldMultiplier(event.source.id, event.target.id);
+        break;
+      case "before_defeat":
+        this.beforeDefeat(event.target, resolution);
+        break;
+      case "battle_end":
+        break;
+    }
+    resolution.consumedItemInstanceIds = this.consumedItemInstanceIds;
+    return resolution;
+  }
+  onBattleStart(actors, resolution) {
+    for (const actor of actors.filter((candidate) => candidate.side === "player")) {
+      const manager = new RuneManager(this.loadout.runeIds.length);
+      for (const runeId of this.loadout.runeIds) {
+        const rune = RUNE_DATABASE[runeId];
+        if (rune) manager.equipRune(rune);
+      }
+      for (const equipped of manager.runes) {
+        const saved = this.loadout.runeStacks?.[actor.id]?.[equipped.rune.id] ?? 0;
+        if (saved <= 0 || equipped.rune.bonus.duration !== 0) continue;
+        equipped.currentStacks = equipped.rune.bonus.stacks ? Math.min(saved, equipped.rune.bonus.maxStacks) : 0;
+        equipped.isActive = true;
+      }
+      this.runeManagers.set(actor.id, manager);
+      this.runeMetrics.set(actor.id, defaultMetrics());
+      this.evaluateRunes(actor, actors, "battle_start");
+      for (const entry of this.getItems(actor.id)) {
+        const definition = ITEM_DATABASE[entry.item.id];
+        if (definition?.category !== "consumable" /* Consumable */) continue;
+        this.consumedItems.add(entry.instanceId);
+        if (definition.id === "health_potion") this.potionTurns.set(actor.id, 3);
+        if (definition.id === "elixir_of_wrath") {
+          this.setTemporaryStat(actor.id, "atk", 30, 0, Number.POSITIVE_INFINITY);
+        }
+      }
+    }
+    resolution.consumedItemInstanceIds = this.consumedItemInstanceIds;
+  }
+  onTurnStart(actor, actors, turn, resolution) {
+    if (actor.side !== "player") return;
+    const metrics = this.getMetrics(actor.id);
+    metrics.turn = turn;
+    this.evaluateRunes(actor, actors, "turn_start");
+    const potionTurns = this.potionTurns.get(actor.id) ?? 0;
+    if (potionTurns > 0) {
+      resolution.instantEffects.push(this.effect("heal", actor.id, actor.id, 50));
+      this.potionTurns.set(actor.id, potionTurns - 1);
+    }
+    for (const entry of this.getItems(actor.id)) {
+      if (entry.item.id !== "sunfire_aegis") continue;
+      for (const enemy of actors.filter(
+        (candidate) => candidate.side !== actor.side && !candidate.isDefeated
+      )) {
+        resolution.instantEffects.push(this.effect("damage", actor.id, enemy.id, 15));
+      }
+    }
+    const regen = this.loadout.enhancementStats[actor.id]?.flat.hpRegen ?? 0;
+    if (regen > 0) {
+      resolution.instantEffects.push(this.effect("heal", actor.id, actor.id, regen));
+    }
+    const manaRegen = this.loadout.enhancementStats[actor.id]?.flat.mpRegen ?? 0;
+    if (manaRegen > 0) {
+      resolution.instantEffects.push(this.effect("mana", actor.id, actor.id, manaRegen));
+    }
+  }
+  onTurnEnd(actor) {
+    if (actor.side !== "player") return;
+    this.runeManagers.get(actor.id)?.tickTurn();
+    const stats = this.temporaryStats.get(actor.id);
+    if (!stats) return;
+    for (const [stat, bonus] of stats) {
+      if (Number.isFinite(bonus.turns)) bonus.turns--;
+      if (bonus.turns <= 0) stats.delete(stat);
+    }
+  }
+  onAbilityCast(actor) {
+    if (actor.side !== "player") return;
+    const metrics = this.getMetrics(actor.id);
+    metrics.abilitiesCast++;
+    const manager = this.runeManagers.get(actor.id);
+    const electrocute = manager?.runes.find((entry) => entry.rune.id === "electrocute");
+    const wasActive = electrocute?.isActive ?? false;
+    this.evaluateRunes(actor, [actor], "ability_cast");
+    if (!wasActive && electrocute?.isActive) {
+      this.pendingRuneDamage.set(actor.id, electrocute.rune.bonus.triggeredEffect?.value ?? 0);
+    }
+  }
+  beforeDamage(event, resolution) {
+    if (event.source.side === "player") {
+      resolution.damageMultiplier *= this.getAugmentDamageMultiplier();
+      const penetration = (this.loadout.enhancementStats[event.source.id]?.flat.armorPen ?? 0) + (this.loadout.enhancementStats[event.source.id]?.flat.magicPen ?? 0);
+      resolution.damageMultiplier *= 1 + Math.max(0, penetration) / 200;
+      if (event.isCrit && this.getItems(event.source.id).some((entry) => entry.item.id === "infinity_edge")) {
+        resolution.damageMultiplier *= 1.35;
+      }
+      for (const effect of this.getEnhancements(event.source.id)) {
+        if (effect.type === "execute_damage" && event.target.currentHp / event.target.maxHp < 0.4) {
+          resolution.damageMultiplier *= 1 + (effect.value ?? 0);
+        } else if (effect.type === "burst_amplify" && event.action === "spell_r" /* SpellR */) {
+          resolution.damageMultiplier *= 1 + (effect.value ?? 0);
+        } else if (effect.type === "champion_damage") {
+          resolution.damageMultiplier *= 1 + (effect.value ?? 0);
+        } else if (effect.type === "duelist" && event.actors.filter((actor) => actor.side === event.source.side && !actor.isDefeated).length === 1 && event.actors.filter((actor) => actor.side !== event.source.side && !actor.isDefeated).length === 1) {
+          resolution.damageMultiplier *= 1 + (effect.value ?? 0);
+        } else if (effect.type === "berserker" && event.source.currentHp / event.source.maxHp < 0.5) {
+          resolution.damageMultiplier *= 1 + (effect.value ?? 0);
+        }
+      }
+      resolution.damageMultiplier *= 1 + this.getAllTeamEnhancements(event.source.side, "damage_aura");
+    }
+    if (event.target.side === "player") {
+      resolution.damageReduction += this.getAugmentDamageReduction();
+      for (const effect of this.getEnhancements(event.target.id)) {
+        if (effect.type === "duelist" && event.actors.filter((actor) => actor.side === event.target.side && !actor.isDefeated).length === 1 && event.actors.filter((actor) => actor.side !== event.target.side && !actor.isDefeated).length === 1) {
+          resolution.damageReduction += 0.15;
+        }
+        if (effect.type === "dodge" && event.action === "basic_attack" /* BasicAttack */) {
+          if (this.random() < (effect.value ?? 0)) resolution.damageReduction = 1;
+        }
+      }
+      const survivalShield = this.getEnhancements(event.target.id).find(
+        (effect) => effect.type === "survival_shield"
+      );
+      const shieldKey = `${event.target.id}:survival_shield`;
+      if (survivalShield && !this.usedEnhancementCooldowns.has(shieldKey) && event.target.currentHp > 0 && event.target.currentHp / event.target.maxHp < 0.2) {
+        this.usedEnhancementCooldowns.add(shieldKey);
+        resolution.instantEffects.push(
+          this.effect("shield", event.target.id, event.target.id, survivalShield.value ?? 0)
+        );
+      }
+      const allyReduction = this.getAllTeamEnhancements(event.target.side, "ally_damage_reduction");
+      resolution.damageReduction += allyReduction;
+    }
+    resolution.damageReduction = Math.min(1, resolution.damageReduction);
+  }
+  afterDamage(event, resolution) {
+    if (event.source.side === "player") {
+      const metrics = this.getMetrics(event.source.id);
+      metrics.damageDealt += event.amount;
+      metrics.damageEventsDealt++;
+      metrics.lastCrit = event.isCrit;
+      this.evaluateRunes(event.source, event.actors, event.isCrit ? "crit" : "damage_dealt");
+      if (event.isCrit) this.evaluateRunes(event.source, event.actors, "damage_dealt");
+      const lifesteal = this.getItems(event.source.id).some(
+        (entry) => entry.item.id === "bloodthirster"
+      ) ? 0.18 : 0;
+      const enhancedLifesteal = ((this.loadout.enhancementStats[event.source.id]?.flat.lifesteal ?? 0) + (this.loadout.enhancementStats[event.source.id]?.flat.omnivamp ?? 0)) / 100;
+      if (lifesteal + enhancedLifesteal > 0) {
+        resolution.instantEffects.push(
+          this.effect(
+            "heal",
+            event.source.id,
+            event.source.id,
+            event.amount * (lifesteal + enhancedLifesteal)
+          )
+        );
+      }
+      const pendingDamage = this.pendingRuneDamage.get(event.source.id) ?? 0;
+      if (pendingDamage > 0) {
+        this.pendingRuneDamage.delete(event.source.id);
+        resolution.instantEffects.push(
+          this.effect("damage", event.source.id, event.target.id, pendingDamage)
+        );
+      }
+      if (event.action === "basic_attack" /* BasicAttack */) {
+        for (const effect of this.getEnhancements(event.source.id)) {
+          if (effect.type === "bleed") {
+            resolution.instantEffects.push({
+              ...this.effect(
+                "dot",
+                event.source.id,
+                event.target.id,
+                event.target.maxHp * (effect.value ?? 0)
+              ),
+              duration: Math.max(1, Math.round(effect.duration ?? 1))
+            });
+          }
+        }
+      } else if (event.action) {
+        for (const effect of this.getEnhancements(event.source.id)) {
+          if (effect.type === "slow") {
+            resolution.instantEffects.push({
+              type: "slow",
+              sourceId: event.source.id,
+              targetId: event.target.id,
+              amount: effect.value ?? 0,
+              duration: effect.duration
+            });
+          } else if (effect.type === "root_chance" && this.random() < (effect.value ?? 0)) {
+            resolution.instantEffects.push({
+              ...this.effect("snare", event.source.id, event.target.id, 1),
+              duration: effect.duration
+            });
+          }
+        }
+      }
+    }
+    if (event.target.side === "player") {
+      const metrics = this.getMetrics(event.target.id);
+      metrics.damageTaken += event.amount;
+      metrics.damageEventsTaken++;
+      this.damageTaken.set(
+        event.target.id,
+        (this.damageTaken.get(event.target.id) ?? 0) + event.amount
+      );
+      this.evaluateRunes(event.target, event.actors, "damage_taken");
+      for (const effect of this.getEnhancements(event.target.id)) {
+        if (effect.type === "thornmail") {
+          resolution.instantEffects.push(
+            this.effect(
+              "damage",
+              event.target.id,
+              event.source.id,
+              event.amount * (effect.value ?? 0)
+            )
+          );
+        } else if (effect.type === "burn_reflect" && event.action === "basic_attack" /* BasicAttack */) {
+          resolution.instantEffects.push(
+            this.effect(
+              "damage",
+              event.target.id,
+              event.source.id,
+              event.source.maxHp * (effect.value ?? 0)
+            )
+          );
+        } else if (effect.type === "vengeance_burst" && (this.damageTaken.get(event.target.id) ?? 0) >= 500 && !this.usedEnhancementCooldowns.has(`${event.target.id}:${effect.type}`)) {
+          this.usedEnhancementCooldowns.add(`${event.target.id}:${effect.type}`);
+          for (const enemy of event.actors.filter(
+            (candidate) => candidate.side !== event.target.side && !candidate.isDefeated
+          )) {
+            resolution.instantEffects.push(
+              this.effect("damage", event.target.id, enemy.id, effect.value ?? 0)
+            );
+          }
+        }
+      }
+    }
+  }
+  onKill(source, actors, resolution) {
+    if (source.side !== "player") return;
+    const metrics = this.getMetrics(source.id);
+    metrics.kills++;
+    this.evaluateRunes(source, actors, "kill");
+    if (this.loadout.runeIds.includes("triumph")) {
+      resolution.instantEffects.push(
+        this.effect("heal", source.id, source.id, source.maxHp * 0.12)
+      );
+    }
+    for (const effect of this.getEnhancements(source.id)) {
+      if (effect.type === "heal_on_kill") {
+        resolution.instantEffects.push(
+          this.effect("heal", source.id, source.id, source.maxHp * (effect.value ?? 0))
+        );
+      } else if (effect.type === "mana_restore") {
+        resolution.instantEffects.push(
+          this.effect("mana", source.id, source.id, effect.value ?? 0)
+        );
+      } else if (effect.type === "attack_speed_on_kill") {
+        this.setTemporaryStat(
+          source.id,
+          "attackSpeed",
+          0,
+          effect.value ?? 0,
+          Math.max(1, Math.round(effect.duration ?? 1))
+        );
+      }
+    }
+  }
+  beforeDefeat(actor, resolution) {
+    if (actor.side !== "player") return;
+    if (this.loadout.augmentIds.includes("phoenix_heart") && !this.usedRevives.has("augment:phoenix_heart")) {
+      this.usedRevives.add("augment:phoenix_heart");
+      resolution.preventDefeatHp = actor.maxHp * 0.5;
+      return;
+    }
+    const ga = this.getItems(actor.id).find((entry) => entry.item.id === "guardian_angel");
+    if (ga && !this.usedRevives.has(ga.instanceId)) {
+      this.usedRevives.add(ga.instanceId);
+      resolution.preventDefeatHp = actor.maxHp * 0.3;
+      return;
+    }
+    for (const effect of this.getEnhancements(actor.id)) {
+      const key = `${actor.id}:${effect.type}`;
+      if (effect.type === "revive" && !this.usedEnhancementCooldowns.has(key)) {
+        this.usedEnhancementCooldowns.add(key);
+        resolution.preventDefeatHp = 1;
+        return;
+      }
+    }
+  }
+  evaluateRunes(actor, actors, event) {
+    const manager = this.runeManagers.get(actor.id);
+    if (!manager) return;
+    manager.evaluateConditions(this.getRuneContext(actor, actors), event);
+    if (event !== "state_change") {
+      manager.evaluateConditions(this.getRuneContext(actor, actors), "state_change");
+    }
+  }
+  getRuneContext(actor, actors) {
+    const metrics = this.getMetrics(actor.id);
+    const allies = actors.filter((candidate) => candidate.side === actor.side);
+    return {
+      currentHp: actor.currentHp,
+      maxHp: actor.maxHp,
+      turnNumber: Math.max(1, metrics.turn),
+      totalDamageDealt: metrics.damageDealt,
+      totalDamageTaken: metrics.damageTaken,
+      damageEventsDealt: metrics.damageEventsDealt,
+      damageEventsTaken: metrics.damageEventsTaken,
+      killsThisBattle: metrics.kills,
+      abilitiesCastThisBattle: metrics.abilitiesCast,
+      isBuffed: actor.isBuffed,
+      isCCd: actor.isCCd,
+      alliesAlive: allies.filter((candidate) => !candidate.isDefeated).length,
+      totalAllies: allies.length,
+      lastActionWasCrit: metrics.lastCrit
+    };
+  }
+  getMetrics(id) {
+    const current = this.runeMetrics.get(id) ?? defaultMetrics();
+    this.runeMetrics.set(id, current);
+    return current;
+  }
+  getItems(championId) {
+    return this.loadout.inventory.filter(
+      (entry) => entry.equippedToChampionId === championId && ITEM_DATABASE[entry.item.id]
+    );
+  }
+  getEnhancements(championId) {
+    return (this.loadout.enhancementEffects[championId] ?? []).filter(
+      (effect) => SUPPORTED_ENHANCEMENT_EFFECTS.has(effect.type)
+    );
+  }
+  getAllTeamEnhancements(side, type) {
+    if (side !== "player") return 0;
+    return Object.values(this.loadout.enhancementEffects).flat().filter((effect) => effect.type === type).reduce((sum, effect) => sum + (effect.value ?? 0), 0);
+  }
+  getAugmentDamageMultiplier() {
+    return this.loadout.augmentIds.reduce((multiplier, id) => {
+      const augment = AUGMENT_DATABASE[id];
+      return multiplier + (augment?.effects.filter((effect) => effect.type === "damage_percent" /* DamagePercent */).reduce((sum, effect) => sum + (effect.percentValue ?? 0), 0) ?? 0);
+    }, 1);
+  }
+  getAugmentDamageReduction() {
+    return Math.min(
+      0.8,
+      this.loadout.augmentIds.reduce((reduction, id) => {
+        const augment = AUGMENT_DATABASE[id];
+        return reduction + (augment?.effects.filter((effect) => effect.type === "damage_reduction" /* DamageReduction */).reduce((sum, effect) => sum + (effect.percentValue ?? 0), 0) ?? 0);
+      }, 0)
+    );
+  }
+  getHealMultiplier(sourceId, targetId) {
+    let multiplier = 1;
+    if (this.getItems(targetId).some((entry) => entry.item.id === "spirit_visage")) {
+      multiplier += 0.25;
+    }
+    for (const effect of this.getEnhancements(sourceId)) {
+      if (effect.type === "heal_amp") multiplier += effect.value ?? 0;
+    }
+    return multiplier;
+  }
+  getShieldMultiplier(sourceId, targetId) {
+    let multiplier = 1;
+    if (this.getItems(targetId).some((entry) => entry.item.id === "spirit_visage")) {
+      multiplier += 0.25;
+    }
+    for (const effect of this.getEnhancements(sourceId)) {
+      if (effect.type === "shield_amp") multiplier += effect.value ?? 0;
+    }
+    return multiplier;
+  }
+  setTemporaryStat(id, stat, flat, percent, turns) {
+    const stats = this.temporaryStats.get(id) ?? /* @__PURE__ */ new Map();
+    stats.set(stat, { flat, percent, turns });
+    this.temporaryStats.set(id, stats);
+  }
+  effect(type, sourceId, targetId, amount) {
+    return { type, sourceId, targetId, amount: Math.max(0, Math.round(amount)) };
   }
 };
 
@@ -46068,6 +48195,14 @@ function canUnlockNode(node, unlockedNodes, masteryLevel, availableCandies) {
   return !getLockReason(node, unlockedNodes, masteryLevel, availableCandies);
 }
 function getLockReason(node, unlockedNodes, masteryLevel, availableCandies) {
+  const unavailableReasons = getEnhancementNodeUnavailableReasons(node);
+  if (unavailableReasons.length > 0) {
+    return {
+      type: "unavailable",
+      message: "Indisponible dans ce mode",
+      details: unavailableReasons.join(", ")
+    };
+  }
   const maxRanks = node.maxRanks || 1;
   const currentRank = unlockedNodes[node.id] || 0;
   if (currentRank >= maxRanks) {
@@ -46219,6 +48354,12 @@ var EnhancementService = class {
    * Returns validation result with error message if invalid
    */
   validateUnlock(node, state, masteryLevel, availableCandies) {
+    if (getEnhancementNodeUnavailableReasons(node).length > 0) {
+      return {
+        valid: false,
+        error: "Cette am\xE9lioration n'est pas disponible dans le moteur de combat actuel"
+      };
+    }
     if (masteryLevel < node.requiredMasteryLevel) {
       return {
         valid: false,
@@ -46323,6 +48464,1164 @@ var EnhancementService = class {
 var enhancementTreeProvider = new EnhancementTreeProvider();
 var enhancementService = new EnhancementService();
 
+// src/game/rules/loadout.ts
+function buildCombatRuleLoadout(input) {
+  const enhancementEffects = {};
+  const enhancementStats = {};
+  for (const championId of input.championIds) {
+    const champion = championDB.getById(championId);
+    if (!champion) continue;
+    const bonuses = enhancementService.calculateStatBonuses(
+      enhancementTreeProvider.getTreeForChampion(champion),
+      input.getUnlockedEnhancements(championId)
+    );
+    enhancementEffects[championId] = bonuses.effects;
+    enhancementStats[championId] = bonuses;
+  }
+  return {
+    runeIds: [...input.runeIds],
+    runeStacks: input.runeStacks,
+    augmentIds: [...input.augmentIds],
+    inventory: [...input.inventory],
+    enhancementEffects,
+    enhancementStats
+  };
+}
+
+// src/game/rules/catalogValidation.ts
+var SUPPORTED_ITEM_PASSIVES = /* @__PURE__ */ new Set([
+  "ie_passive",
+  "rabadons_passive",
+  "sunfire_passive",
+  "ga_passive",
+  "bt_passive",
+  "sv_passive",
+  "hp_pot_passive",
+  "elixir_wrath_passive"
+]);
+var SUPPORTED_AUGMENT_EFFECTS = /* @__PURE__ */ new Set([
+  "team_stat_flat" /* TeamStatFlat */,
+  "team_stat_percent" /* TeamStatPercent */,
+  "scaling_stat_flat" /* ScalingStatFlat */,
+  "damage_percent" /* DamagePercent */,
+  "damage_reduction" /* DamageReduction */,
+  "bonus_gold" /* BonusGold */,
+  "heal_after_battle" /* HealAfterBattle */,
+  "extra_revive" /* ExtraRevive */,
+  "shop_discount" /* ShopDiscount */
+]);
+function validateRuleCatalogs() {
+  const issues = [];
+  for (const item of Object.values(ITEM_DATABASE)) {
+    if (item.passive && !SUPPORTED_ITEM_PASSIVES.has(item.passive.id)) {
+      issues.push(`item:${item.id}: passive "${item.passive.id}" has no handler`);
+    }
+    if ((item.unique ?? !item.stackable) && item.maxStacks !== 1) {
+      issues.push(`item:${item.id}: unique items must have maxStacks=1`);
+    }
+  }
+  for (const rune of Object.values(RUNE_DATABASE)) {
+    if (!Object.values(RuneConditionType).includes(rune.condition.type)) {
+      issues.push(`rune:${rune.id}: condition "${rune.condition.type}" has no handler`);
+    }
+  }
+  for (const augment of Object.values(AUGMENT_DATABASE)) {
+    for (const effect of augment.effects) {
+      if (!SUPPORTED_AUGMENT_EFFECTS.has(effect.type)) {
+        issues.push(`augment:${augment.id}: effect "${effect.type}" has no handler`);
+      }
+    }
+  }
+  for (const [role, tree] of Object.entries(ENHANCEMENT_TREES_BY_ROLE)) {
+    for (const node of [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)]) {
+      for (const effect of node.effects ?? []) {
+        if (!SUPPORTED_ENHANCEMENT_EFFECTS.has(effect.type) && !UNAVAILABLE_ENHANCEMENT_EFFECTS.has(effect.type)) {
+          issues.push(`enhancement:${role}:${node.id}: effect "${effect.type}" is not classified`);
+        }
+      }
+    }
+  }
+  return issues;
+}
+function assertValidRuleCatalogs() {
+  const issues = validateRuleCatalogs();
+  if (issues.length > 0) throw new Error(`Invalid rule catalog:
+${issues.join("\n")}`);
+}
+
+// src/game/map/types.ts
+var BIOME_MAP_CONFIGS = {
+  top_lane: {
+    minColumns: 6,
+    maxColumns: 8,
+    minNodesPerColumn: 1,
+    maxNodesPerColumn: 3,
+    branchChance: 0.3,
+    eliteChance: 0.15,
+    shopChance: 0.08,
+    restChance: 0.1,
+    eventChance: 0.1,
+    treasureChance: 0.07,
+    recruitChance: 0.08
+  },
+  jungle: {
+    minColumns: 7,
+    maxColumns: 10,
+    minNodesPerColumn: 2,
+    maxNodesPerColumn: 4,
+    branchChance: 0.5,
+    eliteChance: 0.12,
+    shopChance: 0.05,
+    restChance: 0.08,
+    eventChance: 0.15,
+    treasureChance: 0.1,
+    recruitChance: 0.1
+  },
+  mid_lane: {
+    minColumns: 5,
+    maxColumns: 7,
+    minNodesPerColumn: 1,
+    maxNodesPerColumn: 2,
+    branchChance: 0.2,
+    eliteChance: 0.18,
+    shopChance: 0.1,
+    restChance: 0.12,
+    eventChance: 0.08,
+    treasureChance: 0.07,
+    recruitChance: 0.06
+  },
+  bot_lane: {
+    minColumns: 6,
+    maxColumns: 8,
+    minNodesPerColumn: 1,
+    maxNodesPerColumn: 3,
+    branchChance: 0.35,
+    eliteChance: 0.12,
+    shopChance: 0.1,
+    restChance: 0.1,
+    eventChance: 0.12,
+    treasureChance: 0.08,
+    recruitChance: 0.08
+  },
+  river: {
+    minColumns: 4,
+    maxColumns: 6,
+    minNodesPerColumn: 1,
+    maxNodesPerColumn: 3,
+    branchChance: 0.25,
+    eliteChance: 0.2,
+    shopChance: 0.05,
+    restChance: 0.15,
+    eventChance: 0.1,
+    treasureChance: 0.1,
+    recruitChance: 0.05
+  },
+  base: {
+    minColumns: 3,
+    maxColumns: 4,
+    minNodesPerColumn: 1,
+    maxNodesPerColumn: 2,
+    branchChance: 0.1,
+    eliteChance: 0.25,
+    shopChance: 0.1,
+    restChance: 0.15,
+    eventChance: 0,
+    treasureChance: 0.1,
+    recruitChance: 0.03
+  }
+};
+
+// src/game/map/EncounterManager.ts
+function resolveEventOutcome(outcomes, rand = Math.random) {
+  const totalWeight = outcomes.reduce((sum, o) => sum + o.weight, 0);
+  let roll = rand() * totalWeight;
+  for (const outcome of outcomes) {
+    roll -= outcome.weight;
+    if (roll <= 0) return outcome;
+  }
+  return outcomes[outcomes.length - 1];
+}
+function resolveAffordableEventOutcome(outcomes, availableGold, rand = Math.random) {
+  const affordable = outcomes.filter(
+    (outcome) => outcome.type !== "gold_cost" || Math.abs(outcome.goldAmount ?? 0) <= Math.max(0, availableGold)
+  );
+  if (affordable.length > 0) return resolveEventOutcome(affordable, rand);
+  return {
+    type: "nothing",
+    weight: 1,
+    description: "You cannot afford any available outcome, so nothing happens."
+  };
+}
+
+// src/game/recruitment/RecruitmentService.ts
+var DEFAULT_RECRUITMENT_CONFIG = {
+  offerCount: 3,
+  baseCost: 100,
+  costPerLevel: 35,
+  costVariance: 0.25,
+  priceMultiplier: 1
+};
+var BIOME_TAG_WEIGHTS = {
+  top_lane: {
+    Fighter: 3,
+    Tank: 2.5,
+    Mage: 0.5,
+    Marksman: 0.3,
+    Support: 0.4,
+    Assassin: 0.5
+  },
+  jungle: {
+    Fighter: 2,
+    Assassin: 2.5,
+    Tank: 1.5,
+    Mage: 0.7,
+    Marksman: 0.5,
+    Support: 0.3
+  },
+  mid_lane: {
+    Mage: 3,
+    Assassin: 2.5,
+    Fighter: 0.8,
+    Marksman: 0.5,
+    Tank: 0.5,
+    Support: 0.6
+  },
+  bot_lane: {
+    Marksman: 3,
+    Support: 2.5,
+    Mage: 1,
+    Fighter: 0.4,
+    Tank: 0.5,
+    Assassin: 0.6
+  },
+  river: {
+    Fighter: 1.5,
+    Mage: 1.5,
+    Tank: 1.2,
+    Assassin: 1.2,
+    Marksman: 0.8,
+    Support: 0.8
+  },
+  base: {
+    Fighter: 1,
+    Mage: 1,
+    Assassin: 1,
+    Tank: 1,
+    Marksman: 1,
+    Support: 1
+  }
+};
+function getChampionWeight(champion, biome) {
+  const weights = BIOME_TAG_WEIGHTS[biome];
+  let totalWeight = 0;
+  for (const tag of champion.tags) {
+    totalWeight += weights[tag] ?? 1;
+  }
+  return totalWeight / Math.max(1, champion.tags.length);
+}
+function calculateRecruitCost(champion, runLevel, biome, config = DEFAULT_RECRUITMENT_CONFIG, rand = Math.random) {
+  const base = config.baseCost + runLevel * config.costPerLevel;
+  const rarityFactor = champion.tags.length >= 2 ? 0.9 : 1;
+  const biomeRelevance = getBiomeRelevanceFactor(champion, biome);
+  const variance = 1 + (rand() * 2 - 1) * config.costVariance;
+  const cost = base * config.priceMultiplier * rarityFactor * biomeRelevance * variance;
+  return Math.round(cost / 5) * 5;
+}
+function getBiomeRelevanceFactor(champion, biome) {
+  const weights = BIOME_TAG_WEIGHTS[biome];
+  let maxWeight = 0;
+  for (const tag of champion.tags) {
+    const w = weights[tag] ?? 1;
+    if (w > maxWeight) maxWeight = w;
+  }
+  if (maxWeight >= 2.5) return 0.85;
+  if (maxWeight >= 2) return 0.9;
+  if (maxWeight >= 1.5) return 0.95;
+  return 1.1;
+}
+function getWeightedPool(biome, excludeIds) {
+  const exclude = new Set(excludeIds.map((id) => id.toLowerCase()));
+  return implementedChampions.filter((c) => !exclude.has(c.id.toLowerCase())).map((champion) => ({
+    champion,
+    weight: getChampionWeight(champion, biome)
+  }));
+}
+function weightedPick(pool, rand, exclude = /* @__PURE__ */ new Set()) {
+  const eligible = pool.filter((e) => !exclude.has(e.champion.id));
+  if (eligible.length === 0) return null;
+  const totalWeight = eligible.reduce((sum, e) => sum + e.weight, 0);
+  let roll = rand() * totalWeight;
+  for (const entry of eligible) {
+    roll -= entry.weight;
+    if (roll <= 0) return entry;
+  }
+  return eligible[eligible.length - 1];
+}
+function generateRecruitOffers(biome, runLevel, excludeIds = [], config = DEFAULT_RECRUITMENT_CONFIG, rand = Math.random) {
+  const pool = getWeightedPool(biome, excludeIds);
+  if (pool.length === 0) return [];
+  const offerCount = Math.min(config.offerCount, pool.length);
+  const offers = [];
+  const selected = /* @__PURE__ */ new Set();
+  for (let i = 0; i < offerCount; i++) {
+    const chosen = weightedPick(pool, rand, selected);
+    if (!chosen) break;
+    selected.add(chosen.champion.id);
+    offers.push({
+      champion: chosen.champion,
+      cost: calculateRecruitCost(chosen.champion, runLevel, biome, config, rand),
+      weight: chosen.weight
+    });
+  }
+  return offers;
+}
+function generateShopRotation(biome, runLevel, teamIds = [], count = 2, rand = Math.random) {
+  const config = {
+    ...DEFAULT_RECRUITMENT_CONFIG,
+    offerCount: count,
+    priceMultiplier: 1
+  };
+  const offers = generateRecruitOffers(biome, runLevel, teamIds, config, rand);
+  return offers.map((offer) => ({
+    championId: offer.champion.id,
+    cost: offer.cost
+  }));
+}
+function generateWildRecruit(biome, runLevel, teamIds = [], rand = Math.random) {
+  const pool = getWeightedPool(biome, teamIds);
+  if (pool.length === 0) return null;
+  const chosen = weightedPick(pool, rand);
+  if (!chosen) return null;
+  const cost = calculateRecruitCost(
+    chosen.champion,
+    runLevel,
+    biome,
+    DEFAULT_RECRUITMENT_CONFIG,
+    rand
+  );
+  const baseChance = 0.85 - runLevel * 0.03;
+  const successChance = Math.max(0.5, Math.min(0.95, baseChance + (rand() * 0.2 - 0.1)));
+  const statMultiplier = Math.round((0.8 + rand() * 0.4) * 100) / 100;
+  return {
+    championId: chosen.champion.id,
+    cost,
+    successChance: Math.round(successChance * 100) / 100,
+    statMultiplier
+  };
+}
+
+// src/game/map/encounters-part1.ts
+var TOP_LANE_ENCOUNTERS = [
+  {
+    id: "top_darius",
+    name: "The Noxian Guillotine",
+    description: "Darius stands ready with his axe, eager for a duel.",
+    type: "combat",
+    enemies: [{ championId: "Darius", statMultiplier: 0.85 }],
+    goldReward: 25,
+    itemDropChance: 0.15,
+    minRunLevel: 1
+  },
+  {
+    id: "top_garen",
+    name: "Demacian Justice",
+    description: "Garen charges forward with unwavering resolve.",
+    type: "combat",
+    enemies: [{ championId: "Garen", statMultiplier: 0.8 }],
+    goldReward: 20,
+    itemDropChance: 0.12,
+    minRunLevel: 1
+  },
+  {
+    id: "top_malphite",
+    name: "Unstoppable Force",
+    description: "A massive stone golem blocks your path.",
+    type: "combat",
+    enemies: [{ championId: "Malphite", statMultiplier: 0.9 }],
+    goldReward: 30,
+    itemDropChance: 0.18,
+    minRunLevel: 2
+  },
+  {
+    id: "top_warwick",
+    name: "The Uncaged Wrath",
+    description: "Warwick catches your scent and pounces.",
+    type: "combat",
+    enemies: [{ championId: "Warwick", statMultiplier: 0.8 }],
+    goldReward: 22,
+    itemDropChance: 0.14,
+    minRunLevel: 1
+  },
+  {
+    id: "top_duo_fighters",
+    name: "Top Lane Brawl",
+    description: "Two fighters block the lane together.",
+    type: "combat",
+    enemies: [
+      { championId: "Darius", statMultiplier: 0.7 },
+      { championId: "Garen", statMultiplier: 0.7 }
+    ],
+    goldReward: 45,
+    itemDropChance: 0.25,
+    minRunLevel: 3
+  }
+];
+var JUNGLE_ENCOUNTERS = [
+  {
+    id: "jungle_warwick",
+    name: "Blood Hunt",
+    description: "Warwick hunts you through the undergrowth.",
+    type: "combat",
+    enemies: [{ championId: "Warwick", statMultiplier: 0.85 }],
+    goldReward: 28,
+    itemDropChance: 0.16,
+    minRunLevel: 1
+  },
+  {
+    id: "jungle_scuttle",
+    name: "Scuttle Crab",
+    description: "A skittish scuttle crab blocks the river crossing.",
+    type: "combat",
+    enemies: [{ championId: "Malphite", statMultiplier: 0.5 }],
+    goldReward: 15,
+    itemDropChance: 0.05,
+    minRunLevel: 1
+  },
+  {
+    id: "jungle_ambush",
+    name: "Jungle Ambush",
+    description: "An ambush from the bushes! Multiple enemies attack at once.",
+    type: "combat",
+    enemies: [
+      { championId: "Warwick", statMultiplier: 0.75 },
+      { championId: "Annie", statMultiplier: 0.65 }
+    ],
+    goldReward: 40,
+    itemDropChance: 0.22,
+    minRunLevel: 2
+  },
+  {
+    id: "jungle_monster_camp",
+    name: "Monster Camp",
+    description: "A den of stone creatures guards the jungle camp.",
+    type: "combat",
+    enemies: [
+      { championId: "Malphite", statMultiplier: 0.55 },
+      { championId: "Malphite", statMultiplier: 0.4 }
+    ],
+    goldReward: 30,
+    itemDropChance: 0.12,
+    minRunLevel: 1
+  },
+  {
+    id: "jungle_gank",
+    name: "Surprise Gank",
+    description: "A coordinated gank catches you off guard!",
+    type: "combat",
+    enemies: [
+      { championId: "Warwick", statMultiplier: 0.8 },
+      { championId: "Lux", statMultiplier: 0.7 }
+    ],
+    goldReward: 50,
+    itemDropChance: 0.28,
+    minRunLevel: 3
+  }
+];
+
+// src/game/map/encounters-part2.ts
+var MID_LANE_ENCOUNTERS = [
+  {
+    id: "mid_lux",
+    name: "Final Spark",
+    description: "A blinding light erupts from the mid lane.",
+    type: "combat",
+    enemies: [{ championId: "Lux", statMultiplier: 0.85 }],
+    goldReward: 25,
+    itemDropChance: 0.15,
+    minRunLevel: 1
+  },
+  {
+    id: "mid_annie",
+    name: "Tibbers!",
+    description: "Annie summons her fiery bear companion.",
+    type: "combat",
+    enemies: [{ championId: "Annie", statMultiplier: 0.8 }],
+    goldReward: 24,
+    itemDropChance: 0.14,
+    minRunLevel: 1
+  },
+  {
+    id: "mid_mage_duel",
+    name: "Mage Duel",
+    description: "Two powerful mages clash in a battle of magic.",
+    type: "combat",
+    enemies: [
+      { championId: "Lux", statMultiplier: 0.75 },
+      { championId: "Annie", statMultiplier: 0.75 }
+    ],
+    goldReward: 48,
+    itemDropChance: 0.26,
+    minRunLevel: 2
+  },
+  {
+    id: "mid_arcane_barrage",
+    name: "Arcane Barrage",
+    description: "A devastating barrage of arcane energy fills the air.",
+    type: "combat",
+    enemies: [{ championId: "Lux", statMultiplier: 1 }],
+    goldReward: 35,
+    itemDropChance: 0.2,
+    minRunLevel: 3
+  },
+  {
+    id: "mid_assassin_threat",
+    name: "Shadow Assassin",
+    description: "A shadowy figure emerges from the darkness.",
+    type: "combat",
+    enemies: [{ championId: "Annie", statMultiplier: 0.9 }],
+    goldReward: 32,
+    itemDropChance: 0.18,
+    minRunLevel: 2
+  }
+];
+var BOT_LANE_ENCOUNTERS = [
+  {
+    id: "bot_jinx",
+    name: "Get Excited!",
+    description: "Jinx rockets toward you with chaotic glee.",
+    type: "combat",
+    enemies: [{ championId: "Jinx", statMultiplier: 0.85 }],
+    goldReward: 28,
+    itemDropChance: 0.16,
+    minRunLevel: 1
+  },
+  {
+    id: "bot_ashe",
+    name: "Enchanted Crystal Arrow",
+    description: "An enchanted arrow streaks across the battlefield.",
+    type: "combat",
+    enemies: [{ championId: "Ashe", statMultiplier: 0.8 }],
+    goldReward: 25,
+    itemDropChance: 0.15,
+    minRunLevel: 1
+  },
+  {
+    id: "bot_duo_lane",
+    name: "Bot Lane Duo",
+    description: "A marksman and support pair guard the lane.",
+    type: "combat",
+    enemies: [
+      { championId: "Jinx", statMultiplier: 0.75 },
+      { championId: "Soraka", statMultiplier: 0.65 }
+    ],
+    goldReward: 45,
+    itemDropChance: 0.24,
+    minRunLevel: 2
+  },
+  {
+    id: "bot_protected_carry",
+    name: "Protected Carry",
+    description: "A well-protected carry stands behind a stalwart defender.",
+    type: "combat",
+    enemies: [
+      { championId: "Ashe", statMultiplier: 0.8 },
+      { championId: "Leona", statMultiplier: 0.7 }
+    ],
+    goldReward: 48,
+    itemDropChance: 0.26,
+    minRunLevel: 2
+  },
+  {
+    id: "bot_full_team",
+    name: "Full Bot Lane",
+    description: "The entire bot lane squad is assembled against you.",
+    type: "combat",
+    enemies: [
+      { championId: "Jinx", statMultiplier: 0.75 },
+      { championId: "Leona", statMultiplier: 0.65 },
+      { championId: "Soraka", statMultiplier: 0.55 }
+    ],
+    goldReward: 65,
+    itemDropChance: 0.35,
+    minRunLevel: 4
+  }
+];
+
+// src/game/map/encounters-part3.ts
+var RIVER_ENCOUNTERS = [
+  {
+    id: "river_scuttle",
+    name: "Scuttle Crab",
+    description: "A scuttle crab skitters across the river path.",
+    type: "combat",
+    enemies: [{ championId: "Malphite", statMultiplier: 0.55 }],
+    goldReward: 18,
+    itemDropChance: 0.08,
+    minRunLevel: 1
+  },
+  {
+    id: "river_drake_infernal",
+    name: "Infernal Drake",
+    description: "The Infernal Drake breathes fire across the river.",
+    type: "combat",
+    enemies: [{ championId: "Annie", statMultiplier: 1 }],
+    goldReward: 40,
+    itemDropChance: 0.25,
+    minRunLevel: 2
+  },
+  {
+    id: "river_drake_ocean",
+    name: "Ocean Drake",
+    description: "The Ocean Drake surges with tidal power.",
+    type: "combat",
+    enemies: [{ championId: "Soraka", statMultiplier: 0.95 }],
+    goldReward: 35,
+    itemDropChance: 0.22,
+    minRunLevel: 2
+  },
+  {
+    id: "river_drake_mountain",
+    name: "Mountain Drake",
+    description: "The Mountain Drake stomps with earth-shaking force.",
+    type: "combat",
+    enemies: [{ championId: "Malphite", statMultiplier: 1.1 }],
+    goldReward: 45,
+    itemDropChance: 0.28,
+    minRunLevel: 3
+  },
+  {
+    id: "river_elder_dragon",
+    name: "Elder Dragon",
+    description: "The Elder Dragon awakens with devastating power.",
+    type: "combat",
+    enemies: [
+      { championId: "Malphite", statMultiplier: 0.95 },
+      { championId: "Annie", statMultiplier: 0.9 }
+    ],
+    goldReward: 80,
+    itemDropChance: 0.45,
+    minRunLevel: 5
+  }
+];
+var BASE_ENCOUNTERS = [
+  {
+    id: "base_turret_guardian",
+    name: "Turret Guardian",
+    description: "The turret guardians stand watch over the base.",
+    type: "combat",
+    enemies: [
+      { championId: "Leona", statMultiplier: 1 },
+      { championId: "Malphite", statMultiplier: 0.9 }
+    ],
+    goldReward: 60,
+    itemDropChance: 0.3,
+    minRunLevel: 4
+  },
+  {
+    id: "base_inhibitor_defense",
+    name: "Inhibitor Defense",
+    description: "The inhibitor defenders rally to protect the base.",
+    type: "combat",
+    enemies: [
+      { championId: "Garen", statMultiplier: 0.9 },
+      { championId: "Lux", statMultiplier: 0.9 },
+      { championId: "Jinx", statMultiplier: 0.85 }
+    ],
+    goldReward: 80,
+    itemDropChance: 0.35,
+    minRunLevel: 5
+  },
+  {
+    id: "base_nexus_guardians",
+    name: "Nexus Guardians",
+    description: "The final guardians protect the Nexus at all costs.",
+    type: "combat",
+    enemies: [
+      { championId: "Leona", statMultiplier: 0.95 },
+      { championId: "Darius", statMultiplier: 0.95 },
+      { championId: "Ashe", statMultiplier: 0.9 },
+      { championId: "Lux", statMultiplier: 0.9 }
+    ],
+    goldReward: 100,
+    itemDropChance: 0.5,
+    minRunLevel: 6
+  }
+];
+
+// src/game/map/encounters.ts
+var ENCOUNTER_POOLS = {
+  top_lane: TOP_LANE_ENCOUNTERS,
+  jungle: JUNGLE_ENCOUNTERS,
+  mid_lane: MID_LANE_ENCOUNTERS,
+  bot_lane: BOT_LANE_ENCOUNTERS,
+  river: RIVER_ENCOUNTERS,
+  base: BASE_ENCOUNTERS
+};
+function getEligibleEncounters(biome, runLevel) {
+  return ENCOUNTER_POOLS[biome].filter((enc) => enc.minRunLevel <= runLevel);
+}
+function getBiomeBoss(biome, runLevel) {
+  if (biome === "base") {
+    const baseEncounters = getEligibleEncounters("base", runLevel);
+    return baseEncounters[baseEncounters.length - 1];
+  }
+  const eligible = getEligibleEncounters(biome, runLevel);
+  const hardest = eligible.reduce(
+    (a, b) => a.enemies.reduce((s, e) => s + e.statMultiplier, 0) > b.enemies.reduce((s, e) => s + e.statMultiplier, 0) ? a : b
+  );
+  return {
+    ...hardest,
+    id: `${biome}_boss`,
+    name: `${hardest.name} (Elite)`,
+    enemies: hardest.enemies.map((e) => ({
+      ...e,
+      statMultiplier: e.statMultiplier * 1.3
+    })),
+    goldReward: Math.round(hardest.goldReward * 2),
+    itemDropChance: Math.min(1, hardest.itemDropChance * 2)
+  };
+}
+function getRandomEncounter(biome, runLevel, rand = Math.random) {
+  const eligible = getEligibleEncounters(biome, runLevel);
+  return eligible[Math.floor(rand() * eligible.length)];
+}
+
+// src/game/map/MapGenerator-helpers.ts
+function mulberry32(seed) {
+  return () => {
+    seed |= 0;
+    seed = seed + 1831565813 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function seededShuffle(values, rand) {
+  const shuffled = [...values];
+  for (let index = shuffled.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(rand() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+function getNodeMetadata(type, biome) {
+  const biomeNames = {
+    top_lane: "Top Lane",
+    jungle: "Jungle",
+    mid_lane: "Mid Lane",
+    bot_lane: "Bot Lane",
+    river: "River",
+    base: "Enemy Base"
+  };
+  const metadata = {
+    ["start" /* Start */]: {
+      title: "Entrance",
+      description: `Enter the ${biomeNames[biome]}`,
+      icon: "\u{1F6AA}"
+    },
+    ["combat" /* Combat */]: { title: "Combat", description: "Fight enemy champions", icon: "\u2694\uFE0F" },
+    ["elite" /* Elite */]: { title: "Elite", description: "A powerful enemy awaits", icon: "\u{1F480}" },
+    ["boss" /* Boss */]: { title: "Boss", description: "The final challenge", icon: "\u{1F451}" },
+    ["shop" /* Shop */]: {
+      title: "Shop",
+      description: "Spend your gold on items and recruits",
+      icon: "\u{1F6D2}"
+    },
+    ["rest" /* Rest */]: { title: "Rest", description: "Heal your champions", icon: "\u{1F49A}" },
+    ["event" /* Event */]: {
+      title: "Mystery",
+      description: "A mysterious encounter awaits",
+      icon: "\u2753"
+    },
+    ["treasure" /* Treasure */]: { title: "Treasure", description: "A free reward awaits", icon: "\u{1F48E}" },
+    ["recruit" /* Recruit */]: {
+      title: "Recruit",
+      description: "A wild champion seeks a team",
+      icon: "\u{1F91D}"
+    },
+    ["exit" /* Exit */]: { title: "Exit", description: "Proceed to the next zone", icon: "\u27A1\uFE0F" }
+  };
+  return metadata[type];
+}
+function selectColumnType(config, rand, columnIndex, totalColumns) {
+  if (columnIndex === 0) return "combat" /* Combat */;
+  if (columnIndex === totalColumns - 1) {
+    return config.biome === "base" ? "boss" /* Boss */ : "exit" /* Exit */;
+  }
+  if (columnIndex === totalColumns - 2) {
+    if (rand() < 0.5) return "rest" /* Rest */;
+    return "combat" /* Combat */;
+  }
+  const roll = rand();
+  let cumulative = 0;
+  cumulative += config.shopChance;
+  if (roll < cumulative) return "shop" /* Shop */;
+  cumulative += config.restChance;
+  if (roll < cumulative) return "rest" /* Rest */;
+  cumulative += config.eventChance;
+  if (roll < cumulative) return "event" /* Event */;
+  cumulative += config.treasureChance;
+  if (roll < cumulative) return "treasure" /* Treasure */;
+  cumulative += config.eliteChance;
+  if (roll < cumulative) return "elite" /* Elite */;
+  cumulative += config.recruitChance;
+  if (roll < cumulative) return "recruit" /* Recruit */;
+  return "combat" /* Combat */;
+}
+function buildConfig(biome, runLevel, seed) {
+  const biomeConfig = BIOME_MAP_CONFIGS[biome];
+  return { ...biomeConfig, biome, runLevel, seed };
+}
+
+// src/game/map/MapGenerator-core.ts
+function itemDefToShopItem(itemId, priceOverride) {
+  const def = getItemDefinition(itemId);
+  if (!def) {
+    return {
+      itemId,
+      name: itemId,
+      description: "Unknown item",
+      price: priceOverride ?? 100,
+      iconUrl: "",
+      stats: {}
+    };
+  }
+  const stats = {};
+  for (const s of def.stats) {
+    stats[s.stat] = (stats[s.stat] ?? 0) + s.value;
+  }
+  return {
+    itemId: def.id,
+    name: def.name,
+    description: def.description,
+    price: priceOverride ?? def.goldValue,
+    iconUrl: def.iconUrl,
+    stats,
+    passiveId: def.passive?.id
+  };
+}
+var SHOPABLE_ITEM_IDS = Object.values(ITEM_DATABASE).filter((item) => item.tier === 1 || item.category === "consumable").map((item) => item.id);
+function createEncounterId(type, biome, rand) {
+  return `${type}_${biome}_${Math.floor(rand() * 1e9).toString(36)}`;
+}
+function generateShopEncounter(biome, runLevel, rand) {
+  const itemCount = 2 + Math.floor(rand() * 3);
+  const shuffled = seededShuffle(SHOPABLE_ITEM_IDS, rand);
+  const items = shuffled.slice(0, itemCount).map((id) => {
+    const base = itemDefToShopItem(id);
+    return { ...base, price: Math.round(base.price * (0.8 + runLevel * 0.15)) };
+  });
+  const recruitableChampions = generateShopRotation(
+    biome,
+    runLevel,
+    [],
+    1 + Math.floor(rand() * 2),
+    rand
+  );
+  const shopNames = {
+    top_lane: "The Armory",
+    jungle: "Nomad Trader",
+    mid_lane: "Arcane Emporium",
+    bot_lane: "Market Stalls",
+    river: "River Merchant",
+    base: "Black Market"
+  };
+  return {
+    id: createEncounterId("shop", biome, rand),
+    name: shopNames[biome],
+    description: `A merchant appears with wares from the ${biome.replace("_", " ")}.`,
+    type: "shop",
+    minRunLevel: 1,
+    items,
+    recruitableChampions,
+    priceMultiplier: rand() < 0.2 ? 0.8 : 1
+  };
+}
+function generateRestEncounter(biome, runLevel, rand) {
+  const roll = rand();
+  const fullHeal = roll < 0.2;
+  const healPercent = fullHeal ? 1 : 0.25 + rand() * 0.5;
+  const goldCost = fullHeal ? Math.round(50 + runLevel * 20) : Math.round(20 + runLevel * 10);
+  const restNames = [
+    "Campfire",
+    "Meditation Shrine",
+    "Healing Spring",
+    "Safe Haven",
+    "Temple of Renewal"
+  ];
+  const name = restNames[Math.floor(rand() * restNames.length)];
+  return {
+    id: createEncounterId("rest", biome, rand),
+    name,
+    description: fullHeal ? "A sacred place that fully restores your team." : "A moment of respite to tend your wounds.",
+    type: "rest",
+    minRunLevel: 1,
+    healPercent: Math.round(healPercent * 100) / 100,
+    goldCost,
+    fullHeal
+  };
+}
+function generateEventEncounter(biome, runLevel, rand) {
+  const eventPool = [
+    {
+      name: "Mysterious Chest",
+      description: "A glowing chest sits in your path. Do you open it?",
+      outcomes: [
+        {
+          type: "gold_reward",
+          weight: 3,
+          description: "You find gold inside!",
+          goldAmount: 30 + runLevel * 15
+        },
+        {
+          type: "item_reward",
+          weight: 2,
+          description: "An item glows inside!",
+          item: itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)])
+        },
+        {
+          type: "damage",
+          weight: 2,
+          description: "A trap! The chest explodes!",
+          damagePercent: 0.15
+        },
+        { type: "nothing", weight: 1, description: "The chest is empty..." }
+      ]
+    },
+    {
+      name: "Wandering Spirit",
+      description: "A friendly spirit offers to help your team.",
+      outcomes: [
+        { type: "heal", weight: 3, description: "The spirit heals your team!", healPercent: 0.3 },
+        {
+          type: "stat_boost",
+          weight: 2,
+          description: "The spirit empowers your team!",
+          statBoost: { stat: "atk", amount: 5 }
+        },
+        {
+          type: "gold_reward",
+          weight: 1,
+          description: "The spirit drops gold.",
+          goldAmount: 20 + runLevel * 10
+        }
+      ]
+    },
+    {
+      name: "Runic Altar",
+      description: "An ancient altar pulses with power.",
+      outcomes: [
+        {
+          type: "stat_boost",
+          weight: 3,
+          description: "The altar grants you strength!",
+          statBoost: { stat: "def", amount: 8 }
+        },
+        {
+          type: "gold_cost",
+          weight: 2,
+          description: "The altar demands an offering.",
+          goldAmount: -(20 + runLevel * 10)
+        },
+        {
+          type: "champion_recruit",
+          weight: 1,
+          description: "A champion appears from the altar!",
+          championId: implementedChampions[Math.floor(rand() * implementedChampions.length)].id
+        }
+      ]
+    },
+    {
+      name: "Loot Goblin",
+      description: "A small creature scurries past with a bag of gold!",
+      outcomes: [
+        {
+          type: "gold_reward",
+          weight: 4,
+          description: "You catch the goblin!",
+          goldAmount: 40 + runLevel * 20
+        },
+        {
+          type: "item_reward",
+          weight: 2,
+          description: "The goblin drops its bag!",
+          item: itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)])
+        },
+        { type: "nothing", weight: 1, description: "The goblin escapes too fast..." }
+      ]
+    }
+  ];
+  const chosen = eventPool[Math.floor(rand() * eventPool.length)];
+  return {
+    id: createEncounterId("event", biome, rand),
+    name: chosen.name,
+    description: chosen.description,
+    type: "event",
+    minRunLevel: 1,
+    outcomes: chosen.outcomes
+  };
+}
+function generateRecruitEncounter(biome, runLevel, rand) {
+  const recruit = generateWildRecruit(biome, runLevel, [], rand);
+  const championId = recruit?.championId ?? "Garen";
+  const cost = recruit?.cost ?? Math.round(100 + runLevel * 40);
+  const successChance = recruit?.successChance ?? 0.75;
+  const statMultiplier = recruit?.statMultiplier ?? 1;
+  return {
+    id: `recruit_${biome}_${championId}_${Math.floor(rand() * 1e4)}`,
+    name: `Wild ${championId}`,
+    description: `${championId} appears and may join your team... for a price.`,
+    type: "recruit",
+    minRunLevel: 1,
+    championId,
+    cost,
+    successChance,
+    statMultiplier
+  };
+}
+function generateTreasureEncounter(biome, runLevel, rand) {
+  const gold = Math.round(50 + runLevel * 25 + rand() * 50);
+  const hasItem = rand() < 0.4;
+  const item = hasItem ? itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)]) : void 0;
+  const treasureNames = [
+    "Shimmering Chest",
+    "Golden Cache",
+    "Forgotten Hoard",
+    "Mystic Treasure",
+    "Ancient Stash",
+    "Goblin Stash",
+    "Dragon's Bounty"
+  ];
+  const name = treasureNames[Math.floor(rand() * treasureNames.length)];
+  return {
+    id: createEncounterId("treasure", biome, rand),
+    name,
+    description: `A ${name.toLowerCase()} glimmers in the ${biome.replace("_", " ")}.`,
+    type: "treasure",
+    minRunLevel: 1,
+    gold,
+    item
+  };
+}
+function generateEncounterForNode(nodeType, biome, runLevel, rand) {
+  switch (nodeType) {
+    case "combat" /* Combat */:
+    case "elite" /* Elite */:
+      return getRandomEncounter(biome, runLevel, rand);
+    case "boss" /* Boss */:
+      return getBiomeBoss(biome, runLevel);
+    case "shop" /* Shop */:
+      return generateShopEncounter(biome, runLevel, rand);
+    case "rest" /* Rest */:
+      return generateRestEncounter(biome, runLevel, rand);
+    case "event" /* Event */:
+      return generateEventEncounter(biome, runLevel, rand);
+    case "recruit" /* Recruit */:
+      return generateRecruitEncounter(biome, runLevel, rand);
+    case "treasure" /* Treasure */:
+      return generateTreasureEncounter(biome, runLevel, rand);
+    case "start" /* Start */:
+    case "exit" /* Exit */:
+    default:
+      return null;
+  }
+}
+function generateMap(biome, runLevel, seed) {
+  const effectiveSeed = seed ?? Date.now();
+  const rand = mulberry32(effectiveSeed);
+  const config = buildConfig(biome, runLevel, effectiveSeed);
+  const columns = Math.floor(
+    rand() * (config.maxColumns - config.minColumns + 1) + config.minColumns
+  );
+  const columnNodes = [];
+  let nodeIdCounter = 0;
+  const allNodes = [];
+  for (let col = 0; col < columns; col++) {
+    const nodeCount = col === 0 ? 1 : Math.floor(
+      rand() * (config.maxNodesPerColumn - config.minNodesPerColumn + 1) + config.minNodesPerColumn
+    );
+    const nodesInColumn = [];
+    for (let row = 0; row < nodeCount; row++) {
+      const nodeType = selectColumnType(config, rand, col, columns);
+      const encounter = generateEncounterForNode(nodeType, biome, runLevel, rand);
+      const node = {
+        id: `node_${biome}_${nodeIdCounter++}`,
+        type: nodeType,
+        column: col,
+        row,
+        nextNodeIds: [],
+        prevNodeIds: [],
+        biome,
+        completed: false,
+        accessible: col === 0,
+        encounter,
+        metadata: getNodeMetadata(nodeType, biome)
+      };
+      nodesInColumn.push(node);
+      allNodes.push(node);
+    }
+    columnNodes.push(nodesInColumn);
+  }
+  for (let col = 0; col < columns - 1; col++) {
+    const currentColumn = columnNodes[col];
+    const nextColumn = columnNodes[col + 1];
+    for (const node of currentColumn) {
+      const availableTargets = nextColumn.filter((t) => t.prevNodeIds.length < 3);
+      if (availableTargets.length === 0) {
+        const target = nextColumn[0];
+        node.nextNodeIds.push(target.id);
+        target.prevNodeIds.push(node.id);
+        continue;
+      }
+      const primaryTarget = availableTargets[Math.floor(rand() * availableTargets.length)];
+      node.nextNodeIds.push(primaryTarget.id);
+      primaryTarget.prevNodeIds.push(node.id);
+      if (rand() < config.branchChance && availableTargets.length > 1) {
+        const otherTargets = availableTargets.filter((t) => t.id !== primaryTarget.id);
+        if (otherTargets.length > 0) {
+          const branchTarget = otherTargets[Math.floor(rand() * otherTargets.length)];
+          if (!node.nextNodeIds.includes(branchTarget.id)) {
+            node.nextNodeIds.push(branchTarget.id);
+            branchTarget.prevNodeIds.push(node.id);
+          }
+        }
+      }
+    }
+    for (const nextNode of nextColumn) {
+      if (nextNode.prevNodeIds.length === 0) {
+        const source = currentColumn[Math.floor(rand() * currentColumn.length)];
+        source.nextNodeIds.push(nextNode.id);
+        nextNode.prevNodeIds.push(source.id);
+      }
+    }
+  }
+  const startNode = columnNodes[0][0];
+  const lastColumn = columnNodes[columns - 1];
+  const exitNode = lastColumn.find((n) => n.type === "exit" /* Exit */ || n.type === "boss" /* Boss */) ?? lastColumn[0];
+  return {
+    biome,
+    nodes: allNodes,
+    startNodeId: startNode.id,
+    exitNodeId: exitNode.id,
+    columns,
+    rows: Math.max(...columnNodes.map((col) => col.length))
+  };
+}
+function generateRunMap(seed) {
+  const biomeOrder = ["top_lane", "jungle", "mid_lane", "bot_lane", "river", "base"];
+  const effectiveSeed = seed ?? Date.now();
+  return biomeOrder.map((biome, index) => {
+    const biomeSeed = effectiveSeed + index * 1e3;
+    const runLevel = index + 1;
+    return generateMap(biome, runLevel, biomeSeed);
+  });
+}
+
+// src/game/map/mapUtils.ts
+function findNode(map, nodeId) {
+  return map.nodes.find((n) => n.id === nodeId);
+}
+
 // src/types/run.ts
 var MAX_TEAM_SIZE = 5;
 var MAX_ITEMS_PER_CHAMPION = 6;
@@ -46393,6 +49692,48 @@ var ITEM_STAT_MAP = {
   spd: "moveSpeed",
   crit: "crit"
 };
+var COMBAT_STAT_KEY_MAP = {
+  hp: "hp",
+  mp: "mp",
+  atk: "attackDamage",
+  attackDamage: "attackDamage",
+  ap: "abilityPower",
+  abilityPower: "abilityPower",
+  def: "armor",
+  armor: "armor",
+  mr: "magicResist",
+  magicResist: "magicResist",
+  spd: "moveSpeed",
+  moveSpeed: "moveSpeed",
+  crit: "crit",
+  attackSpeed: "attackSpeed",
+  hpRegen: "hpRegen",
+  mpRegen: "mpRegen",
+  attackRange: "attackRange"
+};
+var ENHANCEMENT_STAT_KEY_MAP = {
+  hp: "hp",
+  mp: "mp",
+  atk: "attackDamage",
+  ap: "abilityPower",
+  def: "armor",
+  mr: "magicResist",
+  spd: "moveSpeed",
+  crit: "crit",
+  attackSpeed: "attackSpeed",
+  hpRegen: "hpRegen",
+  mpRegen: "mpRegen",
+  attackRange: "attackRange",
+  armorPen: null,
+  magicPen: null,
+  lifesteal: null,
+  omnivamp: null,
+  tenacity: null,
+  abilityHaste: null
+};
+function toCombatStatKey(stat) {
+  return COMBAT_STAT_KEY_MAP[stat] ?? ENHANCEMENT_STAT_KEY_MAP[stat] ?? null;
+}
 function calculateItemBonuses(inventory, championId) {
   const bonuses = {};
   const equippedItems = inventory.filter((entry) => entry.equippedToChampionId === championId);
@@ -46411,16 +49752,16 @@ function applyEnhancementBonuses(baseStats, bonuses) {
   const result = { ...baseStats };
   if (bonuses.flat) {
     for (const [stat, value] of Object.entries(bonuses.flat)) {
-      const statKey = stat;
-      if (statKey in result) {
+      const statKey = toCombatStatKey(stat);
+      if (statKey) {
         result[statKey] = result[statKey] + value;
       }
     }
   }
   if (bonuses.percent) {
     for (const [stat, percent] of Object.entries(bonuses.percent)) {
-      const statKey = stat;
-      if (statKey in result) {
+      const statKey = toCombatStatKey(stat);
+      if (statKey) {
         result[statKey] = result[statKey] * (1 + percent);
       }
     }
@@ -46553,8 +49894,9 @@ function addXp(currentLevel, currentXp, xpGained) {
 }
 
 // src/game/authority/AuthorityRunEngine.ts
-var AUTHORITY_ENGINE_VERSION = "run-engine-v1";
-var AUTHORITY_CONTENT_HASH = "cbb1a53ea9f9231e542181de9e387ebef1d00415e2765c081db8c4ebd9c42465";
+var AUTHORITY_ENGINE_VERSION = "run-engine-v2";
+var AUTHORITY_CONTENT_HASH = "85af7f7d9178597f4f9ed14e362773973f9f2601d679b62c7649de53e2d68223";
+assertValidRuleCatalogs();
 var MAX_COMMANDS = 1e4;
 var MAX_COMBAT_TURNS = 1e5;
 var IMPLEMENTED_CHAMPION_IDS = new Set(implementedChampions.map((champion) => champion.id));
@@ -46570,14 +49912,6 @@ var DIFFICULTY_MULTIPLIER = {
   easy: 0.85,
   normal: 1,
   hard: 1.2
-};
-var STAT_KEY_MAP = {
-  hp: "hp",
-  atk: "attackDamage",
-  def: "armor",
-  ap: "abilityPower",
-  spd: "moveSpeed",
-  crit: "crit"
 };
 var AuthorityRunVerificationError = class extends Error {
   constructor(code, message, commandIndex = null) {
@@ -46832,6 +50166,7 @@ var AuthorityReplayState = class {
   team;
   inventory = [];
   augmentIds = [];
+  runeStacks = {};
   pendingAugmentIds = [];
   pendingSpellUpgradeChampionIds = [];
   gold = 0;
@@ -47025,7 +50360,18 @@ var AuthorityReplayState = class {
       maxRounds: 50,
       maxTeamSize: MAX_TEAM_SIZE,
       initialHpOverrides: Object.keys(initialHpOverrides).length > 0 ? initialHpOverrides : void 0,
-      random: () => rng.next()
+      random: () => rng.next(),
+      rules: new CombatRuleRuntime(
+        buildCombatRuleLoadout({
+          championIds: this.team.map((member) => member.championId),
+          runeIds: this.attempt.runeIds,
+          runeStacks: this.runeStacks,
+          augmentIds: this.augmentIds,
+          inventory: this.inventory,
+          getUnlockedEnhancements: (championId) => this.attempt.enhancementSnapshot[championId] ?? {}
+        }),
+        () => rng.next()
+      )
     });
     battle.startBattle();
     let processedTurns = 0;
@@ -47049,14 +50395,25 @@ var AuthorityReplayState = class {
       const member = this.team.find((candidate) => candidate.championId === finalState.championId);
       if (member) member.currentHp = finalState.currentHp;
     }
+    const consumedItems = new Set(battle.getConsumedItemInstanceIds());
+    this.inventory = this.inventory.filter((entry) => !consumedItems.has(entry.instanceId));
+    this.runeStacks = battle.getRuneStacks();
     if (result.winner !== "player") {
       this.terminal = true;
       this.endReason = result.winner === "draw" ? "draw" : "defeat";
       this.expectedNodeIds = [];
       return;
     }
-    const goldReward = 50 + this.runLevel * 10;
+    const augmentManager = this.getAugmentManager();
+    const goldReward = 50 + this.runLevel * 10 + augmentManager.getBonusGold();
     this.gold += goldReward;
+    const healAfterBattle = augmentManager.getHealAfterBattlePercent();
+    if (healAfterBattle > 0) {
+      for (const member of this.team) {
+        const maxHp = this.getMemberMaxHp(member);
+        member.currentHp = Math.min(maxHp, (member.currentHp ?? 0) + maxHp * healAfterBattle);
+      }
+    }
     const xpGain = calculateXpGain(
       this.runLevel,
       node.type === "elite" /* Elite */,
@@ -47100,7 +50457,7 @@ var AuthorityReplayState = class {
       effects: [...calculated.effects]
     };
     const addBonus = (stat, type, value) => {
-      const target = STAT_KEY_MAP[stat] ?? stat;
+      const target = toCombatStatKey(stat) ?? stat;
       bonuses[type][target] = (bonuses[type][target] ?? 0) + value;
     };
     for (const augmentId of this.augmentIds) {
@@ -47117,30 +50474,6 @@ var AuthorityReplayState = class {
         }
       }
     }
-    const runeManager = new RuneManager();
-    for (const runeId of this.attempt.runeIds) {
-      const rune = getRuneDefinition(runeId);
-      if (rune) runeManager.equipRune(rune);
-    }
-    const baseStats = instance.getStats();
-    runeManager.evaluateConditions({
-      currentHp: baseStats.hp,
-      maxHp: baseStats.hp,
-      turnNumber: 1,
-      totalDamageDealt: 0,
-      totalDamageTaken: 0,
-      killsThisBattle: 0,
-      abilitiesCastThisBattle: 0,
-      isBuffed: false,
-      isCCd: false,
-      alliesAlive: this.team.length,
-      totalAllies: this.team.length,
-      lastActionWasCrit: false
-    });
-    for (const [stat, bonus] of Object.entries(runeManager.getActiveStatBonuses())) {
-      addBonus(stat, "flat", bonus.flat);
-      addBonus(stat, "percent", bonus.percent);
-    }
     for (const entry of this.inventory.filter(
       (candidate) => candidate.equippedToChampionId === member.championId
     )) {
@@ -47148,7 +50481,7 @@ var AuthorityReplayState = class {
         if (value) addBonus(stat, "flat", value);
       }
       const passive = ITEM_DATABASE[entry.item.id]?.passive;
-      if (passive && (passive.trigger === "always" || passive.trigger === "combat_start")) {
+      if (passive?.trigger === "always") {
         for (const modifier of passive.modifiers) {
           addBonus(modifier.stat, modifier.type, modifier.value);
         }
@@ -47225,7 +50558,11 @@ var AuthorityReplayState = class {
     if (this.inventory.length >= MAX_INVENTORY_ITEMS) {
       fail("inventory_full", "Inventory is full.", commandIndex);
     }
-    const cost = Math.round(offer.price * encounter.priceMultiplier);
+    const addition = validateItemAddition(this.inventory, { id: offer.itemId });
+    if (!addition.valid) fail(addition.code, addition.message, commandIndex);
+    const cost = Math.round(
+      offer.price * encounter.priceMultiplier * (1 - this.getAugmentManager().getShopDiscountPercent())
+    );
     if (this.gold < cost) fail("insufficient_gold", "Not enough gold.", commandIndex);
     this.gold -= cost;
     pending.purchasedItemIds.add(itemId);
@@ -47432,7 +50769,10 @@ var AuthorityReplayState = class {
     if (this.pendingAugmentIds.length === 0) {
       fail("no_pending_augment", "No augment choice is pending.", commandIndex);
     }
-    if (!this.pendingAugmentIds.includes(augmentId) || !AUGMENT_DATABASE[augmentId]) {
+    const definition = AUGMENT_DATABASE[augmentId];
+    const stacks = this.augmentIds.filter((id) => id === augmentId).length;
+    const distinctAugments = new Set(this.augmentIds).size;
+    if (!this.pendingAugmentIds.includes(augmentId) || !definition || stacks === 0 && distinctAugments >= DEFAULT_MAX_AUGMENTS || !definition.stackable && stacks > 0 || stacks >= definition.maxStacks) {
       fail("invalid_augment", `Augment "${augmentId}" is not offered.`, commandIndex);
     }
     this.augmentIds.push(augmentId);
@@ -47459,14 +50799,29 @@ var AuthorityReplayState = class {
   }
   queueAugmentChoices() {
     const allIds = Object.keys(AUGMENT_DATABASE);
-    this.pendingAugmentIds = allIds.filter((id) => !this.augmentIds.includes(id)).sort().slice(this.runLevel * 3 % Math.max(1, allIds.length - 3), 3);
+    this.pendingAugmentIds = allIds.filter((id) => {
+      const definition = AUGMENT_DATABASE[id];
+      const stacks = this.augmentIds.filter((ownedId) => ownedId === id).length;
+      if (stacks === 0 && new Set(this.augmentIds).size >= DEFAULT_MAX_AUGMENTS) return false;
+      return definition.stackable ? stacks < definition.maxStacks : stacks === 0;
+    }).sort().slice(this.runLevel * 3 % Math.max(1, allIds.length - 3), 3);
   }
   addItem(item) {
     if (this.inventory.length >= MAX_INVENTORY_ITEMS) return null;
+    if (!validateItemAddition(this.inventory, item).valid) return null;
     const instanceId = `item_${this.attempt.runUuid}_${this.nextItemInstanceId}`;
     this.nextItemInstanceId++;
     this.inventory.push({ instanceId, item, equippedToChampionId: null });
     return instanceId;
+  }
+  getAugmentManager() {
+    const manager = new AugmentManager(Math.max(4, this.augmentIds.length));
+    for (const id of this.augmentIds) {
+      const definition = AUGMENT_DATABASE[id];
+      if (definition) manager.acquireAugment(definition);
+    }
+    manager.biomesCleared = this.currentBiomeIndex;
+    return manager;
   }
   addChampion(championId, statMultiplier) {
     this.team.push({

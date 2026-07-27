@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 
 const BUNDLE_PATH = 'supabase/functions/verify-run/run-authority.bundle.js';
 const ENGINE_PATH = 'src/game/authority/AuthorityRunEngine.ts';
-const MIGRATION_PATH = 'supabase/migrations/20260724090000_verified_run_attempts.sql';
+const MIGRATION_PATH = 'supabase/migrations/20260727170000_gameplay_ruleset_v2.sql';
 const HASH_PATTERN = '[0-9a-f]{64}';
 
 const [bundle, engine, migration] = await Promise.all([
@@ -19,7 +19,7 @@ const engineMatch = engine.match(
 );
 const migrationMatch = migration.match(
   new RegExp(
-    `'2026-07-verified-gameplay-v1',\\s*\\n\\s*'run-engine-v1',\\s*\\n\\s*1,\\s*\\n\\s*'(${HASH_PATTERN})'`,
+    `'2026-07-combat-rules-v2',\\s*\\n\\s*'run-engine-v2',\\s*\\n\\s*1,\\s*\\n\\s*'(${HASH_PATTERN})'`,
   ),
 );
 

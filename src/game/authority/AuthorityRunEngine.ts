@@ -4,6 +4,11 @@ import { AUGMENT_DATABASE, getRuneDefinition, ITEM_DATABASE } from '@/data/items
 import { BattleManager } from '@/game/battle/BattleManager';
 import { BattlePhase, type BattleTeam } from '@/game/battle/types';
 import { ChampionInstance, type SpellSlot } from '@/game/ChampionInstance';
+import { AugmentManager } from '@/game/augments/AugmentManager';
+import { validateItemAddition } from '@/game/inventory/inventoryRules';
+import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
+import { buildCombatRuleLoadout } from '@/game/rules/loadout';
+import { assertValidRuleCatalogs } from '@/game/rules/catalogValidation';
 import { resolveAffordableEventOutcome } from '@/game/map/EncounterManager';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { findNode } from '@/game/map/mapUtils';
@@ -19,9 +24,8 @@ import {
   type ShopItem,
   type TreasureEncounter,
 } from '@/game/map/types';
-import { RuneManager } from '@/game/runes/RuneManager';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { AugmentEffectType } from '@/types/inventory';
+import { AugmentEffectType, DEFAULT_MAX_AUGMENTS } from '@/types/inventory';
 import {
   type ChampionRunStats,
   type InventoryEntry,
@@ -31,7 +35,7 @@ import {
   MAX_TEAM_SIZE,
 } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
-import { calculateEventStatBonuses, calculateMaxHP } from '@/utils/statCalculator';
+import { calculateEventStatBonuses, calculateMaxHP, toCombatStatKey } from '@/utils/statCalculator';
 import { addXp, calculateXpGain } from '@/utils/xpSystem';
 import type {
   AuthorityDifficulty,
@@ -45,9 +49,11 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v1';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v2';
 export const AUTHORITY_CONTENT_HASH =
-  'cbb1a53ea9f9231e542181de9e387ebef1d00415e2765c081db8c4ebd9c42465';
+  '85af7f7d9178597f4f9ed14e362773973f9f2601d679b62c7649de53e2d68223';
+
+assertValidRuleCatalogs();
 
 const MAX_COMMANDS = 10_000;
 const MAX_COMBAT_TURNS = 100_000;
@@ -65,15 +71,6 @@ const DIFFICULTY_MULTIPLIER: Record<AuthorityDifficulty, number> = {
   normal: 1,
   hard: 1.2,
 };
-const STAT_KEY_MAP: Record<string, string> = {
-  hp: 'hp',
-  atk: 'attackDamage',
-  def: 'armor',
-  ap: 'abilityPower',
-  spd: 'moveSpeed',
-  crit: 'crit',
-};
-
 type PendingEncounter = {
   node: MapNode;
   claimed: boolean;
@@ -361,6 +358,7 @@ class AuthorityReplayState {
   private team: AuthorityTeamMember[];
   private inventory: InventoryEntry[] = [];
   private augmentIds: string[] = [];
+  private runeStacks: Record<string, Record<string, number>> = {};
   private pendingAugmentIds: string[] = [];
   private pendingSpellUpgradeChampionIds: string[] = [];
   private gold = 0;
@@ -582,6 +580,18 @@ class AuthorityReplayState {
       initialHpOverrides:
         Object.keys(initialHpOverrides).length > 0 ? initialHpOverrides : undefined,
       random: () => rng.next(),
+      rules: new CombatRuleRuntime(
+        buildCombatRuleLoadout({
+          championIds: this.team.map((member) => member.championId),
+          runeIds: this.attempt.runeIds,
+          runeStacks: this.runeStacks,
+          augmentIds: this.augmentIds,
+          inventory: this.inventory,
+          getUnlockedEnhancements: (championId) =>
+            this.attempt.enhancementSnapshot[championId] ?? {},
+        }),
+        () => rng.next(),
+      ),
     });
     battle.startBattle();
     let processedTurns = 0;
@@ -611,6 +621,9 @@ class AuthorityReplayState {
       const member = this.team.find((candidate) => candidate.championId === finalState.championId);
       if (member) member.currentHp = finalState.currentHp;
     }
+    const consumedItems = new Set(battle.getConsumedItemInstanceIds());
+    this.inventory = this.inventory.filter((entry) => !consumedItems.has(entry.instanceId));
+    this.runeStacks = battle.getRuneStacks();
 
     if (result.winner !== 'player') {
       this.terminal = true;
@@ -619,8 +632,16 @@ class AuthorityReplayState {
       return;
     }
 
-    const goldReward = 50 + this.runLevel * 10;
+    const augmentManager = this.getAugmentManager();
+    const goldReward = 50 + this.runLevel * 10 + augmentManager.getBonusGold();
     this.gold += goldReward;
+    const healAfterBattle = augmentManager.getHealAfterBattlePercent();
+    if (healAfterBattle > 0) {
+      for (const member of this.team) {
+        const maxHp = this.getMemberMaxHp(member);
+        member.currentHp = Math.min(maxHp, (member.currentHp ?? 0) + maxHp * healAfterBattle);
+      }
+    }
     const xpGain = calculateXpGain(
       this.runLevel,
       node.type === NodeType.Elite,
@@ -667,7 +688,7 @@ class AuthorityReplayState {
     };
 
     const addBonus = (stat: string, type: 'flat' | 'percent', value: number): void => {
-      const target = STAT_KEY_MAP[stat] ?? stat;
+      const target = toCombatStatKey(stat) ?? stat;
       bonuses[type][target] = (bonuses[type][target] ?? 0) + value;
     };
     for (const augmentId of this.augmentIds) {
@@ -685,31 +706,6 @@ class AuthorityReplayState {
       }
     }
 
-    const runeManager = new RuneManager();
-    for (const runeId of this.attempt.runeIds) {
-      const rune = getRuneDefinition(runeId);
-      if (rune) runeManager.equipRune(rune);
-    }
-    const baseStats = instance.getStats();
-    runeManager.evaluateConditions({
-      currentHp: baseStats.hp,
-      maxHp: baseStats.hp,
-      turnNumber: 1,
-      totalDamageDealt: 0,
-      totalDamageTaken: 0,
-      killsThisBattle: 0,
-      abilitiesCastThisBattle: 0,
-      isBuffed: false,
-      isCCd: false,
-      alliesAlive: this.team.length,
-      totalAllies: this.team.length,
-      lastActionWasCrit: false,
-    });
-    for (const [stat, bonus] of Object.entries(runeManager.getActiveStatBonuses())) {
-      addBonus(stat, 'flat', bonus.flat);
-      addBonus(stat, 'percent', bonus.percent);
-    }
-
     for (const entry of this.inventory.filter(
       (candidate) => candidate.equippedToChampionId === member.championId,
     )) {
@@ -717,7 +713,7 @@ class AuthorityReplayState {
         if (value) addBonus(stat, 'flat', value);
       }
       const passive = ITEM_DATABASE[entry.item.id]?.passive;
-      if (passive && (passive.trigger === 'always' || passive.trigger === 'combat_start')) {
+      if (passive?.trigger === 'always') {
         for (const modifier of passive.modifiers) {
           addBonus(modifier.stat, modifier.type, modifier.value);
         }
@@ -797,7 +793,13 @@ class AuthorityReplayState {
     if (this.inventory.length >= MAX_INVENTORY_ITEMS) {
       fail('inventory_full', 'Inventory is full.', commandIndex);
     }
-    const cost = Math.round(offer.price * encounter.priceMultiplier);
+    const addition = validateItemAddition(this.inventory, { id: offer.itemId });
+    if (!addition.valid) fail(addition.code, addition.message, commandIndex);
+    const cost = Math.round(
+      offer.price *
+        encounter.priceMultiplier *
+        (1 - this.getAugmentManager().getShopDiscountPercent()),
+    );
     if (this.gold < cost) fail('insufficient_gold', 'Not enough gold.', commandIndex);
     this.gold -= cost;
     pending.purchasedItemIds.add(itemId);
@@ -1027,7 +1029,16 @@ class AuthorityReplayState {
     if (this.pendingAugmentIds.length === 0) {
       fail('no_pending_augment', 'No augment choice is pending.', commandIndex);
     }
-    if (!this.pendingAugmentIds.includes(augmentId) || !AUGMENT_DATABASE[augmentId]) {
+    const definition = AUGMENT_DATABASE[augmentId];
+    const stacks = this.augmentIds.filter((id) => id === augmentId).length;
+    const distinctAugments = new Set(this.augmentIds).size;
+    if (
+      !this.pendingAugmentIds.includes(augmentId) ||
+      !definition ||
+      (stacks === 0 && distinctAugments >= DEFAULT_MAX_AUGMENTS) ||
+      (!definition.stackable && stacks > 0) ||
+      stacks >= definition.maxStacks
+    ) {
       fail('invalid_augment', `Augment "${augmentId}" is not offered.`, commandIndex);
     }
     this.augmentIds.push(augmentId);
@@ -1057,17 +1068,33 @@ class AuthorityReplayState {
   private queueAugmentChoices(): void {
     const allIds = Object.keys(AUGMENT_DATABASE);
     this.pendingAugmentIds = allIds
-      .filter((id) => !this.augmentIds.includes(id))
+      .filter((id) => {
+        const definition = AUGMENT_DATABASE[id];
+        const stacks = this.augmentIds.filter((ownedId) => ownedId === id).length;
+        if (stacks === 0 && new Set(this.augmentIds).size >= DEFAULT_MAX_AUGMENTS) return false;
+        return definition.stackable ? stacks < definition.maxStacks : stacks === 0;
+      })
       .sort()
       .slice((this.runLevel * 3) % Math.max(1, allIds.length - 3), 3);
   }
 
   private addItem(item: Item): string | null {
     if (this.inventory.length >= MAX_INVENTORY_ITEMS) return null;
+    if (!validateItemAddition(this.inventory, item).valid) return null;
     const instanceId = `item_${this.attempt.runUuid}_${this.nextItemInstanceId}`;
     this.nextItemInstanceId++;
     this.inventory.push({ instanceId, item, equippedToChampionId: null });
     return instanceId;
+  }
+
+  private getAugmentManager(): AugmentManager {
+    const manager = new AugmentManager(Math.max(4, this.augmentIds.length));
+    for (const id of this.augmentIds) {
+      const definition = AUGMENT_DATABASE[id];
+      if (definition) manager.acquireAugment(definition);
+    }
+    manager.biomesCleared = this.currentBiomeIndex;
+    return manager;
   }
 
   private addChampion(championId: string, statMultiplier: number): void {

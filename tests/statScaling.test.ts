@@ -1,8 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { championDB } from '../src/data/championDatabase';
 import { calculateStats, statAtLevel } from '../src/utils/champion';
+import { applyEnhancementBonuses, toCombatStatKey } from '../src/utils/statCalculator';
 
 describe('Stat Scaling with Level', () => {
+  it('maps every public enhancement alias through the canonical combat model', () => {
+    const garen = championDB.getById('Garen');
+    const base = calculateStats(garen!.stats, 1);
+    const enhanced = applyEnhancementBonuses(base, {
+      flat: { atk: 10, mr: 5, armorPen: 99 },
+      percent: { def: 0.1, attackRange: 0.05 },
+      effects: [],
+    });
+
+    expect(enhanced.attackDamage).toBeCloseTo(base.attackDamage + 10);
+    expect(enhanced.magicResist).toBeCloseTo(base.magicResist + 5);
+    expect(enhanced.armor).toBeCloseTo(base.armor * 1.1);
+    expect(enhanced.attackRange).toBeCloseTo(base.attackRange * 1.05);
+    expect(toCombatStatKey('atk')).toBe('attackDamage');
+    expect(toCombatStatKey('not_a_stat')).toBeNull();
+  });
+
   describe('statAtLevel', () => {
     it('should return base stat at level 1', () => {
       // At level 1, n = 0, so stat = base

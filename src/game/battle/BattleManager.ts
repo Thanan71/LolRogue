@@ -18,6 +18,12 @@ import { HealEffect } from '@/game/effects/HealEffect';
 import { ReviveEffect } from '@/game/effects/ReviveEffect';
 import { ShieldEffect } from '@/game/effects/ShieldEffect';
 import { CCType, DamageType, type StatKey } from '@/game/effects/types';
+import type { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
+import type {
+  CombatRuleActor,
+  CombatRuleInstantEffect,
+  CombatRuleResolution,
+} from '@/game/rules/types';
 import { TargetingType, type SpellEffect } from '@/types/champion';
 import {
   calculateADDamage,
@@ -65,6 +71,8 @@ export interface BattleManagerOptions {
   initialHpOverrides?: Record<string, number>;
   /** Injectable random source so a seeded run can reproduce combat exactly. */
   random?: () => number;
+  /** Combat-local rule bus for runes, augments, items and enhancements. */
+  rules?: CombatRuleRuntime;
 }
 
 interface ActionDefinition {
@@ -102,9 +110,12 @@ export class BattleManager {
   private readonly _maxTeamSize: number;
   private readonly _initialHpOverrides: Record<string, number> | undefined;
   private readonly _random: () => number;
+  private readonly _rules: CombatRuleRuntime | null;
+  private _activeActionType: ActionType | null = null;
   private _actionCallback: ActionCallback | null = null;
   private readonly _lastDamagedRound = new Map<string, number>();
   private readonly _passiveCounters = new Map<string, number>();
+  private readonly _preserveHpOnRuleInitialization = new Set<string>();
   private readonly _passiveMarks = new Map<
     string,
     {
@@ -125,6 +136,7 @@ export class BattleManager {
     this._maxTeamSize = options.maxTeamSize ?? 5;
     this._initialHpOverrides = options.initialHpOverrides;
     this._random = options.random ?? Math.random;
+    this._rules = options.rules ?? null;
     this._initCombatants();
   }
 
@@ -178,6 +190,14 @@ export class BattleManager {
       currentHp: c.isDefeated ? 0 : c.currentHp,
       maxHp: c.maxHp,
     }));
+  }
+
+  getConsumedItemInstanceIds(): string[] {
+    return this._rules?.consumedItemInstanceIds ?? [];
+  }
+
+  getRuneStacks(): Record<string, Record<string, number>> {
+    return this._rules?.getRuneStacks() ?? {};
   }
 
   getCombatantState(id: string, side: TeamSide): CombatantState | undefined {
@@ -286,6 +306,12 @@ export class BattleManager {
     this._round = 0;
     this._log = [];
     this._initCombatants();
+    this._rules?.reset();
+    const battleStart = this._rules?.dispatch({
+      type: 'battle_start',
+      actors: this._getRuleActors(),
+    });
+    if (battleStart) this._resolveRuleEffects(battleStart);
     this._initializePassives();
     this._nextRound();
   }
@@ -310,6 +336,7 @@ export class BattleManager {
     // start → controls → command → cast/attack → effects/deaths → end → duration ticks.
     if (!attackerState.effectManager.canAct()) {
       this._applyTurnEndPassives(attackerState);
+      this._dispatchTurnEnd(attackerState);
       this._tickTurnEffects(attackerState, turnEffectIds);
       if (this._checkVictory()) return;
       this._nextTurn();
@@ -334,6 +361,7 @@ export class BattleManager {
     }
     if (!action || !validated) {
       this._applyTurnEndPassives(attackerState);
+      this._dispatchTurnEnd(attackerState);
       this._tickTurnEffects(attackerState, turnEffectIds);
       if (this._checkVictory()) return;
       this._nextTurn();
@@ -350,6 +378,7 @@ export class BattleManager {
     this._executeAction(attackerState, validated);
     if (this._checkVictory()) return;
     this._applyTurnEndPassives(attackerState);
+    this._dispatchTurnEnd(attackerState);
     this._tickTurnEffects(attackerState, turnEffectIds);
     if (this._checkVictory()) return;
     this._nextTurn();
@@ -376,6 +405,7 @@ export class BattleManager {
     this._executeAction(attackerState, validated);
     if (this._checkVictory()) return true;
     this._applyTurnEndPassives(attackerState);
+    this._dispatchTurnEnd(attackerState);
     this._tickTurnEffects(attackerState, turnEffectIds);
     if (this._checkVictory()) return true;
     this._nextTurn();
@@ -397,14 +427,23 @@ export class BattleManager {
     this._lastDamagedRound.clear();
     this._passiveCounters.clear();
     this._passiveMarks.clear();
+    this._preserveHpOnRuleInitialization.clear();
     const hpOverrides = this._initialHpOverrides;
     const playerChampions = this._playerTeam.champions.slice(0, this._maxTeamSize);
     this._playerCombatants = playerChampions.map((c, index) => {
       // Use enhanced stats if available, otherwise fall back to base stats
       const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
       const overriddenHp = hpOverrides?.[c.id];
-      const initHp = overriddenHp !== undefined ? Math.min(overriddenHp, stats.hp) : stats.hp;
+      const initHp =
+        overriddenHp !== undefined
+          ? this._rules
+            ? Math.max(0, overriddenHp)
+            : Math.min(overriddenHp, stats.hp)
+          : stats.hp;
       const targetId = getUniqueTargetId(playerChampions, index);
+      if (overriddenHp !== undefined && this._rules) {
+        this._preserveHpOnRuleInitialization.add(targetId);
+      }
       return {
         targetId,
         champion: c,
@@ -500,13 +539,23 @@ export class BattleManager {
   private _calcSpeedPriority(combatant: CombatantState): number {
     const stats = this._getCombatStats(combatant);
     const jitter = this._random() * SPEED_JITTER_MAX;
-    return stats.moveSpeed + jitter;
+    return stats.moveSpeed + stats.attackSpeed * 10 + jitter;
   }
 
   private _startCurrentTurn(): void {
     const entry = this._turnOrder[this._turnIndex];
     if (!entry) return;
     const combatant = this._findCombatantForChampion(entry.champion);
+    if (combatant && this._rules) {
+      const resolution = this._rules.dispatch({
+        type: 'turn_start',
+        actor: this._toRuleActor(combatant),
+        actors: this._getRuleActors(),
+        turn: this._round,
+      });
+      this._resolveRuleEffects(resolution);
+      if (this._checkVictory()) return;
+    }
     this._emit({
       type: 'turn_start',
       champion: combatant?.targetId ?? entry.champion.id,
@@ -623,6 +672,7 @@ export class BattleManager {
   }
 
   private _executeAction(attacker: CombatantState, action: ValidatedBattleAction): void {
+    this._activeActionType = action.type;
     this._applyBeforeActionPassives(attacker, action);
 
     // ── Basic Attack: keep existing AD-only logic ──
@@ -630,18 +680,38 @@ export class BattleManager {
       const target = action.targets[0];
       this._performBasicAttack(attacker, target);
       this._applyAfterBasicAttackPassives(attacker, target);
+      this._activeActionType = null;
       return;
     }
 
     // ── Spell Action: read spell definition and process effects ──
     const spellSlot = action.spellSlot;
-    if (!spellSlot) return;
+    if (!spellSlot) {
+      this._activeActionType = null;
+      return;
+    }
     const spell = attacker.champion.getSpell(spellSlot);
-    if (!spell) return;
+    if (!spell) {
+      this._activeActionType = null;
+      return;
+    }
 
     // Validation has completed before either resource is mutated.
-    if (!attacker.champion.useSpell(spellSlot)) return;
+    if (
+      !attacker.champion.useSpell(
+        spellSlot,
+        this._rules?.getCooldownMultiplier(attacker.champion.id, spellSlot === 'R') ?? 1,
+      )
+    ) {
+      this._activeActionType = null;
+      return;
+    }
     attacker.currentMp = Math.max(0, attacker.currentMp - action.cost);
+    this._rules?.dispatch({
+      type: 'ability_cast',
+      actor: this._toRuleActor(attacker),
+      action: action.type,
+    });
 
     // Use enhanced stats for spell damage calculation (getEnhancedStats always returns valid stats)
     const atkStats = this._getCombatStats(attacker);
@@ -650,6 +720,7 @@ export class BattleManager {
       this._applySpellEffect(effect, attacker, action.targets, atkStats, action.rankIndex);
     }
     this._applyAfterSpellPassives(attacker, action);
+    this._activeActionType = null;
   }
 
   /** Resolve every published spell-effect family against validated targets. */
@@ -695,13 +766,20 @@ export class BattleManager {
           const baseShield = effect.baseValue?.[rankIdx] ?? 0;
           const apRatio = effect.apRatio ?? 0;
           const shieldAmount = Math.round(baseShield + atkStats.abilityPower * apRatio);
-          if (shieldAmount <= 0) continue;
+          const shieldRules = this._rules?.dispatch({
+            type: 'before_shield',
+            source: this._toRuleActor(attacker),
+            target: this._toRuleActor(shieldTarget),
+            amount: shieldAmount,
+          });
+          const finalShieldAmount = Math.round(shieldAmount * (shieldRules?.shieldMultiplier ?? 1));
+          if (finalShieldAmount <= 0) continue;
           shieldTarget.effectManager.apply(
             new ShieldEffect({
               name: `${attacker.champion.id} shield`,
               sourceId: attacker.targetId,
               targetId: shieldTarget.targetId,
-              magnitude: shieldAmount,
+              magnitude: finalShieldAmount,
               duration: Math.max(
                 1,
                 normalizeTurnDuration(effect.duration ?? effect.buffDuration, 3),
@@ -713,7 +791,7 @@ export class BattleManager {
             type: 'shield',
             source: attacker.champion.id,
             target: shieldTarget.champion.id,
-            amount: shieldAmount,
+            amount: finalShieldAmount,
             sourceSide: attacker.side,
             targetSide: shieldTarget.side,
           });
@@ -730,7 +808,12 @@ export class BattleManager {
               sourceId: attacker.targetId,
               targetId: ccTarget.targetId,
               ccType,
-              duration: Math.max(1, normalizeTurnDuration(effect.ccDuration, 1)),
+              duration: Math.max(
+                1,
+                normalizeTurnDuration(effect.ccDuration, 1) *
+                  (this._rules?.getAppliedControlDurationMultiplier(attacker.champion.id) ?? 1) *
+                  (this._rules?.getControlDurationMultiplier(ccTarget.champion.id) ?? 1),
+              ),
               slowAmount:
                 ccType === CCType.Slow ? normalizePercent(effect.slowPercent, 0.3) : undefined,
             }),
@@ -903,11 +986,31 @@ export class BattleManager {
     damage: number,
     triggerPassives = true,
     isCrit = false,
+    triggerRules = true,
   ): void {
     if (damage <= 0 || target.isDefeated) return;
     const wasDefeated = target.isDefeated;
+    const beforeRules =
+      triggerRules && this._rules
+        ? this._rules.dispatch({
+            type: 'before_damage',
+            source: this._toRuleActor(attacker),
+            target: this._toRuleActor(target),
+            amount: damage,
+            action: this._activeActionType,
+            isCrit,
+            actors: this._getRuleActors(),
+          })
+        : null;
+    const ruledDamage = Math.max(
+      0,
+      Math.round(
+        damage * (beforeRules?.damageMultiplier ?? 1) * (1 - (beforeRules?.damageReduction ?? 0)),
+      ),
+    );
+    if (ruledDamage <= 0) return;
     this._lastDamagedRound.set(target.targetId, this._round);
-    const { finalDamage: remaining } = target.effectManager.absorbWithShields(damage);
+    const { finalDamage: remaining } = target.effectManager.absorbWithShields(ruledDamage);
     this._syncEffectState(target);
     if (remaining > 0) {
       target.currentHp = Math.max(0, target.currentHp - remaining);
@@ -916,7 +1019,7 @@ export class BattleManager {
       type: 'damage',
       source: attacker.champion.id,
       target: target.champion.id,
-      amount: damage,
+      amount: ruledDamage,
       isCrit,
       sourceSide: attacker.side,
       targetSide: target.side,
@@ -924,16 +1027,59 @@ export class BattleManager {
     if (triggerPassives && remaining > 0) {
       this._applyOnDamagePassives(attacker, target);
     }
+    const afterRules =
+      triggerRules && remaining > 0 && this._rules
+        ? this._rules.dispatch({
+            type: 'damage_dealt',
+            source: this._toRuleActor(attacker),
+            target: this._toRuleActor(target),
+            amount: remaining,
+            action: this._activeActionType,
+            isCrit,
+            actors: this._getRuleActors(),
+          })
+        : null;
     if (target.currentHp <= 0 && !wasDefeated) {
-      target.isDefeated = true;
-      this._emit({
-        type: 'defeat',
-        champion: target.champion.id,
-        side: target.side,
-        defeatedBy: attacker.champion.id,
-      });
-      this._applyOnKillPassives(attacker);
+      const defeatRules = this._rules
+        ? this._rules.dispatch({
+            type: 'before_defeat',
+            source: this._toRuleActor(attacker),
+            target: this._toRuleActor(target),
+            actors: this._getRuleActors(),
+          })
+        : null;
+      if ((defeatRules?.preventDefeatHp ?? 0) > 0) {
+        target.currentHp = Math.min(target.maxHp, Math.round(defeatRules!.preventDefeatHp));
+        this._emit({
+          type: 'revive',
+          source: target.champion.id,
+          target: target.champion.id,
+          amount: target.currentHp,
+          sourceSide: target.side,
+          targetSide: target.side,
+        });
+      } else {
+        target.isDefeated = true;
+        this._emit({
+          type: 'defeat',
+          champion: target.champion.id,
+          side: target.side,
+          defeatedBy: attacker.champion.id,
+        });
+        this._applyOnKillPassives(attacker);
+        if (this._rules) {
+          this._resolveRuleEffects(
+            this._rules.dispatch({
+              type: 'kill',
+              source: this._toRuleActor(attacker),
+              target: this._toRuleActor(target),
+              actors: this._getRuleActors(),
+            }),
+          );
+        }
+      }
     }
+    if (afterRules) this._resolveRuleEffects(afterRules);
   }
 
   /** Basic attack: AD-only with crit, mitigated by armor. */
@@ -982,6 +1128,14 @@ export class BattleManager {
         (stats[key] as number) = Math.max(0, (value + modifier.flat) * (1 + modifier.percent));
       }
     }
+    for (const modifier of this._rules?.getStatBonuses(combatant.champion.id) ?? []) {
+      const key = aliases[modifier.stat];
+      if (!key) continue;
+      const value = stats[key];
+      if (typeof value === 'number') {
+        (stats[key] as number) = Math.max(0, (value + modifier.flat) * (1 + modifier.percent));
+      }
+    }
 
     if (
       combatant.champion.id === 'Soraka' &&
@@ -1018,8 +1172,15 @@ export class BattleManager {
 
   private _applyHeal(source: CombatantState, target: CombatantState, amount: number): void {
     if (amount <= 0 || target.isDefeated) return;
+    const healRules = this._rules?.dispatch({
+      type: 'before_heal',
+      source: this._toRuleActor(source),
+      target: this._toRuleActor(target),
+      amount,
+    });
+    const finalAmount = Math.round(amount * (healRules?.healMultiplier ?? 1));
     const previousHp = target.currentHp;
-    target.currentHp = Math.min(target.maxHp, target.currentHp + amount);
+    target.currentHp = Math.min(target.maxHp, target.currentHp + finalAmount);
     const applied = target.currentHp - previousHp;
     if (applied <= 0) return;
     this._emit({
@@ -1362,6 +1523,7 @@ export class BattleManager {
       this._resetAllCooldowns();
       const winner: TeamSide | 'draw' =
         !playerAlive && !enemyAlive ? 'draw' : playerAlive ? 'player' : 'enemy';
+      this._rules?.dispatch({ type: 'battle_end', winner, actors: this._getRuleActors() });
       this._emit({ type: 'battle_end', winner, rounds: this._round });
       return true;
     }
@@ -1369,10 +1531,110 @@ export class BattleManager {
     if (this._round >= this._maxRounds) {
       this._phase = BattlePhase.Finished;
       this._resetAllCooldowns();
+      this._rules?.dispatch({ type: 'battle_end', winner: 'draw', actors: this._getRuleActors() });
       this._emit({ type: 'battle_end', winner: 'draw', rounds: this._round });
       return true;
     }
     return false;
+  }
+
+  private _dispatchTurnEnd(combatant: CombatantState): void {
+    this._rules?.dispatch({ type: 'turn_end', actor: this._toRuleActor(combatant) });
+  }
+
+  private _toRuleActor(combatant: CombatantState): CombatRuleActor {
+    return {
+      id: combatant.champion.id,
+      side: combatant.side,
+      currentHp: combatant.currentHp,
+      maxHp: combatant.maxHp,
+      currentMp: combatant.currentMp,
+      maxMp: combatant.maxMp,
+      isDefeated: combatant.isDefeated,
+      isBuffed: combatant.effectManager.buffDebuffs.some((effect) => !effect.isDebuff),
+      isCCd: combatant.effectManager.ccEffects.length > 0,
+    };
+  }
+
+  private _getRuleActors(): CombatRuleActor[] {
+    return [...this._playerCombatants, ...this._enemyCombatants].map((combatant) =>
+      this._toRuleActor(combatant),
+    );
+  }
+
+  private _resolveRuleEffects(resolution: CombatRuleResolution): void {
+    this._refreshRuleMaxHp();
+    for (const effect of resolution.instantEffects) this._resolveRuleEffect(effect);
+    this._refreshRuleMaxHp();
+  }
+
+  private _refreshRuleMaxHp(): void {
+    if (!this._rules) return;
+    for (const combatant of this._playerCombatants) {
+      const nextMaxHp = Math.max(1, Math.round(this._getCombatStats(combatant).hp));
+      const preserveCurrentHp = this._preserveHpOnRuleInitialization.delete(combatant.targetId);
+      if (nextMaxHp === combatant.maxHp) continue;
+      const delta = nextMaxHp - combatant.maxHp;
+      combatant.maxHp = nextMaxHp;
+      if (!preserveCurrentHp && !combatant.isDefeated && delta > 0) {
+        combatant.currentHp += delta;
+      }
+      combatant.currentHp = Math.min(combatant.currentHp, combatant.maxHp);
+    }
+  }
+
+  private _resolveRuleEffect(effect: CombatRuleInstantEffect): void {
+    const source = this._findCombatantByChampionId(effect.sourceId);
+    const target = this._findCombatantByChampionId(effect.targetId);
+    if (!source || !target || effect.amount <= 0) return;
+    if (effect.type === 'heal') {
+      this._applyHeal(source, target, effect.amount);
+    } else if (effect.type === 'damage') {
+      this._applyDamageToTarget(source, target, effect.amount, false, false, false);
+    } else if (effect.type === 'mana') {
+      target.currentMp = Math.min(target.maxMp, target.currentMp + effect.amount);
+    } else if (effect.type === 'shield' && !target.isDefeated) {
+      target.effectManager.apply(
+        new ShieldEffect({
+          name: 'Rule shield',
+          sourceId: source.targetId,
+          targetId: target.targetId,
+          magnitude: effect.amount,
+          duration: 2,
+        }),
+      );
+      this._syncEffectState(target);
+    } else if (effect.type === 'dot' && !target.isDefeated) {
+      target.effectManager.apply(
+        new DamageEffect({
+          name: 'Rule damage over time',
+          sourceId: source.targetId,
+          targetId: target.targetId,
+          magnitude: effect.amount,
+          damageType: DamageType.True,
+          duration: Math.max(1, Math.round(effect.duration ?? 1)),
+          canCrit: false,
+        }),
+      );
+    } else if ((effect.type === 'slow' || effect.type === 'snare') && !target.isDefeated) {
+      target.effectManager.apply(
+        new CCEffect({
+          name: `Rule ${effect.type}`,
+          sourceId: source.targetId,
+          targetId: target.targetId,
+          ccType: effect.type === 'slow' ? CCType.Slow : CCType.Snare,
+          duration: Math.max(1, Math.round(effect.duration ?? 1)),
+          slowAmount: effect.type === 'slow' ? effect.amount : undefined,
+        }),
+      );
+      this._syncEffectState(target);
+    }
+  }
+
+  private _findCombatantByChampionId(championId: string): CombatantState | undefined {
+    return [...this._playerCombatants, ...this._enemyCombatants].find(
+      (combatant) => combatant.champion.id === championId,
+    );
   }
 
   private _findCombatantForChampion(champion: ChampionInstance): CombatantState | undefined {

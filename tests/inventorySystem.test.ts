@@ -496,6 +496,14 @@ describe('AugmentManager', () => {
     expect(augManager.getBonusGold()).toBe(100);
   });
 
+  it('should compute post-battle healing and shop discounts', () => {
+    augManager.acquireAugment(AUGMENT_DATABASE['field_medic']);
+    augManager.acquireAugment(AUGMENT_DATABASE['field_medic']);
+    expect(augManager.getHealAfterBattlePercent()).toBeCloseTo(0.2);
+    augManager.acquireAugment(AUGMENT_DATABASE['golden_age']);
+    expect(augManager.getShopDiscountPercent()).toBeCloseTo(0.15);
+  });
+
   it('should compute damage multiplier', () => {
     expect(augManager.getDamageMultiplier()).toBe(1.0);
     augManager.acquireAugment(AUGMENT_DATABASE['hyper_carry']);

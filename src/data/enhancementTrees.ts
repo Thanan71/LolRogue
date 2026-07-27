@@ -10,6 +10,7 @@ import type {
   EnhancementBranch,
   EnhancementNode,
 } from '@/types/enhancementTree';
+import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
 
 // ─── Helper Functions ────────────────────────────────────────────────────────
 
@@ -1276,7 +1277,7 @@ export function canUnlockNode(
  * Get the reason why a node cannot be unlocked, or null if it can be unlocked.
  */
 export type LockReason = {
-  type: 'mastery_level' | 'candies' | 'prerequisite' | 'maxed';
+  type: 'mastery_level' | 'candies' | 'prerequisite' | 'maxed' | 'unavailable';
   message: string;
   details?: string;
 };
@@ -1287,6 +1288,14 @@ export function getLockReason(
   masteryLevel: number,
   availableCandies: number,
 ): LockReason | null {
+  const unavailableReasons = getEnhancementNodeUnavailableReasons(node);
+  if (unavailableReasons.length > 0) {
+    return {
+      type: 'unavailable',
+      message: 'Indisponible dans ce mode',
+      details: unavailableReasons.join(', '),
+    };
+  }
   // Check if already maxed
   const maxRanks = node.maxRanks || 1;
   const currentRank = unlockedNodes[node.id] || 0;

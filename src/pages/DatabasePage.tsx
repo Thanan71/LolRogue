@@ -23,8 +23,7 @@ export function DatabasePage() {
   const [activeTab, setActiveTab] = useState<'info' | 'enhancements'>('info');
 
   // Enhancement store
-  const { player, user } = useAuthStore();
-  const initializeEnhancements = useEnhancementStore((s) => s.initialize);
+  const { player } = useAuthStore();
   const setAvailableCandies = useEnhancementStore((s) => s.setAvailableCandies);
   const {
     state: enhancementState,
@@ -33,13 +32,6 @@ export function DatabasePage() {
     isLoading: isEnhancementLoading,
     unlockNode,
   } = useChampionEnhancements(selectedChampion);
-
-  // Initialize enhancement store on mount
-  useEffect(() => {
-    if (user?.id) {
-      initializeEnhancements(user.id);
-    }
-  }, [user?.id, initializeEnhancements]);
 
   // Sync candies from auth store
   useEffect(() => {
