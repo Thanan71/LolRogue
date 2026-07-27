@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { ParticleBackground } from '@/components/ParticleBackground';
+import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
-import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/auth.css';
 
@@ -167,158 +167,162 @@ export function AuthPage() {
     <div className="auth-page">
       <ParticleBackground particleCount={60} />
 
-      {/* Logo Section */}
-      <div className="auth-page__logo-section">
-        <LolRogueIconSmall />
-        <h1 className="auth-page__title">LoL Rogue</h1>
-        <p className="auth-page__subtitle">A League of Legends Roguelike</p>
-      </div>
-
-      {/* Auth Form Container */}
-      <div className="auth-page__container">
-        {!isSupabaseConfigured && (
-          <div className="auth-page__error">
-            Online accounts are unavailable because Supabase is not configured. Guest mode remains
-            available.
-          </div>
-        )}
-        {/* Tabs */}
-        <div className="auth-page__tabs">
-          <button
-            className={`auth-page__tab ${mode === 'login' ? 'auth-page__tab--active' : ''}`}
-            onClick={() => {
-              playUIClick();
-              setMode('login');
-              clearError();
-              clearSuccessMessage();
-            }}
-          >
-            Login
-          </button>
-          <button
-            className={`auth-page__tab ${mode === 'signup' ? 'auth-page__tab--active' : ''}`}
-            onClick={() => {
-              playUIClick();
-              setMode('signup');
-              clearError();
-              clearSuccessMessage();
-            }}
-          >
-            Sign Up
-          </button>
+      <main className="auth-page__content">
+        {/* Logo Section */}
+        <div className="auth-page__logo-section">
+          <LolRogueIconSmall />
+          <h1 className="auth-page__title">LoL Rogue</h1>
+          <p className="auth-page__subtitle">A League of Legends Roguelike</p>
         </div>
 
-        {/* Error Message */}
-        {error && <div className="auth-page__error">{error}</div>}
-
-        {/* Success Message */}
-        {successMessage && <div className="auth-page__success">{successMessage}</div>}
-
-        {/* Form */}
-        <form className="auth-page__form" onSubmit={handleSubmit}>
-          {mode === 'signup' && (
-            <>
-              <div className="auth-page__form-group">
-                <label className="auth-page__label" htmlFor="username">
-                  Username *
-                </label>
-                <input
-                  id="username"
-                  type="text"
-                  className="auth-page__input"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  autoComplete="username"
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="auth-page__form-group">
-                <label className="auth-page__label" htmlFor="display-name">
-                  Display Name
-                </label>
-                <input
-                  id="display-name"
-                  type="text"
-                  className="auth-page__input"
-                  placeholder="How you want to appear (optional)"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  autoComplete="name"
-                  disabled={isLoading}
-                />
-              </div>
-            </>
+        {/* Auth Form Container */}
+        <div className="auth-page__container">
+          {!isSupabaseConfigured && (
+            <div className="auth-page__error">
+              Online accounts are unavailable because Supabase is not configured. Guest mode remains
+              available.
+            </div>
           )}
-
-          <div className="auth-page__form-group">
-            <label className="auth-page__label" htmlFor="email">
-              Email *
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="auth-page__input"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              disabled={isLoading}
-            />
+          {/* Tabs */}
+          <div className="auth-page__tabs">
+            <button
+              type="button"
+              className={`auth-page__tab ${mode === 'login' ? 'auth-page__tab--active' : ''}`}
+              onClick={() => {
+                playUIClick();
+                setMode('login');
+                clearError();
+                clearSuccessMessage();
+              }}
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              className={`auth-page__tab ${mode === 'signup' ? 'auth-page__tab--active' : ''}`}
+              onClick={() => {
+                playUIClick();
+                setMode('signup');
+                clearError();
+                clearSuccessMessage();
+              }}
+            >
+              Sign Up
+            </button>
           </div>
 
-          <div className="auth-page__form-group">
-            <label className="auth-page__label" htmlFor="password">
-              Password *
-            </label>
-            <input
-              id="password"
-              type="password"
-              className="auth-page__input"
-              placeholder={mode === 'signup' ? 'Min 6 characters' : 'Enter your password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-              disabled={isLoading}
-            />
-          </div>
+          {/* Error Message */}
+          {error && <div className="auth-page__error">{error}</div>}
 
-          <button
-            type="submit"
-            className="auth-page__submit"
-            disabled={!isSupabaseConfigured || isLoading || !isFormValid()}
-          >
-            {isLoading ? (
+          {/* Success Message */}
+          {successMessage && <div className="auth-page__success">{successMessage}</div>}
+
+          {/* Form */}
+          <form className="auth-page__form" onSubmit={handleSubmit}>
+            {mode === 'signup' && (
               <>
-                <span className="auth-page__spinner" />
-                {mode === 'login' ? 'Logging in...' : 'Creating account...'}
+                <div className="auth-page__form-group">
+                  <label className="auth-page__label" htmlFor="username">
+                    Username *
+                  </label>
+                  <input
+                    id="username"
+                    type="text"
+                    className="auth-page__input"
+                    placeholder="Enter your username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    autoComplete="username"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="auth-page__form-group">
+                  <label className="auth-page__label" htmlFor="display-name">
+                    Display Name
+                  </label>
+                  <input
+                    id="display-name"
+                    type="text"
+                    className="auth-page__input"
+                    placeholder="How you want to appear (optional)"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    autoComplete="name"
+                    disabled={isLoading}
+                  />
+                </div>
               </>
-            ) : mode === 'login' ? (
-              'Login'
-            ) : (
-              'Create Account'
             )}
+
+            <div className="auth-page__form-group">
+              <label className="auth-page__label" htmlFor="email">
+                Email *
+              </label>
+              <input
+                id="email"
+                type="email"
+                className="auth-page__input"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="auth-page__form-group">
+              <label className="auth-page__label" htmlFor="password">
+                Password *
+              </label>
+              <input
+                id="password"
+                type="password"
+                className="auth-page__input"
+                placeholder={mode === 'signup' ? 'Min 6 characters' : 'Enter your password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                disabled={isLoading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="auth-page__submit"
+              disabled={!isSupabaseConfigured || isLoading || !isFormValid()}
+            >
+              {isLoading ? (
+                <>
+                  <span className="auth-page__spinner" />
+                  {mode === 'login' ? 'Logging in...' : 'Creating account...'}
+                </>
+              ) : mode === 'login' ? (
+                'Login'
+              ) : (
+                'Create Account'
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="auth-page__divider">
+            <div className="auth-page__divider-line" />
+            <span className="auth-page__divider-text">or</span>
+            <div className="auth-page__divider-line" />
+          </div>
+
+          {/* Guest Button */}
+          <button type="button" className="auth-page__guest-btn" onClick={handleGuestPlay}>
+            Play as Guest
           </button>
-        </form>
-
-        {/* Divider */}
-        <div className="auth-page__divider">
-          <div className="auth-page__divider-line" />
-          <span className="auth-page__divider-text">or</span>
-          <div className="auth-page__divider-line" />
         </div>
-
-        {/* Guest Button */}
-        <button className="auth-page__guest-btn" onClick={handleGuestPlay}>
-          Play as Guest
-        </button>
-      </div>
+      </main>
 
       {/* Footer */}
-      <div className="auth-page__footer">
+      <footer className="auth-page__footer">
         <p className="auth-page__footer-text">By continuing, you agree to our Terms of Service</p>
-      </div>
+      </footer>
     </div>
   );
 }

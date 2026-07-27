@@ -382,16 +382,24 @@ footer superposé. Sur 375×667 et 390×844, le bouton invité/login est recouve
 Playwright confirme que le footer intercepte le clic. À 1280×720, plusieurs actions
 sortent également du viewport.
 
-- [ ] Remplacer les conteneurs bloqués par un shell avec `min-height: 100dvh`,
+- [x] Remplacer les conteneurs bloqués par un shell avec `min-height: 100dvh`,
   scroll vertical et gestion des safe areas.
-- [ ] Remettre le footer dans le flux du document.
-- [ ] Compacter/recomposer le menu selon la hauteur disponible.
-- [ ] Préserver une cible de 44 px sans étirer les boutons sur toute la hauteur.
-- [ ] Tester connexion, inscription et invité à 320×568, 375×667, 390×844,
+- [x] Remettre le footer dans le flux du document.
+- [x] Compacter/recomposer le menu selon la hauteur disponible.
+- [x] Préserver une cible de 44 px sans étirer les boutons sur toute la hauteur.
+- [x] Tester connexion, inscription et invité à 320×568, 375×667, 390×844,
   1280×720 et zoom 200 %.
 
 **Acceptation :** toutes les actions sont visibles, focalisables et activables sans
 chevauchement à chacun de ces formats.
+
+**Statut : terminé.** Auth et Menu utilisent désormais un shell documentaire
+scrollable avec `100dvh`, safe areas et footer dans le flux. Les variantes de
+hauteur compactent le logo, les espacements et les actions sans descendre sous
+44 px. Le scénario Playwright dédié exerce les modes connexion/inscription,
+l'entrée et la sortie invité, le focus, le hit-test, les footers et le débordement
+horizontal sur les quatre viewports demandés ainsi qu'à l'équivalent d'un zoom
+200 %.
 
 ### P0-UX-02 — Réparer la sélection Starter/Runes sur mobile
 

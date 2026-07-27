@@ -1,16 +1,19 @@
 /* ─── Auth Page ─────────────────────────────────────────────────────── */
 
 .auth-page {
-  position: fixed;
-  inset: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
   background: radial-gradient(ellipse at 50% 30%, #0f1a2e 0%, #0a1428 50%, #060d1a 100%);
   color: #f0e6d2;
   font-family: "Cinzel", "Georgia", serif;
-  overflow: hidden;
+  overflow-x: clip;
   z-index: 1;
 }
 
@@ -27,6 +30,18 @@
   z-index: 0;
 }
 
+.auth-page__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-block: 1rem;
+}
+
 /* ─── Logo Section ──────────────────────────────────────────────────── */
 
 .auth-page__logo-section {
@@ -35,6 +50,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   margin-bottom: 2rem;
   animation: authLogoIn 1.2s ease-out both;
 }
@@ -91,7 +107,6 @@
   z-index: 2;
   width: 100%;
   max-width: 400px;
-  padding: 0 1.5rem;
   animation: authFormIn 0.8s ease-out 0.3s both;
 }
 
@@ -117,6 +132,7 @@
 
 .auth-page__tab {
   flex: 1;
+  min-height: 44px;
   padding: 0.75rem 1rem;
   font-family: "Cinzel", "Georgia", serif;
   font-size: 0.9rem;
@@ -175,6 +191,7 @@
 
 .auth-page__input {
   width: 100%;
+  min-height: 44px;
   padding: 0.875rem 1rem;
   font-family: "Cinzel", "Georgia", serif;
   font-size: 0.95rem;
@@ -244,6 +261,7 @@
 
 .auth-page__submit {
   width: 100%;
+  min-height: 44px;
   padding: 1rem 2rem;
   font-family: "Cinzel", "Georgia", serif;
   font-size: 1.05rem;
@@ -333,6 +351,7 @@
 
 .auth-page__guest-btn {
   width: 100%;
+  min-height: 44px;
   padding: 0.875rem 2rem;
   font-family: "Cinzel", "Georgia", serif;
   font-size: 0.85rem;
@@ -357,10 +376,10 @@
 /* ─── Footer ────────────────────────────────────────────────────────── */
 
 .auth-page__footer {
-  position: absolute;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  padding-top: 0.75rem;
   z-index: 2;
   text-align: center;
   animation: authFormIn 0.6s ease-out 0.6s both;
@@ -395,12 +414,15 @@
 /* ─── Responsive ───────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
+  .auth-page {
+    padding-inline: max(0.75rem, env(safe-area-inset-left)) max(0.75rem, env(safe-area-inset-right));
+  }
   .auth-page__title {
-    font-size: 2rem;
+    font-size: clamp(1.65rem, 9vw, 2rem);
+    letter-spacing: 0.1em;
   }
   .auth-page__container {
-    max-width: 320px;
-    padding: 0 1rem;
+    max-width: 360px;
   }
   .auth-page__icon {
     width: 50px;
@@ -412,5 +434,42 @@
   }
   .auth-page__submit {
     font-size: 0.95rem;
+  }
+}
+
+@media (max-height: 760px) {
+  .auth-page__content {
+    justify-content: flex-start;
+    padding-block: 0.25rem 0.75rem;
+  }
+
+  .auth-page__logo-section {
+    margin-bottom: 1rem;
+  }
+
+  .auth-page__icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0.4rem;
+  }
+
+  .auth-page__title {
+    font-size: 1.75rem;
+  }
+
+  .auth-page__tabs {
+    margin-bottom: 1rem;
+  }
+
+  .auth-page__form {
+    gap: 0.75rem;
+  }
+
+  .auth-page__form-group {
+    gap: 0.25rem;
+  }
+
+  .auth-page__divider {
+    margin: 0.75rem 0;
   }
 }
