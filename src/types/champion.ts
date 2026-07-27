@@ -59,7 +59,7 @@ export enum TargetingType {
 // ─── Spell Effect ─────────────────────────────────────────────────────────
 
 export interface SpellEffect {
-  /** Effect category: damage, heal, shield, cc, buff, debuff, execute */
+  /** Effect category: damage, heal, shield, cc, buff, debuff, execute, dot, hot, revive */
   type: string;
   /** Damage type: physical, magical, true (for damage effects) */
   damageType?: string;
@@ -87,6 +87,12 @@ export interface SpellEffect {
   buffDuration?: number;
   /** Execute threshold as percentage of target max HP */
   threshold?: number;
+  /** Duration in combatant turns for DoT, HoT, revive protection or other timed effects. */
+  duration?: number;
+  /** Maximum stacks for stackable effects such as DoTs and stat modifiers. */
+  maxStacks?: number;
+  /** Fraction or percentage of maximum HP restored by a revive. */
+  revivePercent?: number;
 }
 
 // ─── Champion Stats (base + per-level growth) ───────────────────────────────

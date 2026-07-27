@@ -44,6 +44,7 @@ export function resolveBattleTargets<T extends TargetableCombatant>(
   actorSide: TeamSide,
   targeting: ActionTargeting,
   requestedTargetId?: string | 'all',
+  options: { includeDefeated?: boolean } = {},
 ): BattleTargetResolution<T> {
   const actor = combatants.find(
     (candidate) =>
@@ -54,7 +55,9 @@ export function resolveBattleTargets<T extends TargetableCombatant>(
     return { ok: false, requiresTarget, legalTargets: [], targets: [], error: 'invalid_actor' };
   }
 
-  const living = combatants.filter((candidate) => !candidate.isDefeated);
+  const targetPool = options.includeDefeated
+    ? [...combatants]
+    : combatants.filter((candidate) => !candidate.isDefeated);
   let legalTargets: T[];
   switch (targeting) {
     case TargetingType.Self:
@@ -62,12 +65,12 @@ export function resolveBattleTargets<T extends TargetableCombatant>(
       break;
     case TargetingType.Ally:
     case TargetingType.Allies:
-      legalTargets = living.filter((candidate) => candidate.side === actorSide);
+      legalTargets = targetPool.filter((candidate) => candidate.side === actorSide);
       break;
     case TargetingType.Enemy:
     case TargetingType.Enemies:
     case TargetingType.Area:
-      legalTargets = living.filter((candidate) => candidate.side !== actorSide);
+      legalTargets = targetPool.filter((candidate) => candidate.side !== actorSide);
       break;
   }
 

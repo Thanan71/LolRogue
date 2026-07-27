@@ -15,6 +15,7 @@ export enum EffectCategory {
   Buff = 'buff',
   Debuff = 'debuff',
   Execute = 'execute',
+  Revive = 'revive',
 }
 
 // ─── Damage Types ───────────────────────────────────────────────────────────
@@ -41,6 +42,10 @@ export enum CCType {
   Slow = 'slow',
   /** Target is displaced, cannot act */
   Knockup = 'knockup',
+  /** Target is forced away and cannot act */
+  Fear = 'fear',
+  /** Target is forced toward the source and cannot act */
+  Charm = 'charm',
 }
 
 // ─── Stat Keys for Buff/Debuff ──────────────────────────────────────────────
@@ -144,6 +149,12 @@ export interface ExecuteEffectData extends EffectData {
   threshold: number;
 }
 
+export interface ReviveEffectData extends EffectData {
+  category: EffectCategory.Revive;
+  /** Fraction of maximum HP restored when the target returns. */
+  hpFraction: number;
+}
+
 // ─── Union of all effect data types ────────────────────────────────────────
 
 export type AnyEffectData =
@@ -152,7 +163,8 @@ export type AnyEffectData =
   | ShieldEffectData
   | CCEffectData
   | BuffDebuffEffectData
-  | ExecuteEffectData;
+  | ExecuteEffectData
+  | ReviveEffectData;
 
 // ─── Effect Events (for battle log) ────────────────────────────────────────
 

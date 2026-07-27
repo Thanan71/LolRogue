@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { BattleManager } from '@/game/battle/BattleManager';
+import { isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { isActionTargeting } from '@/game/battle/targetResolver';
 import type { BattleAction, BattleEvent, BattleTeam } from '@/game/battle/types';
 import { BattlePhase } from '@/game/battle/types';
@@ -25,7 +26,11 @@ function toCombatantInfo(
   const spells: SpellInfo[] = [];
   for (const slot of slots) {
     const spell = champ.getSpell(slot);
-    if (spell && isActionTargeting(spell.targeting)) {
+    if (
+      spell &&
+      isActionTargeting(spell.targeting) &&
+      isSpellCombatReady(spell, champ.getSpellRank(slot))
+    ) {
       const rank = champ.getSpellRank(slot);
       const cost = spell.cost[rank - 1] ?? spell.cost[spell.cost.length - 1] ?? 0;
       spells.push({
@@ -163,6 +168,15 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       store.addLog({
         type: 'shield',
         message: `${event.source} → ${event.target}: +${event.amount} bouclier`,
+        amount: event.amount,
+      });
+      break;
+
+    case 'revive':
+      syncTeams(bm);
+      store.addLog({
+        type: 'revive',
+        message: `${event.source} ranime ${event.target} avec ${event.amount} PV`,
         amount: event.amount,
       });
       break;

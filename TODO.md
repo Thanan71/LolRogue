@@ -469,20 +469,32 @@ n'est pas résolu par `BattleManager`. Buffs/debuffs sont ajoutés à `EffectMan
 mais leurs stats, ticks et expirations ne sont pas consultés. Slow, silence et snare
 n'ont pas leur effet annoncé.
 
-- [ ] Établir un cycle de tour documenté : début, contrôle, choix, cast/attaque,
+- [x] Établir un cycle de tour documenté : début, contrôle, choix, cast/attaque,
   événements, dégâts/soins, mort, fin et tick des durées.
-- [ ] Brancher `EffectManager` à la lecture des stats, à `canAct`, `canCast`, vitesse,
+- [x] Brancher `EffectManager` à la lecture des stats, à `canAct`, `canCast`, vitesse,
   ticks, stacks, dispels et expiration.
-- [ ] Implémenter les types publiés : dégâts, heal, shield, execute, CC, buff,
+- [x] Implémenter les types publiés : dégâts, heal, shield, execute, CC, buff,
   debuff, DoT, HoT et revive.
-- [ ] Brancher chaque passif champion aux événements utiles.
-- [ ] Normaliser les unités (`0.30` contre `30 %`) avec des types ou helpers dédiés.
-- [ ] Retirer/masquer temporairement tout contenu dont le handler n'existe pas.
-- [ ] Écrire un test comportemental par famille d'effet et au moins un test par
+- [x] Brancher chaque passif champion aux événements utiles.
+- [x] Normaliser les unités (`0.30` contre `30 %`) avec des types ou helpers dédiés.
+- [x] Retirer/masquer temporairement tout contenu dont le handler n'existe pas.
+- [x] Écrire un test comportemental par famille d'effet et au moins un test par
   passif champion.
 
 **Acceptation :** aucune description de champion publiée ne promet un effet absent
 du moteur.
+
+**Statut : terminé.** Le cycle canonique est documenté dans
+`docs/combat-turn-cycle.md` et `BattleManager` consomme désormais réellement les
+statistiques, contrôles, boucliers, ticks, stacks et expirations
+d'`EffectManager`. Les dix passifs maintenus disposent chacun de leurs triggers et
+de leur régression comportementale ; leurs définitions remplacent les versions
+générées incomplètes dans la base jouable. Les familles dégâts, soin, bouclier,
+execute, CC, buff/debuff, DoT, HoT et revive sont résolues par le combat. Les
+durées, pourcentages et seuils passent par des helpers d'unités communs. Pour les
+autres champions générés, une capacité ou un passif sans données complètes est
+retiré des commandes et sa description est remplacée dans la Database par un état
+« temporairement indisponible », afin de ne plus publier de promesse inerte.
 
 ### P1-GAME-03 — Faire des runes, augments, objets et améliorations de vraies règles
 

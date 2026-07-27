@@ -11,6 +11,7 @@
  */
 
 import type { Champion, ChampionTag, ResourceType } from '@/types';
+import { implementedChampions } from './champion';
 import championsRaw from './generated/champions-parsed.json';
 
 // --- Filter Criteria ---------------------------------------------------------
@@ -58,8 +59,14 @@ export class ChampionDatabase {
   private byTag: TagIndex;
   private byResource: ResourceIndex;
 
-  constructor(rawData: Champion[] = championsRaw as Champion[]) {
-    this.champions = rawData;
+  constructor(rawData?: Champion[]) {
+    const source = rawData ?? (championsRaw as Champion[]);
+    const maintainedById = new Map(
+      implementedChampions.map((champion) => [champion.id.toLowerCase(), champion]),
+    );
+    this.champions = rawData
+      ? source
+      : source.map((champion) => maintainedById.get(champion.id.toLowerCase()) ?? champion);
     this.byId = new Map();
     this.byKey = new Map();
     this.byTag = new Map() as TagIndex;

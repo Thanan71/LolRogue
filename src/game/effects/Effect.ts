@@ -110,4 +110,11 @@ export abstract class Effect<T extends EffectData = EffectData> {
       this.data.expired = true;
     }
   }
+
+  /** Refresh a duration effect without changing its stacks or magnitude. */
+  refresh(): void {
+    if (this.data.duration <= 0) return;
+    this.data.ticksElapsed = 0;
+    this.data.expired = false;
+  }
 }

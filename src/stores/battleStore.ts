@@ -38,7 +38,8 @@ export interface LogEntry {
     | 'action'
     | 'info'
     | 'heal'
-    | 'shield';
+    | 'shield'
+    | 'revive';
   message: string;
   amount?: number;
   isCrit?: boolean;

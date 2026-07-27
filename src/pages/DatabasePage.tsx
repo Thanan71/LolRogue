@@ -3,6 +3,11 @@ import { EnhancementTree } from '@/components/EnhancementTree';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
+import {
+  isPassiveCombatReady,
+  isSpellCombatReady,
+  UNAVAILABLE_COMBAT_DESCRIPTION,
+} from '@/game/battle/combatContentSupport';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuthStore } from '@/stores/authStore';
 import { useChampionEnhancements, useEnhancementStore } from '@/stores/enhancementStore';
@@ -229,7 +234,9 @@ function ChampionDetail({ champion }: { champion: Champion }) {
           <div key={spell.id} style={abilityCardStyle}>
             <div style={{ color: '#e6edf3', fontWeight: 600, fontSize: 13 }}>{spell.name}</div>
             <div style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}>
-              {stripMarkup(spell.description)}
+              {isSpellCombatReady(spell)
+                ? stripMarkup(spell.description)
+                : UNAVAILABLE_COMBAT_DESCRIPTION}
             </div>
           </div>
         ))}
@@ -238,7 +245,9 @@ function ChampionDetail({ champion }: { champion: Champion }) {
             Passive: {champion.passive.name}
           </div>
           <div style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}>
-            {stripMarkup(champion.passive.description)}
+            {isPassiveCombatReady(champion.id, champion.passive)
+              ? stripMarkup(champion.passive.description)
+              : UNAVAILABLE_COMBAT_DESCRIPTION}
           </div>
         </div>
       </div>

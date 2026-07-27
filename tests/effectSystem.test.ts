@@ -7,8 +7,10 @@ import { BuffDebuffEffect, createBuff, createDebuff } from '../src/game/effects/
 import { CCEffect } from '../src/game/effects/CCEffect';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
 import { EffectManager } from '../src/game/effects/EffectManager';
+import { normalizePercent, normalizeTurnDuration } from '../src/game/effects/effectUnits';
 import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
 import { HealEffect } from '../src/game/effects/HealEffect';
+import { ReviveEffect } from '../src/game/effects/ReviveEffect';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
 import { CCType, DamageType, EffectCategory, type EffectEvent } from '../src/game/effects/types';
 
@@ -422,6 +424,31 @@ describe('Effect System', () => {
     });
   });
 
+  describe('ReviveEffect and normalized units', () => {
+    it('normalizes human percentages and fractional percentages identically', () => {
+      expect(normalizePercent(30)).toBe(0.3);
+      expect(normalizePercent(0.3)).toBe(0.3);
+      expect(normalizeTurnDuration(1.5)).toBe(2);
+    });
+
+    it('restores the configured max-HP fraction only for a defeated target', () => {
+      const revive = new ReviveEffect({
+        sourceId: 'src',
+        targetId: 'tgt',
+        hpFraction: 25,
+      });
+
+      expect(revive.evaluate(true, 1000).value).toBe(250);
+      expect(
+        new ReviveEffect({
+          sourceId: 'src',
+          targetId: 'tgt',
+          hpFraction: 0.25,
+        }).evaluate(false, 1000).value,
+      ).toBe(0);
+    });
+  });
+
   // EffectManager Tests
   describe('EffectManager', () => {
     it('should start empty', () => {
@@ -554,6 +581,25 @@ describe('Effect System', () => {
       expect(manager.modifyStat('atk', 60)).toBe(75);
     });
 
+    it('refreshes duration when the same stackable effect is applied again', () => {
+      const mk = () =>
+        new BuffDebuffEffect({
+          name: 'Refreshable',
+          sourceId: 'src',
+          targetId: 'champion-1',
+          modifiers: [{ stat: 'atk', type: 'flat', value: 5 }],
+          duration: 3,
+          maxStacks: 3,
+        });
+      manager.apply(mk());
+      manager.tickAll();
+      manager.tickAll();
+      manager.apply(mk());
+
+      expect(manager.buffDebuffs[0].remainingRounds).toBe(3);
+      expect(manager.buffDebuffs[0].stacks).toBe(2);
+    });
+
     it('should tick duration effects', () => {
       manager.apply(
         new DamageEffect({
@@ -597,6 +643,23 @@ describe('Effect System', () => {
       manager.apply(createBuff('B3', 'a', 'champion-1', 'ap', 10, 'flat', 5));
       expect(manager.removeBySource('a')).toBe(2);
       expect(manager.size).toBe(1);
+    });
+
+    it('dispels only the requested effect categories', () => {
+      manager.apply(createBuff('Buff', 'src', 'champion-1', 'atk', 10, 'flat', 5));
+      manager.apply(createDebuff('Debuff', 'src', 'champion-1', 'def', 10, 'flat', 5));
+      manager.apply(
+        new CCEffect({
+          sourceId: 'src',
+          targetId: 'champion-1',
+          ccType: CCType.Silence,
+          duration: 2,
+        }),
+      );
+
+      expect(manager.dispel([EffectCategory.Debuff, EffectCategory.CC])).toBe(2);
+      expect(manager.buffDebuffs).toHaveLength(1);
+      expect(manager.ccEffects).toHaveLength(0);
     });
 
     it('should clear all', () => {

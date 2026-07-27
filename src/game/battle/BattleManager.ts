@@ -5,8 +5,19 @@
  */
 
 import { createBuff, createDebuff } from '@/game/effects/BuffDebuffEffect';
+import { CCEffect } from '@/game/effects/CCEffect';
+import { DamageEffect } from '@/game/effects/DamageEffect';
 import { EffectManager } from '@/game/effects/EffectManager';
-import type { StatKey } from '@/game/effects/types';
+import {
+  normalizePercent,
+  normalizeThreshold,
+  normalizeTurnDuration,
+} from '@/game/effects/effectUnits';
+import { ExecuteEffect } from '@/game/effects/ExecuteEffect';
+import { HealEffect } from '@/game/effects/HealEffect';
+import { ReviveEffect } from '@/game/effects/ReviveEffect';
+import { ShieldEffect } from '@/game/effects/ShieldEffect';
+import { CCType, DamageType, type StatKey } from '@/game/effects/types';
 import { TargetingType, type SpellEffect } from '@/types/champion';
 import {
   calculateADDamage,
@@ -16,6 +27,7 @@ import {
 } from '@/utils/damage';
 import type { ChampionInstance, SpellSlot } from '../ChampionInstance';
 import { actionToSpellSlot } from './actionSlots';
+import { isPassiveCombatReady, isSpellCombatReady } from './combatContentSupport';
 import { isActionTargeting, resolveBattleTargets } from './targetResolver';
 import {
   ActionType,
@@ -62,6 +74,7 @@ interface ActionDefinition {
   targeting: ActionTargeting;
   spellSlot?: SpellSlot;
   rankIndex: number;
+  includeDefeatedTargets: boolean;
 }
 
 interface ValidatedBattleAction extends ActionDefinition {
@@ -90,6 +103,17 @@ export class BattleManager {
   private readonly _initialHpOverrides: Record<string, number> | undefined;
   private readonly _random: () => number;
   private _actionCallback: ActionCallback | null = null;
+  private readonly _lastDamagedRound = new Map<string, number>();
+  private readonly _passiveCounters = new Map<string, number>();
+  private readonly _passiveMarks = new Map<
+    string,
+    {
+      luxSourceId?: string;
+      luxExpiresRound?: number;
+      leonaSourceId?: string;
+      leonaExpiresRound?: number;
+    }
+  >();
 
   constructor(
     private readonly _playerTeam: BattleTeam,
@@ -199,7 +223,7 @@ export class BattleManager {
       this._phase !== BattlePhase.TurnActive ||
       this.currentCombatant !== combatant ||
       combatant.isDefeated ||
-      combatant.ccTurnsLeft > 0
+      !combatant.effectManager.canAct()
     ) {
       return [];
     }
@@ -215,9 +239,12 @@ export class BattleManager {
     return actionTypes.flatMap((type) => {
       const definition = this._getActionDefinition(combatant, type);
       if (!definition) return [];
+      if (type === ActionType.BasicAttack && !combatant.effectManager.canMove()) return [];
       if (
         definition.spellSlot &&
-        (!champion.isSpellReady(definition.spellSlot) || combatant.currentMp < definition.cost)
+        (!champion.isSpellReady(definition.spellSlot) ||
+          combatant.currentMp < definition.cost ||
+          !combatant.effectManager.canCast())
       ) {
         return [];
       }
@@ -226,6 +253,8 @@ export class BattleManager {
         combatant.targetId,
         combatant.side,
         definition.targeting,
+        undefined,
+        { includeDefeated: definition.includeDefeatedTargets },
       );
       if (resolution.legalTargets.length === 0) return [];
       return [
@@ -257,6 +286,7 @@ export class BattleManager {
     this._round = 0;
     this._log = [];
     this._initCombatants();
+    this._initializePassives();
     this._nextRound();
   }
 
@@ -274,9 +304,14 @@ export class BattleManager {
       return;
     }
 
-    // CC check: if stunned, skip this turn and decrement counter
-    if (attackerState.ccTurnsLeft > 0) {
-      attackerState.ccTurnsLeft--;
+    const turnEffectIds = attackerState.effectManager.effects.map((effect) => effect.id);
+
+    // Canonical turn cycle:
+    // start → controls → command → cast/attack → effects/deaths → end → duration ticks.
+    if (!attackerState.effectManager.canAct()) {
+      this._applyTurnEndPassives(attackerState);
+      this._tickTurnEffects(attackerState, turnEffectIds);
+      if (this._checkVictory()) return;
       this._nextTurn();
       return;
     }
@@ -298,6 +333,9 @@ export class BattleManager {
       validated = action ? this._validateAction(attackerState, action) : null;
     }
     if (!action || !validated) {
+      this._applyTurnEndPassives(attackerState);
+      this._tickTurnEffects(attackerState, turnEffectIds);
+      if (this._checkVictory()) return;
       this._nextTurn();
       return;
     }
@@ -311,6 +349,9 @@ export class BattleManager {
 
     this._executeAction(attackerState, validated);
     if (this._checkVictory()) return;
+    this._applyTurnEndPassives(attackerState);
+    this._tickTurnEffects(attackerState, turnEffectIds);
+    if (this._checkVictory()) return;
     this._nextTurn();
   }
 
@@ -321,6 +362,7 @@ export class BattleManager {
 
     const attackerState = this._findCombatantForChampion(entry.champion);
     if (!attackerState) return false;
+    const turnEffectIds = attackerState.effectManager.effects.map((effect) => effect.id);
     const validated = this._validateAction(attackerState, action);
     if (!validated) return false;
 
@@ -332,6 +374,9 @@ export class BattleManager {
     });
 
     this._executeAction(attackerState, validated);
+    if (this._checkVictory()) return true;
+    this._applyTurnEndPassives(attackerState);
+    this._tickTurnEffects(attackerState, turnEffectIds);
     if (this._checkVictory()) return true;
     this._nextTurn();
     return true;
@@ -349,6 +394,9 @@ export class BattleManager {
   }
 
   private _initCombatants(): void {
+    this._lastDamagedRound.clear();
+    this._passiveCounters.clear();
+    this._passiveMarks.clear();
     const hpOverrides = this._initialHpOverrides;
     const playerChampions = this._playerTeam.champions.slice(0, this._maxTeamSize);
     this._playerCombatants = playerChampions.map((c, index) => {
@@ -356,8 +404,9 @@ export class BattleManager {
       const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
       const overriddenHp = hpOverrides?.[c.id];
       const initHp = overriddenHp !== undefined ? Math.min(overriddenHp, stats.hp) : stats.hp;
+      const targetId = getUniqueTargetId(playerChampions, index);
       return {
-        targetId: getUniqueTargetId(playerChampions, index),
+        targetId,
         champion: c,
         side: 'player' as TeamSide,
         currentHp: initHp,
@@ -367,15 +416,16 @@ export class BattleManager {
         isDefeated: initHp <= 0,
         currentShield: 0,
         ccTurnsLeft: 0,
-        effectManager: new EffectManager(c.id),
+        effectManager: new EffectManager(targetId),
       };
     });
     const enemyChampions = this._enemyTeam.champions.slice(0, this._maxTeamSize);
     this._enemyCombatants = enemyChampions.map((c, index) => {
       // Use enhanced stats if available, otherwise fall back to base stats
       const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
+      const targetId = getUniqueTargetId(enemyChampions, index);
       return {
-        targetId: getUniqueTargetId(enemyChampions, index),
+        targetId,
         champion: c,
         side: 'enemy' as TeamSide,
         currentHp: stats.hp,
@@ -385,7 +435,7 @@ export class BattleManager {
         isDefeated: false,
         currentShield: 0,
         ccTurnsLeft: 0,
-        effectManager: new EffectManager(c.id),
+        effectManager: new EffectManager(targetId),
       };
     });
     // Reset all cooldowns at battle start
@@ -430,7 +480,7 @@ export class BattleManager {
         all.push({
           champion: c.champion,
           side: 'player',
-          speedValue: this._calcSpeedPriority(c.champion),
+          speedValue: this._calcSpeedPriority(c),
         });
       }
     }
@@ -439,7 +489,7 @@ export class BattleManager {
         all.push({
           champion: c.champion,
           side: 'enemy',
-          speedValue: this._calcSpeedPriority(c.champion),
+          speedValue: this._calcSpeedPriority(c),
         });
       }
     }
@@ -447,9 +497,8 @@ export class BattleManager {
     this._turnOrder = all;
   }
 
-  private _calcSpeedPriority(champion: ChampionInstance): number {
-    // Use enhanced stats (getEnhancedStats always returns valid stats, falling back to base stats if no bonuses)
-    const stats = champion.getEnhancedStats();
+  private _calcSpeedPriority(combatant: CombatantState): number {
+    const stats = this._getCombatStats(combatant);
     const jitter = this._random() * SPEED_JITTER_MAX;
     return stats.moveSpeed + jitter;
   }
@@ -477,7 +526,7 @@ export class BattleManager {
       entry.champion !== attacker.champion ||
       entry.side !== attacker.side ||
       attacker.isDefeated ||
-      attacker.ccTurnsLeft > 0 ||
+      !attacker.effectManager.canAct() ||
       !Object.values(ActionType).includes(action.type)
     ) {
       return null;
@@ -485,10 +534,12 @@ export class BattleManager {
 
     const definition = this._getActionDefinition(attacker, action.type);
     if (!definition) return null;
+    if (action.type === ActionType.BasicAttack && !attacker.effectManager.canMove()) return null;
     if (
       definition.spellSlot &&
       (!attacker.champion.isSpellReady(definition.spellSlot) ||
-        attacker.currentMp < definition.cost)
+        attacker.currentMp < definition.cost ||
+        !attacker.effectManager.canCast())
     ) {
       return null;
     }
@@ -499,6 +550,7 @@ export class BattleManager {
       attacker.side,
       definition.targeting,
       action.targetId,
+      { includeDefeated: definition.includeDefeatedTargets },
     );
     if (!resolution.ok || resolution.targets.length === 0) return null;
     return {
@@ -518,6 +570,7 @@ export class BattleManager {
         cooldown: 0,
         targeting: TargetingType.Enemy,
         rankIndex: 0,
+        includeDefeatedTargets: false,
       };
     }
 
@@ -527,6 +580,7 @@ export class BattleManager {
     if (!spell || !isActionTargeting(spell.targeting)) return null;
     const rank = attacker.champion.getSpellRank(spellSlot);
     if (!Number.isInteger(rank) || rank < 1 || rank > spell.maxRank) return null;
+    if (!isSpellCombatReady(spell, rank)) return null;
 
     return {
       type,
@@ -535,6 +589,7 @@ export class BattleManager {
       targeting: spell.targeting,
       spellSlot,
       rankIndex: rank - 1,
+      includeDefeatedTargets: spell.effects.some((effect) => effect.type === 'revive'),
     };
   }
 
@@ -568,9 +623,13 @@ export class BattleManager {
   }
 
   private _executeAction(attacker: CombatantState, action: ValidatedBattleAction): void {
+    this._applyBeforeActionPassives(attacker, action);
+
     // ── Basic Attack: keep existing AD-only logic ──
     if (action.type === ActionType.BasicAttack) {
-      this._performBasicAttack(attacker, action.targets[0]);
+      const target = action.targets[0];
+      this._performBasicAttack(attacker, target);
+      this._applyAfterBasicAttackPassives(attacker, target);
       return;
     }
 
@@ -585,16 +644,15 @@ export class BattleManager {
     attacker.currentMp = Math.max(0, attacker.currentMp - action.cost);
 
     // Use enhanced stats for spell damage calculation (getEnhancedStats always returns valid stats)
-    const atkStats = attacker.champion.getEnhancedStats();
+    const atkStats = this._getCombatStats(attacker);
 
     for (const effect of spell.effects) {
       this._applySpellEffect(effect, attacker, action.targets, atkStats, action.rankIndex);
     }
+    this._applyAfterSpellPassives(attacker, action);
   }
 
-  /**
-   * Apply a single SpellEffect. Handles damage, heal, shield, cc.
-   */
+  /** Resolve every published spell-effect family against validated targets. */
   private _applySpellEffect(
     effect: SpellEffect,
     attacker: CombatantState,
@@ -615,27 +673,11 @@ export class BattleManager {
     switch (effect.type) {
       case 'damage': {
         for (const target of hostileTargets) {
-          // Use enhanced stats for defense calculation (getEnhancedStats always returns valid stats)
-          const defStats = target.champion.getEnhancedStats();
-
-          const baseDmg = effect.baseDamage?.[rankIdx] ?? 0;
-          const adRatio = effect.adRatio ?? 0;
-          const apRatio = effect.apRatio ?? 0;
-          const statDmg = atkStats.attackDamage * adRatio + atkStats.abilityPower * apRatio;
-          const rawDmg = baseDmg + statDmg;
-
-          let finalDmg: number;
-          const dmgType = effect.damageType ?? 'physical';
-          // Handle both 'magical'/'ap' for magic damage and 'true' for true damage
-          if (dmgType === 'magical' || dmgType === 'ap') {
-            finalDmg = calculateAPDamage(rawDmg, 1.0, defStats.magicResist);
-          } else if (dmgType === 'true') {
-            finalDmg = calculateTrueDamage(rawDmg);
-          } else {
-            // Default to physical/AD damage
-            finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
-          }
-          this._applyDamageToTarget(attacker, target, finalDmg);
+          this._applyDamageToTarget(
+            attacker,
+            target,
+            this._calculateEffectDamage(effect, atkStats, target, rankIdx),
+          );
         }
         break;
       }
@@ -644,16 +686,7 @@ export class BattleManager {
           const baseHeal = effect.baseValue?.[rankIdx] ?? 0;
           const apRatio = effect.apRatio ?? 0;
           const healAmount = Math.round(baseHeal + atkStats.abilityPower * apRatio);
-          if (healAmount <= 0) continue;
-          healTarget.currentHp = Math.min(healTarget.maxHp, healTarget.currentHp + healAmount);
-          this._emit({
-            type: 'heal',
-            source: attacker.champion.id,
-            target: healTarget.champion.id,
-            amount: healAmount,
-            sourceSide: attacker.side,
-            targetSide: healTarget.side,
-          });
+          this._applyHeal(attacker, healTarget, healAmount);
         }
         break;
       }
@@ -663,7 +696,19 @@ export class BattleManager {
           const apRatio = effect.apRatio ?? 0;
           const shieldAmount = Math.round(baseShield + atkStats.abilityPower * apRatio);
           if (shieldAmount <= 0) continue;
-          shieldTarget.currentShield += shieldAmount;
+          shieldTarget.effectManager.apply(
+            new ShieldEffect({
+              name: `${attacker.champion.id} shield`,
+              sourceId: attacker.targetId,
+              targetId: shieldTarget.targetId,
+              magnitude: shieldAmount,
+              duration: Math.max(
+                1,
+                normalizeTurnDuration(effect.duration ?? effect.buffDuration, 3),
+              ),
+            }),
+          );
+          this._syncEffectState(shieldTarget);
           this._emit({
             type: 'shield',
             source: attacker.champion.id,
@@ -677,14 +722,20 @@ export class BattleManager {
       }
       case 'cc': {
         for (const ccTarget of hostileTargets) {
-          // Hard CC (stun, knockup, charm) sets ccTurnsLeft so processCurrentTurn skips the turn
-          const ccDuration = effect.ccDuration ?? 1;
-          const ccTurns = Math.max(1, Math.round(ccDuration));
-          const ccType = (effect.ccType ?? '').toLowerCase();
-          const hardCC = ['stun', 'knockup', 'charm'].includes(ccType);
-          if (hardCC) {
-            ccTarget.ccTurnsLeft = Math.max(ccTarget.ccTurnsLeft, ccTurns);
-          }
+          const ccType = toCCType(effect.ccType);
+          if (!ccType) continue;
+          ccTarget.effectManager.apply(
+            new CCEffect({
+              name: `${attacker.champion.id} ${ccType}`,
+              sourceId: attacker.targetId,
+              targetId: ccTarget.targetId,
+              ccType,
+              duration: Math.max(1, normalizeTurnDuration(effect.ccDuration, 1)),
+              slowAmount:
+                ccType === CCType.Slow ? normalizePercent(effect.slowPercent, 0.3) : undefined,
+            }),
+          );
+          this._syncEffectState(ccTarget);
           this._emit({
             type: 'damage',
             source: attacker.champion.id,
@@ -701,13 +752,17 @@ export class BattleManager {
         for (const buffTarget of positiveTargets) {
           const stat = (effect.stat ?? 'atk') as StatKey;
           const modifierType = effect.modifierType ?? 'flat';
-          const rawValue = effect.values?.[rankIdx] ?? 0;
+          const sourceValue = effect.values?.[rankIdx] ?? 0;
+          const rawValue = modifierType === 'percent' ? normalizePercent(sourceValue) : sourceValue;
           if (rawValue === 0) continue;
-          const duration = Math.max(1, Math.round(effect.buffDuration ?? 3));
+          const duration = Math.max(
+            1,
+            normalizeTurnDuration(effect.buffDuration ?? effect.duration, 3),
+          );
           const bdEffect = createBuff(
             `${attacker.champion.id}_buff_${stat}`,
-            attacker.champion.id,
-            buffTarget.champion.id,
+            attacker.targetId,
+            buffTarget.targetId,
             stat,
             rawValue,
             modifierType,
@@ -729,13 +784,17 @@ export class BattleManager {
         for (const debuffTarget of hostileTargets) {
           const stat = (effect.stat ?? 'def') as StatKey;
           const modifierType = effect.modifierType ?? 'flat';
-          const rawValue = effect.values?.[rankIdx] ?? 0;
+          const sourceValue = effect.values?.[rankIdx] ?? 0;
+          const rawValue = modifierType === 'percent' ? normalizePercent(sourceValue) : sourceValue;
           if (rawValue === 0) continue;
-          const duration = Math.max(1, Math.round(effect.buffDuration ?? 3));
+          const duration = Math.max(
+            1,
+            normalizeTurnDuration(effect.buffDuration ?? effect.duration, 3),
+          );
           const bdEffect = createDebuff(
             `${attacker.champion.id}_debuff_${stat}`,
-            attacker.champion.id,
-            debuffTarget.champion.id,
+            attacker.targetId,
+            debuffTarget.targetId,
             stat,
             rawValue,
             modifierType,
@@ -753,6 +812,85 @@ export class BattleManager {
         }
         break;
       }
+      case 'execute': {
+        for (const target of hostileTargets) {
+          const execute = new ExecuteEffect({
+            sourceId: attacker.targetId,
+            targetId: target.targetId,
+            threshold: normalizeThreshold(effect.threshold, 0),
+          });
+          const result = execute.evaluate(target.currentHp, target.maxHp);
+          if ((result.value ?? 0) > 0) {
+            this._applyDamageToTarget(attacker, target, target.currentHp, false);
+          }
+        }
+        break;
+      }
+      case 'dot': {
+        const duration = normalizeTurnDuration(effect.duration, 1);
+        for (const target of hostileTargets) {
+          const totalDamage = this._calculateEffectDamage(effect, atkStats, target, rankIdx);
+          if (totalDamage <= 0 || duration <= 0) continue;
+          target.effectManager.apply(
+            new DamageEffect({
+              name: `${attacker.champion.id} DoT`,
+              sourceId: attacker.targetId,
+              targetId: target.targetId,
+              magnitude: totalDamage,
+              damageType: DamageType.True,
+              duration,
+              canCrit: false,
+            }),
+          );
+        }
+        break;
+      }
+      case 'hot': {
+        const duration = normalizeTurnDuration(effect.duration, 1);
+        for (const target of positiveTargets) {
+          const amount = Math.round(
+            (effect.baseValue?.[rankIdx] ?? 0) + atkStats.abilityPower * (effect.apRatio ?? 0),
+          );
+          if (amount <= 0 || duration <= 0) continue;
+          target.effectManager.apply(
+            new HealEffect({
+              name: `${attacker.champion.id} HoT`,
+              sourceId: attacker.targetId,
+              targetId: target.targetId,
+              magnitude: amount,
+              duration,
+              hot: true,
+            }),
+          );
+        }
+        break;
+      }
+      case 'revive': {
+        const defeatedAllies = primaryTargets.filter(
+          (candidate) => candidate.side === attacker.side && candidate.isDefeated,
+        );
+        for (const target of defeatedAllies) {
+          const revive = new ReviveEffect({
+            sourceId: attacker.targetId,
+            targetId: target.targetId,
+            hpFraction: effect.revivePercent ?? 0.25,
+          });
+          const result = revive.evaluate(target.isDefeated, target.maxHp);
+          const restoredHp = result.value ?? 0;
+          if (restoredHp <= 0) continue;
+          target.isDefeated = false;
+          target.currentHp = restoredHp;
+          this._emit({
+            type: 'revive',
+            source: attacker.champion.id,
+            target: target.champion.id,
+            amount: restoredHp,
+            sourceSide: attacker.side,
+            targetSide: target.side,
+          });
+        }
+        break;
+      }
       default:
         break;
     }
@@ -763,32 +901,30 @@ export class BattleManager {
     attacker: CombatantState,
     target: CombatantState,
     damage: number,
+    triggerPassives = true,
+    isCrit = false,
   ): void {
-    let remaining = damage;
-    if (target.currentShield > 0 && remaining > 0) {
-      if (target.currentShield >= remaining) {
-        target.currentShield -= remaining;
-        remaining = 0;
-      } else {
-        remaining -= target.currentShield;
-        target.currentShield = 0;
-      }
-    }
+    if (damage <= 0 || target.isDefeated) return;
+    const wasDefeated = target.isDefeated;
+    this._lastDamagedRound.set(target.targetId, this._round);
+    const { finalDamage: remaining } = target.effectManager.absorbWithShields(damage);
+    this._syncEffectState(target);
     if (remaining > 0) {
       target.currentHp = Math.max(0, target.currentHp - remaining);
     }
-    if (damage > 0) {
-      this._emit({
-        type: 'damage',
-        source: attacker.champion.id,
-        target: target.champion.id,
-        amount: damage,
-        isCrit: false,
-        sourceSide: attacker.side,
-        targetSide: target.side,
-      });
+    this._emit({
+      type: 'damage',
+      source: attacker.champion.id,
+      target: target.champion.id,
+      amount: damage,
+      isCrit,
+      sourceSide: attacker.side,
+      targetSide: target.side,
+    });
+    if (triggerPassives && remaining > 0) {
+      this._applyOnDamagePassives(attacker, target);
     }
-    if (target.currentHp <= 0) {
+    if (target.currentHp <= 0 && !wasDefeated) {
       target.isDefeated = true;
       this._emit({
         type: 'defeat',
@@ -796,14 +932,14 @@ export class BattleManager {
         side: target.side,
         defeatedBy: attacker.champion.id,
       });
+      this._applyOnKillPassives(attacker);
     }
   }
 
   /** Basic attack: AD-only with crit, mitigated by armor. */
   private _performBasicAttack(attacker: CombatantState, target: CombatantState): void {
-    // Use enhanced stats for both attack and defense (getEnhancedStats always returns valid stats)
-    const atkStats = attacker.champion.getEnhancedStats();
-    const defStats = target.champion.getEnhancedStats();
+    const atkStats = this._getCombatStats(attacker);
+    const defStats = this._getCombatStats(target);
 
     const baseRaw = atkStats.attackDamage;
     const critChance = Math.min(100, atkStats.crit) / 100;
@@ -811,36 +947,394 @@ export class BattleManager {
     const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
     const finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
 
-    let remaining = finalDmg;
-    if (target.currentShield > 0 && remaining > 0) {
-      if (target.currentShield >= remaining) {
-        target.currentShield -= remaining;
-        remaining = 0;
-      } else {
-        remaining -= target.currentShield;
-        target.currentShield = 0;
+    this._applyDamageToTarget(attacker, target, finalDmg, true, isCrit);
+  }
+
+  private _getCombatStats(
+    combatant: CombatantState,
+  ): ReturnType<ChampionInstance['getEnhancedStats']> {
+    const stats = { ...combatant.champion.getEnhancedStats() };
+    const aliases: Partial<Record<StatKey, keyof typeof stats>> = {
+      hp: 'hp',
+      atk: 'attackDamage',
+      attackDamage: 'attackDamage',
+      def: 'armor',
+      armor: 'armor',
+      ap: 'abilityPower',
+      spd: 'moveSpeed',
+      moveSpeed: 'moveSpeed',
+      magicResist: 'magicResist',
+      attackSpeed: 'attackSpeed',
+      crit: 'crit',
+    };
+    const grouped = new Map<keyof typeof stats, { flat: number; percent: number }>();
+    for (const [stat, modifier] of combatant.effectManager.getStatModifiers()) {
+      const key = aliases[stat];
+      if (!key) continue;
+      const entry = grouped.get(key) ?? { flat: 0, percent: 0 };
+      entry.flat += modifier.flat;
+      entry.percent += modifier.percent;
+      grouped.set(key, entry);
+    }
+    for (const [key, modifier] of grouped) {
+      const value = stats[key];
+      if (typeof value === 'number') {
+        (stats[key] as number) = Math.max(0, (value + modifier.flat) * (1 + modifier.percent));
       }
     }
-    target.currentHp = Math.max(0, target.currentHp - remaining);
 
+    if (
+      combatant.champion.id === 'Soraka' &&
+      isPassiveCombatReady(combatant.champion.id, combatant.champion.getPassive()) &&
+      this.getAliveCombatants(combatant.side).some(
+        (ally) => ally !== combatant && ally.currentHp / ally.maxHp < 0.4,
+      )
+    ) {
+      stats.moveSpeed *= 1.7;
+    }
+    stats.moveSpeed *= combatant.effectManager.getSpeedMultiplier();
+    return stats;
+  }
+
+  private _calculateEffectDamage(
+    effect: SpellEffect,
+    attackerStats: ReturnType<ChampionInstance['getEnhancedStats']>,
+    target: CombatantState,
+    rankIndex: number,
+  ): number {
+    const baseDamage =
+      effect.baseDamage?.[rankIndex] ?? effect.baseDamage?.[effect.baseDamage.length - 1] ?? 0;
+    const rawDamage =
+      baseDamage +
+      attackerStats.attackDamage * (effect.adRatio ?? 0) +
+      attackerStats.abilityPower * (effect.apRatio ?? 0);
+    const defense = this._getCombatStats(target);
+    if (effect.damageType === 'magical' || effect.damageType === 'ap') {
+      return calculateAPDamage(rawDamage, 1, defense.magicResist);
+    }
+    if (effect.damageType === 'true') return calculateTrueDamage(rawDamage);
+    return calculateADDamage(rawDamage, 1, defense.armor);
+  }
+
+  private _applyHeal(source: CombatantState, target: CombatantState, amount: number): void {
+    if (amount <= 0 || target.isDefeated) return;
+    const previousHp = target.currentHp;
+    target.currentHp = Math.min(target.maxHp, target.currentHp + amount);
+    const applied = target.currentHp - previousHp;
+    if (applied <= 0) return;
     this._emit({
-      type: 'damage',
-      source: attacker.champion.id,
+      type: 'heal',
+      source: source.champion.id,
       target: target.champion.id,
-      amount: finalDmg,
-      isCrit,
-      sourceSide: attacker.side,
+      amount: applied,
+      sourceSide: source.side,
       targetSide: target.side,
     });
-    if (target.currentHp <= 0) {
-      target.isDefeated = true;
-      this._emit({
-        type: 'defeat',
-        champion: target.champion.id,
-        side: target.side,
-        defeatedBy: attacker.champion.id,
-      });
+  }
+
+  private _syncEffectState(combatant: CombatantState): void {
+    combatant.currentShield = combatant.effectManager.shields.reduce(
+      (sum, shield) => sum + shield.remainingShield,
+      0,
+    );
+    combatant.ccTurnsLeft = combatant.effectManager.ccEffects
+      .filter((effect) => effect.isHardCC())
+      .reduce((max, effect) => Math.max(max, effect.remainingRounds), 0);
+  }
+
+  private _tickTurnEffects(combatant: CombatantState, effectIds: readonly string[]): void {
+    const results = combatant.effectManager.tickSelected(effectIds);
+    for (const { effect, event } of results) {
+      const source = this._findCombatantByTargetId(effect.sourceId) ?? combatant;
+      const value = event.value ?? 0;
+      if (effect instanceof DamageEffect && value > 0 && !combatant.isDefeated) {
+        this._applyDamageToTarget(source, combatant, value, false);
+      } else if (effect instanceof HealEffect && value > 0) {
+        this._applyHeal(source, combatant, value);
+      }
     }
+    this._syncEffectState(combatant);
+  }
+
+  private _initializePassives(): void {
+    for (const combatant of [...this._playerCombatants, ...this._enemyCombatants]) {
+      if (
+        combatant.isDefeated ||
+        !isPassiveCombatReady(combatant.champion.id, combatant.champion.getPassive())
+      ) {
+        continue;
+      }
+      this._lastDamagedRound.set(combatant.targetId, Number.NEGATIVE_INFINITY);
+      this._passiveCounters.set(combatant.targetId, 0);
+      if (combatant.champion.id === 'Malphite') {
+        this._applyMalphiteShield(combatant);
+      }
+    }
+  }
+
+  private _applyBeforeActionPassives(
+    attacker: CombatantState,
+    action: ValidatedBattleAction,
+  ): void {
+    if (
+      attacker.champion.id !== 'Annie' ||
+      action.type === ActionType.BasicAttack ||
+      (this._passiveCounters.get(attacker.targetId) ?? 0) < 4 ||
+      !action.targets.some((target) => target.side !== attacker.side && !target.isDefeated)
+    ) {
+      return;
+    }
+    const passiveEffect = attacker.champion
+      .getPassive()
+      .effects.find((effect) => effect.type === 'cc');
+    if (passiveEffect) {
+      this._applySpellEffect(
+        passiveEffect,
+        attacker,
+        action.targets,
+        this._getCombatStats(attacker),
+        attacker.champion.level - 1,
+      );
+    }
+    this._passiveCounters.set(attacker.targetId, -1);
+  }
+
+  private _applyAfterSpellPassives(attacker: CombatantState, action: ValidatedBattleAction): void {
+    if (!isPassiveCombatReady(attacker.champion.id, attacker.champion.getPassive())) return;
+
+    if (attacker.champion.id === 'Annie') {
+      const counter = this._passiveCounters.get(attacker.targetId) ?? 0;
+      this._passiveCounters.set(attacker.targetId, counter === -1 ? 0 : counter + 1);
+    }
+
+    const hostileTargets = action.targets.filter(
+      (target) => target.side !== attacker.side && !target.isDefeated,
+    );
+    if (attacker.champion.id === 'Lux') {
+      for (const target of hostileTargets) {
+        const mark = this._passiveMarks.get(target.targetId) ?? {};
+        mark.luxSourceId = attacker.targetId;
+        mark.luxExpiresRound = this._round + 3;
+        this._passiveMarks.set(target.targetId, mark);
+      }
+    }
+    if (attacker.champion.id === 'Leona') {
+      for (const target of hostileTargets) {
+        const mark = this._passiveMarks.get(target.targetId) ?? {};
+        mark.leonaSourceId = attacker.targetId;
+        mark.leonaExpiresRound = this._round + 2;
+        this._passiveMarks.set(target.targetId, mark);
+      }
+    }
+  }
+
+  private _applyAfterBasicAttackPassives(attacker: CombatantState, target: CombatantState): void {
+    if (!isPassiveCombatReady(attacker.champion.id, attacker.champion.getPassive())) return;
+    const passive = attacker.champion.getPassive();
+    const rankIndex = attacker.champion.level - 1;
+
+    if (attacker.champion.id === 'Ashe' && !target.isDefeated) {
+      const slow = passive.effects.find((effect) => effect.type === 'cc');
+      if (slow) {
+        this._applySpellEffect(slow, attacker, [target], this._getCombatStats(attacker), rankIndex);
+      }
+    }
+
+    if (attacker.champion.id === 'Warwick' && !target.isDefeated) {
+      const damageEffect = passive.effects.find((effect) => effect.type === 'damage');
+      if (damageEffect) {
+        const amount = this._calculateEffectDamage(
+          damageEffect,
+          this._getCombatStats(attacker),
+          target,
+          rankIndex,
+        );
+        this._applyDamageToTarget(attacker, target, amount, false);
+        if (attacker.currentHp / attacker.maxHp < 0.5) {
+          this._applyHeal(
+            attacker,
+            attacker,
+            amount * (attacker.currentHp / attacker.maxHp < 0.25 ? 3 : 1),
+          );
+        }
+      }
+    }
+
+    const mark = this._passiveMarks.get(target.targetId);
+    if (
+      attacker.champion.id === 'Lux' &&
+      mark?.luxSourceId === attacker.targetId &&
+      (mark.luxExpiresRound ?? 0) >= this._round &&
+      !target.isDefeated
+    ) {
+      const effect = passive.effects.find((candidate) => candidate.type === 'damage');
+      if (effect) {
+        this._applyDamageToTarget(
+          attacker,
+          target,
+          this._calculateEffectDamage(effect, this._getCombatStats(attacker), target, rankIndex),
+          false,
+        );
+      }
+      delete mark.luxSourceId;
+      delete mark.luxExpiresRound;
+    }
+  }
+
+  private _applyOnDamagePassives(attacker: CombatantState, target: CombatantState): void {
+    if (
+      attacker.champion.id === 'Darius' &&
+      isPassiveCombatReady(attacker.champion.id, attacker.champion.getPassive()) &&
+      !target.isDefeated
+    ) {
+      const passiveDamage = attacker.champion
+        .getPassive()
+        .effects.find((effect) => effect.type === 'damage');
+      const stackName = `${attacker.targetId}_hemorrhage`;
+      const stacks = target.effectManager.dots.filter(
+        (effect) => effect.name === stackName && effect.sourceId === attacker.targetId,
+      ).length;
+      if (passiveDamage && stacks < 5) {
+        const totalDamage = this._calculateEffectDamage(
+          passiveDamage,
+          this._getCombatStats(attacker),
+          target,
+          attacker.champion.level - 1,
+        );
+        target.effectManager.apply(
+          new DamageEffect({
+            name: stackName,
+            sourceId: attacker.targetId,
+            targetId: target.targetId,
+            magnitude: totalDamage,
+            damageType: DamageType.True,
+            duration: 5,
+            canCrit: false,
+          }),
+        );
+        if (stacks + 1 === 5) {
+          const buff = attacker.champion
+            .getPassive()
+            .effects.find((effect) => effect.type === 'buff');
+          const value = normalizePercent(buff?.values?.[attacker.champion.level - 1] ?? 0);
+          if (buff && value > 0) {
+            attacker.effectManager.apply(
+              createBuff(
+                `${attacker.targetId}_noxian_might`,
+                attacker.targetId,
+                attacker.targetId,
+                'attackDamage',
+                value,
+                'percent',
+                normalizeTurnDuration(buff.buffDuration, 5),
+              ),
+            );
+          }
+        }
+      }
+    }
+
+    const mark = this._passiveMarks.get(target.targetId);
+    if (
+      mark?.leonaSourceId &&
+      (mark.leonaExpiresRound ?? 0) >= this._round &&
+      attacker.targetId !== mark.leonaSourceId
+    ) {
+      const leona = this._findCombatantByTargetId(mark.leonaSourceId);
+      if (leona && leona.side === attacker.side) {
+        const effect = leona.champion
+          .getPassive()
+          .effects.find((candidate) => candidate.type === 'damage');
+        if (effect) {
+          this._applyDamageToTarget(
+            leona,
+            target,
+            this._calculateEffectDamage(
+              effect,
+              this._getCombatStats(leona),
+              target,
+              leona.champion.level - 1,
+            ),
+            false,
+          );
+        }
+        delete mark.leonaSourceId;
+        delete mark.leonaExpiresRound;
+      }
+    }
+  }
+
+  private _applyOnKillPassives(attacker: CombatantState): void {
+    if (
+      attacker.champion.id !== 'Jinx' ||
+      !isPassiveCombatReady(attacker.champion.id, attacker.champion.getPassive())
+    ) {
+      return;
+    }
+    for (const effect of attacker.champion
+      .getPassive()
+      .effects.filter((candidate) => candidate.type === 'buff')) {
+      const value = effect.values?.[attacker.champion.level - 1] ?? 0;
+      const modifierType = effect.modifierType ?? 'flat';
+      attacker.effectManager.apply(
+        createBuff(
+          `${attacker.targetId}_get_excited_${effect.stat}`,
+          attacker.targetId,
+          attacker.targetId,
+          (effect.stat ?? 'moveSpeed') as StatKey,
+          modifierType === 'percent' ? normalizePercent(value) : value,
+          modifierType,
+          normalizeTurnDuration(effect.buffDuration, 6),
+        ),
+      );
+    }
+  }
+
+  private _applyTurnEndPassives(combatant: CombatantState): void {
+    if (
+      combatant.isDefeated ||
+      !isPassiveCombatReady(combatant.champion.id, combatant.champion.getPassive())
+    ) {
+      return;
+    }
+    const roundsSinceDamage =
+      this._round - (this._lastDamagedRound.get(combatant.targetId) ?? Number.NEGATIVE_INFINITY);
+    if (combatant.champion.id === 'Garen' && roundsSinceDamage >= 2) {
+      const heal = combatant.champion.getPassive().effects.find((effect) => effect.type === 'heal');
+      const percent = normalizePercent(heal?.baseValue?.[combatant.champion.level - 1] ?? 0);
+      this._applyHeal(combatant, combatant, combatant.maxHp * percent);
+    }
+    if (
+      combatant.champion.id === 'Malphite' &&
+      combatant.currentShield <= 0 &&
+      roundsSinceDamage >= 2
+    ) {
+      this._applyMalphiteShield(combatant);
+    }
+  }
+
+  private _applyMalphiteShield(combatant: CombatantState): void {
+    const effect = combatant.champion
+      .getPassive()
+      .effects.find((candidate) => candidate.type === 'shield');
+    const percent = normalizePercent(effect?.baseValue?.[combatant.champion.level - 1] ?? 10);
+    const amount = Math.round(combatant.maxHp * percent);
+    combatant.effectManager.apply(
+      new ShieldEffect({
+        name: `${combatant.targetId}_granite_shield`,
+        sourceId: combatant.targetId,
+        targetId: combatant.targetId,
+        magnitude: amount,
+        duration: 999,
+      }),
+    );
+    this._syncEffectState(combatant);
+  }
+
+  private _findCombatantByTargetId(targetId: string): CombatantState | undefined {
+    return [...this._playerCombatants, ...this._enemyCombatants].find(
+      (combatant) => combatant.targetId === targetId,
+    );
   }
 
   /** Tick cooldowns for all alive combatants at end of round (after all turns complete). */
@@ -905,4 +1399,26 @@ function getUniqueTargetId(champions: readonly ChampionInstance[], index: number
     .slice(0, index + 1)
     .filter((champion) => champion.id === championId).length;
   return `${championId}#${occurrence}`;
+}
+
+function toCCType(value: string | undefined): CCType | null {
+  switch (value?.toLowerCase()) {
+    case 'stun':
+      return CCType.Stun;
+    case 'snare':
+    case 'root':
+      return CCType.Snare;
+    case 'silence':
+      return CCType.Silence;
+    case 'slow':
+      return CCType.Slow;
+    case 'knockup':
+      return CCType.Knockup;
+    case 'fear':
+      return CCType.Fear;
+    case 'charm':
+      return CCType.Charm;
+    default:
+      return null;
+  }
 }

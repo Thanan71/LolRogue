@@ -11,6 +11,10 @@ import { ShieldEffect } from './ShieldEffect';
 import { CCType, type EffectCategory, type EffectEvent, type StatKey } from './types';
 
 export type EffectManagerEventCallback = (event: EffectEvent) => void;
+export interface EffectTickResult {
+  effect: Effect;
+  event: EffectEvent;
+}
 
 export class EffectManager {
   readonly ownerId: string;
@@ -86,6 +90,7 @@ export class EffectManager {
       );
       if (existing) {
         existing.addStack();
+        existing.refresh();
         const event: EffectEvent = {
           type: 'effect_applied',
           effectId: existing.id,
@@ -149,14 +154,20 @@ export class EffectManager {
   }
 
   tickAll(): EffectEvent[] {
-    const events: EffectEvent[] = [];
+    return this.tickSelected(this.effects.map((effect) => effect.id)).map((result) => result.event);
+  }
+
+  /** Tick only effects present at the beginning of a combatant's turn. */
+  tickSelected(effectIds: readonly string[]): EffectTickResult[] {
+    const selected = new Set(effectIds);
+    const results: EffectTickResult[] = [];
     for (const effect of this._effects) {
-      if (effect.expired || effect.isInstant) continue;
-      const ev = effect.tick();
-      if (ev) events.push(ev);
+      if (effect.expired || effect.isInstant || !selected.has(effect.id)) continue;
+      const event = effect.tick();
+      if (event) results.push({ effect, event });
     }
     this.cleanExpired();
-    return events;
+    return results;
   }
 
   absorbWithShields(incoming: number): { finalDamage: number; totalAbsorbed: number } {
@@ -183,6 +194,19 @@ export class EffectManager {
   }
   isHardCCd(): boolean {
     return this.ccEffects.some((cc) => cc.isHardCC());
+  }
+
+  dispel(categories: readonly EffectCategory[]): number {
+    const allowed = new Set(categories);
+    let removed = 0;
+    for (const effect of this._effects) {
+      if (!effect.expired && allowed.has(effect.category)) {
+        effect.onExpire();
+        removed++;
+      }
+    }
+    this.cleanExpired();
+    return removed;
   }
 
   getSpeedMultiplier(): number {

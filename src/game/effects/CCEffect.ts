@@ -44,7 +44,12 @@ export class CCEffect extends Effect<CCEffectData> {
 
   /** Does this CC prevent all actions? */
   isHardCC(): boolean {
-    return this.data.ccType === CCType.Stun || this.data.ccType === CCType.Knockup;
+    return (
+      this.data.ccType === CCType.Stun ||
+      this.data.ccType === CCType.Knockup ||
+      this.data.ccType === CCType.Fear ||
+      this.data.ccType === CCType.Charm
+    );
   }
 
   /** Does this CC prevent movement? */

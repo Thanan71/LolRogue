@@ -174,6 +174,15 @@ export interface ShieldEvent {
   targetSide: TeamSide;
 }
 
+export interface ReviveEvent {
+  type: 'revive';
+  source: string;
+  target: string;
+  amount: number;
+  sourceSide: TeamSide;
+  targetSide: TeamSide;
+}
+
 export type BattleEvent =
   | DamageEvent
   | DefeatEvent
@@ -182,7 +191,8 @@ export type BattleEvent =
   | RoundStartEvent
   | ActionSelectEvent
   | HealEvent
-  | ShieldEvent;
+  | ShieldEvent
+  | ReviveEvent;
 
 // ─── Battle Result ──────────────────────────────────────────────────────────
 

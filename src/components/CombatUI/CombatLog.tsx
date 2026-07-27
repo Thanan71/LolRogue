@@ -12,6 +12,7 @@ const colors: Record<string, string> = {
   info: '#aaa',
   heal: '#22c55e',
   shield: '#60a5fa',
+  revive: '#a78bfa',
 };
 
 const icons: Record<string, string> = {
@@ -24,6 +25,7 @@ const icons: Record<string, string> = {
   info: '\u2022',
   heal: '\u2764',
   shield: '\uD83D\uDEE1',
+  revive: '\u2728',
 };
 
 export const CombatLog: React.FC = () => {
