@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
 import type { RestEncounter } from '@/game/map/types';
+import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -65,7 +66,7 @@ export function RestPage() {
     const previous = useRunStore.getState();
     if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
 
-    if (goldCost > 0 && !spendGold(goldCost)) {
+    if (goldCost > 0 && !spendGold(goldCost).success) {
       useRunStore.setState({ claimedEncounterNodeIds: previous.claimedEncounterNodeIds });
       return;
     }
@@ -74,7 +75,7 @@ export function RestPage() {
     const state = useRunStore.getState();
     const updates = state.team.map((member) => {
       const maxHp = getMemberMaxHp(member);
-      const currentHp = member.currentHp ?? maxHp;
+      const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
       const healAmount = fullHeal ? maxHp - currentHp : Math.floor(maxHp * healPercent);
       const newHp = Math.min(maxHp, currentHp + healAmount);
 
@@ -156,7 +157,7 @@ export function RestPage() {
         >
           {team.map((member) => {
             const maxHp = getMemberMaxHp(member);
-            const currentHp = member.currentHp ?? maxHp;
+            const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
             const pct = Math.round((currentHp / maxHp) * 100);
             const champ = championDB.getById(member.championId);
             return (

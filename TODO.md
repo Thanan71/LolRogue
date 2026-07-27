@@ -315,23 +315,31 @@ fois ; le replay autoritaire applique les mêmes refus aux journaux falsifiés.
 - une run authentifiée à zéro vague peut recevoir des candies côté serveur alors que
   le mode invité n'en reçoit pas.
 
-- [ ] Définir un invariant unique : PV absents = PV maximum, ou matérialiser les PV
+- [x] Définir un invariant unique : PV absents = PV maximum, ou matérialiser les PV
   dès le début de run.
-- [ ] Remplacer les retours chaîne vide/booléen par des `Result` typés contenant le
+- [x] Remplacer les retours chaîne vide/booléen par des `Result` typés contenant le
   motif d'échec.
-- [ ] Valider capacité et invariants avant de débiter, puis effectuer
+- [x] Valider capacité et invariants avant de débiter, puis effectuer
   dépense+ajout+claim dans une commande atomique.
-- [ ] Proposer un choix cohérent en capacité maximale : remplacer, vendre,
+- [x] Proposer un choix cohérent en capacité maximale : remplacer, vendre,
   convertir en or ou laisser l'objet.
-- [ ] Afficher une récompense uniquement après confirmation de son ajout.
-- [ ] Définir une table unique de récompenses pour abandon immédiat, abandon après
+- [x] Afficher une récompense uniquement après confirmation de son ajout.
+- [x] Définir une table unique de récompenses pour abandon immédiat, abandon après
   progression, défaite et victoire.
-- [ ] Appliquer exactement cette table en local, dans l'UI et dans la RPC.
-- [ ] Tester inventaire/équipe pleins, double clic, refresh, event positif sur
+- [x] Appliquer exactement cette table en local, dans l'UI et dans la RPC.
+- [x] Tester inventaire/équipe pleins, double clic, refresh, event positif sur
   champion sain/blessé/KO et run à zéro combat.
 
 **Acceptation :** aucun PV, objet, champion, or ou candy ne peut être perdu, dupliqué
 ou affiché à tort.
+
+**Statut : terminé.** Les PV absents ont désormais une sémantique unique et testée.
+Les mutations d'or, d'inventaire et d'équipe exposent des résultats typés ; les
+achats de shop valident puis appliquent journal, débit, ajout et consommation dans
+une seule transaction locale persistée. À capacité maximale, les récompenses
+gratuites sont explicitement laissées sur place et l'UI ne les annonce plus. Enfin,
+la table de candies partagée impose zéro récompense avant le premier combat, avec
+un test de parité sur la finalisation PostgreSQL.
 
 ## P0 — livraison et accessibilité du parcours d'entrée
 

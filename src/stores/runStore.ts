@@ -40,6 +40,8 @@ import {
   type RunState,
   type RunEndResult,
   type RunLifecycleErrorCode,
+  type RunMutationErrorCode,
+  type RunMutationResult,
   type RunStartResult,
   type RunSummary,
   type TeamMember,
@@ -124,6 +126,66 @@ function isValidCommand(command: RunCommandInput): boolean {
   return Object.values(payload).every(
     (value) => typeof value === 'string' && value.length > 0 && value.length <= 160,
   );
+}
+
+function mutationFailure(
+  code: RunMutationErrorCode,
+  error: string,
+  retryable = false,
+): RunMutationResult<never> {
+  return { success: false, code, error, retryable };
+}
+
+function appendAuthorityCommand(
+  state: RunState,
+  command: RunCommandInput,
+  explicitDedupeKey?: string,
+): { success: true; authorityAttempt: RunAuthorityAttempt | null } | { success: false } {
+  const attempt = state.authorityAttempt;
+  if (!attempt) return { success: true, authorityAttempt: null };
+  if (
+    !state.isActive ||
+    state.isEnding ||
+    state.completedRunSnapshot !== null ||
+    !['started', 'active'].includes(attempt.status) ||
+    useAuthStore.getState().user?.id !== attempt.ownerUserId ||
+    !isValidCommand(command)
+  ) {
+    return { success: false };
+  }
+
+  const payload = commandPayload(command);
+  if (explicitDedupeKey) {
+    const existing = attempt.commands.find(
+      (candidate) => candidate.dedupeKey === explicitDedupeKey,
+    );
+    if (existing) {
+      return existing.kind === command.kind &&
+        JSON.stringify(existing.payload) === JSON.stringify(payload)
+        ? { success: true, authorityAttempt: attempt }
+        : { success: false };
+    }
+  }
+  const commandId = createCommandId();
+  if (!commandId) return { success: false };
+  const dedupeKey = explicitDedupeKey ?? commandId;
+  return {
+    success: true,
+    authorityAttempt: {
+      ...attempt,
+      commands: [
+        ...attempt.commands,
+        {
+          commandId,
+          sequence: attempt.nextSequence,
+          kind: command.kind,
+          payload,
+          dedupeKey,
+        },
+      ],
+      nextSequence: attempt.nextSequence + 1,
+    },
+  };
 }
 
 function startFailure(
@@ -520,52 +582,11 @@ export const useRunStore = create<RunStore>()(
 
       recordRunCommand: (command, explicitDedupeKey) => {
         const state = get();
-        const attempt = state.authorityAttempt;
-        // Guest gameplay stays local and does not need an authority journal.
-        if (!attempt) return true;
-        if (
-          !state.isActive ||
-          state.isEnding ||
-          state.completedRunSnapshot !== null ||
-          !['started', 'active'].includes(attempt.status) ||
-          useAuthStore.getState().user?.id !== attempt.ownerUserId ||
-          !isValidCommand(command)
-        ) {
-          return false;
+        const appended = appendAuthorityCommand(state, command, explicitDedupeKey);
+        if (!appended.success) return false;
+        if (appended.authorityAttempt !== state.authorityAttempt) {
+          set({ authorityAttempt: appended.authorityAttempt });
         }
-
-        const payload = commandPayload(command);
-        if (explicitDedupeKey) {
-          const existing = attempt.commands.find(
-            (candidate) => candidate.dedupeKey === explicitDedupeKey,
-          );
-          if (existing) {
-            return (
-              existing.kind === command.kind &&
-              JSON.stringify(existing.payload) === JSON.stringify(payload)
-            );
-          }
-        }
-        const commandId = createCommandId();
-        if (!commandId) return false;
-        const dedupeKey = explicitDedupeKey ?? commandId;
-
-        set({
-          authorityAttempt: {
-            ...attempt,
-            commands: [
-              ...attempt.commands,
-              {
-                commandId,
-                sequence: attempt.nextSequence,
-                kind: command.kind,
-                payload,
-                dedupeKey,
-              },
-            ],
-            nextSequence: attempt.nextSequence + 1,
-          },
-        });
         return true;
       },
 
@@ -1044,11 +1065,15 @@ export const useRunStore = create<RunStore>()(
 
       addChampion: (championId, statMultiplier = 1) => {
         const { team } = get();
-        if (team.length >= MAX_TEAM_SIZE) return false;
-        if (team.some((m) => m.championId === championId)) return false;
+        if (team.length >= MAX_TEAM_SIZE) {
+          return mutationFailure('team_full', 'The team is already full.');
+        }
+        if (team.some((m) => m.championId === championId)) {
+          return mutationFailure('duplicate_champion', 'This champion is already on the team.');
+        }
 
         set({ team: [...team, { championId, statMultiplier }] });
-        return true;
+        return { success: true, value: { championId } };
       },
 
       removeChampion: (championId) => {
@@ -1086,7 +1111,9 @@ export const useRunStore = create<RunStore>()(
       // ── Inventory ───────────────────────────────────────────────────────
 
       addItem: (item) => {
-        if (get().inventory.length >= MAX_INVENTORY_ITEMS) return '';
+        if (get().inventory.length >= MAX_INVENTORY_ITEMS) {
+          return mutationFailure('inventory_full', 'The inventory is already full.');
+        }
         const { runId, nextItemInstanceId } = get();
         const instanceId = `item_${runId}_${nextItemInstanceId}`;
         const entry: InventoryEntry = {
@@ -1098,7 +1125,7 @@ export const useRunStore = create<RunStore>()(
           inventory: [...state.inventory, entry],
           nextItemInstanceId: state.nextItemInstanceId + 1,
         }));
-        return instanceId;
+        return { success: true, value: { instanceId } };
       },
 
       removeItem: (instanceId) => {
@@ -1238,14 +1265,25 @@ export const useRunStore = create<RunStore>()(
       // ── Gold ────────────────────────────────────────────────────────────
 
       addGold: (amount) => {
-        set((state) => ({ gold: Math.max(0, state.gold + amount) }));
+        if (!Number.isFinite(amount) || amount <= 0) {
+          return mutationFailure('invalid_amount', 'Gold gains must be a positive amount.');
+        }
+        const balance = get().gold + amount;
+        set({ gold: balance });
+        return { success: true, value: { balance } };
       },
 
       spendGold: (amount) => {
+        if (!Number.isFinite(amount) || amount <= 0) {
+          return mutationFailure('invalid_amount', 'Gold costs must be a positive amount.');
+        }
         const { gold } = get();
-        if (gold < amount) return false;
-        set({ gold: gold - amount });
-        return true;
+        if (gold < amount) {
+          return mutationFailure('insufficient_gold', 'There is not enough gold.');
+        }
+        const balance = gold - amount;
+        set({ gold: balance });
+        return { success: true, value: { balance } };
       },
 
       // ── Wave Progression ────────────────────────────────────────────────
@@ -1527,13 +1565,14 @@ export const useRunStore = create<RunStore>()(
         return true;
       },
 
-      claimCurrentShopOffer: (offerType, offerId) => {
+      purchaseCurrentShopItem: (offerId) => {
         const state = get();
         const map = state.biomeMaps[state.currentBiomeIndex];
         const node = map && state.currentNodeId ? findNode(map, state.currentNodeId) : undefined;
         if (
           !node ||
           node.encounter?.type !== 'shop' ||
+          !state.currentNodeId ||
           !state.chosenPathNodeIds.includes(node.id) ||
           !isCurrentEncounterValid({
             map,
@@ -1542,41 +1581,134 @@ export const useRunStore = create<RunStore>()(
             completedNodeIds: state.completedNodeIds,
           })
         ) {
-          return false;
+          return mutationFailure('invalid_encounter', 'There is no active shop encounter.');
         }
-        const previous = state.shopNodeStates[node.id] ?? {
+        const offer = node.encounter.items.find((item) => item.itemId === offerId);
+        if (!offer) return mutationFailure('invalid_offer', 'This item is not sold here.');
+        const shopState = state.shopNodeStates[node.id] ?? {
           visited: true,
           purchasedItemIds: [],
           recruitedChampionIds: [],
         };
-        const isCanonicalOffer =
-          offerType === 'item'
-            ? node.encounter.items.some((item) => item.itemId === offerId)
-            : node.encounter.recruitableChampions.some(
-                (champion) => champion.championId === offerId,
-              );
-        const alreadyClaimed =
-          offerType === 'item'
-            ? previous.purchasedItemIds.includes(offerId)
-            : previous.recruitedChampionIds.includes(offerId);
-        if (!isCanonicalOffer || alreadyClaimed) return false;
+        if (shopState.purchasedItemIds.includes(offerId)) {
+          return mutationFailure('offer_consumed', 'This item has already been purchased.');
+        }
+        if (state.inventory.length >= MAX_INVENTORY_ITEMS) {
+          return mutationFailure('inventory_full', 'The inventory is full; no gold was spent.');
+        }
+        const price = Math.round(offer.price * node.encounter.priceMultiplier);
+        if (state.gold < price) {
+          return mutationFailure('insufficient_gold', 'There is not enough gold.');
+        }
+        const appended = appendAuthorityCommand(
+          state,
+          { kind: 'shop_buy_item', nodeId: node.id, itemId: offerId },
+          `shop_buy_item:${node.id}:${offerId}`,
+        );
+        if (!appended.success) {
+          return mutationFailure('command_rejected', 'The purchase could not be recorded.', true);
+        }
+
+        const instanceId = `item_${state.runId}_${state.nextItemInstanceId}`;
+        const entry: InventoryEntry = {
+          instanceId,
+          item: {
+            id: offer.itemId,
+            name: offer.name,
+            description: offer.description,
+            iconUrl: offer.iconUrl,
+            stats: offer.stats,
+            passiveId: offer.passiveId,
+            goldValue: offer.price,
+          },
+          equippedToChampionId: null,
+        };
         set({
+          authorityAttempt: appended.authorityAttempt,
+          gold: state.gold - price,
+          inventory: [...state.inventory, entry],
+          nextItemInstanceId: state.nextItemInstanceId + 1,
           shopNodeStates: {
             ...state.shopNodeStates,
             [node.id]: {
+              ...shopState,
               visited: true,
-              purchasedItemIds:
-                offerType === 'item'
-                  ? [...previous.purchasedItemIds, offerId]
-                  : previous.purchasedItemIds,
-              recruitedChampionIds:
-                offerType === 'champion'
-                  ? [...previous.recruitedChampionIds, offerId]
-                  : previous.recruitedChampionIds,
+              purchasedItemIds: [...shopState.purchasedItemIds, offerId],
             },
           },
         });
-        return true;
+        return { success: true, value: { instanceId } };
+      },
+
+      purchaseCurrentShopChampion: (championId) => {
+        const state = get();
+        const map = state.biomeMaps[state.currentBiomeIndex];
+        const node = map && state.currentNodeId ? findNode(map, state.currentNodeId) : undefined;
+        if (
+          !node ||
+          node.encounter?.type !== 'shop' ||
+          !state.currentNodeId ||
+          !state.chosenPathNodeIds.includes(node.id) ||
+          !isCurrentEncounterValid({
+            map,
+            currentNodeId: state.currentNodeId,
+            pendingEncounter: state.pendingEncounter,
+            completedNodeIds: state.completedNodeIds,
+          })
+        ) {
+          return mutationFailure('invalid_encounter', 'There is no active shop encounter.');
+        }
+        const offer = node.encounter.recruitableChampions.find(
+          (champion) => champion.championId === championId,
+        );
+        if (!offer) return mutationFailure('invalid_offer', 'This champion cannot be recruited.');
+        const shopState = state.shopNodeStates[node.id] ?? {
+          visited: true,
+          purchasedItemIds: [],
+          recruitedChampionIds: [],
+        };
+        if (shopState.recruitedChampionIds.includes(championId)) {
+          return mutationFailure('offer_consumed', 'This champion was already recruited.');
+        }
+        if (state.team.length >= MAX_TEAM_SIZE) {
+          return mutationFailure('team_full', 'The team is full; no gold was spent.');
+        }
+        if (state.team.some((member) => member.championId === championId)) {
+          return mutationFailure(
+            'duplicate_champion',
+            'This champion is already on the team; no gold was spent.',
+          );
+        }
+        const price = Math.round(offer.cost * node.encounter.priceMultiplier);
+        if (state.gold < price) {
+          return mutationFailure('insufficient_gold', 'There is not enough gold.');
+        }
+        const appended = appendAuthorityCommand(
+          state,
+          { kind: 'shop_recruit', nodeId: node.id, championId },
+          `shop_recruit:${node.id}:${championId}`,
+        );
+        if (!appended.success) {
+          return mutationFailure(
+            'command_rejected',
+            'The recruitment could not be recorded.',
+            true,
+          );
+        }
+        set({
+          authorityAttempt: appended.authorityAttempt,
+          gold: state.gold - price,
+          team: [...state.team, { championId, statMultiplier: 1 }],
+          shopNodeStates: {
+            ...state.shopNodeStates,
+            [node.id]: {
+              ...shopState,
+              visited: true,
+              recruitedChampionIds: [...shopState.recruitedChampionIds, championId],
+            },
+          },
+        });
+        return { success: true, value: { championId } };
       },
 
       advanceToNextBiome: () => {

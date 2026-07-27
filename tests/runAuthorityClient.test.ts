@@ -373,11 +373,21 @@ describe('authoritative client journal', () => {
 
     expect(useRunStore.getState().startEncounter('shop', 'shop')).toBe(true);
     expect(useRunStore.getState().shopNodeStates.shop?.visited).toBe(true);
-    expect(useRunStore.getState().claimCurrentShopOffer('item', 'forged_item')).toBe(false);
-    expect(useRunStore.getState().claimCurrentShopOffer('item', 'long_sword')).toBe(true);
-    expect(useRunStore.getState().claimCurrentShopOffer('item', 'long_sword')).toBe(false);
-    expect(useRunStore.getState().claimCurrentShopOffer('champion', 'Ashe')).toBe(true);
-    expect(useRunStore.getState().claimCurrentShopOffer('champion', 'Ashe')).toBe(false);
+    useRunStore.setState({ gold: 300 });
+    expect(useRunStore.getState().purchaseCurrentShopItem('forged_item')).toMatchObject({
+      success: false,
+      code: 'invalid_offer',
+    });
+    expect(useRunStore.getState().purchaseCurrentShopItem('long_sword').success).toBe(true);
+    expect(useRunStore.getState().purchaseCurrentShopItem('long_sword')).toMatchObject({
+      success: false,
+      code: 'offer_consumed',
+    });
+    expect(useRunStore.getState().purchaseCurrentShopChampion('Ashe').success).toBe(true);
+    expect(useRunStore.getState().purchaseCurrentShopChampion('Ashe')).toMatchObject({
+      success: false,
+      code: 'offer_consumed',
+    });
     expect(useRunStore.getState().shopNodeStates.shop).toEqual({
       visited: true,
       purchasedItemIds: ['long_sword'],

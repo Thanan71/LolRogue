@@ -141,8 +141,13 @@ describe('run reload recovery', () => {
       shop = maps[0].nodes.find((node) => node.encounter?.type === 'shop');
     }
     expect(shop?.encounter?.type).toBe('shop');
-    const itemId =
-      shop?.encounter?.type === 'shop' ? (shop.encounter.items[0]?.itemId ?? 'sold-item') : '';
+    const itemOffer = shop?.encounter?.type === 'shop' ? shop.encounter.items[0] : undefined;
+    expect(itemOffer).toBeDefined();
+    const itemId = itemOffer!.itemId;
+    const itemCost =
+      shop?.encounter?.type === 'shop'
+        ? Math.round(itemOffer!.price * shop.encounter.priceMultiplier)
+        : 0;
 
     useRunStore.setState({
       ...RUN_INITIAL_STATE,
@@ -155,14 +160,16 @@ describe('run reload recovery', () => {
       frontierNodeIds: [],
       chosenPathNodeIds: [shop!.id],
       pendingEncounter: { nodeId: shop!.id, nodeType: 'shop' },
+      gold: itemCost,
       shopNodeStates: {
         [shop!.id]: {
           visited: true,
-          purchasedItemIds: [itemId],
+          purchasedItemIds: [],
           recruitedChampionIds: [],
         },
       },
     });
+    expect(useRunStore.getState().purchaseCurrentShopItem(itemId).success).toBe(true);
     const persistedShop = localStorage.getItem(RUN_STORAGE_KEY);
     expect(persistedShop).not.toBeNull();
 
@@ -175,11 +182,16 @@ describe('run reload recovery', () => {
       purchasedItemIds: [itemId],
       recruitedChampionIds: [],
     });
+    expect(useRunStore.getState().gold).toBe(0);
+    expect(useRunStore.getState().inventory).toMatchObject([{ item: { id: itemId } }]);
     expect(useRunStore.getState().pendingEncounter).toEqual({
       nodeId: shop!.id,
       nodeType: 'shop',
     });
-    expect(useRunStore.getState().claimCurrentShopOffer('item', itemId)).toBe(false);
+    expect(useRunStore.getState().purchaseCurrentShopItem(itemId)).toMatchObject({
+      success: false,
+      code: 'offer_consumed',
+    });
 
     const legacyPayload = JSON.parse(persistedShop!) as {
       version: number;

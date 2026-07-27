@@ -64,6 +64,18 @@ l'encounter et dans `CombatPage`; les objets utilisent leur valeur de
 `itemDatabase`. Revendre un objet rend la moitié de sa valeur, arrondie à
 l'inférieur, avec un minimum de 1 or.
 
+Les mutations économiques renvoient un résultat explicite. En boutique, la
+capacité, les doublons et le solde sont validés avant qu'une transaction unique
+journalise l'achat, débite l'or, ajoute la récompense et consomme l'offre. Un achat
+refusé ne change donc aucun de ces états. Pour une récompense gratuite de Treasure,
+Event ou Combat, la règle de capacité est « laisser sur place » : l'or éventuel
+reste acquis, mais un objet ou champion qui ne tient pas n'est ni ajouté ni annoncé
+comme reçu.
+
+Les PV absents dans l'état sérialisé signifient toujours « PV maximum ». Un soin
+positif peut relever un champion KO, tandis qu'un bonus de statistiques matérialise
+les PV implicites au nouveau maximum sans effacer une blessure ou un KO explicite.
+
 À la fin d'une run, le pool de candies vaut :
 
 ```text
@@ -71,11 +83,23 @@ base + vagues × candiesParVague + biomes × candiesParBiome
      + bonusDeVictoire éventuel
 ```
 
-Il est partagé équitablement entre les champions, avec un minimum d'une candy par
-champion. Les valeurs canoniques (`BASE_CANDIES`, `CANDIES_PER_WAVE`,
-`CANDIES_PER_BIOME`, `VICTORY_BONUS`) et les seuils de maîtrise sont dans
-`src/types/mastery.ts`. Chaque niveau de maîtrise ajoute le bonus de statistiques
-défini par `STAT_BONUS_PER_LEVEL` et peut ouvrir un starter ou un chroma.
+Cette formule ne s'applique qu'après au moins une vague terminée :
+
+| Fin de run | Vague terminée requise | Bonus victoire |
+| --- | --- | --- |
+| abandon immédiat | oui, donc 0 candy | non |
+| abandon après progression | oui | non |
+| défaite | oui | non |
+| victoire | oui | oui |
+
+Le pool est partagé équitablement entre les champions, avec un minimum d'une candy
+par champion une fois la run éligible. La politique locale canonique est dans
+`src/game/run/runRewardPolicy.ts`; ses coefficients sont dans
+`src/types/mastery.ts`. PostgreSQL lit les mêmes coefficients depuis le
+`progression_ruleset` versionné et garde la même condition
+`waves_completed > 0` dans `complete_run_verification`. Chaque niveau de maîtrise
+ajoute le bonus de statistiques défini par `STAT_BONUS_PER_LEVEL` et peut ouvrir un
+starter ou un chroma.
 
 Les arbres d'amélioration dépendent du rôle principal. Chaque nœud impose son coût,
 son niveau de maîtrise, ses prérequis et son rang maximal, tous définis dans

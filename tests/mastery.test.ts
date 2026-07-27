@@ -80,23 +80,23 @@ describe('calculateCandiesToNext', () => {
 });
 
 describe('calculateCandiesForChampion', () => {
-  it('should calculate base candies', () => {
-    expect(calculateCandiesForChampion(1, 0, 0, false)).toBe(10);
+  it('awards nothing before the first completed combat', () => {
+    expect(calculateCandiesForChampion(1, 0, 0, false)).toBe(0);
   });
   it('should add wave bonuses', () => {
     expect(calculateCandiesForChampion(1, 5, 0, false)).toBe(15);
   });
-  it('should add biome bonuses', () => {
-    expect(calculateCandiesForChampion(1, 0, 3, false)).toBe(16);
+  it('does not turn map exploration into a zero-combat reward', () => {
+    expect(calculateCandiesForChampion(1, 0, 3, false)).toBe(0);
   });
-  it('should add victory bonus', () => {
-    expect(calculateCandiesForChampion(1, 0, 0, true)).toBe(15);
+  it('does not grant a victory bonus without a completed combat', () => {
+    expect(calculateCandiesForChampion(1, 0, 0, true)).toBe(0);
   });
   it('should split among team', () => {
     expect(calculateCandiesForChampion(3, 10, 4, true)).toBe(11);
   });
-  it('should guarantee minimum 1', () => {
-    expect(calculateCandiesForChampion(20, 0, 0, false)).toBe(1);
+  it('should guarantee minimum 1 after progression', () => {
+    expect(calculateCandiesForChampion(20, 1, 1, false)).toBe(1);
   });
 });
 

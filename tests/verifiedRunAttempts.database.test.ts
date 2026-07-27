@@ -93,6 +93,7 @@ describe('verified run attempt migration', () => {
     expect(migrationSql).toContain('total_candies = total_candies + v_total_candies');
     expect(migrationSql).toContain('ON CONFLICT (player_id, champion_id) DO UPDATE SET');
     expect(migrationSql).toContain('result_run_id = v_run_id');
+    expect(migrationSql).toContain('IF v_waves_completed > 0 THEN');
   });
 
   it('enforces the reachable starter contract and quarantines unattested enhancements', () => {
@@ -425,6 +426,71 @@ describeWithSupabase('verified run attempt live security', () => {
         total_candies: 13,
       });
 
+      const zeroWaveStart = await userClient.rpc('start_run_attempt', {
+        ...startArgs,
+        p_command_id: randomUUID(),
+        p_team: ['Annie'],
+      });
+      expect(zeroWaveStart.error).toBeNull();
+      const zeroWaveAttemptId = (zeroWaveStart.data as { attempt_id: string }).attempt_id;
+      expect(
+        (
+          await userClient.rpc('append_run_attempt_commands', {
+            p_attempt_id: zeroWaveAttemptId,
+            p_commands: [
+              {
+                command_id: randomUUID(),
+                sequence: 1,
+                kind: 'abandon_run',
+                payload: {},
+              },
+            ],
+          })
+        ).error,
+      ).toBeNull();
+      expect(
+        (
+          await userClient.rpc('seal_run_attempt', {
+            p_attempt_id: zeroWaveAttemptId,
+            p_finish_command_id: randomUUID(),
+            p_expected_sequence: 1,
+          })
+        ).error,
+      ).toBeNull();
+      const zeroWaveClaim = await admin.rpc('claim_run_verification', {
+        p_attempt_id: zeroWaveAttemptId,
+        p_worker_id: randomUUID(),
+      });
+      expect(zeroWaveClaim.error).toBeNull();
+      const zeroWaveCompletion = await admin.rpc('complete_run_verification', {
+        p_attempt_id: zeroWaveAttemptId,
+        p_lease_token: (zeroWaveClaim.data as { lease_token: string }).lease_token,
+        p_result: {
+          won: false,
+          run_level: 1,
+          waves_completed: 0,
+          biomes_visited: [],
+          gold_earned: 0,
+          augment_ids: [],
+          team_members: [
+            {
+              champion_id: 'Annie',
+              final_level: 1,
+              final_hp: 100,
+              kills: 0,
+              damage_dealt: 0,
+              items_collected: [],
+            },
+          ],
+        },
+        p_result_hash: null,
+      });
+      expect(zeroWaveCompletion.error).toBeNull();
+      expect(zeroWaveCompletion.data).toMatchObject({
+        candies_earned: 0,
+        summary: { waves_completed: 0 },
+      });
+
       const rejectedStart = await userClient.rpc('start_run_attempt', {
         ...startArgs,
         p_command_id: randomUUID(),
@@ -481,7 +547,7 @@ describeWithSupabase('verified run attempt live security', () => {
         .eq('user_id', userId)
         .single();
       expect(afterRejection.data).toMatchObject({
-        total_runs_completed: 1,
+        total_runs_completed: 2,
         total_waves_completed: 1,
         total_candies: 13,
       });
@@ -489,5 +555,5 @@ describeWithSupabase('verified run attempt live security', () => {
       if (userId) await admin.auth.admin.deleteUser(userId);
       await userClient.auth.signOut();
     }
-  }, 15000);
+  }, 25000);
 });

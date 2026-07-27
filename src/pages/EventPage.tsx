@@ -3,6 +3,11 @@ import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
 import { resolveAffordableEventOutcome } from '@/game/map/EncounterManager';
 import type { EventEncounter, EventOutcome } from '@/game/map/types';
+import {
+  applyRunHeal,
+  getEffectiveRunHp,
+  materializeRunHpAfterStatChange,
+} from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
@@ -51,6 +56,7 @@ export function EventPage() {
   const addChampion = useRunStore((s) => s.addChampion);
 
   const [outcome, setOutcome] = useState<EventOutcome | null>(null);
+  const [capacityNotice, setCapacityNotice] = useState<string | null>(null);
 
   const encounter = useMemo(() => {
     const node = getCurrentNode();
@@ -69,6 +75,7 @@ export function EventPage() {
       rng.next(),
     );
     let mutationSucceeded = true;
+    let nextCapacityNotice: string | null = null;
     switch (resolved.type) {
       case 'gold_reward': {
         const amount = resolved.goldAmount ?? 0;
@@ -77,17 +84,16 @@ export function EventPage() {
       }
       case 'gold_cost': {
         const amount = Math.abs(resolved.goldAmount ?? 0);
-        if (amount > 0) mutationSucceeded = spendGold(amount);
+        if (amount > 0) mutationSucceeded = spendGold(amount).success;
         break;
       }
       case 'heal': {
         const healPct = resolved.healPercent ?? 0.3;
         const updates = state.team.map((member) => {
           const maxHp = getMemberMaxHp(member);
-          const currentHp = member.currentHp ?? maxHp;
           return {
             championId: member.championId,
-            currentHp: Math.min(maxHp, currentHp + Math.floor(maxHp * healPct)),
+            currentHp: applyRunHeal(member.currentHp, maxHp, healPct),
             level: member.level ?? 1,
             currentXp: member.currentXp ?? 0,
           };
@@ -99,7 +105,7 @@ export function EventPage() {
         const dmgPct = resolved.damagePercent ?? 0.15;
         const updates = state.team.map((member) => {
           const maxHp = getMemberMaxHp(member);
-          const currentHp = member.currentHp ?? maxHp;
+          const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
           return {
             championId: member.championId,
             currentHp: Math.max(1, currentHp - Math.floor(currentHp * dmgPct)),
@@ -112,7 +118,7 @@ export function EventPage() {
       }
       case 'item_reward': {
         if (resolved.item) {
-          addItem({
+          const result = addItem({
             id: resolved.item.itemId,
             name: resolved.item.name,
             description: resolved.item.description,
@@ -121,11 +127,22 @@ export function EventPage() {
             passiveId: resolved.item.passiveId,
             goldValue: resolved.item.price,
           });
+          if (!result.success && result.code === 'inventory_full') {
+            nextCapacityNotice = 'Inventory full — the item was left behind.';
+          }
         }
         break;
       }
       case 'champion_recruit': {
-        if (resolved.championId && state.team.length < 5) addChampion(resolved.championId);
+        if (resolved.championId) {
+          const result = addChampion(resolved.championId);
+          if (!result.success) {
+            nextCapacityNotice =
+              result.code === 'team_full'
+                ? 'Team full — the champion could not join.'
+                : 'This champion is already on the team.';
+          }
+        }
         break;
       }
       case 'stat_boost': {
@@ -139,7 +156,10 @@ export function EventPage() {
             };
             return {
               championId: member.championId,
-              currentHp: member.currentHp ?? getMemberMaxHp({ ...member, statBoosts }),
+              currentHp: materializeRunHpAfterStatChange(
+                member.currentHp,
+                getMemberMaxHp({ ...member, statBoosts }),
+              ),
               level: member.level ?? 1,
               currentXp: member.currentXp ?? 0,
               statBoosts,
@@ -168,6 +188,7 @@ export function EventPage() {
       });
       return;
     }
+    setCapacityNotice(nextCapacityNotice);
     setOutcome(resolved);
   }, [encounter, outcome, wasClaimed, addGold, spendGold, addItem, addChampion]);
 
@@ -238,19 +259,29 @@ export function EventPage() {
             >
               {outcome.type === 'gold_reward' && `+${outcome.goldAmount} Gold!`}
               {outcome.type === 'gold_cost' && `-${Math.abs(outcome.goldAmount ?? 0)} Gold`}
-              {outcome.type === 'item_reward' && `Received: ${outcome.item?.name ?? 'an item'}!`}
+              {outcome.type === 'item_reward' &&
+                (capacityNotice
+                  ? 'Item left behind'
+                  : `Received: ${outcome.item?.name ?? 'an item'}!`)}
               {outcome.type === 'heal' &&
                 `Team healed ${Math.round((outcome.healPercent ?? 0.3) * 100)}% HP!`}
               {outcome.type === 'damage' &&
                 `Team took ${Math.round((outcome.damagePercent ?? 0.15) * 100)}% HP damage!`}
               {outcome.type === 'champion_recruit' &&
-                (outcome.championId
-                  ? `${championDB.getById(outcome.championId)?.name ?? outcome.championId} joined your team!`
-                  : 'No one appeared...')}
+                (capacityNotice
+                  ? 'Recruitment unavailable'
+                  : outcome.championId
+                    ? `${championDB.getById(outcome.championId)?.name ?? outcome.championId} joined your team!`
+                    : 'No one appeared...')}
               {outcome.type === 'stat_boost' &&
                 `+${outcome.statBoost?.amount ?? 0} ${(outcome.statBoost?.stat ?? 'STAT').toUpperCase()}`}
               {outcome.type === 'nothing' && 'Nothing happened...'}
             </div>
+            {capacityNotice && (
+              <div style={{ color: '#facc15', fontSize: 14, marginBottom: 16 }}>
+                {capacityNotice}
+              </div>
+            )}
             <div
               style={{
                 fontSize: 14,
@@ -276,7 +307,7 @@ export function EventPage() {
                 {team.map((member) => {
                   const champ = championDB.getById(member.championId);
                   const maxHp = getMemberMaxHp(member);
-                  const currentHp = member.currentHp ?? maxHp;
+                  const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
                   const pct = Math.round((currentHp / maxHp) * 100);
                   return (
                     <div key={member.championId} style={memberRowStyle}>

@@ -44,7 +44,11 @@ export function RecruitPage() {
     const success = rng.next() < encounter.successChance;
     const cost = getRecruitmentGoldCost(encounter.cost, success);
     if (success) {
-      if (!spendGold(cost) || !addChampion(encounter.championId, encounter.statMultiplier)) {
+      const spendSucceeded = cost === 0 || spendGold(cost).success;
+      const recruitResult = spendSucceeded
+        ? addChampion(encounter.championId, encounter.statMultiplier)
+        : null;
+      if (!spendSucceeded || !recruitResult?.success) {
         useRunStore.setState({
           team: previous.team,
           gold: previous.gold,

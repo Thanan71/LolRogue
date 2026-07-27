@@ -296,6 +296,26 @@ export type RunEndResult =
       retryable: boolean;
     };
 
+export type RunMutationErrorCode =
+  | 'invalid_amount'
+  | 'insufficient_gold'
+  | 'inventory_full'
+  | 'team_full'
+  | 'duplicate_champion'
+  | 'invalid_encounter'
+  | 'invalid_offer'
+  | 'offer_consumed'
+  | 'command_rejected';
+
+export type RunMutationResult<T> =
+  | { success: true; value: T }
+  | {
+      success: false;
+      code: RunMutationErrorCode;
+      error: string;
+      retryable: boolean;
+    };
+
 // ─── Run Store Actions ──────────────────────────────────────────────────────
 
 export interface RunActions {
@@ -318,16 +338,19 @@ export interface RunActions {
     expectedRunId?: string,
     displayedSummary?: RunSummary,
   ) => Promise<RunEndResult>;
-  /** Add a champion to the team (if not full). Returns true if added. */
-  addChampion: (championId: string, statMultiplier?: number) => boolean;
+  /** Add a champion to the team, with an explicit failure reason. */
+  addChampion: (
+    championId: string,
+    statMultiplier?: number,
+  ) => RunMutationResult<{ championId: string }>;
   /** Remove a champion from the team by champion ID */
   removeChampion: (championId: string) => void;
   /** Replace the entire team (capped at MAX_TEAM_SIZE) */
   setTeam: (championIds: string[]) => void;
   /** Advance to the next biome */
   advanceBiome: (nextBiome: Biome) => void;
-  /** Add an item to inventory (not equipped). Returns the instance ID. */
-  addItem: (item: Item) => string;
+  /** Add an item to inventory (not equipped), with an explicit failure reason. */
+  addItem: (item: Item) => RunMutationResult<{ instanceId: string }>;
   /** Remove an item by instance ID */
   removeItem: (instanceId: string) => void;
   /** Equip an item to a champion. Returns false if slot limit reached or item not found. */
@@ -343,10 +366,10 @@ export interface RunActions {
   setLastCombatRewards: (rewards: RunState['lastCombatRewards']) => void;
   queueSpellUpgrades: (championIds: string[]) => void;
   upgradeSpell: (championId: string, slot: 'Q' | 'W' | 'E' | 'R') => boolean;
-  /** Add gold */
-  addGold: (amount: number) => void;
-  /** Spend gold (returns false if insufficient) */
-  spendGold: (amount: number) => boolean;
+  /** Add gold, rejecting non-positive or non-finite amounts. */
+  addGold: (amount: number) => RunMutationResult<{ balance: number }>;
+  /** Spend gold, rejecting invalid amounts and insufficient balances. */
+  spendGold: (amount: number) => RunMutationResult<{ balance: number }>;
   /** Advance to the next wave */
   nextWave: () => void;
   /** Increment the run level */
@@ -366,8 +389,10 @@ export interface RunActions {
   resolveEncounter: () => boolean;
   /** Advance to the next biome map */
   advanceToNextBiome: () => boolean;
-  /** Reserve a shop offer once; persisted so refresh cannot restore it. */
-  claimCurrentShopOffer: (offerType: 'item' | 'champion', offerId: string) => boolean;
+  /** Validate, journal, debit and add a canonical shop item in one state update. */
+  purchaseCurrentShopItem: (offerId: string) => RunMutationResult<{ instanceId: string }>;
+  /** Validate, journal, debit and recruit a canonical shop champion in one state update. */
+  purchaseCurrentShopChampion: (championId: string) => RunMutationResult<{ championId: string }>;
   /** Get the current biome's NodeMap */
   getCurrentMap: () => import('@/game/map/types').NodeMap | null;
   /** Get the current MapNode */

@@ -4,16 +4,13 @@
  */
 
 import {
-  BASE_CANDIES,
-  CANDIES_PER_BIOME,
-  CANDIES_PER_WAVE,
   type ChampionMastery,
   MASTERY_THRESHOLDS,
   MAX_MASTERY_LEVEL,
   type MasteryUnlock,
   STAT_BONUS_PER_LEVEL,
-  VICTORY_BONUS,
 } from '@/types/mastery';
+import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
 
 // ─── Default Unlocks ────────────────────────────────────────────────────────
 
@@ -63,7 +60,8 @@ export const DEFAULT_UNLOCKS: MasteryUnlock[] = [
  * Calculate candies earned for a single champion in a run.
  *
  * Formula:
- *   candies = base + (waves × perWave) + (biomes × perBiome) + (won ? victoryBonus : 0)
+ *   0 completed wave => 0 candy
+ *   otherwise: base + (waves × perWave) + (biomes × perBiome) + victory bonus
  *
  * Candies are split evenly among champions in the team (minimum 1 each).
  */
@@ -73,14 +71,12 @@ export function calculateCandiesForChampion(
   biomesVisited: number,
   won: boolean,
 ): number {
-  const rawTotal =
-    BASE_CANDIES +
-    wavesCompleted * CANDIES_PER_WAVE +
-    biomesVisited * CANDIES_PER_BIOME +
-    (won ? VICTORY_BONUS : 0);
-
-  const perChampion = Math.max(1, Math.floor(rawTotal / Math.max(1, teamSize)));
-  return perChampion;
+  return calculateRunCandiesPerChampion({
+    teamSize,
+    wavesCompleted,
+    biomesVisited,
+    outcome: wavesCompleted === 0 ? 'immediate_abandon' : won ? 'victory' : 'defeat',
+  });
 }
 
 /**

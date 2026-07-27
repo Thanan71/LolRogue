@@ -114,10 +114,8 @@ export function ShopPage() {
   const inventorySize = useRunStore((s) => s.inventory.length);
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore((s) => s.getCurrentNode);
-  const spendGold = useRunStore((s) => s.spendGold);
-  const addItem = useRunStore((s) => s.addItem);
-  const addChampion = useRunStore((s) => s.addChampion);
-  const claimCurrentShopOffer = useRunStore((s) => s.claimCurrentShopOffer);
+  const purchaseCurrentShopItem = useRunStore((s) => s.purchaseCurrentShopItem);
+  const purchaseCurrentShopChampion = useRunStore((s) => s.purchaseCurrentShopChampion);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
   const shopNodeState = useRunStore((s) =>
     currentNodeId ? s.shopNodeStates[currentNodeId] : undefined,
@@ -144,76 +142,18 @@ export function ShopPage() {
 
   const handleBuyItem = useCallback(
     (item: ShopItem) => {
-      if (!currentNodeId) return;
-      const cost = Math.round(item.price * priceMultiplier);
-      const before = useRunStore.getState();
-      if (before.inventory.length >= MAX_INVENTORY_ITEMS) return;
-      if (!claimCurrentShopOffer('item', item.itemId)) return;
-      if (!spendGold(cost)) {
-        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
-        return;
-      }
-      playUIClick();
-      const instanceId = addItem({
-        id: item.itemId,
-        name: item.name,
-        description: item.description,
-        iconUrl: item.iconUrl,
-        stats: item.stats,
-        passiveId: item.passiveId,
-        goldValue: item.price,
-      });
-      if (!instanceId) {
-        useRunStore.getState().addGold(cost);
-        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
-        return;
-      }
-      const state = useRunStore.getState();
-      if (
-        !state.recordRunCommand(
-          { kind: 'shop_buy_item', nodeId: currentNodeId, itemId: item.itemId },
-          `shop_buy_item:${currentNodeId}:${item.itemId}`,
-        )
-      ) {
-        state.removeItem(instanceId);
-        state.addGold(cost);
-        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
-        return;
-      }
+      const result = purchaseCurrentShopItem(item.itemId);
+      if (result.success) playUIClick();
     },
-    [spendGold, addItem, claimCurrentShopOffer, priceMultiplier, currentNodeId],
+    [purchaseCurrentShopItem],
   );
 
   const handleRecruit = useCallback(
-    (champId: string, cost: number) => {
-      if (!currentNodeId) return;
-      const finalCost = Math.round(cost * priceMultiplier);
-      const before = useRunStore.getState();
-      if (!claimCurrentShopOffer('champion', champId)) return;
-      if (!spendGold(finalCost)) {
-        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
-        return;
-      }
-      playUIClick();
-      if (!addChampion(champId)) {
-        useRunStore.getState().addGold(finalCost);
-        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
-        return;
-      }
-      const state = useRunStore.getState();
-      if (
-        !state.recordRunCommand(
-          { kind: 'shop_recruit', nodeId: currentNodeId, championId: champId },
-          `shop_recruit:${currentNodeId}:${champId}`,
-        )
-      ) {
-        state.removeChampion(champId);
-        state.addGold(finalCost);
-        useRunStore.setState({ shopNodeStates: before.shopNodeStates });
-        return;
-      }
+    (champId: string) => {
+      const result = purchaseCurrentShopChampion(champId);
+      if (result.success) playUIClick();
     },
-    [spendGold, addChampion, claimCurrentShopOffer, priceMultiplier, currentNodeId],
+    [purchaseCurrentShopChampion],
   );
 
   const handleLeave = useCallback(() => {
@@ -268,7 +208,7 @@ export function ShopPage() {
                   alreadyOnTeam={
                     team.some((m) => m.championId === rc.championId) || recruited.has(rc.championId)
                   }
-                  onRecruit={() => handleRecruit(rc.championId, rc.cost)}
+                  onRecruit={() => handleRecruit(rc.championId)}
                 />
               ))}
             </div>

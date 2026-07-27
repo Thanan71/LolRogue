@@ -592,7 +592,7 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
                   {level >= 18 ? 'MAX' : xpDisplay}
                 </div>
                 <div style={{ color: '#484f58', fontSize: 9 }}>
-                  {Math.round(m.currentHp ?? 0)}/{maxHp}
+                  {Math.round(m.currentHp ?? maxHp)}/{maxHp}
                 </div>
               </div>
             </div>

@@ -568,10 +568,15 @@ export function CombatPage() {
           const currentLevel = member.level ?? 1;
           const currentXp = member.currentXp ?? 0;
           const result = addXp(currentLevel, currentXp, xpGain);
+          const implicitMaxHp =
+            playerInstances
+              .find((champion) => champion.id === member.championId)
+              ?.getEnhancedStats().hp ?? 1;
 
           return {
             championId: member.championId,
-            currentHp: finalHpByChampionId.get(member.championId) ?? member.currentHp ?? 0,
+            currentHp:
+              finalHpByChampionId.get(member.championId) ?? member.currentHp ?? implicitMaxHp,
             currentMp:
               finalPlayerStates.find((champion) => champion.championId === member.championId)
                 ?.currentMp ??
@@ -624,8 +629,8 @@ export function CombatPage() {
                 passiveId: drop.passive?.id,
                 goldValue: drop.goldValue,
               };
-              runStore.addItem(item);
-              droppedItemName = item.name;
+              const itemResult = runStore.addItem(item);
+              if (itemResult.success) droppedItemName = item.name;
             }
           }
           runStore.setLastCombatRewards({

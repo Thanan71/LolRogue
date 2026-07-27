@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi } from 'vitest';
 import type { User } from '@supabase/supabase-js';
@@ -19,7 +19,13 @@ import { RunMapScreen } from '@/components/RunMapScreen';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
-import type { CompletedRunSnapshot, RunSummary } from '@/types/run';
+import {
+  MAX_INVENTORY_ITEMS,
+  type CompletedRunSnapshot,
+  type InventoryEntry,
+  type Item,
+  type RunSummary,
+} from '@/types/run';
 
 vi.mock('@/audio/AudioManager', () => ({
   playSFX: vi.fn(),
@@ -282,6 +288,78 @@ describe('P2 page smoke tests', () => {
     useRunStore.setState({ isActive: true });
     renderAt(page, `/${label.toLowerCase()}`);
     expect(screen.getAllByText(new RegExp(label, 'i')).length).toBeGreaterThan(0);
+  });
+
+  it('does not announce a treasure item that a full inventory could not receive', async () => {
+    const item: Item = {
+      id: 'long_sword',
+      name: 'Long Sword',
+      description: 'Sword',
+      iconUrl: '',
+      stats: { atk: 10 },
+      goldValue: 100,
+    };
+    const inventory: InventoryEntry[] = Array.from({ length: MAX_INVENTORY_ITEMS }, (_, index) => ({
+      instanceId: `existing-${index}`,
+      item: { ...item, id: `existing-${index}` },
+      equippedToChampionId: null,
+    }));
+    const treasureNode = {
+      id: 'treasure',
+      type: NodeType.Treasure,
+      column: 0,
+      row: 0,
+      prevNodeIds: [],
+      nextNodeIds: [],
+      biome: 'top_lane' as const,
+      completed: false,
+      accessible: true,
+      metadata: { title: 'Treasure', description: 'Treasure', icon: '?' },
+      encounter: {
+        id: 'treasure-encounter',
+        name: 'Treasure',
+        description: 'Treasure',
+        type: 'treasure' as const,
+        minRunLevel: 1,
+        gold: 25,
+        item: {
+          itemId: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.goldValue,
+          iconUrl: item.iconUrl,
+          stats: item.stats,
+        },
+      },
+    };
+    useRunStore.setState({
+      isActive: true,
+      seed: 42,
+      inventory,
+      gold: 0,
+      biomeMaps: [
+        {
+          biome: 'top_lane',
+          startNodeId: treasureNode.id,
+          exitNodeId: treasureNode.id,
+          columns: 1,
+          rows: 1,
+          nodes: [treasureNode],
+        },
+      ],
+      currentBiomeIndex: 0,
+      currentNodeId: treasureNode.id,
+      chosenPathNodeIds: [treasureNode.id],
+      pendingEncounter: { nodeId: treasureNode.id, nodeType: 'treasure' },
+    });
+
+    renderAt(<TreasurePage />, '/treasure');
+
+    await waitFor(() => expect(screen.getByText('Item left behind')).toBeInTheDocument());
+    expect(screen.queryByText('Item Received')).not.toBeInTheDocument();
+    expect(useRunStore.getState().inventory).toHaveLength(MAX_INVENTORY_ITEMS);
+    expect(useRunStore.getState().gold).toBe(25);
+    expect(useRunStore.getState().claimedEncounterNodeIds).toEqual([treasureNode.id]);
   });
 
   it('renders the game over summary supplied by the router', () => {

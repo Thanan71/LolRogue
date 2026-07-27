@@ -5,6 +5,8 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 
+type TreasureItemDisposition = 'added' | 'left_full' | 'already_resolved' | 'none';
+
 export function TreasurePage() {
   const isActive = useRunStore((s) => s.isActive);
   const gold = useRunStore((s) => s.gold);
@@ -18,6 +20,9 @@ export function TreasurePage() {
   );
 
   const [collected, setCollected] = useState(wasClaimed);
+  const [itemDisposition, setItemDisposition] = useState<TreasureItemDisposition>(
+    wasClaimed ? 'already_resolved' : 'none',
+  );
 
   const encounter = useMemo(() => {
     const node = getCurrentNode();
@@ -37,8 +42,9 @@ export function TreasurePage() {
     }
 
     // Award item if present
+    let nextItemDisposition: TreasureItemDisposition = 'none';
     if (encounter.item) {
-      addItem({
+      const result = addItem({
         id: encounter.item.itemId,
         name: encounter.item.name,
         description: encounter.item.description,
@@ -47,6 +53,7 @@ export function TreasurePage() {
         passiveId: encounter.item.passiveId,
         goldValue: encounter.item.price,
       });
+      nextItemDisposition = result.success ? 'added' : 'left_full';
     }
 
     if (
@@ -65,6 +72,7 @@ export function TreasurePage() {
       });
       return;
     }
+    setItemDisposition(nextItemDisposition);
     setCollected(true);
   }, [encounter, collected, addGold, addItem]);
 
@@ -136,7 +144,7 @@ export function TreasurePage() {
                 </div>
               </div>
 
-              {encounter?.item && (
+              {encounter?.item && itemDisposition === 'added' && (
                 <div style={rewardSectionStyle}>
                   <div style={rewardLabelStyle}>Item Received</div>
                   <div style={itemDetailStyle}>
@@ -156,6 +164,19 @@ export function TreasurePage() {
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+              {encounter?.item && itemDisposition === 'left_full' && (
+                <div style={rewardSectionStyle}>
+                  <div style={rewardLabelStyle}>Item left behind</div>
+                  <div style={{ color: '#facc15', fontSize: 14 }}>
+                    Inventory full — {encounter.item.name} was not added.
+                  </div>
+                </div>
+              )}
+              {itemDisposition === 'already_resolved' && (
+                <div style={{ color: '#8b949e', fontSize: 13 }}>
+                  This treasure was already resolved before the page was reloaded.
                 </div>
               )}
             </div>
