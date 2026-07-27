@@ -9,6 +9,7 @@
  * R: Final Spark — Long range laser beam.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -142,5 +143,5 @@ export const lux: Champion = {
       },
     ],
   },
-  iconUrl: '/lol/data/img/champions/Lux.png',
+  iconUrl: riotChampionIconUrl('Lux'),
 };

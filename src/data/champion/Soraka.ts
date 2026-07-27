@@ -9,6 +9,7 @@
  * R: Wish — Global heal to all allies.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -134,5 +135,5 @@ export const soraka: Champion = {
       },
     ],
   },
-  iconUrl: '/lol/data/img/champions/Soraka.png',
+  iconUrl: riotChampionIconUrl('Soraka'),
 };

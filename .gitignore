@@ -32,7 +32,8 @@ test-results/
 playwright-report/
 blob-report/
 
-# Data Dragon images (downloaded via script)
+# Raw Data Dragon staging cache. The minimal release package lives in
+# public/assets/riot/ and is intentionally versioned.
 public/lol/data/
 
 # Supabase CLI local state

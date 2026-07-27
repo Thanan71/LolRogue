@@ -9,6 +9,7 @@
  * R: Summon: Tibbers — AoE magic damage summon.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -141,5 +142,5 @@ export const annie: Champion = {
     scaling: { adRatio: 0, apRatio: 0 },
     effects: [{ type: 'cc', ccType: 'stun', ccDuration: 1.75 }],
   },
-  iconUrl: '/lol/data/img/champions/Annie.png',
+  iconUrl: riotChampionIconUrl('Annie'),
 };

@@ -14,6 +14,10 @@ const vercelConfig = JSON.parse(
 };
 const appSource = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
 const cssSource = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8');
+const starterCssSource = readFileSync(
+  new URL('../src/styles/starter-select.css', import.meta.url),
+  'utf8',
+);
 
 describe('production configuration', () => {
   it('keeps SPA rewrites and restrictive security headers', () => {
@@ -26,6 +30,13 @@ describe('production configuration', () => {
     );
     expect(headers['Content-Security-Policy']).toContain("default-src 'self'");
     expect(headers['Content-Security-Policy']).toContain("object-src 'none'");
+    expect(headers['Content-Security-Policy']).toContain(
+      "img-src 'self' data: blob: https://ddragon.leagueoflegends.com",
+    );
+    expect(headers['Content-Security-Policy']).toContain("font-src 'self' data:");
+    expect(headers['Content-Security-Policy']).not.toContain('fonts.googleapis.com');
+    expect(headers['Content-Security-Policy']).not.toContain('fonts.gstatic.com');
+    expect(headers['Content-Security-Policy']).not.toContain('raw.communitydragon.org');
     expect(headers['X-Content-Type-Options']).toBe('nosniff');
     expect(headers['X-Frame-Options']).toBe('DENY');
   });
@@ -37,5 +48,6 @@ describe('production configuration', () => {
     expect(appSource).not.toContain('@vercel/analytics');
     expect(appSource).not.toContain('@vercel/speed-insights');
     expect(cssSource).not.toMatch(/Beaufort|fonts\//i);
+    expect(starterCssSource).not.toMatch(/fonts\.googleapis\.com|@import\s+url/i);
   });
 });

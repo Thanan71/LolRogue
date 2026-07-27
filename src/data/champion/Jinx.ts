@@ -9,6 +9,7 @@
  * R: Super Mega Death Rocket! — Global execute damage.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -167,5 +168,5 @@ export const jinx: Champion = {
       },
     ],
   },
-  iconUrl: '/lol/data/img/champions/Jinx.png',
+  iconUrl: riotChampionIconUrl('Jinx'),
 };

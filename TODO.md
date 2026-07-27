@@ -350,22 +350,30 @@ un test de parité sur la finalisation PostgreSQL.
 `champions-parsed.json`. Un build ou déploiement depuis un clone propre n'a donc pas
 les assets que le README dit versionnés.
 
-- [ ] Choisir une stratégie reproductible : assets minimaux versionnés, téléchargement
+- [x] Choisir une stratégie reproductible : assets minimaux versionnés, téléchargement
   vérifié en CI/build, ou CDN explicite avec fallback.
-- [ ] N'embarquer que les champions, sorts et objets réellement utilisés si le poids
+- [x] N'embarquer que les champions, sorts et objets réellement utilisés si le poids
   complet n'est pas justifié.
-- [ ] Ajouter intégrité/version/checksum au manifeste Data Dragon.
-- [ ] Corriger les chemins relatifs d'assets pour les routes profondes.
-- [ ] Déplacer `champions-parsed.json` dans un répertoire importable sous `src`
+- [x] Ajouter intégrité/version/checksum au manifeste Data Dragon.
+- [x] Corriger les chemins relatifs d'assets pour les routes profondes.
+- [x] Déplacer `champions-parsed.json` dans un répertoire importable sous `src`
   (ou le charger par URL) au lieu de l'importer depuis `public`, ce que Vite signale
   à chaque démarrage du serveur de développement.
-- [ ] Vérifier la CSP pour chaque origine réellement utilisée, y compris la police.
-- [ ] Ajouter un test depuis un clone propre qui build puis vérifie les URLs
+- [x] Vérifier la CSP pour chaque origine réellement utilisée, y compris la police.
+- [x] Ajouter un test depuis un clone propre qui build puis vérifie les URLs
   critiques sans profiter de fichiers ignorés.
-- [ ] Aligner `.gitignore`, `README.md`, `docs/assets.md` et la réalité du pipeline.
+- [x] Aligner `.gitignore`, `README.md`, `docs/assets.md` et la réalité du pipeline.
 
 **Acceptation :** le même commit produit les mêmes assets sur une machine vierge et
 aucun champion/objet requis n'affiche une image cassée.
+
+**Statut : terminé.** Le dépôt livre désormais un paquet Data Dragon 16.6.1 de
+187 PNG : les 172 champions alignés avec le catalogue serveur, dont 10 sont
+actuellement jouables, et uniquement les 15 objets utilisés (environ 5,1 Mo).
+Tous sont protégés par SHA-256 dans un manifest versionné. Le catalogue de
+champions a été déplacé sous `src`. Chaque build contrôle les sources puis `dist`,
+et la validation de release reconstruit aussi l'application dans un répertoire
+temporaire privé de tout fichier ignoré.
 
 ### P0-UX-01 — Rendre Auth et Menu utilisables sur petit écran
 

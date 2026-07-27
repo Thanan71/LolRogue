@@ -3,6 +3,7 @@
  */
 
 import { ItemCategory, type ItemDefinition, ItemRarity } from '@/types/inventory';
+import { riotItemIconUrl } from '@/config/riotAssets';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1 — COMPONENTS
@@ -12,7 +13,7 @@ const LONG_SWORD: ItemDefinition = {
   id: 'long_sword',
   name: 'Long Sword',
   description: 'A simple blade that increases attack power.',
-  iconUrl: '/assets/items/long_sword.png',
+  iconUrl: riotItemIconUrl('long_sword'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'atk', value: 10, type: 'flat' }],
@@ -26,7 +27,7 @@ const AMPLIFYING_TOME: ItemDefinition = {
   id: 'amplifying_tome',
   name: 'Amplifying Tome',
   description: 'A magical tome that enhances spell power.',
-  iconUrl: '/assets/items/amplifying_tome.png',
+  iconUrl: riotItemIconUrl('amplifying_tome'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'ap', value: 20, type: 'flat' }],
@@ -40,7 +41,7 @@ const CLOTH_ARMOR: ItemDefinition = {
   id: 'cloth_armor',
   name: 'Cloth Armor',
   description: 'A simple cloth vest that provides basic protection.',
-  iconUrl: '/assets/items/cloth_armor.png',
+  iconUrl: riotItemIconUrl('cloth_armor'),
   category: ItemCategory.Armor,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'def', value: 15, type: 'flat' }],
@@ -54,7 +55,7 @@ const RUBY_CRYSTAL: ItemDefinition = {
   id: 'ruby_crystal',
   name: 'Ruby Crystal',
   description: 'A radiant crystal that bolsters vitality.',
-  iconUrl: '/assets/items/ruby_crystal.png',
+  iconUrl: riotItemIconUrl('ruby_crystal'),
   category: ItemCategory.Accessory,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'hp', value: 150, type: 'flat' }],
@@ -68,7 +69,7 @@ const BOOTS: ItemDefinition = {
   id: 'boots',
   name: 'Boots',
   description: 'Basic footwear that increases movement speed.',
-  iconUrl: '/assets/items/boots.png',
+  iconUrl: riotItemIconUrl('boots'),
   category: ItemCategory.Accessory,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'spd', value: 2, type: 'flat' }],
@@ -82,7 +83,7 @@ const DAGGER: ItemDefinition = {
   id: 'dagger',
   name: 'Dagger',
   description: 'A quick blade that improves critical strike chance.',
-  iconUrl: '/assets/items/dagger.png',
+  iconUrl: riotItemIconUrl('dagger'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'crit', value: 10, type: 'flat' }],
@@ -96,7 +97,7 @@ const BF_SWORD: ItemDefinition = {
   id: 'bf_sword',
   name: 'B.F. Sword',
   description: 'A massive blade that greatly increases attack damage.',
-  iconUrl: '/assets/items/bf_sword.png',
+  iconUrl: riotItemIconUrl('bf_sword'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Uncommon,
   stats: [{ stat: 'atk', value: 40, type: 'flat' }],
@@ -114,7 +115,7 @@ const INFINITY_EDGE: ItemDefinition = {
   id: 'infinity_edge',
   name: 'Infinity Edge',
   description: 'Massively increases critical strike damage.',
-  iconUrl: '/assets/items/infinity_edge.png',
+  iconUrl: riotItemIconUrl('infinity_edge'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Legendary,
   stats: [
@@ -140,7 +141,7 @@ const RABADONS_DEATHCAP: ItemDefinition = {
   id: 'rabaddons_deathcap',
   name: "Rabadon's Deathcap",
   description: 'Dramatically increases ability power.',
-  iconUrl: '/assets/items/rabadons_deathcap.png',
+  iconUrl: riotItemIconUrl('rabaddons_deathcap'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Legendary,
   stats: [{ stat: 'ap', value: 120, type: 'flat' }],
@@ -162,7 +163,7 @@ const SUNFIRE_AEGIS: ItemDefinition = {
   id: 'sunfire_aegis',
   name: 'Sunfire Aegis',
   description: 'Burn nearby enemies and gain defensive stats.',
-  iconUrl: '/assets/items/sunfire_aegis.png',
+  iconUrl: riotItemIconUrl('sunfire_aegis'),
   category: ItemCategory.Armor,
   rarity: ItemRarity.Epic,
   stats: [
@@ -188,7 +189,7 @@ const GUARDIAN_ANGEL: ItemDefinition = {
   id: 'guardian_angel',
   name: 'Guardian Angel',
   description: 'Revives the holder upon death with 30% HP.',
-  iconUrl: '/assets/items/guardian_angel.png',
+  iconUrl: riotItemIconUrl('guardian_angel'),
   category: ItemCategory.Armor,
   rarity: ItemRarity.Legendary,
   stats: [
@@ -216,7 +217,7 @@ const BLOODTHIRSTER: ItemDefinition = {
   id: 'bloodthirster',
   name: 'Bloodthirster',
   description: 'Gain lifesteal on attacks.',
-  iconUrl: '/assets/items/bloodthirster.png',
+  iconUrl: riotItemIconUrl('bloodthirster'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Legendary,
   stats: [
@@ -242,7 +243,7 @@ const SPIRIT_VISAGE: ItemDefinition = {
   id: 'spirit_visage',
   name: 'Spirit Visage',
   description: 'Increases all healing received.',
-  iconUrl: '/assets/items/spirit_visage.png',
+  iconUrl: riotItemIconUrl('spirit_visage'),
   category: ItemCategory.Armor,
   rarity: ItemRarity.Epic,
   stats: [
@@ -272,7 +273,7 @@ const HEALTH_POTION: ItemDefinition = {
   id: 'health_potion',
   name: 'Health Potion',
   description: 'Restores 150 HP over 3 turns.',
-  iconUrl: '/assets/items/health_potion.png',
+  iconUrl: riotItemIconUrl('health_potion'),
   category: ItemCategory.Consumable,
   rarity: ItemRarity.Common,
   stats: [],
@@ -294,7 +295,7 @@ const ELIXIR_OF_WRATH: ItemDefinition = {
   id: 'elixir_of_wrath',
   name: 'Elixir of Wrath',
   description: 'Temporarily grants bonus attack damage.',
-  iconUrl: '/assets/items/elixir_of_wrath.png',
+  iconUrl: riotItemIconUrl('elixir_of_wrath'),
   category: ItemCategory.Consumable,
   rarity: ItemRarity.Uncommon,
   stats: [],

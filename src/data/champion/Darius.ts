@@ -9,6 +9,7 @@
  * R: Noxian Guillotine — True damage execute, resets on kill.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -158,5 +159,5 @@ export const darius: Champion = {
       },
     ],
   },
-  iconUrl: '/lol/data/img/champions/Darius.png',
+  iconUrl: riotChampionIconUrl('Darius'),
 };

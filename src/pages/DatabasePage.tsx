@@ -182,7 +182,13 @@ function ChampionDetail({ champion }: { champion: Champion }) {
           alt={champion.name}
           style={{ width: 120, height: 120, borderRadius: 8, objectFit: 'cover' }}
           onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
+            const image = e.currentTarget;
+            if (image.dataset.localFallback !== 'true') {
+              image.dataset.localFallback = 'true';
+              image.src = champion.iconUrl;
+            } else {
+              image.style.display = 'none';
+            }
           }}
         />
         <div>

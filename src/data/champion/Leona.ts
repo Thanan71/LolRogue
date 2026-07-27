@@ -9,6 +9,7 @@
  * R: Solar Flare — AoE stun center, slow edge.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -153,5 +154,5 @@ export const leona: Champion = {
       },
     ],
   },
-  iconUrl: '/lol/data/img/champions/Leona.png',
+  iconUrl: riotChampionIconUrl('Leona'),
 };

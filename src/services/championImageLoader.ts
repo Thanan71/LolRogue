@@ -14,8 +14,7 @@ const ICON_PREFIX = 'champion-icon';
 const SPLASH_PREFIX = 'champion-splash';
 
 /**
- * Build the local path for a champion icon (served by Vite from public/lol/data/).
- * Icons are stored as `public/lol/data/img/champions/{ChampionId}.png`.
+ * Build the absolute local path for a versioned, integrity-checked champion icon.
  */
 function localIconPath(championId: string): string {
   return `${DDRAGON_CONFIG.localChampionIconPath}/${championId}.png`;
@@ -51,7 +50,7 @@ function cdnLoadingUrl(championId: string, skinNum: number = 0): string {
  *
  * Fallback chain:
  * 1. In-memory cache
- * 2. Local static file (`public/lol/data/img/champions/{id}.png`)
+ * 2. Versioned local release asset (`public/assets/riot/{version}/champions/{id}.png`)
  * 3. CDN Data Dragon
  * 4. Placeholder SVG with champion initials
  *

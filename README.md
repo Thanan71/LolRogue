@@ -104,7 +104,7 @@ src/
 ├── stores/              état Zustand et orchestration de l'interface
 ├── types/               modèles applicatifs et types Supabase générés
 └── utils/               calculs et utilitaires transverses
-public/lol/data/         données et images Riot épinglées
+public/assets/riot/      paquet minimal d'images Riot épinglées et versionnées
 supabase/functions/      vérification Edge des journaux scellés
 supabase/migrations/     schéma initial et montées de version
 tests/                   tests Vitest
@@ -118,17 +118,23 @@ propriété de chaque donnée sont dans [docs/data-and-persistence.md](docs/data
 
 ## Assets
 
-Les assets Riot nécessaires au jeu sont versionnés sous `public/lol/data` afin que
-le build et les parties soient reproductibles. Ils ne sont pas téléchargés pendant
-un build normal.
+Les 172 portraits du catalogue serveur et les 15 icônes d'objets utilisés sont
+versionnés sous `public/assets/riot/<version>` avec leurs SHA-256. Seuls 10
+champions sont actuellement jouables, mais la page Database et le catalogue
+serveur exposent l'ensemble. Le catalogue importé est sous `src/data/generated`.
+Le cache brut `public/lol/data` est ignoré et n'est jamais nécessaire à un build
+normal.
 
 ```bash
 npm run assets:update
 ```
 
 Cette commande télécharge la version déclarée dans
-`scripts/ddragon-version.json`, puis régénère `champions-parsed.json`. Voir
-[docs/assets.md](docs/assets.md) avant toute mise à jour.
+`scripts/ddragon-version.json`, régénère le sous-ensemble jouable, extrait le
+paquet minimal et recalcule son manifest d'intégrité. Voir
+[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute
+aussi un build temporaire sans aucun fichier ignoré pour reproduire un clone
+propre.
 
 ## Documentation
 

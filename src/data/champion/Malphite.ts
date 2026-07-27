@@ -9,6 +9,7 @@
  * R: Unstoppable Force — AoE knockup + magic damage.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -163,5 +164,5 @@ export const malphite: Champion = {
       },
     ],
   },
-  iconUrl: '/lol/data/img/champions/Malphite.png',
+  iconUrl: riotChampionIconUrl('Malphite'),
 };

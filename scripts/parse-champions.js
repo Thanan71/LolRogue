@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'lol', 'data');
+const GENERATED_OUTPUT_DIR = path.join(__dirname, '..', 'src', 'data', 'generated');
 const VERSION_FILE = path.join(__dirname, 'ddragon-version.json');
 const versions = JSON.parse(await fs.readFile(VERSION_FILE, 'utf-8'));
 if (!/^\d+\.\d+$/.test(versions.communityDragon ?? '')) {
@@ -497,7 +498,7 @@ async function main() {
         stats: parseStats(raw.stats),
         spells,
         passive,
-        iconUrl: 'lol/data/img/champions/' + raw.image.full,
+        iconUrl: `/assets/riot/${version}/champions/${raw.image.full}`,
       });
     }
     // Apply post-processing fixes
@@ -507,9 +508,10 @@ async function main() {
     ensureDamageEffects(parsed);
 
     parsed.sort((a, b) => a.name.localeCompare(b.name));
+    await fs.mkdir(GENERATED_OUTPUT_DIR, { recursive: true });
     await fs.writeFile(
-      path.join(OUTPUT_DIR, 'champions-parsed.json'),
-      JSON.stringify(parsed, null, 2),
+      path.join(GENERATED_OUTPUT_DIR, 'champions-parsed.json'),
+      `${JSON.stringify(parsed, null, 2)}\n`,
       'utf-8',
     );
     console.log('Parsed ' + parsed.length + ' champions');

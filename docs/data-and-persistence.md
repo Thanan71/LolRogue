@@ -18,7 +18,7 @@ persistance doit conserver cette séparation et mettre à jour les tests associ�
 | Leaderboard normal | écran après lecture | vue `leaderboard` dérivée de `runs` | lecture éventuelle seulement | aucune écriture directe |
 | Diagnostics client | buffer mémoire borné | `logs`, 14 jours maximum | désactivés | RPC `submit_client_logs` authentifiée |
 | Réglages audio/UI | stores dédiés | aucune | `localStorage` | stores client |
-| Catalogue de jeu | imports TypeScript/JSON | fichiers versionnés dans `src/data` et `public/lol/data` | identique | scripts d'assets ou code |
+| Catalogue de jeu | imports TypeScript/JSON | fichiers versionnés dans `src/data/generated` et paquet minimal `public/assets/riot` | identique | scripts d'assets ou code |
 
 ## Partie locale et synchronisation
 

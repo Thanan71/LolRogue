@@ -9,6 +9,7 @@
  * R: Enchanted Crystal Arrow — Global stun + AoE slow.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -140,5 +141,5 @@ export const ashe: Champion = {
     scaling: { adRatio: 0, apRatio: 0 },
     effects: [{ type: 'cc', ccType: 'slow', slowPercent: 20, ccDuration: 2 }],
   },
-  iconUrl: '/lol/data/img/champions/Ashe.png',
+  iconUrl: riotChampionIconUrl('Ashe'),
 };

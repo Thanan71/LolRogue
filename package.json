@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "prebuild": "npm run assets:verify",
+    "postbuild": "npm run assets:verify:dist",
     "preview": "vite preview",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -20,7 +22,7 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "audit:security": "node scripts/check-dependency-audit.mjs",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run audit:security && npm run test:coverage && npm run build",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run audit:security && npm run test:coverage && npm run test:assets-clean && npm run build",
     "migrate": "supabase db push",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
@@ -33,7 +35,11 @@
     "edge:deploy": "npm run edge:bundle && supabase functions deploy verify-run",
     "ddragon:download": "node scripts/download-ddragon.js",
     "ddragon:parse": "node scripts/parse-champions.js",
-    "assets:update": "npm run ddragon:download && npm run ddragon:parse"
+    "assets:package": "node scripts/package-riot-assets.mjs",
+    "assets:verify": "node scripts/verify-riot-assets.mjs",
+    "assets:verify:dist": "node scripts/verify-riot-assets.mjs --dist",
+    "test:assets-clean": "node scripts/test-clean-asset-build.mjs",
+    "assets:update": "npm run ddragon:download && npm run ddragon:parse && npm run assets:package && npm run assets:verify"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.8",

@@ -3,6 +3,8 @@
  * Reference: https://developer.riotgames.com/docs/lol
  */
 
+import { RIOT_ASSET_VERSION } from './riotAssets';
+
 export const DDRAGON_CONFIG = {
   /** Base URL for Data Dragon CDN */
   baseUrl: 'https://ddragon.leagueoflegends.com',
@@ -36,11 +38,11 @@ export const DDRAGON_CONFIG = {
   },
 
   /** Local path prefix for champion icons (served by Vite from public/) */
-  localChampionIconPath: 'lol/data/img/champions',
+  localChampionIconPath: `/assets/riot/${RIOT_ASSET_VERSION}/champions`,
 } as const;
 
-/** Latest version placeholder — will be resolved at runtime */
-export let DDRAGON_VERSION = '16.6.1';
+/** Pinned fallback version used by the versioned local asset package. */
+export let DDRAGON_VERSION = RIOT_ASSET_VERSION;
 
 /** Update the cached version */
 export function setDdragonVersion(version: string): void {

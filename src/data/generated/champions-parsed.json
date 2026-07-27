@@ -216,7 +216,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Aatrox.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Aatrox.png"
   },
   {
     "id": "Ahri",
@@ -449,7 +449,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Ahri.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ahri.png"
   },
   {
     "id": "Akali",
@@ -675,7 +675,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Akali.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Akali.png"
   },
   {
     "id": "Akshan",
@@ -896,7 +896,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Akshan.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Akshan.png"
   },
   {
     "id": "Alistar",
@@ -1109,7 +1109,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Alistar.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Alistar.png"
   },
   {
     "id": "Ambessa",
@@ -1331,7 +1331,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Ambessa.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ambessa.png"
   },
   {
     "id": "Amumu",
@@ -1560,7 +1560,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Amumu.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Amumu.png"
   },
   {
     "id": "Anivia",
@@ -1768,7 +1768,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Anivia.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Anivia.png"
   },
   {
     "id": "Annie",
@@ -1996,7 +1996,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Annie.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Annie.png"
   },
   {
     "id": "Aphelios",
@@ -2205,7 +2205,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Aphelios.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Aphelios.png"
   },
   {
     "id": "Ashe",
@@ -2444,7 +2444,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Ashe.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ashe.png"
   },
   {
     "id": "AurelionSol",
@@ -2656,7 +2656,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/AurelionSol.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/AurelionSol.png"
   },
   {
     "id": "Aurora",
@@ -2878,7 +2878,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Aurora.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Aurora.png"
   },
   {
     "id": "Azir",
@@ -3114,7 +3114,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Azir.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Azir.png"
   },
   {
     "id": "Bard",
@@ -3365,7 +3365,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Bard.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Bard.png"
   },
   {
     "id": "Belveth",
@@ -3580,7 +3580,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Belveth.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Belveth.png"
   },
   {
     "id": "Blitzcrank",
@@ -3817,7 +3817,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Blitzcrank.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Blitzcrank.png"
   },
   {
     "id": "Brand",
@@ -4052,7 +4052,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Brand.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Brand.png"
   },
   {
     "id": "Braum",
@@ -4316,7 +4316,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Braum.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Braum.png"
   },
   {
     "id": "Briar",
@@ -4562,7 +4562,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Briar.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Briar.png"
   },
   {
     "id": "Caitlyn",
@@ -4794,7 +4794,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Caitlyn.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Caitlyn.png"
   },
   {
     "id": "Camille",
@@ -5030,7 +5030,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Camille.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Camille.png"
   },
   {
     "id": "Cassiopeia",
@@ -5263,7 +5263,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Cassiopeia.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Cassiopeia.png"
   },
   {
     "id": "Chogath",
@@ -5488,7 +5488,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Chogath.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Chogath.png"
   },
   {
     "id": "Corki",
@@ -5705,7 +5705,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Corki.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Corki.png"
   },
   {
     "id": "Darius",
@@ -5940,7 +5940,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Darius.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Darius.png"
   },
   {
     "id": "Diana",
@@ -6190,7 +6190,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Diana.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Diana.png"
   },
   {
     "id": "DrMundo",
@@ -6399,7 +6399,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/DrMundo.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/DrMundo.png"
   },
   {
     "id": "Draven",
@@ -6636,7 +6636,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Draven.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Draven.png"
   },
   {
     "id": "Ekko",
@@ -6882,7 +6882,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Ekko.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ekko.png"
   },
   {
     "id": "Elise",
@@ -7119,7 +7119,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Elise.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Elise.png"
   },
   {
     "id": "Evelynn",
@@ -7367,7 +7367,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Evelynn.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Evelynn.png"
   },
   {
     "id": "Ezreal",
@@ -7582,7 +7582,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Ezreal.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ezreal.png"
   },
   {
     "id": "Fiddlesticks",
@@ -7803,7 +7803,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Fiddlesticks.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Fiddlesticks.png"
   },
   {
     "id": "Fiora",
@@ -8037,7 +8037,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Fiora.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Fiora.png"
   },
   {
     "id": "Fizz",
@@ -8273,7 +8273,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Fizz.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Fizz.png"
   },
   {
     "id": "Galio",
@@ -8512,7 +8512,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Galio.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Galio.png"
   },
   {
     "id": "Gangplank",
@@ -8756,7 +8756,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Gangplank.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Gangplank.png"
   },
   {
     "id": "Garen",
@@ -8990,7 +8990,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Garen.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Garen.png"
   },
   {
     "id": "Gnar",
@@ -9213,7 +9213,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Gnar.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Gnar.png"
   },
   {
     "id": "Gragas",
@@ -9440,7 +9440,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Gragas.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Gragas.png"
   },
   {
     "id": "Graves",
@@ -9646,7 +9646,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Graves.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Graves.png"
   },
   {
     "id": "Gwen",
@@ -9866,7 +9866,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Gwen.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Gwen.png"
   },
   {
     "id": "Hecarim",
@@ -10112,7 +10112,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Hecarim.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Hecarim.png"
   },
   {
     "id": "Heimerdinger",
@@ -10323,7 +10323,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Heimerdinger.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Heimerdinger.png"
   },
   {
     "id": "Hwei",
@@ -10556,7 +10556,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Hwei.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Hwei.png"
   },
   {
     "id": "Illaoi",
@@ -10776,7 +10776,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Illaoi.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Illaoi.png"
   },
   {
     "id": "Irelia",
@@ -10993,7 +10993,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Irelia.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Irelia.png"
   },
   {
     "id": "Ivern",
@@ -11211,7 +11211,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Ivern.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ivern.png"
   },
   {
     "id": "Janna",
@@ -11449,7 +11449,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Janna.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Janna.png"
   },
   {
     "id": "JarvanIV",
@@ -11689,7 +11689,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/JarvanIV.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/JarvanIV.png"
   },
   {
     "id": "Jax",
@@ -11897,7 +11897,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Jax.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Jax.png"
   },
   {
     "id": "Jayce",
@@ -12113,7 +12113,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Jayce.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Jayce.png"
   },
   {
     "id": "Jhin",
@@ -12334,7 +12334,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Jhin.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Jhin.png"
   },
   {
     "id": "Jinx",
@@ -12542,7 +12542,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Jinx.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Jinx.png"
   },
   {
     "id": "KSante",
@@ -12764,7 +12764,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/KSante.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/KSante.png"
   },
   {
     "id": "Kaisa",
@@ -13011,7 +13011,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Kaisa.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Kaisa.png"
   },
   {
     "id": "Kalista",
@@ -13217,7 +13217,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Kalista.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Kalista.png"
   },
   {
     "id": "Karma",
@@ -13470,7 +13470,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Karma.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Karma.png"
   },
   {
     "id": "Karthus",
@@ -13696,7 +13696,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Karthus.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Karthus.png"
   },
   {
     "id": "Kassadin",
@@ -13942,7 +13942,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Kassadin.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Kassadin.png"
   },
   {
     "id": "Katarina",
@@ -14179,7 +14179,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Katarina.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Katarina.png"
   },
   {
     "id": "Kayle",
@@ -14400,7 +14400,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Kayle.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Kayle.png"
   },
   {
     "id": "Kayn",
@@ -14646,7 +14646,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Kayn.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Kayn.png"
   },
   {
     "id": "Kennen",
@@ -14885,7 +14885,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Kennen.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Kennen.png"
   },
   {
     "id": "Khazix",
@@ -15134,7 +15134,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Khazix.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Khazix.png"
   },
   {
     "id": "Kindred",
@@ -15363,7 +15363,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Kindred.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Kindred.png"
   },
   {
     "id": "Kled",
@@ -15598,7 +15598,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Kled.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Kled.png"
   },
   {
     "id": "KogMaw",
@@ -15815,7 +15815,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/KogMaw.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/KogMaw.png"
   },
   {
     "id": "Leblanc",
@@ -16038,7 +16038,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Leblanc.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Leblanc.png"
   },
   {
     "id": "LeeSin",
@@ -16252,7 +16252,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/LeeSin.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/LeeSin.png"
   },
   {
     "id": "Leona",
@@ -16513,7 +16513,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Leona.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Leona.png"
   },
   {
     "id": "Lillia",
@@ -16744,7 +16744,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Lillia.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Lillia.png"
   },
   {
     "id": "Lissandra",
@@ -16987,7 +16987,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Lissandra.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Lissandra.png"
   },
   {
     "id": "Lucian",
@@ -17239,7 +17239,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Lucian.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Lucian.png"
   },
   {
     "id": "Lulu",
@@ -17478,7 +17478,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Lulu.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Lulu.png"
   },
   {
     "id": "Lux",
@@ -17717,7 +17717,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Lux.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Lux.png"
   },
   {
     "id": "MasterYi",
@@ -17926,7 +17926,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/MasterYi.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/MasterYi.png"
   },
   {
     "id": "Malphite",
@@ -18171,7 +18171,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Malphite.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Malphite.png"
   },
   {
     "id": "Malzahar",
@@ -18397,7 +18397,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Malzahar.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Malzahar.png"
   },
   {
     "id": "Maokai",
@@ -18635,7 +18635,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Maokai.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Maokai.png"
   },
   {
     "id": "Mel",
@@ -18864,7 +18864,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Mel.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Mel.png"
   },
   {
     "id": "Milio",
@@ -19103,7 +19103,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Milio.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Milio.png"
   },
   {
     "id": "MissFortune",
@@ -19333,7 +19333,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/MissFortune.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/MissFortune.png"
   },
   {
     "id": "Mordekaiser",
@@ -19555,7 +19555,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Mordekaiser.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Mordekaiser.png"
   },
   {
     "id": "Morgana",
@@ -19782,7 +19782,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Morgana.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Morgana.png"
   },
   {
     "id": "Naafiri",
@@ -20008,7 +20008,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Naafiri.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Naafiri.png"
   },
   {
     "id": "Nami",
@@ -20238,7 +20238,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Nami.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Nami.png"
   },
   {
     "id": "Nasus",
@@ -20453,7 +20453,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Nasus.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Nasus.png"
   },
   {
     "id": "Nautilus",
@@ -20681,7 +20681,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Nautilus.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Nautilus.png"
   },
   {
     "id": "Neeko",
@@ -20905,7 +20905,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Neeko.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Neeko.png"
   },
   {
     "id": "Nidalee",
@@ -21121,7 +21121,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Nidalee.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Nidalee.png"
   },
   {
     "id": "Nilah",
@@ -21353,7 +21353,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Nilah.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Nilah.png"
   },
   {
     "id": "Nocturne",
@@ -21614,7 +21614,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Nocturne.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Nocturne.png"
   },
   {
     "id": "Nunu",
@@ -21843,7 +21843,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Nunu.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Nunu.png"
   },
   {
     "id": "Olaf",
@@ -22063,7 +22063,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Olaf.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Olaf.png"
   },
   {
     "id": "Orianna",
@@ -22310,7 +22310,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Orianna.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Orianna.png"
   },
   {
     "id": "Ornn",
@@ -22524,7 +22524,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Ornn.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ornn.png"
   },
   {
     "id": "Pantheon",
@@ -22752,7 +22752,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Pantheon.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Pantheon.png"
   },
   {
     "id": "Poppy",
@@ -22998,7 +22998,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Poppy.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Poppy.png"
   },
   {
     "id": "Pyke",
@@ -23238,7 +23238,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Pyke.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Pyke.png"
   },
   {
     "id": "Qiyana",
@@ -23468,7 +23468,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Qiyana.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Qiyana.png"
   },
   {
     "id": "Quinn",
@@ -23711,7 +23711,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Quinn.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Quinn.png"
   },
   {
     "id": "Rakan",
@@ -23966,7 +23966,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Rakan.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Rakan.png"
   },
   {
     "id": "Rammus",
@@ -24202,7 +24202,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Rammus.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Rammus.png"
   },
   {
     "id": "RekSai",
@@ -24424,7 +24424,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/RekSai.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/RekSai.png"
   },
   {
     "id": "Rell",
@@ -24665,7 +24665,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Rell.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Rell.png"
   },
   {
     "id": "Renata",
@@ -24894,7 +24894,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Renata.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Renata.png"
   },
   {
     "id": "Renekton",
@@ -25113,7 +25113,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Renekton.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Renekton.png"
   },
   {
     "id": "Rengar",
@@ -25337,7 +25337,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Rengar.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Rengar.png"
   },
   {
     "id": "Riven",
@@ -25581,7 +25581,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Riven.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Riven.png"
   },
   {
     "id": "Rumble",
@@ -25822,7 +25822,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Rumble.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Rumble.png"
   },
   {
     "id": "Ryze",
@@ -26067,7 +26067,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Ryze.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ryze.png"
   },
   {
     "id": "Samira",
@@ -26284,7 +26284,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Samira.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Samira.png"
   },
   {
     "id": "Sejuani",
@@ -26526,7 +26526,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Sejuani.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Sejuani.png"
   },
   {
     "id": "Senna",
@@ -26764,7 +26764,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Senna.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Senna.png"
   },
   {
     "id": "Seraphine",
@@ -27006,7 +27006,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Seraphine.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Seraphine.png"
   },
   {
     "id": "Sett",
@@ -27234,7 +27234,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Sett.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Sett.png"
   },
   {
     "id": "Shaco",
@@ -27456,7 +27456,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Shaco.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Shaco.png"
   },
   {
     "id": "Shen",
@@ -27673,7 +27673,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Shen.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Shen.png"
   },
   {
     "id": "Shyvana",
@@ -27908,7 +27908,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Shyvana.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Shyvana.png"
   },
   {
     "id": "Singed",
@@ -28126,7 +28126,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Singed.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Singed.png"
   },
   {
     "id": "Sion",
@@ -28371,7 +28371,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Sion.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Sion.png"
   },
   {
     "id": "Sivir",
@@ -28592,7 +28592,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Sivir.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Sivir.png"
   },
   {
     "id": "Skarner",
@@ -28821,7 +28821,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Skarner.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Skarner.png"
   },
   {
     "id": "Smolder",
@@ -29073,7 +29073,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Smolder.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Smolder.png"
   },
   {
     "id": "Sona",
@@ -29307,7 +29307,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Sona.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Sona.png"
   },
   {
     "id": "Soraka",
@@ -29529,7 +29529,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Soraka.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Soraka.png"
   },
   {
     "id": "Swain",
@@ -29746,7 +29746,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Swain.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Swain.png"
   },
   {
     "id": "Sylas",
@@ -29963,7 +29963,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Sylas.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Sylas.png"
   },
   {
     "id": "Syndra",
@@ -30190,7 +30190,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Syndra.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Syndra.png"
   },
   {
     "id": "TahmKench",
@@ -30424,7 +30424,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/TahmKench.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/TahmKench.png"
   },
   {
     "id": "Taliyah",
@@ -30636,7 +30636,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Taliyah.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Taliyah.png"
   },
   {
     "id": "Talon",
@@ -30859,7 +30859,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Talon.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Talon.png"
   },
   {
     "id": "Taric",
@@ -31099,7 +31099,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Taric.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Taric.png"
   },
   {
     "id": "Teemo",
@@ -31315,7 +31315,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Teemo.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Teemo.png"
   },
   {
     "id": "Thresh",
@@ -31551,7 +31551,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Thresh.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Thresh.png"
   },
   {
     "id": "Tristana",
@@ -31759,7 +31759,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Tristana.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Tristana.png"
   },
   {
     "id": "Trundle",
@@ -31972,7 +31972,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Trundle.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Trundle.png"
   },
   {
     "id": "Tryndamere",
@@ -32178,7 +32178,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Tryndamere.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Tryndamere.png"
   },
   {
     "id": "TwistedFate",
@@ -32397,7 +32397,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/TwistedFate.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/TwistedFate.png"
   },
   {
     "id": "Twitch",
@@ -32627,7 +32627,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Twitch.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Twitch.png"
   },
   {
     "id": "Udyr",
@@ -32873,7 +32873,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Udyr.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Udyr.png"
   },
   {
     "id": "Urgot",
@@ -33118,7 +33118,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Urgot.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Urgot.png"
   },
   {
     "id": "Varus",
@@ -33349,7 +33349,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Varus.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Varus.png"
   },
   {
     "id": "Vayne",
@@ -33565,7 +33565,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Vayne.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Vayne.png"
   },
   {
     "id": "Veigar",
@@ -33791,7 +33791,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Veigar.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Veigar.png"
   },
   {
     "id": "Velkoz",
@@ -34029,7 +34029,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Velkoz.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Velkoz.png"
   },
   {
     "id": "Vex",
@@ -34250,7 +34250,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Vex.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Vex.png"
   },
   {
     "id": "Vi",
@@ -34465,7 +34465,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Vi.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Vi.png"
   },
   {
     "id": "Viego",
@@ -34678,7 +34678,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Viego.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Viego.png"
   },
   {
     "id": "Viktor",
@@ -34914,7 +34914,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Viktor.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Viktor.png"
   },
   {
     "id": "Vladimir",
@@ -35159,7 +35159,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Vladimir.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Vladimir.png"
   },
   {
     "id": "Volibear",
@@ -35397,7 +35397,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Volibear.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Volibear.png"
   },
   {
     "id": "Warwick",
@@ -35651,7 +35651,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Warwick.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Warwick.png"
   },
   {
     "id": "MonkeyKing",
@@ -35859,7 +35859,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/MonkeyKing.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/MonkeyKing.png"
   },
   {
     "id": "Xayah",
@@ -36083,7 +36083,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Xayah.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Xayah.png"
   },
   {
     "id": "Xerath",
@@ -36308,7 +36308,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Xerath.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Xerath.png"
   },
   {
     "id": "XinZhao",
@@ -36542,7 +36542,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/XinZhao.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/XinZhao.png"
   },
   {
     "id": "Yasuo",
@@ -36762,7 +36762,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Yasuo.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Yasuo.png"
   },
   {
     "id": "Yone",
@@ -36998,7 +36998,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Yone.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Yone.png"
   },
   {
     "id": "Yorick",
@@ -37211,7 +37211,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Yorick.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Yorick.png"
   },
   {
     "id": "Yunara",
@@ -37426,7 +37426,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Yunara.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Yunara.png"
   },
   {
     "id": "Yuumi",
@@ -37664,7 +37664,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Yuumi.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Yuumi.png"
   },
   {
     "id": "Zaahen",
@@ -37893,7 +37893,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Zaahen.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Zaahen.png"
   },
   {
     "id": "Zac",
@@ -38143,7 +38143,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Zac.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Zac.png"
   },
   {
     "id": "Zed",
@@ -38365,7 +38365,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Zed.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Zed.png"
   },
   {
     "id": "Zeri",
@@ -38595,7 +38595,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Zeri.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Zeri.png"
   },
   {
     "id": "Ziggs",
@@ -38827,7 +38827,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Ziggs.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Ziggs.png"
   },
   {
     "id": "Zilean",
@@ -39061,7 +39061,7 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Zilean.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Zilean.png"
   },
   {
     "id": "Zoe",
@@ -39319,7 +39319,7 @@
         }
       ]
     },
-    "iconUrl": "lol/data/img/champions/Zoe.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Zoe.png"
   },
   {
     "id": "Zyra",
@@ -39550,6 +39550,6 @@
       },
       "effects": []
     },
-    "iconUrl": "lol/data/img/champions/Zyra.png"
+    "iconUrl": "/assets/riot/16.6.1/champions/Zyra.png"
   }
 ]

@@ -9,6 +9,7 @@
  * R: Infinite Duress — Suppress target, heal while channeling.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -164,5 +165,5 @@ export const warwick: Champion = {
       },
     ],
   },
-  iconUrl: '/lol/data/img/champions/Warwick.png',
+  iconUrl: riotChampionIconUrl('Warwick'),
 };

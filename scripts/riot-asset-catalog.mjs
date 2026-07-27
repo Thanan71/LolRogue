@@ -1,0 +1,30 @@
+export const IMPLEMENTED_CHAMPION_IDS = [
+  'Annie',
+  'Ashe',
+  'Darius',
+  'Garen',
+  'Jinx',
+  'Leona',
+  'Lux',
+  'Malphite',
+  'Soraka',
+  'Warwick',
+];
+
+export const RIOT_ITEM_ASSETS = [
+  { appId: 'boots', dataDragonId: '1001' },
+  { appId: 'ruby_crystal', dataDragonId: '1028' },
+  { appId: 'cloth_armor', dataDragonId: '1029' },
+  { appId: 'bf_sword', dataDragonId: '1038' },
+  { appId: 'long_sword', dataDragonId: '1036' },
+  { appId: 'dagger', dataDragonId: '1042' },
+  { appId: 'amplifying_tome', dataDragonId: '1052' },
+  { appId: 'health_potion', dataDragonId: '2003' },
+  { appId: 'elixir_of_wrath', dataDragonId: '2140' },
+  { appId: 'guardian_angel', dataDragonId: '3026' },
+  { appId: 'infinity_edge', dataDragonId: '3031' },
+  { appId: 'spirit_visage', dataDragonId: '3065' },
+  { appId: 'sunfire_aegis', dataDragonId: '3068' },
+  { appId: 'bloodthirster', dataDragonId: '3072' },
+  { appId: 'rabaddons_deathcap', dataDragonId: '3089' },
+];

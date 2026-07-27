@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!dist", "!!node_modules", "!!public/lol/data"]
+    "includes": [
+      "**",
+      "!!dist",
+      "!!node_modules",
+      "!!public/lol/data",
+      "!!src/data/generated/*.json"
+    ]
   },
   "formatter": {
     "enabled": true,

@@ -1,20 +1,68 @@
-# Mise à jour des assets Riot
+# Livraison et mise à jour des assets Riot
 
-Les téléchargements ne font pas partie du build normal. L’application utilise les fichiers déjà présents sous `public/lol/data`.
+Le build ne télécharge aucun asset. Le dépôt contient un paquet minimal et
+reproductible sous :
 
-Les versions reproductibles sont déclarées dans `scripts/ddragon-version.json` :
+```text
+public/assets/riot/16.6.1/
+├── champions/  172 portraits du catalogue serveur
+└── items/      15 icônes du catalogue d'objets
+```
 
-- Data Dragon : `16.6.1`
-- Community Dragon : `16.6`
+Les données d'abilities importées par TypeScript sont dans
+`src/data/generated/champions-parsed.json`. Les données brutes téléchargées sous
+`public/lol/data/` ne sont qu'un cache de génération ignoré par Git et ne doivent
+jamais être nécessaires au build.
+
+## Source de vérité et intégrité
+
+Les versions sont épinglées dans `scripts/ddragon-version.json` :
+
+- Data Dragon : `16.6.1` ;
+- Community Dragon : `16.6`.
+
+L'allowlist se trouve dans `scripts/riot-asset-catalog.mjs`. Le manifest
+`src/data/generated/riot-assets-manifest.json` enregistre :
+
+- les versions et la locale ;
+- les 172 champions livrés, les 10 actuellement jouables et les 15 objets ;
+- l'URL source, la taille et le SHA-256 de chaque PNG ;
+- le SHA-256 du catalogue de champions importé par l'application.
+
+`npm run assets:verify` contrôle le manifest avant chaque build.
+`npm run assets:verify:dist` contrôle les mêmes fichiers après copie dans `dist`.
+Une absence, un octet modifié, un fichier non PNG ou une divergence de version
+fait échouer le build.
+
+Tous les chemins applicatifs commencent par `/assets/riot/...` : ils restent donc
+corrects depuis `/run`, `/database` ou toute autre route SPA profonde. Les splash
+arts optionnels viennent du CDN Data Dragon et retombent sur le portrait local
+épinglé ; le chargeur générique dispose ensuite d'un placeholder SVG local.
 
 ## Procédure de mise à jour
 
-1. Modifier les deux versions dans `scripts/ddragon-version.json`.
-2. Vérifier que les endpoints Riot correspondant à ces versions existent.
+1. Modifier les versions dans `scripts/ddragon-version.json`.
+2. Adapter l'allowlist dans `scripts/riot-asset-catalog.mjs` si le contenu jouable
+   change.
 3. Exécuter `npm run assets:update`.
-4. Vérifier `public/lol/data/metadata.json` et lancer `npm run check`.
-5. Tester au minimum la sélection des champions, les sorts et les objets avant de publier.
+4. Examiner le diff du manifest, du catalogue généré et des PNG.
+5. Exécuter `npm run check` et l'E2E avant publication.
 
-`npm run ddragon:download` télécharge les données et images de la version épinglée. `npm run ddragon:parse` régénère ensuite `champions-parsed.json` avec la version Community Dragon correspondante.
+`assets:update` télécharge les données brutes épinglées, régénère les champions,
+extrait uniquement les 187 assets nécessaires et recalcule leurs empreintes. Les
+688 icônes du catalogue Data Dragon des objets ne sont notamment pas embarquées.
+Il ne faut jamais utiliser un endpoint `latest`.
 
-Il ne faut pas remplacer les versions par `latest` : cela rendrait deux installations du même commit potentiellement différentes.
+## Test de clone propre et CSP
+
+`npm run test:assets-clean` recrée un projet temporaire à partir des seuls fichiers
+Git non ignorés, exclut explicitement `public/lol/data/`, lance le build complet et
+vérifie les URLs critiques dans `dist`. Il est inclus dans `npm run check`.
+
+La CSP autorise les images locales, `data:`, `blob:` et le seul fallback
+`https://ddragon.leagueoflegends.com`. Les données Community Dragon servent
+uniquement aux scripts hors navigateur. Aucune police distante n'est chargée ;
+`font-src 'self' data:` suffit.
+
+Les assets League of Legends appartiennent à Riot Games. Leur présence ne signifie
+pas que Riot Games sponsorise ou approuve LolRogue.

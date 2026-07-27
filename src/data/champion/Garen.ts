@@ -9,6 +9,7 @@
  * R: Demacian Justice — True damage execute.
  */
 
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import type { Champion } from '@/types/champion';
 import { TargetingType } from '@/types/champion';
 
@@ -150,5 +151,5 @@ export const garen: Champion = {
       },
     ],
   },
-  iconUrl: '/lol/data/img/champions/Garen.png',
+  iconUrl: riotChampionIconUrl('Garen'),
 };

@@ -265,7 +265,19 @@ function ChampionCard({
       aria-label={`Choisir ${champion.name}`}
     >
       <div className="champion-card__splash-wrapper">
-        <img className="champion-card__splash" src={splashUrl} alt={champion.name} loading="lazy" />
+        <img
+          className="champion-card__splash"
+          src={splashUrl}
+          alt={champion.name}
+          loading="lazy"
+          onError={(event) => {
+            const image = event.currentTarget;
+            if (image.dataset.localFallback !== 'true') {
+              image.dataset.localFallback = 'true';
+              image.src = champion.iconUrl;
+            }
+          }}
+        />
         <div className="champion-card__splash-overlay" />
       </div>
 
