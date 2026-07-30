@@ -327,18 +327,21 @@ export type Database = {
           content_id: string;
           content_type: string;
           gameplay_ruleset_version: number;
+          max_stacks: number;
         };
         Insert: {
           active?: boolean;
           content_id: string;
           content_type: string;
           gameplay_ruleset_version: number;
+          max_stacks?: number;
         };
         Update: {
           active?: boolean;
           content_id?: string;
           content_type?: string;
           gameplay_ruleset_version?: number;
+          max_stacks?: number;
         };
         Relationships: [
           {

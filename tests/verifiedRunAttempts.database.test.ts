@@ -572,6 +572,88 @@ describeWithSupabase('verified run attempt live security', () => {
         progression_payload_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
       });
 
+      const stackedVictoryStart = await userClient.rpc('start_run_attempt', {
+        ...startArgs,
+        p_command_id: randomUUID(),
+        p_team: ['Warwick'],
+      });
+      expect(stackedVictoryStart.error).toBeNull();
+      const stackedVictoryAttemptId = (stackedVictoryStart.data as { attempt_id: string })
+        .attempt_id;
+      expect(
+        (
+          await userClient.rpc('append_run_attempt_commands', {
+            p_attempt_id: stackedVictoryAttemptId,
+            p_commands: [
+              {
+                command_id: randomUUID(),
+                sequence: 1,
+                kind: 'abandon_run',
+                payload: {},
+              },
+            ],
+          })
+        ).error,
+      ).toBeNull();
+      expect(
+        (
+          await userClient.rpc('seal_run_attempt', {
+            p_attempt_id: stackedVictoryAttemptId,
+            p_finish_command_id: randomUUID(),
+            p_expected_sequence: 1,
+          })
+        ).error,
+      ).toBeNull();
+      const stackedVictoryClaim = await admin.rpc('claim_run_verification', {
+        p_attempt_id: stackedVictoryAttemptId,
+        p_worker_id: randomUUID(),
+      });
+      expect(stackedVictoryClaim.error).toBeNull();
+      const stackedVictoryCompletion = await admin.rpc('complete_run_verification', {
+        p_attempt_id: stackedVictoryAttemptId,
+        p_lease_token: (stackedVictoryClaim.data as { lease_token: string }).lease_token,
+        p_result: {
+          verified: true,
+          won: true,
+          run_level: 6,
+          waves_completed: 20,
+          biomes_visited: ['top_lane', 'jungle', 'mid_lane', 'bot_lane', 'river', 'base'],
+          gold_earned: 1160,
+          augment_ids: ['warlord', 'iron_skin', 'battle_hardened', 'warlord', 'swift_feet'],
+          team_members: [
+            {
+              champion_id: 'Warwick',
+              final_level: 9,
+              final_hp: 511,
+              kills: 22,
+              damage_dealt: 13071,
+              items_collected: ['sunfire_aegis', 'dagger', 'cloth_armor', 'long_sword'],
+            },
+          ],
+        },
+        p_result_hash: null,
+      });
+      expect(stackedVictoryCompletion.error).toBeNull();
+      expect(stackedVictoryCompletion.data).toMatchObject({
+        status: 'verified',
+        progression_version: 2,
+        summary: {
+          won: true,
+          run_level: 6,
+          waves_completed: 20,
+        },
+      });
+      const stackedVictoryRun = await admin
+        .from('runs')
+        .select('augment_ids, progression_payload_hash')
+        .eq('run_attempt_id', stackedVictoryAttemptId)
+        .single();
+      expect(stackedVictoryRun.error).toBeNull();
+      expect(stackedVictoryRun.data).toMatchObject({
+        augment_ids: ['warlord', 'iron_skin', 'battle_hardened', 'warlord', 'swift_feet'],
+        progression_payload_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
+      });
+
       const rejectedStart = await userClient.rpc('start_run_attempt', {
         ...startArgs,
         p_command_id: randomUUID(),
@@ -628,9 +710,9 @@ describeWithSupabase('verified run attempt live security', () => {
         .eq('user_id', userId)
         .single();
       expect(afterRejection.data).toMatchObject({
-        total_runs_completed: 3,
-        total_waves_completed: 3,
-        total_candies: 29,
+        total_runs_completed: 4,
+        total_waves_completed: 23,
+        total_candies: 76,
       });
     } finally {
       if (userId) await admin.auth.admin.deleteUser(userId);
