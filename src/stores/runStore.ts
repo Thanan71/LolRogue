@@ -73,6 +73,12 @@ import { useSettingsStore } from './settingsStore';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+const CANONICAL_PROGRESSION_ENGINES = new Set(['run-engine-v4', 'run-engine-v5']);
+
+function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
+  return attempt === null || CANONICAL_PROGRESSION_ENGINES.has(attempt.engineVersion);
+}
+
 function cloneRunSummary(summary: RunSummary): RunSummary {
   return {
     ...summary,
@@ -352,8 +358,7 @@ function migratePersistedRunState(persisted: unknown, version: number): RunState
     }
   }
 
-  const usesCurrentProgression =
-    !state.authorityAttempt || state.authorityAttempt.engineVersion === 'run-engine-v4';
+  const usesCurrentProgression = usesCanonicalProgression(state.authorityAttempt);
   const shouldMigrateProgression = version < 4 && state.isActive && usesCurrentProgression;
   const runLevel = shouldMigrateProgression ? state.currentBiomeIndex + 1 : state.runLevel;
   const currentWave = shouldMigrateProgression ? state.totalWavesCompleted + 1 : state.currentWave;
@@ -1360,7 +1365,7 @@ export const useRunStore = create<RunStore>()(
 
       completeCombatProgression: () => {
         set((state) =>
-          state.authorityAttempt && state.authorityAttempt.engineVersion !== 'run-engine-v4'
+          !usesCanonicalProgression(state.authorityAttempt)
             ? {
                 currentWave: state.currentWave + 1,
                 totalWavesCompleted: state.totalWavesCompleted + 1,
@@ -1806,22 +1811,21 @@ export const useRunStore = create<RunStore>()(
 
         const seed = state.authorityAttempt?.seed ?? state.seed;
         if (typeof seed !== 'number' || !Number.isSafeInteger(seed)) return false;
-        const progression =
-          state.authorityAttempt && state.authorityAttempt.engineVersion !== 'run-engine-v4'
-            ? {
-                currentBiomeIndex: state.currentBiomeIndex + 1,
-                runLevel: state.runLevel,
-                currentWave: 1,
-                totalWavesCompleted: state.totalWavesCompleted,
-                pendingAugmentIds: state.pendingAugmentIds,
-              }
-            : transitionToNextBiome({
-                seed,
-                currentBiomeIndex: state.currentBiomeIndex,
-                biomeCount: state.biomeMaps.length,
-                counters: state,
-                ownedAugmentIds: state.augmentIds,
-              });
+        const progression = !usesCanonicalProgression(state.authorityAttempt)
+          ? {
+              currentBiomeIndex: state.currentBiomeIndex + 1,
+              runLevel: state.runLevel,
+              currentWave: 1,
+              totalWavesCompleted: state.totalWavesCompleted,
+              pendingAugmentIds: state.pendingAugmentIds,
+            }
+          : transitionToNextBiome({
+              seed,
+              currentBiomeIndex: state.currentBiomeIndex,
+              biomeCount: state.biomeMaps.length,
+              counters: state,
+              ownedAugmentIds: state.augmentIds,
+            });
         if (!progression) return false;
         const nextMap = state.biomeMaps[progression.currentBiomeIndex];
         if (!nextMap) return false;

@@ -51,9 +51,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v4';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v5';
 export const AUTHORITY_CONTENT_HASH =
-  '505ba44e2b05e317ca7458b8e6d2bcfc2cfe5648198c29d7e4f4f74cd5cdf335';
+  '8ee5c0cdb044ac544610a83b07bbadace30e0c524fe50fe22c2104675a0801e5';
 
 assertValidRuleCatalogs();
 
@@ -624,7 +624,13 @@ class AuthorityReplayState {
     });
     if (!usesCanonicalAutoPlay) {
       battle.setActionCallback(() => {
-        const action = scriptedActions[scriptedActionIndex++];
+        const action = scriptedActions[scriptedActionIndex];
+        // A legal turn may produce no action (for example while rooted with
+        // every spell unavailable). Such a turn is intentionally absent from
+        // the compact trace, so reaching its end must not consume a phantom
+        // entry and invalidate an otherwise exact replay.
+        if (!action) return null;
+        scriptedActionIndex++;
         return action?.automatic ? null : (action ?? null);
       });
     }

@@ -354,7 +354,8 @@ export function CombatPage() {
   const isAuthorityRun = authorityAttempt !== null;
   const supportsManualAuthorityCombat =
     authorityAttempt?.engineVersion === 'run-engine-v3' ||
-    authorityAttempt?.engineVersion === 'run-engine-v4';
+    authorityAttempt?.engineVersion === 'run-engine-v4' ||
+    authorityAttempt?.engineVersion === 'run-engine-v5';
   const requiresServerAutoPlay = isAuthorityRun && !supportsManualAuthorityCombat;
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);

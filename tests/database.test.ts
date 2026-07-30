@@ -164,6 +164,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260727180000_daily_challenge_ruleset_v2.sql',
       '../supabase/migrations/20260730170000_gameplay_ruleset_v3_manual_combat.sql',
       '../supabase/migrations/20260730190000_gameplay_ruleset_v4_run_progression.sql',
+      '../supabase/migrations/20260730210000_gameplay_ruleset_v5_combat_trace_replay.sql',
     ]);
   });
 
