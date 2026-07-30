@@ -91,6 +91,83 @@ describe('run reload recovery', () => {
     expect(useRunStore.getState().biomeMaps).toHaveLength(6);
   });
 
+  it('restores the exact pending augment offer before any next-biome content', async () => {
+    const maps = generateRunMap(424242);
+    useRunStore.setState({
+      ...RUN_INITIAL_STATE,
+      isActive: true,
+      runId: 'pending-augment-run',
+      seed: 424242,
+      startedAt: '2026-07-30T12:00:00.000Z',
+      biomeMaps: maps,
+      currentBiomeIndex: 1,
+      currentBiome: maps[1].biome,
+      currentNodeId: null,
+      frontierNodeIds: [maps[1].startNodeId],
+      biomesVisited: maps.slice(0, 2).map((map) => map.biome),
+      runLevel: 2,
+      currentWave: 5,
+      totalWavesCompleted: 4,
+      pendingAugmentIds: ['bulwark', 'vitality_boost', 'iron_skin'],
+    });
+    const persistedRun = localStorage.getItem(RUN_STORAGE_KEY);
+    expect(persistedRun).not.toBeNull();
+
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    localStorage.setItem(RUN_STORAGE_KEY, persistedRun!);
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState()).toMatchObject({
+      currentBiomeIndex: 1,
+      runLevel: 2,
+      currentWave: 5,
+      totalWavesCompleted: 4,
+      pendingAugmentIds: ['bulwark', 'vitality_boost', 'iron_skin'],
+    });
+  });
+
+  it('migrates legacy guest counters and queues the missed biome offer once', async () => {
+    const maps = generateRunMap(424242);
+    useRunStore.setState({
+      ...RUN_INITIAL_STATE,
+      isActive: true,
+      runId: 'legacy-progression-run',
+      seed: 424242,
+      startedAt: '2026-07-30T12:00:00.000Z',
+      biomeMaps: maps,
+      currentBiomeIndex: 1,
+      currentBiome: maps[1].biome,
+      currentNodeId: null,
+      frontierNodeIds: [maps[1].startNodeId],
+      biomesVisited: maps.slice(0, 2).map((map) => map.biome),
+      runLevel: 1,
+      currentWave: 1,
+      totalWavesCompleted: 4,
+      pendingAugmentIds: [],
+    });
+    const legacyPayload = JSON.parse(localStorage.getItem(RUN_STORAGE_KEY)!) as {
+      version: number;
+      state: Record<string, unknown>;
+    };
+    legacyPayload.version = 3;
+
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    localStorage.setItem(RUN_STORAGE_KEY, JSON.stringify(legacyPayload));
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState()).toMatchObject({
+      currentBiomeIndex: 1,
+      runLevel: 2,
+      currentWave: 5,
+      totalWavesCompleted: 4,
+    });
+    expect(useRunStore.getState().pendingAugmentIds).toEqual([
+      'bulwark',
+      'vitality_boost',
+      'iron_skin',
+    ]);
+  });
+
   it('restores the pending encounter and its generated combat data', async () => {
     const maps = generateRunMap(4242);
     const nodeId = maps[0].nodes.find((node) => node.type === 'combat')!.id;

@@ -306,15 +306,54 @@ describe('authority run engine', () => {
           endReason: 'victory',
           won: true,
           currentBiomeIndex: 5,
-          runLevel: 2,
+          runLevel: 6,
         },
       },
     });
     if (verification.ok) {
       expect(verification.result.snapshot.biomesVisited).toHaveLength(6);
       expect(verification.result.snapshot.totalWavesCompleted).toBeGreaterThan(5);
+      expect(verification.result.snapshot.currentWave).toBe(
+        verification.result.snapshot.totalWavesCompleted + 1,
+      );
+      expect(verification.result.snapshot.pendingAugmentIds).toEqual([]);
       expect(verification.result.snapshot.totalDamage).toBeGreaterThan(0);
     }
+  });
+
+  it('follows one stable exit-to-wave-to-level-to-augment table across all six biomes', () => {
+    const trace = buildStrongTeamTrace(false);
+    const rows: Array<{
+      nodeId: string;
+      biomeIndex: number;
+      wave: number;
+      totalCompleted: number;
+      runLevel: number;
+      augmentChoices: string[];
+    }> = [];
+    let previousBiomeIndex = 0;
+
+    trace.forEach((command, index) => {
+      if (command.kind !== 'resolve_node') return;
+      const snapshot = replayAuthorityRun(ATTEMPT, trace.slice(0, index + 1)).snapshot;
+      if (snapshot.currentBiomeIndex === previousBiomeIndex) return;
+      previousBiomeIndex = snapshot.currentBiomeIndex;
+      rows.push({
+        nodeId: command.payload.node_id,
+        biomeIndex: snapshot.currentBiomeIndex,
+        wave: snapshot.currentWave,
+        totalCompleted: snapshot.totalWavesCompleted,
+        runLevel: snapshot.runLevel,
+        augmentChoices: snapshot.pendingAugmentIds,
+      });
+    });
+
+    expect(rows).toHaveLength(5);
+    expect(rows.map((row) => row.biomeIndex)).toEqual([1, 2, 3, 4, 5]);
+    expect(rows.map((row) => row.runLevel)).toEqual([2, 3, 4, 5, 6]);
+    expect(rows.every((row) => row.wave === row.totalCompleted + 1)).toBe(true);
+    expect(rows.every((row) => row.augmentChoices.length === 3)).toBe(true);
+    expect(rows).toMatchSnapshot();
   });
 
   it('validates node identity and encounter type for every semantic action', () => {

@@ -121,13 +121,23 @@ catalogue et la migration correspondante, conserver l'ancien vérificateur dans 
 registre pendant au moins la durée maximale d'un attempt, puis seulement activer
 la nouvelle version.
 
-Le déploiement autoritaire se fait avec `npm run backend:deploy` après avoir lié
-le bon projet Supabase. Cette commande reconstruit et publie d'abord `verify-run`,
-puis applique les migrations. La fonction sait ainsi vérifier la nouvelle version
-avant son activation en base ; le moteur v3 accepte aussi les journaux
-`resolve_combat` v2 sans trace et les rejoue en auto pendant le déploiement. Les
-bundles historiques importés par la fonction restent immuables et sont contrôlés
-par `npm run edge:bundle`.
+Après avoir lié le bon projet Supabase, une évolution qui ne requiert aucune
+nouvelle logique frontend peut utiliser `npm run backend:deploy` : la commande
+publie `verify-run` avant d'activer les migrations.
+
+Une nouvelle version de moteur comprise par le navigateur doit être livrée en
+trois étapes afin qu'aucun ancien frontend ne démarre une ruleset qu'il ne sait pas
+journaliser :
+
+1. `npm run edge:deploy` pour publier le vérificateur compatible avec les anciennes
+   et nouvelles versions ;
+2. déployer le frontend et attendre qu'il soit effectivement en production ;
+3. `npm run migrate` pour activer la nouvelle ruleset.
+
+Le moteur v3 accepte les journaux `resolve_combat` v2 sans trace et les rejoue en
+auto. Le moteur v4 conserve cette compatibilité et introduit la progression de
+biome canonique. Les bundles historiques importés par la fonction restent
+immuables et sont contrôlés par `npm run edge:bundle`.
 
 Une migration destructive doit inclure une sauvegarde, une estimation d'impact et
 une procédure de restauration. Le retour arrière applicatif se fait en redéployant

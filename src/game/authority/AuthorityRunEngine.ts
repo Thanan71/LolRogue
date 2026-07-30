@@ -25,6 +25,7 @@ import {
   type ShopItem,
   type TreasureEncounter,
 } from '@/game/map/types';
+import { completeCombatProgression, transitionToNextBiome } from '@/game/run/runProgression';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { AugmentEffectType, DEFAULT_MAX_AUGMENTS } from '@/types/inventory';
 import {
@@ -50,9 +51,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v3';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v4';
 export const AUTHORITY_CONTENT_HASH =
-  '624192653602e1c62396fcfb80119db23e8d41e3466500ed8f9c99d172bb84d7';
+  '505ba44e2b05e317ca7458b8e6d2bcfc2cfe5648198c29d7e4f4f74cd5cdf335';
 
 assertValidRuleCatalogs();
 
@@ -707,8 +708,13 @@ class AuthorityReplayState {
         this.pendingSpellUpgradeChampionIds.push(member.championId);
       }
     }
-    this.totalWavesCompleted++;
-    this.currentWave++;
+    const progression = completeCombatProgression({
+      runLevel: this.runLevel,
+      currentWave: this.currentWave,
+      totalWavesCompleted: this.totalWavesCompleted,
+    });
+    this.currentWave = progression.currentWave;
+    this.totalWavesCompleted = progression.totalWavesCompleted;
     this.maybeDropCombatItem(node);
   }
 
@@ -1011,18 +1017,14 @@ class AuthorityReplayState {
       fail('treasure_not_collected', 'Treasure must be collected before leaving.', commandIndex);
     }
     this.completeNode(node);
-    if (node.type === NodeType.Exit) {
+    const isFinalBoss =
+      node.type === NodeType.Boss && this.currentBiomeIndex === this.maps.length - 1;
+    if (isFinalBoss) {
+      this.terminal = true;
+      this.endReason = 'victory';
+      this.expectedNodeIds = [];
+    } else if (node.type === NodeType.Exit || node.type === NodeType.Boss) {
       this.advanceBiome(commandIndex);
-    } else if (node.type === NodeType.Boss) {
-      this.queueAugmentChoices();
-      this.runLevel++;
-      if (this.currentBiomeIndex === this.maps.length - 1) {
-        this.terminal = true;
-        this.endReason = 'victory';
-        this.expectedNodeIds = [];
-      } else {
-        this.advanceBiome(commandIndex);
-      }
     }
   }
 
@@ -1033,12 +1035,26 @@ class AuthorityReplayState {
   }
 
   private advanceBiome(commandIndex: number): void {
-    const nextIndex = this.currentBiomeIndex + 1;
-    const nextMap = this.maps[nextIndex];
-    if (!nextMap) fail('invalid_progression', 'No next biome exists.', commandIndex);
-    this.currentBiomeIndex = nextIndex;
+    const progression = transitionToNextBiome({
+      seed: this.attempt.seed,
+      currentBiomeIndex: this.currentBiomeIndex,
+      biomeCount: this.maps.length,
+      counters: {
+        runLevel: this.runLevel,
+        currentWave: this.currentWave,
+        totalWavesCompleted: this.totalWavesCompleted,
+      },
+      ownedAugmentIds: this.augmentIds,
+    });
+    if (!progression) fail('invalid_progression', 'No next biome exists.', commandIndex);
+    const nextMap = this.maps[progression.currentBiomeIndex];
+    if (!nextMap) fail('invalid_progression', 'The next biome does not exist.', commandIndex);
+    this.currentBiomeIndex = progression.currentBiomeIndex;
     this.currentNodeId = null;
-    this.currentWave = 1;
+    this.runLevel = progression.runLevel;
+    this.currentWave = progression.currentWave;
+    this.totalWavesCompleted = progression.totalWavesCompleted;
+    this.pendingAugmentIds = progression.pendingAugmentIds;
     this.pending = null;
     this.expectedNodeIds = [nextMap.startNodeId];
   }
@@ -1115,19 +1131,6 @@ class AuthorityReplayState {
     }
     member.spellRanks[slot]++;
     this.pendingSpellUpgradeChampionIds.splice(pendingIndex, 1);
-  }
-
-  private queueAugmentChoices(): void {
-    const allIds = Object.keys(AUGMENT_DATABASE);
-    this.pendingAugmentIds = allIds
-      .filter((id) => {
-        const definition = AUGMENT_DATABASE[id];
-        const stacks = this.augmentIds.filter((ownedId) => ownedId === id).length;
-        if (stacks === 0 && new Set(this.augmentIds).size >= DEFAULT_MAX_AUGMENTS) return false;
-        return definition.stackable ? stacks < definition.maxStacks : stacks === 0;
-      })
-      .sort()
-      .slice((this.runLevel * 3) % Math.max(1, allIds.length - 3), 3);
   }
 
   private addItem(item: Item): string | null {

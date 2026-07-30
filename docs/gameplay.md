@@ -20,6 +20,27 @@ Les rencontres possibles sont : combat, élite, boutique, repos, événement, tr
 recrutement et boss. Une rencontre déjà réclamée est mémorisée pour empêcher de
 recevoir deux fois sa récompense après un rechargement.
 
+La progression de run suit une cadence unique. `currentWave` est le numéro global
+du prochain combat et ne revient jamais à 1 entre deux biomes. Chaque combat gagné
+incrémente `totalWavesCompleted`, puis fixe `currentWave` à ce total plus un. Une
+sortie complète atomiquement le nœud, passe au biome et au niveau de run suivants,
+et bloque la nouvelle carte derrière un choix d'augment :
+
+| Biome jouable | Niveau de run | Choix requis avant son premier nœud |
+| --- | ---: | --- |
+| Top Lane | 1 | aucun |
+| Jungle | 2 | sortie de Top Lane |
+| Mid Lane | 3 | sortie de Jungle |
+| Bot Lane | 4 | sortie de Mid Lane |
+| River | 5 | sortie de Bot Lane |
+| Enemy Base | 6 | sortie de River |
+
+Le boss d'Enemy Base termine la run et ne génère aucun choix après la victoire.
+Chaque offre contient jusqu'à trois augments légaux, sans doublon dans l'offre.
+Elle est dérivée du seed, du biome terminé, du niveau et des augments possédés,
+puis persistée telle quelle pour survivre à un rechargement. Les poids de tirage
+sont 60 pour Argent, 30 pour Or et 10 pour Prismatique.
+
 ## Combat
 
 Le moteur est un combat au tour par tour, jusqu'à cinq contre cinq :
@@ -41,8 +62,8 @@ de préserver la reproductibilité et les tests.
 Le combat démarre en mode manuel. Les tours ennemis sont joués automatiquement
 après un délai visible de 1,2 s, 0,6 s ou 0,4 s selon la vitesse ×1, ×2 ou ×3.
 Activer « Auto » applique le même délai aux tours du joueur. Les runs vérifiées v3
-journalisent les décisions manuelles sous une forme compacte et le serveur les
-rejoue avec la même consommation aléatoire. Les anciennes tentatives v1/v2
+et v4 journalisent les décisions manuelles sous une forme compacte et le serveur
+les rejoue avec la même consommation aléatoire. Les anciennes tentatives v1/v2
 conservent leur résolution automatique pour préserver leur contrat immuable.
 
 Les raccourcis de combat sont Q/W/E/R pour les sorts, Espace pour exécuter le tour
@@ -128,8 +149,9 @@ Les probabilités ne doivent pas être recopiées dans les composants :
 - repos : 20 % de soin complet, sinon 25 à 75 % ;
 - boutique : 2 à 4 objets, 1 à 2 recrues et 20 % de chance de multiplicateur de
   prix à `0,8` ;
-- trésors, recrutements et choix d'augments : générateurs correspondants dans
-  `src/game`.
+- trésors et recrutements : générateurs correspondants dans `src/game` ;
+- choix d'augments : tirage seedé sans remplacement, avec poids Argent/Or/
+  Prismatique de 60/30/10.
 
 Un poids est relatif à la somme des poids de son pool. Toute modification
 d'équilibrage doit adapter les tests déterministes et, si elle change le

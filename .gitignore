@@ -44,3 +44,4 @@ supabase/.temp/
 supabase/functions/verify-run/run-authority.bundle.js
 !supabase/functions/verify-run/run-authority-v1.bundle.ts
 !supabase/functions/verify-run/run-authority-v2.bundle.ts
+!supabase/functions/verify-run/run-authority-v3.bundle.ts

@@ -1,0 +1,66 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`authority run engine > follows one stable exit-to-wave-to-level-to-augment table across all six biomes 1`] = `
+[
+  {
+    "augmentChoices": [
+      "bulwark",
+      "vitality_boost",
+      "iron_skin",
+    ],
+    "biomeIndex": 1,
+    "nodeId": "node_top_lane_8",
+    "runLevel": 2,
+    "totalCompleted": 4,
+    "wave": 5,
+  },
+  {
+    "augmentChoices": [
+      "brute_force",
+      "sorcery_supreme",
+      "critical_focus",
+    ],
+    "biomeIndex": 2,
+    "nodeId": "node_jungle_23",
+    "runLevel": 3,
+    "totalCompleted": 11,
+    "wave": 12,
+  },
+  {
+    "augmentChoices": [
+      "iron_skin",
+      "brute_force",
+      "warlord",
+    ],
+    "biomeIndex": 3,
+    "nodeId": "node_mid_lane_8",
+    "runLevel": 4,
+    "totalCompleted": 13,
+    "wave": 14,
+  },
+  {
+    "augmentChoices": [
+      "arcane_mind",
+      "vitality_boost",
+      "glass_cannon",
+    ],
+    "biomeIndex": 4,
+    "nodeId": "node_bot_lane_11",
+    "runLevel": 5,
+    "totalCompleted": 17,
+    "wave": 18,
+  },
+  {
+    "augmentChoices": [
+      "iron_skin",
+      "brute_force",
+      "arcane_mind",
+    ],
+    "biomeIndex": 5,
+    "nodeId": "node_river_9",
+    "runLevel": 6,
+    "totalCompleted": 20,
+    "wave": 21,
+  },
+]
+`;

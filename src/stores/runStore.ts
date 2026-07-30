@@ -5,7 +5,7 @@ import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { ITEM_DATABASE } from '@/data/items/itemDatabase';
 import { AugmentManager } from '@/game/augments/AugmentManager';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
-import { completeNode as completeNodeUtil, findNode, isMapComplete } from '@/game/map/mapUtils';
+import { completeNode as completeNodeUtil, findNode } from '@/game/map/mapUtils';
 import {
   deriveLegacyFrontier,
   isCurrentEncounterValid,
@@ -18,6 +18,11 @@ import {
   getSurvivingChampionIds,
   shouldApplyRunRewards,
 } from '@/game/run/runState';
+import {
+  completeCombatProgression,
+  generateAugmentChoices,
+  transitionToNextBiome,
+} from '@/game/run/runProgression';
 import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStartCoordinator';
 import { getUnlockedStarterSlotCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { RepositoryContainerFactory } from '@/services/container';
@@ -347,9 +352,36 @@ function migratePersistedRunState(persisted: unknown, version: number): RunState
     }
   }
 
+  const usesCurrentProgression =
+    !state.authorityAttempt || state.authorityAttempt.engineVersion === 'run-engine-v4';
+  const shouldMigrateProgression = version < 4 && state.isActive && usesCurrentProgression;
+  const runLevel = shouldMigrateProgression ? state.currentBiomeIndex + 1 : state.runLevel;
+  const currentWave = shouldMigrateProgression ? state.totalWavesCompleted + 1 : state.currentWave;
+  let pendingAugmentIds = state.pendingAugmentIds;
+  const progressionSeed = state.authorityAttempt?.seed ?? state.seed;
+  if (
+    shouldMigrateProgression &&
+    pendingAugmentIds.length === 0 &&
+    state.currentBiomeIndex > 0 &&
+    currentNodeId === null &&
+    persistedFrontier.includes(currentMap?.startNodeId ?? '') &&
+    typeof progressionSeed === 'number' &&
+    Number.isSafeInteger(progressionSeed)
+  ) {
+    pendingAugmentIds = generateAugmentChoices({
+      seed: progressionSeed,
+      completedBiomeIndex: state.currentBiomeIndex - 1,
+      runLevel,
+      ownedAugmentIds: state.augmentIds,
+    });
+  }
+
   synchronizeMapFrontier(state.biomeMaps, state.currentBiomeIndex, persistedFrontier);
   return {
     ...state,
+    runLevel,
+    currentWave,
+    pendingAugmentIds,
     currentNodeId,
     frontierNodeIds: persistedFrontier,
     chosenPathNodeIds,
@@ -1114,16 +1146,6 @@ export const useRunStore = create<RunStore>()(
         set({ team });
       },
 
-      // ── Biome Progression ───────────────────────────────────────────────
-
-      advanceBiome: (nextBiome) => {
-        set((state) => ({
-          biomesVisited: [...state.biomesVisited, nextBiome],
-          currentBiome: nextBiome,
-          currentWave: 1,
-        }));
-      },
-
       // ── Inventory ───────────────────────────────────────────────────────
 
       addItem: (item) => {
@@ -1336,34 +1358,15 @@ export const useRunStore = create<RunStore>()(
         return { success: true, value: { balance } };
       },
 
-      // ── Wave Progression ────────────────────────────────────────────────
-
-      nextWave: () => {
-        set((state) => ({
-          currentWave: state.currentWave + 1,
-          totalWavesCompleted: state.totalWavesCompleted + 1,
-        }));
-      },
-
-      // ── Run Level ───────────────────────────────────────────────────────
-
-      incrementRunLevel: () => {
-        set((state) => {
-          const choices = Object.keys(AUGMENT_DATABASE)
-            .filter((id) => {
-              const definition = AUGMENT_DATABASE[id];
-              const stacks = state.augmentIds.filter((ownedId) => ownedId === id).length;
-              if (stacks === 0 && new Set(state.augmentIds).size >= DEFAULT_MAX_AUGMENTS) {
-                return false;
+      completeCombatProgression: () => {
+        set((state) =>
+          state.authorityAttempt && state.authorityAttempt.engineVersion !== 'run-engine-v4'
+            ? {
+                currentWave: state.currentWave + 1,
+                totalWavesCompleted: state.totalWavesCompleted + 1,
               }
-              return definition.stackable
-                ? stacks < definition.maxStacks
-                : !state.augmentIds.includes(id);
-            })
-            .sort()
-            .slice((state.runLevel * 3) % Math.max(1, Object.keys(AUGMENT_DATABASE).length - 3), 3);
-          return { runLevel: state.runLevel + 1, pendingAugmentIds: choices };
-        });
+            : completeCombatProgression(state),
+        );
       },
 
       // ── Run Map (using MapGenerator-core + mapUtils) ────────────────────
@@ -1459,7 +1462,7 @@ export const useRunStore = create<RunStore>()(
           completedNodeIds.includes(currentNodeId) ||
           !chosenPathNodeIds.includes(currentNodeId) ||
           get().pendingEncounter ||
-          (currentNode.type !== 'start' && currentNode.type !== 'exit')
+          currentNode.type !== 'start'
         ) {
           return false;
         }
@@ -1782,44 +1785,79 @@ export const useRunStore = create<RunStore>()(
       },
 
       advanceToNextBiome: () => {
-        const {
-          biomeMaps,
-          currentBiomeIndex,
-          currentNodeId,
-          chosenPathNodeIds,
-          completedNodeIds,
-          pendingEncounter,
-        } = get();
-        const currentMap = biomeMaps[currentBiomeIndex];
+        const state = get();
+        const currentMap = state.biomeMaps[state.currentBiomeIndex];
         const currentNode =
-          currentMap && currentNodeId ? findNode(currentMap, currentNodeId) : undefined;
+          currentMap && state.currentNodeId ? findNode(currentMap, state.currentNodeId) : undefined;
+        const exitAlreadyCompleted = Boolean(
+          currentNode && (currentNode.completed || state.completedNodeIds.includes(currentNode.id)),
+        );
         if (
           !currentMap ||
           !currentNode ||
           currentNode.type !== 'exit' ||
-          !chosenPathNodeIds.includes(currentNode.id) ||
-          (!currentNode.completed && !completedNodeIds.includes(currentNode.id)) ||
-          pendingEncounter ||
-          !isMapComplete(currentMap)
+          !state.chosenPathNodeIds.includes(currentNode.id) ||
+          state.pendingEncounter ||
+          state.pendingAugmentIds.length > 0 ||
+          state.pendingSpellUpgradeChampionIds.length > 0
         ) {
           return false;
         }
 
-        const nextIndex = currentBiomeIndex + 1;
-        if (nextIndex >= biomeMaps.length) return false;
-
-        const nextMap = biomeMaps[nextIndex];
+        const seed = state.authorityAttempt?.seed ?? state.seed;
+        if (typeof seed !== 'number' || !Number.isSafeInteger(seed)) return false;
+        const progression =
+          state.authorityAttempt && state.authorityAttempt.engineVersion !== 'run-engine-v4'
+            ? {
+                currentBiomeIndex: state.currentBiomeIndex + 1,
+                runLevel: state.runLevel,
+                currentWave: 1,
+                totalWavesCompleted: state.totalWavesCompleted,
+                pendingAugmentIds: state.pendingAugmentIds,
+              }
+            : transitionToNextBiome({
+                seed,
+                currentBiomeIndex: state.currentBiomeIndex,
+                biomeCount: state.biomeMaps.length,
+                counters: state,
+                ownedAugmentIds: state.augmentIds,
+              });
+        if (!progression) return false;
+        const nextMap = state.biomeMaps[progression.currentBiomeIndex];
+        if (!nextMap) return false;
         const nextStartNode = findNode(nextMap, nextMap.startNodeId);
         if (!nextStartNode) return false;
+
+        const recordedExitResolution = state.authorityAttempt?.commands.some(
+          (command) =>
+            command.kind === 'resolve_node' && command.payload.node_id === currentNode.id,
+        );
+        if (exitAlreadyCompleted && state.authorityAttempt && !recordedExitResolution) return false;
+        const appended = exitAlreadyCompleted
+          ? { success: true as const, authorityAttempt: state.authorityAttempt }
+          : appendAuthorityCommand(
+              state,
+              { kind: 'resolve_node', nodeId: currentNode.id },
+              `resolve_node:${state.currentBiomeIndex}:${currentNode.id}`,
+            );
+        if (!appended.success) return false;
+
+        if (!exitAlreadyCompleted) completeNodeUtil(currentMap, currentNode.id);
         const frontierNodeIds = [nextMap.startNodeId];
-        synchronizeMapFrontier(biomeMaps, nextIndex, frontierNodeIds);
+        synchronizeMapFrontier(state.biomeMaps, progression.currentBiomeIndex, frontierNodeIds);
         set({
-          biomeMaps: [...biomeMaps],
-          currentBiomeIndex: nextIndex,
+          authorityAttempt: appended.authorityAttempt,
+          biomeMaps: [...state.biomeMaps],
+          currentBiomeIndex: progression.currentBiomeIndex,
           currentNodeId: null,
           frontierNodeIds,
           currentBiome: nextMap.biome,
-          biomesVisited: [...get().biomesVisited, nextMap.biome],
+          biomesVisited: [...state.biomesVisited, nextMap.biome],
+          completedNodeIds: [...new Set([...state.completedNodeIds, currentNode.id])],
+          runLevel: progression.runLevel,
+          currentWave: progression.currentWave,
+          totalWavesCompleted: progression.totalWavesCompleted,
+          pendingAugmentIds: progression.pendingAugmentIds,
           pendingEncounter: null,
           currentEncounter: null,
         });
@@ -1859,7 +1897,7 @@ export const useRunStore = create<RunStore>()(
     }),
     {
       name: 'lolrogue-run-storage',
-      version: 3,
+      version: 4,
       storage: createJSONStorage(() => safeLocalStorage),
       migrate: (persisted, version) => migratePersistedRunState(persisted, version),
       // Only persist the serializable state, not functions

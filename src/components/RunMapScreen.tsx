@@ -67,6 +67,7 @@ export function RunMapScreen() {
   const team = useRunStore((s) => s.team);
   const inventory = useRunStore((s) => s.inventory);
   const gold = useRunStore((s) => s.gold);
+  const runLevel = useRunStore((s) => s.runLevel);
   const currentWave = useRunStore((s) => s.currentWave);
   const currentBiome = useRunStore((s) => s.currentBiome);
   const generateRunMap = useRunStore((s) => s.generateRunMap);
@@ -153,8 +154,8 @@ export function RunMapScreen() {
           navigate(ROUTES.TREASURE);
           break;
         case NodeType.Exit:
-          // Complete the current node and advance to the next biome
-          if (!completeCurrentNode()) return;
+          // Exit completion, level progression, augment offer and biome
+          // transition are one atomic domain action.
           if (!advanceToNextBiome()) {
             // A configuration without another biome still ends in a persisted victory.
             void finalizeCombatRun('player', []).then((outcome) => {
@@ -228,6 +229,7 @@ export function RunMapScreen() {
               ? Aide
             </button>
             <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Wave {currentWave}</span>
+            <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Niveau {runLevel}</span>
             <span style={{ color: '#8b949e' }}>
               {currentBiome ? currentBiome.charAt(0).toUpperCase() + currentBiome.slice(1) : '???'}
             </span>
@@ -263,7 +265,7 @@ export function RunMapScreen() {
           </div>
           {pendingAugmentIds.length > 0 && (
             <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Choix d'augment">
-              <h2>Choisissez un augment</h2>
+              <h2>Biome terminé — choisissez un augment</h2>
               {pendingAugmentIds.map((id) => {
                 const augment = AUGMENT_DATABASE[id];
                 return (

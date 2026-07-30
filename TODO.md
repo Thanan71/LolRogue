@@ -549,14 +549,14 @@ plus une commande attendue.
 premiers biomes finissent par `Exit`, donc le niveau reste à 1 et l'augment peut être
 proposé seulement quand la run est déjà finie.
 
-- [ ] Définir la cadence officielle : par combat, étage, sortie de biome ou boss.
-- [ ] Unifier progression de `runLevel`, `currentWave` et `currentBiome` dans une
+- [x] Définir la cadence officielle : par combat, étage, sortie de biome ou boss.
+- [x] Unifier progression de `runLevel`, `currentWave` et `currentBiome` dans une
   seule transition.
-- [ ] Réinitialiser ou non la vague entre biomes selon une règle documentée.
-- [ ] Déclencher le choix d'augment avant le prochain contenu, jamais après la fin.
-- [ ] Générer des choix seedés, sans doublon illégal et avec poids de rareté.
-- [ ] Persister un choix en attente et le restaurer après refresh.
-- [ ] Tester la séquence complète attendue sur les six biomes.
+- [x] Réinitialiser ou non la vague entre biomes selon une règle documentée.
+- [x] Déclencher le choix d'augment avant le prochain contenu, jamais après la fin.
+- [x] Générer des choix seedés, sans doublon illégal et avec poids de rareté.
+- [x] Persister un choix en attente et le restaurer après refresh.
+- [x] Tester la séquence complète attendue sur les six biomes.
 
 **Acceptation :** un tableau de référence `nœud → vague → niveau → augment` est
 identique avant/après reload.

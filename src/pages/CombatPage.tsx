@@ -352,7 +352,9 @@ export function CombatPage() {
   const setKeyboardShortcutsEnabled = useSettingsStore((s) => s.setKeyboardShortcutsEnabled);
   const difficultyMultiplier = getDifficultyMultiplier(authorityAttempt?.difficulty ?? difficulty);
   const isAuthorityRun = authorityAttempt !== null;
-  const supportsManualAuthorityCombat = authorityAttempt?.engineVersion === 'run-engine-v3';
+  const supportsManualAuthorityCombat =
+    authorityAttempt?.engineVersion === 'run-engine-v3' ||
+    authorityAttempt?.engineVersion === 'run-engine-v4';
   const requiresServerAutoPlay = isAuthorityRun && !supportsManualAuthorityCombat;
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);
@@ -621,8 +623,8 @@ export function CombatPage() {
         const levelsGained = pendingSpellUpgrades.length;
         runStore.queueSpellUpgrades(pendingSpellUpgrades);
 
-        // 3. Advance wave
-        runStore.nextWave();
+        // 3. Account for one global combat wave.
+        runStore.completeCombatProgression();
 
         // 4. Complete current map node (unlocks next nodes)
         let advancedToNextBiome = false;
@@ -670,7 +672,6 @@ export function CombatPage() {
 
           // 7. Check if we just completed the boss -- advance to next biome
           if (isBossNode) {
-            runStore.incrementRunLevel();
             advancedToNextBiome = runStore.advanceToNextBiome();
           }
         }

@@ -6,6 +6,10 @@ await build({
   platform: 'browser',
   format: 'esm',
   target: 'es2022',
+  minifyWhitespace: true,
+  minifySyntax: true,
+  minifyIdentifiers: false,
+  legalComments: 'none',
   outfile: 'supabase/functions/verify-run/run-authority.bundle.js',
   logLevel: 'info',
 });

@@ -222,7 +222,7 @@ export interface RunState {
   pendingSpellUpgradeChampionIds: string[];
   /** Current gold amount */
   gold: number;
-  /** Current wave number within the current biome */
+  /** Next global combat wave number; it never resets between biomes. */
   currentWave: number;
   /** Total waves completed across the entire run */
   totalWavesCompleted: number;
@@ -351,8 +351,6 @@ export interface RunActions {
   removeChampion: (championId: string) => void;
   /** Replace the entire team (capped at MAX_TEAM_SIZE) */
   setTeam: (championIds: string[]) => void;
-  /** Advance to the next biome */
-  advanceBiome: (nextBiome: Biome) => void;
   /** Add an item to inventory (not equipped), with an explicit failure reason. */
   addItem: (item: Item) => RunMutationResult<{ instanceId: string }>;
   /** Remove an item by instance ID */
@@ -378,10 +376,8 @@ export interface RunActions {
   addGold: (amount: number) => RunMutationResult<{ balance: number }>;
   /** Spend gold, rejecting invalid amounts and insufficient balances. */
   spendGold: (amount: number) => RunMutationResult<{ balance: number }>;
-  /** Advance to the next wave */
-  nextWave: () => void;
-  /** Increment the run level */
-  incrementRunLevel: () => void;
+  /** Atomically account for one won combat in wave progression. */
+  completeCombatProgression: () => void;
   /** Atomically reserve the current encounter reward/action once. */
   claimCurrentEncounter: () => boolean;
 
@@ -389,7 +385,7 @@ export interface RunActions {
   generateRunMap: (seed?: number) => void;
   /** Move to a specific node on the map (validates accessibility) */
   moveToNode: (nodeId: string) => boolean;
-  /** Mark the current node as completed and unlock next nodes */
+  /** Complete a legacy structural Start node and expose its frontier. */
   completeCurrentNode: () => boolean;
   /** Start an encounter for a given node (sets pendingEncounter and currentEncounter) */
   startEncounter: (nodeId: string, nodeType: NodeType) => boolean;

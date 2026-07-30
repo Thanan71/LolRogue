@@ -259,34 +259,37 @@ describe('CombatPage authority finalization', () => {
     expect(combatMocks.autoPlay).toBe(true);
   });
 
-  it('starts a v3 verified combat with auto off and journals its manual action trace', () => {
-    useRunStore.setState({ authorityAttempt: attempt('run-engine-v3') });
-    const view = render(<CombatPage />);
+  it.each(['run-engine-v3', 'run-engine-v4'])(
+    'starts a %s verified combat with auto off and journals its manual action trace',
+    (engineVersion) => {
+      useRunStore.setState({ authorityAttempt: attempt(engineVersion) });
+      const view = render(<CombatPage />);
 
-    const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
-    expect(autoToggle).toBeEnabled();
-    expect(autoToggle).toHaveTextContent('Auto : OFF');
-    expect(combatMocks.autoPlay).toBe(false);
+      const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
+      expect(autoToggle).toBeEnabled();
+      expect(autoToggle).toHaveTextContent('Auto : OFF');
+      expect(combatMocks.autoPlay).toBe(false);
 
-    act(() => {
-      combatMocks.onComplete?.(
-        'enemy',
-        [{ championId: 'Garen', currentHp: 0, maxHp: 620, currentMp: 0, maxMp: 100 }],
-        [],
-        {},
-        [{ type: ActionType.SpellQ, targetId: 'enemy:Garen:0', automatic: false }],
-      );
-    });
+      act(() => {
+        combatMocks.onComplete?.(
+          'enemy',
+          [{ championId: 'Garen', currentHp: 0, maxHp: 620, currentMp: 0, maxMp: 100 }],
+          [],
+          {},
+          [{ type: ActionType.SpellQ, targetId: 'enemy:Garen:0', automatic: false }],
+        );
+      });
 
-    expect(
-      useRunStore
-        .getState()
-        .authorityAttempt?.commands.find((command) => command.kind === 'resolve_combat')?.payload,
-    ).toEqual({
-      node_id: 'fight',
-      actions_json: '[["q","enemy:Garen:0",0]]',
-    });
-  });
+      expect(
+        useRunStore
+          .getState()
+          .authorityAttempt?.commands.find((command) => command.kind === 'resolve_combat')?.payload,
+      ).toEqual({
+        node_id: 'fight',
+        actions_json: '[["q","enemy:Garen:0",0]]',
+      });
+    },
+  );
 
   it('waits on a manual player decision and visibly delays the following enemy turn', async () => {
     vi.useFakeTimers();
