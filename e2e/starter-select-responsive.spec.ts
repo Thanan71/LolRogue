@@ -18,7 +18,7 @@ async function openStarterSelection(page: Page) {
   await expect(page).toHaveURL('/');
   await page.getByRole('button', { name: 'Play', exact: true }).click();
   await expect(page).toHaveURL('/starter-select');
-  await expect(page.getByRole('heading', { name: 'Choisis ton Champion' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Compose ton équipe' })).toBeVisible();
 }
 
 async function expectResponsiveStarterLayout(page: Page) {
