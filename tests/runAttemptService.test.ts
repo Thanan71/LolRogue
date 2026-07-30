@@ -295,6 +295,7 @@ describe('runAttemptService', () => {
           JSON.stringify({
             error: 'run_verification_rejected',
             rejection_code: 'illegal_trace',
+            command_index: 7,
           }),
           { status: 422, headers: { 'Content-Type': 'application/json' } },
         ),
@@ -304,6 +305,8 @@ describe('runAttemptService', () => {
     const rejected = await verifyRunAttempt(ATTEMPT_ID);
     expect(rejected.error).toBeInstanceOf(RunVerificationRejectedError);
     expect((rejected.error as RunVerificationRejectedError).code).toBe('illegal_trace');
+    expect((rejected.error as RunVerificationRejectedError).commandIndex).toBe(7);
+    expect(rejected.error?.message).toContain('illegal_trace at command 8');
 
     supabaseMocks.invoke.mockResolvedValue({
       data: null,

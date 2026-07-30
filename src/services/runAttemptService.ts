@@ -406,6 +406,7 @@ export class RunVerificationRejectedError extends Error {
   constructor(
     readonly code: string,
     message: string,
+    readonly commandIndex: number | null = null,
   ) {
     super(message);
     this.name = 'RunVerificationRejectedError';
@@ -441,13 +442,20 @@ function parseVerificationRejection(value: unknown): RunVerificationRejectedErro
             ? scalarError
             : null;
   if (!code && envelope.ok !== false) return null;
+  const commandIndex =
+    isInteger(envelope.command_index) && envelope.command_index >= 0
+      ? envelope.command_index
+      : null;
   return new RunVerificationRejectedError(
     code ?? 'trace_rejected',
     typeof error?.message === 'string'
       ? error.message
       : code === 'run_attempt_expired'
         ? 'This verified run attempt has expired.'
-        : 'The run trace was rejected.',
+        : `The run trace was rejected (${code ?? 'trace_rejected'}${
+            commandIndex === null ? '' : ` at command ${commandIndex + 1}`
+          }).`,
+    commandIndex,
   );
 }
 
@@ -580,7 +588,7 @@ export async function recoverVerifiedRunAttempt(
       data: null,
       error: new RunVerificationRejectedError(
         status.data.rejectionCode ?? 'trace_rejected',
-        'The run trace was rejected.',
+        `The run trace was rejected (${status.data.rejectionCode ?? 'trace_rejected'}).`,
       ),
     };
   }
