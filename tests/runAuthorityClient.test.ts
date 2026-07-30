@@ -240,6 +240,7 @@ describe('authoritative client journal', () => {
       team: [
         {
           championId: 'Garen',
+          level: 3,
           spellRanks: { Q: 5, W: 1, E: 1, R: 3 },
         },
       ],

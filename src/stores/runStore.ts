@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { championDB } from '@/data';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
-import { ITEM_DATABASE } from '@/data/items/itemDatabase';
 import { AugmentManager } from '@/game/augments/AugmentManager';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import { completeNode as completeNodeUtil, findNode } from '@/game/map/mapUtils';
@@ -34,7 +33,18 @@ import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStar
 import { getUnlockedStarterSlotCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { RepositoryContainerFactory } from '@/services/container';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { validateItemAddition } from '@/game/inventory/inventoryRules';
+import {
+  getCanonicalRunItem,
+  validateItemAddition,
+  validateItemEquipment,
+} from '@/game/inventory/inventoryRules';
+import { normalizeRunDomainState } from '@/game/run/runDomainInvariants';
+import {
+  canUpgradeSpell,
+  normalizeSpellRanks,
+  queueSpellUpgradeChoices,
+} from '@/game/run/spellUpgradeRules';
+import { validateTeamAddition, validateTeamChampionIds } from '@/game/run/teamRules';
 import {
   appendRunAttemptCommands,
   RunVerificationRejectedError,
@@ -49,7 +59,6 @@ import {
   type CompletedRunSnapshot,
   type InventoryEntry,
   MAX_INVENTORY_ITEMS,
-  MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
   type RunStore,
   type RunState,
@@ -85,6 +94,7 @@ const CANONICAL_PROGRESSION_ENGINES = new Set([
   'run-engine-v6',
   'run-engine-v7',
   'run-engine-v8',
+  'run-engine-v9',
 ]);
 
 function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
@@ -247,8 +257,16 @@ function endFailure(
   return { success: false, runId, code, error, retryable };
 }
 
-function migratePersistedRunState(persisted: unknown, version: number): RunState {
+export function migratePersistedRunState(persisted: unknown, version: number): RunState {
   const state = recoverPersistedState(persisted, RUN_INITIAL_STATE);
+  const domainState = normalizeRunDomainState({
+    team:
+      state.isActive && state.team.length === 0 && state.authorityAttempt
+        ? state.authorityAttempt.initialTeam.map((championId) => ({ championId }))
+        : state.team,
+    inventory: state.inventory,
+    pendingSpellUpgradeChampionIds: state.pendingSpellUpgradeChampionIds,
+  });
   const legacyStats =
     persisted &&
     typeof persisted === 'object' &&
@@ -413,12 +431,27 @@ function migratePersistedRunState(persisted: unknown, version: number): RunState
   }
 
   synchronizeMapFrontier(state.biomeMaps, state.currentBiomeIndex, persistedFrontier);
+  const itemCounterPrefix = `item_${state.runId}_`;
+  const maximumPersistedItemCounter = domainState.inventory.reduce((maximum, entry) => {
+    if (!entry.instanceId.startsWith(itemCounterPrefix)) return maximum;
+    const suffix = Number(entry.instanceId.slice(itemCounterPrefix.length));
+    return Number.isSafeInteger(suffix) && suffix > maximum ? suffix : maximum;
+  }, 0);
   return {
     ...state,
+    isActive: state.isActive && domainState.team.length > 0,
     ledger,
     runLevel,
     currentWave,
     pendingAugmentIds,
+    team: domainState.team,
+    inventory: domainState.inventory,
+    pendingSpellUpgradeChampionIds: domainState.pendingSpellUpgradeChampionIds,
+    nextItemInstanceId: Math.max(
+      1,
+      Number.isSafeInteger(state.nextItemInstanceId) ? state.nextItemInstanceId : 1,
+      maximumPersistedItemCounter + 1,
+    ),
     currentNodeId,
     frontierNodeIds: persistedFrontier,
     chosenPathNodeIds,
@@ -1154,21 +1187,37 @@ export const useRunStore = create<RunStore>()(
 
       addChampion: (championId, statMultiplier = 1) => {
         const { team, ledger } = get();
-        if (team.length >= MAX_TEAM_SIZE) {
-          return mutationFailure('team_full', 'The team is already full.');
+        if (!Number.isFinite(statMultiplier) || statMultiplier < 0.1 || statMultiplier > 10) {
+          return mutationFailure(
+            'invalid_stat_multiplier',
+            'Champion stat multiplier must be between 0.1 and 10.',
+          );
         }
-        if (team.some((m) => m.championId === championId)) {
-          return mutationFailure('duplicate_champion', 'This champion is already on the team.');
-        }
+        const validation = validateTeamAddition(team, championId);
+        if (!validation.valid) return mutationFailure(validation.code, validation.message);
+        const canonicalChampionId = validation.value;
 
         const nextLedger = cloneRunLedger(ledger);
-        ensureLedgerChampion(nextLedger, championId);
-        set({ team: [...team, { championId, statMultiplier }], ledger: nextLedger });
-        return { success: true, value: { championId } };
+        ensureLedgerChampion(nextLedger, canonicalChampionId);
+        set({
+          team: [...team, { championId: canonicalChampionId, statMultiplier }],
+          ledger: nextLedger,
+        });
+        return { success: true, value: { championId: canonicalChampionId } };
       },
 
       removeChampion: (championId) => {
-        const { inventory } = get();
+        const { inventory, team, isActive } = get();
+        const member = team.find((candidate) => candidate.championId === championId);
+        if (!member) {
+          return mutationFailure('champion_not_in_team', 'This champion is not on the team.');
+        }
+        if (isActive && team.length <= 1) {
+          return mutationFailure(
+            'invalid_team_size',
+            'An active run must keep at least one champion.',
+          );
+        }
         // Unequip all items from this champion
         const updatedInventory = inventory.map((entry) =>
           entry.equippedToChampionId === championId
@@ -1177,33 +1226,57 @@ export const useRunStore = create<RunStore>()(
         );
 
         set({
-          team: get().team.filter((m) => m.championId !== championId),
+          team: team.filter((m) => m.championId !== championId),
           inventory: updatedInventory,
+          pendingSpellUpgradeChampionIds: get().pendingSpellUpgradeChampionIds.filter(
+            (candidate) => candidate !== championId,
+          ),
         });
+        return { success: true, value: { championId } };
       },
 
       setTeam: (championIds) => {
-        const team: TeamMember[] = championIds
-          .slice(0, MAX_TEAM_SIZE)
-          .map((id) => ({ championId: id }));
+        const validation = validateTeamChampionIds(championIds, {
+          minimumSize: get().isActive ? 1 : 0,
+          maximumSize: MAX_TEAM_SIZE,
+        });
+        if (!validation.valid) return mutationFailure(validation.code, validation.message);
+        const team: TeamMember[] = validation.value.map((championId) => ({ championId }));
         const ledger = cloneRunLedger(get().ledger);
         for (const member of team) ensureLedgerChampion(ledger, member.championId);
-        set({ team, ledger });
+        const inventory = get().inventory.map((entry) =>
+          entry.equippedToChampionId &&
+          !team.some((member) => member.championId === entry.equippedToChampionId)
+            ? { ...entry, equippedToChampionId: null }
+            : entry,
+        );
+        set({
+          team,
+          inventory,
+          ledger,
+          pendingSpellUpgradeChampionIds: queueSpellUpgradeChoices(
+            team,
+            [],
+            get().pendingSpellUpgradeChampionIds,
+          ),
+        });
+        return { success: true, value: { championIds: validation.value } };
       },
 
       // ── Inventory ───────────────────────────────────────────────────────
 
       addItem: (item, context = { source: 'inventory' }) => {
-        if (get().inventory.length >= MAX_INVENTORY_ITEMS) {
-          return mutationFailure('inventory_full', 'The inventory is already full.');
-        }
         const addition = validateItemAddition(get().inventory, item);
         if (!addition.valid) return mutationFailure(addition.code, addition.message);
+        const canonicalItem = getCanonicalRunItem(item.id);
+        if (!canonicalItem) {
+          return mutationFailure('unknown_item', `Unknown item: ${item.id}.`);
+        }
         const { runId, nextItemInstanceId } = get();
         const instanceId = `item_${runId}_${nextItemInstanceId}`;
         const entry: InventoryEntry = {
           instanceId,
-          item,
+          item: canonicalItem,
           equippedToChampionId: null,
         };
         set((state) => ({
@@ -1211,7 +1284,7 @@ export const useRunStore = create<RunStore>()(
           nextItemInstanceId: state.nextItemInstanceId + 1,
           ledger: recordItemLedgerEvent(state.ledger, {
             action: context.source === 'shop' ? 'bought' : 'found',
-            itemId: item.id,
+            itemId: canonicalItem.id,
             instanceId,
             context: {
               ...context,
@@ -1258,35 +1331,17 @@ export const useRunStore = create<RunStore>()(
       setRuneStacks: (runeStacks) => set({ runeStacks }),
 
       equipItem: (instanceId, championId) => {
-        const { inventory } = get();
+        const { inventory, team } = get();
 
-        // Check if item exists
         const item = inventory.find((entry) => entry.instanceId === instanceId);
         if (!item) return false;
-
-        // Already equipped to this champion
-        if (item.equippedToChampionId === championId) return false;
-        const definition = ITEM_DATABASE[item.item.id];
-        if (
-          definition &&
-          (definition.unique ?? !definition.stackable) &&
-          inventory.some(
-            (entry) =>
-              entry.instanceId !== instanceId &&
-              entry.item.id === item.item.id &&
-              entry.equippedToChampionId === championId,
-          )
-        ) {
-          return false;
-        }
-
-        // Count items already equipped to this champion
-        const equippedCount = inventory.filter(
-          (entry) => entry.equippedToChampionId === championId,
-        ).length;
-
-        // Respect max items per champion
-        if (equippedCount >= MAX_ITEMS_PER_CHAMPION) return false;
+        const equipment = validateItemEquipment(
+          inventory,
+          team.map((member) => member.championId),
+          instanceId,
+          championId,
+        );
+        if (!equipment.valid) return false;
 
         const updatedInventory = inventory.map((entry) =>
           entry.instanceId === instanceId ? { ...entry, equippedToChampionId: championId } : entry,
@@ -1422,18 +1477,25 @@ export const useRunStore = create<RunStore>()(
 
       setLastCombatRewards: (lastCombatRewards) => set({ lastCombatRewards }),
 
-      queueSpellUpgrades: (championIds) =>
-        set((state) => ({
-          pendingSpellUpgradeChampionIds: [...state.pendingSpellUpgradeChampionIds, ...championIds],
-        })),
+      queueSpellUpgrades: (championIds) => {
+        const state = get();
+        const pendingSpellUpgradeChampionIds = queueSpellUpgradeChoices(
+          state.team,
+          state.pendingSpellUpgradeChampionIds,
+          championIds,
+        );
+        const queued =
+          pendingSpellUpgradeChampionIds.length - state.pendingSpellUpgradeChampionIds.length;
+        if (queued > 0) set({ pendingSpellUpgradeChampionIds });
+        return queued;
+      },
 
       upgradeSpell: (championId, slot) => {
         const state = get();
         const pendingIndex = state.pendingSpellUpgradeChampionIds.indexOf(championId);
         const member = state.team.find((candidate) => candidate.championId === championId);
-        const maximumRank = slot === 'R' ? 3 : 5;
         const currentRank = member?.spellRanks?.[slot] ?? 1;
-        if (pendingIndex < 0 || !member || currentRank >= maximumRank) return false;
+        if (pendingIndex < 0 || !member || !canUpgradeSpell(member, slot)) return false;
         const remainingPendingUpgrades = [...state.pendingSpellUpgradeChampionIds];
         remainingPendingUpgrades.splice(pendingIndex, 1);
         set({
@@ -1827,17 +1889,13 @@ export const useRunStore = create<RunStore>()(
         }
 
         const instanceId = `item_${state.runId}_${state.nextItemInstanceId}`;
+        const canonicalItem = getCanonicalRunItem(offer.itemId);
+        if (!canonicalItem) {
+          return mutationFailure('unknown_item', `Unknown item: ${offer.itemId}.`);
+        }
         const entry: InventoryEntry = {
           instanceId,
-          item: {
-            id: offer.itemId,
-            name: offer.name,
-            description: offer.description,
-            iconUrl: offer.iconUrl,
-            stats: offer.stats,
-            passiveId: offer.passiveId,
-            goldValue: offer.price,
-          },
+          item: canonicalItem,
           equippedToChampionId: null,
         };
         const ledgerAfterSpend = recordGoldSpend(state.ledger, price);
@@ -1900,14 +1958,9 @@ export const useRunStore = create<RunStore>()(
         if (shopState.recruitedChampionIds.includes(championId)) {
           return mutationFailure('offer_consumed', 'This champion was already recruited.');
         }
-        if (state.team.length >= MAX_TEAM_SIZE) {
-          return mutationFailure('team_full', 'The team is full; no gold was spent.');
-        }
-        if (state.team.some((member) => member.championId === championId)) {
-          return mutationFailure(
-            'duplicate_champion',
-            'This champion is already on the team; no gold was spent.',
-          );
+        const teamAddition = validateTeamAddition(state.team, championId);
+        if (!teamAddition.valid) {
+          return mutationFailure(teamAddition.code, `${teamAddition.message} No gold was spent.`);
         }
         const price = Math.round(offer.cost * node.encounter.priceMultiplier);
         if (state.gold < price) {
@@ -1929,7 +1982,7 @@ export const useRunStore = create<RunStore>()(
           authorityAttempt: appended.authorityAttempt,
           gold: state.gold - price,
           ledger: recordGoldSpend(state.ledger, price),
-          team: [...state.team, { championId, statMultiplier: 1 }],
+          team: [...state.team, { championId: teamAddition.value, statMultiplier: 1 }],
           shopNodeStates: {
             ...state.shopNodeStates,
             [node.id]: {
@@ -2038,26 +2091,39 @@ export const useRunStore = create<RunStore>()(
       },
 
       updateTeamAfterCombat: (updates) => {
-        set((state) => ({
-          team: state.team.map((m) => {
+        set((state) => {
+          const team = state.team.map((m) => {
             const update = updates.find((u) => u.championId === m.championId);
             if (update) {
               const { currentHp, currentMp, ...rest } = update;
-              return {
+              const nextMember = {
                 ...m,
                 ...rest,
                 ...(currentHp === undefined ? {} : { currentHp }),
                 ...(currentMp === undefined ? {} : { currentMp }),
               };
+              return {
+                ...nextMember,
+                spellRanks: normalizeSpellRanks(
+                  nextMember.championId,
+                  nextMember.level ?? 1,
+                  nextMember.spellRanks,
+                ),
+              };
             }
             return m;
-          }),
-        }));
+          });
+          return normalizeRunDomainState({
+            team,
+            inventory: state.inventory,
+            pendingSpellUpgradeChampionIds: state.pendingSpellUpgradeChampionIds,
+          });
+        });
       },
     }),
     {
       name: 'lolrogue-run-storage',
-      version: 5,
+      version: 6,
       storage: createJSONStorage(() => safeLocalStorage),
       migrate: (persisted, version) => migratePersistedRunState(persisted, version),
       // Only persist the serializable state, not functions

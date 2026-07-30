@@ -6,7 +6,7 @@ import { decodeCombatActionTrace } from '@/game/battle/actionTrace';
 import { BattlePhase, type BattleTeam } from '@/game/battle/types';
 import { ChampionInstance, type SpellSlot } from '@/game/ChampionInstance';
 import { AugmentManager } from '@/game/augments/AugmentManager';
-import { validateItemAddition } from '@/game/inventory/inventoryRules';
+import { validateItemAddition, validateItemEquipment } from '@/game/inventory/inventoryRules';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
 import { assertValidRuleCatalogs } from '@/game/rules/catalogValidation';
@@ -25,6 +25,11 @@ import {
   type TreasureEncounter,
 } from '@/game/map/types';
 import { completeCombatProgression, transitionToNextBiome } from '@/game/run/runProgression';
+import {
+  canUpgradeSpell,
+  queueSpellUpgradeChoices,
+  SPELL_SLOTS,
+} from '@/game/run/spellUpgradeRules';
 import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import {
   buildChampionRunStats,
@@ -45,7 +50,6 @@ import {
   type RunLedger,
   type RunLedgerSource,
   MAX_INVENTORY_ITEMS,
-  MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
 } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
@@ -62,9 +66,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v8';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v9';
 export const AUTHORITY_CONTENT_HASH =
-  '5ceaeee76c65a23a665dacccb628366e07b38d1640fc1fc845f44a82efa4e9ec';
+  '1b112799c14dcc458906f49b74e1875be84db02062e50c0880082cab0114292a';
 
 assertValidRuleCatalogs();
 
@@ -78,7 +82,6 @@ const STARTER_RUNE_IDS = new Set([
   'grasp_of_the_undying',
   'glacial_augment',
 ]);
-const SPELL_SLOTS: readonly SpellSlot[] = ['Q', 'W', 'E', 'R'];
 type PendingEncounter = {
   node: MapNode;
   claimed: boolean;
@@ -722,14 +725,20 @@ class AuthorityReplayState {
     const xpGain = resolution.reward.xpPerChampion;
     // Team XP is intentionally shared with KO champions to avoid a permanent
     // death spiral and to keep the UI and authority replay on one policy.
+    const requestedSpellUpgrades: string[] = [];
     for (const member of this.team) {
       const resultXp = addXp(member.level, member.currentXp, xpGain);
       member.level = resultXp.newLevel;
       member.currentXp = resultXp.remainingXp;
       for (let level = 0; level < resultXp.levelsGained; level++) {
-        this.pendingSpellUpgradeChampionIds.push(member.championId);
+        requestedSpellUpgrades.push(member.championId);
       }
     }
+    this.pendingSpellUpgradeChampionIds = queueSpellUpgradeChoices(
+      this.team,
+      this.pendingSpellUpgradeChampionIds,
+      requestedSpellUpgrades,
+    );
     const progression = completeCombatProgression({
       runLevel: this.runLevel,
       currentWave: this.currentWave,
@@ -1033,17 +1042,14 @@ class AuthorityReplayState {
   private equipItem(instanceId: string, championId: string, commandIndex: number): void {
     const entry = this.inventory.find((candidate) => candidate.instanceId === instanceId);
     if (!entry) fail('invalid_item', `Unknown item instance "${instanceId}".`, commandIndex);
-    if (!this.team.some((member) => member.championId === championId)) {
-      fail('invalid_champion', `Champion "${championId}" is not on the team.`, commandIndex);
-    }
-    if (entry.equippedToChampionId === championId) {
-      fail('item_already_equipped', 'Item is already equipped to that champion.', commandIndex);
-    }
-    const equippedCount = this.inventory.filter(
-      (candidate) => candidate.equippedToChampionId === championId,
-    ).length;
-    if (equippedCount >= MAX_ITEMS_PER_CHAMPION) {
-      fail('equipment_full', 'Champion equipment is full.', commandIndex);
+    const equipment = validateItemEquipment(
+      this.inventory,
+      this.team.map((member) => member.championId),
+      instanceId,
+      championId,
+    );
+    if (!equipment.valid) {
+      fail(equipment.code, equipment.message, commandIndex);
     }
     if (entry.equippedToChampionId) {
       this.recordItemEvent('unequipped', entry, 'inventory', entry.equippedToChampionId);
@@ -1104,9 +1110,12 @@ class AuthorityReplayState {
     const member = this.team.find((candidate) => candidate.championId === championId);
     if (!member)
       fail('invalid_champion', `Champion "${championId}" is not on the team.`, commandIndex);
-    const maximum = slot === 'R' ? 3 : 5;
-    if (member.spellRanks[slot] >= maximum) {
-      fail('spell_rank_max', `Spell ${slot} is already at maximum rank.`, commandIndex);
+    if (!canUpgradeSpell(member, slot)) {
+      fail(
+        'spell_rank_locked',
+        `Spell ${slot} cannot be upgraded at champion level ${member.level}.`,
+        commandIndex,
+      );
     }
     member.spellRanks[slot]++;
     this.pendingSpellUpgradeChampionIds.splice(pendingIndex, 1);

@@ -54,6 +54,10 @@ async function resolveAuthorityVerifier(engineVersion: string, contentHash: stri
   // actually needs them. Keeping them out of the cold-start graph prevents a
   // large archive from turning harmless CORS preflights into BOOT_ERRORs.
   switch (engineVersion) {
+    case 'run-engine-v8': {
+      const archived = await import('./run-authority-v8.bundle.ts');
+      return archived.getAuthorityVerifier(engineVersion, contentHash);
+    }
     case 'run-engine-v7': {
       const archived = await import('./run-authority-v7.bundle.ts');
       return archived.getAuthorityVerifier(engineVersion, contentHash);

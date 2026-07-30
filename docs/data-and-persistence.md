@@ -102,6 +102,21 @@ aucun doublon, IDs connus et implémentés, et nombre de slots effectivement
 débloqués. La même limite est recalculée depuis `champion_mastery.unlocked_ids`
 par le trigger serveur ; un payload navigateur ne peut donc inventer un slot.
 
+Toutes les mutations ultérieures passent par les règles de domaine communes :
+équipe de 1 à 5 champions sans doublon, équipement limité aux membres présents,
+20 objets au total, 6 slots par champion et contraintes de catalogue
+`unique`/`stackable`/`maxStacks`. Les rangs de sorts viennent du catalogue et sont
+bornés par le niveau du champion. Les rangs 2–5 des sorts de base demandent les
+niveaux 3/5/7/9 ; les rangs 2–3 de l'ultime demandent les niveaux 6/11.
+
+La version 6 de `lolrogue-run-storage` normalise ces trois domaines avant
+d'exposer une sauvegarde réhydratée. Elle canonise les IDs et objets, retire
+doublons et références orphelines, borne les rangs, limite la file de choix à la
+capacité réellement disponible et avance le compteur d'instances au-delà de tout
+ID restauré. La version 2 du miroir local Daily applique le même normaliseur. Pour une attempt
+connectée, une équipe locale manquante est reconstruite depuis `initialTeam` ;
+une run invitée sans membre légal n'est pas reprise comme active.
+
 ## Chemin de carte et rencontres
 
 La progression locale ne dérive plus les nœuds accessibles de tous les parents

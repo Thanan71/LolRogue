@@ -300,12 +300,21 @@ export type RunEndResult =
 
 export type RunMutationErrorCode =
   | 'invalid_amount'
+  | 'invalid_stat_multiplier'
   | 'insufficient_gold'
   | 'inventory_full'
+  | 'unknown_item'
   | 'unique_item'
   | 'max_stacks'
   | 'team_full'
+  | 'invalid_team_size'
   | 'duplicate_champion'
+  | 'unknown_champion'
+  | 'unsupported_champion'
+  | 'champion_not_in_team'
+  | 'item_not_found'
+  | 'item_already_equipped'
+  | 'equipment_full'
   | 'invalid_encounter'
   | 'invalid_offer'
   | 'offer_consumed'
@@ -347,10 +356,10 @@ export interface RunActions {
     championId: string,
     statMultiplier?: number,
   ) => RunMutationResult<{ championId: string }>;
-  /** Remove a champion from the team by champion ID */
-  removeChampion: (championId: string) => void;
-  /** Replace the entire team (capped at MAX_TEAM_SIZE) */
-  setTeam: (championIds: string[]) => void;
+  /** Remove a champion while preserving a non-empty active team. */
+  removeChampion: (championId: string) => RunMutationResult<{ championId: string }>;
+  /** Replace the entire team only when every team invariant passes. */
+  setTeam: (championIds: string[]) => RunMutationResult<{ championIds: string[] }>;
   /** Add an item to inventory (not equipped), with an explicit failure reason. */
   addItem: (item: Item, context?: RunLedgerContext) => RunMutationResult<{ instanceId: string }>;
   /** Remove an item by instance ID */
@@ -359,7 +368,7 @@ export interface RunActions {
   consumeItems: (instanceIds: readonly string[], context?: RunLedgerContext) => void;
   /** Persist permanent rune stacks exported by the combat rule bus. */
   setRuneStacks: (stacks: Record<string, Record<string, number>>) => void;
-  /** Equip an item to a champion. Returns false if slot limit reached or item not found. */
+  /** Equip an item only to a current team member and within catalogue/slot constraints. */
   equipItem: (instanceId: string, championId: string) => boolean;
   /** Unequip an item (move to bag) */
   unequipItem: (instanceId: string) => void;
@@ -370,7 +379,8 @@ export interface RunActions {
   /** Acquire one of the pending augment choices. */
   chooseAugment: (augmentId: string) => boolean;
   setLastCombatRewards: (rewards: RunState['lastCombatRewards']) => void;
-  queueSpellUpgrades: (championIds: string[]) => void;
+  /** Queue every currently legal choice and return the number actually queued. */
+  queueSpellUpgrades: (championIds: string[]) => number;
   upgradeSpell: (championId: string, slot: 'Q' | 'W' | 'E' | 'R') => boolean;
   /** Add gold, rejecting non-positive or non-finite amounts. */
   addGold: (amount: number, context?: RunLedgerContext) => RunMutationResult<{ balance: number }>;

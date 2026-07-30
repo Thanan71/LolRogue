@@ -45,14 +45,9 @@ const commands: AuthorityRunCommand[] = [
     },
   },
   { sequence: 12, kind: 'resolve_node', payload: { node_id: 'node_top_lane_7' } },
+  { sequence: 13, kind: 'move_node', payload: { node_id: 'node_top_lane_10' } },
   {
-    sequence: 13,
-    kind: 'upgrade_spell',
-    payload: { slot: 'Q', champion_id: 'Warwick' },
-  },
-  { sequence: 14, kind: 'move_node', payload: { node_id: 'node_top_lane_10' } },
-  {
-    sequence: 15,
+    sequence: 14,
     kind: 'resolve_combat',
     payload: {
       node_id: 'node_top_lane_10',
@@ -60,13 +55,13 @@ const commands: AuthorityRunCommand[] = [
         '[["r","Warwick",1],["e",null,1],["w",null,1],["q","Warwick",1],["a","Warwick",1],["a","Warwick",1],["a","Warwick",1],["a","Warwick",1],["a","Warwick",1]]',
     },
   },
-  { sequence: 16, kind: 'resolve_node', payload: { node_id: 'node_top_lane_10' } },
-  { sequence: 17, kind: 'move_node', payload: { node_id: 'node_top_lane_11' } },
-  { sequence: 18, kind: 'resolve_node', payload: { node_id: 'node_top_lane_11' } },
-  { sequence: 19, kind: 'choose_augment', payload: { augment_id: 'field_medic' } },
-  { sequence: 20, kind: 'move_node', payload: { node_id: 'node_jungle_0' } },
+  { sequence: 15, kind: 'resolve_node', payload: { node_id: 'node_top_lane_10' } },
+  { sequence: 16, kind: 'move_node', payload: { node_id: 'node_top_lane_11' } },
+  { sequence: 17, kind: 'resolve_node', payload: { node_id: 'node_top_lane_11' } },
+  { sequence: 18, kind: 'choose_augment', payload: { augment_id: 'field_medic' } },
+  { sequence: 19, kind: 'move_node', payload: { node_id: 'node_jungle_0' } },
   {
-    sequence: 21,
+    sequence: 20,
     kind: 'resolve_combat',
     payload: {
       node_id: 'node_jungle_0',

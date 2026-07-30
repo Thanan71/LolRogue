@@ -9,6 +9,7 @@ import {
 } from '../src/game/authority';
 import { generateRunMap } from '../src/game/map/MapGenerator-core';
 import { NodeType } from '../src/game/map/types';
+import { canUpgradeSpell } from '../src/game/run/spellUpgradeRules';
 
 const ATTEMPT: AuthorityRunAttempt = {
   runUuid: '11111111-1111-4111-8111-111111111111',
@@ -50,8 +51,8 @@ function buildStrongTeamTrace(stopAfterFirstExit: boolean): AuthorityRunCommand[
     const pendingUpgrade = snapshot.pendingSpellUpgradeChampionIds[0];
     if (pendingUpgrade) {
       const member = snapshot.team.find((candidate) => candidate.championId === pendingUpgrade);
-      const slot = (['Q', 'W', 'E', 'R'] as const).find(
-        (candidate) => (member?.spellRanks[candidate] ?? 1) < (candidate === 'R' ? 3 : 5),
+      const slot = (['Q', 'W', 'E', 'R'] as const).find((candidate) =>
+        Boolean(member && canUpgradeSpell(member, candidate)),
       );
       if (!slot) throw new Error('No legal spell upgrade remains.');
       append({

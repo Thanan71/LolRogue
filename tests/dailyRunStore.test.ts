@@ -143,26 +143,26 @@ describe('dailyRunStore (integration)', () => {
     store.endDailyRun();
     // Directly reset hasCompletedToday via internal set
     useDailyRunStore.setState({ hasCompletedToday: false });
-    const result = useDailyRunStore.getState().startDailyRun(['garen', 'lux', 'darius']);
+    const result = useDailyRunStore.getState().startDailyRun(['Garen', 'Lux', 'Darius']);
     expect(result).toBe(true);
     const state = useDailyRunStore.getState();
     expect(state.isActive).toBe(true);
-    expect(state.team).toEqual(['garen', 'lux', 'darius']);
+    expect(state.team).toEqual(['Garen', 'Lux', 'Darius']);
   });
 
   it('should not allow starting if already completed today', async () => {
     const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
     useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['garen']);
+    useDailyRunStore.getState().startDailyRun(['Garen']);
     useDailyRunStore.getState().completeDailyRun('TestPlayer');
-    const result = useDailyRunStore.getState().startDailyRun(['lux']);
+    const result = useDailyRunStore.getState().startDailyRun(['Lux']);
     expect(result).toBe(false);
   });
 
   it('advanceDailyBiome should update biome state', async () => {
     const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
     useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['garen']);
+    useDailyRunStore.getState().startDailyRun(['Garen']);
     useDailyRunStore.getState().advanceDailyBiome('jungle');
     const state = useDailyRunStore.getState();
     expect(state.currentBiome).toBe('jungle');
@@ -173,7 +173,7 @@ describe('dailyRunStore (integration)', () => {
   it('nextDailyWave should increment waves and score', async () => {
     const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
     useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['garen']);
+    useDailyRunStore.getState().startDailyRun(['Garen']);
     useDailyRunStore.getState().nextDailyWave();
     const state = useDailyRunStore.getState();
     expect(state.totalWavesCompleted).toBe(1);
@@ -184,25 +184,25 @@ describe('dailyRunStore (integration)', () => {
   it('addDailyItem and equipDailyItem should work', async () => {
     const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
     useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['garen']);
+    useDailyRunStore.getState().startDailyRun(['Garen']);
     const instanceId = useDailyRunStore.getState().addDailyItem({
-      id: 'sword',
-      name: 'Sword',
-      description: 'A sword',
+      id: 'long_sword',
+      name: 'Long Sword',
+      description: 'A simple blade',
       iconUrl: '',
       stats: { atk: 10 },
-      goldValue: 100,
+      goldValue: 350,
     });
     expect(instanceId).toBeTruthy();
     expect(useDailyRunStore.getState().inventory).toHaveLength(1);
-    useDailyRunStore.getState().equipDailyItem(instanceId, 'garen');
-    expect(useDailyRunStore.getState().inventory[0].equippedToChampionId).toBe('garen');
+    useDailyRunStore.getState().equipDailyItem(instanceId, 'Garen');
+    expect(useDailyRunStore.getState().inventory[0].equippedToChampionId).toBe('Garen');
   });
 
   it('completeDailyRun should add to leaderboard and mark completed', async () => {
     const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
     useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['garen']);
+    useDailyRunStore.getState().startDailyRun(['Garen']);
     const entry = useDailyRunStore.getState().completeDailyRun('Player1');
     expect(entry.playerName).toBe('Player1');
     expect(entry.score).toBeGreaterThan(0);
@@ -212,7 +212,7 @@ describe('dailyRunStore (integration)', () => {
   it('does not mix authenticated scores into the guest leaderboard', async () => {
     const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
     useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['garen']);
+    useDailyRunStore.getState().startDailyRun(['Garen']);
     useDailyRunStore.getState().completeDailyRun('OnlinePlayer', false);
 
     expect(useDailyRunStore.getState().getLeaderboard()).toEqual([]);

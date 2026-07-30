@@ -1,5 +1,5 @@
-import { championDB, implementedChampions } from '@/data';
 import { MAX_TEAM_SIZE } from '@/types/run';
+import { validateTeamChampionIds } from './teamRules';
 
 const STARTER_SLOT_UNLOCKS = ['starter_slot_2', 'starter_slot_3'] as const;
 
@@ -38,45 +38,19 @@ export function validateRunStartTeam(
     };
   }
 
-  if (new Set(requestedChampionIds).size !== requestedChampionIds.length) {
+  const teamValidation = validateTeamChampionIds(requestedChampionIds, {
+    minimumSize: 1,
+    maximumSize: MAX_TEAM_SIZE,
+  });
+  if (!teamValidation.valid) {
     return {
       valid: false,
       championIds: [],
-      error: 'A champion can only appear once in the starting team.',
-      code: 'duplicate_champion',
+      error: teamValidation.message,
+      code: teamValidation.code === 'team_full' ? 'invalid_team_size' : teamValidation.code,
     };
   }
-
-  const supportedChampionIds = new Set(implementedChampions.map((champion) => champion.id));
-  const canonicalIds: string[] = [];
-  for (const championId of requestedChampionIds) {
-    if (typeof championId !== 'string' || championId.length === 0) {
-      return {
-        valid: false,
-        championIds: [],
-        error: 'The starting team contains an invalid champion.',
-        code: 'unknown_champion',
-      };
-    }
-    const champion = championDB.getById(championId);
-    if (!champion) {
-      return {
-        valid: false,
-        championIds: [],
-        error: `Unknown champion: ${championId}.`,
-        code: 'unknown_champion',
-      };
-    }
-    if (!supportedChampionIds.has(champion.id)) {
-      return {
-        valid: false,
-        championIds: [],
-        error: `Unsupported champion: ${championId}.`,
-        code: 'unsupported_champion',
-      };
-    }
-    canonicalIds.push(champion.id);
-  }
+  const canonicalIds = teamValidation.value;
 
   if (canonicalIds.length > unlockedStarterSlots) {
     return {

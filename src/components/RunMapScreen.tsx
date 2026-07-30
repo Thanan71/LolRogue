@@ -11,6 +11,7 @@ import { enhancementService, enhancementTreeProvider } from '@/services/enhancem
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
+import { canUpgradeSpell } from '@/game/run/spellUpgradeRules';
 import type { InventoryEntry, NodeType as RunNodeType, TeamMember } from '@/types/run';
 import { calculateMaxHP } from '@/utils/statCalculator';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -306,8 +307,12 @@ export function RunMapScreen() {
                   type="button"
                   key={slot}
                   disabled={
-                    (team.find((member) => member.championId === pendingSpellUpgradeChampionIds[0])
-                      ?.spellRanks?.[slot] ?? 1) >= (slot === 'R' ? 3 : 5)
+                    !canUpgradeSpell(
+                      team.find(
+                        (member) => member.championId === pendingSpellUpgradeChampionIds[0],
+                      ) ?? { championId: '', level: 1 },
+                      slot,
+                    )
                   }
                   onClick={() => upgradeSpell(pendingSpellUpgradeChampionIds[0], slot)}
                 >

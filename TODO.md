@@ -600,13 +600,13 @@ refresh.
 
 ### P1-RUN-04 — Renforcer les invariants équipe, inventaire et sorts
 
-- [ ] Refuser champion inconnu, doublon illégal et dépassement de taille d'équipe.
-- [ ] Refuser l'équipement sur un champion hors équipe.
-- [ ] Centraliser les contraintes unique/stackable/capacité/slots.
-- [ ] Valider les rangs et niveaux de déblocage avant une amélioration de sort.
-- [ ] Ne pas consommer un choix d'amélioration sur un sort déjà au rang maximal.
-- [ ] Mettre en file plusieurs choix si plusieurs niveaux sont gagnés.
-- [ ] Ajouter des property tests sur les commandes de domaine et la réhydratation.
+- [x] Refuser champion inconnu, doublon illégal et dépassement de taille d'équipe.
+- [x] Refuser l'équipement sur un champion hors équipe.
+- [x] Centraliser les contraintes unique/stackable/capacité/slots.
+- [x] Valider les rangs et niveaux de déblocage avant une amélioration de sort.
+- [x] Ne pas consommer un choix d'amélioration sur un sort déjà au rang maximal.
+- [x] Mettre en file plusieurs choix si plusieurs niveaux sont gagnés.
+- [x] Ajouter des property tests sur les commandes de domaine et la réhydratation.
 
 **Acceptation :** aucune API publique du store ni donnée persistée corrompue ne peut
 créer un état interdit.
@@ -1006,7 +1006,7 @@ significative.
   mode invité et l'atomicité du loadout.
 - [ ] Mettre `docs/dependency-audit.md` à jour avec les versions et vulnérabilités
   actuelles.
-- [ ] Documenter la machine d'état de run et les invariants équipe/inventaire.
+- [x] Documenter la machine d'état de run et les invariants équipe/inventaire.
 - [ ] Documenter la formule de score daily, la date UTC et le ruleset versionné.
 - [ ] Ajouter une matrice « feature → implémentation → tests → statut ».
 - [ ] Archiver les anciens claims au lieu de les conserver cochés dans le backlog.

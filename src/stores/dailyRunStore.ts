@@ -10,6 +10,13 @@ import type {
 import type { Biome, InventoryEntry } from '@/types/run';
 import { MAX_TEAM_SIZE } from '@/types/run';
 import { getDailySeed, getTodayKey, isToday } from '@/utils/dailySeed';
+import {
+  getCanonicalRunItem,
+  validateItemAddition,
+  validateItemEquipment,
+} from '@/game/inventory/inventoryRules';
+import { normalizeRunDomainState } from '@/game/run/runDomainInvariants';
+import { validateTeamChampionIds } from '@/game/run/teamRules';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -113,7 +120,7 @@ interface DailyRunActions {
   /** Remove item from inventory */
   removeDailyItem: (instanceId: string) => void;
   /** Equip item to champion */
-  equipDailyItem: (instanceId: string, championId: string) => void;
+  equipDailyItem: (instanceId: string, championId: string) => boolean;
   /** Unequip item */
   unequipDailyItem: (instanceId: string) => void;
   /** Add gold */
@@ -157,7 +164,12 @@ export const useDailyRunStore = create<DailyRunStore>()(
         const current = get();
         if (current.hasCompletedToday) return false;
 
-        const team = championIds.slice(0, MAX_TEAM_SIZE);
+        const teamValidation = validateTeamChampionIds(championIds, {
+          minimumSize: 1,
+          maximumSize: MAX_TEAM_SIZE,
+        });
+        if (!teamValidation.valid) return false;
+        const team = teamValidation.value;
 
         set({
           isActive: true,
@@ -271,10 +283,13 @@ export const useDailyRunStore = create<DailyRunStore>()(
       },
 
       addDailyItem: (item) => {
+        if (!validateItemAddition(get().inventory, item).valid) return '';
+        const canonicalItem = getCanonicalRunItem(item.id);
+        if (!canonicalItem) return '';
         const instanceId = generateInstanceId();
         const entry: InventoryEntry = {
           instanceId,
-          item,
+          item: canonicalItem,
           equippedToChampionId: null,
         };
         set((state) => ({
@@ -290,11 +305,20 @@ export const useDailyRunStore = create<DailyRunStore>()(
       },
 
       equipDailyItem: (instanceId, championId) => {
+        const state = get();
+        const validation = validateItemEquipment(
+          state.inventory,
+          state.team,
+          instanceId,
+          championId,
+        );
+        if (!validation.valid) return false;
         set((state) => ({
           inventory: state.inventory.map((e) =>
             e.instanceId === instanceId ? { ...e, equippedToChampionId: championId } : e,
           ),
         }));
+        return true;
       },
 
       unequipDailyItem: (instanceId) => {
@@ -367,9 +391,22 @@ export const useDailyRunStore = create<DailyRunStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => safeLocalStorage),
-      migrate: (persisted) => recoverPersistedState(persisted, getInitialState()),
+      migrate: (persisted) => {
+        const state = recoverPersistedState(persisted, getInitialState());
+        const domain = normalizeRunDomainState({
+          team: state.team.map((championId) => ({ championId })),
+          inventory: state.inventory,
+          pendingSpellUpgradeChampionIds: [],
+        });
+        return {
+          ...state,
+          isActive: state.isActive && domain.team.length > 0,
+          team: domain.team.map((member) => member.championId),
+          inventory: domain.inventory,
+        };
+      },
       partialize: (state) => ({
         isActive: state.isActive,
         dateKey: state.dateKey,

@@ -91,6 +91,35 @@ XP nécessaire pour chaque passage de niveau :
 | 5 → 6 | 320 | 11 → 12 | 950 | 17 → 18 | 1940 |
 | 6 → 7 | 400 | 12 → 13 | 1090 |  |  |
 
+Chaque niveau gagné peut ajouter un choix de sort à la file du champion. Si un
+gain d'XP traverse plusieurs niveaux, tous les choix actuellement utilisables
+sont conservés dans l'ordre. Les sorts de base commencent au rang 1 et leurs
+rangs 2 à 5 sont accessibles aux niveaux 3, 5, 7 et 9. L'ultime commence également
+au rang 1 dans ce format roguelike ; ses rangs 2 et 3 sont accessibles aux niveaux
+6 et 11. Un clic sur un rang maximal ou encore verrouillé ne consomme jamais le
+choix. Une fois tous les rangs possibles acquis, les niveaux restants n'ajoutent
+plus de choix impossible à résoudre.
+
+## Invariants d'équipe et d'inventaire
+
+Une équipe active contient de un à cinq champions connus et implémentés, sans
+doublon. Recrutement, boutique, remplacement complet de l'équipe, reprise locale
+et replay autoritaire utilisent le même contrat. Retirer un champion déséquipe
+ses objets ; retirer le dernier champion d'une run active est refusé.
+
+L'inventaire contient au maximum 20 instances dont les IDs sont uniques. Les
+propriétés d'un objet sont toujours reconstruites depuis `itemDatabase` : une
+sauvegarde ne peut pas modifier ses statistiques ou sa valeur. Les règles
+`unique`, `stackable` et `maxStacks` sont vérifiées avant le gain ou le débit.
+Un champion de l'équipe peut porter au maximum six objets et un objet unique ne
+peut être équipé qu'une fois sur le même champion.
+
+À la réhydratation, le normaliseur de domaine retire les champions et objets
+inconnus, doublons, équipements orphelins et choix de sorts impossibles, puis
+borne les rangs à leur niveau de déblocage. Une équipe connectée absente est
+reconstruite depuis l'input immuable de l'attempt ; une run invitée corrompue sans
+aucun champion légal est désactivée.
+
 ## Récompenses et maîtrise
 
 Après un combat, l'écran applique l'or, l'objet éventuel et l'XP une seule fois.
