@@ -25,6 +25,7 @@ export const BattleSpeedControl: React.FC = () => {
       {speeds.map((s) => (
         <button
           key={s}
+          type="button"
           onClick={() => setSpeed(s)}
           role="radio"
           aria-checked={speed === s}

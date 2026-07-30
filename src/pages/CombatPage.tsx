@@ -9,6 +9,11 @@ import { championDB } from '@/data';
 import { ITEM_DATABASE } from '@/data/items';
 import { getAugmentDefinition } from '@/data/items/augmentDatabase';
 import { AugmentManager } from '@/game/augments/AugmentManager';
+import {
+  DEFAULT_COMBAT_AUTOPLAY,
+  getAutoTurnDelayMs,
+  shouldAutoAdvanceCombatTurn,
+} from '@/game/battle/autoplay';
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
@@ -343,11 +348,13 @@ export function CombatPage() {
   const isPlayerTurn = useBattleStore((s) => s.isPlayerTurn);
   const battleSpeed = useSettingsStore((s) => s.battleSpeed);
   const difficulty = useSettingsStore((s) => s.difficulty);
+  const keyboardShortcutsEnabled = useSettingsStore((s) => s.keyboardShortcutsEnabled);
+  const setKeyboardShortcutsEnabled = useSettingsStore((s) => s.setKeyboardShortcutsEnabled);
   const difficultyMultiplier = getDifficultyMultiplier(authorityAttempt?.difficulty ?? difficulty);
   const isAuthorityRun = authorityAttempt !== null;
 
-  const [autoPlay, setAutoPlay] = useState(true);
-  const [turnTick, setTurnTick] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);
+  const [autoActionRemainingMs, setAutoActionRemainingMs] = useState<number | null>(null);
   const [selectedTargetId, setSelectedTargetId] = useState<string>();
   const [pendingActionType, setPendingActionType] = useState<ActionType>();
   const hasNavigatedAfterLossRef = useRef(false);
@@ -364,7 +371,8 @@ export function CombatPage() {
   useEffect(() => {
     if (battlePhase === 'starting') {
       hasNavigatedAfterLossRef.current = false;
-      setTurnTick(0); // Reset turn tick for new battle
+      setAutoPlay(false);
+      setAutoActionRemainingMs(null);
     }
   }, [battlePhase]);
 
@@ -757,17 +765,57 @@ export function CombatPage() {
     [getAvailableActions, pendingActionType, submitAction],
   );
 
-  // Auto-process all turns when autoPlay is enabled
+  const autoActionDelayMs = getAutoTurnDelayMs(battleSpeed);
+  const shouldAutoAdvance = shouldAutoAdvanceCombatTurn({
+    phase: battlePhase,
+    isAuthorityRun,
+    autoPlay,
+    isPlayerTurn,
+  });
+
+  // Enemy turns continue automatically in manual mode. Player turns only receive
+  // a timer after the player explicitly enables auto-play.
   useEffect(() => {
-    if ((isAuthorityRun || autoPlay) && battlePhase === 'turn_active') {
-      const delay = Math.max(50, 400 / battleSpeed);
-      const timer = setTimeout(() => {
-        processTurn();
-        setTurnTick((t) => t + 1);
-      }, delay);
-      return () => clearTimeout(timer);
+    if (!shouldAutoAdvance) {
+      setAutoActionRemainingMs(null);
+      return;
     }
-  }, [autoPlay, isAuthorityRun, battlePhase, processTurn, turnTick, battleSpeed]);
+
+    const scheduledTurn = {
+      championId: currentTurnChampionId,
+      side: currentTurnSide,
+      round,
+    };
+    const startedAt = Date.now();
+    setAutoActionRemainingMs(autoActionDelayMs);
+    const countdown = window.setInterval(() => {
+      setAutoActionRemainingMs(Math.max(0, autoActionDelayMs - (Date.now() - startedAt)));
+    }, 100);
+    const timer = window.setTimeout(() => {
+      const current = useBattleStore.getState();
+      if (
+        current.phase === 'turn_active' &&
+        current.currentTurnChampionId === scheduledTurn.championId &&
+        current.currentTurnSide === scheduledTurn.side &&
+        current.round === scheduledTurn.round
+      ) {
+        processTurn();
+      }
+      setAutoActionRemainingMs(null);
+    }, autoActionDelayMs);
+
+    return () => {
+      window.clearInterval(countdown);
+      window.clearTimeout(timer);
+    };
+  }, [
+    autoActionDelayMs,
+    currentTurnChampionId,
+    currentTurnSide,
+    processTurn,
+    round,
+    shouldAutoAdvance,
+  ]);
 
   // Keyboard shortcuts
   const canCast = !isAuthorityRun && isPlayerTurn && battlePhase === 'turn_active';
@@ -786,11 +834,11 @@ export function CombatPage() {
     onCastE: canCastSlot('E') ? () => handleCast('E') : undefined,
     onCastR: canCastSlot('R') ? () => handleCast('R') : undefined,
     onNextTurn:
-      !isAuthorityRun && (!autoPlay || isPlayerTurn) && battlePhase === 'turn_active'
+      !isAuthorityRun && !autoPlay && isPlayerTurn && battlePhase === 'turn_active'
         ? processTurn
         : undefined,
     onBack: canLeaveActiveCombat(battlePhase) ? () => navigate(ROUTES.RUN) : undefined,
-    enabled: battlePhase !== 'finished',
+    enabled: keyboardShortcutsEnabled && battlePhase !== 'finished',
   });
 
   if (!isActive) return null;
@@ -830,6 +878,7 @@ export function CombatPage() {
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
         <button
+          type="button"
           disabled={isAuthorityRun}
           onClick={() => {
             if (isAuthorityRun) return;
@@ -846,9 +895,22 @@ export function CombatPage() {
             fontWeight: 'bold',
             cursor: isAuthorityRun ? 'not-allowed' : 'pointer',
           }}
-          aria-label="Toggle auto-play"
+          aria-label={
+            isAuthorityRun
+              ? 'Mode automatique serveur activé'
+              : autoPlay
+                ? 'Désactiver le mode automatique'
+                : 'Activer le mode automatique'
+          }
+          aria-pressed={isAuthorityRun || autoPlay}
+          aria-describedby="combat-auto-status"
+          title={
+            isAuthorityRun
+              ? 'La résolution automatique est requise pour cette run vérifiée.'
+              : 'Active ou désactive les actions automatiques du joueur.'
+          }
         >
-          Auto: {isAuthorityRun || autoPlay ? 'ON' : 'OFF'}
+          {isAuthorityRun ? 'Auto serveur' : `Auto : ${autoPlay ? 'ON' : 'OFF'}`}
         </button>
       </div>
 
@@ -899,12 +961,31 @@ export function CombatPage() {
                   {currentChampion.name}
                 </div>
               )}
-              {!isAuthorityRun && (!autoPlay || isPlayerTurn) && (
+              <div
+                id="combat-auto-status"
+                aria-live="off"
+                style={{ color: '#8b949e', fontSize: 12, marginTop: 10 }}
+              >
+                {autoActionRemainingMs !== null
+                  ? `${
+                      isAuthorityRun
+                        ? 'Résolution serveur'
+                        : isPlayerTurn
+                          ? 'Action automatique'
+                          : 'Action ennemie'
+                    } dans ${(autoActionRemainingMs / 1000).toFixed(1)} s`
+                  : isPlayerTurn
+                    ? 'Mode manuel — choisissez une action ou appuyez sur Espace.'
+                    : "En attente du tour de l'ennemi…"}
+              </div>
+              {!isAuthorityRun && !autoPlay && isPlayerTurn && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
                   <button
+                    type="button"
                     onClick={processTurn}
                     style={nextTurnBtnStyle}
                     aria-label="Execute turn (Space)"
+                    aria-keyshortcuts="Space"
                   >
                     ▶ Exécuter le tour
                     <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.6 }}>[Space]</span>
@@ -1004,6 +1085,33 @@ export function CombatPage() {
             )}
           </div>
         )}
+        <details
+          style={{
+            margin: '0 auto 8px',
+            maxWidth: 680,
+            color: '#8b949e',
+            fontSize: 12,
+            textAlign: 'left',
+          }}
+        >
+          <summary style={{ color: '#c8aa6e', cursor: 'pointer' }}>
+            Raccourcis clavier — {keyboardShortcutsEnabled ? 'activés' : 'désactivés'}
+          </summary>
+          <div style={{ padding: '8px 0', lineHeight: 1.6 }}>
+            <div>Q / W / E / R : choisir un sort disponible.</div>
+            <div>Espace : exécuter le tour manuel.</div>
+            <div>Échap : retourner à la carte lorsque le combat est terminé.</div>
+            <div>Tab puis Entrée ou Espace : activer le contrôle ayant le focus.</div>
+            <button
+              type="button"
+              onClick={() => setKeyboardShortcutsEnabled(!keyboardShortcutsEnabled)}
+              aria-pressed={keyboardShortcutsEnabled}
+              style={{ ...nextTurnBtnStyle, marginTop: 6 }}
+            >
+              {keyboardShortcutsEnabled ? 'Désactiver les raccourcis' : 'Activer les raccourcis'}
+            </button>
+          </div>
+        </details>
         <div style={{ flex: 1, minHeight: 0 }}>
           <CombatLog />
         </div>

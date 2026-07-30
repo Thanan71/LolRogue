@@ -529,14 +529,14 @@ manuel de cible presque impossible. Le hook global intercepte Entrée/Espace mê
 sur des boutons ; les contrôles Auto et Vitesse ne répondent pas correctement et
 une touche peut déclencher deux actions.
 
-- [ ] Mettre l'autoplay désactivé par défaut, ou le mettre en pause à chaque décision
+- [x] Mettre l'autoplay désactivé par défaut, ou le mettre en pause à chaque décision
   du joueur.
-- [ ] Afficher clairement qui agit et le délai avant action automatique.
-- [ ] Ignorer `button`, `a`, contrôles ARIA et `contenteditable` dans les raccourcis
+- [x] Afficher clairement qui agit et le délai avant action automatique.
+- [x] Ignorer `button`, `a`, contrôles ARIA et `contenteditable` dans les raccourcis
   globaux.
-- [ ] Gérer propagation et `preventDefault` au niveau approprié.
-- [ ] Documenter les raccourcis et permettre de les désactiver.
-- [ ] Tester tous les contrôles au clavier sans double action.
+- [x] Gérer propagation et `preventDefault` au niveau approprié.
+- [x] Documenter les raccourcis et permettre de les désactiver.
+- [x] Tester tous les contrôles au clavier sans double action.
 
 **Acceptation :** le mode manuel est réellement jouable et chaque touche produit au
 plus une commande attendue.

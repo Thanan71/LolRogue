@@ -12,12 +12,14 @@ interface SettingsState {
   battleSpeed: BattleSpeed;
   difficulty: Difficulty;
   particlesEnabled: boolean;
+  keyboardShortcutsEnabled: boolean;
 
   // Actions
   setTextSize: (size: TextSize) => void;
   setBattleSpeed: (speed: BattleSpeed) => void;
   setDifficulty: (difficulty: Difficulty) => void;
   setParticlesEnabled: (enabled: boolean) => void;
+  setKeyboardShortcutsEnabled: (enabled: boolean) => void;
 }
 
 const textSizeMultipliers: Record<TextSize, number> = {
@@ -33,15 +35,17 @@ export const useSettingsStore = create<SettingsState>()(
       battleSpeed: 1,
       difficulty: 'normal',
       particlesEnabled: true,
+      keyboardShortcutsEnabled: true,
 
       setTextSize: (size) => set({ textSize: size }),
       setBattleSpeed: (speed) => set({ battleSpeed: speed }),
       setDifficulty: (difficulty) => set({ difficulty }),
       setParticlesEnabled: (particlesEnabled) => set({ particlesEnabled }),
+      setKeyboardShortcutsEnabled: (keyboardShortcutsEnabled) => set({ keyboardShortcutsEnabled }),
     }),
     {
       name: 'lolrogue-settings',
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => safeLocalStorage),
       migrate: (persisted) =>
         recoverPersistedState(persisted, {
@@ -49,6 +53,7 @@ export const useSettingsStore = create<SettingsState>()(
           battleSpeed: 1,
           difficulty: 'normal',
           particlesEnabled: true,
+          keyboardShortcutsEnabled: true,
         }),
     },
   ),

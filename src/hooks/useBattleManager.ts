@@ -227,7 +227,7 @@ interface UseBattleManagerOptions {
 export function useBattleManager({
   playerTeam,
   enemyTeam,
-  autoPlay = true,
+  autoPlay = false,
   onComplete,
   initialHpOverrides,
   random,

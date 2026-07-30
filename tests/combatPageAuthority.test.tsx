@@ -2,6 +2,7 @@
 
 import type { User } from '@supabase/supabase-js';
 import { act, render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NodeType } from '@/game/map/types';
 import { CombatPage } from '@/pages/CombatPage';
@@ -20,6 +21,8 @@ const combatMocks = vi.hoisted(() => ({
     | null
     | ((winner: 'player' | 'enemy' | 'draw', finalPlayerStates: FinalCombatantState[]) => void),
   finalPlayerStates: [] as FinalCombatantState[],
+  autoPlay: null as boolean | null,
+  processTurn: vi.fn(),
 }));
 
 vi.mock('@/audio', () => ({
@@ -32,14 +35,16 @@ vi.mock('@/hooks/useAppNavigate', () => ({
 
 vi.mock('@/hooks/useBattleManager', () => ({
   useBattleManager: (options: {
+    autoPlay?: boolean;
     onComplete?: (
       winner: 'player' | 'enemy' | 'draw',
       finalPlayerStates: FinalCombatantState[],
     ) => void;
   }) => {
     combatMocks.onComplete = options.onComplete ?? null;
+    combatMocks.autoPlay = options.autoPlay ?? null;
     return {
-      processTurn: vi.fn(),
+      processTurn: combatMocks.processTurn,
       submitAction: vi.fn(),
       getAvailableActions: vi.fn(() => []),
       getFinalPlayerStates: vi.fn(() => []),
@@ -96,6 +101,8 @@ describe('CombatPage authority finalization', () => {
     combatMocks.navigate.mockReset();
     combatMocks.onComplete = null;
     combatMocks.finalPlayerStates = [];
+    combatMocks.autoPlay = null;
+    combatMocks.processTurn.mockReset();
     runStatsTracker.reset();
     vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(
       'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
@@ -172,6 +179,7 @@ describe('CombatPage authority finalization', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
     runStatsTracker.reset();
     useBattleStore.getState().resetBattle();
@@ -216,6 +224,65 @@ describe('CombatPage authority finalization', () => {
       expect.objectContaining({ state: expect.any(Object) }),
     );
     expect(endRun).toHaveBeenCalledTimes(1);
+  });
+
+  it('starts a guest combat in manual mode and toggles auto once from the focused button', async () => {
+    const user = userEvent.setup();
+    useAuthStore.setState({
+      isAuthenticated: true,
+      isGuest: true,
+      user: null,
+    });
+    useRunStore.setState({ authorityAttempt: null });
+
+    const view = render(<CombatPage />);
+    const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
+
+    expect(autoToggle).toHaveTextContent('Auto : OFF');
+    expect(combatMocks.autoPlay).toBe(false);
+
+    autoToggle.focus();
+    await user.keyboard(' ');
+
+    expect(autoToggle).toHaveTextContent('Auto : ON');
+    expect(combatMocks.autoPlay).toBe(true);
+  });
+
+  it('waits on a manual player decision and visibly delays the following enemy turn', async () => {
+    vi.useFakeTimers();
+    useAuthStore.setState({
+      isAuthenticated: true,
+      isGuest: true,
+      user: null,
+    });
+    useRunStore.setState({ authorityAttempt: null });
+    useBattleStore.setState({
+      phase: 'turn_active',
+      round: 1,
+      currentTurnChampionId: 'player:Garen:0',
+      currentTurnSide: 'player',
+      isPlayerTurn: true,
+    });
+
+    const view = render(<CombatPage />);
+
+    expect(
+      view.getByText('Mode manuel — choisissez une action ou appuyez sur Espace.'),
+    ).toBeVisible();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500);
+    });
+    expect(combatMocks.processTurn).not.toHaveBeenCalled();
+
+    act(() => {
+      useBattleStore.getState().setTurnInfo(1, 'enemy:Garen:0', 'enemy');
+    });
+    expect(view.getByText('Action ennemie dans 1.2 s')).toBeVisible();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1200);
+    });
+    expect(combatMocks.processTurn).toHaveBeenCalledTimes(1);
   });
 
   it('keeps pre-combat HP persisted until the delayed completion callback runs', () => {

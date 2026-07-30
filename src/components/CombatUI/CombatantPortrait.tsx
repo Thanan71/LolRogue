@@ -30,7 +30,11 @@ export const CombatantPortrait: React.FC<Props> = ({
       aria-label={onSelect ? `Cibler ${name}` : undefined}
       onClick={onSelect}
       onKeyDown={(event) => {
-        if (onSelect && (event.key === 'Enter' || event.key === ' ')) onSelect();
+        if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          event.stopPropagation();
+          onSelect();
+        }
       }}
       style={{
         display: 'flex',

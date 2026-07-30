@@ -11,6 +11,37 @@ interface UseKeyboardShortcutsOptions {
   enabled?: boolean;
 }
 
+const INTERACTIVE_SELECTOR = [
+  'a[href]',
+  'button',
+  'input',
+  'select',
+  'summary',
+  'textarea',
+  '[contenteditable]:not([contenteditable="false"])',
+  '[role="button"]',
+  '[role="checkbox"]',
+  '[role="combobox"]',
+  '[role="link"]',
+  '[role="listbox"]',
+  '[role="menuitem"]',
+  '[role="option"]',
+  '[role="radio"]',
+  '[role="slider"]',
+  '[role="spinbutton"]',
+  '[role="switch"]',
+  '[role="tab"]',
+  '[role="textbox"]',
+  '[role="treeitem"]',
+].join(',');
+
+export function isInteractiveShortcutTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    (target.matches(INTERACTIVE_SELECTOR) || !!target.closest(INTERACTIVE_SELECTOR))
+  );
+}
+
 export function useKeyboardShortcuts({
   onCastQ,
   onCastW,
@@ -44,49 +75,51 @@ export function useKeyboardShortcuts({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!enabled) return;
-
-      // Don't capture keys when typing in inputs
-      const target = e.target as HTMLElement;
       if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.tagName === 'SELECT'
+        !enabled ||
+        e.defaultPrevented ||
+        e.repeat ||
+        e.isComposing ||
+        e.altKey ||
+        e.ctrlKey ||
+        e.metaKey ||
+        isInteractiveShortcutTarget(e.target)
       ) {
         return;
       }
 
       const key = e.key.toLowerCase();
       const h = handlersRef.current;
+      let handler: (() => void) | undefined;
 
       switch (key) {
         case 'q':
-          e.preventDefault();
-          h.onCastQ?.();
+          handler = h.onCastQ;
           break;
         case 'w':
-          e.preventDefault();
-          h.onCastW?.();
+          handler = h.onCastW;
           break;
         case 'e':
-          e.preventDefault();
-          h.onCastE?.();
+          handler = h.onCastE;
           break;
         case 'r':
-          e.preventDefault();
-          h.onCastR?.();
+          handler = h.onCastR;
           break;
         case ' ':
+          handler = h.onNextTurn ?? h.onConfirm;
+          break;
         case 'enter':
-          e.preventDefault();
-          h.onNextTurn?.();
-          h.onConfirm?.();
+          handler = h.onConfirm;
           break;
         case 'escape':
-          e.preventDefault();
-          h.onBack?.();
+          handler = h.onBack;
           break;
       }
+
+      if (!handler) return;
+      e.preventDefault();
+      e.stopPropagation();
+      handler();
     },
     [enabled],
   );

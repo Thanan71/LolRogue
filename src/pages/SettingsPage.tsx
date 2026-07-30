@@ -21,10 +21,12 @@ export function SettingsPage() {
     particlesEnabled,
     textSize,
     battleSpeed,
+    keyboardShortcutsEnabled,
     setDifficulty,
     setParticlesEnabled,
     setTextSize,
     setBattleSpeed,
+    setKeyboardShortcutsEnabled,
   } = useSettingsStore();
 
   return (
@@ -131,6 +133,21 @@ export function SettingsPage() {
             <option value={1}>1×</option>
             <option value={2}>2×</option>
             <option value={3}>3×</option>
+          </select>
+        </div>
+
+        <div style={settingRowStyle}>
+          <label htmlFor="keyboard-shortcuts" style={labelStyle}>
+            Keyboard shortcuts
+          </label>
+          <select
+            id="keyboard-shortcuts"
+            style={selectStyle}
+            value={keyboardShortcutsEnabled ? 'enabled' : 'disabled'}
+            onChange={(event) => setKeyboardShortcutsEnabled(event.target.value === 'enabled')}
+          >
+            <option value="enabled">Enabled</option>
+            <option value="disabled">Disabled</option>
           </select>
         </div>
       </div>
