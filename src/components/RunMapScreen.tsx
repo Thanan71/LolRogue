@@ -284,7 +284,7 @@ export function RunMapScreen() {
           {lastCombatRewards && (
             <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Récompenses du combat">
               <strong>Combat terminé :</strong> +{lastCombatRewards.gold} gold, +
-              {lastCombatRewards.xp} XP
+              {lastCombatRewards.xp} XP/champion (KO inclus)
               {lastCombatRewards.levelsGained > 0 &&
                 `, ${lastCombatRewards.levelsGained} niveau(x) gagné(s)`}
               {lastCombatRewards.itemName && `, objet : ${lastCombatRewards.itemName}`}

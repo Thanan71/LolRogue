@@ -8,15 +8,18 @@ const LEGACY_BUNDLE_PATH = 'supabase/authority-archive/run-authority-v1.bundle.t
 const V2_BUNDLE_PATH = 'supabase/functions/verify-run/run-authority-v2.bundle.ts';
 const V3_BUNDLE_PATH = 'supabase/functions/verify-run/run-authority-v3.bundle.ts';
 const V4_BUNDLE_PATH = 'supabase/functions/verify-run/run-authority-v4.bundle.ts';
+const V5_BUNDLE_PATH = 'supabase/functions/verify-run/run-authority-v5.bundle.ts';
 const ENGINE_PATH = 'src/game/authority/AuthorityRunEngine.ts';
 const MIGRATION_PATH =
-  'supabase/migrations/20260730210000_gameplay_ruleset_v5_combat_trace_replay.sql';
+  'supabase/migrations/20260730240000_gameplay_ruleset_v6_encounter_balance.sql';
 const LEGACY_MIGRATION_PATH = 'supabase/migrations/20260724090000_verified_run_attempts.sql';
 const V2_MIGRATION_PATH = 'supabase/migrations/20260727170000_gameplay_ruleset_v2.sql';
 const V3_MIGRATION_PATH =
   'supabase/migrations/20260730170000_gameplay_ruleset_v3_manual_combat.sql';
 const V4_MIGRATION_PATH =
   'supabase/migrations/20260730190000_gameplay_ruleset_v4_run_progression.sql';
+const V5_MIGRATION_PATH =
+  'supabase/migrations/20260730210000_gameplay_ruleset_v5_combat_trace_replay.sql';
 const HASH_PATTERN = '[0-9a-f]{64}';
 const withoutTsNoCheck = (source) => source.replace(/^\/\/ @ts-nocheck\r?\n/, '');
 const importArchivedBundle = (source) =>
@@ -28,24 +31,28 @@ const [
   v2Bundle,
   v3Bundle,
   v4Bundle,
+  v5Bundle,
   engine,
   migration,
   legacyMigration,
   v2Migration,
   v3Migration,
   v4Migration,
+  v5Migration,
 ] = await Promise.all([
   readFile(BUNDLE_PATH, 'utf8'),
   readFile(LEGACY_BUNDLE_PATH, 'utf8'),
   readFile(V2_BUNDLE_PATH, 'utf8'),
   readFile(V3_BUNDLE_PATH, 'utf8'),
   readFile(V4_BUNDLE_PATH, 'utf8'),
+  readFile(V5_BUNDLE_PATH, 'utf8'),
   readFile(ENGINE_PATH, 'utf8'),
   readFile(MIGRATION_PATH, 'utf8'),
   readFile(LEGACY_MIGRATION_PATH, 'utf8'),
   readFile(V2_MIGRATION_PATH, 'utf8'),
   readFile(V3_MIGRATION_PATH, 'utf8'),
   readFile(V4_MIGRATION_PATH, 'utf8'),
+  readFile(V5_MIGRATION_PATH, 'utf8'),
 ]);
 
 const bundlePattern = new RegExp(`AUTHORITY_CONTENT_HASH\\s*=\\s*"(${HASH_PATTERN})"`);
@@ -55,7 +62,7 @@ const engineMatch = engine.match(
 );
 const migrationMatch = migration.match(
   new RegExp(
-    `'2026-07-combat-trace-replay-v5',\\s*\\n\\s*'run-engine-v5',\\s*\\n\\s*2,\\s*\\n\\s*'(${HASH_PATTERN})'`,
+    `'2026-07-encounter-balance-v6',\\s*\\n\\s*'run-engine-v6',\\s*\\n\\s*2,\\s*\\n\\s*'(${HASH_PATTERN})'`,
   ),
 );
 
@@ -173,21 +180,42 @@ if (computedV4Hash !== v4BundleMatch[1] || computedV4Hash !== v4MigrationMatch[1
   throw new Error('Archived v4 authority content hash is stale.');
 }
 
+const normalizedV5Source = withoutTsNoCheck(v5Bundle);
+const v5BundleMatch = normalizedV5Source.match(bundlePattern);
+const v5MigrationMatch = v5Migration.match(
+  new RegExp(
+    `'2026-07-combat-trace-replay-v5',\\s*\\n\\s*'run-engine-v5',\\s*\\n\\s*2,\\s*\\n\\s*'(${HASH_PATTERN})'`,
+  ),
+);
+if (!v5BundleMatch || !v5MigrationMatch) {
+  throw new Error('Unable to locate the archived v5 authority content hash.');
+}
+const computedV5Hash = createHash('sha256')
+  .update(
+    normalizedV5Source.replace(bundlePattern, 'AUTHORITY_CONTENT_HASH="<AUTHORITY_CONTENT_HASH>"'),
+  )
+  .digest('hex');
+if (computedV5Hash !== v5BundleMatch[1] || computedV5Hash !== v5MigrationMatch[1]) {
+  throw new Error('Archived v5 authority content hash is stale.');
+}
+
 const [
   { getAuthorityVerifier },
   { getAuthorityVerifier: getLegacyAuthorityVerifier },
   { getAuthorityVerifier: getV2AuthorityVerifier },
   { getAuthorityVerifier: getV3AuthorityVerifier },
   { getAuthorityVerifier: getV4AuthorityVerifier },
+  { getAuthorityVerifier: getV5AuthorityVerifier },
 ] = await Promise.all([
   import(pathToFileURL(BUNDLE_PATH)),
   importArchivedBundle(legacyBundle),
   importArchivedBundle(v2Bundle),
   importArchivedBundle(v3Bundle),
   importArchivedBundle(v4Bundle),
+  importArchivedBundle(v5Bundle),
 ]);
-if (!getAuthorityVerifier('run-engine-v5', computedHash)) {
-  throw new Error('The current authority bundle does not register its v5 verifier.');
+if (!getAuthorityVerifier('run-engine-v6', computedHash)) {
+  throw new Error('The current authority bundle does not register its v6 verifier.');
 }
 if (!getLegacyAuthorityVerifier('run-engine-v1', computedLegacyHash)) {
   throw new Error('The archived authority bundle does not register its v1 verifier.');
@@ -201,9 +229,13 @@ if (!getV3AuthorityVerifier('run-engine-v3', computedV3Hash)) {
 if (!getV4AuthorityVerifier('run-engine-v4', computedV4Hash)) {
   throw new Error('The archived authority bundle does not register its v4 verifier.');
 }
+if (!getV5AuthorityVerifier('run-engine-v5', computedV5Hash)) {
+  throw new Error('The archived authority bundle does not register its v5 verifier.');
+}
 
 console.log(`Authority content hash verified: ${computedHash}`);
 console.log(`Archived v1 authority content hash verified: ${computedLegacyHash}`);
 console.log(`Archived v2 authority content hash verified: ${computedV2Hash}`);
 console.log(`Archived v3 authority content hash verified: ${computedV3Hash}`);
 console.log(`Archived v4 authority content hash verified: ${computedV4Hash}`);
+console.log(`Archived v5 authority content hash verified: ${computedV5Hash}`);

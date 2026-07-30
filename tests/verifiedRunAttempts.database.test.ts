@@ -252,7 +252,7 @@ describeWithSupabase('verified run attempt live security', () => {
       };
       expect(start).toMatchObject({
         status: 'started',
-        engine_version: 'run-engine-v5',
+        engine_version: 'run-engine-v6',
       });
       expect(start.seed).toBeGreaterThan(0);
       expect(start.enhancement_snapshot).toHaveProperty('Garen');
@@ -319,7 +319,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(claim.data).toMatchObject({
         attempt_id: start.attempt_id,
         claimed: true,
-        engine_version: 'run-engine-v5',
+        engine_version: 'run-engine-v6',
       });
       const leaseToken = (claim.data as { lease_token: string }).lease_token;
 

@@ -4,9 +4,9 @@
 
 import { implementedChampions } from '@/data/champion';
 import { getItemDefinition, ITEM_DATABASE } from '@/data/items';
+import { createCombatEncounterForNode } from '@/game/run/encounterResolver';
 import type { Biome } from '../../types/run';
 import { generateShopRotation, generateWildRecruit } from '../recruitment/RecruitmentService';
-import { getBiomeBoss, getRandomEncounter } from './encounters';
 import {
   buildConfig,
   getNodeMetadata,
@@ -314,9 +314,8 @@ function generateEncounterForNode(
   switch (nodeType) {
     case NodeType.Combat:
     case NodeType.Elite:
-      return getRandomEncounter(biome, runLevel, rand);
     case NodeType.Boss:
-      return getBiomeBoss(biome, runLevel);
+      return createCombatEncounterForNode(biome, runLevel, nodeType, rand);
     case NodeType.Shop:
       return generateShopEncounter(biome, runLevel, rand);
     case NodeType.Rest:

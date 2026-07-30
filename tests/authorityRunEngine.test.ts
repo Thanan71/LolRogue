@@ -138,7 +138,14 @@ describe('authority run engine', () => {
     expect(first).toEqual(second);
     expect(first.snapshot.terminal).toBe(false);
     expect(first.snapshot.totalWavesCompleted).toBe(1);
-    expect(first.snapshot.gold).toBeGreaterThanOrEqual(60);
+    const startNode = generateRunMap(ATTEMPT.seed)[0].nodes.find(
+      (node) => node.id === generateRunMap(ATTEMPT.seed)[0].startNodeId,
+    );
+    expect(first.snapshot.gold).toBe(
+      Math.round(
+        (startNode?.encounter?.type === 'combat' ? startNode.encounter.goldReward : 0) * 0.9,
+      ),
+    );
     expect(first.snapshot.totalDamage).toBeGreaterThan(0);
     expect(first.snapshot.nextSequence).toBe(4);
     expect(first.snapshot.expectedNodeIds.length).toBeGreaterThan(0);

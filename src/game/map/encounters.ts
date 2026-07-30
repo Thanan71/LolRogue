@@ -41,11 +41,12 @@ export function getEligibleEncounters(biome: Biome, runLevel: number): CombatEnc
 export function getBiomeBoss(biome: Biome, runLevel: number): CombatEncounter {
   if (biome === 'base') {
     const baseEncounters = getEligibleEncounters('base', runLevel);
-    return baseEncounters[baseEncounters.length - 1];
+    return baseEncounters[baseEncounters.length - 1] ?? BASE_ENCOUNTERS[0];
   }
 
   const eligible = getEligibleEncounters(biome, runLevel);
-  const hardest = eligible.reduce((a, b) =>
+  const candidates = eligible.length > 0 ? eligible : ENCOUNTER_POOLS[biome];
+  const hardest = candidates.reduce((a, b) =>
     a.enemies.reduce((s, e) => s + e.statMultiplier, 0) >
     b.enemies.reduce((s, e) => s + e.statMultiplier, 0)
       ? a
@@ -74,7 +75,8 @@ export function getRandomEncounter(
   rand: () => number = Math.random,
 ): CombatEncounter {
   const eligible = getEligibleEncounters(biome, runLevel);
-  return eligible[Math.floor(rand() * eligible.length)];
+  const candidates = eligible.length > 0 ? eligible : ENCOUNTER_POOLS[biome];
+  return candidates[Math.floor(rand() * candidates.length)];
 }
 
 // Re-export individual pools

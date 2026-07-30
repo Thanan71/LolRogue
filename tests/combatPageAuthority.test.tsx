@@ -259,7 +259,7 @@ describe('CombatPage authority finalization', () => {
     expect(combatMocks.autoPlay).toBe(true);
   });
 
-  it.each(['run-engine-v3', 'run-engine-v4', 'run-engine-v5'])(
+  it.each(['run-engine-v3', 'run-engine-v4', 'run-engine-v5', 'run-engine-v6'])(
     'starts a %s verified combat with auto off and journals its manual action trace',
     (engineVersion) => {
       useRunStore.setState({ authorityAttempt: attempt(engineVersion) });

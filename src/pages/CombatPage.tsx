@@ -15,13 +15,18 @@ import {
   shouldAutoAdvanceCombatTurn,
 } from '@/game/battle/autoplay';
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
-import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
+import { NodeType, type CombatEncounter } from '@/game/map/types';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
 import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
-import type { CombatEncounter } from '@/game/map/types';
+import {
+  buildResolvedEnemyTeam,
+  itemDefinitionToRunItem,
+  resolveCombatEncounter,
+} from '@/game/run/encounterResolver';
+import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -33,7 +38,7 @@ import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
-import type { FinalCombatantState, Item, ItemStatBonuses, TeamMember } from '@/types/run';
+import type { FinalCombatantState, TeamMember } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateEventStatBonuses, toCombatStatKey } from '@/utils/statCalculator';
 import { logger } from '@/utils/logger';
@@ -262,58 +267,60 @@ function getEnhancementDescriptions(championId: string): string[] {
   return descriptions;
 }
 
-/** Build enemy team from encounter data */
-function buildEnemyTeamFromEncounter(
+const LEGACY_ENCOUNTER_ENGINE_VERSIONS = new Set([
+  'run-engine-v1',
+  'run-engine-v2',
+  'run-engine-v3',
+  'run-engine-v4',
+  'run-engine-v5',
+]);
+
+/**
+ * Compatibility adapter for an attempt created before encounter ruleset v1.
+ * It must remain byte-for-byte equivalent in behavior to those archived
+ * authority engines until their attempts have expired.
+ */
+function buildLegacyEnemyTeam(
   encounter: CombatEncounter,
   difficultyMultiplier: number,
 ): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
   for (const enemy of encounter.enemies) {
-    const champ = championDB.getById(enemy.championId);
-    if (champ) {
-      // Enemy level scales with run level and node difficulty
-      // Base level is 1 for normal combats
-      const baseLevel = enemy.level ?? 1;
-      const instance = new ChampionInstance(champ, baseLevel);
-
-      // Apply stat multiplier by directly modifying the champion's base stats
-      // This is more reliable than using enhancement bonuses with mismatched stat names
-      const multiplier = (enemy.statMultiplier || 1) * difficultyMultiplier;
-      if (multiplier !== 1.0) {
-        const baseStats = champ.stats;
-
-        // Create a modified champion with scaled stats
-        const scaledChamp = {
-          ...champ,
-          stats: {
-            ...baseStats,
-            hp: Math.round(baseStats.hp * multiplier),
-            hpPerLevel: Math.round(baseStats.hpPerLevel * multiplier),
-            mp: Math.round(baseStats.mp * multiplier),
-            mpPerLevel: Math.round(baseStats.mpPerLevel * multiplier),
-            armor: Math.round(baseStats.armor * multiplier),
-            armorPerLevel: Math.round(baseStats.armorPerLevel * multiplier),
-            magicResist: Math.round(baseStats.magicResist * multiplier),
-            magicResistPerLevel: Math.round(baseStats.magicResistPerLevel * multiplier),
-            attackDamage: Math.round(baseStats.attackDamage * multiplier),
-            attackDamagePerLevel: Math.round(baseStats.attackDamagePerLevel * multiplier),
-            attackSpeed: Math.round(baseStats.attackSpeed * multiplier * 100) / 100,
-            attackSpeedPerLevel: Math.round(baseStats.attackSpeedPerLevel * multiplier * 100) / 100,
-            hpRegen: Math.round(baseStats.hpRegen * multiplier * 10) / 10,
-            hpRegenPerLevel: Math.round(baseStats.hpRegenPerLevel * multiplier * 10) / 10,
-            mpRegen: Math.round(baseStats.mpRegen * multiplier * 10) / 10,
-            mpRegenPerLevel: Math.round(baseStats.mpRegenPerLevel * multiplier * 10) / 10,
-            crit: Math.round(baseStats.crit * multiplier * 10) / 10,
-            critPerLevel: Math.round(baseStats.critPerLevel * multiplier * 10) / 10,
-          },
-        };
-
-        const scaledInstance = new ChampionInstance(scaledChamp, baseLevel);
-        instances.push(scaledInstance);
-      } else {
-        instances.push(instance);
-      }
+    const champion = championDB.getById(enemy.championId);
+    if (!champion) continue;
+    const level = enemy.level ?? 1;
+    const multiplier = (enemy.statMultiplier || 1) * difficultyMultiplier;
+    if (multiplier === 1) {
+      instances.push(new ChampionInstance(champion, level));
+      continue;
     }
+
+    const base = champion.stats;
+    const scaledChampion = {
+      ...champion,
+      stats: {
+        ...base,
+        hp: Math.round(base.hp * multiplier),
+        hpPerLevel: Math.round(base.hpPerLevel * multiplier),
+        mp: Math.round(base.mp * multiplier),
+        mpPerLevel: Math.round(base.mpPerLevel * multiplier),
+        armor: Math.round(base.armor * multiplier),
+        armorPerLevel: Math.round(base.armorPerLevel * multiplier),
+        magicResist: Math.round(base.magicResist * multiplier),
+        magicResistPerLevel: Math.round(base.magicResistPerLevel * multiplier),
+        attackDamage: Math.round(base.attackDamage * multiplier),
+        attackDamagePerLevel: Math.round(base.attackDamagePerLevel * multiplier),
+        attackSpeed: Math.round(base.attackSpeed * multiplier * 100) / 100,
+        attackSpeedPerLevel: Math.round(base.attackSpeedPerLevel * multiplier * 100) / 100,
+        hpRegen: Math.round(base.hpRegen * multiplier * 10) / 10,
+        hpRegenPerLevel: Math.round(base.hpRegenPerLevel * multiplier * 10) / 10,
+        mpRegen: Math.round(base.mpRegen * multiplier * 10) / 10,
+        mpRegenPerLevel: Math.round(base.mpRegenPerLevel * multiplier * 10) / 10,
+        crit: Math.round(base.crit * multiplier * 10) / 10,
+        critPerLevel: Math.round(base.critPerLevel * multiplier * 10) / 10,
+      },
+    };
+    instances.push(new ChampionInstance(scaledChampion, level));
   }
   return instances;
 }
@@ -330,6 +337,7 @@ export function CombatPage() {
   const isActive = useRunStore((s) => s.isActive);
   const team = useRunStore((s) => s.team);
   const runLevel = useRunStore((s) => s.runLevel);
+  const currentWave = useRunStore((s) => s.currentWave);
   const completedCombatStats = useRunStore((s) => s.completedCombatStats);
   const authorityAttempt = useRunStore((s) => s.authorityAttempt);
   const runeIds = useRunStore((s) => s.runeIds);
@@ -350,12 +358,16 @@ export function CombatPage() {
   const difficulty = useSettingsStore((s) => s.difficulty);
   const keyboardShortcutsEnabled = useSettingsStore((s) => s.keyboardShortcutsEnabled);
   const setKeyboardShortcutsEnabled = useSettingsStore((s) => s.setKeyboardShortcutsEnabled);
-  const difficultyMultiplier = getDifficultyMultiplier(authorityAttempt?.difficulty ?? difficulty);
+  const effectiveDifficulty = authorityAttempt?.difficulty ?? difficulty;
   const isAuthorityRun = authorityAttempt !== null;
+  const usesLegacyEncounterRules =
+    authorityAttempt !== null &&
+    LEGACY_ENCOUNTER_ENGINE_VERSIONS.has(authorityAttempt.engineVersion);
   const supportsManualAuthorityCombat =
     authorityAttempt?.engineVersion === 'run-engine-v3' ||
     authorityAttempt?.engineVersion === 'run-engine-v4' ||
-    authorityAttempt?.engineVersion === 'run-engine-v5';
+    authorityAttempt?.engineVersion === 'run-engine-v5' ||
+    authorityAttempt?.engineVersion === 'run-engine-v6';
   const requiresServerAutoPlay = isAuthorityRun && !supportsManualAuthorityCombat;
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);
@@ -512,6 +524,7 @@ export function CombatPage() {
   const currentEncounter = useRunStore((s) => s.currentEncounter);
   const runSeed = useRunStore((s) => s.seed);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const currentNode = useMemo(() => useRunStore.getState().getCurrentNode(), [currentNodeId]);
   const battleRandom = useMemo(() => {
     const rng = createScopedRunRng(
       runSeed,
@@ -522,15 +535,40 @@ export function CombatPage() {
 
   // Memoize enemy instances to prevent recreation on every render
   const enemyInstances = useMemo(() => {
-    if (currentEncounter && currentEncounter.type === 'combat') {
-      return buildEnemyTeamFromEncounter(currentEncounter, difficultyMultiplier);
+    if (
+      !currentEncounter ||
+      currentEncounter.type !== 'combat' ||
+      !currentNode ||
+      ![NodeType.Combat, NodeType.Elite, NodeType.Boss].includes(currentNode.type)
+    ) {
+      return [];
     }
-    return [];
+    if (usesLegacyEncounterRules) {
+      return buildLegacyEnemyTeam(currentEncounter, getDifficultyMultiplier(effectiveDifficulty));
+    }
+    return buildResolvedEnemyTeam(
+      resolveCombatEncounter({
+        seed: runSeed,
+        nodeId: currentNode.id,
+        biome: currentNode.biome,
+        nodeType: currentNode.type as NodeType.Combat | NodeType.Elite | NodeType.Boss,
+        wave: currentWave,
+        runLevel,
+        difficulty: effectiveDifficulty,
+        encounter: currentEncounter,
+        inventory,
+      }),
+    );
   }, [
     currentEncounter?.id,
     currentEncounter?.type,
-    currentEncounter?.enemies?.map((e) => e.championId).join(','),
-    difficultyMultiplier,
+    currentNode,
+    currentWave,
+    effectiveDifficulty,
+    inventory,
+    runLevel,
+    runSeed,
+    usesLegacyEncounterRules,
   ]);
 
   const handleComplete = useCallback(
@@ -569,22 +607,51 @@ export function CombatPage() {
           finalPlayerStates.map((champion) => [champion.championId, champion.currentHp] as const),
         );
 
-        // 1. Award gold: 50 + runLevel * 10
+        const currentNode = runStore.getCurrentNode();
+        const encounter = currentNode?.encounter;
+        if (
+          !currentNode ||
+          encounter?.type !== 'combat' ||
+          ![NodeType.Combat, NodeType.Elite, NodeType.Boss].includes(currentNode.type)
+        ) {
+          logger.error('CombatPage: the resolved combat encounter is unavailable.');
+          return;
+        }
+
         const augmentManager = new AugmentManager();
         for (const id of runStore.augmentIds) {
           const definition = getAugmentDefinition(id);
           if (definition) augmentManager.acquireAugment(definition);
         }
-        const goldReward = 50 + runLevel * 10 + augmentManager.getBonusGold();
+        const usesLegacyRewards =
+          runStore.authorityAttempt !== null &&
+          LEGACY_ENCOUNTER_ENGINE_VERSIONS.has(runStore.authorityAttempt.engineVersion);
+        const resolution = usesLegacyRewards
+          ? null
+          : resolveCombatEncounter({
+              seed: runStore.seed,
+              nodeId: currentNode.id,
+              biome: currentNode.biome,
+              nodeType: currentNode.type as NodeType.Combat | NodeType.Elite | NodeType.Boss,
+              wave: runStore.currentWave,
+              runLevel: runStore.runLevel,
+              difficulty:
+                runStore.authorityAttempt?.difficulty ?? useSettingsStore.getState().difficulty,
+              encounter,
+              inventory: runStore.inventory,
+              bonusGold: augmentManager.getBonusGold(),
+            });
+        const goldReward =
+          resolution?.reward.gold ?? 50 + runStore.runLevel * 10 + augmentManager.getBonusGold();
         runStore.addGold(goldReward);
 
-        // 2. Award XP to all surviving player champions
-        const currentNode = runStore.getCurrentNode();
+        // Team XP includes KO champions by design. This avoids a permanent
+        // snowball and matches the authority replay and reward copy.
         const isBossNode = currentNode?.type === 'boss';
-        const isEliteNode = currentNode?.type === 'elite';
-        const xpGain = calculateXpGain(runLevel, isEliteNode, isBossNode);
+        const xpGain =
+          resolution?.reward.xpPerChampion ??
+          calculateXpGain(runStore.runLevel, currentNode.type === NodeType.Elite, isBossNode);
 
-        // Update each team member with XP and potential level-ups
         const previousTeam = runStore.team;
         const teamUpdates = previousTeam.map((member) => {
           const currentLevel = member.level ?? 1;
@@ -624,47 +691,40 @@ export function CombatPage() {
         const levelsGained = pendingSpellUpgrades.length;
         runStore.queueSpellUpgrades(pendingSpellUpgrades);
 
-        // 3. Account for one global combat wave.
-        runStore.completeCombatProgression();
+        let droppedItemName: string | null = null;
+        if (resolution?.reward.droppedItem) {
+          const itemResult = runStore.addItem(resolution.reward.droppedItem);
+          if (itemResult.success) droppedItemName = resolution.reward.droppedItem.name;
+        }
 
-        // 4. Complete current map node (unlocks next nodes)
-        let advancedToNextBiome = false;
-        if (currentNode) {
-          // 5. Item drop chance (~20%) — scoped to this run and encounter.
-          const completedWaveCount = useRunStore.getState().totalWavesCompleted;
+        // Legacy engines chose their drop after incrementing the wave and used
+        // a different RNG scope. Preserve it only for in-flight old attempts.
+        runStore.completeCombatProgression();
+        if (usesLegacyRewards) {
           const itemRng = createScopedRunRng(
             runStore.seed,
-            `drop:${currentNode.id}:${completedWaveCount}`,
+            `drop:${currentNode.id}:${useRunStore.getState().totalWavesCompleted}`,
           );
-          let droppedItemName: string | null = null;
           if (itemRng.next() < 0.2) {
-            const itemDefs = Object.values(ITEM_DATABASE);
-            if (itemDefs.length > 0) {
-              const drop = itemDefs[Math.floor(itemRng.next() * itemDefs.length)];
-              const item: Item = {
-                id: drop.id,
-                name: drop.name,
-                description: drop.description,
-                iconUrl: drop.iconUrl,
-                stats: drop.stats.reduce<ItemStatBonuses>((acc, s) => {
-                  const key = s.stat as keyof ItemStatBonuses;
-                  acc[key] = (acc[key] ?? 0) + s.value;
-                  return acc;
-                }, {}),
-                passiveId: drop.passive?.id,
-                goldValue: drop.goldValue,
-              };
+            const definitions = Object.values(ITEM_DATABASE);
+            const definition = definitions[Math.floor(itemRng.next() * definitions.length)];
+            if (definition) {
+              const item = itemDefinitionToRunItem(definition);
               const itemResult = runStore.addItem(item);
               if (itemResult.success) droppedItemName = item.name;
             }
           }
-          runStore.setLastCombatRewards({
-            xp: xpGain,
-            gold: goldReward,
-            itemName: droppedItemName,
-            levelsGained,
-          });
+        }
+        runStore.setLastCombatRewards({
+          xp: xpGain,
+          gold: goldReward,
+          itemName: droppedItemName,
+          levelsGained,
+        });
 
+        // Complete current map node (unlocks next nodes).
+        let advancedToNextBiome = false;
+        if (currentNode) {
           // 6. Resolve encounter (completes the node)
           if (!runStore.resolveEncounter()) {
             logger.error('CombatPage: unable to record the completed combat node.');

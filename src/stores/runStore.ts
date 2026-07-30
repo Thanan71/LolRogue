@@ -73,7 +73,7 @@ import { useSettingsStore } from './settingsStore';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const CANONICAL_PROGRESSION_ENGINES = new Set(['run-engine-v4', 'run-engine-v5']);
+const CANONICAL_PROGRESSION_ENGINES = new Set(['run-engine-v4', 'run-engine-v5', 'run-engine-v6']);
 
 function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
   return attempt === null || CANONICAL_PROGRESSION_ENGINES.has(attempt.engineVersion);

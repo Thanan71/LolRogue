@@ -14,7 +14,6 @@ import { resolveAffordableEventOutcome } from '@/game/map/EncounterManager';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { findNode } from '@/game/map/mapUtils';
 import {
-  type CombatEncounter,
   type EventEncounter,
   type MapNode,
   type NodeMap,
@@ -26,6 +25,7 @@ import {
   type TreasureEncounter,
 } from '@/game/map/types';
 import { completeCombatProgression, transitionToNextBiome } from '@/game/run/runProgression';
+import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { AugmentEffectType, DEFAULT_MAX_AUGMENTS } from '@/types/inventory';
 import {
@@ -38,9 +38,8 @@ import {
 } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateEventStatBonuses, calculateMaxHP, toCombatStatKey } from '@/utils/statCalculator';
-import { addXp, calculateXpGain } from '@/utils/xpSystem';
+import { addXp } from '@/utils/xpSystem';
 import type {
-  AuthorityDifficulty,
   AuthorityReplayResult,
   AuthorityRunAttempt,
   AuthorityRunCommand,
@@ -51,9 +50,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v5';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v6';
 export const AUTHORITY_CONTENT_HASH =
-  '8ee5c0cdb044ac544610a83b07bbadace30e0c524fe50fe22c2104675a0801e5';
+  '77da2442164e5b04faec7bb65e80adc369bf8e5a08485ed98b056374d0ae2035';
 
 assertValidRuleCatalogs();
 
@@ -68,11 +67,6 @@ const STARTER_RUNE_IDS = new Set([
   'glacial_augment',
 ]);
 const SPELL_SLOTS: readonly SpellSlot[] = ['Q', 'W', 'E', 'R'];
-const DIFFICULTY_MULTIPLIER: Record<AuthorityDifficulty, number> = {
-  easy: 0.85,
-  normal: 1,
-  hard: 1.2,
-};
 type PendingEncounter = {
   node: MapNode;
   claimed: boolean;
@@ -353,23 +347,6 @@ function itemFromShopItem(shopItem: ShopItem): Item {
   };
 }
 
-function itemFromDefinition(definition: (typeof ITEM_DATABASE)[string]): Item {
-  const stats: Item['stats'] = {};
-  for (const stat of definition.stats) {
-    const key = stat.stat as keyof Item['stats'];
-    stats[key] = (stats[key] ?? 0) + stat.value;
-  }
-  return {
-    id: definition.id,
-    name: definition.name,
-    description: definition.description,
-    iconUrl: definition.iconUrl,
-    stats,
-    passiveId: definition.passive?.id,
-    goldValue: definition.goldValue,
-  };
-}
-
 class AuthorityReplayState {
   private readonly maps: NodeMap[];
   private readonly stats = new Map<string, ChampionRunStats>();
@@ -584,8 +561,21 @@ class AuthorityReplayState {
       fail('encounter_already_claimed', 'Combat is already resolved.', commandIndex);
     pending.claimed = true;
 
+    const combatNodeType = node.type as NodeType.Combat | NodeType.Elite | NodeType.Boss;
     const players = this.buildPlayerTeam();
-    const enemies = this.buildEnemyTeam(encounter);
+    const enemies = buildResolvedEnemyTeam(
+      resolveCombatEncounter({
+        seed: this.attempt.seed,
+        nodeId: node.id,
+        biome: node.biome,
+        nodeType: combatNodeType,
+        wave: this.currentWave,
+        runLevel: this.runLevel,
+        difficulty: this.attempt.difficulty,
+        encounter,
+        inventory: this.inventory,
+      }),
+    );
     if (players.length !== this.team.length || enemies.length === 0) {
       fail('invalid_content', 'Combat contains an unknown champion.', commandIndex);
     }
@@ -692,8 +682,19 @@ class AuthorityReplayState {
     }
 
     const augmentManager = this.getAugmentManager();
-    const goldReward = 50 + this.runLevel * 10 + augmentManager.getBonusGold();
-    this.gold += goldReward;
+    const resolution = resolveCombatEncounter({
+      seed: this.attempt.seed,
+      nodeId: node.id,
+      biome: node.biome,
+      nodeType: combatNodeType,
+      wave: this.currentWave,
+      runLevel: this.runLevel,
+      difficulty: this.attempt.difficulty,
+      encounter,
+      inventory: this.inventory,
+      bonusGold: augmentManager.getBonusGold(),
+    });
+    this.gold += resolution.reward.gold;
     const healAfterBattle = augmentManager.getHealAfterBattlePercent();
     if (healAfterBattle > 0) {
       for (const member of this.team) {
@@ -701,11 +702,9 @@ class AuthorityReplayState {
         member.currentHp = Math.min(maxHp, (member.currentHp ?? 0) + maxHp * healAfterBattle);
       }
     }
-    const xpGain = calculateXpGain(
-      this.runLevel,
-      node.type === NodeType.Elite,
-      node.type === NodeType.Boss,
-    );
+    const xpGain = resolution.reward.xpPerChampion;
+    // Team XP is intentionally shared with KO champions to avoid a permanent
+    // death spiral and to keep the UI and authority replay on one policy.
     for (const member of this.team) {
       const resultXp = addXp(member.level, member.currentXp, xpGain);
       member.level = resultXp.newLevel;
@@ -721,7 +720,7 @@ class AuthorityReplayState {
     });
     this.currentWave = progression.currentWave;
     this.totalWavesCompleted = progression.totalWavesCompleted;
-    this.maybeDropCombatItem(node);
+    if (resolution.reward.droppedItem) this.addItem(resolution.reward.droppedItem);
   }
 
   private buildPlayerTeam(): ChampionInstance[] {
@@ -787,60 +786,6 @@ class AuthorityReplayState {
       if (value) bonuses.flat[stat] = (bonuses.flat[stat] ?? 0) + value;
     }
     instance.setEnhancementBonuses(bonuses);
-  }
-
-  private buildEnemyTeam(encounter: CombatEncounter): ChampionInstance[] {
-    const multiplier = DIFFICULTY_MULTIPLIER[this.attempt.difficulty];
-    const instances: ChampionInstance[] = [];
-    for (const enemy of encounter.enemies) {
-      const champion = championDB.getById(enemy.championId);
-      if (!champion) continue;
-      const level = enemy.level ?? 1;
-      const scale = (enemy.statMultiplier || 1) * multiplier;
-      if (scale === 1) {
-        instances.push(new ChampionInstance(champion, level));
-        continue;
-      }
-      const base = champion.stats;
-      const scaled = {
-        ...champion,
-        stats: {
-          ...base,
-          hp: Math.round(base.hp * scale),
-          hpPerLevel: Math.round(base.hpPerLevel * scale),
-          mp: Math.round(base.mp * scale),
-          mpPerLevel: Math.round(base.mpPerLevel * scale),
-          armor: Math.round(base.armor * scale),
-          armorPerLevel: Math.round(base.armorPerLevel * scale),
-          magicResist: Math.round(base.magicResist * scale),
-          magicResistPerLevel: Math.round(base.magicResistPerLevel * scale),
-          attackDamage: Math.round(base.attackDamage * scale),
-          attackDamagePerLevel: Math.round(base.attackDamagePerLevel * scale),
-          attackSpeed: Math.round(base.attackSpeed * scale * 100) / 100,
-          attackSpeedPerLevel: Math.round(base.attackSpeedPerLevel * scale * 100) / 100,
-          hpRegen: Math.round(base.hpRegen * scale * 10) / 10,
-          hpRegenPerLevel: Math.round(base.hpRegenPerLevel * scale * 10) / 10,
-          mpRegen: Math.round(base.mpRegen * scale * 10) / 10,
-          mpRegenPerLevel: Math.round(base.mpRegenPerLevel * scale * 10) / 10,
-          crit: Math.round(base.crit * scale * 10) / 10,
-          critPerLevel: Math.round(base.critPerLevel * scale * 10) / 10,
-        },
-      };
-      instances.push(new ChampionInstance(scaled, level));
-    }
-    return instances;
-  }
-
-  private maybeDropCombatItem(node: MapNode): void {
-    const rng = createScopedRunRng(
-      this.attempt.seed,
-      `drop:${node.id}:${this.totalWavesCompleted}`,
-    );
-    if (rng.next() >= 0.2) return;
-    const definitions = Object.values(ITEM_DATABASE);
-    if (definitions.length === 0) return;
-    const definition = definitions[Math.floor(rng.next() * definitions.length)];
-    if (definition) this.addItem(itemFromDefinition(definition));
   }
 
   private shopBuyItem(itemId: string, commandIndex: number): void {

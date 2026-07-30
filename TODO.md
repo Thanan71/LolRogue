@@ -567,14 +567,14 @@ identique avant/après reload.
 l'encounter. Les élites ressemblent aux combats normaux, les multiplicateurs de
 biome ne sont pas tous appliqués et le niveau ennemi reste souvent à 1.
 
-- [ ] Créer un résolveur unique de rencontre à partir de seed, biome, type de nœud,
+- [x] Créer un résolveur unique de rencontre à partir de seed, biome, type de nœud,
   vague, niveau et difficulté.
-- [ ] Utiliser `goldReward`, `itemDropChance` et les données de l'encounter.
-- [ ] Donner aux élites et boss une composition/mécanique/récompense distincte.
-- [ ] Appliquer une formule versionnée de scaling à toutes les stats concernées.
-- [ ] Définir si les champions KO reçoivent de l'XP et aligner texte et code.
-- [ ] Vérifier la capacité avant d'annoncer un drop.
-- [ ] Construire des simulations seedées de difficulté et de courbe économique.
+- [x] Utiliser `goldReward`, `itemDropChance` et les données de l'encounter.
+- [x] Donner aux élites et boss une composition/mécanique/récompense distincte.
+- [x] Appliquer une formule versionnée de scaling à toutes les stats concernées.
+- [x] Définir si les champions KO reçoivent de l'XP et aligner texte et code.
+- [x] Vérifier la capacité avant d'annoncer un drop.
+- [x] Construire des simulations seedées de difficulté et de courbe économique.
 
 **Acceptation :** pour une seed donnée, l'UI, le store, le résumé et la base
 rapportent exactement les mêmes ennemis et récompenses.

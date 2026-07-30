@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { getDifficultyRule } from '@/game/run/difficultyRules';
 import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
 
 export type BattleSpeed = 1 | 2 | 3;
@@ -64,7 +65,7 @@ export function getTextSizeMultiplier(size: TextSize): number {
 }
 
 export function getDifficultyMultiplier(difficulty: Difficulty): number {
-  return { easy: 0.85, normal: 1, hard: 1.2 }[difficulty];
+  return getDifficultyRule(difficulty).enemyStatMultiplier;
 }
 
 export function scaleFontSize(baseSize: number, size: TextSize): number {
