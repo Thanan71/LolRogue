@@ -250,7 +250,19 @@ describe('BattleManager', () => {
         const entry = bm.turnOrder[bm.turnIndex - 1];
         if (entry?.side === 'player') {
           expect(result).toBe(true);
+          expect(bm.getPlayerActionTrace()).toEqual([{ ...action, automatic: false }]);
         }
+      });
+
+      it('marks AI fallback actions so authority replay consumes the same RNG', () => {
+        const teams = makeTeams(['P1'], ['E1']);
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+        bm.startBattle();
+
+        while (bm.currentTurnEntry?.side !== 'player') bm.processCurrentTurn();
+        bm.processCurrentTurn();
+
+        expect(bm.getPlayerActionTrace()[0]).toMatchObject({ automatic: true });
       });
     });
 

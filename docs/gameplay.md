@@ -40,9 +40,10 @@ de préserver la reproductibilité et les tests.
 
 Le combat démarre en mode manuel. Les tours ennemis sont joués automatiquement
 après un délai visible de 1,2 s, 0,6 s ou 0,4 s selon la vitesse ×1, ×2 ou ×3.
-Activer « Auto » applique le même délai aux tours du joueur. Une run vérifiée
-utilise la résolution automatique serveur afin de conserver un résultat
-reproductible.
+Activer « Auto » applique le même délai aux tours du joueur. Les runs vérifiées v3
+journalisent les décisions manuelles sous une forme compacte et le serveur les
+rejoue avec la même consommation aléatoire. Les anciennes tentatives v1/v2
+conservent leur résolution automatique pour préserver leur contrat immuable.
 
 Les raccourcis de combat sont Q/W/E/R pour les sorts, Espace pour exécuter le tour
 manuel et Échap pour revenir à la carte une fois le combat terminé. Tab puis

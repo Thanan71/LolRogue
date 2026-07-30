@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { BattleManager } from '@/game/battle/BattleManager';
+import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import { isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { isActionTargeting } from '@/game/battle/targetResolver';
 import type { BattleAction, BattleEvent, BattleTeam } from '@/game/battle/types';
@@ -217,6 +218,7 @@ interface UseBattleManagerOptions {
     finalPlayerStates: FinalCombatantState[],
     consumedItemInstanceIds: string[],
     runeStacks: Record<string, Record<string, number>>,
+    playerActionTrace: CombatActionTrace,
   ) => void;
   /** Map of championId -> initial HP for persisting HP between combats. */
   initialHpOverrides?: Record<string, number>;
@@ -315,6 +317,7 @@ export function useBattleManager({
         finalPlayerStates,
         manager?.getConsumedItemInstanceIds() ?? [],
         manager?.getRuneStacks() ?? {},
+        manager?.getPlayerActionTrace() ?? [],
       );
     }
   }, [store.phase, store.winner]);

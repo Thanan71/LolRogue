@@ -122,11 +122,12 @@ registre pendant au moins la durée maximale d'un attempt, puis seulement active
 la nouvelle version.
 
 Le déploiement autoritaire se fait avec `npm run backend:deploy` après avoir lié
-le bon projet Supabase. Cette commande applique d'abord les migrations, puis
-reconstruit et publie `verify-run`; cet ordre évite qu'une tentative reçoive une
-version de ruleset que la fonction Edge ne sait pas encore vérifier. Les bundles
-historiques importés par la fonction restent immuables et sont contrôlés par
-`npm run edge:bundle`.
+le bon projet Supabase. Cette commande reconstruit et publie d'abord `verify-run`,
+puis applique les migrations. La fonction sait ainsi vérifier la nouvelle version
+avant son activation en base ; le moteur v3 accepte aussi les journaux
+`resolve_combat` v2 sans trace et les rejoue en auto pendant le déploiement. Les
+bundles historiques importés par la fonction restent immuables et sont contrôlés
+par `npm run edge:bundle`.
 
 Une migration destructive doit inclure une sauvegarde, une estimation d'impact et
 une procédure de restauration. Le retour arrière applicatif se fait en redéployant

@@ -352,6 +352,8 @@ export function CombatPage() {
   const setKeyboardShortcutsEnabled = useSettingsStore((s) => s.setKeyboardShortcutsEnabled);
   const difficultyMultiplier = getDifficultyMultiplier(authorityAttempt?.difficulty ?? difficulty);
   const isAuthorityRun = authorityAttempt !== null;
+  const supportsManualAuthorityCombat = authorityAttempt?.engineVersion === 'run-engine-v3';
+  const requiresServerAutoPlay = isAuthorityRun && !supportsManualAuthorityCombat;
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);
   const [autoActionRemainingMs, setAutoActionRemainingMs] = useState<number | null>(null);
@@ -534,6 +536,7 @@ export function CombatPage() {
       finalPlayerStates: FinalCombatantState[],
       consumedItemInstanceIds: string[],
       nextRuneStacks: Record<string, Record<string, number>>,
+      playerActionTrace: import('@/game/battle/actionTrace').CombatActionTrace,
     ) => {
       const commandState = useRunStore.getState();
       const combatNodeId = commandState.currentNodeId;
@@ -541,12 +544,14 @@ export function CombatPage() {
       if (
         !combatNodeId ||
         !commandState.claimCurrentEncounter() ||
-        !useRunStore
-          .getState()
-          .recordRunCommand(
-            { kind: 'resolve_combat', nodeId: combatNodeId },
-            `resolve_combat:${commandState.currentBiomeIndex}:${combatNodeId}`,
-          )
+        !useRunStore.getState().recordRunCommand(
+          {
+            kind: 'resolve_combat',
+            nodeId: combatNodeId,
+            actions: supportsManualAuthorityCombat ? playerActionTrace : undefined,
+          },
+          `resolve_combat:${commandState.currentBiomeIndex}:${combatNodeId}`,
+        )
       ) {
         useRunStore.setState({ claimedEncounterNodeIds: previousClaims });
         logger.error('CombatPage: unable to record the authoritative combat resolution.');
@@ -693,13 +698,13 @@ export function CombatPage() {
         });
       }
     },
-    [runLevel, navigate],
+    [runLevel, navigate, supportsManualAuthorityCombat],
   );
 
   const { processTurn, submitAction, getAvailableActions } = useBattleManager({
     playerTeam: playerInstances,
     enemyTeam: enemyInstances,
-    autoPlay: isAuthorityRun ? true : autoPlay,
+    autoPlay: requiresServerAutoPlay ? true : autoPlay,
     onComplete: handleComplete,
     initialHpOverrides,
     random: battleRandom,
@@ -713,7 +718,7 @@ export function CombatPage() {
 
   const chooseAction = useCallback(
     (actionType: ActionType) => {
-      if (isAuthorityRun) return;
+      if (requiresServerAutoPlay) return;
       const option = getAvailableActions().find((candidate) => candidate.type === actionType);
       if (!option) return;
 
@@ -732,7 +737,7 @@ export function CombatPage() {
         setPendingActionType(undefined);
       }
     },
-    [getAvailableActions, isAuthorityRun, selectedTargetId, submitAction],
+    [getAvailableActions, requiresServerAutoPlay, selectedTargetId, submitAction],
   );
 
   const handleCast = useCallback(
@@ -768,7 +773,7 @@ export function CombatPage() {
   const autoActionDelayMs = getAutoTurnDelayMs(battleSpeed);
   const shouldAutoAdvance = shouldAutoAdvanceCombatTurn({
     phase: battlePhase,
-    isAuthorityRun,
+    isAuthorityRun: requiresServerAutoPlay,
     autoPlay,
     isPlayerTurn,
   });
@@ -818,7 +823,7 @@ export function CombatPage() {
   ]);
 
   // Keyboard shortcuts
-  const canCast = !isAuthorityRun && isPlayerTurn && battlePhase === 'turn_active';
+  const canCast = !requiresServerAutoPlay && isPlayerTurn && battlePhase === 'turn_active';
   const canCastSlot = useCallback(
     (slot: 'Q' | 'W' | 'E' | 'R') => {
       if (!canCast || !currentSpell) return false;
@@ -834,7 +839,7 @@ export function CombatPage() {
     onCastE: canCastSlot('E') ? () => handleCast('E') : undefined,
     onCastR: canCastSlot('R') ? () => handleCast('R') : undefined,
     onNextTurn:
-      !isAuthorityRun && !autoPlay && isPlayerTurn && battlePhase === 'turn_active'
+      !requiresServerAutoPlay && !autoPlay && isPlayerTurn && battlePhase === 'turn_active'
         ? processTurn
         : undefined,
     onBack: canLeaveActiveCombat(battlePhase) ? () => navigate(ROUTES.RUN) : undefined,
@@ -844,7 +849,9 @@ export function CombatPage() {
   if (!isActive) return null;
 
   const visibleActionOptions =
-    !isAuthorityRun && isPlayerTurn && battlePhase === 'turn_active' ? getAvailableActions() : [];
+    !requiresServerAutoPlay && isPlayerTurn && battlePhase === 'turn_active'
+      ? getAvailableActions()
+      : [];
   const pendingOption = visibleActionOptions.find(
     (candidate) => candidate.type === pendingActionType,
   );
@@ -879,9 +886,9 @@ export function CombatPage() {
         <BattleSpeedControl />
         <button
           type="button"
-          disabled={isAuthorityRun}
+          disabled={requiresServerAutoPlay}
           onClick={() => {
-            if (isAuthorityRun) return;
+            if (requiresServerAutoPlay) return;
             playUIClick();
             setAutoPlay(!autoPlay);
           }}
@@ -893,24 +900,24 @@ export function CombatPage() {
             borderRadius: 4,
             fontSize: 11,
             fontWeight: 'bold',
-            cursor: isAuthorityRun ? 'not-allowed' : 'pointer',
+            cursor: requiresServerAutoPlay ? 'not-allowed' : 'pointer',
           }}
           aria-label={
-            isAuthorityRun
+            requiresServerAutoPlay
               ? 'Mode automatique serveur activé'
               : autoPlay
                 ? 'Désactiver le mode automatique'
                 : 'Activer le mode automatique'
           }
-          aria-pressed={isAuthorityRun || autoPlay}
+          aria-pressed={requiresServerAutoPlay || autoPlay}
           aria-describedby="combat-auto-status"
           title={
-            isAuthorityRun
+            requiresServerAutoPlay
               ? 'La résolution automatique est requise pour cette run vérifiée.'
               : 'Active ou désactive les actions automatiques du joueur.'
           }
         >
-          {isAuthorityRun ? 'Auto serveur' : `Auto : ${autoPlay ? 'ON' : 'OFF'}`}
+          {requiresServerAutoPlay ? 'Auto serveur' : `Auto : ${autoPlay ? 'ON' : 'OFF'}`}
         </button>
       </div>
 
@@ -968,7 +975,7 @@ export function CombatPage() {
               >
                 {autoActionRemainingMs !== null
                   ? `${
-                      isAuthorityRun
+                      requiresServerAutoPlay
                         ? 'Résolution serveur'
                         : isPlayerTurn
                           ? 'Action automatique'
@@ -978,7 +985,7 @@ export function CombatPage() {
                     ? 'Mode manuel — choisissez une action ou appuyez sur Espace.'
                     : "En attente du tour de l'ennemi…"}
               </div>
-              {!isAuthorityRun && !autoPlay && isPlayerTurn && (
+              {!requiresServerAutoPlay && !autoPlay && isPlayerTurn && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
                   <button
                     type="button"
@@ -1052,39 +1059,44 @@ export function CombatPage() {
 
       {/* Bottom: ability bar + log */}
       <div style={bottomStyle}>
-        {!isAuthorityRun && isPlayerTurn && currentChampion && !currentChampion.isDefeated && (
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              marginBottom: 8,
-            }}
-          >
-            <button
-              type="button"
-              disabled={
-                !visibleActionOptions.some((candidate) => candidate.type === ActionType.BasicAttack)
-              }
-              onClick={() => chooseAction(ActionType.BasicAttack)}
-              style={nextTurnBtnStyle}
-              aria-label="Attaque de base"
+        {!requiresServerAutoPlay &&
+          isPlayerTurn &&
+          currentChampion &&
+          !currentChampion.isDefeated && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                marginBottom: 8,
+              }}
             >
-              ⚔ Attaque
-            </button>
-            <AbilityBar champion={currentChampion} onCast={handleCast} />
-            {pendingOption && (
-              <div
-                role="status"
-                style={{ width: '100%', textAlign: 'center', color: '#c8aa6e', fontSize: 12 }}
+              <button
+                type="button"
+                disabled={
+                  !visibleActionOptions.some(
+                    (candidate) => candidate.type === ActionType.BasicAttack,
+                  )
+                }
+                onClick={() => chooseAction(ActionType.BasicAttack)}
+                style={nextTurnBtnStyle}
+                aria-label="Attaque de base"
               >
-                Choisissez une cible valide.
-              </div>
-            )}
-          </div>
-        )}
+                ⚔ Attaque
+              </button>
+              <AbilityBar champion={currentChampion} onCast={handleCast} />
+              {pendingOption && (
+                <div
+                  role="status"
+                  style={{ width: '100%', textAlign: 'center', color: '#c8aa6e', fontSize: 12 }}
+                >
+                  Choisissez une cible valide.
+                </div>
+              )}
+            </div>
+          )}
         <details
           style={{
             margin: '0 auto 8px',

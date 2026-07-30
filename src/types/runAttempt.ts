@@ -1,3 +1,5 @@
+import type { CombatActionTrace } from '@/game/battle/actionTrace';
+
 export type AuthorityRunMode = 'normal' | 'daily';
 export type AuthorityDifficulty = 'easy' | 'normal' | 'hard';
 
@@ -14,7 +16,7 @@ export type RunEnhancementSnapshot = Record<string, Record<string, number>>;
 
 export type RunCommandInput =
   | { kind: 'move_node'; nodeId: string }
-  | { kind: 'resolve_combat'; nodeId: string }
+  | { kind: 'resolve_combat'; nodeId: string; actions?: CombatActionTrace }
   | { kind: 'shop_buy_item'; nodeId: string; itemId: string }
   | { kind: 'shop_recruit'; nodeId: string; championId: string }
   | { kind: 'rest'; nodeId: string }

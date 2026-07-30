@@ -2,6 +2,7 @@ import { implementedChampions } from '@/data/champion';
 import { championDB } from '@/data/championDatabase';
 import { AUGMENT_DATABASE, getRuneDefinition, ITEM_DATABASE } from '@/data/items';
 import { BattleManager } from '@/game/battle/BattleManager';
+import { decodeCombatActionTrace } from '@/game/battle/actionTrace';
 import { BattlePhase, type BattleTeam } from '@/game/battle/types';
 import { ChampionInstance, type SpellSlot } from '@/game/ChampionInstance';
 import { AugmentManager } from '@/game/augments/AugmentManager';
@@ -49,9 +50,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v2';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v3';
 export const AUTHORITY_CONTENT_HASH =
-  '85af7f7d9178597f4f9ed14e362773973f9f2601d679b62c7649de53e2d68223';
+  '624192653602e1c62396fcfb80119db23e8d41e3466500ed8f9c99d172bb84d7';
 
 assertValidRuleCatalogs();
 
@@ -107,9 +108,10 @@ function requiredString(
   payload: Record<string, unknown>,
   key: string,
   commandIndex: number,
+  maxLength = 160,
 ): string {
   const value = payload[key];
-  if (typeof value !== 'string' || value.length === 0 || value.length > 160) {
+  if (typeof value !== 'string' || value.length === 0 || value.length > maxLength) {
     fail('invalid_command', `Command payload "${key}" must be a non-empty string.`, commandIndex);
   }
   return value;
@@ -143,7 +145,27 @@ function parseCommand(value: unknown, commandIndex: number): AuthorityRunCommand
     case 'move_node':
       return { sequence, kind: value.kind, payload: nodePayload() };
     case 'resolve_combat':
-      return { sequence, kind: value.kind, payload: nodePayload() };
+      if (hasExactKeys(payload, ['node_id'])) {
+        return {
+          sequence,
+          kind: value.kind,
+          payload: {
+            node_id: requiredString(payload, 'node_id', commandIndex),
+            actions_json: 'auto',
+          },
+        };
+      }
+      if (!hasExactKeys(payload, ['actions_json', 'node_id'])) {
+        fail('invalid_command', 'resolve_combat expects node_id and actions_json.', commandIndex);
+      }
+      return {
+        sequence,
+        kind: value.kind,
+        payload: {
+          node_id: requiredString(payload, 'node_id', commandIndex),
+          actions_json: requiredString(payload, 'actions_json', commandIndex, 7000),
+        },
+      };
     case 'rest':
       return { sequence, kind: value.kind, payload: nodePayload() };
     case 'recruit':
@@ -410,7 +432,7 @@ class AuthorityReplayState {
         break;
       case 'resolve_combat':
         this.requirePendingNode(command.payload.node_id, NodeType.Combat, commandIndex, true);
-        this.resolveCombat(commandIndex);
+        this.resolveCombat(command.payload.actions_json, commandIndex);
         break;
       case 'shop_buy_item':
         this.requirePendingNode(command.payload.node_id, NodeType.Shop, commandIndex);
@@ -550,7 +572,7 @@ class AuthorityReplayState {
     };
   }
 
-  private resolveCombat(commandIndex: number): void {
+  private resolveCombat(actionsJson: string, commandIndex: number): void {
     const pending = this.pending;
     const node = pending?.node;
     const encounter = node?.encounter;
@@ -571,10 +593,16 @@ class AuthorityReplayState {
       if (member.currentHp !== null) initialHpOverrides[member.championId] = member.currentHp;
     }
     const rng = createScopedRunRng(this.attempt.seed, `combat:${encounter.id ?? node.id}`);
+    const usesCanonicalAutoPlay = actionsJson === 'auto';
+    const scriptedActions = usesCanonicalAutoPlay ? [] : decodeCombatActionTrace(actionsJson);
+    if (!scriptedActions) {
+      fail('invalid_combat_action_trace', 'Combat action trace is malformed.', commandIndex);
+    }
+    let scriptedActionIndex = 0;
     const playerTeam: BattleTeam = { side: 'player', champions: players };
     const enemyTeam: BattleTeam = { side: 'enemy', champions: enemies };
     const battle = new BattleManager(playerTeam, enemyTeam, {
-      autoActions: true,
+      autoActions: usesCanonicalAutoPlay,
       maxRounds: 50,
       maxTeamSize: MAX_TEAM_SIZE,
       initialHpOverrides:
@@ -593,6 +621,12 @@ class AuthorityReplayState {
         () => rng.next(),
       ),
     });
+    if (!usesCanonicalAutoPlay) {
+      battle.setActionCallback(() => {
+        const action = scriptedActions[scriptedActionIndex++];
+        return action?.automatic ? null : (action ?? null);
+      });
+    }
     battle.startBattle();
     let processedTurns = 0;
     while (battle.phase !== BattlePhase.Finished && processedTurns < MAX_COMBAT_TURNS) {
@@ -604,6 +638,24 @@ class AuthorityReplayState {
     }
     const result = battle.getResult();
     if (!result) fail('invalid_combat_result', 'Combat ended without a result.', commandIndex);
+    const replayedActions = battle.getPlayerActionTrace();
+    if (
+      (!usesCanonicalAutoPlay && scriptedActionIndex !== scriptedActions.length) ||
+      (!usesCanonicalAutoPlay &&
+        (replayedActions.length !== scriptedActions.length ||
+          replayedActions.some(
+            (action, index) =>
+              action.type !== scriptedActions[index]?.type ||
+              action.targetId !== scriptedActions[index]?.targetId ||
+              action.automatic !== scriptedActions[index]?.automatic,
+          )))
+    ) {
+      fail(
+        'invalid_combat_action_trace',
+        'Combat action trace does not match deterministic replay.',
+        commandIndex,
+      );
+    }
 
     for (const event of result.log) {
       if (event.type === 'damage' && event.sourceSide === 'player') {

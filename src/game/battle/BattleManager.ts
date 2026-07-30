@@ -48,6 +48,7 @@ import {
   type TeamSide,
   type TurnEntry,
 } from './types';
+import type { CombatActionTrace } from './actionTrace';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -113,6 +114,7 @@ export class BattleManager {
   private readonly _rules: CombatRuleRuntime | null;
   private _activeActionType: ActionType | null = null;
   private _actionCallback: ActionCallback | null = null;
+  private _playerActionTrace: CombatActionTrace = [];
   private readonly _lastDamagedRound = new Map<string, number>();
   private readonly _passiveCounters = new Map<string, number>();
   private readonly _preserveHpOnRuleInitialization = new Set<string>();
@@ -154,6 +156,9 @@ export class BattleManager {
   }
   get log(): ReadonlyArray<BattleEvent> {
     return this._log;
+  }
+  getPlayerActionTrace(): CombatActionTrace {
+    return this._playerActionTrace.map((action) => ({ ...action }));
   }
 
   get state() {
@@ -305,6 +310,7 @@ export class BattleManager {
     this._phase = BattlePhase.Starting;
     this._round = 0;
     this._log = [];
+    this._playerActionTrace = [];
     this._initCombatants();
     this._rules?.reset();
     const battleStart = this._rules?.dispatch({
@@ -351,12 +357,14 @@ export class BattleManager {
     }
 
     let action: BattleAction | null = null;
+    let automaticAction = false;
     if (!this._autoActions && entry.side === 'player' && this._actionCallback) {
       action = this._actionCallback(entry.champion, entry.side, enemies, allies);
     }
     let validated = action ? this._validateAction(attackerState, action) : null;
     if (!validated) {
       action = this._selectAIAction(attackerState);
+      automaticAction = true;
       validated = action ? this._validateAction(attackerState, action) : null;
     }
     if (!action || !validated) {
@@ -366,6 +374,9 @@ export class BattleManager {
       if (this._checkVictory()) return;
       this._nextTurn();
       return;
+    }
+    if (entry.side === 'player') {
+      this._playerActionTrace.push({ ...action, automatic: automaticAction });
     }
 
     this._emit({
@@ -394,6 +405,7 @@ export class BattleManager {
     const turnEffectIds = attackerState.effectManager.effects.map((effect) => effect.id);
     const validated = this._validateAction(attackerState, action);
     if (!validated) return false;
+    this._playerActionTrace.push({ ...action, automatic: false });
 
     this._emit({
       type: 'action_select',

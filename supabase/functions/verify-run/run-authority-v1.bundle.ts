@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/data/champion/Annie.ts
 var annie = {
   id: "Annie",

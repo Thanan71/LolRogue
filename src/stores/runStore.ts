@@ -55,6 +55,7 @@ import type {
   RunAuthorityAttempt,
   RunCommandInput,
 } from '@/types/runAttempt';
+import { encodeCombatActionTrace } from '@/game/battle/actionTrace';
 import { logger } from '@/utils/logger';
 import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
 import { calculateMaxHP } from '@/utils/statCalculator';
@@ -100,13 +101,16 @@ function samePendingStart(
 function commandPayload(command: RunCommandInput): Record<string, string> {
   switch (command.kind) {
     case 'move_node':
-    case 'resolve_combat':
     case 'rest':
     case 'recruit':
     case 'event':
     case 'treasure':
     case 'resolve_node':
       return { node_id: command.nodeId };
+    case 'resolve_combat':
+      return command.actions
+        ? { node_id: command.nodeId, actions_json: encodeCombatActionTrace(command.actions) }
+        : { node_id: command.nodeId };
     case 'shop_buy_item':
       return { node_id: command.nodeId, item_id: command.itemId };
     case 'shop_recruit':
@@ -126,10 +130,17 @@ function commandPayload(command: RunCommandInput): Record<string, string> {
 }
 
 function isValidCommand(command: RunCommandInput): boolean {
-  const payload = commandPayload(command);
-  return Object.values(payload).every(
-    (value) => typeof value === 'string' && value.length > 0 && value.length <= 160,
-  );
+  try {
+    const payload = commandPayload(command);
+    return Object.entries(payload).every(
+      ([key, value]) =>
+        typeof value === 'string' &&
+        value.length > 0 &&
+        value.length <= (key === 'actions_json' ? 7000 : 160),
+    );
+  } catch {
+    return false;
+  }
 }
 
 function mutationFailure(

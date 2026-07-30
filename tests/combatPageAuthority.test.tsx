@@ -5,6 +5,8 @@ import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NodeType } from '@/game/map/types';
+import type { CombatActionTrace } from '@/game/battle/actionTrace';
+import { ActionType } from '@/game/battle/types';
 import { CombatPage } from '@/pages/CombatPage';
 import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useAuthStore } from '@/stores/authStore';
@@ -19,7 +21,13 @@ const combatMocks = vi.hoisted(() => ({
   navigate: vi.fn(),
   onComplete: null as
     | null
-    | ((winner: 'player' | 'enemy' | 'draw', finalPlayerStates: FinalCombatantState[]) => void),
+    | ((
+        winner: 'player' | 'enemy' | 'draw',
+        finalPlayerStates: FinalCombatantState[],
+        consumedItemInstanceIds?: string[],
+        runeStacks?: Record<string, Record<string, number>>,
+        playerActionTrace?: CombatActionTrace,
+      ) => void),
   finalPlayerStates: [] as FinalCombatantState[],
   autoPlay: null as boolean | null,
   processTurn: vi.fn(),
@@ -39,6 +47,9 @@ vi.mock('@/hooks/useBattleManager', () => ({
     onComplete?: (
       winner: 'player' | 'enemy' | 'draw',
       finalPlayerStates: FinalCombatantState[],
+      consumedItemInstanceIds?: string[],
+      runeStacks?: Record<string, Record<string, number>>,
+      playerActionTrace?: CombatActionTrace,
     ) => void;
   }) => {
     combatMocks.onComplete = options.onComplete ?? null;
@@ -72,14 +83,14 @@ vi.mock('@/components/CombatUI/TurnIndicator', () => ({ TurnIndicator: () => nul
 const RUN_UUID = 'attempt_22222222-2222-4222-8222-222222222222';
 const realEndRun = useRunStore.getState().endRun;
 
-function attempt(): RunAuthorityAttempt {
+function attempt(engineVersion = 'run-engine-v1'): RunAuthorityAttempt {
   return {
     attemptId: '11111111-1111-4111-8111-111111111111',
     runUuid: RUN_UUID,
     ownerUserId: 'user-1',
     seed: 42,
     rulesetVersion: 1,
-    engineVersion: 'run-engine-v1',
+    engineVersion,
     difficulty: 'normal',
     mode: 'normal',
     initialTeam: ['Garen'],
@@ -246,6 +257,35 @@ describe('CombatPage authority finalization', () => {
 
     expect(autoToggle).toHaveTextContent('Auto : ON');
     expect(combatMocks.autoPlay).toBe(true);
+  });
+
+  it('starts a v3 verified combat with auto off and journals its manual action trace', () => {
+    useRunStore.setState({ authorityAttempt: attempt('run-engine-v3') });
+    const view = render(<CombatPage />);
+
+    const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
+    expect(autoToggle).toBeEnabled();
+    expect(autoToggle).toHaveTextContent('Auto : OFF');
+    expect(combatMocks.autoPlay).toBe(false);
+
+    act(() => {
+      combatMocks.onComplete?.(
+        'enemy',
+        [{ championId: 'Garen', currentHp: 0, maxHp: 620, currentMp: 0, maxMp: 100 }],
+        [],
+        {},
+        [{ type: ActionType.SpellQ, targetId: 'enemy:Garen:0', automatic: false }],
+      );
+    });
+
+    expect(
+      useRunStore
+        .getState()
+        .authorityAttempt?.commands.find((command) => command.kind === 'resolve_combat')?.payload,
+    ).toEqual({
+      node_id: 'fight',
+      actions_json: '[["q","enemy:Garen:0",0]]',
+    });
   });
 
   it('waits on a manual player decision and visibly delays the following enemy turn', async () => {

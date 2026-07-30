@@ -12,7 +12,8 @@
       "!!node_modules",
       "!!public/lol/data",
       "!!src/data/generated/*.json",
-      "!!supabase/functions/verify-run/run-authority-v1.bundle.js"
+      "!!supabase/functions/verify-run/run-authority-v1.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v2.bundle.ts"
     ]
   },
   "formatter": {

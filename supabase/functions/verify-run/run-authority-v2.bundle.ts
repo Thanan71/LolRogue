@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/data/generated/riot-assets-manifest.json
 var riot_assets_manifest_default = {
   schemaVersion: 1,
@@ -44434,7 +44435,6 @@ var BattleManager = class {
   _rules;
   _activeActionType = null;
   _actionCallback = null;
-  _playerActionTrace = [];
   _lastDamagedRound = /* @__PURE__ */ new Map();
   _passiveCounters = /* @__PURE__ */ new Map();
   _preserveHpOnRuleInitialization = /* @__PURE__ */ new Set();
@@ -44453,9 +44453,6 @@ var BattleManager = class {
   }
   get log() {
     return this._log;
-  }
-  getPlayerActionTrace() {
-    return this._playerActionTrace.map((action) => ({ ...action }));
   }
   get state() {
     return {
@@ -44574,7 +44571,6 @@ var BattleManager = class {
     this._phase = "starting" /* Starting */;
     this._round = 0;
     this._log = [];
-    this._playerActionTrace = [];
     this._initCombatants();
     this._rules?.reset();
     const battleStart = this._rules?.dispatch({
@@ -44613,14 +44609,12 @@ var BattleManager = class {
       return;
     }
     let action = null;
-    let automaticAction = false;
     if (!this._autoActions && entry.side === "player" && this._actionCallback) {
       action = this._actionCallback(entry.champion, entry.side, enemies, allies);
     }
     let validated = action ? this._validateAction(attackerState, action) : null;
     if (!validated) {
       action = this._selectAIAction(attackerState);
-      automaticAction = true;
       validated = action ? this._validateAction(attackerState, action) : null;
     }
     if (!action || !validated) {
@@ -44630,9 +44624,6 @@ var BattleManager = class {
       if (this._checkVictory()) return;
       this._nextTurn();
       return;
-    }
-    if (entry.side === "player") {
-      this._playerActionTrace.push({ ...action, automatic: automaticAction });
     }
     this._emit({
       type: "action_select",
@@ -44657,7 +44648,6 @@ var BattleManager = class {
     const turnEffectIds = attackerState.effectManager.effects.map((effect) => effect.id);
     const validated = this._validateAction(attackerState, action);
     if (!validated) return false;
-    this._playerActionTrace.push({ ...action, automatic: false });
     this._emit({
       type: "action_select",
       champion: entry.champion.id,
@@ -45749,41 +45739,6 @@ function toCCType(value) {
       return "charm" /* Charm */;
     default:
       return null;
-  }
-}
-
-// src/game/battle/actionTrace.ts
-var ACTION_CODES = {
-  ["basic_attack" /* BasicAttack */]: "a",
-  ["spell_q" /* SpellQ */]: "q",
-  ["spell_w" /* SpellW */]: "w",
-  ["spell_e" /* SpellE */]: "e",
-  ["spell_r" /* SpellR */]: "r"
-};
-var CODE_ACTIONS = new Map(
-  Object.entries(ACTION_CODES).map(([action, code]) => [code, action])
-);
-var MAX_COMBAT_ACTIONS = 500;
-var MAX_COMBAT_ACTION_TRACE_LENGTH = 7e3;
-function decodeCombatActionTrace(value) {
-  if (!value || value.length > MAX_COMBAT_ACTION_TRACE_LENGTH) return null;
-  try {
-    const parsed = JSON.parse(value);
-    if (!Array.isArray(parsed) || parsed.length > MAX_COMBAT_ACTIONS) return null;
-    const trace = [];
-    for (const entry of parsed) {
-      if (!Array.isArray(entry) || entry.length !== 3) return null;
-      const type = typeof entry[0] === "string" ? CODE_ACTIONS.get(entry[0]) : void 0;
-      const targetId = entry[1];
-      const automatic = entry[2];
-      if (!type || automatic !== 0 && automatic !== 1 || targetId !== null && (typeof targetId !== "string" || targetId.length === 0 || targetId.length > 160)) {
-        return null;
-      }
-      trace.push({ type, targetId: targetId ?? void 0, automatic: automatic === 1 });
-    }
-    return trace;
-  } catch {
-    return null;
   }
 }
 
@@ -49940,8 +49895,8 @@ function addXp(currentLevel, currentXp, xpGained) {
 }
 
 // src/game/authority/AuthorityRunEngine.ts
-var AUTHORITY_ENGINE_VERSION = "run-engine-v3";
-var AUTHORITY_CONTENT_HASH = "624192653602e1c62396fcfb80119db23e8d41e3466500ed8f9c99d172bb84d7";
+var AUTHORITY_ENGINE_VERSION = "run-engine-v2";
+var AUTHORITY_CONTENT_HASH = "85af7f7d9178597f4f9ed14e362773973f9f2601d679b62c7649de53e2d68223";
 assertValidRuleCatalogs();
 var MAX_COMMANDS = 1e4;
 var MAX_COMBAT_TURNS = 1e5;
@@ -49978,9 +49933,9 @@ function hasExactKeys(value, keys) {
   const expected = [...keys].sort();
   return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
 }
-function requiredString(payload, key, commandIndex, maxLength = 160) {
+function requiredString(payload, key, commandIndex) {
   const value = payload[key];
-  if (typeof value !== "string" || value.length === 0 || value.length > maxLength) {
+  if (typeof value !== "string" || value.length === 0 || value.length > 160) {
     fail("invalid_command", `Command payload "${key}" must be a non-empty string.`, commandIndex);
   }
   return value;
@@ -50011,27 +49966,7 @@ function parseCommand(value, commandIndex) {
     case "move_node":
       return { sequence, kind: value.kind, payload: nodePayload() };
     case "resolve_combat":
-      if (hasExactKeys(payload, ["node_id"])) {
-        return {
-          sequence,
-          kind: value.kind,
-          payload: {
-            node_id: requiredString(payload, "node_id", commandIndex),
-            actions_json: "auto"
-          }
-        };
-      }
-      if (!hasExactKeys(payload, ["actions_json", "node_id"])) {
-        fail("invalid_command", "resolve_combat expects node_id and actions_json.", commandIndex);
-      }
-      return {
-        sequence,
-        kind: value.kind,
-        payload: {
-          node_id: requiredString(payload, "node_id", commandIndex),
-          actions_json: requiredString(payload, "actions_json", commandIndex, 7e3)
-        }
-      };
+      return { sequence, kind: value.kind, payload: nodePayload() };
     case "rest":
       return { sequence, kind: value.kind, payload: nodePayload() };
     case "recruit":
@@ -50264,7 +50199,7 @@ var AuthorityReplayState = class {
         break;
       case "resolve_combat":
         this.requirePendingNode(command.payload.node_id, "combat" /* Combat */, commandIndex, true);
-        this.resolveCombat(command.payload.actions_json, commandIndex);
+        this.resolveCombat(commandIndex);
         break;
       case "shop_buy_item":
         this.requirePendingNode(command.payload.node_id, "shop" /* Shop */, commandIndex);
@@ -50399,7 +50334,7 @@ var AuthorityReplayState = class {
       recruitedChampionIds: /* @__PURE__ */ new Set()
     };
   }
-  resolveCombat(actionsJson, commandIndex) {
+  resolveCombat(commandIndex) {
     const pending = this.pending;
     const node = pending?.node;
     const encounter = node?.encounter;
@@ -50419,16 +50354,10 @@ var AuthorityReplayState = class {
       if (member.currentHp !== null) initialHpOverrides[member.championId] = member.currentHp;
     }
     const rng = createScopedRunRng(this.attempt.seed, `combat:${encounter.id ?? node.id}`);
-    const usesCanonicalAutoPlay = actionsJson === "auto";
-    const scriptedActions = usesCanonicalAutoPlay ? [] : decodeCombatActionTrace(actionsJson);
-    if (!scriptedActions) {
-      fail("invalid_combat_action_trace", "Combat action trace is malformed.", commandIndex);
-    }
-    let scriptedActionIndex = 0;
     const playerTeam = { side: "player", champions: players };
     const enemyTeam = { side: "enemy", champions: enemies };
     const battle = new BattleManager(playerTeam, enemyTeam, {
-      autoActions: usesCanonicalAutoPlay,
+      autoActions: true,
       maxRounds: 50,
       maxTeamSize: MAX_TEAM_SIZE,
       initialHpOverrides: Object.keys(initialHpOverrides).length > 0 ? initialHpOverrides : void 0,
@@ -50445,12 +50374,6 @@ var AuthorityReplayState = class {
         () => rng.next()
       )
     });
-    if (!usesCanonicalAutoPlay) {
-      battle.setActionCallback(() => {
-        const action = scriptedActions[scriptedActionIndex++];
-        return action?.automatic ? null : action ?? null;
-      });
-    }
     battle.startBattle();
     let processedTurns = 0;
     while (battle.phase !== "finished" /* Finished */ && processedTurns < MAX_COMBAT_TURNS) {
@@ -50462,16 +50385,6 @@ var AuthorityReplayState = class {
     }
     const result = battle.getResult();
     if (!result) fail("invalid_combat_result", "Combat ended without a result.", commandIndex);
-    const replayedActions = battle.getPlayerActionTrace();
-    if (!usesCanonicalAutoPlay && scriptedActionIndex !== scriptedActions.length || !usesCanonicalAutoPlay && (replayedActions.length !== scriptedActions.length || replayedActions.some(
-      (action, index) => action.type !== scriptedActions[index]?.type || action.targetId !== scriptedActions[index]?.targetId || action.automatic !== scriptedActions[index]?.automatic
-    ))) {
-      fail(
-        "invalid_combat_action_trace",
-        "Combat action trace does not match deterministic replay.",
-        commandIndex
-      );
-    }
     for (const event of result.log) {
       if (event.type === "damage" && event.sourceSide === "player") {
         this.ensureStats(event.source).totalDamage += event.amount;

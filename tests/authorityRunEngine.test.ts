@@ -23,7 +23,11 @@ function firstCombatTrace() {
   const nodeId = generateRunMap(ATTEMPT.seed)[0].startNodeId;
   return [
     { sequence: 1, kind: 'move_node', payload: { node_id: nodeId } },
-    { sequence: 2, kind: 'resolve_combat', payload: { node_id: nodeId } },
+    {
+      sequence: 2,
+      kind: 'resolve_combat',
+      payload: { node_id: nodeId, actions_json: 'auto' },
+    },
     { sequence: 3, kind: 'resolve_node', payload: { node_id: nodeId } },
   ] as const;
 }
@@ -73,7 +77,10 @@ function buildStrongTeamTrace(stopAfterFirstExit: boolean): AuthorityRunCommand[
         currentNode.type === NodeType.Elite ||
         currentNode.type === NodeType.Boss
       ) {
-        append({ kind: 'resolve_combat', payload: { node_id: currentNode.id } });
+        append({
+          kind: 'resolve_combat',
+          payload: { node_id: currentNode.id, actions_json: 'auto' },
+        });
         append({ kind: 'resolve_node', payload: { node_id: currentNode.id } });
       } else if (currentNode.type === NodeType.Treasure) {
         append({ kind: 'treasure', payload: { node_id: currentNode.id } });
@@ -111,6 +118,19 @@ describe('authority run engine', () => {
     expect(result.snapshot.expectedNodeIds).toEqual([generateRunMap(ATTEMPT.seed)[0].startNodeId]);
   });
 
+  it('rejects a malformed manual combat action trace', () => {
+    const commands = firstCombatTrace().map((command) =>
+      command.kind === 'resolve_combat'
+        ? { ...command, payload: { ...command.payload, actions_json: 'not-json' } }
+        : command,
+    );
+
+    expect(verifyAuthorityRun(ATTEMPT, commands, { requireTerminal: false })).toMatchObject({
+      ok: false,
+      error: { code: 'invalid_combat_action_trace', commandIndex: 1 },
+    });
+  });
+
   it('replays auto-combat deterministically and derives rewards and statistics', () => {
     const first = replayAuthorityRun(ATTEMPT, firstCombatTrace());
     const second = replayAuthorityRun(ATTEMPT, firstCombatTrace());
@@ -122,6 +142,18 @@ describe('authority run engine', () => {
     expect(first.snapshot.totalDamage).toBeGreaterThan(0);
     expect(first.snapshot.nextSequence).toBe(4);
     expect(first.snapshot.expectedNodeIds.length).toBeGreaterThan(0);
+  });
+
+  it('keeps node-only auto-combat journals compatible during the v3 rollout', () => {
+    const legacyTrace = firstCombatTrace().map((command) =>
+      command.kind === 'resolve_combat'
+        ? { ...command, payload: { node_id: command.payload.node_id } }
+        : command,
+    );
+
+    expect(replayAuthorityRun(ATTEMPT, legacyTrace)).toEqual(
+      replayAuthorityRun(ATTEMPT, firstCombatTrace()),
+    );
   });
 
   it('rejects gaps, duplicates and unexpected fields in the journal wire format', () => {
@@ -204,7 +236,11 @@ describe('authority run engine', () => {
     const startNodeId = generateRunMap(branchAttempt!.seed)[0].startNodeId;
     const commands: AuthorityRunCommand[] = [
       { sequence: 1, kind: 'move_node', payload: { node_id: startNodeId } },
-      { sequence: 2, kind: 'resolve_combat', payload: { node_id: startNodeId } },
+      {
+        sequence: 2,
+        kind: 'resolve_combat',
+        payload: { node_id: startNodeId, actions_json: 'auto' },
+      },
       { sequence: 3, kind: 'resolve_node', payload: { node_id: startNodeId } },
       { sequence: 4, kind: 'move_node', payload: { node_id: selectedNodeId } },
       { sequence: 5, kind: 'resolve_node', payload: { node_id: selectedNodeId } },
@@ -226,7 +262,10 @@ describe('authority run engine', () => {
           {
             sequence: 4,
             kind: 'resolve_combat',
-            payload: { node_id: generateRunMap(ATTEMPT.seed)[0].startNodeId },
+            payload: {
+              node_id: generateRunMap(ATTEMPT.seed)[0].startNodeId,
+              actions_json: 'auto',
+            },
           },
         ],
         { requireTerminal: false },

@@ -27,7 +27,10 @@ interface AuthorityCommand<K extends string, P extends Record<string, string>> {
 }
 
 export type MoveNodeCommand = AuthorityCommand<'move_node', { node_id: string }>;
-export type ResolveCombatCommand = AuthorityCommand<'resolve_combat', { node_id: string }>;
+export type ResolveCombatCommand = AuthorityCommand<
+  'resolve_combat',
+  { node_id: string; actions_json: string }
+>;
 export type ShopBuyItemCommand = AuthorityCommand<
   'shop_buy_item',
   { node_id: string; item_id: string }
