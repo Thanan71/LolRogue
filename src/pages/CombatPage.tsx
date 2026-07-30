@@ -17,6 +17,7 @@ import {
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { ActionType } from '@/game/battle/types';
+import type { BattleEvent } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { NodeType, type CombatEncounter } from '@/game/map/types';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
@@ -32,7 +33,6 @@ import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useBattleStore } from '@/stores/battleStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/config/routes';
@@ -338,7 +338,6 @@ export function CombatPage() {
   const team = useRunStore((s) => s.team);
   const runLevel = useRunStore((s) => s.runLevel);
   const currentWave = useRunStore((s) => s.currentWave);
-  const completedCombatStats = useRunStore((s) => s.completedCombatStats);
   const authorityAttempt = useRunStore((s) => s.authorityAttempt);
   const runeIds = useRunStore((s) => s.runeIds);
   const runeStacks = useRunStore((s) => s.runeStacks);
@@ -367,7 +366,8 @@ export function CombatPage() {
     authorityAttempt?.engineVersion === 'run-engine-v3' ||
     authorityAttempt?.engineVersion === 'run-engine-v4' ||
     authorityAttempt?.engineVersion === 'run-engine-v5' ||
-    authorityAttempt?.engineVersion === 'run-engine-v6';
+    authorityAttempt?.engineVersion === 'run-engine-v6' ||
+    authorityAttempt?.engineVersion === 'run-engine-v7';
   const requiresServerAutoPlay = isAuthorityRun && !supportsManualAuthorityCombat;
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);
@@ -375,14 +375,6 @@ export function CombatPage() {
   const [selectedTargetId, setSelectedTargetId] = useState<string>();
   const [pendingActionType, setPendingActionType] = useState<ActionType>();
   const hasNavigatedAfterLossRef = useRef(false);
-
-  // Restore statistics from encounters completed before a reload/navigation.
-  // The current encounter is intentionally not persisted until it is won.
-  useEffect(() => {
-    if (isActive) {
-      runStatsTracker.restore(completedCombatStats);
-    }
-  }, [completedCombatStats, isActive]);
 
   // Reset the ref when battlePhase changes to starting (new combat)
   useEffect(() => {
@@ -578,6 +570,7 @@ export function CombatPage() {
       consumedItemInstanceIds: string[],
       nextRuneStacks: Record<string, Record<string, number>>,
       playerActionTrace: import('@/game/battle/actionTrace').CombatActionTrace,
+      combatEvents: BattleEvent[] = [],
     ) => {
       const commandState = useRunStore.getState();
       const combatNodeId = commandState.currentNodeId;
@@ -598,8 +591,13 @@ export function CombatPage() {
         logger.error('CombatPage: unable to record the authoritative combat resolution.');
         return;
       }
-      useRunStore.getState().consumeItems(consumedItemInstanceIds);
+      useRunStore.getState().consumeItems(consumedItemInstanceIds, {
+        source: 'combat',
+        nodeId: combatNodeId,
+        wave: commandState.currentWave,
+      });
       useRunStore.getState().setRuneStacks(nextRuneStacks);
+      useRunStore.getState().commitCombatEvents(combatEvents);
 
       if (w === 'player') {
         const runStore = useRunStore.getState();
@@ -643,7 +641,11 @@ export function CombatPage() {
             });
         const goldReward =
           resolution?.reward.gold ?? 50 + runStore.runLevel * 10 + augmentManager.getBonusGold();
-        runStore.addGold(goldReward);
+        runStore.addGold(goldReward, {
+          source: 'combat',
+          nodeId: currentNode.id,
+          wave: runStore.currentWave,
+        });
 
         // Team XP includes KO champions by design. This avoids a permanent
         // snowball and matches the authority replay and reward copy.
@@ -693,7 +695,11 @@ export function CombatPage() {
 
         let droppedItemName: string | null = null;
         if (resolution?.reward.droppedItem) {
-          const itemResult = runStore.addItem(resolution.reward.droppedItem);
+          const itemResult = runStore.addItem(resolution.reward.droppedItem, {
+            source: 'combat',
+            nodeId: currentNode.id,
+            wave: runStore.currentWave,
+          });
           if (itemResult.success) droppedItemName = resolution.reward.droppedItem.name;
         }
 
@@ -710,7 +716,11 @@ export function CombatPage() {
             const definition = definitions[Math.floor(itemRng.next() * definitions.length)];
             if (definition) {
               const item = itemDefinitionToRunItem(definition);
-              const itemResult = runStore.addItem(item);
+              const itemResult = runStore.addItem(item, {
+                source: 'combat',
+                nodeId: currentNode.id,
+                wave: runStore.currentWave,
+              });
               if (itemResult.success) droppedItemName = item.name;
             }
           }
@@ -746,9 +756,6 @@ export function CombatPage() {
           });
           return;
         }
-
-        // Persist the cumulative stats only after the encounter has completed.
-        useRunStore.setState({ completedCombatStats: runStatsTracker.toArray() });
 
         // Navigate back to the map to choose the next node
         navigate(ROUTES.RUN);

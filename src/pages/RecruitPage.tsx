@@ -44,7 +44,13 @@ export function RecruitPage() {
     const success = rng.next() < encounter.successChance;
     const cost = getRecruitmentGoldCost(encounter.cost, success);
     if (success) {
-      const spendSucceeded = cost === 0 || spendGold(cost).success;
+      const spendSucceeded =
+        cost === 0 ||
+        spendGold(cost, {
+          source: 'recruit',
+          nodeId: previous.currentNodeId,
+          wave: previous.currentWave,
+        }).success;
       const recruitResult = spendSucceeded
         ? addChampion(encounter.championId, encounter.statMultiplier)
         : null;
@@ -52,6 +58,7 @@ export function RecruitPage() {
         useRunStore.setState({
           team: previous.team,
           gold: previous.gold,
+          ledger: previous.ledger,
           claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
         });
         return;
@@ -68,6 +75,7 @@ export function RecruitPage() {
       useRunStore.setState({
         team: previous.team,
         gold: previous.gold,
+        ledger: previous.ledger,
         claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
       });
       return;

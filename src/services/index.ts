@@ -30,8 +30,6 @@ export { createPlaceholderSvg } from './imageLoader.types';
 export * from './interfaces';
 // Mastery Service - Handles mastery calculations
 export * from './masteryService';
-// Run Stats Tracker
-export { RunStatsTracker, runStatsTracker } from './RunStatsTracker';
 export * from './runAttemptService';
 // ─── Repositories (Data Access Layer) ────────────────────────────────────────
 export * from './repositories';

@@ -191,8 +191,8 @@ export interface RunState {
   serverProgression: ServerRunProgression | null;
   /** Prevents rewards from being granted again when retrying a failed save. */
   rewardsApplied: boolean;
-  /** Cumulative statistics from encounters that were fully completed. */
-  completedCombatStats: ChampionRunStats[];
+  /** Versioned, persistent source of truth for combat and economy statistics. */
+  ledger: RunLedger;
   /** Monotonic counter used for deterministic, collision-free item instance IDs. */
   nextItemInstanceId: number;
   /** The team of up to 5 champions */
@@ -352,11 +352,11 @@ export interface RunActions {
   /** Replace the entire team (capped at MAX_TEAM_SIZE) */
   setTeam: (championIds: string[]) => void;
   /** Add an item to inventory (not equipped), with an explicit failure reason. */
-  addItem: (item: Item) => RunMutationResult<{ instanceId: string }>;
+  addItem: (item: Item, context?: RunLedgerContext) => RunMutationResult<{ instanceId: string }>;
   /** Remove an item by instance ID */
   removeItem: (instanceId: string) => void;
   /** Consume exact one-use item instances after the combat rule bus used them. */
-  consumeItems: (instanceIds: readonly string[]) => void;
+  consumeItems: (instanceIds: readonly string[], context?: RunLedgerContext) => void;
   /** Persist permanent rune stacks exported by the combat rule bus. */
   setRuneStacks: (stacks: Record<string, Record<string, number>>) => void;
   /** Equip an item to a champion. Returns false if slot limit reached or item not found. */
@@ -373,9 +373,11 @@ export interface RunActions {
   queueSpellUpgrades: (championIds: string[]) => void;
   upgradeSpell: (championId: string, slot: 'Q' | 'W' | 'E' | 'R') => boolean;
   /** Add gold, rejecting non-positive or non-finite amounts. */
-  addGold: (amount: number) => RunMutationResult<{ balance: number }>;
+  addGold: (amount: number, context?: RunLedgerContext) => RunMutationResult<{ balance: number }>;
   /** Spend gold, rejecting invalid amounts and insufficient balances. */
-  spendGold: (amount: number) => RunMutationResult<{ balance: number }>;
+  spendGold: (amount: number, context?: RunLedgerContext) => RunMutationResult<{ balance: number }>;
+  /** Atomically append the effective deltas from one resolved combat. */
+  commitCombatEvents: (events: readonly import('@/game/battle/types').BattleEvent[]) => void;
   /** Atomically account for one won combat in wave progression. */
   completeCombatProgression: () => void;
   /** Atomically reserve the current encounter reward/action once. */
@@ -423,10 +425,91 @@ export interface ChampionRunStats {
   championId: string;
   /** Total kills attributed to this champion */
   kills: number;
+  /** Enemy takedowns contributed to without landing the final hit. */
+  assists: number;
   /** Total damage dealt by this champion */
   totalDamage: number;
+  /** Damage absorbed by enemy shields. */
+  damageToShields: number;
+  /** Effective HP damage received. */
+  damageReceived: number;
+  /** Effective healing applied to allies or self. */
+  healingDone: number;
+  /** Effective healing received. */
+  healingReceived: number;
+  /** Healing lost because the target was already near maximum HP. */
+  overhealing: number;
+  /** Shield points granted. */
+  shieldingDone: number;
+  /** Granted shield points that actually absorbed damage. */
+  shieldingAbsorbed: number;
+  /** Number of defeats suffered during the run. */
+  deaths: number;
+  /** Item IDs equipped by this champion at least once during the run. */
+  itemsCollected: string[];
   /** Whether this champion survived the run */
   survived: boolean;
+}
+
+export type RunItemLedgerAction =
+  | 'found'
+  | 'bought'
+  | 'sold'
+  | 'equipped'
+  | 'unequipped'
+  | 'consumed';
+
+export type RunLedgerSource =
+  | 'combat'
+  | 'shop'
+  | 'event'
+  | 'treasure'
+  | 'rest'
+  | 'recruit'
+  | 'inventory'
+  | 'legacy';
+
+export interface RunItemLedgerEvent {
+  sequence: number;
+  action: RunItemLedgerAction;
+  source: RunLedgerSource;
+  itemId: string;
+  instanceId: string;
+  championId: string | null;
+  goldAmount: number;
+  nodeId: string | null;
+  wave: number;
+}
+
+export interface RunChampionLedger {
+  kills: number;
+  assists: number;
+  damageDealt: number;
+  damageToShields: number;
+  damageReceived: number;
+  healingDone: number;
+  healingReceived: number;
+  overhealing: number;
+  shieldingDone: number;
+  shieldingAbsorbed: number;
+  deaths: number;
+}
+
+export interface RunLedger {
+  version: 1;
+  champions: Record<string, RunChampionLedger>;
+  gold: {
+    earned: number;
+    spent: number;
+  };
+  items: RunItemLedgerEvent[];
+  nextItemEventSequence: number;
+}
+
+export interface RunLedgerContext {
+  source: RunLedgerSource;
+  nodeId?: string | null;
+  wave?: number;
 }
 
 // ─── Run Summary (shown on Game Over screen) ──────────────────────────
@@ -447,6 +530,12 @@ export interface RunSummary {
   totalDamage: number;
   /** Gold earned during the run */
   goldEarned: number;
+  /** Gold spent during the run. */
+  goldSpent: number;
+  /** Final gold balance. */
+  goldBalance: number;
+  /** Immutable item history used by UI, persistence and analytics. */
+  itemEvents: RunItemLedgerEvent[];
   /** Run level reached */
   runLevel: number;
 }
@@ -476,12 +565,15 @@ export interface RunSavePayload {
   wavesCompleted: number;
   biomesVisited: Biome[];
   goldEarned: number;
+  goldSpent: number;
+  goldBalance: number;
   summary: RunSummary;
   teamMembers: RunSaveTeamMember[];
   startedAt: string | null;
   seed: number | null;
   runeIds: string[];
   augmentIds: string[];
+  ledger: RunLedger;
 }
 
 /** Daily-specific facts frozen alongside the normal completed-run payload. */

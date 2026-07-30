@@ -169,6 +169,8 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260730230000_stackable_augment_completion.sql',
       '../supabase/migrations/20260730240000_gameplay_ruleset_v6_encounter_balance.sql',
       '../supabase/migrations/20260730250000_progression_v2_engine_v6.sql',
+      '../supabase/migrations/20260730260000_gameplay_ruleset_v7_run_ledger.sql',
+      '../supabase/migrations/20260730270000_verified_run_ledger.sql',
     ]);
   });
 

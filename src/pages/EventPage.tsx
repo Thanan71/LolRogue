@@ -79,12 +79,24 @@ export function EventPage() {
     switch (resolved.type) {
       case 'gold_reward': {
         const amount = resolved.goldAmount ?? 0;
-        if (amount > 0) addGold(amount);
+        if (amount > 0) {
+          addGold(amount, {
+            source: 'event',
+            nodeId: previous.currentNodeId,
+            wave: previous.currentWave,
+          });
+        }
         break;
       }
       case 'gold_cost': {
         const amount = Math.abs(resolved.goldAmount ?? 0);
-        if (amount > 0) mutationSucceeded = spendGold(amount).success;
+        if (amount > 0) {
+          mutationSucceeded = spendGold(amount, {
+            source: 'event',
+            nodeId: previous.currentNodeId,
+            wave: previous.currentWave,
+          }).success;
+        }
         break;
       }
       case 'heal': {
@@ -118,15 +130,22 @@ export function EventPage() {
       }
       case 'item_reward': {
         if (resolved.item) {
-          const result = addItem({
-            id: resolved.item.itemId,
-            name: resolved.item.name,
-            description: resolved.item.description,
-            iconUrl: resolved.item.iconUrl,
-            stats: resolved.item.stats,
-            passiveId: resolved.item.passiveId,
-            goldValue: resolved.item.price,
-          });
+          const result = addItem(
+            {
+              id: resolved.item.itemId,
+              name: resolved.item.name,
+              description: resolved.item.description,
+              iconUrl: resolved.item.iconUrl,
+              stats: resolved.item.stats,
+              passiveId: resolved.item.passiveId,
+              goldValue: resolved.item.price,
+            },
+            {
+              source: 'event',
+              nodeId: previous.currentNodeId,
+              wave: previous.currentWave,
+            },
+          );
           if (!result.success && result.code === 'inventory_full') {
             nextCapacityNotice = 'Inventory full — the item was left behind.';
           }
@@ -183,6 +202,7 @@ export function EventPage() {
         gold: previous.gold,
         team: previous.team,
         inventory: previous.inventory,
+        ledger: previous.ledger,
         nextItemInstanceId: previous.nextItemInstanceId,
         claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
       });

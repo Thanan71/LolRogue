@@ -54,6 +54,10 @@ async function resolveAuthorityVerifier(engineVersion: string, contentHash: stri
   // actually needs them. Keeping them out of the cold-start graph prevents a
   // large archive from turning harmless CORS preflights into BOOT_ERRORs.
   switch (engineVersion) {
+    case 'run-engine-v6': {
+      const archived = await import('./run-authority-v6.bundle.ts');
+      return archived.getAuthorityVerifier(engineVersion, contentHash);
+    }
     case 'run-engine-v5': {
       const archived = await import('./run-authority-v5.bundle.ts');
       return archived.getAuthorityVerifier(engineVersion, contentHash);
@@ -64,10 +68,6 @@ async function resolveAuthorityVerifier(engineVersion: string, contentHash: stri
     }
     case 'run-engine-v3': {
       const archived = await import('./run-authority-v3.bundle.ts');
-      return archived.getAuthorityVerifier(engineVersion, contentHash);
-    }
-    case 'run-engine-v2': {
-      const archived = await import('./run-authority-v2.bundle.ts');
       return archived.getAuthorityVerifier(engineVersion, contentHash);
     }
     default:
@@ -102,16 +102,25 @@ async function persistRejection(
 
 function buildVerifiedResult(snapshot: JsonRecord): JsonRecord | null {
   const team = Array.isArray(snapshot.team) ? snapshot.team : null;
-  const inventory = Array.isArray(snapshot.inventory) ? snapshot.inventory : null;
   const championStats = Array.isArray(snapshot.championStats) ? snapshot.championStats : null;
   const biomes = stringArray(snapshot.biomesVisited) ? snapshot.biomesVisited : null;
   const augments = stringArray(snapshot.augmentIds) ? snapshot.augmentIds : null;
+  const rawLedger = record(snapshot.ledger);
+  const rawGold = record(rawLedger?.gold);
+  const rawChampions = record(rawLedger?.champions);
+  const rawItems = Array.isArray(rawLedger?.items) ? rawLedger.items : null;
   if (
     !team ||
-    !inventory ||
     !championStats ||
     !biomes ||
     !augments ||
+    !rawLedger ||
+    rawLedger.version !== 1 ||
+    !rawGold ||
+    typeof rawGold.earned !== 'number' ||
+    typeof rawGold.spent !== 'number' ||
+    !rawChampions ||
+    !rawItems ||
     typeof snapshot.won !== 'boolean' ||
     typeof snapshot.runLevel !== 'number' ||
     typeof snapshot.totalWavesCompleted !== 'number' ||
@@ -132,34 +141,105 @@ function buildVerifiedResult(snapshot: JsonRecord): JsonRecord | null {
     }
     const stats =
       championStats.map(record).find((entry) => entry?.championId === member.championId) ?? null;
-    const itemIds = inventory
-      .map(record)
-      .filter((entry) => entry?.equippedToChampionId === member.championId)
-      .map((entry) => record(entry?.item)?.id)
-      .filter((itemId): itemId is string => typeof itemId === 'string');
+    if (!stats || !stringArray(stats.itemsCollected)) return null;
+    const stat = (key: string) =>
+      Math.max(0, Math.round(typeof stats[key] === 'number' ? stats[key] : 0));
     return {
       champion_id: member.championId,
       final_level: Math.trunc(member.level),
       final_hp: Math.max(0, Math.round((member.currentHp as number | null) ?? 0)),
-      kills: Math.max(0, Math.trunc(typeof stats?.kills === 'number' ? stats.kills : 0)),
-      damage_dealt: Math.max(
-        0,
-        Math.round(typeof stats?.totalDamage === 'number' ? stats.totalDamage : 0),
-      ),
-      items_collected: itemIds,
+      kills: stat('kills'),
+      assists: stat('assists'),
+      damage_dealt: stat('totalDamage'),
+      damage_to_shields: stat('damageToShields'),
+      damage_received: stat('damageReceived'),
+      healing_done: stat('healingDone'),
+      healing_received: stat('healingReceived'),
+      overhealing: stat('overhealing'),
+      shielding_done: stat('shieldingDone'),
+      shielding_absorbed: stat('shieldingAbsorbed'),
+      deaths: stat('deaths'),
+      items_collected: stats.itemsCollected,
     };
   });
   if (members.some((member) => member === null)) return null;
 
+  const itemEvents = rawItems.map((rawEvent) => {
+    const event = record(rawEvent);
+    if (
+      !event ||
+      typeof event.sequence !== 'number' ||
+      typeof event.action !== 'string' ||
+      typeof event.source !== 'string' ||
+      typeof event.itemId !== 'string' ||
+      typeof event.instanceId !== 'string' ||
+      (event.championId !== null && typeof event.championId !== 'string') ||
+      typeof event.goldAmount !== 'number' ||
+      (event.nodeId !== null && typeof event.nodeId !== 'string') ||
+      typeof event.wave !== 'number'
+    ) {
+      return null;
+    }
+    return {
+      sequence: Math.trunc(event.sequence),
+      action: event.action,
+      source: event.source,
+      item_id: event.itemId,
+      instance_id: event.instanceId,
+      champion_id: event.championId,
+      gold_amount: Math.max(0, Math.round(event.goldAmount)),
+      node_id: event.nodeId,
+      wave: Math.max(1, Math.trunc(event.wave)),
+    };
+  });
+  if (itemEvents.some((event) => event === null)) return null;
+
+  const championLedger = Object.fromEntries(
+    (members as JsonRecord[]).map((member) => [
+      member.champion_id,
+      {
+        kills: member.kills,
+        assists: member.assists,
+        damage_dealt: member.damage_dealt,
+        damage_to_shields: member.damage_to_shields,
+        damage_received: member.damage_received,
+        healing_done: member.healing_done,
+        healing_received: member.healing_received,
+        overhealing: member.overhealing,
+        shielding_done: member.shielding_done,
+        shielding_absorbed: member.shielding_absorbed,
+        deaths: member.deaths,
+      },
+    ]),
+  );
+  const goldEarned = Math.max(0, Math.round(rawGold.earned));
+  const goldSpent = Math.max(0, Math.round(rawGold.spent));
+  const goldBalance = Math.max(0, Math.round(snapshot.gold));
   return {
     verified: true,
     won: snapshot.won,
     run_level: Math.trunc(snapshot.runLevel),
     waves_completed: Math.trunc(snapshot.totalWavesCompleted),
     biomes_visited: biomes,
-    gold_earned: Math.max(0, Math.round(snapshot.gold)),
+    gold_earned: goldEarned,
+    gold_spent: goldSpent,
+    gold_balance: goldBalance,
     augment_ids: augments,
     team_members: members,
+    ledger: {
+      version: 1,
+      champions: championLedger,
+      gold: { earned: goldEarned, spent: goldSpent },
+      items: itemEvents,
+      next_item_event_sequence: Math.max(
+        1,
+        Math.trunc(
+          typeof rawLedger.nextItemEventSequence === 'number'
+            ? rawLedger.nextItemEventSequence
+            : itemEvents.length + 1,
+        ),
+      ),
+    },
   };
 }
 

@@ -38,21 +38,32 @@ export function TreasurePage() {
 
     // Award gold
     if (encounter.gold > 0) {
-      addGold(encounter.gold);
+      addGold(encounter.gold, {
+        source: 'treasure',
+        nodeId: previous.currentNodeId,
+        wave: previous.currentWave,
+      });
     }
 
     // Award item if present
     let nextItemDisposition: TreasureItemDisposition = 'none';
     if (encounter.item) {
-      const result = addItem({
-        id: encounter.item.itemId,
-        name: encounter.item.name,
-        description: encounter.item.description,
-        iconUrl: encounter.item.iconUrl,
-        stats: encounter.item.stats,
-        passiveId: encounter.item.passiveId,
-        goldValue: encounter.item.price,
-      });
+      const result = addItem(
+        {
+          id: encounter.item.itemId,
+          name: encounter.item.name,
+          description: encounter.item.description,
+          iconUrl: encounter.item.iconUrl,
+          stats: encounter.item.stats,
+          passiveId: encounter.item.passiveId,
+          goldValue: encounter.item.price,
+        },
+        {
+          source: 'treasure',
+          nodeId: previous.currentNodeId,
+          wave: previous.currentWave,
+        },
+      );
       nextItemDisposition = result.success ? 'added' : 'left_full';
     }
 
@@ -67,6 +78,7 @@ export function TreasurePage() {
       useRunStore.setState({
         gold: previous.gold,
         inventory: previous.inventory,
+        ledger: previous.ledger,
         nextItemInstanceId: previous.nextItemInstanceId,
         claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
       });

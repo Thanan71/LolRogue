@@ -1,6 +1,6 @@
 import type { User } from '@supabase/supabase-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { runStatsTracker } from '@/services/RunStatsTracker';
+import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -80,6 +80,8 @@ function authorityAttempt(overrides: Partial<RunAuthorityAttempt> = {}): RunAuth
 }
 
 function setActiveVerifiedRun(): void {
+  const ledger = createRunLedger(['Garen']);
+  ledger.gold.earned = 120;
   useRunStore.setState({
     ...RUN_INITIAL_STATE,
     isActive: true,
@@ -97,6 +99,7 @@ function setActiveVerifiedRun(): void {
     gold: 120,
     currentWave: 4,
     totalWavesCompleted: 3,
+    ledger,
   });
 }
 
@@ -168,7 +171,6 @@ describe('authoritative run lifecycle and recovery', () => {
       data: { progression: { ...progression, replayed: true }, summary: null },
       error: null,
     });
-    runStatsTracker.reset();
     useAuthStore.setState({
       isAuthenticated: true,
       isGuest: false,
@@ -180,7 +182,6 @@ describe('authoritative run lifecycle and recovery', () => {
   });
 
   afterEach(() => {
-    runStatsTracker.reset();
     vi.unstubAllGlobals();
     useRunStore.setState({ ...RUN_INITIAL_STATE });
     useAuthStore.setState({
@@ -213,13 +214,18 @@ describe('authoritative run lifecycle and recovery', () => {
             releaseRetry = resolve;
           }),
       );
-    runStatsTracker.recordKill('Garen');
-    runStatsTracker.recordDamage('Garen', 450);
-    const summary = runStatsTracker.buildSummary({
+    const ledger = cloneRunLedger(useRunStore.getState().ledger);
+    ledger.champions.Garen.kills = 1;
+    ledger.champions.Garen.damageDealt = 450;
+    ledger.gold.earned = 120;
+    useRunStore.setState({ ledger });
+    const summary = buildRunSummaryFromLedger({
+      ledger,
+      team: useRunStore.getState().team,
       won: false,
       wavesCompleted: 3,
       biomesVisited: ['top_lane'],
-      goldEarned: 120,
+      goldBalance: 120,
       runLevel: 2,
     });
 

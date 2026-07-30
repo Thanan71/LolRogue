@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
-import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -23,16 +23,12 @@ function setGuestRun(runId: string): void {
     currentBiome: 'top_lane',
     totalWavesCompleted: 2,
     gold: 80,
+    ledger: createRunLedger(['Garen']),
   });
 }
 
 describe('terminal run finalization', () => {
-  beforeEach(() => {
-    runStatsTracker.reset();
-  });
-
   afterEach(() => {
-    runStatsTracker.reset();
     useRunStore.setState({ ...RUN_INITIAL_STATE });
     useAuthStore.setState({
       isAuthenticated: false,
@@ -47,13 +43,17 @@ describe('terminal run finalization', () => {
     ['defeat', 'enemy' as const, false, 0, 9],
   ])('freezes and saves a %s with final HP and mana', async (_, winner, won, hp, mp) => {
     setGuestRun(`guest-${winner}`);
-    runStatsTracker.recordDamage('Garen', 250);
+    const ledger = cloneRunLedger(useRunStore.getState().ledger);
+    ledger.champions.Garen.damageDealt = 250;
+    ledger.gold.earned = 80;
+    useRunStore.setState({ ledger });
 
     const result = await finalizeCombatRun(winner, [
       { championId: 'Garen', currentHp: hp, maxHp: 620, currentMp: mp, maxMp: 100 },
     ]);
 
     expect(result).toMatchObject({ completed: true, queuedForRetry: false });
+    expect(result.summary).toMatchObject({ totalDamage: 250, goldEarned: 80 });
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
       saveStatus: 'saved',

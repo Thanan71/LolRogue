@@ -26,12 +26,24 @@ import {
 } from '@/game/map/types';
 import { completeCombatProgression, transitionToNextBiome } from '@/game/run/runProgression';
 import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
+import {
+  buildChampionRunStats,
+  cloneRunLedger,
+  commitCombatEvents,
+  createRunLedger,
+  ensureLedgerChampion,
+  recordGoldGain,
+  recordGoldSpend,
+  recordItemLedgerEvent,
+} from '@/game/run/runLedger';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { AugmentEffectType, DEFAULT_MAX_AUGMENTS } from '@/types/inventory';
 import {
-  type ChampionRunStats,
   type InventoryEntry,
   type Item,
+  type RunItemLedgerAction,
+  type RunLedger,
+  type RunLedgerSource,
   MAX_INVENTORY_ITEMS,
   MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
@@ -50,9 +62,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v6';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v7';
 export const AUTHORITY_CONTENT_HASH =
-  '77da2442164e5b04faec7bb65e80adc369bf8e5a08485ed98b056374d0ae2035';
+  '061c9f4ee3e2ed82aecf5d7dbf4b313920b9227df65401de798d780667dd5068';
 
 assertValidRuleCatalogs();
 
@@ -349,7 +361,7 @@ function itemFromShopItem(shopItem: ShopItem): Item {
 
 class AuthorityReplayState {
   private readonly maps: NodeMap[];
-  private readonly stats = new Map<string, ChampionRunStats>();
+  private ledger: RunLedger;
   private currentBiomeIndex = 0;
   private currentNodeId: string | null = null;
   private expectedNodeIds: string[];
@@ -385,7 +397,7 @@ class AuthorityReplayState {
       statMultiplier: member.statMultiplier ?? 1,
       spellRanks: { Q: 1, W: 1, E: 1, R: 1 },
     }));
-    for (const member of this.team) this.ensureStats(member.championId);
+    this.ledger = createRunLedger(this.team.map((member) => member.championId));
   }
 
   apply(command: AuthorityRunCommand, commandIndex: number): void {
@@ -474,14 +486,7 @@ class AuthorityReplayState {
 
   snapshot(): AuthorityRunSnapshot {
     const currentMap = this.maps[this.currentBiomeIndex];
-    const championStats = [...this.stats.values()]
-      .map((entry) => ({
-        ...entry,
-        survived: this.team.some(
-          (member) => member.championId === entry.championId && (member.currentHp ?? 1) > 0,
-        ),
-      }))
-      .sort((left, right) => left.championId.localeCompare(right.championId));
+    const championStats = buildChampionRunStats(this.ledger, this.team);
     return {
       runUuid: this.attempt.runUuid,
       seed: this.attempt.seed,
@@ -516,6 +521,7 @@ class AuthorityReplayState {
       championStats,
       totalKills: championStats.reduce((sum, entry) => sum + entry.kills, 0),
       totalDamage: championStats.reduce((sum, entry) => sum + entry.totalDamage, 0),
+      ledger: cloneRunLedger(this.ledger),
       nextSequence: this.nextSequence,
     };
   }
@@ -654,23 +660,20 @@ class AuthorityReplayState {
       );
     }
 
-    for (const event of result.log) {
-      if (event.type === 'damage' && event.sourceSide === 'player') {
-        this.ensureStats(event.source).totalDamage += event.amount;
-      } else if (
-        event.type === 'defeat' &&
-        event.side === 'enemy' &&
-        event.defeatedBy &&
-        this.team.some((member) => member.championId === event.defeatedBy)
-      ) {
-        this.ensureStats(event.defeatedBy).kills++;
-      }
-    }
+    this.ledger = commitCombatEvents(
+      this.ledger,
+      result.log,
+      this.team.map((member) => member.championId),
+    );
     for (const finalState of battle.getFinalPlayerStates()) {
       const member = this.team.find((candidate) => candidate.championId === finalState.championId);
       if (member) member.currentHp = finalState.currentHp;
     }
     const consumedItems = new Set(battle.getConsumedItemInstanceIds());
+    for (const entry of this.inventory) {
+      if (!consumedItems.has(entry.instanceId)) continue;
+      this.recordItemEvent('consumed', entry, 'combat', entry.equippedToChampionId);
+    }
     this.inventory = this.inventory.filter((entry) => !consumedItems.has(entry.instanceId));
     this.runeStacks = battle.getRuneStacks();
 
@@ -694,7 +697,7 @@ class AuthorityReplayState {
       inventory: this.inventory,
       bonusGold: augmentManager.getBonusGold(),
     });
-    this.gold += resolution.reward.gold;
+    this.gainGold(resolution.reward.gold);
     const healAfterBattle = augmentManager.getHealAfterBattlePercent();
     if (healAfterBattle > 0) {
       for (const member of this.team) {
@@ -720,7 +723,9 @@ class AuthorityReplayState {
     });
     this.currentWave = progression.currentWave;
     this.totalWavesCompleted = progression.totalWavesCompleted;
-    if (resolution.reward.droppedItem) this.addItem(resolution.reward.droppedItem);
+    if (resolution.reward.droppedItem) {
+      this.addItem(resolution.reward.droppedItem, 'found', 'combat');
+    }
   }
 
   private buildPlayerTeam(): ChampionInstance[] {
@@ -810,9 +815,9 @@ class AuthorityReplayState {
         (1 - this.getAugmentManager().getShopDiscountPercent()),
     );
     if (this.gold < cost) fail('insufficient_gold', 'Not enough gold.', commandIndex);
-    this.gold -= cost;
+    this.spendGold(cost);
     pending.purchasedItemIds.add(itemId);
-    this.addItem(itemFromShopItem(offer));
+    this.addItem(itemFromShopItem(offer), 'bought', 'shop', cost);
   }
 
   private shopRecruit(championId: string, commandIndex: number): void {
@@ -833,7 +838,7 @@ class AuthorityReplayState {
     this.requireRecruitable(championId, commandIndex);
     const cost = Math.round(offer.cost * encounter.priceMultiplier);
     if (this.gold < cost) fail('insufficient_gold', 'Not enough gold.', commandIndex);
-    this.gold -= cost;
+    this.spendGold(cost);
     pending.recruitedChampionIds.add(championId);
     this.addChampion(championId, 1);
   }
@@ -848,7 +853,7 @@ class AuthorityReplayState {
     if (this.gold < encounter.goldCost) {
       fail('insufficient_gold', 'Not enough gold to rest.', commandIndex);
     }
-    this.gold -= encounter.goldCost;
+    this.spendGold(encounter.goldCost);
     for (const member of this.team) {
       const maxHp = this.getMemberMaxHp(member);
       const currentHp = member.currentHp ?? maxHp;
@@ -870,7 +875,7 @@ class AuthorityReplayState {
     this.claimPending(commandIndex);
     const rng = createScopedRunRng(this.attempt.seed, `recruit:${encounter.id}:attempt`);
     if (rng.next() < encounter.successChance) {
-      this.gold -= Math.max(0, encounter.cost);
+      this.spendGold(Math.max(0, encounter.cost));
       this.addChampion(encounter.championId, encounter.statMultiplier);
     }
   }
@@ -886,13 +891,13 @@ class AuthorityReplayState {
     const outcome = resolveAffordableEventOutcome(encounter.outcomes, this.gold, () => rng.next());
     switch (outcome.type) {
       case 'gold_reward':
-        this.gold += Math.max(0, outcome.goldAmount ?? 0);
+        this.gainGold(Math.max(0, outcome.goldAmount ?? 0));
         break;
       case 'gold_cost':
-        this.gold -= Math.min(this.gold, Math.abs(outcome.goldAmount ?? 0));
+        this.spendGold(Math.min(this.gold, Math.abs(outcome.goldAmount ?? 0)));
         break;
       case 'item_reward':
-        if (outcome.item) this.addItem(itemFromShopItem(outcome.item));
+        if (outcome.item) this.addItem(itemFromShopItem(outcome.item), 'found', 'event');
         break;
       case 'heal':
         for (const member of this.team) {
@@ -947,8 +952,8 @@ class AuthorityReplayState {
       fail('invalid_encounter', 'No treasure encounter is pending.', commandIndex);
     }
     this.claimPending(commandIndex);
-    this.gold += Math.max(0, encounter.gold);
-    if (encounter.item) this.addItem(itemFromShopItem(encounter.item));
+    this.gainGold(Math.max(0, encounter.gold));
+    if (encounter.item) this.addItem(itemFromShopItem(encounter.item), 'found', 'treasure');
   }
 
   private resolveNode(commandIndex: number): void {
@@ -1025,7 +1030,11 @@ class AuthorityReplayState {
     if (equippedCount >= MAX_ITEMS_PER_CHAMPION) {
       fail('equipment_full', 'Champion equipment is full.', commandIndex);
     }
+    if (entry.equippedToChampionId) {
+      this.recordItemEvent('unequipped', entry, 'inventory', entry.equippedToChampionId);
+    }
     entry.equippedToChampionId = championId;
+    this.recordItemEvent('equipped', entry, 'inventory', championId);
   }
 
   private unequipItem(instanceId: string, commandIndex: number): void {
@@ -1033,7 +1042,9 @@ class AuthorityReplayState {
     if (!entry || entry.equippedToChampionId === null) {
       fail('invalid_item', 'Item is unknown or not equipped.', commandIndex);
     }
+    const previousChampionId = entry.equippedToChampionId;
     entry.equippedToChampionId = null;
+    this.recordItemEvent('unequipped', entry, 'inventory', previousChampionId);
   }
 
   private sellItem(instanceId: string, commandIndex: number): void {
@@ -1041,7 +1052,9 @@ class AuthorityReplayState {
     if (index < 0) fail('invalid_item', `Unknown item instance "${instanceId}".`, commandIndex);
     const [entry] = this.inventory.splice(index, 1);
     if (!entry) fail('invalid_item', `Unknown item instance "${instanceId}".`, commandIndex);
-    this.gold += Math.max(1, Math.floor(entry.item.goldValue / 2));
+    const saleGold = Math.max(1, Math.floor(entry.item.goldValue / 2));
+    this.gainGold(saleGold);
+    this.recordItemEvent('sold', entry, 'inventory', entry.equippedToChampionId, saleGold);
   }
 
   private chooseAugment(augmentId: string, commandIndex: number): void {
@@ -1084,12 +1097,19 @@ class AuthorityReplayState {
     this.pendingSpellUpgradeChampionIds.splice(pendingIndex, 1);
   }
 
-  private addItem(item: Item): string | null {
+  private addItem(
+    item: Item,
+    action: 'found' | 'bought',
+    source: RunLedgerSource,
+    goldAmount = 0,
+  ): string | null {
     if (this.inventory.length >= MAX_INVENTORY_ITEMS) return null;
     if (!validateItemAddition(this.inventory, item).valid) return null;
     const instanceId = `item_${this.attempt.runUuid}_${this.nextItemInstanceId}`;
     this.nextItemInstanceId++;
-    this.inventory.push({ instanceId, item, equippedToChampionId: null });
+    const entry = { instanceId, item, equippedToChampionId: null };
+    this.inventory.push(entry);
+    this.recordItemEvent(action, entry, source, null, goldAmount);
     return instanceId;
   }
 
@@ -1113,7 +1133,7 @@ class AuthorityReplayState {
       statMultiplier,
       spellRanks: { Q: 1, W: 1, E: 1, R: 1 },
     });
-    this.ensureStats(championId);
+    ensureLedgerChampion(this.ledger, championId);
   }
 
   private requireRecruitable(championId: string, commandIndex: number): void {
@@ -1182,13 +1202,39 @@ class AuthorityReplayState {
     );
   }
 
-  private ensureStats(championId: string): ChampionRunStats {
-    let entry = this.stats.get(championId);
-    if (!entry) {
-      entry = { championId, kills: 0, totalDamage: 0, survived: false };
-      this.stats.set(championId, entry);
-    }
-    return entry;
+  private gainGold(amount: number): void {
+    const gain = Math.max(0, Math.round(amount));
+    if (gain === 0) return;
+    this.gold += gain;
+    this.ledger = recordGoldGain(this.ledger, gain);
+  }
+
+  private spendGold(amount: number): void {
+    const spend = Math.max(0, Math.round(amount));
+    if (spend === 0) return;
+    this.gold -= spend;
+    this.ledger = recordGoldSpend(this.ledger, spend);
+  }
+
+  private recordItemEvent(
+    action: RunItemLedgerAction,
+    entry: InventoryEntry,
+    source: RunLedgerSource,
+    championId: string | null,
+    goldAmount = 0,
+  ): void {
+    this.ledger = recordItemLedgerEvent(this.ledger, {
+      action,
+      itemId: entry.item.id,
+      instanceId: entry.instanceId,
+      championId,
+      goldAmount,
+      context: {
+        source,
+        nodeId: this.currentNodeId,
+        wave: this.currentWave,
+      },
+    });
   }
 
   private toRunNodeType(nodeType: NodeType): AuthorityRunSnapshot['pendingNodeType'] {

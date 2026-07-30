@@ -8,7 +8,6 @@ import { NodeType } from '@/game/map/types';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import { ActionType } from '@/game/battle/types';
 import { CombatPage } from '@/pages/CombatPage';
-import { runStatsTracker } from '@/services/RunStatsTracker';
 import { useAuthStore } from '@/stores/authStore';
 import { useBattleStore } from '@/stores/battleStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
@@ -114,7 +113,6 @@ describe('CombatPage authority finalization', () => {
     combatMocks.finalPlayerStates = [];
     combatMocks.autoPlay = null;
     combatMocks.processTurn.mockReset();
-    runStatsTracker.reset();
     vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(
       'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     );
@@ -192,7 +190,6 @@ describe('CombatPage authority finalization', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
-    runStatsTracker.reset();
     useBattleStore.getState().resetBattle();
     useRunStore.setState({ ...RUN_INITIAL_STATE, endRun: realEndRun });
     useAuthStore.setState({
@@ -259,7 +256,7 @@ describe('CombatPage authority finalization', () => {
     expect(combatMocks.autoPlay).toBe(true);
   });
 
-  it.each(['run-engine-v3', 'run-engine-v4', 'run-engine-v5', 'run-engine-v6'])(
+  it.each(['run-engine-v3', 'run-engine-v4', 'run-engine-v5', 'run-engine-v6', 'run-engine-v7'])(
     'starts a %s verified combat with auto off and journals its manual action trace',
     (engineVersion) => {
       useRunStore.setState({ authorityAttempt: attempt(engineVersion) });

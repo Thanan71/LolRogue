@@ -13,11 +13,18 @@ import {
   synchronizeMapFrontier,
   toEncounterNodeType,
 } from '@/game/map/mapProgression';
+import { canClaimEncounterReward, shouldApplyRunRewards } from '@/game/run/runState';
 import {
-  canClaimEncounterReward,
-  getSurvivingChampionIds,
-  shouldApplyRunRewards,
-} from '@/game/run/runState';
+  buildRunSummaryFromLedger,
+  cloneRunLedger,
+  commitCombatEvents as commitCombatEventsToLedger,
+  createRunLedger,
+  ensureLedgerChampion,
+  migrateLegacyStatsToLedger,
+  recordGoldGain,
+  recordGoldSpend,
+  recordItemLedgerEvent,
+} from '@/game/run/runLedger';
 import {
   completeCombatProgression,
   generateAugmentChoices,
@@ -28,7 +35,6 @@ import { getUnlockedStarterSlotCount, validateRunStartTeam } from '@/game/run/ru
 import { RepositoryContainerFactory } from '@/services/container';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { validateItemAddition } from '@/game/inventory/inventoryRules';
-import { runStatsTracker } from '@/services/RunStatsTracker';
 import {
   appendRunAttemptCommands,
   RunVerificationRejectedError,
@@ -73,7 +79,12 @@ import { useSettingsStore } from './settingsStore';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const CANONICAL_PROGRESSION_ENGINES = new Set(['run-engine-v4', 'run-engine-v5', 'run-engine-v6']);
+const CANONICAL_PROGRESSION_ENGINES = new Set([
+  'run-engine-v4',
+  'run-engine-v5',
+  'run-engine-v6',
+  'run-engine-v7',
+]);
 
 function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
   return attempt === null || CANONICAL_PROGRESSION_ENGINES.has(attempt.engineVersion);
@@ -83,7 +94,11 @@ function cloneRunSummary(summary: RunSummary): RunSummary {
   return {
     ...summary,
     biomesVisited: [...summary.biomesVisited],
-    championStats: summary.championStats.map((stats) => ({ ...stats })),
+    championStats: summary.championStats.map((stats) => ({
+      ...stats,
+      itemsCollected: [...stats.itemsCollected],
+    })),
+    itemEvents: summary.itemEvents.map((event) => ({ ...event })),
   };
 }
 
@@ -233,6 +248,21 @@ function endFailure(
 
 function migratePersistedRunState(persisted: unknown, version: number): RunState {
   const state = recoverPersistedState(persisted, RUN_INITIAL_STATE);
+  const legacyStats =
+    persisted &&
+    typeof persisted === 'object' &&
+    Array.isArray((persisted as { completedCombatStats?: unknown }).completedCombatStats)
+      ? ((persisted as { completedCombatStats: import('@/types/run').ChampionRunStats[] })
+          .completedCombatStats ?? [])
+      : [];
+  const ledger =
+    version >= 5 && state.ledger?.version === 1
+      ? cloneRunLedger(state.ledger)
+      : migrateLegacyStatsToLedger(
+          legacyStats,
+          state.team.map((member) => member.championId),
+          state.gold,
+        );
   const currentMap = state.biomeMaps[state.currentBiomeIndex];
   const persistedFrontier =
     version >= 3 && Array.isArray(state.frontierNodeIds)
@@ -384,6 +414,7 @@ function migratePersistedRunState(persisted: unknown, version: number): RunState
   synchronizeMapFrontier(state.biomeMaps, state.currentBiomeIndex, persistedFrontier);
   return {
     ...state,
+    ledger,
     runLevel,
     currentWave,
     pendingAugmentIds,
@@ -581,9 +612,6 @@ export const useRunStore = create<RunStore>()(
             const frontierNodeIds = biomeMaps[0]?.startNodeId ? [biomeMaps[0].startNodeId] : [];
             synchronizeMapFrontier(biomeMaps, 0, frontierNodeIds);
 
-            // Reset stats tracker for new run
-            runStatsTracker.reset();
-
             set({
               isActive: true,
               mode: canonicalMode,
@@ -599,7 +627,7 @@ export const useRunStore = create<RunStore>()(
               completedRunSnapshot: null,
               serverProgression: null,
               rewardsApplied: false,
-              completedCombatStats: [],
+              ledger: createRunLedger(canonicalTeam.map((member) => member.championId)),
               nextItemInstanceId: 1,
               team: canonicalTeam,
               runLevel: 1,
@@ -741,15 +769,13 @@ export const useRunStore = create<RunStore>()(
           if (!snapshot) {
             let summary = displayedSummary;
             if (!summary) {
-              // A completion triggered outside CombatPage (for example, an
-              // abandonment after reload) starts from the persisted encounters.
-              runStatsTracker.restore(state.completedCombatStats);
-              runStatsTracker.markSurvived(getSurvivingChampionIds(state.team));
-              summary = runStatsTracker.buildSummary({
+              summary = buildRunSummaryFromLedger({
+                ledger: state.ledger,
+                team: state.team,
                 won,
                 wavesCompleted: state.totalWavesCompleted,
                 biomesVisited: state.biomesVisited,
-                goldEarned: state.gold,
+                goldBalance: state.gold,
                 runLevel: state.runLevel,
               });
             }
@@ -797,13 +823,16 @@ export const useRunStore = create<RunStore>()(
               runLevel: state.runLevel,
               wavesCompleted: state.totalWavesCompleted,
               biomesVisited: [...state.biomesVisited],
-              goldEarned: state.gold,
+              goldEarned: summary.goldEarned,
+              goldSpent: summary.goldSpent,
+              goldBalance: summary.goldBalance,
               summary: cloneRunSummary(summary),
               teamMembers,
               startedAt: state.startedAt,
               seed: state.seed,
               runeIds: [...state.runeIds],
               augmentIds: [...state.augmentIds],
+              ledger: cloneRunLedger(state.ledger),
               daily:
                 state.mode === 'daily'
                   ? {
@@ -1029,6 +1058,8 @@ export const useRunStore = create<RunStore>()(
                 wavesCompleted: canonicalSummary.wavesCompleted,
                 biomesVisited: [...canonicalSummary.biomesVisited],
                 goldEarned: canonicalSummary.goldEarned,
+                goldSpent: canonicalSummary.goldSpent,
+                goldBalance: canonicalSummary.goldBalance,
                 summary: canonicalSummary,
               };
               set({ completedRunSnapshot: snapshot });
@@ -1048,7 +1079,7 @@ export const useRunStore = create<RunStore>()(
               biomesVisited: snapshot.biomesVisited,
               currentBiome: snapshot.daily.currentBiome,
               inventory: snapshot.daily.inventory,
-              gold: snapshot.goldEarned,
+              gold: snapshot.goldBalance,
               currentWave: snapshot.daily.currentWave,
               totalWavesCompleted: snapshot.wavesCompleted,
               score: snapshot.daily.score,
@@ -1117,7 +1148,7 @@ export const useRunStore = create<RunStore>()(
       // ── Team Management ─────────────────────────────────────────────────
 
       addChampion: (championId, statMultiplier = 1) => {
-        const { team } = get();
+        const { team, ledger } = get();
         if (team.length >= MAX_TEAM_SIZE) {
           return mutationFailure('team_full', 'The team is already full.');
         }
@@ -1125,7 +1156,9 @@ export const useRunStore = create<RunStore>()(
           return mutationFailure('duplicate_champion', 'This champion is already on the team.');
         }
 
-        set({ team: [...team, { championId, statMultiplier }] });
+        const nextLedger = cloneRunLedger(ledger);
+        ensureLedgerChampion(nextLedger, championId);
+        set({ team: [...team, { championId, statMultiplier }], ledger: nextLedger });
         return { success: true, value: { championId } };
       },
 
@@ -1148,12 +1181,14 @@ export const useRunStore = create<RunStore>()(
         const team: TeamMember[] = championIds
           .slice(0, MAX_TEAM_SIZE)
           .map((id) => ({ championId: id }));
-        set({ team });
+        const ledger = cloneRunLedger(get().ledger);
+        for (const member of team) ensureLedgerChampion(ledger, member.championId);
+        set({ team, ledger });
       },
 
       // ── Inventory ───────────────────────────────────────────────────────
 
-      addItem: (item) => {
+      addItem: (item, context = { source: 'inventory' }) => {
         if (get().inventory.length >= MAX_INVENTORY_ITEMS) {
           return mutationFailure('inventory_full', 'The inventory is already full.');
         }
@@ -1169,6 +1204,16 @@ export const useRunStore = create<RunStore>()(
         set((state) => ({
           inventory: [...state.inventory, entry],
           nextItemInstanceId: state.nextItemInstanceId + 1,
+          ledger: recordItemLedgerEvent(state.ledger, {
+            action: context.source === 'shop' ? 'bought' : 'found',
+            itemId: item.id,
+            instanceId,
+            context: {
+              ...context,
+              nodeId: context.nodeId ?? state.currentNodeId,
+              wave: context.wave ?? state.currentWave,
+            },
+          }),
         }));
         return { success: true, value: { instanceId } };
       },
@@ -1179,12 +1224,30 @@ export const useRunStore = create<RunStore>()(
         }));
       },
 
-      consumeItems: (instanceIds) => {
+      consumeItems: (instanceIds, context = { source: 'combat' }) => {
         const consumed = new Set(instanceIds);
         if (consumed.size === 0) return;
-        set((state) => ({
-          inventory: state.inventory.filter((entry) => !consumed.has(entry.instanceId)),
-        }));
+        set((state) => {
+          let ledger = state.ledger;
+          for (const entry of state.inventory) {
+            if (!consumed.has(entry.instanceId)) continue;
+            ledger = recordItemLedgerEvent(ledger, {
+              action: 'consumed',
+              itemId: entry.item.id,
+              instanceId: entry.instanceId,
+              championId: entry.equippedToChampionId,
+              context: {
+                ...context,
+                nodeId: context.nodeId ?? state.currentNodeId,
+                wave: context.wave ?? state.currentWave,
+              },
+            });
+          }
+          return {
+            inventory: state.inventory.filter((entry) => !consumed.has(entry.instanceId)),
+            ledger,
+          };
+        });
       },
 
       setRuneStacks: (runeStacks) => set({ runeStacks }),
@@ -1228,6 +1291,31 @@ export const useRunStore = create<RunStore>()(
           set({ inventory });
           return false;
         }
+        set((state) => ({
+          ledger: (() => {
+            const context = {
+              source: 'inventory' as const,
+              nodeId: state.currentNodeId,
+              wave: state.currentWave,
+            };
+            const afterUnequip = item.equippedToChampionId
+              ? recordItemLedgerEvent(state.ledger, {
+                  action: 'unequipped',
+                  itemId: item.item.id,
+                  instanceId,
+                  championId: item.equippedToChampionId,
+                  context,
+                })
+              : state.ledger;
+            return recordItemLedgerEvent(afterUnequip, {
+              action: 'equipped',
+              itemId: item.item.id,
+              instanceId,
+              championId,
+              context,
+            });
+          })(),
+        }));
         return true;
       },
 
@@ -1244,6 +1332,19 @@ export const useRunStore = create<RunStore>()(
           set({ inventory });
           return false;
         }
+        set((state) => ({
+          ledger: recordItemLedgerEvent(state.ledger, {
+            action: 'unequipped',
+            itemId: item.item.id,
+            instanceId,
+            championId: item.equippedToChampionId,
+            context: {
+              source: 'inventory',
+              nodeId: state.currentNodeId,
+              wave: state.currentWave,
+            },
+          }),
+        }));
         return true;
       },
 
@@ -1259,6 +1360,21 @@ export const useRunStore = create<RunStore>()(
           set({ inventory: previousState.inventory, gold: previousState.gold });
           return false;
         }
+        const saleGold = Math.max(1, Math.floor(entry.item.goldValue / 2));
+        set((state) => ({
+          ledger: recordItemLedgerEvent(recordGoldGain(state.ledger, saleGold), {
+            action: 'sold',
+            itemId: entry.item.id,
+            instanceId,
+            championId: entry.equippedToChampionId,
+            goldAmount: saleGold,
+            context: {
+              source: 'inventory',
+              nodeId: state.currentNodeId,
+              wave: state.currentWave,
+            },
+          }),
+        }));
         return true;
       },
 
@@ -1341,26 +1457,44 @@ export const useRunStore = create<RunStore>()(
 
       // ── Gold ────────────────────────────────────────────────────────────
 
-      addGold: (amount) => {
-        if (!Number.isFinite(amount) || amount <= 0) {
+      addGold: (amount, _context = { source: 'legacy' }) => {
+        const normalizedAmount = Math.round(amount);
+        if (!Number.isFinite(amount) || normalizedAmount <= 0) {
           return mutationFailure('invalid_amount', 'Gold gains must be a positive amount.');
         }
-        const balance = get().gold + amount;
-        set({ gold: balance });
+        const balance = get().gold + normalizedAmount;
+        set((state) => ({
+          gold: balance,
+          ledger: recordGoldGain(state.ledger, normalizedAmount),
+        }));
         return { success: true, value: { balance } };
       },
 
-      spendGold: (amount) => {
-        if (!Number.isFinite(amount) || amount <= 0) {
+      spendGold: (amount, _context = { source: 'legacy' }) => {
+        const normalizedAmount = Math.round(amount);
+        if (!Number.isFinite(amount) || normalizedAmount <= 0) {
           return mutationFailure('invalid_amount', 'Gold costs must be a positive amount.');
         }
         const { gold } = get();
-        if (gold < amount) {
+        if (gold < normalizedAmount) {
           return mutationFailure('insufficient_gold', 'There is not enough gold.');
         }
-        const balance = gold - amount;
-        set({ gold: balance });
+        const balance = gold - normalizedAmount;
+        set((state) => ({
+          gold: balance,
+          ledger: recordGoldSpend(state.ledger, normalizedAmount),
+        }));
         return { success: true, value: { balance } };
+      },
+
+      commitCombatEvents: (events) => {
+        set((state) => ({
+          ledger: commitCombatEventsToLedger(
+            state.ledger,
+            events,
+            state.team.map((member) => member.championId),
+          ),
+        }));
       },
 
       completeCombatProgression: () => {
@@ -1701,10 +1835,23 @@ export const useRunStore = create<RunStore>()(
           },
           equippedToChampionId: null,
         };
+        const ledgerAfterSpend = recordGoldSpend(state.ledger, price);
+        const ledger = recordItemLedgerEvent(ledgerAfterSpend, {
+          action: 'bought',
+          itemId: entry.item.id,
+          instanceId,
+          goldAmount: price,
+          context: {
+            source: 'shop',
+            nodeId: node.id,
+            wave: state.currentWave,
+          },
+        });
         set({
           authorityAttempt: appended.authorityAttempt,
           gold: state.gold - price,
           inventory: [...state.inventory, entry],
+          ledger,
           nextItemInstanceId: state.nextItemInstanceId + 1,
           shopNodeStates: {
             ...state.shopNodeStates,
@@ -1776,6 +1923,7 @@ export const useRunStore = create<RunStore>()(
         set({
           authorityAttempt: appended.authorityAttempt,
           gold: state.gold - price,
+          ledger: recordGoldSpend(state.ledger, price),
           team: [...state.team, { championId, statMultiplier: 1 }],
           shopNodeStates: {
             ...state.shopNodeStates,
@@ -1786,6 +1934,9 @@ export const useRunStore = create<RunStore>()(
             },
           },
         });
+        const nextLedger = cloneRunLedger(get().ledger);
+        ensureLedgerChampion(nextLedger, championId);
+        set({ ledger: nextLedger });
         return { success: true, value: { championId } };
       },
 
@@ -1901,7 +2052,7 @@ export const useRunStore = create<RunStore>()(
     }),
     {
       name: 'lolrogue-run-storage',
-      version: 4,
+      version: 5,
       storage: createJSONStorage(() => safeLocalStorage),
       migrate: (persisted, version) => migratePersistedRunState(persisted, version),
       // Only persist the serializable state, not functions
@@ -1930,7 +2081,7 @@ export const useRunStore = create<RunStore>()(
         completedRunSnapshot: state.completedRunSnapshot,
         serverProgression: state.serverProgression,
         rewardsApplied: state.rewardsApplied,
-        completedCombatStats: state.completedCombatStats,
+        ledger: state.ledger,
         nextItemInstanceId: state.nextItemInstanceId,
         team: state.team,
         runLevel: state.runLevel,

@@ -66,7 +66,14 @@ export function RestPage() {
     const previous = useRunStore.getState();
     if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
 
-    if (goldCost > 0 && !spendGold(goldCost).success) {
+    if (
+      goldCost > 0 &&
+      !spendGold(goldCost, {
+        source: 'rest',
+        nodeId: previous.currentNodeId,
+        wave: previous.currentWave,
+      }).success
+    ) {
       useRunStore.setState({ claimedEncounterNodeIds: previous.claimedEncounterNodeIds });
       return;
     }
@@ -99,6 +106,7 @@ export function RestPage() {
       useRunStore.setState({
         team: previous.team,
         gold: previous.gold,
+        ledger: previous.ledger,
         claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
       });
       return;

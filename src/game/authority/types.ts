@@ -1,5 +1,11 @@
 import type { SpellSlot } from '@/game/ChampionInstance';
-import type { Biome, ChampionRunStats, InventoryEntry, NodeType as RunNodeType } from '@/types/run';
+import type {
+  Biome,
+  ChampionRunStats,
+  InventoryEntry,
+  NodeType as RunNodeType,
+  RunLedger,
+} from '@/types/run';
 
 export type AuthorityDifficulty = 'easy' | 'normal' | 'hard';
 
@@ -114,6 +120,7 @@ export interface AuthorityRunSnapshot {
   championStats: ChampionRunStats[];
   totalKills: number;
   totalDamage: number;
+  ledger: RunLedger;
   nextSequence: number;
 }
 

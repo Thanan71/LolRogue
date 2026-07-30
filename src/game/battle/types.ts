@@ -115,7 +115,19 @@ export interface DamageEvent {
   type: 'damage';
   source: string; // champion id
   target: string; // champion id
+  /** Effective HP + shield damage, excluding overkill. */
   amount: number;
+  /** Effective HP removed after shields and HP-floor clamping. */
+  hpDamage?: number;
+  /** Shield points consumed by this hit. */
+  shieldDamage?: number;
+  /** Damage discarded because the target had insufficient HP/shield. */
+  overkillDamage?: number;
+  /** Stable combat-local IDs used when duplicate enemy champions exist. */
+  sourceCombatantId?: string;
+  targetCombatantId?: string;
+  /** Shield absorption attributed to each shield caster. */
+  shieldAbsorbedBySource?: Record<string, number>;
   isCrit: boolean;
   sourceSide: TeamSide;
   targetSide: TeamSide;
@@ -124,6 +136,7 @@ export interface DamageEvent {
 export interface DefeatEvent {
   type: 'defeat';
   champion: string; // champion id
+  combatantId?: string;
   side: TeamSide;
   /** ID of the player champion that dealt the killing blow */
   defeatedBy?: string;
@@ -161,6 +174,10 @@ export interface HealEvent {
   source: string; // champion id
   target: string; // champion id
   amount: number;
+  /** Healing discarded because the target reached maximum HP. */
+  overheal?: number;
+  sourceCombatantId?: string;
+  targetCombatantId?: string;
   sourceSide: TeamSide;
   targetSide: TeamSide;
 }
@@ -170,6 +187,10 @@ export interface ShieldEvent {
   source: string; // champion id
   target: string; // champion id
   amount: number; // shield HP applied
+  /** False for legacy visual-only stat modifier events. */
+  countsAsShield?: boolean;
+  sourceCombatantId?: string;
+  targetCombatantId?: string;
   sourceSide: TeamSide;
   targetSide: TeamSide;
 }

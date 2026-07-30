@@ -1,4 +1,4 @@
-import { runStatsTracker } from '@/services/RunStatsTracker';
+import { buildRunSummaryFromLedger } from '@/game/run/runLedger';
 import { useRunStore } from '@/stores/runStore';
 import type { FinalCombatantState, RunSummary } from '@/types/run';
 
@@ -40,16 +40,13 @@ export async function finalizeCombatRun(
   );
 
   const terminalState = useRunStore.getState();
-  runStatsTracker.markSurvived(
-    terminalState.team
-      .filter((member) => (member.currentHp ?? (won ? 1 : 0)) > 0)
-      .map((member) => member.championId),
-  );
-  const summary = runStatsTracker.buildSummary({
+  const summary = buildRunSummaryFromLedger({
+    ledger: terminalState.ledger,
+    team: terminalState.team,
     won,
     wavesCompleted: terminalState.totalWavesCompleted,
     biomesVisited: terminalState.biomesVisited,
-    goldEarned: terminalState.gold,
+    goldBalance: terminalState.gold,
     runLevel: terminalState.runLevel,
   });
 
@@ -60,8 +57,6 @@ export async function finalizeCombatRun(
     !completed &&
     after.completedRunSnapshot?.runId === runId &&
     after.saveFailureKind === 'retryable';
-  runStatsTracker.reset();
-
   return {
     runId,
     summary,

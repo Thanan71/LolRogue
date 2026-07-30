@@ -8,7 +8,6 @@ import { BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleLoadout } from '@/game/rules/types';
-import { runStatsTracker } from '@/services/RunStatsTracker';
 import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/battleStore';
 import type { FinalCombatantState } from '@/types/run';
 
@@ -151,10 +150,6 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
         amount: event.amount,
         isCrit: event.isCrit,
       });
-      // Track damage for player champions
-      if (event.sourceSide === 'player') {
-        runStatsTracker.recordDamage(event.source, event.amount);
-      }
       break;
 
     case 'heal':
@@ -187,10 +182,6 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
     case 'defeat':
       syncTeams(bm);
       store.addLog({ type: 'defeat', message: `${event.champion} a été vaincu !` });
-      // Track kill: credit the player champion who dealt the killing blow
-      if (event.side === 'enemy' && event.defeatedBy) {
-        runStatsTracker.recordKill(event.defeatedBy);
-      }
       break;
 
     case 'battle_end':
@@ -219,6 +210,7 @@ interface UseBattleManagerOptions {
     consumedItemInstanceIds: string[],
     runeStacks: Record<string, Record<string, number>>,
     playerActionTrace: CombatActionTrace,
+    combatEvents: BattleEvent[],
   ) => void;
   /** Map of championId -> initial HP for persisting HP between combats. */
   initialHpOverrides?: Record<string, number>;
@@ -318,6 +310,7 @@ export function useBattleManager({
         manager?.getConsumedItemInstanceIds() ?? [],
         manager?.getRuneStacks() ?? {},
         manager?.getPlayerActionTrace() ?? [],
+        manager?.getResult()?.log ?? [],
       );
     }
   }, [store.phase, store.winner]);

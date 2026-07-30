@@ -7,6 +7,62 @@ const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const hasSupabaseCredentials = Boolean(supabaseUrl && anonKey && serviceRoleKey);
 
+type VerifiedMember = {
+  champion_id: string;
+  final_level: number;
+  final_hp: number;
+  kills: number;
+  damage_dealt: number;
+  items_collected: string[];
+};
+
+function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMember[] }>(
+  result: T,
+) {
+  const teamMembers = result.team_members.map((member) => ({
+    ...member,
+    assists: 0,
+    damage_to_shields: 0,
+    damage_received: 0,
+    healing_done: 0,
+    healing_received: 0,
+    overhealing: 0,
+    shielding_done: 0,
+    shielding_absorbed: 0,
+    deaths: member.final_hp > 0 ? 0 : 1,
+  }));
+  return {
+    ...result,
+    gold_spent: 0,
+    gold_balance: result.gold_earned,
+    team_members: teamMembers,
+    ledger: {
+      version: 1,
+      champions: Object.fromEntries(
+        teamMembers.map((member) => [
+          member.champion_id,
+          {
+            kills: member.kills,
+            assists: member.assists,
+            damage_dealt: member.damage_dealt,
+            damage_to_shields: member.damage_to_shields,
+            damage_received: member.damage_received,
+            healing_done: member.healing_done,
+            healing_received: member.healing_received,
+            overhealing: member.overhealing,
+            shielding_done: member.shielding_done,
+            shielding_absorbed: member.shielding_absorbed,
+            deaths: member.deaths,
+          },
+        ]),
+      ),
+      gold: { earned: result.gold_earned, spent: 0 },
+      items: [],
+      next_item_event_sequence: 1,
+    },
+  };
+}
+
 type DailyChallengeWire = {
   daily_date: string;
   seed: number;
@@ -152,7 +208,7 @@ describeLive('authoritative daily leaderboard live security', () => {
     expect(challenge).toMatchObject({
       daily_date: new Date().toISOString().slice(0, 10),
       difficulty: 'normal',
-      score_version: 6,
+      score_version: 7,
       attempt_policy: 'one_official_attempt_per_utc_day',
       has_attempted: false,
     });
@@ -272,7 +328,7 @@ describeLive('authoritative daily leaderboard live security', () => {
     });
     expect(firstClaim.error).toBeNull();
     const firstLease = (firstClaim.data as { lease_token: string }).lease_token;
-    const verifiedResult = {
+    const verifiedResult = withRunLedger({
       won: false,
       run_level: 1,
       waves_completed: 1,
@@ -289,7 +345,7 @@ describeLive('authoritative daily leaderboard live security', () => {
           items_collected: [],
         },
       ],
-    };
+    });
     const firstCompletion = await admin.rpc(
       'complete_run_verification' as never,
       {
@@ -331,8 +387,8 @@ describeLive('authoritative daily leaderboard live security', () => {
       daily_seed: challenge.seed,
       score: 1360,
       run_attempt_id: firstAttempt.attempt_id,
-      daily_ruleset_version: 6,
-      score_version: 6,
+      daily_ruleset_version: 7,
+      score_version: 7,
     });
 
     const anonymous = createClient<Database>(supabaseUrl!, anonKey!, {
@@ -359,7 +415,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       score: 1360,
       waves_completed: 1,
       run_level_reached: 1,
-      score_version: 6,
+      score_version: 7,
     });
     expect(publicBoard.data).not.toHaveProperty('player_id');
     expect(publicBoard.data).not.toHaveProperty('completed_at');
@@ -371,7 +427,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       p_worker_id: randomUUID(),
     });
     expect(secondClaim.error).toBeNull();
-    const abandonedResult = {
+    const abandonedResult = withRunLedger({
       won: false,
       run_level: 1,
       waves_completed: 0,
@@ -388,7 +444,7 @@ describeLive('authoritative daily leaderboard live security', () => {
           items_collected: [],
         },
       ],
-    };
+    });
     const abandonedCompletion = await admin.rpc(
       'complete_run_verification' as never,
       {

@@ -71,6 +71,11 @@ export function GameOverPage() {
     completedRunSnapshot?.teamMembers.length ?? summary?.championStats?.length ?? 0;
   const totalKills = summary?.totalKills ?? 0;
   const totalDamage = summary?.totalDamage ?? 0;
+  const totalAssists = summary?.championStats.reduce((sum, stats) => sum + stats.assists, 0) ?? 0;
+  const totalHealing =
+    summary?.championStats.reduce((sum, stats) => sum + stats.healingDone, 0) ?? 0;
+  const totalShielding =
+    summary?.championStats.reduce((sum, stats) => sum + stats.shieldingDone, 0) ?? 0;
   const goldEarned = summary?.goldEarned ?? 0;
   const isBusy = saveStatus === 'saving' || saveStatus === 'retrying';
   const isRetryableSaveError = saveStatus === 'failed' && saveFailureKind !== 'terminal';
@@ -116,8 +121,13 @@ export function GameOverPage() {
           <StatBlock label="Biomes Visited" value={biomesCount} />
           <StatBlock label="Team Size" value={championCount} />
           <StatBlock label="Total Kills" value={totalKills} />
+          <StatBlock label="Assists" value={totalAssists} />
           <StatBlock label="Total Damage" value={totalDamage} />
+          <StatBlock label="Healing" value={totalHealing} />
+          <StatBlock label="Shielding" value={totalShielding} />
           <StatBlock label="Gold Earned" value={goldEarned} />
+          <StatBlock label="Gold Spent" value={summary?.goldSpent ?? 0} />
+          <StatBlock label="Gold Balance" value={summary?.goldBalance ?? 0} />
         </div>
 
         {summary?.championStats && summary.championStats.length > 0 && (
@@ -141,7 +151,8 @@ export function GameOverPage() {
                     {cs.championId}
                   </span>
                   <span style={{ color: '#8b949e', fontSize: 12 }}>
-                    Kills: {cs.kills} · Dmg: {cs.totalDamage}
+                    K: {cs.kills} · A: {cs.assists} · Dmg: {cs.totalDamage} · Heal: {cs.healingDone}{' '}
+                    · Shield: {cs.shieldingDone}
                   </span>
                 </div>
               ))}

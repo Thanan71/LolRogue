@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
+import { createRunLedger } from '@/game/run/runLedger';
 import type { CombatEncounter } from '@/game/map/types';
-import { runStatsTracker } from '@/services/RunStatsTracker';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 
@@ -24,17 +24,15 @@ function createLocalStorage() {
 describe('run reload recovery', () => {
   beforeEach(() => {
     vi.stubGlobal('localStorage', createLocalStorage());
-    runStatsTracker.reset();
     useRunStore.setState({
       completedRunSnapshot: null,
       serverProgression: null,
-      completedCombatStats: [],
+      ledger: createRunLedger(),
     });
   });
 
   afterEach(() => {
     useRunStore.persist.clearStorage();
-    runStatsTracker.reset();
     vi.unstubAllGlobals();
   });
 
@@ -349,16 +347,15 @@ describe('run reload recovery', () => {
   });
 
   it('restores the frozen completion payload and canonical progression', async () => {
+    const ledger = createRunLedger(['Garen']);
+    ledger.champions.Garen.kills = 2;
+    ledger.champions.Garen.damageDealt = 640;
+    ledger.champions.Garen.deaths = 1;
+    ledger.gold.earned = 150;
+    ledger.gold.spent = 25;
     useRunStore.setState({
       isActive: false,
-      completedCombatStats: [
-        {
-          championId: 'Garen',
-          kills: 2,
-          totalDamage: 640,
-          survived: false,
-        },
-      ],
+      ledger,
       completedRunSnapshot: {
         mode: 'normal',
         runId: 'persisted-completion',
@@ -367,19 +364,35 @@ describe('run reload recovery', () => {
         wavesCompleted: 4,
         biomesVisited: ['top_lane'],
         goldEarned: 125,
+        goldSpent: 25,
+        goldBalance: 100,
+        ledger,
         summary: {
           won: false,
           runLevel: 2,
           wavesCompleted: 4,
           biomesVisited: ['top_lane'],
           goldEarned: 125,
+          goldSpent: 25,
+          goldBalance: 100,
+          itemEvents: [],
           totalKills: 2,
           totalDamage: 640,
           championStats: [
             {
               championId: 'Garen',
               kills: 2,
+              assists: 0,
               totalDamage: 640,
+              damageToShields: 0,
+              damageReceived: 0,
+              healingDone: 0,
+              healingReceived: 0,
+              overhealing: 0,
+              shieldingDone: 0,
+              shieldingAbsorbed: 0,
+              deaths: 1,
+              itemsCollected: [],
               survived: false,
             },
           ],
@@ -406,7 +419,7 @@ describe('run reload recovery', () => {
     useRunStore.setState({
       completedRunSnapshot: null,
       serverProgression: null,
-      completedCombatStats: [],
+      ledger: createRunLedger(),
     });
     localStorage.setItem(RUN_STORAGE_KEY, persistedCompletion!);
     await useRunStore.persist.rehydrate();
@@ -420,27 +433,16 @@ describe('run reload recovery', () => {
       progressionVersion: 1,
       progressionSource: 'verified',
     });
-    expect(useRunStore.getState().completedCombatStats).toEqual([
-      {
-        championId: 'Garen',
-        kills: 2,
-        totalDamage: 640,
-        survived: false,
+    expect(useRunStore.getState().ledger).toMatchObject({
+      version: 1,
+      gold: { earned: 150, spent: 25 },
+      champions: {
+        Garen: {
+          kills: 2,
+          damageDealt: 640,
+          deaths: 1,
+        },
       },
-    ]);
-    runStatsTracker.restore(useRunStore.getState().completedCombatStats);
-    runStatsTracker.recordKill('Garen');
-    expect(
-      runStatsTracker.buildSummary({
-        won: false,
-        wavesCompleted: 5,
-        biomesVisited: ['top_lane'],
-        goldEarned: 150,
-        runLevel: 2,
-      }),
-    ).toMatchObject({
-      totalKills: 3,
-      totalDamage: 640,
     });
   });
 

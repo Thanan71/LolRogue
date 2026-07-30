@@ -5,6 +5,25 @@ import {
 } from '../src/game/run/runRewardPolicy';
 import type { RunSummary } from '../src/types/run';
 
+function championStats(championId: string, kills: number, totalDamage: number) {
+  return {
+    championId,
+    kills,
+    assists: 0,
+    totalDamage,
+    damageToShields: 0,
+    damageReceived: 0,
+    healingDone: 0,
+    healingReceived: 0,
+    overhealing: 0,
+    shieldingDone: 0,
+    shieldingAbsorbed: 0,
+    deaths: 0,
+    itemsCollected: [],
+    survived: true,
+  };
+}
+
 describe('run rewards', () => {
   it.each([
     { outcome: 'immediate_abandon', wavesCompleted: 0, expected: 0 },
@@ -31,13 +50,13 @@ describe('run rewards', () => {
       won: true,
       wavesCompleted: 20,
       biomesVisited: ['top_lane', 'jungle', 'mid_lane'],
-      championStats: [
-        { championId: 'Garen', kills: 5, totalDamage: 1000, survived: true },
-        { championId: 'Lux', kills: 3, totalDamage: 1500, survived: true },
-      ],
+      championStats: [championStats('Garen', 5, 1000), championStats('Lux', 3, 1500)],
       totalKills: 8,
       totalDamage: 2500,
       goldEarned: 500,
+      goldSpent: 125,
+      goldBalance: 375,
+      itemEvents: [],
       runLevel: 3,
     };
 
@@ -56,10 +75,13 @@ describe('run rewards', () => {
       won,
       wavesCompleted: 0,
       biomesVisited,
-      championStats: [{ championId: 'Garen', kills: 0, totalDamage: 0, survived: true }],
+      championStats: [championStats('Garen', 0, 0)],
       totalKills: 0,
       totalDamage: 0,
       goldEarned: 0,
+      goldSpent: 0,
+      goldBalance: 0,
+      itemEvents: [],
       runLevel: 1,
     };
 

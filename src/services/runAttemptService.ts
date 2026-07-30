@@ -1,5 +1,5 @@
 import type { Json } from '@/types/database';
-import type { RunSummary, ServerRunProgression } from '@/types/run';
+import type { RunItemLedgerEvent, RunSummary, ServerRunProgression } from '@/types/run';
 import type {
   AppendRunCommandsResult,
   AuthorityDifficulty,
@@ -544,12 +544,49 @@ function parseRunSummary(value: unknown): RunSummary | null {
       ? {
           championId: stats.champion_id,
           kills: stats.kills,
+          assists: isInteger(stats.assists) ? stats.assists : 0,
           totalDamage: stats.total_damage,
+          damageToShields: isInteger(stats.damage_to_shields) ? stats.damage_to_shields : 0,
+          damageReceived: isInteger(stats.damage_received) ? stats.damage_received : 0,
+          healingDone: isInteger(stats.healing_done) ? stats.healing_done : 0,
+          healingReceived: isInteger(stats.healing_received) ? stats.healing_received : 0,
+          overhealing: isInteger(stats.overhealing) ? stats.overhealing : 0,
+          shieldingDone: isInteger(stats.shielding_done) ? stats.shielding_done : 0,
+          shieldingAbsorbed: isInteger(stats.shielding_absorbed) ? stats.shielding_absorbed : 0,
+          deaths: isInteger(stats.deaths) ? stats.deaths : 0,
+          itemsCollected: isStringArray(stats.items_collected) ? stats.items_collected : [],
           survived: stats.survived,
         }
       : null;
   });
   if (parsedChampionStats.some((entry) => entry === null)) return null;
+  const rawItemEvents = Array.isArray(summary.item_events) ? summary.item_events : [];
+  const itemEvents = rawItemEvents.map((entry) => {
+    const event = asRecord(entry);
+    return event &&
+      isInteger(event.sequence) &&
+      typeof event.action === 'string' &&
+      typeof event.source === 'string' &&
+      typeof event.item_id === 'string' &&
+      typeof event.instance_id === 'string' &&
+      (event.champion_id === null || typeof event.champion_id === 'string') &&
+      isInteger(event.gold_amount) &&
+      (event.node_id === null || typeof event.node_id === 'string') &&
+      isInteger(event.wave)
+      ? {
+          sequence: event.sequence,
+          action: event.action,
+          source: event.source,
+          itemId: event.item_id,
+          instanceId: event.instance_id,
+          championId: event.champion_id,
+          goldAmount: event.gold_amount,
+          nodeId: event.node_id,
+          wave: event.wave,
+        }
+      : null;
+  });
+  if (itemEvents.some((event) => event === null)) return null;
   return {
     won: summary.won,
     wavesCompleted: summary.waves_completed,
@@ -557,6 +594,9 @@ function parseRunSummary(value: unknown): RunSummary | null {
     totalKills: summary.total_kills,
     totalDamage: summary.total_damage,
     goldEarned: summary.gold_earned,
+    goldSpent: isInteger(summary.gold_spent) ? summary.gold_spent : 0,
+    goldBalance: isInteger(summary.gold_balance) ? summary.gold_balance : summary.gold_earned,
+    itemEvents: itemEvents as RunItemLedgerEvent[],
     runLevel: summary.run_level,
     championStats: parsedChampionStats as RunSummary['championStats'],
   };

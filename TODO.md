@@ -585,14 +585,14 @@ rapportent exactement les mêmes ennemis et récompenses.
 Les dégâts avant shield et heals avant overheal sont surcomptés. `gold_earned`
 correspond à l'or restant et `items_collected` est sauvegardé vide.
 
-- [ ] Déplacer les statistiques dans l'état versionné de la run.
-- [ ] Reset uniquement au vrai début/à la vraie fin de run.
-- [ ] Enregistrer les deltas effectifs de PV, shields, overheal, kills et assists.
-- [ ] Séparer gains, dépenses et solde d'or.
-- [ ] Journaliser objets trouvés, achetés, vendus, équipés et consommés.
-- [ ] Inclure toute l'équipe dans le résumé, même sans événement de combat.
-- [ ] Calculer UI, DB, maîtrise et analytics depuis ce ledger unique.
-- [ ] Ajouter un golden test de trois combats avec refresh et comparer chaque champ
+- [x] Déplacer les statistiques dans l'état versionné de la run.
+- [x] Reset uniquement au vrai début/à la vraie fin de run.
+- [x] Enregistrer les deltas effectifs de PV, shields, overheal, kills et assists.
+- [x] Séparer gains, dépenses et solde d'or.
+- [x] Journaliser objets trouvés, achetés, vendus, équipés et consommés.
+- [x] Inclure toute l'équipe dans le résumé, même sans événement de combat.
+- [x] Calculer UI, DB, maîtrise et analytics depuis ce ledger unique.
+- [x] Ajouter un golden test de trois combats avec refresh et comparer chaque champ
   UI/RPC/tables.
 
 **Acceptation :** le résumé est une somme exacte de toute la run et survit à un

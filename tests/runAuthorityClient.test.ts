@@ -143,6 +143,37 @@ describe('authoritative client journal', () => {
       useRunStore.getState().authorityAttempt?.commands.map((command) => command.kind),
     ).toEqual(['equip_item', 'unequip_item', 'equip_item']);
     expect(useRunStore.getState().inventory[0]?.equippedToChampionId).toBe('Garen');
+    expect(useRunStore.getState().ledger.items.map((event) => event.action)).toEqual([
+      'equipped',
+      'unequipped',
+      'equipped',
+    ]);
+  });
+
+  it('journals both sides of an equipment transfer', () => {
+    const item: Item = {
+      id: 'long_sword',
+      name: 'Long Sword',
+      description: 'Attack damage',
+      iconUrl: '',
+      stats: { atk: 10 },
+      goldValue: 100,
+    };
+    useRunStore.setState({
+      team: [{ championId: 'Garen' }, { championId: 'Lux' }],
+      inventory: [{ instanceId: 'item-1', item, equippedToChampionId: 'Garen' }],
+    });
+
+    expect(useRunStore.getState().equipItem('item-1', 'Lux')).toBe(true);
+    expect(
+      useRunStore.getState().ledger.items.map(({ action, championId }) => ({
+        action,
+        championId,
+      })),
+    ).toEqual([
+      { action: 'unequipped', championId: 'Garen' },
+      { action: 'equipped', championId: 'Lux' },
+    ]);
   });
 
   it('rejects a stale branch even when an old predecessor makes it broadly accessible', () => {

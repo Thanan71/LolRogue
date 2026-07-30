@@ -804,6 +804,9 @@ export class BattleManager {
             source: attacker.champion.id,
             target: shieldTarget.champion.id,
             amount: finalShieldAmount,
+            countsAsShield: true,
+            sourceCombatantId: attacker.targetId,
+            targetCombatantId: shieldTarget.targetId,
             sourceSide: attacker.side,
             targetSide: shieldTarget.side,
           });
@@ -836,6 +839,11 @@ export class BattleManager {
             source: attacker.champion.id,
             target: ccTarget.champion.id,
             amount: 0,
+            hpDamage: 0,
+            shieldDamage: 0,
+            overkillDamage: 0,
+            sourceCombatantId: attacker.targetId,
+            targetCombatantId: ccTarget.targetId,
             isCrit: false,
             sourceSide: attacker.side,
             targetSide: ccTarget.side,
@@ -869,6 +877,9 @@ export class BattleManager {
             source: attacker.champion.id,
             target: buffTarget.champion.id,
             amount: rawValue,
+            countsAsShield: false,
+            sourceCombatantId: attacker.targetId,
+            targetCombatantId: buffTarget.targetId,
             sourceSide: attacker.side,
             targetSide: buffTarget.side,
           });
@@ -901,6 +912,9 @@ export class BattleManager {
             source: attacker.champion.id,
             target: debuffTarget.champion.id,
             amount: rawValue,
+            countsAsShield: false,
+            sourceCombatantId: attacker.targetId,
+            targetCombatantId: debuffTarget.targetId,
             sourceSide: attacker.side,
             targetSide: debuffTarget.side,
           });
@@ -1022,16 +1036,35 @@ export class BattleManager {
     );
     if (ruledDamage <= 0) return;
     this._lastDamagedRound.set(target.targetId, this._round);
-    const { finalDamage: remaining } = target.effectManager.absorbWithShields(ruledDamage);
+    const previousHp = target.currentHp;
+    const {
+      finalDamage: remaining,
+      totalAbsorbed,
+      absorbedBySource,
+    } = target.effectManager.absorbWithShields(ruledDamage);
     this._syncEffectState(target);
     if (remaining > 0) {
       target.currentHp = Math.max(0, target.currentHp - remaining);
     }
+    const hpDamage = previousHp - target.currentHp;
+    const effectiveDamage = totalAbsorbed + hpDamage;
+    const shieldAbsorbedBySource = Object.fromEntries(
+      Object.entries(absorbedBySource).map(([sourceId, amount]) => [
+        this._findCombatantByTargetId(sourceId)?.champion.id ?? sourceId,
+        amount,
+      ]),
+    );
     this._emit({
       type: 'damage',
       source: attacker.champion.id,
       target: target.champion.id,
-      amount: ruledDamage,
+      amount: effectiveDamage,
+      hpDamage,
+      shieldDamage: totalAbsorbed,
+      overkillDamage: Math.max(0, ruledDamage - effectiveDamage),
+      sourceCombatantId: attacker.targetId,
+      targetCombatantId: target.targetId,
+      shieldAbsorbedBySource,
       isCrit,
       sourceSide: attacker.side,
       targetSide: target.side,
@@ -1075,6 +1108,7 @@ export class BattleManager {
         this._emit({
           type: 'defeat',
           champion: target.champion.id,
+          combatantId: target.targetId,
           side: target.side,
           defeatedBy: attacker.champion.id,
         });
@@ -1194,12 +1228,14 @@ export class BattleManager {
     const previousHp = target.currentHp;
     target.currentHp = Math.min(target.maxHp, target.currentHp + finalAmount);
     const applied = target.currentHp - previousHp;
-    if (applied <= 0) return;
     this._emit({
       type: 'heal',
       source: source.champion.id,
       target: target.champion.id,
       amount: applied,
+      overheal: Math.max(0, finalAmount - applied),
+      sourceCombatantId: source.targetId,
+      targetCombatantId: target.targetId,
       sourceSide: source.side,
       targetSide: target.side,
     });
@@ -1616,6 +1652,17 @@ export class BattleManager {
         }),
       );
       this._syncEffectState(target);
+      this._emit({
+        type: 'shield',
+        source: source.champion.id,
+        target: target.champion.id,
+        amount: effect.amount,
+        countsAsShield: true,
+        sourceCombatantId: source.targetId,
+        targetCombatantId: target.targetId,
+        sourceSide: source.side,
+        targetSide: target.side,
+      });
     } else if (effect.type === 'dot' && !target.isDefeated) {
       target.effectManager.apply(
         new DamageEffect({

@@ -23,6 +23,74 @@ const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const hasSupabaseCredentials = Boolean(supabaseUrl && anonKey && serviceRoleKey);
 
+type VerifiedMember = {
+  champion_id: string;
+  final_level: number;
+  final_hp: number;
+  kills: number;
+  damage_dealt: number;
+  items_collected: string[];
+};
+
+type LedgerItem = {
+  sequence: number;
+  action: string;
+  source: string;
+  item_id: string;
+  instance_id: string;
+  champion_id: string | null;
+  gold_amount: number;
+  node_id: string | null;
+  wave: number;
+};
+
+function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMember[] }>(
+  result: T,
+) {
+  const teamMembers = result.team_members.map((member) => ({
+    ...member,
+    assists: 0,
+    damage_to_shields: 0,
+    damage_received: 0,
+    healing_done: 0,
+    healing_received: 0,
+    overhealing: 0,
+    shielding_done: 0,
+    shielding_absorbed: 0,
+    deaths: member.final_hp > 0 ? 0 : 1,
+  }));
+  return {
+    ...result,
+    gold_spent: 0,
+    gold_balance: result.gold_earned,
+    team_members: teamMembers,
+    ledger: {
+      version: 1,
+      champions: Object.fromEntries(
+        teamMembers.map((member) => [
+          member.champion_id,
+          {
+            kills: member.kills,
+            assists: member.assists,
+            damage_dealt: member.damage_dealt,
+            damage_to_shields: member.damage_to_shields,
+            damage_received: member.damage_received,
+            healing_done: member.healing_done,
+            healing_received: member.healing_received,
+            overhealing: member.overhealing,
+            shielding_done: member.shielding_done,
+            shielding_absorbed: member.shielding_absorbed,
+            deaths: member.deaths,
+          },
+        ]),
+      ),
+      gold: { earned: result.gold_earned, spent: 0 },
+      items: [] as LedgerItem[],
+      next_item_event_sequence: 1,
+    },
+  };
+}
+
 describe('verified run attempt migration', () => {
   it('is append-only and records the non-destructive historical baseline', () => {
     expect(migrationSql).toContain('BEGIN;');
@@ -252,7 +320,7 @@ describeWithSupabase('verified run attempt live security', () => {
       };
       expect(start).toMatchObject({
         status: 'started',
-        engine_version: 'run-engine-v6',
+        engine_version: 'run-engine-v7',
       });
       expect(start.seed).toBeGreaterThan(0);
       expect(start.enhancement_snapshot).toHaveProperty('Garen');
@@ -319,7 +387,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(claim.data).toMatchObject({
         attempt_id: start.attempt_id,
         claimed: true,
-        engine_version: 'run-engine-v6',
+        engine_version: 'run-engine-v7',
       });
       const leaseToken = (claim.data as { lease_token: string }).lease_token;
 
@@ -334,7 +402,7 @@ describeWithSupabase('verified run attempt live security', () => {
         in_progress: true,
       });
 
-      const verifiedResult = {
+      const verifiedResult = withRunLedger({
         won: false,
         run_level: 1,
         waves_completed: 1,
@@ -348,10 +416,47 @@ describeWithSupabase('verified run attempt live security', () => {
             final_hp: 100,
             kills: 1,
             damage_dealt: 50,
-            items_collected: [],
+            items_collected: ['long_sword'],
           },
         ],
-      };
+      });
+      Object.assign(verifiedResult.team_members[0], {
+        assists: 2,
+        damage_to_shields: 7,
+        damage_received: 31,
+        healing_done: 12,
+        healing_received: 9,
+        overhealing: 4,
+        shielding_done: 18,
+        shielding_absorbed: 11,
+      });
+      Object.assign(verifiedResult.ledger.champions.Garen, {
+        assists: 2,
+        damage_to_shields: 7,
+        damage_received: 31,
+        healing_done: 12,
+        healing_received: 9,
+        overhealing: 4,
+        shielding_done: 18,
+        shielding_absorbed: 11,
+      });
+      verifiedResult.gold_spent = 3;
+      verifiedResult.gold_balance = 7;
+      verifiedResult.ledger.gold.spent = 3;
+      verifiedResult.ledger.items = [
+        {
+          sequence: 1,
+          action: 'bought',
+          source: 'shop',
+          item_id: 'long_sword',
+          instance_id: 'item-1',
+          champion_id: null,
+          gold_amount: 3,
+          node_id: 'shop-1',
+          wave: 1,
+        },
+      ];
+      verifiedResult.ledger.next_item_event_sequence = 2;
       const completions = await Promise.all(
         [null, null].map(() =>
           admin.rpc('complete_run_verification', {
@@ -362,7 +467,7 @@ describeWithSupabase('verified run attempt live security', () => {
           }),
         ),
       );
-      expect(completions.every(({ error }) => error === null)).toBe(true);
+      expect(completions.map(({ error }) => error?.message ?? null)).toEqual([null, null]);
       expect(
         completions
           .map(({ data }) => (data as { replayed: boolean }).replayed)
@@ -379,6 +484,22 @@ describeWithSupabase('verified run attempt live security', () => {
           waves_completed: 1,
           total_kills: 1,
           total_damage: 50,
+          gold_earned: 10,
+          gold_spent: 3,
+          gold_balance: 7,
+          champion_stats: [
+            {
+              champion_id: 'Garen',
+              assists: 2,
+              damage_to_shields: 7,
+              damage_received: 31,
+              healing_done: 12,
+              overhealing: 4,
+              shielding_done: 18,
+              shielding_absorbed: 11,
+              items_collected: ['long_sword'],
+            },
+          ],
         },
       });
 
@@ -396,7 +517,9 @@ describeWithSupabase('verified run attempt live security', () => {
 
       const persistedRun = await admin
         .from('runs')
-        .select('progression_source, candies_earned, run_attempt_id')
+        .select(
+          'progression_source, candies_earned, run_attempt_id, gold_earned, total_gold_spent, gold_balance, items_purchased, total_assists, total_damage_to_shields, total_damage_received, total_healing_done, total_overhealing, total_shielding_done, total_shielding_absorbed, run_ledger',
+        )
         .eq('run_attempt_id', start.attempt_id)
         .single();
       expect(persistedRun.error).toBeNull();
@@ -404,15 +527,40 @@ describeWithSupabase('verified run attempt live security', () => {
         progression_source: 'verified',
         candies_earned: 13,
         run_attempt_id: start.attempt_id,
+        gold_earned: 10,
+        total_gold_spent: 3,
+        gold_balance: 7,
+        items_purchased: 1,
+        total_assists: 2,
+        total_damage_to_shields: 7,
+        total_damage_received: 31,
+        total_healing_done: 12,
+        total_overhealing: 4,
+        total_shielding_done: 18,
+        total_shielding_absorbed: 11,
+        run_ledger: verifiedResult.ledger,
       });
 
       const persistedMember = await admin
         .from('run_team_members')
-        .select('final_hp')
+        .select(
+          'final_hp, assists, damage_to_shields, damage_received, healing_done, healing_received, overhealing, shielding_done, shielding_absorbed, items_collected',
+        )
         .eq('run_id', (completionReplay.data as { run_id: string }).run_id)
         .single();
       expect(persistedMember.error).toBeNull();
-      expect(persistedMember.data).toEqual({ final_hp: 100 });
+      expect(persistedMember.data).toEqual({
+        final_hp: 100,
+        assists: 2,
+        damage_to_shields: 7,
+        damage_received: 31,
+        healing_done: 12,
+        healing_received: 9,
+        overhealing: 4,
+        shielding_done: 18,
+        shielding_absorbed: 11,
+        items_collected: ['long_sword'],
+      });
 
       const player = await admin
         .from('players')
@@ -465,7 +613,7 @@ describeWithSupabase('verified run attempt live security', () => {
       const zeroWaveCompletion = await admin.rpc('complete_run_verification', {
         p_attempt_id: zeroWaveAttemptId,
         p_lease_token: (zeroWaveClaim.data as { lease_token: string }).lease_token,
-        p_result: {
+        p_result: withRunLedger({
           won: false,
           run_level: 1,
           waves_completed: 0,
@@ -482,7 +630,7 @@ describeWithSupabase('verified run attempt live security', () => {
               items_collected: [],
             },
           ],
-        },
+        }),
         p_result_hash: null,
       });
       expect(zeroWaveCompletion.error).toBeNull();
@@ -530,7 +678,7 @@ describeWithSupabase('verified run attempt live security', () => {
       const lateDefeatCompletion = await admin.rpc('complete_run_verification', {
         p_attempt_id: lateDefeatAttemptId,
         p_lease_token: (lateDefeatClaim.data as { lease_token: string }).lease_token,
-        p_result: {
+        p_result: withRunLedger({
           won: false,
           run_level: 2,
           waves_completed: 2,
@@ -547,7 +695,7 @@ describeWithSupabase('verified run attempt live security', () => {
               items_collected: [],
             },
           ],
-        },
+        }),
         p_result_hash: null,
       });
       expect(lateDefeatCompletion.error).toBeNull();
@@ -612,7 +760,7 @@ describeWithSupabase('verified run attempt live security', () => {
       const stackedVictoryCompletion = await admin.rpc('complete_run_verification', {
         p_attempt_id: stackedVictoryAttemptId,
         p_lease_token: (stackedVictoryClaim.data as { lease_token: string }).lease_token,
-        p_result: {
+        p_result: withRunLedger({
           verified: true,
           won: true,
           run_level: 6,
@@ -630,7 +778,7 @@ describeWithSupabase('verified run attempt live security', () => {
               items_collected: ['sunfire_aegis', 'dagger', 'cloth_armor', 'long_sword'],
             },
           ],
-        },
+        }),
         p_result_hash: null,
       });
       expect(stackedVictoryCompletion.error).toBeNull();

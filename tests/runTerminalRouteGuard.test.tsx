@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EncounterRoute } from '@/components/EncounterRoute';
 import { RunLifecycleRoute } from '@/components/RunLifecycleRoute';
 import { RunPage } from '@/pages/RunPage';
+import { createRunLedger } from '@/game/run/runLedger';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import type { CompletedRunSnapshot, RunSummary } from '@/types/run';
@@ -31,6 +32,9 @@ function completedSnapshot(runId = RUN_ID): CompletedRunSnapshot {
     wavesCompleted: 3,
     biomesVisited: ['top_lane'],
     goldEarned: 100,
+    goldSpent: 25,
+    goldBalance: 75,
+    itemEvents: [],
     totalKills: 1,
     totalDamage: 250,
     championStats: [],
@@ -43,6 +47,9 @@ function completedSnapshot(runId = RUN_ID): CompletedRunSnapshot {
     wavesCompleted: 3,
     biomesVisited: ['top_lane'],
     goldEarned: 100,
+    goldSpent: 25,
+    goldBalance: 75,
+    ledger: createRunLedger(['Garen']),
     summary,
     teamMembers: [{ championId: 'Garen', level: 1, currentHp: 0, currentMp: 0 }],
     startedAt: '2026-07-23T12:00:00.000Z',

@@ -73,6 +73,7 @@ export interface Run {
   waves_completed: number;
   biomes_visited: string[];
   gold_earned: number;
+  gold_balance?: number;
   total_kills: number;
   total_damage_dealt: number;
   candies_earned: number;
@@ -93,6 +94,13 @@ export interface Run {
   total_healing_done?: number;
   total_healing_received?: number;
   total_damage_received?: number;
+  total_assists?: number;
+  total_damage_to_shields?: number;
+  total_overhealing?: number;
+  total_shielding_done?: number;
+  total_shielding_absorbed?: number;
+  ledger_version?: number;
+  run_ledger?: unknown;
   elite_kills?: number;
   boss_kills?: number;
 }
@@ -107,13 +115,19 @@ export interface RunTeamMember {
   final_hp: number;
   survived: boolean;
   kills: number;
+  assists?: number;
   damage_dealt: number;
+  damage_to_shields?: number;
   items_collected: string[];
 
   // Phase 3: Additional combat tracking fields
   damage_received?: number;
   healing_done?: number;
   healing_received?: number;
+  overhealing?: number;
+  shielding_done?: number;
+  shielding_absorbed?: number;
+  deaths?: number;
   time_alive_seconds?: number;
   crowd_control_duration?: number;
   gold_earned?: number;

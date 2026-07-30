@@ -480,6 +480,7 @@ describe('Effect System', () => {
       const result = manager.absorbWithShields(150);
       expect(result.totalAbsorbed).toBe(150);
       expect(result.finalDamage).toBe(0);
+      expect(result.absorbedBySource).toEqual({ src: 150 });
     });
 
     it('should pass damage beyond shields', () => {
@@ -494,6 +495,7 @@ describe('Effect System', () => {
       const result = manager.absorbWithShields(300);
       expect(result.totalAbsorbed).toBe(100);
       expect(result.finalDamage).toBe(200);
+      expect(result.absorbedBySource).toEqual({ src: 100 });
     });
 
     it('should report canAct=false when stunned', () => {

@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { NodeType, type NodeMap } from '@/game/map/types';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
+import { createRunLedger } from '@/game/run/runLedger';
 import { AuthPage } from '@/pages/AuthPage';
 import { EventPage } from '@/pages/EventPage';
 import { GameOverPage } from '@/pages/GameOverPage';
@@ -22,6 +23,7 @@ import { useRunStore } from '@/stores/runStore';
 import {
   MAX_INVENTORY_ITEMS,
   type CompletedRunSnapshot,
+  type ChampionRunStats,
   type InventoryEntry,
   type Item,
   type RunSummary,
@@ -42,6 +44,9 @@ function renderAt(element: React.ReactNode, path = '/') {
 }
 
 function completedSnapshot(summary: RunSummary, championIds: string[]): CompletedRunSnapshot {
+  const ledger = createRunLedger(championIds);
+  ledger.gold.earned = summary.goldEarned;
+  ledger.gold.spent = summary.goldSpent;
   return {
     mode: 'normal',
     runId: 'completed-run',
@@ -50,6 +55,9 @@ function completedSnapshot(summary: RunSummary, championIds: string[]): Complete
     wavesCompleted: summary.wavesCompleted,
     biomesVisited: summary.biomesVisited,
     goldEarned: summary.goldEarned,
+    goldSpent: summary.goldSpent,
+    goldBalance: summary.goldBalance,
+    ledger,
     summary,
     teamMembers: championIds.map((championId) => ({
       championId,
@@ -62,6 +70,30 @@ function completedSnapshot(summary: RunSummary, championIds: string[]): Complete
     runeIds: [],
     augmentIds: [],
     daily: null,
+  };
+}
+
+function championStats(
+  championId: string,
+  kills: number,
+  totalDamage: number,
+  survived: boolean,
+): ChampionRunStats {
+  return {
+    championId,
+    kills,
+    assists: 0,
+    totalDamage,
+    damageToShields: 0,
+    damageReceived: 0,
+    healingDone: 0,
+    healingReceived: 0,
+    overhealing: 0,
+    shieldingDone: 0,
+    shieldingAbsorbed: 0,
+    deaths: survived ? 0 : 1,
+    itemsCollected: [],
+    survived,
   };
 }
 
@@ -392,6 +424,9 @@ describe('P2 page smoke tests', () => {
       wavesCompleted: 8,
       biomesVisited: ['top_lane'],
       goldEarned: 200,
+      goldSpent: 0,
+      goldBalance: 200,
+      itemEvents: [],
       totalKills: 4,
       totalDamage: 1200,
       championStats: [],
@@ -412,6 +447,9 @@ describe('P2 page smoke tests', () => {
       wavesCompleted: 12,
       biomesVisited: ['top_lane', 'jungle'],
       goldEarned: 320,
+      goldSpent: 0,
+      goldBalance: 320,
+      itemEvents: [],
       totalKills: 9,
       totalDamage: 2400,
       championStats: [],
@@ -435,17 +473,13 @@ describe('P2 page smoke tests', () => {
       wavesCompleted: 7,
       biomesVisited: ['top_lane'],
       goldEarned: 180,
+      goldSpent: 0,
+      goldBalance: 180,
+      itemEvents: [],
       totalKills: 3,
       totalDamage: 900,
       // Lux did not emit a combat statistic, but was still part of the saved team.
-      championStats: [
-        {
-          championId: 'Garen',
-          kills: 3,
-          totalDamage: 900,
-          survived: true,
-        },
-      ],
+      championStats: [championStats('Garen', 3, 900, true)],
     };
     useAuthStore.setState({
       user: { id: 'user-1' } as User,
@@ -484,16 +518,12 @@ describe('P2 page smoke tests', () => {
       wavesCompleted: 3,
       biomesVisited: ['top_lane'],
       goldEarned: 80,
+      goldSpent: 0,
+      goldBalance: 80,
+      itemEvents: [],
       totalKills: 1,
       totalDamage: 250,
-      championStats: [
-        {
-          championId: 'Garen',
-          kills: 1,
-          totalDamage: 250,
-          survived: false,
-        },
-      ],
+      championStats: [championStats('Garen', 1, 250, false)],
     };
     const localRewards = calculateRunCandyRewards(summary);
     useAuthStore.setState({
@@ -520,16 +550,12 @@ describe('P2 page smoke tests', () => {
       wavesCompleted: 3,
       biomesVisited: ['top_lane'],
       goldEarned: 80,
+      goldSpent: 0,
+      goldBalance: 80,
+      itemEvents: [],
       totalKills: 1,
       totalDamage: 250,
-      championStats: [
-        {
-          championId: 'Garen',
-          kills: 1,
-          totalDamage: 250,
-          survived: false,
-        },
-      ],
+      championStats: [championStats('Garen', 1, 250, false)],
     };
     useAuthStore.setState({
       user: { id: 'user-1' } as User,
@@ -564,6 +590,9 @@ describe('P2 page smoke tests', () => {
       wavesCompleted: 2,
       biomesVisited: ['top_lane'],
       goldEarned: 50,
+      goldSpent: 0,
+      goldBalance: 50,
+      itemEvents: [],
       totalKills: 0,
       totalDamage: 100,
       championStats: [],

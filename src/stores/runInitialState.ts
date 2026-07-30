@@ -1,4 +1,5 @@
 import type { RunState } from '@/types/run';
+import { createRunLedger } from '@/game/run/runLedger';
 
 export const RUN_INITIAL_STATE: RunState = {
   isActive: false,
@@ -15,7 +16,7 @@ export const RUN_INITIAL_STATE: RunState = {
   completedRunSnapshot: null,
   serverProgression: null,
   rewardsApplied: false,
-  completedCombatStats: [],
+  ledger: createRunLedger(),
   nextItemInstanceId: 1,
   team: [],
   runLevel: 1,

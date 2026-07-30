@@ -170,17 +170,25 @@ export class EffectManager {
     return results;
   }
 
-  absorbWithShields(incoming: number): { finalDamage: number; totalAbsorbed: number } {
+  absorbWithShields(incoming: number): {
+    finalDamage: number;
+    totalAbsorbed: number;
+    absorbedBySource: Record<string, number>;
+  } {
     let remaining = incoming;
     let totalAbsorbed = 0;
+    const absorbedBySource: Record<string, number> = {};
     for (const shield of this.shields) {
       if (remaining <= 0) break;
       const { absorbed, passed } = shield.absorbDamage(remaining);
       totalAbsorbed += absorbed;
+      if (absorbed > 0) {
+        absorbedBySource[shield.sourceId] = (absorbedBySource[shield.sourceId] ?? 0) + absorbed;
+      }
       remaining = passed;
     }
     this.cleanExpired();
-    return { finalDamage: remaining, totalAbsorbed };
+    return { finalDamage: remaining, totalAbsorbed, absorbedBySource };
   }
 
   canAct(): boolean {
