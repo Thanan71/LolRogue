@@ -491,6 +491,87 @@ describeWithSupabase('verified run attempt live security', () => {
         summary: { waves_completed: 0 },
       });
 
+      const lateDefeatStart = await userClient.rpc('start_run_attempt', {
+        ...startArgs,
+        p_command_id: randomUUID(),
+        p_team: ['Warwick'],
+      });
+      expect(lateDefeatStart.error).toBeNull();
+      const lateDefeatAttemptId = (lateDefeatStart.data as { attempt_id: string }).attempt_id;
+      expect(
+        (
+          await userClient.rpc('append_run_attempt_commands', {
+            p_attempt_id: lateDefeatAttemptId,
+            p_commands: [
+              {
+                command_id: randomUUID(),
+                sequence: 1,
+                kind: 'abandon_run',
+                payload: {},
+              },
+            ],
+          })
+        ).error,
+      ).toBeNull();
+      expect(
+        (
+          await userClient.rpc('seal_run_attempt', {
+            p_attempt_id: lateDefeatAttemptId,
+            p_finish_command_id: randomUUID(),
+            p_expected_sequence: 1,
+          })
+        ).error,
+      ).toBeNull();
+      const lateDefeatClaim = await admin.rpc('claim_run_verification', {
+        p_attempt_id: lateDefeatAttemptId,
+        p_worker_id: randomUUID(),
+      });
+      expect(lateDefeatClaim.error).toBeNull();
+      const lateDefeatCompletion = await admin.rpc('complete_run_verification', {
+        p_attempt_id: lateDefeatAttemptId,
+        p_lease_token: (lateDefeatClaim.data as { lease_token: string }).lease_token,
+        p_result: {
+          won: false,
+          run_level: 2,
+          waves_completed: 2,
+          biomes_visited: ['top_lane', 'jungle'],
+          gold_earned: 125,
+          augment_ids: [],
+          team_members: [
+            {
+              champion_id: 'Warwick',
+              final_level: 2,
+              final_hp: 0,
+              kills: 2,
+              damage_dealt: 500,
+              items_collected: [],
+            },
+          ],
+        },
+        p_result_hash: null,
+      });
+      expect(lateDefeatCompletion.error).toBeNull();
+      expect(lateDefeatCompletion.data).toMatchObject({
+        status: 'verified',
+        progression_version: 2,
+        summary: {
+          won: false,
+          run_level: 2,
+          biomes_visited: ['top_lane', 'jungle'],
+        },
+      });
+      const lateDefeatRun = await admin
+        .from('runs')
+        .select('run_level, progression_version, progression_payload_hash')
+        .eq('run_attempt_id', lateDefeatAttemptId)
+        .single();
+      expect(lateDefeatRun.error).toBeNull();
+      expect(lateDefeatRun.data).toMatchObject({
+        run_level: 2,
+        progression_version: 2,
+        progression_payload_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
+      });
+
       const rejectedStart = await userClient.rpc('start_run_attempt', {
         ...startArgs,
         p_command_id: randomUUID(),
@@ -547,9 +628,9 @@ describeWithSupabase('verified run attempt live security', () => {
         .eq('user_id', userId)
         .single();
       expect(afterRejection.data).toMatchObject({
-        total_runs_completed: 2,
-        total_waves_completed: 1,
-        total_candies: 13,
+        total_runs_completed: 3,
+        total_waves_completed: 3,
+        total_candies: 29,
       });
     } finally {
       if (userId) await admin.auth.admin.deleteUser(userId);

@@ -165,6 +165,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260730170000_gameplay_ruleset_v3_manual_combat.sql',
       '../supabase/migrations/20260730190000_gameplay_ruleset_v4_run_progression.sql',
       '../supabase/migrations/20260730210000_gameplay_ruleset_v5_combat_trace_replay.sql',
+      '../supabase/migrations/20260730220000_progression_v2_late_run_completion.sql',
     ]);
   });
 
@@ -1108,7 +1109,7 @@ describeLive('Supabase live integration', () => {
       candy_cost: 20,
       max_rank: 1,
       remaining_candies: 80,
-      catalog_version: 1,
+      catalog_version: 2,
       replayed: false,
     });
 
