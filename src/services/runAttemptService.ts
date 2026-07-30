@@ -431,6 +431,11 @@ function parseVerificationRejection(value: unknown): RunVerificationRejectedErro
   if (!envelope) return null;
   const error = asRecord(envelope.error);
   const scalarError = typeof envelope.error === 'string' ? envelope.error : null;
+  const terminalScalarErrors = new Set([
+    'run_verification_rejected',
+    'run_attempt_expired',
+    'run_attempt_not_found',
+  ]);
   const code =
     typeof error?.code === 'string'
       ? error.code
@@ -438,7 +443,7 @@ function parseVerificationRejection(value: unknown): RunVerificationRejectedErro
         ? envelope.rejection_code
         : envelope.status === 'rejected'
           ? 'trace_rejected'
-          : scalarError === 'run_verification_rejected' || scalarError === 'run_attempt_expired'
+          : scalarError && terminalScalarErrors.has(scalarError)
             ? scalarError
             : null;
   if (!code && envelope.ok !== false) return null;
@@ -452,9 +457,11 @@ function parseVerificationRejection(value: unknown): RunVerificationRejectedErro
       ? error.message
       : code === 'run_attempt_expired'
         ? 'This verified run attempt has expired.'
-        : `The run trace was rejected (${code ?? 'trace_rejected'}${
-            commandIndex === null ? '' : ` at command ${commandIndex + 1}`
-          }).`,
+        : code === 'run_attempt_not_found'
+          ? 'This run attempt no longer exists on the server.'
+          : `The run trace was rejected (${code ?? 'trace_rejected'}${
+              commandIndex === null ? '' : ` at command ${commandIndex + 1}`
+            }).`,
     commandIndex,
   );
 }
@@ -462,7 +469,12 @@ function parseVerificationRejection(value: unknown): RunVerificationRejectedErro
 function parseVerificationRetryableError(value: unknown): RunVerificationRetryableError | null {
   const envelope = asRecord(value);
   if (!envelope) return null;
-  const code = typeof envelope.error === 'string' ? envelope.error : null;
+  const code =
+    typeof envelope.error === 'string'
+      ? envelope.error
+      : typeof envelope.code === 'string'
+        ? envelope.code
+        : null;
   if (!code) return null;
 
   const retryAfterSeconds =
@@ -482,9 +494,10 @@ function parseVerificationRetryableError(value: unknown): RunVerificationRetryab
       ? retryAfterSeconds && code === 'verification_in_progress'
         ? `${envelope.message} Retry in about ${retryAfterSeconds} seconds.`
         : envelope.message
-      : fallbackMessages[code];
+      : (fallbackMessages[code] ??
+        `Run verification failed (${code}). Retry after checking the server status.`);
 
-  return message ? new RunVerificationRetryableError(code, message, retryAfterSeconds) : null;
+  return new RunVerificationRetryableError(code, message, retryAfterSeconds);
 }
 
 async function parseFunctionError(error: unknown): Promise<Error | null> {

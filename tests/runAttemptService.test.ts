@@ -443,7 +443,12 @@ describe('runAttemptService', () => {
     };
     supabaseMocks.invoke.mockResolvedValueOnce({ data: null, error: serverError });
     const retryable = await verifyRunAttempt(ATTEMPT_ID);
-    expect(retryable.error).toBe(serverError);
+    expect(retryable.error).toBeInstanceOf(RunVerificationRetryableError);
+    expect(retryable.error).toMatchObject({
+      code: 'temporary_failure',
+      message:
+        'Run verification failed (temporary_failure). Retry after checking the server status.',
+    });
 
     const malformedError = {
       context: new Response('not-json', {
@@ -467,6 +472,19 @@ describe('runAttemptService', () => {
     expect(rejected.error).toMatchObject({
       code: 'engine_mismatch',
       message: 'Unsupported engine.',
+    });
+
+    supabaseMocks.invoke.mockResolvedValueOnce({
+      data: null,
+      error: {
+        context: new Response(JSON.stringify({ error: 'run_attempt_not_found' }), { status: 404 }),
+      },
+    });
+    const missing = await verifyRunAttempt(ATTEMPT_ID);
+    expect(missing.error).toBeInstanceOf(RunVerificationRejectedError);
+    expect(missing.error).toMatchObject({
+      code: 'run_attempt_not_found',
+      message: 'This run attempt no longer exists on the server.',
     });
   });
 
