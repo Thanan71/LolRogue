@@ -37,6 +37,7 @@ import { useBattleStore } from '@/stores/battleStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
+import { useMasteryStore } from '@/stores/masteryStore';
 import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
 import type { FinalCombatantState, TeamMember } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
@@ -98,6 +99,13 @@ function applyEnhancementsToTeam(
   for (const instance of instances) {
     const champ = championDB.getById(instance.id);
     if (!champ) continue;
+    instance.setMasteryLevel(
+      runState.authorityAttempt
+        ? (runState.authorityAttempt.masterySnapshot?.[instance.id] ??
+            runState.authorityAttempt.masterySnapshot?.[instance.id.toLowerCase()] ??
+            0)
+        : useMasteryStore.getState().getChampionMastery(instance.id).level,
+    );
 
     // Get enhancement state for this champion
     const enhancementState = runState.authorityAttempt
@@ -367,7 +375,8 @@ export function CombatPage() {
     authorityAttempt?.engineVersion === 'run-engine-v4' ||
     authorityAttempt?.engineVersion === 'run-engine-v5' ||
     authorityAttempt?.engineVersion === 'run-engine-v6' ||
-    authorityAttempt?.engineVersion === 'run-engine-v7';
+    authorityAttempt?.engineVersion === 'run-engine-v7' ||
+    authorityAttempt?.engineVersion === 'run-engine-v8';
   const requiresServerAutoPlay = isAuthorityRun && !supportsManualAuthorityCombat;
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);

@@ -30,6 +30,8 @@ export function DatabasePage() {
     availableCandies,
     masteryLevel,
     isLoading: isEnhancementLoading,
+    error: enhancementError,
+    statusMessage: enhancementStatus,
     unlockNode,
   } = useChampionEnhancements(selectedChampion);
 
@@ -143,14 +145,28 @@ export function DatabasePage() {
               {activeTab === 'info' ? (
                 <ChampionDetail champion={selectedChampion} />
               ) : (
-                <EnhancementTree
-                  champion={selectedChampion}
-                  playerCandies={availableCandies}
-                  masteryLevel={masteryLevel}
-                  enhancementState={enhancementState || { unlockedNodes: {}, totalCandiesSpent: 0 }}
-                  onUnlockNode={handleUnlockNode}
-                  isLoading={isEnhancementLoading}
-                />
+                <>
+                  {enhancementError && (
+                    <p role="alert" style={mutationErrorStyle}>
+                      {enhancementError}
+                    </p>
+                  )}
+                  {enhancementStatus && (
+                    <p role="status" style={mutationSuccessStyle}>
+                      {enhancementStatus}
+                    </p>
+                  )}
+                  <EnhancementTree
+                    champion={selectedChampion}
+                    playerCandies={availableCandies}
+                    masteryLevel={masteryLevel}
+                    enhancementState={
+                      enhancementState || { unlockedNodes: {}, totalCandiesSpent: 0 }
+                    }
+                    onUnlockNode={handleUnlockNode}
+                    isLoading={isEnhancementLoading}
+                  />
+                </>
               )}
             </>
           ) : (
@@ -359,4 +375,22 @@ const tabStyle: React.CSSProperties = {
   cursor: 'pointer',
   borderBottom: '2px solid transparent',
   transition: 'all 0.2s',
+};
+
+const mutationErrorStyle: React.CSSProperties = {
+  margin: '12px 16px 0',
+  padding: '10px 12px',
+  border: '1px solid #b84f55',
+  borderRadius: 6,
+  background: '#35181c',
+  color: '#ffb4b8',
+};
+
+const mutationSuccessStyle: React.CSSProperties = {
+  margin: '12px 16px 0',
+  padding: '10px 12px',
+  border: '1px solid #4a9f6f',
+  borderRadius: 6,
+  background: '#143022',
+  color: '#a8e6bd',
 };

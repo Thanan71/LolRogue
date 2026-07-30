@@ -13,6 +13,7 @@ const attempt: AuthorityRunAttempt = {
   team: [{ championId: 'Warwick' }],
   runeIds: ['press_the_attack', 'glacial_augment', 'grasp_of_the_undying'],
   enhancementSnapshot: { Warwick: { fighter_core_1: 1 } },
+  masterySnapshot: { Warwick: 1 },
 };
 
 const commands: AuthorityRunCommand[] = [

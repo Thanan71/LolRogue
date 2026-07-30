@@ -18,39 +18,29 @@ import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
  * The default unlock tree. Each unlock is earned when a champion reaches
  * the specified mastery level.
  *
- * Level 1 (50 candies):  Starter unlock (2nd champion choice)
- * Level 2 (150 candies): Skin unlock
- * Level 3 (350 candies): Starter unlock (3rd champion choice)
- * Level 4 (700 candies): Skin unlock (max mastery)
+ * Level 1 (50 candies): second starter team slot
+ * Level 3 (350 candies): third starter team slot
+ *
+ * Levels 2 and 4 intentionally grant only their stat bonus. Cosmetic chromas
+ * are not part of the current product contract because no selectable cosmetic
+ * content exists yet.
  */
 export const DEFAULT_UNLOCKS: MasteryUnlock[] = [
   {
     id: 'starter_slot_2',
-    category: 'starter',
+    category: 'starter_slot',
     requiredLevel: 1,
-    name: 'Starter Slot 2',
-    description: 'Unlocks a second champion choice at the start of a run.',
-  },
-  {
-    id: 'skin_chroma_1',
-    category: 'skin',
-    requiredLevel: 2,
-    name: 'Chroma I',
-    description: 'Unlocks the first chroma skin variant.',
+    name: "Slot d'équipe 2",
+    description: 'Permet de commencer une run avec deux champions.',
+    starterSlots: 2,
   },
   {
     id: 'starter_slot_3',
-    category: 'starter',
+    category: 'starter_slot',
     requiredLevel: 3,
-    name: 'Starter Slot 3',
-    description: 'Unlocks a third champion choice at the start of a run.',
-  },
-  {
-    id: 'skin_chroma_2',
-    category: 'skin',
-    requiredLevel: 4,
-    name: 'Chroma II',
-    description: 'Unlocks the second chroma skin variant.',
+    name: "Slot d'équipe 3",
+    description: 'Permet de commencer une run avec trois champions.',
+    starterSlots: 3,
   },
 ];
 

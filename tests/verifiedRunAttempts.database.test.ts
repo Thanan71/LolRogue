@@ -317,14 +317,16 @@ describeWithSupabase('verified run attempt live security', () => {
         status: string;
         engine_version: string;
         enhancement_snapshot: Record<string, Record<string, number>>;
+        mastery_snapshot: Record<string, number>;
       };
       expect(start).toMatchObject({
         status: 'started',
-        engine_version: 'run-engine-v7',
+        engine_version: 'run-engine-v8',
       });
       expect(start.seed).toBeGreaterThan(0);
       expect(start.enhancement_snapshot).toHaveProperty('Garen');
       expect(start.enhancement_snapshot).toHaveProperty('Warwick');
+      expect(start.mastery_snapshot).toMatchObject({ Garen: 0, Warwick: 0 });
 
       const startReplay = await userClient.rpc('start_run_attempt', startArgs);
       expect(startReplay.error).toBeNull();
@@ -387,7 +389,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(claim.data).toMatchObject({
         attempt_id: start.attempt_id,
         claimed: true,
-        engine_version: 'run-engine-v7',
+        engine_version: 'run-engine-v8',
       });
       const leaseToken = (claim.data as { lease_token: string }).lease_token;
 

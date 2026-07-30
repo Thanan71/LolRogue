@@ -54,6 +54,10 @@ async function resolveAuthorityVerifier(engineVersion: string, contentHash: stri
   // actually needs them. Keeping them out of the cold-start graph prevents a
   // large archive from turning harmless CORS preflights into BOOT_ERRORs.
   switch (engineVersion) {
+    case 'run-engine-v7': {
+      const archived = await import('./run-authority-v7.bundle.ts');
+      return archived.getAuthorityVerifier(engineVersion, contentHash);
+    }
     case 'run-engine-v6': {
       const archived = await import('./run-authority-v6.bundle.ts');
       return archived.getAuthorityVerifier(engineVersion, contentHash);
@@ -64,10 +68,6 @@ async function resolveAuthorityVerifier(engineVersion: string, contentHash: stri
     }
     case 'run-engine-v4': {
       const archived = await import('./run-authority-v4.bundle.ts');
-      return archived.getAuthorityVerifier(engineVersion, contentHash);
-    }
-    case 'run-engine-v3': {
-      const archived = await import('./run-authority-v3.bundle.ts');
       return archived.getAuthorityVerifier(engineVersion, contentHash);
     }
     default:
@@ -387,6 +387,7 @@ Deno.serve(async (request) => {
     !stringArray(claim.initial_team) ||
     !stringArray(claim.rune_ids) ||
     !record(claim.enhancement_snapshot) ||
+    (claim.engine_version === 'run-engine-v8' && !record(claim.mastery_snapshot)) ||
     !Array.isArray(claim.commands)
   ) {
     if (
@@ -448,6 +449,7 @@ Deno.serve(async (request) => {
       runeIds: claim.rune_ids,
       difficulty: claim.difficulty,
       enhancementSnapshot: claim.enhancement_snapshot,
+      masterySnapshot: record(claim.mastery_snapshot) ? claim.mastery_snapshot : {},
     },
     commands,
     { requireTerminal: true },

@@ -42,6 +42,7 @@ function startResponse(overrides: Record<string, unknown> = {}) {
     initial_team: ['Garen'],
     rune_ids: ['press_the_attack'],
     enhancement_snapshot: { Garen: { hp_1: 1 } },
+    mastery_snapshot: { Garen: 2 },
     started_at: '2026-07-23T12:00:00.000Z',
     expires_at: '2026-07-24T12:00:00.000Z',
     last_sequence: 0,

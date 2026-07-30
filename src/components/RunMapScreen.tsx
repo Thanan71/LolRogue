@@ -13,6 +13,7 @@ import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import type { InventoryEntry, NodeType as RunNodeType, TeamMember } from '@/types/run';
 import { calculateMaxHP } from '@/utils/statCalculator';
+import { useMasteryStore } from '@/stores/masteryStore';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
 import {
   btnStyle,
@@ -490,6 +491,9 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
         member.championId,
         member.statBoosts,
         member.statMultiplier,
+        authorityAttempt
+          ? (authorityAttempt.masterySnapshot?.[member.championId] ?? 0)
+          : useMasteryStore.getState().getChampionMastery(member.championId).level,
       );
     }
     return map;

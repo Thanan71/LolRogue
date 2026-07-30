@@ -12,6 +12,7 @@ import { RepositoryContainerFactory } from '@/services/container';
 import type { IRepositoryContainer } from '@/services/interfaces';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
 import type { Player } from '@/types/models';
+import { useMasteryStore } from '@/stores/masteryStore';
 
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
@@ -42,8 +43,8 @@ export interface AuthActions {
   clearSuccessMessage: () => void;
   checkSession: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
-  enterGuestMode: () => void;
-  exitGuestMode: () => void;
+  enterGuestMode: () => Promise<void>;
+  exitGuestMode: () => Promise<void>;
 }
 
 export type AuthStore = AuthState & AuthActions;
@@ -95,6 +96,26 @@ function setStoredGuestMode(enabled: boolean): void {
   }
 }
 
+async function resetProgressionCaches(target: 'guest' | 'signed-out'): Promise<void> {
+  if (target === 'guest') {
+    useMasteryStore.getState().activateGuestScope();
+  } else {
+    useMasteryStore.getState().clearSession();
+  }
+  const { useEnhancementStore } = await import('@/stores/enhancementStore');
+  useEnhancementStore.getState().reset();
+}
+
+async function hydrateAuthenticatedProgression(userId: string, player: Player): Promise<void> {
+  useMasteryStore.getState().activateAuthenticatedScope(userId);
+  const { useEnhancementStore } = await import('@/stores/enhancementStore');
+  useEnhancementStore.getState().reset();
+  await useEnhancementStore.getState().initialize(userId, player.total_candies);
+  if (!useMasteryStore.getState().isHydrated) {
+    throw new Error('La maîtrise du compte n’a pas pu être chargée.');
+  }
+}
+
 const INITIAL_STATE: AuthState = {
   user: null,
   player: null,
@@ -110,7 +131,9 @@ const INITIAL_STATE: AuthState = {
 export const useAuthStore = create<AuthStore>((set, get) => ({
   ...INITIAL_STATE,
 
-  enterGuestMode: () => {
+  enterGuestMode: async () => {
+    set({ isLoading: true, isInitialized: false });
+    await resetProgressionCaches('guest');
     setStoredGuestMode(true);
     set({
       user: null,
@@ -124,9 +147,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     });
   },
 
-  exitGuestMode: () => {
+  exitGuestMode: async () => {
+    set({ isLoading: true, isInitialized: false });
+    await resetProgressionCaches('signed-out');
     setStoredGuestMode(false);
-    set({ isGuest: false });
+    set({ isGuest: false, isLoading: false, isInitialized: true });
   },
 
   checkAdminStatus: async () => {
@@ -168,15 +193,22 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         const refreshedPlayer = withLastLogin(playerData, lastLoginAt);
 
         // Check admin status
-        const isAdmin = refreshedPlayer?.is_admin === true;
+        if (!refreshedPlayer) throw new Error('Le profil joueur est indisponible.');
+        const isAdmin = refreshedPlayer.is_admin === true;
 
         set({
           user: result.user,
           player: refreshedPlayer,
           isAuthenticated: true,
           isGuest: false,
-          isInitialized: true,
+          isInitialized: false,
           isAdmin,
+          isLoading: true,
+        });
+        await hydrateAuthenticatedProgression(result.user.id, refreshedPlayer);
+
+        set({
+          isInitialized: true,
           isLoading: false,
         });
         setStoredGuestMode(false);
@@ -188,10 +220,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     } catch (error: unknown) {
       const message = getAuthErrorMessage(error);
       set({
+        user: null,
+        player: null,
         isLoading: false,
+        isInitialized: true,
         error: message,
         isAuthenticated: false,
+        isGuest: false,
+        isAdmin: false,
       });
+      await resetProgressionCaches('signed-out');
       return { success: false, error: message };
     } finally {
       activeAuthOperation = null;
@@ -265,15 +303,22 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
         const lastLoginAt = playerData ? await touchPlayerLastLogin() : null;
         const refreshedPlayer = withLastLogin(playerData, lastLoginAt);
-        const isAdmin = refreshedPlayer?.is_admin === true;
+        if (!refreshedPlayer) throw new Error('Le profil joueur est indisponible.');
+        const isAdmin = refreshedPlayer.is_admin === true;
 
         set({
           user: result.user,
           player: refreshedPlayer,
           isAuthenticated: true,
           isGuest: false,
-          isInitialized: true,
+          isInitialized: false,
           isAdmin,
+          isLoading: true,
+        });
+        await hydrateAuthenticatedProgression(result.user.id, refreshedPlayer);
+
+        set({
+          isInitialized: true,
           isLoading: false,
         });
         setStoredGuestMode(false);
@@ -285,10 +330,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     } catch (error: unknown) {
       const message = getErrorMessage(error);
       set({
+        user: null,
+        player: null,
         isLoading: false,
+        isInitialized: true,
         error: message || 'Sign up failed',
         isAuthenticated: false,
+        isGuest: false,
+        isAdmin: false,
       });
+      await resetProgressionCaches('signed-out');
       return { success: false, error: message };
     } finally {
       activeAuthOperation = null;
@@ -303,6 +354,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (isSupabaseConfigured) {
         await container.auth.signOut();
       }
+      await resetProgressionCaches('signed-out');
       setStoredGuestMode(false);
       set({
         user: null,
@@ -315,6 +367,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         error: null,
       });
     } catch (error: unknown) {
+      await resetProgressionCaches('signed-out');
       set({
         isLoading: false,
         error: getErrorMessage(error) || 'Logout failed',
@@ -347,6 +400,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   checkSession: async () => {
     if (!isSupabaseConfigured) {
+      await resetProgressionCaches(get().isGuest ? 'guest' : 'signed-out');
       set({
         user: null,
         player: null,
@@ -374,19 +428,27 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         const refreshedPlayer = withLastLogin(playerData, lastLoginAt);
 
         // Check admin status
-        const isAdmin = refreshedPlayer?.is_admin === true;
+        if (!refreshedPlayer) throw new Error('Le profil joueur est indisponible.');
+        const isAdmin = refreshedPlayer.is_admin === true;
 
         set({
           user: session.user,
           player: refreshedPlayer,
           isAuthenticated: true,
           isGuest: false,
-          isInitialized: true,
+          isInitialized: false,
           isAdmin,
+          isLoading: true,
+        });
+        await hydrateAuthenticatedProgression(session.user.id, refreshedPlayer);
+
+        set({
+          isInitialized: true,
           isLoading: false,
         });
         setStoredGuestMode(false);
       } else {
+        await resetProgressionCaches(get().isGuest ? 'guest' : 'signed-out');
         set({
           user: null,
           player: null,
@@ -399,6 +461,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
     } catch (error) {
       console.error('[AuthStore] Session check failed:', error);
+      await resetProgressionCaches(get().isGuest ? 'guest' : 'signed-out');
       set({
         user: null,
         player: null,
@@ -444,19 +507,47 @@ container.auth.onAuthStateChange(async (event, session) => {
       const { data: playerData } = await container.player.getPlayer(session.user.id);
       const lastLoginAt = playerData ? await touchPlayerLastLogin() : null;
       const refreshedPlayer = withLastLogin(playerData, lastLoginAt);
-      const isAdmin = refreshedPlayer?.is_admin === true;
+      if (!refreshedPlayer) {
+        await resetProgressionCaches('signed-out');
+        useAuthStore.setState({
+          user: null,
+          player: null,
+          isAuthenticated: false,
+          isInitialized: true,
+          isLoading: false,
+          error: 'Le profil joueur est indisponible.',
+        });
+        return;
+      }
+      const isAdmin = refreshedPlayer.is_admin === true;
       useAuthStore.setState({
         user: session.user,
         player: refreshedPlayer,
         isAuthenticated: true,
         isGuest: false,
-        isInitialized: true,
+        isInitialized: false,
         isAdmin,
-        isLoading: false,
+        isLoading: true,
       });
+      try {
+        await hydrateAuthenticatedProgression(session.user.id, refreshedPlayer);
+      } catch (error) {
+        await resetProgressionCaches('signed-out');
+        useAuthStore.setState({
+          user: null,
+          player: null,
+          isAuthenticated: false,
+          isInitialized: true,
+          isLoading: false,
+          error: getAuthErrorMessage(error),
+        });
+        return;
+      }
+      useAuthStore.setState({ isInitialized: true, isLoading: false });
       setStoredGuestMode(false);
     }
   } else if (event === 'SIGNED_OUT') {
+    await resetProgressionCaches(currentState.isGuest ? 'guest' : 'signed-out');
     useAuthStore.setState({
       user: null,
       player: null,

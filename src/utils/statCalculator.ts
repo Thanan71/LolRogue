@@ -10,6 +10,7 @@ import type { EnhancementStatBonuses, StatType } from '@/types/enhancementTree';
 import type { InventoryEntry } from '@/types/run';
 import type { CalculatedStats } from '@/utils/champion';
 import { calculateStats } from '@/utils/champion';
+import { getStatBonusForLevel } from '@/services/masteryService';
 
 /**
  * Mapping from item stat keys to CalculatedStats keys
@@ -129,6 +130,18 @@ export function applyEnhancementBonuses(
   return result;
 }
 
+/** Apply the permanent mastery percentage to level-scaled base stats only. */
+export function applyMasteryBonus(
+  baseStats: CalculatedStats,
+  masteryLevel: number,
+): CalculatedStats {
+  const multiplier = 1 + getStatBonusForLevel(masteryLevel);
+  if (multiplier === 1) return { ...baseStats };
+  return Object.fromEntries(
+    Object.entries(baseStats).map(([stat, value]) => [stat, value * multiplier]),
+  ) as unknown as CalculatedStats;
+}
+
 /**
  * Apply item bonuses to stats
  */
@@ -204,12 +217,14 @@ export function calculateMaxHP(
   championId?: string,
   eventStatBoosts?: Record<string, number> | null,
   statMultiplier: number = 1,
+  masteryLevel: number = 0,
 ): number {
   if (!champion) return 100;
 
   // Step 1: Calculate base stats at current level
   let stats = calculateStats(champion.stats, level);
   stats = { ...stats, hp: stats.hp * Math.max(0.1, statMultiplier) };
+  stats = applyMasteryBonus(stats, masteryLevel);
 
   // Step 2: Apply enhancement bonuses
   if (enhancementBonuses) {
@@ -247,6 +262,7 @@ export function calculateFullStats(
   enhancementBonuses?: EnhancementStatBonuses | null,
   inventory?: InventoryEntry[],
   championId?: string,
+  masteryLevel: number = 0,
 ): CalculatedStats {
   if (!champion) {
     return {
@@ -267,6 +283,7 @@ export function calculateFullStats(
 
   // Step 1: Calculate base stats at current level
   let stats = calculateStats(champion.stats, level);
+  stats = applyMasteryBonus(stats, masteryLevel);
 
   // Step 2: Apply enhancement bonuses
   if (enhancementBonuses) {

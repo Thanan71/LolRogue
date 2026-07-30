@@ -4,8 +4,7 @@
  * Each run earns "candies" (mastery points) for champions used.
  * Accumulated candies unlock mastery levels that grant:
  *   - Base stat bonuses (permanent small buffs)
- *   - Additional starter champions (unlock new champions for team selection)
- *   - Skins (cosmetic unlocks)
+ *   - Additional starter team slots
  */
 
 // ─── Mastery Level Thresholds ───────────────────────────────────────────────
@@ -35,13 +34,13 @@ export const CANDIES_PER_BIOME = 2;
 /** Percentage stat bonus per mastery level (applied to base stats). */
 export const STAT_BONUS_PER_LEVEL = 0.02; // 2% per level
 
-/** Maximum total stat bonus at max mastery (5 levels × 2% = 10%). */
+/** Maximum total stat bonus at max mastery (4 earned levels × 2% = 8%). */
 export const MAX_STAT_BONUS = STAT_BONUS_PER_LEVEL * MAX_MASTERY_LEVEL;
 
 // ─── Unlock Types ───────────────────────────────────────────────────────────
 
 /** Categories of permanent unlocks. */
-export type UnlockCategory = 'starter' | 'skin' | 'bonus';
+export type UnlockCategory = 'starter_slot' | 'bonus';
 
 /** A permanent unlock earned through mastery. */
 export interface MasteryUnlock {
@@ -55,12 +54,8 @@ export interface MasteryUnlock {
   name: string;
   /** Description of what this unlock provides. */
   description: string;
-  /** Champion ID this unlock applies to (for starter/skin unlocks). */
-  championId?: string;
-  /** For starter unlocks: the champion ID to unlock as a starter. */
-  starterChampionId?: string;
-  /** For skin unlocks: the skin identifier. */
-  skinId?: string;
+  /** Concrete number of starter slots made available by this unlock. */
+  starterSlots?: number;
 }
 
 // ─── Champion Mastery Data ─────────────────────────────────────────────────
@@ -86,25 +81,26 @@ export interface ChampionMastery {
 /** Map of champion ID → ChampionMastery. */
 export type MasteryMap = Record<string, ChampionMastery>;
 
-/** Set of champion IDs unlocked as additional starters. */
-export type UnlockedStarters = Set<string>;
-
-/** Set of skin IDs unlocked. */
-export type UnlockedSkins = Set<string>;
-
 /** Serializable mastery state for persistence. */
 export interface MasteryState {
   /** Per-champion mastery data. */
   champions: MasteryMap;
-  /** Champion IDs unlocked as additional starters (persisted as array). */
-  unlockedStarters: string[];
-  /** Skin IDs unlocked (persisted as array). */
-  unlockedSkins: string[];
   /** Total runs completed (lifetime). */
   totalRunsCompleted: number;
   /** Total candies earned (lifetime). */
   totalCandiesEarned: number;
+  /** Active identity scope. Account caches are never persisted locally. */
+  scope: 'guest' | `account:${string}` | null;
+  /** True once the active scope has loaded its canonical progression. */
+  isHydrated: boolean;
+  /** The only durable local mastery snapshot, isolated from accounts. */
+  guestSnapshot: MasteryProgressionSnapshot;
 }
+
+export type MasteryProgressionSnapshot = Pick<
+  MasteryState,
+  'champions' | 'totalRunsCompleted' | 'totalCandiesEarned'
+>;
 
 // ─── Mastery Store Actions ─────────────────────────────────────────────────
 
@@ -136,17 +132,17 @@ export interface MasteryActions {
   /** Get mastery data for a specific champion. */
   getChampionMastery: (championId: string) => ChampionMastery;
 
-  /** Check if a champion is unlocked as an additional starter. */
-  isStarterUnlocked: (championId: string) => boolean;
-
-  /** Check if a skin is unlocked. */
-  isSkinUnlocked: (skinId: string) => boolean;
-
   /** Get the total stat bonus percentage for a champion (0–MAX_STAT_BONUS). */
   getStatBonus: (championId: string) => number;
 
-  /** Get all unlocked starter champion IDs. */
-  getUnlockedStarters: () => string[];
+  /** Switch to the device-local guest namespace. */
+  activateGuestScope: () => void;
+
+  /** Clear stale data before loading an authenticated account. */
+  activateAuthenticatedScope: (userId: string) => void;
+
+  /** Remove all live account data on logout/account transition. */
+  clearSession: () => void;
 
   /** Reset all mastery data (for testing/debug). */
   resetMastery: () => void;

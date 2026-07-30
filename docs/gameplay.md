@@ -133,8 +133,11 @@ par champion une fois la run éligible. La politique locale canonique est dans
 `src/types/mastery.ts`. PostgreSQL lit les mêmes coefficients depuis le
 `progression_ruleset` versionné et garde la même condition
 `waves_completed > 0` dans `complete_run_verification`. Chaque niveau de maîtrise
-ajoute le bonus de statistiques défini par `STAT_BONUS_PER_LEVEL` et peut ouvrir un
-starter ou un chroma.
+ajoute 2 % aux statistiques de base via le calculateur canonique, jusqu'à 8 %.
+Le niveau 1 ouvre le deuxième slot de l'équipe initiale et le niveau 3 le
+troisième. Les niveaux 2 et 4 n'annoncent aucun chroma : les cosmétiques ne font
+pas partie du contrat tant qu'une sélection de skins réellement livrée n'existe
+pas.
 
 Les arbres d'amélioration dépendent du rôle principal. Chaque nœud impose son coût,
 son niveau de maîtrise, ses prérequis et son rang maximal, tous définis dans

@@ -17,6 +17,7 @@ const ATTEMPT: AuthorityRunAttempt = {
   team: [{ championId: 'Garen', statMultiplier: 10 }],
   runeIds: [],
   enhancementSnapshot: {},
+  masterySnapshot: {},
 };
 
 function firstCombatTrace() {

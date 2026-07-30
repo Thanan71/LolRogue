@@ -9,6 +9,7 @@
 import type { Champion, ChampionStats, ChampionTag, Passive, Spell } from '@/types';
 import type { EnhancementStatBonuses } from '@/types/enhancementTree';
 import { type CalculatedStats, calculateStats } from '@/utils/champion';
+import { applyMasteryBonus } from '@/utils/statCalculator';
 
 /** Valid spell slots matching LoL key bindings. */
 export type SpellSlot = 'Q' | 'W' | 'E' | 'R';
@@ -40,6 +41,7 @@ export class ChampionInstance {
   /** Enhancement bonuses from the enhancement tree system */
   private _enhancementBonuses: EnhancementStatBonuses | null = null;
   private readonly _statMultiplier: number;
+  private _masteryLevel = 0;
 
   constructor(champion: Champion, startingLevel = 1, statMultiplier = 1) {
     this.id = champion.id;
@@ -102,18 +104,29 @@ export class ChampionInstance {
 
   /** Compute stats scaled to the current level. */
   getStats(): CalculatedStats {
-    return ChampionInstance.applyStatMultiplier(
-      calculateStats(this.baseStats, this._level),
-      this._statMultiplier,
+    return applyMasteryBonus(
+      ChampionInstance.applyStatMultiplier(
+        calculateStats(this.baseStats, this._level),
+        this._statMultiplier,
+      ),
+      this._masteryLevel,
     );
   }
 
   /** Compute stats at an arbitrary level without changing current level. */
   getStatsAtLevel(level: number): CalculatedStats {
-    return ChampionInstance.applyStatMultiplier(
-      calculateStats(this.baseStats, clampLevel(level)),
-      this._statMultiplier,
+    return applyMasteryBonus(
+      ChampionInstance.applyStatMultiplier(
+        calculateStats(this.baseStats, clampLevel(level)),
+        this._statMultiplier,
+      ),
+      this._masteryLevel,
     );
+  }
+
+  /** Freeze the permanent mastery level used by this combat instance. */
+  setMasteryLevel(level: number): void {
+    this._masteryLevel = Math.max(0, Math.min(4, Math.floor(level)));
   }
 
   /**

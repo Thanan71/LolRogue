@@ -13,6 +13,7 @@ export type RunAttemptStatus =
   | 'expired';
 
 export type RunEnhancementSnapshot = Record<string, Record<string, number>>;
+export type RunMasterySnapshot = Record<string, number>;
 
 export type RunCommandInput =
   | { kind: 'move_node'; nodeId: string }
@@ -55,6 +56,8 @@ export interface RunAuthorityAttempt {
   initialTeam: string[];
   runeIds: string[];
   enhancementSnapshot: RunEnhancementSnapshot;
+  /** Missing only on a locally persisted pre-v8 attempt. */
+  masterySnapshot?: RunMasterySnapshot;
   startedAt: string;
   expiresAt: string;
   status: RunAttemptStatus;
@@ -97,6 +100,7 @@ export interface StartRunAttemptResult {
   initialTeam: string[];
   runeIds: string[];
   enhancementSnapshot: RunEnhancementSnapshot;
+  masterySnapshot: RunMasterySnapshot;
   startedAt: string;
   expiresAt: string;
   lastSequence: number;

@@ -619,21 +619,21 @@ créer un état interdit.
 de maîtrise n'est pas appliqué au combat. Les unlocks `starter_slot`/`chroma` ne
 contiennent pas les IDs nécessaires et Starter ignore les unlocks.
 
-- [ ] Décider et documenter la persistance invité et la politique lors de la création
+- [x] Décider et documenter la persistance invité et la politique lors de la création
   d'un compte : aucune fusion, import explicite ou fusion contrôlée.
-- [ ] Réinitialiser/namespace correctement les caches au logout et au changement de
+- [x] Réinitialiser/namespace correctement les caches au logout et au changement de
   compte.
-- [ ] Charger profil, maîtrise et améliorations après Auth avant d'autoriser le jeu.
-- [ ] Appliquer le bonus de maîtrise à travers le calculateur de stats canonique.
-- [ ] Donner aux unlocks des cibles concrètes (`championId`, `skinId`, nombre de
+- [x] Charger profil, maîtrise et améliorations après Auth avant d'autoriser le jeu.
+- [x] Appliquer le bonus de maîtrise à travers le calculateur de stats canonique.
+- [x] Donner aux unlocks des cibles concrètes (`championId`, `skinId`, nombre de
   slots) et les valider côté serveur.
-- [ ] Faire respecter les slots/unlocks sur Starter, pas seulement dans l'affichage.
-- [ ] Ajouter l'UI réellement nécessaire aux skins/chromas ou retirer ces promesses.
-- [ ] Rendre l'arbre d'amélioration `aria-busy`, attendre la mutation et bloquer le
+- [x] Faire respecter les slots/unlocks sur Starter, pas seulement dans l'affichage.
+- [x] Ajouter l'UI réellement nécessaire aux skins/chromas ou retirer ces promesses.
+- [x] Rendre l'arbre d'amélioration `aria-busy`, attendre la mutation et bloquer le
   double clic jusqu'au résultat.
-- [ ] Resynchroniser la branche active lors du changement de champion et afficher
+- [x] Resynchroniser la branche active lors du changement de champion et afficher
   succès/échec sans dépendre uniquement d'un toast fugace.
-- [ ] Tester gain de niveau, unlock, refresh, logout/login, deux comptes et invité.
+- [x] Tester gain de niveau, unlock, refresh, logout/login, deux comptes et invité.
 
 **Acceptation :** franchir un seuil produit exactement l'effet annoncé après reload,
 sans fuite entre comptes.

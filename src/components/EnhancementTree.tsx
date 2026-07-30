@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   canUnlockNode,
   getEnhancementTreeForRole,
@@ -29,17 +29,21 @@ export function EnhancementTree({
   const tree = useMemo(() => getEnhancementTreeForRole(champion.tags[0]), [champion.tags]);
   const [activeBranch, setActiveBranch] = useState<string>(tree.branches[0]?.id);
 
-  const handleUnlock = (node: EnhancementNode) => {
+  useEffect(() => {
+    setActiveBranch(tree.branches[0]?.id);
+  }, [champion.id, tree]);
+
+  const handleUnlock = async (node: EnhancementNode) => {
     if (
       !isLoading &&
       canUnlockNode(node, enhancementState.unlockedNodes, masteryLevel, playerCandies)
     ) {
-      void onUnlockNode(node.id);
+      await onUnlockNode(node.id);
     }
   };
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} aria-busy={isLoading}>
       <div style={headerStyle}>
         <div>
           <h3 style={titleStyle}>Arbre d'Amélioration - {champion.name}</h3>
@@ -74,7 +78,7 @@ export function EnhancementTree({
                 unlocked={enhancementState.unlockedNodes[node.id] || 0}
                 canUnlock={canUnlock}
                 lockReason={lockReason}
-                onUnlock={() => handleUnlock(node)}
+                onUnlock={() => void handleUnlock(node)}
                 isLoading={isLoading}
               />
             );
@@ -89,6 +93,7 @@ export function EnhancementTree({
           return (
             <button
               key={branch.id}
+              type="button"
               onClick={() => setActiveBranch(branch.id)}
               style={{
                 ...branchTabStyle,
@@ -136,7 +141,7 @@ export function EnhancementTree({
                       unlocked={enhancementState.unlockedNodes[node.id] || 0}
                       canUnlock={canUnlock}
                       lockReason={lockReason}
-                      onUnlock={() => handleUnlock(node)}
+                      onUnlock={() => void handleUnlock(node)}
                       isUltimate={node.type === 'ultimate'}
                       isLoading={isLoading}
                     />
@@ -227,6 +232,7 @@ function NodeCard({
         ) : (
           <div style={buttonContainerStyle}>
             <button
+              type="button"
               onClick={onUnlock}
               disabled={!canUnlock || isLoading}
               style={{

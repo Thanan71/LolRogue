@@ -10,16 +10,29 @@ import {
   buildChampionMastery,
   getStatBonusForLevel,
 } from '@/services/masteryService';
-import type { MasteryState, MasteryStore } from '@/types/mastery';
+import type { MasteryProgressionSnapshot, MasteryState, MasteryStore } from '@/types/mastery';
 import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
 
-const INITIAL_STATE: MasteryState = {
+const EMPTY_SNAPSHOT: MasteryProgressionSnapshot = {
   champions: {},
-  unlockedStarters: [],
-  unlockedSkins: [],
   totalRunsCompleted: 0,
   totalCandiesEarned: 0,
 };
+
+const INITIAL_STATE: MasteryState = {
+  ...EMPTY_SNAPSHOT,
+  scope: null,
+  isHydrated: false,
+  guestSnapshot: EMPTY_SNAPSHOT,
+};
+
+function copySnapshot(snapshot: MasteryProgressionSnapshot): MasteryProgressionSnapshot {
+  return {
+    champions: { ...snapshot.champions },
+    totalRunsCompleted: snapshot.totalRunsCompleted,
+    totalCandiesEarned: snapshot.totalCandiesEarned,
+  };
+}
 
 export const useMasteryStore = create<MasteryStore>()(
   persist(
@@ -33,7 +46,15 @@ export const useMasteryStore = create<MasteryStore>()(
             buildChampionMastery(mastery.champion_id, mastery.total_candies, mastery.unlocked_ids),
           ]),
         );
-        set({ champions });
+        if (!get().scope?.startsWith('account:')) return;
+        set({
+          champions,
+          totalCandiesEarned: Object.values(champions).reduce(
+            (total, mastery) => total + mastery.totalCandies,
+            0,
+          ),
+          isHydrated: true,
+        });
       },
 
       awardCandies: (championIds, wavesCompleted, biomesVisited, won) => {
@@ -46,33 +67,21 @@ export const useMasteryStore = create<MasteryStore>()(
           won,
         );
 
-        const newStarters = [...state.unlockedStarters];
-        const newSkins = [...state.unlockedSkins];
         let totalNewCandies = 0;
 
         for (const candies of Object.values(result.candiesAwarded)) {
           totalNewCandies += candies;
         }
 
-        for (const unlock of result.newUnlocks) {
-          if (unlock.category === 'starter' && unlock.starterChampionId) {
-            if (!newStarters.includes(unlock.starterChampionId)) {
-              newStarters.push(unlock.starterChampionId);
-            }
-          }
-          if (unlock.category === 'skin' && unlock.skinId) {
-            if (!newSkins.includes(unlock.skinId)) {
-              newSkins.push(unlock.skinId);
-            }
-          }
-        }
-
-        set({
+        const nextSnapshot = {
           champions: result.updatedMasteries,
-          unlockedStarters: newStarters,
-          unlockedSkins: newSkins,
           totalRunsCompleted: state.totalRunsCompleted + 1,
           totalCandiesEarned: state.totalCandiesEarned + totalNewCandies,
+        };
+
+        set({
+          ...nextSnapshot,
+          ...(state.scope === 'guest' ? { guestSnapshot: copySnapshot(nextSnapshot) } : {}),
         });
 
         return result.candiesAwarded;
@@ -83,38 +92,62 @@ export const useMasteryStore = create<MasteryStore>()(
         return champions[championId] ?? buildChampionMastery(championId, 0, []);
       },
 
-      isStarterUnlocked: (championId) => {
-        return get().unlockedStarters.includes(championId);
-      },
-
-      isSkinUnlocked: (skinId) => {
-        return get().unlockedSkins.includes(skinId);
-      },
-
       getStatBonus: (championId) => {
         const mastery = get().getChampionMastery(championId);
         return getStatBonusForLevel(mastery.level);
       },
 
-      getUnlockedStarters: () => {
-        return [...get().unlockedStarters];
+      activateGuestScope: () => {
+        const snapshot = copySnapshot(get().guestSnapshot);
+        set({ ...snapshot, scope: 'guest', isHydrated: true });
+      },
+
+      activateAuthenticatedScope: (userId) => {
+        set({
+          ...copySnapshot(EMPTY_SNAPSHOT),
+          scope: `account:${userId}`,
+          isHydrated: false,
+        });
+      },
+
+      clearSession: () => {
+        set({
+          ...copySnapshot(EMPTY_SNAPSHOT),
+          scope: null,
+          isHydrated: false,
+        });
       },
 
       resetMastery: () => {
-        set({ ...INITIAL_STATE });
+        set({
+          ...INITIAL_STATE,
+          guestSnapshot: copySnapshot(EMPTY_SNAPSHOT),
+        });
       },
     }),
     {
       name: 'lolrogue-mastery-storage',
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => safeLocalStorage),
-      migrate: (persisted) => recoverPersistedState(persisted, INITIAL_STATE),
+      migrate: (persisted, version) => {
+        const recovered = recoverPersistedState(
+          persisted,
+          version < 2 ? EMPTY_SNAPSHOT : { guestSnapshot: EMPTY_SNAPSHOT },
+        ) as Partial<MasteryState>;
+        const legacySnapshot: MasteryProgressionSnapshot = {
+          champions: recovered.champions ?? {},
+          totalRunsCompleted: recovered.totalRunsCompleted ?? 0,
+          totalCandiesEarned: recovered.totalCandiesEarned ?? 0,
+        };
+        return {
+          guestSnapshot:
+            recovered.guestSnapshot && version >= 2
+              ? copySnapshot(recovered.guestSnapshot)
+              : legacySnapshot,
+        };
+      },
       partialize: (state) => ({
-        champions: state.champions,
-        unlockedStarters: state.unlockedStarters,
-        unlockedSkins: state.unlockedSkins,
-        totalRunsCompleted: state.totalRunsCompleted,
-        totalCandiesEarned: state.totalCandiesEarned,
+        guestSnapshot: state.guestSnapshot,
       }),
     },
   ),

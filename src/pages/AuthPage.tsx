@@ -149,7 +149,7 @@ export function AuthPage() {
         endRun: (runId) => endRun(false, runId),
       });
       if (!canContinue) return;
-      enterGuestMode();
+      await enterGuestMode();
       navigate(ROUTES.MENU);
     } finally {
       identityTransitionRef.current = false;

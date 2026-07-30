@@ -1,9 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import { championDB } from '../src/data/championDatabase';
 import { calculateStats, statAtLevel } from '../src/utils/champion';
-import { applyEnhancementBonuses, toCombatStatKey } from '../src/utils/statCalculator';
+import {
+  applyEnhancementBonuses,
+  applyMasteryBonus,
+  toCombatStatKey,
+} from '../src/utils/statCalculator';
 
 describe('Stat Scaling with Level', () => {
+  it('applies the mastery percentage to every base stat', () => {
+    const garen = championDB.getById('Garen');
+    const base = calculateStats(garen!.stats, 1);
+    const mastered = applyMasteryBonus(base, 3);
+
+    for (const key of Object.keys(base) as Array<keyof typeof base>) {
+      expect(mastered[key]).toBeCloseTo(base[key] * 1.06);
+    }
+  });
+
   it('maps every public enhancement alias through the canonical combat model', () => {
     const garen = championDB.getById('Garen');
     const base = calculateStats(garen!.stats, 1);

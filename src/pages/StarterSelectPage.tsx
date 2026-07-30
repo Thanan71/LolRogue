@@ -11,6 +11,8 @@ import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { useRunStore } from '@/stores/runStore';
+import { useMasteryStore } from '@/stores/masteryStore';
+import { getUnlockedStarterSlotCount } from '@/game/run/runStartValidation';
 import type { Champion } from '@/types/champion';
 import type { DailyChallenge } from '@/types/dailyRun';
 import { createDailyRNG, getDailySeed } from '@/utils/dailySeed';
@@ -50,8 +52,16 @@ export function StarterSelectPage() {
     const rng = isDaily ? createDailyRNG() : new SeededRNG(selectionSeed);
     return pickRandom(implementedChampions, 6, rng);
   }, [dailyChallenge, isDaily, isGuest, resumableStart, selectionSeed]);
-  const [selectedStarterId, setSelectedStarterId] = useState<string | null>(
-    resumableStart?.team[0] ?? null,
+  const masteryChampions = useMasteryStore((state) => state.champions);
+  const unlockedStarterSlots = useMemo(
+    () =>
+      getUnlockedStarterSlotCount(
+        Object.values(masteryChampions).flatMap((mastery) => mastery.unlockedIds),
+      ),
+    [masteryChampions],
+  );
+  const [selectedStarterIds, setSelectedStarterIds] = useState<string[]>(
+    resumableStart?.team ?? [],
   );
   const [selectedRuneIds, setSelectedRuneIds] = useState<string[]>(resumableStart?.runeIds ?? []);
   const startRun = useRunStore((s) => s.startRun);
@@ -60,11 +70,11 @@ export function StarterSelectPage() {
   const [error, setError] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const navigate = useAppNavigate();
-  const selectedStarter = choices.find((champion) => champion.id === selectedStarterId);
+  const selectedStarters = choices.filter((champion) => selectedStarterIds.includes(champion.id));
 
   useEffect(() => {
     if (!resumableStart) return;
-    setSelectedStarterId(resumableStart.team[0] ?? null);
+    setSelectedStarterIds([...resumableStart.team]);
     setSelectedRuneIds([...resumableStart.runeIds]);
   }, [resumableStart]);
 
@@ -97,7 +107,7 @@ export function StarterSelectPage() {
 
   async function handleConfirm() {
     playUIClick();
-    if (!selectedStarterId) return;
+    if (selectedStarterIds.length === 0) return;
     setError(null);
     setIsStarting(true);
 
@@ -116,7 +126,7 @@ export function StarterSelectPage() {
         setIsStarting(false);
         return;
       }
-      const result = await startRun([selectedStarterId], {
+      const result = await startRun(selectedStarterIds, {
         mode: 'daily',
         seed: dailyChallenge?.seed ?? getDailySeed(),
         runeIds: selectedRuneIds,
@@ -129,7 +139,7 @@ export function StarterSelectPage() {
       }
       const attempt = useRunStore.getState().authorityAttempt;
       startDailyRun(
-        [selectedStarterId],
+        selectedStarterIds,
         attempt?.mode === 'daily' && attempt.dailyDate
           ? {
               dailyDate: attempt.dailyDate,
@@ -145,7 +155,7 @@ export function StarterSelectPage() {
             : undefined,
       );
     } else {
-      const result = await startRun([selectedStarterId], {
+      const result = await startRun(selectedStarterIds, {
         seed: selectionSeed,
         runeIds: selectedRuneIds,
       });
@@ -164,6 +174,25 @@ export function StarterSelectPage() {
     navigate(ROUTES.MENU);
   }
 
+  function toggleStarter(championId: string) {
+    if (resumableStart) return;
+    setError(null);
+    setSelectedStarterIds((current) => {
+      if (current.includes(championId)) {
+        return current.filter((id) => id !== championId);
+      }
+      if (current.length >= unlockedStarterSlots) {
+        setError(
+          `Tu disposes de ${unlockedStarterSlots} slot${
+            unlockedStarterSlots > 1 ? 's' : ''
+          } de départ.`,
+        );
+        return current;
+      }
+      return [...current, championId];
+    });
+  }
+
   return (
     <div className="starter-select">
       <header className="starter-select__header">
@@ -171,7 +200,7 @@ export function StarterSelectPage() {
           ← Back
         </button>
         <h1 className="starter-select__title">
-          {isDaily ? 'Choisis ton Champion du jour' : 'Choisis ton Champion'}
+          {isDaily ? 'Compose ton équipe du jour' : 'Compose ton équipe'}
         </h1>
         <span className="starter-select__header-spacer" aria-hidden="true" />
       </header>
@@ -179,8 +208,8 @@ export function StarterSelectPage() {
         {resumableStart
           ? 'Une tentative vérifiée interrompue est prête à reprendre avec ses choix d’origine.'
           : isDaily
-            ? 'Tous les joueurs affrontent la même seed quotidienne'
-            : 'Sélectionne ton starter pour la run'}
+            ? `Tous les joueurs affrontent la même seed quotidienne · ${unlockedStarterSlots} slot(s)`
+            : `Sélectionne jusqu’à ${unlockedStarterSlots} champion(s) pour la run`}
       </p>
 
       <div className="starter-select__grid">
@@ -188,8 +217,13 @@ export function StarterSelectPage() {
           <ChampionCard
             key={champ.id}
             champion={champ}
-            selected={selectedStarterId === champ.id}
-            onSelect={() => setSelectedStarterId(champ.id)}
+            selected={selectedStarterIds.includes(champ.id)}
+            disabled={
+              resumableStart !== null ||
+              (!selectedStarterIds.includes(champ.id) &&
+                selectedStarterIds.length >= unlockedStarterSlots)
+            }
+            onSelect={() => toggleStarter(champ.id)}
           />
         ))}
       </div>
@@ -247,13 +281,16 @@ export function StarterSelectPage() {
             </p>
           )}
           <p className="starter-select__selection-status" aria-live="polite">
-            {selectedStarter
-              ? `${selectedStarter.name} sélectionné`
+            {selectedStarters.length > 0
+              ? `${selectedStarters.map((champion) => champion.name).join(', ')} · ${
+                  selectedStarters.length
+                }/${unlockedStarterSlots} slot(s) sélectionné`
               : 'Sélectionne un champion pour continuer'}
           </p>
           <button
             className="starter-select__confirm"
-            disabled={!selectedStarterId || isStarting || isLoadingDaily}
+            type="button"
+            disabled={selectedStarterIds.length === 0 || isStarting || isLoadingDaily}
             onClick={() => void handleConfirm()}
           >
             {isLoadingDaily
@@ -273,10 +310,12 @@ export function StarterSelectPage() {
 function ChampionCard({
   champion,
   selected,
+  disabled,
   onSelect,
 }: {
   champion: Champion;
   selected: boolean;
+  disabled: boolean;
   onSelect: () => void;
 }) {
   const gameStats = gameStatsAtLevel(champion.stats, 1);
@@ -296,6 +335,7 @@ function ChampionCard({
       type="button"
       className={`champion-card${selected ? ' champion-card--selected' : ''}`}
       onClick={onSelect}
+      disabled={disabled}
       aria-pressed={selected}
       aria-label={`Choisir ${champion.name}`}
     >

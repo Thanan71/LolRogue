@@ -14,10 +14,11 @@
       "!!src/data/generated/*.json",
       "!!supabase/authority-archive/run-authority-v1.bundle.ts",
       "!!supabase/authority-archive/run-authority-v2.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v3.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v3.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v4.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v5.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v6.bundle.ts"
+      "!!supabase/functions/verify-run/run-authority-v6.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v7.bundle.ts"
     ]
   },
   "formatter": {

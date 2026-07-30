@@ -14,6 +14,7 @@ import { useRunStore } from '@/stores/runStore';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
+import { useMasteryStore } from '@/stores/masteryStore';
 import { calculateMaxHP } from '@/utils/statCalculator';
 
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
@@ -37,6 +38,9 @@ function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][
     member.championId,
     member.statBoosts,
     member.statMultiplier,
+    state.authorityAttempt
+      ? (state.authorityAttempt.masterySnapshot?.[member.championId] ?? 0)
+      : useMasteryStore.getState().getChampionMastery(member.championId).level,
   );
 }
 

@@ -807,6 +807,7 @@ export type Database = {
           journal_bytes: number;
           journal_hash: string;
           last_sequence: number;
+          mastery_snapshot: Json;
           lease_expires_at: string | null;
           lease_token: string | null;
           lease_worker_id: string | null;
@@ -854,6 +855,7 @@ export type Database = {
           journal_bytes?: number;
           journal_hash: string;
           last_sequence?: number;
+          mastery_snapshot?: Json;
           lease_expires_at?: string | null;
           lease_token?: string | null;
           lease_worker_id?: string | null;
@@ -901,6 +903,7 @@ export type Database = {
           journal_bytes?: number;
           journal_hash?: string;
           last_sequence?: number;
+          mastery_snapshot?: Json;
           lease_expires_at?: string | null;
           lease_token?: string | null;
           lease_worker_id?: string | null;

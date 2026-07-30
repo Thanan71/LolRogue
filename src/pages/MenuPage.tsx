@@ -122,8 +122,8 @@ export function MenuPage() {
 
   async function handleGuestLogin() {
     playUIClick();
-    await runTransition(() => {
-      exitGuestMode();
+    await runTransition(async () => {
+      await exitGuestMode();
       navigate(ROUTES.AUTH);
     });
   }

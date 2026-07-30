@@ -67,6 +67,15 @@ interface EnhancementStoreState {
   /** Error message */
   error: string | null;
 
+  /** Durable result of the latest mutation, rendered next to the tree. */
+  statusMessage: string | null;
+
+  /** Account owning the loaded cache, used to reject stale async responses. */
+  ownerUserId: string | null;
+
+  /** True once the current account cache has completed loading. */
+  isInitialized: boolean;
+
   /** Selected champion for enhancement view */
   selectedChampion: Champion | null;
 }
@@ -75,7 +84,7 @@ interface EnhancementStoreState {
 
 interface EnhancementStoreActions {
   /** Initialize store with player data */
-  initialize: (playerId: string) => Promise<void>;
+  initialize: (authUserId: string, availableCandies?: number) => Promise<void>;
 
   /** Get enhancement state for a champion */
   getEnhancementState: (championId: string) => PlayerEnhancementState;
@@ -113,19 +122,34 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
   availableCandies: 0,
   isLoading: false,
   error: null,
+  statusMessage: null,
+  ownerUserId: null,
+  isInitialized: false,
   selectedChampion: null,
 
   // Initialize with player data
-  initialize: async (playerId: string) => {
-    set({ isLoading: true, error: null });
+  initialize: async (authUserId: string, initialCandies = 0) => {
+    set({
+      enhancements: {},
+      championMasteryLevels: {},
+      availableCandies: initialCandies,
+      ownerUserId: authUserId,
+      isInitialized: false,
+      isLoading: true,
+      error: null,
+      statusMessage: null,
+      selectedChampion: null,
+    });
 
     try {
       // Fetch all enhancement states from database
-      const states = await container.enhancement.getAllEnhancementStates(playerId);
+      const states = await container.enhancement.getAllEnhancementStates(authUserId);
 
       // Fetch all champion mastery levels from the champion_mastery table
       const { data: masteryData, error: masteryError } =
-        await container.mastery.getChampionMastery(playerId);
+        await container.mastery.getChampionMastery(authUserId);
+      if (masteryError) throw masteryError;
+      if (get().ownerUserId !== authUserId) return;
 
       const enhancements: Record<string, PlayerEnhancementState> = {};
       const championMasteryLevels: Record<string, number> = {};
@@ -136,7 +160,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       });
 
       // Get mastery levels from the champion_mastery table (database source of truth)
-      if (masteryData && !masteryError) {
+      if (masteryData) {
         for (const mastery of masteryData) {
           championMasteryLevels[mastery.champion_id] = mastery.mastery_level;
         }
@@ -145,16 +169,22 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       // If no mastery entry exists in database, mastery level defaults to 0 (no fallback calculation)
 
       // Get available candies from mastery system
-      const { player } = useAuthStore.getState();
-      const availableCandies = player?.total_candies || 0;
-
-      set({ enhancements, championMasteryLevels, availableCandies, isLoading: false });
+      set({
+        enhancements,
+        championMasteryLevels,
+        availableCandies: initialCandies,
+        isLoading: false,
+        isInitialized: true,
+      });
     } catch (error) {
       console.error('[EnhancementStore] Failed to initialize:', error);
+      if (get().ownerUserId !== authUserId) return;
       set({
-        error: 'Failed to load enhancement data',
+        error: 'Impossible de charger la maîtrise et les améliorations.',
         isLoading: false,
+        isInitialized: false,
       });
+      throw error;
     }
   },
 
@@ -238,13 +268,16 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     }
 
     if (!nodeToUnlock) {
-      set({ error: 'Node not found' });
+      set({ error: 'Amélioration introuvable.', statusMessage: null });
       return false;
     }
 
     const { user: currentUser, isGuest } = useAuthStore.getState();
     if (isGuest || !currentUser) {
-      set({ error: 'Les améliorations permanentes nécessitent un compte.' });
+      set({
+        error: 'Les améliorations permanentes nécessitent un compte.',
+        statusMessage: null,
+      });
       return false;
     }
 
@@ -269,19 +302,22 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       );
 
       if (!validation.valid) {
-        set({ error: validation.error || 'Cannot unlock node' });
+        set({ error: validation.error || 'Impossible de débloquer ce nœud.', statusMessage: null });
         return false;
       }
     }
 
     if (!retryCommand && !globalThis.crypto?.randomUUID) {
-      set({ error: 'Ce navigateur ne permet pas de sécuriser la commande.' });
+      set({
+        error: 'Ce navigateur ne permet pas de sécuriser la commande.',
+        statusMessage: null,
+      });
       return false;
     }
 
     const commandId = retryCommand?.commandId ?? globalThis.crypto.randomUUID();
     pendingUnlockCommands.set(pendingKey, { expectedRank, commandId });
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, error: null, statusMessage: null });
 
     try {
       const result = await container.enhancement.unlockNode(
@@ -305,6 +341,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
               [selectedChampion.id]: result.newState,
             },
             error: null,
+            statusMessage: `${nodeToUnlock.name} a bien été amélioré.`,
           }));
 
           const refreshedCandies = await refreshCanonicalCandyBalance();
@@ -320,6 +357,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         set((current) => ({
           availableCandies: refreshedCandies ?? current.availableCandies,
           error: result.error || 'Failed to save enhancement',
+          statusMessage: null,
         }));
         return false;
       }
@@ -334,6 +372,8 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         },
         availableCandies:
           result.remainingCandies ?? Math.max(0, availableCandies - result.candyCost),
+        error: null,
+        statusMessage: `${nodeToUnlock.name} a bien été amélioré.`,
       }));
 
       const refreshedCandies = await refreshCanonicalCandyBalance();
@@ -346,6 +386,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       console.error('[EnhancementStore] Failed to unlock node:', error);
       set({
         error: error instanceof Error ? error.message : 'Failed to save enhancement',
+        statusMessage: null,
       });
       return false;
     } finally {
@@ -360,7 +401,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
   // Set selected champion
   setSelectedChampion: (champion: Champion | null) => {
-    set({ selectedChampion: champion });
+    set({ selectedChampion: champion, error: null, statusMessage: null });
   },
 
   // Reset store
@@ -372,6 +413,9 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       availableCandies: 0,
       isLoading: false,
       error: null,
+      statusMessage: null,
+      ownerUserId: null,
+      isInitialized: false,
       selectedChampion: null,
     });
   },
@@ -379,44 +423,30 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
 // ─── Helper Hook ─────────────────────────────────────────────────────────────
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 /**
  * Hook to get enhancement data for a specific champion
  */
 export function useChampionEnhancements(champion: Champion | null) {
-  const selectedChampion = useEnhancementStore((s) => s.selectedChampion);
   const setSelectedChampion = useEnhancementStore((s) => s.setSelectedChampion);
   const getEnhancementState = useEnhancementStore((s) => s.getEnhancementState);
   const getChampionMasteryLevel = useEnhancementStore((s) => s.getChampionMasteryLevel);
-  const getSelectedChampionTree = useEnhancementStore((s) => s.getSelectedChampionTree);
   const canUnlockNode = useEnhancementStore((s) => s.canUnlockNode);
   const unlockNode = useEnhancementStore((s) => s.unlockNode);
   const availableCandies = useEnhancementStore((s) => s.availableCandies);
   const isLoading = useEnhancementStore((s) => s.isLoading);
   const error = useEnhancementStore((s) => s.error);
-
-  // Track if we need to update the selected champion
-  const needsUpdate = useRef(false);
-
-  // Check if update is needed (during render, but don't cause side effects)
-  if (champion && selectedChampion?.id !== champion.id) {
-    needsUpdate.current = true;
-  } else {
-    needsUpdate.current = false;
-  }
+  const statusMessage = useEnhancementStore((s) => s.statusMessage);
 
   // Update selected champion in useEffect (after render)
   useEffect(() => {
-    if (needsUpdate.current && champion) {
-      setSelectedChampion(champion);
-      needsUpdate.current = false;
-    }
+    setSelectedChampion(champion);
   }, [champion, setSelectedChampion]);
 
   const state = champion ? getEnhancementState(champion.id) : null;
   const masteryLevel = champion ? getChampionMasteryLevel(champion.id) : 0;
-  const tree = champion ? getSelectedChampionTree() : null;
+  const tree = champion ? enhancementTreeProvider.getTreeForChampion(champion) : null;
 
   return {
     state,
@@ -425,6 +455,7 @@ export function useChampionEnhancements(champion: Champion | null) {
     availableCandies,
     isLoading,
     error,
+    statusMessage,
     canUnlockNode,
     unlockNode,
   };

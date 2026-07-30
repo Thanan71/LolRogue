@@ -84,6 +84,7 @@ const CANONICAL_PROGRESSION_ENGINES = new Set([
   'run-engine-v5',
   'run-engine-v6',
   'run-engine-v7',
+  'run-engine-v8',
 ]);
 
 function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
@@ -590,6 +591,7 @@ export const useRunStore = create<RunStore>()(
                 initialTeam: [...attempt.initialTeam],
                 runeIds: [...attempt.runeIds],
                 enhancementSnapshot: attempt.enhancementSnapshot,
+                masterySnapshot: attempt.masterySnapshot,
                 startedAt: attempt.startedAt,
                 expiresAt: attempt.expiresAt,
                 status: attempt.status,
@@ -805,6 +807,9 @@ export const useRunStore = create<RunStore>()(
                     member.championId,
                     member.statBoosts,
                     member.statMultiplier,
+                    state.authorityAttempt
+                      ? (state.authorityAttempt.masterySnapshot?.[member.championId] ?? 0)
+                      : useMasteryStore.getState().getChampionMastery(member.championId).level,
                   )
                 : 100;
               return {

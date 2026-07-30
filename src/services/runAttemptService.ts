@@ -139,10 +139,22 @@ function parseEnhancementSnapshot(value: unknown): RunEnhancementSnapshot | null
   return snapshot;
 }
 
+function parseMasterySnapshot(value: unknown): Record<string, number> | null {
+  const champions = asRecord(value);
+  if (!champions) return null;
+  const snapshot: Record<string, number> = {};
+  for (const [championId, level] of Object.entries(champions)) {
+    if (!championId || !isInteger(level) || level < 0 || level > 4) return null;
+    snapshot[championId] = level;
+  }
+  return snapshot;
+}
+
 function parseStartResult(value: unknown): StartRunAttemptResult | null {
   const result = asRecord(value);
   if (!result) return null;
   const enhancementSnapshot = parseEnhancementSnapshot(result.enhancement_snapshot);
+  const masterySnapshot = parseMasterySnapshot(result.mastery_snapshot);
   const dailyDate = typeof result.daily_date === 'string' ? result.daily_date : null;
   const dailyRulesetVersion = isInteger(result.daily_ruleset_version)
     ? result.daily_ruleset_version
@@ -163,6 +175,7 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
     !isStarterTeam(result.initial_team) ||
     !isStarterRuneIds(result.rune_ids) ||
     enhancementSnapshot === null ||
+    masterySnapshot === null ||
     !isIsoDate(result.started_at) ||
     !isIsoDate(result.expires_at) ||
     !isInteger(result.last_sequence) ||
@@ -195,6 +208,7 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
     initialTeam: result.initial_team,
     runeIds: result.rune_ids,
     enhancementSnapshot,
+    masterySnapshot,
     startedAt: result.started_at,
     expiresAt: result.expires_at,
     lastSequence: result.last_sequence,

@@ -6,6 +6,7 @@ import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
+import { useMasteryStore } from '@/stores/masteryStore';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { calculateMaxHP } from '@/utils/statCalculator';
@@ -31,6 +32,9 @@ function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][
     member.championId,
     member.statBoosts,
     member.statMultiplier,
+    state.authorityAttempt
+      ? (state.authorityAttempt.masterySnapshot?.[member.championId] ?? 0)
+      : useMasteryStore.getState().getChampionMastery(member.championId).level,
   );
 }
 

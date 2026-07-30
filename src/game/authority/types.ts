@@ -24,6 +24,7 @@ export interface AuthorityRunAttempt {
   runeIds: string[];
   difficulty: AuthorityDifficulty;
   enhancementSnapshot: Record<string, Record<string, number>>;
+  masterySnapshot: Record<string, number>;
 }
 
 interface AuthorityCommand<K extends string, P extends Record<string, string>> {

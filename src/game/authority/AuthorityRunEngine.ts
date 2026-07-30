@@ -62,9 +62,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v7';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v8';
 export const AUTHORITY_CONTENT_HASH =
-  '061c9f4ee3e2ed82aecf5d7dbf4b313920b9227df65401de798d780667dd5068';
+  '5ceaeee76c65a23a665dacccb628366e07b38d1640fc1fc845f44a82efa4e9ec';
 
 assertValidRuleCatalogs();
 
@@ -278,8 +278,8 @@ function validateAttempt(value: AuthorityRunAttempt): void {
   if (!['easy', 'normal', 'hard'].includes(value.difficulty)) {
     fail('invalid_attempt', 'Attempt difficulty is invalid.');
   }
-  if (!Array.isArray(value.team) || value.team.length !== 1) {
-    fail('invalid_attempt', 'Attempt must contain exactly one starter champion.');
+  if (!Array.isArray(value.team) || value.team.length < 1 || value.team.length > MAX_TEAM_SIZE) {
+    fail('invalid_attempt', 'Attempt must contain an allowed starter team.');
   }
   const teamIds = new Set<string>();
   for (const member of value.team) {
@@ -343,6 +343,20 @@ function validateAttempt(value: AuthorityRunAttempt): void {
       ) {
         fail('invalid_attempt', 'Attempt enhancement prerequisites are incomplete.');
       }
+    }
+  }
+  if (!isRecord(value.masterySnapshot)) {
+    fail('invalid_attempt', 'Attempt mastery snapshot is invalid.');
+  }
+  for (const [championId, level] of Object.entries(value.masterySnapshot)) {
+    if (
+      !IMPLEMENTED_CHAMPION_IDS.has(championId) ||
+      !championDB.getById(championId) ||
+      !Number.isSafeInteger(level) ||
+      (level as number) < 0 ||
+      (level as number) > 4
+    ) {
+      fail('invalid_attempt', 'Attempt mastery snapshot contains an invalid level.');
     }
   }
 }
@@ -734,6 +748,7 @@ class AuthorityReplayState {
       const champion = championDB.getById(member.championId);
       if (!champion) continue;
       const instance = new ChampionInstance(champion, member.level, member.statMultiplier);
+      instance.setMasteryLevel(this.attempt.masterySnapshot[member.championId] ?? 0);
       for (const slot of SPELL_SLOTS) instance.setSpellRank(slot, member.spellRanks[slot]);
       this.applyPlayerBonuses(instance, member);
       instances.push(instance);
@@ -1199,6 +1214,7 @@ class AuthorityReplayState {
       member.championId,
       member.statBoosts,
       member.statMultiplier,
+      this.attempt.masterySnapshot[member.championId] ?? 0,
     );
   }
 

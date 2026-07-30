@@ -11,7 +11,7 @@ persistance doit conserver cette séparation et mettre à jour les tests associ�
 | Profil joueur | `authStore.player` | `public.players` | profil temporaire client | `SupabasePlayerRepository` |
 | Partie en cours | `runStore` + journal local | `run_attempts` et `run_attempt_commands` | `lolrogue-run-storage` | RPC d'attempt étroites |
 | Résultat de partie | replay du moteur autoritaire | `runs` et `run_team_members` | local uniquement | Edge Function `verify-run` puis RPC service-role |
-| Maîtrise | `masteryStore` | `champion_mastery` et `player_unlocks` | `lolrogue-mastery-storage` | crédit atomique d'une run vérifiée |
+| Maîtrise | cache `masteryStore` associé à l'identité active | `champion_mastery.unlocked_ids` | snapshot `guestSnapshot` dans `lolrogue-mastery-storage` | crédit atomique d'une run vérifiée |
 | Améliorations | `enhancementStore` | `champion_enhancements`; solde dans `players.total_candies` | indisponible sans compte | RPC `unlock_champion_enhancement` |
 | Daily run en cours | `dailyRunStore` et `runStore` | attempt serveur avec seed UTC | `lolrogue-daily-run` | même journal vérifié qu'une run normale |
 | Classement daily | store après lecture | vue sanitisée `daily_leaderboard` issue des runs vérifiées | `lolrogue-daily-leaderboard` | trigger serveur après replay autoritaire |
@@ -24,8 +24,8 @@ persistance doit conserver cette séparation et mettre à jour les tests associ�
 
 Pour un compte connecté, `start_run_attempt` crée d'abord l'attempt. Le serveur
 choisit le seed et fige le ruleset de progression, le ruleset de gameplay, la
-version du moteur, le hash de contenu, la difficulté, l'équipe, les runes et le
-snapshot des améliorations. Une seule tentative ouverte est autorisée par
+version du moteur, le hash de contenu, la difficulté, l'équipe, les runes et les
+snapshots de maîtrise et d'améliorations. Une seule tentative ouverte est autorisée par
 utilisateur. Le `runStore` hydrate ensuite la partie avec ces valeurs et persiste
 localement son état et le journal afin de reprendre après un rafraîchissement.
 
@@ -71,8 +71,12 @@ définitivement l'ancien RPC `save_run_loadout`, afin qu'aucune seconde écritur
 « best effort » ne puisse recréer un résultat partiel.
 
 Une partie invitée ne contacte pas la base. Seul le navigateur courant possède
-l'état et la progression; aucune fusion automatique n'est faite lors de la
-création ultérieure d'un compte.
+l'état et la progression. Cette progression vit dans un namespace `guestSnapshot`
+et n'est jamais fusionnée, importée ou copiée automatiquement lors de la création
+ou de la connexion à un compte. À l'inverse, un compte ne persiste jamais sa
+maîtrise dans ce snapshot local : chaque changement d'identité vide les caches,
+puis attend profil, maîtrise et améliorations Supabase avant d'ouvrir les routes
+de jeu.
 
 ## Démarrage et remplacement d'une run
 
@@ -161,7 +165,6 @@ peut pas être rendu fiable rétroactivement.
   et le rôle admin.
 - `champion_mastery` contient les candies, le niveau calculé et les déblocages par
   champion.
-- `player_unlocks` conserve les récompenses permanentes normalisées.
 - `champion_enhancements` contient les rangs achetés et le coût total par champion.
 
 Après connexion, Supabase remplace les caches locaux pour les données persistantes.
@@ -169,9 +172,17 @@ Le niveau de maîtrise servant à autoriser une amélioration vient de la base, 
 d'un calcul client arbitraire. L'achat passe par une RPC qui verrouille le profil,
 vérifie le solde et le niveau, puis débite et débloque atomiquement.
 
-Pendant une run connectée, le snapshot d'améliorations figé au démarrage est utilisé
-par le client et par le replay. Un achat effectué dans un autre onglet ne peut donc
-pas modifier rétroactivement les règles d'un attempt déjà ouvert.
+Les seuls unlocks de maîtrise livrés sont `starter_slot_2` au niveau 1 et
+`starter_slot_3` au niveau 3. Leur cible concrète est respectivement deux et trois
+places dans l'équipe initiale. Aucun skin ou chroma n'est promis par le contrat
+actuel. Starter affiche et impose la limite, puis le store, le trigger PostgreSQL
+et le replay autoritaire la revérifient.
+
+Pendant une run connectée, les snapshots de maîtrise et d'améliorations figés au
+démarrage sont utilisés par le client et par le replay. Le niveau de maîtrise
+ajoute 2 % aux statistiques de base par niveau acquis, jusqu'à 8 %, via le
+calculateur canonique. Une progression ou un achat effectué dans un autre onglet
+ne peut donc pas modifier rétroactivement les règles d'un attempt déjà ouvert.
 
 ## Classements
 
