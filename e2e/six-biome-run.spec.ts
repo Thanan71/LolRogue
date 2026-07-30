@@ -21,7 +21,14 @@ test('a guest run progresses deterministically through all six biomes', async ({
 
     const transition = await page.evaluate(async () => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
-      const state = useRunStore.getState();
+      let state = useRunStore.getState();
+      const pendingAugmentId = state.pendingAugmentIds[0];
+      if (pendingAugmentId) {
+        if (!state.chooseAugment(pendingAugmentId)) {
+          throw new Error('Unable to resolve the pending augment choice.');
+        }
+        state = useRunStore.getState();
+      }
       const map = state.biomeMaps[state.currentBiomeIndex];
       const terminalNode = map.nodes.find((node) => node.id === map.exitNodeId);
       if (!terminalNode) throw new Error('Generated map has no terminal node.');
