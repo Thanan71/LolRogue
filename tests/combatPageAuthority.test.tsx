@@ -256,7 +256,15 @@ describe('CombatPage authority finalization', () => {
     expect(combatMocks.autoPlay).toBe(true);
   });
 
-  it.each(['run-engine-v3', 'run-engine-v4', 'run-engine-v5', 'run-engine-v6', 'run-engine-v7'])(
+  it.each([
+    'run-engine-v3',
+    'run-engine-v4',
+    'run-engine-v5',
+    'run-engine-v6',
+    'run-engine-v7',
+    'run-engine-v8',
+    'run-engine-v9',
+  ])(
     'starts a %s verified combat with auto off and journals its manual action trace',
     (engineVersion) => {
       useRunStore.setState({ authorityAttempt: attempt(engineVersion) });
@@ -287,6 +295,23 @@ describe('CombatPage authority finalization', () => {
       });
     },
   );
+
+  it('lets the player enable autoplay in the current verified engine', async () => {
+    const user = userEvent.setup();
+    useRunStore.setState({ authorityAttempt: attempt('run-engine-v9') });
+    const view = render(<CombatPage />);
+    const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
+
+    expect(autoToggle).toBeEnabled();
+    expect(autoToggle).toHaveTextContent('Auto : OFF');
+    expect(combatMocks.autoPlay).toBe(false);
+
+    await user.click(autoToggle);
+
+    expect(autoToggle).toHaveTextContent('Auto : ON');
+    expect(autoToggle).toHaveAccessibleName('Désactiver le mode automatique');
+    expect(combatMocks.autoPlay).toBe(true);
+  });
 
   it('waits on a manual player decision and visibly delays the following enemy turn', async () => {
     vi.useFakeTimers();

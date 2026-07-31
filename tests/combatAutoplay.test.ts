@@ -3,6 +3,7 @@ import {
   DEFAULT_COMBAT_AUTOPLAY,
   getAutoTurnDelayMs,
   shouldAutoAdvanceCombatTurn,
+  supportsManualAuthorityCombat,
 } from '@/game/battle/autoplay';
 
 describe('combat autoplay rules', () => {
@@ -57,5 +58,12 @@ describe('combat autoplay rules', () => {
     expect(getAutoTurnDelayMs(1)).toBe(1200);
     expect(getAutoTurnDelayMs(2)).toBe(600);
     expect(getAutoTurnDelayMs(3)).toBe(400);
+  });
+
+  it('keeps manual combat enabled for every authority engine since v3', () => {
+    expect(supportsManualAuthorityCombat('run-engine-v2')).toBe(false);
+    expect(supportsManualAuthorityCombat('run-engine-v3')).toBe(true);
+    expect(supportsManualAuthorityCombat('run-engine-v9')).toBe(true);
+    expect(supportsManualAuthorityCombat('invalid-engine')).toBe(false);
   });
 });

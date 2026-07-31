@@ -13,6 +13,7 @@ import {
   DEFAULT_COMBAT_AUTOPLAY,
   getAutoTurnDelayMs,
   shouldAutoAdvanceCombatTurn,
+  supportsManualAuthorityCombat,
 } from '@/game/battle/autoplay';
 import { isFinalRunVictory } from '@/game/battle/runOutcome';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
@@ -370,14 +371,8 @@ export function CombatPage() {
   const usesLegacyEncounterRules =
     authorityAttempt !== null &&
     LEGACY_ENCOUNTER_ENGINE_VERSIONS.has(authorityAttempt.engineVersion);
-  const supportsManualAuthorityCombat =
-    authorityAttempt?.engineVersion === 'run-engine-v3' ||
-    authorityAttempt?.engineVersion === 'run-engine-v4' ||
-    authorityAttempt?.engineVersion === 'run-engine-v5' ||
-    authorityAttempt?.engineVersion === 'run-engine-v6' ||
-    authorityAttempt?.engineVersion === 'run-engine-v7' ||
-    authorityAttempt?.engineVersion === 'run-engine-v8';
-  const requiresServerAutoPlay = isAuthorityRun && !supportsManualAuthorityCombat;
+  const supportsManualCombat = supportsManualAuthorityCombat(authorityAttempt?.engineVersion);
+  const requiresServerAutoPlay = isAuthorityRun && !supportsManualCombat;
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);
   const [autoActionRemainingMs, setAutoActionRemainingMs] = useState<number | null>(null);
@@ -591,7 +586,7 @@ export function CombatPage() {
           {
             kind: 'resolve_combat',
             nodeId: combatNodeId,
-            actions: supportsManualAuthorityCombat ? playerActionTrace : undefined,
+            actions: supportsManualCombat ? playerActionTrace : undefined,
           },
           `resolve_combat:${commandState.currentBiomeIndex}:${combatNodeId}`,
         )
@@ -776,7 +771,7 @@ export function CombatPage() {
         });
       }
     },
-    [runLevel, navigate, supportsManualAuthorityCombat],
+    [runLevel, navigate, supportsManualCombat],
   );
 
   const { processTurn, submitAction, getAvailableActions } = useBattleManager({
