@@ -1,5 +1,10 @@
 import type { Json } from '@/types/database';
-import type { RunItemLedgerEvent, RunSummary, ServerRunProgression } from '@/types/run';
+import {
+  MAX_TEAM_SIZE,
+  type RunItemLedgerEvent,
+  type RunSummary,
+  type ServerRunProgression,
+} from '@/types/run';
 import type {
   AppendRunCommandsResult,
   AuthorityDifficulty,
@@ -77,8 +82,13 @@ function isMode(value: unknown): value is AuthorityRunMode {
   return typeof value === 'string' && MODES.includes(value as AuthorityRunMode);
 }
 
-function isStarterTeam(value: unknown): value is [string] {
-  return isStringArray(value) && value.length === 1;
+function isStarterTeam(value: unknown): value is string[] {
+  return (
+    isStringArray(value) &&
+    value.length >= 1 &&
+    value.length <= MAX_TEAM_SIZE &&
+    new Set(value).size === value.length
+  );
 }
 
 function isStarterRuneIds(value: unknown): value is string[] {

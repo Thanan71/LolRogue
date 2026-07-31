@@ -90,24 +90,31 @@ describe('runAttemptService', () => {
     vi.useRealTimers();
   });
 
-  it('starts an attempt with the narrow RPC contract and parses canonical fields', async () => {
+  it('starts an attempt with two champions and three runes and parses canonical fields', async () => {
+    const team = ['Garen', 'Lux'];
+    const runeIds = ['press_the_attack', 'glacial_augment', 'grasp_of_the_undying'];
     supabaseMocks.rpc.mockResolvedValue({
-      data: startResponse(),
+      data: startResponse({
+        initial_team: team,
+        rune_ids: runeIds,
+        enhancement_snapshot: { Garen: { hp_1: 1 }, Lux: { ap_1: 1 } },
+        mastery_snapshot: { Garen: 2, Lux: 1 },
+      }),
       error: null,
     });
 
     const result = await startRunAttempt({
       commandId: COMMAND_ID,
       mode: 'normal',
-      team: ['Garen'],
-      runeIds: ['press_the_attack'],
+      team,
+      runeIds,
       difficulty: 'hard',
     });
 
     expect(supabaseMocks.rpc).toHaveBeenCalledWith('start_run_attempt', {
       p_command_id: COMMAND_ID,
-      p_team: ['Garen'],
-      p_rune_ids: ['press_the_attack'],
+      p_team: team,
+      p_rune_ids: runeIds,
       p_difficulty: 'hard',
       p_mode: 'normal',
     });
@@ -118,7 +125,9 @@ describe('runAttemptService', () => {
         runUuid: ATTEMPT_RUN_UUID,
         seed: 42,
         rulesetVersion: 2,
-        enhancementSnapshot: { Garen: { hp_1: 1 } },
+        initialTeam: team,
+        runeIds,
+        enhancementSnapshot: { Garen: { hp_1: 1 }, Lux: { ap_1: 1 } },
       },
     });
   });
@@ -350,9 +359,12 @@ describe('runAttemptService', () => {
     });
   });
 
-  it('recovers a canonical response through status without calling Edge', async () => {
+  it('recovers a multi-champion canonical response through status without calling Edge', async () => {
     supabaseMocks.rpc.mockResolvedValue({
-      data: statusResponse(),
+      data: statusResponse({
+        initial_team: ['Garen', 'Lux'],
+        rune_ids: ['press_the_attack', 'glacial_augment', 'grasp_of_the_undying'],
+      }),
       error: null,
     });
 
@@ -382,7 +394,7 @@ describe('runAttemptService', () => {
 
     supabaseMocks.rpc.mockReset();
     supabaseMocks.rpc.mockResolvedValueOnce({ data: null, error: null }).mockResolvedValueOnce({
-      data: startResponse({ initial_team: ['Garen', 'Lux'] }),
+      data: startResponse({ initial_team: ['Garen', 'Garen'] }),
       error: null,
     });
 
