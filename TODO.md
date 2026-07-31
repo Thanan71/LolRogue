@@ -558,15 +558,18 @@ plus une commande attendue.
 - [x] Versionner le contrat en `run-engine-v10`, content hash
   `e7bb5a3f9a6fbb6c7d7d2338bf7e226fe019299401a2110b61ee4373217aa47e`
   et conserver le bundle v9 pour les attempts en cours.
+- [x] Corriger le rejet observé quand l'authority termine un combat avant le
+  dernier tick autoplay du client : accepter seulement le suffixe automatique
+  sans effet, rejeter tout suffixe manuel et archiver v10 sous `run-engine-v11`.
 
 **Acceptation :** le client et l'authority consomment les mêmes modules de domaine
 pour toute règle déterministe de run. Les traces combat manuel/autoplay comparent
 exactement équipe, PV/PM, niveaux, or, inventaire, augments, ledger, statistiques,
 position et biome ; toute divergence fait échouer la suite Vitest.
 
-**Statut : terminé.** `run-engine-v10` et le ruleset gameplay/daily v10 sont
-déployés. Le bundle Edge reste sous la limite de déploiement et le preflight CORS
-de production répond `200`.
+**Statut : terminé.** `run-engine-v11` et le ruleset gameplay/daily v11 sont
+déployés ; v10 reste archivé pour les attempts en cours. Le bundle Edge reste sous
+la limite de déploiement et le preflight CORS de production répond `200`.
 
 ## P1 — progression, économie et contenu d'une run
 

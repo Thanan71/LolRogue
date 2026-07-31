@@ -78,9 +78,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v10';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v11';
 export const AUTHORITY_CONTENT_HASH =
-  'e7bb5a3f9a6fbb6c7d7d2338bf7e226fe019299401a2110b61ee4373217aa47e';
+  'fb444c977d765c0756951b5e81c61fec72112b0bca8e19e2dd3cda3c848d24df';
 
 assertValidRuleCatalogs();
 
@@ -672,20 +672,24 @@ class AuthorityReplayState {
     const result = battle.getResult();
     if (!result) fail('invalid_combat_result', 'Combat ended without a result.', commandIndex);
     const replayedActions = battle.getPlayerActionTrace();
-    if (
-      (!usesCanonicalAutoPlay && scriptedActionIndex !== scriptedActions.length) ||
-      (!usesCanonicalAutoPlay &&
-        (replayedActions.length !== scriptedActions.length ||
-          replayedActions.some(
-            (action, index) =>
-              action.type !== scriptedActions[index]?.type ||
-              action.targetId !== scriptedActions[index]?.targetId ||
-              action.automatic !== scriptedActions[index]?.automatic,
-          )))
-    ) {
+    const firstMismatchedActionIndex = replayedActions.findIndex(
+      (action, index) =>
+        action.type !== scriptedActions[index]?.type ||
+        action.targetId !== scriptedActions[index]?.targetId ||
+        action.automatic !== scriptedActions[index]?.automatic,
+    );
+    const unconsumedActions = scriptedActions.slice(scriptedActionIndex);
+    const hasValidReplayPrefix =
+      replayedActions.length === scriptedActionIndex && firstMismatchedActionIndex === -1;
+    const hasOnlyHarmlessAutomaticSuffix = unconsumedActions.every((action) => action.automatic);
+    if (!usesCanonicalAutoPlay && (!hasValidReplayPrefix || !hasOnlyHarmlessAutomaticSuffix)) {
+      const mismatchIndex =
+        firstMismatchedActionIndex !== -1 ? firstMismatchedActionIndex : scriptedActionIndex;
       fail(
         'invalid_combat_action_trace',
-        'Combat action trace does not match deterministic replay.',
+        `Combat action trace does not match deterministic replay at action ${mismatchIndex + 1} ` +
+          `(received ${JSON.stringify(scriptedActions[mismatchIndex] ?? null)}, ` +
+          `replayed ${JSON.stringify(replayedActions[mismatchIndex] ?? null)}).`,
         commandIndex,
       );
     }

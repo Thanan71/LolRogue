@@ -20,9 +20,9 @@ enchaînement.
   authority, en manuel puis autoplay, et comparent l'état complet.
 - [x] Les règles partagées Shop, Rest, Event, Treasure, Recruit, augment, XP et
   transitions restent couvertes par les suites de domaine/authority/E2E.
-- [x] `run-engine-v10` et son content hash sont actifs ; le bundle v9 archivé reste
-  chargeable pour les attempts en cours.
-- [x] Validation locale : `npm run check` avec **818 tests**, **43 tests DB** et
+- [x] `run-engine-v11` et son content hash sont actifs ; les bundles v9 et v10
+  archivés restent chargeables pour les attempts en cours.
+- [x] Validation locale : `npm run check` avec **820 tests**, **43 tests DB** et
   **11 parcours E2E**.
 - [x] Edge Function et migration v10 publiées ; preflight CORS production `200`.
 
@@ -62,6 +62,19 @@ enchaînement.
   [run 30614562780](https://github.com/Thanan71/LolRogue/actions/runs/30614562780).
 - [x] Production contrôlée après déploiement : le bundle Vercel servi contient la
   détection `run-engine-v3+` et le contrôle `Auto : ON/OFF`.
+
+### Hotfix — suffixe autoplay après fin autoritaire
+
+- [x] Reproduire le rejet production `invalid_combat_action_trace` à la commande
+  31 avec les 121 commandes originales.
+- [x] Identifier la divergence : l'authority termine le combat à l'action 22 alors
+  qu'un client chargé pendant le déploiement journalise une 23e action automatique.
+- [x] Accepter uniquement les actions automatiques restantes lorsque le replay
+  autoritaire a déjà terminé le combat.
+- [x] Continuer à rejeter une action manuelle supplémentaire ou toute divergence
+  dans le préfixe effectivement rejoué.
+- [x] Versionner le correctif en `run-engine-v11` et archiver le bundle v10.
+- [x] Edge Function et migration v11 publiées ; preflight CORS production `200`.
 
 ## Chantiers clôturés et retirés de NEXT
 
@@ -131,8 +144,9 @@ de parité.
 **Acceptation :** une trace valide produit exactement le même état canonique côté
 client et côté authority, et cette propriété est bloquante en CI.
 
-**Statut : terminé.** `run-engine-v10` centralise les règles restantes, conserve le
-replay v9 et ajoute les preuves de parité manuel/autoplay à la suite bloquante.
+**Statut : terminé.** `run-engine-v11` centralise les règles restantes, conserve les
+replays v9/v10, ajoute les preuves de parité manuel/autoplay et tolère uniquement un
+suffixe autoplay devenu sans effet après la fin autoritaire du combat.
 
 ---
 
