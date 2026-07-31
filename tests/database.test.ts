@@ -174,6 +174,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260730280000_mastery_contract.sql',
       '../supabase/migrations/20260730290000_gameplay_ruleset_v8_mastery.sql',
       '../supabase/migrations/20260730300000_gameplay_ruleset_v9_domain_invariants.sql',
+      '../supabase/migrations/20260731120000_gameplay_ruleset_v10_client_authority_parity.sql',
     ]);
   });
 

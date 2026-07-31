@@ -64,6 +64,7 @@ describe('combat autoplay rules', () => {
     expect(supportsManualAuthorityCombat('run-engine-v2')).toBe(false);
     expect(supportsManualAuthorityCombat('run-engine-v3')).toBe(true);
     expect(supportsManualAuthorityCombat('run-engine-v9')).toBe(true);
+    expect(supportsManualAuthorityCombat('run-engine-v10')).toBe(true);
     expect(supportsManualAuthorityCombat('invalid-engine')).toBe(false);
   });
 });

@@ -87,6 +87,7 @@ export type AuthorityRunEndReason = 'victory' | 'defeat' | 'draw' | null;
 export interface AuthorityTeamMember {
   championId: string;
   currentHp: number | null;
+  currentMp: number | null;
   level: number;
   currentXp: number;
   statBoosts: Record<string, number>;

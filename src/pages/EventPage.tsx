@@ -1,46 +1,31 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
-import { resolveAffordableEventOutcome } from '@/game/map/EncounterManager';
 import type { EventEncounter, EventOutcome } from '@/game/map/types';
-import {
-  applyRunHeal,
-  getEffectiveRunHp,
-  materializeRunHpAfterStatChange,
-} from '@/game/run/runHealth';
+import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
+import { resolveEventTeamUpdates, resolveRunEvent } from '@/game/run/runEncounterRules';
+import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
-import { createScopedRunRng } from '@/utils/runRandom';
-import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
-import { calculateMaxHP } from '@/utils/statCalculator';
 
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
   const state = useRunStore.getState();
-  const champion = championDB.getById(member.championId);
-  if (!champion) return 100;
-  const unlockedNodes = state.authorityAttempt
-    ? (state.authorityAttempt.enhancementSnapshot[member.championId] ??
-      state.authorityAttempt.enhancementSnapshot[member.championId.toLowerCase()] ??
-      {})
-    : useEnhancementStore.getState().getEnhancementState(member.championId).unlockedNodes;
-  const enhancementBonuses = enhancementService.calculateStatBonuses(
-    enhancementTreeProvider.getTreeForChampion(champion),
-    unlockedNodes,
-  );
-  return calculateMaxHP(
-    champion,
-    member.level ?? 1,
-    enhancementBonuses,
+  return calculateRunMemberMaxHp(
+    member,
     state.inventory,
-    member.championId,
-    member.statBoosts,
-    member.statMultiplier,
-    state.authorityAttempt
-      ? (state.authorityAttempt.masterySnapshot?.[member.championId] ?? 0)
-      : useMasteryStore.getState().getChampionMastery(member.championId).level,
+    (championId) =>
+      state.authorityAttempt
+        ? (state.authorityAttempt.enhancementSnapshot[championId] ??
+          state.authorityAttempt.enhancementSnapshot[championId.toLowerCase()] ??
+          {})
+        : useEnhancementStore.getState().getEnhancementState(championId).unlockedNodes,
+    (championId) =>
+      state.authorityAttempt
+        ? (state.authorityAttempt.masterySnapshot?.[championId] ?? 0)
+        : useMasteryStore.getState().getChampionMastery(championId).level,
   );
 }
 
@@ -74,10 +59,7 @@ export function EventPage() {
     const previous = useRunStore.getState();
     if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
     const state = useRunStore.getState();
-    const rng = createScopedRunRng(previous.seed, `event:${encounter.id}:outcome`);
-    const resolved = resolveAffordableEventOutcome(encounter.outcomes, previous.gold, () =>
-      rng.next(),
-    );
+    const resolved = resolveRunEvent(previous.seed ?? 0, encounter, previous.gold);
     let mutationSucceeded = true;
     let nextCapacityNotice: string | null = null;
     switch (resolved.type) {
@@ -104,32 +86,29 @@ export function EventPage() {
         break;
       }
       case 'heal': {
-        const healPct = resolved.healPercent ?? 0.3;
-        const updates = state.team.map((member) => {
-          const maxHp = getMemberMaxHp(member);
-          return {
+        const nextTeam = resolveEventTeamUpdates(resolved, state.team, getMemberMaxHp);
+        state.updateTeamAfterCombat(
+          nextTeam.map((member) => ({
             championId: member.championId,
-            currentHp: applyRunHeal(member.currentHp, maxHp, healPct),
+            currentHp: member.currentHp,
             level: member.level ?? 1,
             currentXp: member.currentXp ?? 0,
-          };
-        });
-        state.updateTeamAfterCombat(updates);
+            statBoosts: member.statBoosts,
+          })),
+        );
         break;
       }
       case 'damage': {
-        const dmgPct = resolved.damagePercent ?? 0.15;
-        const updates = state.team.map((member) => {
-          const maxHp = getMemberMaxHp(member);
-          const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
-          return {
+        const nextTeam = resolveEventTeamUpdates(resolved, state.team, getMemberMaxHp);
+        state.updateTeamAfterCombat(
+          nextTeam.map((member) => ({
             championId: member.championId,
-            currentHp: Math.max(1, currentHp - Math.floor(currentHp * dmgPct)),
+            currentHp: member.currentHp,
             level: member.level ?? 1,
             currentXp: member.currentXp ?? 0,
-          };
-        });
-        state.updateTeamAfterCombat(updates);
+            statBoosts: member.statBoosts,
+          })),
+        );
         break;
       }
       case 'item_reward': {
@@ -169,27 +148,16 @@ export function EventPage() {
         break;
       }
       case 'stat_boost': {
-        if (resolved.statBoost) {
-          const { stat, amount } = resolved.statBoost;
-          const updates = state.team.map((member) => {
-            const existingBoosts = member.statBoosts || {};
-            const statBoosts = {
-              ...existingBoosts,
-              [stat]: (existingBoosts[stat] || 0) + amount,
-            };
-            return {
-              championId: member.championId,
-              currentHp: materializeRunHpAfterStatChange(
-                member.currentHp,
-                getMemberMaxHp({ ...member, statBoosts }),
-              ),
-              level: member.level ?? 1,
-              currentXp: member.currentXp ?? 0,
-              statBoosts,
-            };
-          });
-          state.updateTeamAfterCombat(updates);
-        }
+        const nextTeam = resolveEventTeamUpdates(resolved, state.team, getMemberMaxHp);
+        state.updateTeamAfterCombat(
+          nextTeam.map((member) => ({
+            championId: member.championId,
+            currentHp: member.currentHp,
+            level: member.level ?? 1,
+            currentXp: member.currentXp ?? 0,
+            statBoosts: member.statBoosts,
+          })),
+        );
         break;
       }
     }

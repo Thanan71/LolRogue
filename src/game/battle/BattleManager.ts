@@ -188,12 +188,20 @@ export class BattleManager {
     return this._enemyCombatants;
   }
 
-  /** Get final HP state for each player champion (for persistence between combats). */
-  getFinalPlayerStates(): { championId: string; currentHp: number; maxHp: number }[] {
+  /** Get final persistent resources for each player champion. */
+  getFinalPlayerStates(): {
+    championId: string;
+    currentHp: number;
+    maxHp: number;
+    currentMp: number;
+    maxMp: number;
+  }[] {
     return this._playerCombatants.map((c) => ({
       championId: c.champion.id,
       currentHp: c.isDefeated ? 0 : c.currentHp,
       maxHp: c.maxHp,
+      currentMp: c.currentMp,
+      maxMp: c.maxMp,
     }));
   }
 

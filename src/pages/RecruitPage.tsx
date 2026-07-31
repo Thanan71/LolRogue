@@ -2,11 +2,10 @@ import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
 import type { RecruitEncounter } from '@/game/map/types';
-import { getRecruitmentGoldCost } from '@/game/recruitment/recruitmentRules';
+import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
-import { createScopedRunRng } from '@/utils/runRandom';
 
 export function RecruitPage() {
   const isActive = useRunStore((s) => s.isActive);
@@ -40,9 +39,8 @@ export function RecruitPage() {
     playUIClick();
     const previous = useRunStore.getState();
     if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
-    const rng = createScopedRunRng(previous.seed, `recruit:${encounter.id}:attempt`);
-    const success = rng.next() < encounter.successChance;
-    const cost = getRecruitmentGoldCost(encounter.cost, success);
+    const attempt = resolveRecruitAttempt(previous.seed ?? 0, encounter);
+    const { success, goldCost: cost } = attempt;
     if (success) {
       const spendSucceeded =
         cost === 0 ||

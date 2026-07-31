@@ -19,7 +19,8 @@
       "!!supabase/functions/verify-run/run-authority-v5.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v6.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v7.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v8.bundle.ts"
+      "!!supabase/functions/verify-run/run-authority-v8.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v9.bundle.ts"
     ]
   },
   "formatter": {

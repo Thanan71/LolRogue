@@ -94,20 +94,7 @@ function syncTeams(bm: BattleManager): void {
 }
 
 function getFinalCombatantStates(bm: BattleManager): FinalCombatantState[] {
-  const resources = new Map(
-    bm
-      .getPlayerCombatants()
-      .map((combatant) => [
-        combatant.champion.id,
-        { currentMp: combatant.currentMp, maxMp: combatant.maxMp },
-      ]),
-  );
-
-  return bm.getFinalPlayerStates().map((state) => ({
-    ...state,
-    currentMp: resources.get(state.championId)?.currentMp ?? 0,
-    maxMp: resources.get(state.championId)?.maxMp ?? 0,
-  }));
+  return bm.getFinalPlayerStates();
 }
 
 function getActionLabel(action: string): string {

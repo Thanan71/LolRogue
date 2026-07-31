@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { championDB } from '@/data';
-import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
-import { AugmentManager } from '@/game/augments/AugmentManager';
 import { generateRunMap as generateBiomeMaps } from '@/game/map/MapGenerator-core';
 import { completeNode as completeNodeUtil, findNode } from '@/game/map/mapUtils';
 import {
@@ -29,6 +27,9 @@ import {
   generateAugmentChoices,
   transitionToNextBiome,
 } from '@/game/run/runProgression';
+import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
+import { getItemSaleGold, getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
+import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStartCoordinator';
 import { getUnlockedStarterSlotCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { RepositoryContainerFactory } from '@/services/container';
@@ -54,7 +55,6 @@ import {
   verifyRunAttempt,
 } from '@/services/runAttemptService';
 import { supabase } from '@/services/supabaseClient';
-import { DEFAULT_MAX_AUGMENTS } from '@/types/inventory';
 import {
   type CompletedRunSnapshot,
   type InventoryEntry,
@@ -95,6 +95,7 @@ const CANONICAL_PROGRESSION_ENGINES = new Set([
   'run-engine-v7',
   'run-engine-v8',
   'run-engine-v9',
+  'run-engine-v10',
 ]);
 
 function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
@@ -1412,15 +1413,15 @@ export const useRunStore = create<RunStore>()(
         const previousState = get();
         const entry = previousState.inventory.find((item) => item.instanceId === instanceId);
         if (!entry) return false;
+        const saleGold = getItemSaleGold(entry.item.goldValue);
         set({
           inventory: previousState.inventory.filter((item) => item.instanceId !== instanceId),
-          gold: previousState.gold + Math.max(1, Math.floor(entry.item.goldValue / 2)),
+          gold: previousState.gold + saleGold,
         });
         if (!get().recordRunCommand({ kind: 'sell_item', instanceId })) {
           set({ inventory: previousState.inventory, gold: previousState.gold });
           return false;
         }
-        const saleGold = Math.max(1, Math.floor(entry.item.goldValue / 2));
         set((state) => ({
           ledger: recordItemLedgerEvent(recordGoldGain(state.ledger, saleGold), {
             action: 'sold',
@@ -1452,18 +1453,12 @@ export const useRunStore = create<RunStore>()(
 
       chooseAugment: (augmentId) => {
         const state = get();
-        const definition = AUGMENT_DATABASE[augmentId];
-        const stacks = state.augmentIds.filter((id) => id === augmentId).length;
-        const distinctAugments = new Set(state.augmentIds).size;
-        if (
-          !state.pendingAugmentIds.includes(augmentId) ||
-          !definition ||
-          (stacks === 0 && distinctAugments >= DEFAULT_MAX_AUGMENTS) ||
-          (!definition.stackable && stacks > 0) ||
-          stacks >= definition.maxStacks
-        ) {
-          return false;
-        }
+        const validation = validateAugmentSelection(
+          state.pendingAugmentIds,
+          state.augmentIds,
+          augmentId,
+        );
+        if (!validation.valid) return false;
         set({
           augmentIds: [...state.augmentIds, augmentId],
           pendingAugmentIds: [],
@@ -1866,15 +1861,11 @@ export const useRunStore = create<RunStore>()(
         }
         const addition = validateItemAddition(state.inventory, { id: offer.itemId });
         if (!addition.valid) return mutationFailure(addition.code, addition.message);
-        const augmentManager = new AugmentManager(Math.max(4, state.augmentIds.length));
-        for (const augmentId of state.augmentIds) {
-          const augment = AUGMENT_DATABASE[augmentId];
-          if (augment) augmentManager.acquireAugment(augment);
-        }
-        const price = Math.round(
-          offer.price *
-            node.encounter.priceMultiplier *
-            (1 - augmentManager.getShopDiscountPercent()),
+        const augmentManager = createRunAugmentManager(state.augmentIds, state.currentBiomeIndex);
+        const price = getShopItemCost(
+          node.encounter,
+          offer.price,
+          augmentManager.getShopDiscountPercent(),
         );
         if (state.gold < price) {
           return mutationFailure('insufficient_gold', 'There is not enough gold.');
@@ -1962,7 +1953,7 @@ export const useRunStore = create<RunStore>()(
         if (!teamAddition.valid) {
           return mutationFailure(teamAddition.code, `${teamAddition.message} No gold was spent.`);
         }
-        const price = Math.round(offer.cost * node.encounter.priceMultiplier);
+        const price = getShopRecruitCost(node.encounter, offer.cost);
         if (state.gold < price) {
           return mutationFailure('insufficient_gold', 'There is not enough gold.');
         }

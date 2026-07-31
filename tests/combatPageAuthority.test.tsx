@@ -264,6 +264,7 @@ describe('CombatPage authority finalization', () => {
     'run-engine-v7',
     'run-engine-v8',
     'run-engine-v9',
+    'run-engine-v10',
   ])(
     'starts a %s verified combat with auto off and journals its manual action trace',
     (engineVersion) => {
@@ -298,7 +299,7 @@ describe('CombatPage authority finalization', () => {
 
   it('lets the player enable autoplay in the current verified engine', async () => {
     const user = userEvent.setup();
-    useRunStore.setState({ authorityAttempt: attempt('run-engine-v9') });
+    useRunStore.setState({ authorityAttempt: attempt('run-engine-v10') });
     const view = render(<CombatPage />);
     const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
 

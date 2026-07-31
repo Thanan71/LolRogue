@@ -7,8 +7,6 @@ import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { championDB } from '@/data';
 import { ITEM_DATABASE } from '@/data/items';
-import { getAugmentDefinition } from '@/data/items/augmentDatabase';
-import { AugmentManager } from '@/game/augments/AugmentManager';
 import {
   DEFAULT_COMBAT_AUTOPLAY,
   getAutoTurnDelayMs,
@@ -28,6 +26,8 @@ import {
   itemDefinitionToRunItem,
   resolveCombatEncounter,
 } from '@/game/run/encounterResolver';
+import { buildRunPlayerTeam, createRunAugmentManager } from '@/game/run/runCombatant';
+import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
@@ -40,11 +40,10 @@ import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
-import type { FinalCombatantState, TeamMember } from '@/types/run';
+import type { FinalCombatantState } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
-import { calculateEventStatBonuses, toCombatStatKey } from '@/utils/statCalculator';
 import { logger } from '@/utils/logger';
-import { addXp, calculateXpGain } from '@/utils/xpSystem';
+import { calculateXpGain } from '@/utils/xpSystem';
 import {
   arenaPlaceholderStyle,
   backBtnStyle,
@@ -61,122 +60,6 @@ import {
   rightPanelStyle,
   teamTitleStyle,
 } from './combatPageStyles';
-
-function buildTeamInstances(
-  championIds: string[],
-  levels?: Record<string, number>,
-  statMultipliers?: Record<string, number>,
-): ChampionInstance[] {
-  const instances: ChampionInstance[] = [];
-  for (const id of championIds) {
-    const champ = championDB.getById(id);
-    if (champ) {
-      instances.push(new ChampionInstance(champ, levels?.[id] ?? 1, statMultipliers?.[id] ?? 1));
-    }
-  }
-  return instances;
-}
-
-/**
- * Apply enhancement bonuses and item bonuses to champion instances.
- * Retrieves enhancement state from the store and applies stat bonuses.
- * Also applies item bonuses from equipped items.
- */
-function applyEnhancementsToTeam(
-  instances: ChampionInstance[],
-  inventory: import('@/types/run').InventoryEntry[],
-  team: TeamMember[],
-): void {
-  const enhancementStore = useEnhancementStore.getState();
-  const runState = useRunStore.getState();
-  const augmentManager = new AugmentManager();
-  for (const id of runState.augmentIds) {
-    const augment = getAugmentDefinition(id);
-    if (augment)
-      augmentManager.acquireAugment(augment, runState.currentBiome ?? 'unknown', runState.runLevel);
-  }
-  augmentManager.biomesCleared = runState.currentBiomeIndex;
-
-  for (const instance of instances) {
-    const champ = championDB.getById(instance.id);
-    if (!champ) continue;
-    instance.setMasteryLevel(
-      runState.authorityAttempt
-        ? (runState.authorityAttempt.masterySnapshot?.[instance.id] ??
-            runState.authorityAttempt.masterySnapshot?.[instance.id.toLowerCase()] ??
-            0)
-        : useMasteryStore.getState().getChampionMastery(instance.id).level,
-    );
-
-    // Get enhancement state for this champion
-    const enhancementState = runState.authorityAttempt
-      ? {
-          unlockedNodes:
-            runState.authorityAttempt.enhancementSnapshot[instance.id] ??
-            runState.authorityAttempt.enhancementSnapshot[instance.id.toLowerCase()] ??
-            {},
-        }
-      : enhancementStore.getEnhancementState(instance.id);
-
-    // Get the enhancement tree for this champion's role
-    const tree = enhancementTreeProvider.getTreeForChampion(champ);
-
-    // Calculate stat bonuses from unlocked nodes
-    const enhancementBonuses = enhancementService.calculateStatBonuses(
-      tree,
-      enhancementState.unlockedNodes,
-    );
-    const flatBonuses = enhancementBonuses.flat as Record<string, number>;
-    const percentBonuses = enhancementBonuses.percent as Record<string, number>;
-    const augmentBonuses = augmentManager.getTeamStatBonuses();
-    for (const [stat, bonus] of Object.entries(augmentBonuses)) {
-      const target = toCombatStatKey(stat) ?? stat;
-      flatBonuses[target] = (flatBonuses[target] || 0) + bonus.flat;
-      percentBonuses[target] = (percentBonuses[target] || 0) + bonus.percent;
-    }
-
-    // Calculate item bonuses
-    const equippedItems = inventory.filter((entry) => entry.equippedToChampionId === instance.id);
-    for (const entry of equippedItems) {
-      const itemStats = entry.item.stats;
-      // Map item stat keys to CalculatedStats keys (used by ChampionInstance)
-      for (const [key, value] of Object.entries(itemStats)) {
-        const calcStatsKey = toCombatStatKey(key);
-        if (calcStatsKey && value) {
-          // EnhancementStatBonuses.flat uses StatType keys, but ChampionInstance
-          // applies them by casting to keyof CalculatedStats, so we need to use
-          // the CalculatedStats key names
-          flatBonuses[calcStatsKey] = (flatBonuses[calcStatsKey] || 0) + value;
-        }
-      }
-      const passive = ITEM_DATABASE[entry.item.id]?.passive;
-      if (passive?.trigger === 'always') {
-        for (const modifier of passive.modifiers) {
-          const target = toCombatStatKey(modifier.stat) ?? modifier.stat;
-          if (modifier.type === 'flat') {
-            flatBonuses[target] = (flatBonuses[target] || 0) + modifier.value;
-          } else {
-            percentBonuses[target] = (percentBonuses[target] || 0) + modifier.value;
-          }
-        }
-        enhancementBonuses.effects.push({
-          type: `item:${passive.trigger}`,
-          description: passive.description,
-          value: passive.flatValue,
-        });
-      }
-    }
-
-    const runMember = team.find((member) => member.championId === instance.id);
-    const eventBonuses = calculateEventStatBonuses(runMember?.statBoosts);
-    for (const [stat, value] of Object.entries(eventBonuses)) {
-      flatBonuses[stat] = (flatBonuses[stat] || 0) + value;
-    }
-
-    // Apply combined bonuses to the champion instance
-    instance.setEnhancementBonuses(enhancementBonuses);
-  }
-}
 
 /**
  * Get enhancement bonus descriptions for a champion instance.
@@ -347,6 +230,7 @@ export function CombatPage() {
   const team = useRunStore((s) => s.team);
   const runLevel = useRunStore((s) => s.runLevel);
   const currentWave = useRunStore((s) => s.currentWave);
+  const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
   const authorityAttempt = useRunStore((s) => s.authorityAttempt);
   const runeIds = useRunStore((s) => s.runeIds);
   const runeStacks = useRunStore((s) => s.runeStacks);
@@ -402,19 +286,6 @@ export function CombatPage() {
     }
   }, [isActive, navigate]);
 
-  // Build player instances with persisted levels
-  const teamLevels = useMemo(() => {
-    const m: Record<string, number> = {};
-    for (const t of team) {
-      m[t.championId] = t.level ?? 1;
-    }
-    return m;
-  }, [team]);
-  const teamStatMultipliers = useMemo(
-    () => Object.fromEntries(team.map((member) => [member.championId, member.statMultiplier ?? 1])),
-    [team],
-  );
-
   // Create a stable string key that includes both championIds and their levels
   // This ensures playerInstances is recreated when levels change
   const teamKey = useMemo(() => {
@@ -442,21 +313,32 @@ export function CombatPage() {
   );
 
   const playerInstances = useMemo(() => {
-    const instances = buildTeamInstances(
-      team.map((m) => m.championId),
-      teamLevels,
-      teamStatMultipliers,
-    );
-    for (const instance of instances) {
-      const ranks = team.find((member) => member.championId === instance.id)?.spellRanks;
-      for (const slot of ['Q', 'W', 'E', 'R'] as const) {
-        instance.setSpellRank(slot, ranks?.[slot] ?? 1);
-      }
-    }
-    // Apply enhancement bonuses and item bonuses to player champions
-    applyEnhancementsToTeam(instances, inventory, team);
-    return instances;
-  }, [teamKey, teamLevels, teamStatMultipliers, inventory]);
+    return buildRunPlayerTeam(team, {
+      inventory,
+      augmentIds,
+      currentBiomeIndex,
+      getUnlockedEnhancements: (championId) =>
+        authorityAttempt
+          ? (authorityAttempt.enhancementSnapshot[championId] ??
+            authorityAttempt.enhancementSnapshot[championId.toLowerCase()] ??
+            {})
+          : (enhancementStates[championId]?.unlockedNodes ?? {}),
+      getMasteryLevel: (championId) =>
+        authorityAttempt
+          ? (authorityAttempt.masterySnapshot?.[championId] ??
+            authorityAttempt.masterySnapshot?.[championId.toLowerCase()] ??
+            0)
+          : useMasteryStore.getState().getChampionMastery(championId).level,
+    });
+  }, [
+    augmentIds,
+    authorityAttempt,
+    currentBiomeIndex,
+    enhancementStates,
+    inventory,
+    team,
+    teamKey,
+  ]);
 
   // Get enhancement descriptions for each player champion (memoized)
   // Use teamKey to ensure this updates when team composition or levels change
@@ -605,10 +487,6 @@ export function CombatPage() {
 
       if (w === 'player') {
         const runStore = useRunStore.getState();
-        const finalHpByChampionId = new Map(
-          finalPlayerStates.map((champion) => [champion.championId, champion.currentHp] as const),
-        );
-
         const currentNode = runStore.getCurrentNode();
         const encounter = currentNode?.encounter;
         if (
@@ -620,11 +498,10 @@ export function CombatPage() {
           return;
         }
 
-        const augmentManager = new AugmentManager();
-        for (const id of runStore.augmentIds) {
-          const definition = getAugmentDefinition(id);
-          if (definition) augmentManager.acquireAugment(definition);
-        }
+        const augmentManager = createRunAugmentManager(
+          runStore.augmentIds,
+          runStore.currentBiomeIndex,
+        );
         const usesLegacyRewards =
           runStore.authorityAttempt !== null &&
           LEGACY_ENCOUNTER_ENGINE_VERSIONS.has(runStore.authorityAttempt.engineVersion);
@@ -658,44 +535,19 @@ export function CombatPage() {
           resolution?.reward.xpPerChampion ??
           calculateXpGain(runStore.runLevel, currentNode.type === NodeType.Elite, isBossNode);
 
-        const previousTeam = runStore.team;
-        const teamUpdates = previousTeam.map((member) => {
-          const currentLevel = member.level ?? 1;
-          const currentXp = member.currentXp ?? 0;
-          const result = addXp(currentLevel, currentXp, xpGain);
-          const implicitMaxHp =
+        const postCombat = resolvePostCombatTeam({
+          team: runStore.team,
+          finalPlayerStates,
+          xpPerChampion: xpGain,
+          healAfterBattlePercent: augmentManager.getHealAfterBattlePercent(),
+          getPreLevelMaxHp: (member) =>
             playerInstances
               .find((champion) => champion.id === member.championId)
-              ?.getEnhancedStats().hp ?? 1;
-
-          return {
-            championId: member.championId,
-            currentHp: Math.min(
-              implicitMaxHp,
-              (finalHpByChampionId.get(member.championId) ?? member.currentHp ?? implicitMaxHp) +
-                implicitMaxHp * augmentManager.getHealAfterBattlePercent(),
-            ),
-            currentMp:
-              finalPlayerStates.find((champion) => champion.championId === member.championId)
-                ?.currentMp ??
-              member.currentMp ??
-              0,
-            level: result.newLevel,
-            currentXp: result.remainingXp,
-          };
+              ?.getEnhancedStats().hp ?? 1,
         });
-
-        runStore.updateTeamAfterCombat(teamUpdates);
-        const pendingSpellUpgrades = teamUpdates.flatMap((update, index) =>
-          Array.from(
-            {
-              length: Math.max(0, update.level - (previousTeam[index]?.level ?? 1)),
-            },
-            () => update.championId,
-          ),
-        );
-        const levelsGained = pendingSpellUpgrades.length;
-        runStore.queueSpellUpgrades(pendingSpellUpgrades);
+        runStore.updateTeamAfterCombat(postCombat.updates);
+        runStore.queueSpellUpgrades(postCombat.pendingSpellUpgradeChampionIds);
+        const levelsGained = postCombat.levelsGained;
 
         let droppedItemName: string | null = null;
         if (resolution?.reward.droppedItem) {

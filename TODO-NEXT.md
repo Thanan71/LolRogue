@@ -9,6 +9,23 @@ enchaînement.
 
 ## État vérifié de la dernière livraison
 
+### P1-GAME-05 — parité client / authority
+
+- [x] Les formules déterministes encore dupliquées ont été extraites dans des
+  modules de domaine sans React, Zustand ni Supabase.
+- [x] Construction des combattants, augments scalés, boutique, revente, repos,
+  recrutement, événements et transition post-combat sont partagés.
+- [x] Les PV et PM finaux font partie de l'état autoritaire canonique.
+- [x] Deux golden traces exécutent la même seed dans le runtime client et le replay
+  authority, en manuel puis autoplay, et comparent l'état complet.
+- [x] Les règles partagées Shop, Rest, Event, Treasure, Recruit, augment, XP et
+  transitions restent couvertes par les suites de domaine/authority/E2E.
+- [x] `run-engine-v10` et son content hash sont actifs ; le bundle v9 archivé reste
+  chargeable pour les attempts en cours.
+- [x] Validation locale : `npm run check` avec **818 tests**, **43 tests DB** et
+  **11 parcours E2E**.
+- [x] Edge Function et migration v10 publiées ; preflight CORS production `200`.
+
 ### Hotfix — démarrage avec plusieurs champions
 
 - [x] Le parseur de `start_run_attempt` accepte désormais une équipe de 1 à
@@ -34,7 +51,7 @@ enchaînement.
 - [x] Les actions manuelles restent journalisées dans la trace autoritaire.
 - [x] La capacité n'est plus une liste figée oubliable : tout moteur autoritaire au
   format `run-engine-vN` depuis `v3` conserve le combat manuel.
-- [x] Les tests couvrent `v3` à `v9`, l'état initial, le bouton activable, le clic et
+- [x] Les tests couvrent `v3` à `v10`, l'état initial, le bouton activable, le clic et
   le nom accessible après activation.
 - [x] `npm run check` validé : format, lint, typage, audit, **811 tests**, assets et
   build de production.
@@ -55,7 +72,7 @@ présentés comme des travaux à démarrer :
 - [x] `P0-RUN-01` à `P0-RUN-04`
 - [x] `P0-REL-01`
 - [x] `P0-UX-01` et `P0-UX-02`
-- [x] `P1-GAME-01` à `P1-GAME-04`
+- [x] `P1-GAME-01` à `P1-GAME-05`
 - [x] `P1-RUN-01` à `P1-RUN-04`
 - [x] `P1-META-01`
 
@@ -64,23 +81,21 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P1-GAME-05 — Parité client / authority** : éliminer les dernières règles
-   déterministes dupliquées et bloquer toute divergence en CI.
-2. **P1-META-02 — Stats et améliorations** : définir le schéma canonique, l'ordre
+1. **P1-META-02 — Stats et améliorations** : définir le schéma canonique, l'ordre
    des bonus et les caps.
-3. **P1-DATA-01 — État local versionné** : valider et migrer chaque store persisté,
+2. **P1-DATA-01 — État local versionné** : valider et migrer chaque store persisté,
    notamment pendant un combat.
-4. **P1-DATA-02 — Sources de vérité** : réduire les gestionnaires concurrents et
+3. **P1-DATA-02 — Sources de vérité** : réduire les gestionnaires concurrents et
    documenter un propriétaire par donnée.
-5. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
+4. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
    et les réponses asynchrones robustes.
-6. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
+5. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
    Combat et Game Over sur les petits viewports.
-7. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
+6. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
    reflow, contraste et réduction de mouvement dans le chantier responsive.
-8. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
+7. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
    invité et authentifié sans mutation directe des stores.
-9. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
+8. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
    parité et les parcours E2E bloquants.
 
 ---
@@ -94,27 +109,30 @@ d'une même règle. Toute règle déterministe utilisée dans une run authentifi
 provenir d'un module de domaine partagé ou être couverte par une preuve automatique
 de parité.
 
-- [ ] Inventorier les règles utilisées à la fois par le gameplay visible et
+- [x] Inventorier les règles utilisées à la fois par le gameplay visible et
   `AuthorityRunEngine` : combat, ciblage, effets, récompenses, carte, shop,
   recrutement, event, treasure, augments, XP et transitions de biome.
-- [ ] Extraire les règles communes dans des modules de domaine purs, sans dépendance
+- [x] Extraire les règles communes dans des modules de domaine purs, sans dépendance
   React, Zustand ou Supabase.
-- [ ] Éviter toute duplication de formules ou de tables entre `CombatPage`,
+- [x] Éviter toute duplication de formules ou de tables entre `CombatPage`,
   `BattleManager`, `runStore` et `AuthorityRunEngine`.
-- [ ] Ajouter des golden traces déterministes couvrant Combat, Elite, Shop, Rest,
+- [x] Ajouter des golden traces déterministes couvrant Combat, Elite, Shop, Rest,
   Event, Treasure, Recruit, augment et changement de biome.
-- [ ] Exécuter une même seed et les mêmes commandes via le runtime client et le
+- [x] Exécuter une même seed et les mêmes commandes via le runtime client et le
   replay autoritaire.
-- [ ] Comparer exactement PV/PM, niveaux, or, inventaire, équipe, augments,
+- [x] Comparer exactement PV/PM, niveaux, or, inventaire, équipe, augments,
   statistiques, récompenses, position, biome et état terminal.
-- [ ] Ajouter une golden trace de combat manuel et autoplay afin de prouver que les
+- [x] Ajouter une golden trace de combat manuel et autoplay afin de prouver que les
   deux modes restent rejouables et produisent une trace valide.
-- [ ] Faire échouer la CI à la moindre divergence déterministe.
-- [ ] Versionner toute évolution incompatible avec `engine_version` et content hash
+- [x] Faire échouer la CI à la moindre divergence déterministe.
+- [x] Versionner toute évolution incompatible avec `engine_version` et content hash
   afin de préserver les attempts en cours.
 
 **Acceptation :** une trace valide produit exactement le même état canonique côté
 client et côté authority, et cette propriété est bloquante en CI.
+
+**Statut : terminé.** `run-engine-v10` centralise les règles restantes, conserve le
+replay v9 et ajoute les preuves de parité manuel/autoplay à la suite bloquante.
 
 ---
 

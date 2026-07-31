@@ -541,6 +541,33 @@ une touche peut déclencher deux actions.
 **Acceptation :** le mode manuel est réellement jouable et chaque touche produit au
 plus une commande attendue.
 
+### P1-GAME-05 — Garantir la parité client / authority
+
+- [x] Inventorier combat, ciblage, effets, récompenses, carte, boutique,
+  recrutement, événements, trésors, augments, XP et transitions.
+- [x] Partager la construction des combattants et l'application maîtrise,
+  améliorations, objets, augments et bonus d'événement.
+- [x] Partager prix, revente, repos, recrutement, événements et validation
+  d'augment entre UI, store et authority.
+- [x] Partager la transition post-combat complète : PV/PM, soin, XP, niveaux et
+  choix de sort.
+- [x] Comparer l'état canonique client/authority sur une même seed avec des traces
+  manuelles et autoplay.
+- [x] Couvrir les autres familles déterministes par des golden rules bloquantes en
+  CI.
+- [x] Versionner le contrat en `run-engine-v10`, content hash
+  `e7bb5a3f9a6fbb6c7d7d2338bf7e226fe019299401a2110b61ee4373217aa47e`
+  et conserver le bundle v9 pour les attempts en cours.
+
+**Acceptation :** le client et l'authority consomment les mêmes modules de domaine
+pour toute règle déterministe de run. Les traces combat manuel/autoplay comparent
+exactement équipe, PV/PM, niveaux, or, inventaire, augments, ledger, statistiques,
+position et biome ; toute divergence fait échouer la suite Vitest.
+
+**Statut : terminé.** `run-engine-v10` et le ruleset gameplay/daily v10 sont
+déployés. Le bundle Edge reste sous la limite de déploiement et le preflight CORS
+de production répond `200`.
+
 ## P1 — progression, économie et contenu d'une run
 
 ### P1-RUN-01 — Corriger niveaux de run, vagues et choix d'augment

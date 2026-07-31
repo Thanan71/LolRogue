@@ -2,39 +2,30 @@ import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
 import type { RestEncounter } from '@/game/map/types';
+import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
+import { resolveRestHp } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
-import { calculateMaxHP } from '@/utils/statCalculator';
 
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
   const state = useRunStore.getState();
-  const champion = championDB.getById(member.championId);
-  if (!champion) return 100;
-  const unlockedNodes = state.authorityAttempt
-    ? (state.authorityAttempt.enhancementSnapshot[member.championId] ??
-      state.authorityAttempt.enhancementSnapshot[member.championId.toLowerCase()] ??
-      {})
-    : useEnhancementStore.getState().getEnhancementState(member.championId).unlockedNodes;
-  const enhancementBonuses = enhancementService.calculateStatBonuses(
-    enhancementTreeProvider.getTreeForChampion(champion),
-    unlockedNodes,
-  );
-  return calculateMaxHP(
-    champion,
-    member.level ?? 1,
-    enhancementBonuses,
+  return calculateRunMemberMaxHp(
+    member,
     state.inventory,
-    member.championId,
-    member.statBoosts,
-    member.statMultiplier,
-    state.authorityAttempt
-      ? (state.authorityAttempt.masterySnapshot?.[member.championId] ?? 0)
-      : useMasteryStore.getState().getChampionMastery(member.championId).level,
+    (championId) =>
+      state.authorityAttempt
+        ? (state.authorityAttempt.enhancementSnapshot[championId] ??
+          state.authorityAttempt.enhancementSnapshot[championId.toLowerCase()] ??
+          {})
+        : useEnhancementStore.getState().getEnhancementState(championId).unlockedNodes,
+    (championId) =>
+      state.authorityAttempt
+        ? (state.authorityAttempt.masterySnapshot?.[championId] ?? 0)
+        : useMasteryStore.getState().getChampionMastery(championId).level,
   );
 }
 
@@ -86,13 +77,13 @@ export function RestPage() {
     const state = useRunStore.getState();
     const updates = state.team.map((member) => {
       const maxHp = getMemberMaxHp(member);
-      const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
-      const healAmount = fullHeal ? maxHp - currentHp : Math.floor(maxHp * healPercent);
-      const newHp = Math.min(maxHp, currentHp + healAmount);
 
       return {
         championId: member.championId,
-        currentHp: newHp,
+        currentHp: resolveRestHp(member.currentHp, maxHp, {
+          fullHeal,
+          healPercent,
+        }),
         level: member.level ?? 1,
         currentXp: member.currentXp ?? 0,
       };
