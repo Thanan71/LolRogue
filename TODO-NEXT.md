@@ -9,6 +9,20 @@ enchaînement.
 
 ## État vérifié de la dernière livraison
 
+### P2 — performance et production
+
+- [x] Budgets v1 versionnés et bloquants pour bundle, route Auth, assets et Web
+  Vitals mobiles.
+- [x] Build déployable ramené à **6,45 Mo** en excluant le cache Data Dragon de
+  travail ; seuls les 187 assets Riot vérifiés sont copiés.
+- [x] Charge initiale mesurée à **157,3 Ko gzip** et route Auth à **161,3 Ko gzip**.
+- [x] Matrice build production validée sur Chromium, Firefox et WebKit, en desktop
+  et mobile, avec contrat offline invité explicite.
+- [x] Cache immutable, CSP et HSTS contrôlés automatiquement ; GitHub Actions
+  épinglées par SHA.
+- [x] Animations masquées suspendues, images dimensionnées et abonnements Zustand
+  globaux retirés du combat.
+
 ### P1-GAME-05 — parité client / authority
 
 - [x] Les formules déterministes encore dupliquées ont été extraites dans des
@@ -107,8 +121,8 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P2 — Performance et production** : mesurer bundle et Web Vitals mobiles avant
-   d'introduire les budgets CI et les optimisations d'assets/rendu.
+1. **P2-DOC-01 — Aligner les documents sur le produit réel** : corriger les claims
+   devenus obsolètes et relier chaque capacité à sa preuve actuelle.
 
 ---
 

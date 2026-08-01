@@ -7,7 +7,6 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
-import { useRunStore } from '@/stores/runStore';
 import '@/styles/auth.css';
 
 type AuthMode = 'login' | 'signup';
@@ -97,7 +96,6 @@ export function AuthPage() {
     enterGuestMode,
   } = useAuthStore();
 
-  const endRun = useRunStore((s) => s.endRun);
   const hasRedirected = useRef(false);
   const identityTransitionRef = useRef(false);
 
@@ -105,9 +103,9 @@ export function AuthPage() {
   useEffect(() => {
     if (isAuthenticated && !hasRedirected.current) {
       hasRedirected.current = true;
-      const isActive = useRunStore.getState().isActive;
-      // Use React Router navigation to avoid full page reload
-      navigate(isActive ? ROUTES.RUN : ROUTES.MENU);
+      void import('@/stores/runStore').then(({ useRunStore }) => {
+        navigate(useRunStore.getState().isActive ? ROUTES.RUN : ROUTES.MENU);
+      });
     }
   }, [isAuthenticated, navigate]);
 
@@ -122,8 +120,8 @@ export function AuthPage() {
       if (result.success) {
         // Use React Router navigation instead of window.location
         // The ProtectedRoute will handle the redirect if needed
-        const isActive = useRunStore.getState().isActive;
-        navigate(isActive ? ROUTES.RUN : ROUTES.MENU);
+        const { useRunStore } = await import('@/stores/runStore');
+        navigate(useRunStore.getState().isActive ? ROUTES.RUN : ROUTES.MENU);
       }
     } else {
       if (!username.trim()) {
@@ -148,12 +146,13 @@ export function AuthPage() {
     identityTransitionRef.current = true;
     playUIClick();
     try {
+      const { useRunStore } = await import('@/stores/runStore');
       const runState = useRunStore.getState();
       const canContinue = await finalizeActiveRunBeforeTransition({
         isActive: runState.isActive,
         runId: runState.runId,
         confirm: (message) => window.confirm(message),
-        endRun: (runId) => endRun(false, runId),
+        endRun: (runId) => runState.endRun(false, runId),
       });
       if (!canContinue) return;
       const result = await enterGuestMode();

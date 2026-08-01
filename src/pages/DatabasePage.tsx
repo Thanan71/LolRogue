@@ -99,6 +99,10 @@ export function DatabasePage() {
                   <img
                     src={champ.iconUrl}
                     alt={champ.name}
+                    width={120}
+                    height={120}
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}

@@ -22,6 +22,9 @@ export function DatabaseChampionDetail({ champion }: { champion: Champion }) {
           src={splashUrl}
           alt={champion.name}
           className="champion-detail-image"
+          width={1215}
+          height={717}
+          decoding="async"
           onError={(e) => {
             applyLocalImageFallback(e.currentTarget, champion.iconUrl, true);
           }}

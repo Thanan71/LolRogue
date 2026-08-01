@@ -1,10 +1,13 @@
 import path from 'node:path';
+import { cp } from 'node:fs/promises';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { configDefaults } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [react()],
+  // The legacy Data Dragon workspace under public/lol is an input cache, not a
+  // deployable asset. Copy only the integrity-checked release package.
+  publicDir: false,
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -14,6 +17,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    manifest: true,
     rolldownOptions: {
       output: {
         codeSplitting: {
@@ -38,6 +42,18 @@ export default defineConfig({
       },
     },
   },
+  plugins: [
+    react(),
+    {
+      name: 'copy-versioned-riot-assets',
+      apply: 'build',
+      async writeBundle() {
+        await cp(path.resolve(__dirname, 'public/assets'), path.resolve(__dirname, 'dist/assets'), {
+          recursive: true,
+        });
+      },
+    },
+  ],
   server: {
     host: '127.0.0.1',
     port: 3000,

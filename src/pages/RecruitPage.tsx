@@ -131,6 +131,9 @@ export function RecruitPage() {
               <img
                 src={champ?.iconUrl ?? ''}
                 alt={champ?.name ?? '???'}
+                width={120}
+                height={120}
+                decoding="async"
                 style={iconStyle}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';

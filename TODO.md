@@ -1128,25 +1128,34 @@ prouve qu'aucune lecture du leaderboard n'est effectuée.
 
 ## P2 — performance et production
 
-- [ ] Mesurer le bundle, le LCP, le CLS et l'INP sur mobile avant optimisation.
-- [ ] Précharger seulement les assets du starter, de l'équipe et du prochain nœud.
-- [ ] Redimensionner/convertir les images et définir largeur/hauteur pour éviter CLS.
-- [ ] Mettre cache immutable sur les assets versionnés.
-- [ ] Vérifier que canvas/particules s'arrêtent lorsque la page est masquée.
-- [ ] Profiler les re-renders Zustand/Combat/Map et sélectionner des slices stables.
-- [ ] Ajouter budgets CI pour bundle et assets.
-- [ ] Tester le build sur Chromium, Firefox et WebKit, desktop et mobile.
-- [ ] Vérifier mode offline/perte de réseau selon le contrat finalement retenu.
-- [ ] Mesurer le coût réel de `/auth` et des routes : le petit chunk d'entrée masque
+- [x] Mesurer le bundle, le LCP, le CLS et l'INP sur mobile avant optimisation.
+- [x] Précharger seulement les assets du starter, de l'équipe et du prochain nœud.
+- [x] Redimensionner/convertir les images et définir largeur/hauteur pour éviter CLS.
+- [x] Mettre cache immutable sur les assets versionnés.
+- [x] Vérifier que canvas/particules s'arrêtent lorsque la page est masquée.
+- [x] Profiler les re-renders Zustand/Combat/Map et sélectionner des slices stables.
+- [x] Ajouter budgets CI pour bundle et assets.
+- [x] Tester le build sur Chromium, Firefox et WebKit, desktop et mobile.
+- [x] Vérifier mode offline/perte de réseau selon le contrat finalement retenu.
+- [x] Mesurer le coût réel de `/auth` et des routes : le petit chunk d'entrée masque
   le chargement indirect du catalogue champions.
-- [ ] Vérifier les headers sur les réponses déployées, ajouter HSTS lorsque le
+- [x] Vérifier les headers sur les réponses déployées, ajouter HSTS lorsque le
   domaine HTTPS est stabilisé et tester la CSP en production.
-- [ ] Épingler les GitHub Actions par SHA avec politique de mise à jour.
-- [ ] Aligner `@types/node` sur Node 22 et retirer les dépendances inutilisées
+- [x] Épingler les GitHub Actions par SHA avec politique de mise à jour.
+- [x] Aligner `@types/node` sur Node 22 et retirer les dépendances inutilisées
   (`@types/jest`, `user-event`, Tailwind) si l'audit d'usage les confirme.
 
 **Acceptation :** les budgets sont chiffrés, versionnés et bloquent une régression
 significative.
+
+**Statut : terminé.** Les budgets v1 bloquent à 390 Ko gzip de JavaScript total,
+205 Ko au démarrage, 225 Ko pour `/auth`, 560 Ko par chunk et 7,2 Mo déployés ; la
+mesure actuelle est respectivement de 375,4 Ko, 157,3 Ko, 161,3 Ko, 542,6 Ko et
+6,45 Mo. Le laboratoire mobile bloque LCP à 2,5 s, CLS à 0,1 et INP à 300 ms. Le
+cache de travail Data Dragon de 16 Mo n'est plus publié, les animations s'arrêtent
+en arrière-plan et la matrice de production couvre les trois moteurs en desktop et
+mobile. Le contrat offline garantit la session invitée déjà chargée, sans promettre
+les routes jamais chargées en l'absence de service worker.
 
 ## P2 — documentation et exploitation
 

@@ -94,6 +94,9 @@ export function TeamPanel({
               <img
                 src={champ?.iconUrl ?? ''}
                 alt={champ?.name ?? m.championId}
+                width={40}
+                height={40}
+                decoding="async"
                 style={{ width: 40, height: 40, borderRadius: 4 }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';

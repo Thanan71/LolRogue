@@ -163,7 +163,13 @@ export function MenuPage() {
           <div className="main-menu__user-info">
             <div className="main-menu__user-avatar">
               {player.avatar_url ? (
-                <img src={player.avatar_url} alt={displayName} />
+                <img
+                  src={player.avatar_url}
+                  alt={displayName}
+                  width={48}
+                  height={48}
+                  decoding="async"
+                />
               ) : (
                 <span>{displayName.charAt(0).toUpperCase()}</span>
               )}

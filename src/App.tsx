@@ -4,7 +4,6 @@ import { AdminRoute } from './components/AdminRoute';
 import { RouteLoadingFallback } from './components/AppErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { RunLifecycleRoute } from './components/RunLifecycleRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
 import { getTextSizeMultiplier, useSettingsStore } from './stores/settingsStore';
 import { installGlobalErrorCapture } from './utils/observability';
@@ -88,6 +87,11 @@ const EncounterRoute = lazy(() =>
 const NotificationRegion = lazy(() =>
   import('./components/NotificationRegion').then((module) => ({
     default: module.NotificationRegion,
+  })),
+);
+const RunLifecycleRoute = lazy(() =>
+  import('./components/RunLifecycleRoute').then((module) => ({
+    default: module.RunLifecycleRoute,
   })),
 );
 const AuthPage = lazy(() =>

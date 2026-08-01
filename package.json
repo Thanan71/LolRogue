@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage",
     "test:db": "DB_TEST_REQUIRED=1 vitest run tests/database.test.ts tests/verifiedRunAttempts.database.test.ts tests/authoritativeDaily.database.test.ts tests/logSecurity.database.test.ts",
     "test:e2e": "playwright test",
+    "test:e2e:production": "playwright test --config playwright.production.config.ts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
@@ -42,6 +43,7 @@
     "assets:verify:dist": "node scripts/verify-riot-assets.mjs --dist",
     "test:assets-clean": "node scripts/test-clean-asset-build.mjs",
     "test:production-build": "node scripts/verify-production-build.mjs",
+    "test:performance-budgets": "node scripts/check-performance-budgets.mjs",
     "assets:update": "npm run ddragon:download && npm run ddragon:parse && npm run assets:package && npm run assets:verify"
   },
   "dependencies": {
@@ -59,8 +61,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^25.5.0",
+    "@types/node": "^22.0.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "6.0.4",

@@ -9,6 +9,9 @@ const index = await readFile(join(dist, 'index.html'));
 const securityHeaders = Object.fromEntries(
   vercel.headers.flatMap((entry) => entry.headers.map(({ key, value }) => [key, value])),
 );
+const immutableAssetHeader = vercel.headers
+  .find((entry) => entry.source === '/assets/(.*)')
+  ?.headers.find(({ key }) => key.toLowerCase() === 'cache-control')?.value;
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
@@ -63,6 +66,9 @@ try {
     if (response.headers.get('x-content-type-options') !== 'nosniff') {
       throw new Error(`Security headers are missing for ${route}.`);
     }
+    if (!response.headers.get('strict-transport-security')?.includes('max-age=31536000')) {
+      throw new Error(`HSTS is missing for ${route}.`);
+    }
   }
 
   const assets = [...index.toString('utf8').matchAll(/(?:src|href)="(\/assets\/[^"?#]+)"/g)].map(
@@ -73,6 +79,9 @@ try {
     const response = await fetch(`${baseUrl}${asset}`);
     if (response.status !== 200)
       throw new Error(`Built asset returned ${response.status}: ${asset}`);
+    if (immutableAssetHeader !== 'public, max-age=31536000, immutable') {
+      throw new Error('Versioned assets must use an immutable one-year cache policy.');
+    }
   }
 
   const missing = await fetch(`${baseUrl}/assets/__missing-clean-room__.js`);

@@ -13,16 +13,14 @@ interface Props {
 }
 
 export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, onNextTurn }) => {
-  const {
-    phase,
-    round,
-    playerTeam,
-    enemyTeam,
-    currentTurnChampionId,
-    currentTurnSide,
-    winner,
-    isPlayerTurn,
-  } = useBattleStore();
+  const phase = useBattleStore((state) => state.phase);
+  const round = useBattleStore((state) => state.round);
+  const playerTeam = useBattleStore((state) => state.playerTeam);
+  const enemyTeam = useBattleStore((state) => state.enemyTeam);
+  const currentTurnChampionId = useBattleStore((state) => state.currentTurnChampionId);
+  const currentTurnSide = useBattleStore((state) => state.currentTurnSide);
+  const winner = useBattleStore((state) => state.winner);
+  const isPlayerTurn = useBattleStore((state) => state.isPlayerTurn);
 
   const currentChampion = [...playerTeam, ...enemyTeam].find(
     (c) => c.targetId === currentTurnChampionId,

@@ -334,6 +334,9 @@ function ChampionCard({
             src={splashUrl}
             alt={champion.name}
             loading="lazy"
+            width={1215}
+            height={717}
+            decoding="async"
             onError={(event) => {
               applyLocalImageFallback(event.currentTarget, champion.iconUrl);
             }}

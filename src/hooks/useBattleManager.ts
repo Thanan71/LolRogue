@@ -215,7 +215,8 @@ export function useBattleManager({
   ruleLoadout,
 }: UseBattleManagerOptions) {
   const bmRef = useRef<BattleManager | null>(null);
-  const store = useBattleStore();
+  const phase = useBattleStore((state) => state.phase);
+  const winner = useBattleStore((state) => state.winner);
   const autoPlayRef = useRef(autoPlay);
   autoPlayRef.current = autoPlay;
   const onCompleteRef = useRef(onComplete);
@@ -233,6 +234,7 @@ export function useBattleManager({
     if (playerTeam.length === 0) return;
 
     // Reset the battle store and completion flag
+    const store = useBattleStore.getState();
     store.resetBattle();
     hasCompletedRef.current = false;
 
@@ -269,7 +271,7 @@ export function useBattleManager({
       bm.off('event', eventHandler);
       bmRef.current = null;
     };
-  }, [playerTeam, enemyTeam, random, ruleLoadout]);
+  }, [playerTeam, enemyTeam, initialHpOverrides, random, ruleLoadout]);
 
   // Check for battle completion
   useEffect(() => {
@@ -300,7 +302,7 @@ export function useBattleManager({
         manager?.getResult()?.log ?? [],
       );
     }
-  }, [store.phase, store.winner]);
+  }, [phase, winner]);
 
   const processTurn = useCallback(() => {
     const bm = bmRef.current;

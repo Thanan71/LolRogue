@@ -84,6 +84,9 @@ function ChampionCard({
         <img
           src={champ?.iconUrl ?? ''}
           alt={champ?.name ?? champId}
+          width={36}
+          height={36}
+          decoding="async"
           style={{ width: 36, height: 36, borderRadius: 4, background: '#1e2a3a' }}
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = 'none';

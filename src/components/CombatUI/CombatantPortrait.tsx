@@ -68,6 +68,9 @@ export const CombatantPortrait: React.FC<Props> = ({
           <img
             src={iconUrl}
             alt={name}
+            width={48}
+            height={48}
+            decoding="async"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
           />

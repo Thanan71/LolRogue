@@ -69,7 +69,10 @@ export function ParticleBackground({ particleCount = 80, className }: ParticleBa
 
     let time = 0;
 
+    let running = !document.hidden;
+
     const animate = () => {
+      if (!running) return;
       time += 1;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -138,10 +141,19 @@ export function ParticleBackground({ particleCount = 80, className }: ParticleBa
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    const handleVisibilityChange = () => {
+      running = !document.hidden;
+      if (running) animationRef.current = requestAnimationFrame(animate);
+      else cancelAnimationFrame(animationRef.current);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    if (running) animate();
 
     return () => {
       window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      running = false;
       cancelAnimationFrame(animationRef.current);
     };
   }, [particleCount, createParticle, particlesEnabled, reducedMotion]);
