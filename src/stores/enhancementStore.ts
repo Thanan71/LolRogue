@@ -41,12 +41,23 @@ function getPendingUnlockKey(userId: string, championId: string, nodeId: string)
 }
 
 async function refreshCanonicalCandyBalance(): Promise<number | undefined> {
+  const auth = useAuthStore.getState();
+  if (!auth.user) return auth.player?.total_candies;
   try {
-    await useAuthStore.getState().refreshPlayer();
+    const result = await container.player.getPlayer(auth.user.id);
+    if (result.data && useAuthStore.getState().user?.id === auth.user.id) {
+      useAuthStore.getState().setPlayerCandyBalance(result.data.total_candies);
+      return result.data.total_candies;
+    }
   } catch (error) {
     console.warn('[EnhancementStore] Failed to refresh candy balance:', error);
   }
   return useAuthStore.getState().player?.total_candies;
+}
+
+function applyCanonicalCandyBalance(candies: number): void {
+  useAuthStore.getState().setPlayerCandyBalance(candies);
+  useEnhancementStore.setState({ availableCandies: candies });
 }
 
 // ─── Enhancement Store State ─────────────────────────────────────────────────
@@ -375,10 +386,8 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         error: null,
         statusMessage: `${nodeToUnlock.name} a bien été amélioré.`,
       }));
-
-      const refreshedCandies = await refreshCanonicalCandyBalance();
-      if (refreshedCandies !== undefined) {
-        set({ availableCandies: refreshedCandies });
+      if (result.remainingCandies !== undefined) {
+        applyCanonicalCandyBalance(result.remainingCandies);
       }
 
       return true;

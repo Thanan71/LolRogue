@@ -5,18 +5,23 @@ import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementReposit
 const dependencies = vi.hoisted(() => {
   const unlockNode = vi.fn();
   const refreshPlayer = vi.fn();
+  const setPlayerCandyBalance = vi.fn((candies: number) => {
+    authState.player = { total_candies: candies };
+  });
   const randomUUID = vi.fn();
   const authState = {
     user: { id: 'user-1' },
     player: { total_candies: 20 },
     isGuest: false,
     refreshPlayer,
+    setPlayerCandyBalance,
   };
 
   return {
     authState,
     randomUUID,
     refreshPlayer,
+    setPlayerCandyBalance,
     unlockNode,
   };
 });
@@ -171,6 +176,7 @@ describe('enhancement unlock recovery', () => {
     ]);
     expect(dependencies.unlockNode.mock.calls[1]).toEqual(dependencies.unlockNode.mock.calls[0]);
     expect(useEnhancementStore.getState()).toMatchObject({
+      selectedChampion: { id: 'Garen' },
       enhancements: {
         Garen: {
           unlockedNodes: { fighter_core_1: 1 },
@@ -181,6 +187,8 @@ describe('enhancement unlock recovery', () => {
       error: null,
       isLoading: false,
     });
+    expect(dependencies.refreshPlayer).not.toHaveBeenCalled();
+    expect(dependencies.setPlayerCandyBalance).toHaveBeenCalledWith(0);
   });
 
   it('keeps the command stable when the repository throws before returning a result', async () => {

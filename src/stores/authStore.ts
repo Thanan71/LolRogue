@@ -47,6 +47,7 @@ export interface AuthActions {
   ) => Promise<AuthActionResult>;
   logout: () => Promise<AuthActionResult>;
   refreshPlayer: () => Promise<AuthActionResult>;
+  setPlayerCandyBalance: (candies: number) => void;
   clearError: () => void;
   clearSuccessMessage: () => void;
   checkSession: () => Promise<void>;
@@ -348,6 +349,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const { session } = get();
     if (!session) return { success: false, error: 'Aucune session active.' };
     return establishSession(session, nextGeneration());
+  },
+
+  setPlayerCandyBalance: (candies: number) => {
+    if (!Number.isInteger(candies) || candies < 0) return;
+    set((state) => ({
+      player: state.player ? { ...state.player, total_candies: candies } : null,
+    }));
   },
 
   checkSession: async () => {
