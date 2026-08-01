@@ -15,7 +15,13 @@ type AuthMode = 'login' | 'signup';
 /* Inline SVG for the LoLRogue icon */
 function LolRogueIconSmall() {
   return (
-    <svg viewBox="0 0 100 100" className="auth-page__icon" aria-label="LoLRogue logo">
+    <svg
+      viewBox="0 0 100 100"
+      className="auth-page__icon"
+      role="img"
+      aria-labelledby="auth-logo-title"
+    >
+      <title id="auth-logo-title">Logo LoL Rogue</title>
       <path
         d="M50 8 L85 25 L85 55 Q85 80 50 95 Q15 80 15 55 L15 25 Z"
         fill="none"
@@ -180,9 +186,26 @@ export function AuthPage() {
         <div className="auth-page__container">
           {!isSupabaseConfigured && <div className="auth-page__error">{fr.auth.unavailable}</div>}
           {/* Tabs */}
-          <div className="auth-page__tabs">
+          <div
+            className="auth-page__tabs"
+            role="tablist"
+            aria-label="Authentification"
+            onKeyDown={(event) => {
+              if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+              event.preventDefault();
+              const nextMode = mode === 'login' ? 'signup' : 'login';
+              setMode(nextMode);
+              window.requestAnimationFrame(() =>
+                document.getElementById(`auth-tab-${nextMode}`)?.focus(),
+              );
+            }}
+          >
             <button
               type="button"
+              role="tab"
+              id="auth-tab-login"
+              aria-selected={mode === 'login'}
+              aria-controls="auth-panel"
               className={`auth-page__tab ${mode === 'login' ? 'auth-page__tab--active' : ''}`}
               onClick={() => {
                 playUIClick();
@@ -195,6 +218,10 @@ export function AuthPage() {
             </button>
             <button
               type="button"
+              role="tab"
+              id="auth-tab-signup"
+              aria-selected={mode === 'signup'}
+              aria-controls="auth-panel"
               className={`auth-page__tab ${mode === 'signup' ? 'auth-page__tab--active' : ''}`}
               onClick={() => {
                 playUIClick();
@@ -214,7 +241,13 @@ export function AuthPage() {
           {successMessage && <div className="auth-page__success">{successMessage}</div>}
 
           {/* Form */}
-          <form className="auth-page__form" onSubmit={handleSubmit}>
+          <form
+            className="auth-page__form"
+            id="auth-panel"
+            role="tabpanel"
+            aria-labelledby={mode === 'login' ? 'auth-tab-login' : 'auth-tab-signup'}
+            onSubmit={handleSubmit}
+          >
             {mode === 'signup' && (
               <>
                 <div className="auth-page__form-group">

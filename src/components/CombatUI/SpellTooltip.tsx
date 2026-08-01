@@ -1,28 +1,30 @@
-import type React from 'react';
-import { useRef, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 import type { SpellInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
 import { fr } from '@/i18n/fr';
 
 interface Props {
   spell: SpellInfo;
-  children: React.ReactNode;
+  children: React.ReactElement;
 }
 
 export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const tooltipId = useId();
   const textSize = useSettingsStore((s) => s.textSize);
 
-  const handleMouseEnter = (e: React.MouseEvent) => {
+  const show = (target: HTMLElement) => {
     setVisible(true);
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const rect = target.getBoundingClientRect();
     setPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.top,
+      x: Math.max(140, Math.min(window.innerWidth - 140, rect.left + rect.width / 2)),
+      y: Math.max(170, rect.top),
     });
   };
+
+  const handleMouseEnter = (e: React.MouseEvent) => show(e.currentTarget as HTMLElement);
 
   const handleMouseLeave = () => {
     setVisible(false);
@@ -37,11 +39,26 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
       ref={containerRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onFocus={(event) => show(event.currentTarget)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) handleMouseLeave();
+      }}
+      onClick={(event) => {
+        if (visible) handleMouseLeave();
+        else show(event.currentTarget);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') handleMouseLeave();
+      }}
       style={{ position: 'relative', display: 'inline-block' }}
     >
-      {children}
+      {React.cloneElement(children, {
+        'aria-describedby': visible ? tooltipId : undefined,
+      } as React.HTMLAttributes<HTMLElement>)}
       {visible && position && (
         <div
+          id={tooltipId}
+          role="tooltip"
           style={{
             position: 'fixed',
             left: position.x,

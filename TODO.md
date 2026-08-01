@@ -884,30 +884,40 @@ doubles déclenchements.
 
 ### P1-A11Y-01 — Sémantique, clavier et focus
 
-- [ ] Utiliser de vrais `button`, `a`, `input`, `fieldset/legend` et listes avant
+- [x] Utiliser de vrais `button`, `a`, `input`, `fieldset/legend` et listes avant
   d'ajouter des rôles à des `div`.
-- [ ] Database : rendre les champions sélectionnables au clavier et labelliser la
+- [x] Database : rendre les champions sélectionnables au clavier et labelliser la
   recherche.
-- [ ] Auth/Database : implémenter `tablist`, `tab`, `aria-selected` et relations de
+- [x] Auth/Database : implémenter `tablist`, `tab`, `aria-selected` et relations de
   panneaux.
-- [ ] Settings : remplacer `display:none` du checkbox Particles par un masquage
+- [x] Settings : remplacer `display:none` du checkbox Particles par un masquage
   visuel qui conserve focus et annonce d'état.
-- [ ] Rendre les tooltips d'équipement accessibles au focus et au tactile, ou les
+- [x] Rendre les tooltips d'équipement accessibles au focus et au tactile, ou les
   remplacer par un popover/dialog.
-- [ ] Appliquer la même règle aux tooltips de sorts : focus, clic/tap, Échap,
+- [x] Appliquer la même règle aux tooltips de sorts : focus, clic/tap, Échap,
   `aria-describedby` et placement dans le viewport.
-- [ ] Ajouter focus initial, piège de focus et restitution du focus aux dialogues.
-- [ ] Ajouter `aria-live` aux sauvegardes, erreurs et changements de récompense.
-- [ ] Donner aux nœuds de carte un nom qui inclut position, type, état et conséquence.
-- [ ] Donner aux barres PV/XP la sémantique `progressbar` et leurs valeurs.
-- [ ] Masquer les SVG décoratifs aux technologies d'assistance ; nommer les SVG
+- [x] Ajouter focus initial, piège de focus et restitution du focus aux dialogues.
+- [x] Ajouter `aria-live` aux sauvegardes, erreurs et changements de récompense.
+- [x] Donner aux nœuds de carte un nom qui inclut position, type, état et conséquence.
+- [x] Donner aux barres PV/XP la sémantique `progressbar` et leurs valeurs.
+- [x] Masquer les SVG décoratifs aux technologies d'assistance ; nommer les SVG
   informatifs avec `title`.
-- [ ] Mettre à jour le titre du document, déplacer le focus vers `main`/`h1` et
+- [x] Mettre à jour le titre du document, déplacer le focus vers `main`/`h1` et
   annoncer chaque changement de route.
-- [ ] Lancer un audit axe automatisé sur chaque route principale.
+- [x] Lancer un audit axe automatisé sur chaque route principale.
 
 **Acceptation :** Auth → Starter → Map → encounter → Combat → Game Over est
 réalisable au clavier seul sans perte de contexte ni double action.
+
+**Statut : terminé.** Auth et Database exposent de vrais onglets reliés à leurs
+panneaux avec navigation aux flèches ; les champions et la recherche utilisent des
+contrôles natifs. Les dialogues gèrent focus initial, boucle, Échap et restitution.
+Les détails d'objets et de sorts fonctionnent au survol, au focus et au tactile.
+La carte annonce position, état et conséquence de chaque nœud ainsi que les valeurs
+PV/XP. Chaque route met à jour le titre, annonce la navigation et déplace le focus
+vers son contenu. Un parcours Chromium clavier couvre Auth, Starter, Map, Combat et
+Game Over, tandis qu'axe bloque les violations sérieuses/critiques des routes
+principales (le contraste reste volontairement suivi par `P1-A11Y-02`).
 
 ### P1-A11Y-02 — Lisibilité et mouvement
 

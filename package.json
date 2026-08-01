@@ -51,6 +51,7 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@biomejs/biome": "2.5.5",
     "@playwright/test": "1.55.1",
     "@testing-library/jest-dom": "^6.9.1",

@@ -13,7 +13,13 @@ import { playUIClick } from '@/audio';
 /* Inline SVG for the LoLRogue icon (shield + crossed swords motif) */
 function LolRogueIcon() {
   return (
-    <svg viewBox="0 0 100 100" className="main-menu__icon" aria-label="LoLRogue logo">
+    <svg
+      viewBox="0 0 100 100"
+      className="main-menu__icon"
+      role="img"
+      aria-labelledby="menu-logo-title"
+    >
+      <title id="menu-logo-title">Logo LoL Rogue</title>
       {/* Shield body */}
       <path
         d="M50 8 L85 25 L85 55 Q85 80 50 95 Q15 80 15 55 L15 25 Z"

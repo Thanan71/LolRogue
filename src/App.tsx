@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AdminRoute } from './components/AdminRoute';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -10,6 +11,72 @@ import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
 import './styles/starter-select.css';
 
 assertValidRuleCatalogs();
+
+const ROUTE_TITLES: Record<string, string> = {
+  '/': 'Menu principal',
+  '/auth': 'Connexion',
+  '/starter-select': 'Sélection de départ',
+  '/run': 'Carte de la partie',
+  '/combat': 'Combat',
+  '/shop': 'Boutique',
+  '/recruit': 'Recrutement',
+  '/rest': 'Repos',
+  '/event': 'Événement',
+  '/treasure': 'Trésor',
+  '/game-over': 'Résultat de la partie',
+  '/daily-run': 'Défi quotidien',
+  '/profile': 'Profil',
+  '/database': 'Base des champions',
+  '/settings': 'Réglages',
+  '/credits': 'Crédits',
+  '/admin': 'Administration',
+};
+
+function RouteAccessibility() {
+  const { pathname } = useLocation();
+  const title = ROUTE_TITLES[pathname] ?? 'Page introuvable';
+
+  useEffect(() => {
+    document.title = `${title} — LoL Rogue`;
+    const focusRoute = (candidate?: ParentNode) => {
+      const target =
+        candidate?.querySelector<HTMLElement>('main, h1') ??
+        (candidate instanceof HTMLElement && candidate.matches('main, h1') ? candidate : null) ??
+        document.querySelector<HTMLElement>('main, h1');
+      if (!target) return;
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
+    };
+    const frame = window.requestAnimationFrame(() => focusRoute());
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (!(node instanceof HTMLElement)) continue;
+          if (node.matches('main, h1') || node.querySelector('main, h1')) {
+            focusRoute(node);
+            return;
+          }
+        }
+      }
+    });
+    observer.observe(document.getElementById('app') ?? document.body, {
+      childList: true,
+      subtree: true,
+    });
+    const observerTimeout = window.setTimeout(() => observer.disconnect(), 1_000);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(observerTimeout);
+      observer.disconnect();
+    };
+  }, [pathname, title]);
+
+  return (
+    <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+      {title}
+    </div>
+  );
+}
 
 const AdminPage = lazy(() =>
   import('./pages/AdminPage').then((module) => ({ default: module.AdminPage })),
@@ -86,6 +153,7 @@ export default function App() {
 
   return (
     <div id="app">
+      <RouteAccessibility />
       <AuthBootstrap />
       <Suspense fallback={null}>
         <NotificationRegion />

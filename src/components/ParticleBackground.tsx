@@ -148,6 +148,7 @@ export function ParticleBackground({ particleCount = 80, className }: ParticleBa
 
   return (
     <canvas
+      aria-hidden="true"
       ref={canvasRef}
       className={className}
       style={{

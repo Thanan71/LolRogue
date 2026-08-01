@@ -298,7 +298,11 @@ export function RunMapScreen() {
             </section>
           )}
           {lastCombatRewards && (
-            <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Récompenses du combat">
+            <section
+              style={{ ...panelStyle, marginBottom: 8 }}
+              aria-label="Récompenses du combat"
+              aria-live="polite"
+            >
               <strong>{fr.run.combatComplete} :</strong> +{lastCombatRewards.gold} {fr.common.gold},
               +{lastCombatRewards.xp} XP/champion (KO inclus)
               {lastCombatRewards.levelsGained > 0 &&
@@ -360,7 +364,14 @@ export function RunMapScreen() {
             </section>
           )}
           <div style={mapContainerStyle}>
-            <svg width={svgW} height={svgH} style={{ display: 'block' }}>
+            <svg
+              width={svgW}
+              height={svgH}
+              style={{ display: 'block' }}
+              role="group"
+              aria-labelledby="run-map-title"
+            >
+              <title id="run-map-title">Carte interactive de la partie</title>
               {/* Draw edges */}
               {nodes.map((node) =>
                 node.nextNodeIds.map((nid) => {
@@ -408,7 +419,7 @@ export function RunMapScreen() {
                     role="button"
                     tabIndex={isSelectable ? 0 : -1}
                     aria-disabled={!isSelectable}
-                    aria-label={`${node.type}${isEntry ? ', départ du biome' : ''}${isDone ? ', terminé' : ''}`}
+                    aria-label={`${node.metadata.title}, colonne ${node.column + 1}, ligne ${node.row + 1}, ${node.type}${isEntry ? ', départ du biome' : ''}, ${isDone ? 'terminé' : isCurrent ? 'position actuelle' : isAccessible ? 'accessible' : 'verrouillé'}, ${isSelectable ? 'activer pour choisir ce nœud et verrouiller les autres branches' : hasPendingChoice ? "terminez d'abord le choix en attente" : 'indisponible'}`}
                   >
                     {isCurrent && (
                       <circle
@@ -603,7 +614,15 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
                 {champ?.name ?? m.championId}
               </div>
               {/* HP Bar */}
-              <div style={hpBarBg}>
+              <div
+                style={hpBarBg}
+                role="progressbar"
+                aria-label={`PV de ${champ?.name ?? m.championId}`}
+                aria-valuemin={0}
+                aria-valuemax={maxHp}
+                aria-valuenow={Math.round(m.currentHp ?? maxHp)}
+                aria-valuetext={`${Math.round(m.currentHp ?? maxHp)} sur ${maxHp} PV`}
+              >
                 <div
                   style={{
                     ...hpBarFill,
@@ -614,6 +633,12 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
               </div>
               {/* XP Bar */}
               <div
+                role="progressbar"
+                aria-label={`Expérience de ${champ?.name ?? m.championId}`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(xpProgress)}
+                aria-valuetext={level >= 18 ? 'Niveau maximum' : xpDisplay}
                 style={{
                   width: '100%',
                   height: 4,
@@ -747,7 +772,7 @@ function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team
         <div style={{ color: '#484f58', fontSize: 12, padding: 8 }}>{fr.common.empty}</div>
       )}
       {inventory.map((entry) => (
-        <div
+        <article
           key={entry.instanceId}
           style={{
             ...inventoryItemStyle,
@@ -757,8 +782,22 @@ function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team
           }}
           onMouseEnter={() => setHoveredItem(entry.instanceId)}
           onMouseLeave={() => setHoveredItem(null)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setHoveredItem(null);
+          }}
         >
-          <div style={{ color: '#e6edf3', fontSize: 11 }}>{entry.item.name}</div>
+          <button
+            type="button"
+            aria-expanded={hoveredItem === entry.instanceId}
+            aria-controls={`item-details-${entry.instanceId}`}
+            onFocus={() => setHoveredItem(entry.instanceId)}
+            onClick={() =>
+              setHoveredItem((current) => (current === entry.instanceId ? null : entry.instanceId))
+            }
+            style={{ color: '#e6edf3', fontSize: 11 }}
+          >
+            {entry.item.name} — détails
+          </button>
           <div style={{ color: '#8b949e', fontSize: 10 }}>{entry.item.goldValue}g</div>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {entry.equippedToChampionId ? (
@@ -793,12 +832,12 @@ function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team
               {championDB.getById(entry.equippedToChampionId)?.name ?? entry.equippedToChampionId}
             </div>
           )}
-        </div>
+        </article>
       ))}
 
       {/* Item Tooltip */}
       {hoveredItem && hoveredEntry && (
-        <div style={tooltipStyle}>
+        <div id={`item-details-${hoveredEntry.instanceId}`} role="tooltip" style={tooltipStyle}>
           <div style={{ color: '#ffd700', fontSize: 12, fontWeight: 'bold', marginBottom: 4 }}>
             {hoveredEntry.item.name}
           </div>

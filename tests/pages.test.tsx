@@ -137,8 +137,9 @@ describe('P2 page smoke tests', () => {
   it('renders authentication controls', () => {
     renderAt(<AuthPage />, '/auth');
     expect(screen.getByRole('heading', { name: 'LoL Rogue' })).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: 'Connexion' })).toHaveLength(2);
-    expect(screen.getByRole('button', { name: 'Créer un compte' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Connexion' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Connexion' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Créer un compte' })).toBeInTheDocument();
   });
 
   it('renders the guest menu', () => {

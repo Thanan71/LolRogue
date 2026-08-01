@@ -81,52 +81,80 @@ export function DatabasePage() {
 
       <div className="database-page__body" style={bodyStyle}>
         <aside className="database-page__sidebar" style={sidebarStyle}>
+          <label className="sr-only" htmlFor="champion-search">
+            {fr.database.search}
+          </label>
           <input
-            type="text"
+            id="champion-search"
+            type="search"
             placeholder={fr.database.search}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={searchStyle}
           />
-          <div style={listStyle}>
+          <ul style={{ ...listStyle, listStyle: 'none', margin: 0, padding: 0 }}>
             {filteredChampions.map((champ) => (
-              <div
-                key={champ.id}
-                style={{
-                  ...listItemStyle,
-                  background: selectedChampion?.id === champ.id ? '#1e2a3a' : 'transparent',
-                }}
-                onClick={() => {
-                  setSelectedChampion(champ);
-                  setActiveTab('info');
-                }}
-              >
-                <img
-                  src={champ.iconUrl}
-                  alt={champ.name}
-                  style={{ width: 32, height: 32, borderRadius: 4 }}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
+              <li key={champ.id}>
+                <button
+                  type="button"
+                  aria-pressed={selectedChampion?.id === champ.id}
+                  style={{
+                    ...listItemStyle,
+                    width: '100%',
+                    border: 0,
+                    textAlign: 'left',
+                    background: selectedChampion?.id === champ.id ? '#1e2a3a' : 'transparent',
                   }}
-                />
-                <div>
-                  <div style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>
-                    {champ.name}
+                  onClick={() => {
+                    setSelectedChampion(champ);
+                    setActiveTab('info');
+                  }}
+                >
+                  <img
+                    src={champ.iconUrl}
+                    alt={champ.name}
+                    style={{ width: 32, height: 32, borderRadius: 4 }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                  <div>
+                    <div style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>
+                      {champ.name}
+                    </div>
+                    <div style={{ color: '#8b949e', fontSize: 11 }}>
+                      {champ.tags.map(formatChampionTag).join(', ')}
+                    </div>
                   </div>
-                  <div style={{ color: '#8b949e', fontSize: 11 }}>
-                    {champ.tags.map(formatChampionTag).join(', ')}
-                  </div>
-                </div>
-              </div>
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
         </aside>
 
         <div className="database-page__detail" style={detailStyle}>
           {selectedChampion ? (
             <>
-              <div style={tabsStyle}>
+              <div
+                style={tabsStyle}
+                role="tablist"
+                aria-label={fr.database.title}
+                onKeyDown={(event) => {
+                  if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+                  event.preventDefault();
+                  const nextTab = activeTab === 'info' ? 'enhancements' : 'info';
+                  setActiveTab(nextTab);
+                  window.requestAnimationFrame(() =>
+                    document.getElementById(`database-tab-${nextTab}`)?.focus(),
+                  );
+                }}
+              >
                 <button
+                  type="button"
+                  role="tab"
+                  id="database-tab-info"
+                  aria-selected={activeTab === 'info'}
+                  aria-controls="database-panel-info"
                   style={{
                     ...tabStyle,
                     background: activeTab === 'info' ? '#1e2a3a' : 'transparent',
@@ -137,6 +165,11 @@ export function DatabasePage() {
                   📖 {fr.database.info}
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  id="database-tab-enhancements"
+                  aria-selected={activeTab === 'enhancements'}
+                  aria-controls="database-panel-enhancements"
                   style={{
                     ...tabStyle,
                     background: activeTab === 'enhancements' ? '#1e2a3a' : 'transparent',
@@ -149,9 +182,15 @@ export function DatabasePage() {
               </div>
 
               {activeTab === 'info' ? (
-                <ChampionDetail champion={selectedChampion} />
+                <div role="tabpanel" id="database-panel-info" aria-labelledby="database-tab-info">
+                  <ChampionDetail champion={selectedChampion} />
+                </div>
               ) : (
-                <>
+                <div
+                  role="tabpanel"
+                  id="database-panel-enhancements"
+                  aria-labelledby="database-tab-enhancements"
+                >
                   {enhancementError && (
                     <p role="alert" style={mutationErrorStyle}>
                       {enhancementError}
@@ -172,7 +211,7 @@ export function DatabasePage() {
                     onUnlockNode={handleUnlockNode}
                     isLoading={isEnhancementLoading}
                   />
-                </>
+                </div>
               )}
             </>
           ) : (

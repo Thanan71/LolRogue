@@ -98,7 +98,7 @@ async function exerciseAuthAndMenu(page: Page) {
   await expect(page.getByRole('heading', { name: 'LoL Rogue' })).toBeVisible();
 
   const loginTab = page.locator('.auth-page__tab').filter({ hasText: /^Connexion$/ });
-  const signupTab = page.getByRole('button', { name: 'Créer un compte', exact: true });
+  const signupTab = page.getByRole('tab', { name: 'Créer un compte', exact: true });
   const guestButton = page.getByRole('button', { name: 'Jouer en invité' });
 
   await expectReachableAction(loginTab);
