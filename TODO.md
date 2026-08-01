@@ -715,16 +715,23 @@ avec reprise déterministe sont couverts par les tests de reload.
 
 ### P1-DATA-02 — Réduire les sources de vérité concurrentes
 
-- [ ] Réduire `dailyRunStore` aux métadonnées daily si `runStore` pilote le gameplay.
-- [ ] Faire passer le vrai flux par `EffectManager`, `RuneManager`,
+- [x] Réduire `dailyRunStore` aux métadonnées daily si `runStore` pilote le gameplay.
+- [x] Faire passer le vrai flux par `EffectManager`, `RuneManager`,
   `AugmentManager` et le résolveur d'inventaire, ou supprimer les versions mortes.
-- [ ] Retirer/déprécier `EncounterManager` et `InventoryManager` si leurs règles sont
+- [x] Retirer/déprécier `EncounterManager` et `InventoryManager` si leurs règles sont
   dupliquées ailleurs.
-- [ ] Éviter les singletons mutables hors Zustand pour les données de run.
-- [ ] Documenter un propriétaire unique par donnée et une seule commande de mutation.
+- [x] Éviter les singletons mutables hors Zustand pour les données de run.
+- [x] Documenter un propriétaire unique par donnée et une seule commande de mutation.
 
 **Acceptation :** les unités testées sont celles appelées en production ; il
 n'existe plus deux implémentations divergentes d'une même règle.
+
+**Statut : terminé.** Le gameplay Daily appartient uniquement à `runStore` ; le
+store Daily v4 est limité aux métadonnées et au classement invité. Les règles
+d'événement sont pures, `EncounterManager` est supprimé, `InventoryManager` est
+déprécié et dépublié, et la boutique partage la fabrique d'augments du runtime.
+La matrice des propriétaires et commandes est documentée dans
+`docs/data-and-persistence.md`.
 
 ### P1-DATA-03 — Fiabiliser Auth, profil et changement d'identité
 

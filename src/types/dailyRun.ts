@@ -1,4 +1,3 @@
-import type { Biome, InventoryEntry } from './run';
 import type { AuthorityDifficulty, RunAttemptStatus } from './runAttempt';
 
 // ─── Daily Run Types ────────────────────────────────────────────────────────
@@ -52,30 +51,10 @@ export interface DailyLeaderboard {
 
 /** The state of the current daily run attempt */
 export interface DailyRunState {
-  /** Whether a daily run is currently active */
-  isActive: boolean;
   /** The date key for this daily run (YYYY-MM-DD) */
   dateKey: string;
   /** The deterministic seed number for today */
   seed: number;
-  /** Current team of champions */
-  team: string[];
-  /** Current run level */
-  runLevel: number;
-  /** Biomes visited in order */
-  biomesVisited: Biome[];
-  /** Current biome */
-  currentBiome: Biome | null;
-  /** Inventory items */
-  inventory: InventoryEntry[];
-  /** Current gold */
-  gold: number;
-  /** Current wave in biome */
-  currentWave: number;
-  /** Total waves completed across the run */
-  totalWavesCompleted: number;
-  /** Current score (computed from waves, levels, kills, gold, items) */
-  score: number;
   /** Whether the player has already completed today's daily run */
   hasCompletedToday: boolean;
   /** Server-provided UTC expiration for authenticated challenges. */

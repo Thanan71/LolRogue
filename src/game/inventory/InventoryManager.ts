@@ -5,20 +5,23 @@
 import type { StatKey } from '@/game/effects/types';
 import type { InventoryItem, ItemDefinition } from '@/types/inventory';
 
-let _nextInstanceId = 1;
-
-function generateInstanceId(): string {
-  return `inv_item_${Date.now()}_${_nextInstanceId++}`;
-}
-
+/**
+ * @deprecated Compatibility helper for isolated tests. Production inventory mutations must go
+ * through runStore and inventoryRules, which are also replayed by the authority.
+ */
 export class InventoryManager {
   private _items: InventoryItem[] = [];
   private _maxBagSize: number;
   private _maxItemsPerChampion: number;
+  private _nextInstanceId = 1;
 
   constructor(maxItemsPerChampion = 6, maxBagSize = 20) {
     this._maxItemsPerChampion = maxItemsPerChampion;
     this._maxBagSize = maxBagSize;
+  }
+
+  private generateInstanceId(): string {
+    return `inv_item_${Date.now()}_${this._nextInstanceId++}`;
   }
 
   get items(): ReadonlyArray<InventoryItem> {
@@ -62,7 +65,7 @@ export class InventoryManager {
       if (this.bagItems.length >= this._maxBagSize) return null;
       const take = definition.stackable ? Math.min(stacks, definition.maxStacks) : 1;
       const entry: InventoryItem = {
-        instanceId: generateInstanceId(),
+        instanceId: this.generateInstanceId(),
         definition,
         stacks: take,
         equippedToChampionId: null,
@@ -170,7 +173,7 @@ export class InventoryManager {
 
     entry.stacks -= count;
     const newEntry: InventoryItem = {
-      instanceId: generateInstanceId(),
+      instanceId: this.generateInstanceId(),
       definition: entry.definition,
       stacks: count,
       equippedToChampionId: null,

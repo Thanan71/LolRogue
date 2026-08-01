@@ -1,4 +1,4 @@
-import { resolveAffordableEventOutcome } from '@/game/map/EncounterManager';
+import { resolveAffordableEventOutcome } from '@/game/map/eventOutcome';
 import type {
   EventEncounter,
   EventOutcome,

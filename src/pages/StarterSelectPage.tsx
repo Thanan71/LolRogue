@@ -65,7 +65,7 @@ export function StarterSelectPage() {
   );
   const [selectedRuneIds, setSelectedRuneIds] = useState<string[]>(resumableStart?.runeIds ?? []);
   const startRun = useRunStore((s) => s.startRun);
-  const startDailyRun = useDailyRunStore((state) => state.startDailyRun);
+  const markGuestAttemptStarted = useDailyRunStore((state) => state.markGuestAttemptStarted);
   const hasCompletedToday = useDailyRunStore((state) => state.hasCompletedToday);
   const [error, setError] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
@@ -137,23 +137,7 @@ export function StarterSelectPage() {
         setIsStarting(false);
         return;
       }
-      const attempt = useRunStore.getState().authorityAttempt;
-      startDailyRun(
-        selectedStarterIds,
-        attempt?.mode === 'daily' && attempt.dailyDate
-          ? {
-              dailyDate: attempt.dailyDate,
-              seed: attempt.seed,
-              expiresAt: attempt.expiresAt,
-            }
-          : dailyChallenge
-            ? {
-                dailyDate: dailyChallenge.dailyDate,
-                seed: dailyChallenge.seed,
-                expiresAt: dailyChallenge.expiresAt,
-              }
-            : undefined,
-      );
+      if (isGuest) markGuestAttemptStarted();
     } else {
       const result = await startRun(selectedStarterIds, {
         seed: selectionSeed,

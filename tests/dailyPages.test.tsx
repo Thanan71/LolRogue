@@ -90,7 +90,6 @@ describe('authoritative Daily pages', () => {
     });
     useRunStore.setState({ ...RUN_INITIAL_STATE });
     useDailyRunStore.setState({
-      isActive: false,
       dateKey: '2026-07-25',
       seed: 1,
       hasCompletedToday: false,

@@ -1,226 +1,62 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { InventoryEntry } from '../src/types/run';
 
-// ─── Hoisted localStorage mock (runs before module evaluation) ─────────────
 const localStorageMock = vi.hoisted(() => {
-  const store: Record<string, string> = {};
+  const values = new Map<string, string>();
   return {
-    getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => {
-      store[key] = value;
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      for (const k of Object.keys(store)) delete store[k];
-    },
-    get length() {
-      return Object.keys(store).length;
-    },
-    key: (index: number) => Object.keys(store)[index] ?? null,
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => values.set(key, value),
+    removeItem: (key: string) => values.delete(key),
+    clear: () => values.clear(),
   };
 });
 vi.stubGlobal('localStorage', localStorageMock);
-
-// ─── Set fake time BEFORE importing the store so getInitialState() uses it ──
 vi.useFakeTimers();
-vi.setSystemTime(new Date('2026-03-30T12:00:00'));
+vi.setSystemTime(new Date('2026-03-30T12:00:00Z'));
 
-const { calculateDailyScore } = await import('../src/stores/dailyRunStore');
+const { calculateDailyScore, useDailyRunStore } = await import('../src/stores/dailyRunStore');
 
-describe('calculateDailyScore', () => {
-  const makeInventory = (count: number): InventoryEntry[] =>
-    Array.from({ length: count }, (_, i) => ({
-      instanceId: `item_${i}`,
-      item: {
-        id: `test_item_${i}`,
-        name: 'Test Item',
-        description: 'A test item',
-        iconUrl: '',
-        stats: {},
-        goldValue: 10,
-      },
-      equippedToChampionId: null,
-    }));
-
-  it('should return base score for fresh state', () => {
-    const score = calculateDailyScore({
-      totalWavesCompleted: 0,
-      runLevel: 1,
-      gold: 0,
-      inventory: [],
-    });
-    // runLevel=1 gives 500 base
-    expect(score).toBe(500);
-  });
-
-  it('should score waves correctly', () => {
-    const score = calculateDailyScore({
-      totalWavesCompleted: 10,
-      runLevel: 1,
-      gold: 0,
-      inventory: [],
-    });
-    expect(score).toBe(10 * 100 + 1 * 500); // 1500
-  });
-
-  it('should score levels correctly', () => {
-    const score = calculateDailyScore({
-      totalWavesCompleted: 0,
-      runLevel: 5,
-      gold: 0,
-      inventory: [],
-    });
-    expect(score).toBe(5 * 500); // 2500
-  });
-
-  it('should score gold correctly', () => {
-    const score = calculateDailyScore({
-      totalWavesCompleted: 0,
-      runLevel: 1,
-      gold: 250,
-      inventory: [],
-    });
-    expect(score).toBe(500 + 250 * 1); // 750
-  });
-
-  it('should score items correctly', () => {
-    const score = calculateDailyScore({
-      totalWavesCompleted: 0,
-      runLevel: 1,
-      gold: 0,
-      inventory: makeInventory(4),
-    });
-    expect(score).toBe(500 + 4 * 50); // 700
-  });
-
-  it('should combine all score components', () => {
-    const score = calculateDailyScore({
-      totalWavesCompleted: 8,
-      runLevel: 3,
-      gold: 150,
-      inventory: makeInventory(2),
-    });
-    // waves=8*100=800, levels=3*500=1500, gold=150, items=2*50=100
-    expect(score).toBe(800 + 1500 + 150 + 100);
-  });
-});
-
-describe('dailyRunStore (integration)', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-03-30T12:00:00'));
-    localStorage.clear();
-    // Also clear the Zustand persistence key to fully reset the store
-    localStorage.removeItem('lolrogue-daily-run');
-    localStorage.removeItem('lolrogue-daily-leaderboard');
-  });
-
-  it('should import store without errors', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    expect(useDailyRunStore).toBeDefined();
-    expect(typeof useDailyRunStore.getState).toBe('function');
-  });
-
-  it('should have correct initial shape', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    const state = useDailyRunStore.getState();
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const expectedDateKey = `${year}-${month}-${day}`;
-    expect(state.dateKey).toBe(expectedDateKey);
-    expect(typeof state.seed).toBe('number');
-    expect(state.seed).toBeGreaterThan(0);
-  });
-
-  it('startDailyRun should set team and activate', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    const store = useDailyRunStore.getState();
-    // Force-reset the completed flag for test isolation
-    store.endDailyRun();
-    // Directly reset hasCompletedToday via internal set
-    useDailyRunStore.setState({ hasCompletedToday: false });
-    const result = useDailyRunStore.getState().startDailyRun(['Garen', 'Lux', 'Darius']);
-    expect(result).toBe(true);
-    const state = useDailyRunStore.getState();
-    expect(state.isActive).toBe(true);
-    expect(state.team).toEqual(['Garen', 'Lux', 'Darius']);
-  });
-
-  it('should not allow starting if already completed today', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['Garen']);
-    useDailyRunStore.getState().completeDailyRun('TestPlayer');
-    const result = useDailyRunStore.getState().startDailyRun(['Lux']);
-    expect(result).toBe(false);
-  });
-
-  it('advanceDailyBiome should update biome state', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['Garen']);
-    useDailyRunStore.getState().advanceDailyBiome('jungle');
-    const state = useDailyRunStore.getState();
-    expect(state.currentBiome).toBe('jungle');
-    expect(state.biomesVisited).toEqual(['jungle']);
-    expect(state.currentWave).toBe(1);
-  });
-
-  it('nextDailyWave should increment waves and score', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['Garen']);
-    useDailyRunStore.getState().nextDailyWave();
-    const state = useDailyRunStore.getState();
-    expect(state.totalWavesCompleted).toBe(1);
-    expect(state.currentWave).toBe(2);
-    expect(state.score).toBeGreaterThan(0);
-  });
-
-  it('addDailyItem and equipDailyItem should work', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['Garen']);
-    const instanceId = useDailyRunStore.getState().addDailyItem({
-      id: 'long_sword',
-      name: 'Long Sword',
-      description: 'A simple blade',
+function inventory(count: number): InventoryEntry[] {
+  return Array.from({ length: count }, (_, index) => ({
+    instanceId: `item-${index}`,
+    item: {
+      id: `item-${index}`,
+      name: 'Item',
+      description: '',
       iconUrl: '',
-      stats: { atk: 10 },
-      goldValue: 350,
+      stats: {},
+      goldValue: 10,
+    },
+    equippedToChampionId: null,
+  }));
+}
+
+describe('daily metadata store', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useDailyRunStore.setState({
+      dateKey: '2026-03-30',
+      seed: 1,
+      hasCompletedToday: false,
+      expiresAt: null,
     });
-    expect(instanceId).toBeTruthy();
-    expect(useDailyRunStore.getState().inventory).toHaveLength(1);
-    useDailyRunStore.getState().equipDailyItem(instanceId, 'Garen');
-    expect(useDailyRunStore.getState().inventory[0].equippedToChampionId).toBe('Garen');
   });
 
-  it('completeDailyRun should add to leaderboard and mark completed', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['Garen']);
-    const entry = useDailyRunStore.getState().completeDailyRun('Player1');
-    expect(entry.playerName).toBe('Player1');
-    expect(entry.score).toBeGreaterThan(0);
-    expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
+  it('keeps gameplay scoring pure and outside the metadata store', () => {
+    expect(
+      calculateDailyScore({
+        totalWavesCompleted: 8,
+        runLevel: 3,
+        gold: 150,
+        inventory: inventory(2),
+      }),
+    ).toBe(2550);
+    expect(useDailyRunStore.getState()).not.toHaveProperty('team');
+    expect(useDailyRunStore.getState()).not.toHaveProperty('inventory');
+    expect(useDailyRunStore.getState()).not.toHaveProperty('gold');
   });
 
-  it('does not mix authenticated scores into the guest leaderboard', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['Garen']);
-    useDailyRunStore.getState().completeDailyRun('OnlinePlayer', false);
-
-    expect(useDailyRunStore.getState().getLeaderboard()).toEqual([]);
-    expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
-  });
-
-  it('uses the server UTC expiration instead of the browser local date', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
+  it('synchronizes only the canonical daily challenge metadata', () => {
     useDailyRunStore.getState().syncChallenge({
       dailyDate: '2026-03-30',
       seed: 1234,
@@ -235,35 +71,50 @@ describe('dailyRunStore (integration)', () => {
       starterIds: ['Garen'],
       attemptPolicy: 'one_official_attempt_per_utc_day',
       hasAttempted: true,
-      attemptId: '11111111-1111-4111-8111-111111111111',
-      attemptStatus: 'verified',
-      published: true,
-      score: 1360,
+      attemptId: null,
+      attemptStatus: null,
+      published: false,
+      score: null,
     });
-
     expect(useDailyRunStore.getState()).toMatchObject({
       dateKey: '2026-03-30',
       seed: 1234,
       expiresAt: '2026-03-31T00:00:00.000Z',
       hasCompletedToday: true,
     });
-    vi.setSystemTime(new Date('2026-03-30T23:59:59.999Z'));
-    expect(useDailyRunStore.getState().checkHasCompletedToday()).toBe(true);
+  });
+
+  it('records a guest result supplied by the immutable run snapshot', () => {
+    const entry = useDailyRunStore.getState().recordDailyCompletion({
+      playerName: 'Guest',
+      score: 2550,
+      wavesCompleted: 8,
+      runLevel: 3,
+      persistInLocalLeaderboard: true,
+    });
+    expect(entry).toMatchObject({ playerName: 'Guest', score: 2550, wavesCompleted: 8 });
+    expect(useDailyRunStore.getState().getLeaderboard()).toHaveLength(1);
+    expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
+  });
+
+  it('never publishes an authenticated result into the guest leaderboard', () => {
+    useDailyRunStore.getState().recordDailyCompletion({
+      playerName: 'Online',
+      score: 3000,
+      wavesCompleted: 10,
+      runLevel: 4,
+      persistInLocalLeaderboard: false,
+    });
+    expect(useDailyRunStore.getState().getLeaderboard()).toEqual([]);
+  });
+
+  it('resets metadata at the server UTC expiration', () => {
+    useDailyRunStore.setState({
+      expiresAt: '2026-03-31T00:00:00.000Z',
+      hasCompletedToday: true,
+    });
     vi.setSystemTime(new Date('2026-03-31T00:00:00.000Z'));
     useDailyRunStore.getState().checkDateReset();
     expect(useDailyRunStore.getState().hasCompletedToday).toBe(false);
-  });
-
-  it('does not crash when guest leaderboard storage rejects writes', async () => {
-    const { useDailyRunStore } = await import('../src/stores/dailyRunStore');
-    const setItem = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
-      throw new DOMException('Quota exceeded', 'QuotaExceededError');
-    });
-    useDailyRunStore.setState({ hasCompletedToday: false });
-    useDailyRunStore.getState().startDailyRun(['Garen']);
-
-    expect(() => useDailyRunStore.getState().completeDailyRun('Guest')).not.toThrow();
-    expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
-    setItem.mockRestore();
   });
 });

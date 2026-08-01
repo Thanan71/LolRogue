@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { championDB } from '../src/data/championDatabase';
 import { ChampionInstance } from '../src/game/ChampionInstance';
-import { resolveAffordableEventOutcome } from '../src/game/map/EncounterManager';
+import { resolveAffordableEventOutcome } from '../src/game/map/eventOutcome';
 import { getRecruitmentGoldCost } from '../src/game/recruitment/recruitmentRules';
 
 describe('event and recruitment rules', () => {

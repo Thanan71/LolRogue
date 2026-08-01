@@ -13,12 +13,34 @@ persistance doit conserver cette séparation et mettre à jour les tests associ�
 | Résultat de partie | replay du moteur autoritaire | `runs` et `run_team_members` | local uniquement | Edge Function `verify-run` puis RPC service-role |
 | Maîtrise | cache `masteryStore` associé à l'identité active | `champion_mastery.unlocked_ids` | snapshot `guestSnapshot` dans `lolrogue-mastery-storage` | crédit atomique d'une run vérifiée |
 | Améliorations | `enhancementStore` | `champion_enhancements`; solde dans `players.total_candies` | indisponible sans compte | RPC `unlock_champion_enhancement` |
-| Daily run en cours | `dailyRunStore` et `runStore` | attempt serveur avec seed UTC | `lolrogue-daily-run` | même journal vérifié qu'une run normale |
+| Daily run en cours | `runStore`; `dailyRunStore` ne garde que date/seed/expiration/complétion | attempt serveur avec seed UTC | état de run dans `lolrogue-run-storage`, métadonnées dans `lolrogue-daily-run` | même journal vérifié qu'une run normale |
 | Classement daily | store après lecture | vue sanitisée `daily_leaderboard` issue des runs vérifiées | `lolrogue-daily-leaderboard` | trigger serveur après replay autoritaire |
 | Leaderboard normal | écran après lecture | vue `leaderboard` dérivée de `runs` | lecture éventuelle seulement | aucune écriture directe |
 | Diagnostics client | buffer mémoire borné | `logs`, 14 jours maximum | désactivés | RPC `submit_client_logs` authentifiée |
 | Réglages audio/UI | stores dédiés | aucune | `localStorage` | stores client |
 | Catalogue de jeu | imports TypeScript/JSON | fichiers versionnés dans `src/data/generated` et paquet minimal `public/assets/riot` | identique | scripts d'assets ou code |
+
+## Propriétaires et commandes de mutation
+
+Une donnée de run n'a qu'un propriétaire observable. Les pages lisent ce
+propriétaire et déclenchent ses commandes ; elles ne maintiennent pas de miroir
+modifiable.
+
+| Donnée | Propriétaire | Mutation autorisée | Règle canonique appelée |
+| --- | --- | --- | --- |
+| équipe, carte, encounter, or et niveau | `runStore` | commandes publiques du `runStore` | modules purs de `game/run` et `game/map` |
+| inventaire et équipement | `runStore.inventory` | achats, équipement et revente du `runStore` | `inventoryRules` |
+| runes et actions de combat | checkpoint du `runStore`, runtime de combat éphémère | commandes de combat journalisées | `CombatRuleRuntime` et `RuneManager` |
+| effets temporaires de combat | `BattleManager` | résolution d'une action | `EffectManager` |
+| augments acquis | `runStore.augmentIds` | choix d'augment du `runStore` | `createRunAugmentManager` / `AugmentManager` |
+| métadonnées Daily et classement invité | `dailyRunStore` | synchronisation du challenge et enregistrement du résultat figé | score Daily pur |
+
+`EncounterManager` a été supprimé : les événements utilisent directement les
+règles sans état de `eventOutcome`. L'ancien `InventoryManager` est déprécié et
+n'est plus exporté par le module ; il reste uniquement comme compatibilité de
+tests isolés. Son compteur d'instances est local à chaque instance, jamais un
+singleton de données de run. Le flux de production utilise exclusivement
+`runStore` et `inventoryRules`.
 
 ## Partie locale et synchronisation
 
@@ -113,7 +135,8 @@ La version 7 de `lolrogue-run-storage` normalise ces trois domaines avant
 d'exposer une sauvegarde réhydratée. Elle canonise les IDs et objets, retire
 doublons et références orphelines, borne les rangs, limite la file de choix à la
 capacité réellement disponible et avance le compteur d'instances au-delà de tout
-ID restauré. La version 3 du miroir local Daily applique le même normaliseur. Pour une attempt
+ID restauré. La version 4 du stockage Daily ne contient plus de miroir de gameplay
+et migre les anciennes sauvegardes en ne conservant que leurs métadonnées. Pour une attempt
 connectée, une équipe locale manquante est reconstruite depuis `initialTeam` ;
 une run invitée sans membre légal n'est pas reprise comme active.
 

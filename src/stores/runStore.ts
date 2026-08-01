@@ -1191,29 +1191,19 @@ export const useRunStore = create<RunStore>()(
           }
 
           if (snapshot.mode === 'daily' && snapshot.daily) {
-            useDailyRunStore.setState({
-              runLevel: snapshot.runLevel,
-              biomesVisited: snapshot.biomesVisited,
-              currentBiome: snapshot.daily.currentBiome,
-              inventory: snapshot.daily.inventory,
-              gold: snapshot.goldBalance,
-              currentWave: snapshot.daily.currentWave,
-              totalWavesCompleted: snapshot.wavesCompleted,
-              score: snapshot.daily.score,
-            });
-            if (!isVerifiedRun && snapshot.daily.abandoned) {
-              useDailyRunStore.getState().endDailyRun();
-            } else {
+            if (!snapshot.daily.abandoned) {
               const refreshedPlayer = useAuthStore.getState().player;
-              useDailyRunStore
-                .getState()
-                .completeDailyRun(
+              useDailyRunStore.getState().recordDailyCompletion({
+                playerName:
                   refreshedPlayer?.display_name ||
-                    refreshedPlayer?.username ||
-                    user?.email?.split('@')[0] ||
-                    'Guest',
-                  !isVerifiedRun,
-                );
+                  refreshedPlayer?.username ||
+                  user?.email?.split('@')[0] ||
+                  'Guest',
+                score: snapshot.daily.score,
+                wavesCompleted: snapshot.wavesCompleted,
+                runLevel: snapshot.runLevel,
+                persistInLocalLeaderboard: !isVerifiedRun,
+              });
             }
           }
 

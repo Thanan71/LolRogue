@@ -1,6 +1,6 @@
 # TODO NEXT — priorités après stabilisation P0/P1
 
-Dernière mise à jour : **31 juillet 2026**
+Dernière mise à jour : **1 août 2026**
 
 Ce document complète [`TODO.md`](./TODO.md) sans le remplacer. `TODO.md` reste la
 source de vérité détaillée et sa Definition of Done reste obligatoire. Cette liste
@@ -94,17 +94,15 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P1-DATA-02 — Sources de vérité** : réduire les gestionnaires concurrents et
-   documenter un propriétaire par donnée.
-2. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
+1. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
    et les réponses asynchrones robustes.
-3. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
+2. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
    Combat et Game Over sur les petits viewports.
-4. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
+3. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
    reflow, contraste et réduction de mouvement dans le chantier responsive.
-7. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
+4. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
    invité et authentifié sans mutation directe des stores.
-8. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
+5. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
    parité et les parcours E2E bloquants.
 
 ---
@@ -188,13 +186,19 @@ combat interrompu reprend obligatoirement en autoplay déterministe.
 
 ### P1-DATA-02 — Réduire les sources de vérité concurrentes
 
-- [ ] Réduire `dailyRunStore` aux métadonnées Daily si `runStore` pilote le gameplay.
-- [ ] Faire passer le flux réel par les gestionnaires et règles canoniques déjà
+- [x] Réduire `dailyRunStore` aux métadonnées Daily si `runStore` pilote le gameplay.
+- [x] Faire passer le flux réel par les gestionnaires et règles canoniques déjà
   créés.
-- [ ] Retirer ou déprécier les gestionnaires dont les règles sont dupliquées.
-- [ ] Éviter les singletons mutables hors Zustand pour les données de run.
-- [ ] Documenter un propriétaire unique et une seule commande de mutation par
+- [x] Retirer ou déprécier les gestionnaires dont les règles sont dupliquées.
+- [x] Éviter les singletons mutables hors Zustand pour les données de run.
+- [x] Documenter un propriétaire unique et une seule commande de mutation par
   donnée.
+
+**Statut : terminé.** `runStore` est l'unique propriétaire du gameplay Normal et
+Daily ; le store Daily v4 ne conserve que le challenge et le résultat invité.
+Les événements sont des règles pures, l'ancien gestionnaire d'inventaire est
+dépublié/déprécié sans singleton partagé, et la boutique utilise la même fabrique
+d'augments que le combat et l'authority.
 
 ### P1-DATA-03 — Fiabiliser Auth, profil et changement d'identité
 

@@ -1,9 +1,8 @@
 import { useCallback, useMemo } from 'react';
 import { playUIClick } from '@/audio';
 import { championDB } from '@/data/championDatabase';
-import { AUGMENT_DATABASE } from '@/data/items';
-import { AugmentManager } from '@/game/augments/AugmentManager';
 import type { ShopEncounter, ShopItem } from '@/game/map/types';
+import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
@@ -115,6 +114,7 @@ export function ShopPage() {
   const team = useRunStore((s) => s.team);
   const inventorySize = useRunStore((s) => s.inventory.length);
   const augmentIds = useRunStore((s) => s.augmentIds);
+  const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
   const navigate = useAppNavigate();
   const getCurrentNode = useRunStore((s) => s.getCurrentNode);
   const purchaseCurrentShopItem = useRunStore((s) => s.purchaseCurrentShopItem);
@@ -140,13 +140,9 @@ export function ShopPage() {
   }, [getCurrentNode]);
 
   const priceMultiplier = useMemo(() => {
-    const manager = new AugmentManager(Math.max(4, augmentIds.length));
-    for (const id of augmentIds) {
-      const augment = AUGMENT_DATABASE[id];
-      if (augment) manager.acquireAugment(augment);
-    }
+    const manager = createRunAugmentManager(augmentIds, currentBiomeIndex);
     return (encounter?.priceMultiplier ?? 1) * (1 - manager.getShopDiscountPercent());
-  }, [augmentIds, encounter?.priceMultiplier]);
+  }, [augmentIds, currentBiomeIndex, encounter?.priceMultiplier]);
   const items = encounter?.items ?? [];
   const recruitable = encounter?.recruitableChampions ?? [];
 

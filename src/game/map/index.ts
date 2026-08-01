@@ -4,11 +4,8 @@
  * Procedural map generation and navigation system.
  */
 
-// Encounter Manager
-export {
-  EncounterManager,
-  resolveEventOutcome,
-} from './EncounterManager';
+// Canonical, stateless event outcome rules
+export { resolveAffordableEventOutcome, resolveEventOutcome } from './eventOutcome';
 
 // Encounter pools
 export {
