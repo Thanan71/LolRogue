@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
+import { fr } from '@/i18n/fr';
 import type { TreasureEncounter } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
@@ -107,7 +108,7 @@ export function TreasurePage() {
 
   return (
     <EncounterLayout
-      title="💎 Treasure"
+      title={`💎 ${fr.encounter.treasure}`}
       gold={gold}
       contentClassName="encounter-layout__content--centered"
     >
@@ -119,16 +120,16 @@ export function TreasurePage() {
         {!collected ? (
           <>
             <div style={{ fontSize: 24, fontWeight: 700, color: '#eab308', marginBottom: 12 }}>
-              {encounter?.name ?? 'Treasure Found!'}
+              {encounter?.name ?? fr.encounter.treasureFound}
             </div>
             <div style={{ fontSize: 14, color: '#c8aa6e', marginBottom: 8, textAlign: 'center' }}>
-              {encounter?.description ?? 'A valuable treasure awaits!'}
+              {encounter?.description ?? fr.encounter.treasureAwaits}
             </div>
             <div style={previewStyle}>
               <div style={previewItemStyle}>
                 <span style={{ fontSize: 24 }}>💰</span>
                 <span style={{ color: '#ffd700', fontWeight: 600 }}>
-                  +{encounter?.gold ?? 0} Gold
+                  +{encounter?.gold ?? 0} {fr.common.gold}
                 </span>
               </div>
               {encounter?.item && (
@@ -139,27 +140,27 @@ export function TreasurePage() {
               )}
             </div>
             <button style={collectBtnStyle} onClick={handleCollect}>
-              Collect Rewards
+              {fr.encounter.collect}
             </button>
           </>
         ) : (
           <>
             <div style={{ fontSize: 24, fontWeight: 700, color: '#22c55e', marginBottom: 16 }}>
-              Rewards Collected!
+              {fr.encounter.collected}
             </div>
 
             <div style={rewardsContainerStyle}>
               <div style={rewardSectionStyle}>
-                <div style={rewardLabelStyle}>Gold Earned</div>
+                <div style={rewardLabelStyle}>{fr.encounter.treasureGold}</div>
                 <div style={rewardValueStyle}>
                   <span style={{ color: '#ffd700' }}>+{encounter?.gold ?? 0}</span>
-                  <span style={{ fontSize: 14, color: '#8b949e' }}> (Total: {gold})</span>
+                  <span style={{ fontSize: 14, color: '#8b949e' }}> (Total : {gold})</span>
                 </div>
               </div>
 
               {encounter?.item && itemDisposition === 'added' && (
                 <div style={rewardSectionStyle}>
-                  <div style={rewardLabelStyle}>Item Received</div>
+                  <div style={rewardLabelStyle}>{fr.encounter.itemReceived}</div>
                   <div style={itemDetailStyle}>
                     <div style={{ fontSize: 16, fontWeight: 600, color: '#7dd3fc' }}>
                       {encounter.item.name}
@@ -181,21 +182,19 @@ export function TreasurePage() {
               )}
               {encounter?.item && itemDisposition === 'left_full' && (
                 <div style={rewardSectionStyle}>
-                  <div style={rewardLabelStyle}>Item left behind</div>
+                  <div style={rewardLabelStyle}>{fr.encounter.itemLeft}</div>
                   <div style={{ color: '#facc15', fontSize: 14 }}>
-                    Inventory full — {encounter.item.name} was not added.
+                    {fr.encounter.inventoryFull} ({encounter.item.name})
                   </div>
                 </div>
               )}
               {itemDisposition === 'already_resolved' && (
-                <div style={{ color: '#8b949e', fontSize: 13 }}>
-                  This treasure was already resolved before the page was reloaded.
-                </div>
+                <div style={{ color: '#8b949e', fontSize: 13 }}>{fr.encounter.alreadyResolved}</div>
               )}
             </div>
 
             <button style={continueBtnStyle} onClick={handleContinue}>
-              Continue
+              {fr.common.continue}
             </button>
           </>
         )}

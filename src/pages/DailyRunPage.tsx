@@ -11,6 +11,7 @@ import { useRunStore } from '@/stores/runStore';
 import type { DailyChallenge } from '@/types/dailyRun';
 import { ROUTES } from '@/config/routes';
 import '@/styles/daily-run.css';
+import { fr } from '@/i18n/fr';
 
 export function DailyRunPage() {
   const navigate = useAppNavigate();
@@ -44,7 +45,7 @@ export function DailyRunPage() {
     void new SupabaseDailyRunRepository(supabase).getDailyChallenge().then((result) => {
       if (cancelled) return;
       if (result.error) {
-        setAvailabilityError('Unable to verify your daily attempt.');
+        setAvailabilityError(fr.daily.unavailableDetail);
       } else if (result.data) {
         setChallenge(result.data);
         syncChallenge(result.data);
@@ -62,8 +63,8 @@ export function DailyRunPage() {
   return (
     <PageShell width="content" className="daily-run-page">
       <PageHeader
-        title="Daily Run"
-        subtitle="One shared challenge and seed every day."
+        title={fr.daily.title}
+        subtitle={fr.daily.subtitle}
         leading={
           <Button
             variant="ghost"
@@ -72,18 +73,15 @@ export function DailyRunPage() {
               navigate(ROUTES.MENU);
             }}
           >
-            ← Back
+            {fr.common.back}
           </Button>
         }
       />
 
       <Panel className="daily-run-page__challenge">
         <div>
-          <h2>Today’s challenge</h2>
-          <p>
-            Your map, starter offers, difficulty and score rules are fixed by the server for the UTC
-            day.
-          </p>
+          <h2>{fr.daily.today}</h2>
+          <p>{fr.daily.description}</p>
           {challenge && (
             <p>
               {challenge.dailyDate} UTC · {challenge.difficulty} · score v{challenge.scoreVersion}
@@ -91,7 +89,7 @@ export function DailyRunPage() {
           )}
         </div>
         {availabilityError ? (
-          <StateView kind="error" title="Daily unavailable">
+          <StateView kind="error" title={fr.daily.unavailable}>
             {availabilityError}
           </StateView>
         ) : (
@@ -105,12 +103,12 @@ export function DailyRunPage() {
             }}
           >
             {isChecking
-              ? 'Checking…'
+              ? fr.common.checking
               : canResume
-                ? 'Resume Daily Run'
+                ? fr.daily.resume
                 : attemptUsed
-                  ? 'Attempt used today'
-                  : 'Start Daily Run'}
+                  ? fr.daily.used
+                  : fr.daily.start}
           </Button>
         )}
       </Panel>

@@ -12,6 +12,8 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuthStore } from '@/stores/authStore';
 import { useChampionEnhancements, useEnhancementStore } from '@/stores/enhancementStore';
 import type { Champion } from '@/types/champion';
+import { formatChampionTag, plural } from '@/i18n/format';
+import { fr } from '@/i18n/fr';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import { stripMarkup } from '@/utils/text';
 import '@/styles/database.css';
@@ -69,17 +71,19 @@ export function DatabasePage() {
     <main className="database-page" style={containerStyle}>
       <header className="database-page__header" style={headerStyle}>
         <button style={backBtnStyle} onClick={() => navigate(ROUTES.MENU)}>
-          ← Menu
+          {fr.common.backToMenu}
         </button>
-        <h1 style={{ color: '#c8aa6e', fontSize: 20, margin: 0 }}>Champion Database</h1>
-        <span style={{ color: '#8b949e', fontSize: 12 }}>{allChampions.length} champions</span>
+        <h1 style={{ color: '#c8aa6e', fontSize: 20, margin: 0 }}>{fr.database.title}</h1>
+        <span style={{ color: '#8b949e', fontSize: 12 }}>
+          {plural(allChampions.length, 'champion')}
+        </span>
       </header>
 
       <div className="database-page__body" style={bodyStyle}>
         <aside className="database-page__sidebar" style={sidebarStyle}>
           <input
             type="text"
-            placeholder="Search champions..."
+            placeholder={fr.database.search}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={searchStyle}
@@ -109,7 +113,9 @@ export function DatabasePage() {
                   <div style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>
                     {champ.name}
                   </div>
-                  <div style={{ color: '#8b949e', fontSize: 11 }}>{champ.tags.join(', ')}</div>
+                  <div style={{ color: '#8b949e', fontSize: 11 }}>
+                    {champ.tags.map(formatChampionTag).join(', ')}
+                  </div>
                 </div>
               </div>
             ))}
@@ -128,7 +134,7 @@ export function DatabasePage() {
                   }}
                   onClick={() => setActiveTab('info')}
                 >
-                  📖 Infos
+                  📖 {fr.database.info}
                 </button>
                 <button
                   style={{
@@ -138,7 +144,7 @@ export function DatabasePage() {
                   }}
                   onClick={() => setActiveTab('enhancements')}
                 >
-                  🌟 Améliorations
+                  🌟 {fr.database.enhancements}
                 </button>
               </div>
 
@@ -171,9 +177,9 @@ export function DatabasePage() {
             </>
           ) : (
             <div style={placeholderStyle}>
-              <p style={{ color: '#8b949e' }}>Select a champion to view details</p>
+              <p style={{ color: '#8b949e' }}>{fr.database.select}</p>
               <p style={{ color: '#484f58', fontSize: 12, marginTop: 8 }}>
-                Use the search bar to find champions by name or role
+                {fr.database.selectHelp}
               </p>
             </div>
           )}
@@ -212,21 +218,21 @@ function ChampionDetail({ champion }: { champion: Champion }) {
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {champion.tags.map((tag) => (
               <span key={tag} style={tagStyle}>
-                {tag}
+                {formatChampionTag(tag)}
               </span>
             ))}
           </div>
         </div>
       </div>
 
-      <h3 style={sectionTitleStyle}>Stats (Level 1)</h3>
+      <h3 style={sectionTitleStyle}>{fr.database.stats}</h3>
       <div style={statsGridStyle}>
         {[
-          { label: 'HP', value: gameStats.hp },
+          { label: 'PV', value: gameStats.hp },
           { label: 'ATK', value: gameStats.atk },
           { label: 'DEF', value: gameStats.def },
           { label: 'AP', value: gameStats.ap },
-          { label: 'SPD', value: gameStats.spd },
+          { label: 'VIT', value: gameStats.spd },
           { label: 'CRIT', value: gameStats.crit },
         ].map((s) => (
           <div key={s.label} style={statBlockStyle}>
@@ -236,7 +242,7 @@ function ChampionDetail({ champion }: { champion: Champion }) {
         ))}
       </div>
 
-      <h3 style={sectionTitleStyle}>Abilities</h3>
+      <h3 style={sectionTitleStyle}>{fr.database.abilities}</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {champion.spells.map((spell) => (
           <div key={spell.id} style={abilityCardStyle}>
@@ -250,7 +256,7 @@ function ChampionDetail({ champion }: { champion: Champion }) {
         ))}
         <div style={abilityCardStyle}>
           <div style={{ color: '#e6edf3', fontWeight: 600, fontSize: 13 }}>
-            Passive: {champion.passive.name}
+            {fr.database.passive} : {champion.passive.name}
           </div>
           <div style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}>
             {isPassiveCombatReady(champion.id, champion.passive)

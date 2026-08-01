@@ -97,46 +97,49 @@ async function exerciseAuthAndMenu(page: Page) {
   await page.goto('/auth');
   await expect(page.getByRole('heading', { name: 'LoL Rogue' })).toBeVisible();
 
-  const loginTab = page.locator('.auth-page__tab').filter({ hasText: /^Login$/ });
-  const signupTab = page.getByRole('button', { name: 'Sign Up', exact: true });
-  const guestButton = page.getByRole('button', { name: 'Play as Guest' });
+  const loginTab = page.locator('.auth-page__tab').filter({ hasText: /^Connexion$/ });
+  const signupTab = page.getByRole('button', { name: 'Créer un compte', exact: true });
+  const guestButton = page.getByRole('button', { name: 'Jouer en invité' });
 
   await expectReachableAction(loginTab);
   await expectReachableAction(signupTab);
   await signupTab.click();
 
-  await expect(page.getByLabel('Username *')).toBeVisible();
-  await expectReachableAction(page.getByRole('button', { name: 'Create Account' }), {
-    canBeDisabled: true,
-  });
+  await expect(page.getByLabel("Nom d'utilisateur *")).toBeVisible();
+  await expectReachableAction(
+    page.locator('form').getByRole('button', { name: 'Créer un compte' }),
+    {
+      canBeDisabled: true,
+    },
+  );
   await expectReachableAction(guestButton);
   await expectDocumentShell(page, '.auth-page', '.auth-page__footer');
 
   await loginTab.click();
-  await expect(page.getByLabel('Email *')).toBeVisible();
+  await expect(page.getByLabel('Adresse e-mail *')).toBeVisible();
   await expectReachableAction(page.locator('.auth-page__submit'), { canBeDisabled: true });
   await expectReachableAction(guestButton);
 
   await guestButton.click();
   await expect(page).toHaveURL('/');
-  await expect(page.getByText('Guest Mode')).toBeVisible();
+  await expect(page.getByText('Mode invité')).toBeVisible();
 
   for (const actionName of [
-    'Play',
-    'Daily Run',
-    'Database',
-    'Profile & Run History',
-    'Settings',
-    'Credits',
-    'Login / Create Account',
+    'Jouer',
+    'Défi quotidien',
+    'Champions',
+    'Profil et historique',
+    'Réglages',
+    'Crédits',
+    'Connexion / Créer un compte',
   ]) {
     await expectReachableAction(page.getByRole('button', { name: actionName, exact: true }));
   }
   await expectDocumentShell(page, '.main-menu', '.main-menu__footer');
 
-  await page.getByRole('button', { name: 'Login / Create Account' }).click();
+  await page.getByRole('button', { name: 'Connexion / Créer un compte' }).click();
   await expect(page).toHaveURL('/auth');
-  await expect(page.getByRole('button', { name: 'Play as Guest' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Jouer en invité' })).toBeVisible();
 }
 
 for (const viewport of [...VIEWPORTS, ZOOM_200_VIEWPORT]) {
@@ -153,7 +156,7 @@ for (const viewport of [...VIEWPORTS, ZOOM_200_VIEWPORT]) {
       contentType: 'image/png',
     });
 
-    await page.getByRole('button', { name: 'Play as Guest' }).click();
+    await page.getByRole('button', { name: 'Jouer en invité' }).click();
     await expect(page).toHaveURL('/');
     await testInfo.attach(`menu-${attachmentName}`, {
       body: await page.screenshot({ fullPage: true }),

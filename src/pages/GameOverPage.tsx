@@ -7,6 +7,8 @@ import { ROUTES } from '@/config/routes';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import type { RunSummary } from '@/types/run';
+import { plural } from '@/i18n/format';
+import { fr } from '@/i18n/fr';
 
 export function GameOverPage() {
   const navigate = useAppNavigate();
@@ -87,50 +89,48 @@ export function GameOverPage() {
           className={summary?.won ? 'game-over-title--victory' : 'game-over-title--defeat'}
           style={{ fontSize: 36, marginBottom: 8 }}
         >
-          {summary?.won ? 'Victory!' : 'Game Over'}
+          {summary?.won ? fr.gameOver.victory : fr.gameOver.defeat}
         </h1>
-        <p style={{ color: '#8b949e', marginBottom: 24, fontSize: 14 }}>
-          Your run has come to an end.
-        </p>
+        <p style={{ color: '#8b949e', marginBottom: 24, fontSize: 14 }}>{fr.gameOver.ended}</p>
 
         {isBusy && (
           <p role="status" style={savingStyle}>
-            {saveStatus === 'retrying' ? 'Retrying run verification…' : 'Saving your run…'}
+            {saveStatus === 'retrying' ? fr.gameOver.retrying : fr.gameOver.saving}
           </p>
         )}
         {saveStatus === 'saved' && (
           <p role="status" style={successStyle}>
-            {serverProgression ? 'Run verified and progression saved.' : 'Run saved.'}
+            {serverProgression ? fr.gameOver.verifiedSaved : fr.gameOver.saved}
           </p>
         )}
         {saveStatus === 'failed' && (
           <div role="alert" style={errorStyle}>
             <div>
               {saveFailureKind === 'terminal'
-                ? `Run not verified. No authenticated progression was awarded: ${saveError}`
-                : `Unable to verify this run yet: ${saveError}`}
+                ? `${fr.gameOver.rejected} : ${saveError}`
+                : `${fr.gameOver.verificationPending} : ${saveError}`}
             </div>
             {isRetryableSaveError && (
               <button style={retryBtnStyle} onClick={handleRetrySave}>
-                Retry Verification
+                {fr.gameOver.retryVerification}
               </button>
             )}
           </div>
         )}
 
         <div className="game-over-stats" style={statsGridStyle}>
-          <StatBlock label="Level Reached" value={runLevel} />
-          <StatBlock label="Waves Completed" value={totalWavesCompleted} />
-          <StatBlock label="Biomes Visited" value={biomesCount} />
-          <StatBlock label="Team Size" value={championCount} />
-          <StatBlock label="Total Kills" value={totalKills} />
-          <StatBlock label="Assists" value={totalAssists} />
-          <StatBlock label="Total Damage" value={totalDamage} />
-          <StatBlock label="Healing" value={totalHealing} />
-          <StatBlock label="Shielding" value={totalShielding} />
-          <StatBlock label="Gold Earned" value={goldEarned} />
-          <StatBlock label="Gold Spent" value={summary?.goldSpent ?? 0} />
-          <StatBlock label="Gold Balance" value={summary?.goldBalance ?? 0} />
+          <StatBlock label={fr.gameOver.levelReached} value={runLevel} />
+          <StatBlock label={fr.gameOver.wavesCompleted} value={totalWavesCompleted} />
+          <StatBlock label={fr.gameOver.biomesVisited} value={biomesCount} />
+          <StatBlock label={fr.gameOver.teamSize} value={championCount} />
+          <StatBlock label={fr.gameOver.totalKills} value={totalKills} />
+          <StatBlock label={fr.gameOver.assists} value={totalAssists} />
+          <StatBlock label={fr.gameOver.totalDamage} value={totalDamage} />
+          <StatBlock label={fr.gameOver.healing} value={totalHealing} />
+          <StatBlock label={fr.gameOver.shielding} value={totalShielding} />
+          <StatBlock label={fr.gameOver.goldEarned} value={goldEarned} />
+          <StatBlock label={fr.gameOver.goldSpent} value={summary?.goldSpent ?? 0} />
+          <StatBlock label={fr.gameOver.goldBalance} value={summary?.goldBalance ?? 0} />
         </div>
 
         {summary?.championStats && summary.championStats.length > 0 && (
@@ -145,7 +145,7 @@ export function GameOverPage() {
                 letterSpacing: 1,
               }}
             >
-              Champion Stats
+              {fr.gameOver.championStats}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {summary.championStats.map((cs) => (
@@ -179,11 +179,11 @@ export function GameOverPage() {
                 letterSpacing: 1,
               }}
             >
-              Rewards Earned
+              {fr.gameOver.rewards}
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 8 }}>
               <span style={{ color: '#fbbf24', fontSize: 16, fontWeight: 700 }}>
-                🍬 {rewards.total} Candies
+                🍬 {plural(rewards.total, 'bonbon')}
               </span>
             </div>
             {Object.keys(rewards.byChampion).length > 0 && (
@@ -193,7 +193,9 @@ export function GameOverPage() {
                     candies > 0 && (
                       <div key={id} className="game-over-champion-row" style={championRowStyle}>
                         <span style={{ color: '#e6edf3', fontSize: 13 }}>{id}</span>
-                        <span style={{ color: '#a78bfa', fontSize: 12 }}>+{candies} candies</span>
+                        <span style={{ color: '#a78bfa', fontSize: 12 }}>
+                          +{plural(candies, 'bonbon')}
+                        </span>
                       </div>
                     ),
                 )}
@@ -201,7 +203,7 @@ export function GameOverPage() {
             )}
             {serverProgression && (
               <div data-testid="server-progression" style={progressionMetadataStyle}>
-                Progression v{serverProgression.progressionVersion} · Verified
+                Progression v{serverProgression.progressionVersion} · {fr.gameOver.verified}
               </div>
             )}
           </div>
@@ -213,14 +215,14 @@ export function GameOverPage() {
             onClick={handleNewRun}
             disabled={isBusy || isRetryableSaveError}
           >
-            New Run
+            {fr.gameOver.newRun}
           </button>
           <button
             style={secondaryBtnStyle}
             onClick={handleMenu}
             disabled={isBusy || isRetryableSaveError}
           >
-            Main Menu
+            {fr.gameOver.mainMenu}
           </button>
         </div>
       </div>

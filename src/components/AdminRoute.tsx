@@ -3,6 +3,7 @@ import { getAdminRouteAccess } from '@/auth/routeAccess';
 import { useAuthStore } from '@/stores/authStore';
 import { ROUTES } from '@/config/routes';
 import { PageShell, StateView } from '@/components/ui';
+import { fr } from '@/i18n/fr';
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
   if (access === 'loading') {
     return (
       <PageShell width="narrow" centered>
-        <StateView kind="loading" title="Loading…" />
+        <StateView kind="loading" title={fr.common.loading} />
       </PageShell>
     );
   }

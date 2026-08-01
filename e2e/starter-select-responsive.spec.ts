@@ -14,9 +14,9 @@ test.beforeEach(async ({ context, page }) => {
 
 async function openStarterSelection(page: Page) {
   await page.goto('/auth');
-  await page.getByRole('button', { name: 'Play as Guest' }).click();
+  await page.getByRole('button', { name: 'Jouer en invité' }).click();
   await expect(page).toHaveURL('/');
-  await page.getByRole('button', { name: 'Play', exact: true }).click();
+  await page.getByRole('button', { name: 'Jouer', exact: true }).click();
   await expect(page).toHaveURL('/starter-select');
   await expect(page.getByRole('heading', { name: 'Compose ton équipe' })).toBeVisible();
 }

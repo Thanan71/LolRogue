@@ -91,14 +91,15 @@ présentés comme des travaux à démarrer :
 - [x] `P1-DATA-01` à `P1-DATA-03`
 - [x] `P1-UX-01`
 - [x] `P1-UX-02`
+- [x] `P1-UX-03`
 
 Une réouverture exige un bug reproductible ou une preuve invalidant la Definition
 of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P1-UX-03 / P1-UX-04 — Langue et feedback** : unifier les termes puis rendre
-   les erreurs et confirmations actionnables.
+1. **P1-UX-04 — Feedback et vérité de l'interface** : rendre les erreurs et
+   confirmations actionnables sans annoncer prématurément un succès.
 2. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
    reflow, contraste et réduction de mouvement dans le chantier responsive.
 3. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,

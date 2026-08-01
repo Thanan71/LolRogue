@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
+import { fr } from '@/i18n/fr';
 import { championDB } from '@/data/championDatabase';
 import type { ShopEncounter, ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
@@ -173,11 +174,16 @@ export function ShopPage() {
   if (!isActive) return null;
 
   return (
-    <EncounterLayout title={`Shop — ${encounter?.name ?? 'Shop'}`} gold={gold}>
+    <EncounterLayout
+      title={`${fr.encounter.shop} — ${encounter?.name ?? fr.encounter.shop}`}
+      gold={gold}
+    >
       <div style={scrollAreaStyle}>
-        {encounter && priceMultiplier < 1 && <div style={discountBanner}>20% discount today!</div>}
+        {encounter && priceMultiplier < 1 && (
+          <div style={discountBanner}>{fr.encounter.discount}</div>
+        )}
         <div style={sectionStyle}>
-          <div style={sectionTitle}>Items</div>
+          <div style={sectionTitle}>{fr.encounter.items}</div>
           <div style={gridStyle}>
             {items.map((item) => (
               <ShopItemCard
@@ -192,12 +198,12 @@ export function ShopPage() {
                 onBuy={() => handleBuyItem(item)}
               />
             ))}
-            {items.length === 0 && <div style={emptyStyle}>No items available</div>}
+            {items.length === 0 && <div style={emptyStyle}>{fr.encounter.noItems}</div>}
           </div>
         </div>
         {recruitable.length > 0 && (
           <div style={sectionStyle}>
-            <div style={sectionTitle}>Recruitable Champions</div>
+            <div style={sectionTitle}>{fr.encounter.recruits}</div>
             <div style={gridStyle}>
               {recruitable.map((rc) => (
                 <ChampionCard
@@ -217,7 +223,7 @@ export function ShopPage() {
         )}
         <div style={{ textAlign: 'center', marginTop: 20, paddingBottom: 24 }}>
           <button style={leaveBtnStyle} onClick={handleLeave}>
-            Leave Shop
+            {fr.encounter.leaveShop}
           </button>
         </div>
       </div>

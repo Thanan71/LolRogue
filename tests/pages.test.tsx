@@ -137,15 +137,15 @@ describe('P2 page smoke tests', () => {
   it('renders authentication controls', () => {
     renderAt(<AuthPage />, '/auth');
     expect(screen.getByRole('heading', { name: 'LoL Rogue' })).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: 'Login' })).toHaveLength(2);
-    expect(screen.getByRole('button', { name: 'Sign Up' })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Connexion' })).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'Créer un compte' })).toBeInTheDocument();
   });
 
   it('renders the guest menu', () => {
     renderAt(<MenuPage />);
     expect(screen.getByRole('heading', { name: 'LoL Rogue' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /play$/i })).toBeInTheDocument();
-    expect(screen.getByText('Guest Mode')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /jouer$/i })).toBeInTheDocument();
+    expect(screen.getByText('Mode invité')).toBeInTheDocument();
   });
 
   it('resumes an active Daily without asking to abandon it', async () => {
@@ -165,7 +165,7 @@ describe('P2 page smoke tests', () => {
       </MemoryRouter>,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Daily Run/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Défi quotidien/i }));
 
     expect(await screen.findByText('Daily run resumed')).toBeInTheDocument();
     expect(confirm).not.toHaveBeenCalled();
@@ -189,7 +189,7 @@ describe('P2 page smoke tests', () => {
       </MemoryRouter>,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Daily Run/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Défi quotidien/i }));
 
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(screen.queryByText('Daily destination')).not.toBeInTheDocument();
@@ -306,7 +306,7 @@ describe('P2 page smoke tests', () => {
     renderAt(<StarterSelectPage />, '/starter-select');
 
     expect(screen.getByText(/tentative vérifiée interrompue/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /reprendre la run vérifiée/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /reprendre la partie vérifiée/i })).toBeEnabled();
     const rune = screen.getByRole('checkbox', { name: /press the attack/i });
     expect(rune).toBeChecked();
     expect(rune).toBeDisabled();
@@ -336,10 +336,10 @@ describe('P2 page smoke tests', () => {
   });
 
   it.each([
-    ['Shop', <ShopPage />],
-    ['Rest', <RestPage />],
-    ['Event', <EventPage />],
-    ['Treasure', <TreasurePage />],
+    ['Boutique', <ShopPage />],
+    ['Repos', <RestPage />],
+    ['Événement', <EventPage />],
+    ['Trésor', <TreasurePage />],
   ])('renders the %s encounter fallback safely', (label, page) => {
     useRunStore.setState({ isActive: true });
     renderAt(page, `/${label.toLowerCase()}`);
@@ -411,8 +411,8 @@ describe('P2 page smoke tests', () => {
 
     renderAt(<TreasurePage />, '/treasure');
 
-    await waitFor(() => expect(screen.getByText('Item left behind')).toBeInTheDocument());
-    expect(screen.queryByText('Item Received')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Objet abandonné')).toBeInTheDocument());
+    expect(screen.queryByText('Objet obtenu')).not.toBeInTheDocument();
     expect(useRunStore.getState().inventory).toHaveLength(MAX_INVENTORY_ITEMS);
     expect(useRunStore.getState().gold).toBe(25);
     expect(useRunStore.getState().claimedEncounterNodeIds).toEqual([treasureNode.id]);
@@ -437,10 +437,8 @@ describe('P2 page smoke tests', () => {
         <GameOverPage />
       </MemoryRouter>,
     );
-    expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Game Over' })).toHaveClass(
-      'game-over-title--defeat',
-    );
+    expect(screen.getByRole('heading', { name: 'Défaite' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Défaite' })).toHaveClass('game-over-title--defeat');
     expect(playSFX).toHaveBeenCalledWith('defeat');
     expect(screen.getByText('8')).toBeInTheDocument();
   });
@@ -466,13 +464,13 @@ describe('P2 page smoke tests', () => {
 
     renderAt(<GameOverPage />, '/game-over');
 
-    expect(screen.getByRole('heading', { name: 'Victory!' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Victory!' })).toHaveClass(
+    expect(screen.getByRole('heading', { name: 'Victoire !' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Victoire !' })).toHaveClass(
       'game-over-title--victory',
     );
     expect(playSFX).toHaveBeenCalledWith('victory');
     expect(screen.getByText('12')).toBeInTheDocument();
-    expect(screen.getByText('Run saved.')).toBeInTheDocument();
+    expect(screen.getByText('Partie enregistrée.')).toBeInTheDocument();
   });
 
   it('uses canonical server rewards and the snapshot team for an authenticated run', () => {
@@ -514,10 +512,10 @@ describe('P2 page smoke tests', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/🍬 78 Candies/)).toBeInTheDocument();
-    expect(screen.getAllByText('+39 candies')).toHaveLength(2);
-    expect(screen.getByText('Team Size').parentElement).toHaveTextContent('2');
-    expect(screen.getByTestId('server-progression')).toHaveTextContent('Progression v7 · Verified');
+    expect(screen.getByText(/🍬 78 bonbons/)).toBeInTheDocument();
+    expect(screen.getAllByText('+39 bonbons')).toHaveLength(2);
+    expect(screen.getByText("Taille de l'équipe").parentElement).toHaveTextContent('2');
+    expect(screen.getByTestId('server-progression')).toHaveTextContent('Progression v7 · Vérifiée');
   });
 
   it('keeps local reward calculation for a guest run', () => {
@@ -548,7 +546,7 @@ describe('P2 page smoke tests', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(new RegExp(`🍬 ${localRewards.total} Candies`))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`🍬 ${localRewards.total} bonbon`))).toBeInTheDocument();
     expect(screen.queryByTestId('server-progression')).not.toBeInTheDocument();
   });
 
@@ -588,8 +586,8 @@ describe('P2 page smoke tests', () => {
     );
 
     expect(screen.getByRole('alert')).toHaveTextContent('network unavailable');
-    expect(screen.getByRole('button', { name: 'Retry Verification' })).toBeInTheDocument();
-    expect(screen.queryByText(/Candies/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Relancer la vérification' })).toBeInTheDocument();
+    expect(screen.queryByText(/bonbons/)).not.toBeInTheDocument();
   });
 
   it('allows leaving a terminally rejected run without offering a retry', () => {
@@ -626,10 +624,12 @@ describe('P2 page smoke tests', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('alert')).toHaveTextContent('No authenticated progression was awarded');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      "Aucune progression authentifiée n'a été accordée",
+    );
     expect(screen.queryByRole('button', { name: /Retry/ })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'New Run' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Main Menu' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Nouvelle partie' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Menu principal' })).toBeEnabled();
   });
 });
 

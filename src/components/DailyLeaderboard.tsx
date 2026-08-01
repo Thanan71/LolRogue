@@ -5,6 +5,8 @@ import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
 import { getTodayKey, msUntilMidnight } from '@/utils/dailySeed';
+import { formatNumber } from '@/i18n/format';
+import { fr } from '@/i18n/fr';
 
 /**
  * DailyLeaderboard — displays today's daily run scores.
@@ -37,7 +39,7 @@ export function DailyLeaderboard() {
     const repository = new SupabaseDailyRunRepository(supabase);
     const challenge = await repository.getDailyChallenge();
     if (challenge.error || !challenge.data) {
-      setError('Unable to load the online Daily challenge.');
+      setError(fr.daily.challengeLoadError);
       setEntries([]);
       setIsLoading(false);
       return;
@@ -46,7 +48,7 @@ export function DailyLeaderboard() {
     setExpiresAt(challenge.data.expiresAt);
     const result = await repository.getDailyLeaderboard(challenge.data.dailyDate, 100);
     if (result.error) {
-      setError('Unable to load the online leaderboard.');
+      setError(fr.daily.leaderboardLoadError);
       setEntries([]);
     } else {
       setEntries(result.data ?? []);
@@ -76,33 +78,35 @@ export function DailyLeaderboard() {
 
   return (
     <div className="daily-leaderboard" style={styles.container}>
-      <h2 style={styles.title}>Daily Run — {dailyDate} UTC</h2>
-      <p style={styles.countdown}>Resets in: {countdown}</p>
+      <h2 style={styles.title}>
+        {fr.daily.title} — {dailyDate} UTC
+      </h2>
+      <p style={styles.countdown}>
+        {fr.daily.resetsIn} : {countdown}
+      </p>
       <p style={styles.source}>
-        {usesLocalLeaderboard
-          ? 'Guest leaderboard — stored only on this device'
-          : 'Online leaderboard — synced with Supabase'}
+        {usesLocalLeaderboard ? fr.daily.localSource : fr.daily.onlineSource}
       </p>
 
       {isLoading ? (
         <p role="status" style={styles.empty}>
-          Loading leaderboard…
+          {fr.daily.leaderboardLoading}
         </p>
       ) : error ? (
         <p role="alert" style={styles.error}>
           {error}
         </p>
       ) : entries.length === 0 ? (
-        <p style={styles.empty}>No runs completed yet. Be the first!</p>
+        <p style={styles.empty}>{fr.daily.leaderboardEmpty}</p>
       ) : (
         <table style={styles.table}>
           <thead>
             <tr>
               <th style={styles.th}>#</th>
-              <th style={styles.th}>Player</th>
-              <th style={styles.th}>Score</th>
-              <th style={styles.th}>Waves</th>
-              <th style={styles.th}>Level</th>
+              <th style={styles.th}>{fr.daily.player}</th>
+              <th style={styles.th}>{fr.daily.score}</th>
+              <th style={styles.th}>{fr.daily.waves}</th>
+              <th style={styles.th}>{fr.common.level}</th>
             </tr>
           </thead>
           <tbody>
@@ -113,7 +117,7 @@ export function DailyLeaderboard() {
               >
                 <td style={styles.td}>{entry.rank ?? i + 1}</td>
                 <td style={styles.td}>{entry.playerName}</td>
-                <td style={styles.td}>{entry.score.toLocaleString()}</td>
+                <td style={styles.td}>{formatNumber(entry.score)}</td>
                 <td style={styles.td}>{entry.wavesCompleted}</td>
                 <td style={styles.td}>{entry.runLevel}</td>
               </tr>
@@ -123,7 +127,7 @@ export function DailyLeaderboard() {
       )}
 
       <button style={styles.refreshBtn} onClick={() => void refresh()} disabled={isLoading}>
-        Refresh
+        {fr.daily.refresh}
       </button>
     </div>
   );

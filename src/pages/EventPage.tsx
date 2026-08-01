@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
+import { fr } from '@/i18n/fr';
 import { championDB } from '@/data/championDatabase';
 import type { EventEncounter, EventOutcome } from '@/game/map/types';
 import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
@@ -217,7 +218,7 @@ export function EventPage() {
 
   return (
     <EncounterLayout
-      title={`Event — ${encounter?.name ?? 'Mystery'}`}
+      title={`${fr.encounter.event} — ${encounter?.name ?? fr.encounter.mystery}`}
       gold={gold}
       tone="orange"
       contentClassName="encounter-layout__content--centered"
@@ -227,13 +228,11 @@ export function EventPage() {
           <>
             <div style={{ fontSize: 48, marginBottom: 16 }}>{'\u2753'}</div>
             <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
-              {encounter?.description ?? 'A mysterious encounter...'}
+              {encounter?.description ?? fr.encounter.mysterious}
             </div>
-            <div style={{ color: '#8b949e', marginBottom: 24 }}>
-              You sense that the outcome is uncertain. Will fortune favor you?
-            </div>
+            <div style={{ color: '#8b949e', marginBottom: 24 }}>{fr.encounter.uncertain}</div>
             <button style={investigateBtnStyle} onClick={handleInvestigate}>
-              Investigate
+              {fr.encounter.investigate}
             </button>
           </>
         ) : outcome ? (

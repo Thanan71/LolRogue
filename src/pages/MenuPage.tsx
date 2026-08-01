@@ -5,6 +5,8 @@ import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
+import { plural } from '@/i18n/format';
+import { fr } from '@/i18n/fr';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
 
@@ -138,7 +140,7 @@ export function MenuPage() {
     await runTransition(() => navigate(ROUTES.DAILY_RUN));
   }
 
-  const displayName = player?.display_name || user?.email?.split('@')[0] || 'Player';
+  const displayName = player?.display_name || user?.email?.split('@')[0] || fr.menu.playerFallback;
   return (
     <div className="main-menu">
       <ParticleBackground particleCount={80} />
@@ -147,7 +149,7 @@ export function MenuPage() {
         <div className="main-menu__logo-section">
           <LolRogueIcon />
           <h1 className="main-menu__title">LoL Rogue</h1>
-          <p className="main-menu__subtitle">A League of Legends Roguelike</p>
+          <p className="main-menu__subtitle">{fr.product.subtitle}</p>
         </div>
 
         {/* User Info */}
@@ -162,14 +164,16 @@ export function MenuPage() {
             </div>
             <div className="main-menu__user-details">
               <span className="main-menu__user-name">{displayName}</span>
-              <span className="main-menu__user-level">Level {player.level}</span>
+              <span className="main-menu__user-level">
+                {fr.common.level} {player.level}
+              </span>
             </div>
           </div>
         )}
 
         {isGuest && (
           <div className="main-menu__guest-badge">
-            <span>Guest Mode</span>
+            <span>{fr.menu.guestMode}</span>
           </div>
         )}
 
@@ -181,10 +185,10 @@ export function MenuPage() {
               <span className="main-menu__btn-icon" aria-hidden="true">
                 ▶
               </span>
-              Continue Run
+              {fr.menu.continueRun}
               <span className="main-menu__btn-info">
                 Lv.{runLevel} · {currentBiome ? currentBiome.replace('_', ' ') : '???'} ·{' '}
-                {team.length} champ{team.length !== 1 ? 's' : ''}
+                {plural(team.length, 'champion')}
               </span>
             </button>
           )}
@@ -197,7 +201,7 @@ export function MenuPage() {
             <span className="main-menu__btn-icon" aria-hidden="true">
               ⚔
             </span>
-            {isActive ? 'Abandon & New Run' : 'Play'}
+            {isActive ? fr.menu.abandonAndNew : fr.menu.newRun}
           </button>
 
           <button
@@ -208,7 +212,7 @@ export function MenuPage() {
             <span className="main-menu__btn-icon" aria-hidden="true">
               ☀
             </span>
-            Daily Run
+            {fr.menu.dailyRun}
           </button>
 
           <button
@@ -218,7 +222,7 @@ export function MenuPage() {
               navigate(ROUTES.DATABASE);
             }}
           >
-            Database
+            {fr.menu.database}
           </button>
 
           <button
@@ -228,7 +232,7 @@ export function MenuPage() {
               navigate(ROUTES.PROFILE);
             }}
           >
-            Profile & Run History
+            {fr.menu.profile}
           </button>
 
           <button
@@ -238,7 +242,7 @@ export function MenuPage() {
               navigate(ROUTES.SETTINGS);
             }}
           >
-            Settings
+            {fr.menu.settings}
           </button>
 
           <button
@@ -248,7 +252,7 @@ export function MenuPage() {
               navigate(ROUTES.CREDITS);
             }}
           >
-            Credits
+            {fr.menu.credits}
           </button>
 
           {player?.is_admin && (
@@ -259,7 +263,7 @@ export function MenuPage() {
                 navigate(ROUTES.ADMIN);
               }}
             >
-              🛡️ Admin Panel
+              🛡️ {fr.menu.admin}
             </button>
           )}
 
@@ -269,7 +273,7 @@ export function MenuPage() {
               onClick={handleLogout}
               disabled={isTransitioning}
             >
-              Logout
+              {fr.menu.logout}
             </button>
           )}
 
@@ -279,7 +283,7 @@ export function MenuPage() {
               onClick={handleGuestLogin}
               disabled={isTransitioning}
             >
-              Login / Create Account
+              {fr.menu.loginOrSignup}
             </button>
           )}
         </div>
@@ -287,7 +291,7 @@ export function MenuPage() {
 
       <footer className="main-menu__footer">
         <div className="main-menu__version">v0.1.0</div>
-        <div className="main-menu__disclaimer">Fan project — not affiliated with Riot Games</div>
+        <div className="main-menu__disclaimer">{fr.product.disclaimer}</div>
       </footer>
     </div>
   );

@@ -85,10 +85,10 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
           {/* Stats */}
           <div style={{ display: 'flex', gap: 12, marginBottom: 4 }}>
             <div style={{ fontSize: smallFontSize, color: '#aaa' }}>
-              <span style={{ color: '#3b82f6' }}>Mana:</span> {spell.cost}
+              <span style={{ color: '#3b82f6' }}>PM :</span> {spell.cost}
             </div>
             <div style={{ fontSize: smallFontSize, color: '#aaa' }}>
-              <span style={{ color: '#f59e0b' }}>CD:</span> {spell.cooldownMax}s
+              <span style={{ color: '#f59e0b' }}>Recharge :</span> {spell.cooldownMax} s
             </div>
           </div>
 

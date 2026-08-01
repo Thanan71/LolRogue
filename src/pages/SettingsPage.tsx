@@ -3,6 +3,7 @@ import { Button, Field, PageFooter, PageHeader, PageShell, Panel, Stack } from '
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAudioStore } from '@/stores/audioStore';
+import { fr } from '@/i18n/fr';
 import {
   type BattleSpeed,
   type Difficulty,
@@ -17,10 +18,16 @@ export function SettingsPage() {
 
   return (
     <PageShell width="narrow">
-      <PageHeader title="Settings" subtitle="Game configuration" />
-      <Panel aria-label="Game settings">
+      <PageHeader title={fr.settings.title} subtitle={fr.settings.subtitle} />
+      <Panel aria-label={fr.settings.panel}>
         <Stack className="settings-form">
-          <Field label={<label htmlFor="sfx-volume">SFX Volume — {audio.sfxVolume}%</label>}>
+          <Field
+            label={
+              <label htmlFor="sfx-volume">
+                {fr.settings.sfxVolume} — {audio.sfxVolume}%
+              </label>
+            }
+          >
             <div className="settings-form__control-row">
               <input
                 id="sfx-volume"
@@ -32,33 +39,33 @@ export function SettingsPage() {
                 aria-valuetext={`${audio.sfxVolume}%`}
               />
               <Button variant="ghost" onClick={audio.toggleSfxMute} aria-pressed={audio.sfxMuted}>
-                {audio.sfxMuted ? 'Unmute' : 'Mute'}
+                {audio.sfxMuted ? fr.settings.unmute : fr.settings.mute}
               </Button>
             </div>
           </Field>
-          <Field label={<label htmlFor="difficulty">Difficulty</label>}>
+          <Field label={<label htmlFor="difficulty">{fr.settings.difficulty}</label>}>
             <select
               id="difficulty"
               value={settings.difficulty}
               onChange={(event) => settings.setDifficulty(event.target.value as Difficulty)}
             >
-              <option value="easy">Easy</option>
-              <option value="normal">Normal</option>
-              <option value="hard">Hard</option>
+              <option value="easy">{fr.settings.easy}</option>
+              <option value="normal">{fr.settings.normal}</option>
+              <option value="hard">{fr.settings.hard}</option>
             </select>
           </Field>
-          <Field label={<label htmlFor="text-size">Text Size</label>}>
+          <Field label={<label htmlFor="text-size">{fr.settings.textSize}</label>}>
             <select
               id="text-size"
               value={settings.textSize}
               onChange={(event) => settings.setTextSize(event.target.value as TextSize)}
             >
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
+              <option value="small">{fr.settings.small}</option>
+              <option value="medium">{fr.settings.medium}</option>
+              <option value="large">{fr.settings.large}</option>
             </select>
           </Field>
-          <Field label={<label htmlFor="battle-speed">Battle Speed</label>}>
+          <Field label={<label htmlFor="battle-speed">{fr.settings.battleSpeed}</label>}>
             <select
               id="battle-speed"
               value={settings.battleSpeed}
@@ -71,17 +78,19 @@ export function SettingsPage() {
               <option value={3}>3×</option>
             </select>
           </Field>
-          <Field label={<label htmlFor="particles">Particles</label>}>
+          <Field label={<label htmlFor="particles">{fr.settings.particles}</label>}>
             <select
               id="particles"
               value={settings.particlesEnabled ? 'enabled' : 'disabled'}
               onChange={(event) => settings.setParticlesEnabled(event.target.value === 'enabled')}
             >
-              <option value="enabled">Enabled</option>
-              <option value="disabled">Disabled</option>
+              <option value="enabled">{fr.common.enabled}</option>
+              <option value="disabled">{fr.common.disabled}</option>
             </select>
           </Field>
-          <Field label={<label htmlFor="keyboard-shortcuts">Keyboard shortcuts</label>}>
+          <Field
+            label={<label htmlFor="keyboard-shortcuts">{fr.settings.keyboardShortcuts}</label>}
+          >
             <select
               id="keyboard-shortcuts"
               value={settings.keyboardShortcutsEnabled ? 'enabled' : 'disabled'}
@@ -89,8 +98,8 @@ export function SettingsPage() {
                 settings.setKeyboardShortcutsEnabled(event.target.value === 'enabled')
               }
             >
-              <option value="enabled">Enabled</option>
-              <option value="disabled">Disabled</option>
+              <option value="enabled">{fr.common.enabled}</option>
+              <option value="disabled">{fr.common.disabled}</option>
             </select>
           </Field>
         </Stack>
@@ -103,7 +112,7 @@ export function SettingsPage() {
             navigate(ROUTES.MENU);
           }}
         >
-          Back to Menu
+          {fr.common.backToMenu}
         </Button>
       </PageFooter>
     </PageShell>

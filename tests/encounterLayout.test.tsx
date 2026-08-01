@@ -13,7 +13,7 @@ describe('EncounterLayout', () => {
     );
     expect(screen.getByRole('main')).toHaveClass('encounter-layout--orange');
     expect(screen.getByRole('heading', { name: 'Long encounter title' })).toBeInTheDocument();
-    expect(screen.getByText('Gold: 125')).toBeInTheDocument();
+    expect(screen.getByText('Or : 125')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continue' }).parentElement).toHaveClass(
       'encounter-layout__content',
     );

@@ -803,11 +803,11 @@ export function CombatPage() {
             playUIClick();
             navigate(ROUTES.RUN);
           }}
-          aria-label="Back to map"
+          aria-label="Retour à la carte"
           title={
             canLeaveActiveCombat(battlePhase)
-              ? 'Back to map'
-              : 'Finish the active combat before returning to the map'
+              ? 'Retour à la carte'
+              : 'Termine le combat actif avant de revenir à la carte'
           }
         >
           ← Map
@@ -924,11 +924,11 @@ export function CombatPage() {
                     type="button"
                     onClick={processTurn}
                     style={nextTurnBtnStyle}
-                    aria-label="Execute turn (Space)"
+                    aria-label="Exécuter le tour (Espace)"
                     aria-keyshortcuts="Space"
                   >
                     ▶ Exécuter le tour
-                    <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.6 }}>[Space]</span>
+                    <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.6 }}>[Espace]</span>
                   </button>
                 </div>
               )}

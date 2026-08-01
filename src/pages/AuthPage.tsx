@@ -7,6 +7,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
+import { fr } from '@/i18n/fr';
 import '@/styles/auth.css';
 
 type AuthMode = 'login' | 'signup';
@@ -172,17 +173,12 @@ export function AuthPage() {
         <div className="auth-page__logo-section">
           <LolRogueIconSmall />
           <h1 className="auth-page__title">LoL Rogue</h1>
-          <p className="auth-page__subtitle">A League of Legends Roguelike</p>
+          <p className="auth-page__subtitle">{fr.product.subtitle}</p>
         </div>
 
         {/* Auth Form Container */}
         <div className="auth-page__container">
-          {!isSupabaseConfigured && (
-            <div className="auth-page__error">
-              Online accounts are unavailable because Supabase is not configured. Guest mode remains
-              available.
-            </div>
-          )}
+          {!isSupabaseConfigured && <div className="auth-page__error">{fr.auth.unavailable}</div>}
           {/* Tabs */}
           <div className="auth-page__tabs">
             <button
@@ -195,7 +191,7 @@ export function AuthPage() {
                 clearSuccessMessage();
               }}
             >
-              Login
+              {fr.auth.login}
             </button>
             <button
               type="button"
@@ -207,7 +203,7 @@ export function AuthPage() {
                 clearSuccessMessage();
               }}
             >
-              Sign Up
+              {fr.auth.signup}
             </button>
           </div>
 
@@ -223,13 +219,13 @@ export function AuthPage() {
               <>
                 <div className="auth-page__form-group">
                   <label className="auth-page__label" htmlFor="username">
-                    Username *
+                    {fr.auth.username}
                   </label>
                   <input
                     id="username"
                     type="text"
                     className="auth-page__input"
-                    placeholder="Enter your username"
+                    placeholder={fr.auth.usernamePlaceholder}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     autoComplete="username"
@@ -239,13 +235,13 @@ export function AuthPage() {
 
                 <div className="auth-page__form-group">
                   <label className="auth-page__label" htmlFor="display-name">
-                    Display Name
+                    {fr.auth.displayName}
                   </label>
                   <input
                     id="display-name"
                     type="text"
                     className="auth-page__input"
-                    placeholder="How you want to appear (optional)"
+                    placeholder={fr.auth.displayNamePlaceholder}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     autoComplete="name"
@@ -257,13 +253,13 @@ export function AuthPage() {
 
             <div className="auth-page__form-group">
               <label className="auth-page__label" htmlFor="email">
-                Email *
+                {fr.auth.email}
               </label>
               <input
                 id="email"
                 type="email"
                 className="auth-page__input"
-                placeholder="Enter your email"
+                placeholder={fr.auth.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -273,13 +269,17 @@ export function AuthPage() {
 
             <div className="auth-page__form-group">
               <label className="auth-page__label" htmlFor="password">
-                Password *
+                {fr.auth.password}
               </label>
               <input
                 id="password"
                 type="password"
                 className="auth-page__input"
-                placeholder={mode === 'signup' ? 'Min 6 characters' : 'Enter your password'}
+                placeholder={
+                  mode === 'signup'
+                    ? fr.auth.passwordSignupPlaceholder
+                    : fr.auth.passwordPlaceholder
+                }
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
@@ -295,12 +295,12 @@ export function AuthPage() {
               {isLoading ? (
                 <>
                   <span className="auth-page__spinner" />
-                  {mode === 'login' ? 'Logging in...' : 'Creating account...'}
+                  {mode === 'login' ? fr.auth.loggingIn : fr.auth.creatingAccount}
                 </>
               ) : mode === 'login' ? (
-                'Login'
+                fr.auth.login
               ) : (
-                'Create Account'
+                fr.auth.signup
               )}
             </button>
           </form>
@@ -308,20 +308,20 @@ export function AuthPage() {
           {/* Divider */}
           <div className="auth-page__divider">
             <div className="auth-page__divider-line" />
-            <span className="auth-page__divider-text">or</span>
+            <span className="auth-page__divider-text">{fr.auth.or}</span>
             <div className="auth-page__divider-line" />
           </div>
 
           {/* Guest Button */}
           <button type="button" className="auth-page__guest-btn" onClick={handleGuestPlay}>
-            Play as Guest
+            {fr.auth.guest}
           </button>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="auth-page__footer">
-        <p className="auth-page__footer-text">By continuing, you agree to our Terms of Service</p>
+        <p className="auth-page__footer-text">{fr.auth.terms}</p>
       </footer>
     </div>
   );

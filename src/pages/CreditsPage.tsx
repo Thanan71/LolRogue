@@ -1,6 +1,7 @@
 import { Button, PageFooter, PageHeader, PageShell, Panel, Stack } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { fr } from '@/i18n/fr';
 
 const credits = [
   { section: 'Game Design & Development', entries: ['LolRogue Team'] },
@@ -34,7 +35,7 @@ export function CreditsPage() {
       </Stack>
       <PageFooter>
         <Button variant="ghost" onClick={() => navigate(ROUTES.MENU)}>
-          Back to Menu
+          {fr.common.backToMenu}
         </Button>
       </PageFooter>
     </PageShell>

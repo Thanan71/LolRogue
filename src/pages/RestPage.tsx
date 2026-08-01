@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
+import { fr } from '@/i18n/fr';
 import { championDB } from '@/data/championDatabase';
 import type { RestEncounter } from '@/game/map/types';
 import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
@@ -121,29 +122,31 @@ export function RestPage() {
 
   return (
     <EncounterLayout
-      title={`Rest — ${encounter?.name ?? 'Campfire'}`}
+      title={`${fr.encounter.rest} — ${encounter?.name ?? fr.encounter.campfire}`}
       gold={gold}
       tone="green"
       contentClassName="encounter-layout__content--centered"
     >
       <div style={contentStyle}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>Rest</div>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>{fr.encounter.rest}</div>
         <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
-          {encounter?.description ?? 'A moment of respite'}
+          {encounter?.description ?? fr.encounter.respite}
         </div>
 
         <div style={{ marginBottom: 24, textAlign: 'center' }}>
           {fullHeal ? (
             <div style={{ fontSize: 24, color: '#22c55e', fontWeight: 700, marginBottom: 8 }}>
-              Full Heal!
+              {fr.encounter.fullHeal}
             </div>
           ) : (
             <div style={{ fontSize: 24, color: '#22c55e', fontWeight: 700, marginBottom: 8 }}>
-              Heal {Math.round(healPercent * 100)}% HP
+              Soin de {Math.round(healPercent * 100)} % des PV
             </div>
           )}
           {goldCost > 0 && (
-            <div style={{ fontSize: 14, color: '#8b949e' }}>Cost: {goldCost} gold</div>
+            <div style={{ fontSize: 14, color: '#8b949e' }}>
+              {fr.encounter.cost} : {goldCost} {fr.common.gold}
+            </div>
           )}
         </div>
 
@@ -178,7 +181,7 @@ export function RestPage() {
                   />
                 </div>
                 <div style={{ fontSize: 11, color: '#8b949e', marginTop: 2 }}>
-                  {currentHp} / {maxHp} HP
+                  {currentHp} / {maxHp} PV
                 </div>
               </div>
             );
@@ -196,16 +199,16 @@ export function RestPage() {
               onClick={handleRest}
               disabled={!canAfford}
             >
-              {goldCost > 0 ? `Rest (${goldCost}g)` : 'Rest'}
+              {goldCost > 0 ? `${fr.encounter.heal} (${goldCost} or)` : fr.encounter.heal}
             </button>
           ) : (
             <button style={continueBtnStyle} onClick={handleContinue}>
-              Continue
+              {fr.common.continue}
             </button>
           )}
           {!healed && (
             <button style={skipBtnStyle} onClick={handleContinue}>
-              Skip
+              {fr.encounter.skip}
             </button>
           )}
         </div>

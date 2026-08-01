@@ -8,6 +8,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
+import { fr } from '@/i18n/fr';
 
 export function RunPage() {
   useRunImagePreload();
@@ -32,7 +33,7 @@ export function RunPage() {
     return (
       <div style={containerStyle}>
         <div style={centerStyle}>
-          <h2 style={{ color: '#c8aa6e', fontSize: 24, marginBottom: 16 }}>No Active Run</h2>
+          <h2 style={{ color: '#c8aa6e', fontSize: 24, marginBottom: 16 }}>{fr.run.noActive}</h2>
           <p style={{ color: '#8b949e', marginBottom: 24 }}>
             Start a new run to begin your adventure.
           </p>
@@ -43,7 +44,7 @@ export function RunPage() {
               navigate(ROUTES.STARTER_SELECT);
             }}
           >
-            Start New Run
+            {fr.run.startNew}
           </button>
         </div>
       </div>

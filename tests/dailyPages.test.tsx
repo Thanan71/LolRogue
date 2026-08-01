@@ -105,9 +105,9 @@ describe('authoritative Daily pages', () => {
     );
 
     expect(await screen.findByText(/2026-07-26 UTC · normal · score v1/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Start Daily Run' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Commencer le défi quotidien' })).toBeEnabled();
     expect(await screen.findByText('Public Player')).toBeInTheDocument();
-    expect(screen.getByText('1,360')).toBeInTheDocument();
+    expect(screen.getByText(/1.360/)).toBeInTheDocument();
     expect(useDailyRunStore.getState()).toMatchObject({
       dateKey: '2026-07-26',
       seed: 424242,

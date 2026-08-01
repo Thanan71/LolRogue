@@ -20,7 +20,7 @@ async function enterGuest(page: Page) {
   await page.goto('/auth');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByRole('button', { name: 'Play as Guest' }).click();
+  await page.getByRole('button', { name: 'Jouer en invité' }).click();
   await expect(page).toHaveURL('/');
 }
 
@@ -37,16 +37,16 @@ for (const viewport of VIEWPORTS) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await enterGuest(page);
 
-    await page.getByRole('button', { name: 'Database' }).click();
-    await expect(page.getByRole('heading', { name: 'Champion Database' })).toBeVisible();
-    await expect(page.getByPlaceholder('Search champions...')).toBeVisible();
+    await page.getByRole('button', { name: 'Champions' }).click();
+    await expect(page.getByRole('heading', { name: 'Base des champions' })).toBeVisible();
+    await expect(page.getByPlaceholder('Rechercher un champion…')).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await testInfo.attach(`database-${viewport.name}`, {
       body: await page.screenshot({ fullPage: true }),
       contentType: 'image/png',
     });
 
-    await page.getByRole('button', { name: '← Menu' }).click();
+    await page.getByRole('button', { name: 'Retour au menu' }).click();
     await page.evaluate(async () => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
       const summary = {
@@ -92,8 +92,8 @@ for (const viewport of VIEWPORTS) {
       });
     });
     await navigateSpa(page, '/game-over');
-    await expect(page.getByRole('heading', { name: 'Victory!' })).toBeVisible();
-    const menu = page.getByRole('button', { name: 'Main Menu' });
+    await expect(page.getByRole('heading', { name: 'Victoire !' })).toBeVisible();
+    const menu = page.getByRole('button', { name: 'Menu principal' });
     await menu.scrollIntoViewIfNeeded();
     await expect(menu).toBeVisible();
     await expectNoHorizontalOverflow(page);

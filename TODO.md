@@ -824,18 +824,25 @@ horizontal sur Database, Game Over et carte.
 **Constat :** français et anglais sont mélangés dans un même parcours (`Play`,
 `Gold`, `Empty`, `Équipe`, `Game Over`, etc.), ainsi que HP/PV, MP/PM, run/partie.
 
-- [ ] Choisir la langue de lancement ; recommandation : français complet pour la
+- [x] Choisir la langue de lancement ; recommandation : français complet pour la
   première bêta.
-- [ ] Extraire toutes les chaînes dans un dictionnaire i18n, même avec une seule
+- [x] Extraire toutes les chaînes dans un dictionnaire i18n, même avec une seule
   locale initiale.
-- [ ] Définir un glossaire produit pour PV/PM, or, candies, run, encounter, élite,
+- [x] Définir un glossaire produit pour PV/PM, or, candies, run, encounter, élite,
   boss, maîtrise et améliorations.
-- [ ] Uniformiser labels, erreurs, confirmations, raccourcis, sons et aria-labels.
-- [ ] Prévoir pluriels, nombres et dates via `Intl`.
-- [ ] Ajouter un test qui repère les chaînes brutes dans les écrans migrés.
+- [x] Uniformiser labels, erreurs, confirmations, raccourcis, sons et aria-labels.
+- [x] Prévoir pluriels, nombres et dates via `Intl`.
+- [x] Ajouter un test qui repère les chaînes brutes dans les écrans migrés.
 
 **Acceptation :** un parcours complet n'affiche qu'une langue et une terminologie
 stable.
+
+**Statut : terminé.** La locale de lancement est `fr-FR`, les textes structurants
+sont centralisés dans `src/i18n/fr.ts` et le glossaire fixe partie, rencontre,
+PV/PM, or, bonbons et améliorations. Les nombres et pluriels passent par les
+formateurs communs. Auth, menu, réglages, sélection, Daily, Database, carte,
+combat, rencontres et Game Over utilisent le contrat français ; un test bloque le
+retour des anciens libellés anglais dans les écrans migrés.
 
 ### P1-UX-04 — Corriger feedback et vérité de l'interface
 

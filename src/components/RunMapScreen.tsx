@@ -13,6 +13,7 @@ import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { canUpgradeSpell } from '@/game/run/spellUpgradeRules';
 import type { InventoryEntry, NodeType as RunNodeType, TeamMember } from '@/types/run';
+import { fr } from '@/i18n/fr';
 import { calculateFullStats, calculateMaxHP } from '@/utils/statCalculator';
 import {
   formatStatValue,
@@ -195,10 +196,10 @@ export function RunMapScreen() {
     return (
       <div style={overlayStyle}>
         <div style={{ textAlign: 'center', padding: 40 }}>
-          <h2 style={{ color: '#c8aa6e', fontSize: 24, marginBottom: 16 }}>No Active Run</h2>
-          <p style={{ color: '#8b949e', marginBottom: 24 }}>Start a run to see your map.</p>
+          <h2 style={{ color: '#c8aa6e', fontSize: 24, marginBottom: 16 }}>{fr.run.noActive}</h2>
+          <p style={{ color: '#8b949e', marginBottom: 24 }}>{fr.run.noActiveDetail}</p>
           <button style={btnStyle} onClick={() => generateRunMap()}>
-            Generate Run Map
+            Générer la carte de la partie
           </button>
         </div>
       </div>
@@ -227,7 +228,7 @@ export function RunMapScreen() {
             >
               ← Menu
             </button>
-            <span style={{ color: '#ffd700', fontWeight: 700 }}>Gold: {gold}</span>
+            <span style={{ color: '#ffd700', fontWeight: 700 }}>Or : {gold}</span>
             <button
               type="button"
               onClick={() => setShowLegend((visible) => !visible)}
@@ -268,12 +269,12 @@ export function RunMapScreen() {
             </aside>
           )}
           <div style={{ ...panelStyle, marginBottom: 8 }}>
-            <strong>Runes :</strong> {runeIds.join(', ') || 'aucune'} · <strong>Augments :</strong>{' '}
-            {augmentIds.join(', ') || 'aucun'}
+            <strong>{fr.run.runes} :</strong> {runeIds.join(', ') || 'aucune'} ·{' '}
+            <strong>{fr.run.augments} :</strong> {augmentIds.join(', ') || 'aucun'}
           </div>
           {pendingAugmentIds.length > 0 && (
             <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Choix d'augment">
-              <h2>Biome terminé — choisissez un augment</h2>
+              <h2>{fr.run.biomeComplete}</h2>
               {pendingAugmentIds.map((id) => {
                 const augment = AUGMENT_DATABASE[id];
                 return (
@@ -291,8 +292,8 @@ export function RunMapScreen() {
           )}
           {lastCombatRewards && (
             <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Récompenses du combat">
-              <strong>Combat terminé :</strong> +{lastCombatRewards.gold} gold, +
-              {lastCombatRewards.xp} XP/champion (KO inclus)
+              <strong>{fr.run.combatComplete} :</strong> +{lastCombatRewards.gold} {fr.common.gold},
+              +{lastCombatRewards.xp} XP/champion (KO inclus)
               {lastCombatRewards.levelsGained > 0 &&
                 `, ${lastCombatRewards.levelsGained} niveau(x) gagné(s)`}
               {lastCombatRewards.itemName && `, objet : ${lastCombatRewards.itemName}`}
@@ -512,9 +513,9 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
 
   return (
     <div style={panelStyle}>
-      <div style={panelTitle}>Equipe</div>
+      <div style={panelTitle}>{fr.run.team}</div>
       {team.length === 0 && (
-        <div style={{ color: '#484f58', fontSize: 12, padding: 8 }}>No champions</div>
+        <div style={{ color: '#484f58', fontSize: 12, padding: 8 }}>{fr.run.noChampions}</div>
       )}
       {team.map((m) => {
         const champ = championDB.getById(m.championId);
@@ -712,7 +713,7 @@ function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team
         </button>
       </div>
       {inventory.length === 0 && (
-        <div style={{ color: '#484f58', fontSize: 12, padding: 8 }}>Empty</div>
+        <div style={{ color: '#484f58', fontSize: 12, padding: 8 }}>{fr.common.empty}</div>
       )}
       {inventory.map((entry) => (
         <div

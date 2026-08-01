@@ -20,6 +20,8 @@ import { SeededRNG } from '@/utils/seededRandom';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
+import { fr } from '@/i18n/fr';
+import { formatChampionTag } from '@/i18n/format';
 
 function pickRandom<T>(arr: T[], count: number, rng: SeededRNG): T[] {
   return rng.pickN(arr, count);
@@ -113,16 +115,12 @@ export function StarterSelectPage() {
 
     if (isDaily) {
       if (hasCompletedToday && !resumableStart) {
-        setError("Today's Daily Run has already been completed.");
+        setError(fr.starter.dailyUsed);
         setIsStarting(false);
         return;
       }
       if (!isGuest && (!dailyChallenge || (dailyChallenge.hasAttempted && !resumableStart))) {
-        setError(
-          dailyChallenge?.hasAttempted
-            ? "Today's official attempt has already been used."
-            : 'Unable to verify Daily Run availability.',
-        );
+        setError(dailyChallenge?.hasAttempted ? fr.starter.dailyUsed : fr.starter.dailyUnavailable);
         setIsStarting(false);
         return;
       }
@@ -133,7 +131,7 @@ export function StarterSelectPage() {
         difficulty: dailyChallenge?.difficulty,
       });
       if (!result.success) {
-        setError(result.error ?? 'Unable to start a verified Daily Run.');
+        setError(result.error ?? fr.starter.dailyStartFailed);
         setIsStarting(false);
         return;
       }
@@ -144,7 +142,7 @@ export function StarterSelectPage() {
         runeIds: selectedRuneIds,
       });
       if (!result.success) {
-        setError(result.error ?? 'Unable to start a verified run.');
+        setError(result.error ?? 'Impossible de démarrer une partie vérifiée.');
         setIsStarting(false);
         return;
       }
@@ -181,7 +179,7 @@ export function StarterSelectPage() {
     <div className="starter-select">
       <header className="starter-select__header">
         <button type="button" className="starter-select__back" onClick={handleBack}>
-          ← Back
+          {fr.common.back}
         </button>
         <h1 className="starter-select__title">
           {isDaily ? 'Compose ton équipe du jour' : 'Compose ton équipe'}
@@ -216,7 +214,9 @@ export function StarterSelectPage() {
         <fieldset className="starter-select__runes" aria-describedby="starter-runes-help">
           <legend className="starter-select__runes-title">Choisis tes runes</legend>
           <div className="starter-select__runes-heading">
-            <p id="starter-runes-help">Jusqu’à 3 runes optionnelles pour personnaliser ta run.</p>
+            <p id="starter-runes-help">
+              Jusqu’à 3 runes optionnelles pour personnaliser ta partie.
+            </p>
             <output className="starter-select__runes-count" aria-live="polite">
               {selectedRuneIds.length}/3 sélectionnées
             </output>
@@ -278,11 +278,11 @@ export function StarterSelectPage() {
             onClick={() => void handleConfirm()}
           >
             {isLoadingDaily
-              ? 'Chargement du challenge…'
+              ? 'Chargement du défi…'
               : isStarting
                 ? 'Vérification…'
                 : resumableStart
-                  ? 'Reprendre la run vérifiée'
+                  ? 'Reprendre la partie vérifiée'
                   : 'Confirmer le choix'}
           </button>
         </div>
@@ -306,11 +306,11 @@ function ChampionCard({
   const splashUrl = DDRAGON_CONFIG.championSplashUrl(champion.id);
 
   const statRows: { label: string; value: number }[] = [
-    { label: 'HP', value: gameStats.hp },
+    { label: 'PV', value: gameStats.hp },
     { label: 'ATK', value: gameStats.atk },
     { label: 'DEF', value: gameStats.def },
     { label: 'AP', value: gameStats.ap },
-    { label: 'SPD', value: gameStats.spd },
+    { label: 'VIT', value: gameStats.spd },
     { label: 'CRIT', value: gameStats.crit },
   ];
 
@@ -350,7 +350,7 @@ function ChampionCard({
         <div className="champion-card__tags">
           {champion.tags.map((tag) => (
             <span key={tag} className={`champion-card__tag champion-card__tag--${tag}`}>
-              {tag}
+              {formatChampionTag(tag)}
             </span>
           ))}
         </div>

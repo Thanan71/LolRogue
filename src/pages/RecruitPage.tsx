@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
+import { fr } from '@/i18n/fr';
 import { championDB } from '@/data/championDatabase';
 import type { RecruitEncounter } from '@/game/map/types';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
@@ -105,7 +106,7 @@ export function RecruitPage() {
 
   return (
     <EncounterLayout
-      title={`Recruit — ${encounter?.name ?? 'Wild Champion'}`}
+      title={`${fr.encounter.recruit} — ${encounter?.name ?? fr.encounter.wildChampion}`}
       gold={gold}
       tone="cyan"
       contentClassName="encounter-layout__content--centered"
@@ -149,7 +150,7 @@ export function RecruitPage() {
                     }}
                   >
                     <div>
-                      HP: <span style={{ color: '#22c55e' }}>{Math.round(champ.stats.hp)}</span>
+                      PV : <span style={{ color: '#22c55e' }}>{Math.round(champ.stats.hp)}</span>
                     </div>
                     <div>
                       AD:{' '}
