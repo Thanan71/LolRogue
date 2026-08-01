@@ -19,11 +19,10 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@data/*": ["data/*"],
-      "@assets/*": ["assets/*"]
+      "@/*": ["./src/*"],
+      "@data/*": ["./data/*"],
+      "@assets/*": ["./assets/*"]
     }
   },
   "include": ["src", "data", "tests"]
