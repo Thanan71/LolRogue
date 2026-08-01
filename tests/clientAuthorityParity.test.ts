@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   AUTHORITY_ENGINE_VERSION,
   replayAuthorityRun,
-  verifyAuthorityRun,
   type AuthorityRunAttempt,
   type AuthorityRunCommand,
   type AuthorityRunSnapshot,
@@ -12,7 +11,6 @@ import { createRunAugmentManager, buildRunPlayerTeam } from '@/game/run/runComba
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
 import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { BattleManager } from '@/game/battle/BattleManager';
-import { decodeCombatActionTrace, encodeCombatActionTrace } from '@/game/battle/actionTrace';
 import { BattlePhase, type BattleAction, type BattleTeam } from '@/game/battle/types';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
@@ -316,61 +314,24 @@ describe('golden client / authority parity traces', () => {
 
       expect(canonicalClientSnapshot()).toEqual(authority);
       const combatCommand = recordedTrace().find((command) => command.kind === 'resolve_combat');
-      expect(combatCommand?.payload.actions_json).toBeTruthy();
-      expect(combatCommand?.payload.actions_json).toContain(mode === 'manual' ? ',0]' : ',1]');
+      if (mode === 'manual') {
+        expect(combatCommand?.payload.actions_json).toContain(',0]');
+      } else {
+        expect(combatCommand?.payload).toEqual({ node_id: combatCommand?.payload.node_id });
+      }
     },
   );
 
-  it('accepts only harmless automatic actions left after the authority ends combat', () => {
+  it('delegates autoplay targeting entirely to the deterministic authority', () => {
     resolveFirstClientCombat('autoplay');
     const canonicalTrace = recordedTrace();
     const canonicalSnapshot = replayAuthorityRun(authorityAttempt(), canonicalTrace).snapshot;
     const combatIndex = canonicalTrace.findIndex((command) => command.kind === 'resolve_combat');
     const combatCommand = canonicalTrace[combatIndex];
     if (combatCommand?.kind !== 'resolve_combat') throw new Error('Combat command is missing.');
-    const actions = decodeCombatActionTrace(combatCommand.payload.actions_json);
-    const lastAction = actions?.[actions.length - 1];
-    if (!actions || !lastAction) throw new Error('Automatic combat trace is empty.');
-
-    const withTrailingAction = canonicalTrace.map((command, index) =>
-      index === combatIndex
-        ? {
-            ...command,
-            payload: {
-              ...command.payload,
-              actions_json: encodeCombatActionTrace([
-                ...actions,
-                { ...lastAction, automatic: true },
-              ]),
-            },
-          }
-        : command,
-    ) as AuthorityRunCommand[];
-    expect(replayAuthorityRun(authorityAttempt(), withTrailingAction).snapshot).toEqual(
+    expect(combatCommand.payload).toEqual({ node_id: combatCommand.payload.node_id });
+    expect(replayAuthorityRun(authorityAttempt(), canonicalTrace).snapshot).toEqual(
       canonicalSnapshot,
     );
-
-    const withTrailingManualAction = withTrailingAction.map((command, index) =>
-      index === combatIndex && command.kind === 'resolve_combat'
-        ? {
-            ...command,
-            payload: {
-              ...command.payload,
-              actions_json: encodeCombatActionTrace([
-                ...actions,
-                { ...lastAction, automatic: false },
-              ]),
-            },
-          }
-        : command,
-    ) as AuthorityRunCommand[];
-    expect(
-      verifyAuthorityRun(authorityAttempt(), withTrailingManualAction, {
-        requireTerminal: false,
-      }),
-    ).toMatchObject({
-      ok: false,
-      error: { code: 'invalid_combat_action_trace', commandIndex: combatIndex },
-    });
   });
 });

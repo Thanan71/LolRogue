@@ -1,6 +1,7 @@
 import type { User } from '@supabase/supabase-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NodeType, type MapNode, type NodeMap } from '@/game/map/types';
+import { ActionType } from '@/game/battle/types';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -120,6 +121,37 @@ describe('authoritative client journal', () => {
       useRunStore.getState().recordRunCommand({ kind: 'unequip_item', instanceId: 'item-1' }),
     ).toBe(false);
     expect(useRunStore.getState().authorityAttempt?.commands).toEqual([]);
+  });
+
+  it('delegates a fully automatic combat trace to the canonical server autoplay', () => {
+    expect(
+      useRunStore.getState().recordRunCommand({
+        kind: 'resolve_combat',
+        nodeId: 'fight',
+        actions: [
+          { type: ActionType.SpellQ, targetId: 'Annie', automatic: true },
+          { type: ActionType.BasicAttack, targetId: 'Lux', automatic: true },
+        ],
+      }),
+    ).toBe(true);
+
+    expect(useRunStore.getState().authorityAttempt?.commands[0]?.payload).toEqual({
+      node_id: 'fight',
+    });
+  });
+
+  it('keeps manual actions in a mixed combat trace', () => {
+    expect(
+      useRunStore.getState().recordRunCommand({
+        kind: 'resolve_combat',
+        nodeId: 'fight',
+        actions: [{ type: ActionType.SpellQ, targetId: 'Annie', automatic: false }],
+      }),
+    ).toBe(true);
+
+    expect(useRunStore.getState().authorityAttempt?.commands[0]?.payload.actions_json).toBe(
+      '[["q","Annie",0]]',
+    );
   });
 
   it('allows equip, unequip and re-equip as three distinct journal commands', () => {

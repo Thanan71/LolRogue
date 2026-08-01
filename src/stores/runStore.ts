@@ -148,7 +148,7 @@ function commandPayload(command: RunCommandInput): Record<string, string> {
     case 'resolve_node':
       return { node_id: command.nodeId };
     case 'resolve_combat':
-      return command.actions
+      return command.actions && command.actions.some((action) => !action.automatic)
         ? { node_id: command.nodeId, actions_json: encodeCombatActionTrace(command.actions) }
         : { node_id: command.nodeId };
     case 'shop_buy_item':
