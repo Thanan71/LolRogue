@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
+import { EncounterLayout } from '@/components/EncounterLayout';
 import { championDB } from '@/data/championDatabase';
 import type { EventEncounter, EventOutcome } from '@/game/map/types';
 import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
@@ -215,13 +216,12 @@ export function EventPage() {
   };
 
   return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>
-        <span style={{ color: '#f97316', fontWeight: 700, fontSize: 20 }}>
-          Event -- {encounter?.name ?? 'Mystery'}
-        </span>
-        <span style={{ color: '#ffd700', fontWeight: 700 }}>Gold: {gold}</span>
-      </div>
+    <EncounterLayout
+      title={`Event — ${encounter?.name ?? 'Mystery'}`}
+      gold={gold}
+      tone="orange"
+      contentClassName="encounter-layout__content--centered"
+    >
       <div style={contentStyle}>
         {!outcome && !wasClaimed ? (
           <>
@@ -341,28 +341,10 @@ export function EventPage() {
           </>
         )}
       </div>
-    </div>
+    </EncounterLayout>
   );
 }
 
-const containerStyle: React.CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-  display: 'flex',
-  flexDirection: 'column',
-};
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '12px 24px',
-  background: '#161b22',
-  borderBottom: '1px solid #1e2a3a',
-  flexShrink: 0,
-};
 const contentStyle: React.CSSProperties = {
   flex: 1,
   display: 'flex',

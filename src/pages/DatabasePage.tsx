@@ -66,17 +66,17 @@ export function DatabasePage() {
   );
 
   return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>
+    <main className="database-page" style={containerStyle}>
+      <header className="database-page__header" style={headerStyle}>
         <button style={backBtnStyle} onClick={() => navigate(ROUTES.MENU)}>
           ← Menu
         </button>
         <h1 style={{ color: '#c8aa6e', fontSize: 20, margin: 0 }}>Champion Database</h1>
         <span style={{ color: '#8b949e', fontSize: 12 }}>{allChampions.length} champions</span>
-      </div>
+      </header>
 
-      <div style={bodyStyle}>
-        <div style={sidebarStyle}>
+      <div className="database-page__body" style={bodyStyle}>
+        <aside className="database-page__sidebar" style={sidebarStyle}>
           <input
             type="text"
             placeholder="Search champions..."
@@ -114,9 +114,9 @@ export function DatabasePage() {
               </div>
             ))}
           </div>
-        </div>
+        </aside>
 
-        <div style={detailStyle}>
+        <div className="database-page__detail" style={detailStyle}>
           {selectedChampion ? (
             <>
               <div style={tabsStyle}>
@@ -179,7 +179,7 @@ export function DatabasePage() {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -264,11 +264,10 @@ function ChampionDetail({ champion }: { champion: Champion }) {
 }
 
 const containerStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
+  position: 'relative',
   width: '100%',
-  height: '100%',
+  minHeight: '100dvh',
+  height: '100dvh',
   background: '#0d1117',
   color: '#e6edf3',
   fontFamily: 'sans-serif',

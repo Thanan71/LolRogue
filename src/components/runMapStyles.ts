@@ -1,8 +1,9 @@
 import type { CSSProperties } from 'react';
 
 export const overlayStyle: CSSProperties = {
-  position: 'absolute',
-  inset: 0,
+  position: 'relative',
+  width: '100%',
+  minHeight: '100dvh',
   background: '#0d1117',
   color: '#e6edf3',
   fontFamily: 'sans-serif',
@@ -10,7 +11,7 @@ export const overlayStyle: CSSProperties = {
 };
 export const layoutStyle: CSSProperties = {
   display: 'flex',
-  height: '100%',
+  minHeight: '100dvh',
   gap: 16,
   padding: 16,
   boxSizing: 'border-box',

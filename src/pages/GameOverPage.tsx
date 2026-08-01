@@ -81,9 +81,12 @@ export function GameOverPage() {
   const isRetryableSaveError = saveStatus === 'failed' && saveFailureKind !== 'terminal';
 
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <h1 style={{ color: '#ef4444', fontSize: 36, marginBottom: 8 }}>
+    <main className="game-over-page" style={containerStyle}>
+      <div className="game-over-card" style={cardStyle}>
+        <h1
+          className={summary?.won ? 'game-over-title--victory' : 'game-over-title--defeat'}
+          style={{ fontSize: 36, marginBottom: 8 }}
+        >
           {summary?.won ? 'Victory!' : 'Game Over'}
         </h1>
         <p style={{ color: '#8b949e', marginBottom: 24, fontSize: 14 }}>
@@ -115,7 +118,7 @@ export function GameOverPage() {
           </div>
         )}
 
-        <div style={statsGridStyle}>
+        <div className="game-over-stats" style={statsGridStyle}>
           <StatBlock label="Level Reached" value={runLevel} />
           <StatBlock label="Waves Completed" value={totalWavesCompleted} />
           <StatBlock label="Biomes Visited" value={biomesCount} />
@@ -146,7 +149,11 @@ export function GameOverPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {summary.championStats.map((cs) => (
-                <div key={cs.championId} style={championRowStyle}>
+                <div
+                  key={cs.championId}
+                  className="game-over-champion-row"
+                  style={championRowStyle}
+                >
                   <span style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>
                     {cs.championId}
                   </span>
@@ -184,7 +191,7 @@ export function GameOverPage() {
                 {Object.entries(rewards.byChampion).map(
                   ([id, candies]) =>
                     candies > 0 && (
-                      <div key={id} style={championRowStyle}>
+                      <div key={id} className="game-over-champion-row" style={championRowStyle}>
                         <span style={{ color: '#e6edf3', fontSize: 13 }}>{id}</span>
                         <span style={{ color: '#a78bfa', fontSize: 12 }}>+{candies} candies</span>
                       </div>
@@ -200,7 +207,7 @@ export function GameOverPage() {
           </div>
         )}
 
-        <div style={actionsStyle}>
+        <div className="game-over-actions" style={actionsStyle}>
           <button
             style={primaryBtnStyle}
             onClick={handleNewRun}
@@ -217,7 +224,7 @@ export function GameOverPage() {
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -231,11 +238,9 @@ function StatBlock({ label, value }: { label: string; value: number | string }) 
 }
 
 const containerStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
+  position: 'relative',
   width: '100%',
-  height: '100%',
+  minHeight: '100dvh',
   background: '#0d1117',
   color: '#e6edf3',
   fontFamily: 'sans-serif',

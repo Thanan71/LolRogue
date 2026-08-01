@@ -219,7 +219,7 @@ export function RunMapScreen() {
           <InventoryPanel inventory={inventory} team={team} />
         </div>
         <div style={mainStyle}>
-          <div style={headerStyle}>
+          <div className="run-map-header" style={headerStyle}>
             <button
               style={{ ...btnStyle, padding: '4px 12px', fontSize: 12 }}
               onClick={() => navigate(ROUTES.MENU)}
@@ -238,7 +238,7 @@ export function RunMapScreen() {
             </button>
             <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Wave {currentWave}</span>
             <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Niveau {runLevel}</span>
-            <span style={{ color: '#8b949e' }}>
+            <span className="run-map-header__secondary" style={{ color: '#8b949e' }}>
               {currentBiome ? currentBiome.charAt(0).toUpperCase() + currentBiome.slice(1) : '???'}
             </span>
             {currentBiomeIndex >= 0 && (

@@ -3,6 +3,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi } from 'vitest';
+import { playSFX } from '@/audio/AudioManager';
 import type { User } from '@supabase/supabase-js';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { NodeType, type NodeMap } from '@/game/map/types';
@@ -437,6 +438,10 @@ describe('P2 page smoke tests', () => {
       </MemoryRouter>,
     );
     expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Game Over' })).toHaveClass(
+      'game-over-title--defeat',
+    );
+    expect(playSFX).toHaveBeenCalledWith('defeat');
     expect(screen.getByText('8')).toBeInTheDocument();
   });
 
@@ -462,6 +467,10 @@ describe('P2 page smoke tests', () => {
     renderAt(<GameOverPage />, '/game-over');
 
     expect(screen.getByRole('heading', { name: 'Victory!' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Victory!' })).toHaveClass(
+      'game-over-title--victory',
+    );
+    expect(playSFX).toHaveBeenCalledWith('victory');
     expect(screen.getByText('12')).toBeInTheDocument();
     expect(screen.getByText('Run saved.')).toBeInTheDocument();
   });

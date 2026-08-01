@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
+import { EncounterLayout } from '@/components/EncounterLayout';
 import type { TreasureEncounter } from '@/game/map/types';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
@@ -105,11 +106,11 @@ export function TreasurePage() {
   if (!isActive) return null;
 
   return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>
-        <span style={{ color: '#eab308', fontWeight: 700, fontSize: 20 }}>💎 Treasure</span>
-        <span style={{ color: '#ffd700', fontWeight: 700 }}>Gold: {gold}</span>
-      </div>
+    <EncounterLayout
+      title="💎 Treasure"
+      gold={gold}
+      contentClassName="encounter-layout__content--centered"
+    >
       <div style={contentStyle}>
         <div style={chestAnimation}>
           <span style={{ fontSize: 80 }}>{collected ? '✨' : '🎁'}</span>
@@ -199,29 +200,9 @@ export function TreasurePage() {
           </>
         )}
       </div>
-    </div>
+    </EncounterLayout>
   );
 }
-
-const containerStyle: React.CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-  display: 'flex',
-  flexDirection: 'column',
-};
-
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '12px 24px',
-  background: '#161b22',
-  borderBottom: '1px solid #1e2a3a',
-  flexShrink: 0,
-};
 
 const contentStyle: React.CSSProperties = {
   flex: 1,
@@ -245,7 +226,7 @@ const previewStyle: React.CSSProperties = {
   padding: 16,
   borderRadius: 8,
   border: '1px solid #eab30844',
-  minWidth: 250,
+  width: 'min(100%, 25rem)',
   marginBottom: 24,
 };
 

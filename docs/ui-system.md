@@ -35,3 +35,21 @@ dialogue, où il exprime une vraie couche modale.
 Les pages migrées dans P1-UX-01 sont Settings, Credits, Profil, Daily, 404 et les
 états de chargement/erreur des routes. Les écrans de gameplay spécialisés seront
 migrés vers `EncounterLayout` pendant P1-UX-02.
+
+## Écrans de jeu mobiles
+
+P1-UX-02 ajoute `EncounterLayout`, propriétaire du header, de l'or affiché, des
+safe areas et du scroll pour Event, Shop, Rest, Treasure et Recruit. Combat passe
+en grille sous `40rem` : l'arène et les commandes occupent toute la largeur,
+puis les deux équipes restent comparables côte à côte. Son header accepte le
+retour à la ligne et garde Auto et la vitesse accessibles. Game Over commence en
+haut, scrolle et adapte statistiques, champions et actions. Database empile liste
+et détail sous `48rem`; la carte réduit son header et empile ses panneaux.
+
+Le leaderboard Daily ne possède plus de largeur minimale. Sous `40rem`, les
+colonnes Waves et Level sont masquées afin de conserver rang, joueur et score sans
+scroll horizontal. Les contenus plus riches gardent un scroll explicite.
+
+`e2e/game-screens-responsive.spec.ts` vérifie l'absence de débordement, la
+visibilité des actions et attache des captures Database, Game Over et carte pour
+320×568, 375×667, 390×844, 768×1024, 1280×720 et 1440×900.

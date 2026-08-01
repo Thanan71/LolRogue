@@ -793,9 +793,9 @@ export function CombatPage() {
   );
 
   return (
-    <div style={containerStyle}>
+    <main className="combat-page" style={containerStyle}>
       {/* Header */}
-      <div style={headerStyle}>
+      <header className="combat-header" style={headerStyle}>
         <button
           style={backBtnStyle}
           disabled={!canLeaveActiveCombat(battlePhase)}
@@ -812,7 +812,9 @@ export function CombatPage() {
         >
           ← Map
         </button>
-        <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Combat — Round {round}</span>
+        <span className="combat-header__title" style={{ color: '#c8aa6e', fontWeight: 700 }}>
+          Combat — Round {round}
+        </span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
         <button
@@ -850,10 +852,10 @@ export function CombatPage() {
         >
           {requiresServerAutoPlay ? 'Auto serveur' : `Auto : ${autoPlay ? 'ON' : 'OFF'}`}
         </button>
-      </div>
+      </header>
 
       {/* Main area */}
-      <div className="combat-layout" style={mainStyle}>
+      <div className="combat-layout combat-main" style={mainStyle}>
         {/* Player team panel */}
         <div className="combat-team-panel" style={leftPanelStyle}>
           <div style={teamTitleStyle('#3b82f6')}>Votre équipe</div>
@@ -875,7 +877,7 @@ export function CombatPage() {
         </div>
 
         {/* Center: battle arena / status */}
-        <div style={centerStyle}>
+        <div className="combat-center" style={centerStyle}>
           {battlePhase === 'idle' && (
             <div style={arenaPlaceholderStyle}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>⚔️</div>
@@ -989,7 +991,7 @@ export function CombatPage() {
       </div>
 
       {/* Bottom: ability bar + log */}
-      <div style={bottomStyle}>
+      <div className="combat-bottom" style={bottomStyle}>
         {!requiresServerAutoPlay &&
           isPlayerTurn &&
           currentChampion &&
@@ -1059,6 +1061,6 @@ export function CombatPage() {
           <CombatLog />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

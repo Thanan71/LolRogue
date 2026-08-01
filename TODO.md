@@ -791,27 +791,33 @@ le contenu. Le seul `fixed` restant est le backdrop modal intentionnel.
 
 ### P1-UX-02 — Réparer les écrans de jeu mobiles
 
-- [ ] Combat : faire reflow du header ; le contrôle Auto est actuellement hors écran
+- [x] Combat : faire reflow du header ; le contrôle Auto est actuellement hors écran
   à 390 px et la page dépasse horizontalement.
-- [ ] Combat : garder équipes, tour, actions et journal compréhensibles à 320 px.
-- [ ] Game Over : rendre le contenu scrollable et aligné en haut ; avec cinq
+- [x] Combat : garder équipes, tour, actions et journal compréhensibles à 320 px.
+- [x] Game Over : rendre le contenu scrollable et aligné en haut ; avec cinq
   champions, le titre est actuellement au-dessus du viewport.
-- [ ] Game Over : utiliser titre, couleur et son selon victoire/défaite ; ne pas jouer
+- [x] Game Over : utiliser titre, couleur et son selon victoire/défaite ; ne pas jouer
   systématiquement le son de défaite.
-- [ ] Database : remplacer la sidebar fixe de 260 px par vue empilée/drawer sous
+- [x] Database : remplacer la sidebar fixe de 260 px par vue empilée/drawer sous
   768 px ; les détails n'ont actuellement qu'environ 130 px à 390 px.
-- [ ] Daily leaderboard : supprimer la largeur minimale qui crée un overflow.
-- [ ] Carte : simplifier le header et les informations d'équipe sur petit écran.
-- [ ] Event/Shop/Rest/Treasure : vérifier scroll, décisions, confirmation et retour
+- [x] Daily leaderboard : supprimer la largeur minimale qui crée un overflow.
+- [x] Carte : simplifier le header et les informations d'équipe sur petit écran.
+- [x] Event/Shop/Rest/Treasure : vérifier scroll, décisions, confirmation et retour
   avec contenu long et hauteur réduite.
-- [ ] Créer un `EncounterLayout` scrollable commun ; supprimer les conteneurs
+- [x] Créer un `EncounterLayout` scrollable commun ; supprimer les conteneurs
   absolus centrés qui coupent Recruit, Rest, Event et Treasure.
-- [ ] Rest : supprimer le doublon d'actions « Continue »/« Done » après le soin.
-- [ ] Ajouter des snapshots visuels aux tailles 320×568, 375×667, 390×844,
+- [x] Rest : supprimer le doublon d'actions « Continue »/« Done » après le soin.
+- [x] Ajouter des snapshots visuels aux tailles 320×568, 375×667, 390×844,
   768×1024, 1280×720 et 1440×900.
 
 **Acceptation :** aucune page n'a de scroll horizontal involontaire, d'action
 masquée ou de texte inutilisable sur la matrice cible.
+
+**Statut : terminé.** Combat, Game Over, Database, Daily et carte ont des reflows
+pilotés par le contenu. Les cinq encounters partagent `EncounterLayout`, leurs
+actions ne dépendent plus d'un centrage absolu et Rest n'affiche qu'une sortie
+après soin. La matrice Playwright attache 18 captures et bloque tout overflow
+horizontal sur Database, Game Over et carte.
 
 ### P1-UX-03 — Unifier langue et terminologie
 

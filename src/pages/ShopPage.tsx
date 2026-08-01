@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { playUIClick } from '@/audio';
+import { EncounterLayout } from '@/components/EncounterLayout';
 import { championDB } from '@/data/championDatabase';
 import type { ShopEncounter, ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
@@ -172,13 +173,7 @@ export function ShopPage() {
   if (!isActive) return null;
 
   return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>
-        <span style={{ color: '#facc15', fontWeight: 700, fontSize: 20 }}>
-          Shop — {encounter?.name ?? 'Shop'}
-        </span>
-        <span style={{ color: '#ffd700', fontWeight: 700 }}>Gold: {gold}</span>
-      </div>
+    <EncounterLayout title={`Shop — ${encounter?.name ?? 'Shop'}`} gold={gold}>
       <div style={scrollAreaStyle}>
         {encounter && priceMultiplier < 1 && <div style={discountBanner}>20% discount today!</div>}
         <div style={sectionStyle}>
@@ -226,30 +221,12 @@ export function ShopPage() {
           </button>
         </div>
       </div>
-    </div>
+    </EncounterLayout>
   );
 }
 
 // ─── Styles ────────────────────────────────────────────────────────────────
 
-const containerStyle: React.CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-  display: 'flex',
-  flexDirection: 'column',
-};
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '12px 24px',
-  background: '#161b22',
-  borderBottom: '1px solid #1e2a3a',
-  flexShrink: 0,
-};
 const scrollAreaStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', padding: 24 };
 const discountBanner: React.CSSProperties = {
   textAlign: 'center',

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
+import { EncounterLayout } from '@/components/EncounterLayout';
 import { championDB } from '@/data/championDatabase';
 import type { RecruitEncounter } from '@/game/map/types';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
@@ -103,13 +104,12 @@ export function RecruitPage() {
   const clr = pct >= 80 ? '#22c55e' : pct >= 60 ? '#facc15' : '#ef4444';
 
   return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>
-        <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: 20 }}>
-          Recruit - {encounter?.name ?? 'Wild Champion'}
-        </span>
-        <span style={{ color: '#ffd700', fontWeight: 700 }}>Gold: {gold}</span>
-      </div>
+    <EncounterLayout
+      title={`Recruit — ${encounter?.name ?? 'Wild Champion'}`}
+      gold={gold}
+      tone="cyan"
+      contentClassName="encounter-layout__content--centered"
+    >
       <div style={contentStyle}>
         {!result ? (
           <>
@@ -252,27 +252,9 @@ export function RecruitPage() {
           </>
         )}
       </div>
-    </div>
+    </EncounterLayout>
   );
 }
-const containerStyle: React.CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-  display: 'flex',
-  flexDirection: 'column',
-};
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '12px 24px',
-  background: '#161b22',
-  borderBottom: '1px solid #1e2a3a',
-  flexShrink: 0,
-};
 const contentStyle: React.CSSProperties = {
   flex: 1,
   display: 'flex',
@@ -291,7 +273,7 @@ const previewCardStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: 12,
   marginBottom: 16,
-  minWidth: 260,
+  width: 'min(100%, 26rem)',
 };
 const iconStyle: React.CSSProperties = {
   width: 72,

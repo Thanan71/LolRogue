@@ -75,7 +75,7 @@ export function DailyLeaderboard() {
   }, [expiresAt]);
 
   return (
-    <div style={styles.container}>
+    <div className="daily-leaderboard" style={styles.container}>
       <h2 style={styles.title}>Daily Run — {dailyDate} UTC</h2>
       <p style={styles.countdown}>Resets in: {countdown}</p>
       <p style={styles.source}>
@@ -136,7 +136,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 24,
     color: '#e0e0e0',
     fontFamily: 'monospace',
-    minWidth: 400,
+    minWidth: 0,
   },
   title: {
     margin: 0,
