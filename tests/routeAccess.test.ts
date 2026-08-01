@@ -16,6 +16,23 @@ describe('route access', () => {
     expect(getProtectedRouteAccess({ ...anonymous, isInitialized: false })).toBe('loading');
   });
 
+  it('keeps profile loading out of protected game routes', () => {
+    expect(
+      getProtectedRouteAccess({
+        ...anonymous,
+        isInitialized: true,
+        authStatus: 'profileLoading',
+      }),
+    ).toBe('loading');
+    expect(
+      getProtectedRouteAccess({
+        ...anonymous,
+        isAuthenticated: false,
+        authStatus: 'profileUnavailable',
+      }),
+    ).toBe('auth');
+  });
+
   it('allows an explicit guest into game routes', () => {
     expect(getProtectedRouteAccess({ ...anonymous, isGuest: true })).toBe('allowed');
   });

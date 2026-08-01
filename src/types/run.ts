@@ -267,6 +267,7 @@ export type RunLifecycleErrorCode =
   | 'active_run'
   | 'active_run_another_tab'
   | 'start_in_progress'
+  | 'auth_not_ready'
   | 'invalid_team_size'
   | 'duplicate_champion'
   | 'unknown_champion'

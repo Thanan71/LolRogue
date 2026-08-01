@@ -172,6 +172,7 @@ describe('authoritative run lifecycle and recovery', () => {
       error: null,
     });
     useAuthStore.setState({
+      authStatus: 'ready',
       isAuthenticated: true,
       isGuest: false,
       user: { id: 'user-1' } as User,
@@ -309,7 +310,9 @@ describe('authoritative run lifecycle and recovery', () => {
   });
 
   it('does not let a hanging profile refresh block a durable verification', async () => {
-    useAuthStore.setState({ refreshPlayer: vi.fn(() => new Promise<void>(() => undefined)) });
+    useAuthStore.setState({
+      refreshPlayer: vi.fn(() => new Promise<{ success: boolean }>(() => undefined)),
+    });
 
     await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
       success: true,

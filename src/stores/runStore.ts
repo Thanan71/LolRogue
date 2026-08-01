@@ -591,7 +591,18 @@ export const useRunStore = create<RunStore>()(
               );
             }
 
-            const authUser = useAuthStore.getState().user;
+            const authState = useAuthStore.getState();
+            if (
+              authState.user &&
+              (authState.authStatus !== 'ready' || !authState.player || !authState.isAuthenticated)
+            ) {
+              return startFailure(
+                'auth_not_ready',
+                'Your authenticated profile is not ready. Retry profile loading before starting.',
+                true,
+              );
+            }
+            const authUser = authState.authStatus === 'ready' ? authState.user : null;
             const resumableStart =
               authUser && get().pendingAuthorityStart?.ownerUserId === authUser.id
                 ? get().pendingAuthorityStart

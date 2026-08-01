@@ -741,22 +741,27 @@ Le listener Auth vit au niveau module, n'est pas désabonné et ses réponses
 asynchrones peuvent arriver après un changement de compte. Le passage en invité
 peut commencer avant la fin de sauvegarde de la run courante.
 
-- [ ] Modéliser séparément `session`, `profileLoading`, `ready`,
+- [x] Modéliser séparément `session`, `profileLoading`, `ready`,
   `profileUnavailable`, `guest` et `signedOut`.
-- [ ] Ne pas autoriser une run connectée tant que le profil durable n'est pas prêt.
-- [ ] Récupérer/créer le profil par un flux idempotent et réessayable.
-- [ ] Monter/démonter l'abonnement Auth dans le bootstrap React.
-- [ ] Ignorer toute réponse async associée à une session devenue obsolète.
-- [ ] Attendre la fin/abandon de la run avant logout, changement de compte ou invité.
-- [ ] Traiter explicitement l'erreur retournée par `signOut`.
-- [ ] Utiliser l'adapter de stockage sûr pour le drapeau invité.
-- [ ] Garder les récompenses connectées en attente jusqu'à confirmation serveur,
+- [x] Ne pas autoriser une run connectée tant que le profil durable n'est pas prêt.
+- [x] Récupérer/créer le profil par un flux idempotent et réessayable.
+- [x] Monter/démonter l'abonnement Auth dans le bootstrap React.
+- [x] Ignorer toute réponse async associée à une session devenue obsolète.
+- [x] Attendre la fin/abandon de la run avant logout, changement de compte ou invité.
+- [x] Traiter explicitement l'erreur retournée par `signOut`.
+- [x] Utiliser l'adapter de stockage sûr pour le drapeau invité.
+- [x] Garder les récompenses connectées en attente jusqu'à confirmation serveur,
   puis réhydrater la progression canonique.
-- [ ] Tester perte réseau, profil absent, logout refusé, changement rapide de compte,
+- [x] Tester perte réseau, profil absent, logout refusé, changement rapide de compte,
   deux onglets et race Auth/save.
 
 **Acceptation :** aucune sauvegarde n'est attribuée à la mauvaise identité et l'état
 « connecté sans profil » ne peut pas entrer dans le jeu.
+
+**Statut : terminé.** `authStore` utilise une génération d'identité, six états
+exclusifs et un abonnement possédé par React. Le profil et la progression doivent
+être hydratés avant `ready`; les transitions refusées ou obsolètes ne vident ni ne
+réattribuent la session. `startRun` refuse explicitement `auth_not_ready`.
 
 ## P1 — responsive et cohérence visuelle
 

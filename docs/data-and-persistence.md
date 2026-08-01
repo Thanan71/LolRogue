@@ -219,6 +219,22 @@ peut pas être rendu fiable rétroactivement.
 - `champion_enhancements` contient les rangs achetés et le coût total par champion.
 
 Après connexion, Supabase remplace les caches locaux pour les données persistantes.
+L'authentification suit une machine d'état explicite : `bootstrapping`,
+`profileLoading`, `ready`, `profileUnavailable`, `guest` ou `signedOut`. Une session
+Supabase seule ne vaut jamais autorisation de jouer : `isAuthenticated` devient
+vrai uniquement après récupération du profil durable et hydratation de la maîtrise
+et des améliorations. Le trigger de création du profil est relu avec une politique
+bornée et réessayable ; un profil toujours absent reste dans
+`profileUnavailable` et peut être rechargé sans transformer la session en invité.
+
+`AuthBootstrap` possède l'abonnement Supabase et le désabonne à son démontage.
+Chaque transition incrémente une génération d'identité : profil, progression ou
+événement arrivé après un login/logout plus récent est ignoré. Un logout refusé
+par Supabase conserve l'identité courante et expose l'erreur. Le drapeau invité
+utilise l'adapter de stockage tolérant aux erreurs. Une run active bloque les
+transitions d'identité au niveau du store ; les écrans doivent d'abord terminer ou
+abandonner la run via la finalisation idempotente.
+
 Le niveau de maîtrise servant à autoriser une amélioration vient de la base, pas
 d'un calcul client arbitraire. L'achat passe par une RPC qui verrouille le profil,
 vérifie le solde et le niveau, puis débite et débloque atomiquement.
@@ -234,6 +250,10 @@ démarrage sont utilisés par le client et par le replay. Le niveau de maîtrise
 ajoute 2 % aux statistiques de base par niveau acquis, jusqu'à 8 %, via le
 calculateur canonique. Une progression ou un achat effectué dans un autre onglet
 ne peut donc pas modifier rétroactivement les règles d'un attempt déjà ouvert.
+Les récompenses d'une run connectée restent dans le snapshot de finalisation tant
+que l'authority n'a pas confirmé sa transaction ; elles ne sont jamais appliquées
+au namespace invité. Après confirmation, les caches profil, maîtrise et
+améliorations sont réhydratés depuis les valeurs canoniques du serveur.
 
 ## Classements
 

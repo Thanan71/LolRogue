@@ -115,16 +115,16 @@ export function MenuPage() {
   async function handleLogout() {
     playUIClick();
     await runTransition(async () => {
-      await logout();
-      navigate(ROUTES.AUTH);
+      const result = await logout();
+      if (result.success) navigate(ROUTES.AUTH);
     });
   }
 
   async function handleGuestLogin() {
     playUIClick();
     await runTransition(async () => {
-      await exitGuestMode();
-      navigate(ROUTES.AUTH);
+      const result = await exitGuestMode();
+      if (result.success) navigate(ROUTES.AUTH);
     });
   }
 

@@ -94,15 +94,13 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
-   et les réponses asynchrones robustes.
-2. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
+1. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
    Combat et Game Over sur les petits viewports.
-3. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
+2. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
    reflow, contraste et réduction de mouvement dans le chantier responsive.
-4. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
+3. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
    invité et authentifié sans mutation directe des stores.
-5. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
+4. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
    parité et les parcours E2E bloquants.
 
 ---
@@ -202,13 +200,18 @@ d'augments que le combat et l'authority.
 
 ### P1-DATA-03 — Fiabiliser Auth, profil et changement d'identité
 
-- [ ] Séparer `session`, `profileLoading`, `ready`, `guest` et `error`.
-- [ ] Interdire une run connectée tant que le profil durable n'est pas prêt.
-- [ ] Récupérer ou créer le profil par un flux idempotent et réessayable.
-- [ ] Ignorer toute réponse async liée à une session devenue obsolète.
-- [ ] Attendre la fin ou l'abandon de la run avant logout/changement de compte.
-- [ ] Tester perte réseau, profil absent, logout refusé et changement rapide de
+- [x] Séparer `session`, `profileLoading`, `ready`, `guest` et `error`.
+- [x] Interdire une run connectée tant que le profil durable n'est pas prêt.
+- [x] Récupérer ou créer le profil par un flux idempotent et réessayable.
+- [x] Ignorer toute réponse async liée à une session devenue obsolète.
+- [x] Attendre la fin ou l'abandon de la run avant logout/changement de compte.
+- [x] Tester perte réseau, profil absent, logout refusé et changement rapide de
   compte.
+
+**Statut : terminé.** L'Auth suit six états exclusifs, le bootstrap possède son
+abonnement, chaque transition invalide les réponses obsolètes et `startRun` exige
+un profil `ready`. Les transitions sont bloquées pendant une run, un échec de
+logout conserve la session, et le stockage invité passe par l'adapter sûr.
 
 ---
 

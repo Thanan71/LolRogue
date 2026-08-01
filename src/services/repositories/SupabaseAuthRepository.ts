@@ -53,7 +53,8 @@ export class SupabaseAuthRepository implements IAuthRepository {
   }
 
   async signOut(): Promise<void> {
-    await this.supabase.auth.signOut();
+    const { error } = await this.supabase.auth.signOut();
+    if (error) throw error;
   }
 
   async getSession(): Promise<{ session: Session | null; error: Error | null }> {
