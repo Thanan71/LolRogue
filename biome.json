@@ -15,12 +15,12 @@
       "!!supabase/authority-archive/run-authority-v1.bundle.ts",
       "!!supabase/authority-archive/run-authority-v2.bundle.ts",
       "!!supabase/authority-archive/run-authority-v3.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v4.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v5.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v6.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v7.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v8.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v9.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v4.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v5.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v6.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v7.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v8.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v9.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v10.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v11.bundle.ts"
     ]

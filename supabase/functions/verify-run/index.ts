@@ -50,9 +50,8 @@ async function resolveAuthorityVerifier(engineVersion: string, contentHash: stri
   const current = getAuthorityVerifier(engineVersion, contentHash);
   if (current) return current;
 
-  // Historical bundles stay deployable but are loaded only for an attempt that
-  // actually needs them. Keeping them out of the cold-start graph prevents a
-  // large archive from turning harmless CORS preflights into BOOT_ERRORs.
+  // Only the two previous engines remain deployable. Older bundles are kept in
+  // supabase/authority-archive and can be restored for an explicit recovery.
   switch (engineVersion) {
     case 'run-engine-v11': {
       const archived = await import('./run-authority-v11.bundle.ts');
@@ -60,30 +59,6 @@ async function resolveAuthorityVerifier(engineVersion: string, contentHash: stri
     }
     case 'run-engine-v10': {
       const archived = await import('./run-authority-v10.bundle.ts');
-      return archived.getAuthorityVerifier(engineVersion, contentHash);
-    }
-    case 'run-engine-v9': {
-      const archived = await import('./run-authority-v9.bundle.ts');
-      return archived.getAuthorityVerifier(engineVersion, contentHash);
-    }
-    case 'run-engine-v8': {
-      const archived = await import('./run-authority-v8.bundle.ts');
-      return archived.getAuthorityVerifier(engineVersion, contentHash);
-    }
-    case 'run-engine-v7': {
-      const archived = await import('./run-authority-v7.bundle.ts');
-      return archived.getAuthorityVerifier(engineVersion, contentHash);
-    }
-    case 'run-engine-v6': {
-      const archived = await import('./run-authority-v6.bundle.ts');
-      return archived.getAuthorityVerifier(engineVersion, contentHash);
-    }
-    case 'run-engine-v5': {
-      const archived = await import('./run-authority-v5.bundle.ts');
-      return archived.getAuthorityVerifier(engineVersion, contentHash);
-    }
-    case 'run-engine-v4': {
-      const archived = await import('./run-authority-v4.bundle.ts');
       return archived.getAuthorityVerifier(engineVersion, contentHash);
     }
     default:
