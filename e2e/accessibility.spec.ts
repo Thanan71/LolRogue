@@ -2,10 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 async function expectNoSeriousAccessibilityViolations(page: Page, route: string) {
-  const result = await new AxeBuilder({ page })
-    // Contrast and motion are covered by the dedicated P1-A11Y-02 audit.
-    .disableRules(['color-contrast'])
-    .analyze();
+  const result = await new AxeBuilder({ page }).analyze();
   const violations = result.violations.filter(({ impact }) =>
     ['serious', 'critical'].includes(impact ?? ''),
   );
@@ -43,7 +40,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
     await expect(page).toHaveTitle(`${heading} — LoL Rogue`);
     await expect(page.locator('main, h1').first()).toBeFocused();
     await expectNoSeriousAccessibilityViolations(page, path);
-    await page.getByRole('button', { name: /Retour au menu/ }).click();
+    await page.getByRole('button', { name: /Retour(?: au menu)?/ }).click();
   }
 
   await page.getByRole('button', { name: 'Jouer', exact: true }).click();
@@ -61,7 +58,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
   const startNode = page.getByRole('button', { name: /départ du biome.*accessible/i }).first();
   await startNode.focus();
   await page.keyboard.press('Enter');
-  await expect(startNode).toHaveAttribute('aria-label', /position actuelle|terminé/i);
+  await expect(page).toHaveURL('/combat');
 
   await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');

@@ -103,8 +103,17 @@ button,
 }
 
 :focus-visible {
-  outline: 3px solid var(--lol-teal);
+  outline: 3px solid var(--lol-teal) !important;
   outline-offset: 3px;
+}
+
+::placeholder {
+  color: #9aa7b8 !important;
+  opacity: 1;
+}
+
+:where(button, input, select, textarea):disabled {
+  opacity: 0.65;
 }
 
 .route-loading,
@@ -138,6 +147,34 @@ button,
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --color-border: CanvasText;
+    --color-border-strong: CanvasText;
+  }
+
+  :where(button, a, input, select, textarea, [role="button"], [role="tab"]) {
+    border: 1px solid ButtonText !important;
+    color: ButtonText !important;
+    background: ButtonFace !important;
+    forced-color-adjust: auto;
+  }
+
+  :where([aria-current="true"], [aria-selected="true"], [aria-pressed="true"]) {
+    outline: 3px solid Highlight !important;
+    outline-offset: 2px;
+  }
+
+  :where([role="alert"], [role="status"], [role="progressbar"]) {
+    border: 1px solid CanvasText !important;
+  }
+
+  svg,
+  img {
+    forced-color-adjust: auto;
   }
 }
 

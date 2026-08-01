@@ -921,19 +921,28 @@ principales (le contraste reste volontairement suivi par `P1-A11Y-02`).
 
 ### P1-A11Y-02 — Lisibilité et mouvement
 
-- [ ] Vérifier les contrastes texte, placeholder, bordures, états disabled et focus
+- [x] Vérifier les contrastes texte, placeholder, bordures, états disabled et focus
   selon WCAG AA.
-- [ ] Supporter zoom 200 % et reflow sans perte d'information.
-- [ ] Respecter `prefers-reduced-motion` dans CSS, particules canvas, transitions de
+- [x] Supporter zoom 200 % et reflow sans perte d'information.
+- [x] Respecter `prefers-reduced-motion` dans CSS, particules canvas, transitions de
   carte, animations SVG/SMIL et animations de combat.
-- [ ] Relier réellement les réglages taille de texte, particules, volume et vitesse
+- [x] Relier réellement les réglages taille de texte, particules, volume et vitesse
   à tous leurs consommateurs.
-- [ ] Ne pas transmettre une information uniquement par couleur, animation ou son.
-- [ ] Tester Windows High Contrast et navigation avec lecteur d'écran sur les flux
+- [x] Ne pas transmettre une information uniquement par couleur, animation ou son.
+- [x] Tester Windows High Contrast et navigation avec lecteur d'écran sur les flux
   critiques.
 
 **Acceptation :** les critères WCAG 2.2 AA applicables aux parcours critiques sont
 documentés et vérifiés.
+
+**Statut : terminé.** Axe contrôle désormais les contrastes AA sans exclusion et
+a permis de corriger les textes faibles de Database et Daily. Le zoom 200 % est
+simulé sur les routes principales sans débordement horizontal. Le mouvement réduit
+neutralise CSS, canvas, SMIL et combat ; les réglages taille, particules, volume et
+vitesse sont vérifiés jusqu'à leurs consommateurs. Le mode Chromium Forced Colors,
+le focus clavier et des instantanés de l'arbre ARIA couvrent le contrat automatisé.
+Le référentiel, les preuves et la matrice de validation humaine NVDA/VoiceOver sont
+documentés dans `docs/accessibility.md`.
 
 ## P1 — onboarding et règles compréhensibles
 

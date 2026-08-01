@@ -33,8 +33,8 @@ export const BattleSpeedControl: React.FC = () => {
           aria-label={`${fr.combat.speed} ${s}x`}
           style={{
             padding: '2px 8px',
-            background: speed === s ? '#c89033' : 'transparent',
-            color: speed === s ? '#fff' : '#888',
+            background: speed === s ? '#6b4b16' : 'transparent',
+            color: speed === s ? '#fff' : '#b3b8c2',
             border: speed === s ? '1px solid #ffd700' : '1px solid transparent',
             borderRadius: 4,
             fontSize: 11,

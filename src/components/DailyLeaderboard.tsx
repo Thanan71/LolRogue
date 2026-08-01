@@ -161,7 +161,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#ff8a8a',
   },
   empty: {
-    color: '#888',
+    color: '#b3b8c2',
     fontStyle: 'italic',
   },
   table: {

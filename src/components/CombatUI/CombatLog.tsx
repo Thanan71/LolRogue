@@ -66,7 +66,7 @@ export const CombatLog: React.FC = () => {
       </div>
       <div style={{ flex: 1, overflowY: 'auto', fontSize: 10, lineHeight: 1.4 }}>
         {recent.length === 0 ? (
-          <div style={{ color: '#555', fontStyle: 'italic', padding: 3 }}>
+          <div style={{ color: '#b3b8c2', fontStyle: 'italic', padding: 3 }}>
             {fr.combat.notStarted}
           </div>
         ) : (

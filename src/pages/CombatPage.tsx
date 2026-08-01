@@ -34,6 +34,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useBattleStore } from '@/stores/battleStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -226,6 +227,7 @@ const SLOT_TO_ACTION: Record<string, ActionType> = {
 };
 
 export function CombatPage() {
+  const reducedMotion = useReducedMotion();
   useRunImagePreload();
   const isActive = useRunStore((s) => s.isActive);
   const team = useRunStore((s) => s.team);
@@ -887,7 +889,13 @@ export function CombatPage() {
             battlePhase === 'starting' ||
             battlePhase === 'turn_transition') && (
             <div style={arenaPlaceholderStyle}>
-              <div style={{ fontSize: 48, marginBottom: 16, animation: 'pulse 1.5s infinite' }}>
+              <div
+                style={{
+                  fontSize: 48,
+                  marginBottom: 16,
+                  animation: reducedMotion ? 'none' : 'pulse 1.5s infinite',
+                }}
+              >
                 ⚔️
               </div>
               <div style={{ fontSize: 16, color: '#ffd700', fontWeight: 'bold' }}>

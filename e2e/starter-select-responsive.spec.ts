@@ -196,12 +196,12 @@ test('touch selection and Back remain activatable at 390px', async ({ page }) =>
   await page.getByRole('checkbox').first().tap();
   await expect(page.getByRole('checkbox').first()).toBeChecked();
 
-  const back = page.getByRole('button', { name: '← Back' });
+  const back = page.getByRole('button', { name: '← Retour' });
   await back.scrollIntoViewIfNeeded();
   await back.tap();
   await expect(page).toHaveURL('/');
 
-  await page.getByRole('button', { name: 'Play', exact: true }).tap();
+  await page.getByRole('button', { name: 'Jouer', exact: true }).tap();
   await expect(page).toHaveURL('/starter-select');
   await page
     .getByRole('button', { name: /^Choisir / })

@@ -217,7 +217,7 @@ export function DatabasePage() {
           ) : (
             <div style={placeholderStyle}>
               <p style={{ color: '#8b949e' }}>{fr.database.select}</p>
-              <p style={{ color: '#484f58', fontSize: 12, marginTop: 8 }}>
+              <p style={{ color: '#8b949e', fontSize: 12, marginTop: 8 }}>
                 {fr.database.selectHelp}
               </p>
             </div>

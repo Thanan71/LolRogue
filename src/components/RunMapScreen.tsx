@@ -22,6 +22,7 @@ import {
   type CanonicalStatKey,
 } from '@/game/stats/statContract';
 import { useMasteryStore } from '@/stores/masteryStore';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
 import {
   btnStyle,
@@ -68,6 +69,7 @@ const NODE_LABELS: Record<string, string> = {
 };
 
 export function RunMapScreen() {
+  const reducedMotion = useReducedMotion();
   const [showLegend, setShowLegend] = useState(false);
   const biomeMaps = useRunStore((s) => s.biomeMaps);
   const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
@@ -250,7 +252,7 @@ export function RunMapScreen() {
               {currentBiome ? currentBiome.charAt(0).toUpperCase() + currentBiome.slice(1) : '???'}
             </span>
             {currentBiomeIndex >= 0 && (
-              <span style={{ color: '#484f58' }}>
+              <span style={{ color: '#8b949e' }}>
                 [{currentBiomeIndex + 1}/{biomeMaps.length}]
               </span>
             )}
@@ -431,12 +433,14 @@ export function RunMapScreen() {
                         strokeWidth={2}
                         opacity={0.8}
                       >
-                        <animate
-                          attributeName="r"
-                          values="24;30;24"
-                          dur="1.5s"
-                          repeatCount="indefinite"
-                        />
+                        {!reducedMotion && (
+                          <animate
+                            attributeName="r"
+                            values="24;30;24"
+                            dur="1.5s"
+                            repeatCount="indefinite"
+                          />
+                        )}
                       </circle>
                     )}
                     {isAccessible && !isCurrent && (
@@ -450,12 +454,14 @@ export function RunMapScreen() {
                         strokeDasharray="3 3"
                         opacity={0.7}
                       >
-                        <animate
-                          attributeName="opacity"
-                          values="0.4;0.9;0.4"
-                          dur="2s"
-                          repeatCount="indefinite"
-                        />
+                        {!reducedMotion && (
+                          <animate
+                            attributeName="opacity"
+                            values="0.4;0.9;0.4"
+                            dur="2s"
+                            repeatCount="indefinite"
+                          />
+                        )}
                       </circle>
                     )}
                     <circle
@@ -557,7 +563,7 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
     <div style={panelStyle}>
       <div style={panelTitle}>{fr.run.team}</div>
       {team.length === 0 && (
-        <div style={{ color: '#484f58', fontSize: 12, padding: 8 }}>{fr.run.noChampions}</div>
+        <div style={{ color: '#8b949e', fontSize: 12, padding: 8 }}>{fr.run.noChampions}</div>
       )}
       {team.map((m) => {
         const champ = championDB.getById(m.championId);
@@ -665,7 +671,7 @@ function TeamPanel({ team, inventory }: { team: TeamMember[]; inventory: Invento
                 <div style={{ color: '#8b949e', fontSize: 9 }}>
                   {level >= 18 ? 'MAX' : xpDisplay}
                 </div>
-                <div style={{ color: '#484f58', fontSize: 9 }}>
+                <div style={{ color: '#8b949e', fontSize: 9 }}>
                   {Math.round(m.currentHp ?? maxHp)}/{maxHp}
                 </div>
               </div>
@@ -769,7 +775,7 @@ function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team
         </button>
       </div>
       {inventory.length === 0 && (
-        <div style={{ color: '#484f58', fontSize: 12, padding: 8 }}>{fr.common.empty}</div>
+        <div style={{ color: '#8b949e', fontSize: 12, padding: 8 }}>{fr.common.empty}</div>
       )}
       {inventory.map((entry) => (
         <article
