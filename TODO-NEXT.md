@@ -94,15 +94,13 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P1-DATA-01 — État local versionné** : valider et migrer chaque store persisté,
-   notamment pendant un combat.
-2. **P1-DATA-02 — Sources de vérité** : réduire les gestionnaires concurrents et
+1. **P1-DATA-02 — Sources de vérité** : réduire les gestionnaires concurrents et
    documenter un propriétaire par donnée.
-3. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
+2. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
    et les réponses asynchrones robustes.
-4. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
+3. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
    Combat et Game Over sur les petits viewports.
-5. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
+4. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
    reflow, contraste et réduction de mouvement dans le chantier responsive.
 7. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
    invité et authentifié sans mutation directe des stores.
@@ -173,15 +171,20 @@ nœuds disponibles et les cinq paliers de maîtrise sont couverts individuelleme
 
 ### P1-DATA-01 — Versionner et valider l'état local
 
-- [ ] Ajouter un numéro de schéma à chaque store persisté.
-- [ ] Valider les payloads avec un schéma runtime avant réhydratation.
-- [ ] Écrire une migration par version et une quarantaine/reset explicite si
+- [x] Ajouter un numéro de schéma à chaque store persisté.
+- [x] Valider les payloads avec un schéma runtime avant réhydratation.
+- [x] Écrire une migration par version et une quarantaine/reset explicite si
   migration impossible.
-- [ ] Ne pas persister un statut transitoire sans stratégie de récupération.
-- [ ] Définir un checkpoint déterministe de combat ou une règle explicite
+- [x] Ne pas persister un statut transitoire sans stratégie de récupération.
+- [x] Définir un checkpoint déterministe de combat ou une règle explicite
   d'abandon/replay après refresh.
-- [ ] Tester refresh sur carte, chaque encounter, augment, tour de combat,
+- [x] Tester refresh sur carte, chaque encounter, augment, tour de combat,
   finalisation et vérification.
+
+**Statut : terminé.** Les cinq stockages Zustand et le leaderboard invité ont un
+schéma explicite. Tout payload invalide/futur est isolé sous
+`lolrogue-quarantine:*`; une sauvegarde interrompue devient réessayable et un
+combat interrompu reprend obligatoirement en autoplay déterministe.
 
 ### P1-DATA-02 — Réduire les sources de vérité concurrentes
 

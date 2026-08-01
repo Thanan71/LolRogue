@@ -46,6 +46,7 @@ describe('run reload recovery', () => {
       runId: 'reload-run',
       seed: 20260723,
       startedAt: '2026-07-23T12:00:00.000Z',
+      team: [{ championId: 'Garen' }],
       biomeMaps: maps,
       currentBiomeIndex: 2,
       currentBiome: currentMap.biome,
@@ -205,7 +206,84 @@ describe('run reload recovery', () => {
       nodeId,
       nodeType: 'combat',
     });
-    expect(useRunStore.getState().currentEncounter).toEqual(encounter);
+    expect(useRunStore.getState().currentEncounter).toEqual(
+      nodeId && maps[0].nodes.find((node) => node.id === nodeId)?.encounter,
+    );
+  });
+
+  it('forces deterministic autoplay after a refresh during combat', async () => {
+    const maps = generateRunMap(4242);
+    const node = maps[0].nodes.find((candidate) => candidate.type === 'combat')!;
+    useRunStore.setState({
+      ...RUN_INITIAL_STATE,
+      isActive: true,
+      runId: 'interrupted-combat',
+      team: [{ championId: 'Garen' }],
+      biomeMaps: maps,
+      currentBiomeIndex: 0,
+      currentBiome: maps[0].biome,
+      currentNodeId: node.id,
+      chosenPathNodeIds: [node.id],
+      pendingEncounter: { nodeId: node.id, nodeType: 'combat' },
+      currentEncounter: node.encounter as CombatEncounter,
+    });
+    useRunStore.getState().markCombatStarted(node.id);
+    const checkpoint = localStorage.getItem(RUN_STORAGE_KEY);
+
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    localStorage.setItem(RUN_STORAGE_KEY, checkpoint!);
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState()).toMatchObject({
+      combatCheckpointNodeId: node.id,
+      combatRecoveryRequired: true,
+      pendingEncounter: { nodeId: node.id, nodeType: 'combat' },
+    });
+  });
+
+  it.each(['rest', 'event', 'recruit', 'treasure'] as const)(
+    'restores a pending %s encounter from its canonical map node',
+    async (nodeType) => {
+      let maps = generateRunMap(1);
+      let node = maps.flatMap((map) => map.nodes).find((candidate) => candidate.type === nodeType);
+      for (let seed = 2; !node && seed < 500; seed++) {
+        maps = generateRunMap(seed);
+        node = maps.flatMap((map) => map.nodes).find((candidate) => candidate.type === nodeType);
+      }
+      expect(node).toBeDefined();
+      const biomeIndex = maps.findIndex((map) =>
+        map.nodes.some((candidate) => candidate.id === node!.id),
+      );
+      useRunStore.setState({
+        ...RUN_INITIAL_STATE,
+        isActive: true,
+        runId: `reload-${nodeType}`,
+        team: [{ championId: 'Garen' }],
+        biomeMaps: maps,
+        currentBiomeIndex: biomeIndex,
+        currentBiome: maps[biomeIndex].biome,
+        currentNodeId: node!.id,
+        chosenPathNodeIds: [node!.id],
+        pendingEncounter: { nodeId: node!.id, nodeType },
+      });
+      const persisted = localStorage.getItem(RUN_STORAGE_KEY);
+      useRunStore.setState({ ...RUN_INITIAL_STATE });
+      localStorage.setItem(RUN_STORAGE_KEY, persisted!);
+      await useRunStore.persist.rehydrate();
+
+      expect(useRunStore.getState().pendingEncounter).toEqual({ nodeId: node!.id, nodeType });
+    },
+  );
+
+  it('quarantines a corrupt current-schema run instead of shallow-merging it', async () => {
+    localStorage.setItem(
+      RUN_STORAGE_KEY,
+      JSON.stringify({ version: 7, state: { isActive: 'yes', team: 'Garen' } }),
+    );
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState()).toMatchObject({ isActive: false, runId: '', team: [] });
+    expect(localStorage.getItem(`lolrogue-quarantine:${RUN_STORAGE_KEY}`)).not.toBeNull();
   });
 
   it('keeps shop stock and consumed offers closed after refresh', async () => {
@@ -296,6 +374,7 @@ describe('run reload recovery', () => {
       useRunStore.setState({
         isActive: true,
         runId: 'interrupted-save',
+        team: [{ championId: 'Garen' }],
         saveStatus,
         saveError: null,
       });

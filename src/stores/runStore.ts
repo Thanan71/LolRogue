@@ -77,7 +77,7 @@ import type {
 } from '@/types/runAttempt';
 import { encodeCombatActionTrace } from '@/game/battle/actionTrace';
 import { logger } from '@/utils/logger';
-import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
+import { isRecord, recoverVersionedState, safeLocalStorage } from '@/utils/persistence';
 import { calculateMaxHP } from '@/utils/statCalculator';
 import { useAuthStore } from './authStore';
 import { calculateDailyScore, useDailyRunStore } from './dailyRunStore';
@@ -99,6 +99,56 @@ const CANONICAL_PROGRESSION_ENGINES = new Set([
   'run-engine-v11',
   'run-engine-v12',
 ]);
+const RUN_STORAGE_KEY = 'lolrogue-run-storage';
+const RUN_SCHEMA_VERSION = 7;
+
+function isPersistedRunState(value: unknown): value is Partial<RunState> {
+  if (!isRecord(value)) return false;
+  const arrays = [
+    'team',
+    'inventory',
+    'runeIds',
+    'augmentIds',
+    'pendingAugmentIds',
+    'pendingSpellUpgradeChampionIds',
+    'biomeMaps',
+    'frontierNodeIds',
+    'chosenPathNodeIds',
+    'completedNodeIds',
+    'claimedEncounterNodeIds',
+  ];
+  if (arrays.some((key) => value[key] !== undefined && !Array.isArray(value[key]))) return false;
+  if (value.isActive !== undefined && typeof value.isActive !== 'boolean') return false;
+  if (value.runId !== undefined && typeof value.runId !== 'string') return false;
+  if (value.seed !== undefined && value.seed !== null && !Number.isSafeInteger(value.seed)) {
+    return false;
+  }
+  if (
+    value.saveStatus !== undefined &&
+    !['idle', 'saving', 'saved', 'failed', 'retrying'].includes(String(value.saveStatus))
+  ) {
+    return false;
+  }
+  if (value.authorityAttempt !== undefined && value.authorityAttempt !== null) {
+    const attempt = value.authorityAttempt;
+    if (
+      !isRecord(attempt) ||
+      typeof attempt.attemptId !== 'string' ||
+      typeof attempt.engineVersion !== 'string' ||
+      !Array.isArray(attempt.commands) ||
+      !attempt.commands.every(
+        (command) =>
+          isRecord(command) &&
+          Number.isSafeInteger(command.sequence) &&
+          typeof command.kind === 'string' &&
+          isRecord(command.payload),
+      )
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 
 function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
   return attempt === null || CANONICAL_PROGRESSION_ENGINES.has(attempt.engineVersion);
@@ -261,7 +311,14 @@ function endFailure(
 }
 
 export function migratePersistedRunState(persisted: unknown, version: number): RunState {
-  const state = recoverPersistedState(persisted, RUN_INITIAL_STATE);
+  const state = recoverVersionedState(persisted, {
+    name: RUN_STORAGE_KEY,
+    version,
+    currentVersion: RUN_SCHEMA_VERSION,
+    defaults: RUN_INITIAL_STATE,
+    validate: isPersistedRunState,
+    migrate: (candidate, sourceVersion) => (sourceVersion >= 0 ? candidate : null),
+  });
   const domainState = normalizeRunDomainState({
     team:
       state.isActive && state.team.length === 0 && state.authorityAttempt
@@ -463,6 +520,13 @@ export function migratePersistedRunState(persisted: unknown, version: number): R
     shopNodeStates,
     pendingEncounter,
     currentEncounter,
+    combatCheckpointNodeId:
+      pendingEncounter && state.combatCheckpointNodeId === pendingEncounter.nodeId
+        ? state.combatCheckpointNodeId
+        : null,
+    combatRecoveryRequired: Boolean(
+      pendingEncounter && state.combatCheckpointNodeId === pendingEncounter.nodeId,
+    ),
   };
 }
 
@@ -691,6 +755,8 @@ export const useRunStore = create<RunStore>()(
               shopNodeStates: {},
               pendingEncounter: null,
               currentEncounter: null,
+              combatCheckpointNodeId: null,
+              combatRecoveryRequired: false,
             });
             return { success: true, runId, mode: canonicalMode };
           });
@@ -707,6 +773,16 @@ export const useRunStore = create<RunStore>()(
           set({ authorityAttempt: appended.authorityAttempt });
         }
         return true;
+      },
+
+      markCombatStarted: (nodeId) => {
+        const state = get();
+        if (
+          state.pendingEncounter?.nodeId === nodeId &&
+          ['combat', 'elite', 'boss'].includes(state.pendingEncounter.nodeType)
+        ) {
+          set({ combatCheckpointNodeId: nodeId });
+        }
       },
 
       endRun: async (won = false, expectedRunId?: string, displayedSummary?: RunSummary) => {
@@ -1826,7 +1902,11 @@ export const useRunStore = create<RunStore>()(
         ) {
           return false;
         }
-        set({ claimedEncounterNodeIds: [...claimed, currentNodeId!] });
+        set({
+          claimedEncounterNodeIds: [...claimed, currentNodeId!],
+          combatCheckpointNodeId: null,
+          combatRecoveryRequired: false,
+        });
         return true;
       },
 
@@ -2115,10 +2195,14 @@ export const useRunStore = create<RunStore>()(
       },
     }),
     {
-      name: 'lolrogue-run-storage',
-      version: 6,
+      name: RUN_STORAGE_KEY,
+      version: RUN_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeLocalStorage),
       migrate: (persisted, version) => migratePersistedRunState(persisted, version),
+      merge: (persisted, current) => ({
+        ...current,
+        ...migratePersistedRunState(persisted, RUN_SCHEMA_VERSION),
+      }),
       // Only persist the serializable state, not functions
       partialize: (state) => ({
         isActive: state.isActive,
@@ -2171,6 +2255,7 @@ export const useRunStore = create<RunStore>()(
         shopNodeStates: state.shopNodeStates,
         pendingEncounter: state.pendingEncounter,
         currentEncounter: state.currentEncounter,
+        combatCheckpointNodeId: state.combatCheckpointNodeId,
       }),
     },
   ),

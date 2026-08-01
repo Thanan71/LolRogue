@@ -1,7 +1,31 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { getDifficultyRule } from '@/game/run/difficultyRules';
-import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
+import { isRecord, recoverVersionedState, safeLocalStorage } from '@/utils/persistence';
+
+const SETTINGS_STORAGE_KEY = 'lolrogue-settings';
+const SETTINGS_SCHEMA_VERSION = 3;
+const SETTINGS_DEFAULTS = {
+  textSize: 'medium' as TextSize,
+  battleSpeed: 1 as BattleSpeed,
+  difficulty: 'normal' as Difficulty,
+  particlesEnabled: true,
+  keyboardShortcutsEnabled: true,
+};
+
+function isSettingsState(value: unknown): value is Partial<typeof SETTINGS_DEFAULTS> {
+  if (!isRecord(value)) return false;
+  return (
+    (value.textSize === undefined ||
+      ['small', 'medium', 'large'].includes(String(value.textSize))) &&
+    (value.battleSpeed === undefined || [1, 2, 3].includes(Number(value.battleSpeed))) &&
+    (value.difficulty === undefined ||
+      ['easy', 'normal', 'hard'].includes(String(value.difficulty))) &&
+    (value.particlesEnabled === undefined || typeof value.particlesEnabled === 'boolean') &&
+    (value.keyboardShortcutsEnabled === undefined ||
+      typeof value.keyboardShortcutsEnabled === 'boolean')
+  );
+}
 
 export type BattleSpeed = 1 | 2 | 3;
 export type TextSize = 'small' | 'medium' | 'large';
@@ -32,11 +56,7 @@ const textSizeMultipliers: Record<TextSize, number> = {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      textSize: 'medium',
-      battleSpeed: 1,
-      difficulty: 'normal',
-      particlesEnabled: true,
-      keyboardShortcutsEnabled: true,
+      ...SETTINGS_DEFAULTS,
 
       setTextSize: (size) => set({ textSize: size }),
       setBattleSpeed: (speed) => set({ battleSpeed: speed }),
@@ -45,17 +65,28 @@ export const useSettingsStore = create<SettingsState>()(
       setKeyboardShortcutsEnabled: (keyboardShortcutsEnabled) => set({ keyboardShortcutsEnabled }),
     }),
     {
-      name: 'lolrogue-settings',
-      version: 2,
+      name: SETTINGS_STORAGE_KEY,
+      version: SETTINGS_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeLocalStorage),
-      migrate: (persisted) =>
-        recoverPersistedState(persisted, {
-          textSize: 'medium',
-          battleSpeed: 1,
-          difficulty: 'normal',
-          particlesEnabled: true,
-          keyboardShortcutsEnabled: true,
+      migrate: (persisted, version) =>
+        recoverVersionedState(persisted, {
+          name: SETTINGS_STORAGE_KEY,
+          version,
+          currentVersion: SETTINGS_SCHEMA_VERSION,
+          defaults: SETTINGS_DEFAULTS,
+          validate: isSettingsState,
+          migrate: (state, sourceVersion) => (sourceVersion >= 0 ? state : null),
         }),
+      merge: (persisted, current) => ({
+        ...current,
+        ...recoverVersionedState(persisted, {
+          name: SETTINGS_STORAGE_KEY,
+          version: SETTINGS_SCHEMA_VERSION,
+          currentVersion: SETTINGS_SCHEMA_VERSION,
+          defaults: SETTINGS_DEFAULTS,
+          validate: isSettingsState,
+        }),
+      }),
     },
   ),
 );

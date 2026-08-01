@@ -257,6 +257,10 @@ export interface RunState {
   pendingEncounter: { nodeId: string; nodeType: NodeType } | null;
   /** The encounter data for the current combat (enemies, rewards, etc.) */
   currentEncounter: import('@/game/map/types').CombatEncounter | null;
+  /** Persisted marker proving that this encounter already entered combat. */
+  combatCheckpointNodeId: string | null;
+  /** Rehydration-only flag forcing deterministic autoplay after an interrupted combat. */
+  combatRecoveryRequired: boolean;
 }
 
 export type RunLifecycleErrorCode =
@@ -344,6 +348,8 @@ export interface RunActions {
   ) => Promise<RunStartResult>;
   /** Append one validated semantic command to the authenticated attempt journal. */
   recordRunCommand: (command: RunCommandInput, dedupeKey?: string) => boolean;
+  /** Mark combat entry before the first turn so refresh cannot grant a free retry. */
+  markCombatStarted: (nodeId: string) => void;
   /** End the current run and reset state, optionally marking it as won.
    *  If expectedRunId is provided, only ends the run if it matches the current runId. */
   endRun: (

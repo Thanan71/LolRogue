@@ -692,22 +692,26 @@ affichée égale celle utilisée en combat.
 corrompu peut remplacer des defaults. Le combat et le tracker ne sont pas persistés,
 et `saveStatus: saving` peut rester bloqué après refresh.
 
-- [ ] Ajouter un numéro de schéma à chaque store persisté.
-- [ ] Valider les payloads avec un schéma runtime avant réhydratation.
-- [ ] Écrire une migration par version et une quarantaine/reset explicite si
+- [x] Ajouter un numéro de schéma à chaque store persisté.
+- [x] Valider les payloads avec un schéma runtime avant réhydratation.
+- [x] Écrire une migration par version et une quarantaine/reset explicite si
   migration impossible.
-- [ ] Ne pas persister un statut transitoire sans stratégie de récupération.
-- [ ] Persister un checkpoint de combat déterministe ou définir un abandon/replay
+- [x] Ne pas persister un statut transitoire sans stratégie de récupération.
+- [x] Persister un checkpoint de combat déterministe ou définir un abandon/replay
   non exploitable.
-- [ ] Empêcher qu'un refresh restaure les PV pré-combat et permette de recommencer
+- [x] Empêcher qu'un refresh restaure les PV pré-combat et permette de recommencer
   gratuitement la même rencontre.
-- [ ] Ajouter une outbox idempotente pour les résultats hors ligne si ce cas est
+- [x] Ajouter une outbox idempotente pour les résultats hors ligne si ce cas est
   supporté.
-- [ ] Tester refresh sur carte, chaque encounter, choix d'augment, tour combat,
+- [x] Tester refresh sur carte, chaque encounter, choix d'augment, tour combat,
   récompense, sauvegarde et Game Over.
 
 **Acceptation :** chaque refresh restaure un état cohérent ou propose une
 récupération explicite, jamais un état partiel exploitable.
+
+**Statut : terminé.** Validation runtime avant merge, migrations versionnées,
+quarantaine locale, snapshot de finalisation réessayable et checkpoint de combat
+avec reprise déterministe sont couverts par les tests de reload.
 
 ### P1-DATA-02 — Réduire les sources de vérité concurrentes
 

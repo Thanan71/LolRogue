@@ -109,11 +109,11 @@ Toutes les mutations ultérieures passent par les règles de domaine communes :
 bornés par le niveau du champion. Les rangs 2–5 des sorts de base demandent les
 niveaux 3/5/7/9 ; les rangs 2–3 de l'ultime demandent les niveaux 6/11.
 
-La version 6 de `lolrogue-run-storage` normalise ces trois domaines avant
+La version 7 de `lolrogue-run-storage` normalise ces trois domaines avant
 d'exposer une sauvegarde réhydratée. Elle canonise les IDs et objets, retire
 doublons et références orphelines, borne les rangs, limite la file de choix à la
 capacité réellement disponible et avance le compteur d'instances au-delà de tout
-ID restauré. La version 2 du miroir local Daily applique le même normaliseur. Pour une attempt
+ID restauré. La version 3 du miroir local Daily applique le même normaliseur. Pour une attempt
 connectée, une équipe locale manquante est reconstruite depuis `initialTeam` ;
 une run invitée sans membre légal n'est pas reprise comme active.
 
@@ -132,6 +132,19 @@ son contenu depuis la page : il relit l'encounter seedé dans `biomeMaps`. Les
 routes, claims et résolutions appliquent la même identité. `completedNodeIds`,
 `claimedEncounterNodeIds` et les clés de commandes rendent résolution et
 collecte idempotentes, y compris après refresh.
+
+Chaque stockage Zustand possède désormais un numéro de schéma et une validation
+runtime avant merge, y compris lorsque le payload annonce déjà la version courante.
+Une version future, un type invalide ou une migration qui échoue restaure les
+defaults et conserve la copie fautive sous `lolrogue-quarantine:<nom-du-store>`.
+Les statuts réseau transitoires `saving` et `retrying` sont réhydratés en échec
+réessayable, jamais comme promesse encore active.
+
+L’entrée dans un combat écrit `combatCheckpointNodeId` avant le premier tour. Si
+ce checkpoint est retrouvé au chargement, le combat est rejoué en autoplay
+déterministe et les choix manuels sont désactivés. Le checkpoint disparaît avec
+le claim atomique de la rencontre. Un refresh ne peut donc plus restaurer les PV
+pré-combat afin d'offrir une nouvelle tentative manuelle gratuite.
 
 Le stock seedé reste dans `biomeMaps`. `shopNodeStates` persiste en plus la visite,
 les IDs d'objets achetés et les champions recrutés. La version 3 du stockage

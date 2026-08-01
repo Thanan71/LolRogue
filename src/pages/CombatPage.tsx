@@ -249,6 +249,8 @@ export function CombatPage() {
   const battleSpeed = useSettingsStore((s) => s.battleSpeed);
   const difficulty = useSettingsStore((s) => s.difficulty);
   const keyboardShortcutsEnabled = useSettingsStore((s) => s.keyboardShortcutsEnabled);
+  const combatRecoveryRequired = useRunStore((s) => s.combatRecoveryRequired);
+  const markCombatStarted = useRunStore((s) => s.markCombatStarted);
   const setKeyboardShortcutsEnabled = useSettingsStore((s) => s.setKeyboardShortcutsEnabled);
   const effectiveDifficulty = authorityAttempt?.difficulty ?? difficulty;
   const isAuthorityRun = authorityAttempt !== null;
@@ -256,7 +258,8 @@ export function CombatPage() {
     authorityAttempt !== null &&
     LEGACY_ENCOUNTER_ENGINE_VERSIONS.has(authorityAttempt.engineVersion);
   const supportsManualCombat = supportsManualAuthorityCombat(authorityAttempt?.engineVersion);
-  const requiresServerAutoPlay = isAuthorityRun && !supportsManualCombat;
+  const requiresServerAutoPlay =
+    (isAuthorityRun && !supportsManualCombat) || combatRecoveryRequired;
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);
   const [autoActionRemainingMs, setAutoActionRemainingMs] = useState<number | null>(null);
@@ -402,6 +405,9 @@ export function CombatPage() {
   const currentEncounter = useRunStore((s) => s.currentEncounter);
   const runSeed = useRunStore((s) => s.seed);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
+  useEffect(() => {
+    if (currentNodeId) markCombatStarted(currentNodeId);
+  }, [currentNodeId, markCombatStarted]);
   const currentNode = useMemo(() => useRunStore.getState().getCurrentNode(), [currentNodeId]);
   const battleRandom = useMemo(() => {
     const rng = createScopedRunRng(

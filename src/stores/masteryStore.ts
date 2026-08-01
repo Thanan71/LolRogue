@@ -11,7 +11,10 @@ import {
   getStatBonusForLevel,
 } from '@/services/masteryService';
 import type { MasteryProgressionSnapshot, MasteryState, MasteryStore } from '@/types/mastery';
-import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
+import { isRecord, recoverVersionedState, safeLocalStorage } from '@/utils/persistence';
+
+const MASTERY_STORAGE_KEY = 'lolrogue-mastery-storage';
+const MASTERY_SCHEMA_VERSION = 3;
 
 const EMPTY_SNAPSHOT: MasteryProgressionSnapshot = {
   champions: {},
@@ -32,6 +35,34 @@ function copySnapshot(snapshot: MasteryProgressionSnapshot): MasteryProgressionS
     totalRunsCompleted: snapshot.totalRunsCompleted,
     totalCandiesEarned: snapshot.totalCandiesEarned,
   };
+}
+
+function isMasterySnapshot(value: unknown): value is MasteryProgressionSnapshot {
+  if (!isRecord(value) || !isRecord(value.champions)) return false;
+  if (
+    !Number.isSafeInteger(value.totalRunsCompleted) ||
+    Number(value.totalRunsCompleted) < 0 ||
+    !Number.isSafeInteger(value.totalCandiesEarned) ||
+    Number(value.totalCandiesEarned) < 0
+  ) {
+    return false;
+  }
+  return Object.values(value.champions).every(
+    (mastery) =>
+      isRecord(mastery) &&
+      typeof mastery.championId === 'string' &&
+      Number.isSafeInteger(mastery.totalCandies) &&
+      Number(mastery.totalCandies) >= 0 &&
+      Array.isArray(mastery.unlockedIds) &&
+      mastery.unlockedIds.every((id) => typeof id === 'string'),
+  );
+}
+
+function isPersistedMastery(value: unknown): value is Partial<MasteryState> {
+  if (!isRecord(value)) return false;
+  if (value.guestSnapshot !== undefined && !isMasterySnapshot(value.guestSnapshot)) return false;
+  if (value.champions !== undefined && !isRecord(value.champions)) return false;
+  return true;
 }
 
 export const useMasteryStore = create<MasteryStore>()(
@@ -126,14 +157,18 @@ export const useMasteryStore = create<MasteryStore>()(
       },
     }),
     {
-      name: 'lolrogue-mastery-storage',
-      version: 2,
+      name: MASTERY_STORAGE_KEY,
+      version: MASTERY_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeLocalStorage),
       migrate: (persisted, version) => {
-        const recovered = recoverPersistedState(
-          persisted,
-          version < 2 ? EMPTY_SNAPSHOT : { guestSnapshot: EMPTY_SNAPSHOT },
-        ) as Partial<MasteryState>;
+        const recovered = recoverVersionedState(persisted, {
+          name: MASTERY_STORAGE_KEY,
+          version,
+          currentVersion: MASTERY_SCHEMA_VERSION,
+          defaults: version < 2 ? EMPTY_SNAPSHOT : { guestSnapshot: EMPTY_SNAPSHOT },
+          validate: isPersistedMastery,
+          migrate: (state, sourceVersion) => (sourceVersion >= 0 ? state : null),
+        }) as Partial<MasteryState>;
         const legacySnapshot: MasteryProgressionSnapshot = {
           champions: recovered.champions ?? {},
           totalRunsCompleted: recovered.totalRunsCompleted ?? 0,
@@ -149,6 +184,17 @@ export const useMasteryStore = create<MasteryStore>()(
       partialize: (state) => ({
         guestSnapshot: state.guestSnapshot,
       }),
+      merge: (persisted, current) => {
+        const recovered = recoverVersionedState(persisted, {
+          name: MASTERY_STORAGE_KEY,
+          version: MASTERY_SCHEMA_VERSION,
+          currentVersion: MASTERY_SCHEMA_VERSION,
+          defaults: { guestSnapshot: EMPTY_SNAPSHOT },
+          validate: (value): value is Partial<{ guestSnapshot: MasteryProgressionSnapshot }> =>
+            isPersistedMastery(value),
+        });
+        return { ...current, guestSnapshot: copySnapshot(recovered.guestSnapshot) };
+      },
     },
   ),
 );

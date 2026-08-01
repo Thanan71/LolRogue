@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { recoverPersistedState, safeLocalStorage } from '@/utils/persistence';
+import {
+  isRecord,
+  quarantinePersistedState,
+  recoverVersionedState,
+  safeLocalStorage,
+} from '@/utils/persistence';
 import type {
   DailyChallenge,
   DailyLeaderboard,
@@ -22,6 +27,8 @@ import { validateTeamChampionIds } from '@/game/run/teamRules';
 
 const STORAGE_KEY = 'lolrogue-daily-run';
 const LEADERBOARD_KEY = 'lolrogue-daily-leaderboard';
+const DAILY_SCHEMA_VERSION = 3;
+const LEADERBOARD_SCHEMA_VERSION = 1;
 const MAX_LEADERBOARD_ENTRIES = 100;
 
 /** Score gained per wave completed */
@@ -68,13 +75,53 @@ function getInitialState(): DailyRunState {
   };
 }
 
+function isDailyRunState(value: unknown): value is Partial<DailyRunState> {
+  if (!isRecord(value)) return false;
+  const nonNegativeIntegers = ['runLevel', 'gold', 'currentWave', 'totalWavesCompleted', 'score'];
+  return (
+    (value.isActive === undefined || typeof value.isActive === 'boolean') &&
+    (value.dateKey === undefined || typeof value.dateKey === 'string') &&
+    (value.seed === undefined || Number.isSafeInteger(value.seed)) &&
+    (value.team === undefined ||
+      (Array.isArray(value.team) && value.team.every((id) => typeof id === 'string'))) &&
+    (value.biomesVisited === undefined || Array.isArray(value.biomesVisited)) &&
+    (value.inventory === undefined || Array.isArray(value.inventory)) &&
+    nonNegativeIntegers.every(
+      (key) =>
+        value[key] === undefined || (Number.isSafeInteger(value[key]) && Number(value[key]) >= 0),
+    ) &&
+    (value.hasCompletedToday === undefined || typeof value.hasCompletedToday === 'boolean') &&
+    (value.expiresAt === undefined ||
+      value.expiresAt === null ||
+      typeof value.expiresAt === 'string')
+  );
+}
+
 // ─── Leaderboard Helpers ────────────────────────────────────────────────────
 
 function loadLeaderboard(): DailyLeaderboard {
   try {
     const raw = localStorage.getItem(LEADERBOARD_KEY);
     if (raw) {
-      const parsed: DailyLeaderboard = JSON.parse(raw);
+      const envelope = JSON.parse(raw) as { version?: unknown; state?: unknown };
+      const parsed =
+        envelope.version === LEADERBOARD_SCHEMA_VERSION && isRecord(envelope.state)
+          ? (envelope.state as unknown as DailyLeaderboard)
+          : (envelope as unknown as DailyLeaderboard);
+      if (
+        typeof parsed.dateKey !== 'string' ||
+        !Array.isArray(parsed.entries) ||
+        !parsed.entries.every(
+          (entry) =>
+            isRecord(entry) &&
+            typeof entry.playerName === 'string' &&
+            Number.isSafeInteger(entry.score) &&
+            Number(entry.score) >= 0,
+        )
+      ) {
+        quarantinePersistedState(LEADERBOARD_KEY, envelope, 'invalid_leaderboard_state');
+        return { dateKey: getTodayKey(), entries: [] };
+      }
       // Reset if the stored leaderboard is from a different day
       if (!isToday(parsed.dateKey)) {
         return { dateKey: getTodayKey(), entries: [] };
@@ -89,7 +136,10 @@ function loadLeaderboard(): DailyLeaderboard {
 
 function saveLeaderboard(leaderboard: DailyLeaderboard): void {
   try {
-    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
+    localStorage.setItem(
+      LEADERBOARD_KEY,
+      JSON.stringify({ version: LEADERBOARD_SCHEMA_VERSION, state: leaderboard }),
+    );
   } catch {
     // Guest competition remains usable in memory when storage is unavailable
     // or full. Authenticated scores never use this fallback.
@@ -145,6 +195,28 @@ export type DailyRunStore = DailyRunState & DailyRunActions;
 
 function generateInstanceId(): string {
   return `daily_item_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function migrateDailyState(persisted: unknown, version: number): DailyRunState {
+  const state = recoverVersionedState(persisted, {
+    name: STORAGE_KEY,
+    version,
+    currentVersion: DAILY_SCHEMA_VERSION,
+    defaults: getInitialState(),
+    validate: isDailyRunState,
+    migrate: (candidate, sourceVersion) => (sourceVersion >= 0 ? candidate : null),
+  });
+  const domain = normalizeRunDomainState({
+    team: state.team.map((championId) => ({ championId })),
+    inventory: state.inventory,
+    pendingSpellUpgradeChampionIds: [],
+  });
+  return {
+    ...state,
+    isActive: state.isActive && domain.team.length > 0,
+    team: domain.team.map((member) => member.championId),
+    inventory: domain.inventory,
+  };
 }
 
 export const useDailyRunStore = create<DailyRunStore>()(
@@ -391,22 +463,13 @@ export const useDailyRunStore = create<DailyRunStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 2,
+      version: DAILY_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeLocalStorage),
-      migrate: (persisted) => {
-        const state = recoverPersistedState(persisted, getInitialState());
-        const domain = normalizeRunDomainState({
-          team: state.team.map((championId) => ({ championId })),
-          inventory: state.inventory,
-          pendingSpellUpgradeChampionIds: [],
-        });
-        return {
-          ...state,
-          isActive: state.isActive && domain.team.length > 0,
-          team: domain.team.map((member) => member.championId),
-          inventory: domain.inventory,
-        };
-      },
+      migrate: (persisted, version) => migrateDailyState(persisted, version),
+      merge: (persisted, current) => ({
+        ...current,
+        ...migrateDailyState(persisted, DAILY_SCHEMA_VERSION),
+      }),
       partialize: (state) => ({
         isActive: state.isActive,
         dateKey: state.dateKey,

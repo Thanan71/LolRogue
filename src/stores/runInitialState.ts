@@ -42,4 +42,6 @@ export const RUN_INITIAL_STATE: RunState = {
   shopNodeStates: {},
   pendingEncounter: null,
   currentEncounter: null,
+  combatCheckpointNodeId: null,
+  combatRecoveryRequired: false,
 };
