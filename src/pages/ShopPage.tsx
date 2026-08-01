@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
 import { fr } from '@/i18n/fr';
@@ -16,11 +16,13 @@ function ShopItemCard({
   item,
   priceMultiplier,
   canAfford,
+  disabledReason,
   onBuy,
 }: {
   item: ShopItem;
   priceMultiplier: number;
   canAfford: boolean;
+  disabledReason?: string;
   onBuy: () => void;
 }) {
   const finalPrice = Math.round(item.price * priceMultiplier);
@@ -48,7 +50,7 @@ function ShopItemCard({
         onClick={onBuy}
         disabled={!canAfford}
       >
-        Buy — {finalPrice}g
+        {canAfford ? `${fr.encounter.buy} — ${finalPrice} ${fr.common.gold}` : disabledReason}
       </button>
     </div>
   );
@@ -71,9 +73,10 @@ function ChampionCard({
 }) {
   const champ = championDB.getById(champId);
   const disabled = !canAfford || teamFull || alreadyOnTeam;
-  let label = `Recruit — ${cost}g`;
-  if (alreadyOnTeam) label = 'Already on team';
-  else if (teamFull) label = 'Team full';
+  let label = `${fr.encounter.recruitAction} — ${cost} ${fr.common.gold}`;
+  if (alreadyOnTeam) label = fr.encounter.alreadyOnTeam;
+  else if (teamFull) label = fr.encounter.teamFull;
+  else if (!canAfford) label = fr.encounter.notEnoughGold;
   return (
     <div style={champCardStyle}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -122,6 +125,7 @@ export function ShopPage() {
   const purchaseCurrentShopItem = useRunStore((s) => s.purchaseCurrentShopItem);
   const purchaseCurrentShopChampion = useRunStore((s) => s.purchaseCurrentShopChampion);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
+  const [commandError, setCommandError] = useState<string | null>(null);
   const shopNodeState = useRunStore((s) =>
     currentNodeId ? s.shopNodeStates[currentNodeId] : undefined,
   );
@@ -151,7 +155,10 @@ export function ShopPage() {
   const handleBuyItem = useCallback(
     (item: ShopItem) => {
       const result = purchaseCurrentShopItem(item.itemId);
-      if (result.success) playUIClick();
+      if (result.success) {
+        setCommandError(null);
+        playUIClick();
+      } else setCommandError(result.error || fr.encounter.commandFailed);
     },
     [purchaseCurrentShopItem],
   );
@@ -159,7 +166,10 @@ export function ShopPage() {
   const handleRecruit = useCallback(
     (champId: string) => {
       const result = purchaseCurrentShopChampion(champId);
-      if (result.success) playUIClick();
+      if (result.success) {
+        setCommandError(null);
+        playUIClick();
+      } else setCommandError(result.error || fr.encounter.commandFailed);
     },
     [purchaseCurrentShopChampion],
   );
@@ -179,25 +189,40 @@ export function ShopPage() {
       gold={gold}
     >
       <div style={scrollAreaStyle}>
+        {commandError && (
+          <div role="alert" style={{ ...discountBanner, color: '#fca5a5' }}>
+            {commandError}
+            <button type="button" onClick={() => setCommandError(null)}>
+              {fr.common.close}
+            </button>
+          </div>
+        )}
         {encounter && priceMultiplier < 1 && (
           <div style={discountBanner}>{fr.encounter.discount}</div>
         )}
         <div style={sectionStyle}>
           <div style={sectionTitle}>{fr.encounter.items}</div>
           <div style={gridStyle}>
-            {items.map((item) => (
-              <ShopItemCard
-                key={item.itemId}
-                item={item}
-                priceMultiplier={priceMultiplier}
-                canAfford={
-                  inventorySize < MAX_INVENTORY_ITEMS &&
-                  gold >= Math.round(item.price * priceMultiplier) &&
-                  !purchased.has(item.itemId)
-                }
-                onBuy={() => handleBuyItem(item)}
-              />
-            ))}
+            {items.map((item) => {
+              const finalPrice = Math.round(item.price * priceMultiplier);
+              const disabledReason = purchased.has(item.itemId)
+                ? fr.encounter.alreadyPurchased
+                : inventorySize >= MAX_INVENTORY_ITEMS
+                  ? fr.encounter.shopInventoryFull
+                  : gold < finalPrice
+                    ? fr.encounter.notEnoughGold
+                    : undefined;
+              return (
+                <ShopItemCard
+                  key={item.itemId}
+                  item={item}
+                  priceMultiplier={priceMultiplier}
+                  canAfford={!disabledReason}
+                  disabledReason={disabledReason}
+                  onBuy={() => handleBuyItem(item)}
+                />
+              );
+            })}
             {items.length === 0 && <div style={emptyStyle}>{fr.encounter.noItems}</div>}
           </div>
         </div>

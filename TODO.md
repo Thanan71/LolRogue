@@ -850,25 +850,35 @@ fait désormais échouer la CI, sans liste manuelle à maintenir.
 
 ### P1-UX-04 — Corriger feedback et vérité de l'interface
 
-- [ ] Ne jamais afficher succès/récompense avant confirmation de la commande.
-- [ ] Donner aux erreurs une action utile : réessayer, revenir, libérer un slot ou
+- [x] Ne jamais afficher succès/récompense avant confirmation de la commande.
+- [x] Donner aux erreurs une action utile : réessayer, revenir, libérer un slot ou
   se reconnecter.
-- [ ] Afficher les états de chargement/synchronisation du profil et des saves.
-- [ ] Garder les erreurs critiques persistantes avec `role=alert`, fermeture et
+- [x] Afficher les états de chargement/synchronisation du profil et des saves.
+- [x] Garder les erreurs critiques persistantes avec `role=alert`, fermeture et
   retry ; ne pas les effacer automatiquement après cinq secondes.
-- [ ] Distinguer clairement local invité, connecté, offline et classement officiel.
-- [ ] Remplacer les valeurs par défaut trompeuses de Game Over lors d'un accès
+- [x] Distinguer clairement local invité, connecté, offline et classement officiel.
+- [x] Remplacer les valeurs par défaut trompeuses de Game Over lors d'un accès
   direct par un état « résultat introuvable ».
-- [ ] Corriger la barre HP de carte qui affiche full visuellement mais `0/max` dans
+- [x] Corriger la barre HP de carte qui affiche full visuellement mais `0/max` dans
   le texte quand `currentHp` est absent.
-- [ ] Montrer pourquoi une action est désactivée, son coût et ses conséquences.
-- [ ] Afficher noms, rangs, effets avant/après et contraintes pour les upgrades de
+- [x] Montrer pourquoi une action est désactivée, son coût et ses conséquences.
+- [x] Afficher noms, rangs, effets avant/après et contraintes pour les upgrades de
   sorts au lieu de `Q/W/E/R` seuls et d'identifiants bruts.
-- [ ] Ajouter confirmations non destructives et éviter les dialogues répétés.
-- [ ] Donner au profil un vrai loading/skeleton et un CTA de connexion en invité.
+- [x] Ajouter confirmations non destructives et éviter les dialogues répétés.
+- [x] Donner au profil un vrai loading/skeleton et un CTA de connexion en invité.
 
 **Acceptation :** tout message reflète le résultat réel du domaine et l'utilisateur
 sait comment sortir d'un échec.
+
+**Statut : terminé.** Les succès d'achat, de recrutement, de récompense et de
+sauvegarde ne sont rendus qu'après le résultat du domaine. Les erreurs critiques
+restent visibles avec fermeture et récupération explicites ; le profil expose son
+chargement, son origine connectée/hors ligne, un retry et un CTA de connexion.
+Game Over refuse désormais d'inventer un résultat lors d'un accès direct. La carte
+utilise la même valeur de PV pour la barre et le texte, tandis que les achats,
+recrutements et améliorations de sorts expliquent coût, blocage, rang et effet
+avant/après. Les confirmations d'abandon sont annulables et protégées contre les
+doubles déclenchements.
 
 ## P1 — accessibilité
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { playSFX, playUIClick } from '@/audio';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
@@ -9,6 +9,7 @@ import { useRunStore } from '@/stores/runStore';
 import type { RunSummary } from '@/types/run';
 import { plural } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
+import { Button, PageShell, StateView } from '@/components/ui';
 
 export function GameOverPage() {
   const navigate = useAppNavigate();
@@ -22,6 +23,7 @@ export function GameOverPage() {
   const completedRunSnapshot = useRunStore((state) => state.completedRunSnapshot);
   const serverProgression = useRunStore((state) => state.serverProgression);
   const hasAuthenticatedAccount = useAuthStore((state) => state.user !== null);
+  const [isErrorVisible, setIsErrorVisible] = useState(true);
   const summary = completedRunSnapshot?.summary ?? routeSummary;
   const rewards = useMemo(() => {
     if (!summary) return null;
@@ -46,7 +48,7 @@ export function GameOverPage() {
   }, [completedRunSnapshot, hasAuthenticatedAccount, serverProgression, summary]);
 
   useEffect(() => {
-    playSFX(summary?.won ? 'victory' : 'defeat');
+    if (summary) playSFX(summary.won ? 'victory' : 'defeat');
   }, [summary?.won]);
 
   function handleNewRun() {
@@ -61,6 +63,7 @@ export function GameOverPage() {
 
   function handleRetrySave() {
     playUIClick();
+    setIsErrorVisible(true);
     void useRunStore
       .getState()
       .endRun(summary?.won ?? false, completedRunSnapshot?.runId ?? activeRunId, summary);
@@ -81,6 +84,17 @@ export function GameOverPage() {
   const goldEarned = summary?.goldEarned ?? 0;
   const isBusy = saveStatus === 'saving' || saveStatus === 'retrying';
   const isRetryableSaveError = saveStatus === 'failed' && saveFailureKind !== 'terminal';
+
+  if (!summary) {
+    return (
+      <PageShell width="narrow" centered>
+        <StateView kind="empty" title={fr.gameOver.missingTitle}>
+          {fr.gameOver.missingDetail}
+        </StateView>
+        <Button onClick={handleMenu}>{fr.gameOver.mainMenu}</Button>
+      </PageShell>
+    );
+  }
 
   return (
     <main className="game-over-page" style={containerStyle}>
@@ -103,7 +117,7 @@ export function GameOverPage() {
             {serverProgression ? fr.gameOver.verifiedSaved : fr.gameOver.saved}
           </p>
         )}
-        {saveStatus === 'failed' && (
+        {saveStatus === 'failed' && isErrorVisible && (
           <div role="alert" style={errorStyle}>
             <div>
               {saveFailureKind === 'terminal'
@@ -115,6 +129,9 @@ export function GameOverPage() {
                 {fr.gameOver.retryVerification}
               </button>
             )}
+            <button style={retryBtnStyle} onClick={() => setIsErrorVisible(false)}>
+              {fr.common.close}
+            </button>
           </div>
         )}
 
@@ -217,11 +234,7 @@ export function GameOverPage() {
           >
             {fr.gameOver.newRun}
           </button>
-          <button
-            style={secondaryBtnStyle}
-            onClick={handleMenu}
-            disabled={isBusy || isRetryableSaveError}
-          >
+          <button style={secondaryBtnStyle} onClick={handleMenu} disabled={isBusy}>
             {fr.gameOver.mainMenu}
           </button>
         </div>

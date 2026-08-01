@@ -11,7 +11,7 @@ import { enhancementService, enhancementTreeProvider } from '@/services/enhancem
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
-import { canUpgradeSpell } from '@/game/run/spellUpgradeRules';
+import { canUpgradeSpell, getSpellRankCap } from '@/game/run/spellUpgradeRules';
 import type { InventoryEntry, NodeType as RunNodeType, TeamMember } from '@/types/run';
 import { fr } from '@/i18n/fr';
 import { calculateFullStats, calculateMaxHP } from '@/utils/statCalculator';
@@ -98,6 +98,13 @@ export function RunMapScreen() {
   const currentMap: NodeMap | null = biomeMaps[currentBiomeIndex] ?? null;
   const hasPendingChoice =
     pendingAugmentIds.length > 0 || pendingSpellUpgradeChampionIds.length > 0;
+  const pendingUpgradeChampionId = pendingSpellUpgradeChampionIds[0];
+  const pendingUpgradeMember = team.find(
+    (member) => member.championId === pendingUpgradeChampionId,
+  );
+  const pendingUpgradeChampion = pendingUpgradeChampionId
+    ? championDB.getById(pendingUpgradeChampionId)
+    : undefined;
 
   const handleNodeClick = useCallback(
     (nodeId: string) => {
@@ -302,30 +309,54 @@ export function RunMapScreen() {
               </button>
             </section>
           )}
-          {pendingSpellUpgradeChampionIds[0] && (
-            <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Amélioration de sort">
+          {pendingUpgradeChampionId && pendingUpgradeMember && (
+            <section style={{ ...panelStyle, marginBottom: 8 }} aria-label={fr.run.upgradeSpell}>
               <strong>
-                Améliorez un sort de{' '}
-                {championDB.getById(pendingSpellUpgradeChampionIds[0])?.name ??
-                  pendingSpellUpgradeChampionIds[0]}
+                Améliorez un sort de {pendingUpgradeChampion?.name ?? pendingUpgradeChampionId}
               </strong>
-              {(['Q', 'W', 'E', 'R'] as const).map((slot) => (
-                <button
-                  type="button"
-                  key={slot}
-                  disabled={
-                    !canUpgradeSpell(
-                      team.find(
-                        (member) => member.championId === pendingSpellUpgradeChampionIds[0],
-                      ) ?? { championId: '', level: 1 },
-                      slot,
-                    )
-                  }
-                  onClick={() => upgradeSpell(pendingSpellUpgradeChampionIds[0], slot)}
-                >
-                  {slot}
-                </button>
-              ))}
+              <p>{fr.run.upgradeConsequence}</p>
+              {(['Q', 'W', 'E', 'R'] as const).map((slot, index) => {
+                const spell = pendingUpgradeChampion?.spells[index];
+                const rank = pendingUpgradeMember.spellRanks?.[slot] ?? 1;
+                const cap = getSpellRankCap(
+                  pendingUpgradeChampionId,
+                  slot,
+                  pendingUpgradeMember.level ?? 1,
+                );
+                const canUpgrade = canUpgradeSpell(pendingUpgradeMember, slot);
+                const nextRank = Math.min(rank + 1, spell?.maxRank ?? rank);
+                const beforeCost = spell?.cost[rank - 1];
+                const afterCost = spell?.cost[nextRank - 1];
+                const beforeCooldown = spell?.cooldown[rank - 1];
+                const afterCooldown = spell?.cooldown[nextRank - 1];
+                const reason =
+                  rank >= (spell?.maxRank ?? 0) ? fr.run.maximumRank : fr.run.levelRequired;
+                return (
+                  <button
+                    type="button"
+                    key={slot}
+                    disabled={!canUpgrade}
+                    title={canUpgrade ? fr.run.upgradeConsequence : reason}
+                    onClick={() => upgradeSpell(pendingUpgradeChampionId, slot)}
+                    style={{ display: 'block', margin: 8, textAlign: 'left' }}
+                  >
+                    <strong>
+                      {slot} — {spell?.name ?? slot}
+                    </strong>
+                    <span style={{ display: 'block' }}>
+                      {fr.run.currentRank} {rank} → {fr.run.nextRank} {nextRank} (maximum{' '}
+                      {spell?.maxRank ?? cap})
+                    </span>
+                    {spell && (
+                      <span style={{ display: 'block' }}>
+                        PM {beforeCost} → {afterCost} · Recharge {beforeCooldown} → {afterCooldown}{' '}
+                        s
+                      </span>
+                    )}
+                    {!canUpgrade && <span style={{ display: 'block' }}>{reason}</span>}
+                  </button>
+                );
+              })}
             </section>
           )}
           <div style={mapContainerStyle}>

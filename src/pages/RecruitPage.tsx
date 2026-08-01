@@ -22,6 +22,7 @@ export function RecruitPage() {
   const spendGold = useRunStore((s) => s.spendGold);
   const addChampion = useRunStore((s) => s.addChampion);
   const [result, setResult] = useState<'success' | 'fail' | null>(null);
+  const [commandError, setCommandError] = useState<string | null>(null);
 
   const encounter = useMemo(() => {
     const node = getCurrentNode();
@@ -40,7 +41,10 @@ export function RecruitPage() {
     if (disabled || !encounter) return;
     playUIClick();
     const previous = useRunStore.getState();
-    if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
+    if (!previous.currentNodeId || !previous.claimCurrentEncounter()) {
+      setCommandError(fr.encounter.commandFailed);
+      return;
+    }
     const attempt = resolveRecruitAttempt(previous.seed ?? 0, encounter);
     const { success, goldCost: cost } = attempt;
     if (success) {
@@ -61,6 +65,7 @@ export function RecruitPage() {
           ledger: previous.ledger,
           claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
         });
+        setCommandError(fr.encounter.commandFailed);
         return;
       }
     }
@@ -78,8 +83,10 @@ export function RecruitPage() {
         ledger: previous.ledger,
         claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
       });
+      setCommandError(fr.encounter.commandFailed);
       return;
     }
+    setCommandError(null);
     setResult(success ? 'success' : 'fail');
   }, [disabled, encounter, spendGold, addChampion]);
 
@@ -92,14 +99,14 @@ export function RecruitPage() {
 
   if (!isActive) return null;
 
-  let label = 'Recruit';
-  if (alreadyOnTeam) label = 'Already on team';
-  else if (teamFull) label = 'Team full';
-  else if (!canAfford) label = 'Not enough gold';
-  else if (result === 'success') label = 'Recruited!';
-  else if (result === 'fail') label = 'Failed';
-  else if (wasClaimed) label = 'Attempt already used';
-  else label = 'Recruit - ' + (encounter?.cost ?? 0) + 'g';
+  let label: string = fr.encounter.recruitAction;
+  if (alreadyOnTeam) label = fr.encounter.alreadyOnTeam;
+  else if (teamFull) label = fr.encounter.teamFull;
+  else if (!canAfford) label = fr.encounter.notEnoughGold;
+  else if (result === 'success') label = fr.encounter.recruited;
+  else if (result === 'fail') label = fr.encounter.recruitFailed;
+  else if (wasClaimed) label = fr.encounter.attemptUsed;
+  else label = `${fr.encounter.recruitAction} — ${encounter?.cost ?? 0} ${fr.common.gold}`;
 
   const pct = Math.round((encounter?.successChance ?? 0.75) * 100);
   const clr = pct >= 80 ? '#22c55e' : pct >= 60 ? '#facc15' : '#ef4444';
@@ -112,6 +119,14 @@ export function RecruitPage() {
       contentClassName="encounter-layout__content--centered"
     >
       <div style={contentStyle}>
+        {commandError && (
+          <div role="alert" style={{ color: '#fca5a5', marginBottom: 12 }}>
+            {commandError}
+            <button type="button" onClick={() => setCommandError(null)}>
+              {fr.common.close}
+            </button>
+          </div>
+        )}
         {!result ? (
           <>
             <div style={previewCardStyle}>

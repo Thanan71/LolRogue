@@ -25,6 +25,9 @@ export const fr = {
     defeat: 'Défaite',
     menu: '← Menu',
     unavailableError: 'Une erreur est survenue. Réessaie dans quelques instants.',
+    close: 'Fermer',
+    reconnect: 'Se reconnecter',
+    offline: 'Hors ligne',
   },
   credits: {
     title: 'Crédits',
@@ -49,6 +52,12 @@ export const fr = {
     runs: 'parties',
     wins: 'victoires',
     eliminations: 'éliminations',
+    loading: 'Synchronisation du profil…',
+    loadingDetail: "Chargement de la progression et de l'historique enregistrés.",
+    retry: 'Réessayer le chargement',
+    login: 'Se connecter pour synchroniser',
+    connected: 'Profil connecté — synchronisé avec le serveur',
+    offline: 'Connexion perdue — les données affichées peuvent ne pas être à jour',
   },
   combat: {
     spellAbilities: 'Compétences',
@@ -98,6 +107,8 @@ export const fr = {
   notifications: {
     runSaved: 'Partie sauvegardée.',
     saveFailed: 'La sauvegarde a échoué.',
+    retrySave: 'Réessayer la sauvegarde',
+    saving: 'Synchronisation de la partie…',
   },
   system: {
     unexpectedError: 'Une erreur inattendue est survenue',
@@ -234,6 +245,12 @@ export const fr = {
     combatComplete: 'Combat terminé',
     startNew: 'Commencer une nouvelle partie',
     saveAndMenu: 'Sauvegarder et retourner au menu',
+    upgradeSpell: 'Amélioration de sort',
+    currentRank: 'Rang actuel',
+    nextRank: 'rang suivant',
+    maximumRank: 'rang maximum',
+    levelRequired: 'Niveau de champion insuffisant pour le rang suivant',
+    upgradeConsequence: 'Augmente les valeurs du sort au prochain combat.',
   },
   starter: {
     dailyUsed: "Le défi quotidien d'aujourd'hui a déjà été terminé.",
@@ -273,6 +290,17 @@ export const fr = {
     alreadyResolved: 'Ce trésor avait déjà été résolu avant le rechargement de la page.',
     recruit: 'Recrutement',
     wildChampion: 'Champion sauvage',
+    buy: 'Acheter',
+    recruitAction: 'Recruter',
+    alreadyOnTeam: "Déjà dans l'équipe",
+    teamFull: 'Équipe complète — libère une place avant de recruter',
+    shopInventoryFull: "Inventaire complet — libère un emplacement avant d'acheter",
+    notEnoughGold: "Pas assez d'or",
+    alreadyPurchased: 'Déjà acheté',
+    commandFailed: "L'action n'a pas été confirmée. Rien n'a été dépensé.",
+    recruited: 'Recruté !',
+    recruitFailed: 'Échec du recrutement',
+    attemptUsed: 'Tentative déjà utilisée',
   },
   gameOver: {
     victory: 'Victoire !',
@@ -302,6 +330,9 @@ export const fr = {
     verified: 'Vérifiée',
     newRun: 'Nouvelle partie',
     mainMenu: 'Menu principal',
+    missingTitle: 'Résultat introuvable',
+    missingDetail:
+      "Aucun résultat terminé n'est associé à cette page. La partie n'a pas été inventée ni enregistrée.",
   },
   notFound: {
     title: 'Page introuvable',

@@ -8,8 +8,12 @@ export function NotificationRegion() {
   const saveError = useRunStore((state) => state.saveError);
   const enhancementError = useEnhancementStore((state) => state.error);
   const [message, setMessage] = useState<string | null>(null);
+  const isCritical = saveStatus === 'failed' || Boolean(enhancementError);
 
   useEffect(() => {
+    if (saveStatus === 'saving' || saveStatus === 'retrying') {
+      setMessage(fr.notifications.saving);
+    }
     if (saveStatus === 'saved') setMessage(fr.notifications.runSaved);
     if (saveStatus === 'failed') setMessage(saveError || fr.notifications.saveFailed);
   }, [saveStatus, saveError]);
@@ -19,16 +23,30 @@ export function NotificationRegion() {
   }, [enhancementError]);
 
   useEffect(() => {
-    if (!message) return;
+    if (!message || isCritical) return;
     const timeout = window.setTimeout(() => setMessage(null), 5000);
     return () => window.clearTimeout(timeout);
-  }, [message]);
+  }, [isCritical, message]);
+
+  const dismiss = () => {
+    setMessage(null);
+    if (enhancementError) useEnhancementStore.setState({ error: null });
+  };
+
+  const retrySave = () => {
+    const state = useRunStore.getState();
+    void state.endRun(
+      state.completedRunSnapshot?.summary.won ?? false,
+      state.completedRunSnapshot?.runId ?? state.runId,
+      state.completedRunSnapshot?.summary,
+    );
+  };
 
   if (!message) return null;
   return (
     <div
-      role="status"
-      aria-live="polite"
+      role={isCritical ? 'alert' : 'status'}
+      aria-live={isCritical ? 'assertive' : 'polite'}
       style={{
         position: 'fixed',
         right: 16,
@@ -42,7 +60,17 @@ export function NotificationRegion() {
         color: '#fff',
       }}
     >
-      {message}
+      <div>{message}</div>
+      {saveStatus === 'failed' && (
+        <button type="button" onClick={retrySave}>
+          {fr.notifications.retrySave}
+        </button>
+      )}
+      {isCritical && (
+        <button type="button" onClick={dismiss} aria-label={fr.common.close}>
+          {fr.common.close}
+        </button>
+      )}
     </div>
   );
 }

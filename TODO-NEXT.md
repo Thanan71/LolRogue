@@ -92,6 +92,7 @@ présentés comme des travaux à démarrer :
 - [x] `P1-UX-01`
 - [x] `P1-UX-02`
 - [x] `P1-UX-03`
+- [x] `P1-UX-04`
 
 `P1-UX-03` couvre désormais automatiquement toutes les pages, y compris Profil,
 Crédits et Administration, ainsi que les catalogues de contenu visibles. Le test
@@ -103,13 +104,11 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P1-UX-04 — Feedback et vérité de l'interface** : rendre les erreurs et
-   confirmations actionnables sans annoncer prématurément un succès.
-2. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
+1. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
    reflow, contraste et réduction de mouvement dans le chantier responsive.
-3. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
+2. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
    invité et authentifié sans mutation directe des stores.
-4. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
+3. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
    parité et les parcours E2E bloquants.
 
 ---

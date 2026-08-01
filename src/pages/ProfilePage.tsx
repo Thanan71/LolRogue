@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -16,14 +16,29 @@ export function ProfilePage() {
   const { player, isGuest } = useAuthStore();
   const [runs, setRuns] = useState<Run[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const retry = useCallback(() => setReloadKey((key) => key + 1), []);
 
   useEffect(() => {
-    if (!player || isGuest) return;
+    if (!player || isGuest) {
+      setIsLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setIsLoading(true);
+    setError(null);
     void repositories.run.getPlayerRuns(player.id, 20).then((result) => {
+      if (cancelled) return;
       if (result.error) setError(fr.common.unavailableError);
       else setRuns(result.data ?? []);
+      setIsLoading(false);
     });
-  }, [player, isGuest]);
+    return () => {
+      cancelled = true;
+    };
+  }, [player, isGuest, reloadKey]);
 
   return (
     <PageShell width="content">
@@ -38,10 +53,18 @@ export function ProfilePage() {
       />
       {isGuest || !player ? (
         <StateView kind="empty" title={fr.profile.local}>
-          {fr.profile.loginRequired}
+          <p>{fr.profile.loginRequired}</p>
+          <Button onClick={() => navigate(ROUTES.AUTH)}>{fr.profile.login}</Button>
+        </StateView>
+      ) : isLoading ? (
+        <StateView kind="loading" title={fr.profile.loading}>
+          {fr.profile.loadingDetail}
         </StateView>
       ) : (
         <>
+          <p role="status" className="ui-status-line">
+            {navigator.onLine ? fr.profile.connected : fr.profile.offline}
+          </p>
           <Panel aria-label={fr.profile.playerStats}>
             <h2>{player.display_name || player.username}</h2>
             <p>
@@ -53,7 +76,12 @@ export function ProfilePage() {
           <Panel aria-label={fr.profile.history}>
             <h2>{fr.profile.recentHistory}</h2>
             {error && (
-              <StateView kind="error" title={fr.profile.historyUnavailable}>
+              <StateView
+                kind="error"
+                title={fr.profile.historyUnavailable}
+                actionLabel={fr.profile.retry}
+                onAction={retry}
+              >
                 {error}
               </StateView>
             )}

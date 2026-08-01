@@ -1,7 +1,7 @@
 import type { RunEndResult } from '@/types/run';
 
 export const RUN_ABANDONMENT_CONFIRMATION =
-  'Abandon the active run? It will be recorded as a defeat and completed waves will still grant rewards.';
+  'Abandonner la partie active ? Elle sera enregistrée comme une défaite. Les vagues terminées resteront comptabilisées. Cette action peut être annulée.';
 
 export async function finalizeActiveRunBeforeTransition(input: {
   isActive: boolean;
