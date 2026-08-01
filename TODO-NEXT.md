@@ -107,10 +107,8 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
-   invité et authentifié sans mutation directe des stores.
-2. **P2-ARCH-01 — Découpage des orchestrateurs** : seulement après les preuves de
-   parité et les parcours E2E bloquants.
+1. **P2-ARCH-01 — Découpage des orchestrateurs** : les preuves de parité et les
+   parcours E2E bloquants sont désormais en place.
 
 ---
 

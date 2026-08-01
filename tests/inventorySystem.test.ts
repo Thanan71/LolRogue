@@ -281,6 +281,10 @@ describe('Rune Database', () => {
   it('should return undefined for unknown rune', () => {
     expect(getRuneDefinition('nonexistent')).toBeUndefined();
   });
+
+  it('does not expose the scripted Playwright victory rune in normal builds', () => {
+    expect(getRuneDefinition('e2e_assured_victory')).toBeUndefined();
+  });
 });
 
 describe('RuneManager', () => {

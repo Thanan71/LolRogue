@@ -354,6 +354,29 @@ const TIME_WARP_TONIC: RuneDefinition = {
   },
 };
 
+const E2E_ASSURED_VICTORY: RuneDefinition = {
+  id: 'e2e_assured_victory',
+  name: 'E2E — Victoire assurée',
+  description: 'Fixture de test : multiplie fortement les statistiques au début du combat.',
+  iconUrl: '/assets/runes/press_the_attack.png',
+  path: RunePath.Precision,
+  row: 0,
+  condition: { type: RuneConditionType.BattleStart },
+  bonus: {
+    modifiers: [
+      { stat: 'hp', value: 100_000, type: 'flat' },
+      { stat: 'atk', value: 10_000, type: 'flat' },
+      { stat: 'ap', value: 10_000, type: 'flat' },
+      { stat: 'def', value: 10_000, type: 'flat' },
+      { stat: 'magicResist', value: 10_000, type: 'flat' },
+      { stat: 'spd', value: 100, type: 'flat' },
+    ],
+    duration: 0,
+    stacks: false,
+    maxStacks: 1,
+  },
+};
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -384,6 +407,9 @@ export const RUNE_DATABASE: Record<string, RuneDefinition> = {
   hextech_flash: HEXTECH_FLASH,
   cosmic_insight: COSMIC_INSIGHT,
   time_warp_tonic: TIME_WARP_TONIC,
+  ...(import.meta.env.VITE_E2E_VICTORY_RUNE === '1'
+    ? { e2e_assured_victory: E2E_ASSURED_VICTORY }
+    : {}),
 };
 
 export function getRuneDefinition(id: string): RuneDefinition | undefined {

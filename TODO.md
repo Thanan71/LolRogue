@@ -977,22 +977,30 @@ dans `docs/onboarding.md`.
 
 ### P2-TEST-01 — Remplacer les tests de présence par des tests de comportement
 
-- [ ] Réécrire l'E2E « six biomes » pour piloter l'UI sans muter directement les
+- [x] Réécrire l'E2E « six biomes » pour piloter l'UI sans muter directement les
   stores ni marquer artificiellement les nœuds terminés.
-- [ ] Ajouter deux parcours verticaux réels : victoire et défaite.
-- [ ] Couvrir Normal, Daily, invité et compte authentifié.
-- [ ] Jouer au moins une occurrence de Combat, Elite, Shop, Rest, Event, Treasure,
+- [x] Ajouter deux parcours verticaux réels : victoire et défaite.
+- [x] Couvrir Normal, Daily, invité et compte authentifié.
+- [x] Jouer au moins une occurrence de Combat, Elite, Shop, Rest, Event, Treasure,
   Exit et Boss.
-- [ ] Tester refresh, arrière navigateur, double clic et erreur réseau à chaque
+- [x] Tester refresh, arrière navigateur, double clic et erreur réseau à chaque
   frontière critique.
-- [ ] Ajouter des tests RLS/RPC live adversariaux dans l'environnement Supabase CI.
-- [ ] Ajouter tests de state machine/property sur carte, inventaire et progression.
-- [ ] Ajouter tests visuels et axe sur les viewports cibles.
-- [ ] Éviter les assertions qui considèrent une case `[x]` de documentation comme
+- [x] Ajouter des tests RLS/RPC live adversariaux dans l'environnement Supabase CI.
+- [x] Ajouter tests de state machine/property sur carte, inventaire et progression.
+- [x] Ajouter tests visuels et axe sur les viewports cibles.
+- [x] Éviter les assertions qui considèrent une case `[x]` de documentation comme
   preuve d'une fonctionnalité.
 
 **Acceptation :** l'E2E échoue si un encounter, un combat ou une sauvegarde est
 contourné et produit une trace lisible du parcours.
+
+**Statut : terminé.** `six-biome-run.spec.ts` pilote exclusivement les contrôles
+visibles, impose une vraie défaite et une vraie victoire, traverse les huit types
+de nœuds et joint une trace textuelle à chaque exécution. La victoire utilise une
+rune de fixture exposée uniquement par le serveur Playwright : elle ne modifie ni
+seed, ni store, ni carte, et reste absente des builds normaux. Les matrices Daily,
+authentification, reprise, idempotence, erreurs réseau, RLS/RPC, invariants,
+responsive et axe sont couvertes par leurs suites comportementales dédiées.
 
 ### P2-TEST-02 — Rendre la couverture utile et stable
 

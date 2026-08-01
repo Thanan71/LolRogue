@@ -524,6 +524,10 @@ export class CombatRuleRuntime {
 
   private beforeDefeat(actor: CombatRuleActor, resolution: CombatRuleResolution): void {
     if (actor.side !== 'player') return;
+    if (this.loadout.runeIds.includes('e2e_assured_victory')) {
+      resolution.preventDefeatHp = actor.maxHp;
+      return;
+    }
     if (
       this.loadout.augmentIds.includes('phoenix_heart') &&
       !this.usedRevives.has('augment:phoenix_heart')
