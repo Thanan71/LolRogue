@@ -807,10 +807,10 @@ export type Database = {
           journal_bytes: number;
           journal_hash: string;
           last_sequence: number;
-          mastery_snapshot: Json;
           lease_expires_at: string | null;
           lease_token: string | null;
           lease_worker_id: string | null;
+          mastery_snapshot: Json;
           mode: string;
           player_id: string;
           rejected_at: string | null;
@@ -855,10 +855,10 @@ export type Database = {
           journal_bytes?: number;
           journal_hash: string;
           last_sequence?: number;
-          mastery_snapshot?: Json;
           lease_expires_at?: string | null;
           lease_token?: string | null;
           lease_worker_id?: string | null;
+          mastery_snapshot?: Json;
           mode: string;
           player_id: string;
           rejected_at?: string | null;
@@ -903,10 +903,10 @@ export type Database = {
           journal_bytes?: number;
           journal_hash?: string;
           last_sequence?: number;
-          mastery_snapshot?: Json;
           lease_expires_at?: string | null;
           lease_token?: string | null;
           lease_worker_id?: string | null;
+          mastery_snapshot?: Json;
           mode?: string;
           player_id?: string;
           rejected_at?: string | null;
@@ -1317,6 +1317,10 @@ export type Database = {
         Args: { p_attempt_id: string; p_worker_id: string };
         Returns: Json;
       };
+      claim_run_verification_v7: {
+        Args: { p_attempt_id: string; p_worker_id: string };
+        Returns: Json;
+      };
       complete_run_verification: {
         Args: {
           p_attempt_id: string;
@@ -1335,7 +1339,52 @@ export type Database = {
         };
         Returns: Json;
       };
+      complete_run_verification_v10_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_v11_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
       complete_run_verification_v6: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_v7_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_v8_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_v9_contract: {
         Args: {
           p_attempt_id: string;
           p_lease_token: string;
@@ -1434,7 +1483,21 @@ export type Database = {
         Args: { p_command_id: string; p_rune_ids: string[]; p_team: string[] };
         Returns: Json;
       };
+      start_daily_run_attempt_v7: {
+        Args: { p_command_id: string; p_rune_ids: string[]; p_team: string[] };
+        Returns: Json;
+      };
       start_run_attempt: {
+        Args: {
+          p_command_id: string;
+          p_difficulty: string;
+          p_mode?: string;
+          p_rune_ids: string[];
+          p_team: string[];
+        };
+        Returns: Json;
+      };
+      start_run_attempt_v7: {
         Args: {
           p_command_id: string;
           p_difficulty: string;

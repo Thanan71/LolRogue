@@ -28,3 +28,18 @@ dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
 RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
+
+## Clean-room CI
+
+La job `clean-room` repart d'un checkout sans `node_modules`, `dist`, couverture ni
+profil navigateur et n'utilise pas le cache npm de `setup-node`. Les assets Riot sont
+un paquet versionné : ils sont donc vérifiés, pas téléchargés silencieusement.
+
+Supabase est d'abord restauré à la migration v9 (`20260730300000`), puis migré vers
+la dernière version afin de tester un upgrade réel. La job compare ensuite les types
+TypeScript régénérés, effectue un reset complet et exécute les tests RLS/RPC live.
+
+Après `npm run check` et les E2E sur profils vierges,
+`scripts/verify-production-build.mjs` sert `dist` avec le contrat `vercel.json` et
+vérifie les deep links, la CSP, les assets d'entrée et un vrai 404 pour un asset
+absent.

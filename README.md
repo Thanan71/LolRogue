@@ -80,6 +80,7 @@ npm test              # tests unitaires et tests de structure SQL
 npm run test:coverage # tests avec seuils de couverture
 npm run test:e2e      # parcours navigateur des six biomes
 npm run test:db       # intégration Auth/RLS sur une vraie instance de test
+npm run test:production-build # deep links, headers et 404 du build servi
 npm run edge:bundle   # bundle du replay serveur + contrôle du hash de contenu
 npm run audit:security # audit critique/haut et contrôle des exceptions bornées
 npm run check         # format, lint, types, audit, couverture et build

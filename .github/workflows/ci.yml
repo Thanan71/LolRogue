@@ -94,3 +94,85 @@ jobs:
       - name: Stop local Supabase
         if: always()
         run: npm run db:stop
+
+  clean-room:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout without generated state
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Assert pristine clone
+        run: |
+          test -z "$(git status --porcelain --untracked-files=all)"
+          test ! -d node_modules
+          test ! -d dist
+          test ! -d coverage
+          test ! -d test-results
+
+      - name: Use Node.js 22 without dependency cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install exactly the lockfile
+        run: npm ci
+
+      - name: Verify tracked Riot asset package
+        run: npm run assets:verify
+
+      - name: Install clean Chromium runtime
+        run: npx playwright install --with-deps chromium
+
+      - name: Start local Supabase
+        run: npm run db:start
+
+      - name: Export local Supabase credentials
+        run: |
+          eval "$(./node_modules/.bin/supabase status -o env)"
+          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+
+      - name: Upgrade a v9 schema snapshot to the latest migration
+        run: |
+          npx supabase db reset --local --no-seed --version 20260730300000
+          npx supabase migration up --local
+          npm run db:lint
+
+      - name: Verify generated database types
+        run: |
+          npx supabase gen types typescript --local > /tmp/lolrogue-database-raw.ts
+          npx biome format --stdin-file-path src/types/database.ts < /tmp/lolrogue-database-raw.ts > /tmp/lolrogue-database.ts
+          diff --unified src/types/database.ts /tmp/lolrogue-database.ts
+
+      - name: Prove a clean latest-schema reset and live RLS/RPC behavior
+        run: |
+          npm run db:reset
+          npm run db:lint
+          npm run test:db
+
+      - name: Validate source, coverage, assets and production build
+        run: npm run check
+
+      - name: Run browser behavior suite from empty profiles
+        run: npm run test:e2e
+
+      - name: Upload clean-room diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-room-diagnostics
+          path: |
+            coverage/
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Stop local Supabase
+        if: always()
+        run: npm run db:stop

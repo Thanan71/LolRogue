@@ -1026,15 +1026,23 @@ reste concise et le rapport HTML/LCOV est archivé par la CI.
 
 ### P2-TEST-03 — Tester depuis un environnement propre
 
-- [ ] Ajouter une job CI sans cache applicatif ni assets ignorés.
-- [ ] Exécuter installation verrouillée, génération/téléchargement d'assets selon la
+- [x] Ajouter une job CI sans cache applicatif ni assets ignorés.
+- [x] Exécuter installation verrouillée, génération/téléchargement d'assets selon la
   stratégie retenue, format, lint, types, tests, build et E2E.
-- [ ] Démarrer Supabase local, appliquer toutes les migrations append-only, lint le
+- [x] Démarrer Supabase local, appliquer toutes les migrations append-only, lint le
   schéma et générer/vérifier les types.
-- [ ] Tester upgrade depuis un snapshot de schéma antérieur, pas seulement un reset.
-- [ ] Vérifier les headers/CSP, deep links SPA et 404 d'assets sur le build servi.
+- [x] Tester upgrade depuis un snapshot de schéma antérieur, pas seulement un reset.
+- [x] Vérifier les headers/CSP, deep links SPA et 404 d'assets sur le build servi.
 
 **Acceptation :** un clone vierge passe toute la pipeline sans fichier local caché.
+
+**Statut : terminé.** La job `clean-room`, sans cache npm, refuse tout état généré
+préexistant, installe le lockfile, vérifie les 187 assets Riot versionnés, rejoue un
+upgrade v9→v12 puis un reset complet, lint le schéma, compare les types générés et
+exécute les tests RLS/RPC, la validation source/build et les E2E. Le smoke test du
+build sert cinq deep links avec les headers Vercel, valide les assets d'entrée et
+exige un vrai 404 pour un asset absent. Cette mise en place a aussi détecté et corrigé
+les types Supabase obsolètes des RPC v7 à v11.
 
 ## P2 — architecture et maintenabilité
 
