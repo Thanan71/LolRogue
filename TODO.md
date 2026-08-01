@@ -1004,18 +1004,25 @@ responsive et axe sont couvertes par leurs suites comportementales dédiées.
 
 ### P2-TEST-02 — Rendre la couverture utile et stable
 
-- [ ] Corriger l'échec actuel à 27,98 % au lieu d'abaisser le seuil.
-- [ ] Ajouter des tests d'orchestration à `runService`, `runStore`, `authStore`,
+- [x] Corriger l'échec actuel à 27,98 % au lieu d'abaisser le seuil.
+- [x] Ajouter des tests d'orchestration à `runService`, `runStore`, `authStore`,
   `enhancementStore`, repositories et calculateur de stats.
-- [ ] Inclure progressivement pages, composants et hooks critiques dans la mesure.
-- [ ] Retirer les barrels/types sans logique des métriques si leur présence brouille
+- [x] Inclure progressivement pages, composants et hooks critiques dans la mesure.
+- [x] Retirer les barrels/types sans logique des métriques si leur présence brouille
   le signal.
-- [ ] Fixer des seuils par risque métier et les augmenter par paliers documentés.
-- [ ] Garantir que la couverture ne varie pas selon l'ordre ou le parallélisme.
-- [ ] Afficher un résumé court et conserver le rapport détaillé comme artefact CI.
+- [x] Fixer des seuils par risque métier et les augmenter par paliers documentés.
+- [x] Garantir que la couverture ne varie pas selon l'ordre ou le parallélisme.
+- [x] Afficher un résumé court et conserver le rapport détaillé comme artefact CI.
 
 **Acceptation :** `npm run check` passe de façon répétable et les modules de
 sauvegarde/sécurité ont les seuils les plus élevés.
+
+**Statut : terminé.** La mesure atteint 77,16 % de statements, 68,18 % de branches,
+81,84 % de fonctions et 79,63 % de lignes sur le périmètre exécutable. Les tests
+d'orchestration couvrent services, containers, Auth/Run repositories, stores et
+calculateur de statistiques. Le premier anneau UI critique est inclus. Deux runs
+successifs produisent un `coverage-summary.json` strictement identique ; la console
+reste concise et le rapport HTML/LCOV est archivé par la CI.
 
 ### P2-TEST-03 — Tester depuis un environnement propre
 

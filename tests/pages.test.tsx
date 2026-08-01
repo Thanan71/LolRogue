@@ -637,6 +637,8 @@ describe('P2 page smoke tests', () => {
 describe('application error fallback', () => {
   it('renders a recoverable fallback when a route crashes', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const suppressExpectedError = (event: ErrorEvent) => event.preventDefault();
+    window.addEventListener('error', suppressExpectedError);
     const BrokenRoute = () => {
       throw new Error('route failed');
     };
@@ -649,6 +651,7 @@ describe('application error fallback', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent('Une erreur inattendue est survenue');
     expect(screen.getByRole('button', { name: 'Retour au menu' })).toBeInTheDocument();
+    window.removeEventListener('error', suppressExpectedError);
     consoleError.mockRestore();
   });
 });

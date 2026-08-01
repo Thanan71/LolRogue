@@ -85,6 +85,9 @@ npm run audit:security # audit critique/haut et contrôle des exceptions bornée
 npm run check         # format, lint, types, audit, couverture et build
 ```
 
+La politique des seuils, le périmètre mesuré et les artefacts CI sont décrits dans
+[`docs/testing.md`](docs/testing.md).
+
 Pour les tests de base en local, démarrer Supabase puis exporter les valeurs
 retournées par `supabase status -o env` sous les noms de `.env.example`. La CI
 recrée automatiquement une instance locale jetable.

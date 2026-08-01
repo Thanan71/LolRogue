@@ -115,6 +115,15 @@ describe('BattleManager', () => {
         bm.startBattle();
         expect(bm.round).toBe(roundBefore);
       });
+
+      it('rejects a submitted player command deterministically during an enemy turn', () => {
+        const teams = makeTeams(['Player'], ['Enemy'], { Player: 100, Enemy: 1_000 });
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { random: () => 0.5 });
+        bm.startBattle();
+
+        expect(bm.currentCombatant?.side).toBe('enemy');
+        expect(bm.submitAction({ type: ActionType.BasicAttack, targetId: 'Enemy' })).toBe(false);
+      });
     });
 
     describe('speed-based turn order', () => {

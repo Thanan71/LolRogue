@@ -107,8 +107,10 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P2-ARCH-01 — Découpage des orchestrateurs** : les preuves de parité et les
-   parcours E2E bloquants sont désormais en place.
+1. **P2-TEST-03 — Environnement propre** : prouver toute la pipeline depuis un clone
+   sans cache ni fichiers locaux cachés.
+2. **P2-ARCH-01 — Découpage des orchestrateurs** : après la preuve d'environnement
+   propre.
 
 ---
 

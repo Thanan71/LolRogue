@@ -30,6 +30,15 @@ jobs:
       - name: Validate
         run: npm run check
 
+      - name: Upload detailed coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 14
+
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15
