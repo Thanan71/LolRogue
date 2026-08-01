@@ -6,47 +6,42 @@ import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
 import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { ContextTutorial } from '@/components/ContextTutorial';
+import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data';
-import { fr } from '@/i18n/fr';
-import { ITEM_DATABASE } from '@/data/items';
 import {
   DEFAULT_COMBAT_AUTOPLAY,
   getAutoTurnDelayMs,
   shouldAutoAdvanceCombatTurn,
   supportsManualAuthorityCombat,
 } from '@/game/battle/autoplay';
-import { isFinalRunVictory } from '@/game/battle/runOutcome';
-import { canLeaveActiveCombat } from '@/game/run/routeAccess';
-import { ActionType } from '@/game/battle/types';
 import type { BattleEvent } from '@/game/battle/types';
-import { ChampionInstance } from '@/game/ChampionInstance';
-import { NodeType, type CombatEncounter } from '@/game/map/types';
+import { ActionType } from '@/game/battle/types';
+import { NodeType } from '@/game/map/types';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
-import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
-import {
-  buildResolvedEnemyTeam,
-  itemDefinitionToRunItem,
-  resolveCombatEncounter,
-} from '@/game/run/encounterResolver';
-import { buildRunPlayerTeam, createRunAugmentManager } from '@/game/run/runCombatant';
-import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
+import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
+import { canLeaveActiveCombat } from '@/game/run/routeAccess';
+import { buildRunPlayerTeam } from '@/game/run/runCombatant';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useRunImagePreload } from '@/hooks/useRunImagePreload';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
+import { useRunImagePreload } from '@/hooks/useRunImagePreload';
+import { fr } from '@/i18n/fr';
 import { useBattleStore } from '@/stores/battleStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
-import { ROUTES } from '@/config/routes';
-import { useRunStore } from '@/stores/runStore';
 import { useMasteryStore } from '@/stores/masteryStore';
+import { useRunStore } from '@/stores/runStore';
 import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
 import type { FinalCombatantState } from '@/types/run';
-import { createScopedRunRng } from '@/utils/runRandom';
 import { logger } from '@/utils/logger';
-import { calculateXpGain } from '@/utils/xpSystem';
+import { createScopedRunRng } from '@/utils/runRandom';
+import { completeCombat } from './combat/combatCompletion';
+import { getEnhancementDescriptions } from './combat/combatPresenter';
+import {
+  buildLegacyEnemyTeam,
+  LEGACY_ENCOUNTER_ENGINE_VERSIONS,
+} from './combat/legacyCombatEncounter';
 import {
   arenaPlaceholderStyle,
   backBtnStyle,
@@ -68,157 +63,6 @@ import {
  * Get enhancement bonus descriptions for a champion instance.
  * Returns an array of short description strings for UI display.
  */
-function getEnhancementDescriptions(championId: string): string[] {
-  const runState = useRunStore.getState();
-  const unlockedNodes = runState.authorityAttempt
-    ? (runState.authorityAttempt.enhancementSnapshot[championId] ??
-      runState.authorityAttempt.enhancementSnapshot[championId.toLowerCase()] ??
-      {})
-    : useEnhancementStore.getState().getEnhancementState(championId).unlockedNodes;
-
-  if (Object.keys(unlockedNodes).length === 0) return [];
-
-  const champ = championDB.getById(championId);
-  if (!champ) return [];
-
-  const tree = enhancementTreeProvider.getTreeForChampion(champ);
-  const bonuses = enhancementService.calculateStatBonuses(tree, unlockedNodes);
-
-  const descriptions: string[] = [];
-
-  // Add flat stat bonuses
-  for (const [stat, value] of Object.entries(bonuses.flat)) {
-    if (value > 0) {
-      const statNames: Record<string, string> = {
-        hp: 'PV',
-        mp: 'PM',
-        atk: 'AD',
-        ap: 'AP',
-        def: 'Armure',
-        mr: 'RM',
-        spd: 'Vitesse',
-        crit: 'Critique',
-        attackSpeed: 'Vitesse ATQ',
-        hpRegen: 'Regen PV',
-        mpRegen: 'Regen PM',
-        armorPen: 'Pen. Armure',
-        magicPen: 'Pen. Magique',
-        lifesteal: 'Vol de vie',
-        omnivamp: 'Omnivamp',
-        tenacity: 'Ténacité',
-        abilityHaste: 'Hâte',
-        attackRange: 'Portée',
-      };
-      const name = statNames[stat] || stat;
-      descriptions.push(
-        stat === 'attackRange' ? `+${value} ${name} (indisponible)` : `+${value} ${name}`,
-      );
-    }
-  }
-
-  // Add percentage bonuses
-  for (const [stat, percent] of Object.entries(bonuses.percent)) {
-    if (percent > 0) {
-      const statNames: Record<string, string> = {
-        hp: 'PV',
-        mp: 'PM',
-        atk: 'AD',
-        ap: 'AP',
-        def: 'Armure',
-        mr: 'RM',
-        spd: 'Vitesse',
-        crit: 'Critique',
-        attackSpeed: 'Vitesse ATQ',
-        hpRegen: 'Regen PV',
-        mpRegen: 'Regen PM',
-        armorPen: 'Pen. Armure',
-        magicPen: 'Pen. Magique',
-        lifesteal: 'Vol de vie',
-        omnivamp: 'Omnivamp',
-        tenacity: 'Ténacité',
-        abilityHaste: 'Hâte',
-        attackRange: 'Portée',
-      };
-      const name = statNames[stat] || stat;
-      descriptions.push(
-        stat === 'attackRange'
-          ? `+${Math.round(percent * 100)}% ${name} (indisponible)`
-          : `+${Math.round(percent * 100)}% ${name}`,
-      );
-    }
-  }
-
-  // Add effect descriptions
-  for (const effect of bonuses.effects) {
-    if (effect.description) {
-      descriptions.push(
-        UNAVAILABLE_ENHANCEMENT_EFFECTS.has(effect.type)
-          ? `${effect.description} (indisponible)`
-          : effect.description,
-      );
-    }
-  }
-
-  return descriptions;
-}
-
-const LEGACY_ENCOUNTER_ENGINE_VERSIONS = new Set([
-  'run-engine-v1',
-  'run-engine-v2',
-  'run-engine-v3',
-  'run-engine-v4',
-  'run-engine-v5',
-]);
-
-/**
- * Compatibility adapter for an attempt created before encounter ruleset v1.
- * It must remain byte-for-byte equivalent in behavior to those archived
- * authority engines until their attempts have expired.
- */
-function buildLegacyEnemyTeam(
-  encounter: CombatEncounter,
-  difficultyMultiplier: number,
-): ChampionInstance[] {
-  const instances: ChampionInstance[] = [];
-  for (const enemy of encounter.enemies) {
-    const champion = championDB.getById(enemy.championId);
-    if (!champion) continue;
-    const level = enemy.level ?? 1;
-    const multiplier = (enemy.statMultiplier || 1) * difficultyMultiplier;
-    if (multiplier === 1) {
-      instances.push(new ChampionInstance(champion, level));
-      continue;
-    }
-
-    const base = champion.stats;
-    const scaledChampion = {
-      ...champion,
-      stats: {
-        ...base,
-        hp: Math.round(base.hp * multiplier),
-        hpPerLevel: Math.round(base.hpPerLevel * multiplier),
-        mp: Math.round(base.mp * multiplier),
-        mpPerLevel: Math.round(base.mpPerLevel * multiplier),
-        armor: Math.round(base.armor * multiplier),
-        armorPerLevel: Math.round(base.armorPerLevel * multiplier),
-        magicResist: Math.round(base.magicResist * multiplier),
-        magicResistPerLevel: Math.round(base.magicResistPerLevel * multiplier),
-        attackDamage: Math.round(base.attackDamage * multiplier),
-        attackDamagePerLevel: Math.round(base.attackDamagePerLevel * multiplier),
-        attackSpeed: Math.round(base.attackSpeed * multiplier * 100) / 100,
-        attackSpeedPerLevel: Math.round(base.attackSpeedPerLevel * multiplier * 100) / 100,
-        hpRegen: Math.round(base.hpRegen * multiplier * 10) / 10,
-        hpRegenPerLevel: Math.round(base.hpRegenPerLevel * multiplier * 10) / 10,
-        mpRegen: Math.round(base.mpRegen * multiplier * 10) / 10,
-        mpRegenPerLevel: Math.round(base.mpRegenPerLevel * multiplier * 10) / 10,
-        crit: Math.round(base.crit * multiplier * 10) / 10,
-        critPerLevel: Math.round(base.critPerLevel * multiplier * 10) / 10,
-      },
-    };
-    instances.push(new ChampionInstance(scaledChampion, level));
-  }
-  return instances;
-}
 
 const SLOT_TO_ACTION: Record<string, ActionType> = {
   Q: ActionType.SpellQ,
@@ -461,179 +305,25 @@ export function CombatPage() {
 
   const handleComplete = useCallback(
     (
-      w: 'player' | 'enemy' | 'draw',
+      winner: 'player' | 'enemy' | 'draw',
       finalPlayerStates: FinalCombatantState[],
       consumedItemInstanceIds: string[],
       nextRuneStacks: Record<string, Record<string, number>>,
       playerActionTrace: import('@/game/battle/actionTrace').CombatActionTrace,
       combatEvents: BattleEvent[] = [],
-    ) => {
-      const commandState = useRunStore.getState();
-      const combatNodeId = commandState.currentNodeId;
-      const previousClaims = commandState.claimedEncounterNodeIds;
-      if (
-        !combatNodeId ||
-        !commandState.claimCurrentEncounter() ||
-        !useRunStore.getState().recordRunCommand(
-          {
-            kind: 'resolve_combat',
-            nodeId: combatNodeId,
-            actions: supportsManualCombat ? playerActionTrace : undefined,
-          },
-          `resolve_combat:${commandState.currentBiomeIndex}:${combatNodeId}`,
-        )
-      ) {
-        useRunStore.setState({ claimedEncounterNodeIds: previousClaims });
-        logger.error('CombatPage: unable to record the authoritative combat resolution.');
-        return;
-      }
-      useRunStore.getState().consumeItems(consumedItemInstanceIds, {
-        source: 'combat',
-        nodeId: combatNodeId,
-        wave: commandState.currentWave,
-      });
-      useRunStore.getState().setRuneStacks(nextRuneStacks);
-      useRunStore.getState().commitCombatEvents(combatEvents);
-
-      if (w === 'player') {
-        const runStore = useRunStore.getState();
-        const currentNode = runStore.getCurrentNode();
-        const encounter = currentNode?.encounter;
-        if (
-          !currentNode ||
-          encounter?.type !== 'combat' ||
-          ![NodeType.Combat, NodeType.Elite, NodeType.Boss].includes(currentNode.type)
-        ) {
-          logger.error('CombatPage: the resolved combat encounter is unavailable.');
-          return;
-        }
-
-        const augmentManager = createRunAugmentManager(
-          runStore.augmentIds,
-          runStore.currentBiomeIndex,
-        );
-        const usesLegacyRewards =
-          runStore.authorityAttempt !== null &&
-          LEGACY_ENCOUNTER_ENGINE_VERSIONS.has(runStore.authorityAttempt.engineVersion);
-        const resolution = usesLegacyRewards
-          ? null
-          : resolveCombatEncounter({
-              seed: runStore.seed,
-              nodeId: currentNode.id,
-              biome: currentNode.biome,
-              nodeType: currentNode.type as NodeType.Combat | NodeType.Elite | NodeType.Boss,
-              wave: runStore.currentWave,
-              runLevel: runStore.runLevel,
-              difficulty:
-                runStore.authorityAttempt?.difficulty ?? useSettingsStore.getState().difficulty,
-              encounter,
-              inventory: runStore.inventory,
-              bonusGold: augmentManager.getBonusGold(),
-            });
-        const goldReward =
-          resolution?.reward.gold ?? 50 + runStore.runLevel * 10 + augmentManager.getBonusGold();
-        runStore.addGold(goldReward, {
-          source: 'combat',
-          nodeId: currentNode.id,
-          wave: runStore.currentWave,
-        });
-
-        // Team XP includes KO champions by design. This avoids a permanent
-        // snowball and matches the authority replay and reward copy.
-        const isBossNode = currentNode?.type === 'boss';
-        const xpGain =
-          resolution?.reward.xpPerChampion ??
-          calculateXpGain(runStore.runLevel, currentNode.type === NodeType.Elite, isBossNode);
-
-        const postCombat = resolvePostCombatTeam({
-          team: runStore.team,
-          finalPlayerStates,
-          xpPerChampion: xpGain,
-          healAfterBattlePercent: augmentManager.getHealAfterBattlePercent(),
-          getPreLevelMaxHp: (member) =>
-            playerInstances
-              .find((champion) => champion.id === member.championId)
-              ?.getEnhancedStats().hp ?? 1,
-        });
-        runStore.updateTeamAfterCombat(postCombat.updates);
-        runStore.queueSpellUpgrades(postCombat.pendingSpellUpgradeChampionIds);
-        const levelsGained = postCombat.levelsGained;
-
-        let droppedItemName: string | null = null;
-        if (resolution?.reward.droppedItem) {
-          const itemResult = runStore.addItem(resolution.reward.droppedItem, {
-            source: 'combat',
-            nodeId: currentNode.id,
-            wave: runStore.currentWave,
-          });
-          if (itemResult.success) droppedItemName = resolution.reward.droppedItem.name;
-        }
-
-        // Legacy engines chose their drop after incrementing the wave and used
-        // a different RNG scope. Preserve it only for in-flight old attempts.
-        runStore.completeCombatProgression();
-        if (usesLegacyRewards) {
-          const itemRng = createScopedRunRng(
-            runStore.seed,
-            `drop:${currentNode.id}:${useRunStore.getState().totalWavesCompleted}`,
-          );
-          if (itemRng.next() < 0.2) {
-            const definitions = Object.values(ITEM_DATABASE);
-            const definition = definitions[Math.floor(itemRng.next() * definitions.length)];
-            if (definition) {
-              const item = itemDefinitionToRunItem(definition);
-              const itemResult = runStore.addItem(item, {
-                source: 'combat',
-                nodeId: currentNode.id,
-                wave: runStore.currentWave,
-              });
-              if (itemResult.success) droppedItemName = item.name;
-            }
-          }
-        }
-        runStore.setLastCombatRewards({
-          xp: xpGain,
-          gold: goldReward,
-          itemName: droppedItemName,
-          levelsGained,
-        });
-
-        // Complete current map node (unlocks next nodes).
-        let advancedToNextBiome = false;
-        if (currentNode) {
-          // 6. Resolve encounter (completes the node)
-          if (!runStore.resolveEncounter()) {
-            logger.error('CombatPage: unable to record the completed combat node.');
-            return;
-          }
-
-          // 7. Check if we just completed the boss -- advance to next biome
-          if (isBossNode) {
-            advancedToNextBiome = runStore.advanceToNextBiome();
-          }
-        }
-
-        // Only the boss of the last biome ends the run.
-        if (isFinalRunVictory(isBossNode, advancedToNextBiome)) {
-          void finalizeCombatRun('player', finalPlayerStates).then((outcome) => {
-            if (outcome.completed || outcome.queuedForRetry) {
-              navigate(ROUTES.GAME_OVER, { state: { summary: outcome.summary } });
-            }
-          });
-          return;
-        }
-
-        // Navigate back to the map to choose the next node
-        navigate(ROUTES.RUN);
-      } else {
-        void finalizeCombatRun(w, finalPlayerStates).then((outcome) => {
-          if (outcome.completed || outcome.queuedForRetry) {
-            navigate(ROUTES.GAME_OVER, { state: { summary: outcome.summary } });
-          }
-        });
-      }
-    },
-    [runLevel, navigate, supportsManualCombat],
+    ) =>
+      completeCombat({
+        winner,
+        finalPlayerStates,
+        consumedItemInstanceIds,
+        nextRuneStacks,
+        playerActionTrace,
+        combatEvents,
+        supportsManualCombat,
+        playerInstances,
+        navigate,
+      }),
+    [navigate, playerInstances, supportsManualCombat],
   );
 
   const { processTurn, submitAction, getAvailableActions } = useBattleManager({

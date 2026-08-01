@@ -107,8 +107,8 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P2-ARCH-01 — Découpage des orchestrateurs** : la preuve d'environnement propre
-   est désormais bloquante dans la CI.
+1. **P2-ARCH-02 — Types, erreurs et observabilité** : poursuivre sur des contrats de
+   domaine discriminés et les types Supabase générés.
 
 ---
 
@@ -229,23 +229,28 @@ non-régression avant le découpage.
 
 ### `runStore.ts`
 
-- [ ] Garder Zustand comme état observable/orchestrateur d'interface.
-- [ ] Extraire `RunLifecycleService` : start, resume, end, abandon et recovery.
-- [ ] Extraire `RunAuthorityService` : attempt, journal, synchronisation, seal,
+- [x] Garder Zustand comme état observable/orchestrateur d'interface.
+- [x] Extraire `RunLifecycleService` : start, resume, end, abandon et recovery.
+- [x] Extraire `RunAuthorityService` : attempt, journal, synchronisation, seal,
   verify et recovery.
-- [ ] Extraire les commandes/invariants dans des modules de domaine purs.
-- [ ] Conserver une seule source de vérité pendant chaque étape du découpage.
+- [x] Extraire les commandes/invariants dans des modules de domaine purs.
+- [x] Conserver une seule source de vérité pendant chaque étape du découpage.
 
 ### `AuthorityRunEngine.ts`
 
-- [ ] Garder le moteur comme orchestrateur déterministe.
-- [ ] Extraire `RunCommandValidator` pour parsing, schéma et validation.
-- [ ] Extraire les résolveurs dont la responsabilité est devenue autonome.
-- [ ] Réutiliser les mêmes règles de domaine que le runtime client.
-- [ ] Conserver engine version et content hash comme frontière de compatibilité.
+- [x] Garder le moteur comme orchestrateur déterministe.
+- [x] Extraire `RunCommandValidator` pour parsing, schéma et validation.
+- [x] Extraire les résolveurs dont la responsabilité est devenue autonome.
+- [x] Réutiliser les mêmes règles de domaine que le runtime client.
+- [x] Conserver engine version et content hash comme frontière de compatibilité.
 
 **Acceptation :** les orchestrateurs deviennent lisibles et testables sans créer
 de divergence entre client et serveur.
+
+**Preuve :** `runStore.ts` ne conserve que 93 lignes de composition/persistance ;
+les versions moteur et règles restent inchangées. Les tests d'architecture et les
+suites de parité, finalisation, recovery, transactions, carte et combat passent dans
+la chaîne `npm run check` (921 tests réussis, 12 ignorés).
 
 ---
 

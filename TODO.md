@@ -1052,20 +1052,28 @@ Les fichiers les plus risqués sont notamment `CombatPage` (~928 lignes),
 `BattleManager` (~764), `RunMapScreen` (~738), `runStore` (~710) et `AdminPage`
 (~641), hors catalogues générés.
 
-- [ ] Extraire de `CombatPage` l'orchestrateur, le presenter, les commandes,
+- [x] Extraire de `CombatPage` l'orchestrateur, le presenter, les commandes,
   récompenses et transitions de fin.
-- [ ] Séparer dans `BattleManager` validation, sélection de cible, résolution
+- [x] Séparer dans `BattleManager` validation, sélection de cible, résolution
   d'effet, événements et résultat.
-- [ ] Découper `runStore` en machine d'état et slices sans multiplier les sources de
+- [x] Découper `runStore` en machine d'état et slices sans multiplier les sources de
   vérité.
-- [ ] Extraire de `RunMapScreen` le modèle de vue, le SVG, la sidebar et les dialogues.
-- [ ] Découper Admin/Database en routes ou panneaux autonomes.
-- [ ] Remplacer les styles inline répétés par composants et styles testables.
-- [ ] Garder les données de catalogue hors des métriques de complexité du code
+- [x] Extraire de `RunMapScreen` le modèle de vue, le SVG, la sidebar et les dialogues.
+- [x] Découper Admin/Database en routes ou panneaux autonomes.
+- [x] Remplacer les styles inline répétés par composants et styles testables.
+- [x] Garder les données de catalogue hors des métriques de complexité du code
   applicatif.
 
 **Acceptation :** chaque module a une responsabilité et des dépendances explicites ;
 les transitions métier peuvent être testées sans rendre une page React.
+
+**Livré :** `runStore` est réduit à la composition/persistance de trois slices et
+s'appuie sur des services de cycle de vie et d'autorité. Le moteur autoritaire,
+`BattleManager`, `CombatPage` et `RunMapScreen` délèguent désormais validation,
+effets, événements, présentation, complétion et modèle de vue à des modules dédiés.
+Les panneaux Admin/Database et le fallback d'image sont autonomes. Les contrats purs
+du validateur, du journal d'autorité et du journal de combat disposent de tests de
+comportement sans rendu React.
 
 ### P2-ARCH-02 — Renforcer types, erreurs et observabilité
 

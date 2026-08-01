@@ -1,11 +1,12 @@
-import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { riotChampionIconUrl } from '@/config/riotAssets';
 import { championDB } from '@/data/championDatabase';
-import { ITEM_DATABASE } from '@/data/items/itemDatabase';
 import manifestJson from '@/data/generated/riot-assets-manifest.json';
+import { ITEM_DATABASE } from '@/data/items/itemDatabase';
+import { applyLocalImageFallback } from '@/utils/imageFallback';
 
 const rootUrl = new URL('../', import.meta.url);
 const manifest = manifestJson as {
@@ -65,10 +66,18 @@ describe('Riot asset delivery', () => {
   });
 
   it('falls back from optional CDN splash art to the pinned local portrait', () => {
-    for (const page of ['StarterSelectPage.tsx', 'DatabasePage.tsx']) {
-      const source = readFileSync(new URL(`../src/pages/${page}`, import.meta.url), 'utf8');
-      expect(source).toContain("image.dataset.localFallback = 'true'");
-      expect(source).toContain('image.src = champion.iconUrl');
-    }
+    const image = {
+      dataset: {},
+      src: 'https://cdn.example.invalid/splash.png',
+      style: { display: '' },
+    } as unknown as HTMLImageElement;
+
+    applyLocalImageFallback(image, '/assets/riot/champion.png', true);
+    expect(image.dataset.localFallback).toBe('true');
+    expect(image.src).toBe('/assets/riot/champion.png');
+    expect(image.style.display).not.toBe('none');
+
+    applyLocalImageFallback(image, '/assets/riot/champion.png', true);
+    expect(image.style.display).toBe('none');
   });
 });

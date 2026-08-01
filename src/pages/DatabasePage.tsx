@@ -1,22 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EnhancementTree } from '@/components/EnhancementTree';
-import { DDRAGON_CONFIG } from '@/config/ddragon';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
-import {
-  isPassiveCombatReady,
-  isSpellCombatReady,
-  UNAVAILABLE_COMBAT_DESCRIPTION,
-} from '@/game/battle/combatContentSupport';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { formatChampionTag, plural } from '@/i18n/format';
+import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
 import { useChampionEnhancements, useEnhancementStore } from '@/stores/enhancementStore';
 import type { Champion } from '@/types/champion';
-import { formatChampionTag, plural } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
-import { gameStatsAtLevel } from '@/utils/statConversion';
-import { stripMarkup } from '@/utils/text';
 import '@/styles/database.css';
+import { DatabaseChampionDetail } from './database/DatabaseChampionDetail';
 
 export function DatabasePage() {
   const navigate = useAppNavigate();
@@ -68,19 +61,17 @@ export function DatabasePage() {
   );
 
   return (
-    <main className="database-page" style={containerStyle}>
-      <header className="database-page__header" style={headerStyle}>
-        <button style={backBtnStyle} onClick={() => navigate(ROUTES.MENU)}>
+    <main className="database-page">
+      <header className="database-header">
+        <button className="database-back-btn" onClick={() => navigate(ROUTES.MENU)}>
           {fr.common.backToMenu}
         </button>
-        <h1 style={{ color: '#c8aa6e', fontSize: 20, margin: 0 }}>{fr.database.title}</h1>
-        <span style={{ color: '#8b949e', fontSize: 12 }}>
-          {plural(allChampions.length, 'champion')}
-        </span>
+        <h1 className="database-title">{fr.database.title}</h1>
+        <span className="database-count">{plural(allChampions.length, 'champion')}</span>
       </header>
 
-      <div className="database-page__body" style={bodyStyle}>
-        <aside className="database-page__sidebar" style={sidebarStyle}>
+      <div className="database-body">
+        <aside className="database-sidebar">
           <label className="sr-only" htmlFor="champion-search">
             {fr.database.search}
           </label>
@@ -90,21 +81,15 @@ export function DatabasePage() {
             placeholder={fr.database.search}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={searchStyle}
+            className="database-search"
           />
-          <ul style={{ ...listStyle, listStyle: 'none', margin: 0, padding: 0 }}>
+          <ul className="database-list">
             {filteredChampions.map((champ) => (
               <li key={champ.id}>
                 <button
                   type="button"
                   aria-pressed={selectedChampion?.id === champ.id}
-                  style={{
-                    ...listItemStyle,
-                    width: '100%',
-                    border: 0,
-                    textAlign: 'left',
-                    background: selectedChampion?.id === champ.id ? '#1e2a3a' : 'transparent',
-                  }}
+                  className={`database-list-item${selectedChampion?.id === champ.id ? ' selected' : ''}`}
                   onClick={() => {
                     setSelectedChampion(champ);
                     setActiveTab('info');
@@ -113,16 +98,13 @@ export function DatabasePage() {
                   <img
                     src={champ.iconUrl}
                     alt={champ.name}
-                    style={{ width: 32, height: 32, borderRadius: 4 }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
                   />
-                  <div>
-                    <div style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>
-                      {champ.name}
-                    </div>
-                    <div style={{ color: '#8b949e', fontSize: 11 }}>
+                  <div className="database-list-item-info">
+                    <div className="database-list-item-name">{champ.name}</div>
+                    <div className="database-list-item-tags">
                       {champ.tags.map(formatChampionTag).join(', ')}
                     </div>
                   </div>
@@ -132,11 +114,11 @@ export function DatabasePage() {
           </ul>
         </aside>
 
-        <div className="database-page__detail" style={detailStyle}>
+        <div className="database-detail">
           {selectedChampion ? (
             <>
               <div
-                style={tabsStyle}
+                className="database-tabs"
                 role="tablist"
                 aria-label={fr.database.title}
                 onKeyDown={(event) => {
@@ -155,11 +137,7 @@ export function DatabasePage() {
                   id="database-tab-info"
                   aria-selected={activeTab === 'info'}
                   aria-controls="database-panel-info"
-                  style={{
-                    ...tabStyle,
-                    background: activeTab === 'info' ? '#1e2a3a' : 'transparent',
-                    color: activeTab === 'info' ? '#c8aa6e' : '#8b949e',
-                  }}
+                  className={`database-tab${activeTab === 'info' ? ' active' : ''}`}
                   onClick={() => setActiveTab('info')}
                 >
                   📖 {fr.database.info}
@@ -170,11 +148,7 @@ export function DatabasePage() {
                   id="database-tab-enhancements"
                   aria-selected={activeTab === 'enhancements'}
                   aria-controls="database-panel-enhancements"
-                  style={{
-                    ...tabStyle,
-                    background: activeTab === 'enhancements' ? '#1e2a3a' : 'transparent',
-                    color: activeTab === 'enhancements' ? '#c8aa6e' : '#8b949e',
-                  }}
+                  className={`database-tab${activeTab === 'enhancements' ? ' active' : ''}`}
                   onClick={() => setActiveTab('enhancements')}
                 >
                   🌟 {fr.database.enhancements}
@@ -183,7 +157,7 @@ export function DatabasePage() {
 
               {activeTab === 'info' ? (
                 <div role="tabpanel" id="database-panel-info" aria-labelledby="database-tab-info">
-                  <ChampionDetail champion={selectedChampion} />
+                  <DatabaseChampionDetail champion={selectedChampion} />
                 </div>
               ) : (
                 <div
@@ -192,12 +166,12 @@ export function DatabasePage() {
                   aria-labelledby="database-tab-enhancements"
                 >
                   {enhancementError && (
-                    <p role="alert" style={mutationErrorStyle}>
+                    <p role="alert" className="database-mutation database-mutation--error">
                       {enhancementError}
                     </p>
                   )}
                   {enhancementStatus && (
-                    <p role="status" style={mutationSuccessStyle}>
+                    <p role="status" className="database-mutation database-mutation--success">
                       {enhancementStatus}
                     </p>
                   )}
@@ -215,11 +189,9 @@ export function DatabasePage() {
               )}
             </>
           ) : (
-            <div style={placeholderStyle}>
-              <p style={{ color: '#8b949e' }}>{fr.database.select}</p>
-              <p style={{ color: '#8b949e', fontSize: 12, marginTop: 8 }}>
-                {fr.database.selectHelp}
-              </p>
+            <div className="database-placeholder">
+              <p>{fr.database.select}</p>
+              <p className="database-placeholder__help">{fr.database.selectHelp}</p>
             </div>
           )}
         </div>
@@ -227,214 +199,3 @@ export function DatabasePage() {
     </main>
   );
 }
-
-function ChampionDetail({ champion }: { champion: Champion }) {
-  const gameStats = gameStatsAtLevel(champion.stats, 1);
-  const splashUrl = DDRAGON_CONFIG.championSplashUrl(champion.id);
-
-  return (
-    <div style={{ padding: 16 }}>
-      <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
-        <img
-          src={splashUrl}
-          alt={champion.name}
-          style={{ width: 120, height: 120, borderRadius: 8, objectFit: 'cover' }}
-          onError={(e) => {
-            const image = e.currentTarget;
-            if (image.dataset.localFallback !== 'true') {
-              image.dataset.localFallback = 'true';
-              image.src = champion.iconUrl;
-            } else {
-              image.style.display = 'none';
-            }
-          }}
-        />
-        <div>
-          <h2 style={{ color: '#c8aa6e', margin: '0 0 4px 0' }}>{champion.name}</h2>
-          <p style={{ color: '#8b949e', margin: '0 0 8px 0', fontStyle: 'italic' }}>
-            {champion.title}
-          </p>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {champion.tags.map((tag) => (
-              <span key={tag} style={tagStyle}>
-                {formatChampionTag(tag)}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <h3 style={sectionTitleStyle}>{fr.database.stats}</h3>
-      <div style={statsGridStyle}>
-        {[
-          { label: 'PV', value: gameStats.hp },
-          { label: 'ATK', value: gameStats.atk },
-          { label: 'DEF', value: gameStats.def },
-          { label: 'AP', value: gameStats.ap },
-          { label: 'VIT', value: gameStats.spd },
-          { label: 'CRIT', value: gameStats.crit },
-        ].map((s) => (
-          <div key={s.label} style={statBlockStyle}>
-            <div style={statLabelStyle}>{s.label}</div>
-            <div style={statValueStyle}>{s.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <h3 style={sectionTitleStyle}>{fr.database.abilities}</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {champion.spells.map((spell) => (
-          <div key={spell.id} style={abilityCardStyle}>
-            <div style={{ color: '#e6edf3', fontWeight: 600, fontSize: 13 }}>{spell.name}</div>
-            <div style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}>
-              {isSpellCombatReady(spell)
-                ? stripMarkup(spell.description)
-                : UNAVAILABLE_COMBAT_DESCRIPTION}
-            </div>
-          </div>
-        ))}
-        <div style={abilityCardStyle}>
-          <div style={{ color: '#e6edf3', fontWeight: 600, fontSize: 13 }}>
-            {fr.database.passive} : {champion.passive.name}
-          </div>
-          <div style={{ color: '#8b949e', fontSize: 11, marginTop: 4 }}>
-            {isPassiveCombatReady(champion.id, champion.passive)
-              ? stripMarkup(champion.passive.description)
-              : UNAVAILABLE_COMBAT_DESCRIPTION}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const containerStyle: React.CSSProperties = {
-  position: 'relative',
-  width: '100%',
-  minHeight: '100dvh',
-  height: '100dvh',
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-  display: 'flex',
-  flexDirection: 'column',
-};
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 16,
-  padding: '8px 16px',
-  background: '#161b22',
-  borderBottom: '1px solid #1e2a3a',
-  flexShrink: 0,
-};
-const backBtnStyle: React.CSSProperties = {
-  padding: '6px 12px',
-  background: '#21262d',
-  color: '#e6edf3',
-  border: '1px solid #30363d',
-  borderRadius: 6,
-  fontSize: 12,
-  cursor: 'pointer',
-};
-const bodyStyle: React.CSSProperties = { flex: 1, display: 'flex', overflow: 'hidden' };
-const sidebarStyle: React.CSSProperties = {
-  width: 260,
-  display: 'flex',
-  flexDirection: 'column',
-  borderRight: '1px solid #1e2a3a',
-  flexShrink: 0,
-};
-const searchStyle: React.CSSProperties = {
-  padding: '8px 12px',
-  background: '#161b22',
-  border: 'none',
-  borderBottom: '1px solid #1e2a3a',
-  color: '#e6edf3',
-  fontSize: 13,
-  outline: 'none',
-};
-const listStyle: React.CSSProperties = { flex: 1, overflow: 'auto' };
-const listItemStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 10,
-  alignItems: 'center',
-  padding: '8px 12px',
-  cursor: 'pointer',
-  borderBottom: '1px solid #1e2a3a',
-};
-const detailStyle: React.CSSProperties = { flex: 1, overflow: 'auto' };
-const placeholderStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100%',
-  flexDirection: 'column',
-  gap: 8,
-};
-const sectionTitleStyle: React.CSSProperties = { color: '#c8aa6e', fontSize: 14, marginBottom: 8 };
-const statsGridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(3, 1fr)',
-  gap: 8,
-  marginBottom: 16,
-};
-const statBlockStyle: React.CSSProperties = {
-  background: '#0d1117',
-  borderRadius: 6,
-  padding: 8,
-  textAlign: 'center',
-};
-const statLabelStyle: React.CSSProperties = {
-  color: '#8b949e',
-  fontSize: 10,
-  textTransform: 'uppercase' as const,
-};
-const statValueStyle: React.CSSProperties = { color: '#e6edf3', fontSize: 18, fontWeight: 700 };
-const abilityCardStyle: React.CSSProperties = {
-  background: '#0d1117',
-  borderRadius: 6,
-  padding: 10,
-};
-const tagStyle: React.CSSProperties = {
-  background: '#21262d',
-  color: '#e6edf3',
-  padding: '2px 8px',
-  borderRadius: 4,
-  fontSize: 11,
-};
-
-const tabsStyle: React.CSSProperties = {
-  display: 'flex',
-  borderBottom: '1px solid #1e2a3a',
-  padding: '0 16px',
-};
-
-const tabStyle: React.CSSProperties = {
-  padding: '12px 16px',
-  background: 'transparent',
-  border: 'none',
-  color: '#8b949e',
-  fontSize: 13,
-  cursor: 'pointer',
-  borderBottom: '2px solid transparent',
-  transition: 'all 0.2s',
-};
-
-const mutationErrorStyle: React.CSSProperties = {
-  margin: '12px 16px 0',
-  padding: '10px 12px',
-  border: '1px solid #b84f55',
-  borderRadius: 6,
-  background: '#35181c',
-  color: '#ffb4b8',
-};
-
-const mutationSuccessStyle: React.CSSProperties = {
-  margin: '12px 16px 0',
-  padding: '10px 12px',
-  border: '1px solid #4a9f6f',
-  borderRadius: 6,
-  background: '#143022',
-  color: '#a8e6bd',
-};

@@ -5,23 +5,24 @@ import { ROUTES } from '@/config/routes';
 import { implementedChampions } from '@/data/champion';
 import { championDB } from '@/data/championDatabase';
 import { getKeystoneRunes } from '@/data/items/runeDatabase';
+import { getUnlockedStarterSlotCount } from '@/game/run/runStartValidation';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
-import { useRunStore } from '@/stores/runStore';
 import { useMasteryStore } from '@/stores/masteryStore';
-import { getUnlockedStarterSlotCount } from '@/game/run/runStartValidation';
+import { useRunStore } from '@/stores/runStore';
 import type { Champion } from '@/types/champion';
 import type { DailyChallenge } from '@/types/dailyRun';
 import { createDailyRNG, getDailySeed } from '@/utils/dailySeed';
+import { applyLocalImageFallback } from '@/utils/imageFallback';
 import { SeededRNG } from '@/utils/seededRandom';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
-import { fr } from '@/i18n/fr';
 import { formatChampionTag } from '@/i18n/format';
+import { fr } from '@/i18n/fr';
 
 function pickRandom<T>(arr: T[], count: number, rng: SeededRNG): T[] {
   return rng.pickN(arr, count);
@@ -334,11 +335,7 @@ function ChampionCard({
             alt={champion.name}
             loading="lazy"
             onError={(event) => {
-              const image = event.currentTarget;
-              if (image.dataset.localFallback !== 'true') {
-                image.dataset.localFallback = 'true';
-                image.src = champion.iconUrl;
-              }
+              applyLocalImageFallback(event.currentTarget, champion.iconUrl);
             }}
           />
         </picture>

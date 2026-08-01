@@ -4,18 +4,12 @@
  * Phase 2: Initiative & turn-by-turn system.
  */
 
-import { createBuff, createDebuff } from '@/game/effects/BuffDebuffEffect';
+import { createBuff } from '@/game/effects/BuffDebuffEffect';
 import { CCEffect } from '@/game/effects/CCEffect';
 import { DamageEffect } from '@/game/effects/DamageEffect';
 import { EffectManager } from '@/game/effects/EffectManager';
-import {
-  normalizePercent,
-  normalizeThreshold,
-  normalizeTurnDuration,
-} from '@/game/effects/effectUnits';
-import { ExecuteEffect } from '@/game/effects/ExecuteEffect';
+import { normalizePercent, normalizeTurnDuration } from '@/game/effects/effectUnits';
 import { HealEffect } from '@/game/effects/HealEffect';
-import { ReviveEffect } from '@/game/effects/ReviveEffect';
 import { ShieldEffect } from '@/game/effects/ShieldEffect';
 import { CCType, DamageType, type StatKey } from '@/game/effects/types';
 import type { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
@@ -24,20 +18,27 @@ import type {
   CombatRuleInstantEffect,
   CombatRuleResolution,
 } from '@/game/rules/types';
-import { TargetingType, type SpellEffect } from '@/types/champion';
+import type { SpellEffect } from '@/types/champion';
 import {
   calculateADDamage,
   calculateAPDamage,
   calculateTrueDamage,
   critDamage,
 } from '@/utils/damage';
-import type { ChampionInstance, SpellSlot } from '../ChampionInstance';
-import { actionToSpellSlot } from './actionSlots';
-import { isPassiveCombatReady, isSpellCombatReady } from './combatContentSupport';
-import { isActionTargeting, resolveBattleTargets } from './targetResolver';
+import type { ChampionInstance } from '../ChampionInstance';
+import type { CombatActionTrace } from './actionTrace';
+import {
+  getBattleActionDefinition,
+  type ResolvableCombatant,
+  type ValidatedBattleAction,
+  validateBattleAction,
+} from './BattleActionValidator';
+import { type BattleEventCallback, BattleEventJournal } from './BattleEventJournal';
+import { BattleSpellEffectResolver } from './BattleSpellEffectResolver';
+import { isPassiveCombatReady } from './combatContentSupport';
+import { resolveBattleTargets } from './targetResolver';
 import {
   ActionType,
-  type ActionTargeting,
   type BattleAction,
   type BattleActionOption,
   type BattleEvent,
@@ -48,14 +49,12 @@ import {
   type TeamSide,
   type TurnEntry,
 } from './types';
-import type { CombatActionTrace } from './actionTrace';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Maximum random speed jitter added to turn order calculation (in speed units) */
 const SPEED_JITTER_MAX = 0.5;
 
-type EventCallback = (event: BattleEvent) => void;
 type ActionCallback = (
   champion: ChampionInstance,
   side: TeamSide,
@@ -76,27 +75,6 @@ export interface BattleManagerOptions {
   rules?: CombatRuleRuntime;
 }
 
-interface ActionDefinition {
-  type: ActionType;
-  cost: number;
-  cooldown: number;
-  targeting: ActionTargeting;
-  spellSlot?: SpellSlot;
-  rankIndex: number;
-  includeDefeatedTargets: boolean;
-}
-
-interface ValidatedBattleAction extends ActionDefinition {
-  targets: CombatantState[];
-}
-
-interface ResolvableCombatant {
-  id: string;
-  side: TeamSide;
-  isDefeated: boolean;
-  state: CombatantState;
-}
-
 export class BattleManager {
   private _phase: BattlePhase = BattlePhase.Idle;
   private _round = 0;
@@ -104,8 +82,7 @@ export class BattleManager {
   private _turnOrder: TurnEntry[] = [];
   private _playerCombatants: CombatantState[] = [];
   private _enemyCombatants: CombatantState[] = [];
-  private _log: BattleEvent[] = [];
-  private _listeners: Map<string, EventCallback[]> = new Map();
+  private readonly _events = new BattleEventJournal();
   private readonly _autoActions: boolean;
   private readonly _maxRounds: number;
   private readonly _maxTeamSize: number;
@@ -155,7 +132,7 @@ export class BattleManager {
     return this._turnOrder;
   }
   get log(): ReadonlyArray<BattleEvent> {
-    return this._log;
+    return this._events.read();
   }
   getPlayerActionTrace(): CombatActionTrace {
     return this._playerActionTrace.map((action) => ({ ...action }));
@@ -226,23 +203,16 @@ export class BattleManager {
     return this.getAliveCombatants(side === 'player' ? 'enemy' : 'player');
   }
 
-  on(event: string, cb: EventCallback): void {
-    if (!this._listeners.has(event)) this._listeners.set(event, []);
-    this._listeners.get(event)!.push(cb);
+  on(event: string, cb: BattleEventCallback): void {
+    if (event === 'event') this._events.subscribe(cb);
   }
 
-  off(event: string, cb: EventCallback): void {
-    const arr = this._listeners.get(event);
-    if (arr) {
-      const idx = arr.indexOf(cb);
-      if (idx !== -1) arr.splice(idx, 1);
-    }
+  off(event: string, cb: BattleEventCallback): void {
+    if (event === 'event') this._events.unsubscribe(cb);
   }
 
   private _emit(event: BattleEvent): void {
-    this._log.push(event);
-    const cbs = this._listeners.get('event');
-    if (cbs) cbs.forEach((cb) => cb(event));
+    this._events.append(event);
   }
 
   setActionCallback(cb: ActionCallback): void {
@@ -270,7 +240,7 @@ export class BattleManager {
     ];
 
     return actionTypes.flatMap((type) => {
-      const definition = this._getActionDefinition(combatant, type);
+      const definition = getBattleActionDefinition(combatant, type);
       if (!definition) return [];
       if (type === ActionType.BasicAttack && !combatant.effectManager.canMove()) return [];
       if (
@@ -317,7 +287,7 @@ export class BattleManager {
     if (this._phase !== BattlePhase.Idle) return;
     this._phase = BattlePhase.Starting;
     this._round = 0;
-    this._log = [];
+    this._events.reset();
     this._playerActionTrace = [];
     this._initCombatants();
     this._rules?.reset();
@@ -437,10 +407,7 @@ export class BattleManager {
   }
 
   getResult(): BattleResult | null {
-    if (this._phase !== BattlePhase.Finished) return null;
-    const last = this._log[this._log.length - 1];
-    if (last?.type !== 'battle_end') return null;
-    return { winner: last.winner, totalRounds: last.rounds, log: [...this._log] };
+    return this._events.result(this._phase);
   }
 
   private _initCombatants(): void {
@@ -588,78 +555,13 @@ export class BattleManager {
     attacker: CombatantState,
     action: BattleAction,
   ): ValidatedBattleAction | null {
-    const entry = this.currentTurnEntry;
-    if (
-      this._phase !== BattlePhase.TurnActive ||
-      !entry ||
-      entry.champion !== attacker.champion ||
-      entry.side !== attacker.side ||
-      attacker.isDefeated ||
-      !attacker.effectManager.canAct() ||
-      !Object.values(ActionType).includes(action.type)
-    ) {
-      return null;
-    }
-
-    const definition = this._getActionDefinition(attacker, action.type);
-    if (!definition) return null;
-    if (action.type === ActionType.BasicAttack && !attacker.effectManager.canMove()) return null;
-    if (
-      definition.spellSlot &&
-      (!attacker.champion.isSpellReady(definition.spellSlot) ||
-        attacker.currentMp < definition.cost ||
-        !attacker.effectManager.canCast())
-    ) {
-      return null;
-    }
-
-    const resolution = resolveBattleTargets(
-      this._getTargetableCombatants(),
-      attacker.targetId,
-      attacker.side,
-      definition.targeting,
-      action.targetId,
-      { includeDefeated: definition.includeDefeatedTargets },
-    );
-    if (!resolution.ok || resolution.targets.length === 0) return null;
-    return {
-      ...definition,
-      targets: resolution.targets.map((target) => target.state),
-    };
-  }
-
-  private _getActionDefinition(
-    attacker: CombatantState,
-    type: ActionType,
-  ): ActionDefinition | null {
-    if (type === ActionType.BasicAttack) {
-      return {
-        type,
-        cost: 0,
-        cooldown: 0,
-        targeting: TargetingType.Enemy,
-        rankIndex: 0,
-        includeDefeatedTargets: false,
-      };
-    }
-
-    const spellSlot = actionToSpellSlot(type);
-    if (!spellSlot) return null;
-    const spell = attacker.champion.getSpell(spellSlot);
-    if (!spell || !isActionTargeting(spell.targeting)) return null;
-    const rank = attacker.champion.getSpellRank(spellSlot);
-    if (!Number.isInteger(rank) || rank < 1 || rank > spell.maxRank) return null;
-    if (!isSpellCombatReady(spell, rank)) return null;
-
-    return {
-      type,
-      cost: getRankValue(spell.cost, rank),
-      cooldown: getRankValue(spell.cooldown, rank),
-      targeting: spell.targeting,
-      spellSlot,
-      rankIndex: rank - 1,
-      includeDefeatedTargets: spell.effects.some((effect) => effect.type === 'revive'),
-    };
+    return validateBattleAction({
+      phase: this._phase,
+      currentTurnEntry: this.currentTurnEntry,
+      attacker,
+      action,
+      combatants: this._getTargetableCombatants(),
+    });
   }
 
   private _getTargetableCombatants(): ResolvableCombatant[] {
@@ -747,273 +649,20 @@ export class BattleManager {
   private _applySpellEffect(
     effect: SpellEffect,
     attacker: CombatantState,
-    primaryTargets: CombatantState[],
-    atkStats: ReturnType<ChampionInstance['getStats']>,
-    rankIdx: number,
+    targets: CombatantState[],
+    attackerStats: ReturnType<ChampionInstance['getStats']>,
+    rankIndex: number,
   ): void {
-    const hostileTargets = primaryTargets.filter(
-      (candidate) => candidate.side !== attacker.side && !candidate.isDefeated,
-    );
-    const alliedTargets = primaryTargets.filter(
-      (candidate) => candidate.side === attacker.side && !candidate.isDefeated,
-    );
-    // An offensive spell with a secondary positive effect (for example Soraka Q)
-    // applies that positive effect to its caster.
-    const positiveTargets = alliedTargets.length > 0 ? alliedTargets : [attacker];
-
-    switch (effect.type) {
-      case 'damage': {
-        for (const target of hostileTargets) {
-          this._applyDamageToTarget(
-            attacker,
-            target,
-            this._calculateEffectDamage(effect, atkStats, target, rankIdx),
-          );
-        }
-        break;
-      }
-      case 'heal': {
-        for (const healTarget of positiveTargets) {
-          const baseHeal = effect.baseValue?.[rankIdx] ?? 0;
-          const apRatio = effect.apRatio ?? 0;
-          const healAmount = Math.round(baseHeal + atkStats.abilityPower * apRatio);
-          this._applyHeal(attacker, healTarget, healAmount);
-        }
-        break;
-      }
-      case 'shield': {
-        for (const shieldTarget of positiveTargets) {
-          const baseShield = effect.baseValue?.[rankIdx] ?? 0;
-          const apRatio = effect.apRatio ?? 0;
-          const shieldAmount = Math.round(baseShield + atkStats.abilityPower * apRatio);
-          const shieldRules = this._rules?.dispatch({
-            type: 'before_shield',
-            source: this._toRuleActor(attacker),
-            target: this._toRuleActor(shieldTarget),
-            amount: shieldAmount,
-          });
-          const finalShieldAmount = Math.round(shieldAmount * (shieldRules?.shieldMultiplier ?? 1));
-          if (finalShieldAmount <= 0) continue;
-          shieldTarget.effectManager.apply(
-            new ShieldEffect({
-              name: `${attacker.champion.id} shield`,
-              sourceId: attacker.targetId,
-              targetId: shieldTarget.targetId,
-              magnitude: finalShieldAmount,
-              duration: Math.max(
-                1,
-                normalizeTurnDuration(effect.duration ?? effect.buffDuration, 3),
-              ),
-            }),
-          );
-          this._syncEffectState(shieldTarget);
-          this._emit({
-            type: 'shield',
-            source: attacker.champion.id,
-            target: shieldTarget.champion.id,
-            amount: finalShieldAmount,
-            countsAsShield: true,
-            sourceCombatantId: attacker.targetId,
-            targetCombatantId: shieldTarget.targetId,
-            sourceSide: attacker.side,
-            targetSide: shieldTarget.side,
-          });
-        }
-        break;
-      }
-      case 'cc': {
-        for (const ccTarget of hostileTargets) {
-          const ccType = toCCType(effect.ccType);
-          if (!ccType) continue;
-          ccTarget.effectManager.apply(
-            new CCEffect({
-              name: `${attacker.champion.id} ${ccType}`,
-              sourceId: attacker.targetId,
-              targetId: ccTarget.targetId,
-              ccType,
-              duration: Math.max(
-                1,
-                normalizeTurnDuration(effect.ccDuration, 1) *
-                  (this._rules?.getAppliedControlDurationMultiplier(attacker.champion.id) ?? 1) *
-                  (this._rules?.getControlDurationMultiplier(ccTarget.champion.id) ?? 1),
-              ),
-              slowAmount:
-                ccType === CCType.Slow ? normalizePercent(effect.slowPercent, 0.3) : undefined,
-            }),
-          );
-          this._syncEffectState(ccTarget);
-          this._emit({
-            type: 'damage',
-            source: attacker.champion.id,
-            target: ccTarget.champion.id,
-            amount: 0,
-            hpDamage: 0,
-            shieldDamage: 0,
-            overkillDamage: 0,
-            sourceCombatantId: attacker.targetId,
-            targetCombatantId: ccTarget.targetId,
-            isCrit: false,
-            sourceSide: attacker.side,
-            targetSide: ccTarget.side,
-          });
-        }
-        break;
-      }
-      case 'buff': {
-        for (const buffTarget of positiveTargets) {
-          const stat = (effect.stat ?? 'atk') as StatKey;
-          const modifierType = effect.modifierType ?? 'flat';
-          const sourceValue = effect.values?.[rankIdx] ?? 0;
-          const rawValue = modifierType === 'percent' ? normalizePercent(sourceValue) : sourceValue;
-          if (rawValue === 0) continue;
-          const duration = Math.max(
-            1,
-            normalizeTurnDuration(effect.buffDuration ?? effect.duration, 3),
-          );
-          const bdEffect = createBuff(
-            `${attacker.champion.id}_buff_${stat}`,
-            attacker.targetId,
-            buffTarget.targetId,
-            stat,
-            rawValue,
-            modifierType,
-            duration,
-          );
-          buffTarget.effectManager.apply(bdEffect);
-          this._emit({
-            type: 'shield', // reuse existing event type for UI feedback
-            source: attacker.champion.id,
-            target: buffTarget.champion.id,
-            amount: rawValue,
-            countsAsShield: false,
-            sourceCombatantId: attacker.targetId,
-            targetCombatantId: buffTarget.targetId,
-            sourceSide: attacker.side,
-            targetSide: buffTarget.side,
-          });
-        }
-        break;
-      }
-      case 'debuff': {
-        for (const debuffTarget of hostileTargets) {
-          const stat = (effect.stat ?? 'def') as StatKey;
-          const modifierType = effect.modifierType ?? 'flat';
-          const sourceValue = effect.values?.[rankIdx] ?? 0;
-          const rawValue = modifierType === 'percent' ? normalizePercent(sourceValue) : sourceValue;
-          if (rawValue === 0) continue;
-          const duration = Math.max(
-            1,
-            normalizeTurnDuration(effect.buffDuration ?? effect.duration, 3),
-          );
-          const bdEffect = createDebuff(
-            `${attacker.champion.id}_debuff_${stat}`,
-            attacker.targetId,
-            debuffTarget.targetId,
-            stat,
-            rawValue,
-            modifierType,
-            duration,
-          );
-          debuffTarget.effectManager.apply(bdEffect);
-          this._emit({
-            type: 'shield', // reuse existing event type for UI feedback
-            source: attacker.champion.id,
-            target: debuffTarget.champion.id,
-            amount: rawValue,
-            countsAsShield: false,
-            sourceCombatantId: attacker.targetId,
-            targetCombatantId: debuffTarget.targetId,
-            sourceSide: attacker.side,
-            targetSide: debuffTarget.side,
-          });
-        }
-        break;
-      }
-      case 'execute': {
-        for (const target of hostileTargets) {
-          const execute = new ExecuteEffect({
-            sourceId: attacker.targetId,
-            targetId: target.targetId,
-            threshold: normalizeThreshold(effect.threshold, 0),
-          });
-          const result = execute.evaluate(target.currentHp, target.maxHp);
-          if ((result.value ?? 0) > 0) {
-            this._applyDamageToTarget(attacker, target, target.currentHp, false);
-          }
-        }
-        break;
-      }
-      case 'dot': {
-        const duration = normalizeTurnDuration(effect.duration, 1);
-        for (const target of hostileTargets) {
-          const totalDamage = this._calculateEffectDamage(effect, atkStats, target, rankIdx);
-          if (totalDamage <= 0 || duration <= 0) continue;
-          target.effectManager.apply(
-            new DamageEffect({
-              name: `${attacker.champion.id} DoT`,
-              sourceId: attacker.targetId,
-              targetId: target.targetId,
-              magnitude: totalDamage,
-              damageType: DamageType.True,
-              duration,
-              canCrit: false,
-            }),
-          );
-        }
-        break;
-      }
-      case 'hot': {
-        const duration = normalizeTurnDuration(effect.duration, 1);
-        for (const target of positiveTargets) {
-          const amount = Math.round(
-            (effect.baseValue?.[rankIdx] ?? 0) + atkStats.abilityPower * (effect.apRatio ?? 0),
-          );
-          if (amount <= 0 || duration <= 0) continue;
-          target.effectManager.apply(
-            new HealEffect({
-              name: `${attacker.champion.id} HoT`,
-              sourceId: attacker.targetId,
-              targetId: target.targetId,
-              magnitude: amount,
-              duration,
-              hot: true,
-            }),
-          );
-        }
-        break;
-      }
-      case 'revive': {
-        const defeatedAllies = primaryTargets.filter(
-          (candidate) => candidate.side === attacker.side && candidate.isDefeated,
-        );
-        for (const target of defeatedAllies) {
-          const revive = new ReviveEffect({
-            sourceId: attacker.targetId,
-            targetId: target.targetId,
-            hpFraction: effect.revivePercent ?? 0.25,
-          });
-          const result = revive.evaluate(target.isDefeated, target.maxHp);
-          const restoredHp = result.value ?? 0;
-          if (restoredHp <= 0) continue;
-          target.isDefeated = false;
-          target.currentHp = restoredHp;
-          this._emit({
-            type: 'revive',
-            source: attacker.champion.id,
-            target: target.champion.id,
-            amount: restoredHp,
-            sourceSide: attacker.side,
-            targetSide: target.side,
-          });
-        }
-        break;
-      }
-      default:
-        break;
-    }
+    new BattleSpellEffectResolver({
+      rules: this._rules,
+      applyDamageToTarget: this._applyDamageToTarget.bind(this),
+      calculateEffectDamage: this._calculateEffectDamage.bind(this),
+      applyHeal: this._applyHeal.bind(this),
+      toRuleActor: this._toRuleActor.bind(this),
+      syncEffectState: this._syncEffectState.bind(this),
+      emit: this._emit.bind(this),
+    }).resolve(effect, attacker, targets, attackerStats, rankIndex);
   }
-
-  /** Apply damage to a target, absorbing into shield first. */
   private _applyDamageToTarget(
     attacker: CombatantState,
     target: CombatantState,
@@ -1716,11 +1365,6 @@ export class BattleManager {
   }
 }
 
-function getRankValue(values: readonly number[], rank: number): number {
-  if (values.length === 0) return 0;
-  return values[rank - 1] ?? values[values.length - 1] ?? 0;
-}
-
 function getUniqueTargetId(champions: readonly ChampionInstance[], index: number): string {
   const championId = champions[index].id;
   if (champions.filter((champion) => champion.id === championId).length === 1) return championId;
@@ -1728,26 +1372,4 @@ function getUniqueTargetId(champions: readonly ChampionInstance[], index: number
     .slice(0, index + 1)
     .filter((champion) => champion.id === championId).length;
   return `${championId}#${occurrence}`;
-}
-
-function toCCType(value: string | undefined): CCType | null {
-  switch (value?.toLowerCase()) {
-    case 'stun':
-      return CCType.Stun;
-    case 'snare':
-    case 'root':
-      return CCType.Snare;
-    case 'silence':
-      return CCType.Silence;
-    case 'slow':
-      return CCType.Slow;
-    case 'knockup':
-      return CCType.Knockup;
-    case 'fear':
-      return CCType.Fear;
-    case 'charm':
-      return CCType.Charm;
-    default:
-      return null;
-  }
 }

@@ -1,16 +1,26 @@
 /* Database Page Styles */
 
 .database-page {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
   background: #0d1117;
   color: #e6edf3;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
+}
+
+.database-title {
+  margin: 0;
+  color: #c8aa6e;
+  font-size: 20px;
+}
+
+.database-count {
+  color: #8b949e;
+  font-size: 12px;
 }
 
 .database-header {
@@ -72,15 +82,24 @@
 .database-list {
   flex: 1;
   overflow: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .database-list-item {
+  width: 100%;
   display: flex;
   gap: 10px;
   align-items: center;
   padding: 8px 12px;
   cursor: pointer;
   border-bottom: 1px solid #1e2a3a;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  background: transparent;
+  text-align: left;
   transition: background 0.2s;
 }
 
@@ -120,6 +139,33 @@
 .database-detail {
   flex: 1;
   overflow: auto;
+  padding: 0;
+}
+
+.database-placeholder__help {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.database-mutation {
+  margin: 12px 16px 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.database-mutation--error {
+  color: #ffb4b8;
+  background: #35181c;
+  border: 1px solid #b84f55;
+}
+
+.database-mutation--success {
+  color: #a8e6bd;
+  background: #143022;
+  border: 1px solid #4a9f6f;
+}
+
+.champion-detail {
   padding: 16px;
 }
 

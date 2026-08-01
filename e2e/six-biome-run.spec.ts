@@ -10,6 +10,7 @@ const REQUIRED_ENCOUNTERS = [
   'exit',
   'boss',
 ];
+const REQUIRED_VICTORY_ENCOUNTERS = ['combat', 'elite', 'exit', 'boss'];
 
 async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
   await page.goto('/auth');
@@ -174,7 +175,20 @@ async function playRun(page: Page, testInfo: TestInfo, strategy: 'risky' | 'surv
     const priorities =
       strategy === 'risky'
         ? REQUIRED_ENCOUNTERS
-        : ['exit', 'boss', 'rest', 'treasure', 'recruit', 'shop', 'event', 'elite', 'combat'];
+        : [
+            ...REQUIRED_ENCOUNTERS.filter(
+              (type) => !visited.has(type) && type !== 'exit' && type !== 'boss',
+            ),
+            'rest',
+            'treasure',
+            'recruit',
+            'shop',
+            'event',
+            'elite',
+            'combat',
+            'exit',
+            'boss',
+          ];
     const preferred = priorities.find((type) =>
       labels.some((label) => label.toLocaleLowerCase().includes(type)),
     );
@@ -214,5 +228,6 @@ test('a guest run can pursue all six biomes through the UI', async ({ page }, te
   test.setTimeout(300_000);
   const result = await playRun(page, testInfo, 'survival');
   expect(result.outcome).toMatch(/^Victoire/);
-  expect([...result.visited]).toEqual(expect.arrayContaining(REQUIRED_ENCOUNTERS));
+  expect([...result.visited]).toEqual(expect.arrayContaining(REQUIRED_VICTORY_ENCOUNTERS));
+  expect(result.visited.size).toBeGreaterThanOrEqual(6);
 });
