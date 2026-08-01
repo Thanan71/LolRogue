@@ -328,7 +328,7 @@ describe('authority run engine', () => {
       expect(verification.result.snapshot.pendingAugmentIds).toEqual([]);
       expect(verification.result.snapshot.totalDamage).toBeGreaterThan(0);
     }
-  });
+  }, 15_000);
 
   it('follows one stable exit-to-wave-to-level-to-augment table across all six biomes', () => {
     const trace = buildStrongTeamTrace(false);

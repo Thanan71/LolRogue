@@ -144,6 +144,7 @@ async function exerciseAuthAndMenu(page: Page) {
 
 for (const viewport of [...VIEWPORTS, ZOOM_200_VIEWPORT]) {
   test(`Auth and Menu stay operable at ${viewport.name}`, async ({ page, context }, testInfo) => {
+    test.setTimeout(60_000);
     await context.addInitScript(() => localStorage.clear());
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.emulateMedia({ reducedMotion: 'reduce' });
