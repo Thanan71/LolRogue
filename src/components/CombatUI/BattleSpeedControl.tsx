@@ -1,5 +1,6 @@
 import type React from 'react';
 import { type BattleSpeed, useSettingsStore } from '../../stores/settingsStore';
+import { fr } from '@/i18n/fr';
 
 export const BattleSpeedControl: React.FC = () => {
   const speed = useSettingsStore((s) => s.battleSpeed);
@@ -10,7 +11,7 @@ export const BattleSpeedControl: React.FC = () => {
   return (
     <div
       role="radiogroup"
-      aria-label="Battle speed"
+      aria-label={fr.combat.battleSpeed}
       style={{
         display: 'flex',
         gap: 4,
@@ -29,7 +30,7 @@ export const BattleSpeedControl: React.FC = () => {
           onClick={() => setSpeed(s)}
           role="radio"
           aria-checked={speed === s}
-          aria-label={`Speed ${s}x`}
+          aria-label={`${fr.combat.speed} ${s}x`}
           style={{
             padding: '2px 8px',
             background: speed === s ? '#c89033' : 'transparent',

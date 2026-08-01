@@ -9,8 +9,8 @@ import type { CombatEncounter } from './types';
 export const TOP_LANE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'top_darius',
-    name: 'The Noxian Guillotine',
-    description: 'Darius stands ready with his axe, eager for a duel.',
+    name: 'Guillotine noxienne',
+    description: 'Darius attend, hache en main, impatient de livrer un duel.',
     type: 'combat',
     enemies: [{ championId: 'Darius', statMultiplier: 0.85 }],
     goldReward: 25,
@@ -19,8 +19,8 @@ export const TOP_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'top_garen',
-    name: 'Demacian Justice',
-    description: 'Garen charges forward with unwavering resolve.',
+    name: 'Justice de Demacia',
+    description: 'Garen charge avec une détermination inébranlable.',
     type: 'combat',
     enemies: [{ championId: 'Garen', statMultiplier: 0.8 }],
     goldReward: 20,
@@ -29,8 +29,8 @@ export const TOP_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'top_malphite',
-    name: 'Unstoppable Force',
-    description: 'A massive stone golem blocks your path.',
+    name: 'Force indomptable',
+    description: 'Un immense golem de pierre bloque votre chemin.',
     type: 'combat',
     enemies: [{ championId: 'Malphite', statMultiplier: 0.9 }],
     goldReward: 30,
@@ -39,8 +39,8 @@ export const TOP_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'top_warwick',
-    name: 'The Uncaged Wrath',
-    description: 'Warwick catches your scent and pounces.',
+    name: 'Fureur déchaînée',
+    description: 'Warwick détecte votre odeur et bondit.',
     type: 'combat',
     enemies: [{ championId: 'Warwick', statMultiplier: 0.8 }],
     goldReward: 22,
@@ -49,8 +49,8 @@ export const TOP_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'top_duo_fighters',
-    name: 'Top Lane Brawl',
-    description: 'Two fighters block the lane together.',
+    name: 'Rixe sur la voie du haut',
+    description: 'Deux combattants bloquent la voie ensemble.',
     type: 'combat',
     enemies: [
       { championId: 'Darius', statMultiplier: 0.7 },
@@ -67,8 +67,8 @@ export const TOP_LANE_ENCOUNTERS: CombatEncounter[] = [
 export const JUNGLE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'jungle_warwick',
-    name: 'Blood Hunt',
-    description: 'Warwick hunts you through the undergrowth.',
+    name: 'Traque sanguinaire',
+    description: 'Warwick vous traque à travers les broussailles.',
     type: 'combat',
     enemies: [{ championId: 'Warwick', statMultiplier: 0.85 }],
     goldReward: 28,
@@ -77,8 +77,8 @@ export const JUNGLE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'jungle_scuttle',
-    name: 'Scuttle Crab',
-    description: 'A skittish scuttle crab blocks the river crossing.',
+    name: 'Carapateur',
+    description: 'Un carapateur nerveux bloque le passage de la rivière.',
     type: 'combat',
     enemies: [{ championId: 'Malphite', statMultiplier: 0.5 }],
     goldReward: 15,
@@ -87,8 +87,8 @@ export const JUNGLE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'jungle_ambush',
-    name: 'Jungle Ambush',
-    description: 'An ambush from the bushes! Multiple enemies attack at once.',
+    name: 'Embuscade dans la jungle',
+    description: 'Une embuscade surgit des buissons ! Plusieurs ennemis attaquent ensemble.',
     type: 'combat',
     enemies: [
       { championId: 'Warwick', statMultiplier: 0.75 },
@@ -100,8 +100,8 @@ export const JUNGLE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'jungle_monster_camp',
-    name: 'Monster Camp',
-    description: 'A den of stone creatures guards the jungle camp.',
+    name: 'Camp de monstres',
+    description: 'Des créatures de pierre gardent ce camp de la jungle.',
     type: 'combat',
     enemies: [
       { championId: 'Malphite', statMultiplier: 0.55 },
@@ -113,8 +113,8 @@ export const JUNGLE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'jungle_gank',
-    name: 'Surprise Gank',
-    description: 'A coordinated gank catches you off guard!',
+    name: 'Gank surprise',
+    description: 'Un gank coordonné vous prend au dépourvu !',
     type: 'combat',
     enemies: [
       { championId: 'Warwick', statMultiplier: 0.8 },

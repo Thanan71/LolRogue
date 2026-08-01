@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { fr } from '@/i18n/fr';
 import {
   canUnlockNode,
   getEnhancementTreeForRole,
@@ -257,7 +258,7 @@ function NodeCard({
     >
       <div style={nodeHeaderStyle}>
         <span style={nodeNameStyle}>{node.name}</span>
-        {isUltimate && <span style={ultimateBadgeStyle}>ULTI</span>}
+        {isUltimate && <span style={ultimateBadgeStyle}>{fr.enhancement.ultimate}</span>}
       </div>
       <div style={nodeDescStyle}>{node.description}</div>
 
@@ -272,7 +273,7 @@ function NodeCard({
       )}
 
       {preview.length > 0 && (
-        <div style={previewStyle} aria-label="Aperçu des statistiques après déblocage">
+        <div style={previewStyle} aria-label={fr.enhancement.preview}>
           {preview.map(({ stat, before, after }) => (
             <div key={stat}>
               {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
@@ -285,7 +286,7 @@ function NodeCard({
       <div style={nodeFooterStyle}>
         <span style={costStyle}>{node.candyCost} 🍬</span>
         {isMaxed ? (
-          <span style={maxedStyle}>MAX</span>
+          <span style={maxedStyle}>{fr.enhancement.maximum}</span>
         ) : (
           <div style={buttonContainerStyle}>
             <button

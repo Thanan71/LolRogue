@@ -2,6 +2,7 @@ import type React from 'react';
 import type { CombatantInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
 import { SpellTooltip } from './SpellTooltip';
+import { fr } from '@/i18n/fr';
 
 interface Props {
   champion: CombatantInfo;
@@ -27,7 +28,7 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
   return (
     <div
       role="toolbar"
-      aria-label="Spell abilities"
+      aria-label={fr.combat.spellAbilities}
       style={{
         display: 'flex',
         gap: 10,
@@ -51,7 +52,7 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
             key={slot}
             onClick={() => handleClick(slot)}
             disabled={disabled}
-            aria-label={`Spell ${slot}${spell ? `: ${spell.name}` : ''}${onCooldown ? ` (${cd}s cooldown)` : ''}${lacksMana ? ' mana insuffisant' : spell && !spell.isReady ? ' on cooldown' : ' ready'}`}
+            aria-label={`${fr.combat.spell} ${slot}${spell ? ` : ${spell.name}` : ''}${onCooldown ? ` (${cd} s, ${fr.combat.cooldown})` : ''}${lacksMana ? `, ${fr.combat.insufficientMana}` : spell && !spell.isReady ? `, ${fr.combat.cooldown}` : `, ${fr.combat.ready}`}`}
             aria-keyshortcuts={slot}
             style={{
               position: 'relative',

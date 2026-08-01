@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useEffect, useRef } from 'react';
 import { useBattleStore } from '../../stores/battleStore';
+import { fr } from '@/i18n/fr';
 
 const colors: Record<string, string> = {
   damage: '#ff4444',
@@ -61,12 +62,12 @@ export const CombatLog: React.FC = () => {
           paddingLeft: 4,
         }}
       >
-        Combat Log
+        {fr.combat.log}
       </div>
       <div style={{ flex: 1, overflowY: 'auto', fontSize: 10, lineHeight: 1.4 }}>
         {recent.length === 0 ? (
           <div style={{ color: '#555', fontStyle: 'italic', padding: 3 }}>
-            Le combat n'a pas encore commenc&eacute;...
+            {fr.combat.notStarted}
           </div>
         ) : (
           recent.map((e) => (
@@ -84,7 +85,7 @@ export const CombatLog: React.FC = () => {
               {e.message}
               {e.isCrit && (
                 <span style={{ color: '#ff6b6b', fontWeight: 'bold', marginLeft: 3, fontSize: 9 }}>
-                  CRIT!
+                  {fr.combat.critical}
                 </span>
               )}
             </div>

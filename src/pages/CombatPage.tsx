@@ -6,6 +6,7 @@ import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
 import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { championDB } from '@/data';
+import { fr } from '@/i18n/fr';
 import { ITEM_DATABASE } from '@/data/items';
 import {
   DEFAULT_COMBAT_AUTOPLAY,
@@ -803,17 +804,15 @@ export function CombatPage() {
             playUIClick();
             navigate(ROUTES.RUN);
           }}
-          aria-label="Retour à la carte"
+          aria-label={fr.common.backToMap}
           title={
-            canLeaveActiveCombat(battlePhase)
-              ? 'Retour à la carte'
-              : 'Termine le combat actif avant de revenir à la carte'
+            canLeaveActiveCombat(battlePhase) ? fr.common.backToMap : fr.combat.finishBeforeMap
           }
         >
-          ← Map
+          {fr.common.backToMap}
         </button>
         <span className="combat-header__title" style={{ color: '#c8aa6e', fontWeight: 700 }}>
-          Combat — Round {round}
+          Combat — {fr.combat.round} {round}
         </span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
@@ -837,20 +836,18 @@ export function CombatPage() {
           }}
           aria-label={
             requiresServerAutoPlay
-              ? 'Mode automatique serveur activé'
+              ? fr.combat.serverAutoEnabled
               : autoPlay
-                ? 'Désactiver le mode automatique'
-                : 'Activer le mode automatique'
+                ? fr.combat.disableAuto
+                : fr.combat.enableAuto
           }
           aria-pressed={requiresServerAutoPlay || autoPlay}
           aria-describedby="combat-auto-status"
-          title={
-            requiresServerAutoPlay
-              ? 'La résolution automatique est requise pour cette run vérifiée.'
-              : 'Active ou désactive les actions automatiques du joueur.'
-          }
+          title={requiresServerAutoPlay ? fr.combat.serverAutoRequired : fr.combat.autoHelp}
         >
-          {requiresServerAutoPlay ? 'Auto serveur' : `Auto : ${autoPlay ? 'ON' : 'OFF'}`}
+          {requiresServerAutoPlay
+            ? fr.combat.serverAuto
+            : `${fr.combat.auto} : ${autoPlay ? fr.combat.on : fr.combat.off}`}
         </button>
       </header>
 
@@ -858,7 +855,7 @@ export function CombatPage() {
       <div className="combat-layout combat-main" style={mainStyle}>
         {/* Player team panel */}
         <div className="combat-team-panel" style={leftPanelStyle}>
-          <div style={teamTitleStyle('#3b82f6')}>Votre équipe</div>
+          <div style={teamTitleStyle('#3b82f6')}>{fr.combat.playerTeam}</div>
           {playerTeam.map((c) => (
             <CombatantPortrait
               key={`player-${c.targetId}`}
@@ -873,7 +870,7 @@ export function CombatPage() {
               }
             />
           ))}
-          {playerTeam.length === 0 && <div style={emptyStyle}>Aucun champion</div>}
+          {playerTeam.length === 0 && <div style={emptyStyle}>{fr.run.noChampions}</div>}
         </div>
 
         {/* Center: battle arena / status */}
@@ -882,7 +879,7 @@ export function CombatPage() {
             <div style={arenaPlaceholderStyle}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>⚔️</div>
               <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
-                Préparation du combat...
+                {fr.combat.preparing}
               </div>
             </div>
           )}
@@ -894,7 +891,7 @@ export function CombatPage() {
                 ⚔️
               </div>
               <div style={{ fontSize: 16, color: '#ffd700', fontWeight: 'bold' }}>
-                {currentTurnSide === 'player' ? 'À votre tour !' : "Tour de l'ennemi..."}
+                {currentTurnSide === 'player' ? `${fr.combat.yourTurn} !` : fr.combat.enemyTurn}
               </div>
               {currentChampion && (
                 <div style={{ fontSize: 14, color: '#fff', marginTop: 8 }}>
@@ -924,10 +921,10 @@ export function CombatPage() {
                     type="button"
                     onClick={processTurn}
                     style={nextTurnBtnStyle}
-                    aria-label="Exécuter le tour (Espace)"
+                    aria-label={`${fr.combat.executeTurn} (Espace)`}
                     aria-keyshortcuts="Space"
                   >
-                    ▶ Exécuter le tour
+                    ▶ {fr.combat.executeTurn}
                     <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.6 }}>[Espace]</span>
                   </button>
                 </div>
@@ -948,7 +945,11 @@ export function CombatPage() {
                   marginBottom: 12,
                 }}
               >
-                {winner === 'player' ? 'VICTOIRE !' : winner === 'draw' ? 'ÉGALITÉ' : 'DÉFAITE'}
+                {winner === 'player'
+                  ? `${fr.common.victory.toUpperCase()} !`
+                  : winner === 'draw'
+                    ? fr.combat.draw
+                    : fr.common.defeat.toUpperCase()}
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 {winner === 'player' && (
@@ -959,11 +960,11 @@ export function CombatPage() {
                     }}
                     style={nextBtnStyle}
                   >
-                    Continuer →
+                    {fr.common.continue} →
                   </button>
                 )}
                 <button onClick={() => navigate(ROUTES.MENU)} style={backBtnStyle2}>
-                  Menu
+                  {fr.gameOver.mainMenu}
                 </button>
               </div>
             </div>
@@ -972,7 +973,7 @@ export function CombatPage() {
 
         {/* Enemy team panel */}
         <div className="combat-team-panel" style={rightPanelStyle}>
-          <div style={teamTitleStyle('#ef4444')}>Ennemis</div>
+          <div style={teamTitleStyle('#ef4444')}>{fr.combat.enemies}</div>
           {enemyTeam.map((c) => (
             <CombatantPortrait
               key={`enemy-${c.targetId}`}
@@ -986,7 +987,7 @@ export function CombatPage() {
               }
             />
           ))}
-          {enemyTeam.length === 0 && <div style={emptyStyle}>Aucun ennemi</div>}
+          {enemyTeam.length === 0 && <div style={emptyStyle}>{fr.common.none}</div>}
         </div>
       </div>
 
@@ -1015,9 +1016,9 @@ export function CombatPage() {
                 }
                 onClick={() => chooseAction(ActionType.BasicAttack)}
                 style={nextTurnBtnStyle}
-                aria-label="Attaque de base"
+                aria-label={fr.combat.baseAttack}
               >
-                ⚔ Attaque
+                ⚔ {fr.combat.attack}
               </button>
               <AbilityBar champion={currentChampion} onCast={handleCast} />
               {pendingOption && (
@@ -1025,7 +1026,7 @@ export function CombatPage() {
                   role="status"
                   style={{ width: '100%', textAlign: 'center', color: '#c8aa6e', fontSize: 12 }}
                 >
-                  Choisissez une cible valide.
+                  {fr.combat.chooseTarget}
                 </div>
               )}
             </div>
@@ -1040,7 +1041,8 @@ export function CombatPage() {
           }}
         >
           <summary style={{ color: '#c8aa6e', cursor: 'pointer' }}>
-            Raccourcis clavier — {keyboardShortcutsEnabled ? 'activés' : 'désactivés'}
+            {fr.combat.shortcuts} —{' '}
+            {keyboardShortcutsEnabled ? fr.combat.shortcutsEnabled : fr.combat.shortcutsDisabled}
           </summary>
           <div style={{ padding: '8px 0', lineHeight: 1.6 }}>
             <div>Q / W / E / R : choisir un sort disponible.</div>
@@ -1053,7 +1055,7 @@ export function CombatPage() {
               aria-pressed={keyboardShortcutsEnabled}
               style={{ ...nextTurnBtnStyle, marginTop: 6 }}
             >
-              {keyboardShortcutsEnabled ? 'Désactiver les raccourcis' : 'Activer les raccourcis'}
+              {keyboardShortcutsEnabled ? fr.combat.disableShortcuts : fr.combat.enableShortcuts}
             </button>
           </div>
         </details>

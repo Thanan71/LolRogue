@@ -9,8 +9,8 @@ import type { CombatEncounter } from './types';
 export const RIVER_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'river_scuttle',
-    name: 'Scuttle Crab',
-    description: 'A scuttle crab skitters across the river path.',
+    name: 'Carapateur',
+    description: 'Un carapateur traverse précipitamment le chemin de la rivière.',
     type: 'combat',
     enemies: [{ championId: 'Malphite', statMultiplier: 0.55 }],
     goldReward: 18,
@@ -19,8 +19,8 @@ export const RIVER_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'river_drake_infernal',
-    name: 'Infernal Drake',
-    description: 'The Infernal Drake breathes fire across the river.',
+    name: 'Dragon infernal',
+    description: 'Le dragon infernal crache ses flammes sur la rivière.',
     type: 'combat',
     enemies: [{ championId: 'Annie', statMultiplier: 1.0 }],
     goldReward: 40,
@@ -29,8 +29,8 @@ export const RIVER_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'river_drake_ocean',
-    name: 'Ocean Drake',
-    description: 'The Ocean Drake surges with tidal power.',
+    name: 'Dragon des océans',
+    description: 'Le dragon des océans déferle avec la puissance des marées.',
     type: 'combat',
     enemies: [{ championId: 'Soraka', statMultiplier: 0.95 }],
     goldReward: 35,
@@ -39,8 +39,8 @@ export const RIVER_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'river_drake_mountain',
-    name: 'Mountain Drake',
-    description: 'The Mountain Drake stomps with earth-shaking force.',
+    name: 'Dragon des montagnes',
+    description: 'Le dragon des montagnes frappe le sol avec une force sismique.',
     type: 'combat',
     enemies: [{ championId: 'Malphite', statMultiplier: 1.1 }],
     goldReward: 45,
@@ -49,8 +49,8 @@ export const RIVER_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'river_elder_dragon',
-    name: 'Elder Dragon',
-    description: 'The Elder Dragon awakens with devastating power.',
+    name: 'Dragon ancestral',
+    description: 'Le dragon ancestral se réveille avec une puissance dévastatrice.',
     type: 'combat',
     enemies: [
       { championId: 'Malphite', statMultiplier: 0.95 },
@@ -67,8 +67,8 @@ export const RIVER_ENCOUNTERS: CombatEncounter[] = [
 export const BASE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'base_turret_guardian',
-    name: 'Turret Guardian',
-    description: 'The turret guardians stand watch over the base.',
+    name: 'Gardiens des tourelles',
+    description: 'Les gardiens des tourelles veillent sur la base.',
     type: 'combat',
     enemies: [
       { championId: 'Leona', statMultiplier: 1.0 },
@@ -80,8 +80,8 @@ export const BASE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'base_inhibitor_defense',
-    name: 'Inhibitor Defense',
-    description: 'The inhibitor defenders rally to protect the base.',
+    name: "Défense de l'inhibiteur",
+    description: "Les défenseurs de l'inhibiteur se rassemblent pour protéger la base.",
     type: 'combat',
     enemies: [
       { championId: 'Garen', statMultiplier: 0.9 },
@@ -94,8 +94,8 @@ export const BASE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'base_nexus_guardians',
-    name: 'Nexus Guardians',
-    description: 'The final guardians protect the Nexus at all costs.',
+    name: 'Gardiens du Nexus',
+    description: 'Les derniers gardiens protègent le Nexus à tout prix.',
     type: 'combat',
     enemies: [
       { championId: 'Leona', statMultiplier: 0.95 },

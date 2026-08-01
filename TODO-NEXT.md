@@ -93,6 +93,11 @@ présentés comme des travaux à démarrer :
 - [x] `P1-UX-02`
 - [x] `P1-UX-03`
 
+`P1-UX-03` couvre désormais automatiquement toutes les pages, y compris Profil,
+Crédits et Administration, ainsi que les catalogues de contenu visibles. Le test
+de contrat i18n découvre les nouvelles pages au lieu de dépendre d'une liste
+partielle.
+
 Une réouverture exige un bug reproductible ou une preuve invalidant la Definition
 of Done actuelle.
 

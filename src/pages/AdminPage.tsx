@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { ROUTES } from '@/config/routes';
+import { fr } from '@/i18n/fr';
 import type { AdminPlayerStat, Log, RunTeamMember } from '@/types/models';
 import {
   type AdminRun,
@@ -207,8 +208,8 @@ export function AdminPage() {
     return (
       <div className="admin-page">
         <div className="admin-error">
-          <h2>⛔ Accès Refusé</h2>
-          <p>Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
+          <h2>⛔ {fr.admin.accessDenied}</h2>
+          <p>{fr.admin.noPermission}</p>
         </div>
       </div>
     );
@@ -221,11 +222,13 @@ export function AdminPage() {
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <button className="admin-back-btn" onClick={handleGoHome} title="Retour à l'accueil">
-          ← Retour
+        <button className="admin-back-btn" onClick={handleGoHome} title={fr.admin.home}>
+          {fr.common.back}
         </button>
-        <h1>🛡️ Panel Admin</h1>
-        <p>Bienvenue, {player?.display_name || player?.username}</p>
+        <h1>🛡️ {fr.admin.title}</h1>
+        <p>
+          {fr.admin.welcome}, {player?.display_name || player?.username}
+        </p>
       </div>
 
       <div className="admin-nav">
@@ -233,25 +236,25 @@ export function AdminPage() {
           className={activeTab === 'dashboard' ? 'active' : ''}
           onClick={() => setActiveTab('dashboard')}
         >
-          📊 Tableau de bord
+          📊 {fr.admin.dashboard}
         </button>
         <button
           className={activeTab === 'logs' ? 'active' : ''}
           onClick={() => setActiveTab('logs')}
         >
-          📋 Logs
+          📋 {fr.admin.logs}
         </button>
         <button
           className={activeTab === 'players' ? 'active' : ''}
           onClick={() => setActiveTab('players')}
         >
-          👥 Joueurs
+          👥 {fr.admin.players}
         </button>
         <button
           className={activeTab === 'runs' ? 'active' : ''}
           onClick={() => setActiveTab('runs')}
         >
-          🎮 Runs
+          🎮 {fr.admin.runs}
         </button>
       </div>
 
@@ -264,37 +267,37 @@ export function AdminPage() {
               <div className="stats-grid">
                 <div className="stat-card">
                   <div className="stat-value">{stats.total_players || '0'}</div>
-                  <div className="stat-label">Total Joueurs</div>
+                  <div className="stat-label">{fr.admin.totalPlayers}</div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-value">{stats.active_today || '0'}</div>
-                  <div className="stat-label">Actifs Aujourd'hui</div>
+                  <div className="stat-label">{fr.admin.activeToday}</div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-value">{stats.total_runs || '0'}</div>
-                  <div className="stat-label">Total Runs</div>
+                  <div className="stat-label">{fr.admin.totalRuns}</div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-value">{stats.total_daily_runs || '0'}</div>
-                  <div className="stat-label">Daily Runs</div>
+                  <div className="stat-label">{fr.admin.dailyRuns}</div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-value">{stats.total_wins || '0'}</div>
-                  <div className="stat-label">Total Victoires</div>
+                  <div className="stat-label">{fr.admin.totalWins}</div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-value">{stats.total_candies_earned || '0'}</div>
-                  <div className="stat-label">Candies Gagnés</div>
+                  <div className="stat-label">{fr.admin.candiesEarned}</div>
                 </div>
               </div>
             )}
 
             <div className="admin-quick-actions">
-              <h3>Actions Rapides</h3>
+              <h3>{fr.admin.quickActions}</h3>
               <div className="action-buttons">
-                <button onClick={() => setActiveTab('logs')}>Voir les Logs</button>
-                <button onClick={() => setActiveTab('players')}>Gérer les Joueurs</button>
-                <button onClick={fetchStats}>Rafraîchir les Stats</button>
+                <button onClick={() => setActiveTab('logs')}>{fr.admin.viewLogs}</button>
+                <button onClick={() => setActiveTab('players')}>{fr.admin.managePlayers}</button>
+                <button onClick={fetchStats}>{fr.admin.refreshStats}</button>
               </div>
             </div>
           </div>
@@ -398,14 +401,14 @@ export function AdminPage() {
                 <table className="players-table">
                   <thead>
                     <tr>
-                      <th>Username</th>
+                      <th>{fr.admin.username}</th>
                       <th>Niveau</th>
-                      <th>Runs</th>
+                      <th>{fr.admin.runs}</th>
                       <th>Victoires</th>
-                      <th>Win Rate</th>
-                      <th>Candies</th>
-                      <th>Dernière Connexion</th>
-                      <th>Inscrit le</th>
+                      <th>{fr.admin.winRate}</th>
+                      <th>{fr.common.candies}</th>
+                      <th>{fr.admin.lastLogin}</th>
+                      <th>{fr.admin.registeredAt}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -422,7 +425,9 @@ export function AdminPage() {
                         <td>{p.total_wins}</td>
                         <td>{p.win_rate.toFixed(1)}%</td>
                         <td>{p.total_candies}</td>
-                        <td>{p.last_login_at ? formatAdminDate(p.last_login_at) : 'Jamais'}</td>
+                        <td>
+                          {p.last_login_at ? formatAdminDate(p.last_login_at) : fr.admin.never}
+                        </td>
                         <td>{formatAdminDate(p.created_at)}</td>
                       </tr>
                     ))}
@@ -437,13 +442,13 @@ export function AdminPage() {
         {activeTab === 'runs' && (
           <div className="runs-tab">
             <div className="runs-header">
-              <h3>Historique des Runs</h3>
+              <h3>{fr.admin.runHistory}</h3>
               <div className="runs-actions">
                 <button
                   className="export-btn"
                   onClick={() => exportRunsToCSV(runs)}
                   disabled={runs.length === 0}
-                  title="Exporter les données en CSV"
+                  title={fr.admin.exportCsv}
                 >
                   📥 Exporter CSV
                 </button>
@@ -514,7 +519,7 @@ export function AdminPage() {
                 >
                   <option value="completed_at">Date de fin</option>
                   <option value="waves_completed">Vagues complétées</option>
-                  <option value="run_level">Niveau de run</option>
+                  <option value="run_level">Niveau de partie</option>
                 </select>
 
                 <label>Ordre:</label>
@@ -544,7 +549,7 @@ export function AdminPage() {
             </div>
 
             {runsLoading ? (
-              <div className="loading">Chargement des runs...</div>
+              <div className="loading">Chargement des parties…</div>
             ) : (
               <>
                 <div className="runs-summary">
@@ -578,10 +583,10 @@ export function AdminPage() {
                         <th>Niveau</th>
                         <th>Vagues</th>
                         <th>Biomes</th>
-                        <th>Kills</th>
+                        <th>{fr.admin.kills}</th>
                         <th>Dégâts</th>
                         <th>Or</th>
-                        <th>Candies</th>
+                        <th>{fr.common.candies}</th>
                         <th>Durée</th>
                         <th>Équipe</th>
                       </tr>
@@ -592,7 +597,7 @@ export function AdminPage() {
                           <td>{run.completed_at ? formatAdminDate(run.completed_at) : '-'}</td>
                           <td>
                             <div className="player-name">
-                              {run.player_display_name || run.player_username || 'Unknown'}
+                              {run.player_display_name || run.player_username || fr.admin.unknown}
                             </div>
                           </td>
                           <td>
@@ -629,7 +634,7 @@ export function AdminPage() {
                       ))}
                     </tbody>
                   </table>
-                  {runs.length === 0 && <div className="no-data">Aucun run trouvé</div>}
+                  {runs.length === 0 && <div className="no-data">{fr.admin.noRuns}</div>}
                 </div>
               </>
             )}

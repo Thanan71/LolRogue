@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { logger } from '@/utils/logger';
 import { PageShell, StateView } from '@/components/ui';
+import { fr } from '@/i18n/fr';
 
 interface Props {
   children: ReactNode;
@@ -36,11 +37,11 @@ export class AppErrorBoundary extends Component<Props, State> {
       <PageShell width="narrow" centered>
         <StateView
           kind="error"
-          title="Une erreur inattendue est survenue"
-          actionLabel="Retour au menu"
+          title={fr.system.unexpectedError}
+          actionLabel={fr.common.backToMenu}
           onAction={this.reset}
         >
-          La partie locale est conservée. Recharge la page pour reprendre.
+          {fr.system.localRunPreserved}
         </StateView>
       </PageShell>
     );
@@ -50,7 +51,7 @@ export class AppErrorBoundary extends Component<Props, State> {
 export function RouteLoadingFallback() {
   return (
     <PageShell width="narrow" centered>
-      <StateView kind="loading" title="Chargement…" />
+      <StateView kind="loading" title={fr.common.loading} />
     </PageShell>
   );
 }

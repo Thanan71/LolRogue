@@ -4,20 +4,20 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
 
 const credits = [
-  { section: 'Game Design & Development', entries: ['LolRogue Team'] },
-  { section: 'Built With', entries: ['React 18', 'TypeScript', 'Vite', 'Zustand'] },
+  { section: fr.credits.design, entries: ['Équipe LolRogue'] },
+  { section: fr.credits.technologies, entries: ['React 18', 'TypeScript', 'Vite', 'Zustand'] },
   {
-    section: 'Inspiration',
-    entries: ['League of Legends — Riot Games', 'Pokémon Rogue community'],
+    section: fr.credits.inspiration,
+    entries: ['League of Legends — Riot Games', 'Communauté Pokémon Rogue'],
   },
-  { section: 'Art & Assets', entries: ['Riot Games — League of Legends Data Dragon'] },
+  { section: fr.credits.assets, entries: ['Riot Games — League of Legends Data Dragon'] },
 ];
 
 export function CreditsPage() {
   const navigate = useAppNavigate();
   return (
     <PageShell width="narrow">
-      <PageHeader title="Credits" subtitle="Acknowledgements" />
+      <PageHeader title={fr.credits.title} subtitle={fr.credits.subtitle} />
       <Stack>
         {credits.map((group) => (
           <Panel key={group.section}>
@@ -27,11 +27,7 @@ export function CreditsPage() {
             ))}
           </Panel>
         ))}
-        <p className="ui-legal-copy">
-          LolRogue is a non-commercial fan project inspired by League of Legends (© Riot Games).
-          League of Legends and related assets are trademarks of Riot Games, Inc. This project is
-          not affiliated with or endorsed by Riot Games.
-        </p>
+        <p className="ui-legal-copy">{fr.credits.legal}</p>
       </Stack>
       <PageFooter>
         <Button variant="ghost" onClick={() => navigate(ROUTES.MENU)}>

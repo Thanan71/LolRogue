@@ -2,6 +2,7 @@ import type React from 'react';
 import { useRef, useState } from 'react';
 import type { SpellInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
+import { fr } from '@/i18n/fr';
 
 interface Props {
   spell: SpellInfo;
@@ -88,7 +89,7 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
               <span style={{ color: '#3b82f6' }}>PM :</span> {spell.cost}
             </div>
             <div style={{ fontSize: smallFontSize, color: '#aaa' }}>
-              <span style={{ color: '#f59e0b' }}>Recharge :</span> {spell.cooldownMax} s
+              <span style={{ color: '#f59e0b' }}>{fr.combat.cooldown} :</span> {spell.cooldownMax} s
             </div>
           </div>
 

@@ -95,7 +95,7 @@ export function StarterSelectPage() {
     void new SupabaseDailyRunRepository(supabase).getDailyChallenge().then((result) => {
       if (cancelled) return;
       if (result.error || !result.data) {
-        setError('Unable to load the authoritative Daily challenge.');
+        setError(fr.starter.dailyAuthoritativeLoadFailed);
       } else {
         setDailyChallenge(result.data);
         useDailyRunStore.getState().syncChallenge(result.data);
@@ -212,7 +212,7 @@ export function StarterSelectPage() {
 
       <div className="starter-select__actions">
         <fieldset className="starter-select__runes" aria-describedby="starter-runes-help">
-          <legend className="starter-select__runes-title">Choisis tes runes</legend>
+          <legend className="starter-select__runes-title">{fr.starter.chooseRunes}</legend>
           <div className="starter-select__runes-heading">
             <p id="starter-runes-help">
               Jusqu’à 3 runes optionnelles pour personnaliser ta partie.

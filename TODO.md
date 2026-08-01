@@ -841,8 +841,12 @@ stable.
 sont centralisés dans `src/i18n/fr.ts` et le glossaire fixe partie, rencontre,
 PV/PM, or, bonbons et améliorations. Les nombres et pluriels passent par les
 formateurs communs. Auth, menu, réglages, sélection, Daily, Database, carte,
-combat, rencontres et Game Over utilisent le contrat français ; un test bloque le
-retour des anciens libellés anglais dans les écrans migrés.
+combat, rencontres et Game Over utilisent le contrat français. La couverture a
+ensuite été étendue à **toutes les pages** (dont Profil, Crédits et Administration),
+aux composants textuels de combat et d'amélioration, ainsi qu'aux catalogues
+affichés d'objets, de passifs, d'augments et de rencontres. Le test i18n découvre
+automatiquement chaque fichier de `src/pages` : ajouter une page sans dictionnaire
+fait désormais échouer la CI, sans liste manuelle à maintenir.
 
 ### P1-UX-04 — Corriger feedback et vérité de l'interface
 

@@ -15,8 +15,8 @@ import {
 
 const BRUTE_FORCE: AugmentDefinition = {
   id: 'brute_force',
-  name: 'Brute Force',
-  description: 'All champions gain +15 ATK.',
+  name: 'Force brute',
+  description: "Tous les champions gagnent +15 dégâts d'attaque.",
   iconUrl: '/assets/augments/brute_force.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -34,8 +34,8 @@ const BRUTE_FORCE: AugmentDefinition = {
 
 const IRON_SKIN: AugmentDefinition = {
   id: 'iron_skin',
-  name: 'Iron Skin',
-  description: 'All champions gain +12 DEF.',
+  name: 'Peau de fer',
+  description: 'Tous les champions gagnent +12 défense.',
   iconUrl: '/assets/augments/iron_skin.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -53,8 +53,8 @@ const IRON_SKIN: AugmentDefinition = {
 
 const ARCANE_MIND: AugmentDefinition = {
   id: 'arcane_mind',
-  name: 'Arcane Mind',
-  description: 'All champions gain +20 AP.',
+  name: 'Esprit arcanique',
+  description: 'Tous les champions gagnent +20 puissance.',
   iconUrl: '/assets/augments/arcane_mind.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -72,8 +72,8 @@ const ARCANE_MIND: AugmentDefinition = {
 
 const VITALITY_BOOST: AugmentDefinition = {
   id: 'vitality_boost',
-  name: 'Vitality Boost',
-  description: 'All champions gain +200 HP.',
+  name: 'Regain de vitalité',
+  description: 'Tous les champions gagnent +200 PV.',
   iconUrl: '/assets/augments/vitality_boost.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -91,8 +91,8 @@ const VITALITY_BOOST: AugmentDefinition = {
 
 const SWIFT_FEET: AugmentDefinition = {
   id: 'swift_feet',
-  name: 'Swift Feet',
-  description: 'All champions gain +2 SPD.',
+  name: 'Pied léger',
+  description: 'Tous les champions gagnent +2 vitesse.',
   iconUrl: '/assets/augments/swift_feet.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -110,8 +110,8 @@ const SWIFT_FEET: AugmentDefinition = {
 
 const CRITICAL_FOCUS: AugmentDefinition = {
   id: 'critical_focus',
-  name: 'Critical Focus',
-  description: 'All champions gain +10% crit chance.',
+  name: 'Concentration critique',
+  description: 'Tous les champions gagnent 10 % de chances de coup critique.',
   iconUrl: '/assets/augments/critical_focus.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -129,8 +129,8 @@ const CRITICAL_FOCUS: AugmentDefinition = {
 
 const GOLDEN_TOUCH: AugmentDefinition = {
   id: 'golden_touch',
-  name: 'Golden Touch',
-  description: 'Gain 50 bonus gold after each battle.',
+  name: "Toucher d'or",
+  description: 'Gagne 50 pièces d’or supplémentaires après chaque combat.',
   iconUrl: '/assets/augments/golden_touch.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Economy,
@@ -147,8 +147,8 @@ const GOLDEN_TOUCH: AugmentDefinition = {
 
 const FIELD_MEDIC: AugmentDefinition = {
   id: 'field_medic',
-  name: 'Field Medic',
-  description: 'Heal all champions for 10% max HP after each battle.',
+  name: 'Médecin de terrain',
+  description: 'Soigne tous les champions de 10 % de leurs PV max après chaque combat.',
   iconUrl: '/assets/augments/field_medic.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Utility,
@@ -169,8 +169,8 @@ const FIELD_MEDIC: AugmentDefinition = {
 
 const WARLORD: AugmentDefinition = {
   id: 'warlord',
-  name: 'Warlord',
-  description: 'All champions gain +10% ATK.',
+  name: 'Seigneur de guerre',
+  description: "Tous les champions gagnent 10 % de dégâts d'attaque.",
   iconUrl: '/assets/augments/warlord.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -188,8 +188,8 @@ const WARLORD: AugmentDefinition = {
 
 const BULWARK: AugmentDefinition = {
   id: 'bulwark',
-  name: 'Bulwark',
-  description: 'All champions gain +10% DEF.',
+  name: 'Rempart',
+  description: 'Tous les champions gagnent 10 % de défense.',
   iconUrl: '/assets/augments/bulwark.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -207,8 +207,8 @@ const BULWARK: AugmentDefinition = {
 
 const SORCERY_SUPREME: AugmentDefinition = {
   id: 'sorcery_supreme',
-  name: 'Sorcery Supreme',
-  description: 'All champions gain +12% AP.',
+  name: 'Sorcellerie suprême',
+  description: 'Tous les champions gagnent 12 % de puissance.',
   iconUrl: '/assets/augments/sorcery_supreme.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -226,8 +226,8 @@ const SORCERY_SUPREME: AugmentDefinition = {
 
 const GLASS_CANNON: AugmentDefinition = {
   id: 'glass_cannon',
-  name: 'Glass Cannon',
-  description: 'All champions gain +20% ATK but -10% DEF.',
+  name: 'Canon de verre',
+  description: "Tous les champions gagnent 20 % de dégâts d'attaque mais perdent 10 % de défense.",
   iconUrl: '/assets/augments/glass_cannon.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Combat,
@@ -243,7 +243,7 @@ const GLASS_CANNON: AugmentDefinition = {
 const FORTUNE: AugmentDefinition = {
   id: 'fortune',
   name: 'Fortune',
-  description: 'Gain 100 bonus gold after each battle.',
+  description: 'Gagne 100 pièces d’or supplémentaires après chaque combat.',
   iconUrl: '/assets/augments/fortune.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Economy,
@@ -260,8 +260,8 @@ const FORTUNE: AugmentDefinition = {
 
 const BATTLE_HARDENED: AugmentDefinition = {
   id: 'battle_hardened',
-  name: 'Battle Hardened',
-  description: 'All champions gain +5 ATK and +5 DEF per biome cleared.',
+  name: 'Aguerri',
+  description: "Tous les champions gagnent +5 dégâts d'attaque et +5 défense par biome terminé.",
   iconUrl: '/assets/augments/battle_hardened.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -280,8 +280,8 @@ const BATTLE_HARDENED: AugmentDefinition = {
 
 const DIVINE_BLESSING: AugmentDefinition = {
   id: 'divine_blessing',
-  name: 'Divine Blessing',
-  description: 'All champions gain +15% to ATK, DEF, and AP.',
+  name: 'Bénédiction divine',
+  description: "Tous les champions gagnent 15 % de dégâts d'attaque, de défense et de puissance.",
   iconUrl: '/assets/augments/divine_blessing.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Stats,
@@ -297,8 +297,8 @@ const DIVINE_BLESSING: AugmentDefinition = {
 
 const PHOENIX_HEART: AugmentDefinition = {
   id: 'phoenix_heart',
-  name: 'Phoenix Heart',
-  description: 'The first champion to die each battle is revived with 50% HP.',
+  name: 'Cœur du phénix',
+  description: 'Le premier champion éliminé à chaque combat revient avec 50 % de ses PV.',
   iconUrl: '/assets/augments/phoenix_heart.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Combat,
@@ -315,8 +315,8 @@ const PHOENIX_HEART: AugmentDefinition = {
 
 const HYPER_CARRY: AugmentDefinition = {
   id: 'hyper_carry',
-  name: 'Hyper Carry',
-  description: 'All champions deal +25% damage.',
+  name: 'Hypercarry',
+  description: 'Tous les champions infligent 25 % de dégâts supplémentaires.',
   iconUrl: '/assets/augments/hyper_carry.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Combat,
@@ -333,8 +333,8 @@ const HYPER_CARRY: AugmentDefinition = {
 
 const UNSTOPPABLE: AugmentDefinition = {
   id: 'unstoppable',
-  name: 'Unstoppable',
-  description: 'All champions take 20% reduced damage.',
+  name: 'Inarrêtable',
+  description: 'Tous les champions subissent 20 % de dégâts en moins.',
   iconUrl: '/assets/augments/unstoppable.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Combat,
@@ -351,8 +351,8 @@ const UNSTOPPABLE: AugmentDefinition = {
 
 const GOLDEN_AGE: AugmentDefinition = {
   id: 'golden_age',
-  name: 'Golden Age',
-  description: 'Gain 200 bonus gold after each battle and items cost 15% less.',
+  name: "Âge d'or",
+  description: 'Gagne 200 pièces d’or après chaque combat et réduit le prix des objets de 15 %.',
   iconUrl: '/assets/augments/golden_age.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Economy,

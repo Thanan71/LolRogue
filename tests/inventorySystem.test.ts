@@ -38,7 +38,7 @@ describe('Item Database', () => {
   it('should retrieve item by ID', () => {
     const ls = getItemDefinition('long_sword');
     expect(ls).toBeDefined();
-    expect(ls!.name).toBe('Long Sword');
+    expect(ls!.name).toBe('Épée longue');
     expect(ls!.category).toBe(ItemCategory.Weapon);
     expect(ls!.rarity).toBe(ItemRarity.Common);
     expect(ls!.stackable).toBe(true);

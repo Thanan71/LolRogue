@@ -1,5 +1,6 @@
 import type React from 'react';
 import type { CombatantInfo } from '../../stores/battleStore';
+import { fr } from '@/i18n/fr';
 
 interface Props {
   champion: CombatantInfo | undefined;
@@ -19,7 +20,7 @@ export const TurnIndicator: React.FC<Props> = ({ champion, side }) => {
           color: '#aaa',
         }}
       >
-        En attente...
+        {fr.combat.waiting}
       </div>
     );
   }
@@ -50,7 +51,7 @@ export const TurnIndicator: React.FC<Props> = ({ champion, side }) => {
       />
       <div>
         <div style={{ fontSize: 9, color: '#aaa', textTransform: 'uppercase', letterSpacing: 1 }}>
-          {side === 'player' ? 'Votre tour' : 'Ennemi'}
+          {side === 'player' ? fr.combat.yourTurn : fr.combat.enemy}
         </div>
         <div style={{ fontSize: 13, fontWeight: 'bold', color }}>{champion.name}</div>
       </div>

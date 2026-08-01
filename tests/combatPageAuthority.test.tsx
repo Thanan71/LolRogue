@@ -246,13 +246,13 @@ describe('CombatPage authority finalization', () => {
     const view = render(<CombatPage />);
     const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
 
-    expect(autoToggle).toHaveTextContent('Auto : OFF');
+    expect(autoToggle).toHaveTextContent('Auto : DÉSACTIVÉ');
     expect(combatMocks.autoPlay).toBe(false);
 
     autoToggle.focus();
     await user.keyboard(' ');
 
-    expect(autoToggle).toHaveTextContent('Auto : ON');
+    expect(autoToggle).toHaveTextContent('Auto : ACTIVÉ');
     expect(combatMocks.autoPlay).toBe(true);
   });
 
@@ -274,7 +274,7 @@ describe('CombatPage authority finalization', () => {
 
       const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
       expect(autoToggle).toBeEnabled();
-      expect(autoToggle).toHaveTextContent('Auto : OFF');
+      expect(autoToggle).toHaveTextContent('Auto : DÉSACTIVÉ');
       expect(combatMocks.autoPlay).toBe(false);
 
       act(() => {
@@ -305,12 +305,12 @@ describe('CombatPage authority finalization', () => {
     const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
 
     expect(autoToggle).toBeEnabled();
-    expect(autoToggle).toHaveTextContent('Auto : OFF');
+    expect(autoToggle).toHaveTextContent('Auto : DÉSACTIVÉ');
     expect(combatMocks.autoPlay).toBe(false);
 
     await user.click(autoToggle);
 
-    expect(autoToggle).toHaveTextContent('Auto : ON');
+    expect(autoToggle).toHaveTextContent('Auto : ACTIVÉ');
     expect(autoToggle).toHaveAccessibleName('Désactiver le mode automatique');
     expect(combatMocks.autoPlay).toBe(true);
   });

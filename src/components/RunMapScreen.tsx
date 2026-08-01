@@ -224,7 +224,7 @@ export function RunMapScreen() {
             <button
               style={{ ...btnStyle, padding: '4px 12px', fontSize: 12 }}
               onClick={() => navigate(ROUTES.MENU)}
-              title="Save & return to menu"
+              title={fr.run.saveAndMenu}
             >
               ← Menu
             </button>

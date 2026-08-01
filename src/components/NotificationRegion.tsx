@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
+import { fr } from '@/i18n/fr';
 
 export function NotificationRegion() {
   const saveStatus = useRunStore((state) => state.saveStatus);
@@ -9,8 +10,8 @@ export function NotificationRegion() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (saveStatus === 'saved') setMessage('Run sauvegardée.');
-    if (saveStatus === 'failed') setMessage(saveError || 'La sauvegarde a échoué.');
+    if (saveStatus === 'saved') setMessage(fr.notifications.runSaved);
+    if (saveStatus === 'failed') setMessage(saveError || fr.notifications.saveFailed);
   }, [saveStatus, saveError]);
 
   useEffect(() => {

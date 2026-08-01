@@ -4,9 +4,12 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 
-export function formatDate(value: Date | string): string {
+export function formatDate(
+  value: Date | string,
+  options: Intl.DateTimeFormatOptions = { dateStyle: 'medium' },
+): string {
   const date = typeof value === 'string' ? new Date(value) : value;
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
+  return new Intl.DateTimeFormat(locale, options).format(date);
 }
 
 export function plural(value: number, singular: string, pluralForm = `${singular}s`): string {

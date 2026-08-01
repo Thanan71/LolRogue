@@ -9,8 +9,8 @@ import type { CombatEncounter } from './types';
 export const MID_LANE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'mid_lux',
-    name: 'Final Spark',
-    description: 'A blinding light erupts from the mid lane.',
+    name: 'Éclat final',
+    description: 'Une lumière aveuglante jaillit de la voie du milieu.',
     type: 'combat',
     enemies: [{ championId: 'Lux', statMultiplier: 0.85 }],
     goldReward: 25,
@@ -20,7 +20,7 @@ export const MID_LANE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'mid_annie',
     name: 'Tibbers!',
-    description: 'Annie summons her fiery bear companion.',
+    description: 'Annie invoque son compagnon ours enflammé.',
     type: 'combat',
     enemies: [{ championId: 'Annie', statMultiplier: 0.8 }],
     goldReward: 24,
@@ -29,8 +29,8 @@ export const MID_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'mid_mage_duel',
-    name: 'Mage Duel',
-    description: 'Two powerful mages clash in a battle of magic.',
+    name: 'Duel de mages',
+    description: "Deux puissants mages s'affrontent dans un duel magique.",
     type: 'combat',
     enemies: [
       { championId: 'Lux', statMultiplier: 0.75 },
@@ -42,8 +42,8 @@ export const MID_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'mid_arcane_barrage',
-    name: 'Arcane Barrage',
-    description: 'A devastating barrage of arcane energy fills the air.',
+    name: 'Barrage arcanique',
+    description: "Un barrage dévastateur d'énergie arcanique remplit l'air.",
     type: 'combat',
     enemies: [{ championId: 'Lux', statMultiplier: 1.0 }],
     goldReward: 35,
@@ -52,8 +52,8 @@ export const MID_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'mid_assassin_threat',
-    name: 'Shadow Assassin',
-    description: 'A shadowy figure emerges from the darkness.',
+    name: "Assassin de l'ombre",
+    description: "Une silhouette surgit de l'obscurité.",
     type: 'combat',
     enemies: [{ championId: 'Annie', statMultiplier: 0.9 }],
     goldReward: 32,
@@ -67,8 +67,8 @@ export const MID_LANE_ENCOUNTERS: CombatEncounter[] = [
 export const BOT_LANE_ENCOUNTERS: CombatEncounter[] = [
   {
     id: 'bot_jinx',
-    name: 'Get Excited!',
-    description: 'Jinx rockets toward you with chaotic glee.',
+    name: 'Get Excited !',
+    description: 'Jinx fonce vers vous dans une joie chaotique.',
     type: 'combat',
     enemies: [{ championId: 'Jinx', statMultiplier: 0.85 }],
     goldReward: 28,
@@ -77,8 +77,8 @@ export const BOT_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'bot_ashe',
-    name: 'Enchanted Crystal Arrow',
-    description: 'An enchanted arrow streaks across the battlefield.',
+    name: 'Flèche de cristal enchantée',
+    description: 'Une flèche enchantée traverse le champ de bataille.',
     type: 'combat',
     enemies: [{ championId: 'Ashe', statMultiplier: 0.8 }],
     goldReward: 25,
@@ -87,8 +87,8 @@ export const BOT_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'bot_duo_lane',
-    name: 'Bot Lane Duo',
-    description: 'A marksman and support pair guard the lane.',
+    name: 'Duo de la voie du bas',
+    description: 'Un tireur et un support gardent la voie.',
     type: 'combat',
     enemies: [
       { championId: 'Jinx', statMultiplier: 0.75 },
@@ -100,8 +100,8 @@ export const BOT_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'bot_protected_carry',
-    name: 'Protected Carry',
-    description: 'A well-protected carry stands behind a stalwart defender.',
+    name: 'Carry protégé',
+    description: 'Un carry bien protégé reste derrière un défenseur robuste.',
     type: 'combat',
     enemies: [
       { championId: 'Ashe', statMultiplier: 0.8 },
@@ -113,8 +113,8 @@ export const BOT_LANE_ENCOUNTERS: CombatEncounter[] = [
   },
   {
     id: 'bot_full_team',
-    name: 'Full Bot Lane',
-    description: 'The entire bot lane squad is assembled against you.',
+    name: 'Voie du bas au complet',
+    description: "Toute l'équipe de la voie du bas se dresse contre vous.",
     type: 'combat',
     enemies: [
       { championId: 'Jinx', statMultiplier: 0.75 },

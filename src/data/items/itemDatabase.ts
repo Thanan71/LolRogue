@@ -11,8 +11,8 @@ import { riotItemIconUrl } from '@/config/riotAssets';
 
 const LONG_SWORD: ItemDefinition = {
   id: 'long_sword',
-  name: 'Long Sword',
-  description: 'A simple blade that increases attack power.',
+  name: 'Épée longue',
+  description: "Une lame simple qui augmente les dégâts d'attaque.",
   iconUrl: riotItemIconUrl('long_sword'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
@@ -25,8 +25,8 @@ const LONG_SWORD: ItemDefinition = {
 
 const AMPLIFYING_TOME: ItemDefinition = {
   id: 'amplifying_tome',
-  name: 'Amplifying Tome',
-  description: 'A magical tome that enhances spell power.',
+  name: "Tome d'amplification",
+  description: 'Un tome magique qui augmente la puissance.',
   iconUrl: riotItemIconUrl('amplifying_tome'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
@@ -39,8 +39,8 @@ const AMPLIFYING_TOME: ItemDefinition = {
 
 const CLOTH_ARMOR: ItemDefinition = {
   id: 'cloth_armor',
-  name: 'Cloth Armor',
-  description: 'A simple cloth vest that provides basic protection.',
+  name: 'Armure de tissu',
+  description: 'Une protection légère qui augmente la défense.',
   iconUrl: riotItemIconUrl('cloth_armor'),
   category: ItemCategory.Armor,
   rarity: ItemRarity.Common,
@@ -53,8 +53,8 @@ const CLOTH_ARMOR: ItemDefinition = {
 
 const RUBY_CRYSTAL: ItemDefinition = {
   id: 'ruby_crystal',
-  name: 'Ruby Crystal',
-  description: 'A radiant crystal that bolsters vitality.',
+  name: 'Cristal de rubis',
+  description: 'Un cristal rayonnant qui augmente la vitalité.',
   iconUrl: riotItemIconUrl('ruby_crystal'),
   category: ItemCategory.Accessory,
   rarity: ItemRarity.Common,
@@ -67,8 +67,8 @@ const RUBY_CRYSTAL: ItemDefinition = {
 
 const BOOTS: ItemDefinition = {
   id: 'boots',
-  name: 'Boots',
-  description: 'Basic footwear that increases movement speed.',
+  name: 'Bottes',
+  description: 'Des chaussures qui augmentent la vitesse.',
   iconUrl: riotItemIconUrl('boots'),
   category: ItemCategory.Accessory,
   rarity: ItemRarity.Common,
@@ -82,8 +82,8 @@ const BOOTS: ItemDefinition = {
 
 const DAGGER: ItemDefinition = {
   id: 'dagger',
-  name: 'Dagger',
-  description: 'A quick blade that improves critical strike chance.',
+  name: 'Dague',
+  description: 'Une lame légère qui augmente les chances de coup critique.',
   iconUrl: riotItemIconUrl('dagger'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
@@ -96,8 +96,8 @@ const DAGGER: ItemDefinition = {
 
 const BF_SWORD: ItemDefinition = {
   id: 'bf_sword',
-  name: 'B.F. Sword',
-  description: 'A massive blade that greatly increases attack damage.',
+  name: 'Glaive B. F.',
+  description: "Une lame massive qui augmente fortement les dégâts d'attaque.",
   iconUrl: riotItemIconUrl('bf_sword'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Uncommon,
@@ -114,8 +114,8 @@ const BF_SWORD: ItemDefinition = {
 
 const INFINITY_EDGE: ItemDefinition = {
   id: 'infinity_edge',
-  name: 'Infinity Edge',
-  description: 'Massively increases critical strike damage.',
+  name: "Lame d'infini",
+  description: 'Augmente fortement les dégâts des coups critiques.',
   iconUrl: riotItemIconUrl('infinity_edge'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Legendary,
@@ -126,7 +126,7 @@ const INFINITY_EDGE: ItemDefinition = {
   passive: {
     id: 'ie_passive',
     name: 'Perfection',
-    description: 'Critical strikes deal 35% bonus damage.',
+    description: 'Les coups critiques infligent 35 % de dégâts supplémentaires.',
     trigger: 'on_hit',
     modifiers: [],
     flatValue: 0.35,
@@ -141,16 +141,16 @@ const INFINITY_EDGE: ItemDefinition = {
 
 const RABADONS_DEATHCAP: ItemDefinition = {
   id: 'rabaddons_deathcap',
-  name: "Rabadon's Deathcap",
-  description: 'Dramatically increases ability power.',
+  name: 'Coiffe de Rabadon',
+  description: 'Augmente fortement la puissance.',
   iconUrl: riotItemIconUrl('rabaddons_deathcap'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Legendary,
   stats: [{ stat: 'ap', value: 120, type: 'flat' }],
   passive: {
     id: 'rabadons_passive',
-    name: 'Magical Opus',
-    description: 'Increases total AP by 35%.',
+    name: 'Œuvre magique',
+    description: 'Augmente la puissance totale de 35 %.',
     trigger: 'always',
     modifiers: [{ stat: 'ap', value: 0.35, type: 'percent' }],
   },
@@ -164,8 +164,8 @@ const RABADONS_DEATHCAP: ItemDefinition = {
 
 const SUNFIRE_AEGIS: ItemDefinition = {
   id: 'sunfire_aegis',
-  name: 'Sunfire Aegis',
-  description: 'Burn nearby enemies and gain defensive stats.',
+  name: 'Égide solaire',
+  description: 'Brûle les ennemis proches et renforce les défenses.',
   iconUrl: riotItemIconUrl('sunfire_aegis'),
   category: ItemCategory.Armor,
   rarity: ItemRarity.Epic,
@@ -175,8 +175,8 @@ const SUNFIRE_AEGIS: ItemDefinition = {
   ],
   passive: {
     id: 'sunfire_passive',
-    name: 'Immolate',
-    description: 'Deal 15 magic damage to all enemies each turn.',
+    name: 'Immolations',
+    description: 'Inflige 15 dégâts magiques à tous les ennemis à chaque tour.',
     trigger: 'turn_start',
     modifiers: [],
     flatValue: 15,
@@ -191,8 +191,8 @@ const SUNFIRE_AEGIS: ItemDefinition = {
 
 const GUARDIAN_ANGEL: ItemDefinition = {
   id: 'guardian_angel',
-  name: 'Guardian Angel',
-  description: 'Revives the holder upon death with 30% HP.',
+  name: 'Ange gardien',
+  description: 'Réanime son porteur avec 30 % de ses PV.',
   iconUrl: riotItemIconUrl('guardian_angel'),
   category: ItemCategory.Armor,
   rarity: ItemRarity.Legendary,
@@ -202,8 +202,8 @@ const GUARDIAN_ANGEL: ItemDefinition = {
   ],
   passive: {
     id: 'ga_passive',
-    name: 'Rebirth',
-    description: 'Upon taking lethal damage, revive with 30% HP.',
+    name: 'Renaissance',
+    description: 'Après des dégâts mortels, revient avec 30 % de ses PV.',
     trigger: 'below_hp_threshold',
     modifiers: [],
     flatValue: 0.3,
@@ -220,8 +220,8 @@ const GUARDIAN_ANGEL: ItemDefinition = {
 
 const BLOODTHIRSTER: ItemDefinition = {
   id: 'bloodthirster',
-  name: 'Bloodthirster',
-  description: 'Gain lifesteal on attacks.',
+  name: 'Soif-de-sang',
+  description: 'Confère du vol de vie aux attaques.',
   iconUrl: riotItemIconUrl('bloodthirster'),
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Legendary,
@@ -231,8 +231,8 @@ const BLOODTHIRSTER: ItemDefinition = {
   ],
   passive: {
     id: 'bt_passive',
-    name: 'Blood Drain',
-    description: 'Heal for 18% of damage dealt.',
+    name: 'Drain de sang',
+    description: 'Récupère 18 % des dégâts infligés sous forme de PV.',
     trigger: 'on_hit',
     modifiers: [],
     flatValue: 0.18,
@@ -247,8 +247,8 @@ const BLOODTHIRSTER: ItemDefinition = {
 
 const SPIRIT_VISAGE: ItemDefinition = {
   id: 'spirit_visage',
-  name: 'Spirit Visage',
-  description: 'Increases all healing received.',
+  name: 'Visage spirituel',
+  description: 'Augmente tous les soins reçus.',
   iconUrl: riotItemIconUrl('spirit_visage'),
   category: ItemCategory.Armor,
   rarity: ItemRarity.Epic,
@@ -258,8 +258,8 @@ const SPIRIT_VISAGE: ItemDefinition = {
   ],
   passive: {
     id: 'sv_passive',
-    name: 'Boundless Vitality',
-    description: 'Increases all healing and shielding received by 25%.',
+    name: 'Vitalité absolue',
+    description: 'Augmente de 25 % tous les soins et boucliers reçus.',
     trigger: 'always',
     modifiers: [],
     flatValue: 0.25,
@@ -278,16 +278,16 @@ const SPIRIT_VISAGE: ItemDefinition = {
 
 const HEALTH_POTION: ItemDefinition = {
   id: 'health_potion',
-  name: 'Health Potion',
-  description: 'Restores 150 HP over 3 turns.',
+  name: 'Potion de soin',
+  description: 'Restaure 150 PV en 3 tours.',
   iconUrl: riotItemIconUrl('health_potion'),
   category: ItemCategory.Consumable,
   rarity: ItemRarity.Common,
   stats: [],
   passive: {
     id: 'hp_pot_passive',
-    name: 'Sip',
-    description: 'Restore 50 HP per turn for 3 turns.',
+    name: 'Gorgée',
+    description: 'Restaure 50 PV par tour pendant 3 tours.',
     trigger: 'combat_start',
     modifiers: [],
     flatValue: 50,
@@ -300,16 +300,16 @@ const HEALTH_POTION: ItemDefinition = {
 
 const ELIXIR_OF_WRATH: ItemDefinition = {
   id: 'elixir_of_wrath',
-  name: 'Elixir of Wrath',
-  description: 'Temporarily grants bonus attack damage.',
+  name: 'Élixir de colère',
+  description: "Augmente temporairement les dégâts d'attaque.",
   iconUrl: riotItemIconUrl('elixir_of_wrath'),
   category: ItemCategory.Consumable,
   rarity: ItemRarity.Uncommon,
   stats: [],
   passive: {
     id: 'elixir_wrath_passive',
-    name: 'Wrath',
-    description: 'Gain +30 ATK for the duration of combat.',
+    name: 'Colère',
+    description: "Confère +30 dégâts d'attaque pendant le combat.",
     trigger: 'combat_start',
     modifiers: [{ stat: 'atk', value: 30, type: 'flat' }],
   },
