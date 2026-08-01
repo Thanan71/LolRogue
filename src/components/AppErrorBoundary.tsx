@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { logger } from '@/utils/logger';
+import { PageShell, StateView } from '@/components/ui';
 
 interface Props {
   children: ReactNode;
@@ -32,21 +33,24 @@ export class AppErrorBoundary extends Component<Props, State> {
     if (!this.state.error) return this.props.children;
 
     return (
-      <main className="app-error" role="alert">
-        <h1>Une erreur inattendue est survenue</h1>
-        <p>La partie locale est conservée. Recharge la page pour reprendre.</p>
-        <button type="button" onClick={this.reset}>
-          Retour au menu
-        </button>
-      </main>
+      <PageShell width="narrow" centered>
+        <StateView
+          kind="error"
+          title="Une erreur inattendue est survenue"
+          actionLabel="Retour au menu"
+          onAction={this.reset}
+        >
+          La partie locale est conservée. Recharge la page pour reprendre.
+        </StateView>
+      </PageShell>
     );
   }
 }
 
 export function RouteLoadingFallback() {
   return (
-    <div className="route-loading" role="status" aria-live="polite">
-      Chargement…
-    </div>
+    <PageShell width="narrow" centered>
+      <StateView kind="loading" title="Chargement…" />
+    </PageShell>
   );
 }

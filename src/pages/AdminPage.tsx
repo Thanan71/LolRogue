@@ -480,7 +480,7 @@ export function AdminPage() {
                     border: '1px solid rgba(200, 170, 110, 0.3)',
                     color: '#c8aa6e',
                     borderRadius: '4px',
-                    fontFamily: 'Cinzel, Georgia, serif',
+                    fontFamily: 'var(--font-display)',
                   }}
                 />
 
@@ -498,7 +498,7 @@ export function AdminPage() {
                     border: '1px solid rgba(200, 170, 110, 0.3)',
                     color: '#c8aa6e',
                     borderRadius: '4px',
-                    fontFamily: 'Cinzel, Georgia, serif',
+                    fontFamily: 'var(--font-display)',
                   }}
                 />
 

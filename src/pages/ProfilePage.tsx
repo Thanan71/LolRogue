@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { RepositoryContainerFactory } from '@/services/container';
@@ -23,37 +24,42 @@ export function ProfilePage() {
   }, [player, isGuest]);
 
   return (
-    <main style={{ maxWidth: 900, margin: '0 auto', padding: 24, color: '#e6edf3' }}>
-      <button type="button" onClick={() => navigate(ROUTES.MENU)}>
-        ← Menu
-      </button>
-      <h1>Profil</h1>
+    <PageShell width="content">
+      <PageHeader
+        title="Profil"
+        subtitle="Progression et historique"
+        leading={
+          <Button variant="ghost" onClick={() => navigate(ROUTES.MENU)}>
+            ← Menu
+          </Button>
+        }
+      />
       {isGuest || !player ? (
-        <p>Connectez-vous pour conserver votre profil et votre historique de runs.</p>
+        <StateView kind="empty" title="Profil local">
+          Connectez-vous pour conserver votre profil et votre historique de runs.
+        </StateView>
       ) : (
         <>
-          <section aria-label="Player statistics">
+          <Panel aria-label="Player statistics">
             <h2>{player.display_name || player.username}</h2>
             <p>
               Niveau {player.level} · {player.total_candies} candies · {player.total_runs_completed}{' '}
               runs · {player.total_wins} victoires
             </p>
-          </section>
-          <section aria-label="Run history">
+          </Panel>
+          <Panel aria-label="Run history">
             <h2>Historique récent</h2>
-            {error && <p role="alert">{error}</p>}
-            {!error && runs.length === 0 && <p>Aucune run enregistrée.</p>}
-            <ul style={{ listStyle: 'none', padding: 0 }}>
+            {error && (
+              <StateView kind="error" title="Historique indisponible">
+                {error}
+              </StateView>
+            )}
+            {!error && runs.length === 0 && (
+              <StateView kind="empty" title="Aucune run enregistrée" />
+            )}
+            <ul className="ui-list">
               {runs.map((run) => (
-                <li
-                  key={run.id}
-                  style={{
-                    border: '1px solid #333',
-                    borderRadius: 8,
-                    padding: 12,
-                    marginBottom: 8,
-                  }}
-                >
+                <li key={run.id} className="ui-list-item">
                   <strong>{run.won ? 'Victoire' : 'Défaite'}</strong> — niveau {run.run_level},{' '}
                   {run.waves_completed} vagues, {run.total_kills} éliminations
                   <br />
@@ -61,9 +67,9 @@ export function ProfilePage() {
                 </li>
               ))}
             </ul>
-          </section>
+          </Panel>
         </>
       )}
-    </main>
+    </PageShell>
   );
 }

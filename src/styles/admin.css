@@ -1,7 +1,7 @@
 /* Admin Panel Styles */
 
 .admin-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(135deg, #0a1428 0%, #1a1f3a 50%, #0f1e2d 100%);
   color: #c8aa6e;
   padding: 2rem;
@@ -45,7 +45,7 @@
   border: 1px solid rgba(200, 170, 110, 0.3);
   color: #c8aa6e;
   font-size: 0.9rem;
-  font-family: "Cinzel", Georgia, serif;
+  font-family: var(--font-display);
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.3s ease;
@@ -84,7 +84,7 @@
   border: 2px solid rgba(200, 170, 110, 0.3);
   color: #c8aa6e;
   font-size: 1rem;
-  font-family: "Cinzel", Georgia, serif;
+  font-family: var(--font-display);
   cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 8px;
@@ -179,7 +179,7 @@
   border: none;
   color: #0a1428;
   font-size: 1rem;
-  font-family: "Cinzel", Georgia, serif;
+  font-family: var(--font-display);
   cursor: pointer;
   border-radius: 8px;
   font-weight: bold;
@@ -226,7 +226,7 @@
   border: 1px solid rgba(200, 170, 110, 0.3);
   color: #c8aa6e;
   border-radius: 6px;
-  font-family: "Cinzel", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 0.9rem;
   cursor: pointer;
 }
@@ -388,7 +388,7 @@
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
-  font-family: "Cinzel", Georgia, serif;
+  font-family: var(--font-display);
 }
 
 .runs-actions button:hover:not(:disabled) {

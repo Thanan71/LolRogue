@@ -9,11 +9,11 @@
 .starter-select {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   min-height: 100dvh;
   background: linear-gradient(135deg, #0a0a1a 0%, #0d1117 50%, #1a1a2e 100%);
   color: #e0d5b7;
-  font-family: "Cinzel", "Georgia", serif;
+  font-family: var(--font-ui);
   overflow-x: clip;
   display: flex;
   flex-direction: column;
@@ -40,7 +40,7 @@
   background: rgba(200, 170, 110, 0.06);
   border: 1px solid rgba(200, 170, 110, 0.35);
   border-radius: 6px;
-  font-family: "Cinzel", "Georgia", serif;
+  font-family: var(--font-display);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -148,7 +148,7 @@
   right: 12px;
   background: linear-gradient(135deg, #c8aa6e, #ffd700);
   color: #0a0a1a;
-  font-family: "Cinzel", serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.7rem;
   letter-spacing: 0.1em;
@@ -490,7 +490,7 @@
   justify-content: center;
   width: min(100%, 360px);
   min-height: 48px;
-  font-family: "Cinzel", serif;
+  font-family: var(--font-display);
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.15em;

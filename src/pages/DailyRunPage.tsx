@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { DailyLeaderboard } from '@/components/DailyLeaderboard';
+import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { supabase } from '@/services/supabaseClient';
@@ -59,24 +60,24 @@ export function DailyRunPage() {
   const attemptUsed = challenge?.hasAttempted ?? hasCompletedToday;
 
   return (
-    <main className="daily-run-page">
-      <header className="daily-run-page__header">
-        <button
-          className="daily-run-page__back"
-          onClick={() => {
-            playUIClick();
-            navigate(ROUTES.MENU);
-          }}
-        >
-          ← Back
-        </button>
-        <div>
-          <h1>Daily Run</h1>
-          <p>One shared challenge and seed every day.</p>
-        </div>
-      </header>
+    <PageShell width="content" className="daily-run-page">
+      <PageHeader
+        title="Daily Run"
+        subtitle="One shared challenge and seed every day."
+        leading={
+          <Button
+            variant="ghost"
+            onClick={() => {
+              playUIClick();
+              navigate(ROUTES.MENU);
+            }}
+          >
+            ← Back
+          </Button>
+        }
+      />
 
-      <section className="daily-run-page__challenge">
+      <Panel className="daily-run-page__challenge">
         <div>
           <h2>Today’s challenge</h2>
           <p>
@@ -90,12 +91,11 @@ export function DailyRunPage() {
           )}
         </div>
         {availabilityError ? (
-          <p role="alert" className="daily-run-page__error">
+          <StateView kind="error" title="Daily unavailable">
             {availabilityError}
-          </p>
+          </StateView>
         ) : (
-          <button
-            className="daily-run-page__start"
+          <Button
             disabled={isChecking || (attemptUsed && !canResume)}
             onClick={() => {
               playUIClick();
@@ -111,11 +111,11 @@ export function DailyRunPage() {
                 : attemptUsed
                   ? 'Attempt used today'
                   : 'Start Daily Run'}
-          </button>
+          </Button>
         )}
-      </section>
+      </Panel>
 
       <DailyLeaderboard />
-    </main>
+    </PageShell>
   );
 }

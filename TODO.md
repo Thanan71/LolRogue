@@ -767,21 +767,27 @@ réattribuent la session. `startRun` refuse explicitement `auth_not_ready`.
 
 ### P1-UX-01 — Créer un shell responsive commun
 
-- [ ] Créer des primitives partagées : `PageShell`, header, footer, panel, bouton,
+- [x] Créer des primitives partagées : `PageShell`, header, footer, panel, bouton,
   dialogue, tabs, champ, empty/error/loading state.
-- [ ] Remplacer les layouts `fixed`/`100vh` par `100dvh`, scroll local explicite et
+- [x] Remplacer les layouts `fixed`/`100vh` par `100dvh`, scroll local explicite et
   safe areas.
-- [ ] Définir breakpoints par besoin du contenu, pas par appareil.
-- [ ] Réduire les styles inline afin de rendre états et media queries testables.
-- [ ] Ajouter des tokens communs d'espacement, rayons, typographie, couleurs, focus,
+- [x] Définir breakpoints par besoin du contenu, pas par appareil.
+- [x] Réduire les styles inline afin de rendre états et media queries testables.
+- [x] Ajouter des tokens communs d'espacement, rayons, typographie, couleurs, focus,
   succès, avertissement et danger.
-- [ ] Choisir une direction visuelle unique entre l'univers or/serif du menu et les
+- [x] Choisir une direction visuelle unique entre l'univers or/serif du menu et les
   écrans slate/sans du jeu.
-- [ ] Supprimer l'`@import` Google Cinzel bloqué par la CSP, ou auto-héberger une
+- [x] Supprimer l'`@import` Google Cinzel bloqué par la CSP, ou auto-héberger une
   police optimisée et licenciée avec fallback système.
 
 **Acceptation :** les pages partagent les mêmes composants et aucune action
 principale ne dépend d'un positionnement absolu fragile.
+
+**Statut : terminé.** Le kit `components/ui` fournit shell, header/footer, surfaces,
+contrôles, dialogue et états. Settings, Credits, Profil, Daily, 404 et les états de
+route l'utilisent réellement. Les tokens et la pile système sans police distante
+sont centralisés ; les shells utilisent `100dvh`, safe areas et reflow piloté par
+le contenu. Le seul `fixed` restant est le backdrop modal intentionnel.
 
 ### P1-UX-02 — Réparer les écrans de jeu mobiles
 
