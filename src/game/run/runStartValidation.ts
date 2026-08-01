@@ -3,18 +3,21 @@ import { validateTeamChampionIds } from './teamRules';
 
 const STARTER_SLOT_UNLOCKS = ['starter_slot_2', 'starter_slot_3'] as const;
 
-export interface RunStartTeamValidation {
-  valid: boolean;
-  championIds: string[];
-  error: string | null;
-  code:
-    | 'invalid_team_size'
-    | 'duplicate_champion'
-    | 'unknown_champion'
-    | 'unsupported_champion'
-    | 'starter_slots_locked'
-    | null;
-}
+type RunStartTeamErrorCode =
+  | 'invalid_team_size'
+  | 'duplicate_champion'
+  | 'unknown_champion'
+  | 'unsupported_champion'
+  | 'starter_slots_locked';
+
+export type RunStartTeamValidation =
+  | { valid: true; championIds: string[]; error: null; code: null }
+  | {
+      valid: false;
+      championIds: [];
+      error: string;
+      code: RunStartTeamErrorCode;
+    };
 
 export function getUnlockedStarterSlotCount(unlockedIds: Iterable<string>): number {
   const unlocks = new Set(unlockedIds);

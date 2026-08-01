@@ -1,3 +1,4 @@
+import { recordTechnicalEvent } from '@/utils/observability';
 import {
   createPlaceholderSvg,
   type ImageLoaderStats,
@@ -66,8 +67,12 @@ export class ImageLoader {
           this.load(entry.sources, {
             cacheKey: entry.cacheKey,
             timeout: options.timeout,
-          }).catch((err) => {
-            console.warn(`[ImageLoader] Preload failed for ${entry.cacheKey}:`, err);
+          }).catch(() => {
+            recordTechnicalEvent({
+              type: 'asset_failure',
+              assetKind: 'preload',
+              cacheKey: entry.cacheKey,
+            });
             return this._fallbackResult(entry.cacheKey);
           }),
         ),

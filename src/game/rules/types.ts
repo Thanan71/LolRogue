@@ -1,5 +1,5 @@
-import type { StatKey } from '@/game/effects/types';
 import type { ActionType, TeamSide } from '@/game/battle/types';
+import type { StatKey } from '@/game/effects/types';
 import type { EnhancementEffect, EnhancementStatBonuses } from '@/types/enhancementTree';
 import type { InventoryEntry } from '@/types/run';
 

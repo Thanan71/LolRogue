@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
+import { formatNumber } from '@/i18n/format';
+import { fr } from '@/i18n/fr';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
 import { getTodayKey, msUntilMidnight } from '@/utils/dailySeed';
-import { formatNumber } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
 
 /**
  * DailyLeaderboard — displays today's daily run scores.

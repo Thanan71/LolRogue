@@ -1,12 +1,9 @@
 import { championDB } from '@/data/championDatabase';
-import { BattleManager } from '@/game/battle/BattleManager';
 import { decodeCombatActionTrace } from '@/game/battle/actionTrace';
+import { BattleManager } from '@/game/battle/BattleManager';
 import { BattlePhase, type BattleTeam } from '@/game/battle/types';
 import type { ChampionInstance, SpellSlot } from '@/game/ChampionInstance';
 import { validateItemAddition, validateItemEquipment } from '@/game/inventory/inventoryRules';
-import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
-import { buildCombatRuleLoadout } from '@/game/rules/loadout';
-import { assertValidRuleCatalogs } from '@/game/rules/catalogValidation';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { findNode } from '@/game/map/mapUtils';
 import {
@@ -20,14 +17,17 @@ import {
   type ShopItem,
   type TreasureEncounter,
 } from '@/game/map/types';
-import { completeCombatProgression, transitionToNextBiome } from '@/game/run/runProgression';
+import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
+import { assertValidRuleCatalogs } from '@/game/rules/catalogValidation';
+import { buildCombatRuleLoadout } from '@/game/rules/loadout';
 import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
+import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
+import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
 import {
   buildRunPlayerTeam,
   calculateRunMemberMaxHp,
   createRunAugmentManager,
 } from '@/game/run/runCombatant';
-import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
 import {
   getItemSaleGold,
   getShopItemCost,
@@ -37,9 +37,6 @@ import {
   resolveRestHp,
   resolveRunEvent,
 } from '@/game/run/runEncounterRules';
-import { canUpgradeSpell, queueSpellUpgradeChoices } from '@/game/run/spellUpgradeRules';
-import { validateTeamAddition } from '@/game/run/teamRules';
-import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import {
   buildChampionRunStats,
   cloneRunLedger,
@@ -50,14 +47,17 @@ import {
   recordGoldSpend,
   recordItemLedgerEvent,
 } from '@/game/run/runLedger';
+import { completeCombatProgression, transitionToNextBiome } from '@/game/run/runProgression';
+import { canUpgradeSpell, queueSpellUpgradeChoices } from '@/game/run/spellUpgradeRules';
+import { validateTeamAddition } from '@/game/run/teamRules';
 import {
   type InventoryEntry,
   type Item,
+  MAX_INVENTORY_ITEMS,
+  MAX_TEAM_SIZE,
   type RunItemLedgerAction,
   type RunLedger,
   type RunLedgerSource,
-  MAX_INVENTORY_ITEMS,
-  MAX_TEAM_SIZE,
 } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
 import {

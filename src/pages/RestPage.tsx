@@ -1,16 +1,16 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
-import { fr } from '@/i18n/fr';
+import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
-import type { RestEncounter } from '@/game/map/types';
+import { getNodeEncounter } from '@/game/map/mapUtils';
 import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
 import { resolveRestHp } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { fr } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
-import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
@@ -46,9 +46,7 @@ export function RestPage() {
   const [healed, setHealed] = useState(wasClaimed);
 
   const encounter = useMemo(() => {
-    const node = getCurrentNode();
-    if (node?.encounter?.type === 'rest') return node.encounter as RestEncounter;
-    return null;
+    return getNodeEncounter(getCurrentNode(), 'rest');
   }, [getCurrentNode]);
 
   const healPercent = encounter?.healPercent ?? 0.5;

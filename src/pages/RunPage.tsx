@@ -1,14 +1,14 @@
 import { Navigate } from 'react-router-dom';
 import { playUIClick } from '@/audio';
 import { RunMapScreen } from '@/components/RunMapScreen';
-import { getRunLifecyclePhase } from '@/game/run/runLifecycle';
-import { getPendingEncounterRoute } from '@/game/run/routeAccess';
+import { ROUTES } from '@/config/routes';
 import { isCurrentEncounterValid } from '@/game/map/mapProgression';
+import { getPendingEncounterRoute } from '@/game/run/routeAccess';
+import { getRunLifecyclePhase } from '@/game/run/runLifecycle';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
-import { ROUTES } from '@/config/routes';
-import { useRunStore } from '@/stores/runStore';
 import { fr } from '@/i18n/fr';
+import { useRunStore } from '@/stores/runStore';
 
 export function RunPage() {
   useRunImagePreload();

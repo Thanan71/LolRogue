@@ -1,13 +1,13 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { AdminRoute } from './components/AdminRoute';
+import { RouteLoadingFallback } from './components/AppErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { RouteLoadingFallback } from './components/AppErrorBoundary';
 import { RunLifecycleRoute } from './components/RunLifecycleRoute';
-import { getTextSizeMultiplier, useSettingsStore } from './stores/settingsStore';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
+import { getTextSizeMultiplier, useSettingsStore } from './stores/settingsStore';
+import { installGlobalErrorCapture } from './utils/observability';
 import './styles/starter-select.css';
 
 assertValidRuleCatalogs();
@@ -147,6 +147,10 @@ const TreasurePage = lazy(() =>
 
 export default function App() {
   const textSize = useSettingsStore((state) => state.textSize);
+
+  useEffect(() => {
+    return installGlobalErrorCapture();
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.fontSize = `${16 * getTextSizeMultiplier(textSize)}px`;

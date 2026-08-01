@@ -6,8 +6,8 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database';
 import type { DailyChallenge, DailyLeaderboardEntry } from '@/types/dailyRun';
+import type { Database } from '@/types/database';
 import type { AuthorityDifficulty, RunAttemptStatus } from '@/types/runAttempt';
 import type {
   IDailyRunRepository,

@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useEffect, useRef } from 'react';
-import { useBattleStore } from '../../stores/battleStore';
 import { fr } from '@/i18n/fr';
+import { useBattleStore } from '../../stores/battleStore';
 
 const colors: Record<string, string> = {
   damage: '#ff4444',

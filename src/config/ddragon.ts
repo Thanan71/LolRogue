@@ -57,7 +57,7 @@ export async function fetchLatestVersion(): Promise<string> {
   try {
     const response = await fetch(DDRAGON_CONFIG.versionsUrl);
     if (!response.ok) {
-      console.warn(`[DDragon] Failed to fetch versions: ${response.status}`);
+      logger.warn(`[DDragon] Failed to fetch versions: ${response.status}`);
       return DDRAGON_VERSION;
     }
     const versions: string[] = await response.json();
@@ -67,7 +67,9 @@ export async function fetchLatestVersion(): Promise<string> {
     }
     return DDRAGON_VERSION;
   } catch (error) {
-    console.warn('[DDragon] Error fetching version, using fallback:', error);
+    logger.warn('[DDragon] Error fetching version, using fallback:', error);
     return DDRAGON_VERSION;
   }
 }
+
+import { logger } from '@/utils/logger';

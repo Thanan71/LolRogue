@@ -5,7 +5,7 @@ import { validateItemAddition } from '@/game/inventory/inventoryRules';
 import { getBiomeBoss, getRandomEncounter } from '@/game/map/encounters';
 import type { CombatEncounter, EnemyDefinition } from '@/game/map/types';
 import { NodeType } from '@/game/map/types';
-import type { AuthorityDifficulty } from '@/types/runAttempt';
+import type { ItemDefinition } from '@/types/inventory';
 import {
   BIOME_INFO,
   type Biome,
@@ -14,7 +14,7 @@ import {
   type ItemStatBonuses,
   MAX_INVENTORY_ITEMS,
 } from '@/types/run';
-import type { ItemDefinition } from '@/types/inventory';
+import type { AuthorityDifficulty } from '@/types/runAttempt';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateXpGain } from '@/utils/xpSystem';
 import { DIFFICULTY_RULES } from './difficultyRules';

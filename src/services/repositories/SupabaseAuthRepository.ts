@@ -6,6 +6,7 @@
  */
 
 import type { Session, Subscription, SupabaseClient, User } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
 import type {
   AuthResponseResult,
   IAuthRepository,
@@ -13,9 +14,9 @@ import type {
 } from '../interfaces/IAuthRepository';
 
 export class SupabaseAuthRepository implements IAuthRepository {
-  private supabase: SupabaseClient;
+  private supabase: SupabaseClient<Database>;
 
-  constructor(supabase: SupabaseClient) {
+  constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase;
   }
 

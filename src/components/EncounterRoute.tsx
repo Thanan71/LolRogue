@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { getRunLifecyclePhase } from '@/game/run/runLifecycle';
-import { isEncounterRouteAllowed } from '@/game/run/routeAccess';
 import { ROUTES } from '@/config/routes';
+import { isEncounterRouteAllowed } from '@/game/run/routeAccess';
+import { getRunLifecyclePhase } from '@/game/run/runLifecycle';
 import { useRunStore } from '@/stores/runStore';
 import type { NodeType } from '@/types/run';
 

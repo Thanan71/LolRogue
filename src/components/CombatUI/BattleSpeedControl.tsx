@@ -1,6 +1,6 @@
 import type React from 'react';
-import { type BattleSpeed, useSettingsStore } from '../../stores/settingsStore';
 import { fr } from '@/i18n/fr';
+import { type BattleSpeed, useSettingsStore } from '../../stores/settingsStore';
 
 export const BattleSpeedControl: React.FC = () => {
   const speed = useSettingsStore((s) => s.battleSpeed);

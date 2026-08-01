@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
-import { fr } from '@/i18n/fr';
-import type { TreasureEncounter } from '@/game/map/types';
-import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ROUTES } from '@/config/routes';
+import { getNodeEncounter } from '@/game/map/mapUtils';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 
 type TreasureItemDisposition = 'added' | 'left_full' | 'already_resolved' | 'none';
@@ -27,9 +27,7 @@ export function TreasurePage() {
   );
 
   const encounter = useMemo(() => {
-    const node = getCurrentNode();
-    if (node?.encounter?.type === 'treasure') return node.encounter as TreasureEncounter;
-    return null;
+    return getNodeEncounter(getCurrentNode(), 'treasure');
   }, [getCurrentNode]);
 
   const handleCollect = useCallback(() => {

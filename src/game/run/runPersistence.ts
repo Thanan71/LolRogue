@@ -1,17 +1,17 @@
-import { findNode } from '@/game/map/mapUtils';
 import {
   deriveLegacyFrontier,
   isCurrentEncounterValid,
   synchronizeMapFrontier,
   toEncounterNodeType,
 } from '@/game/map/mapProgression';
-import { normalizeRunDomainState } from '@/game/run/runDomainInvariants';
+import { findNode } from '@/game/map/mapUtils';
 import { usesCanonicalProgression } from '@/game/run/runAuthorityJournal';
+import { normalizeRunDomainState } from '@/game/run/runDomainInvariants';
 import { cloneRunLedger, migrateLegacyStatsToLedger } from '@/game/run/runLedger';
 import { generateAugmentChoices } from '@/game/run/runProgression';
+import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import type { RunState } from '@/types/run';
 import { isRecord, recoverVersionedState } from '@/utils/persistence';
-import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 
 export const RUN_STORAGE_KEY = 'lolrogue-run-storage';
 export const RUN_SCHEMA_VERSION = 7;

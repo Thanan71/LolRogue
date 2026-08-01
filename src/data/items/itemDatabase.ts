@@ -2,8 +2,8 @@
  * Item Database — all item definitions for the roguelike run.
  */
 
-import { ItemCategory, type ItemDefinition, ItemRarity } from '@/types/inventory';
 import { riotItemIconUrl } from '@/config/riotAssets';
+import { ItemCategory, type ItemDefinition, ItemRarity } from '@/types/inventory';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1 — COMPONENTS

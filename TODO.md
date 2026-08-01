@@ -1077,23 +1077,31 @@ comportement sans rendu React.
 
 ### P2-ARCH-02 — Renforcer types, erreurs et observabilité
 
-- [ ] Utiliser des unions discriminées pour commandes, résultats et erreurs domaine.
-- [ ] Éliminer les casts qui transforment un `Exit` en faux encounter.
-- [ ] Générer et vérifier les types Supabase depuis le schéma appliqué.
-- [ ] Supprimer les modèles DB manuels concurrents et typer `SupabaseClient` avec les
+- [x] Utiliser des unions discriminées pour commandes, résultats et erreurs domaine.
+- [x] Éliminer les casts qui transforment un `Exit` en faux encounter.
+- [x] Générer et vérifier les types Supabase depuis le schéma appliqué.
+- [x] Supprimer les modèles DB manuels concurrents et typer `SupabaseClient` avec les
   types générés dans tous les repositories.
-- [ ] Faire passer les pages/services par les repositories ou assumer et documenter
+- [x] Faire passer les pages/services par les repositories ou assumer et documenter
   les exceptions ; supprimer le container d'injection/caching s'il reste décoratif.
-- [ ] Casser le couplage circulaire `runStore` ↔ `runService`.
-- [ ] Centraliser logs structurés sans données personnelles ni bruit en production.
-- [ ] Ajouter capture des erreurs front et corrélation avec `runId`/commande, après
+- [x] Casser le couplage circulaire `runStore` ↔ `runService`.
+- [x] Centraliser logs structurés sans données personnelles ni bruit en production.
+- [x] Ajouter capture des erreurs front et corrélation avec `runId`/commande, après
   validation de la politique de confidentialité.
-- [ ] Définir budgets de log, rétention et accès admin.
-- [ ] Ajouter des métriques techniques : échecs de save, retries, assets cassés,
+- [x] Définir budgets de log, rétention et accès admin.
+- [x] Ajouter des métriques techniques : échecs de save, retries, assets cassés,
   erreurs de réhydratation et durée des transitions.
 
 **Acceptation :** une erreur critique est actionnable sans exposer de secret ni
 nécessiter de reproduire manuellement toute la run.
+
+**Livré :** les modèles persistés sont dérivés de `Database`, dont la dérive est
+bloquée par `db:types:check`. Les encounters utilisent un garde discriminé qui exclut
+explicitement `Start`/`Exit`, et `runService` reçoit désormais le joueur en entrée au
+lieu d'importer le store. Le singleton et les options de cache inactives du container
+ont été supprimés ; les exceptions d'accès direct sont documentées. L'observabilité
+opt-in nettoie et borne les événements, capture les erreurs front et mesure save,
+retry, asset, réhydratation et transitions avec corrélation technique.
 
 ### P2-SEC-01 — Durcir les outils d'administration
 

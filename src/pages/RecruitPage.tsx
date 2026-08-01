@@ -1,12 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
-import { fr } from '@/i18n/fr';
+import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
-import type { RecruitEncounter } from '@/game/map/types';
+import { getNodeEncounter } from '@/game/map/mapUtils';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/config/routes';
+import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 
 export function RecruitPage() {
@@ -25,9 +25,7 @@ export function RecruitPage() {
   const [commandError, setCommandError] = useState<string | null>(null);
 
   const encounter = useMemo(() => {
-    const node = getCurrentNode();
-    if (node?.encounter?.type === 'recruit') return node.encounter as RecruitEncounter;
-    return null;
+    return getNodeEncounter(getCurrentNode(), 'recruit');
   }, [getCurrentNode]);
 
   const champ = encounter ? championDB.getById(encounter.championId) : null;

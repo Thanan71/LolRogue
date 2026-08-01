@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { fr } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
-import { fr } from '@/i18n/fr';
 
 export function NotificationRegion() {
   const saveStatus = useRunStore((state) => state.saveStatus);

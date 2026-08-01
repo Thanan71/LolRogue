@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useSettingsStore } from '@/stores/settingsStore';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 interface Particle {
   x: number;

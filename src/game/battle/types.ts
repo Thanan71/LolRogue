@@ -4,9 +4,9 @@
  * Defines the state machine and data structures for 5v5 combat.
  */
 
+import type { TargetingType } from '../../types/champion';
 import type { ChampionInstance } from '../ChampionInstance';
 import type { EffectManager } from '../effects/EffectManager';
-import type { TargetingType } from '../../types/champion';
 
 // ─── Teams ──────────────────────────────────────────────────────────────────
 

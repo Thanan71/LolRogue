@@ -1,5 +1,5 @@
 import { findNode } from '@/game/map/mapUtils';
-import { NodeType, type NodeMap } from '@/game/map/types';
+import { type NodeMap, NodeType } from '@/game/map/types';
 import { mapContainerStyle } from './runMapStyles';
 
 const NODE_COLORS: Record<string, string> = {

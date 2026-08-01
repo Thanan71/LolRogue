@@ -1,21 +1,30 @@
 import type { NodeType as RunNodeType } from '@/types/run';
+import { findNode } from './mapUtils';
 import type { MapNode, NodeMap } from './types';
 import { NodeType } from './types';
-import { findNode } from './mapUtils';
-
-const ENCOUNTER_NODE_TYPES = new Set<NodeType>([
-  NodeType.Combat,
-  NodeType.Elite,
-  NodeType.Boss,
-  NodeType.Shop,
-  NodeType.Rest,
-  NodeType.Event,
-  NodeType.Recruit,
-  NodeType.Treasure,
-]);
 
 export function toEncounterNodeType(node: MapNode): RunNodeType | null {
-  return ENCOUNTER_NODE_TYPES.has(node.type) ? (node.type as RunNodeType) : null;
+  switch (node.type) {
+    case NodeType.Combat:
+      return 'combat';
+    case NodeType.Elite:
+      return 'elite';
+    case NodeType.Boss:
+      return 'boss';
+    case NodeType.Shop:
+      return 'shop';
+    case NodeType.Rest:
+      return 'rest';
+    case NodeType.Event:
+      return 'event';
+    case NodeType.Recruit:
+      return 'recruit';
+    case NodeType.Treasure:
+      return 'treasure';
+    case NodeType.Start:
+    case NodeType.Exit:
+      return null;
+  }
 }
 
 export function synchronizeMapFrontier(

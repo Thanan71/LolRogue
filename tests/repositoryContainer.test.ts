@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   RepositoryContainer,
   RepositoryContainerFactory,
@@ -9,8 +9,6 @@ import type { Database } from '@/types/database';
 const supabase = {} as SupabaseClient<Database>;
 
 describe('RepositoryContainer orchestration', () => {
-  beforeEach(() => RepositoryContainerFactory.resetInstance());
-
   it('lazily creates and caches every repository', () => {
     const container = new RepositoryContainer(supabase);
     const repositories = [
@@ -71,12 +69,10 @@ describe('RepositoryContainer orchestration', () => {
     expect(typeof container.enhancement.unlockNode).toBe('function');
   });
 
-  it('returns one singleton until an explicit reset', () => {
-    const first = RepositoryContainerFactory.getInstance(supabase, { enableCaching: true });
-    const second = RepositoryContainerFactory.getInstance({} as SupabaseClient<Database>);
-    expect(second).toBe(first);
-
-    RepositoryContainerFactory.resetInstance();
-    expect(RepositoryContainerFactory.getInstance(supabase)).not.toBe(first);
+  it('does not share repositories across independent composition roots', () => {
+    const first = RepositoryContainerFactory.create(supabase);
+    const second = RepositoryContainerFactory.create(supabase);
+    expect(second).not.toBe(first);
+    expect(second.run).not.toBe(first.run);
   });
 });

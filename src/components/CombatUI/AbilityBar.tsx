@@ -1,8 +1,8 @@
 import type React from 'react';
+import { fr } from '@/i18n/fr';
 import type { CombatantInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
 import { SpellTooltip } from './SpellTooltip';
-import { fr } from '@/i18n/fr';
 
 interface Props {
   champion: CombatantInfo;

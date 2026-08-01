@@ -4,6 +4,7 @@ import { playUIClick } from '@/audio';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
+import { toEncounterNodeType } from '@/game/map/mapProgression';
 import { findNode } from '@/game/map/mapUtils';
 import { NodeType } from '@/game/map/types';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
@@ -11,7 +12,6 @@ import { canUpgradeSpell, getSpellRankCap } from '@/game/run/spellUpgradeRules';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
-import type { NodeType as RunNodeType } from '@/types/run';
 import { ContextTutorial } from './ContextTutorial';
 import { NODE_LABELS, RunMapCanvas } from './RunMapCanvas';
 import { InventoryPanel, TeamPanel } from './RunMapPanels';
@@ -84,26 +84,9 @@ export function RunMapScreen() {
         return;
       }
 
-      // Start encounter tracking (pass encounter data for combat nodes)
-      if (
-        node.type === NodeType.Combat ||
-        node.type === NodeType.Elite ||
-        node.type === NodeType.Boss
-      ) {
-        // Only pass encounter data if it exists
-        if (node.encounter) {
-          if (!startEncounter(nodeId, node.type as unknown as RunNodeType)) {
-            return;
-          }
-        } else {
-          // Fallback for edge case where combat node has no encounter data
-          console.warn(`[RunMapScreen] Combat node ${nodeId} has no encounter data`);
-          return;
-        }
-      } else {
-        if (node.type !== NodeType.Exit && !startEncounter(nodeId, node.type as RunNodeType)) {
-          return;
-        }
+      const encounterType = toEncounterNodeType(node);
+      if (encounterType && (!node.encounter || !startEncounter(nodeId, encounterType))) {
+        return;
       }
 
       // Navigate to the appropriate encounter page

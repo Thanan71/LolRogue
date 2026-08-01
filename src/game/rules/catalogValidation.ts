@@ -1,5 +1,5 @@
-import { AUGMENT_DATABASE, ITEM_DATABASE, RUNE_DATABASE } from '@/data/items';
 import { ENHANCEMENT_TREES_BY_ROLE } from '@/data/enhancementTrees';
+import { AUGMENT_DATABASE, ITEM_DATABASE, RUNE_DATABASE } from '@/data/items';
 import { AugmentEffectType, RuneConditionType } from '@/types/inventory';
 import { SUPPORTED_ENHANCEMENT_EFFECTS, UNAVAILABLE_ENHANCEMENT_EFFECTS } from './catalogSupport';
 

@@ -3,6 +3,7 @@
  * and unlock resolution.
  */
 
+import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
 import {
   type ChampionMastery,
   MASTERY_THRESHOLDS,
@@ -10,7 +11,6 @@ import {
   type MasteryUnlock,
   STAT_BONUS_PER_LEVEL,
 } from '@/types/mastery';
-import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
 
 // ─── Default Unlocks ────────────────────────────────────────────────────────
 

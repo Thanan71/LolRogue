@@ -4,10 +4,10 @@ import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { fr } from '@/i18n/fr';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
-import { fr } from '@/i18n/fr';
 import '@/styles/auth.css';
 
 type AuthMode = 'login' | 'signup';

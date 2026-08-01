@@ -1,4 +1,5 @@
 import type { StateStorage } from 'zustand/middleware';
+import { recordTechnicalEvent } from './observability';
 
 export const PERSISTENCE_QUARANTINE_PREFIX = 'lolrogue-quarantine:';
 
@@ -7,6 +8,7 @@ function quarantineKey(name: string): string {
 }
 
 export function quarantinePersistedState(name: string, payload: unknown, reason: string): void {
+  recordTechnicalEvent({ type: 'rehydration_error', store: name, reason });
   try {
     localStorage.setItem(
       quarantineKey(name),

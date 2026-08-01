@@ -5,18 +5,18 @@
  * considering level scaling, enhancement bonuses, and item bonuses.
  */
 
-import type { Champion } from '@/types';
-import type { EnhancementStatBonuses, StatType } from '@/types/enhancementTree';
-import type { InventoryEntry } from '@/types/run';
-import type { CalculatedStats } from '@/utils/champion';
-import { calculateStats } from '@/utils/champion';
-import { getStatBonusForLevel } from '@/services/masteryService';
 import {
   applyCanonicalModifiers,
   CANONICAL_STAT_KEYS,
   type CanonicalStatModifier,
   normalizeStatKey,
 } from '@/game/stats/statContract';
+import { getStatBonusForLevel } from '@/services/masteryService';
+import type { Champion } from '@/types';
+import type { EnhancementStatBonuses, StatType } from '@/types/enhancementTree';
+import type { InventoryEntry } from '@/types/run';
+import type { CalculatedStats } from '@/utils/champion';
+import { calculateStats } from '@/utils/champion';
 
 /**
  * Mapping from item stat keys to CalculatedStats keys

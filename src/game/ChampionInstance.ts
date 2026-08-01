@@ -10,8 +10,8 @@ import type { Champion, ChampionStats, ChampionTag, Passive, Spell } from '@/typ
 import type { EnhancementStatBonuses } from '@/types/enhancementTree';
 import { type CalculatedStats, calculateStats } from '@/utils/champion';
 import {
-  applyEnhancementBonuses as applySharedEnhancementBonuses,
   applyMasteryBonus,
+  applyEnhancementBonuses as applySharedEnhancementBonuses,
 } from '@/utils/statCalculator';
 
 /** Valid spell slots matching LoL key bindings. */

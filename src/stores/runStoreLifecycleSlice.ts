@@ -22,6 +22,11 @@ import {
 import type { CompletedRunSnapshot, RunState, RunStore, RunSummary, TeamMember } from '@/types/run';
 import type { PendingRunAttemptStart, RunAuthorityAttempt } from '@/types/runAttempt';
 import { logger } from '@/utils/logger';
+import {
+  measureTransition,
+  recordTechnicalEvent,
+  setTechnicalCorrelation,
+} from '@/utils/observability';
 import { calculateMaxHP } from '@/utils/statCalculator';
 import { useAuthStore } from './authStore';
 import { calculateDailyScore, useDailyRunStore } from './dailyRunStore';
@@ -67,11 +72,14 @@ export function createRunLifecycleSlice(
     // ── Run Lifecycle ───────────────────────────────────────────────────
 
     startRun: async (championIds, options = {}) => {
+      const finishTransition = measureTransition('run_start');
       if (!runLifecycleService.beginStart()) {
+        finishTransition('error');
         return startFailure('start_in_progress', 'A run start is already being verified.', true);
       }
+      let transitionOutcome: 'ok' | 'error' = 'error';
       try {
-        return await withExclusiveRunStart(async () => {
+        const result = await withExclusiveRunStart(async () => {
           const currentState = get();
           if (currentState.isActive || currentState.isEnding) {
             return startFailure(
@@ -267,10 +275,14 @@ export function createRunLifecycleSlice(
             combatCheckpointNodeId: null,
             combatRecoveryRequired: false,
           });
-          return { success: true, runId, mode: canonicalMode };
+          setTechnicalCorrelation({ runId });
+          return { success: true as const, runId, mode: canonicalMode };
         });
+        transitionOutcome = result.success ? 'ok' : 'error';
+        return result;
       } finally {
         runLifecycleService.finishStart();
+        finishTransition(transitionOutcome);
       }
     },
 
@@ -280,6 +292,12 @@ export function createRunLifecycleSlice(
       if (!appended.success) return false;
       if (appended.authorityAttempt !== state.authorityAttempt) {
         set({ authorityAttempt: appended.authorityAttempt });
+        setTechnicalCorrelation({
+          runId: state.runId,
+          commandId:
+            appended.authorityAttempt?.commands[appended.authorityAttempt.commands.length - 1]
+              ?.commandId,
+        });
       }
       return true;
     },
@@ -379,6 +397,13 @@ export function createRunLifecycleSlice(
           return false;
         }
         state = get();
+
+        if (state.completedRunSnapshot?.runId === state.runId) {
+          recordTechnicalEvent(
+            { type: 'retry', operation: 'run_finalization', attempt: 1 },
+            { runId: state.runId, commandId: state.authorityAttempt?.finishCommandId },
+          );
+        }
 
         set({
           isEnding: true,
@@ -729,8 +754,10 @@ export function createRunLifecycleSlice(
       })();
 
       runLifecycleService.trackFinalization(requestedRunId, operation);
+      const finishTransition = measureTransition('run_finalization', { runId: requestedRunId });
       try {
         const succeeded = await operation;
+        finishTransition(succeeded ? 'ok' : 'error');
         const state = get();
         return succeeded
           ? {
@@ -746,6 +773,11 @@ export function createRunLifecycleSlice(
             );
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
+        finishTransition('error');
+        recordTechnicalEvent(
+          { type: 'save_failure', reason: message, retryable: true },
+          { runId: requestedRunId, commandId: get().authorityAttempt?.finishCommandId },
+        );
         logger.error('[runStore.endRun] Unexpected finalization failure:', error);
         set({
           isEnding: false,

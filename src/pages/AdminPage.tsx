@@ -215,12 +215,12 @@ export function AdminPage() {
                         <td>{p.level}</td>
                         <td>{p.total_runs_completed}</td>
                         <td>{p.total_wins}</td>
-                        <td>{p.win_rate.toFixed(1)}%</td>
+                        <td>{(p.win_rate ?? 0).toFixed(1)}%</td>
                         <td>{p.total_candies}</td>
                         <td>
                           {p.last_login_at ? formatAdminDate(p.last_login_at) : fr.admin.never}
                         </td>
-                        <td>{formatAdminDate(p.created_at)}</td>
+                        <td>{p.created_at ? formatAdminDate(p.created_at) : fr.admin.never}</td>
                       </tr>
                     ))}
                   </tbody>

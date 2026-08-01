@@ -1,6 +1,6 @@
 import type React from 'react';
-import type { CombatantInfo } from '../../stores/battleStore';
 import { fr } from '@/i18n/fr';
+import type { CombatantInfo } from '../../stores/battleStore';
 
 interface Props {
   champion: CombatantInfo | undefined;

@@ -1,4 +1,4 @@
-import { BattlePhase, type BattleEvent, type BattleResult } from './types';
+import { type BattleEvent, BattlePhase, type BattleResult } from './types';
 
 export type BattleEventCallback = (event: BattleEvent) => void;
 

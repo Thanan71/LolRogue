@@ -201,8 +201,6 @@ export class RepositoryContainer implements IRepositoryContainer {
  * Factory for creating repository containers
  */
 export class RepositoryContainerFactory {
-  private static instance: IRepositoryContainer | null = null;
-
   /**
    * Create a new repository container
    * @param supabase - Supabase client instance
@@ -216,32 +214,9 @@ export class RepositoryContainerFactory {
     // Use default options if not provided
     const finalOptions: RepositoryContainerOptions = {
       enableLogging: options.enableLogging ?? import.meta.env.VITE_ENABLE_DB_LOGGING === 'true',
-      enableCaching: options.enableCaching ?? false,
-      cacheTTL: options.cacheTTL ?? 60000, // 1 minute default
       ...options,
     };
 
     return new RepositoryContainer(supabase, finalOptions);
-  }
-
-  /**
-   * Get or create a singleton instance
-   * Useful for applications that need a single shared container
-   */
-  static getInstance(
-    supabase: SupabaseClient<Database>,
-    options: RepositoryContainerOptions = {},
-  ): IRepositoryContainer {
-    if (!RepositoryContainerFactory.instance) {
-      RepositoryContainerFactory.instance = this.create(supabase, options);
-    }
-    return RepositoryContainerFactory.instance;
-  }
-
-  /**
-   * Reset the singleton instance (useful for testing)
-   */
-  static resetInstance(): void {
-    RepositoryContainerFactory.instance = null;
   }
 }

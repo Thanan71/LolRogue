@@ -1,22 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { fr } from '@/i18n/fr';
 import {
   canUnlockNode,
   getEnhancementTreeForRole,
   getLockReason,
   type LockReason,
 } from '@/data/enhancementTrees';
-import type { Champion } from '@/types/champion';
-import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';
-import { BRANCH_THEME_COLORS, BRANCH_THEME_ICONS } from '@/types/enhancementTree';
-import { enhancementService } from '@/services/enhancementService';
-import { calculateFullStats } from '@/utils/statCalculator';
 import {
+  type CanonicalStatKey,
   formatStatValue,
   normalizeStatKey,
   STAT_LABELS,
-  type CanonicalStatKey,
 } from '@/game/stats/statContract';
+import { fr } from '@/i18n/fr';
+import { enhancementService } from '@/services/enhancementService';
+import type { Champion } from '@/types/champion';
+import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';
+import { BRANCH_THEME_COLORS, BRANCH_THEME_ICONS } from '@/types/enhancementTree';
+import { calculateFullStats } from '@/utils/statCalculator';
 
 interface StatPreview {
   stat: CanonicalStatKey;

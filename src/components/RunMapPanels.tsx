@@ -1,19 +1,19 @@
 import { useMemo, useState } from 'react';
 import { championDB } from '@/data/championDatabase';
+import {
+  type CanonicalStatKey,
+  formatStatValue,
+  normalizeStatKey,
+  STAT_LABELS,
+} from '@/game/stats/statContract';
+import { fr } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
 import type { InventoryEntry, TeamMember } from '@/types/run';
-import { fr } from '@/i18n/fr';
 import { calculateFullStats, calculateMaxHP } from '@/utils/statCalculator';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
-import {
-  formatStatValue,
-  normalizeStatKey,
-  STAT_LABELS,
-  type CanonicalStatKey,
-} from '@/game/stats/statContract';
 import {
   hpBarBg,
   hpBarFill,

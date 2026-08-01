@@ -30,7 +30,6 @@ export { createPlaceholderSvg } from './imageLoader.types';
 export * from './interfaces';
 // Mastery Service - Handles mastery calculations
 export * from './masteryService';
-export * from './runAttemptService';
 // ─── Repositories (Data Access Layer) ────────────────────────────────────────
 export * from './repositories';
 // Enhancement Repository - Supabase implementation
@@ -38,6 +37,7 @@ export {
   SupabaseEnhancementRepository,
   supabaseEnhancementRepository,
 } from './repositories';
+export * from './runAttemptService';
 // ─── Domain Services ─────────────────────────────────────────────────────────
 // Run Service - Handles run-related business logic
 export { getPlayerRunHistory, getPlayerRunStats, getRunDetails } from './runService';

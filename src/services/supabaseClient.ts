@@ -6,6 +6,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
+import { logger } from '@/utils/logger';
 
 // Environment variables
 const supabaseUrl = import.meta.env.VITE_PUBLIC_SUPABASE_URL;
@@ -14,7 +15,7 @@ const supabaseAnonKey = import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
 if (!isSupabaseConfigured) {
-  console.warn(
+  logger.warn(
     '[Supabase] Online features are disabled. Set VITE_PUBLIC_SUPABASE_URL and VITE_PUBLIC_SUPABASE_ANON_KEY to enable them.',
   );
 }

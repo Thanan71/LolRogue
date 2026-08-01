@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { BattleManager } from '@/game/battle/BattleManager';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
+import { BattleManager } from '@/game/battle/BattleManager';
 import { isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { isActionTargeting } from '@/game/battle/targetResolver';
 import type { BattleAction, BattleEvent, BattleTeam } from '@/game/battle/types';

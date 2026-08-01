@@ -20,6 +20,7 @@ import type {
   EnhancementNode,
   PlayerEnhancementState,
 } from '@/types/enhancementTree';
+import { logger } from '@/utils/logger';
 
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
@@ -50,7 +51,7 @@ async function refreshCanonicalCandyBalance(): Promise<number | undefined> {
       return result.data.total_candies;
     }
   } catch (error) {
-    console.warn('[EnhancementStore] Failed to refresh candy balance:', error);
+    logger.warn('[EnhancementStore] Failed to refresh candy balance:', error);
   }
   return useAuthStore.getState().player?.total_candies;
 }
@@ -188,7 +189,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         isInitialized: true,
       });
     } catch (error) {
-      console.error('[EnhancementStore] Failed to initialize:', error);
+      logger.error('[EnhancementStore] Failed to initialize:', error);
       if (get().ownerUserId !== authUserId) return;
       set({
         error: 'Impossible de charger la maîtrise et les améliorations.',
@@ -392,7 +393,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
       return true;
     } catch (error) {
-      console.error('[EnhancementStore] Failed to unlock node:', error);
+      logger.error('[EnhancementStore] Failed to unlock node:', error);
       set({
         error: error instanceof Error ? error.message : 'Failed to save enhancement',
         statusMessage: null,

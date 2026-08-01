@@ -3,8 +3,8 @@ import type {
   Biome,
   ChampionRunStats,
   InventoryEntry,
-  NodeType as RunNodeType,
   RunLedger,
+  NodeType as RunNodeType,
 } from '@/types/run';
 
 export type AuthorityDifficulty = 'easy' | 'normal' | 'hard';

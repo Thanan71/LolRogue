@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { playSFX, playUIClick } from '@/audio';
+import { Button, PageShell, StateView } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/config/routes';
+import { plural } from '@/i18n/format';
+import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import type { RunSummary } from '@/types/run';
-import { plural } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
-import { Button, PageShell, StateView } from '@/components/ui';
 
 export function GameOverPage() {
   const navigate = useAppNavigate();

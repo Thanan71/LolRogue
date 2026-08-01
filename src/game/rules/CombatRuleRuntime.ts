@@ -1,8 +1,9 @@
 import { AUGMENT_DATABASE, ITEM_DATABASE, RUNE_DATABASE } from '@/data/items';
 import { ActionType } from '@/game/battle/types';
 import type { StatKey } from '@/game/effects/types';
-import { RuneManager, type RuneContext, type RuneEvaluationEvent } from '@/game/runes/RuneManager';
+import { type RuneContext, type RuneEvaluationEvent, RuneManager } from '@/game/runes/RuneManager';
 import { AugmentEffectType, ItemCategory } from '@/types/inventory';
+import { SUPPORTED_ENHANCEMENT_EFFECTS } from './catalogSupport';
 import type {
   CombatRuleActor,
   CombatRuleEvent,
@@ -11,7 +12,6 @@ import type {
   CombatRuleResolution,
   CombatRuleStatBonus,
 } from './types';
-import { SUPPORTED_ENHANCEMENT_EFFECTS } from './catalogSupport';
 
 export {
   OFFICIALLY_SUPPORTED_RULE_TRIGGERS,

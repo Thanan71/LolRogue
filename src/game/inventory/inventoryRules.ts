@@ -1,9 +1,9 @@
 import { ITEM_DATABASE } from '@/data/items';
 import {
-  MAX_INVENTORY_ITEMS,
-  MAX_ITEMS_PER_CHAMPION,
   type InventoryEntry,
   type Item,
+  MAX_INVENTORY_ITEMS,
+  MAX_ITEMS_PER_CHAMPION,
 } from '@/types/run';
 
 export type InventoryRuleFailure =

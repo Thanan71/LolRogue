@@ -4,7 +4,7 @@
  * Helper functions for map navigation and state management.
  */
 
-import type { MapNode, NodeMap } from './types';
+import type { Encounter, EncounterType, MapNode, NodeMap } from './types';
 import { NodeType } from './types';
 
 /**
@@ -12,6 +12,14 @@ import { NodeType } from './types';
  */
 export function findNode(map: NodeMap, nodeId: string): MapNode | undefined {
   return map.nodes.find((n) => n.id === nodeId);
+}
+
+export function getNodeEncounter<T extends EncounterType>(
+  node: MapNode | null | undefined,
+  type: T,
+): Extract<Encounter, { type: T }> | null {
+  const encounter = node?.encounter;
+  return encounter?.type === type ? (encounter as Extract<Encounter, { type: T }>) : null;
 }
 
 /**

@@ -1,5 +1,5 @@
-import { AugmentEffectType, RuneConditionType } from '@/types/inventory';
 import type { EnhancementEffect, EnhancementNode } from '@/types/enhancementTree';
+import { AugmentEffectType, RuneConditionType } from '@/types/inventory';
 
 export const SUPPORTED_ENHANCEMENT_EFFECTS = new Set([
   'execute_damage',

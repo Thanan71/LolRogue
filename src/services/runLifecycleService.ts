@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import type { RunEndResult, RunLifecycleErrorCode, RunStartResult } from '@/types/run';
 import { logger } from '@/utils/logger';
+import { recordTechnicalEvent } from '@/utils/observability';
 
 export function runStartFailure(
   code: RunLifecycleErrorCode,
@@ -19,6 +20,9 @@ export function runEndFailure(
   error: string,
   retryable = false,
 ): RunEndResult {
+  if (code === 'finalization_failed') {
+    recordTechnicalEvent({ type: 'save_failure', reason: error, retryable }, { runId });
+  }
   return { success: false, runId, code, error, retryable };
 }
 

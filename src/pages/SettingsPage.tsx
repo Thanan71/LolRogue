@@ -2,8 +2,8 @@ import { playUIClick } from '@/audio';
 import { Button, Field, PageFooter, PageHeader, PageShell, Panel, Stack } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { useAudioStore } from '@/stores/audioStore';
 import { fr } from '@/i18n/fr';
+import { useAudioStore } from '@/stores/audioStore';
 import {
   type BattleSpeed,
   type Difficulty,

@@ -6,8 +6,8 @@
  * permanent stat bonuses and special effects for that champion.
  */
 
-import type { ChampionTag } from './champion';
 import type { GameplayStatKey } from '@/game/stats/statContract';
+import type { ChampionTag } from './champion';
 
 // ─── Enhancement Node Types ──────────────────────────────────────────────────
 

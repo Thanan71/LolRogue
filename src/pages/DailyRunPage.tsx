@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { DailyLeaderboard } from '@/components/DailyLeaderboard';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { supabase } from '@/services/supabaseClient';
@@ -9,7 +10,6 @@ import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { useRunStore } from '@/stores/runStore';
 import type { DailyChallenge } from '@/types/dailyRun';
-import { ROUTES } from '@/config/routes';
 import '@/styles/daily-run.css';
 import { fr } from '@/i18n/fr';
 

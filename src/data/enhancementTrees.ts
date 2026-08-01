@@ -5,12 +5,12 @@
  * with three branches focusing on different playstyle aspects.
  */
 
+import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
 import type {
   ChampionEnhancementTree,
   EnhancementBranch,
   EnhancementNode,
 } from '@/types/enhancementTree';
-import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
 
 // ─── Helper Functions ────────────────────────────────────────────────────────
 

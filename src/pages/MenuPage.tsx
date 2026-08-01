@@ -3,10 +3,10 @@ import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { useAuthStore } from '@/stores/authStore';
-import { useRunStore } from '@/stores/runStore';
 import { plural } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
+import { useAuthStore } from '@/stores/authStore';
+import { useRunStore } from '@/stores/runStore';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
 

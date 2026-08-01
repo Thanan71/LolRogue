@@ -1,13 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  getState: vi.fn(),
   getPlayerRuns: vi.fn(),
   getRunDetails: vi.fn(),
   getPlayerRunStats: vi.fn(),
 }));
 
-vi.mock('@/stores/authStore', () => ({ useAuthStore: { getState: mocks.getState } }));
 vi.mock('@/services/container', () => ({
   RepositoryContainerFactory: {
     create: () => ({
@@ -21,25 +19,26 @@ vi.mock('@/services/container', () => ({
 }));
 
 import { getPlayerRunHistory, getPlayerRunStats, getRunDetails } from '@/services/runService';
+import type { Player } from '@/types/models';
 
 const player = {
   id: 'player-1',
   total_runs_completed: 4,
   total_wins: 3,
   total_waves_completed: 27,
-};
+} as Player;
 
 describe('runService orchestration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getState.mockReturnValue({ player });
   });
 
   it('refuses history and aggregate reads without an authenticated player', async () => {
-    mocks.getState.mockReturnValue({ player: null });
-
-    await expect(getPlayerRunHistory()).resolves.toEqual({ data: [], error: 'Not authenticated' });
-    await expect(getPlayerRunStats()).resolves.toMatchObject({
+    await expect(getPlayerRunHistory(null)).resolves.toEqual({
+      data: [],
+      error: 'Not authenticated',
+    });
+    await expect(getPlayerRunStats(null)).resolves.toMatchObject({
       totalRuns: 0,
       totalWins: 0,
       error: 'Not authenticated',
@@ -50,16 +49,16 @@ describe('runService orchestration', () => {
   it('forwards pagination and normalizes an absent history payload', async () => {
     mocks.getPlayerRuns.mockResolvedValue({ data: null, error: null });
 
-    await expect(getPlayerRunHistory(5, 10)).resolves.toEqual({ data: [], error: null });
+    await expect(getPlayerRunHistory(player, 5, 10)).resolves.toEqual({ data: [], error: null });
     expect(mocks.getPlayerRuns).toHaveBeenCalledWith('player-1', 5, 10);
   });
 
   it('returns repository and thrown history errors as stable messages', async () => {
     mocks.getPlayerRuns.mockResolvedValueOnce({ data: null, error: new Error('query failed') });
-    await expect(getPlayerRunHistory()).resolves.toEqual({ data: [], error: 'query failed' });
+    await expect(getPlayerRunHistory(player)).resolves.toEqual({ data: [], error: 'query failed' });
 
     mocks.getPlayerRuns.mockRejectedValueOnce('offline');
-    await expect(getPlayerRunHistory()).resolves.toEqual({ data: [], error: 'offline' });
+    await expect(getPlayerRunHistory(player)).resolves.toEqual({ data: [], error: 'offline' });
   });
 
   it('returns a complete run detail and distinguishes missing and thrown failures', async () => {
@@ -90,13 +89,13 @@ describe('runService orchestration', () => {
     };
     mocks.getPlayerRunStats.mockResolvedValue({ data: stats, error: null });
 
-    await expect(getPlayerRunStats()).resolves.toEqual({ ...stats, error: null });
+    await expect(getPlayerRunStats(player)).resolves.toEqual({ ...stats, error: null });
     expect(mocks.getPlayerRunStats).toHaveBeenCalledWith('player-1');
   });
 
   it('falls back to durable profile counters when aggregate reads fail', async () => {
     mocks.getPlayerRunStats.mockResolvedValueOnce({ data: null, error: new Error('stats failed') });
-    await expect(getPlayerRunStats()).resolves.toMatchObject({
+    await expect(getPlayerRunStats(player)).resolves.toMatchObject({
       totalRuns: 4,
       totalWins: 3,
       winRate: 75,
@@ -105,7 +104,7 @@ describe('runService orchestration', () => {
     });
 
     mocks.getPlayerRunStats.mockRejectedValueOnce('network down');
-    await expect(getPlayerRunStats()).resolves.toMatchObject({
+    await expect(getPlayerRunStats(player)).resolves.toMatchObject({
       totalRuns: 4,
       totalWins: 3,
       winRate: 0,

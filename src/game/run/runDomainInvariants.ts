@@ -7,10 +7,10 @@ import {
 } from '@/game/run/spellUpgradeRules';
 import { normalizeTeamMembers } from '@/game/run/teamRules';
 import {
+  type InventoryEntry,
   MAX_INVENTORY_ITEMS,
   MAX_ITEMS_PER_CHAMPION,
   MAX_TEAM_SIZE,
-  type InventoryEntry,
   type TeamMember,
 } from '@/types/run';
 

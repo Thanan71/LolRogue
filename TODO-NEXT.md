@@ -107,8 +107,8 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P2-ARCH-02 — Types, erreurs et observabilité** : poursuivre sur des contrats de
-   domaine discriminés et les types Supabase générés.
+1. **P2-SEC-01 — Durcir les outils d'administration** : sécuriser les exports et
+   rendre les erreurs/retries Admin visibles sans présenter de données partielles.
 
 ---
 

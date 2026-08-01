@@ -1,6 +1,6 @@
 /** Read-only queries for persisted run history and aggregate statistics. */
 
-import { useAuthStore } from '@/stores/authStore';
+import type { Player } from '@/types/models';
 import { RepositoryContainerFactory } from './container';
 import type { IRepositoryContainer } from './interfaces';
 import { supabase } from './supabaseClient';
@@ -13,9 +13,7 @@ const errorMessage = (error: unknown): string =>
 /**
  * Get the current player's run history
  */
-export async function getPlayerRunHistory(limit = 10, offset = 0) {
-  const { player } = useAuthStore.getState();
-
+export async function getPlayerRunHistory(player: Player | null, limit = 10, offset = 0) {
   if (!player) {
     return { data: [], error: 'Not authenticated' };
   }
@@ -57,9 +55,7 @@ export async function getRunDetails(runId: string) {
 /**
  * Get player's statistics across all runs
  */
-export async function getPlayerRunStats() {
-  const { player } = useAuthStore.getState();
-
+export async function getPlayerRunStats(player: Player | null) {
   if (!player) {
     return {
       totalRuns: 0,

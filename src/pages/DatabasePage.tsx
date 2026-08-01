@@ -8,6 +8,7 @@ import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
 import { useChampionEnhancements, useEnhancementStore } from '@/stores/enhancementStore';
 import type { Champion } from '@/types/champion';
+import { logger } from '@/utils/logger';
 import '@/styles/database.css';
 import { DatabaseChampionDetail } from './database/DatabaseChampionDetail';
 
@@ -54,7 +55,7 @@ export function DatabasePage() {
     async (nodeId: string) => {
       const success = await unlockNode(nodeId);
       if (!success) {
-        console.error('Failed to unlock node');
+        logger.error('Failed to unlock node');
       }
     },
     [unlockNode],

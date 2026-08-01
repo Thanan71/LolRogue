@@ -1,9 +1,9 @@
 import { Navigate } from 'react-router-dom';
 import { getProtectedRouteAccess } from '@/auth/routeAccess';
-import { useAuthStore } from '@/stores/authStore';
-import { ROUTES } from '@/config/routes';
 import { PageShell, StateView } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
 import { fr } from '@/i18n/fr';
+import { useAuthStore } from '@/stores/authStore';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

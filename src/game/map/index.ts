@@ -4,9 +4,6 @@
  * Procedural map generation and navigation system.
  */
 
-// Canonical, stateless event outcome rules
-export { resolveAffordableEventOutcome, resolveEventOutcome } from './eventOutcome';
-
 // Encounter pools
 export {
   BASE_ENCOUNTERS,
@@ -20,6 +17,8 @@ export {
   RIVER_ENCOUNTERS,
   TOP_LANE_ENCOUNTERS,
 } from './encounters';
+// Canonical, stateless event outcome rules
+export { resolveAffordableEventOutcome, resolveEventOutcome } from './eventOutcome';
 
 // Generator
 export { generateMap, generateRunMap } from './MapGenerator-core';

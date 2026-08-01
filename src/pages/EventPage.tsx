@@ -1,17 +1,18 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
-import { fr } from '@/i18n/fr';
+import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
-import type { EventEncounter, EventOutcome } from '@/game/map/types';
+import { getNodeEncounter } from '@/game/map/mapUtils';
+import type { EventOutcome } from '@/game/map/types';
 import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
 import { resolveEventTeamUpdates, resolveRunEvent } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/config/routes';
-import { useRunStore } from '@/stores/runStore';
+import { fr } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
+import { useRunStore } from '@/stores/runStore';
 
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
   const state = useRunStore.getState();
@@ -50,9 +51,7 @@ export function EventPage() {
   const [capacityNotice, setCapacityNotice] = useState<string | null>(null);
 
   const encounter = useMemo(() => {
-    const node = getCurrentNode();
-    if (node?.encounter?.type === 'event') return node.encounter as EventEncounter;
-    return null;
+    return getNodeEncounter(getCurrentNode(), 'event');
   }, [getCurrentNode]);
 
   const handleInvestigate = useCallback(() => {

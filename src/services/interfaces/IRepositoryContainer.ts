@@ -75,10 +75,4 @@ export interface IRepositoryContainerFactory {
 export interface RepositoryContainerOptions {
   /** Enable logging for all repositories */
   enableLogging?: boolean;
-
-  /** Enable caching for read operations */
-  enableCaching?: boolean;
-
-  /** Cache TTL in milliseconds */
-  cacheTTL?: number;
 }

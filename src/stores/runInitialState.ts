@@ -1,5 +1,5 @@
-import type { RunState } from '@/types/run';
 import { createRunLedger } from '@/game/run/runLedger';
+import type { RunState } from '@/types/run';
 
 export const RUN_INITIAL_STATE: RunState = {
   isActive: false,

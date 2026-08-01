@@ -13,6 +13,7 @@ import type {
 import { supabase } from '@/services/supabaseClient';
 import type { Database, Json } from '@/types/database';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
+import { logger } from '@/utils/logger';
 
 function toNumberRecord(value: Json): Record<string, number> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
@@ -79,7 +80,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
           // No rows found
           return null;
         }
-        console.error('[SupabaseEnhancementRepository] Error fetching enhancement state:', error);
+        logger.error('[SupabaseEnhancementRepository] Error fetching enhancement state:', error);
         return null;
       }
 
@@ -88,7 +89,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
         totalCandiesSpent: data.total_candies_spent || 0,
       };
     } catch (error) {
-      console.error('[SupabaseEnhancementRepository] Unexpected error:', error);
+      logger.error('[SupabaseEnhancementRepository] Unexpected error:', error);
       return null;
     }
   }
@@ -196,7 +197,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
         .eq('user_id', authUserId);
 
       if (error) {
-        console.error(
+        logger.error(
           '[SupabaseEnhancementRepository] Error fetching all enhancement states:',
           error,
         );
@@ -213,7 +214,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
 
       return states;
     } catch (error) {
-      console.error('[SupabaseEnhancementRepository] Unexpected error:', error);
+      logger.error('[SupabaseEnhancementRepository] Unexpected error:', error);
       return new Map();
     }
   }

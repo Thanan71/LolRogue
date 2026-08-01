@@ -2,8 +2,8 @@ import { playUIClick } from '@/audio';
 import { Button, PageShell, StateView } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { useAuthStore } from '@/stores/authStore';
 import { fr } from '@/i18n/fr';
+import { useAuthStore } from '@/stores/authStore';
 
 export function NotFoundPage() {
   const navigate = useAppNavigate();

@@ -1,7 +1,7 @@
 import React, { useId, useRef, useState } from 'react';
+import { fr } from '@/i18n/fr';
 import type { SpellInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
-import { fr } from '@/i18n/fr';
 
 interface Props {
   spell: SpellInfo;

@@ -10,8 +10,8 @@ import type { Champion } from '@/types/champion';
 import type {
   ChampionEnhancementTree,
   EnhancementNode,
-  PlayerEnhancementState,
   EnhancementStatBonuses,
+  PlayerEnhancementState,
 } from '@/types/enhancementTree';
 
 /**

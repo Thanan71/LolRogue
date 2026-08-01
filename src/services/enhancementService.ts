@@ -15,6 +15,8 @@ import {
   canUnlockNode as checkCanUnlock,
   getEnhancementTreeForRole,
 } from '@/data/enhancementTrees';
+import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
+import { normalizeGameplayStatKey } from '@/game/stats/statContract';
 import type {
   EnhancementStatBonuses,
   IEnhancementService,
@@ -26,8 +28,6 @@ import type {
   EnhancementNode,
   PlayerEnhancementState,
 } from '@/types/enhancementTree';
-import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
-import { normalizeGameplayStatKey } from '@/game/stats/statContract';
 import { applyEnhancementBonuses as applySharedEnhancementBonuses } from '@/utils/statCalculator';
 
 /**

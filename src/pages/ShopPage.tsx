@@ -1,12 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
-import { fr } from '@/i18n/fr';
+import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
-import type { ShopEncounter, ShopItem } from '@/game/map/types';
+import { getNodeEncounter } from '@/game/map/mapUtils';
+import type { ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ROUTES } from '@/config/routes';
+import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import { MAX_INVENTORY_ITEMS } from '@/types/run';
 
@@ -140,9 +141,7 @@ export function ShopPage() {
   );
 
   const encounter = useMemo(() => {
-    const node = getCurrentNode();
-    if (node?.encounter?.type === 'shop') return node.encounter as ShopEncounter;
-    return null;
+    return getNodeEncounter(getCurrentNode(), 'shop');
   }, [getCurrentNode]);
 
   const priceMultiplier = useMemo(() => {

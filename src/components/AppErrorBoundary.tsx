@@ -1,7 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { logger } from '@/utils/logger';
 import { PageShell, StateView } from '@/components/ui';
 import { fr } from '@/i18n/fr';
+import { logger } from '@/utils/logger';
+import { recordTechnicalEvent } from '@/utils/observability';
 
 interface Props {
   children: ReactNode;
@@ -19,6 +20,11 @@ export class AppErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
+    recordTechnicalEvent({
+      type: 'frontend_error',
+      source: 'react_error_boundary',
+      message: error.message,
+    });
     logger.error('[AppErrorBoundary] Unhandled render error', {
       error,
       componentStack: info.componentStack,
