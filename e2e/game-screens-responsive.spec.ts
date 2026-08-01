@@ -110,7 +110,7 @@ for (const viewport of VIEWPORTS) {
       await useRunStore.getState().startRun(['Garen'], { seed: 20260801 });
     });
     await navigateSpa(page, '/run');
-    await expect(page.getByRole('button', { name: /aide/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /tutoriel carte/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await testInfo.attach(`run-map-${viewport.name}`, {
       body: await page.screenshot({ fullPage: true }),

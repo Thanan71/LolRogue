@@ -5,6 +5,7 @@ import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
 import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
+import { ContextTutorial } from '@/components/ContextTutorial';
 import { championDB } from '@/data';
 import { fr } from '@/i18n/fr';
 import { ITEM_DATABASE } from '@/data/items';
@@ -818,6 +819,33 @@ export function CombatPage() {
         </span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
+        <ContextTutorial
+          storageKey="lolrogue:tutorial:combat:v1"
+          title="Ton premier combat"
+          buttonLabel="Règles du combat"
+          steps={[
+            {
+              title: 'Ordre des tours',
+              body: 'La vitesse fixe qui agit en premier. L’indicateur annonce le combattant actif et les ennemis jouent automatiquement.',
+            },
+            {
+              title: 'Action et cible',
+              body: 'Choisis Attaque, Q, W, E ou R, puis une cible autorisée. Le bouton Exécuter le tour confirme la commande.',
+            },
+            {
+              title: 'Coût et recharge',
+              body: 'Chaque sort affiche son coût en PM et sa recharge. Un sort indisponible est désactivé et son état est annoncé.',
+            },
+            {
+              title: 'Statuts et journal',
+              body: 'Buffs, affaiblissements, contrôles et dégâts persistants sont visibles sur les portraits et consignés dans le journal.',
+            },
+            {
+              title: 'Autoplay',
+              body: 'Auto est désactivé par défaut. Si tu l’actives, le jeu choisit tes actions ; le même bouton permet de reprendre la main.',
+            },
+          ]}
+        />
         <button
           type="button"
           disabled={requiresServerAutoPlay}

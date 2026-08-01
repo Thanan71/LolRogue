@@ -180,6 +180,15 @@ export const fr = {
     logout: 'Déconnexion',
     loginOrSignup: 'Connexion / Créer un compte',
   },
+  rules: {
+    title: 'Guide et règles',
+    subtitle: 'Les mécaniques actuellement actives dans LoL Rogue.',
+    back: '← Retour au menu',
+    search: 'Rechercher une règle',
+    category: 'Catégorie',
+    all: 'Toutes',
+    count: (count: number) => `${count} règle(s) affichée(s)`,
+  },
   settings: {
     title: 'Réglages',
     subtitle: 'Configuration du jeu',

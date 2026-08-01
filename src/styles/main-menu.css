@@ -288,6 +288,27 @@
   animation: menuBtnIn 0.6s ease-out 0.3s both;
 }
 
+.main-menu__onboarding {
+  display: grid;
+  gap: 0.35rem;
+  width: min(32rem, 100%);
+  padding: 0.75rem 1rem;
+  color: #e6edf3;
+  background: rgba(22, 27, 34, 0.88);
+  border: 1px solid #8b7348;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.main-menu__onboarding span {
+  color: #b3b8c2;
+  font-size: 0.8rem;
+}
+
+.main-menu__onboarding button {
+  justify-self: center;
+}
+
 /* ─── Footer ───────────────────────────────────────────────────────── */
 
 .main-menu__footer {

@@ -95,6 +95,7 @@ présentés comme des travaux à démarrer :
 - [x] `P1-UX-04`
 - [x] `P1-A11Y-01`
 - [x] `P1-A11Y-02`
+- [x] `P1 — onboarding et règles compréhensibles`
 
 `P1-UX-03` couvre désormais automatiquement toutes les pages, y compris Profil,
 Crédits et Administration, ainsi que les catalogues de contenu visibles. Le test

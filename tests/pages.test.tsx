@@ -146,7 +146,7 @@ describe('P2 page smoke tests', () => {
     renderAt(<MenuPage />);
     expect(screen.getByRole('heading', { name: 'LoL Rogue' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /jouer$/i })).toBeInTheDocument();
-    expect(screen.getByText('Mode invité')).toBeInTheDocument();
+    expect(screen.getByText(/Mode invité/)).toBeInTheDocument();
   });
 
   it('resumes an active Daily without asking to abandon it', async () => {
@@ -212,7 +212,7 @@ describe('P2 page smoke tests', () => {
       frontierNodeIds: [maps[0].startNodeId],
     });
     renderAt(<RunMapScreen />, '/run');
-    expect(screen.getByRole('button', { name: /aide/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /tutoriel carte/i })).toBeInTheDocument();
     expect(screen.getByText('Top_lane')).toBeInTheDocument();
     expect(document.querySelector('svg')).toBeInTheDocument();
   });

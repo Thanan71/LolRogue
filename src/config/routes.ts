@@ -17,6 +17,7 @@ export const ROUTES = {
   PROFILE: '/profile',
   SETTINGS: '/settings',
   CREDITS: '/credits',
+  RULES: '/rules',
   ADMIN: '/admin',
 } as const;
 

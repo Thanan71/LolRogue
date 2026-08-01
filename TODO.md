@@ -946,21 +946,30 @@ documentés dans `docs/accessibility.md`.
 
 ## P1 — onboarding et règles compréhensibles
 
-- [ ] Expliquer la boucle : choisir, avancer, résoudre, améliorer, combattre,
+- [x] Expliquer la boucle : choisir, avancer, résoudre, améliorer, combattre,
   terminer/sauvegarder.
-- [ ] Transformer l'aide carte en tutoriel contextuel réouvrable.
-- [ ] Expliquer cible, coût, cooldown, ordre des tours, statuts et autoplay au
+- [x] Transformer l'aide carte en tutoriel contextuel réouvrable.
+- [x] Expliquer cible, coût, cooldown, ordre des tours, statuts et autoplay au
   premier combat.
-- [ ] Afficher avant validation les effets chiffrés d'une rune, d'un objet, d'un
+- [x] Afficher avant validation les effets chiffrés d'une rune, d'un objet, d'un
   augment ou d'une amélioration.
-- [ ] Clarifier différence Normal/Daily et ce qui est conservé en invité.
-- [ ] Ajouter une encyclopédie filtrable seulement pour les mécaniques réellement
+- [x] Clarifier différence Normal/Daily et ce qui est conservé en invité.
+- [x] Ajouter une encyclopédie filtrable seulement pour les mécaniques réellement
   actives.
-- [ ] Mesurer le temps jusqu'au premier combat et le taux d'abandon du tutoriel
+- [x] Mesurer le temps jusqu'au premier combat et le taux d'abandon du tutoriel
   uniquement après définition de la politique de télémétrie.
 
 **Acceptation :** un nouveau joueur peut finir son premier combat sans documentation
 externe et sans devoir deviner le sens d'une action.
+
+**Statut : terminé.** Le menu expose la boucle complète et mène vers un guide
+filtrable limité aux règles exécutées. La carte et le premier combat disposent de
+tutoriels automatiques, progressifs et réouvrables. Les choix affichent leurs effets
+avant confirmation et les modes Normal, Daily et invité annoncent clairement leur
+persistance. Aucune mesure comportementale n'est collectée : conformément au critère,
+temps jusqu'au combat et abandon restent désactivés tant qu'une politique de
+télémétrie consentie, minimisée et documentée n'existe pas. Les preuves sont décrites
+dans `docs/onboarding.md`.
 
 ---
 

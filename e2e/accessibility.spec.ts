@@ -15,6 +15,10 @@ async function enterGuest(page: Page) {
   await page.reload();
   await page.getByRole('button', { name: 'Jouer en invité' }).click();
   await expect(page).toHaveURL('/');
+  await page.evaluate(() => {
+    localStorage.setItem('lolrogue:tutorial:map:v1', 'done');
+    localStorage.setItem('lolrogue:tutorial:combat:v1', 'done');
+  });
 }
 
 test('les routes principales respectent les règles axe critiques', async ({ page }) => {
@@ -30,6 +34,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
 
   for (const [button, path, heading] of [
     ['Champions', '/database', 'Base des champions'],
+    ['Guide et règles', '/rules', 'Guide et règles'],
     ['Réglages', '/settings', 'Réglages'],
     ['Crédits', '/credits', 'Crédits'],
     ['Défi quotidien', '/daily-run', 'Défi quotidien'],
@@ -52,7 +57,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
     await useRunStore.getState().startRun(['Garen'], { seed: 20260801 });
   });
   await page.goto('/run');
-  await expect(page.getByRole('button', { name: /aide/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /tutoriel carte/i })).toBeVisible();
   await expectNoSeriousAccessibilityViolations(page, '/run');
 
   const startNode = page.getByRole('button', { name: /départ du biome.*accessible/i }).first();

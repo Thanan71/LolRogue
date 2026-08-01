@@ -23,6 +23,7 @@ import {
 } from '@/game/stats/statContract';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { ContextTutorial } from './ContextTutorial';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
 import {
   btnStyle,
@@ -70,7 +71,6 @@ const NODE_LABELS: Record<string, string> = {
 
 export function RunMapScreen() {
   const reducedMotion = useReducedMotion();
-  const [showLegend, setShowLegend] = useState(false);
   const biomeMaps = useRunStore((s) => s.biomeMaps);
   const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
@@ -238,14 +238,29 @@ export function RunMapScreen() {
               ← Menu
             </button>
             <span style={{ color: '#ffd700', fontWeight: 700 }}>Or : {gold}</span>
-            <button
-              type="button"
-              onClick={() => setShowLegend((visible) => !visible)}
-              aria-expanded={showLegend}
-              aria-controls="map-legend"
-            >
-              ? Aide
-            </button>
+            <ContextTutorial
+              storageKey="lolrogue:tutorial:map:v1"
+              title="Comprendre la carte"
+              buttonLabel="Tutoriel carte"
+              steps={[
+                {
+                  title: 'Choisir un chemin',
+                  body: 'Active uniquement un nœud annoncé accessible. Ce choix ferme les autres branches de la même étape.',
+                },
+                {
+                  title: 'Résoudre la rencontre',
+                  body: 'Combat, boutique, repos, événement, recrutement et trésor doivent être terminés avant de poursuivre.',
+                },
+                {
+                  title: 'Améliorer la run',
+                  body: 'Lis les valeurs des objets, sorts et augments avant de confirmer. Les récompenses apparaissent au retour sur la carte.',
+                },
+                {
+                  title: 'Terminer et sauvegarder',
+                  body: 'La sortie ouvre le biome suivant. Le boss du sixième biome termine la run ; la progression connectée est ensuite vérifiée par le serveur.',
+                },
+              ]}
+            />
             <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Wave {currentWave}</span>
             <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Niveau {runLevel}</span>
             <span className="run-map-header__secondary" style={{ color: '#8b949e' }}>
@@ -257,26 +272,14 @@ export function RunMapScreen() {
               </span>
             )}
           </div>
-          {showLegend && (
-            <aside
-              id="map-legend"
-              style={{ ...panelStyle, marginBottom: 8 }}
-              aria-label="Tutoriel et légende de la carte"
-            >
-              <strong>Comment jouer</strong>
-              <p>
-                Choisissez uniquement un nœud entouré en vert. Votre choix verrouille les branches
-                sœurs. Une sortie mène au biome suivant ; le boss final termine la run.
-              </p>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                {Object.entries(NODE_LABELS).map(([type, label]) => (
-                  <span key={type}>
-                    {label} {type}
-                  </span>
-                ))}
-              </div>
-            </aside>
-          )}
+          <aside style={{ ...panelStyle, marginBottom: 8 }} aria-label="Légende de la carte">
+            <strong>Légende :</strong>{' '}
+            {Object.entries(NODE_LABELS).map(([type, label]) => (
+              <span key={type} style={{ marginRight: 10 }}>
+                {label} {type}
+              </span>
+            ))}
+          </aside>
           <div style={{ ...panelStyle, marginBottom: 8 }}>
             <strong>{fr.run.runes} :</strong> {runeIds.join(', ') || 'aucune'} ·{' '}
             <strong>{fr.run.augments} :</strong> {augmentIds.join(', ') || 'aucun'}
@@ -293,7 +296,8 @@ export function RunMapScreen() {
                     onClick={() => chooseAugment(id)}
                     style={{ display: 'block', margin: 8 }}
                   >
-                    <strong>{augment?.name ?? id}</strong> — {augment?.description}
+                    <strong>{augment?.name ?? id}</strong> — Effet avant validation :{' '}
+                    {augment?.description}
                   </button>
                 );
               })}

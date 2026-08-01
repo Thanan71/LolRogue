@@ -191,7 +191,7 @@ export function StarterSelectPage() {
           ? 'Une tentative vérifiée interrompue est prête à reprendre avec ses choix d’origine.'
           : isDaily
             ? `Tous les joueurs affrontent la même seed quotidienne · ${unlockedStarterSlots} slot(s)`
-            : `Sélectionne jusqu’à ${unlockedStarterSlots} champion(s) pour la run`}
+            : `Run normale : ta difficulté et tes choix · sélectionne jusqu’à ${unlockedStarterSlots} champion(s)${isGuest ? ' · sauvegarde sur cet appareil uniquement' : ''}`}
       </p>
 
       <div className="starter-select__grid">
@@ -250,7 +250,9 @@ export function StarterSelectPage() {
                   <span className="starter-rune__indicator" aria-hidden="true" />
                   <span className="starter-rune__content">
                     <span className="starter-rune__name">{rune.name}</span>
-                    <span className="starter-rune__description">{rune.description}</span>
+                    <span className="starter-rune__description">
+                      Effet avant sélection : {rune.description}
+                    </span>
                   </span>
                 </label>
               );

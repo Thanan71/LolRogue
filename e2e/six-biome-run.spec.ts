@@ -14,7 +14,7 @@ test('a guest run progresses deterministically through all six biomes', async ({
   });
 
   await page.goto('/run');
-  await expect(page.getByRole('button', { name: /aide/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /tutoriel carte/i })).toBeVisible();
 
   for (const [index, biomeLabel] of BIOME_LABELS.entries()) {
     await expect(page.getByText(biomeLabel, { exact: true })).toBeVisible();

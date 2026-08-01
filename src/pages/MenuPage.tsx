@@ -179,9 +179,21 @@ export function MenuPage() {
 
         {isGuest && (
           <div className="main-menu__guest-badge">
-            <span>{fr.menu.guestMode}</span>
+            <span>
+              {fr.menu.guestMode} — sauvegarde locale uniquement, sans progression authentifiée
+            </span>
           </div>
         )}
+
+        <section className="main-menu__onboarding" aria-label="Boucle de jeu">
+          <strong>Première partie ?</strong>
+          <span>
+            Choisir → avancer → résoudre → améliorer → combattre → terminer et sauvegarder.
+          </span>
+          <button type="button" onClick={() => navigate(ROUTES.RULES)}>
+            Comprendre les règles
+          </button>
+        </section>
 
         <div className="main-menu__divider" />
 
@@ -229,6 +241,16 @@ export function MenuPage() {
             }}
           >
             {fr.menu.database}
+          </button>
+
+          <button
+            className="main-menu__btn main-menu__btn--ghost"
+            onClick={() => {
+              playUIClick();
+              navigate(ROUTES.RULES);
+            }}
+          >
+            Guide et règles
           </button>
 
           <button

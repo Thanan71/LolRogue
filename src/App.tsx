@@ -29,6 +29,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/database': 'Base des champions',
   '/settings': 'Réglages',
   '/credits': 'Crédits',
+  '/rules': 'Guide et règles',
   '/admin': 'Administration',
 };
 
@@ -121,6 +122,9 @@ const ProfilePage = lazy(() =>
 );
 const RecruitPage = lazy(() =>
   import('./pages/RecruitPage').then((module) => ({ default: module.RecruitPage })),
+);
+const RulesPage = lazy(() =>
+  import('./pages/RulesPage').then((module) => ({ default: module.RulesPage })),
 );
 const RestPage = lazy(() =>
   import('./pages/RestPage').then((module) => ({ default: module.RestPage })),
@@ -306,6 +310,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <CreditsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/rules"
+            element={
+              <ProtectedRoute>
+                <RulesPage />
               </ProtectedRoute>
             }
           />
