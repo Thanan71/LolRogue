@@ -1105,19 +1105,26 @@ retry, asset, réhydratation et transitions avec corrélation technique.
 
 ### P2-SEC-01 — Durcir les outils d'administration
 
-- [ ] Neutraliser l'injection de formule CSV pour les cellules commençant, après
+- [x] Neutraliser l'injection de formule CSV pour les cellules commençant, après
   espaces, par `=`, `+`, `-` ou `@`.
-- [ ] Tester guillemets, virgules, retours à la ligne et préfixes de formule dans les
+- [x] Tester guillemets, virgules, retours à la ligne et préfixes de formule dans les
   champs utilisateur exportés.
-- [ ] Attendre toutes les requêtes Admin avant de retirer l'état loading.
-- [ ] Afficher erreurs et retries dans l'UI au lieu de les limiter à la console.
-- [ ] Associer labels et filtres, rendre onglets/détails utilisables au clavier et au
+- [x] Attendre toutes les requêtes Admin avant de retirer l'état loading.
+- [x] Afficher erreurs et retries dans l'UI au lieu de les limiter à la console.
+- [x] Associer labels et filtres, rendre onglets/détails utilisables au clavier et au
   tactile.
-- [ ] Calculer le rang côté base plutôt que télécharger tout le leaderboard.
+- [x] Calculer le rang côté base plutôt que télécharger tout le leaderboard.
 
 **Acceptation :** ouvrir un export dans Excel/LibreOffice n'exécute aucune formule
 issue d'une valeur utilisateur et l'admin ne présente pas de données partielles
 comme chargées.
+
+**Livré :** le sérialiseur CSV force les préfixes de formule en texte puis applique
+l'échappement RFC 4180. Le chargement initial attend les quatre sources Admin et une
+erreur de détail invalide toute la lecture concernée ; chaque panneau affiche un
+retry. Onglets, filtres et détails ont leurs rôles, relations, focus clavier et cibles
+tactiles. Le rang privé utilise exclusivement `get_my_leaderboard_rank()` et un test
+prouve qu'aucune lecture du leaderboard n'est effectuée.
 
 ## P2 — performance et production
 

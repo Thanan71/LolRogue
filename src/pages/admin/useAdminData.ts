@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import type { AdminPlayerStat, Log, RunTeamMember } from '@/types/models';
@@ -6,6 +6,25 @@ import { logger } from '@/utils/logger';
 import type { AdminRun } from '../adminPageUtils';
 
 export type AdminTab = 'dashboard' | 'logs' | 'players' | 'runs';
+export type AdminDataSection = 'stats' | 'logs' | 'players' | 'runs';
+export type AdminDataErrors = Record<AdminDataSection, string | null>;
+
+const EMPTY_ERRORS: AdminDataErrors = {
+  stats: null,
+  logs: null,
+  players: null,
+  runs: null,
+};
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'La requête Admin a échoué.';
+}
+
+export async function loadAllAdminSections(
+  loaders: ReadonlyArray<() => Promise<unknown>>,
+): Promise<void> {
+  await Promise.all(loaders.map((load) => load()));
+}
 
 export function useAdminData(isAdmin: boolean) {
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
@@ -13,10 +32,13 @@ export function useAdminData(isAdmin: boolean) {
   const [playerStats, setPlayerStats] = useState<AdminPlayerStat[]>([]);
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(false);
   const [logsLoading, setLogsLoading] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
   const [runsLoading, setRunsLoading] = useState(false);
   const [runs, setRuns] = useState<AdminRun[]>([]);
+  const [errors, setErrors] = useState<AdminDataErrors>(EMPTY_ERRORS);
+  const initialLoadStarted = useRef(false);
   const [runFilter, setRunFilter] = useState({
     won: 'all' as 'all' | 'true' | 'false',
     minWaves: '' as string,
@@ -39,7 +61,13 @@ export function useAdminData(isAdmin: boolean) {
   }, [isAdmin]);
 
   // Fetch dashboard stats
-  const fetchStats = async () => {
+  const setSectionError = useCallback((section: AdminDataSection, error: string | null) => {
+    setErrors((current) => ({ ...current, [section]: error }));
+  }, []);
+
+  const fetchStats = useCallback(async (): Promise<boolean> => {
+    setStatsLoading(true);
+    setSectionError('stats', null);
     try {
       const { data, error } = await supabase.from('admin_stats').select('*');
 
@@ -52,14 +80,20 @@ export function useAdminData(isAdmin: boolean) {
         }
       });
       setStats(statsMap);
+      return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching stats:', error);
+      setSectionError('stats', errorMessage(error));
+      return false;
+    } finally {
+      setStatsLoading(false);
     }
-  };
+  }, [setSectionError]);
 
   // Fetch player stats
-  const fetchPlayerStats = async () => {
+  const fetchPlayerStats = useCallback(async (): Promise<boolean> => {
     setPlayersLoading(true);
+    setSectionError('players', null);
     try {
       const { data, error } = await supabase
         .from('admin_player_stats')
@@ -68,17 +102,21 @@ export function useAdminData(isAdmin: boolean) {
         .limit(100);
 
       if (error) throw error;
-      setPlayerStats((data || []) as AdminPlayerStat[]);
+      setPlayerStats(data || []);
+      return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching player stats:', error);
+      setSectionError('players', errorMessage(error));
+      return false;
     } finally {
       setPlayersLoading(false);
     }
-  };
+  }, [setSectionError]);
 
   // Fetch logs
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async (): Promise<boolean> => {
     setLogsLoading(true);
+    setSectionError('logs', null);
     try {
       let query = supabase
         .from('logs')
@@ -96,17 +134,21 @@ export function useAdminData(isAdmin: boolean) {
       const { data, error } = await query;
 
       if (error) throw error;
-      setLogs((data || []) as Log[]);
+      setLogs(data || []);
+      return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching logs:', error);
+      setSectionError('logs', errorMessage(error));
+      return false;
     } finally {
       setLogsLoading(false);
     }
-  };
+  }, [logFilter.level, logFilter.limit, logFilter.operation, setSectionError]);
 
   // Fetch runs with filters
-  const fetchRuns = async () => {
+  const fetchRuns = useCallback(async (): Promise<boolean> => {
     setRunsLoading(true);
+    setSectionError('runs', null);
     try {
       // First, fetch runs with filters
       let query = supabase
@@ -146,9 +188,8 @@ export function useAdminData(isAdmin: boolean) {
           .select('*')
           .in('run_id', runIds);
 
-        if (!tmError && tmData) {
-          teamMembers = tmData;
-        }
+        if (tmError) throw tmError;
+        teamMembers = tmData || [];
       }
 
       // Combine runs with team members
@@ -160,39 +201,29 @@ export function useAdminData(isAdmin: boolean) {
       }));
 
       setRuns(runsWithTeam as AdminRun[]);
+      return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching runs:', error);
-      setRuns([]);
+      setSectionError('runs', errorMessage(error));
+      return false;
     } finally {
       setRunsLoading(false);
     }
-  };
+  }, [runFilter, setSectionError]);
 
   // Initial data fetch
   useEffect(() => {
-    if (isAdmin) {
-      setLoading(true);
-      fetchStats();
-      setLoading(false);
+    if (!isAdmin) {
+      initialLoadStarted.current = false;
+      return;
     }
+    if (initialLoadStarted.current) return;
+    initialLoadStarted.current = true;
+    setLoading(true);
+    void loadAllAdminSections([fetchStats, fetchPlayerStats, fetchLogs, fetchRuns]).finally(() =>
+      setLoading(false),
+    );
   }, [isAdmin]);
-
-  // Fetch data when tab changes
-  useEffect(() => {
-    if (isAdmin) {
-      switch (activeTab) {
-        case 'players':
-          fetchPlayerStats();
-          break;
-        case 'logs':
-          fetchLogs();
-          break;
-        case 'runs':
-          fetchRuns();
-          break;
-      }
-    }
-  }, [activeTab, logFilter, runFilter]);
 
   return {
     activeTab,
@@ -201,10 +232,12 @@ export function useAdminData(isAdmin: boolean) {
     playerStats,
     logs,
     loading,
+    statsLoading,
     logsLoading,
     playersLoading,
     runsLoading,
     runs,
+    errors,
     runFilter,
     setRunFilter,
     logFilter,

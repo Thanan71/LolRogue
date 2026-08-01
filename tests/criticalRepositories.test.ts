@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it, vi } from 'vitest';
 import { SupabaseAuthRepository } from '@/services/repositories/SupabaseAuthRepository';
+import { SupabaseLeaderboardRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import {
   SupabaseRunRepository,
   SupabaseRunStatsRepository,
@@ -173,5 +174,17 @@ describe('SupabaseRunStatsRepository behavior', () => {
       data: null,
       error: expect.any(Error),
     });
+  });
+});
+
+describe('SupabaseLeaderboardRepository behavior', () => {
+  it('gets the authenticated rank from the database without downloading the leaderboard', async () => {
+    const rpc = vi.fn().mockResolvedValue({ data: 17, error: null });
+    const from = vi.fn();
+    const repository = new SupabaseLeaderboardRepository(client({ rpc, from }));
+
+    await expect(repository.getPlayerRank()).resolves.toBe(17);
+    expect(rpc).toHaveBeenCalledWith('get_my_leaderboard_rank');
+    expect(from).not.toHaveBeenCalled();
   });
 });

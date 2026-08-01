@@ -1,4 +1,5 @@
 import { fr } from '@/i18n/fr';
+import { AdminErrorNotice } from './AdminErrorNotice';
 import type { AdminTab } from './useAdminData';
 
 interface AdminDashboardPanelProps {
@@ -6,6 +7,7 @@ interface AdminDashboardPanelProps {
   stats: Record<string, string>;
   onSelectTab: (tab: AdminTab) => void;
   onRefresh: () => void;
+  error: string | null;
 }
 
 const DASHBOARD_STATS = [
@@ -22,9 +24,16 @@ export function AdminDashboardPanel({
   stats,
   onSelectTab,
   onRefresh,
+  error,
 }: AdminDashboardPanelProps) {
   return (
-    <section className="dashboard-tab" aria-label={fr.admin.dashboard}>
+    <section
+      className="dashboard-tab"
+      role="tabpanel"
+      id="admin-panel-dashboard"
+      aria-labelledby="admin-tab-dashboard"
+    >
+      <AdminErrorNotice message={error} onRetry={onRefresh} retrying={loading} />
       {loading ? (
         <div className="loading">Chargement...</div>
       ) : (
@@ -41,9 +50,15 @@ export function AdminDashboardPanel({
       <div className="admin-quick-actions">
         <h3>{fr.admin.quickActions}</h3>
         <div className="action-buttons">
-          <button onClick={() => onSelectTab('logs')}>{fr.admin.viewLogs}</button>
-          <button onClick={() => onSelectTab('players')}>{fr.admin.managePlayers}</button>
-          <button onClick={onRefresh}>{fr.admin.refreshStats}</button>
+          <button onClick={() => onSelectTab('logs')} disabled={loading}>
+            {fr.admin.viewLogs}
+          </button>
+          <button onClick={() => onSelectTab('players')} disabled={loading}>
+            {fr.admin.managePlayers}
+          </button>
+          <button onClick={onRefresh} disabled={loading}>
+            {fr.admin.refreshStats}
+          </button>
         </div>
       </div>
     </section>

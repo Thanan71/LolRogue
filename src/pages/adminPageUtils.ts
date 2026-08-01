@@ -26,9 +26,16 @@ export function getLogLevelColor(level: string): string {
   return colors[level] ?? '#c8aa6e';
 }
 
-export function exportRunsToCSV(runs: AdminRun[]): void {
-  if (runs.length === 0) return;
+const SPREADSHEET_FORMULA_PREFIX = /^\s*[=+\-@]/;
 
+/** Quote one CSV cell and force spreadsheet formulas to remain inert text. */
+export function escapeCsvCell(value: unknown): string {
+  const raw = String(value ?? '');
+  const safe = SPREADSHEET_FORMULA_PREFIX.test(raw) ? `'${raw}` : raw;
+  return `"${safe.replace(/"/g, '""')}"`;
+}
+
+export function buildRunsCsv(runs: readonly AdminRun[]): string {
   const headers = [
     'Run ID',
     'Seed',
@@ -100,11 +107,17 @@ export function exportRunsToCSV(runs: AdminRun[]): void {
       champions,
       details,
     ]
-      .map((field) => `"${String(field).replace(/"/g, '""')}"`)
+      .map(escapeCsvCell)
       .join(',');
   });
 
-  const blob = new Blob([`\ufeff${[headers.join(','), ...rows].join('\n')}`], {
+  return `\ufeff${[headers.map(escapeCsvCell).join(','), ...rows].join('\r\n')}`;
+}
+
+export function exportRunsToCSV(runs: AdminRun[]): void {
+  if (runs.length === 0) return;
+
+  const blob = new Blob([buildRunsCsv(runs)], {
     type: 'text/csv;charset=utf-8;',
   });
   const url = URL.createObjectURL(blob);

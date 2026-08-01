@@ -107,8 +107,8 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P2-SEC-01 — Durcir les outils d'administration** : sécuriser les exports et
-   rendre les erreurs/retries Admin visibles sans présenter de données partielles.
+1. **P2 — Performance et production** : mesurer bundle et Web Vitals mobiles avant
+   d'introduire les budgets CI et les optimisations d'assets/rendu.
 
 ---
 

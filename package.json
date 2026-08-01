@@ -30,7 +30,7 @@
     "db:lint": "supabase db lint --level warning",
     "db:types": "supabase gen types typescript --local > src/types/database.ts && biome format --write src/types/database.ts",
     "db:types:check": "npm run db:types && git diff --exit-code -- src/types/database.ts",
-    "db:validate": "npm run db:reset && npm run db:lint && npm run db:types:check && npm run test:db",
+    "db:validate": "npm run db:reset && npm run db:lint && npm run db:types:check && node scripts/run-local-db-tests.mjs",
     "edge:bundle": "node scripts/build-authority-bundle.mjs",
     "edge:serve": "npm run edge:bundle && supabase functions serve verify-run",
     "edge:deploy": "npm run edge:bundle && supabase functions deploy verify-run",

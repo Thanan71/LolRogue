@@ -86,7 +86,14 @@ révocation est urgente.
 - Les clients n'insèrent jamais directement dans `logs`; la RPC attribue chaque
   ligne à la session. Les diagnostics expirent après 14 jours et disparaissent
   immédiatement avec le compte concerné.
-- Les exports CSV sont produits après une lecture déjà autorisée par la base.
+- Les exports CSV sont produits après une lecture déjà autorisée par la base. Chaque
+  cellule est échappée et les préfixes de formule `=`, `+`, `-`, `@`, y compris après
+  des espaces, sont forcés en texte avant le téléchargement.
+- Le chargement initial attend statistiques, joueurs, logs et runs. Une erreur laisse
+  les anciennes données identifiées comme telles et expose une action de retry ; une
+  erreur de détail d'équipe invalide la lecture complète des runs.
+- Le rang personnel provient exclusivement de `get_my_leaderboard_rank()` : le client
+  ne télécharge jamais le leaderboard complet pour le recalculer.
 - Les migrations de durcissement doivent être appliquées avant d'activer le
   panneau sur un ancien projet Supabase.
 

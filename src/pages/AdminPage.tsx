@@ -3,6 +3,8 @@ import { ROUTES } from '@/config/routes';
 import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
 import { AdminDashboardPanel } from './admin/AdminDashboardPanel';
+import { AdminErrorNotice } from './admin/AdminErrorNotice';
+import { AdminTabList } from './admin/AdminTabList';
 import { useAdminData } from './admin/useAdminData';
 import { exportRunsToCSV, formatAdminDate, getLogLevelColor } from './adminPageUtils';
 import '@/styles/admin.css';
@@ -17,10 +19,12 @@ export function AdminPage() {
     playerStats,
     logs,
     loading,
+    statsLoading,
     logsLoading,
     playersLoading,
     runsLoading,
     runs,
+    errors,
     runFilter,
     setRunFilter,
     logFilter,
@@ -58,50 +62,37 @@ export function AdminPage() {
         </p>
       </div>
 
-      <div className="admin-nav">
-        <button
-          className={activeTab === 'dashboard' ? 'active' : ''}
-          onClick={() => setActiveTab('dashboard')}
-        >
-          📊 {fr.admin.dashboard}
-        </button>
-        <button
-          className={activeTab === 'logs' ? 'active' : ''}
-          onClick={() => setActiveTab('logs')}
-        >
-          📋 {fr.admin.logs}
-        </button>
-        <button
-          className={activeTab === 'players' ? 'active' : ''}
-          onClick={() => setActiveTab('players')}
-        >
-          👥 {fr.admin.players}
-        </button>
-        <button
-          className={activeTab === 'runs' ? 'active' : ''}
-          onClick={() => setActiveTab('runs')}
-        >
-          🎮 {fr.admin.runs}
-        </button>
-      </div>
+      <AdminTabList activeTab={activeTab} onSelect={setActiveTab} />
 
       <div className="admin-content">
         {activeTab === 'dashboard' && (
           <AdminDashboardPanel
-            loading={loading}
+            loading={loading || statsLoading}
             stats={stats}
             onSelectTab={setActiveTab}
             onRefresh={fetchStats}
+            error={errors.stats}
           />
         )}
 
         {activeTab === 'logs' && (
-          <div className="logs-tab">
+          <section
+            className="logs-tab"
+            role="tabpanel"
+            id="admin-panel-logs"
+            aria-labelledby="admin-tab-logs"
+          >
+            <AdminErrorNotice
+              message={errors.logs}
+              onRetry={fetchLogs}
+              retrying={loading || logsLoading}
+            />
             <div className="logs-filters">
               <h3>Filtres</h3>
               <div className="filter-row">
-                <label>Niveau:</label>
+                <label htmlFor="admin-log-level">Niveau:</label>
                 <select
+                  id="admin-log-level"
                   value={logFilter.level}
                   onChange={(e) => setLogFilter({ ...logFilter, level: e.target.value })}
                 >
@@ -112,8 +103,9 @@ export function AdminPage() {
                   <option value="debug">Debug</option>
                 </select>
 
-                <label>Opération:</label>
+                <label htmlFor="admin-log-operation">Opération:</label>
                 <select
+                  id="admin-log-operation"
                   value={logFilter.operation}
                   onChange={(e) => setLogFilter({ ...logFilter, operation: e.target.value })}
                 >
@@ -126,8 +118,9 @@ export function AdminPage() {
                   <option value="other">Autre</option>
                 </select>
 
-                <label>Limite:</label>
+                <label htmlFor="admin-log-limit">Limite:</label>
                 <select
+                  id="admin-log-limit"
                   value={logFilter.limit}
                   onChange={(e) => setLogFilter({ ...logFilter, limit: parseInt(e.target.value) })}
                 >
@@ -137,24 +130,27 @@ export function AdminPage() {
                   <option value="1000">1000</option>
                 </select>
 
-                <button onClick={fetchLogs}>Appliquer</button>
+                <button onClick={fetchLogs} disabled={loading || logsLoading}>
+                  Appliquer
+                </button>
               </div>
             </div>
 
-            {logsLoading ? (
+            {loading || logsLoading ? (
               <div className="loading">Chargement des logs...</div>
             ) : (
               <div className="logs-table-container">
                 <table className="logs-table">
+                  <caption className="sr-only">Journal technique filtré</caption>
                   <thead>
                     <tr>
-                      <th>Date</th>
-                      <th>Niveau</th>
-                      <th>Repository</th>
-                      <th>Méthode</th>
-                      <th>Opération</th>
-                      <th>Durée</th>
-                      <th>Erreur</th>
+                      <th scope="col">Date</th>
+                      <th scope="col">Niveau</th>
+                      <th scope="col">Repository</th>
+                      <th scope="col">Méthode</th>
+                      <th scope="col">Opération</th>
+                      <th scope="col">Durée</th>
+                      <th scope="col">Erreur</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -168,7 +164,17 @@ export function AdminPage() {
                         <td>{log.method}</td>
                         <td>{log.operation}</td>
                         <td>{log.duration_ms ? `${log.duration_ms}ms` : '-'}</td>
-                        <td title={log.error_stack || ''}>{log.error_message ? '❌' : '-'}</td>
+                        <td>
+                          {log.error_message ? (
+                            <details className="admin-details">
+                              <summary>Afficher l’erreur</summary>
+                              <p>{log.error_message}</p>
+                              {log.error_stack && <pre>{log.error_stack}</pre>}
+                            </details>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -176,31 +182,44 @@ export function AdminPage() {
                 {logs.length === 0 && <div className="no-data">Aucun log trouvé</div>}
               </div>
             )}
-          </div>
+          </section>
         )}
 
         {activeTab === 'players' && (
-          <div className="players-tab">
+          <section
+            className="players-tab"
+            role="tabpanel"
+            id="admin-panel-players"
+            aria-labelledby="admin-tab-players"
+          >
+            <AdminErrorNotice
+              message={errors.players}
+              onRetry={fetchPlayerStats}
+              retrying={loading || playersLoading}
+            />
             <div className="players-header">
               <h3>Liste des Joueurs</h3>
-              <button onClick={fetchPlayerStats}>Rafraîchir</button>
+              <button onClick={fetchPlayerStats} disabled={loading || playersLoading}>
+                Rafraîchir
+              </button>
             </div>
 
-            {playersLoading ? (
+            {loading || playersLoading ? (
               <div className="loading">Chargement...</div>
             ) : (
               <div className="players-table-container">
                 <table className="players-table">
+                  <caption className="sr-only">Joueurs et statistiques</caption>
                   <thead>
                     <tr>
-                      <th>{fr.admin.username}</th>
-                      <th>Niveau</th>
-                      <th>{fr.admin.runs}</th>
-                      <th>Victoires</th>
-                      <th>{fr.admin.winRate}</th>
-                      <th>{fr.common.candies}</th>
-                      <th>{fr.admin.lastLogin}</th>
-                      <th>{fr.admin.registeredAt}</th>
+                      <th scope="col">{fr.admin.username}</th>
+                      <th scope="col">Niveau</th>
+                      <th scope="col">{fr.admin.runs}</th>
+                      <th scope="col">Victoires</th>
+                      <th scope="col">{fr.admin.winRate}</th>
+                      <th scope="col">{fr.common.candies}</th>
+                      <th scope="col">{fr.admin.lastLogin}</th>
+                      <th scope="col">{fr.admin.registeredAt}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -228,31 +247,44 @@ export function AdminPage() {
                 {playerStats.length === 0 && <div className="no-data">Aucun joueur trouvé</div>}
               </div>
             )}
-          </div>
+          </section>
         )}
 
         {activeTab === 'runs' && (
-          <div className="runs-tab">
+          <section
+            className="runs-tab"
+            role="tabpanel"
+            id="admin-panel-runs"
+            aria-labelledby="admin-tab-runs"
+          >
+            <AdminErrorNotice
+              message={errors.runs}
+              onRetry={fetchRuns}
+              retrying={loading || runsLoading}
+            />
             <div className="runs-header">
               <h3>{fr.admin.runHistory}</h3>
               <div className="runs-actions">
                 <button
                   className="export-btn"
                   onClick={() => exportRunsToCSV(runs)}
-                  disabled={runs.length === 0}
+                  disabled={loading || runsLoading || runs.length === 0}
                   title={fr.admin.exportCsv}
                 >
                   📥 Exporter CSV
                 </button>
-                <button onClick={fetchRuns}>🔄 Rafraîchir</button>
+                <button onClick={fetchRuns} disabled={loading || runsLoading}>
+                  🔄 Rafraîchir
+                </button>
               </div>
             </div>
 
             <div className="runs-filters">
               <h4>Filtres</h4>
               <div className="filter-row">
-                <label>Résultat:</label>
+                <label htmlFor="admin-run-result">Résultat:</label>
                 <select
+                  id="admin-run-result"
                   value={runFilter.won}
                   onChange={(e) =>
                     setRunFilter({ ...runFilter, won: e.target.value as 'all' | 'true' | 'false' })
@@ -263,44 +295,31 @@ export function AdminPage() {
                   <option value="false">Défaites uniquement</option>
                 </select>
 
-                <label>Min Vagues:</label>
+                <label htmlFor="admin-run-min-waves">Min Vagues:</label>
                 <input
+                  id="admin-run-min-waves"
                   type="number"
                   min="0"
                   placeholder="0"
                   value={runFilter.minWaves}
                   onChange={(e) => setRunFilter({ ...runFilter, minWaves: e.target.value })}
-                  style={{
-                    width: '60px',
-                    padding: '0.5rem',
-                    background: 'rgba(10, 20, 40, 0.8)',
-                    border: '1px solid rgba(200, 170, 110, 0.3)',
-                    color: '#c8aa6e',
-                    borderRadius: '4px',
-                    fontFamily: 'var(--font-display)',
-                  }}
+                  className="admin-number-filter"
                 />
 
-                <label>Max Vagues:</label>
+                <label htmlFor="admin-run-max-waves">Max Vagues:</label>
                 <input
+                  id="admin-run-max-waves"
                   type="number"
                   min="0"
                   placeholder="∞"
                   value={runFilter.maxWaves}
                   onChange={(e) => setRunFilter({ ...runFilter, maxWaves: e.target.value })}
-                  style={{
-                    width: '60px',
-                    padding: '0.5rem',
-                    background: 'rgba(10, 20, 40, 0.8)',
-                    border: '1px solid rgba(200, 170, 110, 0.3)',
-                    color: '#c8aa6e',
-                    borderRadius: '4px',
-                    fontFamily: 'var(--font-display)',
-                  }}
+                  className="admin-number-filter"
                 />
 
-                <label>Trier par:</label>
+                <label htmlFor="admin-run-sort">Trier par:</label>
                 <select
+                  id="admin-run-sort"
                   value={runFilter.sortBy}
                   onChange={(e) =>
                     setRunFilter({
@@ -314,8 +333,9 @@ export function AdminPage() {
                   <option value="run_level">Niveau de partie</option>
                 </select>
 
-                <label>Ordre:</label>
+                <label htmlFor="admin-run-order">Ordre:</label>
                 <select
+                  id="admin-run-order"
                   value={runFilter.sortOrder}
                   onChange={(e) =>
                     setRunFilter({ ...runFilter, sortOrder: e.target.value as 'asc' | 'desc' })
@@ -325,8 +345,9 @@ export function AdminPage() {
                   <option value="asc">Ascendant</option>
                 </select>
 
-                <label>Limite:</label>
+                <label htmlFor="admin-run-limit">Limite:</label>
                 <select
+                  id="admin-run-limit"
                   value={runFilter.limit}
                   onChange={(e) => setRunFilter({ ...runFilter, limit: parseInt(e.target.value) })}
                 >
@@ -336,11 +357,13 @@ export function AdminPage() {
                   <option value="1000">1000</option>
                 </select>
 
-                <button onClick={fetchRuns}>Appliquer</button>
+                <button onClick={fetchRuns} disabled={loading || runsLoading}>
+                  Appliquer
+                </button>
               </div>
             </div>
 
-            {runsLoading ? (
+            {loading || runsLoading ? (
               <div className="loading">Chargement des parties…</div>
             ) : (
               <>
@@ -367,20 +390,21 @@ export function AdminPage() {
 
                 <div className="runs-table-container">
                   <table className="runs-table">
+                    <caption className="sr-only">Historique filtré des runs</caption>
                     <thead>
                       <tr>
-                        <th>Date</th>
-                        <th>Joueur</th>
-                        <th>Résultat</th>
-                        <th>Niveau</th>
-                        <th>Vagues</th>
-                        <th>Biomes</th>
-                        <th>{fr.admin.kills}</th>
-                        <th>Dégâts</th>
-                        <th>Or</th>
-                        <th>{fr.common.candies}</th>
-                        <th>Durée</th>
-                        <th>Équipe</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Joueur</th>
+                        <th scope="col">Résultat</th>
+                        <th scope="col">Niveau</th>
+                        <th scope="col">Vagues</th>
+                        <th scope="col">Biomes</th>
+                        <th scope="col">{fr.admin.kills}</th>
+                        <th scope="col">Dégâts</th>
+                        <th scope="col">Or</th>
+                        <th scope="col">{fr.common.candies}</th>
+                        <th scope="col">Durée</th>
+                        <th scope="col">Équipe</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -411,16 +435,19 @@ export function AdminPage() {
                               ? `${Math.floor(run.duration_seconds / 60)}min`
                               : '-'}
                           </td>
-                          <td
-                            className="team-cell"
-                            title={run.team_members
-                              ?.map(
-                                (tm) =>
-                                  `${tm.champion_id}: Niv${tm.final_level} ${tm.survived ? '✓' : '✗'} (K:${tm.kills} D:${tm.damage_dealt})`,
-                              )
-                              .join('\n')}
-                          >
-                            {run.team_members?.length || 0} champions
+                          <td className="team-cell">
+                            <details className="admin-details">
+                              <summary>{run.team_members?.length || 0} champions</summary>
+                              <ul>
+                                {run.team_members?.map((member) => (
+                                  <li key={member.id}>
+                                    {member.champion_id}: Niv{member.final_level}{' '}
+                                    {member.survived ? '✓' : '✗'} (K:{member.kills} D:
+                                    {member.damage_dealt})
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
                           </td>
                         </tr>
                       ))}
@@ -430,7 +457,7 @@ export function AdminPage() {
                 </div>
               </>
             )}
-          </div>
+          </section>
         )}
       </div>
     </div>
