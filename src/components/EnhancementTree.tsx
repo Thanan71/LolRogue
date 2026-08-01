@@ -8,6 +8,20 @@ import {
 import type { Champion } from '@/types/champion';
 import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';
 import { BRANCH_THEME_COLORS, BRANCH_THEME_ICONS } from '@/types/enhancementTree';
+import { enhancementService } from '@/services/enhancementService';
+import { calculateFullStats } from '@/utils/statCalculator';
+import {
+  formatStatValue,
+  normalizeStatKey,
+  STAT_LABELS,
+  type CanonicalStatKey,
+} from '@/game/stats/statContract';
+
+interface StatPreview {
+  stat: CanonicalStatKey;
+  before: number;
+  after: number;
+}
 
 interface EnhancementTreeProps {
   champion: Champion;
@@ -28,6 +42,34 @@ export function EnhancementTree({
 }: EnhancementTreeProps) {
   const tree = useMemo(() => getEnhancementTreeForRole(champion.tags[0]), [champion.tags]);
   const [activeBranch, setActiveBranch] = useState<string>(tree.branches[0]?.id);
+
+  const getNodePreview = (node: EnhancementNode): StatPreview[] => {
+    const currentRank = enhancementState.unlockedNodes[node.id] || 0;
+    if (currentRank >= (node.maxRanks || 1)) return [];
+    const beforeBonuses = enhancementService.calculateStatBonuses(
+      tree,
+      enhancementState.unlockedNodes,
+    );
+    const afterBonuses = enhancementService.calculateStatBonuses(tree, {
+      ...enhancementState.unlockedNodes,
+      [node.id]: currentRank + 1,
+    });
+    const before = calculateFullStats(
+      champion,
+      1,
+      beforeBonuses,
+      undefined,
+      undefined,
+      masteryLevel,
+    );
+    const after = calculateFullStats(champion, 1, afterBonuses, undefined, undefined, masteryLevel);
+    const affected = new Set(
+      [...Object.keys(node.statBonuses || {}), ...Object.keys(node.percentBonuses || {})]
+        .map(normalizeStatKey)
+        .filter((key): key is CanonicalStatKey => key !== null),
+    );
+    return [...affected].map((stat) => ({ stat, before: before[stat], after: after[stat] }));
+  };
 
   useEffect(() => {
     setActiveBranch(tree.branches[0]?.id);
@@ -80,6 +122,7 @@ export function EnhancementTree({
                 lockReason={lockReason}
                 onUnlock={() => void handleUnlock(node)}
                 isLoading={isLoading}
+                preview={getNodePreview(node)}
               />
             );
           })}
@@ -144,6 +187,7 @@ export function EnhancementTree({
                       onUnlock={() => void handleUnlock(node)}
                       isUltimate={node.type === 'ultimate'}
                       isLoading={isLoading}
+                      preview={getNodePreview(node)}
                     />
                   </React.Fragment>
                 );
@@ -166,6 +210,7 @@ interface NodeCardProps {
   onUnlock: () => void;
   isUltimate?: boolean;
   isLoading: boolean;
+  preview: StatPreview[];
 }
 
 function NodeCard({
@@ -176,6 +221,7 @@ function NodeCard({
   onUnlock,
   isUltimate,
   isLoading,
+  preview,
 }: NodeCardProps) {
   const maxRanks = node.maxRanks || 1;
   const isMaxed = unlocked >= maxRanks;
@@ -221,6 +267,17 @@ function NodeCard({
             <span key={stat} style={statBonusStyle}>
               +{value} {stat.toUpperCase()}
             </span>
+          ))}
+        </div>
+      )}
+
+      {preview.length > 0 && (
+        <div style={previewStyle} aria-label="Aperçu des statistiques après déblocage">
+          {preview.map(({ stat, before, after }) => (
+            <div key={stat}>
+              {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
+              <strong>{formatStatValue(stat, after)}</strong>
+            </div>
           ))}
         </div>
       )}
@@ -301,6 +358,16 @@ const levelBadgeStyle: React.CSSProperties = {
   padding: '2px 8px',
   borderRadius: 12,
   fontSize: 12,
+};
+
+const previewStyle: React.CSSProperties = {
+  marginTop: 6,
+  padding: 6,
+  borderRadius: 4,
+  background: '#161b22',
+  color: '#9fe3b1',
+  fontSize: 10,
+  lineHeight: 1.45,
 };
 
 const sectionStyle: React.CSSProperties = {

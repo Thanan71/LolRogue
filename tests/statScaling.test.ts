@@ -22,8 +22,8 @@ describe('Stat Scaling with Level', () => {
     const garen = championDB.getById('Garen');
     const base = calculateStats(garen!.stats, 1);
     const enhanced = applyEnhancementBonuses(base, {
-      flat: { atk: 10, mr: 5, armorPen: 99 },
-      percent: { def: 0.1, attackRange: 0.05 },
+      flat: { attackDamage: 10, magicResist: 5, armorPen: 99 },
+      percent: { armor: 0.1, attackRange: 0.05 },
       effects: [],
     });
 

@@ -25,9 +25,10 @@ import type {
   ChampionEnhancementTree,
   EnhancementNode,
   PlayerEnhancementState,
-  StatType,
 } from '@/types/enhancementTree';
 import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
+import { normalizeGameplayStatKey } from '@/game/stats/statContract';
+import { applyEnhancementBonuses as applySharedEnhancementBonuses } from '@/utils/statCalculator';
 
 /**
  * Enhancement Tree Provider
@@ -106,7 +107,8 @@ export class EnhancementService implements IEnhancementService {
       // Add flat stat bonuses
       if (node.statBonuses) {
         for (const [stat, value] of Object.entries(node.statBonuses)) {
-          const key = stat as StatType;
+          const key = normalizeGameplayStatKey(stat);
+          if (!key) continue;
           result.flat[key] = (result.flat[key] || 0) + value * rank;
         }
       }
@@ -114,7 +116,8 @@ export class EnhancementService implements IEnhancementService {
       // Add percentage bonuses
       if (node.percentBonuses) {
         for (const [stat, value] of Object.entries(node.percentBonuses)) {
-          const key = stat as StatType;
+          const key = normalizeGameplayStatKey(stat);
+          if (!key) continue;
           result.percent[key] = (result.percent[key] || 0) + value * rank;
         }
       }
@@ -217,23 +220,10 @@ export class EnhancementService implements IEnhancementService {
     baseStats: T,
     bonuses: EnhancementStatBonuses,
   ): T {
-    const result = { ...baseStats } as Record<string, number>;
-
-    // Apply flat bonuses
-    for (const [stat, value] of Object.entries(bonuses.flat)) {
-      if (stat in result) {
-        result[stat] = result[stat] + value;
-      }
-    }
-
-    // Apply percentage bonuses
-    for (const [stat, percent] of Object.entries(bonuses.percent)) {
-      if (stat in result) {
-        result[stat] = result[stat] * (1 + percent);
-      }
-    }
-
-    return result as T;
+    return applySharedEnhancementBonuses(
+      baseStats as unknown as import('@/utils/champion').CalculatedStats,
+      bonuses,
+    ) as unknown as T;
   }
 
   /**

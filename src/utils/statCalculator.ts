@@ -11,6 +11,12 @@ import type { InventoryEntry } from '@/types/run';
 import type { CalculatedStats } from '@/utils/champion';
 import { calculateStats } from '@/utils/champion';
 import { getStatBonusForLevel } from '@/services/masteryService';
+import {
+  applyCanonicalModifiers,
+  CANONICAL_STAT_KEYS,
+  type CanonicalStatModifier,
+  normalizeStatKey,
+} from '@/game/stats/statContract';
 
 /**
  * Mapping from item stat keys to CalculatedStats keys
@@ -67,11 +73,20 @@ export const ENHANCEMENT_STAT_KEY_MAP = {
 } as const satisfies Record<StatType, keyof CalculatedStats | null>;
 
 export function toCombatStatKey(stat: string): keyof CalculatedStats | null {
-  return (
-    COMBAT_STAT_KEY_MAP[stat as keyof typeof COMBAT_STAT_KEY_MAP] ??
-    ENHANCEMENT_STAT_KEY_MAP[stat as StatType] ??
-    null
-  );
+  return normalizeStatKey(stat);
+}
+
+export function enhancementModifiers(bonuses: EnhancementStatBonuses): CanonicalStatModifier[] {
+  const modifiers: CanonicalStatModifier[] = [];
+  for (const [rawStat, value] of Object.entries(bonuses.flat)) {
+    const stat = normalizeStatKey(rawStat);
+    if (stat && value) modifiers.push({ stat, kind: 'flat', value });
+  }
+  for (const [rawStat, value] of Object.entries(bonuses.percent)) {
+    const stat = normalizeStatKey(rawStat);
+    if (stat && value) modifiers.push({ stat, kind: 'additivePercent', value });
+  }
+  return modifiers;
 }
 
 /**
@@ -105,29 +120,7 @@ export function applyEnhancementBonuses(
   baseStats: CalculatedStats,
   bonuses: EnhancementStatBonuses,
 ): CalculatedStats {
-  const result = { ...baseStats };
-
-  // Apply flat bonuses
-  if (bonuses.flat) {
-    for (const [stat, value] of Object.entries(bonuses.flat)) {
-      const statKey = toCombatStatKey(stat);
-      if (statKey) {
-        result[statKey] = result[statKey] + value;
-      }
-    }
-  }
-
-  // Apply percentage bonuses
-  if (bonuses.percent) {
-    for (const [stat, percent] of Object.entries(bonuses.percent)) {
-      const statKey = toCombatStatKey(stat);
-      if (statKey) {
-        result[statKey] = result[statKey] * (1 + percent);
-      }
-    }
-  }
-
-  return result;
+  return applyCanonicalModifiers(baseStats, enhancementModifiers(bonuses));
 }
 
 /** Apply the permanent mastery percentage to level-scaled base stats only. */
@@ -136,10 +129,10 @@ export function applyMasteryBonus(
   masteryLevel: number,
 ): CalculatedStats {
   const multiplier = 1 + getStatBonusForLevel(masteryLevel);
-  if (multiplier === 1) return { ...baseStats };
-  return Object.fromEntries(
-    Object.entries(baseStats).map(([stat, value]) => [stat, value * multiplier]),
-  ) as unknown as CalculatedStats;
+  return applyCanonicalModifiers(
+    baseStats,
+    CANONICAL_STAT_KEYS.map((stat) => ({ stat, kind: 'multiplier', value: multiplier })),
+  );
 }
 
 /**
@@ -149,13 +142,12 @@ export function applyItemBonuses(
   baseStats: CalculatedStats,
   bonuses: Partial<CalculatedStats>,
 ): CalculatedStats {
-  const result = { ...baseStats };
-  for (const [key, value] of Object.entries(bonuses)) {
-    if (value) {
-      result[key as keyof CalculatedStats] = result[key as keyof CalculatedStats] + value;
-    }
-  }
-  return result;
+  return applyCanonicalModifiers(
+    baseStats,
+    Object.entries(bonuses).flatMap(([key, value]) =>
+      value ? [{ stat: key as keyof CalculatedStats, kind: 'flat' as const, value }] : [],
+    ),
+  );
 }
 
 /**
@@ -219,31 +211,18 @@ export function calculateMaxHP(
   statMultiplier: number = 1,
   masteryLevel: number = 0,
 ): number {
-  if (!champion) return 100;
-
-  // Step 1: Calculate base stats at current level
-  let stats = calculateStats(champion.stats, level);
-  stats = { ...stats, hp: stats.hp * Math.max(0.1, statMultiplier) };
-  stats = applyMasteryBonus(stats, masteryLevel);
-
-  // Step 2: Apply enhancement bonuses
-  if (enhancementBonuses) {
-    stats = applyEnhancementBonuses(stats, enhancementBonuses);
-  }
-
-  // Step 3: Apply item bonuses
-  if (inventory && championId) {
-    const itemBonuses = calculateItemBonuses(inventory, championId);
-    stats = applyItemBonuses(stats, itemBonuses);
-  }
-
-  // Step 4: Apply event stat boosts
-  if (eventStatBoosts) {
-    const eventBonuses = calculateEventStatBonuses(eventStatBoosts);
-    stats = applyItemBonuses(stats, eventBonuses);
-  }
-
-  return Math.round(stats.hp);
+  return Math.round(
+    calculateFullStats(
+      champion,
+      level,
+      enhancementBonuses,
+      inventory,
+      championId,
+      masteryLevel,
+      eventStatBoosts,
+      statMultiplier,
+    ).hp,
+  );
 }
 
 /**
@@ -263,6 +242,8 @@ export function calculateFullStats(
   inventory?: InventoryEntry[],
   championId?: string,
   masteryLevel: number = 0,
+  eventStatBoosts?: Record<string, number> | null,
+  statMultiplier: number = 1,
 ): CalculatedStats {
   if (!champion) {
     return {
@@ -282,7 +263,14 @@ export function calculateFullStats(
   }
 
   // Step 1: Calculate base stats at current level
-  let stats = calculateStats(champion.stats, level);
+  let stats = applyCanonicalModifiers(
+    calculateStats(champion.stats, level),
+    CANONICAL_STAT_KEYS.map((stat) => ({
+      stat,
+      kind: 'multiplier',
+      value: Math.max(0.1, statMultiplier),
+    })),
+  );
   stats = applyMasteryBonus(stats, masteryLevel);
 
   // Step 2: Apply enhancement bonuses
@@ -294,6 +282,10 @@ export function calculateFullStats(
   if (inventory && championId) {
     const itemBonuses = calculateItemBonuses(inventory, championId);
     stats = applyItemBonuses(stats, itemBonuses);
+  }
+
+  if (eventStatBoosts) {
+    stats = applyItemBonuses(stats, calculateEventStatBonuses(eventStatBoosts));
   }
 
   return stats;

@@ -9,7 +9,10 @@
 import type { Champion, ChampionStats, ChampionTag, Passive, Spell } from '@/types';
 import type { EnhancementStatBonuses } from '@/types/enhancementTree';
 import { type CalculatedStats, calculateStats } from '@/utils/champion';
-import { applyMasteryBonus } from '@/utils/statCalculator';
+import {
+  applyEnhancementBonuses as applySharedEnhancementBonuses,
+  applyMasteryBonus,
+} from '@/utils/statCalculator';
 
 /** Valid spell slots matching LoL key bindings. */
 export type SpellSlot = 'Q' | 'W' | 'E' | 'R';
@@ -186,25 +189,7 @@ export class ChampionInstance {
     baseStats: CalculatedStats,
     bonuses: EnhancementStatBonuses,
   ): CalculatedStats {
-    const result = { ...baseStats };
-
-    // Apply flat bonuses
-    for (const [stat, value] of Object.entries(bonuses.flat)) {
-      if (stat in result) {
-        result[stat as keyof CalculatedStats] =
-          (result[stat as keyof CalculatedStats] as number) + value;
-      }
-    }
-
-    // Apply percentage bonuses
-    for (const [stat, percent] of Object.entries(bonuses.percent)) {
-      if (stat in result) {
-        result[stat as keyof CalculatedStats] =
-          (result[stat as keyof CalculatedStats] as number) * (1 + percent);
-      }
-    }
-
-    return result;
+    return applySharedEnhancementBonuses(baseStats, bonuses);
   }
 
   private static applyStatMultiplier(stats: CalculatedStats, multiplier: number): CalculatedStats {

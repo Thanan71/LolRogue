@@ -7,6 +7,7 @@
  */
 
 import type { ChampionTag } from './champion';
+import type { GameplayStatKey } from '@/game/stats/statContract';
 
 // ─── Enhancement Node Types ──────────────────────────────────────────────────
 
@@ -71,11 +72,11 @@ export interface EnhancementNode {
 /** Computed stat bonuses from unlocked enhancement nodes */
 export interface EnhancementStatBonuses {
   /** Flat stat bonuses */
-  flat: Partial<Record<StatType, number>>;
+  flat: Partial<Record<GameplayStatKey, number>>;
   /** Percentage stat bonuses */
-  percent: Partial<Record<StatType, number>>;
+  percent: Partial<Record<GameplayStatKey, number>>;
   /** Active effects from enhancements */
-  effects: Array<{ description: string }>;
+  effects: EnhancementEffect[];
 }
 
 export interface EnhancementEffect {

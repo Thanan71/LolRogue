@@ -13,7 +13,13 @@ import { ROUTES } from '@/config/routes';
 import { useRunStore } from '@/stores/runStore';
 import { canUpgradeSpell } from '@/game/run/spellUpgradeRules';
 import type { InventoryEntry, NodeType as RunNodeType, TeamMember } from '@/types/run';
-import { calculateMaxHP } from '@/utils/statCalculator';
+import { calculateFullStats, calculateMaxHP } from '@/utils/statCalculator';
+import {
+  formatStatValue,
+  normalizeStatKey,
+  STAT_LABELS,
+  type CanonicalStatKey,
+} from '@/game/stats/statContract';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
 import {
@@ -620,6 +626,53 @@ function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team
   const unequipItem = useRunStore((state) => state.unequipItem);
   const sellItem = useRunStore((state) => state.sellItem);
   const sortInventory = useRunStore((state) => state.sortInventory);
+  const authorityAttempt = useRunStore((state) => state.authorityAttempt);
+
+  const getEquipPreview = (entry: InventoryEntry, member: TeamMember) => {
+    const champion = championDB.getById(member.championId);
+    if (!champion) return [];
+    const unlockedNodes = authorityAttempt
+      ? (authorityAttempt.enhancementSnapshot[member.championId] ?? {})
+      : useEnhancementStore.getState().getEnhancementState(member.championId).unlockedNodes;
+    const bonuses = enhancementService.calculateStatBonuses(
+      enhancementTreeProvider.getTreeForChampion(champion),
+      unlockedNodes,
+    );
+    const masteryLevel = authorityAttempt
+      ? (authorityAttempt.masterySnapshot?.[member.championId] ?? 0)
+      : useMasteryStore.getState().getChampionMastery(member.championId).level;
+    const before = calculateFullStats(
+      champion,
+      member.level,
+      bonuses,
+      inventory,
+      member.championId,
+      masteryLevel,
+      member.statBoosts,
+      member.statMultiplier,
+    );
+    const previewInventory = inventory.map((candidate) =>
+      candidate.instanceId === entry.instanceId
+        ? { ...candidate, equippedToChampionId: member.championId }
+        : candidate,
+    );
+    const after = calculateFullStats(
+      champion,
+      member.level,
+      bonuses,
+      previewInventory,
+      member.championId,
+      masteryLevel,
+      member.statBoosts,
+      member.statMultiplier,
+    );
+    const affected = new Set(
+      Object.keys(entry.item.stats)
+        .map(normalizeStatKey)
+        .filter((key): key is CanonicalStatKey => key !== null),
+    );
+    return [...affected].map((stat) => ({ stat, before: before[stat], after: after[stat] }));
+  };
 
   // Stat name translations
   const statNames: Record<string, string> = {
@@ -682,13 +735,20 @@ function InventoryPanel({ inventory, team }: { inventory: InventoryEntry[]; team
               </button>
             ) : (
               team.map((member) => (
-                <button
-                  type="button"
-                  key={member.championId}
-                  onClick={() => equipItem(entry.instanceId, member.championId)}
-                >
-                  Équiper {championDB.getById(member.championId)?.name ?? member.championId}
-                </button>
+                <div key={member.championId}>
+                  <button
+                    type="button"
+                    onClick={() => equipItem(entry.instanceId, member.championId)}
+                  >
+                    Équiper {championDB.getById(member.championId)?.name ?? member.championId}
+                  </button>
+                  {getEquipPreview(entry, member).map(({ stat, before, after }) => (
+                    <div key={stat} style={{ fontSize: 9, color: '#9fe3b1' }}>
+                      {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
+                      {formatStatValue(stat, after)}
+                    </div>
+                  ))}
+                </div>
               ))
             )}
             <button type="button" onClick={() => sellItem(entry.instanceId)}>

@@ -94,17 +94,15 @@ of Done actuelle.
 
 ## Ordre d'exécution immédiat
 
-1. **P1-META-02 — Stats et améliorations** : définir le schéma canonique, l'ordre
-   des bonus et les caps.
-2. **P1-DATA-01 — État local versionné** : valider et migrer chaque store persisté,
+1. **P1-DATA-01 — État local versionné** : valider et migrer chaque store persisté,
    notamment pendant un combat.
-3. **P1-DATA-02 — Sources de vérité** : réduire les gestionnaires concurrents et
+2. **P1-DATA-02 — Sources de vérité** : réduire les gestionnaires concurrents et
    documenter un propriétaire par donnée.
-4. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
+3. **P1-DATA-03 — Auth et changement d'identité** : rendre le bootstrap, le logout
    et les réponses asynchrones robustes.
-5. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
+4. **P1-UX-01 / P1-UX-02 — Shell et écrans de jeu responsive** : traiter en premier
    Combat et Game Over sur les petits viewports.
-6. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
+5. **P1-A11Y-01 / P1-A11Y-02 — Accessibilité** : intégrer focus, sémantique,
    reflow, contraste et réduction de mouvement dans le chantier responsive.
 7. **P2-TEST-01 — Parcours verticaux réels** : victoire, défaite, Normal, Daily,
    invité et authentifié sans mutation directe des stores.
@@ -152,16 +150,22 @@ suffixe autoplay devenu sans effet après la fin autoritaire du combat.
 
 ## P1-META-02 — Unifier les stats et améliorations
 
-- [ ] Remplacer les alias multiples par un schéma canonique partagé entre combat,
+- [x] Remplacer les alias multiples par un schéma canonique partagé entre combat,
   objets, améliorations, maîtrise et authority.
-- [ ] Distinguer bonus plat, pourcentage additif et multiplicateur.
-- [ ] Fixer l'ordre de calcul et les caps dans une spécification testée.
-- [ ] Afficher une comparaison avant/après lors d'un équipement ou déblocage.
-- [ ] Ajouter un test par nœud d'amélioration et palier de maîtrise réellement
+- [x] Distinguer bonus plat, pourcentage additif et multiplicateur.
+- [x] Fixer l'ordre de calcul et les caps dans une spécification testée.
+- [x] Afficher une comparaison avant/après lors d'un équipement ou déblocage.
+- [x] Ajouter un test par nœud d'amélioration et palier de maîtrise réellement
   disponible.
 
 **Acceptation :** une stat a une seule clé, une seule unité et un seul ordre de
 calcul dans l'UI comme dans le replay serveur.
+
+**Statut : terminé.** `run-engine-v12` introduit le contrat canonique partagé,
+normalise les anciens alias uniquement à l'entrée des catalogues, fixe l'ordre
+plat → pourcentage additif → multiplicateur → cap, et conserve le replay v11.
+Les aperçus d'arbre et d'équipement utilisent le même calcul que le combat ; les
+nœuds disponibles et les cinq paliers de maîtrise sont couverts individuellement.
 
 ---
 

@@ -670,16 +670,19 @@ sans fuite entre comptes.
 
 ### P1-META-02 — Unifier les stats et améliorations
 
-- [ ] Remplacer les alias multiples de stats par un schéma canonique partagé entre
+- [x] Remplacer les alias multiples de stats par un schéma canonique partagé entre
   champions, items, runes, augments, maîtrise et arbres.
-- [ ] Distinguer bonus plat, pourcentage additif et multiplicateur.
-- [ ] Fixer l'ordre de calcul et les caps dans une spécification testée.
-- [ ] Afficher une comparaison avant/après lors d'un équipement ou déblocage.
-- [ ] Ajouter un test par nœud d'amélioration et palier de maîtrise réellement
+- [x] Distinguer bonus plat, pourcentage additif et multiplicateur.
+- [x] Fixer l'ordre de calcul et les caps dans une spécification testée.
+- [x] Afficher une comparaison avant/après lors d'un équipement ou déblocage.
+- [x] Ajouter un test par nœud d'amélioration et palier de maîtrise réellement
   disponible.
 
 **Acceptation :** chaque bonus modifie la stat attendue une seule fois et la valeur
 affichée égale celle utilisée en combat.
+
+**Statut : terminé.** Le contrat canonique est partagé par l'UI, le combat et
+`run-engine-v12`; les anciens alias sont normalisés aux frontières du catalogue.
 
 ## P1 — persistance, offline et récupération
 

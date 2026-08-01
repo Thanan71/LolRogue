@@ -12,7 +12,9 @@ const attempt: AuthorityRunAttempt = {
   difficulty: 'easy',
   team: [{ championId: 'Warwick' }],
   runeIds: ['press_the_attack', 'glacial_augment', 'grasp_of_the_undying'],
-  enhancementSnapshot: { Warwick: { fighter_core_1: 1 } },
+  // This fixture targets trace consumption, not enhancement math. v12 now
+  // applies fighter_core_1 correctly, which intentionally changes turn count.
+  enhancementSnapshot: { Warwick: {} },
   masterySnapshot: { Warwick: 1 },
 };
 

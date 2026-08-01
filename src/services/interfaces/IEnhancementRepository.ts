@@ -11,7 +11,7 @@ import type {
   ChampionEnhancementTree,
   EnhancementNode,
   PlayerEnhancementState,
-  StatType,
+  EnhancementStatBonuses,
 } from '@/types/enhancementTree';
 
 /**
@@ -34,18 +34,7 @@ export interface UnlockNodeResult {
 /**
  * Computed stat bonuses from unlocked enhancements
  */
-export interface EnhancementStatBonuses {
-  flat: Partial<Record<StatType, number>>;
-  percent: Partial<Record<StatType, number>>;
-  effects: Array<{
-    type: string;
-    description: string;
-    value?: number;
-    condition?: string;
-    duration?: number;
-    cooldown?: number;
-  }>;
-}
+export type { EnhancementStatBonuses } from '@/types/enhancementTree';
 
 /**
  * Interface for enhancement data persistence
