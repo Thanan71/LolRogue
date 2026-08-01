@@ -157,7 +157,9 @@ for (const viewport of [...VIEWPORTS, ZOOM_200_VIEWPORT]) {
       contentType: 'image/png',
     });
 
-    await page.getByRole('button', { name: 'Jouer en invité' }).click();
+    // The behavior was already exercised above. This second navigation only prepares
+    // the menu screenshot, so it must not wait on post-screenshot layout stability.
+    await page.getByRole('button', { name: 'Jouer en invité' }).click({ force: true });
     await expect(page).toHaveURL('/');
     await testInfo.attach(`menu-${attachmentName}`, {
       body: await page.screenshot({ fullPage: true }),

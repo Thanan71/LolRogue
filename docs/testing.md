@@ -43,3 +43,6 @@ Après `npm run check` et les E2E sur profils vierges,
 `scripts/verify-production-build.mjs` sert `dist` avec le contrat `vercel.json` et
 vérifie les deep links, la CSP, les assets d'entrée et un vrai 404 pour un asset
 absent.
+
+Playwright utilise deux workers isolés en CI. Chaque test conserve son propre contexte
+navigateur vierge, sans sérialiser inutilement toutes les specs sur un seul worker.
