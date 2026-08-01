@@ -18,18 +18,26 @@ async function expectNoHorizontalOverflow(page: Page) {
 
 async function enterGuest(page: Page) {
   await page.goto('/auth');
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
   await page.getByRole('button', { name: 'Play as Guest' }).click();
   await expect(page).toHaveURL('/');
 }
 
+async function navigateSpa(page: Page, path: string) {
+  await page.evaluate((nextPath) => {
+    window.history.pushState(null, '', nextPath);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, path);
+}
+
 for (const viewport of VIEWPORTS) {
-  test(`game shells stay reachable at ${viewport.name}`, async ({ page, context }, testInfo) => {
-    await context.addInitScript(() => localStorage.clear());
+  test(`game shells stay reachable at ${viewport.name}`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await enterGuest(page);
 
-    await page.goto('/database');
+    await page.getByRole('button', { name: 'Database' }).click();
     await expect(page.getByRole('heading', { name: 'Champion Database' })).toBeVisible();
     await expect(page.getByPlaceholder('Search champions...')).toBeVisible();
     await expectNoHorizontalOverflow(page);
@@ -38,7 +46,7 @@ for (const viewport of VIEWPORTS) {
       contentType: 'image/png',
     });
 
-    await page.goto('/');
+    await page.getByRole('button', { name: '← Menu' }).click();
     await page.evaluate(async () => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
       const summary = {
@@ -83,7 +91,7 @@ for (const viewport of VIEWPORTS) {
         } as never,
       });
     });
-    await page.goto('/game-over');
+    await navigateSpa(page, '/game-over');
     await expect(page.getByRole('heading', { name: 'Victory!' })).toBeVisible();
     const menu = page.getByRole('button', { name: 'Main Menu' });
     await menu.scrollIntoViewIfNeeded();
@@ -94,13 +102,14 @@ for (const viewport of VIEWPORTS) {
       contentType: 'image/png',
     });
 
-    await page.goto('/');
+    await menu.click();
+    await expect(page).toHaveURL('/');
     await page.evaluate(async () => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
       useRunStore.setState({ completedRunSnapshot: null, saveStatus: 'idle' });
       await useRunStore.getState().startRun(['Garen'], { seed: 20260801 });
     });
-    await page.goto('/run');
+    await navigateSpa(page, '/run');
     await expect(page.getByRole('button', { name: /aide/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await testInfo.attach(`run-map-${viewport.name}`, {
