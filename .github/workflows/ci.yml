@@ -18,6 +18,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Assert empty browser workspace
+        run: |
+          test -z "$(git status --porcelain --untracked-files=all)"
+          test ! -d node_modules
+          test ! -d dist
+          test ! -d playwright-report
+          test ! -d test-results
+
       - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -124,9 +132,6 @@ jobs:
       - name: Verify tracked Riot asset package
         run: npm run assets:verify
 
-      - name: Install clean Chromium runtime
-        run: npx playwright install --with-deps chromium
-
       - name: Start local Supabase
         run: npm run db:start
 
@@ -157,9 +162,6 @@ jobs:
 
       - name: Validate source, coverage, assets and production build
         run: npm run check
-
-      - name: Run browser behavior suite from empty profiles
-        run: npm run test:e2e
 
       - name: Upload clean-room diagnostics
         if: failure()

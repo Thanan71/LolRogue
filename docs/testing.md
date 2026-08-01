@@ -31,18 +31,18 @@ RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
 
 ## Clean-room CI
 
-La job `clean-room` repart d'un checkout sans `node_modules`, `dist`, couverture ni
-profil navigateur et n'utilise pas le cache npm de `setup-node`. Les assets Riot sont
-un paquet versionné : ils sont donc vérifiés, pas téléchargés silencieusement.
+La job `clean-room` repart d'un checkout sans `node_modules`, `dist` ni couverture et
+n'utilise pas le cache npm de `setup-node`. Les assets Riot sont un paquet versionné :
+ils sont donc vérifiés, pas téléchargés silencieusement.
 
 Supabase est d'abord restauré à la migration v9 (`20260730300000`), puis migré vers
 la dernière version afin de tester un upgrade réel. La job compare ensuite les types
 TypeScript régénérés, effectue un reset complet et exécute les tests RLS/RPC live.
 
-Après `npm run check` et les E2E sur profils vierges,
-`scripts/verify-production-build.mjs` sert `dist` avec le contrat `vercel.json` et
-vérifie les deep links, la CSP, les assets d'entrée et un vrai 404 pour un asset
-absent.
+Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le
+contrat `vercel.json` et vérifie les deep links, la CSP, les assets d'entrée et un vrai
+404 pour un asset absent.
 
-Playwright utilise deux workers isolés en CI. Chaque test conserve son propre contexte
-navigateur vierge, sans sérialiser inutilement toutes les specs sur un seul worker.
+Le job E2E dédié vérifie lui-même son checkout sans résidus, puis Playwright utilise
+deux workers isolés. Chaque test conserve son propre contexte navigateur vierge, sans
+sérialiser les specs ni rejouer toute la suite dans `clean-room`.
