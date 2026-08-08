@@ -111,19 +111,19 @@ export function DailyLeaderboard() {
   }, [expiresAt]);
 
   return (
-    <div className="daily-leaderboard" style={styles.container}>
-      <h2 style={styles.title}>
+    <div className="daily-leaderboard">
+      <h2 className="daily-leaderboard__title">
         {fr.daily.title} — {dailyDate} UTC
       </h2>
-      <p style={styles.countdown}>
+      <p className="daily-leaderboard__countdown">
         {fr.daily.resetsIn} : {countdown}
       </p>
-      <p style={styles.source}>
+      <p className="daily-leaderboard__source">
         {usesLocalLeaderboard ? fr.daily.localSource : fr.daily.onlineSource}
       </p>
 
       {!usesLocalLeaderboard && (
-        <fieldset style={styles.filters}>
+        <fieldset className="daily-leaderboard__filters">
           <legend>{fr.daily.comparisonFilters}</legend>
           <label>
             {fr.daily.season}
@@ -171,40 +171,40 @@ export function DailyLeaderboard() {
       )}
 
       {isLoading ? (
-        <p role="status" style={styles.empty}>
+        <p role="status" className="daily-leaderboard__empty">
           {fr.daily.leaderboardLoading}
         </p>
       ) : error ? (
-        <p role="alert" style={styles.error}>
+        <p role="alert" className="daily-leaderboard__error">
           {error}
         </p>
       ) : entries.length === 0 ? (
-        <p style={styles.empty}>{fr.daily.leaderboardEmpty}</p>
+        <p className="daily-leaderboard__empty">{fr.daily.leaderboardEmpty}</p>
       ) : (
-        <table style={styles.table}>
+        <table className="daily-leaderboard__table">
           <thead>
             <tr>
-              <th style={styles.th}>#</th>
-              <th style={styles.th}>{fr.daily.player}</th>
-              <th style={styles.th}>{fr.daily.score}</th>
-              <th style={styles.th}>{fr.daily.waves}</th>
-              <th style={styles.th}>{fr.common.level}</th>
-              {!isGuest && <th style={styles.th}>{fr.daily.moderation}</th>}
+              <th>#</th>
+              <th>{fr.daily.player}</th>
+              <th>{fr.daily.score}</th>
+              <th>{fr.daily.waves}</th>
+              <th>{fr.common.level}</th>
+              {!isGuest && <th>{fr.daily.moderation}</th>}
             </tr>
           </thead>
           <tbody>
             {entries.map((entry, i) => (
               <tr
                 key={`${entry.rank ?? i + 1}-${entry.playerName}`}
-                style={i < 3 ? styles.topRow : undefined}
+                className={i < 3 ? 'daily-leaderboard__top-row' : undefined}
               >
-                <td style={styles.td}>{entry.rank ?? i + 1}</td>
-                <td style={styles.td}>{entry.playerName}</td>
-                <td style={styles.td}>{formatNumber(entry.score)}</td>
-                <td style={styles.td}>{entry.wavesCompleted}</td>
-                <td style={styles.td}>{entry.runLevel}</td>
+                <td>{entry.rank ?? i + 1}</td>
+                <td>{entry.playerName}</td>
+                <td>{formatNumber(entry.score)}</td>
+                <td>{entry.wavesCompleted}</td>
+                <td>{entry.runLevel}</td>
                 {!isGuest && (
-                  <td style={styles.td}>
+                  <td>
                     {entry.entryId && (
                       <button type="button" onClick={() => setReportedEntryId(entry.entryId!)}>
                         {fr.daily.report}
@@ -220,7 +220,7 @@ export function DailyLeaderboard() {
 
       {reportedEntryId && (
         <form
-          style={styles.reportForm}
+          className="daily-leaderboard__report-form"
           onSubmit={(event) => {
             event.preventDefault();
             void submitReport();
@@ -243,81 +243,13 @@ export function DailyLeaderboard() {
       )}
       {reportStatus && <p role="status">{reportStatus}</p>}
 
-      <button style={styles.refreshBtn} onClick={() => void refresh()} disabled={isLoading}>
+      <button
+        className="daily-leaderboard__refresh"
+        onClick={() => void refresh()}
+        disabled={isLoading}
+      >
         {fr.daily.refresh}
       </button>
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    background: '#16213e',
-    borderRadius: 12,
-    padding: 24,
-    color: '#e0e0e0',
-    fontFamily: 'monospace',
-    minWidth: 0,
-  },
-  title: {
-    margin: 0,
-    color: '#f5c542',
-    fontSize: 20,
-  },
-  countdown: {
-    color: '#ff6b6b',
-    fontSize: 14,
-    marginBottom: 16,
-  },
-  source: {
-    color: '#8b949e',
-    fontSize: 12,
-    marginBottom: 16,
-  },
-  error: {
-    color: '#ff8a8a',
-  },
-  empty: {
-    color: '#b3b8c2',
-    fontStyle: 'italic',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-  },
-  th: {
-    textAlign: 'left' as const,
-    padding: '6px 8px',
-    borderBottom: '2px solid #333',
-    color: '#f5c542',
-    fontSize: 13,
-  },
-  td: {
-    padding: '4px 8px',
-    fontSize: 13,
-  },
-  topRow: {
-    background: 'rgba(245, 197, 66, 0.1)',
-  },
-  refreshBtn: {
-    marginTop: 12,
-    padding: '6px 16px',
-    background: '#0f3460',
-    color: '#e0e0e0',
-    border: '1px solid #333',
-    borderRadius: 6,
-    cursor: 'pointer',
-    fontFamily: 'monospace',
-  },
-  filters: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 16,
-  },
-  reportForm: {
-    display: 'grid',
-    gap: 8,
-    marginTop: 16,
-  },
-};

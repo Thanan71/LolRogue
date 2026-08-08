@@ -26,6 +26,7 @@ définitifs.
 | Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 187 fichiers versionnés |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
 | Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Livré : aucune alerte haute/critique au 8 août 2026 |
+| Budgets de performance | plafond global 393 Ko gzip, routes initiale 205 Ko et Auth 225 Ko | `npm run test:performance-budgets` | Recalé après P3-PROD-03 ; styles du classement extraits du JavaScript |
 | Exploitation et restauration | `operations`, `incident-runbooks`, `backup-and-restore`, `release-and-support` | runbooks versionnés et critères de preuve | Livré côté procédures ; exercice distant requis avant bêta |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |
 
