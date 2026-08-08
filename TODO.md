@@ -1260,24 +1260,30 @@ toute monétisation restent interdites jusqu'à l'audit externe et l'analyse Rio
 
 ---
 
-## Décisions produit à prendre avant les chantiers concernés
+## Décisions produit transverses — figées pour la bêta
 
-- [ ] **Langue de lancement :** recommandation, français cohérent partout puis
-  anglais via i18n.
-- [ ] **Mode invité :** recommandation, progression locale explicitement séparée,
-  sans fusion automatique lors du login.
-- [ ] **Daily :** recommandation, date UTC, difficulté fixe, une tentative créée au
-  lancement, abandon non classé.
-- [ ] **Autoplay :** recommandation, OFF par défaut et pause à chaque décision joueur.
-- [ ] **Branches :** recommandation, un chemin irréversible par biome.
-- [ ] **Défaite/abandon :** définir progression minimale et récompenses conservées.
-- [ ] **Inventaire plein :** recommandation, proposer remplacement/vente ; ne jamais
-  supprimer automatiquement une récompense.
-- [ ] **XP des KO :** choisir la règle et l'afficher avant équilibrage.
-- [ ] **Offline :** choisir entre reprise locale officielle ou erreur bloquante avec
-  retry ; ne pas laisser un entre-deux implicite.
-- [ ] **Télémétrie :** définir finalités, consentement, rétention et opt-out avant
-  activation.
+- [x] **Langue de lancement :** français cohérent partout, puis anglais via un
+  dictionnaire i18n complet.
+- [x] **Mode invité :** progression locale explicitement séparée, sans fusion
+  automatique lors du login.
+- [x] **Daily :** date UTC, difficulté serveur fixe, une tentative créée au
+  lancement, abandon consommé mais non classé.
+- [x] **Autoplay :** OFF par défaut, contrôlable par le joueur et en pause à chaque
+  décision joueur.
+- [x] **Branches :** un chemin irréversible par biome.
+- [x] **Défaite/abandon :** zéro candy sans vague terminée ; candies acquises
+  conservées ensuite, sans bonus de victoire. Or et objets ne persistent pas.
+- [x] **Inventaire plein :** achat refusé sans dépense ; récompense gratuite laissée
+  sur place avec feedback explicite. Aucune perte silencieuse.
+- [x] **XP des KO :** XP de victoire donnée à toute l'équipe, KO inclus ; aucun bonus
+  d'XP séparé par kill.
+- [x] **Offline :** invité officiellement local ; autorité en ligne obligatoire pour
+  démarrer/vérifier une run connectée, avec état préservé et retry après coupure.
+- [x] **Télémétrie :** analytics produit désactivées ; diagnostics opt-in, bornés et
+  supprimés après 14 jours. Finalité et contrôles utilisateur requis avant activation.
+
+Le contrat détaillé, ses raisons et ses limites sont dans
+`docs/product-decisions.md` et `src/product/productDecisions.ts`.
 
 ## Ordre de réalisation recommandé
 

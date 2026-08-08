@@ -28,6 +28,7 @@ describe('documentation maintenue', () => {
 
     for (const path of [
       'docs/data-and-persistence.md',
+      'docs/product-decisions.md',
       'docs/gameplay.md',
       'docs/content-balance.md',
       'docs/progression-personalization.md',

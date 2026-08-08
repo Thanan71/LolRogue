@@ -217,6 +217,31 @@ describe('P2 page smoke tests', () => {
     expect(document.querySelector('svg')).toBeInTheDocument();
   });
 
+  it('annonce explicitement un objet de combat laissé faute de place', () => {
+    const maps = generateRunMap(12345);
+    useRunStore.setState({
+      isActive: true,
+      biomeMaps: maps,
+      currentBiomeIndex: 0,
+      currentBiome: maps[0].biome,
+      currentNodeId: null,
+      frontierNodeIds: [maps[0].startNodeId],
+      lastCombatRewards: {
+        xp: 75,
+        gold: 60,
+        itemName: null,
+        itemBlockedByCapacity: true,
+        levelsGained: 0,
+      },
+    });
+
+    renderAt(<RunMapScreen />, '/run');
+
+    expect(
+      screen.getByText("Inventaire plein — l'objet du combat a été laissé sur place."),
+    ).toBeInTheDocument();
+  });
+
   it('never auto-selects the first child of a structural start node', () => {
     const map: NodeMap = {
       biome: 'top_lane',

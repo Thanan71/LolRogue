@@ -287,6 +287,7 @@ export const fr = {
     augments: 'Améliorations',
     biomeComplete: 'Biome terminé — choisis une amélioration',
     combatComplete: 'Combat terminé',
+    combatItemLeft: "Inventaire plein — l'objet du combat a été laissé sur place.",
     startNew: 'Commencer une nouvelle partie',
     saveAndMenu: 'Sauvegarder et retourner au menu',
     upgradeSpell: 'Amélioration de sort',

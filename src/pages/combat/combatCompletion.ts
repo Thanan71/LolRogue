@@ -164,6 +164,7 @@ export function completeCombat({
       xp: xpGain,
       gold: goldReward,
       itemName: droppedItemName,
+      itemBlockedByCapacity: resolution?.reward.dropBlockedByCapacity ?? false,
       levelsGained,
     });
 

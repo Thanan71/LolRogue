@@ -249,6 +249,7 @@ export function RunMapScreen() {
               {lastCombatRewards.levelsGained > 0 &&
                 `, ${lastCombatRewards.levelsGained} niveau(x) gagné(s)`}
               {lastCombatRewards.itemName && `, objet : ${lastCombatRewards.itemName}`}
+              {lastCombatRewards.itemBlockedByCapacity && <p>{fr.run.combatItemLeft}</p>}
               <button type="button" onClick={() => setLastCombatRewards(null)}>
                 Fermer
               </button>

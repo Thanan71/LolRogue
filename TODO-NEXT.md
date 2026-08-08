@@ -7,7 +7,16 @@ vérité détaillée, la [matrice](docs/feature-status.md) donne le statut des c
 et l'[historique](docs/archive/delivery-history-2026-07-august.md) conserve les
 claims clôturés.
 
-## Dernière livraison — P3-PROD-04 (implémentation produit)
+## Dernière livraison — décisions produit transverses v1
+
+- [x] Langue, identité invitée, Daily, autoplay et branches explicitement figés.
+- [x] Récompenses de fin, XP des KO et inventaire plein alignés avec le moteur.
+- [x] Contrat online/offline et télémétrie rendu explicite.
+- [x] Récompense de combat bloquée par la capacité désormais annoncée au joueur.
+
+Voir `docs/product-decisions.md` pour le contrat complet.
+
+## Livraison précédente — P3-PROD-04 (implémentation produit)
 
 - [x] Page légale publique reliée depuis Auth et Menu.
 - [x] Inventaire France/UE des données, finalités, stockage local et droits documenté.

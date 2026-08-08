@@ -217,6 +217,7 @@ export interface RunState {
     xp: number;
     gold: number;
     itemName: string | null;
+    itemBlockedByCapacity: boolean;
     levelsGained: number;
   } | null;
   pendingSpellUpgradeChampionIds: string[];
