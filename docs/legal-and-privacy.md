@@ -34,6 +34,7 @@ Sources à revalider avant chaque release :
 | Global public | alias/pseudonyme, avatar facultatif, niveau, victoires et taux | classement global | public tant que non opt-out | vie du compte ou opt-out |
 | Modération | score signalé, auteur, motif, décision | intégrité du classement | modérateurs | ouverts jusqu'à décision ; traités 24 mois |
 | Diagnostic | opération, durée, erreur nettoyée | disponibilité et sécurité | utilisateur concerné/opérateurs | 14 jours maximum |
+| Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
 
 La vue Daily applique directement la fenêtre de 13 mois. La maintenance appelle
@@ -44,8 +45,10 @@ Le purgeur de logs existant conserve au maximum 14 jours.
 ## Base juridique à faire valider
 
 - Exécution du service demandé : Auth, sauvegarde, vérification et progression.
-- Intérêt légitime à confirmer : sécurité, prévention de fraude et logs minimisés.
-- Consentement préalable : toute future télémétrie non strictement nécessaire.
+- Intérêt légitime à confirmer : sécurité, prévention de fraude, diagnostics et
+  mesure de performance minimisée.
+- Consentement préalable : toute future télémétrie comportementale ou non strictement
+  nécessaire selon sa qualification juridique.
 - Obligations légales : conservation exceptionnelle uniquement si documentée.
 
 Aucune décision automatisée ne produit d'effet juridique. Une invalidation de score
@@ -53,10 +56,15 @@ est une mesure de jeu auditable et contestable auprès de l'exploitant.
 
 ## Stockage navigateur, cookies et télémétrie
 
-Il n'existe actuellement aucun SDK publicitaire ou analytique. Les données locales
-sont strictement fonctionnelles : session Supabase, réglages, progression invitée,
-reprise de run et état des tutoriels. Aucun bandeau de consentement ne doit prétendre
-qu'une télémétrie est active.
+Il n'existe actuellement aucun SDK publicitaire ni analytics comportementale de type
+profilage marketing. Vercel Speed Insights est activé uniquement pour mesurer les
+performances Web Vitals du site et transmettre les métriques techniques nécessaires
+à cette mesure. Cette collecte doit rester minimisée et être réévaluée dans la revue
+RGPD/ePrivacy avant une bêta publique.
+
+Les données locales sont strictement fonctionnelles : session Supabase, réglages,
+progression invitée, reprise de run et état des tutoriels. Aucun bandeau de
+consentement ne doit prétendre qu'une télémétrie publicitaire ou marketing est active.
 
 `VITE_ENABLE_DB_LOGGING` reste désactivé en production. Son activation exige une
 finalité, une information visible, une revue de minimisation, une durée, un droit
