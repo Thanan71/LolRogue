@@ -1,59 +1,61 @@
 # Audit des dépendances
 
-Audit réévalué le 26 juillet 2026 avec `npm audit`, sans `--force` et sans
-contournement des peer dependencies.
+État réévalué le **8 août 2026** avec le lockfile courant et `npm audit`, sans
+`--force`. Ce document décrit l'état observé ; le script
+`scripts/check-dependency-audit.mjs` reste le garde-fou exécutable.
 
-## Versions corrigées
+## Versions réellement installées
 
-La chaîne de build et de test est désormais épinglée sur :
+La mise à jour groupée de l'outillage a porté la base sur :
 
-- Vite `8.1.5`, avec Rolldown et une exigence Node `>=22.12.0 <23` ;
-- `@vitejs/plugin-react` `6.0.4` ;
-- Vitest et `@vitest/coverage-v8` `4.1.10` ;
-- esbuild `0.25.0`, installé sous l'alias isolé `esbuild-authority` pour le bundle
-  Edge autoritaire.
+- Node `>=22.22.2 <23` pour l'exécution du projet ;
+- React/React DOM `19.2.8`, React Router DOM `7.18.1` et Zustand `5.0.14` ;
+- Vite `8.1.5`, `@vitejs/plugin-react` `6.0.4` et TypeScript `7.0.2` ;
+- Vitest/coverage `4.1.10`, Playwright `1.62.0`, jsdom `30.0.1` et Biome `2.5.6` ;
+- Supabase JS `2.111.0` et CLI `2.110.0` ;
+- `@types/node` `26.1.2`.
 
-Cette montée supprime les anciennes alertes critiques et hautes de Vite, Vitest,
-`vite-node`, `@vitest/mocker`, esbuild et la chaîne de couverture. La configuration
-de chunks utilise maintenant `build.rolldownOptions.output.codeSplitting`. Vitest 4
-emploie un remappage V8 basé sur l'AST : les seuils par domaine ont été recalés sur
-la nouvelle baseline mesurée, sans exclure de fichiers.
+`@types/node` 26 ne correspond plus à la cible runtime Node 22. Cela ne change pas
+le moteur réellement exécuté, mais élargit à tort le contrat de compilation et
+doit être réaligné avant de considérer la montée d'outillage validée. TypeScript 7
+doit également rester traité comme une montée majeure jusqu'à validation complète
+des plugins et types générés.
 
-esbuild `0.25.0` est la première version publiée hors de la plage vulnérable
-`<=0.24.2`. Son bundle normalisé est identique à celui du ruleset autoritaire v1 ;
-le hash et la vérification des attempts déjà ouverts restent donc valides. L'alias
-évite de le présenter à Vite 8 comme son peer optionnel : Vite utilise Rolldown,
-tandis que seul `scripts/build-authority-bundle.mjs` charge cet esbuild dédié.
+Le bundle autoritaire conserve l'alias isolé `esbuild-authority@0.25.0`. Il n'est
+chargé que par `scripts/build-authority-bundle.mjs` afin de ne pas modifier le hash
+des anciens rulesets par une montée implicite de l'outil.
 
-## Exception temporaire React Router
+## Vulnérabilités courantes
 
-`npm audit` signale deux entrées hautes (`react-router` et son effet direct
-`react-router-dom`) pour un même avis :
-[GHSA-qwww-vcr4-c8h2](https://github.com/advisories/GHSA-qwww-vcr4-c8h2).
-L'avis concerne le traitement CSRF des Server Actions en mode React Server
-Components.
+`npm audit` remonte actuellement trois entrées hautes correspondant à deux causes :
 
-L'exception est acceptée jusqu'au **10 août 2026** avec les limites suivantes :
+1. `nanoid@3.3.16`, transitif via PostCSS, est concerné par
+   `GHSA-2v37-7h3g-55p8`; une version `>=3.3.17` est disponible ;
+2. `react-router@7.18.1` et son effet direct `react-router-dom` sont concernés par
+   `GHSA-qwww-vcr4-c8h2`; la correction compatible est `7.18.2`.
 
-- version exacte `react-router-dom@7.18.1`, qui conserve les correctifs XSS et DoS
-  des versions précédentes ;
-- application exclusivement client rendue par `BrowserRouter` ;
-- aucun Data Router, Server Action, SSR ou React Server Component ;
-- hébergement Vercel statique avec réécriture vers `index.html`, sans runtime
-  serveur React Router.
+L'exception React Router écrite le 26 juillet ne reconnaît plus l'identifiant
+courant de l'advisory et expire de toute façon le **10 août 2026**. L'application
+reste une SPA `BrowserRouter` sans RSC ni Server Actions, ce qui limite
+l'exploitabilité de cette alerte précise, mais ne rend pas la CI verte.
 
-Le script `npm run audit:security` vérifie ces hypothèses dans les sources, refuse
-toute autre alerte critique/haute et échoue automatiquement après l'échéance.
-Il est inclus dans `npm run check` et donc dans la CI. À l'échéance, mettre à jour
-React Router vers une version corrigée, ou retirer la dépendance si aucun correctif
-compatible n'est publié ; ne pas prolonger l'exception sans une nouvelle analyse.
+Au 8 août, `npm run audit:security` échoue donc avec :
 
-## Validation de la montée
+```text
+Unaccepted high/critical npm advisories: nanoid (high), react-router (high)
+```
 
-La migration doit conserver verts :
+Il est interdit de qualifier la chaîne de dépendances de saine tant que ce résultat
+n'est pas corrigé. La résolution attendue est une mise à jour du lockfile vers
+`nanoid >=3.3.17` et `react-router-dom >=7.18.2`, puis le retrait de l'exception
+temporaire si l'audit devient vide. Une `override` npm n'est acceptable qu'après
+validation des dépendants PostCSS/Vite.
 
-- TypeScript, Biome et le build Vite/Rolldown ;
-- les tests Vitest avec la couverture V8 ;
-- les tests Auth/RLS sur Supabase local ;
-- le parcours Playwright ;
-- le bundle esbuild du moteur autoritaire et son hash de contenu.
+## Validation requise après correction
+
+- `npm ci`, TypeScript, Biome et le build Vite/Rolldown ;
+- `npm run audit:security` sans exception haute ou critique ;
+- Vitest avec couverture et tests Supabase live ;
+- les parcours Playwright dev et la matrice du build de production ;
+- le bundle esbuild du moteur autoritaire et son contrôle de hash ;
+- `@types/node` revenu sur la majeure 22, cohérente avec `engines.node`.

@@ -5,19 +5,23 @@
 ### Jalon 1 — Fondations fiables
 
 Schéma Supabase consolidé, Auth sans mailing, RLS durcie, sauvegarde atomique et
-idempotente, mode invité et restauration de run. Ce jalon est terminé.
+idempotente, mode invité et restauration de run. Ces capacités sont livrées et
+reliées à leurs preuves dans `docs/feature-status.md`; leur exploitation distante
+reste soumise aux migrations et smoke tests de chaque release.
 
 ### Jalon 2 — Boucle de jeu complète
 
 Six biomes, combats, rencontres, inventaire, recrutement, runes, augments, XP,
-maîtrise, améliorations et daily run. Ce jalon est terminé; les prochains travaux
-portent sur l'équilibrage et l'enrichissement du contenu.
+maîtrise, améliorations et daily run. La boucle implémentée est couverte, mais le
+contenu et l'équilibrage restent des travaux P3 : ce jalon ne promet pas que chaque
+effet imaginé dans les catalogues futurs est disponible.
 
 ### Jalon 3 — Qualité de production
 
 Architecture modulaire, CI, couverture, E2E, assets épinglés, découpage du bundle,
-sécurité Vercel et documentation d'exploitation. Ce jalon est terminé lorsque la
-checklist ci-dessous passe sur `main`.
+sécurité Vercel et documentation d'exploitation. Ce jalon reste **en cours** tant
+que la checklist ci-dessous ne passe pas sur `main`. Au 8 août 2026, l'audit des
+dépendances est bloquant et les runbooks de `P2-DOC-02` restent à écrire.
 
 ### Jalon 4 — Bêta
 
@@ -25,7 +29,7 @@ checklist ci-dessous passe sur `main`.
 - observabilité respectueuse de la vie privée et politique publiée si activée ;
 - campagne d'équilibrage à partir de runs réelles anonymisées ;
 - accessibilité clavier/lecteur d'écran revue sur chaque rencontre ;
-- budget de performance mesuré sur mobile ;
+- budget de performance mobile respecté en CI ;
 - processus de support et restauration testé.
 
 ### Jalon 5 — Version publique
@@ -41,7 +45,8 @@ checklist ci-dessous passe sur `main`.
 ### Code et données
 
 - [ ] La branche de release est à jour et le diff ne contient aucun secret.
-- [ ] `npm ci`, `npm run check` et `npm run test:e2e` réussissent avec Node 22.
+- [ ] `npm ci`, `npm run check`, `npm run test:e2e` et
+      `npm run test:e2e:production` réussissent avec Node 22.
 - [ ] Les changements de gameplay ont des tests déterministes.
 - [ ] Les versions d'assets sont épinglées et leurs licences/sources respectées.
 - [ ] `npm run audit:security` ne signale aucune vulnérabilité critique/haute non

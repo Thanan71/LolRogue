@@ -42,6 +42,14 @@ tests isolés. Son compteur d'instances est local à chaque instance, jamais un
 singleton de données de run. Le flux de production utilise exclusivement
 `runStore` et `inventoryRules`.
 
+Cette propriété client organise l'interface mais ne crée aucune autorité de
+sécurité. Un RPC `SECURITY DEFINER` n'est sûr que si ses paramètres, son
+propriétaire, son `search_path`, ses grants et ses invariants sont contrôlés. Les
+RPC de journal acceptent des intentions bornées ; seul le replay `verify-run` et
+la transaction `complete_run_verification` transforment ces intentions en résultat
+durable. Les vues et RPC de lecture ne doivent pas être confondus avec une
+autorisation d'écriture sur leurs tables sources.
+
 ## Partie locale et synchronisation
 
 Pour un compte connecté, `start_run_attempt` crée d'abord l'attempt. Le serveur
@@ -91,6 +99,13 @@ les augments, les statistiques agrégées et la progression dans sa transaction
 unique. La migration `20260726210000_atomic_run_finalization.sql` supprime
 définitivement l'ancien RPC `save_run_loadout`, afin qu'aucune seconde écriture
 « best effort » ne puisse recréer un résultat partiel.
+
+Il n'existe donc pas de « sauvegarde du loadout » séparée après la run. Le loadout
+initial (équipe, runes, difficulté, maîtrise et améliorations) est figé dans
+`run_attempts` au démarrage ; le loadout final (membres, PV/PM, objets, augments et
+rangs) est dérivé du replay puis inséré dans la même transaction que la run et la
+progression. Si cette transaction échoue, aucun sous-ensemble n'est considéré
+comme sauvegardé et l'attempt reste réconciliable ou rejeté selon son statut.
 
 Une partie invitée ne contacte pas la base. Seul le navigateur courant possède
 l'état et la progression. Cette progression vit dans un namespace `guestSnapshot`
@@ -277,6 +292,21 @@ rejoué, et non d'un payload déclaratif. Une commande finale `abandon_run` cons
 la tentative sans publier de ligne. La vue publique `daily_leaderboard` ne restitue
 que le rang, le nom public et les métriques nécessaires ; la table brute
 `daily_runs` reste inaccessible aux non-administrateurs.
+
+La journée canonique est calculée par PostgreSQL en UTC et expire au minuit UTC
+suivant. Le calcul versionné est :
+
+```text
+bonus victoire
++ vagues terminées × wave_points
++ biomes visités × biome_points
++ niveau atteint × run_level_points
++ or total gagné × gold_points
+```
+
+Dans le ruleset Daily v12 actif, ces coefficients valent respectivement 10 000,
+1 000, 250, 100 et 1. Ils sont hérités du ruleset v2, liés à `score_version = 12`
+et ne peuvent pas être remplacés par un score déclaré par le client.
 
 En mode invité, le classement daily local sert uniquement de retour d'interface.
 Il ne constitue pas un score officiel et peut être effacé avec le stockage du

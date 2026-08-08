@@ -61,10 +61,11 @@ de préserver la reproductibilité et les tests.
 
 Le combat démarre en mode manuel. Les tours ennemis sont joués automatiquement
 après un délai visible de 1,2 s, 0,6 s ou 0,4 s selon la vitesse ×1, ×2 ou ×3.
-Activer « Auto » applique le même délai aux tours du joueur. Les runs vérifiées v3
-et v4 journalisent les décisions manuelles sous une forme compacte et le serveur
-les rejoue avec la même consommation aléatoire. Les anciennes tentatives v1/v2
-conservent leur résolution automatique pour préserver leur contrat immuable.
+Activer « Auto » applique le même délai aux tours du joueur. Les rulesets à partir
+de `run-engine-v3` journalisent les décisions manuelles sous une forme compacte et
+le serveur les rejoue avec la même consommation aléatoire. Les tentatives v1/v2
+conservent leur résolution automatique pour préserver leur contrat immuable ; le
+ruleset actif est versionné en base et ne doit pas être déduit de ce document.
 
 Les raccourcis de combat sont Q/W/E/R pour les sorts, Espace pour exécuter le tour
 manuel et Échap pour revenir à la carte une fois le combat terminé. Tab puis
@@ -189,13 +190,51 @@ Un poids est relatif à la somme des poids de son pool. Toute modification
 d'équilibrage doit adapter les tests déterministes et, si elle change le
 comportement attendu, ce document.
 
+## Effets réellement exécutés
+
+Le catalogue n'est pas une promesse implicite. Une capacité est jouable uniquement
+si ses données passent `combatContentSupport` et si son type possède un handler :
+
+- sorts : dégâts, soin, bouclier, exécution, contrôle, buff, debuff, dégâts ou
+  soins périodiques et résurrection, avec les paramètres requis ;
+- passifs : uniquement ceux des dix champions maintenus (`Annie`, `Ashe`,
+  `Darius`, `Garen`, `Jinx`, `Leona`, `Lux`, `Malphite`, `Soraka`, `Warwick`) et
+  composés des effets précédents ;
+- objets : statistiques canoniques et passifs `ie`, `rabadons`, `sunfire`,
+  `guardian angel`, `bloodthirster`, `spirit visage`, potion de soin et élixir de
+  colère ;
+- runes : les treize conditions de `RuneConditionType`, leurs modificateurs, le
+  soin en pourcentage de PV max et les dégâts magiques déclenchés ;
+- augments : statistiques plates/pourcentage/scalées, dégâts, réduction, bonus
+  d'or, soin post-combat, résurrection supplémentaire et remise boutique ;
+- améliorations : uniquement les types de `SUPPORTED_ENHANCEMENT_EFFECTS` dans
+  `catalogSupport.ts`.
+
+Les types `FreeItem`, `CooldownReduction`, `Custom` et les améliorations listées
+dans `UNAVAILABLE_ENHANCEMENT_EFFECTS` ne sont pas annoncés comme actifs. Database
+affiche « effet temporairement indisponible » pour un sort ou passif incomplet, et
+l'arbre bloque les nœuds d'amélioration sans règle exécutable. Les tests
+`combatContentSupport.test.ts`, `combatRules.test.ts` et `statContract.test.ts`
+font partie du contrat.
+
 ## Daily run
 
-Le seed quotidien est partagé pour une date donnée. Le score vaut :
+Le jour Daily est `(instant serveur AT TIME ZONE 'UTC')::date` et expire à minuit
+UTC suivant. Le serveur fige dans l'attempt la date, la seed, la difficulté, le
+ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v12,
+les coefficients hérités de v2 donnent :
 
 ```text
-100 × vagues + 500 × niveau de run + or restant + 50 × objets
+score = 10 000 si victoire
+      + 1 000 × vagues terminées
+      + 250 × biomes visités
+      + 100 × niveau de run atteint
+      + 1 × or total gagné
 ```
 
-Une soumission connectée est atomique et limitée à une par joueur et par jour. Le
-classement local du mode invité n'est pas officiel.
+Le score n'utilise ni l'or restant ni le nombre d'objets. Il est calculé par le
+trigger PostgreSQL depuis la run `verified`, jamais soumis par le navigateur. Une
+tentative connectée officielle est limitée à une par joueur et par jour UTC ; un
+abandon la consomme sans publier de score. Le classement local invité n'est pas
+officiel. Toute modification des coefficients crée un nouveau ruleset et une
+nouvelle `score_version` au lieu de réécrire l'historique.

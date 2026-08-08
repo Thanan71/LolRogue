@@ -36,13 +36,24 @@ n'utilise pas le cache npm de `setup-node`. Les assets Riot sont un paquet versi
 ils sont donc vérifiés, pas téléchargés silencieusement.
 
 Supabase est d'abord restauré à la migration v9 (`20260730300000`), puis migré vers
-la dernière version afin de tester un upgrade réel. La job compare ensuite les types
+la version courante (ruleset v12 au 8 août 2026) afin de tester un upgrade réel. La job compare ensuite les types
 TypeScript régénérés, effectue un reset complet et exécute les tests RLS/RPC live.
 
 Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le
 contrat `vercel.json` et vérifie les deep links, la CSP, les assets d'entrée et un vrai
 404 pour un asset absent.
 
-Le job E2E dédié vérifie lui-même son checkout sans résidus, puis Playwright utilise
-deux workers isolés. Chaque test conserve son propre contexte navigateur vierge, sans
-sérialiser les specs ni rejouer toute la suite dans `clean-room`.
+Le job E2E dédié vérifie lui-même son checkout sans résidus. La suite fonctionnelle
+utilise deux workers Chromium et contient deux runs UI complètes : victoire six
+biomes grâce à une rune de test injectée au build, et défaite réelle. Les specs
+d'interface plus courtes peuvent injecter les stores pour isoler leur contrat et
+ne doivent pas être présentées comme des runs complètes.
+
+Une seconde configuration sert le build de production et exécute un smoke test sur
+Chromium, Firefox et WebKit, en desktop et mobile. Elle utilise un worker unique
+afin que les mesures LCP/CLS/INP ne soient pas faussées par une contention CPU.
+Chaque test conserve son propre contexte navigateur vierge.
+
+Les budgets versionnés sont dans `config/performance-budgets.json` et contrôlés par
+`npm run test:performance-budgets`. Ils couvrent le JavaScript total, le plus gros
+chunk, l'entrée, la route Auth, les assets déployés et les Web Vitals mobiles.

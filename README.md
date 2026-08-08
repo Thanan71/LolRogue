@@ -7,8 +7,8 @@ sans compte avec une sauvegarde limitée au navigateur.
 
 ## Stack et prérequis
 
-- Node.js 22.12 ou supérieur dans la branche 22, et npm ;
-- React 18, TypeScript, Vite et React Router ;
+- Node.js 22.22.2 ou supérieur dans la branche 22, et npm ;
+- React 19, TypeScript, Vite et React Router ;
 - Zustand pour l'état client ;
 - Supabase pour Auth, PostgreSQL et les règles RLS ;
 - Vitest, Testing Library et Playwright pour les tests ;
@@ -78,16 +78,21 @@ Authentication → Providers → Email. La procédure détaillée est dans
 ```bash
 npm test              # tests unitaires et tests de structure SQL
 npm run test:coverage # tests avec seuils de couverture
-npm run test:e2e      # parcours navigateur des six biomes
+npm run test:e2e      # parcours UI, dont une victoire six biomes et une défaite réelles
+npm run test:e2e:production # smoke test des 3 moteurs, desktop et mobile
 npm run test:db       # intégration Auth/RLS sur une vraie instance de test
 npm run test:production-build # deep links, headers et 404 du build servi
+npm run test:performance-budgets # budgets bundle, routes et assets
 npm run edge:bundle   # bundle du replay serveur + contrôle du hash de contenu
 npm run audit:security # audit critique/haut et contrôle des exceptions bornées
 npm run check         # format, lint, types, audit, couverture et build
 ```
 
-La politique des seuils, le périmètre mesuré et les artefacts CI sont décrits dans
-[`docs/testing.md`](docs/testing.md).
+Le scénario six biomes joue réellement la carte, les encounters et les combats.
+D'autres specs ciblées injectent volontairement un état de store afin d'isoler un
+comportement d'interface ; elles ne constituent pas à elles seules une preuve de
+run complète. La politique des seuils, le périmètre mesuré et les artefacts CI sont
+décrits dans [`docs/testing.md`](docs/testing.md).
 
 Pour les tests de base en local, démarrer Supabase puis exporter les valeurs
 retournées par `supabase status -o env` sous les noms de `.env.example`. La CI
@@ -122,12 +127,13 @@ propriété de chaque donnée sont dans [docs/data-and-persistence.md](docs/data
 
 ## Assets
 
-Les 172 portraits du catalogue serveur et les 15 icônes d'objets utilisés sont
-versionnés sous `public/assets/riot/<version>` avec leurs SHA-256. Seuls 10
+Les 172 portraits du catalogue serveur et les 15 icônes d'objets utilisés — soit
+187 fichiers — sont tous versionnés sous `public/assets/riot/<version>` avec leurs
+SHA-256. Seuls 10
 champions sont actuellement jouables, mais la page Database et le catalogue
 serveur exposent l'ensemble. Le catalogue importé est sous `src/data/generated`.
-Le cache brut `public/lol/data` est ignoré et n'est jamais nécessaire à un build
-normal.
+Le cache brut `public/lol/data` est un espace de génération local : Vite l'exclut
+explicitement de `dist` et il n'est jamais nécessaire à un build normal.
 
 ```bash
 npm run assets:update
@@ -149,6 +155,7 @@ propre.
 - [Roadmap et checklist de release](docs/roadmap.md)
 - [Assets Riot](docs/assets.md)
 - [Audit des dépendances](docs/dependency-audit.md)
+- [Matrice fonctionnalités et preuves](docs/feature-status.md)
 
 ## Déploiement
 

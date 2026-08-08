@@ -1,279 +1,38 @@
-# TODO NEXT — priorités après stabilisation P0/P1
+# TODO NEXT — ordre de travail courant
 
-Dernière mise à jour : **1 août 2026**
+Dernière mise à jour : **8 août 2026**
 
-Ce document complète [`TODO.md`](./TODO.md) sans le remplacer. `TODO.md` reste la
-source de vérité détaillée et sa Definition of Done reste obligatoire. Cette liste
-ne conserve que les prochains chantiers et les vérifications récentes utiles à leur
-enchaînement.
+Ce document ne duplique plus les anciennes livraisons. `TODO.md` reste la source de
+vérité détaillée, la [matrice](docs/feature-status.md) donne le statut des capacités
+et l'[historique](docs/archive/delivery-history-2026-07-august.md) conserve les
+claims clôturés.
 
-## État vérifié de la dernière livraison
+## Dernière livraison — P2-DOC-01
 
-### P2 — performance et production
+- [x] README, roadmap, gameplay, persistance, tests et audit des dépendances sont
+  alignés sur le code et le lockfile du 8 août 2026.
+- [x] Les anciens constats du 23 juillet sont archivés au lieu d'être présentés
+  comme l'état courant.
+- [x] Le score Daily documente la journée UTC, la formule SQL et
+  `score_version = 12`.
+- [x] `docs/feature-status.md` relie chaque capacité à son implémentation, ses tests
+  et son statut.
+- [x] Les limites des effets, du mode invité et de la frontière RPC sont explicites.
 
-- [x] Budgets v1 versionnés et bloquants pour bundle, route Auth, assets et Web
-  Vitals mobiles.
-- [x] Build déployable ramené à **6,45 Mo** en excluant le cache Data Dragon de
-  travail ; seuls les 187 assets Riot vérifiés sont copiés.
-- [x] Charge initiale mesurée à **157,3 Ko gzip** et route Auth à **161,3 Ko gzip**.
-- [x] Matrice build production validée sur Chromium, Firefox et WebKit, en desktop
-  et mobile, avec contrat offline invité explicite.
-- [x] Cache immutable, CSP et HSTS contrôlés automatiquement ; GitHub Actions
-  épinglées par SHA.
-- [x] Animations masquées suspendues, images dimensionnées et abonnements Zustand
-  globaux retirés du combat.
+## Blocage immédiat découvert
 
-### P1-GAME-05 — parité client / authority
+- [ ] Refermer `P0-SEC-03` : `npm run audit:security` échoue sur
+  `nanoid@3.3.16` et React Router 7.18.1.
+- [ ] Réaligner `@types/node` 26 sur le runtime Node 22 et revalider la montée
+  TypeScript 7/outillage.
 
-- [x] Les formules déterministes encore dupliquées ont été extraites dans des
-  modules de domaine sans React, Zustand ni Supabase.
-- [x] Construction des combattants, augments scalés, boutique, revente, repos,
-  recrutement, événements et transition post-combat sont partagés.
-- [x] Les PV et PM finaux font partie de l'état autoritaire canonique.
-- [x] Deux golden traces exécutent la même seed dans le runtime client et le replay
-  authority, en manuel puis autoplay, et comparent l'état complet.
-- [x] Les règles partagées Shop, Rest, Event, Treasure, Recruit, augment, XP et
-  transitions restent couvertes par les suites de domaine/authority/E2E.
-- [x] `run-engine-v11` et son content hash sont actifs ; les bundles v9 et v10
-  archivés restent chargeables pour les attempts en cours.
-- [x] Validation locale : `npm run check` avec **820 tests**, **43 tests DB** et
-  **11 parcours E2E**.
-- [x] Edge Function et migration v10 publiées ; preflight CORS production `200`.
+Voir `docs/dependency-audit.md` pour le diagnostic reproductible. Tant que ces deux
+cases restent ouvertes, ne pas qualifier `main` de prêt pour une release.
 
-### Hotfix — démarrage avec plusieurs champions
+## Prochain chantier planifié
 
-- [x] Le parseur de `start_run_attempt` accepte désormais une équipe de 1 à
-  `MAX_TEAM_SIZE` champions uniques.
-- [x] Le même contrat est appliqué lors de la récupération d'un attempt existant.
-- [x] Trois runes de départ uniques et connues sont acceptées.
-- [x] Les équipes vides, dupliquées ou hors limite restent rejetées.
-- [x] Un test de régression couvre exactement **2 champions + 3 runes**.
-- [x] Correctif publié sur `main` : `a617c29`.
-- [x] CI complète validée :
-  [run 30614262641](https://github.com/Thanan71/LolRogue/actions/runs/30614262641).
-
-### Hotfix — autoplay piloté par le joueur
-
-- [x] L'autoplay démarre à `OFF` pour un combat invité comme pour une run
-  authentifiée courante.
-- [x] `run-engine-v9` utilise le combat manuel et ne force plus le bouton désactivé
-  `Auto serveur`.
-- [x] Le joueur peut activer puis désactiver l'autoplay avec le bouton
-  `Auto : OFF/ON`.
-- [x] Les tours ennemis continuent automatiquement lorsque l'autoplay du joueur est
-  désactivé.
-- [x] Les actions manuelles restent journalisées dans la trace autoritaire.
-- [x] La capacité n'est plus une liste figée oubliable : tout moteur autoritaire au
-  format `run-engine-vN` depuis `v3` conserve le combat manuel.
-- [x] Les tests couvrent `v3` à `v10`, l'état initial, le bouton activable, le clic et
-  le nom accessible après activation.
-- [x] `npm run check` validé : format, lint, typage, audit, **811 tests**, assets et
-  build de production.
-- [x] Tests navigateur validés : **11 parcours E2E**.
-- [x] Tests de schéma et d'intégration Supabase validés.
-- [x] Correctif publié sur `main` : `f1abb3c`.
-- [x] CI complète validée :
-  [run 30614562780](https://github.com/Thanan71/LolRogue/actions/runs/30614562780).
-- [x] Production contrôlée après déploiement : le bundle Vercel servi contient la
-  détection `run-engine-v3+` et le contrôle `Auto : ON/OFF`.
-
-### Hotfix — suffixe autoplay après fin autoritaire
-
-- [x] Reproduire le rejet production `invalid_combat_action_trace` à la commande
-  31 avec les 121 commandes originales.
-- [x] Identifier la divergence : l'authority termine le combat à l'action 22 alors
-  qu'un client chargé pendant le déploiement journalise une 23e action automatique.
-- [x] Accepter uniquement les actions automatiques restantes lorsque le replay
-  autoritaire a déjà terminé le combat.
-- [x] Continuer à rejeter une action manuelle supplémentaire ou toute divergence
-  dans le préfixe effectivement rejoué.
-- [x] Versionner le correctif en `run-engine-v11` et archiver le bundle v10.
-- [x] Edge Function et migration v11 publiées ; preflight CORS production `200`.
-
-## Chantiers clôturés et retirés de NEXT
-
-Les tickets suivants sont désormais cochés dans `TODO.md` et ne doivent plus être
-présentés comme des travaux à démarrer :
-
-- [x] `P0-SEC-01` à `P0-SEC-04`
-- [x] `P0-RUN-01` à `P0-RUN-04`
-- [x] `P0-REL-01`
-- [x] `P0-UX-01` et `P0-UX-02`
-- [x] `P1-GAME-01` à `P1-GAME-05`
-- [x] `P1-RUN-01` à `P1-RUN-04`
-- [x] `P1-META-01`
-- [x] `P1-DATA-01` à `P1-DATA-03`
-- [x] `P1-UX-01`
-- [x] `P1-UX-02`
-- [x] `P1-UX-03`
-- [x] `P1-UX-04`
-- [x] `P1-A11Y-01`
-- [x] `P1-A11Y-02`
-- [x] `P1 — onboarding et règles compréhensibles`
-
-`P1-UX-03` couvre désormais automatiquement toutes les pages, y compris Profil,
-Crédits et Administration, ainsi que les catalogues de contenu visibles. Le test
-de contrat i18n découvre les nouvelles pages au lieu de dépendre d'une liste
-partielle.
-
-Une réouverture exige un bug reproductible ou une preuve invalidant la Definition
-of Done actuelle.
-
-## Ordre d'exécution immédiat
-
-1. **P2-DOC-01 — Aligner les documents sur le produit réel** : corriger les claims
-   devenus obsolètes et relier chaque capacité à sa preuve actuelle.
-
----
-
-## P1-GAME-05 — Garantir la parité client / authority
-
-### Objectif
-
-Le client et le replay autoritaire ne doivent jamais implémenter deux variantes
-d'une même règle. Toute règle déterministe utilisée dans une run authentifiée doit
-provenir d'un module de domaine partagé ou être couverte par une preuve automatique
-de parité.
-
-- [x] Inventorier les règles utilisées à la fois par le gameplay visible et
-  `AuthorityRunEngine` : combat, ciblage, effets, récompenses, carte, shop,
-  recrutement, event, treasure, augments, XP et transitions de biome.
-- [x] Extraire les règles communes dans des modules de domaine purs, sans dépendance
-  React, Zustand ou Supabase.
-- [x] Éviter toute duplication de formules ou de tables entre `CombatPage`,
-  `BattleManager`, `runStore` et `AuthorityRunEngine`.
-- [x] Ajouter des golden traces déterministes couvrant Combat, Elite, Shop, Rest,
-  Event, Treasure, Recruit, augment et changement de biome.
-- [x] Exécuter une même seed et les mêmes commandes via le runtime client et le
-  replay autoritaire.
-- [x] Comparer exactement PV/PM, niveaux, or, inventaire, équipe, augments,
-  statistiques, récompenses, position, biome et état terminal.
-- [x] Ajouter une golden trace de combat manuel et autoplay afin de prouver que les
-  deux modes restent rejouables et produisent une trace valide.
-- [x] Faire échouer la CI à la moindre divergence déterministe.
-- [x] Versionner toute évolution incompatible avec `engine_version` et content hash
-  afin de préserver les attempts en cours.
-
-**Acceptation :** une trace valide produit exactement le même état canonique côté
-client et côté authority, et cette propriété est bloquante en CI.
-
-**Statut : terminé.** `run-engine-v11` centralise les règles restantes, conserve les
-replays v9/v10, ajoute les preuves de parité manuel/autoplay et tolère uniquement un
-suffixe autoplay devenu sans effet après la fin autoritaire du combat.
-
----
-
-## P1-META-02 — Unifier les stats et améliorations
-
-- [x] Remplacer les alias multiples par un schéma canonique partagé entre combat,
-  objets, améliorations, maîtrise et authority.
-- [x] Distinguer bonus plat, pourcentage additif et multiplicateur.
-- [x] Fixer l'ordre de calcul et les caps dans une spécification testée.
-- [x] Afficher une comparaison avant/après lors d'un équipement ou déblocage.
-- [x] Ajouter un test par nœud d'amélioration et palier de maîtrise réellement
-  disponible.
-
-**Acceptation :** une stat a une seule clé, une seule unité et un seul ordre de
-calcul dans l'UI comme dans le replay serveur.
-
-**Statut : terminé.** `run-engine-v12` introduit le contrat canonique partagé,
-normalise les anciens alias uniquement à l'entrée des catalogues, fixe l'ordre
-plat → pourcentage additif → multiplicateur → cap, et conserve le replay v11.
-Les aperçus d'arbre et d'équipement utilisent le même calcul que le combat ; les
-nœuds disponibles et les cinq paliers de maîtrise sont couverts individuellement.
-
----
-
-## P1-DATA — Persistance et propriétaires de données
-
-### P1-DATA-01 — Versionner et valider l'état local
-
-- [x] Ajouter un numéro de schéma à chaque store persisté.
-- [x] Valider les payloads avec un schéma runtime avant réhydratation.
-- [x] Écrire une migration par version et une quarantaine/reset explicite si
-  migration impossible.
-- [x] Ne pas persister un statut transitoire sans stratégie de récupération.
-- [x] Définir un checkpoint déterministe de combat ou une règle explicite
-  d'abandon/replay après refresh.
-- [x] Tester refresh sur carte, chaque encounter, augment, tour de combat,
-  finalisation et vérification.
-
-**Statut : terminé.** Les cinq stockages Zustand et le leaderboard invité ont un
-schéma explicite. Tout payload invalide/futur est isolé sous
-`lolrogue-quarantine:*`; une sauvegarde interrompue devient réessayable et un
-combat interrompu reprend obligatoirement en autoplay déterministe.
-
-### P1-DATA-02 — Réduire les sources de vérité concurrentes
-
-- [x] Réduire `dailyRunStore` aux métadonnées Daily si `runStore` pilote le gameplay.
-- [x] Faire passer le flux réel par les gestionnaires et règles canoniques déjà
-  créés.
-- [x] Retirer ou déprécier les gestionnaires dont les règles sont dupliquées.
-- [x] Éviter les singletons mutables hors Zustand pour les données de run.
-- [x] Documenter un propriétaire unique et une seule commande de mutation par
-  donnée.
-
-**Statut : terminé.** `runStore` est l'unique propriétaire du gameplay Normal et
-Daily ; le store Daily v4 ne conserve que le challenge et le résultat invité.
-Les événements sont des règles pures, l'ancien gestionnaire d'inventaire est
-dépublié/déprécié sans singleton partagé, et la boutique utilise la même fabrique
-d'augments que le combat et l'authority.
-
-### P1-DATA-03 — Fiabiliser Auth, profil et changement d'identité
-
-- [x] Séparer `session`, `profileLoading`, `ready`, `guest` et `error`.
-- [x] Interdire une run connectée tant que le profil durable n'est pas prêt.
-- [x] Récupérer ou créer le profil par un flux idempotent et réessayable.
-- [x] Ignorer toute réponse async liée à une session devenue obsolète.
-- [x] Attendre la fin ou l'abandon de la run avant logout/changement de compte.
-- [x] Tester perte réseau, profil absent, logout refusé et changement rapide de
-  compte.
-
-**Statut : terminé.** L'Auth suit six états exclusifs, le bootstrap possède son
-abonnement, chaque transition invalide les réponses obsolètes et `startRun` exige
-un profil `ready`. Les transitions sont bloquées pendant une run, un échec de
-logout conserve la session, et le stockage invité passe par l'adapter sûr.
-
----
-
-## P2-ARCH-01 — Découper les orchestrateurs à risque
-
-Ce chantier vient après `P1-GAME-05` et `P2-TEST-01` afin de disposer de preuves de
-non-régression avant le découpage.
-
-### `runStore.ts`
-
-- [x] Garder Zustand comme état observable/orchestrateur d'interface.
-- [x] Extraire `RunLifecycleService` : start, resume, end, abandon et recovery.
-- [x] Extraire `RunAuthorityService` : attempt, journal, synchronisation, seal,
-  verify et recovery.
-- [x] Extraire les commandes/invariants dans des modules de domaine purs.
-- [x] Conserver une seule source de vérité pendant chaque étape du découpage.
-
-### `AuthorityRunEngine.ts`
-
-- [x] Garder le moteur comme orchestrateur déterministe.
-- [x] Extraire `RunCommandValidator` pour parsing, schéma et validation.
-- [x] Extraire les résolveurs dont la responsabilité est devenue autonome.
-- [x] Réutiliser les mêmes règles de domaine que le runtime client.
-- [x] Conserver engine version et content hash comme frontière de compatibilité.
-
-**Acceptation :** les orchestrateurs deviennent lisibles et testables sans créer
-de divergence entre client et serveur.
-
-**Preuve :** `runStore.ts` ne conserve que 93 lignes de composition/persistance ;
-les versions moteur et règles restent inchangées. Les tests d'architecture et les
-suites de parité, finalisation, recovery, transactions, carte et combat passent dans
-la chaîne `npm run check` (921 tests réussis, 12 ignorés).
-
----
-
-## Règle de maintenance du backlog
-
-- [ ] Après chaque correctif important, mettre à jour `TODO.md` et `TODO-NEXT.md`
-  dans le même commit.
-- [ ] Retirer de l'ordre immédiat tout ticket clôturé.
-- [ ] Réouvrir un ticket uniquement avec une reproduction, un test rouge ou une
-  preuve de production.
-- [ ] Ne jamais considérer une case documentaire comme preuve suffisante.
-- [ ] Garder l'ordre immédiat à dix chantiers maximum.
+1. **P2-DOC-02 — Préparer l'exploitation** : runbooks migration/rollback/incidents,
+   sauvegarde et restauration, séparation des environnements, checklist de release
+   et support utilisateur.
+2. **P3 — Produit et enrichissement** seulement après clôture des blocages de
+   sécurité et d'exploitation.

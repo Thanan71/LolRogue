@@ -1,13 +1,15 @@
 # TODO — remise à niveau complète de LolRogue
 
-Audit refait le 23 juillet 2026 à partir du code, des migrations, des tests et de
-parcours réels sur desktop et mobile.
+Audit initial réalisé le 23 juillet 2026, puis état documentaire réaligné le
+8 août 2026. Le verdict et les mesures initiales sont archivés dans
+[`docs/archive/audit-initial-2026-07-23.md`](docs/archive/audit-initial-2026-07-23.md)
+afin de ne plus les présenter comme l'état courant.
 
-> **Verdict :** le projet est un prototype avancé avec un socle solide, mais il
-> n'est pas prêt pour une bêta publique. Plusieurs éléments visibles dans l'UI
-> (passifs, runes, augments, objets, ciblage, maîtrise) ne correspondent pas encore
-> aux règles réellement exécutées. La frontière de confiance Supabase permet aussi
-> à un client modifié de falsifier la progression et les classements.
+> **État courant :** les correctifs fonctionnels P0/P1 et les chantiers P2 jusqu'à
+> la performance sont livrés avec des preuves automatisées. `P0-SEC-03` est rouvert
+> après une régression de dépendances. La bêta publique reste bloquée par l'audit des
+> dépendances actuellement rouge et par `P2-DOC-02`/les décisions P3 et légales.
+> La matrice maintenue est [`docs/feature-status.md`](docs/feature-status.md).
 
 ## Comment utiliser ce TODO
 
@@ -35,40 +37,13 @@ Une case ne peut être cochée que si :
 - le clavier, le tactile, le zoom 200 % et les petits écrans restent utilisables ;
 - la règle utilisateur et la documentation durable sont mises à jour.
 
-## Résultats vérifiés pendant l'audit
+## État de validation courant
 
-### Socle présent
-
-- React, React Router, TypeScript, Zustand, Vite, Vitest et Playwright sont en place.
-- La carte et une partie des tirages utilisent un générateur pseudo-aléatoire seedé.
-- Auth, mode invité, repositories Supabase, migrations, profil, daily, maîtrise,
-  améliorations, inventaire et panneau admin ont déjà une interface.
-- Le code contient 10 champions jouables, 6 biomes et des catalogues d'objets, de
-  runes et d'augments.
-- Les routes sont chargées paresseusement et un Error Boundary est présent.
-- `npm audit --omit=dev` ne remonte aucune vulnérabilité de production.
-
-### Validations et limites constatées
-
-- Formatage, lint et typecheck passent.
-- Les 582 tests Vitest passent, avec 3 tests live Supabase ignorés.
-- Le build Vite de production passe sur le poste audité.
-- `npm run check` échoue néanmoins : la couverture de `src/services/**` est à
-  27,98 % pour un seuil de 28 %. La couverture globale des lignes est de 55,77 %.
-- Le seul test Playwright passe, mais termine les nœuds en manipulant directement
-  les stores ; il ne joue ni les encounters ni les combats.
-- L'audit npm complet remonte 6 vulnérabilités d'outillage de développement :
-  2 critiques, 1 haute et 3 modérées, liées à Vite/Vitest et leurs dépendances.
-- Les parcours 375×667, 390×844 et 1280×720 révèlent des actions coupées ou
-  recouvertes sur Auth, Menu, Starter, Combat, Database et Game Over.
-- Le build local voit environ 17 Mo d'assets Riot ignorés par Git. Le dépôt ne
-  versionne pas ces fichiers alors que la documentation affirme le contraire.
-- Les ACL/policies de l'instance Supabase locale et les migrations/RPC ont été lues,
-  mais aucun `db reset` destructif n'a été lancé sur cette instance existante.
-- Le constat initial sur la progression a été corrigé le 24 juillet 2026 :
-  les nouvelles runs connectées passent désormais par un attempt serveur, un
-  journal rejoué et une écriture `verified`. Les autres frontières de confiance,
-  notamment le classement daily, restent suivies par leurs tickets dédiés.
+- La source de vérité des capacités et preuves est `docs/feature-status.md`.
+- Les règles visibles et leurs limites sont dans `docs/gameplay.md`.
+- L'état exact des dépendances et blocages est dans `docs/dependency-audit.md`.
+- Les validations historiques chiffrées ne sont plus copiées dans le backlog :
+  elles restent dans l'archive datée et dans les résultats CI attachés aux commits.
 
 ---
 
@@ -179,15 +154,20 @@ cas d'abandon explicite.
 
 ### P0-SEC-03 — Mettre à niveau l'outillage vulnérable
 
-**État au 26 juillet 2026 : fermé.** Vite 8, Vitest 4, le plugin React, la
+**État au 26 juillet 2026 : fermé à cette date.** Vite 8, Vitest 4, le plugin React, la
 couverture V8 et esbuild sont montés conjointement et épinglés. Le seul avis
 haut restant concerne exclusivement le mode serveur RSC de React Router, absent
 de cette SPA ; son exception automatisée expire le 10 août 2026.
 
+**Régression au 8 août 2026 : rouvert.** La mise à jour groupée de développement a
+introduit `nanoid@3.3.16`, remis React Router dans une plage corrigée par 7.18.2 et
+aligné les types sur Node 26 malgré un runtime Node 22. `npm run audit:security`
+échoue ; voir `docs/dependency-audit.md`.
+
 - [x] Planifier la montée conjointe Vite/Vitest/coverage vers des versions corrigées.
 - [x] Vérifier les breaking changes, Node 22, les plugins Vite et la configuration de
   couverture avant merge.
-- [x] Confirmer `npm audit` sans vulnérabilité critique/haute, ou documenter une
+- [ ] Confirmer `npm audit` sans vulnérabilité critique/haute, ou documenter une
   exception bornée avec exposition et échéance.
 - [x] Ne jamais exposer le serveur Vite/Vitest de développement sur un réseau non
   maîtrisé tant que les versions vulnérables restent installées.
@@ -1142,16 +1122,18 @@ prouve qu'aucune lecture du leaderboard n'est effectuée.
 - [x] Vérifier les headers sur les réponses déployées, ajouter HSTS lorsque le
   domaine HTTPS est stabilisé et tester la CSP en production.
 - [x] Épingler les GitHub Actions par SHA avec politique de mise à jour.
-- [x] Aligner `@types/node` sur Node 22 et retirer les dépendances inutilisées
+- [ ] Réaligner `@types/node` sur Node 22 après la montée Dependabot et conserver
+  uniquement les dépendances dont l'usage est confirmé
   (`@types/jest`, `user-event`, Tailwind) si l'audit d'usage les confirme.
 
 **Acceptation :** les budgets sont chiffrés, versionnés et bloquent une régression
 significative.
 
-**Statut : terminé.** Les budgets v1 bloquent à 390 Ko gzip de JavaScript total,
+**Statut : performance terminée, alignement des types rouvert.** Les budgets v1 bloquent à 390 Ko gzip de JavaScript total,
 205 Ko au démarrage, 225 Ko pour `/auth`, 560 Ko par chunk et 7,2 Mo déployés ; la
-mesure actuelle est respectivement de 375,4 Ko, 157,3 Ko, 161,3 Ko, 542,6 Ko et
-6,45 Mo. Le laboratoire mobile bloque LCP à 2,5 s, CLS à 0,1 et INP à 300 ms. Le
+mesure du 8 août 2026 est respectivement de 389,6 Ko, 171,5 Ko, 175,5 Ko, 542,6 Ko
+et 6,50 Mo. Le budget JavaScript total ne conserve plus que 0,4 Ko de marge après
+la montée React 19. Le laboratoire mobile bloque LCP à 2,5 s, CLS à 0,1 et INP à 300 ms. Le
 cache de travail Data Dragon de 16 Mo n'est plus publié, les animations s'arrêtent
 en arrière-plan et la matrice de production couvre les trois moteurs en desktop et
 mobile. Le contrat offline garantit la session invitée déjà chargée, sans promettre
@@ -1161,23 +1143,28 @@ les routes jamais chargées en l'absence de service worker.
 
 ### P2-DOC-01 — Aligner les documents sur le produit réel
 
-- [ ] Corriger `README.md` : le test Playwright actuel n'est pas une run UI complète
-  et les assets Riot ne sont pas tous versionnés.
-- [ ] Corriger `docs/roadmap.md`, qui marque les jalons sécurité/gameplay terminés
-  alors que les P0 de cet audit restent ouverts.
-- [ ] Corriger `docs/gameplay.md` pour ne documenter que les effets réellement
+- [x] Corriger `README.md` avec le périmètre exact des E2E et des 187 assets Riot
+  réellement versionnés.
+- [x] Corriger `docs/roadmap.md` pour distinguer capacités livrées, jalon qualité en
+  cours et blocages de release.
+- [x] Corriger `docs/gameplay.md` pour ne documenter que les effets réellement
   exécutés.
-- [ ] Corriger `docs/data-and-persistence.md` sur la frontière de confiance RPC, le
+- [x] Corriger `docs/data-and-persistence.md` sur la frontière de confiance RPC, le
   mode invité et l'atomicité du loadout.
-- [ ] Mettre `docs/dependency-audit.md` à jour avec les versions et vulnérabilités
+- [x] Mettre `docs/dependency-audit.md` à jour avec les versions et vulnérabilités
   actuelles.
 - [x] Documenter la machine d'état de run et les invariants équipe/inventaire.
-- [ ] Documenter la formule de score daily, la date UTC et le ruleset versionné.
-- [ ] Ajouter une matrice « feature → implémentation → tests → statut ».
-- [ ] Archiver les anciens claims au lieu de les conserver cochés dans le backlog.
+- [x] Documenter la formule de score daily, la date UTC et le ruleset versionné.
+- [x] Ajouter une matrice « feature → implémentation → tests → statut ».
+- [x] Archiver les anciens claims au lieu de les conserver cochés dans le backlog.
 
 **Acceptation :** aucune documentation ne qualifie de terminée une fonction absente
 du vrai parcours ou non prouvée par un test comportemental.
+
+**Statut : terminé.** Les claims initiaux sont archivés, les limites d'effets et du
+mode invité sont explicites, le score Daily v12 est relié à ses coefficients SQL et
+la matrice de capacités sépare désormais Livré, Bloqué et À faire. L'audit rouge des
+dépendances est documenté comme blocage réel, pas maquillé en validation.
 
 ### P2-DOC-02 — Préparer l'exploitation
 
