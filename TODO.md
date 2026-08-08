@@ -7,8 +7,9 @@ afin de ne plus les présenter comme l'état courant.
 
 > **État courant :** les correctifs fonctionnels P0/P1 et les chantiers P2 jusqu'à
 > la performance sont livrés avec des preuves automatisées. La régression de
-> dépendances du 8 août est corrigée sans rétrograder de paquet. La bêta publique
-> reste bloquée par `P2-DOC-02` ainsi que les décisions P3 et légales.
+> dépendances du 8 août est corrigée sans rétrograder de paquet. Les procédures de
+> `P2-DOC-02` sont livrées ; la bêta reste bloquée par leur exercice distant, les
+> décisions P3 et les exigences légales.
 > La matrice maintenue est [`docs/feature-status.md`](docs/feature-status.md).
 
 ## Comment utiliser ce TODO
@@ -1170,13 +1171,18 @@ dépendances est documenté comme blocage réel, pas maquillé en validation.
 
 ### P2-DOC-02 — Préparer l'exploitation
 
-- [ ] Écrire runbooks de migration, rollback, incident de sauvegarde, classement
+- [x] Écrire runbooks de migration, rollback, incident de sauvegarde, classement
   compromis et indisponibilité Supabase.
-- [ ] Définir sauvegarde/restauration DB, RPO, RTO et test de restauration.
-- [ ] Documenter rotation des clés, gestion des environnements et promotion admin.
-- [ ] Séparer clairement développement, preview et production.
-- [ ] Ajouter checklist de release, smoke test et critères de rollback.
-- [ ] Définir support utilisateur et procédure d'export/suppression de compte.
+- [x] Définir sauvegarde/restauration DB, RPO, RTO et test de restauration.
+- [x] Documenter rotation des clés, gestion des environnements et promotion admin.
+- [x] Séparer clairement développement, preview et production.
+- [x] Ajouter checklist de release, smoke test et critères de rollback.
+- [x] Définir support utilisateur et procédure d'export/suppression de compte.
+
+**Statut : procédures livrées.** `docs/operations.md` indexe les runbooks incidents,
+sauvegarde/restauration et release/support. La preuve d'un exercice sur projet
+Supabase isolé reste un critère de chaque release bêta, pas une réussite simulée en
+local.
 
 **Acceptation :** un déploiement ou incident courant peut être géré à partir des
 runbooks sans connaissance orale du projet.

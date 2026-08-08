@@ -152,6 +152,9 @@ propre.
 - [Règles de jeu et équilibrage](docs/gameplay.md)
 - [Administration sécurisée](docs/administration.md)
 - [Déploiement et exploitation](docs/operations.md)
+- [Runbooks d'incident](docs/incident-runbooks.md)
+- [Sauvegarde et restauration](docs/backup-and-restore.md)
+- [Release, environnements et support](docs/release-and-support.md)
 - [Roadmap et checklist de release](docs/roadmap.md)
 - [Assets Riot](docs/assets.md)
 - [Audit des dépendances](docs/dependency-audit.md)
@@ -161,7 +164,8 @@ propre.
 
 Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise
 `vercel.json` pour la réécriture SPA et les en-têtes de sécurité. Avant une mise en
-production, suivre la checklist de [docs/roadmap.md](docs/roadmap.md), renseigner
+production, suivre la checklist de
+[release et support](docs/release-and-support.md), renseigner
 les deux variables `VITE_PUBLIC_SUPABASE_*` dans l'environnement Vercel et vérifier
 les URL de redirection Auth dans Supabase.
 

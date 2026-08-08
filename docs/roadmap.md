@@ -19,9 +19,9 @@ effet imaginé dans les catalogues futurs est disponible.
 ### Jalon 3 — Qualité de production
 
 Architecture modulaire, CI, couverture, E2E, assets épinglés, découpage du bundle,
-sécurité Vercel et documentation d'exploitation. Ce jalon reste **en cours** tant
-que la checklist ci-dessous ne passe pas sur `main`. Au 8 août 2026, l'audit des
-dépendances est bloquant et les runbooks de `P2-DOC-02` restent à écrire.
+sécurité Vercel et documentation d'exploitation. Les runbooks P2-DOC-02 sont
+versionnés ; ce jalon reste **en cours** tant que leur exercice distant et la
+checklist ci-dessous ne sont pas consignés pour une release réelle.
 
 ### Jalon 4 — Bêta
 
@@ -41,6 +41,9 @@ dépendances est bloquant et les runbooks de `P2-DOC-02` restent à écrire.
 - version taguée et notes de release publiées.
 
 ## Checklist de release
+
+La checklist opérable et les critères de rollback normatifs sont dans
+`docs/release-and-support.md`. La liste ci-dessous reste la vue roadmap synthétique.
 
 ### Code et données
 

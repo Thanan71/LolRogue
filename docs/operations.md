@@ -1,6 +1,24 @@
 # Déploiement et exploitation
 
+Ce document est le point d'entrée opérationnel. Les procédures détaillées sont :
+
+- `docs/incident-runbooks.md` pour migration, rollback, indisponibilité, classement,
+  secret exposé et sauvegarde défaillante ;
+- `docs/backup-and-restore.md` pour RPO/RTO, dumps, exercice trimestriel et
+  restauration de production ;
+- `docs/release-and-support.md` pour environnements, rotation, release, smoke test,
+  export et suppression de compte ;
+- `docs/administration.md` pour promouvoir ou révoquer un administrateur.
+
+Une fiche de release privée doit fournir les project refs et responsables réels.
+Les runbooks versionnés ne contiennent volontairement ni secret ni identifiant de
+production.
+
 ## Environnements
+
+La matrice normative et les contrôles de séparation sont dans
+`docs/release-and-support.md`. Development, Preview et Production utilisent trois
+bases distinctes ; une preview ne doit jamais cibler les données de production.
 
 Chaque environnement Vercel pointe vers un projet Supabase correspondant. Les
 variables navigateur obligatoires sont :
