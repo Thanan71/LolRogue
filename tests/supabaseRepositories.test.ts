@@ -167,6 +167,71 @@ describe('SupabaseLeaderboardRepository', () => {
   });
 });
 
+describe('SupabaseRunRepository history', () => {
+  it('maps authoritative attempt and team metadata while preserving legacy runs', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    queryChain.range.mockResolvedValue({
+      data: [
+        {
+          id: 'run-v13',
+          player_id: 'player-1',
+          run_team_members: [{ champion_id: 'Garen', final_level: 6 }],
+          run_attempts: {
+            difficulty: 'hard',
+            mode: 'normal',
+            engine_version: 'run-engine-v13',
+            gameplay_ruleset_version: 13,
+            progression_ruleset_version: 2,
+          },
+        },
+        {
+          id: 'run-legacy',
+          player_id: 'player-1',
+          run_team_members: null,
+          run_attempts: null,
+        },
+      ],
+      error: null,
+    });
+
+    const result = await new SupabaseRunRepository(mockSupabase).getPlayerRunHistory(
+      'player-1',
+      20,
+      5,
+    );
+
+    expect(mockSupabase.from).toHaveBeenCalledWith('runs');
+    expect(queryChain.select).toHaveBeenCalledWith(expect.stringContaining('run_team_members(*)'));
+    expect(queryChain.eq).toHaveBeenCalledWith('player_id', 'player-1');
+    expect(queryChain.range).toHaveBeenCalledWith(5, 24);
+    expect(result.error).toBeNull();
+    expect(result.data?.[0]).toMatchObject({
+      run: { id: 'run-v13' },
+      teamMembers: [{ champion_id: 'Garen', final_level: 6 }],
+      attempt: {
+        difficulty: 'hard',
+        engineVersion: 'run-engine-v13',
+        gameplayRulesetVersion: 13,
+      },
+    });
+    expect(result.data?.[1]).toMatchObject({
+      run: { id: 'run-legacy' },
+      teamMembers: [],
+      attempt: null,
+    });
+  });
+
+  it('returns history query errors without partial rows', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    const error = new Error('history unavailable');
+    queryChain.range.mockResolvedValue({ data: null, error });
+
+    await expect(
+      new SupabaseRunRepository(mockSupabase).getPlayerRunHistory('player-1'),
+    ).resolves.toEqual({ data: null, error });
+  });
+});
+
 describe('SupabaseEnhancementRepository', () => {
   it('unlocks a node with optimistic rank and idempotency but no client-owned price', async () => {
     const { mockSupabase } = createMockSupabaseClient();

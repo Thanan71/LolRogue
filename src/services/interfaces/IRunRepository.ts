@@ -7,6 +7,18 @@
 
 import type { Run, RunTeamMember } from '@/types/models';
 
+export interface RunHistoryEntry {
+  run: Run;
+  teamMembers: RunTeamMember[];
+  attempt: {
+    difficulty: string;
+    mode: string;
+    engineVersion: string;
+    gameplayRulesetVersion: number;
+    progressionRulesetVersion: number;
+  } | null;
+}
+
 export interface IRunRepository {
   /**
    * Get a single run by ID
@@ -21,6 +33,13 @@ export interface IRunRepository {
     limit?: number,
     offset?: number,
   ): Promise<{ data: Run[] | null; error: Error | null }>;
+
+  /** Read comparable history with its authoritative version and team snapshot. */
+  getPlayerRunHistory(
+    playerId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }>;
 
   /**
    * Get team members for a run

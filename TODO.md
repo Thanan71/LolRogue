@@ -1210,11 +1210,19 @@ réelle reste opt-in et agrégée selon `docs/content-balance.md`.
 
 ### P3-PROD-02 — Progression et personnalisation
 
-- [ ] Décider si les slots de starter supplémentaires font partie de l'équilibrage.
-- [ ] Concevoir skins/chromas sans avantage compétitif.
-- [ ] Ajouter achievements/quêtes seulement après fiabilisation des métriques.
-- [ ] Afficher un historique détaillé et comparable des runs.
-- [ ] Prévoir reset/saison/migration de progression avant toute économie durable.
+- [x] Décider si les slots de starter supplémentaires font partie de l'équilibrage.
+- [x] Concevoir skins/chromas sans avantage compétitif.
+- [x] Ajouter achievements/quêtes seulement après fiabilisation des métriques.
+- [x] Afficher un historique détaillé et comparable des runs.
+- [x] Prévoir reset/saison/migration de progression avant toute économie durable.
+
+**Statut : terminé.** Les slots 2/3 restent un avantage serveur explicite ; dix
+concepts de chroma sans modificateur sont définis mais non annoncés comme livrés.
+Achievements et quêtes restent désactivés derrière un contrat de métriques
+`verified`. Le profil affiche l'attempt, le ruleset, l'équipe, l'économie et les
+statistiques détaillées, en marquant les runs legacy non comparables. La politique
+de saison conserve maîtrise, améliorations, cosmétiques et historique via migrations
+additives ; voir `docs/progression-personalization.md`.
 
 ### P3-PROD-03 — Social et classement
 

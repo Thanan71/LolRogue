@@ -5,16 +5,16 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { formatDate, formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { RepositoryContainerFactory } from '@/services/container';
+import type { RunHistoryEntry } from '@/services/interfaces/IRunRepository';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
-import type { Run } from '@/types/models';
 
 const repositories = RepositoryContainerFactory.create(supabase);
 
 export function ProfilePage() {
   const navigate = useAppNavigate();
   const { player, isGuest } = useAuthStore();
-  const [runs, setRuns] = useState<Run[]>([]);
+  const [runs, setRuns] = useState<RunHistoryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -29,7 +29,7 @@ export function ProfilePage() {
     let cancelled = false;
     setIsLoading(true);
     setError(null);
-    void repositories.run.getPlayerRuns(player.id, 20).then((result) => {
+    void repositories.run.getPlayerRunHistory(player.id, 20).then((result) => {
       if (cancelled) return;
       if (result.error) setError(fr.common.unavailableError);
       else setRuns(result.data ?? []);
@@ -87,19 +87,69 @@ export function ProfilePage() {
             )}
             {!error && runs.length === 0 && <StateView kind="empty" title={fr.profile.noRuns} />}
             <ul className="ui-list">
-              {runs.map((run) => (
+              {runs.map(({ run, attempt, teamMembers }) => (
                 <li key={run.id} className="ui-list-item">
-                  <strong>{run.won ? fr.common.victory : fr.common.defeat}</strong> —{' '}
-                  {fr.common.level.toLowerCase()} {formatNumber(run.run_level)},{' '}
-                  {formatNumber(run.waves_completed)} vagues, {formatNumber(run.total_kills)}{' '}
-                  {fr.profile.eliminations}
-                  <br />
-                  <small>
-                    {formatDate(run.completed_at ?? run.created_at, {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    })}
-                  </small>
+                  <details>
+                    <summary>
+                      <strong>{run.won ? fr.common.victory : fr.common.defeat}</strong> —{' '}
+                      {fr.common.level.toLowerCase()} {formatNumber(run.run_level)},{' '}
+                      {formatNumber(run.waves_completed)} {fr.profile.waves},{' '}
+                      {formatNumber(run.total_kills)} {fr.profile.eliminations}
+                      <br />
+                      <small>
+                        {formatDate(run.completed_at ?? run.created_at, {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </small>
+                    </summary>
+                    <dl className="ui-definition-list">
+                      <div>
+                        <dt>{fr.profile.comparisonGroup}</dt>
+                        <dd>
+                          {attempt
+                            ? `${attempt.mode} · ${attempt.difficulty} · gameplay v${formatNumber(attempt.gameplayRulesetVersion)}`
+                            : fr.profile.legacyRun}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{fr.profile.team}</dt>
+                        <dd>
+                          {teamMembers.length > 0
+                            ? teamMembers
+                                .map(
+                                  (member) =>
+                                    `${member.champion_id} niv. ${formatNumber(member.final_level)}`,
+                                )
+                                .join(', ')
+                            : fr.profile.teamUnavailable}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{fr.profile.economy}</dt>
+                        <dd>
+                          {formatNumber(run.gold_earned)} {fr.profile.goldEarned} ·{' '}
+                          {formatNumber(run.total_gold_spent)} {fr.profile.goldSpent} ·{' '}
+                          {formatNumber(run.items_purchased)} {fr.profile.items}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{fr.profile.combatStats}</dt>
+                        <dd>
+                          {formatNumber(run.total_damage_dealt)} {fr.profile.damage} ·{' '}
+                          {formatNumber(run.total_healing_done)} {fr.profile.healing} ·{' '}
+                          {formatNumber(run.total_shielding_done)} {fr.profile.shielding}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{fr.profile.content}</dt>
+                        <dd>
+                          {run.rune_ids.join(', ') || fr.profile.none} ·{' '}
+                          {run.augment_ids.join(', ') || fr.profile.none}
+                        </dd>
+                      </div>
+                    </dl>
+                  </details>
                 </li>
               ))}
             </ul>

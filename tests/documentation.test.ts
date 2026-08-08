@@ -30,6 +30,7 @@ describe('documentation maintenue', () => {
       'docs/data-and-persistence.md',
       'docs/gameplay.md',
       'docs/content-balance.md',
+      'docs/progression-personalization.md',
       'docs/administration.md',
       'docs/operations.md',
       'docs/incident-runbooks.md',

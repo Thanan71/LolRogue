@@ -8,7 +8,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 import type { Run, RunTeamMember } from '@/types/models';
-import type { IRunRepository, IRunStatsRepository } from '../interfaces/IRunRepository';
+import type {
+  IRunRepository,
+  IRunStatsRepository,
+  RunHistoryEntry,
+} from '../interfaces/IRunRepository';
 
 export class SupabaseRunRepository implements IRunRepository {
   private supabase: SupabaseClient<Database>;
@@ -44,6 +48,51 @@ export class SupabaseRunRepository implements IRunRepository {
     }
 
     return { data: data as Run[], error: null };
+  }
+
+  async getPlayerRunHistory(
+    playerId: string,
+    limit = 20,
+    offset = 0,
+  ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }> {
+    const { data, error } = await this.supabase
+      .from('runs')
+      .select(
+        '*, run_team_members(*), run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, progression_ruleset_version)',
+      )
+      .eq('player_id', playerId)
+      .order('completed_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) return { data: null, error };
+
+    const entries = (data ?? []).map((raw) => {
+      const row = raw as unknown as Run & {
+        run_team_members: RunTeamMember[] | null;
+        run_attempts: {
+          difficulty: string;
+          mode: string;
+          engine_version: string;
+          gameplay_ruleset_version: number;
+          progression_ruleset_version: number;
+        } | null;
+      };
+      const { run_team_members, run_attempts, ...run } = row;
+      return {
+        run,
+        teamMembers: run_team_members ?? [],
+        attempt: run_attempts
+          ? {
+              difficulty: run_attempts.difficulty,
+              mode: run_attempts.mode,
+              engineVersion: run_attempts.engine_version,
+              gameplayRulesetVersion: run_attempts.gameplay_ruleset_version,
+              progressionRulesetVersion: run_attempts.progression_ruleset_version,
+            }
+          : null,
+      } satisfies RunHistoryEntry;
+    });
+    return { data: entries, error: null };
   }
 
   async getRunTeamMembers(

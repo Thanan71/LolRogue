@@ -18,6 +18,7 @@ définitifs.
 | Fin victoire, défaite et abandon | `runFinalization`, outbox et snapshot final | `runFinalization.test.ts`, `runSaveRecovery.test.ts`, `six-biome-run.spec.ts` | Livré |
 | Progression connectée autoritaire | attempts, journal, `verify-run`, `complete_run_verification` | `authorityRunEngine.test.ts`, `verifiedRunAttempts.database.test.ts`, `clientAuthorityParity.test.ts` | Livré |
 | Maîtrise et améliorations | stores dédiés et RPC atomique | `mastery.test.ts`, `enhancementStoreRecovery.test.ts`, `authoritativeDaily.database.test.ts` | Livré |
+| Progression et personnalisation | slots serveur, contrat cosmétique/saison, historique comparable | `personalizationContract.test.ts`, `profileHistory.test.tsx` | Contrat livré ; cosmétiques et quêtes volontairement non activés |
 | Daily officiel et classement public réduit | rulesets Daily, replay et vue `daily_leaderboard` | `authoritativeDaily.database.test.ts`, `dailyPages.test.tsx`, `database.test.ts` | Livré ; invité local non officiel |
 | Administration | route admin, RPC/vues bornées et export CSV neutralisé | `adminData.test.tsx`, `adminCsv.test.ts`, `logSecurity.database.test.ts` | Livré pour les opérations documentées |
 | Responsive et accessibilité automatisée | shell partagé, styles mobiles, focus et mouvement réduit | specs `auth-menu`, `game-screens`, `accessibility*` | Livré au niveau automatisé ; revue lecteur d'écran humaine restante |

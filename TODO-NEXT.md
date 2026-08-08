@@ -7,16 +7,13 @@ vérité détaillée, la [matrice](docs/feature-status.md) donne le statut des c
 et l'[historique](docs/archive/delivery-history-2026-07-august.md) conserve les
 claims clôturés.
 
-## Dernière livraison — P3-PROD-01
+## Dernière livraison — P3-PROD-02
 
-- [x] Modèle d'équilibrage v1 relié au gameplay et Daily v13, avec v12 archivé.
-- [x] Courbes difficulté/économie simulées de façon déterministe.
-- [x] Rôles, forces, faiblesses et synergies des 10 champions contractualisés.
-- [x] Identité, choix de carte et direction visuelle des six biomes définis à partir
-  des mécaniques réellement générées.
-- [x] Garde de contenu : roster, encounters et stacking incomplets font échouer les
-  tests.
-- [x] Six nouveaux combats supportés et cohorte de 30 runs scriptées par difficulté.
+- [x] Slots de starter confirmés comme avantage d'équilibrage imposé par le serveur.
+- [x] Dix concepts de chroma sans aucun modificateur gameplay contractualisés.
+- [x] Achievements/quêtes maintenus désactivés jusqu'au contrat serveur de métriques.
+- [x] Historique profil détaillé par attempt, version, équipe, économie et combat.
+- [x] Politique additive de saison/reset/migration définie avant économie durable.
 
 ## Régressions de dépendances corrigées
 
@@ -33,4 +30,4 @@ Voir `docs/dependency-audit.md` pour le diagnostic et les versions vérifiées.
 
 1. **Exécuter avant bêta l'exercice distant P2-DOC-02** sur un projet Supabase de
    restauration isolé et joindre la preuve privée à la fiche de release.
-2. **P3-PROD-02 — Progression et personnalisation.**
+2. **P3-PROD-03 — Social et classement.**
