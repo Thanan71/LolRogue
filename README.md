@@ -150,6 +150,7 @@ propre.
 
 - [Données et persistance](docs/data-and-persistence.md)
 - [Règles de jeu et équilibrage](docs/gameplay.md)
+- [Contrat de contenu et simulations](docs/content-balance.md)
 - [Administration sécurisée](docs/administration.md)
 - [Déploiement et exploitation](docs/operations.md)
 - [Runbooks d'incident](docs/incident-runbooks.md)

@@ -3,6 +3,10 @@
 Ce document décrit les règles actuellement implémentées. Les constantes citées
 restent définies dans le code afin que les tests puissent les contrôler.
 
+Le roster, l'identité mécanique des biomes et la méthode de simulation sont
+versionnés dans [`docs/content-balance.md`](content-balance.md). Une calibration qui
+change le moteur exige une nouvelle version gameplay et Daily.
+
 ## Progression d'une run
 
 Une équipe contient au maximum cinq champions. Elle traverse, dans l'ordre,

@@ -7,16 +7,15 @@ vérité détaillée, la [matrice](docs/feature-status.md) donne le statut des c
 et l'[historique](docs/archive/delivery-history-2026-07-august.md) conserve les
 claims clôturés.
 
-## Dernière livraison — P2-DOC-02
+## Dernière livraison — première passe P3-PROD-01
 
-- [x] Runbooks migration, rollback, Supabase, classement compromis, secret exposé
-  et sauvegarde défaillante écrits avec sévérité, rôles et critères de clôture.
-- [x] RPO 24 h, RTO 4 h, sauvegarde logique, restauration isolée trimestrielle et
-  restauration de production définis sans prétendre à une preuve distante absente.
-- [x] Development, Preview et Production séparés, rotation des clés et droits admin
-  documentés.
-- [x] Checklist de release, smoke test, critères de rollback, export et suppression
-  de compte documentés.
+- [x] Modèle d'équilibrage v1 relié au gameplay et Daily v12.
+- [x] Courbes difficulté/économie simulées de façon déterministe.
+- [x] Rôles, forces, faiblesses et synergies des 10 champions contractualisés.
+- [x] Identité, choix de carte et direction visuelle des six biomes définis à partir
+  des mécaniques réellement générées.
+- [x] Garde de contenu : roster, encounters et stacking incomplets font échouer les
+  tests.
 
 ## Régressions de dépendances corrigées
 
@@ -31,7 +30,8 @@ Voir `docs/dependency-audit.md` pour le diagnostic et les versions vérifiées.
 
 ## Prochain chantier planifié
 
-1. **Exécuter avant bêta l'exercice distant P2-DOC-02** sur un projet Supabase de
+1. **P3-PROD-01 — calibration humaine restante** : réunir au moins 30 runs
+   consenties par difficulté, playtester plusieurs compositions, puis versionner
+   toute modification de prix/drop/augment dans un nouveau ruleset.
+2. **Exécuter avant bêta l'exercice distant P2-DOC-02** sur un projet Supabase de
    restauration isolé et joindre la preuve privée à la fiche de release.
-2. **P3 — Produit et enrichissement** seulement après clôture des blocages de
-   sécurité et d'exploitation.
