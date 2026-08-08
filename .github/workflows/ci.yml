@@ -76,14 +76,20 @@ jobs:
       - name: Export local Supabase credentials
         run: |
           eval "$(./node_modules/.bin/supabase status -o env)"
-          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
-          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "E2E_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "E2E_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
 
       - name: Install browser matrix
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Run browser tests
         run: npm run test:e2e
+
+      - name: Run connected Daily browser test
+        run: |
+          VITE_PUBLIC_SUPABASE_URL="$E2E_SUPABASE_URL" \
+          VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
+          npx playwright test e2e/connected-daily.spec.ts --project=chromium
 
       - name: Run production browser matrix
         run: npm run test:e2e:production
