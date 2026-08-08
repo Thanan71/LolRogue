@@ -29,6 +29,7 @@ describe('documentation maintenue', () => {
     for (const path of [
       'docs/data-and-persistence.md',
       'docs/product-decisions.md',
+      'docs/beta-readiness.md',
       'docs/gameplay.md',
       'docs/content-balance.md',
       'docs/progression-personalization.md',
@@ -97,6 +98,22 @@ describe('documentation maintenue', () => {
     ]) {
       expect(release).toContain(contract);
     }
+  });
+
+  it('ne déclare pas la bêta prête sans les preuves humaines et distantes', () => {
+    const readiness = read('docs/beta-readiness.md');
+    const todo = read('TODO.md');
+
+    for (const blocker of [
+      'Trois CI complètes consécutives',
+      'E2E victoire, défaite et Daily sans store',
+      'Accessibilité WCAG AA sans blocage',
+      'Clone propre et assets sur le déploiement',
+    ]) {
+      expect(readiness).toContain(`| ${blocker} | Bloqué`);
+    }
+    expect(readiness).toContain('La sortie bêta est donc **interdite**');
+    expect(todo).toContain('**Statut : 6/10 démontrés, sortie bloquée.**');
   });
 
   it('ne réintroduit pas les guides historiques ponctuels', () => {

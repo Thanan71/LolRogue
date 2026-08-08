@@ -1303,13 +1303,18 @@ Le contrat détaillé, ses raisons et ses limites sont dans
 
 ## Critères de sortie bêta
 
-- [ ] Aucun P0 ouvert.
+- [x] Aucun P0 ouvert.
 - [ ] `npm run check` et la CI Supabase passent sur trois exécutions consécutives.
 - [ ] Les vraies E2E victoire/défaite/daily passent sans accès direct aux stores.
 - [ ] Aucun problème bloquant axe/WCAG AA sur le parcours critique.
-- [ ] Aucun overflow ou contrôle inaccessible sur la matrice de viewports.
+- [x] Aucun overflow ou contrôle inaccessible sur la matrice de viewports.
 - [ ] Clone propre, build et déploiement contiennent tous les assets requis.
-- [ ] Les tests adversariaux ne permettent aucune falsification de progression.
-- [ ] Une sauvegarde est atomique, idempotente et récupérable après coupure.
-- [ ] Les règles affichées correspondent aux handlers réellement exécutés.
-- [ ] Documentation, runbooks, confidentialité et checklist de release sont à jour.
+- [x] Les tests adversariaux ne permettent aucune falsification de progression.
+- [x] Une sauvegarde est atomique, idempotente et récupérable après coupure.
+- [x] Les règles affichées correspondent aux handlers réellement exécutés.
+- [x] Documentation, runbooks, confidentialité et checklist de release sont à jour.
+
+**Statut : 6/10 démontrés, sortie bloquée.** Les preuves, les quatre actions
+restantes et les gates juridiques externes sont suivis dans
+`docs/beta-readiness.md`. Une validation automatisée ne remplace pas la revue
+lecteur d'écran ni le smoke test du déploiement candidat.

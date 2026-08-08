@@ -16,6 +16,16 @@ claims clôturés.
 
 Voir `docs/product-decisions.md` pour le contrat complet.
 
+## Gate de sortie bêta — 6/10 démontrés
+
+- [ ] Obtenir trois exécutions CI complètes consécutives réussies.
+- [ ] Ajouter un vrai parcours E2E Daily connecté sans accès direct aux stores.
+- [ ] Consigner la revue humaine NVDA + Firefox et VoiceOver + Safari/iOS.
+- [ ] Valider les assets et le réseau sur le déploiement candidat exact.
+
+La bêta publique reste également bloquée par les gates juridiques externes de
+`docs/legal-and-privacy.md`. Voir `docs/beta-readiness.md` pour les preuves attendues.
+
 ## Livraison précédente — P3-PROD-04 (implémentation produit)
 
 - [x] Page légale publique reliée depuis Auth et Menu.
