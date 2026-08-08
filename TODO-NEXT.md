@@ -23,8 +23,8 @@ claims clôturés.
 
 - [x] React Router monté de 7.18.1 à 7.18.2.
 - [x] `nanoid` transitif monté de 3.3.16 à 3.3.18 sans override.
-- [x] Runtime, `.nvmrc`, CI et `@types/node` alignés sur Node 26 sans rétrograder de
-  paquet.
+- [x] Runtime, `.nvmrc` et CI alignés sur Node 24 compatible Vercel, sans rétrograder
+  les paquets (`@types/node` reste en 26.2.0).
 - [x] Exception temporaire supprimée : l'audit bloque désormais toute alerte haute
   ou critique.
 

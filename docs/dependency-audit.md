@@ -8,15 +8,15 @@
 
 La mise à jour groupée de l'outillage a porté la base sur :
 
-- Node `>=26.0.0 <27` pour l'exécution du projet ;
+- Node `24.x` pour l'exécution du projet et la compatibilité Vercel ;
 - React/React DOM `19.2.8`, React Router DOM `7.18.2` et Zustand `5.0.14` ;
 - Vite `8.1.5`, `@vitejs/plugin-react` `6.0.4` et TypeScript `7.0.2` ;
 - Vitest/coverage `4.1.10`, Playwright `1.62.0`, jsdom `30.0.1` et Biome `2.5.6` ;
 - Supabase JS `2.111.0` et CLI `2.110.0` ;
 - `@types/node` `26.2.0`.
 
-Le runtime, `.nvmrc`, les quatre jobs CI et les types ciblent désormais la même
-majeure Node 26. Aucun paquet n'a été rétrogradé pour obtenir cet alignement.
+Le runtime, `.nvmrc` et les quatre jobs CI ciblent désormais Node 24, pris en charge
+par Vercel. Aucun paquet n'a été rétrogradé : `@types/node` reste en 26.2.0.
 TypeScript 7 reste une montée majeure et demeure couvert par le typage, le build,
 les tests et la génération des types Supabase.
 

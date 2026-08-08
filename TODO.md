@@ -161,13 +161,13 @@ de cette SPA ; son exception automatisée expire le 10 août 2026.
 
 **Régression au 8 août 2026 : corrigée.** La mise à jour groupée de développement a
 introduit `nanoid@3.3.16`, remis React Router dans une plage corrigée par 7.18.2 et
-aligné les types sur Node 26 malgré un runtime Node 22. `npm run audit:security`
-échoué. React Router a été monté en 7.18.2, `nanoid` en 3.3.18 et le runtime/CI a
-été aligné sur les types Node 26 sans diminuer les versions ; voir
+aligné les types sur Node 26 malgré le runtime Node 22 alors déclaré. `npm run audit:security`
+échouait. React Router a été monté en 7.18.2, `nanoid` en 3.3.18 et le runtime/CI a
+été aligné sur le runtime Node 24 compatible Vercel sans diminuer les versions ; voir
 `docs/dependency-audit.md`.
 
 - [x] Planifier la montée conjointe Vite/Vitest/coverage vers des versions corrigées.
-- [x] Vérifier les breaking changes, Node 26, les plugins Vite et la configuration de
+- [x] Vérifier les breaking changes, Node 24, les plugins Vite et la configuration de
   couverture avant merge.
 - [x] Confirmer `npm audit` sans vulnérabilité critique/haute, ou documenter une
   exception bornée avec exposition et échéance.
@@ -1124,7 +1124,7 @@ prouve qu'aucune lecture du leaderboard n'est effectuée.
 - [x] Vérifier les headers sur les réponses déployées, ajouter HSTS lorsque le
   domaine HTTPS est stabilisé et tester la CSP en production.
 - [x] Épingler les GitHub Actions par SHA avec politique de mise à jour.
-- [x] Aligner runtime, CI et `@types/node` sur Node 26 après la montée Dependabot et conserver
+- [x] Aligner runtime et CI sur Node 24 compatible Vercel après la montée Dependabot et conserver
   uniquement les dépendances dont l'usage est confirmé
   (`@types/jest`, `user-event`, Tailwind) si l'audit d'usage les confirme.
 
