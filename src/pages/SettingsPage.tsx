@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { playUIClick } from '@/audio';
 import { Button, Field, PageFooter, PageHeader, PageShell, Panel, Stack } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
+import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
+import { supabase } from '@/services/supabaseClient';
+import { useAuthStore } from '@/stores/authStore';
 import { useAudioStore } from '@/stores/audioStore';
 import {
   type BattleSpeed,
@@ -15,6 +19,22 @@ export function SettingsPage() {
   const navigate = useAppNavigate();
   const audio = useAudioStore();
   const settings = useSettingsStore();
+  const { isGuest, player } = useAuthStore();
+  const [publicName, setPublicName] = useState(player?.public_display_name ?? '');
+  const [leaderboardOptOut, setLeaderboardOptOut] = useState(player?.leaderboard_opt_out ?? false);
+  const [privacyStatus, setPrivacyStatus] = useState<string | null>(null);
+  const [savingPrivacy, setSavingPrivacy] = useState(false);
+
+  const saveLeaderboardPrivacy = async () => {
+    setSavingPrivacy(true);
+    setPrivacyStatus(null);
+    const result = await new SupabaseDailyRunRepository(supabase).setLeaderboardPrivacy(
+      publicName.trim() || null,
+      leaderboardOptOut,
+    );
+    setPrivacyStatus(result.error ? fr.settings.privacySaveError : fr.settings.privacySaved);
+    setSavingPrivacy(false);
+  };
 
   return (
     <PageShell width="narrow">
@@ -104,6 +124,38 @@ export function SettingsPage() {
           </Field>
         </Stack>
       </Panel>
+      {!isGuest && (
+        <Panel aria-label={fr.settings.leaderboardPrivacy}>
+          <Stack className="settings-form">
+            <h2>{fr.settings.leaderboardPrivacy}</h2>
+            <p>{fr.settings.leaderboardPrivacyHelp}</p>
+            <Field
+              label={<label htmlFor="public-leaderboard-name">{fr.settings.publicName}</label>}
+            >
+              <input
+                id="public-leaderboard-name"
+                value={publicName}
+                minLength={3}
+                maxLength={32}
+                pattern="[A-Za-zÀ-ÿ0-9 _.-]{3,32}"
+                onChange={(event) => setPublicName(event.target.value)}
+              />
+            </Field>
+            <label>
+              <input
+                type="checkbox"
+                checked={leaderboardOptOut}
+                onChange={(event) => setLeaderboardOptOut(event.target.checked)}
+              />{' '}
+              {fr.settings.hideFromLeaderboard}
+            </label>
+            <Button disabled={savingPrivacy} onClick={() => void saveLeaderboardPrivacy()}>
+              {savingPrivacy ? fr.settings.savingPrivacy : fr.settings.savePrivacy}
+            </Button>
+            {privacyStatus && <p role="status">{privacyStatus}</p>}
+          </Stack>
+        </Panel>
+      )}
       <PageFooter>
         <Button
           variant="ghost"

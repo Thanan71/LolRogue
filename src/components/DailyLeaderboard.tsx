@@ -19,6 +19,15 @@ export function DailyLeaderboard() {
   const [error, setError] = useState<string | null>(null);
   const [dailyDate, setDailyDate] = useState(getTodayKey);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [scoreVersion, setScoreVersion] = useState<number | undefined>();
+  const [gameplayVersion, setGameplayVersion] = useState<number | undefined>();
+  const [currentScoreVersion, setCurrentScoreVersion] = useState<number | null>(null);
+  const [currentGameplayVersion, setCurrentGameplayVersion] = useState<number | null>(null);
+  const [seasonCode, setSeasonCode] = useState<string | undefined>();
+  const [availableSeasonCodes, setAvailableSeasonCodes] = useState<string[]>([]);
+  const [reportedEntryId, setReportedEntryId] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState('');
+  const [reportStatus, setReportStatus] = useState<string | null>(null);
   const getLeaderboard = useDailyRunStore((s) => s.getLeaderboard);
   const isGuest = useAuthStore((state) => state.isGuest);
 
@@ -46,15 +55,40 @@ export function DailyLeaderboard() {
     }
     setDailyDate(challenge.data.dailyDate);
     setExpiresAt(challenge.data.expiresAt);
-    const result = await repository.getDailyLeaderboard(challenge.data.dailyDate, 100);
+    setCurrentScoreVersion(challenge.data.scoreVersion);
+    setCurrentGameplayVersion(challenge.data.gameplayRulesetVersion);
+    const result = await repository.getDailyLeaderboard({
+      date: challenge.data.dailyDate,
+      seasonCode,
+      scoreVersion,
+      gameplayRulesetVersion: gameplayVersion,
+      limit: 100,
+    });
     if (result.error) {
       setError(fr.daily.leaderboardLoadError);
       setEntries([]);
     } else {
-      setEntries(result.data ?? []);
+      const nextEntries = result.data ?? [];
+      setEntries(nextEntries);
+      setAvailableSeasonCodes((current) => [
+        ...new Set([...current, ...nextEntries.flatMap((entry) => entry.seasonCode ?? [])]),
+      ]);
     }
     setIsLoading(false);
-  }, [getLeaderboard, usesLocalLeaderboard]);
+  }, [gameplayVersion, getLeaderboard, scoreVersion, seasonCode, usesLocalLeaderboard]);
+
+  const submitReport = useCallback(async () => {
+    if (!reportedEntryId || reportReason.trim().length < 10) return;
+    const result = await new SupabaseDailyRunRepository(supabase).reportDailyScore(
+      reportedEntryId,
+      reportReason.trim(),
+    );
+    setReportStatus(result.error ? fr.daily.reportError : fr.daily.reportSuccess);
+    if (!result.error) {
+      setReportedEntryId(null);
+      setReportReason('');
+    }
+  }, [reportReason, reportedEntryId]);
 
   useEffect(() => {
     void refresh();
@@ -88,6 +122,54 @@ export function DailyLeaderboard() {
         {usesLocalLeaderboard ? fr.daily.localSource : fr.daily.onlineSource}
       </p>
 
+      {!usesLocalLeaderboard && (
+        <fieldset style={styles.filters}>
+          <legend>{fr.daily.comparisonFilters}</legend>
+          <label>
+            {fr.daily.season}
+            <select
+              value={seasonCode ?? ''}
+              onChange={(event) => setSeasonCode(event.target.value || undefined)}
+            >
+              <option value="">{fr.daily.allSeasons}</option>
+              {availableSeasonCodes.map((code) => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {fr.daily.scoreRuleset}
+            <select
+              value={scoreVersion ?? ''}
+              onChange={(event) =>
+                setScoreVersion(event.target.value ? Number(event.target.value) : undefined)
+              }
+            >
+              <option value="">{fr.daily.allVersions}</option>
+              {currentScoreVersion !== null && (
+                <option value={currentScoreVersion}>v{currentScoreVersion}</option>
+              )}
+            </select>
+          </label>
+          <label>
+            {fr.daily.gameplayRuleset}
+            <select
+              value={gameplayVersion ?? ''}
+              onChange={(event) =>
+                setGameplayVersion(event.target.value ? Number(event.target.value) : undefined)
+              }
+            >
+              <option value="">{fr.daily.allVersions}</option>
+              {currentGameplayVersion !== null && (
+                <option value={currentGameplayVersion}>v{currentGameplayVersion}</option>
+              )}
+            </select>
+          </label>
+        </fieldset>
+      )}
+
       {isLoading ? (
         <p role="status" style={styles.empty}>
           {fr.daily.leaderboardLoading}
@@ -107,6 +189,7 @@ export function DailyLeaderboard() {
               <th style={styles.th}>{fr.daily.score}</th>
               <th style={styles.th}>{fr.daily.waves}</th>
               <th style={styles.th}>{fr.common.level}</th>
+              {!isGuest && <th style={styles.th}>{fr.daily.moderation}</th>}
             </tr>
           </thead>
           <tbody>
@@ -120,11 +203,45 @@ export function DailyLeaderboard() {
                 <td style={styles.td}>{formatNumber(entry.score)}</td>
                 <td style={styles.td}>{entry.wavesCompleted}</td>
                 <td style={styles.td}>{entry.runLevel}</td>
+                {!isGuest && (
+                  <td style={styles.td}>
+                    {entry.entryId && (
+                      <button type="button" onClick={() => setReportedEntryId(entry.entryId!)}>
+                        {fr.daily.report}
+                      </button>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
       )}
+
+      {reportedEntryId && (
+        <form
+          style={styles.reportForm}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submitReport();
+          }}
+        >
+          <label htmlFor="daily-score-report">{fr.daily.reportReason}</label>
+          <textarea
+            id="daily-score-report"
+            minLength={10}
+            maxLength={500}
+            required
+            value={reportReason}
+            onChange={(event) => setReportReason(event.target.value)}
+          />
+          <button type="submit">{fr.daily.sendReport}</button>
+          <button type="button" onClick={() => setReportedEntryId(null)}>
+            {fr.common.cancel}
+          </button>
+        </form>
+      )}
+      {reportStatus && <p role="status">{reportStatus}</p>}
 
       <button style={styles.refreshBtn} onClick={() => void refresh()} disabled={isLoading}>
         {fr.daily.refresh}
@@ -191,5 +308,16 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 6,
     cursor: 'pointer',
     fontFamily: 'monospace',
+  },
+  filters: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 16,
+  },
+  reportForm: {
+    display: 'grid',
+    gap: 8,
+    marginTop: 16,
   },
 };

@@ -100,37 +100,66 @@ describe('SupabaseDailyRunRepository', () => {
     queryChain.limit.mockResolvedValue({
       data: [
         {
+          entry_id: 'daily-run-1',
           rank: 1,
           player_name: 'Public Player',
           score: 1360,
           waves_completed: 1,
           run_level_reached: 1,
           score_version: 1,
+          gameplay_ruleset_version: 13,
+          daily_ruleset_version: 13,
+          season_code: 'preseason-2026',
         },
       ],
       error: null,
     });
     const repository = new SupabaseDailyRunRepository(mockSupabase);
 
-    const result = await repository.getDailyLeaderboard('2026-07-26', 10);
+    const result = await repository.getDailyLeaderboard({
+      date: '2026-07-26',
+      gameplayRulesetVersion: 13,
+      scoreVersion: 1,
+      limit: 10,
+    });
 
     expect(mockSupabase.from).toHaveBeenCalledWith('daily_leaderboard');
     expect(queryChain.select).toHaveBeenCalledWith(
-      'rank, player_name, score, waves_completed, run_level_reached, score_version',
+      'entry_id, rank, player_name, score, waves_completed, run_level_reached, score_version, gameplay_ruleset_version, daily_ruleset_version, season_code',
     );
     expect(result).toEqual({
       data: [
         {
+          entryId: 'daily-run-1',
           rank: 1,
           playerName: 'Public Player',
           score: 1360,
           wavesCompleted: 1,
           runLevel: 1,
           scoreVersion: 1,
+          gameplayRulesetVersion: 13,
+          dailyRulesetVersion: 13,
+          seasonCode: 'preseason-2026',
         },
       ],
       error: null,
     });
+  });
+
+  it('submits a bounded authenticated moderation report through RPC', async () => {
+    const { mockSupabase } = createMockSupabaseClient();
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({ data: null, error: null } as never);
+
+    const result = await new SupabaseDailyRunRepository(mockSupabase).reportDailyScore(
+      'daily-run-1',
+      'Score manifestement impossible',
+    );
+
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('report_daily_score', {
+      p_daily_run_id: 'daily-run-1',
+      p_reason: 'Score manifestement impossible',
+    });
+    expect(result.error).toBeNull();
   });
 });
 

@@ -1226,10 +1226,17 @@ additives ; voir `docs/progression-personalization.md`.
 
 ### P3-PROD-03 — Social et classement
 
-- [ ] Définir noms publics, anonymisation, modération et opt-out.
-- [ ] Ajouter filtres/saisons/rulesets au classement.
-- [ ] Prévoir signalement et invalidation d'un score.
-- [ ] Ne pas ajouter partage, amis ou spectateur avant le modèle de confidentialité.
+- [x] Définir noms publics, anonymisation, modération et opt-out.
+- [x] Ajouter filtres/saisons/rulesets au classement.
+- [x] Prévoir signalement et invalidation d'un score.
+- [x] Ne pas ajouter partage, amis ou spectateur avant le modèle de confidentialité.
+
+**Statut : terminé.** Le nom de compte n'est plus une donnée de classement : alias
+public validé ou pseudonyme anonyme, avec opt-out depuis les réglages. Les rangs sont
+partitionnés par date et versions, rattachés à une saison serveur et filtrables dans
+le Daily. Les signalements alimentent une file privée et l'invalidation admin retire
+le score public tout en conservant sa piste d'audit. Aucun graphe social, partage ou
+spectateur n'est introduit ; voir `docs/social-leaderboard.md`.
 
 ### P3-PROD-04 — Légal et confidentialité
 

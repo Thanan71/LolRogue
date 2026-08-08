@@ -4,6 +4,8 @@ import type { AuthorityDifficulty, RunAttemptStatus } from './runAttempt';
 
 /** A single entry on the daily leaderboard */
 export interface DailyLeaderboardEntry {
+  /** Opaque identifier used only to report this score. */
+  entryId?: string;
   /** Canonical server rank. Guest-only entries calculate it locally. */
   rank?: number;
   /** Player display name (or anonymous ID) */
@@ -18,6 +20,20 @@ export interface DailyLeaderboardEntry {
   completedAt?: number;
   /** Version of the server-side score formula. */
   scoreVersion?: number;
+  /** Gameplay version used by every comparable entry. */
+  gameplayRulesetVersion?: number;
+  /** Daily challenge ruleset used to produce the score. */
+  dailyRulesetVersion?: number;
+  /** Server-owned season code. */
+  seasonCode?: string;
+}
+
+export interface DailyLeaderboardFilters {
+  date: string;
+  seasonCode?: string;
+  gameplayRulesetVersion?: number;
+  scoreVersion?: number;
+  limit?: number;
 }
 
 /** Canonical UTC challenge contract returned by PostgreSQL. */

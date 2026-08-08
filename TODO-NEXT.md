@@ -7,13 +7,13 @@ vérité détaillée, la [matrice](docs/feature-status.md) donne le statut des c
 et l'[historique](docs/archive/delivery-history-2026-07-august.md) conserve les
 claims clôturés.
 
-## Dernière livraison — P3-PROD-02
+## Dernière livraison — P3-PROD-03
 
-- [x] Slots de starter confirmés comme avantage d'équilibrage imposé par le serveur.
-- [x] Dix concepts de chroma sans aucun modificateur gameplay contractualisés.
-- [x] Achievements/quêtes maintenus désactivés jusqu'au contrat serveur de métriques.
-- [x] Historique profil détaillé par attempt, version, équipe, économie et combat.
-- [x] Politique additive de saison/reset/migration définie avant économie durable.
+- [x] Alias public facultatif, pseudonyme anonyme et opt-out depuis les réglages.
+- [x] Rangs isolés par date/rulesets et rattachés à une saison serveur.
+- [x] Filtres de versions ajoutés au classement Daily.
+- [x] Signalement privé et invalidation administrateur auditable.
+- [x] Partage, amis et spectateur explicitement différés au modèle de confidentialité.
 
 ## Régressions de dépendances corrigées
 
@@ -30,4 +30,4 @@ Voir `docs/dependency-audit.md` pour le diagnostic et les versions vérifiées.
 
 1. **Exécuter avant bêta l'exercice distant P2-DOC-02** sur un projet Supabase de
    restauration isolé et joindre la preuve privée à la fiche de release.
-2. **P3-PROD-03 — Social et classement.**
+2. **P3-PROD-04 — Légal et confidentialité.**

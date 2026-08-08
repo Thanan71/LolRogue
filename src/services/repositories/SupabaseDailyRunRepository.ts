@@ -6,7 +6,11 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { DailyChallenge, DailyLeaderboardEntry } from '@/types/dailyRun';
+import type {
+  DailyChallenge,
+  DailyLeaderboardEntry,
+  DailyLeaderboardFilters,
+} from '@/types/dailyRun';
 import type { Database } from '@/types/database';
 import type { AuthorityDifficulty, RunAttemptStatus } from '@/types/runAttempt';
 import type {
@@ -31,15 +35,24 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
   }
 
   async getDailyLeaderboard(
-    date: string,
-    limit = 10,
+    filters: DailyLeaderboardFilters,
   ): Promise<{ data: DailyLeaderboardEntry[] | null; error: Error | null }> {
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .from('daily_leaderboard')
-      .select('rank, player_name, score, waves_completed, run_level_reached, score_version')
-      .eq('daily_date', date)
+      .select(
+        'entry_id, rank, player_name, score, waves_completed, run_level_reached, score_version, gameplay_ruleset_version, daily_ruleset_version, season_code',
+      )
+      .eq('daily_date', filters.date);
+    if (filters.seasonCode) query = query.eq('season_code', filters.seasonCode);
+    if (filters.gameplayRulesetVersion !== undefined) {
+      query = query.eq('gameplay_ruleset_version', filters.gameplayRulesetVersion);
+    }
+    if (filters.scoreVersion !== undefined) {
+      query = query.eq('score_version', filters.scoreVersion);
+    }
+    const { data, error } = await query
       .order('rank', { ascending: true })
-      .limit(limit);
+      .limit(filters.limit ?? 10);
 
     if (error) {
       return { data: null, error };
@@ -60,15 +73,38 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
 
     return {
       data: (data ?? []).map((row) => ({
+        entryId: row.entry_id ?? undefined,
         rank: row.rank!,
         playerName: row.player_name!,
         score: row.score!,
         wavesCompleted: row.waves_completed!,
         runLevel: row.run_level_reached!,
         scoreVersion: row.score_version!,
+        gameplayRulesetVersion: row.gameplay_ruleset_version ?? undefined,
+        dailyRulesetVersion: row.daily_ruleset_version ?? undefined,
+        seasonCode: row.season_code ?? undefined,
       })),
       error: null,
     };
+  }
+
+  async reportDailyScore(entryId: string, reason: string): Promise<{ error: Error | null }> {
+    const { error } = await this.supabase.rpc('report_daily_score', {
+      p_daily_run_id: entryId,
+      p_reason: reason,
+    });
+    return { error };
+  }
+
+  async setLeaderboardPrivacy(
+    publicDisplayName: string | null,
+    optOut: boolean,
+  ): Promise<{ error: Error | null }> {
+    const { error } = await this.supabase.rpc('set_leaderboard_privacy', {
+      p_public_display_name: publicDisplayName,
+      p_opt_out: optOut,
+    });
+    return { error };
   }
 }
 

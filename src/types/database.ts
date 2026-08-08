@@ -198,6 +198,9 @@ export type Database = {
           daily_seed: number;
           gameplay_ruleset_version: number | null;
           id: string;
+          invalidated_at: string | null;
+          invalidated_by: string | null;
+          invalidation_reason: string | null;
           player_id: string;
           run_attempt_id: string | null;
           run_id: string | null;
@@ -215,6 +218,9 @@ export type Database = {
           daily_seed: number;
           gameplay_ruleset_version?: number | null;
           id?: string;
+          invalidated_at?: string | null;
+          invalidated_by?: string | null;
+          invalidation_reason?: string | null;
           player_id: string;
           run_attempt_id?: string | null;
           run_id?: string | null;
@@ -232,6 +238,9 @@ export type Database = {
           daily_seed?: number;
           gameplay_ruleset_version?: number | null;
           id?: string;
+          invalidated_at?: string | null;
+          invalidated_by?: string | null;
+          invalidation_reason?: string | null;
           player_id?: string;
           run_attempt_id?: string | null;
           run_id?: string | null;
@@ -521,6 +530,8 @@ export type Database = {
           is_admin: boolean;
           last_login_at: string | null;
           level: number;
+          leaderboard_opt_out: boolean;
+          public_display_name: string | null;
           total_candies: number;
           total_runs_completed: number;
           total_waves_completed: number;
@@ -537,6 +548,8 @@ export type Database = {
           is_admin?: boolean;
           last_login_at?: string | null;
           level?: number;
+          leaderboard_opt_out?: boolean;
+          public_display_name?: string | null;
           total_candies?: number;
           total_runs_completed?: number;
           total_waves_completed?: number;
@@ -553,6 +566,8 @@ export type Database = {
           is_admin?: boolean;
           last_login_at?: string | null;
           level?: number;
+          leaderboard_opt_out?: boolean;
+          public_display_name?: string | null;
           total_candies?: number;
           total_runs_completed?: number;
           total_waves_completed?: number;
@@ -1283,12 +1298,16 @@ export type Database = {
       };
       daily_leaderboard: {
         Row: {
+          daily_ruleset_version: number | null;
           daily_date: string | null;
+          entry_id: string | null;
+          gameplay_ruleset_version: number | null;
           player_name: string | null;
           rank: number | null;
           run_level_reached: number | null;
           score: number | null;
           score_version: number | null;
+          season_code: string | null;
           waves_completed: number | null;
           won: boolean | null;
         };
@@ -1406,6 +1425,10 @@ export type Database = {
       expire_stale_run_attempts: { Args: never; Returns: Json };
       get_daily_challenge: { Args: never; Returns: Json };
       get_my_leaderboard_rank: { Args: never; Returns: number };
+      invalidate_daily_score: {
+        Args: { p_daily_run_id: string; p_reason: string };
+        Returns: undefined;
+      };
       get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       is_current_user_admin: { Args: never; Returns: boolean };
       mastery_current_level_candies: {
@@ -1428,6 +1451,14 @@ export type Database = {
         Returns: number;
       };
       purge_expired_logs: { Args: never; Returns: number };
+      report_daily_score: {
+        Args: { p_daily_run_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      set_leaderboard_privacy: {
+        Args: { p_opt_out: boolean; p_public_display_name: string | null };
+        Returns: undefined;
+      };
       reject_run_verification: {
         Args: {
           p_attempt_id: string;
