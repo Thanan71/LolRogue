@@ -83,6 +83,7 @@ npm run test:e2e:production # smoke test des 3 moteurs, desktop et mobile
 npm run test:db       # intégration Auth/RLS sur une vraie instance de test
 npm run test:production-build # deep links, headers et 404 du build servi
 npm run test:performance-budgets # budgets bundle, routes et assets
+npm run test:deployed-assets # vérifie les 187 assets sur DEPLOYMENT_URL/Vercel
 npm run edge:bundle   # bundle du replay serveur + contrôle du hash de contenu
 npm run audit:security # audit critique/haut et contrôle des exceptions bornées
 npm run check         # format, lint, types, audit, couverture et build

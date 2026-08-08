@@ -44,6 +44,7 @@
     "test:assets-clean": "node scripts/test-clean-asset-build.mjs",
     "test:production-build": "node scripts/verify-production-build.mjs",
     "test:performance-budgets": "node scripts/check-performance-budgets.mjs",
+    "test:deployed-assets": "node scripts/verify-deployed-assets.mjs",
     "balance:check": "vitest run tests/balanceSimulation.test.ts tests/contentBalance.test.ts",
     "assets:update": "npm run ddragon:download && npm run ddragon:parse && npm run assets:package && npm run assets:verify"
   },

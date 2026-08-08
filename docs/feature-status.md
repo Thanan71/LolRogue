@@ -8,7 +8,7 @@ définitifs.
 | Fonctionnalité | Implémentation de référence | Preuves principales | Statut |
 | --- | --- | --- | --- |
 | Décisions produit transverses | `productDecisions`, contrat produit v1 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta |
-| Gate de sortie bêta | `beta-readiness`, CI et fiche de release | `documentation.test.ts`, workflows et E2E cités | 6/10 démontrés ; sortie bloquée |
+| Gate de sortie bêta | `beta-readiness`, CI et fiche de release | `connected-daily.spec.ts`, axe, clean-room, contrôle Vercel | 10/10 techniques démontrés ; validations externes ouvertes |
 | Auth et mode invité | `authStore`, `AuthBootstrap`, repositories Auth | `authStore.test.ts`, `auth-menu-responsive.spec.ts` | Livré |
 | Démarrage et reprise de run | `runStartCoordinator`, `runStoreLifecycleSlice`, gardes de routes | `runStartValidation.test.ts`, `runReloadRecovery.test.ts`, `routeAccess.test.ts` | Livré |
 | Carte à branche unique | `mapProgression`, `runStoreMapSlice`, `AuthorityRunEngine` | `mapProgression.test.ts`, `authorityRunEngine.test.ts` | Livré |

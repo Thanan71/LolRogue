@@ -16,15 +16,16 @@ claims clôturés.
 
 Voir `docs/product-decisions.md` pour le contrat complet.
 
-## Gate de sortie bêta — 6/10 démontrés
+## Gate de sortie bêta — 10/10 critères techniques démontrés
 
-- [ ] Obtenir trois exécutions CI complètes consécutives réussies.
-- [ ] Ajouter un vrai parcours E2E Daily connecté sans accès direct aux stores.
-- [ ] Consigner la revue humaine NVDA + Firefox et VoiceOver + Safari/iOS.
-- [ ] Valider les assets et le réseau sur le déploiement candidat exact.
+- [x] Trois exécutions CI complètes consécutives réussies.
+- [x] Parcours E2E victoire, défaite et Daily connecté sans accès direct aux stores.
+- [x] Gate axe WCAG A/AA, clavier, focus, reflow et matrice responsive.
+- [x] Les 187 assets du manifeste vérifiés sur le déploiement Vercel.
 
-La bêta publique reste également bloquée par les gates juridiques externes de
-`docs/legal-and-privacy.md`. Voir `docs/beta-readiness.md` pour les preuves attendues.
+La revue humaine NVDA/VoiceOver et les gates juridiques externes de
+`docs/legal-and-privacy.md` restent obligatoires avant une bêta publique. Voir
+`docs/beta-readiness.md` pour distinguer preuve technique et validation externe.
 
 ## Livraison précédente — P3-PROD-04 (implémentation produit)
 

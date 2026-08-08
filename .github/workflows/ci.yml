@@ -33,6 +33,9 @@ jobs:
       - name: Enforce versioned performance budgets
         run: npm run test:performance-budgets
 
+      - name: Verify assets on the production deployment
+        run: npm run test:deployed-assets
+
       - name: Upload detailed coverage report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -44,7 +47,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -67,6 +70,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Start disposable Supabase for connected browser tests
+        run: npm run db:start
+
+      - name: Export local Supabase credentials
+        run: |
+          eval "$(./node_modules/.bin/supabase status -o env)"
+          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+
       - name: Install browser matrix
         run: npx playwright install --with-deps chromium firefox webkit
 
@@ -75,6 +87,10 @@ jobs:
 
       - name: Run production browser matrix
         run: npm run test:e2e:production
+
+      - name: Stop local Supabase
+        if: always()
+        run: npm run db:stop
 
   database:
     runs-on: ubuntu-latest

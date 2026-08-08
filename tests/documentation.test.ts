@@ -100,20 +100,21 @@ describe('documentation maintenue', () => {
     }
   });
 
-  it('ne déclare pas la bêta prête sans les preuves humaines et distantes', () => {
+  it('distingue les dix preuves techniques des validations humaines et externes', () => {
     const readiness = read('docs/beta-readiness.md');
     const todo = read('TODO.md');
 
-    for (const blocker of [
+    for (const gate of [
       'Trois CI complètes consécutives',
       'E2E victoire, défaite et Daily sans store',
-      'Accessibilité WCAG AA sans blocage',
+      'Accessibilité WCAG AA sans blocage détecté',
       'Clone propre et assets sur le déploiement',
     ]) {
-      expect(readiness).toContain(`| ${blocker} | Bloqué`);
+      expect(readiness).toContain(`| ${gate} | Démontré`);
     }
-    expect(readiness).toContain('La sortie bêta est donc **interdite**');
-    expect(todo).toContain('**Statut : 6/10 démontrés, sortie bloquée.**');
+    expect(readiness).toContain('Les dix critères techniques sont donc **démontrés**');
+    expect(readiness).toContain('Revue accessibilité humaine — complément non automatisable');
+    expect(todo).toContain('**Statut technique : 10/10 démontrés.**');
   });
 
   it('ne réintroduit pas les guides historiques ponctuels', () => {

@@ -1,11 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
-async function expectNoSeriousAccessibilityViolations(page: Page, route: string) {
-  const result = await new AxeBuilder({ page }).analyze();
-  const violations = result.violations.filter(({ impact }) =>
-    ['serious', 'critical'].includes(impact ?? ''),
-  );
+async function expectNoWcagAccessibilityViolations(page: Page, route: string) {
+  const result = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  const violations = result.violations;
   expect(violations, `${route}: ${JSON.stringify(violations, null, 2)}`).toEqual([]);
 }
 
@@ -27,10 +27,10 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
   await expect(page.getByRole('heading', { name: 'LoL Rogue' })).toBeVisible();
   await expect(page).toHaveTitle('Connexion — LoL Rogue');
   await expect(page.locator('main, h1').first()).toBeFocused();
-  await expectNoSeriousAccessibilityViolations(page, '/auth');
+  await expectNoWcagAccessibilityViolations(page, '/auth');
 
   await enterGuest(page);
-  await expectNoSeriousAccessibilityViolations(page, '/');
+  await expectNoWcagAccessibilityViolations(page, '/');
 
   for (const [button, path, heading] of [
     ['Champions', '/database', 'Base des champions'],
@@ -44,13 +44,13 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
     await expect(page).toHaveTitle(`${heading} — LoL Rogue`);
     await expect(page.locator('main, h1').first()).toBeFocused();
-    await expectNoSeriousAccessibilityViolations(page, path);
+    await expectNoWcagAccessibilityViolations(page, path);
     await page.getByRole('button', { name: /Retour(?: au menu)?/ }).click();
   }
 
   await page.getByRole('button', { name: 'Jouer', exact: true }).click();
   await expect(page).toHaveURL('/starter-select');
-  await expectNoSeriousAccessibilityViolations(page, '/starter-select');
+  await expectNoWcagAccessibilityViolations(page, '/starter-select');
 
   await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');
@@ -58,7 +58,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
   });
   await page.goto('/run');
   await expect(page.getByRole('button', { name: /tutoriel carte/i })).toBeVisible();
-  await expectNoSeriousAccessibilityViolations(page, '/run');
+  await expectNoWcagAccessibilityViolations(page, '/run');
 
   const startNode = page.getByRole('button', { name: /départ du biome.*accessible/i }).first();
   await startNode.focus();
@@ -110,7 +110,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
   });
   await page.goto('/combat');
   await expect(page.getByText(/Combat — Tour/)).toBeVisible();
-  await expectNoSeriousAccessibilityViolations(page, '/combat');
+  await expectNoWcagAccessibilityViolations(page, '/combat');
 
   await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');
@@ -153,7 +153,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
   });
   await page.goto('/game-over');
   await expect(page.getByRole('heading', { name: 'Défaite' })).toBeVisible();
-  await expectNoSeriousAccessibilityViolations(page, '/game-over');
+  await expectNoWcagAccessibilityViolations(page, '/game-over');
 });
 
 test('Auth et Database sont utilisables avec les flèches et le clavier', async ({ page }) => {

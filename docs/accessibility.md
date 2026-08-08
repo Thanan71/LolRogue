@@ -11,7 +11,7 @@ détectables de sémantique, contraste, clavier, reflow et mouvement.
 
 - `e2e/accessibility.spec.ts` exécute axe, contraste inclus, sur Auth, Menu,
   Database, Réglages, Crédits, Daily, Starter, Carte, Combat et Game Over. Toute
-  violation `serious` ou `critical` échoue.
+  violation des règles WCAG A/AA sélectionnées échoue, quel que soit son impact.
 - Le même test pilote les onglets Auth/Database et la sélection de champion au
   clavier, vérifie le titre et le focus de route, puis traverse Starter, Carte et
   Combat jusqu'au résultat.

@@ -1,0 +1,35 @@
+import fs from 'node:fs/promises';
+
+const baseUrl = (process.env.DEPLOYMENT_URL || 'https://lol-rogue.vercel.app').replace(/\/$/, '');
+const manifest = JSON.parse(
+  await fs.readFile(new URL('../src/data/generated/riot-assets-manifest.json', import.meta.url)),
+);
+
+if (!Array.isArray(manifest.files) || manifest.files.length === 0) {
+  throw new Error('The Riot asset manifest is empty.');
+}
+
+const failures = [];
+for (let offset = 0; offset < manifest.files.length; offset += 12) {
+  const batch = manifest.files.slice(offset, offset + 12);
+  await Promise.all(
+    batch.map(async ({ path, bytes }) => {
+      const response = await fetch(`${baseUrl}/${path}`, { redirect: 'follow' });
+      const body = await response.arrayBuffer();
+      if (!response.ok || body.byteLength !== bytes) {
+        failures.push({
+          path,
+          status: response.status,
+          expectedBytes: bytes,
+          actualBytes: body.byteLength,
+        });
+      }
+    }),
+  );
+}
+
+if (failures.length > 0) {
+  throw new Error(`Deployed Riot assets are invalid: ${JSON.stringify(failures.slice(0, 10))}`);
+}
+
+console.log(`Verified ${manifest.files.length} deployed Riot assets at ${baseUrl}.`);
