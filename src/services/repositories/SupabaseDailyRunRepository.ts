@@ -101,7 +101,7 @@ export class SupabaseDailyRunRepository implements IDailyRunRepository {
     optOut: boolean,
   ): Promise<{ error: Error | null }> {
     const { error } = await this.supabase.rpc('set_leaderboard_privacy', {
-      p_public_display_name: publicDisplayName,
+      p_public_display_name: publicDisplayName ?? '',
       p_opt_out: optOut,
     });
     return { error };

@@ -295,6 +295,54 @@ export type Database = {
           },
         ];
       };
+      daily_score_reports: {
+        Row: {
+          created_at: string;
+          daily_run_id: string;
+          id: string;
+          reason: string;
+          reporter_user_id: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          status: string;
+        };
+        Insert: {
+          created_at?: string;
+          daily_run_id: string;
+          id?: string;
+          reason: string;
+          reporter_user_id: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          status?: string;
+        };
+        Update: {
+          created_at?: string;
+          daily_run_id?: string;
+          id?: string;
+          reason?: string;
+          reporter_user_id?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'daily_score_reports_daily_run_id_fkey';
+            columns: ['daily_run_id'];
+            isOneToOne: false;
+            referencedRelation: 'daily_leaderboard';
+            referencedColumns: ['entry_id'];
+          },
+          {
+            foreignKeyName: 'daily_score_reports_daily_run_id_fkey';
+            columns: ['daily_run_id'];
+            isOneToOne: false;
+            referencedRelation: 'daily_runs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       enhancement_node_catalog: {
         Row: {
           active: boolean;
@@ -407,6 +455,30 @@ export type Database = {
           is_active?: boolean;
           max_commands?: number;
           version?: number;
+        };
+        Relationships: [];
+      };
+      leaderboard_seasons: {
+        Row: {
+          code: string;
+          created_at: string;
+          ends_at: string;
+          is_active: boolean;
+          starts_at: string;
+        };
+        Insert: {
+          code: string;
+          created_at?: string;
+          ends_at: string;
+          is_active?: boolean;
+          starts_at: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          ends_at?: string;
+          is_active?: boolean;
+          starts_at?: string;
         };
         Relationships: [];
       };
@@ -529,8 +601,8 @@ export type Database = {
           id: string;
           is_admin: boolean;
           last_login_at: string | null;
-          level: number;
           leaderboard_opt_out: boolean;
+          level: number;
           public_display_name: string | null;
           total_candies: number;
           total_runs_completed: number;
@@ -547,8 +619,8 @@ export type Database = {
           id?: string;
           is_admin?: boolean;
           last_login_at?: string | null;
-          level?: number;
           leaderboard_opt_out?: boolean;
+          level?: number;
           public_display_name?: string | null;
           total_candies?: number;
           total_runs_completed?: number;
@@ -565,8 +637,8 @@ export type Database = {
           id?: string;
           is_admin?: boolean;
           last_login_at?: string | null;
-          level?: number;
           leaderboard_opt_out?: boolean;
+          level?: number;
           public_display_name?: string | null;
           total_candies?: number;
           total_runs_completed?: number;
@@ -1298,8 +1370,8 @@ export type Database = {
       };
       daily_leaderboard: {
         Row: {
-          daily_ruleset_version: number | null;
           daily_date: string | null;
+          daily_ruleset_version: number | null;
           entry_id: string | null;
           gameplay_ruleset_version: number | null;
           player_name: string | null;
@@ -1311,7 +1383,22 @@ export type Database = {
           waves_completed: number | null;
           won: boolean | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'daily_runs_daily_ruleset_version_fkey';
+            columns: ['daily_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'daily_challenge_rulesets';
+            referencedColumns: ['version'];
+          },
+          {
+            foreignKeyName: 'daily_runs_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
       };
       leaderboard: {
         Row: {
@@ -1376,6 +1463,15 @@ export type Database = {
         };
         Returns: Json;
       };
+      complete_run_verification_v12_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
       complete_run_verification_v6: {
         Args: {
           p_attempt_id: string;
@@ -1425,11 +1521,11 @@ export type Database = {
       expire_stale_run_attempts: { Args: never; Returns: Json };
       get_daily_challenge: { Args: never; Returns: Json };
       get_my_leaderboard_rank: { Args: never; Returns: number };
+      get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       invalidate_daily_score: {
         Args: { p_daily_run_id: string; p_reason: string };
         Returns: undefined;
       };
-      get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       is_current_user_admin: { Args: never; Returns: boolean };
       mastery_current_level_candies: {
         Args: { p_candies: number };
@@ -1451,14 +1547,6 @@ export type Database = {
         Returns: number;
       };
       purge_expired_logs: { Args: never; Returns: number };
-      report_daily_score: {
-        Args: { p_daily_run_id: string; p_reason: string };
-        Returns: undefined;
-      };
-      set_leaderboard_privacy: {
-        Args: { p_opt_out: boolean; p_public_display_name: string | null };
-        Returns: undefined;
-      };
       reject_run_verification: {
         Args: {
           p_attempt_id: string;
@@ -1466,6 +1554,10 @@ export type Database = {
           p_rejection_code: string;
         };
         Returns: Json;
+      };
+      report_daily_score: {
+        Args: { p_daily_run_id: string; p_reason: string };
+        Returns: undefined;
       };
       sanitize_log_jsonb: {
         Args: { p_depth?: number; p_value: Json };
@@ -1509,6 +1601,10 @@ export type Database = {
           p_finish_command_id: string;
         };
         Returns: Json;
+      };
+      set_leaderboard_privacy: {
+        Args: { p_opt_out: boolean; p_public_display_name: string };
+        Returns: undefined;
       };
       start_daily_run_attempt: {
         Args: { p_command_id: string; p_rune_ids: string[]; p_team: string[] };
