@@ -22,6 +22,7 @@
   margin: 0 auto;
 }
 
+.admin-error h1,
 .admin-error h2 {
   color: #e74c3c;
   margin-bottom: 1rem;
@@ -619,6 +620,262 @@
   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* 2026 UX/UI refresh — admin workspace */
+.admin-page {
+  min-width: 20rem;
+  padding: max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-top))
+    max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-right))
+    max(clamp(2rem, 4vw, 3rem), env(safe-area-inset-bottom))
+    max(clamp(1rem, 3vw, 2.5rem), env(safe-area-inset-left));
+  color: var(--color-text-primary);
+  background: var(--gradient-page);
+}
+
+.admin-header {
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-header h1 {
+  color: var(--color-text-primary);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  text-shadow: none;
+}
+
+.admin-header p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.admin-back-btn {
+  min-height: 2.75rem;
+  color: var(--color-text-primary);
+  background: rgba(15, 27, 39, 0.76);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.admin-back-btn:hover {
+  color: var(--color-primary-strong);
+  background: var(--color-surface-raised);
+  border-color: var(--color-border-strong);
+}
+
+.admin-nav {
+  max-width: 1400px;
+  justify-content: flex-start;
+  gap: var(--space-1);
+  margin-inline: auto;
+  padding: var(--space-1);
+  overflow-x: auto;
+  background: rgba(4, 12, 19, 0.46);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.admin-nav button {
+  flex: 0 0 auto;
+  padding: 0.65rem 1rem;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-md) - 0.2rem);
+  font-size: 0.875rem;
+  letter-spacing: 0;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.admin-nav button:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-raised);
+  border-color: var(--color-border);
+  transform: none;
+}
+
+.admin-nav button.active {
+  color: #031311;
+  background: var(--color-secondary);
+  border-color: rgba(128, 244, 232, 0.26);
+}
+
+.admin-content {
+  padding: clamp(1rem, 3vw, 2rem);
+  color: var(--color-text-primary);
+  background: linear-gradient(145deg, rgba(20, 36, 50, 0.88), rgba(8, 19, 28, 0.94));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+.admin-page .stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
+  gap: var(--space-3);
+}
+
+.admin-page .stat-card,
+.logs-filters,
+.runs-filters,
+.runs-summary {
+  background: rgba(4, 12, 19, 0.44);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.players-header,
+.runs-header,
+.runs-actions,
+.runs-summary,
+.admin-request-error {
+  flex-wrap: wrap;
+}
+
+.players-header,
+.runs-header,
+.admin-request-error {
+  gap: var(--space-3);
+}
+
+.runs-actions {
+  gap: var(--space-2);
+}
+
+.admin-page .stat-card {
+  padding: var(--space-5);
+  text-align: left;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.admin-page .stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-strong);
+  box-shadow: none;
+}
+
+.admin-page .stat-value {
+  color: var(--color-primary-strong);
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  font-variant-numeric: tabular-nums;
+  text-shadow: none;
+}
+
+.admin-page .stat-label,
+.filter-row label,
+.summary-text {
+  color: var(--color-text-muted);
+}
+
+.action-buttons button,
+.filter-row button,
+.runs-actions button,
+.players-header button {
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  color: var(--color-on-primary);
+  background: linear-gradient(135deg, var(--lol-gold-light), var(--lol-gold));
+  border: 1px solid rgba(255, 233, 183, 0.24);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 750;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.action-buttons button:hover,
+.filter-row button:hover,
+.runs-actions button:hover:not(:disabled),
+.players-header button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-gold);
+}
+
+.logs-table-container,
+.players-table-container,
+.runs-table-container {
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.logs-table,
+.players-table,
+.runs-table {
+  min-width: 46rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.logs-table th,
+.players-table th,
+.runs-table th {
+  color: var(--color-text-muted);
+  background: rgba(4, 12, 19, 0.86);
+  border-bottom-color: var(--color-border);
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+}
+
+.logs-table td,
+.players-table td,
+.runs-table td {
+  color: var(--color-text-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+.logs-table tr:hover,
+.players-table tr:hover,
+.runs-table tr:hover {
+  background: rgba(32, 199, 181, 0.045);
+}
+
+@media (max-width: 46rem) {
+  .admin-header {
+    display: grid;
+    gap: var(--space-2);
+    text-align: left;
+  }
+
+  .admin-back-btn {
+    position: static;
+    justify-self: start;
+  }
+
+  .admin-nav {
+    flex-wrap: nowrap;
+  }
+
+  .players-header,
+  .runs-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .runs-actions {
+    width: 100%;
+  }
+
+  .runs-actions button,
+  .players-header button {
+    flex: 1 1 9rem;
+  }
+
+  .admin-request-error button {
+    flex: 0 0 auto;
+  }
 }
 
 /* Responsive */

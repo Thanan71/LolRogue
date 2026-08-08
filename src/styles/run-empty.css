@@ -1,0 +1,155 @@
+.run-empty-page {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: max(var(--space-5), env(safe-area-inset-top))
+    max(var(--space-4), env(safe-area-inset-right)) max(var(--space-5), env(safe-area-inset-bottom))
+    max(var(--space-4), env(safe-area-inset-left));
+  color: var(--color-text-primary);
+  background: var(--gradient-page);
+  font-family: var(--font-ui);
+}
+
+.run-empty-page::before,
+.run-empty-page::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.run-empty-page::before {
+  inset: 0;
+  opacity: 0.42;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 3.5rem 3.5rem;
+  mask-image: radial-gradient(circle at center, black, transparent 74%);
+}
+
+.run-empty-page::after {
+  width: min(31rem, 88vw);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 4rem color-mix(in srgb, var(--color-primary) 2%, transparent),
+    0 0 7rem color-mix(in srgb, var(--color-secondary) 9%, transparent);
+}
+
+.run-empty-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 36rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(var(--space-6), 8vw, var(--space-8)) clamp(var(--space-4), 7vw, var(--space-7));
+  text-align: center;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-surface-raised) 95%, transparent),
+    color-mix(in srgb, var(--color-surface) 95%, transparent)
+  );
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-overlay);
+}
+
+.run-empty-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 50%;
+  width: 58%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  transform: translateX(-50%);
+}
+
+.run-empty-card__marker {
+  width: 4rem;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  margin-bottom: var(--space-4);
+  color: var(--color-primary-strong);
+  background: color-mix(in srgb, var(--color-primary) 9%, var(--color-surface-elevated));
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 2.5rem color-mix(in srgb, var(--color-primary) 17%, transparent);
+  font-size: 1.35rem;
+}
+
+.run-empty-card__eyebrow {
+  margin: 0 0 var(--space-2);
+  color: var(--color-secondary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.run-empty-card__title {
+  margin: 0;
+  color: var(--color-primary-strong);
+  font-size: clamp(1.75rem, 7vw, 2.75rem);
+}
+
+.run-empty-card__description {
+  max-width: 28rem;
+  margin: var(--space-3) 0 var(--space-6);
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.run-empty-card__button {
+  min-height: 2.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  padding: 0.75rem 1.35rem;
+  color: var(--color-on-primary);
+  background: linear-gradient(135deg, var(--color-primary-strong), var(--color-primary));
+  border: 1px solid color-mix(in srgb, var(--color-primary-strong) 70%, white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-gold);
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1.2;
+  transition:
+    filter var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.run-empty-card__button:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    var(--shadow-gold),
+    0 0 0 1px color-mix(in srgb, var(--color-primary-strong) 28%, transparent);
+  transform: translateY(-1px);
+}
+
+.run-empty-card__button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 30rem) {
+  .run-empty-card {
+    padding-block: var(--space-7);
+  }
+
+  .run-empty-card__button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .run-empty-card__button {
+    transition: none;
+  }
+}

@@ -9,20 +9,10 @@ export const BattleSpeedControl: React.FC = () => {
   const speeds: BattleSpeed[] = [1, 2, 3];
 
   return (
-    <div
-      role="radiogroup"
-      aria-label={fr.combat.battleSpeed}
-      style={{
-        display: 'flex',
-        gap: 4,
-        alignItems: 'center',
-        background: 'rgba(10,10,26,0.8)',
-        borderRadius: 6,
-        padding: '3px 6px',
-        border: '1px solid #333355',
-      }}
-    >
-      <span style={{ fontSize: 10, color: '#888', marginRight: 4, fontWeight: 'bold' }}>⚡</span>
+    <div role="radiogroup" aria-label={fr.combat.battleSpeed} className="combat-speed">
+      <span aria-hidden="true" className="combat-speed__icon">
+        ⚡
+      </span>
       {speeds.map((s) => (
         <button
           key={s}
@@ -31,17 +21,7 @@ export const BattleSpeedControl: React.FC = () => {
           role="radio"
           aria-checked={speed === s}
           aria-label={`${fr.combat.speed} ${s}x`}
-          style={{
-            padding: '2px 8px',
-            background: speed === s ? '#6b4b16' : 'transparent',
-            color: speed === s ? '#fff' : '#b3b8c2',
-            border: speed === s ? '1px solid #ffd700' : '1px solid transparent',
-            borderRadius: 4,
-            fontSize: 11,
-            fontWeight: speed === s ? 'bold' : 'normal',
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-          }}
+          className="combat-speed__option"
         >
           {s}x
         </button>

@@ -12,19 +12,21 @@ import { canUpgradeSpell, getSpellRankCap } from '@/game/run/spellUpgradeRules';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
+import '@/styles/run-map.css';
+import type { Biome } from '@/types/run';
 import { ContextTutorial } from './ContextTutorial';
-import { NODE_LABELS, RunMapCanvas } from './RunMapCanvas';
+import { NODE_LABELS, NODE_NAMES, RunMapCanvas } from './RunMapCanvas';
 import { InventoryPanel, TeamPanel } from './RunMapPanels';
-import {
-  btnStyle,
-  headerStyle,
-  layoutStyle,
-  mainStyle,
-  overlayStyle,
-  panelStyle,
-  sidebarStyle,
-} from './runMapStyles';
 import { buildRunMapViewModel } from './runMapViewModel';
+
+const BIOME_NAMES: Record<Biome, string> = {
+  top_lane: 'Voie du haut',
+  jungle: 'Jungle',
+  mid_lane: 'Voie du milieu',
+  bot_lane: 'Voie du bas',
+  river: 'Rivière',
+  base: 'Base ennemie',
+};
 
 export function RunMapScreen() {
   const reducedMotion = useReducedMotion();
@@ -144,83 +146,92 @@ export function RunMapScreen() {
 
   if (!currentMap) {
     return (
-      <div style={overlayStyle}>
-        <div style={{ textAlign: 'center', padding: 40 }}>
-          <h2 style={{ color: '#c8aa6e', fontSize: 24, marginBottom: 16 }}>{fr.run.noActive}</h2>
-          <p style={{ color: '#8b949e', marginBottom: 24 }}>{fr.run.noActiveDetail}</p>
-          <button style={btnStyle} onClick={() => generateRunMap()}>
+      <main className="run-map-page">
+        <div className="run-map-empty">
+          <h1>{fr.run.noActive}</h1>
+          <p>{fr.run.noActiveDetail}</p>
+          <button type="button" className="run-map-primary-button" onClick={() => generateRunMap()}>
             Générer la carte de la partie
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div style={overlayStyle}>
-      <div className="run-map-layout" style={layoutStyle}>
-        <div className="run-map-sidebar" style={sidebarStyle}>
-          <TeamPanel team={team} inventory={inventory} />
-          <InventoryPanel inventory={inventory} team={team} />
-        </div>
-        <div style={mainStyle}>
-          <div className="run-map-header" style={headerStyle}>
-            <button
-              style={{ ...btnStyle, padding: '4px 12px', fontSize: 12 }}
-              onClick={() => navigate(ROUTES.MENU)}
-              title={fr.run.saveAndMenu}
-            >
-              ← Menu
-            </button>
-            <span style={{ color: '#ffd700', fontWeight: 700 }}>Or : {gold}</span>
-            <ContextTutorial
-              storageKey="lolrogue:tutorial:map:v1"
-              title="Comprendre la carte"
-              buttonLabel="Tutoriel carte"
-              steps={[
-                {
-                  title: 'Choisir un chemin',
-                  body: 'Active uniquement un nœud annoncé accessible. Ce choix ferme les autres branches de la même étape.',
-                },
-                {
-                  title: 'Résoudre la rencontre',
-                  body: 'Combat, boutique, repos, événement, recrutement et trésor doivent être terminés avant de poursuivre.',
-                },
-                {
-                  title: 'Améliorer la run',
-                  body: 'Lis les valeurs des objets, sorts et augments avant de confirmer. Les récompenses apparaissent au retour sur la carte.',
-                },
-                {
-                  title: 'Terminer et sauvegarder',
-                  body: 'La sortie ouvre le biome suivant. Le boss du sixième biome termine la run ; la progression connectée est ensuite vérifiée par le serveur.',
-                },
-              ]}
-            />
-            <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Wave {currentWave}</span>
-            <span style={{ color: '#c8aa6e', fontWeight: 700 }}>Niveau {runLevel}</span>
-            <span className="run-map-header__secondary" style={{ color: '#8b949e' }}>
-              {currentBiome ? currentBiome.charAt(0).toUpperCase() + currentBiome.slice(1) : '???'}
-            </span>
-            {currentBiomeIndex >= 0 && (
-              <span style={{ color: '#8b949e' }}>
-                [{currentBiomeIndex + 1}/{biomeMaps.length}]
+    <main className="run-map-page">
+      <div className="run-map-layout">
+        <div className="run-map-main">
+          <header className="run-map-page-header">
+            <div className="run-map-heading">
+              <h1>Carte de la partie</h1>
+              <p className="run-map-instruction">Choisis ton prochain nœud accessible</p>
+            </div>
+            <div className="run-map-header">
+              <button
+                type="button"
+                className="run-map-menu-button"
+                onClick={() => navigate(ROUTES.MENU)}
+                title={fr.run.saveAndMenu}
+              >
+                ← Menu
+              </button>
+              <span className="run-map-header__stat run-map-header__stat--gold">Or : {gold}</span>
+              <ContextTutorial
+                storageKey="lolrogue:tutorial:map:v1"
+                title="Comprendre la carte"
+                buttonLabel="Tutoriel carte"
+                steps={[
+                  {
+                    title: 'Choisir un chemin',
+                    body: 'Active uniquement un nœud annoncé accessible. Ce choix ferme les autres branches de la même étape.',
+                  },
+                  {
+                    title: 'Résoudre la rencontre',
+                    body: 'Combat, boutique, repos, événement, recrutement et trésor doivent être terminés avant de poursuivre.',
+                  },
+                  {
+                    title: 'Améliorer la run',
+                    body: 'Lis les valeurs des objets, sorts et augments avant de confirmer. Les récompenses apparaissent au retour sur la carte.',
+                  },
+                  {
+                    title: 'Terminer et sauvegarder',
+                    body: 'La sortie ouvre le biome suivant. Le boss du sixième biome termine la run ; la progression connectée est ensuite vérifiée par le serveur.',
+                  },
+                ]}
+              />
+              <span className="run-map-header__stat">Vague {currentWave}</span>
+              <span className="run-map-header__stat">Niveau {runLevel}</span>
+              <span className="run-map-header__secondary">
+                {currentBiome ? BIOME_NAMES[currentBiome] : '???'}
               </span>
-            )}
-          </div>
-          <aside style={{ ...panelStyle, marginBottom: 8 }} aria-label="Légende de la carte">
+              {currentBiomeIndex >= 0 && (
+                <span className="run-map-header__secondary">
+                  [{currentBiomeIndex + 1}/{biomeMaps.length}]
+                </span>
+              )}
+            </div>
+          </header>
+          <aside
+            className="run-map-legend run-map-panel run-map-panel--section"
+            aria-label="Légende de la carte"
+          >
             <strong>Légende :</strong>{' '}
             {Object.entries(NODE_LABELS).map(([type, label]) => (
-              <span key={type} style={{ marginRight: 10 }}>
-                {label} {type}
+              <span key={type} className="run-map-legend__item">
+                {label} {NODE_NAMES[type] ?? type}
               </span>
             ))}
           </aside>
-          <div style={{ ...panelStyle, marginBottom: 8 }}>
+          <div className="run-map-loadout run-map-panel run-map-panel--section">
             <strong>{fr.run.runes} :</strong> {runeIds.join(', ') || 'aucune'} ·{' '}
             <strong>{fr.run.augments} :</strong> {augmentIds.join(', ') || 'aucun'}
           </div>
           {pendingAugmentIds.length > 0 && (
-            <section style={{ ...panelStyle, marginBottom: 8 }} aria-label="Choix d'augment">
+            <section
+              className="run-map-choice-panel run-map-panel run-map-panel--section"
+              aria-label="Choix d'augment"
+            >
               <h2>{fr.run.biomeComplete}</h2>
               {pendingAugmentIds.map((id) => {
                 const augment = AUGMENT_DATABASE[id];
@@ -229,7 +240,7 @@ export function RunMapScreen() {
                     type="button"
                     key={id}
                     onClick={() => chooseAugment(id)}
-                    style={{ display: 'block', margin: 8 }}
+                    className="run-map-choice-button"
                   >
                     <strong>{augment?.name ?? id}</strong> — Effet avant validation :{' '}
                     {augment?.description}
@@ -240,7 +251,7 @@ export function RunMapScreen() {
           )}
           {lastCombatRewards && (
             <section
-              style={{ ...panelStyle, marginBottom: 8 }}
+              className="run-map-notice run-map-panel run-map-panel--section"
               aria-label="Récompenses du combat"
               aria-live="polite"
             >
@@ -250,13 +261,20 @@ export function RunMapScreen() {
                 `, ${lastCombatRewards.levelsGained} niveau(x) gagné(s)`}
               {lastCombatRewards.itemName && `, objet : ${lastCombatRewards.itemName}`}
               {lastCombatRewards.itemBlockedByCapacity && <p>{fr.run.combatItemLeft}</p>}
-              <button type="button" onClick={() => setLastCombatRewards(null)}>
+              <button
+                type="button"
+                className="run-map-inline-action"
+                onClick={() => setLastCombatRewards(null)}
+              >
                 Fermer
               </button>
             </section>
           )}
           {pendingUpgradeChampionId && pendingUpgradeMember && (
-            <section style={{ ...panelStyle, marginBottom: 8 }} aria-label={fr.run.upgradeSpell}>
+            <section
+              className="run-map-choice-panel run-map-panel run-map-panel--section"
+              aria-label={fr.run.upgradeSpell}
+            >
               <strong>
                 Améliorez un sort de {pendingUpgradeChampion?.name ?? pendingUpgradeChampionId}
               </strong>
@@ -284,22 +302,22 @@ export function RunMapScreen() {
                     disabled={!canUpgrade}
                     title={canUpgrade ? fr.run.upgradeConsequence : reason}
                     onClick={() => upgradeSpell(pendingUpgradeChampionId, slot)}
-                    style={{ display: 'block', margin: 8, textAlign: 'left' }}
+                    className="run-map-choice-button"
                   >
                     <strong>
                       {slot} — {spell?.name ?? slot}
                     </strong>
-                    <span style={{ display: 'block' }}>
+                    <span className="run-map-choice-detail">
                       {fr.run.currentRank} {rank} → {fr.run.nextRank} {nextRank} (maximum{' '}
                       {spell?.maxRank ?? cap})
                     </span>
                     {spell && (
-                      <span style={{ display: 'block' }}>
+                      <span className="run-map-choice-detail">
                         PM {beforeCost} → {afterCost} · Recharge {beforeCooldown} → {afterCooldown}{' '}
                         s
                       </span>
                     )}
-                    {!canUpgrade && <span style={{ display: 'block' }}>{reason}</span>}
+                    {!canUpgrade && <span className="run-map-choice-detail">{reason}</span>}
                   </button>
                 );
               })}
@@ -314,7 +332,11 @@ export function RunMapScreen() {
             onNodeClick={handleNodeClick}
           />
         </div>
+        <div className="run-map-sidebar">
+          <TeamPanel team={team} inventory={inventory} />
+          <InventoryPanel inventory={inventory} team={team} />
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

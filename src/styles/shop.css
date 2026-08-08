@@ -1,0 +1,168 @@
+.shop-content {
+  width: min(100%, 74rem);
+  margin: 0 auto;
+}
+
+.shop-banner {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  color: var(--color-warning);
+  text-align: center;
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.shop-banner--error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: var(--color-danger-text);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
+}
+
+.shop-banner__close {
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  color: currentcolor;
+  background: var(--color-background-deep);
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-sm);
+  font-weight: 750;
+}
+
+.shop-section {
+  margin-bottom: 2rem;
+}
+
+.shop-section__title {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  gap: 0.85rem;
+}
+
+.shop-card {
+  min-width: 0;
+  padding: 1rem;
+  background: linear-gradient(145deg, var(--color-surface-raised), var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0.75rem 2rem color-mix(in srgb, var(--color-background-deep) 50%, transparent);
+}
+
+.shop-card--item {
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-card__name {
+  margin-bottom: 0.25rem;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  font-weight: 750;
+}
+
+.shop-card__description {
+  margin-bottom: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.shop-card__stats {
+  margin-bottom: 0.75rem;
+  color: var(--lol-teal-light);
+  font-size: 0.75rem;
+}
+
+.shop-card__champion-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.5rem;
+}
+
+.shop-card__portrait {
+  width: 2.625rem;
+  height: 2.625rem;
+  object-fit: cover;
+  background: var(--color-surface-light);
+  border-radius: var(--radius-sm);
+}
+
+.shop-card__subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.shop-card__buy {
+  min-height: 2.75rem;
+  margin-top: auto;
+  padding: 0.65rem 1rem;
+  color: var(--color-on-primary);
+  background: linear-gradient(135deg, var(--lol-gold-light), var(--lol-gold));
+  border: 1px solid color-mix(in srgb, var(--color-on-primary) 24%, transparent);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.shop-card__buy--recruit {
+  width: 100%;
+  background: var(--color-secondary);
+}
+
+.shop-card__buy:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.shop-empty {
+  grid-column: 1 / -1;
+  padding: 1.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.shop-actions {
+  margin-top: 1.25rem;
+  padding-bottom: 1.5rem;
+  text-align: center;
+}
+
+.shop-actions__leave {
+  min-height: 3rem;
+  padding: 0.75rem 2rem;
+  color: var(--color-text-primary);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+@media (max-width: 32rem) {
+  .shop-card__buy,
+  .shop-actions__leave {
+    width: 100%;
+  }
+}

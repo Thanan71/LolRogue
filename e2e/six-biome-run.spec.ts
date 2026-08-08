@@ -11,6 +11,27 @@ const REQUIRED_ENCOUNTERS = [
   'boss',
 ];
 const REQUIRED_VICTORY_ENCOUNTERS = ['combat', 'elite', 'exit', 'boss'];
+const ENCOUNTER_LABELS: Record<string, string[]> = {
+  combat: ['combat'],
+  elite: ['elite'],
+  shop: ['shop', 'boutique'],
+  rest: ['rest', 'repos'],
+  event: ['event', 'evenement'],
+  treasure: ['treasure', 'tresor'],
+  recruit: ['recruit', 'recrutement'],
+  exit: ['exit', 'sortie'],
+  boss: ['boss'],
+};
+
+function labelMatchesEncounter(label: string, encounter: string): boolean {
+  const normalized = label
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('fr');
+  return (ENCOUNTER_LABELS[encounter] ?? [encounter]).some((candidate) =>
+    normalized.includes(candidate),
+  );
+}
 
 async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
   await page.goto('/auth');
@@ -190,14 +211,14 @@ async function playRun(page: Page, testInfo: TestInfo, strategy: 'risky' | 'surv
             'boss',
           ];
     const preferred = priorities.find((type) =>
-      labels.some((label) => label.toLocaleLowerCase().includes(type)),
+      labels.some((label) => labelMatchesEncounter(label, type)),
     );
     const index = preferred
-      ? labels.findIndex((label) => label.toLocaleLowerCase().includes(preferred))
+      ? labels.findIndex((label) => labelMatchesEncounter(label, preferred))
       : 0;
     const label = labels[index];
     for (const type of REQUIRED_ENCOUNTERS) {
-      if (label.toLocaleLowerCase().includes(type)) visited.add(type);
+      if (labelMatchesEncounter(label, type)) visited.add(type);
     }
     trace.push(`node:${label}`);
     await nodes.nth(index).click();

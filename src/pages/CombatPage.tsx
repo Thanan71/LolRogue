@@ -25,7 +25,6 @@ import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
 import { fr } from '@/i18n/fr';
 import { useBattleStore } from '@/stores/battleStore';
@@ -42,22 +41,7 @@ import {
   buildLegacyEnemyTeam,
   LEGACY_ENCOUNTER_ENGINE_VERSIONS,
 } from './combat/legacyCombatEncounter';
-import {
-  arenaPlaceholderStyle,
-  backBtnStyle,
-  backBtnStyle2,
-  bottomStyle,
-  centerStyle,
-  containerStyle,
-  emptyStyle,
-  headerStyle,
-  leftPanelStyle,
-  mainStyle,
-  nextBtnStyle,
-  nextTurnBtnStyle,
-  rightPanelStyle,
-  teamTitleStyle,
-} from './combatPageStyles';
+import '@/styles/combat-ui.css';
 
 /**
  * Get enhancement bonus descriptions for a champion instance.
@@ -72,7 +56,6 @@ const SLOT_TO_ACTION: Record<string, ActionType> = {
 };
 
 export function CombatPage() {
-  const reducedMotion = useReducedMotion();
   useRunImagePreload();
   const isActive = useRunStore((s) => s.isActive);
   const team = useRunStore((s) => s.team);
@@ -485,13 +468,78 @@ export function CombatPage() {
       ? pendingOption.validTargetIds
       : visibleActionOptions.flatMap((option) => option.validTargetIds),
   );
+  const selectedTarget = [...playerTeam, ...enemyTeam].find(
+    (combatant) => combatant.targetId === selectedTargetId,
+  );
+  const showPlayerControls =
+    !requiresServerAutoPlay &&
+    isPlayerTurn &&
+    currentChampion !== undefined &&
+    !currentChampion.isDefeated;
+  const showManualConfirmation =
+    !requiresServerAutoPlay &&
+    !autoPlay &&
+    isPlayerTurn &&
+    (battlePhase === 'turn_active' ||
+      battlePhase === 'starting' ||
+      battlePhase === 'turn_transition');
+
+  const commandStatus = pendingOption
+    ? {
+        label: 'Cible requise',
+        text: fr.combat.chooseTarget,
+      }
+    : selectedTarget
+      ? {
+          label: 'Cible prête',
+          text: `${selectedTarget.name} est sélectionné. Choisissez maintenant une action.`,
+        }
+      : battlePhase === 'finished'
+        ? {
+            label: 'Combat terminé',
+            text: 'Consultez le journal ou poursuivez depuis le résultat du combat.',
+          }
+        : requiresServerAutoPlay
+          ? {
+              label: 'Résolution serveur',
+              text: fr.combat.serverAutoRequired,
+            }
+          : autoActionRemainingMs !== null
+            ? {
+                label: isPlayerTurn ? 'Action automatique' : 'Tour adverse',
+                text: isPlayerTurn
+                  ? 'Votre prochaine action est en cours de résolution automatique.'
+                  : 'L’action ennemie est en cours de résolution.',
+              }
+            : isPlayerTurn && autoPlay
+              ? {
+                  label: 'Autoplay actif',
+                  text: 'Vos actions sont choisies automatiquement pour ce tour.',
+                }
+              : isPlayerTurn
+                ? {
+                    label: 'À vous de jouer',
+                    text: 'Choisissez une action, puis une cible lorsqu’elle est demandée.',
+                  }
+                : battlePhase === 'idle' || battlePhase === 'starting'
+                  ? {
+                      label: 'Préparation',
+                      text: 'Les commandes seront disponibles au début de votre tour.',
+                    }
+                  : {
+                      label: 'Tour adverse',
+                      text: 'Les commandes sont verrouillées pendant l’action ennemie.',
+                    };
+  const targetStepText = pendingOption
+    ? 'Sélectionnez un portrait valide'
+    : (selectedTarget?.name ?? 'Selon l’action choisie');
 
   return (
-    <main className="combat-page" style={containerStyle}>
+    <main className="combat-page">
       {/* Header */}
-      <header className="combat-header" style={headerStyle}>
+      <header className="combat-header">
         <button
-          style={backBtnStyle}
+          className="combat-header__back"
           disabled={!canLeaveActiveCombat(battlePhase)}
           onClick={() => {
             playUIClick();
@@ -504,7 +552,7 @@ export function CombatPage() {
         >
           {fr.common.backToMap}
         </button>
-        <span className="combat-header__title" style={{ color: '#c8aa6e', fontWeight: 700 }}>
+        <span className="combat-header__title">
           Combat — {fr.combat.round} {round}
         </span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
@@ -544,16 +592,7 @@ export function CombatPage() {
             playUIClick();
             setAutoPlay(!autoPlay);
           }}
-          style={{
-            padding: '4px 10px',
-            background: 'transparent',
-            color: autoPlay ? '#22c55e' : '#ef4444',
-            border: '1px solid ' + (autoPlay ? '#22c55e' : '#ef4444'),
-            borderRadius: 4,
-            fontSize: 11,
-            fontWeight: 'bold',
-            cursor: requiresServerAutoPlay ? 'not-allowed' : 'pointer',
-          }}
+          className="combat-auto-toggle"
           aria-label={
             requiresServerAutoPlay
               ? fr.combat.serverAutoEnabled
@@ -572,10 +611,12 @@ export function CombatPage() {
       </header>
 
       {/* Main area */}
-      <div className="combat-layout combat-main" style={mainStyle}>
+      <div className="combat-layout combat-main">
         {/* Player team panel */}
-        <div className="combat-team-panel" style={leftPanelStyle}>
-          <div style={teamTitleStyle('#3b82f6')}>{fr.combat.playerTeam}</div>
+        <div className="combat-team-panel">
+          <div className="combat-team-panel__title combat-team-panel__title--player">
+            {fr.combat.playerTeam}
+          </div>
           {playerTeam.map((c) => (
             <CombatantPortrait
               key={`player-${c.targetId}`}
@@ -590,45 +631,35 @@ export function CombatPage() {
               }
             />
           ))}
-          {playerTeam.length === 0 && <div style={emptyStyle}>{fr.run.noChampions}</div>}
+          {playerTeam.length === 0 && (
+            <div className="combat-team-panel__empty">{fr.run.noChampions}</div>
+          )}
         </div>
 
         {/* Center: battle arena / status */}
-        <div className="combat-center" style={centerStyle}>
+        <div className="combat-center">
           {battlePhase === 'idle' && (
-            <div style={arenaPlaceholderStyle}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>⚔️</div>
-              <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
-                {fr.combat.preparing}
-              </div>
+            <div className="combat-arena">
+              <div className="combat-arena__eyebrow">Arène tactique</div>
+              <div className="combat-arena__icon">⚔️</div>
+              <div className="combat-arena__preparing">{fr.combat.preparing}</div>
             </div>
           )}
           {(battlePhase === 'turn_active' ||
             battlePhase === 'starting' ||
             battlePhase === 'turn_transition') && (
-            <div style={arenaPlaceholderStyle}>
-              <div
-                style={{
-                  fontSize: 48,
-                  marginBottom: 16,
-                  animation: reducedMotion ? 'none' : 'pulse 1.5s infinite',
-                }}
-              >
-                ⚔️
+            <div className="combat-arena">
+              <div className="combat-arena__eyebrow">
+                {fr.combat.round} {round} · Arène tactique
               </div>
-              <div style={{ fontSize: 16, color: '#ffd700', fontWeight: 'bold' }}>
+              <div className="combat-arena__icon combat-arena__icon--animated">⚔️</div>
+              <div className="combat-arena__turn">
                 {currentTurnSide === 'player' ? `${fr.combat.yourTurn} !` : fr.combat.enemyTurn}
               </div>
               {currentChampion && (
-                <div style={{ fontSize: 14, color: '#fff', marginTop: 8 }}>
-                  {currentChampion.name}
-                </div>
+                <div className="combat-arena__champion">{currentChampion.name}</div>
               )}
-              <div
-                id="combat-auto-status"
-                aria-live="off"
-                style={{ color: '#8b949e', fontSize: 12, marginTop: 10 }}
-              >
+              <div id="combat-auto-status" aria-live="off" className="combat-arena__status">
                 {autoActionRemainingMs !== null
                   ? `${
                       requiresServerAutoPlay
@@ -641,55 +672,39 @@ export function CombatPage() {
                     ? 'Mode manuel — choisissez une action ou appuyez sur Espace.'
                     : "En attente du tour de l'ennemi…"}
               </div>
-              {!requiresServerAutoPlay && !autoPlay && isPlayerTurn && (
-                <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                  <button
-                    type="button"
-                    onClick={processTurn}
-                    style={nextTurnBtnStyle}
-                    aria-label={`${fr.combat.executeTurn} (Espace)`}
-                    aria-keyshortcuts="Space"
-                  >
-                    ▶ {fr.combat.executeTurn}
-                    <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.6 }}>[Espace]</span>
-                  </button>
-                </div>
-              )}
             </div>
           )}
           {battlePhase === 'finished' && (
-            <div style={arenaPlaceholderStyle}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>
+            <div className="combat-arena">
+              <div className="combat-arena__eyebrow">Résultat du combat</div>
+              <div className="combat-result__icon">
                 {winner === 'player' ? '🏆' : winner === 'draw' ? '🤝' : '💀'}
               </div>
-              <div
-                style={{
-                  fontSize: 28,
-                  fontWeight: 'bold',
-                  color:
-                    winner === 'player' ? '#22c55e' : winner === 'draw' ? '#ffd700' : '#ef4444',
-                  marginBottom: 12,
-                }}
-              >
+              <div className={`combat-result__title combat-result__title--${winner ?? 'enemy'}`}>
                 {winner === 'player'
                   ? `${fr.common.victory.toUpperCase()} !`
                   : winner === 'draw'
                     ? fr.combat.draw
                     : fr.common.defeat.toUpperCase()}
               </div>
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div className="combat-result__actions">
                 {winner === 'player' && (
                   <button
+                    type="button"
                     onClick={() => {
                       playUIClick();
                       navigate(ROUTES.RUN);
                     }}
-                    style={nextBtnStyle}
+                    className="combat-result__continue"
                   >
                     {fr.common.continue} →
                   </button>
                 )}
-                <button onClick={() => navigate(ROUTES.MENU)} style={backBtnStyle2}>
+                <button
+                  type="button"
+                  onClick={() => navigate(ROUTES.MENU)}
+                  className="combat-result__menu"
+                >
                   {fr.gameOver.mainMenu}
                 </button>
               </div>
@@ -698,8 +713,10 @@ export function CombatPage() {
         </div>
 
         {/* Enemy team panel */}
-        <div className="combat-team-panel" style={rightPanelStyle}>
-          <div style={teamTitleStyle('#ef4444')}>{fr.combat.enemies}</div>
+        <div className="combat-team-panel">
+          <div className="combat-team-panel__title combat-team-panel__title--enemy">
+            {fr.combat.enemies}
+          </div>
           {enemyTeam.map((c) => (
             <CombatantPortrait
               key={`enemy-${c.targetId}`}
@@ -713,64 +730,84 @@ export function CombatPage() {
               }
             />
           ))}
-          {enemyTeam.length === 0 && <div style={emptyStyle}>{fr.common.none}</div>}
+          {enemyTeam.length === 0 && (
+            <div className="combat-team-panel__empty">{fr.common.none}</div>
+          )}
         </div>
       </div>
 
-      {/* Bottom: ability bar + log */}
-      <div className="combat-bottom" style={bottomStyle}>
-        {!requiresServerAutoPlay &&
-          isPlayerTurn &&
-          currentChampion &&
-          !currentChampion.isDefeated && (
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                marginBottom: 8,
-              }}
-            >
-              <button
-                type="button"
-                disabled={
-                  !visibleActionOptions.some(
-                    (candidate) => candidate.type === ActionType.BasicAttack,
-                  )
-                }
-                onClick={() => chooseAction(ActionType.BasicAttack)}
-                style={nextTurnBtnStyle}
-                aria-label={fr.combat.baseAttack}
-              >
-                ⚔ {fr.combat.attack}
-              </button>
-              <AbilityBar champion={currentChampion} onCast={handleCast} />
-              {pendingOption && (
-                <div
-                  role="status"
-                  style={{ width: '100%', textAlign: 'center', color: '#c8aa6e', fontSize: 12 }}
+      {/* Bottom: coherent command tray + log */}
+      <div className="combat-bottom">
+        <section className="combat-command" aria-labelledby="combat-command-title">
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="combat-command__status"
+          >
+            <span aria-hidden="true" className="combat-command__index">
+              CMD
+            </span>
+            <span className="combat-command__copy">
+              <span id="combat-command-title" className="combat-command__label">
+                {commandStatus.label}
+              </span>
+              <span className="combat-command__text">{commandStatus.text}</span>
+            </span>
+          </div>
+
+          {showPlayerControls && currentChampion && (
+            <div className="combat-command__controls">
+              <div className="combat-command__choice">
+                <span className="combat-command__step-label">1 · Action</span>
+                <button
+                  type="button"
+                  disabled={
+                    !visibleActionOptions.some(
+                      (candidate) => candidate.type === ActionType.BasicAttack,
+                    )
+                  }
+                  onClick={() => chooseAction(ActionType.BasicAttack)}
+                  className="combat-action-button"
+                  aria-label={fr.combat.baseAttack}
                 >
-                  {fr.combat.chooseTarget}
+                  ⚔ {fr.combat.attack}
+                </button>
+                <AbilityBar champion={currentChampion} onCast={handleCast} />
+              </div>
+
+              <div className="combat-command__target">
+                <span className="combat-command__step-label">2 · Cible</span>
+                <span className="combat-command__target-value" title={targetStepText}>
+                  {targetStepText}
+                </span>
+              </div>
+
+              {showManualConfirmation && (
+                <div className="combat-command__confirm">
+                  <span className="combat-command__step-label">3 · Confirmation</span>
+                  <button
+                    type="button"
+                    onClick={processTurn}
+                    className="combat-action-button combat-action-button--confirm"
+                    aria-label={`${fr.combat.executeTurn} (Espace)`}
+                    aria-keyshortcuts="Space"
+                  >
+                    ▶ {fr.combat.executeTurn}
+                    <span className="combat-action-button__shortcut">[Espace]</span>
+                  </button>
                 </div>
               )}
             </div>
           )}
-        <details
-          style={{
-            margin: '0 auto 8px',
-            maxWidth: 680,
-            color: '#8b949e',
-            fontSize: 12,
-            textAlign: 'left',
-          }}
-        >
-          <summary style={{ color: '#c8aa6e', cursor: 'pointer' }}>
+        </section>
+
+        <details className="combat-shortcuts">
+          <summary className="combat-shortcuts__summary">
             {fr.combat.shortcuts} —{' '}
             {keyboardShortcutsEnabled ? fr.combat.shortcutsEnabled : fr.combat.shortcutsDisabled}
           </summary>
-          <div style={{ padding: '8px 0', lineHeight: 1.6 }}>
+          <div className="combat-shortcuts__body">
             <div>Q / W / E / R : choisir un sort disponible.</div>
             <div>Espace : exécuter le tour manuel.</div>
             <div>Échap : retourner à la carte lorsque le combat est terminé.</div>
@@ -779,13 +816,13 @@ export function CombatPage() {
               type="button"
               onClick={() => setKeyboardShortcutsEnabled(!keyboardShortcutsEnabled)}
               aria-pressed={keyboardShortcutsEnabled}
-              style={{ ...nextTurnBtnStyle, marginTop: 6 }}
+              className="combat-action-button combat-shortcuts__toggle"
             >
               {keyboardShortcutsEnabled ? fr.combat.disableShortcuts : fr.combat.enableShortcuts}
             </button>
           </div>
         </details>
-        <div style={{ flex: 1, minHeight: 0 }}>
+        <div className="combat-log-region">
           <CombatLog />
         </div>
       </div>

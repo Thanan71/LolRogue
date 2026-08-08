@@ -125,15 +125,31 @@ export function RulesPage() {
         </label>
       </div>
       <p aria-live="polite">{fr.rules.count(visibleRules.length)}</p>
-      <div className="rules-page__grid">
-        {visibleRules.map((rule) => (
-          <article key={rule.title}>
-            <span>{rule.category}</span>
-            <h2>{rule.title}</h2>
-            <p>{rule.body}</p>
-          </article>
-        ))}
-      </div>
+      {visibleRules.length > 0 ? (
+        <div className="rules-page__grid">
+          {visibleRules.map((rule) => (
+            <article key={rule.title}>
+              <span>{rule.category}</span>
+              <h2>{rule.title}</h2>
+              <p>{rule.body}</p>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="rules-page__empty" role="status">
+          <h2>Aucune règle trouvée</h2>
+          <p>Essaie une autre recherche ou affiche de nouveau toutes les catégories.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setQuery('');
+              setCategory(fr.rules.all);
+            }}
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+      )}
     </main>
   );
 }

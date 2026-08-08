@@ -11,76 +11,6 @@ import { useRunStore } from '@/stores/runStore';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
 
-/* Inline SVG for the LoLRogue icon (shield + crossed swords motif) */
-function LolRogueIcon() {
-  return (
-    <svg
-      viewBox="0 0 100 100"
-      className="main-menu__icon"
-      role="img"
-      aria-labelledby="menu-logo-title"
-    >
-      <title id="menu-logo-title">Logo LoL Rogue</title>
-      {/* Shield body */}
-      <path
-        d="M50 8 L85 25 L85 55 Q85 80 50 95 Q15 80 15 55 L15 25 Z"
-        fill="none"
-        stroke="#C8AA6E"
-        strokeWidth="3"
-      />
-      {/* Inner shield */}
-      <path
-        d="M50 16 L78 30 L78 53 Q78 74 50 87 Q22 74 22 53 L22 30 Z"
-        fill="rgba(200,170,110,0.08)"
-        stroke="#C8AA6E"
-        strokeWidth="1"
-        opacity="0.5"
-      />
-      {/* Sword 1 - diagonal */}
-      <line
-        x1="35"
-        y1="30"
-        x2="65"
-        y2="72"
-        stroke="#D4BC8A"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-      <line
-        x1="65"
-        y1="72"
-        x2="67"
-        y2="74"
-        stroke="#D4BC8A"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      {/* Sword 2 - other diagonal */}
-      <line
-        x1="65"
-        y1="30"
-        x2="35"
-        y2="72"
-        stroke="#D4BC8A"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-      <line
-        x1="35"
-        y1="72"
-        x2="33"
-        y2="74"
-        stroke="#D4BC8A"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      {/* Center gem */}
-      <circle cx="50" cy="50" r="5" fill="#C8AA6E" />
-      <circle cx="50" cy="50" r="3" fill="#FFD700" opacity="0.6" />
-    </svg>
-  );
-}
-
 export function MenuPage() {
   const navigate = useAppNavigate();
   const isActive = useRunStore((s) => s.isActive);
@@ -152,136 +82,237 @@ export function MenuPage() {
     <div className="main-menu">
       <ParticleBackground particleCount={80} />
 
-      <main className="main-menu__content">
-        <div className="main-menu__logo-section">
-          <LolRogueIcon />
-          <h1 className="main-menu__title">LoL Rogue</h1>
-          <p className="main-menu__subtitle">{fr.product.subtitle}</p>
-        </div>
-
-        {/* User Info */}
-        {!isGuest && player && (
-          <div className="main-menu__user-info">
-            <div className="main-menu__user-avatar">
-              {player.avatar_url ? (
-                <img
-                  src={player.avatar_url}
-                  alt={displayName}
-                  width={48}
-                  height={48}
-                  decoding="async"
-                />
-              ) : (
-                <span>{displayName.charAt(0).toUpperCase()}</span>
-              )}
-            </div>
-            <div className="main-menu__user-details">
-              <span className="main-menu__user-name">{displayName}</span>
-              <span className="main-menu__user-level">
-                {fr.common.level} {player.level}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {isGuest && (
-          <div className="main-menu__guest-badge">
-            <span>
-              {fr.menu.guestMode} — sauvegarde locale uniquement, sans progression authentifiée
+      <main className="main-menu__content" aria-labelledby="main-menu-title">
+        <header className="main-menu__topbar">
+          <div className="main-menu__logo-section">
+            <span className="main-menu__brand-mark" aria-hidden="true">
+              <span>LR</span>
             </span>
+            <div className="main-menu__brand-copy">
+              <h1 className="main-menu__title" id="main-menu-title">
+                LoL Rogue
+              </h1>
+              <p className="main-menu__subtitle">{fr.product.subtitle}</p>
+            </div>
           </div>
-        )}
 
-        <section className="main-menu__onboarding" aria-label="Boucle de jeu">
-          <strong>Première partie ?</strong>
-          <span>
-            Choisir → avancer → résoudre → améliorer → combattre → terminer et sauvegarder.
-          </span>
-          <button type="button" onClick={() => navigate(ROUTES.RULES)}>
-            Comprendre les règles
-          </button>
-        </section>
-
-        <div className="main-menu__divider" />
-
-        <div className="main-menu__buttons">
-          {isActive && (
-            <button className="main-menu__btn main-menu__btn--continue" onClick={handleContinue}>
-              <span className="main-menu__btn-icon" aria-hidden="true">
-                ▶
-              </span>
-              {fr.menu.continueRun}
-              <span className="main-menu__btn-info">
-                Lv.{runLevel} · {currentBiome ? currentBiome.replace('_', ' ') : '???'} ·{' '}
-                {plural(team.length, 'champion')}
-              </span>
-            </button>
+          {!isGuest && (
+            <div className="main-menu__user-info">
+              <div className="main-menu__user-avatar" aria-hidden="true">
+                {player?.avatar_url ? (
+                  <img src={player.avatar_url} alt="" width={48} height={48} decoding="async" />
+                ) : (
+                  <span>{displayName.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div className="main-menu__user-details">
+                <span className="main-menu__user-name">{displayName}</span>
+                <span className="main-menu__user-level">
+                  {player ? `${fr.common.level} ${player.level}` : 'Compte connecté'}
+                </span>
+              </div>
+              <span className="main-menu__connection-dot" aria-hidden="true" />
+            </div>
           )}
 
-          <button
-            className={`main-menu__btn ${isActive ? 'main-menu__btn--new' : 'main-menu__btn--play'}`}
-            onClick={handleNewRun}
-            disabled={isTransitioning}
-          >
-            <span className="main-menu__btn-icon" aria-hidden="true">
-              ⚔
-            </span>
-            {isActive ? fr.menu.abandonAndNew : fr.menu.newRun}
-          </button>
+          {isGuest && (
+            <div className="main-menu__guest-badge">
+              <span className="main-menu__connection-dot" aria-hidden="true" />
+              <span>
+                <strong>{fr.menu.guestMode}</strong>
+                <small>Sauvegarde locale uniquement</small>
+              </span>
+            </div>
+          )}
+        </header>
 
-          <button
-            className="main-menu__btn main-menu__btn--daily"
-            onClick={handleDailyRun}
-            disabled={isTransitioning}
-          >
-            <span className="main-menu__btn-icon" aria-hidden="true">
-              ☀
-            </span>
-            {fr.menu.dailyRun}
-          </button>
+        <div className="main-menu__dashboard">
+          <section className="main-menu__command" aria-labelledby="expedition-title">
+            <div className="main-menu__section-heading">
+              <span className="main-menu__eyebrow">Centre de commandement</span>
+              <h2 id="expedition-title">
+                {isActive ? 'Votre expédition vous attend' : 'Préparez votre prochaine ascension'}
+              </h2>
+              <p>
+                {isActive
+                  ? 'Reprenez la route ou engagez une nouvelle équipe.'
+                  : 'Composez votre équipe et traversez les six biomes de la Faille.'}
+              </p>
+            </div>
 
-          <button
-            className="main-menu__btn main-menu__btn--database"
-            onClick={() => {
-              playUIClick();
-              navigate(ROUTES.DATABASE);
-            }}
-          >
-            {fr.menu.database}
-          </button>
+            {isActive && (
+              <div className="main-menu__run-status" role="status" aria-label="Partie en cours">
+                <span className="main-menu__run-pulse" aria-hidden="true" />
+                <span className="main-menu__run-label">Partie en cours</span>
+                <span className="main-menu__run-meta">
+                  {fr.common.level} {runLevel}
+                  <span aria-hidden="true">•</span>
+                  <span className="main-menu__biome">
+                    {currentBiome ? currentBiome.replace(/_/g, ' ') : 'Biome inconnu'}
+                  </span>
+                  <span aria-hidden="true">•</span>
+                  {plural(team.length, 'champion')}
+                </span>
+              </div>
+            )}
 
-          <button
-            className="main-menu__btn main-menu__btn--ghost"
-            onClick={() => {
-              playUIClick();
-              navigate(ROUTES.RULES);
-            }}
-          >
-            Guide et règles
-          </button>
+            <div className={`main-menu__primary-actions${isActive ? ' is-active' : ''}`}>
+              {isActive && (
+                <button
+                  type="button"
+                  className="main-menu__btn main-menu__btn--continue"
+                  onClick={handleContinue}
+                  aria-label={fr.menu.continueRun}
+                >
+                  <span className="main-menu__btn-icon" aria-hidden="true">
+                    ▶
+                  </span>
+                  <span>{fr.menu.continueRun}</span>
+                </button>
+              )}
 
-          <button
-            className="main-menu__btn main-menu__btn--ghost"
-            onClick={() => {
-              playUIClick();
-              navigate(ROUTES.PROFILE);
-            }}
-          >
-            {fr.menu.profile}
-          </button>
+              <button
+                type="button"
+                className={`main-menu__btn ${isActive ? 'main-menu__btn--new' : 'main-menu__btn--play'}`}
+                onClick={handleNewRun}
+                disabled={isTransitioning}
+                aria-label={isActive ? fr.menu.abandonAndNew : fr.menu.newRun}
+              >
+                <span className="main-menu__btn-icon" aria-hidden="true">
+                  ◆
+                </span>
+                <span>{isActive ? fr.menu.abandonAndNew : fr.menu.newRun}</span>
+              </button>
 
-          <button
-            className="main-menu__btn main-menu__btn--ghost"
-            onClick={() => {
-              playUIClick();
-              navigate(ROUTES.SETTINGS);
-            }}
-          >
-            {fr.menu.settings}
-          </button>
+              <button
+                type="button"
+                className="main-menu__btn main-menu__btn--daily"
+                onClick={handleDailyRun}
+                disabled={isTransitioning}
+                aria-label={fr.menu.dailyRun}
+              >
+                <span className="main-menu__btn-icon" aria-hidden="true">
+                  ✦
+                </span>
+                <span>{fr.menu.dailyRun}</span>
+              </button>
+            </div>
+          </section>
 
+          <section className="main-menu__onboarding" aria-label="Boucle de jeu">
+            <div className="main-menu__onboarding-mark" aria-hidden="true">
+              01
+            </div>
+            <div className="main-menu__onboarding-copy">
+              <strong>Première partie ?</strong>
+              <span>
+                Choisir → avancer → résoudre → améliorer → combattre → terminer et sauvegarder.
+              </span>
+            </div>
+            <button type="button" onClick={() => navigate(ROUTES.RULES)}>
+              Comprendre les règles
+            </button>
+          </section>
+        </div>
+
+        <nav className="main-menu__navigation" aria-label="Navigation principale">
+          <div className="main-menu__section-heading main-menu__section-heading--compact">
+            <span className="main-menu__eyebrow">Quartier général</span>
+            <h2>Préparer la partie</h2>
+          </div>
+
+          <div className="main-menu__nav-grid">
+            <button
+              type="button"
+              className="main-menu__nav-card"
+              aria-label={fr.menu.database}
+              onClick={() => {
+                playUIClick();
+                navigate(ROUTES.DATABASE);
+              }}
+            >
+              <span className="main-menu__nav-icon" aria-hidden="true">
+                ◇
+              </span>
+              <span className="main-menu__nav-copy">
+                <strong>{fr.menu.database}</strong>
+                <small>Catalogue et maîtrises</small>
+              </span>
+              <span className="main-menu__nav-arrow" aria-hidden="true">
+                →
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="main-menu__nav-card"
+              aria-label="Guide et règles"
+              onClick={() => {
+                playUIClick();
+                navigate(ROUTES.RULES);
+              }}
+            >
+              <span className="main-menu__nav-icon" aria-hidden="true">
+                ⌁
+              </span>
+              <span className="main-menu__nav-copy">
+                <strong>Guide et règles</strong>
+                <small>Mécaniques de la Faille</small>
+              </span>
+              <span className="main-menu__nav-arrow" aria-hidden="true">
+                →
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="main-menu__nav-card"
+              aria-label={fr.menu.profile}
+              onClick={() => {
+                playUIClick();
+                navigate(ROUTES.PROFILE);
+              }}
+            >
+              <span className="main-menu__nav-icon" aria-hidden="true">
+                ◎
+              </span>
+              <span className="main-menu__nav-copy">
+                <strong>{fr.menu.profile}</strong>
+                <small>Résultats et progression</small>
+              </span>
+              <span className="main-menu__nav-arrow" aria-hidden="true">
+                →
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="main-menu__nav-card"
+              aria-label={fr.menu.settings}
+              onClick={() => {
+                playUIClick();
+                navigate(ROUTES.SETTINGS);
+              }}
+            >
+              <span className="main-menu__nav-icon" aria-hidden="true">
+                ⊹
+              </span>
+              <span className="main-menu__nav-copy">
+                <strong>{fr.menu.settings}</strong>
+                <small>Audio, confort et affichage</small>
+              </span>
+              <span className="main-menu__nav-arrow" aria-hidden="true">
+                →
+              </span>
+            </button>
+          </div>
+        </nav>
+
+        <div className="main-menu__utility" role="group" aria-label="Liens du compte">
           <button
-            className="main-menu__btn main-menu__btn--ghost"
+            type="button"
+            className="main-menu__utility-btn"
+            aria-label={fr.menu.credits}
             onClick={() => {
               playUIClick();
               navigate(ROUTES.CREDITS);
@@ -292,21 +323,25 @@ export function MenuPage() {
 
           {player?.is_admin && (
             <button
-              className="main-menu__btn main-menu__btn--admin"
+              type="button"
+              className="main-menu__utility-btn main-menu__utility-btn--admin"
+              aria-label={fr.menu.admin}
               onClick={() => {
                 playUIClick();
                 navigate(ROUTES.ADMIN);
               }}
             >
-              🛡️ {fr.menu.admin}
+              <span aria-hidden="true">◆</span> {fr.menu.admin}
             </button>
           )}
 
           {!isGuest && (
             <button
-              className="main-menu__btn main-menu__btn--logout"
+              type="button"
+              className="main-menu__utility-btn main-menu__utility-btn--account"
               onClick={handleLogout}
               disabled={isTransitioning}
+              aria-label={fr.menu.logout}
             >
               {fr.menu.logout}
             </button>
@@ -314,9 +349,11 @@ export function MenuPage() {
 
           {isGuest && (
             <button
-              className="main-menu__btn main-menu__btn--logout"
+              type="button"
+              className="main-menu__utility-btn main-menu__utility-btn--account"
               onClick={handleGuestLogin}
               disabled={isTransitioning}
+              aria-label={fr.menu.loginOrSignup}
             >
               {fr.menu.loginOrSignup}
             </button>
@@ -325,8 +362,8 @@ export function MenuPage() {
       </main>
 
       <footer className="main-menu__footer">
-        <div className="main-menu__version">v0.1.0</div>
-        <div className="main-menu__disclaimer">{fr.product.disclaimer}</div>
+        <span className="main-menu__version">v0.1.0</span>
+        <span className="main-menu__disclaimer">{fr.product.disclaimer}</span>
         <Link to={ROUTES.LEGAL}>Légal et confidentialité</Link>
       </footer>
     </div>

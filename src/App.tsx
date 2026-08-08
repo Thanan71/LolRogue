@@ -7,7 +7,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
 import { getTextSizeMultiplier, useSettingsStore } from './stores/settingsStore';
 import { installGlobalErrorCapture } from './utils/observability';
-import './styles/starter-select.css';
 
 assertValidRuleCatalogs();
 
@@ -64,7 +63,8 @@ function RouteAccessibility() {
       childList: true,
       subtree: true,
     });
-    const observerTimeout = window.setTimeout(() => observer.disconnect(), 1_000);
+    // Les chunks de route peuvent dépasser une seconde sur appareil lent ou cache froid.
+    const observerTimeout = window.setTimeout(() => observer.disconnect(), 5_000);
     return () => {
       window.cancelAnimationFrame(frame);
       window.clearTimeout(observerTimeout);

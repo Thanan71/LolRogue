@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { type CSSProperties, useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
 import { ROUTES } from '@/config/routes';
@@ -12,6 +12,7 @@ import { fr } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
+import '@/styles/rest.css';
 
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
   const state = useRunStore.getState();
@@ -125,87 +126,82 @@ export function RestPage() {
       tone="green"
       contentClassName="encounter-layout__content--centered"
     >
-      <div style={contentStyle}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>{fr.encounter.rest}</div>
-        <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
-          {encounter?.description ?? fr.encounter.respite}
+      <div className="rest">
+        <div className="rest__icon" aria-hidden="true">
+          ◇
         </div>
+        <div className="rest__description">{encounter?.description ?? fr.encounter.respite}</div>
 
-        <div style={{ marginBottom: 24, textAlign: 'center' }}>
+        <div className="rest__summary">
           {fullHeal ? (
-            <div style={{ fontSize: 24, color: '#22c55e', fontWeight: 700, marginBottom: 8 }}>
-              {fr.encounter.fullHeal}
-            </div>
+            <div className="rest__healing">{fr.encounter.fullHeal}</div>
           ) : (
-            <div style={{ fontSize: 24, color: '#22c55e', fontWeight: 700, marginBottom: 8 }}>
-              Soin de {Math.round(healPercent * 100)} % des PV
-            </div>
+            <div className="rest__healing">Soin de {Math.round(healPercent * 100)} % des PV</div>
           )}
           {goldCost > 0 && (
-            <div style={{ fontSize: 14, color: '#8b949e' }}>
+            <div className="rest__cost">
               {fr.encounter.cost} : {goldCost} {fr.common.gold}
             </div>
           )}
         </div>
 
         {/* Team HP Display */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-            marginBottom: 24,
-            width: '100%',
-            maxWidth: 400,
-          }}
-        >
+        <div className="rest__team">
           {team.map((member) => {
             const maxHp = getMemberMaxHp(member);
             const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
             const pct = Math.round((currentHp / maxHp) * 100);
             const champ = championDB.getById(member.championId);
+            const healthTone = pct < 30 ? 'critical' : pct < 60 ? 'warning' : 'healthy';
             return (
-              <div key={member.championId} style={memberRowStyle}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#e6edf3', marginBottom: 4 }}>
+              <div key={member.championId} className="rest__member">
+                <div className="rest__member-name">
                   {champ?.name ?? member.championId} (Lv.{member.level ?? 1})
                 </div>
-                <div style={hpBarBg}>
+                <div
+                  className="rest__hp-track"
+                  role="progressbar"
+                  aria-label={`${champ?.name ?? member.championId} : ${currentHp} / ${maxHp} PV`}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={pct}
+                >
                   <div
-                    style={{
-                      ...hpBarFill,
-                      width: `${pct}%`,
-                      background: pct < 30 ? '#ef4444' : pct < 60 ? '#facc15' : '#22c55e',
-                    }}
+                    className={`rest__hp-fill rest__hp-fill--${healthTone}`}
+                    style={{ '--rest-hp-percent': `${pct}%` } as CSSProperties}
                   />
                 </div>
-                <div style={{ fontSize: 11, color: '#8b949e', marginTop: 2 }}>
-                  {currentHp} / {maxHp} PV
+                <div className="rest__hp-values">
+                  <span>
+                    {currentHp} / {maxHp} PV
+                  </span>
+                  {!healed && (
+                    <span className="rest__hp-projection">
+                      → {resolveRestHp(currentHp, maxHp, { fullHeal, healPercent })} PV
+                    </span>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div style={{ display: 'flex', gap: 12, flexDirection: 'row' }}>
+        <div className="rest__actions">
           {!healed ? (
             <button
-              style={{
-                ...restBtnStyle,
-                opacity: canAfford ? 1 : 0.4,
-                cursor: canAfford ? 'pointer' : 'not-allowed',
-              }}
+              className="rest__button rest__button--heal"
               onClick={handleRest}
               disabled={!canAfford}
             >
               {goldCost > 0 ? `${fr.encounter.heal} (${goldCost} or)` : fr.encounter.heal}
             </button>
           ) : (
-            <button style={continueBtnStyle} onClick={handleContinue}>
+            <button className="rest__button rest__button--continue" onClick={handleContinue}>
               {fr.common.continue}
             </button>
           )}
           {!healed && (
-            <button style={skipBtnStyle} onClick={handleContinue}>
+            <button className="rest__button rest__button--skip" onClick={handleContinue}>
               {fr.encounter.skip}
             </button>
           )}
@@ -214,61 +210,3 @@ export function RestPage() {
     </EncounterLayout>
   );
 }
-
-const contentStyle: React.CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 40,
-};
-const memberRowStyle: React.CSSProperties = {
-  background: '#161b22',
-  padding: '8px 12px',
-  borderRadius: 8,
-  border: '1px solid #1e2a3a',
-  width: '100%',
-};
-const hpBarBg: React.CSSProperties = {
-  width: '100%',
-  height: 8,
-  background: '#21262d',
-  borderRadius: 4,
-  overflow: 'hidden',
-};
-const hpBarFill: React.CSSProperties = {
-  height: '100%',
-  borderRadius: 4,
-  transition: 'width 0.5s ease',
-};
-const restBtnStyle: React.CSSProperties = {
-  padding: '14px 40px',
-  background: '#22c55e',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const continueBtnStyle: React.CSSProperties = {
-  padding: '14px 40px',
-  background: '#3b82f6',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const skipBtnStyle: React.CSSProperties = {
-  padding: '14px 40px',
-  background: '#484f58',
-  color: '#e6edf3',
-  border: 'none',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};

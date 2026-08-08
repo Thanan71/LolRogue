@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { playUIClick } from '@/audio';
-import { Button, Field, PageFooter, PageHeader, PageShell, Panel, Stack } from '@/components/ui';
+import { Button, Field, PageHeader, PageShell, Panel, Stack } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { supabase } from '@/services/supabaseClient';
-import { useAuthStore } from '@/stores/authStore';
 import { useAudioStore } from '@/stores/audioStore';
+import { useAuthStore } from '@/stores/authStore';
 import {
   type BattleSpeed,
   type Difficulty,
@@ -38,8 +38,27 @@ export function SettingsPage() {
 
   return (
     <PageShell width="narrow">
-      <PageHeader title={fr.settings.title} subtitle={fr.settings.subtitle} />
+      <PageHeader
+        title={fr.settings.title}
+        subtitle="Adapte le rythme, le confort de lecture et les préférences de jeu."
+        leading={
+          <Button
+            variant="ghost"
+            onClick={() => {
+              playUIClick();
+              navigate(ROUTES.MENU);
+            }}
+          >
+            {fr.common.backToMenu}
+          </Button>
+        }
+      />
       <Panel aria-label={fr.settings.panel}>
+        <div className="settings-panel__intro">
+          <span className="settings-panel__eyebrow">Expérience de jeu</span>
+          <h2>Confort et rythme</h2>
+          <p>Ces réglages sont appliqués immédiatement et conservés sur cet appareil.</p>
+        </div>
         <Stack className="settings-form">
           <Field
             label={
@@ -127,8 +146,11 @@ export function SettingsPage() {
       {!isGuest && (
         <Panel aria-label={fr.settings.leaderboardPrivacy}>
           <Stack className="settings-form">
-            <h2>{fr.settings.leaderboardPrivacy}</h2>
-            <p>{fr.settings.leaderboardPrivacyHelp}</p>
+            <div className="settings-panel__intro">
+              <span className="settings-panel__eyebrow">Compte connecté</span>
+              <h2>{fr.settings.leaderboardPrivacy}</h2>
+              <p>{fr.settings.leaderboardPrivacyHelp}</p>
+            </div>
             <Field
               label={<label htmlFor="public-leaderboard-name">{fr.settings.publicName}</label>}
             >
@@ -156,17 +178,6 @@ export function SettingsPage() {
           </Stack>
         </Panel>
       )}
-      <PageFooter>
-        <Button
-          variant="ghost"
-          onClick={() => {
-            playUIClick();
-            navigate(ROUTES.MENU);
-          }}
-        >
-          {fr.common.backToMenu}
-        </Button>
-      </PageFooter>
     </PageShell>
   );
 }

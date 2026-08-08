@@ -12,71 +12,6 @@ import '@/styles/auth.css';
 
 type AuthMode = 'login' | 'signup';
 
-/* Inline SVG for the LoLRogue icon */
-function LolRogueIconSmall() {
-  return (
-    <svg
-      viewBox="0 0 100 100"
-      className="auth-page__icon"
-      role="img"
-      aria-labelledby="auth-logo-title"
-    >
-      <title id="auth-logo-title">Logo LoL Rogue</title>
-      <path
-        d="M50 8 L85 25 L85 55 Q85 80 50 95 Q15 80 15 55 L15 25 Z"
-        fill="none"
-        stroke="#C8AA6E"
-        strokeWidth="3"
-      />
-      <path
-        d="M50 16 L78 30 L78 53 Q78 74 50 87 Q22 74 22 53 L22 30 Z"
-        fill="rgba(200,170,110,0.08)"
-        stroke="#C8AA6E"
-        strokeWidth="1"
-        opacity="0.5"
-      />
-      <line
-        x1="35"
-        y1="30"
-        x2="65"
-        y2="72"
-        stroke="#D4BC8A"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-      <line
-        x1="65"
-        y1="72"
-        x2="67"
-        y2="74"
-        stroke="#D4BC8A"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <line
-        x1="65"
-        y1="30"
-        x2="35"
-        y2="72"
-        stroke="#D4BC8A"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-      <line
-        x1="35"
-        y1="72"
-        x2="33"
-        y2="74"
-        stroke="#D4BC8A"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <circle cx="50" cy="50" r="5" fill="#C8AA6E" />
-      <circle cx="50" cy="50" r="3" fill="#FFD700" opacity="0.6" />
-    </svg>
-  );
-}
-
 export function AuthPage() {
   const navigate = useAppNavigate();
   const [mode, setMode] = useState<AuthMode>('login');
@@ -126,7 +61,7 @@ export function AuthPage() {
       }
     } else {
       if (!username.trim()) {
-        useAuthStore.setState({ error: 'Username is required' });
+        useAuthStore.setState({ error: "Le nom d'utilisateur est requis." });
         return;
       }
       const result = await signUp(
@@ -175,17 +110,63 @@ export function AuthPage() {
       <ParticleBackground particleCount={60} />
 
       <main className="auth-page__content">
-        {/* Logo Section */}
-        <div className="auth-page__logo-section">
-          <LolRogueIconSmall />
-          <h1 className="auth-page__title">LoL Rogue</h1>
-          <p className="auth-page__subtitle">{fr.product.subtitle}</p>
-        </div>
+        <section className="auth-page__intro" aria-labelledby="auth-page-title">
+          <div className="auth-page__logo-section">
+            <span className="auth-page__icon" role="img" aria-label="Logo LoL Rogue" />
+            <div className="auth-page__brand-copy">
+              <span className="auth-page__eyebrow">La Faille se réinvente</span>
+              <h1 id="auth-page-title" className="auth-page__title">
+                LoL Rogue
+              </h1>
+              <p className="auth-page__subtitle">{fr.product.subtitle}</p>
+            </div>
+          </div>
 
-        {/* Auth Form Container */}
-        <div className="auth-page__container">
-          {!isSupabaseConfigured && <div className="auth-page__error">{fr.auth.unavailable}</div>}
-          {/* Tabs */}
+          <div className="auth-page__intro-copy">
+            <p className="auth-page__intro-kicker">Une nouvelle ascension à chaque partie</p>
+            <h2>Compose ton escouade. Adapte ton build. Survis à chaque détour.</h2>
+            <p>
+              Retrouve la tension d’un roguelike tactique dans des runs rapides où chaque champion,
+              rune et décision peut renverser le combat.
+            </p>
+          </div>
+
+          <ul className="auth-page__benefits" aria-label="Points forts">
+            <li>
+              <span aria-hidden="true">01</span>
+              <strong>Décisions tactiques</strong>
+              <small>Chaque route transforme ton équipe.</small>
+            </li>
+            <li>
+              <span aria-hidden="true">02</span>
+              <strong>Progression persistante</strong>
+              <small>Retrouve tes runs et ta maîtrise.</small>
+            </li>
+            <li>
+              <span aria-hidden="true">03</span>
+              <strong>Défis quotidiens</strong>
+              <small>Une même graine, un nouveau classement.</small>
+            </li>
+          </ul>
+        </section>
+
+        <section className="auth-page__container" aria-label="Accès à LoL Rogue">
+          <div className="auth-page__card-header">
+            <span className="auth-page__card-kicker">Portail de jeu</span>
+            <h2>{mode === 'login' ? 'Reprends ton ascension' : 'Crée ton profil de joueur'}</h2>
+            <p>
+              {mode === 'login'
+                ? 'Connecte-toi pour retrouver ta progression.'
+                : 'Enregistre tes runs et ta progression.'}
+            </p>
+          </div>
+
+          {!isSupabaseConfigured && (
+            <div className="auth-page__error" role="alert">
+              {fr.auth.unavailable}
+            </div>
+          )}
+
           <div
             className="auth-page__tabs"
             role="tablist"
@@ -206,6 +187,7 @@ export function AuthPage() {
               id="auth-tab-login"
               aria-selected={mode === 'login'}
               aria-controls="auth-panel"
+              tabIndex={mode === 'login' ? 0 : -1}
               className={`auth-page__tab ${mode === 'login' ? 'auth-page__tab--active' : ''}`}
               onClick={() => {
                 playUIClick();
@@ -222,6 +204,7 @@ export function AuthPage() {
               id="auth-tab-signup"
               aria-selected={mode === 'signup'}
               aria-controls="auth-panel"
+              tabIndex={mode === 'signup' ? 0 : -1}
               className={`auth-page__tab ${mode === 'signup' ? 'auth-page__tab--active' : ''}`}
               onClick={() => {
                 playUIClick();
@@ -234,18 +217,24 @@ export function AuthPage() {
             </button>
           </div>
 
-          {/* Error Message */}
-          {error && <div className="auth-page__error">{error}</div>}
+          {error && (
+            <div className="auth-page__error" role="alert">
+              {error}
+            </div>
+          )}
 
-          {/* Success Message */}
-          {successMessage && <div className="auth-page__success">{successMessage}</div>}
+          {successMessage && (
+            <div className="auth-page__success" role="status">
+              {successMessage}
+            </div>
+          )}
 
-          {/* Form */}
           <form
             className="auth-page__form"
             id="auth-panel"
             role="tabpanel"
             aria-labelledby={mode === 'login' ? 'auth-tab-login' : 'auth-tab-signup'}
+            aria-busy={isLoading}
             onSubmit={handleSubmit}
           >
             {mode === 'signup' && (
@@ -327,7 +316,7 @@ export function AuthPage() {
             >
               {isLoading ? (
                 <>
-                  <span className="auth-page__spinner" />
+                  <span className="auth-page__spinner" aria-hidden="true" />
                   {mode === 'login' ? fr.auth.loggingIn : fr.auth.creatingAccount}
                 </>
               ) : mode === 'login' ? (
@@ -338,21 +327,20 @@ export function AuthPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="auth-page__divider">
-            <div className="auth-page__divider-line" />
-            <span className="auth-page__divider-text">{fr.auth.or}</span>
-            <div className="auth-page__divider-line" />
+          <div className="auth-page__guest">
+            <div className="auth-page__divider" aria-hidden="true">
+              <div className="auth-page__divider-line" />
+              <span className="auth-page__divider-text">{fr.auth.or}</span>
+              <div className="auth-page__divider-line" />
+            </div>
+            <p>Découvre le jeu immédiatement, sans sauvegarde en ligne.</p>
+            <button type="button" className="auth-page__guest-btn" onClick={handleGuestPlay}>
+              {fr.auth.guest}
+            </button>
           </div>
-
-          {/* Guest Button */}
-          <button type="button" className="auth-page__guest-btn" onClick={handleGuestPlay}>
-            {fr.auth.guest}
-          </button>
-        </div>
+        </section>
       </main>
 
-      {/* Footer */}
       <footer className="auth-page__footer">
         <p className="auth-page__footer-text">
           En continuant, tu acceptes les{' '}

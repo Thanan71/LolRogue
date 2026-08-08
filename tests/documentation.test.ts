@@ -132,7 +132,7 @@ describe('documentation maintenue', () => {
 
   it('relie le statut produit à des preuves existantes sans recycler les constats initiaux', () => {
     const matrix = read('docs/feature-status.md');
-    const todoNext = read('TODO-NEXT.md');
+    const todo = read('TODO.md');
 
     expect(matrix).toContain('Fonctionnalité | Implémentation de référence | Preuves principales');
     expect(matrix).toContain('aucune alerte haute/critique au 8 août 2026');
@@ -147,8 +147,10 @@ describe('documentation maintenue', () => {
       expect(matrix).toContain(proof);
     }
 
-    expect(todoNext).toContain('docs/archive/delivery-history-2026-07-august.md');
-    expect(todoNext).not.toContain('Validation locale : `npm run check` avec **820 tests**');
+    expect(todo).toContain('docs/feature-status.md');
+    expect(existsSync(resolve(root, 'docs/archive/delivery-history-2026-07-august.md'))).toBe(true);
+    expect(existsSync(resolve(root, 'TODO-NEXT.md'))).toBe(false);
+    expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');
   });
 
   it('documente la formule Daily réellement exécutée et sa version active', () => {

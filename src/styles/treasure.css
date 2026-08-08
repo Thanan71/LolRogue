@@ -1,0 +1,179 @@
+.treasure-page {
+  width: min(100%, 32rem);
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.5rem, 3vw, 1.5rem);
+  gap: 1rem;
+}
+
+.treasure-page__chest {
+  color: var(--color-primary-strong);
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0.75rem 1.5rem rgba(216, 182, 106, 0.2));
+}
+
+.treasure-page__chest-symbol {
+  font-size: 4rem;
+}
+
+.treasure-page__title {
+  margin-bottom: 0.75rem;
+  color: var(--color-primary-strong);
+  font-size: 1.5rem;
+  font-weight: 750;
+}
+
+.treasure-page__title--success {
+  margin-bottom: 1rem;
+  color: var(--color-success);
+}
+
+.treasure-page__description {
+  margin-bottom: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.treasure-page__preview {
+  display: flex;
+  width: min(100%, 25rem);
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: linear-gradient(145deg, var(--color-surface-raised), var(--color-surface));
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.treasure-page__preview-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+}
+
+.treasure-page__preview-icon {
+  font-size: 1.5rem;
+}
+
+.treasure-page__preview-gold,
+.treasure-page__preview-loot {
+  font-weight: 700;
+}
+
+.treasure-page__preview-gold,
+.treasure-page__reward-gold {
+  color: var(--color-primary-strong);
+}
+
+.treasure-page__preview-loot,
+.treasure-page__item-name {
+  color: var(--lol-teal-light);
+}
+
+.treasure-page__button {
+  min-height: 3rem;
+  padding: 0.75rem 2.25rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.treasure-page__button--collect {
+  margin-top: 0.5rem;
+  color: var(--color-on-primary);
+  background: linear-gradient(135deg, var(--lol-gold-light), var(--lol-gold));
+  border: 1px solid rgba(255, 233, 183, 0.28);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.treasure-page__button--continue {
+  margin-top: 1rem;
+  color: var(--color-text-primary);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.treasure-page__rewards {
+  display: flex;
+  width: 100%;
+  max-width: 25rem;
+  padding: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: linear-gradient(145deg, var(--color-surface-raised), var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.treasure-page__reward {
+  display: flex;
+  padding: 0.8rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: rgba(4, 12, 19, 0.48);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.treasure-page__reward-label {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.03125rem;
+  text-transform: uppercase;
+}
+
+.treasure-page__reward-value {
+  font-size: 1.2rem;
+  font-weight: 750;
+}
+
+.treasure-page__reward-total {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.treasure-page__item-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.treasure-page__item-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.treasure-page__item-description {
+  margin-top: 0.25rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+}
+
+.treasure-page__item-stats {
+  margin-top: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.treasure-page__item-stat {
+  margin-right: 0.5rem;
+}
+
+.treasure-page__inventory-warning {
+  color: var(--color-warning);
+  font-size: 0.85rem;
+}
+
+.treasure-page__already-resolved {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}

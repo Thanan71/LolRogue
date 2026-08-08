@@ -195,6 +195,20 @@ export function StarterSelectPage() {
             : `Run normale : ta difficulté et tes choix · sélectionne jusqu’à ${unlockedStarterSlots} champion(s)${isGuest ? ' · sauvegarde sur cet appareil uniquement' : ''}`}
       </p>
 
+      <div className="starter-select__journey" aria-label="Étapes de préparation">
+        <span className="starter-select__journey-step starter-select__journey-step--active">
+          <b>01</b> Équipe
+        </span>
+        <span className="starter-select__journey-line" aria-hidden="true" />
+        <span className="starter-select__journey-step">
+          <b>02</b> Runes
+        </span>
+        <span className="starter-select__journey-line" aria-hidden="true" />
+        <span className="starter-select__journey-step">
+          <b>03</b> Départ
+        </span>
+      </div>
+
       <div className="starter-select__grid">
         {choices.map((champ) => (
           <ChampionCard

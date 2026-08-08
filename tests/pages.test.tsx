@@ -213,7 +213,7 @@ describe('P2 page smoke tests', () => {
     });
     renderAt(<RunMapScreen />, '/run');
     expect(screen.getByRole('button', { name: /tutoriel carte/i })).toBeInTheDocument();
-    expect(screen.getByText('Top_lane')).toBeInTheDocument();
+    expect(screen.getByText('Voie du haut')).toBeInTheDocument();
     expect(document.querySelector('svg')).toBeInTheDocument();
   });
 
@@ -301,7 +301,7 @@ describe('P2 page smoke tests', () => {
     });
 
     renderAt(<RunMapScreen />, '/run');
-    fireEvent.click(screen.getByRole('button', { name: /start, départ du biome/i }));
+    fireEvent.click(screen.getByRole('button', { name: /départ,.*départ du biome/i }));
 
     expect(useRunStore.getState()).toMatchObject({
       currentNodeId: 'start',

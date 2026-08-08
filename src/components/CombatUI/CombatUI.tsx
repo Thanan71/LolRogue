@@ -1,4 +1,6 @@
 import type React from 'react';
+import type { CSSProperties } from 'react';
+import { fr } from '@/i18n/fr';
 import { useBattleStore } from '../../stores/battleStore';
 import { AbilityBar } from './AbilityBar';
 import { CombatantPortrait } from './CombatantPortrait';
@@ -28,44 +30,28 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
 
   return (
     <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width,
-        height,
-        pointerEvents: 'none',
-        fontFamily: "'Segoe UI', sans-serif",
-        color: '#fff',
-        zIndex: 10,
-      }}
+      className="combat-overlay"
+      style={
+        {
+          '--combat-overlay-width': `${width}px`,
+          '--combat-overlay-height': `${height}px`,
+        } as CSSProperties
+      }
     >
       {/* Header */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '6px 14px',
-          background: 'linear-gradient(180deg, rgba(10,10,26,0.9) 0%, rgba(10,10,26,0) 100%)',
-          pointerEvents: 'auto',
-        }}
-      >
-        <div style={{ fontSize: 13, color: '#ffd700', fontWeight: 'bold' }}>Round {round}</div>
+      <div className="combat-overlay__header">
+        <div className="combat-overlay__round">
+          {fr.combat.round} {round}
+        </div>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
-        <div style={{ fontSize: 13, color: '#aaa' }}>
+        <div className="combat-overlay__phase">
           {phase === 'finished' ? (
-            <span
-              style={{
-                color: winner === 'player' ? '#22c55e' : winner === 'draw' ? '#ffd700' : '#ef4444',
-                fontWeight: 'bold',
-              }}
-            >
-              {winner === 'player' ? 'VICTOIRE !' : winner === 'draw' ? 'EGALITE' : 'DEFAITE'}
+            <span className={`combat-overlay__result combat-overlay__result--${winner ?? 'enemy'}`}>
+              {winner === 'player'
+                ? `${fr.common.victory.toUpperCase()} !`
+                : winner === 'draw'
+                  ? fr.combat.draw
+                  : fr.common.defeat.toUpperCase()}
             </span>
           ) : (
             `Phase: ${phase}`
@@ -74,29 +60,8 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
       </div>
 
       {/* Player team (left) */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 10,
-          top: 55,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-          pointerEvents: 'auto',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 10,
-            fontWeight: 'bold',
-            color: '#3b82f6',
-            marginBottom: 2,
-            textTransform: 'uppercase',
-            letterSpacing: 1,
-          }}
-        >
-          YOUR TEAM
-        </div>
+      <div className="combat-overlay__team combat-overlay__team--player">
+        <div className="combat-overlay__team-title">{fr.combat.playerTeam}</div>
         {playerTeam.map((c) => (
           <CombatantPortrait
             key={c.targetId}
@@ -107,31 +72,8 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
       </div>
 
       {/* Enemy team (right) */}
-      <div
-        style={{
-          position: 'absolute',
-          right: 10,
-          top: 55,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-          alignItems: 'flex-end',
-          pointerEvents: 'auto',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 10,
-            fontWeight: 'bold',
-            color: '#ef4444',
-            marginBottom: 2,
-            textTransform: 'uppercase',
-            letterSpacing: 1,
-            textAlign: 'right',
-          }}
-        >
-          ENEMY TEAM
-        </div>
+      <div className="combat-overlay__team combat-overlay__team--enemy">
+        <div className="combat-overlay__team-title">{fr.combat.enemies}</div>
         {enemyTeam.map((c) => (
           <CombatantPortrait
             key={c.targetId}
@@ -143,51 +85,18 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
 
       {/* Ability bar (bottom center, only during player turn) */}
       {isPlayerTurn && currentChampion && !currentChampion.isDefeated && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 170,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            pointerEvents: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
+        <div className="combat-overlay__abilities">
           <AbilityBar champion={currentChampion} onCast={onCast} />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={onNextTurn}
-              style={{
-                padding: '6px 14px',
-                background: '#1a1a2e',
-                color: '#ffd700',
-                border: '1px solid #333355',
-                borderRadius: 6,
-                fontSize: 12,
-                cursor: 'pointer',
-                fontWeight: 'bold',
-              }}
-            >
-              Next Turn
+          <div className="combat-overlay__next-row">
+            <button type="button" onClick={onNextTurn} className="combat-overlay__next">
+              {fr.combat.executeTurn}
             </button>
           </div>
         </div>
       )}
 
       {/* Combat log (bottom) */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 8,
-          left: 8,
-          right: 8,
-          height: 140,
-          pointerEvents: 'auto',
-        }}
-      >
+      <div className="combat-overlay__log">
         <CombatLog />
       </div>
     </div>

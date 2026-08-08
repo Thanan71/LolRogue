@@ -3,19 +3,6 @@ import { useEffect, useRef } from 'react';
 import { fr } from '@/i18n/fr';
 import { useBattleStore } from '../../stores/battleStore';
 
-const colors: Record<string, string> = {
-  damage: '#ff4444',
-  defeat: '#ff0000',
-  turn_start: '#ffd700',
-  round_start: '#c8aa6e',
-  battle_end: '#22c55e',
-  action: '#8b949e',
-  info: '#aaa',
-  heal: '#22c55e',
-  shield: '#60a5fa',
-  revive: '#a78bfa',
-};
-
 const icons: Record<string, string> = {
   damage: '\u2694',
   defeat: '\u2716',
@@ -34,60 +21,33 @@ export const CombatLog: React.FC = () => {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+    endRef.current?.scrollIntoView?.({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
   }, [log.length]);
 
   const recent = log.slice(-12);
 
   return (
-    <div
-      style={{
-        background: 'rgba(10,10,26,0.92)',
-        borderRadius: 7,
-        border: '1px solid #333355',
-        padding: 6,
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div className="combat-log">
+      <div className="combat-log__title">{fr.combat.log}</div>
       <div
-        style={{
-          fontSize: 10,
-          fontWeight: 'bold',
-          color: '#ffd700',
-          textTransform: 'uppercase',
-          letterSpacing: 1,
-          marginBottom: 3,
-          paddingLeft: 4,
-        }}
+        role="log"
+        aria-label={fr.combat.log}
+        aria-live="polite"
+        aria-relevant="additions text"
+        className="combat-log__entries"
       >
-        {fr.combat.log}
-      </div>
-      <div style={{ flex: 1, overflowY: 'auto', fontSize: 10, lineHeight: 1.4 }}>
         {recent.length === 0 ? (
-          <div style={{ color: '#b3b8c2', fontStyle: 'italic', padding: 3 }}>
-            {fr.combat.notStarted}
-          </div>
+          <div className="combat-log__empty">{fr.combat.notStarted}</div>
         ) : (
           recent.map((e) => (
-            <div
-              key={e.id}
-              style={{
-                padding: '1px 3px',
-                color: colors[e.type] || '#fff',
-                borderLeft: `2px solid ${colors[e.type] || '#fff'}33`,
-                paddingLeft: 6,
-                marginBottom: 1,
-              }}
-            >
-              <span style={{ marginRight: 5, opacity: 0.6 }}>{icons[e.type] || '\u2022'}</span>
+            <div key={e.id} className={`combat-log__entry combat-log__entry--${e.type}`}>
+              <span aria-hidden="true" className="combat-log__icon">
+                {icons[e.type] || '\u2022'}
+              </span>
               {e.message}
-              {e.isCrit && (
-                <span style={{ color: '#ff6b6b', fontWeight: 'bold', marginLeft: 3, fontSize: 9 }}>
-                  {fr.combat.critical}
-                </span>
-              )}
+              {e.isCrit && <span className="combat-log__critical">{fr.combat.critical}</span>}
             </div>
           ))
         )}

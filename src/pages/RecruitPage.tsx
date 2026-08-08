@@ -6,8 +6,10 @@ import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
+import '@/styles/recruit.css';
 
 export function RecruitPage() {
   const isActive = useRunStore((s) => s.isActive);
@@ -107,7 +109,7 @@ export function RecruitPage() {
   else label = `${fr.encounter.recruitAction} — ${encounter?.cost ?? 0} ${fr.common.gold}`;
 
   const pct = Math.round((encounter?.successChance ?? 0.75) * 100);
-  const clr = pct >= 80 ? '#22c55e' : pct >= 60 ? '#facc15' : '#ef4444';
+  const chanceTone = pct >= 80 ? 'high' : pct >= 60 ? 'medium' : 'low';
 
   return (
     <EncounterLayout
@@ -116,155 +118,135 @@ export function RecruitPage() {
       tone="cyan"
       contentClassName="encounter-layout__content--centered"
     >
-      <div style={contentStyle}>
+      <div className="recruit-page">
         {commandError && (
-          <div role="alert" style={{ color: '#fca5a5', marginBottom: 12 }}>
-            {commandError}
-            <button type="button" onClick={() => setCommandError(null)}>
+          <div className="recruit-page__alert" role="alert">
+            <span>{commandError}</span>
+            <button
+              className="recruit-page__alert-dismiss"
+              type="button"
+              onClick={() => setCommandError(null)}
+            >
               {fr.common.close}
             </button>
           </div>
         )}
         {!result ? (
           <>
-            <div style={previewCardStyle}>
+            <div className="recruit-page__preview-card">
               <img
                 src={champ?.iconUrl ?? ''}
                 alt={champ?.name ?? '???'}
                 width={120}
                 height={120}
                 decoding="async"
-                style={iconStyle}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
+                className="recruit-page__portrait"
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
                 }}
               />
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: '#e6edf3', marginBottom: 4 }}>
+              <div className="recruit-page__champion-details">
+                <div className="recruit-page__champion-name">
                   {champ?.name ?? encounter?.championId ?? '???'}
                 </div>
-                <div style={{ fontSize: 14, color: '#8b949e', marginBottom: 8 }}>
-                  {champ?.title ?? 'Champion'}
-                </div>
-                <div
-                  style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 12 }}
-                >
+                <div className="recruit-page__champion-title">{champ?.title ?? 'Champion'}</div>
+                <div className="recruit-page__tags">
                   {champ?.tags.map((tag) => (
-                    <span key={tag} style={tagStyle}>
-                      {tag}
+                    <span className="recruit-page__tag" key={tag}>
+                      {formatChampionTag(tag)}
                     </span>
                   ))}
                 </div>
                 {champ && (
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: 6,
-                      fontSize: 12,
-                      color: '#8b949e',
-                    }}
-                  >
+                  <div className="recruit-page__stats">
                     <div>
-                      PV : <span style={{ color: '#22c55e' }}>{Math.round(champ.stats.hp)}</span>
+                      PV :{' '}
+                      <span className="recruit-page__stat recruit-page__stat--hp">
+                        {Math.round(champ.stats.hp)}
+                      </span>
                     </div>
                     <div>
-                      AD:{' '}
-                      <span style={{ color: '#ef4444' }}>
+                      ATQ :{' '}
+                      <span className="recruit-page__stat recruit-page__stat--attack">
                         {Math.round(champ.stats.attackDamage)}
                       </span>
                     </div>
                     <div>
-                      Armor:{' '}
-                      <span style={{ color: '#3b82f6' }}>{Math.round(champ.stats.armor)}</span>
+                      ARM :{' '}
+                      <span className="recruit-page__stat recruit-page__stat--armor">
+                        {Math.round(champ.stats.armor)}
+                      </span>
                     </div>
                     <div>
-                      MR:{' '}
-                      <span style={{ color: '#a855f7' }}>
+                      RM :{' '}
+                      <span className="recruit-page__stat recruit-page__stat--resist">
                         {Math.round(champ.stats.magicResist)}
                       </span>
                     </div>
                     <div>
-                      AS:{' '}
-                      <span style={{ color: '#facc15' }}>{champ.stats.attackSpeed.toFixed(2)}</span>
+                      VIT :{' '}
+                      <span className="recruit-page__stat recruit-page__stat--speed">
+                        {champ.stats.attackSpeed.toFixed(2)}
+                      </span>
                     </div>
                     <div>
-                      CRIT:{' '}
-                      <span style={{ color: '#f97316' }}>{Math.round(champ.stats.crit)}%</span>
+                      CRIT :{' '}
+                      <span className="recruit-page__stat recruit-page__stat--crit">
+                        {Math.round(champ.stats.crit)} %
+                      </span>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-            <div
-              style={{
-                fontSize: 14,
-                color: '#c8aa6e',
-                marginBottom: 8,
-                textAlign: 'center',
-                maxWidth: 400,
-              }}
-            >
-              {encounter?.description ?? 'A wild champion appears!'}
+            <div className="recruit-page__description">
+              {encounter?.description ?? 'Un champion sauvage se présente à ton équipe.'}
             </div>
-            <div style={{ fontSize: 16, color: '#ffd700', marginBottom: 12, fontWeight: 700 }}>
-              Cost: {encounter?.cost ?? 0}g
+            <div className="recruit-page__cost">
+              Coût : {encounter?.cost ?? 0} {fr.common.gold}
             </div>
-            <div style={{ fontSize: 13, color: clr, marginBottom: 20 }}>
-              Success chance: {pct}%{pct < 70 ? ' (may flee!)' : ''}
-              <div style={{ color: '#8b949e', marginTop: 6 }}>
-                Gold is charged only when recruitment succeeds.
+            <div className={`recruit-page__chance recruit-page__chance--${chanceTone}`}>
+              Chances de réussite : {pct} %{pct < 70 ? ' — le champion peut fuir' : ''}
+              <div className="recruit-page__chance-note">
+                L’or n’est dépensé que si le recrutement réussit.
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 16 }}>
+            <div className="recruit-page__actions">
               <button
-                style={{
-                  ...recruitBtnStyle,
-                  opacity: disabled ? 0.4 : 1,
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                }}
+                className="recruit-page__button recruit-page__button--recruit"
                 onClick={handleRecruit}
                 disabled={disabled}
               >
                 {label}
               </button>
-              <button style={leaveBtnStyle} onClick={handleLeave}>
-                Pass
+              <button
+                className="recruit-page__button recruit-page__button--leave"
+                onClick={handleLeave}
+              >
+                Passer
               </button>
             </div>
           </>
         ) : (
           <>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>
-              {result === 'success' ? '🎉' : '🚫'}
+            <div className="recruit-page__result-icon" aria-hidden="true">
+              {result === 'success' ? '✦' : '×'}
             </div>
-            <div
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                marginBottom: 12,
-                color: result === 'success' ? '#22c55e' : '#ef4444',
-              }}
-            >
+            <div className={`recruit-page__result-title recruit-page__result-title--${result}`}>
               {result === 'success'
-                ? (champ?.name ?? 'Champion') + ' joined your team!'
-                : (champ?.name ?? 'Champion') + ' fled!'}
+                ? (champ?.name ?? 'Le champion') + ' rejoint ton équipe !'
+                : (champ?.name ?? 'Le champion') + ' a pris la fuite.'}
             </div>
-            <div
-              style={{
-                fontSize: 14,
-                color: '#c8aa6e',
-                marginBottom: 24,
-                textAlign: 'center',
-                maxWidth: 400,
-              }}
-            >
+            <div className="recruit-page__result-copy">
               {result === 'success'
-                ? 'Spent ' + (encounter?.cost ?? 0) + 'g.'
-                : 'The champion ran away. You keep your gold.'}
+                ? `${encounter?.cost ?? 0} ${fr.common.gold} dépensé(s).`
+                : 'Tu conserves ton or malgré cette tentative.'}
             </div>
-            <button style={continueBtnStyle} onClick={handleLeave}>
-              Continue
+            <button
+              className="recruit-page__button recruit-page__button--continue"
+              onClick={handleLeave}
+            >
+              {fr.common.continue}
             </button>
           </>
         )}
@@ -272,67 +254,3 @@ export function RecruitPage() {
     </EncounterLayout>
   );
 }
-const contentStyle: React.CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 40,
-};
-const previewCardStyle: React.CSSProperties = {
-  background: '#161b22',
-  border: '1px solid #2d333b',
-  borderRadius: 12,
-  padding: 24,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: 12,
-  marginBottom: 16,
-  width: 'min(100%, 26rem)',
-};
-const iconStyle: React.CSSProperties = {
-  width: 72,
-  height: 72,
-  borderRadius: 8,
-  background: '#1e2a3a',
-};
-const tagStyle: React.CSSProperties = {
-  padding: '2px 10px',
-  background: '#1e2a3a',
-  border: '1px solid #2d333b',
-  borderRadius: 12,
-  fontSize: 11,
-  color: '#7dd3fc',
-};
-const recruitBtnStyle: React.CSSProperties = {
-  padding: '14px 36px',
-  background: '#06b6d4',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const leaveBtnStyle: React.CSSProperties = {
-  padding: '14px 36px',
-  background: '#21262d',
-  color: '#c8aa6e',
-  border: '1px solid #c8aa6e',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const continueBtnStyle: React.CSSProperties = {
-  padding: '14px 40px',
-  background: '#21262d',
-  color: '#c8aa6e',
-  border: '1px solid #c8aa6e',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};

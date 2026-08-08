@@ -9,6 +9,7 @@ import { plural } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
+import '@/styles/game-over.css';
 import type { RunSummary } from '@/types/run';
 
 export function GameOverPage() {
@@ -84,6 +85,9 @@ export function GameOverPage() {
   const goldEarned = summary?.goldEarned ?? 0;
   const isBusy = saveStatus === 'saving' || saveStatus === 'retrying';
   const isRetryableSaveError = saveStatus === 'failed' && saveFailureKind !== 'terminal';
+  const rewardEntries = rewards
+    ? Object.entries(rewards.byChampion).filter(([, candies]) => candies > 0)
+    : [];
 
   if (!summary) {
     return (
@@ -97,264 +101,264 @@ export function GameOverPage() {
   }
 
   return (
-    <main className="game-over-page" style={containerStyle}>
-      <div className="game-over-card" style={cardStyle}>
-        <h1
-          className={summary?.won ? 'game-over-title--victory' : 'game-over-title--defeat'}
-          style={{ fontSize: 36, marginBottom: 8 }}
-        >
-          {summary?.won ? fr.gameOver.victory : fr.gameOver.defeat}
-        </h1>
-        <p style={{ color: '#8b949e', marginBottom: 24, fontSize: 14 }}>{fr.gameOver.ended}</p>
+    <main className="game-over-page">
+      <article className="game-over-card" aria-labelledby="game-over-title">
+        <header className="game-over-outcome">
+          <div className="game-over-outcome__identity">
+            <span
+              aria-hidden="true"
+              className={`game-over-outcome__marker game-over-outcome__marker--${
+                summary.won ? 'victory' : 'defeat'
+              }`}
+            >
+              {summary.won ? '✦' : '◆'}
+            </span>
+            <div className="game-over-outcome__copy">
+              <span className="game-over-eyebrow">
+                {summary.won ? 'Run accompli' : 'Run terminé'}
+              </span>
+              <h1
+                id="game-over-title"
+                className={`game-over-title ${
+                  summary.won ? 'game-over-title--victory' : 'game-over-title--defeat'
+                }`}
+              >
+                {summary.won ? fr.gameOver.victory : fr.gameOver.defeat}
+              </h1>
+              <p className="game-over-outcome__ended">{fr.gameOver.ended}</p>
+            </div>
+          </div>
 
-        {isBusy && (
-          <p role="status" style={savingStyle}>
-            {saveStatus === 'retrying' ? fr.gameOver.retrying : fr.gameOver.saving}
-          </p>
-        )}
-        {saveStatus === 'saved' && (
-          <p role="status" style={successStyle}>
-            {serverProgression ? fr.gameOver.verifiedSaved : fr.gameOver.saved}
-          </p>
-        )}
+          <div className="game-over-save-state" aria-live="polite">
+            {isBusy && (
+              <p role="status" className="game-over-save-status game-over-save-status--saving">
+                <span aria-hidden="true" className="game-over-save-status__dot" />
+                {saveStatus === 'retrying' ? fr.gameOver.retrying : fr.gameOver.saving}
+              </p>
+            )}
+            {saveStatus === 'saved' && (
+              <p role="status" className="game-over-save-status game-over-save-status--success">
+                <span aria-hidden="true">✓</span>
+                {serverProgression ? fr.gameOver.verifiedSaved : fr.gameOver.saved}
+              </p>
+            )}
+          </div>
+        </header>
+
         {saveStatus === 'failed' && isErrorVisible && (
-          <div role="alert" style={errorStyle}>
-            <div>
+          <div role="alert" className="game-over-error">
+            <div className="game-over-error__copy">
+              <strong className="game-over-error__title">
+                {saveFailureKind === 'terminal' ? 'Progression refusée' : 'Sauvegarde en attente'}
+              </strong>
               {saveFailureKind === 'terminal'
                 ? `${fr.gameOver.rejected} : ${saveError}`
                 : `${fr.gameOver.verificationPending} : ${saveError}`}
             </div>
-            {isRetryableSaveError && (
-              <button style={retryBtnStyle} onClick={handleRetrySave}>
-                {fr.gameOver.retryVerification}
-              </button>
-            )}
-            <button style={retryBtnStyle} onClick={() => setIsErrorVisible(false)}>
-              {fr.common.close}
-            </button>
-          </div>
-        )}
-
-        <div className="game-over-stats" style={statsGridStyle}>
-          <StatBlock label={fr.gameOver.levelReached} value={runLevel} />
-          <StatBlock label={fr.gameOver.wavesCompleted} value={totalWavesCompleted} />
-          <StatBlock label={fr.gameOver.biomesVisited} value={biomesCount} />
-          <StatBlock label={fr.gameOver.teamSize} value={championCount} />
-          <StatBlock label={fr.gameOver.totalKills} value={totalKills} />
-          <StatBlock label={fr.gameOver.assists} value={totalAssists} />
-          <StatBlock label={fr.gameOver.totalDamage} value={totalDamage} />
-          <StatBlock label={fr.gameOver.healing} value={totalHealing} />
-          <StatBlock label={fr.gameOver.shielding} value={totalShielding} />
-          <StatBlock label={fr.gameOver.goldEarned} value={goldEarned} />
-          <StatBlock label={fr.gameOver.goldSpent} value={summary?.goldSpent ?? 0} />
-          <StatBlock label={fr.gameOver.goldBalance} value={summary?.goldBalance ?? 0} />
-        </div>
-
-        {summary?.championStats && summary.championStats.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <div
-              style={{
-                color: '#c8aa6e',
-                fontSize: 13,
-                fontWeight: 700,
-                marginBottom: 8,
-                textTransform: 'uppercase',
-                letterSpacing: 1,
-              }}
-            >
-              {fr.gameOver.championStats}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {summary.championStats.map((cs) => (
-                <div
-                  key={cs.championId}
-                  className="game-over-champion-row"
-                  style={championRowStyle}
+            <div className="game-over-error__actions">
+              {isRetryableSaveError && (
+                <button
+                  type="button"
+                  className="game-over-error__button game-over-error__button--retry"
+                  onClick={handleRetrySave}
                 >
-                  <span style={{ color: '#e6edf3', fontSize: 13, fontWeight: 600 }}>
-                    {cs.championId}
-                  </span>
-                  <span style={{ color: '#8b949e', fontSize: 12 }}>
-                    K: {cs.kills} · A: {cs.assists} · Dmg: {cs.totalDamage} · Heal: {cs.healingDone}{' '}
-                    · Shield: {cs.shieldingDone}
-                  </span>
-                </div>
-              ))}
+                  {fr.gameOver.retryVerification}
+                </button>
+              )}
+              <button
+                type="button"
+                className="game-over-error__button game-over-error__button--dismiss"
+                onClick={() => setIsErrorVisible(false)}
+              >
+                {fr.common.close}
+              </button>
             </div>
           </div>
         )}
 
         {rewards && (
-          <div style={{ marginBottom: 24 }}>
-            <div
-              style={{
-                color: '#c8aa6e',
-                fontSize: 13,
-                fontWeight: 700,
-                marginBottom: 8,
-                textTransform: 'uppercase',
-                letterSpacing: 1,
-              }}
-            >
-              {fr.gameOver.rewards}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 8 }}>
-              <span style={{ color: '#fbbf24', fontSize: 16, fontWeight: 700 }}>
-                🍬 {plural(rewards.total, 'bonbon')}
+          <section className="game-over-rewards" aria-labelledby="game-over-rewards-title">
+            <div className="game-over-rewards__lead">
+              <span id="game-over-rewards-title" className="game-over-section-kicker">
+                {fr.gameOver.rewards}
               </span>
+              <strong className="game-over-rewards__total">
+                🍬 {plural(rewards.total, 'bonbon')}
+              </strong>
+              <p className="game-over-rewards__hint">
+                {serverProgression
+                  ? 'Ajoutées à ta progression vérifiée.'
+                  : 'Calculées pour cette partie locale.'}
+              </p>
             </div>
-            {Object.keys(rewards.byChampion).length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {Object.entries(rewards.byChampion).map(
-                  ([id, candies]) =>
-                    candies > 0 && (
-                      <div key={id} className="game-over-champion-row" style={championRowStyle}>
-                        <span style={{ color: '#e6edf3', fontSize: 13 }}>{id}</span>
-                        <span style={{ color: '#a78bfa', fontSize: 12 }}>
+
+            <div className="game-over-rewards__meta">
+              {serverProgression && (
+                <div data-testid="server-progression" className="game-over-progression">
+                  <span aria-hidden="true">✓</span> Progression v
+                  {serverProgression.progressionVersion} · {fr.gameOver.verified}
+                </div>
+              )}
+              {rewardEntries.length > 0 && (
+                <details className="game-over-reward-details">
+                  <summary className="game-over-reward-details__summary">
+                    Répartition par champion
+                  </summary>
+                  <div className="game-over-reward-list">
+                    {rewardEntries.map(([id, candies]) => (
+                      <div key={id} className="game-over-champion-row game-over-reward-row">
+                        <span className="game-over-reward-row__name">{id}</span>
+                        <span className="game-over-reward-row__value">
                           +{plural(candies, 'bonbon')}
                         </span>
                       </div>
-                    ),
-                )}
-              </div>
-            )}
-            {serverProgression && (
-              <div data-testid="server-progression" style={progressionMetadataStyle}>
-                Progression v{serverProgression.progressionVersion} · {fr.gameOver.verified}
-              </div>
-            )}
-          </div>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </div>
+          </section>
         )}
 
-        <div className="game-over-actions" style={actionsStyle}>
-          <button
-            style={primaryBtnStyle}
-            onClick={handleNewRun}
-            disabled={isBusy || isRetryableSaveError}
-          >
-            {fr.gameOver.newRun}
-          </button>
-          <button style={secondaryBtnStyle} onClick={handleMenu} disabled={isBusy}>
-            {fr.gameOver.mainMenu}
-          </button>
+        <section className="game-over-headline" aria-labelledby="game-over-headline-stats">
+          <div className="game-over-section-heading">
+            <div>
+              <span id="game-over-headline-stats" className="game-over-section-kicker">
+                Bilan du run
+              </span>
+              <strong className="game-over-section-title">Les chiffres à retenir</strong>
+            </div>
+          </div>
+          <div className="game-over-stats">
+            <StatBlock label={fr.gameOver.levelReached} value={runLevel} featured />
+            <StatBlock label={fr.gameOver.wavesCompleted} value={totalWavesCompleted} featured />
+            <StatBlock label={fr.gameOver.totalKills} value={totalKills} featured />
+            <StatBlock label={fr.gameOver.teamSize} value={championCount} featured />
+          </div>
+        </section>
+
+        <section className="game-over-action-panel" aria-labelledby="game-over-actions-title">
+          <div className="game-over-action-panel__copy">
+            <span id="game-over-actions-title" className="game-over-section-kicker">
+              Prochaine étape
+            </span>
+            <strong className="game-over-section-title">Prêt à repartir ?</strong>
+            <p className="game-over-action-panel__hint">
+              Relance un run ou reviens au menu principal.
+            </p>
+          </div>
+
+          <div className="game-over-actions">
+            <button
+              type="button"
+              className="game-over-action-button game-over-action-button--primary"
+              onClick={handleNewRun}
+              disabled={isBusy || isRetryableSaveError}
+            >
+              {fr.gameOver.newRun}
+            </button>
+            <button
+              type="button"
+              className="game-over-action-button game-over-action-button--secondary"
+              onClick={handleMenu}
+              disabled={isBusy}
+            >
+              {fr.gameOver.mainMenu}
+            </button>
+          </div>
+        </section>
+
+        <div className="game-over-details-stack">
+          <details className="game-over-details">
+            <summary className="game-over-details__summary">
+              <span>
+                <strong className="game-over-details__title">Détails de la partie</strong>
+                <small className="game-over-details__description">
+                  Économie, soutien et progression
+                </small>
+              </span>
+              <span aria-hidden="true" className="game-over-details__count">
+                8 indicateurs
+              </span>
+            </summary>
+            <div className="game-over-details__body">
+              <div className="game-over-detail-stats">
+                <StatBlock label={fr.gameOver.biomesVisited} value={biomesCount} />
+                <StatBlock label={fr.gameOver.assists} value={totalAssists} />
+                <StatBlock label={fr.gameOver.totalDamage} value={totalDamage} />
+                <StatBlock label={fr.gameOver.healing} value={totalHealing} />
+                <StatBlock label={fr.gameOver.shielding} value={totalShielding} />
+                <StatBlock label={fr.gameOver.goldEarned} value={goldEarned} />
+                <StatBlock label={fr.gameOver.goldSpent} value={summary.goldSpent ?? 0} />
+                <StatBlock label={fr.gameOver.goldBalance} value={summary.goldBalance ?? 0} />
+              </div>
+            </div>
+          </details>
+
+          {summary.championStats.length > 0 && (
+            <details className="game-over-details" open={summary.championStats.length <= 2}>
+              <summary className="game-over-details__summary">
+                <span>
+                  <strong className="game-over-details__title">{fr.gameOver.championStats}</strong>
+                  <small className="game-over-details__description">
+                    Contribution individuelle au run
+                  </small>
+                </span>
+                <span aria-hidden="true" className="game-over-details__count">
+                  {plural(summary.championStats.length, 'champion')}
+                </span>
+              </summary>
+              <div className="game-over-details__body">
+                <div className="game-over-champion-list">
+                  {summary.championStats.map((cs) => (
+                    <div
+                      key={cs.championId}
+                      className="game-over-champion-row game-over-champion-breakdown"
+                    >
+                      <strong className="game-over-champion-breakdown__name">
+                        {cs.championId}
+                      </strong>
+                      <dl className="game-over-champion-metrics">
+                        <ChampionMetric label="Éliminations" value={cs.kills} />
+                        <ChampionMetric label="Assistances" value={cs.assists} />
+                        <ChampionMetric label="Dégâts" value={cs.totalDamage} />
+                        <ChampionMetric label="Soins" value={cs.healingDone} />
+                        <ChampionMetric label="Boucliers" value={cs.shieldingDone} />
+                      </dl>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </details>
+          )}
         </div>
-      </div>
+      </article>
     </main>
   );
 }
 
-function StatBlock({ label, value }: { label: string; value: number | string }) {
+function StatBlock({
+  label,
+  value,
+  featured = false,
+}: {
+  label: string;
+  value: number | string;
+  featured?: boolean;
+}) {
   return (
-    <div style={statBlockStyle}>
-      <div style={{ color: '#8b949e', fontSize: 11, textTransform: 'uppercase' }}>{label}</div>
-      <div style={{ color: '#c8aa6e', fontSize: 22, fontWeight: 700 }}>{value}</div>
+    <div className={`game-over-stat${featured ? ' game-over-stat--featured' : ''}`}>
+      <span className="game-over-stat__label">{label}</span>
+      <strong className="game-over-stat__value">{value}</strong>
     </div>
   );
 }
 
-const containerStyle: React.CSSProperties = {
-  position: 'relative',
-  width: '100%',
-  minHeight: '100dvh',
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-};
-
-const cardStyle: React.CSSProperties = {
-  background: '#161b22',
-  border: '1px solid #1e2a3a',
-  borderRadius: 12,
-  padding: 40,
-  textAlign: 'center',
-  maxWidth: 520,
-  width: '90%',
-};
-
-const statsGridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(2, 1fr)',
-  gap: 16,
-  marginBottom: 32,
-};
-
-const statBlockStyle: React.CSSProperties = {
-  background: '#0d1117',
-  borderRadius: 8,
-  padding: 12,
-};
-
-const championRowStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  background: '#0d1117',
-  borderRadius: 6,
-  padding: '6px 12px',
-};
-
-const progressionMetadataStyle: React.CSSProperties = {
-  color: '#8b949e',
-  fontSize: 11,
-  marginTop: 10,
-};
-
-const actionsStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 12,
-  justifyContent: 'center',
-};
-
-const savingStyle: React.CSSProperties = {
-  color: '#c8aa6e',
-  marginBottom: 20,
-};
-
-const successStyle: React.CSSProperties = {
-  color: '#4ade80',
-  marginBottom: 20,
-};
-
-const errorStyle: React.CSSProperties = {
-  color: '#fca5a5',
-  background: '#3f1518',
-  border: '1px solid #7f1d1d',
-  borderRadius: 8,
-  padding: 12,
-  marginBottom: 20,
-};
-
-const retryBtnStyle: React.CSSProperties = {
-  marginTop: 10,
-  padding: '8px 16px',
-  background: '#ef4444',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 6,
-  cursor: 'pointer',
-};
-
-const primaryBtnStyle: React.CSSProperties = {
-  padding: '12px 32px',
-  background: '#c8aa6e',
-  color: '#0d1117',
-  border: 'none',
-  borderRadius: 8,
-  fontSize: 14,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-
-const secondaryBtnStyle: React.CSSProperties = {
-  padding: '12px 32px',
-  background: '#21262d',
-  color: '#e6edf3',
-  border: '1px solid #30363d',
-  borderRadius: 8,
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: 'pointer',
-};
+function ChampionMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="game-over-champion-metric">
+      <dt className="game-over-champion-metric__label">{label}</dt>
+      <dd className="game-over-champion-metric__value">{value}</dd>
+    </div>
+  );
+}

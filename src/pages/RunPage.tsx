@@ -9,6 +9,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
+import '@/styles/run-empty.css';
 
 export function RunPage() {
   useRunImagePreload();
@@ -31,14 +32,21 @@ export function RunPage() {
 
   if (!isActive) {
     return (
-      <div style={containerStyle}>
-        <div style={centerStyle}>
-          <h2 style={{ color: '#c8aa6e', fontSize: 24, marginBottom: 16 }}>{fr.run.noActive}</h2>
-          <p style={{ color: '#8b949e', marginBottom: 24 }}>
-            Start a new run to begin your adventure.
+      <main className="run-empty-page">
+        <section className="run-empty-card" aria-labelledby="run-empty-title">
+          <span className="run-empty-card__marker" aria-hidden="true">
+            ✦
+          </span>
+          <p className="run-empty-card__eyebrow" aria-hidden="true">
+            LoL Rogue
           </p>
+          <h1 id="run-empty-title" className="run-empty-card__title">
+            {fr.run.noActive}
+          </h1>
+          <p className="run-empty-card__description">Start a new run to begin your adventure.</p>
           <button
-            style={btnStyle}
+            type="button"
+            className="run-empty-card__button"
             onClick={() => {
               playUIClick();
               navigate(ROUTES.STARTER_SELECT);
@@ -46,8 +54,8 @@ export function RunPage() {
           >
             {fr.run.startNew}
           </button>
-        </div>
-      </div>
+        </section>
+      </main>
     );
   }
 
@@ -65,33 +73,3 @@ export function RunPage() {
 
   return <RunMapScreen />;
 }
-
-const containerStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontFamily: 'sans-serif',
-};
-
-const centerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100%',
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: '10px 24px',
-  background: '#c8aa6e',
-  color: '#0d1117',
-  border: 'none',
-  borderRadius: 6,
-  fontSize: 14,
-  fontWeight: 700,
-  cursor: 'pointer',
-};

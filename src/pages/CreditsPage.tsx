@@ -1,4 +1,4 @@
-import { Button, PageFooter, PageHeader, PageShell, Panel, Stack } from '@/components/ui';
+import { Button, PageHeader, PageShell, Panel, Stack } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
@@ -17,7 +17,15 @@ export function CreditsPage() {
   const navigate = useAppNavigate();
   return (
     <PageShell width="narrow">
-      <PageHeader title={fr.credits.title} subtitle={fr.credits.subtitle} />
+      <PageHeader
+        title={fr.credits.title}
+        subtitle="Les personnes, technologies et univers qui ont rendu cette aventure possible."
+        leading={
+          <Button variant="ghost" onClick={() => navigate(ROUTES.MENU)}>
+            {fr.common.backToMenu}
+          </Button>
+        }
+      />
       <Stack>
         {credits.map((group) => (
           <Panel key={group.section}>
@@ -29,11 +37,6 @@ export function CreditsPage() {
         ))}
         <p className="ui-legal-copy">{fr.credits.legal}</p>
       </Stack>
-      <PageFooter>
-        <Button variant="ghost" onClick={() => navigate(ROUTES.MENU)}>
-          {fr.common.backToMenu}
-        </Button>
-      </PageFooter>
     </PageShell>
   );
 }

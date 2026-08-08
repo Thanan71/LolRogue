@@ -116,6 +116,15 @@ export function DatabasePage() {
                 </button>
               </li>
             ))}
+            {filteredChampions.length === 0 && (
+              <li className="database-empty" role="status">
+                <strong>Aucun champion trouvé</strong>
+                <span>Essaie un autre nom, titre ou rôle.</span>
+                <button type="button" onClick={() => setSearch('')}>
+                  Effacer la recherche
+                </button>
+              </li>
+            )}
           </ul>
         </aside>
 
@@ -127,9 +136,16 @@ export function DatabasePage() {
                 role="tablist"
                 aria-label={fr.database.title}
                 onKeyDown={(event) => {
-                  if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+                  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
                   event.preventDefault();
-                  const nextTab = activeTab === 'info' ? 'enhancements' : 'info';
+                  const nextTab =
+                    event.key === 'Home'
+                      ? 'info'
+                      : event.key === 'End'
+                        ? 'enhancements'
+                        : activeTab === 'info'
+                          ? 'enhancements'
+                          : 'info';
                   setActiveTab(nextTab);
                   window.requestAnimationFrame(() =>
                     document.getElementById(`database-tab-${nextTab}`)?.focus(),
@@ -142,6 +158,7 @@ export function DatabasePage() {
                   id="database-tab-info"
                   aria-selected={activeTab === 'info'}
                   aria-controls="database-panel-info"
+                  tabIndex={activeTab === 'info' ? 0 : -1}
                   className={`database-tab${activeTab === 'info' ? ' active' : ''}`}
                   onClick={() => setActiveTab('info')}
                 >
@@ -153,6 +170,7 @@ export function DatabasePage() {
                   id="database-tab-enhancements"
                   aria-selected={activeTab === 'enhancements'}
                   aria-controls="database-panel-enhancements"
+                  tabIndex={activeTab === 'enhancements' ? 0 : -1}
                   className={`database-tab${activeTab === 'enhancements' ? ' active' : ''}`}
                   onClick={() => setActiveTab('enhancements')}
                 >

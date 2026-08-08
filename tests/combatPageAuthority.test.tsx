@@ -108,6 +108,7 @@ function attempt(engineVersion = 'run-engine-v1'): RunAuthorityAttempt {
 
 describe('CombatPage authority finalization', () => {
   beforeEach(() => {
+    localStorage.setItem('lolrogue:tutorial:combat:v1', 'done');
     combatMocks.navigate.mockReset();
     combatMocks.onComplete = null;
     combatMocks.finalPlayerStates = [];

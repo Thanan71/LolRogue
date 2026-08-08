@@ -1,6 +1,5 @@
 import { findNode } from '@/game/map/mapUtils';
 import { type NodeMap, NodeType } from '@/game/map/types';
-import { mapContainerStyle } from './runMapStyles';
 
 const NODE_COLORS: Record<string, string> = {
   [NodeType.Combat]: '#3b82f6',
@@ -28,6 +27,19 @@ export const NODE_LABELS: Record<string, string> = {
   [NodeType.Exit]: '■',
 };
 
+export const NODE_NAMES: Record<string, string> = {
+  [NodeType.Combat]: 'Combat',
+  [NodeType.Elite]: 'Élite',
+  [NodeType.Boss]: 'Boss',
+  [NodeType.Shop]: 'Boutique',
+  [NodeType.Rest]: 'Repos',
+  [NodeType.Event]: 'Événement',
+  [NodeType.Recruit]: 'Recrutement',
+  [NodeType.Treasure]: 'Trésor',
+  [NodeType.Start]: 'Départ',
+  [NodeType.Exit]: 'Sortie',
+};
+
 interface RunMapCanvasProps {
   map: NodeMap;
   currentNodeId: string | null;
@@ -49,14 +61,8 @@ export function RunMapCanvas({
   const svgW = currentMap.columns * 110 + 40;
   const svgH = currentMap.rows * 80 + 40;
   return (
-    <div style={mapContainerStyle}>
-      <svg
-        width={svgW}
-        height={svgH}
-        style={{ display: 'block' }}
-        role="group"
-        aria-labelledby="run-map-title"
-      >
+    <div className="run-map-map">
+      <svg width={svgW} height={svgH} role="group" aria-labelledby="run-map-title">
         <title id="run-map-title">Carte interactive de la partie</title>
         {/* Draw edges */}
         {nodes.map((node) =>
@@ -105,7 +111,7 @@ export function RunMapCanvas({
               role="button"
               tabIndex={isSelectable ? 0 : -1}
               aria-disabled={!isSelectable}
-              aria-label={`${node.metadata.title}, colonne ${node.column + 1}, ligne ${node.row + 1}, ${node.type}${isEntry ? ', départ du biome' : ''}, ${isDone ? 'terminé' : isCurrent ? 'position actuelle' : isAccessible ? 'accessible' : 'verrouillé'}, ${isSelectable ? 'activer pour choisir ce nœud et verrouiller les autres branches' : hasPendingChoice ? "terminez d'abord le choix en attente" : 'indisponible'}`}
+              aria-label={`${NODE_NAMES[node.type] ?? node.metadata.title}, colonne ${node.column + 1}, ligne ${node.row + 1}${isEntry ? ', départ du biome' : ''}, ${isDone ? 'terminé' : isCurrent ? 'position actuelle' : isAccessible ? 'accessible' : 'verrouillé'}, ${isSelectable ? 'activer pour choisir ce nœud et verrouiller les autres branches' : hasPendingChoice ? "terminez d'abord le choix en attente" : 'indisponible'}`}
             >
               {isCurrent && (
                 <circle
@@ -189,7 +195,7 @@ export function RunMapCanvas({
                 fontFamily="sans-serif"
                 style={{ userSelect: 'none' }}
               >
-                {node.type}
+                {NODE_NAMES[node.type] ?? node.type}
               </text>
             </g>
           );

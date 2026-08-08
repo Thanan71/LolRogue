@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { type CSSProperties, useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
 import { ROUTES } from '@/config/routes';
@@ -13,6 +13,7 @@ import { fr } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
+import '@/styles/event.css';
 
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
   const state = useRunStore.getState();
@@ -30,6 +31,103 @@ function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][
         ? (state.authorityAttempt.masterySnapshot?.[championId] ?? 0)
         : useMasteryStore.getState().getChampionMastery(championId).level,
   );
+}
+
+const EVENT_NAME_TRANSLATIONS: Record<string, string> = {
+  'Mysterious Chest': 'Coffre mystérieux',
+  'Wandering Spirit': 'Esprit errant',
+  'Runic Altar': 'Autel runique',
+  'Loot Goblin': 'Gobelin au butin',
+};
+
+const EVENT_COPY_TRANSLATIONS: Record<string, string> = {
+  'A glowing chest sits in your path. Do you open it?':
+    'Un coffre lumineux bloque votre chemin. Oserez-vous l’ouvrir ?',
+  'A friendly spirit offers to help your team.':
+    'Un esprit bienveillant propose son aide à votre équipe.',
+  'An ancient altar pulses with power.': 'Un autel ancien palpite d’une puissance oubliée.',
+  'A small creature scurries past with a bag of gold!':
+    'Une petite créature détale devant vous avec un sac rempli d’or !',
+  'You find gold inside!': 'Vous découvrez de l’or à l’intérieur.',
+  'An item glows inside!': 'Un objet scintille à l’intérieur.',
+  'A trap! The chest explodes!': 'Un piège ! Le coffre explose.',
+  'The chest is empty...': 'Le coffre est vide…',
+  'The spirit heals your team!': 'L’esprit soigne votre équipe.',
+  'The spirit empowers your team!': 'L’esprit renforce votre équipe.',
+  'The spirit drops gold.': 'L’esprit dépose quelques pièces d’or.',
+  'The altar grants you strength!': 'L’autel vous confère une force nouvelle.',
+  'The altar demands an offering.': 'L’autel exige une offrande.',
+  'A champion appears from the altar!': 'Un champion émerge de l’autel !',
+  'You catch the goblin!': 'Vous rattrapez le gobelin !',
+  'The goblin drops its bag!': 'Le gobelin abandonne son sac !',
+  'The goblin escapes too fast...': 'Le gobelin s’échappe avant que vous ne puissiez l’atteindre…',
+};
+
+const STAT_LABELS: Record<string, string> = {
+  atk: 'attaque',
+  ap: 'puissance',
+  def: 'défense',
+  hp: 'PV',
+  spd: 'vitesse',
+  crit: 'chance de critique',
+};
+
+function localizeEventName(name: string | undefined): string {
+  if (!name) return fr.encounter.mystery;
+  return EVENT_NAME_TRANSLATIONS[name] ?? name;
+}
+
+function localizeEventCopy(copy: string | undefined, fallback: string): string {
+  if (!copy) return fallback;
+  return EVENT_COPY_TRANSLATIONS[copy] ?? copy;
+}
+
+function getOutcomeTitle(outcome: EventOutcome, capacityNotice: string | null): string {
+  switch (outcome.type) {
+    case 'gold_reward':
+      return `+${outcome.goldAmount ?? 0} ${fr.common.gold}`;
+    case 'gold_cost':
+      return `Offrande : −${Math.abs(outcome.goldAmount ?? 0)} ${fr.common.gold}`;
+    case 'item_reward':
+      return capacityNotice
+        ? 'Objet laissé sur place'
+        : `Objet obtenu : ${outcome.item?.name ?? 'objet mystérieux'}`;
+    case 'heal':
+      return `Équipe soignée : +${Math.round((outcome.healPercent ?? 0.3) * 100)} % de PV`;
+    case 'damage':
+      return `Piège déclenché : −${Math.round((outcome.damagePercent ?? 0.15) * 100)} % de PV`;
+    case 'champion_recruit':
+      if (capacityNotice) return 'Recrutement impossible';
+      if (!outcome.championId) return 'Aucun champion ne s’est présenté…';
+      return `${championDB.getById(outcome.championId)?.name ?? outcome.championId} rejoint votre équipe !`;
+    case 'stat_boost': {
+      const stat = outcome.statBoost?.stat;
+      return `Amélioration : +${outcome.statBoost?.amount ?? 0} ${stat ? (STAT_LABELS[stat] ?? 'caractéristique') : 'caractéristique'}`;
+    }
+    case 'nothing':
+      return 'Rien ne se produit…';
+  }
+}
+
+function getOutcomeFallback(outcome: EventOutcome): string {
+  switch (outcome.type) {
+    case 'gold_reward':
+      return 'Vous repartez avec de l’or.';
+    case 'gold_cost':
+      return 'L’offrande est acceptée.';
+    case 'item_reward':
+      return 'Votre découverte rejoint votre inventaire.';
+    case 'heal':
+      return 'Une énergie apaisante parcourt votre équipe.';
+    case 'damage':
+      return 'Le piège blesse toute votre équipe.';
+    case 'champion_recruit':
+      return 'Votre groupe accueille un nouveau champion.';
+    case 'stat_boost':
+      return 'Votre équipe ressort renforcée de cette rencontre.';
+    case 'nothing':
+      return 'Le calme revient sans laisser de trace.';
+  }
 }
 
 export function EventPage() {
@@ -131,7 +229,7 @@ export function EventPage() {
             },
           );
           if (!result.success && result.code === 'inventory_full') {
-            nextCapacityNotice = 'Inventory full — the item was left behind.';
+            nextCapacityNotice = 'Inventaire plein — l’objet a été laissé sur place.';
           }
         }
         break;
@@ -142,8 +240,8 @@ export function EventPage() {
           if (!result.success) {
             nextCapacityNotice =
               result.code === 'team_full'
-                ? 'Team full — the champion could not join.'
-                : 'This champion is already on the team.';
+                ? 'Équipe complète — ce champion ne peut pas vous rejoindre.'
+                : 'Ce champion fait déjà partie de l’équipe.';
           }
         }
         break;
@@ -194,199 +292,116 @@ export function EventPage() {
 
   if (!isActive) return null;
 
-  const typeColors: Record<string, string> = {
-    gold_reward: '#ffd700',
-    gold_cost: '#ef4444',
-    item_reward: '#7dd3fc',
-    heal: '#22c55e',
-    damage: '#ef4444',
-    champion_recruit: '#06b6d4',
-    stat_boost: '#a855f7',
-    nothing: '#8b949e',
-  };
-  const typeIcons: Record<string, string> = {
-    gold_reward: '\u{1f4b0}',
-    gold_cost: '\u{1f4b8}',
-    item_reward: '\u{1f381}',
-    heal: '\u{1f49a}',
-    damage: '\u{1f4a5}',
-    champion_recruit: '\u{1f91d}',
-    stat_boost: '\u2b06\ufe0f',
-    nothing: '\u{1f4a8}',
-  };
-
   return (
     <EncounterLayout
-      title={`${fr.encounter.event} — ${encounter?.name ?? fr.encounter.mystery}`}
+      title={`${fr.encounter.event} — ${localizeEventName(encounter?.name)}`}
       gold={gold}
       tone="orange"
       contentClassName="encounter-layout__content--centered"
     >
-      <div style={contentStyle}>
+      <div className="event-page">
         {!outcome && !wasClaimed ? (
-          <>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>{'\u2753'}</div>
-            <div style={{ fontSize: 18, color: '#c8aa6e', marginBottom: 8 }}>
-              {encounter?.description ?? fr.encounter.mysterious}
-            </div>
-            <div style={{ color: '#8b949e', marginBottom: 24 }}>{fr.encounter.uncertain}</div>
-            <button style={investigateBtnStyle} onClick={handleInvestigate}>
-              {fr.encounter.investigate}
-            </button>
-          </>
-        ) : outcome ? (
-          <>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>
-              {typeIcons[outcome.type] ?? '\u2753'}
-            </div>
-            <div
-              style={{
-                fontSize: 20,
-                fontWeight: 700,
-                marginBottom: 12,
-                color: typeColors[outcome.type] ?? '#e6edf3',
-              }}
-            >
-              {outcome.type === 'gold_reward' && `+${outcome.goldAmount} Gold!`}
-              {outcome.type === 'gold_cost' && `-${Math.abs(outcome.goldAmount ?? 0)} Gold`}
-              {outcome.type === 'item_reward' &&
-                (capacityNotice
-                  ? 'Item left behind'
-                  : `Received: ${outcome.item?.name ?? 'an item'}!`)}
-              {outcome.type === 'heal' &&
-                `Team healed ${Math.round((outcome.healPercent ?? 0.3) * 100)}% HP!`}
-              {outcome.type === 'damage' &&
-                `Team took ${Math.round((outcome.damagePercent ?? 0.15) * 100)}% HP damage!`}
-              {outcome.type === 'champion_recruit' &&
-                (capacityNotice
-                  ? 'Recruitment unavailable'
-                  : outcome.championId
-                    ? `${championDB.getById(outcome.championId)?.name ?? outcome.championId} joined your team!`
-                    : 'No one appeared...')}
-              {outcome.type === 'stat_boost' &&
-                `+${outcome.statBoost?.amount ?? 0} ${(outcome.statBoost?.stat ?? 'STAT').toUpperCase()}`}
-              {outcome.type === 'nothing' && 'Nothing happened...'}
-            </div>
-            {capacityNotice && (
-              <div style={{ color: '#facc15', fontSize: 14, marginBottom: 16 }}>
-                {capacityNotice}
-              </div>
-            )}
-            <div
-              style={{
-                fontSize: 14,
-                color: '#c8aa6e',
-                marginBottom: 24,
-                textAlign: 'center',
-                maxWidth: 400,
-              }}
-            >
-              {outcome.description}
-            </div>
-            {(outcome.type === 'heal' || outcome.type === 'damage') && (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                  marginBottom: 24,
-                  width: '100%',
-                  maxWidth: 350,
-                }}
+          <div className="event-page__card">
+            <div className="event-page__icon event-page__icon--unknown" aria-hidden="true" />
+            <span className="event-page__kicker">Issue inconnue</span>
+            <h2 className="event-page__title">Le choix vous appartient</h2>
+            <p className="event-page__lead">
+              {localizeEventCopy(encounter?.description, fr.encounter.mysterious)}
+            </p>
+            <p className="event-page__body">{fr.encounter.uncertain}</p>
+            <div className="event-page__actions">
+              <button
+                type="button"
+                className="event-page__button event-page__button--investigate"
+                onClick={handleInvestigate}
               >
-                {team.map((member) => {
-                  const champ = championDB.getById(member.championId);
-                  const maxHp = getMemberMaxHp(member);
-                  const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
-                  const pct = Math.round((currentHp / maxHp) * 100);
-                  return (
-                    <div key={member.championId} style={memberRowStyle}>
-                      <div
-                        style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3', marginBottom: 3 }}
-                      >
-                        {champ?.name ?? member.championId}
+                {fr.encounter.investigate}
+              </button>
+            </div>
+          </div>
+        ) : outcome ? (
+          <div
+            className={`event-page__card event-page__card--outcome event-page__card--${outcome.type}`}
+          >
+            <div
+              className={`event-page__icon event-page__icon--${outcome.type}`}
+              aria-hidden="true"
+            />
+            <span className="event-page__kicker">Résultat de la rencontre</span>
+            <h2 className="event-page__title event-page__outcome-title">
+              {getOutcomeTitle(outcome, capacityNotice)}
+            </h2>
+            {capacityNotice && <p className="event-page__notice">{capacityNotice}</p>}
+            <p className="event-page__lead">
+              {localizeEventCopy(outcome.description, getOutcomeFallback(outcome))}
+            </p>
+            {(outcome.type === 'heal' || outcome.type === 'damage') && (
+              <div className="event-page__team-panel">
+                <div className="event-page__team-header">Points de vie de l’équipe</div>
+                <div className="event-page__team-list">
+                  {team.map((member) => {
+                    const champ = championDB.getById(member.championId);
+                    const maxHp = getMemberMaxHp(member);
+                    const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
+                    const pct = Math.round((currentHp / maxHp) * 100);
+                    const healthClass =
+                      pct < 30
+                        ? 'event-page__hp-fill--danger'
+                        : pct < 60
+                          ? 'event-page__hp-fill--warning'
+                          : 'event-page__hp-fill--healthy';
+                    return (
+                      <div key={member.championId} className="event-page__member">
+                        <div className="event-page__member-heading">
+                          <span className="event-page__member-name">
+                            {champ?.name ?? member.championId}
+                          </span>
+                          <span className="event-page__member-hp">
+                            {currentHp} / {maxHp} PV
+                          </span>
+                        </div>
+                        <div className="event-page__hp-track" aria-hidden="true">
+                          <div
+                            className={`event-page__hp-fill ${healthClass}`}
+                            style={{ '--event-hp-width': `${pct}%` } as CSSProperties}
+                          />
+                        </div>
                       </div>
-                      <div style={hpBarBg}>
-                        <div
-                          style={{
-                            ...hpBarFill,
-                            width: `${pct}%`,
-                            background: pct < 30 ? '#ef4444' : pct < 60 ? '#facc15' : '#22c55e',
-                          }}
-                        />
-                      </div>
-                      <div style={{ fontSize: 10, color: '#8b949e', marginTop: 2 }}>
-                        {currentHp} / {maxHp} HP
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             )}
-            <button style={continueBtnStyle} onClick={handleContinue}>
-              Continue
-            </button>
-          </>
-        ) : (
-          <>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
-            <div style={{ color: '#22c55e', marginBottom: 24 }}>
-              This event was already resolved.
+            <div className="event-page__actions">
+              <button
+                type="button"
+                className="event-page__button event-page__button--continue"
+                onClick={handleContinue}
+              >
+                {fr.common.continue}
+              </button>
             </div>
-            <button style={continueBtnStyle} onClick={handleContinue}>
-              Continue
-            </button>
-          </>
+          </div>
+        ) : (
+          <div className="event-page__card event-page__card--resolved">
+            <div className="event-page__icon event-page__icon--resolved" aria-hidden="true" />
+            <span className="event-page__kicker">Rencontre terminée</span>
+            <h2 className="event-page__title event-page__title--resolved">Événement déjà résolu</h2>
+            <p className="event-page__lead">
+              Cette rencontre a déjà livré son résultat. Reprenez votre route.
+            </p>
+            <div className="event-page__actions">
+              <button
+                type="button"
+                className="event-page__button event-page__button--continue"
+                onClick={handleContinue}
+              >
+                {fr.common.continue}
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </EncounterLayout>
   );
 }
-
-const contentStyle: React.CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 40,
-};
-const investigateBtnStyle: React.CSSProperties = {
-  padding: '14px 40px',
-  background: '#f97316',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const continueBtnStyle: React.CSSProperties = {
-  padding: '14px 40px',
-  background: '#21262d',
-  color: '#c8aa6e',
-  border: '1px solid #c8aa6e',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const memberRowStyle: React.CSSProperties = {
-  background: '#161b22',
-  padding: '6px 10px',
-  borderRadius: 6,
-  border: '1px solid #1e2a3a',
-  width: '100%',
-};
-const hpBarBg: React.CSSProperties = {
-  width: '100%',
-  height: 6,
-  background: '#21262d',
-  borderRadius: 3,
-  overflow: 'hidden',
-};
-const hpBarFill: React.CSSProperties = {
-  height: '100%',
-  borderRadius: 3,
-  transition: 'width 0.5s ease',
-};

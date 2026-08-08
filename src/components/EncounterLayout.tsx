@@ -17,9 +17,12 @@ export function EncounterLayout({
   return (
     <main className={`encounter-layout encounter-layout--${tone}`}>
       <header className="encounter-layout__header">
-        <h1>{title}</h1>
+        <div className="encounter-layout__title-group">
+          <span className="encounter-layout__eyebrow">Rencontre en cours</span>
+          <h1>{title}</h1>
+        </div>
         <span className="encounter-layout__gold">
-          {fr.common.goldLabel} : {gold}
+          <span aria-hidden="true">●</span> {fr.common.goldLabel} : {gold}
         </span>
       </header>
       <div className={`encounter-layout__content ${contentClassName}`.trim()}>{children}</div>

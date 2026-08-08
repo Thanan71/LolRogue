@@ -10,6 +10,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import { MAX_INVENTORY_ITEMS } from '@/types/run';
+import '@/styles/shop.css';
 
 // ─── Helper Components ─────────────────────────────────────────────────────
 
@@ -32,25 +33,11 @@ function ShopItemCard({
     .map(([k, v]) => `${k.toUpperCase()} +${v}`)
     .join(', ');
   return (
-    <div style={itemCardStyle}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3', marginBottom: 4 }}>
-        {item.name}
-      </div>
-      <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6, lineHeight: 1.3 }}>
-        {item.description}
-      </div>
-      {statsText && (
-        <div style={{ fontSize: 11, color: '#7dd3fc', marginBottom: 8 }}>{statsText}</div>
-      )}
-      <button
-        style={{
-          ...buyBtnStyle,
-          opacity: canAfford ? 1 : 0.4,
-          cursor: canAfford ? 'pointer' : 'not-allowed',
-        }}
-        onClick={onBuy}
-        disabled={!canAfford}
-      >
+    <div className="shop-card shop-card--item">
+      <div className="shop-card__name">{item.name}</div>
+      <div className="shop-card__description">{item.description}</div>
+      {statsText && <div className="shop-card__stats">{statsText}</div>}
+      <button className="shop-card__buy" onClick={onBuy} disabled={!canAfford}>
         {canAfford ? `${fr.encounter.buy} — ${finalPrice} ${fr.common.gold}` : disabledReason}
       </button>
     </div>
@@ -79,33 +66,26 @@ function ChampionCard({
   else if (teamFull) label = fr.encounter.teamFull;
   else if (!canAfford) label = fr.encounter.notEnoughGold;
   return (
-    <div style={champCardStyle}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+    <div className="shop-card shop-card--champion">
+      <div className="shop-card__champion-summary">
         <img
           src={champ?.iconUrl ?? ''}
           alt={champ?.name ?? champId}
           width={36}
           height={36}
           decoding="async"
-          style={{ width: 36, height: 36, borderRadius: 4, background: '#1e2a3a' }}
+          className="shop-card__portrait"
           onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
+            e.currentTarget.hidden = true;
           }}
         />
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3' }}>
-            {champ?.name ?? champId}
-          </div>
-          <div style={{ fontSize: 11, color: '#8b949e' }}>{champ?.title ?? 'Champion'}</div>
+          <div className="shop-card__name">{champ?.name ?? champId}</div>
+          <div className="shop-card__subtitle">{champ?.title ?? 'Champion'}</div>
         </div>
       </div>
       <button
-        style={{
-          ...buyBtnStyle,
-          background: '#06b6d4',
-          opacity: disabled ? 0.4 : 1,
-          cursor: disabled ? 'not-allowed' : 'pointer',
-        }}
+        className="shop-card__buy shop-card__buy--recruit"
         onClick={onRecruit}
         disabled={disabled}
       >
@@ -190,21 +170,25 @@ export function ShopPage() {
       title={`${fr.encounter.shop} — ${encounter?.name ?? fr.encounter.shop}`}
       gold={gold}
     >
-      <div style={scrollAreaStyle}>
+      <div className="shop-content">
         {commandError && (
-          <div role="alert" style={{ ...discountBanner, color: '#fca5a5' }}>
+          <div role="alert" className="shop-banner shop-banner--error">
             {commandError}
-            <button type="button" onClick={() => setCommandError(null)}>
+            <button
+              type="button"
+              className="shop-banner__close"
+              onClick={() => setCommandError(null)}
+            >
               {fr.common.close}
             </button>
           </div>
         )}
         {encounter && priceMultiplier < 1 && (
-          <div style={discountBanner}>{fr.encounter.discount}</div>
+          <div className="shop-banner">{fr.encounter.discount}</div>
         )}
-        <div style={sectionStyle}>
-          <div style={sectionTitle}>{fr.encounter.items}</div>
-          <div style={gridStyle}>
+        <div className="shop-section">
+          <div className="shop-section__title">{fr.encounter.items}</div>
+          <div className="shop-grid">
             {items.map((item) => {
               const finalPrice = Math.round(item.price * priceMultiplier);
               const disabledReason = purchased.has(item.itemId)
@@ -225,13 +209,13 @@ export function ShopPage() {
                 />
               );
             })}
-            {items.length === 0 && <div style={emptyStyle}>{fr.encounter.noItems}</div>}
+            {items.length === 0 && <div className="shop-empty">{fr.encounter.noItems}</div>}
           </div>
         </div>
         {recruitable.length > 0 && (
-          <div style={sectionStyle}>
-            <div style={sectionTitle}>{fr.encounter.recruits}</div>
-            <div style={gridStyle}>
+          <div className="shop-section">
+            <div className="shop-section__title">{fr.encounter.recruits}</div>
+            <div className="shop-grid">
               {recruitable.map((rc) => (
                 <ChampionCard
                   key={rc.championId}
@@ -248,8 +232,8 @@ export function ShopPage() {
             </div>
           </div>
         )}
-        <div style={{ textAlign: 'center', marginTop: 20, paddingBottom: 24 }}>
-          <button style={leaveBtnStyle} onClick={handleLeave}>
+        <div className="shop-actions">
+          <button className="shop-actions__leave" onClick={handleLeave}>
             {fr.encounter.leaveShop}
           </button>
         </div>
@@ -257,74 +241,3 @@ export function ShopPage() {
     </EncounterLayout>
   );
 }
-
-// ─── Styles ────────────────────────────────────────────────────────────────
-
-const scrollAreaStyle: React.CSSProperties = { flex: 1, overflowY: 'auto', padding: 24 };
-const discountBanner: React.CSSProperties = {
-  textAlign: 'center',
-  padding: '8px 16px',
-  marginBottom: 16,
-  background: '#422006',
-  border: '1px solid #facc15',
-  borderRadius: 8,
-  color: '#facc15',
-  fontWeight: 700,
-  fontSize: 14,
-};
-const sectionStyle: React.CSSProperties = { marginBottom: 24 };
-const sectionTitle: React.CSSProperties = {
-  fontSize: 16,
-  fontWeight: 700,
-  color: '#c8aa6e',
-  marginBottom: 12,
-  paddingBottom: 6,
-  borderBottom: '1px solid #1e2a3a',
-};
-const gridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-  gap: 12,
-};
-const itemCardStyle: React.CSSProperties = {
-  background: '#161b22',
-  border: '1px solid #2d333b',
-  borderRadius: 10,
-  padding: 16,
-  display: 'flex',
-  flexDirection: 'column',
-};
-const champCardStyle: React.CSSProperties = {
-  background: '#161b22',
-  border: '1px solid #2d333b',
-  borderRadius: 10,
-  padding: 16,
-};
-const buyBtnStyle: React.CSSProperties = {
-  marginTop: 'auto',
-  padding: '8px 16px',
-  background: '#facc15',
-  color: '#0d1117',
-  border: 'none',
-  borderRadius: 6,
-  fontSize: 13,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const leaveBtnStyle: React.CSSProperties = {
-  padding: '14px 40px',
-  background: '#21262d',
-  color: '#c8aa6e',
-  border: '1px solid #c8aa6e',
-  borderRadius: 8,
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-const emptyStyle: React.CSSProperties = {
-  color: '#484f58',
-  fontSize: 14,
-  padding: 16,
-  textAlign: 'center',
-  gridColumn: '1 / -1',
-};

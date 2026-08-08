@@ -37,12 +37,12 @@ export function AdminPage() {
 
   if (!isAdmin) {
     return (
-      <div className="admin-page">
+      <main className="admin-page">
         <div className="admin-error">
-          <h2>⛔ {fr.admin.accessDenied}</h2>
+          <h1>⛔ {fr.admin.accessDenied}</h1>
           <p>{fr.admin.noPermission}</p>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -51,7 +51,7 @@ export function AdminPage() {
   };
 
   return (
-    <div className="admin-page">
+    <main className="admin-page">
       <div className="admin-header">
         <button className="admin-back-btn" onClick={handleGoHome} title={fr.admin.home}>
           {fr.common.back}
@@ -460,6 +460,6 @@ export function AdminPage() {
           </section>
         )}
       </div>
-    </div>
+    </main>
   );
 }

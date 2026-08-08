@@ -14,15 +14,6 @@ import { useRunStore } from '@/stores/runStore';
 import type { InventoryEntry, TeamMember } from '@/types/run';
 import { calculateFullStats, calculateMaxHP } from '@/utils/statCalculator';
 import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
-import {
-  hpBarBg,
-  hpBarFill,
-  inventoryItemStyle,
-  panelStyle,
-  panelTitle,
-  teamMemberStyle,
-  tooltipStyle,
-} from './runMapStyles';
 
 export function TeamPanel({
   team,
@@ -72,11 +63,11 @@ export function TeamPanel({
   }, [authorityAttempt, team, inventory]);
 
   return (
-    <div style={panelStyle}>
-      <div style={panelTitle}>{fr.run.team}</div>
-      {team.length === 0 && (
-        <div style={{ color: '#8b949e', fontSize: 12, padding: 8 }}>{fr.run.noChampions}</div>
-      )}
+    <section className="run-map-panel" aria-labelledby="run-map-team-title">
+      <h2 className="run-map-panel__title" id="run-map-team-title">
+        {fr.run.team}
+      </h2>
+      {team.length === 0 && <p className="run-map-panel__empty">{fr.run.noChampions}</p>}
       {team.map((m) => {
         const champ = championDB.getById(m.championId);
         const level = m.level ?? 1;
@@ -84,72 +75,47 @@ export function TeamPanel({
         const xpProgress = getXpProgress(level, currentXp);
         const xpDisplay = formatXpDisplay(level, currentXp);
         const maxHp = enhancedHpMap[m.championId] ?? 100;
-        const hpPercent = champ
-          ? Math.min(100, Math.max(0, ((m.currentHp ?? maxHp) / maxHp) * 100))
-          : 100;
+        const currentHp = Math.min(maxHp, Math.max(0, m.currentHp ?? maxHp));
+        const hpPercent = champ ? Math.min(100, Math.max(0, (currentHp / maxHp) * 100)) : 100;
+        const healthClass =
+          hpPercent > 50
+            ? 'run-map-progress__fill--healthy'
+            : hpPercent > 25
+              ? 'run-map-progress__fill--warning'
+              : 'run-map-progress__fill--danger';
 
         return (
-          <div key={m.championId} style={teamMemberStyle}>
-            <div style={{ position: 'relative' }}>
+          <article key={m.championId} className="run-map-team-member">
+            <div className="run-map-team-member__portrait">
               <img
                 src={champ?.iconUrl ?? ''}
-                alt={champ?.name ?? m.championId}
+                alt=""
                 width={40}
                 height={40}
                 decoding="async"
-                style={{ width: 40, height: 40, borderRadius: 4 }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: -2,
-                  right: -2,
-                  background: '#1a1a2e',
-                  color: '#ffd700',
-                  fontSize: 9,
-                  fontWeight: 'bold',
-                  padding: '1px 3px',
-                  borderRadius: 3,
-                  border: '1px solid #ffd70044',
-                  minWidth: 14,
-                  textAlign: 'center',
-                }}
-              >
+              <span className="run-map-team-member__level" aria-label={`Niveau ${level}`}>
                 {level}
-              </div>
+              </span>
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  color: '#e6edf3',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {champ?.name ?? m.championId}
-              </div>
+            <div className="run-map-team-member__copy">
+              <div className="run-map-team-member__name">{champ?.name ?? m.championId}</div>
               {/* HP Bar */}
               <div
-                style={hpBarBg}
+                className="run-map-progress run-map-progress--hp"
                 role="progressbar"
                 aria-label={`PV de ${champ?.name ?? m.championId}`}
                 aria-valuemin={0}
-                aria-valuemax={maxHp}
-                aria-valuenow={Math.round(m.currentHp ?? maxHp)}
-                aria-valuetext={`${Math.round(m.currentHp ?? maxHp)} sur ${maxHp} PV`}
+                aria-valuemax={Math.round(maxHp)}
+                aria-valuenow={Math.round(currentHp)}
+                aria-valuetext={`${Math.round(currentHp)} sur ${Math.round(maxHp)} PV`}
               >
                 <div
-                  style={{
-                    ...hpBarFill,
-                    width: `${hpPercent}%`,
-                    background: hpPercent > 50 ? '#22c55e' : hpPercent > 25 ? '#eab308' : '#ef4444',
-                  }}
+                  className={`run-map-progress__fill ${healthClass}`}
+                  style={{ width: `${hpPercent}%` }}
                 />
               </div>
               {/* XP Bar */}
@@ -160,41 +126,26 @@ export function TeamPanel({
                 aria-valuemax={100}
                 aria-valuenow={Math.round(xpProgress)}
                 aria-valuetext={level >= 18 ? 'Niveau maximum' : xpDisplay}
-                style={{
-                  width: '100%',
-                  height: 4,
-                  background: '#21262d',
-                  borderRadius: 2,
-                  marginTop: 1,
-                  marginBottom: 1,
-                  overflow: 'hidden',
-                }}
+                className="run-map-progress run-map-progress--xp"
               >
                 <div
-                  style={{
-                    width: `${xpProgress}%`,
-                    height: '100%',
-                    background: level >= 18 ? '#9333ea' : '#3b82f6',
-                    borderRadius: 1,
-                    transition: 'width 0.3s',
-                  }}
+                  className={`run-map-progress__fill ${
+                    level >= 18 ? 'run-map-progress__fill--max' : 'run-map-progress__fill--xp'
+                  }`}
+                  style={{ width: `${xpProgress}%` }}
                 />
               </div>
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-              >
-                <div style={{ color: '#8b949e', fontSize: 9 }}>
-                  {level >= 18 ? 'MAX' : xpDisplay}
-                </div>
-                <div style={{ color: '#8b949e', fontSize: 9 }}>
-                  {Math.round(m.currentHp ?? maxHp)}/{maxHp}
-                </div>
+              <div className="run-map-team-member__meta">
+                <span>{level >= 18 ? 'MAX' : xpDisplay}</span>
+                <span>
+                  {Math.round(currentHp)}/{Math.round(maxHp)} PV
+                </span>
               </div>
             </div>
-          </div>
+          </article>
         );
       })}
-    </div>
+    </section>
   );
 }
 
@@ -263,7 +214,7 @@ export function InventoryPanel({
     hp: 'Points de vie',
     mp: 'Points de mana',
     atk: "Dégâts d'attaque",
-    ap: 'Puissance ability',
+    ap: 'Puissance magique',
     def: 'Armure',
     mr: 'Résistance magique',
     spd: 'Vitesse de déplacement',
@@ -276,7 +227,7 @@ export function InventoryPanel({
     lifesteal: 'Vol de vie',
     omnivamp: 'Omnivamp',
     tenacity: 'Ténacité',
-    abilityHaste: "Hâte d'ability",
+    abilityHaste: 'Hâte de compétence',
     attackRange: "Portée d'attaque",
   };
 
@@ -288,25 +239,26 @@ export function InventoryPanel({
   const hoveredEntry = getHoveredEntry();
 
   return (
-    <div style={{ ...panelStyle, flex: 1, overflow: 'auto', position: 'relative' }}>
-      <div style={{ ...panelTitle, display: 'flex', justifyContent: 'space-between' }}>
+    <section
+      className="run-map-panel run-map-panel--inventory"
+      aria-labelledby="run-map-inventory-title"
+    >
+      <div className="run-map-panel__title run-map-panel__title--actions">
         <span>Inventaire ({inventory.length}/20)</span>
         <button type="button" onClick={sortInventory} aria-label="Trier l'inventaire">
           Trier
         </button>
       </div>
-      {inventory.length === 0 && (
-        <div style={{ color: '#8b949e', fontSize: 12, padding: 8 }}>{fr.common.empty}</div>
-      )}
+      <span className="sr-only" id="run-map-inventory-title">
+        Inventaire
+      </span>
+      {inventory.length === 0 && <p className="run-map-panel__empty">{fr.common.empty}</p>}
       {inventory.map((entry) => (
         <article
           key={entry.instanceId}
-          style={{
-            ...inventoryItemStyle,
-            cursor: 'help',
-            border: hoveredItem === entry.instanceId ? '1px solid #c8aa6e' : 'none',
-            background: hoveredItem === entry.instanceId ? '#1a2332' : '#0d1117',
-          }}
+          className={`run-map-inventory-item${
+            hoveredItem === entry.instanceId ? ' run-map-inventory-item--active' : ''
+          }`}
           onMouseEnter={() => setHoveredItem(entry.instanceId)}
           onMouseLeave={() => setHoveredItem(null)}
           onKeyDown={(event) => {
@@ -321,12 +273,12 @@ export function InventoryPanel({
             onClick={() =>
               setHoveredItem((current) => (current === entry.instanceId ? null : entry.instanceId))
             }
-            style={{ color: '#e6edf3', fontSize: 11 }}
+            className="run-map-inventory-item__summary"
           >
             {entry.item.name} — détails
           </button>
-          <div style={{ color: '#8b949e', fontSize: 10 }}>{entry.item.goldValue}g</div>
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <div className="run-map-inventory-item__value">{entry.item.goldValue} or</div>
+          <div className="run-map-inventory-actions">
             {entry.equippedToChampionId ? (
               <button type="button" onClick={() => unequipItem(entry.instanceId)}>
                 Déséquiper
@@ -341,7 +293,7 @@ export function InventoryPanel({
                     Équiper {championDB.getById(member.championId)?.name ?? member.championId}
                   </button>
                   {getEquipPreview(entry, member).map(({ stat, before, after }) => (
-                    <div key={stat} style={{ fontSize: 9, color: '#9fe3b1' }}>
+                    <div key={stat} className="run-map-inventory-preview">
                       {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
                       {formatStatValue(stat, after)}
                     </div>
@@ -354,7 +306,7 @@ export function InventoryPanel({
             </button>
           </div>
           {entry.equippedToChampionId && (
-            <div style={{ color: '#22c55e', fontSize: 10 }}>
+            <div className="run-map-inventory-item__equipped">
               Équipé :{' '}
               {championDB.getById(entry.equippedToChampionId)?.name ?? entry.equippedToChampionId}
             </div>
@@ -364,23 +316,23 @@ export function InventoryPanel({
 
       {/* Item Tooltip */}
       {hoveredItem && hoveredEntry && (
-        <div id={`item-details-${hoveredEntry.instanceId}`} role="tooltip" style={tooltipStyle}>
-          <div style={{ color: '#ffd700', fontSize: 12, fontWeight: 'bold', marginBottom: 4 }}>
-            {hoveredEntry.item.name}
-          </div>
+        <div
+          id={`item-details-${hoveredEntry.instanceId}`}
+          role="tooltip"
+          className="run-map-item-tooltip"
+        >
+          <div className="run-map-item-tooltip__title">{hoveredEntry.item.name}</div>
           {hoveredEntry.item.description && (
-            <div style={{ color: '#8b949e', fontSize: 10, marginBottom: 6, fontStyle: 'italic' }}>
-              {hoveredEntry.item.description}
-            </div>
+            <div className="run-map-item-tooltip__description">{hoveredEntry.item.description}</div>
           )}
           {Object.entries(hoveredEntry.item.stats).length > 0 && (
-            <div style={{ borderTop: '1px solid #30363d', paddingTop: 4 }}>
+            <div className="run-map-item-tooltip__stats">
               {Object.entries(hoveredEntry.item.stats).map(([key, value]) => {
                 if (value === 0) return null;
                 const statName = statNames[key] || key;
                 const sign = value > 0 ? '+' : '';
                 return (
-                  <div key={key} style={{ color: '#22c55e', fontSize: 10, lineHeight: 1.4 }}>
+                  <div key={key} className="run-map-item-tooltip__stat">
                     {sign}
                     {value} {statName}
                   </div>
@@ -388,19 +340,11 @@ export function InventoryPanel({
               })}
             </div>
           )}
-          <div
-            style={{
-              color: '#8b949e',
-              fontSize: 9,
-              marginTop: 4,
-              borderTop: '1px solid #30363d',
-              paddingTop: 4,
-            }}
-          >
-            Valeur: {hoveredEntry.item.goldValue}g
+          <div className="run-map-item-tooltip__value">
+            Valeur : {hoveredEntry.item.goldValue} or
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

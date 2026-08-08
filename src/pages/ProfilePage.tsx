@@ -66,12 +66,33 @@ export function ProfilePage() {
             {navigator.onLine ? fr.profile.connected : fr.profile.offline}
           </p>
           <Panel aria-label={fr.profile.playerStats}>
-            <h2>{player.display_name || player.username}</h2>
-            <p>
-              {fr.common.level} {formatNumber(player.level)} · {formatNumber(player.total_candies)}{' '}
-              {fr.common.candies} · {formatNumber(player.total_runs_completed)} {fr.profile.runs} ·{' '}
-              {formatNumber(player.total_wins)} {fr.profile.wins}
-            </p>
+            <div className="profile-summary">
+              <div className="profile-summary__avatar" aria-hidden="true">
+                {(player.display_name || player.username).charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h2>{player.display_name || player.username}</h2>
+                <p>Ta progression synchronisée et les résultats de tes dernières expéditions.</p>
+                <div className="profile-summary__stats">
+                  <div className="profile-summary__stat">
+                    <strong>{formatNumber(player.level)}</strong>
+                    <span>{fr.common.level}</span>
+                  </div>
+                  <div className="profile-summary__stat">
+                    <strong>{formatNumber(player.total_candies)}</strong>
+                    <span>{fr.common.candies}</span>
+                  </div>
+                  <div className="profile-summary__stat">
+                    <strong>{formatNumber(player.total_runs_completed)}</strong>
+                    <span>{fr.profile.runs}</span>
+                  </div>
+                  <div className="profile-summary__stat">
+                    <strong>{formatNumber(player.total_wins)}</strong>
+                    <span>{fr.profile.wins}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </Panel>
           <Panel aria-label={fr.profile.history}>
             <h2>{fr.profile.recentHistory}</h2>

@@ -79,11 +79,12 @@ export function DailyRunPage() {
       />
 
       <Panel className="daily-run-page__challenge">
-        <div>
+        <div className="daily-run-page__challenge-copy">
+          <span className="daily-run-page__eyebrow">Expédition classée · 1 tentative</span>
           <h2>{fr.daily.today}</h2>
           <p>{fr.daily.description}</p>
           {challenge && (
-            <p>
+            <p className="daily-run-page__metadata">
               {challenge.dailyDate} UTC · {challenge.difficulty} · score v{challenge.scoreVersion}
             </p>
           )}

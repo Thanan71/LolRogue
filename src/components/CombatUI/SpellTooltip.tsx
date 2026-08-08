@@ -1,4 +1,4 @@
-import React, { useId, useRef, useState } from 'react';
+import React, { type CSSProperties, useCallback, useEffect, useId, useRef, useState } from 'react';
 import { fr } from '@/i18n/fr';
 import type { SpellInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
@@ -10,29 +10,69 @@ interface Props {
 
 export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
   const [visible, setVisible] = useState(false);
-  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
+  const [position, setPosition] = useState<{
+    x: number;
+    y: number;
+    placement: 'above' | 'below';
+    maxHeight: number;
+  } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<HTMLElement | null>(null);
   const tooltipId = useId();
   const textSize = useSettingsStore((s) => s.textSize);
 
-  const show = (target: HTMLElement) => {
+  const updatePosition = useCallback((target: HTMLElement) => {
+    const margin = 8;
+    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+    const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
     setVisible(true);
     const rect = target.getBoundingClientRect();
+    const tooltipWidth = Math.min(260, Math.max(0, viewportWidth - margin * 2));
+    const spaceAbove = Math.max(0, rect.top - margin);
+    const spaceBelow = Math.max(0, viewportHeight - rect.bottom - margin);
+    const placement = spaceAbove >= Math.min(180, spaceBelow) ? 'above' : 'below';
     setPosition({
-      x: Math.max(140, Math.min(window.innerWidth - 140, rect.left + rect.width / 2)),
-      y: Math.max(170, rect.top),
+      x: Math.max(
+        margin + tooltipWidth / 2,
+        Math.min(viewportWidth - margin - tooltipWidth / 2, rect.left + rect.width / 2),
+      ),
+      y: placement === 'above' ? rect.top - margin : rect.bottom + margin,
+      placement,
+      maxHeight: Math.max(1, placement === 'above' ? spaceAbove : spaceBelow),
     });
-  };
+  }, []);
+
+  const show = useCallback(
+    (target: HTMLElement) => {
+      targetRef.current = target;
+      updatePosition(target);
+    },
+    [updatePosition],
+  );
 
   const handleMouseEnter = (e: React.MouseEvent) => show(e.currentTarget as HTMLElement);
 
   const handleMouseLeave = () => {
     setVisible(false);
     setPosition(null);
+    targetRef.current = null;
   };
 
-  const smallFontSize = scaleFontSize(10, textSize);
-  const titleFontSize = scaleFontSize(13, textSize);
+  useEffect(() => {
+    if (!visible) return;
+    const reposition = () => {
+      if (targetRef.current) updatePosition(targetRef.current);
+    };
+    window.addEventListener('resize', reposition);
+    window.addEventListener('scroll', reposition, true);
+    return () => {
+      window.removeEventListener('resize', reposition);
+      window.removeEventListener('scroll', reposition, true);
+    };
+  }, [visible, updatePosition]);
+
+  const smallFontSize = `${Math.max(12, scaleFontSize(12, textSize)) / 16}rem`;
+  const titleFontSize = `${Math.max(14, scaleFontSize(14, textSize)) / 16}rem`;
 
   return (
     <div
@@ -50,7 +90,7 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
       onKeyDown={(event) => {
         if (event.key === 'Escape') handleMouseLeave();
       }}
-      style={{ position: 'relative', display: 'inline-block' }}
+      className="combat-spell-trigger"
     >
       {React.cloneElement(children, {
         'aria-describedby': visible ? tooltipId : undefined,
@@ -59,82 +99,53 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
         <div
           id={tooltipId}
           role="tooltip"
-          style={{
-            position: 'fixed',
-            left: position.x,
-            top: position.y - 8,
-            transform: 'translate(-50%, -100%)',
-            zIndex: 9999,
-            background: 'linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%)',
-            border: '1px solid #c8aa6e',
-            borderRadius: 8,
-            padding: '10px 14px',
-            minWidth: 180,
-            maxWidth: 260,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(200,170,110,0.15)',
-            pointerEvents: 'none',
-            fontFamily: "'Segoe UI', sans-serif",
-          }}
+          className={`combat-spell-tooltip combat-spell-tooltip--${position.placement}`}
+          style={
+            {
+              '--combat-tooltip-x': `${position.x}px`,
+              '--combat-tooltip-y': `${position.y}px`,
+              '--combat-tooltip-max-height': `${position.maxHeight}px`,
+              '--combat-tooltip-small-size': smallFontSize,
+              '--combat-tooltip-title-size': titleFontSize,
+            } as CSSProperties
+          }
         >
           {/* Spell name */}
           <div
-            style={{
-              fontSize: titleFontSize,
-              fontWeight: 'bold',
-              color: spell.slot === 'R' ? '#ffd700' : '#e6edf3',
-              marginBottom: 6,
-              borderBottom: '1px solid #333355',
-              paddingBottom: 4,
-            }}
+            className={`combat-spell-tooltip__title${
+              spell.slot === 'R' ? ' combat-spell-tooltip__title--ultimate' : ''
+            }`}
           >
             {spell.name}
-            <span
-              style={{
-                marginLeft: 6,
-                fontSize: smallFontSize,
-                color: '#888',
-                fontWeight: 'normal',
-              }}
-            >
-              [{spell.slot}]
-            </span>
+            <span className="combat-spell-tooltip__slot">[{spell.slot}]</span>
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'flex', gap: 12, marginBottom: 4 }}>
-            <div style={{ fontSize: smallFontSize, color: '#aaa' }}>
-              <span style={{ color: '#3b82f6' }}>PM :</span> {spell.cost}
+          <div className="combat-spell-tooltip__stats">
+            <div className="combat-spell-tooltip__stat">
+              <span className="combat-spell-tooltip__mana">PM :</span> {spell.cost}
             </div>
-            <div style={{ fontSize: smallFontSize, color: '#aaa' }}>
-              <span style={{ color: '#f59e0b' }}>{fr.combat.cooldown} :</span> {spell.cooldownMax} s
+            <div className="combat-spell-tooltip__stat">
+              <span className="combat-spell-tooltip__cooldown">{fr.combat.cooldown} :</span>{' '}
+              {spell.cooldownMax} s
             </div>
           </div>
 
           {/* Status */}
           {!spell.isReady && (
-            <div style={{ fontSize: smallFontSize, color: '#ef4444', marginTop: 4 }}>
-              ⏳ Cooldown: {spell.cooldownCurrent}s restant(s)
+            <div className="combat-spell-tooltip__status combat-spell-tooltip__status--cooldown">
+              ⏳ Recharge : {spell.cooldownCurrent} s restante
             </div>
           )}
           {spell.isReady && (
-            <div style={{ fontSize: smallFontSize, color: '#22c55e', marginTop: 4 }}>
+            <div className="combat-spell-tooltip__status combat-spell-tooltip__status--ready">
               ✅ Prêt à lancer
             </div>
           )}
 
           {/* Keybind hint */}
-          <div
-            style={{
-              marginTop: 6,
-              paddingTop: 4,
-              borderTop: '1px solid #222244',
-              fontSize: scaleFontSize(9, textSize),
-              color: '#555',
-              textAlign: 'center',
-            }}
-          >
-            Appuyez sur <kbd style={{ color: '#ffd700', fontWeight: 'bold' }}>{spell.slot}</kbd>{' '}
-            pour lancer
+          <div className="combat-spell-tooltip__hint">
+            Appuyez sur <kbd className="combat-spell-tooltip__key">{spell.slot}</kbd> pour lancer
           </div>
         </div>
       )}
