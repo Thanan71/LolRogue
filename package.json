@@ -51,6 +51,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",
     "@tailwindcss/postcss": "^4.2.2",
+    "@vercel/speed-insights": "2.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "7.18.2",
