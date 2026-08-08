@@ -46,7 +46,7 @@ dépendances est bloquant et les runbooks de `P2-DOC-02` restent à écrire.
 
 - [ ] La branche de release est à jour et le diff ne contient aucun secret.
 - [ ] `npm ci`, `npm run check`, `npm run test:e2e` et
-      `npm run test:e2e:production` réussissent avec Node 22.
+      `npm run test:e2e:production` réussissent avec Node 26.
 - [ ] Les changements de gameplay ont des tests déterministes.
 - [ ] Les versions d'assets sont épinglées et leurs licences/sources respectées.
 - [ ] `npm run audit:security` ne signale aucune vulnérabilité critique/haute non

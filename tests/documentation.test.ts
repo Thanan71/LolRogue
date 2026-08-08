@@ -63,7 +63,7 @@ describe('documentation maintenue', () => {
     const todoNext = read('TODO-NEXT.md');
 
     expect(matrix).toContain('Fonctionnalité | Implémentation de référence | Preuves principales');
-    expect(matrix).toContain('**Bloqué au 8 août 2026**');
+    expect(matrix).toContain('aucune alerte haute/critique au 8 août 2026');
     for (const proof of [
       'authorityRunEngine.test.ts',
       'six-biome-run.spec.ts',

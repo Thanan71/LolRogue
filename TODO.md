@@ -6,9 +6,9 @@ Audit initial réalisé le 23 juillet 2026, puis état documentaire réaligné l
 afin de ne plus les présenter comme l'état courant.
 
 > **État courant :** les correctifs fonctionnels P0/P1 et les chantiers P2 jusqu'à
-> la performance sont livrés avec des preuves automatisées. `P0-SEC-03` est rouvert
-> après une régression de dépendances. La bêta publique reste bloquée par l'audit des
-> dépendances actuellement rouge et par `P2-DOC-02`/les décisions P3 et légales.
+> la performance sont livrés avec des preuves automatisées. La régression de
+> dépendances du 8 août est corrigée sans rétrograder de paquet. La bêta publique
+> reste bloquée par `P2-DOC-02` ainsi que les décisions P3 et légales.
 > La matrice maintenue est [`docs/feature-status.md`](docs/feature-status.md).
 
 ## Comment utiliser ce TODO
@@ -159,15 +159,17 @@ couverture V8 et esbuild sont montés conjointement et épinglés. Le seul avis
 haut restant concerne exclusivement le mode serveur RSC de React Router, absent
 de cette SPA ; son exception automatisée expire le 10 août 2026.
 
-**Régression au 8 août 2026 : rouvert.** La mise à jour groupée de développement a
+**Régression au 8 août 2026 : corrigée.** La mise à jour groupée de développement a
 introduit `nanoid@3.3.16`, remis React Router dans une plage corrigée par 7.18.2 et
 aligné les types sur Node 26 malgré un runtime Node 22. `npm run audit:security`
-échoue ; voir `docs/dependency-audit.md`.
+échoué. React Router a été monté en 7.18.2, `nanoid` en 3.3.18 et le runtime/CI a
+été aligné sur les types Node 26 sans diminuer les versions ; voir
+`docs/dependency-audit.md`.
 
 - [x] Planifier la montée conjointe Vite/Vitest/coverage vers des versions corrigées.
-- [x] Vérifier les breaking changes, Node 22, les plugins Vite et la configuration de
+- [x] Vérifier les breaking changes, Node 26, les plugins Vite et la configuration de
   couverture avant merge.
-- [ ] Confirmer `npm audit` sans vulnérabilité critique/haute, ou documenter une
+- [x] Confirmer `npm audit` sans vulnérabilité critique/haute, ou documenter une
   exception bornée avec exposition et échéance.
 - [x] Ne jamais exposer le serveur Vite/Vitest de développement sur un réseau non
   maîtrisé tant que les versions vulnérables restent installées.
@@ -1122,14 +1124,14 @@ prouve qu'aucune lecture du leaderboard n'est effectuée.
 - [x] Vérifier les headers sur les réponses déployées, ajouter HSTS lorsque le
   domaine HTTPS est stabilisé et tester la CSP en production.
 - [x] Épingler les GitHub Actions par SHA avec politique de mise à jour.
-- [ ] Réaligner `@types/node` sur Node 22 après la montée Dependabot et conserver
+- [x] Aligner runtime, CI et `@types/node` sur Node 26 après la montée Dependabot et conserver
   uniquement les dépendances dont l'usage est confirmé
   (`@types/jest`, `user-event`, Tailwind) si l'audit d'usage les confirme.
 
 **Acceptation :** les budgets sont chiffrés, versionnés et bloquent une régression
 significative.
 
-**Statut : performance terminée, alignement des types rouvert.** Les budgets v1 bloquent à 390 Ko gzip de JavaScript total,
+**Statut : terminé.** Les budgets v1 bloquent à 390 Ko gzip de JavaScript total,
 205 Ko au démarrage, 225 Ko pour `/auth`, 560 Ko par chunk et 7,2 Mo déployés ; la
 mesure du 8 août 2026 est respectivement de 389,6 Ko, 171,5 Ko, 175,5 Ko, 542,6 Ko
 et 6,50 Mo. Le budget JavaScript total ne conserve plus que 0,4 Ko de marge après

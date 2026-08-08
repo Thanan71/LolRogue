@@ -19,15 +19,16 @@ claims clôturés.
   et son statut.
 - [x] Les limites des effets, du mode invité et de la frontière RPC sont explicites.
 
-## Blocage immédiat découvert
+## Régressions de dépendances corrigées
 
-- [ ] Refermer `P0-SEC-03` : `npm run audit:security` échoue sur
-  `nanoid@3.3.16` et React Router 7.18.1.
-- [ ] Réaligner `@types/node` 26 sur le runtime Node 22 et revalider la montée
-  TypeScript 7/outillage.
+- [x] React Router monté de 7.18.1 à 7.18.2.
+- [x] `nanoid` transitif monté de 3.3.16 à 3.3.18 sans override.
+- [x] Runtime, `.nvmrc`, CI et `@types/node` alignés sur Node 26 sans rétrograder de
+  paquet.
+- [x] Exception temporaire supprimée : l'audit bloque désormais toute alerte haute
+  ou critique.
 
-Voir `docs/dependency-audit.md` pour le diagnostic reproductible. Tant que ces deux
-cases restent ouvertes, ne pas qualifier `main` de prêt pour une release.
+Voir `docs/dependency-audit.md` pour le diagnostic et les versions vérifiées.
 
 ## Prochain chantier planifié
 

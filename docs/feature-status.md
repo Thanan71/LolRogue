@@ -22,7 +22,7 @@ définitifs.
 | Responsive et accessibilité automatisée | shell partagé, styles mobiles, focus et mouvement réduit | specs `auth-menu`, `game-screens`, `accessibility*` | Livré au niveau automatisé ; revue lecteur d'écran humaine restante |
 | Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 187 fichiers versionnés |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
-| Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | **Bloqué au 8 août 2026** : `nanoid` et React Router |
+| Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Livré : aucune alerte haute/critique au 8 août 2026 |
 | Exploitation et restauration | `docs/operations.md` | checklist manuelle seulement | À compléter dans `P2-DOC-02` |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |
 

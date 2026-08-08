@@ -7,7 +7,7 @@ sans compte avec une sauvegarde limitée au navigateur.
 
 ## Stack et prérequis
 
-- Node.js 22.22.2 ou supérieur dans la branche 22, et npm ;
+- Node.js 26 dans sa branche majeure, et npm ;
 - React 19, TypeScript, Vite et React Router ;
 - Zustand pour l'état client ;
 - Supabase pour Auth, PostgreSQL et les règles RLS ;

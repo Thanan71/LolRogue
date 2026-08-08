@@ -8,48 +8,44 @@
 
 La mise à jour groupée de l'outillage a porté la base sur :
 
-- Node `>=22.22.2 <23` pour l'exécution du projet ;
-- React/React DOM `19.2.8`, React Router DOM `7.18.1` et Zustand `5.0.14` ;
+- Node `>=26.0.0 <27` pour l'exécution du projet ;
+- React/React DOM `19.2.8`, React Router DOM `7.18.2` et Zustand `5.0.14` ;
 - Vite `8.1.5`, `@vitejs/plugin-react` `6.0.4` et TypeScript `7.0.2` ;
 - Vitest/coverage `4.1.10`, Playwright `1.62.0`, jsdom `30.0.1` et Biome `2.5.6` ;
 - Supabase JS `2.111.0` et CLI `2.110.0` ;
-- `@types/node` `26.1.2`.
+- `@types/node` `26.2.0`.
 
-`@types/node` 26 ne correspond plus à la cible runtime Node 22. Cela ne change pas
-le moteur réellement exécuté, mais élargit à tort le contrat de compilation et
-doit être réaligné avant de considérer la montée d'outillage validée. TypeScript 7
-doit également rester traité comme une montée majeure jusqu'à validation complète
-des plugins et types générés.
+Le runtime, `.nvmrc`, les quatre jobs CI et les types ciblent désormais la même
+majeure Node 26. Aucun paquet n'a été rétrogradé pour obtenir cet alignement.
+TypeScript 7 reste une montée majeure et demeure couvert par le typage, le build,
+les tests et la génération des types Supabase.
 
 Le bundle autoritaire conserve l'alias isolé `esbuild-authority@0.25.0`. Il n'est
 chargé que par `scripts/build-authority-bundle.mjs` afin de ne pas modifier le hash
 des anciens rulesets par une montée implicite de l'outil.
 
-## Vulnérabilités courantes
+## Régressions corrigées
 
-`npm audit` remonte actuellement trois entrées hautes correspondant à deux causes :
+La mise à jour groupée avait introduit trois entrées hautes correspondant à deux
+causes :
 
-1. `nanoid@3.3.16`, transitif via PostCSS, est concerné par
-   `GHSA-2v37-7h3g-55p8`; une version `>=3.3.17` est disponible ;
-2. `react-router@7.18.1` et son effet direct `react-router-dom` sont concernés par
-   `GHSA-qwww-vcr4-c8h2`; la correction compatible est `7.18.2`.
+1. `nanoid@3.3.16`, transitif via PostCSS, concerné par
+   `GHSA-2v37-7h3g-55p8` ; le lockfile utilise maintenant `3.3.18` ;
+2. `react-router@7.18.1` et son effet direct `react-router-dom`, concernés par
+   `GHSA-qwww-vcr4-c8h2` ; la dépendance directe est maintenant `7.18.2`.
 
-L'exception React Router écrite le 26 juillet ne reconnaît plus l'identifiant
-courant de l'advisory et expire de toute façon le **10 août 2026**. L'application
-reste une SPA `BrowserRouter` sans RSC ni Server Actions, ce qui limite
-l'exploitabilité de cette alerte précise, mais ne rend pas la CI verte.
+L'exception React Router temporaire et son analyse conditionnelle ont été retirées
+du script : il n'existe plus d'alerte haute acceptée par dérogation.
 
-Au 8 août, `npm run audit:security` échoue donc avec :
+Au 8 août, `npm audit` et `npm run audit:security` retournent :
 
 ```text
-Unaccepted high/critical npm advisories: nanoid (high), react-router (high)
+npm audit: no high or critical vulnerabilities.
 ```
 
-Il est interdit de qualifier la chaîne de dépendances de saine tant que ce résultat
-n'est pas corrigé. La résolution attendue est une mise à jour du lockfile vers
-`nanoid >=3.3.17` et `react-router-dom >=7.18.2`, puis le retrait de l'exception
-temporaire si l'audit devient vide. Une `override` npm n'est acceptable qu'après
-validation des dépendants PostCSS/Vite.
+Le script échoue désormais sur toute future alerte haute ou critique sans
+allowlist. `nanoid` reste transitif et a été corrigé par résolution normale du
+lockfile, sans `override`.
 
 ## Validation requise après correction
 
@@ -58,4 +54,4 @@ validation des dépendants PostCSS/Vite.
 - Vitest avec couverture et tests Supabase live ;
 - les parcours Playwright dev et la matrice du build de production ;
 - le bundle esbuild du moteur autoritaire et son contrôle de hash ;
-- `@types/node` revenu sur la majeure 22, cohérente avec `engines.node`.
+- runtime, `.nvmrc`, CI et `@types/node` cohérents sur la majeure 26.
