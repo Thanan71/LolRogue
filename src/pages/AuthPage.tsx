@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { playUIClick } from '@/audio';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
@@ -353,7 +354,11 @@ export function AuthPage() {
 
       {/* Footer */}
       <footer className="auth-page__footer">
-        <p className="auth-page__footer-text">{fr.auth.terms}</p>
+        <p className="auth-page__footer-text">
+          En continuant, tu acceptes les{' '}
+          <Link to={ROUTES.LEGAL}>conditions d’utilisation et la politique de confidentialité</Link>
+          .
+        </p>
       </footer>
     </div>
   );

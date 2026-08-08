@@ -179,6 +179,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260801090000_gameplay_ruleset_v12_canonical_stats.sql',
       '../supabase/migrations/20260808120000_gameplay_ruleset_v13_content_balance.sql',
       '../supabase/migrations/20260808150000_social_leaderboard_contract.sql',
+      '../supabase/migrations/20260808180000_legal_privacy_retention.sql',
     ]);
   });
 

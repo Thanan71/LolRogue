@@ -176,7 +176,6 @@ export const fr = {
     creatingAccount: 'Création du compte…',
     or: 'ou',
     guest: 'Jouer en invité',
-    terms: "En continuant, tu acceptes nos conditions d'utilisation.",
     unavailable:
       "Les comptes en ligne sont indisponibles car Supabase n'est pas configuré. Le mode invité reste accessible.",
   },

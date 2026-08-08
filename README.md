@@ -153,6 +153,7 @@ propre.
 - [Contrat de contenu et simulations](docs/content-balance.md)
 - [Progression et personnalisation](docs/progression-personalization.md)
 - [Social, confidentialité et classement](docs/social-leaderboard.md)
+- [Légal et confidentialité](docs/legal-and-privacy.md)
 - [Administration sécurisée](docs/administration.md)
 - [Déploiement et exploitation](docs/operations.md)
 - [Runbooks d'incident](docs/incident-runbooks.md)

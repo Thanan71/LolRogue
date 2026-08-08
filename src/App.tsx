@@ -29,6 +29,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/settings': 'Réglages',
   '/credits': 'Crédits',
   '/rules': 'Guide et règles',
+  '/legal': 'Informations légales et confidentialité',
   '/admin': 'Administration',
 };
 
@@ -118,6 +119,9 @@ const GameOverPage = lazy(() =>
 const MenuPage = lazy(() =>
   import('./pages/MenuPage').then((module) => ({ default: module.MenuPage })),
 );
+const LegalPage = lazy(() =>
+  import('./pages/LegalPage').then((module) => ({ default: module.LegalPage })),
+);
 const NotFoundPage = lazy(() =>
   import('./pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage })),
 );
@@ -172,6 +176,7 @@ export default function App() {
       </Suspense>
       <Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
+          <Route path="/legal" element={<LegalPage />} />
           {/* Auth page - accessible without authentication */}
           <Route
             path="/auth"

@@ -21,12 +21,13 @@ définitifs.
 | Progression et personnalisation | slots serveur, contrat cosmétique/saison, historique comparable | `personalizationContract.test.ts`, `profileHistory.test.tsx` | Contrat livré ; cosmétiques et quêtes volontairement non activés |
 | Daily officiel et classement public réduit | rulesets Daily, replay et vue `daily_leaderboard` | `authoritativeDaily.database.test.ts`, `dailyPages.test.tsx`, `database.test.ts` | Livré ; invité local non officiel |
 | Social et classement | alias/anonymisation/opt-out, saisons, versions et modération privée | `socialLeaderboardContract.test.ts`, `supabaseRepositories.test.ts` | Livré ; partage, amis et spectateur volontairement absents |
+| Légal et confidentialité | route publique, inventaire des données, rétention et purge | `legalPrivacyContract.test.ts`, `legalPage.test.tsx` | Contrat produit livré ; audit externe et autorisation Riot restent bloquants |
 | Administration | route admin, RPC/vues bornées et export CSV neutralisé | `adminData.test.tsx`, `adminCsv.test.ts`, `logSecurity.database.test.ts` | Livré pour les opérations documentées |
 | Responsive et accessibilité automatisée | shell partagé, styles mobiles, focus et mouvement réduit | specs `auth-menu`, `game-screens`, `accessibility*` | Livré au niveau automatisé ; revue lecteur d'écran humaine restante |
 | Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 187 fichiers versionnés |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
 | Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Livré : aucune alerte haute/critique au 8 août 2026 |
-| Budgets de performance | plafond global 393 Ko gzip, routes initiale 205 Ko et Auth 225 Ko | `npm run test:performance-budgets` | Recalé après P3-PROD-03 ; styles du classement extraits du JavaScript |
+| Budgets de performance | plafond global 396 Ko gzip, routes initiale 205 Ko et Auth 225 Ko | `npm run test:performance-budgets` | Recalé après les routes P3 légales/sociales ; limites des parcours initiaux inchangées |
 | Exploitation et restauration | `operations`, `incident-runbooks`, `backup-and-restore`, `release-and-support` | runbooks versionnés et critères de preuve | Livré côté procédures ; exercice distant requis avant bêta |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |
 

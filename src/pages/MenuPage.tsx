@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
@@ -326,6 +327,7 @@ export function MenuPage() {
       <footer className="main-menu__footer">
         <div className="main-menu__version">v0.1.0</div>
         <div className="main-menu__disclaimer">{fr.product.disclaimer}</div>
+        <Link to={ROUTES.LEGAL}>Légal et confidentialité</Link>
       </footer>
     </div>
   );

@@ -1547,6 +1547,7 @@ export type Database = {
         Returns: number;
       };
       purge_expired_logs: { Args: never; Returns: number };
+      purge_expired_social_data: { Args: never; Returns: number };
       reject_run_verification: {
         Args: {
           p_attempt_id: string;

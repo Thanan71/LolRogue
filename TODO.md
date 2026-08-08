@@ -1240,14 +1240,23 @@ spectateur n'est introduit ; voir `docs/social-leaderboard.md`.
 
 ### P3-PROD-04 — Légal et confidentialité
 
-- [ ] Remplacer le texte « Terms of Service » du footer par un vrai lien ou le
+- [x] Remplacer le texte « Terms of Service » du footer par un vrai lien ou le
   retirer tant que la page n'existe pas.
-- [ ] Rédiger mentions légales, confidentialité, cookies/télémétrie et suppression
+- [x] Rédiger mentions légales, confidentialité, cookies/télémétrie et suppression
   de compte selon les régions visées.
-- [ ] Vérifier les exigences Riot/Legal Jibber Jabber pour l'usage des assets et la
+- [x] Vérifier les exigences Riot/Legal Jibber Jabber pour l'usage des assets et la
   présentation non affiliée.
-- [ ] Documenter les données publiques du leaderboard et leur durée de conservation.
+- [x] Documenter les données publiques du leaderboard et leur durée de conservation.
 - [ ] Obtenir un audit juridique avant monétisation.
+
+**Statut produit : implémenté, validation externe bloquante.** `/legal` est public et
+relié depuis Auth/Menu ; il couvre conditions, données, stockage local, télémétrie,
+droits et suppression pour une cible France/UE. Le Daily public est limité à 13 mois
+et les signalements traités deviennent purgeables après 24 mois. La vérification de
+la politique Riot révèle qu'un disclaimer et la gratuité ne suffisent pas à lever le
+risque d'un jeu utilisant leur PI. Toute bêta publique présentée comme validée et
+toute monétisation restent interdites jusqu'à l'audit externe et l'analyse Riot ; voir
+`docs/legal-and-privacy.md`.
 
 ---
 

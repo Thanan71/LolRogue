@@ -18,6 +18,7 @@ export const ROUTES = {
   SETTINGS: '/settings',
   CREDITS: '/credits',
   RULES: '/rules',
+  LEGAL: '/legal',
   ADMIN: '/admin',
 } as const;
 
