@@ -60,6 +60,19 @@ export const MID_LANE_ENCOUNTERS: CombatEncounter[] = [
     itemDropChance: 0.18,
     minRunLevel: 2,
   },
+  {
+    id: 'mid_arcane_lockdown',
+    name: 'Verrou arcanique',
+    description: 'Lux immobilise la voie pendant qu’Annie prépare son explosion.',
+    type: 'combat',
+    enemies: [
+      { championId: 'Lux', statMultiplier: 0.72 },
+      { championId: 'Annie', statMultiplier: 0.78 },
+    ],
+    goldReward: 50,
+    itemDropChance: 0.27,
+    minRunLevel: 3,
+  },
 ];
 
 // ─── Bot Lane Pool ───────────────────────────────────────────────────────────
@@ -123,6 +136,20 @@ export const BOT_LANE_ENCOUNTERS: CombatEncounter[] = [
     ],
     goldReward: 65,
     itemDropChance: 0.35,
+    minRunLevel: 4,
+  },
+  {
+    id: 'bot_frozen_vanguard',
+    name: 'Avant-garde gelée',
+    description: 'Leona engage pendant qu’Ashe et Jinx couvrent la voie.',
+    type: 'combat',
+    enemies: [
+      { championId: 'Leona', statMultiplier: 0.64 },
+      { championId: 'Ashe', statMultiplier: 0.7 },
+      { championId: 'Jinx', statMultiplier: 0.7 },
+    ],
+    goldReward: 66,
+    itemDropChance: 0.34,
     minRunLevel: 4,
   },
 ];

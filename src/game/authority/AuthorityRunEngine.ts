@@ -77,9 +77,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v12';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v13';
 export const AUTHORITY_CONTENT_HASH =
-  '2fa891690cfb0f1ae5ce4753de10ce690e3fb4163fde53b4c484984377eb2094';
+  'b199f8a3573e2e579ddd6ea508a048e7066b864a32ef9b38c27e8ef6b2350fb1';
 
 assertValidRuleCatalogs();
 

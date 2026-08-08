@@ -60,6 +60,19 @@ export const RIVER_ENCOUNTERS: CombatEncounter[] = [
     itemDropChance: 0.45,
     minRunLevel: 5,
   },
+  {
+    id: 'river_guardian_current',
+    name: 'Courant des gardiens',
+    description: 'Soraka soutient Malphite au cœur des eaux agitées.',
+    type: 'combat',
+    enemies: [
+      { championId: 'Soraka', statMultiplier: 0.75 },
+      { championId: 'Malphite', statMultiplier: 0.9 },
+    ],
+    goldReward: 62,
+    itemDropChance: 0.33,
+    minRunLevel: 4,
+  },
 ];
 
 // ─── Base (Boss) Pool ────────────────────────────────────────────────────────
@@ -105,6 +118,22 @@ export const BASE_ENCOUNTERS: CombatEncounter[] = [
     ],
     goldReward: 100,
     itemDropChance: 0.5,
+    minRunLevel: 6,
+  },
+  {
+    id: 'base_last_stand',
+    name: 'Dernier rempart',
+    description: 'Une formation complète livre son dernier combat devant le Nexus.',
+    type: 'combat',
+    enemies: [
+      { championId: 'Garen', statMultiplier: 0.86 },
+      { championId: 'Leona', statMultiplier: 0.84 },
+      { championId: 'Annie', statMultiplier: 0.82 },
+      { championId: 'Jinx', statMultiplier: 0.82 },
+      { championId: 'Soraka', statMultiplier: 0.76 },
+    ],
+    goldReward: 125,
+    itemDropChance: 0.55,
     minRunLevel: 6,
   },
 ];

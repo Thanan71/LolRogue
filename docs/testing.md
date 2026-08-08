@@ -36,7 +36,7 @@ n'utilise pas le cache npm de `setup-node`. Les assets Riot sont un paquet versi
 ils sont donc vérifiés, pas téléchargés silencieusement.
 
 Supabase est d'abord restauré à la migration v9 (`20260730300000`), puis migré vers
-la version courante (ruleset v12 au 8 août 2026) afin de tester un upgrade réel. La job compare ensuite les types
+la version courante (ruleset v13 au 8 août 2026) afin de tester un upgrade réel. La job compare ensuite les types
 TypeScript régénérés, effectue un reset complet et exécute les tests RLS/RPC live.
 
 Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le

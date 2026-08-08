@@ -225,7 +225,7 @@ font partie du contrat.
 
 Le jour Daily est `(instant serveur AT TIME ZONE 'UTC')::date` et expire à minuit
 UTC suivant. Le serveur fige dans l'attempt la date, la seed, la difficulté, le
-ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v12,
+ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v13,
 les coefficients hérités de v2 donnent :
 
 ```text

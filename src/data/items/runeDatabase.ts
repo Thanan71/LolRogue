@@ -407,7 +407,7 @@ export const RUNE_DATABASE: Record<string, RuneDefinition> = {
   hextech_flash: HEXTECH_FLASH,
   cosmic_insight: COSMIC_INSIGHT,
   time_warp_tonic: TIME_WARP_TONIC,
-  ...(import.meta.env.VITE_E2E_VICTORY_RUNE === '1'
+  ...(import.meta.env?.VITE_E2E_VICTORY_RUNE === '1'
     ? { e2e_assured_victory: E2E_ASSURED_VICTORY }
     : {}),
 };

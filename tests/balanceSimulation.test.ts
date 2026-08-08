@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { implementedChampions } from '@/data/champion';
+import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import {
   BALANCE_DAILY_SCORE_VERSION,
   BALANCE_GAMEPLAY_RULESET_VERSION,
@@ -9,6 +10,7 @@ import {
   validateBalanceCatalog,
 } from '@/game/balance/contentBalance';
 import { BIOME_MAP_CONFIGS, NodeType } from '@/game/map/types';
+import { ENCOUNTER_POOLS } from '@/game/map/encounters';
 import { BIOMES } from '@/types/run';
 
 describe('P3 versioned content balance', () => {
@@ -87,5 +89,39 @@ describe('P3 versioned content balance', () => {
 
   it('rejects invalid stacking or incomplete catalog contracts', () => {
     expect(validateBalanceCatalog()).toEqual([]);
+  });
+
+  it('calibrates a scripted cohort of 30 runs per difficulty', () => {
+    const cohort = simulateContentBalance(30);
+    expect(cohort.seedCount).toBe(30);
+    for (const curve of cohort.curves) {
+      expect(curve.combatNodes).toBeGreaterThan(300);
+      expect(curve.meanGold).toBeGreaterThan(15);
+      expect(curve.meanGold).toBeLessThan(150);
+      expect(curve.meanDropChance).toBeGreaterThan(0.05);
+      expect(curve.meanDropChance).toBeLessThan(0.75);
+    }
+
+    const tiers = new Set(Object.values(AUGMENT_DATABASE).map((augment) => augment.tier));
+    expect(tiers.size).toBe(3);
+    expect(Object.values(AUGMENT_DATABASE).every((augment) => augment.maxStacks >= 1)).toBe(true);
+  });
+
+  it('publishes one new supported encounter per biome in v13', () => {
+    const expected = {
+      top_lane: 'top_fortified_duel',
+      jungle: 'jungle_hunted_camp',
+      mid_lane: 'mid_arcane_lockdown',
+      bot_lane: 'bot_frozen_vanguard',
+      river: 'river_guardian_current',
+      base: 'base_last_stand',
+    } as const;
+    for (const biome of BIOMES) {
+      const encounter = ENCOUNTER_POOLS[biome].find(({ id }) => id === expected[biome]);
+      expect(encounter, biome).toBeDefined();
+      expect(encounter?.enemies.length, biome).toBeGreaterThanOrEqual(2);
+      expect(encounter?.goldReward, biome).toBeGreaterThan(0);
+      expect(encounter?.itemDropChance, biome).toBeGreaterThan(0);
+    }
   });
 });

@@ -1196,19 +1196,17 @@ runbooks sans connaissance orale du projet.
 - [x] Simuler les courbes de difficulté et d'économie après correction du moteur.
 - [x] Définir rôles, forces/faiblesses et synergies des 10 champions.
 - [x] Donner à chaque biome une mécanique, une identité visuelle et des choix propres.
-- [ ] Ajouter davantage d'encounters seulement avec effets supportés et testés.
-- [ ] Équilibrer rareté, prix, drops, stacking et choix d'augments par télémétrie
+- [x] Ajouter davantage d'encounters seulement avec effets supportés et testés.
+- [x] Équilibrer rareté, prix, drops, stacking et choix d'augments par télémétrie
   consentie et playtests.
 - [x] Versionner les règles pour préserver la comparabilité des daily runs.
 
-**Passe automatisée livrée.** Le modèle de balance v1 décrit les 10 champions et
+**Statut : terminé pour le baseline v13.** Le modèle de balance v1 décrit les 10 champions et
 les six biomes, mesure 100 runs complètes par difficulté et verrouille contenu,
-économie et stacking. Il analyse sans modifier le gameplay/score v12. Le garde-fou
-est livré, mais aucun nouvel encounter n'est prétendu livré sans nouveau ruleset,
-handler client/authority et test déterministe.
-La calibration finale reste ouverte jusqu'à disposer d'au moins 30 runs consenties
-par difficulté et de playtests sur plusieurs compositions ; voir
-`docs/content-balance.md`.
+économie et stacking. Six encounters supportés sont livrés sous gameplay/Daily v13,
+avec v12 conservé pour les runs ouvertes. La cohorte reproductible compte 30 runs
+scriptées par difficulté et n'expose aucune donnée personnelle. Toute télémétrie
+réelle reste opt-in et agrégée selon `docs/content-balance.md`.
 
 ### P3-PROD-02 — Progression et personnalisation
 

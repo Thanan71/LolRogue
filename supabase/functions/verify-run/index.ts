@@ -53,12 +53,12 @@ async function resolveAuthorityVerifier(engineVersion: string, contentHash: stri
   // Only the two previous engines remain deployable. Older bundles are kept in
   // supabase/authority-archive and can be restored for an explicit recovery.
   switch (engineVersion) {
-    case 'run-engine-v11': {
-      const archived = await import('./run-authority-v11.bundle.ts');
+    case 'run-engine-v12': {
+      const archived = await import('./run-authority-v12.bundle.ts');
       return archived.getAuthorityVerifier(engineVersion, contentHash);
     }
-    case 'run-engine-v10': {
-      const archived = await import('./run-authority-v10.bundle.ts');
+    case 'run-engine-v11': {
+      const archived = await import('./run-authority-v11.bundle.ts');
       return archived.getAuthorityVerifier(engineVersion, contentHash);
     }
     default:

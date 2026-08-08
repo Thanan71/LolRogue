@@ -177,6 +177,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260731120000_gameplay_ruleset_v10_client_authority_parity.sql',
       '../supabase/migrations/20260731150000_gameplay_ruleset_v11_automatic_trace_suffix.sql',
       '../supabase/migrations/20260801090000_gameplay_ruleset_v12_canonical_stats.sql',
+      '../supabase/migrations/20260808120000_gameplay_ruleset_v13_content_balance.sql',
     ]);
   });
 

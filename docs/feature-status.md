@@ -14,7 +14,7 @@ définitifs.
 | Ciblage, sorts et passifs des 10 champions | `BattleActionValidator`, `BattleSpellEffectResolver`, `combatContentSupport` | `battleTargetResolver.test.ts`, `battleEffectsIntegration.test.ts`, `combatContentSupport.test.ts` | Livré pour le catalogue maintenu |
 | Runes, augments, objets et améliorations | `CombatRuleRuntime`, managers et catalogues validés | `combatRules.test.ts`, `statContract.test.ts`, `inventorySystem.test.ts` | Livré pour les effets classés supportés |
 | Économie et rencontres | règles pures de `game/run` et `game/map` | `runTransactions.test.ts`, `encounterRules.test.ts`, `runSharedRules.test.ts` | Livré |
-| Contrat d'équilibrage | `game/balance/contentBalance`, roster et profils biome | `balanceSimulation.test.ts`, `contentBalance.test.ts` | Simulation v1 livrée sur ruleset v12 ; calibration playtest ouverte |
+| Contrat d'équilibrage | `game/balance/contentBalance`, roster et profils biome | `balanceSimulation.test.ts`, `contentBalance.test.ts` | Baseline v13 livré : cohorte scriptée et six nouveaux combats |
 | Fin victoire, défaite et abandon | `runFinalization`, outbox et snapshot final | `runFinalization.test.ts`, `runSaveRecovery.test.ts`, `six-biome-run.spec.ts` | Livré |
 | Progression connectée autoritaire | attempts, journal, `verify-run`, `complete_run_verification` | `authorityRunEngine.test.ts`, `verifiedRunAttempts.database.test.ts`, `clientAuthorityParity.test.ts` | Livré |
 | Maîtrise et améliorations | stores dédiés et RPC atomique | `mastery.test.ts`, `enhancementStoreRecovery.test.ts`, `authoritativeDaily.database.test.ts` | Livré |

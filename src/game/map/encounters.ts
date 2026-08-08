@@ -41,7 +41,11 @@ export function getEligibleEncounters(biome: Biome, runLevel: number): CombatEnc
 export function getBiomeBoss(biome: Biome, runLevel: number): CombatEncounter {
   if (biome === 'base') {
     const baseEncounters = getEligibleEncounters('base', runLevel);
-    return baseEncounters[baseEncounters.length - 1] ?? BASE_ENCOUNTERS[0];
+    return (
+      baseEncounters.find((encounter) => encounter.id === 'base_nexus_guardians') ??
+      baseEncounters[baseEncounters.length - 1] ??
+      BASE_ENCOUNTERS[0]
+    );
   }
 
   const eligible = getEligibleEncounters(biome, runLevel);

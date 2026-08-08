@@ -3,15 +3,21 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 12` et le Daily `score_version = 12`. Il ne modifie pas
-le moteur autoritaire : toute modification d'ennemi, récompense, prix, drop, effet
-ou stacking exige une nouvelle version de gameplay, un nouveau hash autoritaire et
-une nouvelle version Daily pour ne pas mélanger les classements.
+`gameplay_ruleset_version = 13` et le Daily `score_version = 13`. Cette version
+ajoute un combat testé par biome. Le moteur v12 est archivé pour terminer les runs
+déjà ouvertes. Toute autre modification d'ennemi, récompense, prix, drop, effet ou
+stacking exige une nouvelle version et un nouveau hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `balanceSimulation.test.ts` rejoue 100 runs complètes par difficulté et mesure tous
 les combats générés. Il bloque une courbe non monotone, un catalogue incomplet ou
 un contrat de stacking invalide.
+
+La calibration de référence utilise aussi une cohorte figée de 30 runs scriptées
+par difficulté. Elle vérifie les bornes d'or/drop et les trois raretés d'augments
+sans collecter de donnée personnelle. Elle constitue le playtest automatisé
+reproductible ; les données volontaires futures servent à recalibrer, pas à rendre
+le ruleset v13 valide a posteriori.
 
 ## Courbes mesurées
 
@@ -65,6 +71,12 @@ effets passent `catalogSupport`, son résultat est géré par le client **et** p
 `AuthorityRunEngine`, et un test déterministe couvre succès, capacité et erreur.
 Ajouter seulement du texte ou une probabilité sans handler ne constitue pas du
 contenu jouable.
+
+Le ruleset v13 ajoute `top_fortified_duel`, `jungle_hunted_camp`,
+`mid_arcane_lockdown`, `bot_frozen_vanguard`, `river_guardian_current` et
+`base_last_stand`. Ils emploient uniquement les dix champions et le combat déjà
+supporté ; leurs formations, récompenses et probabilités sont couvertes par la
+simulation client/authority.
 
 ## Télémétrie consentie et playtests
 

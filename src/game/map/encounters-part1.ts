@@ -60,6 +60,19 @@ export const TOP_LANE_ENCOUNTERS: CombatEncounter[] = [
     itemDropChance: 0.25,
     minRunLevel: 3,
   },
+  {
+    id: 'top_fortified_duel',
+    name: 'Duel sous rempart',
+    description: 'Malphite protège Darius pendant que le duel s’éternise.',
+    type: 'combat',
+    enemies: [
+      { championId: 'Malphite', statMultiplier: 0.62 },
+      { championId: 'Darius', statMultiplier: 0.72 },
+    ],
+    goldReward: 48,
+    itemDropChance: 0.24,
+    minRunLevel: 3,
+  },
 ];
 
 // ─── Jungle Pool ─────────────────────────────────────────────────────────────
@@ -122,6 +135,19 @@ export const JUNGLE_ENCOUNTERS: CombatEncounter[] = [
     ],
     goldReward: 50,
     itemDropChance: 0.28,
+    minRunLevel: 3,
+  },
+  {
+    id: 'jungle_hunted_camp',
+    name: 'Camp traqué',
+    description: 'Warwick rabat sa proie vers une embuscade arcanique.',
+    type: 'combat',
+    enemies: [
+      { championId: 'Warwick', statMultiplier: 0.78 },
+      { championId: 'Lux', statMultiplier: 0.68 },
+    ],
+    goldReward: 52,
+    itemDropChance: 0.27,
     minRunLevel: 3,
   },
 ];
