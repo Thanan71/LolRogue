@@ -16,6 +16,7 @@ const CANONICAL_PROGRESSION_ENGINES = new Set([
   'run-engine-v10',
   'run-engine-v11',
   'run-engine-v12',
+  'run-engine-v13',
 ]);
 
 export function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
