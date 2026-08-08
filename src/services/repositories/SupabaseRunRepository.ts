@@ -14,6 +14,9 @@ import type {
   RunHistoryEntry,
 } from '../interfaces/IRunRepository';
 
+const RUN_HISTORY_SELECT =
+  '*, run_team_members(*), run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)';
+
 export class SupabaseRunRepository implements IRunRepository {
   private supabase: SupabaseClient<Database>;
 
@@ -57,9 +60,7 @@ export class SupabaseRunRepository implements IRunRepository {
   ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }> {
     const { data, error } = await this.supabase
       .from('runs')
-      .select(
-        '*, run_team_members(*), run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, progression_ruleset_version)',
-      )
+      .select(RUN_HISTORY_SELECT)
       .eq('player_id', playerId)
       .order('completed_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -74,7 +75,7 @@ export class SupabaseRunRepository implements IRunRepository {
           mode: string;
           engine_version: string;
           gameplay_ruleset_version: number;
-          progression_ruleset_version: number;
+          ruleset_version: number;
         } | null;
       };
       const { run_team_members, run_attempts, ...run } = row;
@@ -87,7 +88,7 @@ export class SupabaseRunRepository implements IRunRepository {
               mode: run_attempts.mode,
               engineVersion: run_attempts.engine_version,
               gameplayRulesetVersion: run_attempts.gameplay_ruleset_version,
-              progressionRulesetVersion: run_attempts.progression_ruleset_version,
+              progressionRulesetVersion: run_attempts.ruleset_version,
             }
           : null,
       } satisfies RunHistoryEntry;
