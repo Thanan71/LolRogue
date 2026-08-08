@@ -69,6 +69,13 @@ describeLive('public data and client log live security', () => {
     const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const player = await signUpUser(`${suffix}-rank`);
     createdUserIds.push(player.userId);
+    const publicName = `Rank-${suffix.slice(-12)}`;
+
+    const privacy = await player.client.rpc('set_leaderboard_privacy', {
+      p_public_display_name: publicName,
+      p_opt_out: false,
+    });
+    expect(privacy.error).toBeNull();
 
     const update = await admin
       .from('players')
@@ -88,7 +95,7 @@ describeLive('public data and client log live security', () => {
     const leaderboard = await anonymous
       .from('leaderboard')
       .select('*')
-      .eq('player_name', `Logs ${suffix}-rank`.slice(0, 100))
+      .eq('player_name', publicName)
       .single();
     expect(leaderboard.error).toBeNull();
     expect(leaderboard.data).toMatchObject({
@@ -101,6 +108,7 @@ describeLive('public data and client log live security', () => {
     expect(leaderboard.data).not.toHaveProperty('username');
     expect(leaderboard.data).not.toHaveProperty('total_candies');
     expect(leaderboard.data).not.toHaveProperty('last_login_at');
+    expect(leaderboard.data?.player_name).not.toBe(`Logs ${suffix}-rank`.slice(0, 100));
 
     const ownRank = await player.client.rpc('get_my_leaderboard_rank');
     expect(ownRank.error).toBeNull();

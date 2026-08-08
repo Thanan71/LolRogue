@@ -198,6 +198,12 @@ describeLive('authoritative daily leaderboard live security', () => {
     const first = await signUpUser(`${suffix}-first`);
     const second = await signUpUser(`${suffix}-second`);
     createdUserIds.push(first.userId, second.userId);
+    const publicName = `Daily-${suffix.slice(-12)}`;
+    const privacy = await first.client.rpc('set_leaderboard_privacy', {
+      p_public_display_name: publicName,
+      p_opt_out: false,
+    });
+    expect(privacy.error).toBeNull();
 
     const firstChallengeResult = await first.client.rpc('get_daily_challenge');
     const secondChallengeResult = await second.client.rpc('get_daily_challenge');
@@ -208,7 +214,7 @@ describeLive('authoritative daily leaderboard live security', () => {
     expect(challenge).toMatchObject({
       daily_date: new Date().toISOString().slice(0, 10),
       difficulty: 'normal',
-      score_version: 12,
+      score_version: 13,
       attempt_policy: 'one_official_attempt_per_utc_day',
       has_attempted: false,
     });
@@ -387,8 +393,8 @@ describeLive('authoritative daily leaderboard live security', () => {
       daily_seed: challenge.seed,
       score: 1360,
       run_attempt_id: firstAttempt.attempt_id,
-      daily_ruleset_version: 12,
-      score_version: 12,
+      daily_ruleset_version: 13,
+      score_version: 13,
     });
 
     const anonymous = createClient<Database>(supabaseUrl!, anonKey!, {
@@ -407,7 +413,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       .from('daily_leaderboard')
       .select('*')
       .eq('daily_date', challenge.daily_date)
-      .eq('player_name', `Daily ${suffix}-first`.slice(0, 100))
+      .eq('player_name', publicName)
       .single();
     expect(publicBoard.error).toBeNull();
     expect(publicBoard.data).toMatchObject({
@@ -415,7 +421,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       score: 1360,
       waves_completed: 1,
       run_level_reached: 1,
-      score_version: 12,
+      score_version: 13,
     });
     expect(publicBoard.data).not.toHaveProperty('player_id');
     expect(publicBoard.data).not.toHaveProperty('completed_at');
