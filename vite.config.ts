@@ -123,6 +123,7 @@ export default defineConfig({
         'src/components/RunLifecycleRoute.tsx',
         'src/components/ui/Feedback.tsx',
         'src/pages/CombatPage.tsx',
+        'src/pages/ProfilePage.tsx',
       ],
       exclude: ['**/*.d.ts', '**/types.ts', '**/index.ts', 'src/services/interfaces/**'],
       thresholds: {
@@ -180,6 +181,12 @@ export default defineConfig({
           branches: 75,
           functions: 95,
           lines: 84,
+        },
+        'src/pages/ProfilePage.tsx': {
+          statements: 95,
+          branches: 90,
+          functions: 90,
+          lines: 95,
         },
         'src/stores/runStore.ts': {
           statements: 78,
