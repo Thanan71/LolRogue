@@ -214,6 +214,22 @@ describeLive('repositories against migrated local Supabase', () => {
     expect(team.data).toMatchObject([{ champion_id: 'Garen', run_id: fixture.runId }]);
   });
 
+  it('calls getPlayerRunHistory against local Supabase with real pagination semantics', async () => {
+    const repository = new SupabaseRunRepository(fixture.client);
+
+    const firstPage = await repository.getPlayerRunHistory(fixture.playerId, 1, 0);
+    expect(firstPage.error).toBeNull();
+    expect(firstPage.data).toHaveLength(1);
+    expect(firstPage.data?.[0]).toMatchObject({
+      run: { id: fixture.runId, player_id: fixture.playerId },
+      attempt: { mode: 'normal', difficulty: 'hard', engineVersion: 'run-engine-v13' },
+      teamMembers: [{ champion_id: 'Garen', run_id: fixture.runId }],
+    });
+
+    const emptyPage = await repository.getPlayerRunHistory(randomUUID(), 1, 0);
+    expect(emptyPage).toEqual({ data: [], error: null });
+  });
+
   it('uses real anonymous leaderboard and Daily contracts', async () => {
     const daily = new SupabaseDailyRunRepository(anonymous);
     const leaderboard = new SupabaseLeaderboardRepository(anonymous);

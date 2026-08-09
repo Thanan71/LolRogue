@@ -16,9 +16,12 @@ afin de ne pas créer de faux 100 %.
 
 Les seuils globaux constituent le plancher. Des seuils plus stricts s'appliquent aux
 frontières de sauvegarde et de sécurité : `runAttemptService`, `runService`,
-`SupabaseAuthRepository`, `SupabaseRunRepository` et `runStore`. Les seuils sont
-augmentés uniquement après ajout de tests de comportement couvrant succès, refus,
-idempotence et panne réseau.
+`runAuthorityJournal`, `SupabaseAuthRepository`, `SupabaseRunRepository`,
+`SupabaseDailyRunRepository`, `SupabasePlayerRepository`, `ProfilePage` et `runStore`.
+Les seuils sont augmentés uniquement après ajout de tests de comportement couvrant
+succès, refus, idempotence et panne réseau. Les contrats Daily sont en plus soumis à
+des mutations champ par champ afin que les branches de validation PostgREST ne puissent
+pas devenir permissives silencieusement.
 
 ## Sorties
 
@@ -29,6 +32,11 @@ dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
 RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
 
+`repositoryIntegration.database.test.ts` appelle réellement
+`getPlayerRunHistory()` contre Supabase local. Il valide le nested-select via les noms
+de FK migrés, les métadonnées de version de l'attempt, les membres de l'équipe, la
+pagination et le résultat vide sous RLS.
+
 Chaque suite d'intégration DB porte obligatoirement le suffixe
 `*.database.test.ts` sous `tests/`. Ce contrat est versionné dans
 `config/database-tests.json` : aucun runner ni workflow ne maintient de liste de
@@ -37,8 +45,9 @@ tests en parallèle.
 Toute occurrence de `skip`, `skipIf` ou `todo` dans ces suites fait échouer
 `npm run test:db`, sauf correspondance exacte avec une entrée justifiée de
 `skipAllowlist`. Les seules exceptions actuelles sont les gardes qui permettent à la
-suite générique sans Supabase local d'ignorer les tests live ; `test:db` fournit les
-identifiants locaux et les exécute réellement.
+suite générique sans Supabase local d'ignorer les tests live ; `db:validate` passe par
+`run-local-db-tests.mjs`, fournit les identifiants locaux à `test:db` et les exécute
+réellement.
 
 `npm run test:db:list` applique ces mêmes règles et affiche, dans l'ordre, chaque
 fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni

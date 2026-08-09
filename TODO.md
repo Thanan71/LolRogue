@@ -650,12 +650,14 @@ Preuves et décisions : `docs/frontend-performance.md`.
 
 **Taille : M**
 
-- [ ] Ajouter l'historique Profil / repository nested-select à la couverture critique.
-- [ ] Ajouter `runAuthorityJournal.ts` à un seuil spécifique élevé.
-- [ ] Ajouter les adaptateurs PostgREST critiques au périmètre de mutation/branches.
-- [ ] Ajouter une régression complète « fin biome → augment → biome suivant → seal ».
-- [ ] Tester toutes les versions moteur reconnues par le registre futur.
-- [ ] Ajouter un test qui lance `getPlayerRunHistory()` contre Supabase local.
+- [x] Ajouter l'historique Profil / repository nested-select à la couverture critique.
+- [x] Ajouter `runAuthorityJournal.ts` à un seuil spécifique élevé.
+- [x] Ajouter les adaptateurs PostgREST critiques au périmètre de mutation/branches.
+- [x] Ajouter une régression complète « fin biome → augment → biome suivant → seal ».
+- [x] Tester toutes les versions moteur reconnues par le registre futur.
+- [x] Ajouter un test qui lance `getPlayerRunHistory()` contre Supabase local.
+
+Preuves et seuils : `docs/testing.md`.
 
 ---
 
@@ -913,7 +915,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 12. [x] `P2-DB-01` index mesurés.
 13. [x] `P2-PERF-01` headroom bundle, sans modifier l'interface.
-14. [ ] `P2-TEST-01` couverture des frontières critiques.
+14. [x] `P2-TEST-01` couverture des frontières critiques.
 15. [ ] `P2-TEST-04` advisors versionnés.
 16. [ ] `P2-WEB-01` CSP.
 17. [ ] `P2-OPS-01` runbook de restauration réelle.
