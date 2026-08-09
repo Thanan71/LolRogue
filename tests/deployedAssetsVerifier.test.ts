@@ -55,7 +55,7 @@ describe('deployed asset verifier', () => {
 
   it("refuse une preview dont l'identité JSON ne correspond pas au SHA attendu", async () => {
     const server = createServer((request, response) => {
-      if (request.url === '/deployment-identity.json') {
+      if (request.url === '/api/deployment-identity') {
         response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         response.end(JSON.stringify({ commit: 'ffffffffffffffffffffffffffffffffffffffff' }));
         return;
@@ -103,7 +103,7 @@ describe('deployed asset verifier', () => {
 
   it('affiche le SHA dont les assets ont été vérifiés', async () => {
     const server = createServer((request, response) => {
-      if (request.url === '/deployment-identity.json') {
+      if (request.url === '/api/deployment-identity') {
         response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         response.end(JSON.stringify({ commit: expectedCommitSha }));
         return;
