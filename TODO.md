@@ -475,7 +475,7 @@ déjà été rejetées avec le même code.
   où la cohérence SHA est requise.
 - [x] Vérifier que l'URL testée expose un marqueur de commit/version attendu.
 - [x] Ajouter le SHA testé dans la sortie du script.
-- [ ] Conserver une vérification prod post-déploiement séparée.
+- [x] Conserver une vérification prod post-déploiement séparée.
 
 ### Acceptation
 

@@ -6,6 +6,10 @@ const previewWorkflow = readFileSync(
   new URL('../.github/workflows/preview-deployment.yml', import.meta.url),
   'utf8',
 );
+const productionWorkflow = readFileSync(
+  new URL('../.github/workflows/production-deployment.yml', import.meta.url),
+  'utf8',
+);
 const releasePreflight = readFileSync(
   new URL('../scripts/release-preflight.mjs', import.meta.url),
   'utf8',
@@ -40,5 +44,18 @@ describe('deployment workflow contract', () => {
     expect(viteConfig).toContain('process.env.VERCEL_GIT_COMMIT_SHA');
     expect(viteConfig).toContain("name: 'lolrogue-commit'");
     expect(viteConfig).toContain('content: deploymentCommitSha');
+  });
+
+  it('conserve un contrôle post-déploiement réservé à la production', () => {
+    expect(productionWorkflow).toContain('vercel.deployment.success');
+    expect(productionWorkflow).toContain('vercel.deployment.promoted');
+    expect(productionWorkflow).toContain("github.event.client_payload.environment == 'production'");
+    expect(productionWorkflow).toContain('ref: ${{ github.event.client_payload.git.sha }}');
+    expect(productionWorkflow).toContain(
+      'EXPECTED_COMMIT_SHA: ${{ github.event.client_payload.git.sha }}',
+    );
+    expect(productionWorkflow).toContain('DEPLOYMENT_URL: ${{ github.event.client_payload.url }}');
+    expect(productionWorkflow).toContain('npm run test:deployed-assets');
+    expect(productionWorkflow).not.toContain('lol-rogue.vercel.app');
   });
 });
