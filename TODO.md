@@ -526,7 +526,7 @@ Les types Node 26 peuvent rendre compilable l'utilisation d'une API absente de N
 
 ### Actions
 
-- [ ] Préférer `@types/node@24` tant que le runtime reste Node 24, sauf justification
+- [x] Préférer `@types/node@24` tant que le runtime reste Node 24, sauf justification
   documentée et testée.
 - [ ] Si les types 26 sont conservés, ajouter un check de compatibilité runtime
   explicite qui interdit les API Node >24 utilisées par les scripts exécutés.
