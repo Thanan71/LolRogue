@@ -63,4 +63,15 @@ describe('legal and privacy contract', () => {
     );
     expect(socialRetentionMigration.match(/cron\.schedule\(/g)).toHaveLength(1);
   });
+
+  it('records operator-only execution and deletion metrics', () => {
+    expect(socialRetentionMigration).toContain('CREATE TABLE private.social_retention_metrics');
+    expect(socialRetentionMigration).toContain('last_completed_at TIMESTAMPTZ NOT NULL');
+    expect(socialRetentionMigration).toContain('last_deleted_rows INTEGER NOT NULL');
+    expect(socialRetentionMigration).toContain('total_deleted_rows BIGINT NOT NULL');
+    expect(socialRetentionMigration).toContain('ON CONFLICT (job_name) DO UPDATE');
+    expect(socialRetentionMigration).toContain(
+      'REVOKE ALL ON TABLE private.social_retention_metrics',
+    );
+  });
 });
