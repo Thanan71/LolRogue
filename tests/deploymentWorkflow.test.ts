@@ -6,6 +6,10 @@ const previewWorkflow = readFileSync(
   new URL('../.github/workflows/preview-deployment.yml', import.meta.url),
   'utf8',
 );
+const releasePreflight = readFileSync(
+  new URL('../scripts/release-preflight.mjs', import.meta.url),
+  'utf8',
+);
 
 describe('deployment workflow contract', () => {
   it('ne vérifie aucun déploiement distant dans la validation générique', () => {
@@ -24,5 +28,10 @@ describe('deployment workflow contract', () => {
     expect(previewWorkflow).toContain('npm run build');
     expect(previewWorkflow).toContain('npm run test:deployed-assets');
     expect(previewWorkflow).not.toContain('lol-rogue.vercel.app');
+  });
+
+  it("fournit explicitement l'URL et le SHA du candidat au contrôle de release", () => {
+    expect(releasePreflight).toContain('DEPLOYMENT_URL: candidate.previewUrl');
+    expect(releasePreflight).toContain('EXPECTED_COMMIT_SHA: candidate.sha');
   });
 });
