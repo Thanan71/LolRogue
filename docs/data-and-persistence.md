@@ -342,7 +342,7 @@ publiques ont la RLS activée :
 - seule la clé service-role peut contourner ces règles, et elle reste côté CI ou
   runtime Supabase, jamais dans le bundle Vite.
 
-Le schéma SQL et les tests `database.test.ts`,
+Le schéma SQL et les tests `schema.database.test.ts`,
 `verifiedRunAttempts.database.test.ts`, `authoritativeDaily.database.test.ts`,
 `logSecurity.database.test.ts`, `securityDefinerPrivileges.database.test.ts` et
 `authorityRunEngine.test.ts` font autorité si ce document diverge.

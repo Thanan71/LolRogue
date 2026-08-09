@@ -7,7 +7,7 @@ modèles persistés de `types/models.ts` sont des alias `Tables`, `TablesInsert`
 aux repositories utilisent `SupabaseClient<Database>`.
 
 `npm run test:db` découvre automatiquement tous les fichiers
-`tests/**/*database.test.ts`; ajouter une suite DB ne demande donc aucune liste à
+`tests/**/*.database.test.ts`; ajouter une suite DB ne demande donc aucune liste à
 maintenir. `repositoryIntegration.database.test.ts` instancie les repositories avec
 de vrais clients anon/authenticated contre PostgREST local et exerce notamment le
 nested select `runs_run_attempt_id_fkey`. `npm run db:migrations:check` compare les

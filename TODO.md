@@ -134,7 +134,7 @@ du propriétaire de la vue.
 
 - `supabase/migrations/*social*`
 - migrations créant `leaderboard` / `daily_leaderboard`
-- `tests/database.test.ts`
+- `tests/schema.database.test.ts`
 - `tests/authoritativeDaily.database.test.ts`
 - `tests/socialLeaderboardContract.test.ts`
 
@@ -490,7 +490,7 @@ Une PR cassant ses assets ne peut pas passer parce que la production précédent
 `test:db` contient actuellement une liste fixe de fichiers.
 
 - [x] Ajouter une convention claire (`*.database.test.ts`).
-- [ ] Exécuter automatiquement tout fichier respectant cette convention.
+- [x] Exécuter automatiquement tout fichier respectant cette convention.
 - [ ] Faire échouer la CI si un test DB est ignoré/skippé sans allowlist explicite.
 - [ ] Inclure le nouveau test d'intégration des repositories.
 - [ ] Ajouter un test de la commande `test:db` elle-même ou un script de discovery
