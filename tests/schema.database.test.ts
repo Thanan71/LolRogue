@@ -187,6 +187,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260809200000_authority_attempt_aggregates.sql',
       '../supabase/migrations/20260809201000_authority_recent_rejections.sql',
       '../supabase/migrations/20260809210000_measured_foreign_key_indexes.sql',
+      '../supabase/migrations/20260809211000_measured_query_pattern_indexes.sql',
     ]);
   });
 
