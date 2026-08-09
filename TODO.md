@@ -306,17 +306,17 @@ référence des commits antérieurs à de nouveaux incidents.
 
 ### Actions
 
-- [ ] Passer immédiatement le statut bêta à **bloqué** tant que les P0 ci-dessus
+- [x] Passer immédiatement le statut bêta à **bloqué** tant que les P0 ci-dessus
   ne sont pas clos.
-- [ ] Ne plus utiliser la présence de `[x]` dans `TODO.md` comme preuve.
-- [ ] Faire dériver la gate de checks exécutables : CI du commit candidat, advisors,
+- [x] Ne plus utiliser la présence de `[x]` dans `TODO.md` comme preuve.
+- [x] Faire dériver la gate de checks exécutables : CI du commit candidat, advisors,
   migrations live, tests DB, E2E, sécurité des views/grants et validation externe.
-- [ ] Exiger trois CI **postérieures au dernier correctif P0**, pas trois CI historiques.
-- [ ] Stocker dans la fiche de release le SHA exact testé, l'URL preview et la version
+- [x] Exiger trois CI **postérieures au dernier correctif P0**, pas trois CI historiques.
+- [x] Stocker dans la fiche de release le SHA exact testé, l'URL preview et la version
   de migration live.
-- [ ] Ajouter un script `release:preflight` qui échoue si un P0 reste ouvert ou si
+- [x] Ajouter un script `release:preflight` qui échoue si un P0 reste ouvert ou si
   les docs de readiness contredisent les checks.
-- [ ] Mettre à jour `docs/feature-status.md` : « livré » ne doit pas signifier
+- [x] Mettre à jour `docs/feature-status.md` : « livré » ne doit pas signifier
   « aucun risque courant ».
 
 ### Acceptation

@@ -100,20 +100,22 @@ describe('documentation maintenue', () => {
     }
   });
 
-  it('conserve les preuves historiques tout en signalant leur réévaluation obligatoire', () => {
+  it('fait dériver la readiness de preuves objectives plutôt que du TODO historique', () => {
     const readiness = read('docs/beta-readiness.md');
     const todo = read('TODO.md');
+    const releaseSheet = JSON.parse(read('config/beta-release.json'));
 
-    for (const gate of [
-      'Trois CI complètes consécutives',
-      'E2E victoire, défaite et Daily sans store',
-      'Accessibilité WCAG AA sans blocage détecté',
-      'Clone propre et assets sur le déploiement',
-    ]) {
-      expect(readiness).toContain(`| ${gate} | Démontré`);
-    }
-    expect(readiness).toContain('Les dix critères techniques sont donc **démontrés**');
-    expect(readiness).toContain('Revue accessibilité humaine — complément non automatisable');
+    expect(readiness).toContain('<!-- release-readiness:status=blocked -->');
+    expect(readiness).toContain('**Statut objectif : BLOQUÉ.**');
+    expect(readiness).toContain('Trois CI complètes post-P0');
+    expect(readiness).toContain('version exacte de la dernière migration');
+    expect(readiness).not.toContain('Les dix critères techniques sont donc **démontrés**');
+    expect(releaseSheet.declaredStatus).toBe('blocked');
+    expect(releaseSheet.candidate).toEqual({
+      sha: null,
+      previewUrl: null,
+      liveMigrationVersion: null,
+    });
     expect(todo).toContain("## P0-REL-01 — Réparer la gate bêta pour qu'elle reflète l'état réel");
     expect(todo).toContain('Passer immédiatement le statut bêta à **bloqué**');
     expect(todo).toContain('Exiger trois CI **postérieures au dernier correctif P0**');
