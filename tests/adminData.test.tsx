@@ -2,6 +2,7 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { AdminAuthorityPanel } from '@/pages/admin/AdminAuthorityPanel';
 import { AdminErrorNotice } from '@/pages/admin/AdminErrorNotice';
 import { AdminModerationPanel } from '@/pages/admin/AdminModerationPanel';
 import { AdminTabList } from '@/pages/admin/AdminTabList';
@@ -47,7 +48,58 @@ describe('admin data feedback', () => {
     const dashboard = screen.getByRole('tab', { name: /Tableau de bord/i });
     expect(dashboard).toHaveAttribute('aria-controls', 'admin-panel-dashboard');
     fireEvent.keyDown(dashboard, { key: 'ArrowRight' });
-    expect(select).toHaveBeenCalledWith('logs');
+    expect(select).toHaveBeenCalledWith('authority');
+  });
+
+  it('shows authority alerts and the bounded recent rejection runbook', () => {
+    render(
+      <AdminAuthorityPanel
+        aggregates={[
+          {
+            windowStartedAt: new Date().toISOString(),
+            engineVersion: 'run-engine-v13',
+            gameplayRulesetVersion: 13,
+            rejectionCode: 'pending_choice',
+            attemptCount: 5,
+            startedCount: 0,
+            finishedCount: 0,
+            verifiedCount: 0,
+            rejectedCount: 5,
+            expiredCount: 0,
+          },
+        ]}
+        signals={[
+          {
+            engineVersion: 'run-engine-v13',
+            gameplayRulesetVersion: 13,
+            attemptCount: 5,
+            rejectedCount: 5,
+            rejectionRate: 1,
+            rejectionCodes: ['pending_choice'],
+            unknownCodes: [],
+            reasons: ['rejection_rate'],
+          },
+        ]}
+        rejections={[
+          {
+            attemptId: '11111111-1111-4111-8111-111111111111',
+            rejectedAt: '2026-08-09T12:10:00.000Z',
+            engineVersion: 'run-engine-v13',
+            gameplayRulesetVersion: 13,
+            rejectionCode: 'pending_choice',
+          },
+        ]}
+        loading={false}
+        error={null}
+        onRefresh={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent('100.0 % de rejets');
+    expect(
+      screen.getByRole('table', { name: 'Derniers rejets de vérification authority' }),
+    ).toHaveTextContent('11111111-1111-4111-8111-111111111111');
+    expect(screen.getAllByText('pending_choice')).toHaveLength(1);
   });
 
   it('requires confirmation before sending one bounded score invalidation', async () => {

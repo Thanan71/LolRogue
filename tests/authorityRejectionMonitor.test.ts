@@ -13,7 +13,11 @@ function aggregate(overrides: Partial<AuthorityAttemptAggregate> = {}): Authorit
     gameplayRulesetVersion: 13,
     rejectionCode: null,
     attemptCount: 10,
+    startedCount: 10,
+    finishedCount: 0,
+    verifiedCount: 0,
     rejectedCount: 0,
+    expiredCount: 0,
     ...overrides,
   };
 }

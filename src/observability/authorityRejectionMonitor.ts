@@ -43,7 +43,11 @@ export interface AuthorityAttemptAggregate {
   gameplayRulesetVersion: number;
   rejectionCode: string | null;
   attemptCount: number;
+  startedCount: number;
+  finishedCount: number;
+  verifiedCount: number;
   rejectedCount: number;
+  expiredCount: number;
 }
 
 export interface AuthorityRejectionSignal {

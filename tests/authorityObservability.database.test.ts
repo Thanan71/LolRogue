@@ -61,28 +61,64 @@ describeDatabase('authority observability contract', () => {
       p_mode: 'normal',
     });
     expect(started.error).toBeNull();
+    const attemptId = (started.data as { attempt_id: string }).attempt_id;
+    const sealed = await player.client.rpc('seal_run_attempt', {
+      p_attempt_id: attemptId,
+      p_expected_sequence: 0,
+      p_finish_command_id: randomUUID(),
+    });
+    expect(sealed.error).toBeNull();
+    const claimed = await service.rpc('claim_run_verification', {
+      p_attempt_id: attemptId,
+      p_worker_id: randomUUID(),
+    });
+    expect(claimed.error).toBeNull();
+    const leaseToken = (claimed.data as { lease_token: string }).lease_token;
+    const rejected = await service.rpc('reject_run_verification', {
+      p_attempt_id: attemptId,
+      p_lease_token: leaseToken,
+      p_rejection_code: 'pending_choice',
+    });
+    expect(rejected.error).toBeNull();
 
-    const [hiddenFromPlayer, aggregates] = await Promise.all([
+    const [hiddenFromPlayer, hiddenRejections, aggregates, recentRejections] = await Promise.all([
       player.client.from('authority_attempt_aggregates').select('*'),
+      player.client.from('authority_recent_rejections').select('*'),
       administrator.client
         .from('authority_attempt_aggregates')
         .select('*')
         .eq('engine_version', 'run-engine-v13'),
+      administrator.client.from('authority_recent_rejections').select('*'),
     ]);
     expect(hiddenFromPlayer).toMatchObject({ data: [], error: null });
+    expect(hiddenRejections).toMatchObject({ data: [], error: null });
     expect(aggregates.error).toBeNull();
     expect(aggregates.data).toHaveLength(1);
     expect(aggregates.data?.[0]).toMatchObject({
       engine_version: 'run-engine-v13',
       gameplay_ruleset_version: 13,
       attempt_count: 1,
-      started_count: 1,
+      started_count: 0,
       verified_count: 0,
-      rejected_count: 0,
+      rejected_count: 1,
       expired_count: 0,
-      rejection_code: null,
+      rejection_code: 'pending_choice',
     });
     expect(Object.keys(aggregates.data?.[0] ?? {})).not.toEqual(
+      expect.arrayContaining(['commands', 'payload', 'result', 'user_id']),
+    );
+    expect(recentRejections).toMatchObject({
+      data: [
+        {
+          attempt_id: attemptId,
+          engine_version: 'run-engine-v13',
+          gameplay_ruleset_version: 13,
+          rejection_code: 'pending_choice',
+        },
+      ],
+      error: null,
+    });
+    expect(Object.keys(recentRejections.data?.[0] ?? {})).not.toEqual(
       expect.arrayContaining(['commands', 'payload', 'result', 'user_id']),
     );
   });

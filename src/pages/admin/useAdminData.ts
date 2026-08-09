@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  type AuthorityAttemptAggregate,
+  type AuthorityRejectionSignal,
+  evaluateAuthorityRejectionAlerts,
+} from '@/observability/authorityRejectionMonitor';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import type { AdminPlayerStat, Log, RunTeamMember } from '@/types/models';
 import { logger } from '@/utils/logger';
 import type { AdminRun } from '../adminPageUtils';
 
-export type AdminTab = 'dashboard' | 'logs' | 'players' | 'runs' | 'moderation';
-export type AdminDataSection = 'stats' | 'logs' | 'players' | 'runs' | 'moderation';
+export type AdminTab = 'dashboard' | 'authority' | 'logs' | 'players' | 'runs' | 'moderation';
+export type AdminDataSection = 'stats' | 'authority' | 'logs' | 'players' | 'runs' | 'moderation';
 export type AdminDataErrors = Record<AdminDataSection, string | null>;
 
 export interface AdminModerationReport {
@@ -18,8 +23,17 @@ export interface AdminModerationReport {
   score: number;
 }
 
+export interface AdminAuthorityRejection {
+  attemptId: string;
+  rejectedAt: string;
+  engineVersion: string;
+  gameplayRulesetVersion: number;
+  rejectionCode: string;
+}
+
 const EMPTY_ERRORS: AdminDataErrors = {
   stats: null,
+  authority: null,
   logs: null,
   players: null,
   runs: null,
@@ -39,10 +53,14 @@ export async function loadAllAdminSections(
 export function useAdminData(isAdmin: boolean) {
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [stats, setStats] = useState<Record<string, string>>({});
+  const [authorityAggregates, setAuthorityAggregates] = useState<AuthorityAttemptAggregate[]>([]);
+  const [authoritySignals, setAuthoritySignals] = useState<AuthorityRejectionSignal[]>([]);
+  const [authorityRejections, setAuthorityRejections] = useState<AdminAuthorityRejection[]>([]);
   const [playerStats, setPlayerStats] = useState<AdminPlayerStat[]>([]);
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [authorityLoading, setAuthorityLoading] = useState(false);
   const [logsLoading, setLogsLoading] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
   const [runsLoading, setRunsLoading] = useState(false);
@@ -99,6 +117,83 @@ export function useAdminData(isAdmin: boolean) {
       return false;
     } finally {
       setStatsLoading(false);
+    }
+  }, [setSectionError]);
+
+  const fetchAuthorityObservability = useCallback(async (): Promise<boolean> => {
+    setAuthorityLoading(true);
+    setSectionError('authority', null);
+    try {
+      const windowStart = new Date(Date.now() - 15 * 60_000).toISOString();
+      const [aggregatesResult, rejectionsResult] = await Promise.all([
+        supabase
+          .from('authority_attempt_aggregates')
+          .select('*')
+          .gte('window_started_at', windowStart),
+        supabase.from('authority_recent_rejections').select('*'),
+      ]);
+      if (aggregatesResult.error) throw aggregatesResult.error;
+      if (rejectionsResult.error) throw rejectionsResult.error;
+
+      const aggregates = (aggregatesResult.data ?? []).flatMap((row) => {
+        if (
+          !row.window_started_at ||
+          !row.engine_version ||
+          row.gameplay_ruleset_version === null ||
+          row.attempt_count === null ||
+          row.started_count === null ||
+          row.finished_count === null ||
+          row.verified_count === null ||
+          row.rejected_count === null ||
+          row.expired_count === null
+        ) {
+          return [];
+        }
+        return [
+          {
+            windowStartedAt: row.window_started_at,
+            engineVersion: row.engine_version,
+            gameplayRulesetVersion: row.gameplay_ruleset_version,
+            rejectionCode: row.rejection_code,
+            attemptCount: row.attempt_count,
+            startedCount: row.started_count,
+            finishedCount: row.finished_count,
+            verifiedCount: row.verified_count,
+            rejectedCount: row.rejected_count,
+            expiredCount: row.expired_count,
+          },
+        ];
+      });
+      const rejections = (rejectionsResult.data ?? []).flatMap((row) => {
+        if (
+          !row.attempt_id ||
+          !row.rejected_at ||
+          !row.engine_version ||
+          row.gameplay_ruleset_version === null ||
+          !row.rejection_code
+        ) {
+          return [];
+        }
+        return [
+          {
+            attemptId: row.attempt_id,
+            rejectedAt: row.rejected_at,
+            engineVersion: row.engine_version,
+            gameplayRulesetVersion: row.gameplay_ruleset_version,
+            rejectionCode: row.rejection_code,
+          },
+        ];
+      });
+      setAuthorityAggregates(aggregates);
+      setAuthoritySignals(evaluateAuthorityRejectionAlerts(aggregates));
+      setAuthorityRejections(rejections);
+      return true;
+    } catch (error) {
+      logger.error('[AdminPage] Error fetching authority observability:', error);
+      setSectionError('authority', errorMessage(error));
+      return false;
+    } finally {
+      setAuthorityLoading(false);
     }
   }, [setSectionError]);
 
@@ -284,6 +379,7 @@ export function useAdminData(isAdmin: boolean) {
     setLoading(true);
     void loadAllAdminSections([
       fetchStats,
+      fetchAuthorityObservability,
       fetchPlayerStats,
       fetchLogs,
       fetchRuns,
@@ -295,10 +391,14 @@ export function useAdminData(isAdmin: boolean) {
     activeTab,
     setActiveTab,
     stats,
+    authorityAggregates,
+    authoritySignals,
+    authorityRejections,
     playerStats,
     logs,
     loading,
     statsLoading,
+    authorityLoading,
     logsLoading,
     playersLoading,
     runsLoading,
@@ -311,6 +411,7 @@ export function useAdminData(isAdmin: boolean) {
     logFilter,
     setLogFilter,
     fetchStats,
+    fetchAuthorityObservability,
     fetchPlayerStats,
     fetchLogs,
     fetchRuns,

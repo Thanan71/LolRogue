@@ -126,6 +126,64 @@
   min-height: 400px;
 }
 
+.authority-header,
+.authority-rejections-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.authority-header h3,
+.authority-rejections-header h4 {
+  color: #f0e6d2;
+  margin: 0 0 0.35rem;
+}
+
+.authority-header p,
+.authority-rejections-header span {
+  color: #a09080;
+  margin: 0;
+}
+
+.authority-header button {
+  min-height: 44px;
+  padding: 0.65rem 1.25rem;
+  border: 1px solid rgba(200, 170, 110, 0.4);
+  border-radius: 8px;
+  background: rgba(200, 170, 110, 0.12);
+  color: #f0e6d2;
+  cursor: pointer;
+}
+
+.authority-alerts,
+.authority-ok {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+}
+
+.authority-alerts {
+  border: 1px solid #e74c3c;
+  background: rgba(231, 76, 60, 0.12);
+  color: #f7c7c2;
+}
+
+.authority-alerts p:last-child {
+  margin-bottom: 0;
+}
+
+.authority-ok {
+  border: 1px solid rgba(46, 204, 113, 0.45);
+  background: rgba(46, 204, 113, 0.1);
+  color: #b7ebc9;
+}
+
+.authority-stats .stat-value {
+  font-size: 1.9rem;
+}
+
 /* Dashboard Stats Grid */
 .stats-grid {
   display: grid;

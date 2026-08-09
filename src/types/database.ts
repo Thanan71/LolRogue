@@ -283,6 +283,13 @@ export type Database = {
             foreignKeyName: 'daily_runs_run_attempt_id_fkey';
             columns: ['run_attempt_id'];
             isOneToOne: false;
+            referencedRelation: 'authority_recent_rejections';
+            referencedColumns: ['attempt_id'];
+          },
+          {
+            foreignKeyName: 'daily_runs_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: false;
             referencedRelation: 'run_attempts';
             referencedColumns: ['id'];
           },
@@ -895,6 +902,13 @@ export type Database = {
             foreignKeyName: 'run_attempt_commands_attempt_id_fkey';
             columns: ['attempt_id'];
             isOneToOne: false;
+            referencedRelation: 'authority_recent_rejections';
+            referencedColumns: ['attempt_id'];
+          },
+          {
+            foreignKeyName: 'run_attempt_commands_attempt_id_fkey';
+            columns: ['attempt_id'];
+            isOneToOne: false;
             referencedRelation: 'run_attempts';
             referencedColumns: ['id'];
           },
@@ -1328,6 +1342,13 @@ export type Database = {
             foreignKeyName: 'runs_run_attempt_id_fkey';
             columns: ['run_attempt_id'];
             isOneToOne: true;
+            referencedRelation: 'authority_recent_rejections';
+            referencedColumns: ['attempt_id'];
+          },
+          {
+            foreignKeyName: 'runs_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: true;
             referencedRelation: 'run_attempts';
             referencedColumns: ['id'];
           },
@@ -1408,6 +1429,24 @@ export type Database = {
           started_count: number | null;
           verified_count: number | null;
           window_started_at: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
+      authority_recent_rejections: {
+        Row: {
+          attempt_id: string | null;
+          engine_version: string | null;
+          gameplay_ruleset_version: number | null;
+          rejected_at: string | null;
+          rejection_code: string | null;
         };
         Relationships: [
           {

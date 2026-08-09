@@ -4,6 +4,7 @@ import type { AdminTab } from './useAdminData';
 
 const ADMIN_TABS: Array<{ id: AdminTab; label: string }> = [
   { id: 'dashboard', label: `📊 ${fr.admin.dashboard}` },
+  { id: 'authority', label: '🛰️ Authority' },
   { id: 'logs', label: `📋 ${fr.admin.logs}` },
   { id: 'players', label: `👥 ${fr.admin.players}` },
   { id: 'runs', label: `🎮 ${fr.admin.runs}` },
