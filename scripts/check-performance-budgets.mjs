@@ -95,7 +95,9 @@ const chunks = [...sizes.entries()]
   }))
   .sort((left, right) => right.gzipBytes - left.gzipBytes || left.file.localeCompare(right.file));
 const chunkBudgets = Object.entries(budgets.chunks ?? {}).map(([name, maxGzipBytes]) => {
-  const matchingChunks = chunks.filter((chunk) => chunk.file.match(new RegExp(`^assets/${name}-[^/]+\\.js$`)));
+  const matchingChunks = chunks.filter((chunk) =>
+    chunk.file.match(new RegExp(`^assets/${name}-[^/]+\\.js$`)),
+  );
   if (matchingChunks.length !== 1) {
     throw new Error(
       `Expected exactly one JavaScript chunk matching ${name}, found ${matchingChunks.length}.`,
