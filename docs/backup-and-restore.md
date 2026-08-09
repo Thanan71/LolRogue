@@ -67,6 +67,38 @@ UNION ALL SELECT 'mastery', count(*) FROM public.champion_mastery;
 Comparer aussi le dernier timestamp et le nombre de lignes par statut de
 `run_attempts`. Une différence non expliquée invalide le test.
 
+### Vérifier la rétention sociale restaurée
+
+Après application des migrations sur le projet restauré, exécuter dans le SQL
+Editor avec le rôle opérateur :
+
+```sql
+SELECT jobid, jobname, schedule, command, username, active
+FROM cron.job
+WHERE jobname = 'lolrogue-purge-expired-social-data';
+
+SELECT job_name, last_started_at, last_completed_at, last_deleted_rows,
+  total_runs, total_deleted_rows
+FROM private.social_retention_metrics;
+```
+
+Le premier contrôle doit retourner exactement une ligne active, planifiée avec
+`43 4 1 * *`, la commande `SELECT private.purge_expired_social_data()` et
+`username = 'postgres'`. L'absence initiale de métrique est normale tant qu'aucune
+purge n'a réussi. Sur le projet temporaire uniquement, insérer les trois cas
+synthétiques du test de rétention puis exécuter deux fois :
+
+```sql
+SELECT private.purge_expired_social_data();
+```
+
+Le premier résultat doit compter uniquement les signalements traités depuis plus de
+24 mois ; le second doit valoir zéro. La métrique doit ensuite montrer deux passages
+supplémentaires et le nombre de suppressions correspondant. Si le job est absent ou
+différent, ne pas le recréer manuellement : vérifier que la migration
+`20260809180000_automate_social_retention.sql` est appliquée, la rejouer via le
+processus de migration, puis reprendre ces contrôles.
+
 ## Restauration de production
 
 La restauration est destructive et rend le projet temporairement indisponible.
@@ -80,9 +112,10 @@ Elle exige Incident Commander, Opérateur et seconde validation :
    le projet actif ;
 5. attendre la fin fournisseur, recréer si nécessaire secrets de rôles, fonctions,
    webhooks et configuration Auth qui ne font pas partie du dump ;
-6. déployer `verify-run` compatible avant d'exposer le client, puis exécuter le smoke
+6. vérifier le job et les métriques de rétention sociale avec la procédure ci-dessus ;
+7. déployer `verify-run` compatible avant d'exposer le client, puis exécuter le smoke
    test complet ;
-7. réouvrir le trafic, surveiller 60 minutes et publier la fenêtre réelle de perte.
+8. réouvrir le trafic, surveiller 60 minutes et publier la fenêtre réelle de perte.
 
 Ne jamais supprimer un projet pour tenter une restauration : sa suppression retire
 également ses sauvegardes associées. Les sources de référence sont les guides

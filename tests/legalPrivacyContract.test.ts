@@ -14,6 +14,10 @@ const socialRetentionMigration = readFileSync(
   new URL('../supabase/migrations/20260809180000_automate_social_retention.sql', import.meta.url),
   'utf8',
 );
+const backupRunbook = readFileSync(
+  new URL('../docs/backup-and-restore.md', import.meta.url),
+  'utf8',
+);
 
 describe('legal and privacy contract', () => {
   it('keeps monetization and public legal clearance closed', () => {
@@ -73,5 +77,14 @@ describe('legal and privacy contract', () => {
     expect(socialRetentionMigration).toContain(
       'REVOKE ALL ON TABLE private.social_retention_metrics',
     );
+  });
+
+  it('documents cron and metrics verification after a restore', () => {
+    expect(backupRunbook).toContain(
+      "FROM cron.job\nWHERE jobname = 'lolrogue-purge-expired-social-data'",
+    );
+    expect(backupRunbook).toContain('FROM private.social_retention_metrics');
+    expect(backupRunbook).toContain('SELECT private.purge_expired_social_data()');
+    expect(backupRunbook).toContain('20260809180000_automate_social_retention.sql');
   });
 });

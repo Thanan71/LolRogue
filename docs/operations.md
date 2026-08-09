@@ -141,6 +141,9 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 - si les diagnostics sont activés, confirmer qu'un `INSERT` direct dans `logs`
   échoue, qu'une soumission RPC reçoit l'identité de la session et que le job de
   purge est actif ;
+- confirmer que `cron.job` contient exactement un job actif
+  `lolrogue-purge-expired-social-data`, exécuté par `postgres`, puis consulter
+  `private.social_retention_metrics` selon `docs/backup-and-restore.md` ;
 - contrôler le profil, la maîtrise et les classements ;
 - vérifier qu'un non-admin reçoit un refus sur les lectures admin ;
 - examiner la console et l'onglet réseau : aucun asset 404, aucune erreur CSP et
