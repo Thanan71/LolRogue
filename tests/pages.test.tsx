@@ -1,14 +1,16 @@
 // @vitest-environment jsdom
 
+import type { User } from '@supabase/supabase-js';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi } from 'vitest';
 import { playSFX } from '@/audio/AudioManager';
-import type { User } from '@supabase/supabase-js';
+import { AppErrorBoundary } from '@/components/AppErrorBoundary';
+import { RunMapScreen } from '@/components/RunMapScreen';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
-import { NodeType, type NodeMap } from '@/game/map/types';
-import { calculateRunCandyRewards } from '@/game/run/runRewards';
+import { type NodeMap, NodeType } from '@/game/map/types';
 import { createRunLedger } from '@/game/run/runLedger';
+import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { AuthPage } from '@/pages/AuthPage';
 import { EventPage } from '@/pages/EventPage';
 import { GameOverPage } from '@/pages/GameOverPage';
@@ -17,16 +19,14 @@ import { RestPage } from '@/pages/RestPage';
 import { ShopPage } from '@/pages/ShopPage';
 import { StarterSelectPage } from '@/pages/StarterSelectPage';
 import { TreasurePage } from '@/pages/TreasurePage';
-import { RunMapScreen } from '@/components/RunMapScreen';
-import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import {
-  MAX_INVENTORY_ITEMS,
-  type CompletedRunSnapshot,
   type ChampionRunStats,
+  type CompletedRunSnapshot,
   type InventoryEntry,
   type Item,
+  MAX_INVENTORY_ITEMS,
   type RunSummary,
 } from '@/types/run';
 
@@ -616,7 +616,7 @@ describe('P2 page smoke tests', () => {
     expect(screen.queryByText(/bonbons/)).not.toBeInTheDocument();
   });
 
-  it('allows leaving a terminally rejected run without offering a retry', () => {
+  it('allows leaving a terminally rejected run with a copyable support diagnostic', async () => {
     const summary: RunSummary = {
       won: false,
       runLevel: 1,
@@ -640,8 +640,18 @@ describe('P2 page smoke tests', () => {
       saveStatus: 'failed',
       saveError: 'illegal trace',
       saveFailureKind: 'terminal',
+      saveDiagnostic: {
+        attemptId: '11111111-1111-4111-8111-111111111111',
+        engineVersion: 'run-engine-v13',
+        rejectionCode: 'pending_choice',
+      },
       completedRunSnapshot: completedSnapshot(summary, ['Garen']),
       serverProgression: null,
+    });
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
     });
 
     render(
@@ -654,6 +664,16 @@ describe('P2 page smoke tests', () => {
       "Aucune progression authentifiée n'a été accordée",
     );
     expect(screen.queryByRole('button', { name: /Retry/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/Attempt: 11111111-1111-4111-8111-111111111111/)).toBeInTheDocument();
+    expect(screen.getByText(/Version authority: run-engine-v13/)).toBeInTheDocument();
+    expect(screen.getByText(/Code de rejet: pending_choice/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Copier le diagnostic' }));
+    await waitFor(() =>
+      expect(writeText).toHaveBeenCalledWith(
+        'Attempt: 11111111-1111-4111-8111-111111111111\nVersion authority: run-engine-v13\nCode de rejet: pending_choice',
+      ),
+    );
+    expect(screen.getByRole('button', { name: 'Diagnostic copié' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Nouvelle partie' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Menu principal' })).toBeEnabled();
   });

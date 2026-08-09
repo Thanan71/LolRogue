@@ -248,6 +248,7 @@ export function createRunLifecycleSlice(
             saveStatus: 'idle',
             saveError: null,
             saveFailureKind: null,
+            saveDiagnostic: null,
             completedRunSnapshot: null,
             serverProgression: null,
             rewardsApplied: false,
@@ -621,6 +622,14 @@ export function createRunLifecycleSlice(
                     ? 'This verified run attempt has expired.'
                     : 'The run trace was rejected.',
                 saveFailureKind: 'terminal',
+                saveDiagnostic: {
+                  attemptId: syncedAttempt.attemptId,
+                  engineVersion: syncedAttempt.engineVersion,
+                  rejectionCode:
+                    appendResult.data.status === 'expired'
+                      ? 'run_attempt_expired'
+                      : 'trace_rejected',
+                },
               });
               return true;
             }
@@ -660,6 +669,12 @@ export function createRunLifecycleSlice(
                   ? 'This verified run attempt has expired.'
                   : 'The run trace was rejected.',
               saveFailureKind: 'terminal',
+              saveDiagnostic: {
+                attemptId: syncedAttempt.attemptId,
+                engineVersion: syncedAttempt.engineVersion,
+                rejectionCode:
+                  sealResult.data.status === 'expired' ? 'run_attempt_expired' : 'trace_rejected',
+              },
             });
             return true;
           }
@@ -694,6 +709,11 @@ export function createRunLifecycleSlice(
                 saveStatus: 'failed',
                 saveError: verification.error.message,
                 saveFailureKind: 'terminal',
+                saveDiagnostic: {
+                  attemptId: syncedAttempt.attemptId,
+                  engineVersion: syncedAttempt.engineVersion,
+                  rejectionCode: verification.error.code,
+                },
               });
               return true;
             }

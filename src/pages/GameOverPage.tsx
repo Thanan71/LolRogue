@@ -9,6 +9,7 @@ import { plural } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
+import { formatRunSaveDiagnostic } from '@/utils/runDiagnostic';
 import '@/styles/game-over.css';
 import type { RunSummary } from '@/types/run';
 
@@ -20,11 +21,13 @@ export function GameOverPage() {
   const saveStatus = useRunStore((state) => state.saveStatus);
   const saveError = useRunStore((state) => state.saveError);
   const saveFailureKind = useRunStore((state) => state.saveFailureKind);
+  const saveDiagnostic = useRunStore((state) => state.saveDiagnostic);
   const activeRunId = useRunStore((state) => state.runId);
   const completedRunSnapshot = useRunStore((state) => state.completedRunSnapshot);
   const serverProgression = useRunStore((state) => state.serverProgression);
   const hasAuthenticatedAccount = useAuthStore((state) => state.user !== null);
   const [isErrorVisible, setIsErrorVisible] = useState(true);
+  const [diagnosticCopied, setDiagnosticCopied] = useState(false);
   const summary = completedRunSnapshot?.summary ?? routeSummary;
   const rewards = useMemo(() => {
     if (!summary) return null;
@@ -68,6 +71,12 @@ export function GameOverPage() {
     void useRunStore
       .getState()
       .endRun(summary?.won ?? false, completedRunSnapshot?.runId ?? activeRunId, summary);
+  }
+
+  async function handleCopyDiagnostic() {
+    if (!saveDiagnostic || !navigator.clipboard) return;
+    await navigator.clipboard.writeText(formatRunSaveDiagnostic(saveDiagnostic));
+    setDiagnosticCopied(true);
   }
 
   const runLevel = summary?.runLevel ?? 1;
@@ -154,6 +163,15 @@ export function GameOverPage() {
               {saveFailureKind === 'terminal'
                 ? `${fr.gameOver.rejected} : ${saveError}`
                 : `${fr.gameOver.verificationPending} : ${saveError}`}
+              {saveFailureKind === 'terminal' && saveDiagnostic && (
+                <details className="game-over-diagnostic">
+                  <summary>Détails techniques pour le support</summary>
+                  <pre>{formatRunSaveDiagnostic(saveDiagnostic)}</pre>
+                  <button type="button" onClick={() => void handleCopyDiagnostic()}>
+                    {diagnosticCopied ? 'Diagnostic copié' : 'Copier le diagnostic'}
+                  </button>
+                </details>
+              )}
             </div>
             <div className="game-over-error__actions">
               {isRetryableSaveError && (

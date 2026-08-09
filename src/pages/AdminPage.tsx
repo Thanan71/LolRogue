@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
+import { AdminAuthorityPanel } from './admin/AdminAuthorityPanel';
 import { AdminDashboardPanel } from './admin/AdminDashboardPanel';
 import { AdminErrorNotice } from './admin/AdminErrorNotice';
 import { AdminModerationPanel } from './admin/AdminModerationPanel';
@@ -17,10 +18,14 @@ export function AdminPage() {
     activeTab,
     setActiveTab,
     stats,
+    authorityAggregates,
+    authoritySignals,
+    authorityRejections,
     playerStats,
     logs,
     loading,
     statsLoading,
+    authorityLoading,
     logsLoading,
     playersLoading,
     runsLoading,
@@ -33,6 +38,7 @@ export function AdminPage() {
     logFilter,
     setLogFilter,
     fetchStats,
+    fetchAuthorityObservability,
     fetchPlayerStats,
     fetchLogs,
     fetchRuns,
@@ -188,6 +194,17 @@ export function AdminPage() {
               </div>
             )}
           </section>
+        )}
+
+        {activeTab === 'authority' && (
+          <AdminAuthorityPanel
+            aggregates={authorityAggregates}
+            signals={authoritySignals}
+            rejections={authorityRejections}
+            loading={loading || authorityLoading}
+            error={errors.authority}
+            onRefresh={() => void fetchAuthorityObservability()}
+          />
         )}
 
         {activeTab === 'players' && (

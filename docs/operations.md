@@ -196,6 +196,56 @@ Ne pas réinitialiser la base de production pour revenir en arrière.
 
 ## Observabilité et confidentialité
 
+### SLO de vérification authority
+
+Le SLI est la proportion des attempts scellés qui atteignent un état terminal
+`verified` ou `rejected` dans les **120 secondes** suivant `finished_at`. Le SLO est
+de **99 % sur une fenêtre glissante de 30 jours**. Une attempt `finished` depuis plus
+de **5 minutes** est un backlog anormal à traiter, même si aucun rejet n'est encore
+visible.
+
+L'alerte courte utilise une fenêtre glissante de **15 minutes**, séparée par
+`engine_version` et `gameplay_ruleset_version`. Elle se déclenche sur l'un des cas :
+
+- tout `rejection_code` inconnu ;
+- au moins 3 rejets portant le même code ;
+- au moins 20 % de rejets dès 5 attempts observés.
+
+L'onglet **Authority** de `/admin` expose les agrégats et les 20 derniers rejets. La
+requête runbook équivalente est `public.authority_recent_rejections`. Ces sorties
+contiennent seulement `attempt_id`, versions, date et code ; une alerte externe ne
+doit jamais inclure commandes, payload, journal, identité ou état joueur.
+
+Le SLI sur 30 jours peut être contrôlé depuis une connexion opérateur directe :
+
+```sql
+WITH terminal_attempts AS (
+  SELECT
+    finished_at,
+    COALESCE(verified_at, rejected_at) AS terminal_at
+  FROM public.run_attempts
+  WHERE finished_at >= NOW() - INTERVAL '30 days'
+    AND status IN ('verified', 'rejected')
+)
+SELECT
+  COUNT(*) AS terminal_attempts,
+  COUNT(*) FILTER (
+    WHERE terminal_at <= finished_at + INTERVAL '120 seconds'
+  ) AS within_slo,
+  ROUND(
+    100 * COUNT(*) FILTER (
+      WHERE terminal_at <= finished_at + INTERVAL '120 seconds'
+    )::NUMERIC / NULLIF(COUNT(*), 0),
+    2
+  ) AS slo_percent
+FROM terminal_attempts;
+```
+
+Suivre `docs/incident-runbooks.md#rejets-authority-anormaux` si une alerte se
+déclenche ou si le SLO passe sous 99 %.
+
+### Diagnostics applicatifs
+
 Analytics et Speed Insights sont désactivés tant qu'une politique de confidentialité
 et une base légale ne sont pas définies. Le logging applicatif en base est lui aussi
 désactivé par défaut. Pour l'activer explicitement :

@@ -57,6 +57,7 @@ export const useRunStore = create<RunStore>()(
           state.saveStatus === 'saving' || state.saveStatus === 'retrying'
             ? 'retryable'
             : state.saveFailureKind,
+        saveDiagnostic: state.saveDiagnostic,
         completedRunSnapshot: state.completedRunSnapshot,
         serverProgression: state.serverProgression,
         rewardsApplied: state.rewardsApplied,

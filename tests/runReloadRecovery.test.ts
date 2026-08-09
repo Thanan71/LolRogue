@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
-import { createRunLedger } from '@/game/run/runLedger';
 import type { CombatEncounter } from '@/game/map/types';
+import { createRunLedger } from '@/game/run/runLedger';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 
@@ -395,6 +395,30 @@ describe('run reload recovery', () => {
       });
     },
   );
+
+  it('keeps the bounded authority rejection diagnostic across reloads', async () => {
+    useRunStore.setState({
+      saveStatus: 'failed',
+      saveFailureKind: 'terminal',
+      saveDiagnostic: {
+        attemptId: '11111111-1111-4111-8111-111111111111',
+        engineVersion: 'run-engine-v13',
+        rejectionCode: 'pending_choice',
+      },
+    });
+    const persisted = localStorage.getItem(RUN_STORAGE_KEY);
+    expect(persisted).not.toBeNull();
+
+    useRunStore.setState({ saveDiagnostic: null });
+    localStorage.setItem(RUN_STORAGE_KEY, persisted!);
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState().saveDiagnostic).toEqual({
+      attemptId: '11111111-1111-4111-8111-111111111111',
+      engineVersion: 'run-engine-v13',
+      rejectionCode: 'pending_choice',
+    });
+  });
 
   it('restores an interrupted authoritative start with its exact idempotency payload', async () => {
     useRunStore.setState({
