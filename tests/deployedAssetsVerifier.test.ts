@@ -20,6 +20,8 @@ const runVerifier = (deploymentUrl: string, deployedCommitSha: string) =>
         ...process.env,
         DEPLOYMENT_URL: deploymentUrl,
         EXPECTED_COMMIT_SHA: deployedCommitSha,
+        DEPLOYMENT_IDENTITY_MAX_ATTEMPTS: '3',
+        DEPLOYMENT_IDENTITY_RETRY_DELAY_MS: '5',
       },
     });
     let stderr = '';
@@ -94,6 +96,50 @@ describe('deployed asset verifier', () => {
 
       expect(result.status).toBe(1);
       expect(result.stderr).toContain('Deployment identity endpoint returned invalid JSON.');
+    } finally {
+      await new Promise<void>((resolveClosed, reject) =>
+        server.close((error) => (error ? reject(error) : resolveClosed())),
+      );
+    }
+  });
+
+  it('réessaie pendant la propagation Vercel puis accepte la bonne identité', async () => {
+    let identityRequests = 0;
+    const server = createServer((request, response) => {
+      if (request.url === '/api/deployment-identity') {
+        identityRequests += 1;
+        if (identityRequests < 3) {
+          response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          response.end('<!DOCTYPE html><html></html>');
+          return;
+        }
+        response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        response.end(JSON.stringify({ commit: expectedCommitSha }));
+        return;
+      }
+      const bytes = assetSizes.get(request.url || '');
+      if (bytes === undefined) {
+        response.writeHead(404).end();
+        return;
+      }
+      response.writeHead(200, { 'Content-Type': 'application/octet-stream' });
+      response.end(Buffer.alloc(bytes));
+    });
+    await new Promise<void>((resolveStarted) => server.listen(0, '127.0.0.1', resolveStarted));
+    const address = server.address();
+    if (!address || typeof address === 'string') throw new Error('Test server did not start.');
+
+    try {
+      const deploymentUrl = `http://127.0.0.1:${address.port}`;
+      const result = await runVerifier(deploymentUrl, expectedCommitSha);
+
+      expect(result.status).toBe(0);
+      expect(identityRequests).toBe(3);
+      expect(result.stderr).toContain('Deployment identity attempt 1/3 failed');
+      expect(result.stderr).toContain('Deployment identity attempt 2/3 failed');
+      expect(result.stdout).toContain(
+        `Verified ${manifest.files.length} deployed Riot assets at ${deploymentUrl} for commit ${expectedCommitSha}.`,
+      );
     } finally {
       await new Promise<void>((resolveClosed, reject) =>
         server.close((error) => (error ? reject(error) : resolveClosed())),
