@@ -44,6 +44,15 @@ describe('legal and privacy contract', () => {
   it('schedules the reviewed social-data purge every month', () => {
     expect(socialRetentionMigration).toContain("'lolrogue-purge-expired-social-data'");
     expect(socialRetentionMigration).toContain("'43 4 1 * *'");
-    expect(socialRetentionMigration).toContain('SELECT public.purge_expired_social_data()');
+    expect(socialRetentionMigration).toContain('SELECT private.purge_expired_social_data()');
+  });
+
+  it('runs scheduled retention outside every web role', () => {
+    expect(socialRetentionMigration).toContain(
+      'REVOKE ALL ON FUNCTION private.purge_expired_social_data()',
+    );
+    expect(socialRetentionMigration).toContain('FROM PUBLIC, anon, authenticated, service_role');
+    expect(socialRetentionMigration).toContain("(SELECT auth.role()) <> 'service_role'");
+    expect(socialRetentionMigration).toContain('TO service_role');
   });
 });
