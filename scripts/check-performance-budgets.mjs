@@ -1,4 +1,4 @@
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
 import { extname, join, relative, resolve } from 'node:path';
 
@@ -86,6 +86,29 @@ const totalJavaScriptHeadroomRatio =
 if (totalJavaScriptHeadroomRatio < minimumHeadroomRatio) {
   failures.push(['totalJavaScriptHeadroomRatio', Number(totalJavaScriptHeadroomRatio.toFixed(4))]);
 }
+const chunks = [...sizes.entries()]
+  .map(([file, size]) => ({
+    file,
+    rawBytes: size.raw,
+    gzipBytes: size.gzip,
+    totalGzipRatio: Number((size.gzip / measured.totalJavaScriptGzipBytes).toFixed(4)),
+  }))
+  .sort((left, right) => right.gzipBytes - left.gzipBytes || left.file.localeCompare(right.file));
+const report = {
+  schemaVersion: 1,
+  commitSha: process.env.APP_COMMIT_SHA?.trim() || process.env.GITHUB_SHA?.trim() || 'local',
+  budgets,
+  measured: { ...measured, totalJavaScriptHeadroomRatio },
+  authRouteManifestEntries: [...authDependencyKeys].sort(),
+  chunks,
+};
+const reportDirectory = join(root, 'performance-report');
+await mkdir(reportDirectory, { recursive: true });
+await writeFile(
+  join(reportDirectory, 'bundle-report.json'),
+  `${JSON.stringify(report, null, 2)}\n`,
+  'utf8',
+);
 console.table(
   Object.fromEntries(
     Object.entries(measured).map(([name, value]) => [
@@ -97,6 +120,8 @@ console.table(
 console.log(
   `Total JavaScript headroom: ${(totalJavaScriptHeadroomRatio * 100).toFixed(2)}% (minimum ${(minimumHeadroomRatio * 100).toFixed(0)}%).`,
 );
+console.table(chunks.slice(0, 10));
+console.log('Chunk report written to performance-report/bundle-report.json.');
 console.log(`Auth route isolation passed: ${authDependencyKeys.size} manifest entries.`);
 if (process.argv.includes('--auth-route-only')) process.exit(0);
 if (failures.length) {
