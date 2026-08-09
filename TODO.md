@@ -611,18 +611,20 @@ L'advisor le marque « unused ». Ne pas le supprimer automatiquement.
 
 **Taille : M/L**
 
-Le budget total actuel est 396 kB gzip. Les documents indiquent une mesure proche de
-390 kB, donc la marge est faible.
+Le budget total reste fixé à 398 kB gzip. La référence avant correction dépassait le
+plafond de 321 octets ; la mesure finale atteint 349 961 octets, soit 12,07 % de marge.
 
-- [ ] Fixer un objectif de headroom, par exemple ≥10 % sous le plafond, plutôt que
+- [x] Fixer un objectif de headroom, par exemple ≥10 % sous le plafond, plutôt que
   de relever le plafond à chaque upgrade.
-- [ ] Générer un rapport par chunk dans l'artefact CI.
-- [ ] Identifier le coût de React 19, Supabase, champion-data, pages admin/légales.
-- [ ] Lazy-loader les routes non nécessaires au premier combat.
-- [ ] Vérifier que le catalogue complet n'est pas tiré par `/auth` indirectement.
-- [ ] Étudier une segmentation des données champions affichées avant le Database.
-- [ ] Ajouter un budget individuel aux 5 chunks les plus lourds.
-- [ ] Mesurer sur une preview réelle, pas seulement le gzip statique.
+- [x] Générer un rapport par chunk dans l'artefact CI.
+- [x] Identifier le coût de React 19, Supabase, champion-data, pages admin/légales.
+- [x] Lazy-loader les routes non nécessaires au premier combat.
+- [x] Vérifier que le catalogue complet n'est pas tiré par `/auth` indirectement.
+- [x] Étudier une segmentation des données champions affichées avant le Database.
+- [x] Ajouter un budget individuel aux 5 chunks les plus lourds.
+- [x] Mesurer sur une preview réelle, pas seulement le gzip statique.
+
+Preuves et décisions : `docs/frontend-performance.md`.
 
 ---
 
@@ -910,7 +912,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 ## Sprint C — performance / dette
 
 12. [x] `P2-DB-01` index mesurés.
-13. [ ] `P2-PERF-01` headroom bundle, sans modifier l'interface.
+13. [x] `P2-PERF-01` headroom bundle, sans modifier l'interface.
 14. [ ] `P2-TEST-01` couverture des frontières critiques.
 15. [ ] `P2-TEST-04` advisors versionnés.
 16. [ ] `P2-WEB-01` CSP.

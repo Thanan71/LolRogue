@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createClientChampionCatalog } from './lib/client-champion-catalog.mjs';
 import { IMPLEMENTED_CHAMPION_IDS, RIOT_ITEM_ASSETS } from './riot-asset-catalog.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -112,6 +113,11 @@ if (!isDist) {
     if (!expectedPaths.has(assetPath)) {
       throw new Error(`Champion ${champion.id} references an unmanifested icon.`);
     }
+  }
+  const clientCatalogBytes = await fs.readFile(path.join(generatedRoot, 'champions-client.json'));
+  const clientChampions = JSON.parse(clientCatalogBytes.toString('utf8'));
+  if (!equalValues(clientChampions, createClientChampionCatalog(champions))) {
+    throw new Error('Client champion catalogue is not the deterministic compact projection.');
   }
 }
 

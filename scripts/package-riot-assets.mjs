@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createClientChampionCatalog } from './lib/client-champion-catalog.mjs';
 import { IMPLEMENTED_CHAMPION_IDS, RIOT_ITEM_ASSETS } from './riot-asset-catalog.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -105,6 +106,11 @@ const champions = shippedChampionIds.map((championId) => {
 await fs.mkdir(generatedRoot, { recursive: true });
 const championCatalogBytes = Buffer.from(`${JSON.stringify(champions, null, 2)}\n`, 'utf8');
 await fs.writeFile(path.join(generatedRoot, 'champions-parsed.json'), championCatalogBytes);
+const clientChampionCatalogBytes = Buffer.from(
+  `${JSON.stringify(createClientChampionCatalog(champions))}\n`,
+  'utf8',
+);
+await fs.writeFile(path.join(generatedRoot, 'champions-client.json'), clientChampionCatalogBytes);
 
 files.sort((left, right) => left.path.localeCompare(right.path));
 const manifest = {

@@ -154,7 +154,9 @@ const TreasurePage = lazy(() =>
 );
 
 export default function App() {
+  const { pathname } = useLocation();
   const textSize = useSettingsStore((state) => state.textSize);
+  const shouldLoadRunNotifications = pathname !== '/auth' && pathname !== '/legal';
 
   useEffect(() => {
     return installGlobalErrorCapture();
@@ -171,9 +173,11 @@ export default function App() {
     <div id="app">
       <RouteAccessibility />
       <AuthBootstrap />
-      <Suspense fallback={null}>
-        <NotificationRegion />
-      </Suspense>
+      {shouldLoadRunNotifications ? (
+        <Suspense fallback={null}>
+          <NotificationRegion />
+        </Suspense>
+      ) : null}
       <Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
           <Route path="/legal" element={<LegalPage />} />

@@ -7,6 +7,16 @@
     "authRouteJavaScriptGzipBytes": 225000,
     "deployableAssetBytes": 7200000
   },
+  "headroom": {
+    "totalJavaScriptMinimumRatio": 0.1
+  },
+  "chunks": {
+    "react-vendor": 76000,
+    "supabase-vendor": 56000,
+    "champion-data": 55000,
+    "index": 48000,
+    "runStore": 32000
+  },
   "mobileWebVitals": {
     "lcpMs": 2500,
     "cls": 0.1,

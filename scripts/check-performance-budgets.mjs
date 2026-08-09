@@ -1,4 +1,4 @@
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
 import { extname, join, relative, resolve } from 'node:path';
 
@@ -45,6 +45,21 @@ function gzipForManifestEntries(keys) {
 
 const entryKey = Object.keys(manifest).find((key) => manifest[key].isEntry);
 const authKey = Object.keys(manifest).find((key) => key.endsWith('/AuthPage.tsx'));
+const authDependencyKeys = new Set([...dependencyFiles(entryKey), ...dependencyFiles(authKey)]);
+const forbiddenAuthDependencies = [
+  '/AdminPage.tsx',
+  '/DatabasePage.tsx',
+  '/LegalPage.tsx',
+  '/champions-parsed.json',
+  '/champions-client.json',
+];
+const authLeaks = [...authDependencyKeys].filter((key) =>
+  forbiddenAuthDependencies.some((dependency) => key.endsWith(dependency)),
+);
+if (authLeaks.length) {
+  throw new Error(`Auth route imports deferred application code: ${authLeaks.join(', ')}`);
+}
+
 const measured = {
   totalJavaScriptGzipBytes: [...sizes.values()].reduce((sum, size) => sum + size.gzip, 0),
   largestJavaScriptRawBytes: Math.max(...[...sizes.values()].map((size) => size.raw)),
@@ -57,6 +72,59 @@ const measured = {
 };
 
 const failures = Object.entries(measured).filter(([name, value]) => value > budgets.bundle[name]);
+const minimumHeadroomRatio = budgets.headroom?.totalJavaScriptMinimumRatio;
+if (
+  typeof minimumHeadroomRatio !== 'number' ||
+  minimumHeadroomRatio <= 0 ||
+  minimumHeadroomRatio >= 1
+) {
+  throw new Error('totalJavaScriptMinimumRatio must be between 0 and 1.');
+}
+const totalJavaScriptHeadroomRatio =
+  (budgets.bundle.totalJavaScriptGzipBytes - measured.totalJavaScriptGzipBytes) /
+  budgets.bundle.totalJavaScriptGzipBytes;
+if (totalJavaScriptHeadroomRatio < minimumHeadroomRatio) {
+  failures.push(['totalJavaScriptHeadroomRatio', Number(totalJavaScriptHeadroomRatio.toFixed(4))]);
+}
+const chunks = [...sizes.entries()]
+  .map(([file, size]) => ({
+    file,
+    rawBytes: size.raw,
+    gzipBytes: size.gzip,
+    totalGzipRatio: Number((size.gzip / measured.totalJavaScriptGzipBytes).toFixed(4)),
+  }))
+  .sort((left, right) => right.gzipBytes - left.gzipBytes || left.file.localeCompare(right.file));
+const chunkBudgets = Object.entries(budgets.chunks ?? {}).map(([name, maxGzipBytes]) => {
+  const matchingChunks = chunks.filter((chunk) =>
+    chunk.file.match(new RegExp(`^assets/${name}-[^/]+\\.js$`)),
+  );
+  if (matchingChunks.length !== 1) {
+    throw new Error(
+      `Expected exactly one JavaScript chunk matching ${name}, found ${matchingChunks.length}.`,
+    );
+  }
+  const [chunk] = matchingChunks;
+  if (chunk.gzipBytes > maxGzipBytes) {
+    failures.push([`${name}ChunkGzipBytes`, chunk.gzipBytes]);
+  }
+  return { name, file: chunk.file, gzipBytes: chunk.gzipBytes, maxGzipBytes };
+});
+const report = {
+  schemaVersion: 1,
+  commitSha: process.env.APP_COMMIT_SHA?.trim() || process.env.GITHUB_SHA?.trim() || 'local',
+  budgets,
+  measured: { ...measured, totalJavaScriptHeadroomRatio },
+  authRouteManifestEntries: [...authDependencyKeys].sort(),
+  chunkBudgets,
+  chunks,
+};
+const reportDirectory = join(root, 'performance-report');
+await mkdir(reportDirectory, { recursive: true });
+await writeFile(
+  join(reportDirectory, 'bundle-report.json'),
+  `${JSON.stringify(report, null, 2)}\n`,
+  'utf8',
+);
 console.table(
   Object.fromEntries(
     Object.entries(measured).map(([name, value]) => [
@@ -65,6 +133,21 @@ console.table(
     ]),
   ),
 );
+console.log(
+  `Total JavaScript headroom: ${(totalJavaScriptHeadroomRatio * 100).toFixed(2)}% (minimum ${(minimumHeadroomRatio * 100).toFixed(0)}%).`,
+);
+console.table(chunks.slice(0, 10));
+console.table(
+  Object.fromEntries(
+    chunkBudgets.map(({ name, gzipBytes, maxGzipBytes }) => [
+      name,
+      { measured: gzipBytes, budget: maxGzipBytes },
+    ]),
+  ),
+);
+console.log('Chunk report written to performance-report/bundle-report.json.');
+console.log(`Auth route isolation passed: ${authDependencyKeys.size} manifest entries.`);
+if (process.argv.includes('--auth-route-only')) process.exit(0);
 if (failures.length) {
   throw new Error(
     `Performance budget exceeded: ${failures.map(([name, value]) => `${name}=${value}`).join(', ')}`,

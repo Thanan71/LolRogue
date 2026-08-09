@@ -35,7 +35,7 @@ export default defineConfig({
           groups: [
             {
               name: 'champion-data',
-              test: (id) => id.includes('champions-parsed.json'),
+              test: (id) => id.includes('champions-client.json'),
               priority: 3,
             },
             {
@@ -54,6 +54,20 @@ export default defineConfig({
     },
   },
   plugins: [
+    {
+      name: 'client-champion-catalog',
+      apply: 'build',
+      enforce: 'pre',
+      resolveId(source, importer) {
+        if (
+          source === './generated/champions-parsed.json' &&
+          importer?.endsWith('/src/data/championDatabase.ts')
+        ) {
+          return path.resolve(__dirname, './src/data/generated/champions-client.json');
+        }
+        return null;
+      },
+    },
     {
       name: 'inject-deployment-identity',
       apply: 'build',

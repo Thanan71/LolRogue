@@ -56,7 +56,11 @@ describe('Riot asset delivery', () => {
       new URL('../src/data/championDatabase.ts', import.meta.url),
       'utf8',
     );
+    const viteSource = readFileSync(new URL('../vite.config.ts', import.meta.url), 'utf8');
     expect(source).not.toMatch(/public\/lol|public.*champions-parsed/);
+    expect(source).toContain('./generated/champions-parsed.json');
+    expect(viteSource).toContain("name: 'client-champion-catalog'");
+    expect(viteSource).toContain('champions-client.json');
     const ignored = spawnSync(
       'git',
       ['check-ignore', 'public/assets/riot/16.6.1/champions/Garen.png'],

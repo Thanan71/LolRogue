@@ -32,6 +32,9 @@ test-results/
 playwright-report/
 blob-report/
 
+# Generated local performance artifact
+performance-report/
+
 # Raw Data Dragon staging cache. The minimal release package lives in
 # public/assets/riot/ and is intentionally versioned.
 public/lol/data/
