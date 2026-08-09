@@ -474,7 +474,7 @@ déjà été rejetées avec le même code.
 - [x] Refuser de lancer le script distant sans URL explicite dans les contextes CI
   où la cohérence SHA est requise.
 - [x] Vérifier que l'URL testée expose un marqueur de commit/version attendu.
-- [ ] Ajouter le SHA testé dans la sortie du script.
+- [x] Ajouter le SHA testé dans la sortie du script.
 - [ ] Conserver une vérification prod post-déploiement séparée.
 
 ### Acceptation

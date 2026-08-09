@@ -56,4 +56,6 @@ if (failures.length > 0) {
   throw new Error(`Deployed Riot assets are invalid: ${JSON.stringify(failures.slice(0, 10))}`);
 }
 
-console.log(`Verified ${manifest.files.length} deployed Riot assets at ${baseUrl}.`);
+console.log(
+  `Verified ${manifest.files.length} deployed Riot assets at ${baseUrl} for commit ${expectedCommitSha}.`,
+);

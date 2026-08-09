@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -6,9 +7,13 @@ import { describe, expect, it } from 'vitest';
 const root = resolve(import.meta.dirname, '..');
 const script = resolve(root, 'scripts/verify-deployed-assets.mjs');
 const expectedCommitSha = '0123456789abcdef0123456789abcdef01234567';
+const manifest = JSON.parse(
+  readFileSync(resolve(root, 'src/data/generated/riot-assets-manifest.json'), 'utf8'),
+) as { files: { path: string; bytes: number }[] };
+const assetSizes = new Map(manifest.files.map(({ path, bytes }) => [`/${path}`, bytes]));
 
 const runVerifier = (deploymentUrl: string, deployedCommitSha: string) =>
-  new Promise<{ status: number | null; stderr: string }>((resolveResult) => {
+  new Promise<{ status: number | null; stderr: string; stdout: string }>((resolveResult) => {
     const child = spawn(process.execPath, [script], {
       cwd: root,
       env: {
@@ -18,11 +23,16 @@ const runVerifier = (deploymentUrl: string, deployedCommitSha: string) =>
       },
     });
     let stderr = '';
+    let stdout = '';
     child.stderr.setEncoding('utf8');
+    child.stdout.setEncoding('utf8');
     child.stderr.on('data', (chunk) => {
       stderr += chunk;
     });
-    child.on('close', (status) => resolveResult({ status, stderr }));
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.on('close', (status) => resolveResult({ status, stderr, stdout }));
   });
 
 describe('deployed asset verifier', () => {
@@ -60,6 +70,43 @@ describe('deployed asset verifier', () => {
       expect(result.status).toBe(1);
       expect(result.stderr).toContain(
         `Deployment identity mismatch: expected ${expectedCommitSha}, received ffffffffffffffffffffffffffffffffffffffff.`,
+      );
+    } finally {
+      await new Promise<void>((resolveClosed, reject) =>
+        server.close((error) => (error ? reject(error) : resolveClosed())),
+      );
+    }
+  });
+
+  it('affiche le SHA dont les assets ont été vérifiés', async () => {
+    const server = createServer((request, response) => {
+      if (request.url === '/') {
+        response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        response.end(
+          `<html><head><meta name="lolrogue-commit" content="${expectedCommitSha}"></head></html>`,
+        );
+        return;
+      }
+      const bytes = assetSizes.get(request.url || '');
+      if (bytes === undefined) {
+        response.writeHead(404).end();
+        return;
+      }
+      response.writeHead(200, { 'Content-Type': 'application/octet-stream' });
+      response.end(Buffer.alloc(bytes));
+    });
+    await new Promise<void>((resolveStarted) => server.listen(0, '127.0.0.1', resolveStarted));
+    const address = server.address();
+    if (!address || typeof address === 'string') throw new Error('Test server did not start.');
+
+    try {
+      const deploymentUrl = `http://127.0.0.1:${address.port}`;
+      const result = await runVerifier(deploymentUrl, expectedCommitSha);
+
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe('');
+      expect(result.stdout).toContain(
+        `Verified ${manifest.files.length} deployed Riot assets at ${deploymentUrl} for commit ${expectedCommitSha}.`,
       );
     } finally {
       await new Promise<void>((resolveClosed, reject) =>
