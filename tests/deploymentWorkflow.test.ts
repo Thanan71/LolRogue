@@ -14,7 +14,15 @@ const releasePreflight = readFileSync(
   new URL('../scripts/release-preflight.mjs', import.meta.url),
   'utf8',
 );
-const viteConfig = readFileSync(new URL('../vite.config.ts', import.meta.url), 'utf8');
+const deploymentIdentityWriter = readFileSync(
+  new URL('../scripts/write-deployment-identity.mjs', import.meta.url),
+  'utf8',
+);
+const deployedAssetsVerifier = readFileSync(
+  new URL('../scripts/verify-deployed-assets.mjs', import.meta.url),
+  'utf8',
+);
+const packageJson = readFileSync(new URL('../package.json', import.meta.url), 'utf8');
 
 describe('deployment workflow contract', () => {
   it('ne vérifie aucun déploiement distant dans la validation générique', () => {
@@ -40,15 +48,17 @@ describe('deployment workflow contract', () => {
     expect(releasePreflight).toContain('EXPECTED_COMMIT_SHA: candidate.sha');
   });
 
-  it('injecte le SHA Vercel dans le marqueur public du build', () => {
-    expect(viteConfig).toContain('process.env.VERCEL_GIT_COMMIT_SHA');
-    expect(viteConfig).toContain("name: 'lolrogue-commit'");
-    expect(viteConfig).toContain('content: deploymentCommitSha');
+  it("génère et vérifie un artefact JSON d'identité du déploiement", () => {
+    expect(packageJson).toContain('node scripts/write-deployment-identity.mjs');
+    expect(deploymentIdentityWriter).toContain('VERCEL_GIT_COMMIT_SHA');
+    expect(deploymentIdentityWriter).toContain('deployment-identity.json');
+    expect(deployedAssetsVerifier).toContain('/deployment-identity.json');
+    expect(deployedAssetsVerifier).toContain('deploymentIdentity?.commit');
   });
 
-  it('conserve un contrôle post-déploiement réservé à la production', () => {
-    expect(productionWorkflow).toContain('vercel.deployment.success');
+  it('conserve un seul contrôle post-déploiement réservé à la production promue', () => {
     expect(productionWorkflow).toContain('vercel.deployment.promoted');
+    expect(productionWorkflow).not.toContain('vercel.deployment.success');
     expect(productionWorkflow).toContain("github.event.client_payload.environment == 'production'");
     expect(productionWorkflow).toContain('ref: ${{ github.event.client_payload.git.sha }}');
     expect(productionWorkflow).toContain(
