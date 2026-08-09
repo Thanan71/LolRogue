@@ -19,13 +19,13 @@ if (!Array.isArray(manifest.files) || manifest.files.length === 0) {
   throw new Error('The Riot asset manifest is empty.');
 }
 
-const identityResponse = await fetch(`${baseUrl}/deployment-identity.json`, {
+const identityResponse = await fetch(`${baseUrl}/api/deployment-identity`, {
   redirect: 'follow',
   cache: 'no-store',
 });
 const identityBody = await identityResponse.text();
 if (!identityResponse.ok) {
-  throw new Error(`Deployment identity endpoint returned ${identityResponse.status}.`);
+  throw new Error(`Deployment identity endpoint returned ${identityResponse.status}: ${identityBody}`);
 }
 
 let deploymentIdentity;
