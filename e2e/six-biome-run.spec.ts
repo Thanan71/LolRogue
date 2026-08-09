@@ -139,8 +139,9 @@ async function resolveEncounter(page: Page, trace: string[], strategy: 'risky' |
     await investigate.click();
     await page.getByRole('button', { name: /Continue|Continuer/ }).click();
   } else if (path === '/treasure') {
-    const collect = page.getByRole('button', { name: /Récupérer|Collecter/ });
-    if (await collect.isVisible()) await collect.click();
+    // TreasurePage claims the encounter automatically once its payload is ready.
+    // Clicking the transient collect button races that effect and can wait forever
+    // after React removes the button from the page.
     await expect(page.getByText('Récompenses récupérées !')).toBeVisible();
     await page.getByRole('button', { name: /Continuer/ }).click();
   } else if (path === '/recruit') {
@@ -221,7 +222,9 @@ async function playRun(page: Page, testInfo: TestInfo, strategy: 'risky' | 'surv
       if (labelMatchesEncounter(label, type)) visited.add(type);
     }
     trace.push(`node:${label}`);
-    await nodes.nth(index).click();
+    // Playwright cannot scroll SVG <g> nodes inside the map's nested overflow
+    // containers reliably. Dispatch after the accessibility state is verified.
+    await nodes.nth(index).dispatchEvent('click');
     if (new URL(page.url()).pathname !== '/run') {
       const survived = await resolveEncounter(page, trace, strategy);
       if (!survived) break;

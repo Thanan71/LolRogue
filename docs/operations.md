@@ -152,6 +152,10 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 Les migrations sont progressives et ne doivent pas modifier rétroactivement un
 fichier déjà appliqué sur une base partagée. Ajouter une nouvelle migration
 horodatée et la tester avec `npm run db:validate`.
+Avant une promotion, relier explicitement le bon projet puis exécuter
+`npm run db:migrations:check:linked`. Cette commande est en lecture seule et bloque
+si une migration du commit manque sur le projet ou si le projet contient une
+version absente du dépôt.
 
 Le couple `engine_version`/`content_hash` d'un `gameplay_ruleset` est immuable dès
 qu'un attempt l'utilise. `npm run edge:bundle` recalcule le hash du bundle

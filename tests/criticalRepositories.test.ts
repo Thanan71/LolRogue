@@ -1,3 +1,4 @@
+import { readFileSync, readdirSync } from 'node:fs';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it, vi } from 'vitest';
 import { SupabaseAuthRepository } from '@/services/repositories/SupabaseAuthRepository';
@@ -186,5 +187,16 @@ describe('SupabaseLeaderboardRepository behavior', () => {
     await expect(repository.getPlayerRank()).resolves.toBe(17);
     expect(rpc).toHaveBeenCalledWith('get_my_leaderboard_rank');
     expect(from).not.toHaveBeenCalled();
+  });
+});
+
+describe('critical repository type contracts', () => {
+  it('forbids double assertions that can hide PostgREST response drift', () => {
+    const repositoryDirectory = new URL('../src/services/repositories/', import.meta.url);
+    const sources = readdirSync(repositoryDirectory)
+      .filter((file) => file.endsWith('.ts'))
+      .map((file) => readFileSync(new URL(file, repositoryDirectory), 'utf8'));
+
+    for (const source of sources) expect(source).not.toMatch(/as\s+unknown\s+as/);
   });
 });
