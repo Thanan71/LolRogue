@@ -532,7 +532,7 @@ Les types Node 26 peuvent rendre compilable l'utilisation d'une API absente de N
   explicite qui interdit les API Node >24 utilisées par les scripts exécutés.
   **Non applicable :** les types 26 ne sont pas conservés ; `@types/node` est
   épinglé sur la majeure 24 du runtime.
-- [ ] Corriger `docs/dependency-audit.md`, qui présente actuellement cette situation
+- [x] Corriger `docs/dependency-audit.md`, qui présente actuellement cette situation
   comme cohérente.
 - [ ] Ajouter un test/contrat qui compare `.nvmrc`, `package.json.engines`, CI et
   majeure de `@types/node`.
