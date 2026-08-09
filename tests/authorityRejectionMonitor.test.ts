@@ -76,4 +76,26 @@ describe('authority rejection monitor', () => {
       ),
     ).toEqual([]);
   });
+
+  it('detects a pending_choice spike before the global minimum volume is reached', () => {
+    const [alert] = evaluateAuthorityRejectionAlerts(
+      [
+        aggregate({
+          attemptCount: 4,
+          startedCount: 0,
+          rejectionCode: 'pending_choice',
+          rejectedCount: 4,
+        }),
+      ],
+      now,
+    );
+
+    expect(alert).toMatchObject({
+      engineVersion: 'run-engine-v13',
+      attemptCount: 4,
+      rejectedCount: 4,
+      rejectionCodes: ['pending_choice'],
+      reasons: ['rejection_code_spike'],
+    });
+  });
 });

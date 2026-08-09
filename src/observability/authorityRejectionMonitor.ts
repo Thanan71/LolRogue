@@ -2,6 +2,7 @@ export const AUTHORITY_REJECTION_ALERT_POLICY = {
   windowMinutes: 15,
   minimumAttempts: 5,
   rejectionRateThreshold: 0.2,
+  sameCodeSpikeThreshold: 3,
 } as const;
 
 export const KNOWN_AUTHORITY_REJECTION_CODES = new Set([
@@ -58,7 +59,7 @@ export interface AuthorityRejectionSignal {
   rejectionRate: number;
   rejectionCodes: string[];
   unknownCodes: string[];
-  reasons: Array<'new_rejection_code' | 'rejection_rate'>;
+  reasons: Array<'new_rejection_code' | 'rejection_code_spike' | 'rejection_rate'>;
 }
 
 function finiteCount(value: number): number {
@@ -110,6 +111,13 @@ export function evaluateAuthorityRejectionAlerts(
     );
     const reasons: AuthorityRejectionSignal['reasons'] = [];
     if (unknownCodes.length > 0) reasons.push('new_rejection_code');
+    if (
+      [...group.codes.values()].some(
+        (count) => count >= AUTHORITY_REJECTION_ALERT_POLICY.sameCodeSpikeThreshold,
+      )
+    ) {
+      reasons.push('rejection_code_spike');
+    }
     if (
       group.attemptCount >= AUTHORITY_REJECTION_ALERT_POLICY.minimumAttempts &&
       rejectionRate >= AUTHORITY_REJECTION_ALERT_POLICY.rejectionRateThreshold

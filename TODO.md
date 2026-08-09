@@ -418,7 +418,7 @@ déjà été rejetées avec le même code.
 - [x] Ne pas envoyer le journal complet ni les actions joueur dans une alerte externe.
 - [x] Ajouter un écran/admin ou une requête runbook donnant les 20 derniers rejets.
 - [x] Afficher `attemptId`, version et code dans les diagnostics utilisateur copiables.
-- [ ] Ajouter un test qui simule un spike de `pending_choice` et vérifie la détection.
+- [x] Ajouter un test qui simule un spike de `pending_choice` et vérifie la détection.
 - [ ] Définir un SLO de vérification de run et une fenêtre d'alerte.
 
 ---
