@@ -37,10 +37,11 @@ Sources à revalider avant chaque release :
 | Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
 
-La vue Daily applique directement la fenêtre de 13 mois. La maintenance appelle
-mensuellement `SELECT public.purge_expired_social_data();` avec le `service_role`
-uniquement afin de supprimer les signalements traités depuis plus de 24 mois. Le
-purgeur de logs existant conserve au maximum 14 jours.
+La vue Daily applique directement la fenêtre de 13 mois. Le job PostgreSQL mensuel
+`lolrogue-purge-expired-social-data`, exécuté par `postgres`, appelle la fonction
+privée de maintenance afin de supprimer les signalements traités depuis plus de
+24 mois. La façade publique reste réservée au `service_role` pour une intervention
+contrôlée. Le purgeur de logs existant conserve au maximum 14 jours.
 
 ## Base juridique à faire valider
 

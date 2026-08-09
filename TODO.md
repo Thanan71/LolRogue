@@ -376,7 +376,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 - [x] Rendre la tâche idempotente.
 - [x] Ajouter une métrique de dernière exécution / nombre de lignes supprimées.
 - [x] Tester des signalements ouverts, traités <24 mois et traités >24 mois.
-- [ ] Documenter comment vérifier le cron après restauration DB.
+- [x] Documenter comment vérifier le cron après restauration DB.
 
 ### Acceptation
 
