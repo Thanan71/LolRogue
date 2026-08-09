@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 import { vi } from 'vitest';
@@ -129,15 +129,22 @@ describe('authoritative Daily pages', () => {
       expect(screen.getByRole('button', { name: `Choisir ${championName}` })).toBeInTheDocument();
     }
     expect(screen.queryByRole('button', { name: 'Choisir Jinx' })).not.toBeInTheDocument();
+
+    const garen = screen.getByRole('button', { name: 'Choisir Garen' });
+    const annie = screen.getByRole('button', { name: 'Choisir Annie' });
+    fireEvent.click(garen);
+    expect(garen).toHaveAttribute('aria-pressed', 'true');
+    expect(annie).toBeDisabled();
+    expect(screen.getByText(/1\/1 slot\(s\) sélectionné/i)).toBeInTheDocument();
   });
 
-  it('drops a persisted Daily starter that is absent from the current server offer', async () => {
+  it('drops a persisted multi-champion Daily team even when every starter is offered', async () => {
     useRunStore.setState({
       pendingAuthorityStart: {
         commandId: '11111111-1111-4111-8111-111111111111',
         ownerUserId: 'user-1',
         mode: 'daily',
-        team: ['Jinx'],
+        team: ['Garen', 'Annie', 'Ashe'],
         runeIds: ['press_the_attack'],
         difficulty: 'normal',
       },
@@ -151,7 +158,6 @@ describe('authoritative Daily pages', () => {
 
     expect(await screen.findByText(/L'offre Daily a changé/i)).toBeInTheDocument();
     expect(useRunStore.getState().pendingAuthorityStart).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Choisir Jinx' })).not.toBeInTheDocument();
     for (const championName of ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', 'Soraka']) {
       expect(screen.getByRole('button', { name: `Choisir ${championName}` })).toBeInTheDocument();
     }

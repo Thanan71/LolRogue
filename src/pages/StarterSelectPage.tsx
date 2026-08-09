@@ -63,6 +63,7 @@ export function StarterSelectPage() {
       ),
     [masteryChampions],
   );
+  const starterSlotLimit = isDaily ? 1 : unlockedStarterSlots;
   const [selectedStarterIds, setSelectedStarterIds] = useState<string[]>(
     resumableStart?.team ?? [],
   );
@@ -106,7 +107,8 @@ export function StarterSelectPage() {
           pending &&
           pending.ownerUserId === user?.id &&
           pending.mode === 'daily' &&
-          pending.team.some((championId) => !challenge.starterIds.includes(championId))
+          (pending.team.length !== 1 ||
+            pending.team.some((championId) => !challenge.starterIds.includes(championId)))
         ) {
           useRunStore.setState({ pendingAuthorityStart: null });
           setSelectedStarterIds([]);
@@ -188,11 +190,9 @@ export function StarterSelectPage() {
       if (current.includes(championId)) {
         return current.filter((id) => id !== championId);
       }
-      if (current.length >= unlockedStarterSlots) {
+      if (current.length >= starterSlotLimit) {
         setError(
-          `Tu disposes de ${unlockedStarterSlots} slot${
-            unlockedStarterSlots > 1 ? 's' : ''
-          } de départ.`,
+          `Tu disposes de ${starterSlotLimit} slot${starterSlotLimit > 1 ? 's' : ''} de départ.`,
         );
         return current;
       }
@@ -215,7 +215,7 @@ export function StarterSelectPage() {
         {resumableStart
           ? 'Une tentative vérifiée interrompue est prête à reprendre avec ses choix d’origine.'
           : isDaily
-            ? `Tous les joueurs affrontent la même seed quotidienne · ${unlockedStarterSlots} slot(s)`
+            ? 'Tous les joueurs affrontent la même seed quotidienne · 1 starter'
             : `Run normale : ta difficulté et tes choix · sélectionne jusqu’à ${unlockedStarterSlots} champion(s)${isGuest ? ' · sauvegarde sur cet appareil uniquement' : ''}`}
       </p>
 
@@ -242,7 +242,7 @@ export function StarterSelectPage() {
             disabled={
               resumableStart !== null ||
               (!selectedStarterIds.includes(champ.id) &&
-                selectedStarterIds.length >= unlockedStarterSlots)
+                selectedStarterIds.length >= starterSlotLimit)
             }
             onSelect={() => toggleStarter(champ.id)}
           />
@@ -309,7 +309,7 @@ export function StarterSelectPage() {
             {selectedStarters.length > 0
               ? `${selectedStarters.map((champion) => champion.name).join(', ')} · ${
                   selectedStarters.length
-                }/${unlockedStarterSlots} slot(s) sélectionné`
+                }/${starterSlotLimit} slot(s) sélectionné`
               : 'Sélectionne un champion pour continuer'}
           </p>
           <button
