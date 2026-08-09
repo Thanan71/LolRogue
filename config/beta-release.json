@@ -9,7 +9,11 @@
   "candidate": {
     "sha": null,
     "previewUrl": null,
-    "liveMigrationVersion": null
+    "liveDatabase": {
+      "latestMigrationVersion": null,
+      "migrationVersions": [],
+      "checkedAt": null
+    }
   },
   "p0Gates": [
     {

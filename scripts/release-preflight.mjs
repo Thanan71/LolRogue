@@ -8,6 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const HTTPS_PATTERN = /^https:\/\//;
 const MIGRATION_PATTERN = /^(\d{14})_[a-z0-9_]+\.sql$/;
+const MIGRATION_VERSION_PATTERN = /^\d{14}$/;
 
 const options = new Set(process.argv.slice(2));
 const documentationOnly = options.has('--verify-documentation');
@@ -59,8 +60,29 @@ function inspectRecordedEvidence(sheet) {
   if (!HTTPS_PATTERN.test(candidate.previewUrl || '')) {
     block('preview-url', "l'URL HTTPS de preview du candidat manque");
   }
-  if (!MIGRATION_PATTERN.test(`${candidate.liveMigrationVersion || ''}.sql`)) {
+  const liveDatabase = candidate.liveDatabase || {};
+  if (!MIGRATION_VERSION_PATTERN.test(liveDatabase.latestMigrationVersion || '')) {
     block('live-migration', 'la version de migration live manque');
+  }
+  const liveMigrationVersions = Array.isArray(liveDatabase.migrationVersions)
+    ? liveDatabase.migrationVersions
+    : [];
+  if (
+    liveMigrationVersions.length === 0 ||
+    liveMigrationVersions.some((version) => !MIGRATION_VERSION_PATTERN.test(version)) ||
+    new Set(liveMigrationVersions).size !== liveMigrationVersions.length ||
+    JSON.stringify(liveMigrationVersions) !== JSON.stringify([...liveMigrationVersions].sort())
+  ) {
+    block('live-migration-manifest', 'le manifeste ordonné des migrations live est invalide');
+  }
+  if (
+    liveMigrationVersions.length > 0 &&
+    liveMigrationVersions.at(-1) !== liveDatabase.latestMigrationVersion
+  ) {
+    block('live-migration-latest', 'la dernière version live ne correspond pas au manifeste');
+  }
+  if (!isValidDate(liveDatabase.checkedAt) || isFuture(liveDatabase.checkedAt)) {
+    block('live-migration-date', 'la date du relevé des migrations live manque ou est future');
   }
 
   const requiredJobs = Array.isArray(sheet.requiredCiJobs) ? sheet.requiredCiJobs : [];
@@ -114,13 +136,12 @@ function inspectRecordedEvidence(sheet) {
   return blockers;
 }
 
-function latestLocalMigration() {
+function localMigrationVersions() {
   return fs
     .readdirSync(path.join(root, 'supabase/migrations'))
     .filter((file) => MIGRATION_PATTERN.test(file))
     .sort()
-    .at(-1)
-    ?.replace(/\.sql$/, '');
+    .map((file) => file.match(MIGRATION_PATTERN)[1]);
 }
 
 function inspectLiveEvidence(sheet) {
@@ -143,11 +164,18 @@ function inspectLiveEvidence(sheet) {
     block('last-p0-ancestry', "le dernier correctif P0 n'est pas un ancêtre du candidat");
   }
 
-  if (latestLocalMigration() !== candidate.liveMigrationVersion) {
+  const repositoryMigrationVersions = localMigrationVersions();
+  if (repositoryMigrationVersions.at(-1) !== candidate.liveDatabase.latestMigrationVersion) {
     block(
       'migration-repository',
-      `la dernière migration du dépôt est ${latestLocalMigration()}, pas ${candidate.liveMigrationVersion}`,
+      `la dernière migration du dépôt est ${repositoryMigrationVersions.at(-1)}, pas ${candidate.liveDatabase.latestMigrationVersion}`,
     );
+  }
+  if (
+    JSON.stringify(repositoryMigrationVersions) !==
+    JSON.stringify(candidate.liveDatabase.migrationVersions)
+  ) {
+    block('migration-artifact', 'le manifeste live enregistré diffère du commit candidat');
   }
 
   for (const ciRun of ciRuns) {

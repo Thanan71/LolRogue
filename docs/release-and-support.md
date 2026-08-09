@@ -30,8 +30,9 @@ fiche ; une commande destructive exige confirmation par une seconde personne.
 
 La personne qui publie renseigne d'abord la fiche versionnée
 `config/beta-release.json`, puis exécute `npm run release:preflight`. Cette fiche
-conserve le SHA exact, la preview, la migration live, les trois CI post-P0 et les
-preuves externes ; elle reste bloquante tant qu'un champ objectif manque. La
+conserve le SHA exact, la preview, le manifeste ordonné des migrations live avec sa
+dernière version et l'heure du relevé, les trois CI post-P0 et les preuves externes ;
+elle reste bloquante tant qu'un champ objectif manque. La
 checklist opératoire ci-dessous complète cette gate avec les versions de ruleset,
 l'opérateur rollback et l'heure UTC.
 
@@ -44,7 +45,7 @@ l'opérateur rollback et l'heure UTC.
       réussissent sous Node 24.
 - [ ] `npm run db:migrations:check:linked` confirme que la dernière migration du
       projet Supabase lié correspond à celle du commit candidat ; consigner les
-      deux versions dans la fiche de release.
+      versions ordonnées, la dernière version et l'heure du relevé dans la fiche.
 - [ ] Le contrôle de drift reste strictement en lecture seule : il exécute seulement
       `supabase migration list --linked`, jamais `push`, `up`, `repair` ou `fetch`.
 - [ ] Migrations nouvelles uniquement, types DB à jour et fonction autoritaire

@@ -506,7 +506,7 @@ Une PR cassant ses assets ne peut pas passer parce que la production précédent
   `supabase_migrations.schema_migrations` au commit candidat.
 - [x] Détecter migration manquante, migration live inconnue, ordre divergent.
 - [x] Ne jamais appliquer automatiquement une migration inconnue pendant un check.
-- [ ] Conserver la version live dans l'artefact de release.
+- [x] Conserver la version live dans l'artefact de release.
 - [ ] Tester rollback applicatif avec une DB ayant déjà reçu la migration append-only.
 
 ---
