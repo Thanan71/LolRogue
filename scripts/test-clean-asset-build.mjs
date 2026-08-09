@@ -19,7 +19,15 @@ const rootFiles = new Set([
   'vercel.json',
   'vite.config.ts',
 ]);
-const includedDirectories = ['src/', 'public/', 'scripts/'];
+const includedDirectories = [
+  'config/',
+  'src/',
+  'public/',
+  'scripts/',
+  'supabase/authority-archive/',
+  'supabase/functions/verify-run/',
+  'supabase/migrations/',
+];
 
 try {
   await fs.mkdir(projectDir, { recursive: true });

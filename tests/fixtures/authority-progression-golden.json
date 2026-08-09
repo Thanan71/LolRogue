@@ -1,0 +1,42 @@
+[
+  {
+    "progression": 2,
+    "transitions": [
+      {
+        "runLevel": 2,
+        "currentWave": 1,
+        "totalWavesCompleted": 0,
+        "currentBiomeIndex": 1,
+        "pendingAugmentIds": ["bulwark", "vitality_boost", "iron_skin"]
+      },
+      {
+        "runLevel": 3,
+        "currentWave": 4,
+        "totalWavesCompleted": 3,
+        "currentBiomeIndex": 2,
+        "pendingAugmentIds": ["brute_force", "sorcery_supreme", "critical_focus"]
+      },
+      {
+        "runLevel": 4,
+        "currentWave": 7,
+        "totalWavesCompleted": 6,
+        "currentBiomeIndex": 3,
+        "pendingAugmentIds": ["iron_skin", "brute_force", "warlord"]
+      },
+      {
+        "runLevel": 5,
+        "currentWave": 10,
+        "totalWavesCompleted": 9,
+        "currentBiomeIndex": 4,
+        "pendingAugmentIds": ["arcane_mind", "vitality_boost", "glass_cannon"]
+      },
+      {
+        "runLevel": 6,
+        "currentWave": 13,
+        "totalWavesCompleted": 12,
+        "currentBiomeIndex": 5,
+        "pendingAugmentIds": ["sorcery_supreme", "hyper_carry", "arcane_mind"]
+      }
+    ]
+  }
+]

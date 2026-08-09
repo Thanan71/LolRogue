@@ -1,14 +1,14 @@
 import { championDB } from '@/data';
 import { ChampionInstance } from '@/game/ChampionInstance';
+import { hasAuthorityFeature, isKnownAuthorityEngine } from '@/game/authority/versionRegistry';
 import type { CombatEncounter } from '@/game/map/types';
 
-export const LEGACY_ENCOUNTER_ENGINE_VERSIONS = new Set([
-  'run-engine-v1',
-  'run-engine-v2',
-  'run-engine-v3',
-  'run-engine-v4',
-  'run-engine-v5',
-]);
+export function usesLegacyEncounterRules(engineVersion: string): boolean {
+  return (
+    isKnownAuthorityEngine(engineVersion) &&
+    !hasAuthorityFeature(engineVersion, 'canonicalEncounters')
+  );
+}
 
 /**
  * Compatibility adapter for an attempt created before encounter ruleset v1.

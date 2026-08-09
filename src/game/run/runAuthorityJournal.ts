@@ -5,22 +5,10 @@ import type {
   RunAuthorityAttempt,
   RunCommandInput,
 } from '@/types/runAttempt';
-
-const CANONICAL_PROGRESSION_ENGINES = new Set([
-  'run-engine-v4',
-  'run-engine-v5',
-  'run-engine-v6',
-  'run-engine-v7',
-  'run-engine-v8',
-  'run-engine-v9',
-  'run-engine-v10',
-  'run-engine-v11',
-  'run-engine-v12',
-  'run-engine-v13',
-]);
+import { hasAuthorityFeature } from '@/game/authority/versionRegistry';
 
 export function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
-  return attempt === null || CANONICAL_PROGRESSION_ENGINES.has(attempt.engineVersion);
+  return attempt === null || hasAuthorityFeature(attempt.engineVersion, 'canonicalProgression');
 }
 
 export function createRunCommandId(): string | null {

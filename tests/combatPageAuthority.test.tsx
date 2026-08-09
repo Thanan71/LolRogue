@@ -5,6 +5,7 @@ import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NodeType } from '@/game/map/types';
+import type { AuthorityVersionMetadata } from '@/game/authority/versionRegistry';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import { ActionType } from '@/game/battle/types';
 import { CombatPage } from '@/pages/CombatPage';
@@ -15,6 +16,13 @@ import { useRunStore } from '@/stores/runStore';
 import { ROUTES } from '@/config/routes';
 import type { FinalCombatantState } from '@/types/run';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
+import rawRegistry from '../config/authority-versions.json';
+
+const AUTHORITY_VERSION_REGISTRY =
+  rawRegistry.versions as unknown as readonly AuthorityVersionMetadata[];
+const CURRENT_AUTHORITY_VERSION = AUTHORITY_VERSION_REGISTRY.find(
+  (version) => version.status === 'current',
+) as AuthorityVersionMetadata;
 
 const combatMocks = vi.hoisted(() => ({
   navigate: vi.fn(),
@@ -257,17 +265,12 @@ describe('CombatPage authority finalization', () => {
     expect(combatMocks.autoPlay).toBe(true);
   });
 
-  it.each([
-    'run-engine-v3',
-    'run-engine-v4',
-    'run-engine-v5',
-    'run-engine-v6',
-    'run-engine-v7',
-    'run-engine-v8',
-    'run-engine-v9',
-    'run-engine-v10',
-    'run-engine-v11',
-  ])(
+  it.each(
+    AUTHORITY_VERSION_REGISTRY.filter(
+      (version) =>
+        version.features.manualCombat && version.engine !== CURRENT_AUTHORITY_VERSION.engine,
+    ).map((version) => version.engine),
+  )(
     'starts a %s verified combat with auto off and journals its manual action trace',
     (engineVersion) => {
       useRunStore.setState({ authorityAttempt: attempt(engineVersion) });
