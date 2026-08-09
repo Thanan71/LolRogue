@@ -4,6 +4,17 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { configDefaults } from 'vitest/config';
 
+const shaPattern = /^[0-9a-f]{40}$/;
+const deploymentCommitSha =
+  process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
+
+if (deploymentCommitSha !== 'local' && !shaPattern.test(deploymentCommitSha)) {
+  throw new Error('APP_COMMIT_SHA or VERCEL_GIT_COMMIT_SHA must be a full lowercase Git SHA.');
+}
+if (process.env.VERCEL && deploymentCommitSha === 'local') {
+  throw new Error('VERCEL_GIT_COMMIT_SHA must be exposed to identify the deployed commit.');
+}
+
 export default defineConfig({
   // The legacy Data Dragon workspace under public/lol is an input cache, not a
   // deployable asset. Copy only the integrity-checked release package.
@@ -43,6 +54,22 @@ export default defineConfig({
     },
   },
   plugins: [
+    {
+      name: 'inject-deployment-identity',
+      apply: 'build',
+      transformIndexHtml(html) {
+        return {
+          html,
+          tags: [
+            {
+              tag: 'meta',
+              attrs: { name: 'lolrogue-commit', content: deploymentCommitSha },
+              injectTo: 'head',
+            },
+          ],
+        };
+      },
+    },
     react(),
     {
       name: 'copy-versioned-riot-assets',

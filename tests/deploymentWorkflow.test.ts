@@ -10,6 +10,7 @@ const releasePreflight = readFileSync(
   new URL('../scripts/release-preflight.mjs', import.meta.url),
   'utf8',
 );
+const viteConfig = readFileSync(new URL('../vite.config.ts', import.meta.url), 'utf8');
 
 describe('deployment workflow contract', () => {
   it('ne vérifie aucun déploiement distant dans la validation générique', () => {
@@ -33,5 +34,11 @@ describe('deployment workflow contract', () => {
   it("fournit explicitement l'URL et le SHA du candidat au contrôle de release", () => {
     expect(releasePreflight).toContain('DEPLOYMENT_URL: candidate.previewUrl');
     expect(releasePreflight).toContain('EXPECTED_COMMIT_SHA: candidate.sha');
+  });
+
+  it('injecte le SHA Vercel dans le marqueur public du build', () => {
+    expect(viteConfig).toContain('process.env.VERCEL_GIT_COMMIT_SHA');
+    expect(viteConfig).toContain("name: 'lolrogue-commit'");
+    expect(viteConfig).toContain('content: deploymentCommitSha');
   });
 });

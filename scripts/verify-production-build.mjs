@@ -6,6 +6,8 @@ const root = resolve(import.meta.dirname, '..');
 const dist = join(root, 'dist');
 const vercel = JSON.parse(await readFile(join(root, 'vercel.json'), 'utf8'));
 const index = await readFile(join(dist, 'index.html'));
+const expectedCommitSha =
+  process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
 const securityHeaders = Object.fromEntries(
   vercel.headers.flatMap((entry) => entry.headers.map(({ key, value }) => [key, value])),
 );
@@ -55,6 +57,10 @@ if (!address || typeof address === 'string') throw new Error('Unable to start bu
 const baseUrl = `http://127.0.0.1:${address.port}`;
 
 try {
+  if (!index.toString('utf8').includes(`name="lolrogue-commit" content="${expectedCommitSha}"`)) {
+    throw new Error(`The production build does not identify commit ${expectedCommitSha}.`);
+  }
+
   for (const route of ['/auth', '/run', '/daily-run', '/profile', '/unknown/deep-link']) {
     const response = await fetch(`${baseUrl}${route}`);
     if (response.status !== 200 || !(await response.text()).includes('<div id="root"></div>')) {
