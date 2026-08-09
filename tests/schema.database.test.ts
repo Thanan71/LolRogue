@@ -184,6 +184,8 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260809120000_harden_security_definer_privileges.sql',
       '../supabase/migrations/20260809150000_audit_admin_privileges.sql',
       '../supabase/migrations/20260809180000_automate_social_retention.sql',
+      '../supabase/migrations/20260809200000_authority_attempt_aggregates.sql',
+      '../supabase/migrations/20260809201000_authority_recent_rejections.sql',
     ]);
   });
 
