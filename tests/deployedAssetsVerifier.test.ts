@@ -53,12 +53,14 @@ describe('deployed asset verifier', () => {
     expect(result.stderr).not.toContain('lol-rogue.vercel.app');
   });
 
-  it('refuse une preview dont le marqueur ne correspond pas au SHA attendu', async () => {
-    const server = createServer((_request, response) => {
-      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      response.end(
-        '<html><head><meta name="lolrogue-commit" content="ffffffffffffffffffffffffffffffffffffffff"></head></html>',
-      );
+  it("refuse une preview dont l'identité JSON ne correspond pas au SHA attendu", async () => {
+    const server = createServer((request, response) => {
+      if (request.url === '/deployment-identity.json') {
+        response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        response.end(JSON.stringify({ commit: 'ffffffffffffffffffffffffffffffffffffffff' }));
+        return;
+      }
+      response.writeHead(404).end();
     });
     await new Promise<void>((resolveStarted) => server.listen(0, '127.0.0.1', resolveStarted));
     const address = server.address();
@@ -78,13 +80,32 @@ describe('deployed asset verifier', () => {
     }
   });
 
+  it("refuse un endpoint d'identité qui ne renvoie pas du JSON", async () => {
+    const server = createServer((_request, response) => {
+      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      response.end('<html></html>');
+    });
+    await new Promise<void>((resolveStarted) => server.listen(0, '127.0.0.1', resolveStarted));
+    const address = server.address();
+    if (!address || typeof address === 'string') throw new Error('Test server did not start.');
+
+    try {
+      const result = await runVerifier(`http://127.0.0.1:${address.port}`, expectedCommitSha);
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('Deployment identity endpoint returned invalid JSON.');
+    } finally {
+      await new Promise<void>((resolveClosed, reject) =>
+        server.close((error) => (error ? reject(error) : resolveClosed())),
+      );
+    }
+  });
+
   it('affiche le SHA dont les assets ont été vérifiés', async () => {
     const server = createServer((request, response) => {
-      if (request.url === '/') {
-        response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        response.end(
-          `<html><head><meta name="lolrogue-commit" content="${expectedCommitSha}"></head></html>`,
-        );
+      if (request.url === '/deployment-identity.json') {
+        response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        response.end(JSON.stringify({ commit: expectedCommitSha }));
         return;
       }
       const bytes = assetSizes.get(request.url || '');
