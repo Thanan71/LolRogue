@@ -13,6 +13,7 @@ const vercelConfig = JSON.parse(
   rewrites: Array<{ source: string; destination: string }>;
 };
 const appSource = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+const mainSource = readFileSync(new URL('../src/main.tsx', import.meta.url), 'utf8');
 const cssSource = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8');
 const starterCssSource = readFileSync(
   new URL('../src/styles/starter-select.css', import.meta.url),
@@ -41,12 +42,13 @@ describe('production configuration', () => {
     expect(headers['X-Frame-Options']).toBe('DENY');
   });
 
-  it('loads pages lazily without undocumented telemetry or missing Beaufort fonts', () => {
+  it('loads pages lazily with only the documented telemetry and bundled fonts', () => {
     expect(appSource).toContain('lazy(() =>');
     expect(packageJson.dependencies).not.toHaveProperty('@vercel/analytics');
-    expect(packageJson.dependencies).not.toHaveProperty('@vercel/speed-insights');
+    expect(packageJson.dependencies['@vercel/speed-insights']).toBe('2.0.0');
     expect(appSource).not.toContain('@vercel/analytics');
-    expect(appSource).not.toContain('@vercel/speed-insights');
+    expect(mainSource).toContain("from '@vercel/speed-insights/react'");
+    expect(mainSource).toContain('<SpeedInsights />');
     expect(cssSource).not.toMatch(/Beaufort|fonts\//i);
     expect(starterCssSource).not.toMatch(/fonts\.googleapis\.com|@import\s+url/i);
   });
