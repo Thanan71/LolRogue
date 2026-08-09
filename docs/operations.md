@@ -68,6 +68,14 @@ La migration `20260726180000_minimize_public_data_and_harden_logs.sql` remplace
 l'ancien client qui attend `player_id` ne peut plus calculer le rang localement et
 doit appeler `get_my_leaderboard_rank`.
 
+La migration `20260809090000_harden_leaderboard_views.sql` recrée les deux vues de
+classement avec `security_invoker=true`. Elle initialise des projections sanitisées
+dans le schéma non exposé `private`, puis les maintient par trigger sans élargir les
+droits sur `players` ou `daily_runs`. Après déploiement, exécuter la gate
+`npm run db:security`, contrôler que l'advisor Supabase ne signale plus aucun
+`security_definer_view`, puis tester les deux vues avec les rôles `anon`,
+`authenticated` et `service_role`.
+
 La migration `20260726210000_atomic_run_finalization.sql` supprime l'ancien RPC
 `save_run_loadout`. Vérifier avant déploiement que le client publié utilise
 uniquement la finalisation autoritaire. Une run dont la vérification dépasse
@@ -116,6 +124,9 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
   `daily_runs` ;
 - lire `leaderboard` avec la clé anonyme et confirmer l'absence d'identifiants,
   candies et dates de connexion ;
+- confirmer dans les advisors Supabase qu'il ne reste aucun
+  `security_definer_view`, puis vérifier dans `pg_class.reloptions` que
+  `leaderboard` et `daily_leaderboard` portent `security_invoker=true` ;
 - si les diagnostics sont activés, confirmer qu'un `INSERT` direct dans `logs`
   échoue, qu'une soumission RPC reçoit l'identité de la session et que le job de
   purge est actif ;

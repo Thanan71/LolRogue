@@ -4,6 +4,10 @@ const sql = readFileSync(
   new URL('../supabase/migrations/20260808150000_social_leaderboard_contract.sql', import.meta.url),
   'utf8',
 );
+const hardenedViewsSql = readFileSync(
+  new URL('../supabase/migrations/20260809090000_harden_leaderboard_views.sql', import.meta.url),
+  'utf8',
+);
 
 describe('social leaderboard contract', () => {
   it('never falls back to an account username and supports opt-out', () => {
@@ -31,5 +35,44 @@ describe('social leaderboard contract', () => {
 
   it('does not introduce a social graph, sharing or spectator storage', () => {
     expect(sql).not.toMatch(/CREATE TABLE public\.(friends|friendships|shares|spectators)/i);
+  });
+
+  it('runs both public leaderboard views with invoker rights over sanitized projections', () => {
+    expect(hardenedViewsSql).toMatch(
+      /CREATE VIEW public\.leaderboard\s+WITH \(security_invoker = true, security_barrier = true\)/,
+    );
+    expect(hardenedViewsSql).toMatch(
+      /CREATE VIEW public\.daily_leaderboard\s+WITH \(security_invoker = true, security_barrier = true\)/,
+    );
+    expect(hardenedViewsSql).toContain('FROM private.leaderboard_public_entries AS entry');
+    expect(hardenedViewsSql).toContain('FROM private.daily_leaderboard_public_entries AS entry');
+    expect(hardenedViewsSql).not.toMatch(/GRANT SELECT ON (?:TABLE )?public\.(players|daily_runs)/);
+  });
+
+  it('keeps internal keys out of the exact public view contracts', () => {
+    const leaderboardView = hardenedViewsSql.slice(
+      hardenedViewsSql.indexOf('CREATE VIEW public.leaderboard'),
+      hardenedViewsSql.indexOf('CREATE OR REPLACE FUNCTION public.get_my_leaderboard_rank'),
+    );
+    const dailyView = hardenedViewsSql.slice(
+      hardenedViewsSql.indexOf('CREATE VIEW public.daily_leaderboard'),
+      hardenedViewsSql.indexOf('REVOKE ALL ON TABLE public.leaderboard'),
+    );
+
+    expect(leaderboardView).not.toMatch(
+      /\b(player_key|player_id|user_id|username|total_candies|last_login_at|created_at)\b/,
+    );
+    expect(dailyView).not.toMatch(
+      /\b(player_key|player_id|user_id|username|daily_seed|completed_at|invalidated_at|invalidation_reason)\b/,
+    );
+  });
+
+  it('asserts catalog reloptions and gives no client execute grant to sync functions', () => {
+    expect(hardenedViewsSql).toContain("'security_invoker=true' = ANY");
+    expect(hardenedViewsSql).toContain("RAISE EXCEPTION 'security_definer_view: %'");
+    expect(hardenedViewsSql).toMatch(
+      /REVOKE ALL ON FUNCTION[\s\S]+private\.sync_all_public_daily_leaderboard_entries\(\)[\s\S]+FROM PUBLIC, anon, authenticated, service_role;/,
+    );
+    expect(hardenedViewsSql).not.toMatch(/GRANT EXECUTE ON FUNCTION private\.(?:refresh|sync)_/);
   });
 });

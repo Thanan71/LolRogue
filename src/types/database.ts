@@ -331,13 +331,6 @@ export type Database = {
             foreignKeyName: 'daily_score_reports_daily_run_id_fkey';
             columns: ['daily_run_id'];
             isOneToOne: false;
-            referencedRelation: 'daily_leaderboard';
-            referencedColumns: ['entry_id'];
-          },
-          {
-            foreignKeyName: 'daily_score_reports_daily_run_id_fkey';
-            columns: ['daily_run_id'];
-            isOneToOne: false;
             referencedRelation: 'daily_runs';
             referencedColumns: ['id'];
           },
@@ -1383,22 +1376,7 @@ export type Database = {
           waves_completed: number | null;
           won: boolean | null;
         };
-        Relationships: [
-          {
-            foreignKeyName: 'daily_runs_daily_ruleset_version_fkey';
-            columns: ['daily_ruleset_version'];
-            isOneToOne: false;
-            referencedRelation: 'daily_challenge_rulesets';
-            referencedColumns: ['version'];
-          },
-          {
-            foreignKeyName: 'daily_runs_gameplay_ruleset_version_fkey';
-            columns: ['gameplay_ruleset_version'];
-            isOneToOne: false;
-            referencedRelation: 'gameplay_rulesets';
-            referencedColumns: ['version'];
-          },
-        ];
+        Relationships: [];
       };
       leaderboard: {
         Row: {

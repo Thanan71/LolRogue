@@ -272,8 +272,12 @@ améliorations sont réhydratés depuis les valeurs canoniques du serveur.
 
 ## Classements
 
-Le leaderboard normal est une vue calculée à partir des runs enregistrés; il n'est
-jamais écrit par le navigateur. Son contrat public se limite à `rank`,
+Le leaderboard normal est une vue calculée à partir d'une projection serveur
+sanitisée ; il n'est jamais écrit par le navigateur. La projection vit dans le
+schéma non exposé `private`, est synchronisée par des triggers internes et ne
+contient aucune donnée de compte. La vue publique s'exécute avec
+`security_invoker=true` ; elle ne contourne donc pas la RLS de `players`. Son
+contrat public se limite à `rank`,
 `player_name`, `avatar_url`, `level`, `total_wins`, `total_runs_completed`,
 `win_rate` et `total_waves_completed`. Il n'expose aucun identifiant interne,
 login, solde de candies ou date de connexion. Le rang du compte courant est lu par
@@ -289,9 +293,11 @@ Le navigateur ne soumet aucun score daily. Après le replay autoritaire,
 `complete_run_verification` insère la run vérifiée et un trigger calcule le score
 versionné dans la même transaction. Les métriques proviennent donc du moteur
 rejoué, et non d'un payload déclaratif. Une commande finale `abandon_run` consomme
-la tentative sans publier de ligne. La vue publique `daily_leaderboard` ne restitue
-que le rang, le nom public et les métriques nécessaires ; la table brute
-`daily_runs` reste inaccessible aux non-administrateurs.
+la tentative sans publier de ligne. Un trigger interne copie uniquement le contrat
+publiable vers la projection sanitisée du schéma `private`. La vue
+`daily_leaderboard`, elle aussi en `security_invoker=true`, ne restitue que le rang,
+le nom public et les métriques nécessaires ; la table brute `daily_runs` reste
+inaccessible aux non-administrateurs.
 
 La journée canonique est calculée par PostgreSQL en UTC et expire au minuit UTC
 suivant. Le calcul versionné est :

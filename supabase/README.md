@@ -30,6 +30,7 @@ supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql
 supabase/migrations/20260726180000_minimize_public_data_and_harden_logs.sql
 supabase/migrations/20260726210000_atomic_run_finalization.sql
 supabase/migrations/20260726220000_protect_active_run_start.sql
+supabase/migrations/20260809090000_harden_leaderboard_views.sql
 ```
 
 ## Fresh local database
@@ -68,7 +69,8 @@ npm run edge:bundle
 ```
 
 `db:validate` resets only the local LolRogue database, lints the PostgreSQL
-schema and runs the live Auth/RLS/repository/attempt tests.
+schema, rejects every `public` view that lacks `security_invoker=true`, and runs
+the live Auth/RLS/repository/attempt tests.
 `src/types/database.ts` is generated from that local schema; application-specific
 models live separately in `src/types/models.ts`.
 

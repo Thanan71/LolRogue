@@ -427,6 +427,24 @@ describeLive('authoritative daily leaderboard live security', () => {
     expect(publicBoard.data).not.toHaveProperty('completed_at');
     expect(publicBoard.data).not.toHaveProperty('daily_seed');
 
+    const authenticatedBoard = await first.client
+      .from('daily_leaderboard')
+      .select('*')
+      .eq('daily_date', challenge.daily_date)
+      .eq('player_name', publicName)
+      .single();
+    expect(authenticatedBoard.error).toBeNull();
+    expect(authenticatedBoard.data?.rank).toBe(publicBoard.data?.rank);
+
+    const ownerBoard = await admin
+      .from('daily_leaderboard')
+      .select('*')
+      .eq('daily_date', challenge.daily_date)
+      .eq('player_name', publicName)
+      .single();
+    expect(ownerBoard.error).toBeNull();
+    expect(ownerBoard.data).toMatchObject({ score: 1360, player_name: publicName });
+
     await sealAttempt(second.client, secondAttemptId, 'abandon_run');
     const secondClaim = await admin.rpc('claim_run_verification', {
       p_attempt_id: secondAttemptId,

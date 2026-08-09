@@ -11,6 +11,13 @@ Un score public contient uniquement un identifiant opaque de signalement, la dat
 la saison, les versions Daily/gameplay/score, le rang et les métriques nécessaires au
 classement. Les signalements sont privés et visibles uniquement par la modération.
 
+Les deux vues publiques utilisent les droits de l'appelant
+(`security_invoker=true`). Elles lisent des projections sanitisées conservées dans
+un schéma non exposé et synchronisées par des triggers internes. Aucun droit de
+lecture supplémentaire n'est accordé sur `players` ou `daily_runs` : un invité peut
+lire le classement, mais pas ses tables sources ni les clés internes des
+projections.
+
 ## Comparabilité et saisons
 
 Le rang est partitionné par date UTC, version de calcul du score et version de

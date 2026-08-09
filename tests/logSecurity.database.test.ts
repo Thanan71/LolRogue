@@ -68,7 +68,8 @@ describeLive('public data and client log live security', () => {
   it('publishes only the minimal leaderboard and resolves the caller rank privately', async () => {
     const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const player = await signUpUser(`${suffix}-rank`);
-    createdUserIds.push(player.userId);
+    const otherPlayer = await signUpUser(`${suffix}-other`);
+    createdUserIds.push(player.userId, otherPlayer.userId);
     const publicName = `Rank-${suffix.slice(-12)}`;
 
     const privacy = await player.client.rpc('set_leaderboard_privacy', {
@@ -110,9 +111,51 @@ describeLive('public data and client log live security', () => {
     expect(leaderboard.data).not.toHaveProperty('last_login_at');
     expect(leaderboard.data?.player_name).not.toBe(`Logs ${suffix}-rank`.slice(0, 100));
 
+    const authenticatedRead = await player.client
+      .from('leaderboard')
+      .select('*')
+      .eq('player_name', publicName)
+      .single();
+    expect(authenticatedRead.error).toBeNull();
+    expect(authenticatedRead.data?.rank).toBe(leaderboard.data?.rank);
+
+    const ownerRead = await admin
+      .from('leaderboard')
+      .select('*')
+      .eq('player_name', publicName)
+      .single();
+    expect(ownerRead.error).toBeNull();
+    expect(ownerRead.data).toMatchObject({ total_wins: 4, total_waves_completed: 42 });
+
+    const anonymousPlayers = await anonymous.from('players').select('*');
+    const anonymousDailyRuns = await anonymous.from('daily_runs').select('*');
+    expect(anonymousPlayers.error).not.toBeNull();
+    expect(anonymousDailyRuns.error).not.toBeNull();
+
+    const otherProfile = await player.client
+      .from('players')
+      .select('id')
+      .eq('user_id', otherPlayer.userId);
+    expect(otherProfile.error).toBeNull();
+    expect(otherProfile.data).toEqual([]);
+
+    const optOut = await player.client.rpc('set_leaderboard_privacy', {
+      p_public_display_name: publicName,
+      p_opt_out: true,
+    });
+    expect(optOut.error).toBeNull();
+    const hidden = await anonymous.from('leaderboard').select('rank').eq('player_name', publicName);
+    expect(hidden).toMatchObject({ data: [], error: null });
+
+    const optBackIn = await player.client.rpc('set_leaderboard_privacy', {
+      p_public_display_name: publicName,
+      p_opt_out: false,
+    });
+    expect(optBackIn.error).toBeNull();
+
     const ownRank = await player.client.rpc('get_my_leaderboard_rank');
     expect(ownRank.error).toBeNull();
-    expect(ownRank.data).toEqual(expect.any(Number));
+    expect(ownRank.data).toBe(leaderboard.data?.rank);
   });
 
   it('rejects direct writes and derives identity while sanitizing recursively', async () => {

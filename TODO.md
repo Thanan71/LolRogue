@@ -112,23 +112,23 @@ du propriétaire de la vue.
 
 ### Actions
 
-- [ ] Créer une migration append-only qui recrée les deux vues avec
+- [x] Créer une migration append-only qui recrée les deux vues avec
   `WITH (security_invoker = true, security_barrier = true)` **si** les politiques
   sous-jacentes permettent toujours le contrat attendu.
-- [ ] Si `security_invoker=true` empêche légitimement la lecture publique, déplacer
+- [x] Si `security_invoker=true` empêche légitimement la lecture publique, déplacer
   la logique de publication dans une vue/table dédiée dont les données sont déjà
   sanitisées, ou une RPC publique minimale explicitement auditée.
-- [ ] Ne pas résoudre le problème en ajoutant des `SELECT` larges sur `players` ou
+- [x] Ne pas résoudre le problème en ajoutant des `SELECT` larges sur `players` ou
   `daily_runs`.
-- [ ] Revalider le champ public exact de chaque vue : aucune adresse e-mail,
+- [x] Revalider le champ public exact de chaque vue : aucune adresse e-mail,
   `user_id`, `player_id`, dernière connexion, candies privées, raison de modération
   ou métadonnée interne.
-- [ ] Ajouter des tests SQL pour `anon`, `authenticated` et propriétaire :
+- [x] Ajouter des tests SQL pour `anon`, `authenticated` et propriétaire :
   lecture autorisée uniquement sur le contrat public ; lecture directe des tables
   privées refusée.
-- [ ] Ajouter une assertion automatisée sur `pg_class.reloptions` pour empêcher le
+- [x] Ajouter une assertion automatisée sur `pg_class.reloptions` pour empêcher le
   retour de `security_invoker=false`.
-- [ ] Faire échouer `db:validate` si l'advisor `security_definer_view` réapparaît.
+- [x] Faire échouer `db:validate` si l'advisor `security_definer_view` réapparaît.
 
 ### Fichiers / zones
 
