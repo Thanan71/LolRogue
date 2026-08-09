@@ -29,6 +29,11 @@ dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
 RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
 
+Chaque suite d'intégration DB porte obligatoirement le suffixe
+`*.database.test.ts` sous `tests/`. Ce contrat est versionné dans
+`config/database-tests.json` : aucun runner ni workflow ne maintient de liste de
+tests en parallèle.
+
 ## Clean-room CI
 
 La job `clean-room` repart d'un checkout sans `node_modules`, `dist` ni couverture et
