@@ -55,4 +55,12 @@ describe('legal and privacy contract', () => {
     expect(socialRetentionMigration).toContain("(SELECT auth.role()) <> 'service_role'");
     expect(socialRetentionMigration).toContain('TO service_role');
   });
+
+  it('serializes retries and registers one named idempotent job', () => {
+    expect(socialRetentionMigration).toContain('pg_advisory_xact_lock');
+    expect(socialRetentionMigration).toContain(
+      "hashtextextended('lolrogue-purge-expired-social-data', 0)",
+    );
+    expect(socialRetentionMigration.match(/cron\.schedule\(/g)).toHaveLength(1);
+  });
 });

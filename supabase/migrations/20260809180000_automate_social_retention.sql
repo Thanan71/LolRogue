@@ -13,6 +13,12 @@ AS $$
 DECLARE
   v_deleted INTEGER;
 BEGIN
+  -- Serialize manual and scheduled runs. Repeating the DELETE after a successful
+  -- run is safe and returns zero, so retries cannot delete additional data.
+  PERFORM pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended('lolrogue-purge-expired-social-data', 0)
+  );
+
   DELETE FROM public.daily_score_reports
   WHERE status IN ('dismissed', 'actioned')
     AND reviewed_at < CLOCK_TIMESTAMP() - INTERVAL '24 months';
@@ -46,6 +52,7 @@ GRANT EXECUTE ON FUNCTION public.purge_expired_social_data()
   TO service_role;
 
 SELECT cron.schedule(
+  -- pg_cron's named overload updates the existing job instead of duplicating it.
   'lolrogue-purge-expired-social-data',
   '43 4 1 * *',
   'SELECT private.purge_expired_social_data()'
