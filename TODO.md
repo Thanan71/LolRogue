@@ -414,7 +414,7 @@ déjà été rejetées avec le même code.
 
 - [x] Créer un agrégat technique des attempts : started / verified / rejected /
   expired, par `engine_version`, `gameplay_ruleset_version`, `rejection_code`.
-- [ ] Définir une alerte sur un taux de rejet anormal ou un nouveau code de rejet.
+- [x] Définir une alerte sur un taux de rejet anormal ou un nouveau code de rejet.
 - [ ] Ne pas envoyer le journal complet ni les actions joueur dans une alerte externe.
 - [ ] Ajouter un écran/admin ou une requête runbook donnant les 20 derniers rejets.
 - [ ] Afficher `attemptId`, version et code dans les diagnostics utilisateur copiables.
