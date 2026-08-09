@@ -36,3 +36,33 @@ export function readCandidateMigrationVersions(candidateSha, root = repositoryRo
     .filter(Boolean);
   return migrationVersionsFromPaths(paths);
 }
+
+export function parseSupabaseMigrationList(output) {
+  try {
+    const payload = JSON.parse(output);
+    const migrations = Array.isArray(payload) ? payload : payload.migrations;
+    if (Array.isArray(migrations)) return migrations;
+  } catch {
+    // The CLI defaults to a human-readable table; parse it below.
+  }
+
+  return output
+    .split('\n')
+    .map((line) => line.split(/[|│]/).map((cell) => cell.replaceAll('`', '').trim()))
+    .filter((cells) => cells.length >= 2 && /^\d{14}$/.test(cells[0] || cells[1] || ''))
+    .map(([local, remote]) => ({
+      local: /^\d{14}$/.test(local) ? local : '',
+      remote: /^\d{14}$/.test(remote) ? remote : '',
+    }));
+}
+
+export function compareMigrationManifests(expected, applied) {
+  const missing = expected.filter((version) => !applied.includes(version));
+  const unknown = applied.filter((version) => !expected.includes(version));
+  const expectedSharedOrder = expected.filter((version) => applied.includes(version));
+  const appliedSharedOrder = applied.filter((version) => expected.includes(version));
+  const orderDivergent =
+    new Set(applied).size !== applied.length ||
+    JSON.stringify(expectedSharedOrder) !== JSON.stringify(appliedSharedOrder);
+  return { missing, unknown, orderDivergent, expectedSharedOrder, appliedSharedOrder };
+}

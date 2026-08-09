@@ -1,5 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import {
+  compareMigrationManifests,
+  parseSupabaseMigrationList,
   readCandidateMigrationVersions,
   readWorkspaceMigrationVersions,
 } from './lib/migration-manifest.mjs';
@@ -25,32 +27,24 @@ if (result.status !== 0) {
 }
 
 let migrations;
-try {
-  migrations = JSON.parse(result.stdout).migrations;
-} catch {
-  migrations = result.stdout
-    .split('\n')
-    .map((line) => line.match(/^\s*`?(\d{14})`?\s*\|\s*(?:`?(\d{14})`?)?\s*\|/)?.slice(1, 3))
-    .filter(Boolean)
-    .map(([local, remote]) => ({ local, remote: remote ?? '' }));
-}
+migrations = parseSupabaseMigrationList(result.stdout);
 
 if (!Array.isArray(migrations) || migrations.length === 0) {
   throw new Error(`Supabase CLI returned an invalid migration manifest: ${result.stdout}`);
 }
 
-const applied = migrations
-  .map((migration) => migration.remote)
-  .filter(Boolean)
-  .sort();
-const pending = expected.filter((version) => !applied.includes(version));
-const unexpected = applied.filter((version) => !expected.includes(version));
+const applied = migrations.map((migration) => migration.remote).filter(Boolean);
+const { missing, unknown, orderDivergent, expectedSharedOrder, appliedSharedOrder } =
+  compareMigrationManifests(expected, applied);
 const target = linked ? 'linked production project' : 'local migrated schema';
 
-if (pending.length > 0 || unexpected.length > 0) {
+if (missing.length > 0 || unknown.length > 0 || orderDivergent) {
   const details = [
-    pending.length > 0 ? `pending: ${pending.join(', ')}` : null,
-    unexpected.length > 0 ? `unexpected: ${unexpected.join(', ')}` : null,
+    missing.length > 0 ? `missing live migrations: ${missing.join(', ')}` : null,
+    unknown.length > 0 ? `unknown live migrations: ${unknown.join(', ')}` : null,
+    orderDivergent
+      ? `divergent order: expected ${expectedSharedOrder.join(' -> ')}, live ${appliedSharedOrder.join(' -> ')}`
+      : null,
   ].filter(Boolean);
   throw new Error(`Migration drift against ${target} (${details.join('; ')}).`);
 }
