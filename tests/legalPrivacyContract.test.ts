@@ -10,6 +10,10 @@ const migration = readFileSync(
   new URL('../supabase/migrations/20260808180000_legal_privacy_retention.sql', import.meta.url),
   'utf8',
 );
+const socialRetentionMigration = readFileSync(
+  new URL('../supabase/migrations/20260809180000_automate_social_retention.sql', import.meta.url),
+  'utf8',
+);
 
 describe('legal and privacy contract', () => {
   it('keeps monetization and public legal clearance closed', () => {
@@ -35,5 +39,11 @@ describe('legal and privacy contract', () => {
     expect(migration).toContain("reviewed_at < NOW() - INTERVAL '24 months'");
     expect(migration).toContain('CREATE FUNCTION public.purge_expired_social_data()');
     expect(migration).toContain("(SELECT auth.role()) <> 'service_role'");
+  });
+
+  it('schedules the reviewed social-data purge every month', () => {
+    expect(socialRetentionMigration).toContain("'lolrogue-purge-expired-social-data'");
+    expect(socialRetentionMigration).toContain("'43 4 1 * *'");
+    expect(socialRetentionMigration).toContain('SELECT public.purge_expired_social_data()');
   });
 });
