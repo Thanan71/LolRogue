@@ -94,12 +94,26 @@ const chunks = [...sizes.entries()]
     totalGzipRatio: Number((size.gzip / measured.totalJavaScriptGzipBytes).toFixed(4)),
   }))
   .sort((left, right) => right.gzipBytes - left.gzipBytes || left.file.localeCompare(right.file));
+const chunkBudgets = Object.entries(budgets.chunks ?? {}).map(([name, maxGzipBytes]) => {
+  const matchingChunks = chunks.filter((chunk) => chunk.file.match(new RegExp(`^assets/${name}-[^/]+\\.js$`)));
+  if (matchingChunks.length !== 1) {
+    throw new Error(
+      `Expected exactly one JavaScript chunk matching ${name}, found ${matchingChunks.length}.`,
+    );
+  }
+  const [chunk] = matchingChunks;
+  if (chunk.gzipBytes > maxGzipBytes) {
+    failures.push([`${name}ChunkGzipBytes`, chunk.gzipBytes]);
+  }
+  return { name, file: chunk.file, gzipBytes: chunk.gzipBytes, maxGzipBytes };
+});
 const report = {
   schemaVersion: 1,
   commitSha: process.env.APP_COMMIT_SHA?.trim() || process.env.GITHUB_SHA?.trim() || 'local',
   budgets,
   measured: { ...measured, totalJavaScriptHeadroomRatio },
   authRouteManifestEntries: [...authDependencyKeys].sort(),
+  chunkBudgets,
   chunks,
 };
 const reportDirectory = join(root, 'performance-report');
@@ -121,6 +135,14 @@ console.log(
   `Total JavaScript headroom: ${(totalJavaScriptHeadroomRatio * 100).toFixed(2)}% (minimum ${(minimumHeadroomRatio * 100).toFixed(0)}%).`,
 );
 console.table(chunks.slice(0, 10));
+console.table(
+  Object.fromEntries(
+    chunkBudgets.map(({ name, gzipBytes, maxGzipBytes }) => [
+      name,
+      { measured: gzipBytes, budget: maxGzipBytes },
+    ]),
+  ),
+);
 console.log('Chunk report written to performance-report/bundle-report.json.');
 console.log(`Auth route isolation passed: ${authDependencyKeys.size} manifest entries.`);
 if (process.argv.includes('--auth-route-only')) process.exit(0);
