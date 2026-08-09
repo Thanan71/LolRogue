@@ -1,9 +1,14 @@
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { discoverDatabaseTests, loadDatabaseTestContract } from './lib/database-test-discovery.mjs';
+import {
+  assertDatabaseTestSkipPolicy,
+  discoverDatabaseTests,
+  loadDatabaseTestContract,
+} from './lib/database-test-discovery.mjs';
 
 const contract = loadDatabaseTestContract();
 const tests = discoverDatabaseTests(undefined, contract);
+assertDatabaseTestSkipPolicy(undefined, tests, contract);
 
 process.stdout.write(
   `Discovered ${tests.length} database integration test files:\n${tests

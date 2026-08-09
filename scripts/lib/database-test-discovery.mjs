@@ -36,3 +36,58 @@ export function discoverDatabaseTests(
   }
   return tests;
 }
+
+const skippedTestPattern =
+  /\b(?:describe|it|test)\.(?:skip|skipIf|todo|todoIf)\b|\b(?:xdescribe|xit|xtest)\s*\(/;
+
+function skipKey(file, expression) {
+  return `${file}\0${expression}`;
+}
+
+export function assertDatabaseTestSkipPolicy(
+  root = repositoryRoot,
+  tests = discoverDatabaseTests(root),
+  contract = loadDatabaseTestContract(),
+) {
+  const allowlist = contract.skipAllowlist ?? [];
+  const allowed = new Set(
+    allowlist.map(({ file, expression, reason }) => {
+      if (!file || !expression || !reason) {
+        throw new Error(
+          'Every database test skip allowlist entry needs file, expression and reason.',
+        );
+      }
+      return skipKey(file, expression);
+    }),
+  );
+  if (allowed.size !== allowlist.length) {
+    throw new Error('The database test skip allowlist contains duplicate entries.');
+  }
+
+  const observed = new Set();
+  const unexpected = [];
+  for (const file of tests) {
+    for (const [index, sourceLine] of readFileSync(resolve(root, file), 'utf8')
+      .split('\n')
+      .entries()) {
+      const expression = sourceLine.trim();
+      if (!skippedTestPattern.test(expression)) continue;
+      const key = skipKey(file, expression);
+      observed.add(key);
+      if (!allowed.has(key)) unexpected.push(`${file}:${index + 1}: ${expression}`);
+    }
+  }
+
+  const stale = allowlist.filter(
+    ({ file, expression }) => !observed.has(skipKey(file, expression)),
+  );
+  if (unexpected.length > 0 || stale.length > 0) {
+    const details = [
+      ...unexpected.map((entry) => `Unallowlisted skipped DB test: ${entry}`),
+      ...stale.map(
+        ({ file, expression }) => `Stale skipped DB test allowlist entry: ${file}: ${expression}`,
+      ),
+    ];
+    throw new Error(details.join('\n'));
+  }
+}

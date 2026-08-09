@@ -3,5 +3,46 @@
   "root": "tests",
   "fileSuffix": ".database.test.ts",
   "requiredFiles": [],
-  "skipAllowlist": []
+  "skipAllowlist": [
+    {
+      "file": "tests/adminPrivileges.database.test.ts",
+      "expression": "const describeDatabase = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/authoritativeDaily.database.test.ts",
+      "expression": "const describeLive = hasSupabaseCredentials ? describe : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/legalPrivacy.database.test.ts",
+      "expression": "const describeLive = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/logSecurity.database.test.ts",
+      "expression": "const describeLive = hasSupabaseCredentials ? describe : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/repositoryIntegration.database.test.ts",
+      "expression": "const describeLive = hasSupabaseCredentials ? describe.sequential : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/schema.database.test.ts",
+      "expression": "const describeLive = hasSupabaseCredentials ? describe : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/securityDefinerPrivileges.database.test.ts",
+      "expression": "const describeLive = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/verifiedRunAttempts.database.test.ts",
+      "expression": "const describeWithSupabase = hasSupabaseCredentials ? describe : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    }
+  ]
 }

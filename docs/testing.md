@@ -34,6 +34,12 @@ Chaque suite d'intégration DB porte obligatoirement le suffixe
 `config/database-tests.json` : aucun runner ni workflow ne maintient de liste de
 tests en parallèle.
 
+Toute occurrence de `skip`, `skipIf` ou `todo` dans ces suites fait échouer
+`npm run test:db`, sauf correspondance exacte avec une entrée justifiée de
+`skipAllowlist`. Les seules exceptions actuelles sont les gardes qui permettent à la
+suite générique sans Supabase local d'ignorer les tests live ; `test:db` fournit les
+identifiants locaux et les exécute réellement.
+
 ## Clean-room CI
 
 La job `clean-room` repart d'un checkout sans `node_modules`, `dist` ni couverture et
