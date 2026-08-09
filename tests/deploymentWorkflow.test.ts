@@ -22,6 +22,7 @@ const deployedAssetsVerifier = readFileSync(
   new URL('../scripts/verify-deployed-assets.mjs', import.meta.url),
   'utf8',
 );
+const vercelConfig = readFileSync(new URL('../vercel.json', import.meta.url), 'utf8');
 
 describe('deployment workflow contract', () => {
   it('ne vérifie aucun déploiement distant dans la validation générique', () => {
@@ -53,6 +54,11 @@ describe('deployment workflow contract', () => {
     expect(deployedAssetsVerifier).toContain('/api/deployment-identity');
     expect(deployedAssetsVerifier).toContain('deploymentIdentity?.commit');
     expect(deployedAssetsVerifier).not.toContain('/deployment-identity.json');
+  });
+
+  it('réserve le fallback SPA aux routes non API', () => {
+    expect(vercelConfig).toContain('"source": "/((?!api/).*)"');
+    expect(vercelConfig).not.toContain('"source": "/(.*)",\n      "destination": "/index.html"');
   });
 
   it('conserve un seul contrôle post-déploiement réservé à la production promue', () => {
