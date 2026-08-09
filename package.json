@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "prebuild": "npm run assets:verify && npm run edge:bundle",
-    "postbuild": "npm run assets:verify:dist",
+    "postbuild": "npm run assets:verify:dist && node scripts/write-deployment-identity.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
