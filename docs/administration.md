@@ -79,6 +79,8 @@ révocation est urgente.
 ## Modèle de sécurité
 
 - `authenticated` ne possède pas le droit de mettre à jour `players.is_admin`.
+- `is_current_user_admin()` est exécutable par `authenticated`, car les politiques
+  RLS et vues admin en droits appelant en dépendent, mais jamais par `anon`.
 - Les vues `admin_stats` et `admin_player_stats` s'exécutent avec les permissions
   de l'appelant et filtrent par la fonction admin.
 - Les politiques des runs, joueurs, maîtrises et logs n'accordent la lecture
@@ -96,6 +98,18 @@ révocation est urgente.
   ne télécharge jamais le leaderboard complet pour le recalculer.
 - Les migrations de durcissement doivent être appliquées avant d'activer le
   panneau sur un ancien projet Supabase.
+
+Le manifest `config/security-definer-privileges.json` constitue la liste exhaustive
+des fonctions privilégiées directement exécutables par `anon`, `authenticated` ou
+`service_role`. `npm run db:security` compare les ACL réelles à ce manifest et
+refuse tout grant supplémentaire, tout grant `PUBLIC` ou tout `search_path` non
+vide. À ce jour, aucun warning Supabase relatif aux fonctions privilégiées n'est
+accepté globalement : toute nouvelle alerte est bloquante jusqu'à ajout d'une
+justification précise au manifest et d'un test associé.
+
+`invalidate_daily_score` reste une primitive de modération réservée au propriétaire
+SQL. Elle ne doit recevoir un grant client que lorsqu'une route admin auditée
+l'utilisera avec le contrôle `is_current_user_admin()` et des tests d'autorisation.
 
 Pour tester, utiliser deux comptes distincts sur une base locale : le premier
 promu par SQL doit accéder aux données admin; le second doit être refusé même s'il

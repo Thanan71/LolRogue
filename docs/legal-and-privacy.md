@@ -38,9 +38,9 @@ Sources à revalider avant chaque release :
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
 
 La vue Daily applique directement la fenêtre de 13 mois. La maintenance appelle
-mensuellement `SELECT public.purge_expired_social_data();` avec le rôle service ou un
-administrateur afin de supprimer les signalements traités depuis plus de 24 mois.
-Le purgeur de logs existant conserve au maximum 14 jours.
+mensuellement `SELECT public.purge_expired_social_data();` avec le `service_role`
+uniquement afin de supprimer les signalements traités depuis plus de 24 mois. Le
+purgeur de logs existant conserve au maximum 14 jours.
 
 ## Base juridique à faire valider
 

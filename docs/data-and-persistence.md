@@ -326,12 +326,16 @@ publiques ont la RLS activée :
 - un joueur lit les lignes qui lui appartiennent, mais ne peut pas écrire les
   compteurs dérivés, runs, membres, maîtrise, unlocks ou attempts directement ;
 - les mutations autorisées passent par des RPC `SECURITY DEFINER` à surface
-  restreinte ;
+  restreinte ; leur matrice rôle/signature et leur justification sont versionnées
+  dans `config/security-definer-privileges.json` ;
 - le navigateur peut démarrer, journaliser, sceller et consulter son propre
   attempt, jamais le vérifier ni créditer son résultat ;
 - la fonction `verify-run` est la seule à utiliser le `service_role` pour réclamer
   puis finaliser un journal scellé ;
 - les vues admin vérifient `is_current_user_admin()` ;
+- les fonctions de trigger, de compatibilité historique et de maintenance n'ont
+  aucun droit `EXECUTE` navigateur ; `purge_expired_social_data` est réservée au
+  `service_role` et l'expiration des attempts est intégrée aux commandes serveur ;
 - l'écriture directe de `logs` est révoquée : `submit_client_logs` déduit
   `user_id` et `player_id` de la session et ignore les identités déclarées ;
 - la clé anonyme est publique et dépend entièrement des politiques RLS ;
@@ -340,5 +344,5 @@ publiques ont la RLS activée :
 
 Le schéma SQL et les tests `database.test.ts`,
 `verifiedRunAttempts.database.test.ts`, `authoritativeDaily.database.test.ts`,
-`logSecurity.database.test.ts` et `authorityRunEngine.test.ts` font autorité si
-ce document diverge.
+`logSecurity.database.test.ts`, `securityDefinerPrivileges.database.test.ts` et
+`authorityRunEngine.test.ts` font autorité si ce document diverge.

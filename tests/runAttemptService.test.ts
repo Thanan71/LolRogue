@@ -133,20 +133,18 @@ describe('runAttemptService', () => {
   });
 
   it('starts Daily through the dedicated RPC and requires its canonical UTC contract', async () => {
-    supabaseMocks.rpc
-      .mockResolvedValueOnce({ data: { expired: 0 }, error: null })
-      .mockResolvedValueOnce({
-        data: startResponse({
-          mode: 'daily',
-          difficulty: 'normal',
-          enhancement_snapshot: {},
-          daily_date: '2026-07-26',
-          daily_ruleset_version: 1,
-          daily_score_version: 1,
-          expires_at: '2026-07-27T00:00:00.000Z',
-        }),
-        error: null,
-      });
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: startResponse({
+        mode: 'daily',
+        difficulty: 'normal',
+        enhancement_snapshot: {},
+        daily_date: '2026-07-26',
+        daily_ruleset_version: 1,
+        daily_score_version: 1,
+        expires_at: '2026-07-27T00:00:00.000Z',
+      }),
+      error: null,
+    });
 
     const result = await startRunAttempt({
       commandId: COMMAND_ID,
@@ -156,12 +154,12 @@ describe('runAttemptService', () => {
       difficulty: 'hard',
     });
 
-    expect(supabaseMocks.rpc).toHaveBeenNthCalledWith(2, 'start_daily_run_attempt', {
+    expect(supabaseMocks.rpc).toHaveBeenCalledWith('start_daily_run_attempt', {
       p_command_id: COMMAND_ID,
       p_team: ['Garen'],
       p_rune_ids: [],
     });
-    expect(supabaseMocks.rpc.mock.calls[1]?.[1]).not.toHaveProperty('p_difficulty');
+    expect(supabaseMocks.rpc.mock.calls[0]?.[1]).not.toHaveProperty('p_difficulty');
     expect(result).toMatchObject({
       error: null,
       data: {
@@ -174,13 +172,10 @@ describe('runAttemptService', () => {
       },
     });
 
-    supabaseMocks.rpc
-      .mockReset()
-      .mockResolvedValueOnce({ data: { expired: 0 }, error: null })
-      .mockResolvedValueOnce({
-        data: startResponse({ mode: 'daily', difficulty: 'normal' }),
-        error: null,
-      });
+    supabaseMocks.rpc.mockReset().mockResolvedValueOnce({
+      data: startResponse({ mode: 'daily', difficulty: 'normal' }),
+      error: null,
+    });
     const malformed = await startRunAttempt({
       commandId: COMMAND_ID,
       mode: 'daily',

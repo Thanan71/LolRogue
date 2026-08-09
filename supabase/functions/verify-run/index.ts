@@ -282,17 +282,7 @@ Deno.serve(async (request) => {
   );
   const status = record(callerStatus);
   if (statusError || !status) return json(404, { error: 'run_attempt_not_found' });
-  const { error: expiryError } = await caller.rpc('expire_stale_run_attempts' as never);
-  if (expiryError) return json(500, { error: 'attempt_expiry_check_failed' });
-  const { data: refreshedStatusData, error: refreshedStatusError } = await caller.rpc(
-    'get_run_attempt_status' as never,
-    { p_attempt_id: attemptId } as never,
-  );
-  const refreshedStatus = record(refreshedStatusData);
-  if (refreshedStatusError || !refreshedStatus) {
-    return json(500, { error: 'attempt_status_refresh_failed' });
-  }
-  const effectiveStatus = refreshedStatus;
+  const effectiveStatus = status;
   if (effectiveStatus.status === 'verified' && record(effectiveStatus.response)) {
     return json(200, { response: effectiveStatus.response as JsonRecord });
   }
@@ -354,6 +344,7 @@ Deno.serve(async (request) => {
       rejection_code: claim.rejection_code ?? 'verification_rejected',
     });
   }
+  if (claim.status === 'expired') return json(410, { error: 'run_attempt_expired' });
   if (claim.claimed !== true) {
     const retryAfter = retryAfterSeconds(claim.lease_expires_at);
     return json(

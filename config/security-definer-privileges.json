@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "signature": "public.append_run_attempt_commands(uuid, jsonb)",
+      "roles": ["authenticated"],
+      "justification": "Append an authenticated caller's bounded, ownership-checked run journal batch."
+    },
+    {
+      "signature": "public.claim_run_verification(uuid, uuid)",
+      "roles": ["service_role"],
+      "justification": "Acquire a verifier lease from the trusted Edge worker."
+    },
+    {
+      "signature": "public.complete_run_verification(uuid, uuid, jsonb, text)",
+      "roles": ["service_role"],
+      "justification": "Commit replay-verified progression from the trusted Edge worker."
+    },
+    {
+      "signature": "public.get_daily_challenge()",
+      "roles": ["anon", "authenticated"],
+      "justification": "Publish the sanitized canonical Daily configuration and caller-scoped status."
+    },
+    {
+      "signature": "public.get_my_leaderboard_rank()",
+      "roles": ["authenticated"],
+      "justification": "Return only the authenticated caller's private rank."
+    },
+    {
+      "signature": "public.get_run_attempt_status(uuid)",
+      "roles": ["authenticated"],
+      "justification": "Return an attempt only after checking authenticated ownership."
+    },
+    {
+      "signature": "public.is_current_user_admin()",
+      "roles": ["authenticated"],
+      "justification": "Support authenticated admin RLS policies and invoker-rights admin views."
+    },
+    {
+      "signature": "public.purge_expired_logs()",
+      "roles": ["service_role"],
+      "justification": "Run bounded diagnostic retention from trusted maintenance."
+    },
+    {
+      "signature": "public.purge_expired_social_data()",
+      "roles": ["service_role"],
+      "justification": "Run social-data retention from trusted maintenance only."
+    },
+    {
+      "signature": "public.reject_run_verification(uuid, uuid, text)",
+      "roles": ["service_role"],
+      "justification": "Persist a bounded verifier rejection from the trusted Edge worker."
+    },
+    {
+      "signature": "public.report_daily_score(uuid, text)",
+      "roles": ["authenticated"],
+      "justification": "Create a bounded report attributed to the authenticated caller."
+    },
+    {
+      "signature": "public.seal_run_attempt(uuid, uuid, integer)",
+      "roles": ["authenticated"],
+      "justification": "Seal only the authenticated caller's attempt with idempotency checks."
+    },
+    {
+      "signature": "public.set_leaderboard_privacy(text, boolean)",
+      "roles": ["authenticated"],
+      "justification": "Update only the authenticated caller's public alias and opt-out."
+    },
+    {
+      "signature": "public.start_daily_run_attempt(uuid, text[], text[])",
+      "roles": ["authenticated"],
+      "justification": "Start the authenticated caller's canonical Daily attempt."
+    },
+    {
+      "signature": "public.start_run_attempt(uuid, text[], text[], text, text)",
+      "roles": ["authenticated"],
+      "justification": "Start the authenticated caller's canonical normal attempt."
+    },
+    {
+      "signature": "public.submit_client_logs(jsonb)",
+      "roles": ["authenticated"],
+      "justification": "Accept a bounded, recursively sanitized diagnostic batch for the caller."
+    },
+    {
+      "signature": "public.touch_player_last_login()",
+      "roles": ["authenticated"],
+      "justification": "Record the current authenticated session without accepting an identity parameter."
+    },
+    {
+      "signature": "public.unlock_champion_enhancement(text, text, integer, uuid)",
+      "roles": ["authenticated"],
+      "justification": "Execute the idempotent, ownership-checked canonical enhancement command."
+    }
+  ]
+}
