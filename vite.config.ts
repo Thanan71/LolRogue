@@ -140,6 +140,12 @@ export default defineConfig({
           functions: 60,
           lines: 77,
         },
+        'src/game/run/runAuthorityJournal.ts': {
+          statements: 100,
+          branches: 98,
+          functions: 100,
+          lines: 100,
+        },
         'src/services/**': {
           statements: 55,
           branches: 50,
