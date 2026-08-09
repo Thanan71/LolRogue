@@ -891,29 +891,70 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 ## Sprint A — fermer les risques live
 
-1. `P0-SEC-01` vues leaderboard.
-2. `P0-SEC-02` grants/functions.
-3. `P0-DATA-01` integration repositories DB.
-4. `P0-RUN-01` registre authority.
-5. `P0-REL-01` readiness réelle.
+1. [x] `P0-SEC-01` vues leaderboard.
+2. [x] `P0-SEC-02` grants/functions.
+3. [x] `P0-DATA-01` integration repositories DB.
+4. [x] `P0-RUN-01` registre authority.
+5. [x] `P0-REL-01` readiness réelle.
 
 ## Sprint B — sécurité et exploitation
 
-6. `P1-SEC-01` mots de passe compromis.
-7. `P1-PRIV-01` cron rétention sociale.
-8. `P1-CI-01` preview SHA-correcte.
-9. `P1-CI-02` auto-discovery DB tests.
-10. `P1-TOOL-01` Node types/runtime.
-11. `P1-RUN-01` surveillance des rejets.
+6. [ ] `P1-SEC-01` mots de passe compromis — différé explicitement tant que
+   l'option payante n'est pas souhaitée.
+7. [x] `P1-PRIV-01` cron rétention sociale.
+8. [x] `P1-CI-01` preview SHA-correcte.
+9. [x] `P1-CI-02` auto-discovery DB tests.
+10. [x] `P1-TOOL-01` Node types/runtime.
+11. [x] `P1-RUN-01` surveillance des rejets.
 
 ## Sprint C — performance / dette
 
-12. indexes mesurés ;
-13. headroom bundle ;
-14. couverture des frontières critiques ;
-15. advisors versionnés ;
-16. CSP ;
-17. runbook de restauration réelle.
+12. [x] `P2-DB-01` index mesurés.
+13. [ ] `P2-PERF-01` headroom bundle, sans modifier l'interface.
+14. [ ] `P2-TEST-01` couverture des frontières critiques.
+15. [ ] `P2-TEST-04` advisors versionnés.
+16. [ ] `P2-WEB-01` CSP.
+17. [ ] `P2-OPS-01` runbook de restauration réelle.
+
+## Sprint D — robustesse locale
+
+18. [ ] `P1-TOOL-02` typecheck scripts, configs et E2E.
+19. [ ] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
+20. [ ] `P2-PERF-02` Web Vitals sur preview locale stable.
+21. [ ] `P2-TEST-02` seeds variables reproductibles.
+22. [ ] `P2-TEST-03` gate `skipLibCheck=false`.
+23. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
+
+## Sprint E — fiabilité produit et exploitation
+
+24. [ ] `P1-SEC-03` frontière explicite des tables server-only.
+25. [ ] `P1-RUN-02` UX des progressions rejetées.
+26. [ ] `P1-RUN-03` traitement des attempts affectées par un bug client.
+27. [ ] `P2-OBS-01` SLI/SLO techniques minimisés.
+28. [ ] `P2-DOC-01` statuts recalculés et preuves exécutables.
+
+## Sprint F — architecture et produit
+
+29. [ ] `P2-CI-02` gates séparées par responsabilité, avec commande locale
+    tout-en-un conservée.
+30. [ ] `P3-PROD-01` historique de runs exploitable.
+31. [ ] `P3-PROD-02` internationalisation anglaise.
+32. [ ] `P3-PROD-03` décision PWA/offline.
+33. [ ] `P3-PROD-04` enrichissement avec gate moteur.
+
+## Sprint G — validations humaines et externes
+
+34. [ ] `P3-A11Y-01` validation humaine multi-lecteurs d'écran.
+35. [ ] `P3-LEGAL-01` blockers externes de diffusion.
+
+## Backlog différé par décision de coût
+
+- `P1-SEC-01` reste visible mais ne doit pas activer Leaked Password Protection
+  tant que cette option payante n'est pas souhaitée.
+- `P2-CI-01` (required checks distants et merge queue) n'est planifié dans aucun
+  sprint tant que les tests sont exécutés localement uniquement.
+- Les autres tâches utilisent `npm run check`, `npm run db:validate` et les gates
+  locales spécialisées comme preuves ; une CI distante n'est pas un prérequis de merge.
 
 ---
 
