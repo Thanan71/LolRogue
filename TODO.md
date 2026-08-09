@@ -502,12 +502,12 @@ Une PR cassant ses assets ne peut pas passer parce que la production précédent
 
 **Taille : M**
 
-- [ ] Ajouter un preflight de release comparant les versions de
+- [x] Ajouter un preflight de release comparant les versions de
   `supabase_migrations.schema_migrations` au commit candidat.
-- [ ] Détecter migration manquante, migration live inconnue, ordre divergent.
-- [ ] Ne jamais appliquer automatiquement une migration inconnue pendant un check.
-- [ ] Conserver la version live dans l'artefact de release.
-- [ ] Tester rollback applicatif avec une DB ayant déjà reçu la migration append-only.
+- [x] Détecter migration manquante, migration live inconnue, ordre divergent.
+- [x] Ne jamais appliquer automatiquement une migration inconnue pendant un check.
+- [x] Conserver la version live dans l'artefact de release.
+- [x] Tester rollback applicatif avec une DB ayant déjà reçu la migration append-only.
 
 ---
 

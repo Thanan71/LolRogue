@@ -114,7 +114,11 @@ describe('documentation maintenue', () => {
     expect(releaseSheet.candidate).toEqual({
       sha: null,
       previewUrl: null,
-      liveMigrationVersion: null,
+      liveDatabase: {
+        latestMigrationVersion: null,
+        migrationVersions: [],
+        checkedAt: null,
+      },
     });
     expect(todo).toContain("## P0-REL-01 — Réparer la gate bêta pour qu'elle reflète l'état réel");
     expect(todo).toContain('Passer immédiatement le statut bêta à **bloqué**');

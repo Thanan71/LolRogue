@@ -1,19 +1,23 @@
-import { readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import {
+  compareMigrationManifests,
+  parseSupabaseMigrationList,
+  readCandidateMigrationVersions,
+  readOnlyMigrationListArguments,
+  readWorkspaceMigrationVersions,
+} from './lib/migration-manifest.mjs';
 
 const linked = process.argv.includes('--linked');
-const migrationPattern = /^(\d{14})_.+\.sql$/;
-const expected = readdirSync('supabase/migrations')
-  .map((file) => file.match(migrationPattern)?.[1])
-  .filter(Boolean)
-  .sort();
-
-if (expected.length === 0) throw new Error('No versioned Supabase migrations were found.');
-if (new Set(expected).size !== expected.length) {
-  throw new Error('Duplicate Supabase migration versions exist in the repository.');
+const candidateOptionIndex = process.argv.indexOf('--candidate-sha');
+const candidateSha = candidateOptionIndex === -1 ? null : process.argv[candidateOptionIndex + 1];
+if (candidateOptionIndex !== -1 && !candidateSha) {
+  throw new Error('--candidate-sha requires a full Git SHA.');
 }
+const expected = candidateSha
+  ? readCandidateMigrationVersions(candidateSha)
+  : readWorkspaceMigrationVersions();
 
-const result = spawnSync('supabase', ['migration', 'list', linked ? '--linked' : '--local'], {
+const result = spawnSync('supabase', readOnlyMigrationListArguments(linked), {
   encoding: 'utf8',
 });
 if (result.error) throw result.error;
@@ -24,36 +28,28 @@ if (result.status !== 0) {
 }
 
 let migrations;
-try {
-  migrations = JSON.parse(result.stdout).migrations;
-} catch {
-  migrations = result.stdout
-    .split('\n')
-    .map((line) => line.match(/^\s*`?(\d{14})`?\s*\|\s*(?:`?(\d{14})`?)?\s*\|/)?.slice(1, 3))
-    .filter(Boolean)
-    .map(([local, remote]) => ({ local, remote: remote ?? '' }));
-}
+migrations = parseSupabaseMigrationList(result.stdout);
 
 if (!Array.isArray(migrations) || migrations.length === 0) {
   throw new Error(`Supabase CLI returned an invalid migration manifest: ${result.stdout}`);
 }
 
-const applied = migrations
-  .map((migration) => migration.remote)
-  .filter(Boolean)
-  .sort();
-const pending = expected.filter((version) => !applied.includes(version));
-const unexpected = applied.filter((version) => !expected.includes(version));
+const applied = migrations.map((migration) => migration.remote).filter(Boolean);
+const { missing, unknown, orderDivergent, expectedSharedOrder, appliedSharedOrder } =
+  compareMigrationManifests(expected, applied);
 const target = linked ? 'linked production project' : 'local migrated schema';
 
-if (pending.length > 0 || unexpected.length > 0) {
+if (missing.length > 0 || unknown.length > 0 || orderDivergent) {
   const details = [
-    pending.length > 0 ? `pending: ${pending.join(', ')}` : null,
-    unexpected.length > 0 ? `unexpected: ${unexpected.join(', ')}` : null,
+    missing.length > 0 ? `missing live migrations: ${missing.join(', ')}` : null,
+    unknown.length > 0 ? `unknown live migrations: ${unknown.join(', ')}` : null,
+    orderDivergent
+      ? `divergent order: expected ${expectedSharedOrder.join(' -> ')}, live ${appliedSharedOrder.join(' -> ')}`
+      : null,
   ].filter(Boolean);
   throw new Error(`Migration drift against ${target} (${details.join('; ')}).`);
 }
 
 process.stdout.write(
-  `Migration manifest matches ${target}: ${expected.length} versions, latest ${expected.at(-1)}.\n`,
+  `Migration manifest${candidateSha ? ` for candidate ${candidateSha}` : ''} matches ${target}: ${expected.length} versions, latest ${expected.at(-1)}.\n`,
 );

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 const root = resolve(import.meta.dirname, '..');
 const script = resolve(root, 'scripts/release-preflight.mjs');
+const preflightSource = readFileSync(script, 'utf8');
 const temporaryDirectories: string[] = [];
 
 const runPreflight = (sheetPath: string, documentationPath: string, ...args: string[]) =>
@@ -36,6 +37,11 @@ afterEach(() => {
 });
 
 describe('release preflight', () => {
+  it('compare le projet lié au manifeste du SHA candidat', () => {
+    expect(preflightSource).toContain("'--candidate-sha'");
+    expect(preflightSource).toContain('candidate.sha');
+  });
+
   it('reste bloquant lorsque les preuves du candidat manquent', () => {
     const { sheetPath, documentationPath } = fixture();
     const result = runPreflight(sheetPath, documentationPath);
@@ -43,8 +49,25 @@ describe('release preflight', () => {
     expect(result.status).toBe(1);
     expect(result.stdout).toContain('Beta release preflight: BLOCKED');
     expect(result.stdout).toContain('[candidate-sha]');
+    expect(result.stdout).toContain('[live-migration-manifest]');
     expect(result.stdout).toContain('[ci-count]');
     expect(result.stdout).toContain('[external-validation]');
+  });
+
+  it('refuse un artefact dont la dernière migration contredit le manifeste live', () => {
+    const { sheetPath, documentationPath } = fixture();
+    const sheet = JSON.parse(readFileSync(sheetPath, 'utf8'));
+    sheet.candidate.liveDatabase = {
+      latestMigrationVersion: '20260102000000',
+      migrationVersions: ['20260101000000'],
+      checkedAt: '2026-08-09T08:00:00.000Z',
+    };
+    writeFileSync(sheetPath, JSON.stringify(sheet));
+
+    const result = runPreflight(sheetPath, documentationPath);
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain('[live-migration-latest]');
   });
 
   it('signale précisément un P0 rouvert sans lire les cases du TODO', () => {
