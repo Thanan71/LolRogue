@@ -21,7 +21,7 @@ process.stdout.write(
 
 const result = spawnSync(
   process.execPath,
-  [resolve('node_modules/vitest/vitest.mjs'), 'run', ...tests],
+  [resolve('node_modules/vitest/vitest.mjs'), 'run', '--no-file-parallelism', ...tests],
   {
     env: { ...process.env, DB_TEST_REQUIRED: '1' },
     stdio: 'inherit',
