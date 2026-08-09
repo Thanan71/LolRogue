@@ -5,15 +5,25 @@ import type { AdminPlayerStat, Log, RunTeamMember } from '@/types/models';
 import { logger } from '@/utils/logger';
 import type { AdminRun } from '../adminPageUtils';
 
-export type AdminTab = 'dashboard' | 'logs' | 'players' | 'runs';
-export type AdminDataSection = 'stats' | 'logs' | 'players' | 'runs';
+export type AdminTab = 'dashboard' | 'logs' | 'players' | 'runs' | 'moderation';
+export type AdminDataSection = 'stats' | 'logs' | 'players' | 'runs' | 'moderation';
 export type AdminDataErrors = Record<AdminDataSection, string | null>;
+
+export interface AdminModerationReport {
+  id: string;
+  dailyRunId: string;
+  reason: string;
+  createdAt: string;
+  dailyDate: string;
+  score: number;
+}
 
 const EMPTY_ERRORS: AdminDataErrors = {
   stats: null,
   logs: null,
   players: null,
   runs: null,
+  moderation: null,
 };
 
 function errorMessage(error: unknown): string {
@@ -37,6 +47,8 @@ export function useAdminData(isAdmin: boolean) {
   const [playersLoading, setPlayersLoading] = useState(false);
   const [runsLoading, setRunsLoading] = useState(false);
   const [runs, setRuns] = useState<AdminRun[]>([]);
+  const [moderationLoading, setModerationLoading] = useState(false);
+  const [moderationReports, setModerationReports] = useState<AdminModerationReport[]>([]);
   const [errors, setErrors] = useState<AdminDataErrors>(EMPTY_ERRORS);
   const initialLoadStarted = useRef(false);
   const [runFilter, setRunFilter] = useState({
@@ -211,6 +223,56 @@ export function useAdminData(isAdmin: boolean) {
     }
   }, [runFilter, setSectionError]);
 
+  const fetchModerationReports = useCallback(async (): Promise<boolean> => {
+    setModerationLoading(true);
+    setSectionError('moderation', null);
+    try {
+      const { data, error } = await supabase
+        .from('daily_score_reports')
+        .select(
+          'id, daily_run_id, reason, created_at, daily_run:daily_runs!daily_score_reports_daily_run_id_fkey(daily_date, score)',
+        )
+        .eq('status', 'open')
+        .order('created_at', { ascending: true })
+        .limit(100);
+      if (error) throw error;
+      setModerationReports(
+        (data ?? []).map((report) => ({
+          id: report.id,
+          dailyRunId: report.daily_run_id,
+          reason: report.reason,
+          createdAt: report.created_at,
+          dailyDate: report.daily_run.daily_date,
+          score: report.daily_run.score,
+        })),
+      );
+      return true;
+    } catch (error) {
+      logger.error('[AdminPage] Error fetching moderation reports:', error);
+      setSectionError('moderation', errorMessage(error));
+      return false;
+    } finally {
+      setModerationLoading(false);
+    }
+  }, [setSectionError]);
+
+  const invalidateDailyScore = useCallback(
+    async (dailyRunId: string, reason: string): Promise<boolean> => {
+      setSectionError('moderation', null);
+      const { error } = await supabase.rpc('invalidate_daily_score', {
+        p_daily_run_id: dailyRunId,
+        p_reason: reason,
+      });
+      if (error) {
+        logger.error('[AdminPage] Error invalidating Daily score:', error);
+        setSectionError('moderation', error.message);
+        return false;
+      }
+      return fetchModerationReports();
+    },
+    [fetchModerationReports, setSectionError],
+  );
+
   // Initial data fetch
   useEffect(() => {
     if (!isAdmin) {
@@ -220,9 +282,13 @@ export function useAdminData(isAdmin: boolean) {
     if (initialLoadStarted.current) return;
     initialLoadStarted.current = true;
     setLoading(true);
-    void loadAllAdminSections([fetchStats, fetchPlayerStats, fetchLogs, fetchRuns]).finally(() =>
-      setLoading(false),
-    );
+    void loadAllAdminSections([
+      fetchStats,
+      fetchPlayerStats,
+      fetchLogs,
+      fetchRuns,
+      fetchModerationReports,
+    ]).finally(() => setLoading(false));
   }, [isAdmin]);
 
   return {
@@ -237,6 +303,8 @@ export function useAdminData(isAdmin: boolean) {
     playersLoading,
     runsLoading,
     runs,
+    moderationLoading,
+    moderationReports,
     errors,
     runFilter,
     setRunFilter,
@@ -246,5 +314,7 @@ export function useAdminData(isAdmin: boolean) {
     fetchPlayerStats,
     fetchLogs,
     fetchRuns,
+    fetchModerationReports,
+    invalidateDailyScore,
   };
 }

@@ -37,6 +37,11 @@
       "justification": "Support authenticated admin RLS policies and invoker-rights admin views."
     },
     {
+      "signature": "public.invalidate_daily_score(uuid, text)",
+      "roles": ["authenticated"],
+      "justification": "Invalidate one completed Daily score after an internal authenticated-admin check and append-only audit."
+    },
+    {
       "signature": "public.purge_expired_logs()",
       "roles": ["service_role"],
       "justification": "Run bounded diagnostic retention from trusted maintenance."

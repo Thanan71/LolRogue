@@ -346,15 +346,15 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 
 **Taille : M**
 
-- [ ] Vérifier que `players.is_admin` ne peut jamais être modifié par le propriétaire
+- [x] Vérifier que `players.is_admin` ne peut jamais être modifié par le propriétaire
   du profil via table, RPC générique ou metadata Auth.
-- [ ] Tester `invalidate_daily_score` avec utilisateur normal, admin et anon.
-- [ ] Tester qu'un admin ne peut invalider qu'un score existant et que le motif est
+- [x] Tester `invalidate_daily_score` avec utilisateur normal, admin et anon.
+- [x] Tester qu'un admin ne peut invalider qu'un score existant et que le motif est
   borné/sanitisé.
-- [ ] Conserver une piste d'audit immutable de l'invalidation.
-- [ ] Vérifier que `is_current_user_admin()` n'expose aucune information utile à un
+- [x] Conserver une piste d'audit immutable de l'invalidation.
+- [x] Vérifier que `is_current_user_admin()` n'expose aucune information utile à un
   utilisateur non authentifié.
-- [ ] Documenter une procédure de promotion/révocation admin hors client public.
+- [x] Documenter une procédure de promotion/révocation admin hors client public.
 
 ---
 

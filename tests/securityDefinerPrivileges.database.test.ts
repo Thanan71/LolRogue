@@ -42,7 +42,6 @@ describe('SECURITY DEFINER privilege contract', () => {
       'handle_new_user',
       'expire_stale_run_attempts',
       'purge_expired_social_data',
-      'invalidate_daily_score',
       'complete_run_verification_v',
       'save_completed_run',
     ]) {
@@ -51,6 +50,11 @@ describe('SECURITY DEFINER privilege contract', () => {
     expect(
       manifest.functions.find((entry) => entry.signature === 'public.is_current_user_admin()')
         ?.roles,
+    ).toEqual(['authenticated']);
+    expect(
+      manifest.functions.find(
+        (entry) => entry.signature === 'public.invalidate_daily_score(uuid, text)',
+      )?.roles,
     ).toEqual(['authenticated']);
     expect(
       manifest.functions.find((entry) => entry.signature === 'public.purge_expired_social_data()')
@@ -132,7 +136,7 @@ describeLive('SECURITY DEFINER live privilege contract', () => {
     expect(touched.error).toBeNull();
     expect(directExpiry.error).not.toBeNull();
     expect(directPurge.error).not.toBeNull();
-    expect(directInvalidation.error).not.toBeNull();
+    expect(directInvalidation.error?.message).toContain('admin_required');
   });
 
   it('keeps start concurrency and maintenance privileges server-controlled', async () => {

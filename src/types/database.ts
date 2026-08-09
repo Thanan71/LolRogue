@@ -295,6 +295,41 @@ export type Database = {
           },
         ];
       };
+      daily_score_invalidation_audit: {
+        Row: {
+          actor_user_id: string | null;
+          created_at: string;
+          daily_run_id: string;
+          id: string;
+          invalidated_at: string;
+          reason: string;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          daily_run_id: string;
+          id?: string;
+          invalidated_at: string;
+          reason: string;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          daily_run_id?: string;
+          id?: string;
+          invalidated_at?: string;
+          reason?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'daily_score_invalidation_audit_daily_run_id_fkey';
+            columns: ['daily_run_id'];
+            isOneToOne: true;
+            referencedRelation: 'daily_runs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       daily_score_reports: {
         Row: {
           created_at: string;

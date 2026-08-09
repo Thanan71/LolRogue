@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bundle": {
-    "totalJavaScriptGzipBytes": 396000,
+    "totalJavaScriptGzipBytes": 398000,
     "largestJavaScriptRawBytes": 560000,
     "initialJavaScriptGzipBytes": 205000,
     "authRouteJavaScriptGzipBytes": 225000,

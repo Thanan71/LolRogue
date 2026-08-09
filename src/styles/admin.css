@@ -374,6 +374,12 @@
   border-bottom: none;
 }
 
+.admin-invalidation-reason {
+  width: min(28rem, 100%);
+  min-height: 5rem;
+  resize: vertical;
+}
+
 /* Players Tab */
 .players-header {
   display: flex;

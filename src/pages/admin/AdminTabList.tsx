@@ -7,6 +7,7 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string }> = [
   { id: 'logs', label: `📋 ${fr.admin.logs}` },
   { id: 'players', label: `👥 ${fr.admin.players}` },
   { id: 'runs', label: `🎮 ${fr.admin.runs}` },
+  { id: 'moderation', label: '⚖️ Modération' },
 ];
 
 export function AdminTabList({
