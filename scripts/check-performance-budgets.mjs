@@ -45,6 +45,21 @@ function gzipForManifestEntries(keys) {
 
 const entryKey = Object.keys(manifest).find((key) => manifest[key].isEntry);
 const authKey = Object.keys(manifest).find((key) => key.endsWith('/AuthPage.tsx'));
+const authDependencyKeys = new Set([...dependencyFiles(entryKey), ...dependencyFiles(authKey)]);
+const forbiddenAuthDependencies = [
+  '/AdminPage.tsx',
+  '/DatabasePage.tsx',
+  '/LegalPage.tsx',
+  '/champions-parsed.json',
+  '/champions-client.json',
+];
+const authLeaks = [...authDependencyKeys].filter((key) =>
+  forbiddenAuthDependencies.some((dependency) => key.endsWith(dependency)),
+);
+if (authLeaks.length) {
+  throw new Error(`Auth route imports deferred application code: ${authLeaks.join(', ')}`);
+}
+
 const measured = {
   totalJavaScriptGzipBytes: [...sizes.values()].reduce((sum, size) => sum + size.gzip, 0),
   largestJavaScriptRawBytes: Math.max(...[...sizes.values()].map((size) => size.raw)),
@@ -65,6 +80,8 @@ console.table(
     ]),
   ),
 );
+console.log(`Auth route isolation passed: ${authDependencyKeys.size} manifest entries.`);
+if (process.argv.includes('--auth-route-only')) process.exit(0);
 if (failures.length) {
   throw new Error(
     `Performance budget exceeded: ${failures.map(([name, value]) => `${name}=${value}`).join(', ')}`,
