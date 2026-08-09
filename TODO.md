@@ -651,7 +651,7 @@ Preuves et décisions : `docs/frontend-performance.md`.
 **Taille : M**
 
 - [x] Ajouter l'historique Profil / repository nested-select à la couverture critique.
-- [x] Ajouter `runAuthorityJournal.ts` à un seuil spécifique élevé.
+- [x] Ajouter `runAuthorityJournal.ts` à un seuil spécifique élevé
 - [x] Ajouter les adaptateurs PostgREST critiques au périmètre de mutation/branches.
 - [x] Ajouter une régression complète « fin biome → augment → biome suivant → seal ».
 - [x] Tester toutes les versions moteur reconnues par le registre futur.
