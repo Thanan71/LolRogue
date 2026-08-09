@@ -1,5 +1,7 @@
 import type { User } from '@supabase/supabase-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { generateRunMap } from '@/game/map/MapGenerator-core';
+import { findNode } from '@/game/map/mapUtils';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
@@ -307,6 +309,76 @@ describe('authoritative run lifecycle and recovery', () => {
       progressionSource: 'verified',
       replayed: true,
     });
+  });
+
+  it('preserves exit, augment and next-biome commands through the final seal', async () => {
+    const maps = generateRunMap(4242);
+    const exit = findNode(maps[0], maps[0].exitNodeId)!;
+    useRunStore.setState({
+      authorityAttempt: authorityAttempt({ engineVersion: 'run-engine-v13' }),
+      biomeMaps: maps,
+      currentBiomeIndex: 0,
+      currentBiome: maps[0].biome,
+      currentNodeId: exit.id,
+      frontierNodeIds: [],
+      chosenPathNodeIds: [exit.id],
+      completedNodeIds: [],
+      pendingEncounter: null,
+      pendingAugmentIds: [],
+      pendingSpellUpgradeChampionIds: [],
+      runLevel: 1,
+      currentWave: 4,
+      totalWavesCompleted: 3,
+      augmentIds: [],
+    });
+    attemptMocks.append.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        status: 'active',
+        lastSequence: 3,
+        journalHash: 'journal-3',
+        accepted: 3,
+        replayed: false,
+      },
+      error: null,
+    });
+    attemptMocks.seal.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        runUuid: RUN_UUID,
+        status: 'finished',
+        lastSequence: 3,
+        journalHash: 'journal-3',
+        accepted: true,
+        replayed: false,
+      },
+      error: null,
+    });
+
+    expect(useRunStore.getState().advanceToNextBiome()).toBe(true);
+    const afterExit = useRunStore.getState();
+    expect(afterExit).toMatchObject({
+      currentBiomeIndex: 1,
+      currentNodeId: null,
+      frontierNodeIds: [maps[1].startNodeId],
+      runLevel: 2,
+    });
+    expect(afterExit.pendingAugmentIds).toHaveLength(3);
+    const augmentId = afterExit.pendingAugmentIds[0];
+    expect(useRunStore.getState().chooseAugment(augmentId)).toBe(true);
+
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: true,
+      outcome: 'saved',
+    });
+
+    const submittedCommands = attemptMocks.append.mock.calls[0]?.[1];
+    expect(submittedCommands).toMatchObject([
+      { sequence: 1, kind: 'resolve_node', payload: { node_id: exit.id } },
+      { sequence: 2, kind: 'choose_augment', payload: { augment_id: augmentId } },
+      { sequence: 3, kind: 'abandon_run', payload: {} },
+    ]);
+    expect(attemptMocks.seal).toHaveBeenCalledWith(ATTEMPT_ID, expect.any(String), 3);
   });
 
   it('does not let a hanging profile refresh block a durable verification', async () => {
