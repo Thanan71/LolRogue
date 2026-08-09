@@ -372,7 +372,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 
 - [x] Ajouter une migration qui planifie la purge sociale avec `pg_cron`, au rythme
   validé par la politique de rétention.
-- [ ] Exécuter le purgeur avec un contexte maintenance, pas avec un utilisateur web.
+- [x] Exécuter le purgeur avec un contexte maintenance, pas avec un utilisateur web.
 - [ ] Rendre la tâche idempotente.
 - [ ] Ajouter une métrique de dernière exécution / nombre de lignes supprimées.
 - [ ] Tester des signalements ouverts, traités <24 mois et traités >24 mois.
