@@ -375,7 +375,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 - [x] Exécuter le purgeur avec un contexte maintenance, pas avec un utilisateur web.
 - [x] Rendre la tâche idempotente.
 - [x] Ajouter une métrique de dernière exécution / nombre de lignes supprimées.
-- [ ] Tester des signalements ouverts, traités <24 mois et traités >24 mois.
+- [x] Tester des signalements ouverts, traités <24 mois et traités >24 mois.
 - [ ] Documenter comment vérifier le cron après restauration DB.
 
 ### Acceptation
