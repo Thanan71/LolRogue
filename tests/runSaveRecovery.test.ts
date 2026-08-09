@@ -562,6 +562,28 @@ describe('authoritative run lifecycle and recovery', () => {
     });
   });
 
+  it('drops a stale Daily start after the server rejects its starter offer', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    attemptMocks.start.mockResolvedValue({
+      data: null,
+      error: new Error('daily_starter_not_offered | 22023'),
+    });
+
+    await expect(
+      useRunStore.getState().startRun(['Annie'], { mode: 'daily' }),
+    ).resolves.toMatchObject({
+      success: false,
+      code: 'start_failed',
+      retryable: false,
+    });
+
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      pendingAuthorityStart: null,
+      saveError: 'daily_starter_not_offered | 22023',
+    });
+  });
+
   it('replays the exact pending start after a torn response instead of opening another attempt', async () => {
     const pendingCommandId = '44444444-4444-4444-8444-444444444444';
     useRunStore.setState({
