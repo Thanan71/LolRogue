@@ -71,7 +71,9 @@ describe('deployment workflow contract', () => {
       'EXPECTED_COMMIT_SHA: ${{ github.event.client_payload.git.sha }}',
     );
     expect(productionWorkflow).toContain('DEPLOYMENT_URL: https://lol-rogue.vercel.app');
-    expect(productionWorkflow).not.toContain('DEPLOYMENT_URL: ${{ github.event.client_payload.url }}');
+    expect(productionWorkflow).not.toContain(
+      'DEPLOYMENT_URL: ${{ github.event.client_payload.url }}',
+    );
     expect(productionWorkflow).toContain('npm run test:deployed-assets');
   });
 });

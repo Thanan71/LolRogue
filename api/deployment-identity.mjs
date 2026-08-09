@@ -10,8 +10,5 @@ export function GET() {
     );
   }
 
-  return Response.json(
-    { commit },
-    { headers: { 'Cache-Control': 'no-store' } },
-  );
+  return Response.json({ commit }, { headers: { 'Cache-Control': 'no-store' } });
 }
