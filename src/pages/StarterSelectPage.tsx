@@ -98,8 +98,21 @@ export function StarterSelectPage() {
       if (result.error || !result.data) {
         setError(fr.starter.dailyAuthoritativeLoadFailed);
       } else {
-        setDailyChallenge(result.data);
-        useDailyRunStore.getState().syncChallenge(result.data);
+        const challenge = result.data;
+        setDailyChallenge(challenge);
+        useDailyRunStore.getState().syncChallenge(challenge);
+        const pending = useRunStore.getState().pendingAuthorityStart;
+        if (
+          pending &&
+          pending.ownerUserId === user?.id &&
+          pending.mode === 'daily' &&
+          pending.team.some((championId) => !challenge.starterIds.includes(championId))
+        ) {
+          useRunStore.setState({ pendingAuthorityStart: null });
+          setSelectedStarterIds([]);
+          setSelectedRuneIds([]);
+          setError(fr.starter.dailyOfferChanged);
+        }
       }
       setIsLoadingDaily(false);
     });
@@ -132,7 +145,18 @@ export function StarterSelectPage() {
         difficulty: dailyChallenge?.difficulty,
       });
       if (!result.success) {
-        setError(result.error ?? fr.starter.dailyStartFailed);
+        if (result.error?.includes('daily_starter_not_offered')) {
+          const refreshed = await new SupabaseDailyRunRepository(supabase).getDailyChallenge();
+          if (refreshed.data && !refreshed.error) {
+            setDailyChallenge(refreshed.data);
+            useDailyRunStore.getState().syncChallenge(refreshed.data);
+          }
+          setSelectedStarterIds([]);
+          setSelectedRuneIds([]);
+          setError(fr.starter.dailyOfferChanged);
+        } else {
+          setError(result.error ?? fr.starter.dailyStartFailed);
+        }
         setIsStarting(false);
         return;
       }
