@@ -130,4 +130,30 @@ describe('authoritative Daily pages', () => {
     }
     expect(screen.queryByRole('button', { name: 'Choisir Jinx' })).not.toBeInTheDocument();
   });
+
+  it('drops a persisted Daily starter that is absent from the current server offer', async () => {
+    useRunStore.setState({
+      pendingAuthorityStart: {
+        commandId: '11111111-1111-4111-8111-111111111111',
+        ownerUserId: 'user-1',
+        mode: 'daily',
+        team: ['Jinx'],
+        runeIds: ['press_the_attack'],
+        difficulty: 'normal',
+      },
+    });
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/starter-select', state: { mode: 'daily' } }]}>
+        <StarterSelectPage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText(/L'offre Daily a changé/i)).toBeInTheDocument();
+    expect(useRunStore.getState().pendingAuthorityStart).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Choisir Jinx' })).not.toBeInTheDocument();
+    for (const championName of ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', 'Soraka']) {
+      expect(screen.getByRole('button', { name: `Choisir ${championName}` })).toBeInTheDocument();
+    }
+  });
 });

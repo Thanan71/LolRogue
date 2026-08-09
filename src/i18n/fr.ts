@@ -302,6 +302,7 @@ export const fr = {
     dailyUnavailable: 'Impossible de vérifier la disponibilité du défi quotidien.',
     dailyStartFailed: 'Impossible de démarrer un défi quotidien vérifié.',
     dailyAuthoritativeLoadFailed: 'Impossible de charger le défi quotidien officiel.',
+    dailyOfferChanged: "L'offre Daily a changé. Choisis un champion dans la nouvelle sélection.",
     chooseRunes: 'Choisis tes runes',
   },
   encounter: {
