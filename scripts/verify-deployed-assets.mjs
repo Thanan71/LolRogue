@@ -19,14 +19,23 @@ if (!Array.isArray(manifest.files) || manifest.files.length === 0) {
   throw new Error('The Riot asset manifest is empty.');
 }
 
-const indexResponse = await fetch(`${baseUrl}/`, { redirect: 'follow', cache: 'no-store' });
-const indexHtml = await indexResponse.text();
-if (!indexResponse.ok) {
-  throw new Error(`Deployment identity endpoint returned ${indexResponse.status}.`);
+const identityResponse = await fetch(`${baseUrl}/deployment-identity.json`, {
+  redirect: 'follow',
+  cache: 'no-store',
+});
+const identityBody = await identityResponse.text();
+if (!identityResponse.ok) {
+  throw new Error(`Deployment identity endpoint returned ${identityResponse.status}.`);
 }
-const deployedCommitSha = indexHtml.match(
-  /<meta\s+[^>]*name=["']lolrogue-commit["'][^>]*content=["']([^"']+)["'][^>]*>/i,
-)?.[1];
+
+let deploymentIdentity;
+try {
+  deploymentIdentity = JSON.parse(identityBody);
+} catch (error) {
+  throw new Error('Deployment identity endpoint returned invalid JSON.', { cause: error });
+}
+
+const deployedCommitSha = deploymentIdentity?.commit;
 if (deployedCommitSha !== expectedCommitSha) {
   throw new Error(
     `Deployment identity mismatch: expected ${expectedCommitSha}, received ${deployedCommitSha || 'missing'}.`,
