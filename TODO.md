@@ -492,7 +492,7 @@ Une PR cassant ses assets ne peut pas passer parce que la production précédent
 - [x] Ajouter une convention claire (`*.database.test.ts`).
 - [x] Exécuter automatiquement tout fichier respectant cette convention.
 - [x] Faire échouer la CI si un test DB est ignoré/skippé sans allowlist explicite.
-- [ ] Inclure le nouveau test d'intégration des repositories.
+- [x] Inclure le nouveau test d'intégration des repositories.
 - [ ] Ajouter un test de la commande `test:db` elle-même ou un script de discovery
   qui affiche les fichiers sélectionnés.
 

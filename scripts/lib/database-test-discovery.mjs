@@ -34,6 +34,14 @@ export function discoverDatabaseTests(
   if (tests.length === 0) {
     throw new Error(`No *${contract.fileSuffix} files were discovered under ${contract.root}.`);
   }
+  const missingRequiredFiles = (contract.requiredFiles ?? []).filter(
+    (path) => !tests.includes(path),
+  );
+  if (missingRequiredFiles.length > 0) {
+    throw new Error(
+      `Required database tests were not discovered: ${missingRequiredFiles.join(', ')}`,
+    );
+  }
   return tests;
 }
 

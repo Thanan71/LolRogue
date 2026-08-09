@@ -2,7 +2,7 @@
   "version": 1,
   "root": "tests",
   "fileSuffix": ".database.test.ts",
-  "requiredFiles": [],
+  "requiredFiles": ["tests/repositoryIntegration.database.test.ts"],
   "skipAllowlist": [
     {
       "file": "tests/adminPrivileges.database.test.ts",

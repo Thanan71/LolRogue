@@ -2,7 +2,10 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { discoverDatabaseTests } from '../scripts/lib/database-test-discovery.mjs';
+import {
+  discoverDatabaseTests,
+  loadDatabaseTestContract,
+} from '../scripts/lib/database-test-discovery.mjs';
 
 const temporaryDirectories = [];
 
@@ -33,5 +36,13 @@ describe('database test discovery', () => {
         fileSuffix: '.database.test.ts',
       }),
     ).toEqual(['tests/alpha.database.test.ts', 'tests/nested/beta.database.test.ts']);
+  });
+
+  it("inclut obligatoirement le test d'intégration des repositories", () => {
+    const contract = loadDatabaseTestContract();
+    const tests = discoverDatabaseTests(undefined, contract);
+
+    expect(contract.requiredFiles).toContain('tests/repositoryIntegration.database.test.ts');
+    expect(tests).toContain('tests/repositoryIntegration.database.test.ts');
   });
 });
