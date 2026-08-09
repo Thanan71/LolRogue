@@ -21,8 +21,12 @@ const starterCssSource = readFileSync(
 );
 
 describe('production configuration', () => {
-  it('keeps SPA rewrites and restrictive security headers', () => {
+  it('keeps SPA rewrites outside API routes and restrictive security headers', () => {
     expect(vercelConfig.rewrites).toContainEqual({
+      source: '/((?!api/).*)',
+      destination: '/index.html',
+    });
+    expect(vercelConfig.rewrites).not.toContainEqual({
       source: '/(.*)',
       destination: '/index.html',
     });
