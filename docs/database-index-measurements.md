@@ -95,3 +95,11 @@ toutefois l'écriture des pages d'index supplémentaires.
 Le total est d'environ 3,1 MB sur le volume synthétique. Cette surcharge explique
 pourquoi les sept FK de versions, non utilisées comme prédicats sélectifs et reliées
 à des parents append-only, restent volontairement sans index dédié.
+
+## Contrat advisor local
+
+`npm run db:indexes:check` vérifie les sept définitions retenues et rejoue le
+Performance Advisor. La gate refuse le retour de l'une des cinq alertes FK corrigées
+et toute nouvelle FK non couverte. Les sept avertissements de versions ci-dessus
+restent explicitement attendus jusqu'à ce qu'une nouvelle requête ou une politique de
+suppression des catalogues justifie de les réévaluer.

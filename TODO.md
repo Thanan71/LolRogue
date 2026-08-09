@@ -577,14 +577,17 @@ Les advisors live signalent des foreign keys non couvertes, notamment :
 
 ### Actions
 
-- [ ] Inventorier les requêtes qui filtrent/joinent réellement chaque FK.
-- [ ] Mesurer avec `EXPLAIN (ANALYZE, BUFFERS)` sur un volume de test représentatif.
-- [ ] Ajouter uniquement les index dont le plan ou les opérations DELETE/UPDATE
+- [x] Inventorier les requêtes qui filtrent/joinent réellement chaque FK.
+- [x] Mesurer avec `EXPLAIN (ANALYZE, BUFFERS)` sur un volume de test représentatif.
+- [x] Ajouter uniquement les index dont le plan ou les opérations DELETE/UPDATE
   parent en bénéficient.
-- [ ] Préférer les index composites quand ils couvrent les filtres réels
+- [x] Préférer les index composites quand ils couvrent les filtres réels
   (`player_id`, `status`, `date`, version...).
-- [ ] Mesurer l'impact écriture et taille des index.
-- [ ] Repasser les advisors après migration.
+- [x] Mesurer l'impact écriture et taille des index.
+- [x] Repasser les advisors après migration.
+
+Preuve : `npm run db:indexes:measure` et `npm run db:indexes:check`, résultats dans
+`docs/database-index-measurements.md`.
 
 ---
 
