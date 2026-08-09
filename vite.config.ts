@@ -183,10 +183,22 @@ export default defineConfig({
           lines: 95,
         },
         'src/services/repositories/SupabaseRunRepository.ts': {
-          statements: 85,
-          branches: 75,
-          functions: 95,
-          lines: 84,
+          statements: 100,
+          branches: 97,
+          functions: 100,
+          lines: 100,
+        },
+        'src/services/repositories/SupabaseDailyRunRepository.ts': {
+          statements: 97,
+          branches: 93,
+          functions: 100,
+          lines: 97,
+        },
+        'src/services/repositories/SupabasePlayerRepository.ts': {
+          statements: 100,
+          branches: 88,
+          functions: 100,
+          lines: 100,
         },
         'src/pages/ProfilePage.tsx': {
           statements: 95,
