@@ -5,6 +5,14 @@ export const AUTHORITY_REJECTION_ALERT_POLICY = {
   sameCodeSpikeThreshold: 3,
 } as const;
 
+export const AUTHORITY_VERIFICATION_SLO = {
+  target: 0.99,
+  terminalLatencySeconds: 120,
+  evaluationWindowDays: 30,
+  pendingAlertMinutes: 5,
+  alertWindowMinutes: AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes,
+} as const;
+
 export const KNOWN_AUTHORITY_REJECTION_CODES = new Set([
   'combat_limit',
   'encounter_already_claimed',

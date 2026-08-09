@@ -2,6 +2,7 @@ import type {
   AuthorityAttemptAggregate,
   AuthorityRejectionSignal,
 } from '@/observability/authorityRejectionMonitor';
+import { AUTHORITY_REJECTION_ALERT_POLICY } from '@/observability/authorityRejectionMonitor';
 import { formatAdminDate } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
 import type { AdminAuthorityRejection } from './useAdminData';
@@ -46,7 +47,10 @@ export function AdminAuthorityPanel({
       <div className="authority-header">
         <div>
           <h3>Surveillance authority</h3>
-          <p>Fenêtre glissante de 15 minutes, regroupée par version moteur et ruleset.</p>
+          <p>
+            Fenêtre glissante de {AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes} minutes, regroupée
+            par version moteur et ruleset.
+          </p>
         </div>
         <button type="button" onClick={onRefresh} disabled={loading}>
           Rafraîchir

@@ -92,6 +92,24 @@ jusqu'à correction.
 5. Recalculer uniquement depuis les données autoritaires conservées. Documenter
    toute invalidation et prévenir les joueurs si leur rang visible change.
 
+## Rejets authority anormaux
+
+1. Ouvrir `/admin`, onglet **Authority**, confirmer la fenêtre de 15 minutes, la
+   version moteur/ruleset et le code déclencheur. Vérifier aussi si une attempt
+   reste `finished` depuis plus de 5 minutes.
+2. Copier uniquement `attemptId`, version, code, horodatage et compteurs agrégés
+   dans le canal d'incident. Ne jamais y copier commandes, payload, journal,
+   identité, équipe ou état joueur.
+3. Classer SEV-2 si la vérification est largement bloquée ou si un code inconnu
+   affecte plusieurs joueurs ; sinon SEV-3. Figer l'activation de toute nouvelle
+   ruleset pendant le diagnostic.
+4. Comparer le premier rejet au dernier déploiement frontend, Edge et migration.
+   Reproduire avec une attempt de test sur la même version sans modifier la trace
+   rejetée en production.
+5. Corriger par une nouvelle version authority immuable. Une trace rejetée ne doit
+   recevoir ni progression ni récompense manuelle. Clore seulement après retour
+   sous les seuils pendant 30 minutes et contrôle du SLO 30 jours.
+
 ## Secret exposé
 
 1. SEV-1 immédiat : retirer la valeur du fournisseur et des variables, puis la

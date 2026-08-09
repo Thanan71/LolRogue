@@ -74,12 +74,19 @@ describe('documentation maintenue', () => {
       'Migration échouée',
       'Rollback applicatif',
       'Indisponibilité Supabase',
+      'Rejets authority anormaux',
       'Classement compromis',
       'Secret exposé',
       'Sauvegarde absente ou restauration échouée',
     ]) {
       expect(incidents).toContain(incident);
     }
+
+    expect(operations).toContain('SLO de vérification authority');
+    expect(operations).toContain('99 % sur une fenêtre glissante de 30 jours');
+    expect(operations).toContain('120 secondes');
+    expect(operations).toContain('fenêtre glissante de **15 minutes**');
+    expect(incidents).toContain('Ne jamais y copier commandes, payload, journal');
 
     expect(backup).toContain('RPO 24 h');
     expect(backup).toContain('RTO 4 h');

@@ -419,7 +419,7 @@ déjà été rejetées avec le même code.
 - [x] Ajouter un écran/admin ou une requête runbook donnant les 20 derniers rejets.
 - [x] Afficher `attemptId`, version et code dans les diagnostics utilisateur copiables.
 - [x] Ajouter un test qui simule un spike de `pending_choice` et vérifie la détection.
-- [ ] Définir un SLO de vérification de run et une fenêtre d'alerte.
+- [x] Définir un SLO de vérification de run et une fenêtre d'alerte.
 
 ---
 

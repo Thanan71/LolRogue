@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  AUTHORITY_REJECTION_ALERT_POLICY,
   type AuthorityAttemptAggregate,
   type AuthorityRejectionSignal,
   evaluateAuthorityRejectionAlerts,
@@ -124,7 +125,9 @@ export function useAdminData(isAdmin: boolean) {
     setAuthorityLoading(true);
     setSectionError('authority', null);
     try {
-      const windowStart = new Date(Date.now() - 15 * 60_000).toISOString();
+      const windowStart = new Date(
+        Date.now() - AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes * 60_000,
+      ).toISOString();
       const [aggregatesResult, rejectionsResult] = await Promise.all([
         supabase
           .from('authority_attempt_aggregates')

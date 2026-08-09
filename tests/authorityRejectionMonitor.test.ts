@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AUTHORITY_VERIFICATION_SLO,
   type AuthorityAttemptAggregate,
   evaluateAuthorityRejectionAlerts,
 } from '@/observability/authorityRejectionMonitor';
@@ -23,6 +24,16 @@ function aggregate(overrides: Partial<AuthorityAttemptAggregate> = {}): Authorit
 }
 
 describe('authority rejection monitor', () => {
+  it('formalizes the verification SLO and alert window', () => {
+    expect(AUTHORITY_VERIFICATION_SLO).toEqual({
+      target: 0.99,
+      terminalLatencySeconds: 120,
+      evaluationWindowDays: 30,
+      pendingAlertMinutes: 5,
+      alertWindowMinutes: 15,
+    });
+  });
+
   it('stays quiet below the rejection threshold', () => {
     expect(
       evaluateAuthorityRejectionAlerts(
