@@ -14,15 +14,14 @@ const releasePreflight = readFileSync(
   new URL('../scripts/release-preflight.mjs', import.meta.url),
   'utf8',
 );
-const deploymentIdentityWriter = readFileSync(
-  new URL('../scripts/write-deployment-identity.mjs', import.meta.url),
+const deploymentIdentityFunction = readFileSync(
+  new URL('../api/deployment-identity.mjs', import.meta.url),
   'utf8',
 );
 const deployedAssetsVerifier = readFileSync(
   new URL('../scripts/verify-deployed-assets.mjs', import.meta.url),
   'utf8',
 );
-const packageJson = readFileSync(new URL('../package.json', import.meta.url), 'utf8');
 
 describe('deployment workflow contract', () => {
   it('ne vérifie aucun déploiement distant dans la validation générique', () => {
@@ -48,12 +47,12 @@ describe('deployment workflow contract', () => {
     expect(releasePreflight).toContain('EXPECTED_COMMIT_SHA: candidate.sha');
   });
 
-  it("génère et vérifie un artefact JSON d'identité du déploiement", () => {
-    expect(packageJson).toContain('node scripts/write-deployment-identity.mjs');
-    expect(deploymentIdentityWriter).toContain('VERCEL_GIT_COMMIT_SHA');
-    expect(deploymentIdentityWriter).toContain('deployment-identity.json');
-    expect(deployedAssetsVerifier).toContain('/deployment-identity.json');
+  it("expose et vérifie l'identité du déploiement via une Function Vercel", () => {
+    expect(deploymentIdentityFunction).toContain('VERCEL_GIT_COMMIT_SHA');
+    expect(deploymentIdentityFunction).toContain('Response.json');
+    expect(deployedAssetsVerifier).toContain('/api/deployment-identity');
     expect(deployedAssetsVerifier).toContain('deploymentIdentity?.commit');
+    expect(deployedAssetsVerifier).not.toContain('/deployment-identity.json');
   });
 
   it('conserve un seul contrôle post-déploiement réservé à la production promue', () => {
