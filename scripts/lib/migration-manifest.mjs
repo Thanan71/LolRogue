@@ -77,3 +77,20 @@ export function compareMigrationManifests(expected, applied) {
     JSON.stringify(expectedSharedOrder) !== JSON.stringify(appliedSharedOrder);
   return { missing, unknown, orderDivergent, expectedSharedOrder, appliedSharedOrder };
 }
+
+export function assertAppendOnlyRollbackManifest(rollbackVersions, currentVersions) {
+  if (rollbackVersions.length >= currentVersions.length) {
+    throw new Error('Rollback compatibility requires at least one newer applied migration.');
+  }
+  const currentPrefix = currentVersions.slice(0, rollbackVersions.length);
+  if (JSON.stringify(currentPrefix) !== JSON.stringify(rollbackVersions)) {
+    throw new Error(
+      'Current migrations are not an append-only extension of the rollback manifest.',
+    );
+  }
+  return {
+    rollbackLatest: rollbackVersions.at(-1),
+    currentLatest: currentVersions.at(-1),
+    appendedVersions: currentVersions.slice(rollbackVersions.length),
+  };
+}

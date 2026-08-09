@@ -54,6 +54,9 @@ l'opérateur rollback et l'heure UTC.
 - [ ] Rollback compatible identifié. Si le schéma n'est pas rétrocompatible, le
       plan de correction avant migration est écrit et les nouveaux départs peuvent
       être suspendus.
+- [ ] `node scripts/run-local-db-tests.mjs --rollback` exécute le probe repositories
+      du SHA de rollback versionné contre la DB locale déjà migrée, après contrôle
+      que son historique est un préfixe append-only strict du schéma courant.
 
 ### Ordre de promotion
 

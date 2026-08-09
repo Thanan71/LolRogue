@@ -53,7 +53,8 @@ if (status.status !== 0 || missing.length > 0 || !(await apiIsHealthy(local.apiU
 }
 
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const tests = spawnSync(npmCommand, ['run', 'test:db'], {
+const testScript = process.argv.includes('--rollback') ? 'test:db:rollback' : 'test:db';
+const tests = spawnSync(npmCommand, ['run', testScript], {
   stdio: 'inherit',
   env: {
     ...process.env,
