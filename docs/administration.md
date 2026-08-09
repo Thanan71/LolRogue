@@ -6,9 +6,11 @@ avec RLS et `is_current_user_admin()`.
 
 ## Promouvoir un administrateur
 
-Une promotion ne doit jamais être faite depuis le client ni avec la clé anonyme.
-Elle nécessite un opérateur ayant accès au SQL Editor Supabase ou une connexion
-PostgreSQL privilégiée.
+Une promotion ne doit jamais être faite depuis le client, une RPC générique ou la
+clé anonyme, et jamais depuis les métadonnées Auth. Elle nécessite un opérateur
+ayant accès au SQL Editor Supabase ou une connexion PostgreSQL privilégiée. Le dépôt maintient
+explicitement `REVOKE UPDATE (is_admin)` pour les rôles web ; `handle_new_user`
+ignore également tout champ `is_admin` ou `role` fourni lors de l'inscription.
 
 1. Faire confirmer l'adresse ou l'identifiant exact du compte à promouvoir.
 2. Retrouver son UUID dans Authentication → Users.
@@ -91,9 +93,9 @@ révocation est urgente.
 - Les exports CSV sont produits après une lecture déjà autorisée par la base. Chaque
   cellule est échappée et les préfixes de formule `=`, `+`, `-`, `@`, y compris après
   des espaces, sont forcés en texte avant le téléchargement.
-- Le chargement initial attend statistiques, joueurs, logs et runs. Une erreur laisse
-  les anciennes données identifiées comme telles et expose une action de retry ; une
-  erreur de détail d'équipe invalide la lecture complète des runs.
+- Le chargement initial attend statistiques, joueurs, logs, runs et signalements.
+  Une erreur laisse les anciennes données identifiées comme telles et expose une
+  action de retry ; une erreur de détail d'équipe invalide la lecture complète des runs.
 - Le rang personnel provient exclusivement de `get_my_leaderboard_rank()` : le client
   ne télécharge jamais le leaderboard complet pour le recalculer.
 - Les migrations de durcissement doivent être appliquées avant d'activer le
@@ -107,13 +109,28 @@ vide. À ce jour, aucun warning Supabase relatif aux fonctions privilégiées n'
 accepté globalement : toute nouvelle alerte est bloquante jusqu'à ajout d'une
 justification précise au manifest et d'un test associé.
 
-`invalidate_daily_score` reste une primitive de modération réservée au propriétaire
-SQL. Elle ne doit recevoir un grant client que lorsqu'une route admin auditée
-l'utilisera avec le contrôle `is_current_user_admin()` et des tests d'autorisation.
+## Invalidation auditée d'un score Daily
+
+L'onglet **Modération** de `/admin` charge uniquement les signalements ouverts et
+appelle `invalidate_daily_score`. La fonction est exécutable par `authenticated`,
+mais refuse l'appel avant toute lecture si `auth.uid()` est absent ou si
+`is_current_user_admin()` est faux. Elle exige un score existant, terminé et pas
+déjà invalidé, puis normalise le motif à 10–500 caractères sans caractère de
+contrôle.
+
+Chaque succès écrit la même identité, date et raison dans
+`daily_score_invalidation_audit`. Les rôles API, y compris `service_role`, n'ont
+aucun droit d'insertion, modification ou suppression sur ce journal. Seules
+l'anonymisation de l'acteur lors de la suppression de son compte et la suppression
+en cascade de la run par le processus de confidentialité peuvent modifier ou
+retirer la trace. L'administrateur peut la lire, un utilisateur normal obtient zéro
+ligne et `anon` ne peut même pas appeler `is_current_user_admin()`.
 
 Pour tester, utiliser deux comptes distincts sur une base locale : le premier
-promu par SQL doit accéder aux données admin; le second doit être refusé même s'il
-modifie son état React ou appelle directement l'API REST.
+promu par SQL doit accéder aux données admin et invalider une cible Daily valide ;
+le second doit être refusé même s'il modifie ses métadonnées Auth, son état React
+ou appelle directement l'API REST. Vérifier aussi le refus de `anon`, d'un UUID
+inexistant, d'un motif hors limites et d'une seconde invalidation.
 
 ## Intervention courante
 

@@ -4,6 +4,7 @@ import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
 import { AdminDashboardPanel } from './admin/AdminDashboardPanel';
 import { AdminErrorNotice } from './admin/AdminErrorNotice';
+import { AdminModerationPanel } from './admin/AdminModerationPanel';
 import { AdminTabList } from './admin/AdminTabList';
 import { useAdminData } from './admin/useAdminData';
 import { exportRunsToCSV, formatAdminDate, getLogLevelColor } from './adminPageUtils';
@@ -24,6 +25,8 @@ export function AdminPage() {
     playersLoading,
     runsLoading,
     runs,
+    moderationLoading,
+    moderationReports,
     errors,
     runFilter,
     setRunFilter,
@@ -33,6 +36,8 @@ export function AdminPage() {
     fetchPlayerStats,
     fetchLogs,
     fetchRuns,
+    fetchModerationReports,
+    invalidateDailyScore,
   } = useAdminData(isAdmin);
 
   if (!isAdmin) {
@@ -458,6 +463,16 @@ export function AdminPage() {
               </>
             )}
           </section>
+        )}
+
+        {activeTab === 'moderation' && (
+          <AdminModerationPanel
+            reports={moderationReports}
+            loading={loading || moderationLoading}
+            error={errors.moderation}
+            onRetry={() => void fetchModerationReports()}
+            onInvalidate={invalidateDailyScore}
+          />
         )}
       </div>
     </main>
