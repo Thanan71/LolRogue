@@ -19,7 +19,10 @@ import {
   SupabasePlayerUnlockRepository,
 } from '@/services/repositories/SupabaseMasteryRepository';
 import { SupabasePlayerRepository } from '@/services/repositories/SupabasePlayerRepository';
-import { SupabaseRunRepository } from '@/services/repositories/SupabaseRunRepository';
+import {
+  SupabaseRunRepository,
+  SupabaseRunStatsRepository,
+} from '@/services/repositories/SupabaseRunRepository';
 import type { Database } from '@/types/database';
 
 // ─── Mock Helpers ────────────────────────────────────────────────────────────
@@ -55,30 +58,51 @@ function createMockSupabaseClient() {
   return { mockSupabase, queryChain };
 }
 
+function validDailyChallenge(overrides: Record<string, unknown> = {}) {
+  return {
+    daily_date: '2026-07-26',
+    seed: 1234,
+    starts_at: '2026-07-26T00:00:00.000Z',
+    expires_at: '2026-07-27T00:00:00.000Z',
+    difficulty: 'normal',
+    daily_ruleset_version: 1,
+    gameplay_ruleset_version: 1,
+    engine_version: 'run-engine-v1',
+    gameplay_content_hash: 'a'.repeat(64),
+    score_version: 1,
+    starter_ids: ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', 'Soraka'],
+    attempt_policy: 'one_official_attempt_per_utc_day',
+    has_attempted: false,
+    attempt_id: null,
+    attempt_status: null,
+    published: false,
+    score: null,
+    ...overrides,
+  };
+}
+
+function validDailyLeaderboardRow(overrides: Record<string, unknown> = {}) {
+  return {
+    entry_id: 'daily-run-1',
+    rank: 1,
+    player_name: 'Public Player',
+    score: 1360,
+    waves_completed: 1,
+    run_level_reached: 1,
+    score_version: 1,
+    gameplay_ruleset_version: 13,
+    daily_ruleset_version: 13,
+    season_code: 'preseason-2026',
+    ...overrides,
+  };
+}
+
 describe('SupabaseDailyRunRepository', () => {
   it('reads the canonical challenge instead of submitting client metrics', async () => {
     const { mockSupabase } = createMockSupabaseClient();
     const repository = new SupabaseDailyRunRepository(mockSupabase);
     vi.mocked(mockSupabase.rpc).mockResolvedValue({
-      data: {
-        daily_date: '2026-07-26',
-        seed: 1234,
-        starts_at: '2026-07-26T00:00:00.000Z',
-        expires_at: '2026-07-27T00:00:00.000Z',
-        difficulty: 'normal',
-        daily_ruleset_version: 1,
-        gameplay_ruleset_version: 1,
-        engine_version: 'run-engine-v1',
-        gameplay_content_hash: 'a'.repeat(64),
-        score_version: 1,
-        starter_ids: ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', 'Soraka'],
-        attempt_policy: 'one_official_attempt_per_utc_day',
-        has_attempted: false,
-        attempt_id: null,
-        attempt_status: null,
-        published: false,
-        score: null,
-      },
+      data: validDailyChallenge(),
       error: null,
     } as never);
 
@@ -93,6 +117,57 @@ describe('SupabaseDailyRunRepository', () => {
       hasAttempted: false,
     });
     expect(result.error).toBeNull();
+  });
+
+  it.each([
+    ['non-object response', null],
+    ['array response', []],
+    ['daily date', validDailyChallenge({ daily_date: 1 })],
+    ['seed', validDailyChallenge({ seed: 1.5 })],
+    ['start timestamp', validDailyChallenge({ starts_at: 'invalid' })],
+    ['expiry timestamp', validDailyChallenge({ expires_at: 'invalid' })],
+    ['difficulty', validDailyChallenge({ difficulty: 'impossible' })],
+    ['daily ruleset', validDailyChallenge({ daily_ruleset_version: 1.5 })],
+    ['gameplay ruleset', validDailyChallenge({ gameplay_ruleset_version: 1.5 })],
+    ['engine', validDailyChallenge({ engine_version: 1 })],
+    ['content hash', validDailyChallenge({ gameplay_content_hash: 'invalid' })],
+    ['score version', validDailyChallenge({ score_version: 1.5 })],
+    ['starter type', validDailyChallenge({ starter_ids: 'Garen' })],
+    ['starter count', validDailyChallenge({ starter_ids: ['Garen'] })],
+    [
+      'empty starter',
+      validDailyChallenge({ starter_ids: ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', ''] }),
+    ],
+    [
+      'duplicate starter',
+      validDailyChallenge({
+        starter_ids: ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', 'Garen'],
+      }),
+    ],
+    ['attempt policy', validDailyChallenge({ attempt_policy: 'unbounded' })],
+    ['attempt flag', validDailyChallenge({ has_attempted: 'false' })],
+    ['attempt UUID', validDailyChallenge({ attempt_id: 'invalid' })],
+    ['attempt status', validDailyChallenge({ attempt_status: 'unknown' })],
+    ['published flag', validDailyChallenge({ published: 'false' })],
+    ['score', validDailyChallenge({ score: 1.5 })],
+  ])('rejects a mutated %s Daily contract', async (_, data) => {
+    const { mockSupabase } = createMockSupabaseClient();
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({ data, error: null } as never);
+
+    const result = await new SupabaseDailyRunRepository(mockSupabase).getDailyChallenge();
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toBe('Invalid get_daily_challenge response');
+  });
+
+  it('returns the PostgREST error before parsing a Daily response', async () => {
+    const { mockSupabase } = createMockSupabaseClient();
+    const error = new Error('daily unavailable');
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({ data: null, error } as never);
+
+    await expect(new SupabaseDailyRunRepository(mockSupabase).getDailyChallenge()).resolves.toEqual(
+      { data: null, error },
+    );
   });
 
   it('reads only the sanitized ranked Daily view', async () => {
@@ -160,6 +235,88 @@ describe('SupabaseDailyRunRepository', () => {
       p_reason: 'Score manifestement impossible',
     });
     expect(result.error).toBeNull();
+  });
+
+  it('applies every comparison filter and rejects mutated leaderboard rows', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    queryChain.limit.mockResolvedValueOnce({
+      data: [
+        {
+          entry_id: null,
+          rank: 2,
+          player_name: 'Anonymous',
+          score: 100,
+          waves_completed: 1,
+          run_level_reached: 1,
+          score_version: 2,
+          gameplay_ruleset_version: null,
+          daily_ruleset_version: null,
+          season_code: null,
+        },
+      ],
+      error: null,
+    });
+    const repository = new SupabaseDailyRunRepository(mockSupabase);
+
+    const filtered = await repository.getDailyLeaderboard({
+      date: '2026-07-26',
+      seasonCode: 'preseason-2026',
+      gameplayRulesetVersion: 13,
+      scoreVersion: 2,
+      limit: 25,
+    });
+
+    expect(queryChain.eq).toHaveBeenCalledWith('season_code', 'preseason-2026');
+    expect(queryChain.eq).toHaveBeenCalledWith('gameplay_ruleset_version', 13);
+    expect(queryChain.eq).toHaveBeenCalledWith('score_version', 2);
+    expect(queryChain.limit).toHaveBeenCalledWith(25);
+    expect(filtered.data?.[0]).toEqual({
+      entryId: undefined,
+      rank: 2,
+      playerName: 'Anonymous',
+      score: 100,
+      wavesCompleted: 1,
+      runLevel: 1,
+      scoreVersion: 2,
+      gameplayRulesetVersion: undefined,
+      dailyRulesetVersion: undefined,
+      seasonCode: undefined,
+    });
+
+    for (const field of [
+      'rank',
+      'player_name',
+      'score',
+      'waves_completed',
+      'run_level_reached',
+      'score_version',
+    ]) {
+      queryChain.limit.mockResolvedValueOnce({
+        data: [{ ...validDailyLeaderboardRow(), [field]: null }],
+        error: null,
+      });
+      const result = await repository.getDailyLeaderboard({ date: '2026-07-26' });
+      expect(result.error?.message).toBe('Invalid daily_leaderboard response');
+    }
+  });
+
+  it('propagates leaderboard and privacy PostgREST errors', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    const error = new Error('unavailable');
+    queryChain.limit.mockResolvedValue({ data: null, error });
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({ data: null, error } as never);
+    const repository = new SupabaseDailyRunRepository(mockSupabase);
+
+    await expect(repository.getDailyLeaderboard({ date: '2026-07-26' })).resolves.toEqual({
+      data: null,
+      error,
+    });
+    await expect(repository.reportDailyScore('entry-1', 'reason')).resolves.toEqual({ error });
+    await expect(repository.setLeaderboardPrivacy(null, true)).resolves.toEqual({ error });
+    expect(mockSupabase.rpc).toHaveBeenLastCalledWith('set_leaderboard_privacy', {
+      p_public_display_name: '',
+      p_opt_out: true,
+    });
   });
 });
 
@@ -259,6 +416,125 @@ describe('SupabaseRunRepository history', () => {
     await expect(
       new SupabaseRunRepository(mockSupabase).getPlayerRunHistory('player-1'),
     ).resolves.toEqual({ data: null, error });
+  });
+});
+
+describe('SupabaseRunRepository PostgREST branches', () => {
+  it('reads individual runs, paginated runs and team members', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    const repository = new SupabaseRunRepository(mockSupabase);
+    const row = { id: 'run-1', player_id: 'player-1' };
+    queryChain.single.mockResolvedValueOnce({ data: row, error: null });
+    await expect(repository.getRun('run-1')).resolves.toEqual({ data: row, error: null });
+
+    queryChain.range.mockResolvedValueOnce({ data: [row], error: null });
+    await expect(repository.getPlayerRuns('player-1', 5, 10)).resolves.toEqual({
+      data: [row],
+      error: null,
+    });
+    expect(queryChain.range).toHaveBeenLastCalledWith(10, 14);
+
+    queryChain.eq.mockResolvedValueOnce({
+      data: [{ run_id: 'run-1', champion_id: 'Garen' }],
+      error: null,
+    });
+    await expect(repository.getRunTeamMembers('run-1')).resolves.toMatchObject({
+      data: [{ champion_id: 'Garen' }],
+      error: null,
+    });
+  });
+
+  it('propagates every run read error without partial data', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    const repository = new SupabaseRunRepository(mockSupabase);
+    const error = new Error('PostgREST unavailable');
+    queryChain.single.mockResolvedValueOnce({ data: null, error });
+    await expect(repository.getRun('run-1')).resolves.toEqual({ data: null, error });
+
+    queryChain.range.mockResolvedValueOnce({ data: null, error });
+    await expect(repository.getPlayerRuns('player-1')).resolves.toEqual({ data: null, error });
+
+    queryChain.eq.mockResolvedValueOnce({ data: null, error });
+    await expect(repository.getRunTeamMembers('run-1')).resolves.toEqual({ data: null, error });
+  });
+
+  it('calculates run statistics including nullable counters and empty histories', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    const repository = new SupabaseRunStatsRepository(mockSupabase);
+    queryChain.eq.mockResolvedValueOnce({
+      data: [
+        {
+          won: true,
+          run_level: 4,
+          waves_completed: 8,
+          total_kills: null,
+          total_damage_dealt: null,
+        },
+        {
+          won: false,
+          run_level: 2,
+          waves_completed: 3,
+          total_kills: 5,
+          total_damage_dealt: 900,
+        },
+      ],
+      error: null,
+    });
+
+    await expect(repository.getPlayerRunStats('player-1')).resolves.toEqual({
+      data: {
+        totalRuns: 2,
+        totalWins: 1,
+        winRate: 50,
+        totalWaves: 11,
+        bestRunLevel: 4,
+        totalKills: 5,
+        totalDamage: 900,
+      },
+      error: null,
+    });
+
+    queryChain.eq.mockResolvedValueOnce({ data: [], error: null });
+    await expect(repository.getPlayerRunStats('player-1')).resolves.toMatchObject({
+      data: { totalRuns: 0, winRate: 0, bestRunLevel: 0 },
+      error: null,
+    });
+  });
+
+  it('fails run statistics closed on PostgREST errors or absent rows', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    const repository = new SupabaseRunStatsRepository(mockSupabase);
+    const error = new Error('stats unavailable');
+    queryChain.eq.mockResolvedValueOnce({ data: null, error });
+    await expect(repository.getPlayerRunStats('player-1')).resolves.toEqual({
+      data: null,
+      error,
+    });
+    queryChain.eq.mockResolvedValueOnce({ data: null, error: null });
+    const missing = await repository.getPlayerRunStats('player-1');
+    expect(missing.data).toBeNull();
+    expect(missing.error?.message).toBe('No runs found');
+  });
+
+  it('joins run details with team rows and preserves the team query error', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    const repository = new SupabaseRunStatsRepository(mockSupabase);
+    const run = { id: 'run-1' };
+    const teamError = new Error('team unavailable');
+    queryChain.single.mockResolvedValueOnce({ data: run, error: null });
+    queryChain.eq
+      .mockReturnValueOnce(queryChain)
+      .mockResolvedValueOnce({ data: null, error: teamError });
+
+    await expect(repository.getRunDetails('run-1')).resolves.toEqual({
+      data: { run, teamMembers: [] },
+      error: teamError,
+    });
+
+    queryChain.single.mockResolvedValueOnce({ data: null, error: null });
+    const missing = await repository.getRunDetails('missing');
+    expect(missing.data).toBeNull();
+    expect(missing.error?.message).toBe('Run not found');
   });
 });
 

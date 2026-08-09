@@ -123,6 +123,7 @@ export default defineConfig({
         'src/components/RunLifecycleRoute.tsx',
         'src/components/ui/Feedback.tsx',
         'src/pages/CombatPage.tsx',
+        'src/pages/ProfilePage.tsx',
       ],
       exclude: ['**/*.d.ts', '**/types.ts', '**/index.ts', 'src/services/interfaces/**'],
       thresholds: {
@@ -138,6 +139,12 @@ export default defineConfig({
           branches: 61,
           functions: 60,
           lines: 77,
+        },
+        'src/game/run/runAuthorityJournal.ts': {
+          statements: 100,
+          branches: 98,
+          functions: 100,
+          lines: 100,
         },
         'src/services/**': {
           statements: 55,
@@ -176,10 +183,28 @@ export default defineConfig({
           lines: 95,
         },
         'src/services/repositories/SupabaseRunRepository.ts': {
-          statements: 85,
-          branches: 75,
-          functions: 95,
-          lines: 84,
+          statements: 100,
+          branches: 97,
+          functions: 100,
+          lines: 100,
+        },
+        'src/services/repositories/SupabaseDailyRunRepository.ts': {
+          statements: 97,
+          branches: 93,
+          functions: 100,
+          lines: 97,
+        },
+        'src/services/repositories/SupabasePlayerRepository.ts': {
+          statements: 100,
+          branches: 88,
+          functions: 100,
+          lines: 100,
+        },
+        'src/pages/ProfilePage.tsx': {
+          statements: 95,
+          branches: 90,
+          functions: 90,
+          lines: 95,
         },
         'src/stores/runStore.ts': {
           statements: 78,

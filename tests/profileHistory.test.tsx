@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfilePage } from '@/pages/ProfilePage';
@@ -38,6 +38,7 @@ const run = {
 
 describe('comparable profile history', () => {
   beforeEach(() => {
+    historyMocks.getPlayerRunHistory.mockReset();
     historyMocks.getPlayerRunHistory.mockResolvedValue({
       data: [
         {
@@ -92,5 +93,92 @@ describe('comparable profile history', () => {
     expect(screen.getByText(/820 or gagné · 600 or dépensé · 4 objets achetés/)).toBeVisible();
     expect(screen.getByText(/12.500 dégâts · 900 soins · 450 boucliers/)).toBeVisible();
     expect(screen.getByText(/press_the_attack · field_medic/)).toBeVisible();
+  });
+
+  it('renders legacy nested-select rows without attempt, team or content metadata', async () => {
+    vi.spyOn(window.navigator, 'onLine', 'get').mockReturnValue(false);
+    historyMocks.getPlayerRunHistory.mockResolvedValue({
+      data: [
+        {
+          run: {
+            ...run,
+            id: 'run-legacy',
+            won: false,
+            completed_at: null,
+            rune_ids: [],
+            augment_ids: [],
+          },
+          attempt: null,
+          teamMembers: [],
+        },
+      ],
+      error: null,
+    });
+
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+
+    const summary = await screen.findByText(/Défaite/);
+    fireEvent.click(summary.closest('summary') ?? summary);
+
+    expect(screen.getByText(/Connexion perdue/)).toBeVisible();
+    expect(screen.getByText(/Partie historique/)).toBeVisible();
+    expect(screen.getByText('Équipe non conservée')).toBeVisible();
+    expect(screen.getByText('aucun · aucun')).toBeVisible();
+  });
+
+  it('shows repository failures and retries the nested history query', async () => {
+    historyMocks.getPlayerRunHistory
+      .mockResolvedValueOnce({ data: null, error: new Error('offline') })
+      .mockResolvedValueOnce({ data: [], error: null });
+
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText('Historique indisponible')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer le chargement' }));
+
+    await waitFor(() => expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText('Aucune partie enregistrée')).toBeVisible();
+  });
+
+  it('keeps local profiles out of the remote history repository', () => {
+    useAuthStore.setState({ player: null, isGuest: true, isAuthenticated: false });
+
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Profil local')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Se connecter pour synchroniser' }));
+    expect(historyMocks.getPlayerRunHistory).not.toHaveBeenCalled();
+  });
+
+  it('ignores a nested history response after the profile unmounts', async () => {
+    let resolveHistory: ((value: { data: []; error: null }) => void) | undefined;
+    historyMocks.getPlayerRunHistory.mockReturnValue(
+      new Promise((resolve) => {
+        resolveHistory = resolve;
+      }),
+    );
+    const view = render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText('Synchronisation du profil…')).toBeVisible();
+    view.unmount();
+    await act(async () => resolveHistory?.({ data: [], error: null }));
+
+    expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20);
   });
 });

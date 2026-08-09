@@ -3,7 +3,13 @@ import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
 } from '@/game/authority/AuthorityRunEngine';
-import type { AuthorityVersionMetadata } from '@/game/authority/versionRegistry';
+import {
+  hasAuthorityFeature,
+  isKnownAuthorityEngine,
+  type AuthorityFeature,
+  type AuthorityVersionMetadata,
+} from '@/game/authority/versionRegistry';
+import { AUTHORITY_FEATURE_BITS } from '@/game/authority/versionCapabilities.generated';
 import { usesCanonicalProgression } from '@/game/run/runAuthorityJournal';
 import { transitionToNextBiome } from '@/game/run/runProgression';
 import { usesLegacyEncounterRules } from '@/pages/combat/legacyCombatEncounter';
@@ -24,17 +30,29 @@ describe('authority progression engine versioning', () => {
     expect(CURRENT_AUTHORITY_VERSION.status).toBe('current');
   });
 
-  it('uses declared capability metadata for every supported engine', () => {
-    const supported = AUTHORITY_VERSION_REGISTRY.filter(
-      (version) => version.status !== 'unsupported',
-    );
+  it('uses declared capability metadata for every registered engine, including future entries', () => {
+    const clientFeatures = Object.keys(AUTHORITY_FEATURE_BITS) as AuthorityFeature[];
 
-    expect(supported.length).toBeGreaterThan(0);
-    expect(supported[supported.length - 1]).toBe(CURRENT_AUTHORITY_VERSION);
-    for (const version of supported) {
+    expect(AUTHORITY_VERSION_REGISTRY.length).toBeGreaterThan(0);
+    expect(AUTHORITY_VERSION_REGISTRY[AUTHORITY_VERSION_REGISTRY.length - 1]).toBe(
+      CURRENT_AUTHORITY_VERSION,
+    );
+    for (const version of AUTHORITY_VERSION_REGISTRY) {
+      expect(isKnownAuthorityEngine(version.engine), version.engine).toBe(true);
       expect(
         usesCanonicalProgression({ engineVersion: version.engine } as RunAuthorityAttempt),
       ).toBe(version.features.canonicalProgression);
+      for (const feature of clientFeatures) {
+        expect(hasAuthorityFeature(version.engine, feature), `${version.engine}:${feature}`).toBe(
+          version.features[feature],
+        );
+      }
+    }
+
+    for (const unknown of ['run-engine-v0', 'run-engine-v999', 'future-engine-v14', '']) {
+      expect(isKnownAuthorityEngine(unknown), unknown).toBe(false);
+      for (const feature of clientFeatures)
+        expect(hasAuthorityFeature(unknown, feature)).toBe(false);
     }
   });
 
