@@ -3,7 +3,6 @@ name: Production post-deployment
 on:
   repository_dispatch:
     types:
-      - vercel.deployment.success
       - vercel.deployment.promoted
 
 permissions:
