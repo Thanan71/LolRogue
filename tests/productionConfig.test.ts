@@ -52,4 +52,38 @@ describe('production configuration', () => {
     expect(cssSource).not.toMatch(/Beaufort|fonts\//i);
     expect(starterCssSource).not.toMatch(/fonts\.googleapis\.com|@import\s+url/i);
   });
+
+  it('keeps every route page outside the initial application chunk', () => {
+    const lazyRoutePages = [
+      'AdminPage',
+      'AuthPage',
+      'CombatPage',
+      'CreditsPage',
+      'DatabasePage',
+      'DailyRunPage',
+      'EventPage',
+      'GameOverPage',
+      'LegalPage',
+      'MenuPage',
+      'NotFoundPage',
+      'ProfilePage',
+      'RecruitPage',
+      'RestPage',
+      'RulesPage',
+      'RunPage',
+      'SettingsPage',
+      'ShopPage',
+      'StarterSelectPage',
+      'TreasurePage',
+    ];
+
+    expect(appSource).not.toMatch(/^import .* from ['"]\.\/pages\//m);
+    for (const page of lazyRoutePages) {
+      expect(appSource).toMatch(
+        new RegExp(
+          `const ${page} = lazy\\(\\(\\) =>[\\s\\S]*?import\\(['"]\\.\\/pages\\/${page}['"]\\)`,
+        ),
+      );
+    }
+  });
 });
