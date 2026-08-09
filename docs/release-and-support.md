@@ -37,6 +37,9 @@ versions de migration/ruleset, déploiements, opérateur rollback et heure UTC.
 - [ ] `npm ci`, `npm run check`, `npm run test:e2e`, `npm run test:e2e:production`,
       `npm run db:validate`, `npm run test:db` et `npm run test:deployed-assets`
       réussissent sous Node 24.
+- [ ] `npm run db:migrations:check:linked` confirme que la dernière migration du
+      projet Supabase lié correspond à celle du commit candidat ; consigner les
+      deux versions dans la fiche de release.
 - [ ] Migrations nouvelles uniquement, types DB à jour et fonction autoritaire
       bundlée ; sauvegarde récente et exercice de restauration trimestriel valides.
 - [ ] Variables Preview pointent vers Preview ; smoke test Preview réussi.

@@ -210,7 +210,7 @@ describe('SupabaseRunRepository history', () => {
             mode: 'normal',
             engine_version: 'run-engine-v13',
             gameplay_ruleset_version: 13,
-            progression_ruleset_version: 2,
+            ruleset_version: 2,
           },
         },
         {
@@ -241,6 +241,7 @@ describe('SupabaseRunRepository history', () => {
         difficulty: 'hard',
         engineVersion: 'run-engine-v13',
         gameplayRulesetVersion: 13,
+        progressionRulesetVersion: 2,
       },
     });
     expect(result.data?.[1]).toMatchObject({

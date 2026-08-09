@@ -262,22 +262,22 @@ la même fausse colonne et passaient. PostgREST renvoyait ensuite `400 Bad Reque
 
 ### Actions
 
-- [ ] Conserver le test de contrat unitaire ajouté aujourd'hui, mais ne pas le
+- [x] Conserver le test de contrat unitaire ajouté aujourd'hui, mais ne pas le
   considérer suffisant.
-- [ ] Ajouter une suite `repositoryIntegration.database.test.ts` utilisant le vrai
+- [x] Ajouter une suite `repositoryIntegration.database.test.ts` utilisant le vrai
   Supabase local après migrations.
-- [ ] Exercices minimum : historique de runs + nested FK, profil, leaderboard,
+- [x] Exercices minimum : historique de runs + nested FK, profil, leaderboard,
   Daily, maîtrise, enhancements, admin et logs.
-- [ ] Insérer des fixtures minimales via service role, puis appeler les repositories
+- [x] Insérer des fixtures minimales via service role, puis appeler les repositories
   avec un client `anon` / `authenticated` réel.
-- [ ] Vérifier les noms de relations PostgREST et les nested selects réels.
-- [ ] Tester les erreurs `PGRST*` et les réponses nulles réelles.
-- [ ] Ajouter ces tests à `test:db` sans liste manuelle de fichiers.
-- [ ] Ajouter un contrôle de dérive : migrations du dépôt ↔ types générés ↔ schéma
+- [x] Vérifier les noms de relations PostgREST et les nested selects réels.
+- [x] Tester les erreurs `PGRST*` et les réponses nulles réelles.
+- [x] Ajouter ces tests à `test:db` sans liste manuelle de fichiers.
+- [x] Ajouter un contrôle de dérive : migrations du dépôt ↔ types générés ↔ schéma
   local ↔ migrations appliquées en production.
-- [ ] Avant release, comparer la dernière version de `supabase_migrations` live à la
+- [x] Avant release, comparer la dernière version de `supabase_migrations` live à la
   dernière migration attendue par le commit candidat.
-- [ ] Interdire les casts `as unknown as ...` destinés à masquer une forme PostgREST
+- [x] Interdire les casts `as unknown as ...` destinés à masquer une forme PostgREST
   non vérifiée dans les repositories critiques ; si un cast est indispensable,
   l'accompagner d'un parseur runtime.
 

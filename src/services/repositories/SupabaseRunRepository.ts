@@ -68,17 +68,7 @@ export class SupabaseRunRepository implements IRunRepository {
     if (error) return { data: null, error };
 
     const entries = (data ?? []).map((raw) => {
-      const row = raw as unknown as Run & {
-        run_team_members: RunTeamMember[] | null;
-        run_attempts: {
-          difficulty: string;
-          mode: string;
-          engine_version: string;
-          gameplay_ruleset_version: number;
-          ruleset_version: number;
-        } | null;
-      };
-      const { run_team_members, run_attempts, ...run } = row;
+      const { run_team_members, run_attempts, ...run } = raw;
       return {
         run,
         teamMembers: run_team_members ?? [],

@@ -25,6 +25,7 @@ export interface LogEntry {
 }
 
 interface ClientLogPayload {
+  [key: string]: Json | undefined;
   level: LogLevel;
   repository: string;
   method: string;
@@ -185,7 +186,7 @@ class DatabaseLogger {
       logsToSend = this.logBuffer.splice(0, Math.min(this.config.batchSize, 10));
       if (logsToSend.length === 0) return;
       const { error } = await supabase.rpc('submit_client_logs', {
-        p_logs: logsToSend.map(({ payload }) => payload) as unknown as Json,
+        p_logs: logsToSend.map(({ payload }) => payload),
       });
       if (error) this.retryIfTransient(logsToSend, error.message);
     } catch (error) {
