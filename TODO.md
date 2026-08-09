@@ -185,21 +185,21 @@ ne sont pas minimalistes.
 
 ### Actions
 
-- [ ] Créer un **manifest de privilèges attendu** (fonction, rôle, justification).
-- [ ] Révoquer `EXECUTE` à `PUBLIC` avant de réaccorder les seules fonctions voulues.
-- [ ] Révoquer explicitement `anon, authenticated` sur `handle_new_user()`.
-- [ ] Révoquer `anon` sur `is_current_user_admin()`.
-- [ ] Déplacer `purge_expired_social_data()` vers une exécution `service_role` /
+- [x] Créer un **manifest de privilèges attendu** (fonction, rôle, justification).
+- [x] Révoquer `EXECUTE` à `PUBLIC` avant de réaccorder les seules fonctions voulues.
+- [x] Révoquer explicitement `anon, authenticated` sur `handle_new_user()`.
+- [x] Révoquer `anon` sur `is_current_user_admin()`.
+- [x] Déplacer `purge_expired_social_data()` vers une exécution `service_role` /
   cron et révoquer `authenticated` si l'UI n'en a pas besoin.
-- [ ] Intégrer l'expiration des attempts dans `start_run_attempt` /
+- [x] Intégrer l'expiration des attempts dans `start_run_attempt` /
   `start_daily_run_attempt`, puis retirer l'appel client à `expire_stale_run_attempts`.
-- [ ] Pour chaque RPC restant `SECURITY DEFINER`, tester : identité absente,
+- [x] Pour chaque RPC restant `SECURITY DEFINER`, tester : identité absente,
   identité différente, ID d'une autre ressource, payload extrême, double appel,
   ownership et erreur attendue.
-- [ ] Vérifier qu'aucune fonction privilégiée ne prend une décision d'autorisation
+- [x] Vérifier qu'aucune fonction privilégiée ne prend une décision d'autorisation
   depuis `raw_user_meta_data` / `user_metadata`.
-- [ ] Ajouter une gate SQL qui compare les grants live/local au manifest attendu.
-- [ ] Documenter les warnings Supabase volontairement acceptés, un par un, au lieu
+- [x] Ajouter une gate SQL qui compare les grants live/local au manifest attendu.
+- [x] Documenter les warnings Supabase volontairement acceptés, un par un, au lieu
   de considérer toute alerte comme un faux positif global.
 
 ### Acceptation

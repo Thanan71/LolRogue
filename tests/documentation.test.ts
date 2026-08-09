@@ -50,7 +50,7 @@ describe('documentation maintenue', () => {
     expect(todo).toContain('## P0');
     expect(todo).toContain('## P1');
     expect(todo).toContain('## P2');
-    expect(todo).toContain('## Ordre de réalisation recommandé');
+    expect(todo).toContain("# 2. Ordre d'exécution recommandé");
     expect(todo).toContain('- [ ]');
   });
 
@@ -100,7 +100,7 @@ describe('documentation maintenue', () => {
     }
   });
 
-  it('distingue les dix preuves techniques des validations humaines et externes', () => {
+  it('conserve les preuves historiques tout en signalant leur réévaluation obligatoire', () => {
     const readiness = read('docs/beta-readiness.md');
     const todo = read('TODO.md');
 
@@ -114,7 +114,9 @@ describe('documentation maintenue', () => {
     }
     expect(readiness).toContain('Les dix critères techniques sont donc **démontrés**');
     expect(readiness).toContain('Revue accessibilité humaine — complément non automatisable');
-    expect(todo).toContain('**Statut technique : 10/10 démontrés.**');
+    expect(todo).toContain("## P0-REL-01 — Réparer la gate bêta pour qu'elle reflète l'état réel");
+    expect(todo).toContain('Passer immédiatement le statut bêta à **bloqué**');
+    expect(todo).toContain('Exiger trois CI **postérieures au dernier correctif P0**');
   });
 
   it('ne réintroduit pas les guides historiques ponctuels', () => {

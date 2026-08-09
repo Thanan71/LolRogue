@@ -326,8 +326,7 @@ async function callAttemptRpc(
     | 'start_daily_run_attempt'
     | 'append_run_attempt_commands'
     | 'seal_run_attempt'
-    | 'get_run_attempt_status'
-    | 'expire_stale_run_attempts',
+    | 'get_run_attempt_status',
   args: Record<string, unknown>,
 ): Promise<{ data: unknown; error: Error | null }> {
   try {
@@ -347,9 +346,6 @@ async function callAttemptRpc(
 export async function startRunAttempt(
   input: StartRunAttemptInput,
 ): Promise<{ data: StartRunAttemptResult | null; error: Error | null }> {
-  const expiry = await callAttemptRpc('expire_stale_run_attempts', {});
-  if (expiry.error) return { data: null, error: expiry.error };
-
   const result =
     input.mode === 'daily'
       ? await callAttemptRpc('start_daily_run_attempt', {

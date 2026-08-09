@@ -76,6 +76,14 @@ droits sur `players` ou `daily_runs`. Après déploiement, exécuter la gate
 `security_definer_view`, puis tester les deux vues avec les rôles `anon`,
 `authenticated` et `service_role`.
 
+La migration `20260809120000_harden_security_definer_privileges.sql` révoque tous
+les grants des fonctions privilégiées avant de réaccorder uniquement le manifest
+`config/security-definer-privileges.json`. Elle retire notamment l'accès navigateur
+à `handle_new_user`, `expire_stale_run_attempts`, `invalidate_daily_score` et à la
+purge sociale. Le démarrage expire les attempts obsolètes du compte ; le worker
+expire aussi un attempt scellé avant son claim. Déployer ensemble migration,
+fonction Edge et client, puis exécuter `npm run db:security`.
+
 La migration `20260726210000_atomic_run_finalization.sql` supprime l'ancien RPC
 `save_run_loadout`. Vérifier avant déploiement que le client publié utilise
 uniquement la finalisation autoritaire. Une run dont la vérification dépasse
@@ -127,6 +135,9 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 - confirmer dans les advisors Supabase qu'il ne reste aucun
   `security_definer_view`, puis vérifier dans `pg_class.reloptions` que
   `leaderboard` et `daily_leaderboard` portent `security_invoker=true` ;
+- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run db:security` et
+  confirmer qu'aucun trigger, helper historique ou purge n'est appelable avec un
+  JWT navigateur ;
 - si les diagnostics sont activés, confirmer qu'un `INSERT` direct dans `logs`
   échoue, qu'une soumission RPC reçoit l'identité de la session et que le job de
   purge est actif ;
