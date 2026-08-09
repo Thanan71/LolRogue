@@ -16,6 +16,8 @@ process.stdout.write(
     .join('\n')}\n`,
 );
 
+if (process.argv.includes('--list')) process.exit(0);
+
 const result = spawnSync(
   process.execPath,
   [

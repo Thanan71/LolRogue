@@ -40,6 +40,10 @@ Toute occurrence de `skip`, `skipIf` ou `todo` dans ces suites fait échouer
 suite générique sans Supabase local d'ignorer les tests live ; `test:db` fournit les
 identifiants locaux et les exécute réellement.
 
+`npm run test:db:list` applique ces mêmes règles et affiche, dans l'ordre, chaque
+fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni
+Supabase ni les tests et sert de preuve locale de discovery.
+
 ## Clean-room CI
 
 La job `clean-room` repart d'un checkout sans `node_modules`, `dist` ni couverture et
