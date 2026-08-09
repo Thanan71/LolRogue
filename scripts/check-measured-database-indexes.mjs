@@ -30,13 +30,32 @@ const intentionallyUnindexedForeignKeys = new Set([
 ]);
 
 function runSupabase(args) {
-  const result = spawnSync('supabase', [...args, '--output-format', 'json'], {
-    encoding: 'utf8',
-  });
+  const result = spawnSync(
+    'supabase',
+    [...args, '--agent', 'yes', '--output-format', 'json'],
+    {
+      encoding: 'utf8',
+    },
+  );
   if (result.stderr) process.stderr.write(result.stderr);
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
-  return JSON.parse(result.stdout);
+
+  const stdout = result.stdout.trim();
+  if (!stdout) {
+    throw new Error(
+      `Supabase CLI returned no JSON output for: supabase ${args.join(' ')}`,
+    );
+  }
+
+  try {
+    return JSON.parse(stdout);
+  } catch (error) {
+    throw new Error(
+      `Supabase CLI returned invalid JSON for: supabase ${args.join(' ')}\n${stdout}`,
+      { cause: error },
+    );
+  }
 }
 
 const names = [...expectedIndexes.keys()].map((name) => `'${name}'`).join(', ');
@@ -47,7 +66,11 @@ const indexResult = runSupabase([
   `SELECT indexname, tablename, indexdef FROM pg_indexes WHERE schemaname = 'public' AND indexname IN (${names}) ORDER BY indexname`,
 ]);
 
-const rows = indexResult.rows ?? [];
+if (!Array.isArray(indexResult.rows)) {
+  throw new Error('Supabase CLI db query JSON response does not contain a rows array.');
+}
+
+const rows = indexResult.rows;
 if (rows.length !== expectedIndexes.size) {
   throw new Error(`Expected ${expectedIndexes.size} measured indexes, found ${rows.length}`);
 }
