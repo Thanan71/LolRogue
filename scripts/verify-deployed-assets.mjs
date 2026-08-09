@@ -1,6 +1,12 @@
 import fs from 'node:fs/promises';
 
-const baseUrl = (process.env.DEPLOYMENT_URL || 'https://lol-rogue.vercel.app').replace(/\/$/, '');
+const deploymentUrl = process.env.DEPLOYMENT_URL?.trim();
+if (!deploymentUrl) {
+  throw new Error(
+    'DEPLOYMENT_URL is required: remote deployment checks never default to production.',
+  );
+}
+const baseUrl = deploymentUrl.replace(/\/$/, '');
 const manifest = JSON.parse(
   await fs.readFile(new URL('../src/data/generated/riot-assets-manifest.json', import.meta.url)),
 );
