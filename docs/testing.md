@@ -29,6 +29,21 @@ dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
 RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
 
+Chaque suite d'intégration DB porte obligatoirement le suffixe
+`*.database.test.ts` sous `tests/`. Ce contrat est versionné dans
+`config/database-tests.json` : aucun runner ni workflow ne maintient de liste de
+tests en parallèle.
+
+Toute occurrence de `skip`, `skipIf` ou `todo` dans ces suites fait échouer
+`npm run test:db`, sauf correspondance exacte avec une entrée justifiée de
+`skipAllowlist`. Les seules exceptions actuelles sont les gardes qui permettent à la
+suite générique sans Supabase local d'ignorer les tests live ; `test:db` fournit les
+identifiants locaux et les exécute réellement.
+
+`npm run test:db:list` applique ces mêmes règles et affiche, dans l'ordre, chaque
+fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni
+Supabase ni les tests et sert de preuve locale de discovery.
+
 ## Clean-room CI
 
 La job `clean-room` repart d'un checkout sans `node_modules`, `dist` ni couverture et

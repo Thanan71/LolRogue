@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:db": "node scripts/run-database-test-suite.mjs",
+    "test:db:list": "node scripts/run-database-test-suite.mjs --list",
     "test:e2e": "playwright test",
     "test:e2e:production": "playwright test --config playwright.production.config.ts",
     "test:watch": "vitest",

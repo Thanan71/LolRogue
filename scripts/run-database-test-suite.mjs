@@ -1,17 +1,14 @@
-import { readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import {
+  assertDatabaseTestSkipPolicy,
+  discoverDatabaseTests,
+  loadDatabaseTestContract,
+} from './lib/database-test-discovery.mjs';
 
-function findDatabaseTests(directory) {
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const path = resolve(directory, entry.name);
-    if (entry.isDirectory()) return findDatabaseTests(path);
-    return entry.isFile() && entry.name.endsWith('database.test.ts') ? [path] : [];
-  });
-}
-
-const tests = findDatabaseTests(resolve('tests')).sort();
-if (tests.length === 0) throw new Error('No *database.test.ts files were discovered.');
+const contract = loadDatabaseTestContract();
+const tests = discoverDatabaseTests(undefined, contract);
+assertDatabaseTestSkipPolicy(undefined, tests, contract);
 
 process.stdout.write(
   `Discovered ${tests.length} database integration test files:\n${tests
@@ -19,9 +16,16 @@ process.stdout.write(
     .join('\n')}\n`,
 );
 
+if (process.argv.includes('--list')) process.exit(0);
+
 const result = spawnSync(
   process.execPath,
-  [resolve('node_modules/vitest/vitest.mjs'), 'run', '--no-file-parallelism', ...tests],
+  [
+    resolve('node_modules/vitest/vitest.mjs'),
+    'run',
+    '--no-file-parallelism',
+    ...tests.map((path) => resolve(path)),
+  ],
   {
     env: { ...process.env, DB_TEST_REQUIRED: '1' },
     stdio: 'inherit',
