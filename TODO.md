@@ -412,7 +412,7 @@ peu explicite.
 Le bug v13 a été découvert par un message utilisateur, alors que 4 attempts avaient
 déjà été rejetées avec le même code.
 
-- [ ] Créer un agrégat technique des attempts : started / verified / rejected /
+- [x] Créer un agrégat technique des attempts : started / verified / rejected /
   expired, par `engine_version`, `gameplay_ruleset_version`, `rejection_code`.
 - [ ] Définir une alerte sur un taux de rejet anormal ou un nouveau code de rejet.
 - [ ] Ne pas envoyer le journal complet ni les actions joueur dans une alerte externe.

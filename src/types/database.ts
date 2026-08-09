@@ -1396,6 +1396,29 @@ export type Database = {
         };
         Relationships: [];
       };
+      authority_attempt_aggregates: {
+        Row: {
+          attempt_count: number | null;
+          engine_version: string | null;
+          expired_count: number | null;
+          finished_count: number | null;
+          gameplay_ruleset_version: number | null;
+          rejected_count: number | null;
+          rejection_code: string | null;
+          started_count: number | null;
+          verified_count: number | null;
+          window_started_at: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
       daily_leaderboard: {
         Row: {
           daily_date: string | null;
