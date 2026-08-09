@@ -54,3 +54,44 @@ La commande locale `npm run db:indexes:measure` :
 
 Les résultats chiffrés sont actualisés après application des migrations, puis les
 advisors locaux sont rejoués pour confirmer uniquement les couvertures choisies.
+
+## Résultats du volume représentatif
+
+Mesure du 9 août 2026 sur 50 000 lignes par table, sauf les logs à 100 000 lignes.
+Les durées restent des mesures de laboratoire locales ; la commande doit être
+rejouée avant toute décision fondée sur le matériel de production.
+
+| Chemin | Sans index | Avec index | Plan final |
+| --- | ---: | ---: | --- |
+| runs invalidés par opérateur | 5,074 ms | 1,149 ms | bitmap index scan |
+| audits par opérateur | 3,435 ms | 1,355 ms | bitmap index scan |
+| signalements par reporter | 4,971 ms | 1,909 ms | bitmap index scan |
+| signalements par reviewer | 2,076 ms | 1,255 ms | bitmap index scan |
+| 100 premiers signalements ouverts | 4,056 ms | 0,038 ms | index scan sans tri |
+| signalements revus au-delà de 24 mois | 11,619 ms | 4,697 ms | index scan partiel |
+| logs par joueur | 4,942 ms | 1,393 ms | bitmap index scan |
+
+La requête de rétention sélectionne volontairement une grande partie du jeu
+synthétique ; son gain plus faible est cohérent avec cette faible sélectivité.
+
+### Coût d'écriture et stockage
+
+Sur le passage mesuré, l'insertion de 5 000 signalements passe de 20,082 ms à
+28,499 ms (+42 %), car cette table entretient quatre index retenus. L'insertion de
+10 000 logs passe de 21,520 ms à 30,817 ms (+43 %). Les tables à un seul index ont
+montré une variation comprise dans le bruit de cache local ; les buffers confirment
+toutefois l'écriture des pages d'index supplémentaires.
+
+| Index | Taille synthétique |
+| --- | ---: |
+| `daily_runs_invalidated_by_idx` | 152 kB |
+| `daily_score_invalidation_audit_actor_idx` | 368 kB |
+| `daily_score_reports_reporter_idx` | 376 kB |
+| `daily_score_reports_reviewed_by_idx` | 360 kB |
+| `daily_score_reports_open_created_idx` | 240 kB |
+| `daily_score_reports_reviewed_retention_idx` | 928 kB |
+| `logs_player_id_idx` | 704 kB |
+
+Le total est d'environ 3,1 MB sur le volume synthétique. Cette surcharge explique
+pourquoi les sept FK de versions, non utilisées comme prédicats sélectifs et reliées
+à des parents append-only, restent volontairement sans index dédié.
