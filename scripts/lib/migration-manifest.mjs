@@ -5,6 +5,17 @@ import { basename, resolve } from 'node:path';
 const repositoryRoot = resolve(import.meta.dirname, '../..');
 const migrationPattern = /^(\d{14})_.+\.sql$/;
 const shaPattern = /^[0-9a-f]{40}$/;
+const mutatingMigrationCommands = new Set(['down', 'fetch', 'new', 'repair', 'squash', 'up']);
+
+export function readOnlyMigrationListArguments(linked) {
+  const argumentsList = ['migration', 'list', linked ? '--linked' : '--local'];
+  if (argumentsList.some((argument) => mutatingMigrationCommands.has(argument))) {
+    throw new Error(
+      'Migration drift checks may only execute the read-only migration list command.',
+    );
+  }
+  return argumentsList;
+}
 
 export function migrationVersionsFromPaths(paths) {
   const versions = paths

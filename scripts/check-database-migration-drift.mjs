@@ -3,6 +3,7 @@ import {
   compareMigrationManifests,
   parseSupabaseMigrationList,
   readCandidateMigrationVersions,
+  readOnlyMigrationListArguments,
   readWorkspaceMigrationVersions,
 } from './lib/migration-manifest.mjs';
 
@@ -16,7 +17,7 @@ const expected = candidateSha
   ? readCandidateMigrationVersions(candidateSha)
   : readWorkspaceMigrationVersions();
 
-const result = spawnSync('supabase', ['migration', 'list', linked ? '--linked' : '--local'], {
+const result = spawnSync('supabase', readOnlyMigrationListArguments(linked), {
   encoding: 'utf8',
 });
 if (result.error) throw result.error;

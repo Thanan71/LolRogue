@@ -4,10 +4,19 @@ import {
   compareMigrationManifests,
   parseSupabaseMigrationList,
   readCandidateMigrationVersions,
+  readOnlyMigrationListArguments,
   readWorkspaceMigrationVersions,
 } from '../scripts/lib/migration-manifest.mjs';
 
 describe('candidate migration manifest', () => {
+  it('borne le check à la commande Supabase de lecture seule', () => {
+    expect(readOnlyMigrationListArguments(true)).toEqual(['migration', 'list', '--linked']);
+    expect(readOnlyMigrationListArguments(false)).toEqual(['migration', 'list', '--local']);
+    for (const forbidden of ['down', 'fetch', 'new', 'repair', 'squash', 'up']) {
+      expect(readOnlyMigrationListArguments(true)).not.toContain(forbidden);
+    }
+  });
+
   it('lit les migrations depuis le commit candidat plutôt que depuis le seul workspace', () => {
     const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], {
       encoding: 'utf8',
