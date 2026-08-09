@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { cp } from 'node:fs/promises';
+import { cp, writeFile } from 'node:fs/promises';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { configDefaults } from 'vitest/config';
@@ -92,6 +92,11 @@ export default defineConfig({
         await cp(path.resolve(__dirname, 'public/assets'), path.resolve(__dirname, 'dist/assets'), {
           recursive: true,
         });
+        await writeFile(
+          path.resolve(__dirname, 'dist/deployment-identity.json'),
+          `${JSON.stringify({ commit: deploymentCommitSha })}\n`,
+          'utf8',
+        );
       },
     },
   ],
