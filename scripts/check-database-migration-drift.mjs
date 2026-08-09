@@ -23,14 +23,22 @@ if (result.status !== 0) {
   process.exit(result.status ?? 1);
 }
 
-let payload;
+let migrations;
 try {
-  payload = JSON.parse(result.stdout);
+  migrations = JSON.parse(result.stdout).migrations;
 } catch {
+  migrations = result.stdout
+    .split('\n')
+    .map((line) => line.match(/^\s*`?(\d{14})`?\s*\|\s*(?:`?(\d{14})`?)?\s*\|/)?.slice(1, 3))
+    .filter(Boolean)
+    .map(([local, remote]) => ({ local, remote: remote ?? '' }));
+}
+
+if (!Array.isArray(migrations) || migrations.length === 0) {
   throw new Error(`Supabase CLI returned an invalid migration manifest: ${result.stdout}`);
 }
 
-const applied = (payload.migrations ?? [])
+const applied = migrations
   .map((migration) => migration.remote)
   .filter(Boolean)
   .sort();
