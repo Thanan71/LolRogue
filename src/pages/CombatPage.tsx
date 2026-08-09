@@ -37,10 +37,7 @@ import { logger } from '@/utils/logger';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { completeCombat } from './combat/combatCompletion';
 import { getEnhancementDescriptions } from './combat/combatPresenter';
-import {
-  buildLegacyEnemyTeam,
-  LEGACY_ENCOUNTER_ENGINE_VERSIONS,
-} from './combat/legacyCombatEncounter';
+import { buildLegacyEnemyTeam, usesLegacyEncounterRules } from './combat/legacyCombatEncounter';
 import '@/styles/combat-ui.css';
 
 /**
@@ -85,9 +82,8 @@ export function CombatPage() {
   const setKeyboardShortcutsEnabled = useSettingsStore((s) => s.setKeyboardShortcutsEnabled);
   const effectiveDifficulty = authorityAttempt?.difficulty ?? difficulty;
   const isAuthorityRun = authorityAttempt !== null;
-  const usesLegacyEncounterRules =
-    authorityAttempt !== null &&
-    LEGACY_ENCOUNTER_ENGINE_VERSIONS.has(authorityAttempt.engineVersion);
+  const usesLegacyEncounterRulesForAttempt =
+    authorityAttempt !== null && usesLegacyEncounterRules(authorityAttempt.engineVersion);
   const supportsManualCombat = supportsManualAuthorityCombat(authorityAttempt?.engineVersion);
   const requiresServerAutoPlay =
     (isAuthorityRun && !supportsManualCombat) || combatRecoveryRequired;
@@ -258,7 +254,7 @@ export function CombatPage() {
     ) {
       return [];
     }
-    if (usesLegacyEncounterRules) {
+    if (usesLegacyEncounterRulesForAttempt) {
       return buildLegacyEnemyTeam(currentEncounter, getDifficultyMultiplier(effectiveDifficulty));
     }
     return buildResolvedEnemyTeam(
@@ -283,7 +279,7 @@ export function CombatPage() {
     inventory,
     runLevel,
     runSeed,
-    usesLegacyEncounterRules,
+    usesLegacyEncounterRulesForAttempt,
   ]);
 
   const handleComplete = useCallback(

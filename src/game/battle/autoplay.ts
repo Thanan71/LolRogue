@@ -1,12 +1,12 @@
 import type { BattleSpeed } from '@/stores/settingsStore';
+import { getAuthorityVersion } from '@/game/authority/versionRegistry';
 
 export const DEFAULT_COMBAT_AUTOPLAY = false;
 export const AUTO_TURN_BASE_DELAY_MS = 1200;
 export const AUTO_TURN_MIN_DELAY_MS = 400;
 
 export function supportsManualAuthorityCombat(engineVersion: string | undefined): boolean {
-  const match = /^run-engine-v([1-9]\d*)$/.exec(engineVersion ?? '');
-  return match !== null && Number(match[1]) >= 3;
+  return getAuthorityVersion(engineVersion ?? '')?.features.manualCombat === true;
 }
 
 export function getAutoTurnDelayMs(speed: BattleSpeed): number {

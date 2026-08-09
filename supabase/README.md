@@ -78,9 +78,11 @@ the live Auth/RLS/repository/attempt tests. It also compares every effective
 models live separately in `src/types/models.ts`.
 
 `edge:bundle` génère le moteur déterministe consommé par `verify-run` et vérifie
-que son hash correspond au ruleset SQL. Le fichier généré est volontairement
-ignoré par Git : `edge:serve` et `edge:deploy` le reconstruisent toujours depuis
-les sources versionnées.
+le registre unique `config/authority-versions.json`, les hashes des bundles et les
+contrats des rulesets SQL. Le bundle courant généré est volontairement ignoré par
+Git ; le resolver de versions généré est au contraire commité et contrôlé avant le
+build. Voir `docs/authority-versioning.md` pour ajouter une version sans liste
+parallèle.
 
 Pour tester localement la fonction avec Supabase déjà démarré :
 

@@ -33,7 +33,8 @@ describe('asset tooling', () => {
   });
 
   it('verifies assets before and after builds, including a clean repository build', () => {
-    expect(packageJson.scripts.prebuild).toBe('npm run assets:verify');
+    expect(packageJson.scripts.prebuild).toContain('npm run assets:verify');
+    expect(packageJson.scripts.prebuild).toContain('npm run edge:bundle');
     expect(packageJson.scripts.postbuild).toBe('npm run assets:verify:dist');
     expect(packageJson.scripts.check).toContain('npm run test:assets-clean');
     expect(cleanBuildScript).toContain("'public/lol/data/'");

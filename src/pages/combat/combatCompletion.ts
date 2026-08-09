@@ -15,7 +15,7 @@ import type { FinalCombatantState } from '@/types/run';
 import { logger } from '@/utils/logger';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateXpGain } from '@/utils/xpSystem';
-import { LEGACY_ENCOUNTER_ENGINE_VERSIONS } from './legacyCombatEncounter';
+import { usesLegacyEncounterRules } from './legacyCombatEncounter';
 
 interface CompleteCombatInput {
   winner: 'player' | 'enemy' | 'draw';
@@ -84,7 +84,7 @@ export function completeCombat({
     const augmentManager = createRunAugmentManager(runStore.augmentIds, runStore.currentBiomeIndex);
     const usesLegacyRewards =
       runStore.authorityAttempt !== null &&
-      LEGACY_ENCOUNTER_ENGINE_VERSIONS.has(runStore.authorityAttempt.engineVersion);
+      usesLegacyEncounterRules(runStore.authorityAttempt.engineVersion);
     const resolution = usesLegacyRewards
       ? null
       : resolveCombatEncounter({

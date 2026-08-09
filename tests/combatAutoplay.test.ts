@@ -5,6 +5,7 @@ import {
   shouldAutoAdvanceCombatTurn,
   supportsManualAuthorityCombat,
 } from '@/game/battle/autoplay';
+import { AUTHORITY_VERSION_REGISTRY } from '@/game/authority/versionRegistry';
 
 describe('combat autoplay rules', () => {
   it('starts disabled and pauses indefinitely on a manual player decision', () => {
@@ -60,12 +61,10 @@ describe('combat autoplay rules', () => {
     expect(getAutoTurnDelayMs(3)).toBe(400);
   });
 
-  it('keeps manual combat enabled for every authority engine since v3', () => {
-    expect(supportsManualAuthorityCombat('run-engine-v2')).toBe(false);
-    expect(supportsManualAuthorityCombat('run-engine-v3')).toBe(true);
-    expect(supportsManualAuthorityCombat('run-engine-v9')).toBe(true);
-    expect(supportsManualAuthorityCombat('run-engine-v10')).toBe(true);
-    expect(supportsManualAuthorityCombat('run-engine-v11')).toBe(true);
+  it('derives manual combat support from every registry entry', () => {
+    for (const version of AUTHORITY_VERSION_REGISTRY) {
+      expect(supportsManualAuthorityCombat(version.engine)).toBe(version.features.manualCombat);
+    }
     expect(supportsManualAuthorityCombat('invalid-engine')).toBe(false);
   });
 });

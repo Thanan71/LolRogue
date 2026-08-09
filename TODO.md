@@ -226,20 +226,20 @@ structure reste fragile : une liste de chaînes doit encore être maintenue à l
 
 ### Actions
 
-- [ ] Créer un registre unique des versions authority : version moteur, version
+- [x] Créer un registre unique des versions authority : version moteur, version
   gameplay, version progression, version commande, capacités et statut
   (`current`, `replay-only`, `unsupported`).
-- [ ] Faire consommer ce registre par le client, l'authority, les scripts de bundle,
+- [x] Faire consommer ce registre par le client, l'authority, les scripts de bundle,
   les tests et la documentation.
-- [ ] Remplacer `CANONICAL_PROGRESSION_ENGINES` par une capacité déclarative, par
+- [x] Remplacer `CANONICAL_PROGRESSION_ENGINES` par une capacité déclarative, par
   exemple `features.canonicalProgression`.
-- [ ] Refuser au build une version courante absente du registre.
-- [ ] Vérifier que chaque bundle de replay historique possède une entrée compatible.
-- [ ] Ajouter un test qui itère toutes les versions supportées, pas seulement
+- [x] Refuser au build une version courante absente du registre.
+- [x] Vérifier que chaque bundle de replay historique possède une entrée compatible.
+- [x] Ajouter un test qui itère toutes les versions supportées, pas seulement
   `AUTHORITY_ENGINE_VERSION`.
-- [ ] Ajouter une golden trace de transition de biome pour chaque famille de
+- [x] Ajouter une golden trace de transition de biome pour chaque famille de
   progression encore rejouable.
-- [ ] Interdire la publication d'un nouveau ruleset si client + serveur + bundle
+- [x] Interdire la publication d'un nouveau ruleset si client + serveur + bundle
   historique n'ont pas la même métadonnée de capacité.
 
 ### Acceptation

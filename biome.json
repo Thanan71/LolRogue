@@ -23,7 +23,8 @@
       "!!supabase/authority-archive/run-authority-v9.bundle.ts",
       "!!supabase/authority-archive/run-authority-v10.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v11.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v12.bundle.ts"
+      "!!supabase/functions/verify-run/run-authority-v12.bundle.ts",
+      "!!supabase/functions/verify-run/authority-version-resolver.generated.ts"
     ]
   },
   "formatter": {

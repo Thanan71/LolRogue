@@ -158,12 +158,13 @@ si une migration du commit manque sur le projet ou si le projet contient une
 version absente du dépôt.
 
 Le couple `engine_version`/`content_hash` d'un `gameplay_ruleset` est immuable dès
-qu'un attempt l'utilise. `npm run edge:bundle` recalcule le hash du bundle
-normalisé et échoue si le moteur, le bundle et le ruleset divergent. Pour changer
-les règles ou le contenu autoritaire, ajouter une nouvelle version de ruleset, son
-catalogue et la migration correspondante, conserver l'ancien vérificateur dans le
-registre pendant au moins la durée maximale d'un attempt, puis seulement activer
-la nouvelle version.
+qu'un attempt l'utilise. `config/authority-versions.json` formalise aussi les
+versions gameplay, progression et commande, les capacités et le statut de chaque
+moteur. `npm run edge:bundle` recalcule les hashes et échoue si le client, le
+resolver Edge, un bundle historique ou un ruleset divergent. Pour changer les
+règles ou le contenu autoritaire, suivre `docs/authority-versioning.md`, conserver
+l'ancien vérificateur en `replay-only` pendant au moins la durée maximale d'un
+attempt, puis seulement activer la nouvelle version.
 
 Après avoir lié le bon projet Supabase, une évolution qui ne requiert aucune
 nouvelle logique frontend peut utiliser `npm run backend:deploy` : la commande
