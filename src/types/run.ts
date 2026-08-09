@@ -159,6 +159,12 @@ export interface TeamMember {
   spellRanks?: Partial<Record<'Q' | 'W' | 'E' | 'R', number>>;
 }
 
+export interface RunSaveDiagnostic {
+  attemptId: string;
+  engineVersion: string;
+  rejectionCode: string;
+}
+
 /** The full state of a single roguelike run */
 export interface RunState {
   /** Whether a run is currently active */
@@ -181,6 +187,7 @@ export interface RunState {
   saveStatus: 'idle' | 'saving' | 'saved' | 'failed' | 'retrying';
   saveError: string | null;
   saveFailureKind: 'retryable' | 'terminal' | null;
+  saveDiagnostic: RunSaveDiagnostic | null;
   /**
    * Immutable completion payload. It is created before the first save attempt,
    * persisted for retries/reloads, and kept for the Game Over screen until the

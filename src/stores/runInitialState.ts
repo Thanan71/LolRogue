@@ -13,6 +13,7 @@ export const RUN_INITIAL_STATE: RunState = {
   saveStatus: 'idle',
   saveError: null,
   saveFailureKind: null,
+  saveDiagnostic: null,
   completedRunSnapshot: null,
   serverProgression: null,
   rewardsApplied: false,
