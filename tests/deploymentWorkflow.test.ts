@@ -53,6 +53,7 @@ describe('deployment workflow contract', () => {
     expect(deploymentIdentityFunction).toContain('Response.json');
     expect(deployedAssetsVerifier).toContain('/api/deployment-identity');
     expect(deployedAssetsVerifier).toContain('deploymentIdentity?.commit');
+    expect(deployedAssetsVerifier).toContain('DEPLOYMENT_IDENTITY_MAX_ATTEMPTS');
     expect(deployedAssetsVerifier).not.toContain('/deployment-identity.json');
   });
 
@@ -61,7 +62,7 @@ describe('deployment workflow contract', () => {
     expect(vercelConfig).not.toContain('"source": "/(.*)",\n      "destination": "/index.html"');
   });
 
-  it('conserve un seul contrôle post-déploiement réservé à la production promue', () => {
+  it("vérifie la production via l'alias public et le SHA attendu", () => {
     expect(productionWorkflow).toContain('vercel.deployment.promoted');
     expect(productionWorkflow).not.toContain('vercel.deployment.success');
     expect(productionWorkflow).toContain("github.event.client_payload.environment == 'production'");
@@ -69,8 +70,8 @@ describe('deployment workflow contract', () => {
     expect(productionWorkflow).toContain(
       'EXPECTED_COMMIT_SHA: ${{ github.event.client_payload.git.sha }}',
     );
-    expect(productionWorkflow).toContain('DEPLOYMENT_URL: ${{ github.event.client_payload.url }}');
+    expect(productionWorkflow).toContain('DEPLOYMENT_URL: https://lol-rogue.vercel.app');
+    expect(productionWorkflow).not.toContain('DEPLOYMENT_URL: ${{ github.event.client_payload.url }}');
     expect(productionWorkflow).toContain('npm run test:deployed-assets');
-    expect(productionWorkflow).not.toContain('lol-rogue.vercel.app');
   });
 });
