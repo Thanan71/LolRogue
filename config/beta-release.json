@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "declaredStatus": "blocked",
+  "lastP0Fix": {
+    "id": "P0-REL-01",
+    "sha": null,
+    "mergedAt": null
+  },
+  "candidate": {
+    "sha": null,
+    "previewUrl": null,
+    "liveMigrationVersion": null
+  },
+  "p0Gates": [
+    {
+      "id": "P0-SEC-01",
+      "status": "verified",
+      "checks": ["npm run db:security"]
+    },
+    {
+      "id": "P0-SEC-02",
+      "status": "verified",
+      "checks": ["npm run db:security", "npm run db:validate"]
+    },
+    {
+      "id": "P0-DATA-01",
+      "status": "verified",
+      "checks": ["npm run db:validate"]
+    },
+    {
+      "id": "P0-RUN-01",
+      "status": "verified",
+      "checks": ["npm run edge:bundle", "npm run test -- tests/authorityRegistry.test.ts"]
+    },
+    {
+      "id": "P0-REL-01",
+      "status": "verified",
+      "checks": ["npm run release:readiness:check"]
+    }
+  ],
+  "requiredCiJobs": ["validate", "e2e", "database", "clean-room"],
+  "ciRuns": [],
+  "supabaseAdvisors": {
+    "status": "pending",
+    "checkedAt": null,
+    "evidenceUrl": null
+  },
+  "externalValidations": [
+    {
+      "id": "accessibility-human",
+      "status": "pending",
+      "checkedAt": null,
+      "evidenceUrl": null
+    },
+    {
+      "id": "legal-privacy-fr-eu",
+      "status": "pending",
+      "checkedAt": null,
+      "evidenceUrl": null
+    },
+    {
+      "id": "support-channel",
+      "status": "pending",
+      "checkedAt": null,
+      "evidenceUrl": null
+    },
+    {
+      "id": "riot-ip-authorization",
+      "status": "pending",
+      "checkedAt": null,
+      "evidenceUrl": null
+    }
+  ]
+}

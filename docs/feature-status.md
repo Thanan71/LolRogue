@@ -2,13 +2,14 @@
 
 Cette matrice relie les capacités visibles à leur implémentation et à une preuve
 automatique. `Livré` signifie que le parcours réel possède au moins un test de
-comportement ; cela ne signifie pas que son équilibrage ou son exploitation sont
-définitifs.
+comportement. Ce libellé ne garantit ni l'absence de risque courant, ni la
+readiness d'une release, ni un état opérationnel définitif : seule la gate
+objective de `beta-readiness.md` peut autoriser un candidat.
 
 | Fonctionnalité | Implémentation de référence | Preuves principales | Statut |
 | --- | --- | --- | --- |
 | Décisions produit transverses | `productDecisions`, contrat produit v1 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta |
-| Gate de sortie bêta | `beta-readiness`, CI et fiche de release | `connected-daily.spec.ts`, axe, clean-room, contrôle Vercel | 10/10 techniques démontrés ; validations externes ouvertes |
+| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `release:preflight`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |
 | Auth et mode invité | `authStore`, `AuthBootstrap`, repositories Auth | `authStore.test.ts`, `auth-menu-responsive.spec.ts` | Livré |
 | Démarrage et reprise de run | `runStartCoordinator`, `runStoreLifecycleSlice`, gardes de routes | `runStartValidation.test.ts`, `runReloadRecovery.test.ts`, `routeAccess.test.ts` | Livré |
 | Carte à branche unique | `mapProgression`, `runStoreMapSlice`, `AuthorityRunEngine` | `mapProgression.test.ts`, `authorityRunEngine.test.ts` | Livré |
@@ -29,7 +30,7 @@ définitifs.
 | Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 187 fichiers versionnés |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
 | Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Livré : aucune alerte haute/critique au 8 août 2026 |
-| Budgets de performance | plafond global 396 Ko gzip, routes initiale 205 Ko et Auth 225 Ko | `npm run test:performance-budgets` | Recalé après les routes P3 légales/sociales ; limites des parcours initiaux inchangées |
+| Budgets de performance | plafond global 396 Ko gzip, routes initiale 205 Ko et Auth 225 Ko | `npm run test:performance-budgets` | Conforme dans le dépôt ; à rejouer sur le SHA candidat |
 | Exploitation et restauration | `operations`, `incident-runbooks`, `backup-and-restore`, `release-and-support` | runbooks versionnés et critères de preuve | Livré côté procédures ; exercice distant requis avant bêta |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |
 

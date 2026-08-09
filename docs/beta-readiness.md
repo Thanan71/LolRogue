@@ -1,59 +1,61 @@
 # Gate de sortie bêta
 
-Cette page est la fiche de décision publique du jalon bêta. Une case « démontrée »
-signifie qu'une preuve reproductible existe dans le dépôt. Elle ne remplace ni la
-fiche de release privée, ni les validations humaines et externes.
+<!-- release-readiness:status=blocked -->
 
-## État au 8 août 2026
+**Statut objectif : BLOQUÉ.** La source de vérité est
+`config/beta-release.json`, évaluée par `npm run release:preflight`. Une case
+cochée dans `TODO.md`, un audit antérieur ou une CI historique ne constituent
+jamais une preuve de release.
 
-| Gate | État | Preuve ou action restante |
+## État du candidat
+
+| Gate objective | État actuel | Preuve exigée par le preflight |
 | --- | --- | --- |
-| Aucun P0 ouvert | Démontré | Tous les chantiers `P0-*` de `TODO.md` sont clos. |
-| Trois CI complètes consécutives | Démontré | Trois réussites complètes consécutives sur `main` : `a766c79`, `6aa9912`, `2c7b3bd`. |
-| E2E victoire, défaite et Daily sans store | Démontré | `six-biome-run.spec.ts` pilote victoire/défaite et `connected-daily.spec.ts` crée un compte puis démarre/reprend une tentative serveur uniquement par l'UI. |
-| Accessibilité WCAG AA sans blocage détecté | Démontré automatiquement | axe contrôle toutes les règles WCAG A/AA sur le parcours critique ; clavier, focus, reflow, contraste et mouvement sont couverts. La revue lecteur d'écran reste une validation humaine distincte. |
-| Matrice responsive sans contrôle inaccessible | Démontré automatiquement | `game-screens-responsive.spec.ts`, `accessibility-display.spec.ts` et `production-matrix.spec.ts`. |
-| Clone propre et assets sur le déploiement | Démontré | Le job `clean-room`, `test:assets-clean`, `assets:verify:dist` et `test:deployed-assets` vérifient le clone, le build et les 187 fichiers servis par Vercel. |
-| Falsification de progression impossible | Démontré automatiquement | Tests d'autorité, de ciblage forgé et tests DB/RLS, notamment `authorityRunEngine.test.ts` et `database.test.ts`. |
-| Sauvegarde atomique, idempotente et récupérable | Démontré automatiquement | `runSaveRecovery.test.ts`, `runFinalization.test.ts` et tests RPC sur une base locale réelle. |
-| Règles affichées alignées sur les handlers | Démontré automatiquement | Contrats de parité, règles versionnées et `i18nContract.test.ts`. |
-| Documentation d'exploitation et de confidentialité à jour | Démontré côté dépôt | `operations`, runbooks, sauvegarde, release/support et contrat légal sont reliés et testés. Les autorisations juridiques externes restent un gate distinct. |
+| P0 formalisés | Vérifié dans le dépôt | Chaque P0 possède le statut `verified` et au moins une commande de contrôle dans la fiche de release. |
+| Identité du candidat | **Bloqué** | SHA Git complet de 40 caractères, identique à `HEAD`. |
+| Trois CI complètes post-P0 | **Bloqué** | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `validate`, `e2e`, `database` et `clean-room` réussis. |
+| Preview exacte | **Bloqué** | URL HTTPS du candidat et validation de tous les assets par `test:deployed-assets`. |
+| Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `db:migrations:check:linked`. |
+| Tests DB et sécurité views/grants | **Bloqué** | Job `database` réussi sur chacune des trois CI ; il exécute `db:validate` et `db:security`. |
+| E2E | **Bloqué** | Job `e2e` réussi sur chacune des trois CI du candidat. |
+| Advisors Supabase | **Bloqué** | Résultat `passed`, URL de preuve et date postérieure au dernier correctif P0. |
+| Validations externes | **Bloqué** | Preuves datées pour accessibilité humaine, droit/RGPD, canal de support et autorisation Riot. |
 
-Les dix critères techniques sont donc **démontrés**. Une release reste soumise aux
-preuves humaines et externes listées en fin de document.
+Ce tableau décrit la fiche versionnée actuelle ; il n'est pas une validation
+manuelle. `npm run release:readiness:check` échoue si le statut déclaré ou cette
+page contredit les preuves enregistrées. `npm run release:preflight` reste
+volontairement en échec tant qu'une gate manque et revérifie GitHub, la base liée
+et la preview dès que la fiche est complète.
 
-## Preuves à consigner dans la fiche de release
+## Fiche de release obligatoire
 
-### Trois CI consécutives — validé
+Avant toute décision de bêta, renseigner dans `config/beta-release.json` :
 
-Conserver les trois URL GitHub Actions, leur commit et la conclusion de chacun. Les
-trois exécutions doivent inclure les jobs `validate`, `e2e`, `database` et
-`clean-room`; une annulation ou un rerun partiel remet le compteur à zéro.
+- le SHA complet du dernier correctif P0 et sa date de merge ;
+- le SHA exact du candidat testé, sans alias de branche ;
+- l'URL de preview construite depuis ce SHA ;
+- la version exacte de la dernière migration observée sur la base live ;
+- les identifiants et URL des trois runs GitHub Actions du candidat ;
+- les URL et dates des résultats advisors et des validations externes.
 
-### Daily E2E réel — validé
+Les trois runs ne comptent que s'ils sont tous postérieurs au dernier correctif
+P0 et testent le même SHA candidat. Une annulation, un job manquant, un rerun
+partiel, un nouveau correctif P0 ou une reconstruction de la preview remet la
+gate à **bloqué**.
 
-Le scénario doit créer un compte de test par l'interface, ouvrir le Daily depuis le
-menu, accepter uniquement la seed/difficulté reçues du serveur, démarrer la
-tentative autoritaire puis prouver que l'accès suivant reprend la même run. Il est interdit
-d'importer `runStore`, d'appeler `setState/getState` ou d'écrire directement dans
-le stockage navigateur pour franchir une étape.
+## Portée des contrôles
 
-### Revue accessibilité humaine — complément non automatisable
+Le job `database` couvre la base réellement migrée, les tests de repositories,
+les politiques RLS et la sécurité des vues et grants. Le job `e2e` couvre les
+parcours victoire, défaite et Daily autoritaire sans mutation directe du store.
+Le job `clean-room` reconstruit le dépôt sans artefact local. Le preflight ajoute
+la comparaison des migrations liées et le contrôle des assets servis par l'URL
+preview exacte.
 
-Consigner appareil, OS, navigateur, lecteur d'écran, commit, parcours et résultat
-pour NVDA + Firefox et VoiceOver + Safari/iOS. Tout blocage clavier, focus perdu,
-annonce absente ou ordre de lecture empêchant la progression bloque la release.
+## Validations humaines et externes
 
-### Déploiement candidat et assets — validé automatiquement
-
-`npm run test:deployed-assets` télécharge les 187 fichiers du manifeste depuis
-`DEPLOYMENT_URL` (Vercel production par défaut) et compare leur taille exacte. La
-fiche de release conserve l'URL testée ; l'artefact ne doit pas être reconstruit
-après validation.
-
-## Gates externes supplémentaires
-
-Même après les dix critères techniques, la bêta publique reste bloquée par les
-points ouverts de `legal-and-privacy.md` : analyse juridique France/UE, canal de
-support publié et clarification écrite de l'autorisation d'utiliser la propriété
-intellectuelle Riot. Ces preuves ne peuvent pas être remplacées par un test local.
+La revue lecteur d'écran doit consigner appareil, OS, navigateur, technologie
+d'assistance, SHA, parcours et résultat pour NVDA + Firefox et VoiceOver +
+Safari/iOS. Les validations juridiques France/UE, le canal de support public et
+la clarification écrite de l'usage de la propriété intellectuelle Riot restent
+décrits dans `legal-and-privacy.md`. Aucun test local ne peut les remplacer.

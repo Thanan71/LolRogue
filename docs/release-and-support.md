@@ -28,11 +28,16 @@ fiche ; une commande destructive exige confirmation par une seconde personne.
 
 ## Checklist de release
 
-La personne qui publie copie cette liste dans la fiche de release avec commit,
-versions de migration/ruleset, déploiements, opérateur rollback et heure UTC.
+La personne qui publie renseigne d'abord la fiche versionnée
+`config/beta-release.json`, puis exécute `npm run release:preflight`. Cette fiche
+conserve le SHA exact, la preview, la migration live, les trois CI post-P0 et les
+preuves externes ; elle reste bloquante tant qu'un champ objectif manque. La
+checklist opératoire ci-dessous complète cette gate avec les versions de ruleset,
+l'opérateur rollback et l'heure UTC.
 
 ### Avant promotion
 
+- [ ] `npm run release:preflight` conclut `READY` sur le SHA exact à promouvoir.
 - [ ] Branche à jour, CI verte, diff sans secret et dépendances auditées.
 - [ ] `npm ci`, `npm run check`, `npm run test:e2e`, `npm run test:e2e:production`,
       `npm run db:validate`, `npm run test:db` et `npm run test:deployed-assets`
