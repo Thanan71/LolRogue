@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      DEPLOYMENT_URL: ${{ github.event.client_payload.url }}
+      DEPLOYMENT_URL: https://lol-rogue.vercel.app
       EXPECTED_COMMIT_SHA: ${{ github.event.client_payload.git.sha }}
 
     steps:
