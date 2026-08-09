@@ -1,0 +1,54 @@
+name: PR preview deployment
+
+on:
+  repository_dispatch:
+    types:
+      - vercel.deployment.success
+
+permissions:
+  contents: read
+  deployments: read
+  pull-requests: read
+
+jobs:
+  verify-preview:
+    if: >-
+      github.event.client_payload.environment == 'preview' ||
+      github.event.client_payload.environment == 'Preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_COMMIT_SHA: ${{ github.event.client_payload.git.sha }}
+      DEPLOYMENT_URL: ${{ github.event.client_payload.url }}
+      DEPLOYED_SHA: ${{ github.event.client_payload.git.sha }}
+      EXPECTED_COMMIT_SHA: ${{ github.event.client_payload.git.sha }}
+
+    steps:
+      - name: Require an open pull request for the deployed SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER="$(gh api "repos/$GITHUB_REPOSITORY/commits/$DEPLOYED_SHA/pulls" \
+            --jq '[.[] | select(.state == "open")] | first | .number // empty')"
+          test -n "$PR_NUMBER"
+          echo "Verifying preview for PR #$PR_NUMBER at $DEPLOYED_SHA."
+
+      - name: Checkout the deployed SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.client_payload.git.sha }}
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the deployed commit locally
+        run: npm run build
+
+      - name: Verify the matching preview deployment
+        run: npm run test:deployed-assets

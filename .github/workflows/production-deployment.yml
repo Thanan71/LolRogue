@@ -1,0 +1,40 @@
+name: Production post-deployment
+
+on:
+  repository_dispatch:
+    types:
+      - vercel.deployment.success
+      - vercel.deployment.promoted
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  verify-production:
+    if: >-
+      github.event.client_payload.environment == 'production' ||
+      github.event.client_payload.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DEPLOYMENT_URL: ${{ github.event.client_payload.url }}
+      EXPECTED_COMMIT_SHA: ${{ github.event.client_payload.git.sha }}
+
+    steps:
+      - name: Checkout the deployed production SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.client_payload.git.sha }}
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify the production deployment
+        run: npm run test:deployed-assets

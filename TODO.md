@@ -468,14 +468,14 @@ déjà été rejetées avec le même code.
 
 ### Actions
 
-- [ ] Retirer la vérification distante de production du job de validation générique.
-- [ ] Sur PR : tester le build local + preview déployée correspondant au SHA.
-- [ ] Sur release : fournir explicitement `DEPLOYMENT_URL` du candidat.
-- [ ] Refuser de lancer le script distant sans URL explicite dans les contextes CI
+- [x] Retirer la vérification distante de production du job de validation générique.
+- [x] Sur PR : tester le build local + preview déployée correspondant au SHA.
+- [x] Sur release : fournir explicitement `DEPLOYMENT_URL` du candidat.
+- [x] Refuser de lancer le script distant sans URL explicite dans les contextes CI
   où la cohérence SHA est requise.
-- [ ] Vérifier que l'URL testée expose un marqueur de commit/version attendu.
-- [ ] Ajouter le SHA testé dans la sortie du script.
-- [ ] Conserver une vérification prod post-déploiement séparée.
+- [x] Vérifier que l'URL testée expose un marqueur de commit/version attendu.
+- [x] Ajouter le SHA testé dans la sortie du script.
+- [x] Conserver une vérification prod post-déploiement séparée.
 
 ### Acceptation
 

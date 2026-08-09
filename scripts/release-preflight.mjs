@@ -191,7 +191,11 @@ function inspectLiveEvidence(sheet) {
 
   try {
     run('node', ['scripts/verify-deployed-assets.mjs'], {
-      env: { ...process.env, DEPLOYMENT_URL: candidate.previewUrl },
+      env: {
+        ...process.env,
+        DEPLOYMENT_URL: candidate.previewUrl,
+        EXPECTED_COMMIT_SHA: candidate.sha,
+      },
     });
   } catch (error) {
     block('preview-assets', `preview candidate invalide: ${error.message}`);
