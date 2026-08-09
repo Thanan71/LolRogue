@@ -54,6 +54,7 @@
     "test:assets-clean": "node scripts/test-clean-asset-build.mjs",
     "test:production-build": "node scripts/verify-production-build.mjs",
     "test:performance-budgets": "node scripts/check-performance-budgets.mjs",
+    "test:performance-preview": "node scripts/measure-local-preview.mjs",
     "test:deployed-assets": "node scripts/verify-deployed-assets.mjs",
     "release:preflight": "node scripts/release-preflight.mjs",
     "release:readiness:check": "node scripts/release-preflight.mjs --verify-documentation",

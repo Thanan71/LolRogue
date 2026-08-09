@@ -71,4 +71,12 @@ Chaque test conserve son propre contexte navigateur vierge.
 
 Les budgets versionnés sont dans `config/performance-budgets.json` et contrôlés par
 `npm run test:performance-budgets`. Ils couvrent le JavaScript total, le plus gros
-chunk, l'entrée, la route Auth, les assets déployés et les Web Vitals mobiles.
+chunk, l'entrée, la route Auth, les assets déployés, une marge globale minimale de 10 %
+et les cinq chunks les plus lourds. Le rapport détaillé est écrit dans
+`performance-report/bundle-report.json`.
+
+Après le build, `npm run test:performance-preview` démarre une vraie preview Vite,
+ouvre `/auth` avec Chromium et écrit `performance-report/preview-report.json`. Ce test
+vérifie notamment que les chunks champions, Database, Admin et légal ne sont pas
+téléchargés sur cette route publique. Les Web Vitals mobiles restent mesurés par la
+matrice Playwright de production.

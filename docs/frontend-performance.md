@@ -39,3 +39,34 @@ La segmentation retenue doit préserver :
 
 Elle peut sortir du JavaScript client les tableaux et descriptions qui ne sont jamais
 affichés pour un sort indisponible, sans modifier le rendu ni les règles de combat.
+
+## Résultat P2-PERF-01
+
+Le catalogue client conserve les champs réellement affichés pour les 172 champions et
+les données complètes des dix champions jouables. Le catalogue complet reste la source
+auditée des assets et du bundle d'autorité. Cette segmentation ramène le chunk
+`champion-data` de 101,52 kB à 52,92 kB gzip.
+
+La mesure finale locale atteint **349 961 octets gzip**, soit **12,07 % de marge** sous
+le plafond inchangé de 398 000 octets. Les cinq chunks les plus lourds possèdent aussi
+un plafond individuel :
+
+| Chunk | Mesure gzip | Budget |
+| --- | ---: | ---: |
+| React | 72 751 octets | 76 000 octets |
+| Supabase | 53 495 octets | 56 000 octets |
+| champion-data | 52 915 octets | 55 000 octets |
+| entrée applicative | 45 806 octets | 48 000 octets |
+| runStore | 29 774 octets | 32 000 octets |
+
+Le rapport exhaustif par chunk est généré dans
+`performance-report/bundle-report.json`. Le build conserve toutes les pages en imports
+dynamiques et le contrôle du manifeste interdit à `/auth` de dépendre statiquement de
+Database, Admin, légal ou des catalogues champions.
+
+La mesure Chromium sur une vraie instance `vite preview` a révélé que la région de
+notifications globale déclenchait malgré tout `runStore` sur `/auth`. Elle est désormais
+différée sur les routes publiques. La mesure finale de `/auth` charge dix ressources
+JavaScript pour **184 308 octets transférés**, sans requête vers `champion-data`,
+`DatabasePage`, `AdminPage` ou `LegalPage`. Le détail est écrit dans
+`performance-report/preview-report.json` par `npm run test:performance-preview`.
