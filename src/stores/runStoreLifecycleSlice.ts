@@ -177,8 +177,13 @@ export function createRunLifecycleSlice(
             });
             if (attemptResult.error || !attemptResult.data) {
               const error = attemptResult.error?.message ?? 'Unable to start a verified run.';
-              set({ saveError: error });
-              return startFailure('start_failed', error, true);
+              const staleDailyOffer =
+                mode === 'daily' && error.includes('daily_starter_not_offered');
+              set({
+                saveError: error,
+                ...(staleDailyOffer ? { pendingAuthorityStart: null } : {}),
+              });
+              return startFailure('start_failed', error, !staleDailyOffer);
             }
             if (useAuthStore.getState().user?.id !== authUser.id) {
               const error = 'The authenticated account changed while starting the run.';
