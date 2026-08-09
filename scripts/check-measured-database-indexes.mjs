@@ -30,22 +30,16 @@ const intentionallyUnindexedForeignKeys = new Set([
 ]);
 
 function runSupabase(args) {
-  const result = spawnSync(
-    'supabase',
-    [...args, '--agent', 'yes', '--output-format', 'json'],
-    {
-      encoding: 'utf8',
-    },
-  );
+  const result = spawnSync('supabase', [...args, '--agent', 'yes', '--output-format', 'json'], {
+    encoding: 'utf8',
+  });
   if (result.stderr) process.stderr.write(result.stderr);
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
 
   const stdout = result.stdout.trim();
   if (!stdout) {
-    throw new Error(
-      `Supabase CLI returned no JSON output for: supabase ${args.join(' ')}`,
-    );
+    throw new Error(`Supabase CLI returned no JSON output for: supabase ${args.join(' ')}`);
   }
 
   try {
