@@ -5,7 +5,11 @@ import {
   shouldAutoAdvanceCombatTurn,
   supportsManualAuthorityCombat,
 } from '@/game/battle/autoplay';
-import { AUTHORITY_VERSION_REGISTRY } from '@/game/authority/versionRegistry';
+import type { AuthorityVersionMetadata } from '@/game/authority/versionRegistry';
+import rawRegistry from '../config/authority-versions.json';
+
+const AUTHORITY_VERSION_REGISTRY =
+  rawRegistry.versions as unknown as readonly AuthorityVersionMetadata[];
 
 describe('combat autoplay rules', () => {
   it('starts disabled and pauses indefinitely on a manual player decision', () => {

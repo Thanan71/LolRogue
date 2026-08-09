@@ -3,15 +3,19 @@ import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
 } from '@/game/authority/AuthorityRunEngine';
-import {
-  AUTHORITY_VERSION_REGISTRY,
-  CURRENT_AUTHORITY_VERSION,
-} from '@/game/authority/versionRegistry';
+import type { AuthorityVersionMetadata } from '@/game/authority/versionRegistry';
 import { usesCanonicalProgression } from '@/game/run/runAuthorityJournal';
 import { transitionToNextBiome } from '@/game/run/runProgression';
 import { usesLegacyEncounterRules } from '@/pages/combat/legacyCombatEncounter';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
 import progressionGolden from './fixtures/authority-progression-golden.json';
+import rawRegistry from '../config/authority-versions.json';
+
+const AUTHORITY_VERSION_REGISTRY =
+  rawRegistry.versions as unknown as readonly AuthorityVersionMetadata[];
+const CURRENT_AUTHORITY_VERSION = AUTHORITY_VERSION_REGISTRY.find(
+  (version) => version.status === 'current',
+) as AuthorityVersionMetadata;
 
 describe('authority progression engine versioning', () => {
   it('derives the current client contract from the unique registry', () => {

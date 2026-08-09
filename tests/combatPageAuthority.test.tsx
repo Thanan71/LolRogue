@@ -5,10 +5,7 @@ import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NodeType } from '@/game/map/types';
-import {
-  AUTHORITY_VERSION_REGISTRY,
-  CURRENT_AUTHORITY_VERSION,
-} from '@/game/authority/versionRegistry';
+import type { AuthorityVersionMetadata } from '@/game/authority/versionRegistry';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import { ActionType } from '@/game/battle/types';
 import { CombatPage } from '@/pages/CombatPage';
@@ -19,6 +16,13 @@ import { useRunStore } from '@/stores/runStore';
 import { ROUTES } from '@/config/routes';
 import type { FinalCombatantState } from '@/types/run';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
+import rawRegistry from '../config/authority-versions.json';
+
+const AUTHORITY_VERSION_REGISTRY =
+  rawRegistry.versions as unknown as readonly AuthorityVersionMetadata[];
+const CURRENT_AUTHORITY_VERSION = AUTHORITY_VERSION_REGISTRY.find(
+  (version) => version.status === 'current',
+) as AuthorityVersionMetadata;
 
 const combatMocks = vi.hoisted(() => ({
   navigate: vi.fn(),

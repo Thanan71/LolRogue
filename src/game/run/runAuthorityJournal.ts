@@ -5,13 +5,10 @@ import type {
   RunAuthorityAttempt,
   RunCommandInput,
 } from '@/types/runAttempt';
-import { getAuthorityVersion } from '@/game/authority/versionRegistry';
+import { hasAuthorityFeature } from '@/game/authority/versionRegistry';
 
 export function usesCanonicalProgression(attempt: RunAuthorityAttempt | null): boolean {
-  return (
-    attempt === null ||
-    getAuthorityVersion(attempt.engineVersion)?.features.canonicalProgression === true
-  );
+  return attempt === null || hasAuthorityFeature(attempt.engineVersion, 'canonicalProgression');
 }
 
 export function createRunCommandId(): string | null {

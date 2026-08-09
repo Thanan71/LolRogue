@@ -1,4 +1,7 @@
-import rawRegistry from '../../../config/authority-versions.json';
+import {
+  AUTHORITY_ENGINE_FEATURE_MASKS,
+  AUTHORITY_FEATURE_BITS,
+} from './versionCapabilities.generated';
 
 export type AuthorityVersionStatus = 'current' | 'replay-only' | 'unsupported';
 
@@ -29,13 +32,19 @@ export interface AuthorityVersionMetadata {
   features: AuthorityVersionFeatures;
 }
 
-export const AUTHORITY_VERSION_REGISTRY =
-  rawRegistry.versions as readonly AuthorityVersionMetadata[];
+export type AuthorityFeature = keyof typeof AUTHORITY_FEATURE_BITS;
 
-export const CURRENT_AUTHORITY_VERSION = AUTHORITY_VERSION_REGISTRY.find(
-  (version) => version.status === 'current',
-) as AuthorityVersionMetadata;
+function getAuthorityFeatureMask(engine: string): number | undefined {
+  const match = /^run-engine-v([1-9]\d*)$/.exec(engine);
+  return match ? AUTHORITY_ENGINE_FEATURE_MASKS[Number(match[1])] : undefined;
+}
 
-export function getAuthorityVersion(engine: string): AuthorityVersionMetadata | undefined {
-  return AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === engine);
+export function isKnownAuthorityEngine(engine: string): boolean {
+  const mask = getAuthorityFeatureMask(engine);
+  return mask !== undefined && mask >= 0;
+}
+
+export function hasAuthorityFeature(engine: string, feature: AuthorityFeature): boolean {
+  const mask = getAuthorityFeatureMask(engine);
+  return mask !== undefined && mask >= 0 && (mask & AUTHORITY_FEATURE_BITS[feature]) !== 0;
 }

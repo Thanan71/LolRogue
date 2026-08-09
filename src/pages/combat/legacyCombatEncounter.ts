@@ -1,10 +1,13 @@
 import { championDB } from '@/data';
 import { ChampionInstance } from '@/game/ChampionInstance';
-import { getAuthorityVersion } from '@/game/authority/versionRegistry';
+import { hasAuthorityFeature, isKnownAuthorityEngine } from '@/game/authority/versionRegistry';
 import type { CombatEncounter } from '@/game/map/types';
 
 export function usesLegacyEncounterRules(engineVersion: string): boolean {
-  return getAuthorityVersion(engineVersion)?.features.canonicalEncounters === false;
+  return (
+    isKnownAuthorityEngine(engineVersion) &&
+    !hasAuthorityFeature(engineVersion, 'canonicalEncounters')
+  );
 }
 
 /**
