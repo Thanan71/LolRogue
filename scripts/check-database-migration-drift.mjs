@@ -1,17 +1,18 @@
-import { readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import {
+  readCandidateMigrationVersions,
+  readWorkspaceMigrationVersions,
+} from './lib/migration-manifest.mjs';
 
 const linked = process.argv.includes('--linked');
-const migrationPattern = /^(\d{14})_.+\.sql$/;
-const expected = readdirSync('supabase/migrations')
-  .map((file) => file.match(migrationPattern)?.[1])
-  .filter(Boolean)
-  .sort();
-
-if (expected.length === 0) throw new Error('No versioned Supabase migrations were found.');
-if (new Set(expected).size !== expected.length) {
-  throw new Error('Duplicate Supabase migration versions exist in the repository.');
+const candidateOptionIndex = process.argv.indexOf('--candidate-sha');
+const candidateSha = candidateOptionIndex === -1 ? null : process.argv[candidateOptionIndex + 1];
+if (candidateOptionIndex !== -1 && !candidateSha) {
+  throw new Error('--candidate-sha requires a full Git SHA.');
 }
+const expected = candidateSha
+  ? readCandidateMigrationVersions(candidateSha)
+  : readWorkspaceMigrationVersions();
 
 const result = spawnSync('supabase', ['migration', 'list', linked ? '--linked' : '--local'], {
   encoding: 'utf8',
@@ -55,5 +56,5 @@ if (pending.length > 0 || unexpected.length > 0) {
 }
 
 process.stdout.write(
-  `Migration manifest matches ${target}: ${expected.length} versions, latest ${expected.at(-1)}.\n`,
+  `Migration manifest${candidateSha ? ` for candidate ${candidateSha}` : ''} matches ${target}: ${expected.length} versions, latest ${expected.at(-1)}.\n`,
 );

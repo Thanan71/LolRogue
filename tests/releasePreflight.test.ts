@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 const root = resolve(import.meta.dirname, '..');
 const script = resolve(root, 'scripts/release-preflight.mjs');
+const preflightSource = readFileSync(script, 'utf8');
 const temporaryDirectories: string[] = [];
 
 const runPreflight = (sheetPath: string, documentationPath: string, ...args: string[]) =>
@@ -36,6 +37,11 @@ afterEach(() => {
 });
 
 describe('release preflight', () => {
+  it('compare le projet lié au manifeste du SHA candidat', () => {
+    expect(preflightSource).toContain("'--candidate-sha'");
+    expect(preflightSource).toContain('candidate.sha');
+  });
+
   it('reste bloquant lorsque les preuves du candidat manquent', () => {
     const { sheetPath, documentationPath } = fixture();
     const result = runPreflight(sheetPath, documentationPath);

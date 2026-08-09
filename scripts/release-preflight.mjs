@@ -184,7 +184,12 @@ function inspectLiveEvidence(sheet) {
   }
 
   try {
-    run('node', ['scripts/check-database-migration-drift.mjs', '--linked']);
+    run('node', [
+      'scripts/check-database-migration-drift.mjs',
+      '--linked',
+      '--candidate-sha',
+      candidate.sha,
+    ]);
   } catch (error) {
     block('migration-live', `drift des migrations live: ${error.message}`);
   }
