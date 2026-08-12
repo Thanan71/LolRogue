@@ -49,6 +49,7 @@ const parsedCandidates = [
   path.join(generatedRoot, 'champions-parsed.json'),
   path.join(legacyRoot, 'champions-parsed.json'),
 ];
+/** @type {Array<Record<string, any>> | null} */
 let parsedSource = null;
 for (const candidate of parsedCandidates) {
   try {

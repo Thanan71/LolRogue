@@ -316,7 +316,11 @@ async function verifyRestoredServices({
     signal: AbortSignal.timeout(15_000),
   });
   const functionBody = await functionResponse.json();
-  if (functionResponse.status !== 400 || functionBody.error !== 'invalid_attempt_id') {
+  const functionError =
+    functionBody !== null && typeof functionBody === 'object'
+      ? Reflect.get(functionBody, 'error')
+      : undefined;
+  if (functionResponse.status !== 400 || functionError !== 'invalid_attempt_id') {
     throw new Error(
       `verify-run did not expose its restored contract (${functionResponse.status}).`,
     );
@@ -417,6 +421,7 @@ async function simulateVerifyRunOutage(targetEnvironment, fixture) {
     if (edgeStopped) run('docker', ['start', edgeContainer]);
   }
 
+  /** @type {number | null} */
   let recoveredStatus = null;
   const recoveryDeadline = Date.now() + 20_000;
   while (Date.now() < recoveryDeadline) {

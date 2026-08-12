@@ -28,7 +28,10 @@ if (!Number.isInteger(identityRetryDelayMs) || identityRetryDelayMs < 0) {
 }
 
 const manifest = JSON.parse(
-  await fs.readFile(new URL('../src/data/generated/riot-assets-manifest.json', import.meta.url)),
+  await fs.readFile(
+    new URL('../src/data/generated/riot-assets-manifest.json', import.meta.url),
+    'utf8',
+  ),
 );
 
 if (!Array.isArray(manifest.files) || manifest.files.length === 0) {

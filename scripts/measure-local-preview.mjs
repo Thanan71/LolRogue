@@ -56,7 +56,14 @@ try {
     performance
       .getEntriesByType('resource')
       .map((entry) => {
-        const resource = entry;
+        const resource = /** @type {{
+         *   name: string;
+         *   duration: number;
+         *   initiatorType: string;
+         *   transferSize: number;
+         *   encodedBodySize: number;
+         *   decodedBodySize: number;
+         * }} */ (/** @type {unknown} */ (entry));
         return {
           url: resource.name,
           initiatorType: resource.initiatorType,

@@ -8,12 +8,14 @@ const vercel = JSON.parse(await readFile(join(root, 'vercel.json'), 'utf8'));
 const index = await readFile(join(dist, 'index.html'));
 const expectedCommitSha =
   process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
+/** @type {Record<string, string>} */
 const securityHeaders = Object.fromEntries(
   vercel.headers.flatMap((entry) => entry.headers.map(({ key, value }) => [key, value])),
 );
 const immutableAssetHeader = vercel.headers
   .find((entry) => entry.source === '/assets/(.*)')
   ?.headers.find(({ key }) => key.toLowerCase() === 'cache-control')?.value;
+/** @type {Record<string, string>} */
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
@@ -60,7 +62,9 @@ const server = createServer(async (request, response) => {
   response.end(index);
 });
 
-await new Promise((resolveStarted) => server.listen(0, '127.0.0.1', resolveStarted));
+await new Promise((resolveStarted) =>
+  server.listen(0, '127.0.0.1', () => resolveStarted(undefined)),
+);
 const address = server.address();
 if (!address || typeof address === 'string') throw new Error('Unable to start build verifier.');
 const baseUrl = `http://127.0.0.1:${address.port}`;
@@ -126,6 +130,6 @@ try {
   );
 } finally {
   await new Promise((resolveClosed, reject) =>
-    server.close((error) => (error ? reject(error) : resolveClosed())),
+    server.close((error) => (error ? reject(error) : resolveClosed(undefined))),
   );
 }

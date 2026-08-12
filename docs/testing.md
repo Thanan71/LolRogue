@@ -32,6 +32,20 @@ dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
 RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
 
+## Frontières TypeScript
+
+`npm run typecheck` compile trois contrats indépendants avant les tests : application,
+scripts/configurations Node et E2E Playwright. `tsconfig.scripts.json` active
+`checkJs` pour les `.mjs`, couvre les scripts TypeScript et les configurations Vite,
+Tailwind et PostCSS, avec uniquement `ES2023` et les types Node. Le fixture
+`scripts/typecheck/node-globals.ts` utilise des erreurs attendues pour garantir que
+`document` et `window` ne deviennent pas disponibles accidentellement.
+
+`tsconfig.e2e.json` couvre les specs et les deux configurations Playwright. Il déclare
+explicitement Node pour le runner, ainsi que DOM/DOM.Iterable pour les callbacks
+exécutés dans la page. `tests/toolingTypecheckContract.test.ts` verrouille ces listes,
+les inclusions et le branchement des trois compilations dans `npm run check`.
+
 ## Politique des advisors Supabase
 
 `config/supabase-advisors.json` versionne le contrat commun aux advisors sécurité et
