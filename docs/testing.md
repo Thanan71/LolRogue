@@ -108,3 +108,12 @@ ouvre `/auth` avec Chromium et écrit `performance-report/preview-report.json`. 
 vérifie notamment que les chunks champions, Database, Admin et légal ne sont pas
 téléchargés sur cette route publique. Les Web Vitals mobiles restent mesurés par la
 matrice Playwright de production.
+
+## CSP et styles dynamiques
+
+`npm run csp:styles:check` analyse tous les fichiers source et refuse les styles
+statiques inline, les mutations directes du DOM et tout binding dynamique absent de
+`config/csp-inline-styles.json`. Les tests `cspDynamicStyles.test.tsx` protègent les
+valeurs et bornes des jauges PV/PM/XP ainsi que les coordonnées et interactions SVG de
+la carte. `productionConfig.test.ts` et `test:production-build` vérifient les politiques
+CSP appliquée et Report-Only servies sur les routes profondes.

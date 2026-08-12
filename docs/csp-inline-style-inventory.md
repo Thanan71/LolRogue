@@ -42,3 +42,17 @@ rg -n "\\.style\\.|setAttribute\\(['\"]style|cssText" src --glob '*.{ts,tsx,js,j
 Le retrait total de `style-src-attr 'unsafe-inline'` exige ensuite une stratégie de
 nonce/hash ou un mécanisme CSP-compatible pour les valeurs continues. Cette étape ne
 doit pas sacrifier les barres PV/XP ni les positions de tooltip et de carte.
+
+## État après P2-WEB-01
+
+`npm run csp:styles:check` impose désormais exactement neuf bindings dans
+`config/csp-inline-styles.json`. Ils ne contiennent que des custom properties ; toute
+propriété CSS standard, spread, mutation via `HTMLElement.style` ou nouvelle liaison
+non inventoriée bloque `npm run check`.
+
+La CSP appliquée sépare `style-src 'self'`, `style-src-elem 'self'` et
+`style-src-attr 'unsafe-inline'`. En parallèle, l'en-tête
+`Content-Security-Policy-Report-Only` teste `style-src-attr 'none'`. Sur une preview,
+ouvrir `/combat`, `/run`, `/event`, `/rest` et un tooltip de sort, puis relever dans la
+console les violations Report-Only correspondant aux neuf bindings. Aucun endpoint de
+collecte ni donnée de navigation n'est ajouté à ce stade.

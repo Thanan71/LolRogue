@@ -736,11 +736,11 @@ entre jobs.
 
 **Taille : M/L**
 
-- [ ] Inventorier les styles inline restants (`style={...}`, bibliothèques, variables).
-- [ ] Déplacer ce qui peut l'être vers classes / custom properties contrôlées.
-- [ ] Évaluer `style-src-attr` séparé si nécessaire.
-- [ ] Tester la CSP en mode Report-Only avant durcissement.
-- [ ] Ne pas casser les styles dynamiques de barres PV / positions de carte sans
+- [x] Inventorier les styles inline restants (`style={...}`, bibliothèques, variables).
+- [x] Déplacer ce qui peut l'être vers classes / custom properties contrôlées.
+- [x] Évaluer `style-src-attr` séparé si nécessaire.
+- [x] Tester la CSP en mode Report-Only avant durcissement.
+- [x] Ne pas casser les styles dynamiques de barres PV / positions de carte sans
   stratégie de remplacement.
 
 ---
@@ -917,7 +917,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 13. [x] `P2-PERF-01` headroom bundle, sans modifier l'interface.
 14. [x] `P2-TEST-01` couverture des frontières critiques.
 15. [x] `P2-TEST-04` advisors versionnés.
-16. [ ] `P2-WEB-01` CSP.
+16. [x] `P2-WEB-01` CSP.
 17. [ ] `P2-OPS-01` runbook de restauration réelle.
 
 ## Sprint D — robustesse locale
