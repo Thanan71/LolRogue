@@ -546,11 +546,11 @@ Les types Node 26 peuvent rendre compilable l'utilisation d'une API absente de N
 Le `tsconfig.json` principal inclut `src`, `data` et `tests`, mais pas nécessairement
 les scripts Node, configs Vite/Playwright et E2E dans un contrat dédié.
 
-- [ ] Ajouter `tsconfig.scripts.json` pour `scripts/**/*.mjs|ts` / configs TypeScript
+- [x] Ajouter `tsconfig.scripts.json` pour `scripts/**/*.mjs|ts` / configs TypeScript
   quand applicable.
-- [ ] Ajouter `tsconfig.e2e.json` pour les helpers Playwright TS.
-- [ ] Ajouter les checks correspondants à `npm run check`.
-- [ ] Vérifier les globals Node/browser séparément pour éviter des APIs disponibles
+- [x] Ajouter `tsconfig.e2e.json` pour les helpers Playwright TS.
+- [x] Ajouter les checks correspondants à `npm run check`.
+- [x] Vérifier les globals Node/browser séparément pour éviter des APIs disponibles
   uniquement par accident.
 
 ---
@@ -925,7 +925,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 ## Sprint D — robustesse locale
 
-18. [ ] `P1-TOOL-02` typecheck scripts, configs et E2E.
+18. [x] `P1-TOOL-02` typecheck scripts, configs et E2E.
 19. [ ] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
 20. [ ] `P2-PERF-02` Web Vitals sur preview locale stable.
 21. [ ] `P2-TEST-02` seeds variables reproductibles.
