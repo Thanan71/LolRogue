@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "blockingLevels": {
+    "security": ["ERROR"],
+    "performance": []
+  },
+  "rejectUnknownFindings": false,
+  "enforceExpiration": false,
+  "exceptions": []
+}
