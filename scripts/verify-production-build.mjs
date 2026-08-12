@@ -24,6 +24,15 @@ const contentTypes = {
   '.webp': 'image/webp',
 };
 
+function parseCsp(value) {
+  return Object.fromEntries(
+    value.split(';').map((directive) => {
+      const [name, ...sources] = directive.trim().split(/\s+/);
+      return [name, sources];
+    }),
+  );
+}
+
 function safeAssetPath(pathname) {
   const relative = normalize(pathname).replace(/^[/\\]+/, '');
   const target = resolve(dist, relative);
@@ -68,6 +77,14 @@ try {
     }
     if (!response.headers.get('content-security-policy')?.includes("default-src 'self'")) {
       throw new Error(`CSP is missing for ${route}.`);
+    }
+    const csp = parseCsp(response.headers.get('content-security-policy'));
+    if (
+      csp['style-src']?.join(' ') !== "'self'" ||
+      csp['style-src-elem']?.join(' ') !== "'self'" ||
+      csp['style-src-attr']?.join(' ') !== "'unsafe-inline'"
+    ) {
+      throw new Error(`CSP style directives are not split safely for ${route}.`);
     }
     if (response.headers.get('x-content-type-options') !== 'nosniff') {
       throw new Error(`Security headers are missing for ${route}.`);
