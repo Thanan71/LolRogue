@@ -51,6 +51,11 @@ describe('production configuration', () => {
     expect(csp['style-src']).toEqual(["'self'"]);
     expect(csp['style-src-elem']).toEqual(["'self'"]);
     expect(csp['style-src-attr']).toEqual(["'unsafe-inline'"]);
+    const reportOnlyCsp = parseCsp(headers['Content-Security-Policy-Report-Only']);
+    expect(reportOnlyCsp['style-src']).toEqual(["'self'"]);
+    expect(reportOnlyCsp['style-src-elem']).toEqual(["'self'"]);
+    expect(reportOnlyCsp['style-src-attr']).toEqual(["'none'"]);
+    expect(headers['Content-Security-Policy-Report-Only']).not.toContain("'unsafe-inline'");
     expect(headers['Content-Security-Policy']).not.toContain('fonts.googleapis.com');
     expect(headers['Content-Security-Policy']).not.toContain('fonts.gstatic.com');
     expect(headers['Content-Security-Policy']).not.toContain('raw.communitydragon.org');

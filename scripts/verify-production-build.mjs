@@ -86,6 +86,16 @@ try {
     ) {
       throw new Error(`CSP style directives are not split safely for ${route}.`);
     }
+    const reportOnlyCsp = parseCsp(
+      response.headers.get('content-security-policy-report-only') ?? '',
+    );
+    if (
+      reportOnlyCsp['style-src']?.join(' ') !== "'self'" ||
+      reportOnlyCsp['style-src-elem']?.join(' ') !== "'self'" ||
+      reportOnlyCsp['style-src-attr']?.join(' ') !== "'none'"
+    ) {
+      throw new Error(`CSP Report-Only candidate is missing for ${route}.`);
+    }
     if (response.headers.get('x-content-type-options') !== 'nosniff') {
       throw new Error(`Security headers are missing for ${route}.`);
     }
