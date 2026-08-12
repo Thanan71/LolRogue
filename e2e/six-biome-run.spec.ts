@@ -218,6 +218,7 @@ async function playRun(page: Page, testInfo: TestInfo, strategy: 'risky' | 'surv
       ? labels.findIndex((label) => labelMatchesEncounter(label, preferred))
       : 0;
     const label = labels[index];
+    if (!label) throw new Error(`Encounter node ${index} has no accessible label.`);
     for (const type of REQUIRED_ENCOUNTERS) {
       if (labelMatchesEncounter(label, type)) visited.add(type);
     }

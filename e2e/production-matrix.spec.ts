@@ -23,7 +23,11 @@ test.beforeEach(async ({ page }) => {
     if (PerformanceObserver.supportedEntryTypes.includes('event')) {
       new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) metrics.interactions.push(entry.duration);
-      }).observe({ type: 'event', buffered: true, durationThreshold: 16 });
+      }).observe({
+        type: 'event',
+        buffered: true,
+        durationThreshold: 16,
+      } as PerformanceObserverInit & { durationThreshold: number });
     }
   });
 });
@@ -52,7 +56,7 @@ test('le build de production reste utilisable', async ({
     await page.waitForTimeout(250);
     const metrics = await page.evaluate(() => {
       const value = (
-        window as Window & {
+        window as unknown as Window & {
           __lolRogueVitals: { cls: number; lcp: number; interactions: number[] };
         }
       ).__lolRogueVitals;

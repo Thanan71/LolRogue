@@ -44,8 +44,12 @@ async function expectResponsiveStarterLayout(page: Page) {
       throw new Error('Starter selection layout is incomplete.');
     }
 
-    const firstCard = cards[0].getBoundingClientRect();
-    const secondCard = cards[1].getBoundingClientRect();
+    const [firstCardElement, secondCardElement] = cards;
+    if (!firstCardElement || !secondCardElement) {
+      throw new Error('Starter selection requires at least two champion cards.');
+    }
+    const firstCard = firstCardElement.getBoundingClientRect();
+    const secondCard = secondCardElement.getBoundingClientRect();
     const narrowestDescription = Math.min(
       ...runeDescriptions.map((description) => description.getBoundingClientRect().width),
     );
@@ -151,7 +155,9 @@ test('touch selection exposes a start error without overlap at 320px', async ({ 
     useRunStore.setState({
       startRun: async () => ({
         success: false,
+        code: 'start_failed',
         error: 'La run de test est temporairement indisponible.',
+        retryable: true,
       }),
     });
   });
