@@ -4,7 +4,7 @@
     "security": ["ERROR"],
     "performance": []
   },
-  "rejectUnknownFindings": false,
+  "rejectUnknownFindings": true,
   "enforceExpiration": true,
   "exceptions": [
     {

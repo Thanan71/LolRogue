@@ -147,4 +147,28 @@ describe('Supabase advisor policy', () => {
       ),
     ).toThrow('expiresAt is invalid');
   });
+
+  it.each([
+    ['security', 'INFO'],
+    ['security', 'WARN'],
+    ['performance', 'INFO'],
+    ['performance', 'WARN'],
+  ])('rejects a new unknown %s %s finding', (type, level) => {
+    const finding = {
+      cacheKey: `new_${type}_${level.toLowerCase()}`,
+      name: 'new_advisor_check',
+      level,
+    };
+    const result = evaluateAdvisorFindings(
+      policy({ rejectUnknownFindings: true }),
+      reports({ [type]: [finding] }),
+    );
+
+    expect(result.blockers).toEqual([
+      {
+        code: 'unknown-finding',
+        detail: `${type}:${finding.cacheKey} is not allowlisted.`,
+      },
+    ]);
+  });
 });
