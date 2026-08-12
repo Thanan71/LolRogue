@@ -449,6 +449,74 @@ async function simulateVerifyRunOutage(targetEnvironment, fixture) {
   };
 }
 
+async function simulateCompromisedLeaderboard(targetDatabaseUrl, targetEnvironment, fixture) {
+  const playerId = query(
+    targetDatabaseUrl,
+    `SELECT id FROM public.players WHERE user_id = '${fixture.users[0].id}';`,
+  );
+  if (!playerId) throw new Error('The leaderboard incident fixture has no restored player.');
+
+  const authoritativeWins = query(
+    targetDatabaseUrl,
+    `SELECT total_wins FROM public.players WHERE id = '${playerId}';`,
+  );
+  if (authoritativeWins !== '7') {
+    throw new Error(`Unexpected authoritative leaderboard baseline: ${authoritativeWins}.`);
+  }
+  executeSql(
+    targetDatabaseUrl,
+    `
+      UPDATE private.leaderboard_public_entries
+      SET total_wins = 999999
+      WHERE player_key = '${playerId}';
+    `,
+  );
+
+  const anonymous = createClient(targetEnvironment.apiUrl, targetEnvironment.anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const exposed = await anonymous.from('leaderboard').select('total_wins').eq('total_wins', 999999);
+  if (exposed.error || exposed.data?.length !== 1) {
+    throw exposed.error ?? new Error('The simulated leaderboard compromise was not observable.');
+  }
+
+  const mismatchCount = query(
+    targetDatabaseUrl,
+    `
+      SELECT count(*)
+      FROM private.leaderboard_public_entries AS projection
+      JOIN public.players AS player ON player.id = projection.player_key
+      WHERE projection.total_wins IS DISTINCT FROM player.total_wins;
+    `,
+  );
+  if (mismatchCount !== '1') {
+    throw new Error(`The compromise detector found ${mismatchCount} mismatches instead of one.`);
+  }
+
+  executeSql(targetDatabaseUrl, `SELECT private.refresh_public_leaderboard_player('${playerId}');`);
+  const corrected = await anonymous.from('leaderboard').select('total_wins').eq('total_wins', 7);
+  const fraudulent = await anonymous
+    .from('leaderboard')
+    .select('total_wins')
+    .eq('total_wins', 999999);
+  if (
+    corrected.error ||
+    fraudulent.error ||
+    corrected.data?.length !== 1 ||
+    fraudulent.data?.length !== 0
+  ) {
+    throw corrected.error ?? fraudulent.error ?? new Error('The authoritative rebuild failed.');
+  }
+
+  return {
+    authoritativeWins: Number(authoritativeWins),
+    compromisedWins: 999999,
+    mismatchesDetected: Number(mismatchCount),
+    projectionRebuilt: true,
+    result: 'passed',
+  };
+}
+
 const temporaryRoot = mkdtempSync(join(tmpdir(), 'lolrogue-restore-drill-'));
 const backupDir = join(temporaryRoot, 'backup');
 const markerId = randomUUID();
@@ -555,6 +623,11 @@ try {
   });
   const verifiedAt = new Date();
   const verifyRunIncident = await simulateVerifyRunOutage(targetEnvironment, sourceFixture);
+  const leaderboardIncident = await simulateCompromisedLeaderboard(
+    targetDatabaseUrl,
+    targetEnvironment,
+    sourceFixture,
+  );
   const rpoMs = recoveryStartedAt.getTime() - Date.parse(snapshotAt);
   const rtoMs = verifiedAt.getTime() - recoveryStartedAt.getTime();
   if (rpoMs < 0 || rpoMs > rpoObjectiveMs) {
@@ -577,7 +650,7 @@ try {
     objectives: { rpo: '24h', rto: '4h' },
     measured: { rpoMs, rpo: isoDuration(rpoMs), rtoMs, rto: isoDuration(rtoMs) },
     backupChecksums: checksums,
-    checks: { ...services, verifyRunIncident },
+    checks: { ...services, verifyRunIncident, leaderboardIncident },
     result: 'passed',
   };
   writeEvidence(requestedEvidence, evidence);
