@@ -1,12 +1,14 @@
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const root = resolve(import.meta.dirname, '..');
 const script = resolve(root, 'scripts/release-preflight.mjs');
 const preflightSource = readFileSync(script, 'utf8');
+const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
+const releaseSheet = JSON.parse(readFileSync(resolve(root, 'config/beta-release.json'), 'utf8'));
 const temporaryDirectories: string[] = [];
 
 const runPreflight = (sheetPath: string, documentationPath: string, ...args: string[]) =>
@@ -40,6 +42,15 @@ describe('release preflight', () => {
   it('compare le projet lié au manifeste du SHA candidat', () => {
     expect(preflightSource).toContain("'--candidate-sha'");
     expect(preflightSource).toContain('candidate.sha');
+  });
+
+  it('exécute la politique des advisors sécurité et performance en local et sur la base liée', () => {
+    expect(packageJson.scripts['db:validate']).toContain('npm run db:advisors');
+    expect(releaseSheet.supabaseAdvisors.checks).toContain(
+      'node scripts/check-supabase-advisors.mjs --linked',
+    );
+    expect(preflightSource).toContain("['scripts/check-supabase-advisors.mjs', '--linked']");
+    expect(preflightSource).toContain("block('advisors-live'");
   });
 
   it('reste bloquant lorsque les preuves du candidat manquent', () => {

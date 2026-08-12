@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "blockingLevels": {
+    "security": ["ERROR"],
+    "performance": []
+  },
+  "rejectUnknownFindings": true,
+  "enforceExpiration": true,
+  "exceptions": [
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_public_daily_challenge_rulesets",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Catalogue serveur en lecture uniquement via des RPC SECURITY DEFINER bornées ; aucune politique Data API n'est volontairement exposée.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_public_progression_commands",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Journal serveur écrit exclusivement par complete_run_verification ; l'absence de politique bloque tout accès client direct.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_public_progression_enhancement_security_baselines",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Baseline interne consommée uniquement par les fonctions autoritaires ; aucune lecture Data API ne doit être accordée.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_daily_challenge_rulesets_daily_challenge_rulesets_gameplay_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "FK de version à très faible cardinalité sans filtre applicatif mesuré ; la décision d'index est documentée dans l'audit P2-DB-01.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_daily_runs_daily_runs_daily_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Colonne de version immuable non utilisée comme prédicat isolé dans les requêtes mesurées ; réévaluation requise avant expiration.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_daily_runs_daily_runs_gameplay_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Colonne de version immuable couverte par les parcours Daily actuels sans scan problématique mesuré ; révision périodique obligatoire.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_progression_commands_progression_commands_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Journal append-only interrogé par attempt et séquence, jamais par version seule dans les plans applicatifs mesurés.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_run_attempts_run_attempts_daily_ruleset_fk",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "FK de traçabilité Daily sans requête filtrée dédiée observée ; la charge synthétique P2-DB-01 ne justifie pas un index supplémentaire.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_run_attempts_run_attempts_gameplay_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Version de replay immuable, non utilisée comme filtre isolé par le worker ni les repositories mesurés.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_run_attempts_run_attempts_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Version de progression conservée pour audit mais absente des prédicats critiques observés ; décision explicitement temporaire.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_daily_runs_idx_daily_runs_date_score",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index du classement Daily conservé malgré les statistiques locales remises à zéro ; son usage doit être évalué sur trafic représentatif.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_logs_idx_logs_created_level",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index destiné aux requêtes d'exploitation absentes du jeu de données local éphémère ; suppression interdite sans mesure live.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_players_idx_players_ranking",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de classement conservé pour les lectures sociales ; les compteurs locaux sont réinitialisés à chaque db reset.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_run_attempts_run_attempts_finished_queue",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Décision de suppression explicitement reportée à P2-DB-02 après analyse du worker, des resets statistiques et d'une charge synthétique.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_run_attempts_run_attempts_player_started",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index du parcours de reprise conservé après mesure P2-DB-01 ; un reset propre remet son compteur d'utilisation à zéro.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_champion_mastery_idx_champion_mastery_player",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de chargement de la maîtrise par joueur conservé pour le repository ; la base locale vide ne produit aucun usage avant les tests.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_logs_idx_logs_user",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index historique des recherches de logs par utilisateur conservé jusqu'à l'audit P2-DB-02 et une mesure sur trafic représentatif.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_logs_logs_player_id_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index d'exploitation par joueur absent des scénarios post-reset ; sa redondance éventuelle doit être mesurée avant suppression.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_player_unlocks_idx_player_unlocks_player",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index utilisé par le chargement des déblocages d'un joueur ; les compteurs locaux sont vierges immédiatement après migration.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_champion_enhancements_idx_champion_enhancements_user",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index du repository d'améliorations conservé pour les lectures par compte ; le reset ne constitue pas une preuve d'inutilité.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_runs_idx_runs_player_completed",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index composite de l'historique terminé conservé après mesure P2-DB-01 ; le constat provient de statistiques réinitialisées.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_daily_runs_daily_runs_invalidated_by_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index nécessaire aux opérations d'invalidation et d'intégrité ; aucun incident synthétique ne l'utilise juste après le reset.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_run_team_members_idx_run_team_members_run",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de jointure des membres d'équipe conservé pour l'historique des runs ; son compteur repart à zéro lors du reset.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_players_idx_players_user_id",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de résolution player par utilisateur conservé pour Auth et les repositories ; la base fraîche ne reflète pas son usage réel.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_daily_score_reports_daily_score_reports_reporter_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index d'audit des signalements par auteur conservé pour l'exploitation ; aucune donnée sociale n'existe après reset.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_daily_score_reports_daily_score_reports_reviewed_by_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de revue administrative conservé pour la traçabilité ; son utilité doit être réévaluée avec des signalements représentatifs.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_daily_score_reports_daily_score_reports_open_created_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de file des signalements ouverts conservé pour l'administration ; aucun élément n'est présent sur une base réinitialisée.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_daily_score_reports_daily_score_reports_reviewed_retention_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index partiel de rétention conservé pour la purge automatisée ; son job périodique ne s'exécute pas pendant le reset local.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_daily_score_invalidation_audit_daily_score_invalidation_audit_actor_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de traçabilité des invalidations par acteur conservé pour les audits ; la base locale propre ne contient aucun événement.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "multiple_permissive_policies_public_run_attempts_authenticated_SELECT",
+      "name": "multiple_permissive_policies",
+      "level": "WARN",
+      "justification": "Lecture propriétaire et lecture administrateur sont séparées pour audit ; leur coût et une politique combinée doivent être mesurés avant modification.",
+      "expiresAt": "2026-09-30"
+    }
+  ]
+}

@@ -32,6 +32,25 @@ dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
 RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
 
+## Politique des advisors Supabase
+
+`config/supabase-advisors.json` versionne le contrat commun aux advisors sécurité et
+performance. Toute `ERROR` sécurité échoue sans exception. Les constats acceptés sont
+identifiés exactement par type, `cacheKey`, nom et niveau, avec une justification et
+une date d'expiration. Une alerte inconnue, même `INFO`, une identité qui change ou
+une exception expirée fait échouer le contrôle.
+
+`npm run db:advisors` applique ce contrat à la stack locale. `npm run db:validate`
+l'exécute après le reset et l'audit de sécurité, tandis que le preflight de release
+relance `node scripts/check-supabase-advisors.mjs --linked` sur le projet Supabase
+explicitement lié. Les exceptions actuelles expirent le 30 septembre 2026 et doivent
+être supprimées, corrigées ou renouvelées avec une nouvelle justification avant
+cette date.
+
+La protection Auth contre les mots de passe compromis n'est pas activée ni couverte
+par ce contrôle DB : son activation payante reste explicitement différée. Elle ne
+doit pas être présentée comme une gate validée par les advisors versionnés.
+
 `repositoryIntegration.database.test.ts` appelle réellement
 `getPlayerRunHistory()` contre Supabase local. Il valide le nested-select via les noms
 de FK migrés, les métadonnées de version de l'attempt, les membres de l'équipe, la
