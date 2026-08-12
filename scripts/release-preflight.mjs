@@ -150,7 +150,11 @@ function localMigrationVersions() {
     .readdirSync(path.join(root, 'supabase/migrations'))
     .filter((file) => MIGRATION_PATTERN.test(file))
     .sort()
-    .map((file) => file.match(MIGRATION_PATTERN)[1]);
+    .map((file) => {
+      const match = file.match(MIGRATION_PATTERN);
+      if (!match) throw new Error(`Invalid migration filename after filtering: ${file}`);
+      return match[1];
+    });
 }
 
 function inspectLiveEvidence(sheet) {
