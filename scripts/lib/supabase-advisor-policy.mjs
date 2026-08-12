@@ -50,8 +50,10 @@ export function validateAdvisorPolicy(policy) {
       `${label}.justification must contain at least 20 characters.`,
     );
     assert(DATE_PATTERN.test(exception.expiresAt), `${label}.expiresAt must use YYYY-MM-DD.`);
+    const expiration = new Date(`${exception.expiresAt}T00:00:00Z`);
     assert(
-      !Number.isNaN(Date.parse(`${exception.expiresAt}T00:00:00Z`)),
+      !Number.isNaN(expiration.valueOf()) &&
+        expiration.toISOString().slice(0, 10) === exception.expiresAt,
       `${label}.expiresAt is invalid.`,
     );
     const identity = `${exception.type}:${exception.cacheKey}`;

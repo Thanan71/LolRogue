@@ -99,4 +99,52 @@ describe('Supabase advisor policy', () => {
       ),
     ).toThrow('justification must contain at least 20 characters');
   });
+
+  it('blocks an active finding once its exception has expired', () => {
+    const exception = {
+      type: 'security',
+      cacheKey: 'rls_enabled_no_policy_public_internal',
+      name: 'rls_enabled_no_policy',
+      level: 'INFO',
+      justification: 'Internal server-only table deliberately has no client read policy.',
+      expiresAt: '2026-09-30',
+    };
+    const activeFinding = reports({
+      security: [{ cacheKey: exception.cacheKey, name: exception.name, level: exception.level }],
+    });
+
+    expect(
+      evaluateAdvisorFindings(
+        policy({ enforceExpiration: true, exceptions: [exception] }),
+        activeFinding,
+        new Date('2026-09-30T12:00:00Z'),
+      ).blockers,
+    ).toEqual([]);
+    expect(
+      evaluateAdvisorFindings(
+        policy({ enforceExpiration: true, exceptions: [exception] }),
+        activeFinding,
+        new Date('2026-10-01T00:00:00Z'),
+      ).blockers,
+    ).toEqual([expect.objectContaining({ code: 'expired-exception' })]);
+  });
+
+  it('rejects impossible calendar expiration dates', () => {
+    expect(() =>
+      validateAdvisorPolicy(
+        policy({
+          exceptions: [
+            {
+              type: 'performance',
+              cacheKey: 'unused_index_public_runs_example',
+              name: 'unused_index',
+              level: 'INFO',
+              justification: 'Temporary index exception awaiting representative traffic.',
+              expiresAt: '2026-02-30',
+            },
+          ],
+        }),
+      ),
+    ).toThrow('expiresAt is invalid');
+  });
 });

@@ -5,7 +5,7 @@
     "performance": []
   },
   "rejectUnknownFindings": false,
-  "enforceExpiration": false,
+  "enforceExpiration": true,
   "exceptions": [
     {
       "type": "security",
