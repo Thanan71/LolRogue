@@ -432,6 +432,30 @@
   border-bottom: none;
 }
 
+.logs-table td.admin-log-level {
+  font-weight: 700;
+}
+
+.logs-table td.admin-log-level--error {
+  color: #e74c3c;
+}
+
+.logs-table td.admin-log-level--warn {
+  color: #f39c12;
+}
+
+.logs-table td.admin-log-level--info {
+  color: #3498db;
+}
+
+.logs-table td.admin-log-level--debug {
+  color: #95a5a6;
+}
+
+.logs-table td.admin-log-level--default {
+  color: #c8aa6e;
+}
+
 .admin-invalidation-reason {
   width: min(28rem, 100%);
   min-height: 5rem;

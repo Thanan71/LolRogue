@@ -15,7 +15,7 @@ import { fr } from '@/i18n/fr';
 import { enhancementService } from '@/services/enhancementService';
 import type { Champion } from '@/types/champion';
 import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';
-import { BRANCH_THEME_COLORS, BRANCH_THEME_ICONS } from '@/types/enhancementTree';
+import { BRANCH_THEME_ICONS } from '@/types/enhancementTree';
 import { calculateFullStats } from '@/utils/statCalculator';
 
 interface StatPreview {
@@ -86,21 +86,21 @@ export function EnhancementTree({
   };
 
   return (
-    <div style={containerStyle} aria-busy={isLoading}>
-      <div style={headerStyle}>
+    <div className="enhancement-tree" aria-busy={isLoading}>
+      <div className="enhancement-tree-header">
         <div>
-          <h3 style={titleStyle}>Arbre d'Amélioration - {champion.name}</h3>
-          <div style={playerStatsStyle}>
-            <span style={candyBadgeStyle}>{playerCandies} 🍬</span>
-            <span style={levelBadgeStyle}>Maîtrise: Niveau {masteryLevel}</span>
+          <h3 className="enhancement-tree-title">Arbre d'Amélioration - {champion.name}</h3>
+          <div className="enhancement-info">
+            <span className="candy-badge">{playerCandies} 🍬</span>
+            <span className="level-badge">Maîtrise: Niveau {masteryLevel}</span>
           </div>
         </div>
       </div>
 
       {/* Core Nodes */}
-      <div style={sectionStyle}>
-        <h4 style={sectionTitleStyle}>⚡ Nœuds de Base</h4>
-        <div style={nodesRowStyle}>
+      <div className="enhancement-section">
+        <h4 className="enhancement-section-title">⚡ Nœuds de Base</h4>
+        <div className="core-nodes-row">
           {tree.coreNodes.map((node) => {
             const canUnlock = canUnlockNode(
               node,
@@ -131,7 +131,7 @@ export function EnhancementTree({
       </div>
 
       {/* Branch Selection */}
-      <div style={branchTabsStyle}>
+      <div className="branch-tabs">
         {tree.branches.map((branch) => {
           const isActive = activeBranch === branch.id;
           return (
@@ -139,12 +139,7 @@ export function EnhancementTree({
               key={branch.id}
               type="button"
               onClick={() => setActiveBranch(branch.id)}
-              style={{
-                ...branchTabStyle,
-                background: isActive ? BRANCH_THEME_COLORS[branch.theme] + '30' : 'transparent',
-                border: `1px solid ${isActive ? BRANCH_THEME_COLORS[branch.theme] : '#30363d'}`,
-                color: isActive ? BRANCH_THEME_COLORS[branch.theme] : '#8b949e',
-              }}
+              className={`branch-tab branch-tab--${branch.theme}${isActive ? ' active' : ''}`}
             >
               <span>{BRANCH_THEME_ICONS[branch.theme]}</span>
               <span>{branch.name}</span>
@@ -157,13 +152,13 @@ export function EnhancementTree({
       {tree.branches.map((branch) => {
         if (branch.id !== activeBranch) return null;
         return (
-          <div key={branch.id} style={branchContentStyle}>
-            <div style={branchHeaderStyle(branch.theme)}>
+          <div key={branch.id} className="branch-content">
+            <div className={`branch-header branch-header--${branch.theme}`}>
               <span>{BRANCH_THEME_ICONS[branch.theme]}</span>
               <span>{branch.name}</span>
-              <span style={branchDescStyle}>{branch.description}</span>
+              <span className="branch-description">{branch.description}</span>
             </div>
-            <div style={branchNodesStyle}>
+            <div className="branch-nodes">
               {branch.nodes.map((node, index) => {
                 const canUnlock = canUnlockNode(
                   node,
@@ -179,7 +174,7 @@ export function EnhancementTree({
                 );
                 return (
                   <React.Fragment key={node.id}>
-                    {index > 0 && <div style={connectorStyle} />}
+                    {index > 0 && <div className="node-connector" />}
                     <NodeCard
                       node={node}
                       unlocked={enhancementState.unlockedNodes[node.id] || 0}
@@ -228,12 +223,6 @@ function NodeCard({
   const isMaxed = unlocked >= maxRanks;
   const isLocked = unlocked === 0;
 
-  const getStatusColor = () => {
-    if (isMaxed) return '#4A9F6F';
-    if (canUnlock) return '#F5E6B3';
-    return '#30363d';
-  };
-
   // Build tooltip text that includes the lock reason if applicable
   const getTooltip = () => {
     let tooltip = node.name;
@@ -248,24 +237,19 @@ function NodeCard({
 
   return (
     <div
-      style={{
-        ...nodeCardStyle,
-        border: `2px solid ${getStatusColor()}`,
-        background: isMaxed ? getStatusColor() + '20' : '#0d1117',
-        opacity: isLocked && !canUnlock ? 0.5 : 1,
-      }}
+      className={`node-card node-card--${isMaxed ? 'maxed' : canUnlock ? 'available' : 'locked'}${isLocked && !canUnlock ? ' node-card--dimmed' : ''}`}
       title={getTooltip()}
     >
-      <div style={nodeHeaderStyle}>
-        <span style={nodeNameStyle}>{node.name}</span>
-        {isUltimate && <span style={ultimateBadgeStyle}>{fr.enhancement.ultimate}</span>}
+      <div className="node-header">
+        <span className="node-name">{node.name}</span>
+        {isUltimate && <span className="ultimate-badge">{fr.enhancement.ultimate}</span>}
       </div>
-      <div style={nodeDescStyle}>{node.description}</div>
+      <div className="node-description">{node.description}</div>
 
       {node.statBonuses && Object.entries(node.statBonuses).length > 0 && (
-        <div style={statBonusesStyle}>
+        <div className="node-stat-bonuses">
           {Object.entries(node.statBonuses).map(([stat, value]) => (
-            <span key={stat} style={statBonusStyle}>
+            <span key={stat} className="node-stat-bonus">
               +{value} {stat.toUpperCase()}
             </span>
           ))}
@@ -273,7 +257,7 @@ function NodeCard({
       )}
 
       {preview.length > 0 && (
-        <div style={previewStyle} aria-label={fr.enhancement.preview}>
+        <div className="node-preview" aria-label={fr.enhancement.preview}>
           {preview.map(({ stat, before, after }) => (
             <div key={stat}>
               {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
@@ -283,22 +267,17 @@ function NodeCard({
         </div>
       )}
 
-      <div style={nodeFooterStyle}>
-        <span style={costStyle}>{node.candyCost} 🍬</span>
+      <div className="node-footer">
+        <span className="node-cost">{node.candyCost} 🍬</span>
         {isMaxed ? (
-          <span style={maxedStyle}>{fr.enhancement.maximum}</span>
+          <span className="node-maxed">{fr.enhancement.maximum}</span>
         ) : (
-          <div style={buttonContainerStyle}>
+          <div className="node-action">
             <button
               type="button"
               onClick={onUnlock}
               disabled={!canUnlock || isLoading}
-              style={{
-                ...unlockButtonStyle,
-                background: canUnlock ? '#F5E6B3' : '#21262d',
-                color: canUnlock ? '#0d1117' : '#484f58',
-                cursor: canUnlock && !isLoading ? 'pointer' : 'not-allowed',
-              }}
+              className={`node-unlock-btn node-unlock-btn--${canUnlock && !isLoading ? 'available' : 'disabled'}`}
             >
               {isLoading
                 ? 'Enregistrement…'
@@ -307,7 +286,9 @@ function NodeCard({
                   : `Débloquer`}
             </button>
             {!canUnlock && lockReason && (
-              <span style={getLockReasonStyle(lockReason.type)}>{lockReason.message}</span>
+              <span className={`node-lock-reason node-lock-reason--${lockReason.type}`}>
+                {lockReason.message}
+              </span>
             )}
           </div>
         )}
@@ -315,234 +296,3 @@ function NodeCard({
     </div>
   );
 }
-
-// ─── Styles ──────────────────────────────────────────────────────────────────
-
-const containerStyle: React.CSSProperties = {
-  padding: 16,
-  background: '#0d1117',
-  borderRadius: 8,
-  border: '1px solid #1e2a3a',
-};
-
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 16,
-};
-
-const titleStyle: React.CSSProperties = {
-  color: '#c8aa6e',
-  fontSize: 16,
-  margin: 0,
-};
-
-const playerStatsStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 8,
-  marginTop: 8,
-};
-
-const candyBadgeStyle: React.CSSProperties = {
-  background: '#F5E6B3',
-  color: '#0d1117',
-  padding: '2px 8px',
-  borderRadius: 12,
-  fontSize: 12,
-  fontWeight: 700,
-};
-
-const levelBadgeStyle: React.CSSProperties = {
-  background: '#21262d',
-  color: '#c8aa6e',
-  padding: '2px 8px',
-  borderRadius: 12,
-  fontSize: 12,
-};
-
-const previewStyle: React.CSSProperties = {
-  marginTop: 6,
-  padding: 6,
-  borderRadius: 4,
-  background: '#161b22',
-  color: '#9fe3b1',
-  fontSize: 10,
-  lineHeight: 1.45,
-};
-
-const sectionStyle: React.CSSProperties = {
-  marginBottom: 16,
-};
-
-const sectionTitleStyle: React.CSSProperties = {
-  color: '#8b949e',
-  fontSize: 12,
-  textTransform: 'uppercase',
-  marginBottom: 8,
-  letterSpacing: 1,
-};
-
-const nodesRowStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 8,
-  flexWrap: 'wrap',
-};
-
-const branchTabsStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 4,
-  marginBottom: 12,
-};
-
-const branchTabStyle: React.CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 6,
-  padding: '8px 12px',
-  border: '1px solid #30363d',
-  borderRadius: 6,
-  background: 'transparent',
-  color: '#8b949e',
-  fontSize: 12,
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-};
-
-const branchContentStyle: React.CSSProperties = {
-  background: '#161b22',
-  borderRadius: 8,
-  padding: 12,
-};
-
-const branchHeaderStyle = (theme: string): React.CSSProperties => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  marginBottom: 12,
-  color: BRANCH_THEME_COLORS[theme as keyof typeof BRANCH_THEME_COLORS],
-  fontSize: 14,
-  fontWeight: 600,
-});
-
-const branchDescStyle: React.CSSProperties = {
-  color: '#8b949e',
-  fontSize: 11,
-  marginLeft: 'auto',
-};
-
-const branchNodesStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  alignItems: 'center',
-};
-
-const connectorStyle: React.CSSProperties = {
-  width: 2,
-  height: 16,
-  background: '#30363d',
-};
-
-const nodeCardStyle: React.CSSProperties = {
-  width: 200,
-  padding: 10,
-  borderRadius: 8,
-  transition: 'all 0.2s',
-};
-
-const nodeHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 4,
-};
-
-const nodeNameStyle: React.CSSProperties = {
-  color: '#e6edf3',
-  fontSize: 13,
-  fontWeight: 600,
-};
-
-const ultimateBadgeStyle: React.CSSProperties = {
-  background: '#C43C3C',
-  color: '#fff',
-  padding: '1px 4px',
-  borderRadius: 4,
-  fontSize: 9,
-  fontWeight: 700,
-};
-
-const nodeDescStyle: React.CSSProperties = {
-  color: '#8b949e',
-  fontSize: 11,
-  marginBottom: 6,
-  lineHeight: 1.3,
-};
-
-const statBonusesStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 4,
-  marginBottom: 6,
-};
-
-const statBonusStyle: React.CSSProperties = {
-  background: '#21262d',
-  color: '#4A9F6F',
-  padding: '1px 4px',
-  borderRadius: 3,
-  fontSize: 10,
-};
-
-const nodeFooterStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-};
-
-const costStyle: React.CSSProperties = {
-  color: '#F5E6B3',
-  fontSize: 12,
-  fontWeight: 600,
-};
-
-const maxedStyle: React.CSSProperties = {
-  background: '#4A9F6F',
-  color: '#fff',
-  padding: '2px 8px',
-  borderRadius: 4,
-  fontSize: 10,
-  fontWeight: 700,
-};
-
-const unlockButtonStyle: React.CSSProperties = {
-  padding: '3px 10px',
-  border: 'none',
-  borderRadius: 4,
-  fontSize: 11,
-  fontWeight: 600,
-  transition: 'all 0.2s',
-};
-
-const buttonContainerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 2,
-  alignItems: 'flex-end',
-};
-
-const getLockReasonStyle = (type: string): React.CSSProperties => ({
-  fontSize: 9,
-  padding: '1px 4px',
-  borderRadius: 3,
-  fontWeight: 600,
-  ...(type === 'mastery_level'
-    ? { background: '#C43C3C30', color: '#C43C3C' }
-    : type === 'candies'
-      ? { background: '#F5E6B330', color: '#F5E6B3' }
-      : type === 'prerequisite'
-        ? { background: '#8b949e30', color: '#8b949e' }
-        : { background: '#4A9F6F30', color: '#4A9F6F' }),
-});

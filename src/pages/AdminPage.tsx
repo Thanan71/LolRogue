@@ -8,7 +8,7 @@ import { AdminErrorNotice } from './admin/AdminErrorNotice';
 import { AdminModerationPanel } from './admin/AdminModerationPanel';
 import { AdminTabList } from './admin/AdminTabList';
 import { useAdminData } from './admin/useAdminData';
-import { exportRunsToCSV, formatAdminDate, getLogLevelColor } from './adminPageUtils';
+import { exportRunsToCSV, formatAdminDate, getLogLevelClass } from './adminPageUtils';
 import '@/styles/admin.css';
 
 export function AdminPage() {
@@ -168,7 +168,7 @@ export function AdminPage() {
                     {logs.map((log) => (
                       <tr key={log.id}>
                         <td>{formatAdminDate(log.created_at)}</td>
-                        <td style={{ color: getLogLevelColor(log.level) }}>
+                        <td className={`admin-log-level ${getLogLevelClass(log.level)}`}>
                           {log.level.toUpperCase()}
                         </td>
                         <td>{log.repository}</td>

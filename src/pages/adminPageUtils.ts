@@ -16,14 +16,10 @@ export function formatAdminDate(dateString: string): string {
   });
 }
 
-export function getLogLevelColor(level: string): string {
-  const colors: Record<string, string> = {
-    error: '#e74c3c',
-    warn: '#f39c12',
-    info: '#3498db',
-    debug: '#95a5a6',
-  };
-  return colors[level] ?? '#c8aa6e';
+export function getLogLevelClass(level: string): string {
+  return ['error', 'warn', 'info', 'debug'].includes(level)
+    ? `admin-log-level--${level}`
+    : 'admin-log-level--default';
 }
 
 const SPREADSHEET_FORMULA_PREFIX = /^\s*[=+\-@]/;

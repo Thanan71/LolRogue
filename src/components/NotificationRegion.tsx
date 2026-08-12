@@ -47,18 +47,7 @@ export function NotificationRegion() {
     <div
       role={isCritical ? 'alert' : 'status'}
       aria-live={isCritical ? 'assertive' : 'polite'}
-      style={{
-        position: 'fixed',
-        right: 16,
-        bottom: 16,
-        zIndex: 10000,
-        maxWidth: 360,
-        padding: '12px 16px',
-        border: '1px solid #c8aa6e',
-        borderRadius: 8,
-        background: '#101827',
-        color: '#fff',
-      }}
+      className="notification-region"
     >
       <div>{message}</div>
       {saveStatus === 'failed' && (

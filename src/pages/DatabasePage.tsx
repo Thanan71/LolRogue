@@ -104,7 +104,7 @@ export function DatabasePage() {
                     loading="lazy"
                     decoding="async"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
+                      e.currentTarget.hidden = true;
                     }}
                   />
                   <div className="database-list-item-info">
