@@ -7,6 +7,8 @@ import { createClient } from '@supabase/supabase-js';
 import { parseSupabaseEnv, resolveSupabaseTestEnv } from './lib/supabase-local-env.mjs';
 
 const root = resolve(import.meta.dirname, '..');
+const rpoObjectiveMs = 24 * 60 * 60 * 1_000;
+const rtoObjectiveMs = 4 * 60 * 60 * 1_000;
 const sourceProjectId = 'lolrogue';
 const targetProjectId = `lolrogue-restore-drill-${process.pid}`;
 const targetPorts = {
@@ -122,11 +124,40 @@ function dump(sourceWorkdir, backupDir, name, extraArgs = []) {
 }
 
 function writeChecksums(files, destination) {
-  const lines = files.map((file) => {
-    const digest = createHash('sha256').update(readFileSync(file)).digest('hex');
-    return `${digest}  ${file.split('/').at(-1)}`;
-  });
+  const checksums = Object.fromEntries(
+    files.map((file) => [
+      file.split('/').at(-1),
+      createHash('sha256').update(readFileSync(file)).digest('hex'),
+    ]),
+  );
+  const lines = Object.entries(checksums).map(([name, digest]) => `${digest}  ${name}`);
   writeFileSync(destination, `${lines.join('\n')}\n`);
+  return checksums;
+}
+
+function isoDuration(milliseconds) {
+  return `${(milliseconds / 1_000).toFixed(3)}s`;
+}
+
+function evidenceDestination() {
+  const argument = process.argv.find((entry) => entry.startsWith('--evidence='));
+  if (!argument) return null;
+  const requested = argument.slice('--evidence='.length);
+  const destination = resolve(root, requested);
+  if (!requested || (!destination.startsWith(`${root}/`) && destination !== root)) {
+    throw new Error('The evidence path must stay inside the repository.');
+  }
+  return destination;
+}
+
+function repositoryValue(args) {
+  return run('git', args).stdout.trim();
+}
+
+function writeEvidence(destination, evidence) {
+  if (!destination) return;
+  mkdirSync(resolve(destination, '..'), { recursive: true });
+  writeFileSync(destination, `${JSON.stringify(evidence, null, 2)}\n`);
 }
 
 function prepareTargetWorkdir(temporaryRoot) {
@@ -325,11 +356,13 @@ async function verifyRestoredServices({
 const temporaryRoot = mkdtempSync(join(tmpdir(), 'lolrogue-restore-drill-'));
 const backupDir = join(temporaryRoot, 'backup');
 const markerId = randomUUID();
-const snapshotAt = new Date().toISOString();
+const requestedEvidence = evidenceDestination();
+let snapshotAt;
 let sourceDatabaseUrl;
 let targetStarted = false;
 let markerCreated = false;
 let sourceFixture;
+let recoveryStartedAt;
 
 try {
   const source = statusEnvironment(root);
@@ -338,6 +371,7 @@ try {
   assertLoopbackDatabase(sourceDatabaseUrl, 'Source');
   const sourceEnvironment = requireApiEnvironment(source, 'Source Supabase API');
   sourceFixture = await createSourceFixtures(sourceEnvironment, markerId.slice(0, 8));
+  snapshotAt = new Date().toISOString();
 
   executeSql(
     sourceDatabaseUrl,
@@ -376,12 +410,16 @@ try {
   ]);
   const replicaMode = join(backupDir, 'replica-mode.sql');
   writeFileSync(replicaMode, 'SET session_replication_role = replica;\n');
-  writeChecksums([roles, schema, data, historySchema, historyData], join(backupDir, 'SHA256SUMS'));
+  const checksums = writeChecksums(
+    [roles, schema, data, historySchema, historyData],
+    join(backupDir, 'SHA256SUMS'),
+  );
 
   executeSql(sourceDatabaseUrl, 'DROP TABLE public.restore_drill_marker;');
   markerCreated = false;
   await removeSourceFixtures(sourceFixture);
 
+  recoveryStartedAt = new Date();
   prepareTargetWorkdir(temporaryRoot);
   run('npx', [
     'supabase',
@@ -419,9 +457,36 @@ try {
     targetEnvironment,
     fixture: sourceFixture,
   });
+  const verifiedAt = new Date();
+  const rpoMs = recoveryStartedAt.getTime() - Date.parse(snapshotAt);
+  const rtoMs = verifiedAt.getTime() - recoveryStartedAt.getTime();
+  if (rpoMs < 0 || rpoMs > rpoObjectiveMs) {
+    throw new Error(`Measured RPO ${isoDuration(rpoMs)} exceeds the 24h objective.`);
+  }
+  if (rtoMs < 0 || rtoMs > rtoObjectiveMs) {
+    throw new Error(`Measured RTO ${isoDuration(rtoMs)} exceeds the 4h objective.`);
+  }
+  const evidence = {
+    schemaVersion: 1,
+    drill: 'P2-OPS-01',
+    scope: 'local-isolated',
+    sourceEnvironment: 'local:lolrogue',
+    targetEnvironment: 'local:ephemeral-supabase',
+    operator: process.env.RESTORE_DRILL_OPERATOR || repositoryValue(['config', 'user.name']),
+    commit: repositoryValue(['rev-parse', 'HEAD']),
+    snapshotAt,
+    recoveryStartedAt: recoveryStartedAt.toISOString(),
+    verifiedAt: verifiedAt.toISOString(),
+    objectives: { rpo: '24h', rto: '4h' },
+    measured: { rpoMs, rpo: isoDuration(rpoMs), rtoMs, rto: isoDuration(rtoMs) },
+    backupChecksums: checksums,
+    checks: services,
+    result: 'passed',
+  };
+  writeEvidence(requestedEvidence, evidence);
 
   process.stdout.write(
-    `Isolated restore succeeded (${sourceProjectId} -> ${targetProjectId}, snapshot ${snapshotAt}, ${services.migrations} migrations, Auth/RLS/cron/function/storage healthy).\n`,
+    `Isolated restore succeeded (${sourceProjectId} -> ${targetProjectId}, snapshot ${snapshotAt}, RPO ${evidence.measured.rpo}, RTO ${evidence.measured.rto}, ${services.migrations} migrations, Auth/RLS/cron/function/storage healthy).\n`,
   );
 } finally {
   if (sourceFixture) {
