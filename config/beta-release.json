@@ -47,7 +47,8 @@
   "supabaseAdvisors": {
     "status": "pending",
     "checkedAt": null,
-    "evidenceUrl": null
+    "evidenceUrl": null,
+    "checks": ["node scripts/check-supabase-advisors.mjs --linked"]
   },
   "externalValidations": [
     {

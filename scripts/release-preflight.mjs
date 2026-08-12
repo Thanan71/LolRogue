@@ -101,6 +101,15 @@ function inspectRecordedEvidence(sheet) {
   }
 
   const advisors = sheet.supabaseAdvisors || {};
+  if (
+    !Array.isArray(advisors.checks) ||
+    !advisors.checks.includes('node scripts/check-supabase-advisors.mjs --linked')
+  ) {
+    block(
+      'advisors-contract',
+      'le contrôle lié sécurité + performance des advisors manque dans la fiche',
+    );
+  }
   if (advisors.status !== 'passed') block('advisors', 'les advisors Supabase ne sont pas validés');
   if (!HTTPS_PATTERN.test(advisors.evidenceUrl || '')) {
     block('advisors-proof', 'la preuve des advisors Supabase manque');
@@ -220,6 +229,12 @@ function inspectLiveEvidence(sheet) {
     ]);
   } catch (error) {
     block('migration-live', `drift des migrations live: ${error.message}`);
+  }
+
+  try {
+    run('node', ['scripts/check-supabase-advisors.mjs', '--linked']);
+  } catch (error) {
+    block('advisors-live', `politique advisors liée non conforme: ${error.message}`);
   }
 
   try {
