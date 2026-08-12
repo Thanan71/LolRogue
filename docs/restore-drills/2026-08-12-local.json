@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "drill": "P2-OPS-01",
+  "scope": "local-isolated",
+  "sourceEnvironment": "local:lolrogue",
+  "targetEnvironment": "local:ephemeral-supabase",
+  "operator": "Nathan PICOT",
+  "commit": "0dcb08b249e0f6e73c43bd01a60052a281daac95",
+  "snapshotAt": "2026-08-12T18:15:01.689Z",
+  "recoveryStartedAt": "2026-08-12T18:15:09.070Z",
+  "verifiedAt": "2026-08-12T18:15:41.607Z",
+  "objectives": {
+    "rpo": "24h",
+    "rto": "4h"
+  },
+  "measured": {
+    "rpoMs": 7381,
+    "rpo": "7.381s",
+    "rtoMs": 32537,
+    "rto": "32.537s"
+  },
+  "backupChecksums": {
+    "roles.sql": "25873cec56a2cc6514e204f420231777f85c03da818caa7090cdcdfa89776ecd",
+    "schema.sql": "da73505d89694185ee2ca637094e03039607482229bad686d4f8139896bf8e38",
+    "data.sql": "a2a0848500f73d122278fa6a3b1e68a7a5c8b83463d3b97e216ed73c4938753c",
+    "history-schema.sql": "18b99fbbb3ec9fbb964bb255a56171329acd99b6977ece2addd89fdf5aa5105b",
+    "history-data.sql": "5ac318539848005c7e3c823818c7fa9ae35b1bbf5a4b573e234dd23957109c41"
+  },
+  "checks": {
+    "auth": true,
+    "cron": true,
+    "function": true,
+    "migrations": 45,
+    "rls": true,
+    "storage": true,
+    "verifyRunIncident": {
+      "outageObserved": "network-error",
+      "pendingAttemptPreserved": true,
+      "recoveredStatus": 409,
+      "result": "passed"
+    },
+    "leaderboardIncident": {
+      "authoritativeWins": 7,
+      "compromisedWins": 999999,
+      "mismatchesDetected": 1,
+      "projectionRebuilt": true,
+      "result": "passed"
+    }
+  },
+  "result": "passed"
+}

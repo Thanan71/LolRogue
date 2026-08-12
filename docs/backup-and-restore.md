@@ -38,6 +38,33 @@ sont non vides et si `shasum -a 256 -c SHA256SUMS` réussit.
 
 ## Test de restauration isolé
 
+### Répétition automatisée locale
+
+Avant l'exercice hébergé, exécuter la procédure destructive sur une deuxième stack
+Supabase locale, créée sur des ports dédiés et supprimée à la fin :
+
+```bash
+npm run ops:restore-drill -- \
+  --evidence=docs/restore-drills/AAAA-MM-JJ-local.json
+```
+
+Le script refuse toute base non loopback et toute cible égale à la source. Il ajoute
+deux comptes synthétiques et un marqueur, produit rôles, schéma, données et historique
+des migrations avec leurs SHA-256, puis restaure ces fichiers sur la stack jetable.
+Il valide ensuite migrations, Auth, RLS, cron, `verify-run` et un cycle Storage réel.
+Deux incidents sont réellement simulés : arrêt/redémarrage du runtime Edge avec
+préservation d'une attempt, puis corruption/reconstruction de la projection privée
+du leaderboard depuis `public.players` autoritaire.
+
+La fiche JSON contient les instants UTC, environnements, opérateur, commit, RPO/RTO,
+contrôles et résultat, sans secret ni donnée joueur. La preuve locale du 12 août 2026
+est conservée dans
+[`restore-drills/2026-08-12-local.json`](restore-drills/2026-08-12-local.json).
+Elle ne remplace pas la restauration trimestrielle dans un projet Supabase hébergé
+dédié : le TODO reste ouvert tant que cette preuve distante n'existe pas.
+
+### Exercice hébergé requis
+
 1. Créer un projet Supabase temporaire dans la région de production, sans domaine
    Vercel, utilisateurs réels ni télémétrie sortante.
 2. Noter son project ref et confirmer deux fois qu'il ne s'agit pas de production.
@@ -52,6 +79,13 @@ sont non vides et si `shasum -a 256 -c SHA256SUMS` réussit.
    critiques à la source au moment du dump.
 6. Supprimer le projet temporaire et ses secrets après validation ; conserver
    uniquement la preuve sans données joueur.
+
+Depuis juillet 2026, contrôler aussi que les identifiants DB courants fonctionnent
+après une restauration physique : Supabase a corrigé la persistance possible
+d'identifiants obsolètes après restore. Pour un dump logique, restaurer séparément
+l'historique `supabase_migrations` comme décrit dans le guide officiel. Le contenu
+des objets Storage n'est pas inclus dans une sauvegarde DB ; le test local vérifie
+le service et sa configuration, pas la récupération d'objets inexistants dans le dump.
 
 Contrôles minimaux, exécutés séparément sur source et restauration :
 
@@ -120,4 +154,6 @@ Elle exige Incident Commander, Opérateur et seconde validation :
 Ne jamais supprimer un projet pour tenter une restauration : sa suppression retire
 également ses sauvegardes associées. Les sources de référence sont les guides
 [Database Backups](https://supabase.com/docs/guides/platform/backups) et
-[Backup/Restore CLI](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore).
+[Backup/Restore CLI](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore),
+ainsi que le correctif plateforme
+[restore credential resync](https://supabase.com/changelog/restore-credential-resync).

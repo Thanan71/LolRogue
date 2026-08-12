@@ -789,12 +789,15 @@ Mesures minimales :
 
 Le dépôt documente les procédures, mais la preuve distante reste requise.
 
-- [ ] Restaurer un backup sur un projet Supabase isolé.
-- [ ] Vérifier migrations, Auth, RLS, cron, functions, storage/config nécessaires.
-- [ ] Mesurer RPO/RTO réels.
-- [ ] Exécuter un incident simulé « verify-run indisponible ».
-- [ ] Exécuter un incident simulé « leaderboard compromis ».
-- [ ] Conserver date, environnement, opérateur et résultat.
+- [ ] Restaurer un backup sur un projet Supabase isolé distant. La répétition locale
+  jetable est réussie ; la cible hébergée dédiée reste à fournir.
+- [x] Vérifier migrations, Auth, RLS, cron, functions, storage/config nécessaires
+  sur la restauration locale isolée.
+- [x] Mesurer RPO/RTO réels sur la répétition locale : 7,381 s / 32,537 s.
+- [x] Exécuter un incident simulé « verify-run indisponible ».
+- [x] Exécuter un incident simulé « leaderboard compromis ».
+- [x] Conserver date, environnement, opérateur et résultat dans
+  `docs/restore-drills/2026-08-12-local.json`.
 
 ---
 
