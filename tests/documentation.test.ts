@@ -93,6 +93,28 @@ describe('documentation maintenue', () => {
     expect(backup).toContain('Test de restauration isolé');
     expect(backup).toContain('SHA256SUMS');
     expect(backup).toContain('run_attempt_commands');
+    expect(backup).toContain('npm run ops:restore-drill');
+
+    const restoreEvidence = JSON.parse(read('docs/restore-drills/2026-08-12-local.json'));
+    expect(restoreEvidence).toMatchObject({
+      schemaVersion: 1,
+      drill: 'P2-OPS-01',
+      scope: 'local-isolated',
+      objectives: { rpo: '24h', rto: '4h' },
+      checks: {
+        auth: true,
+        cron: true,
+        function: true,
+        rls: true,
+        storage: true,
+        verifyRunIncident: { pendingAttemptPreserved: true, result: 'passed' },
+        leaderboardIncident: { projectionRebuilt: true, result: 'passed' },
+      },
+      result: 'passed',
+    });
+    expect(restoreEvidence.measured.rpoMs).toBeLessThanOrEqual(24 * 60 * 60 * 1_000);
+    expect(restoreEvidence.measured.rtoMs).toBeLessThanOrEqual(4 * 60 * 60 * 1_000);
+    expect(restoreEvidence.operator).toBeTruthy();
 
     for (const contract of [
       'Development',
