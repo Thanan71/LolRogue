@@ -353,6 +353,102 @@ async function verifyRestoredServices({
   };
 }
 
+async function invokeVerifyRun(targetEnvironment, accessToken, attemptId) {
+  return fetch(`${targetEnvironment.apiUrl}/functions/v1/verify-run`, {
+    method: 'POST',
+    headers: {
+      apikey: targetEnvironment.anonKey,
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ attempt_id: attemptId }),
+    signal: AbortSignal.timeout(10_000),
+  });
+}
+
+async function simulateVerifyRunOutage(targetEnvironment, fixture) {
+  const owner = createClient(targetEnvironment.apiUrl, targetEnvironment.anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const signedIn = await owner.auth.signInWithPassword({
+    email: fixture.users[0].email,
+    password: fixture.users[0].password,
+  });
+  if (signedIn.error || !signedIn.data.session) {
+    throw signedIn.error ?? new Error('The incident fixture could not sign in.');
+  }
+  const started = await owner.rpc('start_run_attempt', {
+    p_command_id: randomUUID(),
+    p_team: ['Garen'],
+    p_rune_ids: [],
+    p_difficulty: 'normal',
+    p_mode: 'normal',
+  });
+  const attemptId = started.data?.attempt_id;
+  if (started.error || typeof attemptId !== 'string') {
+    throw started.error ?? new Error('The verify-run incident could not create a pending attempt.');
+  }
+
+  const edgeContainer = `supabase_edge_runtime_${targetProjectId}`;
+  let edgeStopped = false;
+  let outageObservation = 'network-error';
+  try {
+    run('docker', ['stop', edgeContainer]);
+    edgeStopped = true;
+    try {
+      const unavailable = await invokeVerifyRun(
+        targetEnvironment,
+        signedIn.data.session.access_token,
+        attemptId,
+      );
+      outageObservation = `http-${unavailable.status}`;
+      if (unavailable.status < 500) {
+        throw new Error(`verify-run remained available during the outage (${unavailable.status}).`);
+      }
+    } catch (error) {
+      if (error.message?.startsWith('verify-run remained')) throw error;
+    }
+
+    const preserved = await owner.rpc('get_run_attempt_status', { p_attempt_id: attemptId });
+    if (preserved.error || preserved.data?.status !== 'started') {
+      throw preserved.error ?? new Error('The pending attempt changed while verify-run was down.');
+    }
+  } finally {
+    if (edgeStopped) run('docker', ['start', edgeContainer]);
+  }
+
+  let recoveredStatus = null;
+  const recoveryDeadline = Date.now() + 20_000;
+  while (Date.now() < recoveryDeadline) {
+    try {
+      const recovered = await invokeVerifyRun(
+        targetEnvironment,
+        signedIn.data.session.access_token,
+        attemptId,
+      );
+      if (recovered.status < 500) {
+        recoveredStatus = recovered.status;
+        break;
+      }
+    } catch {
+      // The Edge runtime is still starting; retry until the bounded deadline.
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
+  }
+  if (recoveredStatus !== 409) {
+    throw new Error(
+      `verify-run did not recover its retryable pending contract (${recoveredStatus}).`,
+    );
+  }
+
+  return {
+    outageObserved: outageObservation,
+    pendingAttemptPreserved: true,
+    recoveredStatus,
+    result: 'passed',
+  };
+}
+
 const temporaryRoot = mkdtempSync(join(tmpdir(), 'lolrogue-restore-drill-'));
 const backupDir = join(temporaryRoot, 'backup');
 const markerId = randomUUID();
@@ -458,6 +554,7 @@ try {
     fixture: sourceFixture,
   });
   const verifiedAt = new Date();
+  const verifyRunIncident = await simulateVerifyRunOutage(targetEnvironment, sourceFixture);
   const rpoMs = recoveryStartedAt.getTime() - Date.parse(snapshotAt);
   const rtoMs = verifiedAt.getTime() - recoveryStartedAt.getTime();
   if (rpoMs < 0 || rpoMs > rpoObjectiveMs) {
@@ -480,7 +577,7 @@ try {
     objectives: { rpo: '24h', rto: '4h' },
     measured: { rpoMs, rpo: isoDuration(rpoMs), rtoMs, rto: isoDuration(rtoMs) },
     backupChecksums: checksums,
-    checks: services,
+    checks: { ...services, verifyRunIncident },
     result: 'passed',
   };
   writeEvidence(requestedEvidence, evidence);
