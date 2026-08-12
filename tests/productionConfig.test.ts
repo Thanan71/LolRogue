@@ -20,6 +20,14 @@ const starterCssSource = readFileSync(
   'utf8',
 );
 
+const parseCsp = (value: string) =>
+  Object.fromEntries(
+    value.split(';').map((directive) => {
+      const [name, ...sources] = directive.trim().split(/\s+/);
+      return [name, sources];
+    }),
+  );
+
 describe('production configuration', () => {
   it('keeps SPA rewrites outside API routes and restrictive security headers', () => {
     expect(vercelConfig.rewrites).toContainEqual({
@@ -39,6 +47,15 @@ describe('production configuration', () => {
       "img-src 'self' data: blob: https://ddragon.leagueoflegends.com",
     );
     expect(headers['Content-Security-Policy']).toContain("font-src 'self' data:");
+    const csp = parseCsp(headers['Content-Security-Policy']);
+    expect(csp['style-src']).toEqual(["'self'"]);
+    expect(csp['style-src-elem']).toEqual(["'self'"]);
+    expect(csp['style-src-attr']).toEqual(["'unsafe-inline'"]);
+    const reportOnlyCsp = parseCsp(headers['Content-Security-Policy-Report-Only']);
+    expect(reportOnlyCsp['style-src']).toEqual(["'self'"]);
+    expect(reportOnlyCsp['style-src-elem']).toEqual(["'self'"]);
+    expect(reportOnlyCsp['style-src-attr']).toEqual(["'none'"]);
+    expect(headers['Content-Security-Policy-Report-Only']).not.toContain("'unsafe-inline'");
     expect(headers['Content-Security-Policy']).not.toContain('fonts.googleapis.com');
     expect(headers['Content-Security-Policy']).not.toContain('fonts.gstatic.com');
     expect(headers['Content-Security-Policy']).not.toContain('raw.communitydragon.org');

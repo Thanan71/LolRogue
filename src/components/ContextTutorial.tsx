@@ -73,8 +73,8 @@ export function ContextTutorial({
     const dialog = dialogRef.current;
     if (!backdrop || !dialog) return;
 
-    const previousBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const bodyClassWasPresent = document.body.classList.contains('tutorial-open');
+    document.body.classList.add('tutorial-open');
     (closeRef.current ?? dialog).focus({ preventScroll: true });
 
     const getFocusableControls = () => [
@@ -124,7 +124,7 @@ export function ContextTutorial({
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
       document.removeEventListener('focusin', handleFocusIn, true);
-      document.body.style.overflow = previousBodyOverflow;
+      if (!bodyClassWasPresent) document.body.classList.remove('tutorial-open');
       const returnTarget = returnFocusRef.current ?? triggerRef.current;
       returnFocusRef.current = null;
       if (returnTarget?.isConnected) returnTarget.focus({ preventScroll: true });

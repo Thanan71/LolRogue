@@ -60,7 +60,9 @@ export const CombatantPortrait: React.FC<Props> = ({
             height={48}
             decoding="async"
             className="combatant-portrait__image"
-            onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+            onError={(e) => {
+              e.currentTarget.hidden = true;
+            }}
           />
         ) : (
           <div className="combatant-portrait__fallback">{name.substring(0, 2).toUpperCase()}</div>

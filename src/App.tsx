@@ -5,7 +5,7 @@ import { RouteLoadingFallback } from './components/AppErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
-import { getTextSizeMultiplier, useSettingsStore } from './stores/settingsStore';
+import { useSettingsStore } from './stores/settingsStore';
 import { installGlobalErrorCapture } from './utils/observability';
 
 assertValidRuleCatalogs();
@@ -163,9 +163,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.style.fontSize = `${16 * getTextSizeMultiplier(textSize)}px`;
+    document.documentElement.dataset.textSize = textSize;
     return () => {
-      document.documentElement.style.removeProperty('font-size');
+      delete document.documentElement.dataset.textSize;
     };
   }, [textSize]);
 

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "allowedBindings": [
+    {
+      "file": "src/components/CombatUI/AbilityBar.tsx",
+      "properties": ["--combat-ability-cooldown-size", "--combat-ability-label-size"]
+    },
+    {
+      "file": "src/components/CombatUI/CombatUI.tsx",
+      "properties": ["--combat-overlay-height", "--combat-overlay-width"]
+    },
+    {
+      "file": "src/components/CombatUI/CombatantPortrait.tsx",
+      "properties": ["--combat-meter-value"]
+    },
+    {
+      "file": "src/components/CombatUI/CombatantPortrait.tsx",
+      "properties": ["--combat-meter-value"]
+    },
+    {
+      "file": "src/components/CombatUI/SpellTooltip.tsx",
+      "properties": [
+        "--combat-tooltip-max-height",
+        "--combat-tooltip-small-size",
+        "--combat-tooltip-title-size",
+        "--combat-tooltip-x",
+        "--combat-tooltip-y"
+      ]
+    },
+    {
+      "file": "src/components/RunMapPanels.tsx",
+      "properties": ["--run-map-progress"]
+    },
+    {
+      "file": "src/components/RunMapPanels.tsx",
+      "properties": ["--run-map-progress"]
+    },
+    {
+      "file": "src/pages/EventPage.tsx",
+      "properties": ["--event-hp-width"]
+    },
+    {
+      "file": "src/pages/RestPage.tsx",
+      "properties": ["--rest-hp-percent"]
+    }
+  ]
+}

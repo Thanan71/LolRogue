@@ -82,6 +82,7 @@ describe('Riot asset delivery', () => {
     expect(image.style.display).not.toBe('none');
 
     applyLocalImageFallback(image, '/assets/riot/champion.png', true);
-    expect(image.style.display).toBe('none');
+    expect(image.hidden).toBe(true);
+    expect(image.style.display).toBe('');
   });
 });

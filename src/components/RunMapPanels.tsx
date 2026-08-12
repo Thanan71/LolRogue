@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { type CSSProperties, useMemo, useState } from 'react';
 import { championDB } from '@/data/championDatabase';
 import {
   type CanonicalStatKey,
@@ -94,7 +94,7 @@ export function TeamPanel({
                 height={40}
                 decoding="async"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
+                  e.currentTarget.hidden = true;
                 }}
               />
               <span className="run-map-team-member__level" aria-label={`Niveau ${level}`}>
@@ -115,7 +115,7 @@ export function TeamPanel({
               >
                 <div
                   className={`run-map-progress__fill ${healthClass}`}
-                  style={{ width: `${hpPercent}%` }}
+                  style={{ '--run-map-progress': `${hpPercent}%` } as CSSProperties}
                 />
               </div>
               {/* XP Bar */}
@@ -132,7 +132,7 @@ export function TeamPanel({
                   className={`run-map-progress__fill ${
                     level >= 18 ? 'run-map-progress__fill--max' : 'run-map-progress__fill--xp'
                   }`}
-                  style={{ width: `${xpProgress}%` }}
+                  style={{ '--run-map-progress': `${xpProgress}%` } as CSSProperties}
                 />
               </div>
               <div className="run-map-team-member__meta">

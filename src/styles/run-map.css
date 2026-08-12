@@ -150,6 +150,18 @@
   flex: 0 0 auto;
 }
 
+.run-map-node {
+  cursor: default;
+}
+
+.run-map-node--selectable {
+  cursor: pointer;
+}
+
+.run-map-node__label {
+  user-select: none;
+}
+
 .run-map-team-member {
   min-width: 0;
   display: flex;
@@ -225,6 +237,7 @@
 
 .run-map-progress__fill {
   height: 100%;
+  width: var(--run-map-progress, 0%);
   border-radius: inherit;
   transition: width var(--transition-normal);
 }

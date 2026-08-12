@@ -100,7 +100,7 @@ export function RunMapCanvas({
           return (
             <g
               key={node.id}
-              style={{ cursor: isSelectable ? 'pointer' : 'default' }}
+              className={`run-map-node${isSelectable ? ' run-map-node--selectable' : ''}`}
               onClick={() => isSelectable && handleNodeClick(node.id)}
               onKeyDown={(event) => {
                 if (isSelectable && (event.key === 'Enter' || event.key === ' ')) {
@@ -170,7 +170,7 @@ export function RunMapCanvas({
                 dominantBaseline="central"
                 fontSize={isDone ? 12 : 18}
                 opacity={isDone ? 0.4 : 1}
-                style={{ userSelect: 'none' }}
+                className="run-map-node__label"
               >
                 {isDone ? '✓' : (NODE_LABELS[node.type] ?? '?')}
               </text>
@@ -193,7 +193,7 @@ export function RunMapCanvas({
                 fill={isAccessible ? '#e6edf3' : '#484f58'}
                 fontSize={10}
                 fontFamily="sans-serif"
-                style={{ userSelect: 'none' }}
+                className="run-map-node__label"
               >
                 {NODE_NAMES[node.type] ?? node.type}
               </text>

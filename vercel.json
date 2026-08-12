@@ -23,7 +23,11 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ddragon.leagueoflegends.com; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://ddragon.leagueoflegends.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https://ddragon.leagueoflegends.com; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://ddragon.leagueoflegends.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
+        },
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "style-src 'self'; style-src-elem 'self'; style-src-attr 'none'"
         },
         {
           "key": "Cross-Origin-Opener-Policy",

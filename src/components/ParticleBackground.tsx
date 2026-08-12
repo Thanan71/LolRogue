@@ -164,16 +164,7 @@ export function ParticleBackground({ particleCount = 80, className }: ParticleBa
     <canvas
       aria-hidden="true"
       ref={canvasRef}
-      className={className}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        zIndex: 0,
-      }}
+      className={`particle-background${className ? ` ${className}` : ''}`}
     />
   );
 }

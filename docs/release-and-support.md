@@ -54,6 +54,9 @@ l'opérateur rollback et l'heure UTC.
 - [ ] Migrations nouvelles uniquement, types DB à jour et fonction autoritaire
       bundlée ; sauvegarde récente et exercice de restauration trimestriel valides.
 - [ ] Variables Preview pointent vers Preview ; smoke test Preview réussi.
+- [ ] Sur la preview, parcourir combat, carte, Event et Rest puis consigner les
+      violations `Content-Security-Policy-Report-Only` liées aux neuf custom properties ;
+      aucune violation de la CSP appliquée ni style visuellement cassé n'est accepté.
 - [ ] Rollback compatible identifié. Si le schéma n'est pas rétrocompatible, le
       plan de correction avant migration est écrit et les nouveaux départs peuvent
       être suspendus.

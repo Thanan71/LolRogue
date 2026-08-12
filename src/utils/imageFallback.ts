@@ -9,5 +9,5 @@ export function applyLocalImageFallback(
     return;
   }
 
-  if (hideAfterFailure) image.style.display = 'none';
+  if (hideAfterFailure) image.hidden = true;
 }
