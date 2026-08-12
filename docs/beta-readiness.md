@@ -18,7 +18,7 @@ jamais une preuve de release.
 | Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `db:migrations:check:linked`. |
 | Tests DB et sécurité views/grants | **Bloqué** | Job `database` réussi sur chacune des trois CI ; il exécute `db:validate` et `db:security`. |
 | E2E | **Bloqué** | Job `e2e` réussi sur chacune des trois CI du candidat. |
-| Advisors Supabase | **Bloqué** | Résultat `passed`, URL de preuve et date postérieure au dernier correctif P0. |
+| Advisors Supabase | **Bloqué** | Politique liée sécurité + performance conforme, résultat `passed`, URL de preuve et date postérieure au dernier correctif P0. |
 | Validations externes | **Bloqué** | Preuves datées pour accessibilité humaine, droit/RGPD, canal de support et autorisation Riot. |
 
 Ce tableau décrit la fiche versionnée actuelle ; il n'est pas une validation
@@ -49,8 +49,9 @@ Le job `database` couvre la base réellement migrée, les tests de repositories,
 les politiques RLS et la sécurité des vues et grants. Le job `e2e` couvre les
 parcours victoire, défaite et Daily autoritaire sans mutation directe du store.
 Le job `clean-room` reconstruit le dépôt sans artefact local. Le preflight ajoute
-la comparaison des migrations liées et le contrôle des assets servis par l'URL
-preview exacte.
+la comparaison des migrations liées, l'exécution de la politique versionnée des
+advisors sécurité + performance et le contrôle des assets servis par l'URL preview
+exacte.
 
 ## Validations humaines et externes
 

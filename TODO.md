@@ -689,11 +689,11 @@ cherche pas les dépendances d'ordre au-delà de cette permutation.
 
 **Taille : M**
 
-- [ ] Définir les niveaux bloquants : toute `ERROR` sécurité = échec.
-- [ ] Définir une allowlist précise des warnings intentionnels avec ID + justification.
-- [ ] Faire expirer les exceptions à une date donnée.
-- [ ] Rejeter une nouvelle alerte non connue.
-- [ ] Inclure advisors sécurité + performance dans le preflight de release.
+- [x] Définir les niveaux bloquants : toute `ERROR` sécurité = échec.
+- [x] Définir une allowlist précise des warnings intentionnels avec ID + justification.
+- [x] Faire expirer les exceptions à une date donnée.
+- [x] Rejeter une nouvelle alerte non connue.
+- [x] Inclure advisors sécurité + performance dans le preflight de release.
 
 ---
 
@@ -916,7 +916,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 12. [x] `P2-DB-01` index mesurés.
 13. [x] `P2-PERF-01` headroom bundle, sans modifier l'interface.
 14. [x] `P2-TEST-01` couverture des frontières critiques.
-15. [ ] `P2-TEST-04` advisors versionnés.
+15. [x] `P2-TEST-04` advisors versionnés.
 16. [ ] `P2-WEB-01` CSP.
 17. [ ] `P2-OPS-01` runbook de restauration réelle.
 

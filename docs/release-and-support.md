@@ -48,6 +48,9 @@ l'opérateur rollback et l'heure UTC.
       versions ordonnées, la dernière version et l'heure du relevé dans la fiche.
 - [ ] Le contrôle de drift reste strictement en lecture seule : il exécute seulement
       `supabase migration list --linked`, jamais `push`, `up`, `repair` ou `fetch`.
+- [ ] `node scripts/check-supabase-advisors.mjs --linked` valide les advisors sécurité
+      et performance contre l'allowlist exacte, sans alerte inconnue ni exception
+      expirée ; consigner l'URL et la date de preuve dans la fiche.
 - [ ] Migrations nouvelles uniquement, types DB à jour et fonction autoritaire
       bundlée ; sauvegarde récente et exercice de restauration trimestriel valides.
 - [ ] Variables Preview pointent vers Preview ; smoke test Preview réussi.
