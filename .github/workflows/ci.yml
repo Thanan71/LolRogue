@@ -35,14 +35,17 @@ jobs:
       - name: Enforce versioned performance budgets
         run: npm run test:performance-budgets
 
-      - name: Upload bundle chunk report
+      - name: Enforce controlled mobile Web Vitals
+        run: npm run test:performance-preview
+
+      - name: Upload performance reports and samples
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bundle-chunk-report
+          name: performance-reports
           path: performance-report/
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
       - name: Upload detailed coverage report
         if: always()
