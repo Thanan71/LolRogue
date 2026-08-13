@@ -359,7 +359,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 
 ### Actions
 
-- [ ] Considérer un sort prêt lorsque `cooldown <= 0` et clamper chaque tick avec
+- [x] Considérer un sort prêt lorsque `cooldown <= 0` et clamper chaque tick avec
   `Math.max(0, cooldown - 1)`.
 - [ ] Remplacer les cooldowns en secondes par des `cooldownTurns` entiers ; point
   de départ à mesurer : Q/W/E entre 2 et 5 tours, R entre 6 et 10 tours.

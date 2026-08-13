@@ -209,6 +209,24 @@ describe('Cooldown System', () => {
       expect(champ.isSpellReady('Q')).toBe(true);
     });
 
+    it('clamps a fractional cooldown to zero instead of stranding the spell below zero', () => {
+      const fractional = new ChampionInstance(
+        makeTestChampion({
+          spells: makeTestChampion().spells.map((spell, index) =>
+            index === 0 ? { ...spell, cooldown: [0.5] } : spell,
+          ),
+        }),
+      );
+
+      expect(fractional.useSpell('Q')).toBe(true);
+      expect(fractional.getCooldown('Q')).toBe(0.5);
+      fractional.tickCooldowns();
+
+      expect(fractional.getCooldown('Q')).toBe(0);
+      expect(fractional.isSpellReady('Q')).toBe(true);
+      expect(fractional.useSpell('Q')).toBe(true);
+    });
+
     it('should not affect unused spells', () => {
       champ.tickCooldowns();
       for (const slot of SPELL_SLOTS) {

@@ -219,11 +219,11 @@ export class ChampionInstance {
   // ── Cooldowns ────────────────────────────────────────────────────────────
 
   /**
-   * Whether a spell slot is ready to use (cooldown is 0).
+   * Whether a spell slot is ready to use (cooldown is exhausted).
    * @param slot — spell slot to check.
    */
   isSpellReady(slot: SpellSlot): boolean {
-    return this._cooldowns[slot] === 0;
+    return this._cooldowns[slot] <= 0;
   }
 
   /**
@@ -273,9 +273,7 @@ export class ChampionInstance {
    */
   tickCooldowns(): void {
     for (const slot of SPELL_SLOTS) {
-      if (this._cooldowns[slot] > 0) {
-        this._cooldowns[slot] -= 1;
-      }
+      this._cooldowns[slot] = Math.max(0, this._cooldowns[slot] - 1);
     }
   }
 
