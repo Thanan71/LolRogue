@@ -1,6 +1,6 @@
 # TODO — audit complet et backlog courant de LolRogue
 
-Dernier réaudit : **8 août 2026, 18:37 CEST**.
+Dernier réaudit : **13 août 2026** (passe UI de la carte et du combat).
 
 Ce fichier remplace l'ancien TODO historique. Son snapshot exact est conservé dans
 [`docs/archive/todo-snapshot-2026-08-08-1837.md`](docs/archive/todo-snapshot-2026-08-08-1837.md).
@@ -8,6 +8,17 @@ Ce fichier remplace l'ancien TODO historique. Son snapshot exact est conservé d
 Le but de ce document est simple : **ne contenir que des actions encore utiles**.
 Les travaux déjà livrés restent documentés dans l'historique Git, `docs/feature-status.md`
 et les archives ; ils ne sont pas recopiés ici sous forme de centaines de cases cochées.
+
+### État produit livré lors de la passe UI du 13 août
+
+La carte expose désormais des panneaux compacts et responsives pour l'équipe,
+l'inventaire et les améliorations de sorts. Les statistiques et aperçus de dégâts
+réutilisent les calculs de combat réels (équipement, améliorations, maîtrise et boosts),
+les icônes de compétences sont les assets Data Dragon livrés localement, et le ciblage
+du combat distingue explicitement le camp et l'identifiant stable du combattant.
+Preuves : `runInventoryPanel.test.tsx`, `runTeamStatsPanel.test.tsx`,
+`spellUpgradePanel.test.tsx`, `spellTooltip.test.tsx`, `combatPresentation.test.tsx`
+et `run-loadout-panels.spec.ts`.
 
 ---
 

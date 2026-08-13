@@ -1,7 +1,10 @@
+import type { ActionType } from '@/game/battle/types';
 import { getCombatVisualProfile, slotForAction } from '@/game/presentation/combatVisuals';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { fr } from '@/i18n/fr';
 import type { CombatantInfo, CombatVisualEvent } from '@/stores/battleStore';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { TargetingType } from '@/types/champion';
 
 interface CombatStageProps {
   round: number;
@@ -10,6 +13,7 @@ interface CombatStageProps {
   playerTeam: CombatantInfo[];
   enemyTeam: CombatantInfo[];
   selectedTarget?: CombatantInfo;
+  pendingActionType?: ActionType;
   visualEvent: CombatVisualEvent | null;
   status: string;
 }
@@ -50,10 +54,13 @@ function CombatantCard({
   return (
     <article
       className={`combat-stage__fighter combat-stage__fighter--${role} combat-stage__fighter--${combatant.side}`}
-      aria-label={`${role === 'source' ? 'Attaquant' : 'Cible'} : ${combatant.name}`}
+      aria-label={`${role === 'source' ? fr.combat.attacker : fr.combat.target} : ${combatant.name}`}
     >
       <span className="combat-stage__fighter-role">
-        {role === 'source' ? 'Attaquant' : 'Cible'}
+        {role === 'source' ? fr.combat.attacker : fr.combat.target}
+      </span>
+      <span className="combat-stage__fighter-side">
+        {combatant.side === 'player' ? fr.combat.playerTeam : fr.combat.enemyTeam}
       </span>
       <div className="combat-stage__portrait-wrap">
         <span className="combat-stage__portrait-ring" aria-hidden="true" />
@@ -93,6 +100,7 @@ export function CombatStage({
   playerTeam,
   enemyTeam,
   selectedTarget,
+  pendingActionType,
   visualEvent,
   status,
 }: CombatStageProps) {
@@ -111,7 +119,19 @@ export function CombatStage({
       );
   const resolvedSource =
     source ?? sourceTeam.find((combatant) => combatant.id === currentTurnChampionId);
-  const targetSide = visualEvent?.targetSide ?? (sourceSide === 'player' ? 'enemy' : 'player');
+  const presentedAction = visualEvent?.action ?? pendingActionType;
+  const profile = getCombatVisualProfile(resolvedSource?.id, presentedAction);
+  const spellSlot = slotForAction(presentedAction);
+  const activeSpell = spellSlot
+    ? resolvedSource?.spells.find((spell) => spell.slot === spellSlot)
+    : undefined;
+  const targetsOwnTeam =
+    activeSpell?.targeting === TargetingType.Self ||
+    activeSpell?.targeting === TargetingType.Ally ||
+    activeSpell?.targeting === TargetingType.Allies;
+  const targetSide =
+    visualEvent?.targetSide ??
+    (targetsOwnTeam ? sourceSide : sourceSide === 'player' ? 'enemy' : 'player');
   const targetTeam = allTeams[targetSide];
   const eventTarget = visualEvent
     ? findCombatant(
@@ -120,16 +140,21 @@ export function CombatStage({
         visualEvent.targetCombatantIds?.[0] ?? visualEvent.targetCombatantId,
       )
     : undefined;
+  const selectedTargetOnExpectedSide =
+    selectedTarget?.side === targetSide ? selectedTarget : undefined;
   const target =
     eventTarget ??
-    selectedTarget ??
+    (activeSpell?.targeting === TargetingType.Self ? resolvedSource : undefined) ??
+    selectedTargetOnExpectedSide ??
     targetTeam.find((combatant) => !combatant.isDefeated) ??
     targetTeam[0];
-  const profile = getCombatVisualProfile(resolvedSource?.id, visualEvent?.action);
-  const spellSlot = slotForAction(visualEvent?.action);
-  const activeSpell = spellSlot
-    ? resolvedSource?.spells.find((spell) => spell.slot === spellSlot)
-    : undefined;
+  const isFriendlyEffect = targetSide === sourceSide;
+  const isSelfEffect = Boolean(
+    resolvedSource &&
+      target &&
+      resolvedSource.side === target.side &&
+      resolvedSource.targetId === target.targetId,
+  );
   const spellName = activeSpell?.name;
   const spellIconUrl = activeSpell?.iconUrl;
   const actionName = spellName ?? profile.title;
@@ -147,7 +172,7 @@ export function CombatStage({
 
   return (
     <div
-      className={`combat-arena combat-stage combat-stage--${profile.shape} combat-stage--${profile.tone} combat-stage--from-${sourceSide} combat-stage--speed-${battleSpeed}${visualEvent ? ` combat-stage--animating combat-stage--effect-${visualEvent.kind}` : ''}${reducedMotion ? ' combat-stage--reduced-motion' : ''}${particlesEnabled ? '' : ' combat-stage--no-particles'}`}
+      className={`combat-arena combat-stage combat-stage--${profile.shape} combat-stage--${profile.tone} combat-stage--from-${sourceSide} combat-stage--speed-${battleSpeed}${isFriendlyEffect ? ' combat-stage--friendly' : ''}${isSelfEffect ? ' combat-stage--self' : ''}${visualEvent ? ` combat-stage--animating combat-stage--effect-${visualEvent.kind}` : ''}${reducedMotion ? ' combat-stage--reduced-motion' : ''}${particlesEnabled ? '' : ' combat-stage--no-particles'}`}
       data-combat-effect={visualEvent?.id}
       data-combat-source={resolvedSource?.targetId}
       data-combat-target={target?.targetId}
@@ -169,7 +194,9 @@ export function CombatStage({
       <div className="combat-stage__duel">
         <CombatantCard combatant={resolvedSource} role="source" />
         <div className="combat-stage__effect-lane" aria-hidden="true">
-          <span className="combat-stage__versus">VS</span>
+          <span className="combat-stage__versus">
+            {isSelfEffect ? 'SUR SOI' : isFriendlyEffect ? 'SOUTIEN' : 'VS'}
+          </span>
           {visualEvent && (
             <div className="combat-stage__effect" key={visualEvent.id}>
               <span className="combat-stage__effect-core">
@@ -193,7 +220,18 @@ export function CombatStage({
             </div>
           )}
         </div>
-        <CombatantCard combatant={target} role="target" />
+        {isSelfEffect && target ? (
+          <div
+            className="combat-stage__self-target"
+            aria-label={`Effet personnel : ${target.name}`}
+          >
+            <span aria-hidden="true">◎</span>
+            <strong>Soi-même</strong>
+            <small>Aucun adversaire ciblé</small>
+          </div>
+        ) : (
+          <CombatantCard combatant={target} role="target" />
+        )}
       </div>
 
       <div className="combat-stage__action" aria-hidden={!visualEvent}>
@@ -208,7 +246,7 @@ export function CombatStage({
           <span>{visualEvent ? actionName : 'Arène tactique'}</span>
           <strong>
             {visualEvent && resolvedSource
-              ? `${resolvedSource.name} → ${targetCount > 1 ? `${targetCount} cibles` : (target?.name ?? 'cible')}`
+              ? `${resolvedSource.name} → ${isSelfEffect ? 'soi-même' : targetCount > 1 ? `${targetCount} cibles` : (target?.name ?? 'cible')}`
               : currentTurnSide === 'player'
                 ? 'Préparez votre prochaine action'
                 : 'Observez le tour adverse'}

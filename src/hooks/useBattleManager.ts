@@ -4,9 +4,10 @@ import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import { BattleManager } from '@/game/battle/BattleManager';
 import { isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { isActionTargeting } from '@/game/battle/targetResolver';
-import type { BattleAction, BattleEvent, BattleTeam } from '@/game/battle/types';
+import type { BattleAction, BattleEvent, BattleTeam, TeamSide } from '@/game/battle/types';
 import { ActionType as BattleActionType, BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
+import { buildSpellImpactPreview } from '@/game/presentation/spellPreview';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleLoadout } from '@/game/rules/types';
 import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/battleStore';
@@ -45,6 +46,7 @@ function toCombatantInfo(
         isReady: champ.isSpellReady(slot) && currentMp >= cost,
         targeting: spell.targeting,
         iconUrl: riotSpellIconUrl(champ.id, spell.image),
+        impacts: buildSpellImpactPreview(spell, rank, champ.getEnhancedStats()),
       });
     }
   }
@@ -108,6 +110,24 @@ function getActionLabel(action: string): string {
   return action;
 }
 
+function actionForEffectEvent(
+  event: { source: string; sourceCombatantId?: string; sourceSide: TeamSide },
+  fallback: BattleActionType,
+): BattleActionType {
+  const current = useBattleStore.getState().visualEvent;
+  if (!current || current.sourceSide !== event.sourceSide || current.sourceId !== event.source) {
+    return fallback;
+  }
+  if (
+    current.sourceCombatantId &&
+    event.sourceCombatantId &&
+    current.sourceCombatantId !== event.sourceCombatantId
+  ) {
+    return fallback;
+  }
+  return current.action;
+}
+
 function handleEvent(bm: BattleManager, event: BattleEvent): void {
   const store = useBattleStore.getState();
 
@@ -142,10 +162,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       syncTeams(bm);
       store.showVisualEvent({
         kind: 'damage',
-        action:
-          store.visualEvent?.sourceId === event.source
-            ? store.visualEvent.action
-            : BattleActionType.BasicAttack,
+        action: actionForEffectEvent(event, BattleActionType.BasicAttack),
         sourceId: event.source,
         sourceCombatantId: event.sourceCombatantId,
         sourceSide: event.sourceSide,
@@ -167,10 +184,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       syncTeams(bm);
       store.showVisualEvent({
         kind: 'heal',
-        action:
-          store.visualEvent?.sourceId === event.source
-            ? store.visualEvent.action
-            : BattleActionType.SpellW,
+        action: actionForEffectEvent(event, BattleActionType.SpellW),
         sourceId: event.source,
         sourceCombatantId: event.sourceCombatantId,
         sourceSide: event.sourceSide,
@@ -190,10 +204,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       syncTeams(bm);
       store.showVisualEvent({
         kind: 'shield',
-        action:
-          store.visualEvent?.sourceId === event.source
-            ? store.visualEvent.action
-            : BattleActionType.SpellW,
+        action: actionForEffectEvent(event, BattleActionType.SpellW),
         sourceId: event.source,
         sourceCombatantId: event.sourceCombatantId,
         sourceSide: event.sourceSide,
@@ -213,10 +224,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       syncTeams(bm);
       store.showVisualEvent({
         kind: 'revive',
-        action:
-          store.visualEvent?.sourceId === event.source
-            ? store.visualEvent.action
-            : BattleActionType.SpellR,
+        action: actionForEffectEvent(event, BattleActionType.SpellR),
         sourceId: event.source,
         sourceSide: event.sourceSide,
         targetId: event.target,

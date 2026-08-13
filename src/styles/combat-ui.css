@@ -290,6 +290,72 @@
   text-transform: uppercase;
 }
 
+.combat-stage__fighter-side {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.5rem;
+  margin-top: 0.2rem;
+  padding-inline: 0.45rem;
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-background-deep) 76%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.combat-stage__fighter--player .combat-stage__fighter-side {
+  color: var(--color-success);
+}
+
+.combat-stage__fighter--enemy .combat-stage__fighter-side {
+  color: var(--color-danger-text);
+}
+
+.combat-stage__self-target {
+  grid-column: 3;
+  min-width: 0;
+  min-height: 11rem;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-success) 6%, var(--color-surface));
+  border: 1px dashed color-mix(in srgb, var(--color-success) 45%, var(--color-border));
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.combat-stage--from-enemy .combat-stage__self-target {
+  grid-column: 1;
+}
+
+.combat-stage__self-target > span {
+  color: var(--color-success);
+  font-size: 2rem;
+}
+
+.combat-stage__self-target strong {
+  color: var(--color-text-primary);
+  font-size: 0.82rem;
+}
+
+.combat-stage__self-target small {
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+}
+
+.combat-stage--friendly .combat-stage__versus {
+  color: var(--color-success);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+}
+
 .combat-stage__fighter--source .combat-stage__fighter-role {
   color: var(--combat-fx-bright);
   border-color: color-mix(in srgb, var(--combat-fx) 45%, transparent);
@@ -1893,6 +1959,55 @@
   flex-wrap: wrap;
   gap: var(--space-3);
   margin-bottom: var(--space-1);
+}
+
+.combat-spell-tooltip__impacts {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.combat-spell-tooltip__impact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--combat-tooltip-small-size, 0.75rem);
+}
+
+.combat-spell-tooltip__impact strong {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.combat-spell-tooltip__impact--physical strong {
+  color: #efb36d;
+}
+
+.combat-spell-tooltip__impact--magical strong {
+  color: #bd9cff;
+}
+
+.combat-spell-tooltip__impact--true strong {
+  color: var(--color-text-primary);
+}
+
+.combat-spell-tooltip__impact--heal strong,
+.combat-spell-tooltip__impact--shield strong {
+  color: var(--color-success);
+}
+
+.combat-spell-tooltip__impact--control strong,
+.combat-spell-tooltip__impact--utility strong {
+  color: var(--color-primary-strong);
+}
+
+.combat-spell-tooltip__impacts small {
+  color: var(--color-text-muted);
+  font-size: 0.625rem;
+  line-height: 1.35;
 }
 
 .combat-spell-tooltip__stat,

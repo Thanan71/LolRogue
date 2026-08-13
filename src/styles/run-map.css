@@ -83,12 +83,33 @@
 }
 
 .run-map-sidebar {
-  width: clamp(15rem, 20vw, 18rem);
+  width: clamp(18rem, 25vw, 22rem);
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
   gap: var(--space-3);
   order: 2;
+}
+
+.run-map-spell-upgrade {
+  min-width: 0;
+}
+
+.run-map-focus-target {
+  min-width: 0;
+  min-height: 20rem;
+  display: grid;
+  flex: 1;
+  border-radius: var(--radius-lg);
+}
+
+.run-map-focus-target > .run-map-map {
+  height: 100%;
+}
+
+.run-map-focus-target:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 4px;
 }
 
 .run-map-page-header {

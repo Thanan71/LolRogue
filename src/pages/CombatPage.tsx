@@ -15,7 +15,7 @@ import {
   shouldAutoAdvanceCombatTurn,
   supportsManualAuthorityCombat,
 } from '@/game/battle/autoplay';
-import type { BattleEvent } from '@/game/battle/types';
+import type { BattleActionOption, BattleEvent, TeamSide } from '@/game/battle/types';
 import { ActionType } from '@/game/battle/types';
 import { NodeType } from '@/game/map/types';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
@@ -33,6 +33,7 @@ import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
 import { getDifficultyMultiplier, useSettingsStore } from '@/stores/settingsStore';
+import { TargetingType } from '@/types/champion';
 import type { FinalCombatantState } from '@/types/run';
 import { logger } from '@/utils/logger';
 import { createScopedRunRng } from '@/utils/runRandom';
@@ -52,6 +53,42 @@ const SLOT_TO_ACTION: Record<string, ActionType> = {
   E: ActionType.SpellE,
   R: ActionType.SpellR,
 };
+
+interface CombatTargetSelection {
+  targetId: string;
+  side: TeamSide;
+}
+
+function expectedTargetSide(
+  option: BattleActionOption,
+  actorSide: TeamSide | null,
+): TeamSide | null {
+  if (!actorSide) return null;
+  if (
+    option.targeting === TargetingType.Self ||
+    option.targeting === TargetingType.Ally ||
+    option.targeting === TargetingType.Allies
+  ) {
+    return actorSide;
+  }
+  return actorSide === 'player' ? 'enemy' : 'player';
+}
+
+function optionAcceptsTarget(
+  option: BattleActionOption,
+  selection: CombatTargetSelection | undefined,
+  actorSide: TeamSide | null,
+): boolean {
+  return Boolean(
+    selection &&
+      expectedTargetSide(option, actorSide) === selection.side &&
+      option.validTargetIds.includes(selection.targetId),
+  );
+}
+
+function combatTargetKey(side: TeamSide, targetId: string): string {
+  return `${side}:${targetId}`;
+}
 
 export function CombatPage() {
   useRunImagePreload();
@@ -92,7 +129,7 @@ export function CombatPage() {
 
   const [autoPlay, setAutoPlay] = useState(DEFAULT_COMBAT_AUTOPLAY);
   const [autoActionRemainingMs, setAutoActionRemainingMs] = useState<number | null>(null);
-  const [selectedTargetId, setSelectedTargetId] = useState<string>();
+  const [targetSelection, setTargetSelection] = useState<CombatTargetSelection>();
   const [pendingActionType, setPendingActionType] = useState<ActionType>();
   const hasNavigatedAfterLossRef = useRef(false);
 
@@ -106,7 +143,7 @@ export function CombatPage() {
   }, [battlePhase]);
 
   useEffect(() => {
-    setSelectedTargetId(undefined);
+    setTargetSelection(undefined);
     setPendingActionType(undefined);
   }, [currentTurnChampionId, currentTurnSide]);
 
@@ -330,22 +367,22 @@ export function CombatPage() {
       const option = getAvailableActions().find((candidate) => candidate.type === actionType);
       if (!option) return;
 
-      if (option.requiresTarget && !option.validTargetIds.includes(selectedTargetId ?? '')) {
-        setSelectedTargetId(undefined);
+      if (option.requiresTarget && !optionAcceptsTarget(option, targetSelection, currentTurnSide)) {
+        setTargetSelection(undefined);
         setPendingActionType(actionType);
         return;
       }
 
       const accepted = submitAction({
         type: actionType,
-        targetId: option.requiresTarget ? selectedTargetId : undefined,
+        targetId: option.requiresTarget ? targetSelection?.targetId : undefined,
       });
       if (accepted) {
-        setSelectedTargetId(undefined);
+        setTargetSelection(undefined);
         setPendingActionType(undefined);
       }
     },
-    [getAvailableActions, requiresServerAutoPlay, selectedTargetId, submitAction],
+    [currentTurnSide, getAvailableActions, requiresServerAutoPlay, submitAction, targetSelection],
   );
 
   const handleCast = useCallback(
@@ -358,24 +395,30 @@ export function CombatPage() {
   );
 
   const handleTargetSelect = useCallback(
-    (targetId: string) => {
+    (targetId: string, side: TeamSide) => {
       const options = getAvailableActions();
+      const selection = { targetId, side } satisfies CombatTargetSelection;
       if (pendingActionType) {
         const pending = options.find((candidate) => candidate.type === pendingActionType);
-        if (!pending?.validTargetIds.includes(targetId)) return;
+        if (!pending || !optionAcceptsTarget(pending, selection, currentTurnSide)) return;
         const accepted = submitAction({ type: pendingActionType, targetId });
         if (accepted) {
-          setSelectedTargetId(undefined);
+          setTargetSelection(undefined);
           setPendingActionType(undefined);
         }
         return;
       }
 
-      if (options.some((option) => option.validTargetIds.includes(targetId))) {
-        setSelectedTargetId(targetId);
+      if (
+        options.some(
+          (option) =>
+            option.requiresTarget && optionAcceptsTarget(option, selection, currentTurnSide),
+        )
+      ) {
+        setTargetSelection(selection);
       }
     },
-    [getAvailableActions, pendingActionType, submitAction],
+    [currentTurnSide, getAvailableActions, pendingActionType, submitAction],
   );
 
   const autoActionDelayMs = getAutoTurnDelayMs(battleSpeed);
@@ -463,13 +506,18 @@ export function CombatPage() {
   const pendingOption = visibleActionOptions.find(
     (candidate) => candidate.type === pendingActionType,
   );
-  const selectableTargetIds = new Set(
-    pendingOption
-      ? pendingOption.validTargetIds
-      : visibleActionOptions.flatMap((option) => option.validTargetIds),
+  const selectableTargetKeys = new Set(
+    (pendingOption
+      ? [pendingOption]
+      : visibleActionOptions.filter((option) => option.requiresTarget)
+    ).flatMap((option) => {
+      const side = expectedTargetSide(option, currentTurnSide);
+      return side ? option.validTargetIds.map((targetId) => combatTargetKey(side, targetId)) : [];
+    }),
   );
   const selectedTarget = [...playerTeam, ...enemyTeam].find(
-    (combatant) => combatant.targetId === selectedTargetId,
+    (combatant) =>
+      combatant.side === targetSelection?.side && combatant.targetId === targetSelection.targetId,
   );
   const showPlayerControls =
     !requiresServerAutoPlay &&
@@ -556,10 +604,12 @@ export function CombatPage() {
     Boolean(
       visualEvent &&
         combatant.side === visualEvent.targetSide &&
-        ((visualEvent.targetCombatantIds ?? []).includes(combatant.targetId) ||
-          (visualEvent.targetIds ?? []).includes(combatant.id) ||
-          combatant.targetId === visualEvent.targetCombatantId ||
-          (!visualEvent.targetCombatantId && combatant.id === visualEvent.targetId)),
+        ((visualEvent.targetCombatantIds?.length ?? 0) > 0
+          ? visualEvent.targetCombatantIds!.includes(combatant.targetId)
+          : visualEvent.targetCombatantId
+            ? combatant.targetId === visualEvent.targetCombatantId
+            : (visualEvent.targetIds ?? []).includes(combatant.id) ||
+              combatant.id === visualEvent.targetId),
     );
 
   return (
@@ -649,14 +699,16 @@ export function CombatPage() {
             <CombatantPortrait
               key={`player-${c.targetId}`}
               combatant={c}
-              isActive={c.targetId === currentTurnChampionId}
+              isActive={c.side === currentTurnSide && c.targetId === currentTurnChampionId}
               enhancementBonuses={playerEnhancementBonuses[c.id] || []}
-              isSelected={selectedTargetId === c.targetId}
+              isSelected={
+                targetSelection?.side === c.side && targetSelection.targetId === c.targetId
+              }
               isAttacking={isVisualSource(c)}
               isActualTarget={isVisualTarget(c)}
               onSelect={
-                !c.isDefeated && selectableTargetIds.has(c.targetId)
-                  ? () => handleTargetSelect(c.targetId)
+                !c.isDefeated && selectableTargetKeys.has(combatTargetKey(c.side, c.targetId))
+                  ? () => handleTargetSelect(c.targetId, c.side)
                   : undefined
               }
             />
@@ -686,6 +738,7 @@ export function CombatPage() {
               playerTeam={playerTeam}
               enemyTeam={enemyTeam}
               selectedTarget={selectedTarget}
+              pendingActionType={pendingActionType}
               visualEvent={visualEvent}
               status={arenaStatus}
             />
@@ -737,13 +790,15 @@ export function CombatPage() {
             <CombatantPortrait
               key={`enemy-${c.targetId}`}
               combatant={c}
-              isActive={c.targetId === currentTurnChampionId}
-              isSelected={selectedTargetId === c.targetId}
+              isActive={c.side === currentTurnSide && c.targetId === currentTurnChampionId}
+              isSelected={
+                targetSelection?.side === c.side && targetSelection.targetId === c.targetId
+              }
               isAttacking={isVisualSource(c)}
               isActualTarget={isVisualTarget(c)}
               onSelect={
-                !c.isDefeated && selectableTargetIds.has(c.targetId)
-                  ? () => handleTargetSelect(c.targetId)
+                !c.isDefeated && selectableTargetKeys.has(combatTargetKey(c.side, c.targetId))
+                  ? () => handleTargetSelect(c.targetId, c.side)
                   : undefined
               }
             />

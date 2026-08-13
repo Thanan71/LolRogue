@@ -131,6 +131,25 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
             </div>
           </div>
 
+          {spell.impacts && spell.impacts.length > 0 ? (
+            <div className="combat-spell-tooltip__impacts" aria-label="Effets estimés">
+              {spell.impacts.map((impact) => (
+                <div
+                  key={impact.id}
+                  className={`combat-spell-tooltip__impact combat-spell-tooltip__impact--${impact.tone}`}
+                >
+                  <span>{impact.label}</span>
+                  <strong>
+                    {impact.amount !== undefined ? impact.amount : null}
+                    {impact.amount !== undefined && impact.suffix ? ' · ' : null}
+                    {impact.suffix}
+                  </strong>
+                </div>
+              ))}
+              <small>Les dégâts sont estimés avant l’armure et la résistance de la cible.</small>
+            </div>
+          ) : null}
+
           {/* Status */}
           {!spell.isReady && (
             <div className="combat-spell-tooltip__status combat-spell-tooltip__status--cooldown">

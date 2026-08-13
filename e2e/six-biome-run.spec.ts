@@ -73,7 +73,16 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
   }
   await page.getByRole('button', { name: 'Confirmer le choix' }).click();
   await expect(page).toHaveURL('/run');
-  if (assuredVictory) await expect(page.getByText(/e2e_assured_victory/)).toBeVisible();
+  if (assuredVictory) {
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const { useRunStore } = await import('/src/stores/runStore.ts');
+          return useRunStore.getState().runeIds.includes('e2e_assured_victory');
+        }),
+      )
+      .toBe(true);
+  }
   const mapTutorial = page.getByRole('dialog', { name: 'Comprendre la carte' });
   await expect(mapTutorial).toBeVisible();
   await mapTutorial.getByRole('button', { name: 'Fermer le tutoriel' }).click();
@@ -165,18 +174,29 @@ async function resolvePendingChoices(page: Page, trace: string[]) {
     await rewards.getByRole('button', { name: 'Fermer' }).click();
   }
   const augment = page.getByRole('region', { name: "Choix d'augment" });
-  if (await augment.isVisible()) {
-    const label = await augment.getByRole('button').first().textContent();
-    trace.push(`augment:${label}`);
-    await augment.getByRole('button').first().click();
-  }
   const upgrade = page.getByRole('region', { name: /Amélioration de sort|Améliorer un sort/ });
-  for (let choice = 0; choice < 10 && (await upgrade.isVisible()); choice += 1) {
-    const button = upgrade.locator('button:enabled').first();
+  for (let choice = 0; choice < 20; choice += 1) {
+    const pending = await page.evaluate(async () => {
+      const { useRunStore } = await import('/src/stores/runStore.ts');
+      const state = useRunStore.getState();
+      return state.pendingAugmentIds.length + state.pendingSpellUpgradeChampionIds.length;
+    });
+    if (pending === 0) return;
+
+    if (await augment.isVisible()) {
+      const button = augment.getByRole('button').first();
+      trace.push(`augment:${await button.textContent()}`);
+      await button.click();
+      continue;
+    }
+
+    await expect(upgrade).toBeVisible();
+    const button = upgrade.locator('.spell-upgrade__confirm:enabled');
     await expect(button).toBeVisible();
     trace.push(`upgrade:${await button.textContent()}`);
     await button.click();
   }
+  throw new Error('Pending run choices did not resolve after 20 UI actions.');
 }
 
 async function playRun(page: Page, testInfo: TestInfo, strategy: 'risky' | 'survival') {

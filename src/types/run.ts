@@ -385,8 +385,8 @@ export interface RunActions {
   setRuneStacks: (stacks: Record<string, Record<string, number>>) => void;
   /** Equip an item only to a current team member and within catalogue/slot constraints. */
   equipItem: (instanceId: string, championId: string) => boolean;
-  /** Unequip an item (move to bag) */
-  unequipItem: (instanceId: string) => void;
+  /** Unequip an item (move to bag), returning false if the command cannot be recorded. */
+  unequipItem: (instanceId: string) => boolean;
   /** Sell an item for half its shop value. */
   sellItem: (instanceId: string) => boolean;
   /** Sort inventory by equipment state, rarity, then name. */

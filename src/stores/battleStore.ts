@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { ActionTargeting, ActionType, TeamSide } from '@/game/battle/types';
+import type { SpellImpactPreview } from '@/game/presentation/spellPreview';
 
 export interface SpellInfo {
   slot: 'Q' | 'W' | 'E' | 'R';
@@ -10,6 +11,7 @@ export interface SpellInfo {
   isReady: boolean;
   targeting: ActionTargeting;
   iconUrl?: string;
+  impacts?: SpellImpactPreview[];
 }
 
 export interface CombatantInfo {
@@ -107,6 +109,28 @@ const init = {
   visualEventIdCounter: 0,
 };
 
+function visualEventPriority(event: Omit<CombatVisualEvent, 'id'> | CombatVisualEvent): number {
+  if (event.kind === 'cast') return 0;
+  const isHostile = event.targetSide !== undefined && event.targetSide !== event.sourceSide;
+  if (event.kind === 'damage' && isHostile) return (event.amount ?? 0) > 0 ? 5 : 4;
+  if (event.kind === 'revive') return 3;
+  if (isHostile) return 2;
+  return 1;
+}
+
+function isSameVisualSource(
+  previous: CombatVisualEvent,
+  event: Omit<CombatVisualEvent, 'id'>,
+): boolean {
+  if (previous.sourceSide !== event.sourceSide) return false;
+  if (previous.sourceCombatantId && event.sourceCombatantId) {
+    return previous.sourceCombatantId === event.sourceCombatantId;
+  }
+  // `action_select` cannot currently expose the combat-local ID for every
+  // producer. Fall back to the champion ID only while one side lacks it.
+  return previous.sourceId === event.sourceId;
+}
+
 export const useBattleStore = create<BattleState>((set) => ({
   ...init,
   setPhase: (phase) => set({ phase }),
@@ -130,9 +154,13 @@ export const useBattleStore = create<BattleState>((set) => ({
       const belongsToCurrentAction =
         event.kind !== 'cast' &&
         previous !== null &&
-        previous.sourceId === event.sourceId &&
+        isSameVisualSource(previous, event) &&
         previous.action === event.action;
-      if (belongsToCurrentAction) {
+      const mergesWithPrevious =
+        belongsToCurrentAction &&
+        previous.kind === event.kind &&
+        previous.targetSide === event.targetSide;
+      if (mergesWithPrevious) {
         const targetIds = event.targetId
           ? [...new Set([...(previous.targetIds ?? []), event.targetId])]
           : (previous.targetIds ?? []);
@@ -147,11 +175,15 @@ export const useBattleStore = create<BattleState>((set) => ({
             targetIds,
             targetCombatantIds,
             amount:
-              previous.kind === event.kind && event.amount !== undefined
-                ? (previous.amount ?? 0) + event.amount
-                : event.amount,
+              event.amount !== undefined ? (previous.amount ?? 0) + event.amount : event.amount,
           },
         };
+      }
+      // Engine events for one action are synchronous. Many offensive spells emit
+      // a self buff/heal after their damage; React would otherwise render only
+      // that last auxiliary event and make the attack look self-targeted.
+      if (belongsToCurrentAction && visualEventPriority(previous) >= visualEventPriority(event)) {
+        return {};
       }
       const id = state.visualEventIdCounter + 1;
       return {

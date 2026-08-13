@@ -35,98 +35,105 @@ async function servePackagedAssets(page: Page) {
   });
 }
 
-async function installPresentationRunFixture(page: Page) {
-  await page.evaluate(async () => {
-    const { useRunStore } = await import('/src/stores/runStore.ts');
-    const started = await useRunStore.getState().startRun(['Lux'], { seed: 20260813 });
-    if (!started.success) throw new Error(`Unable to start fixture run: ${started.code}`);
+async function installPresentationRunFixture(
+  page: Page,
+  playerChampionId = 'Lux',
+  enemyChampionId = 'Malphite',
+) {
+  await page.evaluate(
+    async ({ championId, opponentId }) => {
+      const { useRunStore } = await import('/src/stores/runStore.ts');
+      const started = await useRunStore.getState().startRun([championId], { seed: 20260813 });
+      if (!started.success) throw new Error(`Unable to start fixture run: ${started.code}`);
 
-    const encounter = {
-      id: 'presentation-combat',
-      type: 'combat',
-      name: 'Duel de présentation',
-      description: 'Un duel mobile déterministe.',
-      minRunLevel: 1,
-      enemies: [{ championId: 'Malphite', level: 1, statMultiplier: 0.2 }],
-      goldReward: 10,
-      itemDropChance: 0,
-    };
-    const nodes = [
-      {
-        id: 'presentation-start',
-        type: 'start',
-        column: 0,
-        row: 0,
-        nextNodeIds: ['presentation-checkpoint'],
-        prevNodeIds: [],
-        biome: 'top_lane',
-        completed: true,
-        accessible: false,
-        encounter: null,
-        metadata: { title: 'Départ', description: 'Chemin parcouru.', icon: '▶' },
-      },
-      {
-        id: 'presentation-checkpoint',
-        type: 'rest',
-        column: 1,
-        row: 0,
-        nextNodeIds: ['presentation-combat', 'presentation-locked'],
-        prevNodeIds: ['presentation-start'],
-        biome: 'top_lane',
-        completed: true,
-        accessible: false,
-        encounter: null,
-        metadata: { title: 'Campement', description: 'Position actuelle.', icon: '✚' },
-      },
-      {
+      const encounter = {
         id: 'presentation-combat',
         type: 'combat',
-        column: 2,
-        row: 0,
-        nextNodeIds: [],
-        prevNodeIds: ['presentation-checkpoint'],
-        biome: 'top_lane',
-        completed: false,
-        accessible: true,
-        encounter,
-        metadata: { title: 'Duel', description: 'Combat disponible.', icon: '⚔' },
-      },
-      {
-        id: 'presentation-locked',
-        type: 'shop',
-        column: 2,
-        row: 1,
-        nextNodeIds: [],
-        prevNodeIds: ['presentation-checkpoint'],
-        biome: 'top_lane',
-        completed: false,
-        accessible: false,
-        encounter: null,
-        metadata: { title: 'Boutique', description: 'Branche verrouillée.', icon: '◆' },
-      },
-    ];
-
-    useRunStore.setState({
-      biomeMaps: [
+        name: 'Duel de présentation',
+        description: 'Un duel mobile déterministe.',
+        minRunLevel: 1,
+        enemies: [{ championId: opponentId, level: 1, statMultiplier: 0.2 }],
+        goldReward: 10,
+        itemDropChance: 0,
+      };
+      const nodes = [
         {
+          id: 'presentation-start',
+          type: 'start',
+          column: 0,
+          row: 0,
+          nextNodeIds: ['presentation-checkpoint'],
+          prevNodeIds: [],
           biome: 'top_lane',
-          startNodeId: 'presentation-start',
-          exitNodeId: 'presentation-combat',
-          columns: 3,
-          rows: 2,
-          nodes,
+          completed: true,
+          accessible: false,
+          encounter: null,
+          metadata: { title: 'Départ', description: 'Chemin parcouru.', icon: '▶' },
         },
-      ],
-      currentBiomeIndex: 0,
-      currentBiome: 'top_lane',
-      currentNodeId: 'presentation-checkpoint',
-      chosenPathNodeIds: ['presentation-start', 'presentation-checkpoint'],
-      completedNodeIds: ['presentation-start', 'presentation-checkpoint'],
-      frontierNodeIds: ['presentation-combat'],
-      pendingEncounter: null,
-      currentEncounter: null,
-    } as never);
-  });
+        {
+          id: 'presentation-checkpoint',
+          type: 'rest',
+          column: 1,
+          row: 0,
+          nextNodeIds: ['presentation-combat', 'presentation-locked'],
+          prevNodeIds: ['presentation-start'],
+          biome: 'top_lane',
+          completed: true,
+          accessible: false,
+          encounter: null,
+          metadata: { title: 'Campement', description: 'Position actuelle.', icon: '✚' },
+        },
+        {
+          id: 'presentation-combat',
+          type: 'combat',
+          column: 2,
+          row: 0,
+          nextNodeIds: [],
+          prevNodeIds: ['presentation-checkpoint'],
+          biome: 'top_lane',
+          completed: false,
+          accessible: true,
+          encounter,
+          metadata: { title: 'Duel', description: 'Combat disponible.', icon: '⚔' },
+        },
+        {
+          id: 'presentation-locked',
+          type: 'shop',
+          column: 2,
+          row: 1,
+          nextNodeIds: [],
+          prevNodeIds: ['presentation-checkpoint'],
+          biome: 'top_lane',
+          completed: false,
+          accessible: false,
+          encounter: null,
+          metadata: { title: 'Boutique', description: 'Branche verrouillée.', icon: '◆' },
+        },
+      ];
+
+      useRunStore.setState({
+        biomeMaps: [
+          {
+            biome: 'top_lane',
+            startNodeId: 'presentation-start',
+            exitNodeId: 'presentation-combat',
+            columns: 3,
+            rows: 2,
+            nodes,
+          },
+        ],
+        currentBiomeIndex: 0,
+        currentBiome: 'top_lane',
+        currentNodeId: 'presentation-checkpoint',
+        chosenPathNodeIds: ['presentation-start', 'presentation-checkpoint'],
+        completedNodeIds: ['presentation-start', 'presentation-checkpoint'],
+        frontierNodeIds: ['presentation-combat'],
+        pendingEncounter: null,
+        currentEncounter: null,
+      } as never);
+    },
+    { championId: playerChampionId, opponentId: enemyChampionId },
+  );
 }
 
 test('la carte et le combat restent lisibles et animés sur mobile', async ({ page }, testInfo) => {
@@ -216,4 +223,66 @@ test('la carte et le combat restent lisibles et animés sur mobile', async ({ pa
     body: await page.screenshot({ fullPage: true }),
     contentType: 'image/png',
   });
+});
+
+test('une compétence offensive garde l’ennemi comme cible malgré son bonus personnel', async ({
+  page,
+}) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await servePackagedAssets(page);
+  await enterGuestWithTutorialsDismissed(page);
+  await installPresentationRunFixture(page, 'Garen');
+  await page.goto('/run');
+
+  await page.getByRole('button', { name: /Combat, colonne 3.*accessible/i }).dispatchEvent('click');
+  await expect(page).toHaveURL('/combat');
+  await page.getByRole('button', { name: /Sort Q : Coup décisif/ }).click();
+  await page.getByRole('button', { name: 'Cibler Malphite' }).click();
+
+  const effect = page.locator('.combat-stage[data-combat-effect]');
+  await expect(effect).toHaveAttribute('data-combat-source', 'Garen');
+  await expect(effect).toHaveAttribute('data-combat-target', 'Malphite');
+  await expect(effect.getByLabel('Attaquant : Garen')).toBeVisible();
+  await expect(effect.getByLabel('Cible : Malphite')).toBeVisible();
+  await expect(effect.getByText('Votre équipe')).toBeVisible();
+  await expect(effect.getByText('Équipe ennemie')).toBeVisible();
+  await expect(effect).not.toHaveClass(/combat-stage--friendly/);
+  await expect(effect.getByLabel('Effet personnel : Garen')).toHaveCount(0);
+  await expectNoHorizontalOverflow(page);
+});
+
+test('deux champions identiques restent séparés par leur camp dans toute la présentation', async ({
+  page,
+}) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await servePackagedAssets(page);
+  await enterGuestWithTutorialsDismissed(page);
+  await installPresentationRunFixture(page, 'Garen', 'Garen');
+  await page.goto('/run');
+
+  await page.getByRole('button', { name: /Combat, colonne 3.*accessible/i }).dispatchEvent('click');
+  await expect(page).toHaveURL('/combat');
+
+  await expect(page.locator('.combatant-portrait--active')).toHaveCount(1);
+  await expect(page.locator('.combatant-portrait--active.combatant-portrait--player')).toHaveCount(
+    1,
+  );
+  const enemyTarget = page.getByRole('button', { name: 'Cibler Garen' });
+  await expect(enemyTarget).toHaveCount(1);
+
+  await page.getByRole('button', { name: /Sort Q : Coup décisif/ }).click();
+  await enemyTarget.click();
+
+  const effect = page.locator('.combat-stage[data-combat-effect]');
+  await expect(
+    effect.locator('.combat-stage__fighter--source.combat-stage__fighter--player'),
+  ).toBeVisible();
+  await expect(
+    effect.locator('.combat-stage__fighter--target.combat-stage__fighter--enemy'),
+  ).toBeVisible();
+  await expect(effect.getByText('Votre équipe')).toBeVisible();
+  await expect(effect.getByText('Équipe ennemie')).toBeVisible();
+  await expect(effect).not.toHaveClass(/combat-stage--friendly/);
+  await expect(effect).not.toHaveClass(/combat-stage--self/);
+  await expectNoHorizontalOverflow(page);
 });

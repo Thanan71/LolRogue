@@ -1,15 +1,13 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playUIClick } from '@/audio';
 import { ROUTES } from '@/config/routes';
-import { championDB } from '@/data/championDatabase';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { getRuneDefinition } from '@/data/items/runeDatabase';
 import { toEncounterNodeType } from '@/game/map/mapProgression';
 import { findNode } from '@/game/map/mapUtils';
 import { NodeType } from '@/game/map/types';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
-import { canUpgradeSpell, getSpellRankCap } from '@/game/run/spellUpgradeRules';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fr } from '@/i18n/fr';
 import { runeNameFr } from '@/i18n/runes.fr';
@@ -17,9 +15,11 @@ import { useRunStore } from '@/stores/runStore';
 import '@/styles/run-map.css';
 import type { Biome } from '@/types/run';
 import { ContextTutorial } from './ContextTutorial';
+import { RunInventoryPanel } from './RunInventoryPanel';
 import { NODE_LABELS, NODE_NAMES, RunMapCanvas } from './RunMapCanvas';
-import { InventoryPanel, TeamPanel } from './RunMapPanels';
+import { RunTeamStatsPanel } from './RunTeamStatsPanel';
 import { buildRunMapViewModel } from './runMapViewModel';
+import { type SpellUpgradeFeedback, SpellUpgradePanel } from './SpellUpgradePanel';
 
 const BIOME_NAMES: Record<Biome, string> = {
   top_lane: 'Voie du haut',
@@ -68,9 +68,44 @@ export function RunMapScreen() {
       pendingSpellUpgradeChampionIds,
       team,
     });
-  const pendingUpgradeChampion = pendingUpgradeChampionId
-    ? championDB.getById(pendingUpgradeChampionId)
-    : undefined;
+  const [spellUpgradeFeedback, setSpellUpgradeFeedback] = useState<SpellUpgradeFeedback | null>(
+    null,
+  );
+  const firstAugmentChoiceRef = useRef<HTMLButtonElement>(null);
+  const mapFocusRef = useRef<HTMLDivElement>(null);
+  const previousHasPendingChoiceRef = useRef(hasPendingChoice);
+  const previousSpellUpgradeCountRef = useRef(pendingSpellUpgradeChampionIds.length);
+  const firstPendingAugmentId = pendingAugmentIds[0];
+
+  useEffect(() => {
+    if (!firstPendingAugmentId) return;
+    const focusChoice = () => firstAugmentChoiceRef.current?.focus();
+    focusChoice();
+    let tutorialWasOpen = document.body.classList.contains('tutorial-open');
+    const observer = new MutationObserver(() => {
+      const tutorialIsOpen = document.body.classList.contains('tutorial-open');
+      if (tutorialWasOpen && !tutorialIsOpen) focusChoice();
+      tutorialWasOpen = tutorialIsOpen;
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, [firstPendingAugmentId]);
+
+  useEffect(() => {
+    const previousCount = previousSpellUpgradeCountRef.current;
+    if (previousCount === 0 && pendingSpellUpgradeChampionIds.length > 0) {
+      setSpellUpgradeFeedback(null);
+    }
+    previousSpellUpgradeCountRef.current = pendingSpellUpgradeChampionIds.length;
+  }, [pendingSpellUpgradeChampionIds.length]);
+
+  useEffect(() => {
+    const previouslyBlocked = previousHasPendingChoiceRef.current;
+    previousHasPendingChoiceRef.current = hasPendingChoice;
+    if (!previouslyBlocked || hasPendingChoice) return;
+    const frame = window.requestAnimationFrame(() => mapFocusRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [hasPendingChoice]);
 
   const handleNodeClick = useCallback(
     (nodeId: string) => {
@@ -267,8 +302,8 @@ export function RunMapScreen() {
                   <strong>{fr.run.augments}</strong>
                   <span className="run-map-loadout__chips">
                     {augmentIds.length > 0
-                      ? augmentIds.map((id) => (
-                          <span key={id}>{AUGMENT_DATABASE[id]?.name ?? id}</span>
+                      ? augmentIds.map((id, index) => (
+                          <span key={`${id}-${index}`}>{AUGMENT_DATABASE[id]?.name ?? id}</span>
                         ))
                       : 'Aucun'}
                   </span>
@@ -282,12 +317,13 @@ export function RunMapScreen() {
               aria-label="Choix d'augment"
             >
               <h2>{fr.run.biomeComplete}</h2>
-              {pendingAugmentIds.map((id) => {
+              {pendingAugmentIds.map((id, index) => {
                 const augment = AUGMENT_DATABASE[id];
                 return (
                   <button
                     type="button"
                     key={id}
+                    ref={index === 0 ? firstAugmentChoiceRef : undefined}
                     onClick={() => chooseAugment(id)}
                     className="run-map-choice-button"
                   >
@@ -321,71 +357,50 @@ export function RunMapScreen() {
           )}
           {pendingUpgradeChampionId && pendingUpgradeMember && (
             <section
-              className="run-map-choice-panel run-map-panel run-map-panel--section"
+              className="run-map-spell-upgrade run-map-panel--section"
               aria-label={fr.run.upgradeSpell}
             >
-              <strong>
-                Améliorez un sort de {pendingUpgradeChampion?.name ?? pendingUpgradeChampionId}
-              </strong>
-              <p>{fr.run.upgradeConsequence}</p>
-              {(['Q', 'W', 'E', 'R'] as const).map((slot, index) => {
-                const spell = pendingUpgradeChampion?.spells[index];
-                const rank = pendingUpgradeMember.spellRanks?.[slot] ?? 1;
-                const cap = getSpellRankCap(
-                  pendingUpgradeChampionId,
-                  slot,
-                  pendingUpgradeMember.level ?? 1,
-                );
-                const canUpgrade = canUpgradeSpell(pendingUpgradeMember, slot);
-                const nextRank = Math.min(rank + 1, spell?.maxRank ?? rank);
-                const beforeCost = spell?.cost[rank - 1];
-                const afterCost = spell?.cost[nextRank - 1];
-                const beforeCooldown = spell?.cooldown[rank - 1];
-                const afterCooldown = spell?.cooldown[nextRank - 1];
-                const reason =
-                  rank >= (spell?.maxRank ?? 0) ? fr.run.maximumRank : fr.run.levelRequired;
-                return (
-                  <button
-                    type="button"
-                    key={slot}
-                    disabled={!canUpgrade}
-                    title={canUpgrade ? fr.run.upgradeConsequence : reason}
-                    onClick={() => upgradeSpell(pendingUpgradeChampionId, slot)}
-                    className="run-map-choice-button"
-                  >
-                    <strong>
-                      {slot} — {spell?.name ?? slot}
-                    </strong>
-                    <span className="run-map-choice-detail">
-                      {fr.run.currentRank} {rank} → {fr.run.nextRank} {nextRank} (maximum{' '}
-                      {spell?.maxRank ?? cap})
-                    </span>
-                    {spell && (
-                      <span className="run-map-choice-detail">
-                        PM {beforeCost} → {afterCost} · Recharge {beforeCooldown} → {afterCooldown}{' '}
-                        s
-                      </span>
-                    )}
-                    {!canUpgrade && <span className="run-map-choice-detail">{reason}</span>}
-                  </button>
-                );
-              })}
+              <SpellUpgradePanel
+                key={`${pendingUpgradeChampionId}-${pendingSpellUpgradeChampionIds.length}`}
+                championId={pendingUpgradeChampionId}
+                member={pendingUpgradeMember}
+                onUpgrade={(slot) => upgradeSpell(pendingUpgradeChampionId, slot)}
+                onResult={setSpellUpgradeFeedback}
+                autoFocus={pendingAugmentIds.length === 0}
+              />
             </section>
           )}
-          <RunMapCanvas
-            map={currentMap}
-            currentNodeId={currentNodeId}
-            frontierNodeIds={frontierNodeIds}
-            chosenPathNodeIds={chosenPathNodeIds}
-            completedNodeIds={completedNodeIds}
-            hasPendingChoice={hasPendingChoice}
-            reducedMotion={reducedMotion}
-            onNodeClick={handleNodeClick}
-          />
+          {spellUpgradeFeedback ? (
+            <p
+              className={`spell-upgrade-feedback spell-upgrade-feedback--${spellUpgradeFeedback.tone}`}
+              role={spellUpgradeFeedback.tone === 'error' ? 'alert' : 'status'}
+            >
+              {spellUpgradeFeedback.message}
+            </p>
+          ) : null}
+          <div
+            ref={mapFocusRef}
+            className="run-map-focus-target"
+            role="region"
+            tabIndex={-1}
+            aria-label="Carte des prochains nœuds"
+            data-run-map-focus
+          >
+            <RunMapCanvas
+              map={currentMap}
+              currentNodeId={currentNodeId}
+              frontierNodeIds={frontierNodeIds}
+              chosenPathNodeIds={chosenPathNodeIds}
+              completedNodeIds={completedNodeIds}
+              hasPendingChoice={hasPendingChoice}
+              reducedMotion={reducedMotion}
+              onNodeClick={handleNodeClick}
+            />
+          </div>
         </div>
         <div className="run-map-sidebar">
-          <TeamPanel team={team} inventory={inventory} />
-          <InventoryPanel inventory={inventory} team={team} />
+          <RunTeamStatsPanel team={team} inventory={inventory} />
+          <RunInventoryPanel inventory={inventory} team={team} />
         </div>
       </div>
     </main>

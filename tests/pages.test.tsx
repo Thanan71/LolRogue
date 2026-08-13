@@ -124,6 +124,9 @@ describe('P2 page smoke tests', () => {
       currentEncounter: null,
       team: [],
       inventory: [],
+      augmentIds: [],
+      pendingAugmentIds: [],
+      pendingSpellUpgradeChampionIds: [],
       gold: 0,
       saveStatus: 'idle',
       saveError: null,
@@ -215,6 +218,43 @@ describe('P2 page smoke tests', () => {
     expect(screen.getByRole('button', { name: /tutoriel carte/i })).toBeInTheDocument();
     expect(screen.getByText('Voie du haut')).toBeInTheDocument();
     expect(document.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('focuses a blocking spell choice then restores focus to the map after success', async () => {
+    window.localStorage.removeItem('lolrogue:tutorial:map:v1');
+    const maps = generateRunMap(12345);
+    useRunStore.setState({
+      isActive: true,
+      biomeMaps: maps,
+      currentBiomeIndex: 0,
+      currentBiome: maps[0].biome,
+      currentNodeId: null,
+      frontierNodeIds: [maps[0].startNodeId],
+      team: [
+        {
+          championId: 'Garen',
+          level: 3,
+          spellRanks: { Q: 1, W: 1, E: 1, R: 1 },
+        },
+      ],
+      pendingAugmentIds: [],
+      pendingSpellUpgradeChampionIds: ['Garen'],
+    });
+
+    const view = renderAt(<RunMapScreen />, '/run');
+    const closeTutorial = await screen.findByRole('button', { name: 'Fermer le tutoriel' });
+    await waitFor(() => expect(closeTutorial).toHaveFocus());
+    fireEvent.click(closeTutorial);
+
+    const qChoice = screen.getByRole('button', { name: /Coup décisif/ });
+    await waitFor(() => expect(qChoice).toHaveFocus());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Améliorer Q · rang 1 → 2' }));
+
+    await waitFor(() => expect(view.container.querySelector('[data-run-map-focus]')).toHaveFocus());
+    expect(screen.getByText('Q de Garen amélioré au rang 2.')).toHaveAttribute('role', 'status');
+    expect(useRunStore.getState().pendingSpellUpgradeChampionIds).toEqual([]);
+    expect(useRunStore.getState().team[0]?.spellRanks?.Q).toBe(2);
   });
 
   it('annonce explicitement un objet de combat laissé faute de place', () => {
