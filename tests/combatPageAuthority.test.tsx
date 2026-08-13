@@ -438,7 +438,7 @@ describe('CombatPage authority finalization', () => {
     });
 
     expect(useRunStore.getState().team[0]?.currentHp).toBe(12);
-    expect(useRunStore.getState().team[0]?.currentMp).toBe(8);
+    expect(useRunStore.getState().team[0]?.currentMp).toBe(0);
     view.unmount();
   });
 });

@@ -274,6 +274,8 @@ function resolveFirstClientCombat(mode: 'manual' | 'autoplay'): void {
     healAfterBattlePercent: augmentManager.getHealAfterBattlePercent(),
     getPreLevelMaxHp: (member) =>
       players.find((champion) => champion.id === member.championId)?.getEnhancedStats().hp ?? 1,
+    getPreLevelMaxMp: (member) =>
+      players.find((champion) => champion.id === member.championId)?.getEnhancedStats().mp ?? 0,
   });
   afterJournal.updateTeamAfterCombat(postCombat.updates);
   afterJournal.queueSpellUpgrades(postCombat.pendingSpellUpgradeChampionIds);

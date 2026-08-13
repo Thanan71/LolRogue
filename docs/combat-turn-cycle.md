@@ -31,5 +31,12 @@
   les deux signifient 30 %.
 - Les seuils d'execute et les fractions de revive sont bornés entre 0 et 100 %.
 
+## Attrition de mana
+
+Après une victoire, chaque champion récupère 25 % de ses MP maximum du combat,
+arrondis avec `Math.round` et plafonnés au maximum pré-niveau. Cette récupération
+est donc appliquée avant un éventuel gain de niveau. Tout repos, partiel ou complet
+pour les PV, restaure 100 % des MP. Un champion sans mana reste à 0 MP.
+
 Un effet appliqué pendant le tour du porteur n'est pas décrémenté immédiatement :
 il reste actif pendant son prochain tour, puis ticke à la fin de celui-ci.

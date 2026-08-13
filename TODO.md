@@ -365,7 +365,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
   de départ à mesurer : Q/W/E entre 2 et 5 tours, R entre 6 et 10 tours.
 - [x] Ajouter `initialMpOverrides` au même niveau que `initialHpOverrides`, côté UI
   et moteur autoritaire, avec clamp `0..maxMp`.
-- [ ] Formaliser l'attrition mana : point de départ à tester, récupération de
+- [x] Formaliser l'attrition mana : point de départ à tester, récupération de
   20–30 % des MP max après victoire et 100 % au repos.
 - [ ] Ajouter une validation catalogue cible/effet et corriger les cinq sorts
   composites `Self` ayant une partie hostile.

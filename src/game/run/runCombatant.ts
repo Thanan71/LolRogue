@@ -5,7 +5,12 @@ import { ChampionInstance } from '@/game/ChampionInstance';
 import { SPELL_SLOTS } from '@/game/run/spellUpgradeRules';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import type { InventoryEntry, TeamMember } from '@/types/run';
-import { calculateEventStatBonuses, calculateMaxHP, toCombatStatKey } from '@/utils/statCalculator';
+import {
+  calculateEventStatBonuses,
+  calculateFullStats,
+  calculateMaxHP,
+  toCombatStatKey,
+} from '@/utils/statCalculator';
 
 type RunCombatMember = Pick<
   TeamMember,
@@ -127,5 +132,34 @@ export function calculateRunMemberMaxHp(
     member.statBoosts,
     member.statMultiplier,
     getMasteryLevel(member.championId),
+  );
+}
+
+export function calculateRunMemberMaxMp(
+  member: RunCombatMember,
+  inventory: readonly InventoryEntry[],
+  getUnlockedEnhancements: (championId: string) => Record<string, number>,
+  getMasteryLevel: (championId: string) => number,
+): number {
+  const champion = championDB.getById(member.championId);
+  if (!champion) return 0;
+  const bonuses = enhancementService.calculateStatBonuses(
+    enhancementTreeProvider.getTreeForChampion(champion),
+    getUnlockedEnhancements(member.championId),
+  );
+  return Math.max(
+    0,
+    Math.round(
+      calculateFullStats(
+        champion,
+        member.level ?? 1,
+        bonuses,
+        [...inventory],
+        member.championId,
+        getMasteryLevel(member.championId),
+        member.statBoosts,
+        member.statMultiplier,
+      ).mp,
+    ),
   );
 }

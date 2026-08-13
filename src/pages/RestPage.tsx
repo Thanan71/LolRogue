@@ -4,8 +4,8 @@ import { EncounterLayout } from '@/components/EncounterLayout';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
-import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
-import { resolveRestHp } from '@/game/run/runEncounterRules';
+import { calculateRunMemberMaxHp, calculateRunMemberMaxMp } from '@/game/run/runCombatant';
+import { resolveRestHp, resolveRestMp } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
@@ -17,6 +17,24 @@ import '@/styles/rest.css';
 function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
   const state = useRunStore.getState();
   return calculateRunMemberMaxHp(
+    member,
+    state.inventory,
+    (championId) =>
+      state.authorityAttempt
+        ? (state.authorityAttempt.enhancementSnapshot[championId] ??
+          state.authorityAttempt.enhancementSnapshot[championId.toLowerCase()] ??
+          {})
+        : useEnhancementStore.getState().getEnhancementState(championId).unlockedNodes,
+    (championId) =>
+      state.authorityAttempt
+        ? (state.authorityAttempt.masterySnapshot?.[championId] ?? 0)
+        : useMasteryStore.getState().getChampionMastery(championId).level,
+  );
+}
+
+function getMemberMaxMp(member: ReturnType<typeof useRunStore.getState>['team'][number]): number {
+  const state = useRunStore.getState();
+  return calculateRunMemberMaxMp(
     member,
     state.inventory,
     (championId) =>
@@ -93,6 +111,7 @@ export function RestPage() {
     const state = useRunStore.getState();
     const updates = state.team.map((member) => {
       const maxHp = getMemberMaxHp(member);
+      const maxMp = getMemberMaxMp(member);
 
       return {
         championId: member.championId,
@@ -100,6 +119,7 @@ export function RestPage() {
           fullHeal,
           healPercent,
         }),
+        currentMp: resolveRestMp(maxMp),
         level: member.level ?? 1,
         currentXp: member.currentXp ?? 0,
       };

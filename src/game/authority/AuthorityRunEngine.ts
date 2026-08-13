@@ -26,6 +26,7 @@ import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
 import {
   buildRunPlayerTeam,
   calculateRunMemberMaxHp,
+  calculateRunMemberMaxMp,
   createRunAugmentManager,
 } from '@/game/run/runCombatant';
 import {
@@ -35,6 +36,7 @@ import {
   resolveEventTeamUpdates,
   resolveRecruitAttempt,
   resolveRestHp,
+  resolveRestMp,
   resolveRunEvent,
 } from '@/game/run/runEncounterRules';
 import {
@@ -473,6 +475,8 @@ class AuthorityReplayState {
         );
         return authorityMember ? this.getMemberMaxHp(authorityMember) : 100;
       },
+      getPreLevelMaxMp: (member) =>
+        players.find((champion) => champion.id === member.championId)?.getEnhancedStats().mp ?? 0,
     });
     for (const update of postCombat.updates) {
       const member = this.team.find((candidate) => candidate.championId === update.championId);
@@ -573,6 +577,7 @@ class AuthorityReplayState {
     for (const member of this.team) {
       const maxHp = this.getMemberMaxHp(member);
       member.currentHp = resolveRestHp(member.currentHp, maxHp, encounter);
+      member.currentMp = resolveRestMp(this.getMemberMaxMp(member));
     }
   }
 
@@ -862,6 +867,15 @@ class AuthorityReplayState {
       this.inventory,
       (championId) => this.attempt.enhancementSnapshot[championId] ?? {},
       (championId) => this.attempt.masterySnapshot[championId] ?? 0,
+    );
+  }
+
+  private getMemberMaxMp(member: AuthorityTeamMember): number {
+    return calculateRunMemberMaxMp(
+      member,
+      this.inventory,
+      (championId) => this.attempt.enhancementSnapshot[championId] ?? {},
+      (championId) => this.attempt.masterySnapshot?.[championId] ?? 0,
     );
   }
 
