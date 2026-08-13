@@ -1,11 +1,7 @@
 name: Sync TODO issues
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - scripts/sync-todo-issues.mjs
+  workflow_dispatch:
 
 permissions:
   contents: read
