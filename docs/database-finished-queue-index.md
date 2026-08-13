@@ -36,7 +36,22 @@ Les vues d'exploitation ne changent pas ce constat :
 
 ## Statistiques d'usage
 
-À compléter avec l'instant du dernier reset et les compteurs local/distant.
+Les statistiques ont été lues sans écriture avec :
+
+```bash
+npm run db:finished-queue:stats
+npm run db:finished-queue:stats -- --linked
+```
+
+| Base | Dernier reset | Âge à la mesure | `finished_queue` | clé primaire |
+| --- | --- | ---: | ---: | ---: |
+| locale | 12 août 2026 17:50 UTC | 8 h 53 | 0 scan | 275 scans |
+| liée | 15 juillet 2026 13:16 UTC | 28 j 13 h | 0 scan | 5 569 scans |
+
+Le reset local est récent et ne permet pas de conclure. En revanche, la base liée
+n'a pas été remise à zéro pendant les 28 jours précédant la mesure : sur la même
+fenêtre, la clé primaire a été utilisée 5 569 fois et l'index de file jamais. Les
+deux index occupaient 16 kB chacun au moment de l'inspection.
 
 ## Charge synthétique
 
