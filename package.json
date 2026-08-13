@@ -45,6 +45,7 @@
     "db:indexes:check": "node scripts/check-measured-database-indexes.mjs",
     "db:indexes:measure": "node scripts/measure-database-indexes.mjs",
     "db:finished-queue:stats": "node scripts/inspect-finished-queue-index-stats.mjs",
+    "db:finished-queue:measure": "node scripts/measure-finished-queue-index.mjs",
     "db:validate": "npm run db:reset && npm run db:lint && npm run db:security && npm run db:advisors && npm run db:indexes:check && npm run db:migrations:check && npm run db:types:check && node scripts/run-local-db-tests.mjs",
     "authority:generate": "node scripts/generate-authority-resolver.mjs",
     "authority:check": "node scripts/check-authority-registry.mjs",

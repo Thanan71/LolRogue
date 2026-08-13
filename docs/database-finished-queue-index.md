@@ -55,7 +55,32 @@ deux index occupaient 16 kB chacun au moment de l'inspection.
 
 ## Charge synthétique
 
-À compléter avec les plans comparés avec et sans l'index partiel.
+La commande suivante crée 200 000 attempts dans une table temporaire, dont
+10 000 (5 %) au statut `finished`, puis annule entièrement la transaction :
+
+```bash
+npm run db:finished-queue:measure
+```
+
+Elle mesure deux formes distinctes :
+
+1. le vrai claim `WHERE id = p_attempt_id FOR UPDATE` ;
+2. une file globale hypothétique `WHERE status = 'finished' ORDER BY finished_at`
+   qui permet de vérifier que l'index testé fonctionne, sans la confondre avec le
+   comportement applicatif.
+
+Résultat local du 13 août 2026 :
+
+| Requête | Avec l'index partiel | Sans l'index partiel |
+| --- | --- | --- |
+| claim réel par `id` | `run_attempts_pkey`, 0,038 ms | `run_attempts_pkey`, 0,028 ms |
+| file globale hypothétique | index partiel, 0,049 ms | scan séquentiel + tri, 13,832 ms |
+
+Le vrai claim conserve exactement son plan par clé primaire après suppression de
+l'index partiel. La faible variation de temps est du bruit de laboratoire. La
+requête hypothétique prouve en parallèle que le jeu synthétique est assez grand
+pour rendre l'index visible au planner : il occupe 240 kB et évite bien le scan de
+200 000 lignes lorsqu'une file globale existe.
 
 ## Décision
 
