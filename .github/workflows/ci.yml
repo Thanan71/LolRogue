@@ -35,6 +35,9 @@ jobs:
       - name: Enforce versioned performance budgets
         run: npm run test:performance-budgets
 
+      - name: Install controlled performance browser
+        run: npx playwright install --with-deps chromium
+
       - name: Enforce controlled mobile Web Vitals
         run: npm run test:performance-preview
 
