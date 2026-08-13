@@ -644,7 +644,7 @@ Preuves et décisions : `docs/frontend-performance.md`.
 
 - [x] Identifier le test qui mesure effectivement LCP/CLS/INP et vérifier qu'il est
   bloquant dans la CI actuelle.
-- [ ] Si absent/non bloquant, ajouter une mesure Lighthouse/Playwright contrôlée sur
+- [x] Si absent/non bloquant, ajouter une mesure Lighthouse/Playwright contrôlée sur
   une preview locale stable.
 - [ ] Séparer budget labo et télémétrie réelle consentie.
 - [ ] Archiver les tendances plutôt qu'un seul point.
