@@ -70,3 +70,23 @@ différée sur les routes publiques. La mesure finale de `/auth` charge dix ress
 JavaScript pour **184 308 octets transférés**, sans requête vers `champion-data`,
 `DatabasePage`, `AdminPage` ou `LegalPage`. Le détail est écrit dans
 `performance-report/preview-report.json` par `npm run test:performance-preview`.
+
+## Audit Web Vitals avant P2-PERF-02
+
+La matrice de production observe déjà LCP, CLS et les entrées `event` utilisées pour
+approcher INP sur son projet `mobile-chromium-production`. Elle compare ces valeurs à
+`config/performance-budgets.json`. Le job GitHub Actions `e2e` exécute
+`npm run test:e2e:production` sans `continue-on-error` : ce contrôle est donc
+techniquement bloquant.
+
+Ce contrôle ne constitue toutefois pas encore une gate de laboratoire stable :
+
+- il ne produit aucun rapport Web Vitals archivable ;
+- il repose sur un seul chargement non bridé du runner ;
+- il accepte `INP = 0` lorsqu'aucune entrée d'interaction n'est observée ;
+- il mélange la mesure Chromium mobile au smoke test fonctionnel de six projets ;
+- il ne permet pas de suivre une distribution ou une tendance entre exécutions.
+
+P2-PERF-02 conserve la matrice pour la compatibilité navigateur, mais déplace la
+décision de budget dans une preview Chromium mobile dédiée, sous réseau et CPU
+contrôlés, avec plusieurs échantillons et un rapport JSON uploadé par la CI.

@@ -642,7 +642,7 @@ Preuves et décisions : `docs/frontend-performance.md`.
 `config/performance-budgets.json` contient LCP/CLS/INP, mais le script de bundle
 `check-performance-budgets.mjs` ne valide que les tailles statiques.
 
-- [ ] Identifier le test qui mesure effectivement LCP/CLS/INP et vérifier qu'il est
+- [x] Identifier le test qui mesure effectivement LCP/CLS/INP et vérifier qu'il est
   bloquant dans la CI actuelle.
 - [ ] Si absent/non bloquant, ajouter une mesure Lighthouse/Playwright contrôlée sur
   une preview locale stable.
