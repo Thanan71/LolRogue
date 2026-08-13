@@ -17,9 +17,27 @@
     "index": 48000,
     "runStore": 32000
   },
-  "mobileWebVitals": {
-    "lcpMs": 2500,
-    "cls": 0.1,
-    "inpMs": 300
+  "labMobileWebVitals": {
+    "sampleCount": 5,
+    "percentile": 0.75,
+    "profile": {
+      "device": "Pixel 5",
+      "cpuSlowdownMultiplier": 4,
+      "network": {
+        "latencyMs": 150,
+        "downloadBitsPerSecond": 1600000,
+        "uploadBitsPerSecond": 750000
+      }
+    },
+    "budgets": {
+      "lcpMs": 2500,
+      "cls": 0.1,
+      "inpMs": 300
+    }
+  },
+  "realUserTelemetry": {
+    "provider": "vercel-speed-insights",
+    "enforcedInCi": false,
+    "requiresPrivacyReview": true
   }
 }

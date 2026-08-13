@@ -19,3 +19,17 @@ LolRogue utilise `@vercel/speed-insights` pour mesurer les Web Vitals sur les d�
 6. Vérifier ensuite les données dans le dashboard Speed Insights.
 
 Le test `tests/speedInsightsIntegration.test.ts` empêche la suppression accidentelle de la dépendance ou du composant racine.
+
+## Frontière avec le budget de laboratoire
+
+La télémétrie Vercel est une mesure terrain distincte. Elle dépend de visiteurs réels,
+du déploiement et de la revue confidentialité/consentement décrite dans
+`docs/legal-and-privacy.md`. Elle n'est jamais lue par GitHub Actions et ne peut pas
+faire réussir ou échouer une PR.
+
+La gate de CI utilise uniquement `labMobileWebVitals` dans
+`config/performance-budgets.json` : preview locale, profil mobile versionné, cinq
+échantillons après warm-up et agrégat p75. La section `realUserTelemetry` formalise
+que Speed Insights reste hors CI et soumis à la revue de confidentialité. Une valeur
+terrain ne doit pas être comparée directement à une valeur de laboratoire sans
+mentionner sa source.

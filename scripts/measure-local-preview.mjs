@@ -8,19 +8,23 @@ import { chromium, devices } from '@playwright/test';
 const root = resolve(import.meta.dirname, '..');
 const baseUrl = 'http://127.0.0.1:4174';
 const vite = join(root, 'node_modules/vite/bin/vite.js');
-const budgets = JSON.parse(
+const performanceConfig = JSON.parse(
   await readFile(join(root, 'config/performance-budgets.json'), 'utf8'),
-).mobileWebVitals;
-const sampleCount = 5;
-const labProfile = {
-  device: 'Pixel 5',
-  cpuSlowdownMultiplier: 4,
-  network: {
-    latencyMs: 150,
-    downloadBitsPerSecond: 1_600_000,
-    uploadBitsPerSecond: 750_000,
-  },
-};
+);
+const labConfig = performanceConfig.labMobileWebVitals;
+const budgets = labConfig.budgets;
+const sampleCount = labConfig.sampleCount;
+const percentileRatio = labConfig.percentile;
+const labProfile = labConfig.profile;
+if (!Number.isInteger(sampleCount) || sampleCount < 3) {
+  throw new Error('labMobileWebVitals.sampleCount must be an integer of at least 3.');
+}
+if (typeof percentileRatio !== 'number' || percentileRatio <= 0 || percentileRatio > 1) {
+  throw new Error('labMobileWebVitals.percentile must be greater than 0 and at most 1.');
+}
+if (performanceConfig.realUserTelemetry?.enforcedInCi !== false) {
+  throw new Error('Real-user telemetry must remain separate from the CI lab budget.');
+}
 const server = spawn(process.execPath, [vite, 'preview', '--host', '127.0.0.1', '--port', '4174'], {
   cwd: root,
   env: process.env,
@@ -206,18 +210,18 @@ try {
   }
 
   const aggregate = {
-    percentile: 0.75,
+    percentile: percentileRatio,
     lcpMs: percentile(
       samples.map((sample) => sample.vitals.lcpMs),
-      0.75,
+      percentileRatio,
     ),
     cls: percentile(
       samples.map((sample) => sample.vitals.cls),
-      0.75,
+      percentileRatio,
     ),
     inpMs: percentile(
       samples.map((sample) => sample.vitals.inpMs),
-      0.75,
+      percentileRatio,
     ),
   };
   const failures = [

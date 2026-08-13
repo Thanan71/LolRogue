@@ -646,7 +646,7 @@ Preuves et décisions : `docs/frontend-performance.md`.
   bloquant dans la CI actuelle.
 - [x] Si absent/non bloquant, ajouter une mesure Lighthouse/Playwright contrôlée sur
   une preview locale stable.
-- [ ] Séparer budget labo et télémétrie réelle consentie.
+- [x] Séparer budget labo et télémétrie réelle consentie.
 - [ ] Archiver les tendances plutôt qu'un seul point.
 
 ---
