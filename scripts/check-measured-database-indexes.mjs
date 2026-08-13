@@ -29,6 +29,8 @@ const intentionallyUnindexedForeignKeys = new Set([
   'run_attempts_ruleset_version_fkey',
 ]);
 
+const removedIndexes = new Set(['run_attempts_finished_queue']);
+
 function runSupabase(args) {
   const result = spawnSync('supabase', [...args, '--agent', 'yes', '--output-format', 'json'], {
     encoding: 'utf8',
@@ -77,6 +79,23 @@ for (const row of rows) {
   }
 }
 
+const removedNames = [...removedIndexes].map((name) => `'${name}'`).join(', ');
+const removedIndexResult = runSupabase([
+  'db',
+  'query',
+  '--local',
+  `SELECT indexname FROM pg_indexes WHERE schemaname = 'public' AND indexname IN (${removedNames}) ORDER BY indexname`,
+]);
+
+if (!Array.isArray(removedIndexResult.rows)) {
+  throw new Error('Supabase CLI db query JSON response does not contain a rows array.');
+}
+if (removedIndexResult.rows.length > 0) {
+  throw new Error(
+    `Removed indexes returned: ${removedIndexResult.rows.map((row) => row.indexname).join(', ')}`,
+  );
+}
+
 const advisors = runSupabase([
   'db',
   'advisors',
@@ -108,5 +127,5 @@ if (missingIntentionalWarning.length || unexpectedWarning.length) {
 }
 
 process.stdout.write(
-  `Measured index contract passed: ${rows.length} indexes, ${actualUnindexedForeignKeys.size} intentional version FK warnings.\n`,
+  `Measured index contract passed: ${rows.length} indexes, ${removedIndexes.size} removed index, ${actualUnindexedForeignKeys.size} intentional version FK warnings.\n`,
 );

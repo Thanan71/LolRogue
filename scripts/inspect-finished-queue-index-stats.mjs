@@ -49,15 +49,23 @@ if (result.error) throw result.error;
 if (result.status !== 0) process.exit(result.status ?? 1);
 
 const payload = JSON.parse(result.stdout);
-if (!Array.isArray(payload.rows) || payload.rows.length !== 2) {
-  throw new Error('Expected statistics for run_attempts_finished_queue and run_attempts_pkey');
+if (!Array.isArray(payload.rows)) {
+  throw new Error('Supabase CLI db query JSON response does not contain a rows array');
 }
 
 const rowsByName = new Map(payload.rows.map((row) => [row.index_name, row]));
-for (const indexName of ['run_attempts_finished_queue', 'run_attempts_pkey']) {
-  if (!rowsByName.has(indexName)) throw new Error(`Missing statistics for ${indexName}`);
+if (!rowsByName.has('run_attempts_pkey')) {
+  throw new Error('Missing statistics for run_attempts_pkey');
 }
 
 process.stdout.write(
-  `${JSON.stringify({ scope: linked ? 'linked' : 'local', rows: payload.rows }, null, 2)}\n`,
+  `${JSON.stringify(
+    {
+      scope: linked ? 'linked' : 'local',
+      finishedQueuePresent: rowsByName.has('run_attempts_finished_queue'),
+      rows: payload.rows,
+    },
+    null,
+    2,
+  )}\n`,
 );

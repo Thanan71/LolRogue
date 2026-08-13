@@ -84,5 +84,17 @@ pour rendre l'index visible au planner : il occupe 240 kB et évite bien le scan
 
 ## Décision
 
-À compléter après les mesures. L'index reste présent tant que les deux contrôles
-ci-dessus ne sont pas terminés.
+L'index `run_attempts_finished_queue` est supprimé :
+
+- le verifier et ses contrôles annexes ciblent toujours la clé primaire `id` ;
+- aucun worker applicatif ne dépile les lignes par `finished_at` ;
+- la base liée montre 0 scan sur 28 jours sans reset récent, contre 5 569 scans
+  de la clé primaire ;
+- le plan synthétique du claim reste un index scan sur `run_attempts_pkey` après
+  suppression.
+
+La migration `20260813024748_drop_unused_finished_attempt_queue_index.sql` porte
+la suppression. L'exception `unused_index` correspondante est retirée de la
+configuration advisor et la gate `npm run db:indexes:check` interdit le retour de
+l'index. Si un véritable worker de file globale est ajouté plus tard, il devra
+réintroduire un index adapté à sa requête mesurée.

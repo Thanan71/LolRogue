@@ -597,11 +597,18 @@ Preuve : `npm run db:indexes:measure` et `npm run db:indexes:check`, résultats 
 
 L'advisor le marque « unused ». Ne pas le supprimer automatiquement.
 
-- [ ] Vérifier la requête réelle du worker/verifier qui revendique les attempts.
-- [ ] Vérifier si `pg_stat_user_indexes` a été remis à zéro récemment.
-- [ ] Tester sous charge synthétique.
-- [ ] Supprimer seulement si aucun plan utile ne l'emploie et si un index équivalent
+- [x] Vérifier la requête réelle du worker/verifier qui revendique les attempts.
+- [x] Vérifier si `pg_stat_user_indexes` a été remis à zéro récemment.
+- [x] Tester sous charge synthétique.
+- [x] Supprimer seulement si aucun plan utile ne l'emploie et si un index équivalent
   couvre le worker.
+
+Décision : suppression mesurée. Le verifier revendique par `id` et reste couvert
+par `run_attempts_pkey`; sur la base liée, l'index partiel totalisait 0 scan sur
+28 jours sans reset récent, contre 5 569 pour la clé primaire. Le benchmark local
+sur 200 000 attempts conserve le même plan par PK avec et sans l'index. Preuve :
+`npm run db:finished-queue:stats`, `npm run db:finished-queue:measure` et
+`docs/database-finished-queue-index.md`.
 
 ---
 
@@ -926,7 +933,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 ## Sprint D — robustesse locale
 
 18. [x] `P1-TOOL-02` typecheck scripts, configs et E2E.
-19. [ ] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
+19. [x] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
 20. [ ] `P2-PERF-02` Web Vitals sur preview locale stable.
 21. [ ] `P2-TEST-02` seeds variables reproductibles.
 22. [ ] `P2-TEST-03` gate `skipLibCheck=false`.

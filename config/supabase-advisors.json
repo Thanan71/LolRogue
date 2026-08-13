@@ -113,14 +113,6 @@
     },
     {
       "type": "performance",
-      "cacheKey": "unused_index_public_run_attempts_run_attempts_finished_queue",
-      "name": "unused_index",
-      "level": "INFO",
-      "justification": "Décision de suppression explicitement reportée à P2-DB-02 après analyse du worker, des resets statistiques et d'une charge synthétique.",
-      "expiresAt": "2026-09-30"
-    },
-    {
-      "type": "performance",
       "cacheKey": "unused_index_public_run_attempts_run_attempts_player_started",
       "name": "unused_index",
       "level": "INFO",
