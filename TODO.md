@@ -1,6 +1,7 @@
 # TODO — audit complet et backlog courant de LolRogue
 
-Dernier réaudit : **13 août 2026** (passe UI de la carte et du combat).
+Dernier réaudit : **13 août 2026** (passe UI de la carte et du combat, puis audit
+complet de l'équilibrage combat/progression/économie).
 
 Ce fichier remplace l'ancien TODO historique. Son snapshot exact est conservé dans
 [`docs/archive/todo-snapshot-2026-08-08-1837.md`](docs/archive/todo-snapshot-2026-08-08-1837.md).
@@ -103,7 +104,7 @@ Une tâche n'est terminée que lorsque :
 
 ---
 
-# P0 — sécurité, autorité et release gates
+# P0 — sécurité, autorité, équilibre et release gates
 
 ## P0-SEC-01 — Corriger les vues leaderboard `SECURITY DEFINER`
 
@@ -337,6 +338,202 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 
 ---
 
+## P0-BAL-01 — Corriger les incohérences fondamentales du moteur de combat
+
+**Taille : L**
+**Risque : élevé — tout tuning numérique serait calibré autour de comportements cassés.**
+
+### Problèmes vérifiés
+
+- Un cooldown décimal peut passer sous zéro et ne plus jamais satisfaire
+  `isSpellReady() === true`. Les secondes LoL sont en outre utilisées directement
+  comme des tours.
+- Les MP finaux sont sauvegardés dans la run, mais chaque nouveau combat les remet
+  au maximum parce que seuls les PV initiaux sont réinjectés.
+- Les parties hostiles d'Ashe Q, Jinx Q, Leona W, Malphite W et Warwick E ne sont
+  pas résolues correctement lorsque le sort est déclaré `Self`.
+- Electrocute annonce trois compétences, mais son déclencheur devient actif après
+  la première.
+- Les dégâts/exécutions et certains effets de rune peuvent être évalués dans un
+  ordre ou un nombre de fois incohérent.
+
+### Actions
+
+- [ ] Considérer un sort prêt lorsque `cooldown <= 0` et clamper chaque tick avec
+  `Math.max(0, cooldown - 1)`.
+- [ ] Remplacer les cooldowns en secondes par des `cooldownTurns` entiers ; point
+  de départ à mesurer : Q/W/E entre 2 et 5 tours, R entre 6 et 10 tours.
+- [ ] Ajouter `initialMpOverrides` au même niveau que `initialHpOverrides`, côté UI
+  et moteur autoritaire, avec clamp `0..maxMp`.
+- [ ] Formaliser l'attrition mana : point de départ à tester, récupération de
+  20–30 % des MP max après victoire et 100 % au repos.
+- [ ] Ajouter une validation catalogue cible/effet et corriger les cinq sorts
+  composites `Self` ayant une partie hostile.
+- [ ] Faire respecter le seuil `threshold: 3` d'Electrocute.
+- [ ] Tester explicitement l'ordre « dégâts puis execute » ou « execute sur PV
+  avant dégâts » et retenir une seule règle documentée pour Garen/Jinx.
+- [ ] Empêcher la double évaluation des runes `damage_dealt` sur critique et exclure
+  les dégâts bruts des multiplicateurs de pénétration.
+- [ ] Ajouter les régressions équivalentes dans les parcours UI et authority.
+
+### Acceptation
+
+- zéro sort bloqué définitivement par un cooldown négatif ;
+- MP de fin du combat N = MP initiaux du combat N+1, plus la récupération documentée ;
+- zéro effet hostile accepté sans cible hostile résoluble ;
+- seuil Electrocute, execute et critique couverts par des tests déterministes ;
+- parité source/bundle authority validée sur ces scénarios.
+
+### Fichiers / zones
+
+- `src/game/ChampionInstance.ts`
+- `src/game/battle/BattleManager.ts`
+- `src/game/battle/BattleSpellEffectResolver.ts`
+- `src/game/runes/RuneManager.ts`
+- `src/game/rules/CombatRuleRuntime.ts`
+- catalogues champions et runes
+
+---
+
+## P0-BAL-02 — Remplacer la fausse simulation de balance par de vraies runs
+
+**Taille : L**
+**Risque : élevé — `balance:check` donne actuellement une assurance qu'il ne mesure pas.**
+
+### Problème vérifié
+
+`simulateContentBalance()` parcourt tous les nœuds de toutes les branches et appelle
+uniquement `resolveCombatEncounter()` avec un inventaire vide et une progression
+synthétique. Il ne choisit pas de route, ne lance pas `BattleManager`, ne conserve
+pas PV/MP, n'achète rien, ne recrute personne et ne calcule aucun taux de victoire.
+La documentation « 100 runs complètes / 30 runs scriptées » est donc incorrecte.
+Les versions balance sont aussi recopiées manuellement puis testées contre elles-mêmes.
+
+Mesures exploratoires à conserver comme point de comparaison, mais **pas** comme cible
+avant correction du moteur : premiers combats Top en Normal, Ashe/Soraka ≈ 67 % et les
+autres 100 % ; en Hard, Annie/Ashe/Jinx 0 %, cinq champions ≈ 33 % et Darius/Warwick
+≈ 67 %. En duel niveau 1, Darius fait 90–0 et Annie 0–90. Sur toutes les partitions
+5v5 niveau 1, Malphite atteint 98 % de victoire d'inclusion et le combat moyen ne dure
+que 2,42 rounds.
+
+### Actions
+
+- [ ] Créer une `BalancePolicy` versionnée qui, depuis le snapshot public de la run,
+  renvoie une seule commande légale : route, combat, achat, recrutement, équipement,
+  augment, rune et amélioration de sort.
+- [ ] Construire `simulateAuthorityCohort()` autour de `replayAuthorityRun()` sur le
+  bundle Edge courant, avec vérification terminale par `verifyAuthorityRun()`.
+- [ ] Ajouter limites de commandes/temps, détection de deadlock et reproduction de
+  la seed pour chaque échec.
+- [ ] Stratifier chaque cohorte par difficulté × taille/composition d'équipe ×
+  maîtrise/runes/enhancements × politique.
+- [ ] Produire au minimum : victoire avec intervalle Wilson, vagues/biomes p10-p50-p90,
+  biome/encounter de mort, rounds, PV/MP, dégâts/soins/CC, or gagné/dépensé,
+  affordability, achats, recrues, drops par rareté et choix d'augments.
+- [ ] Indexer la baseline JSON par moteur, `contentHash`, version du modèle et version
+  de politique ; conserver seulement les traces de seeds extrêmes comme artefacts CI.
+- [ ] Exécuter 30–50 seeds par cellule en PR et 500–1 000 en nightly/release.
+- [ ] Lire les versions gameplay/hash depuis le registre authority unique et le score
+  Daily depuis une source machine unique ; supprimer les constantes parallèles.
+- [ ] Corriger `docs/content-balance.md` et renommer les métriques qui ne sont pas des
+  simulations de runs.
+
+### Gates initiales
+
+- [ ] Zéro crash, deadlock, non-déterminisme ou divergence source/bundle.
+- [ ] Easy ≥ Normal ≥ Hard avec tolérance statistique, sans masquer les cohortes par
+  taille d'équipe ou niveau méta.
+- [ ] Aucun starter à 0 % sur les premiers combats ; plage de travail : Normal
+  75–95 %, Hard 50–80 %.
+- [ ] Inclusion 5v5 par champion entre 45–55 %, écart maximal 10 points, après
+  correction des règles communes.
+- [ ] Aucun biome hors boss ne concentre plus de 35–40 % des morts.
+- [ ] Une régression supérieure à 5 points de victoire, 0,5 biome médian ou 10 %
+  d'économie exige un diff et une baseline explicitement approuvée.
+
+Les taux de victoire d'une run complète restent des hypothèses à valider avec des
+playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
+
+---
+
+## P0-BAL-03 — Garantir l'égalité des règles Daily et des départs comparables
+
+**Taille : M/L**
+**Risque : élevé — classement Daily et progression de départ non comparables.**
+
+### Problèmes vérifiés
+
+- Le Daily vide les enhancements, mais le contrat mastery réinjecte ensuite jusqu'à
+  +8 % à toutes les statistiques selon le compte.
+- Les slots 2 et 3 sont débloqués globalement par la maîtrise ; ils donnent environ
+  deux ou trois fois plus de corps/actions sans budget ennemi équivalent.
+- Une même loadout de jusqu'à trois keystones est appliquée à chaque champion, ce qui
+  peut produire neuf applications avec trois starters.
+
+### Actions
+
+- [ ] Forcer `mastery_snapshot = {}` et `enhancement_snapshot = {}` dans le Daily,
+  côté contrat DB **et** côté moteur, avec règles/runes versionnées et identiques.
+- [ ] Ajouter un test contractuel « compte neuf = compte maxé » à seed et commandes
+  identiques, jusqu'au score terminal.
+- [ ] Donner le même nombre de starters à toutes les runs comparables ; recommandation
+  de départ : deux starters par défaut en Normal, un starter normalisé en Daily.
+- [ ] Transformer la maîtrise en largeur de roster, reroll ou cosmétique plutôt qu'en
+  avantage de taille d'équipe pour les modes classés.
+- [ ] Si 1/2/3 starters sont conservés, séparer les cohortes/classements et tester un
+  budget de formation ennemi autour de ×1 / ×1,55 / ×2.
+- [ ] Affecter les runes par champion avec budget partagé, ou rendre leur effet unique
+  au niveau équipe ; empêcher la multiplication implicite par le nombre de starters.
+- [ ] Réduire Grasp ou le réinitialiser par combat ; point de départ : +2 DEF/+15 PV,
+  cinq déclenchements maximum.
+
+### Acceptation
+
+Deux comptes de progression opposée doivent produire exactement le même Daily officiel.
+Aucun classement ne doit agréger sans stratification des runs à budgets de départ
+différents.
+
+---
+
+## P0-BAL-04 — Rétablir la hiérarchie augments/drops et couper le snowball économique
+
+**Taille : M/L**
+**Risque : élevé — quelques choix dominent à la fois la puissance et le score Daily.**
+
+### Problèmes vérifiés
+
+- Les bonus plats Silver dépassent souvent les pourcentages Gold : +20 AP représente
+  environ +154 à +250 % d'AP au niveau 1, tandis que Gold ne donne que +12 %.
+- Les augments économiques actuels peuvent rapporter environ 825 / 1 650 / 3 300 or
+  après le choix Top, contre environ 1 222 or pour une run Normal entière sans achat.
+- Le score Daily récompense l'or total gagné : ces augments dominent donc à la fois
+  la puissance de la run et le classement, même lorsque l'or est dépensé.
+- Les drops sont uniformes par ID : environ 26,7 % de légendaires et 40 % de tier 2
+  par drop ; Hard augmente encore cette puissance via +15 % de chance de drop.
+
+### Actions
+
+- [ ] Recalibrer les Silver autour de +7 ATK, +5 DEF, +7 AP, +90 PV et +12–15 MS.
+- [ ] Recalibrer Gold autour de +12–15 % et Prism autour de +22–25 %.
+- [ ] Ramener l'or/combat Silver/Gold/Prism autour de 15–20 / 35–45 / 60–75 ;
+  plafonner la remise Prism à 10 %.
+- [ ] Utiliser une table de rareté explicite : common 55 %, uncommon 25 %, epic 15 %,
+  legendary 5 %, puis tirer l'item dans la rareté.
+- [ ] Gater le tier 2 par biome : Top 0 %, Jungle/Mid 10 %, Bot 20 %, River 30 %,
+  boss final garanti ou table dédiée.
+- [ ] Retirer le bonus de drop Hard ou le remplacer par score/récompense méta ne
+  renforçant pas la run en cours.
+- [ ] Ajouter des tests statistiques de rendement restant, rareté, valeur et
+  domination de choix ; aucune option ne doit dépasser durablement 55–60 % de pick.
+
+### Acceptation
+
+Chaque rang d'augment doit avoir une valeur attendue strictement supérieure au rang
+précédent sans rendre l'économie dominante. La distribution de drops observée sur
+10 000 tirages doit rester dans la tolérance de la table et respecter les gates biome.
+
+---
+
 # P1 — sécurité et confidentialité
 
 ## P1-SEC-01 — Activer la protection contre les mots de passe compromis
@@ -462,6 +659,117 @@ déjà été rejetées avec le même code.
 - [ ] Ne jamais « réparer » une trace rejetée en insérant manuellement un résultat
   supposé.
 - [ ] Documenter la procédure support et l'audit des compensations éventuelles.
+
+---
+
+# P1 — équilibrage combat, progression et économie
+
+## P1-BAL-01 — Recalibrer AoE, CC, difficulté et IA avant les champions
+
+**Taille : L**
+
+### Problèmes vérifiés
+
+- `Area` touche toujours les cinq ennemis à pleine puissance ; les ultimes de zone
+  peuvent donc produire 500 % de dégâts et retirer jusqu'à 10–20 actions ennemies.
+- Le hard CC décimal est arrondi au tour supérieur. Soraka E cumule notamment silence
+  et snare sur toute l'équipe.
+- Tous les ultimes commencent prêts et l'autoplay choisit toujours
+  `R > E > W > Q > attaque`, sans considérer PV, nombre de cibles ou gaspillage.
+- Le multiplicateur de difficulté touche PV, mana, dégâts, défenses, initiative,
+  régénération, critique et même des statistiques actuellement inutilisées comme la portée.
+- L'attack speed ne donne pas d'attaque supplémentaire et la portée n'influence pas
+  la légalité d'une action ; leur valeur affichée ne correspond donc pas au moteur.
+
+### Actions système
+
+- [ ] Limiter une AoE standard à trois cibles, ou appliquer 100 % à la cible principale
+  et 50 % aux secondaires, avec plafond de 300 % de dégâts totaux.
+- [ ] Limiter le hard CC à un tour et empêcher une cible de perdre plus de deux actions
+  sur une fenêtre de quatre rounds.
+- [ ] Rendre les ultimes indisponibles avant le round 3.
+- [ ] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,
+  AoE seulement avec au moins deux cibles utiles, cible alliée la plus blessée et cible
+  ennemie choisie par valeur effective plutôt qu'au hasard.
+- [ ] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa
+  racine, et laisser défenses, mana, vitesse, portée, critique et régénération inchangés.
+- [ ] Décider explicitement le rôle de la vitesse d'attaque et de la portée ; retirer
+  ou renommer tout bonus sans effet tant que la mécanique n'existe pas.
+- [ ] Ramener les slows cumulés à un plafond de design inférieur à 99 %.
+
+### Tuning champions, uniquement après les actions système
+
+- [ ] Darius : un seul DoT rafraîchi, cinq charges maximum, environ 8–10 dégâts/tour
+  au niveau 1 ; corriger E en vraie pénétration au lieu d'un bonus d'armure.
+- [ ] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
+- [ ] Soraka : R en `Allies`, E avec silence un tour et slow à la place du double verrouillage.
+- [ ] Garen/Jinx : appliquer la règle d'execute commune retenue dans `P0-BAL-01`.
+- [ ] Recalibrer l'AP naturel vers environ 20–30 au niveau 1 et 100–140 au niveau 18,
+  puis réduire les dégâts de base si nécessaire.
+- [ ] Auditer chaque rang de sort : valeur marginale strictement positive, environ
+  +10–18 % d'effet primaire ou amélioration de cooldown/coût ; Ashe E ne doit plus
+  proposer des rangs sans effet.
+- [ ] Ne pas buff Warwick avant correction de son E et de l'IA : il est faible en
+  inclusion 5v5 mais déjà très fort en duel.
+
+### Acceptation
+
+- aucun champion ne doit rester à 0 ou 100 % sur une matrice large uniquement à cause
+  d'une règle générique ;
+- les rapports exposent dégâts par round, soins effectifs, shield absorbé, mana
+  consommée et actions ennemies supprimées par CC ;
+- tout changement individuel est justifié par un diff de cohorte après correctifs système.
+
+---
+
+## P1-BAL-02 — Recalibrer carte, shop, repos, trésors et recrutement
+
+**Taille : L**
+
+### Problèmes vérifiés
+
+- Selon la route, une run contient environ 15,7 à 24,9 combats, 1,1 à 4,9 élites,
+  0,5 à 2,7 shops et 0,4 à 2,9 recrutements.
+- Le shop moyen n'apparaît qu'environ 1,46 fois par run ; seulement ~41 % des offres
+  sont abordables à l'arrivée, et BF Sword coûte presque tout le revenu d'une run.
+- Le repos paie une seule fois pour soigner toute l'équipe et devient 6–10 fois plus
+  efficace qu'une potion par gold avec trois à cinq champions.
+- Le trésor est sans risque et donne en moyenne plus qu'un grand nombre de combats.
+- Une recrue tardive arrive niveau 1 et peut finir plusieurs niveaux derrière l'équipe.
+- Les candies sont divisées par la taille finale, ce qui encourage à ne pas recruter.
+- Les élites n'ont pas un budget homogène : un renfort sur une formation solo vaut bien
+  plus que +8 % de statistiques sur une formation multiple.
+
+### Actions
+
+- [ ] Contraindre tous les chemins à un écart maximal de trois combats et une élite ;
+  équilibrer la valeur attendue par colonne et par risque.
+- [ ] Garantir un shop avant la fin Jungle et une recrue avant la fin Mid.
+- [ ] Tester une courbe biome monotone autour de Top 1, Jungle 1,1, Mid 1,2,
+  Bot 1,25, River 1,4, Base 1,6, puis valider par TTK/perte de PV plutôt que somme de stats.
+- [ ] Donner aux élites un budget de puissance constant d'environ +35–45 % et une
+  récompense +50 %, quelle que soit la taille de la formation source.
+- [ ] Recaler les composants autour de 100–250 gold, BF Sword 500–650 et les recrues
+  150–300 ; implémenter de vraies recettes ou retirer le faux signal de craft.
+- [ ] Faire varier le repos selon l'effectif ; point de départ : partial
+  `20 + 10L + 20(n-1)`, full `50 + 20L + 40(n-1)`.
+- [ ] Réduire le trésor vers `30 + 15L + 0..30`, drop 25 %, ou proposer un choix
+  exclusif or/item avec contrepartie.
+- [ ] Remplacer un événement négatif inabordable par une petite contrepartie ou aucun
+  gain, au lieu de repondérer automatiquement vers une issue positive.
+- [ ] Recruter au niveau `max(runLevel + 1, médianeEquipe - 1)`.
+- [ ] Remplacer la division des candies par taille finale par un budget de compte fixe
+  et une part champion liée à sa participation/aux biomes parcourus.
+- [ ] Clarifier si les fins de biome sont de vrais boss ; le boss Base forcé et les
+  autres sorties doivent utiliser une terminologie cohérente.
+
+### Acceptation
+
+- une route ne doit plus décider à elle seule de plusieurs niveaux ou achats d'écart ;
+- le joueur médian doit pouvoir prendre au moins une décision d'achat utile avant la
+  première sortie de biome concernée ;
+- recruter tard ne doit être ni un piège immédiat de combat ni une pénalité de maîtrise ;
+- l'efficacité du repos doit rester au plus 2–3 fois celle d'une potion par gold.
 
 ---
 
@@ -723,6 +1031,35 @@ cherche pas les dépendances d'ordre au-delà de cette permutation.
 
 ---
 
+## P2-BAL-01 — Confronter les cohortes autoritaires aux playtests et au terrain
+
+**Taille : M/L**
+
+- [ ] Définir au moins deux politiques automatisées distinctes — sûre et économique —
+  pour ne pas confondre équilibre et comportement d'un seul bot.
+- [ ] Organiser des playtests humains par difficulté, taille d'équipe et expérience ;
+  fixer ensuite les bandes de victoire Easy/Normal/Hard au lieu de les déduire de
+  l'autoplay seul.
+- [ ] Construire une vue admin agrégée depuis les runs vérifiées et attempts existantes,
+  groupée par date, ruleset, difficulté, mode, taille/hash de composition et niveau méta.
+- [ ] Ne jamais mélanger des versions de ruleset dans une même moyenne et contrôler les
+  effets de composition/taille avant d'attribuer un écart à un champion.
+- [ ] Appliquer un seuil minimal `n >= 30`, des intervalles d'incertitude et aucune
+  exposition de user ID, seed ou journal de commandes.
+- [ ] Ajouter uniquement en opt-in les mesures non déjà nécessaires au service, comme
+  offres vues/refusées ou raison d'abandon ; définir leur rétention avant collecte.
+- [ ] Comparer simulation et terrain sur taux de victoire, biome de mort, économie,
+  pick rate et performance conditionnelle des champions/augments.
+- [ ] Exiger une décision produit et une baseline explicitement versionnée pour toute
+  dérive volontaire importante.
+
+### Acceptation
+
+Une décision de tuning doit citer une cohorte autoritaire reproductible et un signal
+de playtest/terrain compatible, avec taille d'échantillon et intervalle affichés.
+
+---
+
 # P2 — CI et supply chain
 
 ## P2-CI-01 — Ajouter protection de branche et required checks vérifiables
@@ -930,55 +1267,65 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 4. [x] `P0-RUN-01` registre authority.
 5. [x] `P0-REL-01` readiness réelle.
 
-## Sprint B — sécurité et exploitation
+## Sprint B — rendre l'équilibrage mesurable et comparable
 
-6. [ ] `P1-SEC-01` mots de passe compromis — différé explicitement tant que
+6. [ ] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
+7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
+8. [ ] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
+9. [ ] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
+10. [ ] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
+11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
+12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.
+
+## Sprint C — sécurité et exploitation
+
+13. [ ] `P1-SEC-01` mots de passe compromis — différé explicitement tant que
    l'option payante n'est pas souhaitée.
-7. [x] `P1-PRIV-01` cron rétention sociale.
-8. [x] `P1-CI-01` preview SHA-correcte.
-9. [x] `P1-CI-02` auto-discovery DB tests.
-10. [x] `P1-TOOL-01` Node types/runtime.
-11. [x] `P1-RUN-01` surveillance des rejets.
+14. [x] `P1-PRIV-01` cron rétention sociale.
+15. [x] `P1-CI-01` preview SHA-correcte.
+16. [x] `P1-CI-02` auto-discovery DB tests.
+17. [x] `P1-TOOL-01` Node types/runtime.
+18. [x] `P1-RUN-01` surveillance des rejets.
 
-## Sprint C — performance / dette
+## Sprint D — performance / dette
 
-12. [x] `P2-DB-01` index mesurés.
-13. [x] `P2-PERF-01` headroom bundle, sans modifier l'interface.
-14. [x] `P2-TEST-01` couverture des frontières critiques.
-15. [x] `P2-TEST-04` advisors versionnés.
-16. [x] `P2-WEB-01` CSP.
-17. [ ] `P2-OPS-01` runbook de restauration réelle.
+19. [x] `P2-DB-01` index mesurés.
+20. [x] `P2-PERF-01` headroom bundle, sans modifier l'interface.
+21. [x] `P2-TEST-01` couverture des frontières critiques.
+22. [x] `P2-TEST-04` advisors versionnés.
+23. [x] `P2-WEB-01` CSP.
+24. [ ] `P2-OPS-01` runbook de restauration réelle.
 
-## Sprint D — robustesse locale
+## Sprint E — robustesse locale
 
-18. [x] `P1-TOOL-02` typecheck scripts, configs et E2E.
-19. [x] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
-20. [x] `P2-PERF-02` Web Vitals sur preview locale stable.
-21. [ ] `P2-TEST-02` seeds variables reproductibles.
-22. [ ] `P2-TEST-03` gate `skipLibCheck=false`.
-23. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
+25. [x] `P1-TOOL-02` typecheck scripts, configs et E2E.
+26. [x] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
+27. [x] `P2-PERF-02` Web Vitals sur preview locale stable.
+28. [ ] `P2-TEST-02` seeds variables reproductibles.
+29. [ ] `P2-TEST-03` gate `skipLibCheck=false`.
+30. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
 
-## Sprint E — fiabilité produit et exploitation
+## Sprint F — fiabilité produit et exploitation
 
-24. [ ] `P1-SEC-03` frontière explicite des tables server-only.
-25. [ ] `P1-RUN-02` UX des progressions rejetées.
-26. [ ] `P1-RUN-03` traitement des attempts affectées par un bug client.
-27. [ ] `P2-OBS-01` SLI/SLO techniques minimisés.
-28. [ ] `P2-DOC-01` statuts recalculés et preuves exécutables.
+31. [ ] `P1-SEC-03` frontière explicite des tables server-only.
+32. [ ] `P1-RUN-02` UX des progressions rejetées.
+33. [ ] `P1-RUN-03` traitement des attempts affectées par un bug client.
+34. [ ] `P2-OBS-01` SLI/SLO techniques minimisés.
+35. [ ] `P2-DOC-01` statuts recalculés et preuves exécutables.
 
-## Sprint F — architecture et produit
+## Sprint G — architecture et produit
 
-29. [ ] `P2-CI-02` gates séparées par responsabilité, avec commande locale
+36. [ ] `P2-CI-02` gates séparées par responsabilité, avec commande locale
     tout-en-un conservée.
-30. [ ] `P3-PROD-01` historique de runs exploitable.
-31. [ ] `P3-PROD-02` internationalisation anglaise.
-32. [ ] `P3-PROD-03` décision PWA/offline.
-33. [ ] `P3-PROD-04` enrichissement avec gate moteur.
+37. [ ] `P3-PROD-01` historique de runs exploitable.
+38. [ ] `P3-PROD-02` internationalisation anglaise.
+39. [ ] `P3-PROD-03` décision PWA/offline.
+40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
 
-## Sprint G — validations humaines et externes
+## Sprint H — validations humaines et externes
 
-34. [ ] `P3-A11Y-01` validation humaine multi-lecteurs d'écran.
-35. [ ] `P3-LEGAL-01` blockers externes de diffusion.
+41. [ ] `P3-A11Y-01` validation humaine multi-lecteurs d'écran.
+42. [ ] `P3-LEGAL-01` blockers externes de diffusion.
 
 ## Backlog différé par décision de coût
 
@@ -1003,6 +1350,13 @@ La bêta technique ne redevient candidate que lorsque :
 - [ ] trois CI complètes consécutives **après** le dernier P0 ;
 - [ ] preview du SHA candidat validée, pas une ancienne prod ;
 - [ ] taux de rejet authority vérifié après déploiement du correctif ;
+- [ ] `balance:check` rejoue de vraies runs authority et vérifie le bundle/version/hash
+  candidats, au lieu de parcourir synthétiquement tous les nœuds ;
+- [ ] Daily officiel déterministe et identique entre un compte neuf et un compte maxé ;
+- [ ] aucun starter à 0 % sur les premiers combats de la cohorte de release ;
+- [ ] distributions augments/drops et rendements économiques dans les tolérances
+  versionnées de la baseline ;
+- [ ] règles cooldown/MP/ciblage/Electrocute couvertes en parité UI + authority ;
 - [ ] cron de rétention vérifiés ;
 - [ ] audit mots de passe compromis activé ;
 - [ ] runbook restauration testé sur environnement isolé ;
