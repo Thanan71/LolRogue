@@ -134,7 +134,8 @@ export interface Spell {
   name: string;
   description: string;
   maxRank: number;
-  cooldown: number[]; // per rank
+  /** Canonical integer cooldown measured in completed combat rounds, per rank. */
+  cooldownTurns: number[];
   cost: number[]; // per rank
   range: number[]; // per rank
   image: string; // filename e.g. "AhriQ.png"

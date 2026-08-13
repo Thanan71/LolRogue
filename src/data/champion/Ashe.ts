@@ -49,7 +49,7 @@ export const ashe: Champion = {
       description:
         'Ashe génère des effets Concentration. Au maximum, elle active pour augmenter sa vitesse d attaque et transformer ses attaques en volée de flèches.',
       maxRank: 5,
-      cooldown: [0, 0, 0, 0, 0],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [30, 30, 30, 30, 30],
       range: [400, 400, 400, 400, 400],
       image: 'AsheQ.png',
@@ -78,7 +78,7 @@ export const ashe: Champion = {
       description:
         'Ashe tire des flèches dans une zone conique pour infliger des dégâts bonus et ralentir les cibles.',
       maxRank: 5,
-      cooldown: [18, 14.5, 11, 7.5, 4],
+      cooldownTurns: [5, 4, 3, 2, 2],
       cost: [75, 70, 65, 60, 55],
       range: [1200, 1200, 1200, 1200, 1200],
       image: 'Volley.png',
@@ -100,7 +100,7 @@ export const ashe: Champion = {
       name: 'Rapace',
       description: 'Ashe envoie son faucon en reconnaissance, révélant une zone de la carte.',
       maxRank: 5,
-      cooldown: [5, 5, 5, 5, 5],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [0, 0, 0, 0, 0],
       range: [25000, 25000, 25000, 25000, 25000],
       image: 'AsheSpiritOfTheHawk.png',
@@ -114,7 +114,7 @@ export const ashe: Champion = {
       description:
         'Ashe tire un trait de glace en ligne droite. Si la flèche touche un champion, elle l étourdit (durée augmentant avec la distance) et inflige des dégâts.',
       maxRank: 3,
-      cooldown: [100, 80, 60],
+      cooldownTurns: [7, 6, 6],
       cost: [100, 100, 100],
       range: [25000, 25000, 25000],
       image: 'EnchantedCrystalArrow.png',

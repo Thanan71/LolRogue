@@ -49,7 +49,7 @@ export const garen: Champion = {
       description:
         'Garen gagne un bonus en vitesse de déplacement et purge les ralentissements. Sa prochaine attaque inflige des dégâts bonus et réduit la cible au silence.',
       maxRank: 5,
-      cooldown: [8, 8, 8, 8, 8],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [0, 0, 0, 0, 0],
       range: [300, 300, 300, 300, 300],
       image: 'GarenQ.png',
@@ -79,7 +79,7 @@ export const garen: Champion = {
       description:
         'Garen active un bouclier qui absorbe les dégâts et augmente temporairement son armure et résistance magique.',
       maxRank: 5,
-      cooldown: [23, 21, 19, 17, 15],
+      cooldownTurns: [5, 5, 5, 4, 4],
       cost: [0, 0, 0, 0, 0],
       range: [0, 0, 0, 0, 0],
       image: 'GarenW.png',
@@ -102,7 +102,7 @@ export const garen: Champion = {
       description:
         "Garen donne des coups d'épée tourbillonnants, infligeant des dégâts physiques aux ennemis proches.",
       maxRank: 5,
-      cooldown: [9, 9, 9, 9, 9],
+      cooldownTurns: [3, 3, 3, 3, 3],
       cost: [0, 0, 0, 0, 0],
       range: [325, 325, 325, 325, 325],
       image: 'GarenE.png',
@@ -124,7 +124,7 @@ export const garen: Champion = {
       description:
         'Garen invoque la puissance de Demacia pour exécuter un champion ennemi, infligeant des dégâts bruts basés sur les PV manquants.',
       maxRank: 3,
-      cooldown: [120, 100, 80],
+      cooldownTurns: [8, 7, 6],
       cost: [0, 0, 0],
       range: [400, 400, 400],
       image: 'GarenR.png',

@@ -40,7 +40,7 @@ function makeChampion(
     name: `${id} ${slot}`,
     description: 'Configured test effect',
     maxRank: 5,
-    cooldown: [1, 1, 1, 1, 1],
+    cooldownTurns: [1, 1, 1, 1, 1],
     cost: [0, 0, 0, 0, 0],
     range: [1000, 1000, 1000, 1000, 1000],
     image: '',

@@ -49,7 +49,7 @@ export const soraka: Champion = {
       description:
         'Une étoile s abat à l endroit ciblé, infligeant des dégâts magiques et ralentissant. Si un champion est touché, Soraka récupère des PV.',
       maxRank: 5,
-      cooldown: [8, 7, 6, 5, 4],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [45, 50, 55, 60, 65],
       range: [810, 810, 810, 810, 810],
       image: 'SorakaQ.png',
@@ -72,7 +72,7 @@ export const soraka: Champion = {
       name: 'Infusion astrale',
       description: 'Soraka sacrifie une partie de ses PV pour soigner un champion allié.',
       maxRank: 5,
-      cooldown: [8, 7, 6, 5, 4],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [40, 45, 50, 55, 60],
       range: [550, 550, 550, 550, 550],
       image: 'SorakaW.png',
@@ -86,7 +86,7 @@ export const soraka: Champion = {
       description:
         'Crée une zone qui réduit au silence les ennemis. Quand la zone disparaît, les ennemis encore dedans sont immobilisés.',
       maxRank: 5,
-      cooldown: [20, 19, 18, 17, 16],
+      cooldownTurns: [5, 5, 5, 5, 4],
       cost: [70, 75, 80, 85, 90],
       range: [925, 925, 925, 925, 925],
       image: 'SorakaE.png',
@@ -110,7 +110,7 @@ export const soraka: Champion = {
       description:
         'Soraka remplit ses alliés d espoir, rendant immédiatement des PV à tous les champions alliés.',
       maxRank: 3,
-      cooldown: [150, 135, 120],
+      cooldownTurns: [10, 9, 8],
       cost: [100, 100, 100],
       range: [25000, 25000, 25000],
       image: 'SorakaR.png',

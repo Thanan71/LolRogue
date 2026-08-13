@@ -333,10 +333,12 @@ export function SpellUpgradePanel({
           <div>
             <dt>Recharge</dt>
             <dd>
-              {selectedSpell ? formatValue(valueAtRank(selectedSpell.cooldown, selectedRank)) : '—'}{' '}
-              s
+              {selectedSpell
+                ? formatValue(valueAtRank(selectedSpell.cooldownTurns, selectedRank))
+                : '—'}{' '}
+              tours
               {selectedSpell && selectedCanUpgrade
-                ? ` → ${formatValue(valueAtRank(selectedSpell.cooldown, selectedNextRank))} s`
+                ? ` → ${formatValue(valueAtRank(selectedSpell.cooldownTurns, selectedNextRank))} tours`
                 : ''}
             </dd>
           </div>

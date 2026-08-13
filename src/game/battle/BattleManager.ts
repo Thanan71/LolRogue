@@ -264,7 +264,7 @@ export class BattleManager {
         {
           type,
           cost: definition.cost,
-          cooldown: definition.cooldown,
+          cooldownTurns: definition.cooldownTurns,
           targeting: definition.targeting,
           requiresTarget: resolution.requiresTarget,
           validTargetIds: resolution.legalTargets.map((target) => target.id),

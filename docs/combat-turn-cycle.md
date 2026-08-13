@@ -22,6 +22,9 @@
 
 ## Unités
 
+- Les recharges utilisent exclusivement des tours entiers (`cooldownTurns`) :
+  Q/W/E restent entre 2 et 5 tours et R entre 6 et 10 tours. Les secondes de
+  Data Dragon sont converties à l'import et ne sont jamais lues comme des rounds.
 - Une durée représente un nombre entier de **tours du porteur**. Une durée en
   secondes est arrondie au tour supérieur.
 - Les pourcentages acceptent une fraction (`0.30`) ou une valeur humaine (`30`) ;

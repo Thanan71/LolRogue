@@ -361,7 +361,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 
 - [x] Considérer un sort prêt lorsque `cooldown <= 0` et clamper chaque tick avec
   `Math.max(0, cooldown - 1)`.
-- [ ] Remplacer les cooldowns en secondes par des `cooldownTurns` entiers ; point
+- [x] Remplacer les cooldowns en secondes par des `cooldownTurns` entiers ; point
   de départ à mesurer : Q/W/E entre 2 et 5 tours, R entre 6 et 10 tours.
 - [ ] Ajouter `initialMpOverrides` au même niveau que `initialHpOverrides`, côté UI
   et moteur autoritaire, avec clamp `0..maxMp`.

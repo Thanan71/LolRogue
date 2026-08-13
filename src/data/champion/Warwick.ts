@@ -49,7 +49,7 @@ export const warwick: Champion = {
       description:
         'Warwick mord sa cible, infligeant des dégâts en fonction des PV max de la cible et récupérant des PV.',
       maxRank: 5,
-      cooldown: [6, 5.5, 5, 4.5, 4],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [50, 60, 70, 80, 90],
       range: [350, 350, 350, 350, 350],
       image: 'WarwickQ.png',
@@ -72,7 +72,7 @@ export const warwick: Champion = {
       description:
         'Warwick repère les ennemis ayant moins de 50% PV et obtient des bonus en vitesse de déplacement et vitesse d attaque contre eux.',
       maxRank: 5,
-      cooldown: [80, 70, 60, 50, 40],
+      cooldownTurns: [5, 5, 5, 5, 5],
       cost: [55, 55, 55, 55, 55],
       range: [4000, 4000, 4000, 4000, 4000],
       image: 'WarwickW.png',
@@ -101,7 +101,7 @@ export const warwick: Champion = {
       description:
         'Warwick gagne de la réduction des dégâts pendant 2.5 sec. À la fin, il hurle, effrayant les ennemis proches.',
       maxRank: 5,
-      cooldown: [15, 14, 13, 12, 11],
+      cooldownTurns: [4, 4, 4, 3, 3],
       cost: [40, 40, 40, 40, 40],
       range: [375, 375, 375, 375, 375],
       image: 'WarwickE.png',
@@ -124,7 +124,7 @@ export const warwick: Champion = {
       description:
         'Warwick bondit dans une direction, neutralisant le premier champion touché pendant 1.5 sec et soignant ses dégâts.',
       maxRank: 3,
-      cooldown: [110, 90, 70],
+      cooldownTurns: [8, 6, 6],
       cost: [100, 100, 100],
       range: [25000, 25000, 25000],
       image: 'WarwickR.png',

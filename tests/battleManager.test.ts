@@ -33,7 +33,7 @@ function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
     name: `Test Spell ${slot}`,
     description: `Desc ${slot}`,
     maxRank: 5,
-    cooldown: [8, 7.5, 7, 6.5, 6],
+    cooldownTurns: [8, 7.5, 7, 6.5, 6],
     cost: [50, 55, 60, 65, 70],
     range: [700, 700, 700, 700, 700],
     image: `Test${slot}.png`,
@@ -461,7 +461,7 @@ describe('P1 manual combat choices', () => {
     const option = bm
       .getAvailableActions(champion)
       .find((candidate) => candidate.type === ActionType.SpellQ);
-    expect(option).toMatchObject({ cost: 60, cooldown: 7, validTargetIds: ['E1'] });
+    expect(option).toMatchObject({ cost: 60, cooldownTurns: 7, validTargetIds: ['E1'] });
 
     expect(bm.submitAction({ type: ActionType.SpellQ, cost: 0, targetId: 'E1' })).toBe(true);
     expect(bm.getCombatantState('P1', 'player')?.currentMp).toBe(240);

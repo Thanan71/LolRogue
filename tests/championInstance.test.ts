@@ -30,7 +30,7 @@ function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
     name: `Test Spell ${slot}`,
     description: `Desc ${slot}`,
     maxRank: 5,
-    cooldown: [8, 7.5, 7, 6.5, 6],
+    cooldownTurns: [8, 7.5, 7, 6.5, 6],
     cost: [50, 55, 60, 65, 70],
     range: [700, 700, 700, 700, 700],
     image: `Test${slot}.png`,
@@ -227,7 +227,7 @@ describe('ChampionInstance', () => {
     });
     it('should provide spell details', () => {
       const q = champ.getSpell('Q')!;
-      expect(q.cooldown).toEqual([8, 7.5, 7, 6.5, 6]);
+      expect(q.cooldownTurns).toEqual([8, 7.5, 7, 6.5, 6]);
       expect(q.cost).toEqual([50, 55, 60, 65, 70]);
       expect(q.maxRank).toBe(5);
     });

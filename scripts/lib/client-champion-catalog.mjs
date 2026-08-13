@@ -78,7 +78,7 @@ export function createClientChampionCatalog(champions) {
         name: spell.name,
         description: combatReady ? spell.description : '',
         maxRank: spell.maxRank,
-        cooldown: [],
+        cooldownTurns: [],
         cost: [],
         range: [],
         image: '',

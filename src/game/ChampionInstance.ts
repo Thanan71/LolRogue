@@ -241,8 +241,8 @@ export class ChampionInstance {
    */
   getMaxCooldown(slot: SpellSlot): number {
     const spell = this._spells[slot];
-    if (!spell || !spell.cooldown || spell.cooldown.length === 0) return 0;
-    return getRankValue(spell.cooldown, this._spellRanks[slot]);
+    if (!spell || spell.cooldownTurns.length === 0) return 0;
+    return getRankValue(spell.cooldownTurns, this._spellRanks[slot]);
   }
 
   /**
@@ -262,8 +262,9 @@ export class ChampionInstance {
     if (!spell) return false;
     if (!this.isSpellReady(slot)) return false;
 
-    const cooldownValue = getRankValue(spell.cooldown, this._spellRanks[slot]);
-    this._cooldowns[slot] = Math.max(0, cooldownValue * Math.max(0, cooldownMultiplier));
+    const cooldownValue = getRankValue(spell.cooldownTurns, this._spellRanks[slot]);
+    const scaledCooldown = cooldownValue * Math.max(0, cooldownMultiplier);
+    this._cooldowns[slot] = cooldownValue <= 0 ? 0 : Math.max(1, Math.ceil(scaledCooldown));
     return true;
   }
 

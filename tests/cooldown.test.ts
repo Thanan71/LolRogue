@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { implementedChampions } from '../src/data/champion';
 import { ChampionInstance, SPELL_SLOTS } from '../src/game/ChampionInstance';
 import type { Champion, ChampionStats, Passive, Spell } from '../src/types';
 
@@ -30,7 +31,7 @@ function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
     name: `Test Spell ${slot}`,
     description: `Desc ${slot}`,
     maxRank: 5,
-    cooldown: cooldown ?? [8, 7.5, 7, 6.5, 6],
+    cooldownTurns: cooldown ?? [8, 7.5, 7, 6.5, 6],
     cost: [50, 55, 60, 65, 70],
     range: [700, 700, 700, 700, 700],
     image: `Test${slot}.png`,
@@ -77,6 +78,21 @@ describe('Cooldown System', () => {
   });
 
   describe('initial state', () => {
+    it('publishes integer turn cooldowns within the non-ultimate and ultimate budgets', () => {
+      for (const champion of implementedChampions) {
+        champion.spells.forEach((spell, index) => {
+          const min = index === 3 ? 6 : 2;
+          const max = index === 3 ? 10 : 5;
+          expect(spell.cooldownTurns.length, `${champion.id}:${spell.id}`).toBe(spell.maxRank);
+          for (const turns of spell.cooldownTurns) {
+            expect(Number.isInteger(turns), `${champion.id}:${spell.id}`).toBe(true);
+            expect(turns, `${champion.id}:${spell.id}`).toBeGreaterThanOrEqual(min);
+            expect(turns, `${champion.id}:${spell.id}`).toBeLessThanOrEqual(max);
+          }
+        });
+      }
+    });
+
     it('all spells should be ready (cooldown 0) at battle start', () => {
       for (const slot of SPELL_SLOTS) {
         expect(champ.isSpellReady(slot)).toBe(true);
@@ -123,7 +139,7 @@ describe('Cooldown System', () => {
             name: 'Q',
             description: '',
             maxRank: 5,
-            cooldown: [10, 9, 8, 7, 6],
+            cooldownTurns: [10, 9, 8, 7, 6],
             cost: [50],
             range: [0],
             image: '',
@@ -136,7 +152,7 @@ describe('Cooldown System', () => {
             name: 'W',
             description: '',
             maxRank: 5,
-            cooldown: [14, 13, 12, 11, 10],
+            cooldownTurns: [14, 13, 12, 11, 10],
             cost: [60],
             range: [0],
             image: '',
@@ -149,7 +165,7 @@ describe('Cooldown System', () => {
             name: 'E',
             description: '',
             maxRank: 5,
-            cooldown: [20, 18, 16, 14, 12],
+            cooldownTurns: [20, 18, 16, 14, 12],
             cost: [70],
             range: [0],
             image: '',
@@ -162,7 +178,7 @@ describe('Cooldown System', () => {
             name: 'R',
             description: '',
             maxRank: 3,
-            cooldown: [120, 100, 80],
+            cooldownTurns: [120, 100, 80],
             cost: [100],
             range: [0],
             image: '',
@@ -210,21 +226,20 @@ describe('Cooldown System', () => {
     });
 
     it('clamps a fractional cooldown to zero instead of stranding the spell below zero', () => {
-      const fractional = new ChampionInstance(
-        makeTestChampion({
-          spells: makeTestChampion().spells.map((spell, index) =>
-            index === 0 ? { ...spell, cooldown: [0.5] } : spell,
-          ),
-        }),
-      );
-
-      expect(fractional.useSpell('Q')).toBe(true);
+      const fractional = new ChampionInstance(makeTestChampion());
+      (fractional as unknown as { _cooldowns: Record<string, number> })._cooldowns.Q = 0.5;
       expect(fractional.getCooldown('Q')).toBe(0.5);
       fractional.tickCooldowns();
 
       expect(fractional.getCooldown('Q')).toBe(0);
       expect(fractional.isSpellReady('Q')).toBe(true);
       expect(fractional.useSpell('Q')).toBe(true);
+    });
+
+    it('rounds cooldown reductions up to a whole turn', () => {
+      expect(champ.useSpell('Q', 0.51)).toBe(true);
+      expect(champ.getCooldown('Q')).toBe(5);
+      expect(Number.isInteger(champ.getCooldown('Q'))).toBe(true);
     });
 
     it('should not affect unused spells', () => {

@@ -16,7 +16,7 @@ import {
 export interface BattleActionDefinition {
   type: ActionType;
   cost: number;
-  cooldown: number;
+  cooldownTurns: number;
   targeting: ActionTargeting;
   spellSlot?: SpellSlot;
   rankIndex: number;
@@ -47,7 +47,7 @@ export function getBattleActionDefinition(
     return {
       type,
       cost: 0,
-      cooldown: 0,
+      cooldownTurns: 0,
       targeting: TargetingType.Enemy,
       rankIndex: 0,
       includeDefeatedTargets: false,
@@ -65,7 +65,7 @@ export function getBattleActionDefinition(
   return {
     type,
     cost: getRankValue(spell.cost, rank),
-    cooldown: getRankValue(spell.cooldown, rank),
+    cooldownTurns: getRankValue(spell.cooldownTurns, rank),
     targeting: spell.targeting,
     spellSlot,
     rankIndex: rank - 1,
