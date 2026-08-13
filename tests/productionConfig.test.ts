@@ -65,9 +65,10 @@ describe('production configuration', () => {
 
   it('loads pages lazily with only the documented telemetry and bundled fonts', () => {
     expect(appSource).toContain('lazy(() =>');
-    expect(packageJson.dependencies).not.toHaveProperty('@vercel/analytics');
+    expect(packageJson.dependencies['@vercel/analytics']).toBeDefined();
     expect(packageJson.dependencies['@vercel/speed-insights']).toBe('2.0.0');
-    expect(appSource).not.toContain('@vercel/analytics');
+    expect(mainSource).toContain("from '@vercel/analytics/react'");
+    expect(mainSource).toContain('<Analytics />');
     expect(mainSource).toContain("from '@vercel/speed-insights/react'");
     expect(mainSource).toContain('<SpeedInsights />');
     expect(cssSource).not.toMatch(/Beaufort|fonts\//i);
