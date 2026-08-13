@@ -335,8 +335,10 @@ class AuthorityReplayState {
       fail('invalid_content', 'Combat contains an unknown champion.', commandIndex);
     }
     const initialHpOverrides: Record<string, number> = {};
+    const initialMpOverrides: Record<string, number> = {};
     for (const member of this.team) {
       if (member.currentHp !== null) initialHpOverrides[member.championId] = member.currentHp;
+      if (member.currentMp !== null) initialMpOverrides[member.championId] = member.currentMp;
     }
     const rng = createScopedRunRng(this.attempt.seed, `combat:${encounter.id ?? node.id}`);
     const usesCanonicalAutoPlay = actionsJson === 'auto';
@@ -353,6 +355,8 @@ class AuthorityReplayState {
       maxTeamSize: MAX_TEAM_SIZE,
       initialHpOverrides:
         Object.keys(initialHpOverrides).length > 0 ? initialHpOverrides : undefined,
+      initialMpOverrides:
+        Object.keys(initialMpOverrides).length > 0 ? initialMpOverrides : undefined,
       random: () => rng.next(),
       rules: new CombatRuleRuntime(
         buildCombatRuleLoadout({

@@ -69,6 +69,8 @@ export interface BattleManagerOptions {
   maxTeamSize?: number;
   /** Map of championId -> initial HP (for persisting HP between combats). */
   initialHpOverrides?: Record<string, number>;
+  /** Map of championId -> initial MP (for persisting mana between combats). */
+  initialMpOverrides?: Record<string, number>;
   /** Injectable random source so a seeded run can reproduce combat exactly. */
   random?: () => number;
   /** Combat-local rule bus for runes, augments, items and enhancements. */
@@ -87,6 +89,7 @@ export class BattleManager {
   private readonly _maxRounds: number;
   private readonly _maxTeamSize: number;
   private readonly _initialHpOverrides: Record<string, number> | undefined;
+  private readonly _initialMpOverrides: Record<string, number> | undefined;
   private readonly _random: () => number;
   private readonly _rules: CombatRuleRuntime | null;
   private _activeActionType: ActionType | null = null;
@@ -114,6 +117,7 @@ export class BattleManager {
     this._maxRounds = options.maxRounds ?? 50;
     this._maxTeamSize = options.maxTeamSize ?? 5;
     this._initialHpOverrides = options.initialHpOverrides;
+    this._initialMpOverrides = options.initialMpOverrides;
     this._random = options.random ?? Math.random;
     this._rules = options.rules ?? null;
     this._initCombatants();
@@ -416,6 +420,7 @@ export class BattleManager {
     this._passiveMarks.clear();
     this._preserveHpOnRuleInitialization.clear();
     const hpOverrides = this._initialHpOverrides;
+    const mpOverrides = this._initialMpOverrides;
     const playerChampions = this._playerTeam.champions.slice(0, this._maxTeamSize);
     this._playerCombatants = playerChampions.map((c, index) => {
       // Use enhanced stats if available, otherwise fall back to base stats
@@ -428,6 +433,11 @@ export class BattleManager {
             : Math.min(overriddenHp, stats.hp)
           : stats.hp;
       const targetId = getUniqueTargetId(playerChampions, index);
+      const overriddenMp = mpOverrides?.[c.id];
+      const initMp =
+        overriddenMp === undefined || !Number.isFinite(overriddenMp)
+          ? stats.mp
+          : Math.min(stats.mp, Math.max(0, overriddenMp));
       if (overriddenHp !== undefined && this._rules) {
         this._preserveHpOnRuleInitialization.add(targetId);
       }
@@ -437,7 +447,7 @@ export class BattleManager {
         side: 'player' as TeamSide,
         currentHp: initHp,
         maxHp: stats.hp,
-        currentMp: stats.mp,
+        currentMp: initMp,
         maxMp: stats.mp,
         isDefeated: initHp <= 0,
         currentShield: 0,

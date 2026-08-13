@@ -188,6 +188,11 @@ function resolveFirstClientCombat(mode: 'manual' | 'autoplay'): void {
           member.currentHp === undefined ? [] : [[member.championId, member.currentHp]],
         ),
       ),
+      initialMpOverrides: Object.fromEntries(
+        before.team.flatMap((member) =>
+          member.currentMp === undefined ? [] : [[member.championId, member.currentMp]],
+        ),
+      ),
       random: () => rng.next(),
       rules: new CombatRuleRuntime(
         buildCombatRuleLoadout({

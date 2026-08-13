@@ -407,6 +407,36 @@ describe('BattleManager', () => {
 });
 
 describe('P1 manual combat choices', () => {
+  it('restores persisted mana and clamps it to the combatant resource bounds', () => {
+    const teams = makeTeams(['P1', 'P2'], ['E1'], { P1: 400, P2: 350 });
+    const battle = new BattleManager(teams.playerTeam, teams.enemyTeam, {
+      autoActions: false,
+      initialMpOverrides: { P1: 75, P2: 9_999 },
+    });
+    battle.startBattle();
+
+    expect(battle.getCombatantState('P1', 'player')?.currentMp).toBe(75);
+    expect(battle.getCombatantState('P2', 'player')?.currentMp).toBe(
+      battle.getCombatantState('P2', 'player')?.maxMp,
+    );
+
+    const empty = new BattleManager(teams.playerTeam, teams.enemyTeam, {
+      autoActions: false,
+      initialMpOverrides: { P1: -20 },
+    });
+    empty.startBattle();
+    expect(empty.getCombatantState('P1', 'player')?.currentMp).toBe(0);
+
+    const invalid = new BattleManager(teams.playerTeam, teams.enemyTeam, {
+      autoActions: false,
+      initialMpOverrides: { P1: Number.NaN },
+    });
+    invalid.startBattle();
+    expect(invalid.getCombatantState('P1', 'player')?.currentMp).toBe(
+      invalid.getCombatantState('P1', 'player')?.maxMp,
+    );
+  });
+
   it('attacks the explicit target selected by the player', () => {
     const teams = makeTeams(['P1'], ['E1', 'E2'], { P1: 400 });
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
