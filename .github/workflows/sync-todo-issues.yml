@@ -1,0 +1,26 @@
+name: Sync TODO issues
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/sync-todo-issues.mjs
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync-todo-issues:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Create or refresh TODO issues
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/sync-todo-issues.mjs
