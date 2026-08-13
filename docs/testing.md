@@ -107,9 +107,9 @@ d'interface plus courtes peuvent injecter les stores pour isoler leur contrat et
 ne doivent pas être présentées comme des runs complètes.
 
 Une seconde configuration sert le build de production et exécute un smoke test sur
-Chromium, Firefox et WebKit, en desktop et mobile. Elle utilise un worker unique
-afin que les mesures LCP/CLS/INP ne soient pas faussées par une contention CPU.
-Chaque test conserve son propre contexte navigateur vierge.
+Chromium, Firefox et WebKit, en desktop et mobile. Elle utilise un worker unique pour
+limiter la contention et chaque test conserve son propre contexte navigateur vierge.
+Cette matrice vérifie la compatibilité ; elle ne porte plus le budget Web Vitals.
 
 Les budgets versionnés sont dans `config/performance-budgets.json` et contrôlés par
 `npm run test:performance-budgets`. Ils couvrent le JavaScript total, le plus gros
@@ -120,8 +120,16 @@ et les cinq chunks les plus lourds. Le rapport détaillé est écrit dans
 Après le build, `npm run test:performance-preview` démarre une vraie preview Vite,
 ouvre `/auth` avec Chromium et écrit `performance-report/preview-report.json`. Ce test
 vérifie notamment que les chunks champions, Database, Admin et légal ne sont pas
-téléchargés sur cette route publique. Les Web Vitals mobiles restent mesurés par la
-matrice Playwright de production.
+téléchargés sur cette route publique. Il exécute aussi un warm-up puis cinq contextes
+Pixel 5 isolés avec CPU ralenti ×4 et réseau versionné. Chaque échantillon doit produire
+un LCP et une interaction INP non nuls ; le p75 de LCP/CLS/INP est comparé aux budgets
+de laboratoire. Le détail est écrit dans
+`performance-report/web-vitals-report.json`.
+
+Le job CI `validate` exécute cette commande sans tolérance d'échec et archive tout le
+dossier `performance-report/` pendant 30 jours. Les cinq points, le warm-up, le profil,
+le SHA et l'agrégat restent donc consultables entre les runs, au lieu de ne conserver
+qu'une valeur console. La télémétrie terrain Vercel reste hors de cette gate.
 
 ## CSP et styles dynamiques
 

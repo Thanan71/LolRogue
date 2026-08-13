@@ -30,7 +30,7 @@ objective de `beta-readiness.md` peut autoriser un candidat.
 | Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 187 fichiers versionnés |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
 | Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Livré : aucune alerte haute/critique au 8 août 2026 |
-| Budgets de performance | plafond global 398 Ko gzip, marge minimale 10 %, budgets par chunk et preview Auth | `test:performance-budgets`, `test:performance-preview` | Conforme : 349 961 octets gzip, soit 12,07 % de marge |
+| Budgets de performance | plafond global 398 Ko gzip, marge minimale 10 %, budgets par chunk et Web Vitals lab sur preview Auth | `test:performance-budgets`, `test:performance-preview` | Conforme : 12,33 % de marge bundle ; p75 LCP 1 396 ms, CLS 0, INP 104 ms |
 | Exploitation et restauration | `operations`, `incident-runbooks`, `backup-and-restore`, `release-and-support` | runbooks versionnés et critères de preuve | Livré côté procédures ; exercice distant requis avant bêta |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |
 

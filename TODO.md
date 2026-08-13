@@ -642,12 +642,18 @@ Preuves et décisions : `docs/frontend-performance.md`.
 `config/performance-budgets.json` contient LCP/CLS/INP, mais le script de bundle
 `check-performance-budgets.mjs` ne valide que les tailles statiques.
 
-- [ ] Identifier le test qui mesure effectivement LCP/CLS/INP et vérifier qu'il est
+- [x] Identifier le test qui mesure effectivement LCP/CLS/INP et vérifier qu'il est
   bloquant dans la CI actuelle.
-- [ ] Si absent/non bloquant, ajouter une mesure Lighthouse/Playwright contrôlée sur
+- [x] Si absent/non bloquant, ajouter une mesure Lighthouse/Playwright contrôlée sur
   une preview locale stable.
-- [ ] Séparer budget labo et télémétrie réelle consentie.
-- [ ] Archiver les tendances plutôt qu'un seul point.
+- [x] Séparer budget labo et télémétrie réelle consentie.
+- [x] Archiver les tendances plutôt qu'un seul point.
+
+Preuve : `npm run test:performance-preview` exécute un warm-up puis cinq mesures
+Pixel 5 contrôlées, refuse LCP/INP nuls, applique les budgets au p75 et écrit
+`performance-report/web-vitals-report.json`. Le job CI `validate` est bloquant et
+archive les échantillons pendant 30 jours. Résultats dans
+`docs/frontend-performance.md`.
 
 ---
 
@@ -934,7 +940,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 18. [x] `P1-TOOL-02` typecheck scripts, configs et E2E.
 19. [x] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
-20. [ ] `P2-PERF-02` Web Vitals sur preview locale stable.
+20. [x] `P2-PERF-02` Web Vitals sur preview locale stable.
 21. [ ] `P2-TEST-02` seeds variables reproductibles.
 22. [ ] `P2-TEST-03` gate `skipLibCheck=false`.
 23. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.

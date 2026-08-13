@@ -14,4 +14,32 @@ describe('Vercel Speed Insights integration', () => {
     expect(main).toContain("from '@vercel/speed-insights/react'");
     expect(main).toContain('<SpeedInsights />');
   });
+
+  it('keeps real-user telemetry outside the blocking lab budget', async () => {
+    const performanceConfig = JSON.parse(
+      await readFile(new URL('../config/performance-budgets.json', import.meta.url), 'utf8'),
+    ) as {
+      labMobileWebVitals: {
+        sampleCount: number;
+        percentile: number;
+        budgets: { lcpMs: number; cls: number; inpMs: number };
+      };
+      realUserTelemetry: {
+        provider: string;
+        enforcedInCi: boolean;
+        requiresPrivacyReview: boolean;
+      };
+    };
+
+    expect(performanceConfig.labMobileWebVitals).toMatchObject({
+      sampleCount: 5,
+      percentile: 0.75,
+      budgets: { lcpMs: 2500, cls: 0.1, inpMs: 300 },
+    });
+    expect(performanceConfig.realUserTelemetry).toEqual({
+      provider: 'vercel-speed-insights',
+      enforcedInCi: false,
+      requiresPrivacyReview: true,
+    });
+  });
 });
