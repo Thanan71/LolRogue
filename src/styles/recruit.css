@@ -9,6 +9,90 @@
   padding: clamp(0.5rem, 3vw, 1.5rem);
 }
 
+.recruit-page__team {
+  width: min(100%, 26rem);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  background: color-mix(in srgb, var(--color-surface-raised) 72%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-align: left;
+}
+
+.recruit-page__team-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.recruit-page__team-heading h2 {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recruit-page__team-heading span {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.recruit-page__team-portraits {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.recruit-page__team-member {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: var(--color-surface-light);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.recruit-page__team-member img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recruit-page__team-member--empty {
+  opacity: 0.42;
+}
+
+.recruit-page__team-member--empty::before,
+.recruit-page__team-member--empty::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42%;
+  height: 1px;
+  background: var(--color-border-strong);
+  content: "";
+}
+
+.recruit-page__team-member--empty::before {
+  transform: translate(-50%, -50%);
+}
+
+.recruit-page__team-member--empty::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.recruit-page__candidate,
+.recruit-page__result {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .recruit-page__alert {
   width: min(100%, 26rem);
   margin-bottom: 0.75rem;
@@ -47,11 +131,41 @@
   background: linear-gradient(145deg, var(--color-surface-raised), var(--color-surface));
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  animation: recruit-candidate-in 320ms ease-out both;
+}
+
+.recruit-page__portrait-frame {
+  position: relative;
+  width: 6.5rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-secondary) 22%, transparent),
+      transparent
+    ),
+    var(--color-surface-light);
+  border: 1px solid color-mix(in srgb, var(--color-secondary) 48%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-teal);
+}
+
+.recruit-page__portrait-frame::before {
+  position: absolute;
+  color: var(--color-secondary);
+  font-size: 2rem;
+  content: "◇";
 }
 
 .recruit-page__portrait {
-  width: 5rem;
-  height: 5rem;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   background: var(--color-surface-light);
   border: 1px solid var(--color-border-strong);
@@ -99,6 +213,26 @@
   gap: 0.375rem;
   color: var(--color-text-muted);
   font-size: 0.78rem;
+  margin: 0;
+}
+
+.recruit-page__stats > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 0.25rem 0.45rem;
+  background: color-mix(in srgb, var(--color-background-deep) 44%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+.recruit-page__stats dt,
+.recruit-page__stats dd {
+  margin: 0;
+  font-size: inherit;
+}
+
+.recruit-page__stats dt {
+  color: var(--color-text-muted);
 }
 
 .recruit-page__stat--hp {
@@ -213,6 +347,34 @@
   font-size: 3rem;
 }
 
+.recruit-page__result {
+  padding: var(--space-5);
+  background: color-mix(in srgb, var(--color-surface-raised) 82%, transparent);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-panel);
+  animation: recruit-result-in 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.recruit-page__result--success {
+  border-color: color-mix(in srgb, var(--color-success) 45%, transparent);
+}
+
+.recruit-page__result--fail {
+  border-color: color-mix(in srgb, var(--color-danger) 42%, transparent);
+}
+
+.recruit-page__result-portrait {
+  width: 5rem;
+  overflow: hidden;
+  aspect-ratio: 1;
+  margin-bottom: calc(-1 * var(--space-5));
+  object-fit: cover;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 50%;
+  box-shadow: var(--shadow-overlay);
+}
+
 .recruit-page__result-title {
   margin-bottom: 0.75rem;
   font-size: 1.35rem;
@@ -239,6 +401,30 @@
   border: 1px solid rgba(255, 233, 183, 0.28);
 }
 
+@keyframes recruit-candidate-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes recruit-result-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (max-width: 30rem) {
   .recruit-page__preview-card {
     padding: 1.125rem;
@@ -252,5 +438,12 @@
   .recruit-page__button--leave {
     width: 100%;
     flex-basis: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recruit-page__preview-card,
+  .recruit-page__result {
+    animation: none;
   }
 }

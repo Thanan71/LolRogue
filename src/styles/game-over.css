@@ -12,7 +12,106 @@
   font-family: var(--font-ui);
 }
 
+.game-over-celebration {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.game-over-celebration__spark {
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  width: 0.55rem;
+  height: 1rem;
+  background: var(--color-primary);
+  border-radius: 0.14rem;
+  opacity: 0;
+  animation: game-over-confetti 3.2s ease-in both;
+}
+
+.game-over-celebration__spark:nth-child(2n) {
+  background: var(--color-secondary);
+}
+
+.game-over-celebration__spark:nth-child(3n) {
+  width: 0.8rem;
+  aspect-ratio: 1;
+  height: auto;
+  background: var(--color-success);
+  border-radius: 50%;
+}
+
+.game-over-celebration__spark--1 {
+  left: 6%;
+  animation-delay: 0.1s;
+}
+.game-over-celebration__spark--2 {
+  left: 14%;
+  animation-delay: 1.4s;
+}
+.game-over-celebration__spark--3 {
+  left: 23%;
+  animation-delay: 0.7s;
+}
+.game-over-celebration__spark--4 {
+  left: 34%;
+  animation-delay: 2.1s;
+}
+.game-over-celebration__spark--5 {
+  left: 43%;
+  animation-delay: 0.35s;
+}
+.game-over-celebration__spark--6 {
+  left: 51%;
+  animation-delay: 1.8s;
+}
+.game-over-celebration__spark--7 {
+  left: 60%;
+  animation-delay: 0.9s;
+}
+.game-over-celebration__spark--8 {
+  left: 68%;
+  animation-delay: 2.35s;
+}
+.game-over-celebration__spark--9 {
+  left: 76%;
+  animation-delay: 0.2s;
+}
+.game-over-celebration__spark--10 {
+  left: 84%;
+  animation-delay: 1.25s;
+}
+.game-over-celebration__spark--11 {
+  left: 91%;
+  animation-delay: 2.6s;
+}
+.game-over-celebration__spark--12 {
+  left: 97%;
+  animation-delay: 0.6s;
+}
+
+@keyframes game-over-confetti {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -2rem, 0) rotate(0deg);
+  }
+
+  12% {
+    opacity: 0.85;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(2rem, 105dvh, 0) rotate(620deg);
+  }
+}
+
 .game-over-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 42rem;
   min-width: 0;
@@ -301,6 +400,22 @@
   font-size: 0.8rem;
 }
 
+.game-over-reward-row__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.game-over-reward-row__identity img {
+  width: 2.25rem;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+}
+
 .game-over-reward-row__value {
   color: var(--color-secondary);
   font-size: 0.78rem;
@@ -511,6 +626,79 @@
   font-size: 0.9rem;
 }
 
+.game-over-champion-breakdown__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.game-over-champion-breakdown__identity > img {
+  width: 3.6rem;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  object-fit: cover;
+  background: var(--color-surface-elevated);
+  border: 2px solid color-mix(in srgb, var(--color-primary) 48%, var(--color-border));
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-gold);
+}
+
+.game-over-champion-breakdown__identity > span {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.game-over-champion-breakdown__mvp {
+  width: max-content;
+  padding: 0.18rem 0.42rem;
+  color: var(--color-background-deep);
+  background: var(--color-primary-strong);
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.game-over-champion-contribution {
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+}
+
+.game-over-champion-contribution > span {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.game-over-champion-contribution progress {
+  width: 100%;
+  height: 0.45rem;
+  overflow: hidden;
+  appearance: none;
+  background: var(--color-surface-light);
+  border: 0;
+  border-radius: 999px;
+}
+
+.game-over-champion-contribution progress::-webkit-progress-bar {
+  background: var(--color-surface-light);
+}
+
+.game-over-champion-contribution progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--color-secondary), var(--color-primary-strong));
+  border-radius: 999px;
+}
+
+.game-over-champion-contribution progress::-moz-progress-bar {
+  background: linear-gradient(90deg, var(--color-secondary), var(--color-primary-strong));
+  border-radius: 999px;
+}
+
 .game-over-champion-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(5.75rem, 100%), 1fr));
@@ -565,4 +753,10 @@
   background: transparent;
   color: inherit;
   cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-over-celebration {
+    display: none;
+  }
 }

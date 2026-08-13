@@ -11,6 +11,47 @@ import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/recruit.css';
 
+type RecruitTeam = ReturnType<typeof useRunStore.getState>['team'];
+
+function TeamPreview({ team }: { team: RecruitTeam }) {
+  return (
+    <section className="recruit-page__team" aria-labelledby="recruit-team-title">
+      <div className="recruit-page__team-heading">
+        <h2 id="recruit-team-title">Votre équipe</h2>
+        <span>{team.length}/5</span>
+      </div>
+      <div className="recruit-page__team-portraits">
+        {team.map((member) => {
+          const memberChampion = championDB.getById(member.championId);
+          const name = memberChampion?.name ?? member.championId;
+          return (
+            <span key={member.championId} className="recruit-page__team-member" title={name}>
+              <img
+                src={memberChampion?.iconUrl ?? ''}
+                alt={name}
+                width={48}
+                height={48}
+                loading="lazy"
+                decoding="async"
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
+                }}
+              />
+            </span>
+          );
+        })}
+        {Array.from({ length: Math.max(0, 5 - team.length) }, (_, index) => (
+          <span
+            key={`empty-${index}`}
+            className="recruit-page__team-member recruit-page__team-member--empty"
+            aria-hidden="true"
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function RecruitPage() {
   const isActive = useRunStore((s) => s.isActive);
   const gold = useRunStore((s) => s.gold);
@@ -116,6 +157,7 @@ export function RecruitPage() {
       title={`${fr.encounter.recruit} — ${encounter?.name ?? fr.encounter.wildChampion}`}
       gold={gold}
       tone="cyan"
+      subtitle="Évaluez le renfort, sa place dans l’équipe et le risque avant de tenter le recrutement."
       contentClassName="encounter-layout__content--centered"
     >
       <div className="recruit-page">
@@ -131,25 +173,28 @@ export function RecruitPage() {
             </button>
           </div>
         )}
+        <TeamPreview team={team} />
         {!result ? (
-          <>
+          <div className="recruit-page__candidate">
             <div className="recruit-page__preview-card">
-              <img
-                src={champ?.iconUrl ?? ''}
-                alt={champ?.name ?? '???'}
-                width={120}
-                height={120}
-                decoding="async"
-                className="recruit-page__portrait"
-                onError={(event) => {
-                  event.currentTarget.hidden = true;
-                }}
-              />
+              <span className="recruit-page__portrait-frame">
+                <img
+                  src={champ?.iconUrl ?? ''}
+                  alt={champ?.name ?? 'Champion inconnu'}
+                  width={160}
+                  height={160}
+                  decoding="async"
+                  className="recruit-page__portrait"
+                  onError={(event) => {
+                    event.currentTarget.hidden = true;
+                  }}
+                />
+              </span>
               <div className="recruit-page__champion-details">
-                <div className="recruit-page__champion-name">
+                <h2 className="recruit-page__champion-name">
                   {champ?.name ?? encounter?.championId ?? '???'}
-                </div>
-                <div className="recruit-page__champion-title">{champ?.title ?? 'Champion'}</div>
+                </h2>
+                <p className="recruit-page__champion-title">{champ?.title ?? 'Champion'}</p>
                 <div className="recruit-page__tags">
                   {champ?.tags.map((tag) => (
                     <span className="recruit-page__tag" key={tag}>
@@ -158,44 +203,44 @@ export function RecruitPage() {
                   ))}
                 </div>
                 {champ && (
-                  <div className="recruit-page__stats">
+                  <dl className="recruit-page__stats" aria-label="Statistiques du champion">
                     <div>
-                      PV :{' '}
-                      <span className="recruit-page__stat recruit-page__stat--hp">
+                      <dt>PV</dt>
+                      <dd className="recruit-page__stat recruit-page__stat--hp">
                         {Math.round(champ.stats.hp)}
-                      </span>
+                      </dd>
                     </div>
                     <div>
-                      ATQ :{' '}
-                      <span className="recruit-page__stat recruit-page__stat--attack">
+                      <dt>ATQ</dt>
+                      <dd className="recruit-page__stat recruit-page__stat--attack">
                         {Math.round(champ.stats.attackDamage)}
-                      </span>
+                      </dd>
                     </div>
                     <div>
-                      ARM :{' '}
-                      <span className="recruit-page__stat recruit-page__stat--armor">
+                      <dt>ARM</dt>
+                      <dd className="recruit-page__stat recruit-page__stat--armor">
                         {Math.round(champ.stats.armor)}
-                      </span>
+                      </dd>
                     </div>
                     <div>
-                      RM :{' '}
-                      <span className="recruit-page__stat recruit-page__stat--resist">
+                      <dt>RM</dt>
+                      <dd className="recruit-page__stat recruit-page__stat--resist">
                         {Math.round(champ.stats.magicResist)}
-                      </span>
+                      </dd>
                     </div>
                     <div>
-                      VIT :{' '}
-                      <span className="recruit-page__stat recruit-page__stat--speed">
+                      <dt>VIT</dt>
+                      <dd className="recruit-page__stat recruit-page__stat--speed">
                         {champ.stats.attackSpeed.toFixed(2)}
-                      </span>
+                      </dd>
                     </div>
                     <div>
-                      CRIT :{' '}
-                      <span className="recruit-page__stat recruit-page__stat--crit">
+                      <dt>CRIT</dt>
+                      <dd className="recruit-page__stat recruit-page__stat--crit">
                         {Math.round(champ.stats.crit)} %
-                      </span>
+                      </dd>
                     </div>
-                  </div>
+                  </dl>
                 )}
               </div>
             </div>
@@ -213,6 +258,7 @@ export function RecruitPage() {
             </div>
             <div className="recruit-page__actions">
               <button
+                type="button"
                 className="recruit-page__button recruit-page__button--recruit"
                 onClick={handleRecruit}
                 disabled={disabled}
@@ -220,35 +266,55 @@ export function RecruitPage() {
                 {label}
               </button>
               <button
+                type="button"
                 className="recruit-page__button recruit-page__button--leave"
                 onClick={handleLeave}
               >
                 Passer
               </button>
             </div>
-          </>
+          </div>
         ) : (
-          <>
+          <div
+            className={`recruit-page__result recruit-page__result--${result}`}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {champ?.iconUrl ? (
+              <img
+                className="recruit-page__result-portrait"
+                src={champ.iconUrl}
+                alt=""
+                width={96}
+                height={96}
+                decoding="async"
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
+                }}
+              />
+            ) : null}
             <div className="recruit-page__result-icon" aria-hidden="true">
               {result === 'success' ? '✦' : '×'}
             </div>
-            <div className={`recruit-page__result-title recruit-page__result-title--${result}`}>
+            <h2 className={`recruit-page__result-title recruit-page__result-title--${result}`}>
               {result === 'success'
                 ? (champ?.name ?? 'Le champion') + ' rejoint ton équipe !'
                 : (champ?.name ?? 'Le champion') + ' a pris la fuite.'}
-            </div>
-            <div className="recruit-page__result-copy">
+            </h2>
+            <p className="recruit-page__result-copy">
               {result === 'success'
                 ? `${encounter?.cost ?? 0} ${fr.common.gold} dépensé(s).`
                 : 'Tu conserves ton or malgré cette tentative.'}
-            </div>
+            </p>
             <button
+              type="button"
               className="recruit-page__button recruit-page__button--continue"
               onClick={handleLeave}
             >
               {fr.common.continue}
             </button>
-          </>
+          </div>
         )}
       </div>
     </EncounterLayout>

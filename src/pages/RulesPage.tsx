@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Field, PageHeader, PageShell, Panel, StateView, TextInput } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { fr } from '@/i18n/fr';
 
@@ -96,39 +97,53 @@ export function RulesPage() {
   }, [category, query]);
 
   return (
-    <main className="rules-page">
-      <header className="rules-page__header">
-        <button type="button" onClick={() => navigate(ROUTES.MENU)}>
-          {fr.rules.back}
-        </button>
-        <div>
-          <h1>{fr.rules.title}</h1>
-          <p>{fr.rules.subtitle}</p>
+    <PageShell width="wide" className="rules-page">
+      <PageHeader
+        title={fr.rules.title}
+        subtitle={fr.rules.subtitle}
+        leading={
+          <Button variant="ghost" onClick={() => navigate(ROUTES.MENU)}>
+            {fr.rules.back}
+          </Button>
+        }
+      />
+
+      <Panel className="rules-page__modes" aria-labelledby="rules-loop-title">
+        <h2 id="rules-loop-title">{fr.rules.loopTitle}</h2>
+        <p>{fr.rules.loopSummary}</p>
+      </Panel>
+
+      <Panel className="rules-page__filters-panel" aria-label={fr.rules.filters}>
+        <div className="rules-page__filters">
+          <Field label={<label htmlFor="rules-search">{fr.rules.search}</label>}>
+            <TextInput
+              id="rules-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </Field>
+          <Field label={<label htmlFor="rules-category">{fr.rules.category}</label>}>
+            <select
+              id="rules-category"
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+            >
+              {categories.map((value) => (
+                <option key={value}>{value}</option>
+              ))}
+            </select>
+          </Field>
         </div>
-      </header>
-      <section className="rules-page__modes" aria-label="À retenir avant de jouer">
-        <strong>La boucle :</strong> choisir → avancer → résoudre → améliorer → combattre → terminer
-        et sauvegarder.
-      </section>
-      <div className="rules-page__filters">
-        <label>
-          {fr.rules.search}
-          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} />
-        </label>
-        <label>
-          {fr.rules.category}
-          <select value={category} onChange={(event) => setCategory(event.target.value)}>
-            {categories.map((value) => (
-              <option key={value}>{value}</option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <p aria-live="polite">{fr.rules.count(visibleRules.length)}</p>
+      </Panel>
+
+      <p className="rules-page__count" role="status" aria-live="polite">
+        {fr.rules.count(visibleRules.length)}
+      </p>
       {visibleRules.length > 0 ? (
         <div className="rules-page__grid">
           {visibleRules.map((rule) => (
-            <article key={rule.title}>
+            <article key={rule.title} className="ui-panel rules-page__rule">
               <span>{rule.category}</span>
               <h2>{rule.title}</h2>
               <p>{rule.body}</p>
@@ -136,20 +151,18 @@ export function RulesPage() {
           ))}
         </div>
       ) : (
-        <div className="rules-page__empty" role="status">
-          <h2>Aucune règle trouvée</h2>
-          <p>Essaie une autre recherche ou affiche de nouveau toutes les catégories.</p>
-          <button
-            type="button"
-            onClick={() => {
-              setQuery('');
-              setCategory(fr.rules.all);
-            }}
-          >
-            Réinitialiser les filtres
-          </button>
-        </div>
+        <StateView
+          kind="empty"
+          title={fr.rules.emptyTitle}
+          actionLabel={fr.rules.resetFilters}
+          onAction={() => {
+            setQuery('');
+            setCategory(fr.rules.all);
+          }}
+        >
+          {fr.rules.emptyDetail}
+        </StateView>
       )}
-    </main>
+    </PageShell>
   );
 }

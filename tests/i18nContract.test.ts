@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { formatNumber, plural } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
@@ -33,6 +33,7 @@ const FORBIDDEN_RAW_COPY = [
   'Victory!',
   'Main Menu',
   'No Active Run',
+  'Start a new run',
   'No champions',
   'Loading leaderboard',
   'Panel Admin',

@@ -1,30 +1,18 @@
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { findNode } from '@/game/map/mapUtils';
-import { type NodeMap, NodeType } from '@/game/map/types';
-
-const NODE_COLORS: Record<string, string> = {
-  [NodeType.Combat]: '#3b82f6',
-  [NodeType.Elite]: '#a855f7',
-  [NodeType.Boss]: '#ef4444',
-  [NodeType.Shop]: '#facc15',
-  [NodeType.Rest]: '#22c55e',
-  [NodeType.Event]: '#f97316',
-  [NodeType.Recruit]: '#06b6d4',
-  [NodeType.Treasure]: '#eab308',
-  [NodeType.Start]: '#64748b',
-  [NodeType.Exit]: '#64748b',
-};
+import { type MapNode, type NodeMap, NodeType } from '@/game/map/types';
 
 export const NODE_LABELS: Record<string, string> = {
-  [NodeType.Combat]: String.fromCharCode(9876),
-  [NodeType.Elite]: String.fromCharCode(9760),
-  [NodeType.Boss]: 'B',
-  [NodeType.Shop]: 'S',
-  [NodeType.Rest]: 'R',
+  [NodeType.Combat]: '⚔',
+  [NodeType.Elite]: '♛',
+  [NodeType.Boss]: '✹',
+  [NodeType.Shop]: '◆',
+  [NodeType.Rest]: '✚',
   [NodeType.Event]: '?',
   [NodeType.Recruit]: '+',
-  [NodeType.Treasure]: '$',
+  [NodeType.Treasure]: '✦',
   [NodeType.Start]: '▶',
-  [NodeType.Exit]: '■',
+  [NodeType.Exit]: '▲',
 };
 
 export const NODE_NAMES: Record<string, string> = {
@@ -44,163 +32,301 @@ interface RunMapCanvasProps {
   map: NodeMap;
   currentNodeId: string | null;
   frontierNodeIds: readonly string[];
+  chosenPathNodeIds?: readonly string[];
+  completedNodeIds?: readonly string[];
   hasPendingChoice: boolean;
   reducedMotion: boolean;
   onNodeClick: (nodeId: string) => void;
+}
+
+interface NodePosition {
+  x: number;
+  y: number;
+}
+
+const X_GAP = 138;
+const NODE_RADIUS = 27;
+const MAP_PADDING_X = 72;
+const MAP_PADDING_Y = 62;
+
+function buildNodePositions(map: NodeMap, height: number): Map<string, NodePosition> {
+  const positions = new Map<string, NodePosition>();
+  for (let column = 0; column < map.columns; column += 1) {
+    const columnNodes = map.nodes
+      .filter((node) => node.column === column)
+      .sort((left, right) => left.row - right.row);
+    const availableHeight = height - MAP_PADDING_Y * 2;
+    columnNodes.forEach((node, index) => {
+      const y =
+        columnNodes.length === 1
+          ? height / 2
+          : MAP_PADDING_Y + (availableHeight * index) / (columnNodes.length - 1);
+      positions.set(node.id, { x: MAP_PADDING_X + column * X_GAP, y });
+    });
+  }
+  return positions;
+}
+
+function buildEdgePath(source: NodePosition, target: NodePosition): string {
+  const startX = source.x + NODE_RADIUS - 3;
+  const endX = target.x - NODE_RADIUS + 3;
+  const controlX = startX + (endX - startX) / 2;
+  return `M ${startX} ${source.y} C ${controlX} ${source.y}, ${controlX} ${target.y}, ${endX} ${target.y}`;
+}
+
+function hexagonPoints({ x, y }: NodePosition): string {
+  return [
+    [x, y - 25],
+    [x + 22, y - 13],
+    [x + 22, y + 13],
+    [x, y + 25],
+    [x - 22, y + 13],
+    [x - 22, y - 13],
+  ]
+    .map((point) => point.join(','))
+    .join(' ');
+}
+
+function nodeStateLabel({
+  isCompleted,
+  isCurrent,
+  isAccessible,
+  isAbandoned,
+}: {
+  isCompleted: boolean;
+  isCurrent: boolean;
+  isAccessible: boolean;
+  isAbandoned: boolean;
+}) {
+  if (isCompleted) return 'terminé';
+  if (isCurrent) return 'position actuelle';
+  if (isAccessible) return 'accessible';
+  if (isAbandoned) return 'branche fermée';
+  return 'verrouillé';
 }
 
 export function RunMapCanvas({
   map: currentMap,
   currentNodeId,
   frontierNodeIds,
+  chosenPathNodeIds = [],
+  completedNodeIds = [],
   hasPendingChoice,
   reducedMotion,
   onNodeClick: handleNodeClick,
 }: RunMapCanvasProps) {
+  const viewportRef = useRef<HTMLDivElement>(null);
   const nodes = currentMap.nodes;
-  const svgW = currentMap.columns * 110 + 40;
-  const svgH = currentMap.rows * 80 + 40;
+  const svgWidth = Math.max(520, (currentMap.columns - 1) * X_GAP + MAP_PADDING_X * 2);
+  const svgHeight = Math.max(390, currentMap.rows * 104 + MAP_PADDING_Y);
+  const positions = useMemo(
+    () => buildNodePositions(currentMap, svgHeight),
+    [currentMap, svgHeight],
+  );
+  const completed = useMemo(
+    () =>
+      new Set([
+        ...completedNodeIds,
+        ...nodes.filter((node) => node.completed).map((node) => node.id),
+      ]),
+    [completedNodeIds, nodes],
+  );
+  const chosen = useMemo(() => new Set(chosenPathNodeIds), [chosenPathNodeIds]);
+  const frontier = useMemo(() => new Set(frontierNodeIds), [frontierNodeIds]);
+  const currentNode = currentNodeId ? findNode(currentMap, currentNodeId) : undefined;
+
+  const recenterMap = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || typeof viewport.scrollTo !== 'function') return;
+    const focusId = currentNodeId ?? frontierNodeIds[0];
+    const focusPosition = focusId ? positions.get(focusId) : undefined;
+    if (!focusPosition) return;
+    viewport.scrollTo({
+      left: Math.max(0, focusPosition.x - viewport.clientWidth / 2),
+      top: Math.max(0, focusPosition.y - viewport.clientHeight / 2),
+      behavior: reducedMotion ? 'auto' : 'smooth',
+    });
+  }, [currentNodeId, frontierNodeIds, positions, reducedMotion]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(recenterMap);
+    return () => window.cancelAnimationFrame(frame);
+  }, [recenterMap]);
+
+  const isAbandoned = (node: MapNode) =>
+    Boolean(
+      currentNode &&
+        node.column <= currentNode.column &&
+        !completed.has(node.id) &&
+        !chosen.has(node.id) &&
+        !frontier.has(node.id) &&
+        node.id !== currentNodeId,
+    );
+
   return (
-    <div className="run-map-map">
-      <svg width={svgW} height={svgH} role="group" aria-labelledby="run-map-title">
-        <title id="run-map-title">Carte interactive de la partie</title>
-        {/* Draw edges */}
-        {nodes.map((node) =>
-          node.nextNodeIds.map((nid) => {
-            const target = findNode(currentMap, nid);
-            if (!target) return null;
-            const x1 = 20 + node.column * 110 + 55;
-            const y1 = 20 + node.row * 80 + 40;
-            const x2 = 20 + target.column * 110 + 55;
-            const y2 = 20 + target.row * 80 + 40;
-            const hi = currentNodeId === node.id;
-            return (
-              <line
-                key={node.id + nid}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                stroke={hi ? '#c8aa6e' : '#1e2a3a'}
-                strokeWidth={2}
-                strokeDasharray="4 4"
-              />
-            );
-          }),
-        )}
-        {/* Draw nodes */}
-        {nodes.map((node) => {
-          const cx = 20 + node.column * 110 + 55;
-          const cy = 20 + node.row * 80 + 40;
-          const isCurrent = currentNodeId === node.id;
-          const isAccessible = frontierNodeIds.includes(node.id);
-          const isDone = node.completed;
-          const isSelectable = isAccessible && !hasPendingChoice;
-          const isEntry = node.id === currentMap.startNodeId;
-          return (
-            <g
-              key={node.id}
-              className={`run-map-node${isSelectable ? ' run-map-node--selectable' : ''}`}
-              onClick={() => isSelectable && handleNodeClick(node.id)}
-              onKeyDown={(event) => {
-                if (isSelectable && (event.key === 'Enter' || event.key === ' ')) {
-                  event.preventDefault();
-                  handleNodeClick(node.id);
-                }
-              }}
-              role="button"
-              tabIndex={isSelectable ? 0 : -1}
-              aria-disabled={!isSelectable}
-              aria-label={`${NODE_NAMES[node.type] ?? node.metadata.title}, colonne ${node.column + 1}, ligne ${node.row + 1}${isEntry ? ', départ du biome' : ''}, ${isDone ? 'terminé' : isCurrent ? 'position actuelle' : isAccessible ? 'accessible' : 'verrouillé'}, ${isSelectable ? 'activer pour choisir ce nœud et verrouiller les autres branches' : hasPendingChoice ? "terminez d'abord le choix en attente" : 'indisponible'}`}
-            >
-              {isCurrent && (
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={26}
-                  fill="none"
-                  stroke="#c8aa6e"
-                  strokeWidth={2}
-                  opacity={0.8}
+    <section
+      className={`run-map-map run-map-map--${currentMap.biome}${reducedMotion ? ' run-map-map--reduced-motion' : ''}`}
+      aria-labelledby="run-map-visual-title"
+    >
+      <header className="run-map-map__toolbar">
+        <div>
+          <span className="run-map-map__eyebrow">Itinéraire du biome</span>
+          <strong id="run-map-visual-title">
+            {frontierNodeIds.length > 0
+              ? `${frontierNodeIds.length} chemin${frontierNodeIds.length > 1 ? 's' : ''} disponible${frontierNodeIds.length > 1 ? 's' : ''}`
+              : 'Progression en cours'}
+          </strong>
+        </div>
+        <button type="button" className="run-map-map__recenter" onClick={recenterMap}>
+          <span aria-hidden="true">⌖</span> Recentrer
+        </button>
+      </header>
+      <p className="sr-only" id="run-map-instructions">
+        Parcourez les choix avec Tab, puis utilisez Entrée ou Espace pour sélectionner un nœud
+        accessible.
+      </p>
+      <div className="run-map-map__viewport" ref={viewportRef}>
+        <svg
+          width={svgWidth}
+          height={svgHeight}
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          role="group"
+          aria-labelledby="run-map-svg-title run-map-svg-description"
+          aria-describedby="run-map-instructions"
+        >
+          <title id="run-map-svg-title">Carte interactive de la partie</title>
+          <desc id="run-map-svg-description">
+            Les chemins dorés sont parcourus, les chemins turquoise sont accessibles et les branches
+            assombries sont fermées.
+          </desc>
+          <g className="run-map-edges" aria-hidden="true">
+            {nodes.flatMap((node) =>
+              node.nextNodeIds.map((nextNodeId) => {
+                const target = findNode(currentMap, nextNodeId);
+                const sourcePosition = positions.get(node.id);
+                const targetPosition = positions.get(nextNodeId);
+                if (!target || !sourcePosition || !targetPosition) return null;
+                const targetChosen = chosen.has(target.id) || target.id === currentNodeId;
+                const traversed =
+                  targetChosen &&
+                  (chosen.has(node.id) || completed.has(node.id) || node.id === currentNodeId);
+                const available =
+                  frontier.has(target.id) && (node.id === currentNodeId || completed.has(node.id));
+                const abandoned =
+                  Boolean(currentNode && target.column <= currentNode.column) &&
+                  !traversed &&
+                  !available;
+                const state = traversed
+                  ? 'traversed'
+                  : available
+                    ? 'available'
+                    : abandoned
+                      ? 'abandoned'
+                      : 'future';
+                const path = buildEdgePath(sourcePosition, targetPosition);
+                return (
+                  <g
+                    key={`${node.id}-${nextNodeId}`}
+                    className={`run-map-edge run-map-edge--${state}`}
+                  >
+                    <path className="run-map-edge__bed" d={path} />
+                    <path className="run-map-edge__line" d={path} />
+                    {(traversed || available) && <path className="run-map-edge__spark" d={path} />}
+                  </g>
+                );
+              }),
+            )}
+          </g>
+
+          <g className="run-map-nodes">
+            {nodes.map((node) => {
+              const position = positions.get(node.id);
+              if (!position) return null;
+              const isCurrent = currentNodeId === node.id;
+              const isAccessible = frontier.has(node.id);
+              const isCompleted = completed.has(node.id);
+              const isSelectable = isAccessible && !hasPendingChoice;
+              const isEntry = node.id === currentMap.startNodeId;
+              const abandoned = isAbandoned(node);
+              const state = isCompleted
+                ? 'completed'
+                : isCurrent
+                  ? 'current'
+                  : isAccessible
+                    ? 'accessible'
+                    : abandoned
+                      ? 'abandoned'
+                      : 'locked';
+              const typeName = NODE_NAMES[node.type] ?? node.metadata.title;
+              const stateName = nodeStateLabel({
+                isCompleted,
+                isCurrent,
+                isAccessible,
+                isAbandoned: abandoned,
+              });
+              return (
+                <g
+                  key={node.id}
+                  className={`run-map-node run-map-node--${node.type} run-map-node--${state}${isSelectable ? ' run-map-node--selectable' : ''}`}
+                  data-map-node={node.id}
+                  onClick={isSelectable ? () => handleNodeClick(node.id) : undefined}
+                  onKeyDown={(event) => {
+                    if (isSelectable && (event.key === 'Enter' || event.key === ' ')) {
+                      event.preventDefault();
+                      handleNodeClick(node.id);
+                    }
+                  }}
+                  role={isSelectable ? 'button' : 'img'}
+                  tabIndex={isSelectable ? 0 : undefined}
+                  aria-current={isCurrent ? 'step' : undefined}
+                  aria-label={`${typeName}, colonne ${node.column + 1}, ligne ${node.row + 1}${isEntry ? ', départ du biome' : ''}, ${stateName}${isSelectable ? ', activer pour choisir ce nœud et verrouiller les autres branches' : hasPendingChoice && isAccessible ? ", terminez d'abord le choix en attente" : ''}`}
                 >
-                  {!reducedMotion && (
-                    <animate
-                      attributeName="r"
-                      values="24;30;24"
-                      dur="1.5s"
-                      repeatCount="indefinite"
-                    />
+                  <circle
+                    className="run-map-node__hit-area"
+                    cx={position.x}
+                    cy={position.y}
+                    r="31"
+                  />
+                  <circle className="run-map-node__halo" cx={position.x} cy={position.y} r="31" />
+                  <polygon className="run-map-node__plate" points={hexagonPoints(position)} />
+                  <polygon
+                    className="run-map-node__inner"
+                    points={hexagonPoints({ x: position.x, y: position.y })}
+                  />
+                  <text
+                    x={position.x}
+                    y={position.y + 1}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="run-map-node__symbol"
+                  >
+                    {isCompleted ? '✓' : abandoned ? '×' : (NODE_LABELS[node.type] ?? '?')}
+                  </text>
+                  {(isCurrent || isAccessible) && (
+                    <g className="run-map-node__badge">
+                      <rect x={position.x - 23} y={position.y - 43} width="46" height="16" rx="8" />
+                      <text x={position.x} y={position.y - 32} textAnchor="middle">
+                        {isCurrent ? 'ICI' : 'CHOIX'}
+                      </text>
+                    </g>
                   )}
-                </circle>
-              )}
-              {isAccessible && !isCurrent && (
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={24}
-                  fill="none"
-                  stroke="#22c55e"
-                  strokeWidth={1.5}
-                  strokeDasharray="3 3"
-                  opacity={0.7}
-                >
-                  {!reducedMotion && (
-                    <animate
-                      attributeName="opacity"
-                      values="0.4;0.9;0.4"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  )}
-                </circle>
-              )}
-              <circle
-                cx={cx}
-                cy={cy}
-                r={20}
-                fill={isDone ? '#1a2332' : (NODE_COLORS[node.type] ?? '#64748b')}
-                stroke={isDone ? '#2d4a3e' : '#fff'}
-                strokeWidth={isCurrent ? 3 : isAccessible ? 2 : 1}
-                opacity={isDone ? 0.45 : isAccessible ? 1 : 0.5}
-              />
-              <text
-                x={cx}
-                y={cy + 1}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={isDone ? 12 : 18}
-                opacity={isDone ? 0.4 : 1}
-                className="run-map-node__label"
-              >
-                {isDone ? '✓' : (NODE_LABELS[node.type] ?? '?')}
-              </text>
-              {isEntry && (
-                <text
-                  x={cx}
-                  y={cy - 24}
-                  textAnchor="middle"
-                  fill="#c8aa6e"
-                  fontSize={10}
-                  fontWeight={700}
-                >
-                  DÉPART
-                </text>
-              )}
-              <text
-                x={cx}
-                y={cy + 30}
-                textAnchor="middle"
-                fill={isAccessible ? '#e6edf3' : '#484f58'}
-                fontSize={10}
-                fontFamily="sans-serif"
-                className="run-map-node__label"
-              >
-                {NODE_NAMES[node.type] ?? node.type}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-    </div>
+                  <text
+                    x={position.x}
+                    y={position.y + 43}
+                    textAnchor="middle"
+                    className="run-map-node__name"
+                  >
+                    {typeName}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
+      <div className="run-map-map__scroll-hint" aria-hidden="true">
+        <span>←</span> Faites glisser la carte <span>→</span>
+      </div>
+    </section>
   );
 }

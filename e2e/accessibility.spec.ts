@@ -45,7 +45,11 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
     await expect(page).toHaveTitle(`${heading} — LoL Rogue`);
     await expect(page.locator('main, h1').first()).toBeFocused();
     await expectNoWcagAccessibilityViolations(page, path);
-    await page.getByRole('button', { name: /Retour(?: au menu)?/ }).click();
+    await page
+      .getByRole('button', { name: /Retour(?: au menu)?/ })
+      .or(page.getByRole('link', { name: /Retour(?: au menu)?/ }))
+      .first()
+      .click();
   }
 
   await page.getByRole('button', { name: 'Jouer', exact: true }).click();

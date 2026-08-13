@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { playSFX, playUIClick } from '@/audio';
 import { Button, PageShell, StateView } from '@/components/ui';
+import { riotChampionIconUrl } from '@/config/riotAssets';
 import { ROUTES } from '@/config/routes';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -97,6 +98,15 @@ export function GameOverPage() {
   const rewardEntries = rewards
     ? Object.entries(rewards.byChampion).filter(([, candies]) => candies > 0)
     : [];
+  const championStats = summary?.championStats ?? [];
+  const totalChampionDamage = Math.max(
+    1,
+    championStats.reduce((total, stats) => total + stats.totalDamage, 0),
+  );
+  const mvpChampionId = championStats.reduce<(typeof championStats)[number] | null>(
+    (best, stats) => (!best || stats.totalDamage > best.totalDamage ? stats : best),
+    null,
+  )?.championId;
 
   if (!summary) {
     return (
@@ -111,6 +121,16 @@ export function GameOverPage() {
 
   return (
     <main className="game-over-page">
+      {summary.won && (
+        <div className="game-over-celebration" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => (
+            <span
+              key={index}
+              className={`game-over-celebration__spark game-over-celebration__spark--${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
       <article className="game-over-card" aria-labelledby="game-over-title">
         <header className="game-over-outcome">
           <div className="game-over-outcome__identity">
@@ -225,7 +245,17 @@ export function GameOverPage() {
                   <div className="game-over-reward-list">
                     {rewardEntries.map(([id, candies]) => (
                       <div key={id} className="game-over-champion-row game-over-reward-row">
-                        <span className="game-over-reward-row__name">{id}</span>
+                        <span className="game-over-reward-row__identity">
+                          <img
+                            src={riotChampionIconUrl(id)}
+                            alt=""
+                            width={36}
+                            height={36}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          <span className="game-over-reward-row__name">{id}</span>
+                        </span>
                         <span className="game-over-reward-row__value">
                           +{plural(candies, 'bonbon')}
                         </span>
@@ -333,9 +363,35 @@ export function GameOverPage() {
                       key={cs.championId}
                       className="game-over-champion-row game-over-champion-breakdown"
                     >
-                      <strong className="game-over-champion-breakdown__name">
-                        {cs.championId}
-                      </strong>
+                      <div className="game-over-champion-breakdown__identity">
+                        <img
+                          src={riotChampionIconUrl(cs.championId)}
+                          alt=""
+                          width={58}
+                          height={58}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <span>
+                          <strong className="game-over-champion-breakdown__name">
+                            {cs.championId}
+                          </strong>
+                          {cs.championId === mvpChampionId && (
+                            <span className="game-over-champion-breakdown__mvp">MVP du run</span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="game-over-champion-contribution">
+                        <span>
+                          Contribution dégâts <strong>{cs.totalDamage}</strong>
+                        </span>
+                        <progress
+                          aria-label={`Contribution aux dégâts de ${cs.championId}`}
+                          aria-valuetext={`${Math.round((cs.totalDamage / totalChampionDamage) * 100)} % des dégâts de l'équipe`}
+                          max={totalChampionDamage}
+                          value={cs.totalDamage}
+                        />
+                      </div>
                       <dl className="game-over-champion-metrics">
                         <ChampionMetric label="Éliminations" value={cs.kills} />
                         <ChampionMetric label="Assistances" value={cs.assists} />

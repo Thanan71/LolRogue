@@ -204,15 +204,6 @@
   min-width: 0;
 }
 
-.daily-leaderboard {
-  width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-}
-.daily-leaderboard table {
-  min-width: 31rem;
-}
-
 .run-map-header {
   min-width: 0;
   flex-wrap: wrap;
@@ -387,15 +378,6 @@
   }
   .game-over-actions > button {
     flex: 1 1 9rem;
-  }
-  .daily-leaderboard table {
-    min-width: 0;
-  }
-  .daily-leaderboard th:nth-child(4),
-  .daily-leaderboard td:nth-child(4),
-  .daily-leaderboard th:nth-child(5),
-  .daily-leaderboard td:nth-child(5) {
-    display: none;
   }
   .run-map-layout {
     flex-direction: column !important;

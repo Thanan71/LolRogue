@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
+import type { User } from '@supabase/supabase-js';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import type { User } from '@supabase/supabase-js';
 import { vi } from 'vitest';
 import { DailyRunPage } from '@/pages/DailyRunPage';
 import { StarterSelectPage } from '@/pages/StarterSelectPage';
@@ -16,12 +16,14 @@ import type { Player } from '@/types/models';
 const dailyMocks = vi.hoisted(() => ({
   getChallenge: vi.fn(),
   getLeaderboard: vi.fn(),
+  reportScore: vi.fn(),
 }));
 
 vi.mock('@/services/repositories/SupabaseDailyRunRepository', () => ({
   SupabaseDailyRunRepository: class {
     getDailyChallenge = dailyMocks.getChallenge;
     getDailyLeaderboard = dailyMocks.getLeaderboard;
+    reportDailyScore = dailyMocks.reportScore;
   },
 }));
 
@@ -66,6 +68,7 @@ describe('authoritative Daily pages', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     dailyMocks.getChallenge.mockResolvedValue({ data: challenge, error: null });
+    dailyMocks.reportScore.mockResolvedValue({ data: undefined, error: null });
     dailyMocks.getLeaderboard.mockResolvedValue({
       data: [
         {
@@ -104,15 +107,62 @@ describe('authoritative Daily pages', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText(/2026-07-26 UTC · normal · score v1/i)).toBeInTheDocument();
+    expect(await screen.findByText('2026-07-26 UTC')).toBeInTheDocument();
+    expect(screen.getByText('Normale')).toBeInTheDocument();
+    expect(screen.getAllByText('v1')).not.toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Commencer le défi quotidien' })).toBeEnabled();
     expect(await screen.findByText('Public Player')).toBeInTheDocument();
     expect(screen.getByText(/1.360/)).toBeInTheDocument();
+    expect(
+      screen.getByText('Classement du 2026-07-26 UTC, trié du meilleur au moins bon score.'),
+    ).toBeInTheDocument();
+    for (const column of ['Rang', 'Joueur', 'Score', 'Vagues', 'Niveau']) {
+      expect(screen.getByRole('columnheader', { name: column })).toBeInTheDocument();
+    }
+    expect(document.querySelector('[data-label="Score"]')).toHaveTextContent(/1.360/);
+    expect(document.querySelector('[data-label="Vagues"]')).toHaveTextContent('1');
+    expect(document.querySelector('[data-label="Niveau"]')).toHaveTextContent('1');
     expect(useDailyRunStore.getState()).toMatchObject({
       dateKey: '2026-07-26',
       seed: 424242,
       expiresAt: '2026-07-27T00:00:00.000Z',
     });
+  });
+
+  it('announces score-report feedback with the appropriate live role', async () => {
+    dailyMocks.getLeaderboard.mockResolvedValue({
+      data: [
+        {
+          entryId: 'entry-1',
+          rank: 1,
+          playerName: 'Public Player',
+          score: 1360,
+          wavesCompleted: 8,
+          runLevel: 3,
+          scoreVersion: 1,
+        },
+      ],
+      error: null,
+    });
+
+    render(
+      <MemoryRouter>
+        <DailyRunPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Signaler' }));
+    fireEvent.change(screen.getByLabelText(/Motif du signalement/i), {
+      target: { value: 'Ce score paraît manifestement impossible.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer le signalement' }));
+
+    const feedback = await screen.findByText('Signalement transmis à la modération.');
+    expect(feedback).toHaveAttribute('role', 'status');
+    expect(dailyMocks.reportScore).toHaveBeenCalledWith(
+      'entry-1',
+      'Ce score paraît manifestement impossible.',
+    );
   });
 
   it('renders exactly the starter offer supplied by the server', async () => {

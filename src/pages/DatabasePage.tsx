@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EnhancementTree } from '@/components/EnhancementTree';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
@@ -17,6 +17,9 @@ export function DatabasePage() {
   const [search, setSearch] = useState('');
   const [selectedChampion, setSelectedChampion] = useState<Champion | null>(null);
   const [activeTab, setActiveTab] = useState<'info' | 'enhancements'>('info');
+  const sidebarRef = useRef<HTMLElement>(null);
+  const detailRef = useRef<HTMLElement>(null);
+  const shouldRevealSelectionRef = useRef(false);
 
   // Enhancement store
   const { player } = useAuthStore();
@@ -61,6 +64,46 @@ export function DatabasePage() {
     [unlockNode],
   );
 
+  const handleChampionSelect = useCallback((champion: Champion) => {
+    shouldRevealSelectionRef.current = true;
+    setSelectedChampion(champion);
+    setActiveTab('info');
+  }, []);
+
+  useEffect(() => {
+    if (!selectedChampion || !shouldRevealSelectionRef.current) return;
+    shouldRevealSelectionRef.current = false;
+    if (!window.matchMedia('(max-width: 48rem)').matches) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const detail = detailRef.current;
+      if (!detail) return;
+      detail.focus({ preventScroll: true });
+      detail.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedChampion]);
+
+  const handleReturnToChampionList = useCallback(() => {
+    const sidebar = sidebarRef.current;
+    if (!sidebar) return;
+    sidebar.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start',
+    });
+    window.requestAnimationFrame(() => {
+      const selectedButton = selectedChampion
+        ? document.getElementById(`database-champion-${selectedChampion.id}`)
+        : null;
+      (selectedButton ?? document.getElementById('champion-search'))?.focus({
+        preventScroll: true,
+      });
+    });
+  }, [selectedChampion]);
+
   return (
     <main className="database-page">
       <header className="database-header">
@@ -72,7 +115,7 @@ export function DatabasePage() {
       </header>
 
       <div className="database-body">
-        <aside className="database-sidebar">
+        <aside ref={sidebarRef} className="database-sidebar">
           <label className="sr-only" htmlFor="champion-search">
             {fr.database.search}
           </label>
@@ -89,12 +132,11 @@ export function DatabasePage() {
               <li key={champ.id}>
                 <button
                   type="button"
+                  id={`database-champion-${champ.id}`}
+                  aria-controls="database-champion-detail"
                   aria-pressed={selectedChampion?.id === champ.id}
                   className={`database-list-item${selectedChampion?.id === champ.id ? ' selected' : ''}`}
-                  onClick={() => {
-                    setSelectedChampion(champ);
-                    setActiveTab('info');
-                  }}
+                  onClick={() => handleChampionSelect(champ)}
                 >
                   <img
                     src={champ.iconUrl}
@@ -128,9 +170,21 @@ export function DatabasePage() {
           </ul>
         </aside>
 
-        <div className="database-detail">
+        <section
+          ref={detailRef}
+          id="database-champion-detail"
+          className="database-detail"
+          aria-label={selectedChampion ? `Fiche de ${selectedChampion.name}` : fr.database.select}
+          tabIndex={selectedChampion ? -1 : undefined}
+        >
           {selectedChampion ? (
             <>
+              <div className="database-detail-mobile-nav">
+                <button type="button" onClick={handleReturnToChampionList}>
+                  <span aria-hidden="true">←</span> Retour à la liste
+                </button>
+                <strong>{selectedChampion.name}</strong>
+              </div>
               <div
                 className="database-tabs"
                 role="tablist"
@@ -217,7 +271,7 @@ export function DatabasePage() {
               <p className="database-placeholder__help">{fr.database.selectHelp}</p>
             </div>
           )}
-        </div>
+        </section>
       </div>
     </main>
   );

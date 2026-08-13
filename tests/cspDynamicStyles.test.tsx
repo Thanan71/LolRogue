@@ -106,11 +106,10 @@ describe('CSP dynamic style contracts', () => {
       />,
     );
     const node = view.getByRole('button', { name: /Combat, colonne 1, ligne 1/ });
-    const edge = view.container.querySelector('line');
+    const edge = view.container.querySelector('.run-map-edge__line');
     expect(node).toHaveClass('run-map-node--selectable');
     expect(node).not.toHaveAttribute('style');
-    expect(edge).toHaveAttribute('x1', '75');
-    expect(edge).toHaveAttribute('x2', '185');
+    expect(edge).toHaveAttribute('d', expect.stringMatching(/^M 96 195 C /));
 
     fireEvent.click(node);
     expect(onNodeClick).toHaveBeenCalledWith('fight');

@@ -96,6 +96,25 @@ for (const item of RIOT_ITEM_ASSETS) {
 }
 
 const parsedById = new Map(parsedSource.map((champion) => [champion.id, champion]));
+const spellFiles = [];
+const spells = {};
+for (const championId of IMPLEMENTED_CHAMPION_IDS) {
+  const champion = parsedById.get(championId);
+  const filenames = champion?.spells?.map((spell) => spell.image).filter(Boolean) ?? [];
+  if (filenames.length !== 4 || new Set(filenames).size !== 4) {
+    throw new Error(`Expected four unique spell icons for ${championId}.`);
+  }
+  spells[championId] = filenames;
+  for (const filename of filenames) {
+    const source = `https://ddragon.leagueoflegends.com/cdn/${version}/img/spell/${filename}`;
+    spellFiles.push(
+      await writeAsset(path.join('assets', 'riot', version, 'spells', filename), source, [
+        path.join(legacyRoot, 'img', 'spells', filename),
+      ]),
+    );
+  }
+}
+
 const champions = shippedChampionIds.map((championId) => {
   const champion = parsedById.get(championId);
   if (!champion) throw new Error(`Missing parsed champion ${championId}.`);
@@ -137,4 +156,25 @@ await fs.writeFile(
   'utf8',
 );
 
-console.log(`Packaged ${files.length} pinned Riot assets for Data Dragon ${version}.`);
+spellFiles.sort((left, right) => left.path.localeCompare(right.path));
+const spellManifest = {
+  schemaVersion: 1,
+  dataDragonVersion: version,
+  implementedChampions: IMPLEMENTED_CHAMPION_IDS,
+  spells,
+  files: spellFiles,
+};
+await fs.writeFile(
+  path.join(generatedRoot, 'riot-spell-assets-manifest.json'),
+  `${JSON.stringify(spellManifest, null, 2)}\n`,
+  'utf8',
+);
+await fs.writeFile(
+  path.join(generatedRoot, 'riot-spell-assets-client.json'),
+  `${JSON.stringify({ dataDragonVersion: version, spells })}\n`,
+  'utf8',
+);
+
+console.log(
+  `Packaged ${files.length + spellFiles.length} pinned Riot assets for Data Dragon ${version}.`,
+);

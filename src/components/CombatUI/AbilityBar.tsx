@@ -1,5 +1,6 @@
 import type React from 'react';
 import type { CSSProperties } from 'react';
+import { actionTypeForSlot, getCombatVisualProfile } from '@/game/presentation/combatVisuals';
 import { fr } from '@/i18n/fr';
 import type { CombatantInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
@@ -43,6 +44,7 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
         const lacksMana = Boolean(spell && champion.currentMp < spell.cost);
         const disabled = !spell || !spell.isReady || onCooldown || lacksMana;
         const isUlt = slot === 'R';
+        const visualProfile = getCombatVisualProfile(champion.id, actionTypeForSlot(slot));
 
         const slotButton = (
           <button
@@ -52,10 +54,28 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
             disabled={disabled}
             aria-label={`${fr.combat.spell} ${slot}${spell ? ` : ${spell.name}` : ''}${onCooldown ? ` (${cd} s, ${fr.combat.cooldown})` : ''}${lacksMana ? `, ${fr.combat.insufficientMana}` : spell && !spell.isReady ? `, ${fr.combat.cooldown}` : `, ${fr.combat.ready}`}`}
             aria-keyshortcuts={slot}
-            className={`combat-ability${isUlt ? ' combat-ability--ultimate' : ''}`}
+            className={`combat-ability combat-ability--${visualProfile.tone} combat-ability--${visualProfile.shape}${isUlt ? ' combat-ability--ultimate' : ''}`}
           >
             <div className="combat-ability__slot">{slot}</div>
-            <div className="combat-ability__face">{spell ? spell.name.substring(0, 3) : '-'}</div>
+            <div className="combat-ability__face">
+              {spell?.iconUrl ? (
+                <img
+                  src={spell.iconUrl}
+                  alt=""
+                  width={52}
+                  height={52}
+                  decoding="async"
+                  className="combat-ability__image"
+                />
+              ) : (
+                <span className="combat-ability__glyph" aria-hidden="true">
+                  {spell ? visualProfile.glyph : '–'}
+                </span>
+              )}
+              <span className="combat-ability__name" aria-hidden="true">
+                {spell?.name ?? slot}
+              </span>
+            </div>
             {onCooldown && <div className="combat-ability__cooldown">{cd}</div>}
             {spell && spell.cost > 0 && <div className="combat-ability__cost">{spell.cost}</div>}
           </button>

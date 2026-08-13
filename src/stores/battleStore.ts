@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ActionTargeting } from '@/game/battle/types';
+import type { ActionTargeting, ActionType, TeamSide } from '@/game/battle/types';
 
 export interface SpellInfo {
   slot: 'Q' | 'W' | 'E' | 'R';
@@ -9,6 +9,7 @@ export interface SpellInfo {
   cost: number;
   isReady: boolean;
   targeting: ActionTargeting;
+  iconUrl?: string;
 }
 
 export interface CombatantInfo {
@@ -45,6 +46,22 @@ export interface LogEntry {
   isCrit?: boolean;
 }
 
+export interface CombatVisualEvent {
+  id: number;
+  kind: 'cast' | 'damage' | 'heal' | 'shield' | 'revive';
+  action: ActionType;
+  sourceId: string;
+  sourceCombatantId?: string;
+  sourceSide: TeamSide;
+  targetId?: string;
+  targetCombatantId?: string;
+  targetSide?: TeamSide;
+  targetIds?: string[];
+  targetCombatantIds?: string[];
+  amount?: number;
+  isCrit?: boolean;
+}
+
 interface BattleState {
   phase: 'idle' | 'starting' | 'turn_active' | 'turn_transition' | 'finished';
   round: number;
@@ -57,6 +74,8 @@ interface BattleState {
   logIdCounter: number;
   winner: 'player' | 'enemy' | 'draw' | null;
   isPlayerTurn: boolean;
+  visualEvent: CombatVisualEvent | null;
+  visualEventIdCounter: number;
 
   setPhase: (phase: BattleState['phase']) => void;
   setRound: (round: number) => void;
@@ -67,6 +86,7 @@ interface BattleState {
   ) => void;
   setTeams: (player: CombatantInfo[], enemy: CombatantInfo[]) => void;
   addLog: (entry: Omit<LogEntry, 'id' | 'timestamp'>) => void;
+  showVisualEvent: (event: Omit<CombatVisualEvent, 'id'>) => void;
   setWinner: (winner: 'player' | 'enemy' | 'draw') => void;
   resetBattle: () => void;
 }
@@ -83,6 +103,8 @@ const init = {
   logIdCounter: 0,
   winner: null as 'player' | 'enemy' | 'draw' | null,
   isPlayerTurn: false,
+  visualEvent: null as CombatVisualEvent | null,
+  visualEventIdCounter: 0,
 };
 
 export const useBattleStore = create<BattleState>((set) => ({
@@ -102,6 +124,46 @@ export const useBattleStore = create<BattleState>((set) => ({
       log: [...state.log, { ...entry, id: state.logIdCounter + 1, timestamp: Date.now() }],
       logIdCounter: state.logIdCounter + 1,
     })),
+  showVisualEvent: (event) =>
+    set((state) => {
+      const previous = state.visualEvent;
+      const belongsToCurrentAction =
+        event.kind !== 'cast' &&
+        previous !== null &&
+        previous.sourceId === event.sourceId &&
+        previous.action === event.action;
+      if (belongsToCurrentAction) {
+        const targetIds = event.targetId
+          ? [...new Set([...(previous.targetIds ?? []), event.targetId])]
+          : (previous.targetIds ?? []);
+        const targetCombatantIds = event.targetCombatantId
+          ? [...new Set([...(previous.targetCombatantIds ?? []), event.targetCombatantId])]
+          : (previous.targetCombatantIds ?? []);
+        return {
+          visualEvent: {
+            ...previous,
+            ...event,
+            id: previous.id,
+            targetIds,
+            targetCombatantIds,
+            amount:
+              previous.kind === event.kind && event.amount !== undefined
+                ? (previous.amount ?? 0) + event.amount
+                : event.amount,
+          },
+        };
+      }
+      const id = state.visualEventIdCounter + 1;
+      return {
+        visualEvent: {
+          ...event,
+          id,
+          targetIds: event.targetId ? [event.targetId] : [],
+          targetCombatantIds: event.targetCombatantId ? [event.targetCombatantId] : [],
+        },
+        visualEventIdCounter: id,
+      };
+    }),
   setWinner: (winner) => set({ winner, phase: 'finished' }),
   resetBattle: () => set(init),
 }));

@@ -32,24 +32,36 @@ challenge Daily), pas à un modèle d'appareil. `100dvh`, `env(safe-area-inset-*
 principales de sortir du viewport. `position: fixed` est réservé au backdrop de
 dialogue, où il exprime une vraie couche modale.
 
-Les pages migrées dans P1-UX-01 sont Settings, Credits, Profil, Daily, 404 et les
-états de chargement/erreur des routes. Les écrans de gameplay spécialisés seront
-migrés vers `EncounterLayout` pendant P1-UX-02.
+Settings, Credits, Profil, Daily, Rules, 404 et les états de chargement/erreur des
+routes utilisent ce shell. Les rencontres spécialisées composent `EncounterLayout`
+et conservent ainsi un titre, un solde, des safe areas et une zone de feedback
+cohérents.
 
 ## Écrans de jeu mobiles
 
-P1-UX-02 ajoute `EncounterLayout`, propriétaire du header, de l'or affiché, des
-safe areas et du scroll pour Event, Shop, Rest, Treasure et Recruit. Combat passe
-en grille sous `40rem` : l'arène et les commandes occupent toute la largeur,
-puis les deux équipes restent comparables côte à côte. Son header accepte le
-retour à la ligne et garde Auto et la vitesse accessibles. Game Over commence en
-haut, scrolle et adapte statistiques, champions et actions. Database empile liste
-et détail sous `48rem`; la carte réduit son header et empile ses panneaux.
+`EncounterLayout` est propriétaire du header, de l'or affiché, des safe areas et
+du scroll pour Event, Shop, Rest, Treasure et Recruit. Ces pages montrent les
+portraits ou objets concernés et annoncent leur résultat avec `role="status"` ou
+`role="alert"`.
 
-Le leaderboard Daily ne possède plus de largeur minimale. Sous `40rem`, les
-colonnes Waves et Level sont masquées afin de conserver rang, joueur et score sans
-scroll horizontal. Les contenus plus riches gardent un scroll explicite.
+Combat passe en grille sous `40rem` : l'arène et les commandes occupent toute la
+largeur, puis les deux équipes restent comparables. La scène indique explicitement
+l'attaquant, la ou les cibles, le sort et son montant. Les quatre icônes de sort des
+dix champions maintenus sont des fichiers Data Dragon épinglés et locaux. Les VFX
+CSS varient par champion et compétence, n'emploient que transform/opacité et sont
+supprimés avec `prefers-reduced-motion` sans masquer le résultat textuel.
 
-`e2e/game-screens-responsive.spec.ts` vérifie l'absence de débordement, la
-visibilité des actions et attache des captures Database, Game Over et carte pour
-320×568, 375×667, 390×844, 768×1024, 1280×720 et 1440×900.
+La carte utilise des chemins courbes et différencie trajet parcouru, choix actuel,
+branche fermée et futur verrouillé. Elle se recentre sur la progression, garde une
+cible tactile de 62 px et propose une action Recentrer. Game Over commence en haut,
+scrolle, montre les portraits, le MVP et les contributions. Database devient une
+navigation liste → fiche sous `48rem`, avec retour et restauration du focus.
+
+Le leaderboard Daily ne possède plus de largeur minimale. Sous `40rem`, chaque
+ligne devient une carte mais conserve rang, joueur, score, vagues et niveau. Les
+contenus plus riches gardent un scroll explicite.
+
+`e2e/game-screens-responsive.spec.ts`, `e2e/database-mobile-navigation.spec.ts`,
+`e2e/starter-select-responsive.spec.ts` et le scénario Combat/Carte vérifient le
+focus, les cibles tactiles, les icônes chargées, l'absence de débordement et les
+états de présentation sur les viewports mobiles et desktop maintenus.

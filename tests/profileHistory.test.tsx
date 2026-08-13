@@ -2,7 +2,7 @@
 
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { useAuthStore } from '@/stores/authStore';
 import type { Player, Run, RunTeamMember } from '@/types/models';
@@ -37,6 +37,10 @@ const run = {
 } as Run;
 
 describe('comparable profile history', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   beforeEach(() => {
     historyMocks.getPlayerRunHistory.mockReset();
     historyMocks.getPlayerRunHistory.mockResolvedValue({
@@ -92,7 +96,8 @@ describe('comparable profile history', () => {
     expect(screen.getByText(/Garen niv. 6, Lux niv. 5/)).toBeVisible();
     expect(screen.getByText(/820 or gagné · 600 or dépensé · 4 objets achetés/)).toBeVisible();
     expect(screen.getByText(/12.500 dégâts · 900 soins · 450 boucliers/)).toBeVisible();
-    expect(screen.getByText(/press_the_attack · field_medic/)).toBeVisible();
+    expect(screen.getByText('Attaque soutenue')).toBeVisible();
+    expect(screen.getByText('Médecin de terrain')).toBeVisible();
   });
 
   it('renders legacy nested-select rows without attempt, team or content metadata', async () => {
@@ -127,13 +132,70 @@ describe('comparable profile history', () => {
     expect(screen.getByText(/Connexion perdue/)).toBeVisible();
     expect(screen.getByText(/Partie historique/)).toBeVisible();
     expect(screen.getByText('Équipe non conservée')).toBeVisible();
-    expect(screen.getByText('aucun · aucun')).toBeVisible();
+    expect(screen.getByText('aucun')).toBeVisible();
+  });
+
+  it('updates the synchronization status when connectivity changes', async () => {
+    let isOnline = true;
+    vi.spyOn(window.navigator, 'onLine', 'get').mockImplementation(() => isOnline);
+
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Profil connecté'));
+
+    act(() => {
+      isOnline = false;
+      window.dispatchEvent(new Event('offline'));
+    });
+    expect(screen.getByRole('status')).toHaveTextContent('Connexion perdue');
+    expect(screen.getByRole('status')).toHaveClass('ui-status-line--offline');
+
+    act(() => {
+      isOnline = true;
+      window.dispatchEvent(new Event('online'));
+    });
+    expect(screen.getByRole('status')).toHaveTextContent('Profil connecté');
+    expect(screen.getByRole('status')).toHaveClass('ui-status-line--online');
+  });
+
+  it("does not expose the previous player's runs when the next history load fails", async () => {
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText('Victoire')).toBeVisible();
+    historyMocks.getPlayerRunHistory.mockResolvedValueOnce({
+      data: null,
+      error: new Error('profile switched while offline'),
+    });
+
+    const previousPlayer = useAuthStore.getState().player;
+    act(() => {
+      useAuthStore.setState({
+        player: {
+          ...previousPlayer,
+          id: 'player-2',
+          username: 'second-player',
+          display_name: 'Second Player',
+        } as Player,
+      });
+    });
+
+    expect(await screen.findByText('Historique indisponible')).toBeVisible();
+    expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-2', 20);
+    expect(screen.queryByText('Victoire')).not.toBeInTheDocument();
   });
 
   it('shows repository failures and retries the nested history query', async () => {
     historyMocks.getPlayerRunHistory
       .mockResolvedValueOnce({ data: null, error: new Error('offline') })
-      .mockResolvedValueOnce({ data: [], error: null });
+      .mockResolvedValueOnce({ data: null, error: null });
 
     render(
       <MemoryRouter>

@@ -331,8 +331,8 @@
 .starter-rune {
   position: relative;
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  align-items: start;
+  grid-template-columns: 24px 44px minmax(0, 1fr);
+  align-items: center;
   gap: 0.75rem;
   min-width: 0;
   min-height: 72px;
@@ -403,6 +403,53 @@
   transition:
     opacity 0.2s,
     transform 0.2s;
+}
+
+.starter-rune__icon {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--color-primary-strong);
+  background: rgba(216, 182, 106, 0.08);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+}
+
+.starter-rune__icon-fallback {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.starter-rune__icon img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-background-deep);
+}
+
+.starter-rune__icon--domination {
+  color: #f07b75;
+  border-color: rgba(239, 100, 100, 0.48);
+}
+
+.starter-rune__icon--sorcery {
+  color: #85bbeb;
+  border-color: rgba(77, 162, 228, 0.48);
+}
+
+.starter-rune__icon--resolve {
+  color: #78dfa1;
+  border-color: rgba(84, 215, 138, 0.48);
+}
+
+.starter-rune__icon--inspiration {
+  color: #77e4d8;
+  border-color: rgba(100, 226, 213, 0.48);
 }
 
 .starter-rune__input:checked + .starter-rune__indicator {
@@ -661,15 +708,27 @@
   }
 
   .starter-rune {
+    grid-template-columns: 22px 36px minmax(0, 1fr);
+    gap: 0.4rem;
     min-height: 64px;
     padding: 0.65rem;
   }
 
+  .starter-rune__indicator {
+    width: 22px;
+    height: 22px;
+  }
+
+  .starter-rune__icon {
+    width: 36px;
+    height: 36px;
+  }
+
   .starter-rune__description {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    display: block;
+    overflow: visible;
+    line-height: 1.5;
+    -webkit-line-clamp: unset;
   }
 
   .starter-select__confirm {
@@ -737,11 +796,10 @@
   }
 
   .starter-rune__description {
-    display: -webkit-box;
-    overflow: hidden;
+    display: block;
+    overflow: visible;
     line-height: 1.35;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: unset;
   }
 }
 
@@ -1052,7 +1110,26 @@
 
 @media (max-width: 700px) {
   .starter-select__journey {
-    display: none;
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.03em;
+  }
+
+  .starter-select__journey-step {
+    gap: 0.3rem;
+  }
+
+  .starter-select__journey-step b {
+    width: 1.45rem;
+    height: 1.45rem;
+    font-size: 0.58rem;
+  }
+
+  .starter-select__journey-line {
+    min-width: 0.35rem;
+    flex: 1;
   }
 
   .starter-select__title {
@@ -1112,20 +1189,30 @@
   }
 
   .starter-rune__description {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    display: block;
+    overflow: visible;
+    line-height: 1.5;
+    -webkit-line-clamp: unset;
   }
 }
 
 @media (max-width: 350px) {
   .starter-select__journey-step {
-    font-size: 0;
+    font-size: 0.56rem;
   }
 
   .starter-select__journey-step b {
     font-size: 0.58rem;
+  }
+
+  .starter-rune {
+    grid-template-columns: 22px 32px minmax(0, 1fr);
+    gap: 0.3rem;
+  }
+
+  .starter-rune__icon {
+    width: 32px;
+    height: 32px;
   }
 
   .champion-card__tag {

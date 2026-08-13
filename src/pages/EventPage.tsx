@@ -130,6 +130,32 @@ function getOutcomeFallback(outcome: EventOutcome): string {
   }
 }
 
+function EventOutcomeMedia({ outcome }: { outcome: EventOutcome }) {
+  const champion = outcome.championId ? championDB.getById(outcome.championId) : null;
+  const imageUrl = outcome.type === 'item_reward' ? outcome.item?.iconUrl : champion?.iconUrl;
+  const label = outcome.type === 'item_reward' ? outcome.item?.name : champion?.name;
+
+  if (!imageUrl || !label) return null;
+
+  return (
+    <div className="event-page__reward-media">
+      <span className="event-page__reward-image" aria-hidden="true">
+        <img
+          src={imageUrl}
+          alt=""
+          width={72}
+          height={72}
+          decoding="async"
+          onError={(event) => {
+            event.currentTarget.hidden = true;
+          }}
+        />
+      </span>
+      <strong>{label}</strong>
+    </div>
+  );
+}
+
 export function EventPage() {
   const isActive = useRunStore((s) => s.isActive);
   const gold = useRunStore((s) => s.gold);
@@ -297,6 +323,7 @@ export function EventPage() {
       title={`${fr.encounter.event} — ${localizeEventName(encounter?.name)}`}
       gold={gold}
       tone="orange"
+      subtitle="Les événements modifient immédiatement votre expédition. Leur résultat est enregistré une seule fois."
       contentClassName="encounter-layout__content--centered"
     >
       <div className="event-page">
@@ -322,6 +349,9 @@ export function EventPage() {
         ) : outcome ? (
           <div
             className={`event-page__card event-page__card--outcome event-page__card--${outcome.type}`}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
           >
             <div
               className={`event-page__icon event-page__icon--${outcome.type}`}
@@ -331,7 +361,12 @@ export function EventPage() {
             <h2 className="event-page__title event-page__outcome-title">
               {getOutcomeTitle(outcome, capacityNotice)}
             </h2>
-            {capacityNotice && <p className="event-page__notice">{capacityNotice}</p>}
+            <EventOutcomeMedia outcome={outcome} />
+            {capacityNotice && (
+              <p className="event-page__notice" role="alert">
+                {capacityNotice}
+              </p>
+            )}
             <p className="event-page__lead">
               {localizeEventCopy(outcome.description, getOutcomeFallback(outcome))}
             </p>
@@ -353,14 +388,36 @@ export function EventPage() {
                     return (
                       <div key={member.championId} className="event-page__member">
                         <div className="event-page__member-heading">
-                          <span className="event-page__member-name">
-                            {champ?.name ?? member.championId}
+                          <span className="event-page__member-identity">
+                            <span className="event-page__member-portrait" aria-hidden="true">
+                              <img
+                                src={champ?.iconUrl ?? ''}
+                                alt=""
+                                width={40}
+                                height={40}
+                                loading="lazy"
+                                decoding="async"
+                                onError={(event) => {
+                                  event.currentTarget.hidden = true;
+                                }}
+                              />
+                            </span>
+                            <span className="event-page__member-name">
+                              {champ?.name ?? member.championId}
+                            </span>
                           </span>
                           <span className="event-page__member-hp">
                             {currentHp} / {maxHp} PV
                           </span>
                         </div>
-                        <div className="event-page__hp-track" aria-hidden="true">
+                        <div
+                          className="event-page__hp-track"
+                          role="progressbar"
+                          aria-label={`${champ?.name ?? member.championId} : ${currentHp} / ${maxHp} PV`}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={pct}
+                        >
                           <div
                             className={`event-page__hp-fill ${healthClass}`}
                             style={{ '--event-hp-width': `${pct}%` } as CSSProperties}
@@ -383,7 +440,11 @@ export function EventPage() {
             </div>
           </div>
         ) : (
-          <div className="event-page__card event-page__card--resolved">
+          <div
+            className="event-page__card event-page__card--resolved"
+            role="status"
+            aria-live="polite"
+          >
             <div className="event-page__icon event-page__icon--resolved" aria-hidden="true" />
             <span className="event-page__kicker">Rencontre terminée</span>
             <h2 className="event-page__title event-page__title--resolved">Événement déjà résolu</h2>

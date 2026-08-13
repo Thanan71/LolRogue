@@ -4,6 +4,7 @@ import { playUIClick } from '@/audio';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
+import { getRuneDefinition } from '@/data/items/runeDatabase';
 import { toEncounterNodeType } from '@/game/map/mapProgression';
 import { findNode } from '@/game/map/mapUtils';
 import { NodeType } from '@/game/map/types';
@@ -11,6 +12,7 @@ import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { canUpgradeSpell, getSpellRankCap } from '@/game/run/spellUpgradeRules';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fr } from '@/i18n/fr';
+import { runeNameFr } from '@/i18n/runes.fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/run-map.css';
 import type { Biome } from '@/types/run';
@@ -34,6 +36,8 @@ export function RunMapScreen() {
   const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
   const frontierNodeIds = useRunStore((s) => s.frontierNodeIds);
+  const chosenPathNodeIds = useRunStore((s) => s.chosenPathNodeIds);
+  const completedNodeIds = useRunStore((s) => s.completedNodeIds);
   const team = useRunStore((s) => s.team);
   const inventory = useRunStore((s) => s.inventory);
   const gold = useRunStore((s) => s.gold);
@@ -159,13 +163,29 @@ export function RunMapScreen() {
   }
 
   return (
-    <main className="run-map-page">
+    <main className={`run-map-page run-map-page--${currentMap.biome}`}>
       <div className="run-map-layout">
         <div className="run-map-main">
           <header className="run-map-page-header">
             <div className="run-map-heading">
-              <h1>Carte de la partie</h1>
-              <p className="run-map-instruction">Choisis ton prochain nœud accessible</p>
+              <div>
+                <span className="run-map-heading__eyebrow">
+                  Expédition · Biome {currentBiomeIndex + 1} sur {biomeMaps.length}
+                </span>
+                <h1>Carte de la partie</h1>
+                <p className="run-map-instruction">
+                  {currentBiome ? BIOME_NAMES[currentBiome] : 'Territoire inconnu'} · Choisis ton
+                  prochain nœud accessible
+                </p>
+              </div>
+              <div className="run-map-biome-progress">
+                <span>{currentBiome ? BIOME_NAMES[currentBiome] : 'Biome'}</span>
+                <progress
+                  max={Math.max(1, biomeMaps.length)}
+                  value={Math.min(biomeMaps.length, currentBiomeIndex + 1)}
+                  aria-label={`Progression des biomes : ${currentBiomeIndex + 1} sur ${biomeMaps.length}`}
+                />
+              </div>
             </div>
             <div className="run-map-header">
               <button
@@ -176,7 +196,10 @@ export function RunMapScreen() {
               >
                 ← Menu
               </button>
-              <span className="run-map-header__stat run-map-header__stat--gold">Or : {gold}</span>
+              <span className="run-map-header__stat run-map-header__stat--gold">
+                <small>Trésor</small>
+                <strong>{gold} or</strong>
+              </span>
               <ContextTutorial
                 storageKey="lolrogue:tutorial:map:v1"
                 title="Comprendre la carte"
@@ -200,33 +223,59 @@ export function RunMapScreen() {
                   },
                 ]}
               />
-              <span className="run-map-header__stat">Vague {currentWave}</span>
-              <span className="run-map-header__stat">Niveau {runLevel}</span>
-              <span className="run-map-header__secondary">
-                {currentBiome ? BIOME_NAMES[currentBiome] : '???'}
+              <span className="run-map-header__stat">
+                <small>Vague</small>
+                <strong>{currentWave}</strong>
               </span>
-              {currentBiomeIndex >= 0 && (
-                <span className="run-map-header__secondary">
-                  [{currentBiomeIndex + 1}/{biomeMaps.length}]
-                </span>
-              )}
+              <span className="run-map-header__stat">
+                <small>Niveau</small>
+                <strong>{runLevel}</strong>
+              </span>
             </div>
           </header>
-          <aside
-            className="run-map-legend run-map-panel run-map-panel--section"
-            aria-label="Légende de la carte"
-          >
-            <strong>Légende :</strong>{' '}
-            {Object.entries(NODE_LABELS).map(([type, label]) => (
-              <span key={type} className="run-map-legend__item">
-                {label} {NODE_NAMES[type] ?? type}
-              </span>
-            ))}
-          </aside>
-          <div className="run-map-loadout run-map-panel run-map-panel--section">
-            <strong>{fr.run.runes} :</strong> {runeIds.join(', ') || 'aucune'} ·{' '}
-            <strong>{fr.run.augments} :</strong> {augmentIds.join(', ') || 'aucun'}
-          </div>
+          <details className="run-map-guide run-map-panel run-map-panel--section">
+            <summary>
+              <span>Repères et équipement de la run</span>
+              <small>Légende · Runes · Augments</small>
+            </summary>
+            <div className="run-map-guide__content">
+              <aside className="run-map-legend" aria-label="Légende de la carte">
+                <strong>Légende</strong>
+                <div>
+                  {Object.entries(NODE_LABELS).map(([type, label]) => (
+                    <span
+                      key={type}
+                      className={`run-map-legend__item run-map-legend__item--${type}`}
+                    >
+                      <span aria-hidden="true">{label}</span> {NODE_NAMES[type] ?? type}
+                    </span>
+                  ))}
+                </div>
+              </aside>
+              <div className="run-map-loadout">
+                <div>
+                  <strong>{fr.run.runes}</strong>
+                  <span className="run-map-loadout__chips">
+                    {runeIds.length > 0
+                      ? runeIds.map((id) => (
+                          <span key={id}>{runeNameFr(id, getRuneDefinition(id)?.name ?? id)}</span>
+                        ))
+                      : 'Aucune'}
+                  </span>
+                </div>
+                <div>
+                  <strong>{fr.run.augments}</strong>
+                  <span className="run-map-loadout__chips">
+                    {augmentIds.length > 0
+                      ? augmentIds.map((id) => (
+                          <span key={id}>{AUGMENT_DATABASE[id]?.name ?? id}</span>
+                        ))
+                      : 'Aucun'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </details>
           {pendingAugmentIds.length > 0 && (
             <section
               className="run-map-choice-panel run-map-panel run-map-panel--section"
@@ -327,6 +376,8 @@ export function RunMapScreen() {
             map={currentMap}
             currentNodeId={currentNodeId}
             frontierNodeIds={frontierNodeIds}
+            chosenPathNodeIds={chosenPathNodeIds}
+            completedNodeIds={completedNodeIds}
             hasPendingChoice={hasPendingChoice}
             reducedMotion={reducedMotion}
             onNodeClick={handleNodeClick}

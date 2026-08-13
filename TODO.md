@@ -618,8 +618,10 @@ sur 200 000 attempts conserve le même plan par PK avec et sans l'index. Preuve 
 
 **Taille : M/L**
 
-Le budget total reste fixé à 398 kB gzip. La référence avant correction dépassait le
-plafond de 321 octets ; la mesure finale atteint 349 961 octets, soit 12,07 % de marge.
+Le budget historique de 398 kB gzip a permis de ramener la première passe à
+349 961 octets. La passe UI animée du 13 août relève explicitement le plafond global
+à 410 kB, conserve tous les sous-budgets et atteint 360 110 octets, soit 12,17 % de
+marge.
 
 - [x] Fixer un objectif de headroom, par exemple ≥10 % sous le plafond, plutôt que
   de relever le plafond à chaque upgrade.

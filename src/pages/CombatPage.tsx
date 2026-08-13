@@ -4,6 +4,7 @@ import { AbilityBar } from '@/components/CombatUI/AbilityBar';
 import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
 import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
 import { CombatLog } from '@/components/CombatUI/CombatLog';
+import { CombatStage } from '@/components/CombatUI/CombatStage';
 import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { ContextTutorial } from '@/components/ContextTutorial';
 import { ROUTES } from '@/config/routes';
@@ -74,6 +75,7 @@ export function CombatPage() {
   const currentTurnSide = useBattleStore((s) => s.currentTurnSide);
   const winner = useBattleStore((s) => s.winner);
   const isPlayerTurn = useBattleStore((s) => s.isPlayerTurn);
+  const visualEvent = useBattleStore((s) => s.visualEvent);
   const battleSpeed = useSettingsStore((s) => s.battleSpeed);
   const difficulty = useSettingsStore((s) => s.difficulty);
   const keyboardShortcutsEnabled = useSettingsStore((s) => s.keyboardShortcutsEnabled);
@@ -316,7 +318,9 @@ export function CombatPage() {
   });
 
   const currentChampion = [...playerTeam, ...enemyTeam].find(
-    (c) => c.targetId === currentTurnChampionId && c.side === currentTurnSide,
+    (c) =>
+      c.side === currentTurnSide &&
+      (c.targetId === currentTurnChampionId || c.id === currentTurnChampionId),
   );
   const currentSpell = currentChampion?.spells;
 
@@ -529,6 +533,34 @@ export function CombatPage() {
   const targetStepText = pendingOption
     ? 'Sélectionnez un portrait valide'
     : (selectedTarget?.name ?? 'Selon l’action choisie');
+  const arenaStatus =
+    autoActionRemainingMs !== null
+      ? `${
+          requiresServerAutoPlay
+            ? 'Résolution serveur'
+            : isPlayerTurn
+              ? 'Action automatique'
+              : 'Action ennemie'
+        } dans ${(autoActionRemainingMs / 1000).toFixed(1)} s`
+      : isPlayerTurn
+        ? 'Mode manuel — choisissez une action ou appuyez sur Espace.'
+        : "En attente du tour de l'ennemi…";
+  const isVisualSource = (combatant: (typeof playerTeam)[number]) =>
+    Boolean(
+      visualEvent &&
+        combatant.side === visualEvent.sourceSide &&
+        (combatant.targetId === visualEvent.sourceCombatantId ||
+          (!visualEvent.sourceCombatantId && combatant.id === visualEvent.sourceId)),
+    );
+  const isVisualTarget = (combatant: (typeof playerTeam)[number]) =>
+    Boolean(
+      visualEvent &&
+        combatant.side === visualEvent.targetSide &&
+        ((visualEvent.targetCombatantIds ?? []).includes(combatant.targetId) ||
+          (visualEvent.targetIds ?? []).includes(combatant.id) ||
+          combatant.targetId === visualEvent.targetCombatantId ||
+          (!visualEvent.targetCombatantId && combatant.id === visualEvent.targetId)),
+    );
 
   return (
     <main className="combat-page">
@@ -620,6 +652,8 @@ export function CombatPage() {
               isActive={c.targetId === currentTurnChampionId}
               enhancementBonuses={playerEnhancementBonuses[c.id] || []}
               isSelected={selectedTargetId === c.targetId}
+              isAttacking={isVisualSource(c)}
+              isActualTarget={isVisualTarget(c)}
               onSelect={
                 !c.isDefeated && selectableTargetIds.has(c.targetId)
                   ? () => handleTargetSelect(c.targetId)
@@ -644,31 +678,17 @@ export function CombatPage() {
           {(battlePhase === 'turn_active' ||
             battlePhase === 'starting' ||
             battlePhase === 'turn_transition') && (
-            <div className="combat-arena">
-              <div className="combat-arena__eyebrow">
-                {fr.combat.round} {round} · Arène tactique
-              </div>
-              <div className="combat-arena__icon combat-arena__icon--animated">⚔️</div>
-              <div className="combat-arena__turn">
-                {currentTurnSide === 'player' ? `${fr.combat.yourTurn} !` : fr.combat.enemyTurn}
-              </div>
-              {currentChampion && (
-                <div className="combat-arena__champion">{currentChampion.name}</div>
-              )}
-              <div id="combat-auto-status" aria-live="off" className="combat-arena__status">
-                {autoActionRemainingMs !== null
-                  ? `${
-                      requiresServerAutoPlay
-                        ? 'Résolution serveur'
-                        : isPlayerTurn
-                          ? 'Action automatique'
-                          : 'Action ennemie'
-                    } dans ${(autoActionRemainingMs / 1000).toFixed(1)} s`
-                  : isPlayerTurn
-                    ? 'Mode manuel — choisissez une action ou appuyez sur Espace.'
-                    : "En attente du tour de l'ennemi…"}
-              </div>
-            </div>
+            <CombatStage
+              key={visualEvent?.id ?? 'combat-stage-idle'}
+              round={round}
+              currentTurnChampionId={currentTurnChampionId}
+              currentTurnSide={currentTurnSide}
+              playerTeam={playerTeam}
+              enemyTeam={enemyTeam}
+              selectedTarget={selectedTarget}
+              visualEvent={visualEvent}
+              status={arenaStatus}
+            />
           )}
           {battlePhase === 'finished' && (
             <div className="combat-arena">
@@ -719,6 +739,8 @@ export function CombatPage() {
               combatant={c}
               isActive={c.targetId === currentTurnChampionId}
               isSelected={selectedTargetId === c.targetId}
+              isAttacking={isVisualSource(c)}
+              isActualTarget={isVisualTarget(c)}
               onSelect={
                 !c.isDefeated && selectableTargetIds.has(c.targetId)
                   ? () => handleTargetSelect(c.targetId)

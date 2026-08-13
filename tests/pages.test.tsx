@@ -333,7 +333,7 @@ describe('P2 page smoke tests', () => {
 
     expect(screen.getByText(/tentative vérifiée interrompue/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /reprendre la partie vérifiée/i })).toBeEnabled();
-    const rune = screen.getByRole('checkbox', { name: /press the attack/i });
+    const rune = screen.getByRole('checkbox', { name: /attaque soutenue/i });
     expect(rune).toBeChecked();
     expect(rune).toBeDisabled();
   });
@@ -438,6 +438,7 @@ describe('P2 page smoke tests', () => {
     renderAt(<TreasurePage />, '/treasure');
 
     await waitFor(() => expect(screen.getByText('Objet abandonné')).toBeInTheDocument());
+    expect(screen.getByRole('status')).toHaveTextContent(/inventaire plein/i);
     expect(screen.queryByText('Objet obtenu')).not.toBeInTheDocument();
     expect(useRunStore.getState().inventory).toHaveLength(MAX_INVENTORY_ITEMS);
     expect(useRunStore.getState().gold).toBe(25);

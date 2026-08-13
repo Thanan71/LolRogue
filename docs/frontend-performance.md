@@ -1,10 +1,10 @@
 # Performance frontend
 
-Dernière mesure : **9 août 2026**, Node 24, build Vite de production local.
+Dernière mesure : **13 août 2026**, Node 24, build Vite de production local.
 
 ## Référence avant P2-PERF-01
 
-Le plafond global reste celui choisi pour le projet : **398 000 octets gzip**. La
+Le plafond global choisi à cette étape était **398 000 octets gzip**. La
 mesure initiale atteint **398 321 octets**, soit un dépassement de 321 octets et
 aucune marge exploitable. La cible de travail est fixée à au moins 10 % sous ce
 plafond, donc **358 200 octets gzip maximum**, sans modification de l'interface.
@@ -48,7 +48,7 @@ auditée des assets et du bundle d'autorité. Cette segmentation ramène le chun
 `champion-data` de 101,52 kB à 52,92 kB gzip.
 
 La mesure finale locale atteint **349 961 octets gzip**, soit **12,07 % de marge** sous
-le plafond inchangé de 398 000 octets. Les cinq chunks les plus lourds possèdent aussi
+le plafond alors inchangé de 398 000 octets. Les cinq chunks les plus lourds possèdent aussi
 un plafond individuel :
 
 | Chunk | Mesure gzip | Budget |
@@ -63,6 +63,20 @@ Le rapport exhaustif par chunk est généré dans
 `performance-report/bundle-report.json`. Le build conserve toutes les pages en imports
 dynamiques et le contrôle du manifeste interdit à `/auth` de dépendre statiquement de
 Database, Admin, légal ou des catalogues champions.
+
+## Révision pour la passe UI animée
+
+Le 13 août 2026, la décision produit privilégie les animations Combat/Carte, les
+40 profils de compétences complets et la passe responsive de toutes les pages. Le
+plafond global passe donc de **398 000 à 410 000 octets gzip**. Cette hausse reste
+encadrée : la marge minimale de 10 %, les plafonds individuels des cinq chunks,
+le chargement initial à 205 000 octets et `/auth` à 225 000 octets ne changent pas.
+
+La mesure après cette passe atteint **360 110 octets gzip**, soit **12,17 % de
+marge**. Le chargement initial mesure 172 792 octets, `/auth` 177 134 octets et le
+paquet déployable 6 851 774 octets sur 7 200 000. Les métadonnées d'intégrité des
+40 icônes Data Dragon ne sont pas livrées au navigateur : un manifeste client
+compact conserve seulement la version et la correspondance champion/sorts.
 
 La mesure Chromium sur une vraie instance `vite preview` a révélé que la région de
 notifications globale déclenchait malgré tout `runStore` sur `/auth`. Elle est désormais

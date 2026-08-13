@@ -13,6 +13,12 @@ const generatedRoot = path.join(rootDir, 'src', 'data', 'generated');
 const manifest = JSON.parse(
   await fs.readFile(path.join(generatedRoot, 'riot-assets-manifest.json'), 'utf8'),
 );
+const spellManifest = JSON.parse(
+  await fs.readFile(path.join(generatedRoot, 'riot-spell-assets-manifest.json'), 'utf8'),
+);
+const spellClientManifest = JSON.parse(
+  await fs.readFile(path.join(generatedRoot, 'riot-spell-assets-client.json'), 'utf8'),
+);
 const versions = JSON.parse(
   await fs.readFile(path.join(scriptDir, 'ddragon-version.json'), 'utf8'),
 );
@@ -35,6 +41,17 @@ async function listFiles(directory) {
 if (manifest.dataDragonVersion !== versions.dataDragon) {
   throw new Error('Riot manifest and pinned Data Dragon versions differ.');
 }
+if (spellManifest.dataDragonVersion !== versions.dataDragon) {
+  throw new Error('Spell manifest and pinned Data Dragon versions differ.');
+}
+if (
+  !equalValues(spellClientManifest, {
+    dataDragonVersion: spellManifest.dataDragonVersion,
+    spells: spellManifest.spells,
+  })
+) {
+  throw new Error('Client spell manifest is not the deterministic compact projection.');
+}
 if (manifest.communityDragonVersion !== versions.communityDragon) {
   throw new Error('Riot manifest and pinned Community Dragon versions differ.');
 }
@@ -55,9 +72,23 @@ const expectedItems = Object.fromEntries(
 if (!equalValues(manifest.items, expectedItems)) {
   throw new Error('Riot manifest item allowlist is stale.');
 }
+if (!equalValues(spellManifest.implementedChampions, IMPLEMENTED_CHAMPION_IDS)) {
+  throw new Error('Spell manifest implemented champion allowlist is stale.');
+}
+if (
+  !spellManifest.spells ||
+  !equalValues(Object.keys(spellManifest.spells), IMPLEMENTED_CHAMPION_IDS) ||
+  !Object.values(spellManifest.spells).every(
+    (filenames) =>
+      Array.isArray(filenames) && filenames.length === 4 && new Set(filenames).size === 4,
+  )
+) {
+  throw new Error('Riot manifest spell allowlist is stale or invalid.');
+}
 
 const expectedPaths = new Set();
-for (const file of manifest.files) {
+const manifestedFiles = [...manifest.files, ...spellManifest.files];
+for (const file of manifestedFiles) {
   if (
     typeof file.path !== 'string' ||
     file.path.startsWith('/') ||
@@ -113,6 +144,20 @@ if (!isDist) {
     if (!expectedPaths.has(assetPath)) {
       throw new Error(`Champion ${champion.id} references an unmanifested icon.`);
     }
+    const expectedSpellFilenames = champion.spells?.map((spell) => spell.image) ?? [];
+    const packagedSpellFilenames = spellManifest.spells[champion.id] ?? [];
+    if (
+      IMPLEMENTED_CHAMPION_IDS.includes(champion.id) &&
+      !equalValues(packagedSpellFilenames, expectedSpellFilenames)
+    ) {
+      throw new Error(`Champion ${champion.id} spell manifest differs from its catalogue.`);
+    }
+    for (const filename of packagedSpellFilenames) {
+      const spellAssetPath = `assets/riot/${manifest.dataDragonVersion}/spells/${filename}`;
+      if (!expectedPaths.has(spellAssetPath)) {
+        throw new Error(`Champion ${champion.id} references an unmanifested spell icon.`);
+      }
+    }
   }
   const clientCatalogBytes = await fs.readFile(path.join(generatedRoot, 'champions-client.json'));
   const clientChampions = JSON.parse(clientCatalogBytes.toString('utf8'));
@@ -122,5 +167,5 @@ if (!isDist) {
 }
 
 console.log(
-  `Verified ${manifest.files.length} Riot assets in ${isDist ? 'dist' : 'public'} (${manifest.dataDragonVersion}).`,
+  `Verified ${manifestedFiles.length} Riot assets in ${isDist ? 'dist' : 'public'} (${manifest.dataDragonVersion}).`,
 );

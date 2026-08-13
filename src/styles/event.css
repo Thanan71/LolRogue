@@ -25,6 +25,7 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-panel);
   text-align: center;
+  animation: event-card-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .event-page__card--outcome {
@@ -73,42 +74,43 @@
   box-shadow: var(--shadow-gold);
   font-size: 2.5rem;
   line-height: 1;
+  animation: event-icon-pulse 2.4s ease-in-out infinite alternate;
 }
 
 .event-page__icon--unknown::before {
-  content: "\2753";
+  content: "?";
 }
 
 .event-page__icon--gold_reward::before {
-  content: "\1f4b0";
+  content: "¤";
 }
 
 .event-page__icon--gold_cost::before {
-  content: "\1f4b8";
+  content: "−";
 }
 
 .event-page__icon--item_reward::before {
-  content: "\1f381";
+  content: "◇";
 }
 
 .event-page__icon--heal::before {
-  content: "\1f49a";
+  content: "+";
 }
 
 .event-page__icon--damage::before {
-  content: "\1f4a5";
+  content: "×";
 }
 
 .event-page__icon--champion_recruit::before {
-  content: "\1f91d";
+  content: "◎";
 }
 
 .event-page__icon--stat_boost::before {
-  content: "\2b06\fe0f";
+  content: "↑";
 }
 
 .event-page__icon--nothing::before {
-  content: "\1f4a8";
+  content: "·";
 }
 
 .event-page__icon--resolved::before {
@@ -168,6 +170,45 @@
   font-size: 0.875rem;
   font-weight: 700;
   line-height: 1.5;
+}
+
+.event-page__reward-media {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--event-outcome-color) 8%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--event-outcome-color) 32%, var(--color-border));
+  border-radius: var(--radius-lg);
+}
+
+.event-page__reward-image {
+  position: relative;
+  width: 3.5rem;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 1;
+  color: var(--event-outcome-color);
+  background: var(--color-surface-light);
+  border: 1px solid color-mix(in srgb, var(--event-outcome-color) 38%, var(--color-border));
+  border-radius: var(--radius-md);
+}
+
+.event-page__reward-image::before {
+  position: absolute;
+  content: "◇";
+}
+
+.event-page__reward-image img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .event-page__actions {
@@ -273,6 +314,41 @@
   margin-bottom: var(--space-2);
 }
 
+.event-page__member-identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.event-page__member-portrait {
+  position: relative;
+  width: 2.25rem;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 1;
+  color: var(--event-outcome-color);
+  background: var(--color-surface-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.event-page__member-portrait::before {
+  position: absolute;
+  font-size: 0.8rem;
+  content: "◇";
+}
+
+.event-page__member-portrait img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .event-page__member-name {
   min-width: 0;
   overflow: hidden;
@@ -317,7 +393,36 @@
   background: var(--color-health);
 }
 
+@keyframes event-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes event-icon-pulse {
+  from {
+    box-shadow: 0 0 0.8rem color-mix(in srgb, var(--event-outcome-color) 10%, transparent);
+    transform: translateY(0.1rem);
+  }
+
+  to {
+    box-shadow: 0 0 2rem color-mix(in srgb, var(--event-outcome-color) 22%, transparent);
+    transform: translateY(-0.1rem);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .event-page__card,
+  .event-page__icon {
+    animation: none;
+  }
+
   .event-page__button,
   .event-page__hp-fill {
     transition: none;

@@ -7,6 +7,8 @@ interface Props {
   isActive: boolean;
   enhancementBonuses?: string[];
   isSelected?: boolean;
+  isAttacking?: boolean;
+  isActualTarget?: boolean;
   onSelect?: () => void;
 }
 
@@ -15,6 +17,8 @@ export const CombatantPortrait: React.FC<Props> = ({
   isActive,
   enhancementBonuses,
   isSelected,
+  isAttacking,
+  isActualTarget,
   onSelect,
 }) => {
   const { name, level, currentHp, maxHp, currentMp, maxMp, iconUrl, isDefeated, side } = combatant;
@@ -29,6 +33,8 @@ export const CombatantPortrait: React.FC<Props> = ({
     `combatant-portrait--${side}`,
     isActive && 'combatant-portrait--active',
     isSelected && 'combatant-portrait--selected',
+    isAttacking && 'combatant-portrait--attacking',
+    isActualTarget && 'combatant-portrait--targeted',
     isDefeated && 'combatant-portrait--defeated',
     onSelect && 'combatant-portrait--selectable',
   ]

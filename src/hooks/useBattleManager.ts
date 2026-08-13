@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { riotSpellIconUrl } from '@/config/riotSpellAssets';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import { BattleManager } from '@/game/battle/BattleManager';
 import { isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { isActionTargeting } from '@/game/battle/targetResolver';
 import type { BattleAction, BattleEvent, BattleTeam } from '@/game/battle/types';
-import { BattlePhase } from '@/game/battle/types';
+import { ActionType as BattleActionType, BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleLoadout } from '@/game/rules/types';
@@ -43,6 +44,7 @@ function toCombatantInfo(
         cost,
         isReady: champ.isSpellReady(slot) && currentMp >= cost,
         targeting: spell.targeting,
+        iconUrl: riotSpellIconUrl(champ.id, spell.image),
       });
     }
   }
@@ -123,6 +125,13 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       break;
 
     case 'action_select':
+      store.showVisualEvent({
+        kind: 'cast',
+        action: event.action,
+        sourceId: event.champion,
+        sourceCombatantId: bm.currentCombatant?.targetId,
+        sourceSide: event.side,
+      });
       store.addLog({
         type: 'action',
         message: `${event.champion}: ${getActionLabel(event.action)}`,
@@ -131,6 +140,21 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
 
     case 'damage':
       syncTeams(bm);
+      store.showVisualEvent({
+        kind: 'damage',
+        action:
+          store.visualEvent?.sourceId === event.source
+            ? store.visualEvent.action
+            : BattleActionType.BasicAttack,
+        sourceId: event.source,
+        sourceCombatantId: event.sourceCombatantId,
+        sourceSide: event.sourceSide,
+        targetId: event.target,
+        targetCombatantId: event.targetCombatantId,
+        targetSide: event.targetSide,
+        amount: event.amount,
+        isCrit: event.isCrit,
+      });
       store.addLog({
         type: 'damage',
         message: `${event.source} → ${event.target}: ${event.amount} dégâts${event.isCrit ? ' CRITIQUE !' : ''}`,
@@ -141,6 +165,20 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
 
     case 'heal':
       syncTeams(bm);
+      store.showVisualEvent({
+        kind: 'heal',
+        action:
+          store.visualEvent?.sourceId === event.source
+            ? store.visualEvent.action
+            : BattleActionType.SpellW,
+        sourceId: event.source,
+        sourceCombatantId: event.sourceCombatantId,
+        sourceSide: event.sourceSide,
+        targetId: event.target,
+        targetCombatantId: event.targetCombatantId,
+        targetSide: event.targetSide,
+        amount: event.amount,
+      });
       store.addLog({
         type: 'heal',
         message: `${event.source} → ${event.target}: +${event.amount} HP`,
@@ -150,6 +188,20 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
 
     case 'shield':
       syncTeams(bm);
+      store.showVisualEvent({
+        kind: 'shield',
+        action:
+          store.visualEvent?.sourceId === event.source
+            ? store.visualEvent.action
+            : BattleActionType.SpellW,
+        sourceId: event.source,
+        sourceCombatantId: event.sourceCombatantId,
+        sourceSide: event.sourceSide,
+        targetId: event.target,
+        targetCombatantId: event.targetCombatantId,
+        targetSide: event.targetSide,
+        amount: event.amount,
+      });
       store.addLog({
         type: 'shield',
         message: `${event.source} → ${event.target}: +${event.amount} bouclier`,
@@ -159,6 +211,18 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
 
     case 'revive':
       syncTeams(bm);
+      store.showVisualEvent({
+        kind: 'revive',
+        action:
+          store.visualEvent?.sourceId === event.source
+            ? store.visualEvent.action
+            : BattleActionType.SpellR,
+        sourceId: event.source,
+        sourceSide: event.sourceSide,
+        targetId: event.target,
+        targetSide: event.targetSide,
+        amount: event.amount,
+      });
       store.addLog({
         type: 'revive',
         message: `${event.source} ranime ${event.target} avec ${event.amount} PV`,

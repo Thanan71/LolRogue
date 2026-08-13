@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
+import { Button } from '@/components/ui';
 import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
@@ -7,6 +8,11 @@ import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
 import { getTodayKey, msUntilMidnight } from '@/utils/dailySeed';
+
+type ReportFeedback = {
+  kind: 'success' | 'error';
+  message: string;
+};
 
 /**
  * DailyLeaderboard — displays today's daily run scores.
@@ -27,9 +33,12 @@ export function DailyLeaderboard() {
   const [availableSeasonCodes, setAvailableSeasonCodes] = useState<string[]>([]);
   const [reportedEntryId, setReportedEntryId] = useState<string | null>(null);
   const [reportReason, setReportReason] = useState('');
-  const [reportStatus, setReportStatus] = useState<string | null>(null);
+  const [reportFeedback, setReportFeedback] = useState<ReportFeedback | null>(null);
+  const [isReporting, setIsReporting] = useState(false);
   const getLeaderboard = useDailyRunStore((s) => s.getLeaderboard);
   const isGuest = useAuthStore((state) => state.isGuest);
+  const titleId = useId();
+  const reportTitleId = useId();
 
   const usesLocalLeaderboard = isGuest || !isSupabaseConfigured;
 
@@ -79,14 +88,25 @@ export function DailyLeaderboard() {
 
   const submitReport = useCallback(async () => {
     if (!reportedEntryId || reportReason.trim().length < 10) return;
-    const result = await new SupabaseDailyRunRepository(supabase).reportDailyScore(
-      reportedEntryId,
-      reportReason.trim(),
-    );
-    setReportStatus(result.error ? fr.daily.reportError : fr.daily.reportSuccess);
-    if (!result.error) {
-      setReportedEntryId(null);
-      setReportReason('');
+    setIsReporting(true);
+    setReportFeedback(null);
+    try {
+      const result = await new SupabaseDailyRunRepository(supabase).reportDailyScore(
+        reportedEntryId,
+        reportReason.trim(),
+      );
+      setReportFeedback({
+        kind: result.error ? 'error' : 'success',
+        message: result.error ? fr.daily.reportError : fr.daily.reportSuccess,
+      });
+      if (!result.error) {
+        setReportedEntryId(null);
+        setReportReason('');
+      }
+    } catch {
+      setReportFeedback({ kind: 'error', message: fr.daily.reportError });
+    } finally {
+      setIsReporting(false);
     }
   }, [reportReason, reportedEntryId]);
 
@@ -111,9 +131,9 @@ export function DailyLeaderboard() {
   }, [expiresAt]);
 
   return (
-    <div className="daily-leaderboard">
-      <h2 className="daily-leaderboard__title">
-        {fr.daily.title} — {dailyDate} UTC
+    <section className="daily-leaderboard" aria-labelledby={titleId}>
+      <h2 id={titleId} className="daily-leaderboard__title">
+        {fr.daily.leaderboard}
       </h2>
       <p className="daily-leaderboard__countdown">
         {fr.daily.resetsIn} : {countdown}
@@ -179,53 +199,79 @@ export function DailyLeaderboard() {
           {error}
         </p>
       ) : entries.length === 0 ? (
-        <p className="daily-leaderboard__empty">{fr.daily.leaderboardEmpty}</p>
+        <p role="status" className="daily-leaderboard__empty">
+          {fr.daily.leaderboardEmpty}
+        </p>
       ) : (
-        <table className="daily-leaderboard__table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>{fr.daily.player}</th>
-              <th>{fr.daily.score}</th>
-              <th>{fr.daily.waves}</th>
-              <th>{fr.common.level}</th>
-              {!isGuest && <th>{fr.daily.moderation}</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry, i) => (
-              <tr
-                key={`${entry.rank ?? i + 1}-${entry.playerName}`}
-                className={i < 3 ? 'daily-leaderboard__top-row' : undefined}
-              >
-                <td>{entry.rank ?? i + 1}</td>
-                <td>{entry.playerName}</td>
-                <td>{formatNumber(entry.score)}</td>
-                <td>{entry.wavesCompleted}</td>
-                <td>{entry.runLevel}</td>
-                {!isGuest && (
-                  <td>
-                    {entry.entryId && (
-                      <button type="button" onClick={() => setReportedEntryId(entry.entryId!)}>
-                        {fr.daily.report}
-                      </button>
-                    )}
-                  </td>
-                )}
+        <div className="daily-leaderboard__table-frame">
+          <table className="daily-leaderboard__table">
+            <caption>{fr.daily.leaderboardCaption(dailyDate)}</caption>
+            <thead>
+              <tr>
+                <th scope="col">
+                  <span aria-hidden="true">#</span>
+                  <span className="sr-only">{fr.daily.rank}</span>
+                </th>
+                <th scope="col">{fr.daily.player}</th>
+                <th scope="col">{fr.daily.score}</th>
+                <th scope="col">{fr.daily.waves}</th>
+                <th scope="col">{fr.common.level}</th>
+                {!isGuest && <th scope="col">{fr.daily.moderation}</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {entries.map((entry, i) => (
+                <tr
+                  key={`${entry.entryId ?? entry.rank ?? i + 1}-${entry.playerName}`}
+                  className={i < 3 ? 'daily-leaderboard__top-row' : undefined}
+                >
+                  <td data-label={fr.daily.rank}>{entry.rank ?? i + 1}</td>
+                  <th scope="row" data-label={fr.daily.player}>
+                    {entry.playerName}
+                  </th>
+                  <td data-label={fr.daily.score}>{formatNumber(entry.score)}</td>
+                  <td data-label={fr.daily.waves}>{formatNumber(entry.wavesCompleted)}</td>
+                  <td data-label={fr.common.level}>{formatNumber(entry.runLevel)}</td>
+                  {!isGuest && (
+                    <td className="daily-leaderboard__moderation" data-label={fr.daily.moderation}>
+                      {entry.entryId && (
+                        <Button
+                          variant="ghost"
+                          aria-controls={
+                            reportedEntryId === entry.entryId
+                              ? 'daily-score-report-form'
+                              : undefined
+                          }
+                          aria-expanded={reportedEntryId === entry.entryId}
+                          onClick={() => {
+                            setReportFeedback(null);
+                            setReportedEntryId(entry.entryId!);
+                          }}
+                        >
+                          {fr.daily.report}
+                        </Button>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {reportedEntryId && (
         <form
+          id="daily-score-report-form"
           className="daily-leaderboard__report-form"
+          aria-labelledby={reportTitleId}
+          aria-busy={isReporting}
           onSubmit={(event) => {
             event.preventDefault();
             void submitReport();
           }}
         >
+          <h3 id={reportTitleId}>{fr.daily.reportTitle}</h3>
           <label htmlFor="daily-score-report">{fr.daily.reportReason}</label>
           <textarea
             id="daily-score-report"
@@ -235,21 +281,34 @@ export function DailyLeaderboard() {
             value={reportReason}
             onChange={(event) => setReportReason(event.target.value)}
           />
-          <button type="submit">{fr.daily.sendReport}</button>
-          <button type="button" onClick={() => setReportedEntryId(null)}>
-            {fr.common.cancel}
-          </button>
+          <div className="daily-leaderboard__report-actions">
+            <Button type="submit" disabled={isReporting || reportReason.trim().length < 10}>
+              {fr.daily.sendReport}
+            </Button>
+            <Button variant="ghost" onClick={() => setReportedEntryId(null)}>
+              {fr.common.cancel}
+            </Button>
+          </div>
         </form>
       )}
-      {reportStatus && <p role="status">{reportStatus}</p>}
+      {reportFeedback && (
+        <p
+          className={`daily-leaderboard__feedback daily-leaderboard__feedback--${reportFeedback.kind}`}
+          role={reportFeedback.kind === 'error' ? 'alert' : 'status'}
+        >
+          {reportFeedback.message}
+        </p>
+      )}
 
-      <button
+      <Button
+        variant="ghost"
         className="daily-leaderboard__refresh"
         onClick={() => void refresh()}
         disabled={isLoading}
+        aria-busy={isLoading}
       >
         {fr.daily.refresh}
-      </button>
-    </div>
+      </Button>
+    </section>
   );
 }

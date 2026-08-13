@@ -43,7 +43,7 @@ export function RunPage() {
           <h1 id="run-empty-title" className="run-empty-card__title">
             {fr.run.noActive}
           </h1>
-          <p className="run-empty-card__description">Start a new run to begin your adventure.</p>
+          <p className="run-empty-card__description">{fr.run.noActiveDetail}</p>
           <button
             type="button"
             className="run-empty-card__button"

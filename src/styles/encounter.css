@@ -1,0 +1,181 @@
+.encounter-layout {
+  --encounter-accent-soft: color-mix(in srgb, var(--encounter-accent) 12%, transparent);
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% -8rem, var(--encounter-accent-soft), transparent 34rem),
+    var(--gradient-page);
+}
+
+.encounter-layout__atmosphere {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.encounter-layout__atmosphere::before {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--encounter-accent) 3%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--encounter-accent) 3%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 4rem 4rem;
+  mask-image: linear-gradient(to bottom, black, transparent 75%);
+  content: "";
+}
+
+.encounter-layout__atmosphere > span {
+  position: absolute;
+  width: 0.32rem;
+  aspect-ratio: 1;
+  background: var(--encounter-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 1rem var(--encounter-accent);
+  opacity: 0.2;
+  animation: encounter-drift 7s ease-in-out infinite alternate;
+}
+
+.encounter-layout__atmosphere > span:nth-child(1) {
+  top: 22%;
+  left: 8%;
+}
+
+.encounter-layout__atmosphere > span:nth-child(2) {
+  top: 56%;
+  right: 12%;
+  animation-delay: -2.5s;
+}
+
+.encounter-layout__atmosphere > span:nth-child(3) {
+  bottom: 14%;
+  left: 28%;
+  animation-delay: -4s;
+}
+
+.encounter-layout__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  flex-wrap: initial;
+  gap: var(--space-3);
+  background:
+    linear-gradient(90deg, var(--encounter-accent-soft), transparent 20rem),
+    color-mix(in srgb, var(--color-background-deep) 91%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--encounter-accent) 24%, var(--color-border));
+}
+
+.encounter-layout__sigil {
+  position: relative;
+  width: 2.7rem;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  color: var(--encounter-accent);
+  background: color-mix(in srgb, var(--encounter-accent) 10%, var(--color-surface-raised));
+  border: 1px solid color-mix(in srgb, var(--encounter-accent) 42%, transparent);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 1.5rem var(--encounter-accent-soft);
+}
+
+.encounter-layout__sigil::before,
+.encounter-layout__sigil::after,
+.encounter-layout__sigil > span {
+  position: absolute;
+  content: "";
+}
+
+.encounter-layout__sigil::before {
+  width: 0.9rem;
+  aspect-ratio: 1;
+  border: 2px solid currentcolor;
+  transform: rotate(45deg);
+}
+
+.encounter-layout__sigil::after {
+  width: 0.24rem;
+  aspect-ratio: 1;
+  background: currentcolor;
+  border-radius: 50%;
+  box-shadow: 0 0 0.75rem currentcolor;
+}
+
+.encounter-layout__sigil > span {
+  inset: 0.35rem;
+  border: 1px solid color-mix(in srgb, currentcolor 26%, transparent);
+  border-radius: calc(var(--radius-md) - 0.25rem);
+}
+
+.encounter-layout__subtitle {
+  max-width: 46rem;
+  margin-top: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.encounter-layout__gold {
+  min-width: 7.5rem;
+  justify-content: flex-start;
+}
+
+.encounter-layout__gold strong {
+  margin-left: auto;
+  color: var(--color-primary-strong);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.encounter-layout__coin {
+  width: 0.75rem;
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 35% 30%, var(--lol-gold-light), var(--lol-gold-dark));
+  border: 1px solid var(--lol-gold-light);
+  border-radius: 50%;
+  box-shadow: 0 0 0.65rem color-mix(in srgb, var(--lol-gold) 40%, transparent);
+}
+
+.encounter-layout__content {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes encounter-drift {
+  from {
+    transform: translate3d(-0.5rem, 0.75rem, 0) scale(0.75);
+  }
+
+  to {
+    transform: translate3d(0.75rem, -1rem, 0) scale(1.15);
+  }
+}
+
+@media (max-width: 32rem) {
+  .encounter-layout__header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .encounter-layout__gold {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .encounter-layout__subtitle {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .encounter-layout__atmosphere > span {
+    animation: none;
+  }
+}

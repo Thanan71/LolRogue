@@ -32,6 +32,8 @@ async function expectResponsiveStarterLayout(page: Page) {
     const confirm = document.querySelector<HTMLButtonElement>('.starter-select__confirm');
     const back = document.querySelector<HTMLButtonElement>('.starter-select__back');
     const lastRune = document.querySelector<HTMLElement>('.starter-rune:last-child');
+    const journey = document.querySelector<HTMLElement>('.starter-select__journey');
+    const runeIcon = document.querySelector<HTMLElement>('.starter-rune__icon');
     if (
       !root ||
       cards.length < 2 ||
@@ -39,7 +41,9 @@ async function expectResponsiveStarterLayout(page: Page) {
       !actions ||
       !confirm ||
       !back ||
-      !lastRune
+      !lastRune ||
+      !journey ||
+      !runeIcon
     ) {
       throw new Error('Starter selection layout is incomplete.');
     }
@@ -56,6 +60,8 @@ async function expectResponsiveStarterLayout(page: Page) {
     const confirmRect = confirm.getBoundingClientRect();
     const lastRuneRect = lastRune.getBoundingClientRect();
     const backRect = back.getBoundingClientRect();
+    const journeyRect = journey.getBoundingClientRect();
+    const runeIconRect = runeIcon.getBoundingClientRect();
 
     return {
       rootPosition: getComputedStyle(root).position,
@@ -66,6 +72,12 @@ async function expectResponsiveStarterLayout(page: Page) {
       confirmHeight: confirmRect.height,
       backHeight: backRect.height,
       backBorderStyle: getComputedStyle(back).borderStyle,
+      journeyDisplay: getComputedStyle(journey).display,
+      journeyHeight: journeyRect.height,
+      runeIconWidth: runeIconRect.width,
+      descriptionsAreUnclamped: runeDescriptions.every(
+        (description) => getComputedStyle(description).webkitLineClamp === 'none',
+      ),
       actionGap: confirmRect.top - lastRuneRect.bottom,
       horizontalOverflow:
         document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -82,9 +94,15 @@ async function expectResponsiveStarterLayout(page: Page) {
   expect(layout.confirmHeight).toBeLessThanOrEqual(56);
   expect(layout.backHeight).toBeGreaterThanOrEqual(44);
   expect(layout.backBorderStyle).not.toBe('none');
+  expect(layout.journeyDisplay).not.toBe('none');
+  expect(layout.journeyHeight).toBeGreaterThan(20);
+  expect(layout.runeIconWidth).toBeGreaterThanOrEqual(32);
+  expect(layout.descriptionsAreUnclamped).toBe(true);
   expect(layout.actionGap).toBeGreaterThan(8);
   expect(layout.horizontalOverflow).toBeLessThanOrEqual(1);
-  expect(layout.documentHeight).toBeLessThan(1_800);
+  // Full rune effects are intentionally not line-clamped on mobile. Keep the
+  // flow bounded without hiding rule text from the player.
+  expect(layout.documentHeight).toBeLessThan(2_200);
 }
 
 for (const viewport of MOBILE_VIEWPORTS) {
@@ -144,6 +162,18 @@ test('the complete selection can be performed with the keyboard at 320px', async
   await confirm.focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL('/run');
+});
+
+test('a missing rune image keeps a visible themed fallback', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStarterSelection(page);
+
+  const firstIcon = page.locator('.starter-rune__icon').first();
+  const image = firstIcon.locator('img');
+  await image.evaluate((element) => element.dispatchEvent(new Event('error')));
+
+  await expect(image).toBeHidden();
+  await expect(firstIcon.locator('.starter-rune__icon-fallback')).toBeVisible();
 });
 
 test('touch selection exposes a start error without overlap at 320px', async ({ page }) => {

@@ -23,6 +23,7 @@ import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
 import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
+import { runeNameFr } from '@/i18n/runes.fr';
 
 function pickRandom<T>(arr: T[], count: number, rng: SeededRNG): T[] {
   return rng.pickN(arr, count);
@@ -287,8 +288,25 @@ export function StarterSelectPage() {
                     }
                   />
                   <span className="starter-rune__indicator" aria-hidden="true" />
+                  <span
+                    className={`starter-rune__icon starter-rune__icon--${rune.path}`}
+                    aria-hidden="true"
+                  >
+                    <span className="starter-rune__icon-fallback">✦</span>
+                    <img
+                      src={rune.iconUrl}
+                      alt=""
+                      width={44}
+                      height={44}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(event) => {
+                        event.currentTarget.hidden = true;
+                      }}
+                    />
+                  </span>
                   <span className="starter-rune__content">
-                    <span className="starter-rune__name">{rune.name}</span>
+                    <span className="starter-rune__name">{runeNameFr(rune.id, rune.name)}</span>
                     <span className="starter-rune__description">
                       Effet avant sélection : {rune.description}
                     </span>

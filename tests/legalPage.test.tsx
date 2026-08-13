@@ -26,5 +26,15 @@ describe('LegalPage', () => {
       'href',
       'https://www.riotgames.com/en/legal',
     );
+    expect(screen.getByRole('navigation', { name: 'Sur cette page' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Confidentialité' })).toHaveAttribute(
+      'href',
+      '#confidentialite',
+    );
+    expect(screen.getByRole('region', { name: 'Confidentialité' })).toHaveAttribute(
+      'id',
+      'confidentialite',
+    );
+    expect(screen.getByText('8 août 2026')).toHaveAttribute('datetime', '2026-08-08');
   });
 });

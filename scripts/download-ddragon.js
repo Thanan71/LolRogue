@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { IMPLEMENTED_CHAMPION_IDS } from './riot-asset-catalog.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,6 +76,43 @@ async function downloadChampionDetails(version, championData) {
   }
 
   console.log(`✓ Downloaded ${downloaded} champion details to champions-detail/`);
+}
+
+/**
+ * Télécharge les quatre icônes de compétences des champions jouables.
+ * La sélection reste volontairement limitée afin de préserver le budget de déploiement.
+ */
+async function downloadImplementedSpellIcons(version) {
+  const iconsDir = path.join(OUTPUT_DIR, 'img', 'spells');
+  const detailDir = path.join(OUTPUT_DIR, 'champions-detail');
+  await fs.mkdir(iconsDir, { recursive: true });
+  const filenames = new Set();
+
+  for (const championId of IMPLEMENTED_CHAMPION_IDS) {
+    const detail = JSON.parse(
+      await fs.readFile(path.join(detailDir, `${championId}.json`), 'utf-8'),
+    );
+    const champion = detail.data?.[championId];
+    if (!champion || !Array.isArray(champion.spells) || champion.spells.length !== 4) {
+      throw new Error(`Invalid spell catalogue for ${championId}.`);
+    }
+    for (const spell of champion.spells) {
+      if (spell.image?.full) filenames.add(spell.image.full);
+    }
+  }
+
+  console.log(`\n✨ Downloading ${filenames.size} implemented spell icons...`);
+  let downloaded = 0;
+  for (const filename of [...filenames].sort()) {
+    const url = `${DDRAGON_BASE}/cdn/${version}/img/spell/${filename}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to download spell ${filename}: ${response.status}`);
+    }
+    await fs.writeFile(path.join(iconsDir, filename), Buffer.from(await response.arrayBuffer()));
+    downloaded += 1;
+  }
+  console.log(`✓ Downloaded ${downloaded} spell icons to img/spells/`);
 }
 
 /**
@@ -182,6 +220,7 @@ async function main() {
     // Télécharger les détails des champions (spells, passive)
     if (downloadedData['champions.json']) {
       await downloadChampionDetails(version, downloadedData['champions.json']);
+      await downloadImplementedSpellIcons(version);
     }
 
     // Télécharger les icônes des champions

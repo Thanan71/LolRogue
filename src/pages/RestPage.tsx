@@ -45,6 +45,14 @@ export function RestPage() {
   const spendGold = useRunStore((s) => s.spendGold);
 
   const [healed, setHealed] = useState(wasClaimed);
+  const [actionStatus, setActionStatus] = useState<{
+    kind: 'success' | 'error';
+    message: string;
+  } | null>(
+    wasClaimed
+      ? { kind: 'success', message: 'Ce repos a déjà été utilisé. Votre équipe peut repartir.' }
+      : null,
+  );
 
   const encounter = useMemo(() => {
     return getNodeEncounter(getCurrentNode(), 'rest');
@@ -60,7 +68,13 @@ export function RestPage() {
     if (healed) return;
     playUIClick();
     const previous = useRunStore.getState();
-    if (!previous.currentNodeId || !previous.claimCurrentEncounter()) return;
+    if (!previous.currentNodeId || !previous.claimCurrentEncounter()) {
+      setActionStatus({
+        kind: 'error',
+        message: 'Le repos ne peut pas être appliqué pour le moment.',
+      });
+      return;
+    }
 
     if (
       goldCost > 0 &&
@@ -71,6 +85,7 @@ export function RestPage() {
       }).success
     ) {
       useRunStore.setState({ claimedEncounterNodeIds: previous.claimedEncounterNodeIds });
+      setActionStatus({ kind: 'error', message: 'Le paiement du repos a échoué.' });
       return;
     }
 
@@ -105,9 +120,19 @@ export function RestPage() {
         ledger: previous.ledger,
         claimedEncounterNodeIds: previous.claimedEncounterNodeIds,
       });
+      setActionStatus({
+        kind: 'error',
+        message: 'Le soin n’a pas pu être enregistré. Aucun changement n’a été conservé.',
+      });
       return;
     }
     setHealed(true);
+    setActionStatus({
+      kind: 'success',
+      message: fullHeal
+        ? 'Toute l’équipe a récupéré la totalité de ses PV.'
+        : `Toute l’équipe a récupéré ${Math.round(healPercent * 100)} % de ses PV maximum.`,
+    });
   }, [canAfford, healed, goldCost, spendGold, healPercent, fullHeal]);
 
   const handleContinue = useCallback(() => {
@@ -124,6 +149,7 @@ export function RestPage() {
       title={`${fr.encounter.rest} — ${encounter?.name ?? fr.encounter.campfire}`}
       gold={gold}
       tone="green"
+      subtitle="Comparez les PV actuels et projetés avant d’utiliser cette halte."
       contentClassName="encounter-layout__content--centered"
     >
       <div className="rest">
@@ -145,8 +171,21 @@ export function RestPage() {
           )}
         </div>
 
+        {actionStatus ? (
+          <p
+            className={`rest__status rest__status--${actionStatus.kind}`}
+            role={actionStatus.kind === 'error' ? 'alert' : 'status'}
+            aria-live="polite"
+          >
+            {actionStatus.message}
+          </p>
+        ) : null}
+
         {/* Team HP Display */}
-        <div className="rest__team">
+        <section className="rest__team" aria-labelledby="rest-team-title">
+          <h2 id="rest-team-title" className="sr-only">
+            Points de vie de l’équipe
+          </h2>
           {team.map((member) => {
             const maxHp = getMemberMaxHp(member);
             const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
@@ -154,9 +193,28 @@ export function RestPage() {
             const champ = championDB.getById(member.championId);
             const healthTone = pct < 30 ? 'critical' : pct < 60 ? 'warning' : 'healthy';
             return (
-              <div key={member.championId} className="rest__member">
-                <div className="rest__member-name">
-                  {champ?.name ?? member.championId} (Lv.{member.level ?? 1})
+              <article
+                key={member.championId}
+                className={`rest__member${healed ? ' rest__member--restored' : ''}`}
+              >
+                <div className="rest__member-heading">
+                  <span className="rest__portrait" aria-hidden="true">
+                    <img
+                      src={champ?.iconUrl ?? ''}
+                      alt=""
+                      width={48}
+                      height={48}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(event) => {
+                        event.currentTarget.hidden = true;
+                      }}
+                    />
+                  </span>
+                  <div className="rest__member-name">
+                    <strong>{champ?.name ?? member.championId}</strong>
+                    <span>Niv. {member.level ?? 1}</span>
+                  </div>
                 </div>
                 <div
                   className="rest__hp-track"
@@ -181,14 +239,15 @@ export function RestPage() {
                     </span>
                   )}
                 </div>
-              </div>
+              </article>
             );
           })}
-        </div>
+        </section>
 
         <div className="rest__actions">
           {!healed ? (
             <button
+              type="button"
               className="rest__button rest__button--heal"
               onClick={handleRest}
               disabled={!canAfford}
@@ -196,12 +255,20 @@ export function RestPage() {
               {goldCost > 0 ? `${fr.encounter.heal} (${goldCost} or)` : fr.encounter.heal}
             </button>
           ) : (
-            <button className="rest__button rest__button--continue" onClick={handleContinue}>
+            <button
+              type="button"
+              className="rest__button rest__button--continue"
+              onClick={handleContinue}
+            >
               {fr.common.continue}
             </button>
           )}
           {!healed && (
-            <button className="rest__button rest__button--skip" onClick={handleContinue}>
+            <button
+              type="button"
+              className="rest__button rest__button--skip"
+              onClick={handleContinue}
+            >
               {fr.encounter.skip}
             </button>
           )}

@@ -110,99 +110,141 @@ export function TreasurePage() {
     <EncounterLayout
       title={`💎 ${fr.encounter.treasure}`}
       gold={gold}
+      subtitle="Le coffre est réclamé automatiquement et son contenu n’est accordé qu’une fois."
       contentClassName="encounter-layout__content--centered"
     >
       <div className="treasure-page">
-        <div className="treasure-page__chest" aria-hidden="true">
+        <div
+          className={`treasure-page__chest${collected ? ' treasure-page__chest--opened' : ''}`}
+          aria-hidden="true"
+        >
+          <span className="treasure-page__chest-glow" />
           <span className="treasure-page__chest-symbol">{collected ? '✦' : '◇'}</span>
         </div>
 
         {!collected ? (
-          <>
-            <div className="treasure-page__title">
+          <div className="treasure-page__state">
+            <h2 className="treasure-page__title">
               {encounter?.name ?? fr.encounter.treasureFound}
-            </div>
-            <div className="treasure-page__description">
+            </h2>
+            <p className="treasure-page__description">
               {encounter?.description ?? fr.encounter.treasureAwaits}
-            </div>
+            </p>
             <div className="treasure-page__preview">
               <div className="treasure-page__preview-item">
-                <span className="treasure-page__preview-icon">💰</span>
+                <span className="treasure-page__preview-icon" aria-hidden="true">
+                  <span className="treasure-page__coin" />
+                </span>
                 <span className="treasure-page__preview-gold">
                   +{encounter?.gold ?? 0} {fr.common.gold}
                 </span>
               </div>
               {encounter?.item && (
                 <div className="treasure-page__preview-item">
-                  <span className="treasure-page__preview-icon">📦</span>
+                  <span className="treasure-page__item-icon" aria-hidden="true">
+                    {encounter.item.iconUrl ? (
+                      <img
+                        src={encounter.item.iconUrl}
+                        alt=""
+                        width={56}
+                        height={56}
+                        decoding="async"
+                        onError={(event) => {
+                          event.currentTarget.hidden = true;
+                        }}
+                      />
+                    ) : null}
+                  </span>
                   <span className="treasure-page__preview-loot">{encounter.item.name}</span>
                 </div>
               )}
             </div>
             <button
+              type="button"
               className="treasure-page__button treasure-page__button--collect"
               onClick={handleCollect}
             >
               {fr.encounter.collect}
             </button>
-          </>
+          </div>
         ) : (
-          <>
-            <div className="treasure-page__title treasure-page__title--success">
+          <div
+            className="treasure-page__state treasure-page__state--revealed"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <h2 className="treasure-page__title treasure-page__title--success">
               {fr.encounter.collected}
-            </div>
+            </h2>
 
             <div className="treasure-page__rewards">
-              <div className="treasure-page__reward">
-                <div className="treasure-page__reward-label">{fr.encounter.treasureGold}</div>
+              <article className="treasure-page__reward treasure-page__reward--gold">
+                <h3 className="treasure-page__reward-label">{fr.encounter.treasureGold}</h3>
                 <div className="treasure-page__reward-value">
+                  <span className="treasure-page__coin" aria-hidden="true" />
                   <span className="treasure-page__reward-gold">+{encounter?.gold ?? 0}</span>
                   <span className="treasure-page__reward-total"> (Total : {gold})</span>
                 </div>
-              </div>
+              </article>
 
               {encounter?.item && itemDisposition === 'added' && (
-                <div className="treasure-page__reward">
-                  <div className="treasure-page__reward-label">{fr.encounter.itemReceived}</div>
+                <article className="treasure-page__reward treasure-page__reward--item">
+                  <h3 className="treasure-page__reward-label">{fr.encounter.itemReceived}</h3>
                   <div className="treasure-page__item-detail">
-                    <div className="treasure-page__item-name">{encounter.item.name}</div>
-                    <div className="treasure-page__item-description">
-                      {encounter.item.description}
+                    <span className="treasure-page__item-icon" aria-hidden="true">
+                      {encounter.item.iconUrl ? (
+                        <img
+                          src={encounter.item.iconUrl}
+                          alt=""
+                          width={64}
+                          height={64}
+                          decoding="async"
+                          onError={(event) => {
+                            event.currentTarget.hidden = true;
+                          }}
+                        />
+                      ) : null}
+                    </span>
+                    <div className="treasure-page__item-copy">
+                      <strong className="treasure-page__item-name">{encounter.item.name}</strong>
+                      <p className="treasure-page__item-description">
+                        {encounter.item.description}
+                      </p>
+                      {Object.keys(encounter.item.stats).length > 0 && (
+                        <ul className="treasure-page__item-stats" aria-label="Bonus de l’objet">
+                          {Object.entries(encounter.item.stats).map(([stat, value]) => (
+                            <li key={stat} className="treasure-page__item-stat">
+                              +{value} {stat.toUpperCase()}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
-                    {Object.keys(encounter.item.stats).length > 0 && (
-                      <div className="treasure-page__item-stats">
-                        {Object.entries(encounter.item.stats).map(([stat, value]) => (
-                          <span key={stat} className="treasure-page__item-stat">
-                            +{value} {stat.toUpperCase()}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                   </div>
-                </div>
+                </article>
               )}
               {encounter?.item && itemDisposition === 'left_full' && (
-                <div className="treasure-page__reward">
-                  <div className="treasure-page__reward-label">{fr.encounter.itemLeft}</div>
-                  <div className="treasure-page__inventory-warning">
+                <article className="treasure-page__reward treasure-page__reward--warning">
+                  <h3 className="treasure-page__reward-label">{fr.encounter.itemLeft}</h3>
+                  <p className="treasure-page__inventory-warning">
                     {fr.encounter.inventoryFull} ({encounter.item.name})
-                  </div>
-                </div>
+                  </p>
+                </article>
               )}
               {itemDisposition === 'already_resolved' && (
-                <div className="treasure-page__already-resolved">
-                  {fr.encounter.alreadyResolved}
-                </div>
+                <p className="treasure-page__already-resolved">{fr.encounter.alreadyResolved}</p>
               )}
             </div>
 
             <button
+              type="button"
               className="treasure-page__button treasure-page__button--continue"
               onClick={handleContinue}
             >
               {fr.common.continue}
             </button>
-          </>
+          </div>
         )}
       </div>
     </EncounterLayout>

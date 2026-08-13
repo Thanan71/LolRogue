@@ -21,9 +21,9 @@ export default defineConfig({
   publicDir: false,
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@data': path.resolve(__dirname, './data'),
-      '@assets': path.resolve(__dirname, './assets'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@data': path.resolve(import.meta.dirname, './data'),
+      '@assets': path.resolve(import.meta.dirname, './assets'),
     },
   },
   build: {
@@ -63,7 +63,7 @@ export default defineConfig({
           source === './generated/champions-parsed.json' &&
           importer?.endsWith('/src/data/championDatabase.ts')
         ) {
-          return path.resolve(__dirname, './src/data/generated/champions-client.json');
+          return path.resolve(import.meta.dirname, './src/data/generated/champions-client.json');
         }
         return null;
       },
@@ -89,11 +89,15 @@ export default defineConfig({
       name: 'copy-versioned-riot-assets',
       apply: 'build',
       async writeBundle() {
-        await cp(path.resolve(__dirname, 'public/assets'), path.resolve(__dirname, 'dist/assets'), {
-          recursive: true,
-        });
+        await cp(
+          path.resolve(import.meta.dirname, 'public/assets'),
+          path.resolve(import.meta.dirname, 'dist/assets'),
+          {
+            recursive: true,
+          },
+        );
         await writeFile(
-          path.resolve(__dirname, 'dist/deployment-identity.json'),
+          path.resolve(import.meta.dirname, 'dist/deployment-identity.json'),
           `${JSON.stringify({ commit: deploymentCommitSha })}\n`,
           'utf8',
         );

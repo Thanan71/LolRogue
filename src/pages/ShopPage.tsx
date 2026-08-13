@@ -28,19 +28,48 @@ function ShopItemCard({
   onBuy: () => void;
 }) {
   const finalPrice = Math.round(item.price * priceMultiplier);
-  const statsText = Object.entries(item.stats)
-    .filter(([, v]) => v)
-    .map(([k, v]) => `${k.toUpperCase()} +${v}`)
-    .join(', ');
+  const stats = Object.entries(item.stats).filter((entry): entry is [string, number] =>
+    Boolean(entry[1]),
+  );
   return (
-    <div className="shop-card shop-card--item">
-      <div className="shop-card__name">{item.name}</div>
-      <div className="shop-card__description">{item.description}</div>
-      {statsText && <div className="shop-card__stats">{statsText}</div>}
-      <button className="shop-card__buy" onClick={onBuy} disabled={!canAfford}>
+    <article className="shop-card shop-card--item">
+      <div className="shop-card__item-heading">
+        <span className="shop-card__item-icon" aria-hidden="true">
+          {item.iconUrl ? (
+            <img
+              src={item.iconUrl}
+              alt=""
+              width={64}
+              height={64}
+              loading="lazy"
+              decoding="async"
+              onError={(event) => {
+                event.currentTarget.hidden = true;
+              }}
+            />
+          ) : null}
+        </span>
+        <div>
+          <h3 className="shop-card__name">{item.name}</h3>
+          <span className="shop-card__price">
+            {finalPrice} {fr.common.gold}
+          </span>
+        </div>
+      </div>
+      <p className="shop-card__description">{item.description}</p>
+      {stats.length > 0 ? (
+        <ul className="shop-card__stats" aria-label="Bonus de l’objet">
+          {stats.map(([stat, value]) => (
+            <li key={stat}>
+              {stat.toUpperCase()} +{value}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <button type="button" className="shop-card__buy" onClick={onBuy} disabled={!canAfford}>
         {canAfford ? `${fr.encounter.buy} — ${finalPrice} ${fr.common.gold}` : disabledReason}
       </button>
-    </div>
+    </article>
   );
 }
 
@@ -66,32 +95,35 @@ function ChampionCard({
   else if (teamFull) label = fr.encounter.teamFull;
   else if (!canAfford) label = fr.encounter.notEnoughGold;
   return (
-    <div className="shop-card shop-card--champion">
+    <article className="shop-card shop-card--champion">
       <div className="shop-card__champion-summary">
-        <img
-          src={champ?.iconUrl ?? ''}
-          alt={champ?.name ?? champId}
-          width={36}
-          height={36}
-          decoding="async"
-          className="shop-card__portrait"
-          onError={(e) => {
-            e.currentTarget.hidden = true;
-          }}
-        />
+        <span className="shop-card__portrait-frame" aria-hidden="true">
+          <img
+            src={champ?.iconUrl ?? ''}
+            alt=""
+            width={64}
+            height={64}
+            decoding="async"
+            className="shop-card__portrait"
+            onError={(event) => {
+              event.currentTarget.hidden = true;
+            }}
+          />
+        </span>
         <div>
-          <div className="shop-card__name">{champ?.name ?? champId}</div>
-          <div className="shop-card__subtitle">{champ?.title ?? 'Champion'}</div>
+          <h3 className="shop-card__name">{champ?.name ?? champId}</h3>
+          <p className="shop-card__subtitle">{champ?.title ?? 'Champion'}</p>
         </div>
       </div>
       <button
+        type="button"
         className="shop-card__buy shop-card__buy--recruit"
         onClick={onRecruit}
         disabled={disabled}
       >
         {label}
       </button>
-    </div>
+    </article>
   );
 }
 
@@ -110,6 +142,7 @@ export function ShopPage() {
   const purchaseCurrentShopChampion = useRunStore((s) => s.purchaseCurrentShopChampion);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
   const [commandError, setCommandError] = useState<string | null>(null);
+  const [commandStatus, setCommandStatus] = useState<string | null>(null);
   const shopNodeState = useRunStore((s) =>
     currentNodeId ? s.shopNodeStates[currentNodeId] : undefined,
   );
@@ -139,8 +172,12 @@ export function ShopPage() {
       const result = purchaseCurrentShopItem(item.itemId);
       if (result.success) {
         setCommandError(null);
+        setCommandStatus(`${item.name} a été ajouté à l’inventaire.`);
         playUIClick();
-      } else setCommandError(result.error || fr.encounter.commandFailed);
+      } else {
+        setCommandStatus(null);
+        setCommandError(result.error || fr.encounter.commandFailed);
+      }
     },
     [purchaseCurrentShopItem],
   );
@@ -150,8 +187,12 @@ export function ShopPage() {
       const result = purchaseCurrentShopChampion(champId);
       if (result.success) {
         setCommandError(null);
+        setCommandStatus(`${championDB.getById(champId)?.name ?? champId} a rejoint votre équipe.`);
         playUIClick();
-      } else setCommandError(result.error || fr.encounter.commandFailed);
+      } else {
+        setCommandStatus(null);
+        setCommandError(result.error || fr.encounter.commandFailed);
+      }
     },
     [purchaseCurrentShopChampion],
   );
@@ -169,6 +210,7 @@ export function ShopPage() {
     <EncounterLayout
       title={`${fr.encounter.shop} — ${encounter?.name ?? fr.encounter.shop}`}
       gold={gold}
+      subtitle="Équipez votre escouade avant de reprendre la route. Les achats sont définitifs."
     >
       <div className="shop-content">
         {commandError && (
@@ -183,11 +225,29 @@ export function ShopPage() {
             </button>
           </div>
         )}
+        {commandStatus ? (
+          <p role="status" aria-live="polite" className="shop-banner shop-banner--success">
+            <span aria-hidden="true">✓</span> {commandStatus}
+          </p>
+        ) : null}
         {encounter && priceMultiplier < 1 && (
           <div className="shop-banner">{fr.encounter.discount}</div>
         )}
-        <div className="shop-section">
-          <div className="shop-section__title">{fr.encounter.items}</div>
+        <div className="shop-overview" aria-label="État de la boutique">
+          <span>
+            <strong>{items.length - purchased.size}</strong> objets disponibles
+          </span>
+          <span>
+            Inventaire <strong>{inventorySize}</strong>/{MAX_INVENTORY_ITEMS}
+          </span>
+          <span>
+            Équipe <strong>{team.length}</strong>/5
+          </span>
+        </div>
+        <section className="shop-section" aria-labelledby="shop-items-title">
+          <h2 id="shop-items-title" className="shop-section__title">
+            {fr.encounter.items}
+          </h2>
           <div className="shop-grid">
             {items.map((item) => {
               const finalPrice = Math.round(item.price * priceMultiplier);
@@ -211,10 +271,12 @@ export function ShopPage() {
             })}
             {items.length === 0 && <div className="shop-empty">{fr.encounter.noItems}</div>}
           </div>
-        </div>
+        </section>
         {recruitable.length > 0 && (
-          <div className="shop-section">
-            <div className="shop-section__title">{fr.encounter.recruits}</div>
+          <section className="shop-section" aria-labelledby="shop-recruits-title">
+            <h2 id="shop-recruits-title" className="shop-section__title">
+              {fr.encounter.recruits}
+            </h2>
             <div className="shop-grid">
               {recruitable.map((rc) => (
                 <ChampionCard
@@ -230,10 +292,10 @@ export function ShopPage() {
                 />
               ))}
             </div>
-          </div>
+          </section>
         )}
         <div className="shop-actions">
-          <button className="shop-actions__leave" onClick={handleLeave}>
+          <button type="button" className="shop-actions__leave" onClick={handleLeave}>
             {fr.encounter.leaveShop}
           </button>
         </div>

@@ -10,8 +10,15 @@ import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { useRunStore } from '@/stores/runStore';
 import type { DailyChallenge } from '@/types/dailyRun';
+import type { AuthorityDifficulty } from '@/types/runAttempt';
 import '@/styles/daily-run.css';
 import { fr } from '@/i18n/fr';
+
+const DAILY_DIFFICULTY_LABELS: Record<AuthorityDifficulty, string> = {
+  easy: fr.settings.easy,
+  normal: fr.settings.normal,
+  hard: fr.settings.hard,
+};
 
 export function DailyRunPage() {
   const navigate = useAppNavigate();
@@ -78,15 +85,26 @@ export function DailyRunPage() {
         }
       />
 
-      <Panel className="daily-run-page__challenge">
+      <Panel className="daily-run-page__challenge" aria-labelledby="daily-challenge-title">
         <div className="daily-run-page__challenge-copy">
-          <span className="daily-run-page__eyebrow">Expédition classée · 1 tentative</span>
-          <h2>{fr.daily.today}</h2>
+          <span className="daily-run-page__eyebrow">{fr.daily.challengeEyebrow}</span>
+          <h2 id="daily-challenge-title">{fr.daily.today}</h2>
           <p>{fr.daily.description}</p>
           {challenge && (
-            <p className="daily-run-page__metadata">
-              {challenge.dailyDate} UTC · {challenge.difficulty} · score v{challenge.scoreVersion}
-            </p>
+            <dl className="daily-run-page__metadata" aria-label={fr.daily.challengeParameters}>
+              <div>
+                <dt>{fr.daily.date}</dt>
+                <dd>{challenge.dailyDate} UTC</dd>
+              </div>
+              <div>
+                <dt>{fr.daily.difficulty}</dt>
+                <dd>{DAILY_DIFFICULTY_LABELS[challenge.difficulty]}</dd>
+              </div>
+              <div>
+                <dt>{fr.daily.scoreVersion}</dt>
+                <dd>v{challenge.scoreVersion}</dd>
+              </div>
+            </dl>
           )}
         </div>
         {availabilityError ? (
@@ -96,6 +114,7 @@ export function DailyRunPage() {
         ) : (
           <Button
             disabled={isChecking || (attemptUsed && !canResume)}
+            aria-busy={isChecking}
             onClick={() => {
               playUIClick();
               navigate(activeRunMode === 'daily' ? ROUTES.RUN : ROUTES.STARTER_SELECT, {
