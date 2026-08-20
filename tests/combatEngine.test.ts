@@ -1228,6 +1228,8 @@ describe('BattleManager Spell Effect Application', () => {
         { side: 'player', champions: [stunner] },
         { side: 'enemy', champions: [victim] },
       );
+      const events: BattleEvent[] = [];
+      bm.on('event', (event) => events.push(event));
 
       bm.startBattle();
       const ss = bm.getCombatantState('Stunner', 'player')!;
@@ -1239,10 +1241,40 @@ describe('BattleManager Spell Effect Application', () => {
       forceSpellSlot(stunner, 'Q');
       bm.processCurrentTurn();
       expect(vs.ccTurnsLeft).toBeGreaterThan(0);
+      expect(events).toContainEqual({
+        type: 'crowd_control_applied',
+        source: 'Stunner',
+        target: 'Victim',
+        sourceCombatantId: 'Stunner',
+        targetCombatantId: 'Victim',
+        sourceSide: 'player',
+        targetSide: 'enemy',
+        ccType: CCType.Stun,
+        duration: 1,
+      });
+      expect(
+        events.some(
+          (event) =>
+            event.type === 'damage' &&
+            event.source === 'Stunner' &&
+            event.target === 'Victim' &&
+            event.amount === 0,
+        ),
+      ).toBe(false);
 
       // Victim's turn: skipped due to stun
       forceSpellSlot(victim, 'Q');
       bm.processCurrentTurn();
+      expect(events).toContainEqual({
+        type: 'turn_skipped',
+        champion: 'Victim',
+        combatantId: 'Victim',
+        side: 'enemy',
+        round: 1,
+        turnIndex: 1,
+        reason: 'hard_crowd_control',
+        crowdControlTypes: [CCType.Stun],
+      });
 
       // Stunner took no damage because victim was CC'd
       expect(ss.currentHp).toBe(stunnerHpBefore);

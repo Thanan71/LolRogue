@@ -14,6 +14,8 @@ const icons: Record<string, string> = {
   heal: '\u2764',
   shield: '\uD83D\uDEE1',
   revive: '\u2728',
+  crowd_control: '\u2726',
+  turn_skipped: '\u23F8',
 };
 
 export const CombatLog: React.FC = () => {

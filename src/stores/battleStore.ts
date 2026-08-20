@@ -42,7 +42,9 @@ export interface LogEntry {
     | 'info'
     | 'heal'
     | 'shield'
-    | 'revive';
+    | 'revive'
+    | 'crowd_control'
+    | 'turn_skipped';
   message: string;
   amount?: number;
   isCrit?: boolean;

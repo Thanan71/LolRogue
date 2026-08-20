@@ -190,6 +190,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260809211000_measured_query_pattern_indexes.sql',
       '../supabase/migrations/20260813024748_drop_unused_finished_attempt_queue_index.sql',
       '../supabase/migrations/20260820152928_gameplay_ruleset_v14_combat_integrity.sql',
+      '../supabase/migrations/20260820163214_gameplay_ruleset_v15_authority_cohorts.sql',
     ]);
   });
 

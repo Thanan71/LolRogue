@@ -324,6 +324,22 @@ export class BattleManager {
     // Canonical turn cycle:
     // start → controls → command → cast/attack → effects/deaths → end → duration ticks.
     if (!attackerState.effectManager.canAct()) {
+      this._emit({
+        type: 'turn_skipped',
+        champion: attackerState.champion.id,
+        combatantId: attackerState.targetId,
+        side: attackerState.side,
+        round: this._round,
+        turnIndex: this._turnIndex,
+        reason: 'hard_crowd_control',
+        crowdControlTypes: [
+          ...new Set(
+            attackerState.effectManager.ccEffects
+              .filter((effect) => effect.isHardCC())
+              .map((effect) => effect.ccType),
+          ),
+        ].sort(),
+      });
       this._applyTurnEndPassives(attackerState);
       this._dispatchTurnEnd(attackerState);
       this._tickTurnEffects(attackerState, turnEffectIds);
@@ -1363,17 +1379,30 @@ export class BattleManager {
         }),
       );
     } else if ((effect.type === 'slow' || effect.type === 'snare') && !target.isDefeated) {
+      const ccType = effect.type === 'slow' ? CCType.Slow : CCType.Snare;
+      const duration = Math.max(1, Math.round(effect.duration ?? 1));
       target.effectManager.apply(
         new CCEffect({
           name: `Rule ${effect.type}`,
           sourceId: source.targetId,
           targetId: target.targetId,
-          ccType: effect.type === 'slow' ? CCType.Slow : CCType.Snare,
-          duration: Math.max(1, Math.round(effect.duration ?? 1)),
+          ccType,
+          duration,
           slowAmount: effect.type === 'slow' ? effect.amount : undefined,
         }),
       );
       this._syncEffectState(target);
+      this._emit({
+        type: 'crowd_control_applied',
+        source: source.champion.id,
+        target: target.champion.id,
+        sourceCombatantId: source.targetId,
+        targetCombatantId: target.targetId,
+        sourceSide: source.side,
+        targetSide: target.side,
+        ccType,
+        duration,
+      });
     }
   }
 

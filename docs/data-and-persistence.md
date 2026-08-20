@@ -310,9 +310,13 @@ bonus victoire
 + or total gagné × gold_points
 ```
 
-Dans le ruleset Daily v14 actif, ces coefficients valent respectivement 10 000,
-1 000, 250, 100 et 1. Ils sont hérités du ruleset v13, liés à `score_version = 14`
-et ne peuvent pas être remplacés par un score déclaré par le client.
+Dans le ruleset Daily v15 actif, ces coefficients valent respectivement 10 000,
+1 000, 250, 100 et 1. Ils sont hérités du ruleset v14, liés à `score_version = 14`
+et ne peuvent pas être remplacés par un score déclaré par le client. Une version de
+score identifie la formule : plusieurs rulesets Daily peuvent donc partager la même
+version lorsque les coefficients restent identiques. La valeur demeure strictement
+positive, sans servir de clé étrangère ; les relations utilisent la version du
+ruleset Daily.
 
 En mode invité, le classement daily local sert uniquement de retour d'interface.
 Il ne constitue pas un score officiel et peut être effacé avec le stockage du

@@ -194,10 +194,10 @@ describe('combat integrity source / Edge bundle parity', () => {
     });
   });
 
-  it('loads archived v13 and current v14 only for their exact registered hashes', async () => {
-    const v13 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v13');
-    expect(v13?.status).toBe('replay-only');
-    expect(await resolveBundledAuthorityVerifier(v13!.engine, v13!.contentHash)).toBeDefined();
+  it('loads archived v14 and current v15 only for their exact registered hashes', async () => {
+    const v14 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v14');
+    expect(v14?.status).toBe('replay-only');
+    expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeDefined();
     expect(
       await resolveBundledAuthorityVerifier(AUTHORITY_ENGINE_VERSION, '0'.repeat(64)),
     ).toBeUndefined();

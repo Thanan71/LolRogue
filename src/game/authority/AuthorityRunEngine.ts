@@ -69,7 +69,13 @@ import {
   validateRunAttempt as validateAttempt,
 } from './RunCommandValidator';
 import type {
+  AuthorityCombatantResources,
+  AuthorityCombatSummary,
+  AuthorityCombatTeamResources,
+  AuthorityPendingEncounterSnapshot,
+  AuthorityPostCombatResources,
   AuthorityReplayResult,
+  AuthorityReplaySession,
   AuthorityRunAttempt,
   AuthorityRunCommand,
   AuthorityRunEndReason,
@@ -79,9 +85,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v14';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v15';
 export const AUTHORITY_CONTENT_HASH =
-  '486c5981a70dc84f5615af3abc4720ea03ce9085ae01595b2eda9bafc3f30708';
+  '60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9';
 
 assertValidRuleCatalogs();
 
@@ -97,6 +103,23 @@ type PendingEncounter = {
 
 export { AuthorityRunVerificationError } from './RunCommandValidator';
 
+function cloneRunAttempt(attempt: AuthorityRunAttempt): AuthorityRunAttempt {
+  return {
+    runUuid: attempt.runUuid,
+    seed: attempt.seed,
+    team: attempt.team.map((member) => ({ ...member })),
+    runeIds: [...attempt.runeIds],
+    difficulty: attempt.difficulty,
+    enhancementSnapshot: Object.fromEntries(
+      Object.entries(attempt.enhancementSnapshot).map(([championId, ranks]) => [
+        championId,
+        { ...ranks },
+      ]),
+    ),
+    masterySnapshot: { ...attempt.masterySnapshot },
+  };
+}
+
 function itemFromShopItem(shopItem: ShopItem): Item {
   return {
     id: shopItem.itemId,
@@ -110,6 +133,7 @@ function itemFromShopItem(shopItem: ShopItem): Item {
 }
 
 class AuthorityReplayState {
+  private readonly attempt: AuthorityRunAttempt;
   private readonly maps: NodeMap[];
   private ledger: RunLedger;
   private currentBiomeIndex = 0;
@@ -131,14 +155,16 @@ class AuthorityReplayState {
   private endReason: AuthorityRunEndReason = null;
   private nextSequence = 1;
   private nextItemInstanceId = 1;
+  private combatSummaries: AuthorityCombatSummary[] = [];
 
-  constructor(private readonly attempt: AuthorityRunAttempt) {
+  constructor(attempt: AuthorityRunAttempt) {
     validateAttempt(attempt);
-    this.maps = generateRunMap(attempt.seed);
+    this.attempt = cloneRunAttempt(attempt);
+    this.maps = generateRunMap(this.attempt.seed);
     const firstMap = this.maps[0];
     if (!firstMap) fail('invalid_content', 'The ruleset generated no biome map.');
     this.expectedNodeIds = [firstMap.startNodeId];
-    this.team = attempt.team.map((member) => ({
+    this.team = this.attempt.team.map((member) => ({
       championId: member.championId,
       currentHp: null,
       currentMp: null,
@@ -238,6 +264,7 @@ class AuthorityReplayState {
   snapshot(): AuthorityRunSnapshot {
     const currentMap = this.maps[this.currentBiomeIndex];
     const championStats = buildChampionRunStats(this.ledger, this.team);
+    const pendingEncounter = this.snapshotPendingEncounter();
     return {
       runUuid: this.attempt.runUuid,
       seed: this.attempt.seed,
@@ -251,6 +278,7 @@ class AuthorityReplayState {
       biomesVisited: this.maps.slice(0, this.currentBiomeIndex + 1).map((map) => map.biome),
       currentNodeId: this.currentNodeId,
       expectedNodeIds: [...this.expectedNodeIds],
+      pendingEncounter,
       pendingNodeType: this.pending ? this.toRunNodeType(this.pending.node.type) : null,
       completedNodeIds: [...this.completedNodeIds],
       team: this.team.map((member) => ({
@@ -275,6 +303,142 @@ class AuthorityReplayState {
       ledger: cloneRunLedger(this.ledger),
       nextSequence: this.nextSequence,
     };
+  }
+
+  private snapshotPendingEncounter(): AuthorityPendingEncounterSnapshot | null {
+    const pending = this.pending;
+    if (!pending) return null;
+
+    const { node } = pending;
+    const base = {
+      nodeId: node.id,
+      claimed: pending.claimed,
+    };
+
+    switch (node.type) {
+      case NodeType.Combat:
+      case NodeType.Elite:
+      case NodeType.Boss: {
+        if (node.encounter?.type !== 'combat') {
+          fail('invalid_content', `Combat node "${node.id}" has no combat encounter.`);
+        }
+        return {
+          ...base,
+          nodeType: node.type,
+          encounterId: node.encounter.id,
+        };
+      }
+      case NodeType.Shop: {
+        if (node.encounter?.type !== 'shop') {
+          fail('invalid_content', `Shop node "${node.id}" has no shop encounter.`);
+        }
+        const encounter = node.encounter;
+        const discount = this.getAugmentManager().getShopDiscountPercent();
+        return {
+          ...base,
+          nodeType: 'shop',
+          encounterId: encounter.id,
+          itemOffers: encounter.items.map((offer) => {
+            const cost = getShopItemCost(encounter, offer.price, discount);
+            const consumed = pending.purchasedItemIds.has(offer.itemId);
+            return {
+              itemId: offer.itemId,
+              cost,
+              consumed,
+              legal:
+                !consumed &&
+                this.gold >= cost &&
+                validateItemAddition(this.inventory, { id: offer.itemId }).valid,
+            };
+          }),
+          recruitOffers: encounter.recruitableChampions.map((offer) => {
+            const cost = getShopRecruitCost(encounter, offer.cost);
+            const consumed = pending.recruitedChampionIds.has(offer.championId);
+            return {
+              championId: offer.championId,
+              cost,
+              consumed,
+              legal:
+                !consumed &&
+                this.gold >= cost &&
+                validateTeamAddition(this.team, offer.championId).valid,
+            };
+          }),
+        };
+      }
+      case NodeType.Rest: {
+        if (node.encounter?.type !== 'rest') {
+          fail('invalid_content', `Rest node "${node.id}" has no rest encounter.`);
+        }
+        const cost = Math.max(0, node.encounter.goldCost);
+        return {
+          ...base,
+          nodeType: 'rest',
+          encounterId: node.encounter.id,
+          cost,
+          legal: !pending.claimed && this.gold >= cost,
+        };
+      }
+      case NodeType.Recruit: {
+        if (node.encounter?.type !== 'recruit') {
+          fail('invalid_content', `Recruit node "${node.id}" has no recruit encounter.`);
+        }
+        const cost = Math.max(0, node.encounter.cost);
+        return {
+          ...base,
+          nodeType: 'recruit',
+          encounterId: node.encounter.id,
+          championId: node.encounter.championId,
+          cost,
+          legal:
+            !pending.claimed &&
+            this.gold >= cost &&
+            validateTeamAddition(this.team, node.encounter.championId).valid,
+        };
+      }
+      case NodeType.Event:
+        if (node.encounter?.type !== 'event') {
+          fail('invalid_content', `Event node "${node.id}" has no event encounter.`);
+        }
+        return {
+          ...base,
+          nodeType: 'event',
+          encounterId: node.encounter.id,
+        };
+      case NodeType.Treasure:
+        if (node.encounter?.type !== 'treasure') {
+          fail('invalid_content', `Treasure node "${node.id}" has no treasure encounter.`);
+        }
+        return {
+          ...base,
+          nodeType: 'treasure',
+          encounterId: node.encounter.id,
+        };
+      case NodeType.Start:
+      case NodeType.Exit:
+        return {
+          ...base,
+          nodeType: node.type,
+          encounterId: null,
+        };
+    }
+  }
+
+  combatSummarySnapshots(): AuthorityCombatSummary[] {
+    return this.combatSummaries.map((summary) => ({
+      ...summary,
+      metrics: {
+        rounds: summary.metrics.rounds,
+        bySide: {
+          player: { ...summary.metrics.bySide.player },
+          enemy: { ...summary.metrics.bySide.enemy },
+        },
+      },
+      playerTeam: this.cloneCombatTeamResources(summary.playerTeam),
+      enemyTeam: this.cloneCombatTeamResources(summary.enemyTeam),
+      playerAfterEncounter: summary.playerAfterEncounter?.map((member) => ({ ...member })) ?? null,
+      reward: summary.reward ? { ...summary.reward } : null,
+    }));
   }
 
   private moveNode(nodeId: string, commandIndex: number): void {
@@ -386,6 +550,8 @@ class AuthorityReplayState {
       });
     }
     battle.startBattle();
+    const initialPlayerResources = this.captureCombatantResources(battle.getPlayerCombatants());
+    const initialEnemyResources = this.captureCombatantResources(battle.getEnemyCombatants());
     let processedTurns = 0;
     while (battle.phase !== BattlePhase.Finished && processedTurns < MAX_COMBAT_TURNS) {
       battle.processCurrentTurn();
@@ -419,6 +585,31 @@ class AuthorityReplayState {
       );
     }
 
+    const finalPlayerResources = this.captureCombatantResources(battle.getPlayerCombatants());
+    const finalEnemyResources = this.captureCombatantResources(battle.getEnemyCombatants());
+    const summaryBase = {
+      combatIndex: this.combatSummaries.length,
+      commandIndex,
+      nodeId: node.id,
+      encounterId: encounter.id,
+      nodeType: combatNodeType,
+      biome: node.biome,
+      biomeIndex: this.currentBiomeIndex,
+      wave: this.currentWave,
+      runLevel: this.runLevel,
+      winner: result.winner,
+      rounds: result.totalRounds,
+      metrics: result.metrics,
+      playerTeam: {
+        initial: initialPlayerResources,
+        final: finalPlayerResources,
+      },
+      enemyTeam: {
+        initial: initialEnemyResources,
+        final: finalEnemyResources,
+      },
+    } satisfies Omit<AuthorityCombatSummary, 'playerAfterEncounter' | 'reward'>;
+
     this.ledger = commitCombatEvents(
       this.ledger,
       result.log,
@@ -440,6 +631,11 @@ class AuthorityReplayState {
     this.runeStacks = battle.getRuneStacks();
 
     if (result.winner !== 'player') {
+      this.combatSummaries.push({
+        ...summaryBase,
+        playerAfterEncounter: null,
+        reward: null,
+      });
       this.terminal = true;
       this.endReason = result.winner === 'draw' ? 'draw' : 'defeat';
       this.expectedNodeIds = [];
@@ -498,9 +694,57 @@ class AuthorityReplayState {
     });
     this.currentWave = progression.currentWave;
     this.totalWavesCompleted = progression.totalWavesCompleted;
+    let droppedItemInstanceId: string | null = null;
     if (resolution.reward.droppedItem) {
-      this.addItem(resolution.reward.droppedItem, 'found', 'combat');
+      droppedItemInstanceId = this.addItem(resolution.reward.droppedItem, 'found', 'combat');
     }
+    this.combatSummaries.push({
+      ...summaryBase,
+      playerAfterEncounter: this.capturePostCombatResources(),
+      reward: {
+        gold: resolution.reward.gold,
+        xpPerChampion: resolution.reward.xpPerChampion,
+        itemDropChance: resolution.reward.itemDropChance,
+        droppedItemId: resolution.reward.droppedItem?.id ?? null,
+        dropBlockedByCapacity: resolution.reward.dropBlockedByCapacity,
+        droppedItemInstanceId,
+      },
+    });
+  }
+
+  private captureCombatantResources(
+    combatants: ReturnType<BattleManager['getPlayerCombatants']>,
+  ): AuthorityCombatantResources[] {
+    return combatants.map((combatant) => ({
+      combatantId: combatant.targetId,
+      championId: combatant.champion.id,
+      currentHp: combatant.isDefeated ? 0 : combatant.currentHp,
+      maxHp: combatant.maxHp,
+      currentMp: combatant.currentMp,
+      maxMp: combatant.maxMp,
+      defeated: combatant.isDefeated,
+    }));
+  }
+
+  private capturePostCombatResources(): AuthorityPostCombatResources[] {
+    return this.team.map((member) => ({
+      championId: member.championId,
+      currentHp: member.currentHp,
+      maxHp: this.getMemberMaxHp(member),
+      currentMp: member.currentMp,
+      maxMp: this.getMemberMaxMp(member),
+      level: member.level,
+      currentXp: member.currentXp,
+    }));
+  }
+
+  private cloneCombatTeamResources(
+    resources: AuthorityCombatTeamResources,
+  ): AuthorityCombatTeamResources {
+    return {
+      initial: resources.initial.map((member) => ({ ...member })),
+      final: resources.final.map((member) => ({ ...member })),
+    };
   }
 
   private buildPlayerTeam(): ChampionInstance[] {
@@ -920,21 +1164,63 @@ class AuthorityReplayState {
   }
 }
 
+class IncrementalAuthorityReplaySession implements AuthorityReplaySession {
+  private readonly state: AuthorityReplayState;
+  private commandCount = 0;
+  private invalidated = false;
+
+  constructor(attempt: AuthorityRunAttempt) {
+    this.state = new AuthorityReplayState(attempt);
+  }
+
+  append(command: unknown): void {
+    this.assertActive();
+    try {
+      if (this.commandCount >= MAX_COMMANDS) {
+        fail('trace_too_large', 'Trace contains too many commands.');
+      }
+      this.state.apply(parseCommand(command, this.commandCount), this.commandCount);
+      this.commandCount++;
+    } catch (error) {
+      this.invalidated = true;
+      throw error;
+    }
+  }
+
+  getResult(): AuthorityReplayResult {
+    this.assertActive();
+    return {
+      engineVersion: AUTHORITY_ENGINE_VERSION,
+      snapshot: this.state.snapshot(),
+      commandCount: this.commandCount,
+      combatSummaries: this.state.combatSummarySnapshots(),
+    };
+  }
+
+  private assertActive(): void {
+    if (this.invalidated) {
+      fail(
+        'replay_session_invalidated',
+        'The incremental replay session is invalid after a rejected command.',
+        this.commandCount,
+      );
+    }
+  }
+}
+
+export function createAuthorityReplaySession(attempt: AuthorityRunAttempt): AuthorityReplaySession {
+  return new IncrementalAuthorityReplaySession(attempt);
+}
+
 export function replayAuthorityRun(
   attempt: AuthorityRunAttempt,
   trace: readonly unknown[],
 ): AuthorityReplayResult {
   if (!Array.isArray(trace)) fail('invalid_trace', 'Trace must be an array.');
   if (trace.length > MAX_COMMANDS) fail('trace_too_large', 'Trace contains too many commands.');
-  const state = new AuthorityReplayState(attempt);
-  for (let index = 0; index < trace.length; index++) {
-    state.apply(parseCommand(trace[index], index), index);
-  }
-  return {
-    engineVersion: AUTHORITY_ENGINE_VERSION,
-    snapshot: state.snapshot(),
-    commandCount: trace.length,
-  };
+  const session = createAuthorityReplaySession(attempt);
+  for (const command of trace) session.append(command);
+  return session.getResult();
 }
 
 export function verifyAuthorityRun(

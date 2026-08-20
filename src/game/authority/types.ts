@@ -1,4 +1,5 @@
 import type { SpellSlot } from '@/game/ChampionInstance';
+import type { BattleMetrics } from '@/game/battle/types';
 import type {
   Biome,
   ChampionRunStats,
@@ -95,6 +96,77 @@ export interface AuthorityTeamMember {
   spellRanks: Record<SpellSlot, number>;
 }
 
+export type AuthorityPendingNodeType = RunNodeType | 'start' | 'exit';
+
+interface AuthorityPendingEncounterBase<TNodeType extends AuthorityPendingNodeType> {
+  nodeId: string;
+  nodeType: TNodeType;
+  encounterId: string | null;
+  claimed: boolean;
+}
+
+export interface AuthorityPendingCombatSnapshot
+  extends AuthorityPendingEncounterBase<'combat' | 'elite' | 'boss'> {
+  encounterId: string;
+}
+
+export interface AuthorityShopItemOfferSnapshot {
+  itemId: string;
+  cost: number;
+  consumed: boolean;
+  legal: boolean;
+}
+
+export interface AuthorityShopRecruitOfferSnapshot {
+  championId: string;
+  cost: number;
+  consumed: boolean;
+  legal: boolean;
+}
+
+export interface AuthorityPendingShopSnapshot extends AuthorityPendingEncounterBase<'shop'> {
+  encounterId: string;
+  itemOffers: AuthorityShopItemOfferSnapshot[];
+  recruitOffers: AuthorityShopRecruitOfferSnapshot[];
+}
+
+export interface AuthorityPendingRestSnapshot extends AuthorityPendingEncounterBase<'rest'> {
+  encounterId: string;
+  cost: number;
+  legal: boolean;
+}
+
+export interface AuthorityPendingRecruitSnapshot extends AuthorityPendingEncounterBase<'recruit'> {
+  encounterId: string;
+  championId: string;
+  cost: number;
+  legal: boolean;
+}
+
+export interface AuthorityPendingEventSnapshot extends AuthorityPendingEncounterBase<'event'> {
+  encounterId: string;
+}
+
+export interface AuthorityPendingTreasureSnapshot
+  extends AuthorityPendingEncounterBase<'treasure'> {
+  encounterId: string;
+}
+
+export interface AuthorityPendingStructuralSnapshot
+  extends AuthorityPendingEncounterBase<'start' | 'exit'> {
+  encounterId: null;
+}
+
+/** Public, serializable facts needed to choose the next legal encounter command. */
+export type AuthorityPendingEncounterSnapshot =
+  | AuthorityPendingCombatSnapshot
+  | AuthorityPendingShopSnapshot
+  | AuthorityPendingRestSnapshot
+  | AuthorityPendingRecruitSnapshot
+  | AuthorityPendingEventSnapshot
+  | AuthorityPendingTreasureSnapshot
+  | AuthorityPendingStructuralSnapshot;
+
 export interface AuthorityRunSnapshot {
   runUuid: string;
   seed: number;
@@ -108,6 +180,8 @@ export interface AuthorityRunSnapshot {
   biomesVisited: Biome[];
   currentNodeId: string | null;
   expectedNodeIds: string[];
+  pendingEncounter: AuthorityPendingEncounterSnapshot | null;
+  /** @deprecated Use pendingEncounter, which distinguishes structural nodes and offer state. */
   pendingNodeType: RunNodeType | null;
   completedNodeIds: string[];
   team: AuthorityTeamMember[];
@@ -126,10 +200,87 @@ export interface AuthorityRunSnapshot {
   nextSequence: number;
 }
 
+export type AuthorityCombatNodeType = Extract<RunNodeType, 'combat' | 'elite' | 'boss'>;
+export type AuthorityCombatWinner = 'player' | 'enemy' | 'draw';
+
+/**
+ * Immutable, analytics-safe view of one combatant's battle resources.
+ * `combatantId` remains unique when an encounter contains duplicate champions.
+ */
+export interface AuthorityCombatantResources {
+  combatantId: string;
+  championId: string;
+  currentHp: number;
+  maxHp: number;
+  currentMp: number;
+  maxMp: number;
+  defeated: boolean;
+}
+
+export interface AuthorityCombatTeamResources {
+  initial: AuthorityCombatantResources[];
+  final: AuthorityCombatantResources[];
+}
+
+/** Player resources after post-combat healing, mana recovery and XP. */
+export interface AuthorityPostCombatResources {
+  championId: string;
+  currentHp: number | null;
+  maxHp: number;
+  currentMp: number | null;
+  maxMp: number;
+  level: number;
+  currentXp: number;
+}
+
+export interface AuthorityCombatRewardSummary {
+  gold: number;
+  xpPerChampion: number;
+  itemDropChance: number;
+  droppedItemId: string | null;
+  dropBlockedByCapacity: boolean;
+  /** The deterministic inventory ID, or null when no item was added. */
+  droppedItemInstanceId: string | null;
+}
+
+/** One immutable record for every successfully replayed `resolve_combat`. */
+export interface AuthorityCombatSummary {
+  combatIndex: number;
+  commandIndex: number;
+  nodeId: string;
+  encounterId: string;
+  nodeType: AuthorityCombatNodeType;
+  biome: Biome;
+  biomeIndex: number;
+  wave: number;
+  runLevel: number;
+  winner: AuthorityCombatWinner;
+  rounds: number;
+  metrics: BattleMetrics;
+  playerTeam: AuthorityCombatTeamResources;
+  enemyTeam: AuthorityCombatTeamResources;
+  /** Null after a defeat/draw because no post-combat transition is granted. */
+  playerAfterEncounter: AuthorityPostCombatResources[] | null;
+  /** Null after a defeat/draw because no reward is granted. */
+  reward: AuthorityCombatRewardSummary | null;
+}
+
 export interface AuthorityReplayResult {
   engineVersion: string;
   snapshot: AuthorityRunSnapshot;
   commandCount: number;
+  combatSummaries: AuthorityCombatSummary[];
+}
+
+/**
+ * Incremental form of the canonical authority replay. A failed append invalidates
+ * the session because a command may have partially mutated its private state
+ * before validation rejected it. Callers must then create a fresh session and
+ * replay the accepted prefix.
+ */
+export interface AuthorityReplaySession {
+  append(command: unknown): void;
+  getResult(): AuthorityReplayResult;
 }
 
 export interface AuthorityVerificationFailure {

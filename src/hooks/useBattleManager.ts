@@ -112,6 +112,27 @@ function getActionLabel(action: string): string {
   return action;
 }
 
+function getCrowdControlLabel(type: string): string {
+  switch (type) {
+    case 'stun':
+      return 'étourdissement';
+    case 'snare':
+      return 'immobilisation';
+    case 'silence':
+      return 'silence';
+    case 'slow':
+      return 'ralentissement';
+    case 'knockup':
+      return 'projection';
+    case 'fear':
+      return 'peur';
+    case 'charm':
+      return 'charme';
+    default:
+      return type;
+  }
+}
+
 function actionForEffectEvent(
   event: { source: string; sourceCombatantId?: string; sourceSide: TeamSide },
   fallback: BattleActionType,
@@ -157,6 +178,22 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       store.addLog({
         type: 'action',
         message: `${event.champion}: ${getActionLabel(event.action)}`,
+      });
+      break;
+
+    case 'crowd_control_applied':
+      syncTeams(bm);
+      store.addLog({
+        type: 'crowd_control',
+        message: `${event.source} → ${event.target}: ${getCrowdControlLabel(event.ccType)} (${event.duration} ${event.duration === 1 ? 'tour' : 'tours'})`,
+      });
+      break;
+
+    case 'turn_skipped':
+      syncTeams(bm);
+      store.addLog({
+        type: 'turn_skipped',
+        message: `${event.champion} perd son action (${event.crowdControlTypes.map(getCrowdControlLabel).join(', ')})`,
       });
       break;
 

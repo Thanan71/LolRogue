@@ -3,10 +3,10 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 14` et le Daily `score_version = 14`. Le contenu de
-combat par biome introduit en v13 reste inchangé. Le moteur v13 est archivé pour terminer les runs
-déjà ouvertes. Toute autre modification d'ennemi, récompense, prix, drop, effet ou
-stacking exige une nouvelle version et un nouveau hash autoritaire.
+`gameplay_ruleset_version = 15` et le Daily `score_version = 14`. Le contenu de
+combat par biome introduit en v13 reste inchangé. Le moteur v14 est archivé pour
+terminer les runs déjà ouvertes. Toute autre modification d'ennemi, récompense,
+prix, drop, effet ou stacking exige une nouvelle version et un nouveau hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `balanceSimulation.test.ts` rejoue 100 runs complètes par difficulté et mesure tous

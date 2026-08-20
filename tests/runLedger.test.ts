@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BattleEvent } from '@/game/battle/types';
+import { CCType } from '@/game/effects/types';
 import {
   buildRunSummaryFromLedger,
   commitCombatEvents,
@@ -68,6 +69,24 @@ describe('versioned run ledger', () => {
         amount: 40,
         sourceSide: 'player',
         targetSide: 'player',
+      },
+      {
+        type: 'crowd_control_applied',
+        source: 'Lux',
+        target: 'Darius',
+        sourceSide: 'player',
+        targetSide: 'enemy',
+        ccType: CCType.Stun,
+        duration: 1,
+      },
+      {
+        type: 'turn_skipped',
+        champion: 'Darius',
+        side: 'enemy',
+        round: 1,
+        turnIndex: 2,
+        reason: 'hard_crowd_control',
+        crowdControlTypes: [CCType.Stun],
       },
       {
         type: 'damage',

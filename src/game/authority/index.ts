@@ -1,6 +1,8 @@
 import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
+  createAuthorityReplaySession,
+  replayAuthorityRun,
   verifyAuthorityRun,
 } from './AuthorityRunEngine';
 
@@ -8,6 +10,7 @@ export {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
   AuthorityRunVerificationError,
+  createAuthorityReplaySession,
   replayAuthorityRun,
   verifyAuthorityRun,
 } from './AuthorityRunEngine';
@@ -22,6 +25,8 @@ const AUTHORITY_VERIFIERS = [
   {
     engineVersion: AUTHORITY_ENGINE_VERSION,
     contentHash: AUTHORITY_CONTENT_HASH,
+    replay: replayAuthorityRun,
+    createSession: createAuthorityReplaySession,
     verify: verifyAuthorityRun,
   },
 ] as const;

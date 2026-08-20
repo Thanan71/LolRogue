@@ -24,6 +24,26 @@ const CURRENT_AUTHORITY_VERSION = AUTHORITY_VERSION_REGISTRY.find(
 ) as AuthorityVersionMetadata;
 
 describe('authority progression engine versioning', () => {
+  it('archives v14 and publishes v15 without changing command or progression schemas', () => {
+    const v14 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v14');
+
+    expect(v14).toMatchObject({
+      gameplay: 14,
+      progression: 2,
+      command: 2,
+      status: 'replay-only',
+      bundle: 'supabase/functions/verify-run/run-authority-v14.bundle.ts',
+    });
+    expect(CURRENT_AUTHORITY_VERSION).toMatchObject({
+      engine: 'run-engine-v15',
+      gameplay: 15,
+      progression: 2,
+      command: 2,
+      status: 'current',
+      rulesetCode: '2026-08-authority-cohorts-v15',
+    });
+  });
+
   it('derives the current client contract from the unique registry', () => {
     expect(CURRENT_AUTHORITY_VERSION.engine).toBe(AUTHORITY_ENGINE_VERSION);
     expect(CURRENT_AUTHORITY_VERSION.contentHash).toBe(AUTHORITY_CONTENT_HASH);

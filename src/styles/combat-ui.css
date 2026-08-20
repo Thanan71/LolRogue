@@ -1891,6 +1891,14 @@
   color: var(--color-mana);
 }
 
+.combat-log__entry--crowd_control {
+  color: var(--color-mana);
+}
+
+.combat-log__entry--turn_skipped {
+  color: var(--color-warning);
+}
+
 .combat-log__entry--turn_start,
 .combat-log__entry--round_start,
 .combat-log__entry--battle_end {

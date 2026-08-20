@@ -418,7 +418,7 @@ que 2,42 rounds.
 
 ### Actions
 
-- [ ] Créer une `BalancePolicy` versionnée qui, depuis le snapshot public de la run,
+- [x] Créer une `BalancePolicy` versionnée qui, depuis le snapshot public de la run,
   renvoie une seule commande légale : route, combat, achat, recrutement, équipement,
   augment, rune et amélioration de sort.
 - [ ] Construire `simulateAuthorityCohort()` autour de `replayAuthorityRun()` sur le

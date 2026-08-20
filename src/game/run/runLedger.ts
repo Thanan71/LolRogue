@@ -95,8 +95,8 @@ function effectiveDamage(event: Extract<BattleEvent, { type: 'damage' }>): {
   hp: number;
   shield: number;
 } {
-  const hp = Math.max(0, Math.round(event.hpDamage ?? event.amount));
   const shield = Math.max(0, Math.round(event.shieldDamage ?? 0));
+  const hp = Math.max(0, Math.round(event.hpDamage ?? event.amount - shield));
   return { hp, shield };
 }
 
@@ -159,6 +159,9 @@ export function commitCombatEvents(
       }
       continue;
     }
+
+    // Observability-only combat events never alter persisted player progression.
+    if (event.type === 'crowd_control_applied' || event.type === 'turn_skipped') continue;
 
     if (event.type !== 'defeat') continue;
     if (event.side === 'player' && playerIds.has(event.champion)) {

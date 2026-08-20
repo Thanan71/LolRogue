@@ -126,37 +126,34 @@ export class BattleSpellEffectResolver {
         for (const ccTarget of hostileTargets) {
           const ccType = toCCType(effect.ccType);
           if (!ccType) continue;
+          const duration = Math.max(
+            1,
+            normalizeTurnDuration(effect.ccDuration, 1) *
+              (this.host.rules?.getAppliedControlDurationMultiplier(attacker.champion.id) ?? 1) *
+              (this.host.rules?.getControlDurationMultiplier(ccTarget.champion.id) ?? 1),
+          );
           ccTarget.effectManager.apply(
             new CCEffect({
               name: `${attacker.champion.id} ${ccType}`,
               sourceId: attacker.targetId,
               targetId: ccTarget.targetId,
               ccType,
-              duration: Math.max(
-                1,
-                normalizeTurnDuration(effect.ccDuration, 1) *
-                  (this.host.rules?.getAppliedControlDurationMultiplier(attacker.champion.id) ??
-                    1) *
-                  (this.host.rules?.getControlDurationMultiplier(ccTarget.champion.id) ?? 1),
-              ),
+              duration,
               slowAmount:
                 ccType === CCType.Slow ? normalizePercent(effect.slowPercent, 0.3) : undefined,
             }),
           );
           this.host.syncEffectState(ccTarget);
           this.host.emit({
-            type: 'damage',
+            type: 'crowd_control_applied',
             source: attacker.champion.id,
             target: ccTarget.champion.id,
-            amount: 0,
-            hpDamage: 0,
-            shieldDamage: 0,
-            overkillDamage: 0,
             sourceCombatantId: attacker.targetId,
             targetCombatantId: ccTarget.targetId,
-            isCrit: false,
             sourceSide: attacker.side,
             targetSide: ccTarget.side,
+            ccType,
+            duration,
           });
         }
         break;
