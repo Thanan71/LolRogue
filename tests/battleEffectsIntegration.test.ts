@@ -3,6 +3,7 @@ import { championDB } from '../src/data/championDatabase';
 import { BattleManager } from '../src/game/battle/BattleManager';
 import { ActionType } from '../src/game/battle/types';
 import { ChampionInstance } from '../src/game/ChampionInstance';
+import { ShieldEffect } from '../src/game/effects/ShieldEffect';
 import type { Champion, ChampionStats, Spell, SpellEffect } from '../src/types';
 import { TargetingType } from '../src/types';
 
@@ -134,6 +135,47 @@ describe('BattleManager effect integration', () => {
     },
   );
 
+  it.each([
+    ['Garen', 400, 600],
+    ['Jinx', 500, 700],
+  ] as const)(
+    'resolves %s ultimate damage before evaluating its execute threshold',
+    (championId, crossingHp, survivingHp) => {
+      const definition = championDB.getById(championId);
+      if (!definition) throw new Error(`Missing maintained champion ${championId}`);
+      expect(definition.spells[3].effects.map(({ type }) => type)).toEqual(['damage', 'execute']);
+
+      const resolveAtHp = (currentHp: number) => {
+        const caster = new ChampionInstance(definition);
+        const target = makeChampion('Target', 1, { type: 'damage', baseDamage: [1] });
+        const battle = manager([caster], [target]);
+        const targetState = battle.getCombatantState('Target', 'enemy')!;
+        targetState.currentHp = currentHp;
+        expect(
+          battle.submitAction({
+            type: ActionType.SpellR,
+            targetId: definition.spells[3].targeting === TargetingType.Enemy ? 'Target' : undefined,
+          }),
+        ).toBe(true);
+        return targetState;
+      };
+
+      const executed = resolveAtHp(crossingHp);
+      expect(crossingHp / executed.maxHp).toBeGreaterThan(
+        (definition.spells[3].effects[1].threshold ?? 0) / 100,
+      );
+      expect(executed.currentHp).toBe(0);
+      expect(executed.isDefeated).toBe(true);
+
+      const survivor = resolveAtHp(survivingHp);
+      expect(survivor.currentHp).toBeGreaterThan(
+        survivor.maxHp * ((definition.spells[3].effects[1].threshold ?? 0) / 100),
+      );
+      expect(survivor.currentHp).toBeLessThan(survivingHp);
+      expect(survivor.isDefeated).toBe(false);
+    },
+  );
+
   it('ticks a DoT only at the end of the target turn and expires it', () => {
     const caster = makeChampion(
       'Caster',
@@ -188,6 +230,34 @@ describe('BattleManager effect integration', () => {
     expect(battle.submitAction({ type: ActionType.SpellQ, targetId: 'Victim' })).toBe(true);
     expect(target.isDefeated).toBe(true);
     expect(target.currentHp).toBe(0);
+  });
+
+  it('executes through an active shield as raw terminal damage', () => {
+    const caster = makeChampion(
+      'Executor',
+      500,
+      { type: 'execute', threshold: 30 },
+      TargetingType.Enemy,
+    );
+    const victim = makeChampion('Victim', 300, { type: 'damage', baseDamage: [1] });
+    const battle = manager([caster], [victim]);
+    const target = battle.getCombatantState('Victim', 'enemy')!;
+    target.currentHp = 300;
+    target.effectManager.apply(
+      new ShieldEffect({
+        name: 'Execution test shield',
+        sourceId: target.targetId,
+        targetId: target.targetId,
+        magnitude: 200,
+        duration: 3,
+      }),
+    );
+    target.currentShield = 200;
+
+    expect(battle.submitAction({ type: ActionType.SpellQ, targetId: 'Victim' })).toBe(true);
+    expect(target.currentShield).toBe(0);
+    expect(target.currentHp).toBe(0);
+    expect(target.isDefeated).toBe(true);
   });
 
   it('revives a defeated ally and exposes that target through the same command API', () => {

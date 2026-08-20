@@ -31,6 +31,14 @@
   les deux signifient 30 %.
 - Les seuils d'execute et les fractions de revive sont bornés entre 0 et 100 %.
 
+## Ordre des executes
+
+Garen R et Jinx R appliquent d'abord leur effet de dégâts, puis évaluent l'execute
+sur les PV restants. Le seuil est inclusif : une cible exactement au seuil est
+exécutée. Une exécution validée consomme les boucliers puis les PV restants sans
+appliquer les multiplicateurs ou réductions de dégâts ; les règles de revive
+restent toutefois résolues normalement.
+
 ## Attrition de mana
 
 Après une victoire, chaque champion récupère 25 % de ses MP maximum du combat,

@@ -237,7 +237,14 @@ export class BattleSpellEffectResolver {
           });
           const result = execute.evaluate(target.currentHp, target.maxHp);
           if ((result.value ?? 0) > 0) {
-            this.host.applyDamageToTarget(attacker, target, target.currentHp, false);
+            this.host.applyDamageToTarget(
+              attacker,
+              target,
+              target.currentHp + target.currentShield,
+              false,
+              false,
+              false,
+            );
           }
         }
         break;

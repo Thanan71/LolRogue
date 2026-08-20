@@ -370,7 +370,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 - [x] Ajouter une validation catalogue cible/effet et corriger les cinq sorts
   composites `Self` ayant une partie hostile.
 - [x] Faire respecter le seuil `threshold: 3` d'Electrocute.
-- [ ] Tester explicitement l'ordre « dégâts puis execute » ou « execute sur PV
+- [x] Tester explicitement l'ordre « dégâts puis execute » ou « execute sur PV
   avant dégâts » et retenir une seule règle documentée pour Garen/Jinx.
 - [ ] Empêcher la double évaluation des runes `damage_dealt` sur critique et exclure
   les dégâts bruts des multiplicateurs de pénétration.
