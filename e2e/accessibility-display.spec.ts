@@ -53,7 +53,8 @@ test('les réglages modifient leurs consommateurs réels', async ({ page }) => {
 
   await page.getByLabel('Volume des effets sonores — 80%').fill('35');
   await page.getByLabel('Vitesse du combat').selectOption('3');
-  await page.getByLabel('Particules').selectOption('disabled');
+  await page.locator('label.settings-toggle[for="particles"]').click();
+  await expect(page.getByLabel('Particules')).not.toBeChecked();
   const settings = await page.evaluate(async () => {
     const { useAudioStore } = await import('/src/stores/audioStore.ts');
     const { useSettingsStore } = await import('/src/stores/settingsStore.ts');
@@ -83,7 +84,11 @@ test('le zoom 200 % conserve un reflow horizontal sur les routes principales', a
     await page.getByRole('button', { name: button, exact: true }).click();
     await expect(page).toHaveURL(route);
     await expectReflow(page);
-    await page.getByRole('button', { name: /Retour au menu/ }).click();
+    await page
+      .getByRole('button', { name: /Retour au menu/ })
+      .or(page.getByRole('link', { name: /Retour au menu/ }))
+      .first()
+      .click();
   }
 });
 
@@ -104,7 +109,5 @@ test('le mode Windows High Contrast conserve contrôles, état et focus', async 
   expect(await guest.ariaSnapshot()).toContain('button "Jouer en invité"');
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL('/');
-  expect(await page.getByRole('heading', { name: 'LoL Rogue' }).ariaSnapshot()).toContain(
-    'heading "LoL Rogue"',
-  );
+  await expect(page.getByRole('heading', { name: 'LoL Rogue' })).toBeVisible();
 });

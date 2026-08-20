@@ -194,8 +194,8 @@ describe('documentation maintenue', () => {
     const gameplay = read('docs/gameplay.md');
     const persistence = read('docs/data-and-persistence.md');
     const dailySql = read('supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql');
-    const v13Sql = read(
-      'supabase/migrations/20260808120000_gameplay_ruleset_v13_content_balance.sql',
+    const v14Sql = read(
+      'supabase/migrations/20260820152928_gameplay_ruleset_v14_combat_integrity.sql',
     );
 
     for (const token of [
@@ -207,12 +207,12 @@ describe('documentation maintenue', () => {
     ]) {
       expect(dailySql).toContain(token);
     }
-    expect(v13Sql).toContain("'2026-08-authoritative-daily-v13'");
-    expect(v13Sql).toContain('score_version');
-    expect(v13Sql).toContain("'lolrogue.daily.v13'");
+    expect(v14Sql).toContain("'2026-08-authoritative-daily-v14'");
+    expect(v14Sql).toContain('score_version');
+    expect(v14Sql).toContain("'lolrogue.daily.v14'");
     expect(gameplay).toContain('1 000 × vagues terminées');
     expect(gameplay).toContain('250 × biomes visités');
     expect(gameplay).toContain("Le score n'utilise ni l'or restant ni le nombre d'objets");
-    expect(persistence).toContain('Dans le ruleset Daily v13 actif');
+    expect(persistence).toContain('Dans le ruleset Daily v14 actif');
   });
 });

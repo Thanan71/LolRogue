@@ -374,7 +374,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
   avant dégâts » et retenir une seule règle documentée pour Garen/Jinx.
 - [x] Empêcher la double évaluation des runes `damage_dealt` sur critique et exclure
   les dégâts bruts des multiplicateurs de pénétration.
-- [ ] Ajouter les régressions équivalentes dans les parcours UI et authority.
+- [x] Ajouter les régressions équivalentes dans les parcours UI et authority.
 
 ### Acceptation
 
@@ -1269,7 +1269,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 ## Sprint B — rendre l'équilibrage mesurable et comparable
 
-6. [ ] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
+6. [x] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
 7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
 8. [ ] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [ ] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
@@ -1356,7 +1356,7 @@ La bêta technique ne redevient candidate que lorsque :
 - [ ] aucun starter à 0 % sur les premiers combats de la cohorte de release ;
 - [ ] distributions augments/drops et rendements économiques dans les tolérances
   versionnées de la baseline ;
-- [ ] règles cooldown/MP/ciblage/Electrocute couvertes en parité UI + authority ;
+- [x] règles cooldown/MP/ciblage/Electrocute couvertes en parité UI + authority ;
 - [ ] cron de rétention vérifiés ;
 - [ ] audit mots de passe compromis activé ;
 - [ ] runbook restauration testé sur environnement isolé ;

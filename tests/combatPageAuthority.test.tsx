@@ -276,6 +276,29 @@ describe('CombatPage authority finalization', () => {
     expect(combatMocks.initialMpOverrides).toEqual({ Ashe: 280 });
   });
 
+  it('feeds recovered mana from one victory into the next visible combat', () => {
+    useRunStore.setState({
+      team: [{ championId: 'Ashe', currentMp: 20 }],
+      authorityAttempt: {
+        ...attempt(CURRENT_AUTHORITY_VERSION.engine),
+        initialTeam: ['Ashe'],
+        enhancementSnapshot: { Ashe: {} },
+        masterySnapshot: { Ashe: 0 },
+      },
+    });
+    render(<CombatPage />);
+    expect(combatMocks.initialMpOverrides).toEqual({ Ashe: 20 });
+
+    act(() => {
+      combatMocks.onComplete?.('player', [
+        { championId: 'Ashe', currentHp: 400, maxHp: 560, currentMp: 20, maxMp: 280 },
+      ]);
+    });
+
+    expect(useRunStore.getState().team[0]?.currentMp).toBe(90);
+    expect(combatMocks.initialMpOverrides).toEqual({ Ashe: 90 });
+  });
+
   it.each(
     AUTHORITY_VERSION_REGISTRY.filter(
       (version) =>

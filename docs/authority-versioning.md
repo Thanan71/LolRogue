@@ -23,13 +23,13 @@ métadonnées et que chaque bundle historique enregistre le verifier attendu.
 
 ## Publier la version suivante
 
-Pour passer, par exemple, de v13 à v14 :
+Pour passer, par exemple, de v14 à v15 :
 
 1. archiver le bundle courant sous un nom versionné et décider s'il reste
    `replay-only` ou devient `unsupported` ;
-2. ajouter une seule entrée v14 dans `config/authority-versions.json`, avec les
+2. ajouter une seule entrée v15 dans `config/authority-versions.json`, avec les
    capacités complètes et le chemin de la nouvelle migration ;
-3. déclarer v14 et son hash dans le moteur, puis exécuter
+3. déclarer v15 et son hash dans le moteur, puis exécuter
    `npm run authority:generate` ;
 4. lancer `npm run edge:bundle`, les tests et la validation de base de données ;
 5. déployer `verify-run`, puis le client, avant d'activer la migration.

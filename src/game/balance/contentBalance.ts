@@ -8,8 +8,8 @@ import { BIOMES, BIOME_INFO, type Biome } from '@/types/run';
 import type { AuthorityDifficulty } from '@/types/runAttempt';
 
 export const BALANCE_MODEL_VERSION = 1;
-export const BALANCE_GAMEPLAY_RULESET_VERSION = 13;
-export const BALANCE_DAILY_SCORE_VERSION = 13;
+export const BALANCE_GAMEPLAY_RULESET_VERSION = 14;
+export const BALANCE_DAILY_SCORE_VERSION = 14;
 
 export interface ChampionDesignProfile {
   role: string;
