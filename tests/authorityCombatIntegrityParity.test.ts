@@ -8,6 +8,8 @@ import {
   type AuthorityRunAttempt,
   type AuthorityRunCommand,
 } from '@/game/authority';
+import { simulateAuthorityCohort } from '@/game/balance/authorityCohort';
+import { type BalanceScenario, survivalGreedyPolicy } from '@/game/balance/balancePolicy';
 import rawRegistry from '../config/authority-versions.json';
 
 type AuthorityVerifier = NonNullable<ReturnType<typeof getAuthorityVerifier>>;
@@ -36,6 +38,15 @@ const MANA_ATTEMPT: AuthorityRunAttempt = {
   runeIds: ['electrocute'],
   enhancementSnapshot: { Ashe: {} },
   masterySnapshot: { Ashe: 0 },
+};
+
+const COHORT_SCENARIO: BalanceScenario = {
+  id: 'authority-cohort-source-bundle-parity',
+  difficulty: 'hard',
+  team: [{ championId: 'Soraka', statMultiplier: 0.1 }],
+  runeIds: [],
+  masterySnapshot: {},
+  enhancementSnapshot: {},
 };
 
 const MANA_TRACE: AuthorityRunCommand[] = [
@@ -201,5 +212,24 @@ describe('combat integrity source / Edge bundle parity', () => {
     expect(
       await resolveBundledAuthorityVerifier(AUTHORITY_ENGINE_VERSION, '0'.repeat(64)),
     ).toBeUndefined();
+  });
+
+  it('drives identical terminal cohort traces through source and the current Edge bundle', async () => {
+    const source = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
+    const bundled = await resolveBundledAuthorityVerifier(
+      AUTHORITY_ENGINE_VERSION,
+      AUTHORITY_CONTENT_HASH,
+    );
+    expect(source).toBeDefined();
+    expect(bundled).toBeDefined();
+
+    const input = {
+      policy: survivalGreedyPolicy,
+      scenario: COHORT_SCENARIO,
+      seeds: [0],
+    } as const;
+    expect(simulateAuthorityCohort({ authority: bundled!, ...input })).toEqual(
+      simulateAuthorityCohort({ authority: source!, ...input }),
+    );
   });
 });
