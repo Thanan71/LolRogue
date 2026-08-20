@@ -105,7 +105,7 @@ export const warwick: Champion = {
       cost: [40, 40, 40, 40, 40],
       range: [375, 375, 375, 375, 375],
       image: 'WarwickE.png',
-      targeting: TargetingType.Self,
+      targeting: TargetingType.Area,
       scaling: { adRatio: 0, apRatio: 0 },
       effects: [
         {

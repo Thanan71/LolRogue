@@ -367,7 +367,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
   et moteur autoritaire, avec clamp `0..maxMp`.
 - [x] Formaliser l'attrition mana : point de départ à tester, récupération de
   20–30 % des MP max après victoire et 100 % au repos.
-- [ ] Ajouter une validation catalogue cible/effet et corriger les cinq sorts
+- [x] Ajouter une validation catalogue cible/effet et corriger les cinq sorts
   composites `Self` ayant une partie hostile.
 - [ ] Faire respecter le seuil `threshold: 3` d'Electrocute.
 - [ ] Tester explicitement l'ordre « dégâts puis execute » ou « execute sur PV

@@ -53,7 +53,7 @@ export const jinx: Champion = {
       cost: [20, 20, 20, 20, 20],
       range: [600, 600, 600, 600, 600],
       image: 'JinxQ.png',
-      targeting: TargetingType.Self,
+      targeting: TargetingType.Enemy,
       scaling: { adRatio: 0, apRatio: 0 },
       effects: [
         {

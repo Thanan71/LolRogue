@@ -83,7 +83,7 @@ export const malphite: Champion = {
       cost: [30, 35, 40, 45, 50],
       range: [400, 400, 400, 400, 400],
       image: 'Obduracy.png',
-      targeting: TargetingType.Self,
+      targeting: TargetingType.Area,
       scaling: { adRatio: 0.15, apRatio: 0 },
       effects: [
         {

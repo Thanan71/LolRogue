@@ -76,7 +76,7 @@ export const leona: Champion = {
       cost: [60, 60, 60, 60, 60],
       range: [450, 450, 450, 450, 450],
       image: 'LeonaSolarBarrier.png',
-      targeting: TargetingType.Self,
+      targeting: TargetingType.Area,
       scaling: { adRatio: 0.4, apRatio: 0.2 },
       effects: [
         {

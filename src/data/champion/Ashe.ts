@@ -53,7 +53,7 @@ export const ashe: Champion = {
       cost: [30, 30, 30, 30, 30],
       range: [400, 400, 400, 400, 400],
       image: 'AsheQ.png',
-      targeting: TargetingType.Self,
+      targeting: TargetingType.Enemy,
       scaling: { adRatio: 0.25, apRatio: 0 },
       effects: [
         {

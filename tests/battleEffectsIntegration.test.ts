@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { championDB } from '../src/data/championDatabase';
 import { BattleManager } from '../src/game/battle/BattleManager';
 import { ActionType } from '../src/game/battle/types';
 import { ChampionInstance } from '../src/game/ChampionInstance';
@@ -91,6 +92,48 @@ function manager(players: ChampionInstance[], enemies: ChampionInstance[]): Batt
 }
 
 describe('BattleManager effect integration', () => {
+  it.each([
+    ['Ashe', ActionType.SpellQ, 'damage', 'buff'],
+    ['Jinx', ActionType.SpellQ, 'damage', 'buff'],
+    ['Leona', ActionType.SpellW, 'damage', 'shield'],
+    ['Malphite', ActionType.SpellW, 'damage', 'buff'],
+    ['Warwick', ActionType.SpellE, 'cc', 'buff'],
+  ] as const)(
+    'resolves both the hostile and self-positive parts of %s composite spell',
+    (championId, action, hostileEffect, positiveEffect) => {
+      const definition = championDB.getById(championId);
+      if (!definition) throw new Error(`Missing maintained champion ${championId}`);
+      const caster = new ChampionInstance(definition);
+      const target = makeChampion('Target', 1, { type: 'damage', baseDamage: [1] });
+      const battle = manager([caster], [target]);
+      const casterState = battle.getCombatantState(championId, 'player')!;
+      const targetState = battle.getCombatantState('Target', 'enemy')!;
+      const hpBefore = targetState.currentHp;
+      const ccBefore = targetState.effectManager.ccEffects.length;
+      const positiveBefore =
+        positiveEffect === 'shield'
+          ? casterState.effectManager.shields.length
+          : casterState.effectManager.buffDebuffs.length;
+      const targeting = battle
+        .getAvailableActions(caster)
+        .find((option) => option.type === action)?.targeting;
+
+      expect(
+        battle.submitAction({
+          type: action,
+          targetId: targeting === TargetingType.Enemy ? 'Target' : undefined,
+        }),
+      ).toBe(true);
+      if (hostileEffect === 'damage') expect(targetState.currentHp).toBeLessThan(hpBefore);
+      else expect(targetState.effectManager.ccEffects.length).toBeGreaterThan(ccBefore);
+      const positiveAfter =
+        positiveEffect === 'shield'
+          ? casterState.effectManager.shields.length
+          : casterState.effectManager.buffDebuffs.length;
+      expect(positiveAfter).toBeGreaterThan(positiveBefore);
+    },
+  );
+
   it('ticks a DoT only at the end of the target turn and expires it', () => {
     const caster = makeChampion(
       'Caster',

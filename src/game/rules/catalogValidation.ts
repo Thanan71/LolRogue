@@ -1,5 +1,7 @@
+import { implementedChampions } from '@/data/champion';
 import { ENHANCEMENT_TREES_BY_ROLE } from '@/data/enhancementTrees';
 import { AUGMENT_DATABASE, ITEM_DATABASE, RUNE_DATABASE } from '@/data/items';
+import { getSpellTargetingIssues } from '@/game/battle/combatContentSupport';
 import { AugmentEffectType, RuneConditionType } from '@/types/inventory';
 import { SUPPORTED_ENHANCEMENT_EFFECTS, UNAVAILABLE_ENHANCEMENT_EFFECTS } from './catalogSupport';
 
@@ -28,6 +30,13 @@ const SUPPORTED_AUGMENT_EFFECTS = new Set([
 
 export function validateRuleCatalogs(): string[] {
   const issues: string[] = [];
+  for (const champion of implementedChampions) {
+    for (const spell of champion.spells) {
+      for (const issue of getSpellTargetingIssues(spell)) {
+        issues.push(`champion:${champion.id}:spell:${spell.id}: ${issue}`);
+      }
+    }
+  }
   for (const item of Object.values(ITEM_DATABASE)) {
     if (item.passive && !SUPPORTED_ITEM_PASSIVES.has(item.passive.id)) {
       issues.push(`item:${item.id}: passive "${item.passive.id}" has no handler`);
