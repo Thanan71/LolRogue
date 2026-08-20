@@ -49,7 +49,7 @@ export const lux: Champion = {
       description:
         'Lux projette une sphère de lumière qui immobilise et blesse jusqu à deux unités ennemies.',
       maxRank: 5,
-      cooldown: [11, 10.5, 10, 9.5, 9],
+      cooldownTurns: [3, 3, 3, 3, 3],
       cost: [50, 50, 50, 50, 50],
       range: [1175, 1175, 1175, 1175, 1175],
       image: 'LuxLightBinding.png',
@@ -72,7 +72,7 @@ export const lux: Champion = {
       description:
         'Lux lance son bâton et courbe la lumière autour des cibles alliées, les protégeant contre les dégâts.',
       maxRank: 5,
-      cooldown: [14, 13, 12, 11, 10],
+      cooldownTurns: [4, 4, 3, 3, 3],
       cost: [60, 65, 70, 75, 80],
       range: [1150, 1150, 1150, 1150, 1150],
       image: 'LuxPrismaticWave.png',
@@ -86,7 +86,7 @@ export const lux: Champion = {
       description:
         'Crée une anomalie lumineuse ralentissant les ennemis. Peut être détonée pour infliger des dégâts.',
       maxRank: 5,
-      cooldown: [10, 9.5, 9, 8.5, 8],
+      cooldownTurns: [3, 3, 3, 3, 2],
       cost: [70, 80, 90, 100, 110],
       range: [1100, 1100, 1100, 1100, 1100],
       image: 'LuxLightStrikeKugel.png',
@@ -109,7 +109,7 @@ export const lux: Champion = {
       description:
         'Lux tire un rayon lumineux qui inflige des dégâts à toutes les cibles dans la zone. Déclenche la passive Illumination.',
       maxRank: 3,
-      cooldown: [80, 60, 40],
+      cooldownTurns: [6, 6, 6],
       cost: [100, 100, 100],
       range: [3340, 3340, 3340],
       image: 'LuxR.png',

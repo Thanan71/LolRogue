@@ -49,7 +49,7 @@ export const annie: Champion = {
       description:
         "Annie projette une boule d'énergie magique infligeant des dégâts. Le coût en mana est rendu si la cible est tuée.",
       maxRank: 5,
-      cooldown: [4, 4, 4, 4, 4],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [60, 65, 70, 75, 80],
       range: [625, 625, 625, 625, 625],
       image: 'AnnieQ.png',
@@ -71,7 +71,7 @@ export const annie: Champion = {
       description:
         'Annie projette un cône de flammes, infligeant des dégâts magiques à tous les ennemis dans la zone.',
       maxRank: 5,
-      cooldown: [8, 8, 8, 8, 8],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [70, 80, 90, 100, 110],
       range: [600, 600, 600, 600, 600],
       image: 'AnnieW.png',
@@ -93,7 +93,7 @@ export const annie: Champion = {
       description:
         'Octroie à Annie ou à un allié un bonus en vitesse de déplacement et un bouclier.',
       maxRank: 5,
-      cooldown: [14, 13, 12, 11, 10],
+      cooldownTurns: [4, 4, 3, 3, 3],
       cost: [40, 40, 40, 40, 40],
       range: [800, 800, 800, 800, 800],
       image: 'AnnieE.png',
@@ -116,7 +116,7 @@ export const annie: Champion = {
       description:
         'Annie invoque Tibbers, infligeant des dégâts magiques dans la zone. Tibbers attaque et brûle les ennemis proches.',
       maxRank: 3,
-      cooldown: [120, 100, 80],
+      cooldownTurns: [8, 7, 6],
       cost: [100, 100, 100],
       range: [600, 600, 600],
       image: 'AnnieR.png',

@@ -78,7 +78,7 @@ export type ActionTargeting =
 export interface BattleActionOption {
   type: ActionType;
   cost: number;
-  cooldown: number;
+  cooldownTurns: number;
   targeting: ActionTargeting;
   requiresTarget: boolean;
   validTargetIds: string[];

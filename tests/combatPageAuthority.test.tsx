@@ -37,6 +37,7 @@ const combatMocks = vi.hoisted(() => ({
       ) => void),
   finalPlayerStates: [] as FinalCombatantState[],
   autoPlay: null as boolean | null,
+  initialMpOverrides: undefined as Record<string, number> | undefined,
   processTurn: vi.fn(),
 }));
 
@@ -51,6 +52,7 @@ vi.mock('@/hooks/useAppNavigate', () => ({
 vi.mock('@/hooks/useBattleManager', () => ({
   useBattleManager: (options: {
     autoPlay?: boolean;
+    initialMpOverrides?: Record<string, number>;
     onComplete?: (
       winner: 'player' | 'enemy' | 'draw',
       finalPlayerStates: FinalCombatantState[],
@@ -61,6 +63,7 @@ vi.mock('@/hooks/useBattleManager', () => ({
   }) => {
     combatMocks.onComplete = options.onComplete ?? null;
     combatMocks.autoPlay = options.autoPlay ?? null;
+    combatMocks.initialMpOverrides = options.initialMpOverrides;
     return {
       processTurn: combatMocks.processTurn,
       submitAction: vi.fn(),
@@ -121,6 +124,7 @@ describe('CombatPage authority finalization', () => {
     combatMocks.onComplete = null;
     combatMocks.finalPlayerStates = [];
     combatMocks.autoPlay = null;
+    combatMocks.initialMpOverrides = undefined;
     combatMocks.processTurn.mockReset();
     vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(
       'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
@@ -263,6 +267,36 @@ describe('CombatPage authority finalization', () => {
 
     expect(autoToggle).toHaveTextContent('Auto : ACTIVÉ');
     expect(combatMocks.autoPlay).toBe(true);
+  });
+
+  it('passes persisted mana to the visible engine with resource clamping', () => {
+    useRunStore.setState({ team: [{ championId: 'Ashe', currentMp: 9_999 }] });
+    render(<CombatPage />);
+
+    expect(combatMocks.initialMpOverrides).toEqual({ Ashe: 280 });
+  });
+
+  it('feeds recovered mana from one victory into the next visible combat', () => {
+    useRunStore.setState({
+      team: [{ championId: 'Ashe', currentMp: 20 }],
+      authorityAttempt: {
+        ...attempt(CURRENT_AUTHORITY_VERSION.engine),
+        initialTeam: ['Ashe'],
+        enhancementSnapshot: { Ashe: {} },
+        masterySnapshot: { Ashe: 0 },
+      },
+    });
+    render(<CombatPage />);
+    expect(combatMocks.initialMpOverrides).toEqual({ Ashe: 20 });
+
+    act(() => {
+      combatMocks.onComplete?.('player', [
+        { championId: 'Ashe', currentHp: 400, maxHp: 560, currentMp: 20, maxMp: 280 },
+      ]);
+    });
+
+    expect(useRunStore.getState().team[0]?.currentMp).toBe(90);
+    expect(combatMocks.initialMpOverrides).toEqual({ Ashe: 90 });
   });
 
   it.each(
@@ -427,7 +461,7 @@ describe('CombatPage authority finalization', () => {
     });
 
     expect(useRunStore.getState().team[0]?.currentHp).toBe(12);
-    expect(useRunStore.getState().team[0]?.currentMp).toBe(8);
+    expect(useRunStore.getState().team[0]?.currentMp).toBe(0);
     view.unmount();
   });
 });

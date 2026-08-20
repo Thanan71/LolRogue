@@ -31,7 +31,8 @@ describe('shipped champion ability catalogue', () => {
         expect(VALID_TARGETINGS).toContain(spell.targeting);
         expect(spell.scaling.adRatio).toBeGreaterThanOrEqual(0);
         expect(spell.scaling.apRatio).toBeGreaterThanOrEqual(0);
-        expect(spell.cooldown.length).toBeGreaterThan(0);
+        expect(spell.cooldownTurns.length).toBeGreaterThan(0);
+        expect(spell.cooldownTurns.every(Number.isInteger)).toBe(true);
         expect(spell.cost.length).toBeGreaterThan(0);
         expect(spell.range.length).toBeGreaterThan(0);
         for (const effect of spell.effects) {

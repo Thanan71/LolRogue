@@ -23,9 +23,9 @@ function toCombatantInfo(
   currentHp: number,
   maxHp: number,
   currentMp: number,
+  maxMp: number,
   isDefeated: boolean,
 ): CombatantInfo {
-  const stats = champ.getStats();
   const slots: Array<'Q' | 'W' | 'E' | 'R'> = ['Q', 'W', 'E', 'R'];
   const spells: SpellInfo[] = [];
   for (const slot of slots) {
@@ -58,7 +58,7 @@ function toCombatantInfo(
     currentHp,
     maxHp,
     currentMp,
-    maxMp: stats.mp,
+    maxMp,
     iconUrl: champ.iconUrl,
     isDefeated,
     side,
@@ -78,6 +78,7 @@ function syncTeams(bm: BattleManager): void {
         c.currentHp,
         c.maxHp,
         c.currentMp,
+        c.maxMp,
         c.isDefeated,
       ),
     );
@@ -91,6 +92,7 @@ function syncTeams(bm: BattleManager): void {
         c.currentHp,
         c.maxHp,
         c.currentMp,
+        c.maxMp,
         c.isDefeated,
       ),
     );
@@ -273,6 +275,8 @@ interface UseBattleManagerOptions {
   ) => void;
   /** Map of championId -> initial HP for persisting HP between combats. */
   initialHpOverrides?: Record<string, number>;
+  /** Map of championId -> initial MP for persisting mana between combats. */
+  initialMpOverrides?: Record<string, number>;
   random?: () => number;
   ruleLoadout?: CombatRuleLoadout;
 }
@@ -283,6 +287,7 @@ export function useBattleManager({
   autoPlay = false,
   onComplete,
   initialHpOverrides,
+  initialMpOverrides,
   random,
   ruleLoadout,
 }: UseBattleManagerOptions) {
@@ -316,6 +321,7 @@ export function useBattleManager({
     const bm = new BattleManager(playerBTeam, enemyBTeam, {
       autoActions: autoPlayRef.current,
       initialHpOverrides,
+      initialMpOverrides,
       random,
       rules: ruleLoadout ? new CombatRuleRuntime(ruleLoadout, random) : undefined,
     });
@@ -343,7 +349,7 @@ export function useBattleManager({
       bm.off('event', eventHandler);
       bmRef.current = null;
     };
-  }, [playerTeam, enemyTeam, initialHpOverrides, random, ruleLoadout]);
+  }, [playerTeam, enemyTeam, initialHpOverrides, initialMpOverrides, random, ruleLoadout]);
 
   // Check for battle completion
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { AUGMENT_DATABASE, ITEM_DATABASE, RUNE_DATABASE } from '@/data/items';
 import { ActionType } from '@/game/battle/types';
-import type { StatKey } from '@/game/effects/types';
+import { DamageType, type StatKey } from '@/game/effects/types';
 import { type RuneContext, type RuneEvaluationEvent, RuneManager } from '@/game/runes/RuneManager';
 import { AugmentEffectType, ItemCategory } from '@/types/inventory';
 import { SUPPORTED_ENHANCEMENT_EFFECTS } from './catalogSupport';
@@ -286,7 +286,13 @@ export class CombatRuleRuntime {
     const electrocute = manager?.runes.find((entry) => entry.rune.id === 'electrocute');
     const wasActive = electrocute?.isActive ?? false;
     this.evaluateRunes(actor, [actor], 'ability_cast');
-    if (!wasActive && electrocute?.isActive) {
+    const electrocuteThreshold = Math.max(
+      1,
+      Math.floor(electrocute?.rune.condition.threshold ?? 1),
+    );
+    // Electrocute is armed once per battle, by the threshold-crossing cast.
+    // The damage produced by that cast is the first hit eligible to consume it.
+    if (metrics.abilitiesCast === electrocuteThreshold && !wasActive && electrocute?.isActive) {
       this.pendingRuneDamage.set(actor.id, electrocute.rune.bonus.triggeredEffect?.value ?? 0);
     }
   }
@@ -298,8 +304,11 @@ export class CombatRuleRuntime {
     if (event.source.side === 'player') {
       resolution.damageMultiplier *= this.getAugmentDamageMultiplier();
       const penetration =
-        (this.loadout.enhancementStats[event.source.id]?.flat.armorPen ?? 0) +
-        (this.loadout.enhancementStats[event.source.id]?.flat.magicPen ?? 0);
+        event.damageType === DamageType.AD
+          ? (this.loadout.enhancementStats[event.source.id]?.flat.armorPen ?? 0)
+          : event.damageType === DamageType.AP
+            ? (this.loadout.enhancementStats[event.source.id]?.flat.magicPen ?? 0)
+            : 0;
       resolution.damageMultiplier *= 1 + Math.max(0, penetration) / 200;
       if (
         event.isCrit &&
@@ -378,8 +387,11 @@ export class CombatRuleRuntime {
       metrics.damageDealt += event.amount;
       metrics.damageEventsDealt++;
       metrics.lastCrit = event.isCrit;
-      this.evaluateRunes(event.source, event.actors, event.isCrit ? 'crit' : 'damage_dealt');
-      if (event.isCrit) this.evaluateRunes(event.source, event.actors, 'damage_dealt');
+      this.evaluateRuneEvents(
+        event.source,
+        event.actors,
+        event.isCrit ? ['crit', 'damage_dealt'] : ['damage_dealt'],
+      );
 
       const lifesteal = this.getItems(event.source.id).some(
         (entry) => entry.item.id === 'bloodthirster',
@@ -557,12 +569,19 @@ export class CombatRuleRuntime {
     actors: CombatRuleActor[],
     event: RuneEvaluationEvent,
   ): void {
+    this.evaluateRuneEvents(actor, actors, [event]);
+  }
+
+  private evaluateRuneEvents(
+    actor: CombatRuleActor,
+    actors: CombatRuleActor[],
+    events: readonly RuneEvaluationEvent[],
+  ): void {
     const manager = this.runeManagers.get(actor.id);
     if (!manager) return;
-    manager.evaluateConditions(this.getRuneContext(actor, actors), event);
-    if (event !== 'state_change') {
-      manager.evaluateConditions(this.getRuneContext(actor, actors), 'state_change');
-    }
+    const context = this.getRuneContext(actor, actors);
+    for (const event of events) manager.evaluateConditions(context, event);
+    if (!events.includes('state_change')) manager.evaluateConditions(context, 'state_change');
   }
 
   private getRuneContext(actor: CombatRuleActor, actors: CombatRuleActor[]): RuneContext {

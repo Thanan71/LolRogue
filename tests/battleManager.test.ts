@@ -33,7 +33,7 @@ function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
     name: `Test Spell ${slot}`,
     description: `Desc ${slot}`,
     maxRank: 5,
-    cooldown: [8, 7.5, 7, 6.5, 6],
+    cooldownTurns: [8, 7.5, 7, 6.5, 6],
     cost: [50, 55, 60, 65, 70],
     range: [700, 700, 700, 700, 700],
     image: `Test${slot}.png`,
@@ -407,6 +407,36 @@ describe('BattleManager', () => {
 });
 
 describe('P1 manual combat choices', () => {
+  it('restores persisted mana and clamps it to the combatant resource bounds', () => {
+    const teams = makeTeams(['P1', 'P2'], ['E1'], { P1: 400, P2: 350 });
+    const battle = new BattleManager(teams.playerTeam, teams.enemyTeam, {
+      autoActions: false,
+      initialMpOverrides: { P1: 75, P2: 9_999 },
+    });
+    battle.startBattle();
+
+    expect(battle.getCombatantState('P1', 'player')?.currentMp).toBe(75);
+    expect(battle.getCombatantState('P2', 'player')?.currentMp).toBe(
+      battle.getCombatantState('P2', 'player')?.maxMp,
+    );
+
+    const empty = new BattleManager(teams.playerTeam, teams.enemyTeam, {
+      autoActions: false,
+      initialMpOverrides: { P1: -20 },
+    });
+    empty.startBattle();
+    expect(empty.getCombatantState('P1', 'player')?.currentMp).toBe(0);
+
+    const invalid = new BattleManager(teams.playerTeam, teams.enemyTeam, {
+      autoActions: false,
+      initialMpOverrides: { P1: Number.NaN },
+    });
+    invalid.startBattle();
+    expect(invalid.getCombatantState('P1', 'player')?.currentMp).toBe(
+      invalid.getCombatantState('P1', 'player')?.maxMp,
+    );
+  });
+
   it('attacks the explicit target selected by the player', () => {
     const teams = makeTeams(['P1'], ['E1', 'E2'], { P1: 400 });
     const bm = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
@@ -461,7 +491,7 @@ describe('P1 manual combat choices', () => {
     const option = bm
       .getAvailableActions(champion)
       .find((candidate) => candidate.type === ActionType.SpellQ);
-    expect(option).toMatchObject({ cost: 60, cooldown: 7, validTargetIds: ['E1'] });
+    expect(option).toMatchObject({ cost: 60, cooldownTurns: 7, validTargetIds: ['E1'] });
 
     expect(bm.submitAction({ type: ActionType.SpellQ, cost: 0, targetId: 'E1' })).toBe(true);
     expect(bm.getCombatantState('P1', 'player')?.currentMp).toBe(240);

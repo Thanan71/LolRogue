@@ -49,7 +49,7 @@ export const malphite: Champion = {
       description:
         'Malphite envoie un éclat de terre, infligeant des dégâts et volant la vitesse de déplacement de la cible pendant 3 sec.',
       maxRank: 5,
-      cooldown: [8, 8, 8, 8, 8],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [70, 75, 80, 85, 90],
       range: [625, 625, 625, 625, 625],
       image: 'SeismicShard.png',
@@ -79,11 +79,11 @@ export const malphite: Champion = {
       description:
         'Pendant quelques secondes, les attaques de Malphite produisent des ondes de choc devant lui.',
       maxRank: 5,
-      cooldown: [12, 12, 12, 12, 12],
+      cooldownTurns: [3, 3, 3, 3, 3],
       cost: [30, 35, 40, 45, 50],
       range: [400, 400, 400, 400, 400],
       image: 'Obduracy.png',
-      targeting: TargetingType.Self,
+      targeting: TargetingType.Area,
       scaling: { adRatio: 0.15, apRatio: 0 },
       effects: [
         {
@@ -108,7 +108,7 @@ export const malphite: Champion = {
       description:
         'Malphite frappe le sol, infligeant des dégâts magiques en fonction de son armure et réduisant la vitesse d attaque des ennemis.',
       maxRank: 5,
-      cooldown: [7, 7, 7, 7, 7],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [50, 55, 60, 65, 70],
       range: [400, 400, 400, 400, 400],
       image: 'Landslide.png',
@@ -131,7 +131,7 @@ export const malphite: Champion = {
       description:
         'Malphite fonce vers une position à grande vitesse, blessant les ennemis et les projetant dans les airs.',
       maxRank: 3,
-      cooldown: [130, 105, 80],
+      cooldownTurns: [9, 7, 6],
       cost: [100, 100, 100],
       range: [1000, 1000, 1000],
       image: 'UFSlash.png',

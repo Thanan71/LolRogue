@@ -52,7 +52,7 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
             type="button"
             onClick={() => handleClick(slot)}
             disabled={disabled}
-            aria-label={`${fr.combat.spell} ${slot}${spell ? ` : ${spell.name}` : ''}${onCooldown ? ` (${cd} s, ${fr.combat.cooldown})` : ''}${lacksMana ? `, ${fr.combat.insufficientMana}` : spell && !spell.isReady ? `, ${fr.combat.cooldown}` : `, ${fr.combat.ready}`}`}
+            aria-label={`${fr.combat.spell} ${slot}${spell ? ` : ${spell.name}` : ''}${onCooldown ? ` (${cd} ${fr.combat.cooldownTurns}, ${fr.combat.cooldown})` : ''}${lacksMana ? `, ${fr.combat.insufficientMana}` : spell && !spell.isReady ? `, ${fr.combat.cooldown}` : `, ${fr.combat.ready}`}`}
             aria-keyshortcuts={slot}
             className={`combat-ability combat-ability--${visualProfile.tone} combat-ability--${visualProfile.shape}${isUlt ? ' combat-ability--ultimate' : ''}`}
           >

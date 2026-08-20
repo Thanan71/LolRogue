@@ -79,9 +79,9 @@ models live separately in `src/types/models.ts`.
 
 `edge:bundle` génère le moteur déterministe consommé par `verify-run` et vérifie
 le registre unique `config/authority-versions.json`, les hashes des bundles et les
-contrats des rulesets SQL. Le bundle courant généré est volontairement ignoré par
-Git ; le resolver de versions généré est au contraire commité et contrôlé avant le
-build. Voir `docs/authority-versioning.md` pour ajouter une version sans liste
+contrats des rulesets SQL. Le bundle courant généré, les bundles rejouables et le
+resolver de versions sont committés puis contrôlés avant le build. Voir
+`docs/authority-versioning.md` pour ajouter une version sans liste
 parallèle.
 
 Pour tester localement la fonction avec Supabase déjà démarré :

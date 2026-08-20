@@ -22,11 +22,32 @@
 
 ## Unités
 
+- Les recharges utilisent exclusivement des tours entiers (`cooldownTurns`) :
+  Q/W/E restent entre 2 et 5 tours et R entre 6 et 10 tours. Les secondes de
+  Data Dragon sont converties à l'import et ne sont jamais lues comme des rounds.
 - Une durée représente un nombre entier de **tours du porteur**. Une durée en
   secondes est arrondie au tour supérieur.
 - Les pourcentages acceptent une fraction (`0.30`) ou une valeur humaine (`30`) ;
   les deux signifient 30 %.
 - Les seuils d'execute et les fractions de revive sont bornés entre 0 et 100 %.
+- La pénétration d'armure ne modifie que les dégâts physiques et la pénétration
+  magique que les dégâts magiques. Les dégâts bruts n'utilisent aucune des deux ;
+  les amplifications générales de dégâts continuent toutefois de s'appliquer.
+
+## Ordre des executes
+
+Garen R et Jinx R appliquent d'abord leur effet de dégâts, puis évaluent l'execute
+sur les PV restants. Le seuil est inclusif : une cible exactement au seuil est
+exécutée. Une exécution validée consomme les boucliers puis les PV restants sans
+appliquer les multiplicateurs ou réductions de dégâts ; les règles de revive
+restent toutefois résolues normalement.
+
+## Attrition de mana
+
+Après une victoire, chaque champion récupère 25 % de ses MP maximum du combat,
+arrondis avec `Math.round` et plafonnés au maximum pré-niveau. Cette récupération
+est donc appliquée avant un éventuel gain de niveau. Tout repos, partiel ou complet
+pour les PV, restaure 100 % des MP. Un champion sans mana reste à 0 MP.
 
 Un effet appliqué pendant le tour du porteur n'est pas décrémenté immédiatement :
 il reste actif pendant son prochain tour, puis ticke à la fin de celui-ci.

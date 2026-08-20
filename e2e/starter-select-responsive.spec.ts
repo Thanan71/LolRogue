@@ -137,8 +137,7 @@ test('the complete selection can be performed with the keyboard at 320px', async
   await openStarterSelection(page);
 
   const champion = page.getByRole('button', { name: /^Choisir / }).first();
-  await champion.focus();
-  await page.keyboard.press('Enter');
+  await champion.press('Enter');
   await expect(champion).toHaveAttribute('aria-pressed', 'true');
 
   const runes = page.getByRole('checkbox');

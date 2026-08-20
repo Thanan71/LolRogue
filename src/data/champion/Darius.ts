@@ -49,7 +49,7 @@ export const darius: Champion = {
       description:
         'Darius donne un coup circulaire avec sa hache. Les ennemis touchés par la lame subissent plus de dégâts. Darius récupère des PV par champion touché par la lame.',
       maxRank: 5,
-      cooldown: [9, 8, 7, 6, 5],
+      cooldownTurns: [3, 2, 2, 2, 2],
       cost: [25, 30, 35, 40, 45],
       range: [425, 425, 425, 425, 425],
       image: 'DariusCleave.png',
@@ -72,7 +72,7 @@ export const darius: Champion = {
       description:
         'La prochaine attaque de Darius tranche une artère vitale, infligeant des dégâts bonus et ralentissant la cible.',
       maxRank: 5,
-      cooldown: [5, 5, 5, 5, 5],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [40, 40, 40, 40, 40],
       range: [300, 300, 300, 300, 300],
       image: 'DariusNoxianTacticsONH.png',
@@ -95,7 +95,7 @@ export const darius: Champion = {
       description:
         'Darius aiguise sa hache, ignorant passivement un pourcentage de l armure. À l activation, il attire les ennemis avec sa hache.',
       maxRank: 5,
-      cooldown: [26, 24, 22, 20, 18],
+      cooldownTurns: [5, 5, 5, 5, 5],
       cost: [70, 60, 50, 40, 30],
       range: [535, 535, 535, 535, 535],
       image: 'DariusAxeGrabCone.png',
@@ -118,7 +118,7 @@ export const darius: Champion = {
       description:
         'Darius saute sur un champion ennemi et donne un coup fatal, infligeant des dégâts bruts. Plus de Plaies béantes = plus de dégâts. Si la cible est tuée, le délai est annulé.',
       maxRank: 3,
-      cooldown: [120, 100, 80],
+      cooldownTurns: [8, 7, 6],
       cost: [100, 100, 0],
       range: [460, 460, 460],
       image: 'DariusExecute.png',

@@ -62,6 +62,11 @@ export function resolveRestHp(
   return applyRunHeal(currentHp ?? undefined, maxHp, encounter.healPercent);
 }
 
+/** Every rest fully restores the combat resource, independently of its HP tier. */
+export function resolveRestMp(maxMp: number): number {
+  return Math.max(0, maxMp);
+}
+
 export function resolveEventTeamUpdates<T extends RunEncounterMember>(
   outcome: EventOutcome,
   team: readonly T[],

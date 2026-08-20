@@ -19,6 +19,7 @@ const describeLive = hasSupabaseCredentials ? describe.sequential : describe.ski
 
 type AuthenticatedFixture = {
   client: SupabaseClient<Database>;
+  engineVersion: string;
   gameplayRulesetVersion: number;
   playerId: string;
   progressionRulesetVersion: number;
@@ -77,7 +78,7 @@ async function createAuthenticatedFixture(
 
   const attempt = await client
     .from('run_attempts')
-    .select('id, gameplay_ruleset_version, ruleset_version')
+    .select('id, engine_version, gameplay_ruleset_version, ruleset_version')
     .eq('id', attemptId)
     .single();
   if (attempt.error || !attempt.data) {
@@ -135,6 +136,7 @@ async function createAuthenticatedFixture(
 
   return {
     client,
+    engineVersion: attempt.data.engine_version,
     gameplayRulesetVersion: attempt.data.gameplay_ruleset_version,
     playerId: player.data.id,
     progressionRulesetVersion: attempt.data.ruleset_version,
@@ -222,7 +224,11 @@ describeLive('repositories against migrated local Supabase', () => {
     expect(firstPage.data).toHaveLength(1);
     expect(firstPage.data?.[0]).toMatchObject({
       run: { id: fixture.runId, player_id: fixture.playerId },
-      attempt: { mode: 'normal', difficulty: 'hard', engineVersion: 'run-engine-v13' },
+      attempt: {
+        mode: 'normal',
+        difficulty: 'hard',
+        engineVersion: fixture.engineVersion,
+      },
       teamMembers: [{ champion_id: 'Garen', run_id: fixture.runId }],
     });
 

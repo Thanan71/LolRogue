@@ -359,22 +359,22 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 
 ### Actions
 
-- [ ] Considérer un sort prêt lorsque `cooldown <= 0` et clamper chaque tick avec
+- [x] Considérer un sort prêt lorsque `cooldown <= 0` et clamper chaque tick avec
   `Math.max(0, cooldown - 1)`.
-- [ ] Remplacer les cooldowns en secondes par des `cooldownTurns` entiers ; point
+- [x] Remplacer les cooldowns en secondes par des `cooldownTurns` entiers ; point
   de départ à mesurer : Q/W/E entre 2 et 5 tours, R entre 6 et 10 tours.
-- [ ] Ajouter `initialMpOverrides` au même niveau que `initialHpOverrides`, côté UI
+- [x] Ajouter `initialMpOverrides` au même niveau que `initialHpOverrides`, côté UI
   et moteur autoritaire, avec clamp `0..maxMp`.
-- [ ] Formaliser l'attrition mana : point de départ à tester, récupération de
+- [x] Formaliser l'attrition mana : point de départ à tester, récupération de
   20–30 % des MP max après victoire et 100 % au repos.
-- [ ] Ajouter une validation catalogue cible/effet et corriger les cinq sorts
+- [x] Ajouter une validation catalogue cible/effet et corriger les cinq sorts
   composites `Self` ayant une partie hostile.
-- [ ] Faire respecter le seuil `threshold: 3` d'Electrocute.
-- [ ] Tester explicitement l'ordre « dégâts puis execute » ou « execute sur PV
+- [x] Faire respecter le seuil `threshold: 3` d'Electrocute.
+- [x] Tester explicitement l'ordre « dégâts puis execute » ou « execute sur PV
   avant dégâts » et retenir une seule règle documentée pour Garen/Jinx.
-- [ ] Empêcher la double évaluation des runes `damage_dealt` sur critique et exclure
+- [x] Empêcher la double évaluation des runes `damage_dealt` sur critique et exclure
   les dégâts bruts des multiplicateurs de pénétration.
-- [ ] Ajouter les régressions équivalentes dans les parcours UI et authority.
+- [x] Ajouter les régressions équivalentes dans les parcours UI et authority.
 
 ### Acceptation
 
@@ -1269,7 +1269,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 ## Sprint B — rendre l'équilibrage mesurable et comparable
 
-6. [ ] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
+6. [x] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
 7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
 8. [ ] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [ ] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
@@ -1356,7 +1356,7 @@ La bêta technique ne redevient candidate que lorsque :
 - [ ] aucun starter à 0 % sur les premiers combats de la cohorte de release ;
 - [ ] distributions augments/drops et rendements économiques dans les tolérances
   versionnées de la baseline ;
-- [ ] règles cooldown/MP/ciblage/Electrocute couvertes en parité UI + authority ;
+- [x] règles cooldown/MP/ciblage/Electrocute couvertes en parité UI + authority ;
 - [ ] cron de rétention vérifiés ;
 - [ ] audit mots de passe compromis activé ;
 - [ ] runbook restauration testé sur environnement isolé ;

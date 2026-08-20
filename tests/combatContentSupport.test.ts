@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { implementedChampions } from '@/data/champion';
+import { TargetingType } from '@/types';
 import { championDB } from '../src/data/championDatabase';
 import {
+  getSpellTargetingIssues,
   IMPLEMENTED_PASSIVE_CHAMPIONS,
   isPassiveCombatReady,
   isSpellCombatReady,
@@ -33,5 +36,25 @@ describe('published combat content support', () => {
     expect(
       isSpellEffectConfigured({ type: 'damage', damageType: 'physical', baseDamage: [] }, 0),
     ).toBe(false);
+  });
+
+  it('rejects hostile effects whose declared target cannot resolve an enemy', () => {
+    const spell = {
+      ...championDB.getById('Darius')!.spells[0],
+      targeting: TargetingType.Self,
+    };
+
+    expect(getSpellTargetingIssues(spell)).toEqual([
+      'hostile effects (damage) require enemy, enemies or area targeting; received self',
+    ]);
+    expect(isSpellCombatReady(spell)).toBe(false);
+  });
+
+  it('keeps every maintained champion free of target/effect polarity issues', () => {
+    for (const champion of implementedChampions) {
+      for (const spell of champion.spells) {
+        expect(getSpellTargetingIssues(spell), `${champion.id}:${spell.id}`).toEqual([]);
+      }
+    }
   });
 });

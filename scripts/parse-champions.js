@@ -294,10 +294,20 @@ function ensureDamageEffects(parsed) {
   }
 }
 
+function toCooldownTurns(cooldowns, slotIdx) {
+  const isUltimate = slotIdx === 3;
+  const minTurns = isUltimate ? 6 : 2;
+  const maxTurns = isUltimate ? 10 : 5;
+  const secondsPerTurn = isUltimate ? 15 : 4;
+  return cooldowns.map((seconds) =>
+    Math.min(maxTurns, Math.max(minTurns, Math.ceil(Math.max(0, seconds) / secondsPerTurn))),
+  );
+}
+
 function parseSpell(rawSpell, cdSpell, champId, tags, slotIdx) {
   const tooltip = rawSpell.tooltip || '';
   const maxRank = rawSpell.maxrank || 5;
-  const cooldown = (rawSpell.cooldown || []).slice(0, maxRank);
+  const cooldownTurns = toCooldownTurns((rawSpell.cooldown || []).slice(0, maxRank), slotIdx);
   const cost = (rawSpell.cost || []).slice(0, maxRank);
   const range = (rawSpell.range || []).slice(0, maxRank);
   let targeting = detectTargeting(rawSpell, tooltip);
@@ -353,7 +363,7 @@ function parseSpell(rawSpell, cdSpell, champId, tags, slotIdx) {
     name: rawSpell.name,
     description: rawSpell.description,
     maxRank,
-    cooldown,
+    cooldownTurns,
     cost,
     range,
     image: rawSpell.image?.full || rawSpell.id + '.png',

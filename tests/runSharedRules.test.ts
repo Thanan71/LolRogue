@@ -15,6 +15,7 @@ import {
   resolveEventTeamUpdates,
   resolveRecruitAttempt,
   resolveRestHp,
+  resolveRestMp,
   resolveRunEvent,
 } from '@/game/run/runEncounterRules';
 
@@ -71,6 +72,8 @@ describe('shared deterministic run rules', () => {
     const rest = { fullHeal: false, healPercent: 0.25 } as RestEncounter;
 
     expect(resolveRestHp(member.currentHp, 100, rest)).toBe(65);
+    expect(resolveRestMp(100)).toBe(100);
+    expect(resolveRestMp(0)).toBe(0);
     expect(
       resolveEventTeamUpdates(
         { type: 'damage', weight: 1, damagePercent: 0.5, description: 'hit' },
@@ -108,13 +111,14 @@ describe('shared deterministic run rules', () => {
         xpPerChampion: 100,
         healAfterBattlePercent: 0.1,
         getPreLevelMaxHp: () => 100,
+        getPreLevelMaxMp: () => 100,
       }),
     ).toMatchObject({
       updates: [
         {
           championId: 'Garen',
           currentHp: 60,
-          currentMp: 25,
+          currentMp: 50,
           level: 2,
           currentXp: 0,
         },
@@ -122,5 +126,22 @@ describe('shared deterministic run rules', () => {
       pendingSpellUpgradeChampionIds: ['Garen'],
       levelsGained: 1,
     });
+  });
+
+  it('recovers 25 percent mana after victory with resource bounds', () => {
+    const resolve = (currentMp: number, maxMp: number) =>
+      resolvePostCombatTeam({
+        team: [{ championId: 'Ashe', level: 1, currentXp: 0 }],
+        finalPlayerStates: [{ championId: 'Ashe', currentHp: 100, currentMp }],
+        xpPerChampion: 0,
+        healAfterBattlePercent: 0,
+        getPreLevelMaxHp: () => 100,
+        getPreLevelMaxMp: () => maxMp,
+      }).updates[0]?.currentMp;
+
+    expect(resolve(25, 100)).toBe(50);
+    expect(resolve(95, 100)).toBe(100);
+    expect(resolve(0, 0)).toBe(0);
+    expect(resolve(0, 101)).toBe(25);
   });
 });

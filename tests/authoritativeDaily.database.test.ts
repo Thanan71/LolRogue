@@ -214,7 +214,7 @@ describeLive('authoritative daily leaderboard live security', () => {
     expect(challenge).toMatchObject({
       daily_date: new Date().toISOString().slice(0, 10),
       difficulty: 'normal',
-      score_version: 13,
+      score_version: 14,
       attempt_policy: 'one_official_attempt_per_utc_day',
       has_attempted: false,
     });
@@ -393,8 +393,8 @@ describeLive('authoritative daily leaderboard live security', () => {
       daily_seed: challenge.seed,
       score: 1360,
       run_attempt_id: firstAttempt.attempt_id,
-      daily_ruleset_version: 13,
-      score_version: 13,
+      daily_ruleset_version: 14,
+      score_version: 14,
     });
 
     const anonymous = createClient<Database>(supabaseUrl!, anonKey!, {
@@ -421,7 +421,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       score: 1360,
       waves_completed: 1,
       run_level_reached: 1,
-      score_version: 13,
+      score_version: 14,
     });
     expect(publicBoard.data).not.toHaveProperty('player_id');
     expect(publicBoard.data).not.toHaveProperty('completed_at');

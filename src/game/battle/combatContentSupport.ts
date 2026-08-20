@@ -1,4 +1,4 @@
-import type { Passive, Spell, SpellEffect } from '@/types/champion';
+import { type Passive, type Spell, type SpellEffect, TargetingType } from '@/types/champion';
 
 export const IMPLEMENTED_PASSIVE_CHAMPIONS = new Set([
   'Annie',
@@ -24,6 +24,13 @@ const SUPPORTED_EFFECT_TYPES = new Set([
   'dot',
   'hot',
   'revive',
+]);
+
+const HOSTILE_EFFECT_TYPES = new Set(['damage', 'dot', 'cc', 'debuff', 'execute']);
+const HOSTILE_TARGETING_TYPES = new Set([
+  TargetingType.Enemy,
+  TargetingType.Enemies,
+  TargetingType.Area,
 ]);
 
 function rankValue(values: readonly number[] | undefined, rankIndex: number): number | undefined {
@@ -73,10 +80,30 @@ export function isSpellEffectConfigured(effect: SpellEffect, rankIndex: number):
   }
 }
 
+/**
+ * Composite spells may target enemies while their positive effects fall back to
+ * the caster. The inverse is not safe: a self/allied target cannot resolve a
+ * hostile effect and would silently discard it at runtime.
+ */
+export function getSpellTargetingIssues(spell: Spell): string[] {
+  const hostileEffectTypes = [
+    ...new Set(
+      spell.effects
+        .filter((effect) => HOSTILE_EFFECT_TYPES.has(effect.type))
+        .map(({ type }) => type),
+    ),
+  ].sort();
+  if (hostileEffectTypes.length === 0 || HOSTILE_TARGETING_TYPES.has(spell.targeting)) return [];
+  return [
+    `hostile effects (${hostileEffectTypes.join(', ')}) require enemy, enemies or area targeting; received ${spell.targeting}`,
+  ];
+}
+
 export function isSpellCombatReady(spell: Spell, rank = 1): boolean {
   const rankIndex = Math.max(0, rank - 1);
   return (
     spell.effects.length > 0 &&
+    getSpellTargetingIssues(spell).length === 0 &&
     spell.effects.every((effect) => isSpellEffectConfigured(effect, rankIndex))
   );
 }

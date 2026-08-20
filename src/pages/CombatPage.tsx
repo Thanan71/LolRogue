@@ -267,6 +267,19 @@ export function CombatPage() {
     }
     return Object.keys(m).length > 0 ? m : undefined;
   }, [team, playerInstances]);
+  const initialMpOverrides = useMemo(() => {
+    const overrides: Record<string, number> = {};
+    for (const member of team) {
+      if (member.currentMp === undefined) continue;
+      const instance = playerInstances.find((champion) => champion.id === member.championId);
+      const maxMp = instance?.getEnhancedStats().mp;
+      overrides[member.championId] =
+        maxMp === undefined
+          ? Math.max(0, member.currentMp)
+          : Math.min(maxMp, Math.max(0, member.currentMp));
+    }
+    return Object.keys(overrides).length > 0 ? overrides : undefined;
+  }, [team, playerInstances]);
   // Get encounter data from store
   const currentEncounter = useRunStore((s) => s.currentEncounter);
   const runSeed = useRunStore((s) => s.seed);
@@ -350,6 +363,7 @@ export function CombatPage() {
     autoPlay: requiresServerAutoPlay ? true : autoPlay,
     onComplete: handleComplete,
     initialHpOverrides,
+    initialMpOverrides,
     random: battleRandom,
     ruleLoadout,
   });

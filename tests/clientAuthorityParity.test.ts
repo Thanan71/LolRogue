@@ -188,6 +188,11 @@ function resolveFirstClientCombat(mode: 'manual' | 'autoplay'): void {
           member.currentHp === undefined ? [] : [[member.championId, member.currentHp]],
         ),
       ),
+      initialMpOverrides: Object.fromEntries(
+        before.team.flatMap((member) =>
+          member.currentMp === undefined ? [] : [[member.championId, member.currentMp]],
+        ),
+      ),
       random: () => rng.next(),
       rules: new CombatRuleRuntime(
         buildCombatRuleLoadout({
@@ -269,6 +274,8 @@ function resolveFirstClientCombat(mode: 'manual' | 'autoplay'): void {
     healAfterBattlePercent: augmentManager.getHealAfterBattlePercent(),
     getPreLevelMaxHp: (member) =>
       players.find((champion) => champion.id === member.championId)?.getEnhancedStats().hp ?? 1,
+    getPreLevelMaxMp: (member) =>
+      players.find((champion) => champion.id === member.championId)?.getEnhancedStats().mp ?? 0,
   });
   afterJournal.updateTeamAfterCombat(postCombat.updates);
   afterJournal.queueSpellUpgrades(postCombat.pendingSpellUpgradeChampionIds);

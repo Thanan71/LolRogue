@@ -49,11 +49,11 @@ export const jinx: Champion = {
       description:
         'Jinx alterne entre Bang-Bang (minigun, bonus vitesse d attaque) et Poiscaille (lance-roquettes, dégâts de zone et plus grande portée).',
       maxRank: 5,
-      cooldown: [0.9, 0.9, 0.9, 0.9, 0.9],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [20, 20, 20, 20, 20],
       range: [600, 600, 600, 600, 600],
       image: 'JinxQ.png',
-      targeting: TargetingType.Self,
+      targeting: TargetingType.Enemy,
       scaling: { adRatio: 0, apRatio: 0 },
       effects: [
         {
@@ -78,7 +78,7 @@ export const jinx: Champion = {
       description:
         'Jinx tire un rayon qui inflige des dégâts au premier ennemi touché, le ralentit et le révèle.',
       maxRank: 5,
-      cooldown: [8, 7, 6, 5, 4],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [40, 45, 50, 55, 60],
       range: [1450, 1450, 1450, 1450, 1450],
       image: 'JinxW.png',
@@ -101,7 +101,7 @@ export const jinx: Champion = {
       description:
         'Jinx lance des grenades immobilisantes qui explosent au bout de 5 sec. Les champions qui marchent dessus sont immobilisés.',
       maxRank: 5,
-      cooldown: [24, 20.5, 17, 13.5, 10],
+      cooldownTurns: [5, 5, 5, 4, 3],
       cost: [90, 90, 90, 90, 90],
       range: [925, 925, 925, 925, 925],
       image: 'JinxE.png',
@@ -124,7 +124,7 @@ export const jinx: Champion = {
       description:
         'Jinx tire une super roquette qui traverse la carte. Les dégâts augmentent pendant le trajet et sont amplifiés par les PV manquants.',
       maxRank: 3,
-      cooldown: [90, 75, 60],
+      cooldownTurns: [6, 6, 6],
       cost: [100, 100, 100],
       range: [25000, 25000, 25000],
       image: 'JinxR.png',

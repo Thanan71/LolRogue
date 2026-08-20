@@ -3,8 +3,8 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 13` et le Daily `score_version = 13`. Cette version
-ajoute un combat testé par biome. Le moteur v12 est archivé pour terminer les runs
+`gameplay_ruleset_version = 14` et le Daily `score_version = 14`. Le contenu de
+combat par biome introduit en v13 reste inchangé. Le moteur v13 est archivé pour terminer les runs
 déjà ouvertes. Toute autre modification d'ennemi, récompense, prix, drop, effet ou
 stacking exige une nouvelle version et un nouveau hash autoritaire.
 
@@ -17,7 +17,7 @@ La calibration de référence utilise aussi une cohorte figée de 30 runs script
 par difficulté. Elle vérifie les bornes d'or/drop et les trois raretés d'augments
 sans collecter de donnée personnelle. Elle constitue le playtest automatisé
 reproductible ; les données volontaires futures servent à recalibrer, pas à rendre
-le ruleset v13 valide a posteriori.
+le ruleset actif valide a posteriori.
 
 ## Courbes mesurées
 

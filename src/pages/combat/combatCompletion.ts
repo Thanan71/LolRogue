@@ -123,6 +123,9 @@ export function completeCombat({
       getPreLevelMaxHp: (member) =>
         playerInstances.find((champion) => champion.id === member.championId)?.getEnhancedStats()
           .hp ?? 1,
+      getPreLevelMaxMp: (member) =>
+        playerInstances.find((champion) => champion.id === member.championId)?.getEnhancedStats()
+          .mp ?? 0,
     });
     runStore.updateTeamAfterCombat(postCombat.updates);
     runStore.queueSpellUpgrades(postCombat.pendingSpellUpgradeChampionIds);

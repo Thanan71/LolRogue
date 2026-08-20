@@ -31,6 +31,7 @@ async function enterGuest(page: Page) {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.getByRole('button', { name: 'Jouer en invité' }).click();
+  await expect(page).toHaveURL('/');
   await page.evaluate(() => {
     localStorage.setItem('lolrogue:tutorial:map:v1', 'done');
   });
@@ -87,7 +88,8 @@ for (const viewport of VIEWPORTS) {
     await servePackagedAssets(page);
     await enterGuest(page);
     await installLoadoutFixture(page);
-    await page.goto('/run');
+    await page.getByRole('button', { name: 'Continuer la partie' }).click();
+    await expect(page).toHaveURL('/run');
 
     const upgrade = page.getByRole('region', { name: 'Amélioration de sort' });
     await expect(upgrade).toBeVisible();

@@ -78,6 +78,7 @@ export const fr = {
     spellAbilities: 'Compétences',
     spell: 'Sort',
     cooldown: 'recharge',
+    cooldownTurns: 'tours',
     insufficientMana: 'mana insuffisant',
     ready: 'prêt',
     battleSpeed: 'Vitesse du combat',

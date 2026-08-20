@@ -49,7 +49,7 @@ export const leona: Champion = {
       description:
         'Leona utilise son bouclier pour sa prochaine attaque de base, infligeant des dégâts magiques supplémentaires et étourdissant la cible.',
       maxRank: 5,
-      cooldown: [5, 5, 5, 5, 5],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [30, 35, 40, 45, 50],
       range: [125, 125, 125, 125, 125],
       image: 'LeonaShieldOfDaybreak.png',
@@ -72,11 +72,11 @@ export const leona: Champion = {
       description:
         'Leona lève son bouclier, gagnant armure et résistance magique. Après un délai, elle inflige des dégâts magiques aux ennemis proches.',
       maxRank: 5,
-      cooldown: [14, 13, 12, 11, 10],
+      cooldownTurns: [4, 4, 3, 3, 3],
       cost: [60, 60, 60, 60, 60],
       range: [450, 450, 450, 450, 450],
       image: 'LeonaSolarBarrier.png',
-      targeting: TargetingType.Self,
+      targeting: TargetingType.Area,
       scaling: { adRatio: 0.4, apRatio: 0.2 },
       effects: [
         {
@@ -95,7 +95,7 @@ export const leona: Champion = {
       description:
         'Leona projette une image solaire, infligeant des dégâts magiques aux ennemis en ligne. Le dernier champion touché est immobilisé et Leona fonce vers lui.',
       maxRank: 5,
-      cooldown: [12, 10.5, 9, 7.5, 6],
+      cooldownTurns: [3, 3, 3, 2, 2],
       cost: [40, 45, 50, 55, 60],
       range: [875, 875, 875, 875, 875],
       image: 'LeonaZenithBlade.png',
@@ -118,7 +118,7 @@ export const leona: Champion = {
       description:
         'Leona invoque un rayon d énergie solaire. Les ennemis au centre sont étourdis, ceux en bordure ralentis.',
       maxRank: 3,
-      cooldown: [90, 75, 60],
+      cooldownTurns: [6, 6, 6],
       cost: [100, 100, 100],
       range: [1200, 1200, 1200],
       image: 'LeonaSolarFlare.png',

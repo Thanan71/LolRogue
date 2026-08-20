@@ -9,6 +9,7 @@ import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { RunMapScreen } from '@/components/RunMapScreen';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { type NodeMap, NodeType } from '@/game/map/types';
+import { AUTHORITY_ENGINE_VERSION } from '@/game/authority';
 import { createRunLedger } from '@/game/run/runLedger';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { AuthPage } from '@/pages/AuthPage';
@@ -20,6 +21,7 @@ import { ShopPage } from '@/pages/ShopPage';
 import { StarterSelectPage } from '@/pages/StarterSelectPage';
 import { TreasurePage } from '@/pages/TreasurePage';
 import { useAuthStore } from '@/stores/authStore';
+import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import {
   type ChampionRunStats,
@@ -110,6 +112,7 @@ describe('P2 page smoke tests', () => {
       error: null,
     });
     useRunStore.setState({
+      ...RUN_INITIAL_STATE,
       isActive: false,
       biomeMaps: [],
       currentBiomeIndex: 0,
@@ -410,6 +413,87 @@ describe('P2 page smoke tests', () => {
     useRunStore.setState({ isActive: true });
     renderAt(page, `/${label.toLowerCase()}`);
     expect(screen.getAllByText(new RegExp(label, 'i')).length).toBeGreaterThan(0);
+  });
+
+  it('restores a persisted mana pool to its canonical maximum and journals the rest', () => {
+    const restNode: NodeMap['nodes'][number] = {
+      id: 'rest-mana',
+      type: NodeType.Rest,
+      column: 0,
+      row: 0,
+      prevNodeIds: [],
+      nextNodeIds: [],
+      biome: 'top_lane',
+      completed: false,
+      accessible: false,
+      metadata: { title: 'Rest', description: 'Rest', icon: '◇' },
+      encounter: {
+        id: 'rest-mana-encounter',
+        name: 'Mana camp',
+        description: 'Recover before the next fight.',
+        type: 'rest',
+        minRunLevel: 1,
+        healPercent: 0.25,
+        goldCost: 0,
+        fullHeal: false,
+      },
+    };
+    useAuthStore.setState({
+      user: { id: 'rest-user' } as User,
+      isAuthenticated: true,
+      isGuest: false,
+    });
+    useRunStore.setState({
+      isActive: true,
+      runId: '88888888-8888-4888-8888-888888888888',
+      seed: 42,
+      team: [{ championId: 'Ashe', currentHp: 400, currentMp: 17 }],
+      biomeMaps: [
+        {
+          biome: 'top_lane',
+          startNodeId: restNode.id,
+          exitNodeId: restNode.id,
+          columns: 1,
+          rows: 1,
+          nodes: [restNode],
+        },
+      ],
+      currentBiomeIndex: 0,
+      currentBiome: 'top_lane',
+      currentNodeId: restNode.id,
+      chosenPathNodeIds: [restNode.id],
+      pendingEncounter: { nodeId: restNode.id, nodeType: 'rest' },
+      authorityAttempt: {
+        attemptId: '99999999-9999-4999-8999-999999999999',
+        runUuid: '88888888-8888-4888-8888-888888888888',
+        ownerUserId: 'rest-user',
+        seed: 42,
+        rulesetVersion: 14,
+        engineVersion: AUTHORITY_ENGINE_VERSION,
+        difficulty: 'normal',
+        mode: 'normal',
+        initialTeam: ['Ashe'],
+        runeIds: [],
+        enhancementSnapshot: { Ashe: {} },
+        masterySnapshot: { Ashe: 0 },
+        startedAt: '2026-08-20T00:00:00.000Z',
+        expiresAt: '2026-08-21T00:00:00.000Z',
+        status: 'started',
+        commands: [],
+        nextSequence: 1,
+        lastAcknowledgedSequence: 0,
+        journalHash: 'rest-regression',
+        finishCommandId: null,
+      },
+    });
+
+    renderAt(<RestPage />, '/rest');
+    fireEvent.click(screen.getByRole('button', { name: 'Se reposer' }));
+
+    expect(useRunStore.getState().team[0]?.currentMp).toBe(280);
+    expect(
+      useRunStore.getState().authorityAttempt?.commands.find((command) => command.kind === 'rest'),
+    ).toMatchObject({ kind: 'rest', payload: { node_id: restNode.id } });
   });
 
   it('does not announce a treasure item that a full inventory could not receive', async () => {

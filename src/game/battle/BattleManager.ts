@@ -36,6 +36,7 @@ import {
 import { type BattleEventCallback, BattleEventJournal } from './BattleEventJournal';
 import { BattleSpellEffectResolver } from './BattleSpellEffectResolver';
 import { isPassiveCombatReady } from './combatContentSupport';
+import { toCombatDamageType } from './damageType';
 import { resolveBattleTargets } from './targetResolver';
 import {
   ActionType,
@@ -69,6 +70,8 @@ export interface BattleManagerOptions {
   maxTeamSize?: number;
   /** Map of championId -> initial HP (for persisting HP between combats). */
   initialHpOverrides?: Record<string, number>;
+  /** Map of championId -> initial MP (for persisting mana between combats). */
+  initialMpOverrides?: Record<string, number>;
   /** Injectable random source so a seeded run can reproduce combat exactly. */
   random?: () => number;
   /** Combat-local rule bus for runes, augments, items and enhancements. */
@@ -87,6 +90,7 @@ export class BattleManager {
   private readonly _maxRounds: number;
   private readonly _maxTeamSize: number;
   private readonly _initialHpOverrides: Record<string, number> | undefined;
+  private readonly _initialMpOverrides: Record<string, number> | undefined;
   private readonly _random: () => number;
   private readonly _rules: CombatRuleRuntime | null;
   private _activeActionType: ActionType | null = null;
@@ -114,6 +118,7 @@ export class BattleManager {
     this._maxRounds = options.maxRounds ?? 50;
     this._maxTeamSize = options.maxTeamSize ?? 5;
     this._initialHpOverrides = options.initialHpOverrides;
+    this._initialMpOverrides = options.initialMpOverrides;
     this._random = options.random ?? Math.random;
     this._rules = options.rules ?? null;
     this._initCombatants();
@@ -264,7 +269,7 @@ export class BattleManager {
         {
           type,
           cost: definition.cost,
-          cooldown: definition.cooldown,
+          cooldownTurns: definition.cooldownTurns,
           targeting: definition.targeting,
           requiresTarget: resolution.requiresTarget,
           validTargetIds: resolution.legalTargets.map((target) => target.id),
@@ -416,6 +421,7 @@ export class BattleManager {
     this._passiveMarks.clear();
     this._preserveHpOnRuleInitialization.clear();
     const hpOverrides = this._initialHpOverrides;
+    const mpOverrides = this._initialMpOverrides;
     const playerChampions = this._playerTeam.champions.slice(0, this._maxTeamSize);
     this._playerCombatants = playerChampions.map((c, index) => {
       // Use enhanced stats if available, otherwise fall back to base stats
@@ -428,6 +434,11 @@ export class BattleManager {
             : Math.min(overriddenHp, stats.hp)
           : stats.hp;
       const targetId = getUniqueTargetId(playerChampions, index);
+      const overriddenMp = mpOverrides?.[c.id];
+      const initMp =
+        overriddenMp === undefined || !Number.isFinite(overriddenMp)
+          ? stats.mp
+          : Math.min(stats.mp, Math.max(0, overriddenMp));
       if (overriddenHp !== undefined && this._rules) {
         this._preserveHpOnRuleInitialization.add(targetId);
       }
@@ -437,7 +448,7 @@ export class BattleManager {
         side: 'player' as TeamSide,
         currentHp: initHp,
         maxHp: stats.hp,
-        currentMp: stats.mp,
+        currentMp: initMp,
         maxMp: stats.mp,
         isDefeated: initHp <= 0,
         currentShield: 0,
@@ -667,6 +678,7 @@ export class BattleManager {
     attacker: CombatantState,
     target: CombatantState,
     damage: number,
+    damageType: DamageType,
     triggerPassives = true,
     isCrit = false,
     triggerRules = true,
@@ -680,6 +692,7 @@ export class BattleManager {
             source: this._toRuleActor(attacker),
             target: this._toRuleActor(target),
             amount: damage,
+            damageType,
             action: this._activeActionType,
             isCrit,
             actors: this._getRuleActors(),
@@ -736,6 +749,7 @@ export class BattleManager {
             source: this._toRuleActor(attacker),
             target: this._toRuleActor(target),
             amount: remaining,
+            damageType,
             action: this._activeActionType,
             isCrit,
             actors: this._getRuleActors(),
@@ -796,7 +810,7 @@ export class BattleManager {
     const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
     const finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
 
-    this._applyDamageToTarget(attacker, target, finalDmg, true, isCrit);
+    this._applyDamageToTarget(attacker, target, finalDmg, DamageType.AD, true, isCrit);
   }
 
   private _getCombatStats(
@@ -914,7 +928,7 @@ export class BattleManager {
       const source = this._findCombatantByTargetId(effect.sourceId) ?? combatant;
       const value = event.value ?? 0;
       if (effect instanceof DamageEffect && value > 0 && !combatant.isDefeated) {
-        this._applyDamageToTarget(source, combatant, value, false);
+        this._applyDamageToTarget(source, combatant, value, effect.damageType, false);
       } else if (effect instanceof HealEffect && value > 0) {
         this._applyHeal(source, combatant, value);
       }
@@ -1015,7 +1029,13 @@ export class BattleManager {
           target,
           rankIndex,
         );
-        this._applyDamageToTarget(attacker, target, amount, false);
+        this._applyDamageToTarget(
+          attacker,
+          target,
+          amount,
+          toCombatDamageType(damageEffect.damageType),
+          false,
+        );
         if (attacker.currentHp / attacker.maxHp < 0.5) {
           this._applyHeal(
             attacker,
@@ -1039,6 +1059,7 @@ export class BattleManager {
           attacker,
           target,
           this._calculateEffectDamage(effect, this._getCombatStats(attacker), target, rankIndex),
+          toCombatDamageType(effect.damageType),
           false,
         );
       }
@@ -1073,7 +1094,7 @@ export class BattleManager {
             sourceId: attacker.targetId,
             targetId: target.targetId,
             magnitude: totalDamage,
-            damageType: DamageType.True,
+            damageType: toCombatDamageType(passiveDamage.damageType),
             duration: 5,
             canCrit: false,
           }),
@@ -1121,6 +1142,7 @@ export class BattleManager {
               target,
               leona.champion.level - 1,
             ),
+            toCombatDamageType(effect.damageType),
             false,
           );
         }
@@ -1295,7 +1317,15 @@ export class BattleManager {
     if (effect.type === 'heal') {
       this._applyHeal(source, target, effect.amount);
     } else if (effect.type === 'damage') {
-      this._applyDamageToTarget(source, target, effect.amount, false, false, false);
+      this._applyDamageToTarget(
+        source,
+        target,
+        effect.amount,
+        DamageType.True,
+        false,
+        false,
+        false,
+      );
     } else if (effect.type === 'mana') {
       target.currentMp = Math.min(target.maxMp, target.currentMp + effect.amount);
     } else if (effect.type === 'shield' && !target.isDefeated) {

@@ -26,6 +26,7 @@ import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
 import {
   buildRunPlayerTeam,
   calculateRunMemberMaxHp,
+  calculateRunMemberMaxMp,
   createRunAugmentManager,
 } from '@/game/run/runCombatant';
 import {
@@ -35,6 +36,7 @@ import {
   resolveEventTeamUpdates,
   resolveRecruitAttempt,
   resolveRestHp,
+  resolveRestMp,
   resolveRunEvent,
 } from '@/game/run/runEncounterRules';
 import {
@@ -77,9 +79,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v13';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v14';
 export const AUTHORITY_CONTENT_HASH =
-  'b199f8a3573e2e579ddd6ea508a048e7066b864a32ef9b38c27e8ef6b2350fb1';
+  '486c5981a70dc84f5615af3abc4720ea03ce9085ae01595b2eda9bafc3f30708';
 
 assertValidRuleCatalogs();
 
@@ -335,8 +337,10 @@ class AuthorityReplayState {
       fail('invalid_content', 'Combat contains an unknown champion.', commandIndex);
     }
     const initialHpOverrides: Record<string, number> = {};
+    const initialMpOverrides: Record<string, number> = {};
     for (const member of this.team) {
       if (member.currentHp !== null) initialHpOverrides[member.championId] = member.currentHp;
+      if (member.currentMp !== null) initialMpOverrides[member.championId] = member.currentMp;
     }
     const rng = createScopedRunRng(this.attempt.seed, `combat:${encounter.id ?? node.id}`);
     const usesCanonicalAutoPlay = actionsJson === 'auto';
@@ -353,6 +357,8 @@ class AuthorityReplayState {
       maxTeamSize: MAX_TEAM_SIZE,
       initialHpOverrides:
         Object.keys(initialHpOverrides).length > 0 ? initialHpOverrides : undefined,
+      initialMpOverrides:
+        Object.keys(initialMpOverrides).length > 0 ? initialMpOverrides : undefined,
       random: () => rng.next(),
       rules: new CombatRuleRuntime(
         buildCombatRuleLoadout({
@@ -469,6 +475,8 @@ class AuthorityReplayState {
         );
         return authorityMember ? this.getMemberMaxHp(authorityMember) : 100;
       },
+      getPreLevelMaxMp: (member) =>
+        players.find((champion) => champion.id === member.championId)?.getEnhancedStats().mp ?? 0,
     });
     for (const update of postCombat.updates) {
       const member = this.team.find((candidate) => candidate.championId === update.championId);
@@ -569,6 +577,7 @@ class AuthorityReplayState {
     for (const member of this.team) {
       const maxHp = this.getMemberMaxHp(member);
       member.currentHp = resolveRestHp(member.currentHp, maxHp, encounter);
+      member.currentMp = resolveRestMp(this.getMemberMaxMp(member));
     }
   }
 
@@ -858,6 +867,15 @@ class AuthorityReplayState {
       this.inventory,
       (championId) => this.attempt.enhancementSnapshot[championId] ?? {},
       (championId) => this.attempt.masterySnapshot[championId] ?? 0,
+    );
+  }
+
+  private getMemberMaxMp(member: AuthorityTeamMember): number {
+    return calculateRunMemberMaxMp(
+      member,
+      this.inventory,
+      (championId) => this.attempt.enhancementSnapshot[championId] ?? {},
+      (championId) => this.attempt.masterySnapshot?.[championId] ?? 0,
     );
   }
 

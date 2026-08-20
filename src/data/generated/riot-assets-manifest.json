@@ -208,8 +208,8 @@
   },
   "championCatalog": {
     "path": "src/data/generated/champions-parsed.json",
-    "bytes": 945048,
-    "sha256": "c8cd99bad7bbdf5f40642a60c242447524935fc768f3a3f4b9dcaa78469060c7"
+    "bytes": 945541,
+    "sha256": "84e40db0540e5509d866282f1ddd27401e17fcb67269c9b5763199eeff69b75a"
   },
   "files": [
     {

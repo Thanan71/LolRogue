@@ -127,7 +127,7 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
             </div>
             <div className="combat-spell-tooltip__stat">
               <span className="combat-spell-tooltip__cooldown">{fr.combat.cooldown} :</span>{' '}
-              {spell.cooldownMax} s
+              {spell.cooldownMax} {fr.combat.cooldownTurns}
             </div>
           </div>
 
@@ -153,7 +153,7 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
           {/* Status */}
           {!spell.isReady && (
             <div className="combat-spell-tooltip__status combat-spell-tooltip__status--cooldown">
-              ⏳ Recharge : {spell.cooldownCurrent} s restante
+              ⏳ Recharge : {spell.cooldownCurrent} {fr.combat.cooldownTurns} restante
             </div>
           )}
           {spell.isReady && (
