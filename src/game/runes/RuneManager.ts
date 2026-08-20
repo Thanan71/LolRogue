@@ -192,7 +192,8 @@ export class RuneManager {
         return ctx.killsThisBattle > 0;
       }
       case RuneConditionType.OnAbilityCast: {
-        return ctx.abilitiesCastThisBattle > 0;
+        const threshold = Math.max(1, Math.floor(condition.threshold ?? 1));
+        return ctx.abilitiesCastThisBattle >= threshold;
       }
       case RuneConditionType.BattleStart: {
         return ctx.turnNumber === 1;

@@ -353,6 +353,17 @@ describe('RuneManager', () => {
     expect(runeManager.runes[0].isActive).toBe(true);
   });
 
+  it('activates Electrocute only after its third ability cast threshold is reached', () => {
+    runeManager.equipRune(RUNE_DATABASE['electrocute']);
+
+    for (const abilitiesCastThisBattle of [1, 2]) {
+      runeManager.evaluateConditions(makeContext({ abilitiesCastThisBattle }), 'ability_cast');
+      expect(runeManager.runes[0].isActive).toBe(false);
+    }
+    runeManager.evaluateConditions(makeContext({ abilitiesCastThisBattle: 3 }), 'ability_cast');
+    expect(runeManager.runes[0].isActive).toBe(true);
+  });
+
   it('should activate on battle start (turn 1)', () => {
     runeManager.equipRune(RUNE_DATABASE['summon_aery']);
     runeManager.evaluateConditions(makeContext({ turnNumber: 1 }));

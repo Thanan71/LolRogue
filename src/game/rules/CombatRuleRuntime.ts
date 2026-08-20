@@ -286,7 +286,13 @@ export class CombatRuleRuntime {
     const electrocute = manager?.runes.find((entry) => entry.rune.id === 'electrocute');
     const wasActive = electrocute?.isActive ?? false;
     this.evaluateRunes(actor, [actor], 'ability_cast');
-    if (!wasActive && electrocute?.isActive) {
+    const electrocuteThreshold = Math.max(
+      1,
+      Math.floor(electrocute?.rune.condition.threshold ?? 1),
+    );
+    // Electrocute is armed once per battle, by the threshold-crossing cast.
+    // The damage produced by that cast is the first hit eligible to consume it.
+    if (metrics.abilitiesCast === electrocuteThreshold && !wasActive && electrocute?.isActive) {
       this.pendingRuneDamage.set(actor.id, electrocute.rune.bonus.triggeredEffect?.value ?? 0);
     }
   }

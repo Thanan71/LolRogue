@@ -78,6 +78,32 @@ describe('catalogue de règles', () => {
 });
 
 describe('bus commun de combat', () => {
+  it('arms Electrocute on the third cast and deals its bonus exactly once', () => {
+    const runtime = new CombatRuleRuntime(loadout({ runeIds: ['electrocute'] }), () => 0.5);
+    const source = actor();
+    const target = actor({ id: 'Darius', side: 'enemy' });
+    const actors = [source, target];
+    runtime.dispatch({ type: 'battle_start', actors });
+
+    for (let cast = 1; cast <= 4; cast++) {
+      runtime.dispatch({ type: 'ability_cast', actor: source, action: ActionType.SpellQ });
+      const damage = runtime.dispatch({
+        type: 'damage_dealt',
+        source,
+        target,
+        amount: 10,
+        action: ActionType.SpellQ,
+        isCrit: false,
+        actors,
+      });
+      expect(
+        damage.instantEffects.filter((effect) => effect.type === 'damage' && effect.amount === 40),
+        `cast ${cast}`,
+      ).toHaveLength(cast === 3 ? 1 : 0);
+      runtime.dispatch({ type: 'turn_end', actor: source });
+    }
+  });
+
   it('déclenche, stacke puis expire une rune au bon événement', () => {
     const runtime = new CombatRuleRuntime(loadout({ runeIds: ['press_the_attack'] }), () => 0.5);
     const source = actor();

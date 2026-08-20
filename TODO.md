@@ -369,7 +369,7 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
   20–30 % des MP max après victoire et 100 % au repos.
 - [x] Ajouter une validation catalogue cible/effet et corriger les cinq sorts
   composites `Self` ayant une partie hostile.
-- [ ] Faire respecter le seuil `threshold: 3` d'Electrocute.
+- [x] Faire respecter le seuil `threshold: 3` d'Electrocute.
 - [ ] Tester explicitement l'ordre « dégâts puis execute » ou « execute sur PV
   avant dégâts » et retenir une seule règle documentée pour Garen/Jinx.
 - [ ] Empêcher la double évaluation des runes `damage_dealt` sur critique et exclure
