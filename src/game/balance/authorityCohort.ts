@@ -3,10 +3,17 @@ import type {
   AuthorityReplaySession,
   AuthorityRunAttempt,
   AuthorityRunCommand,
+  AuthorityRunSnapshot,
   AuthorityVerificationOptions,
   AuthorityVerificationResult,
 } from '@/game/authority/types';
-import type { BalancePolicy, BalancePolicyManifest, BalanceScenario } from './balancePolicy';
+import {
+  type BalancePolicy,
+  BalancePolicyDecisionError,
+  type BalancePolicyManifest,
+  type BalanceScenario,
+  SURVIVAL_GREEDY_POLICY_MANIFEST,
+} from './balancePolicy';
 
 /** The runtime boundary shared by the source verifier and the deployed Edge bundle. */
 export interface AuthorityCohortRuntime {
@@ -42,20 +49,154 @@ export interface SimulateAuthorityCohortInput {
   readonly policy: BalancePolicy;
   readonly scenario: BalanceScenario;
   readonly seeds: readonly number[];
+  readonly limits?: Partial<AuthorityCohortSafetyLimits>;
+  readonly now?: () => number;
 }
 
-function requireTerminalVerification(
-  authority: AuthorityCohortRuntime,
-  attempt: AuthorityRunAttempt,
-  trace: readonly AuthorityRunCommand[],
-): AuthorityReplayResult {
-  const verification = authority.verify(attempt, trace, { requireTerminal: true });
-  if (!verification.ok) {
-    throw new Error(
-      `Authority cohort trace failed terminal verification: ${verification.error.code}: ${verification.error.message}`,
-    );
+export interface AuthorityCohortSafetyLimits {
+  readonly maxCommands: number;
+  /** Cooperative deadline checked before and after each synchronous policy/authority call. */
+  readonly maxRunMilliseconds: number;
+  readonly diagnosticCommandCount: number;
+}
+
+export const DEFAULT_AUTHORITY_COHORT_SAFETY_LIMITS = Object.freeze({
+  maxCommands: 400,
+  maxRunMilliseconds: 5_000,
+  diagnosticCommandCount: 20,
+}) satisfies AuthorityCohortSafetyLimits;
+
+export type AuthorityCohortFailureCode =
+  | 'authority_error'
+  | 'command_limit'
+  | 'deadlock'
+  | 'incremental_divergence'
+  | 'policy_error'
+  | 'policy_stopped'
+  | 'terminal_verification_failed'
+  | 'time_limit';
+
+export interface AuthorityCohortFailureContext {
+  readonly code: AuthorityCohortFailureCode;
+  readonly cellId: string;
+  readonly seed: number;
+  readonly lastSnapshot: AuthorityRunSnapshot | null;
+  readonly recentCommands: readonly AuthorityRunCommand[];
+  readonly reproductionCommand: string;
+}
+
+export class AuthorityCohortSimulationError extends Error {
+  readonly code: AuthorityCohortFailureCode;
+  readonly cellId: string;
+  readonly seed: number;
+  readonly lastSnapshot: AuthorityRunSnapshot | null;
+  readonly recentCommands: readonly AuthorityRunCommand[];
+  readonly reproductionCommand: string;
+  readonly cause?: unknown;
+
+  constructor(
+    message: string,
+    context: AuthorityCohortFailureContext,
+    options: { cause?: unknown } = {},
+  ) {
+    super(message);
+    this.name = 'AuthorityCohortSimulationError';
+    this.code = context.code;
+    this.cellId = context.cellId;
+    this.seed = context.seed;
+    this.lastSnapshot = context.lastSnapshot;
+    this.recentCommands = context.recentCommands;
+    this.reproductionCommand = context.reproductionCommand;
+    this.cause = options.cause;
   }
-  return verification.result;
+}
+
+function shellQuote(value: string): string {
+  return `'${value.split("'").join(`'"'"'`)}'`;
+}
+
+export function createBalanceReproductionCommand(
+  scenario: BalanceScenario,
+  seed: number,
+  authority: Pick<AuthorityCohortRuntime, 'engineVersion' | 'contentHash'>,
+  limits: AuthorityCohortSafetyLimits = DEFAULT_AUTHORITY_COHORT_SAFETY_LIMITS,
+  policy: BalancePolicyManifest = SURVIVAL_GREEDY_POLICY_MANIFEST,
+): string {
+  const encodedScenario = encodeURIComponent(JSON.stringify(scenario)).split("'").join('%27');
+  return [
+    'npm run balance:repro --',
+    `--scenario-json ${shellQuote(encodedScenario)}`,
+    `--seed ${seed}`,
+    `--engine ${shellQuote(authority.engineVersion)}`,
+    `--content-hash ${shellQuote(authority.contentHash)}`,
+    `--policy ${shellQuote(`${policy.id}@${policy.version}`)}`,
+    `--max-commands ${limits.maxCommands}`,
+    `--max-run-ms ${limits.maxRunMilliseconds}`,
+  ].join(' ');
+}
+
+function resolveSafetyLimits(
+  overrides: Partial<AuthorityCohortSafetyLimits> | undefined,
+): AuthorityCohortSafetyLimits {
+  const limits = { ...DEFAULT_AUTHORITY_COHORT_SAFETY_LIMITS, ...overrides };
+  for (const [name, value] of Object.entries(limits)) {
+    if (!Number.isSafeInteger(value) || value < 1) {
+      throw new RangeError(`${name} must be a positive safe integer.`);
+    }
+  }
+  return limits;
+}
+
+function stableSerialize(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableSerialize).join(',')}]`;
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>).sort(([left], [right]) =>
+      left.localeCompare(right),
+    );
+    return `{${entries
+      .map(([key, entry]) => `${JSON.stringify(key)}:${stableSerialize(entry)}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value) ?? 'undefined';
+}
+
+function decisionFingerprint(snapshot: AuthorityRunSnapshot, next: AuthorityRunCommand): string {
+  const { nextSequence: _nextSequence, ...semanticSnapshot } = snapshot;
+  const { sequence: _sequence, ...semanticCommand } = next;
+  return stableSerialize([semanticSnapshot, semanticCommand]);
+}
+
+function failSimulation(input: {
+  code: AuthorityCohortFailureCode;
+  message: string;
+  scenario: BalanceScenario;
+  seed: number;
+  lastSnapshot: AuthorityRunSnapshot | null;
+  trace: readonly AuthorityRunCommand[];
+  limits: AuthorityCohortSafetyLimits;
+  policy: BalancePolicyManifest;
+  authority: Pick<AuthorityCohortRuntime, 'engineVersion' | 'contentHash'>;
+  cause?: unknown;
+}): never {
+  const recentCommands = structuredClone(input.trace.slice(-input.limits.diagnosticCommandCount));
+  throw new AuthorityCohortSimulationError(
+    input.message,
+    {
+      code: input.code,
+      cellId: input.scenario.id,
+      seed: input.seed,
+      lastSnapshot: input.lastSnapshot ? structuredClone(input.lastSnapshot) : null,
+      recentCommands,
+      reproductionCommand: createBalanceReproductionCommand(
+        input.scenario,
+        input.seed,
+        input.authority,
+        input.limits,
+        input.policy,
+      ),
+    },
+    { cause: input.cause },
+  );
 }
 
 /**
@@ -69,28 +210,142 @@ export function simulateAuthorityCohort({
   policy,
   scenario,
   seeds,
+  limits: limitOverrides,
+  now = () => performance.now(),
 }: SimulateAuthorityCohortInput): AuthorityCohortResult {
+  const limits = resolveSafetyLimits(limitOverrides);
   const runs = seeds.map((seed): AuthorityCohortRun => {
-    const attempt = policy.buildAttempt({ scenario, seed });
-    const session = authority.createSession(attempt);
     const trace: AuthorityRunCommand[] = [];
+    let lastSnapshot: AuthorityRunSnapshot | null = null;
+    let startedAt = 0;
 
-    while (true) {
-      const snapshot = session.getResult().snapshot;
-      if (snapshot.terminal) break;
-
-      const next = policy.nextCommand(snapshot);
-      if (next === null) break;
-      session.append(next);
-      trace.push(next);
-    }
-
-    return {
-      seed,
-      attempt,
-      trace,
-      result: requireTerminalVerification(authority, attempt, trace),
+    const assertWithinDeadline = () => {
+      const elapsed = now() - startedAt;
+      if (!Number.isFinite(elapsed) || elapsed > limits.maxRunMilliseconds) {
+        failSimulation({
+          code: 'time_limit',
+          message: `Authority cohort run exceeded ${limits.maxRunMilliseconds} ms.`,
+          scenario,
+          seed,
+          lastSnapshot,
+          trace,
+          limits,
+          policy: policy.manifest,
+          authority,
+        });
+      }
     };
+
+    try {
+      startedAt = now();
+      const attempt = policy.buildAttempt({ scenario, seed });
+      const session = authority.createSession(attempt);
+      const seenDecisions = new Set<string>();
+
+      while (true) {
+        lastSnapshot = session.getResult().snapshot;
+        if (lastSnapshot.terminal) break;
+        assertWithinDeadline();
+        if (trace.length >= limits.maxCommands) {
+          failSimulation({
+            code: 'command_limit',
+            message: `Authority cohort run reached ${limits.maxCommands} commands before becoming terminal.`,
+            scenario,
+            seed,
+            lastSnapshot,
+            trace,
+            limits,
+            policy: policy.manifest,
+            authority,
+          });
+        }
+
+        const next = policy.nextCommand(lastSnapshot);
+        if (next === null) {
+          failSimulation({
+            code: 'policy_stopped',
+            message: 'Balance policy returned null before the authority run became terminal.',
+            scenario,
+            seed,
+            lastSnapshot,
+            trace,
+            limits,
+            policy: policy.manifest,
+            authority,
+          });
+        }
+        const fingerprint = decisionFingerprint(lastSnapshot, next);
+        if (seenDecisions.has(fingerprint)) {
+          failSimulation({
+            code: 'deadlock',
+            message: 'Balance policy repeated the same command from an unchanged semantic state.',
+            scenario,
+            seed,
+            lastSnapshot,
+            trace: [...trace, next],
+            limits,
+            policy: policy.manifest,
+            authority,
+          });
+        }
+        seenDecisions.add(fingerprint);
+        trace.push(next);
+        session.append(next);
+        assertWithinDeadline();
+      }
+
+      assertWithinDeadline();
+      const verification = authority.verify(attempt, trace, { requireTerminal: true });
+      assertWithinDeadline();
+      if (!verification.ok) {
+        failSimulation({
+          code: 'terminal_verification_failed',
+          message: `Authority cohort trace failed terminal verification: ${verification.error.code}: ${verification.error.message}`,
+          scenario,
+          seed,
+          lastSnapshot,
+          trace,
+          limits,
+          policy: policy.manifest,
+          authority,
+        });
+      }
+      const incrementalResult = session.getResult();
+      if (stableSerialize(incrementalResult) !== stableSerialize(verification.result)) {
+        failSimulation({
+          code: 'incremental_divergence',
+          message: 'Incremental authority result diverged from terminal replay verification.',
+          scenario,
+          seed,
+          lastSnapshot,
+          trace,
+          limits,
+          policy: policy.manifest,
+          authority,
+        });
+      }
+
+      return {
+        seed,
+        attempt,
+        trace,
+        result: verification.result,
+      };
+    } catch (error) {
+      if (error instanceof AuthorityCohortSimulationError) throw error;
+      failSimulation({
+        code: error instanceof BalancePolicyDecisionError ? 'policy_error' : 'authority_error',
+        message: error instanceof Error ? error.message : 'Unknown authority cohort failure.',
+        scenario,
+        seed,
+        lastSnapshot,
+        trace,
+        limits,
+        policy: policy.manifest,
+        authority,
+        cause: error,
+      });
+    }
   });
 
   return {

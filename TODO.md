@@ -423,7 +423,7 @@ que 2,42 rounds.
   augment, rune et amélioration de sort.
 - [x] Construire `simulateAuthorityCohort()` autour de `replayAuthorityRun()` sur le
   bundle Edge courant, avec vérification terminale par `verifyAuthorityRun()`.
-- [ ] Ajouter limites de commandes/temps, détection de deadlock et reproduction de
+- [x] Ajouter limites de commandes/temps, détection de deadlock et reproduction de
   la seed pour chaque échec.
 - [ ] Stratifier chaque cohorte par difficulté × taille/composition d'équipe ×
   maîtrise/runes/enhancements × politique.
