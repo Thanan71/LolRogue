@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { championDB } from '../src/data';
 import { ITEM_DATABASE } from '../src/data/items';
 import { BattleManager } from '../src/game/battle/BattleManager';
 import { ActionType, BattlePhase } from '../src/game/battle/types';
 import { ChampionInstance } from '../src/game/ChampionInstance';
+import { DamageType } from '../src/game/effects/types';
 import { validateItemAddition } from '../src/game/inventory/inventoryRules';
 import { CombatRuleRuntime } from '../src/game/rules/CombatRuleRuntime';
 import {
@@ -12,6 +13,7 @@ import {
 } from '../src/game/rules/catalogSupport';
 import { validateRuleCatalogs } from '../src/game/rules/catalogValidation';
 import type { CombatRuleActor, CombatRuleLoadout } from '../src/game/rules/types';
+import { RuneManager } from '../src/game/runes/RuneManager';
 import type { InventoryEntry, Item } from '../src/types/run';
 
 function actor(overrides: Partial<CombatRuleActor> = {}): CombatRuleActor {
@@ -92,6 +94,7 @@ describe('bus commun de combat', () => {
         source,
         target,
         amount: 10,
+        damageType: DamageType.AP,
         action: ActionType.SpellQ,
         isCrit: false,
         actors,
@@ -117,6 +120,7 @@ describe('bus commun de combat', () => {
         source,
         target,
         amount: 10,
+        damageType: DamageType.AD,
         action: ActionType.BasicAttack,
         isCrit: false,
         actors,
@@ -130,6 +134,79 @@ describe('bus commun de combat', () => {
 
     for (let turn = 0; turn < 3; turn++) runtime.dispatch({ type: 'turn_end', actor: source });
     expect(runtime.getStatBonuses(source.id)).toEqual([]);
+  });
+
+  it('evaluates crit, damage-dealt and state runes once per critical hit', () => {
+    const runtime = new CombatRuleRuntime(loadout({ runeIds: ['press_the_attack'] }), () => 0.5);
+    const source = actor();
+    const target = actor({ id: 'Darius', side: 'enemy' });
+    const actors = [source, target];
+    runtime.dispatch({ type: 'battle_start', actors });
+    const evaluateConditions = vi.spyOn(RuneManager.prototype, 'evaluateConditions');
+
+    runtime.dispatch({
+      type: 'damage_dealt',
+      source,
+      target,
+      amount: 10,
+      damageType: DamageType.AD,
+      action: ActionType.BasicAttack,
+      isCrit: true,
+      actors,
+    });
+    expect(evaluateConditions.mock.calls.map(([, event]) => event)).toEqual([
+      'crit',
+      'damage_dealt',
+      'state_change',
+    ]);
+    evaluateConditions.mockRestore();
+    expect(runtime.getStatBonuses(source.id)).toEqual([]);
+
+    for (let hit = 2; hit <= 3; hit++) {
+      runtime.dispatch({
+        type: 'damage_dealt',
+        source,
+        target,
+        amount: 10,
+        damageType: DamageType.AD,
+        action: ActionType.BasicAttack,
+        isCrit: false,
+        actors,
+      });
+      expect(runtime.getStatBonuses(source.id).length > 0, `hit ${hit}`).toBe(hit === 3);
+    }
+  });
+
+  it('applies only matching penetration and never amplifies true damage', () => {
+    const runtime = new CombatRuleRuntime(
+      loadout({
+        enhancementStats: {
+          Garen: {
+            flat: { armorPen: 20, magicPen: 40 },
+            percent: {},
+            effects: [],
+          },
+        },
+      }),
+    );
+    const source = actor();
+    const target = actor({ id: 'Darius', side: 'enemy' });
+    const actors = [source, target];
+    const multiplierFor = (damageType: DamageType) =>
+      runtime.dispatch({
+        type: 'before_damage',
+        source,
+        target,
+        amount: 100,
+        damageType,
+        action: ActionType.SpellQ,
+        isCrit: false,
+        actors,
+      }).damageMultiplier;
+
+    expect(multiplierFor(DamageType.AD)).toBeCloseTo(1.1);
+    expect(multiplierFor(DamageType.AP)).toBeCloseTo(1.2);
+    expect(multiplierFor(DamageType.True)).toBe(1);
   });
 
   it('conserve les stacks permanentes entre deux combats de la run', () => {
@@ -196,6 +273,7 @@ describe('bus commun de combat', () => {
       source,
       target,
       amount: 100,
+      damageType: DamageType.AD,
       action: ActionType.BasicAttack,
       isCrit: true,
       actors,
@@ -207,6 +285,7 @@ describe('bus commun de combat', () => {
       source: target,
       target: source,
       amount: 100,
+      damageType: DamageType.AD,
       action: ActionType.BasicAttack,
       isCrit: false,
       actors,
@@ -218,6 +297,7 @@ describe('bus commun de combat', () => {
       source,
       target,
       amount: 100,
+      damageType: DamageType.AD,
       action: ActionType.BasicAttack,
       isCrit: false,
       actors,
@@ -248,6 +328,40 @@ describe('bus commun de combat', () => {
 });
 
 describe('intégration BattleManager', () => {
+  it('propagates true spell damage without applying either penetration stat', () => {
+    const garen = championDB.getById('Garen');
+    const darius = championDB.getById('Darius');
+    expect(garen && darius).toBeTruthy();
+    const player = new ChampionInstance(garen!);
+    const enemy = new ChampionInstance({
+      ...darius!,
+      stats: { ...darius!.stats, moveSpeed: 1 },
+    });
+    const rules = new CombatRuleRuntime(
+      loadout({
+        enhancementStats: {
+          Garen: {
+            flat: { armorPen: 20, magicPen: 40 },
+            percent: {},
+            effects: [],
+          },
+        },
+      }),
+    );
+    const battle = new BattleManager(
+      { side: 'player', champions: [player] },
+      { side: 'enemy', champions: [enemy] },
+      { autoActions: false, rules, random: () => 0.5 },
+    );
+    battle.startBattle();
+    const target = battle.getCombatantState('Darius', 'enemy')!;
+    const hpBefore = target.currentHp;
+
+    expect(battle.submitAction({ type: ActionType.SpellR, targetId: 'Darius' })).toBe(true);
+    expect(hpBefore - target.currentHp).toBe(150);
+    expect(target.isDefeated).toBe(false);
+  });
+
   it('consomme les usages uniques et applique Guardian Angel sur un dégât létal', () => {
     const garen = championDB.getById('Garen');
     const darius = championDB.getById('Darius');

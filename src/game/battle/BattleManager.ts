@@ -36,6 +36,7 @@ import {
 import { type BattleEventCallback, BattleEventJournal } from './BattleEventJournal';
 import { BattleSpellEffectResolver } from './BattleSpellEffectResolver';
 import { isPassiveCombatReady } from './combatContentSupport';
+import { toCombatDamageType } from './damageType';
 import { resolveBattleTargets } from './targetResolver';
 import {
   ActionType,
@@ -677,6 +678,7 @@ export class BattleManager {
     attacker: CombatantState,
     target: CombatantState,
     damage: number,
+    damageType: DamageType,
     triggerPassives = true,
     isCrit = false,
     triggerRules = true,
@@ -690,6 +692,7 @@ export class BattleManager {
             source: this._toRuleActor(attacker),
             target: this._toRuleActor(target),
             amount: damage,
+            damageType,
             action: this._activeActionType,
             isCrit,
             actors: this._getRuleActors(),
@@ -746,6 +749,7 @@ export class BattleManager {
             source: this._toRuleActor(attacker),
             target: this._toRuleActor(target),
             amount: remaining,
+            damageType,
             action: this._activeActionType,
             isCrit,
             actors: this._getRuleActors(),
@@ -806,7 +810,7 @@ export class BattleManager {
     const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
     const finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
 
-    this._applyDamageToTarget(attacker, target, finalDmg, true, isCrit);
+    this._applyDamageToTarget(attacker, target, finalDmg, DamageType.AD, true, isCrit);
   }
 
   private _getCombatStats(
@@ -924,7 +928,7 @@ export class BattleManager {
       const source = this._findCombatantByTargetId(effect.sourceId) ?? combatant;
       const value = event.value ?? 0;
       if (effect instanceof DamageEffect && value > 0 && !combatant.isDefeated) {
-        this._applyDamageToTarget(source, combatant, value, false);
+        this._applyDamageToTarget(source, combatant, value, effect.damageType, false);
       } else if (effect instanceof HealEffect && value > 0) {
         this._applyHeal(source, combatant, value);
       }
@@ -1025,7 +1029,13 @@ export class BattleManager {
           target,
           rankIndex,
         );
-        this._applyDamageToTarget(attacker, target, amount, false);
+        this._applyDamageToTarget(
+          attacker,
+          target,
+          amount,
+          toCombatDamageType(damageEffect.damageType),
+          false,
+        );
         if (attacker.currentHp / attacker.maxHp < 0.5) {
           this._applyHeal(
             attacker,
@@ -1049,6 +1059,7 @@ export class BattleManager {
           attacker,
           target,
           this._calculateEffectDamage(effect, this._getCombatStats(attacker), target, rankIndex),
+          toCombatDamageType(effect.damageType),
           false,
         );
       }
@@ -1083,7 +1094,7 @@ export class BattleManager {
             sourceId: attacker.targetId,
             targetId: target.targetId,
             magnitude: totalDamage,
-            damageType: DamageType.True,
+            damageType: toCombatDamageType(passiveDamage.damageType),
             duration: 5,
             canCrit: false,
           }),
@@ -1131,6 +1142,7 @@ export class BattleManager {
               target,
               leona.champion.level - 1,
             ),
+            toCombatDamageType(effect.damageType),
             false,
           );
         }
@@ -1305,7 +1317,15 @@ export class BattleManager {
     if (effect.type === 'heal') {
       this._applyHeal(source, target, effect.amount);
     } else if (effect.type === 'damage') {
-      this._applyDamageToTarget(source, target, effect.amount, false, false, false);
+      this._applyDamageToTarget(
+        source,
+        target,
+        effect.amount,
+        DamageType.True,
+        false,
+        false,
+        false,
+      );
     } else if (effect.type === 'mana') {
       target.currentMp = Math.min(target.maxMp, target.currentMp + effect.amount);
     } else if (effect.type === 'shield' && !target.isDefeated) {

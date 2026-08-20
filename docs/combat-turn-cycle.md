@@ -30,6 +30,9 @@
 - Les pourcentages acceptent une fraction (`0.30`) ou une valeur humaine (`30`) ;
   les deux signifient 30 %.
 - Les seuils d'execute et les fractions de revive sont bornés entre 0 et 100 %.
+- La pénétration d'armure ne modifie que les dégâts physiques et la pénétration
+  magique que les dégâts magiques. Les dégâts bruts n'utilisent aucune des deux ;
+  les amplifications générales de dégâts continuent toutefois de s'appliquer.
 
 ## Ordre des executes
 

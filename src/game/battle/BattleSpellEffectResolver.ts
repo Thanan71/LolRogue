@@ -15,6 +15,7 @@ import type { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleActor } from '@/game/rules/types';
 import type { SpellEffect } from '@/types/champion';
 import type { ChampionInstance } from '../ChampionInstance';
+import { toCombatDamageType } from './damageType';
 import type { BattleEvent, CombatantState } from './types';
 
 interface BattleSpellEffectHost {
@@ -23,6 +24,7 @@ interface BattleSpellEffectHost {
     attacker: CombatantState,
     target: CombatantState,
     damage: number,
+    damageType: DamageType,
     triggerPassives?: boolean,
     isCrit?: boolean,
     triggerRules?: boolean,
@@ -66,6 +68,7 @@ export class BattleSpellEffectResolver {
             attacker,
             target,
             this.host.calculateEffectDamage(effect, atkStats, target, rankIdx),
+            toCombatDamageType(effect.damageType),
           );
         }
         break;
@@ -241,6 +244,7 @@ export class BattleSpellEffectResolver {
               attacker,
               target,
               target.currentHp + target.currentShield,
+              DamageType.True,
               false,
               false,
               false,
@@ -260,7 +264,7 @@ export class BattleSpellEffectResolver {
               sourceId: attacker.targetId,
               targetId: target.targetId,
               magnitude: totalDamage,
-              damageType: DamageType.True,
+              damageType: toCombatDamageType(effect.damageType),
               duration,
               canCrit: false,
             }),

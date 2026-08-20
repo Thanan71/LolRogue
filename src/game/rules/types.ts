@@ -1,5 +1,5 @@
 import type { ActionType, TeamSide } from '@/game/battle/types';
-import type { StatKey } from '@/game/effects/types';
+import type { DamageType, StatKey } from '@/game/effects/types';
 import type { EnhancementEffect, EnhancementStatBonuses } from '@/types/enhancementTree';
 import type { InventoryEntry } from '@/types/run';
 
@@ -25,6 +25,7 @@ export type CombatRuleEvent =
       source: CombatRuleActor;
       target: CombatRuleActor;
       amount: number;
+      damageType: DamageType;
       action: ActionType | null;
       isCrit: boolean;
       actors: CombatRuleActor[];
@@ -34,6 +35,7 @@ export type CombatRuleEvent =
       source: CombatRuleActor;
       target: CombatRuleActor;
       amount: number;
+      damageType: DamageType;
       action: ActionType | null;
       isCrit: boolean;
       actors: CombatRuleActor[];
