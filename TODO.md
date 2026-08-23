@@ -433,7 +433,7 @@ que 2,42 rounds.
 - [x] Indexer la baseline JSON par moteur, `contentHash`, version du modèle et version
   de politique ; conserver seulement les traces de seeds extrêmes comme artefacts CI.
 - [x] Exécuter 30–50 seeds par cellule en PR et 500–1 000 en nightly/release.
-- [ ] Lire les versions gameplay/hash depuis le registre authority unique et le score
+- [x] Lire les versions gameplay/hash depuis le registre authority unique et le score
   Daily depuis une source machine unique ; supprimer les constantes parallèles.
 - [ ] Corriger `docs/content-balance.md` et renommer les métriques qui ne sont pas des
   simulations de runs.

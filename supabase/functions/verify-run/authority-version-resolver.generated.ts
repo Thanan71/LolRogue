@@ -6,6 +6,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v1",
     "gameplay": 1,
+    "dailyScore": 1,
     "progression": 1,
     "command": 1,
     "status": "unsupported",
@@ -30,6 +31,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v2",
     "gameplay": 2,
+    "dailyScore": 2,
     "progression": 1,
     "command": 1,
     "status": "unsupported",
@@ -54,6 +56,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v3",
     "gameplay": 3,
+    "dailyScore": 3,
     "progression": 1,
     "command": 2,
     "status": "unsupported",
@@ -78,6 +81,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v4",
     "gameplay": 4,
+    "dailyScore": 4,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -102,6 +106,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v5",
     "gameplay": 5,
+    "dailyScore": 5,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -126,6 +131,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v6",
     "gameplay": 6,
+    "dailyScore": 6,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -150,6 +156,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v7",
     "gameplay": 7,
+    "dailyScore": 7,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -174,6 +181,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v8",
     "gameplay": 8,
+    "dailyScore": 8,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -198,6 +206,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v9",
     "gameplay": 9,
+    "dailyScore": 9,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -222,6 +231,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v10",
     "gameplay": 10,
+    "dailyScore": 10,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -246,6 +256,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v11",
     "gameplay": 11,
+    "dailyScore": 11,
     "progression": 2,
     "command": 2,
     "status": "replay-only",
@@ -270,6 +281,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v12",
     "gameplay": 12,
+    "dailyScore": 12,
     "progression": 2,
     "command": 2,
     "status": "replay-only",
@@ -294,6 +306,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v13",
     "gameplay": 13,
+    "dailyScore": 13,
     "progression": 2,
     "command": 2,
     "status": "replay-only",
@@ -318,6 +331,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v14",
     "gameplay": 14,
+    "dailyScore": 14,
     "progression": 2,
     "command": 2,
     "status": "replay-only",
@@ -342,6 +356,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v15",
     "gameplay": 15,
+    "dailyScore": 14,
     "progression": 2,
     "command": 2,
     "status": "current",

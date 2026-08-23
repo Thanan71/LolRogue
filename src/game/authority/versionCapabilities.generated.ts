@@ -3,3 +3,9 @@
 
 export const AUTHORITY_FEATURE_BITS = {"canonicalProgression":1,"manualCombat":2,"canonicalEncounters":4} as const;
 export const AUTHORITY_ENGINE_FEATURE_MASKS: readonly number[] = [-1,0,0,2,3,3,7,7,7,7,7,7,7,7,7,7];
+export const CURRENT_AUTHORITY_VERSION = {
+  "engine": "run-engine-v15",
+  "gameplay": 15,
+  "contentHash": "60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9",
+  "dailyScore": 14
+} as const;

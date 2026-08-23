@@ -1,15 +1,14 @@
 import { implementedChampions } from '@/data/champion';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { ITEM_DATABASE } from '@/data/items/itemDatabase';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import { generateRunMap } from '@/game/map';
 import { BIOME_MAP_CONFIGS, NodeType } from '@/game/map/types';
 import { resolveCombatEncounter } from '@/game/run/encounterResolver';
-import { BIOMES, BIOME_INFO, type Biome } from '@/types/run';
+import { BIOME_INFO, BIOMES, type Biome } from '@/types/run';
 import type { AuthorityDifficulty } from '@/types/runAttempt';
 
 export const BALANCE_MODEL_VERSION = 1;
-export const BALANCE_GAMEPLAY_RULESET_VERSION = 14;
-export const BALANCE_DAILY_SCORE_VERSION = 14;
 
 export interface ChampionDesignProfile {
   role: string;
@@ -138,6 +137,7 @@ export interface BalanceCurveRow {
 export interface BalanceSimulationReport {
   modelVersion: number;
   gameplayRulesetVersion: number;
+  contentHash: string;
   dailyScoreVersion: number;
   seedCount: number;
   curves: BalanceCurveRow[];
@@ -209,8 +209,9 @@ export function simulateContentBalance(seedCount = 250): BalanceSimulationReport
   const augments = Object.values(AUGMENT_DATABASE);
   return {
     modelVersion: BALANCE_MODEL_VERSION,
-    gameplayRulesetVersion: BALANCE_GAMEPLAY_RULESET_VERSION,
-    dailyScoreVersion: BALANCE_DAILY_SCORE_VERSION,
+    gameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,
+    contentHash: CURRENT_AUTHORITY_VERSION.contentHash,
+    dailyScoreVersion: CURRENT_AUTHORITY_VERSION.dailyScore,
     seedCount,
     curves: DIFFICULTIES.map((difficulty) => {
       const total = totals[difficulty];

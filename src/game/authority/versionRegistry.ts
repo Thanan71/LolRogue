@@ -1,7 +1,10 @@
 import {
   AUTHORITY_ENGINE_FEATURE_MASKS,
   AUTHORITY_FEATURE_BITS,
+  CURRENT_AUTHORITY_VERSION,
 } from './versionCapabilities.generated';
+
+export { CURRENT_AUTHORITY_VERSION };
 
 export type AuthorityVersionStatus = 'current' | 'replay-only' | 'unsupported';
 
@@ -22,6 +25,7 @@ export interface AuthorityVersionFeatures {
 export interface AuthorityVersionMetadata {
   engine: string;
   gameplay: number;
+  dailyScore: number;
   progression: number;
   command: number;
   status: AuthorityVersionStatus;

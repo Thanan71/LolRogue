@@ -1,16 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { implementedChampions } from '@/data/champion';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import {
-  BALANCE_DAILY_SCORE_VERSION,
-  BALANCE_GAMEPLAY_RULESET_VERSION,
   BIOME_DESIGN,
   CHAMPION_DESIGN,
   simulateContentBalance,
   validateBalanceCatalog,
 } from '@/game/balance/contentBalance';
-import { BIOME_MAP_CONFIGS, NodeType } from '@/game/map/types';
 import { ENCOUNTER_POOLS } from '@/game/map/encounters';
+import { BIOME_MAP_CONFIGS, NodeType } from '@/game/map/types';
 import { BIOMES } from '@/types/run';
 
 describe('P3 versioned content balance', () => {
@@ -58,8 +57,9 @@ describe('P3 versioned content balance', () => {
     const first = simulateContentBalance(100);
     const second = simulateContentBalance(100);
     expect(first).toEqual(second);
-    expect(first.gameplayRulesetVersion).toBe(BALANCE_GAMEPLAY_RULESET_VERSION);
-    expect(first.dailyScoreVersion).toBe(BALANCE_DAILY_SCORE_VERSION);
+    expect(first.gameplayRulesetVersion).toBe(CURRENT_AUTHORITY_VERSION.gameplay);
+    expect(first.contentHash).toBe(CURRENT_AUTHORITY_VERSION.contentHash);
+    expect(first.dailyScoreVersion).toBe(CURRENT_AUTHORITY_VERSION.dailyScore);
     expect(first.curves.map((curve) => curve.difficulty)).toEqual(['easy', 'normal', 'hard']);
 
     const [easy, normal, hard] = first.curves;
