@@ -43,7 +43,10 @@ async function installPresentationRunFixture(
   await page.evaluate(
     async ({ championId, opponentId }) => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
-      const started = await useRunStore.getState().startRun([championId], { seed: 20260813 });
+      const companionId = championId === 'Garen' ? 'Lux' : 'Garen';
+      const started = await useRunStore
+        .getState()
+        .startRun([championId, companionId], { seed: 20260813 });
       if (!started.success) throw new Error(`Unable to start fixture run: ${started.code}`);
 
       const encounter = {
