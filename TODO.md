@@ -484,7 +484,7 @@ playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
   budget de formation ennemi autour de ×1 / ×1,55 / ×2.
 - [x] Affecter les runes par champion avec budget partagé, ou rendre leur effet unique
   au niveau équipe ; empêcher la multiplication implicite par le nombre de starters.
-- [ ] Réduire Grasp ou le réinitialiser par combat ; point de départ : +2 DEF/+15 PV,
+- [x] Réduire Grasp ou le réinitialiser par combat ; point de départ : +2 DEF/+15 PV,
   cinq déclenchements maximum.
 
 ### Acceptation

@@ -235,6 +235,37 @@ describe('bus commun de combat', () => {
     });
   });
 
+  it('limite Grasp à cinq petits cumuls et le réinitialise au combat suivant', () => {
+    const source = actor();
+    const target = actor({ id: 'Darius', side: 'enemy' });
+    const actors = [source, target];
+    const first = new CombatRuleRuntime(loadout({ runeIds: ['grasp_of_the_undying'] }));
+    first.dispatch({ type: 'battle_start', actors });
+    for (let turn = 4; turn <= 28; turn += 4) {
+      first.dispatch({ type: 'turn_start', actor: source, actors, turn });
+    }
+    expect(first.getStatBonuses(source.id)).toEqual(
+      expect.arrayContaining([
+        { stat: 'def', flat: 10, percent: 0 },
+        { stat: 'hp', flat: 75, percent: 0 },
+      ]),
+    );
+    expect(first.getRuneStacks()).toEqual({});
+
+    const second = new CombatRuleRuntime(
+      loadout({ runeIds: ['grasp_of_the_undying'], runeStacks: first.getRuneStacks() }),
+    );
+    second.dispatch({ type: 'battle_start', actors });
+    expect(second.getStatBonuses(source.id)).toEqual([]);
+    second.dispatch({ type: 'turn_start', actor: source, actors, turn: 4 });
+    expect(second.getStatBonuses(source.id)).toEqual(
+      expect.arrayContaining([
+        { stat: 'def', flat: 2, percent: 0 },
+        { stat: 'hp', flat: 15, percent: 0 },
+      ]),
+    );
+  });
+
   it('résout on-hit, réduction, soin et consommables sans snapshot fictif', () => {
     const runtime = new CombatRuleRuntime(
       loadout({

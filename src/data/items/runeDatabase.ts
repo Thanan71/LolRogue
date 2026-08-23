@@ -218,19 +218,19 @@ const SCORCH: RuneDefinition = {
 const GRASP_OF_THE_UNDYING: RuneDefinition = {
   id: 'grasp_of_the_undying',
   name: 'Grasp of the Undying',
-  description: 'Tous les 4 tours, gagne définitivement +5 DEF et +30 PV.',
+  description: 'Tous les 4 tours, gagne +2 DEF et +15 PV pour ce combat (5 fois maximum).',
   iconUrl: '/assets/runes/grasp_of_the_undying.png',
   path: RunePath.Resolve,
   row: 0,
   condition: { type: RuneConditionType.EveryNTurns, param: 4 },
   bonus: {
     modifiers: [
-      { stat: 'def', value: 5, type: 'flat' },
-      { stat: 'hp', value: 30, type: 'flat' },
+      { stat: 'def', value: 2, type: 'flat' },
+      { stat: 'hp', value: 15, type: 'flat' },
     ],
     duration: 0,
     stacks: true,
-    maxStacks: 8,
+    maxStacks: 5,
   },
 };
 

@@ -54,6 +54,8 @@ function defaultMetrics(): RuneMetrics {
   };
 }
 
+const COMBAT_LOCAL_STACK_RUNE_IDS = new Set(['grasp_of_the_undying']);
+
 function mergeBonus(
   result: Map<StatKey, { flat: number; percent: number }>,
   stat: StatKey,
@@ -110,6 +112,7 @@ export class CombatRuleRuntime {
     for (const [championId, manager] of this.runeManagers) {
       for (const equipped of manager.runes) {
         if (equipped.rune.bonus.duration !== 0) continue;
+        if (COMBAT_LOCAL_STACK_RUNE_IDS.has(equipped.rune.id)) continue;
         const value = equipped.rune.bonus.stacks
           ? equipped.currentStacks
           : equipped.isActive
@@ -209,6 +212,7 @@ export class CombatRuleRuntime {
         if (rune) manager.equipRune(rune);
       }
       for (const equipped of manager.runes) {
+        if (COMBAT_LOCAL_STACK_RUNE_IDS.has(equipped.rune.id)) continue;
         const saved = this.loadout.runeStacks?.[actor.id]?.[equipped.rune.id] ?? 0;
         if (saved <= 0 || equipped.rune.bonus.duration !== 0) continue;
         equipped.currentStacks = equipped.rune.bonus.stacks
