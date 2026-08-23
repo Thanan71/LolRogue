@@ -37,6 +37,50 @@ export interface AuthorityCohortRun {
   readonly attempt: AuthorityRunAttempt;
   readonly trace: readonly AuthorityRunCommand[];
   readonly result: AuthorityReplayResult;
+  readonly observations: AuthorityCohortRunObservations;
+}
+
+export interface AuthorityCohortShopOfferObservation {
+  readonly id: string;
+  readonly cost: number;
+  readonly legal: boolean;
+  readonly affordable: boolean;
+}
+
+export interface AuthorityCohortShopVisitObservation {
+  readonly commandIndex: number;
+  readonly nodeId: string;
+  readonly encounterId: string;
+  readonly biome: AuthorityRunSnapshot['currentBiome'];
+  readonly goldOnEntry: number;
+  readonly itemOffers: readonly AuthorityCohortShopOfferObservation[];
+  readonly recruitOffers: readonly AuthorityCohortShopOfferObservation[];
+}
+
+export interface AuthorityCohortPurchaseObservation {
+  readonly commandIndex: number;
+  readonly nodeId: string;
+  readonly itemId: string;
+  readonly offeredCost: number | null;
+  readonly goldSpent: number;
+  readonly completed: boolean;
+}
+
+export interface AuthorityCohortRecruitmentObservation {
+  readonly commandIndex: number;
+  readonly nodeId: string;
+  readonly encounterId: string | null;
+  readonly championId: string;
+  readonly source: 'shop' | 'encounter' | 'event';
+  readonly offeredCost: number | null;
+  readonly goldSpent: number;
+  readonly succeeded: boolean;
+}
+
+export interface AuthorityCohortRunObservations {
+  readonly shopVisits: readonly AuthorityCohortShopVisitObservation[];
+  readonly purchases: readonly AuthorityCohortPurchaseObservation[];
+  readonly recruitments: readonly AuthorityCohortRecruitmentObservation[];
 }
 
 export interface AuthorityCohortResult {
@@ -185,6 +229,125 @@ function decisionFingerprint(snapshot: AuthorityRunSnapshot, next: AuthorityRunC
   return stableSerialize([semanticSnapshot, semanticCommand]);
 }
 
+function captureShopVisit(
+  snapshot: AuthorityRunSnapshot,
+  commandIndex: number,
+): AuthorityCohortShopVisitObservation | null {
+  const pending = snapshot.pendingEncounter;
+  if (!pending || pending.nodeType !== 'shop') return null;
+  return {
+    commandIndex,
+    nodeId: pending.nodeId,
+    encounterId: pending.encounterId,
+    biome: snapshot.currentBiome,
+    goldOnEntry: snapshot.gold,
+    itemOffers: pending.itemOffers.map((offer) => ({
+      id: offer.itemId,
+      cost: offer.cost,
+      legal: offer.legal,
+      affordable: !offer.consumed && offer.legal && offer.cost <= snapshot.gold,
+    })),
+    recruitOffers: pending.recruitOffers.map((offer) => ({
+      id: offer.championId,
+      cost: offer.cost,
+      legal: offer.legal,
+      affordable: !offer.consumed && offer.legal && offer.cost <= snapshot.gold,
+    })),
+  };
+}
+
+function newlyAddedChampionIds(
+  before: AuthorityRunSnapshot,
+  after: AuthorityRunSnapshot,
+): string[] {
+  const previous = new Set(before.team.map((member) => member.championId));
+  return after.team
+    .map((member) => member.championId)
+    .filter((championId) => !previous.has(championId));
+}
+
+function captureAcceptedCommandObservations(input: {
+  command: AuthorityRunCommand;
+  commandIndex: number;
+  before: AuthorityRunSnapshot;
+  after: AuthorityRunSnapshot;
+  purchases: AuthorityCohortPurchaseObservation[];
+  recruitments: AuthorityCohortRecruitmentObservation[];
+}): void {
+  const { command, commandIndex, before, after, purchases, recruitments } = input;
+  const pending = before.pendingEncounter;
+  const goldSpent = Math.max(0, before.gold - after.gold);
+
+  if (command.kind === 'shop_buy_item') {
+    const beforeShop = pending?.nodeType === 'shop' ? pending : null;
+    const afterShop = after.pendingEncounter?.nodeType === 'shop' ? after.pendingEncounter : null;
+    purchases.push({
+      commandIndex,
+      nodeId: command.payload.node_id,
+      itemId: command.payload.item_id,
+      offeredCost:
+        beforeShop?.itemOffers.find((offer) => offer.itemId === command.payload.item_id)?.cost ??
+        null,
+      goldSpent,
+      completed:
+        after.inventory.some((entry) => entry.item.id === command.payload.item_id) ||
+        afterShop?.itemOffers.some(
+          (offer) => offer.itemId === command.payload.item_id && offer.consumed,
+        ) === true,
+    });
+    return;
+  }
+
+  if (command.kind === 'shop_recruit') {
+    const beforeShop = pending?.nodeType === 'shop' ? pending : null;
+    recruitments.push({
+      commandIndex,
+      nodeId: command.payload.node_id,
+      encounterId: beforeShop?.encounterId ?? null,
+      championId: command.payload.champion_id,
+      source: 'shop',
+      offeredCost:
+        beforeShop?.recruitOffers.find((offer) => offer.championId === command.payload.champion_id)
+          ?.cost ?? null,
+      goldSpent,
+      succeeded: newlyAddedChampionIds(before, after).includes(command.payload.champion_id),
+    });
+    return;
+  }
+
+  if (command.kind === 'recruit') {
+    const beforeRecruit = pending?.nodeType === 'recruit' ? pending : null;
+    recruitments.push({
+      commandIndex,
+      nodeId: command.payload.node_id,
+      encounterId: beforeRecruit?.encounterId ?? null,
+      championId: beforeRecruit?.championId ?? 'unknown',
+      source: 'encounter',
+      offeredCost: beforeRecruit?.cost ?? null,
+      goldSpent,
+      succeeded:
+        beforeRecruit !== null &&
+        newlyAddedChampionIds(before, after).includes(beforeRecruit.championId),
+    });
+    return;
+  }
+
+  if (command.kind === 'event') {
+    for (const championId of newlyAddedChampionIds(before, after)) {
+      recruitments.push({
+        commandIndex,
+        nodeId: command.payload.node_id,
+        encounterId: pending?.nodeType === 'event' ? pending.encounterId : null,
+        championId,
+        source: 'event',
+        offeredCost: null,
+        goldSpent,
+        succeeded: true,
+      });
+    }
+  }
+}
+
 function failSimulation(input: {
   code: AuthorityCohortFailureCode;
   message: string;
@@ -236,6 +399,10 @@ export function simulateAuthorityCohort({
   const stratum = createAuthorityCohortStratum(scenario, policy.manifest);
   const runs = seeds.map((seed): AuthorityCohortRun => {
     const trace: AuthorityRunCommand[] = [];
+    const shopVisits: AuthorityCohortShopVisitObservation[] = [];
+    const purchases: AuthorityCohortPurchaseObservation[] = [];
+    const recruitments: AuthorityCohortRecruitmentObservation[] = [];
+    const visitedShopNodeIds = new Set<string>();
     let lastSnapshot: AuthorityRunSnapshot | null = null;
     let startedAt = 0;
 
@@ -266,6 +433,13 @@ export function simulateAuthorityCohort({
         lastSnapshot = session.getResult().snapshot;
         if (lastSnapshot.terminal) break;
         assertWithinDeadline();
+        if (!visitedShopNodeIds.has(lastSnapshot.currentNodeId ?? '')) {
+          const visit = captureShopVisit(lastSnapshot, trace.length);
+          if (visit) {
+            visitedShopNodeIds.add(visit.nodeId);
+            shopVisits.push(visit);
+          }
+        }
         if (trace.length >= limits.maxCommands) {
           failSimulation({
             code: 'command_limit',
@@ -280,7 +454,9 @@ export function simulateAuthorityCohort({
           });
         }
 
-        const next = policy.nextCommand(lastSnapshot);
+        const commandIndex = trace.length;
+        const beforeCommand = lastSnapshot;
+        const next = policy.nextCommand(beforeCommand);
         if (next === null) {
           failSimulation({
             code: 'policy_stopped',
@@ -311,6 +487,15 @@ export function simulateAuthorityCohort({
         seenDecisions.add(fingerprint);
         trace.push(next);
         session.append(next);
+        lastSnapshot = session.getResult().snapshot;
+        captureAcceptedCommandObservations({
+          command: next,
+          commandIndex,
+          before: beforeCommand,
+          after: lastSnapshot,
+          purchases,
+          recruitments,
+        });
         assertWithinDeadline();
       }
 
@@ -350,6 +535,11 @@ export function simulateAuthorityCohort({
         attempt,
         trace,
         result: verification.result,
+        observations: {
+          shopVisits,
+          purchases,
+          recruitments,
+        },
       };
     } catch (error) {
       if (error instanceof AuthorityCohortSimulationError) throw error;

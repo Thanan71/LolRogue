@@ -142,6 +142,147 @@ describe('authority cohort simulation', () => {
     }
   });
 
+  it('captures shop affordability and accepted purchase/recruitment commands', () => {
+    const initial = resultWithSnapshot({
+      currentNodeId: 'shop-1',
+      expectedNodeIds: [],
+      gold: 100,
+      pendingEncounter: {
+        nodeId: 'shop-1',
+        nodeType: 'shop',
+        encounterId: 'top-shop',
+        claimed: false,
+        itemOffers: [
+          { itemId: 'long_sword', cost: 80, consumed: false, legal: true },
+          { itemId: 'infinity_edge', cost: 50, consumed: false, legal: false },
+        ],
+        recruitOffers: [
+          { championId: 'Lux', cost: 20, consumed: false, legal: true },
+          { championId: 'Ashe', cost: 10, consumed: false, legal: false },
+        ],
+      },
+    });
+    const runtime = fakeRuntime({
+      initial,
+      append(result, command) {
+        const snapshot = result.snapshot;
+        if (command.kind === 'shop_buy_item') {
+          if (snapshot.pendingEncounter?.nodeType !== 'shop') throw new Error('shop missing');
+          return resultWithSnapshot({
+            ...snapshot,
+            gold: 20,
+            nextSequence: snapshot.nextSequence + 1,
+            pendingEncounter: {
+              ...snapshot.pendingEncounter,
+              itemOffers: snapshot.pendingEncounter.itemOffers.map((offer) =>
+                offer.itemId === command.payload.item_id
+                  ? { ...offer, consumed: true, legal: false }
+                  : offer,
+              ),
+            },
+          });
+        }
+        if (command.kind === 'shop_recruit') {
+          if (snapshot.pendingEncounter?.nodeType !== 'shop') throw new Error('shop missing');
+          return resultWithSnapshot({
+            ...snapshot,
+            gold: 0,
+            nextSequence: snapshot.nextSequence + 1,
+            team: [
+              ...snapshot.team,
+              { ...snapshot.team[0]!, championId: command.payload.champion_id },
+            ],
+            pendingEncounter: {
+              ...snapshot.pendingEncounter,
+              recruitOffers: snapshot.pendingEncounter.recruitOffers.map((offer) =>
+                offer.championId === command.payload.champion_id
+                  ? { ...offer, consumed: true, legal: false }
+                  : offer,
+              ),
+            },
+          });
+        }
+        return resultWithSnapshot({
+          ...snapshot,
+          terminal: true,
+          endReason: 'defeat',
+          pendingEncounter: null,
+          pendingNodeType: null,
+          nextSequence: snapshot.nextSequence + 1,
+        });
+      },
+    });
+    const policy = policyWith((snapshot): AuthorityRunCommand => {
+      const shop = snapshot.pendingEncounter;
+      if (shop?.nodeType === 'shop') {
+        if (!shop.itemOffers.find((offer) => offer.itemId === 'long_sword')?.consumed) {
+          return {
+            sequence: snapshot.nextSequence,
+            kind: 'shop_buy_item',
+            payload: { node_id: shop.nodeId, item_id: 'long_sword' },
+          };
+        }
+        if (!shop.recruitOffers.find((offer) => offer.championId === 'Lux')?.consumed) {
+          return {
+            sequence: snapshot.nextSequence,
+            kind: 'shop_recruit',
+            payload: { node_id: shop.nodeId, champion_id: 'Lux' },
+          };
+        }
+      }
+      return { sequence: snapshot.nextSequence, kind: 'abandon_run', payload: {} };
+    });
+
+    const cohort = simulateAuthorityCohort({
+      authority: runtime,
+      policy,
+      scenario: TERMINAL_SCENARIO,
+      seeds: [109],
+    });
+
+    expect(cohort.runs[0]?.observations).toEqual({
+      shopVisits: [
+        {
+          commandIndex: 0,
+          nodeId: 'shop-1',
+          encounterId: 'top-shop',
+          biome: initial.snapshot.currentBiome,
+          goldOnEntry: 100,
+          itemOffers: [
+            { id: 'long_sword', cost: 80, legal: true, affordable: true },
+            { id: 'infinity_edge', cost: 50, legal: false, affordable: false },
+          ],
+          recruitOffers: [
+            { id: 'Lux', cost: 20, legal: true, affordable: true },
+            { id: 'Ashe', cost: 10, legal: false, affordable: false },
+          ],
+        },
+      ],
+      purchases: [
+        {
+          commandIndex: 0,
+          nodeId: 'shop-1',
+          itemId: 'long_sword',
+          offeredCost: 80,
+          goldSpent: 80,
+          completed: true,
+        },
+      ],
+      recruitments: [
+        {
+          commandIndex: 1,
+          nodeId: 'shop-1',
+          encounterId: 'top-shop',
+          championId: 'Lux',
+          source: 'shop',
+          offeredCost: 20,
+          goldSpent: 20,
+          succeeded: true,
+        },
+      ],
+    });
+  });
+
   it('rejects invalid safety-limit configuration before starting a cohort', () => {
     expect(() =>
       simulateAuthorityCohort({

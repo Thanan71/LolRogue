@@ -427,7 +427,7 @@ que 2,42 rounds.
   la seed pour chaque échec.
 - [x] Stratifier chaque cohorte par difficulté × taille/composition d'équipe ×
   maîtrise/runes/enhancements × politique.
-- [ ] Produire au minimum : victoire avec intervalle Wilson, vagues/biomes p10-p50-p90,
+- [x] Produire au minimum : victoire avec intervalle Wilson, vagues/biomes p10-p50-p90,
   biome/encounter de mort, rounds, PV/MP, dégâts/soins/CC, or gagné/dépensé,
   affordability, achats, recrues, drops par rareté et choix d'augments.
 - [ ] Indexer la baseline JSON par moteur, `contentHash`, version du modèle et version
