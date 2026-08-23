@@ -1,10 +1,12 @@
 import { championDB } from '@/data';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import type { InventoryEntry } from '@/types/run';
+import { assignTeamRuneBudget } from '@/game/runes/runeAssignment';
 import type { CombatRuleLoadout } from './types';
 
 export function buildCombatRuleLoadout(input: {
   championIds: readonly string[];
+  runeOwnerChampionIds?: readonly string[];
   runeIds: readonly string[];
   runeStacks?: Record<string, Record<string, number>>;
   augmentIds: readonly string[];
@@ -25,6 +27,11 @@ export function buildCombatRuleLoadout(input: {
   }
   return {
     runeIds: [...input.runeIds],
+    runeAssignments: Object.fromEntries(
+      Object.entries(
+        assignTeamRuneBudget(input.runeOwnerChampionIds ?? input.championIds, input.runeIds),
+      ).map(([championId, runeIds]) => [championId, [...runeIds]]),
+    ),
     runeStacks: input.runeStacks,
     augmentIds: [...input.augmentIds],
     inventory: [...input.inventory],

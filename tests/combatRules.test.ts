@@ -53,8 +53,10 @@ function entry(id: string, championId = 'Garen'): InventoryEntry {
 }
 
 function loadout(overrides: Partial<CombatRuleLoadout> = {}): CombatRuleLoadout {
+  const runeIds = overrides.runeIds ?? [];
   return {
-    runeIds: [],
+    runeIds,
+    runeAssignments: Object.fromEntries(runeIds.length > 0 ? [['Garen', runeIds]] : []),
     augmentIds: [],
     inventory: [],
     enhancementEffects: {},

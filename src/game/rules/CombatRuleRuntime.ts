@@ -202,8 +202,9 @@ export class CombatRuleRuntime {
 
   private onBattleStart(actors: CombatRuleActor[], resolution: CombatRuleResolution): void {
     for (const actor of actors.filter((candidate) => candidate.side === 'player')) {
-      const manager = new RuneManager(this.loadout.runeIds.length);
-      for (const runeId of this.loadout.runeIds) {
+      const assignedRuneIds = this.loadout.runeAssignments[actor.id] ?? [];
+      const manager = new RuneManager(assignedRuneIds.length);
+      for (const runeId of assignedRuneIds) {
         const rune = RUNE_DATABASE[runeId];
         if (rune) manager.equipRune(rune);
       }
@@ -508,7 +509,7 @@ export class CombatRuleRuntime {
     const metrics = this.getMetrics(source.id);
     metrics.kills++;
     this.evaluateRunes(source, actors, 'kill');
-    if (this.loadout.runeIds.includes('triumph')) {
+    if (this.hasRune(source.id, 'triumph')) {
       resolution.instantEffects.push(
         this.effect('heal', source.id, source.id, source.maxHp * 0.12),
       );
@@ -536,7 +537,7 @@ export class CombatRuleRuntime {
 
   private beforeDefeat(actor: CombatRuleActor, resolution: CombatRuleResolution): void {
     if (actor.side !== 'player') return;
-    if (this.loadout.runeIds.includes('e2e_assured_victory')) {
+    if (this.hasRune(actor.id, 'e2e_assured_victory')) {
       resolution.preventDefeatHp = actor.maxHp;
       return;
     }
@@ -570,6 +571,13 @@ export class CombatRuleRuntime {
     event: RuneEvaluationEvent,
   ): void {
     this.evaluateRuneEvents(actor, actors, [event]);
+  }
+
+  private hasRune(championId: string, runeId: string): boolean {
+    return (
+      this.runeManagers.get(championId)?.runes.some((equipped) => equipped.rune.id === runeId) ??
+      false
+    );
   }
 
   private evaluateRuneEvents(

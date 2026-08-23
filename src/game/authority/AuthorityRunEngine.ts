@@ -528,6 +528,7 @@ class AuthorityReplayState {
       rules: new CombatRuleRuntime(
         buildCombatRuleLoadout({
           championIds: this.team.map((member) => member.championId),
+          runeOwnerChampionIds: this.attempt.team.map((member) => member.championId),
           runeIds: this.attempt.runeIds,
           runeStacks: this.runeStacks,
           augmentIds: this.augmentIds,

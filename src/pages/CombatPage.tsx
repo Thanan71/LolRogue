@@ -169,6 +169,9 @@ export function CombatPage() {
     () =>
       buildCombatRuleLoadout({
         championIds: team.map((member) => member.championId),
+        runeOwnerChampionIds:
+          authorityAttempt?.initialTeam ??
+          team.slice(0, getRequiredStarterCount(runMode)).map((member) => member.championId),
         runeIds,
         runeStacks,
         augmentIds,
@@ -180,7 +183,16 @@ export function CombatPage() {
               {})
             : (enhancementStates[championId]?.unlockedNodes ?? {}),
       }),
-    [augmentIds, authorityAttempt, enhancementStates, inventory, runeIds, runeStacks, team],
+    [
+      augmentIds,
+      authorityAttempt,
+      enhancementStates,
+      inventory,
+      runeIds,
+      runeStacks,
+      runMode,
+      team,
+    ],
   );
 
   const playerInstances = useMemo(() => {

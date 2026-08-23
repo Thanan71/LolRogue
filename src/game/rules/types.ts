@@ -87,6 +87,8 @@ export interface CombatRuleResolution {
 
 export interface CombatRuleLoadout {
   runeIds: string[];
+  /** Every rune ID appears under exactly one immutable starter champion. */
+  runeAssignments: Record<string, string[]>;
   runeStacks?: Record<string, Record<string, number>>;
   augmentIds: string[];
   inventory: InventoryEntry[];
@@ -96,6 +98,7 @@ export interface CombatRuleLoadout {
 
 export const EMPTY_COMBAT_RULE_LOADOUT: CombatRuleLoadout = {
   runeIds: [],
+  runeAssignments: {},
   augmentIds: [],
   inventory: [],
   enhancementEffects: {},

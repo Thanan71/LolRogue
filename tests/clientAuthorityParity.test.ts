@@ -199,6 +199,7 @@ function resolveFirstClientCombat(mode: 'manual' | 'autoplay'): void {
       rules: new CombatRuleRuntime(
         buildCombatRuleLoadout({
           championIds: before.team.map((member) => member.championId),
+          runeOwnerChampionIds: before.authorityAttempt?.initialTeam,
           runeIds: before.runeIds,
           runeStacks: before.runeStacks,
           augmentIds: before.augmentIds,
