@@ -517,7 +517,7 @@ différents.
 - [x] Recalibrer Gold autour de +12–15 % et Prism autour de +22–25 %.
 - [x] Ramener l'or/combat Silver/Gold/Prism autour de 15–20 / 35–45 / 60–75 ;
   plafonner la remise Prism à 10 %.
-- [ ] Utiliser une table de rareté explicite : common 55 %, uncommon 25 %, epic 15 %,
+- [x] Utiliser une table de rareté explicite : common 55 %, uncommon 25 %, epic 15 %,
   legendary 5 %, puis tirer l'item dans la rareté.
 - [ ] Gater le tier 2 par biome : Top 0 %, Jungle/Mid 10 %, Bot 20 %, River 30 %,
   boss final garanti ou table dédiée.

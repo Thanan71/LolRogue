@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
-import { AugmentEffectType } from '@/types/inventory';
+import { ITEM_DATABASE } from '@/data/items/itemDatabase';
+import { drawItemDefinitionByRarity, ITEM_DROP_RARITY_WEIGHTS } from '@/game/run/itemDropRules';
+import { AugmentEffectType, ItemRarity } from '@/types/inventory';
 
 function flatStat(augmentId: string): number | undefined {
   return AUGMENT_DATABASE[augmentId]?.effects.find(
@@ -59,5 +61,26 @@ describe('P0-BAL-04 economy balance', () => {
         (effect) => effect.type === AugmentEffectType.ShopDiscount,
       )?.percentValue,
     ).toBe(0.1);
+  });
+
+  it('draws an explicit weighted rarity before a uniform item within that rarity', () => {
+    expect(ITEM_DROP_RARITY_WEIGHTS).toEqual({
+      [ItemRarity.Common]: 55,
+      [ItemRarity.Uncommon]: 25,
+      [ItemRarity.Epic]: 15,
+      [ItemRarity.Legendary]: 5,
+    });
+
+    const values = [0.96, 0.5];
+    const legendary = drawItemDefinitionByRarity(
+      Object.values(ITEM_DATABASE),
+      () => values.shift()!,
+    );
+    const legendaryIds = Object.values(ITEM_DATABASE)
+      .filter((item) => item.rarity === ItemRarity.Legendary)
+      .map((item) => item.id)
+      .sort();
+    expect(legendary?.rarity).toBe(ItemRarity.Legendary);
+    expect(legendary?.id).toBe(legendaryIds[Math.floor(0.5 * legendaryIds.length)]);
   });
 });

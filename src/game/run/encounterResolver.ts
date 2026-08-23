@@ -19,6 +19,7 @@ import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateXpGain } from '@/utils/xpSystem';
 import { DIFFICULTY_RULES } from './difficultyRules';
 import { getStarterBudgetProfile } from './starterBudget';
+import { drawItemDefinitionByRarity } from './itemDropRules';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
@@ -144,7 +145,7 @@ function resolveDrop(
   if (eligible.length === 0) {
     return { droppedItem: null, dropBlockedByCapacity: true };
   }
-  const definition = eligible[Math.floor(rng.next() * eligible.length)];
+  const definition = drawItemDefinitionByRarity(eligible, () => rng.next());
   return {
     droppedItem: definition ? itemDefinitionToRunItem(definition) : null,
     dropBlockedByCapacity: false,
