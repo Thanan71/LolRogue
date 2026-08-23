@@ -285,12 +285,12 @@ describeWithSupabase('verified run attempt live security', () => {
 
       const oversizedStarter = await userClient.rpc('start_run_attempt', {
         p_command_id: randomUUID(),
-        p_team: ['Garen', 'Annie'],
+        p_team: ['Garen', 'Annie', 'Ashe', 'Lux'],
         p_rune_ids: [],
         p_difficulty: 'normal',
         p_mode: 'normal',
       });
-      expect(oversizedStarter.error?.message).toContain('starter_slots_locked');
+      expect(oversizedStarter.error?.message).toContain('invalid_starter_count');
 
       const nonKeystoneRune = await userClient.rpc('start_run_attempt', {
         p_command_id: randomUUID(),

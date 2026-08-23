@@ -5,7 +5,7 @@ import { ROUTES } from '@/config/routes';
 import { implementedChampions } from '@/data/champion';
 import { championDB } from '@/data/championDatabase';
 import { getKeystoneRunes } from '@/data/items/runeDatabase';
-import { getUnlockedStarterSlotCount } from '@/game/run/runStartValidation';
+import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { getStarterPersonalization } from '@/services/masteryService';
@@ -80,14 +80,8 @@ export function StarterSelectPage() {
     starterPersonalization.rosterOfferSize,
     starterRerollsUsed,
   ]);
-  const unlockedStarterSlots = useMemo(
-    () =>
-      getUnlockedStarterSlotCount(
-        Object.values(masteryChampions).flatMap((mastery) => mastery.unlockedIds),
-      ),
-    [masteryChampions],
-  );
-  const starterSlotLimit = isDaily ? 1 : unlockedStarterSlots;
+  const starterSlotLimit =
+    resumableStart?.team.length ?? getRequiredStarterCount(isDaily ? 'daily' : 'normal');
   const [selectedStarterIds, setSelectedStarterIds] = useState<string[]>(
     resumableStart?.team ?? [],
   );
@@ -149,7 +143,7 @@ export function StarterSelectPage() {
 
   async function handleConfirm() {
     playUIClick();
-    if (selectedStarterIds.length === 0) return;
+    if (selectedStarterIds.length !== starterSlotLimit) return;
     setError(null);
     setIsStarting(true);
 
@@ -216,7 +210,7 @@ export function StarterSelectPage() {
       }
       if (current.length >= starterSlotLimit) {
         setError(
-          `Tu disposes de ${starterSlotLimit} slot${starterSlotLimit > 1 ? 's' : ''} de départ.`,
+          `Cette run exige exactement ${starterSlotLimit} starter${starterSlotLimit > 1 ? 's' : ''}.`,
         );
         return current;
       }
@@ -248,7 +242,7 @@ export function StarterSelectPage() {
           ? 'Une tentative vérifiée interrompue est prête à reprendre avec ses choix d’origine.'
           : isDaily
             ? 'Tous les joueurs affrontent la même seed quotidienne · 1 starter'
-            : `Run normale : ta difficulté et tes choix · sélectionne jusqu’à ${unlockedStarterSlots} champion(s)${isGuest ? ' · sauvegarde sur cet appareil uniquement' : ''}`}
+            : `Run normale : ta difficulté et tes choix · sélectionne exactement ${starterSlotLimit} champions${isGuest ? ' · sauvegarde sur cet appareil uniquement' : ''}`}
       </p>
 
       <div className="starter-select__journey" aria-label="Étapes de préparation">
@@ -375,7 +369,9 @@ export function StarterSelectPage() {
           <button
             className="starter-select__confirm"
             type="button"
-            disabled={selectedStarterIds.length === 0 || isStarting || isLoadingDaily}
+            disabled={
+              selectedStarterIds.length !== starterSlotLimit || isStarting || isLoadingDaily
+            }
             onClick={() => void handleConfirm()}
           >
             {isLoadingDaily

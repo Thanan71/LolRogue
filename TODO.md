@@ -476,7 +476,7 @@ playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
   côté contrat DB **et** côté moteur, avec règles/runes versionnées et identiques.
 - [ ] Ajouter un test contractuel « compte neuf = compte maxé » à seed et commandes
   identiques, jusqu'au score terminal.
-- [ ] Donner le même nombre de starters à toutes les runs comparables ; recommandation
+- [x] Donner le même nombre de starters à toutes les runs comparables ; recommandation
   de départ : deux starters par défaut en Normal, un starter normalisé en Daily.
 - [x] Transformer la maîtrise en largeur de roster, reroll ou cosmétique plutôt qu'en
   avantage de taille d'équipe pour les modes classés.

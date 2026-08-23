@@ -1,14 +1,16 @@
 import { MAX_TEAM_SIZE } from '@/types/run';
+import type { AuthorityRunMode } from '@/types/runAttempt';
 import { validateTeamChampionIds } from './teamRules';
 
-const STARTER_SLOT_UNLOCKS = ['starter_slot_2', 'starter_slot_3'] as const;
+export const NORMAL_STARTER_COUNT = 2;
+export const DAILY_STARTER_COUNT = 1;
 
 type RunStartTeamErrorCode =
   | 'invalid_team_size'
   | 'duplicate_champion'
   | 'unknown_champion'
   | 'unsupported_champion'
-  | 'starter_slots_locked';
+  | 'invalid_starter_count';
 
 export type RunStartTeamValidation =
   | { valid: true; championIds: string[]; error: null; code: null }
@@ -19,18 +21,13 @@ export type RunStartTeamValidation =
       code: RunStartTeamErrorCode;
     };
 
-export function getUnlockedStarterSlotCount(unlockedIds: Iterable<string>): number {
-  const unlocks = new Set(unlockedIds);
-  let slots = 1;
-  for (const unlockId of STARTER_SLOT_UNLOCKS) {
-    if (unlocks.has(unlockId)) slots += 1;
-  }
-  return Math.min(slots, MAX_TEAM_SIZE);
+export function getRequiredStarterCount(mode: AuthorityRunMode): 1 | 2 {
+  return mode === 'daily' ? DAILY_STARTER_COUNT : NORMAL_STARTER_COUNT;
 }
 
 export function validateRunStartTeam(
   requestedChampionIds: readonly string[],
-  unlockedStarterSlots: number,
+  requiredStarterCount: number,
 ): RunStartTeamValidation {
   if (requestedChampionIds.length < 1 || requestedChampionIds.length > MAX_TEAM_SIZE) {
     return {
@@ -55,12 +52,12 @@ export function validateRunStartTeam(
   }
   const canonicalIds = teamValidation.value;
 
-  if (canonicalIds.length > unlockedStarterSlots) {
+  if (canonicalIds.length !== requiredStarterCount) {
     return {
       valid: false,
       championIds: [],
-      error: `Only ${unlockedStarterSlots} starting team slot${unlockedStarterSlots === 1 ? ' is' : 's are'} unlocked.`,
-      code: 'starter_slots_locked',
+      error: `This mode requires exactly ${requiredStarterCount} starter${requiredStarterCount === 1 ? '' : 's'}.`,
+      code: 'invalid_starter_count',
     };
   }
 

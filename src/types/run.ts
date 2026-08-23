@@ -280,7 +280,7 @@ export type RunLifecycleErrorCode =
   | 'duplicate_champion'
   | 'unknown_champion'
   | 'unsupported_champion'
-  | 'starter_slots_locked'
+  | 'invalid_starter_count'
   | 'secure_command_unavailable'
   | 'start_failed'
   | 'account_changed'

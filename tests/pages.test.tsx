@@ -388,6 +388,8 @@ describe('P2 page smoke tests', () => {
     expect(confirm).toBeDisabled();
 
     fireEvent.click(screen.getAllByRole('button', { name: /^Choisir /i })[0]);
+    expect(confirm).toBeDisabled();
+    fireEvent.click(screen.getAllByRole('button', { name: /^Choisir /i })[1]);
     expect(confirm).toBeEnabled();
     expect(screen.getByText(/sélectionné$/i)).toBeInTheDocument();
 

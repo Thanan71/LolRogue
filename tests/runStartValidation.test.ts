@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getUnlockedStarterSlotCount, validateRunStartTeam } from '@/game/run/runStartValidation';
+import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 
 describe('run start team validation', () => {
   it('rejects empty, duplicate, unknown and unsupported teams instead of filtering them', () => {
@@ -21,18 +21,23 @@ describe('run start team validation', () => {
     });
   });
 
-  it('enforces unlocked starter slots and returns canonical champion IDs', () => {
-    expect(getUnlockedStarterSlotCount([])).toBe(1);
-    expect(getUnlockedStarterSlotCount(['starter_slot_2'])).toBe(2);
-    expect(getUnlockedStarterSlotCount(['starter_slot_3', 'starter_slot_2'])).toBe(3);
+  it('enforces fixed comparable starter counts and returns canonical champion IDs', () => {
+    expect(getRequiredStarterCount('normal')).toBe(2);
+    expect(getRequiredStarterCount('daily')).toBe(1);
 
     expect(validateRunStartTeam(['Garen', 'Lux'], 1)).toMatchObject({
       valid: false,
-      code: 'starter_slots_locked',
+      code: 'invalid_starter_count',
     });
     expect(validateRunStartTeam(['garen', 'lux'], 2)).toEqual({
       valid: true,
       championIds: ['Garen', 'Lux'],
+      error: null,
+      code: null,
+    });
+    expect(validateRunStartTeam(['garen'], getRequiredStarterCount('daily'))).toEqual({
+      valid: true,
+      championIds: ['Garen'],
       error: null,
       code: null,
     });

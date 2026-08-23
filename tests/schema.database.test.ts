@@ -87,6 +87,13 @@ const retiredMasteryStarterSlotsSql = readFileSync(
   ),
   'utf8',
 );
+const normalizedRankedStarterCountsSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260823072320_normalize_ranked_starter_counts.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -199,6 +206,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260820152928_gameplay_ruleset_v14_combat_integrity.sql',
       '../supabase/migrations/20260820163214_gameplay_ruleset_v15_authority_cohorts.sql',
       '../supabase/migrations/20260823071901_retire_mastery_starter_slots.sql',
+      '../supabase/migrations/20260823072320_normalize_ranked_starter_counts.sql',
     ]);
   });
 
@@ -423,6 +431,17 @@ describe('Supabase existing database upgrade', () => {
     );
     expect(retiredMasteryStarterSlotsSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
     expect(retiredMasteryStarterSlotsSql).not.toMatch(/\bDELETE\s+FROM\b/i);
+  });
+
+  it('normalizes comparable starts independently from mastery progression', () => {
+    expect(normalizedRankedStarterCountsSql).toContain(
+      'CREATE FUNCTION public.comparable_starter_count',
+    );
+    expect(normalizedRankedStarterCountsSql).toContain("WHEN 'daily' THEN 1::SMALLINT");
+    expect(normalizedRankedStarterCountsSql).toContain("WHEN 'normal' THEN 2::SMALLINT");
+    expect(normalizedRankedStarterCountsSql).toContain("NEW.mode = 'daily' AND v_team_size <>");
+    expect(normalizedRankedStarterCountsSql).not.toContain("'starter_slot_2' = ANY");
+    expect(normalizedRankedStarterCountsSql).not.toContain("'starter_slot_3' = ANY");
   });
 
   it('increments mastery and spends enhancement candies atomically', () => {

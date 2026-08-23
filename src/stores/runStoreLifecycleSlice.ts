@@ -9,7 +9,7 @@ import {
 } from '@/game/run/runAuthorityJournal';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStartCoordinator';
-import { getUnlockedStarterSlotCount, validateRunStartTeam } from '@/game/run/runStartValidation';
+import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { shouldApplyRunRewards } from '@/game/run/runState';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { RunVerificationRejectedError } from '@/services/runAttemptService';
@@ -113,13 +113,11 @@ export function createRunLifecycleSlice(
             authUser && get().pendingAuthorityStart?.ownerUserId === authUser.id
               ? get().pendingAuthorityStart
               : null;
+          const mode = resumableStart?.mode ?? options.mode ?? 'normal';
           const requestedChampionIds = resumableStart?.team ?? championIds;
-          const unlockedIds = Object.values(useMasteryStore.getState().champions).flatMap(
-            (mastery) => mastery.unlockedIds,
-          );
           const teamValidation = validateRunStartTeam(
             requestedChampionIds,
-            getUnlockedStarterSlotCount(unlockedIds),
+            resumableStart ? requestedChampionIds.length : getRequiredStarterCount(mode),
           );
           if (!teamValidation.valid) {
             return startFailure(
@@ -131,7 +129,6 @@ export function createRunLifecycleSlice(
             championId: id,
           }));
 
-          const mode = resumableStart?.mode ?? options.mode ?? 'normal';
           let canonicalMode = mode;
           const requestedRuneIds = resumableStart
             ? [...resumableStart.runeIds]
