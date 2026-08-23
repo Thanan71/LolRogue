@@ -126,22 +126,22 @@ export const BIOME_DESIGN: Record<Biome, BiomeDesignProfile> = {
   },
 };
 
-export interface BalanceCurveRow {
+export interface CatalogDifficultyIndicators {
   difficulty: AuthorityDifficulty;
-  combatNodes: number;
-  meanEnemyPower: number;
-  meanGold: number;
-  meanDropChance: number;
+  combatNodeCount: number;
+  meanEncounterPower: number;
+  meanNodeGoldReward: number;
+  meanNodeDropChance: number;
 }
 
-export interface BalanceSimulationReport {
+export interface ContentCatalogAnalysis {
   modelVersion: number;
   gameplayRulesetVersion: number;
   contentHash: string;
   dailyScoreVersion: number;
-  seedCount: number;
-  curves: BalanceCurveRow[];
-  biomeNodeMix: Record<Biome, Record<string, number>>;
+  mapSeedCount: number;
+  difficultyIndicators: CatalogDifficultyIndicators[];
+  biomeNodeTypeCounts: Record<Biome, Record<string, number>>;
   economy: {
     minShopPrice: number;
     maxShopPrice: number;
@@ -152,8 +152,10 @@ export interface BalanceSimulationReport {
 
 const DIFFICULTIES: AuthorityDifficulty[] = ['easy', 'normal', 'hard'];
 
-export function simulateContentBalance(seedCount = 250): BalanceSimulationReport {
-  if (!Number.isInteger(seedCount) || seedCount < 1) throw new Error('seedCount must be positive.');
+export function analyzeContentCatalog(mapSeedCount = 250): ContentCatalogAnalysis {
+  if (!Number.isInteger(mapSeedCount) || mapSeedCount < 1) {
+    throw new Error('mapSeedCount must be positive.');
+  }
 
   const totals = Object.fromEntries(
     DIFFICULTIES.map((difficulty) => [
@@ -164,15 +166,16 @@ export function simulateContentBalance(seedCount = 250): BalanceSimulationReport
     AuthorityDifficulty,
     { combatNodes: number; enemyPower: number; gold: number; dropChance: number }
   >;
-  const biomeNodeMix = Object.fromEntries(
+  const biomeNodeTypeCounts = Object.fromEntries(
     BIOMES.map((biome) => [biome, {} as Record<string, number>]),
   ) as Record<Biome, Record<string, number>>;
 
-  for (let seed = 1; seed <= seedCount; seed++) {
+  for (let seed = 1; seed <= mapSeedCount; seed++) {
     const maps = generateRunMap(seed);
     for (const [biomeIndex, map] of maps.entries()) {
       for (const node of map.nodes) {
-        biomeNodeMix[map.biome][node.type] = (biomeNodeMix[map.biome][node.type] ?? 0) + 1;
+        biomeNodeTypeCounts[map.biome][node.type] =
+          (biomeNodeTypeCounts[map.biome][node.type] ?? 0) + 1;
         if (
           !node.encounter ||
           node.encounter.type !== 'combat' ||
@@ -212,18 +215,18 @@ export function simulateContentBalance(seedCount = 250): BalanceSimulationReport
     gameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,
     contentHash: CURRENT_AUTHORITY_VERSION.contentHash,
     dailyScoreVersion: CURRENT_AUTHORITY_VERSION.dailyScore,
-    seedCount,
-    curves: DIFFICULTIES.map((difficulty) => {
+    mapSeedCount,
+    difficultyIndicators: DIFFICULTIES.map((difficulty) => {
       const total = totals[difficulty];
       return {
         difficulty,
-        combatNodes: total.combatNodes,
-        meanEnemyPower: total.enemyPower / total.combatNodes,
-        meanGold: total.gold / total.combatNodes,
-        meanDropChance: total.dropChance / total.combatNodes,
+        combatNodeCount: total.combatNodes,
+        meanEncounterPower: total.enemyPower / total.combatNodes,
+        meanNodeGoldReward: total.gold / total.combatNodes,
+        meanNodeDropChance: total.dropChance / total.combatNodes,
       };
     }),
-    biomeNodeMix,
+    biomeNodeTypeCounts,
     economy: {
       minShopPrice: Math.min(...prices),
       maxShopPrice: Math.max(...prices),

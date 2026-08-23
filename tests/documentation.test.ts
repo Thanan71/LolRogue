@@ -190,6 +190,31 @@ describe('documentation maintenue', () => {
     expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');
   });
 
+  it("distingue l'analyse des catalogues des vraies runs d'équilibrage", () => {
+    const balance = read('docs/content-balance.md');
+    const matrix = read('docs/feature-status.md');
+
+    expect(balance).toContain('`analyzeContentCatalog()`');
+    expect(balance).toContain("un seed de carte analysé n'est donc pas une run");
+    expect(balance).toContain(
+      'Les vraies runs automatisées passent par `simulateAuthorityCohort()`',
+    );
+    expect(balance).toContain('restent des hypothèses');
+    expect(balance).toMatch(
+      /Cette analyse statique ne produit pas la\s+baseline authority de calibration/,
+    );
+    expect(balance).toMatch(/cohortes\s+authority versionnées/);
+    expect(balance).not.toContain('100 runs complètes');
+    expect(balance).not.toContain('30 runs scriptées');
+    expect(balance).not.toContain('playtest automatisé reproductible');
+
+    expect(matrix).toContain('contentCatalogAnalysis.test.ts');
+    expect(matrix).toContain('simulateAuthorityCohort');
+    expect(matrix).not.toContain('balanceSimulation.test.ts');
+    expect(matrix).not.toContain('Baseline v15');
+    expect(existsSync(resolve(root, 'tests/contentCatalogAnalysis.test.ts'))).toBe(true);
+  });
+
   it('documente la formule Daily réellement exécutée et sa version active', () => {
     const gameplay = read('docs/gameplay.md');
     const persistence = read('docs/data-and-persistence.md');

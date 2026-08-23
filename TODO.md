@@ -435,7 +435,7 @@ que 2,42 rounds.
 - [x] Exécuter 30–50 seeds par cellule en PR et 500–1 000 en nightly/release.
 - [x] Lire les versions gameplay/hash depuis le registre authority unique et le score
   Daily depuis une source machine unique ; supprimer les constantes parallèles.
-- [ ] Corriger `docs/content-balance.md` et renommer les métriques qui ne sont pas des
+- [x] Corriger `docs/content-balance.md` et renommer les métriques qui ne sont pas des
   simulations de runs.
 
 ### Gates initiales
