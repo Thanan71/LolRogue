@@ -440,7 +440,7 @@ que 2,42 rounds.
 
 ### Gates initiales
 
-- [ ] Zéro crash, deadlock, non-déterminisme ou divergence source/bundle.
+- [x] Zéro crash, deadlock, non-déterminisme ou divergence source/bundle.
 - [ ] Easy ≥ Normal ≥ Hard avec tolérance statistique, sans masquer les cohortes par
   taille d'équipe ou niveau méta.
 - [ ] Aucun starter à 0 % sur les premiers combats ; plage de travail : Normal

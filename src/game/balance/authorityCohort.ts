@@ -116,6 +116,12 @@ export interface AuthorityCohortMatrixResult {
   readonly cohorts: readonly AuthorityCohortResult[];
 }
 
+export interface GateAuthorityCohortDeterminismInput
+  extends Omit<SimulateAuthorityCohortMatrixInput, 'authority'> {
+  readonly sourceAuthority: AuthorityCohortRuntime;
+  readonly edgeAuthority: AuthorityCohortRuntime;
+}
+
 export interface AuthorityCohortSafetyLimits {
   readonly maxCommands: number;
   /** Cooperative deadline checked before and after each synchronous policy/authority call. */
@@ -594,4 +600,53 @@ export function simulateAuthorityCohortMatrix({
       return cohort;
     }),
   };
+}
+
+function assertMatchingCohortMatrices(
+  expected: AuthorityCohortMatrixResult,
+  actual: AuthorityCohortMatrixResult,
+  comparison: 'source replay' | 'source / Edge bundle',
+): void {
+  if (stableSerialize(expected) === stableSerialize(actual)) return;
+
+  const mismatchedIndex = expected.cohorts.findIndex(
+    (cohort, index) => stableSerialize(cohort) !== stableSerialize(actual.cohorts[index]),
+  );
+  const expectedCohort = expected.cohorts[mismatchedIndex];
+  const actualCohort = actual.cohorts[mismatchedIndex];
+  const mismatchedRunIndex = expectedCohort?.runs.findIndex(
+    (run, index) => stableSerialize(run) !== stableSerialize(actualCohort?.runs[index]),
+  );
+  const seed =
+    mismatchedRunIndex !== undefined && mismatchedRunIndex >= 0
+      ? expectedCohort?.runs[mismatchedRunIndex]?.seed
+      : undefined;
+  const location = expectedCohort
+    ? ` in cell "${expectedCohort.scenarioId}"${seed === undefined ? '' : ` for seed ${seed}`}`
+    : '';
+  throw new Error(`Authority cohort ${comparison} divergence${location}.`);
+}
+
+/**
+ * Initial balance safety gate: every paired cell/seed is executed twice by the source
+ * authority and once by the current Edge runtime. Cohort simulation already turns
+ * crashes, deadlines, deadlocks and incremental replay drift into hard failures; the
+ * exact matrix comparison additionally rejects nondeterminism and stale Edge bundles.
+ */
+export function gateAuthorityCohortDeterminism({
+  sourceAuthority,
+  edgeAuthority,
+  cells,
+  seeds,
+  limits,
+  now,
+}: GateAuthorityCohortDeterminismInput): AuthorityCohortMatrixResult {
+  const input = { cells, seeds, limits, now };
+  const firstSource = simulateAuthorityCohortMatrix({ authority: sourceAuthority, ...input });
+  const secondSource = simulateAuthorityCohortMatrix({ authority: sourceAuthority, ...input });
+  assertMatchingCohortMatrices(firstSource, secondSource, 'source replay');
+
+  const edge = simulateAuthorityCohortMatrix({ authority: edgeAuthority, ...input });
+  assertMatchingCohortMatrices(firstSource, edge, 'source / Edge bundle');
+  return firstSource;
 }
