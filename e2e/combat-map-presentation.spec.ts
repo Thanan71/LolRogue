@@ -48,6 +48,7 @@ async function installPresentationRunFixture(
         .getState()
         .startRun([championId, companionId], { seed: 20260813 });
       if (!started.success) throw new Error(`Unable to start fixture run: ${started.code}`);
+      const team = useRunStore.getState().team;
 
       const encounter = {
         id: 'presentation-combat',
@@ -115,6 +116,9 @@ async function installPresentationRunFixture(
       ];
 
       useRunStore.setState({
+        team: team.map((member) =>
+          member.championId === companionId ? { ...member, currentHp: 0 } : member,
+        ),
         biomeMaps: [
           {
             biome: 'top_lane',
