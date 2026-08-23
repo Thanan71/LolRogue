@@ -54,6 +54,8 @@ Le moteur est un combat au tour par tour, jusqu'à cinq contre cinq :
   le coût en mana est payable ;
 - les contrôles peuvent faire perdre un tour et les effets ont leur propre durée ;
 - dégâts physiques, magiques et vrais utilisent leurs calculateurs séparés ;
+- une zone exige une cible principale : elle lui inflige 100 % des dégâts et 50 %
+  aux quatre cibles secondaires au maximum, soit un plafond de 300 % ;
 - les critiques appliquent la formule de `utils/damage.ts` ;
 - un combat est limité par défaut à 50 rounds ;
 - les PV survivants, l'XP, les niveaux et rangs de sorts sont conservés entre les

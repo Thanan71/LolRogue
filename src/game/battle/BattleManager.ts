@@ -18,7 +18,7 @@ import type {
   CombatRuleInstantEffect,
   CombatRuleResolution,
 } from '@/game/rules/types';
-import type { SpellEffect } from '@/types/champion';
+import { TargetingType, type SpellEffect } from '@/types/champion';
 import {
   calculateADDamage,
   calculateAPDamage,
@@ -666,7 +666,14 @@ export class BattleManager {
     const atkStats = this._getCombatStats(attacker);
 
     for (const effect of spell.effects) {
-      this._applySpellEffect(effect, attacker, action.targets, atkStats, action.rankIndex);
+      this._applySpellEffect(
+        effect,
+        attacker,
+        action.targets,
+        atkStats,
+        action.rankIndex,
+        action.targeting,
+      );
     }
     this._applyAfterSpellPassives(attacker, action);
     this._activeActionType = null;
@@ -679,6 +686,7 @@ export class BattleManager {
     targets: CombatantState[],
     attackerStats: ReturnType<ChampionInstance['getStats']>,
     rankIndex: number,
+    targeting: ValidatedBattleAction['targeting'],
   ): void {
     new BattleSpellEffectResolver({
       rules: this._rules,
@@ -688,7 +696,7 @@ export class BattleManager {
       toRuleActor: this._toRuleActor.bind(this),
       syncEffectState: this._syncEffectState.bind(this),
       emit: this._emit.bind(this),
-    }).resolve(effect, attacker, targets, attackerStats, rankIndex);
+    }).resolve(effect, attacker, targets, attackerStats, rankIndex, targeting);
   }
   private _applyDamageToTarget(
     attacker: CombatantState,
@@ -990,6 +998,7 @@ export class BattleManager {
         action.targets,
         this._getCombatStats(attacker),
         attacker.champion.level - 1,
+        action.targeting,
       );
     }
     this._passiveCounters.set(attacker.targetId, -1);
@@ -1032,7 +1041,14 @@ export class BattleManager {
     if (attacker.champion.id === 'Ashe' && !target.isDefeated) {
       const slow = passive.effects.find((effect) => effect.type === 'cc');
       if (slow) {
-        this._applySpellEffect(slow, attacker, [target], this._getCombatStats(attacker), rankIndex);
+        this._applySpellEffect(
+          slow,
+          attacker,
+          [target],
+          this._getCombatStats(attacker),
+          rankIndex,
+          TargetingType.Enemy,
+        );
       }
     }
 

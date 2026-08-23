@@ -13,10 +13,27 @@ import { ShieldEffect } from '@/game/effects/ShieldEffect';
 import { CCType, DamageType, type StatKey } from '@/game/effects/types';
 import type { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleActor } from '@/game/rules/types';
-import type { SpellEffect } from '@/types/champion';
+import { TargetingType, type SpellEffect } from '@/types/champion';
 import type { ChampionInstance } from '../ChampionInstance';
 import { toCombatDamageType } from './damageType';
-import type { BattleEvent, CombatantState } from './types';
+import type { ActionTargeting, BattleEvent, CombatantState } from './types';
+
+export const AREA_PRIMARY_DAMAGE_MULTIPLIER = 1;
+export const AREA_SECONDARY_DAMAGE_MULTIPLIER = 0.5;
+export const AREA_TOTAL_DAMAGE_CAP = 3;
+
+/** 100% on the selected primary plus four 50% secondaries = 300% at most. */
+export function getAreaDamageMultiplier(targetIndex: number): number {
+  if (!Number.isSafeInteger(targetIndex) || targetIndex < 0) {
+    throw new RangeError('Area target index must be a non-negative safe integer.');
+  }
+  if (targetIndex === 0) return AREA_PRIMARY_DAMAGE_MULTIPLIER;
+  const secondaryBudget =
+    AREA_TOTAL_DAMAGE_CAP -
+    AREA_PRIMARY_DAMAGE_MULTIPLIER -
+    (targetIndex - 1) * AREA_SECONDARY_DAMAGE_MULTIPLIER;
+  return Math.max(0, Math.min(AREA_SECONDARY_DAMAGE_MULTIPLIER, secondaryBudget));
+}
 
 interface BattleSpellEffectHost {
   rules: CombatRuleRuntime | null;
@@ -50,6 +67,7 @@ export class BattleSpellEffectResolver {
     primaryTargets: CombatantState[],
     atkStats: ReturnType<ChampionInstance['getStats']>,
     rankIdx: number,
+    targeting: ActionTargeting = TargetingType.Enemy,
   ): void {
     const hostileTargets = primaryTargets.filter(
       (candidate) => candidate.side !== attacker.side && !candidate.isDefeated,
@@ -63,11 +81,16 @@ export class BattleSpellEffectResolver {
 
     switch (effect.type) {
       case 'damage': {
-        for (const target of hostileTargets) {
+        for (const [targetIndex, target] of hostileTargets.entries()) {
+          const areaMultiplier =
+            targeting === TargetingType.Area ? getAreaDamageMultiplier(targetIndex) : 1;
+          if (areaMultiplier <= 0) continue;
           this.host.applyDamageToTarget(
             attacker,
             target,
-            this.host.calculateEffectDamage(effect, atkStats, target, rankIdx),
+            Math.round(
+              this.host.calculateEffectDamage(effect, atkStats, target, rankIdx) * areaMultiplier,
+            ),
             toCombatDamageType(effect.damageType),
           );
         }

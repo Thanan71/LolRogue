@@ -138,9 +138,9 @@ describe('maintained champion passives', () => {
     const manager = battle([annie]);
     const sequence: Array<{ type: ActionType; targetId?: string }> = [
       { type: ActionType.SpellQ, targetId: 'Target' },
-      { type: ActionType.SpellW },
+      { type: ActionType.SpellW, targetId: 'Target' },
       { type: ActionType.SpellE, targetId: 'Annie' },
-      { type: ActionType.SpellR },
+      { type: ActionType.SpellR, targetId: 'Target' },
     ];
     for (const action of sequence) {
       advanceToPlayer(manager, 'Annie');

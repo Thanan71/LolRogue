@@ -563,7 +563,7 @@ describe('P1 manual combat choices', () => {
     expect(bm.getCombatantState('P2', 'player')?.currentShield).toBe(75);
   });
 
-  it('resolves area effects against every living enemy and rejects a single-target override', () => {
+  it('applies full area damage to the selected primary and half to secondaries', () => {
     const teams = makeTeams(['P1'], ['E1', 'E2'], { P1: 400, E1: 300, E2: 290 });
     const area = teams.playerTeam.champions[0].getSpell('Q')!;
     area.targeting = 'area' as any;
@@ -571,10 +571,12 @@ describe('P1 manual combat choices', () => {
     bm.startBattle();
     const actor = bm.getCombatantState('P1', 'player')!;
 
-    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'E1' })).toBe(false);
+    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'all' })).toBe(false);
     expect(actor.currentMp).toBe(actor.maxMp);
-    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'all' })).toBe(true);
-    expect(bm.getCombatantState('E1', 'enemy')?.currentHp).toBeLessThan(500);
-    expect(bm.getCombatantState('E2', 'enemy')?.currentHp).toBeLessThan(500);
+    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'E2' })).toBe(true);
+    const primaryDamage = 500 - bm.getCombatantState('E2', 'enemy')!.currentHp;
+    const secondaryDamage = 500 - bm.getCombatantState('E1', 'enemy')!.currentHp;
+    expect(primaryDamage).toBeGreaterThan(secondaryDamage);
+    expect(secondaryDamage / primaryDamage).toBeCloseTo(0.5, 1);
   });
 });

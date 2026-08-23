@@ -115,14 +115,15 @@ describe('BattleManager effect integration', () => {
         positiveEffect === 'shield'
           ? casterState.effectManager.shields.length
           : casterState.effectManager.buffDebuffs.length;
-      const targeting = battle
+      const option = battle
         .getAvailableActions(caster)
-        .find((option) => option.type === action)?.targeting;
+        .find((candidate) => candidate.type === action);
+      if (!option) throw new Error(`Expected ${championId} action ${action} to be available.`);
 
       expect(
         battle.submitAction({
           type: action,
-          targetId: targeting === TargetingType.Enemy ? 'Target' : undefined,
+          targetId: option.requiresTarget ? option.validTargetIds[0] : undefined,
         }),
       ).toBe(true);
       if (hostileEffect === 'damage') expect(targetState.currentHp).toBeLessThan(hpBefore);
