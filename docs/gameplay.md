@@ -225,18 +225,17 @@ font partie du contrat.
 
 Le jour Daily est `(instant serveur AT TIME ZONE 'UTC')::date` et expire à minuit
 UTC suivant. Le serveur fige dans l'attempt la date, la seed, la difficulté, le
-ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v16,
-les coefficients hérités de v2 donnent :
+ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v17,
+la formule `score_version = 15` donne :
 
 ```text
 score = 10 000 si victoire
       + 1 000 × vagues terminées
       + 250 × biomes visités
       + 100 × niveau de run atteint
-      + 1 × or total gagné
 ```
 
-Le score n'utilise ni l'or restant ni le nombre d'objets. Il est calculé par le
+Le score n'utilise ni l'or gagné/restant ni le nombre d'objets. Il est calculé par le
 trigger PostgreSQL depuis la run `verified`, jamais soumis par le navigateur. Une
 tentative connectée officielle est limitée à une par joueur et par jour UTC ; un
 abandon la consomme sans publier de score. Le classement local invité n'est pas

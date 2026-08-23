@@ -50,7 +50,15 @@ describe('daily metadata store', () => {
         gold: 150,
         inventory: inventory(2),
       }),
-    ).toBe(2550);
+    ).toBe(2400);
+    expect(
+      calculateDailyScore({
+        totalWavesCompleted: 8,
+        runLevel: 3,
+        gold: 99_999,
+        inventory: inventory(2),
+      }),
+    ).toBe(2400);
     expect(useDailyRunStore.getState()).not.toHaveProperty('team');
     expect(useDailyRunStore.getState()).not.toHaveProperty('inventory');
     expect(useDailyRunStore.getState()).not.toHaveProperty('gold');

@@ -27,12 +27,7 @@ export function calculateDailyScore(state: {
   gold: number;
   inventory: InventoryEntry[];
 }): number {
-  return (
-    state.totalWavesCompleted * 100 +
-    state.runLevel * 500 +
-    Math.floor(state.gold) +
-    state.inventory.length * 50
-  );
+  return state.totalWavesCompleted * 100 + state.runLevel * 500 + state.inventory.length * 50;
 }
 
 function getInitialState(): DailyRunState {

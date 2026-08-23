@@ -384,11 +384,36 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 14,
     "progression": 2,
     "command": 2,
-    "status": "current",
+    "status": "replay-only",
     "rulesetCode": "2026-08-daily-parity-v16",
     "contentHash": "557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9",
-    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "bundle": "supabase/functions/verify-run/run-authority-v16.bundle.ts",
     "migration": "supabase/migrations/20260823073234_gameplay_ruleset_v16_daily_parity.sql",
+    "features": {
+      "canonicalProgression": true,
+      "manualCombat": true,
+      "canonicalEncounters": true,
+      "combatActionTrace": true,
+      "runLedger": true,
+      "mastery": true,
+      "domainInvariants": true,
+      "clientAuthorityParity": true,
+      "automaticTraceSuffix": true,
+      "canonicalStats": true,
+      "contentBalance": true
+    }
+  },
+  {
+    "engine": "run-engine-v17",
+    "gameplay": 17,
+    "dailyScore": 15,
+    "progression": 2,
+    "command": 2,
+    "status": "current",
+    "rulesetCode": "2026-08-economy-balance-v17",
+    "contentHash": "83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19",
+    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "migration": "supabase/migrations/20260823081828_gameplay_ruleset_v17_economy_balance.sql",
     "features": {
       "canonicalProgression": true,
       "manualCombat": true,
@@ -411,7 +436,8 @@ const verifierLoaders = {
   "run-engine-v13": () => import("./run-authority-v13.bundle.ts"), // loader-2
   "run-engine-v14": () => import("./run-authority-v14.bundle.ts"), // loader-3
   "run-engine-v15": () => import("./run-authority-v15.bundle.ts"), // loader-4
-  "run-engine-v16": () => import("./run-authority.bundle.js"), // loader-5
+  "run-engine-v16": () => import("./run-authority-v16.bundle.ts"), // loader-5
+  "run-engine-v17": () => import("./run-authority.bundle.js"), // loader-6
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {
