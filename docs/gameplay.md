@@ -65,6 +65,11 @@ Le moteur est un combat au tour par tour, jusqu'à cinq contre cinq :
 - les PV survivants, l'XP, les niveaux et rangs de sorts sont conservés entre les
   combats.
 
+La difficulté ne multiplie pas toutes les statistiques. Son facteur s'applique aux
+PV ennemis et sa racine carrée aux dégâts sortants. Mana, armure, résistance
+magique, vitesse, portée, critique et régénérations restent identiques ; les
+modificateurs propres au biome et à la rencontre demeurent indépendants.
+
 Le moteur accepte une source aléatoire injectée. Une mécanique aléatoire ajoutée au
 combat doit utiliser cette source, jamais appeler directement `Math.random`, afin
 de préserver la reproductibilité et les tests.

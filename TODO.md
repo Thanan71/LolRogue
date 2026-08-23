@@ -747,7 +747,7 @@ déjà été rejetées avec le même code.
 - [x] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,
   AoE seulement avec au moins deux cibles utiles, cible alliée la plus blessée et cible
   ennemie choisie par valeur effective plutôt qu'au hasard.
-- [ ] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa
+- [x] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa
   racine, et laisser défenses, mana, vitesse, portée, critique et régénération inchangés.
 - [ ] Décider explicitement le rôle de la vitesse d'attaque et de la portée ; retirer
   ou renommer tout bonus sans effet tant que la mécanique n'existe pas.

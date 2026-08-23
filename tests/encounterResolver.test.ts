@@ -62,17 +62,43 @@ describe('versioned encounter resolver', () => {
     expect(first.reward.xpPolicy).toBe('all_team_members_including_ko');
   });
 
-  it('applies a monotonic difficulty curve to enemy stats and rewards', () => {
+  it('scales only enemy HP and outgoing damage for difficulty', () => {
     const easy = resolve('easy');
     const normal = resolve('normal');
     const hard = resolve('hard');
 
-    expect(easy.enemies[0].statMultiplier).toBeLessThan(normal.enemies[0].statMultiplier);
-    expect(normal.enemies[0].statMultiplier).toBeLessThan(hard.enemies[0].statMultiplier);
+    expect(easy.enemies[0].statMultiplier).toBe(normal.enemies[0].statMultiplier);
+    expect(normal.enemies[0].statMultiplier).toBe(hard.enemies[0].statMultiplier);
+    expect(easy.enemies[0].healthMultiplier).toBe(0.85);
+    expect(hard.enemies[0].healthMultiplier).toBe(1.2);
+    expect(easy.enemies[0].damageMultiplier).toBeCloseTo(Math.sqrt(0.85));
+    expect(hard.enemies[0].damageMultiplier).toBeCloseTo(Math.sqrt(1.2));
+
+    const easyInstance = buildResolvedEnemyTeam(easy)[0];
+    const normalInstance = buildResolvedEnemyTeam(normal)[0];
+    const hardInstance = buildResolvedEnemyTeam(hard)[0];
+    expect(easyInstance.getStats().hp).toBeCloseTo(normalInstance.getStats().hp * 0.85);
+    expect(hardInstance.getStats().hp).toBeCloseTo(normalInstance.getStats().hp * 1.2);
+    for (const stat of [
+      'mp',
+      'armor',
+      'magicResist',
+      'attackDamage',
+      'abilityPower',
+      'moveSpeed',
+      'attackSpeed',
+      'attackRange',
+      'hpRegen',
+      'mpRegen',
+      'crit',
+    ] as const) {
+      expect(easyInstance.getStats()[stat], stat).toBe(normalInstance.getStats()[stat]);
+      expect(hardInstance.getStats()[stat], stat).toBe(normalInstance.getStats()[stat]);
+    }
     expect(easy.reward.gold).toBeLessThan(normal.reward.gold);
     expect(normal.reward.gold).toBeLessThan(hard.reward.gold);
-    expect(DIFFICULTY_RULES.hard.enemyStatMultiplier).toBeGreaterThan(
-      DIFFICULTY_RULES.normal.enemyStatMultiplier,
+    expect(DIFFICULTY_RULES.hard.enemyHealthMultiplier).toBeGreaterThan(
+      DIFFICULTY_RULES.normal.enemyHealthMultiplier,
     );
   });
 
@@ -198,7 +224,10 @@ describe('versioned encounter resolver', () => {
           wave: 8,
           runLevel: 3,
         });
-        stats += result.enemies[0].statMultiplier;
+        stats +=
+          result.enemies[0].statMultiplier *
+          result.enemies[0].healthMultiplier *
+          result.enemies[0].damageMultiplier;
         gold += result.reward.gold;
         drops += Number(result.reward.droppedItem !== null);
       }

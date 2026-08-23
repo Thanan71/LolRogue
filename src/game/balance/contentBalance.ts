@@ -198,7 +198,9 @@ export function analyzeContentCatalog(mapSeedCount = 250): ContentCatalogAnalysi
           const total = totals[difficulty];
           total.combatNodes++;
           total.enemyPower += result.enemies.reduce(
-            (sum, enemy) => sum + enemy.statMultiplier * enemy.level,
+            (sum, enemy) =>
+              sum +
+              enemy.statMultiplier * enemy.healthMultiplier * enemy.damageMultiplier * enemy.level,
             0,
           );
           total.gold += result.reward.gold;

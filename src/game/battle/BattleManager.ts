@@ -714,13 +714,16 @@ export class BattleManager {
   ): void {
     if (damage <= 0 || target.isDefeated) return;
     const wasDefeated = target.isDefeated;
+    const scaledDamage = triggerRules
+      ? damage * attacker.champion.getOutgoingDamageMultiplier()
+      : damage;
     const beforeRules =
       triggerRules && this._rules
         ? this._rules.dispatch({
             type: 'before_damage',
             source: this._toRuleActor(attacker),
             target: this._toRuleActor(target),
-            amount: damage,
+            amount: scaledDamage,
             damageType,
             action: this._activeActionType,
             isCrit,
@@ -730,7 +733,9 @@ export class BattleManager {
     const ruledDamage = Math.max(
       0,
       Math.round(
-        damage * (beforeRules?.damageMultiplier ?? 1) * (1 - (beforeRules?.damageReduction ?? 0)),
+        scaledDamage *
+          (beforeRules?.damageMultiplier ?? 1) *
+          (1 - (beforeRules?.damageReduction ?? 0)),
       ),
     );
     if (ruledDamage <= 0) return;

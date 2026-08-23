@@ -71,6 +71,8 @@ export interface ResolvedCombatEnemy {
   championId: string;
   level: number;
   statMultiplier: number;
+  healthMultiplier: number;
+  damageMultiplier: number;
 }
 
 export interface ResolvedCombatReward {
@@ -187,13 +189,14 @@ export function resolveCombatEncounter(
     level: clamp(Math.trunc(enemy.level ?? defaultEnemyLevel), 1, 18),
     statMultiplier: roundMultiplier(
       Math.max(0.1, enemy.statMultiplier) *
-        difficulty.enemyStatMultiplier *
         starterBudget.enemyFormationMultiplier *
         biomeMultiplier *
         node.enemyStatMultiplier *
         lanePressure *
         progressionMultiplier,
     ),
+    healthMultiplier: difficulty.enemyHealthMultiplier,
+    damageMultiplier: difficulty.enemyDamageMultiplier,
   }));
   const itemDropChance =
     input.biome === 'base' && input.nodeType === NodeType.Boss
@@ -232,7 +235,12 @@ export function buildResolvedEnemyTeam(encounter: ResolvedCombatEncounter): Cham
   for (const enemy of encounter.enemies) {
     const champion = championDB.getById(enemy.championId);
     if (champion) {
-      instances.push(new ChampionInstance(champion, enemy.level, enemy.statMultiplier));
+      instances.push(
+        new ChampionInstance(champion, enemy.level, enemy.statMultiplier, {
+          healthMultiplier: enemy.healthMultiplier,
+          damageMultiplier: enemy.damageMultiplier,
+        }),
+      );
     }
   }
   return instances;

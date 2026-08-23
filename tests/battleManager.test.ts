@@ -3,7 +3,7 @@ import { BattleManager } from '../src/game/battle/BattleManager';
 import { reduceBattleMetrics } from '../src/game/battle/battleMetrics';
 import type { BattleAction, BattleTeam } from '../src/game/battle/types';
 import { ActionType, BattlePhase } from '../src/game/battle/types';
-import { ChampionInstance } from '../src/game/ChampionInstance';
+import { ChampionInstance, SPELL_SLOTS } from '../src/game/ChampionInstance';
 import type { Champion, ChampionStats, Passive, Spell } from '../src/types';
 
 function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
@@ -89,6 +89,54 @@ function makeTeams(
     enemyTeam: { side: 'enemy', champions: enemyIds.map(makeChamp) },
   };
 }
+
+function basicAttackDamageWithMultiplier(damageMultiplier: number): number {
+  const attackerDefinition = makeTestChampion({
+    id: 'ScalingAttacker',
+    key: 'ScalingAttacker',
+    name: 'ScalingAttacker',
+    stats: {
+      ...makeTestChampion().stats,
+      moveSpeed: 400,
+      attackDamage: 100,
+      crit: 0,
+    },
+  });
+  const targetDefinition = makeTestChampion({
+    id: 'ScalingTarget',
+    key: 'ScalingTarget',
+    name: 'ScalingTarget',
+    stats: {
+      ...makeTestChampion().stats,
+      hp: 5_000,
+      armor: 0,
+      moveSpeed: 300,
+    },
+  });
+  const attacker = new ChampionInstance(attackerDefinition, 1, 1, { damageMultiplier });
+  const target = new ChampionInstance(targetDefinition, 1);
+  const manager = new BattleManager(
+    { side: 'player', champions: [attacker] },
+    { side: 'enemy', champions: [target] },
+    { random: () => 0.99 },
+  );
+  manager.startBattle();
+  for (const slot of SPELL_SLOTS) attacker.useSpell(slot);
+  manager.processCurrentTurn();
+  const event = manager.log.find((candidate) => candidate.type === 'damage');
+  if (!event || event.type !== 'damage') throw new Error('Expected one basic-attack damage event.');
+  return event.amount;
+}
+
+describe('difficulty combat scaling', () => {
+  it('applies the square-root factor to actual outgoing damage', () => {
+    const normalDamage = basicAttackDamageWithMultiplier(1);
+    const hardDamage = basicAttackDamageWithMultiplier(Math.sqrt(1.2));
+
+    expect(normalDamage).toBe(100);
+    expect(hardDamage).toBe(Math.round(normalDamage * Math.sqrt(1.2)));
+  });
+});
 
 describe('BattleManager', () => {
   describe('Phase 2: Initiative & Turn-by-Turn', () => {
