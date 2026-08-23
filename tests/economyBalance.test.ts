@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { ITEM_DATABASE } from '@/data/items/itemDatabase';
-import { drawItemDefinitionByRarity, ITEM_DROP_RARITY_WEIGHTS } from '@/game/run/itemDropRules';
+import { NodeType } from '@/game/map/types';
+import {
+  drawItemDefinitionByRarity,
+  drawItemDefinitionForBiome,
+  getTierTwoDropChance,
+  ITEM_DROP_RARITY_WEIGHTS,
+  TIER_TWO_DROP_CHANCE_BY_BIOME,
+} from '@/game/run/itemDropRules';
 import { AugmentEffectType, ItemRarity } from '@/types/inventory';
 
 function flatStat(augmentId: string): number | undefined {
@@ -82,5 +89,35 @@ describe('P0-BAL-04 economy balance', () => {
       .sort();
     expect(legendary?.rarity).toBe(ItemRarity.Legendary);
     expect(legendary?.id).toBe(legendaryIds[Math.floor(0.5 * legendaryIds.length)]);
+  });
+
+  it('gates tier 2 by biome and guarantees the final Base boss table', () => {
+    expect(TIER_TWO_DROP_CHANCE_BY_BIOME).toEqual({
+      top_lane: 0,
+      jungle: 0.1,
+      mid_lane: 0.1,
+      bot_lane: 0.2,
+      river: 0.3,
+      base: 0,
+    });
+    expect(getTierTwoDropChance('base', NodeType.Boss)).toBe(1);
+
+    const definitions = Object.values(ITEM_DATABASE);
+    const topValues = [0, 0, 0];
+    const topDrop = drawItemDefinitionForBiome(
+      definitions,
+      'top_lane',
+      NodeType.Combat,
+      () => topValues.shift()!,
+    );
+    const bossValues = [0.999, 0, 0];
+    const bossDrop = drawItemDefinitionForBiome(
+      definitions,
+      'base',
+      NodeType.Boss,
+      () => bossValues.shift()!,
+    );
+    expect(topDrop?.tier).toBe(1);
+    expect(bossDrop?.tier).toBe(2);
   });
 });

@@ -519,7 +519,7 @@ différents.
   plafonner la remise Prism à 10 %.
 - [x] Utiliser une table de rareté explicite : common 55 %, uncommon 25 %, epic 15 %,
   legendary 5 %, puis tirer l'item dans la rareté.
-- [ ] Gater le tier 2 par biome : Top 0 %, Jungle/Mid 10 %, Bot 20 %, River 30 %,
+- [x] Gater le tier 2 par biome : Top 0 %, Jungle/Mid 10 %, Bot 20 %, River 30 %,
   boss final garanti ou table dédiée.
 - [ ] Retirer le bonus de drop Hard ou le remplacer par score/récompense méta ne
   renforçant pas la run en cours.

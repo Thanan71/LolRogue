@@ -1,4 +1,6 @@
 import { ItemRarity, type ItemDefinition } from '@/types/inventory';
+import { NodeType } from '@/game/map/types';
+import type { Biome } from '@/types/run';
 
 export const ITEM_DROP_RARITY_WEIGHTS = {
   [ItemRarity.Common]: 55,
@@ -8,6 +10,22 @@ export const ITEM_DROP_RARITY_WEIGHTS = {
 } as const satisfies Partial<Record<ItemRarity, number>>;
 
 export type DropItemRarity = keyof typeof ITEM_DROP_RARITY_WEIGHTS;
+
+export const TIER_TWO_DROP_CHANCE_BY_BIOME: Record<Biome, number> = {
+  top_lane: 0,
+  jungle: 0.1,
+  mid_lane: 0.1,
+  bot_lane: 0.2,
+  river: 0.3,
+  base: 0,
+};
+
+export function getTierTwoDropChance(
+  biome: Biome,
+  nodeType: NodeType.Combat | NodeType.Elite | NodeType.Boss,
+): number {
+  return biome === 'base' && nodeType === NodeType.Boss ? 1 : TIER_TWO_DROP_CHANCE_BY_BIOME[biome];
+}
 
 const ITEM_DROP_RARITY_ORDER: readonly DropItemRarity[] = [
   ItemRarity.Common,
@@ -56,4 +74,18 @@ export function drawItemDefinitionByRarity(
 
   const definitions = definitionsByRarity.get(selectedRarity)!;
   return definitions[Math.floor(next() * definitions.length)];
+}
+
+/** Gates completed items by biome before applying the rarity/item draw. */
+export function drawItemDefinitionForBiome(
+  eligibleDefinitions: readonly ItemDefinition[],
+  biome: Biome,
+  nodeType: NodeType.Combat | NodeType.Elite | NodeType.Boss,
+  next: () => number,
+): ItemDefinition | undefined {
+  const targetTier = next() < getTierTwoDropChance(biome, nodeType) ? 2 : 1;
+  return drawItemDefinitionByRarity(
+    eligibleDefinitions.filter((definition) => definition.tier === targetTier),
+    next,
+  );
 }

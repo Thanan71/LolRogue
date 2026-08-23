@@ -19,11 +19,11 @@ import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateXpGain } from '@/utils/xpSystem';
 import { DIFFICULTY_RULES } from './difficultyRules';
 import { getStarterBudgetProfile } from './starterBudget';
-import { drawItemDefinitionByRarity } from './itemDropRules';
+import { drawItemDefinitionForBiome } from './itemDropRules';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 2;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 3;
 
 const NODE_RULES: Record<
   NodeType.Combat | NodeType.Elite | NodeType.Boss,
@@ -145,10 +145,12 @@ function resolveDrop(
   if (eligible.length === 0) {
     return { droppedItem: null, dropBlockedByCapacity: true };
   }
-  const definition = drawItemDefinitionByRarity(eligible, () => rng.next());
+  const definition = drawItemDefinitionForBiome(eligible, input.biome, input.nodeType, () =>
+    rng.next(),
+  );
   return {
     droppedItem: definition ? itemDefinitionToRunItem(definition) : null,
-    dropBlockedByCapacity: false,
+    dropBlockedByCapacity: definition === undefined,
   };
 }
 
@@ -183,7 +185,10 @@ export function resolveCombatEncounter(
         progressionMultiplier,
     ),
   }));
-  const itemDropChance = clamp(input.encounter.itemDropChance * difficulty.dropMultiplier, 0, 1);
+  const itemDropChance =
+    input.biome === 'base' && input.nodeType === NodeType.Boss
+      ? 1
+      : clamp(input.encounter.itemDropChance * difficulty.dropMultiplier, 0, 1);
   const drop = resolveDrop(input, itemDropChance);
 
   return {
