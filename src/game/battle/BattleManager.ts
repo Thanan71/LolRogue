@@ -27,6 +27,7 @@ import {
 } from '@/utils/damage';
 import type { ChampionInstance } from '../ChampionInstance';
 import type { CombatActionTrace } from './actionTrace';
+import { isBattleActionUnlocked } from './actionTimingRules';
 import {
   getBattleActionDefinition,
   type ResolvableCombatant,
@@ -247,6 +248,7 @@ export class BattleManager {
     ];
 
     return actionTypes.flatMap((type) => {
+      if (!isBattleActionUnlocked(type, this._round)) return [];
       const definition = getBattleActionDefinition(combatant, type);
       if (!definition) return [];
       if (type === ActionType.BasicAttack && !combatant.effectManager.canMove()) return [];
@@ -598,6 +600,7 @@ export class BattleManager {
       attacker,
       action,
       combatants: this._getTargetableCombatants(),
+      round: this._round,
     });
   }
 

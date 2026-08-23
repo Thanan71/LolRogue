@@ -151,11 +151,19 @@ describe('BattleManager effect integration', () => {
         const target = makeChampion('Target', 1, { type: 'damage', baseDamage: [1] });
         const battle = manager([caster], [target]);
         const targetState = battle.getCombatantState('Target', 'enemy')!;
+        let safety = 10;
+        while (battle.round < 3 && safety-- > 0) battle.processCurrentTurn();
+        expect(battle.round).toBe(3);
+        expect(battle.currentCombatant?.champion.id).toBe(championId);
         targetState.currentHp = currentHp;
+        const option = battle
+          .getAvailableActions(caster)
+          .find((candidate) => candidate.type === ActionType.SpellR);
+        if (!option) throw new Error(`Expected ${championId} ultimate to be available.`);
         expect(
           battle.submitAction({
             type: ActionType.SpellR,
-            targetId: definition.spells[3].targeting === TargetingType.Enemy ? 'Target' : undefined,
+            targetId: option.requiresTarget ? option.validTargetIds[0] : undefined,
           }),
         ).toBe(true);
         return targetState;

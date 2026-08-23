@@ -52,6 +52,8 @@ Le moteur est un combat au tour par tour, jusqu'à cinq contre cinq :
 - l'ordre de tour dépend de la vitesse avec un bruit aléatoire maximal de `0,5` ;
 - les actions disponibles sont l'attaque de base et les sorts Q/W/E/R prêts, dont
   le coût en mana est payable ;
+- les ultimes R restent indisponibles pendant les rounds 1 et 2, puis s'ouvrent au
+  round 3 s'ils sont prêts et payables ;
 - les contrôles peuvent faire perdre un tour et les effets ont leur propre durée ;
 - un hard CC dure au plus un round et ne peut retirer plus de deux actions à une
   même cible dans une fenêtre glissante de quatre rounds ;

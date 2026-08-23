@@ -239,10 +239,29 @@ describe('BattleManager', () => {
         bm.startBattle();
         const actions = bm.getAvailableActions(teams.playerTeam.champions[0]);
 
-        expect(actions.length).toBe(5);
+        expect(actions.length).toBe(4);
         expect(actions[0].type).toBe(ActionType.BasicAttack);
         expect(actions[0].cost).toBe(0);
-        expect(actions.find((a) => a.type === ActionType.SpellR)).toBeDefined();
+        expect(actions.find((a) => a.type === ActionType.SpellR)).toBeUndefined();
+      });
+
+      it('rejects an early ultimate and unlocks it at round three', () => {
+        const teams = makeTeams(['P1'], ['E1'], { P1: 400, E1: 300 });
+        const player = teams.playerTeam.champions[0];
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+
+        expect(bm.submitAction({ type: ActionType.SpellR, targetId: 'E1' })).toBe(false);
+        expect(player.getCooldown('R')).toBe(0);
+        expect(bm.getCombatantState('P1', 'player')?.currentMp).toBe(300);
+        while (bm.phase === BattlePhase.TurnActive && bm.round < 3) {
+          bm.processCurrentTurn();
+        }
+
+        expect(bm.round).toBe(3);
+        expect(
+          bm.getAvailableActions(player).find((action) => action.type === ActionType.SpellR),
+        ).toBeDefined();
       });
 
       it('should accept submitted actions for player turns', () => {
