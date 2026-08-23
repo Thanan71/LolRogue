@@ -478,7 +478,7 @@ playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
   identiques, jusqu'au score terminal.
 - [ ] Donner le même nombre de starters à toutes les runs comparables ; recommandation
   de départ : deux starters par défaut en Normal, un starter normalisé en Daily.
-- [ ] Transformer la maîtrise en largeur de roster, reroll ou cosmétique plutôt qu'en
+- [x] Transformer la maîtrise en largeur de roster, reroll ou cosmétique plutôt qu'en
   avantage de taille d'équipe pour les modes classés.
 - [ ] Si 1/2/3 starters sont conservés, séparer les cohortes/classements et tester un
   budget de formation ennemi autour de ×1 / ×1,55 / ×2.

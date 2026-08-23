@@ -1,14 +1,14 @@
-export const PROGRESSION_CONTRACT_VERSION = 1;
+export const PROGRESSION_CONTRACT_VERSION = 2;
 
-export const STARTER_SLOT_POLICY = {
-  affectsBalance: true,
-  defaultSlots: 1,
-  maximumSlots: 3,
+export const MASTERY_PERSONALIZATION_POLICY = {
+  affectsBalance: false,
+  legacyUnlockIds: ['starter_slot_2', 'starter_slot_3'] as const,
+  legacyUnlockBehavior: 'history_only' as const,
   unlocks: [
-    { id: 'starter_slot_2', masteryLevel: 1, slots: 2 },
-    { id: 'starter_slot_3', masteryLevel: 3, slots: 3 },
+    { id: 'roster_offer_7', masteryLevel: 1, rosterOfferSize: 7 },
+    { id: 'starter_reroll_1', masteryLevel: 3, rerolls: 1 },
   ],
-  dailyPolicy: 'server_snapshot' as const,
+  dailyPolicy: 'disabled' as const,
 };
 
 export interface CosmeticConcept {

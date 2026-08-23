@@ -4,16 +4,23 @@ import {
   ACHIEVEMENT_POLICY,
   canCompareRunVersions,
   COSMETIC_CONCEPTS,
+  MASTERY_PERSONALIZATION_POLICY,
   SEASON_POLICY,
-  STARTER_SLOT_POLICY,
 } from '@/game/progression/personalizationContract';
 
 describe('P3 progression and personalization contract', () => {
-  it('treats starter slots as server-owned balance power', () => {
-    expect(STARTER_SLOT_POLICY.affectsBalance).toBe(true);
-    expect(STARTER_SLOT_POLICY.defaultSlots).toBe(1);
-    expect(STARTER_SLOT_POLICY.maximumSlots).toBe(3);
-    expect(STARTER_SLOT_POLICY.unlocks.map(({ slots }) => slots)).toEqual([2, 3]);
+  it('keeps mastery personalization stat-free and retires historical starter slots', () => {
+    expect(MASTERY_PERSONALIZATION_POLICY.affectsBalance).toBe(false);
+    expect(MASTERY_PERSONALIZATION_POLICY.legacyUnlockIds).toEqual([
+      'starter_slot_2',
+      'starter_slot_3',
+    ]);
+    expect(MASTERY_PERSONALIZATION_POLICY.legacyUnlockBehavior).toBe('history_only');
+    expect(MASTERY_PERSONALIZATION_POLICY.unlocks).toEqual([
+      { id: 'roster_offer_7', masteryLevel: 1, rosterOfferSize: 7 },
+      { id: 'starter_reroll_1', masteryLevel: 3, rerolls: 1 },
+    ]);
+    expect(MASTERY_PERSONALIZATION_POLICY.dailyPolicy).toBe('disabled');
   });
 
   it('defines exactly one stat-free cosmetic concept per maintained champion', () => {

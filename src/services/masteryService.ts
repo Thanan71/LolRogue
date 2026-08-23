@@ -18,8 +18,8 @@ import {
  * The default unlock tree. Each unlock is earned when a champion reaches
  * the specified mastery level.
  *
- * Level 1 (50 candies): second starter team slot
- * Level 3 (350 candies): third starter team slot
+ * Level 1 (50 candies): one extra champion in the starter offer
+ * Level 3 (350 candies): one deterministic starter-offer reroll
  *
  * Levels 2 and 4 intentionally grant only their stat bonus. Cosmetic chromas
  * are not part of the current product contract because no selectable cosmetic
@@ -27,22 +27,36 @@ import {
  */
 export const DEFAULT_UNLOCKS: MasteryUnlock[] = [
   {
-    id: 'starter_slot_2',
-    category: 'starter_slot',
+    id: 'roster_offer_7',
+    category: 'roster_width',
     requiredLevel: 1,
-    name: "Slot d'équipe 2",
-    description: 'Permet de commencer une run avec deux champions.',
-    starterSlots: 2,
+    name: 'Roster élargi',
+    description: 'Ajoute un champion au choix de départ, sans agrandir l’équipe.',
+    rosterOfferSize: 7,
   },
   {
-    id: 'starter_slot_3',
-    category: 'starter_slot',
+    id: 'starter_reroll_1',
+    category: 'reroll',
     requiredLevel: 3,
-    name: "Slot d'équipe 3",
-    description: 'Permet de commencer une run avec trois champions.',
-    starterSlots: 3,
+    name: 'Relance de roster',
+    description: 'Accorde une relance du choix de départ, sans avantage en combat.',
+    starterRerolls: 1,
   },
 ];
+
+export interface StarterPersonalization {
+  rosterOfferSize: number;
+  rerolls: number;
+}
+
+/** Legacy starter-slot IDs remain readable for history but no longer grant combat power. */
+export function getStarterPersonalization(unlockedIds: Iterable<string>): StarterPersonalization {
+  const unlocks = new Set(unlockedIds);
+  return {
+    rosterOfferSize: unlocks.has('roster_offer_7') ? 7 : 6,
+    rerolls: unlocks.has('starter_reroll_1') ? 1 : 0,
+  };
+}
 
 // ─── Candy Calculation ─────────────────────────────────────────────────────
 

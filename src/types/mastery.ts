@@ -2,9 +2,8 @@
  * Mastery System — permanent progression across runs.
  *
  * Each run earns "candies" (mastery points) for champions used.
- * Accumulated candies unlock mastery levels that grant:
- *   - Base stat bonuses (permanent small buffs)
- *   - Additional starter team slots
+ * Accumulated candies unlock mastery levels that grant account personalization.
+ * Ranked run power and starting team size never depend on these unlocks.
  */
 
 // ─── Mastery Level Thresholds ───────────────────────────────────────────────
@@ -40,7 +39,7 @@ export const MAX_STAT_BONUS = STAT_BONUS_PER_LEVEL * MAX_MASTERY_LEVEL;
 // ─── Unlock Types ───────────────────────────────────────────────────────────
 
 /** Categories of permanent unlocks. */
-export type UnlockCategory = 'starter_slot' | 'bonus';
+export type UnlockCategory = 'roster_width' | 'reroll' | 'cosmetic';
 
 /** A permanent unlock earned through mastery. */
 export interface MasteryUnlock {
@@ -54,8 +53,10 @@ export interface MasteryUnlock {
   name: string;
   /** Description of what this unlock provides. */
   description: string;
-  /** Concrete number of starter slots made available by this unlock. */
-  starterSlots?: number;
+  /** Number of champions shown in a non-Daily starter offer. */
+  rosterOfferSize?: number;
+  /** Number of non-Daily starter-offer rerolls. */
+  starterRerolls?: number;
 }
 
 // ─── Champion Mastery Data ─────────────────────────────────────────────────

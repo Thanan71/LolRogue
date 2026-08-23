@@ -9,6 +9,7 @@ import {
   calculateLevel,
   DEFAULT_UNLOCKS,
   getNewUnlocks,
+  getStarterPersonalization,
   getStatBonusForLevel,
   getUnlockIdsForLevel,
   getUnlocksForLevel,
@@ -148,25 +149,39 @@ describe('getStatBonusForLevel', () => {
 });
 
 describe('Unlocks', () => {
-  it('exposes only the two implemented starter-slot unlocks', () => {
+  it('replaces starter-slot power with roster width and a reroll', () => {
     expect(DEFAULT_UNLOCKS).toHaveLength(2);
-    expect(DEFAULT_UNLOCKS.map((unlock) => unlock.starterSlots)).toEqual([2, 3]);
+    expect(DEFAULT_UNLOCKS.map((unlock) => unlock.category)).toEqual(['roster_width', 'reroll']);
+    expect(DEFAULT_UNLOCKS.map((unlock) => unlock.id)).toEqual([
+      'roster_offer_7',
+      'starter_reroll_1',
+    ]);
   });
   it('getUnlocksForLevel returns unlocks up to level', () => {
     const l2 = getUnlocksForLevel(2);
     expect(l2).toHaveLength(1);
-    expect(l2.map((u) => u.id)).toEqual(['starter_slot_2']);
+    expect(l2.map((u) => u.id)).toEqual(['roster_offer_7']);
   });
   it('getNewUnlocks returns only new ones', () => {
     const n = getNewUnlocks(1, 3);
     expect(n).toHaveLength(1);
-    expect(n.map((u) => u.id)).toEqual(['starter_slot_3']);
+    expect(n.map((u) => u.id)).toEqual(['starter_reroll_1']);
   });
   it('getNewUnlocks empty if no change', () => {
     expect(getNewUnlocks(2, 2)).toHaveLength(0);
   });
   it('getUnlockIdsForLevel returns IDs', () => {
-    expect(getUnlockIdsForLevel(3)).toEqual(['starter_slot_2', 'starter_slot_3']);
+    expect(getUnlockIdsForLevel(3)).toEqual(['roster_offer_7', 'starter_reroll_1']);
+  });
+  it('keeps retired starter-slot IDs inert while applying new personalization', () => {
+    expect(getStarterPersonalization(['starter_slot_2', 'starter_slot_3'])).toEqual({
+      rosterOfferSize: 6,
+      rerolls: 0,
+    });
+    expect(getStarterPersonalization(['roster_offer_7', 'starter_reroll_1'])).toEqual({
+      rosterOfferSize: 7,
+      rerolls: 1,
+    });
   });
 });
 
@@ -186,7 +201,7 @@ describe('awardCandies', () => {
   it('should trigger unlocks on level up', () => {
     const cur: Record<string, ChampionMastery> = { Garen: buildChampionMastery('Garen', 45) };
     const r = awardCandies(cur, ['Garen'], 10, 0, false);
-    expect(r.newUnlocks.map((u) => u.id)).toContain('starter_slot_2');
+    expect(r.newUnlocks.map((u) => u.id)).toContain('roster_offer_7');
   });
   it('should handle multi-champion teams', () => {
     const r = awardCandies({}, ['Garen', 'Lux', 'Jinx'], 20, 3, true);
@@ -196,11 +211,11 @@ describe('awardCandies', () => {
   });
   it('should not duplicate unlock IDs', () => {
     const cur: Record<string, ChampionMastery> = {
-      Garen: buildChampionMastery('Garen', 45, ['starter_slot_2']),
+      Garen: buildChampionMastery('Garen', 45, ['roster_offer_7']),
     };
     const r = awardCandies(cur, ['Garen'], 10, 0, false);
     const ids = r.updatedMasteries['Garen'].unlockedIds;
-    expect(ids.filter((id) => id === 'starter_slot_2').length).toBe(1);
+    expect(ids.filter((id) => id === 'roster_offer_7').length).toBe(1);
   });
 });
 

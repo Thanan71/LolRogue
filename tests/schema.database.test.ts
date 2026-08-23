@@ -80,6 +80,13 @@ const protectedRunStartSql = readFileSync(
   new URL('../supabase/migrations/20260726220000_protect_active_run_start.sql', import.meta.url),
   'utf8',
 );
+const retiredMasteryStarterSlotsSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260823071901_retire_mastery_starter_slots.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -191,6 +198,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260813024748_drop_unused_finished_attempt_queue_index.sql',
       '../supabase/migrations/20260820152928_gameplay_ruleset_v14_combat_integrity.sql',
       '../supabase/migrations/20260820163214_gameplay_ruleset_v15_authority_cohorts.sql',
+      '../supabase/migrations/20260823071901_retire_mastery_starter_slots.sql',
     ]);
   });
 
@@ -401,6 +409,20 @@ describe('Supabase existing database upgrade', () => {
     expect(protectedRunStartSql).toContain("'starter_slot_3' = ANY(mastery.unlocked_ids)");
     expect(protectedRunStartSql).toContain("RAISE EXCEPTION 'starter_slots_locked'");
     expect(protectedRunStartSql).toMatch(/BEGIN;[\s\S]*COMMIT;/);
+  });
+
+  it('replaces mastery team-size rewards while preserving retired unlock evidence', () => {
+    expect(retiredMasteryStarterSlotsSql).toContain(
+      "ARRAY['roster_offer_7', 'starter_reroll_1']::TEXT[]",
+    );
+    expect(retiredMasteryStarterSlotsSql).toContain(
+      'champion_mastery_preserve_retired_unlock_history',
+    );
+    expect(retiredMasteryStarterSlotsSql).toContain(
+      "unlock_id IN ('starter_slot_2', 'starter_slot_3')",
+    );
+    expect(retiredMasteryStarterSlotsSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
+    expect(retiredMasteryStarterSlotsSql).not.toMatch(/\bDELETE\s+FROM\b/i);
   });
 
   it('increments mastery and spends enhancement candies atomically', () => {

@@ -8,6 +8,7 @@ import { getKeystoneRunes } from '@/data/items/runeDatabase';
 import { getUnlockedStarterSlotCount } from '@/game/run/runStartValidation';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
+import { getStarterPersonalization } from '@/services/masteryService';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
@@ -42,6 +43,16 @@ export function StarterSelectPage() {
   const [selectionSeed] = useState(() => (isDaily ? getDailySeed() : Date.now()));
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null);
   const [isLoadingDaily, setIsLoadingDaily] = useState(isDaily && !isGuest);
+  const masteryChampions = useMasteryStore((state) => state.champions);
+  const masteryUnlockIds = useMemo(
+    () => Object.values(masteryChampions).flatMap((mastery) => mastery.unlockedIds),
+    [masteryChampions],
+  );
+  const starterPersonalization = useMemo(
+    () => getStarterPersonalization(masteryUnlockIds),
+    [masteryUnlockIds],
+  );
+  const [starterRerollsUsed, setStarterRerollsUsed] = useState(0);
   const choices = useMemo(() => {
     if (resumableStart) {
       return resumableStart.team
@@ -53,10 +64,22 @@ export function StarterSelectPage() {
         .map((championId) => championDB.getById(championId))
         .filter((champion): champion is Champion => champion !== undefined);
     }
-    const rng = isDaily ? createDailyRNG() : new SeededRNG(selectionSeed);
-    return pickRandom(implementedChampions, 6, rng);
-  }, [dailyChallenge, isDaily, isGuest, resumableStart, selectionSeed]);
-  const masteryChampions = useMasteryStore((state) => state.champions);
+    const rerollSeed = selectionSeed + starterRerollsUsed * 2_654_435_761;
+    const rng = isDaily ? createDailyRNG() : new SeededRNG(rerollSeed);
+    return pickRandom(
+      implementedChampions,
+      isDaily ? 6 : starterPersonalization.rosterOfferSize,
+      rng,
+    );
+  }, [
+    dailyChallenge,
+    isDaily,
+    isGuest,
+    resumableStart,
+    selectionSeed,
+    starterPersonalization.rosterOfferSize,
+    starterRerollsUsed,
+  ]);
   const unlockedStarterSlots = useMemo(
     () =>
       getUnlockedStarterSlotCount(
@@ -201,6 +224,14 @@ export function StarterSelectPage() {
     });
   }
 
+  function rerollStarterOffer() {
+    if (isDaily || resumableStart || starterRerollsUsed >= starterPersonalization.rerolls) return;
+    playUIClick();
+    setSelectedStarterIds([]);
+    setError(null);
+    setStarterRerollsUsed((used) => used + 1);
+  }
+
   return (
     <div className="starter-select">
       <header className="starter-select__header">
@@ -249,6 +280,17 @@ export function StarterSelectPage() {
           />
         ))}
       </div>
+
+      {!isDaily && !resumableStart && starterPersonalization.rerolls > 0 && (
+        <button
+          type="button"
+          className="starter-select__back"
+          disabled={starterRerollsUsed >= starterPersonalization.rerolls}
+          onClick={rerollStarterOffer}
+        >
+          Relancer le roster ({starterPersonalization.rerolls - starterRerollsUsed})
+        </button>
+      )}
 
       <div className="starter-select__actions">
         <fieldset className="starter-select__runes" aria-describedby="starter-runes-help">
