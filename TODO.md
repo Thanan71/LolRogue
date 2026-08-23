@@ -425,7 +425,7 @@ que 2,42 rounds.
   bundle Edge courant, avec vérification terminale par `verifyAuthorityRun()`.
 - [x] Ajouter limites de commandes/temps, détection de deadlock et reproduction de
   la seed pour chaque échec.
-- [ ] Stratifier chaque cohorte par difficulté × taille/composition d'équipe ×
+- [x] Stratifier chaque cohorte par difficulté × taille/composition d'équipe ×
   maîtrise/runes/enhancements × politique.
 - [ ] Produire au minimum : victoire avec intervalle Wilson, vagues/biomes p10-p50-p90,
   biome/encounter de mort, rounds, PV/MP, dégâts/soins/CC, or gagné/dépensé,

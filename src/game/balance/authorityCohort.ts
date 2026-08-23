@@ -14,6 +14,11 @@ import {
   type BalanceScenario,
   SURVIVAL_GREEDY_POLICY_MANIFEST,
 } from './balancePolicy';
+import {
+  type AuthorityCohortCell,
+  type AuthorityCohortStratum,
+  createAuthorityCohortStratum,
+} from './authorityCohortMatrix';
 
 /** The runtime boundary shared by the source verifier and the deployed Edge bundle. */
 export interface AuthorityCohortRuntime {
@@ -41,6 +46,7 @@ export interface AuthorityCohortResult {
   };
   readonly policy: BalancePolicyManifest;
   readonly scenarioId: string;
+  readonly stratum: AuthorityCohortStratum;
   readonly runs: readonly AuthorityCohortRun[];
 }
 
@@ -51,6 +57,19 @@ export interface SimulateAuthorityCohortInput {
   readonly seeds: readonly number[];
   readonly limits?: Partial<AuthorityCohortSafetyLimits>;
   readonly now?: () => number;
+}
+
+export interface SimulateAuthorityCohortMatrixInput {
+  readonly authority: AuthorityCohortRuntime;
+  readonly cells: readonly AuthorityCohortCell[];
+  /** The same seeds are replayed in every cell to keep comparisons paired. */
+  readonly seeds: readonly number[];
+  readonly limits?: Partial<AuthorityCohortSafetyLimits>;
+  readonly now?: () => number;
+}
+
+export interface AuthorityCohortMatrixResult {
+  readonly cohorts: readonly AuthorityCohortResult[];
 }
 
 export interface AuthorityCohortSafetyLimits {
@@ -214,6 +233,7 @@ export function simulateAuthorityCohort({
   now = () => performance.now(),
 }: SimulateAuthorityCohortInput): AuthorityCohortResult {
   const limits = resolveSafetyLimits(limitOverrides);
+  const stratum = createAuthorityCohortStratum(scenario, policy.manifest);
   const runs = seeds.map((seed): AuthorityCohortRun => {
     const trace: AuthorityRunCommand[] = [];
     let lastSnapshot: AuthorityRunSnapshot | null = null;
@@ -355,6 +375,33 @@ export function simulateAuthorityCohort({
     },
     policy: { ...policy.manifest },
     scenarioId: scenario.id,
+    stratum,
     runs,
+  };
+}
+
+/** Runs a paired seed set independently for every pre-stratified matrix cell. */
+export function simulateAuthorityCohortMatrix({
+  authority,
+  cells,
+  seeds,
+  limits,
+  now,
+}: SimulateAuthorityCohortMatrixInput): AuthorityCohortMatrixResult {
+  return {
+    cohorts: cells.map((cell) => {
+      const cohort = simulateAuthorityCohort({
+        authority,
+        policy: cell.policy,
+        scenario: cell.scenario,
+        seeds,
+        limits,
+        now,
+      });
+      if (cohort.stratum.fingerprint !== cell.stratum.fingerprint) {
+        throw new Error(`Authority cohort cell "${cell.id}" changed after matrix creation.`);
+      }
+      return cohort;
+    }),
   };
 }

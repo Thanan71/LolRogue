@@ -65,6 +65,7 @@ function summarizeCohort(cohort: ReturnType<typeof simulateAuthorityCohort>) {
     authority: cohort.authority,
     policy: cohort.policy,
     scenarioId: cohort.scenarioId,
+    stratum: cohort.stratum,
     seed: run.seed,
     terminal: run.result.snapshot.terminal,
     won: run.result.snapshot.won,

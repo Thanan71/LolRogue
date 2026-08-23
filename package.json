@@ -66,7 +66,7 @@
     "release:preflight": "node scripts/release-preflight.mjs",
     "release:readiness:check": "node scripts/release-preflight.mjs --verify-documentation",
     "ops:restore-drill": "node scripts/run-isolated-restore-drill.mjs --local",
-    "balance:check": "vitest run tests/balanceSimulation.test.ts tests/contentBalance.test.ts tests/authorityCohort.test.ts tests/authorityCombatIntegrityParity.test.ts",
+    "balance:check": "vitest run tests/balanceSimulation.test.ts tests/contentBalance.test.ts tests/authorityCohort.test.ts tests/authorityCohortMatrix.test.ts tests/authorityCombatIntegrityParity.test.ts",
     "balance:repro": "node scripts/run-balance-repro.mjs",
     "assets:update": "npm run ddragon:download && npm run ddragon:parse && npm run assets:package && npm run assets:verify"
   },
