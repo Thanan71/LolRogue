@@ -52,20 +52,22 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
     offered = await page.getByRole('button', { name: /^Choisir / }).allTextContents();
   }
   const preferred = ['Warwick', 'Garen', 'Darius', 'Leona', 'Soraka'];
-  const selectedStarters: string[] = [];
+  let selectedCount = 0;
   for (const champion of preferred) {
-    if (selectedStarters.length >= 2) break;
+    if (selectedCount >= 2) break;
     if (!offered.some((label) => label.includes(champion))) continue;
-    await page.getByRole('button', { name: new RegExp(`^Choisir ${champion}`) }).click();
-    selectedStarters.push(champion);
+    const choice = page.getByRole('button', { name: new RegExp(`^Choisir ${champion}`) });
+    if ((await choice.getAttribute('aria-pressed')) === 'true') continue;
+    await choice.click();
+    selectedCount += 1;
   }
-  while (selectedStarters.length < 2) {
-    const fallback = page.getByRole('button', { name: /^Choisir / }).first();
+  while (selectedCount < 2) {
+    const fallback = page.locator('button.champion-card[aria-pressed="false"]:not(:disabled)').first();
     await expect(fallback).toBeVisible();
-    const label = (await fallback.textContent()) ?? `fallback-${selectedStarters.length}`;
     await fallback.click();
-    selectedStarters.push(label);
+    selectedCount += 1;
   }
+  await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
 
   const runes = page.getByRole('checkbox');
   let selected = 0;
@@ -81,7 +83,9 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
       selected += 1;
     }
   }
-  await page.getByRole('button', { name: 'Confirmer le choix' }).click();
+  const confirm = page.getByRole('button', { name: 'Confirmer le choix' });
+  await expect(confirm).toBeEnabled();
+  await confirm.click();
   await expect(page).toHaveURL('/run');
   if (assuredVictory) {
     await expect
