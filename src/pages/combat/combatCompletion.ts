@@ -7,6 +7,7 @@ import type { ChampionInstance } from '@/game/ChampionInstance';
 import { NodeType } from '@/game/map/types';
 import { itemDefinitionToRunItem, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
+import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { useRunStore } from '@/stores/runStore';
@@ -99,6 +100,8 @@ export function completeCombat({
           encounter,
           inventory: runStore.inventory,
           bonusGold: augmentManager.getBonusGold(),
+          starterTeamSize:
+            runStore.authorityAttempt?.initialTeam.length ?? getRequiredStarterCount(runStore.mode),
         });
     const goldReward =
       resolution?.reward.gold ?? 50 + runStore.runLevel * 10 + augmentManager.getBonusGold();

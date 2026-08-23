@@ -18,10 +18,11 @@ import type { AuthorityDifficulty } from '@/types/runAttempt';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateXpGain } from '@/utils/xpSystem';
 import { DIFFICULTY_RULES } from './difficultyRules';
+import { getStarterBudgetProfile } from './starterBudget';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 1;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 2;
 
 const NODE_RULES: Record<
   NodeType.Combat | NodeType.Elite | NodeType.Boss,
@@ -74,6 +75,7 @@ export interface ResolvedCombatReward {
 
 export interface ResolvedCombatEncounter {
   rulesetVersion: number;
+  starterBudget: ReturnType<typeof getStarterBudgetProfile>;
   encounterId: string;
   biome: Biome;
   nodeType: NodeType.Combat | NodeType.Elite | NodeType.Boss;
@@ -93,6 +95,8 @@ export interface ResolveCombatEncounterInput {
   encounter: CombatEncounter;
   inventory: readonly InventoryEntry[];
   bonusGold?: number;
+  /** Immutable size of the team at run start; later recruits do not change this budget. */
+  starterTeamSize?: number;
 }
 
 function roundMultiplier(value: number): number {
@@ -155,6 +159,7 @@ export function resolveCombatEncounter(
   input: ResolveCombatEncounterInput,
 ): ResolvedCombatEncounter {
   const difficulty = DIFFICULTY_RULES[input.difficulty];
+  const starterBudget = getStarterBudgetProfile(input.starterTeamSize ?? 1);
   const node = NODE_RULES[input.nodeType];
   const biomeMultiplier = 1 + (BIOME_INFO[input.biome].difficultyMultiplier - 1) * 0.35;
   const wave = Math.max(1, Math.trunc(input.wave));
@@ -171,6 +176,7 @@ export function resolveCombatEncounter(
     statMultiplier: roundMultiplier(
       Math.max(0.1, enemy.statMultiplier) *
         difficulty.enemyStatMultiplier *
+        starterBudget.enemyFormationMultiplier *
         biomeMultiplier *
         node.enemyStatMultiplier *
         progressionMultiplier,
@@ -181,6 +187,7 @@ export function resolveCombatEncounter(
 
   return {
     rulesetVersion: COMBAT_ENCOUNTER_RULESET_VERSION,
+    starterBudget,
     encounterId: input.encounter.id,
     biome: input.biome,
     nodeType: input.nodeType,

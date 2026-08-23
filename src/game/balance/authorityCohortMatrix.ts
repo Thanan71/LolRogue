@@ -1,5 +1,5 @@
 import type { AuthorityDifficulty } from '@/game/authority/types';
-import { MAX_TEAM_SIZE } from '@/types/run';
+import { getStarterBudgetProfile, MAX_STARTER_TEAM_SIZE } from '@/game/run/starterBudget';
 import type { BalancePolicy, BalancePolicyManifest, BalanceScenario } from './balancePolicy';
 
 export interface AuthorityCohortTeamProfile {
@@ -44,6 +44,7 @@ export interface AuthorityCohortStratum {
       readonly statMultiplier: number;
     }>;
   };
+  readonly starterBudget: ReturnType<typeof getStarterBudgetProfile>;
   readonly masterySnapshot: Readonly<Record<string, number>>;
   readonly runeIds: readonly string[];
   readonly enhancementSnapshot: Readonly<Record<string, Readonly<Record<string, number>>>>;
@@ -141,6 +142,7 @@ export function createAuthorityCohortStratum(
   const runeIds = [...scenario.runeIds];
   const enhancementSnapshot = cloneEnhancementSnapshot(scenario.enhancementSnapshot);
   const policyManifest = cloneManifest(policy);
+  const starterBudget = getStarterBudgetProfile(team.length);
   const semanticDimensions = {
     difficulty: scenario.difficulty,
     team,
@@ -158,6 +160,7 @@ export function createAuthorityCohortStratum(
       size: team.length,
       composition: team,
     },
+    starterBudget,
     masterySnapshot,
     runeIds,
     enhancementSnapshot,
@@ -191,9 +194,9 @@ function sortProfiles<T extends { readonly id: string }>(
 
 function validateTeamProfiles(profiles: readonly AuthorityCohortTeamProfile[]): void {
   for (const profile of profiles) {
-    if (profile.team.length < 1 || profile.team.length > MAX_TEAM_SIZE) {
+    if (profile.team.length < 1 || profile.team.length > MAX_STARTER_TEAM_SIZE) {
       throw new RangeError(
-        `Team profile "${profile.id}" must contain between 1 and ${MAX_TEAM_SIZE} champions.`,
+        `Team profile "${profile.id}" must contain between 1 and ${MAX_STARTER_TEAM_SIZE} champions.`,
       );
     }
     const championIds = new Set<string>();

@@ -108,6 +108,11 @@ describe('authority cohort stratification matrix', () => {
             { championId: 'Lux', statMultiplier: 1.1 },
           ],
         },
+        starterBudget: {
+          teamSize: 2,
+          cohortId: 'starters-2',
+          enemyFormationMultiplier: 1.55,
+        },
         masterySnapshot: { Garen: 4, Lux: 4 },
         runeIds: ['electrocute', 'press_the_attack'],
         enhancementSnapshot: { Garen: { fighter_core_1: 1 } },
@@ -203,6 +208,11 @@ describe('authority cohort stratification matrix', () => {
       expect(cohort.runs.map((run) => run.seed)).toEqual([0]);
       expect(cohort.stratum).toMatchObject({
         team: { size: 1, composition: [{ championId: 'Soraka', statMultiplier: 0.1 }] },
+        starterBudget: {
+          teamSize: 1,
+          cohortId: 'starters-1',
+          enemyFormationMultiplier: 1,
+        },
         masterySnapshot: {},
         runeIds: [],
         enhancementSnapshot: {},

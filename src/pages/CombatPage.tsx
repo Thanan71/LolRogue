@@ -37,6 +37,7 @@ import { TargetingType } from '@/types/champion';
 import type { FinalCombatantState } from '@/types/run';
 import { logger } from '@/utils/logger';
 import { createScopedRunRng } from '@/utils/runRandom';
+import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { completeCombat } from './combat/combatCompletion';
 import { getEnhancementDescriptions } from './combat/combatPresenter';
 import { buildLegacyEnemyTeam, usesLegacyEncounterRules } from './combat/legacyCombatEncounter';
@@ -98,6 +99,7 @@ export function CombatPage() {
   const currentWave = useRunStore((s) => s.currentWave);
   const currentBiomeIndex = useRunStore((s) => s.currentBiomeIndex);
   const authorityAttempt = useRunStore((s) => s.authorityAttempt);
+  const runMode = useRunStore((s) => s.mode);
   const runeIds = useRunStore((s) => s.runeIds);
   const runeStacks = useRunStore((s) => s.runeStacks);
   const augmentIds = useRunStore((s) => s.augmentIds);
@@ -320,6 +322,7 @@ export function CombatPage() {
         difficulty: effectiveDifficulty,
         encounter: currentEncounter,
         inventory,
+        starterTeamSize: authorityAttempt?.initialTeam.length ?? getRequiredStarterCount(runMode),
       }),
     );
   }, [
@@ -329,6 +332,7 @@ export function CombatPage() {
     currentWave,
     effectiveDifficulty,
     inventory,
+    runMode,
     runLevel,
     runSeed,
     usesLegacyEncounterRulesForAttempt,

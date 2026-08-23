@@ -495,6 +495,7 @@ class AuthorityReplayState {
         difficulty: this.attempt.difficulty,
         encounter,
         inventory: this.inventory,
+        starterTeamSize: this.attempt.team.length,
       }),
     );
     if (players.length !== this.team.length || enemies.length === 0) {
@@ -654,6 +655,7 @@ class AuthorityReplayState {
       encounter,
       inventory: this.inventory,
       bonusGold: augmentManager.getBonusGold(),
+      starterTeamSize: this.attempt.team.length,
     });
     this.gainGold(resolution.reward.gold);
     const postCombat = resolvePostCombatTeam({

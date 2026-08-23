@@ -65,6 +65,22 @@ describe('versioned encounter resolver', () => {
     );
   });
 
+  it('uses separate 1/2/3 starter cohorts with versioned formation budgets', () => {
+    const solo = resolve('normal', { starterTeamSize: 1 });
+    const duo = resolve('normal', { starterTeamSize: 2 });
+    const trio = resolve('normal', { starterTeamSize: 3 });
+
+    expect(solo.starterBudget).toEqual({
+      teamSize: 1,
+      cohortId: 'starters-1',
+      enemyFormationMultiplier: 1,
+    });
+    expect(duo.starterBudget.enemyFormationMultiplier).toBe(1.55);
+    expect(trio.starterBudget.enemyFormationMultiplier).toBe(2);
+    expect(duo.enemies[0].statMultiplier / solo.enemies[0].statMultiplier).toBeCloseTo(1.55, 4);
+    expect(trio.enemies[0].statMultiplier / solo.enemies[0].statMultiplier).toBeCloseTo(2, 4);
+  });
+
   it('scales enemy level and every calculated stat through ChampionInstance', () => {
     const early = resolve('normal');
     const late = resolve('normal', {

@@ -173,6 +173,7 @@ function resolveFirstClientCombat(mode: 'manual' | 'autoplay'): void {
     difficulty: before.authorityAttempt?.difficulty ?? 'normal',
     encounter,
     inventory: before.inventory,
+    starterTeamSize: before.authorityAttempt?.initialTeam.length ?? 2,
   });
   const rng = createScopedRunRng(before.seed, `combat:${encounter.id ?? node.id}`);
   const battle = new BattleManager(
@@ -260,6 +261,7 @@ function resolveFirstClientCombat(mode: 'manual' | 'autoplay'): void {
     encounter,
     inventory: afterJournal.inventory,
     bonusGold: augmentManager.getBonusGold(),
+    starterTeamSize: afterJournal.authorityAttempt?.initialTeam.length ?? 2,
   });
   expect(
     afterJournal.addGold(rewarded.reward.gold, {

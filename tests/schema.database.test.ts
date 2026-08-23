@@ -94,6 +94,13 @@ const normalizedRankedStarterCountsSql = readFileSync(
   ),
   'utf8',
 );
+const stratifiedStarterBudgetCohortsSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260823072701_stratify_starter_budget_cohorts.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -207,6 +214,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260820163214_gameplay_ruleset_v15_authority_cohorts.sql',
       '../supabase/migrations/20260823071901_retire_mastery_starter_slots.sql',
       '../supabase/migrations/20260823072320_normalize_ranked_starter_counts.sql',
+      '../supabase/migrations/20260823072701_stratify_starter_budget_cohorts.sql',
     ]);
   });
 
@@ -442,6 +450,24 @@ describe('Supabase existing database upgrade', () => {
     expect(normalizedRankedStarterCountsSql).toContain("NEW.mode = 'daily' AND v_team_size <>");
     expect(normalizedRankedStarterCountsSql).not.toContain("'starter_slot_2' = ANY");
     expect(normalizedRankedStarterCountsSql).not.toContain("'starter_slot_3' = ANY");
+  });
+
+  it('partitions Normal rankings by starter size and exposes matching enemy budgets', () => {
+    expect(stratifiedStarterBudgetCohortsSql).toContain(
+      'CREATE VIEW public.verified_run_starter_cohorts',
+    );
+    expect(stratifiedStarterBudgetCohortsSql).toContain('security_invoker = true');
+    expect(stratifiedStarterBudgetCohortsSql).toContain(
+      'CARDINALITY(attempt.initial_team)::SMALLINT AS starter_team_size',
+    );
+    expect(stratifiedStarterBudgetCohortsSql).toContain(
+      'attempt.difficulty,\n      CARDINALITY(attempt.initial_team)',
+    );
+    expect(stratifiedStarterBudgetCohortsSql).toContain('WHEN 2 THEN 1.55::NUMERIC');
+    expect(stratifiedStarterBudgetCohortsSql).toContain('WHEN 3 THEN 2.00::NUMERIC');
+    expect(stratifiedStarterBudgetCohortsSql).toContain(
+      'GRANT SELECT ON TABLE public.verified_run_starter_cohorts TO service_role',
+    );
   });
 
   it('increments mastery and spends enhancement candies atomically', () => {

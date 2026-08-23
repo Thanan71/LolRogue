@@ -66,7 +66,7 @@
     "release:preflight": "node scripts/release-preflight.mjs",
     "release:readiness:check": "node scripts/release-preflight.mjs --verify-documentation",
     "ops:restore-drill": "node scripts/run-isolated-restore-drill.mjs --local",
-    "balance:check": "vitest run tests/contentCatalogAnalysis.test.ts tests/contentBalance.test.ts tests/authorityCohort.test.ts tests/authorityCohortMatrix.test.ts tests/authorityCohortReport.test.ts tests/authorityCohortBaseline.test.ts tests/authorityCohortProfiles.test.ts tests/authorityCohortExecution.test.ts tests/authorityCohortDeterminism.test.ts tests/authorityCombatIntegrityParity.test.ts",
+    "balance:check": "vitest run tests/contentCatalogAnalysis.test.ts tests/contentBalance.test.ts tests/authorityCohort.test.ts tests/authorityCohortMatrix.test.ts tests/authorityCohortReport.test.ts tests/authorityCohortBaseline.test.ts tests/authorityCohortProfiles.test.ts tests/authorityCohortExecution.test.ts tests/authorityCohortDeterminism.test.ts tests/authorityCombatIntegrityParity.test.ts tests/starterBudget.test.ts",
     "balance:baseline:generate": "node scripts/generate-authority-cohort-baseline.mjs",
     "balance:cohort": "node scripts/run-authority-cohorts.mjs",
     "balance:repro": "node scripts/run-balance-repro.mjs",

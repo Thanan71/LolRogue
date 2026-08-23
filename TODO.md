@@ -480,7 +480,7 @@ playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
   de départ : deux starters par défaut en Normal, un starter normalisé en Daily.
 - [x] Transformer la maîtrise en largeur de roster, reroll ou cosmétique plutôt qu'en
   avantage de taille d'équipe pour les modes classés.
-- [ ] Si 1/2/3 starters sont conservés, séparer les cohortes/classements et tester un
+- [x] Si 1/2/3 starters sont conservés, séparer les cohortes/classements et tester un
   budget de formation ennemi autour de ×1 / ×1,55 / ×2.
 - [ ] Affecter les runes par champion avec budget partagé, ou rendre leur effet unique
   au niveau équipe ; empêcher la multiplication implicite par le nombre de starters.
