@@ -430,7 +430,7 @@ que 2,42 rounds.
 - [x] Produire au minimum : victoire avec intervalle Wilson, vagues/biomes p10-p50-p90,
   biome/encounter de mort, rounds, PV/MP, dégâts/soins/CC, or gagné/dépensé,
   affordability, achats, recrues, drops par rareté et choix d'augments.
-- [ ] Indexer la baseline JSON par moteur, `contentHash`, version du modèle et version
+- [x] Indexer la baseline JSON par moteur, `contentHash`, version du modèle et version
   de politique ; conserver seulement les traces de seeds extrêmes comme artefacts CI.
 - [ ] Exécuter 30–50 seeds par cellule en PR et 500–1 000 en nightly/release.
 - [ ] Lire les versions gameplay/hash depuis le registre authority unique et le score
