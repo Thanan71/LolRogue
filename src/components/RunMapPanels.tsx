@@ -220,7 +220,7 @@ export function InventoryPanel({
     mr: 'Résistance magique',
     spd: 'Vitesse de déplacement',
     crit: 'Chance de critique',
-    attackSpeed: "Vitesse d'attaque",
+    attackSpeed: "Initiative d'attaque",
     hpRegen: 'Régénération PV',
     mpRegen: 'Régénération PM',
     armorPen: "Pénétration d'armure",
@@ -229,7 +229,7 @@ export function InventoryPanel({
     omnivamp: 'Omnivamp',
     tenacity: 'Ténacité',
     abilityHaste: 'Hâte de compétence',
-    attackRange: "Portée d'attaque",
+    attackRange: 'Profil de portée',
   };
 
   const getHoveredEntry = () => {

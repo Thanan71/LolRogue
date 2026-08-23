@@ -749,7 +749,7 @@ déjà été rejetées avec le même code.
   ennemie choisie par valeur effective plutôt qu'au hasard.
 - [x] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa
   racine, et laisser défenses, mana, vitesse, portée, critique et régénération inchangés.
-- [ ] Décider explicitement le rôle de la vitesse d'attaque et de la portée ; retirer
+- [x] Décider explicitement le rôle de la vitesse d'attaque et de la portée ; retirer
   ou renommer tout bonus sans effet tant que la mécanique n'existe pas.
 - [ ] Ramener les slows cumulés à un plafond de design inférieur à 99 %.
 

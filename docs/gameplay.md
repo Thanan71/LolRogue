@@ -74,6 +74,13 @@ Le moteur accepte une source aléatoire injectée. Une mécanique aléatoire ajo
 combat doit utiliser cette source, jamais appeler directement `Math.random`, afin
 de préserver la reproductibilité et les tests.
 
+Dans ce modèle sans position spatiale, la statistique historique `attackSpeed` est
+une initiative d'attaque : l'ordre vaut `moveSpeed + 10 × attackSpeed + jitter`.
+Elle ne donne jamais d'action supplémentaire, chaque champion agit au plus une fois
+par round. `attackRange` classe seulement le profil mêlée/distance et n'autorise ni
+n'interdit une cible ; aucun arbre de progression ne vend donc de portée. Les anciens
+nœuds de portée ont été remplacés par des bonus réellement résolus par le moteur.
+
 L'autoplay applique une décision contextuelle déterministe. Un soin ou bouclier
 n'est choisi que sous 70 % de PV et vise l'allié le plus blessé ; une exécution
 respecte son seuil publié ; une zone offensive exige au moins deux cibles vivantes.

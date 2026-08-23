@@ -68,7 +68,7 @@ export const CHAMPION_DESIGN: Record<string, ChampionDesignProfile> = {
   },
   Malphite: {
     role: 'tank anti-physique / engage',
-    strengths: ['armure', 'engage de zone', 'perturbation de vitesse d’attaque'],
+    strengths: ['armure', 'engage de zone', 'ralentissement de zone'],
     weaknesses: ['mana', 'dégâts soutenus limités', 'moins fort contre magie'],
     synergies: ['Annie', 'Lux', 'Jinx'],
   },

@@ -57,7 +57,16 @@ import {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Maximum random speed jitter added to turn order calculation (in speed units) */
-const SPEED_JITTER_MAX = 0.5;
+export const SPEED_JITTER_MAX = 0.5;
+export const ATTACK_SPEED_INITIATIVE_WEIGHT = 10;
+
+export function calculateInitiative(
+  moveSpeed: number,
+  attackSpeed: number,
+  jitter: number,
+): number {
+  return moveSpeed + attackSpeed * ATTACK_SPEED_INITIATIVE_WEIGHT + jitter;
+}
 
 type ActionCallback = (
   champion: ChampionInstance,
@@ -568,7 +577,7 @@ export class BattleManager {
   private _calcSpeedPriority(combatant: CombatantState): number {
     const stats = this._getCombatStats(combatant);
     const jitter = this._random() * SPEED_JITTER_MAX;
-    return stats.moveSpeed + stats.attackSpeed * 10 + jitter;
+    return calculateInitiative(stats.moveSpeed, stats.attackSpeed, jitter);
   }
 
   private _startCurrentTurn(): void {

@@ -106,7 +106,7 @@ export const malphite: Champion = {
       id: 'Landslide',
       name: 'Choc au sol',
       description:
-        'Malphite frappe le sol, infligeant des dégâts magiques en fonction de son armure et réduisant la vitesse d attaque des ennemis.',
+        'Malphite frappe le sol, infligeant des dégâts magiques en fonction de son armure et ralentissant les ennemis.',
       maxRank: 5,
       cooldownTurns: [2, 2, 2, 2, 2],
       cost: [50, 55, 60, 65, 70],

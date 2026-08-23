@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { BattleManager } from '../src/game/battle/BattleManager';
+import {
+  ATTACK_SPEED_INITIATIVE_WEIGHT,
+  BattleManager,
+  calculateInitiative,
+} from '../src/game/battle/BattleManager';
 import { reduceBattleMetrics } from '../src/game/battle/battleMetrics';
 import type { BattleAction, BattleTeam } from '../src/game/battle/types';
 import { ActionType, BattlePhase } from '../src/game/battle/types';
@@ -176,6 +180,33 @@ describe('BattleManager', () => {
     });
 
     describe('speed-based turn order', () => {
+      it('uses attack speed only as a deterministic initiative contribution', () => {
+        expect(ATTACK_SPEED_INITIATIVE_WEIGHT).toBe(10);
+        expect(calculateInitiative(330, 1, 0)).toBeGreaterThan(calculateInitiative(330, 0.5, 0));
+
+        const fastAttack = makeTestChampion({ id: 'FastAttack', key: 'FastAttack' });
+        fastAttack.stats.moveSpeed = 330;
+        fastAttack.stats.attackSpeed = 1;
+        const slowAttack = makeTestChampion({ id: 'SlowAttack', key: 'SlowAttack' });
+        slowAttack.stats.moveSpeed = 330;
+        slowAttack.stats.attackSpeed = 0.5;
+        const manager = new BattleManager(
+          { side: 'player', champions: [new ChampionInstance(fastAttack)] },
+          { side: 'enemy', champions: [new ChampionInstance(slowAttack)] },
+          { random: () => 0 },
+        );
+        manager.startBattle();
+        const roundStart = manager.log.find((event) => event.type === 'round_start');
+        if (!roundStart || roundStart.type !== 'round_start') {
+          throw new Error('Expected a round-start event.');
+        }
+        expect(roundStart.turnOrder.map((entry) => entry.champion)).toEqual([
+          'FastAttack',
+          'SlowAttack',
+        ]);
+        expect(roundStart.turnOrder).toHaveLength(2);
+      });
+
       it('uses the injected run RNG for reproducible initiative', () => {
         const teams = makeTeams(['Player'], ['Enemy'], { Player: 330, Enemy: 330 });
         const rolls = [0.1, 0.9];

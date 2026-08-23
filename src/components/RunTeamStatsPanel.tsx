@@ -34,7 +34,7 @@ const DETAIL_STATS = [
   { key: 'abilityPower', label: 'Puissance', shortLabel: 'PUI' },
   { key: 'armor', label: 'Armure', shortLabel: 'ARM' },
   { key: 'magicResist', label: 'Résistance magique', shortLabel: 'RM' },
-  { key: 'attackSpeed', label: "Vitesse d'attaque", shortLabel: 'V. ATQ' },
+  { key: 'attackSpeed', label: "Initiative d'attaque", shortLabel: 'I. ATQ' },
   { key: 'moveSpeed', label: 'Vitesse de déplacement', shortLabel: 'V. DÉP' },
   { key: 'crit', label: 'Critique', shortLabel: 'CRIT' },
 ] as const satisfies ReadonlyArray<{

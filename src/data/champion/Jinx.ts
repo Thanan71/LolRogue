@@ -47,7 +47,7 @@ export const jinx: Champion = {
       id: 'JinxQ',
       name: 'Flip flap !',
       description:
-        'Jinx alterne entre Bang-Bang (minigun, bonus vitesse d attaque) et Poiscaille (lance-roquettes, dégâts de zone et plus grande portée).',
+        'Jinx alterne entre Bang-Bang (bonus d initiative d attaque) et Poiscaille (dégâts de zone).',
       maxRank: 5,
       cooldownTurns: [2, 2, 2, 2, 2],
       cost: [20, 20, 20, 20, 20],
@@ -145,7 +145,7 @@ export const jinx: Champion = {
   passive: {
     name: 'Enthousiasme !',
     description:
-      'Jinx reçoit un bonus en vitesse de déplacement et en vitesse d attaque quand elle participe à l élimination d un champion, monstre épique ou bâtiment.',
+      'Jinx reçoit un bonus en vitesse de déplacement et en initiative d attaque après une élimination.',
     image: 'Jinx_Passive.png',
     targeting: TargetingType.Passive,
     scaling: { adRatio: 0, apRatio: 0 },
