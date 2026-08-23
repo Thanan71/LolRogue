@@ -52,11 +52,21 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
     offered = await page.getByRole('button', { name: /^Choisir / }).allTextContents();
   }
   const preferred = ['Warwick', 'Garen', 'Darius', 'Leona', 'Soraka'];
-  const champion = preferred.find((name) => offered.some((label) => label.includes(name)));
-  const choice = champion
-    ? page.getByRole('button', { name: new RegExp(`^Choisir ${champion}`) })
-    : page.getByRole('button', { name: /^Choisir / }).first();
-  await choice.click();
+  const selectedStarters: string[] = [];
+  for (const champion of preferred) {
+    if (selectedStarters.length >= 2) break;
+    if (!offered.some((label) => label.includes(champion))) continue;
+    await page.getByRole('button', { name: new RegExp(`^Choisir ${champion}`) }).click();
+    selectedStarters.push(champion);
+  }
+  while (selectedStarters.length < 2) {
+    const fallback = page.getByRole('button', { name: /^Choisir / }).first();
+    await expect(fallback).toBeVisible();
+    const label = (await fallback.textContent()) ?? `fallback-${selectedStarters.length}`;
+    await fallback.click();
+    selectedStarters.push(label);
+  }
+
   const runes = page.getByRole('checkbox');
   let selected = 0;
   if (assuredVictory) {
