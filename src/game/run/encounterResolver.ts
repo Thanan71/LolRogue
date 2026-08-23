@@ -23,7 +23,7 @@ import { drawItemDefinitionForBiome } from './itemDropRules';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 3;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 4;
 
 const NODE_RULES: Record<
   NodeType.Combat | NodeType.Elite | NodeType.Boss,

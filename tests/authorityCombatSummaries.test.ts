@@ -124,7 +124,7 @@ describe('authority combat summaries', () => {
       gold: expect.any(Number),
       xpPerChampion: expect.any(Number),
       itemDropChance: expect.any(Number),
-      droppedItemId: 'health_potion',
+      droppedItemId: 'long_sword',
       dropBlockedByCapacity: false,
       droppedItemInstanceId: `item_${RUN_UUID}_1`,
     });

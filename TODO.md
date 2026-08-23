@@ -521,7 +521,7 @@ différents.
   legendary 5 %, puis tirer l'item dans la rareté.
 - [x] Gater le tier 2 par biome : Top 0 %, Jungle/Mid 10 %, Bot 20 %, River 30 %,
   boss final garanti ou table dédiée.
-- [ ] Retirer le bonus de drop Hard ou le remplacer par score/récompense méta ne
+- [x] Retirer le bonus de drop Hard ou le remplacer par score/récompense méta ne
   renforçant pas la run en cours.
 - [ ] Ajouter des tests statistiques de rendement restant, rareté, valeur et
   domination de choix ; aucune option ne doit dépasser durablement 55–60 % de pick.
