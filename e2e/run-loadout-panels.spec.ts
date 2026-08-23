@@ -43,9 +43,7 @@ async function installLoadoutFixture(page: Page) {
       import('/src/game/inventory/inventoryRules.ts'),
       import('/src/stores/runStore.ts'),
     ]);
-    // Start through the real guest contract, then enrich the already-active run
-    // with a second member to exercise the master/detail presentation.
-    const started = await useRunStore.getState().startRun(['Garen'], { seed: 20260814 });
+    const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20260814 });
     if (!started.success) throw new Error(`Unable to start fixture run: ${started.code}`);
     const sword = getCanonicalRunItem('long_sword');
     const armor = getCanonicalRunItem('cloth_armor');
