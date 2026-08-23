@@ -16,6 +16,7 @@ const ATTEMPT: AuthorityRunAttempt = {
   runUuid: '11111111-1111-4111-8111-111111111111',
   seed: 42_4242,
   difficulty: 'easy',
+  mode: 'normal',
   team: [{ championId: 'Garen', statMultiplier: 10 }],
   runeIds: [],
   enhancementSnapshot: {},
@@ -252,6 +253,25 @@ describe('authority run engine', () => {
     mutableAttempt.masterySnapshot.Garen = 4;
 
     expect(session.getResult()).toEqual(expected);
+  });
+
+  it('forces Daily mastery and enhancement inputs to progression-neutral snapshots', () => {
+    const trace = firstCombatTrace();
+    const neutralDaily = replayAuthorityRun(
+      { ...ATTEMPT, mode: 'daily', enhancementSnapshot: {}, masterySnapshot: {} },
+      trace,
+    );
+    const progressedDaily = replayAuthorityRun(
+      {
+        ...ATTEMPT,
+        mode: 'daily',
+        enhancementSnapshot: { Garen: { fighter_core_1: 1 } },
+        masterySnapshot: { Garen: 4 },
+      },
+      trace,
+    );
+
+    expect(progressedDaily).toEqual(neutralDaily);
   });
 
   it('invalidates an incremental session after a rejected command', () => {

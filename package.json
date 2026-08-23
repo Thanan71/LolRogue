@@ -66,8 +66,10 @@
     "release:preflight": "node scripts/release-preflight.mjs",
     "release:readiness:check": "node scripts/release-preflight.mjs --verify-documentation",
     "ops:restore-drill": "node scripts/run-isolated-restore-drill.mjs --local",
-    "balance:check": "vitest run tests/contentCatalogAnalysis.test.ts tests/contentBalance.test.ts tests/authorityCohort.test.ts tests/authorityCohortMatrix.test.ts tests/authorityCohortReport.test.ts tests/authorityCohortBaseline.test.ts tests/authorityCohortProfiles.test.ts tests/authorityCohortExecution.test.ts tests/authorityCohortDeterminism.test.ts tests/authorityCombatIntegrityParity.test.ts tests/starterBudget.test.ts tests/runeAssignment.test.ts",
-    "balance:baseline:generate": "node scripts/generate-authority-cohort-baseline.mjs",
+    "balance:check": "npm run balance:baseline:check && vitest run tests/contentCatalogAnalysis.test.ts tests/contentBalance.test.ts tests/authorityCohort.test.ts tests/authorityCohortMatrix.test.ts tests/authorityCohortReport.test.ts tests/authorityCohortBaseline.test.ts tests/authorityCohortProfiles.test.ts tests/authorityCohortExecution.test.ts tests/authorityCohortDeterminism.test.ts tests/authorityCombatIntegrityParity.test.ts tests/starterBudget.test.ts tests/runeAssignment.test.ts",
+    "balance:baseline:check": "node scripts/generate-authority-cohort-baseline.mjs --engine v15 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v16 --check",
+    "balance:baseline:generate": "node scripts/generate-authority-cohort-baseline.mjs --engine v16",
+    "balance:baseline:generate:v15": "node scripts/generate-authority-cohort-baseline.mjs --engine v15",
     "balance:cohort": "node scripts/run-authority-cohorts.mjs",
     "balance:repro": "node scripts/run-balance-repro.mjs",
     "assets:update": "npm run ddragon:download && npm run ddragon:parse && npm run assets:package && npm run assets:verify"

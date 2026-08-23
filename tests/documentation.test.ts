@@ -219,9 +219,7 @@ describe('documentation maintenue', () => {
     const gameplay = read('docs/gameplay.md');
     const persistence = read('docs/data-and-persistence.md');
     const dailySql = read('supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql');
-    const v15Sql = read(
-      'supabase/migrations/20260820163214_gameplay_ruleset_v15_authority_cohorts.sql',
-    );
+    const v16Sql = read('supabase/migrations/20260823073234_gameplay_ruleset_v16_daily_parity.sql');
 
     for (const token of [
       'v_ruleset.victory_bonus',
@@ -232,12 +230,12 @@ describe('documentation maintenue', () => {
     ]) {
       expect(dailySql).toContain(token);
     }
-    expect(v15Sql).toContain("'2026-08-authoritative-daily-v15'");
-    expect(v15Sql).toContain('score_version');
-    expect(v15Sql).toContain("'lolrogue.daily.v15'");
+    expect(v16Sql).toContain("'2026-08-progression-neutral-daily-v16'");
+    expect(v16Sql).toContain('score_version');
+    expect(v16Sql).toContain("'lolrogue.daily.v16'");
     expect(gameplay).toContain('1 000 × vagues terminées');
     expect(gameplay).toContain('250 × biomes visités');
     expect(gameplay).toContain("Le score n'utilise ni l'or restant ni le nombre d'objets");
-    expect(persistence).toContain('Dans le ruleset Daily v15 actif');
+    expect(persistence).toContain('Dans le ruleset Daily v16 actif');
   });
 });

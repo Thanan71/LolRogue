@@ -1,67 +1,44 @@
-import {
-  AUTHORITY_CONTENT_HASH,
-  AUTHORITY_ENGINE_VERSION,
-  getAuthorityVerifier,
-} from '@/game/authority';
-import { type AuthorityCohortMatrixResult, simulateAuthorityCohortMatrix } from './authorityCohort';
-import {
-  type AuthorityCohortBaselineDocument,
-  type AuthorityCohortBaselineIdentity,
-  createAuthorityCohortBaselineDocument,
+import type { AuthorityCohortRuntime } from './authorityCohort';
+import type {
+  AuthorityCohortBaselineDocument,
+  AuthorityCohortBaselineIdentity,
 } from './authorityCohortBaseline';
-import { createAuthorityCohortMatrix } from './authorityCohortMatrix';
-import { type AuthorityCohortReport, createAuthorityCohortReport } from './authorityCohortReport';
+import {
+  AUTHORITY_COHORT_BASELINE_SMOKE_SEEDS,
+  type AuthorityCohortBaselineFixture,
+  createAuthorityCohortBaselineFixture,
+} from './authorityCohortBaselineFixture';
 import { survivalGreedyPolicy } from './balancePolicy';
-import { BALANCE_MODEL_VERSION } from './contentBalance';
 
-export const AUTHORITY_COHORT_BASELINE_V15_SEEDS = Object.freeze([0, 1, 2, 3, 4]);
+export const AUTHORITY_COHORT_BASELINE_V15_SEEDS = AUTHORITY_COHORT_BASELINE_SMOKE_SEEDS;
 
+/** Historical identity: never derive an archived baseline from current constants. */
 export const AUTHORITY_COHORT_BASELINE_V15_IDENTITY = Object.freeze({
-  engineVersion: AUTHORITY_ENGINE_VERSION,
-  contentHash: AUTHORITY_CONTENT_HASH,
-  balanceModelVersion: BALANCE_MODEL_VERSION,
-  policy: survivalGreedyPolicy.manifest,
+  engineVersion: 'run-engine-v15',
+  contentHash: '60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9',
+  balanceModelVersion: 1,
+  policy: Object.freeze({ id: 'survival-greedy', version: 1 }),
 }) satisfies AuthorityCohortBaselineIdentity;
 
 /**
- * Small smoke matrix committed for engine v15. The following volume action expands
- * this paired seed set; keeping all three difficulties already catches identity and
- * report-shape drift without pretending to be a statistically powered calibration.
+ * Replays the immutable v15 smoke matrix with the archived v15 runtime supplied by
+ * the caller. Requiring that runtime prevents source v16 from impersonating v15.
  */
-export interface AuthorityCohortBaselineV15Fixture {
-  readonly matrix: AuthorityCohortMatrixResult;
-  readonly reports: readonly AuthorityCohortReport[];
-  readonly document: AuthorityCohortBaselineDocument;
-}
+export type AuthorityCohortBaselineV15Fixture = AuthorityCohortBaselineFixture;
 
-export function createAuthorityCohortBaselineV15Fixture(): AuthorityCohortBaselineV15Fixture {
-  const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
-  if (!authority) throw new Error('The v15 authority verifier is unavailable.');
-  const cells = createAuthorityCohortMatrix({
-    difficulties: ['easy', 'normal', 'hard'],
-    teamProfiles: [{ id: 'solo-garen', team: [{ championId: 'Garen' }] }],
-    masteryProfiles: [{ id: 'none', masterySnapshot: {} }],
-    runeProfiles: [{ id: 'none', runeIds: [] }],
-    enhancementProfiles: [{ id: 'none', enhancementSnapshot: {} }],
-    policies: [survivalGreedyPolicy],
-  });
-  const matrix = simulateAuthorityCohortMatrix({
+export function createAuthorityCohortBaselineV15Fixture(
+  authority: AuthorityCohortRuntime,
+): AuthorityCohortBaselineV15Fixture {
+  return createAuthorityCohortBaselineFixture({
     authority,
-    cells,
+    identity: AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
+    policy: survivalGreedyPolicy,
     seeds: AUTHORITY_COHORT_BASELINE_V15_SEEDS,
   });
-  const reports = matrix.cohorts.map(createAuthorityCohortReport);
-  return {
-    matrix,
-    reports,
-    document: createAuthorityCohortBaselineDocument({
-      identity: AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
-      seeds: AUTHORITY_COHORT_BASELINE_V15_SEEDS,
-      reports,
-    }),
-  };
 }
 
-export function generateAuthorityCohortBaselineV15(): AuthorityCohortBaselineDocument {
-  return createAuthorityCohortBaselineV15Fixture().document;
+export function generateAuthorityCohortBaselineV15(
+  authority: AuthorityCohortRuntime,
+): AuthorityCohortBaselineDocument {
+  return createAuthorityCohortBaselineV15Fixture(authority).document;
 }

@@ -10,6 +10,7 @@ const attempt: AuthorityRunAttempt = {
   runUuid: '55555555-5555-4555-8555-555555555555',
   seed: 2_116_951_237,
   difficulty: 'easy',
+  mode: 'normal',
   team: [{ championId: 'Warwick' }],
   runeIds: ['press_the_attack', 'glacial_augment', 'grasp_of_the_undying'],
   // This fixture targets trace consumption, not enhancement math. v12 now

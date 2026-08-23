@@ -215,6 +215,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260823071901_retire_mastery_starter_slots.sql',
       '../supabase/migrations/20260823072320_normalize_ranked_starter_counts.sql',
       '../supabase/migrations/20260823072701_stratify_starter_budget_cohorts.sql',
+      '../supabase/migrations/20260823073234_gameplay_ruleset_v16_daily_parity.sql',
     ]);
   });
 

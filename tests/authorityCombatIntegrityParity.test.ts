@@ -34,6 +34,7 @@ const MANA_ATTEMPT: AuthorityRunAttempt = {
   runUuid: '44444444-4444-4444-8444-444444444444',
   seed: 2,
   difficulty: 'easy',
+  mode: 'normal',
   team: [{ championId: 'Ashe', statMultiplier: 1.2 }],
   runeIds: ['electrocute'],
   enhancementSnapshot: { Ashe: {} },
@@ -205,10 +206,10 @@ describe('combat integrity source / Edge bundle parity', () => {
     });
   });
 
-  it('loads archived v14 and current v15 only for their exact registered hashes', async () => {
-    const v14 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v14');
-    expect(v14?.status).toBe('replay-only');
-    expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeDefined();
+  it('loads archived v15 and current v16 only for their exact registered hashes', async () => {
+    const v15 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v15');
+    expect(v15?.status).toBe('replay-only');
+    expect(await resolveBundledAuthorityVerifier(v15!.engine, v15!.contentHash)).toBeDefined();
     expect(
       await resolveBundledAuthorityVerifier(AUTHORITY_ENGINE_VERSION, '0'.repeat(64)),
     ).toBeUndefined();

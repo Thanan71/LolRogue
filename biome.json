@@ -26,6 +26,7 @@
       "!!supabase/functions/verify-run/run-authority-v12.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v13.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v14.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v15.bundle.ts",
       "!!supabase/functions/verify-run/authority-version-resolver.generated.ts",
       "!!src/game/authority/versionCapabilities.generated.ts"
     ]

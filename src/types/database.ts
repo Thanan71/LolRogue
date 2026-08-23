@@ -294,6 +294,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'daily_runs_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: false;
+            referencedRelation: 'verified_run_starter_cohorts';
+            referencedColumns: ['attempt_id'];
+          },
+          {
             foreignKeyName: 'daily_runs_run_id_fkey';
             columns: ['run_id'];
             isOneToOne: false;
@@ -912,6 +919,13 @@ export type Database = {
             referencedRelation: 'run_attempts';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'run_attempt_commands_attempt_id_fkey';
+            columns: ['attempt_id'];
+            isOneToOne: false;
+            referencedRelation: 'verified_run_starter_cohorts';
+            referencedColumns: ['attempt_id'];
+          },
         ];
       };
       run_attempts: {
@@ -1352,6 +1366,13 @@ export type Database = {
             referencedRelation: 'run_attempts';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'runs_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: true;
+            referencedRelation: 'verified_run_starter_cohorts';
+            referencedColumns: ['attempt_id'];
+          },
         ];
       };
     };
@@ -1488,6 +1509,38 @@ export type Database = {
         };
         Relationships: [];
       };
+      verified_run_starter_cohorts: {
+        Row: {
+          attempt_id: string | null;
+          cohort_rank: number | null;
+          difficulty: string | null;
+          enemy_formation_budget: number | null;
+          engine_version: string | null;
+          gameplay_ruleset_version: number | null;
+          run_id: string | null;
+          run_level: number | null;
+          starter_cohort: string | null;
+          starter_team_size: number | null;
+          waves_completed: number | null;
+          won: boolean | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+          {
+            foreignKeyName: 'run_attempts_result_run_id_fkey';
+            columns: ['run_id'];
+            isOneToOne: true;
+            referencedRelation: 'runs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Functions: {
       append_run_attempt_commands: {
@@ -1502,6 +1555,7 @@ export type Database = {
         Args: { p_attempt_id: string; p_worker_id: string };
         Returns: Json;
       };
+      comparable_starter_count: { Args: { p_mode: string }; Returns: number };
       complete_run_verification: {
         Args: {
           p_attempt_id: string;
@@ -1557,6 +1611,15 @@ export type Database = {
         Returns: Json;
       };
       complete_run_verification_v14_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_v15_contract: {
         Args: {
           p_attempt_id: string;
           p_lease_token: string;
@@ -1727,6 +1790,10 @@ export type Database = {
           p_team: string[];
         };
         Returns: Json;
+      };
+      starter_formation_budget: {
+        Args: { p_team_size: number };
+        Returns: number;
       };
       submit_client_logs: { Args: { p_logs: Json }; Returns: number };
       touch_player_last_login: { Args: never; Returns: string };

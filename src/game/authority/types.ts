@@ -9,6 +9,7 @@ import type {
 } from '@/types/run';
 
 export type AuthorityDifficulty = 'easy' | 'normal' | 'hard';
+export type AuthorityRunMode = 'normal' | 'daily';
 
 /**
  * Immutable facts supplied by the trusted attempt creator. The browser must
@@ -24,6 +25,7 @@ export interface AuthorityRunAttempt {
   }>;
   runeIds: string[];
   difficulty: AuthorityDifficulty;
+  mode: AuthorityRunMode;
   enhancementSnapshot: Record<string, Record<string, number>>;
   masterySnapshot: Record<string, number>;
 }

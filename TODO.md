@@ -472,7 +472,7 @@ playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
 
 ### Actions
 
-- [ ] Forcer `mastery_snapshot = {}` et `enhancement_snapshot = {}` dans le Daily,
+- [x] Forcer `mastery_snapshot = {}` et `enhancement_snapshot = {}` dans le Daily,
   côté contrat DB **et** côté moteur, avec règles/runes versionnées et identiques.
 - [ ] Ajouter un test contractuel « compte neuf = compte maxé » à seed et commandes
   identiques, jusqu'au score terminal.

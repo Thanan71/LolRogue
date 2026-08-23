@@ -1,6 +1,10 @@
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import baselineJson from '../config/authority-cohort-baselines-v15.json';
-import type { AuthorityCohortResult } from '@/game/balance/authorityCohort';
+import baselineV15Json from '../config/authority-cohort-baselines-v15.json';
+import baselineV16Json from '../config/authority-cohort-baselines-v16.json';
+import { AUTHORITY_CONTENT_HASH, AUTHORITY_ENGINE_VERSION } from '@/game/authority';
+import type { AuthorityCohortResult, AuthorityCohortRuntime } from '@/game/balance/authorityCohort';
 import {
   AuthorityCohortBaselineMismatchError,
   AuthorityCohortBaselineValidationError,
@@ -15,14 +19,40 @@ import {
   createAuthorityCohortBaselineV15Fixture,
   generateAuthorityCohortBaselineV15,
 } from '@/game/balance/authorityCohortBaselineV15Fixture';
+import { AUTHORITY_COHORT_BASELINE_V16 } from '@/game/balance/authorityCohortBaselineV16';
+import {
+  AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
+  createAuthorityCohortBaselineV16Fixture,
+  generateAuthorityCohortBaselineV16,
+} from '@/game/balance/authorityCohortBaselineV16Fixture';
 import type { AuthorityCohortReport } from '@/game/balance/authorityCohortReport';
 import { BIOMES } from '@/types/run';
 
-const BASELINE_KEY =
+const V15_BASELINE_KEY =
   'engine=run-engine-v15|content=60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9|model=1|policy=survival-greedy@1';
-const fixture = createAuthorityCohortBaselineV15Fixture();
-const baselineEntry = AUTHORITY_COHORT_BASELINE_V15.entries[BASELINE_KEY];
-if (!baselineEntry) throw new Error('The v15 cohort baseline entry is unavailable.');
+const V16_BASELINE_KEY =
+  'engine=run-engine-v16|content=557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9|model=1|policy=survival-greedy@1';
+const fixture = createAuthorityCohortBaselineV16Fixture();
+const baselineEntry = AUTHORITY_COHORT_BASELINE_V16.entries[V16_BASELINE_KEY];
+if (!baselineEntry) throw new Error('The v16 cohort baseline entry is unavailable.');
+
+async function resolveArchivedV15Authority(): Promise<AuthorityCohortRuntime> {
+  const resolverUrl = pathToFileURL(
+    resolve(process.cwd(), 'supabase/functions/verify-run/authority-version-resolver.generated.ts'),
+  ).href;
+  const edgeResolver = (await import(/* @vite-ignore */ resolverUrl)) as {
+    resolveAuthorityVerifier: (
+      engine: string,
+      hash: string,
+    ) => Promise<AuthorityCohortRuntime | undefined>;
+  };
+  const authority = await edgeResolver.resolveAuthorityVerifier(
+    AUTHORITY_COHORT_BASELINE_V15_IDENTITY.engineVersion,
+    AUTHORITY_COHORT_BASELINE_V15_IDENTITY.contentHash,
+  );
+  if (!authority) throw new Error('The archived v15 authority verifier is unavailable.');
+  return authority;
+}
 
 function firstRawEntry(value: unknown): Record<string, unknown> {
   const document = value as { entries: Record<string, Record<string, unknown>> };
@@ -83,20 +113,31 @@ function syntheticExtremeCohort(): AuthorityCohortResult {
 }
 
 describe('authority cohort baseline', () => {
-  it('builds a canonical key from engine, hash, model and policy versions', () => {
+  it('builds canonical keys from engine, hash, model and policy versions', () => {
     expect(createAuthorityCohortBaselineKey(AUTHORITY_COHORT_BASELINE_V15_IDENTITY)).toBe(
-      BASELINE_KEY,
+      V15_BASELINE_KEY,
+    );
+    expect(createAuthorityCohortBaselineKey(AUTHORITY_COHORT_BASELINE_V16_IDENTITY)).toBe(
+      V16_BASELINE_KEY,
     );
   });
 
-  it('strictly loads the committed v15 smoke matrix and reproduces it from real runs', () => {
+  it('keeps the v15 identity immutable and reproduces its baseline with the archive', async () => {
     const loaded = loadAuthorityCohortBaseline(
-      baselineJson,
+      baselineV15Json,
       AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
     );
+    const authority = await resolveArchivedV15Authority();
+    const archivedFixture = createAuthorityCohortBaselineV15Fixture(authority);
 
     expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V15);
-    expect(loaded.entries[BASELINE_KEY]).toMatchObject({
+    expect(AUTHORITY_COHORT_BASELINE_V15_IDENTITY).toEqual({
+      engineVersion: 'run-engine-v15',
+      contentHash: '60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9',
+      balanceModelVersion: 1,
+      policy: { id: 'survival-greedy', version: 1 },
+    });
+    expect(loaded.entries[V15_BASELINE_KEY]).toMatchObject({
       identity: AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
       source: {
         kind: 'authority-cohort-matrix',
@@ -104,22 +145,46 @@ describe('authority cohort baseline', () => {
         cellCount: 3,
       },
     });
-    expect(generateAuthorityCohortBaselineV15()).toEqual(loaded);
+    expect(archivedFixture.document).toEqual(loaded);
+    expect(generateAuthorityCohortBaselineV15(authority)).toEqual(loaded);
+    expect(JSON.stringify(loaded)).not.toContain('"trace"');
+  });
+
+  it('strictly loads and reproduces the current v16 smoke matrix from source', () => {
+    const loaded = loadAuthorityCohortBaseline(
+      baselineV16Json,
+      AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
+    );
+
+    expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V16);
+    expect(AUTHORITY_COHORT_BASELINE_V16_IDENTITY).toMatchObject({
+      engineVersion: AUTHORITY_ENGINE_VERSION,
+      contentHash: AUTHORITY_CONTENT_HASH,
+    });
+    expect(loaded.entries[V16_BASELINE_KEY]).toMatchObject({
+      identity: AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
+      source: {
+        kind: 'authority-cohort-matrix',
+        seeds: [0, 1, 2, 3, 4],
+        cellCount: 3,
+      },
+    });
+    expect(generateAuthorityCohortBaselineV16()).toEqual(loaded);
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   });
 
   it('rejects unknown fields, missing metrics and incoherent index identities', () => {
-    const unknownRoot = Object.assign(structuredClone(baselineJson), { unexpected: true });
+    const unknownRoot = Object.assign(structuredClone(baselineV16Json), { unexpected: true });
     expect(() => loadAuthorityCohortBaseline(unknownRoot)).toThrowError(
       AuthorityCohortBaselineValidationError,
     );
 
-    const missingMetric = structuredClone(baselineJson);
+    const missingMetric = structuredClone(baselineV16Json);
     const metrics = firstRawReport(missingMetric).metrics as Record<string, unknown>;
     delete metrics['outcome.winRate'];
     expect(() => loadAuthorityCohortBaseline(missingMetric)).toThrow('expected exactly keys');
 
-    const incoherentIdentity = structuredClone(baselineJson);
+    const incoherentIdentity = structuredClone(baselineV16Json);
     const identity = firstRawEntry(incoherentIdentity).identity as Record<string, unknown>;
     identity.contentHash = 'a'.repeat(64);
     expect(() => loadAuthorityCohortBaseline(incoherentIdentity)).toThrow('identity requires key');
@@ -127,8 +192,8 @@ describe('authority cohort baseline', () => {
 
   it('rejects a current identity mismatch and missing report strata', () => {
     expect(() =>
-      loadAuthorityCohortBaseline(baselineJson, {
-        ...AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
+      loadAuthorityCohortBaseline(baselineV16Json, {
+        ...AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
         contentHash: 'a'.repeat(64),
       }),
     ).toThrowError(AuthorityCohortBaselineMismatchError);
@@ -177,7 +242,7 @@ describe('authority cohort baseline', () => {
 
   it('keeps only deduplicated p10/p90 and concentrated-defeat trace representatives', () => {
     const artifacts = createAuthorityCohortTraceArtifacts({
-      identity: AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
+      identity: AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
       cohorts: [syntheticExtremeCohort()],
     });
 

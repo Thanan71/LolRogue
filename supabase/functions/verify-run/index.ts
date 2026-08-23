@@ -343,6 +343,7 @@ Deno.serve(async (request) => {
     typeof claim.gameplay_content_hash !== 'string' ||
     typeof claim.run_uuid !== 'string' ||
     typeof claim.seed !== 'number' ||
+    (claim.mode !== 'normal' && claim.mode !== 'daily') ||
     typeof claim.difficulty !== 'string' ||
     !stringArray(claim.initial_team) ||
     !stringArray(claim.rune_ids) ||
@@ -408,6 +409,7 @@ Deno.serve(async (request) => {
       team: claim.initial_team.map((championId) => ({ championId })),
       runeIds: claim.rune_ids,
       difficulty: claim.difficulty,
+      mode: claim.mode,
       enhancementSnapshot: claim.enhancement_snapshot,
       masterySnapshot: record(claim.mastery_snapshot) ? claim.mastery_snapshot : {},
     },

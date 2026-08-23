@@ -85,9 +85,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v15';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v16';
 export const AUTHORITY_CONTENT_HASH =
-  '60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9';
+  '52b685ec394cad4d71c98544ac15df51a1173c0e89c0200f5c4ea07c4355d016';
 
 assertValidRuleCatalogs();
 
@@ -104,19 +104,23 @@ type PendingEncounter = {
 export { AuthorityRunVerificationError } from './RunCommandValidator';
 
 function cloneRunAttempt(attempt: AuthorityRunAttempt): AuthorityRunAttempt {
+  const progressionNeutral = attempt.mode === 'daily';
   return {
     runUuid: attempt.runUuid,
     seed: attempt.seed,
     team: attempt.team.map((member) => ({ ...member })),
     runeIds: [...attempt.runeIds],
     difficulty: attempt.difficulty,
-    enhancementSnapshot: Object.fromEntries(
-      Object.entries(attempt.enhancementSnapshot).map(([championId, ranks]) => [
-        championId,
-        { ...ranks },
-      ]),
-    ),
-    masterySnapshot: { ...attempt.masterySnapshot },
+    mode: attempt.mode,
+    enhancementSnapshot: progressionNeutral
+      ? {}
+      : Object.fromEntries(
+          Object.entries(attempt.enhancementSnapshot).map(([championId, ranks]) => [
+            championId,
+            { ...ranks },
+          ]),
+        ),
+    masterySnapshot: progressionNeutral ? {} : { ...attempt.masterySnapshot },
   };
 }
 

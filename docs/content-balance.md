@@ -3,8 +3,8 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 15` et le Daily `score_version = 14`. Le contenu de
-combat par biome introduit en v13 reste inchangé. Le moteur v14 est archivé pour
+`gameplay_ruleset_version = 16` et le Daily `score_version = 14`. Le contenu de
+combat par biome introduit en v13 reste inchangé. Le moteur v15 est archivé pour
 terminer les runs déjà ouvertes. Toute autre modification d'ennemi, récompense,
 prix, drop, effet ou stacking exige une nouvelle version et un nouveau hash autoritaire.
 
@@ -27,6 +27,23 @@ complète par `verifyAuthorityRun()` avec vérification terminale. Les tests
 `authorityCohort.test.ts` et `authorityCohortMatrix.test.ts` couvrent ce chemin et sa
 stratification ; ils ne transforment pas pour autant une politique automatisée en
 comportement joueur.
+
+## Baselines authority versionnées
+
+La baseline courante v16 est chargée depuis
+`config/authority-cohort-baselines-v16.json` et reproduite par la source v16. La
+baseline v15 reste une archive immuable dans
+`config/authority-cohort-baselines-v15.json` : son identité moteur/hash/modèle/policy
+est littérale et sa reproduction emploie exclusivement
+`run-authority-v15.bundle.ts`, jamais les constantes du moteur courant.
+
+`npm run balance:baseline:generate` génère v16 sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-v16.json` met à jour son artefact
+commité. `npm run balance:baseline:generate:v15` sert uniquement à auditer et
+reproduire l'archive historique avant comparaison avec le JSON v15 existant. Une
+nouvelle publication ajoute son propre couple fixture/loader/JSON sans réécrire les
+versions précédentes. `npm run balance:baseline:check`, inclus dans
+`npm run balance:check`, exige une reproduction byte-for-byte des deux artefacts.
 
 ## Indicateurs de catalogue et de nœuds
 

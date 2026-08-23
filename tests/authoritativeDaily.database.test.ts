@@ -90,6 +90,7 @@ type StartedAttemptWire = {
   daily_ruleset_version: number;
   daily_score_version: number;
   enhancement_snapshot: Record<string, unknown>;
+  mastery_snapshot: Record<string, unknown>;
   expires_at: string;
 };
 
@@ -158,17 +159,18 @@ describeLive('authoritative daily leaderboard live security', () => {
     }
   });
 
-  it('shares score formula v14 across Daily rulesets v14 and v15', async () => {
+  it('shares score formula v14 across Daily rulesets v14 through v16', async () => {
     const rulesets = await admin
       .from('daily_challenge_rulesets')
       .select('version, score_version, is_active')
-      .in('version', [14, 15])
+      .in('version', [14, 15, 16])
       .order('version');
 
     expect(rulesets.error).toBeNull();
     expect(rulesets.data).toEqual([
       { version: 14, score_version: 14, is_active: false },
-      { version: 15, score_version: 14, is_active: true },
+      { version: 15, score_version: 14, is_active: false },
+      { version: 16, score_version: 14, is_active: true },
     ]);
   });
 
@@ -252,6 +254,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       daily_ruleset_version: challenge.daily_ruleset_version,
       daily_score_version: challenge.score_version,
       enhancement_snapshot: {},
+      mastery_snapshot: {},
     });
     expect(firstAttempt.expires_at).toBe(challenge.expires_at);
 
@@ -274,6 +277,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       mode: 'daily',
       difficulty: 'normal',
       enhancement_snapshot: {},
+      mastery_snapshot: {},
     });
 
     const duplicateStart = await first.client.rpc('start_daily_run_attempt', {
@@ -407,7 +411,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       daily_seed: challenge.seed,
       score: 1360,
       run_attempt_id: firstAttempt.attempt_id,
-      daily_ruleset_version: 15,
+      daily_ruleset_version: 16,
       score_version: 14,
     });
 

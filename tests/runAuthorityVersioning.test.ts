@@ -45,24 +45,24 @@ function readDailyRulesetContracts() {
 }
 
 describe('authority progression engine versioning', () => {
-  it('archives v14 and publishes v15 without changing command or progression schemas', () => {
-    const v14 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v14');
+  it('archives v15 and publishes v16 without changing command or progression schemas', () => {
+    const v15 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v15');
 
-    expect(v14).toMatchObject({
-      gameplay: 14,
+    expect(v15).toMatchObject({
+      gameplay: 15,
       progression: 2,
       command: 2,
       status: 'replay-only',
-      bundle: 'supabase/functions/verify-run/run-authority-v14.bundle.ts',
+      bundle: 'supabase/functions/verify-run/run-authority-v15.bundle.ts',
     });
     expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
-      engine: 'run-engine-v15',
-      gameplay: 15,
+      engine: 'run-engine-v16',
+      gameplay: 16,
       dailyScore: 14,
       progression: 2,
       command: 2,
       status: 'current',
-      rulesetCode: '2026-08-authority-cohorts-v15',
+      rulesetCode: '2026-08-daily-parity-v16',
     });
   });
 

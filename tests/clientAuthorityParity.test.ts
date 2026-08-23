@@ -32,6 +32,7 @@ function authorityAttempt(): AuthorityRunAttempt {
     runUuid: RUN_UUID,
     seed: SEED,
     difficulty: 'easy',
+    mode: 'normal',
     team: [{ championId: 'Garen', statMultiplier: 10 }],
     runeIds: ['press_the_attack'],
     enhancementSnapshot: { Garen: {} },

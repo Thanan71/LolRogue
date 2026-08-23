@@ -188,6 +188,7 @@ export const survivalGreedyPolicy: BalancePolicy = {
       runUuid: createBalanceRunUuid(scenario, seed),
       seed,
       difficulty: scenario.difficulty,
+      mode: 'normal',
       team: scenario.team.map((member) => ({ ...member })),
       runeIds: [...scenario.runeIds],
       masterySnapshot: { ...scenario.masterySnapshot },

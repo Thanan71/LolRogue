@@ -265,6 +265,9 @@ export function validateRunAttempt(value: AuthorityRunAttempt): void {
   if (!['easy', 'normal', 'hard'].includes(value.difficulty)) {
     failAuthorityVerification('invalid_attempt', 'Attempt difficulty is invalid.');
   }
+  if (!['normal', 'daily'].includes(value.mode)) {
+    failAuthorityVerification('invalid_attempt', 'Attempt mode is invalid.');
+  }
   if (!Array.isArray(value.team) || value.team.length < 1 || value.team.length > MAX_TEAM_SIZE) {
     failAuthorityVerification('invalid_attempt', 'Attempt must contain an allowed starter team.');
   }

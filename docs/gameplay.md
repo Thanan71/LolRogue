@@ -225,7 +225,7 @@ font partie du contrat.
 
 Le jour Daily est `(instant serveur AT TIME ZONE 'UTC')::date` et expire à minuit
 UTC suivant. Le serveur fige dans l'attempt la date, la seed, la difficulté, le
-ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v15,
+ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v16,
 les coefficients hérités de v2 donnent :
 
 ```text
@@ -240,5 +240,7 @@ Le score n'utilise ni l'or restant ni le nombre d'objets. Il est calculé par le
 trigger PostgreSQL depuis la run `verified`, jamais soumis par le navigateur. Une
 tentative connectée officielle est limitée à une par joueur et par jour UTC ; un
 abandon la consomme sans publier de score. Le classement local invité n'est pas
-officiel. Toute modification des coefficients crée un nouveau ruleset et une
+officiel. Les snapshots de maîtrise et d'améliorations sont tous deux forcés à `{}`
+par PostgreSQL et par le moteur authority pour rendre les comptes comparables. Toute
+modification des coefficients crée un nouveau ruleset et une
 nouvelle `score_version` au lieu de réécrire l'historique.

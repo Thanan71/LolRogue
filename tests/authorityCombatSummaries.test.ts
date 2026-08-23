@@ -14,6 +14,7 @@ function attempt(overrides: Partial<AuthorityRunAttempt> = {}): AuthorityRunAtte
     runUuid: RUN_UUID,
     seed: 42_4242,
     difficulty: 'easy',
+    mode: 'normal',
     team: [{ championId: 'Garen', statMultiplier: 10 }],
     runeIds: [],
     enhancementSnapshot: {},
@@ -123,7 +124,7 @@ describe('authority combat summaries', () => {
       gold: expect.any(Number),
       xpPerChampion: expect.any(Number),
       itemDropChance: expect.any(Number),
-      droppedItemId: 'long_sword',
+      droppedItemId: 'spirit_visage',
       dropBlockedByCapacity: false,
       droppedItemInstanceId: `item_${RUN_UUID}_1`,
     });
