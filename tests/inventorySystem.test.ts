@@ -539,7 +539,7 @@ describe('AugmentManager', () => {
   it('should aggregate team stat bonuses (flat)', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['brute_force']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.flat).toBe(15);
+    expect(bonuses.atk.flat).toBe(7);
   });
 
   it('should aggregate team stat bonuses (percent)', () => {
@@ -560,8 +560,8 @@ describe('AugmentManager', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['brute_force']);
     augManager.acquireAugment(AUGMENT_DATABASE['iron_skin']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.flat).toBe(15);
-    expect(bonuses.def.flat).toBe(12);
+    expect(bonuses.atk.flat).toBe(7);
+    expect(bonuses.def.flat).toBe(5);
   });
 
   it('should handle prismatic augments with mixed stats', () => {
@@ -628,7 +628,7 @@ describe('Integration: Items + Runes + Augments', () => {
 
     // Verify augment bonuses
     const augmentBonuses = augments.getTeamStatBonuses();
-    expect(augmentBonuses.ap.flat).toBe(20);
+    expect(augmentBonuses.ap.flat).toBe(7);
     expect(augmentBonuses.atk.percent).toBe(0.1);
   });
 });

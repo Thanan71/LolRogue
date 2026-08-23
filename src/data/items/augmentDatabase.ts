@@ -16,7 +16,7 @@ import {
 const BRUTE_FORCE: AugmentDefinition = {
   id: 'brute_force',
   name: 'Force brute',
-  description: "Tous les champions gagnent +15 dégâts d'attaque.",
+  description: "Tous les champions gagnent +7 dégâts d'attaque.",
   iconUrl: '/assets/augments/brute_force.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -24,7 +24,7 @@ const BRUTE_FORCE: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'atk',
-      flatValue: 15,
+      flatValue: 7,
     },
   ],
   stackable: true,
@@ -35,7 +35,7 @@ const BRUTE_FORCE: AugmentDefinition = {
 const IRON_SKIN: AugmentDefinition = {
   id: 'iron_skin',
   name: 'Peau de fer',
-  description: 'Tous les champions gagnent +12 défense.',
+  description: 'Tous les champions gagnent +5 défense.',
   iconUrl: '/assets/augments/iron_skin.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -43,7 +43,7 @@ const IRON_SKIN: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'def',
-      flatValue: 12,
+      flatValue: 5,
     },
   ],
   stackable: true,
@@ -54,7 +54,7 @@ const IRON_SKIN: AugmentDefinition = {
 const ARCANE_MIND: AugmentDefinition = {
   id: 'arcane_mind',
   name: 'Esprit arcanique',
-  description: 'Tous les champions gagnent +20 puissance.',
+  description: 'Tous les champions gagnent +7 puissance.',
   iconUrl: '/assets/augments/arcane_mind.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -62,7 +62,7 @@ const ARCANE_MIND: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'ap',
-      flatValue: 20,
+      flatValue: 7,
     },
   ],
   stackable: true,
@@ -73,7 +73,7 @@ const ARCANE_MIND: AugmentDefinition = {
 const VITALITY_BOOST: AugmentDefinition = {
   id: 'vitality_boost',
   name: 'Regain de vitalité',
-  description: 'Tous les champions gagnent +200 PV.',
+  description: 'Tous les champions gagnent +90 PV.',
   iconUrl: '/assets/augments/vitality_boost.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -81,7 +81,7 @@ const VITALITY_BOOST: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'hp',
-      flatValue: 200,
+      flatValue: 90,
     },
   ],
   stackable: true,
@@ -92,7 +92,7 @@ const VITALITY_BOOST: AugmentDefinition = {
 const SWIFT_FEET: AugmentDefinition = {
   id: 'swift_feet',
   name: 'Pied léger',
-  description: 'Tous les champions gagnent +2 vitesse.',
+  description: 'Tous les champions gagnent +12 vitesse.',
   iconUrl: '/assets/augments/swift_feet.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -100,7 +100,7 @@ const SWIFT_FEET: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'spd',
-      flatValue: 2,
+      flatValue: 12,
     },
   ],
   stackable: true,
