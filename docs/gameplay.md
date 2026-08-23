@@ -57,6 +57,8 @@ Le moteur est un combat au tour par tour, jusqu'à cinq contre cinq :
 - les contrôles peuvent faire perdre un tour et les effets ont leur propre durée ;
 - un hard CC dure au plus un round et ne peut retirer plus de deux actions à une
   même cible dans une fenêtre glissante de quatre rounds ;
+- les ralentissements s'additionnent jusqu'à 60 % au maximum, préservant toujours
+  40 % de l'initiative de la cible ;
 - dégâts physiques, magiques et vrais utilisent leurs calculateurs séparés ;
 - une zone exige une cible principale : elle lui inflige 100 % des dégâts et 50 %
   aux quatre cibles secondaires au maximum, soit un plafond de 300 % ;

@@ -14,7 +14,7 @@ import { ChampionInstance, SPELL_SLOTS, type SpellSlot } from '../src/game/Champ
 import { createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
 import { CCEffect } from '../src/game/effects/CCEffect';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
-import { EffectManager } from '../src/game/effects/EffectManager';
+import { EffectManager, MAX_TOTAL_SLOW } from '../src/game/effects/EffectManager';
 import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
 import { HealEffect } from '../src/game/effects/HealEffect';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
@@ -545,7 +545,7 @@ describe('CC Chains', () => {
     expect(manager.canMove()).toBe(true);
   });
 
-  it('multiple slows stack but cap at 99%', () => {
+  it('multiple slows stack but preserve at least 40% initiative', () => {
     manager.apply(
       new CCEffect({
         sourceId: 's1',
@@ -564,8 +564,8 @@ describe('CC Chains', () => {
         slowAmount: 0.5,
       }),
     );
-    // total slow = 1.1, capped at 0.99 → multiplier = 0.01
-    expect(manager.getSpeedMultiplier()).toBeCloseTo(0.01, 2);
+    expect(MAX_TOTAL_SLOW).toBe(0.6);
+    expect(manager.getSpeedMultiplier()).toBeCloseTo(0.4, 2);
   });
 
   it('snare + silence together blocks move and cast', () => {

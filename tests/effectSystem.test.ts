@@ -7,8 +7,8 @@ import { BuffDebuffEffect, createBuff, createDebuff } from '../src/game/effects/
 import { CCEffect } from '../src/game/effects/CCEffect';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
 import { EffectManager } from '../src/game/effects/EffectManager';
-import { normalizePercent, normalizeTurnDuration } from '../src/game/effects/effectUnits';
 import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
+import { normalizePercent, normalizeTurnDuration } from '../src/game/effects/effectUnits';
 import { HealEffect } from '../src/game/effects/HealEffect';
 import { ReviveEffect } from '../src/game/effects/ReviveEffect';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
@@ -546,6 +546,28 @@ describe('Effect System', () => {
         }),
       );
       expect(manager.getSpeedMultiplier()).toBeCloseTo(0.5, 2);
+    });
+
+    it('caps additive slows at the shared 60% design budget', () => {
+      manager.apply(
+        new CCEffect({
+          sourceId: 's1',
+          targetId: 'champion-1',
+          ccType: CCType.Slow,
+          duration: 2,
+          slowAmount: 0.45,
+        }),
+      );
+      manager.apply(
+        new CCEffect({
+          sourceId: 's2',
+          targetId: 'champion-1',
+          ccType: CCType.Slow,
+          duration: 2,
+          slowAmount: 0.45,
+        }),
+      );
+      expect(manager.getSpeedMultiplier()).toBe(0.4);
     });
 
     it('should apply flat stat modifiers', () => {

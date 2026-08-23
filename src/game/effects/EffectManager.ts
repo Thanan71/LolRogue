@@ -16,6 +16,9 @@ export interface EffectTickResult {
   event: EffectEvent;
 }
 
+/** Slows stack additively, but never remove more than 60% of initiative. */
+export const MAX_TOTAL_SLOW = 0.6;
+
 export class EffectManager {
   readonly ownerId: string;
   private _effects: Effect[] = [];
@@ -235,7 +238,7 @@ export class EffectManager {
         totalSlow += cc.slowAmount;
       }
     }
-    return Math.max(0.01, 1 - Math.min(totalSlow, 0.99));
+    return 1 - Math.min(Math.max(0, totalSlow), MAX_TOTAL_SLOW);
   }
 
   getStatModifiers(): Map<StatKey, { flat: number; percent: number }> {
