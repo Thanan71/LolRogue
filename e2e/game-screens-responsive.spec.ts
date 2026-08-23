@@ -107,9 +107,7 @@ for (const viewport of VIEWPORTS) {
     await page.evaluate(async () => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
       useRunStore.setState({ completedRunSnapshot: null, saveStatus: 'idle' });
-      const started = await useRunStore
-        .getState()
-        .startRun(['Garen', 'Lux'], { seed: 20260801 });
+      const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20260801 });
       if (!started.success) throw new Error(`Unable to start responsive run: ${started.code}`);
     });
     await navigateSpa(page, '/run');
