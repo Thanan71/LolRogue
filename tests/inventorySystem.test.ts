@@ -527,7 +527,7 @@ describe('AugmentManager', () => {
 
   it('should compute damage reduction capped at 80%', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['unstoppable']);
-    expect(augManager.getDamageReduction()).toBe(0.2);
+    expect(augManager.getDamageReduction()).toBe(0.22);
   });
 
   it('should detect extra revive augment', () => {
@@ -545,7 +545,7 @@ describe('AugmentManager', () => {
   it('should aggregate team stat bonuses (percent)', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['warlord']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.percent).toBe(0.1);
+    expect(bonuses.atk.percent).toBe(0.15);
   });
 
   it('should handle scaling stat bonuses based on biomes cleared', () => {
@@ -567,9 +567,9 @@ describe('AugmentManager', () => {
   it('should handle prismatic augments with mixed stats', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['divine_blessing']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.percent).toBe(0.15);
-    expect(bonuses.def.percent).toBe(0.15);
-    expect(bonuses.ap.percent).toBe(0.15);
+    expect(bonuses.atk.percent).toBe(0.23);
+    expect(bonuses.def.percent).toBe(0.23);
+    expect(bonuses.ap.percent).toBe(0.23);
   });
 
   it('should clear all augments', () => {
@@ -629,6 +629,6 @@ describe('Integration: Items + Runes + Augments', () => {
     // Verify augment bonuses
     const augmentBonuses = augments.getTeamStatBonuses();
     expect(augmentBonuses.ap.flat).toBe(7);
-    expect(augmentBonuses.atk.percent).toBe(0.1);
+    expect(augmentBonuses.atk.percent).toBe(0.15);
   });
 });

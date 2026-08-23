@@ -170,7 +170,7 @@ const FIELD_MEDIC: AugmentDefinition = {
 const WARLORD: AugmentDefinition = {
   id: 'warlord',
   name: 'Seigneur de guerre',
-  description: "Tous les champions gagnent 10 % de dégâts d'attaque.",
+  description: "Tous les champions gagnent 15 % de dégâts d'attaque.",
   iconUrl: '/assets/augments/warlord.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -178,7 +178,7 @@ const WARLORD: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatPercent,
       stat: 'atk',
-      percentValue: 0.1,
+      percentValue: 0.15,
     },
   ],
   stackable: true,
@@ -189,7 +189,7 @@ const WARLORD: AugmentDefinition = {
 const BULWARK: AugmentDefinition = {
   id: 'bulwark',
   name: 'Rempart',
-  description: 'Tous les champions gagnent 10 % de défense.',
+  description: 'Tous les champions gagnent 15 % de défense.',
   iconUrl: '/assets/augments/bulwark.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -197,7 +197,7 @@ const BULWARK: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatPercent,
       stat: 'def',
-      percentValue: 0.1,
+      percentValue: 0.15,
     },
   ],
   stackable: true,
@@ -208,7 +208,7 @@ const BULWARK: AugmentDefinition = {
 const SORCERY_SUPREME: AugmentDefinition = {
   id: 'sorcery_supreme',
   name: 'Sorcellerie suprême',
-  description: 'Tous les champions gagnent 12 % de puissance.',
+  description: 'Tous les champions gagnent 15 % de puissance.',
   iconUrl: '/assets/augments/sorcery_supreme.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -216,7 +216,7 @@ const SORCERY_SUPREME: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatPercent,
       stat: 'ap',
-      percentValue: 0.12,
+      percentValue: 0.15,
     },
   ],
   stackable: true,
@@ -227,13 +227,13 @@ const SORCERY_SUPREME: AugmentDefinition = {
 const GLASS_CANNON: AugmentDefinition = {
   id: 'glass_cannon',
   name: 'Canon de verre',
-  description: "Tous les champions gagnent 20 % de dégâts d'attaque mais perdent 10 % de défense.",
+  description: "Tous les champions gagnent 15 % de dégâts d'attaque mais perdent 8 % de défense.",
   iconUrl: '/assets/augments/glass_cannon.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Combat,
   effects: [
-    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.2 },
-    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: -0.1 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.15 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: -0.08 },
   ],
   stackable: false,
   maxStacks: 1,
@@ -281,14 +281,14 @@ const BATTLE_HARDENED: AugmentDefinition = {
 const DIVINE_BLESSING: AugmentDefinition = {
   id: 'divine_blessing',
   name: 'Bénédiction divine',
-  description: "Tous les champions gagnent 15 % de dégâts d'attaque, de défense et de puissance.",
+  description: "Tous les champions gagnent 23 % de dégâts d'attaque, de défense et de puissance.",
   iconUrl: '/assets/augments/divine_blessing.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Stats,
   effects: [
-    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.15 },
-    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: 0.15 },
-    { type: AugmentEffectType.TeamStatPercent, stat: 'ap', percentValue: 0.15 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.23 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: 0.23 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'ap', percentValue: 0.23 },
   ],
   stackable: false,
   maxStacks: 1,
@@ -334,14 +334,14 @@ const HYPER_CARRY: AugmentDefinition = {
 const UNSTOPPABLE: AugmentDefinition = {
   id: 'unstoppable',
   name: 'Inarrêtable',
-  description: 'Tous les champions subissent 20 % de dégâts en moins.',
+  description: 'Tous les champions subissent 22 % de dégâts en moins.',
   iconUrl: '/assets/augments/unstoppable.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Combat,
   effects: [
     {
       type: AugmentEffectType.DamageReduction,
-      percentValue: 0.2,
+      percentValue: 0.22,
     },
   ],
   stackable: false,

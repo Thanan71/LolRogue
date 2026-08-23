@@ -323,7 +323,7 @@ describe('bus commun de combat', () => {
       isCrit: false,
       actors,
     });
-    expect(incoming.damageReduction).toBeCloseTo(0.2);
+    expect(incoming.damageReduction).toBeCloseTo(0.22);
 
     const hit = runtime.dispatch({
       type: 'damage_dealt',
