@@ -36,6 +36,7 @@ import {
 import { type BattleEventCallback, BattleEventJournal } from './BattleEventJournal';
 import { BattleSpellEffectResolver } from './BattleSpellEffectResolver';
 import { isPassiveCombatReady } from './combatContentSupport';
+import { canLoseActionToHardCrowdControl, recentHardCrowdControlLosses } from './crowdControlRules';
 import { toCombatDamageType } from './damageType';
 import { resolveBattleTargets } from './targetResolver';
 import {
@@ -97,6 +98,7 @@ export class BattleManager {
   private _actionCallback: ActionCallback | null = null;
   private _playerActionTrace: CombatActionTrace = [];
   private readonly _lastDamagedRound = new Map<string, number>();
+  private readonly _hardCrowdControlLossRounds = new Map<string, number[]>();
   private readonly _passiveCounters = new Map<string, number>();
   private readonly _preserveHpOnRuleInitialization = new Set<string>();
   private readonly _passiveMarks = new Map<
@@ -323,7 +325,10 @@ export class BattleManager {
 
     // Canonical turn cycle:
     // start → controls → command → cast/attack → effects/deaths → end → duration ticks.
-    if (!attackerState.effectManager.canAct()) {
+    if (
+      !attackerState.effectManager.canAct() &&
+      this._consumeHardCrowdControlActionLoss(attackerState.targetId)
+    ) {
       this._emit({
         type: 'turn_skipped',
         champion: attackerState.champion.id,
@@ -346,6 +351,10 @@ export class BattleManager {
       if (this._checkVictory()) return;
       this._nextTurn();
       return;
+    }
+    if (!attackerState.effectManager.canAct()) {
+      attackerState.effectManager.expireHardCrowdControl();
+      this._syncEffectState(attackerState);
     }
 
     const enemies = this.getAliveEnemies(entry.side);
@@ -433,6 +442,7 @@ export class BattleManager {
 
   private _initCombatants(): void {
     this._lastDamagedRound.clear();
+    this._hardCrowdControlLossRounds.clear();
     this._passiveCounters.clear();
     this._passiveMarks.clear();
     this._preserveHpOnRuleInitialization.clear();
@@ -944,6 +954,19 @@ export class BattleManager {
     combatant.ccTurnsLeft = combatant.effectManager.ccEffects
       .filter((effect) => effect.isHardCC())
       .reduce((max, effect) => Math.max(max, effect.remainingRounds), 0);
+  }
+
+  private _consumeHardCrowdControlActionLoss(targetId: string): boolean {
+    const recent = recentHardCrowdControlLosses(
+      this._hardCrowdControlLossRounds.get(targetId) ?? [],
+      this._round,
+    );
+    if (!canLoseActionToHardCrowdControl(recent, this._round)) {
+      this._hardCrowdControlLossRounds.set(targetId, [...recent]);
+      return false;
+    }
+    this._hardCrowdControlLossRounds.set(targetId, [...recent, this._round]);
+    return true;
   }
 
   private _tickTurnEffects(combatant: CombatantState, effectIds: readonly string[]): void {

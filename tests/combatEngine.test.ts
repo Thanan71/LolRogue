@@ -1187,11 +1187,11 @@ describe('BattleManager Spell Effect Application', () => {
   // ── 4. CC effects prevent actions ──
 
   describe('CC effects prevent actions', () => {
-    it('stun sets ccTurnsLeft on target', () => {
+    it('caps a multi-round hard stun at one action', () => {
       const stunner = makeEffectChamp(
         'Stunner',
         'Q',
-        [{ type: 'cc', ccType: 'stun', ccDuration: 1 }],
+        [{ type: 'cc', ccType: 'stun', ccDuration: 3 }],
         { moveSpeed: 400 },
       );
       const victim = makeEffectChamp('Victim', 'Q', []);
@@ -1207,7 +1207,7 @@ describe('BattleManager Spell Effect Application', () => {
       forceSpellSlot(stunner, 'Q');
       bm.processCurrentTurn();
 
-      expect(vs.ccTurnsLeft).toBeGreaterThan(0);
+      expect(vs.ccTurnsLeft).toBe(1);
     });
 
     it('CC stun prevents victim from acting on their turn', () => {
@@ -1278,6 +1278,43 @@ describe('BattleManager Spell Effect Application', () => {
 
       // Stunner took no damage because victim was CC'd
       expect(ss.currentHp).toBe(stunnerHpBefore);
+    });
+
+    it('prevents more than two hard-CC action losses in any four-round window', () => {
+      const stunner = makeEffectChamp(
+        'Stunner',
+        'Q',
+        [{ type: 'cc', ccType: 'stun', ccDuration: 3 }],
+        { moveSpeed: 400 },
+      );
+      const victim = makeEffectChamp('Victim', 'Q', [], { moveSpeed: 310 });
+      const bm = new BattleManager(
+        { side: 'player', champions: [stunner] },
+        { side: 'enemy', champions: [victim] },
+      );
+      const events: BattleEvent[] = [];
+      bm.on('event', (event) => events.push(event));
+      bm.startBattle();
+
+      for (let round = 1; round <= 5; round++) {
+        stunner.resetCooldowns();
+        forceSpellSlot(stunner, 'Q');
+        bm.processCurrentTurn();
+        bm.processCurrentTurn();
+      }
+
+      const skippedRounds = events
+        .filter(
+          (event): event is Extract<BattleEvent, { type: 'turn_skipped' }> =>
+            event.type === 'turn_skipped' && event.combatantId === 'Victim',
+        )
+        .map((event) => event.round);
+      expect(skippedRounds).toEqual([1, 2, 5]);
+      for (let firstRound = 1; firstRound <= 2; firstRound++) {
+        expect(
+          skippedRounds.filter((round) => round >= firstRound && round < firstRound + 4),
+        ).toHaveLength(2);
+      }
     });
 
     it('knockup also prevents actions', () => {

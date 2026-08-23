@@ -741,7 +741,7 @@ déjà été rejetées avec le même code.
 
 - [x] Limiter une AoE standard à trois cibles, ou appliquer 100 % à la cible principale
   et 50 % aux secondaires, avec plafond de 300 % de dégâts totaux.
-- [ ] Limiter le hard CC à un tour et empêcher une cible de perdre plus de deux actions
+- [x] Limiter le hard CC à un tour et empêcher une cible de perdre plus de deux actions
   sur une fenêtre de quatre rounds.
 - [ ] Rendre les ultimes indisponibles avant le round 3.
 - [ ] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,

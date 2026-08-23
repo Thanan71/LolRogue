@@ -15,6 +15,7 @@ import type { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleActor } from '@/game/rules/types';
 import { TargetingType, type SpellEffect } from '@/types/champion';
 import type { ChampionInstance } from '../ChampionInstance';
+import { capCrowdControlDuration } from './crowdControlRules';
 import { toCombatDamageType } from './damageType';
 import type { ActionTargeting, BattleEvent, CombatantState } from './types';
 
@@ -149,8 +150,8 @@ export class BattleSpellEffectResolver {
         for (const ccTarget of hostileTargets) {
           const ccType = toCCType(effect.ccType);
           if (!ccType) continue;
-          const duration = Math.max(
-            1,
+          const duration = capCrowdControlDuration(
+            ccType,
             normalizeTurnDuration(effect.ccDuration, 1) *
               (this.host.rules?.getAppliedControlDurationMultiplier(attacker.champion.id) ?? 1) *
               (this.host.rules?.getControlDurationMultiplier(ccTarget.champion.id) ?? 1),

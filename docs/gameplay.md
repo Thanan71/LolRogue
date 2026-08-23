@@ -53,6 +53,8 @@ Le moteur est un combat au tour par tour, jusqu'à cinq contre cinq :
 - les actions disponibles sont l'attaque de base et les sorts Q/W/E/R prêts, dont
   le coût en mana est payable ;
 - les contrôles peuvent faire perdre un tour et les effets ont leur propre durée ;
+- un hard CC dure au plus un round et ne peut retirer plus de deux actions à une
+  même cible dans une fenêtre glissante de quatre rounds ;
 - dégâts physiques, magiques et vrais utilisent leurs calculateurs séparés ;
 - une zone exige une cible principale : elle lui inflige 100 % des dégâts et 50 %
   aux quatre cibles secondaires au maximum, soit un plafond de 300 % ;

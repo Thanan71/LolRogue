@@ -204,6 +204,17 @@ export class EffectManager {
     return this.ccEffects.some((cc) => cc.isHardCC());
   }
 
+  expireHardCrowdControl(): number {
+    let expired = 0;
+    for (const effect of this.ccEffects) {
+      if (!effect.isHardCC()) continue;
+      effect.onExpire();
+      expired++;
+    }
+    this.cleanExpired();
+    return expired;
+  }
+
   dispel(categories: readonly EffectCategory[]): number {
     const allowed = new Set(categories);
     let removed = 0;
