@@ -130,18 +130,18 @@ const CRITICAL_FOCUS: AugmentDefinition = {
 const GOLDEN_TOUCH: AugmentDefinition = {
   id: 'golden_touch',
   name: "Toucher d'or",
-  description: 'Gagne 50 pièces d’or supplémentaires après chaque combat.',
+  description: 'Gagne 20 pièces d’or supplémentaires après chaque combat.',
   iconUrl: '/assets/augments/golden_touch.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Economy,
   effects: [
     {
       type: AugmentEffectType.BonusGold,
-      flatValue: 50,
+      flatValue: 20,
     },
   ],
-  stackable: true,
-  maxStacks: 5,
+  stackable: false,
+  maxStacks: 1,
   tags: ['economy', 'gold'],
 };
 
@@ -243,18 +243,18 @@ const GLASS_CANNON: AugmentDefinition = {
 const FORTUNE: AugmentDefinition = {
   id: 'fortune',
   name: 'Fortune',
-  description: 'Gagne 100 pièces d’or supplémentaires après chaque combat.',
+  description: 'Gagne 40 pièces d’or supplémentaires après chaque combat.',
   iconUrl: '/assets/augments/fortune.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Economy,
   effects: [
     {
       type: AugmentEffectType.BonusGold,
-      flatValue: 100,
+      flatValue: 40,
     },
   ],
-  stackable: true,
-  maxStacks: 3,
+  stackable: false,
+  maxStacks: 1,
   tags: ['economy', 'gold'],
 };
 
@@ -352,18 +352,18 @@ const UNSTOPPABLE: AugmentDefinition = {
 const GOLDEN_AGE: AugmentDefinition = {
   id: 'golden_age',
   name: "Âge d'or",
-  description: 'Gagne 200 pièces d’or après chaque combat et réduit le prix des objets de 15 %.',
+  description: 'Gagne 70 pièces d’or après chaque combat et réduit le prix des objets de 10 %.',
   iconUrl: '/assets/augments/golden_age.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Economy,
   effects: [
     {
       type: AugmentEffectType.BonusGold,
-      flatValue: 200,
+      flatValue: 70,
     },
     {
       type: AugmentEffectType.ShopDiscount,
-      percentValue: 0.15,
+      percentValue: 0.1,
     },
   ],
   stackable: false,

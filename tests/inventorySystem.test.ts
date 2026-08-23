@@ -506,9 +506,9 @@ describe('AugmentManager', () => {
   it('should compute bonus gold', () => {
     expect(augManager.getBonusGold()).toBe(0);
     augManager.acquireAugment(AUGMENT_DATABASE['golden_touch']);
-    expect(augManager.getBonusGold()).toBe(50);
-    augManager.acquireAugment(AUGMENT_DATABASE['golden_touch']);
-    expect(augManager.getBonusGold()).toBe(100);
+    expect(augManager.getBonusGold()).toBe(20);
+    expect(augManager.acquireAugment(AUGMENT_DATABASE['golden_touch'])).toBe(false);
+    expect(augManager.getBonusGold()).toBe(20);
   });
 
   it('should compute post-battle healing and shop discounts', () => {
@@ -516,7 +516,7 @@ describe('AugmentManager', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['field_medic']);
     expect(augManager.getHealAfterBattlePercent()).toBeCloseTo(0.2);
     augManager.acquireAugment(AUGMENT_DATABASE['golden_age']);
-    expect(augManager.getShopDiscountPercent()).toBeCloseTo(0.15);
+    expect(augManager.getShopDiscountPercent()).toBeCloseTo(0.1);
   });
 
   it('should compute damage multiplier', () => {

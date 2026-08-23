@@ -515,7 +515,7 @@ différents.
 
 - [x] Recalibrer les Silver autour de +7 ATK, +5 DEF, +7 AP, +90 PV et +12–15 MS.
 - [x] Recalibrer Gold autour de +12–15 % et Prism autour de +22–25 %.
-- [ ] Ramener l'or/combat Silver/Gold/Prism autour de 15–20 / 35–45 / 60–75 ;
+- [x] Ramener l'or/combat Silver/Gold/Prism autour de 15–20 / 35–45 / 60–75 ;
   plafonner la remise Prism à 10 %.
 - [ ] Utiliser une table de rareté explicite : common 55 %, uncommon 25 %, epic 15 %,
   legendary 5 %, puis tirer l'item dans la rareté.

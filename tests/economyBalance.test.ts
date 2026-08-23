@@ -38,4 +38,26 @@ describe('P0-BAL-04 economy balance', () => {
     expect(AUGMENT_DATABASE.divine_blessing.effects[0].percentValue).toBe(0.23);
     expect(AUGMENT_DATABASE.hyper_carry.effects[0].percentValue).toBe(0.25);
   });
+
+  it('bounds per-combat economy augments without stack-driven snowball', () => {
+    const expected = {
+      golden_touch: 20,
+      fortune: 40,
+      golden_age: 70,
+    } as const;
+
+    for (const [id, gold] of Object.entries(expected)) {
+      const augment = AUGMENT_DATABASE[id];
+      expect(
+        augment.effects.find((effect) => effect.type === AugmentEffectType.BonusGold)?.flatValue,
+      ).toBe(gold);
+      expect(augment.stackable).toBe(false);
+      expect(augment.maxStacks).toBe(1);
+    }
+    expect(
+      AUGMENT_DATABASE.golden_age.effects.find(
+        (effect) => effect.type === AugmentEffectType.ShopDiscount,
+      )?.percentValue,
+    ).toBe(0.1);
+  });
 });
