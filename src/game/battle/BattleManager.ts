@@ -18,7 +18,7 @@ import type {
   CombatRuleInstantEffect,
   CombatRuleResolution,
 } from '@/game/rules/types';
-import { TargetingType, type SpellEffect } from '@/types/champion';
+import { type SpellEffect, TargetingType } from '@/types/champion';
 import {
   calculateADDamage,
   calculateAPDamage,
@@ -26,8 +26,8 @@ import {
   critDamage,
 } from '@/utils/damage';
 import type { ChampionInstance } from '../ChampionInstance';
-import type { CombatActionTrace } from './actionTrace';
 import { isBattleActionUnlocked } from './actionTimingRules';
+import type { CombatActionTrace } from './actionTrace';
 import {
   getBattleActionDefinition,
   type ResolvableCombatant,
@@ -37,6 +37,7 @@ import {
 import { type BattleEventCallback, BattleEventJournal } from './BattleEventJournal';
 import { BattleSpellEffectResolver } from './BattleSpellEffectResolver';
 import { isPassiveCombatReady } from './combatContentSupport';
+import { selectContextualBattleAction } from './contextualBattleAi';
 import { canLoseActionToHardCrowdControl, recentHardCrowdControlLosses } from './crowdControlRules';
 import { toCombatDamageType } from './damageType';
 import { resolveBattleTargets } from './targetResolver';
@@ -394,6 +395,7 @@ export class BattleManager {
       champion: entry.champion.id,
       side: entry.side,
       action: action.type,
+      manaSpent: validated.cost,
     });
 
     this._executeAction(attackerState, validated);
@@ -422,6 +424,7 @@ export class BattleManager {
       champion: entry.champion.id,
       side: entry.side,
       action: action.type,
+      manaSpent: validated.cost,
     });
 
     this._executeAction(attackerState, validated);
@@ -614,23 +617,12 @@ export class BattleManager {
   }
 
   private _selectAIAction(attacker: CombatantState): BattleAction | null {
-    const priority = [
-      ActionType.SpellR,
-      ActionType.SpellE,
-      ActionType.SpellW,
-      ActionType.SpellQ,
-      ActionType.BasicAttack,
-    ];
-    const available = this.getAvailableActions(attacker.champion);
-    for (const type of priority) {
-      const option = available.find((candidate) => candidate.type === type);
-      if (!option) continue;
-      const targetId = option.requiresTarget
-        ? option.validTargetIds[Math.floor(this._random() * option.validTargetIds.length)]
-        : undefined;
-      return { type, targetId };
-    }
-    return null;
+    return selectContextualBattleAction({
+      attacker,
+      options: this.getAvailableActions(attacker.champion),
+      allies: this.getAliveCombatants(attacker.side),
+      enemies: this.getAliveEnemies(attacker.side),
+    });
   }
 
   private _executeAction(attacker: CombatantState, action: ValidatedBattleAction): void {
@@ -761,6 +753,13 @@ export class BattleManager {
         amount,
       ]),
     );
+    const shieldAbsorbedBySide = Object.entries(absorbedBySource).reduce<
+      Partial<Record<TeamSide, number>>
+    >((totals, [sourceId, amount]) => {
+      const side = this._findCombatantByTargetId(sourceId)?.side ?? target.side;
+      totals[side] = (totals[side] ?? 0) + amount;
+      return totals;
+    }, {});
     this._emit({
       type: 'damage',
       source: attacker.champion.id,
@@ -772,6 +771,7 @@ export class BattleManager {
       sourceCombatantId: attacker.targetId,
       targetCombatantId: target.targetId,
       shieldAbsorbedBySource,
+      shieldAbsorbedBySide,
       isCrit,
       sourceSide: attacker.side,
       targetSide: target.side,

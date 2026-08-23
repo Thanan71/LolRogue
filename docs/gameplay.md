@@ -69,6 +69,12 @@ Le moteur accepte une source aléatoire injectée. Une mécanique aléatoire ajo
 combat doit utiliser cette source, jamais appeler directement `Math.random`, afin
 de préserver la reproductibilité et les tests.
 
+L'autoplay applique une décision contextuelle déterministe. Un soin ou bouclier
+n'est choisi que sous 70 % de PV et vise l'allié le plus blessé ; une exécution
+respecte son seuil publié ; une zone offensive exige au moins deux cibles vivantes.
+Les actions hostiles visent ensuite la cible à plus faible PV effectifs, bouclier
+inclus, avec un départage stable par identifiant.
+
 Le combat démarre en mode manuel. Les tours ennemis sont joués automatiquement
 après un délai visible de 1,2 s, 0,6 s ou 0,4 s selon la vitesse ×1, ×2 ou ×3.
 Activer « Auto » applique le même délai aux tours du joueur. Les rulesets à partir

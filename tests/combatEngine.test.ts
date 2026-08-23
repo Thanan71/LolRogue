@@ -920,6 +920,7 @@ describe('BattleManager Spell Effect Application', () => {
     spellSlot: SpellSlot,
     effects: SpellEffect[],
     statOverrides: Partial<ChampionStats> = {},
+    targeting: TargetingType = TargetingType.Enemy,
   ): ChampionInstance {
     const baseStats: ChampionStats = {
       hp: 500,
@@ -953,7 +954,7 @@ describe('BattleManager Spell Effect Application', () => {
       cost: [0],
       range: [700],
       image: `${s}.png`,
-      targeting: TargetingType.Enemy,
+      targeting,
       scaling: { adRatio: 0, apRatio: 0 },
       effects: [] as SpellEffect[],
       ...o,
@@ -1064,6 +1065,7 @@ describe('BattleManager Spell Effect Application', () => {
         'W',
         [{ type: 'heal', baseValue: [100], apRatio: 0 }],
         { moveSpeed: 400 },
+        TargetingType.Self,
       );
       const enemy = makeEffectChamp('Enemy', 'Q', []);
       const bm = new BattleManager(
@@ -1095,6 +1097,7 @@ describe('BattleManager Spell Effect Application', () => {
         'W',
         [{ type: 'heal', baseValue: [9999], apRatio: 0 }],
         { moveSpeed: 400 },
+        TargetingType.Self,
       );
       const enemy = makeEffectChamp('Enemy', 'Q', []);
       const bm = new BattleManager(
@@ -1104,7 +1107,7 @@ describe('BattleManager Spell Effect Application', () => {
 
       bm.startBattle();
       const hs = bm.getCombatantState('Healer', 'player')!;
-      hs.currentHp = hs.maxHp - 50;
+      hs.currentHp = hs.maxHp - 200;
 
       forceSpellSlot(healer, 'W');
       bm.processCurrentTurn();
@@ -1122,6 +1125,7 @@ describe('BattleManager Spell Effect Application', () => {
         'W',
         [{ type: 'shield', baseValue: [80], apRatio: 0 }],
         { moveSpeed: 400 },
+        TargetingType.Self,
       );
       const attacker = makeEffectChamp(
         'Attacker',
@@ -1136,6 +1140,7 @@ describe('BattleManager Spell Effect Application', () => {
 
       bm.startBattle();
       const ss = bm.getCombatantState('Shielder', 'player')!;
+      ss.currentHp = ss.maxHp * 0.6;
 
       // Shielder (400 speed) goes first, applies shield
       forceSpellSlot(shielder, 'W');
@@ -1157,6 +1162,7 @@ describe('BattleManager Spell Effect Application', () => {
         'W',
         [{ type: 'shield', baseValue: [100], apRatio: 0 }],
         { moveSpeed: 400 },
+        TargetingType.Self,
       );
       const attacker = makeEffectChamp(
         'Attacker',
@@ -1171,6 +1177,7 @@ describe('BattleManager Spell Effect Application', () => {
 
       bm.startBattle();
       const ss = bm.getCombatantState('Shielder', 'player')!;
+      ss.currentHp = ss.maxHp * 0.6;
 
       forceSpellSlot(shielder, 'W');
       bm.processCurrentTurn();

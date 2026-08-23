@@ -744,7 +744,7 @@ déjà été rejetées avec le même code.
 - [x] Limiter le hard CC à un tour et empêcher une cible de perdre plus de deux actions
   sur une fenêtre de quatre rounds.
 - [x] Rendre les ultimes indisponibles avant le round 3.
-- [ ] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,
+- [x] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,
   AoE seulement avec au moins deux cibles utiles, cible alliée la plus blessée et cible
   ennemie choisie par valeur effective plutôt qu'au hasard.
 - [ ] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa

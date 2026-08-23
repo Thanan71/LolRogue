@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BattleManager } from '../src/game/battle/BattleManager';
+import { reduceBattleMetrics } from '../src/game/battle/battleMetrics';
 import type { BattleAction, BattleTeam } from '../src/game/battle/types';
 import { ActionType, BattlePhase } from '../src/game/battle/types';
 import { ChampionInstance } from '../src/game/ChampionInstance';
@@ -515,6 +516,7 @@ describe('P1 manual combat choices', () => {
     expect(bm.submitAction({ type: ActionType.SpellQ, cost: 0, targetId: 'E1' })).toBe(true);
     expect(bm.getCombatantState('P1', 'player')?.currentMp).toBe(240);
     expect(champion.getCooldown('Q')).toBe(7);
+    expect(reduceBattleMetrics(bm.log).bySide.player.manaSpent).toBe(60);
   });
 
   it('rejects forged targets before emitting, spending resources, or advancing the turn', () => {
