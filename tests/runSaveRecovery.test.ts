@@ -125,9 +125,9 @@ function verifiedStartResponse() {
       seed: 987654,
       mode: 'normal' as const,
       difficulty: 'normal' as const,
-      initialTeam: ['Garen'],
+      initialTeam: ['Garen', 'Annie'],
       runeIds: [],
-      enhancementSnapshot: { Garen: {} },
+      enhancementSnapshot: { Garen: {}, Annie: {} },
       startedAt: '2026-07-23T12:00:00.000Z',
       expiresAt: '2026-07-24T12:00:00.000Z',
       lastSequence: 0,
@@ -498,8 +498,8 @@ describe('authoritative run lifecycle and recovery', () => {
         }),
     );
 
-    const first = useRunStore.getState().startRun(['Garen']);
-    const second = useRunStore.getState().startRun(['Garen']);
+    const first = useRunStore.getState().startRun(['Garen', 'Annie']);
+    const second = useRunStore.getState().startRun(['Garen', 'Annie']);
     await expect(second).resolves.toMatchObject({
       success: false,
       code: 'start_in_progress',
@@ -525,7 +525,7 @@ describe('authoritative run lifecycle and recovery', () => {
         }),
     );
 
-    const start = useRunStore.getState().startRun(['Garen']);
+    const start = useRunStore.getState().startRun(['Garen', 'Annie']);
     useAuthStore.setState({ user: { id: 'user-2' } as User });
     releaseStart?.(verifiedStartResponse());
 
@@ -576,9 +576,9 @@ describe('authoritative run lifecycle and recovery', () => {
         seed: 987654,
         mode: 'normal',
         difficulty: 'normal',
-        initialTeam: ['Garen'],
+        initialTeam: ['Garen', 'Annie'],
         runeIds: ['press_the_attack'],
-        enhancementSnapshot: { Garen: { hp_1: 1 } },
+        enhancementSnapshot: { Garen: { hp_1: 1 }, Annie: {} },
         startedAt: '2026-07-23T12:00:00.000Z',
         expiresAt: '2026-07-24T12:00:00.000Z',
         lastSequence: 0,
@@ -589,7 +589,7 @@ describe('authoritative run lifecycle and recovery', () => {
     });
 
     await expect(
-      useRunStore.getState().startRun(['Garen'], {
+      useRunStore.getState().startRun(['Garen', 'Annie'], {
         seed: 123,
         runeIds: ['press_the_attack'],
       }),
@@ -600,7 +600,7 @@ describe('authoritative run lifecycle and recovery', () => {
       runId: RUN_UUID,
       seed: 987654,
       startedAt: '2026-07-23T12:00:00.000Z',
-      team: [{ championId: 'Garen' }],
+      team: [{ championId: 'Garen' }, { championId: 'Annie' }],
       authorityAttempt: {
         attemptId: ATTEMPT_ID,
         ownerUserId: 'user-1',
@@ -616,11 +616,11 @@ describe('authoritative run lifecycle and recovery', () => {
       error: new TypeError('Failed to fetch'),
     });
 
-    await expect(useRunStore.getState().startRun(['Garen'])).resolves.toMatchObject({
+    await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
       success: false,
     });
     const firstCommandId = attemptMocks.start.mock.calls[0][0].commandId;
-    await expect(useRunStore.getState().startRun(['Garen'])).resolves.toMatchObject({
+    await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
       success: false,
     });
 

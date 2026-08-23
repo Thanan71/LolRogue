@@ -2,9 +2,9 @@ import { implementedChampions } from '@/data/champion';
 import { championDB } from '@/data/championDatabase';
 import { getRuneDefinition } from '@/data/items';
 import type { SpellSlot } from '@/game/ChampionInstance';
+import { MAX_STARTER_TEAM_SIZE } from '@/game/run/starterBudget';
 import { SPELL_SLOTS } from '@/game/run/spellUpgradeRules';
 import { enhancementTreeProvider } from '@/services/enhancementService';
-import { MAX_TEAM_SIZE } from '@/types/run';
 import type { AuthorityRunAttempt, AuthorityRunCommand } from './types';
 
 const IMPLEMENTED_CHAMPION_IDS = new Set(implementedChampions.map((champion) => champion.id));
@@ -268,7 +268,11 @@ export function validateRunAttempt(value: AuthorityRunAttempt): void {
   if (!['normal', 'daily'].includes(value.mode)) {
     failAuthorityVerification('invalid_attempt', 'Attempt mode is invalid.');
   }
-  if (!Array.isArray(value.team) || value.team.length < 1 || value.team.length > MAX_TEAM_SIZE) {
+  if (
+    !Array.isArray(value.team) ||
+    value.team.length < 1 ||
+    value.team.length > MAX_STARTER_TEAM_SIZE
+  ) {
     failAuthorityVerification('invalid_attempt', 'Attempt must contain an allowed starter team.');
   }
   const teamIds = new Set<string>();

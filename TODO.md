@@ -474,7 +474,7 @@ playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
 
 - [x] Forcer `mastery_snapshot = {}` et `enhancement_snapshot = {}` dans le Daily,
   côté contrat DB **et** côté moteur, avec règles/runes versionnées et identiques.
-- [ ] Ajouter un test contractuel « compte neuf = compte maxé » à seed et commandes
+- [x] Ajouter un test contractuel « compte neuf = compte maxé » à seed et commandes
   identiques, jusqu'au score terminal.
 - [x] Donner le même nombre de starters à toutes les runs comparables ; recommandation
   de départ : deux starters par défaut en Normal, un starter normalisé en Daily.
@@ -1271,7 +1271,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 6. [x] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
 7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
-8. [ ] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
+8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [ ] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
 10. [ ] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
 11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.

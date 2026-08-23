@@ -58,32 +58,20 @@ const commands: AuthorityRunCommand[] = [
         '[["r","Warwick",1],["a","Warwick",1],["a","Warwick",1],["a","Warwick",1],["a","Warwick",1],["a","Warwick",1],["a","Warwick",1],["a","Warwick",1]]',
     },
   },
-  { sequence: 15, kind: 'resolve_node', payload: { node_id: 'node_top_lane_10' } },
-  { sequence: 16, kind: 'move_node', payload: { node_id: 'node_top_lane_11' } },
-  { sequence: 17, kind: 'resolve_node', payload: { node_id: 'node_top_lane_11' } },
-  { sequence: 18, kind: 'choose_augment', payload: { augment_id: 'field_medic' } },
-  { sequence: 19, kind: 'move_node', payload: { node_id: 'node_jungle_0' } },
-  {
-    sequence: 20,
-    kind: 'resolve_combat',
-    payload: {
-      node_id: 'node_jungle_0',
-      actions_json: '[["e",null,1],["a","Malphite#1",1]]',
-    },
-  },
 ];
 
 describe('combat action trace replay regression', () => {
   it('does not consume a phantom action after an exact automatic trace', () => {
     const before = replayAuthorityRun(attempt, commands.slice(0, -1)).snapshot;
     expect(before).toMatchObject({
-      currentNodeId: 'node_jungle_0',
-      runLevel: 2,
-      augmentIds: ['field_medic'],
+      currentNodeId: 'node_top_lane_10',
+      runLevel: 1,
+      augmentIds: [],
     });
 
     expect(verifyAuthorityRun(attempt, commands)).toMatchObject({
       ok: true,
+      result: { snapshot: { terminal: true, endReason: 'defeat' } },
     });
   });
 });

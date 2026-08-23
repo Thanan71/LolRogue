@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { implementedChampions } from '@/data/champion';
+import { enhancementTreeProvider } from '@/services/enhancementService';
 import type { Database } from '@/types/database';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
@@ -258,6 +260,36 @@ describeLive('authoritative daily leaderboard live security', () => {
     });
     expect(firstAttempt.expires_at).toBe(challenge.expires_at);
 
+    const secondProfile = await admin
+      .from('players')
+      .select('id')
+      .eq('user_id', second.userId)
+      .single();
+    expect(secondProfile.error).toBeNull();
+    const maxedMastery = await admin.from('champion_mastery').insert(
+      implementedChampions.map((champion) => ({
+        player_id: secondProfile.data!.id,
+        champion_id: champion.id,
+        total_candies: 700,
+        mastery_level: 4,
+        current_level_candies: 0,
+      })),
+    );
+    expect(maxedMastery.error).toBeNull();
+    const maxedEnhancements = await admin.from('champion_enhancements').insert(
+      implementedChampions.map((champion) => {
+        const tree = enhancementTreeProvider.getTreeForChampion(champion);
+        const nodes = [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)];
+        return {
+          user_id: second.userId,
+          champion_id: champion.id,
+          total_candies_spent: 10_000,
+          unlocked_nodes: Object.fromEntries(nodes.map((node) => [node.id, node.maxRanks ?? 1])),
+        };
+      }),
+    );
+    expect(maxedEnhancements.error).toBeNull();
+
     // Even the legacy generic start path is canonicalized by the table trigger.
     const secondStart = await second.client.rpc('start_run_attempt', {
       p_command_id: randomUUID(),
@@ -267,7 +299,13 @@ describeLive('authoritative daily leaderboard live security', () => {
       p_mode: 'daily',
     });
     expect(secondStart.error).toBeNull();
-    const secondAttemptId = (secondStart.data as { attempt_id: string }).attempt_id;
+    const secondAttempt = secondStart.data as StartedAttemptWire;
+    expect(secondAttempt).toMatchObject({
+      mode: 'daily',
+      enhancement_snapshot: {},
+      mastery_snapshot: {},
+    });
+    const secondAttemptId = secondAttempt.attempt_id;
     const secondStatus = await second.client.rpc('get_run_attempt_status', {
       p_attempt_id: secondAttemptId,
     });
@@ -277,7 +315,6 @@ describeLive('authoritative daily leaderboard live security', () => {
       mode: 'daily',
       difficulty: 'normal',
       enhancement_snapshot: {},
-      mastery_snapshot: {},
     });
 
     const duplicateStart = await first.client.rpc('start_daily_run_attempt', {

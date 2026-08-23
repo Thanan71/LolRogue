@@ -6,6 +6,6 @@ export const AUTHORITY_ENGINE_FEATURE_MASKS: readonly number[] = [-1,0,0,2,3,3,7
 export const CURRENT_AUTHORITY_VERSION = {
   "engine": "run-engine-v16",
   "gameplay": 16,
-  "contentHash": "52b685ec394cad4d71c98544ac15df51a1173c0e89c0200f5c4ea07c4355d016",
+  "contentHash": "557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9",
   "dailyScore": 14
 } as const;

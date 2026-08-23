@@ -62,6 +62,15 @@ describe('versioned balance policy', () => {
         seed: 1,
       }),
     ).toThrowError(BalancePolicyDecisionError);
+    expect(() =>
+      survivalGreedyPolicy.buildAttempt({
+        scenario: {
+          ...SCENARIO,
+          team: ['Garen', 'Annie', 'Ashe', 'Lux'].map((championId) => ({ championId })),
+        },
+        seed: 1,
+      }),
+    ).toThrowError(BalancePolicyDecisionError);
   });
 
   it('returns one reachable move command without mutating the snapshot', () => {
@@ -244,7 +253,7 @@ describe('versioned balance policy', () => {
       ...SCENARIO,
       id: 'policy-full-run',
       difficulty: 'easy',
-      team: ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux'].map((championId) => ({
+      team: ['Garen', 'Annie', 'Ashe'].map((championId) => ({
         championId,
         statMultiplier: 3,
       })),

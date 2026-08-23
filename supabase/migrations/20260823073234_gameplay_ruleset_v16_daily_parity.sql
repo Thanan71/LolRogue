@@ -13,7 +13,7 @@ VALUES (
   '2026-08-daily-parity-v16',
   'run-engine-v16',
   2,
-  '52b685ec394cad4d71c98544ac15df51a1173c0e89c0200f5c4ea07c4355d016',
+  '557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9',
   FALSE
 )
 ON CONFLICT (version) DO NOTHING;
@@ -26,7 +26,7 @@ BEGIN
       AND code = '2026-08-daily-parity-v16'
       AND engine_version = 'run-engine-v16'
       AND command_schema_version = 2
-      AND content_hash = '52b685ec394cad4d71c98544ac15df51a1173c0e89c0200f5c4ea07c4355d016'
+      AND content_hash = '557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9'
   ) THEN
     RAISE EXCEPTION 'gameplay_ruleset_v16_contract_mismatch';
   END IF;

@@ -386,7 +386,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "command": 2,
     "status": "current",
     "rulesetCode": "2026-08-daily-parity-v16",
-    "contentHash": "52b685ec394cad4d71c98544ac15df51a1173c0e89c0200f5c4ea07c4355d016",
+    "contentHash": "557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9",
     "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
     "migration": "supabase/migrations/20260823073234_gameplay_ruleset_v16_daily_parity.sql",
     "features": {
