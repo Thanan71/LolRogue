@@ -57,6 +57,31 @@ describe('responsibility boundaries', () => {
       winner: 'player',
       totalRounds: 3,
       log: [{ type: 'battle_end', winner: 'player', rounds: 3 }],
+      metrics: {
+        rounds: 3,
+        bySide: {
+          player: {
+            hpDamageDealt: 0,
+            shieldDamageDealt: 0,
+            healingDone: 0,
+            overhealing: 0,
+            shieldingDone: 0,
+            crowdControlApplications: 0,
+            crowdControlDuration: 0,
+            actionsLost: 0,
+          },
+          enemy: {
+            hpDamageDealt: 0,
+            shieldDamageDealt: 0,
+            healingDone: 0,
+            overhealing: 0,
+            shieldingDone: 0,
+            crowdControlApplications: 0,
+            crowdControlDuration: 0,
+            actionsLost: 0,
+          },
+        },
+      },
     });
 
     result?.log.push({ type: 'battle_end', winner: 'enemy', rounds: 4 });

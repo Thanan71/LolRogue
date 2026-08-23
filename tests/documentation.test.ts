@@ -190,12 +190,37 @@ describe('documentation maintenue', () => {
     expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');
   });
 
+  it("distingue l'analyse des catalogues des vraies runs d'équilibrage", () => {
+    const balance = read('docs/content-balance.md');
+    const matrix = read('docs/feature-status.md');
+
+    expect(balance).toContain('`analyzeContentCatalog()`');
+    expect(balance).toContain("un seed de carte analysé n'est donc pas une run");
+    expect(balance).toContain(
+      'Les vraies runs automatisées passent par `simulateAuthorityCohort()`',
+    );
+    expect(balance).toContain('restent des hypothèses');
+    expect(balance).toMatch(
+      /Cette analyse statique ne produit pas la\s+baseline authority de calibration/,
+    );
+    expect(balance).toMatch(/cohortes\s+authority versionnées/);
+    expect(balance).not.toContain('100 runs complètes');
+    expect(balance).not.toContain('30 runs scriptées');
+    expect(balance).not.toContain('playtest automatisé reproductible');
+
+    expect(matrix).toContain('contentCatalogAnalysis.test.ts');
+    expect(matrix).toContain('simulateAuthorityCohort');
+    expect(matrix).not.toContain('balanceSimulation.test.ts');
+    expect(matrix).not.toContain('Baseline v15');
+    expect(existsSync(resolve(root, 'tests/contentCatalogAnalysis.test.ts'))).toBe(true);
+  });
+
   it('documente la formule Daily réellement exécutée et sa version active', () => {
     const gameplay = read('docs/gameplay.md');
     const persistence = read('docs/data-and-persistence.md');
     const dailySql = read('supabase/migrations/20260726090000_authoritative_daily_leaderboard.sql');
-    const v14Sql = read(
-      'supabase/migrations/20260820152928_gameplay_ruleset_v14_combat_integrity.sql',
+    const v15Sql = read(
+      'supabase/migrations/20260820163214_gameplay_ruleset_v15_authority_cohorts.sql',
     );
 
     for (const token of [
@@ -207,12 +232,12 @@ describe('documentation maintenue', () => {
     ]) {
       expect(dailySql).toContain(token);
     }
-    expect(v14Sql).toContain("'2026-08-authoritative-daily-v14'");
-    expect(v14Sql).toContain('score_version');
-    expect(v14Sql).toContain("'lolrogue.daily.v14'");
+    expect(v15Sql).toContain("'2026-08-authoritative-daily-v15'");
+    expect(v15Sql).toContain('score_version');
+    expect(v15Sql).toContain("'lolrogue.daily.v15'");
     expect(gameplay).toContain('1 000 × vagues terminées');
     expect(gameplay).toContain('250 × biomes visités');
     expect(gameplay).toContain("Le score n'utilise ni l'or restant ni le nombre d'objets");
-    expect(persistence).toContain('Dans le ruleset Daily v14 actif');
+    expect(persistence).toContain('Dans le ruleset Daily v15 actif');
   });
 });

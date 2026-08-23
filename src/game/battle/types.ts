@@ -7,6 +7,7 @@
 import type { TargetingType } from '../../types/champion';
 import type { ChampionInstance } from '../ChampionInstance';
 import type { EffectManager } from '../effects/EffectManager';
+import type { CCType } from '../effects/types';
 
 // ─── Teams ──────────────────────────────────────────────────────────────────
 
@@ -169,6 +170,30 @@ export interface ActionSelectEvent {
   action: ActionType;
 }
 
+export interface CrowdControlAppliedEvent {
+  type: 'crowd_control_applied';
+  source: string;
+  target: string;
+  sourceCombatantId?: string;
+  targetCombatantId?: string;
+  sourceSide: TeamSide;
+  targetSide: TeamSide;
+  ccType: CCType;
+  /** Effective duration after all run-rule multipliers. */
+  duration: number;
+}
+
+export interface TurnSkippedEvent {
+  type: 'turn_skipped';
+  champion: string;
+  combatantId?: string;
+  side: TeamSide;
+  round: number;
+  turnIndex: number;
+  reason: 'hard_crowd_control';
+  crowdControlTypes: CCType[];
+}
+
 export interface HealEvent {
   type: 'heal';
   source: string; // champion id
@@ -211,14 +236,33 @@ export type BattleEvent =
   | TurnStartEvent
   | RoundStartEvent
   | ActionSelectEvent
+  | CrowdControlAppliedEvent
+  | TurnSkippedEvent
   | HealEvent
   | ShieldEvent
   | ReviveEvent;
 
 // ─── Battle Result ──────────────────────────────────────────────────────────
 
+export interface BattleSideMetrics {
+  hpDamageDealt: number;
+  shieldDamageDealt: number;
+  healingDone: number;
+  overhealing: number;
+  shieldingDone: number;
+  crowdControlApplications: number;
+  crowdControlDuration: number;
+  actionsLost: number;
+}
+
+export interface BattleMetrics {
+  rounds: number;
+  bySide: Record<TeamSide, BattleSideMetrics>;
+}
+
 export interface BattleResult {
   winner: TeamSide | 'draw';
   totalRounds: number;
   log: BattleEvent[];
+  metrics: BattleMetrics;
 }

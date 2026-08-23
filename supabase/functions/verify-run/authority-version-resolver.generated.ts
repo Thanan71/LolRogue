@@ -6,6 +6,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v1",
     "gameplay": 1,
+    "dailyScore": 1,
     "progression": 1,
     "command": 1,
     "status": "unsupported",
@@ -30,6 +31,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v2",
     "gameplay": 2,
+    "dailyScore": 2,
     "progression": 1,
     "command": 1,
     "status": "unsupported",
@@ -54,6 +56,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v3",
     "gameplay": 3,
+    "dailyScore": 3,
     "progression": 1,
     "command": 2,
     "status": "unsupported",
@@ -78,6 +81,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v4",
     "gameplay": 4,
+    "dailyScore": 4,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -102,6 +106,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v5",
     "gameplay": 5,
+    "dailyScore": 5,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -126,6 +131,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v6",
     "gameplay": 6,
+    "dailyScore": 6,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -150,6 +156,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v7",
     "gameplay": 7,
+    "dailyScore": 7,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -174,6 +181,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v8",
     "gameplay": 8,
+    "dailyScore": 8,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -198,6 +206,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v9",
     "gameplay": 9,
+    "dailyScore": 9,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -222,6 +231,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v10",
     "gameplay": 10,
+    "dailyScore": 10,
     "progression": 2,
     "command": 2,
     "status": "unsupported",
@@ -246,6 +256,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v11",
     "gameplay": 11,
+    "dailyScore": 11,
     "progression": 2,
     "command": 2,
     "status": "replay-only",
@@ -270,6 +281,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v12",
     "gameplay": 12,
+    "dailyScore": 12,
     "progression": 2,
     "command": 2,
     "status": "replay-only",
@@ -294,6 +306,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v13",
     "gameplay": 13,
+    "dailyScore": 13,
     "progression": 2,
     "command": 2,
     "status": "replay-only",
@@ -318,13 +331,39 @@ export const AUTHORITY_VERSION_REGISTRY = [
   {
     "engine": "run-engine-v14",
     "gameplay": 14,
+    "dailyScore": 14,
+    "progression": 2,
+    "command": 2,
+    "status": "replay-only",
+    "rulesetCode": "2026-08-combat-integrity-v14",
+    "contentHash": "486c5981a70dc84f5615af3abc4720ea03ce9085ae01595b2eda9bafc3f30708",
+    "bundle": "supabase/functions/verify-run/run-authority-v14.bundle.ts",
+    "migration": "supabase/migrations/20260820152928_gameplay_ruleset_v14_combat_integrity.sql",
+    "features": {
+      "canonicalProgression": true,
+      "manualCombat": true,
+      "canonicalEncounters": true,
+      "combatActionTrace": true,
+      "runLedger": true,
+      "mastery": true,
+      "domainInvariants": true,
+      "clientAuthorityParity": true,
+      "automaticTraceSuffix": true,
+      "canonicalStats": true,
+      "contentBalance": true
+    }
+  },
+  {
+    "engine": "run-engine-v15",
+    "gameplay": 15,
+    "dailyScore": 14,
     "progression": 2,
     "command": 2,
     "status": "current",
-    "rulesetCode": "2026-08-combat-integrity-v14",
-    "contentHash": "486c5981a70dc84f5615af3abc4720ea03ce9085ae01595b2eda9bafc3f30708",
+    "rulesetCode": "2026-08-authority-cohorts-v15",
+    "contentHash": "60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9",
     "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
-    "migration": "supabase/migrations/20260820152928_gameplay_ruleset_v14_combat_integrity.sql",
+    "migration": "supabase/migrations/20260820163214_gameplay_ruleset_v15_authority_cohorts.sql",
     "features": {
       "canonicalProgression": true,
       "manualCombat": true,
@@ -345,7 +384,8 @@ const verifierLoaders = {
   "run-engine-v11": () => import("./run-authority-v11.bundle.ts"), // loader-0
   "run-engine-v12": () => import("./run-authority-v12.bundle.ts"), // loader-1
   "run-engine-v13": () => import("./run-authority-v13.bundle.ts"), // loader-2
-  "run-engine-v14": () => import("./run-authority.bundle.js"), // loader-3
+  "run-engine-v14": () => import("./run-authority-v14.bundle.ts"), // loader-3
+  "run-engine-v15": () => import("./run-authority.bundle.js"), // loader-4
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {

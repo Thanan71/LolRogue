@@ -104,6 +104,7 @@ function canonicalClientSnapshot(): AuthorityRunSnapshot {
     biomesVisited: [...state.biomesVisited],
     currentNodeId: state.currentNodeId,
     expectedNodeIds: [...state.frontierNodeIds],
+    pendingEncounter: null,
     pendingNodeType: state.pendingEncounter?.nodeType ?? null,
     completedNodeIds: [...state.completedNodeIds],
     team: state.team.map((member) => ({

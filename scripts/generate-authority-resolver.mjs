@@ -39,6 +39,7 @@ export async function resolveAuthorityVerifier(engineVersion: string, contentHas
 }
 
 export function renderClientCapabilities(registry) {
+  const current = registry.versions.find((version) => version.status === 'current');
   const featureBits = Object.fromEntries(
     CLIENT_AUTHORITY_FEATURES.map((feature, index) => [feature, 2 ** index]),
   );
@@ -58,6 +59,16 @@ export function renderClientCapabilities(registry) {
 
 export const AUTHORITY_FEATURE_BITS = ${JSON.stringify(featureBits)} as const;
 export const AUTHORITY_ENGINE_FEATURE_MASKS: readonly number[] = ${JSON.stringify(engineMasks)};
+export const CURRENT_AUTHORITY_VERSION = ${JSON.stringify(
+    {
+      engine: current.engine,
+      gameplay: current.gameplay,
+      contentHash: current.contentHash,
+      dailyScore: current.dailyScore,
+    },
+    null,
+    2,
+  )} as const;
 `;
 }
 

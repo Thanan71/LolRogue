@@ -41,6 +41,10 @@ export async function readAuthorityVersionRegistry() {
     assert(!gameplayVersions.has(version.gameplay), `gameplay ${version.gameplay} is duplicated.`);
     gameplayVersions.add(version.gameplay);
     assert(
+      Number.isInteger(version.dailyScore) && version.dailyScore > 0,
+      `${label}.dailyScore is invalid.`,
+    );
+    assert(
       Number.isInteger(version.progression) && version.progression > 0,
       `${label}.progression is invalid.`,
     );

@@ -3,33 +3,44 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 14` et le Daily `score_version = 14`. Le contenu de
-combat par biome introduit en v13 reste inchangé. Le moteur v13 est archivé pour terminer les runs
-déjà ouvertes. Toute autre modification d'ennemi, récompense, prix, drop, effet ou
-stacking exige une nouvelle version et un nouveau hash autoritaire.
+`gameplay_ruleset_version = 15` et le Daily `score_version = 14`. Le contenu de
+combat par biome introduit en v13 reste inchangé. Le moteur v14 est archivé pour
+terminer les runs déjà ouvertes. Toute autre modification d'ennemi, récompense,
+prix, drop, effet ou stacking exige une nouvelle version et un nouveau hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
-`balanceSimulation.test.ts` rejoue 100 runs complètes par difficulté et mesure tous
-les combats générés. Il bloque une courbe non monotone, un catalogue incomplet ou
-un contrat de stacking invalide.
+`contentCatalogAnalysis.test.ts` appelle `analyzeContentCatalog()` sur 100 seeds de
+carte déterministes. Cette analyse parcourt tous les nœuds de toutes les branches et
+résout leurs formations/récompenses avec un inventaire vide. Elle ne choisit aucune
+route, ne conserve pas les PV/MP, n'achète et ne recrute rien, et n'exécute pas
+`BattleManager` : un seed de carte analysé n'est donc pas une run.
 
-La calibration de référence utilise aussi une cohorte figée de 30 runs scriptées
-par difficulté. Elle vérifie les bornes d'or/drop et les trois raretés d'augments
-sans collecter de donnée personnelle. Elle constitue le playtest automatisé
-reproductible ; les données volontaires futures servent à recalibrer, pas à rendre
-le ruleset actif valide a posteriori.
+Le contrôle sur 30 seeds de carte vérifie seulement un volume minimal de nœuds, des
+bornes larges de récompenses et les trois raretés d'augments. Il ne constitue ni une
+cohorte de runs scriptées, ni un playtest. Cette analyse statique ne produit pas la
+baseline authority de calibration, construite séparément à partir de cohortes
+authority versionnées.
 
-## Courbes mesurées
+Les vraies runs automatisées passent par `simulateAuthorityCohort()`. Cette fonction
+pilote une session authority commande par commande, puis fait rejouer la trace
+complète par `verifyAuthorityRun()` avec vérification terminale. Les tests
+`authorityCohort.test.ts` et `authorityCohortMatrix.test.ts` couvrent ce chemin et sa
+stratification ; ils ne transforment pas pour autant une politique automatisée en
+comportement joueur.
 
-La puissance ennemie simulée est la somme `niveau × statMultiplier` des formations.
-L'économie mesure or moyen par combat, probabilité de drop, bornes de prix, nombre
-d'augments et stacking. Ces valeurs sont des indicateurs comparatifs, pas une
-promesse de taux de victoire : les choix, équipes et actions influencent le résultat.
+## Indicateurs de catalogue et de nœuds
+
+Pour chaque nœud de combat généré et chaque difficulté, `meanEncounterPower` agrège
+`niveau × statMultiplier`, `meanNodeGoldReward` la récompense d'or et
+`meanNodeDropChance` la probabilité de drop. Les prix, le nombre d'augments et leur
+stacking proviennent directement des catalogues. Ces valeurs sont des indicateurs
+comparatifs non pondérés par un choix de route, pas des métriques de run ni une
+promesse de taux de victoire.
 
 Les attentes actuelles sont : Easy < Normal < Hard pour puissance et or, drops non
 décroissants, prix strictement positifs et inventaire/stacking conformes aux règles.
-Le rapport est déterministe pour les mêmes seeds et doit être comparé avant/après
-toute calibration.
+Le rapport est déterministe pour les mêmes seeds de carte et doit être comparé
+avant/après toute modification de contenu.
 
 ## Roster maintenu
 
@@ -75,8 +86,8 @@ contenu jouable.
 Le ruleset v13 ajoute `top_fortified_duel`, `jungle_hunted_camp`,
 `mid_arcane_lockdown`, `bot_frozen_vanguard`, `river_guardian_current` et
 `base_last_stand`. Ils emploient uniquement les dix champions et le combat déjà
-supporté ; leurs formations, récompenses et probabilités sont couvertes par la
-simulation client/authority.
+supporté ; leurs formations, récompenses et probabilités sont couvertes par des
+tests déterministes du résolveur de rencontres et du moteur authority.
 
 ## Télémétrie consentie et playtests
 
@@ -86,9 +97,10 @@ résultat, durée, or gagné/dépensé, drops proposés/acceptés, augments prop
 et raison d'abandon. Aucun journal d'actions, email ou identifiant public n'est
 nécessaire.
 
-Pour chaque cohorte d'au moins 30 runs par difficulté, consigner taux de victoire,
-abandon par biome, médiane de durée/or, fréquence de choix et intervalle
-d'incertitude. Une modification est proposée avec hypothèse et cible, simulée,
-playtestée sur au moins deux compositions, puis versionnée. Sans échantillon
-consenti suffisant, le résultat reste une hypothèse et le TODO de calibration reste
-ouvert.
+Pour une future cohorte authority d'au moins 30 runs par difficulté, consigner taux
+de victoire, abandon par biome, médiane de durée/or, fréquence de choix et intervalle
+d'incertitude. Une modification est proposée avec hypothèse et cible, évaluée via
+`simulateAuthorityCohort()`, playtestée sur au moins deux compositions, puis
+versionnée. Les taux produits par une politique automatisée restent des hypothèses
+jusqu'à leur confrontation à des playtests humains consentis ; sans échantillon
+suffisant, le TODO de calibration reste ouvert.

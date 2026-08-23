@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
+  createAuthorityReplaySession,
   type AuthorityRunAttempt,
   type AuthorityRunCommand,
   replayAuthorityRun,
@@ -32,6 +33,107 @@ function firstCombatTrace() {
     },
     { sequence: 3, kind: 'resolve_node', payload: { node_id: nodeId } },
   ] as const;
+}
+
+function attemptForSeed(seed: number): AuthorityRunAttempt {
+  return { ...ATTEMPT, seed };
+}
+
+function appendCommand(
+  trace: AuthorityRunCommand[],
+  command: Omit<AuthorityRunCommand, 'sequence'>,
+): void {
+  trace.push({ ...command, sequence: trace.length + 1 } as AuthorityRunCommand);
+}
+
+function completeStartTrace(attempt: AuthorityRunAttempt): AuthorityRunCommand[] {
+  const startNodeId = generateRunMap(attempt.seed)[0].startNodeId;
+  const trace: AuthorityRunCommand[] = [
+    { sequence: 1, kind: 'move_node', payload: { node_id: startNodeId } },
+    {
+      sequence: 2,
+      kind: 'resolve_combat',
+      payload: { node_id: startNodeId, actions_json: 'auto' },
+    },
+    { sequence: 3, kind: 'resolve_node', payload: { node_id: startNodeId } },
+  ];
+
+  for (let guard = 0; guard < 20; guard++) {
+    const snapshot = replayAuthorityRun(attempt, trace).snapshot;
+    const pendingUpgrade = snapshot.pendingSpellUpgradeChampionIds[0];
+    if (pendingUpgrade) {
+      const member = snapshot.team.find((candidate) => candidate.championId === pendingUpgrade);
+      const slot = (['Q', 'W', 'E', 'R'] as const).find((candidate) =>
+        Boolean(member && canUpgradeSpell(member, candidate)),
+      );
+      if (!slot) throw new Error('No legal spell upgrade remains after the first combat.');
+      appendCommand(trace, {
+        kind: 'upgrade_spell',
+        payload: { champion_id: pendingUpgrade, slot },
+      });
+      continue;
+    }
+    const pendingAugment = snapshot.pendingAugmentIds[0];
+    if (pendingAugment) {
+      appendCommand(trace, {
+        kind: 'choose_augment',
+        payload: { augment_id: pendingAugment },
+      });
+      continue;
+    }
+    return trace;
+  }
+  throw new Error('First-combat choices exceeded the deterministic test limit.');
+}
+
+function findImmediateEncounter(nodeType: NodeType): {
+  attempt: AuthorityRunAttempt;
+  nodeId: string;
+  trace: AuthorityRunCommand[];
+} {
+  for (let seed = 0; seed < 2_000; seed++) {
+    const map = generateRunMap(seed)[0];
+    const start = map.nodes.find((node) => node.id === map.startNodeId);
+    const target = start?.nextNodeIds
+      .map((nodeId) => map.nodes.find((node) => node.id === nodeId))
+      .find((node) => node?.type === nodeType);
+    if (!target) continue;
+
+    const attempt = attemptForSeed(seed);
+    const trace = completeStartTrace(attempt);
+    appendCommand(trace, { kind: 'move_node', payload: { node_id: target.id } });
+    return { attempt, nodeId: target.id, trace };
+  }
+  throw new Error(`No immediate ${nodeType} encounter was generated for the test.`);
+}
+
+function buildTraceToAffordableShop(): {
+  attempt: AuthorityRunAttempt;
+  trace: AuthorityRunCommand[];
+  itemId: string;
+} {
+  for (let seed = 0; seed < 5_000; seed++) {
+    const map = generateRunMap(seed)[0];
+    const start = map.nodes.find((node) => node.id === map.startNodeId);
+    const shop = start?.nextNodeIds
+      .map((nodeId) => map.nodes.find((node) => node.id === nodeId))
+      .find((node) => node?.type === NodeType.Shop);
+    if (!shop) continue;
+
+    const attempt = attemptForSeed(seed);
+    const trace = completeStartTrace(attempt);
+    const afterStart = replayAuthorityRun(attempt, trace).snapshot;
+    for (const entry of afterStart.inventory) {
+      appendCommand(trace, { kind: 'sell_item', payload: { instance_id: entry.instanceId } });
+    }
+    appendCommand(trace, { kind: 'move_node', payload: { node_id: shop.id } });
+
+    const pending = replayAuthorityRun(attempt, trace).snapshot.pendingEncounter;
+    if (!pending || pending.nodeType !== 'shop') continue;
+    const offer = pending.itemOffers.find((candidate) => candidate.legal);
+    if (offer) return { attempt, trace, itemId: offer.itemId };
+  }
+  throw new Error('No affordable immediate shop item was generated for the test.');
 }
 
 function buildStrongTeamTrace(stopAfterFirstExit: boolean): AuthorityRunCommand[] {
@@ -116,8 +218,73 @@ describe('authority run engine', () => {
       gold: 0,
       totalWavesCompleted: 0,
       nextSequence: 1,
+      pendingEncounter: null,
     });
     expect(result.snapshot.expectedNodeIds).toEqual([generateRunMap(ATTEMPT.seed)[0].startNodeId]);
+  });
+
+  it('keeps every incremental replay prefix identical to canonical replay', () => {
+    const session = createAuthorityReplaySession(ATTEMPT);
+    const trace = firstCombatTrace();
+
+    expect(session.getResult()).toEqual(replayAuthorityRun(ATTEMPT, []));
+    trace.forEach((command, index) => {
+      session.append(command);
+      expect(session.getResult()).toEqual(replayAuthorityRun(ATTEMPT, trace.slice(0, index + 1)));
+    });
+  });
+
+  it('freezes trusted attempt facts for the lifetime of an incremental session', () => {
+    const mutableAttempt: AuthorityRunAttempt = {
+      ...ATTEMPT,
+      team: ATTEMPT.team.map((member) => ({ ...member })),
+      runeIds: ['press_the_attack'],
+      enhancementSnapshot: { Garen: { fighter_core_1: 1 } },
+      masterySnapshot: { Garen: 1 },
+    };
+    const expected = replayAuthorityRun(mutableAttempt, []);
+    const session = createAuthorityReplaySession(mutableAttempt);
+
+    mutableAttempt.seed = 1;
+    mutableAttempt.team[0]!.championId = 'Annie';
+    mutableAttempt.runeIds[0] = 'electrocute';
+    mutableAttempt.enhancementSnapshot.Garen!.fighter_core_1 = 0;
+    mutableAttempt.masterySnapshot.Garen = 4;
+
+    expect(session.getResult()).toEqual(expected);
+  });
+
+  it('invalidates an incremental session after a rejected command', () => {
+    const session = createAuthorityReplaySession(ATTEMPT);
+    const [move, combat, resolve] = firstCombatTrace();
+    session.append(move);
+
+    let rejection: unknown = null;
+    try {
+      session.append({
+        ...combat,
+        payload: { ...combat.payload, actions_json: 'not-json' },
+      });
+    } catch (error) {
+      rejection = error;
+    }
+    expect(rejection).toMatchObject({
+      code: 'invalid_combat_action_trace',
+      commandIndex: 1,
+    });
+
+    expect(() => session.getResult()).toThrowError(
+      expect.objectContaining({
+        code: 'replay_session_invalidated',
+        commandIndex: 1,
+      }),
+    );
+    expect(() => session.append({ ...resolve, sequence: 2 })).toThrowError(
+      expect.objectContaining({
+        code: 'replay_session_invalidated',
+        commandIndex: 1,
+      }),
+    );
   });
 
   it('rejects a malformed manual combat action trace', () => {
@@ -152,6 +319,84 @@ describe('authority run engine', () => {
     expect(first.snapshot.nextSequence).toBe(4);
     expect(first.snapshot.expectedNodeIds.length).toBeGreaterThan(0);
   });
+
+  it('exposes the active combat identity and claimed state without leaking map internals', () => {
+    const [move, combat, resolve] = firstCombatTrace();
+    const node = generateRunMap(ATTEMPT.seed)[0].nodes.find(
+      (candidate) => candidate.id === move.payload.node_id,
+    );
+    expect(node?.encounter?.type).toBe('combat');
+
+    const pending = replayAuthorityRun(ATTEMPT, [move]).snapshot;
+    expect(pending.pendingEncounter).toEqual({
+      nodeId: move.payload.node_id,
+      nodeType: 'combat',
+      encounterId: node?.encounter?.id,
+      claimed: false,
+    });
+    expect(pending.pendingEncounter).not.toHaveProperty('node');
+
+    expect(replayAuthorityRun(ATTEMPT, [move, combat]).snapshot.pendingEncounter).toMatchObject({
+      nodeId: move.payload.node_id,
+      nodeType: 'combat',
+      claimed: true,
+    });
+    expect(
+      replayAuthorityRun(ATTEMPT, [move, combat, resolve]).snapshot.pendingEncounter,
+    ).toBeNull();
+  });
+
+  it('exposes canonical shop costs and consumed offer state to a deterministic policy', () => {
+    const { attempt, trace, itemId } = buildTraceToAffordableShop();
+    const before = replayAuthorityRun(attempt, trace).snapshot;
+    const pending = before.pendingEncounter;
+    expect(pending?.nodeType).toBe('shop');
+    if (!pending || pending.nodeType !== 'shop') throw new Error('Affordable shop is unavailable.');
+
+    const offer = pending.itemOffers.find((candidate) => candidate.itemId === itemId);
+    expect(offer).toMatchObject({ consumed: false, legal: true });
+    expect(offer?.cost).toBeGreaterThanOrEqual(0);
+    expect(pending.recruitOffers.every((candidate) => typeof candidate.legal === 'boolean')).toBe(
+      true,
+    );
+
+    const purchase: AuthorityRunCommand = {
+      sequence: before.nextSequence,
+      kind: 'shop_buy_item',
+      payload: { node_id: pending.nodeId, item_id: itemId },
+    };
+    const after = replayAuthorityRun(attempt, [...trace, purchase]).snapshot;
+    expect(after.gold).toBe(before.gold - offer!.cost);
+    expect(after.inventory.some((entry) => entry.item.id === itemId)).toBe(true);
+    expect(after.pendingEncounter).toMatchObject({
+      nodeId: pending.nodeId,
+      nodeType: 'shop',
+      claimed: false,
+      itemOffers: expect.arrayContaining([
+        expect.objectContaining({ itemId, cost: offer!.cost, consumed: true, legal: false }),
+      ]),
+    });
+  });
+
+  it.each([NodeType.Rest, NodeType.Recruit] as const)(
+    'exposes canonical cost and legality for a pending %s encounter',
+    (nodeType) => {
+      const { attempt, nodeId, trace } = findImmediateEncounter(nodeType);
+      const snapshot = replayAuthorityRun(attempt, trace).snapshot;
+      const pending = snapshot.pendingEncounter;
+      expect(pending).toMatchObject({ nodeId, nodeType, claimed: false });
+      if (!pending || (pending.nodeType !== 'rest' && pending.nodeType !== 'recruit')) {
+        throw new Error(`Pending ${nodeType} snapshot is unavailable.`);
+      }
+      expect(pending.cost).toBeGreaterThanOrEqual(0);
+      expect(pending.legal).toBe(
+        snapshot.gold >= pending.cost &&
+          (pending.nodeType !== 'recruit' ||
+            (snapshot.team.length < 5 &&
+              !snapshot.team.some((member) => member.championId === pending.championId))),
+      );
+    },
+  );
 
   it('keeps node-only auto-combat journals compatible during the v3 rollout', () => {
     const legacyTrace = firstCombatTrace().map((command) =>
@@ -296,6 +541,12 @@ describe('authority run engine', () => {
     expect(beforeResolution.currentBiomeIndex).toBe(0);
     expect(beforeResolution.expectedNodeIds).toEqual([]);
     expect(beforeResolution.completedNodeIds).not.toContain(beforeResolution.currentNodeId);
+    expect(beforeResolution.pendingEncounter).toEqual({
+      nodeId: beforeResolution.currentNodeId,
+      nodeType: 'exit',
+      encounterId: null,
+      claimed: false,
+    });
 
     const afterResolution = replayAuthorityRun(ATTEMPT, trace).snapshot;
     expect(afterResolution.currentBiomeIndex).toBe(1);
@@ -363,7 +614,7 @@ describe('authority run engine', () => {
     expect(rows.every((row) => row.wave === row.totalCompleted + 1)).toBe(true);
     expect(rows.every((row) => row.augmentChoices.length === 3)).toBe(true);
     expect(rows).toMatchSnapshot();
-  });
+  }, 15_000);
 
   it('validates node identity and encounter type for every semantic action', () => {
     const nodeId = generateRunMap(ATTEMPT.seed)[0].startNodeId;

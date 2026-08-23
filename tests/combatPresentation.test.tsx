@@ -2,6 +2,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { CombatStage } from '@/components/CombatUI/CombatStage';
 import { riotSpellIconUrl } from '@/config/riotSpellAssets';
 import { championDB } from '@/data/championDatabase';
@@ -68,6 +69,27 @@ describe('combat presentation', () => {
   afterEach(() => {
     useBattleStore.getState().resetBattle();
     useSettingsStore.setState({ particlesEnabled: true, battleSpeed: 1 });
+  });
+
+  it('renders explicit crowd-control and skipped-turn log entries', () => {
+    const store = useBattleStore.getState();
+    store.addLog({
+      type: 'crowd_control',
+      message: 'Annie → Malphite: étourdissement (2 tours)',
+    });
+    store.addLog({
+      type: 'turn_skipped',
+      message: 'Malphite perd son action (étourdissement)',
+    });
+
+    render(<CombatLog />);
+
+    expect(screen.getByText('Annie → Malphite: étourdissement (2 tours)')).toHaveClass(
+      'combat-log__entry--crowd_control',
+    );
+    expect(screen.getByText('Malphite perd son action (étourdissement)')).toHaveClass(
+      'combat-log__entry--turn_skipped',
+    );
   });
 
   it('defines a distinct visual profile and a packaged Data Dragon icon for every ability', () => {

@@ -158,6 +158,20 @@ describeLive('authoritative daily leaderboard live security', () => {
     }
   });
 
+  it('shares score formula v14 across Daily rulesets v14 and v15', async () => {
+    const rulesets = await admin
+      .from('daily_challenge_rulesets')
+      .select('version, score_version, is_active')
+      .in('version', [14, 15])
+      .order('version');
+
+    expect(rulesets.error).toBeNull();
+    expect(rulesets.data).toEqual([
+      { version: 14, score_version: 14, is_active: false },
+      { version: 15, score_version: 14, is_active: true },
+    ]);
+  });
+
   it('derives the day and seed from UTC independently of caller timezone', async () => {
     const sameInstant = await Promise.all(
       ['2026-07-26T23:30:00-04:00', '2026-07-27T05:30:00+02:00', '2026-07-27T12:30:00+09:00'].map(
@@ -393,7 +407,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       daily_seed: challenge.seed,
       score: 1360,
       run_attempt_id: firstAttempt.attempt_id,
-      daily_ruleset_version: 14,
+      daily_ruleset_version: 15,
       score_version: 14,
     });
 

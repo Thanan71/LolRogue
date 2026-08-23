@@ -418,29 +418,29 @@ que 2,42 rounds.
 
 ### Actions
 
-- [ ] Créer une `BalancePolicy` versionnée qui, depuis le snapshot public de la run,
+- [x] Créer une `BalancePolicy` versionnée qui, depuis le snapshot public de la run,
   renvoie une seule commande légale : route, combat, achat, recrutement, équipement,
   augment, rune et amélioration de sort.
-- [ ] Construire `simulateAuthorityCohort()` autour de `replayAuthorityRun()` sur le
+- [x] Construire `simulateAuthorityCohort()` autour de `replayAuthorityRun()` sur le
   bundle Edge courant, avec vérification terminale par `verifyAuthorityRun()`.
-- [ ] Ajouter limites de commandes/temps, détection de deadlock et reproduction de
+- [x] Ajouter limites de commandes/temps, détection de deadlock et reproduction de
   la seed pour chaque échec.
-- [ ] Stratifier chaque cohorte par difficulté × taille/composition d'équipe ×
+- [x] Stratifier chaque cohorte par difficulté × taille/composition d'équipe ×
   maîtrise/runes/enhancements × politique.
-- [ ] Produire au minimum : victoire avec intervalle Wilson, vagues/biomes p10-p50-p90,
+- [x] Produire au minimum : victoire avec intervalle Wilson, vagues/biomes p10-p50-p90,
   biome/encounter de mort, rounds, PV/MP, dégâts/soins/CC, or gagné/dépensé,
   affordability, achats, recrues, drops par rareté et choix d'augments.
-- [ ] Indexer la baseline JSON par moteur, `contentHash`, version du modèle et version
+- [x] Indexer la baseline JSON par moteur, `contentHash`, version du modèle et version
   de politique ; conserver seulement les traces de seeds extrêmes comme artefacts CI.
-- [ ] Exécuter 30–50 seeds par cellule en PR et 500–1 000 en nightly/release.
-- [ ] Lire les versions gameplay/hash depuis le registre authority unique et le score
+- [x] Exécuter 30–50 seeds par cellule en PR et 500–1 000 en nightly/release.
+- [x] Lire les versions gameplay/hash depuis le registre authority unique et le score
   Daily depuis une source machine unique ; supprimer les constantes parallèles.
-- [ ] Corriger `docs/content-balance.md` et renommer les métriques qui ne sont pas des
+- [x] Corriger `docs/content-balance.md` et renommer les métriques qui ne sont pas des
   simulations de runs.
 
 ### Gates initiales
 
-- [ ] Zéro crash, deadlock, non-déterminisme ou divergence source/bundle.
+- [x] Zéro crash, deadlock, non-déterminisme ou divergence source/bundle.
 - [ ] Easy ≥ Normal ≥ Hard avec tolérance statistique, sans masquer les cohortes par
   taille d'équipe ou niveau méta.
 - [ ] Aucun starter à 0 % sur les premiers combats ; plage de travail : Normal

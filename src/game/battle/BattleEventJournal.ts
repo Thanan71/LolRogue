@@ -1,3 +1,4 @@
+import { reduceBattleMetrics } from './battleMetrics';
 import { type BattleEvent, BattlePhase, type BattleResult } from './types';
 
 export type BattleEventCallback = (event: BattleEvent) => void;
@@ -32,6 +33,11 @@ export class BattleEventJournal {
     if (phase !== BattlePhase.Finished) return null;
     const last = this.events[this.events.length - 1];
     if (last?.type !== 'battle_end') return null;
-    return { winner: last.winner, totalRounds: last.rounds, log: [...this.events] };
+    return {
+      winner: last.winner,
+      totalRounds: last.rounds,
+      log: [...this.events],
+      metrics: reduceBattleMetrics(this.events),
+    };
   }
 }

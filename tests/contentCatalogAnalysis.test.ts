@@ -1,19 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { implementedChampions } from '@/data/champion';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import {
-  BALANCE_DAILY_SCORE_VERSION,
-  BALANCE_GAMEPLAY_RULESET_VERSION,
+  analyzeContentCatalog,
   BIOME_DESIGN,
   CHAMPION_DESIGN,
-  simulateContentBalance,
   validateBalanceCatalog,
 } from '@/game/balance/contentBalance';
-import { BIOME_MAP_CONFIGS, NodeType } from '@/game/map/types';
 import { ENCOUNTER_POOLS } from '@/game/map/encounters';
+import { BIOME_MAP_CONFIGS, NodeType } from '@/game/map/types';
 import { BIOMES } from '@/types/run';
 
-describe('P3 versioned content balance', () => {
+describe('versioned content catalog analysis', () => {
   it('defines strengths, weaknesses and tested synergies for the maintained roster', () => {
     expect(Object.keys(CHAMPION_DESIGN).sort()).toEqual(
       implementedChampions.map((champion) => champion.id).sort(),
@@ -54,30 +53,35 @@ describe('P3 versioned content balance', () => {
     );
   });
 
-  it('simulates deterministic, ordered difficulty and economy curves', () => {
-    const first = simulateContentBalance(100);
-    const second = simulateContentBalance(100);
+  it('calculates deterministic difficulty and economy indicators across generated nodes', () => {
+    const first = analyzeContentCatalog(100);
+    const second = analyzeContentCatalog(100);
     expect(first).toEqual(second);
-    expect(first.gameplayRulesetVersion).toBe(BALANCE_GAMEPLAY_RULESET_VERSION);
-    expect(first.dailyScoreVersion).toBe(BALANCE_DAILY_SCORE_VERSION);
-    expect(first.curves.map((curve) => curve.difficulty)).toEqual(['easy', 'normal', 'hard']);
+    expect(first.gameplayRulesetVersion).toBe(CURRENT_AUTHORITY_VERSION.gameplay);
+    expect(first.contentHash).toBe(CURRENT_AUTHORITY_VERSION.contentHash);
+    expect(first.dailyScoreVersion).toBe(CURRENT_AUTHORITY_VERSION.dailyScore);
+    expect(first.difficultyIndicators.map((row) => row.difficulty)).toEqual([
+      'easy',
+      'normal',
+      'hard',
+    ]);
 
-    const [easy, normal, hard] = first.curves;
-    expect(easy.meanEnemyPower).toBeLessThan(normal.meanEnemyPower);
-    expect(normal.meanEnemyPower).toBeLessThan(hard.meanEnemyPower);
-    expect(easy.meanGold).toBeLessThan(normal.meanGold);
-    expect(normal.meanGold).toBeLessThan(hard.meanGold);
-    expect(easy.meanDropChance).toBeLessThanOrEqual(normal.meanDropChance);
-    expect(normal.meanDropChance).toBeLessThanOrEqual(hard.meanDropChance);
+    const [easy, normal, hard] = first.difficultyIndicators;
+    expect(easy.meanEncounterPower).toBeLessThan(normal.meanEncounterPower);
+    expect(normal.meanEncounterPower).toBeLessThan(hard.meanEncounterPower);
+    expect(easy.meanNodeGoldReward).toBeLessThan(normal.meanNodeGoldReward);
+    expect(normal.meanNodeGoldReward).toBeLessThan(hard.meanNodeGoldReward);
+    expect(easy.meanNodeDropChance).toBeLessThanOrEqual(normal.meanNodeDropChance);
+    expect(normal.meanNodeDropChance).toBeLessThanOrEqual(hard.meanNodeDropChance);
     expect(first.economy.minShopPrice).toBeGreaterThan(0);
     expect(first.economy.maxShopPrice).toBeGreaterThan(first.economy.minShopPrice);
     expect(first.economy.augmentCount).toBeGreaterThanOrEqual(15);
   });
 
-  it('keeps node choices visible in every simulated biome', () => {
-    const report = simulateContentBalance(100);
+  it('keeps node choices visible in every sampled biome', () => {
+    const report = analyzeContentCatalog(100);
     for (const biome of BIOMES) {
-      const mix = report.biomeNodeMix[biome];
+      const mix = report.biomeNodeTypeCounts[biome];
       expect(mix[NodeType.Combat] ?? 0, biome).toBeGreaterThan(0);
       if (biome === 'base') expect(mix[NodeType.Boss] ?? 0, biome).toBeGreaterThan(0);
       else expect(mix[NodeType.Exit] ?? 0, biome).toBeGreaterThan(0);
@@ -91,15 +95,15 @@ describe('P3 versioned content balance', () => {
     expect(validateBalanceCatalog()).toEqual([]);
   });
 
-  it('calibrates a scripted cohort of 30 runs per difficulty', () => {
-    const cohort = simulateContentBalance(30);
-    expect(cohort.seedCount).toBe(30);
-    for (const curve of cohort.curves) {
-      expect(curve.combatNodes).toBeGreaterThan(300);
-      expect(curve.meanGold).toBeGreaterThan(15);
-      expect(curve.meanGold).toBeLessThan(150);
-      expect(curve.meanDropChance).toBeGreaterThan(0.05);
-      expect(curve.meanDropChance).toBeLessThan(0.75);
+  it('samples the generated node catalog over 30 deterministic map seeds', () => {
+    const analysis = analyzeContentCatalog(30);
+    expect(analysis.mapSeedCount).toBe(30);
+    for (const row of analysis.difficultyIndicators) {
+      expect(row.combatNodeCount).toBeGreaterThan(300);
+      expect(row.meanNodeGoldReward).toBeGreaterThan(15);
+      expect(row.meanNodeGoldReward).toBeLessThan(150);
+      expect(row.meanNodeDropChance).toBeGreaterThan(0.05);
+      expect(row.meanNodeDropChance).toBeLessThan(0.75);
     }
 
     const tiers = new Set(Object.values(AUGMENT_DATABASE).map((augment) => augment.tier));
