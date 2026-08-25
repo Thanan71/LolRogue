@@ -23,6 +23,37 @@ const ENCOUNTER_LABELS: Record<string, string[]> = {
   boss: ['boss'],
 };
 
+interface CombatSnapshot {
+  phase: string;
+  round: number;
+  turnIndex: number;
+  currentTurnChampionId: string | null;
+  currentTurnSide: string | null;
+  playerAlive: number;
+  enemyAlive: number;
+  winner: string | null;
+  autoPressed: string | null;
+}
+
+async function readCombatSnapshot(page: Page): Promise<CombatSnapshot> {
+  return page.evaluate(async () => {
+    const { useBattleStore } = await import('/src/stores/battleStore.ts');
+    const state = useBattleStore.getState();
+    return {
+      phase: state.phase,
+      round: state.round,
+      turnIndex: state.turnIndex,
+      currentTurnChampionId: state.currentTurnChampionId,
+      currentTurnSide: state.currentTurnSide,
+      playerAlive: state.playerTeam.filter((champion) => !champion.isDefeated).length,
+      enemyAlive: state.enemyTeam.filter((champion) => !champion.isDefeated).length,
+      winner: state.winner,
+      autoPressed:
+        document.querySelector('.combat-auto-toggle')?.getAttribute('aria-pressed') ?? null,
+    };
+  });
+}
+
 function labelMatchesEncounter(label: string, encounter: string): boolean {
   const normalized = label
     .normalize('NFD')
@@ -94,10 +125,25 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
       .poll(() =>
         page.evaluate(async () => {
           const { useRunStore } = await import('/src/stores/runStore.ts');
-          return useRunStore.getState().runeIds.includes('e2e_assured_victory');
+          const { assignTeamRuneBudget } = await import('/src/game/runes/runeAssignment.ts');
+          const state = useRunStore.getState();
+          const starterIds = state.team.map((member) => member.championId);
+          const assignments = assignTeamRuneBudget(starterIds, state.runeIds);
+          const fixtureOwner =
+            Object.entries(assignments).find(([, runeIds]) =>
+              runeIds.includes('e2e_assured_victory'),
+            )?.[0] ?? null;
+          return {
+            firstRuneId: state.runeIds[0] ?? null,
+            fixtureHasFirstStarterOwner:
+              fixtureOwner !== null && fixtureOwner === (starterIds[0] ?? null),
+          };
         }),
       )
-      .toBe(true);
+      .toEqual({
+        firstRuneId: 'e2e_assured_victory',
+        fixtureHasFirstStarterOwner: true,
+      });
   }
   const mapTutorial = page.getByRole('dialog', { name: 'Comprendre la carte' });
   await expect(mapTutorial).toBeVisible();
@@ -112,13 +158,36 @@ async function resolveCombat(page: Page, trace: string[]) {
     .catch(() => false);
   if (tutorialOpened) await tutorial.getByRole('button', { name: 'Fermer le tutoriel' }).click();
   await page.getByRole('radio', { name: 'Vitesse 3x' }).click();
+
+  // CombatPage intentionally resets autoplay when a new battle enters its
+  // `starting` phase. Clicking Auto before that effect has settled races the
+  // reset and can leave the CI run parked forever on its first player turn.
+  await expect
+    .poll(async () => (await readCombatSnapshot(page)).phase, {
+      message: 'The battle should be ready before enabling autoplay.',
+      timeout: 10_000,
+    })
+    .toBe('turn_active');
+
+  const auto = page.locator('.combat-auto-toggle');
+  await expect(auto).toBeEnabled();
+  if ((await auto.getAttribute('aria-pressed')) !== 'true') await auto.click();
+  await expect(auto).toHaveAttribute('aria-pressed', 'true');
+
+  const initialSnapshot = await readCombatSnapshot(page);
+  trace.push(`combat:start:${JSON.stringify(initialSnapshot)}`);
   const outcome = page.getByText(/VICTOIRE !|DÉFAITE/, { exact: true });
-  const auto = page.getByRole('button', { name: /Activer le mode automatique/ });
-  if (await auto.isVisible()) await auto.click();
-  await Promise.race([
-    outcome.waitFor({ state: 'visible', timeout: 45_000 }),
-    page.waitForURL(/\/(?:run|game-over)$/, { timeout: 45_000 }),
-  ]);
+  try {
+    await Promise.race([
+      outcome.waitFor({ state: 'visible', timeout: 45_000 }),
+      page.waitForURL(/\/(?:run|game-over)$/, { timeout: 45_000 }),
+    ]);
+  } catch (cause) {
+    const snapshot = await readCombatSnapshot(page);
+    trace.push(`combat:timeout:${JSON.stringify(snapshot)}`);
+    const reason = cause instanceof Error ? cause.message : String(cause);
+    throw new Error(`Combat did not resolve from ${JSON.stringify(snapshot)}. ${reason}`);
+  }
   const path = new URL(page.url()).pathname;
   if (path === '/run') {
     trace.push('combat:VICTOIRE');
@@ -218,65 +287,68 @@ async function resolvePendingChoices(page: Page, trace: string[]) {
 async function playRun(page: Page, testInfo: TestInfo, strategy: 'risky' | 'survival') {
   const trace: string[] = [];
   const visited = new Set<string>();
-  await startNormalGuestRun(page, strategy === 'survival');
+  try {
+    await startNormalGuestRun(page, strategy === 'survival');
 
-  for (let step = 0; step < 80; step += 1) {
-    if (new URL(page.url()).pathname === '/game-over') break;
-    await resolvePendingChoices(page, trace);
-    const nodes = page.locator(
-      '[role="button"][aria-label*="accessible"]:not([aria-disabled="true"])',
-    );
-    await expect(nodes.first()).toBeVisible();
-    const labels = await nodes.evaluateAll((elements) =>
-      elements.map((element) => element.getAttribute('aria-label') ?? ''),
-    );
-    const priorities =
-      strategy === 'risky'
-        ? REQUIRED_ENCOUNTERS
-        : [
-            ...REQUIRED_ENCOUNTERS.filter(
-              (type) => !visited.has(type) && type !== 'exit' && type !== 'boss',
-            ),
-            'rest',
-            'treasure',
-            'recruit',
-            'shop',
-            'event',
-            'elite',
-            'combat',
-            'exit',
-            'boss',
-          ];
-    const preferred = priorities.find((type) =>
-      labels.some((label) => labelMatchesEncounter(label, type)),
-    );
-    const index = preferred
-      ? labels.findIndex((label) => labelMatchesEncounter(label, preferred))
-      : 0;
-    const label = labels[index];
-    if (!label) throw new Error(`Encounter node ${index} has no accessible label.`);
-    for (const type of REQUIRED_ENCOUNTERS) {
-      if (labelMatchesEncounter(label, type)) visited.add(type);
+    for (let step = 0; step < 80; step += 1) {
+      if (new URL(page.url()).pathname === '/game-over') break;
+      await resolvePendingChoices(page, trace);
+      const nodes = page.locator(
+        '[role="button"][aria-label*="accessible"]:not([aria-disabled="true"])',
+      );
+      await expect(nodes.first()).toBeVisible();
+      const labels = await nodes.evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute('aria-label') ?? ''),
+      );
+      const priorities =
+        strategy === 'risky'
+          ? REQUIRED_ENCOUNTERS
+          : [
+              ...REQUIRED_ENCOUNTERS.filter(
+                (type) => !visited.has(type) && type !== 'exit' && type !== 'boss',
+              ),
+              'rest',
+              'treasure',
+              'recruit',
+              'shop',
+              'event',
+              'elite',
+              'combat',
+              'exit',
+              'boss',
+            ];
+      const preferred = priorities.find((type) =>
+        labels.some((label) => labelMatchesEncounter(label, type)),
+      );
+      const index = preferred
+        ? labels.findIndex((label) => labelMatchesEncounter(label, preferred))
+        : 0;
+      const label = labels[index];
+      if (!label) throw new Error(`Encounter node ${index} has no accessible label.`);
+      for (const type of REQUIRED_ENCOUNTERS) {
+        if (labelMatchesEncounter(label, type)) visited.add(type);
+      }
+      trace.push(`node:${label}`);
+      // Playwright cannot scroll SVG <g> nodes inside the map's nested overflow
+      // containers reliably. Dispatch after the accessibility state is verified.
+      await nodes.nth(index).dispatchEvent('click');
+      if (new URL(page.url()).pathname !== '/run') {
+        const survived = await resolveEncounter(page, trace, strategy);
+        if (!survived) break;
+      }
     }
-    trace.push(`node:${label}`);
-    // Playwright cannot scroll SVG <g> nodes inside the map's nested overflow
-    // containers reliably. Dispatch after the accessibility state is verified.
-    await nodes.nth(index).dispatchEvent('click');
-    if (new URL(page.url()).pathname !== '/run') {
-      const survived = await resolveEncounter(page, trace, strategy);
-      if (!survived) break;
-    }
+
+    await expect(page).toHaveURL('/game-over');
+    const outcome = await page.getByRole('heading', { name: /Victoire|Défaite/ }).textContent();
+    expect(trace.length).toBeGreaterThan(5);
+    expect([...visited]).toContain('combat');
+    return { outcome, visited };
+  } finally {
+    await testInfo.attach('ui-run-trace.txt', {
+      body: trace.join('\n'),
+      contentType: 'text/plain',
+    });
   }
-
-  await testInfo.attach('ui-run-trace.txt', {
-    body: trace.join('\n'),
-    contentType: 'text/plain',
-  });
-  await expect(page).toHaveURL('/game-over');
-  const outcome = await page.getByRole('heading', { name: /Victoire|Défaite/ }).textContent();
-  expect(trace.length).toBeGreaterThan(5);
-  expect([...visited]).toContain('combat');
-  return { outcome, visited };
 }
 
 test('a guest run reaches a real defeat through the UI', async ({ page }, testInfo) => {
