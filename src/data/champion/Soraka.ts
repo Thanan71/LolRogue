@@ -84,7 +84,7 @@ export const soraka: Champion = {
       id: 'SorakaE',
       name: 'Équinoxe',
       description:
-        'Crée une zone qui réduit au silence les ennemis. Quand la zone disparaît, les ennemis encore dedans sont immobilisés.',
+        'Crée une zone qui réduit au silence et ralentit les ennemis de 30% pendant un tour.',
       maxRank: 5,
       cooldownTurns: [5, 5, 5, 5, 4],
       cost: [70, 75, 80, 85, 90],
@@ -100,8 +100,8 @@ export const soraka: Champion = {
           apRatio: 0.4,
           baseDamage: [70, 110, 150, 190, 230],
         },
-        { type: 'cc', ccType: 'silence', ccDuration: 1.5 },
-        { type: 'cc', ccType: 'snare', ccDuration: 1.5 },
+        { type: 'cc', ccType: 'silence', ccDuration: 1 },
+        { type: 'cc', ccType: 'slow', slowPercent: 30, ccDuration: 1 },
       ],
     },
     {
@@ -114,7 +114,7 @@ export const soraka: Champion = {
       cost: [100, 100, 100],
       range: [25000, 25000, 25000],
       image: 'SorakaR.png',
-      targeting: TargetingType.Ally,
+      targeting: TargetingType.Allies,
       scaling: { adRatio: 0, apRatio: 0.55 },
       effects: [{ type: 'heal', baseValue: [150, 250, 350], apRatio: 0.55 }],
     },
