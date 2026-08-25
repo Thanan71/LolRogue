@@ -143,23 +143,23 @@ export const malphite: Champion = {
           damageType: 'magical',
           adRatio: 0,
           apRatio: 1.0,
-          baseDamage: [200, 300, 400],
+          baseDamage: [150, 250, 350],
         },
-        { type: 'cc', ccType: 'knockup', ccDuration: 1.5 },
+        { type: 'cc', ccType: 'knockup', ccDuration: 1 },
       ],
     },
   ],
   passive: {
     name: 'Bouclier de granit',
     description:
-      'Malphite est protégé par un bouclier de roche qui absorbe des dégâts équivalents à 10% de ses PV max. Si Malphite n est pas touché pendant quelques secondes, l effet se recharge.',
+      'Malphite est protégé par un bouclier de roche qui absorbe des dégâts équivalents à 7% de ses PV max. Si Malphite n est pas touché pendant quelques secondes, l effet se recharge.',
     image: 'Malphite_GraniteShield.png',
     targeting: TargetingType.Passive,
     scaling: { adRatio: 0, apRatio: 0 },
     effects: [
       {
         type: 'shield',
-        baseValue: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+        baseValue: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
         apRatio: 0,
       },
     ],

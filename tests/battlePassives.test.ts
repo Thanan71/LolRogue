@@ -308,12 +308,12 @@ describe('maintained champion passives', () => {
     ).toBe(true);
   });
 
-  it('Malphite — starts combat with Granite Shield equal to 10% max HP', () => {
+  it('Malphite — starts combat with Granite Shield equal to 7% max HP', () => {
     const malphite = maintained('Malphite');
     const manager = battle([malphite]);
     const state = manager.getCombatantState('Malphite', 'player')!;
 
-    expect(state.currentShield).toBe(Math.round(state.maxHp * 0.1));
+    expect(state.currentShield).toBe(Math.round(state.maxHp * 0.07));
   });
 
   it('Warwick — basic attacks deal bonus magic damage and heal below half HP', () => {

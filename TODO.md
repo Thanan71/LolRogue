@@ -757,7 +757,7 @@ déjà été rejetées avec le même code.
 
 - [x] Darius : un seul DoT rafraîchi, cinq charges maximum, environ 8–10 dégâts/tour
   au niveau 1 ; corriger E en vraie pénétration au lieu d'un bonus d'armure.
-- [ ] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
+- [x] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
 - [ ] Soraka : R en `Allies`, E avec silence un tour et slow à la place du double verrouillage.
 - [ ] Garen/Jinx : appliquer la règle d'execute commune retenue dans `P0-BAL-01`.
 - [ ] Recalibrer l'AP naturel vers environ 20–30 au niveau 1 et 100–140 au niveau 18,
