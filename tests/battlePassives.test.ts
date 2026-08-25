@@ -9,6 +9,7 @@ import { ActionType, BattlePhase } from '../src/game/battle/types';
 import { ChampionInstance } from '../src/game/ChampionInstance';
 import type { Champion, ChampionStats, Spell } from '../src/types';
 import { TargetingType } from '../src/types';
+import { calculateADDamage } from '../src/utils/damage';
 
 const DUMMY_STATS: ChampionStats = {
   hp: 5000,
@@ -51,7 +52,11 @@ function maintained(id: string, moveSpeed = 500): ChampionInstance {
   return new ChampionInstance(clone);
 }
 
-function dummy(id: string, moveSpeed = 300): ChampionInstance {
+function dummy(
+  id: string,
+  moveSpeed = 300,
+  statOverrides: Partial<ChampionStats> = {},
+): ChampionInstance {
   const spell = (slot: string): Spell => ({
     id: `${id}${slot}`,
     name: `${id} ${slot}`,
@@ -72,7 +77,7 @@ function dummy(id: string, moveSpeed = 300): ChampionInstance {
     title: 'dummy',
     tags: ['Tank'],
     resourceType: 'Mana',
-    stats: { ...DUMMY_STATS, moveSpeed },
+    stats: { ...DUMMY_STATS, moveSpeed, ...statOverrides },
     spells: [spell('Q'), spell('W'), spell('E'), spell('R')],
     passive: {
       name: 'None',
@@ -160,20 +165,95 @@ describe('maintained champion passives', () => {
     expect(target.effectManager.getSpeedMultiplier()).toBeCloseTo(0.8);
   });
 
-  it('Darius — damaging hits stack Hemorrhage to five and grant Noxian Might', () => {
+  it('Darius — keeps one refreshed Hemorrhage DoT capped at five real 9-damage ticks', () => {
     const darius = maintained('Darius');
     const manager = battle([darius]);
-    for (let index = 0; index < 5; index++) {
+    const target = manager.getCombatantState('Target', 'enemy')!;
+
+    expect(manager.submitAction({ type: ActionType.BasicAttack, targetId: 'Target' })).toBe(true);
+    expect(target.effectManager.dots).toHaveLength(1);
+    expect(target.effectManager.dots[0].stacks).toBe(1);
+    expect(target.effectManager.dots[0].remainingRounds).toBe(5);
+
+    const targetHpBeforeTick = target.currentHp;
+    const tickLogStart = manager.log.length;
+    manager.processCurrentTurn();
+    expect(targetHpBeforeTick - target.currentHp).toBe(9);
+    expect(
+      manager.log
+        .slice(tickLogStart)
+        .filter(
+          (event) =>
+            event.type === 'damage' && event.source === 'Darius' && event.target === 'Target',
+        ),
+    ).toEqual([expect.objectContaining({ amount: 9 })]);
+
+    for (let index = 1; index < 5; index++) {
       advanceToPlayer(manager, 'Darius');
       expect(manager.submitAction({ type: ActionType.BasicAttack, targetId: 'Target' })).toBe(true);
     }
 
-    const target = manager.getCombatantState('Target', 'enemy')!;
     const state = manager.getCombatantState('Darius', 'player')!;
-    expect(target.effectManager.dots).toHaveLength(5);
+    expect(target.effectManager.dots).toHaveLength(1);
+    expect(target.effectManager.dots[0].stacks).toBe(5);
+    expect(target.effectManager.dots[0].remainingRounds).toBe(5);
     expect(
-      state.effectManager.buffDebuffs.some((effect) => effect.name.includes('noxian_might')),
-    ).toBe(true);
+      state.effectManager.buffDebuffs.filter((effect) => effect.name.includes('noxian_might')),
+    ).toHaveLength(1);
+
+    manager.processCurrentTurn();
+    advanceToPlayer(manager, 'Darius');
+    expect(manager.submitAction({ type: ActionType.BasicAttack, targetId: 'Target' })).toBe(true);
+    expect(target.effectManager.dots).toHaveLength(1);
+    expect(target.effectManager.dots[0].stacks).toBe(5);
+    expect(target.effectManager.dots[0].remainingRounds).toBe(5);
+    expect(
+      state.effectManager.buffDebuffs.filter((effect) => effect.name.includes('noxian_might')),
+    ).toHaveLength(1);
+  });
+
+  it('Darius — E rank grants real attacker armor penetration to attacks and physical spells', () => {
+    const darius = maintained('Darius');
+    darius.setSpellRank('E', 5);
+    const target = dummy('ArmoredTarget', 300, { armor: 100 });
+    const manager = battle([darius], [target]);
+    const rawAttackDamage = darius.getEnhancedStats().attackDamage;
+
+    expect(manager.submitAction({ type: ActionType.BasicAttack, targetId: 'ArmoredTarget' })).toBe(
+      true,
+    );
+    const attackEvent = manager.log.find(
+      (event) =>
+        event.type === 'damage' && event.source === 'Darius' && event.target === 'ArmoredTarget',
+    );
+    expect(attackEvent).toEqual(
+      expect.objectContaining({
+        amount: calculateADDamage(rawAttackDamage, 1, 100, 0.35),
+      }),
+    );
+    expect(attackEvent && attackEvent.type === 'damage' ? attackEvent.amount : 0).toBeGreaterThan(
+      calculateADDamage(rawAttackDamage, 1, 100),
+    );
+
+    advanceToPlayer(manager, 'Darius');
+    const spellLogStart = manager.log.length;
+    expect(manager.submitAction({ type: ActionType.SpellQ, targetId: 'ArmoredTarget' })).toBe(true);
+    const spellEvent = manager.log
+      .slice(spellLogStart)
+      .find(
+        (event) =>
+          event.type === 'damage' && event.source === 'Darius' && event.target === 'ArmoredTarget',
+      );
+    expect(spellEvent).toEqual(
+      expect.objectContaining({
+        amount: calculateADDamage(40 + rawAttackDamage, 1, 100, 0.35),
+      }),
+    );
+
+    expect(darius.getSpell('E')?.passiveArmorPenetrationPercent).toEqual([15, 20, 25, 30, 35]);
+    expect(darius.getSpell('E')?.effects).not.toContainEqual(
+      expect.objectContaining({ type: 'buff', stat: 'armor' }),
+    );
   });
 
   it('Lux — a spell mark is consumed by her next basic attack for bonus damage', () => {

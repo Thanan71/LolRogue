@@ -95,6 +95,17 @@ describe('Damage Calculations', () => {
     it('should handle zero AD', () => {
       expect(calculateADDamage(0, 1.0, 30)).toBe(0);
     });
+
+    it('applies attacker percentage armor penetration before physical mitigation', () => {
+      expect(calculateADDamage(100, 1, 100, 0)).toBe(50);
+      expect(calculateADDamage(100, 1, 100, 0.35)).toBe(61);
+    });
+
+    it('clamps invalid armor penetration without amplifying physical damage', () => {
+      expect(calculateADDamage(100, 1, 100, -0.5)).toBe(50);
+      expect(calculateADDamage(100, 1, 100, 5)).toBe(100);
+      expect(calculateADDamage(100, 1, 100, Number.NaN)).toBe(50);
+    });
   });
 
   describe('calculateAPDamage', () => {

@@ -103,6 +103,10 @@ export interface DamageEffectData extends EffectData {
   damageType: DamageType;
   /** Whether this damage can critically strike */
   canCrit: boolean;
+  /** Current number of stacks contributing to each damage tick. */
+  stacks: number;
+  /** Maximum number of stacks for this damage effect. */
+  maxStacks: number;
 }
 
 // ─── Heal Effect Data ──────────────────────────────────────────────────────

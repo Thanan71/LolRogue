@@ -13,7 +13,7 @@ import { ShieldEffect } from '@/game/effects/ShieldEffect';
 import { CCType, DamageType, type StatKey } from '@/game/effects/types';
 import type { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleActor } from '@/game/rules/types';
-import { TargetingType, type SpellEffect } from '@/types/champion';
+import { type SpellEffect, TargetingType } from '@/types/champion';
 import type { ChampionInstance } from '../ChampionInstance';
 import { capCrowdControlDuration } from './crowdControlRules';
 import { toCombatDamageType } from './damageType';
@@ -49,6 +49,7 @@ interface BattleSpellEffectHost {
   ) => void;
   calculateEffectDamage: (
     effect: SpellEffect,
+    attacker: CombatantState,
     attackerStats: ReturnType<ChampionInstance['getStats']>,
     target: CombatantState,
     rankIndex: number,
@@ -90,7 +91,8 @@ export class BattleSpellEffectResolver {
             attacker,
             target,
             Math.round(
-              this.host.calculateEffectDamage(effect, atkStats, target, rankIdx) * areaMultiplier,
+              this.host.calculateEffectDamage(effect, attacker, atkStats, target, rankIdx) *
+                areaMultiplier,
             ),
             toCombatDamageType(effect.damageType),
           );
@@ -277,7 +279,13 @@ export class BattleSpellEffectResolver {
       case 'dot': {
         const duration = normalizeTurnDuration(effect.duration, 1);
         for (const target of hostileTargets) {
-          const totalDamage = this.host.calculateEffectDamage(effect, atkStats, target, rankIdx);
+          const totalDamage = this.host.calculateEffectDamage(
+            effect,
+            attacker,
+            atkStats,
+            target,
+            rankIdx,
+          );
           if (totalDamage <= 0 || duration <= 0) continue;
           target.effectManager.apply(
             new DamageEffect({

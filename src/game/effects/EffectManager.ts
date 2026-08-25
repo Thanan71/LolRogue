@@ -82,6 +82,37 @@ export class EffectManager {
   // ── Apply / Remove ───────────────────────────────────────────────────────
 
   apply(effect: Effect): EffectEvent | null {
+    // A named stackable DoT remains one effect per source/target pair. Reapplying
+    // it adds one stack (up to its cap) and restarts its full duration.
+    if (effect instanceof DamageEffect && effect.maxStacks > 1) {
+      const existing = this._effects.find(
+        (candidate): candidate is DamageEffect =>
+          candidate instanceof DamageEffect &&
+          !candidate.expired &&
+          candidate.name === effect.name &&
+          candidate.sourceId === effect.sourceId &&
+          candidate.targetId === effect.targetId &&
+          candidate.damageType === effect.damageType,
+      );
+      if (existing) {
+        existing.addStack();
+        existing.refresh();
+        const event: EffectEvent = {
+          type: 'effect_applied',
+          effectId: existing.id,
+          effectName: existing.name,
+          category: existing.category,
+          source: existing.sourceId,
+          target: existing.targetId,
+          magnitude: existing.magnitude * existing.stacks,
+          duration: existing.remainingRounds,
+          detail: `${existing.stacks}/${existing.maxStacks}_stacks`,
+        };
+        this._emit(event);
+        return event;
+      }
+    }
+
     // Handle stacking for buffs/debuffs
     if (effect instanceof BuffDebuffEffect) {
       const existing = this._effects.find(

@@ -101,16 +101,8 @@ export const darius: Champion = {
       image: 'DariusAxeGrabCone.png',
       targeting: TargetingType.Enemy,
       scaling: { adRatio: 0, apRatio: 0 },
-      effects: [
-        { type: 'cc', ccType: 'snare', ccDuration: 1 },
-        {
-          type: 'buff',
-          stat: 'armor',
-          modifierType: 'percent',
-          values: [15, 20, 25, 30, 35],
-          buffDuration: 4,
-        },
-      ],
+      passiveArmorPenetrationPercent: [15, 20, 25, 30, 35],
+      effects: [{ type: 'cc', ccType: 'snare', ccDuration: 1 }],
     },
     {
       id: 'DariusExecute',
@@ -138,17 +130,20 @@ export const darius: Champion = {
   passive: {
     name: 'Plaie béante',
     description:
-      'Les attaques de Darius et ses compétences font saigner les ennemis (cumulable 5 fois). À 5 piles, Darius gagne un bonus en dégâts d attaque.',
+      'Les attaques de Darius et ses compétences font saigner les ennemis pendant 5 tours (9 dégâts physiques par charge et par tour au niveau 1, cumulable 5 fois). À 5 charges, Darius gagne un bonus en dégâts d attaque.',
     image: 'Darius_Icon_Hemorrhage.png',
     targeting: TargetingType.Passive,
-    scaling: { adRatio: 0.3, apRatio: 0 },
+    scaling: { adRatio: 0, apRatio: 0 },
     effects: [
       {
-        type: 'damage',
+        type: 'dot',
         damageType: 'physical',
-        adRatio: 0.3,
+        adRatio: 0,
         apRatio: 0,
-        baseDamage: [13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],
+        // Total damage per charge over five ticks: 45 / 5 = 9 at level 1.
+        baseDamage: [45, 49, 53, 57, 61, 65, 69, 73, 77, 81, 85, 89, 93, 97, 101, 105, 109, 113],
+        duration: 5,
+        maxStacks: 5,
       },
       {
         type: 'buff',

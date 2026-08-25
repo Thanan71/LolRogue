@@ -755,7 +755,7 @@ déjà été rejetées avec le même code.
 
 ### Tuning champions, uniquement après les actions système
 
-- [ ] Darius : un seul DoT rafraîchi, cinq charges maximum, environ 8–10 dégâts/tour
+- [x] Darius : un seul DoT rafraîchi, cinq charges maximum, environ 8–10 dégâts/tour
   au niveau 1 ; corriger E en vraie pénétration au lieu d'un bonus d'armure.
 - [ ] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
 - [ ] Soraka : R en `Allies`, E avec silence un tour et slow à la place du double verrouillage.

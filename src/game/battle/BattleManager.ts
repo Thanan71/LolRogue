@@ -859,7 +859,12 @@ export class BattleManager {
     const critChance = Math.min(100, atkStats.crit) / 100;
     const isCrit = this._random() < critChance;
     const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
-    const finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
+    const finalDmg = calculateADDamage(
+      rawDmg,
+      1.0,
+      defStats.armor,
+      this._getPassiveArmorPenetration(attacker),
+    );
 
     this._applyDamageToTarget(attacker, target, finalDmg, DamageType.AD, true, isCrit);
   }
@@ -920,6 +925,7 @@ export class BattleManager {
 
   private _calculateEffectDamage(
     effect: SpellEffect,
+    attacker: CombatantState,
     attackerStats: ReturnType<ChampionInstance['getEnhancedStats']>,
     target: CombatantState,
     rankIndex: number,
@@ -935,7 +941,23 @@ export class BattleManager {
       return calculateAPDamage(rawDamage, 1, defense.magicResist);
     }
     if (effect.damageType === 'true') return calculateTrueDamage(rawDamage);
-    return calculateADDamage(rawDamage, 1, defense.armor);
+    return calculateADDamage(
+      rawDamage,
+      1,
+      defense.armor,
+      this._getPassiveArmorPenetration(attacker),
+    );
+  }
+
+  /** Resolve always-on physical armor penetration published by ranked spells. */
+  private _getPassiveArmorPenetration(attacker: CombatantState): number {
+    const slots = ['Q', 'W', 'E', 'R'] as const;
+    return slots.reduce((highest, slot) => {
+      const spell = attacker.champion.getSpell(slot);
+      const rankIndex = attacker.champion.getSpellRank(slot) - 1;
+      const rawValue = spell?.passiveArmorPenetrationPercent?.[rankIndex] ?? 0;
+      return Math.max(highest, normalizePercent(rawValue));
+    }, 0);
   }
 
   private _applyHeal(source: CombatantState, target: CombatantState, amount: number): void {
@@ -1097,6 +1119,7 @@ export class BattleManager {
       if (damageEffect) {
         const amount = this._calculateEffectDamage(
           damageEffect,
+          attacker,
           this._getCombatStats(attacker),
           target,
           rankIndex,
@@ -1130,7 +1153,13 @@ export class BattleManager {
         this._applyDamageToTarget(
           attacker,
           target,
-          this._calculateEffectDamage(effect, this._getCombatStats(attacker), target, rankIndex),
+          this._calculateEffectDamage(
+            effect,
+            attacker,
+            this._getCombatStats(attacker),
+            target,
+            rankIndex,
+          ),
           toCombatDamageType(effect.damageType),
           false,
         );
@@ -1148,14 +1177,14 @@ export class BattleManager {
     ) {
       const passiveDamage = attacker.champion
         .getPassive()
-        .effects.find((effect) => effect.type === 'damage');
+        .effects.find((effect) => effect.type === 'dot');
       const stackName = `${attacker.targetId}_hemorrhage`;
-      const stacks = target.effectManager.dots.filter(
-        (effect) => effect.name === stackName && effect.sourceId === attacker.targetId,
-      ).length;
-      if (passiveDamage && stacks < 5) {
+      if (passiveDamage) {
+        const duration = normalizeTurnDuration(passiveDamage.duration, 5);
+        const maxStacks = Math.max(1, Math.floor(passiveDamage.maxStacks ?? 5));
         const totalDamage = this._calculateEffectDamage(
           passiveDamage,
+          attacker,
           this._getCombatStats(attacker),
           target,
           attacker.champion.level - 1,
@@ -1167,11 +1196,15 @@ export class BattleManager {
             targetId: target.targetId,
             magnitude: totalDamage,
             damageType: toCombatDamageType(passiveDamage.damageType),
-            duration: 5,
+            duration,
             canCrit: false,
+            maxStacks,
           }),
         );
-        if (stacks + 1 === 5) {
+        const hemorrhage = target.effectManager.dots.find(
+          (effect) => effect.name === stackName && effect.sourceId === attacker.targetId,
+        );
+        if (hemorrhage?.stacks === maxStacks) {
           const buff = attacker.champion
             .getPassive()
             .effects.find((effect) => effect.type === 'buff');
@@ -1210,6 +1243,7 @@ export class BattleManager {
             target,
             this._calculateEffectDamage(
               effect,
+              leona,
               this._getCombatStats(leona),
               target,
               leona.champion.level - 1,

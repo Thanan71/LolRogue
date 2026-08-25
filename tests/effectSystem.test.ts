@@ -100,6 +100,53 @@ describe('Effect System', () => {
       dmg.tick();
       expect(dmg.expired).toBe(true);
     });
+
+    it('keeps a stackable DoT unique per source and target while refreshing its duration', () => {
+      const first = new DamageEffect({
+        name: 'Hemorrhage',
+        sourceId: 'darius-a',
+        targetId: 'target',
+        magnitude: 45,
+        damageType: DamageType.AD,
+        duration: 5,
+        maxStacks: 5,
+      });
+      manager.apply(first);
+      first.tick();
+      expect(first.remainingRounds).toBe(4);
+
+      for (let application = 0; application < 7; application++) {
+        manager.apply(
+          new DamageEffect({
+            name: 'Hemorrhage',
+            sourceId: 'darius-a',
+            targetId: 'target',
+            magnitude: 45,
+            damageType: DamageType.AD,
+            duration: 5,
+            maxStacks: 5,
+          }),
+        );
+      }
+
+      expect(manager.dots).toHaveLength(1);
+      expect(first.stacks).toBe(5);
+      expect(first.remainingRounds).toBe(5);
+      expect(first.tick().value).toBe(45);
+
+      manager.apply(
+        new DamageEffect({
+          name: 'Hemorrhage',
+          sourceId: 'darius-b',
+          targetId: 'target',
+          magnitude: 45,
+          damageType: DamageType.AD,
+          duration: 5,
+          maxStacks: 5,
+        }),
+      );
+      expect(manager.dots).toHaveLength(2);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
