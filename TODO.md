@@ -760,7 +760,7 @@ déjà été rejetées avec le même code.
 - [x] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
 - [x] Soraka : R en `Allies`, E avec silence un tour et slow à la place du double verrouillage.
 - [x] Garen/Jinx : appliquer la règle d'execute commune retenue dans `P0-BAL-01`.
-- [ ] Recalibrer l'AP naturel vers environ 20–30 au niveau 1 et 100–140 au niveau 18,
+- [x] Recalibrer l'AP naturel vers environ 20–30 au niveau 1 et 100–140 au niveau 18,
   puis réduire les dégâts de base si nécessaire.
 - [ ] Auditer chaque rang de sort : valeur marginale strictement positive, environ
   +10–18 % d'effet primaire ou amélioration de cooldown/coût ; Ashe E ne doit plus
