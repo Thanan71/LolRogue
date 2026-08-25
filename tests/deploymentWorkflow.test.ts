@@ -38,6 +38,10 @@ describe('deployment workflow contract', () => {
     expect(previewWorkflow).toContain('ref: ${{ github.event.client_payload.git.sha }}');
     expect(previewWorkflow).toContain('APP_COMMIT_SHA: ${{ github.event.client_payload.git.sha }}');
     expect(previewWorkflow).toContain('DEPLOYMENT_URL: ${{ github.event.client_payload.url }}');
+    expect(previewWorkflow).toContain("VERCEL_AUTOMATION_BYPASS_REQUIRED: 'true'");
+    expect(previewWorkflow).toContain(
+      'VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}',
+    );
     expect(previewWorkflow).toContain('npm run build');
     expect(previewWorkflow).toContain('npm run test:deployed-assets');
     expect(previewWorkflow).not.toContain('lol-rogue.vercel.app');
@@ -54,6 +58,7 @@ describe('deployment workflow contract', () => {
     expect(deployedAssetsVerifier).toContain('/api/deployment-identity');
     expect(deployedAssetsVerifier).toContain('deploymentIdentity?.commit');
     expect(deployedAssetsVerifier).toContain('DEPLOYMENT_IDENTITY_MAX_ATTEMPTS');
+    expect(deployedAssetsVerifier).toContain("'x-vercel-protection-bypass'");
     expect(deployedAssetsVerifier).not.toContain('/deployment-identity.json');
   });
 

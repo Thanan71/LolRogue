@@ -12,6 +12,24 @@ if (!expectedCommitSha || !/^[0-9a-f]{40}$/.test(expectedCommitSha)) {
   throw new Error('EXPECTED_COMMIT_SHA must be an explicit full lowercase Git SHA.');
 }
 
+const automationBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim();
+const automationBypassRequired =
+  process.env.VERCEL_AUTOMATION_BYPASS_REQUIRED?.trim().toLowerCase() === 'true';
+if (automationBypassRequired && !automationBypassSecret) {
+  throw new Error(
+    'VERCEL_AUTOMATION_BYPASS_SECRET is required for protected deployment checks in CI.',
+  );
+}
+const deploymentRequestHeaders = automationBypassSecret
+  ? { 'x-vercel-protection-bypass': automationBypassSecret }
+  : undefined;
+const redactAutomationBypassSecret = (value) => {
+  const message = String(value);
+  return automationBypassSecret
+    ? message.replaceAll(automationBypassSecret, '[REDACTED]')
+    : message;
+};
+
 const identityMaxAttempts = Number.parseInt(
   process.env.DEPLOYMENT_IDENTITY_MAX_ATTEMPTS ?? '8',
   10,
@@ -46,14 +64,13 @@ async function fetchDeploymentIdentity() {
   for (let attempt = 1; attempt <= identityMaxAttempts; attempt += 1) {
     try {
       const identityResponse = await fetch(`${baseUrl}/api/deployment-identity`, {
-        redirect: 'follow',
+        redirect: 'manual',
         cache: 'no-store',
+        headers: deploymentRequestHeaders,
       });
       const identityBody = await identityResponse.text();
       if (!identityResponse.ok) {
-        throw new Error(
-          `Deployment identity endpoint returned ${identityResponse.status}: ${identityBody}`,
-        );
+        throw new Error(`Deployment identity endpoint returned ${identityResponse.status}.`);
       }
 
       let deploymentIdentity;
@@ -72,7 +89,9 @@ async function fetchDeploymentIdentity() {
 
       return deploymentIdentity;
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
+      lastError = new Error(
+        redactAutomationBypassSecret(error instanceof Error ? error.message : error),
+      );
       if (attempt === identityMaxAttempts) break;
 
       console.warn(
@@ -92,7 +111,10 @@ for (let offset = 0; offset < manifest.files.length; offset += 12) {
   const batch = manifest.files.slice(offset, offset + 12);
   await Promise.all(
     batch.map(async ({ path, bytes }) => {
-      const response = await fetch(`${baseUrl}/${path}`, { redirect: 'follow' });
+      const response = await fetch(`${baseUrl}/${path}`, {
+        redirect: 'manual',
+        headers: deploymentRequestHeaders,
+      });
       const body = await response.arrayBuffer();
       if (!response.ok || body.byteLength !== bytes) {
         failures.push({
@@ -111,5 +133,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Verified ${manifest.files.length} deployed Riot assets at ${baseUrl} for commit ${expectedCommitSha}.`,
+  `Verified ${manifest.files.length} deployed Riot assets at ${redactAutomationBypassSecret(baseUrl)} for commit ${expectedCommitSha}.`,
 );

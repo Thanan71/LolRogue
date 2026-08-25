@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 const root = resolve(import.meta.dirname, '..');
 const script = resolve(root, 'scripts/verify-deployed-assets.mjs');
 const expectedCommitSha = '0123456789abcdef0123456789abcdef01234567';
+const automationBypassSecret = 'vercel-automation-bypass-test-secret';
 const manifest = JSON.parse(
   readFileSync(resolve(root, 'src/data/generated/riot-assets-manifest.json'), 'utf8'),
 ) as { files: { path: string; bytes: number }[] };
@@ -20,6 +21,8 @@ const runVerifier = (deploymentUrl: string, deployedCommitSha: string) =>
         ...process.env,
         DEPLOYMENT_URL: deploymentUrl,
         EXPECTED_COMMIT_SHA: deployedCommitSha,
+        VERCEL_AUTOMATION_BYPASS_REQUIRED: 'true',
+        VERCEL_AUTOMATION_BYPASS_SECRET: automationBypassSecret,
         DEPLOYMENT_IDENTITY_MAX_ATTEMPTS: '3',
         DEPLOYMENT_IDENTITY_RETRY_DELAY_MS: '5',
       },
@@ -53,6 +56,26 @@ describe('deployed asset verifier', () => {
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('DEPLOYMENT_URL is required');
     expect(result.stderr).not.toContain('lol-rogue.vercel.app');
+  });
+
+  it("refuse explicitement une CI protégée sans secret d'automatisation Vercel", () => {
+    const result = spawnSync(process.execPath, [script], {
+      cwd: root,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        CI: 'true',
+        DEPLOYMENT_URL: 'https://preview.example.test',
+        EXPECTED_COMMIT_SHA: expectedCommitSha,
+        VERCEL_AUTOMATION_BYPASS_REQUIRED: 'true',
+        VERCEL_AUTOMATION_BYPASS_SECRET: '',
+      },
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      'VERCEL_AUTOMATION_BYPASS_SECRET is required for protected deployment checks in CI.',
+    );
   });
 
   it("refuse une preview dont l'identité JSON ne correspond pas au SHA attendu", async () => {
@@ -147,8 +170,13 @@ describe('deployed asset verifier', () => {
     }
   });
 
-  it('affiche le SHA dont les assets ont été vérifiés', async () => {
+  it("envoie le bypass sur l'identité et chaque asset sans jamais l'afficher", async () => {
+    const receivedBypassHeaders: Array<string | undefined> = [];
     const server = createServer((request, response) => {
+      const bypassHeader = request.headers['x-vercel-protection-bypass'];
+      receivedBypassHeaders.push(
+        Array.isArray(bypassHeader) ? bypassHeader.join(', ') : bypassHeader,
+      );
       if (request.url === '/api/deployment-identity') {
         response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         response.end(JSON.stringify({ commit: expectedCommitSha }));
@@ -172,6 +200,11 @@ describe('deployed asset verifier', () => {
 
       expect(result.status).toBe(0);
       expect(result.stderr).toBe('');
+      expect(receivedBypassHeaders).toHaveLength(manifest.files.length + 1);
+      expect(receivedBypassHeaders).toEqual(
+        Array.from({ length: manifest.files.length + 1 }, () => automationBypassSecret),
+      );
+      expect(`${result.stdout}${result.stderr}`).not.toContain(automationBypassSecret);
       expect(result.stdout).toContain(
         `Verified ${manifest.files.length} deployed Riot assets at ${deploymentUrl} for commit ${expectedCommitSha}.`,
       );
