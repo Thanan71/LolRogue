@@ -98,11 +98,12 @@ export const ashe: Champion = {
     {
       id: 'AsheSpiritOfTheHawk',
       name: 'Rapace',
-      description: 'Ashe envoie son faucon en reconnaissance, révélant une zone de la carte.',
-      maxRank: 5,
-      cooldownTurns: [2, 2, 2, 2, 2],
-      cost: [0, 0, 0, 0, 0],
-      range: [25000, 25000, 25000, 25000, 25000],
+      description:
+        'Ashe envoie son faucon en reconnaissance. La vision n’étant pas simulée en combat, Rapace ne possède qu’un rang.',
+      maxRank: 1,
+      cooldownTurns: [2],
+      cost: [0],
+      range: [25000],
       image: 'AsheSpiritOfTheHawk.png',
       targeting: TargetingType.Area,
       scaling: { adRatio: 0, apRatio: 0 },
