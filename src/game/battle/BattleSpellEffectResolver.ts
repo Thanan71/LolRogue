@@ -255,7 +255,12 @@ export class BattleSpellEffectResolver {
         break;
       }
       case 'execute': {
-        for (const target of hostileTargets) {
+        // Executes always inspect HP after preceding damage effects. For an Area spell,
+        // the terminal effect belongs only to the explicitly selected primary target;
+        // secondary targets receive the damage falloff but cannot be mass-executed.
+        const executeTargets =
+          targeting === TargetingType.Area ? hostileTargets.slice(0, 1) : hostileTargets;
+        for (const target of executeTargets) {
           const execute = new ExecuteEffect({
             sourceId: attacker.targetId,
             targetId: target.targetId,
