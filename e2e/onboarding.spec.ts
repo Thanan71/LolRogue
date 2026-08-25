@@ -30,7 +30,8 @@ test('le tutoriel carte apparaît une fois puis reste réouvrable', async ({ pag
   await enterGuest(page);
   await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');
-    await useRunStore.getState().startRun(['Garen'], { seed: 20260801 });
+    const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20260801 });
+    if (!started.success) throw new Error(`Unable to start onboarding run: ${started.code}`);
   });
   await page.goto('/run');
 

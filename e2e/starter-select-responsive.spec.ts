@@ -136,9 +136,17 @@ test('the complete selection can be performed with the keyboard at 320px', async
   await page.setViewportSize({ width: 320, height: 568 });
   await openStarterSelection(page);
 
-  const champion = page.getByRole('button', { name: /^Choisir / }).first();
-  await champion.press('Enter');
-  await expect(champion).toHaveAttribute('aria-pressed', 'true');
+  const champions = page.getByRole('button', { name: /^Choisir / });
+  const firstChampion = champions.nth(0);
+  const secondChampion = champions.nth(1);
+  await firstChampion.press('Enter');
+  await secondChampion.press('Enter');
+  await expect(firstChampion).toHaveAttribute('aria-pressed', 'true');
+  await expect(secondChampion).toHaveAttribute('aria-pressed', 'true');
+
+  const confirm = page.getByRole('button', { name: 'Confirmer le choix' });
+  await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
+  await expect(confirm).toBeEnabled();
 
   const runes = page.getByRole('checkbox');
   const firstRune = runes.nth(0);
@@ -157,7 +165,6 @@ test('the complete selection can be performed with the keyboard at 320px', async
   await page.keyboard.press('Space');
   await expect(runes.nth(3)).toBeEnabled();
 
-  const confirm = page.getByRole('button', { name: 'Confirmer le choix' });
   await confirm.focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL('/run');
@@ -191,12 +198,20 @@ test('touch selection exposes a start error without overlap at 320px', async ({ 
     });
   });
 
-  await page
-    .getByRole('button', { name: /^Choisir / })
-    .first()
-    .tap();
+  const champions = page.getByRole('button', { name: /^Choisir / });
+  const firstChampion = champions.nth(0);
+  const secondChampion = champions.nth(1);
+  await firstChampion.tap();
+  await secondChampion.tap();
+  await expect(firstChampion).toHaveAttribute('aria-pressed', 'true');
+  await expect(secondChampion).toHaveAttribute('aria-pressed', 'true');
+
+  const confirm = page.getByRole('button', { name: 'Confirmer le choix' });
+  await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
+  await expect(confirm).toBeEnabled();
+
   await page.getByRole('checkbox').first().tap();
-  await page.getByRole('button', { name: 'Confirmer le choix' }).tap();
+  await confirm.tap();
 
   const alert = page.getByRole('alert');
   await expect(alert).toHaveText('La run de test est temporairement indisponible.');
@@ -225,11 +240,19 @@ test('touch selection and Back remain activatable at 390px', async ({ page }) =>
   await page.setViewportSize({ width: 390, height: 844 });
   await openStarterSelection(page);
 
-  const firstChampion = page.getByRole('button', { name: /^Choisir / }).first();
+  const champions = page.getByRole('button', { name: /^Choisir / });
+  const firstChampion = champions.nth(0);
+  const secondChampion = champions.nth(1);
   await firstChampion.tap();
+  await secondChampion.tap();
   await expect(firstChampion).toHaveAttribute('aria-pressed', 'true');
+  await expect(secondChampion).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('checkbox').first().tap();
   await expect(page.getByRole('checkbox').first()).toBeChecked();
+
+  const confirm = page.getByRole('button', { name: 'Confirmer le choix' });
+  await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
+  await expect(confirm).toBeEnabled();
 
   const back = page.getByRole('button', { name: '← Retour' });
   await back.scrollIntoViewIfNeeded();
@@ -238,11 +261,15 @@ test('touch selection and Back remain activatable at 390px', async ({ page }) =>
 
   await page.getByRole('button', { name: 'Jouer', exact: true }).tap();
   await expect(page).toHaveURL('/starter-select');
-  await page
-    .getByRole('button', { name: /^Choisir / })
-    .nth(1)
-    .tap();
+  const returnChampions = page.getByRole('button', { name: /^Choisir / });
+  await returnChampions.nth(0).tap();
+  await returnChampions.nth(1).tap();
+  await expect(returnChampions.nth(0)).toHaveAttribute('aria-pressed', 'true');
+  await expect(returnChampions.nth(1)).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('checkbox').first().tap();
-  await page.getByRole('button', { name: 'Confirmer le choix' }).tap();
+  const returnConfirm = page.getByRole('button', { name: 'Confirmer le choix' });
+  await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
+  await expect(returnConfirm).toBeEnabled();
+  await returnConfirm.tap();
   await expect(page).toHaveURL('/run');
 });
