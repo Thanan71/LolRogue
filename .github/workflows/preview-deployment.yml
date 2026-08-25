@@ -51,4 +51,7 @@ jobs:
         run: npm run build
 
       - name: Verify the matching preview deployment
+        env:
+          VERCEL_AUTOMATION_BYPASS_REQUIRED: 'true'
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: npm run test:deployed-assets
