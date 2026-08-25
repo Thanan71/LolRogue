@@ -45,25 +45,25 @@ function readDailyRulesetContracts() {
 }
 
 describe('authority progression engine versioning', () => {
-  it('archives v17 and publishes v18 without changing command or progression schemas', () => {
-    const v17 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v17');
+  it('archives v18 and publishes v19 without changing command or progression schemas', () => {
+    const v18 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v18');
 
-    expect(v17).toMatchObject({
-      gameplay: 17,
-      dailyScore: 15,
-      progression: 2,
-      command: 2,
-      status: 'replay-only',
-      bundle: 'supabase/functions/verify-run/run-authority-v17.bundle.ts',
-    });
-    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
-      engine: 'run-engine-v18',
+    expect(v18).toMatchObject({
       gameplay: 18,
       dailyScore: 15,
       progression: 2,
       command: 2,
+      status: 'replay-only',
+      bundle: 'supabase/functions/verify-run/run-authority-v18.bundle.ts',
+    });
+    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
+      engine: 'run-engine-v19',
+      gameplay: 19,
+      dailyScore: 15,
+      progression: 2,
+      command: 2,
       status: 'current',
-      rulesetCode: '2026-08-early-top-v18',
+      rulesetCode: '2026-08-combat-balance-v19',
     });
   });
 

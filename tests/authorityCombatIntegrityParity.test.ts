@@ -1,5 +1,3 @@
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   AUTHORITY_CONTENT_HASH,
@@ -11,31 +9,14 @@ import {
 import { simulateAuthorityCohort } from '@/game/balance/authorityCohort';
 import { type BalanceScenario, survivalGreedyPolicy } from '@/game/balance/balancePolicy';
 import rawRegistry from '../config/authority-versions.json';
-
-type AuthorityVerifier = NonNullable<ReturnType<typeof getAuthorityVerifier>>;
-
-async function resolveBundledAuthorityVerifier(
-  engineVersion: string,
-  contentHash: string,
-): Promise<AuthorityVerifier | undefined> {
-  const resolverUrl = pathToFileURL(
-    resolve(process.cwd(), 'supabase/functions/verify-run/authority-version-resolver.generated.ts'),
-  ).href;
-  const edgeResolver = (await import(/* @vite-ignore */ resolverUrl)) as {
-    resolveAuthorityVerifier: (
-      engine: string,
-      hash: string,
-    ) => Promise<AuthorityVerifier | undefined>;
-  };
-  return edgeResolver.resolveAuthorityVerifier(engineVersion, contentHash);
-}
+import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
 
 const MANA_ATTEMPT: AuthorityRunAttempt = {
   runUuid: '44444444-4444-4444-8444-444444444444',
   seed: 2,
   difficulty: 'easy',
   mode: 'normal',
-  team: [{ championId: 'Ashe', statMultiplier: 1.2 }],
+  team: [{ championId: 'Ashe', statMultiplier: 3 }],
   runeIds: ['electrocute'],
   enhancementSnapshot: { Ashe: {} },
   masterySnapshot: { Ashe: 0 },
@@ -57,8 +38,7 @@ const MANA_TRACE: AuthorityRunCommand[] = [
     kind: 'resolve_combat',
     payload: {
       node_id: 'node_top_lane_0',
-      actions_json:
-        '[["r",null,1],["w",null,1],["q","Darius",1],["a","Darius",1],["q","Darius",1],["a","Darius",1],["w",null,1]]',
+      actions_json: 'auto',
     },
   },
   { sequence: 3, kind: 'resolve_node', payload: { node_id: 'node_top_lane_0' } },
@@ -104,16 +84,28 @@ describe('combat integrity source / Edge bundle parity', () => {
 
     expect(first).toMatchObject({
       ok: true,
-      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 245 }] } },
+      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 840 }] } },
     });
     expect(second).toMatchObject({
       ok: true,
-      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 154 }] } },
+      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 840 }] } },
     });
     expect(rested).toMatchObject({
       ok: true,
-      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 366 }] } },
+      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 916 }] } },
     });
+    if (!first.ok || !second.ok || !rested.ok) throw new Error('Expected valid mana traces.');
+    expect(first.result.combatSummaries[0]).toMatchObject({
+      metrics: { bySide: { player: { manaSpent: 60 } } },
+      playerTeam: {
+        initial: [{ currentMp: 840 }],
+        final: [{ currentMp: 780 }],
+      },
+      playerAfterEncounter: [{ currentMp: 840 }],
+    });
+    expect(
+      second.result.combatSummaries.map((summary) => summary.metrics.bySide.player.manaSpent),
+    ).toEqual([60, 60]);
   });
 
   it.each(['Ashe', 'Jinx', 'Leona', 'Malphite', 'Warwick'])(
@@ -156,7 +148,7 @@ describe('combat integrity source / Edge bundle parity', () => {
         kind: 'resolve_combat',
         payload: {
           node_id: 'node_top_lane_0',
-          actions_json: '[["a","Darius",0],["r","Darius",0]]',
+          actions_json: 'auto',
         },
       },
     ];
@@ -168,12 +160,12 @@ describe('combat integrity source / Edge bundle parity', () => {
     });
   });
 
-  it('replays mixed AD/AP, penetration and a deterministic critical strike identically', async () => {
+  it('replays Jinx area execute and resource metrics against a multi-target elite identically', async () => {
     const attempt: AuthorityRunAttempt = {
       ...MANA_ATTEMPT,
       runUuid: '77777777-7777-4777-8777-777777777777',
       seed: 14,
-      team: [{ championId: 'Jinx', statMultiplier: 1.2 }],
+      team: [{ championId: 'Jinx', statMultiplier: 3 }],
       runeIds: ['press_the_attack'],
       enhancementSnapshot: {
         Jinx: {
@@ -192,8 +184,17 @@ describe('combat integrity source / Edge bundle parity', () => {
         kind: 'resolve_combat',
         payload: {
           node_id: 'node_top_lane_0',
-          actions_json:
-            '[["r",null,1],["e",null,1],["w","Garen",1],["q","Garen",1],["a","Garen",1]]',
+          actions_json: 'auto',
+        },
+      },
+      { sequence: 3, kind: 'resolve_node', payload: { node_id: 'node_top_lane_0' } },
+      { sequence: 4, kind: 'move_node', payload: { node_id: 'node_top_lane_1' } },
+      {
+        sequence: 5,
+        kind: 'resolve_combat',
+        payload: {
+          node_id: 'node_top_lane_1',
+          actions_json: '[["e","Darius",0],["q","Malphite",1],["r","Darius",0]]',
         },
       },
     ];
@@ -201,23 +202,36 @@ describe('combat integrity source / Edge bundle parity', () => {
     const result = await expectSourceBundleParity(attempt, trace);
     expect(result).toMatchObject({
       ok: true,
-      result: { snapshot: { totalDamage: 204 } },
+      result: { snapshot: { totalDamage: 425 } },
+    });
+    if (!result.ok) throw new Error('Expected a valid multi-target Jinx trace.');
+    const elite = result.result.combatSummaries[1]!;
+    expect(elite.enemyTeam.initial.map((enemy) => enemy.championId)).toEqual([
+      'Darius',
+      'Malphite',
+    ]);
+    expect(elite.metrics.bySide).toMatchObject({
+      player: { shieldDamageDealt: 5, manaSpent: 210 },
+      enemy: { shieldingAbsorbed: 5, manaSpent: 40 },
     });
   });
 
-  it('loads archived v14 through v17 and current v18 only for their exact hashes', async () => {
+  it('loads archived v14 through v18 and current v19 only for their exact hashes', async () => {
     const v14 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v14');
     const v15 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v15');
     const v16 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v16');
     const v17 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v17');
+    const v18 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v18');
     expect(v14?.status).toBe('replay-only');
     expect(v15?.status).toBe('replay-only');
     expect(v16?.status).toBe('replay-only');
     expect(v17?.status).toBe('replay-only');
+    expect(v18?.status).toBe('replay-only');
     expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v15!.engine, v15!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v16!.engine, v16!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v17!.engine, v17!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v18!.engine, v18!.contentHash)).toBeDefined();
     expect(
       await resolveBundledAuthorityVerifier(AUTHORITY_ENGINE_VERSION, '0'.repeat(64)),
     ).toBeUndefined();

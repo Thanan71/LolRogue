@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { garen } from '@/data/champion/Garen';
 import { jinx } from '@/data/champion/Jinx';
 import { soraka } from '@/data/champion/Soraka';
+import { warwick } from '@/data/champion/Warwick';
 import {
+  DEFENSIVE_ACTION_HP_RATIO,
   SUPPORT_ACTION_HP_RATIO,
   selectContextualBattleAction,
 } from '@/game/battle/contextualBattleAi';
@@ -134,6 +136,25 @@ describe('contextual battle AI', () => {
         enemies: [first, excluded],
       }),
     ).toEqual({ type: ActionType.SpellW, targetId: 'Soraka' });
+  });
+
+  it('uses incoming damage reduction defensively, including in a duel', () => {
+    const attacker = state(warwick, 'player', 69);
+    const enemy = state(garen, 'enemy', 100);
+    const options = [
+      option(ActionType.SpellQ, TargetingType.Enemy, true, 50, ['Garen']),
+      option(ActionType.SpellE, TargetingType.Area, true, 40, ['Garen']),
+    ];
+
+    expect(DEFENSIVE_ACTION_HP_RATIO).toBe(0.7);
+    expect(
+      selectContextualBattleAction({ attacker, options, allies: [attacker], enemies: [enemy] }),
+    ).toEqual({ type: ActionType.SpellE, targetId: 'Garen' });
+
+    attacker.currentHp = 70;
+    expect(
+      selectContextualBattleAction({ attacker, options, allies: [attacker], enemies: [enemy] }),
+    ).toEqual({ type: ActionType.SpellQ, targetId: 'Garen' });
   });
 
   it('targets the lowest effective-health enemy without randomness', () => {

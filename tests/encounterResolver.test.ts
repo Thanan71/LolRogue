@@ -43,7 +43,7 @@ function resolve(
 
 describe('versioned encounter resolver', () => {
   it('versions the measured early Top calibration', () => {
-    expect(COMBAT_ENCOUNTER_RULESET_VERSION).toBe(5);
+    expect(COMBAT_ENCOUNTER_RULESET_VERSION).toBe(6);
     expect(TOP_LANE_NODE_PRESSURE).toEqual({
       [NodeType.Combat]: 0.84,
       [NodeType.Elite]: 0.52,
@@ -151,6 +151,8 @@ describe('versioned encounter resolver', () => {
             championId: 'Garen',
             level: 1,
             statMultiplier: Math.round(biomeMultiplier * formationMultiplier * 10_000) / 10_000,
+            healthMultiplier: 1,
+            damageMultiplier: 1,
           },
         ]);
         expect(resolution.enemies[0]!.statMultiplier / formationMultiplier).toBeCloseTo(

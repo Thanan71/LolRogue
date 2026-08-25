@@ -110,12 +110,12 @@ export const warwick: Champion = {
       effects: [
         {
           type: 'buff',
-          stat: 'armor',
+          stat: 'damageReduction',
           modifierType: 'percent',
           values: [35, 40, 45, 50, 55],
           buffDuration: 2.5,
         },
-        { type: 'cc', ccType: 'stun', ccDuration: 1 },
+        { type: 'cc', ccType: 'fear', ccDuration: 1 },
       ],
     },
     {

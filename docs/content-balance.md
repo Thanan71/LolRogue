@@ -2,13 +2,13 @@
 
 ## Version et portée
 
-Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 18` et le Daily `score_version = 15`. Le contenu de
-combat spécifique à chaque biome introduit en v13 reste inchangé hors calibration
-early Top ; le budget de formation global des starters est, lui, versionné en v18. Le
-moteur v17 est archivé pour terminer les runs déjà ouvertes. Toute autre modification
-d'ennemi, récompense, prix, drop, effet ou stacking exige une nouvelle version et un
-nouveau hash autoritaire.
+Le modèle d'analyse `BALANCE_MODEL_VERSION = 2` décrit le contenu publié avec le
+`gameplay_ruleset_version = 19` et le Daily `score_version = 15`. La calibration
+early Top et le budget de formation global restent figés dans la v18 ; la v19 publie
+les règles système et les ajustements individuels du sprint combat. Le moteur v18 est
+archivé pour terminer les runs déjà ouvertes. Toute autre modification d'ennemi,
+récompense, prix, drop, effet ou stacking exige une nouvelle version et un nouveau
+hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `contentCatalogAnalysis.test.ts` appelle `analyzeContentCatalog()` sur 100 seeds de
@@ -175,20 +175,63 @@ Les neuf tests passent sous Node 24 sans modifier les catalogues d'augments, les
 tables de drops, les items, les encounters ou les règles de contenu. La stabilisation
 early Top ne compense donc pas sa difficulté en rouvrant P0-BAL-04.
 
-La baseline courante v18 est chargée depuis
-`config/authority-cohort-baselines-v18.json` et reproduite par la source v18. Les
-baselines v15, v16 et v17 restent des archives immuables : leurs identités
-moteur/hash/modèle/policy sont littérales et leur reproduction emploie exclusivement
-leur bundle versionné, jamais les constantes du moteur courant.
+La baseline courante v19 est chargée depuis
+`config/authority-cohort-baselines-v19.json` et reproduite par la source v19. Elle
+sépare les dix champions maintenus sur les trois difficultés et publie aussi le mana
+consommé ainsi que les boucliers absorbés par leur camp créateur. Les baselines v15 à
+v18 restent des archives immuables : leurs identités moteur/hash/modèle/policy sont
+littérales et leur reproduction emploie exclusivement leur bundle versionné, jamais
+les constantes du moteur courant.
 
-`npm run balance:baseline:generate` génère v18 sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-v18.json` met à jour son artefact
-commité. Les commandes `balance:baseline:generate:v15` et
-`balance:baseline:generate:v16` ainsi que `balance:baseline:generate:v17` servent
-uniquement à auditer les archives historiques. Une nouvelle publication ajoute son
-propre couple fixture/loader/JSON sans réécrire les versions précédentes.
-`npm run balance:baseline:check`, inclus dans `npm run balance:check`, exige une
-reproduction byte-for-byte des quatre artefacts.
+`npm run balance:baseline:generate` génère v19 sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-v19.json` met à jour son artefact
+commité. Les commandes `balance:baseline:generate:v15` à
+`balance:baseline:generate:v18` servent uniquement à auditer les archives
+historiques. Une nouvelle publication ajoute son propre couple fixture/loader/JSON
+sans réécrire les versions précédentes. `npm run balance:baseline:check`, inclus
+dans `npm run balance:check`, exige une reproduction byte-for-byte des cinq
+artefacts.
+
+### Matrice de combat des champions
+
+La preuve d'acceptation combat est distincte des cohortes de runs. Elle énumère les
+126 partitions complémentaires de cinq champions parmi les dix maintenus, joue
+chaque partition avec les côtés inversés et réutilise les mêmes 30 seeds. Chaque
+runtime exécute donc 7 560 combats automatisés au niveau 1. Un taux décisif exclut
+les draws de son dénominateur et le gate P1 exige au moins une victoire **et** une
+défaite pour chaque champion ; un draw ne peut ainsi masquer un taux réel de 0 %.
+
+`npm run balance:combat:matrix:generate` sélectionne le moteur `current` dans
+`config/authority-versions.json` et, par défaut, son prédécesseur gameplay. Le moteur
+précédent est chargé depuis son bundle archivé, puis le candidat est exécuté depuis
+son bundle et sa source. Le rapport
+`config/champion-combat-matrix-current.json` compare v18
+(`9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17`) à v19
+(`45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099`), contient
+les identités réellement résolues et exige une parité source/bundle exacte.
+
+Les valeurs entre parenthèses sont les deltas candidat − baseline. Le bundle v18 ne
+publiait pas le mana dans `action_select` : sa variation est donc notée `n/d` plutôt
+que transformée artificiellement en zéro.
+
+| Champion | Victoires (Δ pp) | Dégâts PV/round (Δ) | Soins/round (Δ) | Shield absorbé/round (Δ) | Mana/round (Δ) | Actions CC/combat (Δ) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Garen | 33,17 % (-9,78 pp) | 35,60 (-41,52) | 1,07 (+1,02) | 7,08 (+5,75) | 0,00 (n/d) | 0,00 (0,00) |
+| Annie | 43,36 % (-1,20 pp) | 28,27 (-103,29) | 0,00 (0,00) | 4,89 (+4,27) | 13,11 (n/d) | 0,28 (+0,28) |
+| Ashe | 47,35 % (+1,42 pp) | 46,23 (-111,49) | 0,00 (0,00) | 0,00 (0,00) | 18,12 (n/d) | 1,96 (+1,33) |
+| Darius | 52,35 % (+9,40 pp) | 83,33 (+6,43) | 2,00 (+1,92) | 0,00 (0,00) | 17,29 (n/d) | 0,00 (0,00) |
+| Lux | 42,06 % (-3,58 pp) | 28,57 (-213,83) | 0,00 (0,00) | 5,25 (+5,04) | 14,65 (n/d) | 0,00 (0,00) |
+| Soraka | 63,17 % (+17,24 pp) | 29,42 (+5,21) | 74,20 (+65,83) | 0,00 (0,00) | 24,53 (n/d) | 0,00 (0,00) |
+| Jinx | 46,16 % (+0,22 pp) | 54,70 (-140,92) | 0,00 (0,00) | 0,00 (0,00) | 18,06 (n/d) | 0,00 (0,00) |
+| Leona | 71,19 % (+26,57 pp) | 90,84 (-63,49) | 0,00 (0,00) | 5,67 (+5,28) | 24,62 (n/d) | 4,54 (+3,52) |
+| Malphite | 61,98 % (-36,52 pp) | 77,95 (-333,86) | 0,00 (0,00) | 7,49 (-0,32) | 22,44 (n/d) | 1,79 (-0,26) |
+| Warwick | 39,18 % (-3,77 pp) | 37,63 (-2,48) | 11,18 (+6,09) | 0,00 (0,00) | 20,54 (n/d) | 1,89 (+1,03) |
+
+Les dix champions ont des victoires et des défaites décisives : le gate minimal de
+P1-BAL-01 passe sans retuning supplémentaire. Ce résultat ne valide pas les seuils
+P0 de 45–55 % et d'écart maximal de 10 points : sept champions sont encore hors de
+la plage et l'écart du roster atteint 38,02 points. Ces seuils restent ouverts et
+doivent être traités par leur calibration dédiée, pas assouplis dans ce rapport.
 
 La publication P0-BAL-05 archive également le bundle v17 byte-for-byte et publie
 `run-engine-v18` avec le hash

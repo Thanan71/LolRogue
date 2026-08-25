@@ -9,6 +9,7 @@ import {
 } from './types';
 
 export const SUPPORT_ACTION_HP_RATIO = 0.7;
+export const DEFENSIVE_ACTION_HP_RATIO = 0.7;
 
 const ACTION_ORDER = [
   ActionType.SpellQ,
@@ -82,7 +83,12 @@ function createSpellCandidate(input: {
   const selectableAllies = livingAllies.filter((ally) => validTargetIds.has(ally.targetId));
   const isArea =
     option.targeting === TargetingType.Area || option.targeting === TargetingType.Enemies;
-  if (isArea && selectableEnemies.length < 2) return null;
+  const reducesIncomingDamage = spell.effects.some(
+    (effect) => effect.type === 'buff' && effect.stat === 'damageReduction',
+  );
+  const needsDefense = reducesIncomingDamage && hpRatio(attacker) < DEFENSIVE_ACTION_HP_RATIO;
+  if (reducesIncomingDamage && !needsDefense) return null;
+  if (isArea && selectableEnemies.length < 2 && !needsDefense) return null;
 
   const hasExecute = spell.effects.some((effect) => effect.type === 'execute');
   const executeTargets = executableTargets(spell, selectableEnemies).sort(compareEffectiveEnemy);
@@ -93,7 +99,14 @@ function createSpellCandidate(input: {
   let targetId: string | undefined;
   let score = 0;
 
-  if (isPureSupport) {
+  if (needsDefense) {
+    const target = [...selectableEnemies].sort(compareEffectiveEnemy)[0];
+    if (option.requiresTarget) {
+      if (!target) return null;
+      targetId = target.targetId;
+    }
+    score = 450;
+  } else if (isPureSupport) {
     const weakAllies = selectableAllies
       .filter((ally) => hpRatio(ally) < SUPPORT_ACTION_HP_RATIO)
       .sort(compareWeakestAlly);

@@ -161,11 +161,11 @@ describeLive('authoritative daily leaderboard live security', () => {
     }
   });
 
-  it('keeps score v14 through Daily v16 and carries gold-neutral score v15 into v18', async () => {
+  it('keeps score v14 through Daily v16 and carries gold-neutral score v15 into v19', async () => {
     const rulesets = await admin
       .from('daily_challenge_rulesets')
       .select('version, score_version, is_active')
-      .in('version', [14, 15, 16, 17, 18])
+      .in('version', [14, 15, 16, 17, 18, 19])
       .order('version');
 
     expect(rulesets.error).toBeNull();
@@ -174,7 +174,8 @@ describeLive('authoritative daily leaderboard live security', () => {
       { version: 15, score_version: 14, is_active: false },
       { version: 16, score_version: 14, is_active: false },
       { version: 17, score_version: 15, is_active: false },
-      { version: 18, score_version: 15, is_active: true },
+      { version: 18, score_version: 15, is_active: false },
+      { version: 19, score_version: 15, is_active: true },
     ]);
   });
 
@@ -450,7 +451,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       daily_seed: challenge.seed,
       score: 1350,
       run_attempt_id: firstAttempt.attempt_id,
-      daily_ruleset_version: 18,
+      daily_ruleset_version: 19,
       score_version: 15,
     });
 

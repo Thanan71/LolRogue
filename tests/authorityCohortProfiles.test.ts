@@ -7,6 +7,7 @@ import {
 import { simulateAuthorityCohortMatrix } from '@/game/balance/authorityCohort';
 import {
   AUTHORITY_COHORT_EXECUTION_PROFILES,
+  AUTHORITY_COHORT_SENTINEL_CHAMPION_IDS,
   createAuthorityCohortExecutionCells,
   createAuthorityCohortSeeds,
 } from '@/game/balance/authorityCohortProfiles';
@@ -44,9 +45,9 @@ describe('authority cohort execution profiles', () => {
       bySemanticProfile.set(key, [...(bySemanticProfile.get(key) ?? []), cell]);
     }
 
-    expect(cells).toHaveLength(18);
+    expect(cells).toHaveLength(45);
     expect(new Set(cells.map((cell) => cell.stratum.fingerprint)).size).toBe(cells.length);
-    expect([...bySemanticProfile.values()]).toHaveLength(6);
+    expect([...bySemanticProfile.values()]).toHaveLength(15);
     for (const pairedCells of bySemanticProfile.values()) {
       expect(pairedCells.map((cell) => cell.scenario.difficulty)).toEqual([
         'easy',
@@ -55,6 +56,13 @@ describe('authority cohort execution profiles', () => {
       ]);
     }
     expect(new Set(cells.map((cell) => cell.stratum.team.size))).toEqual(new Set([1, 2, 3]));
+    expect(
+      new Set(
+        cells
+          .filter((cell) => cell.stratum.team.size === 1)
+          .map((cell) => cell.stratum.team.composition[0]!.championId),
+      ),
+    ).toEqual(new Set(AUTHORITY_COHORT_SENTINEL_CHAMPION_IDS));
     expect(cells.some((cell) => Object.keys(cell.stratum.masterySnapshot).length > 0)).toBe(true);
     expect(cells.some((cell) => cell.stratum.runeIds.length > 0)).toBe(true);
     expect(cells.some((cell) => Object.keys(cell.stratum.enhancementSnapshot).length > 0)).toBe(
@@ -77,7 +85,7 @@ describe('authority cohort execution profiles', () => {
       seeds: createAuthorityCohortSeeds(1),
     });
 
-    expect(result.cohorts).toHaveLength(18);
+    expect(result.cohorts).toHaveLength(45);
     expect(result.cohorts.every((cohort) => cohort.runs.length === 1)).toBe(true);
     expect(result.cohorts.every((cohort) => cohort.runs[0]?.result.snapshot.terminal)).toBe(true);
   });

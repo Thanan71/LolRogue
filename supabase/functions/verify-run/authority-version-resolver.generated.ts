@@ -434,11 +434,36 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 2,
     "command": 2,
-    "status": "current",
+    "status": "replay-only",
     "rulesetCode": "2026-08-early-top-v18",
     "contentHash": "9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17",
-    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "bundle": "supabase/functions/verify-run/run-authority-v18.bundle.ts",
     "migration": "supabase/migrations/20260828150025_gameplay_ruleset_v18_early_top.sql",
+    "features": {
+      "canonicalProgression": true,
+      "manualCombat": true,
+      "canonicalEncounters": true,
+      "combatActionTrace": true,
+      "runLedger": true,
+      "mastery": true,
+      "domainInvariants": true,
+      "clientAuthorityParity": true,
+      "automaticTraceSuffix": true,
+      "canonicalStats": true,
+      "contentBalance": true
+    }
+  },
+  {
+    "engine": "run-engine-v19",
+    "gameplay": 19,
+    "dailyScore": 15,
+    "progression": 2,
+    "command": 2,
+    "status": "current",
+    "rulesetCode": "2026-08-combat-balance-v19",
+    "contentHash": "45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099",
+    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "migration": "supabase/migrations/20260830093859_gameplay_ruleset_v19_combat_balance.sql",
     "features": {
       "canonicalProgression": true,
       "manualCombat": true,
@@ -460,7 +485,8 @@ const verifierLoaders = {
   "run-engine-v15": () => import("./run-authority-v15.bundle.ts"), // loader-1
   "run-engine-v16": () => import("./run-authority-v16.bundle.ts"), // loader-2
   "run-engine-v17": () => import("./run-authority-v17.bundle.ts"), // loader-3
-  "run-engine-v18": () => import("./run-authority.bundle.js"), // loader-4
+  "run-engine-v18": () => import("./run-authority-v18.bundle.ts"), // loader-4
+  "run-engine-v19": () => import("./run-authority.bundle.js"), // loader-5
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {

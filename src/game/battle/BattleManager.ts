@@ -739,12 +739,17 @@ export class BattleManager {
             actors: this._getRuleActors(),
           })
         : null;
+    const ruleDamageReduction = Math.min(1, Math.max(0, beforeRules?.damageReduction ?? 0));
+    const effectDamageReduction = triggerRules
+      ? target.effectManager.getIncomingDamageReduction()
+      : 0;
     const ruledDamage = Math.max(
       0,
       Math.round(
         scaledDamage *
           (beforeRules?.damageMultiplier ?? 1) *
-          (1 - (beforeRules?.damageReduction ?? 0)),
+          (1 - ruleDamageReduction) *
+          (1 - effectDamageReduction),
       ),
     );
     if (ruledDamage <= 0) return;

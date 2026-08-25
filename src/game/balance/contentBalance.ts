@@ -8,7 +8,7 @@ import { resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { BIOME_INFO, BIOMES, type Biome } from '@/types/run';
 import type { AuthorityDifficulty } from '@/types/runAttempt';
 
-export const BALANCE_MODEL_VERSION = 1;
+export const BALANCE_MODEL_VERSION = 2;
 
 export interface ChampionDesignProfile {
   role: string;

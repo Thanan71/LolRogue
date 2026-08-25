@@ -60,6 +60,7 @@ export type StatKey =
   | 'moveSpeed'
   | 'armor'
   | 'magicResist'
+  | 'damageReduction'
   | 'attackDamage'
   | 'attackSpeed';
 

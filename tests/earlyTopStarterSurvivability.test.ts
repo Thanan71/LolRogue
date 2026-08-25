@@ -1,15 +1,14 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
-  AUTHORITY_CONTENT_HASH,
-  AUTHORITY_ENGINE_VERSION,
-  getAuthorityVerifier,
-} from '@/game/authority';
-import {
   EARLY_TOP_COHORT_DIFFICULTIES,
   EARLY_TOP_COHORT_STARTER_IDS,
   type EarlyTopCohortDocument,
   generateEarlyTopCohortDocument,
 } from '@/game/balance/earlyTopCohort';
+import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
+
+const EARLY_TOP_ENGINE_VERSION = 'run-engine-v18';
+const EARLY_TOP_CONTENT_HASH = '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17';
 
 interface StarterDifficultyEvidence {
   readonly wins: number;
@@ -61,9 +60,12 @@ function totalStarterEvidence(
 describe('P0-BAL-05 starter survivability decision', () => {
   let matrix: Record<string, Record<string, StarterDifficultyEvidence>>;
 
-  beforeAll(() => {
-    const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
-    if (!authority) throw new Error('The working authority verifier is unavailable.');
+  beforeAll(async () => {
+    const authority = await resolveBundledAuthorityVerifier(
+      EARLY_TOP_ENGINE_VERSION,
+      EARLY_TOP_CONTENT_HASH,
+    );
+    if (!authority) throw new Error('The v18 authority verifier is unavailable.');
     matrix = createStarterMatrix(generateEarlyTopCohortDocument(authority));
   }, 60_000);
 

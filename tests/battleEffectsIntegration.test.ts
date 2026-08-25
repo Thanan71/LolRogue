@@ -4,6 +4,7 @@ import { BattleManager } from '../src/game/battle/BattleManager';
 import { ActionType } from '../src/game/battle/types';
 import { ChampionInstance } from '../src/game/ChampionInstance';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
+import { CCType } from '../src/game/effects/types';
 import type { Champion, ChampionStats, Spell, SpellEffect } from '../src/types';
 import { TargetingType } from '../src/types';
 
@@ -135,6 +136,91 @@ describe('BattleManager effect integration', () => {
       expect(positiveAfter).toBeGreaterThan(positiveBefore);
     },
   );
+
+  it.each([
+    ['duel', 1],
+    ['5v5', 5],
+  ] as const)('selects Warwick E defensively through the canonical AI in %s', (_label, size) => {
+    const definition = championDB.getById('Warwick');
+    if (!definition) throw new Error('Missing maintained champion Warwick');
+    const caster = new ChampionInstance(definition);
+    const allies = Array.from({ length: size - 1 }, (_, index) =>
+      makeChampion(`Ally${index + 1}`, 1, { type: 'damage', baseDamage: [1] }),
+    );
+    const enemies = Array.from({ length: size }, (_, index) =>
+      makeChampion(`Enemy${index + 1}`, 1, {
+        type: 'damage',
+        damageType: 'physical',
+        baseDamage: [100],
+      }),
+    );
+    const battle = manager([caster, ...allies], enemies);
+    const casterState = battle.getCombatantState('Warwick', 'player')!;
+    casterState.currentHp = Math.floor(casterState.maxHp * 0.6);
+
+    expect(battle.currentCombatant?.champion.id).toBe('Warwick');
+    battle.processCurrentTurn();
+
+    const selected = battle.log.find(
+      (event) => event.type === 'action_select' && event.champion === 'Warwick',
+    );
+    expect(selected).toMatchObject({ action: ActionType.SpellE, side: 'player' });
+    expect(casterState.effectManager.getIncomingDamageReduction()).toBeCloseTo(0.35);
+    for (const enemy of battle.getEnemyCombatants()) {
+      expect(enemy.effectManager.ccEffects).toHaveLength(1);
+      expect(enemy.effectManager.ccEffects[0].ccType).toBe(CCType.Fear);
+      expect(enemy.effectManager.ccEffects[0].remainingRounds).toBe(1);
+    }
+  });
+
+  it('reduces actual incoming damage instead of changing Warwick armor', () => {
+    const definition = championDB.getById('Warwick');
+    if (!definition) throw new Error('Missing maintained champion Warwick');
+
+    const incomingDamage = (usePrimalHowl: boolean): number => {
+      const caster = new ChampionInstance(definition);
+      const attacker = makeChampion('Incoming', 1, {
+        type: 'damage',
+        damageType: 'physical',
+        baseDamage: [100],
+      });
+      const battle = manager([caster], [attacker]);
+
+      expect(
+        battle.submitAction({
+          type: usePrimalHowl ? ActionType.SpellE : ActionType.BasicAttack,
+          targetId: 'Incoming',
+        }),
+      ).toBe(true);
+      if (usePrimalHowl) {
+        battle.processCurrentTurn();
+        expect(battle.currentCombatant?.champion.id).toBe('Warwick');
+        expect(battle.submitAction({ type: ActionType.BasicAttack, targetId: 'Incoming' })).toBe(
+          true,
+        );
+      }
+      battle.processCurrentTurn();
+
+      const damage = battle.log.find(
+        (event) =>
+          event.type === 'damage' && event.source === 'Incoming' && event.target === 'Warwick',
+      );
+      if (!damage || damage.type !== 'damage') {
+        throw new Error('Expected Incoming to damage Warwick.');
+      }
+      return damage.amount;
+    };
+
+    const regularDamage = incomingDamage(false);
+    const reducedDamage = incomingDamage(true);
+
+    expect(regularDamage).toBe(75);
+    expect(reducedDamage).toBe(Math.round(regularDamage * 0.65));
+    expect(definition.spells[2].effects[0]).toMatchObject({
+      stat: 'damageReduction',
+      values: [35, 40, 45, 50, 55],
+    });
+  });
 
   it.each([
     ['Garen', 400, 600],

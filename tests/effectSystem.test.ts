@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { BuffDebuffEffect, createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
 import { CCEffect } from '../src/game/effects/CCEffect';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
-import { EffectManager } from '../src/game/effects/EffectManager';
+import { EffectManager, MAX_TOTAL_DAMAGE_REDUCTION } from '../src/game/effects/EffectManager';
 import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
 import { normalizePercent, normalizeTurnDuration } from '../src/game/effects/effectUnits';
 import { HealEffect } from '../src/game/effects/HealEffect';
@@ -633,6 +633,18 @@ describe('Effect System', () => {
         }),
       );
       expect(manager.modifyStat('spd', 4)).toBe(5);
+    });
+
+    it('caps cumulative incoming damage reduction at the shared 75% design limit', () => {
+      manager.apply(
+        createBuff('First reduction', 's1', 'champion-1', 'damageReduction', 0.55, 'percent', 3),
+      );
+      manager.apply(
+        createBuff('Second reduction', 's2', 'champion-1', 'damageReduction', 0.55, 'percent', 3),
+      );
+
+      expect(MAX_TOTAL_DAMAGE_REDUCTION).toBe(0.75);
+      expect(manager.getIncomingDamageReduction()).toBe(MAX_TOTAL_DAMAGE_REDUCTION);
     });
 
     it('should stack same-name buffs', () => {

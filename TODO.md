@@ -765,16 +765,18 @@ déjà été rejetées avec le même code.
 - [x] Auditer chaque rang de sort : valeur marginale strictement positive, environ
   +10–18 % d'effet primaire ou amélioration de cooldown/coût ; Ashe E ne doit plus
   proposer des rangs sans effet.
-- [ ] Ne pas buff Warwick avant correction de son E et de l'IA : il est faible en
+- [x] Ne pas buff Warwick avant correction de son E et de l'IA : il est faible en
   inclusion 5v5 mais déjà très fort en duel.
 
 ### Acceptation
 
-- aucun champion ne doit rester à 0 ou 100 % sur une matrice large uniquement à cause
+- [x] Aucun champion ne reste à 0 ou 100 % sur la matrice exhaustive documentée dans
+  `config/champion-combat-matrix-current.json` uniquement à cause
   d'une règle générique ;
-- les rapports exposent dégâts par round, soins effectifs, shield absorbé, mana
+- [x] Les rapports exposent dégâts par round, soins effectifs, shield absorbé, mana
   consommée et actions ennemies supprimées par CC ;
-- tout changement individuel est justifié par un diff de cohorte après correctifs système.
+- [x] Tout changement individuel est justifié par un diff de cohorte après correctifs
+  système dans `docs/content-balance.md`.
 
 ---
 
@@ -1379,7 +1381,7 @@ techniques ni afficher une modale à chaque déploiement.**
 8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
 9 bis. [x] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
-10. [ ] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
+10. [x] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
 11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
 12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.
 

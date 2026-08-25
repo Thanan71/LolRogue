@@ -23,7 +23,7 @@ import { getStarterBudgetProfile } from './starterBudget';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 5;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 6;
 
 const NODE_RULES: Record<
   NodeType.Combat | NodeType.Elite | NodeType.Boss,

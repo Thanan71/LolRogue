@@ -18,6 +18,8 @@ export interface EffectTickResult {
 
 /** Slows stack additively, but never remove more than 60% of initiative. */
 export const MAX_TOTAL_SLOW = 0.6;
+/** Temporary champion effects can never remove more than 75% of incoming damage. */
+export const MAX_TOTAL_DAMAGE_REDUCTION = 0.75;
 
 export class EffectManager {
   readonly ownerId: string;
@@ -270,6 +272,13 @@ export class EffectManager {
       }
     }
     return 1 - Math.min(Math.max(0, totalSlow), MAX_TOTAL_SLOW);
+  }
+
+  getIncomingDamageReduction(): number {
+    const modifiers = this.getStatModifiers().get('damageReduction');
+    if (!modifiers) return 0;
+    const reduction = modifiers.flat + modifiers.percent;
+    return Math.min(Math.max(0, reduction), MAX_TOTAL_DAMAGE_REDUCTION);
   }
 
   getStatModifiers(): Map<StatKey, { flat: number; percent: number }> {
