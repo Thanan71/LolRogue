@@ -16,7 +16,7 @@ import {
 const BRUTE_FORCE: AugmentDefinition = {
   id: 'brute_force',
   name: 'Force brute',
-  description: "Tous les champions gagnent +15 dégâts d'attaque.",
+  description: "Tous les champions gagnent +7 dégâts d'attaque.",
   iconUrl: '/assets/augments/brute_force.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -24,7 +24,7 @@ const BRUTE_FORCE: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'atk',
-      flatValue: 15,
+      flatValue: 7,
     },
   ],
   stackable: true,
@@ -35,7 +35,7 @@ const BRUTE_FORCE: AugmentDefinition = {
 const IRON_SKIN: AugmentDefinition = {
   id: 'iron_skin',
   name: 'Peau de fer',
-  description: 'Tous les champions gagnent +12 défense.',
+  description: 'Tous les champions gagnent +5 défense.',
   iconUrl: '/assets/augments/iron_skin.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -43,7 +43,7 @@ const IRON_SKIN: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'def',
-      flatValue: 12,
+      flatValue: 5,
     },
   ],
   stackable: true,
@@ -54,7 +54,7 @@ const IRON_SKIN: AugmentDefinition = {
 const ARCANE_MIND: AugmentDefinition = {
   id: 'arcane_mind',
   name: 'Esprit arcanique',
-  description: 'Tous les champions gagnent +20 puissance.',
+  description: 'Tous les champions gagnent +7 puissance.',
   iconUrl: '/assets/augments/arcane_mind.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -62,7 +62,7 @@ const ARCANE_MIND: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'ap',
-      flatValue: 20,
+      flatValue: 7,
     },
   ],
   stackable: true,
@@ -73,7 +73,7 @@ const ARCANE_MIND: AugmentDefinition = {
 const VITALITY_BOOST: AugmentDefinition = {
   id: 'vitality_boost',
   name: 'Regain de vitalité',
-  description: 'Tous les champions gagnent +200 PV.',
+  description: 'Tous les champions gagnent +90 PV.',
   iconUrl: '/assets/augments/vitality_boost.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -81,7 +81,7 @@ const VITALITY_BOOST: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'hp',
-      flatValue: 200,
+      flatValue: 90,
     },
   ],
   stackable: true,
@@ -92,7 +92,7 @@ const VITALITY_BOOST: AugmentDefinition = {
 const SWIFT_FEET: AugmentDefinition = {
   id: 'swift_feet',
   name: 'Pied léger',
-  description: 'Tous les champions gagnent +2 vitesse.',
+  description: 'Tous les champions gagnent +12 vitesse.',
   iconUrl: '/assets/augments/swift_feet.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Stats,
@@ -100,7 +100,7 @@ const SWIFT_FEET: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatFlat,
       stat: 'spd',
-      flatValue: 2,
+      flatValue: 12,
     },
   ],
   stackable: true,
@@ -130,18 +130,18 @@ const CRITICAL_FOCUS: AugmentDefinition = {
 const GOLDEN_TOUCH: AugmentDefinition = {
   id: 'golden_touch',
   name: "Toucher d'or",
-  description: 'Gagne 50 pièces d’or supplémentaires après chaque combat.',
+  description: 'Gagne 20 pièces d’or supplémentaires après chaque combat.',
   iconUrl: '/assets/augments/golden_touch.png',
   tier: AugmentTier.Silver,
   category: AugmentCategory.Economy,
   effects: [
     {
       type: AugmentEffectType.BonusGold,
-      flatValue: 50,
+      flatValue: 20,
     },
   ],
-  stackable: true,
-  maxStacks: 5,
+  stackable: false,
+  maxStacks: 1,
   tags: ['economy', 'gold'],
 };
 
@@ -170,7 +170,7 @@ const FIELD_MEDIC: AugmentDefinition = {
 const WARLORD: AugmentDefinition = {
   id: 'warlord',
   name: 'Seigneur de guerre',
-  description: "Tous les champions gagnent 10 % de dégâts d'attaque.",
+  description: "Tous les champions gagnent 15 % de dégâts d'attaque.",
   iconUrl: '/assets/augments/warlord.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -178,7 +178,7 @@ const WARLORD: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatPercent,
       stat: 'atk',
-      percentValue: 0.1,
+      percentValue: 0.15,
     },
   ],
   stackable: true,
@@ -189,7 +189,7 @@ const WARLORD: AugmentDefinition = {
 const BULWARK: AugmentDefinition = {
   id: 'bulwark',
   name: 'Rempart',
-  description: 'Tous les champions gagnent 10 % de défense.',
+  description: 'Tous les champions gagnent 15 % de défense.',
   iconUrl: '/assets/augments/bulwark.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -197,7 +197,7 @@ const BULWARK: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatPercent,
       stat: 'def',
-      percentValue: 0.1,
+      percentValue: 0.15,
     },
   ],
   stackable: true,
@@ -208,7 +208,7 @@ const BULWARK: AugmentDefinition = {
 const SORCERY_SUPREME: AugmentDefinition = {
   id: 'sorcery_supreme',
   name: 'Sorcellerie suprême',
-  description: 'Tous les champions gagnent 12 % de puissance.',
+  description: 'Tous les champions gagnent 15 % de puissance.',
   iconUrl: '/assets/augments/sorcery_supreme.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Stats,
@@ -216,7 +216,7 @@ const SORCERY_SUPREME: AugmentDefinition = {
     {
       type: AugmentEffectType.TeamStatPercent,
       stat: 'ap',
-      percentValue: 0.12,
+      percentValue: 0.15,
     },
   ],
   stackable: true,
@@ -227,13 +227,13 @@ const SORCERY_SUPREME: AugmentDefinition = {
 const GLASS_CANNON: AugmentDefinition = {
   id: 'glass_cannon',
   name: 'Canon de verre',
-  description: "Tous les champions gagnent 20 % de dégâts d'attaque mais perdent 10 % de défense.",
+  description: "Tous les champions gagnent 15 % de dégâts d'attaque mais perdent 8 % de défense.",
   iconUrl: '/assets/augments/glass_cannon.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Combat,
   effects: [
-    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.2 },
-    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: -0.1 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.15 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: -0.08 },
   ],
   stackable: false,
   maxStacks: 1,
@@ -243,18 +243,18 @@ const GLASS_CANNON: AugmentDefinition = {
 const FORTUNE: AugmentDefinition = {
   id: 'fortune',
   name: 'Fortune',
-  description: 'Gagne 100 pièces d’or supplémentaires après chaque combat.',
+  description: 'Gagne 40 pièces d’or supplémentaires après chaque combat.',
   iconUrl: '/assets/augments/fortune.png',
   tier: AugmentTier.Gold,
   category: AugmentCategory.Economy,
   effects: [
     {
       type: AugmentEffectType.BonusGold,
-      flatValue: 100,
+      flatValue: 40,
     },
   ],
-  stackable: true,
-  maxStacks: 3,
+  stackable: false,
+  maxStacks: 1,
   tags: ['economy', 'gold'],
 };
 
@@ -281,14 +281,14 @@ const BATTLE_HARDENED: AugmentDefinition = {
 const DIVINE_BLESSING: AugmentDefinition = {
   id: 'divine_blessing',
   name: 'Bénédiction divine',
-  description: "Tous les champions gagnent 15 % de dégâts d'attaque, de défense et de puissance.",
+  description: "Tous les champions gagnent 23 % de dégâts d'attaque, de défense et de puissance.",
   iconUrl: '/assets/augments/divine_blessing.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Stats,
   effects: [
-    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.15 },
-    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: 0.15 },
-    { type: AugmentEffectType.TeamStatPercent, stat: 'ap', percentValue: 0.15 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'atk', percentValue: 0.23 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'def', percentValue: 0.23 },
+    { type: AugmentEffectType.TeamStatPercent, stat: 'ap', percentValue: 0.23 },
   ],
   stackable: false,
   maxStacks: 1,
@@ -334,14 +334,14 @@ const HYPER_CARRY: AugmentDefinition = {
 const UNSTOPPABLE: AugmentDefinition = {
   id: 'unstoppable',
   name: 'Inarrêtable',
-  description: 'Tous les champions subissent 20 % de dégâts en moins.',
+  description: 'Tous les champions subissent 22 % de dégâts en moins.',
   iconUrl: '/assets/augments/unstoppable.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Combat,
   effects: [
     {
       type: AugmentEffectType.DamageReduction,
-      percentValue: 0.2,
+      percentValue: 0.22,
     },
   ],
   stackable: false,
@@ -352,18 +352,18 @@ const UNSTOPPABLE: AugmentDefinition = {
 const GOLDEN_AGE: AugmentDefinition = {
   id: 'golden_age',
   name: "Âge d'or",
-  description: 'Gagne 200 pièces d’or après chaque combat et réduit le prix des objets de 15 %.',
+  description: 'Gagne 70 pièces d’or après chaque combat et réduit le prix des objets de 10 %.',
   iconUrl: '/assets/augments/golden_age.png',
   tier: AugmentTier.Prismatic,
   category: AugmentCategory.Economy,
   effects: [
     {
       type: AugmentEffectType.BonusGold,
-      flatValue: 200,
+      flatValue: 70,
     },
     {
       type: AugmentEffectType.ShopDiscount,
-      percentValue: 0.15,
+      percentValue: 0.1,
     },
   ],
   stackable: false,

@@ -506,9 +506,9 @@ describe('AugmentManager', () => {
   it('should compute bonus gold', () => {
     expect(augManager.getBonusGold()).toBe(0);
     augManager.acquireAugment(AUGMENT_DATABASE['golden_touch']);
-    expect(augManager.getBonusGold()).toBe(50);
-    augManager.acquireAugment(AUGMENT_DATABASE['golden_touch']);
-    expect(augManager.getBonusGold()).toBe(100);
+    expect(augManager.getBonusGold()).toBe(20);
+    expect(augManager.acquireAugment(AUGMENT_DATABASE['golden_touch'])).toBe(false);
+    expect(augManager.getBonusGold()).toBe(20);
   });
 
   it('should compute post-battle healing and shop discounts', () => {
@@ -516,7 +516,7 @@ describe('AugmentManager', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['field_medic']);
     expect(augManager.getHealAfterBattlePercent()).toBeCloseTo(0.2);
     augManager.acquireAugment(AUGMENT_DATABASE['golden_age']);
-    expect(augManager.getShopDiscountPercent()).toBeCloseTo(0.15);
+    expect(augManager.getShopDiscountPercent()).toBeCloseTo(0.1);
   });
 
   it('should compute damage multiplier', () => {
@@ -527,7 +527,7 @@ describe('AugmentManager', () => {
 
   it('should compute damage reduction capped at 80%', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['unstoppable']);
-    expect(augManager.getDamageReduction()).toBe(0.2);
+    expect(augManager.getDamageReduction()).toBe(0.22);
   });
 
   it('should detect extra revive augment', () => {
@@ -539,13 +539,13 @@ describe('AugmentManager', () => {
   it('should aggregate team stat bonuses (flat)', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['brute_force']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.flat).toBe(15);
+    expect(bonuses.atk.flat).toBe(7);
   });
 
   it('should aggregate team stat bonuses (percent)', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['warlord']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.percent).toBe(0.1);
+    expect(bonuses.atk.percent).toBe(0.15);
   });
 
   it('should handle scaling stat bonuses based on biomes cleared', () => {
@@ -560,16 +560,16 @@ describe('AugmentManager', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['brute_force']);
     augManager.acquireAugment(AUGMENT_DATABASE['iron_skin']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.flat).toBe(15);
-    expect(bonuses.def.flat).toBe(12);
+    expect(bonuses.atk.flat).toBe(7);
+    expect(bonuses.def.flat).toBe(5);
   });
 
   it('should handle prismatic augments with mixed stats', () => {
     augManager.acquireAugment(AUGMENT_DATABASE['divine_blessing']);
     const bonuses = augManager.getTeamStatBonuses();
-    expect(bonuses.atk.percent).toBe(0.15);
-    expect(bonuses.def.percent).toBe(0.15);
-    expect(bonuses.ap.percent).toBe(0.15);
+    expect(bonuses.atk.percent).toBe(0.23);
+    expect(bonuses.def.percent).toBe(0.23);
+    expect(bonuses.ap.percent).toBe(0.23);
   });
 
   it('should clear all augments', () => {
@@ -628,7 +628,7 @@ describe('Integration: Items + Runes + Augments', () => {
 
     // Verify augment bonuses
     const augmentBonuses = augments.getTeamStatBonuses();
-    expect(augmentBonuses.ap.flat).toBe(20);
-    expect(augmentBonuses.atk.percent).toBe(0.1);
+    expect(augmentBonuses.ap.flat).toBe(7);
+    expect(augmentBonuses.atk.percent).toBe(0.15);
   });
 });

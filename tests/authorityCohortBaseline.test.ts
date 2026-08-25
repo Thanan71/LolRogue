@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import baselineV15Json from '../config/authority-cohort-baselines-v15.json';
 import baselineV16Json from '../config/authority-cohort-baselines-v16.json';
+import baselineV17Json from '../config/authority-cohort-baselines-v17.json';
 import { AUTHORITY_CONTENT_HASH, AUTHORITY_ENGINE_VERSION } from '@/game/authority';
 import type { AuthorityCohortResult, AuthorityCohortRuntime } from '@/game/balance/authorityCohort';
 import {
@@ -25,6 +26,12 @@ import {
   createAuthorityCohortBaselineV16Fixture,
   generateAuthorityCohortBaselineV16,
 } from '@/game/balance/authorityCohortBaselineV16Fixture';
+import { AUTHORITY_COHORT_BASELINE_V17 } from '@/game/balance/authorityCohortBaselineV17';
+import {
+  AUTHORITY_COHORT_BASELINE_V17_IDENTITY,
+  createAuthorityCohortBaselineV17Fixture,
+  generateAuthorityCohortBaselineV17,
+} from '@/game/balance/authorityCohortBaselineV17Fixture';
 import type { AuthorityCohortReport } from '@/game/balance/authorityCohortReport';
 import { BIOMES } from '@/types/run';
 
@@ -32,11 +39,16 @@ const V15_BASELINE_KEY =
   'engine=run-engine-v15|content=60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9|model=1|policy=survival-greedy@1';
 const V16_BASELINE_KEY =
   'engine=run-engine-v16|content=557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9|model=1|policy=survival-greedy@1';
-const fixture = createAuthorityCohortBaselineV16Fixture();
-const baselineEntry = AUTHORITY_COHORT_BASELINE_V16.entries[V16_BASELINE_KEY];
-if (!baselineEntry) throw new Error('The v16 cohort baseline entry is unavailable.');
+const V17_BASELINE_KEY =
+  'engine=run-engine-v17|content=83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19|model=1|policy=survival-greedy@1';
+const fixture = createAuthorityCohortBaselineV17Fixture();
+const baselineEntry = AUTHORITY_COHORT_BASELINE_V17.entries[V17_BASELINE_KEY];
+if (!baselineEntry) throw new Error('The v17 cohort baseline entry is unavailable.');
 
-async function resolveArchivedV15Authority(): Promise<AuthorityCohortRuntime> {
+async function resolveArchivedAuthority(identity: {
+  engineVersion: string;
+  contentHash: string;
+}): Promise<AuthorityCohortRuntime> {
   const resolverUrl = pathToFileURL(
     resolve(process.cwd(), 'supabase/functions/verify-run/authority-version-resolver.generated.ts'),
   ).href;
@@ -47,10 +59,11 @@ async function resolveArchivedV15Authority(): Promise<AuthorityCohortRuntime> {
     ) => Promise<AuthorityCohortRuntime | undefined>;
   };
   const authority = await edgeResolver.resolveAuthorityVerifier(
-    AUTHORITY_COHORT_BASELINE_V15_IDENTITY.engineVersion,
-    AUTHORITY_COHORT_BASELINE_V15_IDENTITY.contentHash,
+    identity.engineVersion,
+    identity.contentHash,
   );
-  if (!authority) throw new Error('The archived v15 authority verifier is unavailable.');
+  if (!authority)
+    throw new Error(`The archived ${identity.engineVersion} verifier is unavailable.`);
   return authority;
 }
 
@@ -120,6 +133,9 @@ describe('authority cohort baseline', () => {
     expect(createAuthorityCohortBaselineKey(AUTHORITY_COHORT_BASELINE_V16_IDENTITY)).toBe(
       V16_BASELINE_KEY,
     );
+    expect(createAuthorityCohortBaselineKey(AUTHORITY_COHORT_BASELINE_V17_IDENTITY)).toBe(
+      V17_BASELINE_KEY,
+    );
   });
 
   it('keeps the v15 identity immutable and reproduces its baseline with the archive', async () => {
@@ -127,7 +143,7 @@ describe('authority cohort baseline', () => {
       baselineV15Json,
       AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
     );
-    const authority = await resolveArchivedV15Authority();
+    const authority = await resolveArchivedAuthority(AUTHORITY_COHORT_BASELINE_V15_IDENTITY);
     const archivedFixture = createAuthorityCohortBaselineV15Fixture(authority);
 
     expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V15);
@@ -150,16 +166,20 @@ describe('authority cohort baseline', () => {
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   });
 
-  it('strictly loads and reproduces the current v16 smoke matrix from source', () => {
+  it('keeps the v16 identity immutable and reproduces its baseline with the archive', async () => {
     const loaded = loadAuthorityCohortBaseline(
       baselineV16Json,
       AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
     );
+    const authority = await resolveArchivedAuthority(AUTHORITY_COHORT_BASELINE_V16_IDENTITY);
+    const archivedFixture = createAuthorityCohortBaselineV16Fixture(authority);
 
     expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V16);
-    expect(AUTHORITY_COHORT_BASELINE_V16_IDENTITY).toMatchObject({
-      engineVersion: AUTHORITY_ENGINE_VERSION,
-      contentHash: AUTHORITY_CONTENT_HASH,
+    expect(AUTHORITY_COHORT_BASELINE_V16_IDENTITY).toEqual({
+      engineVersion: 'run-engine-v16',
+      contentHash: '557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9',
+      balanceModelVersion: 1,
+      policy: { id: 'survival-greedy', version: 1 },
     });
     expect(loaded.entries[V16_BASELINE_KEY]).toMatchObject({
       identity: AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
@@ -169,22 +189,46 @@ describe('authority cohort baseline', () => {
         cellCount: 3,
       },
     });
-    expect(generateAuthorityCohortBaselineV16()).toEqual(loaded);
+    expect(archivedFixture.document).toEqual(loaded);
+    expect(generateAuthorityCohortBaselineV16(authority)).toEqual(loaded);
+    expect(JSON.stringify(loaded)).not.toContain('"trace"');
+  });
+
+  it('strictly loads and reproduces the current v17 smoke matrix from source', () => {
+    const loaded = loadAuthorityCohortBaseline(
+      baselineV17Json,
+      AUTHORITY_COHORT_BASELINE_V17_IDENTITY,
+    );
+
+    expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V17);
+    expect(AUTHORITY_COHORT_BASELINE_V17_IDENTITY).toMatchObject({
+      engineVersion: AUTHORITY_ENGINE_VERSION,
+      contentHash: AUTHORITY_CONTENT_HASH,
+    });
+    expect(loaded.entries[V17_BASELINE_KEY]).toMatchObject({
+      identity: AUTHORITY_COHORT_BASELINE_V17_IDENTITY,
+      source: {
+        kind: 'authority-cohort-matrix',
+        seeds: [0, 1, 2, 3, 4],
+        cellCount: 3,
+      },
+    });
+    expect(generateAuthorityCohortBaselineV17()).toEqual(loaded);
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   });
 
   it('rejects unknown fields, missing metrics and incoherent index identities', () => {
-    const unknownRoot = Object.assign(structuredClone(baselineV16Json), { unexpected: true });
+    const unknownRoot = Object.assign(structuredClone(baselineV17Json), { unexpected: true });
     expect(() => loadAuthorityCohortBaseline(unknownRoot)).toThrowError(
       AuthorityCohortBaselineValidationError,
     );
 
-    const missingMetric = structuredClone(baselineV16Json);
+    const missingMetric = structuredClone(baselineV17Json);
     const metrics = firstRawReport(missingMetric).metrics as Record<string, unknown>;
     delete metrics['outcome.winRate'];
     expect(() => loadAuthorityCohortBaseline(missingMetric)).toThrow('expected exactly keys');
 
-    const incoherentIdentity = structuredClone(baselineV16Json);
+    const incoherentIdentity = structuredClone(baselineV17Json);
     const identity = firstRawEntry(incoherentIdentity).identity as Record<string, unknown>;
     identity.contentHash = 'a'.repeat(64);
     expect(() => loadAuthorityCohortBaseline(incoherentIdentity)).toThrow('identity requires key');
@@ -192,8 +236,8 @@ describe('authority cohort baseline', () => {
 
   it('rejects a current identity mismatch and missing report strata', () => {
     expect(() =>
-      loadAuthorityCohortBaseline(baselineV16Json, {
-        ...AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
+      loadAuthorityCohortBaseline(baselineV17Json, {
+        ...AUTHORITY_COHORT_BASELINE_V17_IDENTITY,
         contentHash: 'a'.repeat(64),
       }),
     ).toThrowError(AuthorityCohortBaselineMismatchError);
@@ -242,7 +286,7 @@ describe('authority cohort baseline', () => {
 
   it('keeps only deduplicated p10/p90 and concentrated-defeat trace representatives', () => {
     const artifacts = createAuthorityCohortTraceArtifacts({
-      identity: AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
+      identity: AUTHORITY_COHORT_BASELINE_V17_IDENTITY,
       cohorts: [syntheticExtremeCohort()],
     });
 

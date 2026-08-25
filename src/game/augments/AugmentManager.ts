@@ -152,7 +152,7 @@ export class AugmentManager {
         }
       }
     }
-    return Math.min(total, 0.8);
+    return Math.min(total, 0.1);
   }
 
   /**

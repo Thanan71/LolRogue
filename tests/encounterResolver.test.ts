@@ -157,4 +157,16 @@ describe('versioned encounter resolver', () => {
     expect(easy.drops).toBeLessThanOrEqual(normal.drops);
     expect(normal.drops).toBeLessThanOrEqual(hard.drops);
   });
+
+  it('keeps the in-run drop table independent from difficulty', () => {
+    expect(Object.values(DIFFICULTY_RULES).map((rules) => rules.dropMultiplier)).toEqual([1, 1, 1]);
+    const easy = resolve('easy', { encounter: { ...ENCOUNTER, itemDropChance: 0.25 } });
+    const normal = resolve('normal', { encounter: { ...ENCOUNTER, itemDropChance: 0.25 } });
+    const hard = resolve('hard', { encounter: { ...ENCOUNTER, itemDropChance: 0.25 } });
+
+    expect(easy.reward.itemDropChance).toBe(normal.reward.itemDropChance);
+    expect(normal.reward.itemDropChance).toBe(hard.reward.itemDropChance);
+    expect(easy.reward.droppedItem).toEqual(normal.reward.droppedItem);
+    expect(normal.reward.droppedItem).toEqual(hard.reward.droppedItem);
+  });
 });

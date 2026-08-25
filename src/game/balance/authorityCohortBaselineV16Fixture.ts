@@ -1,4 +1,4 @@
-import { getAuthorityVerifier } from '@/game/authority';
+import type { AuthorityCohortRuntime } from './authorityCohort';
 import type {
   AuthorityCohortBaselineDocument,
   AuthorityCohortBaselineIdentity,
@@ -20,15 +20,12 @@ export const AUTHORITY_COHORT_BASELINE_V16_IDENTITY = Object.freeze({
   policy: Object.freeze({ id: 'survival-greedy', version: 1 }),
 }) satisfies AuthorityCohortBaselineIdentity;
 
-/** Current smoke fixture; it intentionally follows the published source authority. */
+/** Archived smoke fixture; callers must supply the immutable v16 runtime. */
 export type AuthorityCohortBaselineV16Fixture = AuthorityCohortBaselineFixture;
 
-export function createAuthorityCohortBaselineV16Fixture(): AuthorityCohortBaselineV16Fixture {
-  const authority = getAuthorityVerifier(
-    AUTHORITY_COHORT_BASELINE_V16_IDENTITY.engineVersion,
-    AUTHORITY_COHORT_BASELINE_V16_IDENTITY.contentHash,
-  );
-  if (!authority) throw new Error('The current v16 authority verifier is unavailable.');
+export function createAuthorityCohortBaselineV16Fixture(
+  authority: AuthorityCohortRuntime,
+): AuthorityCohortBaselineV16Fixture {
   return createAuthorityCohortBaselineFixture({
     authority,
     identity: AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
@@ -37,6 +34,8 @@ export function createAuthorityCohortBaselineV16Fixture(): AuthorityCohortBaseli
   });
 }
 
-export function generateAuthorityCohortBaselineV16(): AuthorityCohortBaselineDocument {
-  return createAuthorityCohortBaselineV16Fixture().document;
+export function generateAuthorityCohortBaselineV16(
+  authority: AuthorityCohortRuntime,
+): AuthorityCohortBaselineDocument {
+  return createAuthorityCohortBaselineV16Fixture(authority).document;
 }

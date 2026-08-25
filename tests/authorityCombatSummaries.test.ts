@@ -91,7 +91,7 @@ describe('authority combat summaries', () => {
   });
 
   it('records the granted reward, post-encounter resources and accepted drops', () => {
-    const runAttempt = attempt({ seed: 1 });
+    const runAttempt = attempt({ seed: 38 });
     const map = generateRunMap(runAttempt.seed)[0];
     const firstNode = map.nodes.find((node) => node.id === map.startNodeId)!;
     const secondCombat = firstNode.nextNodeIds
@@ -124,7 +124,7 @@ describe('authority combat summaries', () => {
       gold: expect.any(Number),
       xpPerChampion: expect.any(Number),
       itemDropChance: expect.any(Number),
-      droppedItemId: 'spirit_visage',
+      droppedItemId: 'long_sword',
       dropBlockedByCapacity: false,
       droppedItemInstanceId: `item_${RUN_UUID}_1`,
     });

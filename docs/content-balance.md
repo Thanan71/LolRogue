@@ -3,8 +3,8 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 16` et le Daily `score_version = 14`. Le contenu de
-combat par biome introduit en v13 reste inchangé. Le moteur v15 est archivé pour
+`gameplay_ruleset_version = 17` et le Daily `score_version = 15`. Le contenu de
+combat par biome introduit en v13 reste inchangé. Le moteur v16 est archivé pour
 terminer les runs déjà ouvertes. Toute autre modification d'ennemi, récompense,
 prix, drop, effet ou stacking exige une nouvelle version et un nouveau hash autoritaire.
 
@@ -30,20 +30,21 @@ comportement joueur.
 
 ## Baselines authority versionnées
 
-La baseline courante v16 est chargée depuis
-`config/authority-cohort-baselines-v16.json` et reproduite par la source v16. La
-baseline v15 reste une archive immuable dans
-`config/authority-cohort-baselines-v15.json` : son identité moteur/hash/modèle/policy
-est littérale et sa reproduction emploie exclusivement
-`run-authority-v15.bundle.ts`, jamais les constantes du moteur courant.
+La baseline courante v17 est chargée depuis
+`config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les
+baselines v15 et v16 restent des archives immuables : leurs identités
+moteur/hash/modèle/policy sont littérales et leur reproduction emploie exclusivement
+`run-authority-v15.bundle.ts` ou `run-authority-v16.bundle.ts`, jamais les constantes
+du moteur courant.
 
-`npm run balance:baseline:generate` génère v16 sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-v16.json` met à jour son artefact
-commité. `npm run balance:baseline:generate:v15` sert uniquement à auditer et
-reproduire l'archive historique avant comparaison avec le JSON v15 existant. Une
-nouvelle publication ajoute son propre couple fixture/loader/JSON sans réécrire les
-versions précédentes. `npm run balance:baseline:check`, inclus dans
-`npm run balance:check`, exige une reproduction byte-for-byte des deux artefacts.
+`npm run balance:baseline:generate` génère v17 sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-v17.json` met à jour son artefact
+commité. Les commandes `balance:baseline:generate:v15` et
+`balance:baseline:generate:v16` servent uniquement à auditer les archives
+historiques. Une nouvelle publication ajoute son propre couple fixture/loader/JSON
+sans réécrire les versions précédentes. `npm run balance:baseline:check`, inclus
+dans `npm run balance:check`, exige une reproduction byte-for-byte des trois
+artefacts.
 
 ## Indicateurs de catalogue et de nœuds
 
@@ -54,8 +55,9 @@ stacking proviennent directement des catalogues. Ces valeurs sont des indicateur
 comparatifs non pondérés par un choix de route, pas des métriques de run ni une
 promesse de taux de victoire.
 
-Les attentes actuelles sont : Easy < Normal < Hard pour puissance et or, drops non
-décroissants, prix strictement positifs et inventaire/stacking conformes aux règles.
+Les attentes actuelles sont : Easy < Normal < Hard pour puissance et or, drops
+indépendants de la difficulté, prix strictement positifs et inventaire/stacking
+conformes aux règles.
 Le rapport est déterministe pour les mêmes seeds de carte et doit être comparé
 avant/après toute modification de contenu.
 

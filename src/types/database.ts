@@ -1628,6 +1628,15 @@ export type Database = {
         };
         Returns: Json;
       };
+      complete_run_verification_v16_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
       complete_run_verification_v6: {
         Args: {
           p_attempt_id: string;

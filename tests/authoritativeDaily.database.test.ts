@@ -161,18 +161,19 @@ describeLive('authoritative daily leaderboard live security', () => {
     }
   });
 
-  it('shares score formula v14 across Daily rulesets v14 through v16', async () => {
+  it('keeps score v14 through Daily v16 and activates gold-neutral score v15 in v17', async () => {
     const rulesets = await admin
       .from('daily_challenge_rulesets')
       .select('version, score_version, is_active')
-      .in('version', [14, 15, 16])
+      .in('version', [14, 15, 16, 17])
       .order('version');
 
     expect(rulesets.error).toBeNull();
     expect(rulesets.data).toEqual([
       { version: 14, score_version: 14, is_active: false },
       { version: 15, score_version: 14, is_active: false },
-      { version: 16, score_version: 14, is_active: true },
+      { version: 16, score_version: 14, is_active: false },
+      { version: 17, score_version: 15, is_active: true },
     ]);
   });
 
@@ -232,7 +233,7 @@ describeLive('authoritative daily leaderboard live security', () => {
     expect(challenge).toMatchObject({
       daily_date: new Date().toISOString().slice(0, 10),
       difficulty: 'normal',
-      score_version: 14,
+      score_version: 15,
       attempt_policy: 'one_official_attempt_per_utc_day',
       has_attempted: false,
     });
@@ -446,10 +447,10 @@ describeLive('authoritative daily leaderboard live security', () => {
     expect(published.data).toMatchObject({
       daily_date: challenge.daily_date,
       daily_seed: challenge.seed,
-      score: 1360,
+      score: 1350,
       run_attempt_id: firstAttempt.attempt_id,
-      daily_ruleset_version: 16,
-      score_version: 14,
+      daily_ruleset_version: 17,
+      score_version: 15,
     });
 
     const anonymous = createClient<Database>(supabaseUrl!, anonKey!, {
@@ -473,10 +474,10 @@ describeLive('authoritative daily leaderboard live security', () => {
     expect(publicBoard.error).toBeNull();
     expect(publicBoard.data).toMatchObject({
       rank: expect.any(Number),
-      score: 1360,
+      score: 1350,
       waves_completed: 1,
       run_level_reached: 1,
-      score_version: 14,
+      score_version: 15,
     });
     expect(publicBoard.data).not.toHaveProperty('player_id');
     expect(publicBoard.data).not.toHaveProperty('completed_at');
@@ -498,7 +499,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       .eq('player_name', publicName)
       .single();
     expect(ownerBoard.error).toBeNull();
-    expect(ownerBoard.data).toMatchObject({ score: 1360, player_name: publicName });
+    expect(ownerBoard.data).toMatchObject({ score: 1350, player_name: publicName });
 
     await sealAttempt(second.client, secondAttemptId, 'abandon_run');
     const secondClaim = await admin.rpc('claim_run_verification', {

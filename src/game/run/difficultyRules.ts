@@ -10,7 +10,7 @@ export const DIFFICULTY_RULES: Record<AuthorityDifficulty, DifficultyRule> = {
   easy: {
     enemyStatMultiplier: 0.85,
     goldMultiplier: 0.9,
-    dropMultiplier: 0.9,
+    dropMultiplier: 1,
   },
   normal: {
     enemyStatMultiplier: 1,
@@ -20,7 +20,7 @@ export const DIFFICULTY_RULES: Record<AuthorityDifficulty, DifficultyRule> = {
   hard: {
     enemyStatMultiplier: 1.2,
     goldMultiplier: 1.15,
-    dropMultiplier: 1.15,
+    dropMultiplier: 1,
   },
 };
 

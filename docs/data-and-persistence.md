@@ -310,15 +310,16 @@ bonus victoire
 + or total gagné × gold_points
 ```
 
-Dans le ruleset Daily v16 actif, ces coefficients valent respectivement 10 000,
-1 000, 250, 100 et 1. Ils sont hérités du ruleset v14, liés à `score_version = 14`
-et ne peuvent pas être remplacés par un score déclaré par le client. Une version de
+Dans le ruleset Daily v17 actif, ces coefficients valent respectivement 10 000,
+1 000, 250, 100 et 0. Ils sont liés à `score_version = 15` ; l'or gagné ne
+contribue donc plus au classement. Ces coefficients ne peuvent pas être remplacés
+par un score déclaré par le client. Une version de
 score identifie la formule : plusieurs rulesets Daily peuvent donc partager la même
 version lorsque les coefficients restent identiques. La valeur demeure strictement
 positive, sans servir de clé étrangère ; les relations utilisent la version du
 ruleset Daily.
 
-Le trigger de création et le moteur authority v16 imposent tous deux
+Le trigger de création et le moteur authority v17 imposent tous deux
 `mastery_snapshot = {}` et `enhancement_snapshot = {}` aux tentatives Daily.
 
 En mode invité, le classement daily local sert uniquement de retour d'interface.

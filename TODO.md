@@ -513,17 +513,17 @@ différents.
 
 ### Actions
 
-- [ ] Recalibrer les Silver autour de +7 ATK, +5 DEF, +7 AP, +90 PV et +12–15 MS.
-- [ ] Recalibrer Gold autour de +12–15 % et Prism autour de +22–25 %.
-- [ ] Ramener l'or/combat Silver/Gold/Prism autour de 15–20 / 35–45 / 60–75 ;
+- [x] Recalibrer les Silver autour de +7 ATK, +5 DEF, +7 AP, +90 PV et +12–15 MS.
+- [x] Recalibrer Gold autour de +12–15 % et Prism autour de +22–25 %.
+- [x] Ramener l'or/combat Silver/Gold/Prism autour de 15–20 / 35–45 / 60–75 ;
   plafonner la remise Prism à 10 %.
-- [ ] Utiliser une table de rareté explicite : common 55 %, uncommon 25 %, epic 15 %,
+- [x] Utiliser une table de rareté explicite : common 55 %, uncommon 25 %, epic 15 %,
   legendary 5 %, puis tirer l'item dans la rareté.
-- [ ] Gater le tier 2 par biome : Top 0 %, Jungle/Mid 10 %, Bot 20 %, River 30 %,
+- [x] Gater le tier 2 par biome : Top 0 %, Jungle/Mid 10 %, Bot 20 %, River 30 %,
   boss final garanti ou table dédiée.
-- [ ] Retirer le bonus de drop Hard ou le remplacer par score/récompense méta ne
+- [x] Retirer le bonus de drop Hard ou le remplacer par score/récompense méta ne
   renforçant pas la run en cours.
-- [ ] Ajouter des tests statistiques de rendement restant, rareté, valeur et
+- [x] Ajouter des tests statistiques de rendement restant, rareté, valeur et
   domination de choix ; aucune option ne doit dépasser durablement 55–60 % de pick.
 
 ### Acceptation
@@ -1272,7 +1272,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 6. [x] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
 7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
 8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
-9. [ ] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
+9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
 10. [ ] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
 11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
 12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.
