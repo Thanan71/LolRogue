@@ -108,7 +108,76 @@ Une tâche n'est terminée que lorsque :
 
 ---
 
-# P0 — sécurité, autorité, équilibre et release gates
+# P0 — sécurité, autorité, équilibre, internationalisation et release gates
+
+## P0-I18N-01 — Internationalisation 100 % du projet (FR/EN)
+
+**Taille : L**  
+**Risque : élevé — une locale partielle rend le produit incohérent et invalide la promesse de traduction complète.**
+
+### Périmètre obligatoire
+
+La couverture doit porter sur **tout contenu visible ou annoncé à l'utilisateur**, pas
+seulement les pages et boutons React :
+
+- interface complète : navigation, menus, formulaires, paramètres, admin, erreurs,
+  notifications, tutoriels, ARIA, titres de page et textes de chargement ;
+- champions : titres, rôles, descriptions, textes de présentation, maîtrise,
+  améliorations et tout contenu affiché dans la base des champions ;
+- compétences : noms, descriptions, coûts, cooldowns/recharges, effets, ciblage,
+  rangs, améliorations, tooltips, messages de combat et textes générés ;
+- runes, augments, objets, passifs, raretés, statistiques et descriptions ;
+- carte, biomes, encounters, combats, boutique, recrutement, repos, événements,
+  trésors, récompenses, résultats de run et Daily ;
+- contenus dynamiques issus des catalogues, Data Dragon, données persistées ou
+  templates générés ;
+- crédits, légal/confidentialité, patch notes et toute future fonctionnalité joueur ;
+- formats dépendants de la locale : nombres, dates, pourcentages, pluriels et unités.
+
+Les noms propres officiels qui ne se traduisent pas peuvent rester identiques entre
+locales, mais aucun texte français ne doit servir de fallback silencieux dans la locale
+anglaise.
+
+### Actions
+
+- [ ] Faire passer tout texte utilisateur par une couche i18n ou un catalogue bilingue
+  indexé par identifiant stable ; supprimer les traductions DOM de secours dès que les
+  sources sont correctement internationalisées.
+- [ ] Garantir une parité stricte des clés et des contenus `fr` / `en` : toute entrée
+  présente dans une locale doit exister dans l'autre.
+- [ ] Internationaliser les données de gameplay elles-mêmes, en particulier les
+  descriptions de champions et **toutes les compétences**, pas uniquement leur UI.
+- [ ] Utiliser les données localisées Data Dragon lorsque pertinentes (`fr_FR` /
+  `en_US`) ou maintenir des catalogues versionnés équivalents dans le dépôt.
+- [ ] Couvrir les chaînes dynamiques et interpolées avec des templates i18n, y compris
+  erreurs, journal de combat, récompenses, ventes, recrutement et progression.
+- [ ] Ajouter une gate CI qui scanne TS/TSX **et les catalogues de contenu** pour
+  détecter texte utilisateur codé en dur, clé manquante, traduction identique suspecte
+  et fallback de locale inattendu.
+- [ ] Ajouter des tests de parité pour champions, compétences, runes, augments, objets,
+  encounters et autres catalogues exposés au joueur.
+- [ ] Ajouter un E2E qui bascule FR → EN et parcourt au minimum Auth → sélection des
+  starters → carte → combat → inventaire → encounter → Game Over, avec vérification
+  qu'aucun texte français résiduel n'apparaît en anglais.
+- [ ] Auditer manuellement desktop/mobile + lecteur d'écran pour les textes que le scan
+  statique ne peut pas garantir.
+- [ ] Empêcher l'ajout futur d'un champion, sort, item, augment, rune ou encounter sans
+  ses traductions complètes dans toutes les locales supportées.
+
+### Acceptation
+
+- en locale anglaise : **0 texte français utilisateur**, y compris descriptions de
+  champions, compétences, tooltips, contenus dynamiques, ARIA et messages d'erreur ;
+- en locale française : **0 texte anglais accidentel** hors noms propres/termes
+  explicitement conservés ;
+- parité de clés et de catalogues FR/EN à 100 % ;
+- aucun fallback silencieux vers le français lorsque `en` est sélectionné ;
+- les gates i18n sont bloquantes en CI et échouent dès qu'un nouveau contenu joueur
+  n'est pas traduit ;
+- une vérification manuelle représentative confirme le résultat sur la preview du SHA
+  candidat.
+
+---
 
 ## P0-SEC-01 — Corriger les vues leaderboard `SECURITY DEFINER`
 
@@ -1253,12 +1322,9 @@ Le dépôt documente les procédures, mais la preuve distante reste requise.
 
 ## P3-PROD-02 — Internationalisation anglaise complète
 
-**Taille : L**
-
-- [ ] Transformer le dictionnaire français actuel en vraie sélection de locale.
-- [ ] Ajouter `en` avec couverture de toutes les pages et contenus.
-- [ ] Tester nombres, dates, pluriels, aria-labels et textes de domaine.
-- [ ] Conserver le français comme fallback explicite.
+**Promu en P0 : voir `P0-I18N-01`.**  
+La couverture 100 % inclut désormais explicitement champions, compétences,
+contenus de gameplay et chaînes dynamiques ; ce sujet n'est plus différé en P3.
 
 ---
 
@@ -1371,6 +1437,7 @@ techniques ni afficher une modale à chaque déploiement.**
 3. [x] `P0-DATA-01` integration repositories DB.
 4. [x] `P0-RUN-01` registre authority.
 5. [x] `P0-REL-01` readiness réelle.
+5 bis. [ ] `P0-I18N-01` internationalisation FR/EN 100 % du projet.
 
 ## Sprint B — rendre l'équilibrage mesurable et comparable
 
@@ -1424,7 +1491,7 @@ techniques ni afficher une modale à chaque déploiement.**
 36. [ ] `P2-CI-02` gates séparées par responsabilité, avec commande locale
     tout-en-un conservée.
 37. [ ] `P3-PROD-01` historique de runs exploitable.
-38. [ ] `P3-PROD-02` internationalisation anglaise.
+38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
 39. [ ] `P3-PROD-03` décision PWA/offline.
 40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
 40 bis. [ ] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
@@ -1450,6 +1517,7 @@ techniques ni afficher une modale à chaque déploiement.**
 La bêta technique ne redevient candidate que lorsque :
 
 - [ ] aucun `P0-*` n'est ouvert ;
+- [ ] internationalisation FR/EN à 100 %, y compris champions, compétences et contenus dynamiques ;
 - [ ] advisors sécurité live : aucune `ERROR` non acceptée ;
 - [ ] aucune fonction de trigger/maintenance inutile n'est client-callable ;
 - [ ] repository integration tests passent contre une vraie base migrée ;
