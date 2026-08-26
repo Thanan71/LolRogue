@@ -168,7 +168,8 @@ const COPY: Readonly<Record<string, string>> = {
   défense: 'defense',
   'objet mystérieux': 'mysterious item',
   caractéristique: 'stat',
-  'Inventaire plein — l’objet a été laissé sur place.': 'Inventory full — the item was left behind.',
+  'Inventaire plein — l’objet a été laissé sur place.':
+    'Inventory full — the item was left behind.',
   'Équipe complète — ce champion ne peut pas vous rejoindre.':
     'Team full — this champion cannot join you.',
   'Rencontre terminée': 'Encounter complete',
@@ -207,7 +208,10 @@ const PATTERNS: readonly [RegExp, string][] = [
   [/^Ranimé · (.+) PV$/u, 'Revived · $1 HP'],
   [/^(.+) → soi-même$/u, '$1 → self'],
   [/^(.+) de (.+) amélioré au rang (.+)\.$/u, '$1 of $2 upgraded to rank $3.'],
-  [/^Impossible d’améliorer (.+) de (.+)\. Réessayez\.$/u, 'Unable to upgrade $1 of $2. Try again.'],
+  [
+    /^Impossible d’améliorer (.+) de (.+)\. Réessayez\.$/u,
+    'Unable to upgrade $1 of $2. Try again.',
+  ],
   [/^Améliorer (.+) · rang (.+) → (.+)$/u, 'Upgrade $1 · rank $2 → $3'],
   [/^Compétences de (.+)$/u, '$1 abilities'],
   [/^Vente confirmée : (.+), \+(.+) (?:or|gold)\.$/u, 'Sale confirmed: $1, +$2 gold.'],
@@ -215,15 +219,20 @@ const PATTERNS: readonly [RegExp, string][] = [
   [/^Progression des biomes : (.+) sur (.+)$/u, 'Biome progress: $1 of $2'],
   [/^, (.+) niveau\(x\) gagné\(s\)$/u, ', $1 level(s) gained'],
   [/^Expérience de (.+)$/u, '$1 experience'],
-  [/^(.+) est sélectionné\. Choisissez maintenant une action\.$/u, '$1 is selected. Now choose an action.'],
+  [
+    /^(.+) est sélectionné\. Choisissez maintenant une action\.$/u,
+    '$1 is selected. Now choose an action.',
+  ],
   [/^(.+) dans (.+) s$/u, '$1 in $2 s'],
   [/^(.+) % des dégâts de l'équipe$/u, "$1% of the team's damage"],
   [/^Objet obtenu : (.+)$/u, 'Item obtained: $1'],
   [/^Amélioration : \+(.+) (.+)$/u, 'Upgrade: +$1 $2'],
   [/^(.+) (?:or|gold) dépensé\(s\)\.$/u, '$1 gold spent.'],
   [/^Cette run exige exactement (.+) starter(.+)\.$/u, 'This run requires exactly $1 starter$2.'],
-  [/^Run normale : ta difficulté et tes choix · sélectionne exactement (.+) champions(.*)$/u,
-    'Normal run: your difficulty and choices · select exactly $1 champions$2'],
+  [
+    /^Run normale : ta difficulté et tes choix · sélectionne exactement (.+) champions(.*)$/u,
+    'Normal run: your difficulty and choices · select exactly $1 champions$2',
+  ],
   [/^(.+) slot\(s\) sélectionné$/u, '$1 slot(s) selected'],
 ];
 
@@ -231,7 +240,8 @@ export function translateAuditedEnglishCopy(value: string): string {
   const normalized = value.replace(/\s+/gu, ' ').trim();
   if (!normalized) return value;
   let translated = COPY[normalized] ?? normalized;
-  for (const [pattern, replacement] of PATTERNS) translated = translated.replace(pattern, replacement);
+  for (const [pattern, replacement] of PATTERNS)
+    translated = translated.replace(pattern, replacement);
   const leading = value.match(/^\s*/u)?.[0] ?? '';
   const trailing = value.match(/\s*$/u)?.[0] ?? '';
   return `${leading}${translated}${trailing}`;
@@ -273,14 +283,19 @@ function translateNode(root: Node): void {
 }
 
 export function installAuditedEnglishCopyTranslation(): () => void {
-  if (locale !== 'en-US' || typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
+  if (
+    locale !== 'en-US' ||
+    typeof document === 'undefined' ||
+    typeof MutationObserver === 'undefined'
+  ) {
     return () => undefined;
   }
   translateNode(document.documentElement);
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.type === 'characterData') translateNode(mutation.target);
-      else if (mutation.type === 'attributes' && mutation.target instanceof Element) translateElement(mutation.target);
+      else if (mutation.type === 'attributes' && mutation.target instanceof Element)
+        translateElement(mutation.target);
       else for (const node of mutation.addedNodes) translateNode(node);
     }
   });

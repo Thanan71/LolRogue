@@ -3,7 +3,8 @@ import { locale } from './fr';
 const CONTENT_TRANSLATIONS: Readonly<Record<string, string>> = {
   // Items
   'Épée longue': 'Long Sword',
-  "Une lame simple qui augmente les dégâts d'attaque.": 'A simple blade that increases attack damage.',
+  "Une lame simple qui augmente les dégâts d'attaque.":
+    'A simple blade that increases attack damage.',
   "Tome d'amplification": 'Amplifying Tome',
   'Un tome magique qui augmente la puissance.': 'A magic tome that increases ability power.',
   'Armure de tissu': 'Cloth Armor',
@@ -83,15 +84,15 @@ const CONTENT_TRANSLATIONS: Readonly<Record<string, string>> = {
   'Un champion émerge de l’autel !': 'A champion appears from the altar!',
   'Vous rattrapez le gobelin !': 'You catch the goblin!',
   'Le gobelin abandonne son sac !': 'The goblin drops its bag!',
-  'Le gobelin s’échappe avant que vous ne puissiez l’atteindre…':
-    'The goblin escapes too fast...',
+  'Le gobelin s’échappe avant que vous ne puissiez l’atteindre…': 'The goblin escapes too fast...',
   'Vous repartez avec de l’or.': 'You leave with gold.',
   'L’offrande est acceptée.': 'The offering is accepted.',
   'Votre découverte rejoint votre inventaire.': 'Your discovery is added to your inventory.',
   'Une énergie apaisante parcourt votre équipe.': 'A soothing energy flows through your team.',
   'Le piège blesse toute votre équipe.': 'The trap damages your entire team.',
   'Votre groupe accueille un nouveau champion.': 'Your group welcomes a new champion.',
-  'Votre équipe ressort renforcée de cette rencontre.': 'Your team emerges stronger from this encounter.',
+  'Votre équipe ressort renforcée de cette rencontre.':
+    'Your team emerges stronger from this encounter.',
   'Le calme revient sans laisser de trace.': 'Calm returns without leaving a trace.',
 
   // Other authored encounter fallbacks.
@@ -152,7 +153,11 @@ function translateNode(root: Node): void {
 }
 
 export function installLegacyEnglishContentTranslation(): () => void {
-  if (locale !== 'en-US' || typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
+  if (
+    locale !== 'en-US' ||
+    typeof document === 'undefined' ||
+    typeof MutationObserver === 'undefined'
+  ) {
     return () => undefined;
   }
 

@@ -24,15 +24,14 @@ function listTsxFiles(directory: URL): URL[] {
 }
 
 function stripComments(source: string): string {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//gu, '')
-    .replace(/(^|[^:])\/\/.*$/gmu, '$1');
+  return source.replace(/\/\*[\s\S]*?\*\//gu, '').replace(/(^|[^:])\/\/.*$/gmu, '$1');
 }
 
 function isCodeArtifact(value: string): boolean {
   const normalized = value.replace(/\s+/gu, ' ').trim();
   if (!normalized) return true;
-  if (/A-Za-z|className=|onClick=|aria-|<\/|\}>|=>|\bconst\b|\breturn\b/u.test(normalized)) return true;
+  if (/A-Za-z|className=|onClick=|aria-|<\/|\}>|=>|\bconst\b|\breturn\b/u.test(normalized))
+    return true;
   if (normalized.includes('${') && /\?|'\s*:|"\s*:/u.test(normalized)) return true;
   return false;
 }
@@ -79,7 +78,9 @@ describe('couverture anglaise des textes UI historiques', () => {
         if (!FRENCH_HINT.test(value)) continue;
         const english = translateUiCopy(value).replace(/\s+/gu, ' ').trim();
         if (FRENCH_HINT.test(english)) {
-          untranslated.push(`${relativePath(file)} :: ${JSON.stringify(value)} -> ${JSON.stringify(english)}`);
+          untranslated.push(
+            `${relativePath(file)} :: ${JSON.stringify(value)} -> ${JSON.stringify(english)}`,
+          );
         }
       }
     }

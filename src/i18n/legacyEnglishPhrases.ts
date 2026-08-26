@@ -80,7 +80,8 @@ const PHRASES: Readonly<Record<string, string>> = {
   'Statistiques du champion': 'Champion stats',
   'Coût :': 'Cost:',
   'Chances de réussite :': 'Success chance:',
-  'L’or n’est dépensé que si le recrutement réussit.': 'Gold is spent only if recruitment succeeds.',
+  'L’or n’est dépensé que si le recrutement réussit.':
+    'Gold is spent only if recruitment succeeds.',
   'Tu conserves ton or malgré cette tentative.': 'You keep your gold despite this attempt.',
   Passer: 'Skip',
 
@@ -106,7 +107,7 @@ const PHRASES: Readonly<Record<string, string>> = {
   'Recrutement impossible': 'Recruitment unavailable',
   'Aucun champion ne s’est présenté…': 'No champion appeared…',
   'Rien ne se produit…': 'Nothing happens…',
-  'caractéristique': 'stat',
+  caractéristique: 'stat',
 
   // Treasure.
   'Total :': 'Total:',
@@ -138,22 +139,28 @@ const PATTERNS: readonly [RegExp, string][] = [
   [/^(\d+) chemins disponibles$/u, '$1 available paths'],
   [/^(.+), colonne (\d+), ligne (\d+)(.*)$/u, '$1, column $2, row $3$4'],
   [/^, départ du biome/u, ', biome start'],
-  [/^, activer pour choisir ce nœud et verrouiller les autres branches/u,
-    ', activate to choose this node and lock the other branches'],
+  [
+    /^, activer pour choisir ce nœud et verrouiller les autres branches/u,
+    ', activate to choose this node and lock the other branches',
+  ],
   [/^, terminez d'abord le choix en attente/u, ', finish the pending choice first'],
   [/^, (\d+) niveau\(x\) gagné\(s\)$/u, ', $1 level(s) gained'],
   [/^, objet : (.+)$/u, ', item: $1'],
   [/^Cette run exige exactement (\d+) starters?\.$/u, 'This run requires exactly $1 starter(s).'],
-  [/^Run normale : ta difficulté et tes choix · sélectionne exactement (\d+) champions(.*)$/u,
-    'Normal run: your difficulty and choices · select exactly $1 champions$2'],
+  [
+    /^Run normale : ta difficulté et tes choix · sélectionne exactement (\d+) champions(.*)$/u,
+    'Normal run: your difficulty and choices · select exactly $1 champions$2',
+  ],
   [/^Relancer le roster \((\d+)\)$/u, 'Reroll roster ($1)'],
   [/^Choisir (.+)$/u, 'Choose $1'],
   [/^(.+) · (\d+)\/(\d+) slot\(s\) sélectionné$/u, '$1 · $2/$3 slot(s) selected'],
   [/^(.+) a été ajouté à l’inventaire\.$/u, '$1 was added to the inventory.'],
   [/^(.+) a rejoint votre équipe\.$/u, '$1 joined your team.'],
   [/^Soin de (\d+) % des PV$/u, 'Heal $1% of HP'],
-  [/^Toute l’équipe a récupéré (\d+) % de ses PV maximum\.$/u,
-    'The whole team recovered $1% of its maximum HP.'],
+  [
+    /^Toute l’équipe a récupéré (\d+) % de ses PV maximum\.$/u,
+    'The whole team recovered $1% of its maximum HP.',
+  ],
   [/^Niv\. (\d+)$/u, 'Lv. $1'],
   [/^(.+) : (\d+) \/ (\d+) PV$/u, '$1: $2 / $3 HP'],
   [/^Coût : (\d+) (?:or|gold)$/u, 'Cost: $1 gold'],
@@ -178,7 +185,8 @@ export function translateLegacyPhraseToEnglish(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return value;
   let translated = PHRASES[trimmed] ?? trimmed;
-  for (const [pattern, replacement] of PATTERNS) translated = translated.replace(pattern, replacement);
+  for (const [pattern, replacement] of PATTERNS)
+    translated = translated.replace(pattern, replacement);
   const leading = value.match(/^\s*/u)?.[0] ?? '';
   const trailing = value.match(/\s*$/u)?.[0] ?? '';
   return `${leading}${translated}${trailing}`;
@@ -220,7 +228,11 @@ function translateNode(root: Node): void {
 }
 
 export function installLegacyEnglishPhraseTranslation(): () => void {
-  if (locale !== 'en-US' || typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
+  if (
+    locale !== 'en-US' ||
+    typeof document === 'undefined' ||
+    typeof MutationObserver === 'undefined'
+  ) {
     return () => undefined;
   }
   translateNode(document.documentElement);

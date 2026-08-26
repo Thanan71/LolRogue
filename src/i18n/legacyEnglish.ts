@@ -223,8 +223,10 @@ const REPLACEMENTS: readonly [RegExp, string][] = [
   [/^Vente confirmée : (.+), \+(\d+) /u, 'Sale confirmed: $1, +$2 '],
   [/^Inventaire : vide\.$/iu, 'Inventory: empty.'],
   [/^(\d+) champions$/u, '$1 champions'],
-  [/^Sélectionner (.+), niveau (\d+), (\d+) sur (\d+) PV, expérience (.+)$/u,
-    'Select $1, level $2, $3 of $4 HP, experience $5'],
+  [
+    /^Sélectionner (.+), niveau (\d+), (\d+) sur (\d+) PV, expérience (.+)$/u,
+    'Select $1, level $2, $3 of $4 HP, experience $5',
+  ],
   [/^Progression des biomes : (\d+) sur (\d+)$/u, 'Biome progress: $1 of $2'],
   [/^(\d+) chemins? disponibles?$/u, '$1 available path(s)'],
   [/^colonne (\d+), ligne (\d+)$/u, 'column $1, row $2'],
@@ -251,8 +253,10 @@ const REPLACEMENTS: readonly [RegExp, string][] = [
   [/^Équipe complète —/u, 'Team full —'],
   [/^Ce champion fait déjà partie de l’équipe\.$/u, 'This champion is already on the team.'],
   [/^Chances de réussite :/u, 'Success chance:'],
-  [/^L’or n’est dépensé que si le recrutement réussit\.$/u,
-    'Gold is only spent if recruitment succeeds.'],
+  [
+    /^L’or n’est dépensé que si le recrutement réussit\.$/u,
+    'Gold is only spent if recruitment succeeds.',
+  ],
   [/^(.+) rejoint ton équipe !$/u, '$1 joins your team!'],
   [/^(.+) a pris la fuite\.$/u, '$1 ran away.'],
   [/^Tu conserves ton or malgré cette tentative\.$/u, 'You keep your gold despite this attempt.'],
@@ -387,7 +391,11 @@ function translateSubtree(root: Node): void {
 }
 
 export function installLegacyEnglishDomTranslation(): () => void {
-  if (locale !== 'en-US' || typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
+  if (
+    locale !== 'en-US' ||
+    typeof document === 'undefined' ||
+    typeof MutationObserver === 'undefined'
+  ) {
     return () => undefined;
   }
 
