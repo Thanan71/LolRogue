@@ -6,6 +6,7 @@ import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
 import { installLegacyEnglishDomTranslation } from './i18n/legacyEnglish';
+import { installAuditedEnglishCopyTranslation } from './i18n/legacyEnglishAudit';
 import { installLegacyEnglishContentTranslation } from './i18n/legacyEnglishContent';
 import { installLegacyEnglishPhraseTranslation } from './i18n/legacyEnglishPhrases';
 import { useSettingsStore } from './stores/settingsStore';
@@ -166,6 +167,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const uninstallAuditTranslation = installAuditedEnglishCopyTranslation();
     const uninstallPhraseTranslation = installLegacyEnglishPhraseTranslation();
     const uninstallContentTranslation = installLegacyEnglishContentTranslation();
     const uninstallLegacyTranslation = installLegacyEnglishDomTranslation();
@@ -173,6 +175,7 @@ export default function App() {
       uninstallLegacyTranslation();
       uninstallContentTranslation();
       uninstallPhraseTranslation();
+      uninstallAuditTranslation();
     };
   }, []);
 
