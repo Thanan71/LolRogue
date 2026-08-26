@@ -1,5 +1,4 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import { translateLegacyTextToEnglish } from '@/i18n/legacyEnglish';
 
@@ -21,34 +20,34 @@ function listTsxFiles(directory: URL): URL[] {
   });
 }
 
+function stripComments(source: string): string {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//gu, '')
+    .replace(/(^|[^:])\/\/.*$/gmu, '$1');
+}
+
 function collectUiLiterals(file: URL): string[] {
-  const sourceText = readFileSync(file, 'utf8');
-  const source = ts.createSourceFile(file.pathname, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const source = stripComments(readFileSync(file, 'utf8'));
   const values: string[] = [];
 
-  const visit = (node: ts.Node) => {
-    if (ts.isJsxText(node)) {
-      const value = node.getText(source).trim();
-      if (value) values.push(value);
-    } else if (
-      ts.isStringLiteral(node) ||
-      ts.isNoSubstitutionTemplateLiteral(node) ||
-      ts.isTemplateHead(node) ||
-      ts.isTemplateMiddle(node) ||
-      ts.isTemplateTail(node)
-    ) {
-      const value = node.text.trim();
-      if (value) values.push(value);
-    }
-    ts.forEachChild(node, visit);
-  };
+  for (const match of source.matchAll(/(['"`])((?:\\.|(?!\1)[\s\S])*?)\1/gu)) {
+    const value = (match[2] ?? '').trim();
+    if (value) values.push(value);
+  }
 
-  visit(source);
+  for (const match of source.matchAll(/>([^<{]+)</gu)) {
+    const value = (match[1] ?? '').trim();
+    if (value) values.push(value);
+  }
+
   return values;
 }
 
 function relativePath(file: URL): string {
-  return decodeURIComponent(file.pathname.split('/src/').at(-1) ?? file.pathname);
+  const pathname = decodeURIComponent(file.pathname);
+  const marker = '/src/';
+  const index = pathname.lastIndexOf(marker);
+  return index >= 0 ? pathname.slice(index + marker.length) : pathname;
 }
 
 describe('couverture anglaise des textes UI historiques', () => {
