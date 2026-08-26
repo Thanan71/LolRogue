@@ -87,25 +87,25 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.12.1",
-    "@biomejs/biome": "2.5.7",
+    "@axe-core/playwright": "^4.13.0",
+    "@biomejs/biome": "2.5.10",
     "@playwright/test": "1.62.1",
-    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.3",
-    "@types/node": "24.13.3",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/node": "25.9.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "6.0.5",
-    "@vitest/coverage-v8": "4.1.10",
+    "@vitejs/plugin-react": "6.1.0",
+    "@vitest/coverage-v8": "4.1.11",
     "autoprefixer": "^10.4.27",
     "esbuild-authority": "npm:esbuild@0.25.0",
     "jsdom": "^30.0.1",
-    "postcss": "^8.5.25",
-    "supabase": "2.111.0",
+    "postcss": "^8.5.26",
+    "supabase": "2.115.0",
     "tailwindcss": "^4.2.2",
     "typescript": "^7.0.2",
-    "vite": "8.2.0",
-    "vitest": "4.1.10"
+    "vite": "8.2.2",
+    "vitest": "4.1.11"
   }
 }
