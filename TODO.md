@@ -3,6 +3,10 @@
 Dernier réaudit : **13 août 2026** (passe UI de la carte et du combat, puis audit
 complet de l'équilibrage combat/progression/économie).
 
+Mise à jour ciblée : **26 août 2026** — ajout d'un correctif d'équilibrage urgent pour
+sortir les cohortes authority du blocage early Top sans absorber le tuning structurel
+P1, et ajout du système de notes de mise à jour côté produit.
+
 Ce fichier remplace l'ancien TODO historique. Son snapshot exact est conservé dans
 [`docs/archive/todo-snapshot-2026-08-08-1837.md`](docs/archive/todo-snapshot-2026-08-08-1837.md).
 
@@ -531,6 +535,58 @@ différents.
 Chaque rang d'augment doit avoir une valeur attendue strictement supérieure au rang
 précédent sans rendre l'économie dominante. La distribution de drops observée sur
 10 000 tirages doit rester dans la tolérance de la table et respecter les gates biome.
+
+---
+
+## P0-BAL-05 — Débloquer l'early Top avant le tuning structurel
+
+**Taille : M**  
+**Risque : élevé — les cohortes authority ne sont pas exploitables pour le tuning fin
+si la run meurt quasi systématiquement dans les premiers encounters.**
+
+### Signal actuel à traiter
+
+Les cohortes courantes remontent un symptôme bloquant : taux de victoire de run à
+0 % dans le scénario concerné et mortalité concentrée dans les trois premiers
+encounters `top_lane`. Ce ticket est volontairement un **correctif de stabilisation** :
+il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
+(courbe complète de carte et économie).
+
+### Actions
+
+- [ ] Capturer avant tout changement une cohorte authority reproductible et les seeds
+  extrêmes démontrant le 0 % de victoire et les morts early Top ; conserver le diff
+  comme preuve plutôt que de tuner à partir d'un ressenti.
+- [ ] Recalibrer en premier le budget de formation de départ (`enemyFormationMultiplier`)
+  et la puissance des encounters `top_*`, en ciblant particulièrement les élites ;
+  éviter un nerf global de tous les biomes tant que le problème reste localisé.
+- [ ] Mesurer ensuite l'affordability early ; si elle contribue au blocage, augmenter
+  modérément l'or des premiers encounters et/ou réduire les prix des consommables et
+  boots d'entrée de gamme sans réintroduire le snowball fermé par `P0-BAL-04`.
+- [ ] N'appliquer un léger buff de survie aux starters (par exemple Garen/Ashe) que si
+  le diff après formation + encounters + économie laisse encore un outlier individuel ;
+  chaque buff doit être mesuré séparément.
+- [ ] Ne pas buff Warwick dans ce correctif avant la correction de son E et de l'IA
+  prévue par `P1-BAL-01`, sauf preuve de cohorte contredisant explicitement cette gate.
+- [ ] Ne pas retoucher les tables d'augments ou de drops de `P0-BAL-04` pour compenser
+  un early trop dur.
+- [ ] Si le changement modifie un contrat rejouable/authority, publier la version
+  gameplay/engine nécessaire, régénérer le bundle et la baseline sans réécrire les
+  archives historiques.
+- [ ] Relancer les cohortes Easy/Normal/Hard et par starter après chaque lot logique ;
+  conserver taux de victoire, encounter de mort, PV/MP, or et affordability avant/après.
+
+### Acceptation de sortie du blocage
+
+- la cohorte de run concernée n'est plus à 0 % de victoire ;
+- Easy atteint au moins une **zone de travail préliminaire de 25–30 %** de victoire
+  pour permettre le tuning suivant ; ce seuil n'est pas la cible finale de difficulté ;
+- la mort n'est plus quasi systématique dans les trois premiers encounters Top ;
+- aucun starter ne reste à 0 % sur les premiers combats de la cohorte ciblée ;
+- le correctif ne casse ni la parité Daily de `P0-BAL-03`, ni la hiérarchie
+  augments/drops et le contrôle du snowball de `P0-BAL-04` ;
+- les gates finales de `P0-BAL-02` restent la référence avant de déclarer
+  l'équilibrage mesuré acceptable.
 
 ---
 
@@ -1231,6 +1287,55 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 ---
 
+## P3-PROD-05 — Notes de mise à jour et nouveautés depuis la dernière visite
+
+**Taille : M**  
+**Objectif : rendre visibles les changements joueur sans exposer le bruit des commits
+techniques ni afficher une modale à chaque déploiement.**
+
+### Contrat produit
+
+- une patch note possède un identifiant/version de publication explicite et une date ;
+- plusieurs PR/commits peuvent être regroupés dans une même publication ;
+- un déploiement ou un nouveau SHA **sans** nouvelle patch note ne doit rien afficher ;
+- les textes décrivent l'impact joueur (« Normal démarre avec 2 champions »), pas les
+  détails internes (« normalize ranked starter budget »).
+
+### Actions
+
+- [ ] Ajouter une source versionnée de patch notes dans le code avec catégories
+  `Nouveau`, `Équilibrage` et `Correctifs`, titre, date, version et entrées lisibles.
+- [ ] Ajouter une page permanente `/patch-notes` consultable depuis le menu, avec
+  historique et filtres/catégories sans dépendre d'une modale.
+- [ ] Afficher au retour au menu principal un résumé **non bloquant** uniquement si une
+  publication plus récente que la dernière vue existe ; regrouper plusieurs versions
+  non lues au lieu d'enchaîner plusieurs popups.
+- [ ] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
+  « Marquer comme lu ».
+- [ ] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
+  clé versionnée et un fallback sûr si le stockage navigateur est indisponible.
+- [ ] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
+  d'éviter de réafficher la même note sur un autre appareil ; ne pas détourner
+  `last_login_at`, qui est mis à jour lors de l'établissement de session.
+- [ ] Prévoir un fallback local si la persistance serveur de l'état « lu » est
+  momentanément indisponible ; une erreur de patch notes ne doit jamais bloquer Auth,
+  Menu, reprise ou lancement d'une run.
+- [ ] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
+  reduced motion et petits écrans ; ne jamais ouvrir la modale au milieu d'une run.
+- [ ] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
+  version déjà lue, nouvelle version, invité, compte connecté et simple redéploiement.
+
+### Acceptation
+
+- une nouvelle publication apparaît une fois au prochain retour pertinent puis reste
+  accessible dans l'historique ;
+- un utilisateur connecté ne revoit pas la même publication sur un second appareil ;
+- un invité ne la revoit pas dans le même profil navigateur après l'avoir marquée lue ;
+- aucun SHA/déploiement sans nouvelle publication ne déclenche l'UI ;
+- le système reste non bloquant et accessible sur desktop/mobile/clavier.
+
+---
+
 ## P3-A11Y-01 — Validation humaine avant bêta
 
 **Taille : M**
@@ -1273,6 +1378,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
 8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
+9 bis. [ ] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
 10. [ ] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
 11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
 12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.
@@ -1321,6 +1427,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 38. [ ] `P3-PROD-02` internationalisation anglaise.
 39. [ ] `P3-PROD-03` décision PWA/offline.
 40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
+40 bis. [ ] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
 
 ## Sprint H — validations humaines et externes
 
@@ -1354,6 +1461,7 @@ La bêta technique ne redevient candidate que lorsque :
   candidats, au lieu de parcourir synthétiquement tous les nœuds ;
 - [ ] Daily officiel déterministe et identique entre un compte neuf et un compte maxé ;
 - [ ] aucun starter à 0 % sur les premiers combats de la cohorte de release ;
+- [ ] la cohorte de release n'est plus bloquée à 0 % de victoire par l'early Top ;
 - [ ] distributions augments/drops et rendements économiques dans les tolérances
   versionnées de la baseline ;
 - [x] règles cooldown/MP/ciblage/Electrocute couvertes en parité UI + authority ;
