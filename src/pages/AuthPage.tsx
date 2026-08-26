@@ -8,12 +8,14 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
+import { type Language, useSettingsStore } from '@/stores/settingsStore';
 import '@/styles/auth.css';
 
 type AuthMode = 'login' | 'signup';
 
 export function AuthPage() {
   const navigate = useAppNavigate();
+  const settings = useSettingsStore();
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -159,6 +161,22 @@ export function AuthPage() {
                 ? 'Connecte-toi pour retrouver ta progression.'
                 : 'Enregistre tes runs et ta progression.'}
             </p>
+            <div className="auth-page__language">
+              <label className="auth-page__label" htmlFor="auth-language">
+                {fr.settings.language}
+              </label>
+              <select
+                id="auth-language"
+                value={settings.language}
+                onChange={(event) => {
+                  settings.setLanguage(event.target.value as Language);
+                  window.location.reload();
+                }}
+              >
+                <option value="fr-FR">{fr.settings.french}</option>
+                <option value="en-US">{fr.settings.english}</option>
+              </select>
+            </div>
           </div>
 
           {!isSupabaseConfigured && (
