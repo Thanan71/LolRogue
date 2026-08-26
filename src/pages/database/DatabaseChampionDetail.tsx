@@ -4,6 +4,7 @@ import {
   isSpellCombatReady,
   UNAVAILABLE_COMBAT_DESCRIPTION,
 } from '@/game/battle/combatContentSupport';
+import { localizeChampion } from '@/i18n/content';
 import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import type { Champion } from '@/types/champion';
@@ -12,6 +13,7 @@ import { gameStatsAtLevel } from '@/utils/statConversion';
 import { stripMarkup } from '@/utils/text';
 
 export function DatabaseChampionDetail({ champion }: { champion: Champion }) {
+  champion = localizeChampion(champion);
   const gameStats = gameStatsAtLevel(champion.stats, 1);
   const splashUrl = DDRAGON_CONFIG.championSplashUrl(champion.id);
 

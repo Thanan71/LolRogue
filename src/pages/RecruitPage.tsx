@@ -6,6 +6,7 @@ import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { localizeUserCopy } from '@/i18n/content';
 import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
@@ -245,7 +246,9 @@ export function RecruitPage() {
               </div>
             </div>
             <div className="recruit-page__description">
-              {encounter?.description ?? 'Un champion sauvage se présente à ton équipe.'}
+              {localizeUserCopy(
+                encounter?.description ?? 'Un champion sauvage se présente à ton équipe.',
+              )}
             </div>
             <div className="recruit-page__cost">
               Coût : {encounter?.cost ?? 0} {fr.common.gold}

@@ -4,12 +4,8 @@ import { Button, Field, PageHeader, PageShell, Panel, StateView, TextInput } fro
 import { ROUTES } from '@/config/routes';
 import { fr } from '@/i18n/fr';
 
-const RULES = [
-  {
-    category: 'Boucle',
-    title: '1. Choisir',
-    body: 'Compose une équipe et sélectionne jusqu’à trois runes. Chaque description annonce son déclencheur et sa valeur avant validation.',
-  },
+const RULES = fr.rules.entries.map(([category, title, body]) => ({ category, title, body }));
+/*
   {
     category: 'Boucle',
     title: '2. Avancer',
@@ -81,6 +77,7 @@ const RULES = [
     body: 'Même graine, carte, difficulté et score pour tous pendant la journée UTC. Un compte connecté est requis pour le classement en ligne vérifié.',
   },
 ] as const;
+*/
 
 export function RulesPage() {
   const navigate = useNavigate();

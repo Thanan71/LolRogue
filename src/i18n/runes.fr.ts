@@ -1,3 +1,6 @@
+import { locale } from './fr';
+import { runeDescriptionEn, runeNameEn } from './runes.en';
+
 const RUNE_NAMES_FR: Readonly<Record<string, string>> = {
   press_the_attack: 'Attaque soutenue',
   triumph: 'Triomphe',
@@ -23,5 +26,9 @@ const RUNE_NAMES_FR: Readonly<Record<string, string>> = {
 };
 
 export function runeNameFr(runeId: string, fallback = runeId): string {
-  return RUNE_NAMES_FR[runeId] ?? fallback;
+  return locale === 'en-US' ? runeNameEn(runeId, fallback) : (RUNE_NAMES_FR[runeId] ?? fallback);
+}
+
+export function runeDescription(runeId: string, fallback: string): string {
+  return locale === 'en-US' ? runeDescriptionEn(runeId, fallback) : fallback;
 }

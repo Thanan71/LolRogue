@@ -8,6 +8,7 @@ import { calculateRunMemberMaxHp, calculateRunMemberMaxMp } from '@/game/run/run
 import { resolveRestHp, resolveRestMp } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { localizeUserCopy } from '@/i18n/content';
 import { fr } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -176,7 +177,9 @@ export function RestPage() {
         <div className="rest__icon" aria-hidden="true">
           ◇
         </div>
-        <div className="rest__description">{encounter?.description ?? fr.encounter.respite}</div>
+        <div className="rest__description">
+          {localizeUserCopy(encounter?.description ?? fr.encounter.respite)}
+        </div>
 
         <div className="rest__summary">
           {fullHeal ? (

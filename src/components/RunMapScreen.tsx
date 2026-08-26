@@ -9,6 +9,7 @@ import { findNode } from '@/game/map/mapUtils';
 import { NodeType } from '@/game/map/types';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { augmentDescription, augmentName } from '@/i18n/content';
 import { fr } from '@/i18n/fr';
 import { runeNameFr } from '@/i18n/runes.fr';
 import { useRunStore } from '@/stores/runStore';
@@ -303,7 +304,9 @@ export function RunMapScreen() {
                   <span className="run-map-loadout__chips">
                     {augmentIds.length > 0
                       ? augmentIds.map((id, index) => (
-                          <span key={`${id}-${index}`}>{AUGMENT_DATABASE[id]?.name ?? id}</span>
+                          <span key={`${id}-${index}`}>
+                            {augmentName(id, AUGMENT_DATABASE[id]?.name ?? id)}
+                          </span>
                         ))
                       : 'Aucun'}
                   </span>
@@ -327,8 +330,9 @@ export function RunMapScreen() {
                     onClick={() => chooseAugment(id)}
                     className="run-map-choice-button"
                   >
-                    <strong>{augment?.name ?? id}</strong> — Effet avant validation :{' '}
-                    {augment?.description}
+                    <strong>{augmentName(id, augment?.name ?? id)}</strong> —{' '}
+                    {fr.run.effectBeforeValidation}:{' '}
+                    {augmentDescription(id, augment?.description ?? '')}
                   </button>
                 );
               })}
