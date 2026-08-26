@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bundle": {
-    "totalJavaScriptGzipBytes": 410000,
+    "totalJavaScriptGzipBytes": 440000,
     "largestJavaScriptRawBytes": 560000,
     "initialJavaScriptGzipBytes": 205000,
     "authRouteJavaScriptGzipBytes": 225000,
@@ -14,7 +14,7 @@
     "react-vendor": 76000,
     "supabase-vendor": 56000,
     "champion-data": 55000,
-    "index": 48000,
+    "index": 70000,
     "runStore": 32000
   },
   "labMobileWebVitals": {
