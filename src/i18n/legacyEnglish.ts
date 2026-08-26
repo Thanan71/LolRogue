@@ -101,7 +101,6 @@ const EXACT_TRANSLATIONS: Readonly<Record<string, string>> = {
   'Compose ton équipe': 'Build your team',
   Équipe: 'Team',
   Runes: 'Runes',
-  Départ: 'Start',
   'Sélectionne un champion pour continuer': 'Select a champion to continue',
   'Chargement du défi…': 'Loading challenge…',
   'Vérification…': 'Verifying…',
@@ -208,6 +207,7 @@ const REPLACEMENTS: readonly [RegExp, string][] = [
   [/^Niv\. (\d+)$/u, 'Lv. $1'],
   [/^Niv (\d+)\/(\d+)$/u, 'Lv. $1/$2'],
   [/^(\d+) objets$/u, '$1 items'],
+  [/^(\d+) or\b/u, '$1 gold'],
   [/^Emplacement (\d+) vide$/u, 'Empty slot $1'],
   [/^Emplacement (\d+) : /u, 'Slot $1: '],
   [/^Équipé · /u, 'Equipped · '],
@@ -324,8 +324,6 @@ const WORD_REPLACEMENTS: readonly [RegExp, string][] = [
   [/\bmaximum\b/gu, 'maximum'],
   [/\bsoins\b/gu, 'healing'],
   [/\bsoin\b/gu, 'heal'],
-  [/\bOr\b/gu, 'Gold'],
-  [/\bor\b/gu, 'gold'],
 ];
 
 function preserveOuterWhitespace(original: string, translated: string): string {
