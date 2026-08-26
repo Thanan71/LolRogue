@@ -5,6 +5,7 @@ import { RouteLoadingFallback } from './components/AppErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
+import { installLegacyEnglishDomTranslation } from './i18n/legacyEnglish';
 import { useSettingsStore } from './stores/settingsStore';
 import { installGlobalErrorCapture } from './utils/observability';
 
@@ -160,6 +161,10 @@ export default function App() {
 
   useEffect(() => {
     return installGlobalErrorCapture();
+  }, []);
+
+  useEffect(() => {
+    return installLegacyEnglishDomTranslation();
   }, []);
 
   useEffect(() => {
