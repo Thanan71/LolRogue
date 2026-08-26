@@ -179,7 +179,9 @@ export function CombatStage({
     >
       <div className="combat-stage__scrim" aria-hidden="true" />
       <div className="combat-stage__topline">
-        <span>{fr.combat.round} {round}</span>
+        <span>
+          {fr.combat.round} {round}
+        </span>
         <strong>
           {visualEvent
             ? sourceSide === 'player'

@@ -133,11 +133,7 @@ export function MenuPage() {
               <h2 id="expedition-title">
                 {isActive ? fr.menu.expeditionWaiting : fr.menu.prepareAscension}
               </h2>
-              <p>
-                {isActive
-                  ? fr.menu.resumeOrNewTeam
-                  : fr.menu.composeTeam}
-              </p>
+              <p>{isActive ? fr.menu.resumeOrNewTeam : fr.menu.composeTeam}</p>
             </div>
 
             {isActive && (
