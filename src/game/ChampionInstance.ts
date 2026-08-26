@@ -7,6 +7,7 @@
  */
 
 import type { Champion, ChampionStats, ChampionTag, Passive, Spell } from '@/types';
+import { localizeChampion } from '@/i18n/content';
 import type { EnhancementStatBonuses } from '@/types/enhancementTree';
 import { type CalculatedStats, calculateStats } from '@/utils/champion';
 import {
@@ -47,6 +48,7 @@ export class ChampionInstance {
   private _masteryLevel = 0;
 
   constructor(champion: Champion, startingLevel = 1, statMultiplier = 1) {
+    champion = localizeChampion(champion);
     this.id = champion.id;
     this.key = champion.key;
     this.name = champion.name;

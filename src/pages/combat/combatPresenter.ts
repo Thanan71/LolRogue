@@ -1,4 +1,5 @@
 import { championDB } from '@/data';
+import { localizeUserCopy } from '@/i18n/content';
 import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -89,8 +90,8 @@ export function getEnhancementDescriptions(championId: string): string[] {
     if (effect.description) {
       descriptions.push(
         UNAVAILABLE_ENHANCEMENT_EFFECTS.has(effect.type)
-          ? `${effect.description} (indisponible)`
-          : effect.description,
+          ? `${localizeUserCopy(effect.description)} (indisponible)`
+          : localizeUserCopy(effect.description),
       );
     }
   }

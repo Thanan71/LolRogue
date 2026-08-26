@@ -12,6 +12,7 @@ import {
   STAT_LABELS,
 } from '@/game/stats/statContract';
 import { fr } from '@/i18n/fr';
+import { localizeUserCopy } from '@/i18n/content';
 import { enhancementService } from '@/services/enhancementService';
 import type { Champion } from '@/types/champion';
 import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';
@@ -89,7 +90,9 @@ export function EnhancementTree({
     <div className="enhancement-tree" aria-busy={isLoading}>
       <div className="enhancement-tree-header">
         <div>
-          <h3 className="enhancement-tree-title">Arbre d'Amélioration - {champion.name}</h3>
+          <h3 className="enhancement-tree-title">
+            {localizeUserCopy("Arbre d'Amélioration -")} {champion.name}
+          </h3>
           <div className="enhancement-info">
             <span className="candy-badge">{playerCandies} 🍬</span>
             <span className="level-badge">Maîtrise: Niveau {masteryLevel}</span>
@@ -155,8 +158,8 @@ export function EnhancementTree({
           <div key={branch.id} className="branch-content">
             <div className={`branch-header branch-header--${branch.theme}`}>
               <span>{BRANCH_THEME_ICONS[branch.theme]}</span>
-              <span>{branch.name}</span>
-              <span className="branch-description">{branch.description}</span>
+              <span>{localizeUserCopy(branch.name)}</span>
+              <span className="branch-description">{localizeUserCopy(branch.description)}</span>
             </div>
             <div className="branch-nodes">
               {branch.nodes.map((node, index) => {
@@ -225,8 +228,8 @@ function NodeCard({
 
   // Build tooltip text that includes the lock reason if applicable
   const getTooltip = () => {
-    let tooltip = node.name;
-    if (node.description) tooltip += `\n${node.description}`;
+    let tooltip = localizeUserCopy(node.name);
+    if (node.description) tooltip += `\n${localizeUserCopy(node.description)}`;
     if (!canUnlock && lockReason) {
       tooltip += `\n\n🔒 ${lockReason.message}`;
       if (lockReason.details) tooltip += `\n${lockReason.details}`;
@@ -244,7 +247,7 @@ function NodeCard({
         <span className="node-name">{node.name}</span>
         {isUltimate && <span className="ultimate-badge">{fr.enhancement.ultimate}</span>}
       </div>
-      <div className="node-description">{node.description}</div>
+      <div className="node-description">{localizeUserCopy(node.description)}</div>
 
       {node.statBonuses && Object.entries(node.statBonuses).length > 0 && (
         <div className="node-stat-bonuses">

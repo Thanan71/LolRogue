@@ -91,15 +91,11 @@ export function LegalPage() {
             className="document-page__section"
             aria-labelledby="mentions-legales-title"
           >
-            <SectionHeading
-              index={1}
-              title={legalFr.legalNotice.title}
-              id="mentions-legales-title"
-            />
-            <Paragraphs values={legalFr.legalNotice.paragraphs} />
+            <SectionHeading index={1} title={legal.legalNotice.title} id="mentions-legales-title" />
+            <Paragraphs values={legal.legalNotice.paragraphs} />
             <p className="document-page__resource-link">
               <a href="https://github.com/Thanan71/LolRogue">
-                {legalFr.legalNotice.repository}
+                {legal.legalNotice.repository}
                 <span aria-hidden="true">↗</span>
               </a>
             </p>
@@ -110,12 +106,8 @@ export function LegalPage() {
             className="document-page__section"
             aria-labelledby="conditions-utilisation-title"
           >
-            <SectionHeading
-              index={2}
-              title={legalFr.terms.title}
-              id="conditions-utilisation-title"
-            />
-            <Paragraphs values={legalFr.terms.paragraphs} />
+            <SectionHeading index={2} title={legal.terms.title} id="conditions-utilisation-title" />
+            <Paragraphs values={legal.terms.paragraphs} />
           </Panel>
 
           <Panel
@@ -123,29 +115,29 @@ export function LegalPage() {
             className="document-page__section"
             aria-labelledby="confidentialite-title"
           >
-            <SectionHeading index={3} title={legalFr.privacy.title} id="confidentialite-title" />
-            <Paragraphs values={legalFr.privacy.paragraphs} />
+            <SectionHeading index={3} title={legal.privacy.title} id="confidentialite-title" />
+            <Paragraphs values={legal.privacy.paragraphs} />
             <h3>{legal.metadata.retention}</h3>
             <dl className="legal-page__retention-list">
               <div>
-                <dt>{legalFr.privacy.dailyPublic}</dt>
+                <dt>{legal.privacy.dailyPublic}</dt>
                 <dd>{`${PRIVACY_RETENTION.publicDailyLeaderboardMonths} ${locale === 'en-US' ? 'months' : 'mois'} ${legal.privacy.maximum}`}</dd>
               </div>
               <div>
-                <dt>{legalFr.privacy.diagnosticLogs}</dt>
+                <dt>{legal.privacy.diagnosticLogs}</dt>
                 <dd>{`${PRIVACY_RETENTION.diagnosticLogDays} ${locale === 'en-US' ? 'days' : 'jours'} ${legal.privacy.maximum}`}</dd>
               </div>
               <div>
-                <dt>{legalFr.privacy.reviewedReports}</dt>
+                <dt>{legal.privacy.reviewedReports}</dt>
                 <dd>{`${PRIVACY_RETENTION.reviewedModerationReportMonths} ${locale === 'en-US' ? 'months' : 'mois'}`}</dd>
               </div>
               <div>
-                <dt>{legalFr.privacy.accountData}</dt>
-                <dd>{PRIVACY_RETENTION.accountData}</dd>
+                <dt>{legal.privacy.accountData}</dt>
+                <dd>{legal.accountRetention}</dd>
               </div>
               <div>
-                <dt>{legalFr.privacy.guestData}</dt>
-                <dd>{PRIVACY_RETENTION.guestData}</dd>
+                <dt>{legal.privacy.guestData}</dt>
+                <dd>{legal.guestRetention}</dd>
               </div>
             </dl>
           </Panel>
@@ -155,14 +147,14 @@ export function LegalPage() {
             className="document-page__section"
             aria-labelledby="stockage-local-title"
           >
-            <SectionHeading index={4} title={legalFr.storage.title} id="stockage-local-title" />
-            <p>{legalFr.storage.intro}</p>
+            <SectionHeading index={4} title={legal.storage.title} id="stockage-local-title" />
+            <p>{legal.storage.intro}</p>
             <ul className="legal-page__purpose-list">
               {legal.storagePurposes.map((purpose) => (
                 <li key={purpose}>{purpose}</li>
               ))}
             </ul>
-            <p>{legalFr.storage.telemetry}</p>
+            <p>{legal.storage.telemetry}</p>
           </Panel>
 
           <Panel
@@ -170,8 +162,8 @@ export function LegalPage() {
             className="document-page__section"
             aria-labelledby="droits-utilisateur-title"
           >
-            <SectionHeading index={5} title={legalFr.rights.title} id="droits-utilisateur-title" />
-            <Paragraphs values={legalFr.rights.paragraphs} />
+            <SectionHeading index={5} title={legal.rights.title} id="droits-utilisateur-title" />
+            <Paragraphs values={legal.rights.paragraphs} />
           </Panel>
 
           <Panel
@@ -179,12 +171,12 @@ export function LegalPage() {
             className="document-page__section document-page__section--notice"
             aria-labelledby="riot-games-title"
           >
-            <SectionHeading index={6} title={legalFr.riot.title} id="riot-games-title" />
+            <SectionHeading index={6} title={legal.riot.title} id="riot-games-title" />
             <p className="legal-page__riot-notice">{legal.riotNotice}</p>
-            <p>{legalFr.riot.detail}</p>
+            <p>{legal.riot.detail}</p>
             <p className="document-page__resource-link">
               <a href="https://www.riotgames.com/en/legal">
-                {legalFr.riot.officialPolicy}
+                {legal.riot.officialPolicy}
                 <span aria-hidden="true">↗</span>
               </a>
             </p>

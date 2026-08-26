@@ -5,6 +5,7 @@ export const en = {
   },
   common: {
     back: '← Back',
+    equip: 'Equip',
     backToMenu: 'Back to menu',
     continue: 'Continue',
     loading: 'Loading…',

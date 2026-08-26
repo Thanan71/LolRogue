@@ -7,6 +7,7 @@ const french = {
   },
   common: {
     back: '← Retour',
+    equip: 'Équiper',
     backToMenu: 'Retour au menu',
     continue: 'Continuer',
     loading: 'Chargement…',

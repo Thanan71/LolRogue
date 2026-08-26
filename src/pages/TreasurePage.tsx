@@ -4,7 +4,7 @@ import { EncounterLayout } from '@/components/EncounterLayout';
 import { ROUTES } from '@/config/routes';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { itemDescription, itemName } from '@/i18n/content';
+import { itemDescription, itemName, localizeUserCopy } from '@/i18n/content';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/treasure.css';
@@ -129,7 +129,7 @@ export function TreasurePage() {
               {encounter?.name ?? fr.encounter.treasureFound}
             </h2>
             <p className="treasure-page__description">
-              {encounter?.description ?? fr.encounter.treasureAwaits}
+              {localizeUserCopy(encounter?.description ?? fr.encounter.treasureAwaits)}
             </p>
             <div className="treasure-page__preview">
               <div className="treasure-page__preview-item">

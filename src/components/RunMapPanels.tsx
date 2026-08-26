@@ -7,6 +7,7 @@ import {
   STAT_LABELS,
 } from '@/game/stats/statContract';
 import { fr } from '@/i18n/fr';
+import { championName, itemDescription, itemName } from '@/i18n/content';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -290,7 +291,7 @@ export function InventoryPanel({
                     type="button"
                     onClick={() => equipItem(entry.instanceId, member.championId)}
                   >
-                    Équiper {championDB.getById(member.championId)?.name ?? member.championId}
+                    {fr.common.equip} {championName(member.championId)}
                   </button>
                   {getEquipPreview(entry, member).map(({ stat, before, after }) => (
                     <div key={stat} className="run-map-inventory-preview">
@@ -307,8 +308,7 @@ export function InventoryPanel({
           </div>
           {entry.equippedToChampionId && (
             <div className="run-map-inventory-item__equipped">
-              Équipé :{' '}
-              {championDB.getById(entry.equippedToChampionId)?.name ?? entry.equippedToChampionId}
+              Équipé : {championName(entry.equippedToChampionId)}
             </div>
           )}
         </article>
@@ -321,9 +321,13 @@ export function InventoryPanel({
           role="tooltip"
           className="run-map-item-tooltip"
         >
-          <div className="run-map-item-tooltip__title">{hoveredEntry.item.name}</div>
+          <div className="run-map-item-tooltip__title">
+            {itemName(hoveredEntry.item.id, hoveredEntry.item.name)}
+          </div>
           {hoveredEntry.item.description && (
-            <div className="run-map-item-tooltip__description">{hoveredEntry.item.description}</div>
+            <div className="run-map-item-tooltip__description">
+              {itemDescription(hoveredEntry.item.id, hoveredEntry.item.description)}
+            </div>
           )}
           {Object.entries(hoveredEntry.item.stats).length > 0 && (
             <div className="run-map-item-tooltip__stats">

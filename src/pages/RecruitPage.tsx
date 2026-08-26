@@ -8,6 +8,7 @@ import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
+import { localizeUserCopy } from '@/i18n/content';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/recruit.css';
 
@@ -245,7 +246,9 @@ export function RecruitPage() {
               </div>
             </div>
             <div className="recruit-page__description">
-              {encounter?.description ?? 'Un champion sauvage se présente à ton équipe.'}
+              {localizeUserCopy(
+                encounter?.description ?? 'Un champion sauvage se présente à ton équipe.',
+              )}
             </div>
             <div className="recruit-page__cost">
               Coût : {encounter?.cost ?? 0} {fr.common.gold}

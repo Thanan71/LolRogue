@@ -9,6 +9,7 @@ import {
   STAT_LABELS,
 } from '@/game/stats/statContract';
 import { fr } from '@/i18n/fr';
+import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -52,7 +53,8 @@ function matchesFilter(entry: InventoryEntry, filter: InventoryFilter): boolean 
 }
 
 function getChampionName(championId: string): string {
-  return championDB.getById(championId)?.name ?? championId;
+  const champion = championDB.getById(championId);
+  return champion ? localizeChampion(champion).name : championId;
 }
 
 function getEquipmentFailureLabel(code: string): string {
@@ -461,13 +463,15 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
           <header className="run-inventory-detail__header">
             <InventoryImage
               src={selectedEntry.item.iconUrl}
-              name={selectedEntry.item.name}
+              name={itemName(selectedEntry.item.id, selectedEntry.item.name)}
               kind="item"
             />
             <div>
               <span className="run-inventory__eyebrow">Objet sélectionné</span>
-              <h3 id={`${detailsId}-title`}>{selectedEntry.item.name}</h3>
-              <p>{selectedEntry.item.description}</p>
+              <h3 id={`${detailsId}-title`}>
+                {itemName(selectedEntry.item.id, selectedEntry.item.name)}
+              </h3>
+              <p>{itemDescription(selectedEntry.item.id, selectedEntry.item.description)}</p>
             </div>
             <button
               type="button"

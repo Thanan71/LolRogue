@@ -9,6 +9,7 @@ import { resolveRestHp, resolveRestMp } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { fr } from '@/i18n/fr';
+import { localizeUserCopy } from '@/i18n/content';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
@@ -176,7 +177,9 @@ export function RestPage() {
         <div className="rest__icon" aria-hidden="true">
           ◇
         </div>
-        <div className="rest__description">{encounter?.description ?? fr.encounter.respite}</div>
+        <div className="rest__description">
+          {localizeUserCopy(encounter?.description ?? fr.encounter.respite)}
+        </div>
 
         <div className="rest__summary">
           {fullHeal ? (
