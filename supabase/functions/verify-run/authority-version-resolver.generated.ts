@@ -259,10 +259,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 11,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-07-automatic-trace-suffix-v11",
     "contentHash": "fb444c977d765c0756951b5e81c61fec72112b0bca8e19e2dd3cda3c848d24df",
-    "bundle": "supabase/functions/verify-run/run-authority-v11.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v11.bundle.ts",
     "migration": "supabase/migrations/20260731150000_gameplay_ruleset_v11_automatic_trace_suffix.sql",
     "features": {
       "canonicalProgression": true,
@@ -284,10 +284,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 12,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-canonical-stats-v12",
     "contentHash": "2fa891690cfb0f1ae5ce4753de10ce690e3fb4163fde53b4c484984377eb2094",
-    "bundle": "supabase/functions/verify-run/run-authority-v12.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v12.bundle.ts",
     "migration": "supabase/migrations/20260801090000_gameplay_ruleset_v12_canonical_stats.sql",
     "features": {
       "canonicalProgression": true,
@@ -309,10 +309,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 13,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-content-balance-v13",
     "contentHash": "b199f8a3573e2e579ddd6ea508a048e7066b864a32ef9b38c27e8ef6b2350fb1",
-    "bundle": "supabase/functions/verify-run/run-authority-v13.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v13.bundle.ts",
     "migration": "supabase/migrations/20260808120000_gameplay_ruleset_v13_content_balance.sql",
     "features": {
       "canonicalProgression": true,
@@ -431,13 +431,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
 ] as const;
 
 const verifierLoaders = {
-  "run-engine-v11": () => import("./run-authority-v11.bundle.ts"), // loader-0
-  "run-engine-v12": () => import("./run-authority-v12.bundle.ts"), // loader-1
-  "run-engine-v13": () => import("./run-authority-v13.bundle.ts"), // loader-2
-  "run-engine-v14": () => import("./run-authority-v14.bundle.ts"), // loader-3
-  "run-engine-v15": () => import("./run-authority-v15.bundle.ts"), // loader-4
-  "run-engine-v16": () => import("./run-authority-v16.bundle.ts"), // loader-5
-  "run-engine-v17": () => import("./run-authority.bundle.js"), // loader-6
+  "run-engine-v14": () => import("./run-authority-v14.bundle.ts"), // loader-0
+  "run-engine-v15": () => import("./run-authority-v15.bundle.ts"), // loader-1
+  "run-engine-v16": () => import("./run-authority-v16.bundle.ts"), // loader-2
+  "run-engine-v17": () => import("./run-authority.bundle.js"), // loader-3
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {
