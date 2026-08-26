@@ -1,0 +1,70 @@
+> Ticket d'équilibrage d'urgence issu des cohortes authority v17.
+
+## P0-BAL-05 — Débloquer l'early game (urgence cohorte 0 % win rate)
+
+**Taille : M**
+**Risque : élevé — 0 % de win rate sur toutes les cohortes `survival-greedy` (easy/normal/hard, 1000 samples).**
+
+### Problème vérifié (cohortes authority v17)
+
+Les rapports `authority-cohort-report` et `authority-cohort-extreme-traces` montrent :
+
+- win rate = 0 % sur **toutes** les strates (easy/normal/hard, duo/solo/trio, mastery/runes/enhancements) ;
+- p50 biomes = 1, p50 waves = 1–2 ;
+- 70–85 % des morts concentrées sur les 6 encounters `top_darius`, `top_darius_elite`, `top_garen`, `top_garen_elite`, `top_warwick`, `top_warwick_elite` ;
+- gold earned p50 ≈ 42–47, gold spent p50 = 0 (le joueur n'achète presque jamais) ;
+- les runs meurent avant d'avoir le moindre power spike (shop / augment / recrutement utile).
+
+Ce ticket est un **correctif d'urgence** complémentaire à `P1-BAL-01` / `P1-BAL-02`. Il ne les remplace pas : il doit sortir Easy de 0 % avant le tuning structurel (AoE, CC, IA, courbe biome complète).
+
+### Actions prioritaires
+
+#### Difficulté early
+- [ ] Baisser `enemyFormationMultiplier` des starters : solo 1.00 → 0.90, duo 1.55 → 1.25, trio 2.00 → 1.60.
+- [ ] Nerf ciblé des 6 encounters top_lane les plus meurtriers :
+  - `top_darius` : −12 % HP, −8 % AD ;
+  - `top_darius_elite` : −15 % HP, −10 % AD, −1 tour de CC ;
+  - `top_garen` : −10 % HP, −8 % armor ;
+  - `top_garen_elite` : −14 % HP, −10 % armor ;
+  - `top_warwick` : −10 % HP, −12 % lifesteal ;
+  - `top_warwick_elite` : −15 % HP, −15 % lifesteal, −1 stack.
+- [ ] (Optionnel mais recommandé) Appliquer un multiplicateur de stats ennemi par biome plus doux en early : Top 0.88, Jungle 1.05, Mid 1.20, Bot 1.35, River 1.45, Base 1.60.
+
+#### Économie early
+- [ ] Augmenter le gold des 3 premiers combats : +35 % / +25 % / +15 %, puis +8 % sur les suivants.
+- [ ] Baisser le prix de `health_potion` (~45–50 → 35) et de `boots` (285 → 240).
+- [ ] Augmenter la proba de drop common (+20 %) et uncommon (+15 %, à partir du 2e combat) sur le biome Top uniquement ; conserver le gate rare/epic hors Top.
+
+#### Starters (léger, après les deux blocs ci-dessus)
+- [ ] Garen : +6 % HP max, +4 % armor.
+- [ ] Ashe : +5 % AD, +8 % mana regen.
+- [ ] Soraka (trio) : +10 % healing done.
+- [ ] Ne **pas** nerfer les champions joueurs, runes, enhancements ni augments dans ce ticket.
+
+### Hors scope (volontaire)
+- AoE / CC / IA / ultimes round 3 → reste dans `P1-BAL-01`.
+- Courbe biome complète, shop frequency, trésor, recrutement, repos → reste dans `P1-BAL-02`.
+- Augments / table de rareté globale → déjà traité dans `P0-BAL-04`.
+
+### Validation obligatoire
+- [ ] Relancer les cohortes `survival-greedy` (mêmes seeds, ≥ 500 samples/cellule, idéalement 1000).
+- [ ] Critères de go :
+  - Easy win rate ≥ 25 % ;
+  - p50 biomes Easy ≥ 2.5 ;
+  - part des morts sur les 3 premiers encounters top_lane ≤ 55 %.
+- [ ] Si Easy > 40 %, ne pas continuer à buff : passer à `P1-BAL-01` / `P1-BAL-02`.
+- [ ] Mettre à jour la baseline versionnée et les artefacts extreme traces.
+- [ ] Documenter le diff de cohorte (avant/après) dans la PR.
+
+### Acceptation
+
+Easy n'est plus à 0 % de win rate. Le joueur médian atteint le biome 2 dans au moins ~40 % des runs Easy. Aucune modification de ce ticket ne doit casser les gates déjà fermées de `P0-BAL-01` à `P0-BAL-04`.
+
+### Fichiers / zones (indicatifs)
+
+- budgets / formation starters (`enemyFormationMultiplier` ou équivalent)
+- catalogues encounters `top_*`
+- tables de gold de combat / prix shop early
+- tables de drop early (biome Top)
+- stats de base Garen / Ashe / Soraka si buffs appliqués
+- scripts `balance:cohort` / baseline JSON
