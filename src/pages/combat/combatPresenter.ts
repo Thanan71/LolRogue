@@ -1,6 +1,6 @@
 import { championDB } from '@/data';
-import { localizeUserCopy } from '@/i18n/content';
 import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
+import { localizeUserCopy } from '@/i18n/content';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';

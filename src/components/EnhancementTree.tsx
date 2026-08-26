@@ -11,8 +11,8 @@ import {
   normalizeStatKey,
   STAT_LABELS,
 } from '@/game/stats/statContract';
-import { fr } from '@/i18n/fr';
 import { localizeUserCopy } from '@/i18n/content';
+import { fr } from '@/i18n/fr';
 import { enhancementService } from '@/services/enhancementService';
 import type { Champion } from '@/types/champion';
 import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';

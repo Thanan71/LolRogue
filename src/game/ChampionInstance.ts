@@ -6,8 +6,8 @@
  * Also supports enhancement bonuses from the enhancement tree system.
  */
 
-import type { Champion, ChampionStats, ChampionTag, Passive, Spell } from '@/types';
 import { localizeChampion } from '@/i18n/content';
+import type { Champion, ChampionStats, ChampionTag, Passive, Spell } from '@/types';
 import type { EnhancementStatBonuses } from '@/types/enhancementTree';
 import { type CalculatedStats, calculateStats } from '@/utils/champion';
 import {

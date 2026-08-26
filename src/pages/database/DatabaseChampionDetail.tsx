@@ -4,8 +4,8 @@ import {
   isSpellCombatReady,
   UNAVAILABLE_COMBAT_DESCRIPTION,
 } from '@/game/battle/combatContentSupport';
-import { formatChampionTag } from '@/i18n/format';
 import { localizeChampion } from '@/i18n/content';
+import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import type { Champion } from '@/types/champion';
 import { applyLocalImageFallback } from '@/utils/imageFallback';

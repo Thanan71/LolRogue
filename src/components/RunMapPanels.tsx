@@ -6,8 +6,8 @@ import {
   normalizeStatKey,
   STAT_LABELS,
 } from '@/game/stats/statContract';
-import { fr } from '@/i18n/fr';
 import { championName, itemDescription, itemName } from '@/i18n/content';
+import { fr } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';

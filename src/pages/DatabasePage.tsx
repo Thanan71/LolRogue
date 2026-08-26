@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EnhancementTree } from '@/components/EnhancementTree';
-import { localizeChampion } from '@/i18n/content';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { localizeChampion } from '@/i18n/content';
 import { formatChampionTag, plural } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';

@@ -1,9 +1,9 @@
+import type { Champion, Spell } from '@/types/champion';
 import { locale } from './fr';
+import { translateLegacyTextToEnglish } from './legacyEnglish';
 import { translateAuditedEnglishCopy } from './legacyEnglishAudit';
 import { translateLegacyContentToEnglish } from './legacyEnglishContent';
 import { translateLegacyPhraseToEnglish } from './legacyEnglishPhrases';
-import { translateLegacyTextToEnglish } from './legacyEnglish';
-import type { Champion, Spell } from '@/types/champion';
 
 type ContentCopy = { name: string; description: string };
 

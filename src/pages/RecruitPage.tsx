@@ -6,9 +6,9 @@ import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { localizeUserCopy } from '@/i18n/content';
 import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
-import { localizeUserCopy } from '@/i18n/content';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/recruit.css';
 

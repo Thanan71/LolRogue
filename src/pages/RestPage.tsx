@@ -8,8 +8,8 @@ import { calculateRunMemberMaxHp, calculateRunMemberMaxMp } from '@/game/run/run
 import { resolveRestHp, resolveRestMp } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { fr } from '@/i18n/fr';
 import { localizeUserCopy } from '@/i18n/content';
+import { fr } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
