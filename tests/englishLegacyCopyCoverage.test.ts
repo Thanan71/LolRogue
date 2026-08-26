@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { translateLegacyTextToEnglish } from '@/i18n/legacyEnglish';
+import { translateLegacyPhraseToEnglish } from '@/i18n/legacyEnglishPhrases';
 
 const SRC_DIRECTORY = new URL('../src/', import.meta.url);
 
@@ -50,6 +51,10 @@ function relativePath(file: URL): string {
   return index >= 0 ? pathname.slice(index + marker.length) : pathname;
 }
 
+function translateUiCopy(value: string): string {
+  return translateLegacyTextToEnglish(translateLegacyPhraseToEnglish(value));
+}
+
 describe('couverture anglaise des textes UI historiques', () => {
   it('traduit toute chaîne française détectable dans les fichiers TSX', () => {
     expect(statSync(SRC_DIRECTORY).isDirectory()).toBe(true);
@@ -58,7 +63,7 @@ describe('couverture anglaise des textes UI historiques', () => {
     for (const file of listTsxFiles(SRC_DIRECTORY)) {
       for (const value of collectUiLiterals(file)) {
         if (!FRENCH_HINT.test(value)) continue;
-        const english = translateLegacyTextToEnglish(value).trim();
+        const english = translateUiCopy(value).trim();
         if (FRENCH_HINT.test(english)) {
           untranslated.push(`${relativePath(file)} :: ${JSON.stringify(value)} -> ${JSON.stringify(english)}`);
         }
