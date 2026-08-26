@@ -106,7 +106,7 @@ const CONTENT_TRANSLATIONS: Readonly<Record<string, string>> = {
 
 const TRANSLATABLE_ATTRIBUTES = ['aria-label', 'aria-description', 'title', 'placeholder'] as const;
 
-function translateText(value: string): string {
+export function translateLegacyContentToEnglish(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return value;
   const translated = CONTENT_TRANSLATIONS[trimmed];
@@ -120,7 +120,7 @@ function translateElement(element: Element): void {
   for (const attribute of TRANSLATABLE_ATTRIBUTES) {
     const current = element.getAttribute(attribute);
     if (!current) continue;
-    const translated = translateText(current);
+    const translated = translateLegacyContentToEnglish(current);
     if (translated !== current) element.setAttribute(attribute, translated);
   }
 }
@@ -129,7 +129,7 @@ function translateNode(root: Node): void {
   if (root.nodeType === Node.TEXT_NODE) {
     const current = root.nodeValue;
     if (!current) return;
-    const translated = translateText(current);
+    const translated = translateLegacyContentToEnglish(current);
     if (translated !== current) root.nodeValue = translated;
     return;
   }
@@ -141,7 +141,7 @@ function translateNode(root: Node): void {
     if (current.nodeType === Node.TEXT_NODE) {
       const value = current.nodeValue;
       if (value) {
-        const translated = translateText(value);
+        const translated = translateLegacyContentToEnglish(value);
         if (translated !== value) current.nodeValue = translated;
       }
     } else if (current instanceof Element) {
