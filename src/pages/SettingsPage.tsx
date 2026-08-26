@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/authStore';
 import {
   type BattleSpeed,
   type Difficulty,
+  type Language,
   type TextSize,
   useSettingsStore,
 } from '@/stores/settingsStore';
@@ -120,6 +121,20 @@ export function SettingsPage() {
             <p>La difficulté s’applique au prochain run. La vitesse agit immédiatement.</p>
           </div>
           <div className="settings-form settings-form--two-columns">
+            <Field label={<label htmlFor="language">{fr.settings.language}</label>}>
+              <select
+                id="language"
+                value={settings.language}
+                onChange={(event) => {
+                  const language = event.target.value as Language;
+                  settings.setLanguage(language);
+                  window.location.reload();
+                }}
+              >
+                <option value="fr-FR">{fr.settings.french}</option>
+                <option value="en-US">{fr.settings.english}</option>
+              </select>
+            </Field>
             <Field label={<label htmlFor="difficulty">{fr.settings.difficulty}</label>}>
               <select
                 id="difficulty"

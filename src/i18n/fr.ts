@@ -1,4 +1,6 @@
-export const fr = {
+import { en } from './en';
+
+const french = {
   product: {
     subtitle: 'Un roguelike League of Legends',
     disclaimer: 'Projet de fans — sans affiliation avec Riot Games',
@@ -217,6 +219,9 @@ export const fr = {
     title: 'Réglages',
     subtitle: 'Configuration du jeu',
     panel: 'Réglages du jeu',
+    language: 'Langue',
+    french: 'Français',
+    english: 'Anglais',
     sfxVolume: 'Volume des effets sonores',
     mute: 'Couper le son',
     unmute: 'Rétablir le son',
@@ -406,5 +411,20 @@ export const fr = {
   },
 } as const;
 
-export type Locale = 'fr-FR';
-export const locale: Locale = 'fr-FR';
+export type Locale = 'fr-FR' | 'en-US';
+
+function getStoredLocale(): Locale {
+  try {
+    const stored = window.localStorage.getItem('lolrogue-settings');
+    if (!stored) return 'fr-FR';
+    const parsed = JSON.parse(stored) as { state?: { language?: unknown } };
+    return parsed.state?.language === 'en-US' ? 'en-US' : 'fr-FR';
+  } catch {
+    return 'fr-FR';
+  }
+}
+
+const activeCatalog = getStoredLocale() === 'en-US' ? en : french;
+
+export const fr = activeCatalog;
+export const locale: Locale = activeCatalog === en ? 'en-US' : 'fr-FR';

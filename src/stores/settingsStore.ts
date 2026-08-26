@@ -6,6 +6,7 @@ import { isRecord, recoverVersionedState, safeLocalStorage } from '@/utils/persi
 const SETTINGS_STORAGE_KEY = 'lolrogue-settings';
 const SETTINGS_SCHEMA_VERSION = 3;
 const SETTINGS_DEFAULTS = {
+  language: 'fr-FR' as Language,
   textSize: 'medium' as TextSize,
   battleSpeed: 1 as BattleSpeed,
   difficulty: 'normal' as Difficulty,
@@ -18,6 +19,7 @@ function isSettingsState(value: unknown): value is Partial<typeof SETTINGS_DEFAU
   return (
     (value.textSize === undefined ||
       ['small', 'medium', 'large'].includes(String(value.textSize))) &&
+    (value.language === undefined || ['fr-FR', 'en-US'].includes(String(value.language))) &&
     (value.battleSpeed === undefined || [1, 2, 3].includes(Number(value.battleSpeed))) &&
     (value.difficulty === undefined ||
       ['easy', 'normal', 'hard'].includes(String(value.difficulty))) &&
@@ -30,8 +32,10 @@ function isSettingsState(value: unknown): value is Partial<typeof SETTINGS_DEFAU
 export type BattleSpeed = 1 | 2 | 3;
 export type TextSize = 'small' | 'medium' | 'large';
 export type Difficulty = 'easy' | 'normal' | 'hard';
+export type Language = 'fr-FR' | 'en-US';
 
 interface SettingsState {
+  language: Language;
   // Accessibility
   textSize: TextSize;
   battleSpeed: BattleSpeed;
@@ -41,6 +45,7 @@ interface SettingsState {
 
   // Actions
   setTextSize: (size: TextSize) => void;
+  setLanguage: (language: Language) => void;
   setBattleSpeed: (speed: BattleSpeed) => void;
   setDifficulty: (difficulty: Difficulty) => void;
   setParticlesEnabled: (enabled: boolean) => void;
@@ -59,6 +64,7 @@ export const useSettingsStore = create<SettingsState>()(
       ...SETTINGS_DEFAULTS,
 
       setTextSize: (size) => set({ textSize: size }),
+      setLanguage: (language) => set({ language }),
       setBattleSpeed: (speed) => set({ battleSpeed: speed }),
       setDifficulty: (difficulty) => set({ difficulty }),
       setParticlesEnabled: (particlesEnabled) => set({ particlesEnabled }),
