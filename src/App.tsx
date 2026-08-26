@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
 import { installLegacyEnglishDomTranslation } from './i18n/legacyEnglish';
 import { installLegacyEnglishContentTranslation } from './i18n/legacyEnglishContent';
+import { installLegacyEnglishPhraseTranslation } from './i18n/legacyEnglishPhrases';
 import { useSettingsStore } from './stores/settingsStore';
 import { installGlobalErrorCapture } from './utils/observability';
 
@@ -165,11 +166,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const uninstallPhraseTranslation = installLegacyEnglishPhraseTranslation();
     const uninstallContentTranslation = installLegacyEnglishContentTranslation();
     const uninstallLegacyTranslation = installLegacyEnglishDomTranslation();
     return () => {
       uninstallLegacyTranslation();
       uninstallContentTranslation();
+      uninstallPhraseTranslation();
     };
   }, []);
 
