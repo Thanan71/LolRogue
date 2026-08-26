@@ -31,7 +31,7 @@ function findCombatant(
 
 function effectLabel(kind: CombatVisualEvent['kind'], amount?: number, isCrit?: boolean) {
   if (kind === 'damage' && amount !== undefined) {
-    return `${isCrit ? 'Critique · ' : ''}-${Math.round(amount)} PV`;
+    return `${isCrit ? `${fr.combat.critical} · ` : ''}-${Math.round(amount)} PV`;
   }
   if (kind === 'heal' && amount !== undefined) return `+${Math.round(amount)} PV`;
   if (kind === 'shield' && amount !== undefined) return `+${Math.round(amount)} bouclier`;
@@ -82,7 +82,7 @@ function CombatantCard({
       <strong className="combat-stage__fighter-name">{combatant.name}</strong>
       <progress
         className="combat-stage__health"
-        aria-label={`PV de ${combatant.name}`}
+        aria-label={`${fr.combat.health} ${combatant.name}`}
         max={Math.max(1, Math.round(combatant.maxHp))}
         value={Math.max(0, Math.round(combatant.currentHp))}
       />
@@ -179,15 +179,15 @@ export function CombatStage({
     >
       <div className="combat-stage__scrim" aria-hidden="true" />
       <div className="combat-stage__topline">
-        <span>Round {round}</span>
+        <span>{fr.combat.round} {round}</span>
         <strong>
           {visualEvent
             ? sourceSide === 'player'
-              ? 'Action alliée'
-              : 'Action ennemie'
+              ? fr.combat.allyAction
+              : fr.combat.enemyAction
             : currentTurnSide === 'player'
-              ? 'Votre initiative'
-              : 'Initiative ennemie'}
+              ? fr.combat.yourInitiative
+              : fr.combat.enemyInitiative}
         </strong>
       </div>
 
@@ -195,7 +195,7 @@ export function CombatStage({
         <CombatantCard combatant={resolvedSource} role="source" />
         <div className="combat-stage__effect-lane" aria-hidden="true">
           <span className="combat-stage__versus">
-            {isSelfEffect ? 'SUR SOI' : isFriendlyEffect ? 'SOUTIEN' : 'VS'}
+            {isSelfEffect ? fr.combat.self : isFriendlyEffect ? fr.combat.support : 'VS'}
           </span>
           {visualEvent && (
             <div className="combat-stage__effect" key={visualEvent.id}>
@@ -223,11 +223,11 @@ export function CombatStage({
         {isSelfEffect && target ? (
           <div
             className="combat-stage__self-target"
-            aria-label={`Effet personnel : ${target.name}`}
+            aria-label={`${fr.combat.selfEffect}: ${target.name}`}
           >
             <span aria-hidden="true">◎</span>
-            <strong>Soi-même</strong>
-            <small>Aucun adversaire ciblé</small>
+            <strong>{fr.combat.self}</strong>
+            <small>{fr.combat.noEnemyTarget}</small>
           </div>
         ) : (
           <CombatantCard combatant={target} role="target" />

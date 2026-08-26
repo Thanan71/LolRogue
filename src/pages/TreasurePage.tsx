@@ -4,6 +4,7 @@ import { EncounterLayout } from '@/components/EncounterLayout';
 import { ROUTES } from '@/config/routes';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { itemDescription, itemName } from '@/i18n/content';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/treasure.css';
@@ -52,8 +53,8 @@ export function TreasurePage() {
       const result = addItem(
         {
           id: encounter.item.itemId,
-          name: encounter.item.name,
-          description: encounter.item.description,
+          name: itemName(encounter.item.itemId, encounter.item.name),
+          description: itemDescription(encounter.item.itemId, encounter.item.description),
           iconUrl: encounter.item.iconUrl,
           stats: encounter.item.stats,
           passiveId: encounter.item.passiveId,
@@ -110,7 +111,7 @@ export function TreasurePage() {
     <EncounterLayout
       title={`💎 ${fr.encounter.treasure}`}
       gold={gold}
-      subtitle="Le coffre est réclamé automatiquement et son contenu n’est accordé qu’une fois."
+      subtitle={fr.encounter.treasureSubtitle}
       contentClassName="encounter-layout__content--centered"
     >
       <div className="treasure-page">
@@ -155,7 +156,9 @@ export function TreasurePage() {
                       />
                     ) : null}
                   </span>
-                  <span className="treasure-page__preview-loot">{encounter.item.name}</span>
+                  <span className="treasure-page__preview-loot">
+                    {itemName(encounter.item.itemId, encounter.item.name)}
+                  </span>
                 </div>
               )}
             </div>
@@ -207,9 +210,11 @@ export function TreasurePage() {
                       ) : null}
                     </span>
                     <div className="treasure-page__item-copy">
-                      <strong className="treasure-page__item-name">{encounter.item.name}</strong>
+                      <strong className="treasure-page__item-name">
+                        {itemName(encounter.item.itemId, encounter.item.name)}
+                      </strong>
                       <p className="treasure-page__item-description">
-                        {encounter.item.description}
+                        {itemDescription(encounter.item.itemId, encounter.item.description)}
                       </p>
                       {Object.keys(encounter.item.stats).length > 0 && (
                         <ul className="treasure-page__item-stats" aria-label="Bonus de l’objet">
@@ -228,7 +233,8 @@ export function TreasurePage() {
                 <article className="treasure-page__reward treasure-page__reward--warning">
                   <h3 className="treasure-page__reward-label">{fr.encounter.itemLeft}</h3>
                   <p className="treasure-page__inventory-warning">
-                    {fr.encounter.inventoryFull} ({encounter.item.name})
+                    {fr.encounter.inventoryFull} (
+                    {itemName(encounter.item.itemId, encounter.item.name)})
                   </p>
                 </article>
               )}

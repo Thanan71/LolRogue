@@ -7,8 +7,8 @@ import { championDB } from '@/data/championDatabase';
 import { getKeystoneRunes } from '@/data/items/runeDatabase';
 import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { getStarterPersonalization } from '@/services/masteryService';
+import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
@@ -24,7 +24,7 @@ import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
 import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
-import { runeNameFr } from '@/i18n/runes.fr';
+import { runeDescription, runeNameFr } from '@/i18n/runes.fr';
 
 function pickRandom<T>(arr: T[], count: number, rng: SeededRNG): T[] {
   return rng.pickN(arr, count);
@@ -290,11 +290,9 @@ export function StarterSelectPage() {
         <fieldset className="starter-select__runes" aria-describedby="starter-runes-help">
           <legend className="starter-select__runes-title">{fr.starter.chooseRunes}</legend>
           <div className="starter-select__runes-heading">
-            <p id="starter-runes-help">
-              Jusqu’à 3 runes optionnelles pour personnaliser ta partie.
-            </p>
+            <p id="starter-runes-help">{fr.starter.runesHelp}</p>
             <output className="starter-select__runes-count" aria-live="polite">
-              {selectedRuneIds.length}/3 sélectionnées
+              {selectedRuneIds.length}/3 {fr.starter.selected}
             </output>
           </div>
           <div className="starter-select__rune-grid">
@@ -344,7 +342,8 @@ export function StarterSelectPage() {
                   <span className="starter-rune__content">
                     <span className="starter-rune__name">{runeNameFr(rune.id, rune.name)}</span>
                     <span className="starter-rune__description">
-                      Effet avant sélection : {rune.description}
+                      {fr.starter.effectBeforeSelection}:{' '}
+                      {runeDescription(rune.id, rune.description)}
                     </span>
                   </span>
                 </label>

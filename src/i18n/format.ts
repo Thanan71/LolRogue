@@ -1,4 +1,4 @@
-import { locale } from './fr';
+import { fr, locale } from './fr';
 
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat(locale).format(value);
@@ -16,15 +16,6 @@ export function plural(value: number, singular: string, pluralForm = `${singular
   return `${formatNumber(value)} ${value === 1 ? singular : pluralForm}`;
 }
 
-const CHAMPION_TAGS: Record<string, string> = {
-  Assassin: 'Assassin',
-  Fighter: 'Combattant',
-  Mage: 'Mage',
-  Marksman: 'Tireur',
-  Support: 'Support',
-  Tank: 'Tank',
-};
-
 export function formatChampionTag(tag: string): string {
-  return CHAMPION_TAGS[tag] ?? tag;
+  return fr.championTags[tag as keyof typeof fr.championTags] ?? tag;
 }

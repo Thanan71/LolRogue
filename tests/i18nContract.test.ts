@@ -1,7 +1,11 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { en } from '@/i18n/en';
 import { formatNumber, plural } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
+import { legalEn } from '@/i18n/legal.en';
+import { legalFr } from '@/i18n/legal.fr';
+import { runeNameEn } from '@/i18n/runes.en';
 
 const pagesDirectory = new URL('../src/pages/', import.meta.url);
 const ALL_PAGES = readdirSync(pagesDirectory)
@@ -55,6 +59,32 @@ const FORBIDDEN_RAW_COPY = [
 ] as const;
 
 describe('contrat de langue française', () => {
+  function catalogPaths(value: unknown, prefix = ''): string[] {
+    if (!value || typeof value !== 'object') return [prefix];
+    return Object.entries(value).flatMap(([key, child]) =>
+      catalogPaths(child, prefix ? `${prefix}.${key}` : key),
+    );
+  }
+
+  it('conserve la parité des clés principales entre les catalogues', () => {
+    expect(catalogPaths(fr)).toEqual(expect.arrayContaining(catalogPaths(en)));
+    expect(catalogPaths(en)).toEqual(expect.arrayContaining(catalogPaths(fr)));
+    expect(catalogPaths(legalFr)).toEqual(expect.arrayContaining(catalogPaths(legalEn)));
+  });
+
+  it('sélectionne réellement le catalogue anglais depuis les réglages persistés', async () => {
+    vi.resetModules();
+    vi.stubGlobal('window', {
+      localStorage: { getItem: () => JSON.stringify({ state: { language: 'en-US' } }) },
+    });
+    const active = await import('@/i18n/fr');
+    expect(active.locale).toBe('en-US');
+    expect(active.fr.menu.settings).toBe('Settings');
+    expect(legalEn.title).not.toContain('Informations légales');
+    expect(runeNameEn('e2e_assured_victory')).not.toContain('Victoire');
+    vi.unstubAllGlobals();
+  });
+
   it('raccorde automatiquement toutes les pages au dictionnaire français', () => {
     expect(ALL_PAGES.length).toBeGreaterThan(0);
     for (const path of ALL_PAGES) {

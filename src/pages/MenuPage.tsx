@@ -108,7 +108,7 @@ export function MenuPage() {
               <div className="main-menu__user-details">
                 <span className="main-menu__user-name">{displayName}</span>
                 <span className="main-menu__user-level">
-                  {player ? `${fr.common.level} ${player.level}` : 'Compte connecté'}
+                  {player ? `${fr.common.level} ${player.level}` : fr.menu.connectedAccount}
                 </span>
               </div>
               <span className="main-menu__connection-dot" aria-hidden="true" />
@@ -120,7 +120,7 @@ export function MenuPage() {
               <span className="main-menu__connection-dot" aria-hidden="true" />
               <span>
                 <strong>{fr.menu.guestMode}</strong>
-                <small>Sauvegarde locale uniquement</small>
+                <small>{fr.menu.localSaveOnly}</small>
               </span>
             </div>
           )}
@@ -129,26 +129,26 @@ export function MenuPage() {
         <div className="main-menu__dashboard">
           <section className="main-menu__command" aria-labelledby="expedition-title">
             <div className="main-menu__section-heading">
-              <span className="main-menu__eyebrow">Centre de commandement</span>
+              <span className="main-menu__eyebrow">{fr.menu.commandCenter}</span>
               <h2 id="expedition-title">
-                {isActive ? 'Votre expédition vous attend' : 'Préparez votre prochaine ascension'}
+                {isActive ? fr.menu.expeditionWaiting : fr.menu.prepareAscension}
               </h2>
               <p>
                 {isActive
-                  ? 'Reprenez la route ou engagez une nouvelle équipe.'
-                  : 'Composez votre équipe et traversez les six biomes de la Faille.'}
+                  ? fr.menu.resumeOrNewTeam
+                  : fr.menu.composeTeam}
               </p>
             </div>
 
             {isActive && (
-              <div className="main-menu__run-status" role="status" aria-label="Partie en cours">
+              <div className="main-menu__run-status" role="status" aria-label={fr.menu.currentRun}>
                 <span className="main-menu__run-pulse" aria-hidden="true" />
-                <span className="main-menu__run-label">Partie en cours</span>
+                <span className="main-menu__run-label">{fr.menu.currentRun}</span>
                 <span className="main-menu__run-meta">
                   {fr.common.level} {runLevel}
                   <span aria-hidden="true">•</span>
                   <span className="main-menu__biome">
-                    {currentBiome ? currentBiome.replace(/_/g, ' ') : 'Biome inconnu'}
+                    {currentBiome ? currentBiome.replace(/_/g, ' ') : fr.menu.unknownBiome}
                   </span>
                   <span aria-hidden="true">•</span>
                   {plural(team.length, 'champion')}
@@ -199,26 +199,24 @@ export function MenuPage() {
             </div>
           </section>
 
-          <section className="main-menu__onboarding" aria-label="Boucle de jeu">
+          <section className="main-menu__onboarding" aria-label={fr.menu.gameLoop}>
             <div className="main-menu__onboarding-mark" aria-hidden="true">
               01
             </div>
             <div className="main-menu__onboarding-copy">
-              <strong>Première partie ?</strong>
-              <span>
-                Choisir → avancer → résoudre → améliorer → combattre → terminer et sauvegarder.
-              </span>
+              <strong>{fr.menu.firstGame}</strong>
+              <span>{fr.menu.gameLoopSummary}</span>
             </div>
             <button type="button" onClick={() => navigate(ROUTES.RULES)}>
-              Comprendre les règles
+              {fr.menu.understandRules}
             </button>
           </section>
         </div>
 
-        <nav className="main-menu__navigation" aria-label="Navigation principale">
+        <nav className="main-menu__navigation" aria-label={fr.menu.headquarters}>
           <div className="main-menu__section-heading main-menu__section-heading--compact">
-            <span className="main-menu__eyebrow">Quartier général</span>
-            <h2>Préparer la partie</h2>
+            <span className="main-menu__eyebrow">{fr.menu.headquarters}</span>
+            <h2>{fr.menu.prepareGame}</h2>
           </div>
 
           <div className="main-menu__nav-grid">
@@ -236,7 +234,7 @@ export function MenuPage() {
               </span>
               <span className="main-menu__nav-copy">
                 <strong>{fr.menu.database}</strong>
-                <small>Catalogue et maîtrises</small>
+                <small>{fr.menu.catalogAndMastery}</small>
               </span>
               <span className="main-menu__nav-arrow" aria-hidden="true">
                 →
@@ -246,7 +244,7 @@ export function MenuPage() {
             <button
               type="button"
               className="main-menu__nav-card"
-              aria-label="Guide et règles"
+              aria-label={fr.rules.title}
               onClick={() => {
                 playUIClick();
                 navigate(ROUTES.RULES);
@@ -256,8 +254,8 @@ export function MenuPage() {
                 ⌁
               </span>
               <span className="main-menu__nav-copy">
-                <strong>Guide et règles</strong>
-                <small>Mécaniques de la Faille</small>
+                <strong>{fr.rules.title}</strong>
+                <small>{fr.menu.mechanics}</small>
               </span>
               <span className="main-menu__nav-arrow" aria-hidden="true">
                 →
@@ -278,7 +276,7 @@ export function MenuPage() {
               </span>
               <span className="main-menu__nav-copy">
                 <strong>{fr.menu.profile}</strong>
-                <small>Résultats et progression</small>
+                <small>{fr.menu.resultsAndProgress}</small>
               </span>
               <span className="main-menu__nav-arrow" aria-hidden="true">
                 →
@@ -299,7 +297,7 @@ export function MenuPage() {
               </span>
               <span className="main-menu__nav-copy">
                 <strong>{fr.menu.settings}</strong>
-                <small>Audio, confort et affichage</small>
+                <small>{fr.menu.audioComfortDisplay}</small>
               </span>
               <span className="main-menu__nav-arrow" aria-hidden="true">
                 →
@@ -308,7 +306,7 @@ export function MenuPage() {
           </div>
         </nav>
 
-        <div className="main-menu__utility" role="group" aria-label="Liens du compte">
+        <div className="main-menu__utility" role="group" aria-label={fr.menu.accountLinks}>
           <button
             type="button"
             className="main-menu__utility-btn"

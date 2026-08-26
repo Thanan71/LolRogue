@@ -68,7 +68,7 @@ export function SettingsPage() {
     <PageShell width="content">
       <PageHeader
         title={fr.settings.title}
-        subtitle="Adapte le rythme, le confort de lecture et les préférences de jeu."
+        subtitle={fr.settings.pageSubtitle}
         leading={
           <Button
             variant="ghost"
@@ -84,9 +84,9 @@ export function SettingsPage() {
       <section className="settings-overview" aria-label={fr.settings.panel}>
         <Panel className="settings-card settings-card--audio">
           <div className="settings-panel__intro">
-            <span className="settings-panel__eyebrow">Audio</span>
-            <h2>Ambiance sonore</h2>
-            <p>Ajuste les effets sans interrompre ta partie.</p>
+            <span className="settings-panel__eyebrow">{fr.settings.audioEyebrow}</span>
+            <h2>{fr.settings.audioTitle}</h2>
+            <p>{fr.settings.audioHelp}</p>
           </div>
           <div className="settings-form">
             <Field
@@ -116,9 +116,9 @@ export function SettingsPage() {
 
         <Panel className="settings-card settings-card--gameplay">
           <div className="settings-panel__intro">
-            <span className="settings-panel__eyebrow">Combat</span>
-            <h2>Rythme de jeu</h2>
-            <p>La difficulté s’applique au prochain run. La vitesse agit immédiatement.</p>
+            <span className="settings-panel__eyebrow">{fr.settings.gameplayEyebrow}</span>
+            <h2>{fr.settings.gameplayTitle}</h2>
+            <p>{fr.settings.gameplayHelp}</p>
           </div>
           <div className="settings-form settings-form--two-columns">
             <Field label={<label htmlFor="language">{fr.settings.language}</label>}>
@@ -162,18 +162,15 @@ export function SettingsPage() {
           </div>
           <div className="settings-preview" aria-live="polite">
             <span className="settings-preview__pulse" aria-hidden="true" />
-            <span>
-              Difficulté <strong>{difficultyLabel}</strong> · animations{' '}
-              <strong>{settings.battleSpeed}×</strong>
-            </span>
+            <span>{fr.settings.preview(difficultyLabel, settings.battleSpeed)}</span>
           </div>
         </Panel>
 
         <Panel className="settings-card settings-card--accessibility">
           <div className="settings-panel__intro">
-            <span className="settings-panel__eyebrow">Accessibilité</span>
-            <h2>Lecture et commandes</h2>
-            <p>Préserve les informations de combat même lorsque les effets sont désactivés.</p>
+            <span className="settings-panel__eyebrow">{fr.settings.accessibilityEyebrow}</span>
+            <h2>{fr.settings.accessibilityTitle}</h2>
+            <p>{fr.settings.accessibilityHelp}</p>
           </div>
           <div className="settings-form">
             <Field label={<label htmlFor="text-size">{fr.settings.textSize}</label>}>
@@ -222,7 +219,7 @@ export function SettingsPage() {
         <Panel aria-label={fr.settings.leaderboardPrivacy}>
           <Stack className="settings-form">
             <div className="settings-panel__intro">
-              <span className="settings-panel__eyebrow">Compte connecté</span>
+              <span className="settings-panel__eyebrow">{fr.settings.connectedAccount}</span>
               <h2>{fr.settings.leaderboardPrivacy}</h2>
               <p>{fr.settings.leaderboardPrivacyHelp}</p>
             </div>
