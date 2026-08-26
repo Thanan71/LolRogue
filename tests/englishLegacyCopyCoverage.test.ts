@@ -30,11 +30,7 @@ function stripComments(source: string): string {
 function isCodeArtifact(value: string): boolean {
   const normalized = value.replace(/\s+/gu, ' ').trim();
   if (!normalized) return true;
-  if (
-    /A-Za-z|className=|onClick=|aria-|<\/|\}>|=>|\bconst\b|\breturn\b|\)\}\s*>/u.test(
-      normalized,
-    )
-  )
+  if (/A-Za-z|className=|onClick=|aria-|<\/|\}>|=>|\bconst\b|\breturn\b|\)\}\s*>/u.test(normalized))
     return true;
   if (normalized.includes('${') && /\?|'\s*:|"\s*:/u.test(normalized)) return true;
   return false;
