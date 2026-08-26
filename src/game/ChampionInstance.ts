@@ -6,7 +6,6 @@
  * Also supports enhancement bonuses from the enhancement tree system.
  */
 
-import { localizeChampion } from '@/i18n/content';
 import type { Champion, ChampionStats, ChampionTag, Passive, Spell } from '@/types';
 import type { EnhancementStatBonuses } from '@/types/enhancementTree';
 import { type CalculatedStats, calculateStats } from '@/utils/champion';
@@ -48,7 +47,6 @@ export class ChampionInstance {
   private _masteryLevel = 0;
 
   constructor(champion: Champion, startingLevel = 1, statMultiplier = 1) {
-    champion = localizeChampion(champion);
     this.id = champion.id;
     this.key = champion.key;
     this.name = champion.name;
