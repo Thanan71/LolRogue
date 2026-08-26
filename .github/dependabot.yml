@@ -1,3 +1,4 @@
+# Dependabot refresh trigger - 2026-08-26
 version: 2
 updates:
   - package-ecosystem: github-actions
