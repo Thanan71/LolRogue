@@ -77,7 +77,7 @@
     "assets:update": "npm run ddragon:download && npm run ddragon:parse && npm run assets:package && npm run assets:verify"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.112.2",
+    "@supabase/supabase-js": "^2.112.3",
     "@tailwindcss/postcss": "^4.2.2",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "2.0.0",
