@@ -1,3 +1,4 @@
+import { locale } from '@/i18n/fr';
 import type { CalculatedStats } from '@/utils/champion';
 
 /** The only stat vocabulary used by the combat model and UI. */
@@ -62,7 +63,7 @@ const STAT_ALIASES: Readonly<Record<string, GameplayStatKey>> = {
   abilityhaste: 'abilityHaste',
 };
 
-export const STAT_LABELS: Readonly<Record<CanonicalStatKey, string>> = {
+const STAT_LABELS_FR: Readonly<Record<CanonicalStatKey, string>> = {
   hp: 'Points de vie',
   mp: 'Points de mana',
   moveSpeed: 'Vitesse de déplacement',
@@ -76,6 +77,23 @@ export const STAT_LABELS: Readonly<Record<CanonicalStatKey, string>> = {
   mpRegen: 'Régénération PM',
   crit: 'Chance de critique',
 };
+
+const STAT_LABELS_EN: Readonly<Record<CanonicalStatKey, string>> = {
+  hp: 'Health',
+  mp: 'Mana',
+  moveSpeed: 'Move speed',
+  armor: 'Armor',
+  magicResist: 'Magic resistance',
+  attackDamage: 'Attack damage',
+  attackSpeed: 'Attack speed',
+  attackRange: 'Attack range',
+  abilityPower: 'Ability power',
+  hpRegen: 'HP regeneration',
+  mpRegen: 'MP regeneration',
+  crit: 'Critical strike chance',
+};
+
+export const STAT_LABELS = locale === 'en-US' ? STAT_LABELS_EN : STAT_LABELS_FR;
 
 /** Legacy names are accepted only while decoding authored/persisted catalog data. */
 export function normalizeGameplayStatKey(value: string): GameplayStatKey | null {
@@ -147,5 +165,5 @@ export function applyCanonicalModifiers(
 
 export function formatStatValue(stat: CanonicalStatKey, value: number): string {
   const digits = stat === 'attackSpeed' ? 2 : 0;
-  return value.toLocaleString('fr-FR', { maximumFractionDigits: digits });
+  return value.toLocaleString(locale, { maximumFractionDigits: digits });
 }
