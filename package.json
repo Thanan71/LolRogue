@@ -63,6 +63,7 @@
     "test:performance-budgets": "node scripts/check-performance-budgets.mjs",
     "test:performance-preview": "node scripts/measure-local-preview.mjs",
     "test:deployed-assets": "node scripts/verify-deployed-assets.mjs",
+    "backup:database": "node scripts/create-database-backup.mjs",
     "release:preflight": "node scripts/release-preflight.mjs",
     "release:readiness:check": "node scripts/release-preflight.mjs --verify-documentation",
     "ops:restore-drill": "node scripts/run-isolated-restore-drill.mjs --local",

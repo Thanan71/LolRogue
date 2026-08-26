@@ -19,6 +19,21 @@ son export/restauration devient un prérequis distinct.
 
 ## Produire un dump logique
 
+Le workflow GitHub `Database backup` exécute cette sauvegarde automatiquement chaque
+jour à 03:23 UTC et peut aussi être lancé manuellement. Il utilise le secret GitHub
+`SUPABASE_DB_URL`, publie un artefact conservé 30 jours et vérifie ses empreintes
+SHA-256. Le secret doit contenir la chaîne de connexion PostgreSQL encodée fournie
+par le bouton **Connect** du Dashboard Supabase.
+
+Pour produire le même backup localement, utiliser un répertoire hors du dépôt :
+
+```bash
+SUPABASE_DB_URL='CONNECTION_STRING' \\
+BACKUP_DIRECTORY="$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)" \\
+npm run backup:database
+cd "$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)" && sha256sum -c SHA256SUMS
+```
+
 Récupérer la chaîne de connexion depuis **Connect** dans le Dashboard. La fournir
 interactivement ou par gestionnaire de secrets, jamais dans Git ni l'historique du
 shell. Dans un répertoire chiffré hors du dépôt :
