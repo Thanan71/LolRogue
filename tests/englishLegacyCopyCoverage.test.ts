@@ -8,7 +8,7 @@ const SRC_DIRECTORY = new URL('../src/', import.meta.url);
 const FRENCH_HINT = new RegExp(
   [
     '[àâäçéèêëîïôöùûüÿœæÀÂÄÇÉÈÊËÎÏÔÖÙÛÜŸŒÆ]',
-    '\\b(?:le|la|les|des|du|une|dans|pour|avec|sans|votre|ton|tes|cette|ces|est|sont|peut|doit|avant|après|choisir|sélectionner|équipe|inventaire|niveau|maîtrise|dégâts|soin|soins|bouclier|armure|puissance|vitesse|objet|objets|recrutement|repos|trésor|boutique|fermer|continuer|réessayer|débloquer|prérequis|bonbons|inconnu|disponible|verrouillé|terminé|actuelle|actuel|récompense|récompenses|combat|vague)\\b',
+    '\\b(?:le|la|les|des|du|une|dans|pour|avec|sans|votre|ton|tes|cette|ces|est|sont|peut|doit|avant|après|choisir|sélectionner|équipe|inventaire|niveau|maîtrise|dégâts|soin|soins|bouclier|armure|puissance|vitesse|objet|objets|recrutement|repos|trésor|boutique|fermer|continuer|réessayer|débloquer|prérequis|bonbons|inconnu|disponible|verrouillé|terminé|actuelle|actuel|récompense|récompenses|vague)\\b',
   ].join('|'),
   'iu',
 );
