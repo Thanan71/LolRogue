@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vitest run tests/englishLegacyCopyCoverage.test.ts && tsc && vite build",
     "prebuild": "npm run assets:verify && npm run edge:bundle",
     "postbuild": "npm run assets:verify:dist && node scripts/write-deployment-identity.mjs",
     "preview": "vite preview",
