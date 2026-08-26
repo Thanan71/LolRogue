@@ -30,7 +30,11 @@ function stripComments(source: string): string {
 function isCodeArtifact(value: string): boolean {
   const normalized = value.replace(/\s+/gu, ' ').trim();
   if (!normalized) return true;
-  if (/A-Za-z|className=|onClick=|aria-|<\/|\}>|=>|\bconst\b|\breturn\b/u.test(normalized))
+  if (
+    /A-Za-z|className=|onClick=|aria-|<\/|\}>|=>|\bconst\b|\breturn\b|\)\}\s*>/u.test(
+      normalized,
+    )
+  )
     return true;
   if (normalized.includes('${') && /\?|'\s*:|"\s*:/u.test(normalized)) return true;
   return false;
@@ -61,9 +65,10 @@ function relativePath(file: URL): string {
 }
 
 function translateUiCopy(value: string): string {
+  const renderedLikeValue = value.replace(/\$\{fr\.common\.gold\}/gu, 'gold');
   return translateLegacyTextToEnglish(
     translateLegacyContentToEnglish(
-      translateLegacyPhraseToEnglish(translateAuditedEnglishCopy(value)),
+      translateLegacyPhraseToEnglish(translateAuditedEnglishCopy(renderedLikeValue)),
     ),
   );
 }
