@@ -1,7 +1,7 @@
+import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -15,10 +15,14 @@ if (!databaseUrl) {
 await mkdir(outputDirectory, { recursive: true });
 
 const dump = async (argumentsList) => {
-  await execFileAsync('npx', ['supabase', 'db', 'dump', '--db-url', databaseUrl, ...argumentsList], {
-    env: { ...process.env, CI: 'true' },
-    maxBuffer: 1024 * 1024 * 10,
-  });
+  await execFileAsync(
+    'npx',
+    ['supabase', 'db', 'dump', '--db-url', databaseUrl, ...argumentsList],
+    {
+      env: { ...process.env, CI: 'true' },
+      maxBuffer: 1024 * 1024 * 10,
+    },
+  );
 };
 
 await dump(['--role-only', '--file', path.join(outputDirectory, 'roles.sql')]);
