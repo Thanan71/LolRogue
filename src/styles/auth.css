@@ -281,6 +281,29 @@
   font-size: 0.9rem;
 }
 
+.auth-page__language {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.auth-page__language select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.6rem 0.75rem;
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  background: color-mix(in srgb, var(--color-background-deep) 64%, var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.auth-page__language select:focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-focus) 14%, transparent);
+}
+
 /* ─── Tabs ──────────────────────────────────────────────────────────── */
 
 .auth-page__tabs {

@@ -23,6 +23,7 @@ import { TreasurePage } from '@/pages/TreasurePage';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 import {
   type ChampionRunStats,
   type CompletedRunSnapshot,
@@ -102,6 +103,7 @@ function championStats(
 
 describe('P2 page smoke tests', () => {
   beforeEach(() => {
+    useSettingsStore.setState({ language: 'fr-FR' });
     useAuthStore.setState({
       user: null,
       player: null,
@@ -143,9 +145,18 @@ describe('P2 page smoke tests', () => {
   it('renders authentication controls', () => {
     renderAt(<AuthPage />, '/auth');
     expect(screen.getByRole('heading', { name: 'LoL Rogue' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Langue')).toHaveValue('fr-FR');
     expect(screen.getByRole('tab', { name: 'Connexion' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Connexion' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Créer un compte' })).toBeInTheDocument();
+  });
+
+  it('changes the language from the authentication page', () => {
+    renderAt(<AuthPage />, '/auth');
+
+    fireEvent.change(screen.getByLabelText('Langue'), { target: { value: 'en-US' } });
+
+    expect(useSettingsStore.getState().language).toBe('en-US');
   });
 
   it('renders the guest menu', () => {
