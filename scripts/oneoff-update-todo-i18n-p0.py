@@ -1,0 +1,135 @@
+from pathlib import Path
+
+path = Path('TODO.md')
+text = path.read_text(encoding='utf-8')
+
+text = text.replace(
+    '# P0 — sécurité, autorité, équilibre et release gates',
+    '# P0 — sécurité, autorité, équilibre, internationalisation et release gates',
+    1,
+)
+
+marker = '# P0 — sécurité, autorité, équilibre, internationalisation et release gates\n\n'
+block = '''## P0-I18N-01 — Internationalisation 100 % du projet (FR/EN)
+
+**Taille : L**  
+**Risque : élevé — une locale partielle rend le produit incohérent et invalide la promesse de traduction complète.**
+
+### Périmètre obligatoire
+
+La couverture doit porter sur **tout contenu visible ou annoncé à l'utilisateur**, pas
+seulement les pages et boutons React :
+
+- interface complète : navigation, menus, formulaires, paramètres, admin, erreurs,
+  notifications, tutoriels, ARIA, titres de page et textes de chargement ;
+- champions : titres, rôles, descriptions, textes de présentation, maîtrise,
+  améliorations et tout contenu affiché dans la base des champions ;
+- compétences : noms, descriptions, coûts, cooldowns/recharges, effets, ciblage,
+  rangs, améliorations, tooltips, messages de combat et textes générés ;
+- runes, augments, objets, passifs, raretés, statistiques et descriptions ;
+- carte, biomes, encounters, combats, boutique, recrutement, repos, événements,
+  trésors, récompenses, résultats de run et Daily ;
+- contenus dynamiques issus des catalogues, Data Dragon, données persistées ou
+  templates générés ;
+- crédits, légal/confidentialité, patch notes et toute future fonctionnalité joueur ;
+- formats dépendants de la locale : nombres, dates, pourcentages, pluriels et unités.
+
+Les noms propres officiels qui ne se traduisent pas peuvent rester identiques entre
+locales, mais aucun texte français ne doit servir de fallback silencieux dans la locale
+anglaise.
+
+### Actions
+
+- [ ] Faire passer tout texte utilisateur par une couche i18n ou un catalogue bilingue
+  indexé par identifiant stable ; supprimer les traductions DOM de secours dès que les
+  sources sont correctement internationalisées.
+- [ ] Garantir une parité stricte des clés et des contenus `fr` / `en` : toute entrée
+  présente dans une locale doit exister dans l'autre.
+- [ ] Internationaliser les données de gameplay elles-mêmes, en particulier les
+  descriptions de champions et **toutes les compétences**, pas uniquement leur UI.
+- [ ] Utiliser les données localisées Data Dragon lorsque pertinentes (`fr_FR` /
+  `en_US`) ou maintenir des catalogues versionnés équivalents dans le dépôt.
+- [ ] Couvrir les chaînes dynamiques et interpolées avec des templates i18n, y compris
+  erreurs, journal de combat, récompenses, ventes, recrutement et progression.
+- [ ] Ajouter une gate CI qui scanne TS/TSX **et les catalogues de contenu** pour
+  détecter texte utilisateur codé en dur, clé manquante, traduction identique suspecte
+  et fallback de locale inattendu.
+- [ ] Ajouter des tests de parité pour champions, compétences, runes, augments, objets,
+  encounters et autres catalogues exposés au joueur.
+- [ ] Ajouter un E2E qui bascule FR → EN et parcourt au minimum Auth → sélection des
+  starters → carte → combat → inventaire → encounter → Game Over, avec vérification
+  qu'aucun texte français résiduel n'apparaît en anglais.
+- [ ] Auditer manuellement desktop/mobile + lecteur d'écran pour les textes que le scan
+  statique ne peut pas garantir.
+- [ ] Empêcher l'ajout futur d'un champion, sort, item, augment, rune ou encounter sans
+  ses traductions complètes dans toutes les locales supportées.
+
+### Acceptation
+
+- en locale anglaise : **0 texte français utilisateur**, y compris descriptions de
+  champions, compétences, tooltips, contenus dynamiques, ARIA et messages d'erreur ;
+- en locale française : **0 texte anglais accidentel** hors noms propres/termes
+  explicitement conservés ;
+- parité de clés et de catalogues FR/EN à 100 % ;
+- aucun fallback silencieux vers le français lorsque `en` est sélectionné ;
+- les gates i18n sont bloquantes en CI et échouent dès qu'un nouveau contenu joueur
+  n'est pas traduit ;
+- une vérification manuelle représentative confirme le résultat sur la preview du SHA
+  candidat.
+
+---
+
+'''
+
+if '## P0-I18N-01 — Internationalisation 100 % du projet (FR/EN)' not in text:
+    if marker not in text:
+        raise SystemExit('P0 marker not found')
+    text = text.replace(marker, marker + block, 1)
+
+old_p3 = '''## P3-PROD-02 — Internationalisation anglaise complète
+
+**Taille : L**
+
+- [ ] Transformer le dictionnaire français actuel en vraie sélection de locale.
+- [ ] Ajouter `en` avec couverture de toutes les pages et contenus.
+- [ ] Tester nombres, dates, pluriels, aria-labels et textes de domaine.
+- [ ] Conserver le français comme fallback explicite.
+
+---
+
+'''
+replacement_p3 = '''## P3-PROD-02 — Internationalisation anglaise complète
+
+**Promu en P0 : voir `P0-I18N-01`.**  
+La couverture 100 % inclut désormais explicitement champions, compétences,
+contenus de gameplay et chaînes dynamiques ; ce sujet n'est plus différé en P3.
+
+---
+
+'''
+text = text.replace(old_p3, replacement_p3, 1)
+
+sprint_line = '38. [ ] `P3-PROD-02` internationalisation anglaise.'
+text = text.replace(
+    sprint_line,
+    '38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.',
+    1,
+)
+
+sprint_a = '5. [x] `P0-REL-01` readiness réelle.\n'
+if sprint_a in text and '5 bis. [ ] `P0-I18N-01`' not in text:
+    text = text.replace(
+        sprint_a,
+        sprint_a + '5 bis. [ ] `P0-I18N-01` internationalisation FR/EN 100 % du projet.\n',
+        1,
+    )
+
+beta_marker = "- [ ] aucun `P0-*` n'est ouvert ;\n"
+if beta_marker in text and '- [ ] internationalisation FR/EN à 100 %' not in text:
+    text = text.replace(
+        beta_marker,
+        beta_marker + '- [ ] internationalisation FR/EN à 100 %, y compris champions, compétences et contenus dynamiques ;\n',
+        1,
+    )
+
+path.write_text(text, encoding='utf-8')
