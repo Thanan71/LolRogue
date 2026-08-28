@@ -102,6 +102,38 @@ Deux générations propres de la passe B sont byte-identiques (SHA-256
 v17 comparée porte le SHA-256
 `80321fc646f27370d0fd7354b3be1c4550ef1f2a5b2bea2bfacf9a84787c2c4a`.
 
+### Décision de survie des starters
+
+La même cohorte de la passe B est agrégée par starter avec la notation
+`victoires de run / premiers combats gagnés / morts dans les trois premiers combats
+Top`. Chaque cellule contient 30 seeds ; le total contient donc 90 runs par starter.
+
+| Starter | Easy | Normal | Hard | Total |
+| --- | ---: | ---: | ---: | ---: |
+| Annie | 4 / 30 / 2 | 1 / 30 / 3 | 0 / 30 / 19 | 5 / 90 / 24 |
+| Ashe | 14 / 30 / 0 | 5 / 30 / 0 | 2 / 30 / 0 | 21 / 90 / 0 |
+| Darius | 2 / 30 / 2 | 2 / 30 / 2 | 1 / 30 / 17 | 5 / 90 / 21 |
+| Garen | 4 / 30 / 0 | 3 / 30 / 2 | 1 / 30 / 7 | 8 / 90 / 9 |
+| Jinx | 12 / 30 / 0 | 10 / 30 / 0 | 3 / 30 / 3 | 25 / 90 / 3 |
+| Leona | 10 / 30 / 0 | 5 / 30 / 0 | 2 / 30 / 0 | 17 / 90 / 0 |
+| Lux | 10 / 30 / 0 | 6 / 30 / 0 | 2 / 30 / 2 | 18 / 90 / 2 |
+| Malphite | 14 / 30 / 0 | 10 / 30 / 0 | 2 / 30 / 0 | 26 / 90 / 0 |
+| Soraka | 7 / 30 / 0 | 3 / 30 / 0 | 1 / 30 / 11 | 11 / 90 / 11 |
+| Warwick | 7 / 30 / 0 | 5 / 30 / 0 | 1 / 30 / 1 | 13 / 90 / 1 |
+
+Ashe gagne 21 runs sur 90, remporte ses 90 premiers combats et ne subit aucune
+mort early Top : elle n'est pas faible dans cette cohorte. Garen gagne 8/90, mais ce
+signal n'est pas isolé puisque Annie et Darius sont à 5/90. Il remporte lui aussi ses
+90 premiers combats et ses 9 morts early sont inférieures aux 24 d'Annie, 21 de
+Darius et 11 de Soraka. Rien ne démontre donc le besoin d'un buff individuel de
+survie pour Ashe ou Garen ; leurs statistiques défensives restent inchangées.
+
+La comparaison n'agrège pas le MP entre starters : Garen n'utilise pas de mana, ce
+qui rendrait cette dimension trompeuse. `npm run balance:early-top:starters` verrouille
+les 30 cellules et la décision no-op. Deux générations Node 24 de
+`scripts/generate-early-top-cohort.mjs --engine working` sont byte-identiques au
+SHA-256 `25d1d5d2bb0a41ca6fcf409ff64584261a5b8404e8f894f12f2ffebc22b32170`.
+
 La baseline courante v17 est chargée depuis
 `config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les
 baselines v15 et v16 restent des archives immuables : leurs identités

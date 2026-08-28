@@ -563,7 +563,7 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
 - [x] Mesurer ensuite l'affordability early ; si elle contribue au blocage, augmenter
   modérément l'or des premiers encounters et/ou réduire les prix des consommables et
   boots d'entrée de gamme sans réintroduire le snowball fermé par `P0-BAL-04`.
-- [ ] N'appliquer un léger buff de survie aux starters (par exemple Garen/Ashe) que si
+- [x] N'appliquer un léger buff de survie aux starters (par exemple Garen/Ashe) que si
   le diff après formation + encounters + économie laisse encore un outlier individuel ;
   chaque buff doit être mesuré séparément.
 - [ ] Ne pas buff Warwick dans ce correctif avant la correction de son E et de l'IA
