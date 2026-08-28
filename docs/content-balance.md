@@ -3,10 +3,12 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 17` et le Daily `score_version = 15`. Le contenu de
-combat par biome introduit en v13 reste inchangé. Le moteur v16 est archivé pour
-terminer les runs déjà ouvertes. Toute autre modification d'ennemi, récompense,
-prix, drop, effet ou stacking exige une nouvelle version et un nouveau hash autoritaire.
+`gameplay_ruleset_version = 18` et le Daily `score_version = 15`. Le contenu de
+combat spécifique à chaque biome introduit en v13 reste inchangé hors calibration
+early Top ; le budget de formation global des starters est, lui, versionné en v18. Le
+moteur v17 est archivé pour terminer les runs déjà ouvertes. Toute autre modification
+d'ennemi, récompense, prix, drop, effet ou stacking exige une nouvelle version et un
+nouveau hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `contentCatalogAnalysis.test.ts` appelle `analyzeContentCatalog()` sur 100 seeds de
@@ -34,11 +36,11 @@ La stabilisation early Top conserve en plus `config/early-top-cohort-v17.json` :
 solo × Easy/Normal/Hard × 30 seeds appariées, avec victoire de run, victoire du premier
 combat, morts terminales dans les trois premiers combats Top, ressources, or,
 affordability et commandes de reproduction des seeds extrêmes. La fixture est régénérée
-par `npm run balance:early-top:generate` et vérifiée par
+par `npm run balance:early-top:generate:v17` et vérifiée par
 `npm run balance:early-top:check`. Elle fige le signal v17 à 0 % avant tout tuning.
 
 La première passe v18 candidate a été pilotée par cette même matrice, via
-`node scripts/generate-early-top-cohort.mjs --engine working --output <fichier-temporaire>`.
+`node scripts/generate-early-top-cohort.mjs --engine v18 --output <fichier-temporaire>`.
 La passe A ne modifie que le pool, la pression de nœud et le renfort Top ; le budget
 de formation v17 reste `1.00` / `1.55` / `2.00` dans tous les biomes :
 
@@ -61,9 +63,10 @@ précédents. La passe A ayant prouvé que le problème n'était plus localisé 
 second étage respecte la clause du ticket « tant que le problème reste localisé ».
 Les pools et règles spécifiques de Jungle, Mid, Bot, River et Base restent inchangés :
 leurs tests numériques reconstruisent leur facteur de biome depuis `BIOME_INFO` et
-isolent `enemyFormationMultiplier` comme seul changement commun. La double génération
-est byte-identique (SHA-256
-`25d1d5d2bb0a41ca6fcf409ff64584261a5b8404e8f894f12f2ffebc22b32170`). Easy atteint
+isolent `enemyFormationMultiplier` comme seul changement commun. Les métriques de la
+passe B restent identiques après publication ; seule l'enveloppe d'identité authority
+v18 change. La double génération v18 est byte-identique (SHA-256
+`bc12293b13df09d1aae329fce6f40054c78875362dce105657b6dbd6a82e9d42`). Easy atteint
 ainsi 28,0 % avant toute retouche économique.
 
 ### Décision d'affordability early
@@ -97,9 +100,11 @@ que les récompenses `top_*` restent inchangés. L'effet causal de l'économie p
 
 `npm run balance:early-top:affordability:generate:v17` et
 `npm run balance:early-top:affordability:generate` exposent les deux rapports JSON.
-Deux générations propres de la passe B sont byte-identiques (SHA-256
-`954ec7c263d5247ebb246d0a202f10cbe2db47fe73ea7b6b483196cd643a9128`) ; la sortie
-v17 comparée porte le SHA-256
+Les métriques appariées restent identiques après publication ; seule l'enveloppe
+d'identité authority v18 change. Deux générations propres de la passe B v18 sont
+byte-identiques (SHA-256
+`cd25f954f7a4483ac4718835134fb4a1765e7d71c50286247064e18f5d323de8`) ; la sortie v17
+comparée porte le SHA-256
 `80321fc646f27370d0fd7354b3be1c4550ef1f2a5b2bea2bfacf9a84787c2c4a`.
 
 ### Décision de survie des starters
@@ -136,8 +141,8 @@ de sort ne lui est appliqué avant la correction de son E et de l'IA prévue par
 La comparaison n'agrège pas le MP entre starters : Garen n'utilise pas de mana, ce
 qui rendrait cette dimension trompeuse. `npm run balance:early-top:starters` verrouille
 les 30 cellules et la décision no-op. Deux générations Node 24 de
-`scripts/generate-early-top-cohort.mjs --engine working` sont byte-identiques au
-SHA-256 `25d1d5d2bb0a41ca6fcf409ff64584261a5b8404e8f894f12f2ffebc22b32170`.
+`scripts/generate-early-top-cohort.mjs --engine v18` sont byte-identiques au
+SHA-256 `bc12293b13df09d1aae329fce6f40054c78875362dce105657b6dbd6a82e9d42`.
 
 ### Gate de non-régression P0-BAL-04
 
@@ -152,21 +157,28 @@ Les neuf tests passent sous Node 24 sans modifier les catalogues d'augments, les
 tables de drops, les items, les encounters ou les règles de contenu. La stabilisation
 early Top ne compense donc pas sa difficulté en rouvrant P0-BAL-04.
 
-La baseline courante v17 est chargée depuis
-`config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les
-baselines v15 et v16 restent des archives immuables : leurs identités
+La baseline courante v18 est chargée depuis
+`config/authority-cohort-baselines-v18.json` et reproduite par la source v18. Les
+baselines v15, v16 et v17 restent des archives immuables : leurs identités
 moteur/hash/modèle/policy sont littérales et leur reproduction emploie exclusivement
-`run-authority-v15.bundle.ts` ou `run-authority-v16.bundle.ts`, jamais les constantes
-du moteur courant.
+leur bundle versionné, jamais les constantes du moteur courant.
 
-`npm run balance:baseline:generate` génère v17 sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-v17.json` met à jour son artefact
+`npm run balance:baseline:generate` génère v18 sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-v18.json` met à jour son artefact
 commité. Les commandes `balance:baseline:generate:v15` et
-`balance:baseline:generate:v16` servent uniquement à auditer les archives
-historiques. Une nouvelle publication ajoute son propre couple fixture/loader/JSON
-sans réécrire les versions précédentes. `npm run balance:baseline:check`, inclus
-dans `npm run balance:check`, exige une reproduction byte-for-byte des trois
-artefacts.
+`balance:baseline:generate:v16` ainsi que `balance:baseline:generate:v17` servent
+uniquement à auditer les archives historiques. Une nouvelle publication ajoute son
+propre couple fixture/loader/JSON sans réécrire les versions précédentes.
+`npm run balance:baseline:check`, inclus dans `npm run balance:check`, exige une
+reproduction byte-for-byte des quatre artefacts.
+
+La publication P0-BAL-05 archive également le bundle v17 byte-for-byte et publie
+`run-engine-v18` avec le hash
+`9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17`. Le catalogue
+gameplay et le barème Daily v17 sont recopiés à l'identique dans les versions 18 :
+seuls le namespace Daily et les identités gameplay/moteur progressent. Le score reste
+en version 15 avec zéro point d'or, et la migration vérifie les deux parités avant
+d'activer v18.
 
 ## Indicateurs de catalogue et de nœuds
 

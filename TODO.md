@@ -570,7 +570,7 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
   prévue par `P1-BAL-01`, sauf preuve de cohorte contredisant explicitement cette gate.
 - [x] Ne pas retoucher les tables d'augments ou de drops de `P0-BAL-04` pour compenser
   un early trop dur.
-- [ ] Si le changement modifie un contrat rejouable/authority, publier la version
+- [x] Si le changement modifie un contrat rejouable/authority, publier la version
   gameplay/engine nécessaire, régénérer le bundle et la baseline sans réécrire les
   archives historiques.
 - [ ] Relancer les cohortes Easy/Normal/Hard et par starter après chaque lot logique ;

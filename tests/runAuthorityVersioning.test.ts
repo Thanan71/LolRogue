@@ -45,25 +45,25 @@ function readDailyRulesetContracts() {
 }
 
 describe('authority progression engine versioning', () => {
-  it('archives v16 and publishes v17 without changing command or progression schemas', () => {
-    const v16 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v16');
+  it('archives v17 and publishes v18 without changing command or progression schemas', () => {
+    const v17 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v17');
 
-    expect(v16).toMatchObject({
-      gameplay: 16,
-      dailyScore: 14,
-      progression: 2,
-      command: 2,
-      status: 'replay-only',
-      bundle: 'supabase/functions/verify-run/run-authority-v16.bundle.ts',
-    });
-    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
-      engine: 'run-engine-v17',
+    expect(v17).toMatchObject({
       gameplay: 17,
       dailyScore: 15,
       progression: 2,
       command: 2,
+      status: 'replay-only',
+      bundle: 'supabase/functions/verify-run/run-authority-v17.bundle.ts',
+    });
+    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
+      engine: 'run-engine-v18',
+      gameplay: 18,
+      dailyScore: 15,
+      progression: 2,
+      command: 2,
       status: 'current',
-      rulesetCode: '2026-08-economy-balance-v17',
+      rulesetCode: '2026-08-early-top-v18',
     });
   });
 

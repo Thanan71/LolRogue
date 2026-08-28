@@ -242,6 +242,6 @@ describe('documentation maintenue', () => {
     expect(gameplay).toContain('1 000 × vagues terminées');
     expect(gameplay).toContain('250 × biomes visités');
     expect(gameplay).toContain("Le score n'utilise ni l'or gagné/restant ni le nombre d'objets");
-    expect(persistence).toContain('Dans le ruleset Daily v17 actif');
+    expect(persistence).toContain('Dans le ruleset Daily v18 actif');
   });
 });

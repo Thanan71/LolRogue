@@ -23,13 +23,13 @@ métadonnées et que chaque bundle historique enregistre le verifier attendu.
 
 ## Publier la version suivante
 
-Pour passer, par exemple, de v16 à v17 :
+Pour passer, par exemple, de v17 à v18 :
 
 1. archiver le bundle courant sous un nom versionné et décider s'il reste
    `replay-only` ou devient `unsupported` ;
-2. ajouter une seule entrée v17 dans `config/authority-versions.json`, avec les
+2. ajouter une seule entrée v18 dans `config/authority-versions.json`, avec les
    capacités complètes et le chemin de la nouvelle migration ;
-3. déclarer v17 et son hash dans le moteur, puis exécuter
+3. déclarer v18 et son hash dans le moteur, puis exécuter
    `npm run authority:generate` ;
 4. lancer `npm run edge:bundle`, les tests et la validation de base de données ;
 5. déployer `verify-run`, puis le client, avant d'activer la migration.
@@ -37,3 +37,19 @@ Pour passer, par exemple, de v16 à v17 :
 Il n'existe aucune liste parallèle de moteurs canoniques ou rejouables à éditer.
 Toute version rencontrée dans une migration ou un bundle sans entrée compatible fait
 échouer le build avant publication.
+
+## Publication early Top v18
+
+La migration `20260828150025_gameplay_ruleset_v18_early_top.sql` publie
+`run-engine-v18` et le hash
+`9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17`. Elle copie le
+catalogue gameplay v17 sans en modifier les lignes, vérifie la parité dans les deux
+sens, puis publie le Daily v18 dans le namespace `lolrogue.daily.v18`. Le score reste
+en version 15 et conserve `gold_points = 0`.
+
+Le bundle v17 est archivé byte-for-byte dans
+`run-authority-v17.bundle.ts` (824 777 octets, SHA-256
+`bfcc01a5d7c02c21fc22700819a6f2f9380661b3d5f035ff9a926dc47fa5e78c`). Le wrapper
+SQL v18 délègue au contrat v17 après une traduction temporaire de l'identité moteur ;
+les deux fonctions retirent l'exécution à `PUBLIC`, `anon` et `authenticated`, et seul
+le wrapper courant est accordé à `service_role`.

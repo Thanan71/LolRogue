@@ -85,9 +85,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v17';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v18';
 export const AUTHORITY_CONTENT_HASH =
-  '83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19';
+  '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17';
 
 assertValidRuleCatalogs();
 
@@ -694,6 +694,10 @@ class AuthorityReplayState {
       this.pendingSpellUpgradeChampionIds,
       postCombat.pendingSpellUpgradeChampionIds,
     );
+    let droppedItemInstanceId: string | null = null;
+    if (resolution.reward.droppedItem) {
+      droppedItemInstanceId = this.addItem(resolution.reward.droppedItem, 'found', 'combat');
+    }
     const progression = completeCombatProgression({
       runLevel: this.runLevel,
       currentWave: this.currentWave,
@@ -701,10 +705,6 @@ class AuthorityReplayState {
     });
     this.currentWave = progression.currentWave;
     this.totalWavesCompleted = progression.totalWavesCompleted;
-    let droppedItemInstanceId: string | null = null;
-    if (resolution.reward.droppedItem) {
-      droppedItemInstanceId = this.addItem(resolution.reward.droppedItem, 'found', 'combat');
-    }
     this.combatSummaries.push({
       ...summaryBase,
       playerAfterEncounter: this.capturePostCombatResources(),

@@ -2,26 +2,26 @@ import type { User } from '@supabase/supabase-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   AUTHORITY_ENGINE_VERSION,
-  replayAuthorityRun,
   type AuthorityRunAttempt,
   type AuthorityRunCommand,
   type AuthorityRunSnapshot,
+  replayAuthorityRun,
 } from '@/game/authority';
-import { createRunAugmentManager, buildRunPlayerTeam } from '@/game/run/runCombatant';
-import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
-import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { BattleManager } from '@/game/battle/BattleManager';
-import { BattlePhase, type BattleAction, type BattleTeam } from '@/game/battle/types';
-import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
-import { buildCombatRuleLoadout } from '@/game/rules/loadout';
+import { type BattleAction, BattlePhase, type BattleTeam } from '@/game/battle/types';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { NodeType } from '@/game/map/types';
+import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
+import { buildCombatRuleLoadout } from '@/game/rules/loadout';
+import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
+import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
+import { buildRunPlayerTeam, createRunAugmentManager } from '@/game/run/runCombatant';
 import { buildChampionRunStats } from '@/game/run/runLedger';
-import { createScopedRunRng } from '@/utils/runRandom';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
+import { createScopedRunRng } from '@/utils/runRandom';
 
 const RUN_UUID = '11111111-1111-4111-8111-111111111111';
 const OWNER_ID = 'parity-user';
@@ -325,6 +325,9 @@ describe('golden client / authority parity traces', () => {
       const authority = replayAuthorityRun(authorityAttempt(), recordedTrace()).snapshot;
 
       expect(canonicalClientSnapshot()).toEqual(authority);
+      expect(authority.ledger.items).toContainEqual(
+        expect.objectContaining({ source: 'combat', wave: 1 }),
+      );
       const combatCommand = recordedTrace().find((command) => command.kind === 'resolve_combat');
       if (mode === 'manual') {
         expect(combatCommand?.payload.actions_json).toContain(',0]');

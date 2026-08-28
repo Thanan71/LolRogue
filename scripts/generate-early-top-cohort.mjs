@@ -12,7 +12,7 @@ const { values } = parseArgs({
   strict: true,
   options: {
     check: { type: 'boolean', default: false },
-    engine: { type: 'string', default: 'v17' },
+    engine: { type: 'string', default: 'v18' },
     output: { type: 'string' },
   },
 });
@@ -21,7 +21,7 @@ const versions = {
   v17: {
     artifact: 'config/early-top-cohort-v17.json',
     entrySource: `
-      import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority.bundle.js';
+      import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v17.bundle.ts';
       import { generateEarlyTopCohortDocument } from './src/game/balance/earlyTopCohort.ts';
 
       export function generate() {
@@ -34,26 +34,25 @@ const versions = {
       }
     `,
   },
-  working: {
+  v18: {
     artifact: null,
     entrySource: `
-      import {
-        AUTHORITY_CONTENT_HASH,
-        AUTHORITY_ENGINE_VERSION,
-        getAuthorityVerifier,
-      } from './src/game/authority/index.ts';
+      import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority.bundle.js';
       import { generateEarlyTopCohortDocument } from './src/game/balance/earlyTopCohort.ts';
 
       export function generate() {
-        const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
-        if (!authority) throw new Error('The working authority verifier is unavailable.');
+        const authority = getAuthorityVerifier(
+          'run-engine-v18',
+          '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17',
+        );
+        if (!authority) throw new Error('The v18 authority verifier is unavailable.');
         return generateEarlyTopCohortDocument(authority);
       }
     `,
   },
 };
 const version = versions[values.engine];
-if (!version) throw new Error('--engine must be v17 or working.');
+if (!version) throw new Error('--engine must be v17 or v18.');
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
 if (values.check && !version.artifact) {
   throw new Error('--check is only available for a published cohort artifact.');

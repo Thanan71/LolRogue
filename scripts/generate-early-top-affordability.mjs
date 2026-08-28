@@ -11,14 +11,14 @@ const outputPath = path.join(temporaryRoot, 'early-top-affordability.mjs');
 const { values } = parseArgs({
   strict: true,
   options: {
-    engine: { type: 'string', default: 'working' },
+    engine: { type: 'string', default: 'v18' },
     output: { type: 'string' },
   },
 });
 
 const entrySources = {
   v17: `
-    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority.bundle.js';
+    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v17.bundle.ts';
     import { measureEarlyTopAffordability } from './src/game/balance/earlyTopAffordability.ts';
 
     export function generate() {
@@ -30,24 +30,23 @@ const entrySources = {
       return measureEarlyTopAffordability(authority);
     }
   `,
-  working: `
-    import {
-      AUTHORITY_CONTENT_HASH,
-      AUTHORITY_ENGINE_VERSION,
-      getAuthorityVerifier,
-    } from './src/game/authority/index.ts';
+  v18: `
+    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority.bundle.js';
     import { measureEarlyTopAffordability } from './src/game/balance/earlyTopAffordability.ts';
 
     export function generate() {
-      const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
-      if (!authority) throw new Error('The working authority verifier is unavailable.');
+      const authority = getAuthorityVerifier(
+        'run-engine-v18',
+        '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17',
+      );
+      if (!authority) throw new Error('The v18 authority verifier is unavailable.');
       return measureEarlyTopAffordability(authority);
     }
   `,
 };
 
 const entrySource = entrySources[values.engine];
-if (!entrySource) throw new Error('--engine must be v17 or working.');
+if (!entrySource) throw new Error('--engine must be v17 or v18.');
 
 try {
   await build({
