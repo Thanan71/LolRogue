@@ -1438,6 +1438,111 @@ export type Database = {
         };
         Relationships: [];
       };
+      admin_verified_field_augment_cohorts: {
+        Row: {
+          augment_id: string | null;
+          average_biomes_completed: number | null;
+          average_gold_balance: number | null;
+          average_waves_completed: number | null;
+          cohort_sample_size: number | null;
+          difficulty: string | null;
+          engine_version: string | null;
+          gameplay_content_hash: string | null;
+          gameplay_ruleset_version: number | null;
+          initial_composition_hash: string | null;
+          initial_team_size: number | null;
+          meta_level: number | null;
+          mode: string | null;
+          observed_on: string | null;
+          sample_size: number | null;
+          selection_rate: number | null;
+          win_rate: number | null;
+          win_rate_wilson_high: number | null;
+          win_rate_wilson_low: number | null;
+          wins: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
+      admin_verified_field_champion_cohorts: {
+        Row: {
+          average_damage_dealt: number | null;
+          average_deaths: number | null;
+          average_final_level: number | null;
+          average_healing_done: number | null;
+          average_kills: number | null;
+          average_shielding_done: number | null;
+          champion_id: string | null;
+          cohort_sample_size: number | null;
+          difficulty: string | null;
+          engine_version: string | null;
+          gameplay_content_hash: string | null;
+          gameplay_ruleset_version: number | null;
+          initial_composition_hash: string | null;
+          initial_team_size: number | null;
+          meta_level: number | null;
+          mode: string | null;
+          observed_on: string | null;
+          participation_rate: number | null;
+          sample_size: number | null;
+          win_rate: number | null;
+          win_rate_wilson_high: number | null;
+          win_rate_wilson_low: number | null;
+          wins: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
+      admin_verified_field_cohorts: {
+        Row: {
+          average_biomes_completed: number | null;
+          average_gold_balance: number | null;
+          average_gold_earned: number | null;
+          average_gold_spent: number | null;
+          average_waves_completed: number | null;
+          death_biome_counts: Json | null;
+          defeats: number | null;
+          difficulty: string | null;
+          engine_version: string | null;
+          gameplay_content_hash: string | null;
+          gameplay_ruleset_version: number | null;
+          initial_composition_hash: string | null;
+          initial_team_size: number | null;
+          median_biomes_completed: number | null;
+          median_waves_completed: number | null;
+          meta_level: number | null;
+          mode: string | null;
+          observed_on: string | null;
+          sample_size: number | null;
+          win_rate: number | null;
+          win_rate_wilson_high: number | null;
+          win_rate_wilson_low: number | null;
+          wins: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
       authority_attempt_aggregates: {
         Row: {
           attempt_count: number | null;
