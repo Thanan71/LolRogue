@@ -46,6 +46,14 @@ sans réécrire les versions précédentes. `npm run balance:baseline:check`, in
 dans `npm run balance:check`, exige une reproduction byte-for-byte des trois
 artefacts.
 
+La calibration multi-politique v1 est distincte de la publication gameplay. Elle se
+trouve dans `config/authority-field-calibration-baseline-v1.json`, conserve 30 seeds
+appariées pour chaque difficulté et indexe séparément `safety-first@1` et
+`economy-first@1`. `npm run balance:field-baseline:generate` la régénère depuis le
+bundle v17 déclaré dans le registre, même lorsque ce moteur devient une archive. Le
+check byte-for-byte fait partie de `balance:baseline:check` ; aucun numéro de ruleset
+n'est incrémenté pour modifier seulement une politique de simulation.
+
 ## Indicateurs de catalogue et de nœuds
 
 Pour chaque nœud de combat généré et chaque difficulté, `meanEncounterPower` agrège
@@ -122,4 +130,6 @@ d'incertitude. Une modification est proposée avec hypothèse et cible, évalué
 `simulateAuthorityCohort()`, playtestée sur au moins deux compositions, puis
 versionnée. Les taux produits par une politique automatisée restent des hypothèses
 jusqu'à leur confrontation à des playtests humains consentis ; sans échantillon
-suffisant, le TODO de calibration reste ouvert.
+suffisant, le TODO de calibration reste ouvert. Le protocole opérationnel, l'opt-in
+et la rétention maximale sont figés dans `docs/field-calibration.md` ; aucun playtest
+humain n'est déclaré réalisé par cette documentation.
