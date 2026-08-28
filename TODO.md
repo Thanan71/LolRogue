@@ -557,7 +557,7 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
 - [x] Capturer avant tout changement une cohorte authority reproductible et les seeds
   extrêmes démontrant le 0 % de victoire et les morts early Top ; conserver le diff
   comme preuve plutôt que de tuner à partir d'un ressenti.
-- [ ] Recalibrer en premier le budget de formation de départ (`enemyFormationMultiplier`)
+- [x] Recalibrer en premier le budget de formation de départ (`enemyFormationMultiplier`)
   et la puissance des encounters `top_*`, en ciblant particulièrement les élites ;
   éviter un nerf global de tous les biomes tant que le problème reste localisé.
 - [ ] Mesurer ensuite l'affordability early ; si elle contribue au blocage, augmenter

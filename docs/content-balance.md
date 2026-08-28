@@ -46,13 +46,25 @@ de formation v17 reste `1.00` / `1.55` / `2.00` dans tous les biomes :
 | --- | ---: | ---: | ---: | ---: |
 | v17 | 0 / 0 / 0 sur 300 | 290 / 244 / 74 | 279 / 287 / 297 | 279 / 291 / 297 |
 | A — Top uniquement | 0 / 0 / 0 sur 300 | 300 / 300 / 300 | 4 / 7 / 60 | 14 / 23 / 107 |
+| B — budget formation versionné sur toute la run | 84 / 50 / 15 sur 300 | 300 / 300 / 300 | 4 / 7 / 60 | 14 / 23 / 107 |
 
 La génération répétée est byte-identique (SHA-256
 `441b333b0f5b1d63b003a7b4f55100e7eb9189d2f4b72c35b427bed89307e36d`). Elle prouve
 que Top n'est plus la cause principale des défaites, mais que les morts sont déplacées
-après Top. La case TODO reste donc ouverte jusqu'à la seconde passe sur le budget de
+après Top. La case TODO est donc restée ouverte jusqu'à la seconde passe sur le budget de
 formation. Des tests numériques couvrent Jungle, Mid, Bot, River et Base et figent
 leurs valeurs v17 pendant cette première passe.
+
+La passe B normalise ensuite le budget 1/2/3 starters à `0.61` / `0.95` / `1.22`
+sur toute la run, en conservant presque exactement les rapports de formation
+précédents. La passe A ayant prouvé que le problème n'était plus localisé à Top, ce
+second étage respecte la clause du ticket « tant que le problème reste localisé ».
+Les pools et règles spécifiques de Jungle, Mid, Bot, River et Base restent inchangés :
+leurs tests numériques reconstruisent leur facteur de biome depuis `BIOME_INFO` et
+isolent `enemyFormationMultiplier` comme seul changement commun. La double génération
+est byte-identique (SHA-256
+`25d1d5d2bb0a41ca6fcf409ff64584261a5b8404e8f894f12f2ffebc22b32170`). Easy atteint
+ainsi 28,0 % avant toute retouche économique.
 
 La baseline courante v17 est chargée depuis
 `config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les

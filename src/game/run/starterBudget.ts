@@ -1,4 +1,4 @@
-export const STARTER_BUDGET_RULESET_VERSION = 2 as const;
+export const STARTER_BUDGET_RULESET_VERSION = 3 as const;
 export const MAX_STARTER_TEAM_SIZE = 3 as const;
 
 export type StarterTeamSize = 1 | 2 | 3;
@@ -7,29 +7,25 @@ export type StarterBudgetCohortId = `starters-${StarterTeamSize}`;
 export interface StarterBudgetProfile {
   readonly teamSize: StarterTeamSize;
   readonly cohortId: StarterBudgetCohortId;
+  /** Versioned formation budget applied across the run for this immutable starter size. */
   readonly enemyFormationMultiplier: number;
-  /** Local stabilization applied only before leaving Top. */
-  readonly earlyTopEnemyFormationMultiplier: number;
 }
 
 const STARTER_BUDGET_PROFILES: Readonly<Record<StarterTeamSize, StarterBudgetProfile>> = {
   1: {
     teamSize: 1,
     cohortId: 'starters-1',
-    enemyFormationMultiplier: 1,
-    earlyTopEnemyFormationMultiplier: 0.61,
+    enemyFormationMultiplier: 0.61,
   },
   2: {
     teamSize: 2,
     cohortId: 'starters-2',
-    enemyFormationMultiplier: 1.55,
-    earlyTopEnemyFormationMultiplier: 0.95,
+    enemyFormationMultiplier: 0.95,
   },
   3: {
     teamSize: 3,
     cohortId: 'starters-3',
-    enemyFormationMultiplier: 2,
-    earlyTopEnemyFormationMultiplier: 1.22,
+    enemyFormationMultiplier: 1.22,
   },
 };
 

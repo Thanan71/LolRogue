@@ -171,10 +171,6 @@ export function resolveCombatEncounter(
 ): ResolvedCombatEncounter {
   const difficulty = DIFFICULTY_RULES[input.difficulty];
   const starterBudget = getStarterBudgetProfile(input.starterTeamSize ?? 1);
-  const formationMultiplier =
-    input.biome === 'top_lane'
-      ? starterBudget.earlyTopEnemyFormationMultiplier
-      : starterBudget.enemyFormationMultiplier;
   const node = NODE_RULES[input.nodeType];
   const lanePressure = input.biome === 'top_lane' ? TOP_LANE_NODE_PRESSURE[input.nodeType] : 1;
   const biomeMultiplier = 1 + (BIOME_INFO[input.biome].difficultyMultiplier - 1) * 0.35;
@@ -192,7 +188,7 @@ export function resolveCombatEncounter(
     statMultiplier: roundMultiplier(
       Math.max(0.1, enemy.statMultiplier) *
         difficulty.enemyStatMultiplier *
-        formationMultiplier *
+        starterBudget.enemyFormationMultiplier *
         biomeMultiplier *
         node.enemyStatMultiplier *
         lanePressure *

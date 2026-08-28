@@ -111,8 +111,7 @@ describe('authority cohort stratification matrix', () => {
         starterBudget: {
           teamSize: 2,
           cohortId: 'starters-2',
-          enemyFormationMultiplier: 1.55,
-          earlyTopEnemyFormationMultiplier: 0.95,
+          enemyFormationMultiplier: 0.95,
         },
         masterySnapshot: { Garen: 4, Lux: 4 },
         runeIds: ['electrocute', 'press_the_attack'],
@@ -212,8 +211,7 @@ describe('authority cohort stratification matrix', () => {
         starterBudget: {
           teamSize: 1,
           cohortId: 'starters-1',
-          enemyFormationMultiplier: 1,
-          earlyTopEnemyFormationMultiplier: 0.61,
+          enemyFormationMultiplier: 0.61,
         },
         masterySnapshot: {},
         runeIds: [],

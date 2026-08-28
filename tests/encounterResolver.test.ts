@@ -84,11 +84,10 @@ describe('versioned encounter resolver', () => {
     expect(solo.starterBudget).toEqual({
       teamSize: 1,
       cohortId: 'starters-1',
-      enemyFormationMultiplier: 1,
-      earlyTopEnemyFormationMultiplier: 0.61,
+      enemyFormationMultiplier: 0.61,
     });
-    expect(duo.starterBudget.enemyFormationMultiplier).toBe(1.55);
-    expect(trio.starterBudget.enemyFormationMultiplier).toBe(2);
+    expect(duo.starterBudget.enemyFormationMultiplier).toBe(0.95);
+    expect(trio.starterBudget.enemyFormationMultiplier).toBe(1.22);
     expect(duo.enemies[0].statMultiplier / solo.enemies[0].statMultiplier).toBeCloseTo(
       0.95 / 0.61,
       4,
@@ -103,20 +102,20 @@ describe('versioned encounter resolver', () => {
 
     expect(topCombat.enemies[0].statMultiplier).toBe(0.5124);
     expect(topElite.enemies[0].statMultiplier).toBe(0.3331);
-    expect(jungleCombat.enemies[0].statMultiplier).toBe(1.035);
+    expect(jungleCombat.enemies[0].statMultiplier).toBe(0.6314);
     expect(TOP_LANE_NODE_PRESSURE[NodeType.Elite]).toBeLessThan(
       TOP_LANE_NODE_PRESSURE[NodeType.Combat],
     );
   });
 
   it.each(['jungle', 'mid_lane', 'bot_lane', 'river', 'base'] as const)(
-    'preserves v17 formation pressure in %s',
+    'changes only the versioned formation budget in %s',
     (biome) => {
       const biomeMultiplier = 1 + (BIOME_INFO[biome].difficultyMultiplier - 1) * 0.35;
       const expectedFormationBySize = [
-        [1, 1],
-        [2, 1.55],
-        [3, 2],
+        [1, 0.61],
+        [2, 0.95],
+        [3, 1.22],
       ] as const;
 
       for (const [starterTeamSize, formationMultiplier] of expectedFormationBySize) {
