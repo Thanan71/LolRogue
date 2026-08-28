@@ -49,10 +49,14 @@ artefacts.
 La calibration multi-politique v1 est distincte de la publication gameplay. Elle se
 trouve dans `config/authority-field-calibration-baseline-v1.json`, conserve 30 seeds
 appariées pour chaque difficulté et indexe séparément `safety-first@1` et
-`economy-first@1`. `npm run balance:field-baseline:generate` la régénère depuis le
-bundle v17 déclaré dans le registre, même lorsque ce moteur devient une archive. Le
-check byte-for-byte fait partie de `balance:baseline:check` ; aucun numéro de ruleset
-n'est incrémenté pour modifier seulement une politique de simulation.
+`economy-first@1`. Son sidecar
+`config/authority-field-calibration-conditionals-v1.json` conserve les signaux
+champions et augments issus exactement des mêmes runs. `npm run
+balance:field-baseline:generate` régénère les deux artefacts depuis le bundle v17
+déclaré dans le registre, même lorsque ce moteur devient une archive. Le check
+byte-for-byte fait partie de `balance:baseline:check` ; aucun numéro de ruleset n'est
+incrémenté pour modifier seulement une politique de simulation. V1/v17 reste
+immuable : une future autorité publie une nouvelle version des deux artefacts.
 
 ## Indicateurs de catalogue et de nœuds
 

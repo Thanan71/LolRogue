@@ -4,7 +4,9 @@
  * Gameplay formulas remain in `src/game`; this contract records the product
  * choices that those formulas and the UI must consistently expose.
  */
-export const PRODUCT_DECISIONS_VERSION = 1 as const;
+import { BALANCE_CALIBRATION_DECISION } from './balanceCalibrationDecision';
+
+export const PRODUCT_DECISIONS_VERSION = 2 as const;
 
 export const PRODUCT_DECISIONS = {
   launchLanguage: {
@@ -55,5 +57,12 @@ export const PRODUCT_DECISIONS = {
     databaseDiagnosticsEnabledByDefault: false,
     diagnosticRetentionDays: 14,
     activationRequiresPurposeAndUserControls: true,
+  },
+  balanceCalibration: {
+    decisionId: BALANCE_CALIBRATION_DECISION.id,
+    decisionSchemaVersion: BALANCE_CALIBRATION_DECISION.schemaVersion,
+    status: BALANCE_CALIBRATION_DECISION.status,
+    automaticTuning: BALANCE_CALIBRATION_DECISION.guardrails.automaticTuning,
+    humanPlaytests: BALANCE_CALIBRATION_DECISION.evidence.humanPlaytests.status,
   },
 } as const;

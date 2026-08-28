@@ -1,6 +1,6 @@
 # Calibration simulation, playtests et terrain
 
-Version du protocole : 25 août 2026. Ce protocole ne constitue pas une preuve de
+Version du protocole : 28 août 2026. Ce protocole ne constitue pas une preuve de
 playtest humain. À cette date, la collecte humaine reste à organiser et bloque la
 fermeture de `P2-BAL-01`.
 
@@ -17,6 +17,13 @@ La baseline `authority-field-calibration-baseline-v1.json` rejoue 30 seeds appar
 pour chaque difficulté et pour `safety-first@1` et `economy-first@1`. Elle reste liée
 au moteur, au hash de contenu, au modèle et au manifeste de politique v17 ; elle ne
 crée pas un nouveau ruleset gameplay.
+
+Le sidecar reproductible `authority-field-calibration-conditionals-v1.json` est généré
+depuis ces mêmes runs. Il publie, par scénario et politique, participation et
+performance des champions initiaux ainsi que sélection et performance conditionnelle
+des augments. Il ne contient ni trace, seed individuelle, identifiant ou snapshot.
+La baseline et son sidecar V1/v17 sont des archives immuables : le contenu final
+postérieur doit publier une V2 liée à sa nouvelle autorité, jamais réécrire V1.
 
 ## Signal terrain minimisé
 
@@ -39,6 +46,13 @@ Les vues ne publient ni identifiant utilisateur/joueur/run/attempt, ni seed, dat
 précises, journal, commandes, payload, texte libre ou snapshot brut. Elles sont
 `security_invoker`, réservées aux administrateurs authentifiés et ne matérialisent
 aucune copie supplémentaire.
+
+Le panneau admin rapproche uniquement des cellules de dimensions strictement
+identiques. Il affiche les deux politiques, `n`, Wilson 95 %, victoire, biome de mort,
+économie, participation/pick rate et écarts conditionnels champions/augments. Une
+absence de sélection en simulation reste affichée comme un taux nul, pas comme une
+performance inventée. Tous les libellés de ce panneau existent en français et en
+anglais. Les seuils ouvrent au plus une revue ; ils ne modifient jamais le gameplay.
 
 ## Collecte optionnelle : inactive par défaut
 

@@ -1,4 +1,4 @@
-# Décisions produit transverses — version 1
+# Décisions produit transverses — version 2
 
 Ces décisions sont figées pour la bêta. Elles complètent les règles détaillées dans
 `gameplay.md` et le contrat de persistance ; toute modification doit changer le
@@ -66,3 +66,17 @@ Avant toute activation d'analytics produit, il faut documenter la finalité et l
 données exactes, choisir une base légale, ajouter l'information et le consentement
 si requis, ainsi qu'un refus et un retrait accessibles. Aucun journal de commandes,
 email ou identifiant public ne doit être collecté comme métrique produit.
+
+## Dérive d'équilibrage
+
+La décision `field-calibration-v1` est en `observation_only`. Les deux baselines
+authority v17 sont les seules références de simulation admises pour cette décision.
+Un écart absolu de 5 points de victoire, 0,5 biome moyen ou 100 gold de solde moyen
+ouvre une revue ; il ne modifie jamais le gameplay automatiquement.
+
+Une revue compare uniquement des dimensions compatibles et publie la taille
+d'échantillon ainsi que l'intervalle Wilson. Elle doit aussi consigner les écarts
+victoire/biome/économie, le risque de composition, le ruleset cible et le rollback.
+Tant que le terrain n'atteint pas `n >= 30` et que les playtests humains restent
+`bloqués / non réalisés`, aucune bande cible ni dérive gameplay volontaire n'est
+autorisée.

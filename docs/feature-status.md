@@ -8,7 +8,7 @@ objective de `beta-readiness.md` peut autoriser un candidat.
 
 | Fonctionnalité | Implémentation de référence | Preuves principales | Statut |
 | --- | --- | --- | --- |
-| Décisions produit transverses | `productDecisions`, contrat produit v1 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta |
+| Décisions produit transverses | `productDecisions`, contrat produit v2 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta ; calibration en observation tant que le terrain et les playtests manquent |
 | Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `release:preflight`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |
 | Auth et mode invité | `authStore`, `AuthBootstrap`, repositories Auth | `authStore.test.ts`, `auth-menu-responsive.spec.ts` | Livré |
 | Démarrage et reprise de run | `runStartCoordinator`, `runStoreLifecycleSlice`, gardes de routes | `runStartValidation.test.ts`, `runReloadRecovery.test.ts`, `routeAccess.test.ts` | Livré |
@@ -20,7 +20,7 @@ objective de `beta-readiness.md` peut autoriser un candidat.
 | Équipe, inventaire et équipement sur la carte | `RunTeamStatsPanel`, `RunInventoryPanel`, calcul canonique des statistiques | `runTeamStatsPanel.test.tsx`, `runInventoryPanel.test.tsx`, `run-loadout-panels.spec.ts` | Livré : fiche par champion, six emplacements, aperçu et mutations d'équipement |
 | Amélioration de sort sur la carte | `SpellUpgradePanel`, `spellUpgradeRules`, `spellPreview` | `spellUpgradePanel.test.tsx`, `spellPreview.test.ts` | Livré : rang/coût/recharge, verrouillage et impact calculé sans modifier les règles |
 | Économie et rencontres | règles pures de `game/run` et `game/map` | `runTransactions.test.ts`, `encounterRules.test.ts`, `runSharedRules.test.ts` | Livré |
-| Contrat d'équilibrage | analyse des catalogues/nœuds dans `game/balance/contentBalance` et vraies runs via `simulateAuthorityCohort` | `contentCatalogAnalysis.test.ts`, `authorityCohort.test.ts`, `authorityCohortMatrix.test.ts`, `dailyProgressionParity.test.ts` | Baseline v17 : cohortes stratifiées, Daily sans progression de compte ni score d'or ; calibration et playtests humains encore ouverts |
+| Contrat d'équilibrage | analyse des catalogues/nœuds dans `game/balance/contentBalance` et vraies runs via `simulateAuthorityCohort` | `contentCatalogAnalysis.test.ts`, `authorityCohort.test.ts`, `authorityCohortMatrix.test.ts`, `authorityFieldCalibrationBaseline.test.ts`, `fieldCalibrationComparison.test.ts`, `dailyProgressionParity.test.ts` | Baseline V1/v17 : cohortes multi-politiques et comparaisons terrain/conditionnelles automatisées ; playtests humains encore ouverts |
 | Fin victoire, défaite et abandon | `runFinalization`, outbox et snapshot final | `runFinalization.test.ts`, `runSaveRecovery.test.ts`, `six-biome-run.spec.ts` | Livré |
 | Progression connectée autoritaire | attempts, journal, `verify-run`, `complete_run_verification` | `authorityRunEngine.test.ts`, `verifiedRunAttempts.database.test.ts`, `clientAuthorityParity.test.ts` | Livré |
 | Maîtrise et améliorations | stores dédiés et RPC atomique | `mastery.test.ts`, `enhancementStoreRecovery.test.ts`, `authoritativeDaily.database.test.ts` | Livré |
