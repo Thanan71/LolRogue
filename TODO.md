@@ -554,7 +554,7 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
 
 ### Actions
 
-- [ ] Capturer avant tout changement une cohorte authority reproductible et les seeds
+- [x] Capturer avant tout changement une cohorte authority reproductible et les seeds
   extrêmes démontrant le 0 % de victoire et les morts early Top ; conserver le diff
   comme preuve plutôt que de tuner à partir d'un ressenti.
 - [ ] Recalibrer en premier le budget de formation de départ (`enemyFormationMultiplier`)

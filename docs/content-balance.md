@@ -30,6 +30,13 @@ comportement joueur.
 
 ## Baselines authority versionnées
 
+La stabilisation early Top conserve en plus `config/early-top-cohort-v17.json` : 10 starters
+solo × Easy/Normal/Hard × 30 seeds appariées, avec victoire de run, victoire du premier
+combat, morts terminales dans les trois premiers combats Top, ressources, or,
+affordability et commandes de reproduction des seeds extrêmes. La fixture est régénérée
+par `npm run balance:early-top:generate` et vérifiée par
+`npm run balance:early-top:check`. Elle fige le signal v17 à 0 % avant tout tuning.
+
 La baseline courante v17 est chargée depuis
 `config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les
 baselines v15 et v16 restent des archives immuables : leurs identités
