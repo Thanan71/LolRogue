@@ -137,4 +137,12 @@ describe('P0-BAL-05 starter survivability decision', () => {
     expect(totalStarterEvidence(matrix, 'Darius')).toMatchObject({ wins: 5, earlyTopDeaths: 21 });
     expect(totalStarterEvidence(matrix, 'Soraka')).toMatchObject({ earlyTopDeaths: 11 });
   });
+
+  it('keeps the Warwick no-buff gate until his E and AI are corrected', () => {
+    expect(totalStarterEvidence(matrix, 'Warwick')).toEqual({
+      wins: 13,
+      firstCombatWins: 90,
+      earlyTopDeaths: 1,
+    });
+  });
 });

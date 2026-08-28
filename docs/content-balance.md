@@ -128,6 +128,11 @@ signal n'est pas isolé puisque Annie et Darius sont à 5/90. Il remporte lui au
 Darius et 11 de Soraka. Rien ne démontre donc le besoin d'un buff individuel de
 survie pour Ashe ou Garen ; leurs statistiques défensives restent inchangées.
 
+Warwick gagne 13/90 runs, remporte ses 90 premiers combats et ne compte qu'une mort
+early Top. Cette matrice ne contredit donc pas la gate : aucun buff de statistique ou
+de sort ne lui est appliqué avant la correction de son E et de l'IA prévue par
+`P1-BAL-01`.
+
 La comparaison n'agrège pas le MP entre starters : Garen n'utilise pas de mana, ce
 qui rendrait cette dimension trompeuse. `npm run balance:early-top:starters` verrouille
 les 30 cellules et la décision no-op. Deux générations Node 24 de
