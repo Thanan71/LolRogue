@@ -139,6 +139,19 @@ les 30 cellules et la décision no-op. Deux générations Node 24 de
 `scripts/generate-early-top-cohort.mjs --engine working` sont byte-identiques au
 SHA-256 `25d1d5d2bb0a41ca6fcf409ff64584261a5b8404e8f894f12f2ffebc22b32170`.
 
+### Gate de non-régression P0-BAL-04
+
+`npm run balance:early-top:catalog-gates` réutilise directement les deux suites de
+P0-BAL-04 au lieu de recopier leurs valeurs. `economyBalance.test.ts` conserve ses six
+invariants sur le snowball des augments, les budgets Silver, le tirage pondéré des
+raretés, les tiers par biome et la Base, l'échantillon déterministe de 10 000 drops et
+la hiérarchie Gold/Prismatic. `economyBalanceRuleset.test.ts` conserve le contrat v17
+append-only, le score sans points d'or gagné et son wrapper service-role.
+
+Les neuf tests passent sous Node 24 sans modifier les catalogues d'augments, les
+tables de drops, les items, les encounters ou les règles de contenu. La stabilisation
+early Top ne compense donc pas sa difficulté en rouvrant P0-BAL-04.
+
 La baseline courante v17 est chargée depuis
 `config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les
 baselines v15 et v16 restent des archives immuables : leurs identités

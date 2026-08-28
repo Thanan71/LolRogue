@@ -77,6 +77,7 @@
     "balance:early-top:affordability": "vitest run tests/earlyTopAffordability.test.ts",
     "balance:early-top:affordability:generate": "node scripts/generate-early-top-affordability.mjs --engine working",
     "balance:early-top:affordability:generate:v17": "node scripts/generate-early-top-affordability.mjs --engine v17",
+    "balance:early-top:catalog-gates": "vitest run tests/economyBalance.test.ts tests/economyBalanceRuleset.test.ts",
     "balance:early-top:starters": "vitest run tests/earlyTopStarterSurvivability.test.ts",
     "balance:cohort": "node scripts/run-authority-cohorts.mjs",
     "balance:repro": "node scripts/run-balance-repro.mjs",

@@ -568,7 +568,7 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
   chaque buff doit être mesuré séparément.
 - [x] Ne pas buff Warwick dans ce correctif avant la correction de son E et de l'IA
   prévue par `P1-BAL-01`, sauf preuve de cohorte contredisant explicitement cette gate.
-- [ ] Ne pas retoucher les tables d'augments ou de drops de `P0-BAL-04` pour compenser
+- [x] Ne pas retoucher les tables d'augments ou de drops de `P0-BAL-04` pour compenser
   un early trop dur.
 - [ ] Si le changement modifie un contrat rejouable/authority, publier la version
   gameplay/engine nécessaire, régénérer le bundle et la baseline sans réécrire les
