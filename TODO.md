@@ -560,7 +560,7 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
 - [x] Recalibrer en premier le budget de formation de départ (`enemyFormationMultiplier`)
   et la puissance des encounters `top_*`, en ciblant particulièrement les élites ;
   éviter un nerf global de tous les biomes tant que le problème reste localisé.
-- [ ] Mesurer ensuite l'affordability early ; si elle contribue au blocage, augmenter
+- [x] Mesurer ensuite l'affordability early ; si elle contribue au blocage, augmenter
   modérément l'or des premiers encounters et/ou réduire les prix des consommables et
   boots d'entrée de gamme sans réintroduire le snowball fermé par `P0-BAL-04`.
 - [ ] N'appliquer un léger buff de survie aux starters (par exemple Garen/Ashe) que si

@@ -66,6 +66,42 @@ est byte-identique (SHA-256
 `25d1d5d2bb0a41ca6fcf409ff64584261a5b8404e8f894f12f2ffebc22b32170`). Easy atteint
 ainsi 28,0 % avant toute retouche économique.
 
+### Décision d'affordability early
+
+`npm run balance:early-top:affordability` rejoue les mêmes 30 cellules × 30 seeds,
+mais construit cette mesure depuis les observations brutes de chaque run. Seules les
+visites dont `biome === 'top_lane'` sont retenues ; l'or gagné est la somme des rewards
+des combats Top par run, et non le ledger de la run entière. Le rapport conserve pour
+chaque visite son `nodeId`, son `commandIndex`, l'or à l'entrée, les offres et les
+transactions rattachées au même nœud.
+
+Le comparatif apparié ci-dessous oppose le bundle v17 archivé à la source de travail
+après la passe B. Les flèches indiquent `v17 → passe B` ; les victoires de run restent
+un contexte, pas une attribution causale à l'économie.
+
+| Difficulté | Victoires | Or de combats Top moyen | Visites de shop Top | Or moyen à l'entrée | Offres abordables | Achats / recrues Top |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Easy | 0 → 84 | 24,76 → 79,21 | 38 → 60 | 29,58 → 33,50 | 0/172 → 0/280 | 0/0 → 0/0 |
+| Normal | 0 → 50 | 20,36 → 85,82 | 29 → 60 | 31,24 → 36,83 | 0/129 → 0/280 | 0/0 → 0/0 |
+| Hard | 0 → 15 | 6,28 → 83,55 | 9 → 58 | 24,33 → 41,72 | 0/39 → 9/270 | 0/0 → 9/0 |
+
+Dans le snapshot authority actuel, une offre `legal` inclut déjà `gold >= cost` en
+plus des contraintes d'inventaire ou d'équipe ; les compteurs `legal` et `affordable`
+sont donc identiques dans cette cohorte. Le projet ne définit toutefois aucun seuil
+minimal d'offres abordables en Top. La mesure observationnelle ne fournit pas non
+plus le contre-factuel nécessaire pour attribuer les victoires ou défaites à un prix.
+Elle ne justifie donc pas de tuning économique dans ce correctif : Easy est déjà dans
+la zone préliminaire à 28,0 %, et les prix des bottes (300), de la potion (50) ainsi
+que les récompenses `top_*` restent inchangés. L'effet causal de l'économie pourra
+être isolé dans la calibration complète de `P1-BAL-02` avec un seuil explicite.
+
+`npm run balance:early-top:affordability:generate:v17` et
+`npm run balance:early-top:affordability:generate` exposent les deux rapports JSON.
+Deux générations propres de la passe B sont byte-identiques (SHA-256
+`954ec7c263d5247ebb246d0a202f10cbe2db47fe73ea7b6b483196cd643a9128`) ; la sortie
+v17 comparée porte le SHA-256
+`80321fc646f27370d0fd7354b3be1c4550ef1f2a5b2bea2bfacf9a84787c2c4a`.
+
 La baseline courante v17 est chargée depuis
 `config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les
 baselines v15 et v16 restent des archives immuables : leurs identités
