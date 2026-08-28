@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { ITEM_DATABASE } from '@/data/items';
-import { NodeType, type CombatEncounter } from '@/game/map/types';
+import { type CombatEncounter, NodeType } from '@/game/map/types';
 import {
   buildResolvedEnemyTeam,
+  COMBAT_ENCOUNTER_RULESET_VERSION,
   createCombatEncounterForNode,
   DIFFICULTY_RULES,
   itemDefinitionToRunItem,
   resolveCombatEncounter,
+  TOP_LANE_NODE_PRESSURE,
 } from '@/game/run/encounterResolver';
-import type { InventoryEntry } from '@/types/run';
+import { BIOME_INFO, type InventoryEntry } from '@/types/run';
 
 const ENCOUNTER: CombatEncounter = {
   id: 'curve_test',
@@ -40,6 +42,15 @@ function resolve(
 }
 
 describe('versioned encounter resolver', () => {
+  it('versions the measured early Top calibration', () => {
+    expect(COMBAT_ENCOUNTER_RULESET_VERSION).toBe(5);
+    expect(TOP_LANE_NODE_PRESSURE).toEqual({
+      [NodeType.Combat]: 0.84,
+      [NodeType.Elite]: 0.52,
+      [NodeType.Boss]: 0.65,
+    });
+  });
+
   it('is deterministic and uses encounter rewards instead of a hardcoded amount', () => {
     const first = resolve('normal');
     const second = resolve('normal');
@@ -74,12 +85,56 @@ describe('versioned encounter resolver', () => {
       teamSize: 1,
       cohortId: 'starters-1',
       enemyFormationMultiplier: 1,
+      earlyTopEnemyFormationMultiplier: 0.61,
     });
     expect(duo.starterBudget.enemyFormationMultiplier).toBe(1.55);
     expect(trio.starterBudget.enemyFormationMultiplier).toBe(2);
-    expect(duo.enemies[0].statMultiplier / solo.enemies[0].statMultiplier).toBeCloseTo(1.55, 4);
+    expect(duo.enemies[0].statMultiplier / solo.enemies[0].statMultiplier).toBeCloseTo(
+      0.95 / 0.61,
+      4,
+    );
     expect(trio.enemies[0].statMultiplier / solo.enemies[0].statMultiplier).toBeCloseTo(2, 4);
   });
+
+  it('keeps the extra node pressure local to Top and targets elites most strongly', () => {
+    const topCombat = resolve('normal');
+    const topElite = resolve('normal', { nodeType: NodeType.Elite });
+    const jungleCombat = resolve('normal', { biome: 'jungle' });
+
+    expect(topCombat.enemies[0].statMultiplier).toBe(0.5124);
+    expect(topElite.enemies[0].statMultiplier).toBe(0.3331);
+    expect(jungleCombat.enemies[0].statMultiplier).toBe(1.035);
+    expect(TOP_LANE_NODE_PRESSURE[NodeType.Elite]).toBeLessThan(
+      TOP_LANE_NODE_PRESSURE[NodeType.Combat],
+    );
+  });
+
+  it.each(['jungle', 'mid_lane', 'bot_lane', 'river', 'base'] as const)(
+    'preserves v17 formation pressure in %s',
+    (biome) => {
+      const biomeMultiplier = 1 + (BIOME_INFO[biome].difficultyMultiplier - 1) * 0.35;
+      const expectedFormationBySize = [
+        [1, 1],
+        [2, 1.55],
+        [3, 2],
+      ] as const;
+
+      for (const [starterTeamSize, formationMultiplier] of expectedFormationBySize) {
+        const resolution = resolve('normal', { biome, starterTeamSize });
+        expect(resolution.enemies).toEqual([
+          {
+            championId: 'Garen',
+            level: 1,
+            statMultiplier: Math.round(biomeMultiplier * formationMultiplier * 10_000) / 10_000,
+          },
+        ]);
+        expect(resolution.enemies[0]!.statMultiplier / formationMultiplier).toBeCloseTo(
+          biomeMultiplier,
+          3,
+        );
+      }
+    },
+  );
 
   it('scales enemy level and every calculated stat through ChampionInstance', () => {
     const early = resolve('normal');
@@ -106,11 +161,15 @@ describe('versioned encounter resolver', () => {
     const boss = createCombatEncounterForNode('top_lane', 1, NodeType.Boss, () => 0);
 
     expect(elite.enemies.length).toBeGreaterThan(normal.enemies.length);
+    expect(elite.enemies[1]).toEqual({ championId: 'Malphite', statMultiplier: 0.34 });
     expect(elite.goldReward).toBeGreaterThan(normal.goldReward);
     expect(elite.id).toContain('elite');
     expect(boss.enemies.length).toBeGreaterThan(1);
     expect(boss.goldReward).toBeGreaterThan(elite.goldReward);
     expect(boss.id).toContain('boss');
+
+    const jungleElite = createCombatEncounterForNode('jungle', 1, NodeType.Elite, () => 0);
+    expect(jungleElite.enemies[1]).toEqual({ championId: 'Warwick', statMultiplier: 0.65 });
   });
 
   it('does not announce a drop when inventory capacity is exhausted', () => {

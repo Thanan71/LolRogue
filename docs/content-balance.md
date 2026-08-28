@@ -37,6 +37,23 @@ affordability et commandes de reproduction des seeds extrêmes. La fixture est r
 par `npm run balance:early-top:generate` et vérifiée par
 `npm run balance:early-top:check`. Elle fige le signal v17 à 0 % avant tout tuning.
 
+La première passe v18 candidate a été pilotée par cette même matrice, via
+`node scripts/generate-early-top-cohort.mjs --engine working --output <fichier-temporaire>`.
+La passe A ne modifie que le pool, la pression de nœud et le renfort Top ; le budget
+de formation v17 reste `1.00` / `1.55` / `2.00` dans tous les biomes :
+
+| Passe | Runs gagnées (Easy / Normal / Hard) | Premiers combats gagnés | Morts Top, 3 premiers combats | Morts terminales Top totales |
+| --- | ---: | ---: | ---: | ---: |
+| v17 | 0 / 0 / 0 sur 300 | 290 / 244 / 74 | 279 / 287 / 297 | 279 / 291 / 297 |
+| A — Top uniquement | 0 / 0 / 0 sur 300 | 300 / 300 / 300 | 4 / 7 / 60 | 14 / 23 / 107 |
+
+La génération répétée est byte-identique (SHA-256
+`441b333b0f5b1d63b003a7b4f55100e7eb9189d2f4b72c35b427bed89307e36d`). Elle prouve
+que Top n'est plus la cause principale des défaites, mais que les morts sont déplacées
+après Top. La case TODO reste donc ouverte jusqu'à la seconde passe sur le budget de
+formation. Des tests numériques couvrent Jungle, Mid, Bot, River et Base et figent
+leurs valeurs v17 pendant cette première passe.
+
 La baseline courante v17 est chargée depuis
 `config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les
 baselines v15 et v16 restent des archives immuables : leurs identités

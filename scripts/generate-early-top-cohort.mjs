@@ -34,10 +34,30 @@ const versions = {
       }
     `,
   },
+  working: {
+    artifact: null,
+    entrySource: `
+      import {
+        AUTHORITY_CONTENT_HASH,
+        AUTHORITY_ENGINE_VERSION,
+        getAuthorityVerifier,
+      } from './src/game/authority/index.ts';
+      import { generateEarlyTopCohortDocument } from './src/game/balance/earlyTopCohort.ts';
+
+      export function generate() {
+        const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
+        if (!authority) throw new Error('The working authority verifier is unavailable.');
+        return generateEarlyTopCohortDocument(authority);
+      }
+    `,
+  },
 };
 const version = versions[values.engine];
-if (!version) throw new Error('--engine must be v17.');
+if (!version) throw new Error('--engine must be v17 or working.');
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
+if (values.check && !version.artifact) {
+  throw new Error('--check is only available for a published cohort artifact.');
+}
 
 function formatArray(values, indentation, lineWidth = 100) {
   const prefix = ' '.repeat(indentation);
