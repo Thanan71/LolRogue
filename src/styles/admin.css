@@ -184,6 +184,48 @@
   font-size: 1.9rem;
 }
 
+.field-calibration {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(200, 170, 110, 0.24);
+}
+
+.field-calibration .authority-rejections-header {
+  margin-bottom: 0;
+}
+
+.field-calibration-table td {
+  min-width: 12rem;
+  white-space: normal;
+  vertical-align: top;
+}
+
+.field-calibration td strong,
+.field-calibration td small {
+  display: block;
+}
+
+.field-calibration td small {
+  margin-top: 0.35rem;
+  color: #a09080;
+  line-height: 1.4;
+}
+
+.field-calibration-conditionals {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 32rem), 1fr));
+}
+
+.field-calibration-conditionals caption {
+  padding: 0.75rem;
+  color: #f0e6d2;
+  text-align: left;
+  font-weight: 700;
+}
+
 /* Dashboard Stats Grid */
 .stats-grid {
   display: grid;

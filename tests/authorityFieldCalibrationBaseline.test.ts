@@ -1,18 +1,30 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { getAuthorityVerifier } from '@/game/authority';
 import {
   createAuthorityCohortBaselineKey,
   loadAuthorityCohortBaseline,
 } from '@/game/balance/authorityCohortBaseline';
 import {
+  createAuthorityFieldCalibrationBaselineV1,
   FIELD_CALIBRATION_BASELINE_V1_IDENTITIES,
   FIELD_CALIBRATION_BASELINE_V1_SEEDS,
   FIELD_CALIBRATION_GAMEPLAY_RULESET_VERSION,
 } from '@/game/balance/authorityFieldCalibrationBaselineV1';
+import {
+  createAuthorityFieldCalibrationConditionalsV1,
+  loadAuthorityFieldCalibrationConditionalsV1,
+} from '@/game/balance/authorityFieldCalibrationConditionalsV1';
 
 const committedBaseline = JSON.parse(
   readFileSync(
     new URL('../config/authority-field-calibration-baseline-v1.json', import.meta.url),
+    'utf8',
+  ),
+);
+const committedConditionals = JSON.parse(
+  readFileSync(
+    new URL('../config/authority-field-calibration-conditionals-v1.json', import.meta.url),
     'utf8',
   ),
 );
@@ -60,4 +72,30 @@ describe('multi-policy field-calibration baseline v1', () => {
       );
     }
   });
+
+  it('publishes reproducible champion and augment conditionals from the paired runs', () => {
+    const identity = FIELD_CALIBRATION_BASELINE_V1_IDENTITIES[0];
+    const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
+    if (!authority) throw new Error('The v17 authority verifier is unavailable.');
+    const fixture = createAuthorityFieldCalibrationBaselineV1(authority);
+    const generated = createAuthorityFieldCalibrationConditionalsV1(fixture);
+    const loaded = loadAuthorityFieldCalibrationConditionalsV1(committedConditionals);
+
+    expect(loaded).toEqual(generated);
+    expect(Object.keys(loaded.entries)).toHaveLength(2);
+    for (const entry of Object.values(loaded.entries)) {
+      expect(entry.reports).toHaveLength(3);
+      for (const report of entry.reports) {
+        expect(report.championCohorts).toEqual([
+          expect.objectContaining({
+            championId: 'Garen',
+            cohortSampleSize: 30,
+            sampleSize: 30,
+            participationRate: 1,
+          }),
+        ]);
+        expect(report.augmentCohorts.every((cohort) => cohort.cohortSampleSize === 30)).toBe(true);
+      }
+    }
+  }, 15_000);
 });

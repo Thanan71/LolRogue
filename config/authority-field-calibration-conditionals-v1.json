@@ -1,0 +1,346 @@
+{
+  "schemaVersion": 1,
+  "baselineVersion": 1,
+  "entries": {
+    "engine=run-engine-v17|content=83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19|model=1|policy=safety-first@1": {
+      "reports": [
+        {
+          "scenarioId": "difficulty=easy|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 0,
+              "participationRate": 1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.11351339317396876
+              },
+              "averageFinalLevel": 1.4666666666666666,
+              "averageKills": 1.4666666666666666,
+              "averageDeaths": 1,
+              "averageDamageDealt": 975.8333333333334,
+              "averageHealingDone": 28.966666666666665,
+              "averageShieldingDone": 164.16666666666666
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "field_medic",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 3,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 353
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 5,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 135
+            },
+            {
+              "augmentId": "vitality_boost",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 2,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 211
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=hard|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 0,
+              "participationRate": 1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.11351339317396876
+              },
+              "averageFinalLevel": 1,
+              "averageKills": 0.6666666666666666,
+              "averageDeaths": 1,
+              "averageDamageDealt": 755.5,
+              "averageHealingDone": 10.733333333333333,
+              "averageShieldingDone": 168
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "vitality_boost",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 1,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 109
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=normal|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 0,
+              "participationRate": 1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.11351339317396876
+              },
+              "averageFinalLevel": 1.1666666666666667,
+              "averageKills": 1.1666666666666667,
+              "averageDeaths": 1,
+              "averageDamageDealt": 971.5666666666667,
+              "averageHealingDone": 20.966666666666665,
+              "averageShieldingDone": 154
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "vitality_boost",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 2,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 216
+            }
+          ]
+        }
+      ]
+    },
+    "engine=run-engine-v17|content=83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19|model=1|policy=economy-first@1": {
+      "reports": [
+        {
+          "scenarioId": "difficulty=easy|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 0,
+              "participationRate": 1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.11351339317396876
+              },
+              "averageFinalLevel": 1.4,
+              "averageKills": 1.4,
+              "averageDeaths": 1,
+              "averageDamageDealt": 894.2333333333333,
+              "averageHealingDone": 18.266666666666666,
+              "averageShieldingDone": 144.66666666666666
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "arcane_mind",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 2,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 137
+            },
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 1,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 114
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 2,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 329
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=hard|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 0,
+              "participationRate": 1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.11351339317396876
+              },
+              "averageFinalLevel": 1,
+              "averageKills": 0.6666666666666666,
+              "averageDeaths": 1,
+              "averageDamageDealt": 745.6,
+              "averageHealingDone": 6,
+              "averageShieldingDone": 168
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 1,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 119
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=normal|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 0,
+              "participationRate": 1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.11351339317396876
+              },
+              "averageFinalLevel": 1.0666666666666667,
+              "averageKills": 1.1,
+              "averageDeaths": 1,
+              "averageDamageDealt": 918.4333333333333,
+              "averageHealingDone": 13.5,
+              "averageShieldingDone": 149.33333333333334
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 1,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 116
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 1,
+              "averageBiomesCompleted": 2,
+              "averageGoldBalance": 114
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

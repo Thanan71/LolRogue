@@ -1,4 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type {
+  VerifiedFieldAugmentCohort,
+  VerifiedFieldCalibrationCohort,
+  VerifiedFieldChampionCohort,
+} from '@/game/balance/fieldCalibrationComparison';
 import {
   AUTHORITY_REJECTION_ALERT_POLICY,
   type AuthorityAttemptAggregate,
@@ -7,6 +12,7 @@ import {
 } from '@/observability/authorityRejectionMonitor';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
+import type { Database, Json } from '@/types/database';
 import type { AdminPlayerStat, Log, RunTeamMember } from '@/types/models';
 import { logger } from '@/utils/logger';
 import type { AdminRun } from '../adminPageUtils';
@@ -30,6 +36,194 @@ export interface AdminAuthorityRejection {
   engineVersion: string;
   gameplayRulesetVersion: number;
   rejectionCode: string;
+}
+
+type FieldCohortRow = Database['public']['Views']['admin_verified_field_cohorts']['Row'];
+type FieldChampionRow = Database['public']['Views']['admin_verified_field_champion_cohorts']['Row'];
+type FieldAugmentRow = Database['public']['Views']['admin_verified_field_augment_cohorts']['Row'];
+
+function isDifficulty(value: string | null): value is 'easy' | 'normal' | 'hard' {
+  return value === 'easy' || value === 'normal' || value === 'hard';
+}
+
+function isMode(value: string | null): value is 'normal' | 'daily' {
+  return value === 'normal' || value === 'daily';
+}
+
+function numericRecord(value: Json | null): Readonly<Record<string, number>> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const entries = Object.entries(value);
+  if (entries.some(([, count]) => typeof count !== 'number' || !Number.isFinite(count))) {
+    return null;
+  }
+  return Object.fromEntries(entries) as Readonly<Record<string, number>>;
+}
+
+export function mapVerifiedFieldCohort(row: FieldCohortRow): VerifiedFieldCalibrationCohort | null {
+  const deathBiomeCounts = numericRecord(row.death_biome_counts);
+  if (
+    !row.observed_on ||
+    row.gameplay_ruleset_version === null ||
+    !row.engine_version ||
+    !row.gameplay_content_hash ||
+    !isDifficulty(row.difficulty) ||
+    !isMode(row.mode) ||
+    row.initial_team_size === null ||
+    !row.initial_composition_hash ||
+    row.meta_level === null ||
+    row.sample_size === null ||
+    row.wins === null ||
+    row.defeats === null ||
+    row.win_rate === null ||
+    row.win_rate_wilson_low === null ||
+    row.win_rate_wilson_high === null ||
+    row.average_waves_completed === null ||
+    row.median_waves_completed === null ||
+    row.average_biomes_completed === null ||
+    row.median_biomes_completed === null ||
+    row.average_gold_earned === null ||
+    row.average_gold_spent === null ||
+    row.average_gold_balance === null ||
+    !deathBiomeCounts
+  ) {
+    return null;
+  }
+  return {
+    observedOn: row.observed_on,
+    gameplayRulesetVersion: row.gameplay_ruleset_version,
+    engineVersion: row.engine_version,
+    gameplayContentHash: row.gameplay_content_hash,
+    difficulty: row.difficulty,
+    mode: row.mode,
+    initialTeamSize: row.initial_team_size,
+    initialCompositionHash: row.initial_composition_hash,
+    metaLevel: row.meta_level,
+    sampleSize: row.sample_size,
+    wins: row.wins,
+    defeats: row.defeats,
+    winRate: row.win_rate,
+    winRateWilson95: {
+      confidence: 0.95,
+      lower: row.win_rate_wilson_low,
+      upper: row.win_rate_wilson_high,
+    },
+    averageWavesCompleted: row.average_waves_completed,
+    medianWavesCompleted: row.median_waves_completed,
+    averageBiomesCompleted: row.average_biomes_completed,
+    medianBiomesCompleted: row.median_biomes_completed,
+    averageGoldEarned: row.average_gold_earned,
+    averageGoldSpent: row.average_gold_spent,
+    averageGoldBalance: row.average_gold_balance,
+    deathBiomeCounts,
+  };
+}
+
+export function mapVerifiedFieldChampion(
+  row: FieldChampionRow,
+): VerifiedFieldChampionCohort | null {
+  if (
+    !row.observed_on ||
+    row.gameplay_ruleset_version === null ||
+    !row.engine_version ||
+    !row.gameplay_content_hash ||
+    !isDifficulty(row.difficulty) ||
+    !isMode(row.mode) ||
+    row.initial_team_size === null ||
+    !row.initial_composition_hash ||
+    row.meta_level === null ||
+    !row.champion_id ||
+    row.cohort_sample_size === null ||
+    row.sample_size === null ||
+    row.participation_rate === null ||
+    row.win_rate === null ||
+    row.win_rate_wilson_low === null ||
+    row.win_rate_wilson_high === null ||
+    row.average_final_level === null ||
+    row.average_kills === null ||
+    row.average_deaths === null ||
+    row.average_damage_dealt === null ||
+    row.average_healing_done === null ||
+    row.average_shielding_done === null
+  ) {
+    return null;
+  }
+  return {
+    observedOn: row.observed_on,
+    gameplayRulesetVersion: row.gameplay_ruleset_version,
+    engineVersion: row.engine_version,
+    gameplayContentHash: row.gameplay_content_hash,
+    difficulty: row.difficulty,
+    mode: row.mode,
+    initialTeamSize: row.initial_team_size,
+    initialCompositionHash: row.initial_composition_hash,
+    metaLevel: row.meta_level,
+    championId: row.champion_id,
+    cohortSampleSize: row.cohort_sample_size,
+    sampleSize: row.sample_size,
+    participationRate: row.participation_rate,
+    winRate: row.win_rate,
+    winRateWilson95: {
+      confidence: 0.95,
+      lower: row.win_rate_wilson_low,
+      upper: row.win_rate_wilson_high,
+    },
+    averageFinalLevel: row.average_final_level,
+    averageKills: row.average_kills,
+    averageDeaths: row.average_deaths,
+    averageDamageDealt: row.average_damage_dealt,
+    averageHealingDone: row.average_healing_done,
+    averageShieldingDone: row.average_shielding_done,
+  };
+}
+
+export function mapVerifiedFieldAugment(row: FieldAugmentRow): VerifiedFieldAugmentCohort | null {
+  if (
+    !row.observed_on ||
+    row.gameplay_ruleset_version === null ||
+    !row.engine_version ||
+    !row.gameplay_content_hash ||
+    !isDifficulty(row.difficulty) ||
+    !isMode(row.mode) ||
+    row.initial_team_size === null ||
+    !row.initial_composition_hash ||
+    row.meta_level === null ||
+    !row.augment_id ||
+    row.cohort_sample_size === null ||
+    row.sample_size === null ||
+    row.selection_rate === null ||
+    row.win_rate === null ||
+    row.win_rate_wilson_low === null ||
+    row.win_rate_wilson_high === null ||
+    row.average_waves_completed === null ||
+    row.average_biomes_completed === null ||
+    row.average_gold_balance === null
+  ) {
+    return null;
+  }
+  return {
+    observedOn: row.observed_on,
+    gameplayRulesetVersion: row.gameplay_ruleset_version,
+    engineVersion: row.engine_version,
+    gameplayContentHash: row.gameplay_content_hash,
+    difficulty: row.difficulty,
+    mode: row.mode,
+    initialTeamSize: row.initial_team_size,
+    initialCompositionHash: row.initial_composition_hash,
+    metaLevel: row.meta_level,
+    augmentId: row.augment_id,
+    cohortSampleSize: row.cohort_sample_size,
+    sampleSize: row.sample_size,
+    selectionRate: row.selection_rate,
+    winRate: row.win_rate,
+    winRateWilson95: {
+      confidence: 0.95,
+      lower: row.win_rate_wilson_low,
+      upper: row.win_rate_wilson_high,
+    },
+    averageWavesCompleted: row.average_waves_completed,
+    averageBiomesCompleted: row.average_biomes_completed,
+    averageGoldBalance: row.average_gold_balance,
+  };
 }
 
 const EMPTY_ERRORS: AdminDataErrors = {
@@ -57,6 +251,11 @@ export function useAdminData(isAdmin: boolean) {
   const [authorityAggregates, setAuthorityAggregates] = useState<AuthorityAttemptAggregate[]>([]);
   const [authoritySignals, setAuthoritySignals] = useState<AuthorityRejectionSignal[]>([]);
   const [authorityRejections, setAuthorityRejections] = useState<AdminAuthorityRejection[]>([]);
+  const [fieldCohorts, setFieldCohorts] = useState<VerifiedFieldCalibrationCohort[]>([]);
+  const [fieldChampionCohorts, setFieldChampionCohorts] = useState<VerifiedFieldChampionCohort[]>(
+    [],
+  );
+  const [fieldAugmentCohorts, setFieldAugmentCohorts] = useState<VerifiedFieldAugmentCohort[]>([]);
   const [playerStats, setPlayerStats] = useState<AdminPlayerStat[]>([]);
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,15 +327,34 @@ export function useAdminData(isAdmin: boolean) {
       const windowStart = new Date(
         Date.now() - AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes * 60_000,
       ).toISOString();
-      const [aggregatesResult, rejectionsResult] = await Promise.all([
-        supabase
-          .from('authority_attempt_aggregates')
-          .select('*')
-          .gte('window_started_at', windowStart),
-        supabase.from('authority_recent_rejections').select('*'),
-      ]);
+      const [aggregatesResult, rejectionsResult, fieldResult, championResult, augmentResult] =
+        await Promise.all([
+          supabase
+            .from('authority_attempt_aggregates')
+            .select('*')
+            .gte('window_started_at', windowStart),
+          supabase.from('authority_recent_rejections').select('*'),
+          supabase
+            .from('admin_verified_field_cohorts')
+            .select('*')
+            .order('observed_on', { ascending: false })
+            .limit(200),
+          supabase
+            .from('admin_verified_field_champion_cohorts')
+            .select('*')
+            .order('observed_on', { ascending: false })
+            .limit(200),
+          supabase
+            .from('admin_verified_field_augment_cohorts')
+            .select('*')
+            .order('observed_on', { ascending: false })
+            .limit(200),
+        ]);
       if (aggregatesResult.error) throw aggregatesResult.error;
       if (rejectionsResult.error) throw rejectionsResult.error;
+      if (fieldResult.error) throw fieldResult.error;
+      if (championResult.error) throw championResult.error;
+      if (augmentResult.error) throw augmentResult.error;
 
       const aggregates = (aggregatesResult.data ?? []).flatMap((row) => {
         if (
@@ -190,6 +408,13 @@ export function useAdminData(isAdmin: boolean) {
       setAuthorityAggregates(aggregates);
       setAuthoritySignals(evaluateAuthorityRejectionAlerts(aggregates));
       setAuthorityRejections(rejections);
+      setFieldCohorts((fieldResult.data ?? []).flatMap((row) => mapVerifiedFieldCohort(row) ?? []));
+      setFieldChampionCohorts(
+        (championResult.data ?? []).flatMap((row) => mapVerifiedFieldChampion(row) ?? []),
+      );
+      setFieldAugmentCohorts(
+        (augmentResult.data ?? []).flatMap((row) => mapVerifiedFieldAugment(row) ?? []),
+      );
       return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching authority observability:', error);
@@ -397,6 +622,9 @@ export function useAdminData(isAdmin: boolean) {
     authorityAggregates,
     authoritySignals,
     authorityRejections,
+    fieldCohorts,
+    fieldChampionCohorts,
+    fieldAugmentCohorts,
     playerStats,
     logs,
     loading,
