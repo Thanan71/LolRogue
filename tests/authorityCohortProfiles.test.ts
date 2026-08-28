@@ -44,15 +44,17 @@ describe('authority cohort execution profiles', () => {
       bySemanticProfile.set(key, [...(bySemanticProfile.get(key) ?? []), cell]);
     }
 
-    expect(cells).toHaveLength(18);
+    expect(cells).toHaveLength(36);
     expect(new Set(cells.map((cell) => cell.stratum.fingerprint)).size).toBe(cells.length);
     expect([...bySemanticProfile.values()]).toHaveLength(6);
     for (const pairedCells of bySemanticProfile.values()) {
-      expect(pairedCells.map((cell) => cell.scenario.difficulty)).toEqual([
-        'easy',
-        'normal',
-        'hard',
-      ]);
+      expect(pairedCells).toHaveLength(6);
+      expect(new Set(pairedCells.map((cell) => cell.scenario.difficulty))).toEqual(
+        new Set(['easy', 'normal', 'hard']),
+      );
+      expect(new Set(pairedCells.map((cell) => cell.policy.manifest.id))).toEqual(
+        new Set(['safety-first', 'economy-first']),
+      );
     }
     expect(new Set(cells.map((cell) => cell.stratum.team.size))).toEqual(new Set([1, 2, 3]));
     expect(cells.some((cell) => Object.keys(cell.stratum.masterySnapshot).length > 0)).toBe(true);
@@ -77,8 +79,8 @@ describe('authority cohort execution profiles', () => {
       seeds: createAuthorityCohortSeeds(1),
     });
 
-    expect(result.cohorts).toHaveLength(18);
+    expect(result.cohorts).toHaveLength(36);
     expect(result.cohorts.every((cohort) => cohort.runs.length === 1)).toBe(true);
     expect(result.cohorts.every((cohort) => cohort.runs[0]?.result.snapshot.terminal)).toBe(true);
-  });
+  }, 15_000);
 });
