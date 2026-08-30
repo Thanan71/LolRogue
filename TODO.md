@@ -739,42 +739,44 @@ déjà été rejetées avec le même code.
 
 ### Actions système
 
-- [ ] Limiter une AoE standard à trois cibles, ou appliquer 100 % à la cible principale
+- [x] Limiter une AoE standard à trois cibles, ou appliquer 100 % à la cible principale
   et 50 % aux secondaires, avec plafond de 300 % de dégâts totaux.
-- [ ] Limiter le hard CC à un tour et empêcher une cible de perdre plus de deux actions
+- [x] Limiter le hard CC à un tour et empêcher une cible de perdre plus de deux actions
   sur une fenêtre de quatre rounds.
-- [ ] Rendre les ultimes indisponibles avant le round 3.
-- [ ] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,
+- [x] Rendre les ultimes indisponibles avant le round 3.
+- [x] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,
   AoE seulement avec au moins deux cibles utiles, cible alliée la plus blessée et cible
   ennemie choisie par valeur effective plutôt qu'au hasard.
-- [ ] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa
+- [x] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa
   racine, et laisser défenses, mana, vitesse, portée, critique et régénération inchangés.
-- [ ] Décider explicitement le rôle de la vitesse d'attaque et de la portée ; retirer
+- [x] Décider explicitement le rôle de la vitesse d'attaque et de la portée ; retirer
   ou renommer tout bonus sans effet tant que la mécanique n'existe pas.
-- [ ] Ramener les slows cumulés à un plafond de design inférieur à 99 %.
+- [x] Ramener les slows cumulés à un plafond de design inférieur à 99 %.
 
 ### Tuning champions, uniquement après les actions système
 
-- [ ] Darius : un seul DoT rafraîchi, cinq charges maximum, environ 8–10 dégâts/tour
+- [x] Darius : un seul DoT rafraîchi, cinq charges maximum, environ 8–10 dégâts/tour
   au niveau 1 ; corriger E en vraie pénétration au lieu d'un bonus d'armure.
-- [ ] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
-- [ ] Soraka : R en `Allies`, E avec silence un tour et slow à la place du double verrouillage.
-- [ ] Garen/Jinx : appliquer la règle d'execute commune retenue dans `P0-BAL-01`.
-- [ ] Recalibrer l'AP naturel vers environ 20–30 au niveau 1 et 100–140 au niveau 18,
+- [x] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
+- [x] Soraka : R en `Allies`, E avec silence un tour et slow à la place du double verrouillage.
+- [x] Garen/Jinx : appliquer la règle d'execute commune retenue dans `P0-BAL-01`.
+- [x] Recalibrer l'AP naturel vers environ 20–30 au niveau 1 et 100–140 au niveau 18,
   puis réduire les dégâts de base si nécessaire.
-- [ ] Auditer chaque rang de sort : valeur marginale strictement positive, environ
+- [x] Auditer chaque rang de sort : valeur marginale strictement positive, environ
   +10–18 % d'effet primaire ou amélioration de cooldown/coût ; Ashe E ne doit plus
   proposer des rangs sans effet.
-- [ ] Ne pas buff Warwick avant correction de son E et de l'IA : il est faible en
+- [x] Ne pas buff Warwick avant correction de son E et de l'IA : il est faible en
   inclusion 5v5 mais déjà très fort en duel.
 
 ### Acceptation
 
-- aucun champion ne doit rester à 0 ou 100 % sur une matrice large uniquement à cause
+- [x] Aucun champion ne reste à 0 ou 100 % sur la matrice exhaustive documentée dans
+  `config/champion-combat-matrix-current.json` uniquement à cause
   d'une règle générique ;
-- les rapports exposent dégâts par round, soins effectifs, shield absorbé, mana
+- [x] Les rapports exposent dégâts par round, soins effectifs, shield absorbé, mana
   consommée et actions ennemies supprimées par CC ;
-- tout changement individuel est justifié par un diff de cohorte après correctifs système.
+- [x] Tout changement individuel est justifié par un diff de cohorte après correctifs
+  système dans `docs/content-balance.md`.
 
 ---
 
@@ -1379,7 +1381,7 @@ techniques ni afficher une modale à chaque déploiement.**
 8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
 9 bis. [x] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
-10. [ ] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
+10. [x] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
 11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
 12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.
 

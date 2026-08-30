@@ -146,6 +146,8 @@ export interface Spell {
     adRatio: number;
     apRatio: number;
   };
+  /** Passive percentage of target armor ignored by this spell's owner, per rank. */
+  passiveArmorPenetrationPercent?: number[];
   /** Structured effects this spell produces */
   effects: SpellEffect[];
 }

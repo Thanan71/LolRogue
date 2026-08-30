@@ -70,7 +70,7 @@ export const warwick: Champion = {
       id: 'WarwickW',
       name: 'Traque sanguinaire',
       description:
-        'Warwick repère les ennemis ayant moins de 50% PV et obtient des bonus en vitesse de déplacement et vitesse d attaque contre eux.',
+        'Warwick repère les ennemis ayant moins de 50% PV et obtient des bonus en vitesse de déplacement et initiative d attaque contre eux.',
       maxRank: 5,
       cooldownTurns: [5, 5, 5, 5, 5],
       cost: [55, 55, 55, 55, 55],
@@ -110,12 +110,12 @@ export const warwick: Champion = {
       effects: [
         {
           type: 'buff',
-          stat: 'armor',
+          stat: 'damageReduction',
           modifierType: 'percent',
           values: [35, 40, 45, 50, 55],
           buffDuration: 2.5,
         },
-        { type: 'cc', ccType: 'stun', ccDuration: 1 },
+        { type: 'cc', ccType: 'fear', ccDuration: 1 },
       ],
     },
     {

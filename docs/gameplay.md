@@ -52,16 +52,42 @@ Le moteur est un combat au tour par tour, jusqu'à cinq contre cinq :
 - l'ordre de tour dépend de la vitesse avec un bruit aléatoire maximal de `0,5` ;
 - les actions disponibles sont l'attaque de base et les sorts Q/W/E/R prêts, dont
   le coût en mana est payable ;
+- les ultimes R restent indisponibles pendant les rounds 1 et 2, puis s'ouvrent au
+  round 3 s'ils sont prêts et payables ;
 - les contrôles peuvent faire perdre un tour et les effets ont leur propre durée ;
+- un hard CC dure au plus un round et ne peut retirer plus de deux actions à une
+  même cible dans une fenêtre glissante de quatre rounds ;
+- les ralentissements s'additionnent jusqu'à 60 % au maximum, préservant toujours
+  40 % de l'initiative de la cible ;
 - dégâts physiques, magiques et vrais utilisent leurs calculateurs séparés ;
+- une zone exige une cible principale : elle lui inflige 100 % des dégâts et 50 %
+  aux quatre cibles secondaires au maximum, soit un plafond de 300 % ;
 - les critiques appliquent la formule de `utils/damage.ts` ;
 - un combat est limité par défaut à 50 rounds ;
 - les PV survivants, l'XP, les niveaux et rangs de sorts sont conservés entre les
   combats.
 
+La difficulté ne multiplie pas toutes les statistiques. Son facteur s'applique aux
+PV ennemis et sa racine carrée aux dégâts sortants. Mana, armure, résistance
+magique, vitesse, portée, critique et régénérations restent identiques ; les
+modificateurs propres au biome et à la rencontre demeurent indépendants.
+
 Le moteur accepte une source aléatoire injectée. Une mécanique aléatoire ajoutée au
 combat doit utiliser cette source, jamais appeler directement `Math.random`, afin
 de préserver la reproductibilité et les tests.
+
+Dans ce modèle sans position spatiale, la statistique historique `attackSpeed` est
+une initiative d'attaque : l'ordre vaut `moveSpeed + 10 × attackSpeed + jitter`.
+Elle ne donne jamais d'action supplémentaire, chaque champion agit au plus une fois
+par round. `attackRange` classe seulement le profil mêlée/distance et n'autorise ni
+n'interdit une cible ; aucun arbre de progression ne vend donc de portée. Les anciens
+nœuds de portée ont été remplacés par des bonus réellement résolus par le moteur.
+
+L'autoplay applique une décision contextuelle déterministe. Un soin ou bouclier
+n'est choisi que sous 70 % de PV et vise l'allié le plus blessé ; une exécution
+respecte son seuil publié ; une zone offensive exige au moins deux cibles vivantes.
+Les actions hostiles visent ensuite la cible à plus faible PV effectifs, bouclier
+inclus, avec un départage stable par identifiant.
 
 Le combat démarre en mode manuel. Les tours ennemis sont joués automatiquement
 après un délai visible de 1,2 s, 0,6 s ou 0,4 s selon la vitesse ×1, ×2 ou ×3.
@@ -225,7 +251,7 @@ font partie du contrat.
 
 Le jour Daily est `(instant serveur AT TIME ZONE 'UTC')::date` et expire à minuit
 UTC suivant. Le serveur fige dans l'attempt la date, la seed, la difficulté, le
-ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v18,
+ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v19,
 la formule `score_version = 15` donne :
 
 ```text

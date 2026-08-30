@@ -16,6 +16,11 @@ export interface EffectTickResult {
   event: EffectEvent;
 }
 
+/** Slows stack additively, but never remove more than 60% of initiative. */
+export const MAX_TOTAL_SLOW = 0.6;
+/** Temporary champion effects can never remove more than 75% of incoming damage. */
+export const MAX_TOTAL_DAMAGE_REDUCTION = 0.75;
+
 export class EffectManager {
   readonly ownerId: string;
   private _effects: Effect[] = [];
@@ -79,6 +84,37 @@ export class EffectManager {
   // ── Apply / Remove ───────────────────────────────────────────────────────
 
   apply(effect: Effect): EffectEvent | null {
+    // A named stackable DoT remains one effect per source/target pair. Reapplying
+    // it adds one stack (up to its cap) and restarts its full duration.
+    if (effect instanceof DamageEffect && effect.maxStacks > 1) {
+      const existing = this._effects.find(
+        (candidate): candidate is DamageEffect =>
+          candidate instanceof DamageEffect &&
+          !candidate.expired &&
+          candidate.name === effect.name &&
+          candidate.sourceId === effect.sourceId &&
+          candidate.targetId === effect.targetId &&
+          candidate.damageType === effect.damageType,
+      );
+      if (existing) {
+        existing.addStack();
+        existing.refresh();
+        const event: EffectEvent = {
+          type: 'effect_applied',
+          effectId: existing.id,
+          effectName: existing.name,
+          category: existing.category,
+          source: existing.sourceId,
+          target: existing.targetId,
+          magnitude: existing.magnitude * existing.stacks,
+          duration: existing.remainingRounds,
+          detail: `${existing.stacks}/${existing.maxStacks}_stacks`,
+        };
+        this._emit(event);
+        return event;
+      }
+    }
+
     // Handle stacking for buffs/debuffs
     if (effect instanceof BuffDebuffEffect) {
       const existing = this._effects.find(
@@ -204,6 +240,17 @@ export class EffectManager {
     return this.ccEffects.some((cc) => cc.isHardCC());
   }
 
+  expireHardCrowdControl(): number {
+    let expired = 0;
+    for (const effect of this.ccEffects) {
+      if (!effect.isHardCC()) continue;
+      effect.onExpire();
+      expired++;
+    }
+    this.cleanExpired();
+    return expired;
+  }
+
   dispel(categories: readonly EffectCategory[]): number {
     const allowed = new Set(categories);
     let removed = 0;
@@ -224,7 +271,14 @@ export class EffectManager {
         totalSlow += cc.slowAmount;
       }
     }
-    return Math.max(0.01, 1 - Math.min(totalSlow, 0.99));
+    return 1 - Math.min(Math.max(0, totalSlow), MAX_TOTAL_SLOW);
+  }
+
+  getIncomingDamageReduction(): number {
+    const modifiers = this.getStatModifiers().get('damageReduction');
+    if (!modifiers) return 0;
+    const reduction = modifiers.flat + modifiers.percent;
+    return Math.min(Math.max(0, reduction), MAX_TOTAL_DAMAGE_REDUCTION);
   }
 
   getStatModifiers(): Map<StatKey, { flat: number; percent: number }> {

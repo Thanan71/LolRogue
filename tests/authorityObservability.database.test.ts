@@ -87,7 +87,7 @@ describeDatabase('authority observability contract', () => {
       administrator.client
         .from('authority_attempt_aggregates')
         .select('*')
-        .eq('engine_version', 'run-engine-v18'),
+        .eq('engine_version', 'run-engine-v19'),
       administrator.client.from('authority_recent_rejections').select('*'),
     ]);
     expect(hiddenFromPlayer).toMatchObject({ data: [], error: null });
@@ -95,8 +95,8 @@ describeDatabase('authority observability contract', () => {
     expect(aggregates.error).toBeNull();
     expect(aggregates.data).toHaveLength(1);
     expect(aggregates.data?.[0]).toMatchObject({
-      engine_version: 'run-engine-v18',
-      gameplay_ruleset_version: 18,
+      engine_version: 'run-engine-v19',
+      gameplay_ruleset_version: 19,
       attempt_count: 1,
       started_count: 0,
       verified_count: 0,
@@ -111,8 +111,8 @@ describeDatabase('authority observability contract', () => {
       data: [
         {
           attempt_id: attemptId,
-          engine_version: 'run-engine-v18',
-          gameplay_ruleset_version: 18,
+          engine_version: 'run-engine-v19',
+          gameplay_ruleset_version: 19,
           rejection_code: 'pending_choice',
         },
       ],

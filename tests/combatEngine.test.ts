@@ -14,7 +14,7 @@ import { ChampionInstance, SPELL_SLOTS, type SpellSlot } from '../src/game/Champ
 import { createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
 import { CCEffect } from '../src/game/effects/CCEffect';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
-import { EffectManager } from '../src/game/effects/EffectManager';
+import { EffectManager, MAX_TOTAL_SLOW } from '../src/game/effects/EffectManager';
 import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
 import { HealEffect } from '../src/game/effects/HealEffect';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
@@ -545,7 +545,7 @@ describe('CC Chains', () => {
     expect(manager.canMove()).toBe(true);
   });
 
-  it('multiple slows stack but cap at 99%', () => {
+  it('multiple slows stack but preserve at least 40% initiative', () => {
     manager.apply(
       new CCEffect({
         sourceId: 's1',
@@ -564,8 +564,8 @@ describe('CC Chains', () => {
         slowAmount: 0.5,
       }),
     );
-    // total slow = 1.1, capped at 0.99 → multiplier = 0.01
-    expect(manager.getSpeedMultiplier()).toBeCloseTo(0.01, 2);
+    expect(MAX_TOTAL_SLOW).toBe(0.6);
+    expect(manager.getSpeedMultiplier()).toBeCloseTo(0.4, 2);
   });
 
   it('snare + silence together blocks move and cast', () => {
@@ -920,6 +920,7 @@ describe('BattleManager Spell Effect Application', () => {
     spellSlot: SpellSlot,
     effects: SpellEffect[],
     statOverrides: Partial<ChampionStats> = {},
+    targeting: TargetingType = TargetingType.Enemy,
   ): ChampionInstance {
     const baseStats: ChampionStats = {
       hp: 500,
@@ -953,7 +954,7 @@ describe('BattleManager Spell Effect Application', () => {
       cost: [0],
       range: [700],
       image: `${s}.png`,
-      targeting: TargetingType.Enemy,
+      targeting,
       scaling: { adRatio: 0, apRatio: 0 },
       effects: [] as SpellEffect[],
       ...o,
@@ -1064,6 +1065,7 @@ describe('BattleManager Spell Effect Application', () => {
         'W',
         [{ type: 'heal', baseValue: [100], apRatio: 0 }],
         { moveSpeed: 400 },
+        TargetingType.Self,
       );
       const enemy = makeEffectChamp('Enemy', 'Q', []);
       const bm = new BattleManager(
@@ -1095,6 +1097,7 @@ describe('BattleManager Spell Effect Application', () => {
         'W',
         [{ type: 'heal', baseValue: [9999], apRatio: 0 }],
         { moveSpeed: 400 },
+        TargetingType.Self,
       );
       const enemy = makeEffectChamp('Enemy', 'Q', []);
       const bm = new BattleManager(
@@ -1104,7 +1107,7 @@ describe('BattleManager Spell Effect Application', () => {
 
       bm.startBattle();
       const hs = bm.getCombatantState('Healer', 'player')!;
-      hs.currentHp = hs.maxHp - 50;
+      hs.currentHp = hs.maxHp - 200;
 
       forceSpellSlot(healer, 'W');
       bm.processCurrentTurn();
@@ -1122,6 +1125,7 @@ describe('BattleManager Spell Effect Application', () => {
         'W',
         [{ type: 'shield', baseValue: [80], apRatio: 0 }],
         { moveSpeed: 400 },
+        TargetingType.Self,
       );
       const attacker = makeEffectChamp(
         'Attacker',
@@ -1136,6 +1140,7 @@ describe('BattleManager Spell Effect Application', () => {
 
       bm.startBattle();
       const ss = bm.getCombatantState('Shielder', 'player')!;
+      ss.currentHp = ss.maxHp * 0.6;
 
       // Shielder (400 speed) goes first, applies shield
       forceSpellSlot(shielder, 'W');
@@ -1157,6 +1162,7 @@ describe('BattleManager Spell Effect Application', () => {
         'W',
         [{ type: 'shield', baseValue: [100], apRatio: 0 }],
         { moveSpeed: 400 },
+        TargetingType.Self,
       );
       const attacker = makeEffectChamp(
         'Attacker',
@@ -1171,6 +1177,7 @@ describe('BattleManager Spell Effect Application', () => {
 
       bm.startBattle();
       const ss = bm.getCombatantState('Shielder', 'player')!;
+      ss.currentHp = ss.maxHp * 0.6;
 
       forceSpellSlot(shielder, 'W');
       bm.processCurrentTurn();
@@ -1187,11 +1194,11 @@ describe('BattleManager Spell Effect Application', () => {
   // ── 4. CC effects prevent actions ──
 
   describe('CC effects prevent actions', () => {
-    it('stun sets ccTurnsLeft on target', () => {
+    it('caps a multi-round hard stun at one action', () => {
       const stunner = makeEffectChamp(
         'Stunner',
         'Q',
-        [{ type: 'cc', ccType: 'stun', ccDuration: 1 }],
+        [{ type: 'cc', ccType: 'stun', ccDuration: 3 }],
         { moveSpeed: 400 },
       );
       const victim = makeEffectChamp('Victim', 'Q', []);
@@ -1207,7 +1214,7 @@ describe('BattleManager Spell Effect Application', () => {
       forceSpellSlot(stunner, 'Q');
       bm.processCurrentTurn();
 
-      expect(vs.ccTurnsLeft).toBeGreaterThan(0);
+      expect(vs.ccTurnsLeft).toBe(1);
     });
 
     it('CC stun prevents victim from acting on their turn', () => {
@@ -1278,6 +1285,43 @@ describe('BattleManager Spell Effect Application', () => {
 
       // Stunner took no damage because victim was CC'd
       expect(ss.currentHp).toBe(stunnerHpBefore);
+    });
+
+    it('prevents more than two hard-CC action losses in any four-round window', () => {
+      const stunner = makeEffectChamp(
+        'Stunner',
+        'Q',
+        [{ type: 'cc', ccType: 'stun', ccDuration: 3 }],
+        { moveSpeed: 400 },
+      );
+      const victim = makeEffectChamp('Victim', 'Q', [], { moveSpeed: 310 });
+      const bm = new BattleManager(
+        { side: 'player', champions: [stunner] },
+        { side: 'enemy', champions: [victim] },
+      );
+      const events: BattleEvent[] = [];
+      bm.on('event', (event) => events.push(event));
+      bm.startBattle();
+
+      for (let round = 1; round <= 5; round++) {
+        stunner.resetCooldowns();
+        forceSpellSlot(stunner, 'Q');
+        bm.processCurrentTurn();
+        bm.processCurrentTurn();
+      }
+
+      const skippedRounds = events
+        .filter(
+          (event): event is Extract<BattleEvent, { type: 'turn_skipped' }> =>
+            event.type === 'turn_skipped' && event.combatantId === 'Victim',
+        )
+        .map((event) => event.round);
+      expect(skippedRounds).toEqual([1, 2, 5]);
+      for (let firstRound = 1; firstRound <= 2; firstRound++) {
+        expect(
+          skippedRounds.filter((round) => round >= firstRound && round < firstRound + 4),
+        ).toHaveLength(2);
+      }
     });
 
     it('knockup also prevents actions', () => {

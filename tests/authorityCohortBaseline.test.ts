@@ -35,12 +35,20 @@ import {
   createAuthorityCohortBaselineV18Fixture,
   generateAuthorityCohortBaselineV18,
 } from '@/game/balance/authorityCohortBaselineV18Fixture';
+import { AUTHORITY_COHORT_BASELINE_V19 } from '@/game/balance/authorityCohortBaselineV19';
+import {
+  AUTHORITY_COHORT_BASELINE_V19_CHAMPION_IDS,
+  AUTHORITY_COHORT_BASELINE_V19_IDENTITY,
+  createAuthorityCohortBaselineV19Fixture,
+  generateAuthorityCohortBaselineV19,
+} from '@/game/balance/authorityCohortBaselineV19Fixture';
 import type { AuthorityCohortReport } from '@/game/balance/authorityCohortReport';
 import { BIOMES } from '@/types/run';
 import baselineV15Json from '../config/authority-cohort-baselines-v15.json';
 import baselineV16Json from '../config/authority-cohort-baselines-v16.json';
 import baselineV17Json from '../config/authority-cohort-baselines-v17.json';
 import baselineV18Json from '../config/authority-cohort-baselines-v18.json';
+import baselineV19Json from '../config/authority-cohort-baselines-v19.json';
 
 const V15_BASELINE_KEY =
   'engine=run-engine-v15|content=60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9|model=1|policy=survival-greedy@1';
@@ -50,9 +58,11 @@ const V17_BASELINE_KEY =
   'engine=run-engine-v17|content=83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19|model=1|policy=survival-greedy@1';
 const V18_BASELINE_KEY =
   'engine=run-engine-v18|content=9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17|model=1|policy=survival-greedy@1';
-const fixture = createAuthorityCohortBaselineV18Fixture();
-const baselineEntry = AUTHORITY_COHORT_BASELINE_V18.entries[V18_BASELINE_KEY];
-if (!baselineEntry) throw new Error('The v18 cohort baseline entry is unavailable.');
+const V19_BASELINE_KEY =
+  'engine=run-engine-v19|content=45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099|model=2|policy=survival-greedy@1';
+const fixture = createAuthorityCohortBaselineV19Fixture();
+const baselineEntry = AUTHORITY_COHORT_BASELINE_V19.entries[V19_BASELINE_KEY];
+if (!baselineEntry) throw new Error('The v19 cohort baseline entry is unavailable.');
 
 async function resolveArchivedAuthority(identity: {
   engineVersion: string;
@@ -148,6 +158,9 @@ describe('authority cohort baseline', () => {
     expect(createAuthorityCohortBaselineKey(AUTHORITY_COHORT_BASELINE_V18_IDENTITY)).toBe(
       V18_BASELINE_KEY,
     );
+    expect(createAuthorityCohortBaselineKey(AUTHORITY_COHORT_BASELINE_V19_IDENTITY)).toBe(
+      V19_BASELINE_KEY,
+    );
   });
 
   it('keeps the v15 identity immutable and reproduces its baseline with the archive', async () => {
@@ -234,17 +247,22 @@ describe('authority cohort baseline', () => {
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   });
 
-  it('strictly loads and reproduces the current v18 smoke matrix from source', () => {
+  it('keeps the v18 identity immutable and reproduces its baseline with the archive', async () => {
     const loaded = loadAuthorityCohortBaseline(
       baselineV18Json,
       AUTHORITY_COHORT_BASELINE_V18_IDENTITY,
     );
+    const authority = await resolveArchivedAuthority(AUTHORITY_COHORT_BASELINE_V18_IDENTITY);
+    const archivedFixture = createAuthorityCohortBaselineV18Fixture(authority);
 
     expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V18);
-    expect(AUTHORITY_COHORT_BASELINE_V18_IDENTITY).toMatchObject({
-      engineVersion: AUTHORITY_ENGINE_VERSION,
-      contentHash: AUTHORITY_CONTENT_HASH,
+    expect(AUTHORITY_COHORT_BASELINE_V18_IDENTITY).toEqual({
+      engineVersion: 'run-engine-v18',
+      contentHash: '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17',
+      balanceModelVersion: 1,
+      policy: { id: 'survival-greedy', version: 1 },
     });
+    expect(loaded.schemaVersion).toBe(1);
     expect(loaded.entries[V18_BASELINE_KEY]).toMatchObject({
       identity: AUTHORITY_COHORT_BASELINE_V18_IDENTITY,
       source: {
@@ -253,22 +271,64 @@ describe('authority cohort baseline', () => {
         cellCount: 3,
       },
     });
-    expect(generateAuthorityCohortBaselineV18()).toEqual(loaded);
+    expect(archivedFixture.document).toEqual(loaded);
+    expect(generateAuthorityCohortBaselineV18(authority)).toEqual(loaded);
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   });
 
+  it('strictly loads the current v19 ten-champion matrix with combat resource metrics', () => {
+    const loaded = loadAuthorityCohortBaseline(
+      baselineV19Json,
+      AUTHORITY_COHORT_BASELINE_V19_IDENTITY,
+    );
+
+    expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V19);
+    expect(AUTHORITY_COHORT_BASELINE_V19_IDENTITY).toMatchObject({
+      engineVersion: AUTHORITY_ENGINE_VERSION,
+      contentHash: AUTHORITY_CONTENT_HASH,
+      balanceModelVersion: 2,
+    });
+    expect(loaded.schemaVersion).toBe(2);
+    expect(loaded.entries[V19_BASELINE_KEY]).toMatchObject({
+      identity: AUTHORITY_COHORT_BASELINE_V19_IDENTITY,
+      source: {
+        kind: 'authority-cohort-matrix',
+        seeds: [0, 1, 2, 3, 4],
+        cellCount: 30,
+      },
+    });
+    const entry = loaded.entries[V19_BASELINE_KEY]!;
+    expect(
+      AUTHORITY_COHORT_BASELINE_V19_CHAMPION_IDS.every((championId) =>
+        entry.reports.some((report) =>
+          report.scenarioId.includes(`solo-${championId.toLowerCase()}`),
+        ),
+      ),
+    ).toBe(true);
+    expect(entry.reports[0]?.metrics).toEqual(
+      expect.objectContaining({
+        'combat.player.shieldingAbsorbedPerRound': expect.any(Number),
+        'combat.player.manaSpentPerRound': expect.any(Number),
+        'combat.enemy.shieldingAbsorbedPerRound': expect.any(Number),
+        'combat.enemy.manaSpentPerRound': expect.any(Number),
+      }),
+    );
+    expect(generateAuthorityCohortBaselineV19()).toEqual(loaded);
+    expect(JSON.stringify(loaded)).not.toContain('"trace"');
+  }, 15_000);
+
   it('rejects unknown fields, missing metrics and incoherent index identities', () => {
-    const unknownRoot = Object.assign(structuredClone(baselineV18Json), { unexpected: true });
+    const unknownRoot = Object.assign(structuredClone(baselineV19Json), { unexpected: true });
     expect(() => loadAuthorityCohortBaseline(unknownRoot)).toThrowError(
       AuthorityCohortBaselineValidationError,
     );
 
-    const missingMetric = structuredClone(baselineV18Json);
+    const missingMetric = structuredClone(baselineV19Json);
     const metrics = firstRawReport(missingMetric).metrics as Record<string, unknown>;
     delete metrics['outcome.winRate'];
     expect(() => loadAuthorityCohortBaseline(missingMetric)).toThrow('expected exactly keys');
 
-    const incoherentIdentity = structuredClone(baselineV18Json);
+    const incoherentIdentity = structuredClone(baselineV19Json);
     const identity = firstRawEntry(incoherentIdentity).identity as Record<string, unknown>;
     identity.contentHash = 'a'.repeat(64);
     expect(() => loadAuthorityCohortBaseline(incoherentIdentity)).toThrow('identity requires key');
@@ -276,8 +336,8 @@ describe('authority cohort baseline', () => {
 
   it('rejects a current identity mismatch and missing report strata', () => {
     expect(() =>
-      loadAuthorityCohortBaseline(baselineV18Json, {
-        ...AUTHORITY_COHORT_BASELINE_V18_IDENTITY,
+      loadAuthorityCohortBaseline(baselineV19Json, {
+        ...AUTHORITY_COHORT_BASELINE_V19_IDENTITY,
         contentHash: 'a'.repeat(64),
       }),
     ).toThrowError(AuthorityCohortBaselineMismatchError);
@@ -326,7 +386,7 @@ describe('authority cohort baseline', () => {
 
   it('keeps only deduplicated p10/p90 and concentrated-defeat trace representatives', () => {
     const artifacts = createAuthorityCohortTraceArtifacts({
-      identity: AUTHORITY_COHORT_BASELINE_V18_IDENTITY,
+      identity: AUTHORITY_COHORT_BASELINE_V19_IDENTITY,
       cohorts: [syntheticExtremeCohort()],
     });
 

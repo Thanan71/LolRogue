@@ -8,7 +8,7 @@ import { resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { BIOME_INFO, BIOMES, type Biome } from '@/types/run';
 import type { AuthorityDifficulty } from '@/types/runAttempt';
 
-export const BALANCE_MODEL_VERSION = 1;
+export const BALANCE_MODEL_VERSION = 2;
 
 export interface ChampionDesignProfile {
   role: string;
@@ -68,7 +68,7 @@ export const CHAMPION_DESIGN: Record<string, ChampionDesignProfile> = {
   },
   Malphite: {
     role: 'tank anti-physique / engage',
-    strengths: ['armure', 'engage de zone', 'perturbation de vitesse d’attaque'],
+    strengths: ['armure', 'engage de zone', 'ralentissement de zone'],
     weaknesses: ['mana', 'dégâts soutenus limités', 'moins fort contre magie'],
     synergies: ['Annie', 'Lux', 'Jinx'],
   },
@@ -198,7 +198,9 @@ export function analyzeContentCatalog(mapSeedCount = 250): ContentCatalogAnalysi
           const total = totals[difficulty];
           total.combatNodes++;
           total.enemyPower += result.enemies.reduce(
-            (sum, enemy) => sum + enemy.statMultiplier * enemy.level,
+            (sum, enemy) =>
+              sum +
+              enemy.statMultiplier * enemy.healthMultiplier * enemy.damageMultiplier * enemy.level,
             0,
           );
           total.gold += result.reward.gold;

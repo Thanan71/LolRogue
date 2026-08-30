@@ -31,7 +31,7 @@ const entrySources = {
     }
   `,
   v18: `
-    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority.bundle.js';
+    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v18.bundle.ts';
     import { measureEarlyTopAffordability } from './src/game/balance/earlyTopAffordability.ts';
 
     export function generate() {

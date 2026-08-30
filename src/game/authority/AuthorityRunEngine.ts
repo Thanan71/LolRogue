@@ -85,9 +85,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v18';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v19';
 export const AUTHORITY_CONTENT_HASH =
-  '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17';
+  '45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099';
 
 assertValidRuleCatalogs();
 
@@ -545,14 +545,22 @@ class AuthorityReplayState {
     });
     if (!usesCanonicalAutoPlay) {
       battle.setActionCallback(() => {
+        const replayedActionCount = battle.getPlayerActionTrace().length;
+        while (
+          scriptedActionIndex < replayedActionCount &&
+          scriptedActions[scriptedActionIndex]?.automatic
+        ) {
+          scriptedActionIndex++;
+        }
         const action = scriptedActions[scriptedActionIndex];
         // A legal turn may produce no action (for example while rooted with
         // every spell unavailable). Such a turn is intentionally absent from
         // the compact trace, so reaching its end must not consume a phantom
         // entry and invalidate an otherwise exact replay.
         if (!action) return null;
+        if (action.automatic) return null;
         scriptedActionIndex++;
-        return action?.automatic ? null : (action ?? null);
+        return action;
       });
     }
     battle.startBattle();
@@ -575,13 +583,13 @@ class AuthorityReplayState {
         action.targetId !== scriptedActions[index]?.targetId ||
         action.automatic !== scriptedActions[index]?.automatic,
     );
-    const unconsumedActions = scriptedActions.slice(scriptedActionIndex);
+    const unconsumedActions = scriptedActions.slice(replayedActions.length);
     const hasValidReplayPrefix =
-      replayedActions.length === scriptedActionIndex && firstMismatchedActionIndex === -1;
+      replayedActions.length <= scriptedActions.length && firstMismatchedActionIndex === -1;
     const hasOnlyHarmlessAutomaticSuffix = unconsumedActions.every((action) => action.automatic);
     if (!usesCanonicalAutoPlay && (!hasValidReplayPrefix || !hasOnlyHarmlessAutomaticSuffix)) {
       const mismatchIndex =
-        firstMismatchedActionIndex !== -1 ? firstMismatchedActionIndex : scriptedActionIndex;
+        firstMismatchedActionIndex !== -1 ? firstMismatchedActionIndex : replayedActions.length;
       fail(
         'invalid_combat_action_trace',
         `Combat action trace does not match deterministic replay at action ${mismatchIndex + 1} ` +

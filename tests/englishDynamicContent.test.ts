@@ -31,6 +31,17 @@ describe('contenu dynamique anglais', () => {
     expect(augmentDescription('brute_force', 'Tous les champions gagnent +7 dégâts.')).toContain(
       'All champions gain',
     );
+    for (const [french, english] of [
+      ["Initiative d'attaque", 'Attack initiative'],
+      ['Initiative ATQ', 'Attack initiative'],
+      ['I. ATQ', 'ATK INIT'],
+      ['Profil de portée', 'Range profile'],
+      ['Canalisation', 'Channeling'],
+      ['Tir tactique', 'Tactical shot'],
+      ["Initiative d'attaque après élimination", 'Attack initiative after a takedown'],
+    ] as const) {
+      expect(localizeUserCopy(french)).toBe(english);
+    }
 
     for (const champion of implementedChampions) {
       const localized = localizeChampion(champion);

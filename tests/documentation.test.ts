@@ -223,6 +223,10 @@ describe('documentation maintenue', () => {
     const v17Sql = read(
       'supabase/migrations/20260823081828_gameplay_ruleset_v17_economy_balance.sql',
     );
+    const v18Sql = read('supabase/migrations/20260828150025_gameplay_ruleset_v18_early_top.sql');
+    const v19Sql = read(
+      'supabase/migrations/20260830093859_gameplay_ruleset_v19_combat_balance.sql',
+    );
 
     for (const token of [
       'v_ruleset.victory_bonus',
@@ -239,9 +243,15 @@ describe('documentation maintenue', () => {
     expect(v17Sql).toContain("'2026-08-economy-balance-daily-v17'");
     expect(v17Sql).toContain("'lolrogue.daily.v17'");
     expect(v17Sql).toContain('gold_points = 0');
+    expect(v18Sql).toContain("'2026-08-early-top-daily-v18'");
+    expect(v18Sql).toContain("'lolrogue.daily.v18'");
+    expect(v18Sql).toContain('AND gold_points = 0');
+    expect(v19Sql).toContain("'2026-08-combat-balance-daily-v19'");
+    expect(v19Sql).toContain("'lolrogue.daily.v19'");
+    expect(v19Sql).toContain('AND gold_points = 0');
     expect(gameplay).toContain('1 000 × vagues terminées');
     expect(gameplay).toContain('250 × biomes visités');
     expect(gameplay).toContain("Le score n'utilise ni l'or gagné/restant ni le nombre d'objets");
-    expect(persistence).toContain('Dans le ruleset Daily v18 actif');
+    expect(persistence).toContain('Dans le ruleset Daily v19 actif');
   });
 });

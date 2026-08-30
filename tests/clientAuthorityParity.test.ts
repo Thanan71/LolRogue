@@ -25,7 +25,7 @@ import { createScopedRunRng } from '@/utils/runRandom';
 
 const RUN_UUID = '11111111-1111-4111-8111-111111111111';
 const OWNER_ID = 'parity-user';
-const SEED = 424_242;
+const SEED = 424_240;
 
 function authorityAttempt(): AuthorityRunAttempt {
   return {

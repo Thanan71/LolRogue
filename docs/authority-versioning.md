@@ -53,3 +53,20 @@ Le bundle v17 est archivé byte-for-byte dans
 SQL v18 délègue au contrat v17 après une traduction temporaire de l'identité moteur ;
 les deux fonctions retirent l'exécution à `PUBLIC`, `anon` et `authenticated`, et seul
 le wrapper courant est accordé à `service_role`.
+
+## Publication combat v19
+
+La migration `20260830093859_gameplay_ruleset_v19_combat_balance.sql` publie
+`run-engine-v19` et le hash
+`45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099`. Elle copie le
+catalogue gameplay v18 avec une comparaison bidirectionnelle, puis publie le Daily
+v19 dans `lolrogue.daily.v19`. Le barème reste en version 15 avec
+`gold_points = 0`.
+
+Le bundle v18 est archivé byte-for-byte dans
+`run-authority-v18.bundle.ts` (824 932 octets, SHA-256
+`48ac21b1aeea3690dc6792cf273e33991a7180d4f8f01f234f3054f560205293`). Sa baseline
+P0 reste inchangée (SHA-256
+`2e807afd79205f9e1253e351f65ea4820c58051c9248edca76a664364e7371ab`). Le wrapper
+SQL v19 délègue au contrat v18 après traduction temporaire de l'identité moteur et
+conserve la même frontière `service_role`.

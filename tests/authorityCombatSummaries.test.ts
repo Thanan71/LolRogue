@@ -91,7 +91,7 @@ describe('authority combat summaries', () => {
   });
 
   it('records the granted reward, post-encounter resources and accepted drops', () => {
-    const runAttempt = attempt({ seed: 1 });
+    const runAttempt = attempt({ seed: 83 });
     const map = generateRunMap(runAttempt.seed)[0];
     const firstNode = map.nodes.find((node) => node.id === map.startNodeId)!;
     const secondCombat = firstNode.nextNodeIds

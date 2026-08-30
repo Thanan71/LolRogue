@@ -47,7 +47,7 @@ export const ashe: Champion = {
       id: 'AsheQ',
       name: 'Concentration du ranger',
       description:
-        'Ashe génère des effets Concentration. Au maximum, elle active pour augmenter sa vitesse d attaque et transformer ses attaques en volée de flèches.',
+        'Ashe génère des effets Concentration. Au maximum, elle augmente son initiative d attaque et transforme son attaque en volée de flèches.',
       maxRank: 5,
       cooldownTurns: [2, 2, 2, 2, 2],
       cost: [30, 30, 30, 30, 30],
@@ -98,11 +98,12 @@ export const ashe: Champion = {
     {
       id: 'AsheSpiritOfTheHawk',
       name: 'Rapace',
-      description: 'Ashe envoie son faucon en reconnaissance, révélant une zone de la carte.',
-      maxRank: 5,
-      cooldownTurns: [2, 2, 2, 2, 2],
-      cost: [0, 0, 0, 0, 0],
-      range: [25000, 25000, 25000, 25000, 25000],
+      description:
+        'Ashe envoie son faucon en reconnaissance. La vision n’étant pas simulée en combat, Rapace ne possède qu’un rang.',
+      maxRank: 1,
+      cooldownTurns: [2],
+      cost: [0],
+      range: [25000],
       image: 'AsheSpiritOfTheHawk.png',
       targeting: TargetingType.Area,
       scaling: { adRatio: 0, apRatio: 0 },

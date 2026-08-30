@@ -230,7 +230,7 @@ export function RecruitPage() {
                       </dd>
                     </div>
                     <div>
-                      <dt>VIT</dt>
+                      <dt title="Initiative d'attaque">I. ATQ</dt>
                       <dd className="recruit-page__stat recruit-page__stat--speed">
                         {champ.stats.attackSpeed.toFixed(2)}
                       </dd>

@@ -6,9 +6,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { BuffDebuffEffect, createBuff, createDebuff } from '../src/game/effects/BuffDebuffEffect';
 import { CCEffect } from '../src/game/effects/CCEffect';
 import { DamageEffect } from '../src/game/effects/DamageEffect';
-import { EffectManager } from '../src/game/effects/EffectManager';
-import { normalizePercent, normalizeTurnDuration } from '../src/game/effects/effectUnits';
+import { EffectManager, MAX_TOTAL_DAMAGE_REDUCTION } from '../src/game/effects/EffectManager';
 import { ExecuteEffect } from '../src/game/effects/ExecuteEffect';
+import { normalizePercent, normalizeTurnDuration } from '../src/game/effects/effectUnits';
 import { HealEffect } from '../src/game/effects/HealEffect';
 import { ReviveEffect } from '../src/game/effects/ReviveEffect';
 import { ShieldEffect } from '../src/game/effects/ShieldEffect';
@@ -99,6 +99,53 @@ describe('Effect System', () => {
       dmg.tick();
       dmg.tick();
       expect(dmg.expired).toBe(true);
+    });
+
+    it('keeps a stackable DoT unique per source and target while refreshing its duration', () => {
+      const first = new DamageEffect({
+        name: 'Hemorrhage',
+        sourceId: 'darius-a',
+        targetId: 'target',
+        magnitude: 45,
+        damageType: DamageType.AD,
+        duration: 5,
+        maxStacks: 5,
+      });
+      manager.apply(first);
+      first.tick();
+      expect(first.remainingRounds).toBe(4);
+
+      for (let application = 0; application < 7; application++) {
+        manager.apply(
+          new DamageEffect({
+            name: 'Hemorrhage',
+            sourceId: 'darius-a',
+            targetId: 'target',
+            magnitude: 45,
+            damageType: DamageType.AD,
+            duration: 5,
+            maxStacks: 5,
+          }),
+        );
+      }
+
+      expect(manager.dots).toHaveLength(1);
+      expect(first.stacks).toBe(5);
+      expect(first.remainingRounds).toBe(5);
+      expect(first.tick().value).toBe(45);
+
+      manager.apply(
+        new DamageEffect({
+          name: 'Hemorrhage',
+          sourceId: 'darius-b',
+          targetId: 'target',
+          magnitude: 45,
+          damageType: DamageType.AD,
+          duration: 5,
+          maxStacks: 5,
+        }),
+      );
+      expect(manager.dots).toHaveLength(2);
     });
   });
 
@@ -548,6 +595,28 @@ describe('Effect System', () => {
       expect(manager.getSpeedMultiplier()).toBeCloseTo(0.5, 2);
     });
 
+    it('caps additive slows at the shared 60% design budget', () => {
+      manager.apply(
+        new CCEffect({
+          sourceId: 's1',
+          targetId: 'champion-1',
+          ccType: CCType.Slow,
+          duration: 2,
+          slowAmount: 0.45,
+        }),
+      );
+      manager.apply(
+        new CCEffect({
+          sourceId: 's2',
+          targetId: 'champion-1',
+          ccType: CCType.Slow,
+          duration: 2,
+          slowAmount: 0.45,
+        }),
+      );
+      expect(manager.getSpeedMultiplier()).toBe(0.4);
+    });
+
     it('should apply flat stat modifiers', () => {
       manager.apply(createBuff('AD', 'src', 'champion-1', 'atk', 20, 'flat', 5));
       expect(manager.modifyStat('atk', 60)).toBe(80);
@@ -564,6 +633,18 @@ describe('Effect System', () => {
         }),
       );
       expect(manager.modifyStat('spd', 4)).toBe(5);
+    });
+
+    it('caps cumulative incoming damage reduction at the shared 75% design limit', () => {
+      manager.apply(
+        createBuff('First reduction', 's1', 'champion-1', 'damageReduction', 0.55, 'percent', 3),
+      );
+      manager.apply(
+        createBuff('Second reduction', 's2', 'champion-1', 'damageReduction', 0.55, 'percent', 3),
+      );
+
+      expect(MAX_TOTAL_DAMAGE_REDUCTION).toBe(0.75);
+      expect(manager.getIncomingDamageReduction()).toBe(MAX_TOTAL_DAMAGE_REDUCTION);
     });
 
     it('should stack same-name buffs', () => {

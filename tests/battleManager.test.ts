@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { BattleManager } from '../src/game/battle/BattleManager';
+import {
+  ATTACK_SPEED_INITIATIVE_WEIGHT,
+  BattleManager,
+  calculateInitiative,
+} from '../src/game/battle/BattleManager';
+import { reduceBattleMetrics } from '../src/game/battle/battleMetrics';
 import type { BattleAction, BattleTeam } from '../src/game/battle/types';
 import { ActionType, BattlePhase } from '../src/game/battle/types';
-import { ChampionInstance } from '../src/game/ChampionInstance';
+import { ChampionInstance, SPELL_SLOTS } from '../src/game/ChampionInstance';
 import type { Champion, ChampionStats, Passive, Spell } from '../src/types';
 
 function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
@@ -89,6 +94,54 @@ function makeTeams(
   };
 }
 
+function basicAttackDamageWithMultiplier(damageMultiplier: number): number {
+  const attackerDefinition = makeTestChampion({
+    id: 'ScalingAttacker',
+    key: 'ScalingAttacker',
+    name: 'ScalingAttacker',
+    stats: {
+      ...makeTestChampion().stats,
+      moveSpeed: 400,
+      attackDamage: 100,
+      crit: 0,
+    },
+  });
+  const targetDefinition = makeTestChampion({
+    id: 'ScalingTarget',
+    key: 'ScalingTarget',
+    name: 'ScalingTarget',
+    stats: {
+      ...makeTestChampion().stats,
+      hp: 5_000,
+      armor: 0,
+      moveSpeed: 300,
+    },
+  });
+  const attacker = new ChampionInstance(attackerDefinition, 1, 1, { damageMultiplier });
+  const target = new ChampionInstance(targetDefinition, 1);
+  const manager = new BattleManager(
+    { side: 'player', champions: [attacker] },
+    { side: 'enemy', champions: [target] },
+    { random: () => 0.99 },
+  );
+  manager.startBattle();
+  for (const slot of SPELL_SLOTS) attacker.useSpell(slot);
+  manager.processCurrentTurn();
+  const event = manager.log.find((candidate) => candidate.type === 'damage');
+  if (!event || event.type !== 'damage') throw new Error('Expected one basic-attack damage event.');
+  return event.amount;
+}
+
+describe('difficulty combat scaling', () => {
+  it('applies the square-root factor to actual outgoing damage', () => {
+    const normalDamage = basicAttackDamageWithMultiplier(1);
+    const hardDamage = basicAttackDamageWithMultiplier(Math.sqrt(1.2));
+
+    expect(normalDamage).toBe(100);
+    expect(hardDamage).toBe(Math.round(normalDamage * Math.sqrt(1.2)));
+  });
+});
+
 describe('BattleManager', () => {
   describe('Phase 2: Initiative & Turn-by-Turn', () => {
     describe('basic battle flow', () => {
@@ -127,6 +180,33 @@ describe('BattleManager', () => {
     });
 
     describe('speed-based turn order', () => {
+      it('uses attack speed only as a deterministic initiative contribution', () => {
+        expect(ATTACK_SPEED_INITIATIVE_WEIGHT).toBe(10);
+        expect(calculateInitiative(330, 1, 0)).toBeGreaterThan(calculateInitiative(330, 0.5, 0));
+
+        const fastAttack = makeTestChampion({ id: 'FastAttack', key: 'FastAttack' });
+        fastAttack.stats.moveSpeed = 330;
+        fastAttack.stats.attackSpeed = 1;
+        const slowAttack = makeTestChampion({ id: 'SlowAttack', key: 'SlowAttack' });
+        slowAttack.stats.moveSpeed = 330;
+        slowAttack.stats.attackSpeed = 0.5;
+        const manager = new BattleManager(
+          { side: 'player', champions: [new ChampionInstance(fastAttack)] },
+          { side: 'enemy', champions: [new ChampionInstance(slowAttack)] },
+          { random: () => 0 },
+        );
+        manager.startBattle();
+        const roundStart = manager.log.find((event) => event.type === 'round_start');
+        if (!roundStart || roundStart.type !== 'round_start') {
+          throw new Error('Expected a round-start event.');
+        }
+        expect(roundStart.turnOrder.map((entry) => entry.champion)).toEqual([
+          'FastAttack',
+          'SlowAttack',
+        ]);
+        expect(roundStart.turnOrder).toHaveLength(2);
+      });
+
       it('uses the injected run RNG for reproducible initiative', () => {
         const teams = makeTeams(['Player'], ['Enemy'], { Player: 330, Enemy: 330 });
         const rolls = [0.1, 0.9];
@@ -239,10 +319,29 @@ describe('BattleManager', () => {
         bm.startBattle();
         const actions = bm.getAvailableActions(teams.playerTeam.champions[0]);
 
-        expect(actions.length).toBe(5);
+        expect(actions.length).toBe(4);
         expect(actions[0].type).toBe(ActionType.BasicAttack);
         expect(actions[0].cost).toBe(0);
-        expect(actions.find((a) => a.type === ActionType.SpellR)).toBeDefined();
+        expect(actions.find((a) => a.type === ActionType.SpellR)).toBeUndefined();
+      });
+
+      it('rejects an early ultimate and unlocks it at round three', () => {
+        const teams = makeTeams(['P1'], ['E1'], { P1: 400, E1: 300 });
+        const player = teams.playerTeam.champions[0];
+        const bm = new BattleManager(teams.playerTeam, teams.enemyTeam);
+        bm.startBattle();
+
+        expect(bm.submitAction({ type: ActionType.SpellR, targetId: 'E1' })).toBe(false);
+        expect(player.getCooldown('R')).toBe(0);
+        expect(bm.getCombatantState('P1', 'player')?.currentMp).toBe(300);
+        while (bm.phase === BattlePhase.TurnActive && bm.round < 3) {
+          bm.processCurrentTurn();
+        }
+
+        expect(bm.round).toBe(3);
+        expect(
+          bm.getAvailableActions(player).find((action) => action.type === ActionType.SpellR),
+        ).toBeDefined();
       });
 
       it('should accept submitted actions for player turns', () => {
@@ -496,6 +595,7 @@ describe('P1 manual combat choices', () => {
     expect(bm.submitAction({ type: ActionType.SpellQ, cost: 0, targetId: 'E1' })).toBe(true);
     expect(bm.getCombatantState('P1', 'player')?.currentMp).toBe(240);
     expect(champion.getCooldown('Q')).toBe(7);
+    expect(reduceBattleMetrics(bm.log).bySide.player.manaSpent).toBe(60);
   });
 
   it('rejects forged targets before emitting, spending resources, or advancing the turn', () => {
@@ -563,7 +663,7 @@ describe('P1 manual combat choices', () => {
     expect(bm.getCombatantState('P2', 'player')?.currentShield).toBe(75);
   });
 
-  it('resolves area effects against every living enemy and rejects a single-target override', () => {
+  it('applies full area damage to the selected primary and half to secondaries', () => {
     const teams = makeTeams(['P1'], ['E1', 'E2'], { P1: 400, E1: 300, E2: 290 });
     const area = teams.playerTeam.champions[0].getSpell('Q')!;
     area.targeting = 'area' as any;
@@ -571,10 +671,12 @@ describe('P1 manual combat choices', () => {
     bm.startBattle();
     const actor = bm.getCombatantState('P1', 'player')!;
 
-    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'E1' })).toBe(false);
+    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'all' })).toBe(false);
     expect(actor.currentMp).toBe(actor.maxMp);
-    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'all' })).toBe(true);
-    expect(bm.getCombatantState('E1', 'enemy')?.currentHp).toBeLessThan(500);
-    expect(bm.getCombatantState('E2', 'enemy')?.currentHp).toBeLessThan(500);
+    expect(bm.submitAction({ type: ActionType.SpellQ, targetId: 'E2' })).toBe(true);
+    const primaryDamage = 500 - bm.getCombatantState('E2', 'enemy')!.currentHp;
+    const secondaryDamage = 500 - bm.getCombatantState('E1', 'enemy')!.currentHp;
+    expect(primaryDamage).toBeGreaterThan(secondaryDamage);
+    expect(secondaryDamage / primaryDamage).toBeCloseTo(0.5, 1);
   });
 });

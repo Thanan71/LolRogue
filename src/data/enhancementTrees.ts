@@ -532,8 +532,8 @@ const MAGE_BRANCHES: EnhancementBranch[] = [
       }),
       createNode({
         id: 'mage_control_2',
-        name: 'Zone de Pouvoir',
-        description: '+10% de portée des sorts',
+        name: 'Canalisation',
+        description: '+10 de hâte de compétence',
         type: 'stat',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -633,8 +633,8 @@ const MARKSMAN_CORE: EnhancementNode[] = [
   }),
   createNode({
     id: 'marksman_core_2',
-    name: "Vitesse d'Attaque",
-    description: "+8% Vitesse d'attaque",
+    name: 'Tempo',
+    description: "+8% d'initiative d'attaque",
     type: 'stat',
     candyCost: 30,
     requiredMasteryLevel: 1,
@@ -673,7 +673,7 @@ const MARKSMAN_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'marksman_dps_2',
         name: 'Frappe Fantôme',
-        description: "+10% de vitesse d'attaque pendant 3s après un kill",
+        description: "+10% d'initiative d'attaque pendant 3 tours après une élimination",
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -681,7 +681,7 @@ const MARKSMAN_BRANCHES: EnhancementBranch[] = [
         effects: [
           {
             type: 'attack_speed_on_kill',
-            description: "Vitesse d'attaque après kill",
+            description: "Initiative d'attaque après élimination",
             value: 0.1,
             duration: 3,
           },
@@ -709,51 +709,50 @@ const MARKSMAN_BRANCHES: EnhancementBranch[] = [
   }),
   createBranch({
     id: 'marksman_range',
-    name: 'Portée',
-    description: 'Attaques à distance',
+    name: 'Tir tactique',
+    description: 'Positionnement et dégâts directs',
     theme: 'sorcery',
     nodes: [
       createNode({
         id: 'marksman_range_1',
-        name: 'Allonge',
-        description: "+5% de portée d'attaque",
+        name: 'Position haute',
+        description: '+5 vitesse de déplacement',
         type: 'stat',
         candyCost: 50,
         requiredMasteryLevel: 1,
         prerequisites: [],
-        percentBonuses: { attackRange: 0.05 },
+        statBonuses: { spd: 5 },
       }),
       createNode({
         id: 'marksman_range_2',
-        name: 'Percée',
-        description:
-          'Les attaques traversent la première cible et touchent celle derrière (50% dégâts)',
+        name: 'Tir précis',
+        description: '+8% de dégâts contre les champions',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
         prerequisites: ['marksman_range_1'],
         effects: [
           {
-            type: 'pierce',
-            description: 'Attaques traversantes',
-            value: 0.5,
+            type: 'champion_damage',
+            description: 'Dégâts directs augmentés',
+            value: 0.08,
           },
         ],
       }),
       createNode({
         id: 'marksman_range_3',
         name: 'Sniper',
-        description: 'Ulti: +25% de dégâts contre les cibles à plus de 600 de distance',
+        description: 'Ulti: +15% de dégâts contre les cibles sous 40% PV',
         type: 'ultimate',
         candyCost: 150,
         requiredMasteryLevel: 3,
         prerequisites: ['marksman_range_2'],
         effects: [
           {
-            type: 'long_range_damage',
-            description: 'Dégâts augmentés à longue distance',
-            value: 0.25,
-            condition: 'Cible à plus de 600 de distance',
+            type: 'execute_damage',
+            description: 'Dégâts augmentés contre les cibles blessées',
+            value: 0.15,
+            condition: 'Cible sous 40% PV',
           },
         ],
       }),
@@ -847,7 +846,7 @@ const FIGHTER_CORE: EnhancementNode[] = [
   createNode({
     id: 'fighter_core_3',
     name: 'Fureur',
-    description: "+5% Vitesse d'attaque",
+    description: "+5% d'initiative d'attaque",
     type: 'stat',
     candyCost: 40,
     requiredMasteryLevel: 2,
@@ -893,7 +892,7 @@ const FIGHTER_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'fighter_bruiser_3',
         name: 'Berserker',
-        description: "Ulti: En dessous de 50% PV, +20% de dégâts et +10% de vitesse d'attaque",
+        description: 'Ulti: en dessous de 50% PV, +20% de dégâts',
         type: 'ultimate',
         candyCost: 150,
         requiredMasteryLevel: 3,
@@ -901,7 +900,7 @@ const FIGHTER_BRANCHES: EnhancementBranch[] = [
         effects: [
           {
             type: 'berserker',
-            description: 'Boost de dégâts et vitesse quand PV bas',
+            description: 'Boost de dégâts quand les PV sont bas',
             value: 0.2,
             condition: 'En dessous de 50% PV',
           },

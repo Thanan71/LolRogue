@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { ITEM_DATABASE } from '@/data/items';
-import {
-  AUTHORITY_CONTENT_HASH,
-  AUTHORITY_ENGINE_VERSION,
-  getAuthorityVerifier,
-} from '@/game/authority';
 import { measureEarlyTopAffordability } from '@/game/balance/earlyTopAffordability';
 import { TOP_LANE_ENCOUNTERS } from '@/game/map/encounters';
+import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
+
+const EARLY_TOP_ENGINE_VERSION = 'run-engine-v18';
+const EARLY_TOP_CONTENT_HASH = '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17';
 
 describe('early Top affordability decision', () => {
   it('keeps published prices and Top rewards unchanged without causal evidence', () => {
@@ -26,14 +25,17 @@ describe('early Top affordability decision', () => {
     });
   });
 
-  it('reproduces Top-only visits, offers and transactions across all 900 paired runs', () => {
-    const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
+  it('reproduces Top-only visits, offers and transactions across all 900 paired runs', async () => {
+    const authority = await resolveBundledAuthorityVerifier(
+      EARLY_TOP_ENGINE_VERSION,
+      EARLY_TOP_CONTENT_HASH,
+    );
     expect(authority).toBeDefined();
     const report = measureEarlyTopAffordability(authority!);
 
     expect(report.authority).toEqual({
-      engineVersion: AUTHORITY_ENGINE_VERSION,
-      contentHash: AUTHORITY_CONTENT_HASH,
+      engineVersion: EARLY_TOP_ENGINE_VERSION,
+      contentHash: EARLY_TOP_CONTENT_HASH,
     });
     expect(report.source).toMatchObject({
       kind: 'early-top-affordability',

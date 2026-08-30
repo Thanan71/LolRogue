@@ -20,13 +20,12 @@ describe('lolStatsToGameStats', () => {
     expect(lolStatsToGameStats(550, 21, 30, 51, 325, 495, 0).def).toBe(26);
   });
 
-  it('should compute AP from mana (mp * 0.03)', () => {
-    // 495 * 0.03 = 14.85 → 15
-    expect(lolStatsToGameStats(550, 21, 30, 51, 325, 495, 0).ap).toBe(15);
+  it('should expose the supplied natural combat AP', () => {
+    expect(lolStatsToGameStats(550, 21, 30, 51, 325, 25, 0).ap).toBe(25);
   });
 
-  it('should compute AP = 0 for no-mana champions', () => {
-    expect(lolStatsToGameStats(650, 38, 32, 60, 345, 0, 0).ap).toBe(0);
+  it('should round fractional natural AP independently from mana', () => {
+    expect(lolStatsToGameStats(650, 38, 32, 60, 345, 25.4, 0).ap).toBe(25);
   });
 
   it('should map moveSpeed 325 → SPD 1', () => {
