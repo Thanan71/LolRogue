@@ -3,10 +3,12 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 1` décrit le contenu publié avec le
-`gameplay_ruleset_version = 17` et le Daily `score_version = 15`. Le contenu de
-combat par biome introduit en v13 reste inchangé. Le moteur v16 est archivé pour
-terminer les runs déjà ouvertes. Toute autre modification d'ennemi, récompense,
-prix, drop, effet ou stacking exige une nouvelle version et un nouveau hash autoritaire.
+`gameplay_ruleset_version = 18` et le Daily `score_version = 15`. Le contenu de
+combat spécifique à chaque biome introduit en v13 reste inchangé hors calibration
+early Top ; le budget de formation global des starters est, lui, versionné en v18. Le
+moteur v17 est archivé pour terminer les runs déjà ouvertes. Toute autre modification
+d'ennemi, récompense, prix, drop, effet ou stacking exige une nouvelle version et un
+nouveau hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `contentCatalogAnalysis.test.ts` appelle `analyzeContentCatalog()` sur 100 seeds de
@@ -30,21 +32,178 @@ comportement joueur.
 
 ## Baselines authority versionnées
 
-La baseline courante v17 est chargée depuis
-`config/authority-cohort-baselines-v17.json` et reproduite par la source v17. Les
-baselines v15 et v16 restent des archives immuables : leurs identités
-moteur/hash/modèle/policy sont littérales et leur reproduction emploie exclusivement
-`run-authority-v15.bundle.ts` ou `run-authority-v16.bundle.ts`, jamais les constantes
-du moteur courant.
+La stabilisation early Top conserve `config/early-top-cohort-v17.json` et
+`config/early-top-cohort-v18.json` : 10 starters solo × Easy/Normal/Hard × 30 seeds
+appariées, avec victoire de run, victoire du premier combat, encounter de mort dans les
+trois premiers combats Top, ressources PV/MP, or, affordability et commandes de
+reproduction des seeds extrêmes. Les fixtures sont régénérées par
+`npm run balance:early-top:generate:v17 -- --output config/early-top-cohort-v17.json`
+et `npm run balance:early-top:generate -- --output config/early-top-cohort-v18.json` ;
+`npm run balance:early-top:check` exige leur reproduction byte-for-byte. La v17 fige le
+signal à 0 % avant tout tuning et la v18 fige la sortie du blocage.
 
-`npm run balance:baseline:generate` génère v17 sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-v17.json` met à jour son artefact
+La première passe v18 a été pilotée par cette même matrice, via
+`node scripts/generate-early-top-cohort.mjs --engine v18`.
+La passe A ne modifie que le pool, la pression de nœud et le renfort Top ; le budget
+de formation v17 reste `1.00` / `1.55` / `2.00` dans tous les biomes :
+
+| Passe | Runs gagnées (Easy / Normal / Hard) | Premiers combats gagnés | Morts Top, 3 premiers combats | Morts terminales Top totales |
+| --- | ---: | ---: | ---: | ---: |
+| v17 | 0 / 0 / 0 sur 300 | 290 / 244 / 74 | 279 / 287 / 297 | 279 / 291 / 297 |
+| A — Top uniquement | 0 / 0 / 0 sur 300 | 300 / 300 / 300 | 4 / 7 / 60 | 14 / 23 / 107 |
+| B — budget formation versionné sur toute la run | 84 / 50 / 15 sur 300 | 300 / 300 / 300 | 4 / 7 / 60 | 14 / 23 / 107 |
+
+La génération répétée est byte-identique (SHA-256
+`441b333b0f5b1d63b003a7b4f55100e7eb9189d2f4b72c35b427bed89307e36d`). Elle prouve
+que Top n'est plus la cause principale des défaites, mais que les morts sont déplacées
+après Top. La case TODO est donc restée ouverte jusqu'à la seconde passe sur le budget de
+formation. Des tests numériques couvrent Jungle, Mid, Bot, River et Base et figent
+leurs valeurs v17 pendant cette première passe.
+
+La passe B normalise ensuite le budget 1/2/3 starters à `0.61` / `0.95` / `1.22`
+sur toute la run, en conservant presque exactement les rapports de formation
+précédents. La passe A ayant prouvé que le problème n'était plus localisé à Top, ce
+second étage respecte la clause du ticket « tant que le problème reste localisé ».
+Les pools et règles spécifiques de Jungle, Mid, Bot, River et Base restent inchangés :
+leurs tests numériques reconstruisent leur facteur de biome depuis `BIOME_INFO` et
+isolent `enemyFormationMultiplier` comme seul changement commun. Les métriques de la
+passe B restent identiques après publication ; seule l'enveloppe d'identité authority
+v18 change. La double génération v18 est byte-identique (SHA-256
+`bc12293b13df09d1aae329fce6f40054c78875362dce105657b6dbd6a82e9d42`). Easy atteint
+ainsi 28,0 % avant toute retouche économique.
+
+L'artefact v18 commité conserve aussi les dimensions de ressources et d'économie qui
+ne figurent pas dans le résumé de victoire. Les valeurs suivantes sont les moyennes
+pondérées des mêmes 300 runs par difficulté ; les flèches indiquent `v17 → v18` et les
+visites abordables couvrent le shop observé par la fixture complète :
+
+| Difficulté | PV après premier combat | MP après premier combat | Or gagné par run | Visites avec offre abordable |
+| --- | ---: | ---: | ---: | ---: |
+| Easy | 52,80 % → 96,31 % | 6,42 % → 44,35 % | 65,32 → 691,99 | 17/56 → 152/258 |
+| Normal | 32,04 % → 95,03 % | 4,39 % → 35,46 % | 37,99 → 535,42 | 4/34 → 103/205 |
+| Hard | 3,78 % → 82,14 % | 3,39 % → 25,68 % | 11,97 → 324,86 | 1/10 → 66/141 |
+
+Cette table est une preuve de conservation avant/après, pas une cible causale. La
+mesure Top-only ci-dessous reste la référence pour décider si l'économie early doit
+être retouchée.
+
+### Décision d'affordability early
+
+`npm run balance:early-top:affordability` rejoue les mêmes 30 cellules × 30 seeds,
+mais construit cette mesure depuis les observations brutes de chaque run. Seules les
+visites dont `biome === 'top_lane'` sont retenues ; l'or gagné est la somme des rewards
+des combats Top par run, et non le ledger de la run entière. Le rapport conserve pour
+chaque visite son `nodeId`, son `commandIndex`, l'or à l'entrée, les offres et les
+transactions rattachées au même nœud.
+
+Le comparatif apparié ci-dessous oppose le bundle v17 archivé à la source de travail
+après la passe B. Les flèches indiquent `v17 → passe B` ; les victoires de run restent
+un contexte, pas une attribution causale à l'économie.
+
+| Difficulté | Victoires | Or de combats Top moyen | Visites de shop Top | Or moyen à l'entrée | Offres abordables | Achats / recrues Top |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Easy | 0 → 84 | 24,76 → 79,21 | 38 → 60 | 29,58 → 33,50 | 0/172 → 0/280 | 0/0 → 0/0 |
+| Normal | 0 → 50 | 20,36 → 85,82 | 29 → 60 | 31,24 → 36,83 | 0/129 → 0/280 | 0/0 → 0/0 |
+| Hard | 0 → 15 | 6,28 → 83,55 | 9 → 58 | 24,33 → 41,72 | 0/39 → 9/270 | 0/0 → 9/0 |
+
+Dans le snapshot authority actuel, une offre `legal` inclut déjà `gold >= cost` en
+plus des contraintes d'inventaire ou d'équipe ; les compteurs `legal` et `affordable`
+sont donc identiques dans cette cohorte. Le projet ne définit toutefois aucun seuil
+minimal d'offres abordables en Top. La mesure observationnelle ne fournit pas non
+plus le contre-factuel nécessaire pour attribuer les victoires ou défaites à un prix.
+Elle ne justifie donc pas de tuning économique dans ce correctif : Easy est déjà dans
+la zone préliminaire à 28,0 %, et les prix des bottes (300), de la potion (50) ainsi
+que les récompenses `top_*` restent inchangés. L'effet causal de l'économie pourra
+être isolé dans la calibration complète de `P1-BAL-02` avec un seuil explicite.
+
+`npm run balance:early-top:affordability:generate:v17` et
+`npm run balance:early-top:affordability:generate` exposent les deux rapports JSON.
+Les métriques appariées restent identiques après publication ; seule l'enveloppe
+d'identité authority v18 change. Deux générations propres de la passe B v18 sont
+byte-identiques (SHA-256
+`cd25f954f7a4483ac4718835134fb4a1765e7d71c50286247064e18f5d323de8`) ; la sortie v17
+comparée porte le SHA-256
+`80321fc646f27370d0fd7354b3be1c4550ef1f2a5b2bea2bfacf9a84787c2c4a`.
+
+### Décision de survie des starters
+
+La même cohorte de la passe B est agrégée par starter avec la notation
+`victoires de run / premiers combats gagnés / morts dans les trois premiers combats
+Top`. Chaque cellule contient 30 seeds ; le total contient donc 90 runs par starter.
+
+| Starter | Easy | Normal | Hard | Total |
+| --- | ---: | ---: | ---: | ---: |
+| Annie | 4 / 30 / 2 | 1 / 30 / 3 | 0 / 30 / 19 | 5 / 90 / 24 |
+| Ashe | 14 / 30 / 0 | 5 / 30 / 0 | 2 / 30 / 0 | 21 / 90 / 0 |
+| Darius | 2 / 30 / 2 | 2 / 30 / 2 | 1 / 30 / 17 | 5 / 90 / 21 |
+| Garen | 4 / 30 / 0 | 3 / 30 / 2 | 1 / 30 / 7 | 8 / 90 / 9 |
+| Jinx | 12 / 30 / 0 | 10 / 30 / 0 | 3 / 30 / 3 | 25 / 90 / 3 |
+| Leona | 10 / 30 / 0 | 5 / 30 / 0 | 2 / 30 / 0 | 17 / 90 / 0 |
+| Lux | 10 / 30 / 0 | 6 / 30 / 0 | 2 / 30 / 2 | 18 / 90 / 2 |
+| Malphite | 14 / 30 / 0 | 10 / 30 / 0 | 2 / 30 / 0 | 26 / 90 / 0 |
+| Soraka | 7 / 30 / 0 | 3 / 30 / 0 | 1 / 30 / 11 | 11 / 90 / 11 |
+| Warwick | 7 / 30 / 0 | 5 / 30 / 0 | 1 / 30 / 1 | 13 / 90 / 1 |
+
+Ashe gagne 21 runs sur 90, remporte ses 90 premiers combats et ne subit aucune
+mort early Top : elle n'est pas faible dans cette cohorte. Garen gagne 8/90, mais ce
+signal n'est pas isolé puisque Annie et Darius sont à 5/90. Il remporte lui aussi ses
+90 premiers combats et ses 9 morts early sont inférieures aux 24 d'Annie, 21 de
+Darius et 11 de Soraka. Rien ne démontre donc le besoin d'un buff individuel de
+survie pour Ashe ou Garen ; leurs statistiques défensives restent inchangées.
+
+Warwick gagne 13/90 runs, remporte ses 90 premiers combats et ne compte qu'une mort
+early Top. Cette matrice ne contredit donc pas la gate : aucun buff de statistique ou
+de sort ne lui est appliqué avant la correction de son E et de l'IA prévue par
+`P1-BAL-01`.
+
+La comparaison n'agrège pas le MP entre starters : Garen n'utilise pas de mana, ce
+qui rendrait cette dimension trompeuse. `npm run balance:early-top:starters` verrouille
+les 30 cellules et la décision no-op. Deux générations Node 24 de
+`scripts/generate-early-top-cohort.mjs --engine v18` sont byte-identiques au
+SHA-256 `bc12293b13df09d1aae329fce6f40054c78875362dce105657b6dbd6a82e9d42`.
+
+### Gate de non-régression P0-BAL-04
+
+`npm run balance:early-top:catalog-gates` réutilise directement les deux suites de
+P0-BAL-04 au lieu de recopier leurs valeurs. `economyBalance.test.ts` conserve ses six
+invariants sur le snowball des augments, les budgets Silver, le tirage pondéré des
+raretés, les tiers par biome et la Base, l'échantillon déterministe de 10 000 drops et
+la hiérarchie Gold/Prismatic. `economyBalanceRuleset.test.ts` conserve le contrat v17
+append-only, le score sans points d'or gagné et son wrapper service-role.
+
+Les neuf tests passent sous Node 24 sans modifier les catalogues d'augments, les
+tables de drops, les items, les encounters ou les règles de contenu. La stabilisation
+early Top ne compense donc pas sa difficulté en rouvrant P0-BAL-04.
+
+La baseline courante v18 est chargée depuis
+`config/authority-cohort-baselines-v18.json` et reproduite par la source v18. Les
+baselines v15, v16 et v17 restent des archives immuables : leurs identités
+moteur/hash/modèle/policy sont littérales et leur reproduction emploie exclusivement
+leur bundle versionné, jamais les constantes du moteur courant.
+
+`npm run balance:baseline:generate` génère v18 sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-v18.json` met à jour son artefact
 commité. Les commandes `balance:baseline:generate:v15` et
-`balance:baseline:generate:v16` servent uniquement à auditer les archives
-historiques. Une nouvelle publication ajoute son propre couple fixture/loader/JSON
-sans réécrire les versions précédentes. `npm run balance:baseline:check`, inclus
-dans `npm run balance:check`, exige une reproduction byte-for-byte des trois
-artefacts.
+`balance:baseline:generate:v16` ainsi que `balance:baseline:generate:v17` servent
+uniquement à auditer les archives historiques. Une nouvelle publication ajoute son
+propre couple fixture/loader/JSON sans réécrire les versions précédentes.
+`npm run balance:baseline:check`, inclus dans `npm run balance:check`, exige une
+reproduction byte-for-byte des quatre artefacts.
+
+La publication P0-BAL-05 archive également le bundle v17 byte-for-byte et publie
+`run-engine-v18` avec le hash
+`9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17`. Le catalogue
+gameplay et le barème Daily v17 sont recopiés à l'identique dans les versions 18 :
+seuls le namespace Daily et les identités gameplay/moteur progressent. Le score reste
+en version 15 avec zéro point d'or, et la migration vérifie les deux parités avant
+d'activer v18.
+
+P0-BAL-05 ferme uniquement le blocage de stabilisation : Easy est dans sa zone
+préliminaire et aucun starter ne perd tous ses premiers combats. Les gates finales de
+P0-BAL-02 restent ouvertes, notamment parce que les premiers combats Normal et Hard
+sont gagnés à 100 %, au-dessus de leurs plages de travail respectives de 75–95 % et
+50–80 %. Les gates 5v5, concentration des morts par biome et playtests humains ne sont
+pas déclarées satisfaites par cette cohorte solo.
 
 ## Indicateurs de catalogue et de nœuds
 

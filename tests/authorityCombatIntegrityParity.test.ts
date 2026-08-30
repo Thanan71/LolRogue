@@ -4,9 +4,9 @@ import { describe, expect, it } from 'vitest';
 import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
-  getAuthorityVerifier,
   type AuthorityRunAttempt,
   type AuthorityRunCommand,
+  getAuthorityVerifier,
 } from '@/game/authority';
 import { simulateAuthorityCohort } from '@/game/balance/authorityCohort';
 import { type BalanceScenario, survivalGreedyPolicy } from '@/game/balance/balancePolicy';
@@ -70,8 +70,7 @@ const MANA_TRACE: AuthorityRunCommand[] = [
     kind: 'resolve_combat',
     payload: {
       node_id: 'node_top_lane_2',
-      actions_json:
-        '[["r",null,1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1]]',
+      actions_json: 'auto',
     },
   },
   { sequence: 8, kind: 'resolve_node', payload: { node_id: 'node_top_lane_2' } },
@@ -105,11 +104,11 @@ describe('combat integrity source / Edge bundle parity', () => {
 
     expect(first).toMatchObject({
       ok: true,
-      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 110 }] } },
+      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 245 }] } },
     });
     expect(second).toMatchObject({
       ok: true,
-      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 94 }] } },
+      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 154 }] } },
     });
     expect(rested).toMatchObject({
       ok: true,
@@ -157,7 +156,7 @@ describe('combat integrity source / Edge bundle parity', () => {
         kind: 'resolve_combat',
         payload: {
           node_id: 'node_top_lane_0',
-          actions_json: '[["a","Darius",0],["a","Darius",0],["r","Darius",0]]',
+          actions_json: '[["a","Darius",0],["r","Darius",0]]',
         },
       },
     ];
@@ -165,7 +164,7 @@ describe('combat integrity source / Edge bundle parity', () => {
     const result = await expectSourceBundleParity(attempt, trace);
     expect(result).toMatchObject({
       ok: true,
-      result: { snapshot: { totalDamage: 471 } },
+      result: { snapshot: { totalDamage: 204 } },
     });
   });
 
@@ -202,24 +201,27 @@ describe('combat integrity source / Edge bundle parity', () => {
     const result = await expectSourceBundleParity(attempt, trace);
     expect(result).toMatchObject({
       ok: true,
-      result: { snapshot: { totalDamage: 469 } },
+      result: { snapshot: { totalDamage: 204 } },
     });
   });
 
-  it('loads archived v14 through v16 and current v17 only for their exact hashes', async () => {
+  it('loads archived v14 through v17 and current v18 only for their exact hashes', async () => {
     const v14 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v14');
     const v15 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v15');
     const v16 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v16');
+    const v17 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v17');
     expect(v14?.status).toBe('replay-only');
     expect(v15?.status).toBe('replay-only');
     expect(v16?.status).toBe('replay-only');
+    expect(v17?.status).toBe('replay-only');
     expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v15!.engine, v15!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v16!.engine, v16!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v17!.engine, v17!.contentHash)).toBeDefined();
     expect(
       await resolveBundledAuthorityVerifier(AUTHORITY_ENGINE_VERSION, '0'.repeat(64)),
     ).toBeUndefined();
-  });
+  }, 15_000);
 
   it('drives identical terminal cohort traces through source and the current Edge bundle', async () => {
     const source = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);

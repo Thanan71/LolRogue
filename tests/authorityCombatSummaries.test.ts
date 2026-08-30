@@ -91,7 +91,7 @@ describe('authority combat summaries', () => {
   });
 
   it('records the granted reward, post-encounter resources and accepted drops', () => {
-    const runAttempt = attempt({ seed: 38 });
+    const runAttempt = attempt({ seed: 1 });
     const map = generateRunMap(runAttempt.seed)[0];
     const firstNode = map.nodes.find((node) => node.id === map.startNodeId)!;
     const secondCombat = firstNode.nextNodeIds
@@ -124,7 +124,7 @@ describe('authority combat summaries', () => {
       gold: expect.any(Number),
       xpPerChampion: expect.any(Number),
       itemDropChance: expect.any(Number),
-      droppedItemId: 'long_sword',
+      droppedItemId: 'cloth_armor',
       dropBlockedByCapacity: false,
       droppedItemInstanceId: `item_${RUN_UUID}_1`,
     });
@@ -133,6 +133,14 @@ describe('authority combat summaries', () => {
       expect.objectContaining({
         instanceId: second?.reward?.droppedItemInstanceId,
         item: expect.objectContaining({ id: second?.reward?.droppedItemId }),
+      }),
+    );
+    expect(result.snapshot.ledger.items).toContainEqual(
+      expect.objectContaining({
+        action: 'found',
+        instanceId: second?.reward?.droppedItemInstanceId,
+        nodeId: second?.nodeId,
+        wave: second?.wave,
       }),
     );
     expect(second?.playerTeam.initial[0]?.currentHp).toBe(

@@ -217,6 +217,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260823072701_stratify_starter_budget_cohorts.sql',
       '../supabase/migrations/20260823073234_gameplay_ruleset_v16_daily_parity.sql',
       '../supabase/migrations/20260823081828_gameplay_ruleset_v17_economy_balance.sql',
+      '../supabase/migrations/20260828150025_gameplay_ruleset_v18_early_top.sql',
     ]);
   });
 

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  replayAuthorityRun,
   type AuthorityRunAttempt,
   type AuthorityRunCommand,
+  replayAuthorityRun,
   verifyAuthorityRun,
 } from '../src/game/authority';
 
@@ -44,7 +44,7 @@ const commands: AuthorityRunCommand[] = [
     payload: {
       node_id: 'node_top_lane_7',
       actions_json:
-        '[["e",null,1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1]]',
+        '[["r","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1]]',
     },
   },
   { sequence: 12, kind: 'resolve_node', payload: { node_id: 'node_top_lane_7' } },
@@ -69,9 +69,12 @@ describe('combat action trace replay regression', () => {
       augmentIds: [],
     });
 
-    expect(verifyAuthorityRun(attempt, commands)).toMatchObject({
+    const verification = verifyAuthorityRun(attempt, commands, { requireTerminal: false });
+    expect(verification).toMatchObject({
       ok: true,
-      result: { snapshot: { terminal: true, endReason: 'defeat' } },
+      result: {
+        snapshot: { currentNodeId: 'node_top_lane_10', terminal: false, endReason: null },
+      },
     });
   });
 });

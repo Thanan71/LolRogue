@@ -18,12 +18,12 @@ import type { AuthorityDifficulty } from '@/types/runAttempt';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateXpGain } from '@/utils/xpSystem';
 import { DIFFICULTY_RULES } from './difficultyRules';
-import { getStarterBudgetProfile } from './starterBudget';
 import { drawItemDefinitionForBiome } from './itemDropRules';
+import { getStarterBudgetProfile } from './starterBudget';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 4;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 5;
 
 const NODE_RULES: Record<
   NodeType.Combat | NodeType.Elite | NodeType.Boss,
@@ -50,8 +50,16 @@ const NODE_RULES: Record<
   },
 };
 
+export const TOP_LANE_NODE_PRESSURE: Readonly<
+  Record<NodeType.Combat | NodeType.Elite | NodeType.Boss, number>
+> = {
+  [NodeType.Combat]: 0.84,
+  [NodeType.Elite]: 0.52,
+  [NodeType.Boss]: 0.65,
+};
+
 const BIOME_REINFORCEMENTS: Record<Biome, EnemyDefinition> = {
-  top_lane: { championId: 'Malphite', statMultiplier: 0.65 },
+  top_lane: { championId: 'Malphite', statMultiplier: 0.34 },
   jungle: { championId: 'Warwick', statMultiplier: 0.65 },
   mid_lane: { championId: 'Annie', statMultiplier: 0.65 },
   bot_lane: { championId: 'Leona', statMultiplier: 0.65 },
@@ -164,6 +172,7 @@ export function resolveCombatEncounter(
   const difficulty = DIFFICULTY_RULES[input.difficulty];
   const starterBudget = getStarterBudgetProfile(input.starterTeamSize ?? 1);
   const node = NODE_RULES[input.nodeType];
+  const lanePressure = input.biome === 'top_lane' ? TOP_LANE_NODE_PRESSURE[input.nodeType] : 1;
   const biomeMultiplier = 1 + (BIOME_INFO[input.biome].difficultyMultiplier - 1) * 0.35;
   const wave = Math.max(1, Math.trunc(input.wave));
   const runLevel = clamp(Math.trunc(input.runLevel), 1, 18);
@@ -182,6 +191,7 @@ export function resolveCombatEncounter(
         starterBudget.enemyFormationMultiplier *
         biomeMultiplier *
         node.enemyStatMultiplier *
+        lanePressure *
         progressionMultiplier,
     ),
   }));
