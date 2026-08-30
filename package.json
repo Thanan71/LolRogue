@@ -73,7 +73,7 @@
     "balance:baseline:generate:v15": "node scripts/generate-authority-cohort-baseline.mjs --engine v15",
     "balance:baseline:generate:v16": "node scripts/generate-authority-cohort-baseline.mjs --engine v16",
     "balance:baseline:generate:v17": "node scripts/generate-authority-cohort-baseline.mjs --engine v17",
-    "balance:early-top:check": "node scripts/generate-early-top-cohort.mjs --engine v17 --check",
+    "balance:early-top:check": "node scripts/generate-early-top-cohort.mjs --engine v17 --check && node scripts/generate-early-top-cohort.mjs --engine v18 --check",
     "balance:early-top:generate": "node scripts/generate-early-top-cohort.mjs --engine v18",
     "balance:early-top:generate:v17": "node scripts/generate-early-top-cohort.mjs --engine v17",
     "balance:early-top:affordability": "vitest run tests/earlyTopAffordability.test.ts",

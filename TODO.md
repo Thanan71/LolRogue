@@ -573,7 +573,7 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
 - [x] Si le changement modifie un contrat rejouable/authority, publier la version
   gameplay/engine nécessaire, régénérer le bundle et la baseline sans réécrire les
   archives historiques.
-- [ ] Relancer les cohortes Easy/Normal/Hard et par starter après chaque lot logique ;
+- [x] Relancer les cohortes Easy/Normal/Hard et par starter après chaque lot logique ;
   conserver taux de victoire, encounter de mort, PV/MP, or et affordability avant/après.
 
 ### Acceptation de sortie du blocage
@@ -1378,7 +1378,7 @@ techniques ni afficher une modale à chaque déploiement.**
 7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
 8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
-9 bis. [ ] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
+9 bis. [x] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
 10. [ ] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
 11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
 12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.

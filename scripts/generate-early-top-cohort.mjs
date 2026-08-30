@@ -35,7 +35,7 @@ const versions = {
     `,
   },
   v18: {
-    artifact: null,
+    artifact: 'config/early-top-cohort-v18.json',
     entrySource: `
       import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority.bundle.js';
       import { generateEarlyTopCohortDocument } from './src/game/balance/earlyTopCohort.ts';

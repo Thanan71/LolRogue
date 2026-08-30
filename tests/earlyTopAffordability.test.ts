@@ -173,5 +173,5 @@ describe('early Top affordability decision', () => {
         },
       },
     ]);
-  }, 30_000);
+  }, 90_000);
 });

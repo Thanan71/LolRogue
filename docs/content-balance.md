@@ -32,15 +32,18 @@ comportement joueur.
 
 ## Baselines authority versionnées
 
-La stabilisation early Top conserve en plus `config/early-top-cohort-v17.json` : 10 starters
-solo × Easy/Normal/Hard × 30 seeds appariées, avec victoire de run, victoire du premier
-combat, morts terminales dans les trois premiers combats Top, ressources, or,
-affordability et commandes de reproduction des seeds extrêmes. La fixture est régénérée
-par `npm run balance:early-top:generate:v17` et vérifiée par
-`npm run balance:early-top:check`. Elle fige le signal v17 à 0 % avant tout tuning.
+La stabilisation early Top conserve `config/early-top-cohort-v17.json` et
+`config/early-top-cohort-v18.json` : 10 starters solo × Easy/Normal/Hard × 30 seeds
+appariées, avec victoire de run, victoire du premier combat, encounter de mort dans les
+trois premiers combats Top, ressources PV/MP, or, affordability et commandes de
+reproduction des seeds extrêmes. Les fixtures sont régénérées par
+`npm run balance:early-top:generate:v17 -- --output config/early-top-cohort-v17.json`
+et `npm run balance:early-top:generate -- --output config/early-top-cohort-v18.json` ;
+`npm run balance:early-top:check` exige leur reproduction byte-for-byte. La v17 fige le
+signal à 0 % avant tout tuning et la v18 fige la sortie du blocage.
 
-La première passe v18 candidate a été pilotée par cette même matrice, via
-`node scripts/generate-early-top-cohort.mjs --engine v18 --output <fichier-temporaire>`.
+La première passe v18 a été pilotée par cette même matrice, via
+`node scripts/generate-early-top-cohort.mjs --engine v18`.
 La passe A ne modifie que le pool, la pression de nœud et le renfort Top ; le budget
 de formation v17 reste `1.00` / `1.55` / `2.00` dans tous les biomes :
 
@@ -68,6 +71,21 @@ passe B restent identiques après publication ; seule l'enveloppe d'identité au
 v18 change. La double génération v18 est byte-identique (SHA-256
 `bc12293b13df09d1aae329fce6f40054c78875362dce105657b6dbd6a82e9d42`). Easy atteint
 ainsi 28,0 % avant toute retouche économique.
+
+L'artefact v18 commité conserve aussi les dimensions de ressources et d'économie qui
+ne figurent pas dans le résumé de victoire. Les valeurs suivantes sont les moyennes
+pondérées des mêmes 300 runs par difficulté ; les flèches indiquent `v17 → v18` et les
+visites abordables couvrent le shop observé par la fixture complète :
+
+| Difficulté | PV après premier combat | MP après premier combat | Or gagné par run | Visites avec offre abordable |
+| --- | ---: | ---: | ---: | ---: |
+| Easy | 52,80 % → 96,31 % | 6,42 % → 44,35 % | 65,32 → 691,99 | 17/56 → 152/258 |
+| Normal | 32,04 % → 95,03 % | 4,39 % → 35,46 % | 37,99 → 535,42 | 4/34 → 103/205 |
+| Hard | 3,78 % → 82,14 % | 3,39 % → 25,68 % | 11,97 → 324,86 | 1/10 → 66/141 |
+
+Cette table est une preuve de conservation avant/après, pas une cible causale. La
+mesure Top-only ci-dessous reste la référence pour décider si l'économie early doit
+être retouchée.
 
 ### Décision d'affordability early
 
@@ -179,6 +197,13 @@ gameplay et le barème Daily v17 sont recopiés à l'identique dans les versions
 seuls le namespace Daily et les identités gameplay/moteur progressent. Le score reste
 en version 15 avec zéro point d'or, et la migration vérifie les deux parités avant
 d'activer v18.
+
+P0-BAL-05 ferme uniquement le blocage de stabilisation : Easy est dans sa zone
+préliminaire et aucun starter ne perd tous ses premiers combats. Les gates finales de
+P0-BAL-02 restent ouvertes, notamment parce que les premiers combats Normal et Hard
+sont gagnés à 100 %, au-dessus de leurs plages de travail respectives de 75–95 % et
+50–80 %. Les gates 5v5, concentration des morts par biome et playtests humains ne sont
+pas déclarées satisfaites par cette cohorte solo.
 
 ## Indicateurs de catalogue et de nœuds
 
