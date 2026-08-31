@@ -69,7 +69,9 @@ async function persistRejection(
   return !error && result?.status === 'rejected';
 }
 
-function buildVerifiedResult(snapshot: JsonRecord): JsonRecord | null {
+function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonRecord | null {
+  const usesParticipationLedger = engineVersion === 'run-engine-v20';
+  const expectedLedgerVersion = usesParticipationLedger ? 2 : 1;
   const team = Array.isArray(snapshot.team) ? snapshot.team : null;
   const championStats = Array.isArray(snapshot.championStats) ? snapshot.championStats : null;
   const biomes = stringArray(snapshot.biomesVisited) ? snapshot.biomesVisited : null;
@@ -84,7 +86,7 @@ function buildVerifiedResult(snapshot: JsonRecord): JsonRecord | null {
     !biomes ||
     !augments ||
     !rawLedger ||
-    rawLedger.version !== 1 ||
+    rawLedger.version !== expectedLedgerVersion ||
     !rawGold ||
     typeof rawGold.earned !== 'number' ||
     typeof rawGold.spent !== 'number' ||
@@ -111,10 +113,22 @@ function buildVerifiedResult(snapshot: JsonRecord): JsonRecord | null {
     const stats =
       championStats.map(record).find((entry) => entry?.championId === member.championId) ?? null;
     if (!stats || !stringArray(stats.itemsCollected)) return null;
+    if (
+      usesParticipationLedger &&
+      (typeof stats.wavesParticipated !== 'number' || !stringArray(stats.biomesParticipated))
+    ) {
+      return null;
+    }
     const stat = (key: string) =>
       Math.max(0, Math.round(typeof stats[key] === 'number' ? stats[key] : 0));
     return {
       champion_id: member.championId,
+      ...(usesParticipationLedger
+        ? {
+            waves_participated: stat('wavesParticipated'),
+            biomes_participated: [...(stats.biomesParticipated as string[])],
+          }
+        : {}),
       final_level: Math.trunc(member.level),
       final_hp: Math.max(0, Math.round((member.currentHp as number | null) ?? 0)),
       kills: stat('kills'),
@@ -178,6 +192,12 @@ function buildVerifiedResult(snapshot: JsonRecord): JsonRecord | null {
         shielding_done: member.shielding_done,
         shielding_absorbed: member.shielding_absorbed,
         deaths: member.deaths,
+        ...(usesParticipationLedger
+          ? {
+              waves_participated: member.waves_participated,
+              biomes_participated: member.biomes_participated,
+            }
+          : {}),
       },
     ]),
   );
@@ -196,7 +216,7 @@ function buildVerifiedResult(snapshot: JsonRecord): JsonRecord | null {
     augment_ids: augments,
     team_members: members,
     ledger: {
-      version: 1,
+      version: expectedLedgerVersion,
       champions: championLedger,
       gold: { earned: goldEarned, spent: goldSpent },
       items: itemEvents,
@@ -433,7 +453,7 @@ Deno.serve(async (request) => {
   }
 
   const snapshot = record(verification.result.snapshot);
-  const verifiedResult = snapshot ? buildVerifiedResult(snapshot) : null;
+  const verifiedResult = snapshot ? buildVerifiedResult(snapshot, claim.engine_version) : null;
   if (!verifiedResult) {
     if (!(await persistRejection(admin, attemptId, claim.lease_token, 'invalid_verifier_result'))) {
       return json(500, { error: 'verification_rejection_commit_failed' });
