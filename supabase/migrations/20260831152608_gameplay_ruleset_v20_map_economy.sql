@@ -159,7 +159,7 @@ VALUES (
   '2026-08-map-economy-v20',
   'run-engine-v20',
   2,
-  '0f8bda8b7475256695d745fbea7d4d120296f3c03ceaec183529bd588f8d0cd7',
+  '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
   FALSE
 )
 ON CONFLICT (version) DO NOTHING;
@@ -173,7 +173,7 @@ BEGIN
       AND engine_version = 'run-engine-v20'
       AND command_schema_version = 2
       AND content_hash =
-        '0f8bda8b7475256695d745fbea7d4d120296f3c03ceaec183529bd588f8d0cd7'
+        '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91'
   ) THEN
     RAISE EXCEPTION 'gameplay_ruleset_v20_contract_mismatch';
   END IF;
