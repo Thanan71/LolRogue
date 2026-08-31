@@ -277,14 +277,17 @@ function generateTreasureEncounter(
   runLevel: number,
   rand: () => number,
 ): TreasureEncounter {
-  // Gold reward scales with run level
-  const gold = Math.round(50 + runLevel * 25 + rand() * 50);
+  // Treasure stays useful without outpaying several risk-bearing combat nodes.
+  const gold = Math.round(30 + runLevel * 15 + rand() * 30);
 
-  // 40% chance to also give an item
-  const hasItem = rand() < 0.4;
-  const item = hasItem
-    ? itemDefToShopItem(SHOPABLE_ITEM_IDS[Math.floor(rand() * SHOPABLE_ITEM_IDS.length)])
-    : undefined;
+  // One quarter of treasures also grant an item. Keep the historical 40% draw-consumption
+  // boundary so this reward tuning does not perturb downstream map generation.
+  const itemRoll = rand();
+  const itemIndex = itemRoll < 0.4 ? Math.floor(rand() * SHOPABLE_ITEM_IDS.length) : undefined;
+  const item =
+    itemRoll < 0.25 && itemIndex !== undefined
+      ? itemDefToShopItem(SHOPABLE_ITEM_IDS[itemIndex])
+      : undefined;
 
   const treasureNames = [
     'Shimmering Chest',

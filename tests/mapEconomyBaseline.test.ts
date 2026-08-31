@@ -140,5 +140,9 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     expect(candidate.economy.rest.costPerTeamMember[4].full.median).toBeGreaterThanOrEqual(
       candidate.economy.rest.costPerTeamMember[0].full.median / 3,
     );
+    expect(candidate.economy.treasureAndDrops.treasureGold.min).toBeGreaterThanOrEqual(45);
+    expect(candidate.economy.treasureAndDrops.treasureGold.max).toBeLessThanOrEqual(150);
+    expect(candidate.economy.treasureAndDrops.treasureItemRate).toBeGreaterThanOrEqual(0.23);
+    expect(candidate.economy.treasureAndDrops.treasureItemRate).toBeLessThanOrEqual(0.27);
   });
 });
