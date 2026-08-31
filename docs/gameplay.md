@@ -12,13 +12,19 @@ change le moteur exige une nouvelle version gameplay et Daily.
 Une équipe contient au maximum cinq champions. Elle traverse, dans l'ordre,
 Top Lane, Jungle, Mid Lane, Bot Lane, River puis Enemy Base. Les biomes comportent
 respectivement 6–8, 7–10, 5–7, 6–8, 4–6 et 3–4 nœuds. Leur multiplicateur de
-difficulté est 1,0, 1,1, 1,2, 1,1, 1,3 et 1,5.
+difficulté est 1,0, 1,1, 1,2, 1,25, 1,4 et 1,6.
 
 La première colonne d'une carte est toujours un combat. La dernière est une sortie,
 sauf dans la base où elle devient le boss final. L'avant-dernière colonne est un
 combat ou un repos à chances égales. Les autres colonnes tirent leur type selon les
 poids de `BIOME_MAP_CONFIGS`; tout poids restant produit un combat. Le seed et le
 générateur `mulberry32` rendent la carte reproductible.
+
+La génération v20 borne à trois combats et une élite l'écart entre les routes d'une
+run. Tous les chemins passent par une boutique avant la fin de Jungle et par un
+recrutement avant la fin de Mid. La boutique Jungle contient toujours une potion
+d'entrée de gamme ; les cinq premières fins de biome restent des sorties et seule
+Enemy Base force un boss.
 
 Les rencontres possibles sont : combat, élite, boutique, repos, événement, trésor,
 recrutement et boss. Une rencontre déjà réclamée est mémorisée pour empêcher de
@@ -187,11 +193,12 @@ Cette formule ne s'applique qu'après au moins une vague terminée :
 | défaite | oui | non |
 | victoire | oui | oui |
 
-Le pool est partagé équitablement entre les champions, avec un minimum d'une candy
-par champion une fois la run éligible. La politique locale canonique est dans
-`src/game/run/runRewardPolicy.ts`; ses coefficients sont dans
-`src/types/mastery.ts`. PostgreSQL lit les mêmes coefficients depuis le
-`progression_ruleset` versionné et garde la même condition
+Le pool est un budget de compte fixe : il n'est plus divisé uniformément selon la
+taille finale de l'équipe. Le progression ruleset v3 le répartit exactement entre les
+champions selon leurs vagues et biomes réellement parcourus, enregistrés dans le
+ledger v2. La politique locale canonique est dans `src/game/run/runRewardPolicy.ts` ;
+ses coefficients sont dans `src/types/mastery.ts`. PostgreSQL lit les mêmes
+coefficients depuis le `progression_ruleset` versionné et garde la même condition
 `waves_completed > 0` dans `complete_run_verification`. Chaque niveau de maîtrise
 ajoute 2 % aux statistiques de base via le calculateur canonique, jusqu'à 8 %.
 Le niveau 1 ouvre le deuxième slot de l'équipe initiale et le niveau 3 le
@@ -209,9 +216,10 @@ Les probabilités ne doivent pas être recopiées dans les composants :
 
 - types de nœuds : `BIOME_MAP_CONFIGS` dans `src/game/map/types.ts` ;
 - événements et poids de leurs issues : `generateEventEncounter` ;
-- repos : 20 % de soin complet, sinon 25 à 75 % ;
+- repos : 20 % de soin complet, sinon 25 à 75 % ; le prix ajoute respectivement
+  40 ou 20 gold par membre après le premier ;
 - boutique : 2 à 4 objets, 1 à 2 recrues et 20 % de chance de multiplicateur de
-  prix à `0,8` ;
+  prix à `0,8` ; en Jungle, une offre est toujours la potion ;
 - trésors et recrutements : générateurs correspondants dans `src/game` ;
 - choix d'augments : tirage seedé sans remplacement, avec poids Argent/Or/
   Prismatique de 60/30/10.
@@ -251,7 +259,7 @@ font partie du contrat.
 
 Le jour Daily est `(instant serveur AT TIME ZONE 'UTC')::date` et expire à minuit
 UTC suivant. Le serveur fige dans l'attempt la date, la seed, la difficulté, le
-ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v19,
+ruleset Daily, le ruleset gameplay et `score_version`. Pour le ruleset actif v20,
 la formule `score_version = 15` donne :
 
 ```text

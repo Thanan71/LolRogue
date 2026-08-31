@@ -70,3 +70,25 @@ P0 reste inchangée (SHA-256
 `2e807afd79205f9e1253e351f65ea4820c58051c9248edca76a664364e7371ab`). Le wrapper
 SQL v19 délègue au contrat v18 après traduction temporaire de l'identité moteur et
 conserve la même frontière `service_role`.
+
+## Publication carte et économie v20
+
+La migration `20260831152608_gameplay_ruleset_v20_map_economy.sql` publie
+`run-engine-v20` et le hash
+`8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91`. Elle copie le
+catalogue gameplay v19 avec comparaison bidirectionnelle, publie le Daily v20 dans
+`lolrogue.daily.v20` et conserve le barème `score_version = 15` avec
+`gold_points = 0`.
+
+La même migration active le progression ruleset v3 et le ledger v2 : le replay
+enregistre, pour chaque champion, les vagues et biomes réellement parcourus, puis le
+serveur répartit exactement un budget de candies de compte pondéré par cette
+participation. Les colonnes de participation restent nullables pour l'historique v1,
+qui n'est ni réécrit ni doté de participation synthétique.
+
+Le bundle v19 est archivé byte-for-byte dans
+`run-authority-v19.bundle.ts` (836 449 octets, SHA-256
+`55df03729dc47417db3efb28ba534cbbf830f9cd3c771e4fdcda8d33eb9996eb`). Il reste
+`replay-only`, tandis que v20 est l'unique moteur `current`. Le wrapper de finalisation
+v20 conserve la délégation v19 pour les attempts historiques et limite le nouveau
+contrat de progression à `service_role`.

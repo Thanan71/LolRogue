@@ -3,12 +3,12 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 2` décrit le contenu publié avec le
-`gameplay_ruleset_version = 19` et le Daily `score_version = 15`. La calibration
+`gameplay_ruleset_version = 20` et le Daily `score_version = 15`. La calibration
 early Top et le budget de formation global restent figés dans la v18 ; la v19 publie
-les règles système et les ajustements individuels du sprint combat. Le moteur v18 est
-archivé pour terminer les runs déjà ouvertes. Toute autre modification d'ennemi,
-récompense, prix, drop, effet ou stacking exige une nouvelle version et un nouveau
-hash autoritaire.
+les règles système du sprint combat et la v20 la carte, l'économie ainsi que la
+progression par participation. Le moteur v19 est archivé pour terminer les runs déjà
+ouvertes. Toute autre modification d'ennemi, récompense, prix, drop, effet ou stacking
+exige une nouvelle version et un nouveau hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `contentCatalogAnalysis.test.ts` appelle `analyzeContentCatalog()` sur 100 seeds de
@@ -175,21 +175,22 @@ Les neuf tests passent sous Node 24 sans modifier les catalogues d'augments, les
 tables de drops, les items, les encounters ou les règles de contenu. La stabilisation
 early Top ne compense donc pas sa difficulté en rouvrant P0-BAL-04.
 
-La baseline courante v19 est chargée depuis
-`config/authority-cohort-baselines-v19.json` et reproduite par la source v19. Elle
+La baseline courante v20 est chargée depuis
+`config/authority-cohort-baselines-v20.json` et reproduite par la source v20. Elle
 sépare les dix champions maintenus sur les trois difficultés et publie aussi le mana
-consommé ainsi que les boucliers absorbés par leur camp créateur. Les baselines v15 à
-v18 restent des archives immuables : leurs identités moteur/hash/modèle/policy sont
-littérales et leur reproduction emploie exclusivement leur bundle versionné, jamais
-les constantes du moteur courant.
+consommé ainsi que les boucliers absorbés par leur camp créateur.
+Les six baselines authority v15 à v20 restent reproductibles ; v15 à v19 sont des
+archives immuables dont les identités moteur/hash/modèle/policy sont littérales et dont
+la reproduction emploie exclusivement leur bundle versionné, jamais les constantes du
+moteur courant.
 
-`npm run balance:baseline:generate` génère v19 sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-v19.json` met à jour son artefact
+`npm run balance:baseline:generate` génère v20 sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-v20.json` met à jour son artefact
 commité. Les commandes `balance:baseline:generate:v15` à
-`balance:baseline:generate:v18` servent uniquement à auditer les archives
+`balance:baseline:generate:v19` servent uniquement à auditer les archives
 historiques. Une nouvelle publication ajoute son propre couple fixture/loader/JSON
 sans réécrire les versions précédentes. `npm run balance:baseline:check`, inclus
-dans `npm run balance:check`, exige une reproduction byte-for-byte des cinq
+dans `npm run balance:check`, exige une reproduction byte-for-byte des six
 artefacts.
 
 ### Matrice de combat des champions
@@ -204,15 +205,15 @@ défaite pour chaque champion ; un draw ne peut ainsi masquer un taux réel de 0
 `npm run balance:combat:matrix:generate` sélectionne le moteur `current` dans
 `config/authority-versions.json` et, par défaut, son prédécesseur gameplay. Le moteur
 précédent est chargé depuis son bundle archivé, puis le candidat est exécuté depuis
-son bundle et sa source. Le rapport
-`config/champion-combat-matrix-current.json` compare v18
-(`9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17`) à v19
-(`45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099`), contient
-les identités réellement résolues et exige une parité source/bundle exacte.
+son bundle et sa source. Le rapport contient les identités réellement résolues et
+exige une parité source/bundle exacte.
 
-Les valeurs entre parenthèses sont les deltas candidat − baseline. Le bundle v18 ne
-publiait pas le mana dans `action_select` : sa variation est donc notée `n/d` plutôt
-que transformée artificiellement en zéro.
+La table historique de publication combat ci-dessous compare v18
+(`9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17`) à v19
+(`45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099`). Les valeurs
+entre parenthèses sont les deltas candidat − baseline. Le bundle v18 ne publiait pas
+le mana dans `action_select` : sa variation est donc notée `n/d` plutôt que transformée
+artificiellement en zéro.
 
 | Champion | Victoires (Δ pp) | Dégâts PV/round (Δ) | Soins/round (Δ) | Shield absorbé/round (Δ) | Mana/round (Δ) | Actions CC/combat (Δ) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -233,6 +234,14 @@ P0 de 45–55 % et d'écart maximal de 10 points : sept champions sont encore ho
 la plage et l'écart du roster atteint 38,02 points. Ces seuils restent ouverts et
 doivent être traités par leur calibration dédiée, pas assouplis dans ce rapport.
 
+Le rapport courant `config/champion-combat-matrix-current.json` compare désormais
+v19 au moteur v20
+(`8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91`). Les 7 560
+combats de chaque runtime reproduisent exactement les métriques v19, tous les deltas
+sont nuls et la parité source/bundle v20 est exacte. Ce contrôle conserve de vraies
+victoires **et** de vraies défaites pour chacun des dix champions ; la publication
+économique ne cherche pas à rendre chaque run gagnante.
+
 La publication P0-BAL-05 archive également le bundle v17 byte-for-byte et publie
 `run-engine-v18` avec le hash
 `9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17`. Le catalogue
@@ -247,6 +256,34 @@ P0-BAL-02 restent ouvertes, notamment parce que les premiers combats Normal et H
 sont gagnés à 100 %, au-dessus de leurs plages de travail respectives de 75–95 % et
 50–80 %. Les gates 5v5, concentration des morts par biome et playtests humains ne sont
 pas déclarées satisfaites par cette cohorte solo.
+
+### Gate P1-BAL-02 carte et économie
+
+`config/map-economy-baseline-v20.json` analyse 1 000 seeds avec une programmation
+dynamique sur le DAG de chaque carte. `npm run balance:map-economy:check` exige sa
+reproduction byte-for-byte et borne, sur la run complète, l'écart entre routes à
+trois combats et une élite. Chaque chemin traverse un shop en Jungle et un recrutement
+en Mid ; seule la Base se termine par un boss.
+
+Le premier shop Jungle propose toujours une potion. Le gate
+`mapEconomyAffordability.test.ts` rejoue 900 runs, stratifiées en 30 cellules ×
+30 seeds, et exige pour Easy, Normal et Hard qu'au moins 50 % des premières visites
+Jungle contiennent une offre abordable. Les composants coûtent 100–250 gold hors
+potion d'entrée, BF Sword 500–650 et les recrues 150–300.
+
+Le repos ajoute 20 gold par membre après le premier pour un soin partiel et 40 pour
+un soin complet. Le seuil d'efficacité est fixé à `≤ 5×` la potion par gold afin de
+préserver la qualité du soin d'équipe ; `mapEconomyBaseline.test.ts` le vérifie pour
+les deux types de repos, les effectifs de un à cinq et une référence de 150 PV pour
+50 gold. La v20 réduit aussi le trésor sans risque, conserve les issues négatives
+inabordables sous forme de contrepartie ou d'absence de gain, et recrute au niveau
+`max(runLevel + 1, médianeEquipe - 1)`.
+
+Enfin, le progression ruleset v3 répartit un budget de candies de compte fixe selon
+les vagues et biomes réellement parcourus dans le ledger v2. Recruter tard ne réduit
+donc plus le budget global et la part individuelle reflète la participation. Cette
+gate ferme P1-BAL-02, pas P0-BAL-02 : la calibration finale et les playtests humains
+consentis restent explicitement ouverts.
 
 ## Indicateurs de catalogue et de nœuds
 

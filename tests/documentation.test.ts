@@ -227,6 +227,7 @@ describe('documentation maintenue', () => {
     const v19Sql = read(
       'supabase/migrations/20260830093859_gameplay_ruleset_v19_combat_balance.sql',
     );
+    const v20Sql = read('supabase/migrations/20260831152608_gameplay_ruleset_v20_map_economy.sql');
 
     for (const token of [
       'v_ruleset.victory_bonus',
@@ -249,9 +250,47 @@ describe('documentation maintenue', () => {
     expect(v19Sql).toContain("'2026-08-combat-balance-daily-v19'");
     expect(v19Sql).toContain("'lolrogue.daily.v19'");
     expect(v19Sql).toContain('AND gold_points = 0');
+    expect(v20Sql).toContain("'2026-08-map-economy-daily-v20'");
+    expect(v20Sql).toContain("'lolrogue.daily.v20'");
+    expect(v20Sql).toContain('AND score_version = 15');
+    expect(v20Sql).toContain('AND gold_points = 0');
+    expect(v20Sql).toContain(
+      'UPDATE public.daily_challenge_rulesets SET is_active = TRUE WHERE version = 20',
+    );
+    expect(v20Sql).toContain("'2026-08-participation-rewards-v3'");
+    expect(v20Sql).toContain("p_result -> 'ledger' ->> 'version' <> '2'");
     expect(gameplay).toContain('1 000 × vagues terminées');
     expect(gameplay).toContain('250 × biomes visités');
     expect(gameplay).toContain("Le score n'utilise ni l'or gagné/restant ni le nombre d'objets");
-    expect(persistence).toContain('Dans le ruleset Daily v19 actif');
+    expect(gameplay).toContain('Pour le ruleset actif v20');
+    expect(persistence).toContain('Dans le ruleset Daily v20 actif');
+  });
+
+  it('documente les preuves et limites de la publication carte-économie v20', () => {
+    const todo = read('TODO.md');
+    const authority = read('docs/authority-versioning.md');
+    const balance = read('docs/content-balance.md');
+    const gameplay = read('docs/gameplay.md');
+    const persistence = read('docs/data-and-persistence.md');
+    const testing = read('docs/testing.md');
+    const matrix = read('docs/feature-status.md');
+
+    expect(todo).toContain('11. [x] `P1-BAL-02`');
+    expect(todo).toContain('`≤ 5×`');
+    expect(authority).toContain('836 449 octets');
+    expect(authority).toContain('55df03729dc47417db3efb28ba534cbbf830f9cd3c771e4fdcda8d33eb9996eb');
+    for (const document of [authority, balance, persistence]) {
+      expect(document).toContain(
+        '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
+      );
+    }
+    expect(balance).toContain('six baselines authority v15 à v20');
+    expect(balance).toContain('analyse 1 000 seeds');
+    expect(balance).toContain('rejoue 900 runs');
+    expect(balance).toContain('v19 au moteur v20');
+    expect(gameplay).toContain('1,0, 1,1, 1,2, 1,25, 1,4 et 1,6');
+    expect(persistence).toContain('ledger v2');
+    expect(testing).toContain('P0-BAL-02 restent indépendants et ouverts');
+    expect(matrix).toContain('playtests humains restent ouverts');
   });
 });
