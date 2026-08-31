@@ -78,6 +78,29 @@ describe('Map Generation', () => {
         expect(firstColumnNodes.length).toBe(1);
       }
     });
+
+    it('keeps bounded fight-versus-rest route choices', () => {
+      const expectedRiskByBiome = {
+        top_lane: NodeType.Combat,
+        jungle: NodeType.Combat,
+        river: NodeType.Elite,
+      } as const;
+
+      for (const [biome, riskType] of Object.entries(expectedRiskByBiome)) {
+        const map = generateMap(biome as keyof typeof expectedRiskByBiome, 1, 42);
+        const columns = Array.from({ length: map.columns }, (_, column) =>
+          map.nodes.filter((node) => node.column === column),
+        );
+
+        expect(
+          columns.some(
+            (nodes) =>
+              nodes.some((node) => node.type === riskType) &&
+              nodes.some((node) => node.type === NodeType.Rest),
+          ),
+        ).toBe(true);
+      }
+    });
   });
 
   describe('generateRunMap', () => {

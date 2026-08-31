@@ -5,13 +5,14 @@
 import { implementedChampions } from '@/data/champion';
 import { getItemDefinition, ITEM_DATABASE } from '@/data/items';
 import { createCombatEncounterForNode } from '@/game/run/encounterResolver';
+import { createScopedRunRng } from '@/utils/runRandom';
 import type { Biome } from '../../types/run';
 import { generateShopRotation, generateWildRecruit } from '../recruitment/RecruitmentService';
 import {
   buildConfig,
   getNodeMetadata,
-  mulberry32,
   seededShuffle,
+  selectColumnPressure,
   selectColumnType,
 } from './MapGenerator-helpers';
 import {
@@ -335,13 +336,19 @@ function generateEncounterForNode(
 
 // ─── Map Generation ─────────────────────────────────────────────────────────
 
+function createMapRandom(seed: number, scope: string): () => number {
+  const rng = createScopedRunRng(seed, scope);
+  return () => rng.next();
+}
+
 export function generateMap(biome: Biome, runLevel: number, seed?: number): NodeMap {
   const effectiveSeed = seed ?? Date.now();
-  const rand = mulberry32(effectiveSeed);
   const config = buildConfig(biome, runLevel, effectiveSeed);
+  const mapScope = `map:${biome}:${runLevel}`;
+  const columnCountRandom = createMapRandom(effectiveSeed, `${mapScope}:layout:columns`);
 
   const columns = Math.floor(
-    rand() * (config.maxColumns - config.minColumns + 1) + config.minColumns,
+    columnCountRandom() * (config.maxColumns - config.minColumns + 1) + config.minColumns,
   );
 
   const columnNodes: MapNode[][] = [];
@@ -349,20 +356,40 @@ export function generateMap(biome: Biome, runLevel: number, seed?: number): Node
   const allNodes: MapNode[] = [];
 
   for (let col = 0; col < columns; col++) {
+    const nodeCountRandom = createMapRandom(
+      effectiveSeed,
+      `${mapScope}:layout:column:${col}:nodes`,
+    );
     // First column always has exactly 1 node
-    const nodeCount =
+    const sampledNodeCount =
       col === 0
         ? 1
         : Math.floor(
-            rand() * (config.maxNodesPerColumn - config.minNodesPerColumn + 1) +
+            nodeCountRandom() * (config.maxNodesPerColumn - config.minNodesPerColumn + 1) +
               config.minNodesPerColumn,
           );
+    const pressureRandom = createMapRandom(effectiveSeed, `${mapScope}:column:${col}:pressure`);
+    const columnPressure = selectColumnPressure(config, pressureRandom, col, columns);
+    const isRiskChoice = columnPressure === 'combat_or_rest' || columnPressure === 'elite_or_rest';
+    const nodeCount = isRiskChoice ? Math.max(2, sampledNodeCount) : sampledNodeCount;
+    const riskRowRandom = createMapRandom(effectiveSeed, `${mapScope}:column:${col}:risk-row`);
+    const riskRow = isRiskChoice ? Math.floor(riskRowRandom() * nodeCount) : -1;
 
     const nodesInColumn: MapNode[] = [];
 
     for (let row = 0; row < nodeCount; row++) {
-      const nodeType = selectColumnType(config, rand, col, columns);
-      const encounter = generateEncounterForNode(nodeType, biome, runLevel, rand);
+      const nodeScope = `${mapScope}:column:${col}:row:${row}`;
+      const typeRandom = createMapRandom(effectiveSeed, `${nodeScope}:type`);
+      const encounterRandom = createMapRandom(effectiveSeed, `${nodeScope}:encounter`);
+      const nodeType = selectColumnType(
+        config,
+        typeRandom,
+        col,
+        columns,
+        columnPressure,
+        row === riskRow,
+      );
+      const encounter = generateEncounterForNode(nodeType, biome, runLevel, encounterRandom);
 
       const node: MapNode = {
         id: `node_${biome}_${nodeIdCounter++}`,
@@ -390,6 +417,10 @@ export function generateMap(biome: Biome, runLevel: number, seed?: number): Node
     const nextColumn = columnNodes[col + 1];
 
     for (const node of currentColumn) {
+      const connectionRandom = createMapRandom(
+        effectiveSeed,
+        `${mapScope}:connections:column:${col}:source:${node.id}`,
+      );
       const availableTargets = nextColumn.filter((t) => t.prevNodeIds.length < 3);
 
       if (availableTargets.length === 0) {
@@ -399,14 +430,15 @@ export function generateMap(biome: Biome, runLevel: number, seed?: number): Node
         continue;
       }
 
-      const primaryTarget = availableTargets[Math.floor(rand() * availableTargets.length)];
+      const primaryTarget =
+        availableTargets[Math.floor(connectionRandom() * availableTargets.length)];
       node.nextNodeIds.push(primaryTarget.id);
       primaryTarget.prevNodeIds.push(node.id);
 
-      if (rand() < config.branchChance && availableTargets.length > 1) {
+      if (connectionRandom() < config.branchChance && availableTargets.length > 1) {
         const otherTargets = availableTargets.filter((t) => t.id !== primaryTarget.id);
         if (otherTargets.length > 0) {
-          const branchTarget = otherTargets[Math.floor(rand() * otherTargets.length)];
+          const branchTarget = otherTargets[Math.floor(connectionRandom() * otherTargets.length)];
           if (!node.nextNodeIds.includes(branchTarget.id)) {
             node.nextNodeIds.push(branchTarget.id);
             branchTarget.prevNodeIds.push(node.id);
@@ -417,7 +449,11 @@ export function generateMap(biome: Biome, runLevel: number, seed?: number): Node
 
     for (const nextNode of nextColumn) {
       if (nextNode.prevNodeIds.length === 0) {
-        const source = currentColumn[Math.floor(rand() * currentColumn.length)];
+        const coverageRandom = createMapRandom(
+          effectiveSeed,
+          `${mapScope}:connections:column:${col}:coverage:${nextNode.id}`,
+        );
+        const source = currentColumn[Math.floor(coverageRandom() * currentColumn.length)];
         source.nextNodeIds.push(nextNode.id);
         nextNode.prevNodeIds.push(source.id);
       }

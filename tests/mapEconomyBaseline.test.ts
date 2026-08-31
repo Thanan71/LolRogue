@@ -57,51 +57,56 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     });
   });
 
-  it('reproduces the committed v19 artifact over 1,000 seeds', async () => {
+  it('keeps the committed v19 artifact as immutable historical evidence', async () => {
     const committed = JSON.parse(
       await readFile(new URL('../config/map-economy-baseline-v19.json', import.meta.url), 'utf8'),
-    );
+    ) as ReturnType<typeof createMapEconomyBaseline>;
 
-    expect(createMapEconomyBaseline()).toEqual(committed);
     expect(committed.identity).toMatchObject({
       engineVersion: 'run-engine-v19',
       gameplayRulesetVersion: 19,
       seedCount: 1_000,
     });
-  });
+    expect(committed.routes.fullRun.combats.maximumSpread).toBe(17);
+    expect(committed.routes.fullRun.elites.maximumSpread).toBe(11);
+    expect(committed.routes.byBiome.jungle.shopOnSomePath.seeds).toBe(562);
+    expect(committed.routes.byBiome.jungle.shopOnEveryPath.seeds).toBe(10);
+    expect(committed.routes.byBiome.mid_lane.recruitOnSomePath.seeds).toBe(220);
+    expect(committed.routes.byBiome.mid_lane.recruitOnEveryPath.seeds).toBe(101);
+    expect(Object.values(committed.documentedGaps).every((gate) => !gate.passes)).toBe(true);
 
-  it('records the measured pre-P1 gaps without treating them as accepted gates', () => {
-    const baseline = createMapEconomyBaseline();
-
-    expect(baseline.routes.fullRun.combats.maximumSpread).toBe(17);
-    expect(baseline.routes.fullRun.elites.maximumSpread).toBe(11);
-    expect(baseline.routes.byBiome.jungle.shopOnSomePath.seeds).toBe(562);
-    expect(baseline.routes.byBiome.jungle.shopOnEveryPath.seeds).toBe(10);
-    expect(baseline.routes.byBiome.mid_lane.recruitOnSomePath.seeds).toBe(220);
-    expect(baseline.routes.byBiome.mid_lane.recruitOnEveryPath.seeds).toBe(101);
-    expect(Object.values(baseline.documentedGaps).every((gate) => !gate.passes)).toBe(true);
-
-    expect(baseline.economy.shops.trackedFinalItemPrices.bf_sword).toMatchObject({
+    expect(committed.economy.shops.trackedFinalItemPrices.bf_sword).toMatchObject({
       min: 988,
       max: 2_210,
     });
-    expect(baseline.economy.rest.costPerTeamMember[4]).toMatchObject({
+    expect(committed.economy.rest.costPerTeamMember[4]).toMatchObject({
       teamSize: 5,
       partial: { median: 10 },
       full: { median: 22 },
     });
-    expect(baseline.economy.treasureAndDrops).toMatchObject({
+    expect(committed.economy.treasureAndDrops).toMatchObject({
       treasureItemRate: 0.3891,
       treasureGold: { min: 75, max: 250 },
     });
-    expect(baseline.economy.recruitment.startingLevel).toEqual({
+    expect(committed.economy.recruitment.startingLevel).toEqual({
       shop: 1,
       encounter: 1,
       event: 1,
     });
-    expect(baseline.economy.candies.byFinalTeamSize[4]).toMatchObject({
+    expect(committed.economy.candies.byFinalTeamSize[4]).toMatchObject({
       teamSize: 5,
       teamTotal: { min: 35, max: 55 },
     });
+  });
+
+  it('accepts the current candidate route variance over 1,000 seeds', () => {
+    const candidate = createMapEconomyBaseline();
+
+    expect(candidate.routes.fullRun.combats.maximumSpread).toBeLessThanOrEqual(3);
+    expect(candidate.routes.fullRun.elites.maximumSpread).toBeLessThanOrEqual(1);
+    expect(candidate.routes.fullRun.combats.maximumSpread).toBeGreaterThan(0);
+    expect(candidate.routes.fullRun.elites.maximumSpread).toBeGreaterThan(0);
+    expect(candidate.documentedGaps.fullRunCombatSpread.passes).toBe(true);
+    expect(candidate.documentedGaps.fullRunEliteSpread.passes).toBe(true);
   });
 });
