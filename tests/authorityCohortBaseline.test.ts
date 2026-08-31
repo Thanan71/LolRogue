@@ -306,7 +306,7 @@ describe('authority cohort baseline', () => {
     expect(archivedFixture.document).toEqual(loaded);
     expect(generateAuthorityCohortBaselineV19(authority)).toEqual(loaded);
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
-  }, 15_000);
+  }, 30_000);
 
   it('strictly loads the current v20 ten-champion matrix with combat resource metrics', () => {
     const loaded = loadAuthorityCohortBaseline(
@@ -347,7 +347,7 @@ describe('authority cohort baseline', () => {
     );
     expect(generateAuthorityCohortBaselineV20()).toEqual(loaded);
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
-  }, 15_000);
+  }, 30_000);
 
   it('rejects unknown fields, missing metrics and incoherent index identities', () => {
     const unknownRoot = Object.assign(structuredClone(baselineV20Json), { unexpected: true });

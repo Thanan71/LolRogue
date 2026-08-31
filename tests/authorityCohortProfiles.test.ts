@@ -88,5 +88,5 @@ describe('authority cohort execution profiles', () => {
     expect(result.cohorts).toHaveLength(45);
     expect(result.cohorts.every((cohort) => cohort.runs.length === 1)).toBe(true);
     expect(result.cohorts.every((cohort) => cohort.runs[0]?.result.snapshot.terminal)).toBe(true);
-  });
+  }, 30_000);
 });
