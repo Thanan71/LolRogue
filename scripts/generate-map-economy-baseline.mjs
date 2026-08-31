@@ -6,7 +6,6 @@ import { pathToFileURL } from 'node:url';
 import { build } from 'esbuild-authority';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
-const artifactPath = path.join(repositoryRoot, 'config/map-economy-baseline-v19.json');
 const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'lolrogue-map-economy-baseline-'));
 const outputPath = path.join(temporaryRoot, 'map-economy-baseline.mjs');
 const { values } = parseArgs({
@@ -44,12 +43,17 @@ try {
   const { createMapEconomyBaseline } = await import(pathToFileURL(outputPath).href);
   const baseline = createMapEconomyBaseline();
   const serialized = `${JSON.stringify(baseline, null, 2)}\n`;
+  const artifactPath = path.join(
+    repositoryRoot,
+    `config/map-economy-baseline-v${baseline.identity.gameplayRulesetVersion}.json`,
+  );
 
   if (values.check) {
     const committed = await readFile(artifactPath, 'utf8');
     if (serialized !== committed) {
       throw new Error(
-        'The v19 map/economy baseline is stale. Run npm run balance:map-economy:generate.',
+        `The v${baseline.identity.gameplayRulesetVersion} map/economy baseline is stale. ` +
+          'Run npm run balance:map-economy:generate.',
       );
     }
     process.stdout.write(

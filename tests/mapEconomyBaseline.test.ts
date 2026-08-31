@@ -103,6 +103,15 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
   it('accepts the current candidate route variance over 1,000 seeds', () => {
     const candidate = createMapEconomyBaseline();
 
+    expect(candidate).toMatchObject({
+      schemaVersion: 2,
+      identity: {
+        engineVersion: 'run-engine-v20',
+        gameplayRulesetVersion: 20,
+        contentHash: '0f8bda8b7475256695d745fbea7d4d120296f3c03ceaec183529bd588f8d0cd7',
+        seedCount: 1_000,
+      },
+    });
     expect(candidate.routes.fullRun.combats.maximumSpread).toBeLessThanOrEqual(3);
     expect(candidate.routes.fullRun.elites.maximumSpread).toBeLessThanOrEqual(1);
     expect(candidate.routes.fullRun.combats.maximumSpread).toBeGreaterThan(0);

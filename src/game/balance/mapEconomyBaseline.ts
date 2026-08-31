@@ -18,7 +18,7 @@ import { getRestGoldCost, getShopItemCost, getShopRecruitCost } from '@/game/run
 import { calculateRunCandyAllocation } from '@/game/run/runRewardPolicy';
 import { BIOMES, type Biome, MAX_TEAM_SIZE } from '@/types/run';
 
-export const MAP_ECONOMY_BASELINE_SCHEMA_VERSION = 1;
+export const MAP_ECONOMY_BASELINE_SCHEMA_VERSION = 2;
 export const MAP_ECONOMY_BASELINE_SEED_COUNT = 1_000;
 
 const FIRST_SEED = 1;
