@@ -67,7 +67,7 @@ export const BIOME_INFO: Record<Biome, BiomeInfo> = {
     name: 'Bot Lane',
     description: 'A duo lane defended by marksmen and their supports.',
     icon: '🏹',
-    difficultyMultiplier: 1.1,
+    difficultyMultiplier: 1.25,
     nodeCount: { min: 6, max: 8 },
   },
   river: {
@@ -75,7 +75,7 @@ export const BIOME_INFO: Record<Biome, BiomeInfo> = {
     name: 'River',
     description: 'Treacherous waters home to elemental drakes and scuttle crabs.',
     icon: '🌊',
-    difficultyMultiplier: 1.3,
+    difficultyMultiplier: 1.4,
     nodeCount: { min: 4, max: 6 },
   },
   base: {
@@ -83,7 +83,7 @@ export const BIOME_INFO: Record<Biome, BiomeInfo> = {
     name: 'Enemy Base',
     description: 'The final stronghold. Defeat the enemy Nexus to win!',
     icon: '🏰',
-    difficultyMultiplier: 1.5,
+    difficultyMultiplier: 1.6,
     nodeCount: { min: 3, max: 4 },
   },
 };

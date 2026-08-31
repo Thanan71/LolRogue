@@ -23,7 +23,9 @@ import { getStarterBudgetProfile } from './starterBudget';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 6;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 7;
+export const BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT = 0.25;
+const COMBAT_REWARD_RNG_VERSION = 6;
 
 const NODE_RULES: Record<
   NodeType.Combat | NodeType.Elite | NodeType.Boss,
@@ -140,7 +142,7 @@ function resolveDrop(
 ): Pick<ResolvedCombatReward, 'droppedItem' | 'dropBlockedByCapacity'> {
   const rng = createScopedRunRng(
     input.seed,
-    `combat-reward:v${COMBAT_ENCOUNTER_RULESET_VERSION}:${input.nodeId}:${input.wave}:${input.runLevel}`,
+    `combat-reward:v${COMBAT_REWARD_RNG_VERSION}:${input.nodeId}:${input.wave}:${input.runLevel}`,
   );
   if (rng.next() >= itemDropChance) {
     return { droppedItem: null, dropBlockedByCapacity: false };
@@ -175,7 +177,8 @@ export function resolveCombatEncounter(
   const starterBudget = getStarterBudgetProfile(input.starterTeamSize ?? 1);
   const node = NODE_RULES[input.nodeType];
   const lanePressure = input.biome === 'top_lane' ? TOP_LANE_NODE_PRESSURE[input.nodeType] : 1;
-  const biomeMultiplier = 1 + (BIOME_INFO[input.biome].difficultyMultiplier - 1) * 0.35;
+  const biomeMultiplier =
+    1 + (BIOME_INFO[input.biome].difficultyMultiplier - 1) * BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT;
   const wave = Math.max(1, Math.trunc(input.wave));
   const runLevel = clamp(Math.trunc(input.runLevel), 1, 18);
   const progressionMultiplier = 1 + (runLevel - 1) * 0.01 + (wave - 1) * 0.0025;
