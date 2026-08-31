@@ -101,6 +101,20 @@ describe('Map Generation', () => {
         ).toBe(true);
       }
     });
+
+    it('guarantees a Jungle shop and a Mid recruit before every exit', () => {
+      for (let seed = 0; seed < 100; seed++) {
+        const jungle = generateMap('jungle', 2, seed);
+        const junglePreExit = jungle.nodes.filter((node) => node.column === jungle.columns - 2);
+        expect(junglePreExit.length).toBeGreaterThan(0);
+        expect(junglePreExit.every((node) => node.type === NodeType.Shop)).toBe(true);
+
+        const mid = generateMap('mid_lane', 3, seed);
+        const midPreExit = mid.nodes.filter((node) => node.column === mid.columns - 2);
+        expect(midPreExit.length).toBeGreaterThan(0);
+        expect(midPreExit.every((node) => node.type === NodeType.Recruit)).toBe(true);
+      }
+    });
   });
 
   describe('generateRunMap', () => {

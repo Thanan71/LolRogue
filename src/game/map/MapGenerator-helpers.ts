@@ -114,7 +114,10 @@ export function selectColumnPressure(
 ): MapColumnPressure {
   if (columnIndex === 0) return 'combat';
   if (columnIndex === totalColumns - 1) return config.biome === 'base' ? 'combat' : 'neutral';
-  if (columnIndex === totalColumns - 2) return rand() < 0.5 ? 'neutral' : 'combat';
+  if (columnIndex === totalColumns - 2) {
+    if (config.biome === 'jungle' || config.biome === 'mid_lane') return 'neutral';
+    return rand() < 0.5 ? 'neutral' : 'combat';
+  }
 
   const riskChoicePressure = getRiskChoicePressure(config, columnIndex, totalColumns);
   if (riskChoicePressure) return riskChoicePressure;
@@ -155,6 +158,10 @@ export function selectColumnType(
   if (columnIndex === totalColumns - 1) {
     // Exits advance between biomes; the only Boss column ends the final biome.
     return config.biome === 'base' ? NodeType.Boss : NodeType.Exit;
+  }
+  if (columnIndex === totalColumns - 2) {
+    if (config.biome === 'jungle') return NodeType.Shop;
+    if (config.biome === 'mid_lane') return NodeType.Recruit;
   }
 
   const columnPressure = pressure ?? selectColumnPressure(config, rand, columnIndex, totalColumns);

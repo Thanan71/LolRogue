@@ -108,5 +108,9 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     expect(candidate.routes.fullRun.elites.maximumSpread).toBeGreaterThan(0);
     expect(candidate.documentedGaps.fullRunCombatSpread.passes).toBe(true);
     expect(candidate.documentedGaps.fullRunEliteSpread.passes).toBe(true);
+    expect(candidate.routes.byBiome.jungle.shopOnEveryPath.rate).toBe(1);
+    expect(candidate.routes.byBiome.mid_lane.recruitOnEveryPath.rate).toBe(1);
+    expect(candidate.documentedGaps.jungleShopOnEveryPath.passes).toBe(true);
+    expect(candidate.documentedGaps.midRecruitOnEveryPath.passes).toBe(true);
   });
 });
