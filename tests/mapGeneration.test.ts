@@ -11,8 +11,8 @@ import {
   generateMap,
   generateRunMap,
   getAccessibleNodes,
-  getBiomeBoss,
   getEligibleEncounters,
+  getFinalBoss,
   getNextOptions,
   isMapComplete,
   NodeType,
@@ -39,7 +39,8 @@ describe('Map Generation', () => {
 
         const exitNode = findNode(map, map.exitNodeId);
         expect(exitNode).toBeDefined();
-        expect([NodeType.Exit, NodeType.Boss]).toContain(exitNode!.type);
+        expect(exitNode!.type).toBe(biome === 'base' ? NodeType.Boss : NodeType.Exit);
+        expect(exitNode!.metadata.title).toBe(biome === 'base' ? 'Final Boss' : 'Biome Exit');
       }
     });
 
@@ -78,6 +79,43 @@ describe('Map Generation', () => {
         expect(firstColumnNodes.length).toBe(1);
       }
     });
+
+    it('keeps bounded fight-versus-rest route choices', () => {
+      const expectedRiskByBiome = {
+        top_lane: NodeType.Combat,
+        jungle: NodeType.Combat,
+        river: NodeType.Elite,
+      } as const;
+
+      for (const [biome, riskType] of Object.entries(expectedRiskByBiome)) {
+        const map = generateMap(biome as keyof typeof expectedRiskByBiome, 1, 42);
+        const columns = Array.from({ length: map.columns }, (_, column) =>
+          map.nodes.filter((node) => node.column === column),
+        );
+
+        expect(
+          columns.some(
+            (nodes) =>
+              nodes.some((node) => node.type === riskType) &&
+              nodes.some((node) => node.type === NodeType.Rest),
+          ),
+        ).toBe(true);
+      }
+    });
+
+    it('guarantees a Jungle shop and a Mid recruit before every exit', () => {
+      for (let seed = 0; seed < 100; seed++) {
+        const jungle = generateMap('jungle', 2, seed);
+        const junglePreExit = jungle.nodes.filter((node) => node.column === jungle.columns - 2);
+        expect(junglePreExit.length).toBeGreaterThan(0);
+        expect(junglePreExit.every((node) => node.type === NodeType.Shop)).toBe(true);
+
+        const mid = generateMap('mid_lane', 3, seed);
+        const midPreExit = mid.nodes.filter((node) => node.column === mid.columns - 2);
+        expect(midPreExit.length).toBeGreaterThan(0);
+        expect(midPreExit.every((node) => node.type === NodeType.Recruit)).toBe(true);
+      }
+    });
   });
 
   describe('generateRunMap', () => {
@@ -111,11 +149,9 @@ describe('Map Generation', () => {
       expect(all.length).toBeGreaterThanOrEqual(eligible.length);
     });
 
-    it('should generate boss encounters', () => {
-      const boss = getBiomeBoss('base', 6);
+    it('uses one explicit final boss encounter in Base', () => {
+      const boss = getFinalBoss(6);
       expect(boss.id).toBe('base_nexus_guardians');
-      const laneBoss = getBiomeBoss('top_lane', 3);
-      expect(laneBoss.id).toContain('_boss');
     });
   });
 

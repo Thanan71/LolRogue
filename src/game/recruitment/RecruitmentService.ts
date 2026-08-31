@@ -16,6 +16,7 @@
 import { implementedChampions } from '@/data/champion';
 import type { Champion, ChampionTag } from '@/types/champion';
 import type { Biome } from '@/types/run';
+import { normalizeRecruitmentGoldCost } from './recruitmentRules';
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -43,9 +44,9 @@ export interface RecruitmentConfig {
 
 export const DEFAULT_RECRUITMENT_CONFIG: RecruitmentConfig = {
   offerCount: 3,
-  baseCost: 100,
-  costPerLevel: 35,
-  costVariance: 0.25,
+  baseCost: 150,
+  costPerLevel: 20,
+  costVariance: 0.15,
   priceMultiplier: 1.0,
 };
 
@@ -138,7 +139,7 @@ export function calculateRecruitCost(
   const biomeRelevance = getBiomeRelevanceFactor(champion, biome);
   const variance = 1 + (rand() * 2 - 1) * config.costVariance;
   const cost = base * config.priceMultiplier * rarityFactor * biomeRelevance * variance;
-  return Math.round(cost / 5) * 5;
+  return normalizeRecruitmentGoldCost(cost);
 }
 
 function getBiomeRelevanceFactor(champion: Champion, biome: Biome): number {

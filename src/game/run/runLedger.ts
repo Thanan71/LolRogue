@@ -6,12 +6,15 @@ import type {
   RunLedgerContext,
   RunSummary,
   TeamMember,
+  Biome,
 } from '@/types/run';
 
-export const RUN_LEDGER_VERSION = 1 as const;
+export const RUN_LEDGER_VERSION = 2 as const;
 
-function emptyChampionLedger(): RunLedger['champions'][string] {
-  return {
+function emptyChampionLedger(
+  version: RunLedger['version'] = RUN_LEDGER_VERSION,
+): RunLedger['champions'][string] {
+  const stats: RunLedger['champions'][string] = {
     kills: 0,
     assists: 0,
     damageDealt: 0,
@@ -24,12 +27,15 @@ function emptyChampionLedger(): RunLedger['champions'][string] {
     shieldingAbsorbed: 0,
     deaths: 0,
   };
+  return version === 2 ? { ...stats, wavesParticipated: 0, biomesParticipated: [] } : stats;
 }
 
 export function createRunLedger(championIds: readonly string[] = []): RunLedger {
   return {
     version: RUN_LEDGER_VERSION,
-    champions: Object.fromEntries(championIds.map((id) => [id, emptyChampionLedger()])),
+    champions: Object.fromEntries(
+      championIds.map((id) => [id, emptyChampionLedger(RUN_LEDGER_VERSION)]),
+    ),
     gold: { earned: 0, spent: 0 },
     items: [],
     nextItemEventSequence: 1,
@@ -38,9 +44,21 @@ export function createRunLedger(championIds: readonly string[] = []): RunLedger 
 
 export function cloneRunLedger(ledger: RunLedger): RunLedger {
   return {
-    version: RUN_LEDGER_VERSION,
+    version: ledger.version,
     champions: Object.fromEntries(
-      Object.entries(ledger.champions).map(([id, stats]) => [id, { ...stats }]),
+      Object.entries(ledger.champions).map(([id, stats]) => {
+        const { wavesParticipated, biomesParticipated, ...legacyStats } = stats;
+        return [
+          id,
+          ledger.version === 2
+            ? {
+                ...legacyStats,
+                wavesParticipated: Math.max(0, Math.floor(wavesParticipated ?? 0)),
+                biomesParticipated: [...(biomesParticipated ?? [])],
+              }
+            : legacyStats,
+        ];
+      }),
     ),
     gold: { ...ledger.gold },
     items: ledger.items.map((event) => ({ ...event })),
@@ -49,7 +67,7 @@ export function cloneRunLedger(ledger: RunLedger): RunLedger {
 }
 
 export function ensureLedgerChampion(ledger: RunLedger, championId: string): void {
-  ledger.champions[championId] ??= emptyChampionLedger();
+  ledger.champions[championId] ??= emptyChampionLedger(ledger.version);
 }
 
 export function recordGoldGain(ledger: RunLedger, amount: number): RunLedger {
@@ -108,10 +126,20 @@ export function commitCombatEvents(
   ledger: RunLedger,
   events: readonly BattleEvent[],
   teamIds: readonly string[],
+  biome?: Biome | null,
 ): RunLedger {
   const next = cloneRunLedger(ledger);
   const playerIds = new Set(teamIds);
-  for (const championId of playerIds) ensureLedgerChampion(next, championId);
+  for (const championId of playerIds) {
+    ensureLedgerChampion(next, championId);
+    if (next.version === 2) {
+      const stats = next.champions[championId];
+      stats.wavesParticipated = (stats.wavesParticipated ?? 0) + 1;
+      if (biome && !(stats.biomesParticipated ?? []).includes(biome)) {
+        stats.biomesParticipated = [...(stats.biomesParticipated ?? []), biome];
+      }
+    }
+  }
   const contributors = new Map<string, Set<string>>();
 
   for (const event of events) {
@@ -199,6 +227,12 @@ export function buildChampionRunStats(
       ];
       return {
         championId: member.championId,
+        ...(ledger.version === 2
+          ? {
+              wavesParticipated: stats.wavesParticipated ?? 0,
+              biomesParticipated: [...(stats.biomesParticipated ?? [])],
+            }
+          : {}),
         kills: stats.kills,
         assists: stats.assists,
         totalDamage: stats.damageDealt,

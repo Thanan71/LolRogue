@@ -30,6 +30,8 @@ type VerifiedMember = {
   kills: number;
   damage_dealt: number;
   items_collected: string[];
+  waves_participated?: number;
+  biomes_participated?: string[];
 };
 
 type LedgerItem = {
@@ -44,11 +46,18 @@ type LedgerItem = {
   wave: number;
 };
 
-function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMember[] }>(
-  result: T,
-) {
+function withRunLedger<
+  T extends {
+    gold_earned: number;
+    waves_completed: number;
+    biomes_visited: string[];
+    team_members: VerifiedMember[];
+  },
+>(result: T) {
   const teamMembers = result.team_members.map((member) => ({
     ...member,
+    waves_participated: member.waves_participated ?? result.waves_completed,
+    biomes_participated: member.biomes_participated ?? [...result.biomes_visited],
     assists: 0,
     damage_to_shields: 0,
     damage_received: 0,
@@ -65,7 +74,7 @@ function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMe
     gold_balance: result.gold_earned,
     team_members: teamMembers,
     ledger: {
-      version: 1,
+      version: 2,
       champions: Object.fromEntries(
         teamMembers.map((member) => [
           member.champion_id,
@@ -81,6 +90,8 @@ function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMe
             shielding_done: member.shielding_done,
             shielding_absorbed: member.shielding_absorbed,
             deaths: member.deaths,
+            waves_participated: member.waves_participated,
+            biomes_participated: member.biomes_participated,
           },
         ]),
       ),
@@ -321,7 +332,7 @@ describeWithSupabase('verified run attempt live security', () => {
       };
       expect(start).toMatchObject({
         status: 'started',
-        engine_version: 'run-engine-v19',
+        engine_version: 'run-engine-v20',
       });
       expect(start.seed).toBeGreaterThan(0);
       expect(start.enhancement_snapshot).toHaveProperty('Garen');
@@ -389,7 +400,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(claim.data).toMatchObject({
         attempt_id: start.attempt_id,
         claimed: true,
-        engine_version: 'run-engine-v19',
+        engine_version: 'run-engine-v20',
       });
       const leaseToken = (claim.data as { lease_token: string }).lease_token;
 
@@ -546,7 +557,7 @@ describeWithSupabase('verified run attempt live security', () => {
       const persistedMember = await admin
         .from('run_team_members')
         .select(
-          'final_hp, assists, damage_to_shields, damage_received, healing_done, healing_received, overhealing, shielding_done, shielding_absorbed, items_collected',
+          'final_hp, assists, damage_to_shields, damage_received, healing_done, healing_received, overhealing, shielding_done, shielding_absorbed, items_collected, waves_participated, biomes_participated',
         )
         .eq('run_id', (completionReplay.data as { run_id: string }).run_id)
         .single();
@@ -562,6 +573,8 @@ describeWithSupabase('verified run attempt live security', () => {
         shielding_done: 18,
         shielding_absorbed: 11,
         items_collected: ['long_sword'],
+        waves_participated: 1,
+        biomes_participated: ['top_lane'],
       });
 
       const player = await admin
@@ -703,7 +716,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(lateDefeatCompletion.error).toBeNull();
       expect(lateDefeatCompletion.data).toMatchObject({
         status: 'verified',
-        progression_version: 2,
+        progression_version: 3,
         summary: {
           won: false,
           run_level: 2,
@@ -718,7 +731,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(lateDefeatRun.error).toBeNull();
       expect(lateDefeatRun.data).toMatchObject({
         run_level: 2,
-        progression_version: 2,
+        progression_version: 3,
         progression_payload_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
       });
 
@@ -786,7 +799,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(stackedVictoryCompletion.error).toBeNull();
       expect(stackedVictoryCompletion.data).toMatchObject({
         status: 'verified',
-        progression_version: 2,
+        progression_version: 3,
         summary: {
           won: true,
           run_level: 6,

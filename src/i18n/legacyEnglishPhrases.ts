@@ -39,8 +39,8 @@ const PHRASES: Readonly<Record<string, string>> = {
     'Combat, shop, rest, event, recruitment, and treasure encounters must be completed before continuing.',
   'Lis les valeurs des objets, sorts et augments avant de confirmer. Les récompenses apparaissent au retour sur la carte.':
     'Read item, spell, and augment values before confirming. Rewards appear when you return to the map.',
-  'La sortie ouvre le biome suivant. Le boss du sixième biome termine la run ; la progression connectée est ensuite vérifiée par le serveur.':
-    'The exit opens the next biome. The sixth biome boss ends the run; connected progression is then verified by the server.',
+  'La sortie ouvre le biome suivant. Le boss final de la Base termine la run ; la progression connectée est ensuite vérifiée par le serveur.':
+    'The exit opens the next biome. The final Base boss ends the run; connected progression is then verified by the server.',
   "Choix d'augment": 'Augment choice',
   'Récompenses du combat': 'Combat rewards',
   'XP/champion (KO inclus)': 'XP/champion (including KOs)',

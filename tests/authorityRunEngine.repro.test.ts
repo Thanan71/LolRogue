@@ -30,29 +30,24 @@ const commands: AuthorityRunCommand[] = [
     },
   },
   { sequence: 3, kind: 'resolve_node', payload: { node_id: 'node_top_lane_0' } },
-  { sequence: 4, kind: 'move_node', payload: { node_id: 'node_top_lane_3' } },
-  { sequence: 5, kind: 'event', payload: { node_id: 'node_top_lane_3' } },
-  { sequence: 6, kind: 'resolve_node', payload: { node_id: 'node_top_lane_3' } },
-  { sequence: 7, kind: 'move_node', payload: { node_id: 'node_top_lane_4' } },
-  { sequence: 8, kind: 'event', payload: { node_id: 'node_top_lane_4' } },
-  { sequence: 9, kind: 'resolve_node', payload: { node_id: 'node_top_lane_4' } },
-  { sequence: 10, kind: 'move_node', payload: { node_id: 'node_top_lane_7' } },
+  { sequence: 4, kind: 'move_node', payload: { node_id: 'node_top_lane_1' } },
   {
-    sequence: 11,
+    sequence: 5,
     kind: 'resolve_combat',
     payload: {
-      node_id: 'node_top_lane_7',
-      actions_json: '[["q","Darius",1],["w",null,1],["q","Darius",1],["a","Darius",1]]',
+      node_id: 'node_top_lane_1',
+      actions_json:
+        '[["q","Darius",1],["w",null,1],["q","Darius",1],["a","Darius",1],["a","Darius",1]]',
     },
   },
-  { sequence: 12, kind: 'resolve_node', payload: { node_id: 'node_top_lane_7' } },
-  { sequence: 13, kind: 'move_node', payload: { node_id: 'node_top_lane_10' } },
+  { sequence: 6, kind: 'resolve_node', payload: { node_id: 'node_top_lane_1' } },
+  { sequence: 7, kind: 'move_node', payload: { node_id: 'node_top_lane_4' } },
   {
-    sequence: 14,
+    sequence: 8,
     kind: 'resolve_combat',
     payload: {
-      node_id: 'node_top_lane_10',
-      actions_json: '[["q","Warwick",1],["a","Warwick",1],["a","Warwick",1]]',
+      node_id: 'node_top_lane_4',
+      actions_json: '[["q","Garen",1],["a","Garen",1],["a","Garen",1],["a","Garen",1]]',
     },
   },
 ];
@@ -61,7 +56,7 @@ describe('combat action trace replay regression', () => {
   it('does not consume a phantom action after an exact automatic trace', () => {
     const before = replayAuthorityRun(attempt, commands.slice(0, -1)).snapshot;
     expect(before).toMatchObject({
-      currentNodeId: 'node_top_lane_10',
+      currentNodeId: 'node_top_lane_4',
       runLevel: 1,
       augmentIds: [],
     });
@@ -70,7 +65,7 @@ describe('combat action trace replay regression', () => {
     expect(verification).toMatchObject({
       ok: true,
       result: {
-        snapshot: { currentNodeId: 'node_top_lane_10', terminal: false, endReason: null },
+        snapshot: { currentNodeId: 'node_top_lane_4', terminal: false, endReason: null },
       },
     });
   });

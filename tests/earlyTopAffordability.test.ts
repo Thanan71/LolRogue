@@ -8,9 +8,10 @@ const EARLY_TOP_ENGINE_VERSION = 'run-engine-v18';
 const EARLY_TOP_CONTENT_HASH = '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17';
 
 describe('early Top affordability decision', () => {
-  it('keeps published prices and Top rewards unchanged without causal evidence', () => {
-    expect(ITEM_DATABASE.boots.goldValue).toBe(300);
+  it('locks the P1 component prices and the archived Top rewards', () => {
+    expect(ITEM_DATABASE.boots.goldValue).toBe(200);
     expect(ITEM_DATABASE.health_potion.goldValue).toBe(50);
+    expect(ITEM_DATABASE.bf_sword.goldValue).toBe(650);
     expect(
       Object.fromEntries(
         TOP_LANE_ENCOUNTERS.map((encounter) => [encounter.id, encounter.goldReward]),

@@ -79,6 +79,13 @@ rechargement peut relire le statut puis afficher exactement la progression déj�
 persistée, sans double crédit. Une trace rejetée ou expirée est terminale et ne
 crédite rien.
 
+Pour `run-engine-v20`, le résultat vérifié porte un ledger v2. Chaque membre contient
+`waves_participated` et la liste ordonnée de ses `biomes_participated`. Le progression
+ruleset v3 recalcule côté PostgreSQL le même budget de candies de compte et sa
+répartition pondérée, vérifie que la somme allouée est exacte, puis écrit run, membres
+et maîtrise dans cette transaction idempotente. Un nouvel appel avec le même résultat
+renvoie la réponse persistée avec `replayed = true` au lieu de créditer à nouveau.
+
 La finalisation côté application ne dépend pas du cycle de vie de la page de
 combat. Elle capture d'abord les PV et PM finaux, fige le résumé et l'équipe dans
 `completedRunSnapshot`, puis appelle `endRun`. Les appels simultanés pour le même
@@ -210,6 +217,13 @@ augments autorisés. Une évolution incompatible crée une nouvelle version et u
 nouvelle migration append-only ; elle ne modifie pas un ruleset déjà utilisé par
 des attempts.
 
+La version courante est le gameplay v20, `run-engine-v20`, progression v3 et schéma
+de commandes v2, avec le hash
+`8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91`. Les runs v20
+stockent `ledger_version = 2`. Les colonnes de participation ajoutées aux membres
+restent nullables : les runs historiques en ledger v1 demeurent lisibles sans inventer
+des vagues ou biomes auxquels leurs champions auraient participé.
+
 La baseline `verified-run-cutoff-v1` documente la décision produit pour
 l'historique : les compteurs et anciennes runs `legacy`/`client_reported` sont
 conservés sans remise à zéro, car leur authenticité ne peut pas être reconstruite
@@ -310,7 +324,7 @@ bonus victoire
 + or total gagné × gold_points
 ```
 
-Dans le ruleset Daily v19 actif, ces coefficients valent respectivement 10 000,
+Dans le ruleset Daily v20 actif, ces coefficients valent respectivement 10 000,
 1 000, 250, 100 et 0. Ils sont liés à `score_version = 15` ; l'or gagné ne
 contribue donc plus au classement. Ces coefficients ne peuvent pas être remplacés
 par un score déclaré par le client. Une version de
@@ -319,7 +333,7 @@ version lorsque les coefficients restent identiques. La valeur demeure stricteme
 positive, sans servir de clé étrangère ; les relations utilisent la version du
 ruleset Daily.
 
-Le trigger de création et le moteur authority v19 imposent tous deux
+Le trigger de création et le moteur authority v20 imposent tous deux
 `mastery_snapshot = {}` et `enhancement_snapshot = {}` aux tentatives Daily.
 
 En mode invité, le classement daily local sert uniquement de retour d'interface.

@@ -20,6 +20,7 @@ import {
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import { assertValidRuleCatalogs } from '@/game/rules/catalogValidation';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
 import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
@@ -31,6 +32,7 @@ import {
 } from '@/game/run/runCombatant';
 import {
   getItemSaleGold,
+  getRestGoldCost,
   getShopItemCost,
   getShopRecruitCost,
   resolveEventTeamUpdates,
@@ -85,9 +87,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v19';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v20';
 export const AUTHORITY_CONTENT_HASH =
-  '45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099';
+  '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91';
 
 assertValidRuleCatalogs();
 
@@ -374,7 +376,7 @@ class AuthorityReplayState {
         if (node.encounter?.type !== 'rest') {
           fail('invalid_content', `Rest node "${node.id}" has no rest encounter.`);
         }
-        const cost = Math.max(0, node.encounter.goldCost);
+        const cost = getRestGoldCost(node.encounter, this.team.length);
         return {
           ...base,
           nodeType: 'rest',
@@ -628,6 +630,7 @@ class AuthorityReplayState {
       this.ledger,
       result.log,
       this.team.map((member) => member.championId),
+      node.biome,
     );
     for (const finalState of battle.getFinalPlayerStates()) {
       const member = this.team.find((candidate) => candidate.championId === finalState.championId);
@@ -829,10 +832,11 @@ class AuthorityReplayState {
       fail('invalid_encounter', 'No rest encounter is pending.', commandIndex);
     }
     this.claimPending(commandIndex);
-    if (this.gold < encounter.goldCost) {
+    const cost = getRestGoldCost(encounter, this.team.length);
+    if (this.gold < cost) {
       fail('insufficient_gold', 'Not enough gold to rest.', commandIndex);
     }
-    this.spendGold(encounter.goldCost);
+    this.spendGold(cost);
     for (const member of this.team) {
       const maxHp = this.getMemberMaxHp(member);
       member.currentHp = resolveRestHp(member.currentHp, maxHp, encounter);
@@ -1062,11 +1066,12 @@ class AuthorityReplayState {
   }
 
   private addChampion(championId: string, statMultiplier: number): void {
+    const level = getRecruitStartingLevel(this.runLevel, this.team);
     this.team.push({
       championId,
       currentHp: null,
       currentMp: null,
-      level: 1,
+      level,
       currentXp: 0,
       statBoosts: {},
       statMultiplier,

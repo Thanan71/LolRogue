@@ -84,6 +84,8 @@ function statusResponse(overrides: Record<string, unknown> = {}) {
 describe('runAttemptService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    supabaseMocks.rpc.mockReset();
+    supabaseMocks.invoke.mockReset();
   });
 
   afterEach(() => {
@@ -277,6 +279,48 @@ describe('runAttemptService', () => {
         },
       },
     });
+  });
+
+  it('parses and validates the weighted progression v3 candy allocation', async () => {
+    supabaseMocks.invoke.mockResolvedValue({
+      data: {
+        response: {
+          run_id: RUN_UUID,
+          replayed: false,
+          candies_earned: 41,
+          candies_per_champion: 0,
+          candies_by_champion: { Garen: 32, Lux: 9 },
+          progression_version: 3,
+          progression_source: 'verified',
+        },
+      },
+      error: null,
+    });
+
+    const result = await verifyRunAttempt(ATTEMPT_ID);
+    expect(result.data?.progression).toMatchObject({
+      candiesEarned: 41,
+      candiesByChampion: { Garen: 32, Lux: 9 },
+      progressionVersion: 3,
+    });
+
+    supabaseMocks.invoke.mockResolvedValueOnce({
+      data: {
+        response: {
+          run_id: RUN_UUID,
+          replayed: false,
+          candies_earned: 41,
+          candies_per_champion: 0,
+          candies_by_champion: { Garen: 31, Lux: 9 },
+          progression_version: 3,
+          progression_source: 'verified',
+        },
+      },
+      error: null,
+    });
+    const malformed = await verifyRunAttempt(ATTEMPT_ID);
+    expect(malformed.data).toBeNull();
+    expect(malformed.error).not.toBeNull();
   });
 
   it('turns a hanging verification request into a retryable timeout', async () => {

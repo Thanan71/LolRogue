@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { RunInventoryPanel } from '@/components/RunInventoryPanel';
 import { getCanonicalRunItem } from '@/game/inventory/inventoryRules';
+import { getItemSaleGold } from '@/game/run/runEncounterRules';
 import { buildChampionMastery } from '@/services/masteryService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -129,6 +130,7 @@ describe('RunInventoryPanel', () => {
 
   it('supports transfer, unequip and sale as explicit actions with live feedback', () => {
     const inventory = [entry('sword-1', LONG_SWORD, 'Garen')];
+    const saleGold = getItemSaleGold(LONG_SWORD.goldValue);
     useRunStore.setState({ inventory, team: TEAM });
     render(<RunInventoryPanel inventory={inventory} team={TEAM} />);
 
@@ -151,9 +153,11 @@ describe('RunInventoryPanel', () => {
       'Objet replacé dans le sac : Épée longue.',
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Vendre pour 175 or' }));
+    fireEvent.click(screen.getByRole('button', { name: `Vendre pour ${saleGold} or` }));
     expect(sellItem).toHaveBeenCalledWith('sword-1');
-    expect(screen.getByRole('status')).toHaveTextContent('Vente confirmée : Épée longue, +175 or.');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      `Vente confirmée : Épée longue, +${saleGold} or.`,
+    );
     expect(screen.getByText('Sélectionne un objet pour le gérer.')).toBeVisible();
   });
 

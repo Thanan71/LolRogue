@@ -10,6 +10,7 @@
       "**",
       "!!dist",
       "!!node_modules",
+      "!!config/map-economy-baseline-v*.json",
       "!!public/lol/data",
       "!!src/data/generated/*.json",
       "!!supabase/authority-archive/run-authority-v1.bundle.ts",
@@ -30,6 +31,7 @@
       "!!supabase/functions/verify-run/run-authority-v16.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v17.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v18.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v19.bundle.ts",
       "!!supabase/functions/verify-run/authority-version-resolver.generated.ts",
       "!!src/game/authority/versionCapabilities.generated.ts"
     ]

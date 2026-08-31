@@ -32,6 +32,25 @@ dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
 RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
 
+## Gates d'équilibrage versionnées
+
+`npm run balance:check` reproduit byte-for-byte les six baselines authority v15 à
+v20, sans réécrire les cinq versions historiques, puis la matrice de combat courante.
+`config/champion-combat-matrix-current.json` compare v19 à v20 sur 7 560 combats par
+runtime, exige la parité source/bundle et conserve au moins une victoire et une défaite
+décisives par champion. Les seuils finaux de P0-BAL-02 restent indépendants et ouverts.
+
+La preuve P1-BAL-02 ajoute `config/map-economy-baseline-v20.json`, reproduit sur
+1 000 seeds : l'écart maximal entre routes est de trois combats et une élite, avec
+shop Jungle et recrutement Mid sur chaque chemin. `mapEconomyAffordability.test.ts`
+rejoue 900 runs et exige, pour chaque difficulté, une potion dans le premier shop
+Jungle et au moins 50 % de premières visites avec une offre abordable.
+`mapEconomyBaseline.test.ts` borne enfin l'efficacité des repos partiels et complets à
+`≤ 5×` celle d'une potion par gold pour un à cinq champions. Ce seuil explicite
+préserve un soin d'équipe utile sans faire de la réussite automatique une condition :
+les vraies victoires et défaites restent attendues, et les playtests humains demeurent
+ouverts.
+
 ## Frontières TypeScript
 
 `npm run typecheck` compile trois contrats indépendants avant les tests : application,
@@ -93,7 +112,7 @@ n'utilise pas le cache npm de `setup-node`. Les assets Riot sont un paquet versi
 ils sont donc vérifiés, pas téléchargés silencieusement.
 
 Supabase est d'abord restauré à la migration v9 (`20260730300000`), puis migré vers
-la version courante (ruleset v19 au 30 août 2026) afin de tester un upgrade réel.
+la version courante (ruleset v20 au 31 août 2026) afin de tester un upgrade réel.
 La job compare ensuite les types TypeScript régénérés, effectue un reset complet
 et exécute les tests RLS/RPC live.
 

@@ -3,7 +3,11 @@
  * and unlock resolution.
  */
 
-import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
+import {
+  calculateRunCandyAllocation,
+  calculateRunCandiesPerChampion,
+  type RunRewardParticipant,
+} from '@/game/run/runRewardPolicy';
 import {
   type ChampionMastery,
   MASTERY_THRESHOLDS,
@@ -67,7 +71,8 @@ export function getStarterPersonalization(unlockedIds: Iterable<string>): Starte
  *   0 completed wave => 0 candy
  *   otherwise: base + (waves × perWave) + (biomes × perBiome) + victory bonus
  *
- * Candies are split evenly among champions in the team (minimum 1 each).
+ * This scalar helper remains for legacy rulesets. Current rewards use the fixed-budget
+ * allocation in calculateCandiesForTeam.
  */
 export function calculateCandiesForChampion(
   teamSize: number,
@@ -91,19 +96,15 @@ export function calculateCandiesForTeam(
   wavesCompleted: number,
   biomesVisited: number,
   won: boolean,
+  participation?: readonly RunRewardParticipant[],
 ): Record<string, number> {
-  const candiesPerChamp = calculateCandiesForChampion(
-    championIds.length,
+  const byChampion = new Map(participation?.map((entry) => [entry.championId, entry]));
+  return calculateRunCandyAllocation({
+    participants: championIds.map((championId) => byChampion.get(championId) ?? { championId }),
     wavesCompleted,
     biomesVisited,
-    won,
-  );
-
-  const result: Record<string, number> = {};
-  for (const id of championIds) {
-    result[id] = candiesPerChamp;
-  }
-  return result;
+    outcome: wavesCompleted === 0 ? 'immediate_abandon' : won ? 'victory' : 'defeat',
+  });
 }
 
 // ─── Level Calculation ──────────────────────────────────────────────────────
@@ -197,9 +198,16 @@ export function awardCandies(
   wavesCompleted: number,
   biomesVisited: number,
   won: boolean,
+  participation?: readonly RunRewardParticipant[],
   unlocks: MasteryUnlock[] = DEFAULT_UNLOCKS,
 ): CandyAwardResult {
-  const candiesAwarded = calculateCandiesForTeam(championIds, wavesCompleted, biomesVisited, won);
+  const candiesAwarded = calculateCandiesForTeam(
+    championIds,
+    wavesCompleted,
+    biomesVisited,
+    won,
+    participation,
+  );
   const updatedMasteries: Record<string, ChampionMastery> = { ...currentMasteries };
   const newUnlocks: MasteryUnlock[] = [];
   for (const id of championIds) {

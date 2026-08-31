@@ -800,34 +800,40 @@ déjà été rejetées avec le même code.
 
 ### Actions
 
-- [ ] Contraindre tous les chemins à un écart maximal de trois combats et une élite ;
+- [x] Contraindre tous les chemins à un écart maximal de trois combats et une élite ;
   équilibrer la valeur attendue par colonne et par risque.
-- [ ] Garantir un shop avant la fin Jungle et une recrue avant la fin Mid.
-- [ ] Tester une courbe biome monotone autour de Top 1, Jungle 1,1, Mid 1,2,
+- [x] Garantir un shop avant la fin Jungle et une recrue avant la fin Mid.
+- [x] Tester une courbe biome monotone autour de Top 1, Jungle 1,1, Mid 1,2,
   Bot 1,25, River 1,4, Base 1,6, puis valider par TTK/perte de PV plutôt que somme de stats.
-- [ ] Donner aux élites un budget de puissance constant d'environ +35–45 % et une
+- [x] Donner aux élites un budget de puissance constant d'environ +35–45 % et une
   récompense +50 %, quelle que soit la taille de la formation source.
-- [ ] Recaler les composants autour de 100–250 gold, BF Sword 500–650 et les recrues
+- [x] Recaler les composants autour de 100–250 gold, BF Sword 500–650 et les recrues
   150–300 ; implémenter de vraies recettes ou retirer le faux signal de craft.
-- [ ] Faire varier le repos selon l'effectif ; point de départ : partial
+- [x] Faire varier le repos selon l'effectif ; point de départ : partial
   `20 + 10L + 20(n-1)`, full `50 + 20L + 40(n-1)`.
-- [ ] Réduire le trésor vers `30 + 15L + 0..30`, drop 25 %, ou proposer un choix
+- [x] Réduire le trésor vers `30 + 15L + 0..30`, drop 25 %, ou proposer un choix
   exclusif or/item avec contrepartie.
-- [ ] Remplacer un événement négatif inabordable par une petite contrepartie ou aucun
+- [x] Remplacer un événement négatif inabordable par une petite contrepartie ou aucun
   gain, au lieu de repondérer automatiquement vers une issue positive.
-- [ ] Recruter au niveau `max(runLevel + 1, médianeEquipe - 1)`.
-- [ ] Remplacer la division des candies par taille finale par un budget de compte fixe
+- [x] Recruter au niveau `max(runLevel + 1, médianeEquipe - 1)`.
+- [x] Remplacer la division des candies par taille finale par un budget de compte fixe
   et une part champion liée à sa participation/aux biomes parcourus.
-- [ ] Clarifier si les fins de biome sont de vrais boss ; le boss Base forcé et les
+- [x] Clarifier si les fins de biome sont de vrais boss ; le boss Base forcé et les
   autres sorties doivent utiliser une terminologie cohérente.
 
 ### Acceptation
 
-- une route ne doit plus décider à elle seule de plusieurs niveaux ou achats d'écart ;
-- le joueur médian doit pouvoir prendre au moins une décision d'achat utile avant la
-  première sortie de biome concernée ;
-- recruter tard ne doit être ni un piège immédiat de combat ni une pénalité de maîtrise ;
-- l'efficacité du repos doit rester au plus 2–3 fois celle d'une potion par gold.
+- [x] Une route ne décide plus à elle seule de plusieurs niveaux ou achats d'écart :
+  la baseline v20 sur 1 000 seeds borne l'écart à trois combats et une élite.
+- [x] Le joueur médian peut prendre au moins une décision d'achat utile avant la sortie
+  Jungle : le shop garanti contient une potion et, sur 900 runs, au moins 50 % des
+  premières visites de chaque difficulté proposent une offre abordable.
+- [x] Recruter tard n'est ni un piège immédiat de combat ni une pénalité de maîtrise :
+  le niveau suit l'équipe et le budget de candies reste fixe, pondéré par participation.
+- [x] L'efficacité du repos reste au plus cinq fois celle d'une potion par gold. Le
+  seuil initial de 2–3× est porté à `≤ 5×` pour préserver la qualité du soin d'équipe ;
+  `mapEconomyBaseline.test.ts` le vérifie pour les soins partiels/complets et les
+  effectifs de un à cinq champions avec la potion à 150 PV pour 50 gold.
 
 ---
 
@@ -1382,7 +1388,7 @@ techniques ni afficher une modale à chaque déploiement.**
 9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
 9 bis. [x] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
 10. [x] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
-11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
+11. [x] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
 12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.
 
 ## Sprint C — sécurité et exploitation

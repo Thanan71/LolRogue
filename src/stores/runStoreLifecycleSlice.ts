@@ -530,6 +530,11 @@ export function createRunLifecycleSlice(
             snapshot.wavesCompleted,
             snapshot.biomesVisited.length,
             snapshot.won,
+            snapshot.summary.championStats.map((stats) => ({
+              championId: stats.championId,
+              wavesParticipated: stats.wavesParticipated,
+              biomesParticipated: stats.biomesParticipated?.length,
+            })),
           );
           set({ rewardsApplied: true });
         }
