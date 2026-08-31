@@ -108,7 +108,7 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
       identity: {
         engineVersion: 'run-engine-v20',
         gameplayRulesetVersion: 20,
-        contentHash: '0f8bda8b7475256695d745fbea7d4d120296f3c03ceaec183529bd588f8d0cd7',
+        contentHash: '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
         seedCount: 1_000,
       },
     });
@@ -153,6 +153,17 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     expect(candidate.economy.rest.costPerTeamMember[4].full.median).toBeGreaterThanOrEqual(
       candidate.economy.rest.costPerTeamMember[0].full.median / 3,
     );
+    const potionHpPerGold = 150 / ITEM_DATABASE.health_potion.goldValue;
+    const representativeMaxHp = 700;
+    for (const costs of candidate.economy.rest.costPerTeamMember) {
+      const teamMaxHp = representativeMaxHp * costs.teamSize;
+      const partialHpPerGold =
+        (teamMaxHp * candidate.economy.rest.partialHealPercentages.median) /
+        (costs.partial.median * costs.teamSize);
+      const fullHpPerGold = teamMaxHp / (costs.full.median * costs.teamSize);
+      expect(partialHpPerGold / potionHpPerGold).toBeLessThanOrEqual(5);
+      expect(fullHpPerGold / potionHpPerGold).toBeLessThanOrEqual(5);
+    }
     expect(candidate.economy.treasureAndDrops.treasureGold.min).toBeGreaterThanOrEqual(45);
     expect(candidate.economy.treasureAndDrops.treasureGold.max).toBeLessThanOrEqual(150);
     expect(candidate.economy.treasureAndDrops.treasureItemRate).toBeGreaterThanOrEqual(0.23);
