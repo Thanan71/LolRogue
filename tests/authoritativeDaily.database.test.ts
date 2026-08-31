@@ -16,13 +16,22 @@ type VerifiedMember = {
   kills: number;
   damage_dealt: number;
   items_collected: string[];
+  waves_participated?: number;
+  biomes_participated?: string[];
 };
 
-function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMember[] }>(
-  result: T,
-) {
+function withRunLedger<
+  T extends {
+    gold_earned: number;
+    waves_completed: number;
+    biomes_visited: string[];
+    team_members: VerifiedMember[];
+  },
+>(result: T) {
   const teamMembers = result.team_members.map((member) => ({
     ...member,
+    waves_participated: member.waves_participated ?? result.waves_completed,
+    biomes_participated: member.biomes_participated ?? [...result.biomes_visited],
     assists: 0,
     damage_to_shields: 0,
     damage_received: 0,
@@ -39,7 +48,7 @@ function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMe
     gold_balance: result.gold_earned,
     team_members: teamMembers,
     ledger: {
-      version: 1,
+      version: 2,
       champions: Object.fromEntries(
         teamMembers.map((member) => [
           member.champion_id,
@@ -55,6 +64,8 @@ function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMe
             shielding_done: member.shielding_done,
             shielding_absorbed: member.shielding_absorbed,
             deaths: member.deaths,
+            waves_participated: member.waves_participated,
+            biomes_participated: member.biomes_participated,
           },
         ]),
       ),
@@ -161,11 +172,11 @@ describeLive('authoritative daily leaderboard live security', () => {
     }
   });
 
-  it('keeps score v14 through Daily v16 and carries gold-neutral score v15 into v19', async () => {
+  it('keeps score v14 through Daily v16 and carries gold-neutral score v15 into v20', async () => {
     const rulesets = await admin
       .from('daily_challenge_rulesets')
       .select('version, score_version, is_active')
-      .in('version', [14, 15, 16, 17, 18, 19])
+      .in('version', [14, 15, 16, 17, 18, 19, 20])
       .order('version');
 
     expect(rulesets.error).toBeNull();
@@ -175,7 +186,8 @@ describeLive('authoritative daily leaderboard live security', () => {
       { version: 16, score_version: 14, is_active: false },
       { version: 17, score_version: 15, is_active: false },
       { version: 18, score_version: 15, is_active: false },
-      { version: 19, score_version: 15, is_active: true },
+      { version: 19, score_version: 15, is_active: false },
+      { version: 20, score_version: 15, is_active: true },
     ]);
   });
 
@@ -451,7 +463,7 @@ describeLive('authoritative daily leaderboard live security', () => {
       daily_seed: challenge.seed,
       score: 1350,
       run_attempt_id: firstAttempt.attempt_id,
-      daily_ruleset_version: 19,
+      daily_ruleset_version: 20,
       score_version: 15,
     });
 

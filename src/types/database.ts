@@ -1121,6 +1121,7 @@ export type Database = {
       run_team_members: {
         Row: {
           assists: number;
+          biomes_participated: string[] | null;
           champion_id: string;
           created_at: string;
           crowd_control_duration: number;
@@ -1143,9 +1144,11 @@ export type Database = {
           shielding_done: number;
           survived: boolean;
           time_alive_seconds: number;
+          waves_participated: number | null;
         };
         Insert: {
           assists?: number;
+          biomes_participated?: string[] | null;
           champion_id: string;
           created_at?: string;
           crowd_control_duration?: number;
@@ -1168,9 +1171,11 @@ export type Database = {
           shielding_done?: number;
           survived?: boolean;
           time_alive_seconds?: number;
+          waves_participated?: number | null;
         };
         Update: {
           assists?: number;
+          biomes_participated?: string[] | null;
           champion_id?: string;
           created_at?: string;
           crowd_control_duration?: number;
@@ -1193,6 +1198,7 @@ export type Database = {
           shielding_done?: number;
           survived?: boolean;
           time_alive_seconds?: number;
+          waves_participated?: number | null;
         };
         Relationships: [
           {
@@ -1647,6 +1653,15 @@ export type Database = {
         Returns: Json;
       };
       complete_run_verification_v18_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_v19_contract: {
         Args: {
           p_attempt_id: string;
           p_lease_token: string;

@@ -219,6 +219,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260823081828_gameplay_ruleset_v17_economy_balance.sql',
       '../supabase/migrations/20260828150025_gameplay_ruleset_v18_early_top.sql',
       '../supabase/migrations/20260830093859_gameplay_ruleset_v19_combat_balance.sql',
+      '../supabase/migrations/20260831152608_gameplay_ruleset_v20_map_economy.sql',
     ]);
   });
 
@@ -1205,7 +1206,7 @@ describeLive('Supabase live integration', () => {
       candy_cost: 20,
       max_rank: 1,
       remaining_candies: 80,
-      catalog_version: 2,
+      catalog_version: 3,
       replayed: false,
     });
 
