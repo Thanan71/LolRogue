@@ -63,6 +63,7 @@ function itemDefToShopItem(itemId: string, priceOverride?: number): ShopItem {
 const SHOPABLE_ITEM_IDS = Object.values(ITEM_DATABASE)
   .filter((item) => item.tier === 1 || item.category === 'consumable')
   .map((item) => item.id);
+const GUARANTEED_JUNGLE_ITEM_ID = 'health_potion';
 
 // Recruit champions are now generated dynamically via RecruitmentService
 
@@ -73,10 +74,11 @@ function createEncounterId(type: string, biome: Biome, rand: () => number): stri
 function generateShopEncounter(biome: Biome, runLevel: number, rand: () => number): ShopEncounter {
   const itemCount = 2 + Math.floor(rand() * 3);
   const shuffled = seededShuffle(SHOPABLE_ITEM_IDS, rand);
-  const items = shuffled.slice(0, itemCount).map((id) => {
-    const base = itemDefToShopItem(id);
-    return { ...base, price: Math.round(base.price * (0.8 + runLevel * 0.15)) };
-  });
+  const selectedItemIds = shuffled.slice(0, itemCount);
+  if (biome === 'jungle' && !selectedItemIds.includes(GUARANTEED_JUNGLE_ITEM_ID)) {
+    selectedItemIds[selectedItemIds.length - 1] = GUARANTEED_JUNGLE_ITEM_ID;
+  }
+  const items = selectedItemIds.map((id) => itemDefToShopItem(id));
 
   const recruitableChampions = generateShopRotation(
     biome,

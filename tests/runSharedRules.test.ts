@@ -33,7 +33,7 @@ describe('shared deterministic run rules', () => {
     }).toEqual({
       discountedItem: 100,
       cappedDiscount: 25,
-      recruit: 113,
+      recruit: 150,
       sale: 62,
     });
   });

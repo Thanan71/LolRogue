@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { ITEM_DATABASE } from '@/data/items/itemDatabase';
 import {
   calculateMapRouteBounds,
   createMapEconomyBaseline,
@@ -112,5 +113,26 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     expect(candidate.routes.byBiome.mid_lane.recruitOnEveryPath.rate).toBe(1);
     expect(candidate.documentedGaps.jungleShopOnEveryPath.passes).toBe(true);
     expect(candidate.documentedGaps.midRecruitOnEveryPath.passes).toBe(true);
+
+    for (const itemId of [
+      'amplifying_tome',
+      'boots',
+      'cloth_armor',
+      'dagger',
+      'long_sword',
+      'ruby_crystal',
+    ] as const) {
+      expect(candidate.economy.shops.trackedFinalItemPrices[itemId].min).toBeGreaterThanOrEqual(
+        100,
+      );
+      expect(candidate.economy.shops.trackedFinalItemPrices[itemId].max).toBeLessThanOrEqual(250);
+    }
+    expect(candidate.economy.shops.trackedFinalItemPrices.bf_sword.min).toBeGreaterThanOrEqual(500);
+    expect(candidate.economy.shops.trackedFinalItemPrices.bf_sword.max).toBeLessThanOrEqual(650);
+    expect(candidate.economy.shops.finalRecruitPrices.min).toBeGreaterThanOrEqual(150);
+    expect(candidate.economy.shops.finalRecruitPrices.max).toBeLessThanOrEqual(300);
+    expect(candidate.economy.recruitment.encounterPrices.min).toBeGreaterThanOrEqual(150);
+    expect(candidate.economy.recruitment.encounterPrices.max).toBeLessThanOrEqual(300);
+    expect(Object.values(ITEM_DATABASE).every((item) => !('components' in item))).toBe(true);
   });
 });

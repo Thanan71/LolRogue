@@ -50,7 +50,7 @@ describe('event and recruitment rules', () => {
   });
 
   it('charges recruitment gold only on success', () => {
-    expect(getRecruitmentGoldCost(120, true)).toBe(120);
+    expect(getRecruitmentGoldCost(120, true)).toBe(150);
     expect(getRecruitmentGoldCost(120, false)).toBe(0);
   });
 

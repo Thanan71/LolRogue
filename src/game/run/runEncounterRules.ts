@@ -6,6 +6,10 @@ import type {
   RestEncounter,
   ShopEncounter,
 } from '@/game/map/types';
+import {
+  getRecruitmentGoldCost,
+  normalizeRecruitmentGoldCost,
+} from '@/game/recruitment/recruitmentRules';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { applyRunHeal, getEffectiveRunHp, materializeRunHpAfterStatChange } from './runHealth';
 
@@ -28,7 +32,7 @@ export function getShopItemCost(
 }
 
 export function getShopRecruitCost(encounter: ShopEncounter, baseCost: number): number {
-  return Math.max(0, Math.round(baseCost * encounter.priceMultiplier));
+  return normalizeRecruitmentGoldCost(baseCost * encounter.priceMultiplier);
 }
 
 export function getItemSaleGold(goldValue: number): number {
@@ -41,7 +45,7 @@ export function resolveRecruitAttempt(
 ): { success: boolean; goldCost: number } {
   const rng = createScopedRunRng(seed, `recruit:${encounter.id}:attempt`);
   const success = rng.next() < encounter.successChance;
-  return { success, goldCost: success ? Math.max(0, encounter.cost) : 0 };
+  return { success, goldCost: getRecruitmentGoldCost(encounter.cost, success) };
 }
 
 export function resolveRunEvent(

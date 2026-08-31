@@ -9,8 +9,8 @@ import {
   type ShopEncounter,
   type TreasureEncounter,
 } from '@/game/map/types';
-import { getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
 import { resolveCombatEncounter } from '@/game/run/encounterResolver';
+import { getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
 import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
 import { BIOMES, type Biome, MAX_TEAM_SIZE } from '@/types/run';
 
@@ -19,7 +19,16 @@ export const MAP_ECONOMY_BASELINE_SEED_COUNT = 1_000;
 
 const FIRST_SEED = 1;
 const PRE_P1_RECRUIT_STARTING_LEVEL = 1;
-const TRACKED_ITEM_IDS = ['bf_sword', 'boots', 'health_potion', 'long_sword'] as const;
+const TRACKED_ITEM_IDS = [
+  'amplifying_tome',
+  'bf_sword',
+  'boots',
+  'cloth_armor',
+  'dagger',
+  'health_potion',
+  'long_sword',
+  'ruby_crystal',
+] as const;
 
 type TrackedItemId = (typeof TRACKED_ITEM_IDS)[number];
 
@@ -269,10 +278,14 @@ function createEconomyAccumulator(): EconomyAccumulator {
     shopRecruitPrices: [],
     directRecruitPrices: [],
     trackedItemPrices: {
+      amplifying_tome: [],
       bf_sword: [],
       boots: [],
+      cloth_armor: [],
+      dagger: [],
       health_potion: [],
       long_sword: [],
+      ruby_crystal: [],
     },
     restCosts: [],
     partialRestCosts: [],

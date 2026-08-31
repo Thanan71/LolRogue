@@ -60,10 +60,10 @@ describe('Item Database', () => {
     expect(ie!.passive!.trigger).toBe('on_hit');
     expect(ie!.tier).toBe(2);
   });
-  it('should have components on crafted items', () => {
+  it('does not advertise recipes without a crafting flow', () => {
     const ie = getItemDefinition('infinity_edge');
-    expect(ie!.components).toContain('long_sword');
-    expect(ie!.components).toContain('dagger');
+    expect(ie).toBeDefined();
+    expect('components' in ie!).toBe(false);
   });
   it('should return undefined for unknown item', () => {
     expect(getItemDefinition('nonexistent')).toBeUndefined();
