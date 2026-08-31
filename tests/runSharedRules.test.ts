@@ -8,6 +8,7 @@ import type {
 } from '@/game/map/types';
 import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import {
   getItemSaleGold,
   getRestGoldCost,
@@ -101,6 +102,13 @@ describe('shared deterministic run rules', () => {
     expect(getRestGoldCost({ fullHeal: false, goldCost: 50 }, 5)).toBe(130);
     expect(getRestGoldCost({ fullHeal: true, goldCost: 110 }, 1)).toBe(110);
     expect(getRestGoldCost({ fullHeal: true, goldCost: 110 }, 5)).toBe(270);
+  });
+
+  it('brings recruits close to the current run and team progression', () => {
+    expect(getRecruitStartingLevel(1, [{ level: 1 }])).toBe(2);
+    expect(getRecruitStartingLevel(3, [{ level: 5 }, { level: 6 }, { level: 7 }])).toBe(5);
+    expect(getRecruitStartingLevel(6, [{ level: 9 }, { level: 10 }, { level: 10 }])).toBe(9);
+    expect(getRecruitStartingLevel(18, [{ level: 18 }])).toBe(18);
   });
 
   it('shares augment offer validation and the full post-combat resource/XP transition', () => {

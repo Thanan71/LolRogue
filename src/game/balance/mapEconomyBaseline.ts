@@ -9,6 +9,10 @@ import {
   type ShopEncounter,
   type TreasureEncounter,
 } from '@/game/map/types';
+import {
+  getRecruitStartingLevel,
+  RECRUIT_STARTING_LEVEL_POLICY,
+} from '@/game/recruitment/recruitmentRules';
 import { resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { getRestGoldCost, getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
 import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
@@ -18,7 +22,6 @@ export const MAP_ECONOMY_BASELINE_SCHEMA_VERSION = 1;
 export const MAP_ECONOMY_BASELINE_SEED_COUNT = 1_000;
 
 const FIRST_SEED = 1;
-const PRE_P1_RECRUIT_STARTING_LEVEL = 1;
 const TRACKED_ITEM_IDS = [
   'amplifying_tome',
   'bf_sword',
@@ -499,9 +502,25 @@ export function createMapEconomyBaseline(seedCount = MAP_ECONOMY_BASELINE_SEED_C
       recruitment: {
         encounterPrices: numericSummary(economy.directRecruitPrices),
         startingLevel: {
-          shop: PRE_P1_RECRUIT_STARTING_LEVEL,
-          encounter: PRE_P1_RECRUIT_STARTING_LEVEL,
-          event: PRE_P1_RECRUIT_STARTING_LEVEL,
+          shop: RECRUIT_STARTING_LEVEL_POLICY,
+          encounter: RECRUIT_STARTING_LEVEL_POLICY,
+          event: RECRUIT_STARTING_LEVEL_POLICY,
+          samples: [
+            {
+              runLevel: 1,
+              teamLevels: [1],
+              recruitLevel: getRecruitStartingLevel(1, [{ level: 1 }]),
+            },
+            {
+              runLevel: 6,
+              teamLevels: [9, 10, 10],
+              recruitLevel: getRecruitStartingLevel(6, [
+                { level: 9 },
+                { level: 10 },
+                { level: 10 },
+              ]),
+            },
+          ],
         },
       },
       rest: {

@@ -20,6 +20,7 @@ import {
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import { assertValidRuleCatalogs } from '@/game/rules/catalogValidation';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
 import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
@@ -1064,11 +1065,12 @@ class AuthorityReplayState {
   }
 
   private addChampion(championId: string, statMultiplier: number): void {
+    const level = getRecruitStartingLevel(this.runLevel, this.team);
     this.team.push({
       championId,
       currentHp: null,
       currentMp: null,
-      level: 1,
+      level,
       currentXp: 0,
       statBoosts: {},
       statMultiplier,

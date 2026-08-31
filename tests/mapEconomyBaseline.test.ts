@@ -133,6 +133,10 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     expect(candidate.economy.shops.finalRecruitPrices.max).toBeLessThanOrEqual(300);
     expect(candidate.economy.recruitment.encounterPrices.min).toBeGreaterThanOrEqual(150);
     expect(candidate.economy.recruitment.encounterPrices.max).toBeLessThanOrEqual(300);
+    expect(candidate.economy.recruitment.startingLevel.samples).toEqual([
+      { runLevel: 1, teamLevels: [1], recruitLevel: 2 },
+      { runLevel: 6, teamLevels: [9, 10, 10], recruitLevel: 9 },
+    ]);
     expect(Object.values(ITEM_DATABASE).every((item) => !('components' in item))).toBe(true);
     expect(candidate.economy.rest.costPerTeamMember[4].partial.median).toBeGreaterThanOrEqual(
       candidate.economy.rest.costPerTeamMember[0].partial.median / 3,
