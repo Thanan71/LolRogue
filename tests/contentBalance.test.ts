@@ -3,8 +3,7 @@ import { championDB } from '@/data/championDatabase';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { ITEM_DATABASE } from '@/data/items/itemDatabase';
 import { RUNE_DATABASE } from '@/data/items/runeDatabase';
-import { ENCOUNTER_POOLS, getBiomeBoss } from '@/game/map/encounters';
-import type { Biome } from '@/types/run';
+import { ENCOUNTER_POOLS, getFinalBoss } from '@/game/map/encounters';
 
 describe('P1 content and encounter balance', () => {
   it('provides validated content for every biome', () => {
@@ -24,18 +23,7 @@ describe('P1 content and encounter balance', () => {
     expect(Object.keys(AUGMENT_DATABASE).length).toBeGreaterThanOrEqual(15);
   });
 
-  it('scales biome bosses above their source encounter', () => {
-    for (const biome of ['top_lane', 'jungle', 'mid_lane', 'bot_lane', 'river'] as Biome[]) {
-      const normalMax = Math.max(
-        ...ENCOUNTER_POOLS[biome].map((encounter) =>
-          encounter.enemies.reduce((sum, enemy) => sum + enemy.statMultiplier, 0),
-        ),
-      );
-      const bossPower = getBiomeBoss(biome, 18).enemies.reduce(
-        (sum, enemy) => sum + enemy.statMultiplier,
-        0,
-      );
-      expect(bossPower).toBeGreaterThan(normalMax);
-    }
+  it('reserves boss terminology for the Base finale', () => {
+    expect(getFinalBoss(6)).toMatchObject({ id: 'base_nexus_guardians' });
   });
 });

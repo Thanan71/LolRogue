@@ -2,7 +2,7 @@ import { championDB } from '@/data/championDatabase';
 import { ITEM_DATABASE } from '@/data/items';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { validateItemAddition } from '@/game/inventory/inventoryRules';
-import { getBiomeBoss, getRandomEncounter } from '@/game/map/encounters';
+import { getFinalBoss, getRandomEncounter } from '@/game/map/encounters';
 import type { CombatEncounter, EnemyDefinition } from '@/game/map/types';
 import { NodeType } from '@/game/map/types';
 import type { ItemDefinition } from '@/types/inventory';
@@ -262,7 +262,10 @@ export function createCombatEncounterForNode(
   rand: () => number,
 ): CombatEncounter {
   if (nodeType === NodeType.Boss) {
-    const boss = getBiomeBoss(biome, runLevel);
+    if (biome !== 'base') {
+      throw new Error(`Boss nodes are reserved for the Base finale, received "${biome}".`);
+    }
+    const boss = getFinalBoss(runLevel);
     const enemies =
       boss.enemies.length > 1
         ? boss.enemies

@@ -46,7 +46,11 @@ export function getNodeMetadata(type: NodeType, biome: Biome): NodeMetadata {
     },
     [NodeType.Combat]: { title: 'Combat', description: 'Fight enemy champions', icon: '⚔️' },
     [NodeType.Elite]: { title: 'Elite', description: 'A powerful enemy awaits', icon: '💀' },
-    [NodeType.Boss]: { title: 'Boss', description: 'The final challenge', icon: '👑' },
+    [NodeType.Boss]: {
+      title: 'Final Boss',
+      description: 'Defeat the guardians of the enemy Nexus',
+      icon: '👑',
+    },
     [NodeType.Shop]: {
       title: 'Shop',
       description: 'Spend your gold on items and recruits',
@@ -64,7 +68,11 @@ export function getNodeMetadata(type: NodeType, biome: Biome): NodeMetadata {
       description: 'A wild champion seeks a team',
       icon: '🤝',
     },
-    [NodeType.Exit]: { title: 'Exit', description: 'Proceed to the next zone', icon: '➡️' },
+    [NodeType.Exit]: {
+      title: 'Biome Exit',
+      description: 'Proceed to the next biome',
+      icon: '➡️',
+    },
   };
 
   return metadata[type];

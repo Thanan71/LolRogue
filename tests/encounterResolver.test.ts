@@ -318,11 +318,14 @@ describe('versioned encounter resolver', () => {
   it('keeps bosses distinct from normalized elites', () => {
     const normal = createCombatEncounterForNode('top_lane', 1, NodeType.Combat, () => 0);
     const elite = createCombatEncounterForNode('top_lane', 1, NodeType.Elite, () => 0);
-    const boss = createCombatEncounterForNode('top_lane', 1, NodeType.Boss, () => 0);
+    const boss = createCombatEncounterForNode('base', 6, NodeType.Boss, () => 0);
 
     expect(elite.enemies).toHaveLength(normal.enemies.length);
     expect(elite.goldReward).toBeGreaterThan(normal.goldReward);
     expect(elite.id).toContain('elite');
+    expect(() => createCombatEncounterForNode('top_lane', 1, NodeType.Boss, () => 0)).toThrow(
+      'Boss nodes are reserved for the Base finale',
+    );
     expect(boss.enemies.length).toBeGreaterThan(1);
     expect(boss.goldReward).toBeGreaterThan(elite.goldReward);
     expect(boss.id).toContain('boss');

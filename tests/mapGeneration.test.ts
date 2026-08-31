@@ -11,8 +11,8 @@ import {
   generateMap,
   generateRunMap,
   getAccessibleNodes,
-  getBiomeBoss,
   getEligibleEncounters,
+  getFinalBoss,
   getNextOptions,
   isMapComplete,
   NodeType,
@@ -39,7 +39,8 @@ describe('Map Generation', () => {
 
         const exitNode = findNode(map, map.exitNodeId);
         expect(exitNode).toBeDefined();
-        expect([NodeType.Exit, NodeType.Boss]).toContain(exitNode!.type);
+        expect(exitNode!.type).toBe(biome === 'base' ? NodeType.Boss : NodeType.Exit);
+        expect(exitNode!.metadata.title).toBe(biome === 'base' ? 'Final Boss' : 'Biome Exit');
       }
     });
 
@@ -148,11 +149,9 @@ describe('Map Generation', () => {
       expect(all.length).toBeGreaterThanOrEqual(eligible.length);
     });
 
-    it('should generate boss encounters', () => {
-      const boss = getBiomeBoss('base', 6);
+    it('uses one explicit final boss encounter in Base', () => {
+      const boss = getFinalBoss(6);
       expect(boss.id).toBe('base_nexus_guardians');
-      const laneBoss = getBiomeBoss('top_lane', 3);
-      expect(laneBoss.id).toContain('_boss');
     });
   });
 

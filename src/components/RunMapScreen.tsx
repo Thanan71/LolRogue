@@ -255,7 +255,7 @@ export function RunMapScreen() {
                   },
                   {
                     title: 'Terminer et sauvegarder',
-                    body: 'La sortie ouvre le biome suivant. Le boss du sixième biome termine la run ; la progression connectée est ensuite vérifiée par le serveur.',
+                    body: 'La sortie ouvre le biome suivant. Le boss final de la Base termine la run ; la progression connectée est ensuite vérifiée par le serveur.',
                   },
                 ]}
               />
