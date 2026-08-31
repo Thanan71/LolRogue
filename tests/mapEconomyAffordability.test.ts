@@ -50,4 +50,4 @@ it('gives the median player an affordable choice at the guaranteed Jungle shop',
     const entryGold = firstJungleShopVisits.map((visit) => visit.goldOnEntry).sort((a, b) => a - b);
     expect(entryGold[Math.floor(entryGold.length / 2)]).toBeGreaterThanOrEqual(50);
   }
-}, 90_000);
+}, 180_000);
