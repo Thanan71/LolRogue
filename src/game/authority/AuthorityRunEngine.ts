@@ -630,6 +630,7 @@ class AuthorityReplayState {
       this.ledger,
       result.log,
       this.team.map((member) => member.championId),
+      node.biome,
     );
     for (const finalState of battle.getFinalPlayerStates()) {
       const member = this.team.find((candidate) => candidate.championId === finalState.championId);

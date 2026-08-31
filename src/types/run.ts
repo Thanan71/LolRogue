@@ -448,6 +448,10 @@ export type RunStore = RunState & RunActions;
 /** Stats tracked per champion during a run */
 export interface ChampionRunStats {
   championId: string;
+  /** Combat encounters completed while this champion was on the team. */
+  wavesParticipated?: number;
+  /** Distinct biomes in which this champion completed at least one combat. */
+  biomesParticipated?: Biome[];
   /** Total kills attributed to this champion */
   kills: number;
   /** Enemy takedowns contributed to without landing the final hit. */
@@ -507,6 +511,8 @@ export interface RunItemLedgerEvent {
 }
 
 export interface RunChampionLedger {
+  wavesParticipated?: number;
+  biomesParticipated?: Biome[];
   kills: number;
   assists: number;
   damageDealt: number;
@@ -521,7 +527,7 @@ export interface RunChampionLedger {
 }
 
 export interface RunLedger {
-  version: 1;
+  version: 1 | 2;
   champions: Record<string, RunChampionLedger>;
   gold: {
     earned: number;
@@ -625,6 +631,8 @@ export interface ServerRunProgression {
   runId: string;
   replayed: boolean;
   candiesEarned: number;
+  /** Exact v3+ mastery allocation. Older replayed rulesets expose only the scalar field. */
+  candiesByChampion?: Record<string, number>;
   candiesPerChampion: number;
   progressionVersion: number;
   progressionSource: 'verified';

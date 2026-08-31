@@ -148,5 +148,11 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     expect(candidate.economy.treasureAndDrops.treasureGold.max).toBeLessThanOrEqual(150);
     expect(candidate.economy.treasureAndDrops.treasureItemRate).toBeGreaterThanOrEqual(0.23);
     expect(candidate.economy.treasureAndDrops.treasureItemRate).toBeLessThanOrEqual(0.27);
+    expect(
+      new Set(candidate.economy.candies.byFinalTeamSize.map((entry) => entry.teamTotal.min)).size,
+    ).toBe(1);
+    expect(
+      new Set(candidate.economy.candies.byFinalTeamSize.map((entry) => entry.teamTotal.max)).size,
+    ).toBe(1);
   });
 });

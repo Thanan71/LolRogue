@@ -622,6 +622,17 @@ function parseRunSummary(value: unknown): RunSummary | null {
   };
 }
 
+function parseCandyAllocation(value: unknown): Record<string, number> | null {
+  const allocation = asRecord(value);
+  if (!allocation) return null;
+  const parsed: Record<string, number> = {};
+  for (const [championId, candies] of Object.entries(allocation)) {
+    if (championId.length === 0 || !isInteger(candies) || candies < 0) return null;
+    parsed[championId] = candies;
+  }
+  return parsed;
+}
+
 function parseVerifiedResponse(value: unknown): VerifyRunAttemptResult | null {
   const envelope = asRecord(value);
   if (!envelope) return null;
@@ -636,11 +647,24 @@ function parseVerifiedResponse(value: unknown): VerifyRunAttemptResult | null {
   ) {
     return null;
   }
+  const rawCandyAllocation = response.candies_by_champion;
+  const parsedCandyAllocation =
+    rawCandyAllocation === undefined ? {} : parseCandyAllocation(rawCandyAllocation);
+  if (
+    !parsedCandyAllocation ||
+    (response.progression_version >= 3 &&
+      (Object.keys(parsedCandyAllocation).length === 0 ||
+        Object.values(parsedCandyAllocation).reduce((total, candies) => total + candies, 0) !==
+          response.candies_earned))
+  ) {
+    return null;
+  }
   return {
     progression: {
       runId: response.run_id,
       replayed: response.replayed,
       candiesEarned: response.candies_earned,
+      candiesByChampion: parsedCandyAllocation,
       candiesPerChampion: response.candies_per_champion,
       progressionVersion: response.progression_version,
       progressionSource: response.progression_source,

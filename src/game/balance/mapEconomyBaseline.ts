@@ -15,7 +15,7 @@ import {
 } from '@/game/recruitment/recruitmentRules';
 import { resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { getRestGoldCost, getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
-import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
+import { calculateRunCandyAllocation } from '@/game/run/runRewardPolicy';
 import { BIOMES, type Biome, MAX_TEAM_SIZE } from '@/types/run';
 
 export const MAP_ECONOMY_BASELINE_SCHEMA_VERSION = 1;
@@ -444,28 +444,41 @@ export function createMapEconomyBaseline(seedCount = MAP_ECONOMY_BASELINE_SEED_C
   };
   const candyByFinalTeamSize = Array.from({ length: MAX_TEAM_SIZE }, (_, index) => {
     const teamSize = index + 1;
+    const participants = Array.from({ length: teamSize }, (_, participantIndex) => ({
+      championId: `champion-${participantIndex + 1}`,
+    }));
     const minimum = candyRouteBounds.map((bounds) =>
-      calculateRunCandiesPerChampion({
-        teamSize,
+      calculateRunCandyAllocation({
+        participants,
         wavesCompleted: bounds.min,
         biomesVisited: BIOMES.length,
         outcome: 'victory',
       }),
     );
     const maximum = candyRouteBounds.map((bounds) =>
-      calculateRunCandiesPerChampion({
-        teamSize,
+      calculateRunCandyAllocation({
+        participants,
         wavesCompleted: bounds.max,
         biomesVisited: BIOMES.length,
         outcome: 'victory',
       }),
     );
+    const minimumShares = minimum.flatMap((allocation) => Object.values(allocation));
+    const maximumShares = maximum.flatMap((allocation) => Object.values(allocation));
     return {
       teamSize,
-      perChampion: { min: Math.min(...minimum), max: Math.max(...maximum) },
+      perChampion: { min: Math.min(...minimumShares), max: Math.max(...maximumShares) },
       teamTotal: {
-        min: Math.min(...minimum.map((value) => value * teamSize)),
-        max: Math.max(...maximum.map((value) => value * teamSize)),
+        min: Math.min(
+          ...minimum.map((allocation) =>
+            Object.values(allocation).reduce((total, candies) => total + candies, 0),
+          ),
+        ),
+        max: Math.max(
+          ...maximum.map((allocation) =>
+            Object.values(allocation).reduce((total, candies) => total + candies, 0),
+          ),
+        ),
       },
     };
   });

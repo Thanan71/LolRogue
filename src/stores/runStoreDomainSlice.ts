@@ -436,6 +436,7 @@ export function createRunDomainSlice(
           state.ledger,
           events,
           state.team.map((member) => member.championId),
+          state.currentBiome,
         ),
       }));
     },
