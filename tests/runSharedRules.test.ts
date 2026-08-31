@@ -10,6 +10,7 @@ import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
 import {
   getItemSaleGold,
+  getRestGoldCost,
   getShopItemCost,
   getShopRecruitCost,
   resolveEventTeamUpdates,
@@ -93,6 +94,13 @@ describe('shared deterministic run rules', () => {
         () => 120,
       )[0],
     ).toMatchObject({ currentHp: 40, statBoosts: { hp: 20 } });
+  });
+
+  it('prices rest from its run-level base and the current team size', () => {
+    expect(getRestGoldCost({ fullHeal: false, goldCost: 50 }, 1)).toBe(50);
+    expect(getRestGoldCost({ fullHeal: false, goldCost: 50 }, 5)).toBe(130);
+    expect(getRestGoldCost({ fullHeal: true, goldCost: 110 }, 1)).toBe(110);
+    expect(getRestGoldCost({ fullHeal: true, goldCost: 110 }, 5)).toBe(270);
   });
 
   it('shares augment offer validation and the full post-combat resource/XP transition', () => {

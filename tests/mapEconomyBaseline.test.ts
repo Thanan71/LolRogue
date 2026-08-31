@@ -134,5 +134,11 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     expect(candidate.economy.recruitment.encounterPrices.min).toBeGreaterThanOrEqual(150);
     expect(candidate.economy.recruitment.encounterPrices.max).toBeLessThanOrEqual(300);
     expect(Object.values(ITEM_DATABASE).every((item) => !('components' in item))).toBe(true);
+    expect(candidate.economy.rest.costPerTeamMember[4].partial.median).toBeGreaterThanOrEqual(
+      candidate.economy.rest.costPerTeamMember[0].partial.median / 3,
+    );
+    expect(candidate.economy.rest.costPerTeamMember[4].full.median).toBeGreaterThanOrEqual(
+      candidate.economy.rest.costPerTeamMember[0].full.median / 3,
+    );
   });
 });

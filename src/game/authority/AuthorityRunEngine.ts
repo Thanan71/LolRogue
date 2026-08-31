@@ -31,6 +31,7 @@ import {
 } from '@/game/run/runCombatant';
 import {
   getItemSaleGold,
+  getRestGoldCost,
   getShopItemCost,
   getShopRecruitCost,
   resolveEventTeamUpdates,
@@ -374,7 +375,7 @@ class AuthorityReplayState {
         if (node.encounter?.type !== 'rest') {
           fail('invalid_content', `Rest node "${node.id}" has no rest encounter.`);
         }
-        const cost = Math.max(0, node.encounter.goldCost);
+        const cost = getRestGoldCost(node.encounter, this.team.length);
         return {
           ...base,
           nodeType: 'rest',
@@ -829,10 +830,11 @@ class AuthorityReplayState {
       fail('invalid_encounter', 'No rest encounter is pending.', commandIndex);
     }
     this.claimPending(commandIndex);
-    if (this.gold < encounter.goldCost) {
+    const cost = getRestGoldCost(encounter, this.team.length);
+    if (this.gold < cost) {
       fail('insufficient_gold', 'Not enough gold to rest.', commandIndex);
     }
-    this.spendGold(encounter.goldCost);
+    this.spendGold(cost);
     for (const member of this.team) {
       const maxHp = this.getMemberMaxHp(member);
       member.currentHp = resolveRestHp(member.currentHp, maxHp, encounter);

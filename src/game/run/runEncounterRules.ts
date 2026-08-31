@@ -39,6 +39,17 @@ export function getItemSaleGold(goldValue: number): number {
   return Math.max(1, Math.floor(Math.max(0, goldValue) / 2));
 }
 
+export function getRestGoldCost(
+  encounter: Pick<RestEncounter, 'fullHeal' | 'goldCost'>,
+  teamSize: number,
+): number {
+  const normalizedTeamSize = Number.isFinite(teamSize) ? Math.max(1, Math.trunc(teamSize)) : 1;
+  const additionalMemberCost = encounter.fullHeal ? 40 : 20;
+  return (
+    Math.max(0, Math.round(encounter.goldCost)) + additionalMemberCost * (normalizedTeamSize - 1)
+  );
+}
+
 export function resolveRecruitAttempt(
   seed: number,
   encounter: RecruitEncounter,

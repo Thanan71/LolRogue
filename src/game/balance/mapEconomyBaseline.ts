@@ -10,7 +10,7 @@ import {
   type TreasureEncounter,
 } from '@/game/map/types';
 import { resolveCombatEncounter } from '@/game/run/encounterResolver';
-import { getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
+import { getRestGoldCost, getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
 import { calculateRunCandiesPerChampion } from '@/game/run/runRewardPolicy';
 import { BIOMES, type Biome, MAX_TEAM_SIZE } from '@/types/run';
 
@@ -514,8 +514,16 @@ export function createMapEconomyBaseline(seedCount = MAP_ECONOMY_BASELINE_SEED_C
           const teamSize = index + 1;
           return {
             teamSize,
-            partial: numericSummary(economy.partialRestCosts.map((cost) => cost / teamSize)),
-            full: numericSummary(economy.fullRestCosts.map((cost) => cost / teamSize)),
+            partial: numericSummary(
+              economy.partialRestCosts.map(
+                (goldCost) => getRestGoldCost({ fullHeal: false, goldCost }, teamSize) / teamSize,
+              ),
+            ),
+            full: numericSummary(
+              economy.fullRestCosts.map(
+                (goldCost) => getRestGoldCost({ fullHeal: true, goldCost }, teamSize) / teamSize,
+              ),
+            ),
           };
         }),
       },
