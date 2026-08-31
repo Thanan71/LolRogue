@@ -23,8 +23,10 @@ import { getStarterBudgetProfile } from './starterBudget';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 7;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 8;
 export const BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT = 0.25;
+export const ELITE_FORMATION_POWER_MULTIPLIER = 1.4;
+export const ELITE_REWARD_MULTIPLIER = 1.5;
 const COMBAT_REWARD_RNG_VERSION = 6;
 
 const NODE_RULES: Record<
@@ -41,8 +43,8 @@ const NODE_RULES: Record<
     mechanic: 'standard',
   },
   [NodeType.Elite]: {
-    enemyStatMultiplier: 1.05,
-    enemyLevelBonus: 1,
+    enemyStatMultiplier: 1,
+    enemyLevelBonus: 0,
     mechanic: 'elite_pressure',
   },
   [NodeType.Boss]: {
@@ -56,7 +58,7 @@ export const TOP_LANE_NODE_PRESSURE: Readonly<
   Record<NodeType.Combat | NodeType.Elite | NodeType.Boss, number>
 > = {
   [NodeType.Combat]: 0.84,
-  [NodeType.Elite]: 0.52,
+  [NodeType.Elite]: 0.84,
   [NodeType.Boss]: 0.65,
 };
 
@@ -279,20 +281,17 @@ export function createCombatEncounterForNode(
   const base = getRandomEncounter(biome, runLevel, rand);
   if (nodeType === NodeType.Combat) return { ...base };
 
-  const enemies =
-    base.enemies.length > 1
-      ? base.enemies.map((enemy) => ({
-          ...enemy,
-          statMultiplier: enemy.statMultiplier * 1.08,
-        }))
-      : [...base.enemies, { ...BIOME_REINFORCEMENTS[biome] }];
+  const enemies = base.enemies.map((enemy) => ({
+    ...enemy,
+    statMultiplier: roundMultiplier(enemy.statMultiplier * ELITE_FORMATION_POWER_MULTIPLIER),
+  }));
   return {
     ...base,
     id: `${base.id}_elite`,
     name: `${base.name} — Elite`,
-    description: `${base.description} An elite reinforcement joins the encounter.`,
+    description: `${base.description} The formation fights with coordinated elite pressure.`,
     enemies,
-    goldReward: Math.round(base.goldReward * 1.5),
-    itemDropChance: Math.min(1, base.itemDropChance * 1.5),
+    goldReward: Math.round(base.goldReward * ELITE_REWARD_MULTIPLIER),
+    itemDropChance: Math.min(1, base.itemDropChance * ELITE_REWARD_MULTIPLIER),
   };
 }

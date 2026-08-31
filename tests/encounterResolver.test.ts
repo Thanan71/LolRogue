@@ -12,6 +12,8 @@ import {
   COMBAT_ENCOUNTER_RULESET_VERSION,
   createCombatEncounterForNode,
   DIFFICULTY_RULES,
+  ELITE_FORMATION_POWER_MULTIPLIER,
+  ELITE_REWARD_MULTIPLIER,
   itemDefinitionToRunItem,
   resolveCombatEncounter,
   TOP_LANE_NODE_PRESSURE,
@@ -85,10 +87,10 @@ function simulateBiomeCurveCombat(biome: Biome, runLevel: number, seed: number) 
 
 describe('versioned encounter resolver', () => {
   it('versions the measured early Top calibration', () => {
-    expect(COMBAT_ENCOUNTER_RULESET_VERSION).toBe(7);
+    expect(COMBAT_ENCOUNTER_RULESET_VERSION).toBe(8);
     expect(TOP_LANE_NODE_PRESSURE).toEqual({
       [NodeType.Combat]: 0.84,
-      [NodeType.Elite]: 0.52,
+      [NodeType.Elite]: 0.84,
       [NodeType.Boss]: 0.65,
     });
   });
@@ -201,17 +203,15 @@ describe('versioned encounter resolver', () => {
     expect(trio.enemies[0].statMultiplier / solo.enemies[0].statMultiplier).toBeCloseTo(2, 4);
   });
 
-  it('keeps the extra node pressure local to Top and targets elites most strongly', () => {
+  it('keeps the extra node pressure local to Top without hiding elite formation power', () => {
     const topCombat = resolve('normal');
     const topElite = resolve('normal', { nodeType: NodeType.Elite });
     const jungleCombat = resolve('normal', { biome: 'jungle' });
 
     expect(topCombat.enemies[0].statMultiplier).toBe(0.5124);
-    expect(topElite.enemies[0].statMultiplier).toBe(0.3331);
+    expect(topElite.enemies[0].statMultiplier).toBe(0.5124);
     expect(jungleCombat.enemies[0].statMultiplier).toBe(0.6253);
-    expect(TOP_LANE_NODE_PRESSURE[NodeType.Elite]).toBeLessThan(
-      TOP_LANE_NODE_PRESSURE[NodeType.Combat],
-    );
+    expect(TOP_LANE_NODE_PRESSURE[NodeType.Elite]).toBe(TOP_LANE_NODE_PRESSURE[NodeType.Combat]);
   });
 
   it.each(['jungle', 'mid_lane', 'bot_lane', 'river', 'base'] as const)(
@@ -263,21 +263,69 @@ describe('versioned encounter resolver', () => {
     expect(lateInstance.getStats().moveSpeed).toBeGreaterThan(earlyInstance.getStats().moveSpeed);
   });
 
-  it('gives elites and bosses distinct formations and richer encounter data', () => {
+  it('gives every elite formation +40% power and +50% rewards', () => {
+    expect(ELITE_FORMATION_POWER_MULTIPLIER).toBe(1.4);
+    expect(ELITE_REWARD_MULTIPLIER).toBe(1.5);
+
+    for (const biome of BIOMES) {
+      for (let sample = 0; sample < 20; sample++) {
+        const roll = (sample + 0.5) / 20;
+        const normal = createCombatEncounterForNode(biome, 18, NodeType.Combat, () => roll);
+        const elite = createCombatEncounterForNode(biome, 18, NodeType.Elite, () => roll);
+        const normalPower = normal.enemies.reduce(
+          (total, enemy) => total + enemy.statMultiplier,
+          0,
+        );
+        const elitePower = elite.enemies.reduce((total, enemy) => total + enemy.statMultiplier, 0);
+        const resolvedNormal = resolve('normal', {
+          biome,
+          runLevel: 18,
+          nodeType: NodeType.Combat,
+          encounter: normal,
+        });
+        const resolvedElite = resolve('normal', {
+          biome,
+          runLevel: 18,
+          nodeType: NodeType.Elite,
+          encounter: elite,
+        });
+        const resolvedNormalPower = resolvedNormal.enemies.reduce(
+          (total, enemy) => total + enemy.statMultiplier,
+          0,
+        );
+        const resolvedElitePower = resolvedElite.enemies.reduce(
+          (total, enemy) => total + enemy.statMultiplier,
+          0,
+        );
+
+        expect(elite.enemies).toHaveLength(normal.enemies.length);
+        expect(elitePower / normalPower).toBeCloseTo(ELITE_FORMATION_POWER_MULTIPLIER, 3);
+        expect(resolvedElitePower / resolvedNormalPower).toBeCloseTo(
+          ELITE_FORMATION_POWER_MULTIPLIER,
+          3,
+        );
+        expect(resolvedElite.enemies.map((enemy) => enemy.level)).toEqual(
+          resolvedNormal.enemies.map((enemy) => enemy.level),
+        );
+        expect(elite.goldReward).toBe(Math.round(normal.goldReward * ELITE_REWARD_MULTIPLIER));
+        expect(elite.itemDropChance).toBe(
+          Math.min(1, normal.itemDropChance * ELITE_REWARD_MULTIPLIER),
+        );
+      }
+    }
+  });
+
+  it('keeps bosses distinct from normalized elites', () => {
     const normal = createCombatEncounterForNode('top_lane', 1, NodeType.Combat, () => 0);
     const elite = createCombatEncounterForNode('top_lane', 1, NodeType.Elite, () => 0);
     const boss = createCombatEncounterForNode('top_lane', 1, NodeType.Boss, () => 0);
 
-    expect(elite.enemies.length).toBeGreaterThan(normal.enemies.length);
-    expect(elite.enemies[1]).toEqual({ championId: 'Malphite', statMultiplier: 0.34 });
+    expect(elite.enemies).toHaveLength(normal.enemies.length);
     expect(elite.goldReward).toBeGreaterThan(normal.goldReward);
     expect(elite.id).toContain('elite');
     expect(boss.enemies.length).toBeGreaterThan(1);
     expect(boss.goldReward).toBeGreaterThan(elite.goldReward);
     expect(boss.id).toContain('boss');
-
-    const jungleElite = createCombatEncounterForNode('jungle', 1, NodeType.Elite, () => 0);
-    expect(jungleElite.enemies[1]).toEqual({ championId: 'Warwick', statMultiplier: 0.65 });
   });
 
   it('does not announce a drop when inventory capacity is exhausted', () => {
