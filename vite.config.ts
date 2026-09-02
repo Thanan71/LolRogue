@@ -34,8 +34,7 @@ function readCheckedInDevEnv() {
 const deploymentCommitSha =
   process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
 const vercelGitBranch = process.env.VERCEL_GIT_COMMIT_REF?.trim();
-const vercelDevEnv =
-  process.env.VERCEL && vercelGitBranch === 'dev' ? readCheckedInDevEnv() : null;
+const vercelDevEnv = process.env.VERCEL && vercelGitBranch === 'dev' ? readCheckedInDevEnv() : null;
 
 if (deploymentCommitSha !== 'local' && !shaPattern.test(deploymentCommitSha)) {
   throw new Error('APP_COMMIT_SHA or VERCEL_GIT_COMMIT_SHA must be a full lowercase Git SHA.');
