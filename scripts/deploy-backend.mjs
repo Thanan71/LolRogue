@@ -1,4 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 
 const DEPLOY_TARGETS = Object.freeze({
   main: Object.freeze({
@@ -77,4 +78,9 @@ function deployBackend() {
   ]);
 }
 
-deployBackend();
+const isDirectExecution =
+  Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isDirectExecution) {
+  deployBackend();
+}
