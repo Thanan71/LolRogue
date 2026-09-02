@@ -1,23 +1,24 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
+import { describe, expect, it } from 'vitest';
 import { resolveBackendDeployTarget } from './deploy-backend.mjs';
 
-test('routes main to LolRogue', () => {
-  assert.deepEqual(resolveBackendDeployTarget('main'), {
-    projectName: 'LolRogue',
-    projectRef: 'mmpvmclqdgfnpfgcqnyu',
+describe('backend deploy branch routing', () => {
+  it('routes main to LolRogue', () => {
+    expect(resolveBackendDeployTarget('main')).toEqual({
+      projectName: 'LolRogue',
+      projectRef: 'mmpvmclqdgfnpfgcqnyu',
+    });
   });
-});
 
-test('routes dev to LolRogueDev', () => {
-  assert.deepEqual(resolveBackendDeployTarget('dev'), {
-    projectName: 'LolRogueDev',
-    projectRef: 'misdmtpfcbxbhheacehm',
+  it('routes dev to LolRogueDev', () => {
+    expect(resolveBackendDeployTarget('dev')).toEqual({
+      projectName: 'LolRogueDev',
+      projectRef: 'misdmtpfcbxbhheacehm',
+    });
   });
-});
 
-test('blocks every other branch', () => {
-  assert.equal(resolveBackendDeployTarget('feature/test'), null);
-  assert.equal(resolveBackendDeployTarget('fix/example'), null);
-  assert.equal(resolveBackendDeployTarget(''), null);
+  it('blocks every other branch', () => {
+    expect(resolveBackendDeployTarget('feature/test')).toBeNull();
+    expect(resolveBackendDeployTarget('fix/example')).toBeNull();
+    expect(resolveBackendDeployTarget('')).toBeNull();
+  });
 });
