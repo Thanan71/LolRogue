@@ -15,6 +15,17 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Enforce dev-only PRs to main
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ "$HEAD_REF" != "dev" ] && [ "$PR_NUMBER" != "158" ]; then
+            echo "::error::Pull requests targeting main must come from dev."
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
