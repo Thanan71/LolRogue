@@ -56,9 +56,7 @@ function deployBackend() {
     process.exit(1);
   }
 
-  console.log(
-    `[backend:deploy] ${branch} -> ${target.projectName} (${target.projectRef})`,
-  );
+  console.log(`[backend:deploy] ${branch} -> ${target.projectName} (${target.projectRef})`);
 
   // Validate and build the Edge Function before touching a remote project.
   run('npm', ['run', 'edge:bundle']);
@@ -68,14 +66,7 @@ function deployBackend() {
 
   // Apply migrations to the branch-selected database, then deploy the matching Edge Function.
   run('npx', ['supabase', 'db', 'push']);
-  run('npx', [
-    'supabase',
-    'functions',
-    'deploy',
-    'verify-run',
-    '--project-ref',
-    target.projectRef,
-  ]);
+  run('npx', ['supabase', 'functions', 'deploy', 'verify-run', '--project-ref', target.projectRef]);
 }
 
 const isDirectExecution =
