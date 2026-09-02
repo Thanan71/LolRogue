@@ -52,7 +52,7 @@
     "edge:bundle": "npm run authority:check && node scripts/build-authority-bundle.mjs",
     "edge:serve": "npm run edge:bundle && supabase functions serve verify-run",
     "edge:deploy": "npm run edge:bundle && supabase functions deploy verify-run",
-    "backend:deploy": "npm run edge:deploy && npm run migrate",
+    "backend:deploy": "node scripts/deploy-backend.mjs",
     "ddragon:download": "node scripts/download-ddragon.js",
     "ddragon:parse": "node scripts/parse-champions.js",
     "assets:package": "node scripts/package-riot-assets.mjs",
