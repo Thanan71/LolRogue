@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.110.8';
 import { resolveAuthorityVerifier } from './authority-version-resolver.generated.ts';
+import { deriveCompletedParticipation } from './participation.ts';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -69,7 +70,11 @@ async function persistRejection(
   return !error && result?.status === 'rejected';
 }
 
-function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonRecord | null {
+function buildVerifiedResult(
+  snapshot: JsonRecord,
+  engineVersion: string,
+  combatSummaries: unknown = [],
+): JsonRecord | null {
   const usesParticipationLedger = engineVersion === 'run-engine-v20';
   const expectedLedgerVersion = usesParticipationLedger ? 2 : 1;
   const team = Array.isArray(snapshot.team) ? snapshot.team : null;
@@ -80,6 +85,9 @@ function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonR
   const rawGold = record(rawLedger?.gold);
   const rawChampions = record(rawLedger?.champions);
   const rawItems = Array.isArray(rawLedger?.items) ? rawLedger.items : null;
+  const verifiedParticipation = usesParticipationLedger
+    ? deriveCompletedParticipation(combatSummaries)
+    : null;
   if (
     !team ||
     !championStats ||
@@ -92,6 +100,7 @@ function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonR
     typeof rawGold.spent !== 'number' ||
     !rawChampions ||
     !rawItems ||
+    (usesParticipationLedger && !verifiedParticipation) ||
     typeof snapshot.won !== 'boolean' ||
     typeof snapshot.runLevel !== 'number' ||
     typeof snapshot.totalWavesCompleted !== 'number' ||
@@ -119,14 +128,20 @@ function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonR
     ) {
       return null;
     }
+    const participation = usesParticipationLedger
+      ? (verifiedParticipation?.[member.championId] ?? {
+          wavesParticipated: 0,
+          biomesParticipated: [],
+        })
+      : null;
     const stat = (key: string) =>
       Math.max(0, Math.round(typeof stats[key] === 'number' ? stats[key] : 0));
     return {
       champion_id: member.championId,
       ...(usesParticipationLedger
         ? {
-            waves_participated: stat('wavesParticipated'),
-            biomes_participated: [...(stats.biomesParticipated as string[])],
+            waves_participated: participation!.wavesParticipated,
+            biomes_participated: [...participation!.biomesParticipated],
           }
         : {}),
       final_level: Math.trunc(member.level),
@@ -453,7 +468,13 @@ Deno.serve(async (request) => {
   }
 
   const snapshot = record(verification.result.snapshot);
-  const verifiedResult = snapshot ? buildVerifiedResult(snapshot, claim.engine_version) : null;
+  const verifiedResult = snapshot
+    ? buildVerifiedResult(
+        snapshot,
+        claim.engine_version,
+        verification.result.combatSummaries,
+      )
+    : null;
   if (!verifiedResult) {
     if (!(await persistRejection(admin, attemptId, claim.lease_token, 'invalid_verifier_result'))) {
       return json(500, { error: 'verification_rejection_commit_failed' });
