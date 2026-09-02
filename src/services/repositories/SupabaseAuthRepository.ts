@@ -13,6 +13,11 @@ import type {
   SignUpMetadata,
 } from '../interfaces/IAuthRepository';
 
+function getEmailRedirectTo(): string | undefined {
+  if (typeof window === 'undefined' || !window.location?.origin) return undefined;
+  return `${window.location.origin}/`;
+}
+
 export class SupabaseAuthRepository implements IAuthRepository {
   private supabase: SupabaseClient<Database>;
 
@@ -25,11 +30,13 @@ export class SupabaseAuthRepository implements IAuthRepository {
     password: string,
     metadata?: SignUpMetadata,
   ): Promise<AuthResponseResult> {
+    const emailRedirectTo = getEmailRedirectTo();
     const { data, error } = await this.supabase.auth.signUp({
       email,
       password,
       options: {
         data: metadata,
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
       },
     });
 
