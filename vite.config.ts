@@ -1,17 +1,41 @@
-import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { cp, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import react from '@vitejs/plugin-react';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import { configDefaults } from 'vitest/config';
 
 const shaPattern = /^[0-9a-f]{40}$/;
+const devSupabaseProjectRef = 'misdmtpfcbxbhheacehm';
+
+function readCheckedInDevEnv() {
+  const envFile = readFileSync(path.resolve(import.meta.dirname, '.env.development'), 'utf8');
+  const values: Record<string, string> = {};
+
+  for (const rawLine of envFile.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) {
+      continue;
+    }
+
+    const separatorIndex = line.indexOf('=');
+    if (separatorIndex <= 0) {
+      continue;
+    }
+
+    const key = line.slice(0, separatorIndex).trim();
+    const value = line.slice(separatorIndex + 1).trim();
+    values[key] = value;
+  }
+
+  return values;
+}
+
 const deploymentCommitSha =
   process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
 const vercelGitBranch = process.env.VERCEL_GIT_COMMIT_REF?.trim();
 const vercelDevEnv =
-  process.env.VERCEL && vercelGitBranch === 'dev'
-    ? loadEnv('development', process.cwd(), 'VITE_')
-    : null;
+  process.env.VERCEL && vercelGitBranch === 'dev' ? readCheckedInDevEnv() : null;
 
 if (deploymentCommitSha !== 'local' && !shaPattern.test(deploymentCommitSha)) {
   throw new Error('APP_COMMIT_SHA or VERCEL_GIT_COMMIT_SHA must be a full lowercase Git SHA.');
@@ -25,11 +49,25 @@ if (
 ) {
   throw new Error('Vercel dev deployments require the LolRogueDev Supabase client configuration.');
 }
+if (
+  vercelDevEnv &&
+  vercelDevEnv.VITE_PUBLIC_SUPABASE_URL !== `https://${devSupabaseProjectRef}.supabase.co`
+) {
+  throw new Error('Vercel dev deployments must target the LolRogueDev Supabase project.');
+}
+
+if (vercelDevEnv) {
+  // Vercel Preview variables may contain production values. Force the dedicated
+  // dev branch to the checked-in public LolRogueDev client configuration before
+  // Vite resolves import.meta.env for the production-mode preview build.
+  process.env.VITE_PUBLIC_SUPABASE_URL = vercelDevEnv.VITE_PUBLIC_SUPABASE_URL;
+  process.env.VITE_PUBLIC_SUPABASE_ANON_KEY = vercelDevEnv.VITE_PUBLIC_SUPABASE_ANON_KEY;
+  console.log(`[vite] Supabase target: LolRogueDev (${devSupabaseProjectRef})`);
+}
 
 export default defineConfig({
-  // Vercel builds all Git branches in production mode. For the dedicated dev branch,
-  // explicitly inject the checked-in public LolRogueDev client configuration.
-  // Other branches, including main, continue to use their normal Vercel environment variables.
+  // Also define the exact client references for the dev preview so they cannot
+  // be replaced by generic Preview environment variables later in the build.
   define: vercelDevEnv
     ? {
         'import.meta.env.VITE_PUBLIC_SUPABASE_URL': JSON.stringify(
