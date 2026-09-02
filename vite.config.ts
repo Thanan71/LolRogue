@@ -1,12 +1,17 @@
 import path from 'node:path';
 import { cp, writeFile } from 'node:fs/promises';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { configDefaults } from 'vitest/config';
 
 const shaPattern = /^[0-9a-f]{40}$/;
 const deploymentCommitSha =
   process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
+const vercelGitBranch = process.env.VERCEL_GIT_COMMIT_REF?.trim();
+const vercelDevEnv =
+  process.env.VERCEL && vercelGitBranch === 'dev'
+    ? loadEnv('development', process.cwd(), 'VITE_')
+    : null;
 
 if (deploymentCommitSha !== 'local' && !shaPattern.test(deploymentCommitSha)) {
   throw new Error('APP_COMMIT_SHA or VERCEL_GIT_COMMIT_SHA must be a full lowercase Git SHA.');
@@ -14,8 +19,27 @@ if (deploymentCommitSha !== 'local' && !shaPattern.test(deploymentCommitSha)) {
 if (process.env.VERCEL && deploymentCommitSha === 'local') {
   throw new Error('VERCEL_GIT_COMMIT_SHA must be exposed to identify the deployed commit.');
 }
+if (
+  vercelDevEnv &&
+  (!vercelDevEnv.VITE_PUBLIC_SUPABASE_URL || !vercelDevEnv.VITE_PUBLIC_SUPABASE_ANON_KEY)
+) {
+  throw new Error('Vercel dev deployments require the LolRogueDev Supabase client configuration.');
+}
 
 export default defineConfig({
+  // Vercel builds all Git branches in production mode. For the dedicated dev branch,
+  // explicitly inject the checked-in public LolRogueDev client configuration.
+  // Other branches, including main, continue to use their normal Vercel environment variables.
+  define: vercelDevEnv
+    ? {
+        'import.meta.env.VITE_PUBLIC_SUPABASE_URL': JSON.stringify(
+          vercelDevEnv.VITE_PUBLIC_SUPABASE_URL,
+        ),
+        'import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY': JSON.stringify(
+          vercelDevEnv.VITE_PUBLIC_SUPABASE_ANON_KEY,
+        ),
+      }
+    : undefined,
   // The legacy Data Dragon workspace under public/lol is an input cache, not a
   // deployable asset. Copy only the integrity-checked release package.
   publicDir: false,
