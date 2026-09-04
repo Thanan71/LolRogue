@@ -203,8 +203,8 @@ révèlent une inversion significative. La même exécution mesure la concentrat
 morts et compare 1 170 métriques au golden v21 commité : baisse de victoire supérieure
 à 5 points, recul médian supérieur à 0,5 biome ou dérive économique supérieure à 10 %.
 
-La mesure de référence passe sans violation. Hard/Top concentre 178 morts sur 444
-(40,09 %) ; sa borne Wilson basse de 35,64 % reste sous le seuil d'échec strict de
+La mesure de référence passe sans violation. Hard/Top concentre 177 morts sur 445
+(39,78 %) ; sa borne Wilson basse de 35,33 % reste sous le seuil d'échec strict de
 40 % et produit donc un avertissement visible, pas un succès masqué. Le golden rend
 une dérive non approuvée bloquante ; lorsqu'il est volontairement régénéré, son diff
 reste la preuve à approuver en revue de PR. La CI conserve le rapport
@@ -254,11 +254,11 @@ doivent être traités par leur calibration dédiée, pas assouplis dans ce rapp
 
 Le rapport courant `config/champion-combat-matrix-current.json` compare désormais
 v20 au moteur v21
-(`c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3`). Les 7 560
-combats de chaque runtime donnent, pour le candidat, Garen 49,15 %, Annie 49,31 %,
-Ashe 52,33 %, Darius 48,55 %, Lux 47,75 %, Soraka 48,23 %, Jinx 50,66 %, Leona
-50,11 %, Malphite 50,32 % et Warwick 53,60 %. Tous restent dans la plage 45–55 % ;
-l'écart Lux–Warwick est de 5,85 points, sous le maximum de 10. La parité
+(`9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6`). Les 7 560
+combats de chaque runtime donnent, pour le candidat, Garen 51,83 %, Annie 51,14 %,
+Ashe 51,06 %, Darius 48,41 %, Lux 48,99 %, Soraka 48,33 %, Jinx 48,57 %, Leona
+49,07 %, Malphite 50,48 % et Warwick 52,12 %. Tous restent dans la plage 45–55 % ;
+l'écart Soraka–Warwick est de 3,78 points, sous le maximum de 10. La parité
 source/bundle v21 est exacte et chaque champion conserve des milliers de victoires
 **et** de défaites, sans draw utilisé pour masquer un résultat.
 
@@ -271,9 +271,9 @@ en version 15 avec zéro point d'or, et la migration vérifie les deux parités 
 d'activer v18.
 
 P0-BAL-05 ferme uniquement le blocage de stabilisation historique. La publication
-v21 mesure ensuite 258/300 premiers combats gagnés en Easy, 249/300 (83,0 %) en
+v21 mesure ensuite 259/300 premiers combats gagnés en Easy, 249/300 (83,0 %) en
 Normal et 224/300 (74,67 %) en Hard, sans aucun starter à zéro. Elle conserve aussi
-de vraies défaites : seulement 25/300, 14/300 et 6/300 runs complètes gagnées.
+de vraies défaites : seulement 25/300, 15/300 et 5/300 runs complètes gagnées.
 Ces mesures ferment la gate automatisée P0-BAL-02 sans transformer l'autoplay en
 objectif de taux de victoire ; les playtests humains restent ouverts dans P2-BAL-01.
 

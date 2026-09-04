@@ -13,7 +13,7 @@ import {
 
 export const AUTHORITY_COHORT_BASELINE_V21_IDENTITY = Object.freeze({
   engineVersion: 'run-engine-v21',
-  contentHash: 'c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3',
+  contentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
   balanceModelVersion: 2,
   policy: Object.freeze({ id: 'survival-greedy', version: 1 }),
 }) satisfies AuthorityCohortBaselineIdentity;

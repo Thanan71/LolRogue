@@ -97,7 +97,7 @@ contrat de progression à `service_role`.
 
 La migration `20260904151818_gameplay_ruleset_v21_balance_acceptance.sql` publie
 `run-engine-v21` et le hash
-`c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3`. Elle copie
+`9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6`. Elle copie
 le catalogue gameplay v20 avec comparaison bidirectionnelle, publie le Daily v21
 dans `lolrogue.daily.v21` et conserve `score_version = 15` avec `gold_points = 0`.
 La progression reste en v3, le schéma de commandes en v2 et le ledger en v2.

@@ -296,7 +296,7 @@ describe('documentation maintenue', () => {
     expect(authority).toContain('8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91');
     for (const document of [authority, balance, persistence]) {
       expect(document).toContain(
-        'c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3',
+        '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
       );
     }
     expect(balance).toContain('sept baselines authority v15 à v21');

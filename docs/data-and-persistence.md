@@ -219,7 +219,7 @@ des attempts.
 
 La version courante est le gameplay v21, `run-engine-v21`, progression v3 et schéma
 de commandes v2, avec le hash
-`c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3`. Les runs v20
+`9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6`. Les runs v20
 et v21 stockent `ledger_version = 2`. Les colonnes de participation ajoutées aux membres
 restent nullables : les runs historiques en ledger v1 demeurent lisibles sans inventer
 des vagues ou biomes auxquels leurs champions auraient participé.

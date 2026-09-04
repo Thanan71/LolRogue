@@ -459,10 +459,10 @@ que 2,42 rounds.
 
 Preuve v21 : la cohorte PR exécute 45 cellules × 30 seeds, valide 15 familles de
 difficulté et 1 170 métriques de non-régression. La matrice exhaustive exécute
-7 560 combats par runtime ; ses dix champions restent entre 47,75 % et 53,60 %,
-avec 5,85 points d'écart. Early Top mesure 83,0 % en Normal et 74,67 % en Hard,
-sans starter à zéro. La concentration Hard/Top de 40,09 % reste un avertissement :
-sa borne Wilson basse (35,64 %) ne franchit pas le seuil statistique d'échec de 40 %.
+7 560 combats par runtime ; ses dix champions restent entre 48,33 % et 52,12 %,
+avec 3,78 points d'écart. Early Top mesure 83,0 % en Normal et 74,67 % en Hard,
+sans starter à zéro. La concentration Hard/Top de 39,78 % reste un avertissement :
+sa borne Wilson basse (35,33 %) ne franchit pas le seuil statistique d'échec de 40 %.
 Une baseline modifiée demeure soumise au diff et à la revue de PR ; l'automatisation
 ne prétend pas approuver elle-même un nouveau golden.
 

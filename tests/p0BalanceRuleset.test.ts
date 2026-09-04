@@ -31,7 +31,7 @@ describe('P0 balance authority ruleset', () => {
 
   it('publishes gameplay and Daily v21 by copying the complete v20 contracts', () => {
     expect(migration).toMatch(
-      /21,\s*'2026-09-balance-acceptance-v21',\s*'run-engine-v21',\s*2,\s*'c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3'/,
+      /21,\s*'2026-09-balance-acceptance-v21',\s*'run-engine-v21',\s*2,\s*'9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6'/,
     );
     expect(migration).toContain('SELECT 21, content_type, content_id, active, max_stacks');
     expect(migration).toContain('WHERE gameplay_ruleset_version = 20');

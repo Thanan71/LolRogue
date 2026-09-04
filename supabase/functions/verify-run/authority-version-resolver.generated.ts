@@ -511,7 +511,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "command": 2,
     "status": "current",
     "rulesetCode": "2026-09-balance-acceptance-v21",
-    "contentHash": "c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3",
+    "contentHash": "9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6",
     "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
     "migration": "supabase/migrations/20260904151818_gameplay_ruleset_v21_balance_acceptance.sql",
     "features": {

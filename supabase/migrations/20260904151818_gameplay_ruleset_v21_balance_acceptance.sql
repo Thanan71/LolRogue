@@ -13,7 +13,7 @@ VALUES (
   '2026-09-balance-acceptance-v21',
   'run-engine-v21',
   2,
-  'c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3',
+  '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
   FALSE
 )
 ON CONFLICT (version) DO NOTHING;
@@ -27,7 +27,7 @@ BEGIN
       AND engine_version = 'run-engine-v21'
       AND command_schema_version = 2
       AND content_hash =
-        'c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3'
+        '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6'
   ) THEN
     RAISE EXCEPTION 'gameplay_ruleset_v21_contract_mismatch';
   END IF;

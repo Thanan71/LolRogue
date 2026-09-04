@@ -73,7 +73,7 @@ const V19_BASELINE_KEY =
 const V20_BASELINE_KEY =
   'engine=run-engine-v20|content=8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91|model=2|policy=survival-greedy@1';
 const V21_BASELINE_KEY =
-  'engine=run-engine-v21|content=c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3|model=2|policy=survival-greedy@1';
+  'engine=run-engine-v21|content=9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6|model=2|policy=survival-greedy@1';
 const baselineEntry = AUTHORITY_COHORT_BASELINE_V20.entries[V20_BASELINE_KEY];
 if (!baselineEntry) throw new Error('The v20 cohort baseline entry is unavailable.');
 

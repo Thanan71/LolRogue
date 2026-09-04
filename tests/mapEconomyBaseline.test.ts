@@ -108,7 +108,7 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
       identity: {
         engineVersion: 'run-engine-v21',
         gameplayRulesetVersion: 21,
-        contentHash: 'c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3',
+        contentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
         seedCount: 1_000,
       },
     });
