@@ -10,6 +10,7 @@
       "**",
       "!!dist",
       "!!node_modules",
+      "!!config/authority-cohort-baselines-v*.json",
       "!!config/map-economy-baseline-v*.json",
       "!!public/lol/data",
       "!!src/data/generated/*.json",

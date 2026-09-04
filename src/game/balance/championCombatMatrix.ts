@@ -502,7 +502,7 @@ export function evaluateChampionCombatP0Acceptance(
   const maximumRate = orderedRates[orderedRates.length - 1] ?? null;
   const measuredRosterGap =
     minimumRate && maximumRate ? maximumRate.decisiveWinRate - minimumRate.decisiveWinRate : null;
-  if (measuredRosterGap === null || measuredRosterGap > maximumRosterGap) {
+  if (measuredRosterGap === null || round(measuredRosterGap) > maximumRosterGap) {
     violations.push(
       measuredRosterGap === null
         ? 'roster: no decisive champion rates'

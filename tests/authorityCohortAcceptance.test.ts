@@ -1,4 +1,7 @@
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import type { AuthorityCohortRuntime } from '@/game/balance/authorityCohort';
 import {
   AUTHORITY_COHORT_DEATH_CONCENTRATION_LIMIT,
   evaluateAuthorityCohortAcceptance,
@@ -11,7 +14,25 @@ import { createAuthorityCohortBaselineV20Fixture } from '@/game/balance/authorit
 import type { AuthorityCohortExecutionReportGroup } from '@/game/balance/authorityCohortExecution';
 import type { AuthorityCohortReport } from '@/game/balance/authorityCohortReport';
 
-const fixture = createAuthorityCohortBaselineV20Fixture();
+const v20Identity = {
+  engineVersion: 'run-engine-v20',
+  contentHash: '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
+} as const;
+const resolverUrl = pathToFileURL(
+  resolve(process.cwd(), 'supabase/functions/verify-run/authority-version-resolver.generated.ts'),
+).href;
+const edgeResolver = (await import(/* @vite-ignore */ resolverUrl)) as {
+  resolveAuthorityVerifier: (
+    engine: string,
+    hash: string,
+  ) => Promise<AuthorityCohortRuntime | undefined>;
+};
+const v20Authority = await edgeResolver.resolveAuthorityVerifier(
+  v20Identity.engineVersion,
+  v20Identity.contentHash,
+);
+if (!v20Authority) throw new Error('The archived v20 cohort authority is unavailable.');
+const fixture = createAuthorityCohortBaselineV20Fixture(v20Authority);
 const baselineEntry = Object.values(fixture.document.entries)[0]!;
 const baselineKey = Object.keys(fixture.document.entries)[0]!;
 const unchangedComparison = compareAuthorityCohortBaseline(baselineEntry, fixture.reports);
@@ -137,6 +158,7 @@ describe('authority cohort acceptance', () => {
     expect(duplicate.hierarchy.violations).toEqual(
       expect.arrayContaining([expect.stringContaining('duplicate easy')]),
     );
+    expect(duplicate.hierarchy.violations.join('\n')).not.toContain('[object Object]');
   });
 
   it('warns above 35% deaths and fails only above the statistical 40% limit', () => {
@@ -202,6 +224,15 @@ describe('authority cohort acceptance', () => {
       }),
     ]);
     expect(exactWinRate.regressions.passed).toBe(true);
+    const floatingExactWinRate = acceptance(fullGroup, [
+      comparisonWithMetric({
+        metric: 'outcome.winRate',
+        baseline: 0.8,
+        current: 0.75,
+        relativeDelta: -0.0625,
+      }),
+    ]);
+    expect(floatingExactWinRate.regressions.passed).toBe(true);
     const beyondWinRate = acceptance(fullGroup, [
       comparisonWithMetric({
         metric: 'outcome.winRate',
@@ -240,6 +271,15 @@ describe('authority cohort acceptance', () => {
       }),
     ]);
     expect(exactEconomy.regressions.passed).toBe(true);
+    const floatingExactEconomy = acceptance(fullGroup, [
+      comparisonWithMetric({
+        metric: 'economy.goldEarned.p50',
+        baseline: 0.3,
+        current: 0.33,
+        relativeDelta: (0.33 - 0.3) / 0.3,
+      }),
+    ]);
+    expect(floatingExactEconomy.regressions.passed).toBe(true);
     const beyondEconomy = acceptance(fullGroup, [
       comparisonWithMetric({
         metric: 'economy.goldEarned.p50',

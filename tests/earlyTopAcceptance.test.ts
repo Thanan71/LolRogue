@@ -8,6 +8,9 @@ import {
 const fixture = JSON.parse(
   readFileSync(new URL('../config/early-top-cohort-v18.json', import.meta.url), 'utf8'),
 ) as EarlyTopCohortDocument;
+const current = JSON.parse(
+  readFileSync(new URL('../config/early-top-cohort-v21.json', import.meta.url), 'utf8'),
+) as EarlyTopCohortDocument;
 
 function documentWithFirstCombatWins(normalWins: number, hardWins: number): EarlyTopCohortDocument {
   return {
@@ -40,6 +43,20 @@ function documentWithFirstCombatWins(normalWins: number, hardWins: number): Earl
 }
 
 describe('early Top acceptance', () => {
+  it('accepts the committed v21 measurements with real first-combat defeats', () => {
+    expect(evaluateEarlyTopCohortAcceptance(current)).toMatchObject({
+      passed: true,
+      violations: [],
+      zeroWinStarters: [],
+      difficulty: [
+        { difficulty: 'normal', wins: 249, winRate: 0.83 },
+        { difficulty: 'hard', wins: 224, winRate: 224 / 300 },
+      ],
+    });
+    expect(current.summary.runWins).toBeGreaterThan(0);
+    expect(current.summary.runWins).toBeLessThan(current.summary.totalRuns);
+  });
+
   it('accepts the inclusive Normal and Hard working ranges', () => {
     const lowerBounds = evaluateEarlyTopCohortAcceptance(documentWithFirstCombatWins(225, 150));
     const upperBounds = evaluateEarlyTopCohortAcceptance(documentWithFirstCombatWins(285, 240));

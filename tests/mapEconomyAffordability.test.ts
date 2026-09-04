@@ -5,7 +5,10 @@ import {
   getAuthorityVerifier,
 } from '@/game/authority';
 import { simulateAuthorityCohort } from '@/game/balance/authorityCohort';
-import { createEarlyTopCohortCells, EARLY_TOP_COHORT_SEEDS } from '@/game/balance/earlyTopCohort';
+import { createEarlyTopCohortCells } from '@/game/balance/earlyTopCohort';
+import { createAuthorityCohortSeeds } from '@/game/balance/authorityCohortProfiles';
+
+const AFFORDABILITY_SEEDS = createAuthorityCohortSeeds(40);
 
 it('gives the median player an affordable choice at the guaranteed Jungle shop', () => {
   const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
@@ -17,7 +20,7 @@ it('gives the median player an affordable choice at the guaranteed Jungle shop',
       authority,
       policy: cell.policy,
       scenario: cell.scenario,
-      seeds: EARLY_TOP_COHORT_SEEDS,
+      seeds: AFFORDABILITY_SEEDS,
     }),
   );
 

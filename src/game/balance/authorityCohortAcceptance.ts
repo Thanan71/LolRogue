@@ -176,7 +176,7 @@ function evaluateHierarchy(
       }
       const difficulty = report.stratum.difficulty;
       if (existing.reports[difficulty]) {
-        violations.push(`${group.baselineKey}/${family}: duplicate ${difficulty} stratum`);
+        violations.push(`${group.baselineKey}/${family.label}: duplicate ${difficulty} stratum`);
       } else {
         existing.reports[difficulty] = report;
       }
@@ -337,9 +337,10 @@ function isEconomyMetric(metric: AuthorityCohortBaselineMetricName): boolean {
 function evaluateRegressions(
   groups: readonly AuthorityCohortExecutionReportGroup[],
   comparisons: readonly AuthorityCohortBaselineComparison[],
+  reportedIntegrityViolations: readonly string[],
 ): AuthorityCohortAcceptance['regressions'] {
   const violations: AuthorityCohortRegressionViolation[] = [];
-  const integrityViolations: string[] = [];
+  const integrityViolations = [...reportedIntegrityViolations];
   let evaluatedMetrics = 0;
   const groupKeys = new Set(groups.map((group) => group.baselineKey));
   const comparisonsByKey = new Map<string, AuthorityCohortBaselineComparison>();
@@ -367,16 +368,16 @@ function evaluateRegressions(
         let breached = false;
         if (metric.metric === 'outcome.winRate') {
           limit = AUTHORITY_COHORT_WIN_RATE_REGRESSION_LIMIT;
-          breached = metric.absoluteDelta < -limit;
+          breached = round(metric.absoluteDelta) < -limit;
         } else if (metric.metric === 'progression.biomes.p50') {
           limit = AUTHORITY_COHORT_MEDIAN_BIOME_REGRESSION_LIMIT;
-          breached = metric.absoluteDelta < -limit;
+          breached = round(metric.absoluteDelta) < -limit;
         } else if (isEconomyMetric(metric.metric)) {
           limit = AUTHORITY_COHORT_ECONOMY_REGRESSION_LIMIT;
           breached =
             metric.relativeDelta === null
               ? metric.current !== metric.baseline
-              : Math.abs(metric.relativeDelta) > limit;
+              : Math.abs(round(metric.relativeDelta)) > limit;
         }
         if (limit === null) continue;
         evaluatedMetrics += 1;
@@ -409,10 +410,15 @@ function evaluateRegressions(
 export function evaluateAuthorityCohortAcceptance(input: {
   readonly report: Pick<AuthorityCohortExecutionReportDocument, 'groups'>;
   readonly comparisons: readonly AuthorityCohortBaselineComparison[];
+  readonly regressionIntegrityViolations?: readonly string[];
 }): AuthorityCohortAcceptance {
   const hierarchy = evaluateHierarchy(input.report.groups);
   const deathConcentration = evaluateDeathConcentration(input.report.groups);
-  const regressions = evaluateRegressions(input.report.groups, input.comparisons);
+  const regressions = evaluateRegressions(
+    input.report.groups,
+    input.comparisons,
+    input.regressionIntegrityViolations ?? [],
+  );
   return {
     schemaVersion: AUTHORITY_COHORT_ACCEPTANCE_SCHEMA_VERSION,
     passed: hierarchy.passed && deathConcentration.passed && regressions.passed,

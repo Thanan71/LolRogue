@@ -1,0 +1,565 @@
+{
+  "schemaVersion": 2,
+  "identity": {
+    "engineVersion": "run-engine-v21",
+    "gameplayRulesetVersion": 21,
+    "contentHash": "c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3",
+    "firstSeed": 1,
+    "seedCount": 1000
+  },
+  "methodology": {
+    "routeAnalysis": "dynamic-programming-over-map-dag",
+    "economyPopulation": "all-generated-nodes",
+    "shopDiscountPercent": 0,
+    "dropDifficulty": "normal",
+    "candies": "victory-over-full-run-combat-route-bounds"
+  },
+  "routes": {
+    "byBiome": {
+      "top_lane": {
+        "combats": {
+          "minimum": 1,
+          "maximum": 7,
+          "maximumSpread": 1,
+          "worstSeed": 1,
+          "meanMinimum": 3.23,
+          "meanMaximum": 4.23
+        },
+        "elites": {
+          "minimum": 0,
+          "maximum": 3,
+          "maximumSpread": 0,
+          "worstSeed": 1,
+          "meanMinimum": 0.467,
+          "meanMaximum": 0.467
+        },
+        "shopOnSomePath": {
+          "seeds": 352,
+          "rate": 0.352
+        },
+        "shopOnEveryPath": {
+          "seeds": 88,
+          "rate": 0.088
+        },
+        "recruitOnSomePath": {
+          "seeds": 362,
+          "rate": 0.362
+        },
+        "recruitOnEveryPath": {
+          "seeds": 107,
+          "rate": 0.107
+        }
+      },
+      "jungle": {
+        "combats": {
+          "minimum": 1,
+          "maximum": 8,
+          "maximumSpread": 1,
+          "worstSeed": 1,
+          "meanMinimum": 3.294,
+          "meanMaximum": 4.294
+        },
+        "elites": {
+          "minimum": 0,
+          "maximum": 3,
+          "maximumSpread": 0,
+          "worstSeed": 1,
+          "meanMinimum": 0.548,
+          "meanMaximum": 0.548
+        },
+        "shopOnSomePath": {
+          "seeds": 1000,
+          "rate": 1
+        },
+        "shopOnEveryPath": {
+          "seeds": 1000,
+          "rate": 1
+        },
+        "recruitOnSomePath": {
+          "seeds": 691,
+          "rate": 0.691
+        },
+        "recruitOnEveryPath": {
+          "seeds": 63,
+          "rate": 0.063
+        }
+      },
+      "mid_lane": {
+        "combats": {
+          "minimum": 1,
+          "maximum": 5,
+          "maximumSpread": 0,
+          "worstSeed": 1,
+          "meanMinimum": 2.717,
+          "meanMaximum": 2.717
+        },
+        "elites": {
+          "minimum": 0,
+          "maximum": 4,
+          "maximumSpread": 0,
+          "worstSeed": 1,
+          "meanMinimum": 0.561,
+          "meanMaximum": 0.561
+        },
+        "shopOnSomePath": {
+          "seeds": 355,
+          "rate": 0.355
+        },
+        "shopOnEveryPath": {
+          "seeds": 174,
+          "rate": 0.174
+        },
+        "recruitOnSomePath": {
+          "seeds": 1000,
+          "rate": 1
+        },
+        "recruitOnEveryPath": {
+          "seeds": 1000,
+          "rate": 1
+        }
+      },
+      "bot_lane": {
+        "combats": {
+          "minimum": 1,
+          "maximum": 7,
+          "maximumSpread": 0,
+          "worstSeed": 1,
+          "meanMinimum": 3.61,
+          "meanMaximum": 3.61
+        },
+        "elites": {
+          "minimum": 0,
+          "maximum": 4,
+          "maximumSpread": 0,
+          "worstSeed": 1,
+          "meanMinimum": 0.474,
+          "meanMaximum": 0.474
+        },
+        "shopOnSomePath": {
+          "seeds": 480,
+          "rate": 0.48
+        },
+        "shopOnEveryPath": {
+          "seeds": 136,
+          "rate": 0.136
+        },
+        "recruitOnSomePath": {
+          "seeds": 447,
+          "rate": 0.447
+        },
+        "recruitOnEveryPath": {
+          "seeds": 133,
+          "rate": 0.133
+        }
+      },
+      "river": {
+        "combats": {
+          "minimum": 1,
+          "maximum": 5,
+          "maximumSpread": 1,
+          "worstSeed": 1,
+          "meanMinimum": 2.017,
+          "meanMaximum": 3.017
+        },
+        "elites": {
+          "minimum": 0,
+          "maximum": 3,
+          "maximumSpread": 1,
+          "worstSeed": 1,
+          "meanMinimum": 0.183,
+          "meanMaximum": 1.183
+        },
+        "shopOnSomePath": {
+          "seeds": 82,
+          "rate": 0.082
+        },
+        "shopOnEveryPath": {
+          "seeds": 12,
+          "rate": 0.012
+        },
+        "recruitOnSomePath": {
+          "seeds": 112,
+          "rate": 0.112
+        },
+        "recruitOnEveryPath": {
+          "seeds": 21,
+          "rate": 0.021
+        }
+      },
+      "base": {
+        "combats": {
+          "minimum": 2,
+          "maximum": 4,
+          "maximumSpread": 0,
+          "worstSeed": 1,
+          "meanMinimum": 2.812,
+          "meanMaximum": 2.812
+        },
+        "elites": {
+          "minimum": 0,
+          "maximum": 1,
+          "maximumSpread": 0,
+          "worstSeed": 1,
+          "meanMinimum": 0.132,
+          "meanMaximum": 0.132
+        },
+        "shopOnSomePath": {
+          "seeds": 77,
+          "rate": 0.077
+        },
+        "shopOnEveryPath": {
+          "seeds": 32,
+          "rate": 0.032
+        },
+        "recruitOnSomePath": {
+          "seeds": 24,
+          "rate": 0.024
+        },
+        "recruitOnEveryPath": {
+          "seeds": 12,
+          "rate": 0.012
+        }
+      }
+    },
+    "fullRun": {
+      "combats": {
+        "minimum": 10,
+        "maximum": 28,
+        "maximumSpread": 3,
+        "worstSeed": 1,
+        "meanMinimum": 17.68,
+        "meanMaximum": 20.68
+      },
+      "elites": {
+        "minimum": 0,
+        "maximum": 10,
+        "maximumSpread": 1,
+        "worstSeed": 1,
+        "meanMinimum": 2.365,
+        "meanMaximum": 3.365
+      }
+    }
+  },
+  "economy": {
+    "shops": {
+      "encounters": 5473,
+      "finalItemPrices": {
+        "samples": 16339,
+        "min": 40,
+        "median": 175,
+        "mean": 214.9097,
+        "max": 650
+      },
+      "finalRecruitPrices": {
+        "samples": 8265,
+        "min": 150,
+        "median": 165,
+        "mean": 172.9038,
+        "max": 300
+      },
+      "trackedFinalItemPrices": {
+        "amplifying_tome": {
+          "samples": 1535,
+          "min": 180,
+          "median": 225,
+          "mean": 215.4137,
+          "max": 225
+        },
+        "bf_sword": {
+          "samples": 1497,
+          "min": 520,
+          "median": 650,
+          "mean": 624.6426,
+          "max": 650
+        },
+        "boots": {
+          "samples": 1518,
+          "min": 160,
+          "median": 200,
+          "mean": 192.1212,
+          "max": 200
+        },
+        "cloth_armor": {
+          "samples": 1576,
+          "min": 120,
+          "median": 150,
+          "mean": 143.5279,
+          "max": 150
+        },
+        "dagger": {
+          "samples": 1447,
+          "min": 120,
+          "median": 150,
+          "mean": 143.9668,
+          "max": 150
+        },
+        "health_potion": {
+          "samples": 4295,
+          "min": 40,
+          "median": 50,
+          "mean": 47.9022,
+          "max": 50
+        },
+        "long_sword": {
+          "samples": 1508,
+          "min": 140,
+          "median": 175,
+          "mean": 167.7122,
+          "max": 175
+        },
+        "ruby_crystal": {
+          "samples": 1510,
+          "min": 200,
+          "median": 250,
+          "mean": 240.3642,
+          "max": 250
+        }
+      }
+    },
+    "recruitment": {
+      "encounterPrices": {
+        "samples": 4410,
+        "min": 150,
+        "median": 175,
+        "mean": 179.6848,
+        "max": 300
+      },
+      "startingLevel": {
+        "shop": "max(runLevel + 1, medianTeamLevel - 1)",
+        "encounter": "max(runLevel + 1, medianTeamLevel - 1)",
+        "event": "max(runLevel + 1, medianTeamLevel - 1)",
+        "samples": [
+          {
+            "runLevel": 1,
+            "teamLevels": [
+              1
+            ],
+            "recruitLevel": 2
+          },
+          {
+            "runLevel": 6,
+            "teamLevels": [
+              9,
+              10,
+              10
+            ],
+            "recruitLevel": 9
+          }
+        ]
+      }
+    },
+    "rest": {
+      "encounters": 11941,
+      "fullHealRate": 0.2008,
+      "partialCosts": {
+        "samples": 9543,
+        "min": 30,
+        "median": 40,
+        "mean": 50.7377,
+        "max": 80
+      },
+      "fullCosts": {
+        "samples": 2398,
+        "min": 70,
+        "median": 110,
+        "mean": 111.7264,
+        "max": 170
+      },
+      "partialHealPercentages": {
+        "samples": 9543,
+        "min": 0.25,
+        "median": 0.5,
+        "mean": 0.5017,
+        "max": 0.75
+      },
+      "costPerTeamMember": [
+        {
+          "teamSize": 1,
+          "partial": {
+            "samples": 9543,
+            "min": 30,
+            "median": 40,
+            "mean": 50.7377,
+            "max": 80
+          },
+          "full": {
+            "samples": 2398,
+            "min": 70,
+            "median": 110,
+            "mean": 111.7264,
+            "max": 170
+          }
+        },
+        {
+          "teamSize": 2,
+          "partial": {
+            "samples": 9543,
+            "min": 25,
+            "median": 30,
+            "mean": 35.3689,
+            "max": 50
+          },
+          "full": {
+            "samples": 2398,
+            "min": 55,
+            "median": 75,
+            "mean": 75.8632,
+            "max": 105
+          }
+        },
+        {
+          "teamSize": 3,
+          "partial": {
+            "samples": 9543,
+            "min": 23.3333,
+            "median": 26.6667,
+            "mean": 30.2459,
+            "max": 40
+          },
+          "full": {
+            "samples": 2398,
+            "min": 50,
+            "median": 63.3333,
+            "mean": 63.9088,
+            "max": 83.3333
+          }
+        },
+        {
+          "teamSize": 4,
+          "partial": {
+            "samples": 9543,
+            "min": 22.5,
+            "median": 25,
+            "mean": 27.6844,
+            "max": 35
+          },
+          "full": {
+            "samples": 2398,
+            "min": 47.5,
+            "median": 57.5,
+            "mean": 57.9316,
+            "max": 72.5
+          }
+        },
+        {
+          "teamSize": 5,
+          "partial": {
+            "samples": 9543,
+            "min": 22,
+            "median": 24,
+            "mean": 26.1475,
+            "max": 32
+          },
+          "full": {
+            "samples": 2398,
+            "min": 46,
+            "median": 54,
+            "mean": 54.3453,
+            "max": 66
+          }
+        }
+      ]
+    },
+    "treasureAndDrops": {
+      "treasureEncounters": 3036,
+      "treasureGold": {
+        "samples": 3036,
+        "min": 45,
+        "median": 83,
+        "mean": 85.8211,
+        "max": 150
+      },
+      "treasureItemRate": 0.2457,
+      "combatDropChance": {
+        "samples": 32850,
+        "min": 0.05,
+        "median": 0.21,
+        "mean": 0.2586,
+        "max": 1
+      },
+      "expectedDropsAcrossAllGeneratedCombatNodesPerSeed": 8.4961
+    },
+    "candies": {
+      "finalBiomesVisited": 6,
+      "byFinalTeamSize": [
+        {
+          "teamSize": 1,
+          "perChampion": {
+            "min": 37,
+            "max": 55
+          },
+          "teamTotal": {
+            "min": 37,
+            "max": 55
+          }
+        },
+        {
+          "teamSize": 2,
+          "perChampion": {
+            "min": 18,
+            "max": 28
+          },
+          "teamTotal": {
+            "min": 37,
+            "max": 55
+          }
+        },
+        {
+          "teamSize": 3,
+          "perChampion": {
+            "min": 12,
+            "max": 19
+          },
+          "teamTotal": {
+            "min": 37,
+            "max": 55
+          }
+        },
+        {
+          "teamSize": 4,
+          "perChampion": {
+            "min": 9,
+            "max": 14
+          },
+          "teamTotal": {
+            "min": 37,
+            "max": 55
+          }
+        },
+        {
+          "teamSize": 5,
+          "perChampion": {
+            "min": 7,
+            "max": 11
+          },
+          "teamTotal": {
+            "min": 37,
+            "max": 55
+          }
+        }
+      ]
+    }
+  },
+  "documentedGaps": {
+    "fullRunCombatSpread": {
+      "targetMaximum": 3,
+      "actual": 3,
+      "passes": true
+    },
+    "fullRunEliteSpread": {
+      "targetMaximum": 1,
+      "actual": 1,
+      "passes": true
+    },
+    "jungleShopOnEveryPath": {
+      "targetRate": 1,
+      "actualRate": 1,
+      "passes": true
+    },
+    "midRecruitOnEveryPath": {
+      "targetRate": 1,
+      "actualRate": 1,
+      "passes": true
+    }
+  }
+}

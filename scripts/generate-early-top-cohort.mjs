@@ -12,7 +12,7 @@ const { values } = parseArgs({
   strict: true,
   options: {
     check: { type: 'boolean', default: false },
-    engine: { type: 'string', default: 'v18' },
+    engine: { type: 'string', default: 'v21' },
     output: { type: 'string' },
   },
 });
@@ -50,9 +50,25 @@ const versions = {
       }
     `,
   },
+  v21: {
+    artifact: 'config/early-top-cohort-v21.json',
+    entrySource: `
+      import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority.bundle.js';
+      import { generateEarlyTopCohortDocument } from './src/game/balance/earlyTopCohort.ts';
+
+      export function generate() {
+        const authority = getAuthorityVerifier(
+          'run-engine-v21',
+          'c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3',
+        );
+        if (!authority) throw new Error('The v21 authority verifier is unavailable.');
+        return generateEarlyTopCohortDocument(authority);
+      }
+    `,
+  },
 };
 const version = versions[values.engine];
-if (!version) throw new Error('--engine must be v17 or v18.');
+if (!version) throw new Error('--engine must be v17, v18 or v21.');
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
 if (values.check && !version.artifact) {
   throw new Error('--check is only available for a published cohort artifact.');

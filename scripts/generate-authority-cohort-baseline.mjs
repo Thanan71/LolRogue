@@ -12,7 +12,7 @@ const { values } = parseArgs({
   strict: true,
   options: {
     check: { type: 'boolean', default: false },
-    engine: { type: 'string', default: 'v20' },
+    engine: { type: 'string', default: 'v21' },
     output: { type: 'string' },
   },
 });
@@ -106,14 +106,31 @@ const version = {
   v20: {
     artifact: 'config/authority-cohort-baselines-v20.json',
     entrySource: `
-    export {
-      generateAuthorityCohortBaselineV20 as generateAuthorityCohortBaseline,
+    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v20.bundle.ts';
+    import {
+      AUTHORITY_COHORT_BASELINE_V20_IDENTITY,
+      generateAuthorityCohortBaselineV20,
     } from './src/game/balance/authorityCohortBaselineV20Fixture.ts';
+
+    export function generateAuthorityCohortBaseline() {
+      const identity = AUTHORITY_COHORT_BASELINE_V20_IDENTITY;
+      const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
+      if (!authority) throw new Error('The archived v20 authority verifier is unavailable.');
+      return generateAuthorityCohortBaselineV20(authority);
+    }
+  `,
+  },
+  v21: {
+    artifact: 'config/authority-cohort-baselines-v21.json',
+    entrySource: `
+    export {
+      generateAuthorityCohortBaselineV21 as generateAuthorityCohortBaseline,
+    } from './src/game/balance/authorityCohortBaselineV21Fixture.ts';
   `,
   },
 }[values.engine];
 
-if (!version) throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20.');
+if (!version) throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20, v21.');
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
 
 function serializeBaseline(document) {
