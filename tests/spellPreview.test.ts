@@ -28,12 +28,12 @@ describe('spell impact preview', () => {
 
     expect(buildSpellImpactPreview(garen.spells[0], 1, combatStats)).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ label: 'Dégâts physiques', tone: 'physical', amount: 80 }),
+        expect.objectContaining({ label: 'Dégâts physiques', tone: 'physical', amount: 95 }),
       ]),
     );
     expect(buildSpellImpactPreview(garen.spells[1], 1, combatStats)).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ label: 'Bouclier', tone: 'shield', amount: 70 }),
+        expect.objectContaining({ label: 'Bouclier', tone: 'shield', amount: 90 }),
       ]),
     );
     expect(buildSpellImpactPreview(garen.spells[3], 1, combatStats)).toEqual(

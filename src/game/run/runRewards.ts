@@ -12,6 +12,11 @@ export function calculateRunCandyRewards(summary: RunSummary): RunCandyRewards {
     summary.wavesCompleted,
     summary.biomesVisited.length,
     summary.won,
+    summary.championStats.map((stats) => ({
+      championId: stats.championId,
+      wavesParticipated: stats.wavesParticipated,
+      biomesParticipated: stats.biomesParticipated?.length,
+    })),
   );
 
   return {

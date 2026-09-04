@@ -45,25 +45,25 @@ function readDailyRulesetContracts() {
 }
 
 describe('authority progression engine versioning', () => {
-  it('archives v16 and publishes v17 without changing command or progression schemas', () => {
-    const v16 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v16');
+  it('archives v20 and publishes v21 without changing progression schemas', () => {
+    const v20 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v20');
 
-    expect(v16).toMatchObject({
-      gameplay: 16,
-      dailyScore: 14,
-      progression: 2,
+    expect(v20).toMatchObject({
+      gameplay: 20,
+      dailyScore: 15,
+      progression: 3,
       command: 2,
       status: 'replay-only',
-      bundle: 'supabase/functions/verify-run/run-authority-v16.bundle.ts',
+      bundle: 'supabase/functions/verify-run/run-authority-v20.bundle.ts',
     });
     expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
-      engine: 'run-engine-v17',
-      gameplay: 17,
+      engine: 'run-engine-v21',
+      gameplay: 21,
       dailyScore: 15,
-      progression: 2,
+      progression: 3,
       command: 2,
       status: 'current',
-      rulesetCode: '2026-08-economy-balance-v17',
+      rulesetCode: '2026-09-balance-acceptance-v21',
     });
   });
 

@@ -9,6 +9,7 @@ import { championDB } from '@/data/championDatabase';
 import { isActionTargeting } from '@/game/battle/targetResolver';
 import { ActionType } from '@/game/battle/types';
 import { getCombatVisualProfile } from '@/game/presentation/combatVisuals';
+import { fr } from '@/i18n/fr';
 import { type CombatantInfo, useBattleStore } from '@/stores/battleStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 
@@ -403,8 +404,9 @@ describe('combat presentation', () => {
     );
 
     expect(screen.getByLabelText('Attaquant : Garen')).toBeInTheDocument();
-    expect(screen.getByLabelText('Effet personnel : Garen')).toBeInTheDocument();
+    const selfEffect = screen.getByLabelText(`${fr.combat.selfEffect}: Garen`);
+    expect(selfEffect).toBeInTheDocument();
+    expect(selfEffect).toHaveTextContent(fr.combat.self);
     expect(screen.queryByLabelText('Cible : Garen')).not.toBeInTheDocument();
-    expect(screen.getByText('SUR SOI')).toBeInTheDocument();
   });
 });

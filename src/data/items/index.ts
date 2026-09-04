@@ -8,7 +8,6 @@ export {
   getItemDefinition,
   getItemsByCategory,
   getItemsByRarity,
-  getItemsWithComponent,
   getStackableItems,
   ITEM_DATABASE,
 } from './itemDatabase';

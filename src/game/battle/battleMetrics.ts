@@ -7,6 +7,8 @@ function emptySideMetrics(): BattleSideMetrics {
     healingDone: 0,
     overhealing: 0,
     shieldingDone: 0,
+    shieldingAbsorbed: 0,
+    manaSpent: 0,
     crowdControlApplications: 0,
     crowdControlDuration: 0,
     actionsLost: 0,
@@ -48,8 +50,16 @@ export function reduceBattleMetrics(events: readonly BattleEvent[]): BattleMetri
         const shieldDamage = nonNegative(event.shieldDamage);
         source.shieldDamageDealt += shieldDamage;
         source.hpDamageDealt += nonNegative(event.hpDamage ?? event.amount - shieldDamage);
+        for (const side of ['player', 'enemy'] as const) {
+          sideMetrics(metrics, side).shieldingAbsorbed += nonNegative(
+            event.shieldAbsorbedBySide?.[side],
+          );
+        }
         break;
       }
+      case 'action_select':
+        sideMetrics(metrics, event.side).manaSpent += nonNegative(event.manaSpent);
+        break;
       case 'heal': {
         const source = sideMetrics(metrics, event.sourceSide);
         source.healingDone += nonNegative(event.amount);

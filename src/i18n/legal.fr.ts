@@ -1,5 +1,6 @@
 export const legalFr = {
   title: 'Informations légales et confidentialité',
+  subtitle: 'Conditions d’utilisation, traitement des données et propriété intellectuelle.',
   version: 'Version du',
   legalNotice: {
     title: 'Mentions légales',
@@ -49,5 +50,25 @@ export const legalFr = {
       'League of Legends, ses personnages, marques et ressources appartiennent à Riot Games. La politique Riot est révocable et peut évoluer. Son respect doit être réévalué avant chaque lancement public.',
     officialPolicy: 'Politique officielle Riot Games',
   },
+  metadata: {
+    lastUpdated: 'Dernière mise à jour',
+    region: 'Zone concernée',
+    service: 'Service',
+    serviceValue: 'Prototype gratuit et non commercial',
+    navigation: 'Navigation',
+    onThisPage: 'Sur cette page',
+    retention: 'Durées de conservation',
+  },
   backToAuth: 'Retour à la connexion',
+  targetRegion: 'France et Union européenne',
+  accountRetention: 'Jusqu’à la suppression du compte',
+  guestRetention: 'Jusqu’à l’effacement des données du navigateur',
+  storagePurposes: [
+    'Session Supabase et reprise de connexion',
+    'Préférences audio, lisibilité et commandes',
+    'Progression invitée et reprise locale de partie',
+    'État vu/non vu des tutoriels',
+  ],
+  riotNotice:
+    'LolRogue a été créé conformément à la politique « Legal Jibber Jabber » de Riot Games en utilisant des ressources appartenant à Riot Games. Riot Games ne soutient ni ne sponsorise ce projet.',
 } as const;

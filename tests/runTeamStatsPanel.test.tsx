@@ -74,7 +74,7 @@ describe('RunTeamStatsPanel', () => {
       'Puissance',
       'Armure',
       'Résistance magique',
-      "Vitesse d'attaque",
+      "Initiative d'attaque",
       'Vitesse de déplacement',
       'Critique',
     ]) {

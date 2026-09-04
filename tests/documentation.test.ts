@@ -223,6 +223,14 @@ describe('documentation maintenue', () => {
     const v17Sql = read(
       'supabase/migrations/20260823081828_gameplay_ruleset_v17_economy_balance.sql',
     );
+    const v18Sql = read('supabase/migrations/20260828150025_gameplay_ruleset_v18_early_top.sql');
+    const v19Sql = read(
+      'supabase/migrations/20260830093859_gameplay_ruleset_v19_combat_balance.sql',
+    );
+    const v20Sql = read('supabase/migrations/20260831152608_gameplay_ruleset_v20_map_economy.sql');
+    const v21Sql = read(
+      'supabase/migrations/20260904151818_gameplay_ruleset_v21_balance_acceptance.sql',
+    );
 
     for (const token of [
       'v_ruleset.victory_bonus',
@@ -239,9 +247,65 @@ describe('documentation maintenue', () => {
     expect(v17Sql).toContain("'2026-08-economy-balance-daily-v17'");
     expect(v17Sql).toContain("'lolrogue.daily.v17'");
     expect(v17Sql).toContain('gold_points = 0');
+    expect(v18Sql).toContain("'2026-08-early-top-daily-v18'");
+    expect(v18Sql).toContain("'lolrogue.daily.v18'");
+    expect(v18Sql).toContain('AND gold_points = 0');
+    expect(v19Sql).toContain("'2026-08-combat-balance-daily-v19'");
+    expect(v19Sql).toContain("'lolrogue.daily.v19'");
+    expect(v19Sql).toContain('AND gold_points = 0');
+    expect(v20Sql).toContain("'2026-08-map-economy-daily-v20'");
+    expect(v20Sql).toContain("'lolrogue.daily.v20'");
+    expect(v20Sql).toContain('AND score_version = 15');
+    expect(v20Sql).toContain('AND gold_points = 0');
+    expect(v20Sql).toContain(
+      'UPDATE public.daily_challenge_rulesets SET is_active = TRUE WHERE version = 20',
+    );
+    expect(v20Sql).toContain("'2026-08-participation-rewards-v3'");
+    expect(v20Sql).toContain("p_result -> 'ledger' ->> 'version' <> '2'");
+    expect(v21Sql).toContain("'2026-09-balance-acceptance-daily-v21'");
+    expect(v21Sql).toContain("'lolrogue.daily.v21'");
+    expect(v21Sql).toContain('AND score_version = 15');
+    expect(v21Sql).toContain('AND gold_points = 0');
+    expect(v21Sql).toContain(
+      'UPDATE public.daily_challenge_rulesets SET is_active = TRUE WHERE version = 21',
+    );
     expect(gameplay).toContain('1 000 × vagues terminées');
     expect(gameplay).toContain('250 × biomes visités');
     expect(gameplay).toContain("Le score n'utilise ni l'or gagné/restant ni le nombre d'objets");
-    expect(persistence).toContain('Dans le ruleset Daily v17 actif');
+    expect(gameplay).toContain('Pour le ruleset actif v21');
+    expect(persistence).toContain('Dans le ruleset Daily v21 actif');
+  });
+
+  it('documente les preuves v20 historiques et la fermeture automatisée v21', () => {
+    const todo = read('TODO.md');
+    const authority = read('docs/authority-versioning.md');
+    const balance = read('docs/content-balance.md');
+    const gameplay = read('docs/gameplay.md');
+    const persistence = read('docs/data-and-persistence.md');
+    const testing = read('docs/testing.md');
+    const matrix = read('docs/feature-status.md');
+
+    expect(todo).toContain('11. [x] `P1-BAL-02`');
+    expect(todo).toContain('7. [x] `P0-BAL-02`');
+    expect(todo).toContain('1 170 métriques de non-régression');
+    expect(todo).toContain('borne Wilson basse');
+    expect(todo).toContain("revue de PR ; l'automatisation");
+    expect(todo).toContain('`≤ 5×`');
+    expect(authority).toContain('836 449 octets');
+    expect(authority).toContain('55df03729dc47417db3efb28ba534cbbf830f9cd3c771e4fdcda8d33eb9996eb');
+    expect(authority).toContain('8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91');
+    for (const document of [authority, balance, persistence]) {
+      expect(document).toContain(
+        '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
+      );
+    }
+    expect(balance).toContain('sept baselines authority v15 à v21');
+    expect(balance).toContain('analyse 1 000 seeds');
+    expect(balance).toContain('rejoue 1 200 runs');
+    expect(balance).toContain('v20 au moteur v21');
+    expect(gameplay).toContain('1,0, 1,1, 1,2, 1,25, 1,4 et 1,6');
+    expect(persistence).toContain('ledger v2');
+    expect(testing).toContain('gates automatisées P0-BAL-02');
+    expect(matrix).toContain('seuls les playtests humains restent ouverts');
   });
 });

@@ -1,0 +1,2768 @@
+{
+  "schemaVersion": 1,
+  "authority": {
+    "engineVersion": "run-engine-v18",
+    "contentHash": "9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17"
+  },
+  "policy": {
+    "id": "survival-greedy",
+    "version": 1
+  },
+  "source": {
+    "kind": "early-top-authority-cohort",
+    "seeds": [
+      2654435761, 1013904226, 3668339987, 2027808452, 387276917, 3041712678, 1401181143, 4055616904,
+      2415085369, 774553834, 3428989595, 1788458060, 147926525, 2802362286, 1161830751, 3816266512,
+      2175734977, 535203442, 3189639203, 1549107668, 4203543429, 2563011894, 922480359, 3576916120,
+      1936384585, 295853050, 2950288811, 1309757276, 3964193037, 2323661502
+    ],
+    "starterIds": [
+      "Annie",
+      "Ashe",
+      "Darius",
+      "Garen",
+      "Jinx",
+      "Leona",
+      "Lux",
+      "Malphite",
+      "Soraka",
+      "Warwick"
+    ],
+    "difficulties": ["easy", "normal", "hard"],
+    "cellCount": 30,
+    "runsPerCell": 30
+  },
+  "summary": {
+    "totalRuns": 900,
+    "runWins": 149,
+    "runWinRate": 0.16555555555555557,
+    "byDifficulty": [
+      {
+        "difficulty": "easy",
+        "sampleSize": 300,
+        "runWins": 84,
+        "runWinRate": 0.28,
+        "firstCombatWins": 300,
+        "firstCombatWinRate": 1,
+        "earlyTopDeathsWithinFirstThreeCombats": 4,
+        "earlyTopDeathRate": 0.013333333333333334
+      },
+      {
+        "difficulty": "normal",
+        "sampleSize": 300,
+        "runWins": 50,
+        "runWinRate": 0.16666666666666666,
+        "firstCombatWins": 300,
+        "firstCombatWinRate": 1,
+        "earlyTopDeathsWithinFirstThreeCombats": 7,
+        "earlyTopDeathRate": 0.023333333333333334
+      },
+      {
+        "difficulty": "hard",
+        "sampleSize": 300,
+        "runWins": 15,
+        "runWinRate": 0.05,
+        "firstCombatWins": 300,
+        "firstCombatWinRate": 1,
+        "earlyTopDeathsWithinFirstThreeCombats": 60,
+        "earlyTopDeathRate": 0.2
+      }
+    ]
+  },
+  "reports": [
+    {
+      "scenarioId": "difficulty=easy|team=solo-annie|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "4815e2b663c97b1ca455631cc8466fe4",
+      "difficulty": "easy",
+      "starterId": "Annie",
+      "sampleSize": 30,
+      "run": {
+        "wins": 4,
+        "winRate": 0.13333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8791666666666669,
+        "finalMpMeanRatio": 0.49760765550239233
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 2,
+        "terminalDeathRate": 0.06666666666666667,
+        "totalTerminalTopDeaths": 5,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 2
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8160317347891344,
+        "hpFinalMeanRatio": 0.7250372054641387,
+        "mpInitialMeanRatio": 0.7170382291019117,
+        "mpFinalMeanRatio": 0.3562062709476028
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 10214,
+          "mean": 340.46666666666664,
+          "min": 36,
+          "max": 1852,
+          "p10": 60.7,
+          "p50": 165,
+          "p90": 986.0000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 6487,
+          "mean": 216.23333333333332,
+          "min": 36,
+          "max": 1532,
+          "p10": 58,
+          "p50": 132,
+          "p90": 427.4000000000001
+        }
+      },
+      "affordability": {
+        "shopVisits": 17,
+        "visitsWithAnyAffordableOfferRate": 0.47058823529411764,
+        "allOffersAffordableRate": 0.2261904761904762
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 2027808452,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2027808452 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.7321428571428571,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2950288811,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2950288811 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 2027808452,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2027808452 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-ashe|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "a07315ec573f9b44eb34fa8223f3a8c8",
+      "difficulty": "easy",
+      "starterId": "Ashe",
+      "sampleSize": 30,
+      "run": {
+        "wins": 14,
+        "winRate": 0.4666666666666667
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.46428571428571425
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 2,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8677177814066851,
+        "hpFinalMeanRatio": 0.8306003346279497,
+        "mpInitialMeanRatio": 0.7161616285797335,
+        "mpFinalMeanRatio": 0.39619503182896443
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 27188,
+          "mean": 906.2666666666667,
+          "min": 74,
+          "max": 2624,
+          "p10": 83.9,
+          "p50": 911.5,
+          "p90": 1701.7000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 16541,
+          "mean": 551.3666666666667,
+          "min": 74,
+          "max": 1596,
+          "p10": 83,
+          "p50": 473.5,
+          "p90": 1069.9000000000005
+        }
+      },
+      "affordability": {
+        "shopVisits": 31,
+        "visitsWithAnyAffordableOfferRate": 0.6451612903225806,
+        "allOffersAffordableRate": 0.29577464788732394
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 4,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 3428989595,
+          "value": 25,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3428989595 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 3668339987,
+          "value": 20,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3668339987 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-darius|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "099ee6b9cfbeb5066144b0c6799e40aa",
+      "difficulty": "easy",
+      "starterId": "Darius",
+      "sampleSize": 30,
+      "run": {
+        "wins": 2,
+        "winRate": 0.06666666666666667
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8924335378323105,
+        "finalMpMeanRatio": 0.20152091254752855
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 2,
+        "terminalDeathRate": 0.06666666666666667,
+        "totalTerminalTopDeaths": 5,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 2
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7632285605348641,
+        "hpFinalMeanRatio": 0.6423757019131688,
+        "mpInitialMeanRatio": 0.6072880647060425,
+        "mpFinalMeanRatio": 0.21914354782021084
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 9392,
+          "mean": 313.06666666666666,
+          "min": 36,
+          "max": 1587,
+          "p10": 83,
+          "p50": 179,
+          "p90": 693.6000000000004
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 6326,
+          "mean": 210.86666666666667,
+          "min": 36,
+          "max": 1267,
+          "p10": 78.3,
+          "p50": 152.5,
+          "p90": 359.70000000000005
+        }
+      },
+      "affordability": {
+        "shopVisits": 15,
+        "visitsWithAnyAffordableOfferRate": 0.4666666666666667,
+        "allOffersAffordableRate": 0.1643835616438356
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.75920245398773,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2950288811,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2950288811 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "d50dce24eb52b6983764f5c14afa8400",
+      "difficulty": "easy",
+      "starterId": "Garen",
+      "sampleSize": 30,
+      "run": {
+        "wins": 4,
+        "winRate": 0.13333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8917874396135269,
+        "finalMpMeanRatio": 0
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 2,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7916451205973365,
+        "hpFinalMeanRatio": 0.696359834374025,
+        "mpInitialMeanRatio": 0.7990179173179559,
+        "mpFinalMeanRatio": 0.4623939254619087
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 13875,
+          "mean": 462.5,
+          "min": 74,
+          "max": 2624,
+          "p10": 100.2,
+          "p50": 223.5,
+          "p90": 986.0000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 8671,
+          "mean": 289.03333333333336,
+          "min": 72,
+          "max": 1471,
+          "p10": 83.9,
+          "p50": 198,
+          "p90": 441.40000000000015
+        }
+      },
+      "affordability": {
+        "shopVisits": 17,
+        "visitsWithAnyAffordableOfferRate": 0.47058823529411764,
+        "allOffersAffordableRate": 0.20481927710843373
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 4,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.782608695652174,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-jinx|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "b6d54e89eea90ff878b2f75fe8f91238",
+      "difficulty": "easy",
+      "starterId": "Jinx",
+      "sampleSize": 30,
+      "run": {
+        "wins": 12,
+        "winRate": 0.4
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.6153846153846153
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8595929919100114,
+        "hpFinalMeanRatio": 0.8044593654921061,
+        "mpInitialMeanRatio": 0.7866700501744152,
+        "mpFinalMeanRatio": 0.49714811900896755
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 28336,
+          "mean": 944.5333333333333,
+          "min": 83,
+          "max": 2624,
+          "p10": 147.20000000000002,
+          "p50": 1041,
+          "p90": 1600.9000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 15453,
+          "mean": 515.1,
+          "min": 83,
+          "max": 1596,
+          "p10": 100.5,
+          "p50": 426,
+          "p90": 1023.7000000000007
+        }
+      },
+      "affordability": {
+        "shopVisits": 33,
+        "visitsWithAnyAffordableOfferRate": 0.696969696969697,
+        "allOffersAffordableRate": 0.32679738562091504
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2415085369,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2415085369 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 3189639203,
+          "value": 25,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3189639203 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 3668339987,
+          "value": 20,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3668339987 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-leona|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "8abeb6cd4c6d248caee00cbc29685bf3",
+      "difficulty": "easy",
+      "starterId": "Leona",
+      "sampleSize": 30,
+      "run": {
+        "wins": 10,
+        "winRate": 0.3333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.536423841059603
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8683074015018957,
+        "hpFinalMeanRatio": 0.8269856977474794,
+        "mpInitialMeanRatio": 0.7466275192806154,
+        "mpFinalMeanRatio": 0.4264054409663825
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 20555,
+          "mean": 685.1666666666666,
+          "min": 83,
+          "max": 2624,
+          "p10": 108.3,
+          "p50": 357,
+          "p90": 1701.7000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 12428,
+          "mean": 414.26666666666665,
+          "min": 79,
+          "max": 1651,
+          "p10": 101.10000000000001,
+          "p50": 227,
+          "p90": 958.700000000001
+        }
+      },
+      "affordability": {
+        "shopVisits": 24,
+        "visitsWithAnyAffordableOfferRate": 0.5833333333333334,
+        "allOffersAffordableRate": 0.2543859649122807
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2415085369,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2415085369 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 3189639203,
+          "value": 25,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3189639203 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 3668339987,
+          "value": 20,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3668339987 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-lux|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "67f8433904bfa0f0e9c92c516de80c50",
+      "difficulty": "easy",
+      "starterId": "Lux",
+      "sampleSize": 30,
+      "run": {
+        "wins": 10,
+        "winRate": 0.3333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.772727272727273
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8370457554255054,
+        "hpFinalMeanRatio": 0.7811090543960187,
+        "mpInitialMeanRatio": 0.859703164230961,
+        "mpFinalMeanRatio": 0.589623973503505
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 22822,
+          "mean": 760.7333333333333,
+          "min": 83,
+          "max": 2624,
+          "p10": 199.9,
+          "p50": 475,
+          "p90": 1536.1000000000001
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 13245,
+          "mean": 441.5,
+          "min": 83,
+          "max": 1532,
+          "p10": 142.9,
+          "p50": 349.5,
+          "p90": 863.2
+        }
+      },
+      "affordability": {
+        "shopVisits": 28,
+        "visitsWithAnyAffordableOfferRate": 0.5357142857142857,
+        "allOffersAffordableRate": 0.25757575757575757
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2563011894,
+          "value": 4,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2563011894 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 1401181143,
+          "value": 23,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1401181143 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 3668339987,
+          "value": 20,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3668339987 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-malphite|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "b69ff324bb05244ba90d54ff66706783",
+      "difficulty": "easy",
+      "starterId": "Malphite",
+      "sampleSize": 30,
+      "run": {
+        "wins": 14,
+        "winRate": 0.4666666666666667
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.5238095238095235
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8516853064336337,
+        "hpFinalMeanRatio": 0.8022844560842086,
+        "mpInitialMeanRatio": 0.7296758233417597,
+        "mpFinalMeanRatio": 0.40782778584122803
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 31700,
+          "mean": 1056.6666666666667,
+          "min": 83,
+          "max": 2624,
+          "p10": 211.1,
+          "p50": 1071,
+          "p90": 1733.3000000000002
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 16621,
+          "mean": 554.0333333333333,
+          "min": 37,
+          "max": 1596,
+          "p10": 138.9,
+          "p50": 524.5,
+          "p90": 970.4000000000001
+        }
+      },
+      "affordability": {
+        "shopVisits": 37,
+        "visitsWithAnyAffordableOfferRate": 0.6216216216216216,
+        "allOffersAffordableRate": 0.3192771084337349
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2563011894,
+          "value": 4,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2563011894 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 3189639203,
+          "value": 25,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3189639203 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-soraka|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "f1e39b31aa485bd7205e7a8b7ff788eb",
+      "difficulty": "easy",
+      "starterId": "Soraka",
+      "sampleSize": 30,
+      "run": {
+        "wins": 7,
+        "winRate": 0.23333333333333334
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.9680440771349867,
+        "finalMpMeanRatio": 0.1803921568627452
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7977140234393493,
+        "hpFinalMeanRatio": 0.7287522501776601,
+        "mpInitialMeanRatio": 0.6167760301029468,
+        "mpFinalMeanRatio": 0.24257886415256694
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 17625,
+          "mean": 587.5,
+          "min": 77,
+          "max": 2624,
+          "p10": 83,
+          "p50": 319.5,
+          "p90": 1245.1000000000004
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 10199,
+          "mean": 339.96666666666664,
+          "min": 47,
+          "max": 1471,
+          "p10": 83,
+          "p50": 219.5,
+          "p90": 557.3000000000001
+        }
+      },
+      "affordability": {
+        "shopVisits": 24,
+        "visitsWithAnyAffordableOfferRate": 0.5833333333333334,
+        "allOffersAffordableRate": 0.26956521739130435
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2415085369,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2415085369 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.9504132231404959,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 3668339987,
+          "value": 20,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3668339987 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=easy|team=solo-warwick|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "a0ad95bd7fc1033549aad42758b2e842",
+      "difficulty": "easy",
+      "starterId": "Warwick",
+      "sampleSize": 30,
+      "run": {
+        "wins": 7,
+        "winRate": 0.23333333333333334
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.6428571428571427
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8198850629258297,
+        "hpFinalMeanRatio": 0.7391042560517866,
+        "mpInitialMeanRatio": 0.6820903125216571,
+        "mpFinalMeanRatio": 0.32264151411060393
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 25889,
+          "mean": 862.9666666666667,
+          "min": 83,
+          "max": 2624,
+          "p10": 221.9,
+          "p50": 707,
+          "p90": 1582.9
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 14226,
+          "mean": 474.2,
+          "min": 24,
+          "max": 1471,
+          "p10": 137.00000000000003,
+          "p50": 381.5,
+          "p90": 1029.0000000000002
+        }
+      },
+      "affordability": {
+        "shopVisits": 32,
+        "visitsWithAnyAffordableOfferRate": 0.625,
+        "allOffersAffordableRate": 0.2953020134228188
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2563011894,
+          "value": 4,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2563011894 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 3668339987,
+          "value": 20,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Deasy%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3668339987 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-annie|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "ec80747d59b53887f930a2edf7fd10ac",
+      "difficulty": "normal",
+      "starterId": "Annie",
+      "sampleSize": 30,
+      "run": {
+        "wins": 1,
+        "winRate": 0.03333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8739285714285715,
+        "finalMpMeanRatio": 0.354066985645933
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 3,
+        "terminalDeathRate": 0.1,
+        "totalTerminalTopDeaths": 7,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 2
+          },
+          {
+            "encounterId": "top_garen_elite",
+            "count": 1
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7612238687001158,
+        "hpFinalMeanRatio": 0.6134812960240258,
+        "mpInitialMeanRatio": 0.649750957472923,
+        "mpFinalMeanRatio": 0.23879157185126035
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 7756,
+          "mean": 258.53333333333336,
+          "min": 40,
+          "max": 1792,
+          "p10": 61.80000000000001,
+          "p50": 131,
+          "p90": 382.30000000000007
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 5653,
+          "mean": 188.43333333333334,
+          "min": 22,
+          "max": 1472,
+          "p10": 40,
+          "p50": 125.5,
+          "p90": 348.3
+        }
+      },
+      "affordability": {
+        "shopVisits": 10,
+        "visitsWithAnyAffordableOfferRate": 0.4,
+        "allOffersAffordableRate": 0.14
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 147926525,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.7321428571428571,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 0.9892857142857143,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 147926525,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-ashe|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "ddd088b6a6d418dc1872cd83c0f00eff",
+      "difficulty": "normal",
+      "starterId": "Ashe",
+      "sampleSize": 30,
+      "run": {
+        "wins": 5,
+        "winRate": 0.16666666666666666
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.375
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 4,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8688163260147318,
+        "hpFinalMeanRatio": 0.7973737326083981,
+        "mpInitialMeanRatio": 0.6729307594722442,
+        "mpFinalMeanRatio": 0.30961882399916346
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 15422,
+          "mean": 514.0666666666667,
+          "min": 67,
+          "max": 2712,
+          "p10": 90.3,
+          "p50": 195.5,
+          "p90": 1570.7000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 10135,
+          "mean": 337.8333333333333,
+          "min": 30,
+          "max": 1637,
+          "p10": 80.5,
+          "p50": 185.5,
+          "p90": 998.9000000000001
+        }
+      },
+      "affordability": {
+        "shopVisits": 18,
+        "visitsWithAnyAffordableOfferRate": 0.5555555555555556,
+        "allOffersAffordableRate": 0.2247191011235955
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 4,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 3816266512,
+          "value": 23,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3816266512 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 2027808452,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2027808452 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-darius|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "a33311a8b35311169833993a004b8d0c",
+      "difficulty": "normal",
+      "starterId": "Darius",
+      "sampleSize": 30,
+      "run": {
+        "wins": 2,
+        "winRate": 0.06666666666666667
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8713701431492845,
+        "finalMpMeanRatio": 0.1064638783269962
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 2,
+        "terminalDeathRate": 0.06666666666666667,
+        "totalTerminalTopDeaths": 8,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 2
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7079778144709754,
+        "hpFinalMeanRatio": 0.5492680367142966,
+        "mpInitialMeanRatio": 0.5854991657547077,
+        "mpFinalMeanRatio": 0.17010054450047268
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 8579,
+          "mean": 285.96666666666664,
+          "min": 40,
+          "max": 1512,
+          "p10": 66.8,
+          "p50": 126.5,
+          "p90": 744.2000000000005
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 5658,
+          "mean": 188.6,
+          "min": 30,
+          "max": 1192,
+          "p10": 52.60000000000001,
+          "p50": 110.5,
+          "p90": 326.6000000000002
+        }
+      },
+      "affordability": {
+        "shopVisits": 14,
+        "visitsWithAnyAffordableOfferRate": 0.42857142857142855,
+        "allOffersAffordableRate": 0.1791044776119403
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.7776073619631901,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 3964193037,
+          "value": 0.9447852760736196,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3964193037 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2950288811,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2950288811 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "642a167bd7dce094465a3f475e68d528",
+      "difficulty": "normal",
+      "starterId": "Garen",
+      "sampleSize": 30,
+      "run": {
+        "wins": 3,
+        "winRate": 0.1
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8807729468599035,
+        "finalMpMeanRatio": 0
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 2,
+        "terminalDeathRate": 0.06666666666666667,
+        "totalTerminalTopDeaths": 3,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 2
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7794870974482432,
+        "hpFinalMeanRatio": 0.6552235591847693,
+        "mpInitialMeanRatio": 0.7374122589215384,
+        "mpFinalMeanRatio": 0.3559042920504
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 12821,
+          "mean": 427.3666666666667,
+          "min": 40,
+          "max": 2712,
+          "p10": 91.2,
+          "p50": 214.5,
+          "p90": 1051.5000000000005
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 8229,
+          "mean": 274.3,
+          "min": 40,
+          "max": 1559,
+          "p10": 72.9,
+          "p50": 177,
+          "p90": 469.1000000000002
+        }
+      },
+      "affordability": {
+        "shopVisits": 14,
+        "visitsWithAnyAffordableOfferRate": 0.35714285714285715,
+        "allOffersAffordableRate": 0.16417910447761194
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.7463768115942029,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 3964193037,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3964193037 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2950288811,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2950288811 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-jinx|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "074604c7bc8634ad030acce18e0efe2f",
+      "difficulty": "normal",
+      "starterId": "Jinx",
+      "sampleSize": 30,
+      "run": {
+        "wins": 10,
+        "winRate": 0.3333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.6153846153846153
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8387521297762687,
+        "hpFinalMeanRatio": 0.7766372043211823,
+        "mpInitialMeanRatio": 0.7780120408816801,
+        "mpFinalMeanRatio": 0.46730518852671776
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 24897,
+          "mean": 829.9,
+          "min": 92,
+          "max": 2712,
+          "p10": 143.9,
+          "p50": 607.5,
+          "p90": 1691.2000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 14529,
+          "mean": 484.3,
+          "min": 30,
+          "max": 1720,
+          "p10": 113.9,
+          "p50": 369.5,
+          "p90": 1078.7000000000007
+        }
+      },
+      "affordability": {
+        "shopVisits": 30,
+        "visitsWithAnyAffordableOfferRate": 0.5666666666666667,
+        "allOffersAffordableRate": 0.2608695652173913
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2415085369,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2415085369 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 3189639203,
+          "value": 25,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3189639203 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 3668339987,
+          "value": 20,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3668339987 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-leona|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "4232e483e9092ddee7702e93969b2a1e",
+      "difficulty": "normal",
+      "starterId": "Leona",
+      "sampleSize": 30,
+      "run": {
+        "wins": 5,
+        "winRate": 0.16666666666666666
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.40397350993377484
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8555742925607961,
+        "hpFinalMeanRatio": 0.776528083994234,
+        "mpInitialMeanRatio": 0.6731154595383707,
+        "mpFinalMeanRatio": 0.30659466145437875
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 15109,
+          "mean": 503.6333333333333,
+          "min": 84,
+          "max": 2712,
+          "p10": 99.2,
+          "p50": 228.5,
+          "p90": 1323.8000000000004
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 9432,
+          "mean": 314.4,
+          "min": 30,
+          "max": 1739,
+          "p10": 90.9,
+          "p50": 185.5,
+          "p90": 571.7
+        }
+      },
+      "affordability": {
+        "shopVisits": 22,
+        "visitsWithAnyAffordableOfferRate": 0.5454545454545454,
+        "allOffersAffordableRate": 0.2523364485981308
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2415085369,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2415085369 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-lux|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "a055eaa58f1580cbfecee40f4fbea6ef",
+      "difficulty": "normal",
+      "starterId": "Lux",
+      "sampleSize": 30,
+      "run": {
+        "wins": 6,
+        "winRate": 0.2
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.772727272727273
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8379793924579753,
+        "hpFinalMeanRatio": 0.7749739538308709,
+        "mpInitialMeanRatio": 0.8420449406576533,
+        "mpFinalMeanRatio": 0.5384922793019847
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 19406,
+          "mean": 646.8666666666667,
+          "min": 92,
+          "max": 2712,
+          "p10": 191.7,
+          "p50": 417.5,
+          "p90": 1315.7000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 11469,
+          "mean": 382.3,
+          "min": 90,
+          "max": 1559,
+          "p10": 123.8,
+          "p50": 302,
+          "p90": 588.8
+        }
+      },
+      "affordability": {
+        "shopVisits": 24,
+        "visitsWithAnyAffordableOfferRate": 0.4166666666666667,
+        "allOffersAffordableRate": 0.21052631578947367
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2563011894,
+          "value": 4,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2563011894 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 3668339987,
+          "value": 20,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3668339987 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-malphite|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "39c70c13d818abfb60acb83b04ca6300",
+      "difficulty": "normal",
+      "starterId": "Malphite",
+      "sampleSize": 30,
+      "run": {
+        "wins": 10,
+        "winRate": 0.3333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.464285714285714
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.848666154901141,
+        "hpFinalMeanRatio": 0.7905545068685009,
+        "mpInitialMeanRatio": 0.7096001757157093,
+        "mpFinalMeanRatio": 0.3578393416870822
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 24287,
+          "mean": 809.5666666666667,
+          "min": 92,
+          "max": 2712,
+          "p10": 158.8,
+          "p50": 529.5,
+          "p90": 1795.3000000000002
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 13674,
+          "mean": 455.8,
+          "min": 30,
+          "max": 1720,
+          "p10": 139.9,
+          "p50": 268.5,
+          "p90": 1041.4
+        }
+      },
+      "affordability": {
+        "shopVisits": 29,
+        "visitsWithAnyAffordableOfferRate": 0.5862068965517241,
+        "allOffersAffordableRate": 0.3037037037037037
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2415085369,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2415085369 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 3189639203,
+          "value": 25,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3189639203 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 1401181143,
+          "value": 23,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1401181143 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-soraka|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "aab37cc3e962b873f64f320cd26e336d",
+      "difficulty": "normal",
+      "starterId": "Soraka",
+      "sampleSize": 30,
+      "run": {
+        "wins": 3,
+        "winRate": 0.1
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.9623140495867769,
+        "finalMpMeanRatio": 0.1560784313725491
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 0,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8095635809389518,
+        "hpFinalMeanRatio": 0.7044056631644411,
+        "mpInitialMeanRatio": 0.5902835631834878,
+        "mpFinalMeanRatio": 0.18067010654041474
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 14578,
+          "mean": 485.93333333333334,
+          "min": 84,
+          "max": 2712,
+          "p10": 92,
+          "p50": 228.5,
+          "p90": 1167.6000000000001
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 8789,
+          "mean": 292.96666666666664,
+          "min": 30,
+          "max": 1559,
+          "p10": 90.9,
+          "p50": 185.5,
+          "p90": 496.10000000000014
+        }
+      },
+      "affordability": {
+        "shopVisits": 21,
+        "visitsWithAnyAffordableOfferRate": 0.47619047619047616,
+        "allOffersAffordableRate": 0.26
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2415085369,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2415085369 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.9322314049586777,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 3964193037,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3964193037 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=normal|team=solo-warwick|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "aad2f74c54d72390a38f85092932c476",
+      "difficulty": "normal",
+      "starterId": "Warwick",
+      "sampleSize": 30,
+      "run": {
+        "wins": 5,
+        "winRate": 0.16666666666666666
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.9141935483870967,
+        "finalMpMeanRatio": 0.29761904761904767
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 1,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7894642814493354,
+        "hpFinalMeanRatio": 0.6900999210532153,
+        "mpInitialMeanRatio": 0.6314680786477227,
+        "mpFinalMeanRatio": 0.23171031774559467
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 17771,
+          "mean": 592.3666666666667,
+          "min": 84,
+          "max": 2712,
+          "p10": 111,
+          "p50": 370,
+          "p90": 1320.3000000000004
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 10299,
+          "mean": 343.3,
+          "min": 54,
+          "max": 1559,
+          "p10": 101,
+          "p50": 242,
+          "p90": 580.7
+        }
+      },
+      "affordability": {
+        "shopVisits": 23,
+        "visitsWithAnyAffordableOfferRate": 0.5217391304347826,
+        "allOffersAffordableRate": 0.26126126126126126
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 2950288811,
+          "value": 5,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2950288811 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.785483870967742,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dnormal%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-annie|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "8d6137da59463810ff11ac792c091d31",
+      "difficulty": "hard",
+      "starterId": "Annie",
+      "sampleSize": 30,
+      "run": {
+        "wins": 0,
+        "winRate": 0
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.6874999999999998,
+        "finalMpMeanRatio": 0.26634768740031906
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 19,
+        "terminalDeathRate": 0.6333333333333333,
+        "totalTerminalTopDeaths": 21,
+        "byEncounter": [
+          {
+            "encounterId": "top_darius",
+            "count": 2
+          },
+          {
+            "encounterId": "top_garen",
+            "count": 5
+          },
+          {
+            "encounterId": "top_garen_elite",
+            "count": 2
+          },
+          {
+            "encounterId": "top_warwick",
+            "count": 10
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.6682702612466275,
+        "hpFinalMeanRatio": 0.4187567379545887,
+        "mpInitialMeanRatio": 0.6497634083449417,
+        "mpFinalMeanRatio": 0.19406350647755224
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 5124,
+          "mean": 170.8,
+          "min": 25,
+          "max": 1626,
+          "p10": 43.900000000000006,
+          "p50": 60,
+          "p90": 352.6000000000001
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 4164,
+          "mean": 138.8,
+          "min": 25,
+          "max": 1306,
+          "p10": 38.50000000000001,
+          "p50": 57,
+          "p90": 229.50000000000009
+        }
+      },
+      "affordability": {
+        "shopVisits": 5,
+        "visitsWithAnyAffordableOfferRate": 0.2,
+        "allOffersAffordableRate": 0.13043478260869565
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 387276917,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 2027808452,
+          "value": 19,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2027808452 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 0.5803571428571429,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 0.7839285714285714,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2654435761,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-annie%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Annie%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2654435761 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": null
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-ashe|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "264f4585ded7a6ed20d0826ea16966b0",
+      "difficulty": "hard",
+      "starterId": "Ashe",
+      "sampleSize": 30,
+      "run": {
+        "wins": 2,
+        "winRate": 0.06666666666666667
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 1,
+        "finalMpMeanRatio": 0.30357142857142866
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 10,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8373830831259669,
+        "hpFinalMeanRatio": 0.7129621163128651,
+        "mpInitialMeanRatio": 0.6101958159079056,
+        "mpFinalMeanRatio": 0.1930463750336146
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 10744,
+          "mean": 358.1333333333333,
+          "min": 73,
+          "max": 1804,
+          "p10": 79,
+          "p50": 150.5,
+          "p90": 1058.8000000000006
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 7286,
+          "mean": 242.86666666666667,
+          "min": 18,
+          "max": 1484,
+          "p10": 69.9,
+          "p50": 133,
+          "p90": 558.4000000000002
+        }
+      },
+      "affordability": {
+        "shopVisits": 14,
+        "visitsWithAnyAffordableOfferRate": 0.5,
+        "allOffersAffordableRate": 0.2318840579710145
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 147926525,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-ashe%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Ashe%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-darius|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "f4dca3d981f055df102761569c7377e0",
+      "difficulty": "hard",
+      "starterId": "Darius",
+      "sampleSize": 30,
+      "run": {
+        "wins": 1,
+        "winRate": 0.03333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.7098159509202457,
+        "finalMpMeanRatio": 0.1064638783269962
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 17,
+        "terminalDeathRate": 0.5666666666666667,
+        "totalTerminalTopDeaths": 20,
+        "byEncounter": [
+          {
+            "encounterId": "top_darius",
+            "count": 3
+          },
+          {
+            "encounterId": "top_garen",
+            "count": 6
+          },
+          {
+            "encounterId": "top_garen_elite",
+            "count": 2
+          },
+          {
+            "encounterId": "top_warwick",
+            "count": 6
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.671999928264007,
+        "hpFinalMeanRatio": 0.44268006716386127,
+        "mpInitialMeanRatio": 0.5658490276351864,
+        "mpFinalMeanRatio": 0.12689582024734813
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 5209,
+          "mean": 173.63333333333333,
+          "min": 46,
+          "max": 1679,
+          "p10": 48,
+          "p50": 84.5,
+          "p90": 298.50000000000006
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 3703,
+          "mean": 123.43333333333334,
+          "min": 18,
+          "max": 581,
+          "p10": 46,
+          "p50": 67.5,
+          "p90": 239.4000000000001
+        }
+      },
+      "affordability": {
+        "shopVisits": 9,
+        "visitsWithAnyAffordableOfferRate": 0.3333333333333333,
+        "allOffersAffordableRate": 0.18181818181818182
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 147926525,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 0.6196319018404908,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 0.7944785276073619,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2654435761,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2654435761 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-darius%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Darius%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "b35675238b4e0750f3b230e2f1f436c1",
+      "difficulty": "hard",
+      "starterId": "Garen",
+      "sampleSize": 30,
+      "run": {
+        "wins": 1,
+        "winRate": 0.03333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.7071497584541065,
+        "finalMpMeanRatio": 0
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 7,
+        "terminalDeathRate": 0.23333333333333334,
+        "totalTerminalTopDeaths": 13,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 6
+          },
+          {
+            "encounterId": "top_garen_elite",
+            "count": 1
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.6795726562575676,
+        "hpFinalMeanRatio": 0.48388243001455455,
+        "mpInitialMeanRatio": 0.64887040355599,
+        "mpFinalMeanRatio": 0.2613593874779802
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 7482,
+          "mean": 249.4,
+          "min": 46,
+          "max": 1442,
+          "p10": 53.6,
+          "p50": 114.5,
+          "p90": 425.70000000000107
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 5246,
+          "mean": 174.86666666666667,
+          "min": 18,
+          "max": 1122,
+          "p10": 46,
+          "p50": 108,
+          "p90": 310.9000000000003
+        }
+      },
+      "affordability": {
+        "shopVisits": 11,
+        "visitsWithAnyAffordableOfferRate": 0.36363636363636365,
+        "allOffersAffordableRate": 0.13725490196078433
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1161830751,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1161830751 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 0.6101449275362318,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 0.782608695652174,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 3428989595,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3428989595 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-garen%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-jinx|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "2e6f11b13890c6ba839103f102537e26",
+      "difficulty": "hard",
+      "starterId": "Jinx",
+      "sampleSize": 30,
+      "run": {
+        "wins": 3,
+        "winRate": 0.1
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.904761904761905,
+        "finalMpMeanRatio": 0.47692307692307695
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 3,
+        "terminalDeathRate": 0.1,
+        "totalTerminalTopDeaths": 8,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 3
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.8099240158869816,
+        "hpFinalMeanRatio": 0.696447736411683,
+        "mpInitialMeanRatio": 0.7065368984831969,
+        "mpFinalMeanRatio": 0.33568431770128304
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 14239,
+          "mean": 474.6333333333333,
+          "min": 46,
+          "max": 2851,
+          "p10": 74.8,
+          "p50": 168.5,
+          "p90": 1292.1000000000006
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 8598,
+          "mean": 286.6,
+          "min": 18,
+          "max": 1698,
+          "p10": 46,
+          "p50": 151.5,
+          "p90": 597.6000000000001
+        }
+      },
+      "affordability": {
+        "shopVisits": 17,
+        "visitsWithAnyAffordableOfferRate": 0.5294117647058824,
+        "allOffersAffordableRate": 0.2891566265060241
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 774553834,
+          "value": 22,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.7619047619047619,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2175734977,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2175734977 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-jinx%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Jinx%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-leona|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "29d0ef412954078ea24660724982b0e6",
+      "difficulty": "hard",
+      "starterId": "Leona",
+      "sampleSize": 30,
+      "run": {
+        "wins": 2,
+        "winRate": 0.06666666666666667
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8901960784313725,
+        "finalMpMeanRatio": 0.27152317880794713
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 10,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7773847531422049,
+        "hpFinalMeanRatio": 0.6476528941699978,
+        "mpInitialMeanRatio": 0.6280842878810109,
+        "mpFinalMeanRatio": 0.2177666187120196
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 10072,
+          "mean": 335.73333333333335,
+          "min": 69,
+          "max": 1679,
+          "p10": 76.8,
+          "p50": 145.5,
+          "p90": 1022.8000000000006
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 6708,
+          "mean": 223.6,
+          "min": 18,
+          "max": 1306,
+          "p10": 72.6,
+          "p50": 145.5,
+          "p90": 463.00000000000034
+        }
+      },
+      "affordability": {
+        "shopVisits": 14,
+        "visitsWithAnyAffordableOfferRate": 0.42857142857142855,
+        "allOffersAffordableRate": 0.22388059701492538
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1013904226,
+          "value": 3,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1013904226 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.8173374613003096,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 3964193037,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3964193037 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-leona%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Leona%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-lux|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "6f9d1018b67a8aff91c82ae51f57d423",
+      "difficulty": "hard",
+      "starterId": "Lux",
+      "sampleSize": 30,
+      "run": {
+        "wins": 2,
+        "winRate": 0.06666666666666667
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8409195402298854,
+        "finalMpMeanRatio": 0.6666666666666665
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 2,
+        "terminalDeathRate": 0.06666666666666667,
+        "totalTerminalTopDeaths": 4,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 2
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7635026087516991,
+        "hpFinalMeanRatio": 0.62572798650225,
+        "mpInitialMeanRatio": 0.7853885409981041,
+        "mpFinalMeanRatio": 0.4466549806505956
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 11734,
+          "mean": 391.1333333333333,
+          "min": 46,
+          "max": 1679,
+          "p10": 93.9,
+          "p50": 214.5,
+          "p90": 1138.0000000000002
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 7511,
+          "mean": 250.36666666666667,
+          "min": 18,
+          "max": 1306,
+          "p10": 46,
+          "p50": 165,
+          "p90": 523.8000000000001
+        }
+      },
+      "affordability": {
+        "shopVisits": 17,
+        "visitsWithAnyAffordableOfferRate": 0.5294117647058824,
+        "allOffersAffordableRate": 0.2619047619047619
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1309757276,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1309757276 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.7413793103448276,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 3964193037,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3964193037 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2950288811,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2950288811 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-lux%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Lux%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-malphite|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "ffd52203fda8878d4a90568e29515bd6",
+      "difficulty": "hard",
+      "starterId": "Malphite",
+      "sampleSize": 30,
+      "run": {
+        "wins": 2,
+        "winRate": 0.06666666666666667
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.9284210526315791,
+        "finalMpMeanRatio": 0.23809523809523808
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 0,
+        "terminalDeathRate": 0,
+        "totalTerminalTopDeaths": 4,
+        "byEncounter": []
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7812860163936062,
+        "hpFinalMeanRatio": 0.6552278855276731,
+        "mpInitialMeanRatio": 0.5880665799505326,
+        "mpFinalMeanRatio": 0.1875689789618463
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 12763,
+          "mean": 425.43333333333334,
+          "min": 73,
+          "max": 1796,
+          "p10": 103.2,
+          "p50": 204,
+          "p90": 1194.7000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 7784,
+          "mean": 259.46666666666664,
+          "min": 18,
+          "max": 1426,
+          "p10": 91.9,
+          "p50": 168.5,
+          "p90": 457.0000000000002
+        }
+      },
+      "affordability": {
+        "shopVisits": 19,
+        "visitsWithAnyAffordableOfferRate": 0.5263157894736842,
+        "allOffersAffordableRate": 0.24444444444444444
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 774553834,
+          "value": 4,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 774553834 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.8751879699248121,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 3964193037,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3964193037 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": null,
+        "representativeRunWin": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-malphite%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Malphite%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-soraka|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "7fbde9cd850f315e3cb161c2ac9cbd93",
+      "difficulty": "hard",
+      "starterId": "Soraka",
+      "sampleSize": 30,
+      "run": {
+        "wins": 1,
+        "winRate": 0.03333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.8206060606060609,
+        "finalMpMeanRatio": 0.10117647058823534
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 11,
+        "terminalDeathRate": 0.36666666666666664,
+        "totalTerminalTopDeaths": 14,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen",
+            "count": 4
+          },
+          {
+            "encounterId": "top_garen_elite",
+            "count": 3
+          },
+          {
+            "encounterId": "top_warwick",
+            "count": 4
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7376888881027838,
+        "hpFinalMeanRatio": 0.5482671098118168,
+        "mpInitialMeanRatio": 0.5527806439172955,
+        "mpFinalMeanRatio": 0.1041648686983068
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 7414,
+          "mean": 247.13333333333333,
+          "min": 25,
+          "max": 1125,
+          "p10": 46,
+          "p50": 145,
+          "p90": 579.5000000000003
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 4800,
+          "mean": 160,
+          "min": 18,
+          "max": 585,
+          "p10": 38.50000000000001,
+          "p50": 145,
+          "p90": 335.1
+        }
+      },
+      "affordability": {
+        "shopVisits": 14,
+        "visitsWithAnyAffordableOfferRate": 0.42857142857142855,
+        "allOffersAffordableRate": 0.22388059701492538
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1161830751,
+          "value": 1,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1161830751 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 295853050,
+          "value": 0.6231404958677685,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 3964193037,
+          "value": 0.9537190082644628,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 3964193037 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 2654435761,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 2654435761 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 387276917,
+          "value": 16,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-soraka%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Soraka%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 387276917 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    },
+    {
+      "scenarioId": "difficulty=hard|team=solo-warwick|size=1|mastery=none|runes=none|enhancements=none|policy=survival-greedy@1",
+      "stratumFingerprint": "08238ff50f0916bfa0bd5b9fc43e751c",
+      "difficulty": "hard",
+      "starterId": "Warwick",
+      "sampleSize": 30,
+      "run": {
+        "wins": 1,
+        "winRate": 0.03333333333333333
+      },
+      "firstCombat": {
+        "observations": 30,
+        "wins": 30,
+        "winRate": 1,
+        "finalHpMeanRatio": 0.7244086021505374,
+        "finalMpMeanRatio": 0.1369047619047619
+      },
+      "earlyTop": {
+        "terminalDeathsWithinFirstThreeCombats": 1,
+        "terminalDeathRate": 0.03333333333333333,
+        "totalTerminalTopDeaths": 3,
+        "byEncounter": [
+          {
+            "encounterId": "top_garen_elite",
+            "count": 1
+          }
+        ]
+      },
+      "resources": {
+        "hpInitialMeanRatio": 0.7138627689970433,
+        "hpFinalMeanRatio": 0.5673342273408093,
+        "mpInitialMeanRatio": 0.5515424011671982,
+        "mpFinalMeanRatio": 0.14798752011907654
+      },
+      "economy": {
+        "goldEarned": {
+          "samples": 30,
+          "total": 12678,
+          "mean": 422.6,
+          "min": 60,
+          "max": 2412,
+          "p10": 104.9,
+          "p50": 220.5,
+          "p90": 1008.4000000000004
+        },
+        "finalGold": {
+          "samples": 30,
+          "total": 7618,
+          "mean": 253.93333333333334,
+          "min": 18,
+          "max": 1259,
+          "p10": 99.60000000000002,
+          "p50": 168.5,
+          "p90": 473.80000000000007
+        }
+      },
+      "affordability": {
+        "shopVisits": 21,
+        "visitsWithAnyAffordableOfferRate": 0.5238095238095238,
+        "allOffersAffordableRate": 0.2621359223300971
+      },
+      "extremeSeeds": {
+        "leastProgress": {
+          "seed": 1161830751,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1161830751 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "mostProgress": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "lowestFirstCombatHp": {
+          "seed": 147926525,
+          "value": 0.582258064516129,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 147926525 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "highestFirstCombatHp": {
+          "seed": 4203543429,
+          "value": 0.832258064516129,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 4203543429 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeEarlyTopDeath": {
+          "seed": 1161830751,
+          "value": 2,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 1161830751 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        },
+        "representativeRunWin": {
+          "seed": 295853050,
+          "value": 17,
+          "reproductionCommand": "npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22difficulty%3Dhard%7Cteam%3Dsolo-warwick%7Csize%3D1%7Cmastery%3Dnone%7Crunes%3Dnone%7Cenhancements%3Dnone%7Cpolicy%3Dsurvival-greedy%401%22%2C%22difficulty%22%3A%22hard%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Warwick%22%2C%22statMultiplier%22%3A1%7D%5D%2C%22masterySnapshot%22%3A%7B%7D%2C%22runeIds%22%3A%5B%5D%2C%22enhancementSnapshot%22%3A%7B%7D%7D' --seed 295853050 --engine 'run-engine-v18' --content-hash '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17' --policy 'survival-greedy@1' --max-commands 400 --max-run-ms 5000"
+        }
+      }
+    }
+  ]
+}

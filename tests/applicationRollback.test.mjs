@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  assertAppendOnlyRollbackManifest,
+  assertRollbackCompatibleMigrationManifest,
   readCandidateMigrationVersions,
   readWorkspaceMigrationVersions,
 } from '../scripts/lib/migration-manifest.mjs';
@@ -11,24 +11,40 @@ const contract = JSON.parse(
 );
 
 describe('application rollback contract', () => {
-  it('pointe vers un ancien client dont le manifeste est un préfixe strict du schéma actuel', () => {
+  it('pointe vers un client compatible dont le manifeste est égal au schéma ou son préfixe', () => {
     const rollbackVersions = readCandidateMigrationVersions(contract.applicationSha);
     const currentVersions = readWorkspaceMigrationVersions();
-    const compatibility = assertAppendOnlyRollbackManifest(rollbackVersions, currentVersions);
+    const compatibility = assertRollbackCompatibleMigrationManifest(
+      rollbackVersions,
+      currentVersions,
+    );
 
     expect(compatibility).toMatchObject({
       rollbackLatest: contract.lastApplicationMigrationVersion,
       currentLatest: contract.requiredCurrentMigrationVersion,
     });
-    expect(compatibility.appendedVersions.length).toBeGreaterThan(0);
+    expect(compatibility.appendedVersions).toEqual([]);
   });
 
   it('refuse un rollback lorsque les historiques divergent', () => {
     expect(() =>
-      assertAppendOnlyRollbackManifest(
+      assertRollbackCompatibleMigrationManifest(
         ['20260101000000', '20260103000000'],
         ['20260101000000', '20260102000000', '20260103000000'],
       ),
-    ).toThrow('not an append-only extension');
+    ).toThrow('neither equal to nor an append-only extension');
+  });
+
+  it('accepte un rollback applicatif compatible avec un schéma identique', () => {
+    expect(
+      assertRollbackCompatibleMigrationManifest(
+        ['20260101000000', '20260102000000'],
+        ['20260101000000', '20260102000000'],
+      ),
+    ).toMatchObject({
+      rollbackLatest: '20260102000000',
+      currentLatest: '20260102000000',
+      appendedVersions: [],
+    });
   });
 });

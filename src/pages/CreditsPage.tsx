@@ -36,7 +36,7 @@ const CREDIT_GROUPS = [
     entries: [
       { name: 'League of Legends', detail: 'Univers et personnages créés par Riot Games.' },
       {
-        name: 'Communauté Pokémon Rogue',
+        name: 'Lol Rogue',
         detail: 'Inspiration pour l’approche roguelike et la rejouabilité.',
       },
     ],

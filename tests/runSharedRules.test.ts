@@ -8,8 +8,10 @@ import type {
 } from '@/game/map/types';
 import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import {
   getItemSaleGold,
+  getRestGoldCost,
   getShopItemCost,
   getShopRecruitCost,
   resolveEventTeamUpdates,
@@ -33,7 +35,7 @@ describe('shared deterministic run rules', () => {
     }).toEqual({
       discountedItem: 100,
       cappedDiscount: 25,
-      recruit: 113,
+      recruit: 150,
       sale: 62,
     });
   });
@@ -93,6 +95,20 @@ describe('shared deterministic run rules', () => {
         () => 120,
       )[0],
     ).toMatchObject({ currentHp: 40, statBoosts: { hp: 20 } });
+  });
+
+  it('prices rest from its run-level base and the current team size', () => {
+    expect(getRestGoldCost({ fullHeal: false, goldCost: 50 }, 1)).toBe(50);
+    expect(getRestGoldCost({ fullHeal: false, goldCost: 50 }, 5)).toBe(130);
+    expect(getRestGoldCost({ fullHeal: true, goldCost: 110 }, 1)).toBe(110);
+    expect(getRestGoldCost({ fullHeal: true, goldCost: 110 }, 5)).toBe(270);
+  });
+
+  it('brings recruits close to the current run and team progression', () => {
+    expect(getRecruitStartingLevel(1, [{ level: 1 }])).toBe(2);
+    expect(getRecruitStartingLevel(3, [{ level: 5 }, { level: 6 }, { level: 7 }])).toBe(5);
+    expect(getRecruitStartingLevel(6, [{ level: 9 }, { level: 10 }, { level: 10 }])).toBe(9);
+    expect(getRecruitStartingLevel(18, [{ level: 18 }])).toBe(18);
   });
 
   it('shares augment offer validation and the full post-combat resource/XP transition', () => {

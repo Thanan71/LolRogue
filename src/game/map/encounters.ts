@@ -38,36 +38,13 @@ export function getEligibleEncounters(biome: Biome, runLevel: number): CombatEnc
  * Get the boss encounter for a biome.
  * Base biome has the final boss; other biomes use a boosted elite.
  */
-export function getBiomeBoss(biome: Biome, runLevel: number): CombatEncounter {
-  if (biome === 'base') {
-    const baseEncounters = getEligibleEncounters('base', runLevel);
-    return (
-      baseEncounters.find((encounter) => encounter.id === 'base_nexus_guardians') ??
-      baseEncounters[baseEncounters.length - 1] ??
-      BASE_ENCOUNTERS[0]
-    );
-  }
-
-  const eligible = getEligibleEncounters(biome, runLevel);
-  const candidates = eligible.length > 0 ? eligible : ENCOUNTER_POOLS[biome];
-  const hardest = candidates.reduce((a, b) =>
-    a.enemies.reduce((s, e) => s + e.statMultiplier, 0) >
-    b.enemies.reduce((s, e) => s + e.statMultiplier, 0)
-      ? a
-      : b,
+export function getFinalBoss(runLevel: number): CombatEncounter {
+  const baseEncounters = getEligibleEncounters('base', runLevel);
+  return (
+    baseEncounters.find((encounter) => encounter.id === 'base_nexus_guardians') ??
+    baseEncounters[baseEncounters.length - 1] ??
+    BASE_ENCOUNTERS[0]
   );
-
-  return {
-    ...hardest,
-    id: `${biome}_boss`,
-    name: `${hardest.name} (Elite)`,
-    enemies: hardest.enemies.map((e) => ({
-      ...e,
-      statMultiplier: e.statMultiplier * 1.3,
-    })),
-    goldReward: Math.round(hardest.goldReward * 2),
-    itemDropChance: Math.min(1, hardest.itemDropChance * 2),
-  };
 }
 
 /**

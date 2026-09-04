@@ -18,7 +18,7 @@ import type {
   CombatRuleInstantEffect,
   CombatRuleResolution,
 } from '@/game/rules/types';
-import type { SpellEffect } from '@/types/champion';
+import { type SpellEffect, TargetingType } from '@/types/champion';
 import {
   calculateADDamage,
   calculateAPDamage,
@@ -26,6 +26,7 @@ import {
   critDamage,
 } from '@/utils/damage';
 import type { ChampionInstance } from '../ChampionInstance';
+import { isBattleActionUnlocked } from './actionTimingRules';
 import type { CombatActionTrace } from './actionTrace';
 import {
   getBattleActionDefinition,
@@ -36,6 +37,8 @@ import {
 import { type BattleEventCallback, BattleEventJournal } from './BattleEventJournal';
 import { BattleSpellEffectResolver } from './BattleSpellEffectResolver';
 import { isPassiveCombatReady } from './combatContentSupport';
+import { selectContextualBattleAction } from './contextualBattleAi';
+import { canLoseActionToHardCrowdControl, recentHardCrowdControlLosses } from './crowdControlRules';
 import { toCombatDamageType } from './damageType';
 import { resolveBattleTargets } from './targetResolver';
 import {
@@ -54,7 +57,16 @@ import {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Maximum random speed jitter added to turn order calculation (in speed units) */
-const SPEED_JITTER_MAX = 0.5;
+export const SPEED_JITTER_MAX = 0.5;
+export const ATTACK_SPEED_INITIATIVE_WEIGHT = 10;
+
+export function calculateInitiative(
+  moveSpeed: number,
+  attackSpeed: number,
+  jitter: number,
+): number {
+  return moveSpeed + attackSpeed * ATTACK_SPEED_INITIATIVE_WEIGHT + jitter;
+}
 
 type ActionCallback = (
   champion: ChampionInstance,
@@ -97,6 +109,7 @@ export class BattleManager {
   private _actionCallback: ActionCallback | null = null;
   private _playerActionTrace: CombatActionTrace = [];
   private readonly _lastDamagedRound = new Map<string, number>();
+  private readonly _hardCrowdControlLossRounds = new Map<string, number[]>();
   private readonly _passiveCounters = new Map<string, number>();
   private readonly _preserveHpOnRuleInitialization = new Set<string>();
   private readonly _passiveMarks = new Map<
@@ -245,6 +258,7 @@ export class BattleManager {
     ];
 
     return actionTypes.flatMap((type) => {
+      if (!isBattleActionUnlocked(type, this._round)) return [];
       const definition = getBattleActionDefinition(combatant, type);
       if (!definition) return [];
       if (type === ActionType.BasicAttack && !combatant.effectManager.canMove()) return [];
@@ -323,7 +337,10 @@ export class BattleManager {
 
     // Canonical turn cycle:
     // start → controls → command → cast/attack → effects/deaths → end → duration ticks.
-    if (!attackerState.effectManager.canAct()) {
+    if (
+      !attackerState.effectManager.canAct() &&
+      this._consumeHardCrowdControlActionLoss(attackerState.targetId)
+    ) {
       this._emit({
         type: 'turn_skipped',
         champion: attackerState.champion.id,
@@ -346,6 +363,10 @@ export class BattleManager {
       if (this._checkVictory()) return;
       this._nextTurn();
       return;
+    }
+    if (!attackerState.effectManager.canAct()) {
+      attackerState.effectManager.expireHardCrowdControl();
+      this._syncEffectState(attackerState);
     }
 
     const enemies = this.getAliveEnemies(entry.side);
@@ -383,6 +404,7 @@ export class BattleManager {
       champion: entry.champion.id,
       side: entry.side,
       action: action.type,
+      manaSpent: validated.cost,
     });
 
     this._executeAction(attackerState, validated);
@@ -411,6 +433,7 @@ export class BattleManager {
       champion: entry.champion.id,
       side: entry.side,
       action: action.type,
+      manaSpent: validated.cost,
     });
 
     this._executeAction(attackerState, validated);
@@ -433,6 +456,7 @@ export class BattleManager {
 
   private _initCombatants(): void {
     this._lastDamagedRound.clear();
+    this._hardCrowdControlLossRounds.clear();
     this._passiveCounters.clear();
     this._passiveMarks.clear();
     this._preserveHpOnRuleInitialization.clear();
@@ -553,7 +577,7 @@ export class BattleManager {
   private _calcSpeedPriority(combatant: CombatantState): number {
     const stats = this._getCombatStats(combatant);
     const jitter = this._random() * SPEED_JITTER_MAX;
-    return stats.moveSpeed + stats.attackSpeed * 10 + jitter;
+    return calculateInitiative(stats.moveSpeed, stats.attackSpeed, jitter);
   }
 
   private _startCurrentTurn(): void {
@@ -588,6 +612,7 @@ export class BattleManager {
       attacker,
       action,
       combatants: this._getTargetableCombatants(),
+      round: this._round,
     });
   }
 
@@ -601,23 +626,12 @@ export class BattleManager {
   }
 
   private _selectAIAction(attacker: CombatantState): BattleAction | null {
-    const priority = [
-      ActionType.SpellR,
-      ActionType.SpellE,
-      ActionType.SpellW,
-      ActionType.SpellQ,
-      ActionType.BasicAttack,
-    ];
-    const available = this.getAvailableActions(attacker.champion);
-    for (const type of priority) {
-      const option = available.find((candidate) => candidate.type === type);
-      if (!option) continue;
-      const targetId = option.requiresTarget
-        ? option.validTargetIds[Math.floor(this._random() * option.validTargetIds.length)]
-        : undefined;
-      return { type, targetId };
-    }
-    return null;
+    return selectContextualBattleAction({
+      attacker,
+      options: this.getAvailableActions(attacker.champion),
+      allies: this.getAliveCombatants(attacker.side),
+      enemies: this.getAliveEnemies(attacker.side),
+    });
   }
 
   private _executeAction(attacker: CombatantState, action: ValidatedBattleAction): void {
@@ -666,7 +680,14 @@ export class BattleManager {
     const atkStats = this._getCombatStats(attacker);
 
     for (const effect of spell.effects) {
-      this._applySpellEffect(effect, attacker, action.targets, atkStats, action.rankIndex);
+      this._applySpellEffect(
+        effect,
+        attacker,
+        action.targets,
+        atkStats,
+        action.rankIndex,
+        action.targeting,
+      );
     }
     this._applyAfterSpellPassives(attacker, action);
     this._activeActionType = null;
@@ -679,6 +700,7 @@ export class BattleManager {
     targets: CombatantState[],
     attackerStats: ReturnType<ChampionInstance['getStats']>,
     rankIndex: number,
+    targeting: ValidatedBattleAction['targeting'],
   ): void {
     new BattleSpellEffectResolver({
       rules: this._rules,
@@ -688,7 +710,7 @@ export class BattleManager {
       toRuleActor: this._toRuleActor.bind(this),
       syncEffectState: this._syncEffectState.bind(this),
       emit: this._emit.bind(this),
-    }).resolve(effect, attacker, targets, attackerStats, rankIndex);
+    }).resolve(effect, attacker, targets, attackerStats, rankIndex, targeting);
   }
   private _applyDamageToTarget(
     attacker: CombatantState,
@@ -701,23 +723,33 @@ export class BattleManager {
   ): void {
     if (damage <= 0 || target.isDefeated) return;
     const wasDefeated = target.isDefeated;
+    const scaledDamage = triggerRules
+      ? damage * attacker.champion.getOutgoingDamageMultiplier()
+      : damage;
     const beforeRules =
       triggerRules && this._rules
         ? this._rules.dispatch({
             type: 'before_damage',
             source: this._toRuleActor(attacker),
             target: this._toRuleActor(target),
-            amount: damage,
+            amount: scaledDamage,
             damageType,
             action: this._activeActionType,
             isCrit,
             actors: this._getRuleActors(),
           })
         : null;
+    const ruleDamageReduction = Math.min(1, Math.max(0, beforeRules?.damageReduction ?? 0));
+    const effectDamageReduction = triggerRules
+      ? target.effectManager.getIncomingDamageReduction()
+      : 0;
     const ruledDamage = Math.max(
       0,
       Math.round(
-        damage * (beforeRules?.damageMultiplier ?? 1) * (1 - (beforeRules?.damageReduction ?? 0)),
+        scaledDamage *
+          (beforeRules?.damageMultiplier ?? 1) *
+          (1 - ruleDamageReduction) *
+          (1 - effectDamageReduction),
       ),
     );
     if (ruledDamage <= 0) return;
@@ -740,6 +772,13 @@ export class BattleManager {
         amount,
       ]),
     );
+    const shieldAbsorbedBySide = Object.entries(absorbedBySource).reduce<
+      Partial<Record<TeamSide, number>>
+    >((totals, [sourceId, amount]) => {
+      const side = this._findCombatantByTargetId(sourceId)?.side ?? target.side;
+      totals[side] = (totals[side] ?? 0) + amount;
+      return totals;
+    }, {});
     this._emit({
       type: 'damage',
       source: attacker.champion.id,
@@ -751,6 +790,7 @@ export class BattleManager {
       sourceCombatantId: attacker.targetId,
       targetCombatantId: target.targetId,
       shieldAbsorbedBySource,
+      shieldAbsorbedBySide,
       isCrit,
       sourceSide: attacker.side,
       targetSide: target.side,
@@ -824,7 +864,12 @@ export class BattleManager {
     const critChance = Math.min(100, atkStats.crit) / 100;
     const isCrit = this._random() < critChance;
     const rawDmg = isCrit ? critDamage(baseRaw) : baseRaw;
-    const finalDmg = calculateADDamage(rawDmg, 1.0, defStats.armor);
+    const finalDmg = calculateADDamage(
+      rawDmg,
+      1.0,
+      defStats.armor,
+      this._getPassiveArmorPenetration(attacker),
+    );
 
     this._applyDamageToTarget(attacker, target, finalDmg, DamageType.AD, true, isCrit);
   }
@@ -885,6 +930,7 @@ export class BattleManager {
 
   private _calculateEffectDamage(
     effect: SpellEffect,
+    attacker: CombatantState,
     attackerStats: ReturnType<ChampionInstance['getEnhancedStats']>,
     target: CombatantState,
     rankIndex: number,
@@ -900,7 +946,23 @@ export class BattleManager {
       return calculateAPDamage(rawDamage, 1, defense.magicResist);
     }
     if (effect.damageType === 'true') return calculateTrueDamage(rawDamage);
-    return calculateADDamage(rawDamage, 1, defense.armor);
+    return calculateADDamage(
+      rawDamage,
+      1,
+      defense.armor,
+      this._getPassiveArmorPenetration(attacker),
+    );
+  }
+
+  /** Resolve always-on physical armor penetration published by ranked spells. */
+  private _getPassiveArmorPenetration(attacker: CombatantState): number {
+    const slots = ['Q', 'W', 'E', 'R'] as const;
+    return slots.reduce((highest, slot) => {
+      const spell = attacker.champion.getSpell(slot);
+      const rankIndex = attacker.champion.getSpellRank(slot) - 1;
+      const rawValue = spell?.passiveArmorPenetrationPercent?.[rankIndex] ?? 0;
+      return Math.max(highest, normalizePercent(rawValue));
+    }, 0);
   }
 
   private _applyHeal(source: CombatantState, target: CombatantState, amount: number): void {
@@ -936,6 +998,19 @@ export class BattleManager {
     combatant.ccTurnsLeft = combatant.effectManager.ccEffects
       .filter((effect) => effect.isHardCC())
       .reduce((max, effect) => Math.max(max, effect.remainingRounds), 0);
+  }
+
+  private _consumeHardCrowdControlActionLoss(targetId: string): boolean {
+    const recent = recentHardCrowdControlLosses(
+      this._hardCrowdControlLossRounds.get(targetId) ?? [],
+      this._round,
+    );
+    if (!canLoseActionToHardCrowdControl(recent, this._round)) {
+      this._hardCrowdControlLossRounds.set(targetId, [...recent]);
+      return false;
+    }
+    this._hardCrowdControlLossRounds.set(targetId, [...recent, this._round]);
+    return true;
   }
 
   private _tickTurnEffects(combatant: CombatantState, effectIds: readonly string[]): void {
@@ -990,6 +1065,7 @@ export class BattleManager {
         action.targets,
         this._getCombatStats(attacker),
         attacker.champion.level - 1,
+        action.targeting,
       );
     }
     this._passiveCounters.set(attacker.targetId, -1);
@@ -1032,7 +1108,14 @@ export class BattleManager {
     if (attacker.champion.id === 'Ashe' && !target.isDefeated) {
       const slow = passive.effects.find((effect) => effect.type === 'cc');
       if (slow) {
-        this._applySpellEffect(slow, attacker, [target], this._getCombatStats(attacker), rankIndex);
+        this._applySpellEffect(
+          slow,
+          attacker,
+          [target],
+          this._getCombatStats(attacker),
+          rankIndex,
+          TargetingType.Enemy,
+        );
       }
     }
 
@@ -1041,6 +1124,7 @@ export class BattleManager {
       if (damageEffect) {
         const amount = this._calculateEffectDamage(
           damageEffect,
+          attacker,
           this._getCombatStats(attacker),
           target,
           rankIndex,
@@ -1074,7 +1158,13 @@ export class BattleManager {
         this._applyDamageToTarget(
           attacker,
           target,
-          this._calculateEffectDamage(effect, this._getCombatStats(attacker), target, rankIndex),
+          this._calculateEffectDamage(
+            effect,
+            attacker,
+            this._getCombatStats(attacker),
+            target,
+            rankIndex,
+          ),
           toCombatDamageType(effect.damageType),
           false,
         );
@@ -1092,14 +1182,14 @@ export class BattleManager {
     ) {
       const passiveDamage = attacker.champion
         .getPassive()
-        .effects.find((effect) => effect.type === 'damage');
+        .effects.find((effect) => effect.type === 'dot');
       const stackName = `${attacker.targetId}_hemorrhage`;
-      const stacks = target.effectManager.dots.filter(
-        (effect) => effect.name === stackName && effect.sourceId === attacker.targetId,
-      ).length;
-      if (passiveDamage && stacks < 5) {
+      if (passiveDamage) {
+        const duration = normalizeTurnDuration(passiveDamage.duration, 5);
+        const maxStacks = Math.max(1, Math.floor(passiveDamage.maxStacks ?? 5));
         const totalDamage = this._calculateEffectDamage(
           passiveDamage,
+          attacker,
           this._getCombatStats(attacker),
           target,
           attacker.champion.level - 1,
@@ -1111,11 +1201,15 @@ export class BattleManager {
             targetId: target.targetId,
             magnitude: totalDamage,
             damageType: toCombatDamageType(passiveDamage.damageType),
-            duration: 5,
+            duration,
             canCrit: false,
+            maxStacks,
           }),
         );
-        if (stacks + 1 === 5) {
+        const hemorrhage = target.effectManager.dots.find(
+          (effect) => effect.name === stackName && effect.sourceId === attacker.targetId,
+        );
+        if (hemorrhage?.stacks === maxStacks) {
           const buff = attacker.champion
             .getPassive()
             .effects.find((effect) => effect.type === 'buff');
@@ -1154,6 +1248,7 @@ export class BattleManager {
             target,
             this._calculateEffectDamage(
               effect,
+              leona,
               this._getCombatStats(leona),
               target,
               leona.champion.level - 1,

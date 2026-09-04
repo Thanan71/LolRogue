@@ -17,7 +17,7 @@ const LONG_SWORD: ItemDefinition = {
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'atk', value: 10, type: 'flat' }],
-  goldValue: 350,
+  goldValue: 175,
   stackable: true,
   maxStacks: 5,
   tier: 1,
@@ -31,7 +31,7 @@ const AMPLIFYING_TOME: ItemDefinition = {
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'ap', value: 20, type: 'flat' }],
-  goldValue: 435,
+  goldValue: 225,
   stackable: true,
   maxStacks: 5,
   tier: 1,
@@ -45,7 +45,7 @@ const CLOTH_ARMOR: ItemDefinition = {
   category: ItemCategory.Armor,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'def', value: 15, type: 'flat' }],
-  goldValue: 300,
+  goldValue: 150,
   stackable: true,
   maxStacks: 5,
   tier: 1,
@@ -59,7 +59,7 @@ const RUBY_CRYSTAL: ItemDefinition = {
   category: ItemCategory.Accessory,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'hp', value: 150, type: 'flat' }],
-  goldValue: 400,
+  goldValue: 250,
   stackable: true,
   maxStacks: 5,
   tier: 1,
@@ -73,7 +73,7 @@ const BOOTS: ItemDefinition = {
   category: ItemCategory.Accessory,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'spd', value: 2, type: 'flat' }],
-  goldValue: 300,
+  goldValue: 200,
   unique: true,
   stackable: false,
   maxStacks: 1,
@@ -88,7 +88,7 @@ const DAGGER: ItemDefinition = {
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Common,
   stats: [{ stat: 'crit', value: 10, type: 'flat' }],
-  goldValue: 300,
+  goldValue: 150,
   stackable: true,
   maxStacks: 5,
   tier: 1,
@@ -102,7 +102,7 @@ const BF_SWORD: ItemDefinition = {
   category: ItemCategory.Weapon,
   rarity: ItemRarity.Uncommon,
   stats: [{ stat: 'atk', value: 40, type: 'flat' }],
-  goldValue: 1300,
+  goldValue: 650,
   stackable: true,
   maxStacks: 5,
   tier: 1,
@@ -135,7 +135,6 @@ const INFINITY_EDGE: ItemDefinition = {
   unique: true,
   stackable: false,
   maxStacks: 1,
-  components: ['long_sword', 'dagger'],
   tier: 2,
 };
 
@@ -158,7 +157,6 @@ const RABADONS_DEATHCAP: ItemDefinition = {
   unique: true,
   stackable: false,
   maxStacks: 1,
-  components: ['amplifying_tome'],
   tier: 2,
 };
 
@@ -185,7 +183,6 @@ const SUNFIRE_AEGIS: ItemDefinition = {
   unique: true,
   stackable: false,
   maxStacks: 1,
-  components: ['ruby_crystal', 'cloth_armor'],
   tier: 2,
 };
 
@@ -214,7 +211,6 @@ const GUARDIAN_ANGEL: ItemDefinition = {
   unique: true,
   stackable: false,
   maxStacks: 1,
-  components: ['long_sword', 'cloth_armor'],
   tier: 2,
 };
 
@@ -241,7 +237,6 @@ const BLOODTHIRSTER: ItemDefinition = {
   unique: true,
   stackable: false,
   maxStacks: 1,
-  components: ['long_sword', 'dagger'],
   tier: 2,
 };
 
@@ -268,7 +263,6 @@ const SPIRIT_VISAGE: ItemDefinition = {
   unique: true,
   stackable: false,
   maxStacks: 1,
-  components: ['ruby_crystal'],
   tier: 2,
 };
 
@@ -355,8 +349,4 @@ export function getItemsByRarity(rarity: ItemRarity): ItemDefinition[] {
 
 export function getStackableItems(): ItemDefinition[] {
   return Object.values(ITEM_DATABASE).filter((item) => item.stackable);
-}
-
-export function getItemsWithComponent(componentId: string): ItemDefinition[] {
-  return Object.values(ITEM_DATABASE).filter((item) => item.components?.includes(componentId));
 }

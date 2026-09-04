@@ -67,7 +67,7 @@ export const BIOME_INFO: Record<Biome, BiomeInfo> = {
     name: 'Bot Lane',
     description: 'A duo lane defended by marksmen and their supports.',
     icon: '🏹',
-    difficultyMultiplier: 1.1,
+    difficultyMultiplier: 1.25,
     nodeCount: { min: 6, max: 8 },
   },
   river: {
@@ -75,7 +75,7 @@ export const BIOME_INFO: Record<Biome, BiomeInfo> = {
     name: 'River',
     description: 'Treacherous waters home to elemental drakes and scuttle crabs.',
     icon: '🌊',
-    difficultyMultiplier: 1.3,
+    difficultyMultiplier: 1.4,
     nodeCount: { min: 4, max: 6 },
   },
   base: {
@@ -83,7 +83,7 @@ export const BIOME_INFO: Record<Biome, BiomeInfo> = {
     name: 'Enemy Base',
     description: 'The final stronghold. Defeat the enemy Nexus to win!',
     icon: '🏰',
-    difficultyMultiplier: 1.5,
+    difficultyMultiplier: 1.6,
     nodeCount: { min: 3, max: 4 },
   },
 };
@@ -448,6 +448,10 @@ export type RunStore = RunState & RunActions;
 /** Stats tracked per champion during a run */
 export interface ChampionRunStats {
   championId: string;
+  /** Combat encounters completed while this champion was on the team. */
+  wavesParticipated?: number;
+  /** Distinct biomes in which this champion completed at least one combat. */
+  biomesParticipated?: Biome[];
   /** Total kills attributed to this champion */
   kills: number;
   /** Enemy takedowns contributed to without landing the final hit. */
@@ -507,6 +511,8 @@ export interface RunItemLedgerEvent {
 }
 
 export interface RunChampionLedger {
+  wavesParticipated?: number;
+  biomesParticipated?: Biome[];
   kills: number;
   assists: number;
   damageDealt: number;
@@ -521,7 +527,7 @@ export interface RunChampionLedger {
 }
 
 export interface RunLedger {
-  version: 1;
+  version: 1 | 2;
   champions: Record<string, RunChampionLedger>;
   gold: {
     earned: number;
@@ -625,6 +631,8 @@ export interface ServerRunProgression {
   runId: string;
   replayed: boolean;
   candiesEarned: number;
+  /** Exact v3+ mastery allocation. Older replayed rulesets expose only the scalar field. */
+  candiesByChampion?: Record<string, number>;
   candiesPerChampion: number;
   progressionVersion: number;
   progressionSource: 'verified';

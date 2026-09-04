@@ -6,6 +6,7 @@ import {
 } from '@/game/inventory/inventoryRules';
 import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
 import { usesCanonicalProgression } from '@/game/run/runAuthorityJournal';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import { getItemSaleGold } from '@/game/run/runEncounterRules';
 import {
   cloneRunLedger,
@@ -79,8 +80,9 @@ export function createRunDomainSlice(
 
       const nextLedger = cloneRunLedger(ledger);
       ensureLedgerChampion(nextLedger, canonicalChampionId);
+      const level = getRecruitStartingLevel(get().runLevel, team);
       set({
-        team: [...team, { championId: canonicalChampionId, statMultiplier }],
+        team: [...team, { championId: canonicalChampionId, level, currentXp: 0, statMultiplier }],
         ledger: nextLedger,
       });
       return { success: true, value: { championId: canonicalChampionId } };
@@ -434,6 +436,7 @@ export function createRunDomainSlice(
           state.ledger,
           events,
           state.team.map((member) => member.championId),
+          state.currentBiome,
         ),
       }));
     },

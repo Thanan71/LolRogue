@@ -48,6 +48,24 @@ describe('canonical stat contract', () => {
     expect(new Set(CANONICAL_STAT_KEYS).size).toBe(CANONICAL_STAT_KEYS.length);
   });
 
+  it('authors no spatial-range bonus while the combat model has no positions', () => {
+    for (const role of [
+      'Assassin',
+      'Tank',
+      'Mage',
+      'Marksman',
+      'Fighter',
+      'Support',
+    ] as ChampionTag[]) {
+      const tree = getEnhancementTreeForRole(role);
+      const nodes = [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)];
+      for (const node of nodes) {
+        expect(node.statBonuses?.attackRange, `${role}/${node.id}`).toBeUndefined();
+        expect(node.percentBonuses?.attackRange, `${role}/${node.id}`).toBeUndefined();
+      }
+    }
+  });
+
   it.each([0, 1, 2, 3, 4])('applies mastery tier %i exactly once', (level) => {
     const result = applyMasteryBonus(base, level);
     const expectedMultiplier = 1 + getStatBonusForLevel(level);

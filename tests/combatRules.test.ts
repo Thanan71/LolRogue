@@ -364,12 +364,18 @@ describe('intégration BattleManager', () => {
   it('propagates true spell damage without applying either penetration stat', () => {
     const garen = championDB.getById('Garen');
     const darius = championDB.getById('Darius');
-    expect(garen && darius).toBeTruthy();
-    const player = new ChampionInstance(garen!);
+    const warwick = championDB.getById('Warwick');
+    expect(garen && darius && warwick).toBeTruthy();
+    const player = new ChampionInstance(garen!, 1, 10);
     const enemy = new ChampionInstance({
       ...darius!,
       stats: { ...darius!.stats, moveSpeed: 1 },
     });
+    const roundTarget = new ChampionInstance(
+      { ...warwick!, stats: { ...warwick!.stats, moveSpeed: 1 } },
+      1,
+      10,
+    );
     const rules = new CombatRuleRuntime(
       loadout({
         enhancementStats: {
@@ -383,13 +389,21 @@ describe('intégration BattleManager', () => {
     );
     const battle = new BattleManager(
       { side: 'player', champions: [player] },
-      { side: 'enemy', champions: [enemy] },
+      { side: 'enemy', champions: [enemy, roundTarget] },
       { autoActions: false, rules, random: () => 0.5 },
     );
     battle.startBattle();
     const target = battle.getCombatantState('Darius', 'enemy')!;
     const hpBefore = target.currentHp;
+    const resolveEnemyTurns = () => {
+      battle.processCurrentTurn();
+      battle.processCurrentTurn();
+    };
 
+    expect(battle.submitAction({ type: ActionType.BasicAttack, targetId: 'Warwick' })).toBe(true);
+    resolveEnemyTurns();
+    expect(battle.submitAction({ type: ActionType.BasicAttack, targetId: 'Warwick' })).toBe(true);
+    resolveEnemyTurns();
     expect(battle.submitAction({ type: ActionType.SpellR, targetId: 'Darius' })).toBe(true);
     expect(hpBefore - target.currentHp).toBe(150);
     expect(target.isDefeated).toBe(false);

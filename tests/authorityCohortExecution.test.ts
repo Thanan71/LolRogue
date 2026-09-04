@@ -14,7 +14,7 @@ describe('authority cohort CI execution', () => {
     const plan = createAuthorityCohortExecutionPlan('pr');
 
     expect(plan.seeds).toHaveLength(30);
-    expect(plan.cells).toHaveLength(36);
+    expect(plan.cells).toHaveLength(90);
     expect(new Set(plan.cells.map((cell) => cell.policy.manifest.id))).toEqual(
       new Set(['safety-first', 'economy-first']),
     );

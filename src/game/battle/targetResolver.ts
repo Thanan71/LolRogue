@@ -27,7 +27,11 @@ export function isActionTargeting(value: unknown): value is ActionTargeting {
 }
 
 export function actionRequiresTarget(targeting: ActionTargeting): boolean {
-  return targeting === TargetingType.Ally || targeting === TargetingType.Enemy;
+  return (
+    targeting === TargetingType.Ally ||
+    targeting === TargetingType.Enemy ||
+    targeting === TargetingType.Area
+  );
 }
 
 /**
@@ -35,8 +39,9 @@ export function actionRequiresTarget(targeting: ActionTargeting): boolean {
  *
  * Ally intentionally includes the actor: abilities described as "self or ally"
  * are represented by the ally targeting type in the champion data.
- * Area currently resolves to all enemies because the battle model has no
- * positions from which to calculate a smaller area.
+ * Area has no positional radius in the battle model, but it still requires a
+ * primary enemy. The selected enemy is returned first, followed by the living
+ * secondary enemies in stable formation order so damage falloff is deterministic.
  */
 export function resolveBattleTargets<T extends TargetableCombatant>(
   combatants: readonly T[],
@@ -76,6 +81,21 @@ export function resolveBattleTargets<T extends TargetableCombatant>(
 
   if (legalTargets.length === 0) {
     return { ok: false, requiresTarget, legalTargets, targets: [], error: 'no_target' };
+  }
+
+  if (targeting === TargetingType.Area) {
+    if (!requestedTargetId || requestedTargetId === 'all') {
+      return { ok: false, requiresTarget, legalTargets, targets: [], error: 'missing_target' };
+    }
+    const primary = legalTargets.find((candidate) => candidate.id === requestedTargetId);
+    return primary
+      ? {
+          ok: true,
+          requiresTarget,
+          legalTargets,
+          targets: [primary, ...legalTargets.filter((candidate) => candidate !== primary)],
+        }
+      : { ok: false, requiresTarget, legalTargets, targets: [], error: 'invalid_target' };
   }
 
   if (requiresTarget) {

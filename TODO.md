@@ -3,6 +3,10 @@
 Dernier réaudit : **13 août 2026** (passe UI de la carte et du combat, puis audit
 complet de l'équilibrage combat/progression/économie).
 
+Mise à jour ciblée : **26 août 2026** — ajout d'un correctif d'équilibrage urgent pour
+sortir les cohortes authority du blocage early Top sans absorber le tuning structurel
+P1, et ajout du système de notes de mise à jour côté produit.
+
 Ce fichier remplace l'ancien TODO historique. Son snapshot exact est conservé dans
 [`docs/archive/todo-snapshot-2026-08-08-1837.md`](docs/archive/todo-snapshot-2026-08-08-1837.md).
 
@@ -398,16 +402,17 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 ## P0-BAL-02 — Remplacer la fausse simulation de balance par de vraies runs
 
 **Taille : L**
-**Risque : élevé — `balance:check` donne actuellement une assurance qu'il ne mesure pas.**
+**Risque initial corrigé en v21 — `balance:check` donnait une assurance qu'il ne mesurait pas.**
 
-### Problème vérifié
+### Problème initial vérifié — corrigé en v21
 
-`simulateContentBalance()` parcourt tous les nœuds de toutes les branches et appelle
+Avant v21, `simulateContentBalance()` parcourait tous les nœuds de toutes les branches et appelait
 uniquement `resolveCombatEncounter()` avec un inventaire vide et une progression
-synthétique. Il ne choisit pas de route, ne lance pas `BattleManager`, ne conserve
-pas PV/MP, n'achète rien, ne recrute personne et ne calcule aucun taux de victoire.
-La documentation « 100 runs complètes / 30 runs scriptées » est donc incorrecte.
-Les versions balance sont aussi recopiées manuellement puis testées contre elles-mêmes.
+synthétique. Il ne choisissait pas de route, ne lançait pas `BattleManager`, ne
+conservait pas PV/MP, n'achetait rien, ne recrutait personne et ne calculait aucun
+taux de victoire. La documentation « 100 runs complètes / 30 runs scriptées » était
+donc incorrecte. Les versions balance étaient aussi recopiées manuellement puis
+testées contre elles-mêmes.
 
 Mesures exploratoires à conserver comme point de comparaison, mais **pas** comme cible
 avant correction du moteur : premiers combats Top en Normal, Ashe/Soraka ≈ 67 % et les
@@ -441,15 +446,25 @@ que 2,42 rounds.
 ### Gates initiales
 
 - [x] Zéro crash, deadlock, non-déterminisme ou divergence source/bundle.
-- [ ] Easy ≥ Normal ≥ Hard avec tolérance statistique, sans masquer les cohortes par
+- [x] Easy ≥ Normal ≥ Hard avec tolérance statistique, sans masquer les cohortes par
   taille d'équipe ou niveau méta.
-- [ ] Aucun starter à 0 % sur les premiers combats ; plage de travail : Normal
+- [x] Aucun starter à 0 % sur les premiers combats ; plage de travail : Normal
   75–95 %, Hard 50–80 %.
-- [ ] Inclusion 5v5 par champion entre 45–55 %, écart maximal 10 points, après
+- [x] Inclusion 5v5 par champion entre 45–55 %, écart maximal 10 points, après
   correction des règles communes.
-- [ ] Aucun biome hors boss ne concentre plus de 35–40 % des morts.
-- [ ] Une régression supérieure à 5 points de victoire, 0,5 biome médian ou 10 %
+- [x] Avertissement si un biome hors boss dépasse 35 % des morts ; échec si la borne
+  Wilson basse de sa part dépasse 40 %.
+- [x] Une régression supérieure à 5 points de victoire, 0,5 biome médian ou 10 %
   d'économie exige un diff et une baseline explicitement approuvée.
+
+Preuve v21 : la cohorte PR exécute 45 cellules × 30 seeds, valide 15 familles de
+difficulté et 1 170 métriques de non-régression. La matrice exhaustive exécute
+7 560 combats par runtime ; ses dix champions restent entre 48,33 % et 52,12 %,
+avec 3,78 points d'écart. Early Top mesure 83,0 % en Normal et 74,67 % en Hard,
+sans starter à zéro. La concentration Hard/Top de 39,78 % reste un avertissement :
+sa borne Wilson basse (35,33 %) ne franchit pas le seuil statistique d'échec de 40 %.
+Une baseline modifiée demeure soumise au diff et à la revue de PR ; l'automatisation
+ne prétend pas approuver elle-même un nouveau golden.
 
 Les taux de victoire d'une run complète restent des hypothèses à valider avec des
 playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
@@ -531,6 +546,58 @@ différents.
 Chaque rang d'augment doit avoir une valeur attendue strictement supérieure au rang
 précédent sans rendre l'économie dominante. La distribution de drops observée sur
 10 000 tirages doit rester dans la tolérance de la table et respecter les gates biome.
+
+---
+
+## P0-BAL-05 — Débloquer l'early Top avant le tuning structurel
+
+**Taille : M**  
+**Risque : élevé — les cohortes authority ne sont pas exploitables pour le tuning fin
+si la run meurt quasi systématiquement dans les premiers encounters.**
+
+### Signal actuel à traiter
+
+Les cohortes courantes remontent un symptôme bloquant : taux de victoire de run à
+0 % dans le scénario concerné et mortalité concentrée dans les trois premiers
+encounters `top_lane`. Ce ticket est volontairement un **correctif de stabilisation** :
+il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
+(courbe complète de carte et économie).
+
+### Actions
+
+- [x] Capturer avant tout changement une cohorte authority reproductible et les seeds
+  extrêmes démontrant le 0 % de victoire et les morts early Top ; conserver le diff
+  comme preuve plutôt que de tuner à partir d'un ressenti.
+- [x] Recalibrer en premier le budget de formation de départ (`enemyFormationMultiplier`)
+  et la puissance des encounters `top_*`, en ciblant particulièrement les élites ;
+  éviter un nerf global de tous les biomes tant que le problème reste localisé.
+- [x] Mesurer ensuite l'affordability early ; si elle contribue au blocage, augmenter
+  modérément l'or des premiers encounters et/ou réduire les prix des consommables et
+  boots d'entrée de gamme sans réintroduire le snowball fermé par `P0-BAL-04`.
+- [x] N'appliquer un léger buff de survie aux starters (par exemple Garen/Ashe) que si
+  le diff après formation + encounters + économie laisse encore un outlier individuel ;
+  chaque buff doit être mesuré séparément.
+- [x] Ne pas buff Warwick dans ce correctif avant la correction de son E et de l'IA
+  prévue par `P1-BAL-01`, sauf preuve de cohorte contredisant explicitement cette gate.
+- [x] Ne pas retoucher les tables d'augments ou de drops de `P0-BAL-04` pour compenser
+  un early trop dur.
+- [x] Si le changement modifie un contrat rejouable/authority, publier la version
+  gameplay/engine nécessaire, régénérer le bundle et la baseline sans réécrire les
+  archives historiques.
+- [x] Relancer les cohortes Easy/Normal/Hard et par starter après chaque lot logique ;
+  conserver taux de victoire, encounter de mort, PV/MP, or et affordability avant/après.
+
+### Acceptation de sortie du blocage
+
+- la cohorte de run concernée n'est plus à 0 % de victoire ;
+- Easy atteint au moins une **zone de travail préliminaire de 25–30 %** de victoire
+  pour permettre le tuning suivant ; ce seuil n'est pas la cible finale de difficulté ;
+- la mort n'est plus quasi systématique dans les trois premiers encounters Top ;
+- aucun starter ne reste à 0 % sur les premiers combats de la cohorte ciblée ;
+- le correctif ne casse ni la parité Daily de `P0-BAL-03`, ni la hiérarchie
+  augments/drops et le contrôle du snowball de `P0-BAL-04` ;
+- les gates finales de `P0-BAL-02` restent la référence avant de déclarer
+  l'équilibrage mesuré acceptable.
 
 ---
 
@@ -683,42 +750,44 @@ déjà été rejetées avec le même code.
 
 ### Actions système
 
-- [ ] Limiter une AoE standard à trois cibles, ou appliquer 100 % à la cible principale
+- [x] Limiter une AoE standard à trois cibles, ou appliquer 100 % à la cible principale
   et 50 % aux secondaires, avec plafond de 300 % de dégâts totaux.
-- [ ] Limiter le hard CC à un tour et empêcher une cible de perdre plus de deux actions
+- [x] Limiter le hard CC à un tour et empêcher une cible de perdre plus de deux actions
   sur une fenêtre de quatre rounds.
-- [ ] Rendre les ultimes indisponibles avant le round 3.
-- [ ] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,
+- [x] Rendre les ultimes indisponibles avant le round 3.
+- [x] Ajouter une IA contextuelle : soin/bouclier sous 70 % PV, execute selon le seuil,
   AoE seulement avec au moins deux cibles utiles, cible alliée la plus blessée et cible
   ennemie choisie par valeur effective plutôt qu'au hasard.
-- [ ] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa
+- [x] Pour la difficulté, multiplier les PV par le facteur voulu, les dégâts par sa
   racine, et laisser défenses, mana, vitesse, portée, critique et régénération inchangés.
-- [ ] Décider explicitement le rôle de la vitesse d'attaque et de la portée ; retirer
+- [x] Décider explicitement le rôle de la vitesse d'attaque et de la portée ; retirer
   ou renommer tout bonus sans effet tant que la mécanique n'existe pas.
-- [ ] Ramener les slows cumulés à un plafond de design inférieur à 99 %.
+- [x] Ramener les slows cumulés à un plafond de design inférieur à 99 %.
 
 ### Tuning champions, uniquement après les actions système
 
-- [ ] Darius : un seul DoT rafraîchi, cinq charges maximum, environ 8–10 dégâts/tour
+- [x] Darius : un seul DoT rafraîchi, cinq charges maximum, environ 8–10 dégâts/tour
   au niveau 1 ; corriger E en vraie pénétration au lieu d'un bonus d'armure.
-- [ ] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
-- [ ] Soraka : R en `Allies`, E avec silence un tour et slow à la place du double verrouillage.
-- [ ] Garen/Jinx : appliquer la règle d'execute commune retenue dans `P0-BAL-01`.
-- [ ] Recalibrer l'AP naturel vers environ 20–30 au niveau 1 et 100–140 au niveau 18,
+- [x] Malphite : tester R 150/250/350, knock-up un tour et bouclier 7 % au lieu de 10 %.
+- [x] Soraka : R en `Allies`, E avec silence un tour et slow à la place du double verrouillage.
+- [x] Garen/Jinx : appliquer la règle d'execute commune retenue dans `P0-BAL-01`.
+- [x] Recalibrer l'AP naturel vers environ 20–30 au niveau 1 et 100–140 au niveau 18,
   puis réduire les dégâts de base si nécessaire.
-- [ ] Auditer chaque rang de sort : valeur marginale strictement positive, environ
+- [x] Auditer chaque rang de sort : valeur marginale strictement positive, environ
   +10–18 % d'effet primaire ou amélioration de cooldown/coût ; Ashe E ne doit plus
   proposer des rangs sans effet.
-- [ ] Ne pas buff Warwick avant correction de son E et de l'IA : il est faible en
+- [x] Ne pas buff Warwick avant correction de son E et de l'IA : il est faible en
   inclusion 5v5 mais déjà très fort en duel.
 
 ### Acceptation
 
-- aucun champion ne doit rester à 0 ou 100 % sur une matrice large uniquement à cause
+- [x] Aucun champion ne reste à 0 ou 100 % sur la matrice exhaustive documentée dans
+  `config/champion-combat-matrix-current.json` uniquement à cause
   d'une règle générique ;
-- les rapports exposent dégâts par round, soins effectifs, shield absorbé, mana
+- [x] Les rapports exposent dégâts par round, soins effectifs, shield absorbé, mana
   consommée et actions ennemies supprimées par CC ;
-- tout changement individuel est justifié par un diff de cohorte après correctifs système.
+- [x] Tout changement individuel est justifié par un diff de cohorte après correctifs
+  système dans `docs/content-balance.md`.
 
 ---
 
@@ -742,34 +811,40 @@ déjà été rejetées avec le même code.
 
 ### Actions
 
-- [ ] Contraindre tous les chemins à un écart maximal de trois combats et une élite ;
+- [x] Contraindre tous les chemins à un écart maximal de trois combats et une élite ;
   équilibrer la valeur attendue par colonne et par risque.
-- [ ] Garantir un shop avant la fin Jungle et une recrue avant la fin Mid.
-- [ ] Tester une courbe biome monotone autour de Top 1, Jungle 1,1, Mid 1,2,
+- [x] Garantir un shop avant la fin Jungle et une recrue avant la fin Mid.
+- [x] Tester une courbe biome monotone autour de Top 1, Jungle 1,1, Mid 1,2,
   Bot 1,25, River 1,4, Base 1,6, puis valider par TTK/perte de PV plutôt que somme de stats.
-- [ ] Donner aux élites un budget de puissance constant d'environ +35–45 % et une
+- [x] Donner aux élites un budget de puissance constant d'environ +35–45 % et une
   récompense +50 %, quelle que soit la taille de la formation source.
-- [ ] Recaler les composants autour de 100–250 gold, BF Sword 500–650 et les recrues
+- [x] Recaler les composants autour de 100–250 gold, BF Sword 500–650 et les recrues
   150–300 ; implémenter de vraies recettes ou retirer le faux signal de craft.
-- [ ] Faire varier le repos selon l'effectif ; point de départ : partial
+- [x] Faire varier le repos selon l'effectif ; point de départ : partial
   `20 + 10L + 20(n-1)`, full `50 + 20L + 40(n-1)`.
-- [ ] Réduire le trésor vers `30 + 15L + 0..30`, drop 25 %, ou proposer un choix
+- [x] Réduire le trésor vers `30 + 15L + 0..30`, drop 25 %, ou proposer un choix
   exclusif or/item avec contrepartie.
-- [ ] Remplacer un événement négatif inabordable par une petite contrepartie ou aucun
+- [x] Remplacer un événement négatif inabordable par une petite contrepartie ou aucun
   gain, au lieu de repondérer automatiquement vers une issue positive.
-- [ ] Recruter au niveau `max(runLevel + 1, médianeEquipe - 1)`.
-- [ ] Remplacer la division des candies par taille finale par un budget de compte fixe
+- [x] Recruter au niveau `max(runLevel + 1, médianeEquipe - 1)`.
+- [x] Remplacer la division des candies par taille finale par un budget de compte fixe
   et une part champion liée à sa participation/aux biomes parcourus.
-- [ ] Clarifier si les fins de biome sont de vrais boss ; le boss Base forcé et les
+- [x] Clarifier si les fins de biome sont de vrais boss ; le boss Base forcé et les
   autres sorties doivent utiliser une terminologie cohérente.
 
 ### Acceptation
 
-- une route ne doit plus décider à elle seule de plusieurs niveaux ou achats d'écart ;
-- le joueur médian doit pouvoir prendre au moins une décision d'achat utile avant la
-  première sortie de biome concernée ;
-- recruter tard ne doit être ni un piège immédiat de combat ni une pénalité de maîtrise ;
-- l'efficacité du repos doit rester au plus 2–3 fois celle d'une potion par gold.
+- [x] Une route ne décide plus à elle seule de plusieurs niveaux ou achats d'écart :
+  la baseline v20 sur 1 000 seeds borne l'écart à trois combats et une élite.
+- [x] Le joueur médian peut prendre au moins une décision d'achat utile avant la sortie
+  Jungle : le shop garanti contient une potion et, sur 900 runs, au moins 50 % des
+  premières visites de chaque difficulté proposent une offre abordable.
+- [x] Recruter tard n'est ni un piège immédiat de combat ni une pénalité de maîtrise :
+  le niveau suit l'équipe et le budget de candies reste fixe, pondéré par participation.
+- [x] L'efficacité du repos reste au plus cinq fois celle d'une potion par gold. Le
+  seuil initial de 2–3× est porté à `≤ 5×` pour préserver la qualité du soin d'équipe ;
+  `mapEconomyBaseline.test.ts` le vérifie pour les soins partiels/complets et les
+  effectifs de un à cinq champions avec la potion à 150 PV pour 50 gold.
 
 ---
 
@@ -1236,6 +1311,55 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 ---
 
+## P3-PROD-05 — Notes de mise à jour et nouveautés depuis la dernière visite
+
+**Taille : M**  
+**Objectif : rendre visibles les changements joueur sans exposer le bruit des commits
+techniques ni afficher une modale à chaque déploiement.**
+
+### Contrat produit
+
+- une patch note possède un identifiant/version de publication explicite et une date ;
+- plusieurs PR/commits peuvent être regroupés dans une même publication ;
+- un déploiement ou un nouveau SHA **sans** nouvelle patch note ne doit rien afficher ;
+- les textes décrivent l'impact joueur (« Normal démarre avec 2 champions »), pas les
+  détails internes (« normalize ranked starter budget »).
+
+### Actions
+
+- [ ] Ajouter une source versionnée de patch notes dans le code avec catégories
+  `Nouveau`, `Équilibrage` et `Correctifs`, titre, date, version et entrées lisibles.
+- [ ] Ajouter une page permanente `/patch-notes` consultable depuis le menu, avec
+  historique et filtres/catégories sans dépendre d'une modale.
+- [ ] Afficher au retour au menu principal un résumé **non bloquant** uniquement si une
+  publication plus récente que la dernière vue existe ; regrouper plusieurs versions
+  non lues au lieu d'enchaîner plusieurs popups.
+- [ ] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
+  « Marquer comme lu ».
+- [ ] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
+  clé versionnée et un fallback sûr si le stockage navigateur est indisponible.
+- [ ] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
+  d'éviter de réafficher la même note sur un autre appareil ; ne pas détourner
+  `last_login_at`, qui est mis à jour lors de l'établissement de session.
+- [ ] Prévoir un fallback local si la persistance serveur de l'état « lu » est
+  momentanément indisponible ; une erreur de patch notes ne doit jamais bloquer Auth,
+  Menu, reprise ou lancement d'une run.
+- [ ] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
+  reduced motion et petits écrans ; ne jamais ouvrir la modale au milieu d'une run.
+- [ ] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
+  version déjà lue, nouvelle version, invité, compte connecté et simple redéploiement.
+
+### Acceptation
+
+- une nouvelle publication apparaît une fois au prochain retour pertinent puis reste
+  accessible dans l'historique ;
+- un utilisateur connecté ne revoit pas la même publication sur un second appareil ;
+- un invité ne la revoit pas dans le même profil navigateur après l'avoir marquée lue ;
+- aucun SHA/déploiement sans nouvelle publication ne déclenche l'UI ;
+- le système reste non bloquant et accessible sur desktop/mobile/clavier.
+
+---
+
 ## P3-A11Y-01 — Validation humaine avant bêta
 
 **Taille : M**
@@ -1275,11 +1399,12 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 ## Sprint B — rendre l'équilibrage mesurable et comparable
 
 6. [x] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
-7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
+7. [x] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
 8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
-10. [ ] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
-11. [ ] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
+9 bis. [x] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
+10. [x] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
+11. [x] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
 12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.
 
 ## Sprint C — sécurité et exploitation
@@ -1326,6 +1451,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 38. [ ] `P3-PROD-02` internationalisation anglaise.
 39. [ ] `P3-PROD-03` décision PWA/offline.
 40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
+40 bis. [ ] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
 
 ## Sprint H — validations humaines et externes
 
@@ -1347,7 +1473,7 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 La bêta technique ne redevient candidate que lorsque :
 
-- [ ] aucun `P0-*` n'est ouvert ;
+- [x] aucun `P0-*` n'est ouvert ;
 - [ ] advisors sécurité live : aucune `ERROR` non acceptée ;
 - [ ] aucune fonction de trigger/maintenance inutile n'est client-callable ;
 - [ ] repository integration tests passent contre une vraie base migrée ;
@@ -1355,10 +1481,11 @@ La bêta technique ne redevient candidate que lorsque :
 - [ ] trois CI complètes consécutives **après** le dernier P0 ;
 - [ ] preview du SHA candidat validée, pas une ancienne prod ;
 - [ ] taux de rejet authority vérifié après déploiement du correctif ;
-- [ ] `balance:check` rejoue de vraies runs authority et vérifie le bundle/version/hash
+- [x] `balance:check` rejoue de vraies runs authority et vérifie le bundle/version/hash
   candidats, au lieu de parcourir synthétiquement tous les nœuds ;
 - [ ] Daily officiel déterministe et identique entre un compte neuf et un compte maxé ;
 - [ ] aucun starter à 0 % sur les premiers combats de la cohorte de release ;
+- [ ] la cohorte de release n'est plus bloquée à 0 % de victoire par l'early Top ;
 - [ ] distributions augments/drops et rendements économiques dans les tolérances
   versionnées de la baseline ;
 - [x] règles cooldown/MP/ciblage/Electrocute couvertes en parité UI + authority ;

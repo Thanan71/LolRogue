@@ -70,11 +70,21 @@ export function critDamage(baseDamage: number, critMultiplier: number = 2.0): nu
  * @param ad     Attacker's attack damage
  * @param ratio  Ability/scaling ratio (e.g. 1.0 for basic attack, 1.3 for spell)
  * @param armor  Target's armor value
+ * @param armorPenetrationPercent Fraction of target armor ignored by the attacker (0–1)
  * @returns      Final damage dealt (rounded, ≥ 0)
  */
-export function calculateADDamage(ad: number, ratio: number, armor: number): number {
+export function calculateADDamage(
+  ad: number,
+  ratio: number,
+  armor: number,
+  armorPenetrationPercent = 0,
+): number {
   const rawDamage = ad * ratio;
-  const reduction = calculArmorReduction(rawDamage, armor);
+  const penetration = Number.isFinite(armorPenetrationPercent)
+    ? Math.min(1, Math.max(0, armorPenetrationPercent))
+    : 0;
+  const effectiveArmor = Math.max(0, armor) * (1 - penetration);
+  const reduction = calculArmorReduction(rawDamage, effectiveArmor);
   return Math.max(0, Math.round(rawDamage - reduction));
 }
 

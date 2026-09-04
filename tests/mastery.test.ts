@@ -112,6 +112,20 @@ describe('calculateCandiesForTeam', () => {
     const r = calculateCandiesForTeam(['Ahri', 'Darius'], 3, 1, false);
     expect(Object.keys(r).sort()).toEqual(['Ahri', 'Darius']);
   });
+  it('keeps one fixed account budget and weights late recruits by participation', () => {
+    const rewards = calculateCandiesForTeam(['Garen', 'Lux'], 20, 3, true, [
+      { championId: 'Garen', wavesParticipated: 20, biomesParticipated: 3 },
+      { championId: 'Lux', wavesParticipated: 5, biomesParticipated: 1 },
+    ]);
+    expect(rewards).toEqual({ Garen: 32, Lux: 9 });
+    expect(Object.values(rewards).reduce((total, candies) => total + candies, 0)).toBe(41);
+  });
+  it('breaks equal largest-remainder shares by stable champion ID order', () => {
+    expect(calculateCandiesForTeam(['Lux', 'Garen'], 1, 1, false)).toEqual({
+      Lux: 6,
+      Garen: 7,
+    });
+  });
 });
 
 describe('buildChampionMastery', () => {
@@ -205,9 +219,10 @@ describe('awardCandies', () => {
   });
   it('should handle multi-champion teams', () => {
     const r = awardCandies({}, ['Garen', 'Lux', 'Jinx'], 20, 3, true);
-    expect(r.candiesAwarded['Garen']).toBe(13);
+    expect(r.candiesAwarded['Garen']).toBe(14);
     expect(r.candiesAwarded['Lux']).toBe(13);
-    expect(r.candiesAwarded['Jinx']).toBe(13);
+    expect(r.candiesAwarded['Jinx']).toBe(14);
+    expect(Object.values(r.candiesAwarded).reduce((total, candies) => total + candies, 0)).toBe(41);
   });
   it('should not duplicate unlock IDs', () => {
     const cur: Record<string, ChampionMastery> = {

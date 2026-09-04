@@ -21,7 +21,7 @@ export const soraka: Champion = {
   tags: ['Support', 'Mage'],
   resourceType: 'Mana',
   stats: {
-    hp: 605,
+    hp: 650,
     mp: 425,
     moveSpeed: 325,
     armor: 32,
@@ -64,7 +64,7 @@ export const soraka: Champion = {
           baseDamage: [85, 120, 155, 190, 225],
         },
         { type: 'cc', ccType: 'slow', slowPercent: 30, ccDuration: 2 },
-        { type: 'heal', baseValue: [50, 65, 80, 95, 110], apRatio: 0.3 },
+        { type: 'heal', baseValue: [25, 40, 55, 70, 85], apRatio: 0.3 },
       ],
     },
     {
@@ -78,13 +78,13 @@ export const soraka: Champion = {
       image: 'SorakaW.png',
       targeting: TargetingType.Ally,
       scaling: { adRatio: 0, apRatio: 0.6 },
-      effects: [{ type: 'heal', baseValue: [80, 110, 140, 170, 200], apRatio: 0.6 }],
+      effects: [{ type: 'heal', baseValue: [35, 60, 85, 110, 135], apRatio: 0.6 }],
     },
     {
       id: 'SorakaE',
       name: 'Équinoxe',
       description:
-        'Crée une zone qui réduit au silence les ennemis. Quand la zone disparaît, les ennemis encore dedans sont immobilisés.',
+        'Crée une zone qui réduit au silence et ralentit les ennemis de 30% pendant un tour.',
       maxRank: 5,
       cooldownTurns: [5, 5, 5, 5, 4],
       cost: [70, 75, 80, 85, 90],
@@ -100,8 +100,8 @@ export const soraka: Champion = {
           apRatio: 0.4,
           baseDamage: [70, 110, 150, 190, 230],
         },
-        { type: 'cc', ccType: 'silence', ccDuration: 1.5 },
-        { type: 'cc', ccType: 'snare', ccDuration: 1.5 },
+        { type: 'cc', ccType: 'silence', ccDuration: 1 },
+        { type: 'cc', ccType: 'slow', slowPercent: 30, ccDuration: 1 },
       ],
     },
     {
@@ -114,9 +114,9 @@ export const soraka: Champion = {
       cost: [100, 100, 100],
       range: [25000, 25000, 25000],
       image: 'SorakaR.png',
-      targeting: TargetingType.Ally,
+      targeting: TargetingType.Allies,
       scaling: { adRatio: 0, apRatio: 0.55 },
-      effects: [{ type: 'heal', baseValue: [150, 250, 350], apRatio: 0.55 }],
+      effects: [{ type: 'heal', baseValue: [70, 170, 270], apRatio: 0.55 }],
     },
   ],
   passive: {

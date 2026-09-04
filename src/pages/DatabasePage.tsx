@@ -3,6 +3,7 @@ import { EnhancementTree } from '@/components/EnhancementTree';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { localizeChampion } from '@/i18n/content';
 import { formatChampionTag, plural } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
@@ -140,7 +141,7 @@ export function DatabasePage() {
                 >
                   <img
                     src={champ.iconUrl}
-                    alt={champ.name}
+                    alt={localizeChampion(champ).name}
                     width={120}
                     height={120}
                     loading="lazy"
@@ -150,7 +151,7 @@ export function DatabasePage() {
                     }}
                   />
                   <div className="database-list-item-info">
-                    <div className="database-list-item-name">{champ.name}</div>
+                    <div className="database-list-item-name">{localizeChampion(champ).name}</div>
                     <div className="database-list-item-tags">
                       {champ.tags.map(formatChampionTag).join(', ')}
                     </div>
@@ -174,7 +175,11 @@ export function DatabasePage() {
           ref={detailRef}
           id="database-champion-detail"
           className="database-detail"
-          aria-label={selectedChampion ? `Fiche de ${selectedChampion.name}` : fr.database.select}
+          aria-label={
+            selectedChampion
+              ? `Fiche de ${localizeChampion(selectedChampion).name}`
+              : fr.database.select
+          }
           tabIndex={selectedChampion ? -1 : undefined}
         >
           {selectedChampion ? (
@@ -183,7 +188,7 @@ export function DatabasePage() {
                 <button type="button" onClick={handleReturnToChampionList}>
                   <span aria-hidden="true">←</span> Retour à la liste
                 </button>
-                <strong>{selectedChampion.name}</strong>
+                <strong>{localizeChampion(selectedChampion).name}</strong>
               </div>
               <div
                 className="database-tabs"

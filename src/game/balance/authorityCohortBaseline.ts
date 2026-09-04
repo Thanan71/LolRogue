@@ -8,9 +8,13 @@ import {
 } from './authorityCohortReport';
 import type { BalancePolicyManifest } from './balancePolicy';
 
-export const AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION = 1 as const;
+export const LEGACY_AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION = 1 as const;
+export const AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION = 2 as const;
+export type AuthorityCohortBaselineSchemaVersion =
+  | typeof LEGACY_AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION
+  | typeof AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION;
 
-export const AUTHORITY_COHORT_BASELINE_METRIC_NAMES = [
+export const LEGACY_AUTHORITY_COHORT_BASELINE_METRIC_NAMES = [
   'outcome.winRate',
   'progression.waves.p10',
   'progression.waves.p50',
@@ -85,11 +89,22 @@ export const AUTHORITY_COHORT_BASELINE_METRIC_NAMES = [
   'augments.tier.prismaticPerRun',
 ] as const;
 
+export const AUTHORITY_COHORT_BASELINE_METRIC_NAMES = [
+  ...LEGACY_AUTHORITY_COHORT_BASELINE_METRIC_NAMES,
+  'combat.player.shieldingAbsorbedPerRound',
+  'combat.player.manaSpentPerRound',
+  'combat.enemy.shieldingAbsorbedPerRound',
+  'combat.enemy.manaSpentPerRound',
+] as const;
+
 export type AuthorityCohortBaselineMetricName =
   (typeof AUTHORITY_COHORT_BASELINE_METRIC_NAMES)[number];
+type LegacyAuthorityCohortBaselineMetricName =
+  (typeof LEGACY_AUTHORITY_COHORT_BASELINE_METRIC_NAMES)[number];
 
 export type AuthorityCohortBaselineMetrics = Readonly<
-  Record<AuthorityCohortBaselineMetricName, number>
+  Record<LegacyAuthorityCohortBaselineMetricName, number> &
+    Partial<Record<AuthorityCohortBaselineMetricName, number>>
 >;
 
 export interface AuthorityCohortBaselineIdentity {
@@ -125,7 +140,7 @@ export interface AuthorityCohortBaselineEntry {
 }
 
 export interface AuthorityCohortBaselineDocument {
-  readonly schemaVersion: typeof AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION;
+  readonly schemaVersion: AuthorityCohortBaselineSchemaVersion;
   readonly entries: Readonly<Record<string, AuthorityCohortBaselineEntry>>;
 }
 
@@ -334,6 +349,8 @@ function createMetrics(report: AuthorityCohortReport): AuthorityCohortBaselineMe
     'combat.player.hpDamagePerRound': player.hpDamagePerRound,
     'combat.player.shieldDamagePerRound': player.shieldDamagePerRound,
     'combat.player.healingPerRound': player.healingPerRound,
+    'combat.player.shieldingAbsorbedPerRound': player.shieldingAbsorbedPerRound,
+    'combat.player.manaSpentPerRound': player.manaSpentPerRound,
     'combat.player.crowdControlApplicationsPerRound': per(player.crowdControlApplications, rounds),
     'combat.player.crowdControlDurationPerRound': per(player.crowdControlDuration, rounds),
     'combat.player.actionsLostPerRound': per(player.actionsLost, rounds),
@@ -341,6 +358,8 @@ function createMetrics(report: AuthorityCohortReport): AuthorityCohortBaselineMe
     'combat.enemy.hpDamagePerRound': enemy.hpDamagePerRound,
     'combat.enemy.shieldDamagePerRound': enemy.shieldDamagePerRound,
     'combat.enemy.healingPerRound': enemy.healingPerRound,
+    'combat.enemy.shieldingAbsorbedPerRound': enemy.shieldingAbsorbedPerRound,
+    'combat.enemy.manaSpentPerRound': enemy.manaSpentPerRound,
     'combat.enemy.crowdControlApplicationsPerRound': per(enemy.crowdControlApplications, rounds),
     'combat.enemy.crowdControlDurationPerRound': per(enemy.crowdControlDuration, rounds),
     'combat.enemy.actionsLostPerRound': per(enemy.actionsLost, rounds),
@@ -390,21 +409,37 @@ function createMetrics(report: AuthorityCohortReport): AuthorityCohortBaselineMe
 
 export function createAuthorityCohortBaselineReport(
   report: AuthorityCohortReport,
+  schemaVersion: AuthorityCohortBaselineSchemaVersion = AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION,
 ): AuthorityCohortBaselineReport {
+  const allMetrics = createMetrics(report);
+  const metricNames =
+    schemaVersion === LEGACY_AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION
+      ? LEGACY_AUTHORITY_COHORT_BASELINE_METRIC_NAMES
+      : AUTHORITY_COHORT_BASELINE_METRIC_NAMES;
   return {
     scenarioId: report.scenarioId,
     stratumFingerprint: report.stratum.fingerprint,
     sampleSize: report.sampleSize,
-    metrics: createMetrics(report),
+    metrics: Object.fromEntries(
+      metricNames.map((name) => [name, allMetrics[name]]),
+    ) as AuthorityCohortBaselineMetrics,
     deathLocations: report.deaths.byLocation.map((location) => ({ ...location })),
   };
 }
 
-function parseMetrics(value: unknown, path: string): AuthorityCohortBaselineMetrics {
+function parseMetrics(
+  value: unknown,
+  path: string,
+  schemaVersion: AuthorityCohortBaselineSchemaVersion,
+): AuthorityCohortBaselineMetrics {
   const source = readObject(value, path);
-  assertExactKeys(source, AUTHORITY_COHORT_BASELINE_METRIC_NAMES, path);
+  const metricNames =
+    schemaVersion === LEGACY_AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION
+      ? LEGACY_AUTHORITY_COHORT_BASELINE_METRIC_NAMES
+      : AUTHORITY_COHORT_BASELINE_METRIC_NAMES;
+  assertExactKeys(source, metricNames, path);
   const metrics = {} as Record<AuthorityCohortBaselineMetricName, number>;
-  for (const name of AUTHORITY_COHORT_BASELINE_METRIC_NAMES) {
+  for (const name of metricNames) {
     const metric = readFiniteNumber(source[name], `${path}.${name}`);
     if (metric < 0) invalid(`${path}.${name}`, 'expected a non-negative metric.');
     if (BOUNDED_RATE_METRICS.has(name) && metric > 1) {
@@ -456,7 +491,11 @@ function parseDeathLocations(value: unknown, path: string): AuthorityCohortBasel
   return locations;
 }
 
-function parseBaselineReport(value: unknown, path: string): AuthorityCohortBaselineReport {
+function parseBaselineReport(
+  value: unknown,
+  path: string,
+  schemaVersion: AuthorityCohortBaselineSchemaVersion,
+): AuthorityCohortBaselineReport {
   const report = readObject(value, path);
   assertExactKeys(
     report,
@@ -471,7 +510,7 @@ function parseBaselineReport(value: unknown, path: string): AuthorityCohortBasel
     scenarioId: readString(report.scenarioId, `${path}.scenarioId`),
     stratumFingerprint,
     sampleSize: readSafeInteger(report.sampleSize, `${path}.sampleSize`, 1),
-    metrics: parseMetrics(report.metrics, `${path}.metrics`),
+    metrics: parseMetrics(report.metrics, `${path}.metrics`, schemaVersion),
     deathLocations: parseDeathLocations(report.deathLocations, `${path}.deathLocations`),
   };
   for (let index = 1; index < parsed.deathLocations.length; index++) {
@@ -531,7 +570,11 @@ function parseBaselineReport(value: unknown, path: string): AuthorityCohortBasel
   return parsed;
 }
 
-function parseEntry(value: unknown, path: string): AuthorityCohortBaselineEntry {
+function parseEntry(
+  value: unknown,
+  path: string,
+  schemaVersion: AuthorityCohortBaselineSchemaVersion,
+): AuthorityCohortBaselineEntry {
   const entry = readObject(value, path);
   assertExactKeys(entry, ['identity', 'source', 'reports'], path);
   const identity = parseIdentity(entry.identity, `${path}.identity`);
@@ -556,7 +599,7 @@ function parseEntry(value: unknown, path: string): AuthorityCohortBaselineEntry 
     invalid(`${path}.reports`, `expected exactly ${cellCount} reports.`);
   }
   const reports = entry.reports.map((report, index) =>
-    parseBaselineReport(report, `${path}.reports[${index}]`),
+    parseBaselineReport(report, `${path}.reports[${index}]`, schemaVersion),
   );
   const fingerprints = new Set<string>();
   const scenarioIds = new Set<string>();
@@ -592,14 +635,21 @@ export function loadAuthorityCohortBaseline(
 ): AuthorityCohortBaselineDocument {
   const document = readObject(value, 'baseline');
   assertExactKeys(document, ['schemaVersion', 'entries'], 'baseline');
-  if (document.schemaVersion !== AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION) {
-    invalid('baseline.schemaVersion', `expected ${AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION}.`);
+  if (
+    document.schemaVersion !== LEGACY_AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION &&
+    document.schemaVersion !== AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION
+  ) {
+    invalid(
+      'baseline.schemaVersion',
+      `expected ${LEGACY_AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION} or ${AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION}.`,
+    );
   }
+  const schemaVersion = document.schemaVersion;
   const rawEntries = readObject(document.entries, 'baseline.entries');
   if (Object.keys(rawEntries).length === 0) invalid('baseline.entries', 'must not be empty.');
   const entries: Record<string, AuthorityCohortBaselineEntry> = {};
   for (const [key, rawEntry] of Object.entries(rawEntries)) {
-    const entry = parseEntry(rawEntry, `baseline.entries[${JSON.stringify(key)}]`);
+    const entry = parseEntry(rawEntry, `baseline.entries[${JSON.stringify(key)}]`, schemaVersion);
     const canonicalKey = createAuthorityCohortBaselineKey(entry.identity);
     if (key !== canonicalKey) {
       invalid(
@@ -617,7 +667,7 @@ export function loadAuthorityCohortBaseline(
       );
     }
   }
-  return { schemaVersion: AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION, entries };
+  return { schemaVersion, entries };
 }
 
 function assertReportIdentity(
@@ -647,16 +697,18 @@ export function createAuthorityCohortBaselineDocument(input: {
   readonly identity: AuthorityCohortBaselineIdentity;
   readonly seeds: readonly number[];
   readonly reports: readonly AuthorityCohortReport[];
+  readonly schemaVersion?: AuthorityCohortBaselineSchemaVersion;
 }): AuthorityCohortBaselineDocument {
+  const schemaVersion = input.schemaVersion ?? AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION;
   for (const report of input.reports) assertReportIdentity(report, input.identity);
   const reports = input.reports
-    .map(createAuthorityCohortBaselineReport)
+    .map((report) => createAuthorityCohortBaselineReport(report, schemaVersion))
     .sort((left, right) => left.scenarioId.localeCompare(right.scenarioId));
   const seeds = [...input.seeds].sort((left, right) => left - right);
   const key = createAuthorityCohortBaselineKey(input.identity);
   return loadAuthorityCohortBaseline(
     {
-      schemaVersion: AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION,
+      schemaVersion,
       entries: {
         [key]: {
           identity: input.identity,
@@ -712,18 +764,20 @@ export function compareAuthorityCohortReports(
     stratumFingerprint: current.stratum.fingerprint,
     baselineSampleSize: baseline.sampleSize,
     currentSampleSize: current.sampleSize,
-    metrics: AUTHORITY_COHORT_BASELINE_METRIC_NAMES.map((metric) => {
-      const baselineValue = baseline.metrics[metric];
-      const currentValue = currentMetrics[metric];
-      const absoluteDelta = currentValue - baselineValue;
-      return {
-        metric,
-        baseline: baselineValue,
-        current: currentValue,
-        absoluteDelta,
-        relativeDelta: baselineValue === 0 ? null : absoluteDelta / Math.abs(baselineValue),
-      };
-    }),
+    metrics: (Object.keys(baseline.metrics) as AuthorityCohortBaselineMetricName[]).map(
+      (metric) => {
+        const baselineValue = baseline.metrics[metric]!;
+        const currentValue = currentMetrics[metric]!;
+        const absoluteDelta = currentValue - baselineValue;
+        return {
+          metric,
+          baseline: baselineValue,
+          current: currentValue,
+          absoluteDelta,
+          relativeDelta: baselineValue === 0 ? null : absoluteDelta / Math.abs(baselineValue),
+        };
+      },
+    ),
     deathLocations: [...locations]
       .map((key) => {
         const baselineLocation = baselineLocations.get(key);

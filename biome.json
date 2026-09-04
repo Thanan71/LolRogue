@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.10/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -10,6 +10,8 @@
       "**",
       "!!dist",
       "!!node_modules",
+      "!!config/authority-cohort-baselines-v*.json",
+      "!!config/map-economy-baseline-v*.json",
       "!!public/lol/data",
       "!!src/data/generated/*.json",
       "!!supabase/authority-archive/run-authority-v1.bundle.ts",
@@ -22,12 +24,16 @@
       "!!supabase/authority-archive/run-authority-v8.bundle.ts",
       "!!supabase/authority-archive/run-authority-v9.bundle.ts",
       "!!supabase/authority-archive/run-authority-v10.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v11.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v12.bundle.ts",
-      "!!supabase/functions/verify-run/run-authority-v13.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v11.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v12.bundle.ts",
+      "!!supabase/authority-archive/run-authority-v13.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v14.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v15.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v16.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v17.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v18.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v19.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v20.bundle.ts",
       "!!supabase/functions/verify-run/authority-version-resolver.generated.ts",
       "!!src/game/authority/versionCapabilities.generated.ts"
     ]

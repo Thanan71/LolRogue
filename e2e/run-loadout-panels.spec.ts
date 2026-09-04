@@ -124,7 +124,7 @@ for (const viewport of VIEWPORTS) {
       'Puissance',
       'Armure',
       'Résistance magique',
-      "Vitesse d'attaque",
+      "Initiative d'attaque",
       'Critique',
     ]) {
       await expect(teamPanel.locator('dt').filter({ hasText: stat }).first()).toBeVisible();

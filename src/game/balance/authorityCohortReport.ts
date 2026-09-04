@@ -42,6 +42,8 @@ export interface AuthorityCohortCombatSideReport extends BattleSideMetrics {
   readonly hpDamagePerRound: number;
   readonly shieldDamagePerRound: number;
   readonly healingPerRound: number;
+  readonly shieldingAbsorbedPerRound: number;
+  readonly manaSpentPerRound: number;
 }
 
 export interface AuthorityCohortReport {
@@ -232,6 +234,8 @@ function emptySideMetrics(): BattleSideMetrics {
     healingDone: 0,
     overhealing: 0,
     shieldingDone: 0,
+    shieldingAbsorbed: 0,
+    manaSpent: 0,
     crowdControlApplications: 0,
     crowdControlDuration: 0,
     actionsLost: 0,
@@ -244,6 +248,8 @@ function addSideMetrics(target: BattleSideMetrics, source: BattleSideMetrics): v
   target.healingDone += source.healingDone;
   target.overhealing += source.overhealing;
   target.shieldingDone += source.shieldingDone;
+  target.shieldingAbsorbed += source.shieldingAbsorbed;
+  target.manaSpent += source.manaSpent;
   target.crowdControlApplications += source.crowdControlApplications;
   target.crowdControlDuration += source.crowdControlDuration;
   target.actionsLost += source.actionsLost;
@@ -261,6 +267,8 @@ function finishSideMetrics(
     hpDamagePerRound: metrics.hpDamageDealt / divisor,
     shieldDamagePerRound: metrics.shieldDamageDealt / divisor,
     healingPerRound: metrics.healingDone / divisor,
+    shieldingAbsorbedPerRound: metrics.shieldingAbsorbed / divisor,
+    manaSpentPerRound: metrics.manaSpent / divisor,
   };
 }
 

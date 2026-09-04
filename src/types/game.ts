@@ -5,7 +5,7 @@
  *   HP  = LoL HP (direct)
  *   ATK = LoL Attack Damage (direct)
  *   DEF = average of LoL Armor + Magic Resist
- *   AP  = derived from LoL Mana pool (magical potential proxy)
+ *   AP  = natural combat curve shared by every champion
  *   SPD = mapped from LoL Move Speed (325–355) → 1–10 roguelike scale
  *   CRIT = LoL Crit Chance (direct, 0–100)
  */
@@ -17,7 +17,7 @@ export interface GameStats {
   atk: number;
   /** Defense — combined physical + magical resistance */
   def: number;
-  /** Ability Power — magical damage potential, derived from mana pool */
+  /** Ability Power — magical damage potential from the natural combat curve */
   ap: number;
   /** Speed — roguelike move/action speed (1–10 scale) */
   spd: number;
@@ -45,7 +45,7 @@ export interface GameStats {
  *   HP   ~400–700    (direct LoL HP)
  *   ATK  ~50–66      (direct LoL AD)
  *   DEF  ~25–37      (avg armor+MR)
- *   AP   ~0–15       (mp * 0.03)
+ *   AP   ~25         (natural level-1 value)
  *   SPD  ~1.5–8.5    (moveSpeed mapped to 1–10)
  *   CRIT ~0          (base is 0 for all champs)
  *

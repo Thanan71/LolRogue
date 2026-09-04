@@ -25,7 +25,6 @@ export enum ItemCategory {
   Armor = 'armor',
   Accessory = 'accessory',
   Consumable = 'consumable',
-  Component = 'component',
 }
 
 /** Stat bonus definition for items. */
@@ -73,7 +72,6 @@ export interface ItemDefinition {
   unique?: boolean;
   stackable: boolean;
   maxStacks: number;
-  components?: string[];
   tier: 1 | 2 | 3;
 }
 

@@ -1,24 +1,28 @@
 import type { AuthorityDifficulty } from '@/types/runAttempt';
 
 export interface DifficultyRule {
-  enemyStatMultiplier: number;
+  enemyHealthMultiplier: number;
+  enemyDamageMultiplier: number;
   goldMultiplier: number;
   dropMultiplier: number;
 }
 
 export const DIFFICULTY_RULES: Record<AuthorityDifficulty, DifficultyRule> = {
   easy: {
-    enemyStatMultiplier: 0.85,
+    enemyHealthMultiplier: 0.85,
+    enemyDamageMultiplier: Math.sqrt(0.85),
     goldMultiplier: 0.9,
     dropMultiplier: 1,
   },
   normal: {
-    enemyStatMultiplier: 1,
+    enemyHealthMultiplier: 1,
+    enemyDamageMultiplier: 1,
     goldMultiplier: 1,
     dropMultiplier: 1,
   },
   hard: {
-    enemyStatMultiplier: 1.2,
+    enemyHealthMultiplier: 1.2,
+    enemyDamageMultiplier: Math.sqrt(1.2),
     goldMultiplier: 1.15,
     dropMultiplier: 1,
   },

@@ -16,6 +16,8 @@ export interface DamageEffectParams {
   damageType: DamageType;
   duration?: number; // 0 = instant, >0 = DoT
   canCrit?: boolean;
+  stacks?: number;
+  maxStacks?: number;
 }
 
 export class DamageEffect extends Effect<DamageEffectData> {
@@ -32,7 +34,10 @@ export class DamageEffect extends Effect<DamageEffectData> {
       expired: false,
       damageType: params.damageType,
       canCrit: params.canCrit ?? true,
+      stacks: Math.max(1, Math.floor(params.stacks ?? 1)),
+      maxStacks: Math.max(1, Math.floor(params.maxStacks ?? 1)),
     });
+    this.data.stacks = Math.min(this.data.stacks, this.data.maxStacks);
   }
 
   get damageType(): DamageType {
@@ -41,12 +46,24 @@ export class DamageEffect extends Effect<DamageEffectData> {
   get canCrit(): boolean {
     return this.data.canCrit;
   }
+  get stacks(): number {
+    return this.data.stacks;
+  }
+  get maxStacks(): number {
+    return this.data.maxStacks;
+  }
+
+  /** Add one stack without creating a second DoT instance. */
+  addStack(): number {
+    this.data.stacks = Math.min(this.data.maxStacks, this.data.stacks + 1);
+    return this.data.stacks;
+  }
 
   tick(): EffectEvent {
     // For DoT: each tick deals magnitude / duration damage
     const perTick = this.isInstant
       ? this.data.magnitude
-      : Math.round(this.data.magnitude / this.data.duration);
+      : Math.round((this.data.magnitude * this.data.stacks) / this.data.duration);
 
     const event: EffectEvent = {
       type: 'effect_tick',

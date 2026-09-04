@@ -20,6 +20,7 @@ import {
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import { assertValidRuleCatalogs } from '@/game/rules/catalogValidation';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
 import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
@@ -31,6 +32,7 @@ import {
 } from '@/game/run/runCombatant';
 import {
   getItemSaleGold,
+  getRestGoldCost,
   getShopItemCost,
   getShopRecruitCost,
   resolveEventTeamUpdates,
@@ -85,9 +87,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v17';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v21';
 export const AUTHORITY_CONTENT_HASH =
-  '83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19';
+  '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6';
 
 assertValidRuleCatalogs();
 
@@ -374,7 +376,7 @@ class AuthorityReplayState {
         if (node.encounter?.type !== 'rest') {
           fail('invalid_content', `Rest node "${node.id}" has no rest encounter.`);
         }
-        const cost = Math.max(0, node.encounter.goldCost);
+        const cost = getRestGoldCost(node.encounter, this.team.length);
         return {
           ...base,
           nodeType: 'rest',
@@ -545,14 +547,22 @@ class AuthorityReplayState {
     });
     if (!usesCanonicalAutoPlay) {
       battle.setActionCallback(() => {
+        const replayedActionCount = battle.getPlayerActionTrace().length;
+        while (
+          scriptedActionIndex < replayedActionCount &&
+          scriptedActions[scriptedActionIndex]?.automatic
+        ) {
+          scriptedActionIndex++;
+        }
         const action = scriptedActions[scriptedActionIndex];
         // A legal turn may produce no action (for example while rooted with
         // every spell unavailable). Such a turn is intentionally absent from
         // the compact trace, so reaching its end must not consume a phantom
         // entry and invalidate an otherwise exact replay.
         if (!action) return null;
+        if (action.automatic) return null;
         scriptedActionIndex++;
-        return action?.automatic ? null : (action ?? null);
+        return action;
       });
     }
     battle.startBattle();
@@ -575,13 +585,13 @@ class AuthorityReplayState {
         action.targetId !== scriptedActions[index]?.targetId ||
         action.automatic !== scriptedActions[index]?.automatic,
     );
-    const unconsumedActions = scriptedActions.slice(scriptedActionIndex);
+    const unconsumedActions = scriptedActions.slice(replayedActions.length);
     const hasValidReplayPrefix =
-      replayedActions.length === scriptedActionIndex && firstMismatchedActionIndex === -1;
+      replayedActions.length <= scriptedActions.length && firstMismatchedActionIndex === -1;
     const hasOnlyHarmlessAutomaticSuffix = unconsumedActions.every((action) => action.automatic);
     if (!usesCanonicalAutoPlay && (!hasValidReplayPrefix || !hasOnlyHarmlessAutomaticSuffix)) {
       const mismatchIndex =
-        firstMismatchedActionIndex !== -1 ? firstMismatchedActionIndex : scriptedActionIndex;
+        firstMismatchedActionIndex !== -1 ? firstMismatchedActionIndex : replayedActions.length;
       fail(
         'invalid_combat_action_trace',
         `Combat action trace does not match deterministic replay at action ${mismatchIndex + 1} ` +
@@ -620,6 +630,7 @@ class AuthorityReplayState {
       this.ledger,
       result.log,
       this.team.map((member) => member.championId),
+      node.biome,
     );
     for (const finalState of battle.getFinalPlayerStates()) {
       const member = this.team.find((candidate) => candidate.championId === finalState.championId);
@@ -694,6 +705,10 @@ class AuthorityReplayState {
       this.pendingSpellUpgradeChampionIds,
       postCombat.pendingSpellUpgradeChampionIds,
     );
+    let droppedItemInstanceId: string | null = null;
+    if (resolution.reward.droppedItem) {
+      droppedItemInstanceId = this.addItem(resolution.reward.droppedItem, 'found', 'combat');
+    }
     const progression = completeCombatProgression({
       runLevel: this.runLevel,
       currentWave: this.currentWave,
@@ -701,10 +716,6 @@ class AuthorityReplayState {
     });
     this.currentWave = progression.currentWave;
     this.totalWavesCompleted = progression.totalWavesCompleted;
-    let droppedItemInstanceId: string | null = null;
-    if (resolution.reward.droppedItem) {
-      droppedItemInstanceId = this.addItem(resolution.reward.droppedItem, 'found', 'combat');
-    }
     this.combatSummaries.push({
       ...summaryBase,
       playerAfterEncounter: this.capturePostCombatResources(),
@@ -821,10 +832,11 @@ class AuthorityReplayState {
       fail('invalid_encounter', 'No rest encounter is pending.', commandIndex);
     }
     this.claimPending(commandIndex);
-    if (this.gold < encounter.goldCost) {
+    const cost = getRestGoldCost(encounter, this.team.length);
+    if (this.gold < cost) {
       fail('insufficient_gold', 'Not enough gold to rest.', commandIndex);
     }
-    this.spendGold(encounter.goldCost);
+    this.spendGold(cost);
     for (const member of this.team) {
       const maxHp = this.getMemberMaxHp(member);
       member.currentHp = resolveRestHp(member.currentHp, maxHp, encounter);
@@ -1054,11 +1066,12 @@ class AuthorityReplayState {
   }
 
   private addChampion(championId: string, statMultiplier: number): void {
+    const level = getRecruitStartingLevel(this.runLevel, this.team);
     this.team.push({
       championId,
       currentHp: null,
       currentMp: null,
-      level: 1,
+      level,
       currentXp: 0,
       statBoosts: {},
       statMultiplier,

@@ -1,5 +1,6 @@
 import { championDB } from '@/data';
 import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
+import { localizeUserCopy } from '@/i18n/content';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
@@ -34,7 +35,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
         mr: 'RM',
         spd: 'Vitesse',
         crit: 'Critique',
-        attackSpeed: 'Vitesse ATQ',
+        attackSpeed: 'Initiative ATQ',
         hpRegen: 'Regen PV',
         mpRegen: 'Regen PM',
         armorPen: 'Pen. Armure',
@@ -43,7 +44,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
         omnivamp: 'Omnivamp',
         tenacity: 'Ténacité',
         abilityHaste: 'Hâte',
-        attackRange: 'Portée',
+        attackRange: 'Profil de portée',
       };
       const name = statNames[stat] || stat;
       descriptions.push(
@@ -64,7 +65,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
         mr: 'RM',
         spd: 'Vitesse',
         crit: 'Critique',
-        attackSpeed: 'Vitesse ATQ',
+        attackSpeed: 'Initiative ATQ',
         hpRegen: 'Regen PV',
         mpRegen: 'Regen PM',
         armorPen: 'Pen. Armure',
@@ -73,7 +74,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
         omnivamp: 'Omnivamp',
         tenacity: 'Ténacité',
         abilityHaste: 'Hâte',
-        attackRange: 'Portée',
+        attackRange: 'Profil de portée',
       };
       const name = statNames[stat] || stat;
       descriptions.push(
@@ -89,8 +90,8 @@ export function getEnhancementDescriptions(championId: string): string[] {
     if (effect.description) {
       descriptions.push(
         UNAVAILABLE_ENHANCEMENT_EFFECTS.has(effect.type)
-          ? `${effect.description} (indisponible)`
-          : effect.description,
+          ? `${localizeUserCopy(effect.description)} (indisponible)`
+          : localizeUserCopy(effect.description),
       );
     }
   }

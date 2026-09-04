@@ -1,41 +1,22 @@
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
-  getAuthorityVerifier,
   type AuthorityRunAttempt,
   type AuthorityRunCommand,
+  getAuthorityVerifier,
 } from '@/game/authority';
 import { simulateAuthorityCohort } from '@/game/balance/authorityCohort';
 import { type BalanceScenario, survivalGreedyPolicy } from '@/game/balance/balancePolicy';
 import rawRegistry from '../config/authority-versions.json';
-
-type AuthorityVerifier = NonNullable<ReturnType<typeof getAuthorityVerifier>>;
-
-async function resolveBundledAuthorityVerifier(
-  engineVersion: string,
-  contentHash: string,
-): Promise<AuthorityVerifier | undefined> {
-  const resolverUrl = pathToFileURL(
-    resolve(process.cwd(), 'supabase/functions/verify-run/authority-version-resolver.generated.ts'),
-  ).href;
-  const edgeResolver = (await import(/* @vite-ignore */ resolverUrl)) as {
-    resolveAuthorityVerifier: (
-      engine: string,
-      hash: string,
-    ) => Promise<AuthorityVerifier | undefined>;
-  };
-  return edgeResolver.resolveAuthorityVerifier(engineVersion, contentHash);
-}
+import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
 
 const MANA_ATTEMPT: AuthorityRunAttempt = {
   runUuid: '44444444-4444-4444-8444-444444444444',
   seed: 2,
   difficulty: 'easy',
   mode: 'normal',
-  team: [{ championId: 'Ashe', statMultiplier: 1.2 }],
+  team: [{ championId: 'Ashe', statMultiplier: 3 }],
   runeIds: ['electrocute'],
   enhancementSnapshot: { Ashe: {} },
   masterySnapshot: { Ashe: 0 },
@@ -57,26 +38,25 @@ const MANA_TRACE: AuthorityRunCommand[] = [
     kind: 'resolve_combat',
     payload: {
       node_id: 'node_top_lane_0',
-      actions_json:
-        '[["r",null,1],["w",null,1],["q","Darius",1],["a","Darius",1],["q","Darius",1],["a","Darius",1],["w",null,1]]',
+      actions_json: 'auto',
     },
   },
   { sequence: 3, kind: 'resolve_node', payload: { node_id: 'node_top_lane_0' } },
-  { sequence: 4, kind: 'move_node', payload: { node_id: 'node_top_lane_1' } },
-  { sequence: 5, kind: 'resolve_node', payload: { node_id: 'node_top_lane_1' } },
-  { sequence: 6, kind: 'move_node', payload: { node_id: 'node_top_lane_2' } },
+  { sequence: 4, kind: 'move_node', payload: { node_id: 'node_top_lane_3' } },
+  { sequence: 5, kind: 'event', payload: { node_id: 'node_top_lane_3' } },
+  { sequence: 6, kind: 'resolve_node', payload: { node_id: 'node_top_lane_3' } },
+  { sequence: 7, kind: 'move_node', payload: { node_id: 'node_top_lane_6' } },
   {
-    sequence: 7,
+    sequence: 8,
     kind: 'resolve_combat',
     payload: {
-      node_id: 'node_top_lane_2',
-      actions_json:
-        '[["r",null,1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1],["a","Darius",1]]',
+      node_id: 'node_top_lane_6',
+      actions_json: 'auto',
     },
   },
-  { sequence: 8, kind: 'resolve_node', payload: { node_id: 'node_top_lane_2' } },
-  { sequence: 9, kind: 'move_node', payload: { node_id: 'node_top_lane_4' } },
-  { sequence: 10, kind: 'rest', payload: { node_id: 'node_top_lane_4' } },
+  { sequence: 9, kind: 'resolve_node', payload: { node_id: 'node_top_lane_6' } },
+  { sequence: 10, kind: 'move_node', payload: { node_id: 'node_top_lane_8' } },
+  { sequence: 11, kind: 'rest', payload: { node_id: 'node_top_lane_8' } },
 ];
 
 async function expectSourceBundleParity(
@@ -100,21 +80,35 @@ async function expectSourceBundleParity(
 describe('combat integrity source / Edge bundle parity', () => {
   it('preserves mana across two combats, applies victory recovery, and fully restores at rest', async () => {
     const first = await expectSourceBundleParity(MANA_ATTEMPT, MANA_TRACE.slice(0, 2));
-    const second = await expectSourceBundleParity(MANA_ATTEMPT, MANA_TRACE.slice(0, 7));
+    const second = await expectSourceBundleParity(MANA_ATTEMPT, MANA_TRACE.slice(0, 8));
     const rested = await expectSourceBundleParity(MANA_ATTEMPT, MANA_TRACE);
+    if (!first.ok || !second.ok || !rested.ok) {
+      throw new Error(JSON.stringify({ first, second, rested }));
+    }
 
     expect(first).toMatchObject({
       ok: true,
-      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 110 }] } },
+      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 840 }] } },
     });
     expect(second).toMatchObject({
       ok: true,
-      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 94 }] } },
+      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 840 }] } },
     });
     expect(rested).toMatchObject({
       ok: true,
-      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 366 }] } },
+      result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 916 }] } },
     });
+    expect(first.result.combatSummaries[0]).toMatchObject({
+      metrics: { bySide: { player: { manaSpent: 60 } } },
+      playerTeam: {
+        initial: [{ currentMp: 840 }],
+        final: [{ currentMp: 780 }],
+      },
+      playerAfterEncounter: [{ currentMp: 840 }],
+    });
+    expect(
+      second.result.combatSummaries.map((summary) => summary.metrics.bySide.player.manaSpent),
+    ).toEqual([60, 30]);
   });
 
   it.each(['Ashe', 'Jinx', 'Leona', 'Malphite', 'Warwick'])(
@@ -157,24 +151,25 @@ describe('combat integrity source / Edge bundle parity', () => {
         kind: 'resolve_combat',
         payload: {
           node_id: 'node_top_lane_0',
-          actions_json: '[["a","Darius",0],["a","Darius",0],["r","Darius",0]]',
+          actions_json: 'auto',
         },
       },
     ];
 
     const result = await expectSourceBundleParity(attempt, trace);
+    if (!result.ok) throw new Error(JSON.stringify(result.error));
     expect(result).toMatchObject({
       ok: true,
-      result: { snapshot: { totalDamage: 471 } },
+      result: { snapshot: { totalDamage: 215 } },
     });
   });
 
-  it('replays mixed AD/AP, penetration and a deterministic critical strike identically', async () => {
+  it('replays Jinx execute and resource metrics against a Top elite identically', async () => {
     const attempt: AuthorityRunAttempt = {
       ...MANA_ATTEMPT,
       runUuid: '77777777-7777-4777-8777-777777777777',
-      seed: 14,
-      team: [{ championId: 'Jinx', statMultiplier: 1.2 }],
+      seed: 7,
+      team: [{ championId: 'Jinx', statMultiplier: 1 }],
       runeIds: ['press_the_attack'],
       enhancementSnapshot: {
         Jinx: {
@@ -193,33 +188,71 @@ describe('combat integrity source / Edge bundle parity', () => {
         kind: 'resolve_combat',
         payload: {
           node_id: 'node_top_lane_0',
-          actions_json:
-            '[["r",null,1],["e",null,1],["w","Garen",1],["q","Garen",1],["a","Garen",1]]',
+          actions_json: 'auto',
+        },
+      },
+      { sequence: 3, kind: 'resolve_node', payload: { node_id: 'node_top_lane_0' } },
+      { sequence: 4, kind: 'move_node', payload: { node_id: 'node_top_lane_2' } },
+      {
+        sequence: 5,
+        kind: 'resolve_combat',
+        payload: {
+          node_id: 'node_top_lane_2',
+          actions_json: 'auto',
+        },
+      },
+      { sequence: 6, kind: 'resolve_node', payload: { node_id: 'node_top_lane_2' } },
+      { sequence: 7, kind: 'move_node', payload: { node_id: 'node_top_lane_4' } },
+      {
+        sequence: 8,
+        kind: 'resolve_combat',
+        payload: {
+          node_id: 'node_top_lane_4',
+          actions_json: '[["e","Darius",0],["q","Darius",1],["r","Darius",0]]',
         },
       },
     ];
 
     const result = await expectSourceBundleParity(attempt, trace);
+    if (!result.ok) throw new Error(JSON.stringify(result.error));
     expect(result).toMatchObject({
       ok: true,
-      result: { snapshot: { totalDamage: 469 } },
+      result: { snapshot: { totalDamage: 834 } },
+    });
+    const elite = result.result.combatSummaries[2]!;
+    expect(elite.enemyTeam.initial.map((enemy) => enemy.championId)).toEqual(['Darius']);
+    expect(elite.metrics.bySide).toMatchObject({
+      player: { shieldDamageDealt: 0, manaSpent: 210 },
+      enemy: { shieldingAbsorbed: 0, manaSpent: 110 },
     });
   });
 
-  it('loads archived v14 through v16 and current v17 only for their exact hashes', async () => {
+  it('loads archived v14 through v20 and current v21 only for their exact hashes', async () => {
     const v14 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v14');
     const v15 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v15');
     const v16 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v16');
+    const v17 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v17');
+    const v18 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v18');
+    const v19 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v19');
+    const v20 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v20');
     expect(v14?.status).toBe('replay-only');
     expect(v15?.status).toBe('replay-only');
     expect(v16?.status).toBe('replay-only');
+    expect(v17?.status).toBe('replay-only');
+    expect(v18?.status).toBe('replay-only');
+    expect(v19?.status).toBe('replay-only');
+    expect(v20?.status).toBe('replay-only');
     expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v15!.engine, v15!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v16!.engine, v16!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v17!.engine, v17!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v18!.engine, v18!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v19!.engine, v19!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v20!.engine, v20!.contentHash)).toBeDefined();
     expect(
       await resolveBundledAuthorityVerifier(AUTHORITY_ENGINE_VERSION, '0'.repeat(64)),
     ).toBeUndefined();
-  });
+  }, 15_000);
 
   it('drives identical terminal cohort traces through source and the current Edge bundle', async () => {
     const source = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);

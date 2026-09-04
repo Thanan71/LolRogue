@@ -43,9 +43,9 @@ describe('SpellUpgradePanel', () => {
     const currentRank = within(detail).getByRole('region', { name: 'Rang actuel · 1' });
     const nextRank = within(detail).getByRole('region', { name: 'Prochain rang · 2' });
     expect(currentRank).toHaveTextContent('Dégâts physiques');
-    expect(currentRank).toHaveTextContent('80 · avant défenses');
+    expect(currentRank).toHaveTextContent('95 · avant défenses');
     expect(nextRank).toHaveTextContent('Dégâts physiques');
-    expect(nextRank).toHaveTextContent('110 · avant défenses');
+    expect(nextRank).toHaveTextContent('125 · avant défenses');
 
     const rButton = screen.getByRole('button', { name: /Justice de Demacia/ });
     fireEvent.pointerDown(rButton);

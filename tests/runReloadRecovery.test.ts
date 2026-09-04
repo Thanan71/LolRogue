@@ -537,7 +537,7 @@ describe('run reload recovery', () => {
       progressionSource: 'verified',
     });
     expect(useRunStore.getState().ledger).toMatchObject({
-      version: 1,
+      version: 2,
       gold: { earned: 150, spent: 25 },
       champions: {
         Garen: {

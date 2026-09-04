@@ -21,10 +21,10 @@ export const warwick: Champion = {
   tags: ['Fighter', 'Tank'],
   resourceType: 'Mana',
   stats: {
-    hp: 620,
+    hp: 740,
     mp: 280,
     moveSpeed: 335,
-    armor: 33,
+    armor: 40,
     magicResist: 32,
     attackDamage: 65,
     attackSpeed: 0.638,
@@ -61,16 +61,16 @@ export const warwick: Champion = {
           damageType: 'magical',
           adRatio: 1.2,
           apRatio: 0.9,
-          baseDamage: [6, 7, 8, 9, 10],
+          baseDamage: [50, 62, 74, 86, 98],
         },
-        { type: 'heal', baseValue: [10, 20, 30, 40, 50], apRatio: 0.9 },
+        { type: 'heal', baseValue: [75, 93, 111, 129, 147], apRatio: 0.9 },
       ],
     },
     {
       id: 'WarwickW',
       name: 'Traque sanguinaire',
       description:
-        'Warwick repère les ennemis ayant moins de 50% PV et obtient des bonus en vitesse de déplacement et vitesse d attaque contre eux.',
+        'Warwick repère les ennemis ayant moins de 50% PV et obtient des bonus en vitesse de déplacement et initiative d attaque contre eux.',
       maxRank: 5,
       cooldownTurns: [5, 5, 5, 5, 5],
       cost: [55, 55, 55, 55, 55],
@@ -110,12 +110,12 @@ export const warwick: Champion = {
       effects: [
         {
           type: 'buff',
-          stat: 'armor',
+          stat: 'damageReduction',
           modifierType: 'percent',
           values: [35, 40, 45, 50, 55],
           buffDuration: 2.5,
         },
-        { type: 'cc', ccType: 'stun', ccDuration: 1 },
+        { type: 'cc', ccType: 'fear', ccDuration: 1 },
       ],
     },
     {

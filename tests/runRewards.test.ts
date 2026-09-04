@@ -5,9 +5,17 @@ import {
 } from '../src/game/run/runRewardPolicy';
 import type { RunSummary } from '../src/types/run';
 
-function championStats(championId: string, kills: number, totalDamage: number) {
+function championStats(
+  championId: string,
+  kills: number,
+  totalDamage: number,
+  wavesParticipated?: number,
+  biomesParticipated?: RunSummary['biomesVisited'],
+) {
   return {
     championId,
+    wavesParticipated,
+    biomesParticipated,
     kills,
     assists: 0,
     totalDamage,
@@ -50,7 +58,10 @@ describe('run rewards', () => {
       won: true,
       wavesCompleted: 20,
       biomesVisited: ['top_lane', 'jungle', 'mid_lane'],
-      championStats: [championStats('Garen', 5, 1000), championStats('Lux', 3, 1500)],
+      championStats: [
+        championStats('Garen', 5, 1000, 20, ['top_lane', 'jungle', 'mid_lane']),
+        championStats('Lux', 3, 1500, 5, ['mid_lane']),
+      ],
       totalKills: 8,
       totalDamage: 2500,
       goldEarned: 500,
@@ -61,8 +72,8 @@ describe('run rewards', () => {
     };
 
     expect(calculateRunCandyRewards(summary)).toEqual({
-      byChampion: { Garen: 20, Lux: 20 },
-      total: 40,
+      byChampion: { Garen: 32, Lux: 9 },
+      total: 41,
     });
   });
 

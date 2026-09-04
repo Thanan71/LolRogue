@@ -6,7 +6,7 @@
  *   HP   = lol.hp                                       (direct, 410–690)
  *   ATK  = lol.attackDamage                             (direct, 50–66)
  *   DEF  = (lol.armor + lol.magicResist) / 2            (average, ~25–37)
- *   AP   = Math.round(lol.mp * 0.03)                    (mana proxy, 0–15)
+ *   AP   = natural combat AP supplied for the level     (25 at level 1)
  *   SPD  = Math.round((lol.moveSpeed - 325) * 10 / 30)  (325→1, 355→10)
  *   CRIT = Math.min(100, Math.max(0, lol.crit))         (0–100)
  *
@@ -19,7 +19,7 @@
 
 import type { ChampionStats } from '@/types';
 import type { GameStats } from '@/types/game';
-import { statAtLevel } from './champion';
+import { naturalAbilityPowerAtLevel, statAtLevel } from './champion';
 
 // ─── LoL → Game Conversion ───────────────────────────────────────────────
 
@@ -31,7 +31,7 @@ import { statAtLevel } from './champion';
  * @param magicResist LoL magic resistance
  * @param attackDamage LoL attack damage
  * @param moveSpeed   LoL move speed
- * @param mp          LoL mana
+ * @param abilityPower Natural combat ability power
  * @param crit        LoL crit chance (0–100)
  */
 export function lolStatsToGameStats(
@@ -40,14 +40,14 @@ export function lolStatsToGameStats(
   magicResist: number,
   attackDamage: number,
   moveSpeed: number,
-  mp: number,
+  abilityPower: number,
   crit: number,
 ): GameStats {
   return {
     hp,
     atk: attackDamage,
     def: Math.round((armor + magicResist) / 2),
-    ap: Math.round(mp * 0.03),
+    ap: Math.round(abilityPower),
     spd: Math.max(1, Math.min(10, Math.round(((moveSpeed - 325) * 10) / 30))),
     crit: Math.max(0, Math.min(100, crit)),
   };
@@ -72,8 +72,8 @@ export function gameStatsAtLevel(champStats: ChampionStats, level: number): Game
     champStats.attackDamagePerLevel,
     clampedLevel,
   );
-  // moveSpeed and mp/crit are handled below (mp crit scale, moveSpeed does not)
-  const mp = statAtLevel(champStats.mp, champStats.mpPerLevel, clampedLevel);
+  // moveSpeed does not scale; AP follows the canonical natural combat curve.
+  const abilityPower = naturalAbilityPowerAtLevel(clampedLevel);
   const crit = statAtLevel(champStats.crit, champStats.critPerLevel, clampedLevel);
 
   return lolStatsToGameStats(
@@ -82,7 +82,7 @@ export function gameStatsAtLevel(champStats: ChampionStats, level: number): Game
     magicResist,
     Math.round(attackDamage),
     champStats.moveSpeed, // moveSpeed does not scale with level in LoL
-    Math.round(mp),
+    abilityPower,
     crit,
   );
 }

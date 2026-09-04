@@ -88,7 +88,7 @@ export const useMasteryStore = create<MasteryStore>()(
         });
       },
 
-      awardCandies: (championIds, wavesCompleted, biomesVisited, won) => {
+      awardCandies: (championIds, wavesCompleted, biomesVisited, won, participation) => {
         const state = get();
         const result = awardCandiesService(
           state.champions,
@@ -96,6 +96,7 @@ export const useMasteryStore = create<MasteryStore>()(
           wavesCompleted,
           biomesVisited,
           won,
+          participation,
         );
 
         let totalNewCandies = 0;

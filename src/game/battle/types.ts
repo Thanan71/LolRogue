@@ -129,6 +129,8 @@ export interface DamageEvent {
   targetCombatantId?: string;
   /** Shield absorption attributed to each shield caster. */
   shieldAbsorbedBySource?: Record<string, number>;
+  /** Shield absorption credited to the side that created each consumed shield. */
+  shieldAbsorbedBySide?: Partial<Record<TeamSide, number>>;
   isCrit: boolean;
   sourceSide: TeamSide;
   targetSide: TeamSide;
@@ -168,6 +170,8 @@ export interface ActionSelectEvent {
   champion: string;
   side: TeamSide;
   action: ActionType;
+  /** Canonical mana debited for the selected action. */
+  manaSpent?: number;
 }
 
 export interface CrowdControlAppliedEvent {
@@ -250,6 +254,8 @@ export interface BattleSideMetrics {
   healingDone: number;
   overhealing: number;
   shieldingDone: number;
+  shieldingAbsorbed: number;
+  manaSpent: number;
   crowdControlApplications: number;
   crowdControlDuration: number;
   actionsLost: number;

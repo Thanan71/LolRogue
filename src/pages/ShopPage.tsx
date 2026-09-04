@@ -7,6 +7,7 @@ import { getNodeEncounter } from '@/game/map/mapUtils';
 import type { ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { itemDescription, itemName } from '@/i18n/content';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import { MAX_INVENTORY_ITEMS } from '@/types/run';
@@ -50,13 +51,13 @@ function ShopItemCard({
           ) : null}
         </span>
         <div>
-          <h3 className="shop-card__name">{item.name}</h3>
+          <h3 className="shop-card__name">{itemName(item.itemId, item.name)}</h3>
           <span className="shop-card__price">
             {finalPrice} {fr.common.gold}
           </span>
         </div>
       </div>
-      <p className="shop-card__description">{item.description}</p>
+      <p className="shop-card__description">{itemDescription(item.itemId, item.description)}</p>
       {stats.length > 0 ? (
         <ul className="shop-card__stats" aria-label="Bonus de l’objet">
           {stats.map(([stat, value]) => (
