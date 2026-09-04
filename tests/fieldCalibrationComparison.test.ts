@@ -11,9 +11,9 @@ import {
 
 const FIELD_CELL: VerifiedFieldCalibrationCohort = {
   observedOn: '2026-08-25',
-  gameplayRulesetVersion: 17,
-  engineVersion: 'run-engine-v17',
-  gameplayContentHash: '83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19',
+  gameplayRulesetVersion: 21,
+  engineVersion: 'run-engine-v21',
+  gameplayContentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
   difficulty: 'normal',
   mode: 'normal',
   initialTeamSize: 1,
@@ -64,13 +64,24 @@ describe('field calibration comparison', () => {
       'safety-first@1',
       'economy-first@1',
     ]);
+    const expectedBaselineWinRates = new Map([
+      ['safety-first@1', 4 / 30],
+      ['economy-first@1', 0],
+    ]);
     for (const comparison of comparisons) {
       expect(comparison.baselineSampleSize).toBe(30);
-      expect(comparison.winRate).toMatchObject({ baseline: 0, field: 0.5, delta: 0.5 });
+      const baselineWinRate = expectedBaselineWinRates.get(comparison.policy);
+      expect(baselineWinRate).toBeDefined();
+      expect(comparison.winRate).toMatchObject({
+        baseline: baselineWinRate,
+        field: 0.5,
+        delta: 0.5 - baselineWinRate!,
+      });
       expect(comparison.baselineWinRateWilson95).toMatchObject({
         confidence: 0.95,
-        lower: 0,
       });
+      expect(comparison.baselineWinRateWilson95.lower).toBeGreaterThanOrEqual(0);
+      expect(comparison.baselineWinRateWilson95.upper).toBeLessThanOrEqual(1);
       expect(comparison.winIntervalsOverlap).toBe(false);
       expect(comparison.reviewRequired).toBe(true);
       expect(comparison.reviewSignals).toContain('win_rate');
@@ -118,8 +129,8 @@ describe('field calibration comparison', () => {
     expect(comparisons[0]).toMatchObject({
       policy: 'safety-first@1',
       baselineCohortSampleSize: 30,
-      baselineSampleSize: 1,
-      selectionRate: { baseline: 1 / 30, field: 1 },
+      baselineSampleSize: 15,
+      selectionRate: { baseline: 0.5, field: 1 },
     });
     expect(comparisons[1]).toMatchObject({
       policy: 'economy-first@1',

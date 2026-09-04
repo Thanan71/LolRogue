@@ -31,17 +31,17 @@ const committedConditionals = JSON.parse(
 
 describe('multi-policy field-calibration baseline v1', () => {
   it('pins two policy identities to one real gameplay ruleset without changing authority', () => {
-    expect(FIELD_CALIBRATION_GAMEPLAY_RULESET_VERSION).toBe(17);
+    expect(FIELD_CALIBRATION_GAMEPLAY_RULESET_VERSION).toBe(21);
     expect(FIELD_CALIBRATION_BASELINE_V1_IDENTITIES).toEqual([
       {
-        engineVersion: 'run-engine-v17',
-        contentHash: '83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19',
+        engineVersion: 'run-engine-v21',
+        contentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
         balanceModelVersion: 1,
         policy: { id: 'safety-first', version: 1 },
       },
       {
-        engineVersion: 'run-engine-v17',
-        contentHash: '83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19',
+        engineVersion: 'run-engine-v21',
+        contentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
         balanceModelVersion: 1,
         policy: { id: 'economy-first', version: 1 },
       },
@@ -76,7 +76,7 @@ describe('multi-policy field-calibration baseline v1', () => {
   it('publishes reproducible champion and augment conditionals from the paired runs', () => {
     const identity = FIELD_CALIBRATION_BASELINE_V1_IDENTITIES[0];
     const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
-    if (!authority) throw new Error('The v17 authority verifier is unavailable.');
+    if (!authority) throw new Error('The v21 authority verifier is unavailable.');
     const fixture = createAuthorityFieldCalibrationBaselineV1(authority);
     const generated = createAuthorityFieldCalibrationConditionalsV1(fixture);
     const loaded = loadAuthorityFieldCalibrationConditionalsV1(committedConditionals);

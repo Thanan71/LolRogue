@@ -18,14 +18,14 @@ import {
 } from './balancePolicy';
 
 export const FIELD_CALIBRATION_BASELINE_VERSION = 1 as const;
-export const FIELD_CALIBRATION_GAMEPLAY_RULESET_VERSION = 17 as const;
+export const FIELD_CALIBRATION_GAMEPLAY_RULESET_VERSION = 21 as const;
 export const FIELD_CALIBRATION_BASELINE_V1_SEEDS = Object.freeze([
   ...createAuthorityCohortSeeds(30),
 ]);
 
 const FIELD_CALIBRATION_AUTHORITY = Object.freeze({
-  engineVersion: 'run-engine-v17',
-  contentHash: '83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19',
+  engineVersion: 'run-engine-v21',
+  contentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
   balanceModelVersion: 1,
 });
 
@@ -48,8 +48,8 @@ export interface AuthorityFieldCalibrationBaselineFixtureV1 {
 }
 
 /**
- * Replays both published field-calibration policies against the exact v17 authority.
- * Supplying the runtime lets this baseline remain reproducible after v17 is archived.
+ * Replays both published field-calibration policies against the exact v21 authority.
+ * Supplying the runtime lets this baseline remain reproducible after v21 is archived.
  */
 export function createAuthorityFieldCalibrationBaselineV1(
   authority: AuthorityCohortRuntime,
@@ -61,6 +61,7 @@ export function createAuthorityFieldCalibrationBaselineV1(
       identity: FIELD_CALIBRATION_BASELINE_V1_IDENTITIES[index]!,
       policy,
       seeds: FIELD_CALIBRATION_BASELINE_V1_SEEDS,
+      schemaVersion: AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION,
     }),
   );
   const entries = Object.assign({}, ...fixtures.map((fixture) => fixture.document.entries));

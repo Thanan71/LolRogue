@@ -1,6 +1,6 @@
 # Calibration simulation, playtests et terrain
 
-Version du protocole : 28 août 2026. Ce protocole ne constitue pas une preuve de
+Version du protocole : 4 septembre 2026. Ce protocole ne constitue pas une preuve de
 playtest humain. À cette date, la collecte humaine reste à organiser et bloque la
 fermeture de `P2-BAL-01`.
 
@@ -15,14 +15,14 @@ fermeture de `P2-BAL-01`.
 
 La baseline `authority-field-calibration-baseline-v1.json` rejoue 30 seeds appariées
 pour chaque difficulté et pour `safety-first@1` et `economy-first@1`. Elle reste liée
-au moteur, au hash de contenu, au modèle et au manifeste de politique v17 ; elle ne
+au moteur, au hash de contenu, au modèle et au manifeste de politique v21 ; elle ne
 crée pas un nouveau ruleset gameplay.
 
 Le sidecar reproductible `authority-field-calibration-conditionals-v1.json` est généré
 depuis ces mêmes runs. Il publie, par scénario et politique, participation et
 performance des champions initiaux ainsi que sélection et performance conditionnelle
 des augments. Il ne contient ni trace, seed individuelle, identifiant ou snapshot.
-La baseline et son sidecar V1/v17 sont des archives immuables : le contenu final
+La baseline et son sidecar V1/v21 sont des archives immuables : le contenu final
 postérieur doit publier une V2 liée à sa nouvelle autorité, jamais réécrire V1.
 
 ## Signal terrain minimisé

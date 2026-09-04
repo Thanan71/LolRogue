@@ -1133,7 +1133,7 @@ cherche pas les dépendances d'ordre au-delà de cette permutation.
 Une décision de tuning doit citer une cohorte autoritaire reproductible et un signal
 de playtest/terrain compatible, avec taille d'échantillon et intervalle affichés.
 
-**État au 28 août 2026 :** les sept critères automatisables sont livrés et testés.
+**État au 4 septembre 2026 :** les sept critères automatisables sont livrés et testés.
 Le playtest humain reste volontairement non coché et bloque l'acceptation : aucune
 bande Easy/Normal/Hard ni fermeture de `P2-BAL-01` n'est déduite des bots ou des
 agrégats terrain seuls.

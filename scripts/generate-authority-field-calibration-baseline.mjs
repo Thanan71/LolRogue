@@ -41,9 +41,9 @@ async function resolveAuthorityBundle() {
   const registry = JSON.parse(
     await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8'),
   );
-  const version = registry.versions.find((candidate) => candidate.engine === 'run-engine-v17');
+  const version = registry.versions.find((candidate) => candidate.engine === 'run-engine-v21');
   if (!version || typeof version.bundle !== 'string') {
-    throw new Error('Authority registry does not retain run-engine-v17.');
+    throw new Error('Authority registry does not retain run-engine-v21.');
   }
   return `./${version.bundle}`;
 }
@@ -64,7 +64,7 @@ try {
         export function generateAuthorityFieldCalibrationArtifacts() {
           const identity = FIELD_CALIBRATION_BASELINE_V1_IDENTITIES[0];
           const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
-          if (!authority) throw new Error('The published v17 authority verifier is unavailable.');
+          if (!authority) throw new Error('The published v21 authority verifier is unavailable.');
           const fixture = createAuthorityFieldCalibrationBaselineV1(authority);
           return {
             baseline: fixture.document,

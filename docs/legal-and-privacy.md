@@ -1,6 +1,6 @@
 # Légal et confidentialité
 
-Version produit : 25 août 2026. Région préparée : France et Union européenne.
+Version produit : 4 septembre 2026. Région préparée : France et Union européenne.
 Ce document décrit le produit actuel ; il ne constitue pas un avis juridique.
 
 ## Statut de diffusion

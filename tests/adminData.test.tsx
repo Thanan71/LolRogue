@@ -114,9 +114,9 @@ describe('admin data feedback', () => {
         fieldCohorts={[
           {
             observedOn: '2026-08-25',
-            gameplayRulesetVersion: 17,
-            engineVersion: 'run-engine-v17',
-            gameplayContentHash: '83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19',
+            gameplayRulesetVersion: 21,
+            engineVersion: 'run-engine-v21',
+            gameplayContentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
             difficulty: 'normal',
             mode: 'normal',
             initialTeamSize: 1,

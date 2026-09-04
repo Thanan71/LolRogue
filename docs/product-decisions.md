@@ -69,8 +69,9 @@ email ou identifiant public ne doit être collecté comme métrique produit.
 
 ## Dérive d'équilibrage
 
-La décision `field-calibration-v1` est en `observation_only`. Les deux baselines
-authority v17 sont les seules références de simulation admises pour cette décision.
+La décision `field-calibration-v1` est en `observation_only`. Les deux entrées de
+politique de la baseline authority v21 sont les seules références de simulation
+admises pour cette décision.
 Un écart absolu de 5 points de victoire, 0,5 biome moyen ou 100 gold de solde moyen
 ouvre une revue ; il ne modifie jamais le gameplay automatiquement.
 

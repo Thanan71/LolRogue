@@ -60,7 +60,7 @@ describe('décisions produit transverses', () => {
       humanPlaytests: 'blocked_not_run',
     });
     expect(BALANCE_CALIBRATION_DECISION.authority).toMatchObject({
-      gameplayRulesetVersion: 17,
+      gameplayRulesetVersion: 21,
       baselineVersion: 1,
     });
     expect(BALANCE_CALIBRATION_DECISION.authority.baselineKeys).toHaveLength(2);

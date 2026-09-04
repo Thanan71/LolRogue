@@ -313,10 +313,10 @@ appariées pour chaque difficulté et indexe séparément `safety-first@1` et
 `economy-first@1`. Son sidecar
 `config/authority-field-calibration-conditionals-v1.json` conserve les signaux
 champions et augments issus exactement des mêmes runs. `npm run
-balance:field-baseline:generate` régénère les deux artefacts depuis le bundle v17
+balance:field-baseline:generate` régénère les deux artefacts depuis le bundle v21
 déclaré dans le registre, même lorsque ce moteur devient une archive. Le check
-byte-for-byte fait partie de `balance:baseline:check` ; aucun numéro de ruleset n'est
-incrémenté pour modifier seulement une politique de simulation. V1/v17 reste
+byte-for-byte fait partie de `balance:artifacts:check` ; aucun numéro de ruleset n'est
+incrémenté pour modifier seulement une politique de simulation. V1/v21 reste
 immuable : une future autorité publie une nouvelle version des deux artefacts.
 
 ## Indicateurs de catalogue et de nœuds
