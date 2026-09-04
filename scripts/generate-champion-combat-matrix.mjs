@@ -30,7 +30,7 @@ function serializeComparison(comparison) {
   formatted.methodology.pairedSeeds = seedTokens[0];
   formatted.baseline.pairedSeeds = seedTokens[1];
   formatted.candidate.pairedSeeds = seedTokens[2];
-  formatted.p0Calibration.targetDecisiveWinRate = '__LOLROGUE_CHAMPION_MATRIX_P0__';
+  formatted.p0Acceptance.targetDecisiveWinRate = '__LOLROGUE_CHAMPION_MATRIX_P0__';
   const seeds = comparison.methodology.pairedSeeds;
   const serializedSeeds = `[
       ${seeds.slice(0, 26).join(', ')},
@@ -42,7 +42,7 @@ function serializeComparison(comparison) {
   }
   serialized = serialized.replace(
     JSON.stringify('__LOLROGUE_CHAMPION_MATRIX_P0__'),
-    `[${comparison.p0Calibration.targetDecisiveWinRate.join(', ')}]`,
+    `[${comparison.p0Acceptance.targetDecisiveWinRate.join(', ')}]`,
   );
   return `${serialized}\n`;
 }
