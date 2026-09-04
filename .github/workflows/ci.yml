@@ -194,6 +194,7 @@ jobs:
           echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
           echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_DB_URL=$DB_URL" >> "$GITHUB_ENV"
 
       - name: Upgrade a v9 schema snapshot to the latest migration
         run: |
