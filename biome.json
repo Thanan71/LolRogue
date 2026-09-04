@@ -33,6 +33,7 @@
       "!!supabase/functions/verify-run/run-authority-v17.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v18.bundle.ts",
       "!!supabase/functions/verify-run/run-authority-v19.bundle.ts",
+      "!!supabase/functions/verify-run/run-authority-v20.bundle.ts",
       "!!supabase/functions/verify-run/authority-version-resolver.generated.ts",
       "!!src/game/authority/versionCapabilities.generated.ts"
     ]
