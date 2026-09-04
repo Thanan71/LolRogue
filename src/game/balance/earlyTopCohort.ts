@@ -132,6 +132,75 @@ export interface EarlyTopCohortDocument {
   readonly reports: readonly EarlyTopCohortCellReport[];
 }
 
+export const EARLY_TOP_FIRST_COMBAT_WORKING_RANGES = {
+  normal: [0.75, 0.95],
+  hard: [0.5, 0.8],
+} as const;
+
+export interface EarlyTopCohortAcceptance {
+  readonly passed: boolean;
+  readonly difficulty: ReadonlyArray<{
+    readonly difficulty: keyof typeof EARLY_TOP_FIRST_COMBAT_WORKING_RANGES;
+    readonly sampleSize: number;
+    readonly wins: number;
+    readonly winRate: number;
+    readonly workingRange: readonly [number, number];
+    readonly passed: boolean;
+  }>;
+  readonly zeroWinStarters: ReadonlyArray<{
+    readonly difficulty: AuthorityDifficulty;
+    readonly starterId: EarlyTopStarterId;
+  }>;
+  readonly violations: readonly string[];
+}
+
+export function evaluateEarlyTopCohortAcceptance(
+  document: Pick<EarlyTopCohortDocument, 'summary' | 'reports'>,
+): EarlyTopCohortAcceptance {
+  const violations: string[] = [];
+  const zeroWinStarters = document.reports
+    .filter((report) => report.firstCombat.observations > 0 && report.firstCombat.wins === 0)
+    .map((report) => ({ difficulty: report.difficulty, starterId: report.starterId }));
+  for (const starter of zeroWinStarters) {
+    violations.push(`${starter.difficulty}/${starter.starterId}: zero first-combat wins`);
+  }
+
+  const difficulty = (
+    Object.entries(EARLY_TOP_FIRST_COMBAT_WORKING_RANGES) as Array<
+      [keyof typeof EARLY_TOP_FIRST_COMBAT_WORKING_RANGES, readonly [number, number]]
+    >
+  ).map(([difficultyName, workingRange]) => {
+    const summary = document.summary.byDifficulty.find(
+      (candidate) => candidate.difficulty === difficultyName,
+    );
+    const passed =
+      summary !== undefined &&
+      summary.sampleSize > 0 &&
+      summary.firstCombatWinRate >= workingRange[0] &&
+      summary.firstCombatWinRate <= workingRange[1];
+    if (!passed) {
+      violations.push(
+        `${difficultyName}: first-combat win rate ${summary?.firstCombatWinRate ?? 'missing'} is outside ${workingRange[0]}-${workingRange[1]}`,
+      );
+    }
+    return {
+      difficulty: difficultyName,
+      sampleSize: summary?.sampleSize ?? 0,
+      wins: summary?.firstCombatWins ?? 0,
+      winRate: summary?.firstCombatWinRate ?? 0,
+      workingRange,
+      passed,
+    };
+  });
+
+  return {
+    passed: violations.length === 0,
+    difficulty,
+    zeroWinStarters,
+    violations,
+  };
+}
+
 function mean(values: readonly number[]): number {
   return values.length === 0
     ? 0
