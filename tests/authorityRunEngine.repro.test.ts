@@ -26,7 +26,7 @@ const commands: AuthorityRunCommand[] = [
     kind: 'resolve_combat',
     payload: {
       node_id: 'node_top_lane_0',
-      actions_json: '[["q","Warwick",1],["q","Warwick",1],["r","Warwick",1]]',
+      actions_json: '[["q","Warwick",1],["q","Warwick",1]]',
     },
   },
   { sequence: 3, kind: 'resolve_node', payload: { node_id: 'node_top_lane_0' } },
@@ -37,7 +37,7 @@ const commands: AuthorityRunCommand[] = [
     payload: {
       node_id: 'node_top_lane_1',
       actions_json:
-        '[["q","Darius",1],["w",null,1],["q","Darius",1],["a","Darius",1],["a","Darius",1]]',
+        '[["q","Darius",1],["w",null,1],["q","Darius",1],["r","Darius",1]]',
     },
   },
   { sequence: 6, kind: 'resolve_node', payload: { node_id: 'node_top_lane_1' } },
