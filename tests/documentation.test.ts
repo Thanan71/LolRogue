@@ -293,9 +293,7 @@ describe('documentation maintenue', () => {
     expect(todo).toContain('`≤ 5×`');
     expect(authority).toContain('836 449 octets');
     expect(authority).toContain('55df03729dc47417db3efb28ba534cbbf830f9cd3c771e4fdcda8d33eb9996eb');
-    expect(authority).toContain(
-      '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
-    );
+    expect(authority).toContain('8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91');
     for (const document of [authority, balance, persistence]) {
       expect(document).toContain(
         'c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3',
