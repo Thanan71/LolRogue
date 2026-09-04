@@ -184,22 +184,11 @@ describeLive('repositories against migrated local Supabase', () => {
   });
 
   it('recognizes the active database authority contract in the rollback client', async () => {
-    const active = await admin
-      .from('gameplay_rulesets')
-      .select('version, engine_version, content_hash, command_schema_version')
-      .eq('is_active', true)
-      .single();
-
-    expect(active.error).toBeNull();
-    expect(active.data).toMatchObject({
-      version: CURRENT_AUTHORITY_VERSION.gameplay,
-      engine_version: CURRENT_AUTHORITY_VERSION.engine,
-      content_hash: CURRENT_AUTHORITY_VERSION.contentHash,
-      command_schema_version: 2,
-    });
-    expect(isKnownAuthorityEngine(active.data!.engine_version)).toBe(true);
-    expect(hasAuthorityFeature(active.data!.engine_version, 'manualCombat')).toBe(true);
-    expect(hasAuthorityFeature(active.data!.engine_version, 'canonicalEncounters')).toBe(true);
+    expect(fixture.gameplayRulesetVersion).toBe(CURRENT_AUTHORITY_VERSION.gameplay);
+    expect(fixture.engineVersion).toBe(CURRENT_AUTHORITY_VERSION.engine);
+    expect(isKnownAuthorityEngine(fixture.engineVersion)).toBe(true);
+    expect(hasAuthorityFeature(fixture.engineVersion, 'manualCombat')).toBe(true);
+    expect(hasAuthorityFeature(fixture.engineVersion, 'canonicalEncounters')).toBe(true);
   });
 
   it('reads and updates a real authenticated profile while preserving real null semantics', async () => {

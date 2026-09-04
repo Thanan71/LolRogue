@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 
@@ -53,6 +54,29 @@ function teamMember(championId: string, wavesParticipated: number, biomesPartici
     deaths: 0,
     items_collected: [],
   };
+}
+
+function useArchivedV20Identity(attemptId: string): void {
+  const databaseUrl = process.env.SUPABASE_DB_URL;
+  if (!databaseUrl || !/^[0-9a-f-]{36}$/.test(attemptId)) {
+    throw new Error('A local database URL and UUID attempt are required for the v20 fixture.');
+  }
+  execFileSync(
+    'psql',
+    [
+      databaseUrl,
+      '--no-psqlrc',
+      '--set',
+      'ON_ERROR_STOP=1',
+      '--command',
+      `UPDATE public.run_attempts
+       SET engine_version = 'run-engine-v20',
+           gameplay_ruleset_version = 20,
+           gameplay_content_hash = '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91'
+       WHERE id = '${attemptId}'::UUID;`,
+    ],
+    { stdio: 'pipe' },
+  );
 }
 
 describe('gameplay v20 progression migration', () => {
@@ -274,15 +298,7 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
       expect(started.error).toBeNull();
       const attemptId = (started.data as { attempt_id: string }).attempt_id;
 
-      const archivedIdentity = await admin
-        .from('run_attempts')
-        .update({
-          engine_version: 'run-engine-v20',
-          gameplay_ruleset_version: 20,
-          gameplay_content_hash: '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
-        })
-        .eq('id', attemptId);
-      expect(archivedIdentity.error).toBeNull();
+      useArchivedV20Identity(attemptId);
 
       const appended = await userClient.rpc('append_run_attempt_commands', {
         p_attempt_id: attemptId,
@@ -361,7 +377,7 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
         expect(forbidden.error).not.toBeNull();
       }
 
-      const persistedAttempt = await admin
+      const persistedAttempt = await userClient
         .from('run_attempts')
         .select('engine_version, gameplay_ruleset_version, response')
         .eq('id', attemptId)
