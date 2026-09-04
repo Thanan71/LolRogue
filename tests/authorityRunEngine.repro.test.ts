@@ -36,8 +36,7 @@ const commands: AuthorityRunCommand[] = [
     kind: 'resolve_combat',
     payload: {
       node_id: 'node_top_lane_1',
-      actions_json:
-        '[["q","Darius",1],["w",null,1],["q","Darius",1],["r","Darius",1]]',
+      actions_json: '[["q","Darius",1],["w",null,1],["q","Darius",1],["r","Darius",1]]',
     },
   },
   { sequence: 6, kind: 'resolve_node', payload: { node_id: 'node_top_lane_1' } },
