@@ -49,7 +49,7 @@ export const leona: Champion = {
       description:
         'Leona utilise son bouclier pour sa prochaine attaque de base, infligeant des dégâts magiques supplémentaires et étourdissant la cible.',
       maxRank: 5,
-      cooldownTurns: [10, 8, 6, 4, 3],
+      cooldownTurns: [2, 2, 2, 2, 2],
       cost: [30, 35, 40, 45, 50],
       range: [125, 125, 125, 125, 125],
       image: 'LeonaShieldOfDaybreak.png',
@@ -95,7 +95,7 @@ export const leona: Champion = {
       description:
         'Leona projette une image solaire, infligeant des dégâts magiques aux ennemis en ligne. Le dernier champion touché est immobilisé et Leona fonce vers lui.',
       maxRank: 5,
-      cooldownTurns: [6, 6, 5, 4, 3],
+      cooldownTurns: [3, 3, 3, 2, 2],
       cost: [40, 45, 50, 55, 60],
       range: [875, 875, 875, 875, 875],
       image: 'LeonaZenithBlade.png',
