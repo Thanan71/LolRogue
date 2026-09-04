@@ -103,8 +103,8 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
       });
       expect(started.error).toBeNull();
       expect(started.data).toMatchObject({
-        engine_version: 'run-engine-v20',
-        gameplay_ruleset_version: 20,
+        engine_version: 'run-engine-v21',
+        gameplay_ruleset_version: 21,
         ruleset_version: 3,
       });
       const attemptId = (started.data as { attempt_id: string }).attempt_id;
@@ -176,8 +176,8 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
         candies_per_champion: 0,
         candies_by_champion: { Garen: 15, Lux: 5 },
         progression_version: 3,
-        gameplay_ruleset_version: 20,
-        engine_version: 'run-engine-v20',
+        gameplay_ruleset_version: 21,
+        engine_version: 'run-engine-v21',
       });
 
       const replayed = await admin.rpc('complete_run_verification', {
@@ -240,6 +240,141 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
         { champion_id: 'Garen', total_candies: 15 },
         { champion_id: 'Lux', total_candies: 5 },
       ]);
+    } finally {
+      if (userId) await admin.auth.admin.deleteUser(userId);
+    }
+  });
+
+  it('keeps v20 attempts replayable through the private historical contract', async () => {
+    const admin = createClient(supabaseUrl!, serviceRoleKey!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const userClient = createClient(supabaseUrl!, anonKey!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    let userId: string | null = null;
+
+    try {
+      const signup = await userClient.auth.signUp({
+        email: `participation-v20-${suffix}@example.test`,
+        password: 'Test-password-42!',
+        options: { data: { username: `participation-v20-${suffix}`.slice(0, 50) } },
+      });
+      expect(signup.error).toBeNull();
+      userId = signup.data.user!.id;
+
+      const started = await userClient.rpc('start_run_attempt', {
+        p_command_id: randomUUID(),
+        p_team: ['Garen'],
+        p_rune_ids: [],
+        p_difficulty: 'normal',
+        p_mode: 'normal',
+      });
+      expect(started.error).toBeNull();
+      const attemptId = (started.data as { attempt_id: string }).attempt_id;
+
+      const archivedIdentity = await admin
+        .from('run_attempts')
+        .update({
+          engine_version: 'run-engine-v20',
+          gameplay_ruleset_version: 20,
+          gameplay_content_hash: '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
+        })
+        .eq('id', attemptId);
+      expect(archivedIdentity.error).toBeNull();
+
+      const appended = await userClient.rpc('append_run_attempt_commands', {
+        p_attempt_id: attemptId,
+        p_commands: [{ command_id: randomUUID(), sequence: 1, kind: 'abandon_run', payload: {} }],
+      });
+      expect(appended.error).toBeNull();
+      const sealed = await userClient.rpc('seal_run_attempt', {
+        p_attempt_id: attemptId,
+        p_finish_command_id: randomUUID(),
+        p_expected_sequence: 1,
+      });
+      expect(sealed.error).toBeNull();
+      const claim = await admin.rpc('claim_run_verification', {
+        p_attempt_id: attemptId,
+        p_worker_id: randomUUID(),
+      });
+      expect(claim.error).toBeNull();
+      const leaseToken = (claim.data as { lease_token: string }).lease_token;
+      const result = {
+        verified: true,
+        won: false,
+        run_level: 2,
+        waves_completed: 6,
+        biomes_visited: ['top_lane', 'jungle'],
+        gold_earned: 0,
+        gold_spent: 0,
+        gold_balance: 0,
+        augment_ids: [],
+        team_members: [teamMember('Garen', 6, ['top_lane', 'jungle'])],
+        ledger: {
+          version: 2,
+          champions: { Garen: championLedger(6, ['top_lane', 'jungle']) },
+          gold: { earned: 0, spent: 0 },
+          items: [],
+          next_item_event_sequence: 1,
+        },
+      };
+
+      const completed = await admin.rpc('complete_run_verification', {
+        p_attempt_id: attemptId,
+        p_lease_token: leaseToken,
+        p_result: result,
+        p_result_hash: null,
+      });
+      expect(completed.error).toBeNull();
+      expect(completed.data).toMatchObject({
+        status: 'verified',
+        replayed: false,
+        candies_earned: 20,
+        candies_by_champion: { Garen: 20 },
+        progression_version: 3,
+        gameplay_ruleset_version: 20,
+        engine_version: 'run-engine-v20',
+      });
+
+      const replayed = await admin.rpc('complete_run_verification', {
+        p_attempt_id: attemptId,
+        p_lease_token: leaseToken,
+        p_result: result,
+        p_result_hash: null,
+      });
+      expect(replayed.error).toBeNull();
+      expect(replayed.data).toMatchObject({
+        replayed: true,
+        gameplay_ruleset_version: 20,
+        engine_version: 'run-engine-v20',
+      });
+
+      for (const client of [userClient, admin]) {
+        const forbidden = await client.rpc('complete_run_verification_v20_contract', {
+          p_attempt_id: attemptId,
+          p_lease_token: leaseToken,
+          p_result: result,
+          p_result_hash: null,
+        });
+        expect(forbidden.error).not.toBeNull();
+      }
+
+      const persistedAttempt = await admin
+        .from('run_attempts')
+        .select('engine_version, gameplay_ruleset_version, response')
+        .eq('id', attemptId)
+        .single();
+      expect(persistedAttempt.error).toBeNull();
+      expect(persistedAttempt.data).toMatchObject({
+        engine_version: 'run-engine-v20',
+        gameplay_ruleset_version: 20,
+        response: {
+          gameplay_ruleset_version: 20,
+          engine_version: 'run-engine-v20',
+        },
+      });
     } finally {
       if (userId) await admin.auth.admin.deleteUser(userId);
     }

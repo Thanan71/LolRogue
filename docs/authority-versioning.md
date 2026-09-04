@@ -92,3 +92,23 @@ Le bundle v19 est archivé byte-for-byte dans
 `replay-only`, tandis que v20 est l'unique moteur `current`. Le wrapper de finalisation
 v20 conserve la délégation v19 pour les attempts historiques et limite le nouveau
 contrat de progression à `service_role`.
+
+## Publication des gates de balance v21
+
+La migration `20260904151818_gameplay_ruleset_v21_balance_acceptance.sql` publie
+`run-engine-v21` et le hash
+`c0b776b628006a779a618fb2abfa00a3ff99fd27d27980dfdec54378fc4d81a3`. Elle copie
+le catalogue gameplay v20 avec comparaison bidirectionnelle, publie le Daily v21
+dans `lolrogue.daily.v21` et conserve `score_version = 15` avec `gold_points = 0`.
+La progression reste en v3, le schéma de commandes en v2 et le ledger en v2.
+
+Le bundle v20 est archivé byte-for-byte dans `run-authority-v20.bundle.ts`
+(840 942 octets, SHA-256
+`6c276bb64e81bd3117600b05d983b0018085d341c21c51960c964b7c551a34a7`). v20 passe
+en `replay-only` et v21 devient l'unique moteur `current`. Le wrapper v21 délègue les
+attempts historiques au contrat v20 archivé ; les deux fonctions retirent l'exécution
+à `PUBLIC`, `anon`, `authenticated` et au wrapper historique lui-même, tandis que seul
+le contrat courant est accordé à `service_role`. `npm run backend:deploy` publie la
+fonction Edge sans activer la migration ; le frontend v21 doit ensuite être réellement
+déployé avant l'appel explicite à `npm run migrate`, afin d'éviter toute fenêtre où
+v21 serait créable sans client ou resolver compatible.

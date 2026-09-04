@@ -169,9 +169,10 @@ règles ou le contenu autoritaire, suivre `docs/authority-versioning.md`, conser
 l'ancien vérificateur en `replay-only` pendant au moins la durée maximale d'un
 attempt, puis seulement activer la nouvelle version.
 
-Après avoir lié le bon projet Supabase, une évolution qui ne requiert aucune
-nouvelle logique frontend peut utiliser `npm run backend:deploy` : la commande
-publie `verify-run` avant d'activer les migrations.
+Après avoir lié le bon projet Supabase, `npm run backend:deploy` valide puis publie
+uniquement `verify-run`. La commande n'active jamais une migration : même lorsqu'une
+évolution ne requiert aucune logique frontend, l'opérateur exécute séparément
+`npm run migrate` après avoir vérifié la compatibilité du client déployé.
 
 Une nouvelle version de moteur comprise par le navigateur doit être livrée en
 trois étapes afin qu'aucun ancien frontend ne démarre une ruleset qu'il ne sait pas

@@ -2,6 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it } from 'vitest';
 import {
+  CURRENT_AUTHORITY_VERSION,
+  hasAuthorityFeature,
+  isKnownAuthorityEngine,
+} from '@/game/authority/versionRegistry';
+import {
   SupabaseDailyRunRepository,
   SupabaseLeaderboardRepository,
 } from '@/services/repositories/SupabaseDailyRunRepository';
@@ -176,6 +181,25 @@ describeLive('repositories against migrated local Supabase', () => {
 
   afterAll(async () => {
     if (fixture?.userId) await admin.auth.admin.deleteUser(fixture.userId);
+  });
+
+  it('recognizes the active database authority contract in the rollback client', async () => {
+    const active = await admin
+      .from('gameplay_rulesets')
+      .select('version, engine_version, content_hash, command_schema_version')
+      .eq('is_active', true)
+      .single();
+
+    expect(active.error).toBeNull();
+    expect(active.data).toMatchObject({
+      version: CURRENT_AUTHORITY_VERSION.gameplay,
+      engine_version: CURRENT_AUTHORITY_VERSION.engine,
+      content_hash: CURRENT_AUTHORITY_VERSION.contentHash,
+      command_schema_version: 2,
+    });
+    expect(isKnownAuthorityEngine(active.data!.engine_version)).toBe(true);
+    expect(hasAuthorityFeature(active.data!.engine_version, 'manualCombat')).toBe(true);
+    expect(hasAuthorityFeature(active.data!.engine_version, 'canonicalEncounters')).toBe(true);
   });
 
   it('reads and updates a real authenticated profile while preserving real null semantics', async () => {

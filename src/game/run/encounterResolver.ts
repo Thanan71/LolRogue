@@ -23,7 +23,7 @@ import { getStarterBudgetProfile } from './starterBudget';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 8;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 9;
 export const BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT = 0.25;
 export const ELITE_FORMATION_POWER_MULTIPLIER = 1.4;
 export const ELITE_REWARD_MULTIPLIER = 1.5;
@@ -128,10 +128,12 @@ function roundMultiplier(value: number): number {
 
 function resolveOpeningPressure(input: ResolveCombatEncounterInput, wave: number): number {
   if (input.biome !== 'top_lane' || wave !== 1) return 1;
-  const basePressure = TOP_LANE_OPENING_PRESSURE[input.encounter.id] ?? 1;
+  const encounterId = input.encounter.id.replace(/_elite$/, '');
+  const basePressure = TOP_LANE_OPENING_PRESSURE[encounterId];
+  if (basePressure === undefined) return 1;
   const rng = createScopedRunRng(
     input.seed,
-    `combat-opening-pressure:v${COMBAT_OPENING_PRESSURE_RNG_VERSION}:${input.nodeId}:${input.encounter.id}`,
+    `combat-opening-pressure:v${COMBAT_OPENING_PRESSURE_RNG_VERSION}:${encounterId}`,
   );
   const variance = 1 + (rng.next() * 2 - 1) * TOP_LANE_OPENING_PRESSURE_VARIANCE;
   return roundMultiplier(basePressure * variance);
