@@ -1,4 +1,4 @@
-export const CHAMPION_COMBAT_MATRIX_SCHEMA_VERSION = 1 as const;
+export const CHAMPION_COMBAT_MATRIX_SCHEMA_VERSION = 2 as const;
 export const CHAMPION_COMBAT_MATRIX_LEVEL = 1 as const;
 export const CHAMPION_COMBAT_MATRIX_MAX_ROUNDS = 50 as const;
 export const CHAMPION_COMBAT_MATRIX_SEEDS = Object.freeze(
@@ -133,10 +133,15 @@ export interface ChampionCombatMatrixComparison {
     readonly passed: boolean;
     readonly violations: readonly string[];
   };
-  readonly p0Calibration: {
-    readonly status: 'out-of-scope-open';
+  readonly p0Acceptance: {
+    readonly rule: 'every champion stays inside the 45-55% decisive-win band with a roster gap at most 10 points';
     readonly targetDecisiveWinRate: readonly [0.45, 0.55];
     readonly maximumRosterGap: 0.1;
+    readonly measuredRosterGap: number | null;
+    readonly minimum: { readonly championId: string; readonly decisiveWinRate: number } | null;
+    readonly maximum: { readonly championId: string; readonly decisiveWinRate: number } | null;
+    readonly passed: boolean;
+    readonly violations: readonly string[];
   };
 }
 
@@ -459,6 +464,68 @@ function assertComparableReports(
   }
 }
 
+export function evaluateChampionCombatP0Acceptance(
+  report: ChampionCombatMatrixReport,
+): ChampionCombatMatrixComparison['p0Acceptance'] {
+  const targetDecisiveWinRate = [0.45, 0.55] as const;
+  const maximumRosterGap = 0.1 as const;
+  const rates: Array<{ championId: string; decisiveWinRate: number }> = [];
+  const violations: string[] = [];
+
+  for (const champion of report.champions) {
+    const decisiveCombats = champion.wins + champion.losses;
+    if (champion.appearances !== decisiveCombats + champion.draws) {
+      violations.push(`${champion.championId}: incoherent appearance totals`);
+    }
+    if (champion.draws > 0) {
+      violations.push(`${champion.championId}: ${champion.draws} draw(s)`);
+    }
+    if (champion.wins === 0 || champion.losses === 0 || decisiveCombats === 0) {
+      violations.push(`${champion.championId}: requires both decisive wins and losses`);
+      continue;
+    }
+    const decisiveWinRate = champion.wins / decisiveCombats;
+    rates.push({ championId: champion.championId, decisiveWinRate });
+    if (decisiveWinRate < targetDecisiveWinRate[0] || decisiveWinRate > targetDecisiveWinRate[1]) {
+      violations.push(
+        `${champion.championId}: decisive win rate ${round(decisiveWinRate)} is outside 0.45-0.55`,
+      );
+    }
+  }
+
+  const orderedRates = [...rates].sort(
+    (left, right) =>
+      left.decisiveWinRate - right.decisiveWinRate ||
+      left.championId.localeCompare(right.championId),
+  );
+  const minimumRate = orderedRates[0] ?? null;
+  const maximumRate = orderedRates[orderedRates.length - 1] ?? null;
+  const measuredRosterGap =
+    minimumRate && maximumRate ? maximumRate.decisiveWinRate - minimumRate.decisiveWinRate : null;
+  if (measuredRosterGap === null || round(measuredRosterGap) > maximumRosterGap) {
+    violations.push(
+      measuredRosterGap === null
+        ? 'roster: no decisive champion rates'
+        : `roster: decisive win-rate gap ${round(measuredRosterGap)} exceeds 0.1`,
+    );
+  }
+
+  return {
+    rule: 'every champion stays inside the 45-55% decisive-win band with a roster gap at most 10 points',
+    targetDecisiveWinRate,
+    maximumRosterGap,
+    measuredRosterGap: measuredRosterGap === null ? null : round(measuredRosterGap),
+    minimum: minimumRate
+      ? { ...minimumRate, decisiveWinRate: round(minimumRate.decisiveWinRate) }
+      : null,
+    maximum: maximumRate
+      ? { ...maximumRate, decisiveWinRate: round(maximumRate.decisiveWinRate) }
+      : null,
+    passed: violations.length === 0,
+    violations,
+  };
+}
+
 export function createChampionCombatMatrixComparison(input: {
   readonly baseline: ChampionCombatMatrixReport;
   readonly candidateBundle: ChampionCombatMatrixReport;
@@ -527,10 +594,6 @@ export function createChampionCombatMatrixComparison(input: {
       passed: violations.length === 0,
       violations,
     },
-    p0Calibration: {
-      status: 'out-of-scope-open',
-      targetDecisiveWinRate: [0.45, 0.55],
-      maximumRosterGap: 0.1,
-    },
+    p0Acceptance: evaluateChampionCombatP0Acceptance(input.candidateBundle),
   };
 }

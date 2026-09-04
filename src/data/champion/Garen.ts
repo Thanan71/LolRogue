@@ -21,7 +21,7 @@ export const garen: Champion = {
   tags: ['Fighter', 'Tank'],
   resourceType: 'Aucune',
   stats: {
-    hp: 690,
+    hp: 720,
     mp: 0,
     moveSpeed: 340,
     armor: 38,
@@ -61,7 +61,7 @@ export const garen: Champion = {
           damageType: 'physical',
           adRatio: 0.5,
           apRatio: 0,
-          baseDamage: [30, 60, 90, 120, 150],
+          baseDamage: [45, 75, 105, 135, 165],
         },
         { type: 'cc', ccType: 'silence', ccDuration: 1.5 },
         {
@@ -86,7 +86,7 @@ export const garen: Champion = {
       targeting: TargetingType.Self,
       scaling: { adRatio: 0, apRatio: 0 },
       effects: [
-        { type: 'shield', baseValue: [70, 95, 120, 145, 170], apRatio: 0 },
+        { type: 'shield', baseValue: [90, 115, 140, 165, 190], apRatio: 0 },
         {
           type: 'buff',
           stat: 'armor',
@@ -107,14 +107,14 @@ export const garen: Champion = {
       range: [325, 325, 325, 325, 325],
       image: 'GarenE.png',
       targeting: TargetingType.Area,
-      scaling: { adRatio: 0.32, apRatio: 0 },
+      scaling: { adRatio: 0.65, apRatio: 0 },
       effects: [
         {
           type: 'damage',
           damageType: 'physical',
-          adRatio: 0.32,
+          adRatio: 0.65,
           apRatio: 0,
-          baseDamage: [4, 8, 12, 16, 20],
+          baseDamage: [32, 50, 68, 86, 104],
         },
       ],
     },

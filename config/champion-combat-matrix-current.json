@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "methodology": {
     "level": 1,
     "partitionCount": 126,
@@ -11,172 +11,6 @@
     "combatsPerRuntime": 7560
   },
   "baseline": {
-    "authority": {
-      "engineVersion": "run-engine-v19",
-      "contentHash": "45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099"
-    },
-    "level": 1,
-    "championIds": [
-      "Garen",
-      "Annie",
-      "Ashe",
-      "Darius",
-      "Lux",
-      "Soraka",
-      "Jinx",
-      "Leona",
-      "Malphite",
-      "Warwick"
-    ],
-    "pairedSeeds": [
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-      26, 27, 28, 29
-    ],
-    "partitionCount": 126,
-    "orientationsPerPartition": 2,
-    "combatCount": 7560,
-    "resultFingerprint": "896f8ac9",
-    "metricAvailability": {
-      "hpDamage": true,
-      "effectiveHealing": true,
-      "shieldAbsorbed": true,
-      "manaSpent": true,
-      "enemyActionsRemovedByCc": true
-    },
-    "champions": [
-      {
-        "championId": "Garen",
-        "appearances": 7560,
-        "wins": 2508,
-        "losses": 5052,
-        "draws": 0,
-        "decisiveWinRate": 0.331746,
-        "hpDamagePerRound": 35.59875,
-        "effectiveHealingPerRound": 1.071938,
-        "shieldAbsorbedPerRound": 7.078505,
-        "manaSpentPerRound": 0,
-        "enemyActionsRemovedByCcPerCombat": 0
-      },
-      {
-        "championId": "Annie",
-        "appearances": 7560,
-        "wins": 3278,
-        "losses": 4282,
-        "draws": 0,
-        "decisiveWinRate": 0.433598,
-        "hpDamagePerRound": 28.268305,
-        "effectiveHealingPerRound": 0,
-        "shieldAbsorbedPerRound": 4.892006,
-        "manaSpentPerRound": 13.112205,
-        "enemyActionsRemovedByCcPerCombat": 0.284392
-      },
-      {
-        "championId": "Ashe",
-        "appearances": 7560,
-        "wins": 3580,
-        "losses": 3980,
-        "draws": 0,
-        "decisiveWinRate": 0.473545,
-        "hpDamagePerRound": 46.226755,
-        "effectiveHealingPerRound": 0,
-        "shieldAbsorbedPerRound": 0,
-        "manaSpentPerRound": 18.117804,
-        "enemyActionsRemovedByCcPerCombat": 1.95873
-      },
-      {
-        "championId": "Darius",
-        "appearances": 7560,
-        "wins": 3958,
-        "losses": 3602,
-        "draws": 0,
-        "decisiveWinRate": 0.523545,
-        "hpDamagePerRound": 83.333745,
-        "effectiveHealingPerRound": 2.002905,
-        "shieldAbsorbedPerRound": 0,
-        "manaSpentPerRound": 17.292335,
-        "enemyActionsRemovedByCcPerCombat": 0
-      },
-      {
-        "championId": "Lux",
-        "appearances": 7560,
-        "wins": 3180,
-        "losses": 4380,
-        "draws": 0,
-        "decisiveWinRate": 0.420635,
-        "hpDamagePerRound": 28.571932,
-        "effectiveHealingPerRound": 0,
-        "shieldAbsorbedPerRound": 5.249898,
-        "manaSpentPerRound": 14.65116,
-        "enemyActionsRemovedByCcPerCombat": 0
-      },
-      {
-        "championId": "Soraka",
-        "appearances": 7560,
-        "wins": 4776,
-        "losses": 2784,
-        "draws": 0,
-        "decisiveWinRate": 0.631746,
-        "hpDamagePerRound": 29.415412,
-        "effectiveHealingPerRound": 74.202457,
-        "shieldAbsorbedPerRound": 0,
-        "manaSpentPerRound": 24.52932,
-        "enemyActionsRemovedByCcPerCombat": 0
-      },
-      {
-        "championId": "Jinx",
-        "appearances": 7560,
-        "wins": 3490,
-        "losses": 4070,
-        "draws": 0,
-        "decisiveWinRate": 0.46164,
-        "hpDamagePerRound": 54.700526,
-        "effectiveHealingPerRound": 0,
-        "shieldAbsorbedPerRound": 0,
-        "manaSpentPerRound": 18.064554,
-        "enemyActionsRemovedByCcPerCombat": 0
-      },
-      {
-        "championId": "Leona",
-        "appearances": 7560,
-        "wins": 5382,
-        "losses": 2178,
-        "draws": 0,
-        "decisiveWinRate": 0.711905,
-        "hpDamagePerRound": 90.836213,
-        "effectiveHealingPerRound": 0,
-        "shieldAbsorbedPerRound": 5.670769,
-        "manaSpentPerRound": 24.617915,
-        "enemyActionsRemovedByCcPerCombat": 4.536905
-      },
-      {
-        "championId": "Malphite",
-        "appearances": 7560,
-        "wins": 4686,
-        "losses": 2874,
-        "draws": 0,
-        "decisiveWinRate": 0.619841,
-        "hpDamagePerRound": 77.949957,
-        "effectiveHealingPerRound": 0,
-        "shieldAbsorbedPerRound": 7.489122,
-        "manaSpentPerRound": 22.440655,
-        "enemyActionsRemovedByCcPerCombat": 1.787698
-      },
-      {
-        "championId": "Warwick",
-        "appearances": 7560,
-        "wins": 2962,
-        "losses": 4598,
-        "draws": 0,
-        "decisiveWinRate": 0.391799,
-        "hpDamagePerRound": 37.625346,
-        "effectiveHealingPerRound": 11.183489,
-        "shieldAbsorbedPerRound": 0,
-        "manaSpentPerRound": 20.542595,
-        "enemyActionsRemovedByCcPerCombat": 1.886905
-      }
-    ]
-  },
-  "candidate": {
     "authority": {
       "engineVersion": "run-engine-v20",
       "contentHash": "8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91"
@@ -342,101 +176,267 @@
       }
     ]
   },
+  "candidate": {
+    "authority": {
+      "engineVersion": "run-engine-v21",
+      "contentHash": "9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6"
+    },
+    "level": 1,
+    "championIds": [
+      "Garen",
+      "Annie",
+      "Ashe",
+      "Darius",
+      "Lux",
+      "Soraka",
+      "Jinx",
+      "Leona",
+      "Malphite",
+      "Warwick"
+    ],
+    "pairedSeeds": [
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+      26, 27, 28, 29
+    ],
+    "partitionCount": 126,
+    "orientationsPerPartition": 2,
+    "combatCount": 7560,
+    "resultFingerprint": "9ee82ee8",
+    "metricAvailability": {
+      "hpDamage": true,
+      "effectiveHealing": true,
+      "shieldAbsorbed": true,
+      "manaSpent": true,
+      "enemyActionsRemovedByCc": true
+    },
+    "champions": [
+      {
+        "championId": "Garen",
+        "appearances": 7560,
+        "wins": 3918,
+        "losses": 3642,
+        "draws": 0,
+        "decisiveWinRate": 0.518254,
+        "hpDamagePerRound": 57.395214,
+        "effectiveHealingPerRound": 1.64002,
+        "shieldAbsorbedPerRound": 8.549756,
+        "manaSpentPerRound": 0,
+        "enemyActionsRemovedByCcPerCombat": 0
+      },
+      {
+        "championId": "Annie",
+        "appearances": 7560,
+        "wins": 3866,
+        "losses": 3694,
+        "draws": 0,
+        "decisiveWinRate": 0.511376,
+        "hpDamagePerRound": 54.289076,
+        "effectiveHealingPerRound": 0,
+        "shieldAbsorbedPerRound": 9.955647,
+        "manaSpentPerRound": 22.762126,
+        "enemyActionsRemovedByCcPerCombat": 1.731878
+      },
+      {
+        "championId": "Ashe",
+        "appearances": 7560,
+        "wins": 3860,
+        "losses": 3700,
+        "draws": 0,
+        "decisiveWinRate": 0.510582,
+        "hpDamagePerRound": 19.148546,
+        "effectiveHealingPerRound": 0,
+        "shieldAbsorbedPerRound": 0,
+        "manaSpentPerRound": 9.939484,
+        "enemyActionsRemovedByCcPerCombat": 0.934788
+      },
+      {
+        "championId": "Darius",
+        "appearances": 7560,
+        "wins": 3660,
+        "losses": 3900,
+        "draws": 0,
+        "decisiveWinRate": 0.484127,
+        "hpDamagePerRound": 61.889932,
+        "effectiveHealingPerRound": 1.410756,
+        "shieldAbsorbedPerRound": 0,
+        "manaSpentPerRound": 11.367394,
+        "enemyActionsRemovedByCcPerCombat": 0
+      },
+      {
+        "championId": "Lux",
+        "appearances": 7560,
+        "wins": 3704,
+        "losses": 3856,
+        "draws": 0,
+        "decisiveWinRate": 0.489947,
+        "hpDamagePerRound": 34.874678,
+        "effectiveHealingPerRound": 0,
+        "shieldAbsorbedPerRound": 4.187858,
+        "manaSpentPerRound": 14.718737,
+        "enemyActionsRemovedByCcPerCombat": 0
+      },
+      {
+        "championId": "Soraka",
+        "appearances": 7560,
+        "wins": 3654,
+        "losses": 3906,
+        "draws": 0,
+        "decisiveWinRate": 0.483333,
+        "hpDamagePerRound": 25.774739,
+        "effectiveHealingPerRound": 34.072563,
+        "shieldAbsorbedPerRound": 0,
+        "manaSpentPerRound": 20.393583,
+        "enemyActionsRemovedByCcPerCombat": 0
+      },
+      {
+        "championId": "Jinx",
+        "appearances": 7560,
+        "wins": 3672,
+        "losses": 3888,
+        "draws": 0,
+        "decisiveWinRate": 0.485714,
+        "hpDamagePerRound": 70.043186,
+        "effectiveHealingPerRound": 0,
+        "shieldAbsorbedPerRound": 0,
+        "manaSpentPerRound": 17.730432,
+        "enemyActionsRemovedByCcPerCombat": 0
+      },
+      {
+        "championId": "Leona",
+        "appearances": 7560,
+        "wins": 3710,
+        "losses": 3850,
+        "draws": 0,
+        "decisiveWinRate": 0.490741,
+        "hpDamagePerRound": 36.064019,
+        "effectiveHealingPerRound": 0,
+        "shieldAbsorbedPerRound": 3.768752,
+        "manaSpentPerRound": 13.913869,
+        "enemyActionsRemovedByCcPerCombat": 3.209921
+      },
+      {
+        "championId": "Malphite",
+        "appearances": 7560,
+        "wins": 3816,
+        "losses": 3744,
+        "draws": 0,
+        "decisiveWinRate": 0.504762,
+        "hpDamagePerRound": 38.44472,
+        "effectiveHealingPerRound": 0,
+        "shieldAbsorbedPerRound": 3.818889,
+        "manaSpentPerRound": 15.405445,
+        "enemyActionsRemovedByCcPerCombat": 2.119974
+      },
+      {
+        "championId": "Warwick",
+        "appearances": 7560,
+        "wins": 3940,
+        "losses": 3620,
+        "draws": 0,
+        "decisiveWinRate": 0.521164,
+        "hpDamagePerRound": 49.519118,
+        "effectiveHealingPerRound": 16.623793,
+        "shieldAbsorbedPerRound": 0,
+        "manaSpentPerRound": 17.440411,
+        "enemyActionsRemovedByCcPerCombat": 2.241667
+      }
+    ]
+  },
   "candidateSourceParity": {
     "exact": true,
-    "sourceResultFingerprint": "896f8ac9",
-    "bundleResultFingerprint": "896f8ac9"
+    "sourceResultFingerprint": "9ee82ee8",
+    "bundleResultFingerprint": "9ee82ee8"
   },
   "championDeltas": [
     {
       "championId": "Garen",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
-      "effectiveHealingPerRound": 0,
-      "shieldAbsorbedPerRound": 0,
+      "decisiveWinRatePercentagePoints": 18.6508,
+      "hpDamagePerRound": 21.796464,
+      "effectiveHealingPerRound": 0.568082,
+      "shieldAbsorbedPerRound": 1.471251,
       "manaSpentPerRound": 0,
       "enemyActionsRemovedByCcPerCombat": 0
     },
     {
       "championId": "Annie",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
+      "decisiveWinRatePercentagePoints": 7.7778,
+      "hpDamagePerRound": 26.020771,
       "effectiveHealingPerRound": 0,
-      "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
-      "enemyActionsRemovedByCcPerCombat": 0
+      "shieldAbsorbedPerRound": 5.063641,
+      "manaSpentPerRound": 9.649921,
+      "enemyActionsRemovedByCcPerCombat": 1.447486
     },
     {
       "championId": "Ashe",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
+      "decisiveWinRatePercentagePoints": 3.7037,
+      "hpDamagePerRound": -27.078209,
       "effectiveHealingPerRound": 0,
       "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
-      "enemyActionsRemovedByCcPerCombat": 0
+      "manaSpentPerRound": -8.17832,
+      "enemyActionsRemovedByCcPerCombat": -1.023942
     },
     {
       "championId": "Darius",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
-      "effectiveHealingPerRound": 0,
+      "decisiveWinRatePercentagePoints": -3.9418,
+      "hpDamagePerRound": -21.443813,
+      "effectiveHealingPerRound": -0.592149,
       "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
+      "manaSpentPerRound": -5.924941,
       "enemyActionsRemovedByCcPerCombat": 0
     },
     {
       "championId": "Lux",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
+      "decisiveWinRatePercentagePoints": 6.9312,
+      "hpDamagePerRound": 6.302746,
       "effectiveHealingPerRound": 0,
-      "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
+      "shieldAbsorbedPerRound": -1.06204,
+      "manaSpentPerRound": 0.067577,
       "enemyActionsRemovedByCcPerCombat": 0
     },
     {
       "championId": "Soraka",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
-      "effectiveHealingPerRound": 0,
+      "decisiveWinRatePercentagePoints": -14.8413,
+      "hpDamagePerRound": -3.640673,
+      "effectiveHealingPerRound": -40.129894,
       "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
+      "manaSpentPerRound": -4.135737,
       "enemyActionsRemovedByCcPerCombat": 0
     },
     {
       "championId": "Jinx",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
+      "decisiveWinRatePercentagePoints": 2.4074,
+      "hpDamagePerRound": 15.34266,
       "effectiveHealingPerRound": 0,
       "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
+      "manaSpentPerRound": -0.334122,
       "enemyActionsRemovedByCcPerCombat": 0
     },
     {
       "championId": "Leona",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
+      "decisiveWinRatePercentagePoints": -22.1164,
+      "hpDamagePerRound": -54.772194,
       "effectiveHealingPerRound": 0,
-      "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
-      "enemyActionsRemovedByCcPerCombat": 0
+      "shieldAbsorbedPerRound": -1.902017,
+      "manaSpentPerRound": -10.704046,
+      "enemyActionsRemovedByCcPerCombat": -1.326984
     },
     {
       "championId": "Malphite",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
+      "decisiveWinRatePercentagePoints": -11.5079,
+      "hpDamagePerRound": -39.505237,
       "effectiveHealingPerRound": 0,
-      "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
-      "enemyActionsRemovedByCcPerCombat": 0
+      "shieldAbsorbedPerRound": -3.670233,
+      "manaSpentPerRound": -7.03521,
+      "enemyActionsRemovedByCcPerCombat": 0.332276
     },
     {
       "championId": "Warwick",
-      "decisiveWinRatePercentagePoints": 0,
-      "hpDamagePerRound": 0,
-      "effectiveHealingPerRound": 0,
+      "decisiveWinRatePercentagePoints": 12.9365,
+      "hpDamagePerRound": 11.893772,
+      "effectiveHealingPerRound": 5.440304,
       "shieldAbsorbedPerRound": 0,
-      "manaSpentPerRound": 0,
-      "enemyActionsRemovedByCcPerCombat": 0
+      "manaSpentPerRound": -3.102184,
+      "enemyActionsRemovedByCcPerCombat": 0.354762
     }
   ],
   "p1Acceptance": {
@@ -444,9 +444,20 @@
     "passed": true,
     "violations": []
   },
-  "p0Calibration": {
-    "status": "out-of-scope-open",
+  "p0Acceptance": {
+    "rule": "every champion stays inside the 45-55% decisive-win band with a roster gap at most 10 points",
     "targetDecisiveWinRate": [0.45, 0.55],
-    "maximumRosterGap": 0.1
+    "maximumRosterGap": 0.1,
+    "measuredRosterGap": 0.037831,
+    "minimum": {
+      "championId": "Soraka",
+      "decisiveWinRate": 0.483333
+    },
+    "maximum": {
+      "championId": "Warwick",
+      "decisiveWinRate": 0.521164
+    },
+    "passed": true,
+    "violations": []
   }
 }

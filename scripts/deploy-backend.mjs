@@ -64,9 +64,12 @@ function deployBackend() {
   // Always relink explicitly so a stale local Supabase link cannot select the wrong database.
   run('npx', ['supabase', 'link', '--project-ref', target.projectRef]);
 
-  // Apply migrations to the branch-selected database, then deploy the matching Edge Function.
-  run('npx', ['supabase', 'db', 'push']);
+  // Stage the backward-compatible resolver first. Database activation stays an explicit
+  // operator step after the matching frontend has been deployed and observed healthy.
   run('npx', ['supabase', 'functions', 'deploy', 'verify-run', '--project-ref', target.projectRef]);
+  console.log(
+    '[backend:deploy] Edge resolver staged. Deploy the compatible frontend before running npm run migrate.',
+  );
 }
 
 const isDirectExecution =

@@ -62,7 +62,8 @@ l'opérateur rollback et l'heure UTC.
       être suspendus.
 - [ ] `node scripts/run-local-db-tests.mjs --rollback` exécute le probe repositories
       du SHA de rollback versionné contre la DB locale déjà migrée, après contrôle
-      que son historique est un préfixe append-only strict du schéma courant.
+      que son historique est identique au schéma courant ou en constitue un préfixe
+      append-only. Le probe exige aussi que ce client reconnaisse le moteur authority actif.
 
 ### Ordre de promotion
 

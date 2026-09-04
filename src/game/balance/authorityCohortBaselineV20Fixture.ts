@@ -1,4 +1,4 @@
-import { getAuthorityVerifier } from '@/game/authority';
+import type { AuthorityCohortRuntime } from './authorityCohort';
 import {
   AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION,
   type AuthorityCohortBaselineDocument,
@@ -32,12 +32,9 @@ export const AUTHORITY_COHORT_BASELINE_V20_IDENTITY = Object.freeze({
 
 export type AuthorityCohortBaselineV20Fixture = AuthorityCohortBaselineFixture;
 
-export function createAuthorityCohortBaselineV20Fixture(): AuthorityCohortBaselineV20Fixture {
-  const authority = getAuthorityVerifier(
-    AUTHORITY_COHORT_BASELINE_V20_IDENTITY.engineVersion,
-    AUTHORITY_COHORT_BASELINE_V20_IDENTITY.contentHash,
-  );
-  if (!authority) throw new Error('The current v20 authority verifier is unavailable.');
+export function createAuthorityCohortBaselineV20Fixture(
+  authority: AuthorityCohortRuntime,
+): AuthorityCohortBaselineV20Fixture {
   return createAuthorityCohortBaselineFixture({
     authority,
     identity: AUTHORITY_COHORT_BASELINE_V20_IDENTITY,
@@ -48,6 +45,8 @@ export function createAuthorityCohortBaselineV20Fixture(): AuthorityCohortBaseli
   });
 }
 
-export function generateAuthorityCohortBaselineV20(): AuthorityCohortBaselineDocument {
-  return createAuthorityCohortBaselineV20Fixture().document;
+export function generateAuthorityCohortBaselineV20(
+  authority: AuthorityCohortRuntime,
+): AuthorityCohortBaselineDocument {
+  return createAuthorityCohortBaselineV20Fixture(authority).document;
 }

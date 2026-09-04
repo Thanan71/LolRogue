@@ -3,12 +3,13 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 2` décrit le contenu publié avec le
-`gameplay_ruleset_version = 20` et le Daily `score_version = 15`. La calibration
-early Top et le budget de formation global restent figés dans la v18 ; la v19 publie
-les règles système du sprint combat et la v20 la carte, l'économie ainsi que la
-progression par participation. Le moteur v19 est archivé pour terminer les runs déjà
-ouvertes. Toute autre modification d'ennemi, récompense, prix, drop, effet ou stacking
-exige une nouvelle version et un nouveau hash autoritaire.
+`gameplay_ruleset_version = 21` et le Daily `score_version = 15`. La calibration
+early Top et le budget de formation global sont introduits en v18 ; la v19 publie
+les règles système du sprint combat, la v20 la carte, l'économie et la progression
+par participation, puis la v21 publie les gates mesurées de P0-BAL-02. Le moteur v20
+est archivé pour terminer les runs déjà ouvertes. Toute autre modification d'ennemi,
+récompense, prix, drop, effet ou stacking exige une nouvelle version et un nouveau
+hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `contentCatalogAnalysis.test.ts` appelle `analyzeContentCatalog()` sur 100 seeds de
@@ -32,15 +33,16 @@ comportement joueur.
 
 ## Baselines authority versionnées
 
-La stabilisation early Top conserve `config/early-top-cohort-v17.json` et
-`config/early-top-cohort-v18.json` : 10 starters solo × Easy/Normal/Hard × 30 seeds
+La stabilisation early Top conserve `config/early-top-cohort-v17.json`,
+`config/early-top-cohort-v18.json` et `config/early-top-cohort-v21.json` :
+10 starters solo × Easy/Normal/Hard × 30 seeds
 appariées, avec victoire de run, victoire du premier combat, encounter de mort dans les
 trois premiers combats Top, ressources PV/MP, or, affordability et commandes de
 reproduction des seeds extrêmes. Les fixtures sont régénérées par
-`npm run balance:early-top:generate:v17 -- --output config/early-top-cohort-v17.json`
-et `npm run balance:early-top:generate -- --output config/early-top-cohort-v18.json` ;
-`npm run balance:early-top:check` exige leur reproduction byte-for-byte. La v17 fige le
-signal à 0 % avant tout tuning et la v18 fige la sortie du blocage.
+`npm run balance:early-top:generate:v17`, `:v18` et `:v21` avec une sortie explicite ;
+la commande sans suffixe génère la v21. `npm run balance:early-top:check` exige leur
+reproduction byte-for-byte. La v17 fige le signal à 0 % avant tout tuning, la v18 la
+sortie du blocage et la v21 les plages d'acceptation finales.
 
 La première passe v18 a été pilotée par cette même matrice, via
 `node scripts/generate-early-top-cohort.mjs --engine v18`.
@@ -175,23 +177,39 @@ Les neuf tests passent sous Node 24 sans modifier les catalogues d'augments, les
 tables de drops, les items, les encounters ou les règles de contenu. La stabilisation
 early Top ne compense donc pas sa difficulté en rouvrant P0-BAL-04.
 
-La baseline courante v20 est chargée depuis
-`config/authority-cohort-baselines-v20.json` et reproduite par la source v20. Elle
-sépare les dix champions maintenus sur les trois difficultés et publie aussi le mana
-consommé ainsi que les boucliers absorbés par leur camp créateur.
-Les six baselines authority v15 à v20 restent reproductibles ; v15 à v19 sont des
+La baseline courante v21 est chargée depuis
+`config/authority-cohort-baselines-v21.json` et reproduite par la source v21. Elle
+couvre les 45 cellules du profil PR sur 30 seeds appariées : difficulté, composition
+d'équipe, maîtrise, runes, enhancements et politique restent visibles séparément.
+Les sept baselines authority v15 à v21 restent reproductibles ; v15 à v20 sont des
 archives immuables dont les identités moteur/hash/modèle/policy sont littérales et dont
 la reproduction emploie exclusivement leur bundle versionné, jamais les constantes du
 moteur courant.
 
-`npm run balance:baseline:generate` génère v20 sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-v20.json` met à jour son artefact
-commité. Les commandes `balance:baseline:generate:v15` à
-`balance:baseline:generate:v19` servent uniquement à auditer les archives
-historiques. Une nouvelle publication ajoute son propre couple fixture/loader/JSON
-sans réécrire les versions précédentes. `npm run balance:baseline:check`, inclus
-dans `npm run balance:check`, exige une reproduction byte-for-byte des six
-artefacts.
+`npm run balance:baseline:generate` génère la v21 sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-v21.json` met à jour son artefact
+commité. Les commandes `balance:baseline:generate:v15` à `:v20` servent uniquement à
+auditer les archives historiques. Une nouvelle publication ajoute son propre couple
+fixture/loader/JSON sans réécrire les versions précédentes.
+`npm run balance:baseline:check`, inclus dans `npm run balance:artifacts:check`, exige
+une reproduction byte-for-byte des sept artefacts.
+
+### Gates de cohortes P0-BAL-02
+
+`npm run balance:cohort -- --profile pr --output-directory balance-report` exécute
+45 cellules × 30 seeds. `authorityCohortAcceptance` regroupe 15 familles sémantiques
+et n'échoue sur la hiérarchie Easy ≥ Normal ≥ Hard que lorsque les intervalles Wilson
+révèlent une inversion significative. La même exécution mesure la concentration des
+morts et compare 1 170 métriques au golden v21 commité : baisse de victoire supérieure
+à 5 points, recul médian supérieur à 0,5 biome ou dérive économique supérieure à 10 %.
+
+La mesure de référence passe sans violation. Hard/Top concentre 177 morts sur 445
+(39,78 %) ; sa borne Wilson basse de 35,33 % reste sous le seuil d'échec strict de
+40 % et produit donc un avertissement visible, pas un succès masqué. Le golden rend
+une dérive non approuvée bloquante ; lorsqu'il est volontairement régénéré, son diff
+reste la preuve à approuver en revue de PR. La CI conserve le rapport
+`authority-cohort-acceptance.json` pour les profils PR, nightly et release, exécutés
+respectivement avec 30, 500 et 1 000 seeds par cellule.
 
 ### Matrice de combat des champions
 
@@ -235,12 +253,14 @@ la plage et l'écart du roster atteint 38,02 points. Ces seuils restent ouverts 
 doivent être traités par leur calibration dédiée, pas assouplis dans ce rapport.
 
 Le rapport courant `config/champion-combat-matrix-current.json` compare désormais
-v19 au moteur v20
-(`8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91`). Les 7 560
-combats de chaque runtime reproduisent exactement les métriques v19, tous les deltas
-sont nuls et la parité source/bundle v20 est exacte. Ce contrôle conserve de vraies
-victoires **et** de vraies défaites pour chacun des dix champions ; la publication
-économique ne cherche pas à rendre chaque run gagnante.
+v20 au moteur v21
+(`9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6`). Les 7 560
+combats de chaque runtime donnent, pour le candidat, Garen 51,83 %, Annie 51,14 %,
+Ashe 51,06 %, Darius 48,41 %, Lux 48,99 %, Soraka 48,33 %, Jinx 48,57 %, Leona
+49,07 %, Malphite 50,48 % et Warwick 52,12 %. Tous restent dans la plage 45–55 % ;
+l'écart Soraka–Warwick est de 3,78 points, sous le maximum de 10. La parité
+source/bundle v21 est exacte et chaque champion conserve des milliers de victoires
+**et** de défaites, sans draw utilisé pour masquer un résultat.
 
 La publication P0-BAL-05 archive également le bundle v17 byte-for-byte et publie
 `run-engine-v18` avec le hash
@@ -250,24 +270,26 @@ seuls le namespace Daily et les identités gameplay/moteur progressent. Le score
 en version 15 avec zéro point d'or, et la migration vérifie les deux parités avant
 d'activer v18.
 
-P0-BAL-05 ferme uniquement le blocage de stabilisation : Easy est dans sa zone
-préliminaire et aucun starter ne perd tous ses premiers combats. Les gates finales de
-P0-BAL-02 restent ouvertes, notamment parce que les premiers combats Normal et Hard
-sont gagnés à 100 %, au-dessus de leurs plages de travail respectives de 75–95 % et
-50–80 %. Les gates 5v5, concentration des morts par biome et playtests humains ne sont
-pas déclarées satisfaites par cette cohorte solo.
+P0-BAL-05 ferme uniquement le blocage de stabilisation historique. La publication
+v21 mesure ensuite 259/300 premiers combats gagnés en Easy, 249/300 (83,0 %) en
+Normal et 224/300 (74,67 %) en Hard, sans aucun starter à zéro. Elle conserve aussi
+de vraies défaites : seulement 25/300, 15/300 et 5/300 runs complètes gagnées.
+Ces mesures ferment la gate automatisée P0-BAL-02 sans transformer l'autoplay en
+objectif de taux de victoire ; les playtests humains restent ouverts dans P2-BAL-01.
 
 ### Gate P1-BAL-02 carte et économie
 
-`config/map-economy-baseline-v20.json` analyse 1 000 seeds avec une programmation
-dynamique sur le DAG de chaque carte. `npm run balance:map-economy:check` exige sa
-reproduction byte-for-byte et borne, sur la run complète, l'écart entre routes à
+`config/map-economy-baseline-v20.json` conserve la publication historique et
+`config/map-economy-baseline-v21.json` porte l'identité courante sur les mêmes
+mesures byte-identiques. Chaque artefact analyse 1 000 seeds avec une programmation
+dynamique sur le DAG de chaque carte. `npm run balance:map-economy:check` exige la
+reproduction v21 byte-for-byte et borne, sur la run complète, l'écart entre routes à
 trois combats et une élite. Chaque chemin traverse un shop en Jungle et un recrutement
 en Mid ; seule la Base se termine par un boss.
 
 Le premier shop Jungle propose toujours une potion. Le gate
-`mapEconomyAffordability.test.ts` rejoue 900 runs, stratifiées en 30 cellules ×
-30 seeds, et exige pour Easy, Normal et Hard qu'au moins 50 % des premières visites
+`mapEconomyAffordability.test.ts` rejoue 1 200 runs, stratifiées en 30 cellules ×
+40 seeds, et exige pour Easy, Normal et Hard qu'au moins 50 % des premières visites
 Jungle contiennent une offre abordable. Les composants coûtent 100–250 gold hors
 potion d'entrée, BF Sword 500–650 et les recrues 150–300.
 
@@ -282,8 +304,8 @@ inabordables sous forme de contrepartie ou d'absence de gain, et recrute au nive
 Enfin, le progression ruleset v3 répartit un budget de candies de compte fixe selon
 les vagues et biomes réellement parcourus dans le ledger v2. Recruter tard ne réduit
 donc plus le budget global et la part individuelle reflète la participation. Cette
-gate ferme P1-BAL-02, pas P0-BAL-02 : la calibration finale et les playtests humains
-consentis restent explicitement ouverts.
+gate ferme P1-BAL-02 ; les playtests humains consentis restent explicitement ouverts
+sans invalider les gates automatiques P0-BAL-02.
 
 ## Indicateurs de catalogue et de nœuds
 

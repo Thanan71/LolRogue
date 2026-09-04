@@ -175,6 +175,8 @@ export default defineConfig({
     environment: 'node',
     exclude: [...configDefaults.exclude, 'e2e/**'],
     setupFiles: ['./tests/setup/react.ts'],
+    // Keep Node's experimental process-wide storage from shadowing jsdom's per-window storage.
+    execArgv: ['--no-experimental-webstorage'],
     fileParallelism: !process.argv.includes('--coverage'),
     sequence: {
       shuffle: true,

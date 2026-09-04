@@ -220,6 +220,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260828150025_gameplay_ruleset_v18_early_top.sql',
       '../supabase/migrations/20260830093859_gameplay_ruleset_v19_combat_balance.sql',
       '../supabase/migrations/20260831152608_gameplay_ruleset_v20_map_economy.sql',
+      '../supabase/migrations/20260904151818_gameplay_ruleset_v21_balance_acceptance.sql',
     ]);
   });
 

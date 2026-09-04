@@ -70,7 +70,8 @@ async function persistRejection(
 }
 
 function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonRecord | null {
-  const usesParticipationLedger = engineVersion === 'run-engine-v20';
+  const usesParticipationLedger =
+    engineVersion === 'run-engine-v20' || engineVersion === 'run-engine-v21';
   const expectedLedgerVersion = usesParticipationLedger ? 2 : 1;
   const team = Array.isArray(snapshot.team) ? snapshot.team : null;
   const championStats = Array.isArray(snapshot.championStats) ? snapshot.championStats : null;
