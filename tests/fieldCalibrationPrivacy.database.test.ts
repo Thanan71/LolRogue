@@ -16,7 +16,7 @@ const describeDatabase = supabaseUrl && anonKey && serviceRoleKey ? describe : d
 
 const migrationSql = readFileSync(
   new URL(
-    '../supabase/migrations/20260825192223_aggregate_verified_field_calibration.sql',
+    '../supabase/migrations/20260906071542_aggregate_verified_field_calibration.sql',
     import.meta.url,
   ),
   'utf8',
