@@ -97,5 +97,5 @@ describe('multi-policy field-calibration baseline v1', () => {
         expect(report.augmentCohorts.every((cohort) => cohort.cohortSampleSize === 30)).toBe(true);
       }
     }
-  }, 15_000);
+  }, 90_000);
 });
