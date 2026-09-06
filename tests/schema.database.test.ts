@@ -222,6 +222,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260831152608_gameplay_ruleset_v20_map_economy.sql',
       '../supabase/migrations/20260904151818_gameplay_ruleset_v21_balance_acceptance.sql',
       '../supabase/migrations/20260906071542_aggregate_verified_field_calibration.sql',
+      '../supabase/migrations/20260906071543_allow_terminal_defeat_participation.sql',
     ]);
   });
 
