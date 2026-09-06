@@ -109,6 +109,8 @@ en `replay-only` et v21 devient l'unique moteur `current`. Le wrapper v21 délè
 attempts historiques au contrat v20 archivé ; les deux fonctions retirent l'exécution
 à `PUBLIC`, `anon`, `authenticated` et au wrapper historique lui-même, tandis que seul
 le contrat courant est accordé à `service_role`. `npm run backend:deploy` publie la
-fonction Edge sans activer la migration ; le frontend v21 doit ensuite être réellement
-déployé avant l'appel explicite à `npm run migrate`, afin d'éviter toute fenêtre où
-v21 serait créable sans client ou resolver compatible.
+fonction Edge, déploie le frontend compatible puis active la migration sur le projet
+associé à la branche (`dev` vers `LolRogueDev`, `main` vers `LolRogue`). La commande
+ne promeut le build Production de `main` qu'après le contrôle du manifeste distant
+et ne poursuit jamais après l'échec d'une étape, afin d'éviter toute fenêtre où v21
+serait créable sans client ou resolver compatible.

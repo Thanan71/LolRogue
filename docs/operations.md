@@ -45,16 +45,20 @@ n'envoie pas de mails.
 3. Sauvegarder la base distante et prévoir une courte fenêtre de déploiement :
    la migration révoque immédiatement l'ancien chemin `client_reported` et fait
    expirer les attempts ouverts antérieurs à la quarantaine des améliorations.
-4. Lier la CLI au bon projet et déployer d'abord la fonction encore dormante avec
-   `npm run edge:deploy`.
-5. Exécuter `npm run migrate`, puis déployer immédiatement le client compatible.
+4. Depuis un checkout propre de `dev` ou `main`, exécuter
+   `npm run backend:deploy`. La commande sélectionne explicitement le projet
+   Supabase et la cible Vercel, prévisualise les migrations, puis publie la fonction
+   encore dormante et le client compatible avant d'appliquer les migrations.
+5. Attendre le contrôle final du manifeste distant ; sur `main`, la commande promeut
+   ensuite le build Production préparé et affiche son URL.
 6. Contrôler le déploiement et fermer la fenêtre seulement après le test d'une run
    connectée complète.
 
-Cet ordre rend le vérificateur disponible avant la révocation de l'ancien RPC. Ne
-pas déployer le nouveau client avant la migration : il ne trouverait pas les RPC
-d'attempt. Ne pas laisser durablement l'ancien client après la migration : ses
-sauvegardes connectées seront volontairement refusées.
+Cet ordre rend le vérificateur et le client compatibles disponibles avant
+l'activation d'une nouvelle ruleset. Toute évolution utilisée par ce workflow doit
+donc conserver le nouveau client compatible avec le schéma précédent pendant cette
+courte fenêtre. Ne pas laisser durablement l'ancien client après la migration : ses
+sauvegardes connectées peuvent être volontairement refusées.
 
 La migration `20260726090000_authoritative_daily_leaderboard.sql` révoque et
 supprime aussi `submit_daily_run`. Le client compatible doit utiliser
@@ -169,19 +173,24 @@ règles ou le contenu autoritaire, suivre `docs/authority-versioning.md`, conser
 l'ancien vérificateur en `replay-only` pendant au moins la durée maximale d'un
 attempt, puis seulement activer la nouvelle version.
 
-Après avoir lié le bon projet Supabase, `npm run backend:deploy` valide puis publie
-uniquement `verify-run`. La commande n'active jamais une migration : même lorsqu'une
-évolution ne requiert aucune logique frontend, l'opérateur exécute séparément
-`npm run migrate` après avoir vérifié la compatibilité du client déployé.
+`npm run backend:deploy` constitue le chemin normal de publication complète. Il
+refuse toute branche autre que `dev` ou `main`, relie respectivement `LolRogueDev`
+ou `LolRogue`, prévisualise les montées de version, publie `verify-run`, déploie le
+frontend Vercel en Preview ou Production, applique les migrations sur la référence
+Supabase explicite puis contrôle le manifeste lié. Le build Production de `main`
+reste sans domaine jusqu'à ce contrôle, avant sa promotion finale. Chaque étape
+bloque les suivantes en cas d'échec.
 
 Une nouvelle version de moteur comprise par le navigateur doit être livrée en
 trois étapes afin qu'aucun ancien frontend ne démarre une ruleset qu'il ne sait pas
 journaliser :
 
-1. `npm run edge:deploy` pour publier le vérificateur compatible avec les anciennes
-   et nouvelles versions ;
-2. déployer le frontend et attendre qu'il soit effectivement en production ;
-3. `npm run migrate` pour activer la nouvelle ruleset.
+1. `npm run backend:deploy` publie le vérificateur compatible avec les anciennes et
+   nouvelles versions ;
+2. la même commande déploie le frontend et attend la réussite de Vercel, sans
+   encore affecter le domaine Production de `main` ;
+3. elle applique ensuite les migrations pour activer la nouvelle ruleset et en
+   vérifie le manifeste distant, puis promeut le build Production.
 
 Le moteur v3 accepte les journaux `resolve_combat` v2 sans trace et les rejoue en
 auto. Le moteur v4 conserve cette compatibilité et introduit la progression de
