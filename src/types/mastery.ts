@@ -128,6 +128,11 @@ export interface MasteryActions {
     wavesCompleted: number,
     biomesVisited: number,
     won: boolean,
+    participation?: readonly {
+      championId: string;
+      wavesParticipated?: number;
+      biomesParticipated?: number;
+    }[],
   ) => Record<string, number>;
 
   /** Get mastery data for a specific champion. */

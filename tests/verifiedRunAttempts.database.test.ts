@@ -17,6 +17,13 @@ const protectedRunStartSql = readFileSync(
   new URL('../supabase/migrations/20260726220000_protect_active_run_start.sql', import.meta.url),
   'utf8',
 );
+const terminalDefeatSql = readFileSync(
+  new URL(
+    '../supabase/migrations/20260906071543_allow_terminal_defeat_participation.sql',
+    import.meta.url,
+  ),
+  'utf8',
+);
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -30,6 +37,8 @@ type VerifiedMember = {
   kills: number;
   damage_dealt: number;
   items_collected: string[];
+  waves_participated?: number;
+  biomes_participated?: string[];
 };
 
 type LedgerItem = {
@@ -44,11 +53,18 @@ type LedgerItem = {
   wave: number;
 };
 
-function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMember[] }>(
-  result: T,
-) {
+function withRunLedger<
+  T extends {
+    gold_earned: number;
+    waves_completed: number;
+    biomes_visited: string[];
+    team_members: VerifiedMember[];
+  },
+>(result: T) {
   const teamMembers = result.team_members.map((member) => ({
     ...member,
+    waves_participated: member.waves_participated ?? result.waves_completed,
+    biomes_participated: member.biomes_participated ?? [...result.biomes_visited],
     assists: 0,
     damage_to_shields: 0,
     damage_received: 0,
@@ -65,7 +81,7 @@ function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMe
     gold_balance: result.gold_earned,
     team_members: teamMembers,
     ledger: {
-      version: 1,
+      version: 2,
       champions: Object.fromEntries(
         teamMembers.map((member) => [
           member.champion_id,
@@ -81,6 +97,8 @@ function withRunLedger<T extends { gold_earned: number; team_members: VerifiedMe
             shielding_done: member.shielding_done,
             shielding_absorbed: member.shielding_absorbed,
             deaths: member.deaths,
+            waves_participated: member.waves_participated,
+            biomes_participated: member.biomes_participated,
           },
         ]),
       ),
@@ -100,6 +118,17 @@ describe('verified run attempt migration', () => {
     expect(migrationSql).toContain('CREATE TABLE public.progression_security_baselines');
     expect(migrationSql).toContain('grandfather_legacy_no_retroactive_reset');
     expect(migrationSql).toContain('No retroactive reset is performed');
+  });
+
+  it('accepts one lost terminal encounter without rewarding it as a completed wave', () => {
+    expect(terminalDefeatSql).toContain(
+      'public.complete_run_verification_v20_contract(uuid,uuid,jsonb,text)',
+    );
+    expect(terminalDefeatSql).toContain("WHEN (p_result ->> ''won'')::BOOLEAN THEN 0");
+    expect(terminalDefeatSql).toContain("'      LEAST('");
+    expect(terminalDefeatSql).toContain('v_waves_completed');
+    expect(terminalDefeatSql).not.toMatch(/\b(?:DROP|TRUNCATE)\s+TABLE\b/i);
+    expect(terminalDefeatSql).not.toMatch(/\bDELETE\s+FROM\b/i);
   });
 
   it('pins the gameplay runtime and only admits engine-supported content', () => {
@@ -321,7 +350,7 @@ describeWithSupabase('verified run attempt live security', () => {
       };
       expect(start).toMatchObject({
         status: 'started',
-        engine_version: 'run-engine-v17',
+        engine_version: 'run-engine-v21',
       });
       expect(start.seed).toBeGreaterThan(0);
       expect(start.enhancement_snapshot).toHaveProperty('Garen');
@@ -389,7 +418,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(claim.data).toMatchObject({
         attempt_id: start.attempt_id,
         claimed: true,
-        engine_version: 'run-engine-v17',
+        engine_version: 'run-engine-v21',
       });
       const leaseToken = (claim.data as { lease_token: string }).lease_token;
 
@@ -546,7 +575,7 @@ describeWithSupabase('verified run attempt live security', () => {
       const persistedMember = await admin
         .from('run_team_members')
         .select(
-          'final_hp, assists, damage_to_shields, damage_received, healing_done, healing_received, overhealing, shielding_done, shielding_absorbed, items_collected',
+          'final_hp, assists, damage_to_shields, damage_received, healing_done, healing_received, overhealing, shielding_done, shielding_absorbed, items_collected, waves_participated, biomes_participated',
         )
         .eq('run_id', (completionReplay.data as { run_id: string }).run_id)
         .single();
@@ -562,6 +591,8 @@ describeWithSupabase('verified run attempt live security', () => {
         shielding_done: 18,
         shielding_absorbed: 11,
         items_collected: ['long_sword'],
+        waves_participated: 1,
+        biomes_participated: ['top_lane'],
       });
 
       const player = await admin
@@ -576,23 +607,30 @@ describeWithSupabase('verified run attempt live security', () => {
         total_candies: 13,
       });
 
-      const zeroWaveStart = await userClient.rpc('start_run_attempt', {
+      const firstWaveDefeatStart = await userClient.rpc('start_run_attempt', {
         ...startArgs,
         p_command_id: randomUUID(),
         p_team: ['Annie'],
       });
-      expect(zeroWaveStart.error).toBeNull();
-      const zeroWaveAttemptId = (zeroWaveStart.data as { attempt_id: string }).attempt_id;
+      expect(firstWaveDefeatStart.error).toBeNull();
+      const firstWaveDefeatAttemptId = (firstWaveDefeatStart.data as { attempt_id: string })
+        .attempt_id;
       expect(
         (
           await userClient.rpc('append_run_attempt_commands', {
-            p_attempt_id: zeroWaveAttemptId,
+            p_attempt_id: firstWaveDefeatAttemptId,
             p_commands: [
               {
                 command_id: randomUUID(),
                 sequence: 1,
-                kind: 'abandon_run',
-                payload: {},
+                kind: 'move_node',
+                payload: { node_id: 'node_top_lane_0' },
+              },
+              {
+                command_id: randomUUID(),
+                sequence: 2,
+                kind: 'resolve_combat',
+                payload: { node_id: 'node_top_lane_0' },
               },
             ],
           })
@@ -601,32 +639,34 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(
         (
           await userClient.rpc('seal_run_attempt', {
-            p_attempt_id: zeroWaveAttemptId,
+            p_attempt_id: firstWaveDefeatAttemptId,
             p_finish_command_id: randomUUID(),
-            p_expected_sequence: 1,
+            p_expected_sequence: 2,
           })
         ).error,
       ).toBeNull();
-      const zeroWaveClaim = await admin.rpc('claim_run_verification', {
-        p_attempt_id: zeroWaveAttemptId,
+      const firstWaveDefeatClaim = await admin.rpc('claim_run_verification', {
+        p_attempt_id: firstWaveDefeatAttemptId,
         p_worker_id: randomUUID(),
       });
-      expect(zeroWaveClaim.error).toBeNull();
-      const zeroWaveCompletion = await admin.rpc('complete_run_verification', {
-        p_attempt_id: zeroWaveAttemptId,
-        p_lease_token: (zeroWaveClaim.data as { lease_token: string }).lease_token,
+      expect(firstWaveDefeatClaim.error).toBeNull();
+      const firstWaveDefeatCompletion = await admin.rpc('complete_run_verification', {
+        p_attempt_id: firstWaveDefeatAttemptId,
+        p_lease_token: (firstWaveDefeatClaim.data as { lease_token: string }).lease_token,
         p_result: withRunLedger({
           won: false,
           run_level: 1,
           waves_completed: 0,
-          biomes_visited: [],
+          biomes_visited: ['top_lane'],
           gold_earned: 0,
           augment_ids: [],
           team_members: [
             {
               champion_id: 'Annie',
+              waves_participated: 1,
+              biomes_participated: ['top_lane'],
               final_level: 1,
-              final_hp: 100,
+              final_hp: 0,
               kills: 0,
               damage_dealt: 0,
               items_collected: [],
@@ -635,10 +675,20 @@ describeWithSupabase('verified run attempt live security', () => {
         }),
         p_result_hash: null,
       });
-      expect(zeroWaveCompletion.error).toBeNull();
-      expect(zeroWaveCompletion.data).toMatchObject({
+      expect(firstWaveDefeatCompletion.error).toBeNull();
+      expect(firstWaveDefeatCompletion.data).toMatchObject({
         candies_earned: 0,
-        summary: { waves_completed: 0 },
+        summary: {
+          waves_completed: 0,
+          biomes_visited: ['top_lane'],
+          champion_stats: [
+            {
+              champion_id: 'Annie',
+              waves_participated: 1,
+              biomes_participated: ['top_lane'],
+            },
+          ],
+        },
       });
 
       const lateDefeatStart = await userClient.rpc('start_run_attempt', {
@@ -703,7 +753,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(lateDefeatCompletion.error).toBeNull();
       expect(lateDefeatCompletion.data).toMatchObject({
         status: 'verified',
-        progression_version: 2,
+        progression_version: 3,
         summary: {
           won: false,
           run_level: 2,
@@ -718,7 +768,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(lateDefeatRun.error).toBeNull();
       expect(lateDefeatRun.data).toMatchObject({
         run_level: 2,
-        progression_version: 2,
+        progression_version: 3,
         progression_payload_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
       });
 
@@ -786,7 +836,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(stackedVictoryCompletion.error).toBeNull();
       expect(stackedVictoryCompletion.data).toMatchObject({
         status: 'verified',
-        progression_version: 2,
+        progression_version: 3,
         summary: {
           won: true,
           run_level: 6,

@@ -1,5 +1,6 @@
 import { TargetingType } from '@/types/champion';
 import type { SpellSlot } from '../ChampionInstance';
+import { isBattleActionUnlocked } from './actionTimingRules';
 import { actionToSpellSlot } from './actionSlots';
 import { isSpellCombatReady } from './combatContentSupport';
 import { isActionTargeting, resolveBattleTargets } from './targetResolver';
@@ -79,6 +80,7 @@ interface ValidateBattleActionInput {
   attacker: CombatantState;
   action: BattleAction;
   combatants: readonly ResolvableCombatant[];
+  round: number;
 }
 
 export function validateBattleAction({
@@ -87,6 +89,7 @@ export function validateBattleAction({
   attacker,
   action,
   combatants,
+  round,
 }: ValidateBattleActionInput): ValidatedBattleAction | null {
   if (
     phase !== BattlePhase.TurnActive ||
@@ -95,7 +98,8 @@ export function validateBattleAction({
     currentTurnEntry.side !== attacker.side ||
     attacker.isDefeated ||
     !attacker.effectManager.canAct() ||
-    !Object.values(ActionType).includes(action.type)
+    !Object.values(ActionType).includes(action.type) ||
+    !isBattleActionUnlocked(action.type, round)
   ) {
     return null;
   }

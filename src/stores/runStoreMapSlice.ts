@@ -12,6 +12,7 @@ import {
   appendRunAuthorityCommand,
   usesCanonicalProgression,
 } from '@/game/run/runAuthorityJournal';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { normalizeRunDomainState } from '@/game/run/runDomainInvariants';
 import { getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
@@ -476,7 +477,15 @@ export function createRunMapSlice(
         authorityAttempt: appended.authorityAttempt,
         gold: state.gold - price,
         ledger: recordGoldSpend(state.ledger, price),
-        team: [...state.team, { championId: teamAddition.value, statMultiplier: 1 }],
+        team: [
+          ...state.team,
+          {
+            championId: teamAddition.value,
+            level: getRecruitStartingLevel(state.runLevel, state.team),
+            currentXp: 0,
+            statMultiplier: 1,
+          },
+        ],
         shopNodeStates: {
           ...state.shopNodeStates,
           [node.id]: {

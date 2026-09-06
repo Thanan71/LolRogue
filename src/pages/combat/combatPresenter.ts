@@ -35,7 +35,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
         mr: 'RM',
         spd: 'Vitesse',
         crit: 'Critique',
-        attackSpeed: 'Vitesse ATQ',
+        attackSpeed: 'Initiative ATQ',
         hpRegen: 'Regen PV',
         mpRegen: 'Regen PM',
         armorPen: 'Pen. Armure',
@@ -44,7 +44,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
         omnivamp: 'Omnivamp',
         tenacity: 'Ténacité',
         abilityHaste: 'Hâte',
-        attackRange: 'Portée',
+        attackRange: 'Profil de portée',
       };
       const name = statNames[stat] || stat;
       descriptions.push(
@@ -65,7 +65,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
         mr: 'RM',
         spd: 'Vitesse',
         crit: 'Critique',
-        attackSpeed: 'Vitesse ATQ',
+        attackSpeed: 'Initiative ATQ',
         hpRegen: 'Regen PV',
         mpRegen: 'Regen PM',
         armorPen: 'Pen. Armure',
@@ -74,7 +74,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
         omnivamp: 'Omnivamp',
         tenacity: 'Ténacité',
         abilityHaste: 'Hâte',
-        attackRange: 'Portée',
+        attackRange: 'Profil de portée',
       };
       const name = statNames[stat] || stat;
       descriptions.push(

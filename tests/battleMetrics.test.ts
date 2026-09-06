@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyBattleMetrics, reduceBattleMetrics } from '@/game/battle/battleMetrics';
-import type { BattleEvent } from '@/game/battle/types';
+import { ActionType, type BattleEvent } from '@/game/battle/types';
 import { CCType } from '@/game/effects/types';
 
 describe('authoritative battle metrics', () => {
@@ -30,6 +30,7 @@ describe('authoritative battle metrics', () => {
         isCrit: false,
         sourceSide: 'player',
         targetSide: 'enemy',
+        shieldAbsorbedBySide: { enemy: 30 },
       },
       {
         type: 'damage',
@@ -40,6 +41,21 @@ describe('authoritative battle metrics', () => {
         isCrit: false,
         sourceSide: 'enemy',
         targetSide: 'player',
+        shieldAbsorbedBySide: { player: 15 },
+      },
+      {
+        type: 'action_select',
+        champion: 'Soraka',
+        side: 'player',
+        action: ActionType.SpellW,
+        manaSpent: 40,
+      },
+      {
+        type: 'action_select',
+        champion: 'Annie',
+        side: 'enemy',
+        action: ActionType.SpellQ,
+        manaSpent: 60,
       },
       {
         type: 'heal',
@@ -135,6 +151,8 @@ describe('authoritative battle metrics', () => {
           healingDone: 25,
           overhealing: 5,
           shieldingDone: 40,
+          shieldingAbsorbed: 15,
+          manaSpent: 40,
           crowdControlApplications: 2,
           crowdControlDuration: 3.5,
           actionsLost: 1,
@@ -145,6 +163,8 @@ describe('authoritative battle metrics', () => {
           healingDone: 10,
           overhealing: 3,
           shieldingDone: 0,
+          shieldingAbsorbed: 30,
+          manaSpent: 60,
           crowdControlApplications: 1,
           crowdControlDuration: 3,
           actionsLost: 1,

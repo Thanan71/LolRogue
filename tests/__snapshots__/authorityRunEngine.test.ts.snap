@@ -9,10 +9,10 @@ exports[`authority run engine > follows one stable exit-to-wave-to-level-to-augm
       "iron_skin",
     ],
     "biomeIndex": 1,
-    "nodeId": "node_top_lane_8",
+    "nodeId": "node_top_lane_9",
     "runLevel": 2,
-    "totalCompleted": 4,
-    "wave": 5,
+    "totalCompleted": 2,
+    "wave": 3,
   },
   {
     "augmentChoices": [
@@ -21,10 +21,10 @@ exports[`authority run engine > follows one stable exit-to-wave-to-level-to-augm
       "critical_focus",
     ],
     "biomeIndex": 2,
-    "nodeId": "node_jungle_23",
+    "nodeId": "node_jungle_18",
     "runLevel": 3,
-    "totalCompleted": 11,
-    "wave": 12,
+    "totalCompleted": 5,
+    "wave": 6,
   },
   {
     "augmentChoices": [
@@ -33,10 +33,10 @@ exports[`authority run engine > follows one stable exit-to-wave-to-level-to-augm
       "warlord",
     ],
     "biomeIndex": 3,
-    "nodeId": "node_mid_lane_8",
+    "nodeId": "node_mid_lane_6",
     "runLevel": 4,
-    "totalCompleted": 13,
-    "wave": 14,
+    "totalCompleted": 8,
+    "wave": 9,
   },
   {
     "augmentChoices": [
@@ -45,10 +45,10 @@ exports[`authority run engine > follows one stable exit-to-wave-to-level-to-augm
       "glass_cannon",
     ],
     "biomeIndex": 4,
-    "nodeId": "node_bot_lane_11",
+    "nodeId": "node_bot_lane_13",
     "runLevel": 5,
-    "totalCompleted": 17,
-    "wave": 18,
+    "totalCompleted": 12,
+    "wave": 13,
   },
   {
     "augmentChoices": [
@@ -57,10 +57,10 @@ exports[`authority run engine > follows one stable exit-to-wave-to-level-to-augm
       "arcane_mind",
     ],
     "biomeIndex": 5,
-    "nodeId": "node_river_9",
+    "nodeId": "node_river_7",
     "runLevel": 6,
-    "totalCompleted": 20,
-    "wave": 21,
+    "totalCompleted": 14,
+    "wave": 15,
   },
 ]
 `;

@@ -9,6 +9,7 @@ import type {
   AppendRunCommandsResult,
   AuthorityDifficulty,
   AuthorityRunMode,
+  OpenRunAttempt,
   RunAttemptCommand,
   RunAttemptStatus,
   RunAttemptStatusResult,
@@ -320,6 +321,25 @@ function parseStatusResult(value: unknown): RunAttemptStatusResult | null {
   };
 }
 
+function parseOpenRunAttempt(value: unknown): OpenRunAttempt | null {
+  const attempt = asRecord(value);
+  if (
+    !attempt ||
+    !isUuid(attempt.id) ||
+    !isUuid(attempt.start_command_id) ||
+    (attempt.status !== 'started' && attempt.status !== 'finished') ||
+    !isIsoDate(attempt.expires_at)
+  ) {
+    return null;
+  }
+  return {
+    attemptId: attempt.id,
+    startCommandId: attempt.start_command_id,
+    status: attempt.status,
+    expiresAt: attempt.expires_at,
+  };
+}
+
 async function callAttemptRpc(
   name:
     | 'start_run_attempt'
@@ -402,6 +422,29 @@ export async function sealRunAttempt(
   return parsed
     ? { data: parsed, error: null }
     : { data: null, error: new Error('Invalid seal_run_attempt response') };
+}
+
+export async function findOpenRunAttempt(): Promise<{
+  data: OpenRunAttempt | null;
+  error: Error | null;
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('run_attempts')
+      .select('id,start_command_id,status,expires_at')
+      .in('status', ['started', 'finished'])
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) return { data: null, error: normalizeRpcError(error) };
+    if (data === null) return { data: null, error: null };
+    const parsed = parseOpenRunAttempt(data);
+    return parsed
+      ? { data: parsed, error: null }
+      : { data: null, error: new Error('Invalid open run attempt response') };
+  } catch (error) {
+    return { data: null, error: normalizeRpcError(error) };
+  }
 }
 
 export async function getRunAttemptStatus(
@@ -622,6 +665,17 @@ function parseRunSummary(value: unknown): RunSummary | null {
   };
 }
 
+function parseCandyAllocation(value: unknown): Record<string, number> | null {
+  const allocation = asRecord(value);
+  if (!allocation) return null;
+  const parsed: Record<string, number> = {};
+  for (const [championId, candies] of Object.entries(allocation)) {
+    if (championId.length === 0 || !isInteger(candies) || candies < 0) return null;
+    parsed[championId] = candies;
+  }
+  return parsed;
+}
+
 function parseVerifiedResponse(value: unknown): VerifyRunAttemptResult | null {
   const envelope = asRecord(value);
   if (!envelope) return null;
@@ -636,11 +690,24 @@ function parseVerifiedResponse(value: unknown): VerifyRunAttemptResult | null {
   ) {
     return null;
   }
+  const rawCandyAllocation = response.candies_by_champion;
+  const parsedCandyAllocation =
+    rawCandyAllocation === undefined ? {} : parseCandyAllocation(rawCandyAllocation);
+  if (
+    !parsedCandyAllocation ||
+    (response.progression_version >= 3 &&
+      (Object.keys(parsedCandyAllocation).length === 0 ||
+        Object.values(parsedCandyAllocation).reduce((total, candies) => total + candies, 0) !==
+          response.candies_earned))
+  ) {
+    return null;
+  }
   return {
     progression: {
       runId: response.run_id,
       replayed: response.replayed,
       candiesEarned: response.candies_earned,
+      candiesByChampion: parsedCandyAllocation,
       candiesPerChampion: response.candies_per_champion,
       progressionVersion: response.progression_version,
       progressionSource: response.progression_source,

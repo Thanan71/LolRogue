@@ -204,6 +204,26 @@ describe('run economy transactions', () => {
     });
   });
 
+  it('adds a shop recruit near the current team level', () => {
+    useRunStore.setState({
+      runLevel: 6,
+      gold: 500,
+      team: [
+        { championId: 'Garen', level: 9 },
+        { championId: 'Lux', level: 10 },
+        { championId: 'Jinx', level: 10 },
+      ],
+    });
+
+    expect(useRunStore.getState().purchaseCurrentShopChampion('Ashe').success).toBe(true);
+    const team = useRunStore.getState().team;
+    expect(team[team.length - 1]).toMatchObject({
+      championId: 'Ashe',
+      level: 9,
+      currentXp: 0,
+    });
+  });
+
   it('rolls back the whole purchase when authority cannot accept its command', () => {
     useAuthStore.setState({ user: { id: 'another-user' } as User });
 

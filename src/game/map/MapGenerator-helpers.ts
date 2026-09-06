@@ -46,7 +46,11 @@ export function getNodeMetadata(type: NodeType, biome: Biome): NodeMetadata {
     },
     [NodeType.Combat]: { title: 'Combat', description: 'Fight enemy champions', icon: '⚔️' },
     [NodeType.Elite]: { title: 'Elite', description: 'A powerful enemy awaits', icon: '💀' },
-    [NodeType.Boss]: { title: 'Boss', description: 'The final challenge', icon: '👑' },
+    [NodeType.Boss]: {
+      title: 'Final Boss',
+      description: 'Defeat the guardians of the enemy Nexus',
+      icon: '👑',
+    },
     [NodeType.Shop]: {
       title: 'Shop',
       description: 'Spend your gold on items and recruits',
@@ -64,7 +68,11 @@ export function getNodeMetadata(type: NodeType, biome: Biome): NodeMetadata {
       description: 'A wild champion seeks a team',
       icon: '🤝',
     },
-    [NodeType.Exit]: { title: 'Exit', description: 'Proceed to the next zone', icon: '➡️' },
+    [NodeType.Exit]: {
+      title: 'Biome Exit',
+      description: 'Proceed to the next biome',
+      icon: '➡️',
+    },
   };
 
   return metadata[type];
@@ -72,11 +80,85 @@ export function getNodeMetadata(type: NodeType, biome: Biome): NodeMetadata {
 
 // ─── Column Type Selection ──────────────────────────────────────────────────
 
+export type MapColumnPressure = 'combat' | 'elite' | 'neutral' | 'combat_or_rest' | 'elite_or_rest';
+
+function neutralChance(config: MapGenConfig): number {
+  return (
+    config.shopChance +
+    config.restChance +
+    config.eventChance +
+    config.treasureChance +
+    config.recruitChance
+  );
+}
+
+function getRiskChoicePressure(
+  config: MapGenConfig,
+  columnIndex: number,
+  totalColumns: number,
+): MapColumnPressure | null {
+  const choiceColumn = Math.max(1, Math.min(totalColumns - 3, Math.floor(totalColumns / 2)));
+  if (columnIndex !== choiceColumn) return null;
+
+  if (config.biome === 'top_lane' || config.biome === 'jungle') {
+    return 'combat_or_rest';
+  }
+  if (config.biome === 'river') return 'elite_or_rest';
+  return null;
+}
+
+/**
+ * Every route crosses exactly one node per column. Most columns share one
+ * pressure class, while three explicit run-wide risk columns retain meaningful
+ * fight-versus-recovery choices. Because elite encounters are also counted as
+ * combats, their budgets sum to at most three combats and one elite of path
+ * variance across the complete run.
+ */
+export function selectColumnPressure(
+  config: MapGenConfig,
+  rand: () => number,
+  columnIndex: number,
+  totalColumns: number,
+): MapColumnPressure {
+  if (columnIndex === 0) return 'combat';
+  if (columnIndex === totalColumns - 1) return config.biome === 'base' ? 'combat' : 'neutral';
+  if (columnIndex === totalColumns - 2) {
+    if (config.biome === 'jungle' || config.biome === 'mid_lane') return 'neutral';
+    return rand() < 0.5 ? 'neutral' : 'combat';
+  }
+
+  const riskChoicePressure = getRiskChoicePressure(config, columnIndex, totalColumns);
+  if (riskChoicePressure) return riskChoicePressure;
+
+  const roll = rand();
+  if (roll < config.eliteChance) return 'elite';
+  if (roll < config.eliteChance + neutralChance(config)) return 'neutral';
+  return 'combat';
+}
+
+function selectNeutralType(config: MapGenConfig, rand: () => number): NodeType {
+  const totalChance = neutralChance(config);
+  if (totalChance <= 0) return NodeType.Rest;
+
+  const roll = rand() * totalChance;
+  let cumulative = config.shopChance;
+  if (roll < cumulative) return NodeType.Shop;
+  cumulative += config.restChance;
+  if (roll < cumulative) return NodeType.Rest;
+  cumulative += config.eventChance;
+  if (roll < cumulative) return NodeType.Event;
+  cumulative += config.treasureChance;
+  if (roll < cumulative) return NodeType.Treasure;
+  return NodeType.Recruit;
+}
+
 export function selectColumnType(
   config: MapGenConfig,
   rand: () => number,
   columnIndex: number,
   totalColumns: number,
+  pressure?: MapColumnPressure,
+  takeRisk = false,
 ): NodeType {
   // `startNodeId` identifies this playable entry encounter. NodeType.Start is
   // retained only for recovery of legacy structural maps.
@@ -86,25 +168,21 @@ export function selectColumnType(
     return config.biome === 'base' ? NodeType.Boss : NodeType.Exit;
   }
   if (columnIndex === totalColumns - 2) {
-    if (rand() < 0.5) return NodeType.Rest;
-    return NodeType.Combat;
+    if (config.biome === 'jungle') return NodeType.Shop;
+    if (config.biome === 'mid_lane') return NodeType.Recruit;
   }
 
-  const roll = rand();
-  let cumulative = 0;
-  cumulative += config.shopChance;
-  if (roll < cumulative) return NodeType.Shop;
-  cumulative += config.restChance;
-  if (roll < cumulative) return NodeType.Rest;
-  cumulative += config.eventChance;
-  if (roll < cumulative) return NodeType.Event;
-  cumulative += config.treasureChance;
-  if (roll < cumulative) return NodeType.Treasure;
-  cumulative += config.eliteChance;
-  if (roll < cumulative) return NodeType.Elite;
-  cumulative += config.recruitChance;
-  if (roll < cumulative) return NodeType.Recruit;
-  return NodeType.Combat;
+  const columnPressure = pressure ?? selectColumnPressure(config, rand, columnIndex, totalColumns);
+  if (columnPressure === 'combat_or_rest') {
+    return takeRisk ? NodeType.Combat : NodeType.Rest;
+  }
+  if (columnPressure === 'elite_or_rest') {
+    return takeRisk ? NodeType.Elite : NodeType.Rest;
+  }
+  if (columnPressure === 'combat') return NodeType.Combat;
+  if (columnPressure === 'elite') return NodeType.Elite;
+  if (columnIndex === totalColumns - 2) return NodeType.Rest;
+  return selectNeutralType(config, rand);
 }
 
 export function buildConfig(biome: Biome, runLevel: number, seed: number): MapGenConfig {

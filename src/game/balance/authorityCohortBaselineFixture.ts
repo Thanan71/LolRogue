@@ -7,10 +7,15 @@ import {
   AuthorityCohortBaselineMismatchError,
   type AuthorityCohortBaselineDocument,
   type AuthorityCohortBaselineIdentity,
+  type AuthorityCohortBaselineSchemaVersion,
+  LEGACY_AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION,
   createAuthorityCohortBaselineDocument,
   createAuthorityCohortBaselineKey,
 } from './authorityCohortBaseline';
-import { createAuthorityCohortMatrix } from './authorityCohortMatrix';
+import {
+  type AuthorityCohortTeamProfile,
+  createAuthorityCohortMatrix,
+} from './authorityCohortMatrix';
 import { type AuthorityCohortReport, createAuthorityCohortReport } from './authorityCohortReport';
 import type { BalancePolicy } from './balancePolicy';
 
@@ -32,6 +37,8 @@ export function createAuthorityCohortBaselineFixture(input: {
   readonly identity: AuthorityCohortBaselineIdentity;
   readonly policy: BalancePolicy;
   readonly seeds?: readonly number[];
+  readonly schemaVersion?: AuthorityCohortBaselineSchemaVersion;
+  readonly teamProfiles?: readonly AuthorityCohortTeamProfile[];
 }): AuthorityCohortBaselineFixture {
   const runtimeIdentity: AuthorityCohortBaselineIdentity = {
     ...input.identity,
@@ -50,7 +57,7 @@ export function createAuthorityCohortBaselineFixture(input: {
   const seeds = input.seeds ?? AUTHORITY_COHORT_BASELINE_SMOKE_SEEDS;
   const cells = createAuthorityCohortMatrix({
     difficulties: ['easy', 'normal', 'hard'],
-    teamProfiles: [{ id: 'solo-garen', team: [{ championId: 'Garen' }] }],
+    teamProfiles: input.teamProfiles ?? [{ id: 'solo-garen', team: [{ championId: 'Garen' }] }],
     masteryProfiles: [{ id: 'none', masterySnapshot: {} }],
     runeProfiles: [{ id: 'none', runeIds: [] }],
     enhancementProfiles: [{ id: 'none', enhancementSnapshot: {} }],
@@ -69,6 +76,7 @@ export function createAuthorityCohortBaselineFixture(input: {
       identity: input.identity,
       seeds,
       reports,
+      schemaVersion: input.schemaVersion ?? LEGACY_AUTHORITY_COHORT_BASELINE_SCHEMA_VERSION,
     }),
   };
 }

@@ -102,7 +102,9 @@ export function getTextSizeMultiplier(size: TextSize): number {
 }
 
 export function getDifficultyMultiplier(difficulty: Difficulty): number {
-  return getDifficultyRule(difficulty).enemyStatMultiplier;
+  // Legacy engines used this value as a whole-stat multiplier. Keep that
+  // compatibility path frozen while current engines consume the split profile.
+  return getDifficultyRule(difficulty).enemyHealthMultiplier;
 }
 
 export function scaleFontSize(baseSize: number, size: TextSize): number {

@@ -41,11 +41,15 @@ export function GameOverPage() {
           ).filter(Boolean),
         ),
       ];
+      const weightedAllocation = serverProgression.candiesByChampion;
       return {
         total: serverProgression.candiesEarned,
-        byChampion: Object.fromEntries(
-          championIds.map((championId) => [championId, serverProgression.candiesPerChampion]),
-        ),
+        byChampion:
+          weightedAllocation && Object.keys(weightedAllocation).length > 0
+            ? weightedAllocation
+            : Object.fromEntries(
+                championIds.map((championId) => [championId, serverProgression.candiesPerChampion]),
+              ),
       };
     }
     // An authenticated account must never see a speculative local reward.

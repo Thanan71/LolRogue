@@ -89,7 +89,7 @@ export function migratePersistedRunState(persisted: unknown, version: number): R
           .completedCombatStats ?? [])
       : [];
   const ledger =
-    version >= 5 && state.ledger?.version === 1
+    version >= 5 && (state.ledger?.version === 1 || state.ledger?.version === 2)
       ? cloneRunLedger(state.ledger)
       : migrateLegacyStatsToLedger(
           legacyStats,

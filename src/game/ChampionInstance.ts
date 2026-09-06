@@ -23,6 +23,13 @@ export const SPELL_SLOTS: readonly SpellSlot[] = ['Q', 'W', 'E', 'R'] as const;
 /** Map of spell slot → Spell definition (or undefined if not enough spells). */
 export type SpellMap = Partial<Record<SpellSlot, Spell>>;
 
+export interface CombatScalingProfile {
+  /** Multiplies maximum HP without changing defenses or utility stats. */
+  healthMultiplier?: number;
+  /** Multiplies outgoing combat damage after mitigation. */
+  damageMultiplier?: number;
+}
+
 export class ChampionInstance {
   // ── Immutable base data ──────────────────────────────────────────────────
   readonly id: string;
@@ -44,9 +51,16 @@ export class ChampionInstance {
   /** Enhancement bonuses from the enhancement tree system */
   private _enhancementBonuses: EnhancementStatBonuses | null = null;
   private readonly _statMultiplier: number;
+  private readonly _healthMultiplier: number;
+  private readonly _damageMultiplier: number;
   private _masteryLevel = 0;
 
-  constructor(champion: Champion, startingLevel = 1, statMultiplier = 1) {
+  constructor(
+    champion: Champion,
+    startingLevel = 1,
+    statMultiplier = 1,
+    combatScaling: CombatScalingProfile = {},
+  ) {
     this.id = champion.id;
     this.key = champion.key;
     this.name = champion.name;
@@ -59,6 +73,12 @@ export class ChampionInstance {
 
     this._level = clampLevel(startingLevel);
     this._statMultiplier = Math.max(0.1, statMultiplier);
+    this._healthMultiplier = ChampionInstance.normalizeCombatMultiplier(
+      combatScaling.healthMultiplier,
+    );
+    this._damageMultiplier = ChampionInstance.normalizeCombatMultiplier(
+      combatScaling.damageMultiplier,
+    );
 
     // Map the spells array [Q, W, E, R] to the slot keys.
     // Data Dragon always provides 4 spells in order: Q, W, E, R.
@@ -107,24 +127,33 @@ export class ChampionInstance {
 
   /** Compute stats scaled to the current level. */
   getStats(): CalculatedStats {
-    return applyMasteryBonus(
-      ChampionInstance.applyStatMultiplier(
-        calculateStats(this.baseStats, this._level),
-        this._statMultiplier,
+    return this.applyHealthMultiplier(
+      applyMasteryBonus(
+        ChampionInstance.applyStatMultiplier(
+          calculateStats(this.baseStats, this._level),
+          this._statMultiplier,
+        ),
+        this._masteryLevel,
       ),
-      this._masteryLevel,
     );
   }
 
   /** Compute stats at an arbitrary level without changing current level. */
   getStatsAtLevel(level: number): CalculatedStats {
-    return applyMasteryBonus(
-      ChampionInstance.applyStatMultiplier(
-        calculateStats(this.baseStats, clampLevel(level)),
-        this._statMultiplier,
+    return this.applyHealthMultiplier(
+      applyMasteryBonus(
+        ChampionInstance.applyStatMultiplier(
+          calculateStats(this.baseStats, clampLevel(level)),
+          this._statMultiplier,
+        ),
+        this._masteryLevel,
       ),
-      this._masteryLevel,
     );
+  }
+
+  /** Difficulty damage is separate from visible AD/AP and applies to every damaging action. */
+  getOutgoingDamageMultiplier(): number {
+    return this._damageMultiplier;
   }
 
   /** Freeze the permanent mastery level used by this combat instance. */
@@ -139,8 +168,16 @@ export class ChampionInstance {
    * @returns Stats with both level scaling and enhancement bonuses.
    */
   getStatsWithEnhancements(bonuses: EnhancementStatBonuses): CalculatedStats {
-    const baseStats = this.getStats();
-    return ChampionInstance.applyEnhancementBonuses(baseStats, bonuses);
+    const unscaledHealthStats = applyMasteryBonus(
+      ChampionInstance.applyStatMultiplier(
+        calculateStats(this.baseStats, this._level),
+        this._statMultiplier,
+      ),
+      this._masteryLevel,
+    );
+    return this.applyHealthMultiplier(
+      ChampionInstance.applyEnhancementBonuses(unscaledHealthStats, bonuses),
+    );
   }
 
   /**
@@ -197,6 +234,15 @@ export class ChampionInstance {
     return Object.fromEntries(
       Object.entries(stats).map(([key, value]) => [key, value * multiplier]),
     ) as unknown as CalculatedStats;
+  }
+
+  private static normalizeCombatMultiplier(value: number | undefined): number {
+    return Number.isFinite(value) ? Math.max(0.1, value as number) : 1;
+  }
+
+  private applyHealthMultiplier(stats: CalculatedStats): CalculatedStats {
+    if (this._healthMultiplier === 1) return stats;
+    return { ...stats, hp: stats.hp * this._healthMultiplier };
   }
 
   // ── Spells ───────────────────────────────────────────────────────────────

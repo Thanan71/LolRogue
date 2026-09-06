@@ -32,6 +32,33 @@ dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
 RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
 
+## Gates d'équilibrage versionnées
+
+`npm run balance:check` reproduit byte-for-byte les sept baselines authority v15 à
+v21, sans réécrire les six versions historiques, les cohortes Early Top v17/v18/v21,
+la matrice de combat courante et la carte/économie v21.
+`config/champion-combat-matrix-current.json` compare v20 à v21 sur 7 560 combats par
+runtime, exige la parité source/bundle, au moins une victoire et une défaite décisives
+par champion, une plage de 45–55 % et un écart roster maximal de 10 points.
+
+Le job `cohorts` vérifie d'abord ces artefacts, puis exécute 30, 500 ou 1 000 seeds
+par cellule selon le profil PR, nightly ou release. Son rapport d'acceptation bloque
+les inversions de difficulté statistiquement significatives, les concentrations de
+morts dont la borne Wilson basse dépasse 40 % et les régressions au-delà de 5 points
+de victoire, 0,5 biome médian ou 10 % d'économie. Les gates automatisées P0-BAL-02
+sont fermées ; seuls les playtests humains restent ouverts.
+
+La preuve P1-BAL-02 conserve `config/map-economy-baseline-v20.json` et reproduit son
+contenu sous l'identité v21 sur 1 000 seeds : l'écart maximal entre routes est de trois combats et une élite, avec
+shop Jungle et recrutement Mid sur chaque chemin. `mapEconomyAffordability.test.ts`
+rejoue 1 200 runs et exige, pour chaque difficulté, une potion dans le premier shop
+Jungle et au moins 50 % de premières visites avec une offre abordable.
+`mapEconomyBaseline.test.ts` borne enfin l'efficacité des repos partiels et complets à
+`≤ 5×` celle d'une potion par gold pour un à cinq champions. Ce seuil explicite
+préserve un soin d'équipe utile sans faire de la réussite automatique une condition :
+les vraies victoires et défaites restent attendues, et les playtests humains demeurent
+ouverts.
+
 ## Frontières TypeScript
 
 `npm run typecheck` compile trois contrats indépendants avant les tests : application,
@@ -93,7 +120,7 @@ n'utilise pas le cache npm de `setup-node`. Les assets Riot sont un paquet versi
 ils sont donc vérifiés, pas téléchargés silencieusement.
 
 Supabase est d'abord restauré à la migration v9 (`20260730300000`), puis migré vers
-la version courante (ruleset v17 au 23 août 2026) afin de tester un upgrade réel.
+la version courante (ruleset v21 au 4 septembre 2026) afin de tester un upgrade réel.
 La job compare ensuite les types TypeScript régénérés, effectue un reset complet
 et exécute les tests RLS/RPC live.
 

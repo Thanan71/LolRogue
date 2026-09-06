@@ -17,6 +17,16 @@ const expectedIndexes = new Map([
     'daily_score_reports_reviewed_retention_idx',
     ['daily_score_reports', '(reviewed_at)', "'dismissed'", "'actioned'"],
   ],
+  [
+    'run_attempts_verified_field_dimensions',
+    [
+      'run_attempts',
+      '(gameplay_ruleset_version, engine_version, gameplay_content_hash, difficulty, mode, verified_at DESC)',
+      'INCLUDE (result_run_id)',
+      "status = 'verified'",
+      'result_run_id IS NOT NULL',
+    ],
+  ],
 ]);
 
 const intentionallyUnindexedForeignKeys = new Set([
@@ -25,7 +35,6 @@ const intentionallyUnindexedForeignKeys = new Set([
   'daily_runs_gameplay_ruleset_version_fkey',
   'progression_commands_ruleset_version_fkey',
   'run_attempts_daily_ruleset_fk',
-  'run_attempts_gameplay_ruleset_version_fkey',
   'run_attempts_ruleset_version_fkey',
 ]);
 

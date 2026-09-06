@@ -1,7 +1,7 @@
-import type { BalancePolicy } from './balancePolicy';
-import { survivalGreedyPolicy } from './balancePolicy';
 import type { AuthorityCohortCell } from './authorityCohortMatrix';
 import { createAuthorityCohortMatrix } from './authorityCohortMatrix';
+import type { BalancePolicy } from './balancePolicy';
+import { survivalGreedyPolicy } from './balancePolicy';
 
 export type AuthorityCohortExecutionProfileName = 'pr' | 'nightly' | 'release';
 
@@ -16,6 +16,19 @@ export const AUTHORITY_COHORT_EXECUTION_PROFILES = Object.freeze({
 }) satisfies Readonly<Record<AuthorityCohortExecutionProfileName, AuthorityCohortExecutionProfile>>;
 
 const SEED_STEP = 0x9e3779b1;
+
+export const AUTHORITY_COHORT_SENTINEL_CHAMPION_IDS = Object.freeze([
+  'Annie',
+  'Ashe',
+  'Darius',
+  'Garen',
+  'Jinx',
+  'Leona',
+  'Lux',
+  'Malphite',
+  'Soraka',
+  'Warwick',
+] as const);
 
 /** Stable paired seeds: changing the execution volume only appends observations. */
 export function createAuthorityCohortSeeds(seedCount: number): readonly number[] {
@@ -34,10 +47,10 @@ interface SentinelProfile {
 }
 
 const SENTINEL_PROFILES = Object.freeze([
-  {
-    id: 'solo-fresh',
-    team: [{ championId: 'Garen' }],
-  },
+  ...AUTHORITY_COHORT_SENTINEL_CHAMPION_IDS.map((championId) => ({
+    id: `solo-${championId.toLowerCase()}`,
+    team: [{ championId }],
+  })),
   {
     id: 'duo-fresh',
     team: [{ championId: 'Garen' }, { championId: 'Ashe' }],

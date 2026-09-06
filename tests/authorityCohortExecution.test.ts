@@ -14,7 +14,10 @@ describe('authority cohort CI execution', () => {
     const plan = createAuthorityCohortExecutionPlan('pr');
 
     expect(plan.seeds).toHaveLength(30);
-    expect(plan.cells).toHaveLength(18);
+    expect(plan.cells).toHaveLength(45);
+    expect(new Set(plan.cells.map((cell) => cell.policy.manifest.id))).toEqual(
+      new Set(['survival-greedy']),
+    );
   });
 
   it('keeps full traces out of reports and only preserves selected extremes', () => {

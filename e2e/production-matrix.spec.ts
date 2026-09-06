@@ -7,12 +7,15 @@ test('le build de production reste utilisable', async ({ page, context, browserN
   await expect(page.getByText('Mode invité')).toBeVisible();
   await expect(page.locator('body')).not.toHaveCSS('overflow-x', 'scroll');
 
+  const settingsButton = page.getByRole('button', { name: 'Réglages' });
+  await expect(settingsButton).toBeEnabled();
+
   if (browserName === 'chromium') {
     await context.setOffline(true);
     // Offline contract: an already loaded guest session remains readable and
     // interactive; routes not loaded yet are not promised without a service worker.
     await expect(page.getByText('Mode invité')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Réglages' })).toBeEnabled();
+    await expect(settingsButton).toBeEnabled();
     await context.setOffline(false);
   }
 });

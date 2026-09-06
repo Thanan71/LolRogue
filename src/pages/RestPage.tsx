@@ -5,7 +5,7 @@ import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { calculateRunMemberMaxHp, calculateRunMemberMaxMp } from '@/game/run/runCombatant';
-import { resolveRestHp, resolveRestMp } from '@/game/run/runEncounterRules';
+import { getRestGoldCost, resolveRestHp, resolveRestMp } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { localizeUserCopy } from '@/i18n/content';
@@ -78,7 +78,7 @@ export function RestPage() {
   }, [getCurrentNode]);
 
   const healPercent = encounter?.healPercent ?? 0.5;
-  const goldCost = encounter?.goldCost ?? 0;
+  const goldCost = encounter ? getRestGoldCost(encounter, team.length) : 0;
   const fullHeal = encounter?.fullHeal ?? false;
   const canAfford = gold >= goldCost;
 

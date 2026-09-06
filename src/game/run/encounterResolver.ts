@@ -2,7 +2,7 @@ import { championDB } from '@/data/championDatabase';
 import { ITEM_DATABASE } from '@/data/items';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { validateItemAddition } from '@/game/inventory/inventoryRules';
-import { getBiomeBoss, getRandomEncounter } from '@/game/map/encounters';
+import { getFinalBoss, getRandomEncounter } from '@/game/map/encounters';
 import type { CombatEncounter, EnemyDefinition } from '@/game/map/types';
 import { NodeType } from '@/game/map/types';
 import type { ItemDefinition } from '@/types/inventory';
@@ -18,12 +18,17 @@ import type { AuthorityDifficulty } from '@/types/runAttempt';
 import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateXpGain } from '@/utils/xpSystem';
 import { DIFFICULTY_RULES } from './difficultyRules';
-import { getStarterBudgetProfile } from './starterBudget';
 import { drawItemDefinitionForBiome } from './itemDropRules';
+import { getStarterBudgetProfile } from './starterBudget';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 4;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 9;
+export const BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT = 0.25;
+export const ELITE_FORMATION_POWER_MULTIPLIER = 1.4;
+export const ELITE_REWARD_MULTIPLIER = 1.5;
+const COMBAT_REWARD_RNG_VERSION = 6;
+const COMBAT_OPENING_PRESSURE_RNG_VERSION = 1;
 
 const NODE_RULES: Record<
   NodeType.Combat | NodeType.Elite | NodeType.Boss,
@@ -39,8 +44,8 @@ const NODE_RULES: Record<
     mechanic: 'standard',
   },
   [NodeType.Elite]: {
-    enemyStatMultiplier: 1.05,
-    enemyLevelBonus: 1,
+    enemyStatMultiplier: 1,
+    enemyLevelBonus: 0,
     mechanic: 'elite_pressure',
   },
   [NodeType.Boss]: {
@@ -50,8 +55,23 @@ const NODE_RULES: Record<
   },
 };
 
+export const TOP_LANE_NODE_PRESSURE: Readonly<
+  Record<NodeType.Combat | NodeType.Elite | NodeType.Boss, number>
+> = {
+  [NodeType.Combat]: 0.84,
+  [NodeType.Elite]: 0.84,
+  [NodeType.Boss]: 0.65,
+};
+
+export const TOP_LANE_OPENING_PRESSURE: Readonly<Record<string, number>> = {
+  top_darius: 2.8,
+  top_garen: 1.35,
+  top_warwick: 0.9,
+};
+export const TOP_LANE_OPENING_PRESSURE_VARIANCE = 0.1;
+
 const BIOME_REINFORCEMENTS: Record<Biome, EnemyDefinition> = {
-  top_lane: { championId: 'Malphite', statMultiplier: 0.65 },
+  top_lane: { championId: 'Malphite', statMultiplier: 0.34 },
   jungle: { championId: 'Warwick', statMultiplier: 0.65 },
   mid_lane: { championId: 'Annie', statMultiplier: 0.65 },
   bot_lane: { championId: 'Leona', statMultiplier: 0.65 },
@@ -63,6 +83,8 @@ export interface ResolvedCombatEnemy {
   championId: string;
   level: number;
   statMultiplier: number;
+  healthMultiplier: number;
+  damageMultiplier: number;
 }
 
 export interface ResolvedCombatReward {
@@ -104,6 +126,19 @@ function roundMultiplier(value: number): number {
   return Math.round(value * 10_000) / 10_000;
 }
 
+function resolveOpeningPressure(input: ResolveCombatEncounterInput, wave: number): number {
+  if (input.biome !== 'top_lane' || wave !== 1) return 1;
+  const encounterId = input.encounter.id.replace(/_elite$/, '');
+  const basePressure = TOP_LANE_OPENING_PRESSURE[encounterId];
+  if (basePressure === undefined) return 1;
+  const rng = createScopedRunRng(
+    input.seed,
+    `combat-opening-pressure:v${COMBAT_OPENING_PRESSURE_RNG_VERSION}:${encounterId}`,
+  );
+  const variance = 1 + (rng.next() * 2 - 1) * TOP_LANE_OPENING_PRESSURE_VARIANCE;
+  return roundMultiplier(basePressure * variance);
+}
+
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value));
 }
@@ -130,7 +165,7 @@ function resolveDrop(
 ): Pick<ResolvedCombatReward, 'droppedItem' | 'dropBlockedByCapacity'> {
   const rng = createScopedRunRng(
     input.seed,
-    `combat-reward:v${COMBAT_ENCOUNTER_RULESET_VERSION}:${input.nodeId}:${input.wave}:${input.runLevel}`,
+    `combat-reward:v${COMBAT_REWARD_RNG_VERSION}:${input.nodeId}:${input.wave}:${input.runLevel}`,
   );
   if (rng.next() >= itemDropChance) {
     return { droppedItem: null, dropBlockedByCapacity: false };
@@ -164,8 +199,11 @@ export function resolveCombatEncounter(
   const difficulty = DIFFICULTY_RULES[input.difficulty];
   const starterBudget = getStarterBudgetProfile(input.starterTeamSize ?? 1);
   const node = NODE_RULES[input.nodeType];
-  const biomeMultiplier = 1 + (BIOME_INFO[input.biome].difficultyMultiplier - 1) * 0.35;
+  const lanePressure = input.biome === 'top_lane' ? TOP_LANE_NODE_PRESSURE[input.nodeType] : 1;
+  const biomeMultiplier =
+    1 + (BIOME_INFO[input.biome].difficultyMultiplier - 1) * BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT;
   const wave = Math.max(1, Math.trunc(input.wave));
+  const openingPressure = resolveOpeningPressure(input, wave);
   const runLevel = clamp(Math.trunc(input.runLevel), 1, 18);
   const progressionMultiplier = 1 + (runLevel - 1) * 0.01 + (wave - 1) * 0.0025;
   const defaultEnemyLevel = clamp(
@@ -178,12 +216,15 @@ export function resolveCombatEncounter(
     level: clamp(Math.trunc(enemy.level ?? defaultEnemyLevel), 1, 18),
     statMultiplier: roundMultiplier(
       Math.max(0.1, enemy.statMultiplier) *
-        difficulty.enemyStatMultiplier *
         starterBudget.enemyFormationMultiplier *
         biomeMultiplier *
         node.enemyStatMultiplier *
+        lanePressure *
+        openingPressure *
         progressionMultiplier,
     ),
+    healthMultiplier: difficulty.enemyHealthMultiplier,
+    damageMultiplier: difficulty.enemyDamageMultiplier,
   }));
   const itemDropChance =
     input.biome === 'base' && input.nodeType === NodeType.Boss
@@ -222,7 +263,12 @@ export function buildResolvedEnemyTeam(encounter: ResolvedCombatEncounter): Cham
   for (const enemy of encounter.enemies) {
     const champion = championDB.getById(enemy.championId);
     if (champion) {
-      instances.push(new ChampionInstance(champion, enemy.level, enemy.statMultiplier));
+      instances.push(
+        new ChampionInstance(champion, enemy.level, enemy.statMultiplier, {
+          healthMultiplier: enemy.healthMultiplier,
+          damageMultiplier: enemy.damageMultiplier,
+        }),
+      );
     }
   }
   return instances;
@@ -239,7 +285,10 @@ export function createCombatEncounterForNode(
   rand: () => number,
 ): CombatEncounter {
   if (nodeType === NodeType.Boss) {
-    const boss = getBiomeBoss(biome, runLevel);
+    if (biome !== 'base') {
+      throw new Error(`Boss nodes are reserved for the Base finale, received "${biome}".`);
+    }
+    const boss = getFinalBoss(runLevel);
     const enemies =
       boss.enemies.length > 1
         ? boss.enemies
@@ -258,20 +307,17 @@ export function createCombatEncounterForNode(
   const base = getRandomEncounter(biome, runLevel, rand);
   if (nodeType === NodeType.Combat) return { ...base };
 
-  const enemies =
-    base.enemies.length > 1
-      ? base.enemies.map((enemy) => ({
-          ...enemy,
-          statMultiplier: enemy.statMultiplier * 1.08,
-        }))
-      : [...base.enemies, { ...BIOME_REINFORCEMENTS[biome] }];
+  const enemies = base.enemies.map((enemy) => ({
+    ...enemy,
+    statMultiplier: roundMultiplier(enemy.statMultiplier * ELITE_FORMATION_POWER_MULTIPLIER),
+  }));
   return {
     ...base,
     id: `${base.id}_elite`,
     name: `${base.name} — Elite`,
-    description: `${base.description} An elite reinforcement joins the encounter.`,
+    description: `${base.description} The formation fights with coordinated elite pressure.`,
     enemies,
-    goldReward: Math.round(base.goldReward * 1.5),
-    itemDropChance: Math.min(1, base.itemDropChance * 1.5),
+    goldReward: Math.round(base.goldReward * ELITE_REWARD_MULTIPLIER),
+    itemDropChance: Math.min(1, base.itemDropChance * ELITE_REWARD_MULTIPLIER),
   };
 }

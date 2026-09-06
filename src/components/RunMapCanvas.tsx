@@ -18,14 +18,14 @@ export const NODE_LABELS: Record<string, string> = {
 export const NODE_NAMES: Record<string, string> = {
   [NodeType.Combat]: 'Combat',
   [NodeType.Elite]: 'Élite',
-  [NodeType.Boss]: 'Boss',
+  [NodeType.Boss]: 'Boss final',
   [NodeType.Shop]: 'Boutique',
   [NodeType.Rest]: 'Repos',
   [NodeType.Event]: 'Événement',
   [NodeType.Recruit]: 'Recrutement',
   [NodeType.Treasure]: 'Trésor',
   [NodeType.Start]: 'Départ',
-  [NodeType.Exit]: 'Sortie',
+  [NodeType.Exit]: 'Sortie de biome',
 };
 
 interface RunMapCanvasProps {

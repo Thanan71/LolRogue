@@ -18,7 +18,7 @@ describe('canonical battle target resolver', () => {
     [TargetingType.Allies, 'all', ['P1', 'P2']],
     [TargetingType.Enemy, 'E2', ['E2']],
     [TargetingType.Enemies, 'all', ['E1', 'E2']],
-    [TargetingType.Area, 'all', ['E1', 'E2']],
+    [TargetingType.Area, 'E2', ['E2', 'E1']],
   ] as const)(
     'resolves %s through its canonical target matrix',
     (targeting, requested, expected) => {
@@ -38,7 +38,9 @@ describe('canonical battle target resolver', () => {
     [TargetingType.Ally, 'P3'],
     [TargetingType.Self, 'P2'],
     [TargetingType.Allies, 'P2'],
-    [TargetingType.Area, 'E1'],
+    [TargetingType.Area, undefined],
+    [TargetingType.Area, 'all'],
+    [TargetingType.Area, 'P2'],
   ] as const)('rejects a forged %s target payload (%s)', (targeting, requested) => {
     const result = resolveBattleTargets(combatants, 'P1', 'player', targeting, requested);
 

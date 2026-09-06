@@ -60,6 +60,29 @@ const CONTENT_TRANSLATIONS: Readonly<Record<string, string>> = {
   Colère: 'Wrath',
   "Confère +30 dégâts d'attaque pendant le combat.": 'Grants +30 attack damage during combat.',
 
+  // Combat-balance enhancement copy.
+  Canalisation: 'Channeling',
+  '+10 de hâte de compétence': '+10 ability haste',
+  Tempo: 'Tempo',
+  "+8% d'initiative d'attaque": '+8% attack initiative',
+  "+10% d'initiative d'attaque pendant 3 tours après une élimination":
+    '+10% attack initiative for 3 rounds after a takedown',
+  "Initiative d'attaque après élimination": 'Attack initiative after a takedown',
+  'Tir tactique': 'Tactical shot',
+  'Positionnement et dégâts directs': 'Positioning and direct damage',
+  'Position haute': 'High ground',
+  '+5 vitesse de déplacement': '+5 move speed',
+  'Tir précis': 'Precision shot',
+  '+8% de dégâts contre les champions': '+8% damage against champions',
+  'Dégâts directs augmentés': 'Increased direct damage',
+  'Ulti: +15% de dégâts contre les cibles sous 40% PV':
+    'Ultimate: +15% damage against targets below 40% HP',
+  'Dégâts augmentés contre les cibles blessées': 'Increased damage against wounded targets',
+  'Cible sous 40% PV': 'Target below 40% HP',
+  "+5% d'initiative d'attaque": '+5% attack initiative',
+  'Ulti: en dessous de 50% PV, +20% de dégâts': 'Ultimate: below 50% HP, +20% damage',
+  'Boost de dégâts quand les PV sont bas': 'Damage boost while HP is low',
+
   // Event authored copy (EventPage historically translated English source text to French unconditionally).
   'Coffre mystérieux': 'Mysterious Chest',
   'Esprit errant': 'Wandering Spirit',

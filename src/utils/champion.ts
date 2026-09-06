@@ -21,6 +21,16 @@ export function attackSpeedAtLevel(baseAS: number, asPerLevel: number, level: nu
   return baseAS * (1 + (asPerLevel / 100) * n);
 }
 
+/** Natural combat AP is independent from the resource pool, including for manaless champions. */
+export const NATURAL_ABILITY_POWER_BASE = 25;
+export const NATURAL_ABILITY_POWER_PER_LEVEL = 6;
+
+export function naturalAbilityPowerAtLevel(level: number): number {
+  return Math.round(
+    statAtLevel(NATURAL_ABILITY_POWER_BASE, NATURAL_ABILITY_POWER_PER_LEVEL, level),
+  );
+}
+
 export interface CalculatedStats {
   hp: number;
   mp: number;
@@ -54,7 +64,7 @@ function getEffectiveAdPerLevel(stats: ChampionStats): number {
  * Compute all stats for a champion at a given level.
  */
 export function calculateStats(stats: ChampionStats, level: number): CalculatedStats {
-  // Calculate scaled mana first, then derive AP from it
+  // Mana remains a resource stat; natural AP follows its own shared combat curve.
   const scaledMp = statAtLevel(stats.mp, stats.mpPerLevel, level);
 
   // Use effective AD per level (fallback to default when parsed data is 0)
@@ -69,7 +79,7 @@ export function calculateStats(stats: ChampionStats, level: number): CalculatedS
     attackDamage: statAtLevel(stats.attackDamage, effectiveAdPerLevel, level),
     attackSpeed: attackSpeedAtLevel(stats.attackSpeed, stats.attackSpeedPerLevel, level),
     attackRange: stats.attackRange,
-    abilityPower: Math.round(scaledMp * 0.03), // AP derived from scaled mana (3% ratio)
+    abilityPower: naturalAbilityPowerAtLevel(level),
     hpRegen: statAtLevel(stats.hpRegen, stats.hpRegenPerLevel, level),
     mpRegen: statAtLevel(stats.mpRegen, stats.mpRegenPerLevel, level),
     crit: statAtLevel(stats.crit, stats.critPerLevel, level),

@@ -1,6 +1,6 @@
 # Performance frontend
 
-Dernière mesure : **13 août 2026**, Node 24, build Vite de production local.
+Dernière mesure : **6 septembre 2026**, Node 24, build Vite de production local.
 
 ## Référence avant P2-PERF-01
 
@@ -84,6 +84,21 @@ différée sur les routes publiques. La mesure finale de `/auth` charge dix ress
 JavaScript pour **184 308 octets transférés**, sans requête vers `champion-data`,
 `DatabasePage`, `AdminPage` ou `LegalPage`. Le détail est écrit dans
 `performance-report/preview-report.json` par `npm run test:performance-preview`.
+
+## Révision pour la calibration terrain
+
+Le 6 septembre 2026, P2-BAL-01 ajoute au chunk Admin la comparaison des cohortes
+terrain, deux politiques et leurs conditionnels. La mesure sur `dev` atteint
+397 923 octets gzip ; la branche atteint 419 154 octets, soit +21 231 octets, dont
+environ +20 108 dans le chunk Admin chargé à la demande. Le chargement initial ne
+prend que 62 octets et la route `/auth` 99 octets : l'isolation des routes reste donc
+effective.
+
+Le budget versionné passe de **445 000 à 470 000 octets gzip**. Cette enveloppe
+conserve **10,82 % de marge**, la règle minimale de 10 %, les cinq budgets de chunks,
+les plafonds initial/Auth et le plafond de 7 200 000 octets pour les assets
+déployables. Le relèvement couvre la fonctionnalité admin mesurée sans rendre le
+chargement public plus lourd ni retirer de signal de calibration.
 
 ## Audit Web Vitals avant P2-PERF-02
 

@@ -9,6 +9,7 @@ import {
   recordGoldSpend,
   recordItemLedgerEvent,
 } from '@/game/run/runLedger';
+import type { RunLedger } from '@/types/run';
 
 const TEAM = ['Garen', 'Lux', 'Soraka'] as const;
 
@@ -17,6 +18,60 @@ function refresh<T>(value: T): T {
 }
 
 describe('versioned run ledger', () => {
+  it('preserves a replay-only v1 ledger without adding v2 participation fields', () => {
+    const legacy = {
+      version: 1,
+      champions: {
+        Garen: {
+          kills: 0,
+          assists: 0,
+          damageDealt: 0,
+          damageToShields: 0,
+          damageReceived: 0,
+          healingDone: 0,
+          healingReceived: 0,
+          overhealing: 0,
+          shieldingDone: 0,
+          shieldingAbsorbed: 0,
+          deaths: 0,
+        },
+      },
+      gold: { earned: 0, spent: 0 },
+      items: [],
+      nextItemEventSequence: 1,
+    } satisfies RunLedger;
+
+    const replayed = commitCombatEvents(legacy, [], ['Garen'], 'top_lane');
+    expect(replayed.version).toBe(1);
+    expect(replayed.champions.Garen).not.toHaveProperty('wavesParticipated');
+    expect(replayed.champions.Garen).not.toHaveProperty('biomesParticipated');
+  });
+
+  it('records participation only while a champion is present', () => {
+    let ledger = createRunLedger(['Garen']);
+    ledger = commitCombatEvents(ledger, [], ['Garen'], 'top_lane');
+    ledger = commitCombatEvents(ledger, [], ['Garen', 'Lux'], 'jungle');
+
+    const summary = buildRunSummaryFromLedger({
+      ledger,
+      team: [{ championId: 'Garen' }, { championId: 'Lux' }],
+      won: false,
+      wavesCompleted: 2,
+      biomesVisited: ['top_lane', 'jungle'],
+      goldBalance: 0,
+      runLevel: 2,
+    });
+
+    expect(summary.championStats).toMatchObject([
+      {
+        championId: 'Garen',
+        wavesParticipated: 2,
+        biomesParticipated: ['top_lane', 'jungle'],
+      },
+      { championId: 'Lux', wavesParticipated: 1, biomesParticipated: ['jungle'] },
+    ]);
+  });
+
   it('keeps the exact golden summary after three combats and a refresh', () => {
     let ledger = createRunLedger(TEAM);
 
@@ -101,7 +156,7 @@ describe('versioned run ledger', () => {
         targetSide: 'player',
       },
     ];
-    ledger = refresh(commitCombatEvents(ledger, fightOne, TEAM));
+    ledger = refresh(commitCombatEvents(ledger, fightOne, TEAM, 'top_lane'));
 
     const fightTwo: BattleEvent[] = [
       {
@@ -135,7 +190,7 @@ describe('versioned run ledger', () => {
         targetSide: 'player',
       },
     ];
-    ledger = refresh(commitCombatEvents(ledger, fightTwo, TEAM));
+    ledger = refresh(commitCombatEvents(ledger, fightTwo, TEAM, 'top_lane'));
 
     const fightThree: BattleEvent[] = [
       {
@@ -159,7 +214,7 @@ describe('versioned run ledger', () => {
       },
       { type: 'defeat', champion: 'Lux', side: 'player' },
     ];
-    ledger = refresh(commitCombatEvents(ledger, fightThree, TEAM));
+    ledger = refresh(commitCombatEvents(ledger, fightThree, TEAM, 'jungle'));
 
     ledger = recordGoldGain(ledger, 200);
     ledger = recordGoldSpend(ledger, 75);
@@ -228,6 +283,8 @@ describe('versioned run ledger', () => {
       championStats: [
         {
           championId: 'Garen',
+          wavesParticipated: 3,
+          biomesParticipated: ['top_lane', 'jungle'],
           kills: 2,
           assists: 0,
           totalDamage: 190,
@@ -244,6 +301,8 @@ describe('versioned run ledger', () => {
         },
         {
           championId: 'Lux',
+          wavesParticipated: 3,
+          biomesParticipated: ['top_lane', 'jungle'],
           kills: 1,
           assists: 1,
           totalDamage: 80,
@@ -260,6 +319,8 @@ describe('versioned run ledger', () => {
         },
         {
           championId: 'Soraka',
+          wavesParticipated: 3,
+          biomesParticipated: ['top_lane', 'jungle'],
           kills: 0,
           assists: 0,
           totalDamage: 0,
