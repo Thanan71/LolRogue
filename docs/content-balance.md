@@ -307,6 +307,18 @@ donc plus le budget global et la part individuelle reflète la participation. Ce
 gate ferme P1-BAL-02 ; les playtests humains consentis restent explicitement ouverts
 sans invalider les gates automatiques P0-BAL-02.
 
+La calibration multi-politique v1 est distincte de la publication gameplay. Elle se
+trouve dans `config/authority-field-calibration-baseline-v1.json`, conserve 30 seeds
+appariées pour chaque difficulté et indexe séparément `safety-first@1` et
+`economy-first@1`. Son sidecar
+`config/authority-field-calibration-conditionals-v1.json` conserve les signaux
+champions et augments issus exactement des mêmes runs. `npm run
+balance:field-baseline:generate` régénère les deux artefacts depuis le bundle v21
+déclaré dans le registre, même lorsque ce moteur devient une archive. Le check
+byte-for-byte fait partie de `balance:artifacts:check` ; aucun numéro de ruleset n'est
+incrémenté pour modifier seulement une politique de simulation. V1/v21 reste
+immuable : une future autorité publie une nouvelle version des deux artefacts.
+
 ## Indicateurs de catalogue et de nœuds
 
 Pour chaque nœud de combat généré et chaque difficulté, `meanEncounterPower` agrège
@@ -383,4 +395,6 @@ d'incertitude. Une modification est proposée avec hypothèse et cible, évalué
 `simulateAuthorityCohort()`, playtestée sur au moins deux compositions, puis
 versionnée. Les taux produits par une politique automatisée restent des hypothèses
 jusqu'à leur confrontation à des playtests humains consentis ; sans échantillon
-suffisant, le TODO de calibration reste ouvert.
+suffisant, le TODO de calibration reste ouvert. Le protocole opérationnel, l'opt-in
+et la rétention maximale sont figés dans `docs/field-calibration.md` ; aucun playtest
+humain n'est déclaré réalisé par cette documentation.

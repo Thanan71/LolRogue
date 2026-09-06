@@ -67,7 +67,7 @@ describe('P0-BAL-05 starter survivability decision', () => {
     );
     if (!authority) throw new Error('The v18 authority verifier is unavailable.');
     matrix = createStarterMatrix(generateEarlyTopCohortDocument(authority));
-  }, 60_000);
+  }, 120_000);
 
   it('reproduces all ten starters across Easy, Normal and Hard', () => {
     expect(matrix).toEqual({

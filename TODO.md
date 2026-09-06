@@ -1110,28 +1110,33 @@ cherche pas les dépendances d'ordre au-delà de cette permutation.
 
 **Taille : M/L**
 
-- [ ] Définir au moins deux politiques automatisées distinctes — sûre et économique —
+- [x] Définir au moins deux politiques automatisées distinctes — sûre et économique —
   pour ne pas confondre équilibre et comportement d'un seul bot.
 - [ ] Organiser des playtests humains par difficulté, taille d'équipe et expérience ;
   fixer ensuite les bandes de victoire Easy/Normal/Hard au lieu de les déduire de
   l'autoplay seul.
-- [ ] Construire une vue admin agrégée depuis les runs vérifiées et attempts existantes,
+- [x] Construire une vue admin agrégée depuis les runs vérifiées et attempts existantes,
   groupée par date, ruleset, difficulté, mode, taille/hash de composition et niveau méta.
-- [ ] Ne jamais mélanger des versions de ruleset dans une même moyenne et contrôler les
+- [x] Ne jamais mélanger des versions de ruleset dans une même moyenne et contrôler les
   effets de composition/taille avant d'attribuer un écart à un champion.
-- [ ] Appliquer un seuil minimal `n >= 30`, des intervalles d'incertitude et aucune
+- [x] Appliquer un seuil minimal `n >= 30`, des intervalles d'incertitude et aucune
   exposition de user ID, seed ou journal de commandes.
-- [ ] Ajouter uniquement en opt-in les mesures non déjà nécessaires au service, comme
+- [x] Ajouter uniquement en opt-in les mesures non déjà nécessaires au service, comme
   offres vues/refusées ou raison d'abandon ; définir leur rétention avant collecte.
-- [ ] Comparer simulation et terrain sur taux de victoire, biome de mort, économie,
+- [x] Comparer simulation et terrain sur taux de victoire, biome de mort, économie,
   pick rate et performance conditionnelle des champions/augments.
-- [ ] Exiger une décision produit et une baseline explicitement versionnée pour toute
+- [x] Exiger une décision produit et une baseline explicitement versionnée pour toute
   dérive volontaire importante.
 
 ### Acceptation
 
 Une décision de tuning doit citer une cohorte autoritaire reproductible et un signal
 de playtest/terrain compatible, avec taille d'échantillon et intervalle affichés.
+
+**État au 4 septembre 2026 :** les sept critères automatisables sont livrés et testés.
+Le playtest humain reste volontairement non coché et bloque l'acceptation : aucune
+bande Easy/Normal/Hard ni fermeture de `P2-BAL-01` n'est déduite des bots ou des
+agrégats terrain seuls.
 
 ---
 

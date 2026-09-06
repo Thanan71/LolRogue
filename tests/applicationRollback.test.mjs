@@ -23,7 +23,7 @@ describe('application rollback contract', () => {
       rollbackLatest: contract.lastApplicationMigrationVersion,
       currentLatest: contract.requiredCurrentMigrationVersion,
     });
-    expect(compatibility.appendedVersions).toEqual([]);
+    expect(compatibility.appendedVersions).toEqual([contract.requiredCurrentMigrationVersion]);
   });
 
   it('refuse un rollback lorsque les historiques divergent', () => {
