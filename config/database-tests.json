@@ -40,6 +40,11 @@
       "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
     },
     {
+      "file": "tests/openRunAttemptRead.database.test.ts",
+      "expression": "const describeLive = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
+      "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
       "file": "tests/repositoryIntegration.database.test.ts",
       "expression": "const describeLive = hasSupabaseCredentials ? describe.sequential : describe.skip;",
       "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
