@@ -1,7 +1,7 @@
 import type { AuthorityCohortCell } from './authorityCohortMatrix';
 import { createAuthorityCohortMatrix } from './authorityCohortMatrix';
 import type { BalancePolicy } from './balancePolicy';
-import { FIELD_CALIBRATION_POLICIES } from './balancePolicy';
+import { survivalGreedyPolicy } from './balancePolicy';
 
 export type AuthorityCohortExecutionProfileName = 'pr' | 'nightly' | 'release';
 
@@ -82,7 +82,7 @@ const SENTINEL_PROFILES = Object.freeze([
  * Easy, Normal and Hard with the same seed sequence.
  */
 export function createAuthorityCohortExecutionCells(
-  policies: readonly BalancePolicy[] = FIELD_CALIBRATION_POLICIES,
+  policies: readonly BalancePolicy[] = [survivalGreedyPolicy],
 ): readonly AuthorityCohortCell[] {
   return SENTINEL_PROFILES.flatMap((profile) =>
     createAuthorityCohortMatrix({

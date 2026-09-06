@@ -11,6 +11,7 @@ import {
   createAuthorityCohortExecutionCells,
   createAuthorityCohortSeeds,
 } from '@/game/balance/authorityCohortProfiles';
+import { FIELD_CALIBRATION_POLICIES } from '@/game/balance/balancePolicy';
 
 describe('authority cohort execution profiles', () => {
   it('uses the required PR, nightly and release volumes', () => {
@@ -38,7 +39,7 @@ describe('authority cohort execution profiles', () => {
   });
 
   it('pairs every sentinel stratum across all difficulties without aggregation', () => {
-    const cells = createAuthorityCohortExecutionCells();
+    const cells = createAuthorityCohortExecutionCells(FIELD_CALIBRATION_POLICIES);
     const bySemanticProfile = new Map<string, (typeof cells)[number][]>();
     for (const cell of cells) {
       const key = `${cell.profiles.team}|${cell.profiles.mastery}|${cell.profiles.runes}|${cell.profiles.enhancements}`;
@@ -83,7 +84,7 @@ describe('authority cohort execution profiles', () => {
 
     const result = simulateAuthorityCohortMatrix({
       authority: authority!,
-      cells: createAuthorityCohortExecutionCells(),
+      cells: createAuthorityCohortExecutionCells(FIELD_CALIBRATION_POLICIES),
       seeds: createAuthorityCohortSeeds(1),
     });
 
