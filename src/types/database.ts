@@ -1453,6 +1453,7 @@ export type Database = {
           cohort_sample_size: number | null;
           difficulty: string | null;
           engine_version: string | null;
+          enhancement_loadout_hash: string | null;
           gameplay_content_hash: string | null;
           gameplay_ruleset_version: number | null;
           initial_composition_hash: string | null;
@@ -1460,6 +1461,7 @@ export type Database = {
           meta_level: number | null;
           mode: string | null;
           observed_on: string | null;
+          rune_loadout_hash: string | null;
           sample_size: number | null;
           selection_rate: number | null;
           win_rate: number | null;
@@ -1489,6 +1491,7 @@ export type Database = {
           cohort_sample_size: number | null;
           difficulty: string | null;
           engine_version: string | null;
+          enhancement_loadout_hash: string | null;
           gameplay_content_hash: string | null;
           gameplay_ruleset_version: number | null;
           initial_composition_hash: string | null;
@@ -1497,6 +1500,7 @@ export type Database = {
           mode: string | null;
           observed_on: string | null;
           participation_rate: number | null;
+          rune_loadout_hash: string | null;
           sample_size: number | null;
           win_rate: number | null;
           win_rate_wilson_high: number | null;
@@ -1524,6 +1528,7 @@ export type Database = {
           defeats: number | null;
           difficulty: string | null;
           engine_version: string | null;
+          enhancement_loadout_hash: string | null;
           gameplay_content_hash: string | null;
           gameplay_ruleset_version: number | null;
           initial_composition_hash: string | null;
@@ -1533,6 +1538,7 @@ export type Database = {
           meta_level: number | null;
           mode: string | null;
           observed_on: string | null;
+          rune_loadout_hash: string | null;
           sample_size: number | null;
           win_rate: number | null;
           win_rate_wilson_high: number | null;

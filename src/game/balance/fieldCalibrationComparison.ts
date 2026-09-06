@@ -17,6 +17,10 @@ import {
 
 export const SOLO_GAREN_COMPOSITION_HASH =
   'a5302e2442a975c4c6c63da00bdb7388ce6efb3f84c2b669cf04064d4b8a37fe' as const;
+export const EMPTY_RUNE_LOADOUT_HASH =
+  'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' as const;
+export const EMPTY_ENHANCEMENT_LOADOUT_HASH =
+  '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a' as const;
 
 const FIELD_BASELINE = loadAuthorityCohortBaseline(fieldBaselineJson);
 const FIELD_CONDITIONALS = loadAuthorityFieldCalibrationConditionalsV1(fieldConditionalsJson);
@@ -31,6 +35,8 @@ export interface VerifiedFieldCalibrationCohort {
   readonly initialTeamSize: number;
   readonly initialCompositionHash: string;
   readonly metaLevel: number;
+  readonly runeLoadoutHash: string;
+  readonly enhancementLoadoutHash: string;
   readonly sampleSize: number;
   readonly wins: number;
   readonly defeats: number;
@@ -56,6 +62,8 @@ export interface VerifiedFieldChampionCohort {
   readonly initialTeamSize: number;
   readonly initialCompositionHash: string;
   readonly metaLevel: number;
+  readonly runeLoadoutHash: string;
+  readonly enhancementLoadoutHash: string;
   readonly championId: string;
   readonly cohortSampleSize: number;
   readonly sampleSize: number;
@@ -80,6 +88,8 @@ export interface VerifiedFieldAugmentCohort {
   readonly initialTeamSize: number;
   readonly initialCompositionHash: string;
   readonly metaLevel: number;
+  readonly runeLoadoutHash: string;
+  readonly enhancementLoadoutHash: string;
   readonly augmentId: string;
   readonly cohortSampleSize: number;
   readonly sampleSize: number;
@@ -177,6 +187,8 @@ type FieldCalibrationDimensions = Pick<
   | 'initialTeamSize'
   | 'initialCompositionHash'
   | 'metaLevel'
+  | 'runeLoadoutHash'
+  | 'enhancementLoadoutHash'
 >;
 
 interface CompatibleAuthorityCell {
@@ -193,7 +205,9 @@ function hasCompatibleDimensions(field: FieldCalibrationDimensions): boolean {
     field.mode === 'normal' &&
     field.initialTeamSize === 1 &&
     field.initialCompositionHash === SOLO_GAREN_COMPOSITION_HASH &&
-    field.metaLevel === 0
+    field.metaLevel === 0 &&
+    field.runeLoadoutHash === EMPTY_RUNE_LOADOUT_HASH &&
+    field.enhancementLoadoutHash === EMPTY_ENHANCEMENT_LOADOUT_HASH
   );
 }
 
@@ -216,7 +230,9 @@ function compatibleAuthorityCells(
         scenario.difficulty === field.difficulty &&
         scenario.team === 'solo-garen' &&
         scenario.size === '1' &&
-        scenario.mastery === 'none'
+        scenario.mastery === 'none' &&
+        scenario.runes === 'none' &&
+        scenario.enhancements === 'none'
       );
     });
     if (!report) return [];

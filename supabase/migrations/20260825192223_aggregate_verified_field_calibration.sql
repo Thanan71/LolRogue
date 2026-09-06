@@ -29,6 +29,8 @@ WITH eligible_runs AS (
     dimensions.initial_team_size,
     dimensions.initial_composition_hash,
     dimensions.meta_level,
+    dimensions.rune_loadout_hash,
+    dimensions.enhancement_loadout_hash,
     run.won,
     run.waves_completed,
     CARDINALITY(run.biomes_visited) AS biomes_completed,
@@ -65,7 +67,30 @@ WITH eligible_runs AS (
           END
         ),
         0
-      )::SMALLINT AS meta_level
+      )::SMALLINT AS meta_level,
+      ENCODE(
+        extensions.digest(
+          CONVERT_TO(
+            COALESCE(
+              (
+                SELECT STRING_AGG(rune.rune_id, CHR(31) ORDER BY rune.rune_id)
+                FROM UNNEST(attempt.rune_ids) AS rune(rune_id)
+              ),
+              ''
+            ),
+            'UTF8'
+          ),
+          'sha256'::TEXT
+        ),
+        'hex'
+      ) AS rune_loadout_hash,
+      ENCODE(
+        extensions.digest(
+          CONVERT_TO(attempt.enhancement_snapshot::JSONB::TEXT, 'UTF8'),
+          'sha256'::TEXT
+        ),
+        'hex'
+      ) AS enhancement_loadout_hash
     FROM UNNEST(attempt.initial_team) AS initial(champion_id)
   ) AS dimensions
   WHERE public.is_current_user_admin()
@@ -84,6 +109,8 @@ cohorts AS (
     initial_team_size,
     initial_composition_hash,
     meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash,
     COUNT(*)::BIGINT AS sample_size,
     COUNT(*) FILTER (WHERE won)::BIGINT AS wins,
     COUNT(*) FILTER (WHERE NOT won)::BIGINT AS defeats,
@@ -106,7 +133,9 @@ cohorts AS (
     mode,
     initial_team_size,
     initial_composition_hash,
-    meta_level
+    meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash
 ),
 death_biome_counts AS (
   SELECT
@@ -119,6 +148,8 @@ death_biome_counts AS (
     initial_team_size,
     initial_composition_hash,
     meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash,
     death_biome,
     COUNT(*)::BIGINT AS death_count
   FROM eligible_runs
@@ -133,6 +164,8 @@ death_biome_counts AS (
     initial_team_size,
     initial_composition_hash,
     meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash,
     death_biome
 ),
 death_distributions AS (
@@ -146,6 +179,8 @@ death_distributions AS (
     initial_team_size,
     initial_composition_hash,
     meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash,
     JSONB_OBJECT_AGG(death_biome, death_count ORDER BY death_biome) AS death_biome_counts
   FROM death_biome_counts
   GROUP BY
@@ -157,7 +192,9 @@ death_distributions AS (
     mode,
     initial_team_size,
     initial_composition_hash,
-    meta_level
+    meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash
 )
 SELECT
   cohort.observed_on,
@@ -169,6 +206,8 @@ SELECT
   cohort.initial_team_size,
   cohort.initial_composition_hash,
   cohort.meta_level,
+  cohort.rune_loadout_hash,
+  cohort.enhancement_loadout_hash,
   cohort.sample_size,
   cohort.wins,
   cohort.defeats,
@@ -211,7 +250,9 @@ LEFT JOIN death_distributions AS deaths
     mode,
     initial_team_size,
     initial_composition_hash,
-    meta_level
+    meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash
   )
 WHERE cohort.sample_size >= 30;
 
@@ -228,6 +269,8 @@ WITH eligible_champion_runs AS (
     dimensions.initial_team_size,
     dimensions.initial_composition_hash,
     dimensions.meta_level,
+    dimensions.rune_loadout_hash,
+    dimensions.enhancement_loadout_hash,
     member.champion_id,
     run.won,
     member.final_level,
@@ -264,7 +307,30 @@ WITH eligible_champion_runs AS (
           END
         ),
         0
-      )::SMALLINT AS meta_level
+      )::SMALLINT AS meta_level,
+      ENCODE(
+        extensions.digest(
+          CONVERT_TO(
+            COALESCE(
+              (
+                SELECT STRING_AGG(rune.rune_id, CHR(31) ORDER BY rune.rune_id)
+                FROM UNNEST(attempt.rune_ids) AS rune(rune_id)
+              ),
+              ''
+            ),
+            'UTF8'
+          ),
+          'sha256'::TEXT
+        ),
+        'hex'
+      ) AS rune_loadout_hash,
+      ENCODE(
+        extensions.digest(
+          CONVERT_TO(attempt.enhancement_snapshot::JSONB::TEXT, 'UTF8'),
+          'sha256'::TEXT
+        ),
+        'hex'
+      ) AS enhancement_loadout_hash
     FROM UNNEST(attempt.initial_team) AS initial(champion_id)
   ) AS dimensions
   WHERE public.is_current_user_admin()
@@ -283,6 +349,8 @@ champion_cohorts AS (
     initial_team_size,
     initial_composition_hash,
     meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash,
     champion_id,
     COUNT(*)::BIGINT AS sample_size,
     COUNT(*) FILTER (WHERE won)::BIGINT AS wins,
@@ -303,6 +371,8 @@ champion_cohorts AS (
     initial_team_size,
     initial_composition_hash,
     meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash,
     champion_id
 )
 SELECT
@@ -315,6 +385,8 @@ SELECT
   champion.initial_team_size,
   champion.initial_composition_hash,
   champion.meta_level,
+  champion.rune_loadout_hash,
+  champion.enhancement_loadout_hash,
   champion.champion_id,
   cohort.sample_size AS cohort_sample_size,
   champion.sample_size,
@@ -342,7 +414,9 @@ JOIN public.admin_verified_field_cohorts AS cohort
     mode,
     initial_team_size,
     initial_composition_hash,
-    meta_level
+    meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash
   )
 CROSS JOIN LATERAL (
   SELECT
@@ -374,6 +448,8 @@ WITH eligible_augment_runs AS (
     dimensions.initial_team_size,
     dimensions.initial_composition_hash,
     dimensions.meta_level,
+    dimensions.rune_loadout_hash,
+    dimensions.enhancement_loadout_hash,
     augment.augment_id,
     run.won,
     run.waves_completed,
@@ -404,7 +480,30 @@ WITH eligible_augment_runs AS (
           END
         ),
         0
-      )::SMALLINT AS meta_level
+      )::SMALLINT AS meta_level,
+      ENCODE(
+        extensions.digest(
+          CONVERT_TO(
+            COALESCE(
+              (
+                SELECT STRING_AGG(rune.rune_id, CHR(31) ORDER BY rune.rune_id)
+                FROM UNNEST(attempt.rune_ids) AS rune(rune_id)
+              ),
+              ''
+            ),
+            'UTF8'
+          ),
+          'sha256'::TEXT
+        ),
+        'hex'
+      ) AS rune_loadout_hash,
+      ENCODE(
+        extensions.digest(
+          CONVERT_TO(attempt.enhancement_snapshot::JSONB::TEXT, 'UTF8'),
+          'sha256'::TEXT
+        ),
+        'hex'
+      ) AS enhancement_loadout_hash
     FROM UNNEST(attempt.initial_team) AS initial(champion_id)
   ) AS dimensions
   CROSS JOIN LATERAL (
@@ -427,6 +526,8 @@ augment_cohorts AS (
     initial_team_size,
     initial_composition_hash,
     meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash,
     augment_id,
     COUNT(*)::BIGINT AS sample_size,
     COUNT(*) FILTER (WHERE won)::BIGINT AS wins,
@@ -444,6 +545,8 @@ augment_cohorts AS (
     initial_team_size,
     initial_composition_hash,
     meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash,
     augment_id
 )
 SELECT
@@ -456,6 +559,8 @@ SELECT
   augment.initial_team_size,
   augment.initial_composition_hash,
   augment.meta_level,
+  augment.rune_loadout_hash,
+  augment.enhancement_loadout_hash,
   augment.augment_id,
   cohort.sample_size AS cohort_sample_size,
   augment.sample_size,
@@ -480,7 +585,9 @@ JOIN public.admin_verified_field_cohorts AS cohort
     mode,
     initial_team_size,
     initial_composition_hash,
-    meta_level
+    meta_level,
+    rune_loadout_hash,
+    enhancement_loadout_hash
   )
 CROSS JOIN LATERAL (
   SELECT

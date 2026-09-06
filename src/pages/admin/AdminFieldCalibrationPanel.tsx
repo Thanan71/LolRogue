@@ -59,6 +59,8 @@ function cellLabel(
     | 'initialTeamSize'
     | 'initialCompositionHash'
     | 'metaLevel'
+    | 'runeLoadoutHash'
+    | 'enhancementLoadoutHash'
   >,
 ): string {
   return [
@@ -69,6 +71,8 @@ function cellLabel(
     `${copy.cell.team} ${cell.initialTeamSize}`,
     `${copy.cell.composition} ${cell.initialCompositionHash.slice(0, 10)}…`,
     `${copy.cell.meta} ${cell.metaLevel}`,
+    `${copy.cell.runes} ${cell.runeLoadoutHash.slice(0, 10)}…`,
+    `${copy.cell.enhancements} ${cell.enhancementLoadoutHash.slice(0, 10)}…`,
   ].join(' · ');
 }
 
@@ -153,7 +157,7 @@ export function AdminFieldCalibrationPanel({
               const deathDelta = comparison ? strongestDeathDelta(comparison) : null;
               return (
                 <tr
-                  key={`${field.observedOn}-${field.gameplayRulesetVersion}-${field.engineVersion}-${field.mode}-${field.initialCompositionHash}-${field.metaLevel}-${field.difficulty}-${comparison?.baselineKey ?? 'unmatched'}`}
+                  key={`${field.observedOn}-${field.gameplayRulesetVersion}-${field.engineVersion}-${field.mode}-${field.initialCompositionHash}-${field.metaLevel}-${field.runeLoadoutHash}-${field.enhancementLoadoutHash}-${field.difficulty}-${comparison?.baselineKey ?? 'unmatched'}`}
                 >
                   <td>
                     <strong>{field.observedOn}</strong>
@@ -237,7 +241,7 @@ export function AdminFieldCalibrationPanel({
             <tbody>
               {championRows.map(({ field, comparison }) => (
                 <tr
-                  key={`${field.observedOn}-${field.gameplayRulesetVersion}-${field.engineVersion}-${field.mode}-${field.initialCompositionHash}-${field.metaLevel}-${field.difficulty}-${field.championId}-${comparison?.baselineKey ?? 'unmatched'}`}
+                  key={`${field.observedOn}-${field.gameplayRulesetVersion}-${field.engineVersion}-${field.mode}-${field.initialCompositionHash}-${field.metaLevel}-${field.runeLoadoutHash}-${field.enhancementLoadoutHash}-${field.difficulty}-${field.championId}-${comparison?.baselineKey ?? 'unmatched'}`}
                 >
                   <td>
                     <strong>{field.championId}</strong>
@@ -311,7 +315,7 @@ export function AdminFieldCalibrationPanel({
             <tbody>
               {augmentRows.map(({ field, comparison }) => (
                 <tr
-                  key={`${field.observedOn}-${field.gameplayRulesetVersion}-${field.engineVersion}-${field.mode}-${field.initialCompositionHash}-${field.metaLevel}-${field.difficulty}-${field.augmentId}-${comparison?.baselineKey ?? 'unmatched'}`}
+                  key={`${field.observedOn}-${field.gameplayRulesetVersion}-${field.engineVersion}-${field.mode}-${field.initialCompositionHash}-${field.metaLevel}-${field.runeLoadoutHash}-${field.enhancementLoadoutHash}-${field.difficulty}-${field.augmentId}-${comparison?.baselineKey ?? 'unmatched'}`}
                 >
                   <td>
                     <strong>{field.augmentId}</strong>

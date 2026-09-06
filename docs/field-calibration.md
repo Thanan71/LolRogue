@@ -34,7 +34,9 @@ Les agrégats sont séparés par :
 - date UTC, ruleset gameplay, version moteur et hash de contenu ;
 - difficulté et mode ;
 - taille initiale, hash SHA-256 de la composition initiale triée et niveau de
-  maîtrise maximal de cette composition.
+  maîtrise maximal de cette composition ;
+- hashes SHA-256 canoniques des runes et améliorations initiales, afin qu'une run
+  équipée ne soit jamais comparée à une simulation sans équipement.
 
 Une cellule n'est visible qu'à partir de 30 runs. Elle publie la taille
 d'échantillon, le taux de victoire et son intervalle Wilson à 95 %, progression,
@@ -48,8 +50,9 @@ précises, journal, commandes, payload, texte libre ou snapshot brut. Elles sont
 aucune copie supplémentaire.
 
 Le panneau admin rapproche uniquement des cellules de dimensions strictement
-identiques. Il affiche les deux politiques, `n`, Wilson 95 %, victoire, biome de mort,
-économie, participation/pick rate et écarts conditionnels champions/augments. Une
+identiques, y compris les empreintes de runes et d'améliorations. Il affiche les deux
+politiques, `n`, Wilson 95 %, victoire, biome de mort, économie, participation/pick
+rate et écarts conditionnels champions/augments. Une
 absence de sélection en simulation reste affichée comme un taux nul, pas comme une
 performance inventée. Tous les libellés de ce panneau existent en français et en
 anglais. Les seuils ouvrent au plus une revue ; ils ne modifient jamais le gameplay.

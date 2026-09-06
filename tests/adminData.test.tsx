@@ -2,7 +2,11 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { SOLO_GAREN_COMPOSITION_HASH } from '@/game/balance/fieldCalibrationComparison';
+import {
+  EMPTY_ENHANCEMENT_LOADOUT_HASH,
+  EMPTY_RUNE_LOADOUT_HASH,
+  SOLO_GAREN_COMPOSITION_HASH,
+} from '@/game/balance/fieldCalibrationComparison';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
 import { AdminAuthorityPanel } from '@/pages/admin/AdminAuthorityPanel';
 import { AdminErrorNotice } from '@/pages/admin/AdminErrorNotice';
@@ -122,6 +126,8 @@ describe('admin data feedback', () => {
             initialTeamSize: 1,
             initialCompositionHash: SOLO_GAREN_COMPOSITION_HASH,
             metaLevel: 0,
+            runeLoadoutHash: EMPTY_RUNE_LOADOUT_HASH,
+            enhancementLoadoutHash: EMPTY_ENHANCEMENT_LOADOUT_HASH,
             sampleSize: 30,
             wins: 15,
             defeats: 15,

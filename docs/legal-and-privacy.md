@@ -35,7 +35,7 @@ Sources à revalider avant chaque release :
 | Modération | score signalé, auteur, motif, décision | intégrité du classement | modérateurs | ouverts jusqu'à décision ; traités 24 mois |
 | Diagnostic | opération, durée, erreur nettoyée | disponibilité et sécurité | utilisateur concerné/opérateurs | 14 jours maximum |
 | Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
-| Calibration terrain | agrégats de runs déjà vérifiées, cellules `n >= 30` | confronter simulation et usage réel | administrateurs uniquement | vue calculée, aucune copie persistée |
+| Calibration terrain | agrégats de runs déjà vérifiées, cellules `n >= 30` et empreintes de loadout | confronter simulation et usage réel | administrateurs uniquement | vue calculée, aucune copie persistée |
 | Calibration optionnelle | offres vues/refusées, raison structurée d'abandon | étude produit future | aucune collecte active | 30 jours maximum si opt-in livré |
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
 

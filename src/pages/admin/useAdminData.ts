@@ -71,6 +71,8 @@ export function mapVerifiedFieldCohort(row: FieldCohortRow): VerifiedFieldCalibr
     row.initial_team_size === null ||
     !row.initial_composition_hash ||
     row.meta_level === null ||
+    !row.rune_loadout_hash ||
+    !row.enhancement_loadout_hash ||
     row.sample_size === null ||
     row.wins === null ||
     row.defeats === null ||
@@ -98,6 +100,8 @@ export function mapVerifiedFieldCohort(row: FieldCohortRow): VerifiedFieldCalibr
     initialTeamSize: row.initial_team_size,
     initialCompositionHash: row.initial_composition_hash,
     metaLevel: row.meta_level,
+    runeLoadoutHash: row.rune_loadout_hash,
+    enhancementLoadoutHash: row.enhancement_loadout_hash,
     sampleSize: row.sample_size,
     wins: row.wins,
     defeats: row.defeats,
@@ -131,6 +135,8 @@ export function mapVerifiedFieldChampion(
     row.initial_team_size === null ||
     !row.initial_composition_hash ||
     row.meta_level === null ||
+    !row.rune_loadout_hash ||
+    !row.enhancement_loadout_hash ||
     !row.champion_id ||
     row.cohort_sample_size === null ||
     row.sample_size === null ||
@@ -157,6 +163,8 @@ export function mapVerifiedFieldChampion(
     initialTeamSize: row.initial_team_size,
     initialCompositionHash: row.initial_composition_hash,
     metaLevel: row.meta_level,
+    runeLoadoutHash: row.rune_loadout_hash,
+    enhancementLoadoutHash: row.enhancement_loadout_hash,
     championId: row.champion_id,
     cohortSampleSize: row.cohort_sample_size,
     sampleSize: row.sample_size,
@@ -187,6 +195,8 @@ export function mapVerifiedFieldAugment(row: FieldAugmentRow): VerifiedFieldAugm
     row.initial_team_size === null ||
     !row.initial_composition_hash ||
     row.meta_level === null ||
+    !row.rune_loadout_hash ||
+    !row.enhancement_loadout_hash ||
     !row.augment_id ||
     row.cohort_sample_size === null ||
     row.sample_size === null ||
@@ -210,6 +220,8 @@ export function mapVerifiedFieldAugment(row: FieldAugmentRow): VerifiedFieldAugm
     initialTeamSize: row.initial_team_size,
     initialCompositionHash: row.initial_composition_hash,
     metaLevel: row.meta_level,
+    runeLoadoutHash: row.rune_loadout_hash,
+    enhancementLoadoutHash: row.enhancement_loadout_hash,
     augmentId: row.augment_id,
     cohortSampleSize: row.cohort_sample_size,
     sampleSize: row.sample_size,

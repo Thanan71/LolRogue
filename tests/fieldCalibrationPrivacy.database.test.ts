@@ -3,6 +3,10 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { calculateWilsonInterval95 } from '@/game/balance/authorityCohortReport';
+import {
+  EMPTY_ENHANCEMENT_LOADOUT_HASH,
+  EMPTY_RUNE_LOADOUT_HASH,
+} from '@/game/balance/fieldCalibrationComparison';
 import type { Database } from '@/types/database';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
@@ -31,6 +35,8 @@ interface FieldSeed {
   gameplayContentHash: string;
   sampleSize: number;
   wins: number;
+  runeIds?: readonly string[];
+  enhancementSnapshot?: Readonly<Record<string, unknown>>;
 }
 
 interface SeedRow {
@@ -45,6 +51,12 @@ interface SeedRow {
 
 function sqlString(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
+}
+
+function sqlTextArray(values: readonly string[]): string {
+  return values.length > 0
+    ? `ARRAY[${values.map(sqlString).join(', ')}]::TEXT[]`
+    : 'ARRAY[]::TEXT[]';
 }
 
 function runLocalSql(sql: string): void {
@@ -225,8 +237,8 @@ describeDatabase('field calibration live privacy and isolation', () => {
           'normal',
           ${sqlString(row.cell.difficulty)},
           ARRAY['Garen']::TEXT[],
-          ARRAY[]::TEXT[],
-          '{}'::JSONB,
+          ${sqlTextArray(row.cell.runeIds ?? [])},
+          ${sqlString(JSON.stringify(row.cell.enhancementSnapshot ?? {}))}::JSONB,
           ${sqlString(startedAt)}::TIMESTAMPTZ,
           ${sqlString(expiresAt)}::TIMESTAMPTZ,
           ${sqlString('b'.repeat(64))},
@@ -354,6 +366,16 @@ describeDatabase('field calibration live privacy and isolation', () => {
         sampleSize: 29,
         wins: 0,
       },
+      {
+        difficulty: 'easy',
+        gameplayRulesetVersion: 17,
+        engineVersion: 'run-engine-v17',
+        gameplayContentHash: '83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19',
+        sampleSize: 30,
+        wins: 30,
+        runeIds: ['grasp_of_the_undying'],
+        enhancementSnapshot: { Garen: ['q_rank_2'] },
+      },
     ]);
 
     const anonymous = createClient<Database>(supabaseUrl!, anonKey!, {
@@ -382,10 +404,14 @@ describeDatabase('field calibration live privacy and isolation', () => {
     expect(serviceRead.error).not.toBeNull();
     expect(ownerRead).toMatchObject({ data: [], error: null });
     expect(adminRead.error).toBeNull();
-    expect(adminRead.data).toHaveLength(2);
-    expect(adminRead.data?.map((row) => row.gameplay_ruleset_version)).toEqual([16, 17]);
+    expect(adminRead.data).toHaveLength(3);
+    expect(adminRead.data?.map((row) => row.gameplay_ruleset_version)).toEqual([16, 17, 17]);
 
-    const v17 = adminRead.data?.find((row) => row.gameplay_ruleset_version === 17);
+    const v17Cells = adminRead.data?.filter((row) => row.gameplay_ruleset_version === 17) ?? [];
+    expect(v17Cells).toHaveLength(2);
+    expect(v17Cells.every((row) => row.sample_size === 30)).toBe(true);
+    const v17 = v17Cells.find((row) => row.rune_loadout_hash === EMPTY_RUNE_LOADOUT_HASH);
+    const equippedV17 = v17Cells.find((row) => row.rune_loadout_hash !== EMPTY_RUNE_LOADOUT_HASH);
     const expectedWilson = calculateWilsonInterval95(12, 30);
     expect(v17).toMatchObject({
       difficulty: 'easy',
@@ -393,6 +419,8 @@ describeDatabase('field calibration live privacy and isolation', () => {
       initial_team_size: 1,
       initial_composition_hash: 'a5302e2442a975c4c6c63da00bdb7388ce6efb3f84c2b669cf04064d4b8a37fe',
       meta_level: 2,
+      rune_loadout_hash: EMPTY_RUNE_LOADOUT_HASH,
+      enhancement_loadout_hash: EMPTY_ENHANCEMENT_LOADOUT_HASH,
       sample_size: 30,
       wins: 12,
       defeats: 18,
@@ -401,10 +429,17 @@ describeDatabase('field calibration live privacy and isolation', () => {
     });
     expect(v17?.win_rate_wilson_low).toBeCloseTo(expectedWilson.lower, 12);
     expect(v17?.win_rate_wilson_high).toBeCloseTo(expectedWilson.upper, 12);
+    expect(equippedV17).toMatchObject({ sample_size: 30, wins: 30, win_rate: 1 });
+    expect(equippedV17?.enhancement_loadout_hash).not.toBe(EMPTY_ENHANCEMENT_LOADOUT_HASH);
 
     expect(champions.error).toBeNull();
-    expect(champions.data).toHaveLength(2);
-    expect(champions.data?.find((row) => row.gameplay_ruleset_version === 17)).toMatchObject({
+    expect(champions.data).toHaveLength(3);
+    expect(
+      champions.data?.find(
+        (row) =>
+          row.gameplay_ruleset_version === 17 && row.rune_loadout_hash === EMPTY_RUNE_LOADOUT_HASH,
+      ),
+    ).toMatchObject({
       champion_id: 'Garen',
       cohort_sample_size: 30,
       sample_size: 30,
@@ -413,8 +448,13 @@ describeDatabase('field calibration live privacy and isolation', () => {
     });
 
     expect(augments.error).toBeNull();
-    expect(augments.data).toHaveLength(2);
-    expect(augments.data?.find((row) => row.gameplay_ruleset_version === 17)).toMatchObject({
+    expect(augments.data).toHaveLength(3);
+    expect(
+      augments.data?.find(
+        (row) =>
+          row.gameplay_ruleset_version === 17 && row.rune_loadout_hash === EMPTY_RUNE_LOADOUT_HASH,
+      ),
+    ).toMatchObject({
       augment_id: 'iron_skin',
       cohort_sample_size: 30,
       sample_size: 30,

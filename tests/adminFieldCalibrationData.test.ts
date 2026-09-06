@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  EMPTY_ENHANCEMENT_LOADOUT_HASH,
+  EMPTY_RUNE_LOADOUT_HASH,
+} from '@/game/balance/fieldCalibrationComparison';
+import {
   mapVerifiedFieldAugment,
   mapVerifiedFieldChampion,
   mapVerifiedFieldCohort,
@@ -18,6 +22,8 @@ const DIMENSIONS = {
   initial_team_size: 1,
   initial_composition_hash: 'b'.repeat(64),
   meta_level: 0,
+  rune_loadout_hash: EMPTY_RUNE_LOADOUT_HASH,
+  enhancement_loadout_hash: EMPTY_ENHANCEMENT_LOADOUT_HASH,
 } as const;
 
 describe('admin field calibration row mapping', () => {
@@ -42,6 +48,8 @@ describe('admin field calibration row mapping', () => {
     expect(mapVerifiedFieldCohort(row)).toMatchObject({
       observedOn: '2026-08-25',
       gameplayRulesetVersion: 17,
+      runeLoadoutHash: EMPTY_RUNE_LOADOUT_HASH,
+      enhancementLoadoutHash: EMPTY_ENHANCEMENT_LOADOUT_HASH,
       sampleSize: 30,
       winRateWilson95: { confidence: 0.95, lower: 0.2459, upper: 0.5768 },
       deathBiomeCounts: { top_lane: 18 },
