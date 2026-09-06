@@ -476,6 +476,13 @@ Deno.serve(async (request) => {
   );
   const completion = record(completionData);
   if (completionError || !completion) {
+    console.error('[verify-run] complete_run_verification failed', {
+      attempt_id: attemptId,
+      code: completionError?.code ?? 'invalid_rpc_response',
+      message: completionError?.message ?? 'RPC returned no object response',
+      details: completionError?.details ?? null,
+      hint: completionError?.hint ?? null,
+    });
     return json(500, { error: 'verified_progression_commit_failed' });
   }
   if (completion.status === 'rejected') {

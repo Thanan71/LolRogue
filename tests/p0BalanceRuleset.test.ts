@@ -67,6 +67,15 @@ describe('P0 balance authority ruleset', () => {
     expect(verifyRunSource).toContain("engineVersion === 'run-engine-v21'");
   });
 
+  it('logs sanitized database diagnostics when verified progression cannot commit', () => {
+    const diagnosticBlock = verifyRunSource.match(
+      /console\.error\('\[verify-run\] complete_run_verification failed',[\s\S]*?\n    \}\);/,
+    )?.[0];
+    expect(diagnosticBlock).toContain("code: completionError?.code ?? 'invalid_rpc_response'");
+    expect(diagnosticBlock).toContain('message: completionError?.message');
+    expect(diagnosticBlock).not.toMatch(/lease_token|service_role|verifiedResult/);
+  });
+
   it('deploys Edge and the compatible frontend before activating the database ruleset', () => {
     const edgeDeployment = backendDeploySource.indexOf("phase: 'deploy-edge'");
     const frontendDeployment = backendDeploySource.indexOf("phase: 'deploy-frontend'");
