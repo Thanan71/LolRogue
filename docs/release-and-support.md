@@ -67,11 +67,12 @@ l'opérateur rollback et l'heure UTC.
 
 ### Ordre de promotion
 
-1. Déployer la fonction compatible (`npm run edge:deploy`).
-2. Pour une nouvelle version comprise par le client, publier le frontend sans
-   activer encore la ruleset.
-3. Appliquer les migrations (`npm run migrate`) sur le projet confirmé.
-4. Promouvoir le déploiement Vercel validé et noter son URL/commit.
+1. Exécuter `npm run backend:deploy` depuis `dev` ou `main`.
+2. La commande déploie la fonction compatible puis publie le frontend sans activer
+   encore la ruleset ; le build Production de `main` reste sans domaine.
+3. Elle applique les migrations sur le projet Supabase confirmé et contrôle leur
+   manifeste distant.
+4. Sur `main`, elle promeut alors le déploiement Vercel validé et affiche son URL.
 5. Exécuter le smoke test. En cas d'échec critique, appliquer immédiatement les
    critères de rollback de `docs/incident-runbooks.md`.
 

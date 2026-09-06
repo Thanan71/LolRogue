@@ -90,13 +90,19 @@ Pour tester localement la fonction avec Supabase déjà démarré :
 npm run edge:serve
 ```
 
-Pour un projet hébergé, déployer la fonction avant la migration qui révoque
-l'ancien chemin de sauvegarde, puis publier immédiatement le client compatible :
+Pour un projet hébergé, utiliser l'orchestrateur depuis la branche de release
+correspondante :
 
 ```bash
-npm run edge:deploy
-npm run migrate
+npm run backend:deploy
 ```
+
+Il associe `dev` à `LolRogueDev` et `main` à `LolRogue`, vérifie les migrations
+avec un dry-run, déploie la fonction avant le client compatible, puis exécute
+`supabase db push` sur la référence de projet explicite. Enfin, il compare le
+manifeste distant au dépôt et, sur `main`, promeut alors le build Vercel Production
+préparé sans domaine. Les commandes `edge:deploy` et `migrate` restent disponibles
+séparément pour les procédures de reprise documentées.
 
 La variable `SUPABASE_SERVICE_ROLE_KEY` est fournie au runtime de la fonction par
 Supabase. Elle ne doit jamais être ajoutée aux variables `VITE_*`.

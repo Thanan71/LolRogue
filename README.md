@@ -68,6 +68,20 @@ supabase link --project-ref PROJECT_REF
 npm run migrate
 ```
 
+Le déploiement complet est automatisé et limité aux branches de release :
+
+```bash
+npm run backend:deploy
+```
+
+La branche `dev` cible Supabase `LolRogueDev` et un déploiement Vercel Preview ;
+la branche `main` cible Supabase `LolRogue` et Vercel Production. La commande
+prévisualise les migrations, publie la fonction Edge puis le frontend compatible,
+applique toutes les montées de version en attente et vérifie leur manifeste distant.
+Sur `main`, le build Production est d'abord créé sans changer le domaine public,
+puis promu seulement après ce contrôle. Toute autre branche est bloquée avant le
+premier appel distant.
+
 Ne jamais utiliser `db reset` sur la production. Le projet n'utilise pas de système
 de mailing : la confirmation d'adresse doit être désactivée dans
 Authentication → Providers → Email. La procédure détaillée est dans

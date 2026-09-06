@@ -7,6 +7,7 @@ import { configDefaults } from 'vitest/config';
 
 const shaPattern = /^[0-9a-f]{40}$/;
 const devSupabaseProjectRef = 'misdmtpfcbxbhheacehm';
+const productionSupabaseProjectRef = 'mmpvmclqdgfnpfgcqnyu';
 
 function readCheckedInDevEnv() {
   const envFile = readFileSync(path.resolve(import.meta.dirname, '.env.development'), 'utf8');
@@ -34,13 +35,34 @@ function readCheckedInDevEnv() {
 const deploymentCommitSha =
   process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
 const vercelGitBranch = process.env.VERCEL_GIT_COMMIT_REF?.trim();
-const vercelDevEnv = process.env.VERCEL && vercelGitBranch === 'dev' ? readCheckedInDevEnv() : null;
+const requestedDeployBranch = process.env.LOLROGUE_DEPLOY_BRANCH?.trim();
+const deploymentBranch = requestedDeployBranch || vercelGitBranch;
+const vercelDevEnv =
+  process.env.VERCEL && deploymentBranch === 'dev' ? readCheckedInDevEnv() : null;
+const vercelProductionEnv =
+  process.env.VERCEL && deploymentBranch === 'main'
+    ? {
+        VITE_PUBLIC_SUPABASE_URL: process.env.VITE_PUBLIC_SUPABASE_URL,
+        VITE_PUBLIC_SUPABASE_ANON_KEY: process.env.VITE_PUBLIC_SUPABASE_ANON_KEY,
+      }
+    : null;
 
 if (deploymentCommitSha !== 'local' && !shaPattern.test(deploymentCommitSha)) {
   throw new Error('APP_COMMIT_SHA or VERCEL_GIT_COMMIT_SHA must be a full lowercase Git SHA.');
 }
 if (process.env.VERCEL && deploymentCommitSha === 'local') {
   throw new Error('VERCEL_GIT_COMMIT_SHA must be exposed to identify the deployed commit.');
+}
+if (requestedDeployBranch && requestedDeployBranch !== 'dev' && requestedDeployBranch !== 'main') {
+  throw new Error('LOLROGUE_DEPLOY_BRANCH must be dev or main.');
+}
+if (
+  process.env.VERCEL &&
+  requestedDeployBranch &&
+  vercelGitBranch &&
+  requestedDeployBranch !== vercelGitBranch
+) {
+  throw new Error('The requested deployment branch does not match VERCEL_GIT_COMMIT_REF.');
 }
 if (
   vercelDevEnv &&
@@ -54,6 +76,20 @@ if (
 ) {
   throw new Error('Vercel dev deployments must target the LolRogueDev Supabase project.');
 }
+if (
+  vercelProductionEnv &&
+  (!vercelProductionEnv.VITE_PUBLIC_SUPABASE_URL ||
+    !vercelProductionEnv.VITE_PUBLIC_SUPABASE_ANON_KEY)
+) {
+  throw new Error('Vercel main deployments require the LolRogue Supabase client configuration.');
+}
+if (
+  vercelProductionEnv &&
+  vercelProductionEnv.VITE_PUBLIC_SUPABASE_URL !==
+    `https://${productionSupabaseProjectRef}.supabase.co`
+) {
+  throw new Error('Vercel main deployments must target the LolRogue Supabase project.');
+}
 
 if (vercelDevEnv) {
   // Vercel Preview variables may contain production values. Force the dedicated
@@ -62,6 +98,9 @@ if (vercelDevEnv) {
   process.env.VITE_PUBLIC_SUPABASE_URL = vercelDevEnv.VITE_PUBLIC_SUPABASE_URL;
   process.env.VITE_PUBLIC_SUPABASE_ANON_KEY = vercelDevEnv.VITE_PUBLIC_SUPABASE_ANON_KEY;
   console.log(`[vite] Supabase target: LolRogueDev (${devSupabaseProjectRef})`);
+}
+if (vercelProductionEnv) {
+  console.log(`[vite] Supabase target: LolRogue (${productionSupabaseProjectRef})`);
 }
 
 export default defineConfig({

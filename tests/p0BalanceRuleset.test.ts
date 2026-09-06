@@ -67,13 +67,15 @@ describe('P0 balance authority ruleset', () => {
     expect(verifyRunSource).toContain("engineVersion === 'run-engine-v21'");
   });
 
-  it('stages the compatible Edge resolver without activating the database ruleset', () => {
-    const edgeDeployment = backendDeploySource.indexOf("'functions', 'deploy', 'verify-run'");
-    const databasePush = backendDeploySource.indexOf("'db', 'push'");
+  it('deploys Edge and the compatible frontend before activating the database ruleset', () => {
+    const edgeDeployment = backendDeploySource.indexOf("phase: 'deploy-edge'");
+    const frontendDeployment = backendDeploySource.indexOf("phase: 'deploy-frontend'");
+    const databasePush = backendDeploySource.indexOf("phase: 'migrate-database'");
+    const frontendPromotion = backendDeploySource.indexOf("phase: 'promote-frontend'");
     expect(edgeDeployment).toBeGreaterThan(-1);
-    expect(databasePush).toBe(-1);
-    expect(backendDeploySource).toContain(
-      'Deploy the compatible frontend before running npm run migrate.',
-    );
+    expect(frontendDeployment).toBeGreaterThan(edgeDeployment);
+    expect(databasePush).toBeGreaterThan(frontendDeployment);
+    expect(frontendPromotion).toBeGreaterThan(databasePush);
+    expect(backendDeploySource).toContain("args: ['run', 'db:migrations:check:linked']");
   });
 });
