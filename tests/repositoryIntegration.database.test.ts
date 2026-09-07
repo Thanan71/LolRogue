@@ -15,7 +15,7 @@ const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const hasSupabaseCredentials = Boolean(supabaseUrl && anonKey && serviceRoleKey);
-const describeLive = hasSupabaseCredentials ? describe.sequential : describe.skip;
+const describeLive = hasSupabaseCredentials ? describe : describe.skip;
 
 type AuthenticatedFixture = {
   client: SupabaseClient<Database>;
