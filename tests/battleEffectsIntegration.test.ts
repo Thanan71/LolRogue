@@ -214,7 +214,7 @@ describe('BattleManager effect integration', () => {
     const regularDamage = incomingDamage(false);
     const reducedDamage = incomingDamage(true);
 
-    expect(regularDamage).toBe(75);
+    expect(regularDamage).toBe(71);
     expect(reducedDamage).toBe(Math.round(regularDamage * 0.65));
     expect(definition.spells[2].effects[0]).toMatchObject({
       stat: 'damageReduction',

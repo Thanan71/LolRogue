@@ -21,7 +21,7 @@ export const darius: Champion = {
   tags: ['Fighter', 'Tank'],
   resourceType: 'Mana',
   stats: {
-    hp: 652,
+    hp: 675,
     mp: 263,
     moveSpeed: 340,
     armor: 37,

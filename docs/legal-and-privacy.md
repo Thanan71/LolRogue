@@ -1,6 +1,6 @@
 # Légal et confidentialité
 
-Version produit : 8 août 2026. Région préparée : France et Union européenne.
+Version produit : 4 septembre 2026. Région préparée : France et Union européenne.
 Ce document décrit le produit actuel ; il ne constitue pas un avis juridique.
 
 ## Statut de diffusion
@@ -35,6 +35,8 @@ Sources à revalider avant chaque release :
 | Modération | score signalé, auteur, motif, décision | intégrité du classement | modérateurs | ouverts jusqu'à décision ; traités 24 mois |
 | Diagnostic | opération, durée, erreur nettoyée | disponibilité et sécurité | utilisateur concerné/opérateurs | 14 jours maximum |
 | Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
+| Calibration terrain | agrégats de runs déjà vérifiées, cellules `n >= 30` et empreintes de loadout | confronter simulation et usage réel | administrateurs uniquement | vue calculée, aucune copie persistée |
+| Calibration optionnelle | offres vues/refusées, raison structurée d'abandon | étude produit future | aucune collecte active | 30 jours maximum si opt-in livré |
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
 
 La vue Daily applique directement la fenêtre de 13 mois. Le job PostgreSQL mensuel
@@ -42,6 +44,12 @@ La vue Daily applique directement la fenêtre de 13 mois. Le job PostgreSQL mens
 privée de maintenance afin de supprimer les signalements traités depuis plus de
 24 mois. La façade publique reste réservée au `service_role` pour une intervention
 contrôlée. Le purgeur de logs existant conserve au maximum 14 jours.
+
+Le protocole détaillé de calibration est dans `docs/field-calibration.md`. Les
+agrégats terrain ne créent aucune nouvelle ligne : ils dérivent exclusivement des
+runs vérifiées nécessaires au service. Les événements comportementaux optionnels
+restent désactivés ; toute activation future exige un opt-in séparé et révocable,
+des codes fermés, une purge automatique sous 30 jours et une nouvelle revue.
 
 ## Base juridique à faire valider
 

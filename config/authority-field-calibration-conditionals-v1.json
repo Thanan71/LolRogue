@@ -1,0 +1,1418 @@
+{
+  "schemaVersion": 1,
+  "baselineVersion": 1,
+  "entries": {
+    "engine=run-engine-v21|content=9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6|model=1|policy=safety-first@1": {
+      "reports": [
+        {
+          "scenarioId": "difficulty=easy|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 5,
+              "participationRate": 1,
+              "winRate": 0.16666666666666666,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.0733654237184855,
+                "upper": 0.3356435050641603
+              },
+              "averageFinalLevel": 6.666666666666667,
+              "averageKills": 18.566666666666666,
+              "averageDeaths": 0.9666666666666667,
+              "averageDamageDealt": 6637.7,
+              "averageHealingDone": 818.8333333333334,
+              "averageShieldingDone": 1535.6333333333334
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "arcane_mind",
+              "cohortSampleSize": 30,
+              "sampleSize": 8,
+              "wins": 2,
+              "selectionRate": 0.26666666666666666,
+              "winRate": 0.25,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.071479212752109,
+                "upper": 0.5907245696898311
+              },
+              "averageWavesCompleted": 14.5,
+              "averageBiomesCompleted": 5.625,
+              "averageGoldBalance": 205
+            },
+            {
+              "augmentId": "battle_hardened",
+              "cohortSampleSize": 30,
+              "sampleSize": 6,
+              "wins": 0,
+              "selectionRate": 0.2,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 2.7755575615628914e-17,
+                "upper": 0.3903342879021653
+              },
+              "averageWavesCompleted": 16.833333333333332,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 311.1666666666667
+            },
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 9,
+              "wins": 2,
+              "selectionRate": 0.3,
+              "winRate": 0.2222222222222222,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.06322510711784671,
+                "upper": 0.5474110308930111
+              },
+              "averageWavesCompleted": 16.444444444444443,
+              "averageBiomesCompleted": 5.777777777777778,
+              "averageGoldBalance": 230.22222222222223
+            },
+            {
+              "augmentId": "bulwark",
+              "cohortSampleSize": 30,
+              "sampleSize": 8,
+              "wins": 1,
+              "selectionRate": 0.26666666666666666,
+              "winRate": 0.125,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.02241749145005667,
+                "upper": 0.4708881822128535
+              },
+              "averageWavesCompleted": 15.5,
+              "averageBiomesCompleted": 5.5,
+              "averageGoldBalance": 155.25
+            },
+            {
+              "augmentId": "critical_focus",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 2,
+              "selectionRate": 0.1,
+              "winRate": 0.6666666666666666,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.2076596008020477,
+                "upper": 0.9385080552796037
+              },
+              "averageWavesCompleted": 18,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 283.3333333333333
+            },
+            {
+              "augmentId": "divine_blessing",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 20,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 284
+            },
+            {
+              "augmentId": "field_medic",
+              "cohortSampleSize": 30,
+              "sampleSize": 18,
+              "wins": 5,
+              "selectionRate": 0.6,
+              "winRate": 0.2777777777777778,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.12499753379553993,
+                "upper": 0.5087265656029746
+              },
+              "averageWavesCompleted": 15.666666666666666,
+              "averageBiomesCompleted": 5.777777777777778,
+              "averageGoldBalance": 270.72222222222223
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 15.5,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 369.5
+            },
+            {
+              "augmentId": "glass_cannon",
+              "cohortSampleSize": 30,
+              "sampleSize": 7,
+              "wins": 0,
+              "selectionRate": 0.23333333333333334,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.35433043506668743
+              },
+              "averageWavesCompleted": 14.428571428571429,
+              "averageBiomesCompleted": 5.285714285714286,
+              "averageGoldBalance": 162.42857142857142
+            },
+            {
+              "augmentId": "golden_touch",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 0,
+              "selectionRate": 0.1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.5614970317550454
+              },
+              "averageWavesCompleted": 13,
+              "averageBiomesCompleted": 4.666666666666667,
+              "averageGoldBalance": 329.6666666666667
+            },
+            {
+              "augmentId": "iron_skin",
+              "cohortSampleSize": 30,
+              "sampleSize": 5,
+              "wins": 2,
+              "selectionRate": 0.16666666666666666,
+              "winRate": 0.4,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.11762077423264783,
+                "upper": 0.769275718723987
+              },
+              "averageWavesCompleted": 13,
+              "averageBiomesCompleted": 5.6,
+              "averageGoldBalance": 300.4
+            },
+            {
+              "augmentId": "phoenix_heart",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 1,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0.25,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.04558726080970055,
+                "upper": 0.6993581574175981
+              },
+              "averageWavesCompleted": 18.5,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 287
+            },
+            {
+              "augmentId": "unstoppable",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 2,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0.5,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.15003898915214947,
+                "upper": 0.8499610108478506
+              },
+              "averageWavesCompleted": 16.75,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 509.75
+            },
+            {
+              "augmentId": "vitality_boost",
+              "cohortSampleSize": 30,
+              "sampleSize": 18,
+              "wins": 2,
+              "selectionRate": 0.6,
+              "winRate": 0.1111111111111111,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.03101952264561239,
+                "upper": 0.32799765130178804
+              },
+              "averageWavesCompleted": 15.166666666666666,
+              "averageBiomesCompleted": 5.444444444444445,
+              "averageGoldBalance": 223.61111111111111
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=hard|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 5,
+              "participationRate": 1,
+              "winRate": 0.16666666666666666,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.0733654237184855,
+                "upper": 0.3356435050641603
+              },
+              "averageFinalLevel": 5.166666666666667,
+              "averageKills": 12.9,
+              "averageDeaths": 1,
+              "averageDamageDealt": 6050.9,
+              "averageHealingDone": 608.3666666666667,
+              "averageShieldingDone": 1424.0333333333333
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "arcane_mind",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 1,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0.25,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.04558726080970055,
+                "upper": 0.6993581574175981
+              },
+              "averageWavesCompleted": 11.5,
+              "averageBiomesCompleted": 5.25,
+              "averageGoldBalance": 212.75
+            },
+            {
+              "augmentId": "battle_hardened",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 0,
+              "selectionRate": 0.1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.5614970317550454
+              },
+              "averageWavesCompleted": 16,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 403.3333333333333
+            },
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 7,
+              "wins": 4,
+              "selectionRate": 0.23333333333333334,
+              "winRate": 0.5714285714285714,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.2504583645276572,
+                "upper": 0.8417801447485302
+              },
+              "averageWavesCompleted": 16.714285714285715,
+              "averageBiomesCompleted": 5.714285714285714,
+              "averageGoldBalance": 347.2857142857143
+            },
+            {
+              "augmentId": "bulwark",
+              "cohortSampleSize": 30,
+              "sampleSize": 6,
+              "wins": 0,
+              "selectionRate": 0.2,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 2.7755575615628914e-17,
+                "upper": 0.3903342879021653
+              },
+              "averageWavesCompleted": 13.666666666666666,
+              "averageBiomesCompleted": 4.833333333333333,
+              "averageGoldBalance": 200.83333333333334
+            },
+            {
+              "augmentId": "critical_focus",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 2,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 1,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.34238022750665303,
+                "upper": 1
+              },
+              "averageWavesCompleted": 19,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 462.5
+            },
+            {
+              "augmentId": "field_medic",
+              "cohortSampleSize": 30,
+              "sampleSize": 14,
+              "wins": 5,
+              "selectionRate": 0.4666666666666667,
+              "winRate": 0.35714285714285715,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.1634473175355414,
+                "upper": 0.612355768960926
+              },
+              "averageWavesCompleted": 16.142857142857142,
+              "averageBiomesCompleted": 5.857142857142857,
+              "averageGoldBalance": 325.7142857142857
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 15,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 445
+            },
+            {
+              "augmentId": "glass_cannon",
+              "cohortSampleSize": 30,
+              "sampleSize": 5,
+              "wins": 1,
+              "selectionRate": 0.16666666666666666,
+              "winRate": 0.2,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.03622410863243014,
+                "upper": 0.6244653702374747
+              },
+              "averageWavesCompleted": 14.8,
+              "averageBiomesCompleted": 5.4,
+              "averageGoldBalance": 271.2
+            },
+            {
+              "augmentId": "golden_touch",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 11,
+              "averageBiomesCompleted": 4,
+              "averageGoldBalance": 244.5
+            },
+            {
+              "augmentId": "iron_skin",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 1,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0.25,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.04558726080970055,
+                "upper": 0.6993581574175981
+              },
+              "averageWavesCompleted": 12,
+              "averageBiomesCompleted": 5.5,
+              "averageGoldBalance": 208.75
+            },
+            {
+              "augmentId": "phoenix_heart",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 1,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0.25,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.04558726080970055,
+                "upper": 0.6993581574175981
+              },
+              "averageWavesCompleted": 18.5,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 343.5
+            },
+            {
+              "augmentId": "unstoppable",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 1,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0.25,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.04558726080970055,
+                "upper": 0.6993581574175981
+              },
+              "averageWavesCompleted": 16,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 508
+            },
+            {
+              "augmentId": "vitality_boost",
+              "cohortSampleSize": 30,
+              "sampleSize": 13,
+              "wins": 3,
+              "selectionRate": 0.43333333333333335,
+              "winRate": 0.23076923076923078,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.08179528718498569,
+                "upper": 0.5025637594672749
+              },
+              "averageWavesCompleted": 14.153846153846153,
+              "averageBiomesCompleted": 4.923076923076923,
+              "averageGoldBalance": 277.46153846153845
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=normal|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 4,
+              "participationRate": 1,
+              "winRate": 0.13333333333333333,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.053096554840547455,
+                "upper": 0.296813266820363
+              },
+              "averageFinalLevel": 6.066666666666666,
+              "averageKills": 16.066666666666666,
+              "averageDeaths": 0.9,
+              "averageDamageDealt": 6426.433333333333,
+              "averageHealingDone": 738.5666666666667,
+              "averageShieldingDone": 1551.6
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "arcane_mind",
+              "cohortSampleSize": 30,
+              "sampleSize": 6,
+              "wins": 1,
+              "selectionRate": 0.2,
+              "winRate": 0.16666666666666666,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.030053369748306635,
+                "upper": 0.5635028221864702
+              },
+              "averageWavesCompleted": 13.166666666666666,
+              "averageBiomesCompleted": 5.5,
+              "averageGoldBalance": 166.5
+            },
+            {
+              "augmentId": "battle_hardened",
+              "cohortSampleSize": 30,
+              "sampleSize": 6,
+              "wins": 0,
+              "selectionRate": 0.2,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 2.7755575615628914e-17,
+                "upper": 0.3903342879021653
+              },
+              "averageWavesCompleted": 16.5,
+              "averageBiomesCompleted": 5.833333333333333,
+              "averageGoldBalance": 302
+            },
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 9,
+              "wins": 2,
+              "selectionRate": 0.3,
+              "winRate": 0.2222222222222222,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.06322510711784671,
+                "upper": 0.5474110308930111
+              },
+              "averageWavesCompleted": 16.11111111111111,
+              "averageBiomesCompleted": 5.666666666666667,
+              "averageGoldBalance": 268.44444444444446
+            },
+            {
+              "augmentId": "bulwark",
+              "cohortSampleSize": 30,
+              "sampleSize": 8,
+              "wins": 1,
+              "selectionRate": 0.26666666666666666,
+              "winRate": 0.125,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.02241749145005667,
+                "upper": 0.4708881822128535
+              },
+              "averageWavesCompleted": 14.625,
+              "averageBiomesCompleted": 5.25,
+              "averageGoldBalance": 196.375
+            },
+            {
+              "augmentId": "critical_focus",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 1,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0.5,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.09453120573423074,
+                "upper": 0.9054687942657693
+              },
+              "averageWavesCompleted": 18,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 331
+            },
+            {
+              "augmentId": "divine_blessing",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 20,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 352
+            },
+            {
+              "augmentId": "field_medic",
+              "cohortSampleSize": 30,
+              "sampleSize": 15,
+              "wins": 4,
+              "selectionRate": 0.5,
+              "winRate": 0.26666666666666666,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.10897453325692374,
+                "upper": 0.5195043405598057
+              },
+              "averageWavesCompleted": 16.6,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 294.8
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 15,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 359
+            },
+            {
+              "augmentId": "glass_cannon",
+              "cohortSampleSize": 30,
+              "sampleSize": 6,
+              "wins": 1,
+              "selectionRate": 0.2,
+              "winRate": 0.16666666666666666,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.030053369748306635,
+                "upper": 0.5635028221864702
+              },
+              "averageWavesCompleted": 14.666666666666666,
+              "averageBiomesCompleted": 5.5,
+              "averageGoldBalance": 204
+            },
+            {
+              "augmentId": "golden_touch",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 0,
+              "selectionRate": 0.1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.5614970317550454
+              },
+              "averageWavesCompleted": 12.333333333333334,
+              "averageBiomesCompleted": 4.333333333333333,
+              "averageGoldBalance": 281.3333333333333
+            },
+            {
+              "augmentId": "iron_skin",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 1,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0.25,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.04558726080970055,
+                "upper": 0.6993581574175981
+              },
+              "averageWavesCompleted": 14.75,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 241.5
+            },
+            {
+              "augmentId": "phoenix_heart",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 1,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0.25,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.04558726080970055,
+                "upper": 0.6993581574175981
+              },
+              "averageWavesCompleted": 18.5,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 346.5
+            },
+            {
+              "augmentId": "unstoppable",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 0,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.4898908364545973
+              },
+              "averageWavesCompleted": 16,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 469.25
+            },
+            {
+              "augmentId": "vitality_boost",
+              "cohortSampleSize": 30,
+              "sampleSize": 15,
+              "wins": 3,
+              "selectionRate": 0.5,
+              "winRate": 0.2,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.07047549346981563,
+                "upper": 0.45185448715169363
+              },
+              "averageWavesCompleted": 16.2,
+              "averageBiomesCompleted": 5.533333333333333,
+              "averageGoldBalance": 274.93333333333334
+            }
+          ]
+        }
+      ]
+    },
+    "engine=run-engine-v21|content=9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6|model=1|policy=economy-first@1": {
+      "reports": [
+        {
+          "scenarioId": "difficulty=easy|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 1,
+              "participationRate": 1,
+              "winRate": 0.03333333333333333,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.005908590381612455,
+                "upper": 0.16670390991409173
+              },
+              "averageFinalLevel": 5.8,
+              "averageKills": 14.2,
+              "averageDeaths": 1,
+              "averageDamageDealt": 5000.266666666666,
+              "averageHealingDone": 675.3666666666667,
+              "averageShieldingDone": 1280.4333333333334
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "arcane_mind",
+              "cohortSampleSize": 30,
+              "sampleSize": 15,
+              "wins": 0,
+              "selectionRate": 0.5,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.20388330103584862
+              },
+              "averageWavesCompleted": 12.8,
+              "averageBiomesCompleted": 4.466666666666667,
+              "averageGoldBalance": 387.46666666666664
+            },
+            {
+              "augmentId": "battle_hardened",
+              "cohortSampleSize": 30,
+              "sampleSize": 8,
+              "wins": 1,
+              "selectionRate": 0.26666666666666666,
+              "winRate": 0.125,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.02241749145005667,
+                "upper": 0.4708881822128535
+              },
+              "averageWavesCompleted": 15,
+              "averageBiomesCompleted": 5,
+              "averageGoldBalance": 678
+            },
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 8,
+              "wins": 0,
+              "selectionRate": 0.26666666666666666,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.32440756488388023
+              },
+              "averageWavesCompleted": 12.5,
+              "averageBiomesCompleted": 4,
+              "averageGoldBalance": 342.625
+            },
+            {
+              "augmentId": "bulwark",
+              "cohortSampleSize": 30,
+              "sampleSize": 4,
+              "wins": 0,
+              "selectionRate": 0.13333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.4898908364545973
+              },
+              "averageWavesCompleted": 14.5,
+              "averageBiomesCompleted": 5.5,
+              "averageGoldBalance": 606.75
+            },
+            {
+              "augmentId": "critical_focus",
+              "cohortSampleSize": 30,
+              "sampleSize": 5,
+              "wins": 0,
+              "selectionRate": 0.16666666666666666,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.43448246478317476
+              },
+              "averageWavesCompleted": 12.6,
+              "averageBiomesCompleted": 4.4,
+              "averageGoldBalance": 609.6
+            },
+            {
+              "augmentId": "divine_blessing",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 15,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 667
+            },
+            {
+              "augmentId": "field_medic",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 0,
+              "selectionRate": 0.1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.5614970317550454
+              },
+              "averageWavesCompleted": 13.333333333333334,
+              "averageBiomesCompleted": 5.333333333333333,
+              "averageGoldBalance": 562
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 11,
+              "wins": 1,
+              "selectionRate": 0.36666666666666664,
+              "winRate": 0.09090909090909091,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.016232172885884855,
+                "upper": 0.37735843645159567
+              },
+              "averageWavesCompleted": 14.363636363636363,
+              "averageBiomesCompleted": 4.909090909090909,
+              "averageGoldBalance": 709.1818181818181
+            },
+            {
+              "augmentId": "glass_cannon",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 18,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 600
+            },
+            {
+              "augmentId": "golden_age",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 1,
+              "selectionRate": 0.1,
+              "winRate": 0.3333333333333333,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.06149194472039621,
+                "upper": 0.7923403991979522
+              },
+              "averageWavesCompleted": 10,
+              "averageBiomesCompleted": 3.6666666666666665,
+              "averageGoldBalance": 641.6666666666666
+            },
+            {
+              "augmentId": "golden_touch",
+              "cohortSampleSize": 30,
+              "sampleSize": 17,
+              "wins": 1,
+              "selectionRate": 0.5666666666666667,
+              "winRate": 0.058823529411764705,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0.010460400984997592,
+                "upper": 0.26982030637575405
+              },
+              "averageWavesCompleted": 13.941176470588236,
+              "averageBiomesCompleted": 4.9411764705882355,
+              "averageGoldBalance": 571.8235294117648
+            },
+            {
+              "augmentId": "hyper_carry",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 18,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 693
+            },
+            {
+              "augmentId": "iron_skin",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 0,
+              "selectionRate": 0.1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.5614970317550454
+              },
+              "averageWavesCompleted": 15.666666666666666,
+              "averageBiomesCompleted": 5,
+              "averageGoldBalance": 481
+            },
+            {
+              "augmentId": "swift_feet",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 16,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 527
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=hard|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 0,
+              "participationRate": 1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.11351339317396876
+              },
+              "averageFinalLevel": 3.466666666666667,
+              "averageKills": 6.333333333333333,
+              "averageDeaths": 1.0333333333333334,
+              "averageDamageDealt": 2856.4333333333334,
+              "averageHealingDone": 254.83333333333334,
+              "averageShieldingDone": 740.4333333333333
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "arcane_mind",
+              "cohortSampleSize": 30,
+              "sampleSize": 9,
+              "wins": 0,
+              "selectionRate": 0.3,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.2991450484195441
+              },
+              "averageWavesCompleted": 9.555555555555555,
+              "averageBiomesCompleted": 3.3333333333333335,
+              "averageGoldBalance": 381.6666666666667
+            },
+            {
+              "augmentId": "battle_hardened",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 8,
+              "averageBiomesCompleted": 3,
+              "averageGoldBalance": 218.5
+            },
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 0,
+              "selectionRate": 0.1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.5614970317550454
+              },
+              "averageWavesCompleted": 10.666666666666666,
+              "averageBiomesCompleted": 3.3333333333333335,
+              "averageGoldBalance": 500.3333333333333
+            },
+            {
+              "augmentId": "bulwark",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 14.5,
+              "averageBiomesCompleted": 4.5,
+              "averageGoldBalance": 688
+            },
+            {
+              "augmentId": "critical_focus",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 8,
+              "averageBiomesCompleted": 4,
+              "averageGoldBalance": 454.5
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 7,
+              "wins": 0,
+              "selectionRate": 0.23333333333333334,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.35433043506668743
+              },
+              "averageWavesCompleted": 8.571428571428571,
+              "averageBiomesCompleted": 3.142857142857143,
+              "averageGoldBalance": 471.42857142857144
+            },
+            {
+              "augmentId": "glass_cannon",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 13,
+              "averageBiomesCompleted": 4,
+              "averageGoldBalance": 277
+            },
+            {
+              "augmentId": "golden_age",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 5,
+              "averageBiomesCompleted": 3,
+              "averageGoldBalance": 148
+            },
+            {
+              "augmentId": "golden_touch",
+              "cohortSampleSize": 30,
+              "sampleSize": 7,
+              "wins": 0,
+              "selectionRate": 0.23333333333333334,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.35433043506668743
+              },
+              "averageWavesCompleted": 9.285714285714286,
+              "averageBiomesCompleted": 3.5714285714285716,
+              "averageGoldBalance": 326.7142857142857
+            },
+            {
+              "augmentId": "iron_skin",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 9,
+              "averageBiomesCompleted": 3,
+              "averageGoldBalance": 304
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=normal|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "championCohorts": [
+            {
+              "championId": "Garen",
+              "cohortSampleSize": 30,
+              "sampleSize": 30,
+              "wins": 0,
+              "participationRate": 1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.11351339317396876
+              },
+              "averageFinalLevel": 4.666666666666667,
+              "averageKills": 10.6,
+              "averageDeaths": 1.0333333333333334,
+              "averageDamageDealt": 4119.5,
+              "averageHealingDone": 436.3,
+              "averageShieldingDone": 980.3
+            }
+          ],
+          "augmentCohorts": [
+            {
+              "augmentId": "arcane_mind",
+              "cohortSampleSize": 30,
+              "sampleSize": 13,
+              "wins": 0,
+              "selectionRate": 0.43333333333333335,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.22809537235419838
+              },
+              "averageWavesCompleted": 11.307692307692308,
+              "averageBiomesCompleted": 3.8461538461538463,
+              "averageGoldBalance": 348.15384615384613
+            },
+            {
+              "augmentId": "battle_hardened",
+              "cohortSampleSize": 30,
+              "sampleSize": 5,
+              "wins": 0,
+              "selectionRate": 0.16666666666666666,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.43448246478317476
+              },
+              "averageWavesCompleted": 13,
+              "averageBiomesCompleted": 4.6,
+              "averageGoldBalance": 416
+            },
+            {
+              "augmentId": "brute_force",
+              "cohortSampleSize": 30,
+              "sampleSize": 6,
+              "wins": 0,
+              "selectionRate": 0.2,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 2.7755575615628914e-17,
+                "upper": 0.3903342879021653
+              },
+              "averageWavesCompleted": 12.833333333333334,
+              "averageBiomesCompleted": 4,
+              "averageGoldBalance": 337.8333333333333
+            },
+            {
+              "augmentId": "bulwark",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 0,
+              "selectionRate": 0.1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.5614970317550454
+              },
+              "averageWavesCompleted": 10.333333333333334,
+              "averageBiomesCompleted": 4,
+              "averageGoldBalance": 298.6666666666667
+            },
+            {
+              "augmentId": "critical_focus",
+              "cohortSampleSize": 30,
+              "sampleSize": 3,
+              "wins": 0,
+              "selectionRate": 0.1,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 5.551115123125783e-17,
+                "upper": 0.5614970317550454
+              },
+              "averageWavesCompleted": 12.333333333333334,
+              "averageBiomesCompleted": 4.666666666666667,
+              "averageGoldBalance": 504
+            },
+            {
+              "augmentId": "divine_blessing",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 13,
+              "averageBiomesCompleted": 5,
+              "averageGoldBalance": 542
+            },
+            {
+              "augmentId": "field_medic",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 12,
+              "averageBiomesCompleted": 5,
+              "averageGoldBalance": 272
+            },
+            {
+              "augmentId": "fortune",
+              "cohortSampleSize": 30,
+              "sampleSize": 10,
+              "wins": 0,
+              "selectionRate": 0.3333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.2775327998628892
+              },
+              "averageWavesCompleted": 11.3,
+              "averageBiomesCompleted": 4.1,
+              "averageGoldBalance": 421.7
+            },
+            {
+              "augmentId": "glass_cannon",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 18,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 647
+            },
+            {
+              "augmentId": "golden_age",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 5,
+              "averageBiomesCompleted": 2.5,
+              "averageGoldBalance": 209
+            },
+            {
+              "augmentId": "golden_touch",
+              "cohortSampleSize": 30,
+              "sampleSize": 11,
+              "wins": 0,
+              "selectionRate": 0.36666666666666664,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.2588329669680317
+              },
+              "averageWavesCompleted": 10.545454545454545,
+              "averageBiomesCompleted": 3.909090909090909,
+              "averageGoldBalance": 345.27272727272725
+            },
+            {
+              "augmentId": "iron_skin",
+              "cohortSampleSize": 30,
+              "sampleSize": 2,
+              "wins": 0,
+              "selectionRate": 0.06666666666666667,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.6576197724933469
+              },
+              "averageWavesCompleted": 14.5,
+              "averageBiomesCompleted": 4.5,
+              "averageGoldBalance": 420.5
+            },
+            {
+              "augmentId": "swift_feet",
+              "cohortSampleSize": 30,
+              "sampleSize": 1,
+              "wins": 0,
+              "selectionRate": 0.03333333333333333,
+              "winRate": 0,
+              "winRateWilson95": {
+                "confidence": 0.95,
+                "lower": 0,
+                "upper": 0.7934506856227626
+              },
+              "averageWavesCompleted": 16,
+              "averageBiomesCompleted": 6,
+              "averageGoldBalance": 422
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

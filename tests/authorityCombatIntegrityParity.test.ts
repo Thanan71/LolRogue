@@ -99,16 +99,16 @@ describe('combat integrity source / Edge bundle parity', () => {
       result: { snapshot: { team: [{ championId: 'Ashe', currentMp: 916 }] } },
     });
     expect(first.result.combatSummaries[0]).toMatchObject({
-      metrics: { bySide: { player: { manaSpent: 30 } } },
+      metrics: { bySide: { player: { manaSpent: 60 } } },
       playerTeam: {
         initial: [{ currentMp: 840 }],
-        final: [{ currentMp: 810 }],
+        final: [{ currentMp: 780 }],
       },
       playerAfterEncounter: [{ currentMp: 840 }],
     });
     expect(
       second.result.combatSummaries.map((summary) => summary.metrics.bySide.player.manaSpent),
-    ).toEqual([30, 30]);
+    ).toEqual([60, 30]);
   });
 
   it.each(['Ashe', 'Jinx', 'Leona', 'Malphite', 'Warwick'])(
@@ -160,7 +160,7 @@ describe('combat integrity source / Edge bundle parity', () => {
     if (!result.ok) throw new Error(JSON.stringify(result.error));
     expect(result).toMatchObject({
       ok: true,
-      result: { snapshot: { totalDamage: 184 } },
+      result: { snapshot: { totalDamage: 215 } },
     });
   });
 
@@ -169,7 +169,7 @@ describe('combat integrity source / Edge bundle parity', () => {
       ...MANA_ATTEMPT,
       runUuid: '77777777-7777-4777-8777-777777777777',
       seed: 7,
-      team: [{ championId: 'Jinx', statMultiplier: 2 }],
+      team: [{ championId: 'Jinx', statMultiplier: 1 }],
       runeIds: ['press_the_attack'],
       enhancementSnapshot: {
         Jinx: {
@@ -217,7 +217,7 @@ describe('combat integrity source / Edge bundle parity', () => {
     if (!result.ok) throw new Error(JSON.stringify(result.error));
     expect(result).toMatchObject({
       ok: true,
-      result: { snapshot: { totalDamage: 681 } },
+      result: { snapshot: { totalDamage: 834 } },
     });
     const elite = result.result.combatSummaries[2]!;
     expect(elite.enemyTeam.initial.map((enemy) => enemy.championId)).toEqual(['Darius']);
@@ -227,25 +227,28 @@ describe('combat integrity source / Edge bundle parity', () => {
     });
   });
 
-  it('loads archived v14 through v19 and current v20 only for their exact hashes', async () => {
+  it('loads archived v14 through v20 and current v21 only for their exact hashes', async () => {
     const v14 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v14');
     const v15 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v15');
     const v16 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v16');
     const v17 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v17');
     const v18 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v18');
     const v19 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v19');
+    const v20 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v20');
     expect(v14?.status).toBe('replay-only');
     expect(v15?.status).toBe('replay-only');
     expect(v16?.status).toBe('replay-only');
     expect(v17?.status).toBe('replay-only');
     expect(v18?.status).toBe('replay-only');
     expect(v19?.status).toBe('replay-only');
+    expect(v20?.status).toBe('replay-only');
     expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v15!.engine, v15!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v16!.engine, v16!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v17!.engine, v17!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v18!.engine, v18!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v19!.engine, v19!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v20!.engine, v20!.contentHash)).toBeDefined();
     expect(
       await resolveBundledAuthorityVerifier(AUTHORITY_ENGINE_VERSION, '0'.repeat(64)),
     ).toBeUndefined();

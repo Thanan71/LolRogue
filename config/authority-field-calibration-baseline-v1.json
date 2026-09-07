@@ -1,0 +1,1073 @@
+{
+  "schemaVersion": 2,
+  "entries": {
+    "engine=run-engine-v21|content=9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6|model=1|policy=safety-first@1": {
+      "identity": {
+        "engineVersion": "run-engine-v21",
+        "contentHash": "9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6",
+        "balanceModelVersion": 1,
+        "policy": {
+          "id": "safety-first",
+          "version": 1
+        }
+      },
+      "source": {
+        "kind": "authority-cohort-matrix",
+        "seeds": [
+          147926525, 295853050, 387276917, 535203442, 774553834, 922480359, 1013904226, 1161830751,
+          1309757276, 1401181143, 1549107668, 1788458060, 1936384585, 2027808452, 2175734977,
+          2323661502, 2415085369, 2563011894, 2654435761, 2802362286, 2950288811, 3041712678,
+          3189639203, 3428989595, 3576916120, 3668339987, 3816266512, 3964193037, 4055616904,
+          4203543429
+        ],
+        "cellCount": 3
+      },
+      "reports": [
+        {
+          "scenarioId": "difficulty=easy|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "stratumFingerprint": "4567a4ba77103bf14a0cce1b6a40299f",
+          "sampleSize": 30,
+          "metrics": {
+            "outcome.winRate": 0.16666666666666666,
+            "progression.waves.p10": 7.9,
+            "progression.waves.p50": 15,
+            "progression.waves.p90": 19.1,
+            "progression.biomes.p10": 2.9000000000000004,
+            "progression.biomes.p50": 6,
+            "progression.biomes.p90": 6,
+            "progression.rounds.p10": 68.80000000000001,
+            "progression.rounds.p50": 108.5,
+            "progression.rounds.p90": 131.3,
+            "deaths.rate": 0.8333333333333334,
+            "deaths.unattributedRate": 0,
+            "resources.hp.initialMeanRatio": 0.8215568977544615,
+            "resources.hp.finalMeanRatio": 0.702177886982838,
+            "resources.mp.initialMeanRatio": 0.772718582833384,
+            "resources.mp.finalMeanRatio": 0.38371787437661775,
+            "combat.encountersPerRun": 15.1,
+            "combat.roundsPerRun": 103.9,
+            "combat.player.hpDamagePerRound": 97.54513995830918,
+            "combat.player.shieldDamagePerRound": 5.107154315046519,
+            "combat.player.healingPerRound": 10.358325312800769,
+            "combat.player.crowdControlApplicationsPerRound": 0.53609239653513,
+            "combat.player.crowdControlDurationPerRound": 1.0243824189926212,
+            "combat.player.actionsLostPerRound": 0.09624639076034648,
+            "combat.player.actionsSuppressedPerRound": 0.0381777350016041,
+            "combat.enemy.hpDamagePerRound": 39.66297722168753,
+            "combat.enemy.shieldDamagePerRound": 11.51106833493744,
+            "combat.enemy.healingPerRound": 4.640359319858838,
+            "combat.enemy.crowdControlApplicationsPerRound": 0.4661533525826115,
+            "combat.enemy.crowdControlDurationPerRound": 0.8123195380173244,
+            "combat.enemy.actionsLostPerRound": 0.0381777350016041,
+            "combat.enemy.actionsSuppressedPerRound": 0.09624639076034648,
+            "economy.goldEarned.p10": 346.8,
+            "economy.goldEarned.p50": 656.5,
+            "economy.goldEarned.p90": 1171,
+            "economy.goldEarned.mean": 689.9,
+            "economy.goldSpent.p10": 109,
+            "economy.goldSpent.p50": 467.5,
+            "economy.goldSpent.p90": 719.0000000000002,
+            "economy.goldSpent.mean": 447.1666666666667,
+            "economy.finalGold.p10": 65.3,
+            "economy.finalGold.p50": 206.5,
+            "economy.finalGold.p90": 412.50000000000017,
+            "economy.finalGold.mean": 242.73333333333332,
+            "shops.visitsPerRun": 1.7,
+            "shops.visitsWithAnyAffordableOfferRate": 0.7843137254901961,
+            "shops.allOffers.affordableRate": 0.3246753246753247,
+            "shops.itemOffers.affordableRate": 0.40397350993377484,
+            "shops.recruitOffers.affordableRate": 0.175,
+            "purchases.commandsPerRun": 1.2,
+            "purchases.completionRate": 1,
+            "purchases.goldSpentPerRun": 75.66666666666667,
+            "recruitments.commandsPerRun": 0.8666666666666667,
+            "recruitments.successRate": 0.8461538461538461,
+            "recruitments.eventRecruitsPerRun": 0.13333333333333333,
+            "recruitments.goldSpentPerRun": 122.16666666666667,
+            "drops.totalPerRun": 3.1333333333333333,
+            "drops.unknownItemsPerRun": 0,
+            "drops.blockedByCapacityPerRun": 0,
+            "drops.rarity.commonPerRun": 1.9666666666666666,
+            "drops.rarity.uncommonPerRun": 0.6,
+            "drops.rarity.rarePerRun": 0,
+            "drops.rarity.epicPerRun": 0.3333333333333333,
+            "drops.rarity.legendaryPerRun": 0.23333333333333334,
+            "drops.tier.1PerRun": 2.566666666666667,
+            "drops.tier.2PerRun": 0.5666666666666667,
+            "drops.tier.3PerRun": 0,
+            "augments.choicesPerRun": 4.2,
+            "augments.unknownChoicesPerRun": 0,
+            "augments.tier.silverPerRun": 3.066666666666667,
+            "augments.tier.goldPerRun": 0.8333333333333334,
+            "augments.tier.prismaticPerRun": 0.3,
+            "combat.player.shieldingAbsorbedPerRound": 12.522938723131215,
+            "combat.player.manaSpentPerRound": 13.262752646775747,
+            "combat.enemy.shieldingAbsorbedPerRound": 4.095283926852743,
+            "combat.enemy.manaSpentPerRound": 27.447866538338147
+          },
+          "deathLocations": [
+            {
+              "biome": "top_lane",
+              "encounterId": "top_garen",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_monster_camp_elite",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_warwick",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_arcane_lockdown",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_duo_lane",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team_elite",
+              "count": 2,
+              "share": 0.08
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_inhibitor_defense",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_last_stand",
+              "count": 8,
+              "share": 0.32
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians",
+              "count": 2,
+              "share": 0.08
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_boss",
+              "count": 4,
+              "share": 0.16
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_elite",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_turret_guardian",
+              "count": 1,
+              "share": 0.04
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=hard|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "stratumFingerprint": "71373e3dda2b7528d83fd0307003b1ca",
+          "sampleSize": 30,
+          "metrics": {
+            "outcome.winRate": 0.16666666666666666,
+            "progression.waves.p10": 0,
+            "progression.waves.p50": 12,
+            "progression.waves.p90": 19,
+            "progression.biomes.p10": 1,
+            "progression.biomes.p50": 5,
+            "progression.biomes.p90": 6,
+            "progression.rounds.p10": 12,
+            "progression.rounds.p50": 107.5,
+            "progression.rounds.p90": 148.4,
+            "deaths.rate": 0.8333333333333334,
+            "deaths.unattributedRate": 0,
+            "resources.hp.initialMeanRatio": 0.821555254020576,
+            "resources.hp.finalMeanRatio": 0.6751349949729566,
+            "resources.mp.initialMeanRatio": 0.7211255327201384,
+            "resources.mp.finalMeanRatio": 0.3075743718301945,
+            "combat.encountersPerRun": 11.3,
+            "combat.roundsPerRun": 91.03333333333333,
+            "combat.player.hpDamagePerRound": 114.11912717151229,
+            "combat.player.shieldDamagePerRound": 5.918711094837056,
+            "combat.player.healingPerRound": 11.515305748809958,
+            "combat.player.crowdControlApplicationsPerRound": 0.6114976199194434,
+            "combat.player.crowdControlDurationPerRound": 1.1380446722812156,
+            "combat.player.actionsLostPerRound": 0.09154155986818015,
+            "combat.player.actionsSuppressedPerRound": 0.05931893079458074,
+            "combat.enemy.hpDamagePerRound": 44.61728304650312,
+            "combat.enemy.shieldDamagePerRound": 13.608934456243134,
+            "combat.enemy.healingPerRound": 3.5056755767118273,
+            "combat.enemy.crowdControlApplicationsPerRound": 0.4459904796777737,
+            "combat.enemy.crowdControlDurationPerRound": 0.779934090076895,
+            "combat.enemy.actionsLostPerRound": 0.05931893079458074,
+            "combat.enemy.actionsSuppressedPerRound": 0.09154155986818015,
+            "economy.goldEarned.p10": 0,
+            "economy.goldEarned.p50": 578,
+            "economy.goldEarned.p90": 1252.3,
+            "economy.goldEarned.mean": 624.9333333333333,
+            "economy.goldSpent.p10": 0,
+            "economy.goldSpent.p50": 382.5,
+            "economy.goldSpent.p90": 814.5000000000001,
+            "economy.goldSpent.mean": 403.6666666666667,
+            "economy.finalGold.p10": 0,
+            "economy.finalGold.p50": 188,
+            "economy.finalGold.p90": 475.20000000000005,
+            "economy.finalGold.mean": 221.26666666666668,
+            "shops.visitsPerRun": 1.2,
+            "shops.visitsWithAnyAffordableOfferRate": 0.8055555555555556,
+            "shops.allOffers.affordableRate": 0.3473053892215569,
+            "shops.itemOffers.affordableRate": 0.39814814814814814,
+            "shops.recruitOffers.affordableRate": 0.2542372881355932,
+            "purchases.commandsPerRun": 0.8333333333333334,
+            "purchases.completionRate": 1,
+            "purchases.goldSpentPerRun": 56.166666666666664,
+            "recruitments.commandsPerRun": 0.9,
+            "recruitments.successRate": 0.8888888888888888,
+            "recruitments.eventRecruitsPerRun": 0.13333333333333333,
+            "recruitments.goldSpentPerRun": 139.16666666666666,
+            "drops.totalPerRun": 2.433333333333333,
+            "drops.unknownItemsPerRun": 0,
+            "drops.blockedByCapacityPerRun": 0,
+            "drops.rarity.commonPerRun": 1.5666666666666667,
+            "drops.rarity.uncommonPerRun": 0.4,
+            "drops.rarity.rarePerRun": 0,
+            "drops.rarity.epicPerRun": 0.26666666666666666,
+            "drops.rarity.legendaryPerRun": 0.2,
+            "drops.tier.1PerRun": 1.9666666666666666,
+            "drops.tier.2PerRun": 0.4666666666666667,
+            "drops.tier.3PerRun": 0,
+            "augments.choicesPerRun": 3.033333333333333,
+            "augments.unknownChoicesPerRun": 0,
+            "augments.tier.silverPerRun": 2.1666666666666665,
+            "augments.tier.goldPerRun": 0.6,
+            "augments.tier.prismaticPerRun": 0.26666666666666666,
+            "combat.player.shieldingAbsorbedPerRound": 14.942511900402783,
+            "combat.player.manaSpentPerRound": 17.138410838520688,
+            "combat.enemy.shieldingAbsorbedPerRound": 4.585133650677408,
+            "combat.enemy.manaSpentPerRound": 24.818747711461004
+          },
+          "deathLocations": [
+            {
+              "biome": "top_lane",
+              "encounterId": "top_darius",
+              "count": 6,
+              "share": 0.24
+            },
+            {
+              "biome": "top_lane",
+              "encounterId": "top_garen",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush_elite",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_scuttle_elite",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_mage_duel",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_mage_duel_elite",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_frozen_vanguard_elite",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team_elite",
+              "count": 1,
+              "share": 0.04
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_last_stand",
+              "count": 4,
+              "share": 0.16
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians",
+              "count": 2,
+              "share": 0.08
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_boss",
+              "count": 2,
+              "share": 0.08
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_elite",
+              "count": 2,
+              "share": 0.08
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=normal|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=safety-first@1",
+          "stratumFingerprint": "02337473fbdfb38d5fd57a3255f16ccb",
+          "sampleSize": 30,
+          "metrics": {
+            "outcome.winRate": 0.13333333333333333,
+            "progression.waves.p10": 1,
+            "progression.waves.p50": 14,
+            "progression.waves.p90": 19.1,
+            "progression.biomes.p10": 1,
+            "progression.biomes.p50": 6,
+            "progression.biomes.p90": 6,
+            "progression.rounds.p10": 18,
+            "progression.rounds.p50": 117.5,
+            "progression.rounds.p90": 139,
+            "deaths.rate": 0.8666666666666667,
+            "deaths.unattributedRate": 0,
+            "resources.hp.initialMeanRatio": 0.8035448739092597,
+            "resources.hp.finalMeanRatio": 0.6755532744646656,
+            "resources.mp.initialMeanRatio": 0.7164518682645868,
+            "resources.mp.finalMeanRatio": 0.32069964250909067,
+            "combat.encountersPerRun": 13.6,
+            "combat.roundsPerRun": 99.63333333333334,
+            "combat.player.hpDamagePerRound": 105.29036763014379,
+            "combat.player.shieldDamagePerRound": 5.220140515222482,
+            "combat.player.healingPerRound": 11.174372699899632,
+            "combat.player.crowdControlApplicationsPerRound": 0.5774506523921044,
+            "combat.player.crowdControlDurationPerRound": 1.1027099364335897,
+            "combat.player.actionsLostPerRound": 0.09534961525593844,
+            "combat.player.actionsSuppressedPerRound": 0.04182000669120107,
+            "combat.enemy.hpDamagePerRound": 42.64078287052526,
+            "combat.enemy.shieldDamagePerRound": 12.361659417865507,
+            "combat.enemy.healingPerRound": 4.479089996654399,
+            "combat.enemy.crowdControlApplicationsPerRound": 0.47641351622616257,
+            "combat.enemy.crowdControlDurationPerRound": 0.8327199732351958,
+            "combat.enemy.actionsLostPerRound": 0.04182000669120107,
+            "combat.enemy.actionsSuppressedPerRound": 0.09534961525593844,
+            "economy.goldEarned.p10": 25,
+            "economy.goldEarned.p50": 654,
+            "economy.goldEarned.p90": 1130.0000000000002,
+            "economy.goldEarned.mean": 657.4,
+            "economy.goldSpent.p10": 0,
+            "economy.goldSpent.p50": 440,
+            "economy.goldSpent.p90": 775.5,
+            "economy.goldSpent.mean": 429.5,
+            "economy.finalGold.p10": 25,
+            "economy.finalGold.p50": 203.5,
+            "economy.finalGold.p90": 449.4,
+            "economy.finalGold.mean": 227.9,
+            "shops.visitsPerRun": 1.5666666666666667,
+            "shops.visitsWithAnyAffordableOfferRate": 0.7021276595744681,
+            "shops.allOffers.affordableRate": 0.3142857142857143,
+            "shops.itemOffers.affordableRate": 0.36231884057971014,
+            "shops.recruitOffers.affordableRate": 0.2222222222222222,
+            "purchases.commandsPerRun": 0.9666666666666667,
+            "purchases.completionRate": 1,
+            "purchases.goldSpentPerRun": 57.333333333333336,
+            "recruitments.commandsPerRun": 1,
+            "recruitments.successRate": 0.8666666666666667,
+            "recruitments.eventRecruitsPerRun": 0.13333333333333333,
+            "recruitments.goldSpentPerRun": 149.83333333333334,
+            "drops.totalPerRun": 2.8,
+            "drops.unknownItemsPerRun": 0,
+            "drops.blockedByCapacityPerRun": 0,
+            "drops.rarity.commonPerRun": 1.8,
+            "drops.rarity.uncommonPerRun": 0.5666666666666667,
+            "drops.rarity.rarePerRun": 0,
+            "drops.rarity.epicPerRun": 0.23333333333333334,
+            "drops.rarity.legendaryPerRun": 0.2,
+            "drops.tier.1PerRun": 2.3666666666666667,
+            "drops.tier.2PerRun": 0.43333333333333335,
+            "drops.tier.3PerRun": 0,
+            "augments.choicesPerRun": 3.7,
+            "augments.unknownChoicesPerRun": 0,
+            "augments.tier.silverPerRun": 2.6,
+            "augments.tier.goldPerRun": 0.8,
+            "augments.tier.prismaticPerRun": 0.3,
+            "combat.player.shieldingAbsorbedPerRound": 13.38541318166611,
+            "combat.player.manaSpentPerRound": 15.925058548009368,
+            "combat.enemy.shieldingAbsorbedPerRound": 4.196386751421881,
+            "combat.enemy.manaSpentPerRound": 27.00066912010706
+          },
+          "deathLocations": [
+            {
+              "biome": "top_lane",
+              "encounterId": "top_darius",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "top_lane",
+              "encounterId": "top_garen",
+              "count": 2,
+              "share": 0.07692307692307693
+            },
+            {
+              "biome": "top_lane",
+              "encounterId": "top_warwick",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "top_lane",
+              "encounterId": "top_warwick_elite",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_mage_duel_elite",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_frozen_vanguard_elite",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team_elite",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "river",
+              "encounterId": "river_guardian_current",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_inhibitor_defense",
+              "count": 1,
+              "share": 0.038461538461538464
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_last_stand",
+              "count": 6,
+              "share": 0.23076923076923078
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians",
+              "count": 2,
+              "share": 0.07692307692307693
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_boss",
+              "count": 5,
+              "share": 0.19230769230769232
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_elite",
+              "count": 1,
+              "share": 0.038461538461538464
+            }
+          ]
+        }
+      ]
+    },
+    "engine=run-engine-v21|content=9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6|model=1|policy=economy-first@1": {
+      "identity": {
+        "engineVersion": "run-engine-v21",
+        "contentHash": "9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6",
+        "balanceModelVersion": 1,
+        "policy": {
+          "id": "economy-first",
+          "version": 1
+        }
+      },
+      "source": {
+        "kind": "authority-cohort-matrix",
+        "seeds": [
+          147926525, 295853050, 387276917, 535203442, 774553834, 922480359, 1013904226, 1161830751,
+          1309757276, 1401181143, 1549107668, 1788458060, 1936384585, 2027808452, 2175734977,
+          2323661502, 2415085369, 2563011894, 2654435761, 2802362286, 2950288811, 3041712678,
+          3189639203, 3428989595, 3576916120, 3668339987, 3816266512, 3964193037, 4055616904,
+          4203543429
+        ],
+        "cellCount": 3
+      },
+      "reports": [
+        {
+          "scenarioId": "difficulty=easy|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "stratumFingerprint": "ad2481d1987ae68d504a85ecf8511daf",
+          "sampleSize": 30,
+          "metrics": {
+            "outcome.winRate": 0.03333333333333333,
+            "progression.waves.p10": 4.9,
+            "progression.waves.p50": 11,
+            "progression.waves.p90": 18.1,
+            "progression.biomes.p10": 2,
+            "progression.biomes.p50": 4,
+            "progression.biomes.p90": 6,
+            "progression.rounds.p10": 42.6,
+            "progression.rounds.p50": 81,
+            "progression.rounds.p90": 114.9,
+            "deaths.rate": 0.9666666666666667,
+            "deaths.unattributedRate": 0,
+            "resources.hp.initialMeanRatio": 0.5763198138118766,
+            "resources.hp.finalMeanRatio": 0.4952120714163427,
+            "resources.mp.initialMeanRatio": 0.6177567801519643,
+            "resources.mp.finalMeanRatio": 0.3196560888407756,
+            "combat.encountersPerRun": 12.7,
+            "combat.roundsPerRun": 79.16666666666667,
+            "combat.player.hpDamagePerRound": 85.08445251138944,
+            "combat.player.shieldDamagePerRound": 3.832,
+            "combat.player.healingPerRound": 10.769263157894736,
+            "combat.player.crowdControlApplicationsPerRound": 0.42905263157894735,
+            "combat.player.crowdControlDurationPerRound": 0.8454736842105263,
+            "combat.player.actionsLostPerRound": 0.06315789473684211,
+            "combat.player.actionsSuppressedPerRound": 0.02273684210526316,
+            "combat.enemy.hpDamagePerRound": 28.2576,
+            "combat.enemy.shieldDamagePerRound": 14.403368421052631,
+            "combat.enemy.healingPerRound": 4.243368421052631,
+            "combat.enemy.crowdControlApplicationsPerRound": 0.36336842105263156,
+            "combat.enemy.crowdControlDurationPerRound": 0.648,
+            "combat.enemy.actionsLostPerRound": 0.02273684210526316,
+            "combat.enemy.actionsSuppressedPerRound": 0.06315789473684211,
+            "economy.goldEarned.p10": 203.4,
+            "economy.goldEarned.p50": 619,
+            "economy.goldEarned.p90": 1196.9000000000003,
+            "economy.goldEarned.mean": 690,
+            "economy.goldSpent.p10": 0,
+            "economy.goldSpent.p50": 217.5,
+            "economy.goldSpent.p90": 452.50000000000006,
+            "economy.goldSpent.mean": 241.53333333333333,
+            "economy.finalGold.p10": 146.8,
+            "economy.finalGold.p50": 298.5,
+            "economy.finalGold.p90": 909.4000000000001,
+            "economy.finalGold.mean": 448.46666666666664,
+            "shops.visitsPerRun": 1.6333333333333333,
+            "shops.visitsWithAnyAffordableOfferRate": 0.8571428571428571,
+            "shops.allOffers.affordableRate": 0.6375545851528385,
+            "shops.itemOffers.affordableRate": 0.6533333333333333,
+            "shops.recruitOffers.affordableRate": 0.6075949367088608,
+            "purchases.commandsPerRun": 1.6666666666666667,
+            "purchases.completionRate": 1,
+            "purchases.goldSpentPerRun": 140.36666666666667,
+            "recruitments.commandsPerRun": 0.7,
+            "recruitments.successRate": 0.8095238095238095,
+            "recruitments.eventRecruitsPerRun": 0.16666666666666666,
+            "recruitments.goldSpentPerRun": 101.16666666666667,
+            "drops.totalPerRun": 2.066666666666667,
+            "drops.unknownItemsPerRun": 0,
+            "drops.blockedByCapacityPerRun": 0,
+            "drops.rarity.commonPerRun": 1.3666666666666667,
+            "drops.rarity.uncommonPerRun": 0.5,
+            "drops.rarity.rarePerRun": 0,
+            "drops.rarity.epicPerRun": 0.16666666666666666,
+            "drops.rarity.legendaryPerRun": 0.03333333333333333,
+            "drops.tier.1PerRun": 1.8666666666666667,
+            "drops.tier.2PerRun": 0.2,
+            "drops.tier.3PerRun": 0,
+            "augments.choicesPerRun": 3.1,
+            "augments.unknownChoicesPerRun": 0,
+            "augments.tier.silverPerRun": 2.066666666666667,
+            "augments.tier.goldPerRun": 0.8666666666666667,
+            "augments.tier.prismaticPerRun": 0.16666666666666666,
+            "combat.player.shieldingAbsorbedPerRound": 15.115789473684211,
+            "combat.player.manaSpentPerRound": 10.136842105263158,
+            "combat.enemy.shieldingAbsorbedPerRound": 3.1195789473684212,
+            "combat.enemy.manaSpentPerRound": 24.534736842105264
+          },
+          "deathLocations": [
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush",
+              "count": 2,
+              "share": 0.06896551724137931
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush_elite",
+              "count": 2,
+              "share": 0.06896551724137931
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_warwick",
+              "count": 2,
+              "share": 0.06896551724137931
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_arcane_lockdown_elite",
+              "count": 2,
+              "share": 0.06896551724137931
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_mage_duel",
+              "count": 2,
+              "share": 0.06896551724137931
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_mage_duel_elite",
+              "count": 1,
+              "share": 0.034482758620689655
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_duo_lane",
+              "count": 1,
+              "share": 0.034482758620689655
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_frozen_vanguard_elite",
+              "count": 1,
+              "share": 0.034482758620689655
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team",
+              "count": 5,
+              "share": 0.1724137931034483
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team_elite",
+              "count": 1,
+              "share": 0.034482758620689655
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_last_stand",
+              "count": 4,
+              "share": 0.13793103448275862
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians",
+              "count": 2,
+              "share": 0.06896551724137931
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_boss",
+              "count": 3,
+              "share": 0.10344827586206896
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_turret_guardian",
+              "count": 1,
+              "share": 0.034482758620689655
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=hard|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "stratumFingerprint": "9a06c6ff693e28f701926fd206cc59b9",
+          "sampleSize": 30,
+          "metrics": {
+            "outcome.winRate": 0,
+            "progression.waves.p10": 0,
+            "progression.waves.p50": 5,
+            "progression.waves.p90": 13,
+            "progression.biomes.p10": 1,
+            "progression.biomes.p50": 2,
+            "progression.biomes.p90": 4.100000000000001,
+            "progression.rounds.p10": 12,
+            "progression.rounds.p50": 47.5,
+            "progression.rounds.p90": 88.90000000000003,
+            "deaths.rate": 1,
+            "deaths.unattributedRate": 0,
+            "resources.hp.initialMeanRatio": 0.5630819155092274,
+            "resources.hp.finalMeanRatio": 0.434327450350355,
+            "resources.mp.initialMeanRatio": 0.5355139404061702,
+            "resources.mp.finalMeanRatio": 0.268263398214214,
+            "combat.encountersPerRun": 6.5,
+            "combat.roundsPerRun": 48.3,
+            "combat.player.hpDamagePerRound": 73.9838510082816,
+            "combat.player.shieldDamagePerRound": 4.013802622498274,
+            "combat.player.healingPerRound": 5.45272601794341,
+            "combat.player.crowdControlApplicationsPerRound": 0.39268461007591443,
+            "combat.player.crowdControlDurationPerRound": 0.7660455486542443,
+            "combat.player.actionsLostPerRound": 0.04071773636991028,
+            "combat.player.actionsSuppressedPerRound": 0.00966183574879227,
+            "combat.enemy.hpDamagePerRound": 24.816425120772948,
+            "combat.enemy.shieldDamagePerRound": 14.229813664596273,
+            "combat.enemy.healingPerRound": 3.8944099378881987,
+            "combat.enemy.crowdControlApplicationsPerRound": 0.21187025534851622,
+            "combat.enemy.crowdControlDurationPerRound": 0.388543823326432,
+            "combat.enemy.actionsLostPerRound": 0.00966183574879227,
+            "combat.enemy.actionsSuppressedPerRound": 0.04071773636991028,
+            "economy.goldEarned.p10": 0,
+            "economy.goldEarned.p50": 196,
+            "economy.goldEarned.p90": 533.7000000000004,
+            "economy.goldEarned.mean": 281.8333333333333,
+            "economy.goldSpent.p10": 0,
+            "economy.goldSpent.p50": 0,
+            "economy.goldSpent.p90": 247.00000000000023,
+            "economy.goldSpent.mean": 60.666666666666664,
+            "economy.finalGold.p10": 0,
+            "economy.finalGold.p50": 188.5,
+            "economy.finalGold.p90": 369.7,
+            "economy.finalGold.mean": 221.16666666666666,
+            "shops.visitsPerRun": 0.5333333333333333,
+            "shops.visitsWithAnyAffordableOfferRate": 0.75,
+            "shops.allOffers.affordableRate": 0.5324675324675324,
+            "shops.itemOffers.affordableRate": 0.5625,
+            "shops.recruitOffers.affordableRate": 0.4827586206896552,
+            "purchases.commandsPerRun": 0.43333333333333335,
+            "purchases.completionRate": 1,
+            "purchases.goldSpentPerRun": 34.666666666666664,
+            "recruitments.commandsPerRun": 0.2,
+            "recruitments.successRate": 0.8333333333333334,
+            "recruitments.eventRecruitsPerRun": 0.06666666666666667,
+            "recruitments.goldSpentPerRun": 26,
+            "drops.totalPerRun": 0.6666666666666666,
+            "drops.unknownItemsPerRun": 0,
+            "drops.blockedByCapacityPerRun": 0,
+            "drops.rarity.commonPerRun": 0.4666666666666667,
+            "drops.rarity.uncommonPerRun": 0.06666666666666667,
+            "drops.rarity.rarePerRun": 0,
+            "drops.rarity.epicPerRun": 0.1,
+            "drops.rarity.legendaryPerRun": 0.03333333333333333,
+            "drops.tier.1PerRun": 0.5333333333333333,
+            "drops.tier.2PerRun": 0.13333333333333333,
+            "drops.tier.3PerRun": 0,
+            "augments.choicesPerRun": 1.3,
+            "augments.unknownChoicesPerRun": 0,
+            "augments.tier.silverPerRun": 0.8666666666666667,
+            "augments.tier.goldPerRun": 0.4,
+            "augments.tier.prismaticPerRun": 0.03333333333333333,
+            "combat.player.shieldingAbsorbedPerRound": 16.020013802622497,
+            "combat.player.manaSpentPerRound": 5.54520358868185,
+            "combat.enemy.shieldingAbsorbedPerRound": 2.2236024844720497,
+            "combat.enemy.manaSpentPerRound": 15.717736369910282
+          },
+          "deathLocations": [
+            {
+              "biome": "top_lane",
+              "encounterId": "top_darius",
+              "count": 6,
+              "share": 0.2
+            },
+            {
+              "biome": "top_lane",
+              "encounterId": "top_warwick",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush",
+              "count": 10,
+              "share": 0.3333333333333333
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush_elite",
+              "count": 3,
+              "share": 0.1
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_monster_camp_elite",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_warwick",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_warwick_elite",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_arcane_lockdown",
+              "count": 2,
+              "share": 0.06666666666666667
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_arcane_lockdown_elite",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "river",
+              "encounterId": "river_guardian_current",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_boss",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_turret_guardian",
+              "count": 1,
+              "share": 0.03333333333333333
+            }
+          ]
+        },
+        {
+          "scenarioId": "difficulty=normal|team=solo-garen|size=1|mastery=none|runes=none|enhancements=none|policy=economy-first@1",
+          "stratumFingerprint": "b1d250d174da4e5b8075bbbeedf8869b",
+          "sampleSize": 30,
+          "metrics": {
+            "outcome.winRate": 0,
+            "progression.waves.p10": 3.9000000000000004,
+            "progression.waves.p50": 8,
+            "progression.waves.p90": 18,
+            "progression.biomes.p10": 2,
+            "progression.biomes.p50": 3,
+            "progression.biomes.p90": 6,
+            "progression.rounds.p10": 31.8,
+            "progression.rounds.p50": 63.5,
+            "progression.rounds.p90": 114.80000000000001,
+            "deaths.rate": 1,
+            "deaths.unattributedRate": 0,
+            "resources.hp.initialMeanRatio": 0.5520121037983015,
+            "resources.hp.finalMeanRatio": 0.44770137520603326,
+            "resources.mp.initialMeanRatio": 0.5771228031753478,
+            "resources.mp.finalMeanRatio": 0.27170085434616653,
+            "combat.encountersPerRun": 9.733333333333333,
+            "combat.roundsPerRun": 66.96666666666667,
+            "combat.player.hpDamagePerRound": 77.91911686187157,
+            "combat.player.shieldDamagePerRound": 3.498755599800896,
+            "combat.player.healingPerRound": 9.740866102538577,
+            "combat.player.crowdControlApplicationsPerRound": 0.39123942259830763,
+            "combat.player.crowdControlDurationPerRound": 0.766052762568442,
+            "combat.player.actionsLostPerRound": 0.05425584868093579,
+            "combat.player.actionsSuppressedPerRound": 0.014932802389248382,
+            "combat.enemy.hpDamagePerRound": 27.367994026879046,
+            "combat.enemy.shieldDamagePerRound": 13.338476854156296,
+            "combat.enemy.healingPerRound": 4.648083623693379,
+            "combat.enemy.crowdControlApplicationsPerRound": 0.26231956197112993,
+            "combat.enemy.crowdControlDurationPerRound": 0.4683922349427576,
+            "combat.enemy.actionsLostPerRound": 0.014932802389248382,
+            "combat.enemy.actionsSuppressedPerRound": 0.05425584868093579,
+            "economy.goldEarned.p10": 95.7,
+            "economy.goldEarned.p50": 325,
+            "economy.goldEarned.p90": 966.9000000000001,
+            "economy.goldEarned.mean": 444.9,
+            "economy.goldSpent.p10": 0,
+            "economy.goldSpent.p50": 50,
+            "economy.goldSpent.p90": 414.0000000000002,
+            "economy.goldSpent.mean": 159.66666666666666,
+            "economy.finalGold.p10": 95.7,
+            "economy.finalGold.p50": 262,
+            "economy.finalGold.p90": 545.1,
+            "economy.finalGold.mean": 285.23333333333335,
+            "shops.visitsPerRun": 1.2,
+            "shops.visitsWithAnyAffordableOfferRate": 0.8333333333333334,
+            "shops.allOffers.affordableRate": 0.6036585365853658,
+            "shops.itemOffers.affordableRate": 0.6346153846153846,
+            "shops.recruitOffers.affordableRate": 0.55,
+            "purchases.commandsPerRun": 1.1,
+            "purchases.completionRate": 1,
+            "purchases.goldSpentPerRun": 96.33333333333333,
+            "recruitments.commandsPerRun": 0.4,
+            "recruitments.successRate": 0.9166666666666666,
+            "recruitments.eventRecruitsPerRun": 0.1,
+            "recruitments.goldSpentPerRun": 63.333333333333336,
+            "drops.totalPerRun": 1.2666666666666666,
+            "drops.unknownItemsPerRun": 0,
+            "drops.blockedByCapacityPerRun": 0,
+            "drops.rarity.commonPerRun": 1,
+            "drops.rarity.uncommonPerRun": 0.2,
+            "drops.rarity.rarePerRun": 0,
+            "drops.rarity.epicPerRun": 0.06666666666666667,
+            "drops.rarity.legendaryPerRun": 0,
+            "drops.tier.1PerRun": 1.2,
+            "drops.tier.2PerRun": 0.06666666666666667,
+            "drops.tier.3PerRun": 0,
+            "augments.choicesPerRun": 2.1666666666666665,
+            "augments.unknownChoicesPerRun": 0,
+            "augments.tier.silverPerRun": 1.4333333333333333,
+            "augments.tier.goldPerRun": 0.6333333333333333,
+            "augments.tier.prismaticPerRun": 0.1,
+            "combat.player.shieldingAbsorbedPerRound": 14.275261324041812,
+            "combat.player.manaSpentPerRound": 6.732205077152813,
+            "combat.enemy.shieldingAbsorbedPerRound": 2.561971129915381,
+            "combat.enemy.manaSpentPerRound": 19.718765555002488
+          },
+          "deathLocations": [
+            {
+              "biome": "top_lane",
+              "encounterId": "top_darius",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "top_lane",
+              "encounterId": "top_warwick",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush",
+              "count": 7,
+              "share": 0.23333333333333334
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_ambush_elite",
+              "count": 3,
+              "share": 0.1
+            },
+            {
+              "biome": "jungle",
+              "encounterId": "jungle_warwick",
+              "count": 2,
+              "share": 0.06666666666666667
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_arcane_lockdown",
+              "count": 2,
+              "share": 0.06666666666666667
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_arcane_lockdown_elite",
+              "count": 2,
+              "share": 0.06666666666666667
+            },
+            {
+              "biome": "mid_lane",
+              "encounterId": "mid_mage_duel",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_duo_lane",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_duo_lane_elite",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_frozen_vanguard",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "bot_lane",
+              "encounterId": "bot_full_team",
+              "count": 2,
+              "share": 0.06666666666666667
+            },
+            {
+              "biome": "river",
+              "encounterId": "river_elder_dragon",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_inhibitor_defense",
+              "count": 1,
+              "share": 0.03333333333333333
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_last_stand",
+              "count": 2,
+              "share": 0.06666666666666667
+            },
+            {
+              "biome": "base",
+              "encounterId": "base_nexus_guardians_boss",
+              "count": 2,
+              "share": 0.06666666666666667
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

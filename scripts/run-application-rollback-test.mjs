@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
-  assertAppendOnlyRollbackManifest,
+  assertRollbackCompatibleMigrationManifest,
   readCandidateMigrationVersions,
   readWorkspaceMigrationVersions,
 } from './lib/migration-manifest.mjs';
@@ -27,7 +27,7 @@ if (!existsSync(resolve(root, 'node_modules/vitest/vitest.mjs'))) {
 
 const rollbackVersions = readCandidateMigrationVersions(contract.applicationSha, root);
 const currentVersions = readWorkspaceMigrationVersions(root);
-const compatibility = assertAppendOnlyRollbackManifest(rollbackVersions, currentVersions);
+const compatibility = assertRollbackCompatibleMigrationManifest(rollbackVersions, currentVersions);
 if (compatibility.rollbackLatest !== contract.lastApplicationMigrationVersion) {
   throw new Error('Rollback application migration baseline does not match its recorded contract.');
 }

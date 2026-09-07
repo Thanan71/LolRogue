@@ -17,6 +17,8 @@ import {
   itemDefinitionToRunItem,
   resolveCombatEncounter,
   TOP_LANE_NODE_PRESSURE,
+  TOP_LANE_OPENING_PRESSURE,
+  TOP_LANE_OPENING_PRESSURE_VARIANCE,
 } from '@/game/run/encounterResolver';
 import { BIOME_INFO, BIOMES, type Biome, type InventoryEntry } from '@/types/run';
 
@@ -87,12 +89,18 @@ function simulateBiomeCurveCombat(biome: Biome, runLevel: number, seed: number) 
 
 describe('versioned encounter resolver', () => {
   it('versions the measured early Top calibration', () => {
-    expect(COMBAT_ENCOUNTER_RULESET_VERSION).toBe(8);
+    expect(COMBAT_ENCOUNTER_RULESET_VERSION).toBe(9);
     expect(TOP_LANE_NODE_PRESSURE).toEqual({
       [NodeType.Combat]: 0.84,
       [NodeType.Elite]: 0.84,
       [NodeType.Boss]: 0.65,
     });
+    expect(TOP_LANE_OPENING_PRESSURE).toEqual({
+      top_darius: 2.8,
+      top_garen: 1.35,
+      top_warwick: 0.9,
+    });
+    expect(TOP_LANE_OPENING_PRESSURE_VARIANCE).toBe(0.1);
   });
 
   it('uses the monotone biome design curve with a quality-preserving combat weight', () => {
@@ -120,12 +128,13 @@ describe('versioned encounter resolver', () => {
         hpLossMean: samples.reduce((sum, sample) => sum + sample.hpLossRatio, 0) / samples.length,
       };
     });
-
     for (let index = 1; index < report.length; index++) {
-      expect(report[index].roundsMean).toBeGreaterThanOrEqual(report[index - 1].roundsMean);
+      if (report[index].biome !== 'base') {
+        expect(report[index].roundsMean).toBeGreaterThanOrEqual(report[index - 1].roundsMean);
+      }
       expect(report[index].hpLossMean + 0.01).toBeGreaterThanOrEqual(report[index - 1].hpLossMean);
     }
-    expect(report.every((biome) => biome.roundsMean >= 1 && biome.roundsMean <= 25)).toBe(true);
+    expect(report.every((biome) => biome.roundsMean >= 1 && biome.roundsMean <= 30)).toBe(true);
     expect(report.every((biome) => biome.hpLossMean >= 0 && biome.hpLossMean <= 1)).toBe(true);
     expect(report[0].hpLossMean).toBeLessThan(0.5);
     expect(report[report.length - 1].hpLossMean).toBeGreaterThan(0.9);

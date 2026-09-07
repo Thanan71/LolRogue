@@ -9,7 +9,14 @@ import {
   BalancePolicyDecisionError,
   type BalanceScenario,
   createBalanceRunUuid,
+  ECONOMY_FIRST_POLICY_MANIFEST,
+  ECONOMY_POLICY_GOLD_RESERVE,
+  economyFirstPolicy,
+  FIELD_CALIBRATION_POLICIES,
+  getBalancePolicy,
+  SAFETY_FIRST_POLICY_MANIFEST,
   SURVIVAL_GREEDY_POLICY_MANIFEST,
+  safetyFirstPolicy,
   survivalGreedyPolicy,
 } from '@/game/balance/balancePolicy';
 import { getCanonicalRunItem } from '@/game/inventory/inventoryRules';
@@ -33,6 +40,18 @@ function snapshotWith(overrides: Partial<AuthorityRunSnapshot>): AuthorityRunSna
 }
 
 describe('versioned balance policy', () => {
+  it('publishes distinct safe and economic field-calibration manifests', () => {
+    expect(safetyFirstPolicy.manifest).toBe(SAFETY_FIRST_POLICY_MANIFEST);
+    expect(economyFirstPolicy.manifest).toBe(ECONOMY_FIRST_POLICY_MANIFEST);
+    expect(FIELD_CALIBRATION_POLICIES.map((policy) => policy.manifest)).toEqual([
+      { id: 'safety-first', version: 1 },
+      { id: 'economy-first', version: 1 },
+    ]);
+    expect(getBalancePolicy('safety-first@1')).toBe(safetyFirstPolicy);
+    expect(getBalancePolicy('economy-first@1')).toBe(economyFirstPolicy);
+    expect(getBalancePolicy('unknown@1')).toBeUndefined();
+  });
+
   it('builds immutable-input attempts with deterministic identities and rune choices', () => {
     expect(survivalGreedyPolicy.manifest).toEqual({ id: 'survival-greedy', version: 1 });
     expect(survivalGreedyPolicy.manifest).toBe(SURVIVAL_GREEDY_POLICY_MANIFEST);
@@ -188,6 +207,62 @@ describe('versioned balance policy', () => {
       });
       expect(survivalGreedyPolicy.nextCommand(snapshot)?.kind).toBe(kind);
     }
+  });
+
+  it('separates survival spending from the economic gold reserve', () => {
+    const paidRest = snapshotWith({
+      expectedNodeIds: [],
+      gold: ECONOMY_POLICY_GOLD_RESERVE + 25,
+      pendingEncounter: {
+        nodeId: 'rest-1',
+        nodeType: 'rest',
+        encounterId: 'rest-encounter',
+        claimed: false,
+        cost: 25,
+        legal: true,
+      },
+      nextSequence: 4,
+    });
+    expect(safetyFirstPolicy.nextCommand(paidRest)?.kind).toBe('rest');
+    expect(economyFirstPolicy.nextCommand(paidRest)).toEqual({
+      sequence: 4,
+      kind: 'resolve_node',
+      payload: { node_id: 'rest-1' },
+    });
+
+    const shop = snapshotWith({
+      expectedNodeIds: [],
+      gold: ECONOMY_POLICY_GOLD_RESERVE + 80,
+      pendingEncounter: {
+        nodeId: 'shop-2',
+        nodeType: 'shop',
+        encounterId: 'shop-encounter',
+        claimed: false,
+        itemOffers: [{ itemId: 'long_sword', cost: 80, consumed: false, legal: true }],
+        recruitOffers: [{ championId: 'Ashe', cost: 75, consumed: false, legal: true }],
+      },
+      nextSequence: 7,
+    });
+    expect(safetyFirstPolicy.nextCommand(shop)?.kind).toBe('shop_recruit');
+    expect(economyFirstPolicy.nextCommand(shop)).toMatchObject({
+      kind: 'shop_buy_item',
+      payload: { item_id: 'long_sword' },
+    });
+  });
+
+  it('selects defensive and economy augments by policy rather than offer order', () => {
+    const choice = snapshotWith({
+      pendingAugmentIds: ['fortune', 'unstoppable', 'brute_force'],
+      nextSequence: 9,
+    });
+    expect(safetyFirstPolicy.nextCommand(choice)).toMatchObject({
+      kind: 'choose_augment',
+      payload: { augment_id: 'unstoppable' },
+    });
+    expect(economyFirstPolicy.nextCommand(choice)).toMatchObject({
+      kind: 'choose_augment',
+      payload: { augment_id: 'fortune' },
+    });
   });
 
   it('prioritizes spell upgrades, augments and legal equipment', () => {
