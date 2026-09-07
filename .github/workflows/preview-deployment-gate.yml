@@ -1,0 +1,130 @@
+name: Preview deployment gate
+
+on:
+  pull_request:
+  pull_request_target:
+
+permissions:
+  contents: read
+
+jobs:
+  publish-preview:
+    if: >-
+      github.event_name == 'pull_request_target' ||
+      (github.event_name == 'pull_request' &&
+       github.actor == 'Thanan71' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.head.ref == 'chore/dependabot-167-vitest5')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      checks: read
+      contents: read
+      deployments: write
+      statuses: read
+
+    steps:
+      - name: Wait for required CI checks and Vercel
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          api_headers=(
+            -H "Authorization: Bearer $GH_TOKEN"
+            -H "Accept: application/vnd.github+json"
+            -H "X-GitHub-Api-Version: 2022-11-28"
+          )
+
+          for attempt in $(seq 1 360); do
+            checks_json="$(curl -fsSL "${api_headers[@]}" \
+              "https://api.github.com/repos/$REPO/commits/$HEAD_SHA/check-runs?filter=latest&per_page=100")"
+
+            all_success=true
+            for check_name in validate e2e database clean-room; do
+              check_state="$(printf '%s' "$checks_json" | jq -r --arg name "$check_name" '
+                [.check_runs[] | select(.name == $name)]
+                | if length == 0 then "missing"
+                  else (sort_by(.id) | last | if .status == "completed" then (.conclusion // "unknown") else .status end)
+                  end
+              ')"
+
+              case "$check_state" in
+                success)
+                  ;;
+                failure|cancelled|timed_out|action_required|stale)
+                  echo "::error::$check_name finished with $check_state"
+                  exit 1
+                  ;;
+                *)
+                  all_success=false
+                  ;;
+              esac
+            done
+
+            status_json="$(curl -fsSL "${api_headers[@]}" \
+              "https://api.github.com/repos/$REPO/commits/$HEAD_SHA/status")"
+            vercel_state="$(printf '%s' "$status_json" | jq -r '[.statuses[] | select(.context == "Vercel")][0].state // "missing"')"
+
+            case "$vercel_state" in
+              success)
+                if [ "$all_success" = true ]; then
+                  echo "Required CI checks and Vercel Preview are successful."
+                  exit 0
+                fi
+                ;;
+              failure|error)
+                echo "::error::Vercel finished with $vercel_state"
+                exit 1
+                ;;
+            esac
+
+            sleep 5
+          done
+
+          echo "::error::Timed out waiting for required CI checks and Vercel Preview."
+          exit 1
+
+      - name: Publish successful GitHub Preview deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          api_headers=(
+            -H "Authorization: Bearer $GH_TOKEN"
+            -H "Accept: application/vnd.github+json"
+            -H "X-GitHub-Api-Version: 2022-11-28"
+          )
+
+          deployment_payload="$(jq -nc --arg ref "$HEAD_SHA" '{
+            ref: $ref,
+            environment: "Preview",
+            auto_merge: false,
+            required_contexts: [],
+            transient_environment: true,
+            production_environment: false,
+            description: "CI and Vercel Preview verified"
+          }')"
+
+          deployment_json="$(curl -fsSL -X POST "${api_headers[@]}" \
+            "https://api.github.com/repos/$REPO/deployments" \
+            -d "$deployment_payload")"
+          deployment_id="$(printf '%s' "$deployment_json" | jq -r '.id // empty')"
+          test -n "$deployment_id"
+
+          deployment_status_payload="$(jq -nc '{
+            state: "success",
+            auto_inactive: true,
+            description: "Verified Vercel Preview"
+          }')"
+
+          curl -fsSL -X POST "${api_headers[@]}" \
+            "https://api.github.com/repos/$REPO/deployments/$deployment_id/statuses" \
+            -d "$deployment_status_payload" >/dev/null
+
+          echo "Published successful Preview deployment $deployment_id for $HEAD_SHA."
