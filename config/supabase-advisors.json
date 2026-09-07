@@ -121,6 +121,14 @@
     },
     {
       "type": "performance",
+      "cacheKey": "unused_index_public_run_attempts_run_attempts_verified_field_dimensions",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index partiel aligné sur les tentatives vérifiées des agrégats terrain ; le reset local remet son compteur à zéro et une mesure sur trafic représentatif reste requise.",
+      "expiresAt": "2026-09-30"
+    },
+    {
+      "type": "performance",
       "cacheKey": "unused_index_public_champion_mastery_idx_champion_mastery_player",
       "name": "unused_index",
       "level": "INFO",

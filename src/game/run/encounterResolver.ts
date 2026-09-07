@@ -23,11 +23,12 @@ import { getStarterBudgetProfile } from './starterBudget';
 
 export { DIFFICULTY_RULES } from './difficultyRules';
 
-export const COMBAT_ENCOUNTER_RULESET_VERSION = 8;
+export const COMBAT_ENCOUNTER_RULESET_VERSION = 9;
 export const BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT = 0.25;
 export const ELITE_FORMATION_POWER_MULTIPLIER = 1.4;
 export const ELITE_REWARD_MULTIPLIER = 1.5;
 const COMBAT_REWARD_RNG_VERSION = 6;
+const COMBAT_OPENING_PRESSURE_RNG_VERSION = 1;
 
 const NODE_RULES: Record<
   NodeType.Combat | NodeType.Elite | NodeType.Boss,
@@ -61,6 +62,13 @@ export const TOP_LANE_NODE_PRESSURE: Readonly<
   [NodeType.Elite]: 0.84,
   [NodeType.Boss]: 0.65,
 };
+
+export const TOP_LANE_OPENING_PRESSURE: Readonly<Record<string, number>> = {
+  top_darius: 2.8,
+  top_garen: 1.35,
+  top_warwick: 0.9,
+};
+export const TOP_LANE_OPENING_PRESSURE_VARIANCE = 0.1;
 
 const BIOME_REINFORCEMENTS: Record<Biome, EnemyDefinition> = {
   top_lane: { championId: 'Malphite', statMultiplier: 0.34 },
@@ -116,6 +124,19 @@ export interface ResolveCombatEncounterInput {
 
 function roundMultiplier(value: number): number {
   return Math.round(value * 10_000) / 10_000;
+}
+
+function resolveOpeningPressure(input: ResolveCombatEncounterInput, wave: number): number {
+  if (input.biome !== 'top_lane' || wave !== 1) return 1;
+  const encounterId = input.encounter.id.replace(/_elite$/, '');
+  const basePressure = TOP_LANE_OPENING_PRESSURE[encounterId];
+  if (basePressure === undefined) return 1;
+  const rng = createScopedRunRng(
+    input.seed,
+    `combat-opening-pressure:v${COMBAT_OPENING_PRESSURE_RNG_VERSION}:${encounterId}`,
+  );
+  const variance = 1 + (rng.next() * 2 - 1) * TOP_LANE_OPENING_PRESSURE_VARIANCE;
+  return roundMultiplier(basePressure * variance);
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {
@@ -182,6 +203,7 @@ export function resolveCombatEncounter(
   const biomeMultiplier =
     1 + (BIOME_INFO[input.biome].difficultyMultiplier - 1) * BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT;
   const wave = Math.max(1, Math.trunc(input.wave));
+  const openingPressure = resolveOpeningPressure(input, wave);
   const runLevel = clamp(Math.trunc(input.runLevel), 1, 18);
   const progressionMultiplier = 1 + (runLevel - 1) * 0.01 + (wave - 1) * 0.0025;
   const defaultEnemyLevel = clamp(
@@ -198,6 +220,7 @@ export function resolveCombatEncounter(
         biomeMultiplier *
         node.enemyStatMultiplier *
         lanePressure *
+        openingPressure *
         progressionMultiplier,
     ),
     healthMultiplier: difficulty.enemyHealthMultiplier,

@@ -45,25 +45,25 @@ function readDailyRulesetContracts() {
 }
 
 describe('authority progression engine versioning', () => {
-  it('archives v19 and publishes v20 with participation progression v3', () => {
-    const v19 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v19');
+  it('archives v20 and publishes v21 without changing progression schemas', () => {
+    const v20 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v20');
 
-    expect(v19).toMatchObject({
-      gameplay: 19,
-      dailyScore: 15,
-      progression: 2,
-      command: 2,
-      status: 'replay-only',
-      bundle: 'supabase/functions/verify-run/run-authority-v19.bundle.ts',
-    });
-    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
-      engine: 'run-engine-v20',
+    expect(v20).toMatchObject({
       gameplay: 20,
       dailyScore: 15,
       progression: 3,
       command: 2,
+      status: 'replay-only',
+      bundle: 'supabase/functions/verify-run/run-authority-v20.bundle.ts',
+    });
+    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
+      engine: 'run-engine-v21',
+      gameplay: 21,
+      dailyScore: 15,
+      progression: 3,
+      command: 2,
       status: 'current',
-      rulesetCode: '2026-08-map-economy-v20',
+      rulesetCode: '2026-09-balance-acceptance-v21',
     });
   });
 
