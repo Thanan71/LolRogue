@@ -45,10 +45,15 @@ if (
 }
 
 const missing = missingSupabaseTestEnv(local);
-if (status.status !== 0 || missing.length > 0 || !(await apiIsHealthy(local.apiUrl))) {
+if (
+  status.status !== 0 ||
+  missing.length > 0 ||
+  !statusValues.DB_URL ||
+  !(await apiIsHealthy(local.apiUrl))
+) {
   process.stderr.write(status.stderr);
   throw new Error(
-    `Local Supabase stack is incomplete (${missing.join(', ') || 'API unhealthy'}). Verify that Docker has enough resources and that Kong, Auth and REST are healthy.`,
+    `Local Supabase stack is incomplete (${[...missing, ...(!statusValues.DB_URL ? ['dbUrl'] : [])].join(', ') || 'API unhealthy'}). Verify that Docker has enough resources and that Kong, Auth and REST are healthy.`,
   );
 }
 
@@ -61,6 +66,7 @@ const tests = spawnSync(npmCommand, ['run', testScript], {
     VITE_PUBLIC_SUPABASE_URL: local.apiUrl,
     VITE_PUBLIC_SUPABASE_ANON_KEY: local.anonKey,
     SUPABASE_SERVICE_ROLE_KEY: local.serviceRoleKey,
+    SUPABASE_DB_URL: statusValues.DB_URL,
   },
 });
 process.exit(tests.status ?? 1);

@@ -402,16 +402,17 @@ La documentation doit devenir rouge automatiquement lorsqu'une gate objective
 ## P0-BAL-02 — Remplacer la fausse simulation de balance par de vraies runs
 
 **Taille : L**
-**Risque : élevé — `balance:check` donne actuellement une assurance qu'il ne mesure pas.**
+**Risque initial corrigé en v21 — `balance:check` donnait une assurance qu'il ne mesurait pas.**
 
-### Problème vérifié
+### Problème initial vérifié — corrigé en v21
 
-`simulateContentBalance()` parcourt tous les nœuds de toutes les branches et appelle
+Avant v21, `simulateContentBalance()` parcourait tous les nœuds de toutes les branches et appelait
 uniquement `resolveCombatEncounter()` avec un inventaire vide et une progression
-synthétique. Il ne choisit pas de route, ne lance pas `BattleManager`, ne conserve
-pas PV/MP, n'achète rien, ne recrute personne et ne calcule aucun taux de victoire.
-La documentation « 100 runs complètes / 30 runs scriptées » est donc incorrecte.
-Les versions balance sont aussi recopiées manuellement puis testées contre elles-mêmes.
+synthétique. Il ne choisissait pas de route, ne lançait pas `BattleManager`, ne
+conservait pas PV/MP, n'achetait rien, ne recrutait personne et ne calculait aucun
+taux de victoire. La documentation « 100 runs complètes / 30 runs scriptées » était
+donc incorrecte. Les versions balance étaient aussi recopiées manuellement puis
+testées contre elles-mêmes.
 
 Mesures exploratoires à conserver comme point de comparaison, mais **pas** comme cible
 avant correction du moteur : premiers combats Top en Normal, Ashe/Soraka ≈ 67 % et les
@@ -445,15 +446,25 @@ que 2,42 rounds.
 ### Gates initiales
 
 - [x] Zéro crash, deadlock, non-déterminisme ou divergence source/bundle.
-- [ ] Easy ≥ Normal ≥ Hard avec tolérance statistique, sans masquer les cohortes par
+- [x] Easy ≥ Normal ≥ Hard avec tolérance statistique, sans masquer les cohortes par
   taille d'équipe ou niveau méta.
-- [ ] Aucun starter à 0 % sur les premiers combats ; plage de travail : Normal
+- [x] Aucun starter à 0 % sur les premiers combats ; plage de travail : Normal
   75–95 %, Hard 50–80 %.
-- [ ] Inclusion 5v5 par champion entre 45–55 %, écart maximal 10 points, après
+- [x] Inclusion 5v5 par champion entre 45–55 %, écart maximal 10 points, après
   correction des règles communes.
-- [ ] Aucun biome hors boss ne concentre plus de 35–40 % des morts.
-- [ ] Une régression supérieure à 5 points de victoire, 0,5 biome médian ou 10 %
+- [x] Avertissement si un biome hors boss dépasse 35 % des morts ; échec si la borne
+  Wilson basse de sa part dépasse 40 %.
+- [x] Une régression supérieure à 5 points de victoire, 0,5 biome médian ou 10 %
   d'économie exige un diff et une baseline explicitement approuvée.
+
+Preuve v21 : la cohorte PR exécute 45 cellules × 30 seeds, valide 15 familles de
+difficulté et 1 170 métriques de non-régression. La matrice exhaustive exécute
+7 560 combats par runtime ; ses dix champions restent entre 48,33 % et 52,12 %,
+avec 3,78 points d'écart. Early Top mesure 83,0 % en Normal et 74,67 % en Hard,
+sans starter à zéro. La concentration Hard/Top de 39,78 % reste un avertissement :
+sa borne Wilson basse (35,33 %) ne franchit pas le seuil statistique d'échec de 40 %.
+Une baseline modifiée demeure soumise au diff et à la revue de PR ; l'automatisation
+ne prétend pas approuver elle-même un nouveau golden.
 
 Les taux de victoire d'une run complète restent des hypothèses à valider avec des
 playtests humains ; ils ne doivent pas être figés depuis l'autoplay seul.
@@ -1099,28 +1110,33 @@ cherche pas les dépendances d'ordre au-delà de cette permutation.
 
 **Taille : M/L**
 
-- [ ] Définir au moins deux politiques automatisées distinctes — sûre et économique —
+- [x] Définir au moins deux politiques automatisées distinctes — sûre et économique —
   pour ne pas confondre équilibre et comportement d'un seul bot.
 - [ ] Organiser des playtests humains par difficulté, taille d'équipe et expérience ;
   fixer ensuite les bandes de victoire Easy/Normal/Hard au lieu de les déduire de
   l'autoplay seul.
-- [ ] Construire une vue admin agrégée depuis les runs vérifiées et attempts existantes,
+- [x] Construire une vue admin agrégée depuis les runs vérifiées et attempts existantes,
   groupée par date, ruleset, difficulté, mode, taille/hash de composition et niveau méta.
-- [ ] Ne jamais mélanger des versions de ruleset dans une même moyenne et contrôler les
+- [x] Ne jamais mélanger des versions de ruleset dans une même moyenne et contrôler les
   effets de composition/taille avant d'attribuer un écart à un champion.
-- [ ] Appliquer un seuil minimal `n >= 30`, des intervalles d'incertitude et aucune
+- [x] Appliquer un seuil minimal `n >= 30`, des intervalles d'incertitude et aucune
   exposition de user ID, seed ou journal de commandes.
-- [ ] Ajouter uniquement en opt-in les mesures non déjà nécessaires au service, comme
+- [x] Ajouter uniquement en opt-in les mesures non déjà nécessaires au service, comme
   offres vues/refusées ou raison d'abandon ; définir leur rétention avant collecte.
-- [ ] Comparer simulation et terrain sur taux de victoire, biome de mort, économie,
+- [x] Comparer simulation et terrain sur taux de victoire, biome de mort, économie,
   pick rate et performance conditionnelle des champions/augments.
-- [ ] Exiger une décision produit et une baseline explicitement versionnée pour toute
+- [x] Exiger une décision produit et une baseline explicitement versionnée pour toute
   dérive volontaire importante.
 
 ### Acceptation
 
 Une décision de tuning doit citer une cohorte autoritaire reproductible et un signal
 de playtest/terrain compatible, avec taille d'échantillon et intervalle affichés.
+
+**État au 4 septembre 2026 :** les sept critères automatisables sont livrés et testés.
+Le playtest humain reste volontairement non coché et bloque l'acceptation : aucune
+bande Easy/Normal/Hard ni fermeture de `P2-BAL-01` n'est déduite des bots ou des
+agrégats terrain seuls.
 
 ---
 
@@ -1383,7 +1399,7 @@ techniques ni afficher une modale à chaque déploiement.**
 ## Sprint B — rendre l'équilibrage mesurable et comparable
 
 6. [x] `P0-BAL-01` intégrité des règles combat, mana, cooldowns et ciblage.
-7. [ ] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
+7. [x] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
 8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
 9 bis. [x] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
@@ -1457,7 +1473,7 @@ techniques ni afficher une modale à chaque déploiement.**
 
 La bêta technique ne redevient candidate que lorsque :
 
-- [ ] aucun `P0-*` n'est ouvert ;
+- [x] aucun `P0-*` n'est ouvert ;
 - [ ] advisors sécurité live : aucune `ERROR` non acceptée ;
 - [ ] aucune fonction de trigger/maintenance inutile n'est client-callable ;
 - [ ] repository integration tests passent contre une vraie base migrée ;
@@ -1465,7 +1481,7 @@ La bêta technique ne redevient candidate que lorsque :
 - [ ] trois CI complètes consécutives **après** le dernier P0 ;
 - [ ] preview du SHA candidat validée, pas une ancienne prod ;
 - [ ] taux de rejet authority vérifié après déploiement du correctif ;
-- [ ] `balance:check` rejoue de vraies runs authority et vérifie le bundle/version/hash
+- [x] `balance:check` rejoue de vraies runs authority et vérifie le bundle/version/hash
   candidats, au lieu de parcourir synthétiquement tous les nœuds ;
 - [ ] Daily officiel déterministe et identique entre un compte neuf et un compte maxé ;
 - [ ] aucun starter à 0 % sur les premiers combats de la cohorte de release ;

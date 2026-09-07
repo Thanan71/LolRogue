@@ -8,9 +8,10 @@ import {
 } from '@/game/authority';
 import { simulateAuthorityCohort } from '@/game/balance/authorityCohort';
 import {
+  BALANCE_POLICY_REGISTRY,
   type BalanceScenario,
+  getBalancePolicy,
   SURVIVAL_GREEDY_POLICY_MANIFEST,
-  survivalGreedyPolicy,
 } from '@/game/balance/balancePolicy';
 
 type AuthorityVerifier = NonNullable<ReturnType<typeof getAuthorityVerifier>>;
@@ -103,9 +104,17 @@ export async function runBalanceReproductionCli(arguments_: readonly string[]): 
       `Reproduction requires content hash ${values['content-hash']}, but current is ${AUTHORITY_CONTENT_HASH}.`,
     );
   }
-  const expectedPolicy = `${SURVIVAL_GREEDY_POLICY_MANIFEST.id}@${SURVIVAL_GREEDY_POLICY_MANIFEST.version}`;
-  if (values.policy !== undefined && values.policy !== expectedPolicy) {
-    throw new Error(`Unsupported balance policy ${values.policy}; expected ${expectedPolicy}.`);
+  const requestedPolicy =
+    values.policy ??
+    `${SURVIVAL_GREEDY_POLICY_MANIFEST.id}@${SURVIVAL_GREEDY_POLICY_MANIFEST.version}`;
+  const policy = getBalancePolicy(requestedPolicy);
+  if (!policy) {
+    const supported = BALANCE_POLICY_REGISTRY.map(
+      (candidate) => `${candidate.manifest.id}@${candidate.manifest.version}`,
+    ).join(', ');
+    throw new Error(
+      `Unsupported balance policy ${requestedPolicy}; expected one of: ${supported}.`,
+    );
   }
   const maxCommands = positiveInteger(values['max-commands'], '--max-commands');
   const maxRunMilliseconds = positiveInteger(values['max-run-ms'], '--max-run-ms');
@@ -118,14 +127,14 @@ export async function runBalanceReproductionCli(arguments_: readonly string[]): 
   };
   const sourceCohort = simulateAuthorityCohort({
     authority: sourceAuthority,
-    policy: survivalGreedyPolicy,
+    policy,
     scenario,
     seeds: [seed],
     limits,
   });
   const edgeCohort = simulateAuthorityCohort({
     authority: edgeAuthority,
-    policy: survivalGreedyPolicy,
+    policy,
     scenario,
     seeds: [seed],
     limits,
