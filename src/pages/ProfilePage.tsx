@@ -1,19 +1,40 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
-import { ROUTES } from '@/config/routes';
 import { riotChampionIconUrl } from '@/config/riotAssets';
-import { getAugmentDefinition, getRuneDefinition } from '@/data/items';
+import { ROUTES } from '@/config/routes';
+import { championDB } from '@/data/championDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { augmentName, localizeChampion, runeName } from '@/i18n/content';
 import { formatDate, formatNumber } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
-import { runeNameFr } from '@/i18n/runes.fr';
+import { fr, locale } from '@/i18n/fr';
 import { RepositoryContainerFactory } from '@/services/container';
 import type { RunHistoryEntry } from '@/services/interfaces/IRunRepository';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 
 const repositories = RepositoryContainerFactory.create(supabase);
+const profilePluralRules = new Intl.PluralRules(locale);
+
+function pluralLabel(value: number, singular: string, pluralForm: string): string {
+  return profilePluralRules.select(value) === 'one' ? singular : pluralForm;
+}
+
+function localizedChampionName(championId: string): string {
+  const champion = championDB.getById(championId);
+  return champion ? localizeChampion(champion).name : championId;
+}
+
+function localizedMode(mode: string): string {
+  return fr.profile.modes[mode as keyof typeof fr.profile.modes] ?? fr.profile.unknownMode;
+}
+
+function localizedDifficulty(difficulty: string): string {
+  return (
+    fr.profile.difficulties[difficulty as keyof typeof fr.profile.difficulties] ??
+    fr.profile.unknownDifficulty
+  );
+}
 
 export function ProfilePage() {
   const navigate = useAppNavigate();
@@ -43,7 +64,7 @@ export function ProfilePage() {
       if (cancelled) return;
       if (result.error) {
         setRuns([]);
-        setError(fr.common.unavailableError);
+        setError(fr.profile.historyLoadError);
       } else {
         setRuns(result.data ?? []);
       }
@@ -89,7 +110,7 @@ export function ProfilePage() {
               </div>
               <div>
                 <h2>{player.display_name || player.username}</h2>
-                <p>Ta progression synchronisée et les résultats de tes dernières expéditions.</p>
+                <p>{fr.profile.summaryDescription}</p>
                 <div className="profile-summary__stats">
                   <div className="profile-summary__stat">
                     <strong>{formatNumber(player.level)}</strong>
@@ -97,15 +118,19 @@ export function ProfilePage() {
                   </div>
                   <div className="profile-summary__stat">
                     <strong>{formatNumber(player.total_candies)}</strong>
-                    <span>{fr.common.candies}</span>
+                    <span>
+                      {pluralLabel(player.total_candies, fr.profile.candy, fr.common.candies)}
+                    </span>
                   </div>
                   <div className="profile-summary__stat">
                     <strong>{formatNumber(player.total_runs_completed)}</strong>
-                    <span>{fr.profile.runs}</span>
+                    <span>
+                      {pluralLabel(player.total_runs_completed, fr.profile.run, fr.profile.runs)}
+                    </span>
                   </div>
                   <div className="profile-summary__stat">
                     <strong>{formatNumber(player.total_wins)}</strong>
-                    <span>{fr.profile.wins}</span>
+                    <span>{pluralLabel(player.total_wins, fr.profile.win, fr.profile.wins)}</span>
                   </div>
                 </div>
               </div>
@@ -127,8 +152,8 @@ export function ProfilePage() {
             <ul className="ui-list">
               {runs.map(({ run, attempt, teamMembers }) => {
                 const contentLabels = [
-                  ...run.rune_ids.map((id) => runeNameFr(id, getRuneDefinition(id)?.name ?? id)),
-                  ...run.augment_ids.map((id) => getAugmentDefinition(id)?.name ?? id),
+                  ...run.rune_ids.map((id) => runeName(id)),
+                  ...run.augment_ids.map((id) => augmentName(id, id)),
                 ];
                 return (
                   <li
@@ -145,8 +170,14 @@ export function ProfilePage() {
                           </span>
                           <span className="profile-run__headline">
                             {fr.common.level} {formatNumber(run.run_level)} ·{' '}
-                            {formatNumber(run.waves_completed)} {fr.profile.waves} ·{' '}
-                            {formatNumber(run.total_kills)} {fr.profile.eliminations}
+                            {formatNumber(run.waves_completed)}{' '}
+                            {pluralLabel(run.waves_completed, fr.profile.wave, fr.profile.waves)} ·{' '}
+                            {formatNumber(run.total_kills)}{' '}
+                            {pluralLabel(
+                              run.total_kills,
+                              fr.profile.elimination,
+                              fr.profile.eliminations,
+                            )}
                           </span>
                           <small>
                             {formatDate(run.completed_at ?? run.created_at, {
@@ -165,7 +196,7 @@ export function ProfilePage() {
                               <img
                                 key={`${member.champion_id}-${index}`}
                                 src={riotChampionIconUrl(member.champion_id)}
-                                alt={member.champion_id}
+                                alt={localizedChampionName(member.champion_id)}
                                 width={40}
                                 height={40}
                                 loading="lazy"
@@ -180,7 +211,11 @@ export function ProfilePage() {
                           <dt>{fr.profile.comparisonGroup}</dt>
                           <dd>
                             {attempt
-                              ? `${attempt.mode} · ${attempt.difficulty} · gameplay v${formatNumber(attempt.gameplayRulesetVersion)}`
+                              ? fr.profile.comparisonDetails(
+                                  localizedMode(attempt.mode),
+                                  localizedDifficulty(attempt.difficulty),
+                                  formatNumber(attempt.gameplayRulesetVersion),
+                                )
                               : fr.profile.legacyRun}
                           </dd>
                         </div>
@@ -189,9 +224,11 @@ export function ProfilePage() {
                           <dd>
                             {teamMembers.length > 0
                               ? teamMembers
-                                  .map(
-                                    (member) =>
-                                      `${member.champion_id} niv. ${formatNumber(member.final_level)}`,
+                                  .map((member) =>
+                                    fr.profile.teamMember(
+                                      localizedChampionName(member.champion_id),
+                                      formatNumber(member.final_level),
+                                    ),
                                   )
                                   .join(', ')
                               : fr.profile.teamUnavailable}
@@ -202,7 +239,8 @@ export function ProfilePage() {
                           <dd>
                             {formatNumber(run.gold_earned)} {fr.profile.goldEarned} ·{' '}
                             {formatNumber(run.total_gold_spent)} {fr.profile.goldSpent} ·{' '}
-                            {formatNumber(run.items_purchased)} {fr.profile.items}
+                            {formatNumber(run.items_purchased)}{' '}
+                            {pluralLabel(run.items_purchased, fr.profile.item, fr.profile.items)}
                           </dd>
                         </div>
                         <div>
