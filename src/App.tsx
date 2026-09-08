@@ -21,7 +21,7 @@ function RouteAccessibility() {
   const title = routeTitle(locale, pathname);
 
   useEffect(() => {
-    document.title = `${title} — LoL Rogue`;
+    document.title = [title, 'LoL Rogue'].join(' — ');
     const focusRoute = (candidate?: ParentNode) => {
       const target =
         candidate?.querySelector<HTMLElement>('main, h1') ??
@@ -77,7 +77,7 @@ const NotificationRegion = lazy(async () => {
     recordTechnicalEvent({
       type: 'frontend_error',
       source: 'notification_region_chunk',
-      message: error instanceof Error ? error.message : 'Notification region failed to load.',
+      message: error instanceof Error ? error.message : 'notification_region_chunk_load_failed',
     });
     return { default: () => null };
   }
