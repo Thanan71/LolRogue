@@ -163,10 +163,15 @@ describe('RunTeamStatsPanel', () => {
 
     const slots = screen.getAllByRole('listitem');
     expect(slots).toHaveLength(6);
-    expect(
-      screen.getByLabelText('Emplacement 1 : Épée locale').querySelector('img'),
-    ).toHaveAttribute('src', '/assets/riot/16.6.1/items/1036.png');
-    expect(screen.getByLabelText('Emplacement 2 : Orbe mystique').querySelector('img')).toBeNull();
+    const unknownItemSlots = screen.getAllByLabelText(/^Emplacement [12] : Objet inconnu$/);
+    expect(unknownItemSlots).toHaveLength(2);
+    expect(unknownItemSlots[0]?.querySelector('img')).toHaveAttribute(
+      'src',
+      '/assets/riot/16.6.1/items/1036.png',
+    );
+    expect(unknownItemSlots[1]?.querySelector('img')).toBeNull();
+    expect(view.container).not.toHaveTextContent('Épée locale');
+    expect(view.container).not.toHaveTextContent('Orbe mystique');
     expect(view.container.querySelectorAll('.run-team-stats__item-slot--empty')).toHaveLength(4);
   });
 
