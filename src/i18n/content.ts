@@ -3,9 +3,18 @@ import { championContent } from './championContent';
 import { locale } from './fr';
 import { inventoryContent } from './inventoryContent';
 
+const unavailableEnglishPassive = {
+  name: 'Passive',
+  description: 'English passive details are unavailable.',
+} as const;
+const unavailableEnglishSpell = {
+  name: 'Ability',
+  description: 'English ability details are unavailable.',
+} as const;
+
 export function localizeSpell(spell: Spell, championId: string): Spell {
   const copy = championContent[locale][championId]?.spells[spell.id];
-  if (!copy) return spell;
+  if (!copy) return locale === 'fr-FR' ? spell : { ...spell, ...unavailableEnglishSpell };
   return {
     ...spell,
     name: copy.name,
@@ -15,9 +24,19 @@ export function localizeSpell(spell: Spell, championId: string): Spell {
 
 export function localizeChampion(champion: Champion): Champion {
   const copy = championContent[locale][champion.id];
-  if (!copy) return champion;
+  if (!copy) {
+    if (locale === 'fr-FR') return champion;
+    return {
+      ...champion,
+      name: champion.id,
+      title: champion.id,
+      spells: champion.spells.map((spell) => localizeSpell(spell, champion.id)),
+      passive: { ...champion.passive, ...unavailableEnglishPassive },
+    };
+  }
   return {
     ...champion,
+    name: copy.name,
     title: copy.title,
     spells: champion.spells.map((spell) => localizeSpell(spell, champion.id)),
     passive: {
@@ -29,7 +48,7 @@ export function localizeChampion(champion: Champion): Champion {
 }
 
 export function championName(championId: string): string {
-  return championId;
+  return championContent[locale][championId]?.name ?? championId;
 }
 
 export function itemName(id: string, _fallback: string): string {

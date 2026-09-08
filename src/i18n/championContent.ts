@@ -1,3 +1,6 @@
+import englishChampionContentJson from '@/data/generated/champion-content.en-US.json';
+import frenchChampionContentJson from '@/data/generated/champions-parsed.json';
+
 export type ChampionContentLocale = 'fr-FR' | 'en-US';
 
 export type ChampionContentCopy = Readonly<{
@@ -6,6 +9,7 @@ export type ChampionContentCopy = Readonly<{
 }>;
 
 export type ChampionContentEntry = Readonly<{
+  name: string;
   title: string;
   passive: ChampionContentCopy;
   spells: Readonly<Record<string, ChampionContentCopy>>;
@@ -13,7 +17,18 @@ export type ChampionContentEntry = Readonly<{
 
 export type ChampionContentById = Readonly<Record<string, ChampionContentEntry>>;
 
-const frFR = {
+type ChampionContentOverride = Readonly<Omit<ChampionContentEntry, 'name'>>;
+type ChampionContentOverridesById = Readonly<Record<string, ChampionContentOverride>>;
+
+type ChampionContentSource = Readonly<{
+  id: string;
+  name: string;
+  title: string;
+  passive: ChampionContentCopy;
+  spells: readonly (ChampionContentCopy & Readonly<{ id: string }>)[];
+}>;
+
+const implementedFrFR = {
   Garen: {
     title: 'Force de Demacia',
     passive: {
@@ -312,9 +327,9 @@ const frFR = {
       },
     },
   },
-} as const satisfies ChampionContentById;
+} as const satisfies ChampionContentOverridesById;
 
-type MatchingLocaleCatalog<T extends ChampionContentById> = Readonly<{
+type MatchingLocaleCatalog<T extends ChampionContentOverridesById> = Readonly<{
   [ChampionId in keyof T]: Readonly<{
     title: string;
     passive: ChampionContentCopy;
@@ -324,7 +339,7 @@ type MatchingLocaleCatalog<T extends ChampionContentById> = Readonly<{
   }>;
 }>;
 
-const enUS = {
+const implementedEnUS = {
   Garen: {
     title: 'the Might of Demacia',
     passive: {
@@ -615,7 +630,49 @@ const enUS = {
       },
     },
   },
-} as const satisfies MatchingLocaleCatalog<typeof frFR>;
+} as const satisfies MatchingLocaleCatalog<typeof implementedFrFR>;
+
+function createCatalog(
+  sources: readonly ChampionContentSource[],
+  overrides: ChampionContentOverridesById,
+): ChampionContentById {
+  const catalog: Record<string, ChampionContentEntry> = Object.fromEntries(
+    sources.map((champion) => [
+      champion.id,
+      {
+        name: champion.name.trim(),
+        title: champion.title.trim(),
+        passive: {
+          name: champion.passive.name.trim(),
+          description: champion.passive.description.trim(),
+        },
+        spells: Object.fromEntries(
+          champion.spells.map((spell) => [
+            spell.id,
+            { name: spell.name.trim(), description: spell.description.trim() },
+          ]),
+        ),
+      },
+    ]),
+  );
+
+  for (const [championId, override] of Object.entries(overrides)) {
+    const generated = catalog[championId];
+    if (!generated) throw new Error(`Missing generated champion content for ${championId}.`);
+    catalog[championId] = { ...generated, ...override };
+  }
+
+  return catalog;
+}
+
+const frFR = createCatalog(
+  frenchChampionContentJson as readonly ChampionContentSource[],
+  implementedFrFR,
+);
+const enUS = createCatalog(
+  englishChampionContentJson.champions as readonly ChampionContentSource[],
+  implementedEnUS,
+);
 
 export const championContent: Readonly<Record<ChampionContentLocale, ChampionContentById>> = {
   'fr-FR': frFR,
