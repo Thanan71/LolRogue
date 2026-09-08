@@ -5,7 +5,8 @@ import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { plural } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
+import { routeTitle } from '@/i18n/routeTitles';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/main-menu.css';
@@ -358,7 +359,7 @@ export function MenuPage() {
       <footer className="main-menu__footer">
         <span className="main-menu__version">v0.1.0</span>
         <span className="main-menu__disclaimer">{fr.product.disclaimer}</span>
-        <Link to={ROUTES.LEGAL}>Légal et confidentialité</Link>
+        <Link to={ROUTES.LEGAL}>{routeTitle(locale, ROUTES.LEGAL)}</Link>
       </footer>
     </div>
   );
