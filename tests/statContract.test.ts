@@ -4,6 +4,7 @@ import { getEnhancementNodeUnavailableReasons } from '../src/game/rules/catalogS
 import {
   applyCanonicalModifiers,
   CANONICAL_STAT_KEYS,
+  formatStatValue,
   normalizeGameplayStatKey,
   normalizeStatKey,
 } from '../src/game/stats/statContract';
@@ -46,6 +47,19 @@ describe('canonical stat contract', () => {
     expect(normalizeGameplayStatKey('armor_pen')).toBe('armorPen');
     expect(normalizeStatKey('armorPen')).toBeNull();
     expect(new Set(CANONICAL_STAT_KEYS).size).toBe(CANONICAL_STAT_KEYS.length);
+  });
+
+  it('formats displayed values with the selected locale', () => {
+    const french = formatStatValue('attackSpeed', 1234.56, 'fr-FR');
+    const english = formatStatValue('attackSpeed', 1234.56, 'en-US');
+
+    expect(french).toBe(
+      new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 }).format(1234.56),
+    );
+    expect(english).toBe(
+      new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(1234.56),
+    );
+    expect(french).not.toBe(english);
   });
 
   it('authors no spatial-range bonus while the combat model has no positions', () => {

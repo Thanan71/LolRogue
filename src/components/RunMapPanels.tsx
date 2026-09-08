@@ -6,7 +6,7 @@ import {
   normalizeStatKey,
 } from '@/game/stats/statContract';
 import { championName, itemDescription, itemName } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -299,8 +299,8 @@ export function InventoryPanel({
                   </button>
                   {getEquipPreview(entry, member).map(({ stat, before, after }) => (
                     <div key={stat} className="run-map-inventory-preview">
-                      {fr.stats[stat]} : {formatStatValue(stat, before)} →{' '}
-                      {formatStatValue(stat, after)}
+                      {fr.stats[stat]} : {formatStatValue(stat, before, locale)} →{' '}
+                      {formatStatValue(stat, after, locale)}
                     </div>
                   ))}
                 </div>

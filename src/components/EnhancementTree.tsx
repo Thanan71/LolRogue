@@ -12,7 +12,7 @@ import {
   STAT_LABELS,
 } from '@/game/stats/statContract';
 import { localizeUserCopy } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
 import { enhancementService } from '@/services/enhancementService';
 import type { Champion } from '@/types/champion';
 import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';
@@ -263,8 +263,8 @@ function NodeCard({
         <div className="node-preview" aria-label={fr.enhancement.preview}>
           {preview.map(({ stat, before, after }) => (
             <div key={stat}>
-              {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
-              <strong>{formatStatValue(stat, after)}</strong>
+              {STAT_LABELS[stat]} : {formatStatValue(stat, before, locale)} →{' '}
+              <strong>{formatStatValue(stat, after, locale)}</strong>
             </div>
           ))}
         </div>

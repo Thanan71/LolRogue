@@ -74,7 +74,7 @@ function itemFallback(name: string): string {
 }
 
 function formatDetailStat(key: keyof CalculatedStats, value: number): string {
-  const formatted = formatStatValue(key, value);
+  const formatted = formatStatValue(key, value, locale);
   return key === 'crit' ? `${formatted} %` : formatted;
 }
 
