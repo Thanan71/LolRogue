@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { locale } from '@/i18n/fr';
+import { tutorialContent } from '@/i18n/tutorialContent';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -28,8 +30,9 @@ export function ContextTutorial({
   storageKey,
   title,
   steps,
-  buttonLabel = 'Aide',
+  buttonLabel = tutorialContent[locale].help,
 }: ContextTutorialProps) {
+  const copy = tutorialContent[locale];
   const titleId = useId();
   const dialogId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -144,26 +147,24 @@ export function ContextTutorial({
       >
         <div className="tutorial-dialog__header">
           <h2 id={titleId}>{title}</h2>
-          <button ref={closeRef} type="button" onClick={close} aria-label="Fermer le tutoriel">
+          <button ref={closeRef} type="button" onClick={close} aria-label={copy.close}>
             ×
           </button>
         </div>
-        <p className="tutorial-dialog__progress">
-          Étape {step + 1} sur {steps.length}
-        </p>
+        <p className="tutorial-dialog__progress">{copy.progress(step + 1, steps.length)}</p>
         <h3>{steps[step].title}</h3>
         <p>{steps[step].body}</p>
         <div className="tutorial-dialog__actions">
           <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)}>
-            Précédent
+            {copy.previous}
           </button>
           {step < steps.length - 1 ? (
             <button type="button" onClick={() => setStep(step + 1)}>
-              Suivant
+              {copy.next}
             </button>
           ) : (
             <button type="button" onClick={close}>
-              J’ai compris
+              {copy.done}
             </button>
           )}
         </div>
