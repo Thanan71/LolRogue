@@ -8,8 +8,9 @@ import { calculateRunMemberMaxHp, calculateRunMemberMaxMp } from '@/game/run/run
 import { getRestGoldCost, resolveRestHp, resolveRestMp } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { localizeUserCopy } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { localizeChampion } from '@/i18n/content';
+import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { fr, locale } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
@@ -77,6 +78,11 @@ export function RestPage() {
   const goldCost = encounter ? getRestGoldCost(encounter, team.length) : 0;
   const fullHeal = encounter?.fullHeal ?? false;
   const canAfford = gold >= goldCost;
+  const encounterPresentation = getEncounterPresentation(locale, {
+    type: 'rest',
+    name: encounter?.name,
+    description: encounter?.description,
+  });
 
   const handleRest = useCallback(() => {
     if (!canAfford && goldCost > 0) return;
@@ -163,7 +169,7 @@ export function RestPage() {
 
   return (
     <EncounterLayout
-      title={`${fr.encounter.rest} — ${encounter?.name ?? fr.encounter.campfire}`}
+      title={`${fr.encounter.rest} — ${encounterPresentation.name}`}
       gold={gold}
       tone="green"
       subtitle={fr.encounter.compareRest}
@@ -173,9 +179,7 @@ export function RestPage() {
         <div className="rest__icon" aria-hidden="true">
           ◇
         </div>
-        <div className="rest__description">
-          {localizeUserCopy(encounter?.description ?? fr.encounter.respite)}
-        </div>
+        <div className="rest__description">{encounterPresentation.description}</div>
 
         <div className="rest__summary">
           {fullHeal ? (
@@ -211,7 +215,8 @@ export function RestPage() {
             const maxHp = getMemberMaxHp(member);
             const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
             const pct = Math.round((currentHp / maxHp) * 100);
-            const champ = championDB.getById(member.championId);
+            const sourceChampion = championDB.getById(member.championId);
+            const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
             const healthTone = pct < 30 ? 'critical' : pct < 60 ? 'warning' : 'healthy';
             return (
               <article

@@ -4,8 +4,9 @@ import { EncounterLayout } from '@/components/EncounterLayout';
 import { ROUTES } from '@/config/routes';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { itemDescription, itemName, localizeUserCopy } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { itemDescription, itemName } from '@/i18n/content';
+import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { fr, locale } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/treasure.css';
 
@@ -31,6 +32,11 @@ export function TreasurePage() {
   const encounter = useMemo(() => {
     return getNodeEncounter(getCurrentNode(), 'treasure');
   }, [getCurrentNode]);
+  const encounterPresentation = getEncounterPresentation(locale, {
+    type: 'treasure',
+    name: encounter?.name,
+    description: encounter?.description,
+  });
 
   const handleCollect = useCallback(() => {
     if (!encounter || collected) return;
@@ -53,8 +59,8 @@ export function TreasurePage() {
       const result = addItem(
         {
           id: encounter.item.itemId,
-          name: itemName(encounter.item.itemId, encounter.item.name),
-          description: itemDescription(encounter.item.itemId, encounter.item.description),
+          name: encounter.item.name,
+          description: encounter.item.description,
           iconUrl: encounter.item.iconUrl,
           stats: encounter.item.stats,
           passiveId: encounter.item.passiveId,
@@ -125,12 +131,8 @@ export function TreasurePage() {
 
         {!collected ? (
           <div className="treasure-page__state">
-            <h2 className="treasure-page__title">
-              {encounter?.name ?? fr.encounter.treasureFound}
-            </h2>
-            <p className="treasure-page__description">
-              {localizeUserCopy(encounter?.description ?? fr.encounter.treasureAwaits)}
-            </p>
+            <h2 className="treasure-page__title">{encounterPresentation.name}</h2>
+            <p className="treasure-page__description">{encounterPresentation.description}</p>
             <div className="treasure-page__preview">
               <div className="treasure-page__preview-item">
                 <span className="treasure-page__preview-icon" aria-hidden="true">

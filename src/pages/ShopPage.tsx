@@ -8,7 +8,8 @@ import type { ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { fr, locale } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import { MAX_INVENTORY_ITEMS } from '@/types/run';
 import '@/styles/shop.css';
@@ -168,6 +169,11 @@ export function ShopPage() {
   }, [augmentIds, currentBiomeIndex, encounter?.priceMultiplier]);
   const items = encounter?.items ?? [];
   const recruitable = encounter?.recruitableChampions ?? [];
+  const encounterPresentation = getEncounterPresentation(locale, {
+    type: 'shop',
+    name: encounter?.name,
+    description: encounter?.description,
+  });
 
   const handleBuyItem = useCallback(
     (item: ShopItem) => {
@@ -189,7 +195,9 @@ export function ShopPage() {
       const result = purchaseCurrentShopChampion(champId);
       if (result.success) {
         setCommandError(null);
-        setCommandStatus(fr.encounter.championJoined(championDB.getById(champId)?.name ?? champId));
+        const sourceChampion = championDB.getById(champId);
+        const championName = sourceChampion ? localizeChampion(sourceChampion).name : champId;
+        setCommandStatus(fr.encounter.championJoined(championName));
         playUIClick();
       } else {
         setCommandStatus(null);
@@ -210,9 +218,9 @@ export function ShopPage() {
 
   return (
     <EncounterLayout
-      title={`${fr.encounter.shop} — ${encounter?.name ?? fr.encounter.shop}`}
+      title={`${fr.encounter.shop} — ${encounterPresentation.name}`}
       gold={gold}
-      subtitle={fr.encounter.shopSubtitle}
+      subtitle={encounterPresentation.description}
     >
       <div className="shop-content">
         {commandError && (

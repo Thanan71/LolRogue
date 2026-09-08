@@ -6,9 +6,10 @@ import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { localizeChampion, localizeUserCopy } from '@/i18n/content';
+import { localizeChampion } from '@/i18n/content';
+import { getEncounterPresentation } from '@/i18n/encounterContent';
 import { formatChampionTag } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/recruit.css';
 
@@ -23,7 +24,8 @@ function TeamPreview({ team }: { team: RecruitTeam }) {
       </div>
       <div className="recruit-page__team-portraits">
         {team.map((member) => {
-          const memberChampion = championDB.getById(member.championId);
+          const sourceChampion = championDB.getById(member.championId);
+          const memberChampion = sourceChampion ? localizeChampion(sourceChampion) : undefined;
           const name = memberChampion?.name ?? member.championId;
           return (
             <span key={member.championId} className="recruit-page__team-member" title={name}>
@@ -74,6 +76,12 @@ export function RecruitPage() {
 
   const sourceChampion = encounter ? championDB.getById(encounter.championId) : null;
   const champ = sourceChampion ? localizeChampion(sourceChampion) : null;
+  const encounterPresentation = getEncounterPresentation(locale, {
+    type: 'recruit',
+    name: encounter?.name,
+    description: encounter?.description,
+    championId: encounter?.championId,
+  });
   const teamFull = team.length >= 5;
   const alreadyOnTeam = team.some((m) => m.championId === encounter?.championId);
   const canAfford = encounter ? gold >= encounter.cost : false;
@@ -156,7 +164,7 @@ export function RecruitPage() {
 
   return (
     <EncounterLayout
-      title={`${fr.encounter.recruit} — ${encounter?.name ?? fr.encounter.wildChampion}`}
+      title={`${fr.encounter.recruit} — ${encounterPresentation.name}`}
       gold={gold}
       tone="cyan"
       subtitle={fr.encounter.recruitSubtitle}
@@ -194,7 +202,7 @@ export function RecruitPage() {
               </span>
               <div className="recruit-page__champion-details">
                 <h2 className="recruit-page__champion-name">
-                  {champ?.name ?? encounter?.championId ?? '???'}
+                  {champ?.name ?? encounter?.championId ?? fr.encounter.championUnknown}
                 </h2>
                 <p className="recruit-page__champion-title">
                   {champ?.title ?? fr.encounter.champion}
@@ -209,39 +217,37 @@ export function RecruitPage() {
                 {champ && (
                   <dl className="recruit-page__stats" aria-label={fr.encounter.championStats}>
                     <div>
-                      <dt>PV</dt>
+                      <dt>{fr.stats.short.hp}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--hp">
                         {Math.round(champ.stats.hp)}
                       </dd>
                     </div>
                     <div>
-                      <dt>ATQ</dt>
+                      <dt>{fr.stats.short.attackDamage}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--attack">
                         {Math.round(champ.stats.attackDamage)}
                       </dd>
                     </div>
                     <div>
-                      <dt>ARM</dt>
+                      <dt>{fr.stats.short.armor}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--armor">
                         {Math.round(champ.stats.armor)}
                       </dd>
                     </div>
                     <div>
-                      <dt>RM</dt>
+                      <dt>{fr.stats.short.magicResist}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--resist">
                         {Math.round(champ.stats.magicResist)}
                       </dd>
                     </div>
                     <div>
-                      <dt title={localizeUserCopy("Initiative d'attaque")}>
-                        {localizeUserCopy('I. ATQ')}
-                      </dt>
+                      <dt title={fr.stats.attackSpeed}>{fr.stats.short.attackSpeed}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--speed">
                         {champ.stats.attackSpeed.toFixed(2)}
                       </dd>
                     </div>
                     <div>
-                      <dt>CRIT</dt>
+                      <dt>{fr.stats.short.crit}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--crit">
                         {Math.round(champ.stats.crit)} %
                       </dd>
@@ -250,9 +256,7 @@ export function RecruitPage() {
                 )}
               </div>
             </div>
-            <div className="recruit-page__description">
-              {localizeUserCopy(encounter?.description ?? fr.encounter.wildChampionDescription)}
-            </div>
+            <div className="recruit-page__description">{encounterPresentation.description}</div>
             <div className="recruit-page__cost">
               {fr.encounter.cost} : {encounter?.cost ?? 0} {fr.common.gold}
             </div>
