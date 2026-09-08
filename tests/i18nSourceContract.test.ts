@@ -18,6 +18,13 @@ const INCLUDED_SOURCE_PREFIXES = [
 
 const INCLUDED_SOURCE_FILES = new Set(['src/App.tsx']);
 
+const PROJECT_COPY_BEARING_NAMES = [
+  'detail',
+  'emptyMessage',
+  'error',
+  'saveError',
+] as const;
+
 // These sources deliberately contain bilingual catalog values or internal gameplay identifiers.
 // User-visible projections of that data remain covered through pages/components/presentation.
 const EXCLUDED_SOURCE_PREFIXES = ['src/i18n/', 'src/data/', 'src/game/'] as const;
@@ -97,7 +104,10 @@ describe('i18n source contract', () => {
   it('contains no raw user copy in production presentation sources', { timeout: 30_000 }, () => {
     const sourceFiles = listProductionSourceFiles(SOURCE_DIRECTORY);
     const findings = sourceFiles.flatMap((file) =>
-      scanUserCopyFile(file, { additionalInvariantTokens: PROJECT_INVARIANT_TOKENS }),
+      scanUserCopyFile(file, {
+        additionalCopyBearingNames: PROJECT_COPY_BEARING_NAMES,
+        additionalInvariantTokens: PROJECT_INVARIANT_TOKENS,
+      }),
     );
     const diagnostics = findings.map(formatFinding);
     const findingsByFile = formatFindingCounts(findings);
