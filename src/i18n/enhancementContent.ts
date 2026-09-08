@@ -9,8 +9,62 @@ export type EnhancementCopy = Readonly<{
   description: string;
 }>;
 
+export type EnhancementLockReasonContent = Readonly<{
+  unavailable: Readonly<{ message: string; details: string }>;
+  maxed: Readonly<{ message: string; details: (maximumRank: number) => string }>;
+  masteryLevel: Readonly<{
+    message: string;
+    details: (requiredLevel: number, currentLevel: number) => string;
+  }>;
+  candies: Readonly<{
+    message: string;
+    details: (requiredCandies: number, currentCandies: number) => string;
+  }>;
+  prerequisite: Readonly<{
+    message: string;
+    details: (name: string, requiredLevel: number, candyCost: number) => string;
+  }>;
+}>;
+
+export type EnhancementUiContent = Readonly<{
+  treeTitle: (championName: string) => string;
+  candyBalance: (candies: number) => string;
+  masteryLevel: (level: number) => string;
+  coreNodesTitle: string;
+  ultimate: string;
+  preview: string;
+  maximum: string;
+  maximumReached: string;
+  saving: string;
+  unlock: string;
+  nextRank: (rank: number, maximumRank: number) => string;
+  lockReasons: EnhancementLockReasonContent;
+}>;
+
+export type EnhancementStoreContent = Readonly<{
+  loadError: string;
+  nodeNotFound: string;
+  accountRequired: string;
+  secureCommandUnsupported: string;
+  saveFailed: string;
+  saveFailedWithDetail: (detail: string) => string;
+  unlockSucceeded: (nodeName: string) => string;
+  validation: Readonly<{
+    unavailable: string;
+    masteryLevel: (requiredLevel: number) => string;
+    candies: (requiredCandies: number) => string;
+    maxed: string;
+    prerequisite: string;
+    fallback: string;
+  }>;
+}>;
+
 export type EnhancementContentCatalog = Readonly<{
   roles: Readonly<Record<string, EnhancementRoleContent>>;
+  ui: EnhancementUiContent;
+  store: EnhancementStoreContent;
+  masteryUnlocks: Readonly<Record<string, EnhancementCopy>>;
+  statLabels: Readonly<Record<string, string>>;
   branches: Readonly<Record<string, EnhancementCopy>>;
   coreNodes: Readonly<Record<string, EnhancementCopy>>;
   nodes: Readonly<Record<string, EnhancementCopy>>;
@@ -24,6 +78,93 @@ const frFR = {
     Marksman: { name: 'Tireur' },
     Fighter: { name: 'Combattant' },
     Support: { name: 'Support' },
+  },
+  ui: {
+    treeTitle: (championName: string) => `Arbre d'Amélioration - ${championName}`,
+    candyBalance: (candies: number) => `${candies.toLocaleString('fr-FR')} 🍬`,
+    masteryLevel: (level: number) => `Maîtrise: Niveau ${level.toLocaleString('fr-FR')}`,
+    coreNodesTitle: '⚡ Nœuds de Base',
+    ultimate: 'ULTIME',
+    preview: 'Aperçu des statistiques après déblocage',
+    maximum: 'MAXIMUM',
+    maximumReached: 'Maximum atteint',
+    saving: 'Enregistrement…',
+    unlock: 'Débloquer',
+    nextRank: (rank: number, maximumRank: number) =>
+      `Niv ${rank.toLocaleString('fr-FR')}/${maximumRank.toLocaleString('fr-FR')}`,
+    lockReasons: {
+      unavailable: {
+        message: 'Indisponible dans ce mode',
+        details: "Cette amélioration n'est pas disponible dans le moteur de combat actuel",
+      },
+      maxed: {
+        message: 'Maximum atteint',
+        details: (maximumRank: number) =>
+          `Ce nœud est déjà au niveau maximum (${maximumRank.toLocaleString('fr-FR')}/${maximumRank.toLocaleString('fr-FR')})`,
+      },
+      masteryLevel: {
+        message: 'Niveau de maîtrise insuffisant',
+        details: (requiredLevel: number, currentLevel: number) =>
+          `Requis: Niveau ${requiredLevel.toLocaleString('fr-FR')} (actuel: Niveau ${currentLevel.toLocaleString('fr-FR')})`,
+      },
+      candies: {
+        message: 'Bonbons insuffisants',
+        details: (requiredCandies: number, currentCandies: number) =>
+          `Requis: ${requiredCandies.toLocaleString('fr-FR')} 🍬 (actuel: ${currentCandies.toLocaleString('fr-FR')} 🍬)`,
+      },
+      prerequisite: {
+        message: 'Prérequis non débloqué',
+        details: (name: string, requiredLevel: number, candyCost: number) => {
+          const mastery =
+            requiredLevel > 0 ? ` (Maîtrise ${requiredLevel.toLocaleString('fr-FR')} requise)` : '';
+          return `📌 ${name}${mastery} - ${candyCost.toLocaleString('fr-FR')} 🍬`;
+        },
+      },
+    },
+  },
+  store: {
+    loadError: 'Impossible de charger la maîtrise et les améliorations.',
+    nodeNotFound: 'Amélioration introuvable.',
+    accountRequired: 'Les améliorations permanentes nécessitent un compte.',
+    secureCommandUnsupported: 'Ce navigateur ne permet pas de sécuriser la commande.',
+    saveFailed: "Échec de l'enregistrement de l'amélioration.",
+    saveFailedWithDetail: (detail: string) =>
+      `Échec de l'enregistrement de l'amélioration. (${detail})`,
+    unlockSucceeded: (nodeName: string) => `${nodeName} a bien été amélioré.`,
+    validation: {
+      unavailable: "Cette amélioration n'est pas disponible dans le moteur de combat actuel",
+      masteryLevel: (requiredLevel: number) =>
+        `Niveau de maîtrise requis: ${requiredLevel.toLocaleString('fr-FR')}`,
+      candies: (requiredCandies: number) =>
+        `Bonbons insuffisants : ${requiredCandies.toLocaleString('fr-FR')} requis`,
+      maxed: 'Ce nœud est déjà au maximum',
+      prerequisite: 'Prérequis non débloqués',
+      fallback: 'Impossible de débloquer ce nœud.',
+    },
+  },
+  masteryUnlocks: {
+    roster_offer_7: {
+      name: 'Roster élargi',
+      description: 'Ajoute un champion au choix de départ, sans agrandir l’équipe.',
+    },
+    starter_reroll_1: {
+      name: 'Relance de roster',
+      description: 'Accorde une relance du choix de départ, sans avantage en combat.',
+    },
+  },
+  statLabels: {
+    hp: 'Points de vie',
+    mp: 'Points de mana',
+    moveSpeed: 'Vitesse de déplacement',
+    armor: 'Armure',
+    magicResist: 'Résistance magique',
+    attackDamage: "Dégâts d'attaque",
+    attackSpeed: "Initiative d'attaque",
+    attackRange: 'Profil de portée',
+    abilityPower: 'Puissance',
+    hpRegen: 'Régénération PV',
+    mpRegen: 'Régénération PM',
+    crit: 'Chance de critique',
   },
   branches: {
     assassin_burst: {
@@ -400,6 +541,14 @@ type MatchingEnhancementContent<T extends EnhancementContentCatalog> = Readonly<
   roles: Readonly<{
     [RoleId in keyof T['roles']]: EnhancementRoleContent;
   }>;
+  ui: EnhancementUiContent;
+  store: EnhancementStoreContent;
+  masteryUnlocks: Readonly<{
+    [UnlockId in keyof T['masteryUnlocks']]: EnhancementCopy;
+  }>;
+  statLabels: Readonly<{
+    [StatId in keyof T['statLabels']]: string;
+  }>;
   branches: Readonly<{
     [BranchId in keyof T['branches']]: EnhancementCopy;
   }>;
@@ -419,6 +568,93 @@ const enUS = {
     Marksman: { name: 'Marksman' },
     Fighter: { name: 'Fighter' },
     Support: { name: 'Support' },
+  },
+  ui: {
+    treeTitle: (championName: string) => `Enhancement Tree - ${championName}`,
+    candyBalance: (candies: number) => `${candies.toLocaleString('en-US')} 🍬`,
+    masteryLevel: (level: number) => `Mastery: Level ${level.toLocaleString('en-US')}`,
+    coreNodesTitle: '⚡ Core Nodes',
+    ultimate: 'ULTIMATE',
+    preview: 'Stat preview after unlocking',
+    maximum: 'MAXIMUM',
+    maximumReached: 'Maximum reached',
+    saving: 'Saving…',
+    unlock: 'Unlock',
+    nextRank: (rank: number, maximumRank: number) =>
+      `Lvl ${rank.toLocaleString('en-US')}/${maximumRank.toLocaleString('en-US')}`,
+    lockReasons: {
+      unavailable: {
+        message: 'Unavailable in this mode',
+        details: 'This enhancement is not available in the current combat engine',
+      },
+      maxed: {
+        message: 'Maximum reached',
+        details: (maximumRank: number) =>
+          `This node is already at maximum rank (${maximumRank.toLocaleString('en-US')}/${maximumRank.toLocaleString('en-US')})`,
+      },
+      masteryLevel: {
+        message: 'Mastery level too low',
+        details: (requiredLevel: number, currentLevel: number) =>
+          `Required: Level ${requiredLevel.toLocaleString('en-US')} (current: Level ${currentLevel.toLocaleString('en-US')})`,
+      },
+      candies: {
+        message: 'Not enough candies',
+        details: (requiredCandies: number, currentCandies: number) =>
+          `Required: ${requiredCandies.toLocaleString('en-US')} 🍬 (current: ${currentCandies.toLocaleString('en-US')} 🍬)`,
+      },
+      prerequisite: {
+        message: 'Prerequisite not unlocked',
+        details: (name: string, requiredLevel: number, candyCost: number) => {
+          const mastery =
+            requiredLevel > 0 ? ` (Mastery ${requiredLevel.toLocaleString('en-US')} required)` : '';
+          return `📌 ${name}${mastery} - ${candyCost.toLocaleString('en-US')} 🍬`;
+        },
+      },
+    },
+  },
+  store: {
+    loadError: 'Unable to load mastery and enhancements.',
+    nodeNotFound: 'Enhancement not found.',
+    accountRequired: 'Permanent enhancements require an account.',
+    secureCommandUnsupported: 'This browser cannot secure the command.',
+    saveFailed: 'Failed to save enhancement.',
+    saveFailedWithDetail: (detail: string) => `Failed to save enhancement. (${detail})`,
+    unlockSucceeded: (nodeName: string) => `${nodeName} was successfully upgraded.`,
+    validation: {
+      unavailable: 'This enhancement is not available in the current combat engine',
+      masteryLevel: (requiredLevel: number) =>
+        `Required mastery level: ${requiredLevel.toLocaleString('en-US')}`,
+      candies: (requiredCandies: number) =>
+        `Not enough candies: ${requiredCandies.toLocaleString('en-US')} required`,
+      maxed: 'This node is already at maximum rank',
+      prerequisite: 'Prerequisites have not been unlocked',
+      fallback: 'Unable to unlock this node.',
+    },
+  },
+  masteryUnlocks: {
+    roster_offer_7: {
+      name: 'Expanded Roster',
+      description: 'Adds one champion to the starting selection without increasing team size.',
+    },
+    starter_reroll_1: {
+      name: 'Roster Reroll',
+      description:
+        'Grants one reroll of the starting selection without providing a combat advantage.',
+    },
+  },
+  statLabels: {
+    hp: 'Health',
+    mp: 'Mana',
+    moveSpeed: 'Movement Speed',
+    armor: 'Armor',
+    magicResist: 'Magic Resistance',
+    attackDamage: 'Attack Damage',
+    attackSpeed: 'Attack Initiative',
+    attackRange: 'Range Profile',
+    abilityPower: 'Ability Power',
+    hpRegen: 'Health Regeneration',
+    mpRegen: 'Mana Regeneration',
+    crit: 'Critical Strike Chance',
   },
   branches: {
     assassin_burst: {
@@ -795,6 +1031,7 @@ export type EnhancementRoleId = keyof typeof frFR.roles;
 export type EnhancementBranchId = keyof typeof frFR.branches;
 export type EnhancementCoreNodeId = keyof typeof frFR.coreNodes;
 export type EnhancementNodeId = keyof typeof frFR.nodes;
+export type EnhancementMasteryUnlockId = keyof typeof frFR.masteryUnlocks;
 
 export const enhancementContent: Readonly<
   Record<EnhancementContentLocale, EnhancementContentCatalog>
@@ -802,3 +1039,31 @@ export const enhancementContent: Readonly<
   'fr-FR': frFR,
   'en-US': enUS,
 };
+
+export function getEnhancementNodeContent(
+  locale: EnhancementContentLocale,
+  nodeId: string,
+): EnhancementCopy {
+  const catalog = enhancementContent[locale];
+  const copy = catalog.coreNodes[nodeId] ?? catalog.nodes[nodeId];
+  if (!copy) throw new Error(`Missing enhancement node content: ${nodeId}`);
+  return copy;
+}
+
+export function getEnhancementBranchContent(
+  locale: EnhancementContentLocale,
+  branchId: string,
+): EnhancementCopy {
+  const copy = enhancementContent[locale].branches[branchId];
+  if (!copy) throw new Error(`Missing enhancement branch content: ${branchId}`);
+  return copy;
+}
+
+export function getEnhancementMasteryUnlockContent(
+  locale: EnhancementContentLocale,
+  unlockId: string,
+): EnhancementCopy {
+  const copy = enhancementContent[locale].masteryUnlocks[unlockId];
+  if (!copy) throw new Error(`Missing enhancement mastery unlock content: ${unlockId}`);
+  return copy;
+}

@@ -1,16 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
 import { ENHANCEMENT_TREES_BY_ROLE } from '@/data/enhancementTrees';
+import { CANONICAL_STAT_KEYS } from '@/game/stats/statContract';
 import {
   type EnhancementContentCatalog,
   type EnhancementContentLocale,
   type EnhancementCopy,
   enhancementContent,
 } from '@/i18n/enhancementContent';
+import { enhancementService } from '@/services/enhancementService';
 
 const LOCALES = ['fr-FR', 'en-US'] as const satisfies readonly EnhancementContentLocale[];
 const CATEGORIES = ['branches', 'coreNodes', 'nodes'] as const;
 const INVARIANT_DESCRIPTION_IDS = new Set(['assassin_sustain_2']);
+const MASTERY_UNLOCK_IDS = ['roster_offer_7', 'starter_reroll_1'] as const;
 
 const trees = Object.values(ENHANCEMENT_TREES_BY_ROLE);
 const sourceIds = {
@@ -63,6 +66,8 @@ describe('enhancementContent', () => {
       expectExactIds(catalog, 'branches', sourceIds.branches);
       expectExactIds(catalog, 'coreNodes', sourceIds.coreNodes);
       expectExactIds(catalog, 'nodes', sourceIds.nodes);
+      expectExactIds(catalog, 'masteryUnlocks', MASTERY_UNLOCK_IDS);
+      expectExactIds(catalog, 'statLabels', CANONICAL_STAT_KEYS);
     }
   });
 
@@ -85,6 +90,22 @@ describe('enhancementContent', () => {
         expectCompleteCopy(english[category][id]!);
       }
     }
+
+    expect(sorted(Object.keys(english.masteryUnlocks))).toEqual(
+      sorted(Object.keys(french.masteryUnlocks)),
+    );
+    for (const unlockId of MASTERY_UNLOCK_IDS) {
+      expectCompleteCopy(french.masteryUnlocks[unlockId]!);
+      expectCompleteCopy(english.masteryUnlocks[unlockId]!);
+    }
+    expect(Object.keys(english.ui).sort()).toEqual(Object.keys(french.ui).sort());
+    expect(Object.keys(english.store).sort()).toEqual(Object.keys(french.store).sort());
+    expect(Object.keys(english.ui.lockReasons).sort()).toEqual(
+      Object.keys(french.ui.lockReasons).sort(),
+    );
+    expect(Object.keys(english.store.validation).sort()).toEqual(
+      Object.keys(french.store.validation).sort(),
+    );
   });
 
   it('preserves every canonical French branch and node label byte-for-byte', () => {
@@ -174,6 +195,44 @@ describe('enhancementContent', () => {
     expect(english.nodes.support_utility_3).toEqual({
       name: 'Total Control',
       description: 'Ultimate: Crowd control abilities affect a 30% larger area',
+    });
+  });
+
+  it('localizes UI, validation, stat, and mastery presentation from explicit catalogs', () => {
+    const french = enhancementContent['fr-FR'];
+    const english = enhancementContent['en-US'];
+
+    expect(french.ui.treeTitle('Garen')).toBe("Arbre d'Amélioration - Garen");
+    expect(english.ui.treeTitle('Garen')).toBe('Enhancement Tree - Garen');
+    expect(french.ui.lockReasons.masteryLevel.details(3, 1)).toBe(
+      'Requis: Niveau 3 (actuel: Niveau 1)',
+    );
+    expect(english.ui.lockReasons.masteryLevel.details(3, 1)).toBe(
+      'Required: Level 3 (current: Level 1)',
+    );
+    expect(french.store.unlockSucceeded('Force')).toBe('Force a bien été amélioré.');
+    expect(english.store.unlockSucceeded('Strength')).toBe('Strength was successfully upgraded.');
+    expect(french.statLabels.attackDamage).toBe("Dégâts d'attaque");
+    expect(english.statLabels.attackDamage).toBe('Attack Damage');
+    expect(french.masteryUnlocks.roster_offer_7.description).toBe(
+      'Ajoute un champion au choix de départ, sans agrandir l’équipe.',
+    );
+    expect(english.masteryUnlocks.roster_offer_7.description).toBe(
+      'Adds one champion to the starting selection without increasing team size.',
+    );
+  });
+
+  it('returns localized validation errors without changing unlock rules', () => {
+    const node = ENHANCEMENT_TREES_BY_ROLE.Fighter.coreNodes[0]!;
+    const state = { unlockedNodes: {}, totalCandiesSpent: 0 };
+
+    expect(enhancementService.validateUnlock(node, state, 4, 0, 'fr-FR')).toEqual({
+      valid: false,
+      error: `Bonbons insuffisants : ${node.candyCost} requis`,
+    });
+    expect(enhancementService.validateUnlock(node, state, 4, 0, 'en-US')).toEqual({
+      valid: false,
+      error: `Not enough candies: ${node.candyCost} required`,
     });
   });
 });

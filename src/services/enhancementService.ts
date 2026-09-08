@@ -17,6 +17,8 @@ import {
 } from '@/data/enhancementTrees';
 import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
 import { normalizeGameplayStatKey } from '@/game/stats/statContract';
+import { type EnhancementContentLocale, enhancementContent } from '@/i18n/enhancementContent';
+import { locale } from '@/i18n/fr';
 import type {
   EnhancementStatBonuses,
   IEnhancementService,
@@ -165,18 +167,20 @@ export class EnhancementService implements IEnhancementService {
     state: PlayerEnhancementState,
     masteryLevel: number,
     availableCandies: number,
+    contentLocale: EnhancementContentLocale = locale,
   ): { valid: boolean; error?: string } {
+    const validation = enhancementContent[contentLocale].store.validation;
     if (getEnhancementNodeUnavailableReasons(node).length > 0) {
       return {
         valid: false,
-        error: "Cette amélioration n'est pas disponible dans le moteur de combat actuel",
+        error: validation.unavailable,
       };
     }
     // Check mastery level requirement
     if (masteryLevel < node.requiredMasteryLevel) {
       return {
         valid: false,
-        error: `Niveau de maîtrise requis: ${node.requiredMasteryLevel}`,
+        error: validation.masteryLevel(node.requiredMasteryLevel),
       };
     }
 
@@ -184,7 +188,7 @@ export class EnhancementService implements IEnhancementService {
     if (availableCandies < node.candyCost) {
       return {
         valid: false,
-        error: `Candies insuffisants: ${node.candyCost} requis`,
+        error: validation.candies(node.candyCost),
       };
     }
 
@@ -194,7 +198,7 @@ export class EnhancementService implements IEnhancementService {
     if (currentRank >= maxRanks) {
       return {
         valid: false,
-        error: 'Ce nœud est déjà au maximum',
+        error: validation.maxed,
       };
     }
 
@@ -204,7 +208,7 @@ export class EnhancementService implements IEnhancementService {
       if (prereqRank === 0) {
         return {
           valid: false,
-          error: 'Prérequis non débloqués',
+          error: validation.prerequisite,
         };
       }
     }

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { garen } from '@/data/champion/Garen';
 import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 const dependencies = vi.hoisted(() => {
   const unlockNode = vi.fn();
@@ -87,6 +88,7 @@ describe('enhancement unlock recovery', () => {
     dependencies.authState.user = { id: 'user-1' };
     dependencies.authState.player = { total_candies: 20 };
     dependencies.authState.isGuest = false;
+    useSettingsStore.setState({ language: 'fr-FR' });
     vi.stubGlobal('crypto', { randomUUID: dependencies.randomUUID });
 
     useEnhancementStore.getState().reset();
@@ -207,5 +209,25 @@ describe('enhancement unlock recovery', () => {
     expect(dependencies.unlockNode.mock.calls[1]).toEqual(dependencies.unlockNode.mock.calls[0]);
     expect(consoleError).toHaveBeenCalledOnce();
     consoleError.mockRestore();
+  });
+
+  it('localizes durable success messages while keeping the stable node ID for persistence', async () => {
+    const commandId = '3456789a-bcde-4def-8123-456789abcdef';
+    useSettingsStore.setState({ language: 'en-US' });
+    dependencies.randomUUID.mockReturnValue(commandId);
+    dependencies.unlockNode.mockResolvedValue(successfulUnlock(commandId, false));
+
+    await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(true);
+
+    expect(dependencies.unlockNode).toHaveBeenCalledWith(
+      'user-1',
+      'Garen',
+      'fighter_core_1',
+      0,
+      commandId,
+    );
+    expect(useEnhancementStore.getState().statusMessage).toBe(
+      'Strength was successfully upgraded.',
+    );
   });
 });
