@@ -26,9 +26,11 @@ export const legalEn = {
     dailyPublic: 'Public daily leaderboard',
     diagnosticLogs: 'Technical logs',
     reviewedReports: 'Reviewed reports',
-    accountData: 'maximum',
-    guestData: 'maximum',
+    accountData: 'Account data',
+    guestData: 'Guest data',
     maximum: 'maximum',
+    months: (count: number) => `${count} month${count === 1 ? '' : 's'}`,
+    days: (count: number) => `${count} day${count === 1 ? '' : 's'}`,
   },
   storage: {
     title: 'Local storage, cookies, and telemetry',

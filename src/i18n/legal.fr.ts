@@ -29,6 +29,8 @@ export const legalFr = {
     accountData: 'Données de compte',
     guestData: 'Données invitées',
     maximum: 'maximum',
+    months: (count: number) => `${count} mois`,
+    days: (count: number) => `${count} jour${count > 1 ? 's' : ''}`,
   },
   storage: {
     title: 'Stockage local, cookies et télémétrie',
