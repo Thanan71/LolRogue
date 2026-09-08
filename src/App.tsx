@@ -6,10 +6,6 @@ import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
 import { locale } from './i18n/fr';
-import { installLegacyEnglishDomTranslation } from './i18n/legacyEnglish';
-import { installAuditedEnglishCopyTranslation } from './i18n/legacyEnglishAudit';
-import { installLegacyEnglishContentTranslation } from './i18n/legacyEnglishContent';
-import { installLegacyEnglishPhraseTranslation } from './i18n/legacyEnglishPhrases';
 import { routeTitle } from './i18n/routeTitles';
 import { useSettingsStore } from './stores/settingsStore';
 import { installGlobalErrorCapture, recordTechnicalEvent } from './utils/observability';
@@ -152,19 +148,6 @@ export default function App() {
 
   useEffect(() => {
     return installGlobalErrorCapture();
-  }, []);
-
-  useEffect(() => {
-    const uninstallAuditTranslation = installAuditedEnglishCopyTranslation();
-    const uninstallPhraseTranslation = installLegacyEnglishPhraseTranslation();
-    const uninstallContentTranslation = installLegacyEnglishContentTranslation();
-    const uninstallLegacyTranslation = installLegacyEnglishDomTranslation();
-    return () => {
-      uninstallLegacyTranslation();
-      uninstallContentTranslation();
-      uninstallPhraseTranslation();
-      uninstallAuditTranslation();
-    };
   }, []);
 
   useEffect(() => {
