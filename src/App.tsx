@@ -5,40 +5,20 @@ import { RouteLoadingFallback } from './components/AppErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
+import { locale } from './i18n/fr';
 import { installLegacyEnglishDomTranslation } from './i18n/legacyEnglish';
 import { installAuditedEnglishCopyTranslation } from './i18n/legacyEnglishAudit';
 import { installLegacyEnglishContentTranslation } from './i18n/legacyEnglishContent';
 import { installLegacyEnglishPhraseTranslation } from './i18n/legacyEnglishPhrases';
+import { routeTitle } from './i18n/routeTitles';
 import { useSettingsStore } from './stores/settingsStore';
 import { installGlobalErrorCapture, recordTechnicalEvent } from './utils/observability';
 
 assertValidRuleCatalogs();
 
-const ROUTE_TITLES: Record<string, string> = {
-  '/': 'Menu principal',
-  '/auth': 'Connexion',
-  '/starter-select': 'Sélection de départ',
-  '/run': 'Carte de la partie',
-  '/combat': 'Combat',
-  '/shop': 'Boutique',
-  '/recruit': 'Recrutement',
-  '/rest': 'Repos',
-  '/event': 'Événement',
-  '/treasure': 'Trésor',
-  '/game-over': 'Résultat de la partie',
-  '/daily-run': 'Défi quotidien',
-  '/profile': 'Profil',
-  '/database': 'Base des champions',
-  '/settings': 'Réglages',
-  '/credits': 'Crédits',
-  '/rules': 'Guide et règles',
-  '/legal': 'Informations légales et confidentialité',
-  '/admin': 'Administration',
-};
-
 function RouteAccessibility() {
   const { pathname } = useLocation();
-  const title = ROUTE_TITLES[pathname] ?? 'Page introuvable';
+  const title = routeTitle(locale, pathname);
 
   useEffect(() => {
     document.title = `${title} — LoL Rogue`;
