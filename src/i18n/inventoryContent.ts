@@ -14,6 +14,12 @@ export type InventoryContentCatalog = Readonly<{
   items: Readonly<Record<string, ItemContentCopy>>;
   augments: Readonly<Record<string, InventoryNamedCopy>>;
   runes: Readonly<Record<string, InventoryNamedCopy>>;
+  fallbacks: Readonly<{
+    item: InventoryNamedCopy;
+    passive: InventoryNamedCopy;
+    augment: InventoryNamedCopy;
+    rune: InventoryNamedCopy;
+  }>;
 }>;
 
 const frFR = {
@@ -302,6 +308,12 @@ const frFR = {
       description: 'Fixture de test : multiplie fortement les statistiques au début du combat.',
     },
   },
+  fallbacks: {
+    item: { name: 'Objet inconnu', description: 'Description de cet objet indisponible.' },
+    passive: { name: 'Passif inconnu', description: 'Description de ce passif indisponible.' },
+    augment: { name: 'Augment inconnu', description: 'Description de cet augment indisponible.' },
+    rune: { name: 'Rune inconnue', description: 'Description de cette rune indisponible.' },
+  },
 } as const satisfies InventoryContentCatalog;
 
 type MatchingLocaleCatalog<T extends InventoryContentCatalog> = Readonly<{
@@ -318,6 +330,9 @@ type MatchingLocaleCatalog<T extends InventoryContentCatalog> = Readonly<{
   }>;
   runes: Readonly<{
     [RuneId in keyof T['runes']]: InventoryNamedCopy;
+  }>;
+  fallbacks: Readonly<{
+    [FallbackId in keyof T['fallbacks']]: InventoryNamedCopy;
   }>;
 }>;
 
@@ -602,6 +617,12 @@ const enUS = {
       name: 'E2E — Assured Victory',
       description: 'Test fixture: greatly multiplies stats at the start of combat.',
     },
+  },
+  fallbacks: {
+    item: { name: 'Unknown item', description: 'This item description is unavailable.' },
+    passive: { name: 'Unknown passive', description: 'This passive description is unavailable.' },
+    augment: { name: 'Unknown augment', description: 'This augment description is unavailable.' },
+    rune: { name: 'Unknown rune', description: 'This rune description is unavailable.' },
   },
 } as const satisfies MatchingLocaleCatalog<typeof frFR>;
 
