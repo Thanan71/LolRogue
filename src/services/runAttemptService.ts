@@ -1,5 +1,9 @@
 import type { Json } from '@/types/database';
 import {
+  verificationRejectionMessage,
+  verificationRetryableMessage,
+} from '@/i18n/runErrorContent';
+import {
   MAX_TEAM_SIZE,
   type RunItemLedgerEvent,
   type RunSummary,
@@ -516,15 +520,7 @@ function parseVerificationRejection(value: unknown): RunVerificationRejectedErro
       : null;
   return new RunVerificationRejectedError(
     code ?? 'trace_rejected',
-    typeof error?.message === 'string'
-      ? error.message
-      : code === 'run_attempt_expired'
-        ? 'This verified run attempt has expired.'
-        : code === 'run_attempt_not_found'
-          ? 'This run attempt no longer exists on the server.'
-          : `The run trace was rejected (${code ?? 'trace_rejected'}${
-              commandIndex === null ? '' : ` at command ${commandIndex + 1}`
-            }).`,
+    verificationRejectionMessage(code ?? 'trace_rejected', commandIndex),
     commandIndex,
   );
 }
@@ -544,21 +540,7 @@ function parseVerificationRetryableError(value: unknown): RunVerificationRetryab
     isInteger(envelope.retry_after_seconds) && envelope.retry_after_seconds > 0
       ? envelope.retry_after_seconds
       : null;
-  const fallbackMessages: Record<string, string> = {
-    verification_in_progress: retryAfterSeconds
-      ? `Verification is already in progress. Retry in about ${retryAfterSeconds} seconds.`
-      : 'Verification is already in progress. Retry in a few seconds.',
-    unsupported_attempt_version:
-      'The verifier is being updated for this run version. Retry shortly.',
-    run_attempt_not_sealed: 'The run journal has not been sealed yet. Retry verification.',
-  };
-  const message =
-    typeof envelope.message === 'string' && envelope.message
-      ? retryAfterSeconds && code === 'verification_in_progress'
-        ? `${envelope.message} Retry in about ${retryAfterSeconds} seconds.`
-        : envelope.message
-      : (fallbackMessages[code] ??
-        `Run verification failed (${code}). Retry after checking the server status.`);
+  const message = verificationRetryableMessage(code, retryAfterSeconds);
 
   return new RunVerificationRetryableError(code, message, retryAfterSeconds);
 }
