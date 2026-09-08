@@ -11,7 +11,13 @@ import {
   type VerifiedFieldChampionCohort,
 } from '@/game/balance/fieldCalibrationComparison';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
-import { locale } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
+import {
+  formatAdminDay,
+  formatAdminNumber,
+  formatAdminPercent,
+  formatAdminSignedNumber,
+} from '../adminPageUtils';
 
 interface AdminFieldCalibrationPanelProps {
   fieldCohorts: readonly VerifiedFieldCalibrationCohort[];
@@ -37,12 +43,11 @@ interface AugmentComparisonRow {
 const copy = getAdminFieldCalibrationCopy(locale);
 
 function percent(value: number): string {
-  return `${(value * 100).toFixed(1)} %`;
+  return formatAdminPercent(value);
 }
 
 function signed(value: number, digits = 1): string {
-  const rounded = value.toFixed(digits);
-  return value > 0 ? `+${rounded}` : rounded;
+  return formatAdminSignedNumber(value, digits);
 }
 
 function interval(low: number, high: number): string {
@@ -68,9 +73,9 @@ function cellLabel(
     cell.engineVersion,
     copy.difficulty[cell.difficulty],
     copy.mode[cell.mode],
-    `${copy.cell.team} ${cell.initialTeamSize}`,
+    `${copy.cell.team} ${formatAdminNumber(cell.initialTeamSize)}`,
     `${copy.cell.composition} ${cell.initialCompositionHash.slice(0, 10)}…`,
-    `${copy.cell.meta} ${cell.metaLevel}`,
+    `${copy.cell.meta} ${formatAdminNumber(cell.metaLevel)}`,
     `${copy.cell.runes} ${cell.runeLoadoutHash.slice(0, 10)}…`,
     `${copy.cell.enhancements} ${cell.enhancementLoadoutHash.slice(0, 10)}…`,
   ].join(' · ');
@@ -160,7 +165,7 @@ export function AdminFieldCalibrationPanel({
                   key={`${field.observedOn}-${field.gameplayRulesetVersion}-${field.engineVersion}-${field.mode}-${field.initialCompositionHash}-${field.metaLevel}-${field.runeLoadoutHash}-${field.enhancementLoadoutHash}-${field.difficulty}-${comparison?.baselineKey ?? 'unmatched'}`}
                 >
                   <td>
-                    <strong>{field.observedOn}</strong>
+                    <strong>{formatAdminDay(field.observedOn)}</strong>
                     <small>{cellLabel(field)}</small>
                   </td>
                   <td>
@@ -169,9 +174,18 @@ export function AdminFieldCalibrationPanel({
                       {interval(field.winRateWilson95.lower, field.winRateWilson95.upper)}
                     </strong>
                     <small>
-                      n={field.sampleSize} · {copy.cell.median}{' '}
-                      {field.medianBiomesCompleted.toFixed(1)} {copy.cell.biomes} ·{' '}
-                      {copy.cell.balance} {field.averageGoldBalance.toFixed(1)} {copy.cell.gold}
+                      {fr.admin.sampleSize} {formatAdminNumber(field.sampleSize)} ·{' '}
+                      {copy.cell.median}{' '}
+                      {formatAdminNumber(field.medianBiomesCompleted, {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1,
+                      })}{' '}
+                      {copy.cell.biomes} · {copy.cell.balance}{' '}
+                      {formatAdminNumber(field.averageGoldBalance, {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1,
+                      })}{' '}
+                      {copy.cell.gold}
                     </small>
                   </td>
                   {comparison ? (
@@ -179,7 +193,8 @@ export function AdminFieldCalibrationPanel({
                       <td>
                         <strong>{comparison.policy}</strong>
                         <small>
-                          n={comparison.baselineSampleSize} · {percent(comparison.winRate.baseline)}{' '}
+                          {fr.admin.sampleSize} {formatAdminNumber(comparison.baselineSampleSize)} ·{' '}
+                          {percent(comparison.winRate.baseline)}{' '}
                           {interval(
                             comparison.baselineWinRateWilson95.lower,
                             comparison.baselineWinRateWilson95.upper,
@@ -249,7 +264,8 @@ export function AdminFieldCalibrationPanel({
                   </td>
                   <td>
                     <strong>
-                      {field.sampleSize}/{field.cohortSampleSize} · {copy.cell.presence}{' '}
+                      {formatAdminNumber(field.sampleSize)}/
+                      {formatAdminNumber(field.cohortSampleSize)} · {copy.cell.presence}{' '}
                       {percent(field.participationRate)}
                     </strong>
                     <small>
@@ -262,7 +278,8 @@ export function AdminFieldCalibrationPanel({
                       <td>
                         <strong>{comparison.policy}</strong>
                         <small>
-                          {comparison.baselineSampleSize}/{comparison.baselineCohortSampleSize} ·{' '}
+                          {formatAdminNumber(comparison.baselineSampleSize)}/
+                          {formatAdminNumber(comparison.baselineCohortSampleSize)} ·{' '}
                           {copy.cell.presence} {percent(comparison.participationRate.baseline)} ·{' '}
                           {percent(comparison.winRate.baseline)}{' '}
                           {interval(
@@ -323,7 +340,8 @@ export function AdminFieldCalibrationPanel({
                   </td>
                   <td>
                     <strong>
-                      {field.sampleSize}/{field.cohortSampleSize} · {copy.cell.selection}{' '}
+                      {formatAdminNumber(field.sampleSize)}/
+                      {formatAdminNumber(field.cohortSampleSize)} · {copy.cell.selection}{' '}
                       {percent(field.selectionRate)}
                     </strong>
                     <small>
@@ -336,7 +354,8 @@ export function AdminFieldCalibrationPanel({
                       <td>
                         <strong>{comparison.policy}</strong>
                         <small>
-                          {comparison.baselineSampleSize}/{comparison.baselineCohortSampleSize} ·{' '}
+                          {formatAdminNumber(comparison.baselineSampleSize)}/
+                          {formatAdminNumber(comparison.baselineCohortSampleSize)} ·{' '}
                           {copy.cell.selection} {percent(comparison.selectionRate.baseline)}
                           {comparison.baselineWinRateWilson95
                             ? ` · ${percent(comparison.winRate?.baseline ?? 0)} ${interval(

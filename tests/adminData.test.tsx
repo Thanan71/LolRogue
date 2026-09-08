@@ -105,7 +105,7 @@ describe('admin data feedback', () => {
       />,
     );
 
-    expect(screen.getByRole('alert')).toHaveTextContent('100.0 % de rejets');
+    expect(screen.getByRole('alert')).toHaveTextContent(/100,0\s*% de rejets/u);
     expect(
       screen.getByRole('table', { name: 'Derniers rejets de vérification authority' }),
     ).toHaveTextContent('11111111-1111-4111-8111-111111111111');

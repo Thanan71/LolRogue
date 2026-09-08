@@ -4,6 +4,7 @@ import type {
   VerifiedFieldCalibrationCohort,
   VerifiedFieldChampionCohort,
 } from '@/game/balance/fieldCalibrationComparison';
+import { fr } from '@/i18n/fr';
 import {
   AUTHORITY_REJECTION_ALERT_POLICY,
   type AuthorityAttemptAggregate,
@@ -248,7 +249,7 @@ const EMPTY_ERRORS: AdminDataErrors = {
 };
 
 function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'La requête Admin a échoué.';
+  return error instanceof Error ? error.message : fr.admin.requestFailed;
 }
 
 export async function loadAllAdminSections(
@@ -542,7 +543,7 @@ export function useAdminData(isAdmin: boolean) {
       // Combine runs with team members
       const runsWithTeam = (runsData || []).map((run) => ({
         ...run,
-        player_username: run.player_username?.username || 'Unknown',
+        player_username: run.player_username?.username || fr.admin.unknown,
         player_display_name: run.player_display_name?.display_name || null,
         team_members: teamMembers.filter((tm) => tm.run_id === run.id),
       }));
