@@ -1,6 +1,20 @@
 import { type Locale, locale } from './fr';
 
 export type RunErrorCatalog = Readonly<{
+  startInProgress: string;
+  activeRun: string;
+  activeRunAnotherTab: (runId: string) => string;
+  profileNotReady: string;
+  invalidTeam: string;
+  invalidTeamSize: (maximum: number) => string;
+  invalidStarterCount: (required: number) => string;
+  duplicateChampion: string;
+  unknownChampion: string;
+  unsupportedChampion: string;
+  startFailed: string;
+  dailyStarterChanged: string;
+  staleRun: string;
+  finalizationInProgress: string;
   accountChanged: string;
   previousRunCheckFailed: string;
   activeRunElsewhere: (expiresAt: string) => string;
@@ -36,6 +50,23 @@ function formatExpiry(value: string, locale: Locale): string {
 }
 
 const frFR: RunErrorCatalog = {
+  startInProgress: 'Un départ de partie est déjà en cours de vérification.',
+  activeRun: 'Terminez ou abandonnez explicitement la partie active avant d’en commencer une autre.',
+  activeRunAnotherTab: (runId) =>
+    `La partie ${runId} est active dans un autre onglet. Reprenez-la au lieu d’en commencer une autre.`,
+  profileNotReady:
+    'Votre profil authentifié n’est pas prêt. Relancez son chargement avant de commencer.',
+  invalidTeam: 'L’équipe de départ est invalide.',
+  invalidTeamSize: (maximum) => `Sélectionnez entre 1 et ${maximum} champions.`,
+  invalidStarterCount: (required) =>
+    `Ce mode exige exactement ${required} champion${required > 1 ? 's' : ''} de départ.`,
+  duplicateChampion: 'Un champion ne peut apparaître qu’une fois dans l’équipe.',
+  unknownChampion: 'L’équipe contient un champion inconnu.',
+  unsupportedChampion: 'L’équipe contient un champion non pris en charge.',
+  startFailed: 'La partie vérifiée n’a pas pu démarrer.',
+  dailyStarterChanged: 'L’offre du défi quotidien a changé. Sélectionnez le nouveau champion proposé.',
+  staleRun: 'La partie demandée n’est plus la partie active.',
+  finalizationInProgress: 'La finalisation d’une autre partie est déjà en cours.',
   accountChanged: 'Le compte authentifié a changé pendant l’opération.',
   previousRunCheckFailed: 'Impossible de vérifier les parties précédentes.',
   activeRunElsewhere: (expiresAt) =>
@@ -72,6 +103,22 @@ const frFR: RunErrorCatalog = {
 };
 
 const enUS: RunErrorCatalog = {
+  startInProgress: 'A run start is already being verified.',
+  activeRun: 'Finish or explicitly abandon the active run before starting another.',
+  activeRunAnotherTab: (runId) =>
+    `Run ${runId} is active in another tab. Resume it instead of starting another.`,
+  profileNotReady: 'Your authenticated profile is not ready. Retry loading it before starting.',
+  invalidTeam: 'The starting team is invalid.',
+  invalidTeamSize: (maximum) => `Select between 1 and ${maximum} champions.`,
+  invalidStarterCount: (required) =>
+    `This mode requires exactly ${required} starter${required === 1 ? '' : 's'}.`,
+  duplicateChampion: 'A champion can appear only once on the team.',
+  unknownChampion: 'The team contains an unknown champion.',
+  unsupportedChampion: 'The team contains an unsupported champion.',
+  startFailed: 'The verified run could not be started.',
+  dailyStarterChanged: 'The daily challenge offer changed. Select the newly offered champion.',
+  staleRun: 'The requested run is no longer the active run.',
+  finalizationInProgress: 'Another run finalization is already in progress.',
   accountChanged: 'The authenticated account changed during the operation.',
   previousRunCheckFailed: 'Unable to check previous runs.',
   activeRunElsewhere: (expiresAt) =>
@@ -115,6 +162,17 @@ export const runErrorContent = {
 export const runError = runErrorContent[locale];
 
 const STATIC_KEYS = [
+  'startInProgress',
+  'activeRun',
+  'profileNotReady',
+  'invalidTeam',
+  'duplicateChampion',
+  'unknownChampion',
+  'unsupportedChampion',
+  'startFailed',
+  'dailyStarterChanged',
+  'staleRun',
+  'finalizationInProgress',
   'accountChanged',
   'previousRunCheckFailed',
   'previousVerificationPending',
@@ -172,4 +230,25 @@ export function verificationRejectionMessage(
   if (code === 'run_attempt_expired') return runError.attemptExpired;
   if (code === 'run_attempt_not_found') return runError.attemptNotFound;
   return runError.traceRejected(code, commandIndex);
+}
+
+export function runStartValidationMessage(
+  code: string | null,
+  requiredStarterCount: number,
+  maximumTeamSize: number,
+): string {
+  switch (code) {
+    case 'invalid_team_size':
+      return runError.invalidTeamSize(maximumTeamSize);
+    case 'invalid_starter_count':
+      return runError.invalidStarterCount(requiredStarterCount);
+    case 'duplicate_champion':
+      return runError.duplicateChampion;
+    case 'unknown_champion':
+      return runError.unknownChampion;
+    case 'unsupported_champion':
+      return runError.unsupportedChampion;
+    default:
+      return runError.invalidTeam;
+  }
 }

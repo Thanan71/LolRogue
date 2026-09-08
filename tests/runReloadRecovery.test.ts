@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import type { CombatEncounter } from '@/game/map/types';
 import { createRunLedger } from '@/game/run/runLedger';
+import { runError } from '@/i18n/runErrorContent';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 
@@ -390,7 +391,7 @@ describe('run reload recovery', () => {
         runId: 'interrupted-save',
         isEnding: false,
         saveStatus: 'failed',
-        saveError: 'Run save was interrupted. Retry to continue.',
+        saveError: runError.saveInterrupted,
         saveFailureKind: 'retryable',
       });
     },

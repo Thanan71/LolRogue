@@ -11,6 +11,7 @@ import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/ga
 import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStartCoordinator';
 import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { shouldApplyRunRewards } from '@/game/run/runState';
+import { runError, runStartValidationMessage } from '@/i18n/runErrorContent';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { RunVerificationRejectedError } from '@/services/runAttemptService';
 import { runAuthorityService } from '@/services/runAuthorityService';
@@ -19,7 +20,14 @@ import {
   runLifecycleService,
   runStartFailure as startFailure,
 } from '@/services/runLifecycleService';
-import type { CompletedRunSnapshot, RunState, RunStore, RunSummary, TeamMember } from '@/types/run';
+import {
+  MAX_TEAM_SIZE,
+  type CompletedRunSnapshot,
+  type RunState,
+  type RunStore,
+  type RunSummary,
+  type TeamMember,
+} from '@/types/run';
 import type { PendingRunAttemptStart, RunAuthorityAttempt } from '@/types/runAttempt';
 import { logger } from '@/utils/logger';
 import {
@@ -82,7 +90,7 @@ async function resolveOpenAttemptBeforeStart(
     return {
       ready: false,
       code: 'account_changed',
-      error: 'The authenticated account changed while checking previous runs.',
+      error: runError.accountChanged,
       retryable: true,
     };
   }
@@ -90,7 +98,7 @@ async function resolveOpenAttemptBeforeStart(
     return {
       ready: false,
       code: 'start_failed',
-      error: `Unable to check for a previous verified run: ${openResult.error.message}`,
+      error: runError.previousRunCheckFailed,
       retryable: true,
     };
   }
@@ -104,7 +112,7 @@ async function resolveOpenAttemptBeforeStart(
     return {
       ready: false,
       code: 'start_failed',
-      error: `A verified run is still active on another device until ${openAttempt.expiresAt}. Resume it there or retry after it expires.`,
+      error: runError.activeRunElsewhere(openAttempt.expiresAt),
       retryable: true,
     };
   }
@@ -114,7 +122,7 @@ async function resolveOpenAttemptBeforeStart(
     return {
       ready: false,
       code: 'account_changed',
-      error: 'The authenticated account changed while recovering the previous run.',
+      error: runError.accountChanged,
       retryable: true,
     };
   }
@@ -122,7 +130,7 @@ async function resolveOpenAttemptBeforeStart(
     return {
       ready: false,
       code: 'start_failed',
-      error: `A previous run is still waiting for verification: ${verification.error.message}`,
+      error: runError.previousVerificationPending,
       retryable: true,
     };
   }
@@ -143,7 +151,7 @@ export function createRunLifecycleSlice(
       const finishTransition = measureTransition('run_start');
       if (!runLifecycleService.beginStart()) {
         finishTransition('error');
-        return startFailure('start_in_progress', 'A run start is already being verified.', true);
+        return startFailure('start_in_progress', runError.startInProgress, true);
       }
       let transitionOutcome: 'ok' | 'error' = 'error';
       try {
@@ -152,7 +160,7 @@ export function createRunLifecycleSlice(
           if (currentState.isActive || currentState.isEnding) {
             return startFailure(
               'active_run',
-              'Finish or explicitly abandon the active run before starting another.',
+              runError.activeRun,
               currentState.isEnding,
             );
           }
@@ -160,7 +168,7 @@ export function createRunLifecycleSlice(
           if (persistedActiveRun) {
             return startFailure(
               'active_run_another_tab',
-              `Run ${persistedActiveRun.runId} is active in another tab. Resume it instead of starting a new one.`,
+              runError.activeRunAnotherTab(persistedActiveRun.runId),
               true,
             );
           }
@@ -172,7 +180,7 @@ export function createRunLifecycleSlice(
           ) {
             return startFailure(
               'auth_not_ready',
-              'Your authenticated profile is not ready. Retry profile loading before starting.',
+              runError.profileNotReady,
               true,
             );
           }
@@ -190,7 +198,11 @@ export function createRunLifecycleSlice(
           if (!teamValidation.valid) {
             return startFailure(
               teamValidation.code ?? 'invalid_team_size',
-              teamValidation.error ?? 'The starting team is invalid.',
+              runStartValidationMessage(
+                teamValidation.code,
+                getRequiredStarterCount(mode),
+                MAX_TEAM_SIZE,
+              ),
             );
           }
           const team: TeamMember[] = teamValidation.championIds.map((id) => ({
@@ -226,7 +238,7 @@ export function createRunLifecycleSlice(
               resumableStart?.commandId ??
               (samePendingStart(pending, requestedStart) ? pending.commandId : createCommandId());
             if (!commandId) {
-              const error = 'This browser cannot create a secure run command.';
+              const error = runError.secureStartCommandUnavailable;
               set({ saveError: error });
               return startFailure('secure_command_unavailable', error);
             }
@@ -270,20 +282,26 @@ export function createRunLifecycleSlice(
               attemptResult = await runAuthorityService.startAttempt(startInput);
             }
             if (attemptResult.error || !attemptResult.data) {
-              const rawError = attemptResult.error?.message ?? 'Unable to start a verified run.';
-              const error = rawError.includes('run_attempt_already_open')
-                ? 'A previous verified run is still open. Retry to recover it before starting a new run.'
-                : rawError;
+              const rawError = attemptResult.error?.message ?? '';
               const staleDailyOffer =
-                mode === 'daily' && error.includes('daily_starter_not_offered');
+                mode === 'daily' && rawError.includes('daily_starter_not_offered');
+              const error = rawError.includes('run_attempt_already_open')
+                ? runError.previousAttemptOpen
+                : staleDailyOffer
+                  ? runError.dailyStarterChanged
+                  : runError.startFailed;
               set({
                 saveError: error,
                 ...(staleDailyOffer ? { pendingAuthorityStart: null } : {}),
               });
-              return startFailure('start_failed', error, !staleDailyOffer);
+              return startFailure(
+                staleDailyOffer ? 'daily_starter_not_offered' : 'start_failed',
+                error,
+                !staleDailyOffer,
+              );
             }
             if (useAuthStore.getState().user?.id !== authUser.id) {
-              const error = 'The authenticated account changed while starting the run.';
+              const error = runError.accountChanged;
               set({ saveError: error });
               return startFailure('account_changed', error, true);
             }
@@ -421,7 +439,7 @@ export function createRunLifecycleSlice(
         return endFailure(
           requestedRunId,
           'stale_run',
-          'The requested run is no longer the active run.',
+          runError.staleRun,
         );
       }
       if (!get().isActive) {
@@ -437,7 +455,7 @@ export function createRunLifecycleSlice(
           return endFailure(
             requestedRunId,
             'finalization_in_progress',
-            'Another run finalization is already in progress.',
+            runError.finalizationInProgress,
             true,
           );
         }
@@ -452,7 +470,7 @@ export function createRunLifecycleSlice(
           : endFailure(
               requestedRunId,
               'finalization_failed',
-              state.saveError ?? 'The run could not be finalized.',
+              state.saveError ?? runError.finalizationFailed,
               state.saveFailureKind !== 'terminal',
             );
       }
@@ -494,7 +512,7 @@ export function createRunLifecycleSlice(
         ) {
           set({
             saveStatus: 'failed',
-            saveError: 'The run abandonment could not be recorded.',
+            saveError: runError.abandonmentFailed,
             saveFailureKind: 'retryable',
           });
           return false;
@@ -655,7 +673,7 @@ export function createRunLifecycleSlice(
             ...RUN_INITIAL_STATE,
             completedRunSnapshot: snapshot,
             saveStatus: 'failed',
-            saveError: 'Authenticated run is missing required save data',
+            saveError: runError.missingSaveData,
             saveFailureKind: 'terminal',
           });
           return true;
@@ -667,7 +685,7 @@ export function createRunLifecycleSlice(
             ...RUN_INITIAL_STATE,
             completedRunSnapshot: snapshot,
             saveStatus: 'failed',
-            saveError: 'This run has no server attempt and cannot grant authenticated progression.',
+            saveError: runError.missingServerAttempt,
             saveFailureKind: 'terminal',
           });
           return true;
@@ -678,7 +696,7 @@ export function createRunLifecycleSlice(
             set({
               isEnding: false,
               saveStatus: 'failed',
-              saveError: 'This run attempt belongs to another authenticated account.',
+              saveError: runError.attemptOwnerChanged,
               saveFailureKind: 'retryable',
             });
             return false;
@@ -693,7 +711,7 @@ export function createRunLifecycleSlice(
                 ...RUN_INITIAL_STATE,
                 completedRunSnapshot: snapshot,
                 saveStatus: 'failed',
-                saveError: 'This browser cannot create a secure finish command.',
+                saveError: runError.secureFinishCommandUnavailable,
                 saveFailureKind: 'terminal',
               });
               return true;
@@ -721,8 +739,8 @@ export function createRunLifecycleSlice(
                 saveStatus: 'failed',
                 saveError:
                   appendResult.data.status === 'expired'
-                    ? 'This verified run attempt has expired.'
-                    : 'The run trace was rejected.',
+                    ? runError.attemptExpired
+                    : runError.traceRejected('trace_rejected', null),
                 saveFailureKind: 'terminal',
                 saveDiagnostic: {
                   attemptId: syncedAttempt.attemptId,
@@ -739,9 +757,7 @@ export function createRunLifecycleSlice(
               set({
                 isEnding: false,
                 saveStatus: 'failed',
-                saveError:
-                  appendResult.error?.message ??
-                  'The run command journal could not be synchronized.',
+                saveError: runError.journalSyncFailed,
                 saveFailureKind: 'retryable',
               });
               return false;
@@ -768,8 +784,8 @@ export function createRunLifecycleSlice(
               saveStatus: 'failed',
               saveError:
                 sealResult.data.status === 'expired'
-                  ? 'This verified run attempt has expired.'
-                  : 'The run trace was rejected.',
+                  ? runError.attemptExpired
+                  : runError.traceRejected('trace_rejected', null),
               saveFailureKind: 'terminal',
               saveDiagnostic: {
                 attemptId: syncedAttempt.attemptId,
@@ -784,7 +800,7 @@ export function createRunLifecycleSlice(
             set({
               isEnding: false,
               saveStatus: 'failed',
-              saveError: sealResult.error?.message ?? 'The run attempt could not be sealed.',
+              saveError: runError.sealFailed,
               saveFailureKind: 'retryable',
               authorityAttempt: syncedAttempt,
             });
@@ -822,7 +838,7 @@ export function createRunLifecycleSlice(
             set({
               isEnding: false,
               saveStatus: 'failed',
-              saveError: verification.error?.message ?? 'The run could not be verified.',
+              saveError: verification.error?.message ?? runError.verificationFailed(),
               saveFailureKind: 'retryable',
               authorityAttempt: syncedAttempt,
             });
@@ -895,7 +911,7 @@ export function createRunLifecycleSlice(
           : endFailure(
               requestedRunId,
               'finalization_failed',
-              state.saveError ?? 'The run could not be finalized.',
+              state.saveError ?? runError.finalizationFailed,
               state.saveFailureKind !== 'terminal',
             );
       } catch (error) {
@@ -909,13 +925,13 @@ export function createRunLifecycleSlice(
         set({
           isEnding: false,
           saveStatus: 'failed',
-          saveError: message || 'The run could not be finalized.',
+          saveError: runError.finalizationFailed,
           saveFailureKind: 'retryable',
         });
         return endFailure(
           requestedRunId,
           'finalization_failed',
-          message || 'The run could not be finalized.',
+          runError.finalizationFailed,
           true,
         );
       } finally {
