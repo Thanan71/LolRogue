@@ -32,6 +32,8 @@ const USER_FACING_ATTRIBUTES = [
   'tooltip',
 ] as const;
 
+const USER_COPY_CALL_NAMES = ['alert', 'confirm', 'notify', 'prompt', 'toast'] as const;
+
 export const DEFAULT_INVARIANT_TOKENS = [
   'AD',
   'AP',
@@ -57,6 +59,7 @@ export const DEFAULT_INVARIANT_TOKENS = [
 ] as const;
 
 export type UserCopyFindingKind =
+  | 'copy-call'
   | 'copy-property'
   | 'copy-variable'
   | 'jsx-attribute'
@@ -206,6 +209,27 @@ function assignmentTargetName(
   return undefined;
 }
 
+function callTargetName(expression: ts.Expression): string | undefined {
+  const target = unwrapExpression(expression);
+  if (ts.isIdentifier(target)) return target.text;
+  if (ts.isPropertyAccessExpression(target)) return target.name.text;
+  if (ts.isElementAccessExpression(target) && target.argumentExpression) {
+    const argument = unwrapExpression(target.argumentExpression);
+    if (ts.isStringLiteral(argument) || ts.isNoSubstitutionTemplateLiteral(argument)) {
+      return argument.text;
+    }
+  }
+  return undefined;
+}
+
+function isUserCopyCall(name: string, copyBearingNames: ReadonlySet<string>): boolean {
+  const normalized = normalizeName(name);
+  if (USER_COPY_CALL_NAMES.some((candidate) => normalizeName(candidate) === normalized))
+    return true;
+  if (!normalized.startsWith('set')) return false;
+  return copyBearingNames.has(normalized.slice(3));
+}
+
 function isInsideNonCopyElement(node: ts.Node): boolean {
   const parent = node.parent;
   if (!ts.isJsxElement(parent)) return false;
@@ -279,7 +303,7 @@ export function scanUserCopySource(
       if (!isUserCopy(text, context.ignoredLiterals)) return;
 
       const position = node.getStart(sourceFile);
-      const key = `${position}:${kind}:${name ?? ''}:${text}`;
+      const key = `${position}:${text}`;
       if (findingKeys.has(key)) return;
       findingKeys.add(key);
 
@@ -350,6 +374,11 @@ export function scanUserCopySource(
       ) {
         const target = assignmentTargetName(node.left);
         if (target) reportNamedInitializer(target.name, node.right, target.kind);
+      } else if (ts.isCallExpression(node)) {
+        const name = callTargetName(node.expression);
+        if (name && isUserCopyCall(name, context.copyBearingNames)) {
+          reportExpression(node.arguments[0], 'copy-call', name);
+        }
       }
 
       node.forEachChild(visit);

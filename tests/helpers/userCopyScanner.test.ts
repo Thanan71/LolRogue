@@ -77,4 +77,27 @@ describe('userCopyScanner', () => {
       ),
     ).toEqual([{ kind: 'jsx-text', text: 'Continue' }]);
   });
+
+  it('finds copy passed directly to state setters and browser dialogs', () => {
+    const source = `
+      setError('Impossible de démarrer la partie');
+      state.setStatusMessage('Run verification pending');
+      window.alert('Récompense disponible');
+      setError(copy.startFailed);
+      console.error('internal diagnostic');
+    `;
+
+    expect(
+      summarize(
+        scanUserCopySource(source, {
+          additionalCopyBearingNames: ['error'],
+          filePath: 'copy-calls.fixture.ts',
+        }),
+      ),
+    ).toEqual([
+      { kind: 'copy-call', name: 'setError', text: 'Impossible de démarrer la partie' },
+      { kind: 'copy-call', name: 'setStatusMessage', text: 'Run verification pending' },
+      { kind: 'copy-call', name: 'alert', text: 'Récompense disponible' },
+    ]);
+  });
 });

@@ -58,6 +58,103 @@ const FORBIDDEN_RAW_COPY = [
   'Run history',
 ] as const;
 
+const INTENTIONALLY_IDENTICAL_PATHS = [
+  'admin.action',
+  'admin.adminRole',
+  'admin.biome',
+  'admin.biomePlural',
+  'admin.biomes',
+  'admin.champion',
+  'admin.champions',
+  'admin.code',
+  'admin.damageShort',
+  'admin.date',
+  'admin.deleteOperation',
+  'admin.info',
+  'admin.insertOperation',
+  'admin.milliseconds',
+  'admin.minute',
+  'admin.minutes',
+  'admin.sampleSize',
+  'admin.score',
+  'admin.selectOperation',
+  'admin.updateOperation',
+  'admin.versionShort',
+  'championTags.Assassin',
+  'championTags.Mage',
+  'championTags.Support',
+  'championTags.Tank',
+  'combat.auto',
+  'common.menu',
+  'common.total',
+  'credits.assetEntries.0.name',
+  'credits.attributionEyebrow',
+  'credits.inspiration',
+  'credits.inspirationEntries.0.name',
+  'credits.inspirationEntries.1.name',
+  'credits.nature',
+  'credits.navigation',
+  'credits.technologyEntries.0.name',
+  'credits.technologyEntries.1.name',
+  'credits.technologyEntries.2.name',
+  'credits.technologyEntries.3.name',
+  'credits.technologyEntries.4.name',
+  'credits.technologyEntries.5.name',
+  'daily.date',
+  'daily.score',
+  'database.champion',
+  'database.champions',
+  'database.statLabels.critical',
+  'encounter.champion',
+  'enhancement.maximum',
+  'menu.database',
+  'product.name',
+  'profile.combatStats',
+  'profile.modes.normal',
+  'rules.entries.10.0',
+  'rules.entries.10.1',
+  'rules.entries.11.0',
+  'rules.entries.12.0',
+  'rules.entries.12.1',
+  'rules.entries.13.0',
+  'rules.entries.14.0',
+  'rules.entries.5.0',
+  'rules.entries.6.0',
+  'rules.entries.7.0',
+  'rules.entries.8.0',
+  'rules.entries.9.0',
+  'rules.entries.9.1',
+  'run.biome',
+  'run.biomeNames.jungle',
+  'run.nodeNames.combat',
+  'run.nodeStates.accessible',
+  'run.runes',
+  'settings.audioEyebrow',
+  'settings.gameplayEyebrow',
+  'stats.omnivamp',
+  'stats.short.armor',
+  'stats.short.crit',
+  'ui.biome',
+  'ui.biomes',
+  'ui.champions',
+  'ui.date',
+  'ui.minutes',
+] as const;
+
+function matchingStringPaths(left: unknown, right: unknown, prefix = ''): string[] {
+  if (typeof left === 'string' && typeof right === 'string') {
+    return left === right && /\p{L}/u.test(left) ? [prefix] : [];
+  }
+  if (!left || !right || typeof left !== 'object' || typeof right !== 'object') return [];
+  return Object.keys(left).flatMap((key) =>
+    matchingStringPaths(
+      (left as Record<string, unknown>)[key],
+      (right as Record<string, unknown>)[key],
+      prefix ? `${prefix}.${key}` : key,
+    ),
+  );
+}
+
 describe('contrat de langue française', () => {
   function catalogPaths(value: unknown, prefix = ''): string[] {
     if (!value || typeof value !== 'object') return [prefix];
@@ -70,6 +167,10 @@ describe('contrat de langue française', () => {
     expect(catalogPaths(fr)).toEqual(expect.arrayContaining(catalogPaths(en)));
     expect(catalogPaths(en)).toEqual(expect.arrayContaining(catalogPaths(fr)));
     expect(catalogPaths(legalFr)).toEqual(expect.arrayContaining(catalogPaths(legalEn)));
+  });
+
+  it('signale toute traduction principale identique qui ne soit pas explicitement invariante', () => {
+    expect(matchingStringPaths(fr, en).sort()).toEqual([...INTENTIONALLY_IDENTICAL_PATHS].sort());
   });
 
   it('sélectionne réellement le catalogue anglais depuis les réglages persistés', async () => {
@@ -89,7 +190,7 @@ describe('contrat de langue française', () => {
     expect(ALL_PAGES.length).toBeGreaterThan(0);
     for (const path of ALL_PAGES) {
       const source = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-      expect(source, `${path} doit utiliser le dictionnaire français`).toContain('@/i18n/fr');
+      expect(source, `${path} doit utiliser une source i18n`).toMatch(/@\/i18n\//u);
       for (const copy of FORBIDDEN_RAW_COPY) expect(source).not.toContain(copy);
     }
   });
@@ -97,7 +198,7 @@ describe('contrat de langue française', () => {
   it('raccorde les composants porteurs de texte au dictionnaire et interdit les anciens libellés anglais', () => {
     for (const path of USER_COPY_COMPONENTS) {
       const source = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-      expect(source, `${path} doit utiliser le dictionnaire français`).toContain('@/i18n/fr');
+      expect(source, `${path} doit utiliser une source i18n`).toMatch(/@\/i18n\//u);
       for (const copy of FORBIDDEN_RAW_COPY) expect(source).not.toContain(copy);
     }
   });

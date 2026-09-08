@@ -18,12 +18,7 @@ const INCLUDED_SOURCE_PREFIXES = [
 
 const INCLUDED_SOURCE_FILES = new Set(['src/App.tsx']);
 
-const PROJECT_COPY_BEARING_NAMES = [
-  'detail',
-  'emptyMessage',
-  'error',
-  'saveError',
-] as const;
+const PROJECT_COPY_BEARING_NAMES = ['detail', 'emptyMessage', 'error', 'saveError'] as const;
 
 // These sources deliberately contain bilingual catalog values or internal gameplay identifiers.
 // User-visible projections of that data remain covered through pages/components/presentation.
