@@ -51,7 +51,8 @@ function formatExpiry(value: string, locale: Locale): string {
 
 const frFR: RunErrorCatalog = {
   startInProgress: 'Un départ de partie est déjà en cours de vérification.',
-  activeRun: 'Terminez ou abandonnez explicitement la partie active avant d’en commencer une autre.',
+  activeRun:
+    'Terminez ou abandonnez explicitement la partie active avant d’en commencer une autre.',
   activeRunAnotherTab: (runId) =>
     `La partie ${runId} est active dans un autre onglet. Reprenez-la au lieu d’en commencer une autre.`,
   profileNotReady:
@@ -64,7 +65,8 @@ const frFR: RunErrorCatalog = {
   unknownChampion: 'L’équipe contient un champion inconnu.',
   unsupportedChampion: 'L’équipe contient un champion non pris en charge.',
   startFailed: 'La partie vérifiée n’a pas pu démarrer.',
-  dailyStarterChanged: 'L’offre du défi quotidien a changé. Sélectionnez le nouveau champion proposé.',
+  dailyStarterChanged:
+    'L’offre du défi quotidien a changé. Sélectionnez le nouveau champion proposé.',
   staleRun: 'La partie demandée n’est plus la partie active.',
   finalizationInProgress: 'La finalisation d’une autre partie est déjà en cours.',
   accountChanged: 'Le compte authentifié a changé pendant l’opération.',
@@ -96,7 +98,8 @@ const frFR: RunErrorCatalog = {
     retryAfterSeconds
       ? `La vérification est déjà en cours. Réessayez dans environ ${retryAfterSeconds} secondes.`
       : 'La vérification est déjà en cours. Réessayez dans quelques secondes.',
-  verifierUpdating: 'Le vérificateur est en cours de mise à jour pour cette version. Réessayez bientôt.',
+  verifierUpdating:
+    'Le vérificateur est en cours de mise à jour pour cette version. Réessayez bientôt.',
   journalNotSealed: 'Le journal de la partie n’est pas encore scellé. Relancez la vérification.',
   attemptNotFound: 'Cette tentative n’existe plus sur le serveur.',
   unexpected: 'Une erreur inattendue empêche la progression de la partie.',
@@ -204,6 +207,10 @@ export function localizePersistedRunError(message: string | null): string {
   if (/vérification est déjà en cours|verification is already in progress/iu.test(message)) {
     return runError.verificationInProgress(null);
   }
+  const verificationCode = message.match(
+    /^(?:La vérification de la partie a échoué|Run verification failed) \(([^)]+)\)/u,
+  )?.[1];
+  if (verificationCode) return runError.verificationFailed(verificationCode);
   return runError.unexpected;
 }
 
@@ -223,10 +230,7 @@ export function verificationRetryableMessage(
   }
 }
 
-export function verificationRejectionMessage(
-  code: string,
-  commandIndex: number | null,
-): string {
+export function verificationRejectionMessage(code: string, commandIndex: number | null): string {
   if (code === 'run_attempt_expired') return runError.attemptExpired;
   if (code === 'run_attempt_not_found') return runError.attemptNotFound;
   return runError.traceRejected(code, commandIndex);

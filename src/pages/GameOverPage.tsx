@@ -6,8 +6,10 @@ import { riotChampionIconUrl } from '@/config/riotAssets';
 import { ROUTES } from '@/config/routes';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { plural } from '@/i18n/format';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
+import { gameOverCopy } from '@/i18n/gameOverContent';
+import { localizePersistedRunError, verificationRejectionMessage } from '@/i18n/runErrorContent';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import { formatRunSaveDiagnostic } from '@/utils/runDiagnostic';
@@ -111,6 +113,10 @@ export function GameOverPage() {
     (best, stats) => (!best || stats.totalDamage > best.totalDamage ? stats : best),
     null,
   )?.championId;
+  const localizedSaveError =
+    saveFailureKind === 'terminal' && saveDiagnostic?.rejectionCode
+      ? verificationRejectionMessage(saveDiagnostic.rejectionCode, null)
+      : localizePersistedRunError(saveError);
 
   if (!summary) {
     return (
@@ -148,7 +154,7 @@ export function GameOverPage() {
             </span>
             <div className="game-over-outcome__copy">
               <span className="game-over-eyebrow">
-                {summary.won ? 'Run accompli' : 'Run terminé'}
+                {summary.won ? gameOverCopy.outcome.victory : gameOverCopy.outcome.defeat}
               </span>
               <h1
                 id="game-over-title"
@@ -182,17 +188,21 @@ export function GameOverPage() {
           <div role="alert" className="game-over-error">
             <div className="game-over-error__copy">
               <strong className="game-over-error__title">
-                {saveFailureKind === 'terminal' ? 'Progression refusée' : 'Sauvegarde en attente'}
+                {saveFailureKind === 'terminal'
+                  ? gameOverCopy.save.rejectedTitle
+                  : gameOverCopy.save.pendingTitle}
               </strong>
               {saveFailureKind === 'terminal'
-                ? `${fr.gameOver.rejected} : ${saveError}`
-                : `${fr.gameOver.verificationPending} : ${saveError}`}
+                ? `${fr.gameOver.rejected} : ${localizedSaveError}`
+                : `${fr.gameOver.verificationPending} : ${localizedSaveError}`}
               {saveFailureKind === 'terminal' && saveDiagnostic && (
                 <details className="game-over-diagnostic">
-                  <summary>Détails techniques pour le support</summary>
+                  <summary>{gameOverCopy.save.supportDetails}</summary>
                   <pre>{formatRunSaveDiagnostic(saveDiagnostic)}</pre>
                   <button type="button" onClick={() => void handleCopyDiagnostic()}>
-                    {diagnosticCopied ? 'Diagnostic copié' : 'Copier le diagnostic'}
+                    {diagnosticCopied
+                      ? gameOverCopy.save.diagnosticCopied
+                      : gameOverCopy.save.copyDiagnostic}
                   </button>
                 </details>
               )}
@@ -225,26 +235,27 @@ export function GameOverPage() {
                 {fr.gameOver.rewards}
               </span>
               <strong className="game-over-rewards__total">
-                🍬 {plural(rewards.total, 'bonbon')}
+                🍬 {gameOverCopy.rewards.candies(rewards.total)}
               </strong>
               <p className="game-over-rewards__hint">
                 {serverProgression
-                  ? 'Ajoutées à ta progression vérifiée.'
-                  : 'Calculées pour cette partie locale.'}
+                  ? gameOverCopy.rewards.verifiedHint
+                  : gameOverCopy.rewards.localHint}
               </p>
             </div>
 
             <div className="game-over-rewards__meta">
               {serverProgression && (
                 <div data-testid="server-progression" className="game-over-progression">
-                  <span aria-hidden="true">✓</span> Progression v
-                  {serverProgression.progressionVersion} · {fr.gameOver.verified}
+                  <span aria-hidden="true">✓</span>{' '}
+                  {gameOverCopy.rewards.progressionVersion(serverProgression.progressionVersion)} ·{' '}
+                  {fr.gameOver.verified}
                 </div>
               )}
               {rewardEntries.length > 0 && (
                 <details className="game-over-reward-details">
                   <summary className="game-over-reward-details__summary">
-                    Répartition par champion
+                    {gameOverCopy.rewards.championBreakdown}
                   </summary>
                   <div className="game-over-reward-list">
                     {rewardEntries.map(([id, candies]) => (
@@ -261,7 +272,7 @@ export function GameOverPage() {
                           <span className="game-over-reward-row__name">{id}</span>
                         </span>
                         <span className="game-over-reward-row__value">
-                          +{plural(candies, 'bonbon')}
+                          +{gameOverCopy.rewards.candies(candies)}
                         </span>
                       </div>
                     ))}
@@ -276,9 +287,9 @@ export function GameOverPage() {
           <div className="game-over-section-heading">
             <div>
               <span id="game-over-headline-stats" className="game-over-section-kicker">
-                Bilan du run
+                {gameOverCopy.summary.eyebrow}
               </span>
-              <strong className="game-over-section-title">Les chiffres à retenir</strong>
+              <strong className="game-over-section-title">{gameOverCopy.summary.title}</strong>
             </div>
           </div>
           <div className="game-over-stats">
@@ -292,12 +303,10 @@ export function GameOverPage() {
         <section className="game-over-action-panel" aria-labelledby="game-over-actions-title">
           <div className="game-over-action-panel__copy">
             <span id="game-over-actions-title" className="game-over-section-kicker">
-              Prochaine étape
+              {gameOverCopy.actions.eyebrow}
             </span>
-            <strong className="game-over-section-title">Prêt à repartir ?</strong>
-            <p className="game-over-action-panel__hint">
-              Relance un run ou reviens au menu principal.
-            </p>
+            <strong className="game-over-section-title">{gameOverCopy.actions.title}</strong>
+            <p className="game-over-action-panel__hint">{gameOverCopy.actions.hint}</p>
           </div>
 
           <div className="game-over-actions">
@@ -324,13 +333,13 @@ export function GameOverPage() {
           <details className="game-over-details">
             <summary className="game-over-details__summary">
               <span>
-                <strong className="game-over-details__title">Détails de la partie</strong>
+                <strong className="game-over-details__title">{gameOverCopy.details.title}</strong>
                 <small className="game-over-details__description">
-                  Économie, soutien et progression
+                  {gameOverCopy.details.description}
                 </small>
               </span>
               <span aria-hidden="true" className="game-over-details__count">
-                8 indicateurs
+                {gameOverCopy.details.metricCount(8)}
               </span>
             </summary>
             <div className="game-over-details__body">
@@ -353,11 +362,11 @@ export function GameOverPage() {
                 <span>
                   <strong className="game-over-details__title">{fr.gameOver.championStats}</strong>
                   <small className="game-over-details__description">
-                    Contribution individuelle au run
+                    {gameOverCopy.details.individualContribution}
                   </small>
                 </span>
                 <span aria-hidden="true" className="game-over-details__count">
-                  {plural(summary.championStats.length, 'champion')}
+                  {gameOverCopy.details.championCount(summary.championStats.length)}
                 </span>
               </summary>
               <div className="game-over-details__body">
@@ -381,27 +390,47 @@ export function GameOverPage() {
                             {cs.championId}
                           </strong>
                           {cs.championId === mvpChampionId && (
-                            <span className="game-over-champion-breakdown__mvp">MVP du run</span>
+                            <span className="game-over-champion-breakdown__mvp">
+                              {gameOverCopy.contribution.mvp}
+                            </span>
                           )}
                         </span>
                       </div>
                       <div className="game-over-champion-contribution">
                         <span>
-                          Contribution dégâts <strong>{cs.totalDamage}</strong>
+                          {gameOverCopy.contribution.damage}{' '}
+                          <strong>{formatNumber(cs.totalDamage)}</strong>
                         </span>
                         <progress
-                          aria-label={`Contribution aux dégâts de ${cs.championId}`}
-                          aria-valuetext={`${Math.round((cs.totalDamage / totalChampionDamage) * 100)} % des dégâts de l'équipe`}
+                          aria-label={gameOverCopy.contribution.damageAria(cs.championId)}
+                          aria-valuetext={gameOverCopy.contribution.damageShare(
+                            cs.totalDamage / totalChampionDamage,
+                          )}
                           max={totalChampionDamage}
                           value={cs.totalDamage}
                         />
                       </div>
                       <dl className="game-over-champion-metrics">
-                        <ChampionMetric label="Éliminations" value={cs.kills} />
-                        <ChampionMetric label="Assistances" value={cs.assists} />
-                        <ChampionMetric label="Dégâts" value={cs.totalDamage} />
-                        <ChampionMetric label="Soins" value={cs.healingDone} />
-                        <ChampionMetric label="Boucliers" value={cs.shieldingDone} />
+                        <ChampionMetric
+                          label={gameOverCopy.contribution.eliminations}
+                          value={cs.kills}
+                        />
+                        <ChampionMetric
+                          label={gameOverCopy.contribution.assists}
+                          value={cs.assists}
+                        />
+                        <ChampionMetric
+                          label={gameOverCopy.contribution.damageMetric}
+                          value={cs.totalDamage}
+                        />
+                        <ChampionMetric
+                          label={gameOverCopy.contribution.healing}
+                          value={cs.healingDone}
+                        />
+                        <ChampionMetric
+                          label={gameOverCopy.contribution.shielding}
+                          value={cs.shieldingDone}
+                        />
                       </dl>
                     </div>
                   ))}
@@ -427,7 +456,9 @@ function StatBlock({
   return (
     <div className={`game-over-stat${featured ? ' game-over-stat--featured' : ''}`}>
       <span className="game-over-stat__label">{label}</span>
-      <strong className="game-over-stat__value">{value}</strong>
+      <strong className="game-over-stat__value">
+        {typeof value === 'number' ? formatNumber(value) : value}
+      </strong>
     </div>
   );
 }
@@ -436,7 +467,7 @@ function ChampionMetric({ label, value }: { label: string; value: number }) {
   return (
     <div className="game-over-champion-metric">
       <dt className="game-over-champion-metric__label">{label}</dt>
-      <dd className="game-over-champion-metric__value">{value}</dd>
+      <dd className="game-over-champion-metric__value">{formatNumber(value)}</dd>
     </div>
   );
 }

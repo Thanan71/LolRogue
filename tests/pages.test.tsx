@@ -12,6 +12,7 @@ import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { type NodeMap, NodeType } from '@/game/map/types';
 import { createRunLedger } from '@/game/run/runLedger';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
+import { runErrorContent } from '@/i18n/runErrorContent';
 import { AuthPage } from '@/pages/AuthPage';
 import { EventPage } from '@/pages/EventPage';
 import { GameOverPage } from '@/pages/GameOverPage';
@@ -749,7 +750,8 @@ describe('P2 page smoke tests', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('alert')).toHaveTextContent('network unavailable');
+    expect(screen.getByRole('alert')).toHaveTextContent(runErrorContent['fr-FR'].unexpected);
+    expect(screen.getByRole('alert')).not.toHaveTextContent('network unavailable');
     expect(screen.getByRole('button', { name: 'Relancer la vérification' })).toBeInTheDocument();
     expect(screen.queryByText(/bonbons/)).not.toBeInTheDocument();
   });
