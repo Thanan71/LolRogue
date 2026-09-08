@@ -8,7 +8,7 @@ import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { localizeChampion } from '@/i18n/content';
 import { getEncounterPresentation } from '@/i18n/encounterContent';
-import { formatChampionTag } from '@/i18n/format';
+import { formatChampionTag, formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/recruit.css';
@@ -243,7 +243,10 @@ export function RecruitPage() {
                     <div>
                       <dt title={fr.stats.attackSpeed}>{fr.stats.short.attackSpeed}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--speed">
-                        {champ.stats.attackSpeed.toFixed(2)}
+                        {formatNumber(champ.stats.attackSpeed, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </dd>
                     </div>
                     <div>

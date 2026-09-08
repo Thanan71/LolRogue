@@ -107,14 +107,14 @@ describe('authoritative Daily pages', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText('2026-07-26 UTC')).toBeInTheDocument();
+    expect(await screen.findByText('26 juillet 2026 UTC')).toBeInTheDocument();
     expect(screen.getByText('Normale')).toBeInTheDocument();
     expect(screen.getAllByText('v1')).not.toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Commencer le défi quotidien' })).toBeEnabled();
     expect(await screen.findByText('Public Player')).toBeInTheDocument();
     expect(screen.getByText(/1.360/)).toBeInTheDocument();
     expect(
-      screen.getByText('Classement du 2026-07-26 UTC, trié du meilleur au moins bon score.'),
+      screen.getByText('Classement du 26 juillet 2026 UTC, trié du meilleur au moins bon score.'),
     ).toBeInTheDocument();
     for (const column of ['Rang', 'Joueur', 'Score', 'Vagues', 'Niveau']) {
       expect(screen.getByRole('columnheader', { name: column })).toBeInTheDocument();

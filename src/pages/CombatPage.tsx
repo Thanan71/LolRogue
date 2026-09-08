@@ -23,11 +23,13 @@ import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encou
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { buildRunPlayerTeam } from '@/game/run/runCombatant';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
+import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
 import { combatCopy } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { useBattleStore } from '@/stores/battleStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -38,7 +40,6 @@ import { TargetingType } from '@/types/champion';
 import type { FinalCombatantState } from '@/types/run';
 import { logger } from '@/utils/logger';
 import { createScopedRunRng } from '@/utils/runRandom';
-import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { completeCombat } from './combat/combatCompletion';
 import { getEnhancementDescriptions } from './combat/combatPresenter';
 import { buildLegacyEnemyTeam, usesLegacyEncounterRules } from './combat/legacyCombatEncounter';
@@ -622,7 +623,10 @@ export function CombatPage() {
             : isPlayerTurn
               ? combatCopy.page.command.automaticAction
               : combatCopy.page.status.enemyAction,
-          (autoActionRemainingMs / 1000).toFixed(1),
+          formatNumber(autoActionRemainingMs / 1000, {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+          }),
         )
       : isPlayerTurn
         ? combatCopy.page.status.manual

@@ -4,16 +4,16 @@ import type { User } from '@supabase/supabase-js';
 import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { NodeType } from '@/game/map/types';
+import { ROUTES } from '@/config/routes';
 import type { AuthorityVersionMetadata } from '@/game/authority/versionRegistry';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import { ActionType } from '@/game/battle/types';
+import { NodeType } from '@/game/map/types';
 import { CombatPage } from '@/pages/CombatPage';
 import { useAuthStore } from '@/stores/authStore';
 import { useBattleStore } from '@/stores/battleStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
-import { ROUTES } from '@/config/routes';
 import type { FinalCombatantState } from '@/types/run';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
 import rawRegistry from '../config/authority-versions.json';
@@ -382,7 +382,7 @@ describe('CombatPage authority finalization', () => {
     act(() => {
       useBattleStore.getState().setTurnInfo(1, 'enemy:Garen:0', 'enemy');
     });
-    expect(view.getByText('Action ennemie dans 1.2 s')).toBeVisible();
+    expect(view.getByText('Action ennemie dans 1,2 s')).toBeVisible();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1200);
