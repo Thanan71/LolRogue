@@ -1,5 +1,6 @@
 import type React from 'react';
 import type { CSSProperties } from 'react';
+import { combatCopy } from '@/i18n/combatContent';
 import type { CombatantInfo } from '../../stores/battleStore';
 
 interface Props {
@@ -47,7 +48,7 @@ export const CombatantPortrait: React.FC<Props> = ({
       role={onSelect ? 'button' : undefined}
       tabIndex={onSelect ? 0 : undefined}
       aria-pressed={onSelect ? isSelected : undefined}
-      aria-label={onSelect ? `Cibler ${name}` : undefined}
+      aria-label={onSelect ? combatCopy.portrait.target(name) : undefined}
       onClick={onSelect}
       onKeyDown={(event) => {
         if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
@@ -82,7 +83,7 @@ export const CombatantPortrait: React.FC<Props> = ({
           <div
             className="combatant-portrait__meter combatant-portrait__meter--health"
             role="progressbar"
-            aria-label={`PV de ${name}`}
+            aria-label={combatCopy.portrait.health(name)}
             aria-valuemin={0}
             aria-valuemax={hpAriaMax}
             aria-valuenow={hpAriaNow}
@@ -101,7 +102,7 @@ export const CombatantPortrait: React.FC<Props> = ({
             <div
               className="combatant-portrait__meter combatant-portrait__meter--mana"
               role="progressbar"
-              aria-label={`PM de ${name}`}
+              aria-label={combatCopy.portrait.mana(name)}
               aria-valuemin={0}
               aria-valuemax={mpAriaMax}
               aria-valuenow={mpAriaNow}

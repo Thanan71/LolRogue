@@ -1,6 +1,6 @@
 import { championDB } from '@/data';
 import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
-import { localizeUserCopy } from '@/i18n/content';
+import { combatCopy, combatEnhancementEffectId } from '@/i18n/combatContent';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
@@ -26,29 +26,12 @@ export function getEnhancementDescriptions(championId: string): string[] {
   // Add flat stat bonuses
   for (const [stat, value] of Object.entries(bonuses.flat)) {
     if (value > 0) {
-      const statNames: Record<string, string> = {
-        hp: 'PV',
-        mp: 'PM',
-        atk: 'AD',
-        ap: 'AP',
-        def: 'Armure',
-        mr: 'RM',
-        spd: 'Vitesse',
-        crit: 'Critique',
-        attackSpeed: 'Initiative ATQ',
-        hpRegen: 'Regen PV',
-        mpRegen: 'Regen PM',
-        armorPen: 'Pen. Armure',
-        magicPen: 'Pen. Magique',
-        lifesteal: 'Vol de vie',
-        omnivamp: 'Omnivamp',
-        tenacity: 'Ténacité',
-        abilityHaste: 'Hâte',
-        attackRange: 'Profil de portée',
-      };
-      const name = statNames[stat] || stat;
+      const name =
+        combatCopy.presenter.stats[stat as keyof typeof combatCopy.presenter.stats] || stat;
       descriptions.push(
-        stat === 'attackRange' ? `+${value} ${name} (indisponible)` : `+${value} ${name}`,
+        stat === 'attackRange'
+          ? combatCopy.presenter.unavailable(`+${value} ${name}`)
+          : `+${value} ${name}`,
       );
     }
   }
@@ -56,42 +39,33 @@ export function getEnhancementDescriptions(championId: string): string[] {
   // Add percentage bonuses
   for (const [stat, percent] of Object.entries(bonuses.percent)) {
     if (percent > 0) {
-      const statNames: Record<string, string> = {
-        hp: 'PV',
-        mp: 'PM',
-        atk: 'AD',
-        ap: 'AP',
-        def: 'Armure',
-        mr: 'RM',
-        spd: 'Vitesse',
-        crit: 'Critique',
-        attackSpeed: 'Initiative ATQ',
-        hpRegen: 'Regen PV',
-        mpRegen: 'Regen PM',
-        armorPen: 'Pen. Armure',
-        magicPen: 'Pen. Magique',
-        lifesteal: 'Vol de vie',
-        omnivamp: 'Omnivamp',
-        tenacity: 'Ténacité',
-        abilityHaste: 'Hâte',
-        attackRange: 'Profil de portée',
-      };
-      const name = statNames[stat] || stat;
+      const name =
+        combatCopy.presenter.stats[stat as keyof typeof combatCopy.presenter.stats] || stat;
+      const description = `+${Math.round(percent * 100)}% ${name}`;
       descriptions.push(
-        stat === 'attackRange'
-          ? `+${Math.round(percent * 100)}% ${name} (indisponible)`
-          : `+${Math.round(percent * 100)}% ${name}`,
+        stat === 'attackRange' ? combatCopy.presenter.unavailable(description) : description,
       );
     }
   }
 
   // Add effect descriptions
-  for (const effect of bonuses.effects) {
-    if (effect.description) {
+  const nodes = [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)];
+  for (const node of nodes) {
+    const rank = unlockedNodes[node.id] || 0;
+    if (rank === 0) continue;
+
+    for (const effect of node.effects ?? []) {
+      const effectId = combatEnhancementEffectId(node.id, effect.type);
+      const localizedDescription = effectId ? combatCopy.presenter.effects[effectId] : effect.type;
+      const maxRanks = node.maxRanks || 1;
+      const rankedDescription =
+        maxRanks > 1 && rank < maxRanks
+          ? combatCopy.presenter.ranked(localizedDescription, rank, maxRanks)
+          : localizedDescription;
       descriptions.push(
         UNAVAILABLE_ENHANCEMENT_EFFECTS.has(effect.type)
-          ? `${localizeUserCopy(effect.description)} (indisponible)`
-          : localizeUserCopy(effect.description),
+          ? combatCopy.presenter.unavailable(rankedDescription)
+          : rankedDescription,
       );
     }
   }

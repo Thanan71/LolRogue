@@ -27,6 +27,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useRunImagePreload } from '@/hooks/useRunImagePreload';
+import { combatCopy } from '@/i18n/combatContent';
 import { fr } from '@/i18n/fr';
 import { useBattleStore } from '@/stores/battleStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -564,65 +565,68 @@ export function CombatPage() {
 
   const commandStatus = pendingOption
     ? {
-        label: 'Cible requise',
+        label: combatCopy.page.command.targetRequired,
         text: fr.combat.chooseTarget,
       }
     : selectedTarget
       ? {
-          label: 'Cible prête',
-          text: `${selectedTarget.name} est sélectionné. Choisissez maintenant une action.`,
+          label: combatCopy.page.command.targetReady,
+          text: combatCopy.page.command.selectedTarget(selectedTarget.name),
         }
       : battlePhase === 'finished'
         ? {
-            label: 'Combat terminé',
-            text: 'Consultez le journal ou poursuivez depuis le résultat du combat.',
+            label: combatCopy.page.command.combatFinished,
+            text: combatCopy.page.command.combatFinishedDetail,
           }
         : requiresServerAutoPlay
           ? {
-              label: 'Résolution serveur',
+              label: combatCopy.page.command.serverResolution,
               text: fr.combat.serverAutoRequired,
             }
           : autoActionRemainingMs !== null
             ? {
-                label: isPlayerTurn ? 'Action automatique' : 'Tour adverse',
+                label: isPlayerTurn
+                  ? combatCopy.page.command.automaticAction
+                  : combatCopy.page.command.enemyTurn,
                 text: isPlayerTurn
-                  ? 'Votre prochaine action est en cours de résolution automatique.'
-                  : 'L’action ennemie est en cours de résolution.',
+                  ? combatCopy.page.command.automaticPlayerDetail
+                  : combatCopy.page.command.automaticEnemyDetail,
               }
             : isPlayerTurn && autoPlay
               ? {
-                  label: 'Autoplay actif',
-                  text: 'Vos actions sont choisies automatiquement pour ce tour.',
+                  label: combatCopy.page.command.autoplayActive,
+                  text: combatCopy.page.command.autoplayDetail,
                 }
               : isPlayerTurn
                 ? {
-                    label: 'À vous de jouer',
-                    text: 'Choisissez une action, puis une cible lorsqu’elle est demandée.',
+                    label: combatCopy.page.command.yourTurn,
+                    text: combatCopy.page.command.yourTurnDetail,
                   }
                 : battlePhase === 'idle' || battlePhase === 'starting'
                   ? {
-                      label: 'Préparation',
-                      text: 'Les commandes seront disponibles au début de votre tour.',
+                      label: combatCopy.page.command.preparation,
+                      text: combatCopy.page.command.preparationDetail,
                     }
                   : {
-                      label: 'Tour adverse',
-                      text: 'Les commandes sont verrouillées pendant l’action ennemie.',
+                      label: combatCopy.page.command.enemyTurn,
+                      text: combatCopy.page.command.enemyTurnDetail,
                     };
   const targetStepText = pendingOption
-    ? 'Sélectionnez un portrait valide'
-    : (selectedTarget?.name ?? 'Selon l’action choisie');
+    ? combatCopy.page.command.selectValidPortrait
+    : (selectedTarget?.name ?? combatCopy.page.command.targetDependsOnAction);
   const arenaStatus =
     autoActionRemainingMs !== null
-      ? `${
+      ? combatCopy.page.status.countdown(
           requiresServerAutoPlay
-            ? 'Résolution serveur'
+            ? combatCopy.page.command.serverResolution
             : isPlayerTurn
-              ? 'Action automatique'
-              : 'Action ennemie'
-        } dans ${(autoActionRemainingMs / 1000).toFixed(1)} s`
+              ? combatCopy.page.command.automaticAction
+              : combatCopy.page.status.enemyAction,
+          (autoActionRemainingMs / 1000).toFixed(1),
+        )
       : isPlayerTurn
-        ? 'Mode manuel — choisissez une action ou appuyez sur Espace.'
-        : "En attente du tour de l'ennemi…";
+        ? combatCopy.page.status.manual
+        : combatCopy.page.status.waitingForEnemy;
   const isVisualSource = (combatant: (typeof playerTeam)[number]) =>
     Boolean(
       visualEvent &&
@@ -661,36 +665,15 @@ export function CombatPage() {
           {fr.common.backToMap}
         </button>
         <span className="combat-header__title">
-          Combat — {fr.combat.round} {round}
+          {combatCopy.page.title} — {fr.combat.round} {round}
         </span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
         <ContextTutorial
           storageKey="lolrogue:tutorial:combat:v1"
-          title="Ton premier combat"
-          buttonLabel="Règles du combat"
-          steps={[
-            {
-              title: 'Ordre des tours',
-              body: 'La vitesse fixe qui agit en premier. L’indicateur annonce le combattant actif et les ennemis jouent automatiquement.',
-            },
-            {
-              title: 'Action et cible',
-              body: 'Choisis Attaque, Q, W, E ou R, puis une cible autorisée. Le bouton Exécuter le tour confirme la commande.',
-            },
-            {
-              title: 'Coût et recharge',
-              body: 'Chaque sort affiche son coût en PM et sa recharge. Un sort indisponible est désactivé et son état est annoncé.',
-            },
-            {
-              title: 'Statuts et journal',
-              body: 'Buffs, affaiblissements, contrôles et dégâts persistants sont visibles sur les portraits et consignés dans le journal.',
-            },
-            {
-              title: 'Autoplay',
-              body: 'Auto est désactivé par défaut. Si tu l’actives, le jeu choisit tes actions ; le même bouton permet de reprendre la main.',
-            },
-          ]}
+          title={combatCopy.page.tutorial.title}
+          buttonLabel={combatCopy.page.tutorial.buttonLabel}
+          steps={[...combatCopy.page.tutorial.steps]}
         />
         <button
           type="button"
@@ -752,7 +735,7 @@ export function CombatPage() {
         <div className="combat-center">
           {battlePhase === 'idle' && (
             <div className="combat-arena">
-              <div className="combat-arena__eyebrow">Arène tactique</div>
+              <div className="combat-arena__eyebrow">{combatCopy.page.arenaTitle}</div>
               <div className="combat-arena__icon">⚔️</div>
               <div className="combat-arena__preparing">{fr.combat.preparing}</div>
             </div>
@@ -775,7 +758,7 @@ export function CombatPage() {
           )}
           {battlePhase === 'finished' && (
             <div className="combat-arena">
-              <div className="combat-arena__eyebrow">Résultat du combat</div>
+              <div className="combat-arena__eyebrow">{combatCopy.page.resultTitle}</div>
               <div className="combat-result__icon">
                 {winner === 'player' ? '🏆' : winner === 'draw' ? '🤝' : '💀'}
               </div>
@@ -862,7 +845,7 @@ export function CombatPage() {
           {showPlayerControls && currentChampion && (
             <div className="combat-command__controls">
               <div className="combat-command__choice">
-                <span className="combat-command__step-label">1 · Action</span>
+                <span className="combat-command__step-label">{combatCopy.page.steps.action}</span>
                 <button
                   type="button"
                   disabled={
@@ -880,7 +863,7 @@ export function CombatPage() {
               </div>
 
               <div className="combat-command__target">
-                <span className="combat-command__step-label">2 · Cible</span>
+                <span className="combat-command__step-label">{combatCopy.page.steps.target}</span>
                 <span className="combat-command__target-value" title={targetStepText}>
                   {targetStepText}
                 </span>
@@ -888,16 +871,20 @@ export function CombatPage() {
 
               {showManualConfirmation && (
                 <div className="combat-command__confirm">
-                  <span className="combat-command__step-label">3 · Confirmation</span>
+                  <span className="combat-command__step-label">
+                    {combatCopy.page.steps.confirmation}
+                  </span>
                   <button
                     type="button"
                     onClick={processTurn}
                     className="combat-action-button combat-action-button--confirm"
-                    aria-label={`${fr.combat.executeTurn} (Espace)`}
+                    aria-label={combatCopy.page.spaceAria(fr.combat.executeTurn)}
                     aria-keyshortcuts="Space"
                   >
                     ▶ {fr.combat.executeTurn}
-                    <span className="combat-action-button__shortcut">[Espace]</span>
+                    <span className="combat-action-button__shortcut">
+                      {combatCopy.page.spaceShortcut}
+                    </span>
                   </button>
                 </div>
               )}
@@ -911,10 +898,10 @@ export function CombatPage() {
             {keyboardShortcutsEnabled ? fr.combat.shortcutsEnabled : fr.combat.shortcutsDisabled}
           </summary>
           <div className="combat-shortcuts__body">
-            <div>Q / W / E / R : choisir un sort disponible.</div>
-            <div>Espace : exécuter le tour manuel.</div>
-            <div>Échap : retourner à la carte lorsque le combat est terminé.</div>
-            <div>Tab puis Entrée ou Espace : activer le contrôle ayant le focus.</div>
+            <div>{combatCopy.page.shortcuts.spells}</div>
+            <div>{combatCopy.page.shortcuts.execute}</div>
+            <div>{combatCopy.page.shortcuts.leave}</div>
+            <div>{combatCopy.page.shortcuts.focus}</div>
             <button
               type="button"
               onClick={() => setKeyboardShortcutsEnabled(!keyboardShortcutsEnabled)}

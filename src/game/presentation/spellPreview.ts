@@ -1,5 +1,6 @@
 import type { Spell, SpellEffect } from '@/types/champion';
 import type { CalculatedStats } from '@/utils/champion';
+import { combatCopy } from '@/i18n/combatContent';
 
 export type SpellImpactTone =
   | 'physical'
@@ -18,29 +19,9 @@ export interface SpellImpactPreview {
   suffix?: string;
 }
 
-const DAMAGE_LABELS: Record<'physical' | 'magical' | 'true', string> = {
-  physical: 'Dégâts physiques',
-  magical: 'Dégâts magiques',
-  true: 'Dégâts bruts',
-};
-
-const CONTROL_LABELS: Record<string, string> = {
-  charm: 'Charme',
-  fear: 'Peur',
-  knockup: 'Projection',
-  root: 'Immobilisation',
-  silence: 'Silence',
-  slow: 'Ralentissement',
-  snare: 'Immobilisation',
-  stun: 'Étourdissement',
-};
-
-const UTILITY_LABELS: Record<string, string> = {
-  buff: 'Bonus temporaire',
-  debuff: 'Affaiblissement',
-  execute: "Seuil d'exécution",
-  revive: 'Réanimation',
-};
+const DAMAGE_LABELS = combatCopy.preview.damage;
+const CONTROL_LABELS: Readonly<Record<string, string>> = combatCopy.preview.control;
+const UTILITY_LABELS: Readonly<Record<string, string>> = combatCopy.preview.utility;
 
 function rankValue(values: number[] | undefined, rankIndex: number): number {
   if (!values || values.length === 0) return 0;
@@ -85,16 +66,19 @@ function effectPreview(
     const tone = damageTone(effect.damageType);
     return {
       id,
-      label: effect.type === 'dot' ? `${DAMAGE_LABELS[tone]} sur la durée` : DAMAGE_LABELS[tone],
+      label:
+        effect.type === 'dot'
+          ? combatCopy.preview.damageOverTime(DAMAGE_LABELS[tone])
+          : DAMAGE_LABELS[tone],
       tone,
       amount: estimateDamage(effect, stats, rankIndex),
-      suffix: 'avant défenses',
+      suffix: combatCopy.preview.beforeDefenses,
     };
   }
   if (effect.type === 'heal' || effect.type === 'hot') {
     return {
       id,
-      label: effect.type === 'hot' ? 'Soin sur la durée' : 'Soin',
+      label: effect.type === 'hot' ? combatCopy.preview.healOverTime : combatCopy.preview.heal,
       tone: 'heal',
       amount: Math.max(
         0,
@@ -107,7 +91,7 @@ function effectPreview(
   if (effect.type === 'shield') {
     return {
       id,
-      label: 'Bouclier',
+      label: combatCopy.preview.shield,
       tone: 'shield',
       amount: Math.max(
         0,
@@ -121,7 +105,7 @@ function effectPreview(
     const duration = effect.ccDuration;
     return {
       id,
-      label: CONTROL_LABELS[effect.ccType ?? ''] ?? 'Contrôle',
+      label: CONTROL_LABELS[effect.ccType ?? ''] ?? combatCopy.preview.genericControl,
       tone: 'control',
       suffix: duration ? `${duration} s` : undefined,
     };
@@ -132,7 +116,7 @@ function effectPreview(
       label: UTILITY_LABELS.execute,
       tone: 'utility',
       amount: Math.round(percentValue(effect.threshold)),
-      suffix: 'des PV max',
+      suffix: combatCopy.preview.maxHealth,
     };
   }
   if (effect.type === 'revive') {
@@ -141,7 +125,7 @@ function effectPreview(
       label: UTILITY_LABELS.revive,
       tone: 'utility',
       amount: Math.round(percentValue(effect.revivePercent)),
-      suffix: 'des PV max',
+      suffix: combatCopy.preview.maxHealth,
     };
   }
   if (effect.type === 'buff' || effect.type === 'debuff') {

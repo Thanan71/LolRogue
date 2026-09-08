@@ -1,5 +1,6 @@
 import type React from 'react';
 import type { CSSProperties } from 'react';
+import { combatCopy } from '@/i18n/combatContent';
 import { fr } from '@/i18n/fr';
 import { useBattleStore } from '../../stores/battleStore';
 import { AbilityBar } from './AbilityBar';
@@ -54,7 +55,7 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
                   : fr.common.defeat.toUpperCase()}
             </span>
           ) : (
-            `Phase: ${phase}`
+            combatCopy.ui.phase(phase)
           )}
         </div>
       </div>

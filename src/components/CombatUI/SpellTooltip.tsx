@@ -1,4 +1,5 @@
 import React, { type CSSProperties, useCallback, useEffect, useId, useRef, useState } from 'react';
+import { combatCopy } from '@/i18n/combatContent';
 import { fr } from '@/i18n/fr';
 import type { SpellInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
@@ -123,7 +124,8 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
           {/* Stats */}
           <div className="combat-spell-tooltip__stats">
             <div className="combat-spell-tooltip__stat">
-              <span className="combat-spell-tooltip__mana">PM :</span> {spell.cost}
+              <span className="combat-spell-tooltip__mana">{combatCopy.tooltip.mana}</span>{' '}
+              {spell.cost}
             </div>
             <div className="combat-spell-tooltip__stat">
               <span className="combat-spell-tooltip__cooldown">{fr.combat.cooldown} :</span>{' '}
@@ -132,7 +134,10 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
           </div>
 
           {spell.impacts && spell.impacts.length > 0 ? (
-            <div className="combat-spell-tooltip__impacts" aria-label="Effets estimés">
+            <div
+              className="combat-spell-tooltip__impacts"
+              aria-label={combatCopy.tooltip.estimatedEffects}
+            >
               {spell.impacts.map((impact) => (
                 <div
                   key={impact.id}
@@ -146,25 +151,26 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
                   </strong>
                 </div>
               ))}
-              <small>Les dégâts sont estimés avant l’armure et la résistance de la cible.</small>
+              <small>{combatCopy.tooltip.estimateNote}</small>
             </div>
           ) : null}
 
           {/* Status */}
           {!spell.isReady && (
             <div className="combat-spell-tooltip__status combat-spell-tooltip__status--cooldown">
-              ⏳ Recharge : {spell.cooldownCurrent} {fr.combat.cooldownTurns} restante
+              {combatCopy.tooltip.cooldownStatus(spell.cooldownCurrent, fr.combat.cooldownTurns)}
             </div>
           )}
           {spell.isReady && (
             <div className="combat-spell-tooltip__status combat-spell-tooltip__status--ready">
-              ✅ Prêt à lancer
+              {combatCopy.tooltip.ready}
             </div>
           )}
 
           {/* Keybind hint */}
           <div className="combat-spell-tooltip__hint">
-            Appuyez sur <kbd className="combat-spell-tooltip__key">{spell.slot}</kbd> pour lancer
+            {combatCopy.tooltip.press} <kbd className="combat-spell-tooltip__key">{spell.slot}</kbd>{' '}
+            {combatCopy.tooltip.toCast}
           </div>
         </div>
       )}
