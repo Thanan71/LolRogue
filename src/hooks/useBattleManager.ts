@@ -10,6 +10,7 @@ import type { ChampionInstance } from '@/game/ChampionInstance';
 import { buildSpellImpactPreview } from '@/game/presentation/spellPreview';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleLoadout } from '@/game/rules/types';
+import { localizeSpell } from '@/i18n/content';
 import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/battleStore';
 import type { FinalCombatantState } from '@/types/run';
 
@@ -39,7 +40,7 @@ function toCombatantInfo(
       const cost = spell.cost[rank - 1] ?? spell.cost[spell.cost.length - 1] ?? 0;
       spells.push({
         slot,
-        name: spell.name,
+        name: localizeSpell(spell, champ.id).name,
         cooldownMax: champ.getMaxCooldown(slot),
         cooldownCurrent: champ.getCooldown(slot),
         cost,

@@ -1,4 +1,5 @@
 import type { Champion, Spell } from '@/types/champion';
+import { championContent } from './championContent';
 import { locale } from './fr';
 import { translateLegacyTextToEnglish } from './legacyEnglish';
 import { translateAuditedEnglishCopy } from './legacyEnglishAudit';
@@ -6,75 +7,6 @@ import { translateLegacyContentToEnglish } from './legacyEnglishContent';
 import { translateLegacyPhraseToEnglish } from './legacyEnglishPhrases';
 
 type ContentCopy = { name: string; description: string };
-
-const CHAMPION_TITLES: Readonly<Record<string, string>> = {
-  Annie: 'the Dark Child',
-  Ashe: 'the Frost Archer',
-  Darius: 'the Hand of Noxus',
-  Garen: 'the Might of Demacia',
-  Jinx: 'the Loose Cannon',
-  Leona: 'the Radiant Dawn',
-  Lux: 'the Lady of Luminosity',
-  Malphite: 'Shard of the Monolith',
-  Soraka: 'the Starchild',
-  Warwick: 'the Uncaged Wrath of Zaun',
-};
-
-const ABILITY_NAMES: Readonly<Record<string, string>> = {
-  AnnieQ: 'Disintegrate',
-  AnnieW: 'Incinerate',
-  AnnieE: 'Molten Shield',
-  AnnieR: 'Summon: Tibbers',
-  AsheQ: "Ranger's Focus",
-  Volley: 'Volley',
-  AsheSpiritOfTheHawk: 'Hawkshot',
-  EnchantedCrystalArrow: 'Enchanted Crystal Arrow',
-  DariusCleave: 'Decimate',
-  DariusNoxianTacticsONH: 'Crippling Strike',
-  DariusAxeGrabCone: 'Apprehend',
-  DariusExecute: 'Noxian Guillotine',
-  GarenQ: 'Decisive Strike',
-  GarenW: 'Courage',
-  GarenE: 'Judgment',
-  GarenR: 'Demacian Justice',
-  JinxQ: 'Switcheroo!',
-  JinxW: 'Zap!',
-  JinxE: 'Flame Chompers!',
-  JinxR: 'Super Mega Death Rocket!',
-  LeonaShieldOfDaybreak: 'Shield of Daybreak',
-  LeonaSolarBarrier: 'Eclipse',
-  LeonaZenithBlade: 'Zenith Blade',
-  LeonaSolarFlare: 'Solar Flare',
-  LuxLightBinding: 'Light Binding',
-  LuxPrismaticWave: 'Prismatic Barrier',
-  LuxLightStrikeKugel: 'Lucent Singularity',
-  LuxR: 'Final Spark',
-  SeismicShard: 'Seismic Shard',
-  Obduracy: 'Thunderclap',
-  Landslide: 'Ground Slam',
-  UFSlash: 'Unstoppable Force',
-  SorakaQ: 'Starcall',
-  SorakaW: 'Astral Infusion',
-  SorakaE: 'Equinox',
-  SorakaR: 'Wish',
-  WarwickQ: 'Jaws of the Beast',
-  WarwickW: 'Blood Hunt',
-  WarwickE: 'Primal Howl',
-  WarwickR: 'Infinite Duress',
-};
-
-const PASSIVE_NAMES: Readonly<Record<string, string>> = {
-  Annie: 'Pyromania',
-  Ashe: 'Frost Shot',
-  Darius: 'Hemorrhage',
-  Garen: 'Perseverance',
-  Jinx: 'Get Excited!',
-  Leona: 'Sunlight',
-  Lux: 'Illumination',
-  Malphite: 'Granite Shield',
-  Soraka: 'Salvation',
-  Warwick: 'Eternal Hunger',
-};
 
 const DIRECT_ENGLISH_COPY: Readonly<Record<string, string>> = {
   Équiper: 'Equip',
@@ -192,33 +124,27 @@ export function localizeUserCopy(value: string): string {
   return translated;
 }
 
-function englishDescription(value: string): string {
-  const translated = localizeUserCopy(value);
-  return /[àâäçéèêëîïôöùûüÿœæ]|\b(?:dégâts|équipe|inventaire|niveau|maîtrise|soin|bouclier|armure|puissance|vitesse|objet|cible|gagne|inflige|réduit|augmente|ennemi|proches|manquants)\b/iu.test(
-    translated,
-  )
-    ? 'This ability affects the target according to its listed combat effects.'
-    : translated;
-}
-
-function localizeSpell(spell: Spell): Spell {
+export function localizeSpell(spell: Spell, championId: string): Spell {
+  const copy = championContent[locale][championId]?.spells[spell.id];
+  if (!copy) return spell;
   return {
     ...spell,
-    name: ABILITY_NAMES[spell.id] ?? localizeUserCopy(spell.name),
-    description: englishDescription(spell.description),
+    name: copy.name,
+    description: copy.description,
   };
 }
 
 export function localizeChampion(champion: Champion): Champion {
-  if (locale !== 'en-US') return champion;
+  const copy = championContent[locale][champion.id];
+  if (!copy) return champion;
   return {
     ...champion,
-    title: CHAMPION_TITLES[champion.id] ?? localizeUserCopy(champion.title),
-    spells: champion.spells.map(localizeSpell),
+    title: copy.title,
+    spells: champion.spells.map((spell) => localizeSpell(spell, champion.id)),
     passive: {
       ...champion.passive,
-      name: PASSIVE_NAMES[champion.id] ?? localizeUserCopy(champion.passive.name),
-      description: englishDescription(champion.passive.description),
+      name: copy.passive.name,
+      description: copy.passive.description,
     },
   };
 }

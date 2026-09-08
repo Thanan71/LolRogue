@@ -5,6 +5,7 @@ import type { SpellSlot } from '@/game/ChampionInstance';
 import { buildSpellImpactPreview } from '@/game/presentation/spellPreview';
 import { buildRunPlayerTeam } from '@/game/run/runCombatant';
 import { canUpgradeSpell, getSpellRankCap, SPELL_SLOTS } from '@/game/run/spellUpgradeRules';
+import { localizeChampion } from '@/i18n/content';
 import { fr } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -94,7 +95,8 @@ export function SpellUpgradePanel({
   stats,
 }: SpellUpgradePanelProps) {
   const panelId = useId();
-  const champion = championDB.getById(championId);
+  const sourceChampion = championDB.getById(championId);
+  const champion = sourceChampion ? localizeChampion(sourceChampion) : undefined;
   const normalizedChampionId = championId.toLowerCase();
   const [selectedSlot, setSelectedSlot] = useState<SpellSlot>(() => firstAvailableSlot(member));
   const [localFeedback, setLocalFeedback] = useState<SpellUpgradeFeedback | null>(null);

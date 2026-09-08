@@ -22,6 +22,7 @@ import { SeededRNG } from '@/utils/seededRandom';
 import { gameStatsAtLevel } from '@/utils/statConversion';
 import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
+import { localizeChampion } from '@/i18n/content';
 import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { runeDescription, runeNameFr } from '@/i18n/runes.fr';
@@ -398,6 +399,7 @@ function ChampionCard({
   disabled: boolean;
   onSelect: () => void;
 }) {
+  const localizedChampion = localizeChampion(champion);
   const gameStats = gameStatsAtLevel(champion.stats, 1);
   const splashUrl = DDRAGON_CONFIG.championSplashUrl(champion.id);
 
@@ -417,7 +419,7 @@ function ChampionCard({
       onClick={onSelect}
       disabled={disabled}
       aria-pressed={selected}
-      aria-label={`Choisir ${champion.name}`}
+      aria-label={`Choisir ${localizedChampion.name}`}
     >
       <div className="champion-card__splash-wrapper">
         <picture>
@@ -425,7 +427,7 @@ function ChampionCard({
           <img
             className="champion-card__splash"
             src={splashUrl}
-            alt={champion.name}
+            alt={localizedChampion.name}
             loading="lazy"
             width={1215}
             height={717}
@@ -439,8 +441,8 @@ function ChampionCard({
       </div>
 
       <div className="champion-card__info">
-        <div className="champion-card__name">{champion.name}</div>
-        <div className="champion-card__title-text">{champion.title}</div>
+        <div className="champion-card__name">{localizedChampion.name}</div>
+        <div className="champion-card__title-text">{localizedChampion.title}</div>
 
         <div className="champion-card__tags">
           {champion.tags.map((tag) => (

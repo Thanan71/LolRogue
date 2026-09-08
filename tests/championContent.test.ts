@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { implementedChampions } from '@/data/champion';
 import {
@@ -79,6 +79,19 @@ function expectCompleteCopy(copy: ChampionContentCopy): void {
   expect(copy.description.trim()).toBe(copy.description);
   expect(copy.description.length).toBeGreaterThan(0);
 }
+
+async function loadChampionLocalizers(locale: ChampionContentLocale) {
+  vi.resetModules();
+  vi.stubGlobal('window', {
+    localStorage: { getItem: () => JSON.stringify({ state: { language: locale } }) },
+  });
+  return import('@/i18n/content');
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.resetModules();
+});
 
 describe('championContent', () => {
   it('covers exactly the 10 implemented champions and their 40 stable spell IDs', () => {
@@ -166,4 +179,33 @@ describe('championContent', () => {
     expect(english.Malphite.passive.description).toContain('7% of his maximum HP');
     expect(english.Warwick.passive.description).toContain('Below 25% HP, the healing is tripled');
   });
+
+  it.each(LOCALES)(
+    'localizes champions and spells exclusively from the %s catalog',
+    async (locale) => {
+      const { localizeChampion, localizeSpell } = await loadChampionLocalizers(locale);
+      const catalog = championContent[locale];
+
+      for (const champion of implementedChampions) {
+        const expected = catalog[champion.id]!;
+        const localizedChampion = localizeChampion(champion);
+
+        expect(localizedChampion.title).toBe(expected.title);
+        expect(localizedChampion.passive).toEqual({
+          ...champion.passive,
+          ...expected.passive,
+        });
+        expect(localizedChampion.stats).toBe(champion.stats);
+
+        champion.spells.forEach((spell, index) => {
+          const expectedSpell = expected.spells[spell.id]!;
+          const localizedSpell = localizeSpell(spell, champion.id);
+
+          expect(localizedSpell).toEqual({ ...spell, ...expectedSpell });
+          expect(localizedChampion.spells[index]).toEqual(localizedSpell);
+          expect(localizedSpell.effects).toBe(spell.effects);
+        });
+      }
+    },
+  );
 });
