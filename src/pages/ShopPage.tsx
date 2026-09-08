@@ -10,6 +10,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
 import { getEncounterPresentation } from '@/i18n/encounterContent';
 import { fr, locale } from '@/i18n/fr';
+import { localizeShopMutationError } from '@/i18n/runMutationContent';
 import { useRunStore } from '@/stores/runStore';
 import { MAX_INVENTORY_ITEMS } from '@/types/run';
 import '@/styles/shop.css';
@@ -184,7 +185,7 @@ export function ShopPage() {
         playUIClick();
       } else {
         setCommandStatus(null);
-        setCommandError(result.error || fr.encounter.commandFailed);
+        setCommandError(localizeShopMutationError(result.code));
       }
     },
     [purchaseCurrentShopItem],
@@ -201,7 +202,7 @@ export function ShopPage() {
         playUIClick();
       } else {
         setCommandStatus(null);
-        setCommandError(result.error || fr.encounter.commandFailed);
+        setCommandError(localizeShopMutationError(result.code));
       }
     },
     [purchaseCurrentShopChampion],

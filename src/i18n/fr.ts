@@ -975,6 +975,7 @@ const french = {
     shopInventoryFull: "Inventaire complet — libère un emplacement avant d'acheter",
     notEnoughGold: "Pas assez d'or",
     alreadyPurchased: 'Déjà acheté',
+    offerUnavailable: "Cette offre n'est plus disponible.",
     treasureSubtitle:
       'Le coffre est réclamé automatiquement et son contenu n’est accordé qu’une fois.',
     commandFailed: "L'action n'a pas été confirmée. Rien n'a été dépensé.",

@@ -968,6 +968,7 @@ export const en = {
     shopInventoryFull: 'Inventory full — free up a slot before buying',
     notEnoughGold: 'Not enough gold',
     alreadyPurchased: 'Already purchased',
+    offerUnavailable: 'This offer is no longer available.',
     treasureSubtitle: 'The chest is claimed automatically and its contents are granted only once.',
     commandFailed: 'The action was not confirmed. Nothing was spent.',
     recruited: 'Recruited!',
