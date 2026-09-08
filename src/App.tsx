@@ -5,19 +5,20 @@ import { RouteLoadingFallback } from './components/AppErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { assertValidRuleCatalogs } from './game/rules/catalogValidation';
-import { locale } from './i18n/fr';
+import { applyDocumentContent } from './i18n/documentContent';
 import { routeTitle } from './i18n/routeTitles';
 import { useSettingsStore } from './stores/settingsStore';
 import { installGlobalErrorCapture, recordTechnicalEvent } from './utils/observability';
 
 assertValidRuleCatalogs();
 
-function RouteAccessibility() {
+export function RouteAccessibility() {
   const { pathname } = useLocation();
-  const title = routeTitle(locale, pathname);
+  const language = useSettingsStore((state) => state.language);
+  const title = routeTitle(language, pathname);
 
   useEffect(() => {
-    document.title = [title, 'LoL Rogue'].join(' — ');
+    applyDocumentContent(language, title);
     const focusRoute = (candidate?: ParentNode) => {
       const target =
         candidate?.querySelector<HTMLElement>('main, h1') ??
@@ -50,7 +51,7 @@ function RouteAccessibility() {
       window.clearTimeout(observerTimeout);
       observer.disconnect();
     };
-  }, [pathname, title]);
+  }, [language, pathname, title]);
 
   return (
     <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
