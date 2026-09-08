@@ -187,7 +187,10 @@ export function TreasurePage() {
                 <div className="treasure-page__reward-value">
                   <span className="treasure-page__coin" aria-hidden="true" />
                   <span className="treasure-page__reward-gold">+{encounter?.gold ?? 0}</span>
-                  <span className="treasure-page__reward-total"> (Total : {gold})</span>
+                  <span className="treasure-page__reward-total">
+                    {' '}
+                    ({fr.common.total} : {gold})
+                  </span>
                 </div>
               </article>
 
@@ -217,7 +220,10 @@ export function TreasurePage() {
                         {itemDescription(encounter.item.itemId, encounter.item.description)}
                       </p>
                       {Object.keys(encounter.item.stats).length > 0 && (
-                        <ul className="treasure-page__item-stats" aria-label="Bonus de l’objet">
+                        <ul
+                          className="treasure-page__item-stats"
+                          aria-label={fr.encounter.itemBonuses}
+                        >
                           {Object.entries(encounter.item.stats).map(([stat, value]) => (
                             <li key={stat} className="treasure-page__item-stat">
                               +{value} {stat.toUpperCase()}

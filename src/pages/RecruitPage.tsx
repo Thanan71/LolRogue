@@ -6,7 +6,7 @@ import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { localizeUserCopy } from '@/i18n/content';
+import { localizeChampion, localizeUserCopy } from '@/i18n/content';
 import { formatChampionTag } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
@@ -18,7 +18,7 @@ function TeamPreview({ team }: { team: RecruitTeam }) {
   return (
     <section className="recruit-page__team" aria-labelledby="recruit-team-title">
       <div className="recruit-page__team-heading">
-        <h2 id="recruit-team-title">Votre équipe</h2>
+        <h2 id="recruit-team-title">{fr.encounter.teamPreview}</h2>
         <span>{team.length}/5</span>
       </div>
       <div className="recruit-page__team-portraits">
@@ -72,7 +72,8 @@ export function RecruitPage() {
     return getNodeEncounter(getCurrentNode(), 'recruit');
   }, [getCurrentNode]);
 
-  const champ = encounter ? championDB.getById(encounter.championId) : null;
+  const sourceChampion = encounter ? championDB.getById(encounter.championId) : null;
+  const champ = sourceChampion ? localizeChampion(sourceChampion) : null;
   const teamFull = team.length >= 5;
   const alreadyOnTeam = team.some((m) => m.championId === encounter?.championId);
   const canAfford = encounter ? gold >= encounter.cost : false;
@@ -158,7 +159,7 @@ export function RecruitPage() {
       title={`${fr.encounter.recruit} — ${encounter?.name ?? fr.encounter.wildChampion}`}
       gold={gold}
       tone="cyan"
-      subtitle="Évaluez le renfort, sa place dans l’équipe et le risque avant de tenter le recrutement."
+      subtitle={fr.encounter.recruitSubtitle}
       contentClassName="encounter-layout__content--centered"
     >
       <div className="recruit-page">
@@ -181,7 +182,7 @@ export function RecruitPage() {
               <span className="recruit-page__portrait-frame">
                 <img
                   src={champ?.iconUrl ?? ''}
-                  alt={champ?.name ?? 'Champion inconnu'}
+                  alt={champ?.name ?? fr.encounter.championUnknown}
                   width={160}
                   height={160}
                   decoding="async"
@@ -195,7 +196,9 @@ export function RecruitPage() {
                 <h2 className="recruit-page__champion-name">
                   {champ?.name ?? encounter?.championId ?? '???'}
                 </h2>
-                <p className="recruit-page__champion-title">{champ?.title ?? 'Champion'}</p>
+                <p className="recruit-page__champion-title">
+                  {champ?.title ?? fr.encounter.champion}
+                </p>
                 <div className="recruit-page__tags">
                   {champ?.tags.map((tag) => (
                     <span className="recruit-page__tag" key={tag}>
@@ -204,7 +207,7 @@ export function RecruitPage() {
                   ))}
                 </div>
                 {champ && (
-                  <dl className="recruit-page__stats" aria-label="Statistiques du champion">
+                  <dl className="recruit-page__stats" aria-label={fr.encounter.championStats}>
                     <div>
                       <dt>PV</dt>
                       <dd className="recruit-page__stat recruit-page__stat--hp">
@@ -230,7 +233,9 @@ export function RecruitPage() {
                       </dd>
                     </div>
                     <div>
-                      <dt title="Initiative d'attaque">I. ATQ</dt>
+                      <dt title={localizeUserCopy("Initiative d'attaque")}>
+                        {localizeUserCopy('I. ATQ')}
+                      </dt>
                       <dd className="recruit-page__stat recruit-page__stat--speed">
                         {champ.stats.attackSpeed.toFixed(2)}
                       </dd>
@@ -246,18 +251,14 @@ export function RecruitPage() {
               </div>
             </div>
             <div className="recruit-page__description">
-              {localizeUserCopy(
-                encounter?.description ?? 'Un champion sauvage se présente à ton équipe.',
-              )}
+              {localizeUserCopy(encounter?.description ?? fr.encounter.wildChampionDescription)}
             </div>
             <div className="recruit-page__cost">
-              Coût : {encounter?.cost ?? 0} {fr.common.gold}
+              {fr.encounter.cost} : {encounter?.cost ?? 0} {fr.common.gold}
             </div>
             <div className={`recruit-page__chance recruit-page__chance--${chanceTone}`}>
-              Chances de réussite : {pct} %{pct < 70 ? ' — le champion peut fuir' : ''}
-              <div className="recruit-page__chance-note">
-                L’or n’est dépensé que si le recrutement réussit.
-              </div>
+              {fr.encounter.recruitChance(pct)} {pct < 70 ? fr.encounter.recruitFleeWarning : ''}
+              <div className="recruit-page__chance-note">{fr.encounter.recruitGoldRule}</div>
             </div>
             <div className="recruit-page__actions">
               <button
@@ -273,7 +274,7 @@ export function RecruitPage() {
                 className="recruit-page__button recruit-page__button--leave"
                 onClick={handleLeave}
               >
-                Passer
+                {fr.encounter.skip}
               </button>
             </div>
           </div>
@@ -302,13 +303,13 @@ export function RecruitPage() {
             </div>
             <h2 className={`recruit-page__result-title recruit-page__result-title--${result}`}>
               {result === 'success'
-                ? (champ?.name ?? 'Le champion') + ' rejoint ton équipe !'
-                : (champ?.name ?? 'Le champion') + ' a pris la fuite.'}
+                ? fr.encounter.recruitSuccess(champ?.name ?? fr.encounter.champion)
+                : fr.encounter.recruitEscape(champ?.name ?? fr.encounter.champion)}
             </h2>
             <p className="recruit-page__result-copy">
               {result === 'success'
-                ? `${encounter?.cost ?? 0} ${fr.common.gold} dépensé(s).`
-                : 'Tu conserves ton or malgré cette tentative.'}
+                ? fr.encounter.recruitGoldSpent(encounter?.cost ?? 0)
+                : fr.encounter.recruitGoldKept}
             </p>
             <button
               type="button"

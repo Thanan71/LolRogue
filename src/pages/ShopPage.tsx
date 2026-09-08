@@ -7,7 +7,7 @@ import { getNodeEncounter } from '@/game/map/mapUtils';
 import type { ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { itemDescription, itemName } from '@/i18n/content';
+import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
 import { fr } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import { MAX_INVENTORY_ITEMS } from '@/types/run';
@@ -59,7 +59,7 @@ function ShopItemCard({
       </div>
       <p className="shop-card__description">{itemDescription(item.itemId, item.description)}</p>
       {stats.length > 0 ? (
-        <ul className="shop-card__stats" aria-label="Bonus de l’objet">
+        <ul className="shop-card__stats" aria-label={fr.encounter.itemBonuses}>
           {stats.map(([stat, value]) => (
             <li key={stat}>
               {stat.toUpperCase()} +{value}
@@ -89,7 +89,8 @@ function ChampionCard({
   alreadyOnTeam: boolean;
   onRecruit: () => void;
 }) {
-  const champ = championDB.getById(champId);
+  const sourceChampion = championDB.getById(champId);
+  const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
   const disabled = !canAfford || teamFull || alreadyOnTeam;
   let label = `${fr.encounter.recruitAction} — ${cost} ${fr.common.gold}`;
   if (alreadyOnTeam) label = fr.encounter.alreadyOnTeam;
@@ -113,7 +114,7 @@ function ChampionCard({
         </span>
         <div>
           <h3 className="shop-card__name">{champ?.name ?? champId}</h3>
-          <p className="shop-card__subtitle">{champ?.title ?? 'Champion'}</p>
+          <p className="shop-card__subtitle">{champ?.title ?? fr.encounter.champion}</p>
         </div>
       </div>
       <button
@@ -173,7 +174,7 @@ export function ShopPage() {
       const result = purchaseCurrentShopItem(item.itemId);
       if (result.success) {
         setCommandError(null);
-        setCommandStatus(`${item.name} a été ajouté à l’inventaire.`);
+        setCommandStatus(fr.encounter.itemAdded(itemName(item.itemId, item.name)));
         playUIClick();
       } else {
         setCommandStatus(null);
@@ -188,7 +189,7 @@ export function ShopPage() {
       const result = purchaseCurrentShopChampion(champId);
       if (result.success) {
         setCommandError(null);
-        setCommandStatus(`${championDB.getById(champId)?.name ?? champId} a rejoint votre équipe.`);
+        setCommandStatus(fr.encounter.championJoined(championDB.getById(champId)?.name ?? champId));
         playUIClick();
       } else {
         setCommandStatus(null);
@@ -211,7 +212,7 @@ export function ShopPage() {
     <EncounterLayout
       title={`${fr.encounter.shop} — ${encounter?.name ?? fr.encounter.shop}`}
       gold={gold}
-      subtitle="Équipez votre escouade avant de reprendre la route. Les achats sont définitifs."
+      subtitle={fr.encounter.shopSubtitle}
     >
       <div className="shop-content">
         {commandError && (
@@ -234,16 +235,10 @@ export function ShopPage() {
         {encounter && priceMultiplier < 1 && (
           <div className="shop-banner">{fr.encounter.discount}</div>
         )}
-        <div className="shop-overview" aria-label="État de la boutique">
-          <span>
-            <strong>{items.length - purchased.size}</strong> objets disponibles
-          </span>
-          <span>
-            Inventaire <strong>{inventorySize}</strong>/{MAX_INVENTORY_ITEMS}
-          </span>
-          <span>
-            Équipe <strong>{team.length}</strong>/5
-          </span>
+        <div className="shop-overview" aria-label={fr.encounter.shopState}>
+          <span>{fr.encounter.itemsAvailable(items.length - purchased.size)}</span>
+          <span>{fr.encounter.inventoryCount(inventorySize, MAX_INVENTORY_ITEMS)}</span>
+          <span>{fr.encounter.teamCount(team.length, 5)}</span>
         </div>
         <section className="shop-section" aria-labelledby="shop-items-title">
           <h2 id="shop-items-title" className="shop-section__title">

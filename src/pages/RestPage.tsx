@@ -67,11 +67,7 @@ export function RestPage() {
   const [actionStatus, setActionStatus] = useState<{
     kind: 'success' | 'error';
     message: string;
-  } | null>(
-    wasClaimed
-      ? { kind: 'success', message: 'Ce repos a déjà été utilisé. Votre équipe peut repartir.' }
-      : null,
-  );
+  } | null>(wasClaimed ? { kind: 'success', message: fr.encounter.restAlreadyUsed } : null);
 
   const encounter = useMemo(() => {
     return getNodeEncounter(getCurrentNode(), 'rest');
@@ -90,7 +86,7 @@ export function RestPage() {
     if (!previous.currentNodeId || !previous.claimCurrentEncounter()) {
       setActionStatus({
         kind: 'error',
-        message: 'Le repos ne peut pas être appliqué pour le moment.',
+        message: fr.encounter.restUnavailable,
       });
       return;
     }
@@ -104,7 +100,7 @@ export function RestPage() {
       }).success
     ) {
       useRunStore.setState({ claimedEncounterNodeIds: previous.claimedEncounterNodeIds });
-      setActionStatus({ kind: 'error', message: 'Le paiement du repos a échoué.' });
+      setActionStatus({ kind: 'error', message: fr.encounter.restPaymentFailed });
       return;
     }
 
@@ -143,7 +139,7 @@ export function RestPage() {
       });
       setActionStatus({
         kind: 'error',
-        message: 'Le soin n’a pas pu être enregistré. Aucun changement n’a été conservé.',
+        message: fr.encounter.restSaveFailed,
       });
       return;
     }
@@ -151,8 +147,8 @@ export function RestPage() {
     setActionStatus({
       kind: 'success',
       message: fullHeal
-        ? 'Toute l’équipe a récupéré la totalité de ses PV.'
-        : `Toute l’équipe a récupéré ${Math.round(healPercent * 100)} % de ses PV maximum.`,
+        ? fr.encounter.restFullHealApplied
+        : fr.encounter.restHealApplied(Math.round(healPercent * 100)),
     });
   }, [canAfford, healed, goldCost, spendGold, healPercent, fullHeal]);
 
@@ -170,7 +166,7 @@ export function RestPage() {
       title={`${fr.encounter.rest} — ${encounter?.name ?? fr.encounter.campfire}`}
       gold={gold}
       tone="green"
-      subtitle="Comparez les PV actuels et projetés avant d’utiliser cette halte."
+      subtitle={fr.encounter.compareRest}
       contentClassName="encounter-layout__content--centered"
     >
       <div className="rest">
@@ -185,7 +181,9 @@ export function RestPage() {
           {fullHeal ? (
             <div className="rest__healing">{fr.encounter.fullHeal}</div>
           ) : (
-            <div className="rest__healing">Soin de {Math.round(healPercent * 100)} % des PV</div>
+            <div className="rest__healing">
+              {fr.encounter.healPercent(Math.round(healPercent * 100))}
+            </div>
           )}
           {goldCost > 0 && (
             <div className="rest__cost">
@@ -207,7 +205,7 @@ export function RestPage() {
         {/* Team HP Display */}
         <section className="rest__team" aria-labelledby="rest-team-title">
           <h2 id="rest-team-title" className="sr-only">
-            Points de vie de l’équipe
+            {fr.encounter.teamHp}
           </h2>
           {team.map((member) => {
             const maxHp = getMemberMaxHp(member);
@@ -236,13 +234,15 @@ export function RestPage() {
                   </span>
                   <div className="rest__member-name">
                     <strong>{champ?.name ?? member.championId}</strong>
-                    <span>Niv. {member.level ?? 1}</span>
+                    <span>
+                      {fr.common.levelShort} {member.level ?? 1}
+                    </span>
                   </div>
                 </div>
                 <div
                   className="rest__hp-track"
                   role="progressbar"
-                  aria-label={`${champ?.name ?? member.championId} : ${currentHp} / ${maxHp} PV`}
+                  aria-label={`${champ?.name ?? member.championId} : ${currentHp} / ${maxHp} ${fr.common.hpShort}`}
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={pct}
@@ -254,11 +254,12 @@ export function RestPage() {
                 </div>
                 <div className="rest__hp-values">
                   <span>
-                    {currentHp} / {maxHp} PV
+                    {currentHp} / {maxHp} {fr.common.hpShort}
                   </span>
                   {!healed && (
                     <span className="rest__hp-projection">
-                      → {resolveRestHp(currentHp, maxHp, { fullHeal, healPercent })} PV
+                      → {resolveRestHp(currentHp, maxHp, { fullHeal, healPercent })}{' '}
+                      {fr.common.hpShort}
                     </span>
                   )}
                 </div>
@@ -275,7 +276,9 @@ export function RestPage() {
               onClick={handleRest}
               disabled={!canAfford}
             >
-              {goldCost > 0 ? `${fr.encounter.heal} (${goldCost} or)` : fr.encounter.heal}
+              {goldCost > 0
+                ? `${fr.encounter.heal} (${goldCost} ${fr.common.gold})`
+                : fr.encounter.heal}
             </button>
           ) : (
             <button
