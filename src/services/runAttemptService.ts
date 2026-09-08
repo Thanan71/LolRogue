@@ -1,8 +1,5 @@
 import type { Json } from '@/types/database';
-import {
-  verificationRejectionMessage,
-  verificationRetryableMessage,
-} from '@/i18n/runErrorContent';
+import { verificationRejectionMessage, verificationRetryableMessage } from '@/i18n/runErrorContent';
 import {
   MAX_TEAM_SIZE,
   type RunItemLedgerEvent,

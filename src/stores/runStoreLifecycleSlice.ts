@@ -158,11 +158,7 @@ export function createRunLifecycleSlice(
         const result = await withExclusiveRunStart(async () => {
           const currentState = get();
           if (currentState.isActive || currentState.isEnding) {
-            return startFailure(
-              'active_run',
-              runError.activeRun,
-              currentState.isEnding,
-            );
+            return startFailure('active_run', runError.activeRun, currentState.isEnding);
           }
           const persistedActiveRun = getPersistedActiveRun();
           if (persistedActiveRun) {
@@ -178,11 +174,7 @@ export function createRunLifecycleSlice(
             authState.user &&
             (authState.authStatus !== 'ready' || !authState.player || !authState.isAuthenticated)
           ) {
-            return startFailure(
-              'auth_not_ready',
-              runError.profileNotReady,
-              true,
-            );
+            return startFailure('auth_not_ready', runError.profileNotReady, true);
           }
           const authUser = authState.authStatus === 'ready' ? authState.user : null;
           const resumableStart =
@@ -436,11 +428,7 @@ export function createRunLifecycleSlice(
     endRun: async (won = false, expectedRunId?: string, displayedSummary?: RunSummary) => {
       const requestedRunId = expectedRunId ?? get().runId;
       if (expectedRunId !== undefined && get().runId !== expectedRunId) {
-        return endFailure(
-          requestedRunId,
-          'stale_run',
-          runError.staleRun,
-        );
+        return endFailure(requestedRunId, 'stale_run', runError.staleRun);
       }
       if (!get().isActive) {
         return {
@@ -928,12 +916,7 @@ export function createRunLifecycleSlice(
           saveError: runError.finalizationFailed,
           saveFailureKind: 'retryable',
         });
-        return endFailure(
-          requestedRunId,
-          'finalization_failed',
-          runError.finalizationFailed,
-          true,
-        );
+        return endFailure(requestedRunId, 'finalization_failed', runError.finalizationFailed, true);
       } finally {
         runLifecycleService.clearFinalization(operation);
       }

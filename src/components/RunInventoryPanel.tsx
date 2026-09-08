@@ -597,8 +597,7 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
                     <div key={stat}>
                       <dt>{fr.stats[stat]}</dt>
                       <dd>
-                        {formatStatValue(stat, before, locale)}{' '}
-                        <span aria-hidden="true">→</span>{' '}
+                        {formatStatValue(stat, before, locale)} <span aria-hidden="true">→</span>{' '}
                         <span className="sr-only">{fr.inventory.becomes}</span>{' '}
                         <strong>{formatStatValue(stat, after, locale)}</strong>
                       </dd>

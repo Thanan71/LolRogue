@@ -245,46 +245,49 @@ describe('inventoryContent', () => {
     );
   });
 
-  it.each(LOCALES)('serves every %s item, passive, augment, and rune from the catalog', async (locale) => {
-    const localizers = await loadInventoryLocalizers(locale);
-    const catalog = inventoryContent[locale];
+  it.each(LOCALES)(
+    'serves every %s item, passive, augment, and rune from the catalog',
+    async (locale) => {
+      const localizers = await loadInventoryLocalizers(locale);
+      const catalog = inventoryContent[locale];
 
-    for (const itemId of ITEM_IDS) {
-      const item = catalog.items[itemId]!;
-      expect(localizers.itemName(itemId, 'wrong-language item')).toBe(item.name);
-      expect(localizers.itemDescription(itemId, 'wrong-language description')).toBe(
-        item.description,
-      );
-      for (const passiveId of Object.keys(item.passives)) {
-        const passive = item.passives[passiveId]!;
-        expect(localizers.itemPassiveName(itemId, passiveId, 'wrong-language passive')).toBe(
-          passive.name,
+      for (const itemId of ITEM_IDS) {
+        const item = catalog.items[itemId]!;
+        expect(localizers.itemName(itemId, 'wrong-language item')).toBe(item.name);
+        expect(localizers.itemDescription(itemId, 'wrong-language description')).toBe(
+          item.description,
         );
-        expect(
-          localizers.itemPassiveDescription(itemId, passiveId, 'wrong-language description'),
-        ).toBe(passive.description);
+        for (const passiveId of Object.keys(item.passives)) {
+          const passive = item.passives[passiveId]!;
+          expect(localizers.itemPassiveName(itemId, passiveId, 'wrong-language passive')).toBe(
+            passive.name,
+          );
+          expect(
+            localizers.itemPassiveDescription(itemId, passiveId, 'wrong-language description'),
+          ).toBe(passive.description);
+        }
       }
-    }
 
-    for (const augmentId of AUGMENT_IDS) {
-      const augment = catalog.augments[augmentId]!;
-      expect(localizers.augmentName(augmentId, 'wrong-language augment')).toBe(augment.name);
-      expect(localizers.augmentDescription(augmentId, 'wrong-language description')).toBe(
-        augment.description,
+      for (const augmentId of AUGMENT_IDS) {
+        const augment = catalog.augments[augmentId]!;
+        expect(localizers.augmentName(augmentId, 'wrong-language augment')).toBe(augment.name);
+        expect(localizers.augmentDescription(augmentId, 'wrong-language description')).toBe(
+          augment.description,
+        );
+      }
+
+      for (const runeId of RUNE_IDS) {
+        const rune = catalog.runes[runeId]!;
+        expect(localizers.runeName(runeId, 'wrong-language rune')).toBe(rune.name);
+        expect(localizers.runeDescription(runeId, 'wrong-language description')).toBe(
+          rune.description,
+        );
+      }
+
+      expect(localizers.itemName('removed_item', 'Ancien objet')).toBe(catalog.fallbacks.item.name);
+      expect(localizers.runeDescription('removed_rune', 'Ancienne description')).toBe(
+        catalog.fallbacks.rune.description,
       );
-    }
-
-    for (const runeId of RUNE_IDS) {
-      const rune = catalog.runes[runeId]!;
-      expect(localizers.runeName(runeId, 'wrong-language rune')).toBe(rune.name);
-      expect(localizers.runeDescription(runeId, 'wrong-language description')).toBe(
-        rune.description,
-      );
-    }
-
-    expect(localizers.itemName('removed_item', 'Ancien objet')).toBe(catalog.fallbacks.item.name);
-    expect(localizers.runeDescription('removed_rune', 'Ancienne description')).toBe(
-      catalog.fallbacks.rune.description,
-    );
-  });
+    },
+  );
 });
