@@ -283,6 +283,7 @@ export type RunLifecycleErrorCode =
   | 'invalid_starter_count'
   | 'secure_command_unavailable'
   | 'start_failed'
+  | 'daily_starter_not_offered'
   | 'account_changed'
   | 'stale_run'
   | 'finalization_in_progress'

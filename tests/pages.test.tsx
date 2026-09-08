@@ -403,7 +403,7 @@ describe('P2 page smoke tests', () => {
     expect(confirm).toBeDisabled();
     fireEvent.click(screen.getAllByRole('button', { name: /^Choisir /i })[1]);
     expect(confirm).toBeEnabled();
-    expect(screen.getByText(/sélectionné$/i)).toBeInTheDocument();
+    expect(screen.getByText(/emplacements? sélectionnés?$/i)).toBeInTheDocument();
 
     const runes = screen.getAllByRole('checkbox');
     fireEvent.click(runes[0]);

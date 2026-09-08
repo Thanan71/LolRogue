@@ -185,7 +185,7 @@ describe('authoritative Daily pages', () => {
     fireEvent.click(garen);
     expect(garen).toHaveAttribute('aria-pressed', 'true');
     expect(annie).toBeDisabled();
-    expect(screen.getByText(/1\/1 slot\(s\) sélectionné/i)).toBeInTheDocument();
+    expect(screen.getByText(/1\/1 emplacement sélectionné/i)).toBeInTheDocument();
   });
 
   it('drops a persisted multi-champion Daily team even when every starter is offered', async () => {
@@ -206,7 +206,7 @@ describe('authoritative Daily pages', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText(/L'offre Daily a changé/i)).toBeInTheDocument();
+    expect(await screen.findByText(/L’offre du défi quotidien a changé/i)).toBeInTheDocument();
     expect(useRunStore.getState().pendingAuthorityStart).toBeNull();
     for (const championName of ['Garen', 'Annie', 'Ashe', 'Darius', 'Lux', 'Soraka']) {
       expect(screen.getByRole('button', { name: `Choisir ${championName}` })).toBeInTheDocument();

@@ -23,9 +23,11 @@ import { gameStatsAtLevel } from '@/utils/statConversion';
 import '@/styles/starter-select.css';
 import { playUIClick } from '@/audio';
 import { localizeChampion } from '@/i18n/content';
-import { formatChampionTag } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
+import { formatChampionTag, formatNumber } from '@/i18n/format';
 import { runeDescription, runeNameFr } from '@/i18n/runes.fr';
+import { runPreparationCopy } from '@/i18n/runPreparationContent';
+
+const starterCopy = runPreparationCopy.starter;
 
 function pickRandom<T>(arr: T[], count: number, rng: SeededRNG): T[] {
   return rng.pickN(arr, count);
@@ -116,7 +118,7 @@ export function StarterSelectPage() {
     void new SupabaseDailyRunRepository(supabase).getDailyChallenge().then((result) => {
       if (cancelled) return;
       if (result.error || !result.data) {
-        setError(fr.starter.dailyAuthoritativeLoadFailed);
+        setError(starterCopy.dailyAuthoritativeLoadFailed);
       } else {
         const challenge = result.data;
         setDailyChallenge(challenge);
@@ -132,7 +134,7 @@ export function StarterSelectPage() {
           useRunStore.setState({ pendingAuthorityStart: null });
           setSelectedStarterIds([]);
           setSelectedRuneIds([]);
-          setError(fr.starter.dailyOfferChanged);
+          setError(starterCopy.dailyOfferChanged);
         }
       }
       setIsLoadingDaily(false);
@@ -150,12 +152,14 @@ export function StarterSelectPage() {
 
     if (isDaily) {
       if (hasCompletedToday && !resumableStart) {
-        setError(fr.starter.dailyUsed);
+        setError(starterCopy.dailyUsed);
         setIsStarting(false);
         return;
       }
       if (!isGuest && (!dailyChallenge || (dailyChallenge.hasAttempted && !resumableStart))) {
-        setError(dailyChallenge?.hasAttempted ? fr.starter.dailyUsed : fr.starter.dailyUnavailable);
+        setError(
+          dailyChallenge?.hasAttempted ? starterCopy.dailyUsed : starterCopy.dailyUnavailable,
+        );
         setIsStarting(false);
         return;
       }
@@ -166,7 +170,7 @@ export function StarterSelectPage() {
         difficulty: dailyChallenge?.difficulty,
       });
       if (!result.success) {
-        if (result.error?.includes('daily_starter_not_offered')) {
+        if (result.code === 'daily_starter_not_offered') {
           const refreshed = await new SupabaseDailyRunRepository(supabase).getDailyChallenge();
           if (refreshed.data && !refreshed.error) {
             setDailyChallenge(refreshed.data);
@@ -174,9 +178,9 @@ export function StarterSelectPage() {
           }
           setSelectedStarterIds([]);
           setSelectedRuneIds([]);
-          setError(fr.starter.dailyOfferChanged);
+          setError(starterCopy.dailyOfferChanged);
         } else {
-          setError(result.error ?? fr.starter.dailyStartFailed);
+          setError(starterCopy.startFailures[result.code]);
         }
         setIsStarting(false);
         return;
@@ -188,7 +192,7 @@ export function StarterSelectPage() {
         runeIds: selectedRuneIds,
       });
       if (!result.success) {
-        setError(result.error ?? 'Impossible de démarrer une partie vérifiée.');
+        setError(starterCopy.startFailures[result.code]);
         setIsStarting(false);
         return;
       }
@@ -210,9 +214,7 @@ export function StarterSelectPage() {
         return current.filter((id) => id !== championId);
       }
       if (current.length >= starterSlotLimit) {
-        setError(
-          `Cette run exige exactement ${starterSlotLimit} starter${starterSlotLimit > 1 ? 's' : ''}.`,
-        );
+        setError(starterCopy.selectionLimit(starterSlotLimit));
         return current;
       }
       return [...current, championId];
@@ -231,32 +233,32 @@ export function StarterSelectPage() {
     <div className="starter-select">
       <header className="starter-select__header">
         <button type="button" className="starter-select__back" onClick={handleBack}>
-          {fr.common.back}
+          {starterCopy.back}
         </button>
         <h1 className="starter-select__title">
-          {isDaily ? 'Compose ton équipe du jour' : 'Compose ton équipe'}
+          {isDaily ? starterCopy.dailyTitle : starterCopy.normalTitle}
         </h1>
         <span className="starter-select__header-spacer" aria-hidden="true" />
       </header>
       <p className="starter-select__subtitle">
         {resumableStart
-          ? 'Une tentative vérifiée interrompue est prête à reprendre avec ses choix d’origine.'
+          ? starterCopy.resumableSubtitle
           : isDaily
-            ? 'Tous les joueurs affrontent la même seed quotidienne · 1 starter'
-            : `Run normale : ta difficulté et tes choix · sélectionne exactement ${starterSlotLimit} champions${isGuest ? ' · sauvegarde sur cet appareil uniquement' : ''}`}
+            ? starterCopy.dailySubtitle
+            : starterCopy.normalSubtitle(starterSlotLimit, isGuest)}
       </p>
 
-      <div className="starter-select__journey" aria-label="Étapes de préparation">
+      <div className="starter-select__journey" aria-label={starterCopy.journeyLabel}>
         <span className="starter-select__journey-step starter-select__journey-step--active">
-          <b>01</b> Équipe
+          <b>01</b> {starterCopy.journeyTeam}
         </span>
         <span className="starter-select__journey-line" aria-hidden="true" />
         <span className="starter-select__journey-step">
-          <b>02</b> Runes
+          <b>02</b> {starterCopy.journeyRunes}
         </span>
         <span className="starter-select__journey-line" aria-hidden="true" />
         <span className="starter-select__journey-step">
-          <b>03</b> Départ
+          <b>03</b> {starterCopy.journeyStart}
         </span>
       </div>
 
@@ -283,17 +285,17 @@ export function StarterSelectPage() {
           disabled={starterRerollsUsed >= starterPersonalization.rerolls}
           onClick={rerollStarterOffer}
         >
-          Relancer le roster ({starterPersonalization.rerolls - starterRerollsUsed})
+          {starterCopy.rerollRoster(starterPersonalization.rerolls - starterRerollsUsed)}
         </button>
       )}
 
       <div className="starter-select__actions">
         <fieldset className="starter-select__runes" aria-describedby="starter-runes-help">
-          <legend className="starter-select__runes-title">{fr.starter.chooseRunes}</legend>
+          <legend className="starter-select__runes-title">{starterCopy.chooseRunes}</legend>
           <div className="starter-select__runes-heading">
-            <p id="starter-runes-help">{fr.starter.runesHelp}</p>
+            <p id="starter-runes-help">{starterCopy.runesHelp}</p>
             <output className="starter-select__runes-count" aria-live="polite">
-              {selectedRuneIds.length}/3 {fr.starter.selected}
+              {starterCopy.selectedRunes(selectedRuneIds.length, 3)}
             </output>
           </div>
           <div className="starter-select__rune-grid">
@@ -343,7 +345,7 @@ export function StarterSelectPage() {
                   <span className="starter-rune__content">
                     <span className="starter-rune__name">{runeNameFr(rune.id, rune.name)}</span>
                     <span className="starter-rune__description">
-                      {fr.starter.effectBeforeSelection}:{' '}
+                      {starterCopy.effectBeforeSelection}:{' '}
                       {runeDescription(rune.id, rune.description)}
                     </span>
                   </span>
@@ -361,10 +363,12 @@ export function StarterSelectPage() {
           )}
           <p className="starter-select__selection-status" aria-live="polite">
             {selectedStarters.length > 0
-              ? `${selectedStarters.map((champion) => champion.name).join(', ')} · ${
-                  selectedStarters.length
-                }/${starterSlotLimit} slot(s) sélectionné`
-              : 'Sélectionne un champion pour continuer'}
+              ? starterCopy.selectedTeam(
+                  selectedStarters.map((champion) => localizeChampion(champion).name),
+                  selectedStarters.length,
+                  starterSlotLimit,
+                )
+              : starterCopy.emptySelection}
           </p>
           <button
             className="starter-select__confirm"
@@ -375,12 +379,12 @@ export function StarterSelectPage() {
             onClick={() => void handleConfirm()}
           >
             {isLoadingDaily
-              ? 'Chargement du défi…'
+              ? starterCopy.loadingDaily
               : isStarting
-                ? 'Vérification…'
+                ? starterCopy.verifying
                 : resumableStart
-                  ? 'Reprendre la partie vérifiée'
-                  : 'Confirmer le choix'}
+                  ? starterCopy.resumeVerifiedRun
+                  : starterCopy.confirmChoice}
           </button>
         </div>
       </div>
@@ -404,12 +408,12 @@ function ChampionCard({
   const splashUrl = DDRAGON_CONFIG.championSplashUrl(champion.id);
 
   const statRows: { label: string; value: number }[] = [
-    { label: 'PV', value: gameStats.hp },
-    { label: 'ATK', value: gameStats.atk },
-    { label: 'DEF', value: gameStats.def },
-    { label: 'AP', value: gameStats.ap },
-    { label: 'VIT', value: gameStats.spd },
-    { label: 'CRIT', value: gameStats.crit },
+    { label: starterCopy.statLabels.hp, value: gameStats.hp },
+    { label: starterCopy.statLabels.attack, value: gameStats.atk },
+    { label: starterCopy.statLabels.defense, value: gameStats.def },
+    { label: starterCopy.statLabels.abilityPower, value: gameStats.ap },
+    { label: starterCopy.statLabels.speed, value: gameStats.spd },
+    { label: starterCopy.statLabels.critical, value: gameStats.crit },
   ];
 
   return (
@@ -419,7 +423,7 @@ function ChampionCard({
       onClick={onSelect}
       disabled={disabled}
       aria-pressed={selected}
-      aria-label={`Choisir ${localizedChampion.name}`}
+      aria-label={starterCopy.chooseChampion(localizedChampion.name)}
     >
       <div className="champion-card__splash-wrapper">
         <picture>
@@ -456,7 +460,7 @@ function ChampionCard({
           {statRows.map((row) => (
             <div key={row.label} className="champion-card__stat">
               <span className="champion-card__stat-label">{row.label}</span>
-              <span className="champion-card__stat-value">{row.value}</span>
+              <span className="champion-card__stat-value">{formatNumber(row.value)}</span>
             </div>
           ))}
         </div>
