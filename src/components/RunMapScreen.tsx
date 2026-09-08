@@ -23,12 +23,12 @@ import { buildRunMapViewModel } from './runMapViewModel';
 import { type SpellUpgradeFeedback, SpellUpgradePanel } from './SpellUpgradePanel';
 
 const BIOME_NAMES: Record<Biome, string> = {
-  top_lane: 'Voie du haut',
-  jungle: 'Jungle',
-  mid_lane: 'Voie du milieu',
-  bot_lane: 'Voie du bas',
-  river: 'Rivière',
-  base: 'Base ennemie',
+  top_lane: fr.run.biomeNames.top_lane,
+  jungle: fr.run.biomeNames.jungle,
+  mid_lane: fr.run.biomeNames.mid_lane,
+  bot_lane: fr.run.biomeNames.bot_lane,
+  river: fr.run.biomeNames.river,
+  base: fr.run.biomeNames.base,
 };
 
 export function RunMapScreen() {
@@ -191,7 +191,7 @@ export function RunMapScreen() {
           <h1>{fr.run.noActive}</h1>
           <p>{fr.run.noActiveDetail}</p>
           <button type="button" className="run-map-primary-button" onClick={() => generateRunMap()}>
-            Générer la carte de la partie
+            {fr.run.generateMap}
           </button>
         </div>
       </main>
@@ -206,20 +206,21 @@ export function RunMapScreen() {
             <div className="run-map-heading">
               <div>
                 <span className="run-map-heading__eyebrow">
-                  Expédition · Biome {currentBiomeIndex + 1} sur {biomeMaps.length}
+                  {fr.run.expeditionProgress(currentBiomeIndex + 1, biomeMaps.length)}
                 </span>
-                <h1>Carte de la partie</h1>
+                <h1>{fr.run.mapTitle}</h1>
                 <p className="run-map-instruction">
-                  {currentBiome ? BIOME_NAMES[currentBiome] : 'Territoire inconnu'} · Choisis ton
-                  prochain nœud accessible
+                  {fr.run.mapInstruction(
+                    currentBiome ? BIOME_NAMES[currentBiome] : fr.run.unknownTerritory,
+                  )}
                 </p>
               </div>
               <div className="run-map-biome-progress">
-                <span>{currentBiome ? BIOME_NAMES[currentBiome] : 'Biome'}</span>
+                <span>{currentBiome ? BIOME_NAMES[currentBiome] : fr.run.biome}</span>
                 <progress
                   max={Math.max(1, biomeMaps.length)}
                   value={Math.min(biomeMaps.length, currentBiomeIndex + 1)}
-                  aria-label={`Progression des biomes : ${currentBiomeIndex + 1} sur ${biomeMaps.length}`}
+                  aria-label={fr.run.biomeProgress(currentBiomeIndex + 1, biomeMaps.length)}
                 />
               </div>
             </div>
@@ -230,53 +231,55 @@ export function RunMapScreen() {
                 onClick={() => navigate(ROUTES.MENU)}
                 title={fr.run.saveAndMenu}
               >
-                ← Menu
+                {fr.common.menu}
               </button>
               <span className="run-map-header__stat run-map-header__stat--gold">
-                <small>Trésor</small>
-                <strong>{gold} or</strong>
+                <small>{fr.encounter.treasure}</small>
+                <strong>
+                  {gold} {fr.common.gold}
+                </strong>
               </span>
               <ContextTutorial
                 storageKey="lolrogue:tutorial:map:v1"
-                title="Comprendre la carte"
-                buttonLabel="Tutoriel carte"
+                title={fr.run.mapTutorialTitle}
+                buttonLabel={fr.run.mapTutorialButton}
                 steps={[
                   {
-                    title: 'Choisir un chemin',
-                    body: 'Active uniquement un nœud annoncé accessible. Ce choix ferme les autres branches de la même étape.',
+                    title: fr.run.mapTutorialChooseTitle,
+                    body: fr.run.mapTutorialChooseBody,
                   },
                   {
-                    title: 'Résoudre la rencontre',
-                    body: 'Combat, boutique, repos, événement, recrutement et trésor doivent être terminés avant de poursuivre.',
+                    title: fr.run.mapTutorialEncounterTitle,
+                    body: fr.run.mapTutorialEncounterBody,
                   },
                   {
-                    title: 'Améliorer la run',
-                    body: 'Lis les valeurs des objets, sorts et augments avant de confirmer. Les récompenses apparaissent au retour sur la carte.',
+                    title: fr.run.mapTutorialUpgradeTitle,
+                    body: fr.run.mapTutorialUpgradeBody,
                   },
                   {
-                    title: 'Terminer et sauvegarder',
-                    body: 'La sortie ouvre le biome suivant. Le boss final de la Base termine la run ; la progression connectée est ensuite vérifiée par le serveur.',
+                    title: fr.run.mapTutorialFinishTitle,
+                    body: fr.run.mapTutorialFinishBody,
                   },
                 ]}
               />
               <span className="run-map-header__stat">
-                <small>Vague</small>
+                <small>{fr.common.wave}</small>
                 <strong>{currentWave}</strong>
               </span>
               <span className="run-map-header__stat">
-                <small>Niveau</small>
+                <small>{fr.common.level}</small>
                 <strong>{runLevel}</strong>
               </span>
             </div>
           </header>
           <details className="run-map-guide run-map-panel run-map-panel--section">
             <summary>
-              <span>Repères et équipement de la run</span>
-              <small>Légende · Runes · Augments</small>
+              <span>{fr.run.guideSummary}</span>
+              <small>{fr.run.guideSections}</small>
             </summary>
             <div className="run-map-guide__content">
-              <aside className="run-map-legend" aria-label="Légende de la carte">
-                <strong>Légende</strong>
+              <aside className="run-map-legend" aria-label={fr.run.mapLegend}>
+                <strong>{fr.run.legend}</strong>
                 <div>
                   {Object.entries(NODE_LABELS).map(([type, label]) => (
                     <span
@@ -296,7 +299,7 @@ export function RunMapScreen() {
                       ? runeIds.map((id) => (
                           <span key={id}>{runeNameFr(id, getRuneDefinition(id)?.name ?? id)}</span>
                         ))
-                      : 'Aucune'}
+                      : fr.run.noRunes}
                   </span>
                 </div>
                 <div>
@@ -308,7 +311,7 @@ export function RunMapScreen() {
                             {augmentName(id, AUGMENT_DATABASE[id]?.name ?? id)}
                           </span>
                         ))
-                      : 'Aucun'}
+                      : fr.common.none}
                   </span>
                 </div>
               </div>
@@ -317,7 +320,7 @@ export function RunMapScreen() {
           {pendingAugmentIds.length > 0 && (
             <section
               className="run-map-choice-panel run-map-panel run-map-panel--section"
-              aria-label="Choix d'augment"
+              aria-label={fr.run.augmentChoice}
             >
               <h2>{fr.run.biomeComplete}</h2>
               {pendingAugmentIds.map((id, index) => {
@@ -341,21 +344,21 @@ export function RunMapScreen() {
           {lastCombatRewards && (
             <section
               className="run-map-notice run-map-panel run-map-panel--section"
-              aria-label="Récompenses du combat"
+              aria-label={fr.run.combatRewards}
               aria-live="polite"
             >
-              <strong>{fr.run.combatComplete} :</strong> +{lastCombatRewards.gold} {fr.common.gold},
-              +{lastCombatRewards.xp} XP/champion (KO inclus)
+              <strong>{fr.run.combatComplete} :</strong>{' '}
+              {fr.run.combatRewardBase(lastCombatRewards.gold, lastCombatRewards.xp)}
               {lastCombatRewards.levelsGained > 0 &&
-                `, ${lastCombatRewards.levelsGained} niveau(x) gagné(s)`}
-              {lastCombatRewards.itemName && `, objet : ${lastCombatRewards.itemName}`}
+                `, ${fr.run.levelsGained(lastCombatRewards.levelsGained)}`}
+              {lastCombatRewards.itemName && `, ${fr.run.itemReward(lastCombatRewards.itemName)}`}
               {lastCombatRewards.itemBlockedByCapacity && <p>{fr.run.combatItemLeft}</p>}
               <button
                 type="button"
                 className="run-map-inline-action"
                 onClick={() => setLastCombatRewards(null)}
               >
-                Fermer
+                {fr.common.close}
               </button>
             </section>
           )}
@@ -387,7 +390,7 @@ export function RunMapScreen() {
             className="run-map-focus-target"
             role="region"
             tabIndex={-1}
-            aria-label="Carte des prochains nœuds"
+            aria-label={fr.run.upcomingNodes}
             data-run-map-focus
           >
             <RunMapCanvas

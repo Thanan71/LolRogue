@@ -4,7 +4,6 @@ import {
   type CanonicalStatKey,
   formatStatValue,
   normalizeStatKey,
-  STAT_LABELS,
 } from '@/game/stats/statContract';
 import { championName, itemDescription, itemName } from '@/i18n/content';
 import { fr } from '@/i18n/fr';
@@ -98,7 +97,10 @@ export function TeamPanel({
                   e.currentTarget.hidden = true;
                 }}
               />
-              <span className="run-map-team-member__level" aria-label={`Niveau ${level}`}>
+              <span
+                className="run-map-team-member__level"
+                aria-label={`${fr.common.level} ${level}`}
+              >
                 {level}
               </span>
             </div>
@@ -108,11 +110,11 @@ export function TeamPanel({
               <div
                 className="run-map-progress run-map-progress--hp"
                 role="progressbar"
-                aria-label={`PV de ${champ?.name ?? m.championId}`}
+                aria-label={fr.run.hpFor(champ?.name ?? m.championId)}
                 aria-valuemin={0}
                 aria-valuemax={Math.round(maxHp)}
                 aria-valuenow={Math.round(currentHp)}
-                aria-valuetext={`${Math.round(currentHp)} sur ${Math.round(maxHp)} PV`}
+                aria-valuetext={fr.run.hpValue(Math.round(currentHp), Math.round(maxHp))}
               >
                 <div
                   className={`run-map-progress__fill ${healthClass}`}
@@ -122,11 +124,11 @@ export function TeamPanel({
               {/* XP Bar */}
               <div
                 role="progressbar"
-                aria-label={`Expérience de ${champ?.name ?? m.championId}`}
+                aria-label={fr.run.experienceFor(champ?.name ?? m.championId)}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={Math.round(xpProgress)}
-                aria-valuetext={level >= 18 ? 'Niveau maximum' : xpDisplay}
+                aria-valuetext={level >= 18 ? fr.run.maximumLevel : xpDisplay}
                 className="run-map-progress run-map-progress--xp"
               >
                 <div
@@ -139,7 +141,7 @@ export function TeamPanel({
               <div className="run-map-team-member__meta">
                 <span>{level >= 18 ? 'MAX' : xpDisplay}</span>
                 <span>
-                  {Math.round(currentHp)}/{Math.round(maxHp)} PV
+                  {Math.round(currentHp)}/{Math.round(maxHp)} {fr.common.hpShort}
                 </span>
               </div>
             </div>
@@ -212,24 +214,24 @@ export function InventoryPanel({
 
   // Stat name translations
   const statNames: Record<string, string> = {
-    hp: 'Points de vie',
-    mp: 'Points de mana',
-    atk: "Dégâts d'attaque",
-    ap: 'Puissance magique',
-    def: 'Armure',
-    mr: 'Résistance magique',
-    spd: 'Vitesse de déplacement',
-    crit: 'Chance de critique',
-    attackSpeed: "Initiative d'attaque",
-    hpRegen: 'Régénération PV',
-    mpRegen: 'Régénération PM',
-    armorPen: "Pénétration d'armure",
-    magicPen: 'Pénétration magique',
-    lifesteal: 'Vol de vie',
-    omnivamp: 'Omnivamp',
-    tenacity: 'Ténacité',
-    abilityHaste: 'Hâte de compétence',
-    attackRange: 'Profil de portée',
+    hp: fr.stats.hp,
+    mp: fr.stats.mp,
+    atk: fr.stats.attackDamage,
+    ap: fr.stats.abilityPower,
+    def: fr.stats.armor,
+    mr: fr.stats.magicResist,
+    spd: fr.stats.moveSpeed,
+    crit: fr.stats.crit,
+    attackSpeed: fr.stats.attackSpeed,
+    hpRegen: fr.stats.hpRegen,
+    mpRegen: fr.stats.mpRegen,
+    armorPen: fr.stats.armorPen,
+    magicPen: fr.stats.magicPen,
+    lifesteal: fr.stats.lifesteal,
+    omnivamp: fr.stats.omnivamp,
+    tenacity: fr.stats.tenacity,
+    abilityHaste: fr.stats.abilityHaste,
+    attackRange: fr.stats.attackRange,
   };
 
   const getHoveredEntry = () => {
@@ -245,13 +247,13 @@ export function InventoryPanel({
       aria-labelledby="run-map-inventory-title"
     >
       <div className="run-map-panel__title run-map-panel__title--actions">
-        <span>Inventaire ({inventory.length}/20)</span>
-        <button type="button" onClick={sortInventory} aria-label="Trier l'inventaire">
-          Trier
+        <span>{fr.run.inventoryTitle(inventory.length, 20)}</span>
+        <button type="button" onClick={sortInventory} aria-label={fr.run.sortInventory}>
+          {fr.run.sort}
         </button>
       </div>
       <span className="sr-only" id="run-map-inventory-title">
-        Inventaire
+        {fr.run.inventoryTitle(inventory.length, 20)}
       </span>
       {inventory.length === 0 && <p className="run-map-panel__empty">{fr.common.empty}</p>}
       {inventory.map((entry) => (
@@ -276,13 +278,15 @@ export function InventoryPanel({
             }
             className="run-map-inventory-item__summary"
           >
-            {entry.item.name} — détails
+            {fr.run.itemDetails(itemName(entry.item.id, entry.item.name))}
           </button>
-          <div className="run-map-inventory-item__value">{entry.item.goldValue} or</div>
+          <div className="run-map-inventory-item__value">
+            {entry.item.goldValue} {fr.common.gold}
+          </div>
           <div className="run-map-inventory-actions">
             {entry.equippedToChampionId ? (
               <button type="button" onClick={() => unequipItem(entry.instanceId)}>
-                Déséquiper
+                {fr.common.unequip}
               </button>
             ) : (
               team.map((member) => (
@@ -295,7 +299,7 @@ export function InventoryPanel({
                   </button>
                   {getEquipPreview(entry, member).map(({ stat, before, after }) => (
                     <div key={stat} className="run-map-inventory-preview">
-                      {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
+                      {fr.stats[stat]} : {formatStatValue(stat, before)} →{' '}
                       {formatStatValue(stat, after)}
                     </div>
                   ))}
@@ -303,12 +307,12 @@ export function InventoryPanel({
               ))
             )}
             <button type="button" onClick={() => sellItem(entry.instanceId)}>
-              Vendre {Math.max(1, Math.floor(entry.item.goldValue / 2))}g
+              {fr.run.sellFor(Math.max(1, Math.floor(entry.item.goldValue / 2)))}
             </button>
           </div>
           {entry.equippedToChampionId && (
             <div className="run-map-inventory-item__equipped">
-              Équipé : {championName(entry.equippedToChampionId)}
+              {fr.run.equippedBy(championName(entry.equippedToChampionId))}
             </div>
           )}
         </article>
@@ -345,7 +349,7 @@ export function InventoryPanel({
             </div>
           )}
           <div className="run-map-item-tooltip__value">
-            Valeur : {hoveredEntry.item.goldValue} or
+            {fr.run.itemValue(hoveredEntry.item.goldValue)}
           </div>
         </div>
       )}
