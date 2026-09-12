@@ -4,8 +4,8 @@
  */
 
 import {
-  calculateRunCandiesPerChampion,
   calculateRunCandyAllocation,
+  calculateRunCandiesPerChampion,
   type RunRewardParticipant,
 } from '@/game/run/runRewardPolicy';
 import {
