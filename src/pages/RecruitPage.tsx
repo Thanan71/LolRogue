@@ -20,7 +20,9 @@ function TeamPreview({ team }: { team: RecruitTeam }) {
     <section className="recruit-page__team" aria-labelledby="recruit-team-title">
       <div className="recruit-page__team-heading">
         <h2 id="recruit-team-title">{fr.encounter.teamPreview}</h2>
-        <span>{team.length}/5</span>
+        <span>
+          {formatNumber(team.length)}/{formatNumber(5)}
+        </span>
       </div>
       <div className="recruit-page__team-portraits">
         {team.map((member) => {
@@ -82,6 +84,8 @@ export function RecruitPage() {
     description: encounter?.description,
     championId: encounter?.championId,
   });
+  const recruitCost = encounter?.cost ?? 0;
+  const formattedRecruitCost = formatNumber(recruitCost);
   const teamFull = team.length >= 5;
   const alreadyOnTeam = team.some((m) => m.championId === encounter?.championId);
   const canAfford = encounter ? gold >= encounter.cost : false;
@@ -157,7 +161,7 @@ export function RecruitPage() {
   else if (result === 'success') label = fr.encounter.recruited;
   else if (result === 'fail') label = fr.encounter.recruitFailed;
   else if (wasClaimed) label = fr.encounter.attemptUsed;
-  else label = `${fr.encounter.recruitAction} — ${encounter?.cost ?? 0} ${fr.common.gold}`;
+  else label = `${fr.encounter.recruitAction} — ${formattedRecruitCost} ${fr.common.gold}`;
 
   const pct = Math.round((encounter?.successChance ?? 0.75) * 100);
   const chanceTone = pct >= 80 ? 'high' : pct >= 60 ? 'medium' : 'low';
@@ -219,25 +223,25 @@ export function RecruitPage() {
                     <div>
                       <dt>{fr.stats.short.hp}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--hp">
-                        {Math.round(champ.stats.hp)}
+                        {formatNumber(Math.round(champ.stats.hp))}
                       </dd>
                     </div>
                     <div>
                       <dt>{fr.stats.short.attackDamage}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--attack">
-                        {Math.round(champ.stats.attackDamage)}
+                        {formatNumber(Math.round(champ.stats.attackDamage))}
                       </dd>
                     </div>
                     <div>
                       <dt>{fr.stats.short.armor}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--armor">
-                        {Math.round(champ.stats.armor)}
+                        {formatNumber(Math.round(champ.stats.armor))}
                       </dd>
                     </div>
                     <div>
                       <dt>{fr.stats.short.magicResist}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--resist">
-                        {Math.round(champ.stats.magicResist)}
+                        {formatNumber(Math.round(champ.stats.magicResist))}
                       </dd>
                     </div>
                     <div>
@@ -252,7 +256,10 @@ export function RecruitPage() {
                     <div>
                       <dt>{fr.stats.short.crit}</dt>
                       <dd className="recruit-page__stat recruit-page__stat--crit">
-                        {Math.round(champ.stats.crit)} %
+                        {formatNumber(champ.stats.crit / 100, {
+                          style: 'percent',
+                          maximumFractionDigits: 0,
+                        })}
                       </dd>
                     </div>
                   </dl>
@@ -261,7 +268,7 @@ export function RecruitPage() {
             </div>
             <div className="recruit-page__description">{encounterPresentation.description}</div>
             <div className="recruit-page__cost">
-              {fr.encounter.cost} : {encounter?.cost ?? 0} {fr.common.gold}
+              {fr.encounter.cost} : {formattedRecruitCost} {fr.common.gold}
             </div>
             <div className={`recruit-page__chance recruit-page__chance--${chanceTone}`}>
               {fr.encounter.recruitChance(pct)} {pct < 70 ? fr.encounter.recruitFleeWarning : ''}
@@ -315,7 +322,7 @@ export function RecruitPage() {
             </h2>
             <p className="recruit-page__result-copy">
               {result === 'success'
-                ? fr.encounter.recruitGoldSpent(encounter?.cost ?? 0)
+                ? fr.encounter.recruitGoldSpent(recruitCost)
                 : fr.encounter.recruitGoldKept}
             </p>
             <button

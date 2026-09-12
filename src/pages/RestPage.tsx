@@ -246,7 +246,7 @@ export function RestPage() {
                   <div className="rest__member-name">
                     <strong>{champ?.name ?? member.championId}</strong>
                     <span>
-                      {fr.common.levelShort} {member.level ?? 1}
+                      {fr.common.levelShort} {formatNumber(member.level ?? 1)}
                     </span>
                   </div>
                 </div>

@@ -225,7 +225,7 @@ export function DailyLeaderboard() {
                   key={`${entry.entryId ?? entry.rank ?? i + 1}-${entry.playerName}`}
                   className={i < 3 ? 'daily-leaderboard__top-row' : undefined}
                 >
-                  <td data-label={fr.daily.rank}>{entry.rank ?? i + 1}</td>
+                  <td data-label={fr.daily.rank}>{formatNumber(entry.rank ?? i + 1)}</td>
                   <th scope="row" data-label={fr.daily.player}>
                     {entry.playerName}
                   </th>

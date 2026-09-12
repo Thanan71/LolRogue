@@ -1,4 +1,9 @@
 const formatEnglishNumber = (value: number): string => value.toLocaleString('en-US');
+const formatEnglishPercent = (percent: number): string =>
+  new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    maximumFractionDigits: 0,
+  }).format(percent / 100);
 
 export const en = {
   product: {
@@ -992,7 +997,7 @@ export const en = {
     recruitFailed: 'Recruitment failed',
     attemptUsed: 'Attempt already used',
     compareRest: 'Compare current and projected HP before using this rest stop.',
-    healPercent: (percent: number) => `Heal for ${formatEnglishNumber(percent)}% of max HP`,
+    healPercent: (percent: number) => `Heal for ${formatEnglishPercent(percent)} of max HP`,
     teamHp: 'Team hit points',
     teamPreview: 'Your team',
     recruitSubtitle: 'Evaluate the recruit, its place in your team, and the risk before trying.',
@@ -1011,7 +1016,7 @@ export const en = {
     itemAdded: (name: string) => `${name} was added to your inventory.`,
     championJoined: (name: string) => `${name} joined your team.`,
     wildChampionDescription: 'A wild champion approaches your team.',
-    recruitChance: (percent: number) => `Success chance: ${formatEnglishNumber(percent)}%`,
+    recruitChance: (percent: number) => `Success chance: ${formatEnglishPercent(percent)}`,
     recruitFleeWarning: '— the champion may flee',
     recruitGoldRule: 'Gold is spent only if recruitment succeeds.',
     recruitSuccess: (name: string) => `${name} joins your team!`,
@@ -1024,7 +1029,7 @@ export const en = {
     restSaveFailed: 'The healing could not be saved. No changes were kept.',
     restFullHealApplied: 'The whole team recovered all of its HP.',
     restHealApplied: (percent: number) =>
-      `The whole team recovered ${formatEnglishNumber(percent)}% of its maximum HP.`,
+      `The whole team recovered ${formatEnglishPercent(percent)} of its maximum HP.`,
   },
   ui: {
     filters: 'Filters',

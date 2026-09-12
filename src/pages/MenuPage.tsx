@@ -110,7 +110,9 @@ export function MenuPage() {
               <div className="main-menu__user-details">
                 <span className="main-menu__user-name">{displayName}</span>
                 <span className="main-menu__user-level">
-                  {player ? `${fr.common.level} ${player.level}` : fr.menu.connectedAccount}
+                  {player
+                    ? `${fr.common.level} ${formatNumber(player.level)}`
+                    : fr.menu.connectedAccount}
                 </span>
               </div>
               <span className="main-menu__connection-dot" aria-hidden="true" />

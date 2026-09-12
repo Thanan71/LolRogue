@@ -3,6 +3,7 @@ import { playUIClick } from '@/audio';
 import { Button, Field, PageHeader, PageShell, Panel, Stack } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { supabase } from '@/services/supabaseClient';
@@ -32,6 +33,10 @@ export function SettingsPage() {
     normal: fr.settings.normal,
     hard: fr.settings.hard,
   }[settings.difficulty];
+  const formattedSfxVolume = formatNumber(audio.sfxVolume / 100, {
+    style: 'percent',
+    maximumFractionDigits: 0,
+  });
 
   useEffect(() => {
     privacyRequestVersion.current += 1;
@@ -92,7 +97,7 @@ export function SettingsPage() {
             <Field
               label={
                 <label htmlFor="sfx-volume">
-                  {fr.settings.sfxVolume} — {audio.sfxVolume}%
+                  {fr.settings.sfxVolume} — {formattedSfxVolume}
                 </label>
               }
             >
@@ -104,7 +109,7 @@ export function SettingsPage() {
                   max="100"
                   value={audio.sfxVolume}
                   onChange={(event) => audio.setSfxVolume(Number(event.target.value))}
-                  aria-valuetext={`${audio.sfxVolume}%`}
+                  aria-valuetext={formattedSfxVolume}
                 />
                 <Button variant="ghost" onClick={audio.toggleSfxMute} aria-pressed={audio.sfxMuted}>
                   {audio.sfxMuted ? fr.settings.unmute : fr.settings.mute}

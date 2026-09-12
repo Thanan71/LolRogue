@@ -1,6 +1,11 @@
 import { en } from './en';
 
 const formatFrenchNumber = (value: number): string => value.toLocaleString('fr-FR');
+const formatFrenchPercent = (percent: number): string =>
+  new Intl.NumberFormat('fr-FR', {
+    style: 'percent',
+    maximumFractionDigits: 0,
+  }).format(percent / 100);
 
 const french = {
   product: {
@@ -999,7 +1004,7 @@ const french = {
     recruitFailed: 'Échec du recrutement',
     attemptUsed: 'Tentative déjà utilisée',
     compareRest: 'Comparez les PV actuels et projetés avant d’utiliser cette halte.',
-    healPercent: (percent: number) => `Soin de ${formatFrenchNumber(percent)} % des PV`,
+    healPercent: (percent: number) => `Soin de ${formatFrenchPercent(percent)} des PV`,
     teamHp: 'Points de vie de l’équipe',
     teamPreview: 'Votre équipe',
     recruitSubtitle:
@@ -1019,13 +1024,12 @@ const french = {
     itemAdded: (name: string) => `${name} a été ajouté à l’inventaire.`,
     championJoined: (name: string) => `${name} a rejoint votre équipe.`,
     wildChampionDescription: 'Un champion sauvage se présente à ton équipe.',
-    recruitChance: (percent: number) => `Chances de réussite : ${formatFrenchNumber(percent)} %`,
+    recruitChance: (percent: number) => `Chances de réussite : ${formatFrenchPercent(percent)}`,
     recruitFleeWarning: '— le champion peut fuir',
     recruitGoldRule: 'L’or n’est dépensé que si le recrutement réussit.',
     recruitSuccess: (name: string) => `${name} rejoint ton équipe !`,
     recruitEscape: (name: string) => `${name} a pris la fuite.`,
-    recruitGoldSpent: (amount: number) =>
-      `${formatFrenchNumber(amount)} or dépensé${amount > 1 ? 's' : ''}.`,
+    recruitGoldSpent: (amount: number) => `${formatFrenchNumber(amount)} or dépensé.`,
     recruitGoldKept: 'Tu conserves ton or malgré cette tentative.',
     restAlreadyUsed: 'Ce repos a déjà été utilisé. Votre équipe peut repartir.',
     restUnavailable: 'Le repos ne peut pas être appliqué pour le moment.',
@@ -1033,7 +1037,7 @@ const french = {
     restSaveFailed: 'Le soin n’a pas pu être enregistré. Aucun changement n’a été conservé.',
     restFullHealApplied: 'Toute l’équipe a récupéré la totalité de ses PV.',
     restHealApplied: (percent: number) =>
-      `Toute l’équipe a récupéré ${formatFrenchNumber(percent)} % de ses PV maximum.`,
+      `Toute l’équipe a récupéré ${formatFrenchPercent(percent)} de ses PV maximum.`,
   },
   ui: {
     filters: 'Filtres',
