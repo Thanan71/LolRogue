@@ -2,6 +2,7 @@ import type { ActionType } from '@/game/battle/types';
 import { getCombatVisualProfile, slotForAction } from '@/game/presentation/combatVisuals';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { combatCopy } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import type { CombatantInfo, CombatVisualEvent } from '@/stores/battleStore';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -32,10 +33,10 @@ function findCombatant(
 
 function effectLabel(kind: CombatVisualEvent['kind'], amount?: number, isCrit?: boolean) {
   if (kind === 'damage' && amount !== undefined) {
-    return `${isCrit ? `${fr.combat.critical} · ` : ''}-${Math.round(amount)} ${combatCopy.stage.hpShort}`;
+    return `${isCrit ? `${fr.combat.critical} · ` : ''}-${formatNumber(Math.round(amount))} ${combatCopy.stage.hpShort}`;
   }
   if (kind === 'heal' && amount !== undefined) {
-    return `+${Math.round(amount)} ${combatCopy.stage.hpShort}`;
+    return `+${formatNumber(Math.round(amount))} ${combatCopy.stage.hpShort}`;
   }
   if (kind === 'shield' && amount !== undefined) {
     return combatCopy.stage.shield(Math.round(amount));
@@ -94,8 +95,8 @@ function CombatantCard({
         value={Math.max(0, Math.round(combatant.currentHp))}
       />
       <span className="combat-stage__health-copy">
-        {Math.max(0, Math.round(combatant.currentHp))} / {Math.round(combatant.maxHp)}{' '}
-        {combatCopy.stage.hpShort}
+        {formatNumber(Math.max(0, Math.round(combatant.currentHp)))} /{' '}
+        {formatNumber(Math.round(combatant.maxHp))} {combatCopy.stage.hpShort}
       </span>
     </article>
   );
@@ -193,7 +194,7 @@ export function CombatStage({
       <div className="combat-stage__scrim" aria-hidden="true" />
       <div className="combat-stage__topline">
         <span>
-          {fr.combat.round} {round}
+          {fr.combat.round} {formatNumber(round)}
         </span>
         <strong>
           {visualEvent

@@ -669,7 +669,7 @@ export function CombatPage() {
           {fr.common.backToMap}
         </button>
         <span className="combat-header__title">
-          {combatCopy.page.title} — {fr.combat.round} {round}
+          {combatCopy.page.title} — {fr.combat.round} {formatNumber(round)}
         </span>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />

@@ -1,4 +1,5 @@
 import type React from 'react';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { type BattleSpeed, useSettingsStore } from '../../stores/settingsStore';
 
@@ -13,19 +14,22 @@ export const BattleSpeedControl: React.FC = () => {
       <span aria-hidden="true" className="combat-speed__icon">
         ⚡
       </span>
-      {speeds.map((s) => (
-        <button
-          key={s}
-          type="button"
-          onClick={() => setSpeed(s)}
-          role="radio"
-          aria-checked={speed === s}
-          aria-label={`${fr.combat.speed} ${s}x`}
-          className="combat-speed__option"
-        >
-          {s}x
-        </button>
-      ))}
+      {speeds.map((speedOption) => {
+        const formattedSpeed = formatNumber(speedOption);
+        return (
+          <button
+            key={speedOption}
+            type="button"
+            onClick={() => setSpeed(speedOption)}
+            role="radio"
+            aria-checked={speed === speedOption}
+            aria-label={`${fr.combat.speed} ${formattedSpeed}×`}
+            className="combat-speed__option"
+          >
+            {formattedSpeed}×
+          </button>
+        );
+      })}
     </div>
   );
 };
