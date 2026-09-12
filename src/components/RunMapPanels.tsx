@@ -14,7 +14,7 @@ import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
 import type { InventoryEntry, TeamMember } from '@/types/run';
 import { calculateFullStats, calculateMaxHP } from '@/utils/statCalculator';
-import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
+import { getXpForNextLevel, getXpProgress } from '@/utils/xpSystem';
 
 export function TeamPanel({
   team,
@@ -74,7 +74,10 @@ export function TeamPanel({
         const level = m.level ?? 1;
         const currentXp = m.currentXp ?? 0;
         const xpProgress = getXpProgress(level, currentXp);
-        const xpDisplay = formatXpDisplay(level, currentXp);
+        const xpDisplay =
+          level >= 18
+            ? fr.run.maximumLevel
+            : fr.run.xpProgress(currentXp, getXpForNextLevel(level));
         const maxHp = enhancedHpMap[m.championId] ?? 100;
         const currentHp = Math.min(maxHp, Math.max(0, m.currentHp ?? maxHp));
         const roundedCurrentHp = Math.round(currentHp);
@@ -144,7 +147,7 @@ export function TeamPanel({
                 />
               </div>
               <div className="run-map-team-member__meta">
-                <span>{level >= 18 ? 'MAX' : xpDisplay}</span>
+                <span>{level >= 18 ? fr.run.maximumLevelShort : xpDisplay}</span>
                 <span>
                   {formattedCurrentHp}/{formattedMaxHp} {fr.common.hpShort}
                 </span>

@@ -2,6 +2,7 @@ import { useId, useMemo, useState } from 'react';
 import { championDB } from '@/data/championDatabase';
 import { formatStatValue } from '@/game/stats/statContract';
 import { itemName } from '@/i18n/content';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -10,7 +11,7 @@ import { useRunStore } from '@/stores/runStore';
 import { type InventoryEntry, MAX_ITEMS_PER_CHAMPION, type TeamMember } from '@/types/run';
 import type { CalculatedStats } from '@/utils/champion';
 import { calculateFullStats } from '@/utils/statCalculator';
-import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
+import { getXpForNextLevel, getXpProgress } from '@/utils/xpSystem';
 import '@/styles/run-team-stats.css';
 
 interface RunTeamStatsPanelProps {
@@ -74,8 +75,11 @@ function itemFallback(name: string): string {
 }
 
 function formatDetailStat(key: keyof CalculatedStats, value: number): string {
+  if (key === 'crit') {
+    return formatNumber(value / 100, { style: 'percent', maximumFractionDigits: 2 });
+  }
   const formatted = formatStatValue(key, value, locale);
-  return key === 'crit' ? `${formatted} %` : formatted;
+  return formatted;
 }
 
 function VisualProgress({
@@ -203,7 +207,10 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
           level,
           currentHp,
           stats,
-          xpDisplay: formatXpDisplay(level, currentXp),
+          xpDisplay:
+            level >= 18
+              ? fr.run.maximumLevel
+              : fr.run.xpProgress(currentXp, getXpForNextLevel(level)),
           xpProgress: getXpProgress(level, currentXp),
           items: inventory
             .filter((entry) => entry.equippedToChampionId === member.championId)
@@ -233,7 +240,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
           <h2 id={`${panelId}-title`}>{fr.run.team}</h2>
         </div>
         <span className="run-team-stats__count" aria-label={fr.run.championCount(sheets.length)}>
-          {sheets.length}/5
+          {formatNumber(sheets.length)}/{formatNumber(5)}
         </span>
       </header>
 
@@ -250,7 +257,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
               const isSelected = sheet.member.championId === selectedChampionId;
               const roundedMaxHp = Math.max(1, Math.round(sheet.stats.hp));
               const roundedCurrentHp = Math.min(roundedMaxHp, Math.round(sheet.currentHp));
-              const xpText = sheet.level >= 18 ? fr.run.maximumLevel : sheet.xpDisplay;
+              const xpText = sheet.xpDisplay;
               return (
                 <button
                   key={sheet.member.championId}
@@ -283,7 +290,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                         }}
                       />
                     ) : null}
-                    <span className="run-team-stats__level">{sheet.level}</span>
+                    <span className="run-team-stats__level">{formatNumber(sheet.level)}</span>
                   </span>
                   <span className="run-team-stats__member-copy" aria-hidden="true">
                     <strong>{sheet.name}</strong>
@@ -291,7 +298,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                       <span>{fr.common.hpShort}</span>
                       <VisualProgress kind="hp" maximum={roundedMaxHp} value={roundedCurrentHp} />
                       <span>
-                        {roundedCurrentHp}/{roundedMaxHp}
+                        {formatNumber(roundedCurrentHp)}/{formatNumber(roundedMaxHp)}
                       </span>
                     </span>
                     <span className="run-team-stats__bar-row">
@@ -301,7 +308,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                         maximum={100}
                         value={Math.round(sheet.xpProgress)}
                       />
-                      <span>{sheet.level >= 18 ? 'MAX' : sheet.xpDisplay}</span>
+                      <span>{sheet.level >= 18 ? fr.run.maximumLevelShort : sheet.xpDisplay}</span>
                     </span>
                   </span>
                 </button>
@@ -321,7 +328,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                   <h3 id={`${panelId}-details-title`}>{selectedSheet.name}</h3>
                 </div>
                 <span className="run-team-stats__sheet-level">
-                  {fr.common.level} {selectedSheet.level}
+                  {fr.common.level} {formatNumber(selectedSheet.level)}
                 </span>
               </header>
 
@@ -331,7 +338,8 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                     <span aria-hidden="true">{fr.common.hpShort}</span> {fr.run.currentHpMaximum}
                   </dt>
                   <dd>
-                    {Math.round(selectedSheet.currentHp)} / {Math.round(selectedSheet.stats.hp)}
+                    {formatNumber(Math.round(selectedSheet.currentHp))} /{' '}
+                    {formatNumber(Math.round(selectedSheet.stats.hp))}
                   </dd>
                 </div>
                 {DETAIL_STATS.map(({ key, label, shortLabel }) => (
@@ -348,7 +356,8 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                 <div className="run-team-stats__equipment-heading">
                   <h4>{fr.run.equippedItems}</h4>
                   <span>
-                    {selectedSheet.items.length}/{MAX_ITEMS_PER_CHAMPION}
+                    {formatNumber(selectedSheet.items.length)}/
+                    {formatNumber(MAX_ITEMS_PER_CHAMPION)}
                   </span>
                 </div>
                 <ul className="run-team-stats__item-grid" aria-label={fr.run.itemSlots}>

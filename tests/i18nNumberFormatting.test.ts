@@ -22,6 +22,8 @@ describe('localized catalog number formatting', () => {
     expect(en.inventory.saleConfirmed('Sword', 3_600)).toBe('Sale confirmed: Sword, +3,600 gold.');
     expect(fr.run.hpValue(1_250, 3_600)).toBe('1\u202f250 sur 3\u202f600 PV');
     expect(en.run.hpValue(1_250, 3_600)).toBe('1,250 of 3,600 HP');
+    expect(fr.run.xpProgress(1_250, 3_600)).toBe('1\u202f250/3\u202f600 XP');
+    expect(en.run.xpProgress(1_250, 3_600)).toBe('1,250/3,600 XP');
   });
 
   it('uses natural plurals while formatting counts', () => {

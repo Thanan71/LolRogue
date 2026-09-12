@@ -8,6 +8,7 @@ import {
   normalizeStatKey,
 } from '@/game/stats/statContract';
 import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -384,7 +385,7 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
             inventory.length >= MAX_INVENTORY_ITEMS ? ' run-inventory__capacity--full' : ''
           }`}
         >
-          {inventory.length}/{MAX_INVENTORY_ITEMS}
+          {formatNumber(inventory.length)}/{formatNumber(MAX_INVENTORY_ITEMS)}
           <span className="sr-only"> {fr.inventory.items}</span>
           {inventory.length >= MAX_INVENTORY_ITEMS ? (
             <span className="sr-only"> · {fr.inventory.full}</span>
@@ -405,7 +406,7 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
               aria-pressed={filter === id}
               onClick={() => changeFilter(id)}
             >
-              {label} <span aria-hidden="true">{filterCounts[id]}</span>
+              {label} <span aria-hidden="true">{formatNumber(filterCounts[id])}</span>
             </button>
           ))}
         </div>

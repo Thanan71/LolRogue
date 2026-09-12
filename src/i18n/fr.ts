@@ -824,6 +824,9 @@ const french = {
       `${formatFrenchNumber(count)} champion${count > 1 ? 's' : ''}`,
     championSelection: 'Sélection du champion',
     maximumLevel: 'niveau maximum',
+    maximumLevelShort: 'NIV. MAX',
+    xpProgress: (current: number, required: number) =>
+      `${formatFrenchNumber(current)}/${formatFrenchNumber(required)} XP`,
     selectChampionSummary: (
       name: string,
       level: number,

@@ -137,7 +137,7 @@ describe('RunTeamStatsPanel', () => {
     const view = render(<RunTeamStatsPanel team={[member]} inventory={inventory} />);
 
     expect(view.container.querySelector('[data-stat="hp"] dd')).toHaveTextContent(
-      `600 / ${Math.round(expected.hp)}`,
+      `${formatted(600)} / ${formatted(Math.round(expected.hp))}`.replace(/\s/gu, ' '),
     );
     expect(view.container.querySelector('[data-stat="attackDamage"] dd')).toHaveTextContent(
       formatted(expected.attackDamage),
@@ -158,7 +158,12 @@ describe('RunTeamStatsPanel', () => {
       formatted(expected.moveSpeed),
     );
     expect(view.container.querySelector('[data-stat="crit"] dd')).toHaveTextContent(
-      `${formatted(expected.crit)} %`,
+      new Intl.NumberFormat('fr-FR', {
+        style: 'percent',
+        maximumFractionDigits: 2,
+      })
+        .format(expected.crit / 100)
+        .replace(/\s/gu, ' '),
     );
 
     const slots = screen.getAllByRole('listitem');

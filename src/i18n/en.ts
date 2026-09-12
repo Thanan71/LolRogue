@@ -819,6 +819,9 @@ export const en = {
       `${formatEnglishNumber(count)} champion${count === 1 ? '' : 's'}`,
     championSelection: 'Champion selection',
     maximumLevel: 'maximum level',
+    maximumLevelShort: 'MAX LVL',
+    xpProgress: (current: number, required: number) =>
+      `${formatEnglishNumber(current)}/${formatEnglishNumber(required)} XP`,
     selectChampionSummary: (
       name: string,
       level: number,
