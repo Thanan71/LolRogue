@@ -201,16 +201,45 @@ describe('combat content catalog', () => {
     const french = combatContent['fr-FR'].logs;
     const english = combatContent['en-US'].logs;
 
-    expect(french.crowdControlApplied('Annie', 'Lux', french.crowdControl.stun, 2)).toBe(
-      'Annie → Lux: étourdissement (2 tours)',
+    expect(french.roundStart(1280)).toBe('=== Tour 1 280 ===');
+    expect(english.roundStart(1280)).toBe('=== Round 1,280 ===');
+    expect(french.crowdControlApplied('Annie', 'Lux', french.crowdControl.stun, 1.5)).toBe(
+      'Annie → Lux: étourdissement (1,5 tours)',
     );
-    expect(english.crowdControlApplied('Annie', 'Lux', english.crowdControl.stun, 2)).toBe(
-      'Annie → Lux: stun (2 turns)',
+    expect(english.crowdControlApplied('Annie', 'Lux', english.crowdControl.stun, 1.5)).toBe(
+      'Annie → Lux: stun (1.5 turns)',
     );
-    expect(french.damage('Lux', 'Garen', 128, true)).toBe('Lux → Garen: 128 dégâts CRITIQUE !');
-    expect(english.damage('Lux', 'Garen', 128, true)).toBe('Lux → Garen: 128 damage CRITICAL!');
-    expect(french.revive('Soraka', 'Lux', 180)).toBe('Soraka ranime Lux avec 180 PV');
-    expect(english.revive('Soraka', 'Lux', 180)).toBe('Soraka revives Lux with 180 HP');
+    expect(french.damage('Lux', 'Garen', 1280, true)).toBe('Lux → Garen: 1 280 dégâts CRITIQUE !');
+    expect(english.damage('Lux', 'Garen', 1280, true)).toBe('Lux → Garen: 1,280 damage CRITICAL!');
+    expect(french.heal('Soraka', 'Lux', 1280)).toBe('Soraka → Lux: +1 280 PV');
+    expect(english.heal('Soraka', 'Lux', 1280)).toBe('Soraka → Lux: +1,280 HP');
+    expect(french.shield('Soraka', 'Lux', 1280)).toBe('Soraka → Lux: +1 280 bouclier');
+    expect(english.shield('Soraka', 'Lux', 1280)).toBe('Soraka → Lux: +1,280 shield');
+    expect(french.revive('Soraka', 'Lux', 1280)).toBe('Soraka ranime Lux avec 1 280 PV');
+    expect(english.revive('Soraka', 'Lux', 1280)).toBe('Soraka revives Lux with 1,280 HP');
+
+    expect(combatContent['fr-FR'].stage.shield(1280)).toBe('+1 280 bouclier');
+    expect(combatContent['en-US'].stage.shield(1280)).toBe('+1,280 shield');
+    expect(combatContent['fr-FR'].stage.revived(1280)).toBe('Ranimé · 1 280 PV');
+    expect(combatContent['en-US'].stage.revived(1280)).toBe('Revived · 1,280 HP');
+    expect(combatContent['fr-FR'].stage.targets(1280)).toBe('1 280 cibles');
+    expect(combatContent['en-US'].stage.targets(1280)).toBe('1,280 targets');
+    expect(combatContent['fr-FR'].tooltip.cooldownStatus(1280, 'tours')).toBe(
+      '⏳ Recharge : 1 280 tours restante',
+    );
+    expect(combatContent['en-US'].tooltip.cooldownStatus(1280, 'turns')).toBe(
+      '⏳ Cooldown: 1,280 turns remaining',
+    );
+    expect(combatContent['fr-FR'].presenter.ranked('Bonus', 1280, 2400)).toBe(
+      'Bonus (Rang 1 280/2 400)',
+    );
+    expect(combatContent['en-US'].presenter.ranked('Bonus', 1280, 2400)).toBe(
+      'Bonus (Rank 1,280/2,400)',
+    );
+    expect(combatContent['fr-FR'].presenter.stats.atk).toBe('ATQ');
+    expect(combatContent['fr-FR'].presenter.stats.ap).toBe('PUI');
+    expect(combatContent['en-US'].presenter.stats.atk).toBe('AD');
+    expect(combatContent['en-US'].presenter.stats.ap).toBe('AP');
   });
 
   it('projects spell impact labels in French and English without changing numerical estimates', async () => {
@@ -251,26 +280,95 @@ describe('combat content catalog', () => {
   });
 
   it('renders localized combat ARIA labels in both locales', async () => {
+    const largePortrait = {
+      ...portrait,
+      level: 1280,
+      currentHp: 1280,
+      maxHp: 2400,
+      currentMp: 1300,
+      maxMp: 2500,
+    };
+
     setStoredLocale('fr-FR');
     vi.resetModules();
-    const frenchModule = await import('@/components/CombatUI/CombatantPortrait');
-    render(
-      <frenchModule.CombatantPortrait combatant={portrait} isActive={false} onSelect={() => {}} />,
+    const [frenchModule, frenchPresenter] = await Promise.all([
+      import('@/components/CombatUI/CombatantPortrait'),
+      import('@/pages/combat/combatPresenter'),
+    ]);
+    const frenchBonuses = [
+      frenchPresenter.formatCombatFlatBonus(1280, 'PV'),
+      frenchPresenter.formatCombatPercentageBonus(0.15, 'Critique'),
+      'Bonus',
+      ...Array.from({ length: 1280 }, () => 'Bonus masqué'),
+    ];
+    const { container: frenchContainer } = render(
+      <frenchModule.CombatantPortrait
+        combatant={largePortrait}
+        isActive={false}
+        enhancementBonuses={frenchBonuses}
+        onSelect={() => {}}
+      />,
     );
     expect(screen.getByRole('button', { name: 'Cibler Lux' })).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: 'PV de Lux' })).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: 'PM de Lux' })).toBeInTheDocument();
+    const frenchHealth = screen.getByRole('progressbar', { name: 'PV de Lux' });
+    const frenchMana = screen.getByRole('progressbar', { name: 'PM de Lux' });
+    expect(frenchHealth).toHaveAttribute('aria-valuenow', '1280');
+    expect(frenchHealth).toHaveAttribute('aria-valuemax', '2400');
+    expect(frenchMana).toHaveAttribute('aria-valuenow', '1300');
+    expect(frenchMana).toHaveAttribute('aria-valuemax', '2500');
+    expect(
+      frenchContainer.querySelector('.combatant-portrait__meter-label--health')?.textContent,
+    ).toBe('1 280 / 2 400');
+    expect(
+      frenchContainer.querySelector('.combatant-portrait__meter-label--mana')?.textContent,
+    ).toBe('1 300 / 2 500');
+    const frenchBonusElements = frenchContainer.querySelectorAll('.combatant-portrait__bonus');
+    expect(frenchBonusElements[0]?.textContent).toBe('+1 280 PV');
+    expect(frenchBonusElements[1]?.textContent).toBe('+15 % Critique');
+    expect(frenchContainer.querySelector('.combatant-portrait__bonus-overflow')?.textContent).toBe(
+      '+1 280',
+    );
 
     cleanup();
     setStoredLocale('en-US');
     vi.resetModules();
-    const englishModule = await import('@/components/CombatUI/CombatantPortrait');
-    render(
-      <englishModule.CombatantPortrait combatant={portrait} isActive={false} onSelect={() => {}} />,
+    const [englishModule, englishPresenter] = await Promise.all([
+      import('@/components/CombatUI/CombatantPortrait'),
+      import('@/pages/combat/combatPresenter'),
+    ]);
+    const englishBonuses = [
+      englishPresenter.formatCombatFlatBonus(1280, 'HP'),
+      englishPresenter.formatCombatPercentageBonus(0.15, 'Critical strike'),
+      'Bonus',
+      ...Array.from({ length: 1280 }, () => 'Hidden bonus'),
+    ];
+    const { container: englishContainer } = render(
+      <englishModule.CombatantPortrait
+        combatant={largePortrait}
+        isActive={false}
+        enhancementBonuses={englishBonuses}
+        onSelect={() => {}}
+      />,
     );
     expect(screen.getByRole('button', { name: 'Target Lux' })).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: "Lux's HP" })).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: "Lux's MP" })).toBeInTheDocument();
+    const englishHealth = screen.getByRole('progressbar', { name: "Lux's HP" });
+    const englishMana = screen.getByRole('progressbar', { name: "Lux's MP" });
+    expect(englishHealth).toHaveAttribute('aria-valuenow', '1280');
+    expect(englishHealth).toHaveAttribute('aria-valuemax', '2400');
+    expect(englishMana).toHaveAttribute('aria-valuenow', '1300');
+    expect(englishMana).toHaveAttribute('aria-valuemax', '2500');
+    expect(
+      englishContainer.querySelector('.combatant-portrait__meter-label--health')?.textContent,
+    ).toBe('1,280 / 2,400');
+    expect(
+      englishContainer.querySelector('.combatant-portrait__meter-label--mana')?.textContent,
+    ).toBe('1,300 / 2,500');
+    const englishBonusElements = englishContainer.querySelectorAll('.combatant-portrait__bonus');
+    expect(englishBonusElements[0]?.textContent).toBe('+1,280 HP');
+    expect(englishBonusElements[1]?.textContent).toBe('+15% Critical strike');
+    expect(englishContainer.querySelector('.combatant-portrait__bonus-overflow')?.textContent).toBe(
+      '+1,280',
+    );
   });
 
   it('contains no raw user copy in the complete combat presentation scope', () => {

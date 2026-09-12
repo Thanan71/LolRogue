@@ -2,6 +2,15 @@ import { locale } from './fr';
 
 export type CombatContentLocale = 'fr-FR' | 'en-US';
 
+const combatNumberFormatters: Readonly<Record<CombatContentLocale, Intl.NumberFormat>> = {
+  'fr-FR': new Intl.NumberFormat('fr-FR'),
+  'en-US': new Intl.NumberFormat('en-US'),
+};
+
+function formatCombatNumber(localeCode: CombatContentLocale, value: number): string {
+  return combatNumberFormatters[localeCode].format(value);
+}
+
 export const COMBAT_VISUAL_TITLE_IDS = [
   'basic_attack',
   'fallback:spell_q',
@@ -309,8 +318,8 @@ const enhancementEffectsEn = {
 const presenterStatsFr = {
   hp: 'PV',
   mp: 'PM',
-  atk: 'AD',
-  ap: 'AP',
+  atk: 'ATQ',
+  ap: 'PUI',
   def: 'Armure',
   mr: 'RM',
   spd: 'Vitesse',
@@ -428,8 +437,8 @@ const frFR = {
   },
   stage: {
     hpShort: 'PV',
-    shield: (amount: number) => `+${amount} bouclier`,
-    revived: (amount: number) => `Ranimé · ${amount} PV`,
+    shield: (amount: number) => `+${formatCombatNumber('fr-FR', amount)} bouclier`,
+    revived: (amount: number) => `Ranimé · ${formatCombatNumber('fr-FR', amount)} PV`,
     actionAnnouncement: (
       source: string,
       action: string,
@@ -437,7 +446,7 @@ const frFR = {
       amount: string | undefined,
     ) =>
       `${source} utilise ${action}${target ? ` sur ${target}` : ''}${amount ? ` : ${amount}` : ''}.`,
-    targets: (count: number) => `${count} cibles`,
+    targets: (count: number) => `${formatCombatNumber('fr-FR', count)} cibles`,
     target: 'cible',
     self: 'soi-même',
     actionTarget: (source: string, target: string) => `${source} → ${target}`,
@@ -452,7 +461,7 @@ const frFR = {
     estimatedEffects: 'Effets estimés',
     estimateNote: 'Les dégâts sont estimés avant l’armure et la résistance de la cible.',
     cooldownStatus: (current: number, turns: string) =>
-      `⏳ Recharge : ${current} ${turns} restante`,
+      `⏳ Recharge : ${formatCombatNumber('fr-FR', current)} ${turns} restante`,
     ready: '✅ Prêt à lancer',
     press: 'Appuyez sur',
     toCast: 'pour lancer',
@@ -504,20 +513,20 @@ const frFR = {
       fear: 'peur',
       charm: 'charme',
     } satisfies Readonly<Record<CrowdControlLabelId, string>>,
-    roundStart: (round: number) => `=== Round ${round} ===`,
+    roundStart: (round: number) => `=== Tour ${formatCombatNumber('fr-FR', round)} ===`,
     action: (champion: string, action: string) => `${champion}: ${action}`,
     crowdControlApplied: (source: string, target: string, control: string, duration: number) =>
-      `${source} → ${target}: ${control} (${duration} ${duration === 1 ? 'tour' : 'tours'})`,
+      `${source} → ${target}: ${control} (${formatCombatNumber('fr-FR', duration)} ${duration === 1 ? 'tour' : 'tours'})`,
     turnSkipped: (champion: string, controls: string) =>
       `${champion} perd son action (${controls})`,
     damage: (source: string, target: string, amount: number, isCrit: boolean) =>
-      `${source} → ${target}: ${amount} dégâts${isCrit ? ' CRITIQUE !' : ''}`,
+      `${source} → ${target}: ${formatCombatNumber('fr-FR', amount)} dégâts${isCrit ? ' CRITIQUE !' : ''}`,
     heal: (source: string, target: string, amount: number) =>
-      `${source} → ${target}: +${amount} HP`,
+      `${source} → ${target}: +${formatCombatNumber('fr-FR', amount)} PV`,
     shield: (source: string, target: string, amount: number) =>
-      `${source} → ${target}: +${amount} bouclier`,
+      `${source} → ${target}: +${formatCombatNumber('fr-FR', amount)} bouclier`,
     revive: (source: string, target: string, amount: number) =>
-      `${source} ranime ${target} avec ${amount} PV`,
+      `${source} ranime ${target} avec ${formatCombatNumber('fr-FR', amount)} PV`,
     defeated: (champion: string) => `${champion} a été vaincu !`,
     result: {
       draw: 'Égalité !',
@@ -530,7 +539,7 @@ const frFR = {
     stats: presenterStatsFr,
     unavailable: (description: string) => `${description} (indisponible)`,
     ranked: (description: string, rank: number, maxRanks: number) =>
-      `${description} (Rang ${rank}/${maxRanks})`,
+      `${description} (Rang ${formatCombatNumber('fr-FR', rank)}/${formatCombatNumber('fr-FR', maxRanks)})`,
     effects: enhancementEffectsFr,
   },
 } as const;
@@ -624,15 +633,15 @@ const enUS = {
   },
   stage: {
     hpShort: 'HP',
-    shield: (amount: number) => `+${amount} shield`,
-    revived: (amount: number) => `Revived · ${amount} HP`,
+    shield: (amount: number) => `+${formatCombatNumber('en-US', amount)} shield`,
+    revived: (amount: number) => `Revived · ${formatCombatNumber('en-US', amount)} HP`,
     actionAnnouncement: (
       source: string,
       action: string,
       target: string | undefined,
       amount: string | undefined,
     ) => `${source} uses ${action}${target ? ` on ${target}` : ''}${amount ? `: ${amount}` : ''}.`,
-    targets: (count: number) => `${count} targets`,
+    targets: (count: number) => `${formatCombatNumber('en-US', count)} targets`,
     target: 'target',
     self: 'self',
     actionTarget: (source: string, target: string) => `${source} → ${target}`,
@@ -647,7 +656,7 @@ const enUS = {
     estimatedEffects: 'Estimated effects',
     estimateNote: 'Damage is estimated before the target’s armor and magic resistance.',
     cooldownStatus: (current: number, turns: string) =>
-      `⏳ Cooldown: ${current} ${turns} remaining`,
+      `⏳ Cooldown: ${formatCombatNumber('en-US', current)} ${turns} remaining`,
     ready: '✅ Ready to cast',
     press: 'Press',
     toCast: 'to cast',
@@ -699,20 +708,20 @@ const enUS = {
       fear: 'fear',
       charm: 'charm',
     },
-    roundStart: (round: number) => `=== Round ${round} ===`,
+    roundStart: (round: number) => `=== Round ${formatCombatNumber('en-US', round)} ===`,
     action: (champion: string, action: string) => `${champion}: ${action}`,
     crowdControlApplied: (source: string, target: string, control: string, duration: number) =>
-      `${source} → ${target}: ${control} (${duration} ${duration === 1 ? 'turn' : 'turns'})`,
+      `${source} → ${target}: ${control} (${formatCombatNumber('en-US', duration)} ${duration === 1 ? 'turn' : 'turns'})`,
     turnSkipped: (champion: string, controls: string) =>
       `${champion} loses their action (${controls})`,
     damage: (source: string, target: string, amount: number, isCrit: boolean) =>
-      `${source} → ${target}: ${amount} damage${isCrit ? ' CRITICAL!' : ''}`,
+      `${source} → ${target}: ${formatCombatNumber('en-US', amount)} damage${isCrit ? ' CRITICAL!' : ''}`,
     heal: (source: string, target: string, amount: number) =>
-      `${source} → ${target}: +${amount} HP`,
+      `${source} → ${target}: +${formatCombatNumber('en-US', amount)} HP`,
     shield: (source: string, target: string, amount: number) =>
-      `${source} → ${target}: +${amount} shield`,
+      `${source} → ${target}: +${formatCombatNumber('en-US', amount)} shield`,
     revive: (source: string, target: string, amount: number) =>
-      `${source} revives ${target} with ${amount} HP`,
+      `${source} revives ${target} with ${formatCombatNumber('en-US', amount)} HP`,
     defeated: (champion: string) => `${champion} was defeated!`,
     result: {
       draw: 'Draw!',
@@ -725,7 +734,7 @@ const enUS = {
     stats: presenterStatsEn,
     unavailable: (description: string) => `${description} (unavailable)`,
     ranked: (description: string, rank: number, maxRanks: number) =>
-      `${description} (Rank ${rank}/${maxRanks})`,
+      `${description} (Rank ${formatCombatNumber('en-US', rank)}/${formatCombatNumber('en-US', maxRanks)})`,
     effects: enhancementEffectsEn,
   },
 } as const satisfies MatchingLocaleCatalog<typeof frFR>;

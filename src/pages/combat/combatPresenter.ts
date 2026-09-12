@@ -1,9 +1,18 @@
 import { championDB } from '@/data';
 import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
 import { combatCopy, combatEnhancementEffectId } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
+
+export function formatCombatFlatBonus(value: number, name: string): string {
+  return `+${formatNumber(value)} ${name}`;
+}
+
+export function formatCombatPercentageBonus(percent: number, name: string): string {
+  return `+${formatNumber(percent, { style: 'percent', maximumFractionDigits: 0 })} ${name}`;
+}
 
 export function getEnhancementDescriptions(championId: string): string[] {
   const runState = useRunStore.getState();
@@ -28,10 +37,9 @@ export function getEnhancementDescriptions(championId: string): string[] {
     if (value > 0) {
       const name =
         combatCopy.presenter.stats[stat as keyof typeof combatCopy.presenter.stats] || stat;
+      const description = formatCombatFlatBonus(value, name);
       descriptions.push(
-        stat === 'attackRange'
-          ? combatCopy.presenter.unavailable(`+${value} ${name}`)
-          : `+${value} ${name}`,
+        stat === 'attackRange' ? combatCopy.presenter.unavailable(description) : description,
       );
     }
   }
@@ -41,7 +49,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
     if (percent > 0) {
       const name =
         combatCopy.presenter.stats[stat as keyof typeof combatCopy.presenter.stats] || stat;
-      const description = `+${Math.round(percent * 100)}% ${name}`;
+      const description = formatCombatPercentageBonus(percent, name);
       descriptions.push(
         stat === 'attackRange' ? combatCopy.presenter.unavailable(description) : description,
       );
