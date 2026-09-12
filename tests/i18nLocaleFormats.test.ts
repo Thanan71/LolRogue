@@ -34,6 +34,9 @@ describe('locale-dependent presentation formats', () => {
     const dailyRunSource = readFileSync('src/pages/DailyRunPage.tsx', 'utf8');
     const leaderboardSource = readFileSync('src/components/DailyLeaderboard.tsx', 'utf8');
     const rulesSource = readFileSync('src/pages/RulesPage.tsx', 'utf8');
+    const shopSource = readFileSync('src/pages/ShopPage.tsx', 'utf8');
+    const treasureSource = readFileSync('src/pages/TreasurePage.tsx', 'utf8');
+    const mapPanelsSource = readFileSync('src/components/RunMapPanels.tsx', 'utf8');
 
     expect(recruitSource).not.toContain('attackSpeed.toFixed');
     expect(combatSource).not.toContain('(autoActionRemainingMs / 1000).toFixed');
@@ -41,5 +44,12 @@ describe('locale-dependent presentation formats', () => {
     expect(leaderboardSource).toContain('leaderboardCaption(formatUtcDateKey(dailyDate))');
     expect(rulesSource).not.toContain("toLocaleLowerCase('fr')");
     expect(rulesSource.match(/toLocaleLowerCase\(locale\)/gu)).toHaveLength(2);
+    expect(shopSource).not.toContain('stat.toUpperCase()');
+    expect(treasureSource).not.toContain('stat.toUpperCase()');
+    expect(mapPanelsSource).not.toMatch(/\{value\} \{statName\}/u);
+    for (const source of [shopSource, treasureSource, mapPanelsSource]) {
+      expect(source).toContain('formatStatValue(stat, value, locale)');
+      expect(source).toContain('fr.stats[stat]');
+    }
   });
 });

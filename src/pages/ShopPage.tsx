@@ -6,6 +6,7 @@ import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import type { ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
+import { formatStatValue, normalizeStatKey } from '@/game/stats/statContract';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
 import { getEncounterPresentation } from '@/i18n/encounterContent';
@@ -31,9 +32,10 @@ function ShopItemCard({
   onBuy: () => void;
 }) {
   const finalPrice = Math.round(item.price * priceMultiplier);
-  const stats = Object.entries(item.stats).filter((entry): entry is [string, number] =>
-    Boolean(entry[1]),
-  );
+  const stats = Object.entries(item.stats).flatMap(([key, value]) => {
+    const stat = normalizeStatKey(key);
+    return stat && value ? [{ stat, value }] : [];
+  });
   return (
     <article className="shop-card shop-card--item">
       <div className="shop-card__item-heading">
@@ -62,9 +64,9 @@ function ShopItemCard({
       <p className="shop-card__description">{itemDescription(item.itemId, item.description)}</p>
       {stats.length > 0 ? (
         <ul className="shop-card__stats" aria-label={fr.encounter.itemBonuses}>
-          {stats.map(([stat, value]) => (
+          {stats.map(({ stat, value }) => (
             <li key={stat}>
-              {stat.toUpperCase()} +{value}
+              {fr.stats[stat]} +{formatStatValue(stat, value, locale)}
             </li>
           ))}
         </ul>

@@ -3,6 +3,7 @@ import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
 import { ROUTES } from '@/config/routes';
 import { getNodeEncounter } from '@/game/map/mapUtils';
+import { formatStatValue, normalizeStatKey } from '@/game/stats/statContract';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { itemDescription, itemName } from '@/i18n/content';
 import { getEncounterPresentation } from '@/i18n/encounterContent';
@@ -226,11 +227,15 @@ export function TreasurePage() {
                           className="treasure-page__item-stats"
                           aria-label={fr.encounter.itemBonuses}
                         >
-                          {Object.entries(encounter.item.stats).map(([stat, value]) => (
-                            <li key={stat} className="treasure-page__item-stat">
-                              +{value} {stat.toUpperCase()}
-                            </li>
-                          ))}
+                          {Object.entries(encounter.item.stats).map(([key, value]) => {
+                            const stat = normalizeStatKey(key);
+                            if (!stat || value === 0) return null;
+                            return (
+                              <li key={stat} className="treasure-page__item-stat">
+                                +{formatStatValue(stat, value, locale)} {fr.stats[stat]}
+                              </li>
+                            );
+                          })}
                         </ul>
                       )}
                     </div>

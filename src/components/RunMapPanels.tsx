@@ -212,28 +212,6 @@ export function InventoryPanel({
     return [...affected].map((stat) => ({ stat, before: before[stat], after: after[stat] }));
   };
 
-  // Stat name translations
-  const statNames: Record<string, string> = {
-    hp: fr.stats.hp,
-    mp: fr.stats.mp,
-    atk: fr.stats.attackDamage,
-    ap: fr.stats.abilityPower,
-    def: fr.stats.armor,
-    mr: fr.stats.magicResist,
-    spd: fr.stats.moveSpeed,
-    crit: fr.stats.crit,
-    attackSpeed: fr.stats.attackSpeed,
-    hpRegen: fr.stats.hpRegen,
-    mpRegen: fr.stats.mpRegen,
-    armorPen: fr.stats.armorPen,
-    magicPen: fr.stats.magicPen,
-    lifesteal: fr.stats.lifesteal,
-    omnivamp: fr.stats.omnivamp,
-    tenacity: fr.stats.tenacity,
-    abilityHaste: fr.stats.abilityHaste,
-    attackRange: fr.stats.attackRange,
-  };
-
   const getHoveredEntry = () => {
     if (!hoveredItem) return null;
     return inventory.find((e) => e.instanceId === hoveredItem);
@@ -336,13 +314,13 @@ export function InventoryPanel({
           {Object.entries(hoveredEntry.item.stats).length > 0 && (
             <div className="run-map-item-tooltip__stats">
               {Object.entries(hoveredEntry.item.stats).map(([key, value]) => {
-                if (value === 0) return null;
-                const statName = statNames[key] || key;
+                const stat = normalizeStatKey(key);
+                if (!stat || value === 0) return null;
                 const sign = value > 0 ? '+' : '';
                 return (
-                  <div key={key} className="run-map-item-tooltip__stat">
+                  <div key={stat} className="run-map-item-tooltip__stat">
                     {sign}
-                    {value} {statName}
+                    {formatStatValue(stat, value, locale)} {fr.stats[stat]}
                   </div>
                 );
               })}
