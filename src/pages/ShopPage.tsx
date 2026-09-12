@@ -10,6 +10,7 @@ import { formatStatValue, normalizeStatKey } from '@/game/stats/statContract';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
 import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { localizeShopMutationError } from '@/i18n/runMutationContent';
 import { useRunStore } from '@/stores/runStore';
@@ -32,6 +33,7 @@ function ShopItemCard({
   onBuy: () => void;
 }) {
   const finalPrice = Math.round(item.price * priceMultiplier);
+  const formattedPrice = formatNumber(finalPrice);
   const stats = Object.entries(item.stats).flatMap(([key, value]) => {
     const stat = normalizeStatKey(key);
     return stat && value ? [{ stat, value }] : [];
@@ -57,7 +59,7 @@ function ShopItemCard({
         <div>
           <h3 className="shop-card__name">{itemName(item.itemId, item.name)}</h3>
           <span className="shop-card__price">
-            {finalPrice} {fr.common.gold}
+            {formattedPrice} {fr.common.gold}
           </span>
         </div>
       </div>
@@ -72,7 +74,7 @@ function ShopItemCard({
         </ul>
       ) : null}
       <button type="button" className="shop-card__buy" onClick={onBuy} disabled={!canAfford}>
-        {canAfford ? `${fr.encounter.buy} — ${finalPrice} ${fr.common.gold}` : disabledReason}
+        {canAfford ? `${fr.encounter.buy} — ${formattedPrice} ${fr.common.gold}` : disabledReason}
       </button>
     </article>
   );
@@ -96,7 +98,7 @@ function ChampionCard({
   const sourceChampion = championDB.getById(champId);
   const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
   const disabled = !canAfford || teamFull || alreadyOnTeam;
-  let label = `${fr.encounter.recruitAction} — ${cost} ${fr.common.gold}`;
+  let label = `${fr.encounter.recruitAction} — ${formatNumber(cost)} ${fr.common.gold}`;
   if (alreadyOnTeam) label = fr.encounter.alreadyOnTeam;
   else if (teamFull) label = fr.encounter.teamFull;
   else if (!canAfford) label = fr.encounter.notEnoughGold;

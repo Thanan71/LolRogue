@@ -11,6 +11,7 @@ import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { itemName, localizeChampion } from '@/i18n/content';
 import { getEncounterPresentation, getEventOutcomeDescription } from '@/i18n/encounterContent';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -57,9 +58,9 @@ function getEventStatLabel(stat: string | undefined): string {
 function getOutcomeTitle(outcome: EventOutcome, capacityNotice: string | null): string {
   switch (outcome.type) {
     case 'gold_reward':
-      return `+${outcome.goldAmount ?? 0} ${fr.common.gold}`;
+      return `+${formatNumber(outcome.goldAmount ?? 0)} ${fr.common.gold}`;
     case 'gold_cost':
-      return `${fr.encounter.eventOffering} : −${Math.abs(outcome.goldAmount ?? 0)} ${fr.common.gold}`;
+      return `${fr.encounter.eventOffering} : −${formatNumber(Math.abs(outcome.goldAmount ?? 0))} ${fr.common.gold}`;
     case 'item_reward': {
       if (capacityNotice) return fr.encounter.eventItemLeft;
       const item = outcome.item;
@@ -69,9 +70,9 @@ function getOutcomeTitle(outcome: EventOutcome, capacityNotice: string | null): 
       return `${fr.encounter.itemReceived} : ${displayName}`;
     }
     case 'heal':
-      return `${fr.encounter.eventTeamHealed} : +${Math.round((outcome.healPercent ?? 0.3) * 100)} % ${fr.common.hpShort}`;
+      return `${fr.encounter.eventTeamHealed} : +${formatNumber(Math.round((outcome.healPercent ?? 0.3) * 100))} % ${fr.common.hpShort}`;
     case 'damage':
-      return `${fr.encounter.eventTrapTriggered} : −${Math.round((outcome.damagePercent ?? 0.15) * 100)} % ${fr.common.hpShort}`;
+      return `${fr.encounter.eventTrapTriggered} : −${formatNumber(Math.round((outcome.damagePercent ?? 0.15) * 100))} % ${fr.common.hpShort}`;
     case 'champion_recruit': {
       if (capacityNotice) return fr.encounter.eventRecruitmentImpossible;
       if (!outcome.championId) return fr.encounter.eventNoChampion;
@@ -82,7 +83,7 @@ function getOutcomeTitle(outcome: EventOutcome, capacityNotice: string | null): 
       return fr.encounter.championJoined(championName);
     }
     case 'stat_boost': {
-      return `${fr.encounter.eventStatBoost} : +${outcome.statBoost?.amount ?? 0} ${getEventStatLabel(outcome.statBoost?.stat)}`;
+      return `${fr.encounter.eventStatBoost} : +${formatNumber(outcome.statBoost?.amount ?? 0)} ${getEventStatLabel(outcome.statBoost?.stat)}`;
     }
     case 'nothing':
       return fr.encounter.eventNothingHappens;
@@ -343,6 +344,8 @@ export function EventPage() {
                     const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
                     const maxHp = getMemberMaxHp(member);
                     const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
+                    const formattedCurrentHp = formatNumber(currentHp);
+                    const formattedMaxHp = formatNumber(maxHp);
                     const pct = Math.round((currentHp / maxHp) * 100);
                     const healthClass =
                       pct < 30
@@ -372,13 +375,13 @@ export function EventPage() {
                             </span>
                           </span>
                           <span className="event-page__member-hp">
-                            {currentHp} / {maxHp} {fr.common.hpShort}
+                            {formattedCurrentHp} / {formattedMaxHp} {fr.common.hpShort}
                           </span>
                         </div>
                         <div
                           className="event-page__hp-track"
                           role="progressbar"
-                          aria-label={`${champ?.name ?? member.championId} : ${currentHp} / ${maxHp} ${fr.common.hpShort}`}
+                          aria-label={`${champ?.name ?? member.championId} : ${formattedCurrentHp} / ${formattedMaxHp} ${fr.common.hpShort}`}
                           aria-valuemin={0}
                           aria-valuemax={100}
                           aria-valuenow={pct}

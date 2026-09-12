@@ -6,6 +6,7 @@ import {
   normalizeStatKey,
 } from '@/game/stats/statContract';
 import { championName, itemDescription, itemName } from '@/i18n/content';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
@@ -76,6 +77,10 @@ export function TeamPanel({
         const xpDisplay = formatXpDisplay(level, currentXp);
         const maxHp = enhancedHpMap[m.championId] ?? 100;
         const currentHp = Math.min(maxHp, Math.max(0, m.currentHp ?? maxHp));
+        const roundedCurrentHp = Math.round(currentHp);
+        const roundedMaxHp = Math.round(maxHp);
+        const formattedCurrentHp = formatNumber(roundedCurrentHp);
+        const formattedMaxHp = formatNumber(roundedMaxHp);
         const hpPercent = champ ? Math.min(100, Math.max(0, (currentHp / maxHp) * 100)) : 100;
         const healthClass =
           hpPercent > 50
@@ -99,9 +104,9 @@ export function TeamPanel({
               />
               <span
                 className="run-map-team-member__level"
-                aria-label={`${fr.common.level} ${level}`}
+                aria-label={`${fr.common.level} ${formatNumber(level)}`}
               >
-                {level}
+                {formatNumber(level)}
               </span>
             </div>
             <div className="run-map-team-member__copy">
@@ -112,9 +117,9 @@ export function TeamPanel({
                 role="progressbar"
                 aria-label={fr.run.hpFor(champ?.name ?? m.championId)}
                 aria-valuemin={0}
-                aria-valuemax={Math.round(maxHp)}
-                aria-valuenow={Math.round(currentHp)}
-                aria-valuetext={fr.run.hpValue(Math.round(currentHp), Math.round(maxHp))}
+                aria-valuemax={roundedMaxHp}
+                aria-valuenow={roundedCurrentHp}
+                aria-valuetext={fr.run.hpValue(roundedCurrentHp, roundedMaxHp)}
               >
                 <div
                   className={`run-map-progress__fill ${healthClass}`}
@@ -141,7 +146,7 @@ export function TeamPanel({
               <div className="run-map-team-member__meta">
                 <span>{level >= 18 ? 'MAX' : xpDisplay}</span>
                 <span>
-                  {Math.round(currentHp)}/{Math.round(maxHp)} {fr.common.hpShort}
+                  {formattedCurrentHp}/{formattedMaxHp} {fr.common.hpShort}
                 </span>
               </div>
             </div>
@@ -259,7 +264,7 @@ export function InventoryPanel({
             {fr.run.itemDetails(itemName(entry.item.id, entry.item.name))}
           </button>
           <div className="run-map-inventory-item__value">
-            {entry.item.goldValue} {fr.common.gold}
+            {formatNumber(entry.item.goldValue)} {fr.common.gold}
           </div>
           <div className="run-map-inventory-actions">
             {entry.equippedToChampionId ? (

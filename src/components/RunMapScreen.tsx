@@ -10,6 +10,7 @@ import { NodeType } from '@/game/map/types';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { augmentDescription, augmentName } from '@/i18n/content';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { runeNameFr } from '@/i18n/runes.fr';
 import { useRunStore } from '@/stores/runStore';
@@ -236,7 +237,7 @@ export function RunMapScreen() {
               <span className="run-map-header__stat run-map-header__stat--gold">
                 <small>{fr.encounter.treasure}</small>
                 <strong>
-                  {gold} {fr.common.gold}
+                  {formatNumber(gold)} {fr.common.gold}
                 </strong>
               </span>
               <ContextTutorial
@@ -264,11 +265,11 @@ export function RunMapScreen() {
               />
               <span className="run-map-header__stat">
                 <small>{fr.common.wave}</small>
-                <strong>{currentWave}</strong>
+                <strong>{formatNumber(currentWave)}</strong>
               </span>
               <span className="run-map-header__stat">
                 <small>{fr.common.level}</small>
-                <strong>{runLevel}</strong>
+                <strong>{formatNumber(runLevel)}</strong>
               </span>
             </div>
           </header>

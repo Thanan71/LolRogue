@@ -10,6 +10,7 @@ import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { localizeChampion } from '@/i18n/content';
 import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -76,6 +77,7 @@ export function RestPage() {
 
   const healPercent = encounter?.healPercent ?? 0.5;
   const goldCost = encounter ? getRestGoldCost(encounter, team.length) : 0;
+  const formattedGoldCost = formatNumber(goldCost);
   const fullHeal = encounter?.fullHeal ?? false;
   const canAfford = gold >= goldCost;
   const encounterPresentation = getEncounterPresentation(locale, {
@@ -191,7 +193,7 @@ export function RestPage() {
           )}
           {goldCost > 0 && (
             <div className="rest__cost">
-              {fr.encounter.cost} : {goldCost} {fr.common.gold}
+              {fr.encounter.cost} : {formattedGoldCost} {fr.common.gold}
             </div>
           )}
         </div>
@@ -214,6 +216,10 @@ export function RestPage() {
           {team.map((member) => {
             const maxHp = getMemberMaxHp(member);
             const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
+            const restoredHp = resolveRestHp(currentHp, maxHp, { fullHeal, healPercent });
+            const formattedCurrentHp = formatNumber(currentHp);
+            const formattedMaxHp = formatNumber(maxHp);
+            const formattedRestoredHp = formatNumber(restoredHp);
             const pct = Math.round((currentHp / maxHp) * 100);
             const sourceChampion = championDB.getById(member.championId);
             const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
@@ -247,7 +253,7 @@ export function RestPage() {
                 <div
                   className="rest__hp-track"
                   role="progressbar"
-                  aria-label={`${champ?.name ?? member.championId} : ${currentHp} / ${maxHp} ${fr.common.hpShort}`}
+                  aria-label={`${champ?.name ?? member.championId} : ${formattedCurrentHp} / ${formattedMaxHp} ${fr.common.hpShort}`}
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={pct}
@@ -259,12 +265,11 @@ export function RestPage() {
                 </div>
                 <div className="rest__hp-values">
                   <span>
-                    {currentHp} / {maxHp} {fr.common.hpShort}
+                    {formattedCurrentHp} / {formattedMaxHp} {fr.common.hpShort}
                   </span>
                   {!healed && (
                     <span className="rest__hp-projection">
-                      → {resolveRestHp(currentHp, maxHp, { fullHeal, healPercent })}{' '}
-                      {fr.common.hpShort}
+                      → {formattedRestoredHp} {fr.common.hpShort}
                     </span>
                   )}
                 </div>
@@ -282,7 +287,7 @@ export function RestPage() {
               disabled={!canAfford}
             >
               {goldCost > 0
-                ? `${fr.encounter.heal} (${goldCost} ${fr.common.gold})`
+                ? `${fr.encounter.heal} (${formattedGoldCost} ${fr.common.gold})`
                 : fr.encounter.heal}
             </button>
           ) : (

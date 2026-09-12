@@ -7,6 +7,7 @@ import { formatStatValue, normalizeStatKey } from '@/game/stats/statContract';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { itemDescription, itemName } from '@/i18n/content';
 import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/treasure.css';
@@ -140,7 +141,7 @@ export function TreasurePage() {
                   <span className="treasure-page__coin" />
                 </span>
                 <span className="treasure-page__preview-gold">
-                  +{encounter?.gold ?? 0} {fr.common.gold}
+                  +{formatNumber(encounter?.gold ?? 0)} {fr.common.gold}
                 </span>
               </div>
               {encounter?.item && (
@@ -189,10 +190,12 @@ export function TreasurePage() {
                 <h3 className="treasure-page__reward-label">{fr.encounter.treasureGold}</h3>
                 <div className="treasure-page__reward-value">
                   <span className="treasure-page__coin" aria-hidden="true" />
-                  <span className="treasure-page__reward-gold">+{encounter?.gold ?? 0}</span>
+                  <span className="treasure-page__reward-gold">
+                    +{formatNumber(encounter?.gold ?? 0)}
+                  </span>
                   <span className="treasure-page__reward-total">
                     {' '}
-                    ({fr.common.total} : {gold})
+                    ({fr.common.total} : {formatNumber(gold)})
                   </span>
                 </div>
               </article>
