@@ -37,6 +37,7 @@ export function MenuPage() {
       const canContinue = await finalizeActiveRunBeforeTransition({
         isActive: state.isActive,
         runId: state.runId,
+        confirmationMessage: fr.run.abandonmentConfirmation,
         confirm: (message) => window.confirm(message),
         endRun: (runId) => endRun(false, runId),
       });

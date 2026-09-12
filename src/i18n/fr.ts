@@ -712,6 +712,8 @@ const french = {
   run: {
     noActive: 'Aucune partie active',
     noActiveDetail: 'Commence une partie pour afficher ta carte.',
+    abandonmentConfirmation:
+      'Abandonner la partie active ? Elle sera enregistrée comme une défaite. Les vagues terminées resteront comptabilisées. Cette action peut être annulée.',
     team: 'Équipe',
     noChampions: 'Aucun champion',
     runes: 'Runes',

@@ -707,6 +707,8 @@ export const en = {
   run: {
     noActive: 'No active run',
     noActiveDetail: 'Start a run to view your map.',
+    abandonmentConfirmation:
+      'Abandon the active run? It will be recorded as a defeat. Completed waves will still count. You can cancel this action.',
     team: 'Team',
     noChampions: 'No champions',
     runes: 'Runes',

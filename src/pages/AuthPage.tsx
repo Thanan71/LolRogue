@@ -94,6 +94,7 @@ export function AuthPage() {
       const canContinue = await finalizeActiveRunBeforeTransition({
         isActive: runState.isActive,
         runId: runState.runId,
+        confirmationMessage: fr.run.abandonmentConfirmation,
         confirm: (message) => window.confirm(message),
         endRun: (runId) => runState.endRun(false, runId),
       });
