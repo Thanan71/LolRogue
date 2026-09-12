@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -94,6 +94,16 @@ function listProductionSourceFiles(directory: URL): URL[] {
     .sort((left, right) => repositoryPath(left).localeCompare(repositoryPath(right), 'en'));
 }
 
+function listStyleFiles(directory: URL): URL[] {
+  return readdirSync(directory, { withFileTypes: true })
+    .flatMap((entry) => {
+      const child = new URL(entry.name + (entry.isDirectory() ? '/' : ''), directory);
+      if (entry.isDirectory()) return listStyleFiles(child);
+      return child.pathname.endsWith('.css') ? [child] : [];
+    })
+    .sort((left, right) => repositoryPath(left).localeCompare(repositoryPath(right), 'en'));
+}
+
 function formatFinding(finding: UserCopyFinding): string {
   const location = `${relative(PROJECT_DIRECTORY, finding.filePath).split(sep).join('/')}:${finding.line}:${finding.column}`;
   const context = finding.name ? `${finding.kind}:${finding.name}` : finding.kind;
@@ -148,5 +158,23 @@ describe('i18n source contract', () => {
       'The exact authority-bound exception changed. Keep replayable v21 byte-stable and update the presentation boundary instead.',
     ).toEqual([...AUTHORITY_BOUND_INTERNAL_FINDINGS].sort());
     expect(findings, failureMessage).toHaveLength(0);
+  });
+
+  it('contains no translatable text in CSS generated content', () => {
+    const invariantGeneratedCopy = new Set(['LR']);
+    const findings = listStyleFiles(SOURCE_DIRECTORY).flatMap((file) => {
+      const source = readFileSync(file, 'utf8');
+      return [...source.matchAll(/content\s*:\s*([^;]+);/giu)].flatMap((declaration) =>
+        [...(declaration[1] ?? '').matchAll(/["']([^"']*)["']/gu)]
+          .map((literal) => literal[1] ?? '')
+          .filter((literal) => /\p{L}/u.test(literal) && !invariantGeneratedCopy.has(literal))
+          .map((literal) => `${repositoryPath(file)}: ${JSON.stringify(literal)}`),
+      );
+    });
+
+    expect(
+      findings,
+      'Move CSS generated text to a locale catalog and expose it with attr().',
+    ).toEqual([]);
   });
 });

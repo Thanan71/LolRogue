@@ -424,6 +424,7 @@ function ChampionCard({
       disabled={disabled}
       aria-pressed={selected}
       aria-label={starterCopy.chooseChampion(localizedChampion.name)}
+      data-selected-label={selected ? starterCopy.selectedChampionBadge : undefined}
     >
       <div className="champion-card__splash-wrapper">
         <picture>

@@ -113,6 +113,8 @@ describe('starter selection i18n', () => {
       new Intl.NumberFormat('fr-FR').format(1_234),
     );
     expect(english.starter.normalSubtitle(1_234, true)).toContain('1,234 champions');
+    expect(french.starter.selectedChampionBadge).toBe('Dans l’équipe');
+    expect(english.starter.selectedChampionBadge).toBe('On the team');
     expect(french.spellUpgrade.turns('1')).toBe('1 tour');
     expect(english.spellUpgrade.turns('2')).toBe('2 turns');
   });
@@ -132,7 +134,10 @@ describe('starter selection i18n', () => {
     expect(screen.getByRole('heading', { name: 'Build your team' })).toBeInTheDocument();
     expect(screen.getByLabelText('Preparation steps')).toHaveTextContent('Team');
     expect(screen.getByText(/saved on this device only/i)).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: /^Choose / })).not.toHaveLength(0);
+    const firstChampion = screen.getAllByRole('button', { name: /^Choose / })[0];
+    if (!firstChampion) throw new Error('An English starter champion is required.');
+    fireEvent.click(firstChampion);
+    expect(firstChampion).toHaveAttribute('data-selected-label', 'On the team');
     expect(screen.getByRole('button', { name: 'Confirm selection' })).toBeDisabled();
     expect(view.container).not.toHaveTextContent('Compose ton équipe');
     expect(view.container).not.toHaveTextContent('Sélectionne un champion');

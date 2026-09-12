@@ -35,6 +35,7 @@ export type RunPreparationContentCatalog = Readonly<{
     resumeVerifiedRun: string;
     confirmChoice: string;
     statLabels: Readonly<Record<PreparationStat, string>>;
+    selectedChampionBadge: string;
     chooseChampion: (name: string) => string;
   }>;
   spellUpgrade: Readonly<{
@@ -132,6 +133,7 @@ const frFR: RunPreparationContentCatalog = {
       speed: 'VIT',
       critical: 'CRIT',
     },
+    selectedChampionBadge: 'Dans l’équipe',
     chooseChampion: (name) => `Choisir ${name}`,
   },
   spellUpgrade: {
@@ -234,6 +236,7 @@ const enUS: RunPreparationContentCatalog = {
       speed: 'SPD',
       critical: 'CRIT',
     },
+    selectedChampionBadge: 'On the team',
     chooseChampion: (name) => `Choose ${name}`,
   },
   spellUpgrade: {
