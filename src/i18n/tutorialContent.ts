@@ -13,7 +13,8 @@ export const tutorialContent = {
   'fr-FR': {
     help: 'Aide',
     close: 'Fermer le tutoriel',
-    progress: (current: number, total: number) => `Étape ${current} sur ${total}`,
+    progress: (current: number, total: number) =>
+      `Étape ${current.toLocaleString('fr-FR')} sur ${total.toLocaleString('fr-FR')}`,
     previous: 'Précédent',
     next: 'Suivant',
     done: 'J’ai compris',
@@ -21,7 +22,8 @@ export const tutorialContent = {
   'en-US': {
     help: 'Help',
     close: 'Close tutorial',
-    progress: (current: number, total: number) => `Step ${current} of ${total}`,
+    progress: (current: number, total: number) =>
+      `Step ${current.toLocaleString('en-US')} of ${total.toLocaleString('en-US')}`,
     previous: 'Previous',
     next: 'Next',
     done: 'Got it',

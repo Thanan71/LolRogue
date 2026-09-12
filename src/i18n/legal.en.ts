@@ -29,8 +29,8 @@ export const legalEn = {
     accountData: 'Account data',
     guestData: 'Guest data',
     maximum: 'maximum',
-    months: (count: number) => `${count} month${count === 1 ? '' : 's'}`,
-    days: (count: number) => `${count} day${count === 1 ? '' : 's'}`,
+    months: (count: number) => `${count.toLocaleString('en-US')} month${count === 1 ? '' : 's'}`,
+    days: (count: number) => `${count.toLocaleString('en-US')} day${count === 1 ? '' : 's'}`,
   },
   storage: {
     title: 'Local storage, cookies, and telemetry',

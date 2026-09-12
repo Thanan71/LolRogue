@@ -1,3 +1,5 @@
+const formatEnglishNumber = (value: number): string => value.toLocaleString('en-US');
+
 export const en = {
   product: {
     name: 'LoL Rogue',
@@ -505,7 +507,8 @@ export const en = {
     search: 'Search for a rule',
     category: 'Category',
     all: 'All',
-    count: (count: number) => `${count} rule${count === 1 ? '' : 's'} displayed`,
+    count: (count: number) =>
+      `${formatEnglishNumber(count)} rule${count === 1 ? '' : 's'} displayed`,
     emptyTitle: 'No rules found',
     emptyDetail: 'Try another search or show all categories again.',
     resetFilters: 'Reset filters',
@@ -602,7 +605,7 @@ export const en = {
     accessibilityHelp: 'Keep combat information available even when effects are disabled.',
     connectedAccount: 'Connected account',
     preview: (difficulty: string, speed: number) =>
-      `Difficulty ${difficulty} · animations ${speed}×`,
+      `Difficulty ${difficulty} · animations ${formatEnglishNumber(speed)}×`,
     panel: 'Game settings',
     language: 'Language',
     french: 'French',
@@ -727,12 +730,13 @@ export const en = {
     effectBeforeValidation: 'Effect before confirmation',
     generateMap: 'Generate the run map',
     expeditionProgress: (current: number, total: number) =>
-      `Expedition · Biome ${current} of ${total}`,
+      `Expedition · Biome ${formatEnglishNumber(current)} of ${formatEnglishNumber(total)}`,
     mapTitle: 'Run map',
     mapInstruction: (biome: string) => `${biome} · Choose your next accessible node`,
     unknownTerritory: 'Unknown territory',
     biome: 'Biome',
-    biomeProgress: (current: number, total: number) => `Biome progress: ${current} of ${total}`,
+    biomeProgress: (current: number, total: number) =>
+      `Biome progress: ${formatEnglishNumber(current)} of ${formatEnglishNumber(total)}`,
     mapTutorialTitle: 'Understanding the map',
     mapTutorialButton: 'Map tutorial',
     mapTutorialChooseTitle: 'Choose a path',
@@ -755,8 +759,9 @@ export const en = {
     augmentChoice: 'Augment choice',
     combatRewards: 'Combat rewards',
     combatRewardBase: (gold: number, xp: number) =>
-      `+${gold} gold, +${xp} XP/champion (including KOs)`,
-    levelsGained: (count: number) => `${count} level${count === 1 ? '' : 's'} gained`,
+      `+${formatEnglishNumber(gold)} gold, +${formatEnglishNumber(xp)} XP/champion (including KOs)`,
+    levelsGained: (count: number) =>
+      `${formatEnglishNumber(count)} level${count === 1 ? '' : 's'} gained`,
     itemReward: (name: string) => `item: ${name}`,
     upcomingNodes: 'Map of upcoming nodes',
     biomeNames: {
@@ -787,7 +792,8 @@ export const en = {
       locked: 'locked',
     },
     biomeRoute: 'Biome route',
-    pathsAvailable: (count: number) => `${count} path${count === 1 ? '' : 's'} available`,
+    pathsAvailable: (count: number) =>
+      `${formatEnglishNumber(count)} path${count === 1 ? '' : 's'} available`,
     progressionInProgress: 'Progress in progress',
     recenter: 'Recenter',
     mapInstructions:
@@ -804,12 +810,13 @@ export const en = {
       isSelectable: boolean,
       isPending: boolean,
     ) =>
-      `${typeName}, column ${column}, row ${row}${isEntry ? ', biome start' : ''}, ${state}${isSelectable ? ', activate to choose this node and lock the other branches' : isPending ? ', finish the pending choice first' : ''}`,
+      `${typeName}, column ${formatEnglishNumber(column)}, row ${formatEnglishNumber(row)}${isEntry ? ', biome start' : ''}, ${state}${isSelectable ? ', activate to choose this node and lock the other branches' : isPending ? ', finish the pending choice first' : ''}`,
     here: 'HERE',
     choice: 'CHOICE',
     dragMap: 'Drag the map',
     activeSquad: 'Active squad',
-    championCount: (count: number) => `${count} champion${count === 1 ? '' : 's'}`,
+    championCount: (count: number) =>
+      `${formatEnglishNumber(count)} champion${count === 1 ? '' : 's'}`,
     championSelection: 'Champion selection',
     maximumLevel: 'maximum level',
     selectChampionSummary: (
@@ -819,23 +826,25 @@ export const en = {
       maximumHp: number,
       experience: string,
     ) =>
-      `Select ${name}, level ${level}, ${currentHp} of ${maximumHp} HP, experience ${experience}`,
+      `Select ${name}, level ${formatEnglishNumber(level)}, ${formatEnglishNumber(currentHp)} of ${formatEnglishNumber(maximumHp)} HP, experience ${experience}`,
     selectedSheet: 'Selected sheet',
     currentHpMaximum: 'Current / maximum HP',
     equippedItems: 'Equipped items',
     itemSlots: 'Item slots',
-    emptyItemSlot: (index: number) => `Empty slot ${index}`,
-    itemSlot: (index: number, name: string) => `Slot ${index}: ${name}`,
-    inventoryTitle: (current: number, maximum: number) => `Inventory (${current}/${maximum})`,
+    emptyItemSlot: (index: number) => `Empty slot ${formatEnglishNumber(index)}`,
+    itemSlot: (index: number, name: string) => `Slot ${formatEnglishNumber(index)}: ${name}`,
+    inventoryTitle: (current: number, maximum: number) =>
+      `Inventory (${formatEnglishNumber(current)}/${formatEnglishNumber(maximum)})`,
     sortInventory: 'Sort inventory',
     sort: 'Sort',
     itemDetails: (name: string) => `${name} — details`,
-    sellFor: (amount: number) => `Sell for ${amount}g`,
+    sellFor: (amount: number) => `Sell for ${formatEnglishNumber(amount)}g`,
     equippedBy: (name: string) => `Equipped by: ${name}`,
-    itemValue: (amount: number) => `Value: ${amount} gold`,
+    itemValue: (amount: number) => `Value: ${formatEnglishNumber(amount)} gold`,
     itemFallback: 'ITM',
     hpFor: (name: string) => `HP of ${name}`,
-    hpValue: (current: number, maximum: number) => `${current} of ${maximum} HP`,
+    hpValue: (current: number, maximum: number) =>
+      `${formatEnglishNumber(current)} of ${formatEnglishNumber(maximum)} HP`,
     experienceFor: (name: string) => `Experience for ${name}`,
     detailStats: {
       attackDamage: 'Attack',
@@ -864,7 +873,8 @@ export const en = {
     unequipFailed: (item: string) => `Unable to unequip ${item}. Try again.`,
     returnedToBag: (item: string) => `Item returned to the bag: ${item}.`,
     sellFailed: (item: string) => `Unable to sell ${item}. Try again.`,
-    saleConfirmed: (item: string, gold: number) => `Sale confirmed: ${item}, +${gold} gold.`,
+    saleConfirmed: (item: string, gold: number) =>
+      `Sale confirmed: ${item}, +${formatEnglishNumber(gold)} gold.`,
     eyebrow: 'Run equipment',
     title: 'Inventory',
     items: 'items',
@@ -875,29 +885,30 @@ export const en = {
     availableItems: 'Available items',
     equippedOwner: (name: string) => `Equipped · ${name}`,
     inBag: 'In the bag',
-    saleValue: (gold: number) => `Sale · ${gold} gold`,
+    saleValue: (gold: number) => `Sale · ${formatEnglishNumber(gold)} gold`,
     emptyInventory: 'Inventory: empty.',
     noItemsInCategory: 'No items in this category.',
     selectedItem: 'Selected item',
     closeItem: (name: string) => `Close: ${name}`,
     wornBy: (name: string) => `Worn by ${name}`,
     availableInBag: 'Available in the bag',
-    sale: (gold: number) => `Sale: ${gold} gold`,
+    sale: (gold: number) => `Sale: ${formatEnglishNumber(gold)} gold`,
     chooseTransferTarget: 'Choose a champion to transfer to',
     chooseEquipTarget: 'Choose a champion to equip',
     current: 'Current',
-    slotsUsed: (current: number, maximum: number) => `${current} of ${maximum}`,
+    slotsUsed: (current: number, maximum: number) =>
+      `${formatEnglishNumber(current)} of ${formatEnglishNumber(maximum)}`,
     equipUnavailable: (item: string, champion: string, state: string) =>
       `Unable to equip ${item} on ${champion}: ${state.charAt(0).toLocaleLowerCase('en-US')}${state.slice(1)}.`,
     targetSummary: (current: number, maximum: number, state: string) =>
-      `${current}/${maximum} items · ${state}`,
+      `${formatEnglishNumber(current)}/${formatEnglishNumber(maximum)} items · ${state}`,
     noChampionForItem: 'No champion available for this item.',
     previewOn: (name: string) => `Preview on ${name}`,
     becomes: 'becomes',
     noDirectStats: 'This item does not add any direct stats.',
     transferTo: (name: string) => `Transfer to ${name}`,
     equipOn: (name: string) => `Equip on ${name}`,
-    sellFor: (gold: number) => `Sell for ${gold} gold`,
+    sellFor: (gold: number) => `Sell for ${formatEnglishNumber(gold)} gold`,
     selectionHint: 'Select an item to manage it.',
   },
   starter: {
@@ -977,7 +988,7 @@ export const en = {
     recruitFailed: 'Recruitment failed',
     attemptUsed: 'Attempt already used',
     compareRest: 'Compare current and projected HP before using this rest stop.',
-    healPercent: (percent: number) => `Heal for ${percent}% of max HP`,
+    healPercent: (percent: number) => `Heal for ${formatEnglishNumber(percent)}% of max HP`,
     teamHp: 'Team hit points',
     teamPreview: 'Your team',
     recruitSubtitle: 'Evaluate the recruit, its place in your team, and the risk before trying.',
@@ -987,25 +998,29 @@ export const en = {
     itemBonuses: 'Item bonuses',
     shopSubtitle: 'Equip your squad before returning to the road. Purchases are final.',
     shopState: 'Shop status',
-    itemsAvailable: (count: number) => `${count} item${count === 1 ? '' : 's'} available`,
-    inventoryCount: (current: number, maximum: number) => `Inventory ${current}/${maximum}`,
-    teamCount: (current: number, maximum: number) => `Team ${current}/${maximum}`,
+    itemsAvailable: (count: number) =>
+      `${formatEnglishNumber(count)} item${count === 1 ? '' : 's'} available`,
+    inventoryCount: (current: number, maximum: number) =>
+      `Inventory ${formatEnglishNumber(current)}/${formatEnglishNumber(maximum)}`,
+    teamCount: (current: number, maximum: number) =>
+      `Team ${formatEnglishNumber(current)}/${formatEnglishNumber(maximum)}`,
     itemAdded: (name: string) => `${name} was added to your inventory.`,
     championJoined: (name: string) => `${name} joined your team.`,
     wildChampionDescription: 'A wild champion approaches your team.',
-    recruitChance: (percent: number) => `Success chance: ${percent}%`,
+    recruitChance: (percent: number) => `Success chance: ${formatEnglishNumber(percent)}%`,
     recruitFleeWarning: '— the champion may flee',
     recruitGoldRule: 'Gold is spent only if recruitment succeeds.',
     recruitSuccess: (name: string) => `${name} joins your team!`,
     recruitEscape: (name: string) => `${name} escaped.`,
-    recruitGoldSpent: (amount: number) => `${amount} gold spent.`,
+    recruitGoldSpent: (amount: number) => `${formatEnglishNumber(amount)} gold spent.`,
     recruitGoldKept: 'You keep your gold despite this attempt.',
     restAlreadyUsed: 'This rest stop has already been used. Your team can move on.',
     restUnavailable: 'The rest cannot be applied right now.',
     restPaymentFailed: 'The rest payment failed.',
     restSaveFailed: 'The healing could not be saved. No changes were kept.',
     restFullHealApplied: 'The whole team recovered all of its HP.',
-    restHealApplied: (percent: number) => `The whole team recovered ${percent}% of its maximum HP.`,
+    restHealApplied: (percent: number) =>
+      `The whole team recovered ${formatEnglishNumber(percent)}% of its maximum HP.`,
   },
   ui: {
     filters: 'Filters',
@@ -1038,7 +1053,8 @@ export const en = {
     order: 'Order',
     descending: 'Descending',
     ascending: 'Ascending',
-    runsDisplayed: (count: number) => `${count} run${count === 1 ? '' : 's'} displayed`,
+    runsDisplayed: (count: number) =>
+      `${formatEnglishNumber(count)} run${count === 1 ? '' : 's'} displayed`,
     winRate: 'Win rate',
     averageWaves: 'Average waves',
     damage: 'Damage',

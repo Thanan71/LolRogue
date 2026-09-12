@@ -49,6 +49,10 @@ function formatExpiry(value: string, locale: Locale): string {
   }).format(date);
 }
 
+function formatNumber(value: number, contentLocale: Locale): string {
+  return value.toLocaleString(contentLocale);
+}
+
 const frFR: RunErrorCatalog = {
   startInProgress: 'Un départ de partie est déjà en cours de vérification.',
   activeRun:
@@ -58,9 +62,10 @@ const frFR: RunErrorCatalog = {
   profileNotReady:
     'Votre profil authentifié n’est pas prêt. Relancez son chargement avant de commencer.',
   invalidTeam: 'L’équipe de départ est invalide.',
-  invalidTeamSize: (maximum) => `Sélectionnez entre 1 et ${maximum} champions.`,
+  invalidTeamSize: (maximum) =>
+    `Sélectionnez entre 1 et ${formatNumber(maximum, 'fr-FR')} champions.`,
   invalidStarterCount: (required) =>
-    `Ce mode exige exactement ${required} champion${required > 1 ? 's' : ''} de départ.`,
+    `Ce mode exige exactement ${formatNumber(required, 'fr-FR')} champion${required > 1 ? 's' : ''} de départ.`,
   duplicateChampion: 'Un champion ne peut apparaître qu’une fois dans l’équipe.',
   unknownChampion: 'L’équipe contient un champion inconnu.',
   unsupportedChampion: 'L’équipe contient un champion non pris en charge.',
@@ -85,7 +90,7 @@ const frFR: RunErrorCatalog = {
   attemptOwnerChanged: 'Cette tentative appartient à un autre compte authentifié.',
   attemptExpired: 'Cette tentative de partie vérifiée a expiré.',
   traceRejected: (code, commandIndex) =>
-    `La trace de partie a été rejetée (${code}${commandIndex === null ? '' : ` à la commande ${commandIndex + 1}`}).`,
+    `La trace de partie a été rejetée (${code}${commandIndex === null ? '' : ` à la commande ${formatNumber(commandIndex + 1, 'fr-FR')}`}).`,
   journalSyncFailed: 'Le journal des commandes de la partie n’a pas pu être synchronisé.',
   sealFailed: 'La tentative de partie n’a pas pu être scellée.',
   verificationFailed: (code) =>
@@ -96,7 +101,7 @@ const frFR: RunErrorCatalog = {
   saveInterrupted: 'L’enregistrement a été interrompu. Réessayez pour continuer.',
   verificationInProgress: (retryAfterSeconds) =>
     retryAfterSeconds
-      ? `La vérification est déjà en cours. Réessayez dans environ ${retryAfterSeconds} secondes.`
+      ? `La vérification est déjà en cours. Réessayez dans environ ${formatNumber(retryAfterSeconds, 'fr-FR')} secondes.`
       : 'La vérification est déjà en cours. Réessayez dans quelques secondes.',
   verifierUpdating:
     'Le vérificateur est en cours de mise à jour pour cette version. Réessayez bientôt.',
@@ -112,9 +117,9 @@ const enUS: RunErrorCatalog = {
     `Run ${runId} is active in another tab. Resume it instead of starting another.`,
   profileNotReady: 'Your authenticated profile is not ready. Retry loading it before starting.',
   invalidTeam: 'The starting team is invalid.',
-  invalidTeamSize: (maximum) => `Select between 1 and ${maximum} champions.`,
+  invalidTeamSize: (maximum) => `Select between 1 and ${formatNumber(maximum, 'en-US')} champions.`,
   invalidStarterCount: (required) =>
-    `This mode requires exactly ${required} starter${required === 1 ? '' : 's'}.`,
+    `This mode requires exactly ${formatNumber(required, 'en-US')} starter${required === 1 ? '' : 's'}.`,
   duplicateChampion: 'A champion can appear only once on the team.',
   unknownChampion: 'The team contains an unknown champion.',
   unsupportedChampion: 'The team contains an unsupported champion.',
@@ -138,7 +143,7 @@ const enUS: RunErrorCatalog = {
   attemptOwnerChanged: 'This run attempt belongs to another authenticated account.',
   attemptExpired: 'This verified run attempt has expired.',
   traceRejected: (code, commandIndex) =>
-    `The run trace was rejected (${code}${commandIndex === null ? '' : ` at command ${commandIndex + 1}`}).`,
+    `The run trace was rejected (${code}${commandIndex === null ? '' : ` at command ${formatNumber(commandIndex + 1, 'en-US')}`}).`,
   journalSyncFailed: 'The run command journal could not be synchronized.',
   sealFailed: 'The run attempt could not be sealed.',
   verificationFailed: (code) =>
@@ -149,7 +154,7 @@ const enUS: RunErrorCatalog = {
   saveInterrupted: 'Run saving was interrupted. Retry to continue.',
   verificationInProgress: (retryAfterSeconds) =>
     retryAfterSeconds
-      ? `Verification is already in progress. Retry in about ${retryAfterSeconds} seconds.`
+      ? `Verification is already in progress. Retry in about ${formatNumber(retryAfterSeconds, 'en-US')} seconds.`
       : 'Verification is already in progress. Retry in a few seconds.',
   verifierUpdating: 'The verifier is being updated for this run version. Retry shortly.',
   journalNotSealed: 'The run journal has not been sealed yet. Retry verification.',

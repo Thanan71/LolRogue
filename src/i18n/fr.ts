@@ -1,5 +1,7 @@
 import { en } from './en';
 
+const formatFrenchNumber = (value: number): string => value.toLocaleString('fr-FR');
+
 const french = {
   product: {
     name: 'LoL Rogue',
@@ -510,7 +512,7 @@ const french = {
     category: 'Catégorie',
     all: 'Toutes',
     count: (count: number) =>
-      `${count} règle${count > 1 ? 's' : ''} affichée${count > 1 ? 's' : ''}`,
+      `${formatFrenchNumber(count)} règle${count > 1 ? 's' : ''} affichée${count > 1 ? 's' : ''}`,
     emptyTitle: 'Aucune règle trouvée',
     emptyDetail: 'Essaie une autre recherche ou affiche de nouveau toutes les catégories.',
     resetFilters: 'Réinitialiser les filtres',
@@ -608,7 +610,7 @@ const french = {
       'Préserve les informations de combat même lorsque les effets sont désactivés.',
     connectedAccount: 'Compte connecté',
     preview: (difficulty: string, speed: number) =>
-      `Difficulté ${difficulty} · animations ${speed}×`,
+      `Difficulté ${difficulty} · animations ${formatFrenchNumber(speed)}×`,
     panel: 'Réglages du jeu',
     language: 'Langue',
     french: 'Français',
@@ -733,13 +735,13 @@ const french = {
     effectBeforeValidation: 'Effet avant validation',
     generateMap: 'Générer la carte de la partie',
     expeditionProgress: (current: number, total: number) =>
-      `Expédition · Biome ${current} sur ${total}`,
+      `Expédition · Biome ${formatFrenchNumber(current)} sur ${formatFrenchNumber(total)}`,
     mapTitle: 'Carte de la partie',
     mapInstruction: (biome: string) => `${biome} · Choisis ton prochain nœud accessible`,
     unknownTerritory: 'Territoire inconnu',
     biome: 'Biome',
     biomeProgress: (current: number, total: number) =>
-      `Progression des biomes : ${current} sur ${total}`,
+      `Progression des biomes : ${formatFrenchNumber(current)} sur ${formatFrenchNumber(total)}`,
     mapTutorialTitle: 'Comprendre la carte',
     mapTutorialButton: 'Tutoriel carte',
     mapTutorialChooseTitle: 'Choisir un chemin',
@@ -761,9 +763,10 @@ const french = {
     noRunes: 'Aucune',
     augmentChoice: "Choix d'amélioration",
     combatRewards: 'Récompenses du combat',
-    combatRewardBase: (gold: number, xp: number) => `+${gold} or, +${xp} XP/champion (KO inclus)`,
+    combatRewardBase: (gold: number, xp: number) =>
+      `+${formatFrenchNumber(gold)} or, +${formatFrenchNumber(xp)} XP/champion (KO inclus)`,
     levelsGained: (count: number) =>
-      `${count} niveau${count > 1 ? 'x' : ''} gagné${count > 1 ? 's' : ''}`,
+      `${formatFrenchNumber(count)} niveau${count > 1 ? 'x' : ''} gagné${count > 1 ? 's' : ''}`,
     itemReward: (name: string) => `objet : ${name}`,
     upcomingNodes: 'Carte des prochains nœuds',
     biomeNames: {
@@ -795,7 +798,7 @@ const french = {
     },
     biomeRoute: 'Itinéraire du biome',
     pathsAvailable: (count: number) =>
-      `${count} chemin${count > 1 ? 's' : ''} disponible${count > 1 ? 's' : ''}`,
+      `${formatFrenchNumber(count)} chemin${count > 1 ? 's' : ''} disponible${count > 1 ? 's' : ''}`,
     progressionInProgress: 'Progression en cours',
     recenter: 'Recentrer',
     mapInstructions:
@@ -812,12 +815,13 @@ const french = {
       isSelectable: boolean,
       isPending: boolean,
     ) =>
-      `${typeName}, colonne ${column}, ligne ${row}${isEntry ? ', départ du biome' : ''}, ${state}${isSelectable ? ', activer pour choisir ce nœud et verrouiller les autres branches' : isPending ? ", terminez d'abord le choix en attente" : ''}`,
+      `${typeName}, colonne ${formatFrenchNumber(column)}, ligne ${formatFrenchNumber(row)}${isEntry ? ', départ du biome' : ''}, ${state}${isSelectable ? ', activer pour choisir ce nœud et verrouiller les autres branches' : isPending ? ", terminez d'abord le choix en attente" : ''}`,
     here: 'ICI',
     choice: 'CHOIX',
     dragMap: 'Faites glisser la carte',
     activeSquad: 'Escouade active',
-    championCount: (count: number) => `${count} champion${count > 1 ? 's' : ''}`,
+    championCount: (count: number) =>
+      `${formatFrenchNumber(count)} champion${count > 1 ? 's' : ''}`,
     championSelection: 'Sélection du champion',
     maximumLevel: 'niveau maximum',
     selectChampionSummary: (
@@ -827,23 +831,25 @@ const french = {
       maximumHp: number,
       experience: string,
     ) =>
-      `Sélectionner ${name}, niveau ${level}, ${currentHp} sur ${maximumHp} PV, expérience ${experience}`,
+      `Sélectionner ${name}, niveau ${formatFrenchNumber(level)}, ${formatFrenchNumber(currentHp)} sur ${formatFrenchNumber(maximumHp)} PV, expérience ${experience}`,
     selectedSheet: 'Fiche sélectionnée',
     currentHpMaximum: 'PV actuels / maximum',
     equippedItems: 'Objets équipés',
     itemSlots: "Emplacements d'objets",
-    emptyItemSlot: (index: number) => `Emplacement ${index} vide`,
-    itemSlot: (index: number, name: string) => `Emplacement ${index} : ${name}`,
-    inventoryTitle: (current: number, maximum: number) => `Inventaire (${current}/${maximum})`,
+    emptyItemSlot: (index: number) => `Emplacement ${formatFrenchNumber(index)} vide`,
+    itemSlot: (index: number, name: string) => `Emplacement ${formatFrenchNumber(index)} : ${name}`,
+    inventoryTitle: (current: number, maximum: number) =>
+      `Inventaire (${formatFrenchNumber(current)}/${formatFrenchNumber(maximum)})`,
     sortInventory: "Trier l'inventaire",
     sort: 'Trier',
     itemDetails: (name: string) => `${name} — détails`,
-    sellFor: (amount: number) => `Vendre ${amount}g`,
+    sellFor: (amount: number) => `Vendre ${formatFrenchNumber(amount)} g`,
     equippedBy: (name: string) => `Équipé : ${name}`,
-    itemValue: (amount: number) => `Valeur : ${amount} or`,
+    itemValue: (amount: number) => `Valeur : ${formatFrenchNumber(amount)} or`,
     itemFallback: 'OBJ',
     hpFor: (name: string) => `PV de ${name}`,
-    hpValue: (current: number, maximum: number) => `${current} sur ${maximum} PV`,
+    hpValue: (current: number, maximum: number) =>
+      `${formatFrenchNumber(current)} sur ${formatFrenchNumber(maximum)} PV`,
     experienceFor: (name: string) => `Expérience de ${name}`,
     detailStats: {
       attackDamage: 'Attaque',
@@ -872,7 +878,8 @@ const french = {
     unequipFailed: (item: string) => `Impossible de déséquiper ${item}. Réessaie.`,
     returnedToBag: (item: string) => `Objet replacé dans le sac : ${item}.`,
     sellFailed: (item: string) => `Impossible de vendre ${item}. Réessaie.`,
-    saleConfirmed: (item: string, gold: number) => `Vente confirmée : ${item}, +${gold} or.`,
+    saleConfirmed: (item: string, gold: number) =>
+      `Vente confirmée : ${item}, +${formatFrenchNumber(gold)} or.`,
     eyebrow: 'Équipement de la partie',
     title: 'Inventaire',
     items: 'objets',
@@ -883,29 +890,30 @@ const french = {
     availableItems: 'Objets disponibles',
     equippedOwner: (name: string) => `Équipé · ${name}`,
     inBag: 'Dans le sac',
-    saleValue: (gold: number) => `Vente · ${gold} or`,
+    saleValue: (gold: number) => `Vente · ${formatFrenchNumber(gold)} or`,
     emptyInventory: 'Inventaire : vide.',
     noItemsInCategory: 'Aucun objet dans cette catégorie.',
     selectedItem: 'Objet sélectionné',
     closeItem: (name: string) => `Fermer : ${name}`,
     wornBy: (name: string) => `Porté par ${name}`,
     availableInBag: 'Disponible dans le sac',
-    sale: (gold: number) => `Vente : ${gold} or`,
+    sale: (gold: number) => `Vente : ${formatFrenchNumber(gold)} or`,
     chooseTransferTarget: 'Choisir un champion pour transférer',
     chooseEquipTarget: 'Choisir un champion à équiper',
     current: 'Actuel',
-    slotsUsed: (current: number, maximum: number) => `${current} sur ${maximum}`,
+    slotsUsed: (current: number, maximum: number) =>
+      `${formatFrenchNumber(current)} sur ${formatFrenchNumber(maximum)}`,
     equipUnavailable: (item: string, champion: string, state: string) =>
       `Impossible d’équiper ${item} sur ${champion} : ${state.charAt(0).toLocaleLowerCase('fr-FR')}${state.slice(1)}.`,
     targetSummary: (current: number, maximum: number, state: string) =>
-      `${current}/${maximum} objets · ${state}`,
+      `${formatFrenchNumber(current)}/${formatFrenchNumber(maximum)} objets · ${state}`,
     noChampionForItem: 'Aucun champion disponible pour cet objet.',
     previewOn: (name: string) => `Aperçu sur ${name}`,
     becomes: 'devient',
     noDirectStats: 'Cet objet n’ajoute pas de caractéristique directe.',
     transferTo: (name: string) => `Transférer vers ${name}`,
     equipOn: (name: string) => `Équiper sur ${name}`,
-    sellFor: (gold: number) => `Vendre pour ${gold} or`,
+    sellFor: (gold: number) => `Vendre pour ${formatFrenchNumber(gold)} or`,
     selectionHint: 'Sélectionne un objet pour le gérer.',
   },
   starter: {
@@ -987,7 +995,7 @@ const french = {
     recruitFailed: 'Échec du recrutement',
     attemptUsed: 'Tentative déjà utilisée',
     compareRest: 'Comparez les PV actuels et projetés avant d’utiliser cette halte.',
-    healPercent: (percent: number) => `Soin de ${percent} % des PV`,
+    healPercent: (percent: number) => `Soin de ${formatFrenchNumber(percent)} % des PV`,
     teamHp: 'Points de vie de l’équipe',
     teamPreview: 'Votre équipe',
     recruitSubtitle:
@@ -999,18 +1007,21 @@ const french = {
     shopSubtitle: 'Équipez votre escouade avant de reprendre la route. Les achats sont définitifs.',
     shopState: 'État de la boutique',
     itemsAvailable: (count: number) =>
-      `${count} objet${count > 1 ? 's' : ''} disponible${count > 1 ? 's' : ''}`,
-    inventoryCount: (current: number, maximum: number) => `Inventaire ${current}/${maximum}`,
-    teamCount: (current: number, maximum: number) => `Équipe ${current}/${maximum}`,
+      `${formatFrenchNumber(count)} objet${count > 1 ? 's' : ''} disponible${count > 1 ? 's' : ''}`,
+    inventoryCount: (current: number, maximum: number) =>
+      `Inventaire ${formatFrenchNumber(current)}/${formatFrenchNumber(maximum)}`,
+    teamCount: (current: number, maximum: number) =>
+      `Équipe ${formatFrenchNumber(current)}/${formatFrenchNumber(maximum)}`,
     itemAdded: (name: string) => `${name} a été ajouté à l’inventaire.`,
     championJoined: (name: string) => `${name} a rejoint votre équipe.`,
     wildChampionDescription: 'Un champion sauvage se présente à ton équipe.',
-    recruitChance: (percent: number) => `Chances de réussite : ${percent} %`,
+    recruitChance: (percent: number) => `Chances de réussite : ${formatFrenchNumber(percent)} %`,
     recruitFleeWarning: '— le champion peut fuir',
     recruitGoldRule: 'L’or n’est dépensé que si le recrutement réussit.',
     recruitSuccess: (name: string) => `${name} rejoint ton équipe !`,
     recruitEscape: (name: string) => `${name} a pris la fuite.`,
-    recruitGoldSpent: (amount: number) => `${amount} or dépensé${amount > 1 ? 's' : ''}.`,
+    recruitGoldSpent: (amount: number) =>
+      `${formatFrenchNumber(amount)} or dépensé${amount > 1 ? 's' : ''}.`,
     recruitGoldKept: 'Tu conserves ton or malgré cette tentative.',
     restAlreadyUsed: 'Ce repos a déjà été utilisé. Votre équipe peut repartir.',
     restUnavailable: 'Le repos ne peut pas être appliqué pour le moment.',
@@ -1018,7 +1029,7 @@ const french = {
     restSaveFailed: 'Le soin n’a pas pu être enregistré. Aucun changement n’a été conservé.',
     restFullHealApplied: 'Toute l’équipe a récupéré la totalité de ses PV.',
     restHealApplied: (percent: number) =>
-      `Toute l’équipe a récupéré ${percent} % de ses PV maximum.`,
+      `Toute l’équipe a récupéré ${formatFrenchNumber(percent)} % de ses PV maximum.`,
   },
   ui: {
     filters: 'Filtres',
@@ -1052,7 +1063,7 @@ const french = {
     descending: 'Descendant',
     ascending: 'Ascendant',
     runsDisplayed: (count: number) =>
-      `${count} partie${count > 1 ? 's' : ''} affichée${count > 1 ? 's' : ''}`,
+      `${formatFrenchNumber(count)} partie${count > 1 ? 's' : ''} affichée${count > 1 ? 's' : ''}`,
     winRate: 'Taux de victoire',
     averageWaves: 'Moyenne vagues',
     damage: 'Dégâts',
