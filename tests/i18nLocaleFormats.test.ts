@@ -33,10 +33,13 @@ describe('locale-dependent presentation formats', () => {
     const combatSource = readFileSync('src/pages/CombatPage.tsx', 'utf8');
     const dailyRunSource = readFileSync('src/pages/DailyRunPage.tsx', 'utf8');
     const leaderboardSource = readFileSync('src/components/DailyLeaderboard.tsx', 'utf8');
+    const rulesSource = readFileSync('src/pages/RulesPage.tsx', 'utf8');
 
     expect(recruitSource).not.toContain('attackSpeed.toFixed');
     expect(combatSource).not.toContain('(autoActionRemainingMs / 1000).toFixed');
     expect(dailyRunSource).not.toContain('{challenge.dailyDate} UTC');
     expect(leaderboardSource).toContain('leaderboardCaption(formatUtcDateKey(dailyDate))');
+    expect(rulesSource).not.toContain("toLocaleLowerCase('fr')");
+    expect(rulesSource.match(/toLocaleLowerCase\(locale\)/gu)).toHaveLength(2);
   });
 });
