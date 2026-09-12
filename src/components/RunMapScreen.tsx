@@ -9,7 +9,7 @@ import { findNode } from '@/game/map/mapUtils';
 import { NodeType } from '@/game/map/types';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { augmentDescription, augmentName } from '@/i18n/content';
+import { augmentDescription, augmentName, itemName } from '@/i18n/content';
 import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { runeNameFr } from '@/i18n/runes.fr';
@@ -352,7 +352,10 @@ export function RunMapScreen() {
               {fr.run.combatRewardBase(lastCombatRewards.gold, lastCombatRewards.xp)}
               {lastCombatRewards.levelsGained > 0 &&
                 `, ${fr.run.levelsGained(lastCombatRewards.levelsGained)}`}
-              {lastCombatRewards.itemName && `, ${fr.run.itemReward(lastCombatRewards.itemName)}`}
+              {lastCombatRewards.itemName &&
+                `, ${fr.run.itemReward(
+                  itemName(lastCombatRewards.itemId ?? '', lastCombatRewards.itemName),
+                )}`}
               {lastCombatRewards.itemBlockedByCapacity && <p>{fr.run.combatItemLeft}</p>}
               <button
                 type="button"

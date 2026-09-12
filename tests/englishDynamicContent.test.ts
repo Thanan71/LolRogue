@@ -17,6 +17,7 @@ describe('contenu dynamique anglais explicite', () => {
 
     expect(content).not.toHaveProperty('localizeUserCopy');
     expect(content.itemName('long_sword', 'Épée longue')).toBe('Long Sword');
+    expect(content.itemName('', 'Épée longue')).toBe('Long Sword');
     expect(content.itemDescription('health_potion', 'Potion de soin')).toContain('Restores 150 HP');
     expect(content.augmentName('brute_force', 'Force brute')).toBe('Brute Force');
     expect(

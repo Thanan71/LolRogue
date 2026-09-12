@@ -299,6 +299,7 @@ describe('P2 page smoke tests', () => {
       lastCombatRewards: {
         xp: 75,
         gold: 60,
+        itemId: null,
         itemName: null,
         itemBlockedByCapacity: true,
         levelsGained: 0,

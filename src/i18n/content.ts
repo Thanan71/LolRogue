@@ -51,9 +51,18 @@ export function championName(championId: string): string {
   return championContent[locale][championId]?.name ?? championId;
 }
 
-export function itemName(id: string, _fallback: string): string {
+export function itemName(id: string, fallback: string): string {
   const catalog = inventoryContent[locale];
-  return (catalog.items[id] ?? catalog.fallbacks.item).name;
+  const legacyId = Object.keys(inventoryContent['fr-FR'].items).find(
+    (candidate) =>
+      inventoryContent['fr-FR'].items[candidate]?.name === fallback ||
+      inventoryContent['en-US'].items[candidate]?.name === fallback,
+  );
+  return (
+    catalog.items[id] ??
+    (legacyId ? catalog.items[legacyId] : undefined) ??
+    catalog.fallbacks.item
+  ).name;
 }
 
 export function itemDescription(id: string, _fallback: string): string {
