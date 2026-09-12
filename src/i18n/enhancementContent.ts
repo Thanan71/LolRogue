@@ -287,7 +287,7 @@ const frFR = {
       description: "+5 Dégâts d'attaque",
     },
     marksman_core_2: {
-      name: 'Tempo',
+      name: 'Cadence',
       description: "+8 % d'initiative d'attaque",
     },
     marksman_core_3: {
@@ -455,7 +455,7 @@ const frFR = {
       description: '+8 % de dégâts contre les champions',
     },
     marksman_range_3: {
-      name: 'Sniper',
+      name: "Tireur d'élite",
       description: 'Ultime : +15 % de dégâts contre les cibles sous 40 % PV',
     },
     marksman_survival_1: {
@@ -480,7 +480,7 @@ const frFR = {
       description: 'Les attaques appliquent des saignements (3 % des PV maximum sur 2 s)',
     },
     fighter_bruiser_3: {
-      name: 'Berserker',
+      name: 'Furie',
       description: 'Ultime : en dessous de 50 % PV, +20 % de dégâts',
     },
     fighter_duelist_1: {

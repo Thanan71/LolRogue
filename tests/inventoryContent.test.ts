@@ -3,9 +3,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AUGMENT_DATABASE } from '@/data/items/augmentDatabase';
 import { ITEM_DATABASE } from '@/data/items/itemDatabase';
 import {
-  inventoryContent,
   type InventoryContentLocale,
   type InventoryNamedCopy,
+  inventoryContent,
 } from '@/i18n/inventoryContent';
 
 const LOCALES = ['fr-FR', 'en-US'] as const satisfies readonly InventoryContentLocale[];
@@ -162,36 +162,32 @@ describe('inventoryContent', () => {
     }
   });
 
-  it('faithfully mirrors every currently exposed French field', async () => {
+  it('covers every source field with complete idiomatic French presentation', async () => {
     const { RUNE_DATABASE, runeNameFr } = await loadFrenchRuneSources();
     const french = inventoryContent['fr-FR'];
 
     for (const item of Object.values(ITEM_DATABASE)) {
       const copy = french.items[item.id]!;
-      expect(copy.name).toBe(item.name);
-      expect(copy.description).toBe(item.description);
+      expectCompleteCopy(copy);
       expect(Object.keys(copy.passives)).toEqual(item.passive ? [item.passive.id] : []);
       if (item.passive) {
-        expect(copy.passives[item.passive.id]).toEqual({
-          name: item.passive.name,
-          description: item.passive.description,
-        });
+        expectCompleteCopy(copy.passives[item.passive.id]!);
       }
     }
 
     for (const augment of Object.values(AUGMENT_DATABASE)) {
-      expect(french.augments[augment.id]).toEqual({
-        name: augment.name,
-        description: augment.description,
-      });
+      expectCompleteCopy(french.augments[augment.id]!);
     }
 
     for (const rune of Object.values(RUNE_DATABASE)) {
-      expect(french.runes[rune.id]).toEqual({
-        name: runeNameFr(rune.id, rune.name),
-        description: rune.description,
-      });
+      expectCompleteCopy(french.runes[rune.id]!);
     }
+
+    expect(runeNameFr('manaflow_band', 'Manaflow Band')).toBe('Ruban de mana');
+    expect(AUGMENT_DATABASE.hyper_carry.name).toBe('Hypercarry');
+    expect(french.augments.hyper_carry.name).toBe('Porteur suprême');
+    expect(RUNE_DATABASE.eyeball_collection.description).toContain('+2 AP');
+    expect(french.runes.eyeball_collection.description).toContain('+2 PUI');
   });
 
   it('provides complete locale parity and preserves every numeric gameplay detail in English', () => {

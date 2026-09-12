@@ -209,7 +209,7 @@ const frFR = {
       description: 'Le premier champion éliminé à chaque combat revient avec 50 % de ses PV.',
     },
     hyper_carry: {
-      name: 'Hypercarry',
+      name: 'Porteur suprême',
       description: 'Tous les champions infligent 25 % de dégâts supplémentaires.',
     },
     unstoppable: {
@@ -249,7 +249,7 @@ const frFR = {
     },
     eyeball_collection: {
       name: "Arracheur d'œil",
-      description: 'Chaque élimination confère définitivement +2 AP (10 cumuls maximum).',
+      description: 'Chaque élimination confère définitivement +2 PUI (10 cumuls maximum).',
     },
     ravenous_hunter: {
       name: 'Chasseur vorace',
@@ -257,19 +257,19 @@ const frFR = {
     },
     summon_aery: {
       name: "Invocation d'Aery",
-      description: 'Au début du combat, gagne +20 AP pendant 2 tours.',
+      description: 'Au début du combat, gagne +20 PUI pendant 2 tours.',
     },
     manaflow_band: {
       name: 'Ruban de mana',
-      description: 'Tous les 5 tours, gagne définitivement +15 AP (4 cumuls maximum).',
+      description: 'Tous les 5 tours, gagne définitivement +15 PUI (4 cumuls maximum).',
     },
     transcendence: {
       name: 'Transcendance',
-      description: 'Tous les 8 tours, gagne définitivement +10 % AP.',
+      description: 'Tous les 8 tours, gagne définitivement +10 % PUI.',
     },
     scorch: {
       name: 'Brûlure',
-      description: '+18 AP lorsque les PV sont supérieurs à 70 %.',
+      description: '+18 PUI lorsque les PV sont supérieurs à 70 %.',
     },
     grasp_of_the_undying: {
       name: "Poigne de l'immortel",
