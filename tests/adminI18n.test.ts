@@ -4,6 +4,7 @@ import { readdirSync } from 'node:fs';
 import { cleanup, render, screen } from '@testing-library/react';
 import { createElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { adminExportContent } from '@/i18n/adminExportContent';
 import { en } from '@/i18n/en';
 import { fr } from '@/i18n/fr';
 import {
@@ -38,8 +39,13 @@ describe('admin i18n contract', () => {
 
   it('keeps every admin catalog key in strict French and English parity', () => {
     expect(catalogPaths(fr.admin).sort()).toEqual(catalogPaths(en.admin).sort());
+    expect(catalogPaths(adminExportContent['fr-FR']).sort()).toEqual(
+      catalogPaths(adminExportContent['en-US']).sort(),
+    );
     expect(en.admin.sectionsLabel).toBe('Admin sections');
     expect(en.admin.invalidateScore).toBe('Invalidate score');
+    expect(adminExportContent['fr-FR'].unknown).toBe('Inconnu');
+    expect(adminExportContent['en-US'].headers).toContain('Champion details');
   });
 
   it('contains no raw user copy in the admin page components', () => {

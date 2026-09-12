@@ -107,7 +107,7 @@ describe('admin data feedback', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent(/100,0\s*% de rejets/u);
     expect(
-      screen.getByRole('table', { name: 'Derniers rejets de vérification authority' }),
+      screen.getByRole('table', { name: 'Derniers rejets de vérification de l’autorité' }),
     ).toHaveTextContent('11111111-1111-4111-8111-111111111111');
     expect(screen.getAllByText('pending_choice')).toHaveLength(1);
   });
@@ -157,6 +157,42 @@ describe('admin data feedback', () => {
     expect(comparison).toHaveTextContent('Wilson');
     expect(comparison).toHaveTextContent('Revue à ouvrir');
     expect(comparison).toHaveTextContent('intervalles séparés');
+  });
+
+  it('shows localized augment names in field calibration rows', () => {
+    render(
+      <AdminFieldCalibrationPanel
+        fieldCohorts={[]}
+        championCohorts={[]}
+        augmentCohorts={[
+          {
+            observedOn: '2026-08-25',
+            gameplayRulesetVersion: 21,
+            engineVersion: 'run-engine-v21',
+            gameplayContentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
+            difficulty: 'normal',
+            mode: 'normal',
+            initialTeamSize: 1,
+            initialCompositionHash: SOLO_GAREN_COMPOSITION_HASH,
+            metaLevel: 0,
+            runeLoadoutHash: EMPTY_RUNE_LOADOUT_HASH,
+            enhancementLoadoutHash: EMPTY_ENHANCEMENT_LOADOUT_HASH,
+            augmentId: 'iron_skin',
+            cohortSampleSize: 30,
+            sampleSize: 15,
+            selectionRate: 0.5,
+            winRate: 0.5,
+            winRateWilson95: { confidence: 0.95, lower: 0.3, upper: 0.7 },
+            averageWavesCompleted: 9,
+            averageBiomesCompleted: 2.5,
+            averageGoldBalance: 130,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('Peau de fer')).toBeInTheDocument();
+    expect(screen.queryByText('iron_skin')).not.toBeInTheDocument();
   });
 
   it('keeps the calibration copy complete in French and English', () => {

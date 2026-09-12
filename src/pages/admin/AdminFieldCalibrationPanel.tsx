@@ -11,6 +11,7 @@ import {
   type VerifiedFieldChampionCohort,
 } from '@/game/balance/fieldCalibrationComparison';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
+import { augmentName } from '@/i18n/content';
 import { fr, locale } from '@/i18n/fr';
 import {
   formatAdminDay,
@@ -335,7 +336,7 @@ export function AdminFieldCalibrationPanel({
                   key={`${field.observedOn}-${field.gameplayRulesetVersion}-${field.engineVersion}-${field.mode}-${field.initialCompositionHash}-${field.metaLevel}-${field.runeLoadoutHash}-${field.enhancementLoadoutHash}-${field.difficulty}-${field.augmentId}-${comparison?.baselineKey ?? 'unmatched'}`}
                 >
                   <td>
-                    <strong>{field.augmentId}</strong>
+                    <strong>{augmentName(field.augmentId, field.augmentId)}</strong>
                     <small>{cellLabel(field)}</small>
                   </td>
                   <td>
