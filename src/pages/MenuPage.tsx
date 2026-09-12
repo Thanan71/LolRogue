@@ -4,7 +4,7 @@ import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { plural } from '@/i18n/format';
+import { formatNumber, plural } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { routeTitle } from '@/i18n/routeTitles';
 import { useAuthStore } from '@/stores/authStore';
@@ -143,10 +143,10 @@ export function MenuPage() {
                 <span className="main-menu__run-pulse" aria-hidden="true" />
                 <span className="main-menu__run-label">{fr.menu.currentRun}</span>
                 <span className="main-menu__run-meta">
-                  {fr.common.level} {runLevel}
+                  {fr.common.level} {formatNumber(runLevel)}
                   <span aria-hidden="true">•</span>
                   <span className="main-menu__biome">
-                    {currentBiome ? currentBiome.replace(/_/g, ' ') : fr.menu.unknownBiome}
+                    {currentBiome ? fr.run.biomeNames[currentBiome] : fr.menu.unknownBiome}
                   </span>
                   <span aria-hidden="true">•</span>
                   {plural(team.length, 'champion')}

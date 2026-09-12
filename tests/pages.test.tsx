@@ -167,6 +167,21 @@ describe('P2 page smoke tests', () => {
     expect(screen.getByText(/Mode invité/)).toBeInTheDocument();
   });
 
+  it('localizes the active run biome and level', () => {
+    useRunStore.setState({
+      isActive: true,
+      currentBiome: 'top_lane',
+      runLevel: 3_600,
+      team: [{ championId: 'Garen' }, { championId: 'Lux' }],
+    });
+
+    renderAt(<MenuPage />);
+
+    expect(screen.getByText('Voie du haut')).toBeInTheDocument();
+    expect(screen.queryByText('top lane')).not.toBeInTheDocument();
+    expect(screen.getByText(/Niveau 3\s600/)).toBeInTheDocument();
+  });
+
   it('resumes an active Daily without asking to abandon it', async () => {
     const confirm = vi.spyOn(window, 'confirm');
     useRunStore.setState({
