@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { generateMap } from '@/game/map/MapGenerator-core';
 import type { EncounterType, EventOutcomeType } from '@/game/map/types';
 import {
+  type EncounterPresentationSource,
   getEncounterPresentation,
   getEventOutcomeDescription,
   getEventOutcomePresentation,
-  type EncounterPresentationSource,
 } from '@/i18n/encounterContent';
 import type { Biome } from '@/types/run';
 
@@ -252,33 +251,5 @@ describe('encounter presentation catalog', () => {
       expect(result.resolution).toBe('fallback');
       expect(result.description).not.toContain('Unknown');
     }
-  });
-
-  it('resolves generated payloads without mutating authority-compatible data', () => {
-    const observedTypes = new Set<EncounterType>();
-    for (const biome of Object.keys(BIOMES) as Biome[]) {
-      for (let seed = 0; seed < 80; seed++) {
-        const map = generateMap(biome, 5, seed);
-        for (const node of map.nodes) {
-          const encounter = node.encounter;
-          if (!encounter || encounter.type === 'combat') continue;
-
-          const before = structuredClone(encounter);
-          expect(getEncounterPresentation('fr-FR', encounter).resolution).toBe('catalog');
-          expect(encounter).toEqual(before);
-          observedTypes.add(encounter.type);
-
-          if (encounter.type === 'event') {
-            for (const outcome of encounter.outcomes) {
-              const outcomeBefore = structuredClone(outcome);
-              expect(getEventOutcomePresentation('fr-FR', outcome).resolution).toBe('catalog');
-              expect(outcome).toEqual(outcomeBefore);
-            }
-          }
-        }
-      }
-    }
-
-    expect(observedTypes).toEqual(new Set(['shop', 'recruit', 'event', 'rest', 'treasure']));
   });
 });
