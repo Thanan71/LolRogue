@@ -8,6 +8,7 @@ import {
 import {
   type CanonicalStatKey,
   formatStatValue,
+  normalizeGameplayStatKey,
   normalizeStatKey,
 } from '@/game/stats/statContract';
 import {
@@ -347,7 +348,7 @@ function NodeCard({
       {node.statBonuses && Object.entries(node.statBonuses).length > 0 && (
         <div className="node-stat-bonuses">
           {Object.entries(node.statBonuses).map(([stat, value]) => {
-            const normalizedStat = normalizeStatKey(stat);
+            const normalizedStat = normalizeGameplayStatKey(stat);
             return (
               <span key={stat} className="node-stat-bonus">
                 +{value.toLocaleString(locale)}{' '}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ENHANCEMENT_TREES_BY_ROLE } from '@/data/enhancementTrees';
-import { CANONICAL_STAT_KEYS } from '@/game/stats/statContract';
+import { CANONICAL_STAT_KEYS, type GameplayStatKey } from '@/game/stats/statContract';
 import {
   type EnhancementContentCatalog,
   type EnhancementContentLocale,
@@ -11,6 +11,15 @@ import {
 } from '@/i18n/enhancementContent';
 
 const LOCALES = ['fr-FR', 'en-US'] as const satisfies readonly EnhancementContentLocale[];
+const STAT_LABEL_IDS = [
+  ...CANONICAL_STAT_KEYS,
+  'armorPen',
+  'magicPen',
+  'lifesteal',
+  'omnivamp',
+  'tenacity',
+  'abilityHaste',
+] as const satisfies readonly GameplayStatKey[];
 const CATEGORIES = ['branches', 'coreNodes', 'nodes'] as const;
 const MASTERY_UNLOCK_IDS = ['roster_offer_7', 'starter_reroll_1'] as const;
 
@@ -70,7 +79,7 @@ describe('enhancementContent', () => {
       expectExactIds(catalog, 'coreNodes', sourceIds.coreNodes);
       expectExactIds(catalog, 'nodes', sourceIds.nodes);
       expectExactIds(catalog, 'masteryUnlocks', MASTERY_UNLOCK_IDS);
-      expectExactIds(catalog, 'statLabels', CANONICAL_STAT_KEYS);
+      expectExactIds(catalog, 'statLabels', STAT_LABEL_IDS);
     }
   });
 

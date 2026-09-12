@@ -1,3 +1,5 @@
+import type { GameplayStatKey } from '@/game/stats/statContract';
+
 export type EnhancementContentLocale = 'fr-FR' | 'en-US';
 
 export type EnhancementRoleContent = Readonly<{
@@ -71,7 +73,7 @@ export type EnhancementContentCatalog = Readonly<{
   ui: EnhancementUiContent;
   store: EnhancementStoreContent;
   masteryUnlocks: Readonly<Record<string, EnhancementCopy>>;
-  statLabels: Readonly<Record<string, string>>;
+  statLabels: Readonly<Record<GameplayStatKey, string>>;
   branches: Readonly<Record<string, EnhancementCopy>>;
   coreNodes: Readonly<Record<string, EnhancementCopy>>;
   nodes: Readonly<Record<string, EnhancementCopy>>;
@@ -170,6 +172,12 @@ const frFR = {
     hpRegen: 'Régénération PV',
     mpRegen: 'Régénération PM',
     crit: 'Chance de critique',
+    armorPen: "Pénétration d'armure",
+    magicPen: 'Pénétration magique',
+    lifesteal: 'Vol de vie',
+    omnivamp: 'Omnivampirisme',
+    tenacity: 'Ténacité',
+    abilityHaste: 'Hâte de compétence',
   },
   branches: {
     assassin_burst: {
@@ -665,6 +673,12 @@ const enUS = {
     hpRegen: 'Health Regeneration',
     mpRegen: 'Mana Regeneration',
     crit: 'Critical Strike Chance',
+    armorPen: 'Armor Penetration',
+    magicPen: 'Magic Penetration',
+    lifesteal: 'Lifesteal',
+    omnivamp: 'Omnivamp',
+    tenacity: 'Tenacity',
+    abilityHaste: 'Ability Haste',
   },
   branches: {
     assassin_burst: {
