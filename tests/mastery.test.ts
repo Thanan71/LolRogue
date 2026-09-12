@@ -8,7 +8,6 @@ import {
   calculateCurrentLevelCandies,
   calculateLevel,
   DEFAULT_UNLOCKS,
-  getDefaultUnlocks,
   getNewUnlocks,
   getStarterPersonalization,
   getStatBonusForLevel,
@@ -170,45 +169,6 @@ describe('Unlocks', () => {
     expect(DEFAULT_UNLOCKS.map((unlock) => unlock.id)).toEqual([
       'roster_offer_7',
       'starter_reroll_1',
-    ]);
-  });
-  it('resolves mastery unlock presentation explicitly in French and English', () => {
-    expect(
-      getDefaultUnlocks('fr-FR').map(({ id, name, description }) => ({
-        id,
-        name,
-        description,
-      })),
-    ).toEqual([
-      {
-        id: 'roster_offer_7',
-        name: 'Roster élargi',
-        description: 'Ajoute un champion au choix de départ, sans agrandir l’équipe.',
-      },
-      {
-        id: 'starter_reroll_1',
-        name: 'Relance de roster',
-        description: 'Accorde une relance du choix de départ, sans avantage en combat.',
-      },
-    ]);
-    expect(
-      getDefaultUnlocks('en-US').map(({ id, name, description }) => ({
-        id,
-        name,
-        description,
-      })),
-    ).toEqual([
-      {
-        id: 'roster_offer_7',
-        name: 'Expanded Roster',
-        description: 'Adds one champion to the starting selection without increasing team size.',
-      },
-      {
-        id: 'starter_reroll_1',
-        name: 'Roster Reroll',
-        description:
-          'Grants one reroll of the starting selection without providing a combat advantage.',
-      },
     ]);
   });
   it('getUnlocksForLevel returns unlocks up to level', () => {

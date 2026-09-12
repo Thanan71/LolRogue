@@ -47,7 +47,6 @@ export type EnhancementStoreContent = Readonly<{
   accountRequired: string;
   secureCommandUnsupported: string;
   saveFailed: string;
-  saveFailedWithDetail: (detail: string) => string;
   unlockSucceeded: (nodeName: string) => string;
   validation: Readonly<{
     unavailable: string;
@@ -58,6 +57,14 @@ export type EnhancementStoreContent = Readonly<{
     fallback: string;
   }>;
 }>;
+
+export type EnhancementValidationReason =
+  | Readonly<{ code: 'unavailable' }>
+  | Readonly<{ code: 'mastery_level'; requiredLevel: number }>
+  | Readonly<{ code: 'candies'; requiredCandies: number }>
+  | Readonly<{ code: 'maxed' }>
+  | Readonly<{ code: 'prerequisite' }>
+  | Readonly<{ code: 'fallback' }>;
 
 export type EnhancementContentCatalog = Readonly<{
   roles: Readonly<Record<string, EnhancementRoleContent>>;
@@ -128,8 +135,6 @@ const frFR = {
     accountRequired: 'Les améliorations permanentes nécessitent un compte.',
     secureCommandUnsupported: 'Ce navigateur ne permet pas de sécuriser la commande.',
     saveFailed: "Échec de l'enregistrement de l'amélioration.",
-    saveFailedWithDetail: (detail: string) =>
-      `Échec de l'enregistrement de l'amélioration. (${detail})`,
     unlockSucceeded: (nodeName: string) => `${nodeName} a bien été amélioré.`,
     validation: {
       unavailable: "Cette amélioration n'est pas disponible dans le moteur de combat actuel",
@@ -618,7 +623,6 @@ const enUS = {
     accountRequired: 'Permanent enhancements require an account.',
     secureCommandUnsupported: 'This browser cannot secure the command.',
     saveFailed: 'Failed to save enhancement.',
-    saveFailedWithDetail: (detail: string) => `Failed to save enhancement. (${detail})`,
     unlockSucceeded: (nodeName: string) => `${nodeName} was successfully upgraded.`,
     validation: {
       unavailable: 'This enhancement is not available in the current combat engine',
@@ -1066,4 +1070,26 @@ export function getEnhancementMasteryUnlockContent(
   const copy = enhancementContent[locale].masteryUnlocks[unlockId];
   if (!copy) throw new Error(`Missing enhancement mastery unlock content: ${unlockId}`);
   return copy;
+}
+
+export function getEnhancementValidationMessage(
+  locale: EnhancementContentLocale,
+  reason: EnhancementValidationReason,
+): string {
+  const validation = enhancementContent[locale].store.validation;
+
+  switch (reason.code) {
+    case 'unavailable':
+      return validation.unavailable;
+    case 'mastery_level':
+      return validation.masteryLevel(reason.requiredLevel);
+    case 'candies':
+      return validation.candies(reason.requiredCandies);
+    case 'maxed':
+      return validation.maxed;
+    case 'prerequisite':
+      return validation.prerequisite;
+    case 'fallback':
+      return validation.fallback;
+  }
 }

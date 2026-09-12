@@ -9,11 +9,6 @@ import {
   type RunRewardParticipant,
 } from '@/game/run/runRewardPolicy';
 import {
-  type EnhancementContentLocale,
-  getEnhancementMasteryUnlockContent,
-} from '@/i18n/enhancementContent';
-import { locale } from '@/i18n/fr';
-import {
   type ChampionMastery,
   MASTERY_THRESHOLDS,
   MAX_MASTERY_LEVEL,
@@ -34,33 +29,24 @@ import {
  * are not part of the current product contract because no selectable cosmetic
  * content exists yet.
  */
-type MasteryUnlockDefinition = Omit<MasteryUnlock, 'name' | 'description'>;
-
-const DEFAULT_UNLOCK_DEFINITIONS = [
+export const DEFAULT_UNLOCKS: MasteryUnlock[] = [
   {
     id: 'roster_offer_7',
     category: 'roster_width',
     requiredLevel: 1,
+    name: 'Roster élargi',
+    description: 'Ajoute un champion au choix de départ, sans agrandir l’équipe.',
     rosterOfferSize: 7,
   },
   {
     id: 'starter_reroll_1',
     category: 'reroll',
     requiredLevel: 3,
+    name: 'Relance de roster',
+    description: 'Accorde une relance du choix de départ, sans avantage en combat.',
     starterRerolls: 1,
   },
-] as const satisfies readonly MasteryUnlockDefinition[];
-
-export function getDefaultUnlocks(
-  contentLocale: EnhancementContentLocale = locale,
-): MasteryUnlock[] {
-  return DEFAULT_UNLOCK_DEFINITIONS.map((definition) => ({
-    ...definition,
-    ...getEnhancementMasteryUnlockContent(contentLocale, definition.id),
-  }));
-}
-
-export const DEFAULT_UNLOCKS: MasteryUnlock[] = getDefaultUnlocks();
+];
 
 export interface StarterPersonalization {
   rosterOfferSize: number;

@@ -8,7 +8,13 @@
  */
 
 import { create } from 'zustand';
-import { enhancementContent, getEnhancementNodeContent } from '@/i18n/enhancementContent';
+import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
+import {
+  type EnhancementValidationReason,
+  enhancementContent,
+  getEnhancementNodeContent,
+  getEnhancementValidationMessage,
+} from '@/i18n/enhancementContent';
 import { RepositoryContainerFactory } from '@/services/container';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import type { IRepositoryContainer } from '@/services/interfaces';
@@ -41,6 +47,32 @@ const pendingUnlockCommands = new Map<string, PendingUnlockCommand>();
 
 function getPendingUnlockKey(userId: string, championId: string, nodeId: string): string {
   return `${userId}:${championId}:${nodeId}`;
+}
+
+function getUnlockValidationReason(
+  node: EnhancementNode,
+  state: PlayerEnhancementState,
+  masteryLevel: number,
+  availableCandies: number,
+): EnhancementValidationReason {
+  if (getEnhancementNodeUnavailableReasons(node).length > 0) {
+    return { code: 'unavailable' };
+  }
+  if (masteryLevel < node.requiredMasteryLevel) {
+    return { code: 'mastery_level', requiredLevel: node.requiredMasteryLevel };
+  }
+  if (availableCandies < node.candyCost) {
+    return { code: 'candies', requiredCandies: node.candyCost };
+  }
+
+  const maximumRank = node.maxRanks || 1;
+  if ((state.unlockedNodes[node.id] || 0) >= maximumRank) {
+    return { code: 'maxed' };
+  }
+  if (node.prerequisites.some((id) => (state.unlockedNodes[id] || 0) === 0)) {
+    return { code: 'prerequisite' };
+  }
+  return { code: 'fallback' };
 }
 
 async function refreshCanonicalCandyBalance(): Promise<number | undefined> {
@@ -317,12 +349,20 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         currentState,
         masteryLevel,
         availableCandies,
-        contentLocale,
       );
 
       if (!validation.valid) {
+        if (validation.error) {
+          logger.warn('[EnhancementStore] Unlock validation rejected:', {
+            nodeId,
+            error: validation.error,
+          });
+        }
         set({
-          error: validation.error ?? storeContent.validation.fallback,
+          error: getEnhancementValidationMessage(
+            contentLocale,
+            getUnlockValidationReason(nodeToUnlock, currentState, masteryLevel, availableCandies),
+          ),
           statusMessage: null,
         });
         return false;
@@ -375,12 +415,16 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
         // The outcome is still uncertain. Keep the command id so the next
         // click replays this exact request instead of creating a second debit.
+        if (result.error) {
+          logger.error('[EnhancementStore] Unlock repository failure:', {
+            nodeId,
+            error: result.error,
+          });
+        }
         const refreshedCandies = await refreshCanonicalCandyBalance();
         set((current) => ({
           availableCandies: refreshedCandies ?? current.availableCandies,
-          error: result.error
-            ? storeContent.saveFailedWithDetail(result.error)
-            : storeContent.saveFailed,
+          error: storeContent.saveFailed,
           statusMessage: null,
         }));
         return false;
@@ -407,10 +451,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     } catch (error) {
       logger.error('[EnhancementStore] Failed to unlock node:', error);
       set({
-        error:
-          error instanceof Error
-            ? storeContent.saveFailedWithDetail(error.message)
-            : storeContent.saveFailed,
+        error: storeContent.saveFailed,
         statusMessage: null,
       });
       return false;

@@ -7,8 +7,8 @@ import {
   type EnhancementContentLocale,
   type EnhancementCopy,
   enhancementContent,
+  getEnhancementValidationMessage,
 } from '@/i18n/enhancementContent';
-import { enhancementService } from '@/services/enhancementService';
 
 const LOCALES = ['fr-FR', 'en-US'] as const satisfies readonly EnhancementContentLocale[];
 const CATEGORIES = ['branches', 'coreNodes', 'nodes'] as const;
@@ -222,17 +222,20 @@ describe('enhancementContent', () => {
     );
   });
 
-  it('returns localized validation errors without changing unlock rules', () => {
+  it('renders stable validation reasons without consuming service error prose', () => {
     const node = ENHANCEMENT_TREES_BY_ROLE.Fighter.coreNodes[0]!;
-    const state = { unlockedNodes: {}, totalCandiesSpent: 0 };
 
-    expect(enhancementService.validateUnlock(node, state, 4, 0, 'fr-FR')).toEqual({
-      valid: false,
-      error: `Bonbons insuffisants : ${node.candyCost} requis`,
-    });
-    expect(enhancementService.validateUnlock(node, state, 4, 0, 'en-US')).toEqual({
-      valid: false,
-      error: `Not enough candies: ${node.candyCost} required`,
-    });
+    expect(
+      getEnhancementValidationMessage('fr-FR', {
+        code: 'candies',
+        requiredCandies: node.candyCost,
+      }),
+    ).toBe(`Bonbons insuffisants : ${node.candyCost} requis`);
+    expect(
+      getEnhancementValidationMessage('en-US', {
+        code: 'candies',
+        requiredCandies: node.candyCost,
+      }),
+    ).toBe(`Not enough candies: ${node.candyCost} required`);
   });
 });

@@ -193,6 +193,42 @@ describe('enhancement unlock recovery', () => {
     expect(dependencies.setPlayerCandyBalance).toHaveBeenCalledWith(0);
   });
 
+  it('keeps repository details in logs and presents only localized safe copy', async () => {
+    const commandId = '1a234567-89ab-4def-8123-456789abcdef';
+    const technicalDetail = 'supabase_internal_detail_should_not_reach_the_ui';
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    useSettingsStore.setState({ language: 'en-US' });
+    dependencies.randomUUID.mockReturnValue(commandId);
+    dependencies.unlockNode.mockResolvedValue({
+      success: false,
+      newState: { unlockedNodes: {}, totalCandiesSpent: 0 },
+      candyCost: 0,
+      nodeId: 'fighter_core_1',
+      error: technicalDetail,
+    } satisfies UnlockNodeResult);
+
+    await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(false);
+
+    expect(useEnhancementStore.getState().error).toBe('Failed to save enhancement.');
+    expect(useEnhancementStore.getState().error).not.toContain(technicalDetail);
+    expect(consoleError).toHaveBeenCalledWith(
+      '[EnhancementStore] Unlock repository failure:',
+      expect.objectContaining({ nodeId: 'fighter_core_1', error: technicalDetail }),
+    );
+    consoleError.mockRestore();
+  });
+
+  it('maps stable validation conditions to the active locale', async () => {
+    useSettingsStore.setState({ language: 'en-US' });
+    useEnhancementStore.setState({ availableCandies: 0 });
+
+    await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(false);
+
+    expect(dependencies.unlockNode).not.toHaveBeenCalled();
+    expect(useEnhancementStore.getState().error).toBe('Not enough candies: 20 required');
+    expect(useEnhancementStore.getState().error).not.toContain('Candies insuffisants');
+  });
+
   it('keeps the command stable when the repository throws before returning a result', async () => {
     const commandId = '23456789-abcd-4def-8123-456789abcdef';
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -202,6 +238,10 @@ describe('enhancement unlock recovery', () => {
       .mockResolvedValueOnce(successfulUnlock(commandId, true));
 
     await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(false);
+    expect(useEnhancementStore.getState().error).toBe(
+      "Échec de l'enregistrement de l'amélioration.",
+    );
+    expect(useEnhancementStore.getState().error).not.toContain('Failed to fetch');
     await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(true);
 
     expect(dependencies.randomUUID).toHaveBeenCalledOnce();
