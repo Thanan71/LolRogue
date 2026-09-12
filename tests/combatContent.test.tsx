@@ -224,12 +224,14 @@ describe('combat content catalog', () => {
     expect(combatContent['en-US'].stage.revived(1280)).toBe('Revived · 1,280 HP');
     expect(combatContent['fr-FR'].stage.targets(1280)).toBe('1 280 cibles');
     expect(combatContent['en-US'].stage.targets(1280)).toBe('1,280 targets');
-    expect(combatContent['fr-FR'].tooltip.cooldownStatus(1280, 'tours')).toBe(
-      '⏳ Recharge : 1 280 tours restante',
+    expect(combatContent['fr-FR'].tooltip.cooldownStatus(1280)).toBe(
+      '⏳ Recharge : 1 280 tours restants',
     );
-    expect(combatContent['en-US'].tooltip.cooldownStatus(1280, 'turns')).toBe(
+    expect(combatContent['fr-FR'].tooltip.cooldownStatus(1)).toBe('⏳ Recharge : 1 tour restant');
+    expect(combatContent['en-US'].tooltip.cooldownStatus(1280)).toBe(
       '⏳ Cooldown: 1,280 turns remaining',
     );
+    expect(combatContent['en-US'].tooltip.cooldownStatus(1)).toBe('⏳ Cooldown: 1 turn remaining');
     expect(combatContent['fr-FR'].presenter.ranked('Bonus', 1280, 2400)).toBe(
       'Bonus (Rang 1 280/2 400)',
     );

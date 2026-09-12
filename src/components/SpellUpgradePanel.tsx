@@ -2,7 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { riotSpellIconUrl } from '@/config/riotSpellAssets';
 import { championDB } from '@/data/championDatabase';
 import type { SpellSlot } from '@/game/ChampionInstance';
-import { buildSpellImpactPreview } from '@/game/presentation/spellPreview';
+import { buildSpellImpactPreview, formatSpellImpactAmount } from '@/game/presentation/spellPreview';
 import { buildRunPlayerTeam } from '@/game/run/runCombatant';
 import { canUpgradeSpell, getSpellRankCap, SPELL_SLOTS } from '@/game/run/spellUpgradeRules';
 import { localizeChampion } from '@/i18n/content';
@@ -76,7 +76,7 @@ function ImpactList({
             >
               <span>{impact.label}</span>
               <strong>
-                {impact.amount !== undefined ? formatValue(impact.amount) : null}
+                {impact.amount !== undefined ? formatSpellImpactAmount(impact) : null}
                 {impact.amount !== undefined && impact.suffix ? ' · ' : null}
                 {impact.suffix}
               </strong>

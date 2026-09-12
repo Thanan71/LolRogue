@@ -1,6 +1,7 @@
+import { combatCopy } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
 import type { Spell, SpellEffect } from '@/types/champion';
 import type { CalculatedStats } from '@/utils/champion';
-import { combatCopy } from '@/i18n/combatContent';
 
 export type SpellImpactTone =
   | 'physical'
@@ -16,12 +17,21 @@ export interface SpellImpactPreview {
   label: string;
   tone: SpellImpactTone;
   amount?: number;
+  amountStyle?: 'number' | 'percent';
   suffix?: string;
 }
 
 const DAMAGE_LABELS = combatCopy.preview.damage;
 const CONTROL_LABELS: Readonly<Record<string, string>> = combatCopy.preview.control;
 const UTILITY_LABELS: Readonly<Record<string, string>> = combatCopy.preview.utility;
+const STAT_LABELS: Readonly<Record<string, string>> = combatCopy.preview.stats;
+
+export function formatSpellImpactAmount(impact: SpellImpactPreview): string {
+  if (impact.amount === undefined) return '';
+  return impact.amountStyle === 'percent'
+    ? formatNumber(impact.amount / 100, { style: 'percent', maximumFractionDigits: 10 })
+    : formatNumber(impact.amount, { maximumFractionDigits: 10 });
+}
 
 function rankValue(values: number[] | undefined, rankIndex: number): number {
   if (!values || values.length === 0) return 0;
@@ -107,7 +117,7 @@ function effectPreview(
       id,
       label: CONTROL_LABELS[effect.ccType ?? ''] ?? combatCopy.preview.genericControl,
       tone: 'control',
-      suffix: duration ? `${duration} s` : undefined,
+      suffix: duration ? `${formatNumber(duration, { maximumFractionDigits: 10 })} s` : undefined,
     };
   }
   if (effect.type === 'execute') {
@@ -116,6 +126,7 @@ function effectPreview(
       label: UTILITY_LABELS.execute,
       tone: 'utility',
       amount: Math.round(percentValue(effect.threshold)),
+      amountStyle: 'percent',
       suffix: combatCopy.preview.maxHealth,
     };
   }
@@ -125,6 +136,7 @@ function effectPreview(
       label: UTILITY_LABELS.revive,
       tone: 'utility',
       amount: Math.round(percentValue(effect.revivePercent)),
+      amountStyle: 'percent',
       suffix: combatCopy.preview.maxHealth,
     };
   }
@@ -135,7 +147,10 @@ function effectPreview(
       label: UTILITY_LABELS[effect.type],
       tone: 'utility',
       amount: effect.modifierType === 'percent' ? Math.round(percentValue(value)) : value,
-      suffix: effect.modifierType === 'percent' ? '%' : effect.stat,
+      amountStyle: effect.modifierType === 'percent' ? 'percent' : 'number',
+      suffix: effect.stat
+        ? (STAT_LABELS[effect.stat] ?? combatCopy.preview.unknownStat)
+        : undefined,
     };
   }
   return null;

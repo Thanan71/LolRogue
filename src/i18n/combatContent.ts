@@ -117,6 +117,7 @@ type PreviewControlId =
   | 'snare'
   | 'stun';
 type PreviewUtilityId = 'buff' | 'debuff' | 'execute' | 'revive';
+type PreviewStatId = 'armor' | 'attackDamage' | 'attackSpeed' | 'damageReduction' | 'moveSpeed';
 type PresenterStatId =
   | 'hp'
   | 'mp'
@@ -460,8 +461,12 @@ const frFR = {
     mana: 'PM :',
     estimatedEffects: 'Effets estimés',
     estimateNote: 'Les dégâts sont estimés avant l’armure et la résistance de la cible.',
-    cooldownStatus: (current: number, turns: string) =>
-      `⏳ Recharge : ${formatCombatNumber('fr-FR', current)} ${turns} restante`,
+    cooldownTurnCount: (current: number) =>
+      `${formatCombatNumber('fr-FR', current)} ${current === 1 ? 'tour' : 'tours'}`,
+    cooldownStatus: (current: number) =>
+      `⏳ Recharge : ${formatCombatNumber('fr-FR', current)} ${
+        current === 1 ? 'tour restant' : 'tours restants'
+      }`,
     ready: '✅ Prêt à lancer',
     press: 'Appuyez sur',
     toCast: 'pour lancer',
@@ -488,6 +493,14 @@ const frFR = {
       execute: "Seuil d'exécution",
       revive: 'Réanimation',
     } satisfies Readonly<Record<PreviewUtilityId, string>>,
+    stats: {
+      armor: 'Armure',
+      attackDamage: "Dégâts d'attaque",
+      attackSpeed: "Initiative d'attaque",
+      damageReduction: 'Réduction des dégâts',
+      moveSpeed: 'Vitesse de déplacement',
+    } satisfies Readonly<Record<PreviewStatId, string>>,
+    unknownStat: 'Statistique inconnue',
     damageOverTime: (damageLabel: string) => `${damageLabel} sur la durée`,
     beforeDefenses: 'avant défenses',
     healOverTime: 'Soin sur la durée',
@@ -655,8 +668,12 @@ const enUS = {
     mana: 'MP:',
     estimatedEffects: 'Estimated effects',
     estimateNote: 'Damage is estimated before the target’s armor and magic resistance.',
-    cooldownStatus: (current: number, turns: string) =>
-      `⏳ Cooldown: ${formatCombatNumber('en-US', current)} ${turns} remaining`,
+    cooldownTurnCount: (current: number) =>
+      `${formatCombatNumber('en-US', current)} ${current === 1 ? 'turn' : 'turns'}`,
+    cooldownStatus: (current: number) =>
+      `⏳ Cooldown: ${formatCombatNumber('en-US', current)} ${
+        current === 1 ? 'turn' : 'turns'
+      } remaining`,
     ready: '✅ Ready to cast',
     press: 'Press',
     toCast: 'to cast',
@@ -683,6 +700,14 @@ const enUS = {
       execute: 'Execute threshold',
       revive: 'Revive',
     },
+    stats: {
+      armor: 'Armor',
+      attackDamage: 'Attack damage',
+      attackSpeed: 'Attack initiative',
+      damageReduction: 'Damage reduction',
+      moveSpeed: 'Movement speed',
+    },
+    unknownStat: 'Unknown stat',
     damageOverTime: (damageLabel: string) => `${damageLabel} over time`,
     beforeDefenses: 'before defenses',
     healOverTime: 'Healing over time',

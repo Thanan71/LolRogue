@@ -1,5 +1,7 @@
 import React, { type CSSProperties, useCallback, useEffect, useId, useRef, useState } from 'react';
+import { formatSpellImpactAmount } from '@/game/presentation/spellPreview';
 import { combatCopy } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import type { SpellInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
@@ -125,11 +127,11 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
           <div className="combat-spell-tooltip__stats">
             <div className="combat-spell-tooltip__stat">
               <span className="combat-spell-tooltip__mana">{combatCopy.tooltip.mana}</span>{' '}
-              {spell.cost}
+              {formatNumber(spell.cost)}
             </div>
             <div className="combat-spell-tooltip__stat">
               <span className="combat-spell-tooltip__cooldown">{fr.combat.cooldown} :</span>{' '}
-              {spell.cooldownMax} {fr.combat.cooldownTurns}
+              {combatCopy.tooltip.cooldownTurnCount(spell.cooldownMax)}
             </div>
           </div>
 
@@ -145,7 +147,7 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
                 >
                   <span>{impact.label}</span>
                   <strong>
-                    {impact.amount !== undefined ? impact.amount : null}
+                    {impact.amount !== undefined ? formatSpellImpactAmount(impact) : null}
                     {impact.amount !== undefined && impact.suffix ? ' · ' : null}
                     {impact.suffix}
                   </strong>
@@ -158,7 +160,7 @@ export const SpellTooltip: React.FC<Props> = ({ spell, children }) => {
           {/* Status */}
           {!spell.isReady && (
             <div className="combat-spell-tooltip__status combat-spell-tooltip__status--cooldown">
-              {combatCopy.tooltip.cooldownStatus(spell.cooldownCurrent, fr.combat.cooldownTurns)}
+              {combatCopy.tooltip.cooldownStatus(spell.cooldownCurrent)}
             </div>
           )}
           {spell.isReady && (
