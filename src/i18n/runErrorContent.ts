@@ -99,7 +99,7 @@ const frFR: RunErrorCatalog = {
   saveInterrupted: 'L’enregistrement a été interrompu. Réessayez pour continuer.',
   verificationInProgress: (retryAfterSeconds) =>
     retryAfterSeconds
-      ? `La vérification est déjà en cours. Réessayez dans environ ${formatNumber(retryAfterSeconds, 'fr-FR')} secondes.`
+      ? `La vérification est déjà en cours. Réessayez dans environ ${formatNumber(retryAfterSeconds, 'fr-FR')} ${retryAfterSeconds === 1 ? 'seconde' : 'secondes'}.`
       : 'La vérification est déjà en cours. Réessayez dans quelques secondes.',
   verifierUpdating:
     'Le vérificateur est en cours de mise à jour pour cette version. Réessayez bientôt.',
@@ -150,7 +150,7 @@ const enUS: RunErrorCatalog = {
   saveInterrupted: 'Run saving was interrupted. Retry to continue.',
   verificationInProgress: (retryAfterSeconds) =>
     retryAfterSeconds
-      ? `Verification is already in progress. Retry in about ${formatNumber(retryAfterSeconds, 'en-US')} seconds.`
+      ? `Verification is already in progress. Retry in about ${formatNumber(retryAfterSeconds, 'en-US')} ${retryAfterSeconds === 1 ? 'second' : 'seconds'}.`
       : 'Verification is already in progress. Retry in a few seconds.',
   verifierUpdating: 'The verifier is being updated for this run version. Retry shortly.',
   journalNotSealed: 'The run journal has not been sealed yet. Retry verification.',

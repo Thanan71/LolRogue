@@ -11,6 +11,8 @@ describe('runErrorContent', () => {
     expect(Object.keys(runErrorContent['en-US'])).toEqual(Object.keys(runErrorContent['fr-FR']));
     expect(runErrorContent['en-US'].verificationInProgress(12)).toContain('12 seconds');
     expect(runErrorContent['fr-FR'].verificationInProgress(12)).toContain('12 secondes');
+    expect(runErrorContent['en-US'].verificationInProgress(1)).toContain('1 second.');
+    expect(runErrorContent['fr-FR'].verificationInProgress(1)).toContain('1 seconde.');
   });
 
   it('maps verification codes without trusting server-provided prose', () => {
