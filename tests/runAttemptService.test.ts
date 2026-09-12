@@ -422,7 +422,7 @@ describe('runAttemptService', () => {
     expect(rejected.error).toBeInstanceOf(RunVerificationRejectedError);
     expect((rejected.error as RunVerificationRejectedError).code).toBe('illegal_trace');
     expect((rejected.error as RunVerificationRejectedError).commandIndex).toBe(7);
-    expect(rejected.error?.message).toBe(runError.traceRejected('illegal_trace', 7));
+    expect(rejected.error?.message).toBe(runError.traceRejected(7));
 
     supabaseMocks.invoke.mockResolvedValue({
       data: null,
@@ -565,7 +565,7 @@ describe('runAttemptService', () => {
     expect(retryable.error).toBeInstanceOf(RunVerificationRetryableError);
     expect(retryable.error).toMatchObject({
       code: 'temporary_failure',
-      message: runError.verificationFailed('temporary_failure'),
+      message: runError.verificationFailed(),
     });
 
     const malformedError = {
@@ -589,7 +589,7 @@ describe('runAttemptService', () => {
     expect(rejected.error).toBeInstanceOf(RunVerificationRejectedError);
     expect(rejected.error).toMatchObject({
       code: 'engine_mismatch',
-      message: runError.traceRejected('engine_mismatch', null),
+      message: runError.traceRejected(null),
     });
 
     supabaseMocks.invoke.mockResolvedValueOnce({

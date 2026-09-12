@@ -27,10 +27,10 @@ export type RunErrorCatalog = Readonly<{
   missingServerAttempt: string;
   attemptOwnerChanged: string;
   attemptExpired: string;
-  traceRejected: (code: string, commandIndex: number | null) => string;
+  traceRejected: (commandIndex: number | null) => string;
   journalSyncFailed: string;
   sealFailed: string;
-  verificationFailed: (code?: string) => string;
+  verificationFailed: () => string;
   finalizationFailed: string;
   saveInterrupted: string;
   verificationInProgress: (retryAfterSeconds: number | null) => string;
@@ -89,14 +89,12 @@ const frFR: RunErrorCatalog = {
     'Cette partie ne possède aucune tentative serveur et ne peut pas accorder de progression authentifiée.',
   attemptOwnerChanged: 'Cette tentative appartient à un autre compte authentifié.',
   attemptExpired: 'Cette tentative de partie vérifiée a expiré.',
-  traceRejected: (code, commandIndex) =>
-    `La trace de partie a été rejetée (${code}${commandIndex === null ? '' : ` à la commande ${formatNumber(commandIndex + 1, 'fr-FR')}`}).`,
+  traceRejected: (commandIndex) =>
+    `La trace de la partie a été refusée${commandIndex === null ? '.' : ` à la commande ${formatNumber(commandIndex + 1, 'fr-FR')}.`}`,
   journalSyncFailed: 'Le journal des commandes de la partie n’a pas pu être synchronisé.',
   sealFailed: 'La tentative de partie n’a pas pu être scellée.',
-  verificationFailed: (code) =>
-    code
-      ? `La vérification de la partie a échoué (${code}). Réessayez après avoir vérifié l’état du serveur.`
-      : 'La partie n’a pas pu être vérifiée.',
+  verificationFailed: () =>
+    'Impossible de vérifier cette partie pour le moment. Vérifiez l’état du serveur puis réessayez.',
   finalizationFailed: 'La partie n’a pas pu être finalisée.',
   saveInterrupted: 'L’enregistrement a été interrompu. Réessayez pour continuer.',
   verificationInProgress: (retryAfterSeconds) =>
@@ -142,14 +140,12 @@ const enUS: RunErrorCatalog = {
     'This run has no server attempt and cannot grant authenticated progression.',
   attemptOwnerChanged: 'This run attempt belongs to another authenticated account.',
   attemptExpired: 'This verified run attempt has expired.',
-  traceRejected: (code, commandIndex) =>
-    `The run trace was rejected (${code}${commandIndex === null ? '' : ` at command ${formatNumber(commandIndex + 1, 'en-US')}`}).`,
+  traceRejected: (commandIndex) =>
+    `The run trace was rejected${commandIndex === null ? '.' : ` at command ${formatNumber(commandIndex + 1, 'en-US')}.`}`,
   journalSyncFailed: 'The run command journal could not be synchronized.',
   sealFailed: 'The run attempt could not be sealed.',
-  verificationFailed: (code) =>
-    code
-      ? `Run verification failed (${code}). Retry after checking the server status.`
-      : 'The run could not be verified.',
+  verificationFailed: () =>
+    'Unable to verify this run right now. Check the server status and try again.',
   finalizationFailed: 'The run could not be finalized.',
   saveInterrupted: 'Run saving was interrupted. Retry to continue.',
   verificationInProgress: (retryAfterSeconds) =>
@@ -215,7 +211,7 @@ export function localizePersistedRunError(message: string | null): string {
   const verificationCode = message.match(
     /^(?:La vérification de la partie a échoué|Run verification failed) \(([^)]+)\)/u,
   )?.[1];
-  if (verificationCode) return runError.verificationFailed(verificationCode);
+  if (verificationCode) return runError.verificationFailed();
   return runError.unexpected;
 }
 
@@ -231,14 +227,14 @@ export function verificationRetryableMessage(
     case 'run_attempt_not_sealed':
       return runError.journalNotSealed;
     default:
-      return runError.verificationFailed(code);
+      return runError.verificationFailed();
   }
 }
 
 export function verificationRejectionMessage(code: string, commandIndex: number | null): string {
   if (code === 'run_attempt_expired') return runError.attemptExpired;
   if (code === 'run_attempt_not_found') return runError.attemptNotFound;
-  return runError.traceRejected(code, commandIndex);
+  return runError.traceRejected(commandIndex);
 }
 
 export function runStartValidationMessage(

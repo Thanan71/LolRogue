@@ -15,14 +15,22 @@ describe('runErrorContent', () => {
 
   it('maps verification codes without trusting server-provided prose', () => {
     expect(verificationRetryableMessage('verification_in_progress', 12)).toContain('12');
-    expect(verificationRetryableMessage('temporary_failure', null)).toContain('temporary_failure');
+    expect(verificationRetryableMessage('temporary_failure', null)).not.toContain(
+      'temporary_failure',
+    );
     expect(verificationRejectionMessage('run_attempt_expired', null)).toBeTruthy();
-    expect(verificationRejectionMessage('illegal_trace', 7)).toContain('illegal_trace');
+    expect(verificationRejectionMessage('illegal_trace', 7)).not.toContain('illegal_trace');
+    expect(verificationRejectionMessage('illegal_trace', 7)).toContain('commande 8');
     expect(
       localizePersistedRunError(
         'Run verification failed (verified_progression_commit_failed). Retry after checking the server status.',
       ),
-    ).toBe(runErrorContent['fr-FR'].verificationFailed('verified_progression_commit_failed'));
+    ).toBe(runErrorContent['fr-FR'].verificationFailed());
+    expect(
+      localizePersistedRunError(
+        'Run verification failed (verified_progression_commit_failed). Retry after checking the server status.',
+      ),
+    ).not.toContain('verified_progression_commit_failed');
     expect(localizePersistedRunError('untrusted backend prose')).toBe(
       runErrorContent['fr-FR'].unexpected,
     );

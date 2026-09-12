@@ -21,8 +21,8 @@ import {
   runStartFailure as startFailure,
 } from '@/services/runLifecycleService';
 import {
-  MAX_TEAM_SIZE,
   type CompletedRunSnapshot,
+  MAX_TEAM_SIZE,
   type RunState,
   type RunStore,
   type RunSummary,
@@ -728,7 +728,7 @@ export function createRunLifecycleSlice(
                 saveError:
                   appendResult.data.status === 'expired'
                     ? runError.attemptExpired
-                    : runError.traceRejected('trace_rejected', null),
+                    : runError.traceRejected(null),
                 saveFailureKind: 'terminal',
                 saveDiagnostic: {
                   attemptId: syncedAttempt.attemptId,
@@ -773,7 +773,7 @@ export function createRunLifecycleSlice(
               saveError:
                 sealResult.data.status === 'expired'
                   ? runError.attemptExpired
-                  : runError.traceRejected('trace_rejected', null),
+                  : runError.traceRejected(null),
               saveFailureKind: 'terminal',
               saveDiagnostic: {
                 attemptId: syncedAttempt.attemptId,
