@@ -34,28 +34,28 @@ const implementedFrFR = {
     passive: {
       name: 'Persévérance',
       description:
-        "Si Garen n'a pas subi de dégâts ou de compétences ennemies récemment, il régénère un pourcentage de ses PV totaux chaque seconde.",
+        'Si Garen n’a pas subi de dégâts ou de compétences ennemies récemment, il régénère un pourcentage de ses PV totaux chaque seconde.',
     },
     spells: {
       GarenQ: {
         name: 'Coup décisif',
         description:
-          'Garen gagne un bonus en vitesse de déplacement et purge les ralentissements. Sa prochaine attaque inflige des dégâts bonus et réduit la cible au silence.',
+          'Garen gagne un bonus de vitesse de déplacement et purge les ralentissements. Sa prochaine attaque inflige des dégâts supplémentaires et réduit la cible au silence.',
       },
       GarenW: {
         name: 'Courage',
         description:
-          'Garen active un bouclier qui absorbe les dégâts et augmente temporairement son armure et résistance magique.',
+          'Garen active un bouclier qui absorbe les dégâts et augmente temporairement son armure et sa résistance magique.',
       },
       GarenE: {
         name: 'Jugement',
         description:
-          "Garen donne des coups d'épée tourbillonnants, infligeant des dégâts physiques aux ennemis proches.",
+          'Garen donne des coups d’épée tourbillonnants, infligeant des dégâts physiques aux ennemis proches.',
       },
       GarenR: {
         name: 'Justice de Demacia',
         description:
-          'Garen invoque la puissance de Demacia pour exécuter un champion ennemi, infligeant des dégâts bruts basés sur les PV manquants.',
+          'Garen invoque la puissance de Demacia pour exécuter un champion ennemi, infligeant des dégâts bruts dont le montant dépend des PV manquants.',
       },
     },
   },
@@ -64,13 +64,13 @@ const implementedFrFR = {
     passive: {
       name: 'Pyromanie',
       description:
-        'Après avoir utilisé 4 compétences, sa prochaine compétence offensive étourdit la cible pendant 1.75 secondes.',
+        'Après avoir utilisé 4 compétences, sa prochaine compétence offensive étourdit la cible pendant 1,75 s.',
     },
     spells: {
       AnnieQ: {
         name: 'Désintégration',
         description:
-          "Annie projette une boule d'énergie magique infligeant des dégâts. Le coût en mana est rendu si la cible est tuée.",
+          'Annie projette une boule d’énergie magique infligeant des dégâts. Le mana dépensé lui est restitué si la cible est éliminée.',
       },
       AnnieW: {
         name: 'Incinération',
@@ -80,7 +80,7 @@ const implementedFrFR = {
       AnnieE: {
         name: 'Bouclier en fusion',
         description:
-          'Octroie à Annie ou à un allié un bonus en vitesse de déplacement et un bouclier.',
+          'Octroie à Annie ou à un allié un bonus de vitesse de déplacement et un bouclier.',
       },
       AnnieR: {
         name: 'Invocation : Tibbers',
@@ -94,18 +94,18 @@ const implementedFrFR = {
     passive: {
       name: 'Tir givrant',
       description:
-        'Les attaques d Ashe ralentissent ses cibles et infligent des dégâts supplémentaires aux cibles affectées par le ralentissement.',
+        'Les attaques d’Ashe ralentissent ses cibles et infligent des dégâts supplémentaires aux cibles affectées par le ralentissement.',
     },
     spells: {
       AsheQ: {
         name: 'Concentration du ranger',
         description:
-          'Ashe génère des effets Concentration. Au maximum, elle augmente son initiative d attaque et transforme son attaque en volée de flèches.',
+          'Ashe génère des effets de Concentration. Au maximum, elle augmente son initiative d’attaque et transforme son attaque en volée de flèches.',
       },
       Volley: {
         name: 'Salve',
         description:
-          'Ashe tire des flèches dans une zone conique pour infliger des dégâts bonus et ralentir les cibles.',
+          'Ashe tire des flèches dans une zone conique pour infliger des dégâts supplémentaires et ralentir les cibles.',
       },
       AsheSpiritOfTheHawk: {
         name: 'Rapace',
@@ -115,7 +115,7 @@ const implementedFrFR = {
       EnchantedCrystalArrow: {
         name: 'Flèche de cristal enchantée',
         description:
-          'Ashe tire un trait de glace en ligne droite. Si la flèche touche un champion, elle l étourdit (durée augmentant avec la distance) et inflige des dégâts.',
+          'Ashe tire un trait de glace en ligne droite. Si la flèche touche un champion, elle l’étourdit pendant une durée qui augmente avec la distance et inflige des dégâts.',
       },
     },
   },
@@ -124,7 +124,7 @@ const implementedFrFR = {
     passive: {
       name: 'Plaie béante',
       description:
-        'Les attaques de Darius et ses compétences font saigner les ennemis pendant 5 tours (9 dégâts physiques par charge et par tour au niveau 1, cumulable 5 fois). À 5 charges, Darius gagne un bonus en dégâts d attaque.',
+        'Les attaques de Darius et ses compétences font saigner les ennemis pendant 5 tours (9 dégâts physiques par charge et par tour au niveau 1, jusqu’à 5 charges). À 5 charges, Darius gagne un bonus de dégâts d’attaque.',
     },
     spells: {
       DariusCleave: {
@@ -135,17 +135,17 @@ const implementedFrFR = {
       DariusNoxianTacticsONH: {
         name: 'Estropiaison',
         description:
-          'La prochaine attaque de Darius tranche une artère vitale, infligeant des dégâts bonus et ralentissant la cible.',
+          'La prochaine attaque de Darius tranche une artère vitale, infligeant des dégâts supplémentaires et ralentissant la cible.',
       },
       DariusAxeGrabCone: {
         name: 'Crampon',
         description:
-          'Darius aiguise sa hache, ignorant passivement un pourcentage de l armure. À l activation, il attire les ennemis avec sa hache.',
+          'Darius aiguise sa hache, ignorant passivement un pourcentage de l’armure. À l’activation, il attire les ennemis avec sa hache.',
       },
       DariusExecute: {
         name: 'Guillotine noxienne',
         description:
-          'Darius saute sur un champion ennemi et donne un coup fatal, infligeant des dégâts bruts. Plus de Plaies béantes = plus de dégâts. Si la cible est tuée, le délai est annulé.',
+          'Darius saute sur un champion ennemi et donne un coup fatal, infligeant des dégâts bruts. Plus la cible cumule de charges de Plaie béante, plus les dégâts augmentent. Si la cible est éliminée, le délai de récupération est annulé.',
       },
     },
   },
@@ -160,7 +160,7 @@ const implementedFrFR = {
       LuxLightBinding: {
         name: 'Entrave de lumière',
         description:
-          'Lux projette une sphère de lumière qui immobilise et blesse jusqu à deux unités ennemies.',
+          'Lux projette une sphère de lumière qui immobilise et blesse jusqu’à deux unités ennemies.',
       },
       LuxPrismaticWave: {
         name: 'Barrière prismatique',
@@ -175,7 +175,7 @@ const implementedFrFR = {
       LuxR: {
         name: 'Éclat final',
         description:
-          'Lux tire un rayon lumineux qui inflige des dégâts à toutes les cibles dans la zone. Déclenche la passive Illumination.',
+          'Lux tire un rayon lumineux qui inflige des dégâts à toutes les cibles dans la zone. Déclenche l’effet passif Illumination.',
       },
     },
   },
@@ -187,9 +187,9 @@ const implementedFrFR = {
     },
     spells: {
       SorakaQ: {
-        name: 'Appel de l étoile',
+        name: 'Appel de l’étoile',
         description:
-          'Une étoile s abat à l endroit ciblé, infligeant des dégâts magiques et ralentissant. Si un champion est touché, Soraka récupère des PV.',
+          'Une étoile s’abat à l’endroit ciblé, infligeant des dégâts magiques et ralentissant. Si un champion est touché, Soraka récupère des PV.',
       },
       SorakaW: {
         name: 'Infusion astrale',
@@ -198,12 +198,12 @@ const implementedFrFR = {
       SorakaE: {
         name: 'Équinoxe',
         description:
-          'Crée une zone qui réduit au silence et ralentit les ennemis de 30% pendant un tour.',
+          'Crée une zone qui réduit au silence et ralentit les ennemis de 30 % pendant un tour.',
       },
       SorakaR: {
         name: 'Souhait',
         description:
-          'Soraka remplit ses alliés d espoir, rendant immédiatement des PV à tous les champions alliés.',
+          'Soraka remplit ses alliés d’espoir, rendant immédiatement des PV à tous les champions alliés.',
       },
     },
   },
@@ -212,13 +212,13 @@ const implementedFrFR = {
     passive: {
       name: 'Enthousiasme !',
       description:
-        'Jinx reçoit un bonus en vitesse de déplacement et en initiative d attaque après une élimination.',
+        'Jinx reçoit un bonus de vitesse de déplacement et d’initiative d’attaque après une élimination.',
     },
     spells: {
       JinxQ: {
         name: 'Flip flap !',
         description:
-          'Jinx alterne entre Bang-Bang (bonus d initiative d attaque) et Poiscaille (dégâts de zone).',
+          'Jinx alterne entre Bang-Bang (bonus d’initiative d’attaque) et Poiscaille (dégâts de zone).',
       },
       JinxW: {
         name: 'Zap !',
@@ -228,7 +228,7 @@ const implementedFrFR = {
       JinxE: {
         name: 'Pyromâcheurs !',
         description:
-          'Jinx lance des grenades immobilisantes qui explosent au bout de 5 sec. Les champions qui marchent dessus sont immobilisés.',
+          'Jinx lance des grenades immobilisantes qui explosent au bout de 5 s. Les champions qui marchent dessus sont immobilisés.',
       },
       JinxR: {
         name: 'Super roquette de la mort !',
@@ -242,11 +242,11 @@ const implementedFrFR = {
     passive: {
       name: 'Rayon de soleil',
       description:
-        'Les sorts marquent les ennemis d un Rayon de soleil. Si des champions alliés blessent ces ennemis, ils dissipent le Rayon et infligent des dégâts magiques supplémentaires.',
+        'Les sorts marquent les ennemis d’un Rayon de soleil. Si des champions alliés blessent ces ennemis, ils dissipent le Rayon et infligent des dégâts magiques supplémentaires.',
     },
     spells: {
       LeonaShieldOfDaybreak: {
-        name: 'Bouclier de l aube',
+        name: 'Bouclier de l’aube',
         description:
           'Leona utilise son bouclier pour sa prochaine attaque de base, infligeant des dégâts magiques supplémentaires et étourdissant la cible.',
       },
@@ -263,7 +263,7 @@ const implementedFrFR = {
       LeonaSolarFlare: {
         name: 'Éruption solaire',
         description:
-          'Leona invoque un rayon d énergie solaire. Les ennemis au centre sont étourdis, ceux en bordure ralentis.',
+          'Leona invoque un rayon d’énergie solaire. Les ennemis au centre sont étourdis, tandis que ceux situés en bordure sont ralentis.',
       },
     },
   },
@@ -272,13 +272,13 @@ const implementedFrFR = {
     passive: {
       name: 'Bouclier de granit',
       description:
-        'Malphite est protégé par un bouclier de roche qui absorbe des dégâts équivalents à 7% de ses PV max. Si Malphite n est pas touché pendant quelques secondes, l effet se recharge.',
+        'Malphite est protégé par un bouclier de roche qui absorbe des dégâts équivalents à 7 % de ses PV maximaux. Si Malphite n’est pas touché pendant quelques secondes, l’effet se recharge.',
     },
     spells: {
       SeismicShard: {
         name: 'Éclat sismique',
         description:
-          'Malphite envoie un éclat de terre, infligeant des dégâts et volant la vitesse de déplacement de la cible pendant 3 sec.',
+          'Malphite envoie un éclat de terre qui inflige des dégâts à la cible et lui dérobe de la vitesse de déplacement pendant 3 s.',
       },
       Obduracy: {
         name: 'Coup de tonnerre',
@@ -302,28 +302,28 @@ const implementedFrFR = {
     passive: {
       name: 'Soif inextinguible',
       description:
-        'Les attaques de base de Warwick infligent des dégâts magiques bonus. Si Warwick a moins de 50% PV, il récupère des PV équivalents à ces dégâts. En dessous de 25% PV, le soin est triplé.',
+        'Les attaques de base de Warwick infligent des dégâts magiques supplémentaires. Si Warwick a moins de 50 % de ses PV, il récupère des PV équivalents à ces dégâts. En dessous de 25 % de ses PV, le soin est triplé.',
     },
     spells: {
       WarwickQ: {
         name: 'Dents de la bête',
         description:
-          'Warwick mord sa cible, infligeant des dégâts en fonction des PV max de la cible et récupérant des PV.',
+          'Warwick mord sa cible, infligeant des dégâts en fonction des PV maximaux de la cible et récupérant des PV.',
       },
       WarwickW: {
         name: 'Traque sanguinaire',
         description:
-          'Warwick repère les ennemis ayant moins de 50% PV et obtient des bonus en vitesse de déplacement et initiative d attaque contre eux.',
+          'Warwick repère les ennemis ayant moins de 50 % de leurs PV et obtient des bonus de vitesse de déplacement et d’initiative d’attaque contre eux.',
       },
       WarwickE: {
         name: 'Hurlement bestial',
         description:
-          'Warwick gagne de la réduction des dégâts pendant 2.5 sec. À la fin, il hurle, effrayant les ennemis proches.',
+          'Warwick subit moins de dégâts pendant 2,5 s. À la fin, il hurle, effrayant les ennemis proches.',
       },
       WarwickR: {
         name: 'Contrainte infinie',
         description:
-          'Warwick bondit dans une direction, neutralisant le premier champion touché pendant 1.5 sec et soignant ses dégâts.',
+          'Warwick bondit dans une direction, neutralisant le premier champion touché pendant 1,5 s et récupérant des PV à hauteur des dégâts infligés.',
       },
     },
   },

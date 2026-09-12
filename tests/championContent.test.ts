@@ -82,7 +82,11 @@ function sorted(values: readonly string[]): string[] {
 }
 
 function numberTokens(value: string): string[] {
-  return sorted(value.match(/\d+(?:[.,]\d+)?%?/g) ?? []);
+  return sorted(
+    (value.match(/\d+(?:[.,]\d+)?(?:\s*%)?/g) ?? []).map((token) =>
+      token.replace(',', '.').replace(/\s/g, ''),
+    ),
+  );
 }
 
 function expectCompleteCopy(copy: ChampionContentCopy): void {
@@ -194,12 +198,14 @@ describe('championContent', () => {
     expect(generatedEnglishById.get('MonkeyKing')?.name).toBe('Wukong');
   });
 
-  it('matches every French title, passive, and spell presentation field from source data', () => {
+  it('matches every non-overridden French presentation field from source data', () => {
     const catalog = championContent['fr-FR'];
 
     for (const champion of allChampions) {
       const copy = catalog[champion.id]!;
       expect(copy.name).toBe(champion.name.trim());
+      if (implementedChampionIds.has(champion.id)) continue;
+
       expect(copy.title).toBe(champion.title.trim());
       expect(copy.passive).toEqual({
         name: champion.passive.name.trim(),
@@ -213,6 +219,46 @@ describe('championContent', () => {
         });
       }
     }
+  });
+
+  it('keeps implemented French overrides typographically polished without changing numbers', () => {
+    const catalog = championContent['fr-FR'];
+
+    for (const champion of implementedChampions) {
+      const copy = catalog[champion.id]!;
+      const presentation = [
+        copy.title,
+        copy.passive.name,
+        copy.passive.description,
+        ...Object.values(copy.spells).flatMap((spell) => [spell.name, spell.description]),
+      ].join('\n');
+
+      expect(presentation).not.toMatch(
+        /(?:^|[\s(])(?:(?:[djlmnct]) (?=[aeiouyhàâäéèêëîïôöùûü])|s (?=abat)|jusqu (?=à))/imu,
+      );
+      expect(presentation).not.toMatch(/\p{L}'\p{L}/u);
+      expect(presentation).not.toMatch(/\d+(?:[.,]\d+)?%/);
+      expect(presentation).not.toMatch(/\bsec\./iu);
+      expect(presentation).not.toMatch(/\d+\.\d+/);
+
+      expect(numberTokens(copy.passive.description)).toEqual(
+        numberTokens(champion.passive.description),
+      );
+      for (const spell of champion.spells) {
+        expect(numberTokens(copy.spells[spell.id]!.description)).toEqual(
+          numberTokens(spell.description),
+        );
+      }
+    }
+
+    expect(catalog.Annie.passive.description).toContain('1,75 s');
+    expect(catalog.Ashe.passive.description).toContain('d’Ashe');
+    expect(catalog.Soraka.spells.SorakaE.description).toContain('30 %');
+    expect(catalog.Jinx.spells.JinxE.description).toContain('5 s');
+    expect(catalog.Leona.spells.LeonaShieldOfDaybreak.name).toBe('Bouclier de l’aube');
+    expect(catalog.Warwick.passive.description).toContain('50 % de ses PV');
+    expect(catalog.Warwick.passive.description).toContain('25 % de ses PV');
+    expect(catalog.Warwick.spells.WarwickE.description).toContain('2,5 s');
   });
 
   it('provides complete English copy while preserving every numeric gameplay detail', () => {
