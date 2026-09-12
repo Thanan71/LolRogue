@@ -11,6 +11,11 @@ export type GameOverContentCatalog = Readonly<{
     supportDetails: string;
     diagnosticCopied: string;
     copyDiagnostic: string;
+    diagnostic: Readonly<{
+      attemptId: string;
+      authorityVersion: string;
+      rejectionCode: string;
+    }>;
   }>;
   rewards: Readonly<{
     verifiedHint: string;
@@ -70,6 +75,11 @@ const frFR: GameOverContentCatalog = {
     supportDetails: 'Détails techniques pour le support',
     diagnosticCopied: 'Diagnostic copié',
     copyDiagnostic: 'Copier le diagnostic',
+    diagnostic: {
+      attemptId: 'Identifiant de tentative',
+      authorityVersion: 'Version de l’autorité',
+      rejectionCode: 'Code de rejet',
+    },
   },
   rewards: {
     verifiedHint: 'Ajoutées à ta progression vérifiée.',
@@ -118,6 +128,11 @@ const enUS: GameOverContentCatalog = {
     supportDetails: 'Technical details for support',
     diagnosticCopied: 'Diagnostic copied',
     copyDiagnostic: 'Copy diagnostic',
+    diagnostic: {
+      attemptId: 'Attempt ID',
+      authorityVersion: 'Authority version',
+      rejectionCode: 'Rejection code',
+    },
   },
   rewards: {
     verifiedHint: 'Added to your verified progression.',

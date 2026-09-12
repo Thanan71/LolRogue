@@ -82,7 +82,9 @@ export function GameOverPage() {
 
   async function handleCopyDiagnostic() {
     if (!saveDiagnostic || !navigator.clipboard) return;
-    await navigator.clipboard.writeText(formatRunSaveDiagnostic(saveDiagnostic));
+    await navigator.clipboard.writeText(
+      formatRunSaveDiagnostic(saveDiagnostic, gameOverCopy.save.diagnostic),
+    );
     setDiagnosticCopied(true);
   }
 
@@ -198,7 +200,7 @@ export function GameOverPage() {
               {saveFailureKind === 'terminal' && saveDiagnostic && (
                 <details className="game-over-diagnostic">
                   <summary>{gameOverCopy.save.supportDetails}</summary>
-                  <pre>{formatRunSaveDiagnostic(saveDiagnostic)}</pre>
+                  <pre>{formatRunSaveDiagnostic(saveDiagnostic, gameOverCopy.save.diagnostic)}</pre>
                   <button type="button" onClick={() => void handleCopyDiagnostic()}>
                     {diagnosticCopied
                       ? gameOverCopy.save.diagnosticCopied

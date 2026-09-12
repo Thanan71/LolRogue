@@ -804,13 +804,15 @@ describe('P2 page smoke tests', () => {
       "Aucune progression authentifiée n'a été accordée",
     );
     expect(screen.queryByRole('button', { name: /Retry/ })).not.toBeInTheDocument();
-    expect(screen.getByText(/Attempt: 11111111-1111-4111-8111-111111111111/)).toBeInTheDocument();
-    expect(screen.getByText(/Version authority: run-engine-v13/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Identifiant de tentative: 11111111-1111-4111-8111-111111111111/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Version de l’autorité: run-engine-v13/)).toBeInTheDocument();
     expect(screen.getByText(/Code de rejet: pending_choice/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Copier le diagnostic' }));
     await waitFor(() =>
       expect(writeText).toHaveBeenCalledWith(
-        'Attempt: 11111111-1111-4111-8111-111111111111\nVersion authority: run-engine-v13\nCode de rejet: pending_choice',
+        'Identifiant de tentative: 11111111-1111-4111-8111-111111111111\nVersion de l’autorité: run-engine-v13\nCode de rejet: pending_choice',
       ),
     );
     expect(screen.getByRole('button', { name: 'Diagnostic copié' })).toBeEnabled();
