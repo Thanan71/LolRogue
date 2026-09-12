@@ -923,6 +923,7 @@ export const en = {
     effectBeforeSelection: 'Effect before selection',
   },
   encounter: {
+    inProgress: 'Encounter in progress',
     event: 'Event',
     mystery: 'Mystery',
     mysterious: 'A mysterious encounter…',

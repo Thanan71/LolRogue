@@ -9,6 +9,7 @@ const COPY_BEARING_NAMES = [
   'label',
   'title',
   'subtitle',
+  'eyebrow',
   'description',
   'notice',
   'hint',

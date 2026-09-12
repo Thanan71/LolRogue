@@ -929,6 +929,7 @@ const french = {
     effectBeforeSelection: 'Effet avant sélection',
   },
   encounter: {
+    inProgress: 'Rencontre en cours',
     event: 'Événement',
     mystery: 'Mystère',
     mysterious: 'Une rencontre mystérieuse…',
