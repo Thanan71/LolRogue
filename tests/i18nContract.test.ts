@@ -115,7 +115,6 @@ const INTENTIONALLY_IDENTICAL_PATHS = [
   'rules.entries.10.1',
   'rules.entries.11.0',
   'rules.entries.12.0',
-  'rules.entries.12.1',
   'rules.entries.13.0',
   'rules.entries.14.0',
   'rules.entries.5.0',
@@ -123,7 +122,6 @@ const INTENTIONALLY_IDENTICAL_PATHS = [
   'rules.entries.7.0',
   'rules.entries.8.0',
   'rules.entries.9.0',
-  'rules.entries.9.1',
   'run.biome',
   'run.biomeNames.jungle',
   'run.nodeNames.combat',
@@ -131,7 +129,6 @@ const INTENTIONALLY_IDENTICAL_PATHS = [
   'run.runes',
   'settings.audioEyebrow',
   'settings.gameplayEyebrow',
-  'stats.omnivamp',
   'stats.short.armor',
   'stats.short.crit',
   'ui.biome',
@@ -156,17 +153,25 @@ function matchingStringPaths(left: unknown, right: unknown, prefix = ''): string
 }
 
 describe('contrat de langue française', () => {
-  function catalogPaths(value: unknown, prefix = ''): string[] {
-    if (!value || typeof value !== 'object') return [prefix];
-    return Object.entries(value).flatMap(([key, child]) =>
-      catalogPaths(child, prefix ? `${prefix}.${key}` : key),
-    );
+  function catalogShape(value: unknown, prefix = '$'): string[] {
+    if (Array.isArray(value)) {
+      return [
+        `${prefix}:array`,
+        ...value.flatMap((child, index) => catalogShape(child, `${prefix}.${index}`)),
+      ];
+    }
+    if (value && typeof value === 'object') {
+      return [
+        `${prefix}:object`,
+        ...Object.entries(value).flatMap(([key, child]) => catalogShape(child, `${prefix}.${key}`)),
+      ];
+    }
+    return [`${prefix}:${typeof value}`];
   }
 
-  it('conserve la parité des clés principales entre les catalogues', () => {
-    expect(catalogPaths(fr)).toEqual(expect.arrayContaining(catalogPaths(en)));
-    expect(catalogPaths(en)).toEqual(expect.arrayContaining(catalogPaths(fr)));
-    expect(catalogPaths(legalFr)).toEqual(expect.arrayContaining(catalogPaths(legalEn)));
+  it('conserve la structure complète des catalogues principaux et légaux dans les deux sens', () => {
+    expect(catalogShape(fr).sort()).toEqual(catalogShape(en).sort());
+    expect(catalogShape(legalFr).sort()).toEqual(catalogShape(legalEn).sort());
   });
 
   it('signale toute traduction principale identique qui ne soit pas explicitement invariante', () => {
