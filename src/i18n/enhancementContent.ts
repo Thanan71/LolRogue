@@ -149,11 +149,11 @@ const frFR = {
   },
   masteryUnlocks: {
     roster_offer_7: {
-      name: 'Roster élargi',
+      name: 'Sélection élargie',
       description: 'Ajoute un champion au choix de départ, sans agrandir l’équipe.',
     },
     starter_reroll_1: {
-      name: 'Relance de roster',
+      name: 'Relance de sélection',
       description: 'Accorde une relance du choix de départ, sans avantage en combat.',
     },
   },
@@ -173,7 +173,7 @@ const frFR = {
   },
   branches: {
     assassin_burst: {
-      name: 'Burst',
+      name: 'Dégâts explosifs',
       description: 'Dégâts explosifs instantanés',
     },
     assassin_mobility: {
@@ -197,19 +197,19 @@ const frFR = {
       description: 'Renvoi de dégâts',
     },
     mage_burst: {
-      name: 'Burst',
+      name: 'Dégâts explosifs',
       description: 'Dégâts magiques explosifs',
     },
     mage_control: {
       name: 'Contrôle',
-      description: 'CC et zone',
+      description: 'Contrôle et zone',
     },
     mage_sustain: {
       name: 'Soutien',
       description: 'Mana et régénération',
     },
     marksman_dps: {
-      name: 'DPS',
+      name: 'Dégâts soutenus',
       description: 'Dégâts continus',
     },
     marksman_range: {
@@ -226,7 +226,7 @@ const frFR = {
     },
     fighter_duelist: {
       name: 'Duelliste',
-      description: '1v1 et contre-attaque',
+      description: 'Duel et contre-attaque',
     },
     fighter_sustain: {
       name: 'Régénération',
@@ -234,11 +234,11 @@ const frFR = {
     },
     support_enchanter: {
       name: 'Enchanteur',
-      description: 'Buffs et soins',
+      description: 'Renforcements et soins',
     },
     support_tanky: {
       name: 'Gardien',
-      description: 'Protection et CC',
+      description: 'Protection et contrôle',
     },
     support_utility: {
       name: 'Utilitaire',
@@ -252,7 +252,7 @@ const frFR = {
     },
     assassin_core_2: {
       name: 'Agilité',
-      description: '+3% Vitesse de déplacement',
+      description: '+3 % Vitesse de déplacement',
     },
     assassin_core_3: {
       name: 'Pénétration',
@@ -288,11 +288,11 @@ const frFR = {
     },
     marksman_core_2: {
       name: 'Tempo',
-      description: "+8% d'initiative d'attaque",
+      description: "+8 % d'initiative d'attaque",
     },
     marksman_core_3: {
       name: 'Critique',
-      description: '+5% Chances de coup critique',
+      description: '+5 % Chances de coup critique',
     },
     fighter_core_1: {
       name: 'Force',
@@ -304,7 +304,7 @@ const frFR = {
     },
     fighter_core_3: {
       name: 'Fureur',
-      description: "+5% d'initiative d'attaque",
+      description: "+5 % d'initiative d'attaque",
     },
     support_core_1: {
       name: 'Bénédiction',
@@ -322,39 +322,40 @@ const frFR = {
   nodes: {
     assassin_burst_1: {
       name: 'Frappe Critique',
-      description: '+8% Chances de coup critique',
+      description: '+8 % Chances de coup critique',
     },
     assassin_burst_2: {
       name: 'Exécution',
-      description: '+10% de dégâts contre les cibles en dessous de 40% PV',
+      description: '+10 % de dégâts contre les cibles en dessous de 40 % PV',
     },
     assassin_burst_3: {
       name: 'Mort Subite',
-      description: 'Ulti: Dégâts de burst augmentés de 20%',
+      description: 'Ultime : dégâts explosifs augmentés de 20 %',
     },
     assassin_mobility_1: {
       name: 'Pas Furtif',
-      description: '+5% Vitesse de déplacement hors combat',
+      description: '+5 % Vitesse de déplacement hors combat',
     },
     assassin_mobility_2: {
       name: 'Embuscade',
-      description: '+15% de dégâts depuis les broussailles ou hors de vue',
+      description: '+15 % de dégâts depuis les broussailles ou hors de vue',
     },
     assassin_mobility_3: {
       name: 'Ombre',
-      description: 'Ulti: Devient invisible pendant 1.5s après un kill',
+      description: 'Ultime : devient invisible pendant 1,5 s après une élimination',
     },
     assassin_sustain_1: {
       name: 'Soif de Sang',
-      description: '+5% Vol de vie',
+      description: '+5 % Vol de vie',
     },
     assassin_sustain_2: {
       name: 'Vampirisme',
-      description: '+3% Omnivamp',
+      description: '+3 % Omnivampirisme',
     },
     assassin_sustain_3: {
       name: 'Phénix',
-      description: 'Ulti: En dessous de 20% PV, gagne un bouclier de 200 PV (60s CD)',
+      description:
+        'Ultime : en dessous de 20 % PV, gagne un bouclier de 200 PV (60 s de récupération)',
     },
     tank_defense_1: {
       name: 'Peau Épaisse',
@@ -362,36 +363,39 @@ const frFR = {
     },
     tank_defense_2: {
       name: 'Ténacité',
-      description: '+10% Ténacité (réduction CC)',
+      description: '+10 % Ténacité (réduction des contrôles)',
     },
     tank_defense_3: {
       name: 'Immortel',
-      description: 'Ulti: Quand PV tombent à 0, reste à 1 PV avec immunité 2s (120s CD)',
+      description:
+        'Ultime : quand les PV tombent à 0, reste à 1 PV avec une immunité de 2 s (120 s de récupération)',
     },
     tank_support_1: {
       name: "Bouclier d'Allié",
-      description: "Les soins reçus sont partagés à 20% avec l'allié le plus proche",
+      description: "Les soins reçus sont partagés à 20 % avec l'allié le plus proche",
     },
     tank_support_2: {
       name: 'Gardien',
-      description: '+10% de réduction des dégâts subis par les alliés proches',
+      description: '+10 % de réduction des dégâts subis par les alliés proches',
     },
     tank_support_3: {
       name: 'Sacrifice',
-      description: 'Ulti: Peut intercepter les dégâts dirigés vers un allié (90s CD)',
+      description:
+        'Ultime : peut intercepter les dégâts dirigés vers un allié (90 s de récupération)',
     },
     tank_thorn_1: {
       name: 'Pointes',
-      description: 'Renvoie 5% des dégâts physiques reçus aux attaquants',
+      description: 'Renvoie 5 % des dégâts physiques reçus aux attaquants',
     },
     tank_thorn_2: {
       name: 'Brûlure',
-      description: 'Les attaques contre vous leur infligent 2% de leurs PV max en dégâts magiques',
+      description:
+        'Les attaques contre vous infligent à leur auteur 2 % de ses PV maximum en dégâts magiques',
     },
     tank_thorn_3: {
       name: 'Vengeance',
       description:
-        'Ulti: Après avoir subi 500 dégâts, renvoie 50 dégâts vrais à tous les ennemis proches',
+        'Ultime : après avoir subi 500 dégâts, renvoie 50 dégâts bruts à tous les ennemis proches',
     },
     mage_burst_1: {
       name: 'Concentration',
@@ -399,15 +403,15 @@ const frFR = {
     },
     mage_burst_2: {
       name: 'Combustion',
-      description: '+15% de dégâts magiques',
+      description: '+15 % de dégâts magiques',
     },
     mage_burst_3: {
       name: 'Tempête Arcane',
-      description: 'Ulti: Les compétences AoE ont 20% de chances de se répéter',
+      description: 'Ultime : les compétences de zone ont 20 % de chances de se répéter',
     },
     mage_control_1: {
       name: 'Ralentissement',
-      description: 'Les sorts appliquent 15% de ralentissement pendant 1s',
+      description: 'Les sorts appliquent 15 % de ralentissement pendant 1 s',
     },
     mage_control_2: {
       name: 'Canalisation',
@@ -415,7 +419,7 @@ const frFR = {
     },
     mage_control_3: {
       name: 'Racines',
-      description: "Ulti: 20% de chances qu'un sort enracine la cible pendant 1s",
+      description: "Ultime : 20 % de chances qu'un sort enracine la cible pendant 1 s",
     },
     mage_sustain_1: {
       name: 'Clarté',
@@ -423,11 +427,11 @@ const frFR = {
     },
     mage_sustain_2: {
       name: 'Flux de Mana',
-      description: 'Les kills de sbires restaurent 5 PM',
+      description: 'Les éliminations de sbires restaurent 5 PM',
     },
     mage_sustain_3: {
       name: 'Présence Éternelle',
-      description: 'Ulti: Réduit les CD ultimes de 20%',
+      description: 'Ultime : réduit les délais de récupération ultimes de 20 %',
     },
     marksman_dps_1: {
       name: 'Létalité',
@@ -435,12 +439,12 @@ const frFR = {
     },
     marksman_dps_2: {
       name: 'Frappe Fantôme',
-      description: "+10% d'initiative d'attaque pendant 3 tours après une élimination",
+      description: "+10 % d'initiative d'attaque pendant 3 tours après une élimination",
     },
     marksman_dps_3: {
       name: 'Tir Déchirant',
       description:
-        "Ulti: Les attaques ont 15% de chances d'infliger des saignements (5% PV max sur 3s)",
+        "Ultime : les attaques ont 15 % de chances d'infliger des saignements (5 % des PV maximum sur 3 s)",
     },
     marksman_range_1: {
       name: 'Position haute',
@@ -448,52 +452,53 @@ const frFR = {
     },
     marksman_range_2: {
       name: 'Tir précis',
-      description: '+8% de dégâts contre les champions',
+      description: '+8 % de dégâts contre les champions',
     },
     marksman_range_3: {
       name: 'Sniper',
-      description: 'Ulti: +15% de dégâts contre les cibles sous 40% PV',
+      description: 'Ultime : +15 % de dégâts contre les cibles sous 40 % PV',
     },
     marksman_survival_1: {
       name: 'Esquive',
-      description: "+3% de chances d'esquiver une attaque",
+      description: "+3 % de chances d'esquiver une attaque",
     },
     marksman_survival_2: {
       name: "Rapide comme l'Éclair",
-      description: '+8% de vitesse de déplacement',
+      description: '+8 % de vitesse de déplacement',
     },
     marksman_survival_3: {
       name: 'Brouillard de Fumée',
       description:
-        'Ulti: Quand PV tombent en dessous de 30%, devient invisible 1.5s et gagne +30% de vitesse (90s CD)',
+        'Ultime : quand les PV tombent en dessous de 30 %, devient invisible pendant 1,5 s et gagne +30 % de vitesse (90 s de récupération)',
     },
     fighter_bruiser_1: {
       name: 'Frappe Lourde',
-      description: '+5% de dégâts',
+      description: '+5 % de dégâts',
     },
     fighter_bruiser_2: {
       name: 'Saignée',
-      description: 'Les attaques appliquent des saignements (3% PV max sur 2s)',
+      description: 'Les attaques appliquent des saignements (3 % des PV maximum sur 2 s)',
     },
     fighter_bruiser_3: {
       name: 'Berserker',
-      description: 'Ulti: en dessous de 50% PV, +20% de dégâts',
+      description: 'Ultime : en dessous de 50 % PV, +20 % de dégâts',
     },
     fighter_duelist_1: {
       name: 'Riposte',
-      description: 'Après une esquive, la prochaine attaque inflige +20% de dégâts',
+      description: 'Après une esquive, la prochaine attaque inflige +20 % de dégâts',
     },
     fighter_duelist_2: {
       name: 'Défi',
-      description: '+10% de dégâts contre les champions ennemis',
+      description: '+10 % de dégâts contre les champions ennemis',
     },
     fighter_duelist_3: {
       name: 'Mort ou Vif',
-      description: 'Ulti: En 1v1 contre un champion, +25% de dégâts et +15% de réduction de dégâts',
+      description:
+        'Ultime : en duel contre un champion, +25 % de dégâts et +15 % de réduction des dégâts',
     },
     fighter_sustain_1: {
       name: 'Vol de Vie',
-      description: '+4% Vol de vie',
+      description: '+4 % Vol de vie',
     },
     fighter_sustain_2: {
       name: 'Récupération',
@@ -501,19 +506,19 @@ const frFR = {
     },
     fighter_sustain_3: {
       name: 'Immortalité',
-      description: 'Ulti: Les kills restaurent 20% PV max',
+      description: 'Ultime : les éliminations restaurent 20 % des PV maximum',
     },
     support_enchanter_1: {
       name: 'Soin Amélioré',
-      description: '+10% de puissance des soins',
+      description: '+10 % de puissance des soins',
     },
     support_enchanter_2: {
       name: 'Bouclier',
-      description: 'Les boucliers appliqués sont 15% plus puissants',
+      description: 'Les boucliers appliqués sont 15 % plus puissants',
     },
     support_enchanter_3: {
       name: 'Aura Divine',
-      description: 'Ulti: Les alliés proches gagnent +10% de tous leurs dégâts',
+      description: 'Ultime : les alliés proches gagnent +10 % à tous leurs dégâts',
     },
     support_tanky_1: {
       name: 'Corps Garde',
@@ -521,11 +526,12 @@ const frFR = {
     },
     support_tanky_2: {
       name: 'Entrave',
-      description: 'Les sorts de CC durent 10% plus longtemps',
+      description: 'Les effets de contrôle durent 10 % plus longtemps',
     },
     support_tanky_3: {
       name: 'Sacrifice Ultime',
-      description: 'Ulti: Peut absorber les dégâts mortels dirigés vers un allié (120s CD)',
+      description:
+        'Ultime : peut absorber les dégâts mortels dirigés vers un allié (120 s de récupération)',
     },
     support_utility_1: {
       name: 'Vision',
@@ -533,11 +539,11 @@ const frFR = {
     },
     support_utility_2: {
       name: 'Entrave de Zone',
-      description: 'Les sorts de zone ralentissent de 20% supplémentaires',
+      description: 'Les sorts de zone ralentissent de 20 % supplémentaires',
     },
     support_utility_3: {
       name: 'Contrôle Total',
-      description: 'Ulti: Les sorts de CC affectent une zone plus large (+30%)',
+      description: 'Ultime : les effets de contrôle affectent une zone plus large (+30 %)',
     },
   },
 } as const satisfies EnhancementContentCatalog;
@@ -715,7 +721,7 @@ const enUS = {
     },
     fighter_duelist: {
       name: 'Duelist',
-      description: '1v1 and counterattacks',
+      description: 'Duels and counterattacks',
     },
     fighter_sustain: {
       name: 'Regeneration',
@@ -978,7 +984,7 @@ const enUS = {
     fighter_duelist_3: {
       name: 'Dead or Alive',
       description:
-        'Ultimate: In a 1v1 against a champion, gain +25% damage and +15% damage reduction',
+        'Ultimate: In a duel against a champion, gain +25% damage and +15% damage reduction',
     },
     fighter_sustain_1: {
       name: 'Lifesteal',

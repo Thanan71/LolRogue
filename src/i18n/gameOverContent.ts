@@ -61,8 +61,8 @@ function formatShare(value: number, contentLocale: Locale): string {
 
 const frFR: GameOverContentCatalog = {
   outcome: {
-    victory: 'Run accompli',
-    defeat: 'Run terminé',
+    victory: 'Partie accomplie',
+    defeat: 'Partie terminée',
   },
   save: {
     rejectedTitle: 'Progression refusée',
@@ -79,23 +79,23 @@ const frFR: GameOverContentCatalog = {
     candies: (count) => `${formatCount(count, 'fr-FR')} bonbon${count > 1 ? 's' : ''}`,
   },
   summary: {
-    eyebrow: 'Bilan du run',
+    eyebrow: 'Bilan de la partie',
     title: 'Les chiffres à retenir',
   },
   actions: {
     eyebrow: 'Prochaine étape',
     title: 'Prêt à repartir ?',
-    hint: 'Relance un run ou reviens au menu principal.',
+    hint: 'Relance une partie ou reviens au menu principal.',
   },
   details: {
     title: 'Détails de la partie',
     description: 'Économie, soutien et progression',
     metricCount: (count) => `${formatCount(count, 'fr-FR')} indicateur${count > 1 ? 's' : ''}`,
-    individualContribution: 'Contribution individuelle au run',
+    individualContribution: 'Contribution individuelle à la partie',
     championCount: (count) => `${formatCount(count, 'fr-FR')} champion${count > 1 ? 's' : ''}`,
   },
   contribution: {
-    mvp: 'MVP du run',
+    mvp: 'Meilleure contribution de la partie',
     damage: 'Contribution dégâts',
     damageAria: (championName) => `Contribution aux dégâts de ${championName}`,
     damageShare: (ratio) => `${formatShare(ratio, 'fr-FR')} des dégâts de l’équipe`,

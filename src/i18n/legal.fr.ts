@@ -23,8 +23,8 @@ export const legalFr = {
       'Pour un compte connecté, le service traite l’adresse e-mail d’authentification, le profil, les préférences de classement, la progression, les parties, leurs commandes et les métriques de combat. Ces données servent à authentifier, reprendre et vérifier les parties, attribuer la progression, sécuriser le classement et diagnostiquer les erreurs.',
       'Le classement ne publie jamais l’e-mail, le nom de compte ou l’identifiant joueur. Il affiche un alias choisi ou un pseudonyme anonyme, les statistiques classées et, pour le classement global, l’avatar facultatif du profil. L’utilisateur peut retirer tous ses scores publics depuis les réglages.',
     ],
-    dailyPublic: 'Daily public',
-    diagnosticLogs: 'Logs techniques',
+    dailyPublic: 'Classement quotidien public',
+    diagnosticLogs: 'Journaux techniques',
     reviewedReports: 'Signalements traités',
     accountData: 'Données de compte',
     guestData: 'Données invitées',
@@ -42,7 +42,7 @@ export const legalFr = {
   rights: {
     title: 'Accès, export et suppression',
     paragraphs: [
-      'Un utilisateur peut masquer ses scores dans les réglages. Pour demander un export, une rectification ou une suppression complète, il doit contacter l’exploitant sans publier d’e-mail, de jeton ou d’identifiant privé dans un canal public. L’exploitant vérifie l’identité hors bande, propose l’export, puis supprime Auth, profil, progression, runs et participations Daily selon la procédure d’exploitation.',
+      'Un utilisateur peut masquer ses scores dans les réglages. Pour demander un export, une rectification ou une suppression complète, il doit contacter l’exploitant sans publier d’e-mail, de jeton ou d’identifiant privé dans un canal public. L’exploitant vérifie l’identité hors bande, propose l’export, puis supprime les données d’authentification, le profil, la progression, les parties et les participations quotidiennes selon la procédure d’exploitation.',
       'Tant qu’un canal privé d’exercice des droits n’est pas configuré, la bêta publique est bloquée. Les données purement locales peuvent être supprimées immédiatement en effaçant les données du site dans le navigateur.',
     ],
   },

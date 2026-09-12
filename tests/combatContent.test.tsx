@@ -9,10 +9,10 @@ import { getCombatVisualProfile } from '@/game/presentation/combatVisuals';
 import {
   COMBAT_ENHANCEMENT_EFFECT_IDS,
   COMBAT_VISUAL_TITLE_IDS,
-  combatContent,
-  type CombatEnhancementEffectId,
   type CombatContentLocale,
+  type CombatEnhancementEffectId,
   type CombatVisualTitleId,
+  combatContent,
 } from '@/i18n/combatContent';
 import type { CombatantInfo } from '@/stores/battleStore';
 import { scanUserCopyFile } from './helpers/userCopyScanner';
@@ -180,26 +180,20 @@ describe('combat content catalog', () => {
     });
   });
 
-  it('covers every enhancement effect by its stable node and effect IDs, preserving French source copy', () => {
+  it('covers every enhancement effect by stable IDs with explicit localized presentation', () => {
     const sourceEffects = Object.values(ENHANCEMENT_TREES_BY_ROLE).flatMap((tree) =>
       [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)].flatMap((node) =>
-        (node.effects ?? []).map((effect) => ({
-          id: `${node.id}:${effect.type}`,
-          description: effect.description,
-        })),
+        (node.effects ?? []).map((effect) => `${node.id}:${effect.type}`),
       ),
     );
 
-    expect(sourceEffects.map(({ id }) => id).sort()).toEqual(
-      [...COMBAT_ENHANCEMENT_EFFECT_IDS].sort(),
-    );
-    for (const { id, description } of sourceEffects) {
-      expect(combatContent['fr-FR'].presenter.effects[id as CombatEnhancementEffectId]).toBe(
-        description,
-      );
-      expect(combatContent['en-US'].presenter.effects[id as CombatEnhancementEffectId]).not.toBe(
-        description,
-      );
+    expect(sourceEffects.sort()).toEqual([...COMBAT_ENHANCEMENT_EFFECT_IDS].sort());
+    for (const id of sourceEffects) {
+      const french = combatContent['fr-FR'].presenter.effects[id as CombatEnhancementEffectId];
+      const english = combatContent['en-US'].presenter.effects[id as CombatEnhancementEffectId];
+      expect(french.trim()).not.toBe('');
+      expect(english.trim()).not.toBe('');
+      expect(english).not.toBe(french);
     }
   });
 

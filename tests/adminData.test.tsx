@@ -148,7 +148,7 @@ describe('admin data feedback', () => {
       />,
     );
 
-    expect(screen.getByText(/aucun tuning automatique/i)).toBeInTheDocument();
+    expect(screen.getByText(/aucun ajustement automatique/i)).toBeInTheDocument();
     const comparison = screen.getByRole('table', {
       name: /Comparaison des cohortes terrain vérifiées/i,
     });
@@ -164,7 +164,9 @@ describe('admin data feedback', () => {
     const english = getAdminFieldCalibrationCopy('en-US');
 
     expect(french.title).toBe('Calibration terrain vérifiée');
-    expect(french.description).toMatch(/playtests humains non réalisés/i);
+    expect(french.description).toMatch(/aucune session de test humaine réalisée/i);
+    expect(french.comparison.noBaseline).toBe('Aucune référence aux dimensions identiques');
+    expect(french.augments.caption).toBe('Comparaison conditionnelle des améliorations');
     expect(english.title).toBe('Verified field calibration');
     expect(english.description).toMatch(/human playtests have not been run/i);
     expect(english.review.signals).toEqual({

@@ -102,7 +102,7 @@ const frFR: RunPreparationContentCatalog = {
     normalTitle: 'Compose ton équipe',
     resumableSubtitle:
       'Une tentative vérifiée interrompue est prête à reprendre avec ses choix d’origine.',
-    dailySubtitle: 'Tous les joueurs affrontent la même seed quotidienne · 1 starter',
+    dailySubtitle: 'Tous les joueurs affrontent la même graine quotidienne · 1 champion de départ',
     normalSubtitle: (starterCount, isGuest) =>
       `Partie normale : ta difficulté et tes choix · sélectionne exactement ${number('fr-FR', starterCount)} champion${starterCount > 1 ? 's' : ''}${isGuest ? ' · sauvegarde sur cet appareil uniquement' : ''}`,
     journeyLabel: 'Étapes de préparation',

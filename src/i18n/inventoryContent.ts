@@ -311,7 +311,10 @@ const frFR = {
   fallbacks: {
     item: { name: 'Objet inconnu', description: 'Description de cet objet indisponible.' },
     passive: { name: 'Passif inconnu', description: 'Description de ce passif indisponible.' },
-    augment: { name: 'Augment inconnu', description: 'Description de cet augment indisponible.' },
+    augment: {
+      name: 'Amélioration inconnue',
+      description: 'Description de cette amélioration indisponible.',
+    },
     rune: { name: 'Rune inconnue', description: 'Description de cette rune indisponible.' },
   },
 } as const satisfies InventoryContentCatalog;

@@ -118,7 +118,7 @@ const french = {
     damage: 'dégâts',
     healing: 'soins',
     shielding: 'boucliers',
-    content: 'Runes et augments',
+    content: 'Runes et améliorations',
     none: 'aucun',
     loading: 'Synchronisation du profil…',
     loadingDetail: "Chargement de la progression et de l'historique enregistrés.",
@@ -509,7 +509,8 @@ const french = {
     search: 'Rechercher une règle',
     category: 'Catégorie',
     all: 'Toutes',
-    count: (count: number) => `${count} règle(s) affichée(s)`,
+    count: (count: number) =>
+      `${count} règle${count > 1 ? 's' : ''} affichée${count > 1 ? 's' : ''}`,
     emptyTitle: 'Aucune règle trouvée',
     emptyDetail: 'Essaie une autre recherche ou affiche de nouveau toutes les catégories.',
     resetFilters: 'Réinitialiser les filtres',
@@ -532,12 +533,12 @@ const french = {
       [
         'Boucle',
         '4. Améliorer',
-        'Dépense l’or dans les boutiques et choisis objets, recrues, sorts ou augments après avoir lu leur effet chiffré.',
+        'Dépense l’or dans les boutiques et choisis objets, recrues, sorts ou améliorations après avoir lu leur effet chiffré.',
       ],
       [
         'Boucle',
         '5. Terminer et sauvegarder',
-        'Traverse les sorties des six biomes puis bats le boss final. Une run connectée n’accorde sa progression qu’après vérification serveur.',
+        'Traverse les sorties des six biomes puis bats le boss final. Une partie connectée n’accorde sa progression qu’après vérification serveur.',
       ],
       [
         'Combat',
@@ -557,17 +558,17 @@ const french = {
       [
         'Combat',
         'Statuts',
-        'Les buffs, affaiblissements, contrôles et dégâts persistants apparaissent sur les combattants et dans le journal.',
+        'Les renforcements, affaiblissements, contrôles et dégâts persistants apparaissent sur les combattants et dans le journal.',
       ],
       [
         'Combat',
-        'Autoplay',
+        'Jeu automatique',
         'Désactivé par défaut, il choisit les actions à ta place. Tu peux l’activer ou le couper depuis l’en-tête du combat.',
       ],
       [
         'Progression',
         'Runes',
-        'Bonus choisis au départ et actifs pendant la run selon leur condition : dégâts, sort lancé, élimination ou seuil de PV.',
+        'Bonus choisis au départ et actifs pendant la partie selon leur condition : dégâts, sort lancé, élimination ou seuil de PV.',
       ],
       [
         'Progression',
@@ -576,13 +577,13 @@ const french = {
       ],
       [
         'Progression',
-        'Augments',
+        'Améliorations',
         'Règles d’équipe proposées entre les biomes. Leur description chiffrée est affichée avant le choix définitif.',
       ],
       [
         'Modes',
-        'Run normale',
-        'Utilise ta difficulté et tes choix. En invité, la run et les réglages restent uniquement sur cet appareil et ne donnent pas de progression authentifiée.',
+        'Partie normale',
+        'Utilise ta difficulté et tes choix. En invité, la partie et les réglages restent uniquement sur cet appareil et ne donnent pas de progression authentifiée.',
       ],
       [
         'Modes',
@@ -600,7 +601,7 @@ const french = {
     audioHelp: 'Ajuste les effets sans interrompre ta partie.',
     gameplayEyebrow: 'Combat',
     gameplayTitle: 'Rythme de jeu',
-    gameplayHelp: 'La difficulté s’applique au prochain run. La vitesse agit immédiatement.',
+    gameplayHelp: 'La difficulté s’applique à la prochaine partie. La vitesse agit immédiatement.',
     accessibilityEyebrow: 'Accessibilité',
     accessibilityTitle: 'Lecture et commandes',
     accessibilityHelp:
@@ -747,18 +748,18 @@ const french = {
     mapTutorialEncounterTitle: 'Résoudre la rencontre',
     mapTutorialEncounterBody:
       'Combat, boutique, repos, événement, recrutement et trésor doivent être terminés avant de poursuivre.',
-    mapTutorialUpgradeTitle: 'Améliorer la run',
+    mapTutorialUpgradeTitle: 'Améliorer la partie',
     mapTutorialUpgradeBody:
-      'Lis les valeurs des objets, sorts et augments avant de confirmer. Les récompenses apparaissent au retour sur la carte.',
+      'Lis les valeurs des objets, sorts et améliorations avant de confirmer. Les récompenses apparaissent au retour sur la carte.',
     mapTutorialFinishTitle: 'Terminer et sauvegarder',
     mapTutorialFinishBody:
-      'La sortie ouvre le biome suivant. Le boss final de la Base termine la run ; la progression connectée est ensuite vérifiée par le serveur.',
-    guideSummary: 'Repères et équipement de la run',
-    guideSections: 'Légende · Runes · Augments',
+      'La sortie ouvre le biome suivant. Le boss final de la Base termine la partie ; la progression connectée est ensuite vérifiée par le serveur.',
+    guideSummary: 'Repères et équipement de la partie',
+    guideSections: 'Légende · Runes · Améliorations',
     mapLegend: 'Légende de la carte',
     legend: 'Légende',
     noRunes: 'Aucune',
-    augmentChoice: "Choix d'augment",
+    augmentChoice: "Choix d'amélioration",
     combatRewards: 'Récompenses du combat',
     combatRewardBase: (gold: number, xp: number) => `+${gold} or, +${xp} XP/champion (KO inclus)`,
     levelsGained: (count: number) =>
@@ -872,7 +873,7 @@ const french = {
     returnedToBag: (item: string) => `Objet replacé dans le sac : ${item}.`,
     sellFailed: (item: string) => `Impossible de vendre ${item}. Réessaie.`,
     saleConfirmed: (item: string, gold: number) => `Vente confirmée : ${item}, +${gold} or.`,
-    eyebrow: 'Équipement du run',
+    eyebrow: 'Équipement de la partie',
     title: 'Inventaire',
     items: 'objets',
     full: 'Inventaire plein',
@@ -912,7 +913,8 @@ const french = {
     dailyUnavailable: 'Impossible de vérifier la disponibilité du défi quotidien.',
     dailyStartFailed: 'Impossible de démarrer un défi quotidien vérifié.',
     dailyAuthoritativeLoadFailed: 'Impossible de charger le défi quotidien officiel.',
-    dailyOfferChanged: "L'offre Daily a changé. Choisis un champion dans la nouvelle sélection.",
+    dailyOfferChanged:
+      "L'offre quotidienne a changé. Choisis un champion dans la nouvelle sélection.",
     chooseRunes: 'Choisis tes runes',
     runesHelp: 'Jusqu’à 3 runes optionnelles pour personnaliser ta partie.',
     selected: 'sélectionnées',
@@ -1022,8 +1024,8 @@ const french = {
     filters: 'Filtres',
     all: 'Tous',
     apply: 'Appliquer',
-    loadingLogs: 'Chargement des logs…',
-    noLogs: 'Aucun log trouvé',
+    loadingLogs: 'Chargement des journaux…',
+    noLogs: 'Aucun journal trouvé',
     showError: 'Afficher l’erreur',
     date: 'Date',
     level: 'Niveau',
@@ -1061,7 +1063,7 @@ const french = {
     minutes: 'min',
     victoriesOnly: 'Victoires uniquement',
     defeatOnly: 'Défaites uniquement',
-    adminAuthority: 'Surveillance authority',
+    adminAuthority: 'Surveillance de l’autorité',
     moderation: 'Modération',
   },
   gameOver: {

@@ -505,7 +505,7 @@ export const en = {
     search: 'Search for a rule',
     category: 'Category',
     all: 'All',
-    count: (count: number) => `${count} rule(s) displayed`,
+    count: (count: number) => `${count} rule${count === 1 ? '' : 's'} displayed`,
     emptyTitle: 'No rules found',
     emptyDetail: 'Try another search or show all categories again.',
     resetFilters: 'Reset filters',

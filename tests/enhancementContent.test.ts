@@ -12,7 +12,6 @@ import {
 
 const LOCALES = ['fr-FR', 'en-US'] as const satisfies readonly EnhancementContentLocale[];
 const CATEGORIES = ['branches', 'coreNodes', 'nodes'] as const;
-const INVARIANT_DESCRIPTION_IDS = new Set(['assassin_sustain_2']);
 const MASTERY_UNLOCK_IDS = ['roster_offer_7', 'starter_reroll_1'] as const;
 
 const trees = Object.values(ENHANCEMENT_TREES_BY_ROLE);
@@ -30,7 +29,11 @@ function sorted(values: readonly string[]): string[] {
 }
 
 function numberTokens(value: string): string[] {
-  return sorted(value.match(/\d+(?:[.,]\d+)?%?/g) ?? []);
+  return sorted(
+    (value.match(/\d+(?:[.,]\d+)?(?:\s*%)?/g) ?? []).map((token) =>
+      token.replace(/ /g, '').replace(',', '.'),
+    ),
+  );
 }
 
 function expectCompleteCopy(copy: EnhancementCopy): void {
@@ -108,31 +111,8 @@ describe('enhancementContent', () => {
     );
   });
 
-  it('preserves every canonical French branch and node label byte-for-byte', () => {
+  it('uses explicit idiomatic French presentation without mutating authority data', () => {
     const french = enhancementContent['fr-FR'];
-
-    for (const tree of trees) {
-      for (const coreNode of tree.coreNodes) {
-        expect(french.coreNodes[coreNode.id]).toEqual({
-          name: coreNode.name,
-          description: coreNode.description,
-        });
-      }
-
-      for (const branch of tree.branches) {
-        expect(french.branches[branch.id]).toEqual({
-          name: branch.name,
-          description: branch.description,
-        });
-
-        for (const node of branch.nodes) {
-          expect(french.nodes[node.id]).toEqual({
-            name: node.name,
-            description: node.description,
-          });
-        }
-      }
-    }
 
     expect(french.roles).toEqual({
       Assassin: { name: 'Assassin' },
@@ -142,6 +122,14 @@ describe('enhancementContent', () => {
       Fighter: { name: 'Combattant' },
       Support: { name: 'Support' },
     });
+    expect(french.masteryUnlocks.roster_offer_7.name).toBe('Sélection élargie');
+    expect(french.branches.assassin_burst.name).toBe('Dégâts explosifs');
+    expect(french.nodes.assassin_mobility_3.description).toBe(
+      'Ultime : devient invisible pendant 1,5 s après une élimination',
+    );
+    expect(ENHANCEMENT_TREES_BY_ROLE.Assassin.branches[1]?.nodes[2]?.description).toBe(
+      'Ulti: Devient invisible pendant 1.5s après un kill',
+    );
   });
 
   it('provides English copy for every entry without changing numeric gameplay details', () => {
@@ -153,11 +141,7 @@ describe('enhancementContent', () => {
         const frenchCopy = french[category][id]!;
         const englishCopy = english[category][id]!;
 
-        if (INVARIANT_DESCRIPTION_IDS.has(id)) {
-          expect(englishCopy.description).toBe('+3% Omnivamp');
-        } else {
-          expect(englishCopy.description).not.toBe(frenchCopy.description);
-        }
+        expect(englishCopy.description).not.toBe(frenchCopy.description);
         expect(numberTokens(englishCopy.description)).toEqual(numberTokens(frenchCopy.description));
       }
     }
@@ -190,7 +174,7 @@ describe('enhancementContent', () => {
     expect(english.nodes.fighter_duelist_3).toEqual({
       name: 'Dead or Alive',
       description:
-        'Ultimate: In a 1v1 against a champion, gain +25% damage and +15% damage reduction',
+        'Ultimate: In a duel against a champion, gain +25% damage and +15% damage reduction',
     });
     expect(english.nodes.support_utility_3).toEqual({
       name: 'Total Control',
