@@ -16,7 +16,7 @@ const INCLUDED_SOURCE_PREFIXES = [
   'src/stores/',
 ] as const;
 
-const INCLUDED_SOURCE_FILES = new Set(['src/App.tsx']);
+const INCLUDED_SOURCE_FILES = new Set(['src/App.tsx', 'src/game/run/abandonment.ts']);
 
 const PROJECT_COPY_BEARING_NAMES = ['detail', 'emptyMessage', 'error', 'saveError'] as const;
 
