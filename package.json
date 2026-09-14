@@ -98,7 +98,7 @@
     "@vercel/speed-insights": "2.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "7.18.2",
+    "react-router-dom": "7.18.3",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
