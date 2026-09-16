@@ -1,16 +1,25 @@
 import type {
+  VerifiedFieldAugmentCohort,
+  VerifiedFieldCalibrationCohort,
+  VerifiedFieldChampionCohort,
+} from '@/game/balance/fieldCalibrationComparison';
+import type {
   AuthorityAttemptAggregate,
   AuthorityRejectionSignal,
 } from '@/observability/authorityRejectionMonitor';
 import { AUTHORITY_REJECTION_ALERT_POLICY } from '@/observability/authorityRejectionMonitor';
 import { formatAdminDate } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
+import { AdminFieldCalibrationPanel } from './AdminFieldCalibrationPanel';
 import type { AdminAuthorityRejection } from './useAdminData';
 
 interface AdminAuthorityPanelProps {
   aggregates: AuthorityAttemptAggregate[];
   signals: AuthorityRejectionSignal[];
   rejections: AdminAuthorityRejection[];
+  fieldCohorts: readonly VerifiedFieldCalibrationCohort[];
+  fieldChampionCohorts: readonly VerifiedFieldChampionCohort[];
+  fieldAugmentCohorts: readonly VerifiedFieldAugmentCohort[];
   loading: boolean;
   error: string | null;
   onRefresh: () => void;
@@ -20,6 +29,9 @@ export function AdminAuthorityPanel({
   aggregates,
   signals,
   rejections,
+  fieldCohorts,
+  fieldChampionCohorts,
+  fieldAugmentCohorts,
   loading,
   error,
   onRefresh,
@@ -131,6 +143,12 @@ export function AdminAuthorityPanel({
             </table>
             {rejections.length === 0 && <div className="no-data">Aucun rejet enregistré</div>}
           </div>
+
+          <AdminFieldCalibrationPanel
+            fieldCohorts={fieldCohorts}
+            championCohorts={fieldChampionCohorts}
+            augmentCohorts={fieldAugmentCohorts}
+          />
         </>
       )}
     </section>

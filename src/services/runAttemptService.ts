@@ -9,6 +9,7 @@ import type {
   AppendRunCommandsResult,
   AuthorityDifficulty,
   AuthorityRunMode,
+  OpenRunAttempt,
   RunAttemptCommand,
   RunAttemptStatus,
   RunAttemptStatusResult,
@@ -320,6 +321,25 @@ function parseStatusResult(value: unknown): RunAttemptStatusResult | null {
   };
 }
 
+function parseOpenRunAttempt(value: unknown): OpenRunAttempt | null {
+  const attempt = asRecord(value);
+  if (
+    !attempt ||
+    !isUuid(attempt.id) ||
+    !isUuid(attempt.start_command_id) ||
+    (attempt.status !== 'started' && attempt.status !== 'finished') ||
+    !isIsoDate(attempt.expires_at)
+  ) {
+    return null;
+  }
+  return {
+    attemptId: attempt.id,
+    startCommandId: attempt.start_command_id,
+    status: attempt.status,
+    expiresAt: attempt.expires_at,
+  };
+}
+
 async function callAttemptRpc(
   name:
     | 'start_run_attempt'
@@ -402,6 +422,29 @@ export async function sealRunAttempt(
   return parsed
     ? { data: parsed, error: null }
     : { data: null, error: new Error('Invalid seal_run_attempt response') };
+}
+
+export async function findOpenRunAttempt(): Promise<{
+  data: OpenRunAttempt | null;
+  error: Error | null;
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('run_attempts')
+      .select('id,start_command_id,status,expires_at')
+      .in('status', ['started', 'finished'])
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) return { data: null, error: normalizeRpcError(error) };
+    if (data === null) return { data: null, error: null };
+    const parsed = parseOpenRunAttempt(data);
+    return parsed
+      ? { data: parsed, error: null }
+      : { data: null, error: new Error('Invalid open run attempt response') };
+  } catch (error) {
+    return { data: null, error: normalizeRpcError(error) };
+  }
 }
 
 export async function getRunAttemptStatus(

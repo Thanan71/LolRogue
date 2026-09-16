@@ -21,6 +21,9 @@ export function AdminPage() {
     authorityAggregates,
     authoritySignals,
     authorityRejections,
+    fieldCohorts,
+    fieldChampionCohorts,
+    fieldAugmentCohorts,
     playerStats,
     logs,
     loading,
@@ -201,6 +204,9 @@ export function AdminPage() {
             aggregates={authorityAggregates}
             signals={authoritySignals}
             rejections={authorityRejections}
+            fieldCohorts={fieldCohorts}
+            fieldChampionCohorts={fieldChampionCohorts}
+            fieldAugmentCohorts={fieldAugmentCohorts}
             loading={loading || authorityLoading}
             error={errors.authority}
             onRefresh={() => void fetchAuthorityObservability()}

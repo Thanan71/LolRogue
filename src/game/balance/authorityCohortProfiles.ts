@@ -1,7 +1,7 @@
-import type { BalancePolicy } from './balancePolicy';
-import { survivalGreedyPolicy } from './balancePolicy';
 import type { AuthorityCohortCell } from './authorityCohortMatrix';
 import { createAuthorityCohortMatrix } from './authorityCohortMatrix';
+import type { BalancePolicy } from './balancePolicy';
+import { survivalGreedyPolicy } from './balancePolicy';
 
 export type AuthorityCohortExecutionProfileName = 'pr' | 'nightly' | 'release';
 

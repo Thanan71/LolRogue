@@ -45,6 +45,16 @@ describe('legal and privacy contract', () => {
     expect(migration).toContain("(SELECT auth.role()) <> 'service_role'");
   });
 
+  it('caps any future optional field-calibration collection before activation', () => {
+    expect(PRIVACY_RETENTION.optionalFieldCalibrationDays).toBe(30);
+    const protocol = readFileSync(new URL('../docs/field-calibration.md', import.meta.url), 'utf8');
+    expect(protocol).toContain('**désactivée**');
+    expect(protocol).toContain('opt-in distinct, préalable, libre et désactivé par défaut');
+    expect(protocol).toContain('au plus tard 30 jours');
+    expect(protocol).toContain('Playtests humains | **bloqué / non réalisé**');
+    expect(protocol).toContain('ni identifiant utilisateur/joueur/run/attempt, ni seed');
+  });
+
   it('schedules the reviewed social-data purge every month', () => {
     expect(socialRetentionMigration).toContain("'lolrogue-purge-expired-social-data'");
     expect(socialRetentionMigration).toContain("'43 4 1 * *'");

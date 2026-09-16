@@ -10,7 +10,7 @@ import { installAuditedEnglishCopyTranslation } from './i18n/legacyEnglishAudit'
 import { installLegacyEnglishContentTranslation } from './i18n/legacyEnglishContent';
 import { installLegacyEnglishPhraseTranslation } from './i18n/legacyEnglishPhrases';
 import { useSettingsStore } from './stores/settingsStore';
-import { installGlobalErrorCapture } from './utils/observability';
+import { installGlobalErrorCapture, recordTechnicalEvent } from './utils/observability';
 
 assertValidRuleCatalogs();
 
@@ -89,11 +89,19 @@ const AdminPage = lazy(() =>
 const EncounterRoute = lazy(() =>
   import('./components/EncounterRoute').then((module) => ({ default: module.EncounterRoute })),
 );
-const NotificationRegion = lazy(() =>
-  import('./components/NotificationRegion').then((module) => ({
-    default: module.NotificationRegion,
-  })),
-);
+const NotificationRegion = lazy(async () => {
+  try {
+    const module = await import('./components/NotificationRegion');
+    return { default: module.NotificationRegion };
+  } catch (error) {
+    recordTechnicalEvent({
+      type: 'frontend_error',
+      source: 'notification_region_chunk',
+      message: error instanceof Error ? error.message : 'Notification region failed to load.',
+    });
+    return { default: () => null };
+  }
+});
 const RunLifecycleRoute = lazy(() =>
   import('./components/RunLifecycleRoute').then((module) => ({
     default: module.RunLifecycleRoute,

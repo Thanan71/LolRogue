@@ -1,4 +1,4 @@
-export const LEGAL_POLICY_VERSION = '2026-08-08';
+export const LEGAL_POLICY_VERSION = '2026-08-25';
 
 export const RIOT_FAN_PROJECT_NOTICE =
   'LolRogue a été créé conformément à la politique « Legal Jibber Jabber » de Riot Games en utilisant des ressources appartenant à Riot Games. Riot Games ne soutient ni ne sponsorise ce projet.';
@@ -6,6 +6,7 @@ export const RIOT_FAN_PROJECT_NOTICE =
 export const PRIVACY_RETENTION = {
   publicDailyLeaderboardMonths: 13,
   diagnosticLogDays: 14,
+  optionalFieldCalibrationDays: 30,
   reviewedModerationReportMonths: 24,
   accountData: 'Jusqu’à la suppression du compte',
   guestData: 'Jusqu’à l’effacement des données du navigateur',

@@ -48,6 +48,8 @@ import {
   createAuthorityCohortBaselineV20Fixture,
   generateAuthorityCohortBaselineV20,
 } from '@/game/balance/authorityCohortBaselineV20Fixture';
+import { AUTHORITY_COHORT_BASELINE_V21 } from '@/game/balance/authorityCohortBaselineV21';
+import { AUTHORITY_COHORT_BASELINE_V21_IDENTITY } from '@/game/balance/authorityCohortBaselineV21Fixture';
 import type { AuthorityCohortReport } from '@/game/balance/authorityCohortReport';
 import { BIOMES } from '@/types/run';
 import baselineV15Json from '../config/authority-cohort-baselines-v15.json';
@@ -56,6 +58,7 @@ import baselineV17Json from '../config/authority-cohort-baselines-v17.json';
 import baselineV18Json from '../config/authority-cohort-baselines-v18.json';
 import baselineV19Json from '../config/authority-cohort-baselines-v19.json';
 import baselineV20Json from '../config/authority-cohort-baselines-v20.json';
+import baselineV21Json from '../config/authority-cohort-baselines-v21.json';
 
 const V15_BASELINE_KEY =
   'engine=run-engine-v15|content=60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9|model=1|policy=survival-greedy@1';
@@ -69,7 +72,8 @@ const V19_BASELINE_KEY =
   'engine=run-engine-v19|content=45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099|model=2|policy=survival-greedy@1';
 const V20_BASELINE_KEY =
   'engine=run-engine-v20|content=8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91|model=2|policy=survival-greedy@1';
-const fixture = createAuthorityCohortBaselineV20Fixture();
+const V21_BASELINE_KEY =
+  'engine=run-engine-v21|content=9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6|model=2|policy=survival-greedy@1';
 const baselineEntry = AUTHORITY_COHORT_BASELINE_V20.entries[V20_BASELINE_KEY];
 if (!baselineEntry) throw new Error('The v20 cohort baseline entry is unavailable.');
 
@@ -94,6 +98,9 @@ async function resolveArchivedAuthority(identity: {
     throw new Error(`The archived ${identity.engineVersion} verifier is unavailable.`);
   return authority;
 }
+
+const v20Authority = await resolveArchivedAuthority(AUTHORITY_COHORT_BASELINE_V20_IDENTITY);
+const fixture = createAuthorityCohortBaselineV20Fixture(v20Authority);
 
 function firstRawEntry(value: unknown): Record<string, unknown> {
   const document = value as { entries: Record<string, Record<string, unknown>> };
@@ -308,7 +315,7 @@ describe('authority cohort baseline', () => {
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   }, 30_000);
 
-  it('strictly loads the current v20 ten-champion matrix with combat resource metrics', () => {
+  it('keeps the archived v20 ten-champion matrix reproducible', () => {
     const loaded = loadAuthorityCohortBaseline(
       baselineV20Json,
       AUTHORITY_COHORT_BASELINE_V20_IDENTITY,
@@ -316,8 +323,8 @@ describe('authority cohort baseline', () => {
 
     expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V20);
     expect(AUTHORITY_COHORT_BASELINE_V20_IDENTITY).toMatchObject({
-      engineVersion: AUTHORITY_ENGINE_VERSION,
-      contentHash: AUTHORITY_CONTENT_HASH,
+      engineVersion: 'run-engine-v20',
+      contentHash: '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
       balanceModelVersion: 2,
     });
     expect(loaded.schemaVersion).toBe(2);
@@ -345,9 +352,32 @@ describe('authority cohort baseline', () => {
         'combat.enemy.manaSpentPerRound': expect.any(Number),
       }),
     );
-    expect(generateAuthorityCohortBaselineV20()).toEqual(loaded);
+    expect(generateAuthorityCohortBaselineV20(v20Authority)).toEqual(loaded);
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   }, 30_000);
+
+  it('strictly loads the current v21 PR baseline across 45 cells and 30 paired seeds', () => {
+    const loaded = loadAuthorityCohortBaseline(
+      baselineV21Json,
+      AUTHORITY_COHORT_BASELINE_V21_IDENTITY,
+    );
+
+    expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V21);
+    expect(AUTHORITY_COHORT_BASELINE_V21_IDENTITY).toMatchObject({
+      engineVersion: AUTHORITY_ENGINE_VERSION,
+      contentHash: AUTHORITY_CONTENT_HASH,
+      balanceModelVersion: 2,
+    });
+    expect(loaded.entries[V21_BASELINE_KEY]).toMatchObject({
+      source: {
+        kind: 'authority-cohort-matrix',
+        cellCount: 45,
+        seeds: expect.arrayContaining([expect.any(Number)]),
+      },
+    });
+    expect(loaded.entries[V21_BASELINE_KEY]?.source.seeds).toHaveLength(30);
+    expect(loaded.entries[V21_BASELINE_KEY]?.reports).toHaveLength(45);
+  });
 
   it('rejects unknown fields, missing metrics and incoherent index identities', () => {
     const unknownRoot = Object.assign(structuredClone(baselineV20Json), { unexpected: true });

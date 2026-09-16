@@ -2,6 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it } from 'vitest';
 import {
+  CURRENT_AUTHORITY_VERSION,
+  hasAuthorityFeature,
+  isKnownAuthorityEngine,
+} from '@/game/authority/versionRegistry';
+import {
   SupabaseDailyRunRepository,
   SupabaseLeaderboardRepository,
 } from '@/services/repositories/SupabaseDailyRunRepository';
@@ -15,7 +20,7 @@ const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const hasSupabaseCredentials = Boolean(supabaseUrl && anonKey && serviceRoleKey);
-const describeLive = hasSupabaseCredentials ? describe.sequential : describe.skip;
+const describeLive = hasSupabaseCredentials ? describe : describe.skip;
 
 type AuthenticatedFixture = {
   client: SupabaseClient<Database>;
@@ -176,6 +181,14 @@ describeLive('repositories against migrated local Supabase', () => {
 
   afterAll(async () => {
     if (fixture?.userId) await admin.auth.admin.deleteUser(fixture.userId);
+  });
+
+  it('recognizes the active database authority contract in the rollback client', async () => {
+    expect(fixture.gameplayRulesetVersion).toBe(CURRENT_AUTHORITY_VERSION.gameplay);
+    expect(fixture.engineVersion).toBe(CURRENT_AUTHORITY_VERSION.engine);
+    expect(isKnownAuthorityEngine(fixture.engineVersion)).toBe(true);
+    expect(hasAuthorityFeature(fixture.engineVersion, 'manualCombat')).toBe(true);
+    expect(hasAuthorityFeature(fixture.engineVersion, 'canonicalEncounters')).toBe(true);
   });
 
   it('reads and updates a real authenticated profile while preserving real null semantics', async () => {

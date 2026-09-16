@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   appendRunAttemptCommands,
-  recoverVerifiedRunAttempt,
+  findOpenRunAttempt,
   RUN_FINALIZATION_REQUEST_TIMEOUT_MS,
   RunVerificationRejectedError,
   RunVerificationRetryableError,
+  recoverVerifiedRunAttempt,
   sealRunAttempt,
   startRunAttempt,
   verifyRunAttempt,
@@ -13,11 +14,18 @@ import {
 const supabaseMocks = vi.hoisted(() => ({
   rpc: vi.fn(),
   invoke: vi.fn(),
+  from: vi.fn(),
+  select: vi.fn(),
+  in: vi.fn(),
+  order: vi.fn(),
+  limit: vi.fn(),
+  maybeSingle: vi.fn(),
 }));
 
 vi.mock('@/services/supabaseClient', () => ({
   supabase: {
     rpc: supabaseMocks.rpc,
+    from: supabaseMocks.from,
     functions: { invoke: supabaseMocks.invoke },
   },
 }));
@@ -86,6 +94,64 @@ describe('runAttemptService', () => {
     vi.clearAllMocks();
     supabaseMocks.rpc.mockReset();
     supabaseMocks.invoke.mockReset();
+    supabaseMocks.from.mockReset();
+    supabaseMocks.select.mockReset();
+    supabaseMocks.in.mockReset();
+    supabaseMocks.order.mockReset();
+    supabaseMocks.limit.mockReset();
+    supabaseMocks.maybeSingle.mockReset();
+    supabaseMocks.from.mockReturnValue({ select: supabaseMocks.select });
+    supabaseMocks.select.mockReturnValue({ in: supabaseMocks.in });
+    supabaseMocks.in.mockReturnValue({ order: supabaseMocks.order });
+    supabaseMocks.order.mockReturnValue({ limit: supabaseMocks.limit });
+    supabaseMocks.limit.mockReturnValue({ maybeSingle: supabaseMocks.maybeSingle });
+  });
+
+  it('finds the caller open attempt through a narrow RLS-protected read', async () => {
+    supabaseMocks.maybeSingle.mockResolvedValueOnce({
+      data: {
+        id: ATTEMPT_ID,
+        start_command_id: COMMAND_ID,
+        status: 'finished',
+        expires_at: '2026-07-24T12:00:00.000Z',
+      },
+      error: null,
+    });
+
+    const result = await findOpenRunAttempt();
+
+    expect(supabaseMocks.from).toHaveBeenCalledWith('run_attempts');
+    expect(supabaseMocks.select).toHaveBeenCalledWith('id,start_command_id,status,expires_at');
+    expect(supabaseMocks.in).toHaveBeenCalledWith('status', ['started', 'finished']);
+    expect(supabaseMocks.order).toHaveBeenCalledWith('started_at', { ascending: false });
+    expect(supabaseMocks.limit).toHaveBeenCalledWith(1);
+    expect(result).toEqual({
+      data: {
+        attemptId: ATTEMPT_ID,
+        startCommandId: COMMAND_ID,
+        status: 'finished',
+        expiresAt: '2026-07-24T12:00:00.000Z',
+      },
+      error: null,
+    });
+  });
+
+  it('handles an empty or malformed open-attempt lookup without trusting its payload', async () => {
+    supabaseMocks.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
+    await expect(findOpenRunAttempt()).resolves.toEqual({ data: null, error: null });
+
+    supabaseMocks.maybeSingle.mockResolvedValueOnce({
+      data: {
+        id: ATTEMPT_ID,
+        start_command_id: COMMAND_ID,
+        status: 'verified',
+        expires_at: 'not-a-date',
+      },
+      error: null,
+    });
+    const malformed = await findOpenRunAttempt();
+    expect(malformed.data).toBeNull();
+    expect(malformed.error?.message).toBe('Invalid open run attempt response');
   });
 
   afterEach(() => {

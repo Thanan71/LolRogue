@@ -23,6 +23,7 @@ const deployedAssetsVerifier = readFileSync(
   'utf8',
 );
 const vercelConfig = readFileSync(new URL('../vercel.json', import.meta.url), 'utf8');
+const viteConfig = readFileSync(new URL('../vite.config.ts', import.meta.url), 'utf8');
 
 describe('deployment workflow contract', () => {
   it('ne vérifie aucun déploiement distant dans la validation générique', () => {
@@ -65,6 +66,14 @@ describe('deployment workflow contract', () => {
   it('réserve le fallback SPA aux routes non API', () => {
     expect(vercelConfig).toContain('"source": "/((?!api/).*)"');
     expect(vercelConfig).not.toContain('"source": "/(.*)",\n      "destination": "/index.html"');
+  });
+
+  it('verrouille les builds dev et main sur leur projet Supabase', () => {
+    expect(viteConfig).toContain('process.env.LOLROGUE_DEPLOY_BRANCH');
+    expect(viteConfig).toContain("const devSupabaseProjectRef = 'misdmtpfcbxbhheacehm'");
+    expect(viteConfig).toContain("const productionSupabaseProjectRef = 'mmpvmclqdgfnpfgcqnyu'");
+    expect(viteConfig).toContain('Vercel dev deployments must target the LolRogueDev');
+    expect(viteConfig).toContain('Vercel main deployments must target the LolRogue');
   });
 
   it("vérifie la production via l'alias public et le SHA attendu", () => {

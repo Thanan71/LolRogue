@@ -12,6 +12,13 @@ export type RunAttemptStatus =
   | 'rejected'
   | 'expired';
 
+export interface OpenRunAttempt {
+  attemptId: string;
+  startCommandId: string;
+  status: 'started' | 'finished';
+  expiresAt: string;
+}
+
 export type RunEnhancementSnapshot = Record<string, Record<string, number>>;
 export type RunMasterySnapshot = Record<string, number>;
 

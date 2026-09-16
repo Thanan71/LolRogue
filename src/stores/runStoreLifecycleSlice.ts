@@ -64,6 +64,74 @@ type RunLifecycleActions = Pick<
   'startRun' | 'recordRunCommand' | 'markCombatStarted' | 'endRun'
 >;
 
+type OpenAttemptResolution =
+  | { ready: true }
+  | {
+      ready: false;
+      code: 'account_changed' | 'start_failed';
+      error: string;
+      retryable: boolean;
+    };
+
+async function resolveOpenAttemptBeforeStart(
+  ownerUserId: string,
+  commandId: string,
+): Promise<OpenAttemptResolution> {
+  const openResult = await runAuthorityService.findOpenAttempt();
+  if (useAuthStore.getState().user?.id !== ownerUserId) {
+    return {
+      ready: false,
+      code: 'account_changed',
+      error: 'The authenticated account changed while checking previous runs.',
+      retryable: true,
+    };
+  }
+  if (openResult.error) {
+    return {
+      ready: false,
+      code: 'start_failed',
+      error: `Unable to check for a previous verified run: ${openResult.error.message}`,
+      retryable: true,
+    };
+  }
+
+  const openAttempt = openResult.data;
+  if (!openAttempt || Date.parse(openAttempt.expiresAt) <= Date.now()) {
+    return { ready: true };
+  }
+  if (openAttempt.status === 'started') {
+    if (openAttempt.startCommandId === commandId) return { ready: true };
+    return {
+      ready: false,
+      code: 'start_failed',
+      error: `A verified run is still active on another device until ${openAttempt.expiresAt}. Resume it there or retry after it expires.`,
+      retryable: true,
+    };
+  }
+
+  const verification = await runAuthorityService.verifyAttempt(openAttempt.attemptId);
+  if (useAuthStore.getState().user?.id !== ownerUserId) {
+    return {
+      ready: false,
+      code: 'account_changed',
+      error: 'The authenticated account changed while recovering the previous run.',
+      retryable: true,
+    };
+  }
+  if (verification.error && !(verification.error instanceof RunVerificationRejectedError)) {
+    return {
+      ready: false,
+      code: 'start_failed',
+      error: `A previous run is still waiting for verification: ${verification.error.message}`,
+      retryable: true,
+    };
+  }
+  if (verification.data) {
+    void runLifecycleService.refreshVerifiedProgression(ownerUserId);
+  }
+  return { ready: true };
+}
+
 export function createRunLifecycleSlice(
   set: StoreApi<RunStore>['setState'],
   get: StoreApi<RunStore>['getState'],
@@ -165,15 +233,47 @@ export function createRunLifecycleSlice(
 
             const pendingAuthorityStart = { commandId, ...requestedStart };
             set({ pendingAuthorityStart, saveError: null });
-            const attemptResult = await runAuthorityService.startAttempt({
+            const startInput = {
               commandId,
               mode,
               team: requestedStart.team,
               runeIds: requestedRuneIds,
               difficulty,
-            });
+            };
+            const openAttemptResolution = await resolveOpenAttemptBeforeStart(
+              authUser.id,
+              commandId,
+            );
+            if (!openAttemptResolution.ready) {
+              set({ saveError: openAttemptResolution.error });
+              return startFailure(
+                openAttemptResolution.code,
+                openAttemptResolution.error,
+                openAttemptResolution.retryable,
+              );
+            }
+
+            let attemptResult = await runAuthorityService.startAttempt(startInput);
+            if (attemptResult.error?.message.includes('run_attempt_already_open')) {
+              const racedAttemptResolution = await resolveOpenAttemptBeforeStart(
+                authUser.id,
+                commandId,
+              );
+              if (!racedAttemptResolution.ready) {
+                set({ saveError: racedAttemptResolution.error });
+                return startFailure(
+                  racedAttemptResolution.code,
+                  racedAttemptResolution.error,
+                  racedAttemptResolution.retryable,
+                );
+              }
+              attemptResult = await runAuthorityService.startAttempt(startInput);
+            }
             if (attemptResult.error || !attemptResult.data) {
-              const error = attemptResult.error?.message ?? 'Unable to start a verified run.';
+              const rawError = attemptResult.error?.message ?? 'Unable to start a verified run.';
+              const error = rawError.includes('run_attempt_already_open')
+                ? 'A previous verified run is still open. Retry to recover it before starting a new run.'
+                : rawError;
               const staleDailyOffer =
                 mode === 'daily' && error.includes('daily_starter_not_offered');
               set({

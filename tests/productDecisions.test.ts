@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { BALANCE_CALIBRATION_DECISION } from '@/product/balanceCalibrationDecision';
 import { PRODUCT_DECISIONS, PRODUCT_DECISIONS_VERSION } from '@/product/productDecisions';
 
 describe('décisions produit transverses', () => {
-  it('fige le contrat de lancement v1', () => {
-    expect(PRODUCT_DECISIONS_VERSION).toBe(1);
+  it('fige le contrat de lancement v2', () => {
+    expect(PRODUCT_DECISIONS_VERSION).toBe(2);
     expect(PRODUCT_DECISIONS.launchLanguage.locale).toBe('fr');
     expect(PRODUCT_DECISIONS.guestProgression.automaticAccountMerge).toBe(false);
     expect(PRODUCT_DECISIONS.daily).toMatchObject({
@@ -48,5 +49,35 @@ describe('décisions produit transverses', () => {
       diagnosticRetentionDays: 14,
       activationRequiresPurposeAndUserControls: true,
     });
+  });
+
+  it('garde toute dérive gameplay en observation tant que les preuves manquent', () => {
+    expect(PRODUCT_DECISIONS.balanceCalibration).toEqual({
+      decisionId: 'field-calibration-v1',
+      decisionSchemaVersion: 1,
+      status: 'observation_only',
+      automaticTuning: false,
+      humanPlaytests: 'blocked_not_run',
+    });
+    expect(BALANCE_CALIBRATION_DECISION.authority).toMatchObject({
+      gameplayRulesetVersion: 21,
+      baselineVersion: 1,
+    });
+    expect(BALANCE_CALIBRATION_DECISION.authority.baselineKeys).toHaveLength(2);
+    expect(BALANCE_CALIBRATION_DECISION.evidence.verifiedField).toEqual({
+      status: 'pending_minimum_sample',
+      minimumCompatibleSampleSize: 30,
+      confidenceInterval: 'wilson-95',
+    });
+    expect(BALANCE_CALIBRATION_DECISION.evidence.humanPlaytests).toEqual({
+      status: 'blocked_not_run',
+      requiredBeforePublishingTargetBands: true,
+    });
+    expect(BALANCE_CALIBRATION_DECISION.guardrails).toMatchObject({
+      automaticTuning: false,
+      voluntaryGameplayDriftAllowed: false,
+      compareOnlyIdenticalDimensions: true,
+    });
+    expect(BALANCE_CALIBRATION_DECISION.reviewThresholds.action).toBe('open_review_only');
   });
 });

@@ -24,6 +24,7 @@ const attemptMocks = vi.hoisted(() => {
 
   return {
     start: vi.fn(),
+    findOpen: vi.fn(),
     append: vi.fn(),
     seal: vi.fn(),
     verify: vi.fn(),
@@ -35,6 +36,7 @@ const getChampionMastery = vi.hoisted(() => vi.fn());
 
 vi.mock('@/services/runAttemptService', () => ({
   startRunAttempt: attemptMocks.start,
+  findOpenRunAttempt: attemptMocks.findOpen,
   appendRunAttemptCommands: attemptMocks.append,
   sealRunAttempt: attemptMocks.seal,
   verifyRunAttempt: attemptMocks.verify,
@@ -142,6 +144,7 @@ describe('authoritative run lifecycle and recovery', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getChampionMastery.mockResolvedValue({ data: [], error: null });
+    attemptMocks.findOpen.mockResolvedValue({ data: null, error: null });
     attemptMocks.append.mockResolvedValue({
       data: {
         attemptId: ATTEMPT_ID,
@@ -669,6 +672,15 @@ describe('authoritative run lifecycle and recovery', () => {
         difficulty: 'hard',
       },
     });
+    attemptMocks.findOpen.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        startCommandId: pendingCommandId,
+        status: 'started',
+        expiresAt: '2099-07-24T12:00:00.000Z',
+      },
+      error: null,
+    });
     attemptMocks.start.mockResolvedValue({
       data: {
         attemptId: ATTEMPT_ID,
@@ -705,6 +717,7 @@ describe('authoritative run lifecycle and recovery', () => {
       runeIds: ['press_the_attack'],
       difficulty: 'hard',
     });
+    expect(attemptMocks.verify).not.toHaveBeenCalled();
     expect(useRunStore.getState()).toMatchObject({
       isActive: true,
       mode: 'daily',
@@ -713,5 +726,133 @@ describe('authoritative run lifecycle and recovery', () => {
       runeIds: ['press_the_attack'],
       pendingAuthorityStart: null,
     });
+  });
+
+  it('verifies a finished attempt recovered from another device before starting', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    const previousAttemptId = '55555555-5555-4555-8555-555555555555';
+    attemptMocks.findOpen.mockResolvedValue({
+      data: {
+        attemptId: previousAttemptId,
+        startCommandId: '66666666-6666-4666-8666-666666666666',
+        status: 'finished',
+        expiresAt: '2099-07-24T12:00:00.000Z',
+      },
+      error: null,
+    });
+    attemptMocks.start.mockResolvedValue(verifiedStartResponse());
+
+    await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
+      success: true,
+      runId: RUN_UUID,
+    });
+
+    expect(attemptMocks.findOpen).toHaveBeenCalledOnce();
+    expect(attemptMocks.verify).toHaveBeenCalledWith(previousAttemptId);
+    expect(attemptMocks.start).toHaveBeenCalledOnce();
+  });
+
+  it('keeps the pending start when previous verification is temporarily unavailable', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    attemptMocks.findOpen.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        startCommandId: '66666666-6666-4666-8666-666666666666',
+        status: 'finished',
+        expiresAt: '2099-07-24T12:00:00.000Z',
+      },
+      error: null,
+    });
+    attemptMocks.verify.mockResolvedValue({
+      data: null,
+      error: new Error('temporary Edge failure'),
+    });
+
+    await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
+      success: false,
+      code: 'start_failed',
+      retryable: true,
+      error: expect.stringContaining('previous run is still waiting for verification'),
+    });
+
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+    expect(useRunStore.getState().pendingAuthorityStart).toMatchObject({ ownerUserId: 'user-1' });
+  });
+
+  it('does not replace an active attempt owned by another device', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    attemptMocks.findOpen.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        startCommandId: '66666666-6666-4666-8666-666666666666',
+        status: 'started',
+        expiresAt: '2099-07-24T12:00:00.000Z',
+      },
+      error: null,
+    });
+
+    await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
+      success: false,
+      code: 'start_failed',
+      retryable: true,
+      error: expect.stringContaining('active on another device'),
+    });
+
+    expect(attemptMocks.verify).not.toHaveBeenCalled();
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+  });
+
+  it('recovers one concurrent finished attempt and retries the start only once', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    const previousAttemptId = '55555555-5555-4555-8555-555555555555';
+    attemptMocks.findOpen.mockResolvedValueOnce({ data: null, error: null }).mockResolvedValueOnce({
+      data: {
+        attemptId: previousAttemptId,
+        startCommandId: '66666666-6666-4666-8666-666666666666',
+        status: 'finished',
+        expiresAt: '2099-07-24T12:00:00.000Z',
+      },
+      error: null,
+    });
+    attemptMocks.start
+      .mockResolvedValueOnce({
+        data: null,
+        error: new Error('run_attempt_already_open | 55000 | status=500'),
+      })
+      .mockResolvedValueOnce(verifiedStartResponse());
+
+    await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
+      success: true,
+      runId: RUN_UUID,
+    });
+
+    expect(attemptMocks.findOpen).toHaveBeenCalledTimes(2);
+    expect(attemptMocks.verify).toHaveBeenCalledWith(previousAttemptId);
+    expect(attemptMocks.start).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops recovered startup if the authenticated account changes', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    attemptMocks.findOpen.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        startCommandId: '66666666-6666-4666-8666-666666666666',
+        status: 'finished',
+        expiresAt: '2099-07-24T12:00:00.000Z',
+      },
+      error: null,
+    });
+    attemptMocks.verify.mockImplementation(async () => {
+      useAuthStore.setState({ user: { id: 'user-2' } as User });
+      return { data: { progression, summary: null }, error: null };
+    });
+
+    await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
+      success: false,
+      code: 'account_changed',
+      retryable: true,
+    });
+
+    expect(attemptMocks.start).not.toHaveBeenCalled();
   });
 });

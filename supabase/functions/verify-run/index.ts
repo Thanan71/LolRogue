@@ -70,7 +70,8 @@ async function persistRejection(
 }
 
 function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonRecord | null {
-  const usesParticipationLedger = engineVersion === 'run-engine-v20';
+  const usesParticipationLedger =
+    engineVersion === 'run-engine-v20' || engineVersion === 'run-engine-v21';
   const expectedLedgerVersion = usesParticipationLedger ? 2 : 1;
   const team = Array.isArray(snapshot.team) ? snapshot.team : null;
   const championStats = Array.isArray(snapshot.championStats) ? snapshot.championStats : null;
@@ -475,6 +476,13 @@ Deno.serve(async (request) => {
   );
   const completion = record(completionData);
   if (completionError || !completion) {
+    console.error('[verify-run] complete_run_verification failed', {
+      attempt_id: attemptId,
+      code: completionError?.code ?? 'invalid_rpc_response',
+      message: completionError?.message ?? 'RPC returned no object response',
+      details: completionError?.details ?? null,
+      hint: completionError?.hint ?? null,
+    });
     return json(500, { error: 'verified_progression_commit_failed' });
   }
   if (completion.status === 'rejected') {
