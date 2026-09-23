@@ -20,6 +20,14 @@ describe('variable test-order CI contract', () => {
     expect(workflow).not.toContain('continue-on-error:');
   });
 
+  it('fetches rollback history for every seeded full-suite run', () => {
+    const seededJob = workflow.split('\n  test-order-seed:')[1];
+    expect(seededJob).toBeDefined();
+    const checkoutStep = seededJob?.split('      - name: Use Node.js 24')[0];
+    expect(checkoutStep).toContain('ref: ${{ needs.select-seeds.outputs.commit }}');
+    expect(checkoutStep).toContain('fetch-depth: 0');
+  });
+
   it('passes input through validated arguments and retains reproduction metadata on failures', () => {
     expect(workflow).toContain('REQUESTED_TEST_SEEDS: ${{ inputs.seeds }}');
     expect(workflow).toContain(
