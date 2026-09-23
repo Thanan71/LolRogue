@@ -1159,9 +1159,15 @@ Preuves et seuils : `docs/testing.md`.
 La suite Vitest mélange l'ordre avec une seed fixe. C'est reproductible mais ne
 cherche pas les dépendances d'ordre au-delà de cette permutation.
 
-- [ ] Garder une seed fixe dans la CI principale pour reproductibilité.
-- [ ] Ajouter une job planifiée avec plusieurs seeds aléatoires conservées dans les logs.
-- [ ] En cas d'échec, imprimer la seed exacte pour reproduction locale.
+- [x] Garder une seed fixe dans la CI principale pour reproductibilité.
+- [x] Ajouter une job planifiée avec plusieurs seeds aléatoires conservées dans les logs.
+- [x] En cas d'échec, imprimer la seed exacte pour reproduction locale.
+
+Preuves : `testOrderSeeds.test.mjs`, `testOrderSeedWorkflow.test.ts` et workflow
+`test-order-seeds.yml` (trois seeds distinctes, SHA épinglé, artefacts 14 jours).
+La seed fixe reste 20260801. La matrice est exécutée en PR ; le cron ciblant `dev`
+deviendra actif après promotion du workflow sur `main`, branche par défaut GitHub.
+Commandes de reproduction et limites : `docs/testing.md`.
 
 ---
 
@@ -1511,7 +1517,7 @@ techniques ni afficher une modale à chaque déploiement.**
 25. [x] `P1-TOOL-02` typecheck scripts, configs et E2E.
 26. [x] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
 27. [x] `P2-PERF-02` Web Vitals sur preview locale stable.
-28. [ ] `P2-TEST-02` seeds variables reproductibles.
+28. [x] `P2-TEST-02` seeds variables reproductibles (cron activé après promotion sur `main`).
 29. [ ] `P2-TEST-03` gate `skipLibCheck=false`.
 30. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
 
