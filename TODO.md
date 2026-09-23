@@ -140,29 +140,42 @@ anglaise.
 
 ### Actions
 
-- [ ] Faire passer tout texte utilisateur par une couche i18n ou un catalogue bilingue
+- [x] Faire passer tout texte utilisateur par une couche i18n ou un catalogue bilingue
   indexé par identifiant stable ; supprimer les traductions DOM de secours dès que les
   sources sont correctement internationalisées.
-- [ ] Garantir une parité stricte des clés et des contenus `fr` / `en` : toute entrée
+- [x] Garantir une parité stricte des clés et des contenus `fr` / `en` : toute entrée
   présente dans une locale doit exister dans l'autre.
-- [ ] Internationaliser les données de gameplay elles-mêmes, en particulier les
+- [x] Internationaliser les données de gameplay elles-mêmes, en particulier les
   descriptions de champions et **toutes les compétences**, pas uniquement leur UI.
-- [ ] Utiliser les données localisées Data Dragon lorsque pertinentes (`fr_FR` /
+- [x] Utiliser les données localisées Data Dragon lorsque pertinentes (`fr_FR` /
   `en_US`) ou maintenir des catalogues versionnés équivalents dans le dépôt.
-- [ ] Couvrir les chaînes dynamiques et interpolées avec des templates i18n, y compris
+- [x] Couvrir les chaînes dynamiques et interpolées avec des templates i18n, y compris
   erreurs, journal de combat, récompenses, ventes, recrutement et progression.
-- [ ] Ajouter une gate CI qui scanne TS/TSX **et les catalogues de contenu** pour
+- [x] Ajouter une gate CI qui scanne TS/TSX **et les catalogues de contenu** pour
   détecter texte utilisateur codé en dur, clé manquante, traduction identique suspecte
   et fallback de locale inattendu.
-- [ ] Ajouter des tests de parité pour champions, compétences, runes, augments, objets,
+- [x] Ajouter des tests de parité pour champions, compétences, runes, augments, objets,
   encounters et autres catalogues exposés au joueur.
-- [ ] Ajouter un E2E qui bascule FR → EN et parcourt au minimum Auth → sélection des
+- [x] Ajouter un E2E qui bascule FR → EN et parcourt au minimum Auth → sélection des
   starters → carte → combat → inventaire → encounter → Game Over, avec vérification
   qu'aucun texte français résiduel n'apparaît en anglais.
 - [ ] Auditer manuellement desktop/mobile + lecteur d'écran pour les textes que le scan
   statique ne peut pas garantir.
-- [ ] Empêcher l'ajout futur d'un champion, sort, item, augment, rune ou encounter sans
+- [x] Empêcher l'ajout futur d'un champion, sort, item, augment, rune ou encounter sans
   ses traductions complètes dans toutes les locales supportées.
+
+Preuves techniques : catalogues explicites FR/EN, retrait des traducteurs DOM et des
+regex de traduction des compétences ; contrats `i18nSourceContract` (TS/TSX et texte
+CSS), `i18nCatalogContract` (découverte exhaustive), `championContent`,
+`inventoryContent`, `enhancementContent`, `encounterSourceContract` et `routeTitles`.
+Le parcours `e2e/i18n-english-journey.spec.ts` contrôle aussi les attributs accessibles
+et le contenu des pseudo-éléments CSS après sélection des champions. Les descriptions
+sources du moteur restent immuables ; leur présentation utilise les catalogues par ID,
+et les contrôles de hash confirment que `run-engine-v21` reste valide.
+
+La clôture du P0 reste conditionnée à l'audit humain avec lecteur d'écran et à une
+preuve sur la preview du SHA candidat. Les tests automatisés et les captures du
+navigateur ne constituent pas un audit humain de lecteur d'écran.
 
 ### Acceptation
 
