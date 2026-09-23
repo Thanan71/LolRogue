@@ -1,15 +1,36 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { championDB } from '@/data/championDatabase';
-import { isSpellCombatReady } from '@/game/battle/combatContentSupport';
-import type { Champion } from '@/types/champion';
+import frenchContentJson from '@/data/generated/champion-content.fr-FR.json';
 import clientCatalogJson from '@/data/generated/champions-client.json';
 import fullCatalogJson from '@/data/generated/champions-parsed.json';
+import { isSpellCombatReady } from '@/game/battle/combatContentSupport';
+import type { Champion } from '@/types/champion';
 
 const clientCatalog = clientCatalogJson as Champion[];
 const fullCatalog = fullCatalogJson as Champion[];
 
 describe('client champion catalog', () => {
+  it('preserves every French presentation string without combat data in the text catalog', () => {
+    expect(frenchContentJson.map(({ id }) => id)).toEqual(fullCatalog.map(({ id }) => id));
+    for (const [index, champion] of fullCatalog.entries()) {
+      expect(frenchContentJson[index]).toEqual({
+        id: champion.id,
+        name: champion.name,
+        title: champion.title,
+        passive: {
+          name: champion.passive.name,
+          description: champion.passive.description,
+        },
+        spells: champion.spells.map((spell) => ({
+          id: spell.id,
+          name: spell.name,
+          description: spell.description,
+        })),
+      });
+    }
+  });
+
   it('preserves every visible Database field and spell availability', () => {
     expect(clientCatalog.map(({ id }) => id)).toEqual(fullCatalog.map(({ id }) => id));
 

@@ -1,5 +1,5 @@
 import englishChampionContentJson from '@/data/generated/champion-content.en-US.json';
-import frenchChampionContentJson from '@/data/generated/champions-parsed.json';
+import frenchChampionContentJson from '@/data/generated/champion-content.fr-FR.json';
 
 export type ChampionContentLocale = 'fr-FR' | 'en-US';
 
