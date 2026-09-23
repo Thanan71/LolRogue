@@ -109,6 +109,49 @@ explicitement Node pour le runner, ainsi que DOM/DOM.Iterable pour les callbacks
 exécutés dans la page. `tests/toolingTypecheckContract.test.ts` verrouille ces listes,
 les inclusions et le branchement des trois compilations dans `npm run check`.
 
+### Déclarations tierces : compilation stricte
+
+`npm run typecheck:strict` compile réellement l'application/tests, les scripts et
+les E2E avec `skipLibCheck=false`. Le cycle rapide reste inchangé. Le workflow
+`strict-typecheck.yml` est bloquant en PR et déclenchable manuellement ; son cron
+hebdomadaire cible `dev`, mais ne sera actif qu'après promotion du fichier sur
+`main`, branche par défaut GitHub. Les diagnostics et versions sont conservés dans
+`strict-typecheck-results/report.json`, archivé 14 jours en CI.
+
+Le compilateur natif TypeScript 7 est appelé directement avec une sortie anglaise
+non colorée. Toute sortie inconnue, interruption ou code d'échec anormal bloque la
+gate. `tsconfig.scripts.strict.json` ajoute DOM/DOM.Iterable pour vérifier les
+déclarations des dépendances multi-environnements (Playwright, Supabase, tinybench).
+Il exclut uniquement le témoin négatif `node-globals.ts`. Cela **ne remplace pas**
+la compilation Node sans DOM : le wrapper strict et le workflow l'exécutent aussi,
+et aucune exception n'est autorisée dans cette première compilation.
+
+Deux incompatibilités de déclarations amont restent précisément autorisées dans
+`scripts/strict-typecheck-exceptions.json`, jusqu'au **23 octobre 2026 exclu** :
+
+- `@supabase/auth-js` 2.116.0 / TS2430 : la représentation JSON WebAuthn `largeBlob`
+  diffère de celle du DOM TypeScript 7 (`ArrayBuffer` contre `string`).
+- `@vercel/speed-insights` 2.0.0 / TS2503 : le paquet référence le namespace global
+  `JSX`, supprimé des types React 19, au lieu de `React.JSX`.
+
+Chaque exception fixe le chemin `.d.ts`/`.d.mts`, le code, le message complet
+(empreinte SHA-256), les scopes, la version du paquet et celle de TypeScript.
+Une erreur supplémentaire, une exception obsolète, un doublon, un changement de
+version ou l'expiration fait échouer la gate. Les quatre diagnostics acceptés
+(trois scopes Supabase, un scope React) restent visibles ; il n'y a ni patch de
+`node_modules`, ni namespace global artificiel, ni `continue-on-error`.
+Lors d'une mise à jour, relancer la commande, corriger d'abord le projet et retirer
+les exceptions résolues ; tout renouvellement doit être justifié explicitement.
+
+Les types Jest racine et l'ancienne augmentation Vitest de `jest-dom` ne sont plus
+chargés : les matchers standalone utilisent une augmentation compatible Vitest 5,
+vérifiée en runtime et par des contrats TypeScript positifs/négatifs.
+Preuves : `strictTypecheckPolicy.test.mjs`, `strictTypecheckWorkflow.test.ts` et
+`jestDomMatchersCompatibility.test.ts`.
+
+Références : [skipLibCheck](https://www.typescriptlang.org/tsconfig/skipLibCheck.html),
+[namespace JSX React 19](https://react.dev/blog/2024/04/25/react-19-upgrade-guide#the-jsx-namespace-in-typescript).
+
 ## Politique des advisors Supabase
 
 `config/supabase-advisors.json` versionne le contrat commun aux advisors sécurité et
