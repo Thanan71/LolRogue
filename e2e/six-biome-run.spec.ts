@@ -157,7 +157,7 @@ async function resolveCombat(page: Page, trace: string[]) {
     .then(() => true)
     .catch(() => false);
   if (tutorialOpened) await tutorial.getByRole('button', { name: 'Fermer le tutoriel' }).click();
-  await page.getByRole('radio', { name: 'Vitesse 3x' }).click();
+  await page.getByRole('radio', { name: 'Vitesse 3×' }).click();
 
   // CombatPage intentionally resets autoplay when a new battle enters its
   // `starting` phase. Clicking Auto before that effect has settled races the
