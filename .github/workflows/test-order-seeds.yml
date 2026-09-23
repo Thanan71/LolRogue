@@ -1,0 +1,86 @@
+name: Variable test-order seeds
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/test-order-seeds.yml'
+      - 'scripts/*test*seed*.mjs'
+      - 'scripts/lib/test-order-seeds.mjs'
+      - 'tests/**'
+      - 'vite.config.ts'
+      - 'package*.json'
+  schedule:
+    - cron: '43 4 * * *'
+  workflow_dispatch:
+    inputs:
+      seeds:
+        description: 'Optional comma-separated seeds (1 to 2147483647, at most 8); otherwise 3 random seeds'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-order-seeds-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  select-seeds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      seeds: ${{ steps.select.outputs.seeds }}
+      commit: ${{ steps.select.outputs.commit }}
+    steps:
+      - name: Checkout the candidate or nightly dev
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || github.sha }}
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Select and log reproducible seeds
+        id: select
+        env:
+          REQUESTED_TEST_SEEDS: ${{ inputs.seeds }}
+        run: |
+          seeds=$(node scripts/generate-test-order-seeds.mjs "$REQUESTED_TEST_SEEDS")
+          commit=$(git rev-parse HEAD)
+          echo "seeds=$seeds" >> "$GITHUB_OUTPUT"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "Test order seeds: $seeds; commit: $commit"
+
+  test-order-seed:
+    needs: select-seeds
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: ${{ fromJSON(needs.select-seeds.outputs.seeds) }}
+    steps:
+      - name: Checkout the exact selected commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.select-seeds.outputs.commit }}
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run the full suite with the selected seed
+        env:
+          TEST_ORDER_SEED: ${{ matrix.seed }}
+        run: npm run test:seed -- "$TEST_ORDER_SEED"
+      - name: Preserve reproduction metadata on success or failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-order-seed-${{ matrix.seed }}
+          path: test-seed-results/
+          if-no-files-found: warn
+          retention-days: 14
