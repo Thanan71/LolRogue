@@ -8,6 +8,7 @@ import { ActionType } from '@/game/battle/types';
 import { getCombatVisualProfile } from '@/game/presentation/combatVisuals';
 import {
   COMBAT_ENHANCEMENT_EFFECT_IDS,
+  COMBAT_PHASE_IDS,
   COMBAT_VISUAL_TITLE_IDS,
   type CombatContentLocale,
   type CombatEnhancementEffectId,
@@ -131,6 +132,28 @@ afterEach(() => {
 });
 
 describe('combat content catalog', () => {
+  it('localizes every combat UI phase and its round number without exposing internal IDs', () => {
+    const french = combatContent['fr-FR'].ui;
+    const english = combatContent['en-US'].ui;
+
+    expect(french.round(1280)).toBe('Tour 1 280');
+    expect(english.round(1280)).toBe('Round 1,280');
+    expect(COMBAT_PHASE_IDS.map((phase) => french.phase(phase))).toEqual([
+      'Phase : En attente',
+      'Phase : Démarrage',
+      'Phase : Tour en cours',
+      'Phase : Transition entre les tours',
+      'Phase : Terminé',
+    ]);
+    expect(COMBAT_PHASE_IDS.map((phase) => english.phase(phase))).toEqual([
+      'Phase: Waiting',
+      'Phase: Starting',
+      'Phase: Turn in progress',
+      'Phase: Between turns',
+      'Phase: Finished',
+    ]);
+  });
+
   it('keeps strict structural parity and complete stable visual IDs in both locales', () => {
     expect(catalogShape(combatContent['en-US'])).toEqual(catalogShape(combatContent['fr-FR']));
 

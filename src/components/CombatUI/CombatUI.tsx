@@ -41,9 +41,7 @@ export const CombatUI: React.FC<Props> = ({ width = 800, height = 600, onCast, o
     >
       {/* Header */}
       <div className="combat-overlay__header">
-        <div className="combat-overlay__round">
-          {fr.combat.round} {round}
-        </div>
+        <div className="combat-overlay__round">{combatCopy.ui.round(round)}</div>
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <div className="combat-overlay__phase">
           {phase === 'finished' ? (

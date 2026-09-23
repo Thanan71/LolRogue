@@ -2,6 +2,32 @@ import { locale } from './fr';
 
 export type CombatContentLocale = 'fr-FR' | 'en-US';
 
+export const COMBAT_PHASE_IDS = [
+  'idle',
+  'starting',
+  'turn_active',
+  'turn_transition',
+  'finished',
+] as const;
+
+export type CombatPhaseId = (typeof COMBAT_PHASE_IDS)[number];
+
+const phaseLabelsFr = {
+  idle: 'En attente',
+  starting: 'Démarrage',
+  turn_active: 'Tour en cours',
+  turn_transition: 'Transition entre les tours',
+  finished: 'Terminé',
+} as const satisfies Readonly<Record<CombatPhaseId, string>>;
+
+const phaseLabelsEn = {
+  idle: 'Waiting',
+  starting: 'Starting',
+  turn_active: 'Turn in progress',
+  turn_transition: 'Between turns',
+  finished: 'Finished',
+} as const satisfies Readonly<Record<CombatPhaseId, string>>;
+
 const combatNumberFormatters: Readonly<Record<CombatContentLocale, Intl.NumberFormat>> = {
   'fr-FR': new Intl.NumberFormat('fr-FR'),
   'en-US': new Intl.NumberFormat('en-US'),
@@ -455,7 +481,8 @@ const frFR = {
     observeEnemyTurn: 'Observez le tour adverse',
   },
   ui: {
-    phase: (phase: string) => `Phase: ${phase}`,
+    round: (round: number) => `Tour ${formatCombatNumber('fr-FR', round)}`,
+    phase: (phase: CombatPhaseId) => `Phase : ${phaseLabelsFr[phase]}`,
   },
   tooltip: {
     mana: 'PM :',
@@ -662,7 +689,8 @@ const enUS = {
     observeEnemyTurn: 'Watch the enemy turn',
   },
   ui: {
-    phase: (phase: string) => `Phase: ${phase}`,
+    round: (round: number) => `Round ${formatCombatNumber('en-US', round)}`,
+    phase: (phase: CombatPhaseId) => `Phase: ${phaseLabelsEn[phase]}`,
   },
   tooltip: {
     mana: 'MP:',

@@ -118,7 +118,7 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   adminExport: [],
   adminFieldCalibration: [],
   champion: [],
-  combat: ['$.logs.action', '$.stage.actionTarget', '$.ui.phase'],
+  combat: ['$.logs.action', '$.stage.actionTarget'],
   document: [],
   enhancement: [],
   gameOver: [],
