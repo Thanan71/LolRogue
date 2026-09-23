@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { findNode } from '@/game/map/mapUtils';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
+import { runError } from '@/i18n/runErrorContent';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -648,14 +649,14 @@ describe('authoritative run lifecycle and recovery', () => {
       useRunStore.getState().startRun(['Annie'], { mode: 'daily' }),
     ).resolves.toMatchObject({
       success: false,
-      code: 'start_failed',
+      code: 'daily_starter_not_offered',
       retryable: false,
     });
 
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
       pendingAuthorityStart: null,
-      saveError: 'daily_starter_not_offered | 22023',
+      saveError: runError.dailyStarterChanged,
     });
   });
 
@@ -772,7 +773,7 @@ describe('authoritative run lifecycle and recovery', () => {
       success: false,
       code: 'start_failed',
       retryable: true,
-      error: expect.stringContaining('previous run is still waiting for verification'),
+      error: runError.previousVerificationPending,
     });
 
     expect(attemptMocks.start).not.toHaveBeenCalled();
@@ -795,7 +796,7 @@ describe('authoritative run lifecycle and recovery', () => {
       success: false,
       code: 'start_failed',
       retryable: true,
-      error: expect.stringContaining('active on another device'),
+      error: runError.activeRunElsewhere('2099-07-24T12:00:00.000Z'),
     });
 
     expect(attemptMocks.verify).not.toHaveBeenCalled();

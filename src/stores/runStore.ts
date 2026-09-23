@@ -5,6 +5,7 @@ import {
   RUN_SCHEMA_VERSION,
   RUN_STORAGE_KEY,
 } from '@/game/run/runPersistence';
+import { runError } from '@/i18n/runErrorContent';
 import type { RunStore } from '@/types/run';
 import { safeLocalStorage } from '@/utils/persistence';
 import { RUN_INITIAL_STATE } from './runInitialState';
@@ -51,7 +52,7 @@ export const useRunStore = create<RunStore>()(
             : state.saveStatus,
         saveError:
           state.saveStatus === 'saving' || state.saveStatus === 'retrying'
-            ? 'Run save was interrupted. Retry to continue.'
+            ? runError.saveInterrupted
             : state.saveError,
         saveFailureKind:
           state.saveStatus === 'saving' || state.saveStatus === 'retrying'

@@ -7,9 +7,9 @@ import type { ChampionInstance } from '@/game/ChampionInstance';
 import { NodeType } from '@/game/map/types';
 import { itemDefinitionToRunItem, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
-import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
+import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { useRunStore } from '@/stores/runStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import type { FinalCombatantState } from '@/types/run';
@@ -134,6 +134,7 @@ export function completeCombat({
     runStore.queueSpellUpgrades(postCombat.pendingSpellUpgradeChampionIds);
     const levelsGained = postCombat.levelsGained;
 
+    let droppedItemId: string | null = null;
     let droppedItemName: string | null = null;
     if (resolution?.reward.droppedItem) {
       const itemResult = runStore.addItem(resolution.reward.droppedItem, {
@@ -141,7 +142,10 @@ export function completeCombat({
         nodeId: currentNode.id,
         wave: runStore.currentWave,
       });
-      if (itemResult.success) droppedItemName = resolution.reward.droppedItem.name;
+      if (itemResult.success) {
+        droppedItemId = resolution.reward.droppedItem.id;
+        droppedItemName = resolution.reward.droppedItem.name;
+      }
     }
 
     // Legacy engines chose their drop after incrementing the wave and used
@@ -162,13 +166,17 @@ export function completeCombat({
             nodeId: currentNode.id,
             wave: runStore.currentWave,
           });
-          if (itemResult.success) droppedItemName = item.name;
+          if (itemResult.success) {
+            droppedItemId = item.id;
+            droppedItemName = item.name;
+          }
         }
       }
     }
     runStore.setLastCombatRewards({
       xp: xpGain,
       gold: goldReward,
+      itemId: droppedItemId,
       itemName: droppedItemName,
       itemBlockedByCapacity: resolution?.reward.dropBlockedByCapacity ?? false,
       levelsGained,

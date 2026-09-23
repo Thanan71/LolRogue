@@ -2,7 +2,10 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createClientChampionCatalog } from './lib/client-champion-catalog.mjs';
+import {
+  createChampionContentCatalog,
+  createClientChampionCatalog,
+} from './lib/client-champion-catalog.mjs';
 import { IMPLEMENTED_CHAMPION_IDS, RIOT_ITEM_ASSETS } from './riot-asset-catalog.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -131,6 +134,11 @@ const clientChampionCatalogBytes = Buffer.from(
   'utf8',
 );
 await fs.writeFile(path.join(generatedRoot, 'champions-client.json'), clientChampionCatalogBytes);
+await fs.writeFile(
+  path.join(generatedRoot, 'champion-content.fr-FR.json'),
+  `${JSON.stringify(createChampionContentCatalog(champions), null, 2)}\n`,
+  'utf8',
+);
 
 files.sort((left, right) => left.path.localeCompare(right.path));
 const manifest = {

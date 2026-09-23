@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { cp, writeFile } from 'node:fs/promises';
+import { copyFile, cp, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -189,6 +189,10 @@ export default defineConfig({
       name: 'copy-versioned-riot-assets',
       apply: 'build',
       async writeBundle() {
+        await copyFile(
+          path.resolve(import.meta.dirname, 'preload-document-locale.js'),
+          path.resolve(import.meta.dirname, 'dist/preload-document-locale.js'),
+        );
         await cp(
           path.resolve(import.meta.dirname, 'public/assets'),
           path.resolve(import.meta.dirname, 'dist/assets'),

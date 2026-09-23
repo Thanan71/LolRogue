@@ -223,6 +223,9 @@ export interface RunState {
   lastCombatRewards: {
     xp: number;
     gold: number;
+    /** Stable catalog key for the dropped item. Missing in persisted schema-v7 saves. */
+    itemId: string | null;
+    /** Legacy source-language fallback retained for schema-v7 save compatibility. */
     itemName: string | null;
     itemBlockedByCapacity: boolean;
     levelsGained: number;
@@ -283,6 +286,7 @@ export type RunLifecycleErrorCode =
   | 'invalid_starter_count'
   | 'secure_command_unavailable'
   | 'start_failed'
+  | 'daily_starter_not_offered'
   | 'account_changed'
   | 'stale_run'
   | 'finalization_in_progress'

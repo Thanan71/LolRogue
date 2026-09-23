@@ -72,7 +72,9 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
   await page.getByRole('button', { name: 'Retour au menu' }).click();
   await page.getByRole('button', { name: 'Jouer', exact: true }).click();
 
-  let offered = await page.getByRole('button', { name: /^Choisir / }).allTextContents();
+  const starterChoices = page.getByRole('button', { name: /^Choisir / });
+  await expect(starterChoices.first()).toBeVisible();
+  let offered = await starterChoices.allTextContents();
   for (
     let attempt = 0;
     attempt < 20 && !offered.some((label) => label.includes('Warwick'));
@@ -80,7 +82,8 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
   ) {
     await page.waitForTimeout(10);
     await page.reload();
-    offered = await page.getByRole('button', { name: /^Choisir / }).allTextContents();
+    await expect(starterChoices.first()).toBeVisible();
+    offered = await starterChoices.allTextContents();
   }
   const preferred = ['Warwick', 'Garen', 'Darius', 'Leona', 'Soraka'];
   let selectedCount = 0;
@@ -157,7 +160,7 @@ async function resolveCombat(page: Page, trace: string[]) {
     .then(() => true)
     .catch(() => false);
   if (tutorialOpened) await tutorial.getByRole('button', { name: 'Fermer le tutoriel' }).click();
-  await page.getByRole('radio', { name: 'Vitesse 3x' }).click();
+  await page.getByRole('radio', { name: 'Vitesse 3×' }).click();
 
   // CombatPage intentionally resets autoplay when a new battle enters its
   // `starting` phase. Clicking Auto before that effect has settled races the
@@ -177,10 +180,13 @@ async function resolveCombat(page: Page, trace: string[]) {
   const initialSnapshot = await readCombatSnapshot(page);
   trace.push(`combat:start:${JSON.stringify(initialSnapshot)}`);
   const outcome = page.getByText(/VICTOIRE !|DÉFAITE/, { exact: true });
+  // At 3×, autoplay still waits 400 ms per action. A legal 50-round battle
+  // with four surviving combatants can take 80 seconds before rendering overhead.
+  const combatTimeout = 90_000;
   try {
     await Promise.race([
-      outcome.waitFor({ state: 'visible', timeout: 45_000 }),
-      page.waitForURL(/\/(?:run|game-over)$/, { timeout: 45_000 }),
+      outcome.waitFor({ state: 'visible', timeout: combatTimeout }),
+      page.waitForURL(/\/(?:run|game-over)$/, { timeout: combatTimeout }),
     ]);
   } catch (cause) {
     const snapshot = await readCombatSnapshot(page);
@@ -258,7 +264,7 @@ async function resolvePendingChoices(page: Page, trace: string[]) {
     trace.push(`rewards:${await rewards.textContent()}`);
     await rewards.getByRole('button', { name: 'Fermer' }).click();
   }
-  const augment = page.getByRole('region', { name: "Choix d'augment" });
+  const augment = page.getByRole('region', { name: "Choix d'amélioration" });
   const upgrade = page.getByRole('region', { name: /Amélioration de sort|Améliorer un sort/ });
   for (let choice = 0; choice < 20; choice += 1) {
     const pending = await page.evaluate(async () => {

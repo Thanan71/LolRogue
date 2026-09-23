@@ -4,17 +4,17 @@ import {
   type CanonicalStatKey,
   formatStatValue,
   normalizeStatKey,
-  STAT_LABELS,
 } from '@/game/stats/statContract';
 import { championName, itemDescription, itemName } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { formatNumber } from '@/i18n/format';
+import { fr, locale } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
 import type { InventoryEntry, TeamMember } from '@/types/run';
 import { calculateFullStats, calculateMaxHP } from '@/utils/statCalculator';
-import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
+import { getXpForNextLevel, getXpProgress } from '@/utils/xpSystem';
 
 export function TeamPanel({
   team,
@@ -74,9 +74,16 @@ export function TeamPanel({
         const level = m.level ?? 1;
         const currentXp = m.currentXp ?? 0;
         const xpProgress = getXpProgress(level, currentXp);
-        const xpDisplay = formatXpDisplay(level, currentXp);
+        const xpDisplay =
+          level >= 18
+            ? fr.run.maximumLevel
+            : fr.run.xpProgress(currentXp, getXpForNextLevel(level));
         const maxHp = enhancedHpMap[m.championId] ?? 100;
         const currentHp = Math.min(maxHp, Math.max(0, m.currentHp ?? maxHp));
+        const roundedCurrentHp = Math.round(currentHp);
+        const roundedMaxHp = Math.round(maxHp);
+        const formattedCurrentHp = formatNumber(roundedCurrentHp);
+        const formattedMaxHp = formatNumber(roundedMaxHp);
         const hpPercent = champ ? Math.min(100, Math.max(0, (currentHp / maxHp) * 100)) : 100;
         const healthClass =
           hpPercent > 50
@@ -98,8 +105,11 @@ export function TeamPanel({
                   e.currentTarget.hidden = true;
                 }}
               />
-              <span className="run-map-team-member__level" aria-label={`Niveau ${level}`}>
-                {level}
+              <span
+                className="run-map-team-member__level"
+                aria-label={`${fr.common.level} ${formatNumber(level)}`}
+              >
+                {formatNumber(level)}
               </span>
             </div>
             <div className="run-map-team-member__copy">
@@ -108,11 +118,11 @@ export function TeamPanel({
               <div
                 className="run-map-progress run-map-progress--hp"
                 role="progressbar"
-                aria-label={`PV de ${champ?.name ?? m.championId}`}
+                aria-label={fr.run.hpFor(champ?.name ?? m.championId)}
                 aria-valuemin={0}
-                aria-valuemax={Math.round(maxHp)}
-                aria-valuenow={Math.round(currentHp)}
-                aria-valuetext={`${Math.round(currentHp)} sur ${Math.round(maxHp)} PV`}
+                aria-valuemax={roundedMaxHp}
+                aria-valuenow={roundedCurrentHp}
+                aria-valuetext={fr.run.hpValue(roundedCurrentHp, roundedMaxHp)}
               >
                 <div
                   className={`run-map-progress__fill ${healthClass}`}
@@ -122,11 +132,11 @@ export function TeamPanel({
               {/* XP Bar */}
               <div
                 role="progressbar"
-                aria-label={`Expérience de ${champ?.name ?? m.championId}`}
+                aria-label={fr.run.experienceFor(champ?.name ?? m.championId)}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={Math.round(xpProgress)}
-                aria-valuetext={level >= 18 ? 'Niveau maximum' : xpDisplay}
+                aria-valuetext={level >= 18 ? fr.run.maximumLevel : xpDisplay}
                 className="run-map-progress run-map-progress--xp"
               >
                 <div
@@ -137,9 +147,9 @@ export function TeamPanel({
                 />
               </div>
               <div className="run-map-team-member__meta">
-                <span>{level >= 18 ? 'MAX' : xpDisplay}</span>
+                <span>{level >= 18 ? fr.run.maximumLevelShort : xpDisplay}</span>
                 <span>
-                  {Math.round(currentHp)}/{Math.round(maxHp)} PV
+                  {formattedCurrentHp}/{formattedMaxHp} {fr.common.hpShort}
                 </span>
               </div>
             </div>
@@ -210,28 +220,6 @@ export function InventoryPanel({
     return [...affected].map((stat) => ({ stat, before: before[stat], after: after[stat] }));
   };
 
-  // Stat name translations
-  const statNames: Record<string, string> = {
-    hp: 'Points de vie',
-    mp: 'Points de mana',
-    atk: "Dégâts d'attaque",
-    ap: 'Puissance magique',
-    def: 'Armure',
-    mr: 'Résistance magique',
-    spd: 'Vitesse de déplacement',
-    crit: 'Chance de critique',
-    attackSpeed: "Initiative d'attaque",
-    hpRegen: 'Régénération PV',
-    mpRegen: 'Régénération PM',
-    armorPen: "Pénétration d'armure",
-    magicPen: 'Pénétration magique',
-    lifesteal: 'Vol de vie',
-    omnivamp: 'Omnivamp',
-    tenacity: 'Ténacité',
-    abilityHaste: 'Hâte de compétence',
-    attackRange: 'Profil de portée',
-  };
-
   const getHoveredEntry = () => {
     if (!hoveredItem) return null;
     return inventory.find((e) => e.instanceId === hoveredItem);
@@ -245,13 +233,13 @@ export function InventoryPanel({
       aria-labelledby="run-map-inventory-title"
     >
       <div className="run-map-panel__title run-map-panel__title--actions">
-        <span>Inventaire ({inventory.length}/20)</span>
-        <button type="button" onClick={sortInventory} aria-label="Trier l'inventaire">
-          Trier
+        <span>{fr.run.inventoryTitle(inventory.length, 20)}</span>
+        <button type="button" onClick={sortInventory} aria-label={fr.run.sortInventory}>
+          {fr.run.sort}
         </button>
       </div>
       <span className="sr-only" id="run-map-inventory-title">
-        Inventaire
+        {fr.run.inventoryTitle(inventory.length, 20)}
       </span>
       {inventory.length === 0 && <p className="run-map-panel__empty">{fr.common.empty}</p>}
       {inventory.map((entry) => (
@@ -276,13 +264,15 @@ export function InventoryPanel({
             }
             className="run-map-inventory-item__summary"
           >
-            {entry.item.name} — détails
+            {fr.run.itemDetails(itemName(entry.item.id, entry.item.name))}
           </button>
-          <div className="run-map-inventory-item__value">{entry.item.goldValue} or</div>
+          <div className="run-map-inventory-item__value">
+            {formatNumber(entry.item.goldValue)} {fr.common.gold}
+          </div>
           <div className="run-map-inventory-actions">
             {entry.equippedToChampionId ? (
               <button type="button" onClick={() => unequipItem(entry.instanceId)}>
-                Déséquiper
+                {fr.common.unequip}
               </button>
             ) : (
               team.map((member) => (
@@ -295,20 +285,20 @@ export function InventoryPanel({
                   </button>
                   {getEquipPreview(entry, member).map(({ stat, before, after }) => (
                     <div key={stat} className="run-map-inventory-preview">
-                      {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
-                      {formatStatValue(stat, after)}
+                      {fr.stats[stat]} : {formatStatValue(stat, before, locale)} →{' '}
+                      {formatStatValue(stat, after, locale)}
                     </div>
                   ))}
                 </div>
               ))
             )}
             <button type="button" onClick={() => sellItem(entry.instanceId)}>
-              Vendre {Math.max(1, Math.floor(entry.item.goldValue / 2))}g
+              {fr.run.sellFor(Math.max(1, Math.floor(entry.item.goldValue / 2)))}
             </button>
           </div>
           {entry.equippedToChampionId && (
             <div className="run-map-inventory-item__equipped">
-              Équipé : {championName(entry.equippedToChampionId)}
+              {fr.run.equippedBy(championName(entry.equippedToChampionId))}
             </div>
           )}
         </article>
@@ -332,20 +322,20 @@ export function InventoryPanel({
           {Object.entries(hoveredEntry.item.stats).length > 0 && (
             <div className="run-map-item-tooltip__stats">
               {Object.entries(hoveredEntry.item.stats).map(([key, value]) => {
-                if (value === 0) return null;
-                const statName = statNames[key] || key;
+                const stat = normalizeStatKey(key);
+                if (!stat || value === 0) return null;
                 const sign = value > 0 ? '+' : '';
                 return (
-                  <div key={key} className="run-map-item-tooltip__stat">
+                  <div key={stat} className="run-map-item-tooltip__stat">
                     {sign}
-                    {value} {statName}
+                    {formatStatValue(stat, value, locale)} {fr.stats[stat]}
                   </div>
                 );
               })}
             </div>
           )}
           <div className="run-map-item-tooltip__value">
-            Valeur : {hoveredEntry.item.goldValue} or
+            {fr.run.itemValue(hoveredEntry.item.goldValue)}
           </div>
         </div>
       )}

@@ -92,7 +92,7 @@ describe('comparable profile history', () => {
     const summary = await screen.findByText(/Victoire/);
     fireEvent.click(summary.closest('summary') ?? summary);
 
-    expect(screen.getByText(/normal · hard · gameplay v13/)).toBeVisible();
+    expect(screen.getByText(/normal · difficile · règles de jeu v13/)).toBeVisible();
     expect(screen.getByText(/Garen niv. 6, Lux niv. 5/)).toBeVisible();
     expect(screen.getByText(/820 or gagné · 600 or dépensé · 4 objets achetés/)).toBeVisible();
     expect(screen.getByText(/12.500 dégâts · 900 soins · 450 boucliers/)).toBeVisible();

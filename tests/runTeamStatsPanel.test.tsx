@@ -137,7 +137,7 @@ describe('RunTeamStatsPanel', () => {
     const view = render(<RunTeamStatsPanel team={[member]} inventory={inventory} />);
 
     expect(view.container.querySelector('[data-stat="hp"] dd')).toHaveTextContent(
-      `600 / ${Math.round(expected.hp)}`,
+      `${formatted(600)} / ${formatted(Math.round(expected.hp))}`.replace(/\s/gu, ' '),
     );
     expect(view.container.querySelector('[data-stat="attackDamage"] dd')).toHaveTextContent(
       formatted(expected.attackDamage),
@@ -158,15 +158,25 @@ describe('RunTeamStatsPanel', () => {
       formatted(expected.moveSpeed),
     );
     expect(view.container.querySelector('[data-stat="crit"] dd')).toHaveTextContent(
-      `${formatted(expected.crit)} %`,
+      new Intl.NumberFormat('fr-FR', {
+        style: 'percent',
+        maximumFractionDigits: 2,
+      })
+        .format(expected.crit / 100)
+        .replace(/\s/gu, ' '),
     );
 
     const slots = screen.getAllByRole('listitem');
     expect(slots).toHaveLength(6);
-    expect(
-      screen.getByLabelText('Emplacement 1 : Épée locale').querySelector('img'),
-    ).toHaveAttribute('src', '/assets/riot/16.6.1/items/1036.png');
-    expect(screen.getByLabelText('Emplacement 2 : Orbe mystique').querySelector('img')).toBeNull();
+    const unknownItemSlots = screen.getAllByLabelText(/^Emplacement [12] : Objet inconnu$/);
+    expect(unknownItemSlots).toHaveLength(2);
+    expect(unknownItemSlots[0]?.querySelector('img')).toHaveAttribute(
+      'src',
+      '/assets/riot/16.6.1/items/1036.png',
+    );
+    expect(unknownItemSlots[1]?.querySelector('img')).toBeNull();
+    expect(view.container).not.toHaveTextContent('Épée locale');
+    expect(view.container).not.toHaveTextContent('Orbe mystique');
     expect(view.container.querySelectorAll('.run-team-stats__item-slot--empty')).toHaveLength(4);
   });
 

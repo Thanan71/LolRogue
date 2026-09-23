@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { fr } from '@/i18n/fr';
+import { localizePersistedRunError, verificationRejectionMessage } from '@/i18n/runErrorContent';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
 
 export function NotificationRegion() {
   const saveStatus = useRunStore((state) => state.saveStatus);
   const saveError = useRunStore((state) => state.saveError);
+  const saveFailureKind = useRunStore((state) => state.saveFailureKind);
+  const saveDiagnostic = useRunStore((state) => state.saveDiagnostic);
   const enhancementError = useEnhancementStore((state) => state.error);
   const [message, setMessage] = useState<string | null>(null);
   const isCritical = saveStatus === 'failed' || Boolean(enhancementError);
@@ -15,8 +18,14 @@ export function NotificationRegion() {
       setMessage(fr.notifications.saving);
     }
     if (saveStatus === 'saved') setMessage(fr.notifications.runSaved);
-    if (saveStatus === 'failed') setMessage(saveError || fr.notifications.saveFailed);
-  }, [saveStatus, saveError]);
+    if (saveStatus === 'failed') {
+      setMessage(
+        saveFailureKind === 'terminal' && saveDiagnostic?.rejectionCode
+          ? verificationRejectionMessage(saveDiagnostic.rejectionCode, null)
+          : localizePersistedRunError(saveError),
+      );
+    }
+  }, [saveDiagnostic, saveError, saveFailureKind, saveStatus]);
 
   useEffect(() => {
     if (enhancementError) setMessage(enhancementError);

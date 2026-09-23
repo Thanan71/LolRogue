@@ -24,7 +24,11 @@ test('un compte démarre et reprend le Daily autoritaire uniquement par l’inte
   await expect(page).toHaveURL('/daily-run');
   const challengeParameters = page.getByLabel('Paramètres du défi');
   await expect(challengeParameters).toBeVisible();
-  await expect(challengeParameters.getByText(/^\d{4}-\d{2}-\d{2} UTC$/)).toBeVisible();
+  await expect(
+    challengeParameters.getByText(
+      /^\d{1,2} (janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) \d{4} UTC$/,
+    ),
+  ).toBeVisible();
   await expect(challengeParameters.getByText(/^(Facile|Normale|Difficile)$/)).toBeVisible();
   await expect(challengeParameters.getByText(/^v\d+$/)).toBeVisible();
   await page.getByRole('button', { name: 'Commencer le défi' }).click();

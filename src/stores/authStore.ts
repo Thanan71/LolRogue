@@ -1,5 +1,6 @@
 import type { Session, Subscription, User } from '@supabase/supabase-js';
 import { create } from 'zustand';
+import { fr } from '@/i18n/fr';
 import { RepositoryContainerFactory } from '@/services/container';
 import type { IRepositoryContainer } from '@/services/interfaces';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
@@ -75,19 +76,39 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-function getAuthErrorMessage(error: unknown): string {
+export function localizeAuthError(error: unknown): string {
   const message = getErrorMessage(error);
-  if (/invalid login credentials/i.test(message)) return 'Identifiants incorrects.';
+  if (/invalid login credentials/i.test(message)) return fr.auth.invalidCredentials;
   if (/user.*not found|invalid.*email|invalid email/i.test(message)) {
-    return 'E-mail ou mot de passe invalide.';
+    return fr.auth.invalidEmailOrPassword;
   }
   if (/unconfirmed|confirm.*email|email.*not.*confirmed/i.test(message)) {
-    return 'Veuillez confirmer votre adresse e-mail avant de vous connecter.';
+    return fr.auth.emailUnconfirmed;
+  }
+  if (/already (?:been )?registered|user already exists/i.test(message)) {
+    return fr.auth.userAlreadyRegistered;
+  }
+  if (/password.*(?:weak|least|characters)|weak password/i.test(message)) {
+    return fr.auth.weakPassword;
+  }
+  if (/rate limit|too many requests/i.test(message)) return fr.auth.rateLimited;
+  if (/duplicate key.*username|username.*already (?:exists|taken)/i.test(message)) {
+    return fr.auth.usernameTaken;
   }
   if (/network|failed to fetch|request failed/i.test(message)) {
-    return 'Erreur réseau. Vérifiez votre connexion et réessayez.';
+    return fr.auth.networkError;
   }
-  return message || 'Une erreur est survenue lors de la connexion.';
+  if (
+    [
+      fr.auth.masteryUnavailable,
+      fr.auth.profileUnavailable,
+      fr.auth.missingSession,
+      fr.auth.signupMissingSession,
+    ].some((localizedMessage) => localizedMessage === message)
+  ) {
+    return message;
+  }
+  return fr.auth.genericError;
 }
 
 function readGuestMode(): boolean {
@@ -113,7 +134,7 @@ async function hydrateAuthenticatedProgression(userId: string, player: Player): 
   useEnhancementStore.getState().reset();
   await useEnhancementStore.getState().initialize(userId, player.total_candies);
   if (!useMasteryStore.getState().isHydrated) {
-    throw new Error('La maîtrise du compte n’a pas pu être chargée.');
+    throw new Error(fr.auth.masteryUnavailable);
   }
 }
 
@@ -125,7 +146,7 @@ async function waitForPlayer(userId: string, retries = 8): Promise<Player> {
     lastError = result.error;
     if (attempt + 1 < retries) await new Promise((resolve) => setTimeout(resolve, 250));
   }
-  throw lastError ?? new Error('Le profil joueur est indisponible. Réessayez.');
+  throw lastError ?? new Error(fr.auth.profileUnavailable);
 }
 
 async function withLastLogin(player: Player): Promise<Player> {
@@ -160,10 +181,10 @@ async function establishSession(session: Session, generation: number): Promise<A
   if (await hasBlockingRun(session.user.id)) {
     return {
       success: false,
-      error: 'Terminez ou abandonnez la run active avant de changer de compte.',
+      error: fr.auth.activeRunAccountChange,
     };
   }
-  if (!isCurrent(generation)) return { success: false, error: 'Session obsolète.' };
+  if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
   useAuthStore.setState({
     session,
     user: session.user,
@@ -178,10 +199,10 @@ async function establishSession(session: Session, generation: number): Promise<A
   });
   try {
     const player = await waitForPlayer(session.user.id);
-    if (!isCurrent(generation)) return { success: false, error: 'Session obsolète.' };
+    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     const refreshedPlayer = await withLastLogin(player);
     await hydrateAuthenticatedProgression(session.user.id, refreshedPlayer);
-    if (!isCurrent(generation)) return { success: false, error: 'Session obsolète.' };
+    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     setStoredGuestMode(false);
     useAuthStore.setState({
       session,
@@ -197,9 +218,9 @@ async function establishSession(session: Session, generation: number): Promise<A
     });
     return { success: true };
   } catch (error) {
-    if (!isCurrent(generation)) return { success: false, error: 'Session obsolète.' };
+    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     await resetProgressionCaches('signed-out');
-    const message = getAuthErrorMessage(error);
+    const message = localizeAuthError(error);
     useAuthStore.setState({
       session,
       user: session.user,
@@ -237,7 +258,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   login: async (email, password) => {
     if (!isSupabaseConfigured) {
-      const error = 'Supabase is not configured. Guest mode is still available.';
+      const error = fr.auth.unavailable;
       set({ error, isLoading: false, isInitialized: true, authStatus: 'signedOut' });
       return { success: false, error };
     }
@@ -246,11 +267,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const result = await container.auth.signIn(email, password);
       if (result.error) throw result.error;
-      if (!result.session) throw new Error('No session data returned');
+      if (!result.session) throw new Error(fr.auth.missingSession);
       return await establishSession(result.session, generation);
     } catch (error) {
-      if (!isCurrent(generation)) return { success: false, error: 'Session obsolète.' };
-      const message = getAuthErrorMessage(error);
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+      const message = localizeAuthError(error);
       await establishSignedOut(generation, false);
       set({ error: message });
       return { success: false, error: message };
@@ -259,7 +280,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   signUp: async (email, password, username, displayName) => {
     if (!isSupabaseConfigured) {
-      const error = 'Supabase is not configured. Guest mode is still available.';
+      const error = fr.auth.unavailable;
       set({ error, isLoading: false, isInitialized: true, authStatus: 'signedOut' });
       return { success: false, error };
     }
@@ -272,14 +293,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
       if (result.error) throw result.error;
       if (!result.session) {
-        throw new Error(
-          'Signup did not return a session. Disable Confirm email in Supabase Auth settings.',
-        );
+        throw new Error(fr.auth.signupMissingSession);
       }
       return await establishSession(result.session, generation);
     } catch (error) {
-      if (!isCurrent(generation)) return { success: false, error: 'Session obsolète.' };
-      const message = getAuthErrorMessage(error);
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+      const message = localizeAuthError(error);
       await establishSignedOut(generation, false);
       set({ error: message });
       return { success: false, error: message };
@@ -288,7 +307,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   logout: async () => {
     if (await hasBlockingRun(null)) {
-      const error = 'Terminez ou abandonnez la run active avant de vous déconnecter.';
+      const error = fr.auth.activeRunLogout;
       set({ error });
       return { success: false, error };
     }
@@ -300,8 +319,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       await establishSignedOut(generation, false);
       return { success: true };
     } catch (error) {
-      if (!isCurrent(generation)) return { success: false, error: 'Session obsolète.' };
-      const message = getAuthErrorMessage(error);
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+      const message = localizeAuthError(error);
       set({ isLoading: false, error: message });
       return { success: false, error: message };
     }
@@ -309,14 +328,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   enterGuestMode: async () => {
     if (await hasBlockingRun(null)) {
-      const error = 'Terminez ou abandonnez la run active avant de passer en invité.';
+      const error = fr.auth.activeRunGuestEnter;
       set({ error });
       return { success: false, error };
     }
     const generation = nextGeneration();
     set({ isLoading: true, isInitialized: false, error: null });
     await resetProgressionCaches('guest');
-    if (!isCurrent(generation)) return { success: false, error: 'Session obsolète.' };
+    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     setStoredGuestMode(true);
     set({
       session: null,
@@ -335,7 +354,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   exitGuestMode: async () => {
     if (await hasBlockingRun(null)) {
-      const error = 'Terminez ou abandonnez la run active avant de quitter le mode invité.';
+      const error = fr.auth.activeRunGuestExit;
       set({ error });
       return { success: false, error };
     }
@@ -347,7 +366,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   refreshPlayer: async () => {
     const { session } = get();
-    if (!session) return { success: false, error: 'Aucune session active.' };
+    if (!session) return { success: false, error: fr.auth.noActiveSession };
     return establishSession(session, nextGeneration());
   },
 
@@ -372,7 +391,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       else await establishSignedOut(generation, get().isGuest);
     } catch (error) {
       if (!isCurrent(generation)) return;
-      const message = getAuthErrorMessage(error);
+      const message = localizeAuthError(error);
       await establishSignedOut(generation, get().isGuest);
       set({ error: message });
     }

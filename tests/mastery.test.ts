@@ -14,9 +14,9 @@ import {
   getUnlockIdsForLevel,
   getUnlocksForLevel,
 } from '../src/services/masteryService';
+import { useMasteryStore } from '../src/stores/masteryStore';
 import type { ChampionMastery } from '../src/types/mastery';
 import { MASTERY_THRESHOLDS, MAX_MASTERY_LEVEL, STAT_BONUS_PER_LEVEL } from '../src/types/mastery';
-import { useMasteryStore } from '../src/stores/masteryStore';
 
 describe('Mastery Constants', () => {
   it('should have 5 mastery levels (0-4)', () => {

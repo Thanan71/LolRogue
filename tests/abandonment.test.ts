@@ -1,8 +1,7 @@
 import { vi } from 'vitest';
-import {
-  finalizeActiveRunBeforeTransition,
-  RUN_ABANDONMENT_CONFIRMATION,
-} from '../src/game/run/abandonment';
+import { finalizeActiveRunBeforeTransition } from '../src/game/run/abandonment';
+
+const confirmationMessage = 'Localized abandonment confirmation';
 
 describe('run abandonment', () => {
   it('does not prompt or finalize when there is no active run', async () => {
@@ -12,6 +11,7 @@ describe('run abandonment', () => {
       finalizeActiveRunBeforeTransition({
         isActive: false,
         runId: '',
+        confirmationMessage,
         confirm,
         endRun,
       }),
@@ -31,17 +31,19 @@ describe('run abandonment', () => {
       finalizeActiveRunBeforeTransition({
         isActive: true,
         runId: 'active-run',
+        confirmationMessage,
         confirm,
         endRun,
       }),
     ).resolves.toBe(true);
-    expect(confirm).toHaveBeenCalledWith(RUN_ABANDONMENT_CONFIRMATION);
+    expect(confirm).toHaveBeenCalledWith(confirmationMessage);
     expect(endRun).toHaveBeenCalledWith('active-run');
 
     await expect(
       finalizeActiveRunBeforeTransition({
         isActive: true,
         runId: 'active-run',
+        confirmationMessage,
         confirm: () => false,
         endRun,
       }),
@@ -54,6 +56,7 @@ describe('run abandonment', () => {
       finalizeActiveRunBeforeTransition({
         isActive: true,
         runId: 'active-run',
+        confirmationMessage,
         confirm: () => true,
         endRun: vi.fn().mockResolvedValue({
           success: false,

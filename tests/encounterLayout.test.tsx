@@ -8,7 +8,7 @@ describe('EncounterLayout', () => {
     render(
       <EncounterLayout
         title="Long encounter title"
-        gold={125}
+        gold={3_600}
         tone="orange"
         subtitle="Encounter guidance"
       >
@@ -20,7 +20,10 @@ describe('EncounterLayout', () => {
     const heading = screen.getByRole('heading', { name: 'Long encounter title' });
     expect(heading).toBeInTheDocument();
     expect(screen.getByText('Encounter guidance')).toBeInTheDocument();
-    expect(screen.getByLabelText('Or : 125')).toBeInTheDocument();
+    expect(screen.getByText('Rencontre en cours')).toBeInTheDocument();
+    expect(screen.getByText(/3\s600/).closest('.encounter-layout__gold')).toHaveAccessibleName(
+      /Or : 3\s600/,
+    );
     const content = screen.getByRole('button', { name: 'Continue' }).closest('section');
     expect(content).toHaveClass('encounter-layout__content');
     expect(content).toHaveAttribute('aria-labelledby', heading.id);

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import { Button } from '@/components/ui';
-import { formatNumber } from '@/i18n/format';
+import { formatNumber, formatUtcDateKey } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
@@ -205,7 +205,7 @@ export function DailyLeaderboard() {
       ) : (
         <div className="daily-leaderboard__table-frame">
           <table className="daily-leaderboard__table">
-            <caption>{fr.daily.leaderboardCaption(dailyDate)}</caption>
+            <caption>{fr.daily.leaderboardCaption(formatUtcDateKey(dailyDate))}</caption>
             <thead>
               <tr>
                 <th scope="col">
@@ -225,7 +225,7 @@ export function DailyLeaderboard() {
                   key={`${entry.entryId ?? entry.rank ?? i + 1}-${entry.playerName}`}
                   className={i < 3 ? 'daily-leaderboard__top-row' : undefined}
                 >
-                  <td data-label={fr.daily.rank}>{entry.rank ?? i + 1}</td>
+                  <td data-label={fr.daily.rank}>{formatNumber(entry.rank ?? i + 1)}</td>
                   <th scope="row" data-label={fr.daily.player}>
                     {entry.playerName}
                   </th>

@@ -3,9 +3,12 @@ import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
 import { ROUTES } from '@/config/routes';
 import { getNodeEncounter } from '@/game/map/mapUtils';
+import { formatStatValue, normalizeStatKey } from '@/game/stats/statContract';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { itemDescription, itemName, localizeUserCopy } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { itemDescription, itemName } from '@/i18n/content';
+import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { formatNumber } from '@/i18n/format';
+import { fr, locale } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/treasure.css';
 
@@ -31,6 +34,11 @@ export function TreasurePage() {
   const encounter = useMemo(() => {
     return getNodeEncounter(getCurrentNode(), 'treasure');
   }, [getCurrentNode]);
+  const encounterPresentation = getEncounterPresentation(locale, {
+    type: 'treasure',
+    name: encounter?.name,
+    description: encounter?.description,
+  });
 
   const handleCollect = useCallback(() => {
     if (!encounter || collected) return;
@@ -53,8 +61,8 @@ export function TreasurePage() {
       const result = addItem(
         {
           id: encounter.item.itemId,
-          name: itemName(encounter.item.itemId, encounter.item.name),
-          description: itemDescription(encounter.item.itemId, encounter.item.description),
+          name: encounter.item.name,
+          description: encounter.item.description,
           iconUrl: encounter.item.iconUrl,
           stats: encounter.item.stats,
           passiveId: encounter.item.passiveId,
@@ -125,19 +133,15 @@ export function TreasurePage() {
 
         {!collected ? (
           <div className="treasure-page__state">
-            <h2 className="treasure-page__title">
-              {encounter?.name ?? fr.encounter.treasureFound}
-            </h2>
-            <p className="treasure-page__description">
-              {localizeUserCopy(encounter?.description ?? fr.encounter.treasureAwaits)}
-            </p>
+            <h2 className="treasure-page__title">{encounterPresentation.name}</h2>
+            <p className="treasure-page__description">{encounterPresentation.description}</p>
             <div className="treasure-page__preview">
               <div className="treasure-page__preview-item">
                 <span className="treasure-page__preview-icon" aria-hidden="true">
                   <span className="treasure-page__coin" />
                 </span>
                 <span className="treasure-page__preview-gold">
-                  +{encounter?.gold ?? 0} {fr.common.gold}
+                  +{formatNumber(encounter?.gold ?? 0)} {fr.common.gold}
                 </span>
               </div>
               {encounter?.item && (
@@ -186,8 +190,13 @@ export function TreasurePage() {
                 <h3 className="treasure-page__reward-label">{fr.encounter.treasureGold}</h3>
                 <div className="treasure-page__reward-value">
                   <span className="treasure-page__coin" aria-hidden="true" />
-                  <span className="treasure-page__reward-gold">+{encounter?.gold ?? 0}</span>
-                  <span className="treasure-page__reward-total"> (Total : {gold})</span>
+                  <span className="treasure-page__reward-gold">
+                    +{formatNumber(encounter?.gold ?? 0)}
+                  </span>
+                  <span className="treasure-page__reward-total">
+                    {' '}
+                    ({fr.common.total} : {formatNumber(gold)})
+                  </span>
                 </div>
               </article>
 
@@ -217,12 +226,19 @@ export function TreasurePage() {
                         {itemDescription(encounter.item.itemId, encounter.item.description)}
                       </p>
                       {Object.keys(encounter.item.stats).length > 0 && (
-                        <ul className="treasure-page__item-stats" aria-label="Bonus de l’objet">
-                          {Object.entries(encounter.item.stats).map(([stat, value]) => (
-                            <li key={stat} className="treasure-page__item-stat">
-                              +{value} {stat.toUpperCase()}
-                            </li>
-                          ))}
+                        <ul
+                          className="treasure-page__item-stats"
+                          aria-label={fr.encounter.itemBonuses}
+                        >
+                          {Object.entries(encounter.item.stats).map(([key, value]) => {
+                            const stat = normalizeStatKey(key);
+                            if (!stat || value === 0) return null;
+                            return (
+                              <li key={stat} className="treasure-page__item-stat">
+                                +{formatStatValue(stat, value, locale)} {fr.stats[stat]}
+                              </li>
+                            );
+                          })}
                         </ul>
                       )}
                     </div>

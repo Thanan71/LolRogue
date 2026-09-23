@@ -1,21 +1,22 @@
 {
-  "version": 2,
+  "version": 3,
   "bundle": {
-    "totalJavaScriptGzipBytes": 480000,
+    "totalJavaScriptGzipBytes": 640000,
     "largestJavaScriptRawBytes": 560000,
     "initialJavaScriptGzipBytes": 215000,
     "authRouteJavaScriptGzipBytes": 225000,
-    "deployableAssetBytes": 7200000
+    "deployableAssetBytes": 8000000
   },
   "headroom": {
     "totalJavaScriptMinimumRatio": 0.1
   },
   "chunks": {
+    "content": 135000,
     "react-vendor": 83000,
     "supabase-vendor": 56000,
     "champion-data": 55000,
-    "index": 70000,
-    "runStore": 32000
+    "index": 78000,
+    "runStore": 34000
   },
   "labMobileWebVitals": {
     "sampleCount": 5,

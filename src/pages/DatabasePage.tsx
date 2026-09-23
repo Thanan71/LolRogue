@@ -5,7 +5,7 @@ import { championDB } from '@/data/championDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { localizeChampion } from '@/i18n/content';
 import { formatChampionTag, plural } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
 import { useAuthStore } from '@/stores/authStore';
 import { useChampionEnhancements, useEnhancementStore } from '@/stores/enhancementStore';
 import type { Champion } from '@/types/champion';
@@ -42,16 +42,16 @@ export function DatabasePage() {
     }
   }, [player?.total_candies, setAvailableCandies]);
 
-  const allChampions = useMemo(() => championDB.getAll(), []);
+  const allChampions = useMemo(() => championDB.getAll().map(localizeChampion), []);
 
   const filteredChampions = useMemo(() => {
     if (!search.trim()) return allChampions;
-    const q = search.toLowerCase();
+    const q = search.toLocaleLowerCase(locale);
     return allChampions.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.title.toLowerCase().includes(q) ||
-        c.tags.some((t) => t.toLowerCase().includes(q)),
+      (champion) =>
+        champion.name.toLocaleLowerCase(locale).includes(q) ||
+        champion.title.toLocaleLowerCase(locale).includes(q) ||
+        champion.tags.some((tag) => formatChampionTag(tag).toLocaleLowerCase(locale).includes(q)),
     );
   }, [allChampions, search]);
 
@@ -112,7 +112,9 @@ export function DatabasePage() {
           {fr.common.backToMenu}
         </button>
         <h1 className="database-title">{fr.database.title}</h1>
-        <span className="database-count">{plural(allChampions.length, 'champion')}</span>
+        <span className="database-count">
+          {plural(allChampions.length, fr.database.champion, fr.database.champions)}
+        </span>
       </header>
 
       <div className="database-body">
@@ -141,7 +143,7 @@ export function DatabasePage() {
                 >
                   <img
                     src={champ.iconUrl}
-                    alt={localizeChampion(champ).name}
+                    alt={champ.name}
                     width={120}
                     height={120}
                     loading="lazy"
@@ -151,7 +153,7 @@ export function DatabasePage() {
                     }}
                   />
                   <div className="database-list-item-info">
-                    <div className="database-list-item-name">{localizeChampion(champ).name}</div>
+                    <div className="database-list-item-name">{champ.name}</div>
                     <div className="database-list-item-tags">
                       {champ.tags.map(formatChampionTag).join(', ')}
                     </div>
@@ -161,10 +163,10 @@ export function DatabasePage() {
             ))}
             {filteredChampions.length === 0 && (
               <li className="database-empty" role="status">
-                <strong>Aucun champion trouvé</strong>
-                <span>Essaie un autre nom, titre ou rôle.</span>
+                <strong>{fr.database.emptyTitle}</strong>
+                <span>{fr.database.emptyHelp}</span>
                 <button type="button" onClick={() => setSearch('')}>
-                  Effacer la recherche
+                  {fr.database.clearSearch}
                 </button>
               </li>
             )}
@@ -176,9 +178,7 @@ export function DatabasePage() {
           id="database-champion-detail"
           className="database-detail"
           aria-label={
-            selectedChampion
-              ? `Fiche de ${localizeChampion(selectedChampion).name}`
-              : fr.database.select
+            selectedChampion ? fr.database.detailLabel(selectedChampion.name) : fr.database.select
           }
           tabIndex={selectedChampion ? -1 : undefined}
         >
@@ -186,9 +186,9 @@ export function DatabasePage() {
             <>
               <div className="database-detail-mobile-nav">
                 <button type="button" onClick={handleReturnToChampionList}>
-                  <span aria-hidden="true">←</span> Retour à la liste
+                  <span aria-hidden="true">←</span> {fr.database.backToList}
                 </button>
-                <strong>{localizeChampion(selectedChampion).name}</strong>
+                <strong>{selectedChampion.name}</strong>
               </div>
               <div
                 className="database-tabs"

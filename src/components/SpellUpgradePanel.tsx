@@ -2,10 +2,12 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { riotSpellIconUrl } from '@/config/riotSpellAssets';
 import { championDB } from '@/data/championDatabase';
 import type { SpellSlot } from '@/game/ChampionInstance';
-import { buildSpellImpactPreview } from '@/game/presentation/spellPreview';
+import { buildSpellImpactPreview, formatSpellImpactAmount } from '@/game/presentation/spellPreview';
 import { buildRunPlayerTeam } from '@/game/run/runCombatant';
 import { canUpgradeSpell, getSpellRankCap, SPELL_SLOTS } from '@/game/run/spellUpgradeRules';
-import { fr } from '@/i18n/fr';
+import { localizeChampion } from '@/i18n/content';
+import { locale } from '@/i18n/fr';
+import { runPreparationCopy } from '@/i18n/runPreparationContent';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
@@ -13,6 +15,11 @@ import type { TeamMember } from '@/types/run';
 import type { CalculatedStats } from '@/utils/champion';
 import { calculateFullStats } from '@/utils/statCalculator';
 import '@/styles/spell-upgrade.css';
+
+const spellCopy = runPreparationCopy.spellUpgrade;
+const spellValueFormatter = new Intl.NumberFormat(locale, {
+  maximumFractionDigits: 10,
+});
 
 export interface SpellUpgradePanelProps {
   championId: string;
@@ -34,16 +41,16 @@ function valueAtRank(values: readonly number[], rank: number): number | undefine
 }
 
 function formatValue(value: number | undefined): string {
-  return Number.isFinite(value) ? String(value) : '—';
+  return value !== undefined && Number.isFinite(value) ? spellValueFormatter.format(value) : '—';
 }
 
 function fallbackInitials(name: string): string {
   const letters = Array.from(name).filter((letter) => /[\p{L}\p{N}]/u.test(letter));
-  return letters.slice(0, 2).join('').toLocaleUpperCase('fr') || '?';
+  return letters.slice(0, 2).join('').toLocaleUpperCase(locale) || '?';
 }
 
 function disabledReason(rank: number, maximumRank: number): string {
-  return rank >= maximumRank ? fr.run.maximumRank : fr.run.levelRequired;
+  return rank >= maximumRank ? spellCopy.maximumRankReason : spellCopy.levelRequiredReason;
 }
 
 function firstAvailableSlot(member: TeamMember): SpellSlot {
@@ -69,7 +76,7 @@ function ImpactList({
             >
               <span>{impact.label}</span>
               <strong>
-                {impact.amount !== undefined ? impact.amount : null}
+                {impact.amount !== undefined ? formatSpellImpactAmount(impact) : null}
                 {impact.amount !== undefined && impact.suffix ? ' · ' : null}
                 {impact.suffix}
               </strong>
@@ -77,7 +84,7 @@ function ImpactList({
           ))
         ) : (
           <span className="spell-upgrade__impact spell-upgrade__impact--utility">
-            <span>Effet utilitaire</span>
+            <span>{spellCopy.utilityEffect}</span>
           </span>
         )}
       </div>
@@ -94,7 +101,8 @@ export function SpellUpgradePanel({
   stats,
 }: SpellUpgradePanelProps) {
   const panelId = useId();
-  const champion = championDB.getById(championId);
+  const sourceChampion = championDB.getById(championId);
+  const champion = sourceChampion ? localizeChampion(sourceChampion) : undefined;
   const normalizedChampionId = championId.toLowerCase();
   const [selectedSlot, setSelectedSlot] = useState<SpellSlot>(() => firstAvailableSlot(member));
   const [localFeedback, setLocalFeedback] = useState<SpellUpgradeFeedback | null>(null);
@@ -142,7 +150,10 @@ export function SpellUpgradePanel({
       if (tutorialWasOpen && !tutorialIsOpen) focusChoice();
       tutorialWasOpen = tutorialIsOpen;
     });
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
     return () => observer.disconnect();
   }, [autoFocus, championId, member]);
 
@@ -228,13 +239,13 @@ export function SpellUpgradePanel({
           ) : null}
         </span>
         <div className="spell-upgrade__heading-copy">
-          <span className="spell-upgrade__eyebrow">Point de compétence disponible</span>
+          <span className="spell-upgrade__eyebrow">{spellCopy.pointAvailable}</span>
           <h2 id={`${panelId}-title`}>{championName}</h2>
-          <p>Niveau {level} · Choisissez un sort à améliorer</p>
+          <p>{spellCopy.levelInstruction(level)}</p>
         </div>
       </header>
 
-      <div className="spell-upgrade__grid" aria-label={`Compétences de ${championName}`}>
+      <div className="spell-upgrade__grid" aria-label={spellCopy.abilitiesFor(championName)}>
         {SPELL_SLOTS.map((slot, index) => {
           const spell = champion?.spells[index];
           const rank = member.spellRanks?.[slot] ?? 1;
@@ -245,7 +256,7 @@ export function SpellUpgradePanel({
           const state = upgradeAvailable ? 'available' : isMaximum ? 'maximum' : 'locked';
           const isSelected = selectedSlot === slot;
           const iconUrl = spell ? riotSpellIconUrl(championId, spell.image) : undefined;
-          const stateLabel = upgradeAvailable ? 'Disponible' : isMaximum ? 'Maximum' : 'Verrouillé';
+          const stateLabel = spellCopy.availability[state];
           const selectSlot = () => {
             setSelectedSlot(slot);
             setLocalFeedback(null);
@@ -282,9 +293,12 @@ export function SpellUpgradePanel({
                 ) : null}
                 <kbd>{slot}</kbd>
               </span>
-              <span className="spell-upgrade__name">{spell?.name ?? `Sort ${slot}`}</span>
+              <span className="spell-upgrade__name">
+                {spell?.name ?? spellCopy.fallbackSpell(slot)}
+              </span>
               <span className="spell-upgrade__rank">
-                Rang <strong>{rank}</strong>/{maximumRank || cap || '—'}
+                {spellCopy.rank} <strong>{formatValue(rank)}</strong>/
+                {formatValue(maximumRank || cap || undefined)}
               </span>
               <span className={`spell-upgrade__card-status spell-upgrade__card-status--${state}`}>
                 {stateLabel}
@@ -302,27 +316,29 @@ export function SpellUpgradePanel({
       >
         <header className="spell-upgrade__detail-header">
           <div>
-            <span className="spell-upgrade__eyebrow">Compétence {selectedSlot}</span>
-            <h3 id={detailTitleId}>{selectedSpell?.name ?? `Sort ${selectedSlot}`}</h3>
+            <span className="spell-upgrade__eyebrow">{spellCopy.ability(selectedSlot)}</span>
+            <h3 id={detailTitleId}>
+              {selectedSpell?.name ?? spellCopy.fallbackSpell(selectedSlot)}
+            </h3>
           </div>
           <span
             className={`spell-upgrade__detail-state spell-upgrade__detail-state--${selectedState}`}
           >
-            {selectedCanUpgrade ? 'Améliorable' : selectedIsMaximum ? 'Rang maximum' : 'Verrouillé'}
+            {spellCopy.detailAvailability[selectedState]}
           </span>
         </header>
 
         <dl className="spell-upgrade__metrics">
           <div>
-            <dt>Rang</dt>
+            <dt>{spellCopy.rank}</dt>
             <dd>
-              {selectedRank}
-              {selectedCanUpgrade ? ` → ${selectedNextRank}` : ''}/
-              {selectedMaximumRank || selectedCap || '—'}
+              {formatValue(selectedRank)}
+              {selectedCanUpgrade ? ` → ${formatValue(selectedNextRank)}` : ''}/
+              {formatValue(selectedMaximumRank || selectedCap || undefined)}
             </dd>
           </div>
           <div>
-            <dt>PM</dt>
+            <dt>{spellCopy.mana}</dt>
             <dd>
               {selectedSpell ? formatValue(valueAtRank(selectedSpell.cost, selectedRank)) : '—'}
               {selectedSpell && selectedCanUpgrade
@@ -331,24 +347,27 @@ export function SpellUpgradePanel({
             </dd>
           </div>
           <div>
-            <dt>Recharge</dt>
+            <dt>{spellCopy.cooldown}</dt>
             <dd>
               {selectedSpell
-                ? formatValue(valueAtRank(selectedSpell.cooldownTurns, selectedRank))
-                : '—'}{' '}
-              tours
+                ? spellCopy.turns(
+                    formatValue(valueAtRank(selectedSpell.cooldownTurns, selectedRank)),
+                  )
+                : '—'}
               {selectedSpell && selectedCanUpgrade
-                ? ` → ${formatValue(valueAtRank(selectedSpell.cooldownTurns, selectedNextRank))} tours`
+                ? ` → ${spellCopy.turns(
+                    formatValue(valueAtRank(selectedSpell.cooldownTurns, selectedNextRank)),
+                  )}`
                 : ''}
             </dd>
           </div>
         </dl>
 
-        <div className="spell-upgrade__impact-comparison" aria-label="Effets estimés">
-          <ImpactList label={`Rang actuel · ${selectedRank}`} impacts={selectedImpacts} />
+        <div className="spell-upgrade__impact-comparison" aria-label={spellCopy.estimatedEffects}>
+          <ImpactList label={spellCopy.currentRank(selectedRank)} impacts={selectedImpacts} />
           {selectedCanUpgrade ? (
             <ImpactList
-              label={`Prochain rang · ${selectedNextRank}`}
+              label={spellCopy.nextRank(selectedNextRank)}
               impacts={selectedNextImpacts}
             />
           ) : null}
@@ -359,7 +378,7 @@ export function SpellUpgradePanel({
             id={confirmReasonId}
             className={`spell-upgrade__status spell-upgrade__status--${selectedState}`}
           >
-            {selectedCanUpgrade ? fr.run.upgradeConsequence : selectedReason}
+            {selectedCanUpgrade ? spellCopy.upgradeConsequence : selectedReason}
           </p>
           <button
             type="button"
@@ -372,21 +391,25 @@ export function SpellUpgradePanel({
               const feedback: SpellUpgradeFeedback = succeeded
                 ? {
                     tone: 'success',
-                    message: `${selectedSlot} de ${championName} amélioré au rang ${selectedNextRank}.`,
+                    message: spellCopy.upgradeSucceeded(
+                      selectedSlot,
+                      championName,
+                      selectedNextRank,
+                    ),
                   }
                 : {
                     tone: 'error',
-                    message: `Impossible d’améliorer ${selectedSlot} de ${championName}. Réessayez.`,
+                    message: spellCopy.upgradeFailed(selectedSlot, championName),
                   };
               if (onResult) onResult(feedback);
               else setLocalFeedback(feedback);
             }}
           >
             {selectedCanUpgrade
-              ? `Améliorer ${selectedSlot} · rang ${selectedRank} → ${selectedNextRank}`
+              ? spellCopy.upgrade(selectedSlot, selectedRank, selectedNextRank)
               : selectedIsMaximum
-                ? `${selectedSlot} · rang maximum`
-                : `${selectedSlot} · niveau requis`}
+                ? spellCopy.maximumRank(selectedSlot)
+                : spellCopy.levelRequired(selectedSlot)}
           </button>
         </div>
         {localFeedback ? (
@@ -399,9 +422,7 @@ export function SpellUpgradePanel({
         ) : null}
       </section>
 
-      <p className="spell-upgrade__footnote">
-        Dégâts estimés avec les statistiques actuelles, avant les défenses de la cible.
-      </p>
+      <p className="spell-upgrade__footnote">{spellCopy.estimatedDamageNote}</p>
     </section>
   );
 }

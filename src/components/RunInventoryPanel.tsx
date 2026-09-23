@@ -6,10 +6,10 @@ import {
   type CanonicalStatKey,
   formatStatValue,
   normalizeStatKey,
-  STAT_LABELS,
 } from '@/game/stats/statContract';
 import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { formatNumber } from '@/i18n/format';
+import { fr, locale } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -39,9 +39,9 @@ interface InventoryFeedback {
 }
 
 const FILTERS: readonly { id: InventoryFilter; label: string }[] = [
-  { id: 'all', label: 'Tous' },
-  { id: 'bag', label: 'Sac' },
-  { id: 'equipped', label: 'Équipés' },
+  { id: 'all', label: fr.inventory.filters.all },
+  { id: 'bag', label: fr.inventory.filters.bag },
+  { id: 'equipped', label: fr.inventory.filters.equipped },
 ];
 
 const EMPTY_UNLOCKED_NODES: Record<string, number> = {};
@@ -60,13 +60,13 @@ function getChampionName(championId: string): string {
 function getEquipmentFailureLabel(code: string): string {
   switch (code) {
     case 'equipment_full':
-      return 'Équipement complet';
+      return fr.inventory.equipmentFull;
     case 'unique_item':
-      return 'Objet unique déjà équipé';
+      return fr.inventory.uniqueItem;
     case 'item_already_equipped':
-      return 'Porte déjà cet objet';
+      return fr.inventory.alreadyEquipped;
     default:
-      return 'Indisponible';
+      return fr.inventory.unavailable;
   }
 }
 
@@ -152,7 +152,7 @@ function InventoryImage({
   name: string;
   kind: 'item' | 'champion';
 }) {
-  const fallback = name.trim().charAt(0).toLocaleUpperCase('fr-FR') || '?';
+  const fallback = name.trim().charAt(0).toLocaleUpperCase(locale) || '?';
   return (
     <span className={`run-inventory-image run-inventory-image--${kind}`} aria-hidden="true">
       <span className="run-inventory-image__fallback">{fallback}</span>
@@ -183,6 +183,9 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
   const selectedItemButtonRef = useRef<HTMLButtonElement | null>(null);
   const filterButtonRefs = useRef<Partial<Record<InventoryFilter, HTMLButtonElement | null>>>({});
   const selectedEntry = inventory.find((entry) => entry.instanceId === selectedInstanceId) ?? null;
+  const selectedItemName = selectedEntry
+    ? itemName(selectedEntry.item.id, selectedEntry.item.name)
+    : null;
   const selectedMember = team.find((member) => member.championId === selectedChampionId) ?? null;
   const equipItem = useRunStore((state) => state.equipItem);
   const unequipItem = useRunStore((state) => state.unequipItem);
@@ -299,7 +302,7 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
     if (!succeeded) {
       setFeedback({
         kind: 'error',
-        message: `Impossible de déplacer ${selectedEntry.item.name}. Réessaie.`,
+        message: fr.inventory.moveFailed(selectedItemName ?? selectedEntry.item.name),
       });
       return;
     }
@@ -307,43 +310,47 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
     setFeedback({
       kind: 'success',
       message: previousOwnerId
-        ? `Transfert effectué : ${selectedEntry.item.name}, de ${getChampionName(previousOwnerId)} à ${targetName}.`
-        : `Objet équipé : ${selectedEntry.item.name} sur ${targetName}.`,
+        ? fr.inventory.transferDone(
+            selectedItemName ?? selectedEntry.item.name,
+            getChampionName(previousOwnerId),
+            targetName,
+          )
+        : fr.inventory.equipDone(selectedItemName ?? selectedEntry.item.name, targetName),
     });
     reconcileSelectionAfterEquipmentChange(selectedMember.championId);
   };
 
   const handleUnequip = () => {
     if (!selectedEntry?.equippedToChampionId) return;
-    const itemName = selectedEntry.item.name;
+    const localizedName = selectedItemName ?? selectedEntry.item.name;
     if (!unequipItem(selectedEntry.instanceId)) {
       setFeedback({
         kind: 'error',
-        message: `Impossible de déséquiper ${itemName}. Réessaie.`,
+        message: fr.inventory.unequipFailed(localizedName),
       });
       return;
     }
     setFeedback({
       kind: 'success',
-      message: `Objet replacé dans le sac : ${itemName}.`,
+      message: fr.inventory.returnedToBag(localizedName),
     });
     reconcileSelectionAfterEquipmentChange(null);
   };
 
   const handleSell = () => {
     if (!selectedEntry) return;
-    const itemName = selectedEntry.item.name;
+    const localizedName = selectedItemName ?? selectedEntry.item.name;
     const saleGold = getItemSaleGold(selectedEntry.item.goldValue);
     if (!sellItem(selectedEntry.instanceId)) {
       setFeedback({
         kind: 'error',
-        message: `Impossible de vendre ${itemName}. Réessaie.`,
+        message: fr.inventory.sellFailed(localizedName),
       });
       return;
     }
     setFeedback({
       kind: 'success',
-      message: `Vente confirmée : ${itemName}, +${saleGold} ${fr.common.gold}.`,
+      message: fr.inventory.saleConfirmed(localizedName, saleGold),
     });
     closeSelection(false);
     filterButtonRefs.current[filter]?.focus();
@@ -370,24 +377,24 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
     >
       <header className="run-inventory__header">
         <div>
-          <span className="run-inventory__eyebrow">Équipement du run</span>
-          <h2 id={titleId}>Inventaire</h2>
+          <span className="run-inventory__eyebrow">{fr.inventory.eyebrow}</span>
+          <h2 id={titleId}>{fr.inventory.title}</h2>
         </div>
         <span
           className={`run-inventory__capacity${
             inventory.length >= MAX_INVENTORY_ITEMS ? ' run-inventory__capacity--full' : ''
           }`}
         >
-          {inventory.length}/{MAX_INVENTORY_ITEMS}
-          <span className="sr-only"> objets</span>
+          {formatNumber(inventory.length)}/{formatNumber(MAX_INVENTORY_ITEMS)}
+          <span className="sr-only"> {fr.inventory.items}</span>
           {inventory.length >= MAX_INVENTORY_ITEMS ? (
-            <span className="sr-only"> · Inventaire plein</span>
+            <span className="sr-only"> · {fr.inventory.full}</span>
           ) : null}
         </span>
       </header>
 
       <div className="run-inventory__toolbar">
-        <div className="run-inventory__filters" role="group" aria-label="Filtrer l’inventaire">
+        <div className="run-inventory__filters" role="group" aria-label={fr.inventory.filter}>
           {FILTERS.map(({ id, label }) => (
             <button
               key={id}
@@ -399,7 +406,7 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
               aria-pressed={filter === id}
               onClick={() => changeFilter(id)}
             >
-              {label} <span aria-hidden="true">{filterCounts[id]}</span>
+              {label} <span aria-hidden="true">{formatNumber(filterCounts[id])}</span>
             </button>
           ))}
         </div>
@@ -409,20 +416,21 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
           disabled={inventory.length < 2}
           onClick={() => {
             sortInventory();
-            setFeedback({ kind: 'neutral', message: 'Inventaire trié.' });
+            setFeedback({ kind: 'neutral', message: fr.inventory.sorted });
           }}
         >
-          Trier
+          {fr.inventory.sort}
         </button>
       </div>
 
       {visibleEntries.length > 0 ? (
-        <ul className="run-inventory__list" aria-label="Objets disponibles">
+        <ul className="run-inventory__list" aria-label={fr.inventory.availableItems}>
           {visibleEntries.map((entry) => {
             const ownerName = entry.equippedToChampionId
               ? getChampionName(entry.equippedToChampionId)
               : null;
             const isSelected = entry.instanceId === selectedEntry?.instanceId;
+            const localizedName = itemName(entry.item.id, entry.item.name);
             return (
               <li key={entry.instanceId}>
                 <button
@@ -433,13 +441,15 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
                   aria-controls={isSelected ? detailsId : undefined}
                   onClick={() => selectItem(entry.instanceId)}
                 >
-                  <InventoryImage src={entry.item.iconUrl} name={entry.item.name} kind="item" />
+                  <InventoryImage src={entry.item.iconUrl} name={localizedName} kind="item" />
                   <span className="run-inventory-item__copy">
-                    <strong>{entry.item.name}</strong>
-                    <small>{ownerName ? `Équipé · ${ownerName}` : 'Dans le sac'}</small>
+                    <strong>{localizedName}</strong>
+                    <small>
+                      {ownerName ? fr.inventory.equippedOwner(ownerName) : fr.inventory.inBag}
+                    </small>
                   </span>
                   <span className="run-inventory-item__value">
-                    Vente · {getItemSaleGold(entry.item.goldValue)} {fr.common.gold}
+                    {fr.inventory.saleValue(getItemSaleGold(entry.item.goldValue))}
                   </span>
                 </button>
               </li>
@@ -448,9 +458,7 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
         </ul>
       ) : (
         <p className="run-inventory__empty">
-          {inventory.length === 0
-            ? `Inventaire : ${fr.common.empty.toLocaleLowerCase('fr-FR')}.`
-            : 'Aucun objet dans cette catégorie.'}
+          {inventory.length === 0 ? fr.inventory.emptyInventory : fr.inventory.noItemsInCategory}
         </p>
       )}
 
@@ -467,7 +475,7 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
               kind="item"
             />
             <div>
-              <span className="run-inventory__eyebrow">Objet sélectionné</span>
+              <span className="run-inventory__eyebrow">{fr.inventory.selectedItem}</span>
               <h3 id={`${detailsId}-title`}>
                 {itemName(selectedEntry.item.id, selectedEntry.item.name)}
               </h3>
@@ -476,7 +484,7 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
             <button
               type="button"
               className="run-inventory-detail__close"
-              aria-label={`${fr.common.close} : ${selectedEntry.item.name}`}
+              aria-label={fr.inventory.closeItem(selectedItemName ?? selectedEntry.item.name)}
               onClick={() => closeSelection()}
             >
               {fr.common.close}
@@ -489,10 +497,10 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
                 const value = getItemStatValue(selectedEntry, stat);
                 return (
                   <div key={stat}>
-                    <dt>{STAT_LABELS[stat]}</dt>
+                    <dt>{fr.stats[stat]}</dt>
                     <dd>
                       {value > 0 ? '+' : ''}
-                      {formatStatValue(stat, value)}
+                      {formatStatValue(stat, value, locale)}
                     </dd>
                   </div>
                 );
@@ -503,20 +511,18 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
           <div className="run-inventory-detail__ownership">
             <span>
               {selectedEntry.equippedToChampionId
-                ? `Porté par ${getChampionName(selectedEntry.equippedToChampionId)}`
-                : 'Disponible dans le sac'}
+                ? fr.inventory.wornBy(getChampionName(selectedEntry.equippedToChampionId))
+                : fr.inventory.availableInBag}
             </span>
-            <strong>
-              Vente : {getItemSaleGold(selectedEntry.item.goldValue)} {fr.common.gold}
-            </strong>
+            <strong>{fr.inventory.sale(getItemSaleGold(selectedEntry.item.goldValue))}</strong>
           </div>
 
           {team.length > 0 ? (
             <fieldset className="run-inventory-targets">
               <legend>
                 {selectedEntry.equippedToChampionId
-                  ? 'Choisir un champion pour transférer'
-                  : 'Choisir un champion à équiper'}
+                  ? fr.inventory.chooseTransferTarget
+                  : fr.inventory.chooseEquipTarget}
               </legend>
               <div className="run-inventory-targets__list">
                 {team.map((member) => {
@@ -531,11 +537,15 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
                   );
                   const isCurrentOwner = selectedEntry.equippedToChampionId === member.championId;
                   const stateLabel = isCurrentOwner
-                    ? 'Actuel'
+                    ? fr.inventory.current
                     : validation.valid
-                      ? `${equippedItems} sur ${MAX_ITEMS_PER_CHAMPION}`
+                      ? fr.inventory.slotsUsed(equippedItems, MAX_ITEMS_PER_CHAMPION)
                       : getEquipmentFailureLabel(validation.code);
-                  const unavailableMessage = `Impossible d’équiper ${selectedEntry.item.name} sur ${championName} : ${stateLabel.toLocaleLowerCase('fr-FR')}.`;
+                  const unavailableMessage = fr.inventory.equipUnavailable(
+                    selectedItemName ?? selectedEntry.item.name,
+                    championName,
+                    stateLabel,
+                  );
                   return (
                     <button
                       key={member.championId}
@@ -561,7 +571,11 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
                       <span>
                         <strong>{championName}</strong>
                         <small>
-                          {equippedItems}/{MAX_ITEMS_PER_CHAMPION} objets · {stateLabel}
+                          {fr.inventory.targetSummary(
+                            equippedItems,
+                            MAX_ITEMS_PER_CHAMPION,
+                            stateLabel,
+                          )}
                         </small>
                       </span>
                     </button>
@@ -570,29 +584,29 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
               </div>
             </fieldset>
           ) : (
-            <p className="run-inventory__empty">{fr.run.noChampions} disponible pour cet objet.</p>
+            <p className="run-inventory__empty">{fr.inventory.noChampionForItem}</p>
           )}
 
           {selectedMember && targetValidation?.valid ? (
             <div className="run-inventory-preview" aria-live="polite">
               <span className="run-inventory__eyebrow">
-                Aperçu sur {getChampionName(selectedMember.championId)}
+                {fr.inventory.previewOn(getChampionName(selectedMember.championId))}
               </span>
               {preview.length > 0 ? (
                 <dl>
                   {preview.map(({ stat, before, after }) => (
                     <div key={stat}>
-                      <dt>{STAT_LABELS[stat]}</dt>
+                      <dt>{fr.stats[stat]}</dt>
                       <dd>
-                        {formatStatValue(stat, before)} <span aria-hidden="true">→</span>{' '}
-                        <span className="sr-only">devient</span>{' '}
-                        <strong>{formatStatValue(stat, after)}</strong>
+                        {formatStatValue(stat, before, locale)} <span aria-hidden="true">→</span>{' '}
+                        <span className="sr-only">{fr.inventory.becomes}</span>{' '}
+                        <strong>{formatStatValue(stat, after, locale)}</strong>
                       </dd>
                     </div>
                   ))}
                 </dl>
               ) : (
-                <p>Cet objet n’ajoute pas de caractéristique directe.</p>
+                <p>{fr.inventory.noDirectStats}</p>
               )}
             </div>
           ) : null}
@@ -605,13 +619,13 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
                 onClick={handleEquip}
               >
                 {selectedEntry.equippedToChampionId
-                  ? `Transférer vers ${getChampionName(selectedMember.championId)}`
-                  : `Équiper sur ${getChampionName(selectedMember.championId)}`}
+                  ? fr.inventory.transferTo(getChampionName(selectedMember.championId))
+                  : fr.inventory.equipOn(getChampionName(selectedMember.championId))}
               </button>
             ) : null}
             {selectedEntry.equippedToChampionId ? (
               <button type="button" className="run-inventory-action" onClick={handleUnequip}>
-                Déséquiper
+                {fr.common.unequip}
               </button>
             ) : null}
             <button
@@ -619,12 +633,12 @@ export function RunInventoryPanel({ inventory, team }: RunInventoryPanelProps) {
               className="run-inventory-action run-inventory-action--sell"
               onClick={handleSell}
             >
-              Vendre pour {getItemSaleGold(selectedEntry.item.goldValue)} {fr.common.gold}
+              {fr.inventory.sellFor(getItemSaleGold(selectedEntry.item.goldValue))}
             </button>
           </div>
         </section>
       ) : (
-        <p className="run-inventory__selection-hint">Sélectionne un objet pour le gérer.</p>
+        <p className="run-inventory__selection-hint">{fr.inventory.selectionHint}</p>
       )}
 
       <output

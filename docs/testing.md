@@ -142,7 +142,7 @@ Cette matrice vérifie la compatibilité ; elle ne porte plus le budget Web Vita
 Les budgets versionnés sont dans `config/performance-budgets.json` et contrôlés par
 `npm run test:performance-budgets`. Ils couvrent le JavaScript total, le plus gros
 chunk, l'entrée, la route Auth, les assets déployés, une marge globale minimale de 10 %
-et les cinq chunks les plus lourds. Le rapport détaillé est écrit dans
+et six chunks structurants, dont le catalogue de traduction `content`. Le rapport détaillé est écrit dans
 `performance-report/bundle-report.json`.
 
 Après le build, `npm run test:performance-preview` démarre une vraie preview Vite,

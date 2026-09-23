@@ -8,14 +8,24 @@ import {
 import {
   type CanonicalStatKey,
   formatStatValue,
+  normalizeGameplayStatKey,
   normalizeStatKey,
-  STAT_LABELS,
 } from '@/game/stats/statContract';
-import { localizeUserCopy } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import {
+  type EnhancementContentCatalog,
+  type EnhancementContentLocale,
+  enhancementContent,
+  getEnhancementBranchContent,
+  getEnhancementNodeContent,
+} from '@/i18n/enhancementContent';
 import { enhancementService } from '@/services/enhancementService';
+import { useSettingsStore } from '@/stores/settingsStore';
 import type { Champion } from '@/types/champion';
-import type { EnhancementNode, PlayerEnhancementState } from '@/types/enhancementTree';
+import type {
+  ChampionEnhancementTree,
+  EnhancementNode,
+  PlayerEnhancementState,
+} from '@/types/enhancementTree';
 import { BRANCH_THEME_ICONS } from '@/types/enhancementTree';
 import { calculateFullStats } from '@/utils/statCalculator';
 
@@ -34,6 +44,73 @@ interface EnhancementTreeProps {
   isLoading?: boolean;
 }
 
+function localizeLockReason(
+  reason: LockReason | null,
+  node: EnhancementNode,
+  tree: ChampionEnhancementTree,
+  unlockedNodes: Record<string, number>,
+  masteryLevel: number,
+  availableCandies: number,
+  content: EnhancementContentCatalog,
+  locale: EnhancementContentLocale,
+): LockReason | null {
+  if (!reason) return null;
+
+  switch (reason.type) {
+    case 'unavailable':
+      return {
+        type: reason.type,
+        message: content.ui.lockReasons.unavailable.message,
+        details: content.ui.lockReasons.unavailable.details,
+      };
+    case 'maxed': {
+      const maximumRank = node.maxRanks || 1;
+      return {
+        type: reason.type,
+        message: content.ui.lockReasons.maxed.message,
+        details: content.ui.lockReasons.maxed.details(maximumRank),
+      };
+    }
+    case 'mastery_level':
+      return {
+        type: reason.type,
+        message: content.ui.lockReasons.masteryLevel.message,
+        details: content.ui.lockReasons.masteryLevel.details(
+          node.requiredMasteryLevel,
+          masteryLevel,
+        ),
+      };
+    case 'candies':
+      return {
+        type: reason.type,
+        message: content.ui.lockReasons.candies.message,
+        details: content.ui.lockReasons.candies.details(node.candyCost, availableCandies),
+      };
+    case 'prerequisite': {
+      const prerequisiteId = node.prerequisites.find(
+        (candidateId) => (unlockedNodes[candidateId] ?? 0) === 0,
+      );
+      const prerequisiteNode = prerequisiteId
+        ? [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)].find(
+            (candidate) => candidate.id === prerequisiteId,
+          )
+        : undefined;
+      const prerequisiteName = prerequisiteId
+        ? getEnhancementNodeContent(locale, prerequisiteId).name
+        : node.id;
+      return {
+        type: reason.type,
+        message: content.ui.lockReasons.prerequisite.message,
+        details: content.ui.lockReasons.prerequisite.details(
+          prerequisiteName,
+          prerequisiteNode?.requiredMasteryLevel ?? 0,
+          prerequisiteNode?.candyCost ?? 0,
+        ),
+      };
+    }
+  }
+}
+
 export function EnhancementTree({
   champion,
   playerCandies,
@@ -42,6 +119,8 @@ export function EnhancementTree({
   onUnlockNode,
   isLoading = false,
 }: EnhancementTreeProps) {
+  const language = useSettingsStore((state) => state.language);
+  const content = enhancementContent[language];
   const tree = useMemo(() => getEnhancementTreeForRole(champion.tags[0]), [champion.tags]);
   const [activeBranch, setActiveBranch] = useState<string>(tree.branches[0]?.id);
 
@@ -90,19 +169,17 @@ export function EnhancementTree({
     <div className="enhancement-tree" aria-busy={isLoading}>
       <div className="enhancement-tree-header">
         <div>
-          <h3 className="enhancement-tree-title">
-            {localizeUserCopy("Arbre d'Amélioration -")} {champion.name}
-          </h3>
+          <h3 className="enhancement-tree-title">{content.ui.treeTitle(champion.name)}</h3>
           <div className="enhancement-info">
-            <span className="candy-badge">{playerCandies} 🍬</span>
-            <span className="level-badge">Maîtrise: Niveau {masteryLevel}</span>
+            <span className="candy-badge">{content.ui.candyBalance(playerCandies)}</span>
+            <span className="level-badge">{content.ui.masteryLevel(masteryLevel)}</span>
           </div>
         </div>
       </div>
 
       {/* Core Nodes */}
       <div className="enhancement-section">
-        <h4 className="enhancement-section-title">⚡ Nœuds de Base</h4>
+        <h4 className="enhancement-section-title">{content.ui.coreNodesTitle}</h4>
         <div className="core-nodes-row">
           {tree.coreNodes.map((node) => {
             const canUnlock = canUnlockNode(
@@ -111,11 +188,15 @@ export function EnhancementTree({
               masteryLevel,
               playerCandies,
             );
-            const lockReason = getLockReason(
+            const lockReason = localizeLockReason(
+              getLockReason(node, enhancementState.unlockedNodes, masteryLevel, playerCandies),
               node,
+              tree,
               enhancementState.unlockedNodes,
               masteryLevel,
               playerCandies,
+              content,
+              language,
             );
             return (
               <NodeCard
@@ -127,6 +208,8 @@ export function EnhancementTree({
                 onUnlock={() => void handleUnlock(node)}
                 isLoading={isLoading}
                 preview={getNodePreview(node)}
+                content={content}
+                locale={language}
               />
             );
           })}
@@ -137,6 +220,7 @@ export function EnhancementTree({
       <div className="branch-tabs">
         {tree.branches.map((branch) => {
           const isActive = activeBranch === branch.id;
+          const branchContent = getEnhancementBranchContent(language, branch.id);
           return (
             <button
               key={branch.id}
@@ -145,7 +229,7 @@ export function EnhancementTree({
               className={`branch-tab branch-tab--${branch.theme}${isActive ? ' active' : ''}`}
             >
               <span>{BRANCH_THEME_ICONS[branch.theme]}</span>
-              <span>{branch.name}</span>
+              <span>{branchContent.name}</span>
             </button>
           );
         })}
@@ -154,12 +238,13 @@ export function EnhancementTree({
       {/* Active Branch Nodes */}
       {tree.branches.map((branch) => {
         if (branch.id !== activeBranch) return null;
+        const branchContent = getEnhancementBranchContent(language, branch.id);
         return (
           <div key={branch.id} className="branch-content">
             <div className={`branch-header branch-header--${branch.theme}`}>
               <span>{BRANCH_THEME_ICONS[branch.theme]}</span>
-              <span>{localizeUserCopy(branch.name)}</span>
-              <span className="branch-description">{localizeUserCopy(branch.description)}</span>
+              <span>{branchContent.name}</span>
+              <span className="branch-description">{branchContent.description}</span>
             </div>
             <div className="branch-nodes">
               {branch.nodes.map((node, index) => {
@@ -169,11 +254,15 @@ export function EnhancementTree({
                   masteryLevel,
                   playerCandies,
                 );
-                const lockReason = getLockReason(
+                const lockReason = localizeLockReason(
+                  getLockReason(node, enhancementState.unlockedNodes, masteryLevel, playerCandies),
                   node,
+                  tree,
                   enhancementState.unlockedNodes,
                   masteryLevel,
                   playerCandies,
+                  content,
+                  language,
                 );
                 return (
                   <React.Fragment key={node.id}>
@@ -187,6 +276,8 @@ export function EnhancementTree({
                       isUltimate={node.type === 'ultimate'}
                       isLoading={isLoading}
                       preview={getNodePreview(node)}
+                      content={content}
+                      locale={language}
                     />
                   </React.Fragment>
                 );
@@ -210,6 +301,8 @@ interface NodeCardProps {
   isUltimate?: boolean;
   isLoading: boolean;
   preview: StatPreview[];
+  content: EnhancementContentCatalog;
+  locale: EnhancementContentLocale;
 }
 
 function NodeCard({
@@ -221,20 +314,23 @@ function NodeCard({
   isUltimate,
   isLoading,
   preview,
+  content,
+  locale,
 }: NodeCardProps) {
   const maxRanks = node.maxRanks || 1;
   const isMaxed = unlocked >= maxRanks;
   const isLocked = unlocked === 0;
+  const nodeContent = getEnhancementNodeContent(locale, node.id);
 
   // Build tooltip text that includes the lock reason if applicable
   const getTooltip = () => {
-    let tooltip = localizeUserCopy(node.name);
-    if (node.description) tooltip += `\n${localizeUserCopy(node.description)}`;
+    let tooltip = nodeContent.name;
+    if (nodeContent.description) tooltip += `\n${nodeContent.description}`;
     if (!canUnlock && lockReason) {
       tooltip += `\n\n🔒 ${lockReason.message}`;
       if (lockReason.details) tooltip += `\n${lockReason.details}`;
     }
-    if (isMaxed) tooltip += `\n\n✅ Maximum atteint`;
+    if (isMaxed) tooltip += `\n\n✅ ${content.ui.maximumReached}`;
     return tooltip;
   };
 
@@ -244,36 +340,40 @@ function NodeCard({
       title={getTooltip()}
     >
       <div className="node-header">
-        <span className="node-name">{node.name}</span>
-        {isUltimate && <span className="ultimate-badge">{fr.enhancement.ultimate}</span>}
+        <span className="node-name">{nodeContent.name}</span>
+        {isUltimate && <span className="ultimate-badge">{content.ui.ultimate}</span>}
       </div>
-      <div className="node-description">{localizeUserCopy(node.description)}</div>
+      <div className="node-description">{nodeContent.description}</div>
 
       {node.statBonuses && Object.entries(node.statBonuses).length > 0 && (
         <div className="node-stat-bonuses">
-          {Object.entries(node.statBonuses).map(([stat, value]) => (
-            <span key={stat} className="node-stat-bonus">
-              +{value} {stat.toUpperCase()}
-            </span>
-          ))}
+          {Object.entries(node.statBonuses).map(([stat, value]) => {
+            const normalizedStat = normalizeGameplayStatKey(stat);
+            return (
+              <span key={stat} className="node-stat-bonus">
+                +{value.toLocaleString(locale)}{' '}
+                {normalizedStat ? content.statLabels[normalizedStat] : stat.toUpperCase()}
+              </span>
+            );
+          })}
         </div>
       )}
 
       {preview.length > 0 && (
-        <div className="node-preview" aria-label={fr.enhancement.preview}>
+        <div className="node-preview" aria-label={content.ui.preview}>
           {preview.map(({ stat, before, after }) => (
             <div key={stat}>
-              {STAT_LABELS[stat]} : {formatStatValue(stat, before)} →{' '}
-              <strong>{formatStatValue(stat, after)}</strong>
+              {content.statLabels[stat]} : {formatStatValue(stat, before, locale)} →{' '}
+              <strong>{formatStatValue(stat, after, locale)}</strong>
             </div>
           ))}
         </div>
       )}
 
       <div className="node-footer">
-        <span className="node-cost">{node.candyCost} 🍬</span>
+        <span className="node-cost">{content.ui.candyBalance(node.candyCost)}</span>
         {isMaxed ? (
-          <span className="node-maxed">{fr.enhancement.maximum}</span>
+          <span className="node-maxed">{content.ui.maximum}</span>
         ) : (
           <div className="node-action">
             <button
@@ -283,10 +383,10 @@ function NodeCard({
               className={`node-unlock-btn node-unlock-btn--${canUnlock && !isLoading ? 'available' : 'disabled'}`}
             >
               {isLoading
-                ? 'Enregistrement…'
+                ? content.ui.saving
                 : unlocked > 0
-                  ? `Niv ${unlocked + 1}/${maxRanks}`
-                  : `Débloquer`}
+                  ? content.ui.nextRank(unlocked + 1, maxRanks)
+                  : content.ui.unlock}
             </button>
             {!canUnlock && lockReason && (
               <span className={`node-lock-reason node-lock-reason--${lockReason.type}`}>

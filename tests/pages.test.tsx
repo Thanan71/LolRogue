@@ -12,6 +12,7 @@ import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { type NodeMap, NodeType } from '@/game/map/types';
 import { createRunLedger } from '@/game/run/runLedger';
 import { calculateRunCandyRewards } from '@/game/run/runRewards';
+import { runErrorContent } from '@/i18n/runErrorContent';
 import { AuthPage } from '@/pages/AuthPage';
 import { EventPage } from '@/pages/EventPage';
 import { GameOverPage } from '@/pages/GameOverPage';
@@ -166,6 +167,21 @@ describe('P2 page smoke tests', () => {
     expect(screen.getByText(/Mode invité/)).toBeInTheDocument();
   });
 
+  it('localizes the active run biome and level', () => {
+    useRunStore.setState({
+      isActive: true,
+      currentBiome: 'top_lane',
+      runLevel: 3_600,
+      team: [{ championId: 'Garen' }, { championId: 'Lux' }],
+    });
+
+    renderAt(<MenuPage />);
+
+    expect(screen.getByText('Voie du haut')).toBeInTheDocument();
+    expect(screen.queryByText('top lane')).not.toBeInTheDocument();
+    expect(screen.getByText(/Niveau 3\s600/)).toBeInTheDocument();
+  });
+
   it('resumes an active Daily without asking to abandon it', async () => {
     const confirm = vi.spyOn(window, 'confirm');
     useRunStore.setState({
@@ -283,6 +299,7 @@ describe('P2 page smoke tests', () => {
       lastCombatRewards: {
         xp: 75,
         gold: 60,
+        itemId: null,
         itemName: null,
         itemBlockedByCapacity: true,
         levelsGained: 0,
@@ -402,7 +419,7 @@ describe('P2 page smoke tests', () => {
     expect(confirm).toBeDisabled();
     fireEvent.click(screen.getAllByRole('button', { name: /^Choisir /i })[1]);
     expect(confirm).toBeEnabled();
-    expect(screen.getByText(/sélectionné$/i)).toBeInTheDocument();
+    expect(screen.getByText(/emplacements? sélectionnés?$/i)).toBeInTheDocument();
 
     const runes = screen.getAllByRole('checkbox');
     fireEvent.click(runes[0]);
@@ -749,7 +766,8 @@ describe('P2 page smoke tests', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('alert')).toHaveTextContent('network unavailable');
+    expect(screen.getByRole('alert')).toHaveTextContent(runErrorContent['fr-FR'].unexpected);
+    expect(screen.getByRole('alert')).not.toHaveTextContent('network unavailable');
     expect(screen.getByRole('button', { name: 'Relancer la vérification' })).toBeInTheDocument();
     expect(screen.queryByText(/bonbons/)).not.toBeInTheDocument();
   });
@@ -802,13 +820,15 @@ describe('P2 page smoke tests', () => {
       "Aucune progression authentifiée n'a été accordée",
     );
     expect(screen.queryByRole('button', { name: /Retry/ })).not.toBeInTheDocument();
-    expect(screen.getByText(/Attempt: 11111111-1111-4111-8111-111111111111/)).toBeInTheDocument();
-    expect(screen.getByText(/Version authority: run-engine-v13/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Identifiant de tentative: 11111111-1111-4111-8111-111111111111/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Version de l’autorité: run-engine-v13/)).toBeInTheDocument();
     expect(screen.getByText(/Code de rejet: pending_choice/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Copier le diagnostic' }));
     await waitFor(() =>
       expect(writeText).toHaveBeenCalledWith(
-        'Attempt: 11111111-1111-4111-8111-111111111111\nVersion authority: run-engine-v13\nCode de rejet: pending_choice',
+        'Identifiant de tentative: 11111111-1111-4111-8111-111111111111\nVersion de l’autorité: run-engine-v13\nCode de rejet: pending_choice',
       ),
     );
     expect(screen.getByRole('button', { name: 'Diagnostic copié' })).toBeEnabled();

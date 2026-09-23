@@ -1,4 +1,5 @@
 import { type ReactNode, useId } from 'react';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import '@/styles/encounter.css';
 
@@ -6,7 +7,7 @@ export function EncounterLayout({
   title,
   gold,
   tone = 'gold',
-  eyebrow = 'Rencontre en cours',
+  eyebrow = fr.encounter.inProgress,
   subtitle,
   children,
   contentClassName = '',
@@ -20,6 +21,7 @@ export function EncounterLayout({
   contentClassName?: string;
 }) {
   const titleId = useId();
+  const formattedGold = formatNumber(gold);
 
   return (
     <main className={`encounter-layout encounter-layout--${tone}`}>
@@ -37,10 +39,13 @@ export function EncounterLayout({
           <h1 id={titleId}>{title}</h1>
           {subtitle ? <p className="encounter-layout__subtitle">{subtitle}</p> : null}
         </div>
-        <div className="encounter-layout__gold" aria-label={`${fr.common.goldLabel} : ${gold}`}>
+        <div
+          className="encounter-layout__gold"
+          aria-label={`${fr.common.goldLabel} : ${formattedGold}`}
+        >
           <span className="encounter-layout__coin" aria-hidden="true" />
           <span>{fr.common.goldLabel}</span>
-          <strong>{gold}</strong>
+          <strong>{formattedGold}</strong>
         </div>
       </header>
       <section
