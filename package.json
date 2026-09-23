@@ -25,6 +25,7 @@
     "typecheck:app": "tsc --noEmit",
     "typecheck:scripts": "tsc -p tsconfig.scripts.json",
     "typecheck:e2e": "tsc -p tsconfig.e2e.json",
+    "typecheck:strict": "node scripts/check-strict-typecheck.mjs",
     "lint": "biome lint .",
     "csp:styles:check": "node scripts/check-csp-inline-styles.mjs",
     "format": "biome format --write .",

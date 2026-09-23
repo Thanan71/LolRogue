@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "compilerVersion": "7.0.2",
+  "exceptions": [
+    {
+      "id": "supabase-webauthn-largeblob-json",
+      "package": "@supabase/auth-js",
+      "packageVersion": "2.116.0",
+      "file": "node_modules/@supabase/auth-js/dist/module/lib/webauthn.dom.d.ts",
+      "code": 2430,
+      "message": "Interface 'PublicKeyCredentialFuture<T>' incorrectly extends interface 'PublicKeyCredential'.",
+      "messageSha256": "db2ed5e8705c31cc3144ce7f0aa59aa6218eeb927fc50b9b9cc0fa50f48ed930",
+      "scopes": ["app", "scripts", "e2e"],
+      "expiresOn": "2026-10-23",
+      "reason": "The pinned SDK's WebAuthn declarations use ArrayBuffer for largeBlob JSON, whereas TypeScript 7 DOM declarations require string. No SDK runtime patch or broad DOM override is justified for this declaration-only incompatibility.",
+      "reference": "https://github.com/supabase/supabase-js/blob/v2.116.0/packages/core/auth-js/src/lib/webauthn.dom.ts"
+    },
+    {
+      "id": "speed-insights-react19-jsx-namespace",
+      "package": "@vercel/speed-insights",
+      "packageVersion": "2.0.0",
+      "file": "node_modules/@vercel/speed-insights/dist/react/index.d.mts",
+      "code": 2503,
+      "message": "Cannot find namespace 'JSX'.",
+      "messageSha256": "309d454e8492d266fe3507ffdaf539718b957fcbd8bf554d15095e739e80f59a",
+      "scopes": ["app"],
+      "expiresOn": "2026-10-23",
+      "reason": "The pinned package references global JSX.Element, removed by React 19 typings. Avoid restoring a global namespace for the entire app; remove this exception when upstream uses React.JSX.",
+      "reference": "https://react.dev/blog/2024/04/25/react-19-upgrade-guide#the-jsx-namespace-in-typescript"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.scripts.json",
+  "compilerOptions": {
+    "skipLibCheck": false,
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+  },
+  "exclude": ["scripts/typecheck/node-globals.ts"]
+}
