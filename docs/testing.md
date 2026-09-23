@@ -7,6 +7,42 @@ compteurs V8 ne varient pas selon l'ordonnancement ; `npm test` conserve le
 parallélisme courant. Une suite qui dépend de l'ordre ou d'un état global non nettoyé
 doit donc échouer localement comme en CI.
 
+## Seeds variables reproductibles
+
+La seed fixe **20260801** de la CI principale reste inchangée. Le workflow
+`test-order-seeds.yml` ajoute trois permutations aléatoires distinctes, différentes
+de cette seed fixe. Chaque job exécute la suite Vitest complète, sans couverture et
+avec les fichiers sérialisés, sur le même SHA résolu avant la matrice. Une erreur
+n'annule pas les deux autres permutations (`fail-fast: false`). Les tests DB live
+gardent leur gate séparée ; ce job ne reçoit aucun secret ni compte connecté.
+
+```sh
+# Reproduire exactement la permutation signalée dans les logs
+npm ci
+npm run test:seed -- 123456
+# Réduire ensuite l'investigation à un fichier, sans modifier sa seed
+npm run test:seed -- 123456 tests/persistence.test.ts
+```
+
+Le runner imprime la seed, le SHA et la commande avant d'exécuter Vitest, puis
+répète la commande en cas d'échec et conserve son code de sortie. Le rapport JSON
+`test-seed-results/<seed>.json` contient aussi Node, les filtres, les dates et le
+résultat ; il est créé avant exécution et archivé 14 jours même en cas d'échec.
+Pour reproduire, utiliser le SHA et Node 24 indiqués dans le rapport avec `npm ci`.
+La seed contrôle l'ordre des fichiers/tests, pas l'aléa métier ni l'horloge système.
+
+Le workflow est vérifié en PR et accepte un déclenchement manuel avec 1 à 8 seeds
+explicites séparées par des virgules. Son cron quotidien à **04:43 UTC** cible
+`dev`, épinglé une seule fois pour toute la matrice. GitHub n'active les événements
+planifiés que lorsque le workflow existe sur la branche par défaut (`main`) :
+après fusion dans `dev`, la configuration est livrée mais la planification attend
+la promotion habituelle vers `main`, sans fusion automatique vers celle-ci.
+
+Contrats : `tests/testOrderSeeds.test.mjs` (génération, validation, reproduction et
+vrai échec CLI) et `tests/testOrderSeedWorkflow.test.ts` (matrice, SHA et artefacts).
+Références : [ordre et seed Vitest](https://vitest.dev/config/sequence) et
+[planification GitHub](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+
 ## Périmètre
 
 La mesure couvre le domaine de jeu, les services, repositories, stores et utilitaires,
