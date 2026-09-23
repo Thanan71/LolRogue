@@ -1,6 +1,6 @@
 # Performance frontend
 
-Dernière mesure : **6 septembre 2026**, Node 24, build Vite de production local.
+Dernière mesure bundle : **23 septembre 2026**, Node 24, build Vite de production local.
 
 ## Référence avant P2-PERF-01
 
@@ -99,6 +99,42 @@ conserve **10,82 % de marge**, la règle minimale de 10 %, les cinq budgets de c
 les plafonds initial/Auth et le plafond de 7 200 000 octets pour les assets
 déployables. Le relèvement couvre la fonctionnalité admin mesurée sans rendre le
 chargement public plus lourd ni retirer de signal de calibration.
+
+## Révision pour la traduction complète FR/EN
+
+Le 23 septembre 2026, les catalogues explicites FR/EN couvrent les champions,
+passifs, compétences et contenus de jeu. Le budget précédent ne couvre pas cette
+augmentation fonctionnelle : le premier build atteint **610 140 octets gzip**,
+avec un chunk `content` de 770 636 octets bruts. Le choix produit autorise une
+hausse mesurée des plafonds pour conserver toutes les traductions.
+
+Avant cette révision, la présentation française importait le catalogue de combat
+complet puis en extrayait les textes à l'exécution. Le packaging produit désormais
+`champion-content.fr-FR.json`, une projection limitée aux identifiants, noms, titres
+et descriptions. La vérification des assets et un test exhaustif comparent chaque
+champion, passif et compétence à la source complète : aucun texte n'est retiré ni
+modifié. Les données d'autorité v21 restent identiques.
+
+Cette projection économise **37 124 octets gzip** et **306 886 octets bruts** au
+build. La mesure finale est :
+
+| Périmètre | Mesure | Plafond |
+| --- | ---: | ---: |
+| JavaScript total gzip | 573 016 octets | 640 000 octets |
+| Plus gros chunk brut (`content`) | 463 750 octets | 560 000 octets, inchangé |
+| Chargement initial gzip | 212 114 octets | 215 000 octets, inchangé |
+| Route `/auth` gzip | 216 171 octets | 225 000 octets, inchangé |
+| Assets déployables | 7 667 822 octets | 8 000 000 octets |
+| Chunk `content` gzip | 129 722 octets | 135 000 octets, nouveau contrôle |
+| Chunk `index` gzip | 75 021 octets | 78 000 octets |
+| Chunk `runStore` gzip | 32 800 octets | 34 000 octets |
+
+Le plafond global passe de 480 000 à **640 000 octets gzip**, avec **10,47 % de
+marge** et la règle minimale de 10 % conservée. Les plafonds React, Supabase,
+champion-data, initial/Auth et Web Vitals restent inchangés. Le nouveau plafond
+`content` rend le coût des traductions visible et bloquant dans les prochains
+builds ; l'isolation du manifeste Auth reste vérifiée. Ces mesures décrivent le
+bundle, pas une nouvelle mesure des Web Vitals.
 
 ## Audit Web Vitals avant P2-PERF-02
 
