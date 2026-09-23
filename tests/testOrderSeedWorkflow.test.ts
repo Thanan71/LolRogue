@@ -22,7 +22,9 @@ describe('variable test-order CI contract', () => {
 
   it('passes input through validated arguments and retains reproduction metadata on failures', () => {
     expect(workflow).toContain('REQUESTED_TEST_SEEDS: ${{ inputs.seeds }}');
-    expect(workflow).toContain('node scripts/generate-test-order-seeds.mjs "$REQUESTED_TEST_SEEDS"');
+    expect(workflow).toContain(
+      'node scripts/generate-test-order-seeds.mjs "$REQUESTED_TEST_SEEDS"',
+    );
     expect(workflow).toContain('npm run test:seed -- "$TEST_ORDER_SEED"');
     expect(workflow).toContain('if: always()');
     expect(workflow).toContain('path: test-seed-results/');
