@@ -58,13 +58,23 @@ async function expectEnglishSurface(page: Page, stage: string, englishAnchor: Lo
 
   const surface = await page.evaluate(() => {
     const exposedAttributes = Array.from(
-      document.querySelectorAll<HTMLElement>('[aria-label], [title], [placeholder], [alt]'),
+      document.querySelectorAll<HTMLElement>(
+        '[aria-label], [aria-valuetext], [title], [placeholder], [alt]',
+      ),
     ).flatMap((element) =>
-      ['aria-label', 'title', 'placeholder', 'alt'].map(
+      ['aria-label', 'aria-valuetext', 'title', 'placeholder', 'alt'].map(
         (attribute) => element.getAttribute(attribute) ?? '',
       ),
     );
-    return [document.title, document.body.innerText, ...exposedAttributes].join('\n');
+    const generatedContent = Array.from(document.body.querySelectorAll('*')).flatMap((element) =>
+      ['::before', '::after'].map((pseudo) => window.getComputedStyle(element, pseudo).content),
+    );
+    return [
+      document.title,
+      document.body.innerText,
+      ...exposedAttributes,
+      ...generatedContent,
+    ].join('\n');
   });
   const lowerSurface = surface.toLocaleLowerCase('fr-FR');
   const residualMarkers = FRENCH_UI_MARKERS.filter((marker) =>
@@ -292,6 +302,11 @@ test('switches from French to English across a complete offline player journey',
   }
   const confirmSelection = page.getByRole('button', { name: 'Confirm selection' });
   await expect(confirmSelection).toBeEnabled();
+  await expectEnglishSurface(page, 'selected starter badges', confirmSelection);
+  await expect(page.locator('button.champion-card[aria-pressed="true"]').first()).toHaveAttribute(
+    'data-selected-label',
+    'On the team',
+  );
   await confirmSelection.click();
   await expect(page).toHaveURL('/run');
 
