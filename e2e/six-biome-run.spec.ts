@@ -258,7 +258,7 @@ async function resolvePendingChoices(page: Page, trace: string[]) {
     trace.push(`rewards:${await rewards.textContent()}`);
     await rewards.getByRole('button', { name: 'Fermer' }).click();
   }
-  const augment = page.getByRole('region', { name: "Choix d'augment" });
+  const augment = page.getByRole('region', { name: "Choix d'amélioration" });
   const upgrade = page.getByRole('region', { name: /Amélioration de sort|Améliorer un sort/ });
   for (let choice = 0; choice < 20; choice += 1) {
     const pending = await page.evaluate(async () => {
