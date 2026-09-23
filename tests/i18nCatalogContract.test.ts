@@ -18,6 +18,8 @@ import { tutorialContent } from '@/i18n/tutorialContent';
 type Locale = 'fr-FR' | 'en-US';
 type LocaleCatalog = Readonly<Record<Locale, unknown>>;
 
+const i18nModules = import.meta.glob('../src/i18n/**/*.ts');
+
 const catalogs = {
   adminExport: adminExportContent,
   adminFieldCalibration: {
@@ -36,6 +38,40 @@ const catalogs = {
   runPreparation: runPreparationContent,
   tutorial: tutorialContent,
 } as const satisfies Readonly<Record<string, LocaleCatalog>>;
+
+// Every i18n module must either join this contract or identify its specialized
+// coverage. Discovering the files prevents new catalogs from silently opting out.
+const catalogModules = {
+  'adminExportContent.ts': 'adminExport',
+  'adminFieldCalibration.ts': 'adminFieldCalibration',
+  'championContent.ts': 'champion',
+  'combatContent.ts': 'combat',
+  'documentContent.ts': 'document',
+  'en.ts': 'main',
+  'enhancementContent.ts': 'enhancement',
+  'fr.ts': 'main',
+  'gameOverContent.ts': 'gameOver',
+  'inventoryContent.ts': 'inventory',
+  'legal.en.ts': 'legal',
+  'legal.fr.ts': 'legal',
+  'runErrorContent.ts': 'runError',
+  'runPreparationContent.ts': 'runPreparation',
+  'tutorialContent.ts': 'tutorial',
+} as const satisfies Readonly<Record<string, keyof typeof catalogs>>;
+
+const specializedModuleContracts = {
+  // These modules resolve IDs or format values rather than expose locale records.
+  'adminErrorContent.ts': 'i18nBoundarySafety.test.ts',
+  'content.ts': 'englishDynamicContent.test.ts',
+  'encounterContent.ts': 'encounterSourceContract.test.ts',
+  'format.ts': 'i18nLocaleFormats.test.ts',
+  'routeTitles.ts': 'routeTitles.test.ts',
+  'runMutationContent.ts': 'i18nBoundarySafety.test.ts',
+  'runes.en.ts': 'inventoryContent.test.ts',
+  'runes.fr.ts': 'inventoryContent.test.ts',
+} as const;
+
+const specializedTests = import.meta.glob('./*.test.{ts,tsx}');
 
 type InvariantRule = string | RegExp;
 
@@ -210,6 +246,28 @@ const unexpectedLocaleMarkers = {
 } as const satisfies Readonly<Record<Locale, RegExp>>;
 
 describe('exposed i18n catalog contract', () => {
+  it('registers every discovered i18n module in a catalog or specialized contract', () => {
+    const discoveredModules = Object.keys(i18nModules)
+      .map((path) => path.replace('../src/i18n/', ''))
+      .sort();
+    const registeredModules = [
+      ...Object.keys(catalogModules),
+      ...Object.keys(specializedModuleContracts),
+    ].sort();
+
+    expect(registeredModules, 'New i18n modules need explicit translation coverage').toEqual(
+      discoveredModules,
+    );
+    expect([...new Set(Object.values(catalogModules))].sort()).toEqual(
+      Object.keys(catalogs).sort(),
+    );
+    for (const testFile of Object.values(specializedModuleContracts)) {
+      expect(Object.keys(specializedTests), `Missing specialized contract: ${testFile}`).toContain(
+        `./${testFile}`,
+      );
+    }
+  });
+
   it.each(Object.entries(catalogs))(
     '%s exposes exactly two independent, structurally complete locales',
     (_name, catalog) => {
