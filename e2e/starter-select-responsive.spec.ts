@@ -153,7 +153,7 @@ test('the complete selection can be performed with the keyboard at 320px', async
   await firstRune.focus();
   await page.keyboard.press('Space');
   await expect(firstRune).toBeChecked();
-  await expect(page.getByText('1/3 sélectionnées')).toBeVisible();
+  await expect(page.getByText('1/3 sélectionnée', { exact: true })).toBeVisible();
 
   await runes.nth(1).focus();
   await page.keyboard.press('Space');
@@ -214,7 +214,7 @@ test('touch selection exposes a start error without overlap at 320px', async ({ 
   await confirm.tap();
 
   const alert = page.getByRole('alert');
-  await expect(alert).toHaveText('La run de test est temporairement indisponible.');
+  await expect(alert).toHaveText('La partie vérifiée n’a pas pu démarrer.');
   await expect(page).toHaveURL('/starter-select');
 
   const geometry = await page.evaluate(() => {
@@ -254,7 +254,7 @@ test('touch selection and Back remain activatable at 390px', async ({ page }) =>
   await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
   await expect(confirm).toBeEnabled();
 
-  const back = page.getByRole('button', { name: '← Retour' });
+  const back = page.getByRole('button', { name: 'Retour', exact: true });
   await back.scrollIntoViewIfNeeded();
   await back.tap();
   await expect(page).toHaveURL('/');
