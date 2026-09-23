@@ -52,7 +52,7 @@ test('les réglages modifient leurs consommateurs réels', async ({ page }) => {
     .poll(() => page.evaluate(() => getComputedStyle(document.documentElement).fontSize))
     .toBe('19.2px');
 
-  await page.getByLabel('Volume des effets sonores — 80%').fill('35');
+  await page.getByLabel(/^Volume des effets sonores — 80\s%$/).fill('35');
   await page.getByLabel('Vitesse du combat').selectOption('3');
   await page.locator('label.settings-toggle[for="particles"]').click();
   await expect(page.getByLabel('Particules')).not.toBeChecked();
