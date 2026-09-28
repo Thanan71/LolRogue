@@ -1,13 +1,18 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const FRENCH_CONTENT =
   /[àâäçéèêëîïôöùûüÿœæ]|\b(?:dégâts|dégât|équipe|inventaire|niveau|maîtrise|soin|bouclier|armure|puissance|vitesse|objet|objets|recrutement|repos|trésor|boutique|inconnu|disponible|verrouillé|terminé|récompense|vague|cible|gagne|inflige|réduit|augmente|ennemi|proches|manquants)\b/iu;
 
 beforeEach(() => {
   vi.resetModules();
-  vi.stubGlobal('window', {
-    localStorage: { getItem: () => JSON.stringify({ state: { language: 'en-US' } }) },
+  vi.stubGlobal('localStorage', {
+    getItem: () => JSON.stringify({ state: { language: 'en-US' } }),
   });
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.resetModules();
 });
 
 describe('contenu dynamique anglais explicite', () => {
