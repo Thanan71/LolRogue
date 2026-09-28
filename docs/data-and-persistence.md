@@ -181,9 +181,89 @@ collecte idempotentes, y compris après refresh.
 Chaque stockage Zustand possède désormais un numéro de schéma et une validation
 runtime avant merge, y compris lorsque le payload annonce déjà la version courante.
 Une version future, un type invalide ou une migration qui échoue restaure les
-defaults et conserve la copie fautive sous `lolrogue-quarantine:<nom-du-store>`.
+defaults. Une copie diagnostique bornée peut être conservée sous
+`lolrogue-quarantine:<nom-du-store>` ; les charges surdimensionnées sont purgées
+avant parsing. La suppression de la source invalide reste tentée même si la
+quarantaine ne peut pas être écrite (quota ou `SecurityError`).
 Les statuts réseau transitoires `saving` et `retrying` sont réhydratés en échec
 réessayable, jamais comme promesse encore active.
+
+### Frontière de stockage et fuzz de réhydratation
+
+`src/utils/storagePolicy.ts` centralise les lectures/écritures protégées, y compris
+le getter de `localStorage`. Le registre limite la taille **avant** `JSON.parse` :
+
+| Stockage | Limite en unités UTF-16 | Schéma |
+|---|---:|---|
+| Run | 2 097 152 | 7, migrations 0–6 conservées |
+| Settings / audio / métadonnées daily | 16 384 chacun | 3 / 2 / 4 |
+| Maîtrise invitée | 524 288 | 3 |
+| Leaderboard invité du jour | 262 144, 100 entrées | 1 + objet legacy |
+| Mode invité | 4 096 | 1 + ancien booléen `true` |
+| Tutoriels carte / combat | 4 096 chacun | clés `:v2`, migration `:v1 = done` |
+| Quarantaine | 16 384 | 1, expiration après 7 jours |
+
+Une traversée itérative borne ensuite profondeur (48), nœuds (150 000) et tableaux
+(20 000), rejette les nombres non finis et les clés de pollution de prototype.
+Les validateurs métier imposent des limites supplémentaires. Les enveloppes
+Zustand sans version passent explicitement par la migration 0, jamais par une
+supposition de schéma courant. Seules les propriétés connues des defaults sont
+restaurées : un champ injecté ne peut pas remplacer une action Zustand.
+
+La quarantaine conserve au plus 2 048 unités de diagnostic et indique toute
+troncature ; sa lecture supprime les anciennes versions et les copies expirées.
+Aucune purge globale du stockage navigateur n'est effectuée. Les anciennes clés
+tutoriel ne sont retirées qu'après confirmation de l'écriture du cache v2 ; un
+quota ne fait donc pas perdre un tutoriel déjà terminé. Il n'y a pas d'expiration
+arbitraire de cet acquis : seule une nouvelle révision l'invalide. Les métadonnées
+et scores daily obsolètes sont écartés selon leur date.
+
+Le mode invité persistant n'accorde jamais une session, une identité ou un rôle.
+Les sessions du SDK Supabase ne passent pas par les migrations de jeu.
+Elles utilisent `supabaseAuthStorage.ts`, un adaptateur opaque sans parsing,
+quarantaine, journalisation ni purge des tokens. Une écriture impossible reste
+en mémoire dans l'onglet ; une suppression impossible masque l'ancienne session
+pour préserver la déconnexion locale. Les lectures durables normales ne sont
+pas mises en cache, afin de voir les changements des autres onglets. Une lecture
+interdite renvoie `null` sans rejet asynchrone non géré. Sans configuration
+Supabase, le client de repli ne persiste aucune session.
+
+Le SDK lit aussi son drapeau interne de debug avant cet adaptateur. Le patch
+versionné décrit dans `patches/README.md` protège uniquement cette lecture ;
+`npm ci` doit appliquer le patch ou échouer. Les tests exécutent les deux formats
+du vrai SDK, puis ses parcours connexion/déconnexion avec stockage défaillant
+et réseau simulé. Aucun contenu d'authentification n'est confié au cache de jeu.
+
+Le préchargement de langue et le store settings partagent le même contrat de
+validité : un champ mal typé ne peut pas sélectionner EN avant de retomber sur FR
+au démarrage de React.
+
+### Une vérification locale n'est pas un reçu serveur
+
+La réhydratation efface toujours `serverProgression`. Une fin connectée conserve
+sa tentative et son journal, mais ses récompenses ne sont de nouveau présentées
+comme vérifiées qu'après récupération serveur. Après rechargement, le bouton de
+réessai existant reprend **le même** `attemptId`, `finishCommandId` et journal ;
+une réponse déjà vérifiée est récupérée sans lancer une nouvelle vérification ni
+créditer une deuxième fois. En cas de panne, le reçu reste récupérable.
+Les anciens caches dépourvus de tentative ne peuvent pas servir de preuve.
+
+Les erreurs terminales, tentatives rejetées et expirées restent terminales :
+elles ne deviennent pas réessayables et ne bloquent pas le démarrage inter-onglets
+à cause d'un booléen `isActive` contradictoire. Le moteur canonique v21 et ses
+archives ne changent pas ; ces contrôles locaux ne remplacent jamais le replay,
+l'identité du propriétaire et le crédit atomique serveur.
+
+Preuves : `storageBoundary.test.ts`, `storeHydrationFuzz.test.ts`,
+`dailyStorageFuzz.test.ts`, `ancillaryStorage.test.ts`,
+`contextTutorialStorage.test.tsx`, `runPersistenceFuzz.test.ts`,
+`runSaveRecovery.test.ts` et `e2e/storage-rehydration.spec.ts`.
+Les corpus déterministes incluent troncatures, versions passées/futures, mauvais
+types et charges excessives ; les pannes couvrent get/set/remove, quota,
+`SecurityError`, getter indisponible et absence de stockage. Le contrat d'inventaire
+refuse les nouveaux accès directs et les noms de cache non enregistrés.
+
+### Reprise des rencontres
 
 L’entrée dans un combat écrit `combatCheckpointNodeId` avant le premier tour. Si
 ce checkpoint est retrouvé au chargement, le combat est rejoué en autoplay

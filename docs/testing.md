@@ -138,8 +138,8 @@ Chaque exception fixe le chemin `.d.ts`/`.d.mts`, le code, le message complet
 (empreinte SHA-256), les scopes, la version du paquet et celle de TypeScript.
 Une erreur supplémentaire, une exception obsolète, un doublon, un changement de
 version ou l'expiration fait échouer la gate. Les quatre diagnostics acceptés
-(trois scopes Supabase, un scope React) restent visibles ; il n'y a ni patch de
-`node_modules`, ni namespace global artificiel, ni `continue-on-error`.
+(trois scopes Supabase, un scope React) restent visibles ; il n'y a ni patch des
+déclarations tierces, ni namespace global artificiel, ni `continue-on-error`.
 Lors d'une mise à jour, relancer la commande, corriger d'abord le projet et retirer
 les exceptions résolues ; tout renouvellement doit être justifié explicitement.
 

@@ -136,6 +136,23 @@ champion-data, initial/Auth et Web Vitals restent inchangés. Le nouveau plafond
 builds ; l'isolation du manifeste Auth reste vérifiée. Ces mesures décrivent le
 bundle, pas une nouvelle mesure des Web Vitals.
 
+## Révision pour la robustesse du stockage (P2-WEB-02)
+
+Le 28 septembre 2026, les bornes JSON, les validateurs de réhydratation et la
+protection des lectures SDK portent le total à **577 758 octets gzip**, soit
+4 742 octets de plus que la référence FR/EN ci-dessus. `runStore` atteint
+35 761 octets gzip. Le budget v4 conserve ces contrôles plutôt que de retirer
+des validations pour réduire le bundle, conformément à l'autorisation produit
+d'augmenter un plafond lorsque cela préserve la qualité.
+
+Le plafond total passe de 640 000 à **650 000 octets** (+1,56 %) et celui de
+`runStore` de 34 000 à **38 000 octets**. La marge totale devient **11,11 %** ;
+la règle minimale de **10 %** ne change pas. Le chargement initial (213 334
+octets) et Auth (217 391 octets) restent sous leurs plafonds inchangés de
+215 000 et 225 000 octets. Les autres chunks, les assets et les limites
+Web Vitals restent inchangés. `test:performance-budgets` reste bloquant ;
+ces mesures de taille ne constituent pas à elles seules une mesure Web Vitals.
+
 ## Audit Web Vitals avant P2-PERF-02
 
 La matrice de production observe déjà LCP, CLS et les entrées `event` utilisées pour

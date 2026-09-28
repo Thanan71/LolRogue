@@ -1286,12 +1286,26 @@ entre jobs.
 
 **Taille : M**
 
-- [ ] Générer des payloads localStorage tronqués, anciens, surdimensionnés et mal typés.
-- [ ] Vérifier qu'aucun payload ne peut restaurer un état authority impossible.
-- [ ] Tester quotas / `SecurityError` / stockage indisponible sur toutes les clés
+- [x] Générer des payloads localStorage tronqués, anciens, surdimensionnés et mal typés.
+- [x] Vérifier qu'aucun payload ne peut restaurer un état authority impossible.
+- [x] Tester quotas / `SecurityError` / stockage indisponible sur toutes les clés
   persistées, pas uniquement le mode invité.
-- [ ] Ajouter une version et une stratégie de purge pour les caches de tutoriel et
+- [x] Ajouter une version et une stratégie de purge pour les caches de tutoriel et
   autres clés annexes.
+
+Preuves : `storageBoundary.test.ts`, `storeHydrationFuzz.test.ts`,
+`runPersistenceFuzz.test.ts`, `runSaveRecovery.test.ts`,
+`dailyStorageFuzz.test.ts`, `ancillaryStorage.test.ts`,
+`contextTutorialStorage.test.tsx` et `e2e/storage-rehydration.spec.ts`.
+Les récompenses serveur sont effacées à la réhydratation, puis récupérées avec
+la même tentative et le même journal ; un rejet terminal reste terminal.
+Les sessions Supabase restent opaques dans leur adaptateur séparé. Le patch
+SDK exact et ses tests ESM/CJS sont documentés dans `patches/README.md`.
+Validation locale du 28 septembre 2026 : `npm run check` (1 951 tests verts,
+31 tests DB réservés à la clean-room), `typecheck:strict`, `authority:check`,
+11 parcours stockage/onboarding et 11 parcours accessibilité, responsive,
+équipement et anglais. Les fixtures visuelles produisent des snapshots complets
+sans affaiblir leurs assertions. Le moteur canonique v21 reste inchangé.
 
 ---
 
@@ -1525,7 +1539,7 @@ techniques ni afficher une modale à chaque déploiement.**
 27. [x] `P2-PERF-02` Web Vitals sur preview locale stable.
 28. [x] `P2-TEST-02` seeds variables reproductibles (cron activé après promotion sur `main`).
 29. [x] `P2-TEST-03` gate `skipLibCheck=false` (deux exceptions tierces bornées et expirables).
-30. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
+30. [x] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
 
 ## Sprint F — fiabilité produit et exploitation
 
