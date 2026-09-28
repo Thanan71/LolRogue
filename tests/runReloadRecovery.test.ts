@@ -25,14 +25,14 @@ function createLocalStorage() {
 describe('run reload recovery', () => {
   beforeEach(() => {
     vi.stubGlobal('localStorage', createLocalStorage());
-    useRunStore.setState({
-      completedRunSnapshot: null,
-      serverProgression: null,
-      ledger: createRunLedger(),
-    });
+    // Storage replacement alone does not reset the singleton Zustand store.
+    // A previous test's terminal failure or authority journal must not enter
+    // another fixture when the seed shuffles their execution order.
+    useRunStore.setState(structuredClone(RUN_INITIAL_STATE));
   });
 
   afterEach(() => {
+    useRunStore.setState(structuredClone(RUN_INITIAL_STATE));
     useRunStore.persist.clearStorage();
     vi.unstubAllGlobals();
   });

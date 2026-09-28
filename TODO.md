@@ -1303,9 +1303,12 @@ Les sessions Supabase restent opaques dans leur adaptateur séparé. Le patch
 SDK exact et ses tests ESM/CJS sont documentés dans `patches/README.md`.
 Validation locale du 28 septembre 2026 : `npm run check` (1 951 tests verts,
 31 tests DB réservés à la clean-room), `typecheck:strict`, `authority:check`,
-11 parcours stockage/onboarding et 11 parcours accessibilité, responsive,
-équipement et anglais. Les fixtures visuelles produisent des snapshots complets
-sans affaiblir leurs assertions. Le moteur canonique v21 reste inchangé.
+43 parcours navigateur verts (défaite/victoire réelles, stockage, accessibilité,
+responsive et anglais ; parcours connecté réservé à la CI). Les fixtures visuelles
+produisent des snapshots complets sans affaiblir leurs assertions. Les seeds
+1016339187, 1592608384 et 1228260877 ont aussi vérifié l'isolation complète du
+singleton Zustand entre les 17 scénarios de reprise. Le moteur canonique v21
+reste inchangé.
 
 ---
 
