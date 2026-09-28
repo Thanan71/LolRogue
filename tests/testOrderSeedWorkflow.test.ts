@@ -8,6 +8,7 @@ describe('variable test-order CI contract', () => {
     expect(workflow).toContain('pull_request:');
     expect(workflow).toContain("cron: '43 4 * * *'");
     expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).toContain("      - 'patches/**'");
     expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');
   });
 
