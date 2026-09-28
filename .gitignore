@@ -27,6 +27,7 @@ npm-debug.log*
 # Coverage
 coverage/
 test-seed-results/
+strict-typecheck-results/
 
 # Playwright
 test-results/

@@ -1175,10 +1175,16 @@ Commandes de reproduction et limites : `docs/testing.md`.
 
 **Taille : S/M**
 
-- [ ] Garder éventuellement `skipLibCheck=true` pour le cycle rapide.
-- [ ] Ajouter périodiquement/CI une compilation avec `skipLibCheck=false` afin de
+- [x] Garder éventuellement `skipLibCheck=true` pour le cycle rapide.
+- [x] Ajouter périodiquement/CI une compilation avec `skipLibCheck=false` afin de
   détecter les incompatibilités React 19 / TS7 / types Node / Supabase.
-- [ ] Documenter toute exception impossible à corriger côté projet.
+- [x] Documenter toute exception impossible à corriger côté projet.
+
+Preuves : `npm run typecheck:strict`, workflow `strict-typecheck.yml`, contrats
+`strictTypecheckPolicy.test.mjs`, `strictTypecheckWorkflow.test.ts` et
+`jestDomMatchersCompatibility.test.ts`. Deux exceptions tierces exactes et versionnées
+expirent le 23 octobre 2026 ; toute autre erreur bloque. La frontière Node sans DOM
+reste obligatoire. Détails et condition d'activation du cron : `docs/testing.md`.
 
 ---
 
@@ -1518,7 +1524,7 @@ techniques ni afficher une modale à chaque déploiement.**
 26. [x] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
 27. [x] `P2-PERF-02` Web Vitals sur preview locale stable.
 28. [x] `P2-TEST-02` seeds variables reproductibles (cron activé après promotion sur `main`).
-29. [ ] `P2-TEST-03` gate `skipLibCheck=false`.
+29. [x] `P2-TEST-03` gate `skipLibCheck=false` (deux exceptions tierces bornées et expirables).
 30. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
 
 ## Sprint F — fiabilité produit et exploitation

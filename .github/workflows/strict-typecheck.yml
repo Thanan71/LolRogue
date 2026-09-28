@@ -1,0 +1,62 @@
+name: Strict dependency typecheck
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/strict-typecheck.yml'
+      - 'src/**'
+      - 'data/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'e2e/**'
+      - 'config/**'
+      - 'api/**'
+      - 'supabase/functions/**'
+      - 'tsconfig*.json'
+      - 'package*.json'
+      - '.nvmrc'
+      - 'vite.config.ts'
+      - 'playwright*.ts'
+      - 'tailwind.config.ts'
+      - 'postcss.config.js'
+  # GitHub activates scheduled runs only after this workflow reaches main (default branch).
+  # The scheduled workflow deliberately checks out dev, not main's application code.
+  schedule:
+    - cron: '29 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: strict-typecheck-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  strict-typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout the exact candidate or weekly dev
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || github.sha }}
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Preserve application, Node-only and browser type boundaries
+        run: npm run typecheck
+      - name: Check all dependency declarations
+        run: npm run typecheck:strict
+      - name: Preserve strict diagnostics on success or failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: strict-typecheck-${{ github.run_id }}-${{ github.run_attempt }}
+          path: strict-typecheck-results/
+          if-no-files-found: warn
+          retention-days: 14
