@@ -450,7 +450,7 @@ describe('run reload recovery', () => {
     });
   });
 
-  it('restores the frozen completion payload and canonical progression', async () => {
+  it('restores the frozen completion payload without trusting cached server progression', async () => {
     const ledger = createRunLedger(['Garen']);
     ledger.champions.Garen.kills = 2;
     ledger.champions.Garen.damageDealt = 640;
@@ -532,11 +532,7 @@ describe('run reload recovery', () => {
       runId: 'persisted-completion',
       summary: { totalKills: 2, totalDamage: 640 },
     });
-    expect(useRunStore.getState().serverProgression).toMatchObject({
-      candiesEarned: 14,
-      progressionVersion: 1,
-      progressionSource: 'verified',
-    });
+    expect(useRunStore.getState().serverProgression).toBeNull();
     expect(useRunStore.getState().ledger).toMatchObject({
       version: 2,
       gold: { earned: 150, spent: 25 },

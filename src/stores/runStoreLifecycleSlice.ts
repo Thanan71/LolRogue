@@ -494,6 +494,7 @@ export function createRunLifecycleSlice(
         if (
           !won &&
           state.authorityAttempt &&
+          state.completedRunSnapshot?.runId !== state.runId &&
           !isImmediateCombatLoss &&
           !hasRecordedAbandonment &&
           !get().recordRunCommand({ kind: 'abandon_run' }, abandonDedupeKey)
@@ -879,6 +880,9 @@ export function createRunLifecycleSlice(
           ...RUN_INITIAL_STATE,
           completedRunSnapshot: snapshot,
           serverProgression,
+          // Retain only the existing attempt identity/journal for a reload to
+          // recover the durable result, without creating a second attempt.
+          authorityAttempt: authorityAttempt ? get().authorityAttempt : null,
           saveStatus: 'saved',
         });
         return true;
