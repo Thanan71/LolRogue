@@ -25,14 +25,14 @@ function createLocalStorage() {
 describe('run reload recovery', () => {
   beforeEach(() => {
     vi.stubGlobal('localStorage', createLocalStorage());
-    useRunStore.setState({
-      completedRunSnapshot: null,
-      serverProgression: null,
-      ledger: createRunLedger(),
-    });
+    // Storage replacement alone does not reset the singleton Zustand store.
+    // A previous test's terminal failure or authority journal must not enter
+    // another fixture when the seed shuffles their execution order.
+    useRunStore.setState(structuredClone(RUN_INITIAL_STATE));
   });
 
   afterEach(() => {
+    useRunStore.setState(structuredClone(RUN_INITIAL_STATE));
     useRunStore.persist.clearStorage();
     vi.unstubAllGlobals();
   });
@@ -450,7 +450,7 @@ describe('run reload recovery', () => {
     });
   });
 
-  it('restores the frozen completion payload and canonical progression', async () => {
+  it('restores the frozen completion payload without trusting cached server progression', async () => {
     const ledger = createRunLedger(['Garen']);
     ledger.champions.Garen.kills = 2;
     ledger.champions.Garen.damageDealt = 640;
@@ -532,11 +532,7 @@ describe('run reload recovery', () => {
       runId: 'persisted-completion',
       summary: { totalKills: 2, totalDamage: 640 },
     });
-    expect(useRunStore.getState().serverProgression).toMatchObject({
-      candiesEarned: 14,
-      progressionVersion: 1,
-      progressionSource: 'verified',
-    });
+    expect(useRunStore.getState().serverProgression).toBeNull();
     expect(useRunStore.getState().ledger).toMatchObject({
       version: 2,
       gold: { earned: 150, spent: 25 },

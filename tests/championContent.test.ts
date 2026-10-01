@@ -98,8 +98,8 @@ function expectCompleteCopy(copy: ChampionContentCopy): void {
 
 async function loadChampionLocalizers(locale: ChampionContentLocale) {
   vi.resetModules();
-  vi.stubGlobal('window', {
-    localStorage: { getItem: () => JSON.stringify({ state: { language: locale } }) },
+  vi.stubGlobal('localStorage', {
+    getItem: () => JSON.stringify({ state: { language: locale } }),
   });
   return import('@/i18n/content');
 }

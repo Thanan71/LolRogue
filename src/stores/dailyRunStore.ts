@@ -14,6 +14,12 @@ import {
   recoverVersionedState,
   safeLocalStorage,
 } from '@/utils/persistence';
+import {
+  parseBoundedStorageJson,
+  readStorageText,
+  removeStorageEntry,
+  writeStorageText,
+} from '@/utils/storagePolicy';
 
 const STORAGE_KEY = 'lolrogue-daily-run';
 const LEADERBOARD_KEY = 'lolrogue-daily-leaderboard';
@@ -42,12 +48,27 @@ function getInitialState(): DailyRunState {
 function isDailyMetadata(value: unknown): value is Partial<DailyRunState> {
   return (
     isRecord(value) &&
-    (value.dateKey === undefined || typeof value.dateKey === 'string') &&
+    (value.dateKey === undefined || isDateKey(value.dateKey)) &&
     (value.seed === undefined || Number.isSafeInteger(value.seed)) &&
     (value.hasCompletedToday === undefined || typeof value.hasCompletedToday === 'boolean') &&
     (value.expiresAt === undefined ||
       value.expiresAt === null ||
-      typeof value.expiresAt === 'string')
+      (typeof value.expiresAt === 'string' &&
+        value.expiresAt.length <= 64 &&
+        isDateKey(value.expiresAt.slice(0, 10)) &&
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(
+          value.expiresAt,
+        ) &&
+        Number.isFinite(Date.parse(value.expiresAt))))
+  );
+}
+
+function isDateKey(value: unknown): value is string {
+  return (
+    typeof value === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    Number.isFinite(Date.parse(`${value}T00:00:00.000Z`)) &&
+    new Date(`${value}T00:00:00.000Z`).toISOString().slice(0, 10) === value
   );
 }
 
@@ -61,47 +82,76 @@ function migrateDailyMetadata(persisted: unknown, version: number): DailyRunStat
     migrate: (candidate, sourceVersion) =>
       sourceVersion >= 0
         ? {
-            dateKey: candidate.dateKey,
-            seed: candidate.seed,
-            hasCompletedToday: candidate.hasCompletedToday,
-            expiresAt: candidate.expiresAt,
+            ...getInitialState(),
+            ...candidate,
           }
         : null,
   });
 }
 
 function loadLeaderboard(): DailyLeaderboard {
+  const empty = { dateKey: getTodayKey(), entries: [] };
   try {
-    const raw = localStorage.getItem(LEADERBOARD_KEY);
-    if (!raw) return { dateKey: getTodayKey(), entries: [] };
-    const envelope = JSON.parse(raw) as { version?: unknown; state?: unknown };
-    const parsed =
-      envelope.version === LEADERBOARD_SCHEMA_VERSION && isRecord(envelope.state)
-        ? (envelope.state as unknown as DailyLeaderboard)
-        : (envelope as unknown as DailyLeaderboard);
+    const raw = readStorageText(LEADERBOARD_KEY);
+    if (raw === null) return empty;
+    const envelope = parseBoundedStorageJson(raw, LEADERBOARD_KEY);
+    const legacy = isRecord(envelope) && envelope.version === undefined;
+    const parsed = legacy
+      ? envelope
+      : isRecord(envelope) && envelope.version === LEADERBOARD_SCHEMA_VERSION
+        ? envelope.state
+        : null;
     if (
-      typeof parsed.dateKey !== 'string' ||
+      !isRecord(parsed) ||
+      !isDateKey(parsed.dateKey) ||
       !Array.isArray(parsed.entries) ||
-      !parsed.entries.every(
-        (entry) =>
-          isRecord(entry) &&
-          typeof entry.playerName === 'string' &&
-          Number.isSafeInteger(entry.score) &&
-          Number(entry.score) >= 0,
-      )
+      parsed.entries.length > MAX_LEADERBOARD_ENTRIES ||
+      !parsed.entries.every(isGuestLeaderboardEntry)
     ) {
       quarantinePersistedState(LEADERBOARD_KEY, envelope, 'invalid_leaderboard_state');
-      return { dateKey: getTodayKey(), entries: [] };
+      return empty;
     }
-    return isToday(parsed.dateKey) ? parsed : { dateKey: getTodayKey(), entries: [] };
+    if (!isToday(parsed.dateKey)) {
+      removeStorageEntry(LEADERBOARD_KEY);
+      return empty;
+    }
+    const leaderboard: DailyLeaderboard = {
+      dateKey: parsed.dateKey,
+      entries: parsed.entries.map((entry) => ({
+        playerName: entry.playerName,
+        score: entry.score,
+        wavesCompleted: entry.wavesCompleted ?? 0,
+        runLevel: entry.runLevel ?? 1,
+        ...(entry.completedAt === undefined ? {} : { completedAt: entry.completedAt }),
+      })),
+    };
+    if (legacy) saveLeaderboard(leaderboard);
+    return leaderboard;
   } catch {
-    return { dateKey: getTodayKey(), entries: [] };
+    removeStorageEntry(LEADERBOARD_KEY);
+    return empty;
   }
+}
+
+function isGuestLeaderboardEntry(value: unknown): value is DailyLeaderboardEntry {
+  return (
+    isRecord(value) &&
+    typeof value.playerName === 'string' &&
+    value.playerName.length <= 256 &&
+    Number.isSafeInteger(value.score) &&
+    Number(value.score) >= 0 &&
+    (value.wavesCompleted === undefined ||
+      (Number.isSafeInteger(value.wavesCompleted) && Number(value.wavesCompleted) >= 0)) &&
+    (value.runLevel === undefined ||
+      (Number.isSafeInteger(value.runLevel) && Number(value.runLevel) >= 1)) &&
+    (value.completedAt === undefined ||
+      (Number.isSafeInteger(value.completedAt) && Number(value.completedAt) >= 0))
+  );
 }
 
 function saveLeaderboard(leaderboard: DailyLeaderboard): void {
   try {
-    localStorage.setItem(
+    writeStorageText(
       LEADERBOARD_KEY,
       JSON.stringify({ version: LEADERBOARD_SCHEMA_VERSION, state: leaderboard }),
     );

@@ -1,3 +1,4 @@
+import { readBoundedStorageJson } from '@/utils/storagePolicy';
 import { en } from './en';
 
 const formatFrenchNumber = (value: number): string => value.toLocaleString('fr-FR');
@@ -1136,10 +1137,10 @@ export type Locale = 'fr-FR' | 'en-US';
 
 function getStoredLocale(): Locale {
   try {
-    const stored = window.localStorage.getItem('lolrogue-settings');
-    if (!stored) return 'fr-FR';
-    const parsed = JSON.parse(stored) as { state?: { language?: unknown } };
-    return parsed.state?.language === 'en-US' ? 'en-US' : 'fr-FR';
+    const parsed = readBoundedStorageJson('lolrogue-settings') as {
+      state?: { language?: unknown };
+    } | null;
+    return parsed?.state?.language === 'en-US' ? 'en-US' : 'fr-FR';
   } catch {
     return 'fr-FR';
   }

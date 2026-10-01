@@ -27,6 +27,7 @@ describe('strict dependency typecheck CI contract', () => {
         'supabase/functions/**',
         'tsconfig*.json',
         'package*.json',
+        'patches/**',
         '.nvmrc',
         'vite.config.ts',
         'playwright*.ts',

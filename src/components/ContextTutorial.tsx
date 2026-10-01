@@ -2,6 +2,11 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { locale } from '@/i18n/fr';
 import { tutorialContent } from '@/i18n/tutorialContent';
+import {
+  markTutorialCompleted,
+  readTutorialCompleted,
+  type TutorialStorageKey,
+} from '@/utils/ancillaryStorage';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -20,7 +25,7 @@ interface TutorialStep {
 }
 
 interface ContextTutorialProps {
-  storageKey: string;
+  storageKey: TutorialStorageKey;
   title: string;
   steps: TutorialStep[];
   buttonLabel?: string;
@@ -44,24 +49,16 @@ export function ContextTutorial({
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    try {
-      if (localStorage.getItem(storageKey) !== 'done') {
-        returnFocusRef.current = triggerRef.current;
-        setOpen(true);
-      }
-    } catch {
-      // Le tutoriel reste réouvrable lorsque le stockage privé est indisponible.
+    if (!readTutorialCompleted(storageKey)) {
+      returnFocusRef.current = triggerRef.current;
+      setOpen(true);
     }
   }, [storageKey]);
 
   const close = useCallback(() => {
     setOpen(false);
     setStep(0);
-    try {
-      localStorage.setItem(storageKey, 'done');
-    } catch {
-      // Aucun suivi distant et aucune dépendance au stockage pour continuer à jouer.
-    }
+    markTutorialCompleted(storageKey);
   }, [storageKey]);
 
   const openTutorial = useCallback(() => {
