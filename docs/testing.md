@@ -163,9 +163,11 @@ une exception expirée fait échouer le contrôle.
 `npm run db:advisors` applique ce contrat à la stack locale. `npm run db:validate`
 l'exécute après le reset et l'audit de sécurité, tandis que le preflight de release
 relance `node scripts/check-supabase-advisors.mjs --linked` sur le projet Supabase
-explicitement lié. Les exceptions actuelles expirent le 30 septembre 2026 et doivent
-être supprimées, corrigées ou renouvelées avec une nouvelle justification avant
-cette date.
+explicitement lié. Les 29 exceptions actuelles ont été revues le 1er octobre 2026
+et expirent le **31 octobre 2026 inclus** ; dès le 1er novembre, le contrôle refuse
+les constats encore présents. Le [compte rendu de revue](supabase-advisors-review-20261001.md)
+documente les preuves, les justifications corrigées et l'exception obsolète retirée.
+Toute prolongation nécessite une nouvelle revue, pas un décalage automatique des dates.
 
 La protection Auth contre les mots de passe compromis n'est pas activée ni couverte
 par ce contrôle DB : son activation payante reste explicitement différée. Elle ne
