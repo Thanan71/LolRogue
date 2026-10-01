@@ -13,7 +13,10 @@ import {
   SupabaseDailyRunRepository,
   SupabaseLeaderboardRepository,
 } from '@/services/repositories/SupabaseDailyRunRepository';
-import { SupabaseEnhancementRepository } from '@/services/repositories/SupabaseEnhancementRepository';
+import {
+  ENHANCEMENT_REPOSITORY_ERROR_CODES,
+  SupabaseEnhancementRepository,
+} from '@/services/repositories/SupabaseEnhancementRepository';
 import {
   SupabaseMasteryRepository,
   SupabasePlayerUnlockRepository,
@@ -619,10 +622,34 @@ describe('SupabaseEnhancementRepository', () => {
       newState: { unlockedNodes: {}, totalCandiesSpent: 0 },
       candyCost: 0,
       nodeId: 'fighter_core_1',
-      error: 'Invalid unlock_champion_enhancement response',
+      error: ENHANCEMENT_REPOSITORY_ERROR_CODES.invalidResponse,
     });
     expect(queryChain.update).not.toHaveBeenCalled();
     expect(queryChain.upsert).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable technical code when the unlock RPC has no diagnostic', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({ data: null, error: null } as never);
+    queryChain.single.mockResolvedValue({
+      data: null,
+      error: { code: 'PGRST116' },
+    });
+    const repository = new SupabaseEnhancementRepository(mockSupabase);
+
+    const result = await repository.unlockNode(
+      'user-1',
+      'Garen',
+      'fighter_core_1',
+      0,
+      '01234567-89ab-4def-8123-456789abcdef',
+    );
+
+    expect(result).toMatchObject({
+      success: false,
+      nodeId: 'fighter_core_1',
+      error: ENHANCEMENT_REPOSITORY_ERROR_CODES.rpcFailed,
+    });
   });
 });
 

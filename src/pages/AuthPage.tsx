@@ -5,13 +5,18 @@ import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { fr } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { type Language, useSettingsStore } from '@/stores/settingsStore';
 import '@/styles/auth.css';
 
 type AuthMode = 'login' | 'signup';
+
+const benefitNumberFormatter = new Intl.NumberFormat(locale, {
+  minimumIntegerDigits: 2,
+  useGrouping: false,
+});
 
 export function AuthPage() {
   const navigate = useAppNavigate();
@@ -63,7 +68,7 @@ export function AuthPage() {
       }
     } else {
       if (!username.trim()) {
-        useAuthStore.setState({ error: "Le nom d'utilisateur est requis." });
+        useAuthStore.setState({ error: fr.auth.usernameRequired });
         return;
       }
       const result = await signUp(
@@ -89,6 +94,7 @@ export function AuthPage() {
       const canContinue = await finalizeActiveRunBeforeTransition({
         isActive: runState.isActive,
         runId: runState.runId,
+        confirmationMessage: fr.run.abandonmentConfirmation,
         confirm: (message) => window.confirm(message),
         endRun: (runId) => runState.endRun(false, runId),
       });
@@ -114,53 +120,38 @@ export function AuthPage() {
       <main className="auth-page__content">
         <section className="auth-page__intro" aria-labelledby="auth-page-title">
           <div className="auth-page__logo-section">
-            <span className="auth-page__icon" role="img" aria-label="Logo LoL Rogue" />
+            <span className="auth-page__icon" role="img" aria-label={fr.product.logoLabel} />
             <div className="auth-page__brand-copy">
-              <span className="auth-page__eyebrow">La Faille se réinvente</span>
+              <span className="auth-page__eyebrow">{fr.auth.eyebrow}</span>
               <h1 id="auth-page-title" className="auth-page__title">
-                LoL Rogue
+                {fr.product.name}
               </h1>
               <p className="auth-page__subtitle">{fr.product.subtitle}</p>
             </div>
           </div>
 
           <div className="auth-page__intro-copy">
-            <p className="auth-page__intro-kicker">Une nouvelle ascension à chaque partie</p>
-            <h2>Compose ton escouade. Adapte ton build. Survis à chaque détour.</h2>
-            <p>
-              Retrouve la tension d’un roguelike tactique dans des runs rapides où chaque champion,
-              rune et décision peut renverser le combat.
-            </p>
+            <p className="auth-page__intro-kicker">{fr.auth.introKicker}</p>
+            <h2>{fr.auth.introTitle}</h2>
+            <p>{fr.auth.introDescription}</p>
           </div>
 
-          <ul className="auth-page__benefits" aria-label="Points forts">
-            <li>
-              <span aria-hidden="true">01</span>
-              <strong>Décisions tactiques</strong>
-              <small>Chaque route transforme ton équipe.</small>
-            </li>
-            <li>
-              <span aria-hidden="true">02</span>
-              <strong>Progression persistante</strong>
-              <small>Retrouve tes runs et ta maîtrise.</small>
-            </li>
-            <li>
-              <span aria-hidden="true">03</span>
-              <strong>Défis quotidiens</strong>
-              <small>Une même graine, un nouveau classement.</small>
-            </li>
+          <ul className="auth-page__benefits" aria-label={fr.auth.benefitsLabel}>
+            {fr.auth.benefits.map((benefit, index) => (
+              <li key={benefit.title}>
+                <span aria-hidden="true">{benefitNumberFormatter.format(index + 1)}</span>
+                <strong>{benefit.title}</strong>
+                <small>{benefit.detail}</small>
+              </li>
+            ))}
           </ul>
         </section>
 
-        <section className="auth-page__container" aria-label="Accès à LoL Rogue">
+        <section className="auth-page__container" aria-label={fr.auth.accessLabel}>
           <div className="auth-page__card-header">
-            <span className="auth-page__card-kicker">Portail de jeu</span>
-            <h2>{mode === 'login' ? 'Reprends ton ascension' : 'Crée ton profil de joueur'}</h2>
-            <p>
-              {mode === 'login'
-                ? 'Connecte-toi pour retrouver ta progression.'
-                : 'Enregistre tes runs et ta progression.'}
-            </p>
+            <span className="auth-page__card-kicker">{fr.auth.portal}</span>
+            <h2>{mode === 'login' ? fr.auth.loginTitle : fr.auth.signupTitle}</h2>
+            <p>{mode === 'login' ? fr.auth.loginDescription : fr.auth.signupDescription}</p>
             <div className="auth-page__language">
               <label className="auth-page__label" htmlFor="auth-language">
                 {fr.settings.language}
@@ -188,7 +179,7 @@ export function AuthPage() {
           <div
             className="auth-page__tabs"
             role="tablist"
-            aria-label="Authentification"
+            aria-label={fr.auth.tabsLabel}
             onKeyDown={(event) => {
               if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
               event.preventDefault();
@@ -351,7 +342,7 @@ export function AuthPage() {
               <span className="auth-page__divider-text">{fr.auth.or}</span>
               <div className="auth-page__divider-line" />
             </div>
-            <p>Découvre le jeu immédiatement, sans sauvegarde en ligne.</p>
+            <p>{fr.auth.guestDescription}</p>
             <button type="button" className="auth-page__guest-btn" onClick={handleGuestPlay}>
               {fr.auth.guest}
             </button>
@@ -361,9 +352,7 @@ export function AuthPage() {
 
       <footer className="auth-page__footer">
         <p className="auth-page__footer-text">
-          En continuant, tu acceptes les{' '}
-          <Link to={ROUTES.LEGAL}>conditions d’utilisation et la politique de confidentialité</Link>
-          .
+          {fr.auth.termsPrefix} <Link to={ROUTES.LEGAL}>{fr.auth.termsLink}</Link>.
         </p>
       </footer>
     </div>

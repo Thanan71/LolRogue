@@ -121,15 +121,19 @@ export function LegalPage() {
             <dl className="legal-page__retention-list">
               <div>
                 <dt>{legal.privacy.dailyPublic}</dt>
-                <dd>{`${PRIVACY_RETENTION.publicDailyLeaderboardMonths} ${locale === 'en-US' ? 'months' : 'mois'} ${legal.privacy.maximum}`}</dd>
+                <dd>
+                  {`${legal.privacy.months(PRIVACY_RETENTION.publicDailyLeaderboardMonths)} ${legal.privacy.maximum}`}
+                </dd>
               </div>
               <div>
                 <dt>{legal.privacy.diagnosticLogs}</dt>
-                <dd>{`${PRIVACY_RETENTION.diagnosticLogDays} ${locale === 'en-US' ? 'days' : 'jours'} ${legal.privacy.maximum}`}</dd>
+                <dd>
+                  {`${legal.privacy.days(PRIVACY_RETENTION.diagnosticLogDays)} ${legal.privacy.maximum}`}
+                </dd>
               </div>
               <div>
                 <dt>{legal.privacy.reviewedReports}</dt>
-                <dd>{`${PRIVACY_RETENTION.reviewedModerationReportMonths} ${locale === 'en-US' ? 'months' : 'mois'}`}</dd>
+                <dd>{legal.privacy.months(PRIVACY_RETENTION.reviewedModerationReportMonths)}</dd>
               </div>
               <div>
                 <dt>{legal.privacy.accountData}</dt>

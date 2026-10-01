@@ -6,9 +6,13 @@ import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import type { ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
+import { formatStatValue, normalizeStatKey } from '@/game/stats/statContract';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { itemDescription, itemName } from '@/i18n/content';
-import { fr } from '@/i18n/fr';
+import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
+import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { formatNumber } from '@/i18n/format';
+import { fr, locale } from '@/i18n/fr';
+import { localizeShopMutationError } from '@/i18n/runMutationContent';
 import { useRunStore } from '@/stores/runStore';
 import { MAX_INVENTORY_ITEMS } from '@/types/run';
 import '@/styles/shop.css';
@@ -29,9 +33,11 @@ function ShopItemCard({
   onBuy: () => void;
 }) {
   const finalPrice = Math.round(item.price * priceMultiplier);
-  const stats = Object.entries(item.stats).filter((entry): entry is [string, number] =>
-    Boolean(entry[1]),
-  );
+  const formattedPrice = formatNumber(finalPrice);
+  const stats = Object.entries(item.stats).flatMap(([key, value]) => {
+    const stat = normalizeStatKey(key);
+    return stat && value ? [{ stat, value }] : [];
+  });
   return (
     <article className="shop-card shop-card--item">
       <div className="shop-card__item-heading">
@@ -53,22 +59,22 @@ function ShopItemCard({
         <div>
           <h3 className="shop-card__name">{itemName(item.itemId, item.name)}</h3>
           <span className="shop-card__price">
-            {finalPrice} {fr.common.gold}
+            {formattedPrice} {fr.common.gold}
           </span>
         </div>
       </div>
       <p className="shop-card__description">{itemDescription(item.itemId, item.description)}</p>
       {stats.length > 0 ? (
-        <ul className="shop-card__stats" aria-label="Bonus de l’objet">
-          {stats.map(([stat, value]) => (
+        <ul className="shop-card__stats" aria-label={fr.encounter.itemBonuses}>
+          {stats.map(({ stat, value }) => (
             <li key={stat}>
-              {stat.toUpperCase()} +{value}
+              {fr.stats[stat]} +{formatStatValue(stat, value, locale)}
             </li>
           ))}
         </ul>
       ) : null}
       <button type="button" className="shop-card__buy" onClick={onBuy} disabled={!canAfford}>
-        {canAfford ? `${fr.encounter.buy} — ${finalPrice} ${fr.common.gold}` : disabledReason}
+        {canAfford ? `${fr.encounter.buy} — ${formattedPrice} ${fr.common.gold}` : disabledReason}
       </button>
     </article>
   );
@@ -89,9 +95,10 @@ function ChampionCard({
   alreadyOnTeam: boolean;
   onRecruit: () => void;
 }) {
-  const champ = championDB.getById(champId);
+  const sourceChampion = championDB.getById(champId);
+  const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
   const disabled = !canAfford || teamFull || alreadyOnTeam;
-  let label = `${fr.encounter.recruitAction} — ${cost} ${fr.common.gold}`;
+  let label = `${fr.encounter.recruitAction} — ${formatNumber(cost)} ${fr.common.gold}`;
   if (alreadyOnTeam) label = fr.encounter.alreadyOnTeam;
   else if (teamFull) label = fr.encounter.teamFull;
   else if (!canAfford) label = fr.encounter.notEnoughGold;
@@ -113,7 +120,7 @@ function ChampionCard({
         </span>
         <div>
           <h3 className="shop-card__name">{champ?.name ?? champId}</h3>
-          <p className="shop-card__subtitle">{champ?.title ?? 'Champion'}</p>
+          <p className="shop-card__subtitle">{champ?.title ?? fr.encounter.champion}</p>
         </div>
       </div>
       <button
@@ -167,17 +174,22 @@ export function ShopPage() {
   }, [augmentIds, currentBiomeIndex, encounter?.priceMultiplier]);
   const items = encounter?.items ?? [];
   const recruitable = encounter?.recruitableChampions ?? [];
+  const encounterPresentation = getEncounterPresentation(locale, {
+    type: 'shop',
+    name: encounter?.name,
+    description: encounter?.description,
+  });
 
   const handleBuyItem = useCallback(
     (item: ShopItem) => {
       const result = purchaseCurrentShopItem(item.itemId);
       if (result.success) {
         setCommandError(null);
-        setCommandStatus(`${item.name} a été ajouté à l’inventaire.`);
+        setCommandStatus(fr.encounter.itemAdded(itemName(item.itemId, item.name)));
         playUIClick();
       } else {
         setCommandStatus(null);
-        setCommandError(result.error || fr.encounter.commandFailed);
+        setCommandError(localizeShopMutationError(result.code));
       }
     },
     [purchaseCurrentShopItem],
@@ -188,11 +200,13 @@ export function ShopPage() {
       const result = purchaseCurrentShopChampion(champId);
       if (result.success) {
         setCommandError(null);
-        setCommandStatus(`${championDB.getById(champId)?.name ?? champId} a rejoint votre équipe.`);
+        const sourceChampion = championDB.getById(champId);
+        const championName = sourceChampion ? localizeChampion(sourceChampion).name : champId;
+        setCommandStatus(fr.encounter.championJoined(championName));
         playUIClick();
       } else {
         setCommandStatus(null);
-        setCommandError(result.error || fr.encounter.commandFailed);
+        setCommandError(localizeShopMutationError(result.code));
       }
     },
     [purchaseCurrentShopChampion],
@@ -209,9 +223,9 @@ export function ShopPage() {
 
   return (
     <EncounterLayout
-      title={`${fr.encounter.shop} — ${encounter?.name ?? fr.encounter.shop}`}
+      title={`${fr.encounter.shop} — ${encounterPresentation.name}`}
       gold={gold}
-      subtitle="Équipez votre escouade avant de reprendre la route. Les achats sont définitifs."
+      subtitle={encounterPresentation.description}
     >
       <div className="shop-content">
         {commandError && (
@@ -234,16 +248,10 @@ export function ShopPage() {
         {encounter && priceMultiplier < 1 && (
           <div className="shop-banner">{fr.encounter.discount}</div>
         )}
-        <div className="shop-overview" aria-label="État de la boutique">
-          <span>
-            <strong>{items.length - purchased.size}</strong> objets disponibles
-          </span>
-          <span>
-            Inventaire <strong>{inventorySize}</strong>/{MAX_INVENTORY_ITEMS}
-          </span>
-          <span>
-            Équipe <strong>{team.length}</strong>/5
-          </span>
+        <div className="shop-overview" aria-label={fr.encounter.shopState}>
+          <span>{fr.encounter.itemsAvailable(items.length - purchased.size)}</span>
+          <span>{fr.encounter.inventoryCount(inventorySize, MAX_INVENTORY_ITEMS)}</span>
+          <span>{fr.encounter.teamCount(team.length, 5)}</span>
         </div>
         <section className="shop-section" aria-labelledby="shop-items-title">
           <h2 id="shop-items-title" className="shop-section__title">

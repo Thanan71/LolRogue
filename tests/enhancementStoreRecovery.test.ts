@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { garen } from '@/data/champion/Garen';
 import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 const dependencies = vi.hoisted(() => {
   const unlockNode = vi.fn();
@@ -87,6 +88,7 @@ describe('enhancement unlock recovery', () => {
     dependencies.authState.user = { id: 'user-1' };
     dependencies.authState.player = { total_candies: 20 };
     dependencies.authState.isGuest = false;
+    useSettingsStore.setState({ language: 'fr-FR' });
     vi.stubGlobal('crypto', { randomUUID: dependencies.randomUUID });
 
     useEnhancementStore.getState().reset();
@@ -191,6 +193,42 @@ describe('enhancement unlock recovery', () => {
     expect(dependencies.setPlayerCandyBalance).toHaveBeenCalledWith(0);
   });
 
+  it('keeps repository details in logs and presents only localized safe copy', async () => {
+    const commandId = '1a234567-89ab-4def-8123-456789abcdef';
+    const technicalDetail = 'supabase_internal_detail_should_not_reach_the_ui';
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    useSettingsStore.setState({ language: 'en-US' });
+    dependencies.randomUUID.mockReturnValue(commandId);
+    dependencies.unlockNode.mockResolvedValue({
+      success: false,
+      newState: { unlockedNodes: {}, totalCandiesSpent: 0 },
+      candyCost: 0,
+      nodeId: 'fighter_core_1',
+      error: technicalDetail,
+    } satisfies UnlockNodeResult);
+
+    await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(false);
+
+    expect(useEnhancementStore.getState().error).toBe('Failed to save enhancement.');
+    expect(useEnhancementStore.getState().error).not.toContain(technicalDetail);
+    expect(consoleError).toHaveBeenCalledWith(
+      '[EnhancementStore] Unlock repository failure:',
+      expect.objectContaining({ nodeId: 'fighter_core_1', error: technicalDetail }),
+    );
+    consoleError.mockRestore();
+  });
+
+  it('maps stable validation conditions to the active locale', async () => {
+    useSettingsStore.setState({ language: 'en-US' });
+    useEnhancementStore.setState({ availableCandies: 0 });
+
+    await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(false);
+
+    expect(dependencies.unlockNode).not.toHaveBeenCalled();
+    expect(useEnhancementStore.getState().error).toBe('Not enough candies: 20 required');
+    expect(useEnhancementStore.getState().error).not.toContain('Candies insuffisants');
+  });
+
   it('keeps the command stable when the repository throws before returning a result', async () => {
     const commandId = '23456789-abcd-4def-8123-456789abcdef';
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -200,6 +238,10 @@ describe('enhancement unlock recovery', () => {
       .mockResolvedValueOnce(successfulUnlock(commandId, true));
 
     await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(false);
+    expect(useEnhancementStore.getState().error).toBe(
+      "Échec de l'enregistrement de l'amélioration.",
+    );
+    expect(useEnhancementStore.getState().error).not.toContain('Failed to fetch');
     await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(true);
 
     expect(dependencies.randomUUID).toHaveBeenCalledOnce();
@@ -207,5 +249,25 @@ describe('enhancement unlock recovery', () => {
     expect(dependencies.unlockNode.mock.calls[1]).toEqual(dependencies.unlockNode.mock.calls[0]);
     expect(consoleError).toHaveBeenCalledOnce();
     consoleError.mockRestore();
+  });
+
+  it('localizes durable success messages while keeping the stable node ID for persistence', async () => {
+    const commandId = '3456789a-bcde-4def-8123-456789abcdef';
+    useSettingsStore.setState({ language: 'en-US' });
+    dependencies.randomUUID.mockReturnValue(commandId);
+    dependencies.unlockNode.mockResolvedValue(successfulUnlock(commandId, false));
+
+    await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(true);
+
+    expect(dependencies.unlockNode).toHaveBeenCalledWith(
+      'user-1',
+      'Garen',
+      'fighter_core_1',
+      0,
+      commandId,
+    );
+    expect(useEnhancementStore.getState().statusMessage).toBe(
+      'Strength was successfully upgraded.',
+    );
   });
 });

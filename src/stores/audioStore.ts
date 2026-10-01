@@ -56,6 +56,12 @@ export const useAudioStore = create<AudioState>()(
       name: AUDIO_STORAGE_KEY,
       version: AUDIO_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeLocalStorage),
+      partialize: (state) => ({
+        sfxVolume: state.sfxVolume,
+        sfxMuted: state.sfxMuted,
+        musicVolume: state.musicVolume,
+        musicMuted: state.musicMuted,
+      }),
       migrate: (persisted, version) =>
         recoverVersionedState(persisted, {
           name: AUDIO_STORAGE_KEY,

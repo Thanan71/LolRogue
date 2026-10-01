@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { findNode } from '@/game/map/mapUtils';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
+import { runError } from '@/i18n/runErrorContent';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -312,6 +313,81 @@ describe('authoritative run lifecycle and recovery', () => {
       progressionSource: 'verified',
       replayed: true,
     });
+  });
+
+  it('revalidates a persisted success with the same attempt and finish command after reload', async () => {
+    const entries = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => entries.get(key) ?? null,
+      setItem: (key: string, value: string) => entries.set(key, value),
+      removeItem: (key: string) => entries.delete(key),
+    });
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: true,
+      outcome: 'saved',
+    });
+    const originalAttempt = structuredClone(useRunStore.getState().authorityAttempt);
+    expect(originalAttempt?.status).toBe('verified');
+    const saved = entries.get('lolrogue-run-storage')!;
+    // The cache is attacker-controlled: an inflated displayed reward is not a receipt.
+    const forged = JSON.parse(saved);
+    forged.state.serverProgression.candiesEarned = 999_999;
+    forged.state.serverProgression.candiesPerChampion = 999_999;
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    entries.set('lolrogue-run-storage', JSON.stringify(forged));
+    await useRunStore.persist.rehydrate();
+
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: true,
+      isEnding: false,
+      runId: RUN_UUID,
+      saveStatus: 'failed',
+      saveFailureKind: 'retryable',
+      serverProgression: null,
+      authorityAttempt: { ...originalAttempt, status: 'verifying' },
+    });
+    // Starting another run cannot bypass the unresolved recovery.
+    await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
+      success: false,
+      code: 'active_run',
+    });
+    attemptMocks.seal.mockResolvedValue({
+      data: {
+        attemptId: ATTEMPT_ID,
+        runUuid: RUN_UUID,
+        status: 'verified',
+        lastSequence: originalAttempt!.lastAcknowledgedSequence,
+        journalHash: originalAttempt!.journalHash,
+        accepted: true,
+        replayed: true,
+      },
+      error: null,
+    });
+    attemptMocks.recover.mockResolvedValueOnce({ data: null, error: new Error('offline') });
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: false,
+      retryable: true,
+    });
+    expect(useRunStore.getState().serverProgression).toBeNull();
+
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: true,
+      outcome: 'saved',
+    });
+    expect(attemptMocks.seal).toHaveBeenCalledTimes(3);
+    for (const call of attemptMocks.seal.mock.calls) {
+      expect(call).toEqual([
+        ATTEMPT_ID,
+        originalAttempt!.finishCommandId,
+        originalAttempt!.nextSequence - 1,
+      ]);
+    }
+    expect(attemptMocks.append).toHaveBeenCalledTimes(1);
+    expect(attemptMocks.verify).toHaveBeenCalledTimes(1);
+    expect(attemptMocks.recover).toHaveBeenCalledTimes(2);
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+    expect(useRunStore.getState().authorityAttempt?.commands).toEqual(originalAttempt!.commands);
+    expect(useRunStore.getState().serverProgression).toEqual({ ...progression, replayed: true });
   });
 
   it('preserves exit, augment and next-biome commands through the final seal', async () => {
@@ -648,14 +724,14 @@ describe('authoritative run lifecycle and recovery', () => {
       useRunStore.getState().startRun(['Annie'], { mode: 'daily' }),
     ).resolves.toMatchObject({
       success: false,
-      code: 'start_failed',
+      code: 'daily_starter_not_offered',
       retryable: false,
     });
 
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
       pendingAuthorityStart: null,
-      saveError: 'daily_starter_not_offered | 22023',
+      saveError: runError.dailyStarterChanged,
     });
   });
 
@@ -772,7 +848,7 @@ describe('authoritative run lifecycle and recovery', () => {
       success: false,
       code: 'start_failed',
       retryable: true,
-      error: expect.stringContaining('previous run is still waiting for verification'),
+      error: runError.previousVerificationPending,
     });
 
     expect(attemptMocks.start).not.toHaveBeenCalled();
@@ -795,7 +871,7 @@ describe('authoritative run lifecycle and recovery', () => {
       success: false,
       code: 'start_failed',
       retryable: true,
-      error: expect.stringContaining('active on another device'),
+      error: runError.activeRunElsewhere('2099-07-24T12:00:00.000Z'),
     });
 
     expect(attemptMocks.verify).not.toHaveBeenCalled();

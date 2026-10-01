@@ -62,6 +62,17 @@ export function isCatalogSpellCombatReady(spell) {
   return spell.effects.length > 0 && spell.effects.every(isEffectConfigured);
 }
 
+// Keep every presentation string without shipping combat-only arrays a second time.
+export function createChampionContentCatalog(champions) {
+  return champions.map(({ id, name, title, passive, spells }) => ({
+    id,
+    name,
+    title,
+    passive: { name: passive.name, description: passive.description },
+    spells: spells.map(({ id, name, description }) => ({ id, name, description })),
+  }));
+}
+
 export function createClientChampionCatalog(champions) {
   return champions.map((champion) => ({
     id: champion.id,

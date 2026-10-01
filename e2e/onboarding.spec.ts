@@ -16,14 +16,14 @@ test('le guide explique la boucle, les modes et filtre les règles actives', asy
   await page.getByRole('button', { name: 'Comprendre les règles' }).click();
   await expect(page).toHaveURL('/rules');
   await expect(page.getByRole('heading', { name: 'Guide et règles' })).toBeVisible();
-  await expect(page.getByText('Run normale', { exact: true })).toBeVisible();
+  await expect(page.getByText('Partie normale', { exact: true })).toBeVisible();
   await expect(page.getByText('Défi quotidien', { exact: true })).toBeVisible();
 
   await page.getByLabel('Catégorie').selectOption('Combat');
-  await expect(page.getByText('5 règle(s) affichée(s)')).toBeVisible();
-  await page.getByLabel('Rechercher une règle').fill('autoplay');
-  await expect(page.getByText('1 règle(s) affichée(s)')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Autoplay' })).toBeVisible();
+  await expect(page.getByText('5 règles affichées')).toBeVisible();
+  await page.getByLabel('Rechercher une règle').fill('Jeu automatique');
+  await expect(page.getByText('1 règle affichée')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Jeu automatique' })).toBeVisible();
 });
 
 test('le tutoriel carte apparaît une fois puis reste réouvrable', async ({ page }) => {

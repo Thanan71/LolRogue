@@ -12,6 +12,7 @@ import { useRunStore } from '@/stores/runStore';
 import type { DailyChallenge } from '@/types/dailyRun';
 import type { AuthorityDifficulty } from '@/types/runAttempt';
 import '@/styles/daily-run.css';
+import { formatUtcDateKey } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 
 const DAILY_DIFFICULTY_LABELS: Record<AuthorityDifficulty, string> = {
@@ -94,7 +95,7 @@ export function DailyRunPage() {
             <dl className="daily-run-page__metadata" aria-label={fr.daily.challengeParameters}>
               <div>
                 <dt>{fr.daily.date}</dt>
-                <dd>{challenge.dailyDate} UTC</dd>
+                <dd>{formatUtcDateKey(challenge.dailyDate)} UTC</dd>
               </div>
               <div>
                 <dt>{fr.daily.difficulty}</dt>

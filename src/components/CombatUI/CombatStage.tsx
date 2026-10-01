@@ -1,6 +1,8 @@
 import type { ActionType } from '@/game/battle/types';
 import { getCombatVisualProfile, slotForAction } from '@/game/presentation/combatVisuals';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { combatCopy } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import type { CombatantInfo, CombatVisualEvent } from '@/stores/battleStore';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -31,11 +33,17 @@ function findCombatant(
 
 function effectLabel(kind: CombatVisualEvent['kind'], amount?: number, isCrit?: boolean) {
   if (kind === 'damage' && amount !== undefined) {
-    return `${isCrit ? `${fr.combat.critical} · ` : ''}-${Math.round(amount)} PV`;
+    return `${isCrit ? `${fr.combat.critical} · ` : ''}-${formatNumber(Math.round(amount))} ${combatCopy.stage.hpShort}`;
   }
-  if (kind === 'heal' && amount !== undefined) return `+${Math.round(amount)} PV`;
-  if (kind === 'shield' && amount !== undefined) return `+${Math.round(amount)} bouclier`;
-  if (kind === 'revive' && amount !== undefined) return `Ranimé · ${Math.round(amount)} PV`;
+  if (kind === 'heal' && amount !== undefined) {
+    return `+${formatNumber(Math.round(amount))} ${combatCopy.stage.hpShort}`;
+  }
+  if (kind === 'shield' && amount !== undefined) {
+    return combatCopy.stage.shield(Math.round(amount));
+  }
+  if (kind === 'revive' && amount !== undefined) {
+    return combatCopy.stage.revived(Math.round(amount));
+  }
   return null;
 }
 
@@ -87,7 +95,8 @@ function CombatantCard({
         value={Math.max(0, Math.round(combatant.currentHp))}
       />
       <span className="combat-stage__health-copy">
-        {Math.max(0, Math.round(combatant.currentHp))} / {Math.round(combatant.maxHp)} PV
+        {formatNumber(Math.max(0, Math.round(combatant.currentHp)))} /{' '}
+        {formatNumber(Math.round(combatant.maxHp))} {combatCopy.stage.hpShort}
       </span>
     </article>
   );
@@ -167,7 +176,12 @@ export function CombatStage({
     target ? 1 : 0,
   );
   const liveText = visualEvent
-    ? `${resolvedSource?.name ?? visualEvent.sourceId} utilise ${actionName}${targetCount > 1 ? ` sur ${targetCount} cibles` : target ? ` sur ${target.name}` : ''}${amountLabel ? ` : ${amountLabel}` : ''}.`
+    ? combatCopy.stage.actionAnnouncement(
+        resolvedSource?.name ?? visualEvent.sourceId,
+        actionName,
+        targetCount > 1 ? combatCopy.stage.targets(targetCount) : target?.name,
+        amountLabel ?? undefined,
+      )
     : status;
 
   return (
@@ -180,7 +194,7 @@ export function CombatStage({
       <div className="combat-stage__scrim" aria-hidden="true" />
       <div className="combat-stage__topline">
         <span>
-          {fr.combat.round} {round}
+          {fr.combat.round} {formatNumber(round)}
         </span>
         <strong>
           {visualEvent
@@ -245,13 +259,20 @@ export function CombatStage({
           )}
         </span>
         <span className="combat-stage__action-copy">
-          <span>{visualEvent ? actionName : 'Arène tactique'}</span>
+          <span>{visualEvent ? actionName : combatCopy.page.arenaTitle}</span>
           <strong>
             {visualEvent && resolvedSource
-              ? `${resolvedSource.name} → ${isSelfEffect ? 'soi-même' : targetCount > 1 ? `${targetCount} cibles` : (target?.name ?? 'cible')}`
+              ? combatCopy.stage.actionTarget(
+                  resolvedSource.name,
+                  isSelfEffect
+                    ? combatCopy.stage.self
+                    : targetCount > 1
+                      ? combatCopy.stage.targets(targetCount)
+                      : (target?.name ?? combatCopy.stage.target),
+                )
               : currentTurnSide === 'player'
-                ? 'Préparez votre prochaine action'
-                : 'Observez le tour adverse'}
+                ? combatCopy.stage.prepareAction
+                : combatCopy.stage.observeEnemyTurn}
           </strong>
         </span>
         {amountLabel && (

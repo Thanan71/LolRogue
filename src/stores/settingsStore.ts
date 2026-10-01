@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { getDifficultyRule } from '@/game/run/difficultyRules';
-import { isRecord, recoverVersionedState, safeLocalStorage } from '@/utils/persistence';
+import { recoverVersionedState, safeLocalStorage } from '@/utils/persistence';
+import { isStoredSettingsState } from '@/utils/storagePolicy';
 
 const SETTINGS_STORAGE_KEY = 'lolrogue-settings';
 const SETTINGS_SCHEMA_VERSION = 3;
@@ -15,18 +16,7 @@ const SETTINGS_DEFAULTS = {
 };
 
 function isSettingsState(value: unknown): value is Partial<typeof SETTINGS_DEFAULTS> {
-  if (!isRecord(value)) return false;
-  return (
-    (value.textSize === undefined ||
-      ['small', 'medium', 'large'].includes(String(value.textSize))) &&
-    (value.language === undefined || ['fr-FR', 'en-US'].includes(String(value.language))) &&
-    (value.battleSpeed === undefined || [1, 2, 3].includes(Number(value.battleSpeed))) &&
-    (value.difficulty === undefined ||
-      ['easy', 'normal', 'hard'].includes(String(value.difficulty))) &&
-    (value.particlesEnabled === undefined || typeof value.particlesEnabled === 'boolean') &&
-    (value.keyboardShortcutsEnabled === undefined ||
-      typeof value.keyboardShortcutsEnabled === 'boolean')
-  );
+  return isStoredSettingsState(value);
 }
 
 export type BattleSpeed = 1 | 2 | 3;
@@ -74,6 +64,14 @@ export const useSettingsStore = create<SettingsState>()(
       name: SETTINGS_STORAGE_KEY,
       version: SETTINGS_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeLocalStorage),
+      partialize: (state) => ({
+        language: state.language,
+        textSize: state.textSize,
+        battleSpeed: state.battleSpeed,
+        difficulty: state.difficulty,
+        particlesEnabled: state.particlesEnabled,
+        keyboardShortcutsEnabled: state.keyboardShortcutsEnabled,
+      }),
       migrate: (persisted, version) =>
         recoverVersionedState(persisted, {
           name: SETTINGS_STORAGE_KEY,

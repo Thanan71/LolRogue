@@ -1,65 +1,47 @@
 import { Link } from 'react-router-dom';
 import { PageFooter, PageHeader, PageShell, Panel } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
-import { fr } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
 import '@/styles/legal-credits.css';
 
 const CREDIT_GROUPS = [
   {
     id: 'credit-conception',
-    eyebrow: 'Création',
+    eyebrow: fr.credits.creationEyebrow,
     section: fr.credits.design,
-    entries: [
-      {
-        name: 'Équipe LolRogue',
-        detail: 'Conception du jeu, direction artistique, développement et équilibrage.',
-      },
-    ],
+    entries: fr.credits.designEntries,
   },
   {
     id: 'credit-technologies',
-    eyebrow: 'Socle technique',
+    eyebrow: fr.credits.technologyEyebrow,
     section: fr.credits.technologies,
-    entries: [
-      { name: 'React 19', detail: 'Interface et composants interactifs.' },
-      { name: 'TypeScript', detail: 'Modèle de données et logique typée.' },
-      { name: 'Vite', detail: 'Développement et production du client.' },
-      { name: 'Zustand', detail: 'État local et orchestration des écrans.' },
-      { name: 'Supabase', detail: 'Authentification, données et autorité serveur.' },
-      { name: 'Vercel', detail: 'Hébergement de l’application.' },
-    ],
+    entries: fr.credits.technologyEntries,
   },
   {
     id: 'credit-inspirations',
-    eyebrow: 'Univers',
+    eyebrow: fr.credits.universeEyebrow,
     section: fr.credits.inspiration,
-    entries: [
-      { name: 'League of Legends', detail: 'Univers et personnages créés par Riot Games.' },
-      {
-        name: 'Lol Rogue',
-        detail: 'Inspiration pour l’approche roguelike et la rejouabilité.',
-      },
-    ],
+    entries: fr.credits.inspirationEntries,
   },
   {
     id: 'credit-ressources',
-    eyebrow: 'Attribution',
+    eyebrow: fr.credits.attributionEyebrow,
     section: fr.credits.assets,
-    entries: [
-      {
-        name: 'Riot Games — Data Dragon',
-        detail: 'Portraits de champions, icônes de compétences et données de référence.',
-      },
-    ],
+    entries: fr.credits.assetEntries,
   },
 ] as const;
+
+const creditNumberFormatter = new Intl.NumberFormat(locale, {
+  minimumIntegerDigits: 2,
+  useGrouping: false,
+});
 
 export function CreditsPage() {
   return (
     <PageShell width="content" className="document-page credits-page">
       <PageHeader
         title={fr.credits.title}
-        subtitle="Les personnes, technologies et univers qui ont rendu cette aventure possible."
+        subtitle={fr.credits.pageSubtitle}
         leading={
           <Link className="ui-button ui-button--ghost" to={ROUTES.MENU}>
             {fr.common.backToMenu}
@@ -67,31 +49,31 @@ export function CreditsPage() {
         }
       />
 
-      <dl className="document-page__metadata" aria-label="Informations sur le projet">
+      <dl className="document-page__metadata" aria-label={fr.credits.projectInfoLabel}>
         <div>
-          <dt>Nature</dt>
-          <dd>Projet communautaire</dd>
+          <dt>{fr.credits.nature}</dt>
+          <dd>{fr.credits.communityProject}</dd>
         </div>
         <div>
-          <dt>Modèle</dt>
-          <dd>Gratuit et non commercial</dd>
+          <dt>{fr.credits.model}</dt>
+          <dd>{fr.credits.freeNonCommercial}</dd>
         </div>
         <div>
-          <dt>Relation avec Riot Games</dt>
-          <dd>Sans affiliation ni approbation</dd>
+          <dt>{fr.credits.riotRelationship}</dt>
+          <dd>{fr.credits.noAffiliation}</dd>
         </div>
       </dl>
 
       <div className="document-page__layout">
         <aside className="document-page__aside">
           <nav className="document-page__toc" aria-labelledby="credits-toc-title">
-            <p className="document-page__eyebrow">Navigation</p>
-            <h2 id="credits-toc-title">Parcourir les crédits</h2>
+            <p className="document-page__eyebrow">{fr.credits.navigation}</p>
+            <h2 id="credits-toc-title">{fr.credits.browse}</h2>
             <ol>
               {CREDIT_GROUPS.map((group, index) => (
                 <li key={group.id}>
                   <a href={`#${group.id}`}>
-                    <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                    <span aria-hidden="true">{creditNumberFormatter.format(index + 1)}</span>
                     {group.section}
                   </a>
                 </li>
@@ -111,7 +93,7 @@ export function CreditsPage() {
                 aria-labelledby={headingId}
               >
                 <header className="document-page__section-heading credits-page__heading">
-                  <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <span aria-hidden="true">{creditNumberFormatter.format(index + 1)}</span>
                   <div>
                     <p className="document-page__eyebrow">{group.eyebrow}</p>
                     <h2 id={headingId}>{group.section}</h2>
@@ -130,10 +112,10 @@ export function CreditsPage() {
           })}
 
           <aside className="credits-page__legal-note" aria-labelledby="credits-legal-title">
-            <p className="document-page__eyebrow">À propos des marques</p>
-            <h2 id="credits-legal-title">Un projet de fans indépendant</h2>
+            <p className="document-page__eyebrow">{fr.credits.brandsEyebrow}</p>
+            <h2 id="credits-legal-title">{fr.credits.independentProject}</h2>
             <p>{fr.credits.legal}</p>
-            <Link to={ROUTES.LEGAL}>Consulter les informations légales et de confidentialité</Link>
+            <Link to={ROUTES.LEGAL}>{fr.credits.legalLink}</Link>
           </aside>
         </div>
       </div>

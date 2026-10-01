@@ -4,11 +4,11 @@ import type { AdminTab } from './useAdminData';
 
 const ADMIN_TABS: Array<{ id: AdminTab; label: string }> = [
   { id: 'dashboard', label: `📊 ${fr.admin.dashboard}` },
-  { id: 'authority', label: '🛰️ Authority' },
+  { id: 'authority', label: `🛰️ ${fr.admin.authority}` },
   { id: 'logs', label: `📋 ${fr.admin.logs}` },
   { id: 'players', label: `👥 ${fr.admin.players}` },
   { id: 'runs', label: `🎮 ${fr.admin.runs}` },
-  { id: 'moderation', label: '⚖️ Modération' },
+  { id: 'moderation', label: `⚖️ ${fr.admin.moderation}` },
 ];
 
 export function AdminTabList({
@@ -36,7 +36,12 @@ export function AdminTabList({
   };
 
   return (
-    <div className="admin-nav" role="tablist" aria-label="Sections Admin" onKeyDown={handleKeyDown}>
+    <div
+      className="admin-nav"
+      role="tablist"
+      aria-label={fr.admin.sectionsLabel}
+      onKeyDown={handleKeyDown}
+    >
       {ADMIN_TABS.map((tab) => (
         <button
           type="button"

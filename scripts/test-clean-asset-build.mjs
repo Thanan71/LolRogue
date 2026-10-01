@@ -14,6 +14,7 @@ const rootFiles = new Set([
   'index.html',
   'package.json',
   'package-lock.json',
+  'preload-document-locale.js',
   'tsconfig.json',
   'tsconfig.node.json',
   'vercel.json',

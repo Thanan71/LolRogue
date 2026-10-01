@@ -1,7 +1,9 @@
 import { useId, useMemo, useState } from 'react';
 import { championDB } from '@/data/championDatabase';
 import { formatStatValue } from '@/game/stats/statContract';
-import { fr } from '@/i18n/fr';
+import { itemName } from '@/i18n/content';
+import { formatNumber } from '@/i18n/format';
+import { fr, locale } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -9,7 +11,7 @@ import { useRunStore } from '@/stores/runStore';
 import { type InventoryEntry, MAX_ITEMS_PER_CHAMPION, type TeamMember } from '@/types/run';
 import type { CalculatedStats } from '@/utils/champion';
 import { calculateFullStats } from '@/utils/statCalculator';
-import { formatXpDisplay, getXpProgress } from '@/utils/xpSystem';
+import { getXpForNextLevel, getXpProgress } from '@/utils/xpSystem';
 import '@/styles/run-team-stats.css';
 
 interface RunTeamStatsPanelProps {
@@ -30,13 +32,33 @@ interface ChampionSheet {
 }
 
 const DETAIL_STATS = [
-  { key: 'attackDamage', label: 'Attaque', shortLabel: 'ATQ' },
-  { key: 'abilityPower', label: 'Puissance', shortLabel: 'PUI' },
-  { key: 'armor', label: 'Armure', shortLabel: 'ARM' },
-  { key: 'magicResist', label: 'Résistance magique', shortLabel: 'RM' },
-  { key: 'attackSpeed', label: "Initiative d'attaque", shortLabel: 'I. ATQ' },
-  { key: 'moveSpeed', label: 'Vitesse de déplacement', shortLabel: 'V. DÉP' },
-  { key: 'crit', label: 'Critique', shortLabel: 'CRIT' },
+  {
+    key: 'attackDamage',
+    label: fr.run.detailStats.attackDamage,
+    shortLabel: fr.stats.short.attackDamage,
+  },
+  {
+    key: 'abilityPower',
+    label: fr.run.detailStats.abilityPower,
+    shortLabel: fr.stats.short.abilityPower,
+  },
+  { key: 'armor', label: fr.run.detailStats.armor, shortLabel: fr.stats.short.armor },
+  {
+    key: 'magicResist',
+    label: fr.run.detailStats.magicResist,
+    shortLabel: fr.stats.short.magicResist,
+  },
+  {
+    key: 'attackSpeed',
+    label: fr.run.detailStats.attackSpeed,
+    shortLabel: fr.stats.short.attackSpeed,
+  },
+  {
+    key: 'moveSpeed',
+    label: fr.run.detailStats.moveSpeed,
+    shortLabel: fr.stats.short.moveSpeed,
+  },
+  { key: 'crit', label: fr.run.detailStats.crit, shortLabel: fr.stats.short.crit },
 ] as const satisfies ReadonlyArray<{
   key: keyof CalculatedStats;
   label: string;
@@ -49,12 +71,15 @@ function localItemIconUrl(iconUrl: string): string | null {
 
 function itemFallback(name: string): string {
   const letters = Array.from(name.trim()).filter((letter) => /[\p{L}\p{N}]/u.test(letter));
-  return letters.slice(0, 2).join('').toLocaleUpperCase('fr') || 'OBJ';
+  return letters.slice(0, 2).join('').toLocaleUpperCase(locale) || fr.run.itemFallback;
 }
 
 function formatDetailStat(key: keyof CalculatedStats, value: number): string {
-  const formatted = formatStatValue(key, value);
-  return key === 'crit' ? `${formatted} %` : formatted;
+  if (key === 'crit') {
+    return formatNumber(value / 100, { style: 'percent', maximumFractionDigits: 2 });
+  }
+  const formatted = formatStatValue(key, value, locale);
+  return formatted;
 }
 
 function VisualProgress({
@@ -88,20 +113,21 @@ function EquipmentSlot({ entry, index }: { entry: InventoryEntry | undefined; in
     return (
       <li className="run-team-stats__item-slot run-team-stats__item-slot--empty">
         <span aria-hidden="true">+</span>
-        <span className="sr-only">Emplacement {index + 1} vide</span>
+        <span className="sr-only">{fr.run.emptyItemSlot(index + 1)}</span>
       </li>
     );
   }
 
   const iconUrl = localItemIconUrl(entry.item.iconUrl);
+  const localizedName = itemName(entry.item.id, entry.item.name);
   return (
     <li
       className="run-team-stats__item-slot run-team-stats__item-slot--filled"
-      aria-label={`Emplacement ${index + 1} : ${entry.item.name}`}
-      title={entry.item.name}
+      aria-label={fr.run.itemSlot(index + 1, localizedName)}
+      title={localizedName}
     >
       <span className="run-team-stats__item-fallback" aria-hidden="true">
-        {itemFallback(entry.item.name)}
+        {itemFallback(localizedName)}
       </span>
       {iconUrl ? (
         <img
@@ -181,7 +207,10 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
           level,
           currentHp,
           stats,
-          xpDisplay: formatXpDisplay(level, currentXp),
+          xpDisplay:
+            level >= 18
+              ? fr.run.maximumLevel
+              : fr.run.xpProgress(currentXp, getXpForNextLevel(level)),
           xpProgress: getXpProgress(level, currentXp),
           items: inventory
             .filter((entry) => entry.equippedToChampionId === member.championId)
@@ -207,11 +236,11 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
     <section className="run-team-stats run-map-panel" aria-labelledby={`${panelId}-title`}>
       <header className="run-team-stats__header">
         <div>
-          <span className="run-team-stats__eyebrow">Escouade active</span>
+          <span className="run-team-stats__eyebrow">{fr.run.activeSquad}</span>
           <h2 id={`${panelId}-title`}>{fr.run.team}</h2>
         </div>
-        <span className="run-team-stats__count" aria-label={`${sheets.length} champions`}>
-          {sheets.length}/5
+        <span className="run-team-stats__count" aria-label={fr.run.championCount(sheets.length)}>
+          {formatNumber(sheets.length)}/{formatNumber(5)}
         </span>
       </header>
 
@@ -219,12 +248,16 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
         <p className="run-team-stats__empty">{fr.run.noChampions}</p>
       ) : (
         <>
-          <div className="run-team-stats__roster" role="group" aria-label="Sélection du champion">
+          <div
+            className="run-team-stats__roster"
+            role="group"
+            aria-label={fr.run.championSelection}
+          >
             {sheets.map((sheet) => {
               const isSelected = sheet.member.championId === selectedChampionId;
               const roundedMaxHp = Math.max(1, Math.round(sheet.stats.hp));
               const roundedCurrentHp = Math.min(roundedMaxHp, Math.round(sheet.currentHp));
-              const xpText = sheet.level >= 18 ? 'niveau maximum' : sheet.xpDisplay;
+              const xpText = sheet.xpDisplay;
               return (
                 <button
                   key={sheet.member.championId}
@@ -232,12 +265,18 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                   className={`run-team-stats__member${isSelected ? ' run-team-stats__member--selected' : ''}`}
                   aria-pressed={isSelected}
                   aria-controls={`${panelId}-details`}
-                  aria-label={`Sélectionner ${sheet.name}, niveau ${sheet.level}, ${roundedCurrentHp} sur ${roundedMaxHp} PV, expérience ${xpText}`}
+                  aria-label={fr.run.selectChampionSummary(
+                    sheet.name,
+                    sheet.level,
+                    roundedCurrentHp,
+                    roundedMaxHp,
+                    xpText,
+                  )}
                   onClick={() => setRequestedChampionId(sheet.member.championId)}
                 >
                   <span className="run-team-stats__portrait" aria-hidden="true">
                     <span className="run-team-stats__portrait-fallback" aria-hidden="true">
-                      {sheet.name.slice(0, 2).toLocaleUpperCase('fr')}
+                      {sheet.name.slice(0, 2).toLocaleUpperCase(locale)}
                     </span>
                     {sheet.iconUrl ? (
                       <img
@@ -251,15 +290,15 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                         }}
                       />
                     ) : null}
-                    <span className="run-team-stats__level">{sheet.level}</span>
+                    <span className="run-team-stats__level">{formatNumber(sheet.level)}</span>
                   </span>
                   <span className="run-team-stats__member-copy" aria-hidden="true">
                     <strong>{sheet.name}</strong>
                     <span className="run-team-stats__bar-row">
-                      <span>PV</span>
+                      <span>{fr.common.hpShort}</span>
                       <VisualProgress kind="hp" maximum={roundedMaxHp} value={roundedCurrentHp} />
                       <span>
-                        {roundedCurrentHp}/{roundedMaxHp}
+                        {formatNumber(roundedCurrentHp)}/{formatNumber(roundedMaxHp)}
                       </span>
                     </span>
                     <span className="run-team-stats__bar-row">
@@ -269,7 +308,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                         maximum={100}
                         value={Math.round(sheet.xpProgress)}
                       />
-                      <span>{sheet.level >= 18 ? 'MAX' : sheet.xpDisplay}</span>
+                      <span>{sheet.level >= 18 ? fr.run.maximumLevelShort : sheet.xpDisplay}</span>
                     </span>
                   </span>
                 </button>
@@ -285,21 +324,22 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
             >
               <header className="run-team-stats__sheet-header">
                 <div>
-                  <span className="run-team-stats__eyebrow">Fiche sélectionnée</span>
+                  <span className="run-team-stats__eyebrow">{fr.run.selectedSheet}</span>
                   <h3 id={`${panelId}-details-title`}>{selectedSheet.name}</h3>
                 </div>
                 <span className="run-team-stats__sheet-level">
-                  {fr.common.level} {selectedSheet.level}
+                  {fr.common.level} {formatNumber(selectedSheet.level)}
                 </span>
               </header>
 
               <dl className="run-team-stats__stat-grid">
                 <div className="run-team-stats__stat run-team-stats__stat--health" data-stat="hp">
                   <dt>
-                    <span aria-hidden="true">PV</span> PV actuels / maximum
+                    <span aria-hidden="true">{fr.common.hpShort}</span> {fr.run.currentHpMaximum}
                   </dt>
                   <dd>
-                    {Math.round(selectedSheet.currentHp)} / {Math.round(selectedSheet.stats.hp)}
+                    {formatNumber(Math.round(selectedSheet.currentHp))} /{' '}
+                    {formatNumber(Math.round(selectedSheet.stats.hp))}
                   </dd>
                 </div>
                 {DETAIL_STATS.map(({ key, label, shortLabel }) => (
@@ -314,12 +354,13 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
 
               <div className="run-team-stats__equipment">
                 <div className="run-team-stats__equipment-heading">
-                  <h4>{fr.encounter.items} équipés</h4>
+                  <h4>{fr.run.equippedItems}</h4>
                   <span>
-                    {selectedSheet.items.length}/{MAX_ITEMS_PER_CHAMPION}
+                    {formatNumber(selectedSheet.items.length)}/
+                    {formatNumber(MAX_ITEMS_PER_CHAMPION)}
                   </span>
                 </div>
-                <ul className="run-team-stats__item-grid" aria-label="Emplacements d'objets">
+                <ul className="run-team-stats__item-grid" aria-label={fr.run.itemSlots}>
                   {Array.from({ length: MAX_ITEMS_PER_CHAMPION }, (_, index) => (
                     <EquipmentSlot
                       key={selectedSheet.items[index]?.instanceId ?? `empty-${index}`}

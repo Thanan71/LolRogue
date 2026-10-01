@@ -8,63 +8,26 @@ import { findNode } from '@/game/map/mapUtils';
 import { usesCanonicalProgression } from '@/game/run/runAuthorityJournal';
 import { normalizeRunDomainState } from '@/game/run/runDomainInvariants';
 import { cloneRunLedger, migrateLegacyStatsToLedger } from '@/game/run/runLedger';
+import { isPersistedRunState } from '@/game/run/runPersistenceValidation';
 import { generateAugmentChoices } from '@/game/run/runProgression';
+import { runError } from '@/i18n/runErrorContent';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import type { RunState } from '@/types/run';
-import { isRecord, recoverVersionedState } from '@/utils/persistence';
+import { quarantinePersistedState, recoverVersionedState } from '@/utils/persistence';
 
 export const RUN_STORAGE_KEY = 'lolrogue-run-storage';
 export const RUN_SCHEMA_VERSION = 7;
 
-function isPersistedRunState(value: unknown): value is Partial<RunState> {
-  if (!isRecord(value)) return false;
-  const arrays = [
-    'team',
-    'inventory',
-    'runeIds',
-    'augmentIds',
-    'pendingAugmentIds',
-    'pendingSpellUpgradeChampionIds',
-    'biomeMaps',
-    'frontierNodeIds',
-    'chosenPathNodeIds',
-    'completedNodeIds',
-    'claimedEncounterNodeIds',
-  ];
-  if (arrays.some((key) => value[key] !== undefined && !Array.isArray(value[key]))) return false;
-  if (value.isActive !== undefined && typeof value.isActive !== 'boolean') return false;
-  if (value.runId !== undefined && typeof value.runId !== 'string') return false;
-  if (value.seed !== undefined && value.seed !== null && !Number.isSafeInteger(value.seed)) {
-    return false;
+export function migratePersistedRunState(persisted: unknown, version: number): RunState {
+  try {
+    return migrateValidatedRunState(persisted, version);
+  } catch {
+    quarantinePersistedState(RUN_STORAGE_KEY, persisted, 'run_migration_failed');
+    return structuredClone(RUN_INITIAL_STATE);
   }
-  if (
-    value.saveStatus !== undefined &&
-    !['idle', 'saving', 'saved', 'failed', 'retrying'].includes(String(value.saveStatus))
-  ) {
-    return false;
-  }
-  if (value.authorityAttempt !== undefined && value.authorityAttempt !== null) {
-    const attempt = value.authorityAttempt;
-    if (
-      !isRecord(attempt) ||
-      typeof attempt.attemptId !== 'string' ||
-      typeof attempt.engineVersion !== 'string' ||
-      !Array.isArray(attempt.commands) ||
-      !attempt.commands.every(
-        (command) =>
-          isRecord(command) &&
-          Number.isSafeInteger(command.sequence) &&
-          typeof command.kind === 'string' &&
-          isRecord(command.payload),
-      )
-    ) {
-      return false;
-    }
-  }
-  return true;
 }
 
-export function migratePersistedRunState(persisted: unknown, version: number): RunState {
+function migrateValidatedRunState(persisted: unknown, version: number): RunState {
   const state = recoverVersionedState(persisted, {
     name: RUN_STORAGE_KEY,
     version,
@@ -73,16 +36,27 @@ export function migratePersistedRunState(persisted: unknown, version: number): R
     validate: isPersistedRunState,
     migrate: (candidate, sourceVersion) => (sourceVersion >= 0 ? candidate : null),
   });
+  const hasTerminalFailure =
+    state.saveFailureKind === 'terminal' ||
+    state.authorityAttempt?.status === 'rejected' ||
+    state.authorityAttempt?.status === 'expired';
+  const needsAuthorityRevalidation =
+    !hasTerminalFailure && state.authorityAttempt !== null && state.completedRunSnapshot !== null;
+  const hasInterruptedSave =
+    !hasTerminalFailure &&
+    (needsAuthorityRevalidation || ['saving', 'retrying'].includes(state.saveStatus));
   const domainState = normalizeRunDomainState({
     team:
-      state.isActive && state.team.length === 0 && state.authorityAttempt
+      (state.isActive || needsAuthorityRevalidation) &&
+      state.team.length === 0 &&
+      state.authorityAttempt
         ? state.authorityAttempt.initialTeam.map((championId) => ({ championId }))
         : state.team,
     inventory: state.inventory,
     pendingSpellUpgradeChampionIds: state.pendingSpellUpgradeChampionIds,
   });
   const legacyStats =
-    persisted &&
+    isPersistedRunState(persisted) &&
     typeof persisted === 'object' &&
     Array.isArray((persisted as { completedCombatStats?: unknown }).completedCombatStats)
       ? ((persisted as { completedCombatStats: import('@/types/run').ChampionRunStats[] })
@@ -253,7 +227,37 @@ export function migratePersistedRunState(persisted: unknown, version: number): R
   }, 0);
   return {
     ...state,
-    isActive: state.isActive && domainState.team.length > 0,
+    isActive:
+      !hasTerminalFailure &&
+      (state.isActive || needsAuthorityRevalidation) &&
+      domainState.team.length > 0,
+    isEnding: false,
+    runId: needsAuthorityRevalidation ? state.completedRunSnapshot!.runId : state.runId,
+    mode: needsAuthorityRevalidation ? state.completedRunSnapshot!.mode : state.mode,
+    startedAt: needsAuthorityRevalidation ? state.completedRunSnapshot!.startedAt : state.startedAt,
+    seed: needsAuthorityRevalidation ? state.completedRunSnapshot!.seed : state.seed,
+    // Serialized "verified" data is merely an untrusted cache, never a server receipt.
+    serverProgression: null,
+    authorityAttempt:
+      state.authorityAttempt?.status === 'verified'
+        ? { ...state.authorityAttempt, status: 'verifying' }
+        : state.authorityAttempt,
+    saveStatus: hasTerminalFailure || hasInterruptedSave ? 'failed' : state.saveStatus,
+    saveError: hasTerminalFailure
+      ? (state.saveError ??
+        (state.authorityAttempt?.status === 'expired'
+          ? runError.attemptExpired
+          : state.authorityAttempt?.status === 'rejected'
+            ? runError.traceRejected(null)
+            : runError.finalizationFailed))
+      : hasInterruptedSave
+        ? runError.saveInterrupted
+        : state.saveError,
+    saveFailureKind: hasTerminalFailure
+      ? 'terminal'
+      : hasInterruptedSave
+        ? 'retryable'
+        : state.saveFailureKind,
     ledger,
     runLevel,
     currentWave,

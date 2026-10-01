@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { locale } from '@/i18n/fr';
+import { tutorialContent } from '@/i18n/tutorialContent';
+import {
+  markTutorialCompleted,
+  readTutorialCompleted,
+  type TutorialStorageKey,
+} from '@/utils/ancillaryStorage';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -18,7 +25,7 @@ interface TutorialStep {
 }
 
 interface ContextTutorialProps {
-  storageKey: string;
+  storageKey: TutorialStorageKey;
   title: string;
   steps: TutorialStep[];
   buttonLabel?: string;
@@ -28,8 +35,9 @@ export function ContextTutorial({
   storageKey,
   title,
   steps,
-  buttonLabel = 'Aide',
+  buttonLabel = tutorialContent[locale].help,
 }: ContextTutorialProps) {
+  const copy = tutorialContent[locale];
   const titleId = useId();
   const dialogId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -41,24 +49,16 @@ export function ContextTutorial({
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    try {
-      if (localStorage.getItem(storageKey) !== 'done') {
-        returnFocusRef.current = triggerRef.current;
-        setOpen(true);
-      }
-    } catch {
-      // Le tutoriel reste réouvrable lorsque le stockage privé est indisponible.
+    if (!readTutorialCompleted(storageKey)) {
+      returnFocusRef.current = triggerRef.current;
+      setOpen(true);
     }
   }, [storageKey]);
 
   const close = useCallback(() => {
     setOpen(false);
     setStep(0);
-    try {
-      localStorage.setItem(storageKey, 'done');
-    } catch {
-      // Aucun suivi distant et aucune dépendance au stockage pour continuer à jouer.
-    }
+    markTutorialCompleted(storageKey);
   }, [storageKey]);
 
   const openTutorial = useCallback(() => {
@@ -144,26 +144,24 @@ export function ContextTutorial({
       >
         <div className="tutorial-dialog__header">
           <h2 id={titleId}>{title}</h2>
-          <button ref={closeRef} type="button" onClick={close} aria-label="Fermer le tutoriel">
+          <button ref={closeRef} type="button" onClick={close} aria-label={copy.close}>
             ×
           </button>
         </div>
-        <p className="tutorial-dialog__progress">
-          Étape {step + 1} sur {steps.length}
-        </p>
+        <p className="tutorial-dialog__progress">{copy.progress(step + 1, steps.length)}</p>
         <h3>{steps[step].title}</h3>
         <p>{steps[step].body}</p>
         <div className="tutorial-dialog__actions">
           <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)}>
-            Précédent
+            {copy.previous}
           </button>
           {step < steps.length - 1 ? (
             <button type="button" onClick={() => setStep(step + 1)}>
-              Suivant
+              {copy.next}
             </button>
           ) : (
             <button type="button" onClick={close}>
-              J’ai compris
+              {copy.done}
             </button>
           )}
         </div>

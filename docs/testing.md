@@ -7,6 +7,42 @@ compteurs V8 ne varient pas selon l'ordonnancement ; `npm test` conserve le
 parallélisme courant. Une suite qui dépend de l'ordre ou d'un état global non nettoyé
 doit donc échouer localement comme en CI.
 
+## Seeds variables reproductibles
+
+La seed fixe **20260801** de la CI principale reste inchangée. Le workflow
+`test-order-seeds.yml` ajoute trois permutations aléatoires distinctes, différentes
+de cette seed fixe. Chaque job exécute la suite Vitest complète, sans couverture et
+avec les fichiers sérialisés, sur le même SHA résolu avant la matrice. Une erreur
+n'annule pas les deux autres permutations (`fail-fast: false`). Les tests DB live
+gardent leur gate séparée ; ce job ne reçoit aucun secret ni compte connecté.
+
+```sh
+# Reproduire exactement la permutation signalée dans les logs
+npm ci
+npm run test:seed -- 123456
+# Réduire ensuite l'investigation à un fichier, sans modifier sa seed
+npm run test:seed -- 123456 tests/persistence.test.ts
+```
+
+Le runner imprime la seed, le SHA et la commande avant d'exécuter Vitest, puis
+répète la commande en cas d'échec et conserve son code de sortie. Le rapport JSON
+`test-seed-results/<seed>.json` contient aussi Node, les filtres, les dates et le
+résultat ; il est créé avant exécution et archivé 14 jours même en cas d'échec.
+Pour reproduire, utiliser le SHA et Node 24 indiqués dans le rapport avec `npm ci`.
+La seed contrôle l'ordre des fichiers/tests, pas l'aléa métier ni l'horloge système.
+
+Le workflow est vérifié en PR et accepte un déclenchement manuel avec 1 à 8 seeds
+explicites séparées par des virgules. Son cron quotidien à **04:43 UTC** cible
+`dev`, épinglé une seule fois pour toute la matrice. GitHub n'active les événements
+planifiés que lorsque le workflow existe sur la branche par défaut (`main`) :
+après fusion dans `dev`, la configuration est livrée mais la planification attend
+la promotion habituelle vers `main`, sans fusion automatique vers celle-ci.
+
+Contrats : `tests/testOrderSeeds.test.mjs` (génération, validation, reproduction et
+vrai échec CLI) et `tests/testOrderSeedWorkflow.test.ts` (matrice, SHA et artefacts).
+Références : [ordre et seed Vitest](https://vitest.dev/config/sequence) et
+[planification GitHub](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+
 ## Périmètre
 
 La mesure couvre le domaine de jeu, les services, repositories, stores et utilitaires,
@@ -73,6 +109,49 @@ explicitement Node pour le runner, ainsi que DOM/DOM.Iterable pour les callbacks
 exécutés dans la page. `tests/toolingTypecheckContract.test.ts` verrouille ces listes,
 les inclusions et le branchement des trois compilations dans `npm run check`.
 
+### Déclarations tierces : compilation stricte
+
+`npm run typecheck:strict` compile réellement l'application/tests, les scripts et
+les E2E avec `skipLibCheck=false`. Le cycle rapide reste inchangé. Le workflow
+`strict-typecheck.yml` est bloquant en PR et déclenchable manuellement ; son cron
+hebdomadaire cible `dev`, mais ne sera actif qu'après promotion du fichier sur
+`main`, branche par défaut GitHub. Les diagnostics et versions sont conservés dans
+`strict-typecheck-results/report.json`, archivé 14 jours en CI.
+
+Le compilateur natif TypeScript 7 est appelé directement avec une sortie anglaise
+non colorée. Toute sortie inconnue, interruption ou code d'échec anormal bloque la
+gate. `tsconfig.scripts.strict.json` ajoute DOM/DOM.Iterable pour vérifier les
+déclarations des dépendances multi-environnements (Playwright, Supabase, tinybench).
+Il exclut uniquement le témoin négatif `node-globals.ts`. Cela **ne remplace pas**
+la compilation Node sans DOM : le wrapper strict et le workflow l'exécutent aussi,
+et aucune exception n'est autorisée dans cette première compilation.
+
+Deux incompatibilités de déclarations amont restent précisément autorisées dans
+`scripts/strict-typecheck-exceptions.json`, jusqu'au **23 octobre 2026 exclu** :
+
+- `@supabase/auth-js` 2.116.0 / TS2430 : la représentation JSON WebAuthn `largeBlob`
+  diffère de celle du DOM TypeScript 7 (`ArrayBuffer` contre `string`).
+- `@vercel/speed-insights` 2.0.0 / TS2503 : le paquet référence le namespace global
+  `JSX`, supprimé des types React 19, au lieu de `React.JSX`.
+
+Chaque exception fixe le chemin `.d.ts`/`.d.mts`, le code, le message complet
+(empreinte SHA-256), les scopes, la version du paquet et celle de TypeScript.
+Une erreur supplémentaire, une exception obsolète, un doublon, un changement de
+version ou l'expiration fait échouer la gate. Les quatre diagnostics acceptés
+(trois scopes Supabase, un scope React) restent visibles ; il n'y a ni patch des
+déclarations tierces, ni namespace global artificiel, ni `continue-on-error`.
+Lors d'une mise à jour, relancer la commande, corriger d'abord le projet et retirer
+les exceptions résolues ; tout renouvellement doit être justifié explicitement.
+
+Les types Jest racine et l'ancienne augmentation Vitest de `jest-dom` ne sont plus
+chargés : les matchers standalone utilisent une augmentation compatible Vitest 5,
+vérifiée en runtime et par des contrats TypeScript positifs/négatifs.
+Preuves : `strictTypecheckPolicy.test.mjs`, `strictTypecheckWorkflow.test.ts` et
+`jestDomMatchersCompatibility.test.ts`.
+
+Références : [skipLibCheck](https://www.typescriptlang.org/tsconfig/skipLibCheck.html),
+[namespace JSX React 19](https://react.dev/blog/2024/04/25/react-19-upgrade-guide#the-jsx-namespace-in-typescript).
+
 ## Politique des advisors Supabase
 
 `config/supabase-advisors.json` versionne le contrat commun aux advisors sécurité et
@@ -84,9 +163,11 @@ une exception expirée fait échouer le contrôle.
 `npm run db:advisors` applique ce contrat à la stack locale. `npm run db:validate`
 l'exécute après le reset et l'audit de sécurité, tandis que le preflight de release
 relance `node scripts/check-supabase-advisors.mjs --linked` sur le projet Supabase
-explicitement lié. Les exceptions actuelles expirent le 30 septembre 2026 et doivent
-être supprimées, corrigées ou renouvelées avec une nouvelle justification avant
-cette date.
+explicitement lié. Les 29 exceptions actuelles ont été revues le 1er octobre 2026
+et expirent le **31 octobre 2026 inclus** ; dès le 1er novembre, le contrôle refuse
+les constats encore présents. Le [compte rendu de revue](supabase-advisors-review-20261001.md)
+documente les preuves, les justifications corrigées et l'exception obsolète retirée.
+Toute prolongation nécessite une nouvelle revue, pas un décalage automatique des dates.
 
 La protection Auth contre les mots de passe compromis n'est pas activée ni couverte
 par ce contrôle DB : son activation payante reste explicitement différée. Elle ne
@@ -142,7 +223,7 @@ Cette matrice vérifie la compatibilité ; elle ne porte plus le budget Web Vita
 Les budgets versionnés sont dans `config/performance-budgets.json` et contrôlés par
 `npm run test:performance-budgets`. Ils couvrent le JavaScript total, le plus gros
 chunk, l'entrée, la route Auth, les assets déployés, une marge globale minimale de 10 %
-et les cinq chunks les plus lourds. Le rapport détaillé est écrit dans
+et six chunks structurants, dont le catalogue de traduction `content`. Le rapport détaillé est écrit dans
 `performance-report/bundle-report.json`.
 
 Après le build, `npm run test:performance-preview` démarre une vraie preview Vite,

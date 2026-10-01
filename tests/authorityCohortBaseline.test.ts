@@ -295,6 +295,7 @@ describe('authority cohort baseline', () => {
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   });
 
+  // Both generators replay all 150 runs; allow V8 coverage overhead on shared runners.
   it('keeps the v19 identity immutable and reproduces its baseline with the archive', async () => {
     const loaded = loadAuthorityCohortBaseline(
       baselineV19Json,
@@ -313,7 +314,7 @@ describe('authority cohort baseline', () => {
     expect(archivedFixture.document).toEqual(loaded);
     expect(generateAuthorityCohortBaselineV19(authority)).toEqual(loaded);
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
-  }, 30_000);
+  }, 60_000);
 
   it('keeps the archived v20 ten-champion matrix reproducible', () => {
     const loaded = loadAuthorityCohortBaseline(

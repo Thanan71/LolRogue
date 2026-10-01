@@ -108,7 +108,89 @@ Une tâche n'est terminée que lorsque :
 
 ---
 
-# P0 — sécurité, autorité, équilibre et release gates
+# P0 — sécurité, autorité, équilibre, internationalisation et release gates
+
+## P0-I18N-01 — Internationalisation 100 % du projet (FR/EN)
+
+**Taille : L**  
+**Risque : élevé — une locale partielle rend le produit incohérent et invalide la promesse de traduction complète.**
+
+### Périmètre obligatoire
+
+La couverture doit porter sur **tout contenu visible ou annoncé à l'utilisateur**, pas
+seulement les pages et boutons React :
+
+- interface complète : navigation, menus, formulaires, paramètres, admin, erreurs,
+  notifications, tutoriels, ARIA, titres de page et textes de chargement ;
+- champions : titres, rôles, descriptions, textes de présentation, maîtrise,
+  améliorations et tout contenu affiché dans la base des champions ;
+- compétences : noms, descriptions, coûts, cooldowns/recharges, effets, ciblage,
+  rangs, améliorations, tooltips, messages de combat et textes générés ;
+- runes, augments, objets, passifs, raretés, statistiques et descriptions ;
+- carte, biomes, encounters, combats, boutique, recrutement, repos, événements,
+  trésors, récompenses, résultats de run et Daily ;
+- contenus dynamiques issus des catalogues, Data Dragon, données persistées ou
+  templates générés ;
+- crédits, légal/confidentialité, patch notes et toute future fonctionnalité joueur ;
+- formats dépendants de la locale : nombres, dates, pourcentages, pluriels et unités.
+
+Les noms propres officiels qui ne se traduisent pas peuvent rester identiques entre
+locales, mais aucun texte français ne doit servir de fallback silencieux dans la locale
+anglaise.
+
+### Actions
+
+- [x] Faire passer tout texte utilisateur par une couche i18n ou un catalogue bilingue
+  indexé par identifiant stable ; supprimer les traductions DOM de secours dès que les
+  sources sont correctement internationalisées.
+- [x] Garantir une parité stricte des clés et des contenus `fr` / `en` : toute entrée
+  présente dans une locale doit exister dans l'autre.
+- [x] Internationaliser les données de gameplay elles-mêmes, en particulier les
+  descriptions de champions et **toutes les compétences**, pas uniquement leur UI.
+- [x] Utiliser les données localisées Data Dragon lorsque pertinentes (`fr_FR` /
+  `en_US`) ou maintenir des catalogues versionnés équivalents dans le dépôt.
+- [x] Couvrir les chaînes dynamiques et interpolées avec des templates i18n, y compris
+  erreurs, journal de combat, récompenses, ventes, recrutement et progression.
+- [x] Ajouter une gate CI qui scanne TS/TSX **et les catalogues de contenu** pour
+  détecter texte utilisateur codé en dur, clé manquante, traduction identique suspecte
+  et fallback de locale inattendu.
+- [x] Ajouter des tests de parité pour champions, compétences, runes, augments, objets,
+  encounters et autres catalogues exposés au joueur.
+- [x] Ajouter un E2E qui bascule FR → EN et parcourt au minimum Auth → sélection des
+  starters → carte → combat → inventaire → encounter → Game Over, avec vérification
+  qu'aucun texte français résiduel n'apparaît en anglais.
+- [ ] Auditer manuellement desktop/mobile + lecteur d'écran pour les textes que le scan
+  statique ne peut pas garantir.
+- [x] Empêcher l'ajout futur d'un champion, sort, item, augment, rune ou encounter sans
+  ses traductions complètes dans toutes les locales supportées.
+
+Preuves techniques : catalogues explicites FR/EN, retrait des traducteurs DOM et des
+regex de traduction des compétences ; contrats `i18nSourceContract` (TS/TSX et texte
+CSS), `i18nCatalogContract` (découverte exhaustive), `championContent`,
+`inventoryContent`, `enhancementContent`, `encounterSourceContract` et `routeTitles`.
+Le parcours `e2e/i18n-english-journey.spec.ts` contrôle aussi les attributs accessibles
+et le contenu des pseudo-éléments CSS après sélection des champions. Les descriptions
+sources du moteur restent immuables ; leur présentation utilise les catalogues par ID,
+et les contrôles de hash confirment que `run-engine-v21` reste valide.
+
+La clôture du P0 reste conditionnée à l'audit humain avec lecteur d'écran et à une
+preuve sur la preview du SHA candidat. Les tests automatisés et les captures du
+navigateur ne constituent pas un audit humain de lecteur d'écran.
+
+### Acceptation
+
+- en locale anglaise : **0 texte français utilisateur**, y compris descriptions de
+  champions, compétences, tooltips, contenus dynamiques, ARIA et messages d'erreur ;
+- en locale française : **0 texte anglais accidentel** hors noms propres/termes
+  explicitement conservés ;
+- parité de clés et de catalogues FR/EN à 100 % ;
+- aucun fallback silencieux vers le français lorsque `en` est sélectionné ;
+- les gates i18n sont bloquantes en CI et échouent dès qu'un nouveau contenu joueur
+  n'est pas traduit ;
+- une vérification manuelle représentative confirme le résultat sur la preview du SHA
+  candidat.
+
+---
 
 ## P0-SEC-01 — Corriger les vues leaderboard `SECURITY DEFINER`
 
@@ -1077,9 +1159,15 @@ Preuves et seuils : `docs/testing.md`.
 La suite Vitest mélange l'ordre avec une seed fixe. C'est reproductible mais ne
 cherche pas les dépendances d'ordre au-delà de cette permutation.
 
-- [ ] Garder une seed fixe dans la CI principale pour reproductibilité.
-- [ ] Ajouter une job planifiée avec plusieurs seeds aléatoires conservées dans les logs.
-- [ ] En cas d'échec, imprimer la seed exacte pour reproduction locale.
+- [x] Garder une seed fixe dans la CI principale pour reproductibilité.
+- [x] Ajouter une job planifiée avec plusieurs seeds aléatoires conservées dans les logs.
+- [x] En cas d'échec, imprimer la seed exacte pour reproduction locale.
+
+Preuves : `testOrderSeeds.test.mjs`, `testOrderSeedWorkflow.test.ts` et workflow
+`test-order-seeds.yml` (trois seeds distinctes, SHA épinglé, artefacts 14 jours).
+La seed fixe reste 20260801. La matrice est exécutée en PR ; le cron ciblant `dev`
+deviendra actif après promotion du workflow sur `main`, branche par défaut GitHub.
+Commandes de reproduction et limites : `docs/testing.md`.
 
 ---
 
@@ -1087,10 +1175,16 @@ cherche pas les dépendances d'ordre au-delà de cette permutation.
 
 **Taille : S/M**
 
-- [ ] Garder éventuellement `skipLibCheck=true` pour le cycle rapide.
-- [ ] Ajouter périodiquement/CI une compilation avec `skipLibCheck=false` afin de
+- [x] Garder éventuellement `skipLibCheck=true` pour le cycle rapide.
+- [x] Ajouter périodiquement/CI une compilation avec `skipLibCheck=false` afin de
   détecter les incompatibilités React 19 / TS7 / types Node / Supabase.
-- [ ] Documenter toute exception impossible à corriger côté projet.
+- [x] Documenter toute exception impossible à corriger côté projet.
+
+Preuves : `npm run typecheck:strict`, workflow `strict-typecheck.yml`, contrats
+`strictTypecheckPolicy.test.mjs`, `strictTypecheckWorkflow.test.ts` et
+`jestDomMatchersCompatibility.test.ts`. Deux exceptions tierces exactes et versionnées
+expirent le 23 octobre 2026 ; toute autre erreur bloque. La frontière Node sans DOM
+reste obligatoire. Détails et condition d'activation du cron : `docs/testing.md`.
 
 ---
 
@@ -1192,12 +1286,38 @@ entre jobs.
 
 **Taille : M**
 
-- [ ] Générer des payloads localStorage tronqués, anciens, surdimensionnés et mal typés.
-- [ ] Vérifier qu'aucun payload ne peut restaurer un état authority impossible.
-- [ ] Tester quotas / `SecurityError` / stockage indisponible sur toutes les clés
+- [x] Générer des payloads localStorage tronqués, anciens, surdimensionnés et mal typés.
+- [x] Vérifier qu'aucun payload ne peut restaurer un état authority impossible.
+- [x] Tester quotas / `SecurityError` / stockage indisponible sur toutes les clés
   persistées, pas uniquement le mode invité.
-- [ ] Ajouter une version et une stratégie de purge pour les caches de tutoriel et
+- [x] Ajouter une version et une stratégie de purge pour les caches de tutoriel et
   autres clés annexes.
+
+Preuves : `storageBoundary.test.ts`, `storeHydrationFuzz.test.ts`,
+`runPersistenceFuzz.test.ts`, `runSaveRecovery.test.ts`,
+`dailyStorageFuzz.test.ts`, `ancillaryStorage.test.ts`,
+`contextTutorialStorage.test.tsx` et `e2e/storage-rehydration.spec.ts`.
+Les récompenses serveur sont effacées à la réhydratation, puis récupérées avec
+la même tentative et le même journal ; un rejet terminal reste terminal.
+Les sessions Supabase restent opaques dans leur adaptateur séparé. Le patch
+SDK exact et ses tests ESM/CJS sont documentés dans `patches/README.md`.
+Validation locale du 28 septembre 2026 : `npm run check` (1 951 tests verts,
+31 tests DB réservés à la clean-room), `typecheck:strict`, `authority:check`,
+43 parcours navigateur verts (défaite/victoire réelles, stockage, accessibilité,
+responsive et anglais ; parcours connecté réservé à la CI). Les fixtures visuelles
+produisent des snapshots complets sans affaiblir leurs assertions. Les seeds
+1016339187, 1592608384 et 1228260877 ont aussi vérifié l'isolation complète du
+singleton Zustand entre les 17 scénarios de reprise. Le moteur canonique v21
+reste inchangé.
+
+Complément du 1er octobre 2026 : les cinq vrais stores conservent leur source et
+leur quarantaine pendant une panne temporaire de lecture, puis récupèrent leurs
+données après rétablissement. Les écritures de cache sont suspendues pendant
+cette panne, pour préserver aussi la maîtrise invitée lors des transitions Auth
+et les scores daily existants. Les purges de contenus lus puis invalides restent
+testées. Preuves supplémentaires : `persistence.test.ts`,
+`storageBoundary.test.ts`, `storeHydrationFuzz.test.ts`,
+`runPersistenceFuzz.test.ts` et `dailyStorageFuzz.test.ts`.
 
 ---
 
@@ -1277,12 +1397,9 @@ Le dépôt documente les procédures, mais la preuve distante reste requise.
 
 ## P3-PROD-02 — Internationalisation anglaise complète
 
-**Taille : L**
-
-- [ ] Transformer le dictionnaire français actuel en vraie sélection de locale.
-- [ ] Ajouter `en` avec couverture de toutes les pages et contenus.
-- [ ] Tester nombres, dates, pluriels, aria-labels et textes de domaine.
-- [ ] Conserver le français comme fallback explicite.
+**Promu en P0 : voir `P0-I18N-01`.**  
+La couverture 100 % inclut désormais explicitement champions, compétences,
+contenus de gameplay et chaînes dynamiques ; ce sujet n'est plus différé en P3.
 
 ---
 
@@ -1395,6 +1512,7 @@ techniques ni afficher une modale à chaque déploiement.**
 3. [x] `P0-DATA-01` integration repositories DB.
 4. [x] `P0-RUN-01` registre authority.
 5. [x] `P0-REL-01` readiness réelle.
+5 bis. [ ] `P0-I18N-01` internationalisation FR/EN 100 % du projet.
 
 ## Sprint B — rendre l'équilibrage mesurable et comparable
 
@@ -1431,9 +1549,9 @@ techniques ni afficher une modale à chaque déploiement.**
 25. [x] `P1-TOOL-02` typecheck scripts, configs et E2E.
 26. [x] `P2-DB-02` décision mesurée sur `run_attempts_finished_queue`.
 27. [x] `P2-PERF-02` Web Vitals sur preview locale stable.
-28. [ ] `P2-TEST-02` seeds variables reproductibles.
-29. [ ] `P2-TEST-03` gate `skipLibCheck=false`.
-30. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
+28. [x] `P2-TEST-02` seeds variables reproductibles (cron activé après promotion sur `main`).
+29. [x] `P2-TEST-03` gate `skipLibCheck=false` (deux exceptions tierces bornées et expirables).
+30. [x] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
 
 ## Sprint F — fiabilité produit et exploitation
 
@@ -1448,7 +1566,7 @@ techniques ni afficher une modale à chaque déploiement.**
 36. [ ] `P2-CI-02` gates séparées par responsabilité, avec commande locale
     tout-en-un conservée.
 37. [ ] `P3-PROD-01` historique de runs exploitable.
-38. [ ] `P3-PROD-02` internationalisation anglaise.
+38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
 39. [ ] `P3-PROD-03` décision PWA/offline.
 40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
 40 bis. [ ] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
@@ -1473,7 +1591,8 @@ techniques ni afficher une modale à chaque déploiement.**
 
 La bêta technique ne redevient candidate que lorsque :
 
-- [x] aucun `P0-*` n'est ouvert ;
+- [ ] aucun `P0-*` n'est ouvert ;
+- [ ] internationalisation FR/EN à 100 %, y compris champions, compétences et contenus dynamiques ;
 - [ ] advisors sécurité live : aucune `ERROR` non acceptée ;
 - [ ] aucune fonction de trigger/maintenance inutile n'est client-callable ;
 - [ ] repository integration tests passent contre une vraie base migrée ;

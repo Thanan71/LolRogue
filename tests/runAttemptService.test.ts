@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { runError } from '@/i18n/runErrorContent';
 import {
   appendRunAttemptCommands,
   findOpenRunAttempt,
@@ -421,7 +422,7 @@ describe('runAttemptService', () => {
     expect(rejected.error).toBeInstanceOf(RunVerificationRejectedError);
     expect((rejected.error as RunVerificationRejectedError).code).toBe('illegal_trace');
     expect((rejected.error as RunVerificationRejectedError).commandIndex).toBe(7);
-    expect(rejected.error?.message).toContain('illegal_trace at command 8');
+    expect(rejected.error?.message).toBe(runError.traceRejected(7));
 
     supabaseMocks.invoke.mockResolvedValue({
       data: null,
@@ -460,7 +461,7 @@ describe('runAttemptService', () => {
     expect(result.error).toMatchObject({
       code: 'verification_in_progress',
       retryAfterSeconds: 12,
-      message: 'Verification is already in progress. Retry in about 12 seconds.',
+      message: runError.verificationInProgress(12),
     });
   });
 
@@ -564,8 +565,7 @@ describe('runAttemptService', () => {
     expect(retryable.error).toBeInstanceOf(RunVerificationRetryableError);
     expect(retryable.error).toMatchObject({
       code: 'temporary_failure',
-      message:
-        'Run verification failed (temporary_failure). Retry after checking the server status.',
+      message: runError.verificationFailed(),
     });
 
     const malformedError = {
@@ -589,7 +589,7 @@ describe('runAttemptService', () => {
     expect(rejected.error).toBeInstanceOf(RunVerificationRejectedError);
     expect(rejected.error).toMatchObject({
       code: 'engine_mismatch',
-      message: 'Unsupported engine.',
+      message: runError.traceRejected(null),
     });
 
     supabaseMocks.invoke.mockResolvedValueOnce({
@@ -602,7 +602,7 @@ describe('runAttemptService', () => {
     expect(missing.error).toBeInstanceOf(RunVerificationRejectedError);
     expect(missing.error).toMatchObject({
       code: 'run_attempt_not_found',
-      message: 'This run attempt no longer exists on the server.',
+      message: runError.attemptNotFound,
     });
   });
 

@@ -133,7 +133,7 @@
 }
 
 .champion-card--selected::after {
-  content: "\2713  CHOISI";
+  content: "\2713  " attr(data-selected-label);
   position: absolute;
   top: 12px;
   right: 12px;
@@ -143,6 +143,7 @@
   font-weight: 700;
   font-size: 0.7rem;
   letter-spacing: 0.1em;
+  text-transform: uppercase;
   padding: 4px 10px;
   border-radius: 4px;
   z-index: 10;
@@ -946,7 +947,6 @@
 }
 
 .champion-card--selected::after {
-  content: "✓  DANS L'ÉQUIPE";
   color: #031311;
   background: var(--color-secondary);
   border-radius: 999px;
