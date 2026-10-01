@@ -1,6 +1,6 @@
 # Compatibilité du SDK Auth avec Web Storage bloqué
 
-`@supabase+auth-js+2.116.0.patch` protège la lecture interne de
+`@supabase+auth-js+2.117.2.patch` protège la lecture interne de
 `supabase.gotrue-js.locks.debug` dans les distributions ESM et CommonJS.
 Le SDK sonde d'abord les écritures de Web Storage, mais un navigateur peut
 autoriser `setItem` et refuser `getItem`. Sans protection, cette lecture exécutée
@@ -9,8 +9,10 @@ au chargement du module empêche même l'écran invité de s'afficher.
 Le patch transforme seulement cette expression en lecture protégée : si elle
 lève une erreur, le debug des verrous reste désactivé. Il ne modifie ni les
 verrous, ni les sessions, ni les déclarations TypeScript et n'altère pas les
-prototypes du navigateur. La version amont 2.117.1 présentait encore cette
-lecture non protégée lors de la vérification du 28 septembre 2026.
+prototypes du navigateur. La version publiée 2.117.2 présente encore cette
+lecture non protégée dans les deux distributions, vérifiées le 1er octobre 2026.
+Les deux contextes du patch 2.116.0 correspondent exactement à cette version ;
+le patch reste donc limité à la même protection de lecture.
 
 `patch-package` est épinglé à 8.0.1 ; le script `postinstall` applique le patch
 avec `--error-on-fail`, y compris dans `npm ci`. Lors d'une montée de version

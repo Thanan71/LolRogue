@@ -129,7 +129,7 @@ et aucune exception n'est autorisée dans cette première compilation.
 Deux incompatibilités de déclarations amont restent précisément autorisées dans
 `scripts/strict-typecheck-exceptions.json`, jusqu'au **23 octobre 2026 exclu** :
 
-- `@supabase/auth-js` 2.116.0 / TS2430 : la représentation JSON WebAuthn `largeBlob`
+- `@supabase/auth-js` 2.117.2 / TS2430 : la représentation JSON WebAuthn `largeBlob`
   diffère de celle du DOM TypeScript 7 (`ArrayBuffer` contre `string`).
 - `@vercel/speed-insights` 2.0.0 / TS2503 : le paquet référence le namespace global
   `JSX`, supprimé des types React 19, au lieu de `React.JSX`.
