@@ -46,6 +46,75 @@ afterEach(() => {
 });
 
 describe('bounded browser storage for every registered application key', () => {
+  it.each(failureKeys)(
+    'suspends writes to %s while reads are blocked and resumes after recovery',
+    (key) => {
+      for (const errorName of ['QuotaExceededError', 'SecurityError']) {
+        const { values, storage } = installStorage();
+        const previous = JSON.stringify({ retained: 'previous durable value' });
+        const replacement = JSON.stringify({ retained: 'new durable value' });
+        values.set(key, previous);
+        storage.getItem.mockImplementation(() => {
+          throw new DOMException('temporarily blocked', errorName);
+        });
+
+        writeStorageText(key, replacement);
+        expect(values.get(key)).toBe(previous);
+        expect(storage.setItem).not.toHaveBeenCalled();
+        expect(storage.removeItem).not.toHaveBeenCalled();
+
+        storage.getItem.mockImplementation((name) => values.get(name) ?? null);
+        writeStorageText(key, replacement);
+        expect(values.get(key)).toBe(replacement);
+        expect(storage.setItem).toHaveBeenCalledTimes(1);
+        expect(storage.setItem).toHaveBeenCalledWith(key, replacement);
+        expect(storage.removeItem).not.toHaveBeenCalled();
+        vi.unstubAllGlobals();
+      }
+    },
+  );
+
+  it.each(keys)(
+    'preserves %s and its quarantine while reads are temporarily unavailable',
+    (key) => {
+      for (const errorName of ['QuotaExceededError', 'SecurityError']) {
+        const { values, storage } = installStorage();
+        const raw = key.endsWith(':v1') ? 'done' : JSON.stringify({ version: 1, state: {} });
+        const quarantineKey = `lolrogue-quarantine:${key}`;
+        const quarantine = JSON.stringify({
+          version: 1,
+          quarantinedAt: new Date().toISOString(),
+          reason: 'prior-diagnostic',
+          payload: {},
+        });
+        values.set(key, raw);
+        values.set(quarantineKey, quarantine);
+        storage.getItem.mockImplementation(() => {
+          throw new DOMException('temporarily blocked', errorName);
+        });
+
+        expect(readStorageText(key)).toBeNull();
+        expect(readBoundedStorageJson(key)).toBeNull();
+        expect(safeLocalStorage.getItem(key)).toBeNull();
+        expect(getPersistedQuarantine(key)).toBeNull();
+        expect(storage.removeItem).not.toHaveBeenCalled();
+        expect(storage.setItem).not.toHaveBeenCalled();
+        expect(values.get(key)).toBe(raw);
+        expect(values.get(quarantineKey)).toBe(quarantine);
+
+        storage.getItem.mockImplementation((name) => values.get(name) ?? null);
+        expect(readStorageText(key)).toBe(raw);
+        expect(getPersistedQuarantine(key)).toMatchObject({
+          reason: 'prior-diagnostic',
+          payload: {},
+        });
+        expect(values.get(key)).toBe(raw);
+        expect(values.get(quarantineKey)).toBe(quarantine);
+        vi.unstubAllGlobals();
+      }
+    },
+  );
+
   it.each(failureKeys)('rejects oversized %s before parsing or writing', (key) => {
     const { values, storage } = installStorage();
     const oversized = 'x'.repeat(storageMaxChars(key) + 1);

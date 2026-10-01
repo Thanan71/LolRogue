@@ -42,7 +42,8 @@ export function readStorageText(name: string): string | null {
     }
     return raw;
   } catch {
-    removeStorageEntry(name);
+    // A failed read does not establish corruption. Keep the durable value for
+    // a later retry, even when removeItem would still be allowed.
     return null;
   }
 }
@@ -50,7 +51,11 @@ export function readStorageText(name: string): string | null {
 export function writeStorageText(name: string, value: string): void {
   if (value.length > storageMaxChars(name)) return;
   try {
-    globalThis.localStorage.setItem(name, value);
+    const backend = globalThis.localStorage;
+    // An unreadable existing value must not be overwritten by defaults or by
+    // an append based on an unknown cache. Retry normal writes once reads work.
+    backend.getItem(name);
+    backend.setItem(name, value);
   } catch {
     // In-memory state remains usable on quota/SecurityError, including getter failures.
   }

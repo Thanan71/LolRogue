@@ -67,7 +67,7 @@ export function getPersistedQuarantine(name: string): unknown | null {
   }
 }
 
-/** localStorage adapter that discards unreadable persisted state instead of crashing startup. */
+/** Contain unavailable storage and discard only proven-invalid persisted state. */
 export const safeLocalStorage: StateStorage = {
   getItem: (name) => {
     const raw = readStorageText(name);
@@ -112,6 +112,9 @@ export function recoverVersionedState<T extends object>(
   persisted: unknown,
   options: VersionedRecoveryOptions<T>,
 ): T {
+  // Zustand merges undefined when its adapter cannot read a value. Absence
+  // must not quarantine or delete a durable save that may still be valid.
+  if (persisted === undefined) return options.defaults;
   try {
     if (
       !Number.isInteger(options.version) ||

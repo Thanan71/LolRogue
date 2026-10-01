@@ -210,6 +210,14 @@ Zustand sans version passent explicitement par la migration 0, jamais par une
 supposition de schéma courant. Seules les propriétés connues des defaults sont
 restaurées : un champ injecté ne peut pas remplacer une action Zustand.
 
+Une lecture temporairement interdite ne prouve pas que la valeur est corrompue :
+la source et sa quarantaine restent conservées. Zustand peut alors utiliser des
+defaults en mémoire sans les mettre en quarantaine. Les écritures de cache sont
+suspendues tant que la lecture de leur clé échoue, y compris celles déclenchées
+par un changement de scope Auth ou l'ajout d'un score daily. Après rétablissement,
+la même sauvegarde peut être relue. Seuls les contenus effectivement lus et
+reconnus invalides ou surdimensionnés sont purgés.
+
 La quarantaine conserve au plus 2 048 unités de diagnostic et indique toute
 troncature ; sa lecture supprime les anciennes versions et les copies expirées.
 Aucune purge globale du stockage navigateur n'est effectuée. Les anciennes clés

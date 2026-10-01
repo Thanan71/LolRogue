@@ -267,6 +267,87 @@ describe('bounded persisted non-run store recovery', () => {
     expect(useSettingsStore.getState()).toMatchObject({ language: 'fr-FR', battleSpeed: 1 });
   });
 
+  for (const store of stores) {
+    it.each(['SecurityError', 'QuotaExceededError'])(
+      `${store.name} preserves valid data through temporarily unreadable Zustand hydration (%s)`,
+      async (errorName) => {
+        const quarantineKey = `lolrogue-quarantine:${store.name}`;
+        const raw = JSON.stringify({ version: store.version, state: store.valid });
+        const quarantine = JSON.stringify({
+          version: 1,
+          quarantinedAt: new Date().toISOString(),
+          reason: 'prior-diagnostic',
+          payload: {},
+        });
+        values.set(store.name, raw);
+        values.set(quarantineKey, quarantine);
+        const backend = storage();
+        backend.getItem.mockImplementation(() => {
+          throw new DOMException('temporarily blocked', errorName);
+        });
+        vi.stubGlobal('localStorage', backend);
+
+        await store.rehydrate();
+        store.assertSafe();
+        expect(values.get(store.name)).toBe(raw);
+        expect(values.get(quarantineKey)).toBe(quarantine);
+        expect(backend.removeItem).not.toHaveBeenCalled();
+        expect(backend.setItem).not.toHaveBeenCalled();
+
+        backend.getItem.mockImplementation((name) => values.get(name) ?? null);
+        await store.rehydrate();
+        expect(store.getState()).toMatchObject(store.valid);
+        expect(values.get(store.name)).toBe(raw);
+        expect(values.get(quarantineKey)).toBe(quarantine);
+        expect(backend.removeItem).not.toHaveBeenCalled();
+        expect(backend.setItem).not.toHaveBeenCalled();
+      },
+    );
+  }
+
+  it.each(
+    (['clearSession', 'activateGuestScope'] as const).flatMap((action) =>
+      ['SecurityError', 'QuotaExceededError'].map((errorName) => ({ action, errorName })),
+    ),
+  )(
+    'preserves guest mastery during $action after unreadable hydration ($errorName)',
+    async ({ action, errorName }) => {
+      const key = 'lolrogue-mastery-storage';
+      const guestSnapshot = {
+        champions: { Garen: buildChampionMastery('Garen', 150, ['roster_3']) },
+        totalRunsCompleted: 8,
+        totalCandiesEarned: 150,
+      };
+      const raw = JSON.stringify({ version: 3, state: { guestSnapshot } });
+      values.set(key, raw);
+      const backend = storage();
+      backend.getItem.mockImplementation(() => {
+        throw new DOMException('temporarily blocked', errorName);
+      });
+      vi.stubGlobal('localStorage', backend);
+
+      await useMasteryStore.persist.rehydrate();
+      expect(useMasteryStore.getState().guestSnapshot.totalRunsCompleted).toBe(0);
+      useMasteryStore.getState()[action]();
+      expect(values.get(key)).toBe(raw);
+      expect(backend.setItem).not.toHaveBeenCalled();
+      expect(backend.removeItem).not.toHaveBeenCalled();
+
+      backend.getItem.mockImplementation((name) => values.get(name) ?? null);
+      await useMasteryStore.persist.rehydrate();
+      expect(useMasteryStore.getState().guestSnapshot).toEqual(guestSnapshot);
+      expect(values.get(key)).toBe(raw);
+      useMasteryStore.getState().activateGuestScope();
+      expect(useMasteryStore.getState()).toMatchObject({
+        ...guestSnapshot,
+        scope: 'guest',
+        isHydrated: true,
+      });
+      expect(JSON.parse(values.get(key)!)).toEqual({ version: 3, state: { guestSnapshot } });
+      expect(backend.removeItem).not.toHaveBeenCalled();
+    },
+  );
+
   it('migrates legacy preference and daily schemas without losing compatible fields', async () => {
     for (const store of stores.filter((entry) => entry.name !== 'lolrogue-mastery-storage')) {
       for (let version = 0; version < store.version; version += 1) {

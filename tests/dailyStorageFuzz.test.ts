@@ -31,6 +31,36 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('guest leaderboard storage boundary', () => {
+  it.each(['SecurityError', 'QuotaExceededError'])(
+    'preserves an unreadable existing leaderboard when recording a completion (%s)',
+    (errorName) => {
+      const previousEntry = { ...validEntry, playerName: 'Existing guest', score: 9_000 };
+      const raw = JSON.stringify({ version: 1, state: leaderboard([previousEntry]) });
+      values.set(key, raw);
+      const backend = storage();
+      backend.getItem.mockImplementation(() => {
+        throw new DOMException('temporarily blocked', errorName);
+      });
+      vi.stubGlobal('localStorage', backend);
+
+      write();
+      expect(values.get(key)).toBe(raw);
+      expect(backend.setItem).not.toHaveBeenCalled();
+      expect(backend.removeItem).not.toHaveBeenCalled();
+
+      backend.getItem.mockImplementation((name) => values.get(name) ?? null);
+      expect(read()).toEqual([previousEntry]);
+      expect(values.get(key)).toBe(raw);
+      write();
+      expect(read()).toEqual([previousEntry, expect.objectContaining(validEntry)]);
+      expect(JSON.parse(values.get(key)!)).toMatchObject({
+        version: 1,
+        state: { entries: [previousEntry, expect.objectContaining(validEntry)] },
+      });
+      expect(backend.removeItem).not.toHaveBeenCalled();
+    },
+  );
+
   it('migrates legacy entries and strips server-only or unexpected fields', () => {
     values.set(
       key,

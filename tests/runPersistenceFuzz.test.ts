@@ -76,6 +76,55 @@ describe('bounded run hydration and deterministic malformed-payload corpus', () 
     vi.unstubAllGlobals();
   });
 
+  it.each(['SecurityError', 'QuotaExceededError'])(
+    'preserves the run and its quarantine during temporarily unreadable hydration (%s)',
+    async (errorName) => {
+      const state = validState();
+      const raw = JSON.stringify({ version: 7, state });
+      const quarantineKey = `lolrogue-quarantine:${RUN_STORAGE_KEY}`;
+      const quarantine = JSON.stringify({
+        version: 1,
+        quarantinedAt: new Date().toISOString(),
+        reason: 'prior-diagnostic',
+        payload: {},
+      });
+      storage.set(RUN_STORAGE_KEY, raw);
+      storage.set(quarantineKey, quarantine);
+      const getItem = vi.fn((key: string): string | null => storage.get(key) ?? null);
+      getItem.mockImplementation(() => {
+        throw new DOMException('temporarily blocked', errorName);
+      });
+      const setItem = vi.fn((key: string, value: string) => {
+        storage.set(key, value);
+      });
+      const removeItem = vi.fn((key: string) => {
+        storage.delete(key);
+      });
+      vi.stubGlobal('localStorage', { getItem, setItem, removeItem });
+
+      await useRunStore.persist.rehydrate();
+      expect(useRunStore.getState().isActive).toBe(false);
+      expect(storage.get(RUN_STORAGE_KEY)).toBe(raw);
+      expect(storage.get(quarantineKey)).toBe(quarantine);
+      expect(removeItem).not.toHaveBeenCalled();
+      expect(setItem).not.toHaveBeenCalled();
+
+      getItem.mockImplementation((key) => storage.get(key) ?? null);
+      await useRunStore.persist.rehydrate();
+      expect(useRunStore.getState()).toMatchObject({
+        isActive: true,
+        runId: state.runId,
+        seed: state.seed,
+        team: state.team,
+        authorityAttempt: state.authorityAttempt,
+      });
+      expect(storage.get(RUN_STORAGE_KEY)).toBe(raw);
+      expect(storage.get(quarantineKey)).toBe(quarantine);
+      expect(removeItem).not.toHaveBeenCalled();
+      expect(setItem).not.toHaveBeenCalled();
+    },
+  );
+
   it.each([0, 1, 2, 3, 4, 5, 6, 7])(
     'preserves a compatible v%s run, including the pre-v8 attempt journal',
     (version) => {

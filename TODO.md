@@ -1310,6 +1310,15 @@ produisent des snapshots complets sans affaiblir leurs assertions. Les seeds
 singleton Zustand entre les 17 scénarios de reprise. Le moteur canonique v21
 reste inchangé.
 
+Complément du 1er octobre 2026 : les cinq vrais stores conservent leur source et
+leur quarantaine pendant une panne temporaire de lecture, puis récupèrent leurs
+données après rétablissement. Les écritures de cache sont suspendues pendant
+cette panne, pour préserver aussi la maîtrise invitée lors des transitions Auth
+et les scores daily existants. Les purges de contenus lus puis invalides restent
+testées. Preuves supplémentaires : `persistence.test.ts`,
+`storageBoundary.test.ts`, `storeHydrationFuzz.test.ts`,
+`runPersistenceFuzz.test.ts` et `dailyStorageFuzz.test.ts`.
+
 ---
 
 # P2 — observabilité et exploitation
