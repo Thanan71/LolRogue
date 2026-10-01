@@ -38,14 +38,14 @@ describe('persisted store recovery', () => {
     const storage = { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() };
     vi.stubGlobal('localStorage', storage);
     const defaults = { enabled: true };
-    const validate = vi.fn((value: unknown): value is Partial<typeof defaults> => isRecord(value));
+    const validate = vi.fn((value: unknown) => isRecord(value));
     expect(
       recoverVersionedState(undefined, {
         name: 'test-store',
         version: 2,
         currentVersion: 2,
         defaults,
-        validate,
+        validate: (value): value is Partial<typeof defaults> => validate(value),
       }),
     ).toEqual(defaults);
     expect(validate).not.toHaveBeenCalled();
