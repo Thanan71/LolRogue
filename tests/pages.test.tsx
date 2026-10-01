@@ -252,6 +252,7 @@ describe('P2 page smoke tests', () => {
 
   it('focuses a blocking spell choice then restores focus to the map after success', async () => {
     window.localStorage.removeItem('lolrogue:tutorial:map:v1');
+    window.localStorage.removeItem('lolrogue:tutorial:map:v2');
     const maps = generateRunMap(12345);
     useRunStore.setState({
       isActive: true,

@@ -105,8 +105,8 @@ function expectCompleteCopy(copy: InventoryNamedCopy): void {
 async function loadFrenchRuneSources() {
   vi.resetModules();
   vi.stubEnv('VITE_E2E_VICTORY_RUNE', '1');
-  vi.stubGlobal('window', {
-    localStorage: { getItem: () => JSON.stringify({ state: { language: 'fr-FR' } }) },
+  vi.stubGlobal('localStorage', {
+    getItem: () => JSON.stringify({ state: { language: 'fr-FR' } }),
   });
   const [{ RUNE_DATABASE }, { runeNameFr }] = await Promise.all([
     import('@/data/items/runeDatabase'),
@@ -117,8 +117,8 @@ async function loadFrenchRuneSources() {
 
 async function loadInventoryLocalizers(locale: InventoryContentLocale) {
   vi.resetModules();
-  vi.stubGlobal('window', {
-    localStorage: { getItem: () => JSON.stringify({ state: { language: locale } }) },
+  vi.stubGlobal('localStorage', {
+    getItem: () => JSON.stringify({ state: { language: locale } }),
   });
   return import('@/i18n/content');
 }

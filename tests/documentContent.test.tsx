@@ -99,6 +99,24 @@ describe('document locale metadata', () => {
     ['missing settings', null],
     ['malformed settings', '{not-json'],
     ['unsupported locale', JSON.stringify({ state: { language: 'de-DE' } })],
+    ['future schema', JSON.stringify({ version: 4, state: { language: 'en-US' } })],
+    ['mistyped version', JSON.stringify({ version: '3', state: { language: 'en-US' } })],
+    ['negative version', JSON.stringify({ version: -1, state: { language: 'en-US' } })],
+    [
+      'mistyped sibling preference',
+      JSON.stringify({ version: 3, state: { language: 'en-US', battleSpeed: '2' } }),
+    ],
+    ['null state', JSON.stringify({ version: 3, state: null })],
+    [
+      'oversized settings',
+      JSON.stringify({ state: { language: 'en-US', noise: 'x'.repeat(16 * 1024) } }),
+    ],
+    ['unsafe nested key', '{"state":{"language":"en-US","__proto__":{}}}'],
+    ['non-finite number', '{"state":{"language":"en-US","extra":1e400}}'],
+    [
+      'excessive nesting',
+      '{"state":{"language":"en-US","extra":' + '['.repeat(50) + '0' + ']'.repeat(50) + '}}',
+    ],
   ])('keeps the French fallback for %s during document preload', (_case, storedSettings) => {
     loadStaticFallback();
     if (storedSettings) window.localStorage.setItem('lolrogue-settings', storedSettings);

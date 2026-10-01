@@ -241,7 +241,7 @@ export function RunMapScreen() {
                 </strong>
               </span>
               <ContextTutorial
-                storageKey="lolrogue:tutorial:map:v1"
+                storageKey="lolrogue:tutorial:map:v2"
                 title={fr.run.mapTutorialTitle}
                 buttonLabel={fr.run.mapTutorialButton}
                 steps={[

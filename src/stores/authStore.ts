@@ -6,10 +6,9 @@ import type { IRepositoryContainer } from '@/services/interfaces';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
 import { useMasteryStore } from '@/stores/masteryStore';
 import type { Player } from '@/types/models';
-import { safeLocalStorage } from '@/utils/persistence';
+import { readGuestMode, setStoredGuestMode } from '@/utils/ancillaryStorage';
 
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
-const GUEST_MODE_KEY = 'lolrogue-guest-mode';
 
 export type AuthStatus =
   | 'bootstrapping'
@@ -109,16 +108,6 @@ export function localizeAuthError(error: unknown): string {
     return message;
   }
   return fr.auth.genericError;
-}
-
-function readGuestMode(): boolean {
-  const value = safeLocalStorage.getItem(GUEST_MODE_KEY);
-  return typeof value === 'string' && value === 'true';
-}
-
-function setStoredGuestMode(enabled: boolean): void {
-  if (enabled) safeLocalStorage.setItem(GUEST_MODE_KEY, 'true');
-  else safeLocalStorage.removeItem(GUEST_MODE_KEY);
 }
 
 async function resetProgressionCaches(target: 'guest' | 'signed-out'): Promise<void> {

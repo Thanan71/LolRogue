@@ -1,0 +1,52 @@
+diff --git a/node_modules/@supabase/auth-js/dist/main/lib/locks.js b/node_modules/@supabase/auth-js/dist/main/lib/locks.js
+index 4027326..c261db1 100644
+--- a/node_modules/@supabase/auth-js/dist/main/lib/locks.js
++++ b/node_modules/@supabase/auth-js/dist/main/lib/locks.js
+@@ -21,10 +21,17 @@ exports.internals = {
+     /**
+      * @experimental
+      */
+-    debug: !!(globalThis &&
+-        (0, helpers_1.supportsLocalStorage)() &&
+-        globalThis.localStorage &&
+-        globalThis.localStorage.getItem('supabase.gotrue-js.locks.debug') === 'true'),
++    debug: (() => {
++        try {
++            return !!(globalThis &&
++                (0, helpers_1.supportsLocalStorage)() &&
++                globalThis.localStorage &&
++                globalThis.localStorage.getItem('supabase.gotrue-js.locks.debug') === 'true');
++        }
++        catch (_) {
++            return false;
++        }
++    })(),
+ };
+ /**
+  * An error thrown when a lock cannot be acquired after some amount of time.
+diff --git a/node_modules/@supabase/auth-js/dist/module/lib/locks.js b/node_modules/@supabase/auth-js/dist/module/lib/locks.js
+index cc5f626..dbe222d 100644
+--- a/node_modules/@supabase/auth-js/dist/module/lib/locks.js
++++ b/node_modules/@supabase/auth-js/dist/module/lib/locks.js
+@@ -16,10 +16,17 @@ export const internals = {
+     /**
+      * @experimental
+      */
+-    debug: !!(globalThis &&
+-        supportsLocalStorage() &&
+-        globalThis.localStorage &&
+-        globalThis.localStorage.getItem('supabase.gotrue-js.locks.debug') === 'true'),
++    debug: (() => {
++        try {
++            return !!(globalThis &&
++                supportsLocalStorage() &&
++                globalThis.localStorage &&
++                globalThis.localStorage.getItem('supabase.gotrue-js.locks.debug') === 'true');
++        }
++        catch (_) {
++            return false;
++        }
++    })(),
+ };
+ /**
+  * An error thrown when a lock cannot be acquired after some amount of time.
