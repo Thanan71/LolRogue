@@ -27,7 +27,7 @@ Références :
 | `logs.player_id` | anonymisation `ON DELETE SET NULL` lors de la suppression d'un profil | index partiel sur les valeurs non nulles |
 | `progression_commands.ruleset_version` | idempotence par `(user_id, command_id)`; aucune recherche enfant par version | pas d'index : rulesets append-only |
 | `run_attempts.daily_ruleset_version` | lifecycle par tentative, utilisateur, statut ou date Daily | pas d'index FK dédié : rulesets append-only |
-| `run_attempts.gameplay_ruleset_version` | agrégation opérationnelle, sans filtre sélectif sur la version seule | pas d'index FK dédié : coût d'écriture sur une table chaude évité |
+| `run_attempts.gameplay_ruleset_version` | calibration terrain vérifiée par version, moteur, contenu, difficulté et mode | depuis le 6 septembre : index partiel `run_attempts_verified_field_dimensions`, sans index FK complet dédié |
 | `run_attempts.ruleset_version` | agrégation opérationnelle, sans filtre sélectif sur la version seule | pas d'index FK dédié : coût d'écriture sur une table chaude évité |
 
 ## Requêtes applicatives retenues
@@ -92,14 +92,22 @@ toutefois l'écriture des pages d'index supplémentaires.
 | `daily_score_reports_reviewed_retention_idx` | 928 kB |
 | `logs_player_id_idx` | 704 kB |
 
-Le total est d'environ 3,1 MB sur le volume synthétique. Cette surcharge explique
-pourquoi les sept FK de versions, non utilisées comme prédicats sélectifs et reliées
-à des parents append-only, restent volontairement sans index dédié.
+Le total mesuré en août est d'environ 3,1 MB sur le volume synthétique. Cette
+surcharge explique l'absence d'index FK dédié sur les colonnes de version reliées
+à des parents append-only. Depuis septembre, le parcours de calibration justifie
+un index partiel supplémentaire sur `run_attempts`, non inclus dans cette mesure
+historique ; il ne couvre que les tentatives vérifiées avec un résultat associé.
 
 ## Contrat advisor local
 
-`npm run db:indexes:check` vérifie les sept définitions retenues et rejoue le
-Performance Advisor. La gate refuse le retour de l'une des cinq alertes FK corrigées
-et toute nouvelle FK non couverte. Les sept avertissements de versions ci-dessus
-restent explicitement attendus jusqu'à ce qu'une nouvelle requête ou une politique de
-suppression des catalogues justifie de les réévaluer.
+`npm run db:indexes:check` vérifie les huit définitions retenues, dont l'index de
+calibration partiel, et rejoue le Performance Advisor. La gate refuse le retour de
+l'une des cinq alertes FK corrigées et toute nouvelle FK non couverte. Six
+avertissements de versions restent explicitement attendus jusqu'à ce qu'une nouvelle
+requête ou une politique de suppression des catalogues justifie de les réévaluer.
+
+La [revue du 1er octobre 2026](supabase-advisors-review-20261001.md) confirme que
+l'alerte `run_attempts.gameplay_ruleset_version` a disparu : le linter reconnaît
+la première colonne de l'index de calibration sans exclure les index partiels.
+Cela ne prouve pas une couverture FK de toutes les lignes ; l'exception obsolète
+est retirée, et le contrat continue de vérifier le prédicat partiel exact.

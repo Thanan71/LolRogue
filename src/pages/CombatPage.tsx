@@ -674,7 +674,7 @@ export function CombatPage() {
         <TurnIndicator champion={currentChampion} side={currentTurnSide} />
         <BattleSpeedControl />
         <ContextTutorial
-          storageKey="lolrogue:tutorial:combat:v1"
+          storageKey="lolrogue:tutorial:combat:v2"
           title={combatCopy.page.tutorial.title}
           buttonLabel={combatCopy.page.tutorial.buttonLabel}
           steps={[...combatCopy.page.tutorial.steps]}

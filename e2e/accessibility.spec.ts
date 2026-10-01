@@ -72,21 +72,25 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
 
   await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');
+    const { NodeType } = await import('/src/game/map/types.ts');
     const encounter = {
       id: 'a11y-combat',
-      type: 'combat',
+      type: 'combat' as const,
       name: "Combat d'accessibilité",
       description: 'Combat de test',
+      minRunLevel: 1,
       enemies: [{ championId: 'Warwick', level: 1, statMultiplier: 1 }],
+      goldReward: 0,
+      itemDropChance: 0,
     };
     const node = {
       id: 'a11y-node',
-      type: 'combat',
+      type: NodeType.Combat,
       column: 0,
       row: 0,
       nextNodeIds: [],
       prevNodeIds: [],
-      biome: 'top_lane',
+      biome: 'top_lane' as const,
       completed: false,
       accessible: true,
       encounter,
@@ -111,7 +115,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
       completedNodeIds: [],
       pendingEncounter: { nodeId: node.id, nodeType: 'combat' },
       currentEncounter: encounter,
-    } as never);
+    });
   });
   await page.goto('/combat');
   await expect(page.getByText(/Combat — Tour/)).toBeVisible();
@@ -119,42 +123,12 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
 
   await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');
-    const summary = {
-      won: false,
-      runLevel: 1,
-      wavesCompleted: 1,
-      biomesVisited: ['top_lane'],
-      goldEarned: 0,
-      goldSpent: 0,
-      goldBalance: 0,
-      itemEvents: [],
-      totalKills: 0,
-      totalDamage: 0,
-      championStats: [],
-    };
-    useRunStore.setState({
-      isActive: false,
-      saveStatus: 'saved',
-      completedRunSnapshot: {
-        runId: 'a11y-finished',
-        mode: 'normal',
-        won: false,
-        runLevel: 1,
-        wavesCompleted: 1,
-        biomesVisited: ['top_lane'],
-        goldEarned: 0,
-        goldSpent: 0,
-        goldBalance: 0,
-        summary,
-        teamMembers: [{ championId: 'Garen' }, { championId: 'Lux' }],
-        startedAt: new Date().toISOString(),
-        seed: 1,
-        runeIds: [],
-        augmentIds: [],
-        ledger: {},
-        daily: null,
-      },
-    } as never);
+    const state = useRunStore.getState();
+    if (!state.isActive) throw new Error('The accessibility combat must still be active.');
+    const completed = await state.endRun(false, state.runId);
+    if (!completed.success) {
+      throw new Error(`Unable to finish accessibility run: ${completed.code}`);
+    }
   });
   await page.goto('/game-over');
   await expect(page.getByRole('heading', { name: 'Défaite' })).toBeVisible();

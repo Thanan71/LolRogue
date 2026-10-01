@@ -1286,12 +1286,38 @@ entre jobs.
 
 **Taille : M**
 
-- [ ] Générer des payloads localStorage tronqués, anciens, surdimensionnés et mal typés.
-- [ ] Vérifier qu'aucun payload ne peut restaurer un état authority impossible.
-- [ ] Tester quotas / `SecurityError` / stockage indisponible sur toutes les clés
+- [x] Générer des payloads localStorage tronqués, anciens, surdimensionnés et mal typés.
+- [x] Vérifier qu'aucun payload ne peut restaurer un état authority impossible.
+- [x] Tester quotas / `SecurityError` / stockage indisponible sur toutes les clés
   persistées, pas uniquement le mode invité.
-- [ ] Ajouter une version et une stratégie de purge pour les caches de tutoriel et
+- [x] Ajouter une version et une stratégie de purge pour les caches de tutoriel et
   autres clés annexes.
+
+Preuves : `storageBoundary.test.ts`, `storeHydrationFuzz.test.ts`,
+`runPersistenceFuzz.test.ts`, `runSaveRecovery.test.ts`,
+`dailyStorageFuzz.test.ts`, `ancillaryStorage.test.ts`,
+`contextTutorialStorage.test.tsx` et `e2e/storage-rehydration.spec.ts`.
+Les récompenses serveur sont effacées à la réhydratation, puis récupérées avec
+la même tentative et le même journal ; un rejet terminal reste terminal.
+Les sessions Supabase restent opaques dans leur adaptateur séparé. Le patch
+SDK exact et ses tests ESM/CJS sont documentés dans `patches/README.md`.
+Validation locale du 28 septembre 2026 : `npm run check` (1 951 tests verts,
+31 tests DB réservés à la clean-room), `typecheck:strict`, `authority:check`,
+43 parcours navigateur verts (défaite/victoire réelles, stockage, accessibilité,
+responsive et anglais ; parcours connecté réservé à la CI). Les fixtures visuelles
+produisent des snapshots complets sans affaiblir leurs assertions. Les seeds
+1016339187, 1592608384 et 1228260877 ont aussi vérifié l'isolation complète du
+singleton Zustand entre les 17 scénarios de reprise. Le moteur canonique v21
+reste inchangé.
+
+Complément du 1er octobre 2026 : les cinq vrais stores conservent leur source et
+leur quarantaine pendant une panne temporaire de lecture, puis récupèrent leurs
+données après rétablissement. Les écritures de cache sont suspendues pendant
+cette panne, pour préserver aussi la maîtrise invitée lors des transitions Auth
+et les scores daily existants. Les purges de contenus lus puis invalides restent
+testées. Preuves supplémentaires : `persistence.test.ts`,
+`storageBoundary.test.ts`, `storeHydrationFuzz.test.ts`,
+`runPersistenceFuzz.test.ts` et `dailyStorageFuzz.test.ts`.
 
 ---
 
@@ -1525,7 +1551,7 @@ techniques ni afficher une modale à chaque déploiement.**
 27. [x] `P2-PERF-02` Web Vitals sur preview locale stable.
 28. [x] `P2-TEST-02` seeds variables reproductibles (cron activé après promotion sur `main`).
 29. [x] `P2-TEST-03` gate `skipLibCheck=false` (deux exceptions tierces bornées et expirables).
-30. [ ] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
+30. [x] `P2-WEB-02` fuzz de réhydratation et stockage navigateur.
 
 ## Sprint F — fiabilité produit et exploitation
 

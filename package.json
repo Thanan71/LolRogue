@@ -7,6 +7,7 @@
     "node": "24.x"
   },
   "scripts": {
+    "postinstall": "patch-package --error-on-fail",
     "dev": "vite",
     "build": "tsc && vite build",
     "prebuild": "npm run assets:verify && npm run edge:bundle",
@@ -126,6 +127,7 @@
     "autoprefixer": "^10.6.1",
     "esbuild-authority": "npm:esbuild@0.25.0",
     "jsdom": "^30.1.0",
+    "patch-package": "8.0.1",
     "postcss": "^8.5.28",
     "supabase": "2.117.0",
     "tailwindcss": "^4.2.2",

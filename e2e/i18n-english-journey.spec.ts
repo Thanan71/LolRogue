@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
+import type { CombatEncounter, MapNode, TreasureEncounter } from '@/game/map/types';
 
 const FRENCH_UI_MARKERS = [
   'Jouer en invité',
@@ -90,15 +91,16 @@ async function expectEnglishSurface(page: Page, stage: string, englishAnchor: Lo
 
 async function installJourneyMap(page: Page, stage: 'before-combat' | 'after-combat') {
   await page.evaluate(async (fixtureStage) => {
-    const [{ getCanonicalRunItem }, { useRunStore }] = await Promise.all([
+    const [{ getCanonicalRunItem }, { NodeType }, { useRunStore }] = await Promise.all([
       import('/src/game/inventory/inventoryRules.ts'),
+      import('/src/game/map/types.ts'),
       import('/src/stores/runStore.ts'),
     ]);
     const sword = getCanonicalRunItem('long_sword');
     if (!sword) throw new Error('The long_sword fixture item is unavailable.');
 
     const afterCombat = fixtureStage === 'after-combat';
-    const combatEncounter = {
+    const combatEncounter: CombatEncounter = {
       id: 'i18n-journey-combat',
       type: 'combat',
       name: 'Presentation duel',
@@ -108,7 +110,7 @@ async function installJourneyMap(page: Page, stage: 'before-combat' | 'after-com
       goldReward: 10,
       itemDropChance: 0,
     };
-    const treasureEncounter = {
+    const treasureEncounter: TreasureEncounter = {
       id: 'i18n-journey-treasure',
       type: 'treasure',
       name: 'Journey treasure',
@@ -116,10 +118,10 @@ async function installJourneyMap(page: Page, stage: 'before-combat' | 'after-com
       minRunLevel: 1,
       gold: 25,
     };
-    const nodes = [
+    const nodes: MapNode[] = [
       {
         id: 'i18n-journey-start',
-        type: 'start',
+        type: NodeType.Start,
         column: 0,
         row: 0,
         nextNodeIds: ['i18n-journey-checkpoint'],
@@ -132,7 +134,7 @@ async function installJourneyMap(page: Page, stage: 'before-combat' | 'after-com
       },
       {
         id: 'i18n-journey-checkpoint',
-        type: 'rest',
+        type: NodeType.Rest,
         column: 1,
         row: 0,
         nextNodeIds: ['i18n-journey-combat'],
@@ -145,7 +147,7 @@ async function installJourneyMap(page: Page, stage: 'before-combat' | 'after-com
       },
       {
         id: 'i18n-journey-combat',
-        type: 'combat',
+        type: NodeType.Combat,
         column: 2,
         row: 0,
         nextNodeIds: ['i18n-journey-treasure'],
@@ -158,7 +160,7 @@ async function installJourneyMap(page: Page, stage: 'before-combat' | 'after-com
       },
       {
         id: 'i18n-journey-treasure',
-        type: 'treasure',
+        type: NodeType.Treasure,
         column: 3,
         row: 0,
         nextNodeIds: [],
@@ -202,36 +204,39 @@ async function installJourneyMap(page: Page, stage: 'before-combat' | 'after-com
         ? [{ instanceId: 'i18n-journey-sword', item: sword, equippedToChampionId: null }]
         : [],
       nextItemInstanceId: afterCombat ? 2 : 1,
-    } as never);
+    });
   }, stage);
 }
 
 async function installCompletedRun(page: Page) {
   await page.evaluate(async () => {
-    const { useRunStore } = await import('/src/stores/runStore.ts');
-    const summary = {
+    const [{ buildRunSummaryFromLedger, createRunLedger }, { RUN_INITIAL_STATE }, { useRunStore }] =
+      await Promise.all([
+        import('/src/game/run/runLedger.ts'),
+        import('/src/stores/runInitialState.ts'),
+        import('/src/stores/runStore.ts'),
+      ]);
+    const ledger = createRunLedger(['Garen', 'Lux']);
+    ledger.champions.Garen.kills = 1;
+    ledger.champions.Garen.damageDealt = 500;
+    ledger.gold.earned = 35;
+    const teamMembers = ['Garen', 'Lux'].map((championId) => ({
+      championId,
+      level: 2,
+      currentHp: 100,
+      currentMp: 0,
+    }));
+    const summary = buildRunSummaryFromLedger({
+      ledger,
+      team: teamMembers,
       won: true,
       runLevel: 2,
       wavesCompleted: 2,
       biomesVisited: ['top_lane'],
-      goldEarned: 35,
-      goldSpent: 0,
       goldBalance: 35,
-      itemEvents: [],
-      totalKills: 1,
-      totalDamage: 500,
-      championStats: [
-        {
-          championId: 'Garen',
-          kills: 1,
-          assists: 0,
-          totalDamage: 500,
-          healingDone: 0,
-          shieldingDone: 0,
-        },
-      ],
-    };
+    });
     useRunStore.setState({
+      ...structuredClone(RUN_INITIAL_STATE),
       isActive: false,
       runId: 'i18n-journey-finished',
       pendingEncounter: null,
@@ -248,15 +253,15 @@ async function installCompletedRun(page: Page) {
         goldSpent: 0,
         goldBalance: 35,
         summary,
-        teamMembers: [{ championId: 'Garen' }, { championId: 'Lux' }],
+        teamMembers,
         startedAt: new Date().toISOString(),
         seed: 20260908,
         runeIds: [],
         augmentIds: [],
-        ledger: {},
+        ledger,
         daily: null,
       },
-    } as never);
+    });
   });
 }
 

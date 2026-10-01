@@ -180,15 +180,18 @@ describe('contrat de langue française', () => {
 
   it('sélectionne réellement le catalogue anglais depuis les réglages persistés', async () => {
     vi.resetModules();
-    vi.stubGlobal('window', {
-      localStorage: { getItem: () => JSON.stringify({ state: { language: 'en-US' } }) },
+    vi.stubGlobal('localStorage', {
+      getItem: () => JSON.stringify({ state: { language: 'en-US' } }),
     });
-    const active = await import('@/i18n/fr');
-    expect(active.locale).toBe('en-US');
-    expect(active.fr.menu.settings).toBe('Settings');
-    expect(legalEn.title).not.toContain('Informations légales');
-    expect(runeNameEn('e2e_assured_victory')).not.toContain('Victoire');
-    vi.unstubAllGlobals();
+    try {
+      const active = await import('@/i18n/fr');
+      expect(active.locale).toBe('en-US');
+      expect(active.fr.menu.settings).toBe('Settings');
+      expect(legalEn.title).not.toContain('Informations légales');
+      expect(runeNameEn('e2e_assured_victory')).not.toContain('Victoire');
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('raccorde automatiquement toutes les pages au dictionnaire français', () => {

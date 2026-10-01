@@ -49,47 +49,40 @@ for (const viewport of VIEWPORTS) {
     await page.getByRole('button', { name: 'Retour au menu' }).click();
     await page.evaluate(async () => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
-      const summary = {
-        won: true,
-        runLevel: 7,
-        wavesCompleted: 24,
-        biomesVisited: ['top_lane', 'jungle', 'mid_lane'],
-        totalKills: 42,
-        totalDamage: 12345,
-        goldEarned: 900,
-        goldSpent: 640,
-        goldBalance: 260,
-        championStats: ['Garen', 'Ashe', 'Lux', 'Leona', 'Warwick'].map((championId) => ({
-          championId,
-          kills: 8,
-          assists: 5,
-          totalDamage: 2400,
-          healingDone: 120,
-          shieldingDone: 80,
-        })),
-      };
+      const { createRunLedger } = await import('/src/game/run/runLedger.ts');
+      const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 1 });
+      if (!started.success) throw new Error(`Unable to start result fixture: ${started.code}`);
+      const runId = useRunStore.getState().runId;
+      const championIds = ['Garen', 'Ashe', 'Lux', 'Leona', 'Warwick'];
+      const biomesVisited = ['top_lane', 'jungle', 'mid_lane'] as const;
+      const ledger = createRunLedger(championIds);
+      ledger.gold = { earned: 900, spent: 640 };
+      for (const [championId, stats] of Object.entries(ledger.champions)) {
+        stats.kills = championId === 'Garen' ? 10 : 8;
+        stats.assists = 5;
+        stats.damageDealt = championId === 'Garen' ? 2745 : 2400;
+        stats.healingDone = 120;
+        stats.shieldingDone = 80;
+        stats.wavesParticipated = 24;
+        stats.biomesParticipated = [...biomesVisited];
+      }
+      // Populate presentation facts, then let the real lifecycle produce every
+      // required summary/team/ledger field instead of casting an incomplete save.
       useRunStore.setState({
-        saveStatus: 'saved',
-        completedRunSnapshot: {
-          runId: 'responsive-run',
-          mode: 'normal',
-          won: true,
-          runLevel: 7,
-          wavesCompleted: 24,
-          biomesVisited: summary.biomesVisited,
-          goldEarned: 900,
-          goldSpent: 640,
-          goldBalance: 260,
-          summary,
-          teamMembers: summary.championStats.map(({ championId }) => ({ championId })),
-          startedAt: new Date().toISOString(),
-          seed: 1,
-          runeIds: [],
-          augmentIds: [],
-          ledger: {},
-          daily: null,
-        } as never,
+        team: championIds.map((championId) => ({ championId })),
+        runLevel: 7,
+        totalWavesCompleted: 24,
+        biomesVisited: [...biomesVisited],
+        gold: 260,
+        ledger,
       });
+      const ended = await useRunStore.getState().endRun(true, runId);
+      if (!ended.success) throw new Error(`Unable to finish result fixture: ${ended.code}`);
+      await useRunStore.persist.rehydrate();
+      const snapshot = useRunStore.getState().completedRunSnapshot;
+      if (snapshot?.runId !== runId || !snapshot.won || snapshot.teamMembers.length !== 5) {
+        throw new Error('Responsive result fixture did not survive normal rehydration');
+      }
     });
     await navigateSpa(page, '/game-over');
     await expect(page.getByRole('heading', { name: 'Victoire !' })).toBeVisible();
