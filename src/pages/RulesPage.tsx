@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Field, PageHeader, PageShell, Panel, StateView, TextInput } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
-import { fr } from '@/i18n/fr';
+import { fr, locale } from '@/i18n/fr';
 
 const RULES = fr.rules.entries.map(([category, title, body]) => ({ category, title, body }));
 /*
@@ -85,11 +85,11 @@ export function RulesPage() {
   const [category, setCategory] = useState<string>(fr.rules.all);
   const categories = [fr.rules.all, ...new Set(RULES.map((rule) => rule.category))];
   const visibleRules = useMemo(() => {
-    const needle = query.trim().toLocaleLowerCase('fr');
+    const needle = query.trim().toLocaleLowerCase(locale);
     return RULES.filter(
       (rule) =>
         (category === fr.rules.all || rule.category === category) &&
-        (!needle || `${rule.title} ${rule.body}`.toLocaleLowerCase('fr').includes(needle)),
+        (!needle || `${rule.title} ${rule.body}`.toLocaleLowerCase(locale).includes(needle)),
     );
   }, [category, query]);
 

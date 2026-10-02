@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NotificationRegion } from '@/components/NotificationRegion';
+import { runErrorContent } from '@/i18n/runErrorContent';
 import { GameOverPage } from '@/pages/GameOverPage';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
@@ -40,7 +41,8 @@ describe("vérité et récupération de l'interface", () => {
     });
     render(<NotificationRegion />);
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Serveur indisponible');
+    expect(screen.getByRole('alert')).toHaveTextContent(runErrorContent['fr-FR'].unexpected);
+    expect(screen.getByRole('alert')).not.toHaveTextContent('Serveur indisponible');
     act(() => vi.advanceTimersByTime(10_000));
     expect(screen.getByRole('alert')).toBeInTheDocument();
 

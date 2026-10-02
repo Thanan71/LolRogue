@@ -1,5 +1,7 @@
 import type React from 'react';
 import type { CSSProperties } from 'react';
+import { combatCopy } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
 import type { CombatantInfo } from '../../stores/battleStore';
 
 interface Props {
@@ -47,7 +49,7 @@ export const CombatantPortrait: React.FC<Props> = ({
       role={onSelect ? 'button' : undefined}
       tabIndex={onSelect ? 0 : undefined}
       aria-pressed={onSelect ? isSelected : undefined}
-      aria-label={onSelect ? `Cibler ${name}` : undefined}
+      aria-label={onSelect ? combatCopy.portrait.target(name) : undefined}
       onClick={onSelect}
       onKeyDown={(event) => {
         if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
@@ -73,7 +75,7 @@ export const CombatantPortrait: React.FC<Props> = ({
         ) : (
           <div className="combatant-portrait__fallback">{name.substring(0, 2).toUpperCase()}</div>
         )}
-        <div className="combatant-portrait__level">{level}</div>
+        <div className="combatant-portrait__level">{formatNumber(level)}</div>
         {isDefeated && <div className="combatant-portrait__defeated">&#10005;</div>}
       </div>
       <div className="combatant-portrait__content">
@@ -82,7 +84,7 @@ export const CombatantPortrait: React.FC<Props> = ({
           <div
             className="combatant-portrait__meter combatant-portrait__meter--health"
             role="progressbar"
-            aria-label={`PV de ${name}`}
+            aria-label={combatCopy.portrait.health(name)}
             aria-valuemin={0}
             aria-valuemax={hpAriaMax}
             aria-valuenow={hpAriaNow}
@@ -93,7 +95,7 @@ export const CombatantPortrait: React.FC<Props> = ({
             />
           </div>
           <div className="combatant-portrait__meter-label combatant-portrait__meter-label--health">
-            {Math.round(currentHp)} / {Math.round(maxHp)}
+            {formatNumber(Math.round(currentHp))} / {formatNumber(Math.round(maxHp))}
           </div>
         </div>
         {maxMp > 0 && (
@@ -101,7 +103,7 @@ export const CombatantPortrait: React.FC<Props> = ({
             <div
               className="combatant-portrait__meter combatant-portrait__meter--mana"
               role="progressbar"
-              aria-label={`PM de ${name}`}
+              aria-label={combatCopy.portrait.mana(name)}
               aria-valuemin={0}
               aria-valuemax={mpAriaMax}
               aria-valuenow={mpAriaNow}
@@ -112,7 +114,7 @@ export const CombatantPortrait: React.FC<Props> = ({
               />
             </div>
             <div className="combatant-portrait__meter-label combatant-portrait__meter-label--mana">
-              {Math.round(currentMp)} / {Math.round(maxMp)}
+              {formatNumber(Math.round(currentMp))} / {formatNumber(Math.round(maxMp))}
             </div>
           </div>
         )}
@@ -125,7 +127,7 @@ export const CombatantPortrait: React.FC<Props> = ({
             ))}
             {enhancementBonuses.length > 3 && (
               <span className="combatant-portrait__bonus-overflow">
-                +{enhancementBonuses.length - 3}
+                +{formatNumber(enhancementBonuses.length - 3)}
               </span>
             )}
           </div>

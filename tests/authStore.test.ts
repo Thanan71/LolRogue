@@ -2,7 +2,7 @@
 
 import type { Session, User } from '@supabase/supabase-js';
 import { act } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Player } from '@/types/models';
 
 const mocks = vi.hoisted(() => ({
@@ -93,6 +93,7 @@ function resetStore(): void {
 }
 
 describe('auth identity lifecycle', () => {
+  afterEach(() => vi.unstubAllGlobals());
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.listener = null;
@@ -205,4 +206,67 @@ describe('auth identity lifecycle', () => {
     });
     expect(mocks.signOut).not.toHaveBeenCalled();
   });
+
+  it('persists only a versioned guest preference and never an authenticated identity', async () => {
+    await expect(useAuthStore.getState().enterGuestMode()).resolves.toEqual({ success: true });
+    expect(JSON.parse(localStorage.getItem('lolrogue-guest-mode')!)).toEqual({
+      version: 1,
+      state: { enabled: true },
+    });
+    expect(useAuthStore.getState()).toMatchObject({
+      isGuest: true,
+      isAuthenticated: false,
+      isAdmin: false,
+      session: null,
+      user: null,
+      player: null,
+    });
+    await expect(useAuthStore.getState().exitGuestMode()).resolves.toEqual({ success: true });
+    expect(localStorage.getItem('lolrogue-guest-mode')).toBeNull();
+    expect(useAuthStore.getState()).toMatchObject({
+      isGuest: false,
+      isAuthenticated: false,
+      authStatus: 'signedOut',
+    });
+  });
+
+  it.each(['missing', 'getter', 'quota'] as const)(
+    'keeps guest entry and exit usable with %s storage',
+    async (mode) => {
+      vi.stubGlobal(
+        'localStorage',
+        mode === 'quota'
+          ? {
+              getItem: () => null,
+              setItem: () => {
+                throw new DOMException('full', 'QuotaExceededError');
+              },
+              removeItem: () => {
+                throw new DOMException('blocked', 'SecurityError');
+              },
+            }
+          : undefined,
+      );
+      if (mode === 'getter')
+        Object.defineProperty(globalThis, 'localStorage', {
+          configurable: true,
+          get: () => {
+            throw new DOMException('blocked', 'SecurityError');
+          },
+        });
+      await expect(useAuthStore.getState().enterGuestMode()).resolves.toEqual({ success: true });
+      expect(useAuthStore.getState()).toMatchObject({
+        isGuest: true,
+        isAuthenticated: false,
+        user: null,
+        session: null,
+      });
+      await expect(useAuthStore.getState().exitGuestMode()).resolves.toEqual({ success: true });
+      expect(useAuthStore.getState()).toMatchObject({
+        isGuest: false,
+        isAuthenticated: false,
+        authStatus: 'signedOut',
+      });
+    },
+  );
 });

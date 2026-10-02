@@ -3,6 +3,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { gameOverContent } from '@/i18n/gameOverContent';
 import { GameOverPage } from '@/pages/GameOverPage';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
@@ -72,24 +73,34 @@ describe('Game Over champion presentation', () => {
     );
 
     const garenContribution = screen.getByRole('progressbar', {
-      name: 'Contribution aux dégâts de Garen',
+      name: gameOverContent['fr-FR'].contribution.damageAria('Garen'),
     });
     const luxContribution = screen.getByRole('progressbar', {
-      name: 'Contribution aux dégâts de Lux',
+      name: gameOverContent['fr-FR'].contribution.damageAria('Lux'),
     });
     expect(garenContribution).toHaveAttribute('max', '1200');
     expect(garenContribution).toHaveAttribute('value', '900');
-    expect(garenContribution).toHaveAttribute('aria-valuetext', "75 % des dégâts de l'équipe");
+    expect(garenContribution).toHaveAttribute(
+      'aria-valuetext',
+      gameOverContent['fr-FR'].contribution.damageShare(0.75),
+    );
     expect(luxContribution).toHaveAttribute('max', '1200');
     expect(luxContribution).toHaveAttribute('value', '300');
-    expect(luxContribution).toHaveAttribute('aria-valuetext', "25 % des dégâts de l'équipe");
+    expect(luxContribution).toHaveAttribute(
+      'aria-valuetext',
+      gameOverContent['fr-FR'].contribution.damageShare(0.25),
+    );
 
     const garenRow = garenContribution.closest('.game-over-champion-breakdown');
     const luxRow = luxContribution.closest('.game-over-champion-breakdown');
     expect(garenRow).not.toBeNull();
     expect(luxRow).not.toBeNull();
-    expect(within(garenRow as HTMLElement).getByText('MVP du run')).toBeVisible();
-    expect(within(luxRow as HTMLElement).queryByText('MVP du run')).not.toBeInTheDocument();
+    expect(
+      within(garenRow as HTMLElement).getByText(gameOverContent['fr-FR'].contribution.mvp),
+    ).toBeVisible();
+    expect(
+      within(luxRow as HTMLElement).queryByText(gameOverContent['fr-FR'].contribution.mvp),
+    ).not.toBeInTheDocument();
     expect(garenRow?.querySelector('img')).toHaveAttribute(
       'src',
       '/assets/riot/16.6.1/champions/Garen.png',

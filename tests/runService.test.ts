@@ -18,6 +18,7 @@ vi.mock('@/services/container', () => ({
   },
 }));
 
+import { fr } from '@/i18n/fr';
 import { getPlayerRunHistory, getPlayerRunStats, getRunDetails } from '@/services/runService';
 import type { Player } from '@/types/models';
 
@@ -36,12 +37,12 @@ describe('runService orchestration', () => {
   it('refuses history and aggregate reads without an authenticated player', async () => {
     await expect(getPlayerRunHistory(null)).resolves.toEqual({
       data: [],
-      error: 'Not authenticated',
+      error: fr.profile.notAuthenticated,
     });
     await expect(getPlayerRunStats(null)).resolves.toMatchObject({
       totalRuns: 0,
       totalWins: 0,
-      error: 'Not authenticated',
+      error: fr.profile.notAuthenticated,
     });
     expect(mocks.getPlayerRuns).not.toHaveBeenCalled();
   });
@@ -55,10 +56,16 @@ describe('runService orchestration', () => {
 
   it('returns repository and thrown history errors as stable messages', async () => {
     mocks.getPlayerRuns.mockResolvedValueOnce({ data: null, error: new Error('query failed') });
-    await expect(getPlayerRunHistory(player)).resolves.toEqual({ data: [], error: 'query failed' });
+    await expect(getPlayerRunHistory(player)).resolves.toEqual({
+      data: [],
+      error: fr.profile.historyLoadError,
+    });
 
     mocks.getPlayerRuns.mockRejectedValueOnce('offline');
-    await expect(getPlayerRunHistory(player)).resolves.toEqual({ data: [], error: 'offline' });
+    await expect(getPlayerRunHistory(player)).resolves.toEqual({
+      data: [],
+      error: fr.profile.historyLoadError,
+    });
   });
 
   it('returns a complete run detail and distinguishes missing and thrown failures', async () => {
@@ -70,11 +77,13 @@ describe('runService orchestration', () => {
     await expect(getRunDetails('missing')).resolves.toEqual({
       run: null,
       teamMembers: [],
-      error: 'Run not found',
+      error: fr.profile.runNotFound,
     });
 
     mocks.getRunDetails.mockRejectedValueOnce(new Error('details offline'));
-    await expect(getRunDetails('run-2')).resolves.toMatchObject({ error: 'details offline' });
+    await expect(getRunDetails('run-2')).resolves.toMatchObject({
+      error: fr.profile.runDetailsError,
+    });
   });
 
   it('returns canonical aggregate statistics from the repository', async () => {
@@ -100,7 +109,7 @@ describe('runService orchestration', () => {
       totalWins: 3,
       winRate: 75,
       totalWaves: 27,
-      error: 'stats failed',
+      error: fr.profile.statsLoadError,
     });
 
     mocks.getPlayerRunStats.mockRejectedValueOnce('network down');
@@ -108,7 +117,7 @@ describe('runService orchestration', () => {
       totalRuns: 4,
       totalWins: 3,
       winRate: 0,
-      error: 'network down',
+      error: fr.profile.statsLoadError,
     });
   });
 });

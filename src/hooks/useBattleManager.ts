@@ -10,6 +10,8 @@ import type { ChampionInstance } from '@/game/ChampionInstance';
 import { buildSpellImpactPreview } from '@/game/presentation/spellPreview';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleLoadout } from '@/game/rules/types';
+import { combatCopy } from '@/i18n/combatContent';
+import { localizeSpell } from '@/i18n/content';
 import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/battleStore';
 import type { FinalCombatantState } from '@/types/run';
 
@@ -39,7 +41,7 @@ function toCombatantInfo(
       const cost = spell.cost[rank - 1] ?? spell.cost[spell.cost.length - 1] ?? 0;
       spells.push({
         slot,
-        name: spell.name,
+        name: localizeSpell(spell, champ.id).name,
         cooldownMax: champ.getMaxCooldown(slot),
         cooldownCurrent: champ.getCooldown(slot),
         cost,
@@ -104,33 +106,11 @@ function getFinalCombatantStates(bm: BattleManager): FinalCombatantState[] {
 }
 
 function getActionLabel(action: string): string {
-  if (action === 'basic_attack') return 'Attaque de base';
-  if (action === 'spell_q') return 'Sort Q';
-  if (action === 'spell_w') return 'Sort W';
-  if (action === 'spell_e') return 'Sort E';
-  if (action === 'spell_r') return 'Sort R (Ultime)';
-  return action;
+  return combatCopy.logs.actions[action as keyof typeof combatCopy.logs.actions] ?? action;
 }
 
 function getCrowdControlLabel(type: string): string {
-  switch (type) {
-    case 'stun':
-      return 'étourdissement';
-    case 'snare':
-      return 'immobilisation';
-    case 'silence':
-      return 'silence';
-    case 'slow':
-      return 'ralentissement';
-    case 'knockup':
-      return 'projection';
-    case 'fear':
-      return 'peur';
-    case 'charm':
-      return 'charme';
-    default:
-      return type;
-  }
+  return combatCopy.logs.crowdControl[type as keyof typeof combatCopy.logs.crowdControl] ?? type;
 }
 
 function actionForEffectEvent(
@@ -158,7 +138,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
     case 'round_start':
       store.setRound(event.round);
       store.setPhase('turn_active');
-      store.addLog({ type: 'round_start', message: `=== Round ${event.round} ===` });
+      store.addLog({ type: 'round_start', message: combatCopy.logs.roundStart(event.round) });
       syncTeams(bm);
       break;
 
@@ -177,7 +157,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       });
       store.addLog({
         type: 'action',
-        message: `${event.champion}: ${getActionLabel(event.action)}`,
+        message: combatCopy.logs.action(event.champion, getActionLabel(event.action)),
       });
       break;
 
@@ -185,7 +165,12 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       syncTeams(bm);
       store.addLog({
         type: 'crowd_control',
-        message: `${event.source} → ${event.target}: ${getCrowdControlLabel(event.ccType)} (${event.duration} ${event.duration === 1 ? 'tour' : 'tours'})`,
+        message: combatCopy.logs.crowdControlApplied(
+          event.source,
+          event.target,
+          getCrowdControlLabel(event.ccType),
+          event.duration,
+        ),
       });
       break;
 
@@ -193,7 +178,10 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       syncTeams(bm);
       store.addLog({
         type: 'turn_skipped',
-        message: `${event.champion} perd son action (${event.crowdControlTypes.map(getCrowdControlLabel).join(', ')})`,
+        message: combatCopy.logs.turnSkipped(
+          event.champion,
+          event.crowdControlTypes.map(getCrowdControlLabel).join(', '),
+        ),
       });
       break;
 
@@ -213,7 +201,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       });
       store.addLog({
         type: 'damage',
-        message: `${event.source} → ${event.target}: ${event.amount} dégâts${event.isCrit ? ' CRITIQUE !' : ''}`,
+        message: combatCopy.logs.damage(event.source, event.target, event.amount, event.isCrit),
         amount: event.amount,
         isCrit: event.isCrit,
       });
@@ -234,7 +222,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       });
       store.addLog({
         type: 'heal',
-        message: `${event.source} → ${event.target}: +${event.amount} HP`,
+        message: combatCopy.logs.heal(event.source, event.target, event.amount),
         amount: event.amount,
       });
       break;
@@ -254,7 +242,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       });
       store.addLog({
         type: 'shield',
-        message: `${event.source} → ${event.target}: +${event.amount} bouclier`,
+        message: combatCopy.logs.shield(event.source, event.target, event.amount),
         amount: event.amount,
       });
       break;
@@ -272,14 +260,14 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       });
       store.addLog({
         type: 'revive',
-        message: `${event.source} ranime ${event.target} avec ${event.amount} PV`,
+        message: combatCopy.logs.revive(event.source, event.target, event.amount),
         amount: event.amount,
       });
       break;
 
     case 'defeat':
       syncTeams(bm);
-      store.addLog({ type: 'defeat', message: `${event.champion} a été vaincu !` });
+      store.addLog({ type: 'defeat', message: combatCopy.logs.defeated(event.champion) });
       break;
 
     case 'battle_end':
@@ -287,12 +275,7 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       store.setWinner(event.winner);
       store.addLog({
         type: 'battle_end',
-        message:
-          event.winner === 'draw'
-            ? 'Égalité !'
-            : event.winner === 'player'
-              ? 'Victoire !'
-              : 'Défaite !',
+        message: combatCopy.logs.result[event.winner],
       });
       break;
   }

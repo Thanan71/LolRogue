@@ -88,7 +88,7 @@ describe('combat keyboard shortcuts', () => {
     }
 
     const view = render(<SpeedHarness />);
-    const speed2 = view.getByRole('radio', { name: 'Vitesse 2x' });
+    const speed2 = view.getByRole('radio', { name: 'Vitesse 2×' });
     speed2.focus();
     await user.keyboard(' ');
 

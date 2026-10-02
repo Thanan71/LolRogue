@@ -4,8 +4,9 @@ import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { plural } from '@/i18n/format';
-import { fr } from '@/i18n/fr';
+import { formatNumber, plural } from '@/i18n/format';
+import { fr, locale } from '@/i18n/fr';
+import { routeTitle } from '@/i18n/routeTitles';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/main-menu.css';
@@ -36,6 +37,7 @@ export function MenuPage() {
       const canContinue = await finalizeActiveRunBeforeTransition({
         isActive: state.isActive,
         runId: state.runId,
+        confirmationMessage: fr.run.abandonmentConfirmation,
         confirm: (message) => window.confirm(message),
         endRun: (runId) => endRun(false, runId),
       });
@@ -108,7 +110,9 @@ export function MenuPage() {
               <div className="main-menu__user-details">
                 <span className="main-menu__user-name">{displayName}</span>
                 <span className="main-menu__user-level">
-                  {player ? `${fr.common.level} ${player.level}` : fr.menu.connectedAccount}
+                  {player
+                    ? `${fr.common.level} ${formatNumber(player.level)}`
+                    : fr.menu.connectedAccount}
                 </span>
               </div>
               <span className="main-menu__connection-dot" aria-hidden="true" />
@@ -141,10 +145,10 @@ export function MenuPage() {
                 <span className="main-menu__run-pulse" aria-hidden="true" />
                 <span className="main-menu__run-label">{fr.menu.currentRun}</span>
                 <span className="main-menu__run-meta">
-                  {fr.common.level} {runLevel}
+                  {fr.common.level} {formatNumber(runLevel)}
                   <span aria-hidden="true">•</span>
                   <span className="main-menu__biome">
-                    {currentBiome ? currentBiome.replace(/_/g, ' ') : fr.menu.unknownBiome}
+                    {currentBiome ? fr.run.biomeNames[currentBiome] : fr.menu.unknownBiome}
                   </span>
                   <span aria-hidden="true">•</span>
                   {plural(team.length, 'champion')}
@@ -358,7 +362,7 @@ export function MenuPage() {
       <footer className="main-menu__footer">
         <span className="main-menu__version">v0.1.0</span>
         <span className="main-menu__disclaimer">{fr.product.disclaimer}</span>
-        <Link to={ROUTES.LEGAL}>Légal et confidentialité</Link>
+        <Link to={ROUTES.LEGAL}>{routeTitle(locale, ROUTES.LEGAL)}</Link>
       </footer>
     </div>
   );

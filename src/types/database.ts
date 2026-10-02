@@ -10,12 +10,7 @@ export type Database = {
     };
     Functions: {
       graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
+        Args: { extensions?: Json; operationName?: string; query?: string; variables?: Json };
         Returns: Json;
       };
     };
@@ -34,7 +29,7 @@ export type Database = {
           created_at: string;
           id: string;
           total_candies_spent: number;
-          unlocked_nodes: Json;
+          unlocked_nodes: NonNullable<Json>;
           updated_at: string;
           user_id: string;
         };
@@ -43,7 +38,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           total_candies_spent?: number;
-          unlocked_nodes?: Json;
+          unlocked_nodes?: NonNullable<Json>;
           updated_at?: string;
           user_id: string;
         };
@@ -52,7 +47,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           total_candies_spent?: number;
-          unlocked_nodes?: Json;
+          unlocked_nodes?: NonNullable<Json>;
           updated_at?: string;
           user_id?: string;
         };
@@ -527,7 +522,7 @@ export type Database = {
       logs: {
         Row: {
           created_at: string;
-          details: Json;
+          details: NonNullable<Json>;
           duration_ms: number | null;
           error_message: string | null;
           error_stack: string | null;
@@ -543,7 +538,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
-          details?: Json;
+          details?: NonNullable<Json>;
           duration_ms?: number | null;
           error_message?: string | null;
           error_stack?: string | null;
@@ -559,7 +554,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
-          details?: Json;
+          details?: NonNullable<Json>;
           duration_ms?: number | null;
           error_message?: string | null;
           error_stack?: string | null;
@@ -773,27 +768,27 @@ export type Database = {
           baseline_code: string;
           captured_at: string;
           champion_id: string;
-          original_unlocked_nodes: Json;
+          original_unlocked_nodes: NonNullable<Json>;
           policy: string;
-          retained_verified_nodes: Json;
+          retained_verified_nodes: NonNullable<Json>;
           user_id: string;
         };
         Insert: {
           baseline_code: string;
           captured_at?: string;
           champion_id: string;
-          original_unlocked_nodes: Json;
+          original_unlocked_nodes: NonNullable<Json>;
           policy: string;
-          retained_verified_nodes: Json;
+          retained_verified_nodes: NonNullable<Json>;
           user_id: string;
         };
         Update: {
           baseline_code?: string;
           captured_at?: string;
           champion_id?: string;
-          original_unlocked_nodes?: Json;
+          original_unlocked_nodes?: NonNullable<Json>;
           policy?: string;
-          retained_verified_nodes?: Json;
+          retained_verified_nodes?: NonNullable<Json>;
           user_id?: string;
         };
         Relationships: [];
@@ -876,7 +871,7 @@ export type Database = {
           chain_hash: string;
           command_id: string;
           kind: string;
-          payload: Json;
+          payload: NonNullable<Json>;
           payload_hash: string;
           previous_hash: string;
           received_at: string;
@@ -887,7 +882,7 @@ export type Database = {
           chain_hash: string;
           command_id: string;
           kind: string;
-          payload: Json;
+          payload: NonNullable<Json>;
           payload_hash: string;
           previous_hash: string;
           received_at?: string;
@@ -898,7 +893,7 @@ export type Database = {
           chain_hash?: string;
           command_id?: string;
           kind?: string;
-          payload?: Json;
+          payload?: NonNullable<Json>;
           payload_hash?: string;
           previous_hash?: string;
           received_at?: string;
@@ -938,7 +933,7 @@ export type Database = {
           daily_score_version: number | null;
           difficulty: string;
           engine_version: string;
-          enhancement_snapshot: Json;
+          enhancement_snapshot: NonNullable<Json>;
           expired_at: string | null;
           expires_at: string;
           finish_command_id: string | null;
@@ -953,7 +948,7 @@ export type Database = {
           lease_expires_at: string | null;
           lease_token: string | null;
           lease_worker_id: string | null;
-          mastery_snapshot: Json;
+          mastery_snapshot: NonNullable<Json>;
           mode: string;
           player_id: string;
           rejected_at: string | null;
@@ -986,7 +981,7 @@ export type Database = {
           daily_score_version?: number | null;
           difficulty: string;
           engine_version: string;
-          enhancement_snapshot?: Json;
+          enhancement_snapshot?: NonNullable<Json>;
           expired_at?: string | null;
           expires_at: string;
           finish_command_id?: string | null;
@@ -1001,7 +996,7 @@ export type Database = {
           lease_expires_at?: string | null;
           lease_token?: string | null;
           lease_worker_id?: string | null;
-          mastery_snapshot?: Json;
+          mastery_snapshot?: NonNullable<Json>;
           mode: string;
           player_id: string;
           rejected_at?: string | null;
@@ -1034,7 +1029,7 @@ export type Database = {
           daily_score_version?: number | null;
           difficulty?: string;
           engine_version?: string;
-          enhancement_snapshot?: Json;
+          enhancement_snapshot?: NonNullable<Json>;
           expired_at?: string | null;
           expires_at?: string;
           finish_command_id?: string | null;
@@ -1049,7 +1044,7 @@ export type Database = {
           lease_expires_at?: string | null;
           lease_token?: string | null;
           lease_worker_id?: string | null;
-          mastery_snapshot?: Json;
+          mastery_snapshot?: NonNullable<Json>;
           mode?: string;
           player_id?: string;
           rejected_at?: string | null;
@@ -1235,7 +1230,7 @@ export type Database = {
           progression_source: string;
           progression_version: number;
           run_attempt_id: string | null;
-          run_ledger: Json;
+          run_ledger: NonNullable<Json>;
           run_level: number;
           run_uuid: string;
           rune_ids: string[];
@@ -1265,7 +1260,7 @@ export type Database = {
           combats_won?: number;
           completed_at?: string;
           created_at?: string;
-          duration_seconds?: number | null;
+          duration_seconds?: never;
           elite_kills?: number;
           gold_balance?: number;
           gold_earned?: number;
@@ -1279,7 +1274,7 @@ export type Database = {
           progression_source?: string;
           progression_version?: number;
           run_attempt_id?: string | null;
-          run_ledger?: Json;
+          run_ledger?: NonNullable<Json>;
           run_level?: number;
           run_uuid: string;
           rune_ids?: string[];
@@ -1309,7 +1304,7 @@ export type Database = {
           combats_won?: number;
           completed_at?: string;
           created_at?: string;
-          duration_seconds?: number | null;
+          duration_seconds?: never;
           elite_kills?: number;
           gold_balance?: number;
           gold_earned?: number;
@@ -1323,7 +1318,7 @@ export type Database = {
           progression_source?: string;
           progression_version?: number;
           run_attempt_id?: string | null;
-          run_ledger?: Json;
+          run_ledger?: NonNullable<Json>;
           run_level?: number;
           run_uuid?: string;
           rune_ids?: string[];
@@ -1836,23 +1831,17 @@ export type Database = {
       };
       daily_utc_date: { Args: { p_instant: string }; Returns: string };
       daily_utc_expiration: { Args: { p_daily_date: string }; Returns: string };
-      expire_stale_run_attempts: { Args: never; Returns: Json };
-      get_daily_challenge: { Args: never; Returns: Json };
-      get_my_leaderboard_rank: { Args: never; Returns: number };
+      expire_stale_run_attempts: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_daily_challenge: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_my_leaderboard_rank: { Args: Record<PropertyKey, never>; Returns: number };
       get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       invalidate_daily_score: {
         Args: { p_daily_run_id: string; p_reason: string };
         Returns: undefined;
       };
-      is_current_user_admin: { Args: never; Returns: boolean };
-      mastery_current_level_candies: {
-        Args: { p_candies: number };
-        Returns: number;
-      };
-      mastery_level_from_candies: {
-        Args: { p_candies: number };
-        Returns: number;
-      };
+      is_current_user_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      mastery_current_level_candies: { Args: { p_candies: number }; Returns: number };
+      mastery_level_from_candies: { Args: { p_candies: number }; Returns: number };
       mastery_unlock_ids: { Args: { p_candies: number }; Returns: string[] };
       progression_integer: {
         Args: {
@@ -1864,61 +1853,32 @@ export type Database = {
         };
         Returns: number;
       };
-      purge_expired_logs: { Args: never; Returns: number };
-      purge_expired_social_data: { Args: never; Returns: number };
+      purge_expired_logs: { Args: Record<PropertyKey, never>; Returns: number };
+      purge_expired_social_data: { Args: Record<PropertyKey, never>; Returns: number };
       reject_run_verification: {
-        Args: {
-          p_attempt_id: string;
-          p_lease_token: string;
-          p_rejection_code: string;
-        };
+        Args: { p_attempt_id: string; p_lease_token: string; p_rejection_code: string };
         Returns: Json;
       };
       report_daily_score: {
         Args: { p_daily_run_id: string; p_reason: string };
         Returns: undefined;
       };
-      sanitize_log_jsonb: {
-        Args: { p_depth?: number; p_value: Json };
-        Returns: Json;
-      };
-      sanitize_log_text: {
-        Args: { p_max_length: number; p_value: string };
-        Returns: string;
-      };
+      sanitize_log_jsonb: { Args: { p_depth?: number; p_value: Json }; Returns: Json };
+      sanitize_log_text: { Args: { p_max_length: number; p_value: string }; Returns: string };
       save_completed_run: {
-        Args: {
-          p_mastery: Json;
-          p_run: Json;
-          p_team_members: Json;
-          p_total_candies: number;
-        };
+        Args: { p_mastery: Json; p_run: Json; p_team_members: Json; p_total_candies: number };
         Returns: string;
       };
       save_completed_run_integer_payload: {
-        Args: {
-          p_mastery: Json;
-          p_run: Json;
-          p_team_members: Json;
-          p_total_candies: number;
-        };
+        Args: { p_mastery: Json; p_run: Json; p_team_members: Json; p_total_candies: number };
         Returns: string;
       };
       save_completed_run_v2: {
-        Args: {
-          p_augment_ids: string[];
-          p_run: Json;
-          p_rune_ids: string[];
-          p_team_members: Json;
-        };
+        Args: { p_augment_ids: string[]; p_run: Json; p_rune_ids: string[]; p_team_members: Json };
         Returns: Json;
       };
       seal_run_attempt: {
-        Args: {
-          p_attempt_id: string;
-          p_expected_sequence: number;
-          p_finish_command_id: string;
-        };
+        Args: { p_attempt_id: string; p_expected_sequence: number; p_finish_command_id: string };
         Returns: Json;
       };
       set_leaderboard_privacy: {
@@ -1953,12 +1913,9 @@ export type Database = {
         };
         Returns: Json;
       };
-      starter_formation_budget: {
-        Args: { p_team_size: number };
-        Returns: number;
-      };
+      starter_formation_budget: { Args: { p_team_size: number }; Returns: number };
       submit_client_logs: { Args: { p_logs: Json }; Returns: number };
-      touch_player_last_login: { Args: never; Returns: string };
+      touch_player_last_login: { Args: Record<PropertyKey, never>; Returns: string };
       unlock_champion_enhancement:
         | {
             Args: {
@@ -2002,9 +1959,7 @@ export type Tables<
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R;
@@ -2028,9 +1983,7 @@ export type TablesInsert<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I;
     }
@@ -2053,9 +2006,7 @@ export type TablesUpdate<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U;
     }
@@ -2078,9 +2029,7 @@ export type Enums<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
     ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
@@ -2095,9 +2044,7 @@ export type CompositeTypes<
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
     ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]

@@ -1,3 +1,5 @@
+import { fr } from '@/i18n/fr';
+
 interface AdminErrorNoticeProps {
   message: string | null;
   onRetry: () => void;
@@ -10,7 +12,7 @@ export function AdminErrorNotice({ message, onRetry, retrying }: AdminErrorNotic
     <div className="admin-request-error" role="alert">
       <span>{message}</span>
       <button type="button" onClick={onRetry} disabled={retrying}>
-        {retrying ? 'Nouvelle tentative…' : 'Réessayer'}
+        {retrying ? fr.admin.retrying : fr.admin.retry}
       </button>
     </div>
   );

@@ -12,9 +12,9 @@ describe('combat spell tooltip', () => {
         spell={{
           slot: 'Q',
           name: 'Entrave de lumière',
-          cooldownMax: 11,
+          cooldownMax: 1280,
           cooldownCurrent: 0,
-          cost: 50,
+          cost: 1280,
           isReady: true,
           targeting: TargetingType.Enemy,
           impacts: [
@@ -22,7 +22,7 @@ describe('combat spell tooltip', () => {
               id: 'lux-q-damage',
               label: 'Dégâts magiques',
               tone: 'magical',
-              amount: 128,
+              amount: 1280,
               suffix: 'avant défenses',
             },
           ],
@@ -34,7 +34,9 @@ describe('combat spell tooltip', () => {
 
     fireEvent.mouseEnter(screen.getByRole('button', { name: 'Q' }).parentElement!);
     expect(screen.getByRole('tooltip')).toHaveTextContent('Dégâts magiques');
-    expect(screen.getByRole('tooltip')).toHaveTextContent('128 · avant défenses');
+    expect(screen.getByRole('tooltip')).toHaveTextContent('1 280 · avant défenses');
+    expect(screen.getByRole('tooltip')).toHaveTextContent('PM : 1 280');
+    expect(screen.getByRole('tooltip')).toHaveTextContent('recharge : 1 280 tours');
 
     fireEvent.mouseLeave(screen.getByRole('button', { name: 'Q' }).parentElement!);
     fireEvent.focus(screen.getByRole('button', { name: 'Q' }));

@@ -145,7 +145,11 @@ export function applyCanonicalModifiers(
   return result;
 }
 
-export function formatStatValue(stat: CanonicalStatKey, value: number): string {
+export function formatStatValue(
+  stat: CanonicalStatKey,
+  value: number,
+  locale: Intl.LocalesArgument,
+): string {
   const digits = stat === 'attackSpeed' ? 2 : 0;
-  return value.toLocaleString('fr-FR', { maximumFractionDigits: digits });
+  return value.toLocaleString(locale, { maximumFractionDigits: digits });
 }

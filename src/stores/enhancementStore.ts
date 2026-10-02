@@ -8,12 +8,20 @@
  */
 
 import { create } from 'zustand';
+import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
+import {
+  type EnhancementValidationReason,
+  enhancementContent,
+  getEnhancementNodeContent,
+  getEnhancementValidationMessage,
+} from '@/i18n/enhancementContent';
 import { RepositoryContainerFactory } from '@/services/container';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import type { IRepositoryContainer } from '@/services/interfaces';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useMasteryStore } from '@/stores/masteryStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 import type { Champion } from '@/types/champion';
 import type {
   ChampionEnhancementTree,
@@ -39,6 +47,32 @@ const pendingUnlockCommands = new Map<string, PendingUnlockCommand>();
 
 function getPendingUnlockKey(userId: string, championId: string, nodeId: string): string {
   return `${userId}:${championId}:${nodeId}`;
+}
+
+function getUnlockValidationReason(
+  node: EnhancementNode,
+  state: PlayerEnhancementState,
+  masteryLevel: number,
+  availableCandies: number,
+): EnhancementValidationReason {
+  if (getEnhancementNodeUnavailableReasons(node).length > 0) {
+    return { code: 'unavailable' };
+  }
+  if (masteryLevel < node.requiredMasteryLevel) {
+    return { code: 'mastery_level', requiredLevel: node.requiredMasteryLevel };
+  }
+  if (availableCandies < node.candyCost) {
+    return { code: 'candies', requiredCandies: node.candyCost };
+  }
+
+  const maximumRank = node.maxRanks || 1;
+  if ((state.unlockedNodes[node.id] || 0) >= maximumRank) {
+    return { code: 'maxed' };
+  }
+  if (node.prerequisites.some((id) => (state.unlockedNodes[id] || 0) === 0)) {
+    return { code: 'prerequisite' };
+  }
+  return { code: 'fallback' };
 }
 
 async function refreshCanonicalCandyBalance(): Promise<number | undefined> {
@@ -192,7 +226,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       logger.error('[EnhancementStore] Failed to initialize:', error);
       if (get().ownerUserId !== authUserId) return;
       set({
-        error: 'Impossible de charger la maîtrise et les améliorations.',
+        error: enhancementContent[useSettingsStore.getState().language].store.loadError,
         isLoading: false,
         isInitialized: false,
       });
@@ -245,6 +279,8 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     const { selectedChampion, availableCandies, enhancements, championMasteryLevels, isLoading } =
       get();
     if (!selectedChampion || isLoading) return false;
+    const contentLocale = useSettingsStore.getState().language;
+    const storeContent = enhancementContent[contentLocale].store;
 
     const currentState = enhancements[selectedChampion.id] || {
       unlockedNodes: {},
@@ -280,14 +316,16 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     }
 
     if (!nodeToUnlock) {
-      set({ error: 'Amélioration introuvable.', statusMessage: null });
+      set({ error: storeContent.nodeNotFound, statusMessage: null });
       return false;
     }
+
+    const localizedNodeName = getEnhancementNodeContent(contentLocale, nodeToUnlock.id).name;
 
     const { user: currentUser, isGuest } = useAuthStore.getState();
     if (isGuest || !currentUser) {
       set({
-        error: 'Les améliorations permanentes nécessitent un compte.',
+        error: storeContent.accountRequired,
         statusMessage: null,
       });
       return false;
@@ -314,14 +352,26 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       );
 
       if (!validation.valid) {
-        set({ error: validation.error || 'Impossible de débloquer ce nœud.', statusMessage: null });
+        if (validation.error) {
+          logger.warn('[EnhancementStore] Unlock validation rejected:', {
+            nodeId,
+            error: validation.error,
+          });
+        }
+        set({
+          error: getEnhancementValidationMessage(
+            contentLocale,
+            getUnlockValidationReason(nodeToUnlock, currentState, masteryLevel, availableCandies),
+          ),
+          statusMessage: null,
+        });
         return false;
       }
     }
 
     if (!retryCommand && !globalThis.crypto?.randomUUID) {
       set({
-        error: 'Ce navigateur ne permet pas de sécuriser la commande.',
+        error: storeContent.secureCommandUnsupported,
         statusMessage: null,
       });
       return false;
@@ -353,7 +403,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
               [selectedChampion.id]: result.newState,
             },
             error: null,
-            statusMessage: `${nodeToUnlock.name} a bien été amélioré.`,
+            statusMessage: storeContent.unlockSucceeded(localizedNodeName),
           }));
 
           const refreshedCandies = await refreshCanonicalCandyBalance();
@@ -365,10 +415,16 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
         // The outcome is still uncertain. Keep the command id so the next
         // click replays this exact request instead of creating a second debit.
+        if (result.error) {
+          logger.error('[EnhancementStore] Unlock repository failure:', {
+            nodeId,
+            error: result.error,
+          });
+        }
         const refreshedCandies = await refreshCanonicalCandyBalance();
         set((current) => ({
           availableCandies: refreshedCandies ?? current.availableCandies,
-          error: result.error || 'Failed to save enhancement',
+          error: storeContent.saveFailed,
           statusMessage: null,
         }));
         return false;
@@ -385,7 +441,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         availableCandies:
           result.remainingCandies ?? Math.max(0, availableCandies - result.candyCost),
         error: null,
-        statusMessage: `${nodeToUnlock.name} a bien été amélioré.`,
+        statusMessage: storeContent.unlockSucceeded(localizedNodeName),
       }));
       if (result.remainingCandies !== undefined) {
         applyCanonicalCandyBalance(result.remainingCandies);
@@ -395,7 +451,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     } catch (error) {
       logger.error('[EnhancementStore] Failed to unlock node:', error);
       set({
-        error: error instanceof Error ? error.message : 'Failed to save enhancement',
+        error: storeContent.saveFailed,
         statusMessage: null,
       });
       return false;

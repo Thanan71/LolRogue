@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { formatAdminDate } from '../adminPageUtils';
+import { fr } from '@/i18n/fr';
+import { formatAdminDate, formatAdminDay, formatAdminNumber } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
 import type { AdminModerationReport } from './useAdminData';
 
@@ -22,7 +23,7 @@ export function AdminModerationPanel({
   const invalidate = async (report: AdminModerationReport) => {
     const reason = (reasons[report.id] ?? report.reason).trim();
     if (reason.length < 10 || reason.length > 500) return;
-    if (!window.confirm('Invalider définitivement ce score Daily ?')) return;
+    if (!window.confirm(fr.admin.moderationConfirm)) return;
     setPendingId(report.id);
     try {
       await onInvalidate(report.dailyRunId, reason);
@@ -41,28 +42,28 @@ export function AdminModerationPanel({
       <AdminErrorNotice message={error} onRetry={onRetry} retrying={loading} />
       <div className="runs-header">
         <div>
-          <h3>Signalements Daily</h3>
-          <p>Chaque invalidation est attribuée et inscrite dans le journal d’audit.</p>
+          <h3>{fr.admin.dailyReports}</h3>
+          <p>{fr.admin.moderationSubtitle}</p>
         </div>
         <button onClick={onRetry} disabled={loading}>
-          Rafraîchir
+          {fr.admin.refresh}
         </button>
       </div>
 
       {loading ? (
-        <div className="loading">Chargement des signalements…</div>
+        <div className="loading">{fr.admin.loadingReports}</div>
       ) : (
         <div className="runs-table-container">
           <table className="runs-table">
-            <caption className="sr-only">Signalements de scores Daily ouverts</caption>
+            <caption className="sr-only">{fr.admin.moderationCaption}</caption>
             <thead>
               <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Daily</th>
-                <th scope="col">Score</th>
-                <th scope="col">Signalement</th>
-                <th scope="col">Motif d’invalidation</th>
-                <th scope="col">Action</th>
+                <th scope="col">{fr.admin.date}</th>
+                <th scope="col">{fr.admin.daily}</th>
+                <th scope="col">{fr.admin.score}</th>
+                <th scope="col">{fr.admin.report}</th>
+                <th scope="col">{fr.admin.invalidationReason}</th>
+                <th scope="col">{fr.admin.action}</th>
               </tr>
             </thead>
             <tbody>
@@ -72,12 +73,12 @@ export function AdminModerationPanel({
                 return (
                   <tr key={report.id}>
                     <td>{formatAdminDate(report.createdAt)}</td>
-                    <td>{report.dailyDate}</td>
-                    <td>{report.score}</td>
+                    <td>{formatAdminDay(report.dailyDate)}</td>
+                    <td>{formatAdminNumber(report.score)}</td>
                     <td>{report.reason}</td>
                     <td>
                       <label className="sr-only" htmlFor={`invalidation-reason-${report.id}`}>
-                        Motif d’invalidation
+                        {fr.admin.invalidationReason}
                       </label>
                       <textarea
                         id={`invalidation-reason-${report.id}`}
@@ -99,7 +100,7 @@ export function AdminModerationPanel({
                         disabled={length < 10 || length > 500 || pendingId !== null}
                         onClick={() => void invalidate(report)}
                       >
-                        {pendingId === report.id ? 'Invalidation…' : 'Invalider le score'}
+                        {pendingId === report.id ? fr.admin.invalidating : fr.admin.invalidateScore}
                       </button>
                     </td>
                   </tr>
@@ -107,7 +108,7 @@ export function AdminModerationPanel({
               })}
             </tbody>
           </table>
-          {reports.length === 0 && <div className="no-data">Aucun signalement ouvert</div>}
+          {reports.length === 0 && <div className="no-data">{fr.admin.noReports}</div>}
         </div>
       )}
     </section>

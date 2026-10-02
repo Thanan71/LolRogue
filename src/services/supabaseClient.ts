@@ -5,6 +5,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { createSupabaseAuthStorage } from '@/services/supabaseAuthStorage';
 import type { Database } from '@/types/database';
 import { logger } from '@/utils/logger';
 
@@ -25,4 +26,10 @@ if (!isSupabaseConfigured) {
 export const supabase = createClient<Database>(
   supabaseUrl || 'http://127.0.0.1:54321',
   supabaseAnonKey || 'offline-anon-key',
+  {
+    auth: {
+      storage: createSupabaseAuthStorage(),
+      persistSession: isSupabaseConfigured,
+    },
+  },
 );

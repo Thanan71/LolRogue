@@ -3,12 +3,18 @@ import type {
   VerifiedFieldCalibrationCohort,
   VerifiedFieldChampionCohort,
 } from '@/game/balance/fieldCalibrationComparison';
+import { fr } from '@/i18n/fr';
 import type {
   AuthorityAttemptAggregate,
   AuthorityRejectionSignal,
 } from '@/observability/authorityRejectionMonitor';
 import { AUTHORITY_REJECTION_ALERT_POLICY } from '@/observability/authorityRejectionMonitor';
-import { formatAdminDate } from '../adminPageUtils';
+import {
+  formatAdminCount,
+  formatAdminDate,
+  formatAdminNumber,
+  formatAdminPercent,
+} from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
 import { AdminFieldCalibrationPanel } from './AdminFieldCalibrationPanel';
 import type { AdminAuthorityRejection } from './useAdminData';
@@ -47,6 +53,14 @@ export function AdminAuthorityPanel({
     }),
     { attempts: 0, started: 0, finished: 0, verified: 0, rejected: 0, expired: 0 },
   );
+  const authorityStats = [
+    [fr.admin.attempts, totals.attempts],
+    [fr.admin.started, totals.started],
+    [fr.admin.awaitingVerification, totals.finished],
+    [fr.admin.verified, totals.verified],
+    [fr.admin.rejected, totals.rejected],
+    [fr.admin.expired, totals.expired],
+  ] as const;
 
   return (
     <section
@@ -58,71 +72,79 @@ export function AdminAuthorityPanel({
       <AdminErrorNotice message={error} onRetry={onRefresh} retrying={loading} />
       <div className="authority-header">
         <div>
-          <h3>Surveillance authority</h3>
+          <h3>{fr.admin.authorityTitle}</h3>
           <p>
-            Fenêtre glissante de {AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes} minutes, regroupée
-            par version moteur et ruleset.
+            {fr.admin.authorityWindowIntro}{' '}
+            {formatAdminCount(
+              AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes,
+              fr.admin.minute,
+              fr.admin.minutes,
+            )}
+            {fr.admin.authorityWindowSuffix}
           </p>
         </div>
         <button type="button" onClick={onRefresh} disabled={loading}>
-          Rafraîchir
+          {fr.admin.refresh}
         </button>
       </div>
 
       {loading ? (
-        <div className="loading">Chargement de la surveillance…</div>
+        <div className="loading">{fr.admin.loadingAuthority}</div>
       ) : (
         <>
           {signals.length > 0 ? (
             <div className="authority-alerts" role="alert">
-              <strong>Alerte de vérification authority</strong>
+              <strong>{fr.admin.authorityAlert}</strong>
               {signals.map((signal) => (
                 <p key={`${signal.engineVersion}-${signal.gameplayRulesetVersion}`}>
-                  {signal.engineVersion} / gameplay v{signal.gameplayRulesetVersion} :{' '}
-                  {(signal.rejectionRate * 100).toFixed(1)} % de rejets ({signal.rejectedCount}/
-                  {signal.attemptCount}) — {signal.reasons.join(', ')}
+                  {signal.engineVersion} / {fr.admin.gameplay} {fr.admin.versionShort}
+                  {signal.gameplayRulesetVersion} : {formatAdminPercent(signal.rejectionRate)}{' '}
+                  {fr.admin.rejectionRate} ({formatAdminNumber(signal.rejectedCount)}/
+                  {formatAdminNumber(signal.attemptCount)}) —{' '}
+                  {signal.reasons.map((reason) => fr.admin.authorityReasons[reason]).join(', ')}
                   {signal.unknownCodes.length > 0
-                    ? ` — nouveaux codes : ${signal.unknownCodes.join(', ')}`
+                    ? ` — ${fr.admin.newCodes} : ${signal.unknownCodes.join(', ')}`
                     : ''}
                 </p>
               ))}
             </div>
           ) : (
             <p className="authority-ok" role="status">
-              Aucun seuil de rejet anormal détecté sur la fenêtre courante.
+              {fr.admin.authorityNoAlert}
             </p>
           )}
 
           <div className="stats-grid authority-stats">
-            {[
-              ['Attempts', totals.attempts],
-              ['Démarrées', totals.started],
-              ['À vérifier', totals.finished],
-              ['Vérifiées', totals.verified],
-              ['Rejetées', totals.rejected],
-              ['Expirées', totals.expired],
-            ].map(([label, value]) => (
+            {authorityStats.map(([label, value]) => (
               <div className="stat-card" key={label}>
-                <div className="stat-value">{value}</div>
+                <div className="stat-value">{formatAdminNumber(value)}</div>
                 <div className="stat-label">{label}</div>
               </div>
             ))}
           </div>
 
           <div className="authority-rejections-header">
-            <h4>20 derniers rejets</h4>
-            <span>{rejections.length} affiché(s)</span>
+            <h4>
+              {formatAdminNumber(20)} {fr.admin.latestRejections}
+            </h4>
+            <span>
+              {formatAdminCount(
+                rejections.length,
+                fr.admin.displayedRejection,
+                fr.admin.displayedRejections,
+              )}
+            </span>
           </div>
           <div className="runs-table-container">
             <table className="runs-table">
-              <caption className="sr-only">Derniers rejets de vérification authority</caption>
+              <caption className="sr-only">{fr.admin.authorityRejectionsCaption}</caption>
               <thead>
                 <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">Attempt</th>
-                  <th scope="col">Moteur</th>
-                  <th scope="col">Gameplay</th>
-                  <th scope="col">Code</th>
+                  <th scope="col">{fr.admin.date}</th>
+                  <th scope="col">{fr.admin.attempt}</th>
+                  <th scope="col">{fr.admin.engine}</th>
+                  <th scope="col">{fr.admin.gameplay}</th>
+                  <th scope="col">{fr.admin.code}</th>
                 </tr>
               </thead>
               <tbody>
@@ -133,7 +155,10 @@ export function AdminAuthorityPanel({
                       <code>{rejection.attemptId}</code>
                     </td>
                     <td>{rejection.engineVersion}</td>
-                    <td>v{rejection.gameplayRulesetVersion}</td>
+                    <td>
+                      {fr.admin.versionShort}
+                      {rejection.gameplayRulesetVersion}
+                    </td>
                     <td>
                       <code>{rejection.rejectionCode}</code>
                     </td>
@@ -141,7 +166,7 @@ export function AdminAuthorityPanel({
                 ))}
               </tbody>
             </table>
-            {rejections.length === 0 && <div className="no-data">Aucun rejet enregistré</div>}
+            {rejections.length === 0 && <div className="no-data">{fr.admin.noRejections}</div>}
           </div>
 
           <AdminFieldCalibrationPanel

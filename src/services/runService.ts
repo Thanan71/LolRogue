@@ -1,5 +1,6 @@
 /** Read-only queries for persisted run history and aggregate statistics. */
 
+import { fr } from '@/i18n/fr';
 import type { Player } from '@/types/models';
 import { RepositoryContainerFactory } from './container';
 import type { IRepositoryContainer } from './interfaces';
@@ -7,27 +8,25 @@ import { supabase } from './supabaseClient';
 
 // Create repository container for dependency injection
 const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
-const errorMessage = (error: unknown): string =>
-  error instanceof Error ? error.message : String(error);
 
 /**
  * Get the current player's run history
  */
 export async function getPlayerRunHistory(player: Player | null, limit = 10, offset = 0) {
   if (!player) {
-    return { data: [], error: 'Not authenticated' };
+    return { data: [], error: fr.profile.notAuthenticated };
   }
 
   try {
     const { data, error } = await container.run.getPlayerRuns(player.id, limit, offset);
 
     if (error) {
-      return { data: [], error: error.message };
+      return { data: [], error: fr.profile.historyLoadError };
     }
 
     return { data: data || [], error: null };
-  } catch (error: unknown) {
-    return { data: [], error: errorMessage(error) };
+  } catch {
+    return { data: [], error: fr.profile.historyLoadError };
   }
 }
 
@@ -38,8 +37,11 @@ export async function getRunDetails(runId: string) {
   try {
     const { data, error } = await container.runStats.getRunDetails(runId);
 
-    if (error || !data) {
-      return { run: null, teamMembers: [], error: error?.message || 'Run not found' };
+    if (error) {
+      return { run: null, teamMembers: [], error: fr.profile.runDetailsError };
+    }
+    if (!data) {
+      return { run: null, teamMembers: [], error: fr.profile.runNotFound };
     }
 
     return {
@@ -47,8 +49,8 @@ export async function getRunDetails(runId: string) {
       teamMembers: data.teamMembers,
       error: null,
     };
-  } catch (error: unknown) {
-    return { run: null, teamMembers: [], error: errorMessage(error) };
+  } catch {
+    return { run: null, teamMembers: [], error: fr.profile.runDetailsError };
   }
 }
 
@@ -65,7 +67,7 @@ export async function getPlayerRunStats(player: Player | null) {
       bestRunLevel: 0,
       totalKills: 0,
       totalDamage: 0,
-      error: 'Not authenticated',
+      error: fr.profile.notAuthenticated,
     };
   }
 
@@ -85,7 +87,7 @@ export async function getPlayerRunStats(player: Player | null) {
         bestRunLevel: 0,
         totalKills: 0,
         totalDamage: 0,
-        error: error?.message,
+        error: fr.profile.statsLoadError,
       };
     }
 
@@ -99,7 +101,7 @@ export async function getPlayerRunStats(player: Player | null) {
       totalDamage: data.totalDamage,
       error: null,
     };
-  } catch (error: unknown) {
+  } catch {
     return {
       totalRuns: player.total_runs_completed,
       totalWins: player.total_wins,
@@ -108,7 +110,7 @@ export async function getPlayerRunStats(player: Player | null) {
       bestRunLevel: 0,
       totalKills: 0,
       totalDamage: 0,
-      error: errorMessage(error),
+      error: fr.profile.statsLoadError,
     };
   }
 }

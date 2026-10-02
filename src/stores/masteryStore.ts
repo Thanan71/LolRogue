@@ -31,7 +31,12 @@ const INITIAL_STATE: MasteryState = {
 
 function copySnapshot(snapshot: MasteryProgressionSnapshot): MasteryProgressionSnapshot {
   return {
-    champions: { ...snapshot.champions },
+    champions: Object.fromEntries(
+      Object.entries(snapshot.champions).map(([id, mastery]) => [
+        id,
+        buildChampionMastery(id, mastery.totalCandies, [...mastery.unlockedIds]),
+      ]),
+    ),
     totalRunsCompleted: snapshot.totalRunsCompleted,
     totalCandiesEarned: snapshot.totalCandiesEarned,
   };
@@ -47,21 +52,39 @@ function isMasterySnapshot(value: unknown): value is MasteryProgressionSnapshot 
   ) {
     return false;
   }
-  return Object.values(value.champions).every(
-    (mastery) =>
-      isRecord(mastery) &&
-      typeof mastery.championId === 'string' &&
-      Number.isSafeInteger(mastery.totalCandies) &&
-      Number(mastery.totalCandies) >= 0 &&
-      Array.isArray(mastery.unlockedIds) &&
-      mastery.unlockedIds.every((id) => typeof id === 'string'),
+  const entries = Object.entries(value.champions);
+  return (
+    entries.length <= 512 &&
+    entries.every(
+      ([id, mastery]) =>
+        id.length > 0 &&
+        id.length <= 128 &&
+        !['__proto__', 'constructor', 'prototype'].includes(id) &&
+        isRecord(mastery) &&
+        mastery.championId === id &&
+        Number.isSafeInteger(mastery.totalCandies) &&
+        Number(mastery.totalCandies) >= 0 &&
+        Array.isArray(mastery.unlockedIds) &&
+        mastery.unlockedIds.length <= 128 &&
+        mastery.unlockedIds.every(
+          (unlockId) =>
+            typeof unlockId === 'string' && unlockId.length > 0 && unlockId.length <= 128,
+        ),
+    )
   );
 }
 
 function isPersistedMastery(value: unknown): value is Partial<MasteryState> {
   if (!isRecord(value)) return false;
   if (value.guestSnapshot !== undefined && !isMasterySnapshot(value.guestSnapshot)) return false;
-  if (value.champions !== undefined && !isRecord(value.champions)) return false;
+  if (
+    !isMasterySnapshot({
+      champions: value.champions === undefined ? {} : value.champions,
+      totalRunsCompleted: value.totalRunsCompleted === undefined ? 0 : value.totalRunsCompleted,
+      totalCandiesEarned: value.totalCandiesEarned === undefined ? 0 : value.totalCandiesEarned,
+    })
+  )
+    return false;
   return true;
 }
 
@@ -179,7 +202,7 @@ export const useMasteryStore = create<MasteryStore>()(
           guestSnapshot:
             recovered.guestSnapshot && version >= 2
               ? copySnapshot(recovered.guestSnapshot)
-              : legacySnapshot,
+              : copySnapshot(legacySnapshot),
         };
       },
       partialize: (state) => ({

@@ -19,18 +19,38 @@ describe('persisted store recovery', () => {
     expect(recoverPersistedState('broken', { enabled: true })).toEqual({ enabled: true });
   });
 
-  it('does not crash when localStorage is unreadable', () => {
+  it('does not crash or delete data when localStorage is temporarily unreadable', () => {
     const removeItem = vi.fn();
     vi.stubGlobal('localStorage', {
       getItem: () => {
-        throw new Error('corrupt storage');
+        throw new DOMException('temporarily blocked', 'SecurityError');
       },
       removeItem,
       setItem: vi.fn(),
     });
 
     expect(safeLocalStorage.getItem('broken')).toBeNull();
-    expect(removeItem).toHaveBeenCalledWith('broken');
+    expect(removeItem).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it('treats Zustand undefined hydration as absence without writing a quarantine', () => {
+    const storage = { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() };
+    vi.stubGlobal('localStorage', storage);
+    const defaults = { enabled: true };
+    const validate = vi.fn((value: unknown) => isRecord(value));
+    expect(
+      recoverVersionedState(undefined, {
+        name: 'test-store',
+        version: 2,
+        currentVersion: 2,
+        defaults,
+        validate: (value): value is Partial<typeof defaults> => validate(value),
+      }),
+    ).toEqual(defaults);
+    expect(validate).not.toHaveBeenCalled();
+    expect(storage.setItem).not.toHaveBeenCalled();
+    expect(storage.removeItem).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });
 

@@ -27,6 +27,11 @@ describe('English legal page', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Terms of use' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Privacy' })).toBeInTheDocument();
+    expect(screen.getByText('Public daily leaderboard')).toBeInTheDocument();
+    expect(screen.getByText('13 months maximum')).toBeInTheDocument();
+    expect(screen.getByText('14 days maximum')).toBeInTheDocument();
+    expect(screen.getByText('Account data')).toBeInTheDocument();
+    expect(screen.getByText('Guest data')).toBeInTheDocument();
     expect(screen.getByText('Until account deletion')).toBeInTheDocument();
     expect(screen.getByText('Until browser data is cleared')).toBeInTheDocument();
     expect(screen.queryByText('Informations légales et confidentialité')).not.toBeInTheDocument();

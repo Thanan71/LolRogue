@@ -1,6 +1,8 @@
 import type React from 'react';
 import type { CSSProperties } from 'react';
 import { actionTypeForSlot, getCombatVisualProfile } from '@/game/presentation/combatVisuals';
+import { combatCopy } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import type { CombatantInfo } from '../../stores/battleStore';
 import { scaleFontSize, useSettingsStore } from '../../stores/settingsStore';
@@ -52,7 +54,7 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
             type="button"
             onClick={() => handleClick(slot)}
             disabled={disabled}
-            aria-label={`${fr.combat.spell} ${slot}${spell ? ` : ${spell.name}` : ''}${onCooldown ? ` (${cd} ${fr.combat.cooldownTurns}, ${fr.combat.cooldown})` : ''}${lacksMana ? `, ${fr.combat.insufficientMana}` : spell && !spell.isReady ? `, ${fr.combat.cooldown}` : `, ${fr.combat.ready}`}`}
+            aria-label={`${fr.combat.spell} ${slot}${spell ? ` : ${spell.name}` : ''}${onCooldown ? ` (${combatCopy.tooltip.cooldownTurnCount(cd)}, ${fr.combat.cooldown})` : ''}${lacksMana ? `, ${fr.combat.insufficientMana}` : spell && !spell.isReady ? `, ${fr.combat.cooldown}` : `, ${fr.combat.ready}`}`}
             aria-keyshortcuts={slot}
             className={`combat-ability combat-ability--${visualProfile.tone} combat-ability--${visualProfile.shape}${isUlt ? ' combat-ability--ultimate' : ''}`}
           >
@@ -76,8 +78,10 @@ export const AbilityBar: React.FC<Props> = ({ champion, onCast }) => {
                 {spell?.name ?? slot}
               </span>
             </div>
-            {onCooldown && <div className="combat-ability__cooldown">{cd}</div>}
-            {spell && spell.cost > 0 && <div className="combat-ability__cost">{spell.cost}</div>}
+            {onCooldown && <div className="combat-ability__cooldown">{formatNumber(cd)}</div>}
+            {spell && spell.cost > 0 && (
+              <div className="combat-ability__cost">{formatNumber(spell.cost)}</div>
+            )}
           </button>
         );
 

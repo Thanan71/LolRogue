@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { findNode } from '@/game/map/mapUtils';
 import { type MapNode, type NodeMap, NodeType } from '@/game/map/types';
+import { fr } from '@/i18n/fr';
 
 export const NODE_LABELS: Record<string, string> = {
   [NodeType.Combat]: '⚔',
@@ -16,16 +17,16 @@ export const NODE_LABELS: Record<string, string> = {
 };
 
 export const NODE_NAMES: Record<string, string> = {
-  [NodeType.Combat]: 'Combat',
-  [NodeType.Elite]: 'Élite',
-  [NodeType.Boss]: 'Boss final',
-  [NodeType.Shop]: 'Boutique',
-  [NodeType.Rest]: 'Repos',
-  [NodeType.Event]: 'Événement',
-  [NodeType.Recruit]: 'Recrutement',
-  [NodeType.Treasure]: 'Trésor',
-  [NodeType.Start]: 'Départ',
-  [NodeType.Exit]: 'Sortie de biome',
+  [NodeType.Combat]: fr.run.nodeNames.combat,
+  [NodeType.Elite]: fr.run.nodeNames.elite,
+  [NodeType.Boss]: fr.run.nodeNames.boss,
+  [NodeType.Shop]: fr.run.nodeNames.shop,
+  [NodeType.Rest]: fr.run.nodeNames.rest,
+  [NodeType.Event]: fr.run.nodeNames.event,
+  [NodeType.Recruit]: fr.run.nodeNames.recruit,
+  [NodeType.Treasure]: fr.run.nodeNames.treasure,
+  [NodeType.Start]: fr.run.nodeNames.start,
+  [NodeType.Exit]: fr.run.nodeNames.exit,
 };
 
 interface RunMapCanvasProps {
@@ -98,11 +99,11 @@ function nodeStateLabel({
   isAccessible: boolean;
   isAbandoned: boolean;
 }) {
-  if (isCompleted) return 'terminé';
-  if (isCurrent) return 'position actuelle';
-  if (isAccessible) return 'accessible';
-  if (isAbandoned) return 'branche fermée';
-  return 'verrouillé';
+  if (isCompleted) return fr.run.nodeStates.completed;
+  if (isCurrent) return fr.run.nodeStates.current;
+  if (isAccessible) return fr.run.nodeStates.accessible;
+  if (isAbandoned) return fr.run.nodeStates.abandoned;
+  return fr.run.nodeStates.locked;
 }
 
 export function RunMapCanvas({
@@ -170,20 +171,19 @@ export function RunMapCanvas({
     >
       <header className="run-map-map__toolbar">
         <div>
-          <span className="run-map-map__eyebrow">Itinéraire du biome</span>
+          <span className="run-map-map__eyebrow">{fr.run.biomeRoute}</span>
           <strong id="run-map-visual-title">
             {frontierNodeIds.length > 0
-              ? `${frontierNodeIds.length} chemin${frontierNodeIds.length > 1 ? 's' : ''} disponible${frontierNodeIds.length > 1 ? 's' : ''}`
-              : 'Progression en cours'}
+              ? fr.run.pathsAvailable(frontierNodeIds.length)
+              : fr.run.progressionInProgress}
           </strong>
         </div>
         <button type="button" className="run-map-map__recenter" onClick={recenterMap}>
-          <span aria-hidden="true">⌖</span> Recentrer
+          <span aria-hidden="true">⌖</span> {fr.run.recenter}
         </button>
       </header>
       <p className="sr-only" id="run-map-instructions">
-        Parcourez les choix avec Tab, puis utilisez Entrée ou Espace pour sélectionner un nœud
-        accessible.
+        {fr.run.mapInstructions}
       </p>
       <div className="run-map-map__viewport" ref={viewportRef}>
         <svg
@@ -194,11 +194,8 @@ export function RunMapCanvas({
           aria-labelledby="run-map-svg-title run-map-svg-description"
           aria-describedby="run-map-instructions"
         >
-          <title id="run-map-svg-title">Carte interactive de la partie</title>
-          <desc id="run-map-svg-description">
-            Les chemins dorés sont parcourus, les chemins turquoise sont accessibles et les branches
-            assombries sont fermées.
-          </desc>
+          <title id="run-map-svg-title">{fr.run.interactiveMap}</title>
+          <desc id="run-map-svg-description">{fr.run.interactiveMapDescription}</desc>
           <g className="run-map-edges" aria-hidden="true">
             {nodes.flatMap((node) =>
               node.nextNodeIds.map((nextNodeId) => {
@@ -279,7 +276,15 @@ export function RunMapCanvas({
                   role={isSelectable ? 'button' : 'img'}
                   tabIndex={isSelectable ? 0 : undefined}
                   aria-current={isCurrent ? 'step' : undefined}
-                  aria-label={`${typeName}, colonne ${node.column + 1}, ligne ${node.row + 1}${isEntry ? ', départ du biome' : ''}, ${stateName}${isSelectable ? ', activer pour choisir ce nœud et verrouiller les autres branches' : hasPendingChoice && isAccessible ? ", terminez d'abord le choix en attente" : ''}`}
+                  aria-label={fr.run.mapNodeLabel(
+                    typeName,
+                    node.column + 1,
+                    node.row + 1,
+                    stateName,
+                    isEntry,
+                    isSelectable,
+                    hasPendingChoice && isAccessible,
+                  )}
                 >
                   <circle
                     className="run-map-node__hit-area"
@@ -306,7 +311,7 @@ export function RunMapCanvas({
                     <g className="run-map-node__badge">
                       <rect x={position.x - 23} y={position.y - 43} width="46" height="16" rx="8" />
                       <text x={position.x} y={position.y - 32} textAnchor="middle">
-                        {isCurrent ? 'ICI' : 'CHOIX'}
+                        {isCurrent ? fr.run.here : fr.run.choice}
                       </text>
                     </g>
                   )}
@@ -325,7 +330,7 @@ export function RunMapCanvas({
         </svg>
       </div>
       <div className="run-map-map__scroll-hint" aria-hidden="true">
-        <span>←</span> Faites glisser la carte <span>→</span>
+        <span>←</span> {fr.run.dragMap} <span>→</span>
       </div>
     </section>
   );

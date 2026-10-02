@@ -1,9 +1,18 @@
 import type { RunSaveDiagnostic } from '@/types/run';
 
-export function formatRunSaveDiagnostic(diagnostic: RunSaveDiagnostic): string {
+export type RunSaveDiagnosticLabels = Readonly<{
+  attemptId: string;
+  authorityVersion: string;
+  rejectionCode: string;
+}>;
+
+export function formatRunSaveDiagnostic(
+  diagnostic: RunSaveDiagnostic,
+  labels: RunSaveDiagnosticLabels,
+): string {
   return [
-    `Attempt: ${diagnostic.attemptId}`,
-    `Version authority: ${diagnostic.engineVersion}`,
-    `Code de rejet: ${diagnostic.rejectionCode}`,
+    `${labels.attemptId}: ${diagnostic.attemptId}`,
+    `${labels.authorityVersion}: ${diagnostic.engineVersion}`,
+    `${labels.rejectionCode}: ${diagnostic.rejectionCode}`,
   ].join('\n');
 }

@@ -9,7 +9,10 @@ import { calculateRunMemberMaxHp } from '@/game/run/runCombatant';
 import { resolveEventTeamUpdates, resolveRunEvent } from '@/game/run/runEncounterRules';
 import { getEffectiveRunHp } from '@/game/run/runHealth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { fr } from '@/i18n/fr';
+import { itemName, localizeChampion } from '@/i18n/content';
+import { getEncounterPresentation, getEventOutcomeDescription } from '@/i18n/encounterContent';
+import { formatNumber } from '@/i18n/format';
+import { fr, locale } from '@/i18n/fr';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
@@ -33,107 +36,68 @@ function getMemberMaxHp(member: ReturnType<typeof useRunStore.getState>['team'][
   );
 }
 
-const EVENT_NAME_TRANSLATIONS: Record<string, string> = {
-  'Mysterious Chest': 'Coffre mystérieux',
-  'Wandering Spirit': 'Esprit errant',
-  'Runic Altar': 'Autel runique',
-  'Loot Goblin': 'Gobelin au butin',
-};
-
-const EVENT_COPY_TRANSLATIONS: Record<string, string> = {
-  'A glowing chest sits in your path. Do you open it?':
-    'Un coffre lumineux bloque votre chemin. Oserez-vous l’ouvrir ?',
-  'A friendly spirit offers to help your team.':
-    'Un esprit bienveillant propose son aide à votre équipe.',
-  'An ancient altar pulses with power.': 'Un autel ancien palpite d’une puissance oubliée.',
-  'A small creature scurries past with a bag of gold!':
-    'Une petite créature détale devant vous avec un sac rempli d’or !',
-  'You find gold inside!': 'Vous découvrez de l’or à l’intérieur.',
-  'An item glows inside!': 'Un objet scintille à l’intérieur.',
-  'A trap! The chest explodes!': 'Un piège ! Le coffre explose.',
-  'The chest is empty...': 'Le coffre est vide…',
-  'The spirit heals your team!': 'L’esprit soigne votre équipe.',
-  'The spirit empowers your team!': 'L’esprit renforce votre équipe.',
-  'The spirit drops gold.': 'L’esprit dépose quelques pièces d’or.',
-  'The altar grants you strength!': 'L’autel vous confère une force nouvelle.',
-  'The altar demands an offering.': 'L’autel exige une offrande.',
-  'A champion appears from the altar!': 'Un champion émerge de l’autel !',
-  'You catch the goblin!': 'Vous rattrapez le gobelin !',
-  'The goblin drops its bag!': 'Le gobelin abandonne son sac !',
-  'The goblin escapes too fast...': 'Le gobelin s’échappe avant que vous ne puissiez l’atteindre…',
-};
-
-const STAT_LABELS: Record<string, string> = {
-  atk: 'attaque',
-  ap: 'puissance',
-  def: 'défense',
-  hp: 'PV',
-  spd: 'vitesse',
-  crit: 'chance de critique',
-};
-
-function localizeEventName(name: string | undefined): string {
-  if (!name) return fr.encounter.mystery;
-  return EVENT_NAME_TRANSLATIONS[name] ?? name;
-}
-
-function localizeEventCopy(copy: string | undefined, fallback: string): string {
-  if (!copy) return fallback;
-  return EVENT_COPY_TRANSLATIONS[copy] ?? copy;
+function getEventStatLabel(stat: string | undefined): string {
+  switch (stat) {
+    case 'atk':
+      return fr.stats.attackDamage;
+    case 'ap':
+      return fr.stats.abilityPower;
+    case 'def':
+      return fr.stats.armor;
+    case 'hp':
+      return fr.stats.hp;
+    case 'spd':
+      return fr.stats.moveSpeed;
+    case 'crit':
+      return fr.stats.crit;
+    default:
+      return fr.encounter.eventCharacteristic;
+  }
 }
 
 function getOutcomeTitle(outcome: EventOutcome, capacityNotice: string | null): string {
   switch (outcome.type) {
     case 'gold_reward':
-      return `+${outcome.goldAmount ?? 0} ${fr.common.gold}`;
+      return `+${formatNumber(outcome.goldAmount ?? 0)} ${fr.common.gold}`;
     case 'gold_cost':
-      return `Offrande : −${Math.abs(outcome.goldAmount ?? 0)} ${fr.common.gold}`;
-    case 'item_reward':
-      return capacityNotice
-        ? 'Objet laissé sur place'
-        : `Objet obtenu : ${outcome.item?.name ?? 'objet mystérieux'}`;
+      return `${fr.encounter.eventOffering} : −${formatNumber(Math.abs(outcome.goldAmount ?? 0))} ${fr.common.gold}`;
+    case 'item_reward': {
+      if (capacityNotice) return fr.encounter.eventItemLeft;
+      const item = outcome.item;
+      const displayName = item
+        ? itemName(item.itemId, item.name)
+        : fr.encounter.eventMysteriousItem;
+      return `${fr.encounter.itemReceived} : ${displayName}`;
+    }
     case 'heal':
-      return `Équipe soignée : +${Math.round((outcome.healPercent ?? 0.3) * 100)} % de PV`;
+      return `${fr.encounter.eventTeamHealed} : +${formatNumber(Math.round((outcome.healPercent ?? 0.3) * 100))} % ${fr.common.hpShort}`;
     case 'damage':
-      return `Piège déclenché : −${Math.round((outcome.damagePercent ?? 0.15) * 100)} % de PV`;
-    case 'champion_recruit':
-      if (capacityNotice) return 'Recrutement impossible';
-      if (!outcome.championId) return 'Aucun champion ne s’est présenté…';
-      return `${championDB.getById(outcome.championId)?.name ?? outcome.championId} rejoint votre équipe !`;
+      return `${fr.encounter.eventTrapTriggered} : −${formatNumber(Math.round((outcome.damagePercent ?? 0.15) * 100))} % ${fr.common.hpShort}`;
+    case 'champion_recruit': {
+      if (capacityNotice) return fr.encounter.eventRecruitmentImpossible;
+      if (!outcome.championId) return fr.encounter.eventNoChampion;
+      const sourceChampion = championDB.getById(outcome.championId);
+      const championName = sourceChampion
+        ? localizeChampion(sourceChampion).name
+        : outcome.championId;
+      return fr.encounter.championJoined(championName);
+    }
     case 'stat_boost': {
-      const stat = outcome.statBoost?.stat;
-      return `Amélioration : +${outcome.statBoost?.amount ?? 0} ${stat ? (STAT_LABELS[stat] ?? 'caractéristique') : 'caractéristique'}`;
+      return `${fr.encounter.eventStatBoost} : +${formatNumber(outcome.statBoost?.amount ?? 0)} ${getEventStatLabel(outcome.statBoost?.stat)}`;
     }
     case 'nothing':
-      return 'Rien ne se produit…';
-  }
-}
-
-function getOutcomeFallback(outcome: EventOutcome): string {
-  switch (outcome.type) {
-    case 'gold_reward':
-      return 'Vous repartez avec de l’or.';
-    case 'gold_cost':
-      return 'L’offrande est acceptée.';
-    case 'item_reward':
-      return 'Votre découverte rejoint votre inventaire.';
-    case 'heal':
-      return 'Une énergie apaisante parcourt votre équipe.';
-    case 'damage':
-      return 'Le piège blesse toute votre équipe.';
-    case 'champion_recruit':
-      return 'Votre groupe accueille un nouveau champion.';
-    case 'stat_boost':
-      return 'Votre équipe ressort renforcée de cette rencontre.';
-    case 'nothing':
-      return 'Le calme revient sans laisser de trace.';
+      return fr.encounter.eventNothingHappens;
   }
 }
 
 function EventOutcomeMedia({ outcome }: { outcome: EventOutcome }) {
-  const champion = outcome.championId ? championDB.getById(outcome.championId) : null;
+  const sourceChampion = outcome.championId ? championDB.getById(outcome.championId) : null;
+  const champion = sourceChampion ? localizeChampion(sourceChampion) : null;
   const imageUrl = outcome.type === 'item_reward' ? outcome.item?.iconUrl : champion?.iconUrl;
-  const label = outcome.type === 'item_reward' ? outcome.item?.name : champion?.name;
+  const label =
+    outcome.type === 'item_reward' && outcome.item
+      ? itemName(outcome.item.itemId, outcome.item.name)
+      : champion?.name;
 
   if (!imageUrl || !label) return null;
 
@@ -177,6 +141,11 @@ export function EventPage() {
   const encounter = useMemo(() => {
     return getNodeEncounter(getCurrentNode(), 'event');
   }, [getCurrentNode]);
+  const encounterPresentation = getEncounterPresentation(locale, {
+    type: 'event',
+    name: encounter?.name,
+    description: encounter?.description,
+  });
 
   const handleInvestigate = useCallback(() => {
     if (!encounter || outcome || wasClaimed) return;
@@ -255,7 +224,7 @@ export function EventPage() {
             },
           );
           if (!result.success && result.code === 'inventory_full') {
-            nextCapacityNotice = 'Inventaire plein — l’objet a été laissé sur place.';
+            nextCapacityNotice = fr.encounter.eventInventoryFull;
           }
         }
         break;
@@ -266,8 +235,8 @@ export function EventPage() {
           if (!result.success) {
             nextCapacityNotice =
               result.code === 'team_full'
-                ? 'Équipe complète — ce champion ne peut pas vous rejoindre.'
-                : 'Ce champion fait déjà partie de l’équipe.';
+                ? fr.encounter.eventTeamFull
+                : fr.encounter.eventAlreadyOnTeam;
           }
         }
         break;
@@ -320,21 +289,19 @@ export function EventPage() {
 
   return (
     <EncounterLayout
-      title={`${fr.encounter.event} — ${localizeEventName(encounter?.name)}`}
+      title={`${fr.encounter.event} — ${encounterPresentation.name}`}
       gold={gold}
       tone="orange"
-      subtitle="Les événements modifient immédiatement votre expédition. Leur résultat est enregistré une seule fois."
+      subtitle={fr.encounter.eventSubtitle}
       contentClassName="encounter-layout__content--centered"
     >
       <div className="event-page">
         {!outcome && !wasClaimed ? (
           <div className="event-page__card">
             <div className="event-page__icon event-page__icon--unknown" aria-hidden="true" />
-            <span className="event-page__kicker">Issue inconnue</span>
-            <h2 className="event-page__title">Le choix vous appartient</h2>
-            <p className="event-page__lead">
-              {localizeEventCopy(encounter?.description, fr.encounter.mysterious)}
-            </p>
+            <span className="event-page__kicker">{fr.encounter.eventUnknownOutcome}</span>
+            <h2 className="event-page__title">{fr.encounter.eventChoiceTitle}</h2>
+            <p className="event-page__lead">{encounterPresentation.description}</p>
             <p className="event-page__body">{fr.encounter.uncertain}</p>
             <div className="event-page__actions">
               <button
@@ -357,7 +324,7 @@ export function EventPage() {
               className={`event-page__icon event-page__icon--${outcome.type}`}
               aria-hidden="true"
             />
-            <span className="event-page__kicker">Résultat de la rencontre</span>
+            <span className="event-page__kicker">{fr.encounter.eventResult}</span>
             <h2 className="event-page__title event-page__outcome-title">
               {getOutcomeTitle(outcome, capacityNotice)}
             </h2>
@@ -367,17 +334,18 @@ export function EventPage() {
                 {capacityNotice}
               </p>
             )}
-            <p className="event-page__lead">
-              {localizeEventCopy(outcome.description, getOutcomeFallback(outcome))}
-            </p>
+            <p className="event-page__lead">{getEventOutcomeDescription(locale, outcome)}</p>
             {(outcome.type === 'heal' || outcome.type === 'damage') && (
               <div className="event-page__team-panel">
-                <div className="event-page__team-header">Points de vie de l’équipe</div>
+                <div className="event-page__team-header">{fr.encounter.teamHp}</div>
                 <div className="event-page__team-list">
                   {team.map((member) => {
-                    const champ = championDB.getById(member.championId);
+                    const sourceChampion = championDB.getById(member.championId);
+                    const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
                     const maxHp = getMemberMaxHp(member);
                     const currentHp = getEffectiveRunHp(member.currentHp, maxHp);
+                    const formattedCurrentHp = formatNumber(currentHp);
+                    const formattedMaxHp = formatNumber(maxHp);
                     const pct = Math.round((currentHp / maxHp) * 100);
                     const healthClass =
                       pct < 30
@@ -407,13 +375,13 @@ export function EventPage() {
                             </span>
                           </span>
                           <span className="event-page__member-hp">
-                            {currentHp} / {maxHp} PV
+                            {formattedCurrentHp} / {formattedMaxHp} {fr.common.hpShort}
                           </span>
                         </div>
                         <div
                           className="event-page__hp-track"
                           role="progressbar"
-                          aria-label={`${champ?.name ?? member.championId} : ${currentHp} / ${maxHp} PV`}
+                          aria-label={`${champ?.name ?? member.championId} : ${formattedCurrentHp} / ${formattedMaxHp} ${fr.common.hpShort}`}
                           aria-valuemin={0}
                           aria-valuemax={100}
                           aria-valuenow={pct}
@@ -446,11 +414,11 @@ export function EventPage() {
             aria-live="polite"
           >
             <div className="event-page__icon event-page__icon--resolved" aria-hidden="true" />
-            <span className="event-page__kicker">Rencontre terminée</span>
-            <h2 className="event-page__title event-page__title--resolved">Événement déjà résolu</h2>
-            <p className="event-page__lead">
-              Cette rencontre a déjà livré son résultat. Reprenez votre route.
-            </p>
+            <span className="event-page__kicker">{fr.encounter.eventResolvedKicker}</span>
+            <h2 className="event-page__title event-page__title--resolved">
+              {fr.encounter.eventResolvedTitle}
+            </h2>
+            <p className="event-page__lead">{fr.encounter.eventResolvedDescription}</p>
             <div className="event-page__actions">
               <button
                 type="button"

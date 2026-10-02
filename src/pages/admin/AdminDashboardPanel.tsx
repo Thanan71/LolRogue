@@ -1,4 +1,5 @@
 import { fr } from '@/i18n/fr';
+import { formatAdminNumber } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
 import type { AdminTab } from './useAdminData';
 
@@ -19,6 +20,11 @@ const DASHBOARD_STATS = [
   ['total_candies_earned', fr.admin.candiesEarned],
 ] as const;
 
+function formatDashboardStat(value: string | undefined): string {
+  const numericValue = Number(value ?? 0);
+  return Number.isFinite(numericValue) ? formatAdminNumber(numericValue) : (value ?? '0');
+}
+
 export function AdminDashboardPanel({
   loading,
   stats,
@@ -35,12 +41,12 @@ export function AdminDashboardPanel({
     >
       <AdminErrorNotice message={error} onRetry={onRefresh} retrying={loading} />
       {loading ? (
-        <div className="loading">Chargement...</div>
+        <div className="loading">{fr.admin.loading}</div>
       ) : (
         <div className="stats-grid">
           {DASHBOARD_STATS.map(([key, label]) => (
             <div className="stat-card" key={key}>
-              <div className="stat-value">{stats[key] || '0'}</div>
+              <div className="stat-value">{formatDashboardStat(stats[key])}</div>
               <div className="stat-label">{label}</div>
             </div>
           ))}

@@ -4,6 +4,8 @@ import type {
   VerifiedFieldCalibrationCohort,
   VerifiedFieldChampionCohort,
 } from '@/game/balance/fieldCalibrationComparison';
+import { localizeAdminRequestError } from '@/i18n/adminErrorContent';
+import { fr } from '@/i18n/fr';
 import {
   AUTHORITY_REJECTION_ALERT_POLICY,
   type AuthorityAttemptAggregate,
@@ -247,10 +249,6 @@ const EMPTY_ERRORS: AdminDataErrors = {
   moderation: null,
 };
 
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'La requête Admin a échoué.';
-}
-
 export async function loadAllAdminSections(
   loaders: ReadonlyArray<() => Promise<unknown>>,
 ): Promise<void> {
@@ -325,7 +323,7 @@ export function useAdminData(isAdmin: boolean) {
       return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching stats:', error);
-      setSectionError('stats', errorMessage(error));
+      setSectionError('stats', localizeAdminRequestError('request_failed'));
       return false;
     } finally {
       setStatsLoading(false);
@@ -430,7 +428,7 @@ export function useAdminData(isAdmin: boolean) {
       return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching authority observability:', error);
-      setSectionError('authority', errorMessage(error));
+      setSectionError('authority', localizeAdminRequestError('request_failed'));
       return false;
     } finally {
       setAuthorityLoading(false);
@@ -453,7 +451,7 @@ export function useAdminData(isAdmin: boolean) {
       return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching player stats:', error);
-      setSectionError('players', errorMessage(error));
+      setSectionError('players', localizeAdminRequestError('request_failed'));
       return false;
     } finally {
       setPlayersLoading(false);
@@ -485,7 +483,7 @@ export function useAdminData(isAdmin: boolean) {
       return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching logs:', error);
-      setSectionError('logs', errorMessage(error));
+      setSectionError('logs', localizeAdminRequestError('request_failed'));
       return false;
     } finally {
       setLogsLoading(false);
@@ -542,7 +540,7 @@ export function useAdminData(isAdmin: boolean) {
       // Combine runs with team members
       const runsWithTeam = (runsData || []).map((run) => ({
         ...run,
-        player_username: run.player_username?.username || 'Unknown',
+        player_username: run.player_username?.username || fr.admin.unknown,
         player_display_name: run.player_display_name?.display_name || null,
         team_members: teamMembers.filter((tm) => tm.run_id === run.id),
       }));
@@ -551,7 +549,7 @@ export function useAdminData(isAdmin: boolean) {
       return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching runs:', error);
-      setSectionError('runs', errorMessage(error));
+      setSectionError('runs', localizeAdminRequestError('request_failed'));
       return false;
     } finally {
       setRunsLoading(false);
@@ -584,7 +582,7 @@ export function useAdminData(isAdmin: boolean) {
       return true;
     } catch (error) {
       logger.error('[AdminPage] Error fetching moderation reports:', error);
-      setSectionError('moderation', errorMessage(error));
+      setSectionError('moderation', localizeAdminRequestError('request_failed'));
       return false;
     } finally {
       setModerationLoading(false);
@@ -600,7 +598,7 @@ export function useAdminData(isAdmin: boolean) {
       });
       if (error) {
         logger.error('[AdminPage] Error invalidating Daily score:', error);
-        setSectionError('moderation', error.message);
+        setSectionError('moderation', localizeAdminRequestError('request_failed'));
         return false;
       }
       return fetchModerationReports();

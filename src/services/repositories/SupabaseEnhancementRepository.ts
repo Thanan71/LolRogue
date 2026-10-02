@@ -15,6 +15,11 @@ import type { Database, Json } from '@/types/database';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
 import { logger } from '@/utils/logger';
 
+export const ENHANCEMENT_REPOSITORY_ERROR_CODES = {
+  rpcFailed: 'ENHANCEMENT_UNLOCK_RPC_FAILED',
+  invalidResponse: 'ENHANCEMENT_UNLOCK_RPC_INVALID_RESPONSE',
+} as const;
+
 function toNumberRecord(value: Json): Record<string, number> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return Object.fromEntries(
@@ -133,7 +138,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
         },
         candyCost: 0,
         nodeId,
-        error: error?.message || 'Failed to unlock enhancement',
+        error: error?.message || ENHANCEMENT_REPOSITORY_ERROR_CODES.rpcFailed,
       };
     }
 
@@ -165,7 +170,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
         },
         candyCost: 0,
         nodeId,
-        error: 'Invalid unlock_champion_enhancement response',
+        error: ENHANCEMENT_REPOSITORY_ERROR_CODES.invalidResponse,
       };
     }
 
