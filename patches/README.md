@@ -14,8 +14,17 @@ lecture non protégée dans les deux distributions, vérifiées le 1er octobre 2
 Les deux contextes du patch 2.116.0 correspondent exactement à cette version ;
 le patch reste donc limité à la même protection de lecture.
 
-`patch-package` est épinglé à 8.0.1 ; le script `postinstall` applique le patch
-avec `--error-on-fail`, y compris dans `npm ci`. Lors d'une montée de version
+Le script `postinstall` exécute `scripts/apply-supabase-auth-patch.mjs`, y compris
+dans `npm ci`. Cet applicateur utilise uniquement les modules natifs de Node et
+lit le fichier `.patch` ci-dessus, qui reste la source du correctif. Il exige
+la version exacte 2.117.2 du SDK, les deux chemins de distributions attendus et
+un seul hunk par fichier. Il valide les deux contenus avant toute écriture,
+accepte une réapplication déjà complète et échoue si un fichier manque, diverge
+ou contient plusieurs correspondances. `patch-package` et sa chaîne de
+dépendances vulnérables `find-yarn-workspace-root` / `micromatch` / `braces`
+ont été retirés ; aucune exception d'audit n'est ajoutée.
+
+Lors d'une montée de version
 du SDK, vérifier la correction amont et retirer le patch si elle est présente,
 ou le réévaluer explicitement pour la nouvelle version. Ne pas ignorer son
 échec d'application. Cette compatibilité runtime est indépendante des exceptions
@@ -28,3 +37,6 @@ bloquée, drapeaux vrais/faux et verrous conservés).
 session, y compris de vrais clients configurés avec réseau simulé.
 `e2e/storage-rehydration.spec.ts` vérifie le démarrage et la navigation invité
 avec les quatre modes de panne Web Storage.
+`tests/supabaseAuthPatch.test.mjs` vérifie dans des répertoires temporaires
+l'application, la réapplication et les refus de version, contenu ou format
+inattendus, sans toucher au SDK installé.
