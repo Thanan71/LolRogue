@@ -21,7 +21,7 @@ const versions = {
   v17: {
     artifact: 'config/early-top-cohort-v17.json',
     entrySource: `
-      import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v17.bundle.ts';
+      import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v17.bundle.ts';
       import { generateEarlyTopCohortDocument } from './src/game/balance/earlyTopCohort.ts';
 
       export function generate() {
@@ -37,7 +37,7 @@ const versions = {
   v18: {
     artifact: 'config/early-top-cohort-v18.json',
     entrySource: `
-      import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v18.bundle.ts';
+      import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v18.bundle.ts';
       import { generateEarlyTopCohortDocument } from './src/game/balance/earlyTopCohort.ts';
 
       export function generate() {

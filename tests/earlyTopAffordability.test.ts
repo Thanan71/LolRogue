@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ITEM_DATABASE } from '@/data/items';
 import { measureEarlyTopAffordability } from '@/game/balance/earlyTopAffordability';
 import { TOP_LANE_ENCOUNTERS } from '@/game/map/encounters';
-import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
+import { resolveRegisteredAuthorityVerifier } from './helpers/authorityBundleResolver';
 
 const EARLY_TOP_ENGINE_VERSION = 'run-engine-v18';
 const EARLY_TOP_CONTENT_HASH = '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17';
@@ -27,7 +27,7 @@ describe('early Top affordability decision', () => {
   });
 
   it('reproduces Top-only visits, offers and transactions across all 900 paired runs', async () => {
-    const authority = await resolveBundledAuthorityVerifier(
+    const authority = await resolveRegisteredAuthorityVerifier(
       EARLY_TOP_ENGINE_VERSION,
       EARLY_TOP_CONTENT_HASH,
     );
