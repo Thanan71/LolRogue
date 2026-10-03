@@ -21,6 +21,23 @@ Le fichier `authority-version-resolver.generated.ts` doit être commité. Il ne 
 que le moteur courant et son hash sont déclarés, que chaque migration publie les mêmes
 métadonnées et que chaque bundle historique enregistre le verifier attendu.
 
+## Réduire la taille du déploiement Edge
+
+Seules v19 et v20 (`replay-only`) ainsi que v21 (`current`) sont embarquées par
+`verify-run`. Les versions v1 à v18 sont `unsupported` et leurs bundles immuables
+sont conservés dans `supabase/authority-archive/`, hors du déploiement. L'archivage
+de v14 à v18 fait passer les bundles déployés de 6 625 211 à 2 519 010 octets.
+
+Les attempts v14 à v18 ne peuvent donc plus être validés par la fonction Edge
+(`unsupported_attempt_version`). Les tests et générateurs de baselines historiques
+continuent de charger les bundles archivés pour permettre leur audit.
+
+Pour archiver une autre version, déplacer son bundle sans en modifier les octets,
+mettre à jour son chemin et son statut dans le registre, adapter les références
+des outils d'audit, puis exécuter `npm run authority:generate` et
+`npm run edge:bundle`. Déplacer le fichier seul ne suffit pas : le statut
+`unsupported` retire aussi son import du resolver déployé.
+
 ## Publier la version suivante
 
 Pour passer, par exemple, de v17 à v18 :

@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { getAuthorityVerifier } from '@/game/authority';
+import rawRegistry from '../../config/authority-versions.json';
 
 export type AuthorityVerifier = NonNullable<ReturnType<typeof getAuthorityVerifier>>;
 
@@ -18,4 +19,20 @@ export async function resolveBundledAuthorityVerifier(
     ) => Promise<AuthorityVerifier | undefined>;
   };
   return edgeResolver.resolveAuthorityVerifier(engineVersion, contentHash);
+}
+
+export async function resolveRegisteredAuthorityVerifier(
+  engineVersion: string,
+  contentHash: string,
+): Promise<AuthorityVerifier | undefined> {
+  const version = rawRegistry.versions.find(
+    (candidate) => candidate.engine === engineVersion && candidate.contentHash === contentHash,
+  );
+  if (!version) return undefined;
+
+  const bundleUrl = pathToFileURL(resolve(process.cwd(), version.bundle)).href;
+  const authority = (await import(/* @vite-ignore */ bundleUrl)) as {
+    getAuthorityVerifier: (engine: string, hash: string) => AuthorityVerifier | undefined;
+  };
+  return authority.getAuthorityVerifier(engineVersion, contentHash);
 }

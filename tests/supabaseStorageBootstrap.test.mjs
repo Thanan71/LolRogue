@@ -132,8 +132,8 @@ describe('Supabase SDK import with unavailable browser storage', () => {
       path.join(root, 'patches', `@supabase+auth-js+${version}.patch`),
       'utf8',
     );
-    expect(manifest.devDependencies['patch-package']).toBe('8.0.1');
-    expect(manifest.scripts.postinstall).toBe('patch-package --error-on-fail');
+    expect(manifest.devDependencies['patch-package']).toBeUndefined();
+    expect(manifest.scripts.postinstall).toBe('node scripts/apply-supabase-auth-patch.mjs');
     expect(patch.split('\n').filter((line) => line.startsWith('+++ b/'))).toEqual([
       '+++ b/node_modules/@supabase/auth-js/dist/main/lib/locks.js',
       '+++ b/node_modules/@supabase/auth-js/dist/module/lib/locks.js',

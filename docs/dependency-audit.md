@@ -48,6 +48,21 @@ Le script échoue désormais sur toute future alerte haute ou critique sans
 allowlist. `nanoid` reste transitif et a été corrigé par résolution normale du
 lockfile, sans `override`.
 
+## Correction du 3 octobre 2026
+
+L'avis [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+concerne toutes les versions publiées de `braces` jusqu'à 3.0.3, sans version
+corrigée disponible. La chaîne `patch-package` → `find-yarn-workspace-root` →
+`micromatch` → `braces` faisait échouer le contrôle de sécurité de la CI.
+
+`patch-package` est retiré. Le postinstall utilise désormais un applicateur Node
+limité au correctif Web Storage de `@supabase/auth-js@2.117.2`. Le fichier `.patch`
+reste la source du correctif ; l'applicateur vérifie la version et le contenu des
+deux fichiers avant toute écriture, accepte un patch déjà appliqué et échoue si le
+SDK diverge. Les tests couvrent ces garanties et le démarrage réel des SDK ESM/CJS
+avec Web Storage bloqué. Le contrôle d'audit conserve son refus de toute alerte
+haute ou critique, sans exception.
+
 ## Validation requise après correction
 
 - `npm ci`, TypeScript, Biome et le build Vite/Rolldown ;

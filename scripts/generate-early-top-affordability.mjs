@@ -18,7 +18,7 @@ const { values } = parseArgs({
 
 const entrySources = {
   v17: `
-    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v17.bundle.ts';
+    import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v17.bundle.ts';
     import { measureEarlyTopAffordability } from './src/game/balance/earlyTopAffordability.ts';
 
     export function generate() {
@@ -31,7 +31,7 @@ const entrySources = {
     }
   `,
   v18: `
-    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v18.bundle.ts';
+    import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v18.bundle.ts';
     import { measureEarlyTopAffordability } from './src/game/balance/earlyTopAffordability.ts';
 
     export function generate() {
