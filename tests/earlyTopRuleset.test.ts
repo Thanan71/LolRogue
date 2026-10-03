@@ -50,7 +50,7 @@ describe('early Top gameplay ruleset v18', () => {
 
   it('archives the exact v17 bundle bytes before publishing v18', () => {
     const archive = readFileSync(
-      new URL('../supabase/functions/verify-run/run-authority-v17.bundle.ts', import.meta.url),
+      new URL('../supabase/authority-archive/run-authority-v17.bundle.ts', import.meta.url),
     );
 
     expect(archive.byteLength).toBe(824_777);

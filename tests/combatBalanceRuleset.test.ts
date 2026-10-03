@@ -10,7 +10,7 @@ const migrationSql = readFileSync(
   'utf8',
 );
 const archivedV18Bundle = readFileSync(
-  new URL('../supabase/functions/verify-run/run-authority-v18.bundle.ts', import.meta.url),
+  new URL('../supabase/authority-archive/run-authority-v18.bundle.ts', import.meta.url),
 );
 
 describe('combat balance ruleset v19 migration', () => {

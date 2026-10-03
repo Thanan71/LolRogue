@@ -227,7 +227,7 @@ describe('combat integrity source / Edge bundle parity', () => {
     });
   });
 
-  it('loads archived v14 through v20 and current v21 only for their exact hashes', async () => {
+  it('rejects archived v14 through v18 and only loads supported bundles for exact hashes', async () => {
     const v14 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v14');
     const v15 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v15');
     const v16 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v16');
@@ -235,18 +235,18 @@ describe('combat integrity source / Edge bundle parity', () => {
     const v18 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v18');
     const v19 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v19');
     const v20 = rawRegistry.versions.find((version) => version.engine === 'run-engine-v20');
-    expect(v14?.status).toBe('replay-only');
-    expect(v15?.status).toBe('replay-only');
-    expect(v16?.status).toBe('replay-only');
-    expect(v17?.status).toBe('replay-only');
-    expect(v18?.status).toBe('replay-only');
+    expect(v14?.status).toBe('unsupported');
+    expect(v15?.status).toBe('unsupported');
+    expect(v16?.status).toBe('unsupported');
+    expect(v17?.status).toBe('unsupported');
+    expect(v18?.status).toBe('unsupported');
     expect(v19?.status).toBe('replay-only');
     expect(v20?.status).toBe('replay-only');
-    expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeDefined();
-    expect(await resolveBundledAuthorityVerifier(v15!.engine, v15!.contentHash)).toBeDefined();
-    expect(await resolveBundledAuthorityVerifier(v16!.engine, v16!.contentHash)).toBeDefined();
-    expect(await resolveBundledAuthorityVerifier(v17!.engine, v17!.contentHash)).toBeDefined();
-    expect(await resolveBundledAuthorityVerifier(v18!.engine, v18!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeUndefined();
+    expect(await resolveBundledAuthorityVerifier(v15!.engine, v15!.contentHash)).toBeUndefined();
+    expect(await resolveBundledAuthorityVerifier(v16!.engine, v16!.contentHash)).toBeUndefined();
+    expect(await resolveBundledAuthorityVerifier(v17!.engine, v17!.contentHash)).toBeUndefined();
+    expect(await resolveBundledAuthorityVerifier(v18!.engine, v18!.contentHash)).toBeUndefined();
     expect(await resolveBundledAuthorityVerifier(v19!.engine, v19!.contentHash)).toBeDefined();
     expect(await resolveBundledAuthorityVerifier(v20!.engine, v20!.contentHash)).toBeDefined();
     expect(

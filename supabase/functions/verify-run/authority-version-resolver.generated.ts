@@ -334,10 +334,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 14,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-combat-integrity-v14",
     "contentHash": "486c5981a70dc84f5615af3abc4720ea03ce9085ae01595b2eda9bafc3f30708",
-    "bundle": "supabase/functions/verify-run/run-authority-v14.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v14.bundle.ts",
     "migration": "supabase/migrations/20260820152928_gameplay_ruleset_v14_combat_integrity.sql",
     "features": {
       "canonicalProgression": true,
@@ -359,10 +359,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 14,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-authority-cohorts-v15",
     "contentHash": "60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9",
-    "bundle": "supabase/functions/verify-run/run-authority-v15.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v15.bundle.ts",
     "migration": "supabase/migrations/20260820163214_gameplay_ruleset_v15_authority_cohorts.sql",
     "features": {
       "canonicalProgression": true,
@@ -384,10 +384,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 14,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-daily-parity-v16",
     "contentHash": "557f57f06c3410209a4f822d22a97b7699da3cb0278bcba553281a5c2a41dee9",
-    "bundle": "supabase/functions/verify-run/run-authority-v16.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v16.bundle.ts",
     "migration": "supabase/migrations/20260823073234_gameplay_ruleset_v16_daily_parity.sql",
     "features": {
       "canonicalProgression": true,
@@ -409,10 +409,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-economy-balance-v17",
     "contentHash": "83d6be646ff23a633d81fcde8df28fa642d2d1a2fc261be05aabc4aa8938dc19",
-    "bundle": "supabase/functions/verify-run/run-authority-v17.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v17.bundle.ts",
     "migration": "supabase/migrations/20260823081828_gameplay_ruleset_v17_economy_balance.sql",
     "features": {
       "canonicalProgression": true,
@@ -434,10 +434,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-early-top-v18",
     "contentHash": "9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17",
-    "bundle": "supabase/functions/verify-run/run-authority-v18.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v18.bundle.ts",
     "migration": "supabase/migrations/20260828150025_gameplay_ruleset_v18_early_top.sql",
     "features": {
       "canonicalProgression": true,
@@ -531,14 +531,9 @@ export const AUTHORITY_VERSION_REGISTRY = [
 ] as const;
 
 const verifierLoaders = {
-  "run-engine-v14": () => import("./run-authority-v14.bundle.ts"), // loader-0
-  "run-engine-v15": () => import("./run-authority-v15.bundle.ts"), // loader-1
-  "run-engine-v16": () => import("./run-authority-v16.bundle.ts"), // loader-2
-  "run-engine-v17": () => import("./run-authority-v17.bundle.ts"), // loader-3
-  "run-engine-v18": () => import("./run-authority-v18.bundle.ts"), // loader-4
-  "run-engine-v19": () => import("./run-authority-v19.bundle.ts"), // loader-5
-  "run-engine-v20": () => import("./run-authority-v20.bundle.ts"), // loader-6
-  "run-engine-v21": () => import("./run-authority.bundle.js"), // loader-7
+  "run-engine-v19": () => import("./run-authority-v19.bundle.ts"), // loader-0
+  "run-engine-v20": () => import("./run-authority-v20.bundle.ts"), // loader-1
+  "run-engine-v21": () => import("./run-authority.bundle.js"), // loader-2
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {

@@ -5,7 +5,7 @@ import {
   type EarlyTopCohortDocument,
   generateEarlyTopCohortDocument,
 } from '@/game/balance/earlyTopCohort';
-import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
+import { resolveRegisteredAuthorityVerifier } from './helpers/authorityBundleResolver';
 
 const EARLY_TOP_ENGINE_VERSION = 'run-engine-v18';
 const EARLY_TOP_CONTENT_HASH = '9abe5b2f3b54559a0dc8449d24b817d8787d48bc1b7a78e43992fe243f7ccc17';
@@ -61,7 +61,7 @@ describe('P0-BAL-05 starter survivability decision', () => {
   let matrix: Record<string, Record<string, StarterDifficultyEvidence>>;
 
   beforeAll(async () => {
-    const authority = await resolveBundledAuthorityVerifier(
+    const authority = await resolveRegisteredAuthorityVerifier(
       EARLY_TOP_ENGINE_VERSION,
       EARLY_TOP_CONTENT_HASH,
     );

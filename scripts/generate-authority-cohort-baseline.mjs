@@ -21,7 +21,7 @@ const version = {
   v15: {
     artifact: 'config/authority-cohort-baselines-v15.json',
     entrySource: `
-    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v15.bundle.ts';
+    import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v15.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
       generateAuthorityCohortBaselineV15,
@@ -38,7 +38,7 @@ const version = {
   v16: {
     artifact: 'config/authority-cohort-baselines-v16.json',
     entrySource: `
-    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v16.bundle.ts';
+    import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v16.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
       generateAuthorityCohortBaselineV16,
@@ -55,7 +55,7 @@ const version = {
   v17: {
     artifact: 'config/authority-cohort-baselines-v17.json',
     entrySource: `
-    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v17.bundle.ts';
+    import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v17.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V17_IDENTITY,
       generateAuthorityCohortBaselineV17,
@@ -72,7 +72,7 @@ const version = {
   v18: {
     artifact: 'config/authority-cohort-baselines-v18.json',
     entrySource: `
-    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v18.bundle.ts';
+    import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v18.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V18_IDENTITY,
       generateAuthorityCohortBaselineV18,

@@ -1,5 +1,3 @@
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { AUTHORITY_CONTENT_HASH, AUTHORITY_ENGINE_VERSION } from '@/game/authority';
 import type { AuthorityCohortResult, AuthorityCohortRuntime } from '@/game/balance/authorityCohort';
@@ -59,6 +57,7 @@ import baselineV18Json from '../config/authority-cohort-baselines-v18.json';
 import baselineV19Json from '../config/authority-cohort-baselines-v19.json';
 import baselineV20Json from '../config/authority-cohort-baselines-v20.json';
 import baselineV21Json from '../config/authority-cohort-baselines-v21.json';
+import { resolveRegisteredAuthorityVerifier } from './helpers/authorityBundleResolver';
 
 const V15_BASELINE_KEY =
   'engine=run-engine-v15|content=60cf9f5c2343ecd507549a9027e9001d32e9d8ad3c58091d5c93b35946992bb9|model=1|policy=survival-greedy@1';
@@ -81,16 +80,7 @@ async function resolveArchivedAuthority(identity: {
   engineVersion: string;
   contentHash: string;
 }): Promise<AuthorityCohortRuntime> {
-  const resolverUrl = pathToFileURL(
-    resolve(process.cwd(), 'supabase/functions/verify-run/authority-version-resolver.generated.ts'),
-  ).href;
-  const edgeResolver = (await import(/* @vite-ignore */ resolverUrl)) as {
-    resolveAuthorityVerifier: (
-      engine: string,
-      hash: string,
-    ) => Promise<AuthorityCohortRuntime | undefined>;
-  };
-  const authority = await edgeResolver.resolveAuthorityVerifier(
+  const authority = await resolveRegisteredAuthorityVerifier(
     identity.engineVersion,
     identity.contentHash,
   );
