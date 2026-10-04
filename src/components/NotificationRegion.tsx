@@ -1,19 +1,26 @@
 import { useEffect, useState } from 'react';
 import { fr } from '@/i18n/fr';
+import { gameOverCopy } from '@/i18n/gameOverContent';
 import { localizePersistedRunError, verificationRejectionMessage } from '@/i18n/runErrorContent';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
 
-export function NotificationRegion() {
+export function NotificationRegion({
+  showRunSaveNotifications = true,
+}: {
+  showRunSaveNotifications?: boolean;
+}) {
   const saveStatus = useRunStore((state) => state.saveStatus);
   const saveError = useRunStore((state) => state.saveError);
   const saveFailureKind = useRunStore((state) => state.saveFailureKind);
   const saveDiagnostic = useRunStore((state) => state.saveDiagnostic);
   const enhancementError = useEnhancementStore((state) => state.error);
   const [message, setMessage] = useState<string | null>(null);
-  const isCritical = saveStatus === 'failed' || Boolean(enhancementError);
+  const isCritical =
+    (showRunSaveNotifications && saveStatus === 'failed') || Boolean(enhancementError);
 
   useEffect(() => {
+    if (!showRunSaveNotifications) return;
     if (saveStatus === 'saving' || saveStatus === 'retrying') {
       setMessage(fr.notifications.saving);
     }
@@ -25,7 +32,7 @@ export function NotificationRegion() {
           : localizePersistedRunError(saveError),
       );
     }
-  }, [saveDiagnostic, saveError, saveFailureKind, saveStatus]);
+  }, [saveDiagnostic, saveError, saveFailureKind, saveStatus, showRunSaveNotifications]);
 
   useEffect(() => {
     if (enhancementError) setMessage(enhancementError);
@@ -51,7 +58,7 @@ export function NotificationRegion() {
     );
   };
 
-  if (!message) return null;
+  if (!message || (!showRunSaveNotifications && !enhancementError)) return null;
   return (
     <div
       role={isCritical ? 'alert' : 'status'}
@@ -59,7 +66,10 @@ export function NotificationRegion() {
       className="notification-region"
     >
       <div>{message}</div>
-      {saveStatus === 'failed' && (
+      {showRunSaveNotifications && saveStatus === 'failed' && saveFailureKind === 'terminal' && (
+        <div>{gameOverCopy.save.terminalOutcome}</div>
+      )}
+      {showRunSaveNotifications && saveStatus === 'failed' && saveFailureKind !== 'terminal' && (
         <button type="button" onClick={retrySave}>
           {fr.notifications.retrySave}
         </button>
