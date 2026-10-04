@@ -110,6 +110,12 @@ jusqu'à correction.
    recevoir ni progression ni récompense manuelle. Clore seulement après retour
    sous les seuils pendant 30 minutes et contrôle du SLO 30 jours.
 
+Pour une attempt affectée par un bug client confirmé, suivre
+[la procédure support et compensation](run-incident-policy.md) et mettre à jour
+[le registre des incidents par version et fenêtre UTC](run-incidents.md).
+Les rejets restent terminaux ; tout geste indépendant exige une décision
+manuelle documentée et un mécanisme serveur auditable avant attribution.
+
 ## Secret exposé
 
 1. SEV-1 immédiat : retirer la valeur du fournisseur et des variables, puis la
