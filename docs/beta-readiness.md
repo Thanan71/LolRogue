@@ -11,7 +11,7 @@ jamais une preuve de release.
 
 | Gate objective | État actuel | Preuve exigée par le preflight |
 | --- | --- | --- |
-| P0 formalisés | Vérifié dans le dépôt | Chaque P0 possède le statut `verified` et au moins une commande de contrôle dans la fiche de release. |
+| P0 formalisés | **Bloqué : P0-I18N-01 ouvert** | Tous les P0 du backlog doivent figurer dans la fiche, sans doublon, avec statut `verified` et commandes de contrôle. La revue humaine FR/EN et sa preview restent à prouver. |
 | Identité du candidat | **Bloqué** | SHA Git complet de 40 caractères, identique à `HEAD`. |
 | Trois CI complètes post-P0 | **Bloqué** | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `validate`, `e2e`, `database` et `clean-room` réussis. |
 | Preview exacte | **Bloqué** | URL HTTPS du candidat et validation de tous les assets par `test:deployed-assets`. |
@@ -26,6 +26,16 @@ manuelle. `npm run release:readiness:check` échoue si le statut déclaré ou ce
 page contredit les preuves enregistrées. `npm run release:preflight` reste
 volontairement en échec tant qu'une gate manque et revérifie GitHub, la base liée
 et la preview dès que la fiche est complète.
+
+Réconciliation du 4 octobre 2026 : les onze P0 actuels sont recensés, y compris
+les cinq P0 d'équilibrage et le P0 i18n auparavant absents de la fiche. Le statut
+`verified` d'un invariant de code n'atteste ni du déploiement ni d'un test récent
+sur le candidat. L'inventaire lit seulement les identifiants des titres du
+backlog ; il ne transforme jamais ses cases cochées en preuves de release.
+
+Les gates locales servent à livrer les tâches des sprints. Le report des required
+checks distants dans `TODO.md` n'assouplit pas les conditions de bêta : les trois
+CI candidates, la preview exacte et les preuves live restent ici **bloquantes**.
 
 ## Fiche de release obligatoire
 

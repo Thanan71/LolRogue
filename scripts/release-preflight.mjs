@@ -39,9 +39,27 @@ function inspectRecordedEvidence(sheet) {
 
   const p0Gates = Array.isArray(sheet.p0Gates) ? sheet.p0Gates : [];
   if (p0Gates.length === 0) block('p0', 'aucune gate P0 formalisée');
+  // Discover the inventory, never infer verification from backlog checkboxes.
+  const expectedP0Ids = [
+    ...fs.readFileSync(path.join(root, 'TODO.md'), 'utf8').matchAll(/^## (P0-[A-Z0-9]+-\d+) —/gm),
+  ].map((match) => match[1]);
+  for (const id of expectedP0Ids) {
+    if (!p0Gates.some((gate) => gate?.id === id)) {
+      block('p0-inventory', `${id} manque dans la fiche de release`);
+    }
+  }
+  const recordedP0Ids = new Set();
   for (const gate of p0Gates) {
+    if (!expectedP0Ids.includes(gate?.id) || recordedP0Ids.has(gate?.id)) {
+      block('p0-inventory', `${gate?.id || 'P0 inconnu'} est inconnu ou dupliqué`);
+    }
+    recordedP0Ids.add(gate?.id);
     if (gate?.status !== 'verified') block('p0', `${gate?.id || 'P0 inconnu'} reste ouvert`);
-    if (!Array.isArray(gate?.checks) || gate.checks.length === 0) {
+    if (
+      !Array.isArray(gate?.checks) ||
+      gate.checks.length === 0 ||
+      gate.checks.some((check) => typeof check !== 'string' || check.trim().length === 0)
+    ) {
       block('p0-proof', `${gate?.id || 'P0 inconnu'} ne référence aucun check exécutable`);
     }
   }
