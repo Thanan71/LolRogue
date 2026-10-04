@@ -1,6 +1,6 @@
 # Légal et confidentialité
 
-Version produit : 4 septembre 2026. Région préparée : France et Union européenne.
+Version produit : 4 octobre 2026. Région préparée : France et Union européenne.
 Ce document décrit le produit actuel ; il ne constitue pas un avis juridique.
 
 ## Statut de diffusion
@@ -34,16 +34,29 @@ Sources à revalider avant chaque release :
 | Global public | alias/pseudonyme, avatar facultatif, niveau, victoires et taux | classement global | public tant que non opt-out | vie du compte ou opt-out |
 | Modération | score signalé, auteur, motif, décision | intégrité du classement | modérateurs | ouverts jusqu'à décision ; traités 24 mois |
 | Diagnostic | opération, durée, erreur nettoyée | disponibilité et sécurité | utilisateur concerné/opérateurs | 14 jours maximum |
+| Support incident | références minimales du dossier, statut serveur, décision et audit d'un éventuel geste | assistance et prévention du double crédit | support/opérateurs habilités, canal privé requis | 90 jours après clôture, sauf exception motivée et datée |
 | Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
 | Calibration terrain | agrégats de runs déjà vérifiées, cellules `n >= 30` et empreintes de loadout | confronter simulation et usage réel | administrateurs uniquement | vue calculée, aucune copie persistée |
 | Calibration optionnelle | offres vues/refusées, raison structurée d'abandon | étude produit future | aucune collecte active | 30 jours maximum si opt-in livré |
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
 
-La vue Daily applique directement la fenêtre de 13 mois. Le job PostgreSQL mensuel
-`lolrogue-purge-expired-social-data`, exécuté par `postgres`, appelle la fonction
+La vue Daily applique directement la fenêtre de 13 mois. La migration versionnée
+`20260809180000_automate_social_retention.sql` planifie le job PostgreSQL mensuel
+`lolrogue-purge-expired-social-data`, exécuté par `postgres`, qui appelle la fonction
 privée de maintenance afin de supprimer les signalements traités depuis plus de
 24 mois. La façade publique reste réservée au `service_role` pour une intervention
 contrôlée. Le purgeur de logs existant conserve au maximum 14 jours.
+
+Cette description est celle du schéma du dépôt. **Validation live requise** :
+aucun nouveau relevé de production n'est attesté par cette mise à jour. Avant de
+déclarer la purge opérationnelle, vérifier l'historique des migrations,
+`cron.job`, les dernières exécutions et `private.social_retention_metrics` selon
+`operations.md`. `npm run db:validate` prouve localement les limites de rétention
+via `legalPrivacy.database.test.ts`, sans prouver l'exécution du cron distant.
+
+La procédure de support et les restrictions sur toute compensation sont dans
+`run-incident-policy.md`. Le registre public `run-incidents.md` ne contient que
+les versions, fenêtres temporelles et constats techniques anonymisés.
 
 Le protocole détaillé de calibration est dans `docs/field-calibration.md`. Les
 agrégats terrain ne créent aucune nouvelle ligne : ils dérivent exclusivement des
