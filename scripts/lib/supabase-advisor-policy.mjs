@@ -114,7 +114,9 @@ export function evaluateAdvisorFindings(policyInput, reports, today = new Date()
       }
 
       const exception = exceptions.get(identity);
-      if (policy.rejectUnknownFindings && !exception) {
+      // Internal-table exceptions must remain explicit even in a less strict
+      // policy. Disabling general discovery checks must never silence this rule.
+      if ((policy.rejectUnknownFindings || finding.name === NO_POLICY_FINDING) && !exception) {
         blockers.push({ code: 'unknown-finding', detail: `${identity} is not allowlisted.` });
         continue;
       }

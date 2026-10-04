@@ -105,3 +105,7 @@ Avant expiration, relire la décision `private`, réexécuter les tests de privi
 et les advisors, puis justifier explicitement chaque éventuel renouvellement.
 Une nouvelle table sans policy requiert sa propre classification et une preuve
 d’absence de grants ; son ajout à la liste n’est jamais automatique.
+
+Le moteur de politique bloque toujours un `rls_enabled_no_policy` inconnu, même
+si `rejectUnknownFindings` est désactivé pour d’autres familles. Aucun réglage
+global ne peut accepter silencieusement toutes les tables RLS sans policy.

@@ -31,6 +31,18 @@ describe('Supabase advisor policy', () => {
     expiresAt: '2026-10-31',
   };
 
+  it('never globally ignores RLS without policies, even when unknown findings are accepted', () => {
+    const result = evaluateAdvisorFindings(
+      policy({ rejectUnknownFindings: false, exceptions: [internalException] }),
+      reports({
+        security: [
+          { ...internalException, cacheKey: 'rls_enabled_no_policy_public_new_private_data' },
+        ],
+      }),
+    );
+    expect(result.blockers).toEqual([expect.objectContaining({ code: 'unknown-finding' })]);
+  });
+
   it.each([
     { object: undefined },
     { object: { schema: 'public', name: '*' } },
