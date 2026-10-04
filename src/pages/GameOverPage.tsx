@@ -30,10 +30,12 @@ export function GameOverPage() {
   const serverProgression = useRunStore((state) => state.serverProgression);
   const hasAuthenticatedAccount = useAuthStore((state) => state.user !== null);
   const [isErrorVisible, setIsErrorVisible] = useState(true);
-  const [diagnosticCopied, setDiagnosticCopied] = useState(false);
+  const [diagnosticCopyStatus, setDiagnosticCopyStatus] = useState<'idle' | 'copied' | 'failed'>(
+    'idle',
+  );
   const summary = completedRunSnapshot?.summary ?? routeSummary;
   const rewards = useMemo(() => {
-    if (!summary) return null;
+    if (!summary || saveFailureKind === 'terminal') return null;
     if (serverProgression) {
       const championIds = [
         ...new Set(
@@ -55,8 +57,15 @@ export function GameOverPage() {
       };
     }
     // An authenticated account must never see a speculative local reward.
-    return hasAuthenticatedAccount ? null : calculateRunCandyRewards(summary);
-  }, [completedRunSnapshot, hasAuthenticatedAccount, serverProgression, summary]);
+    return hasAuthenticatedAccount || saveDiagnostic ? null : calculateRunCandyRewards(summary);
+  }, [
+    completedRunSnapshot,
+    hasAuthenticatedAccount,
+    saveDiagnostic,
+    saveFailureKind,
+    serverProgression,
+    summary,
+  ]);
 
   useEffect(() => {
     if (summary) playSFX(summary.won ? 'victory' : 'defeat');
@@ -81,11 +90,15 @@ export function GameOverPage() {
   }
 
   async function handleCopyDiagnostic() {
-    if (!saveDiagnostic || !navigator.clipboard) return;
-    await navigator.clipboard.writeText(
-      formatRunSaveDiagnostic(saveDiagnostic, gameOverCopy.save.diagnostic),
-    );
-    setDiagnosticCopied(true);
+    if (!saveDiagnostic) return;
+    try {
+      await navigator.clipboard.writeText(
+        formatRunSaveDiagnostic(saveDiagnostic, gameOverCopy.save.diagnostic),
+      );
+      setDiagnosticCopyStatus('copied');
+    } catch {
+      setDiagnosticCopyStatus('failed');
+    }
   }
 
   const runLevel = summary?.runLevel ?? 1;
@@ -197,15 +210,23 @@ export function GameOverPage() {
               {saveFailureKind === 'terminal'
                 ? `${fr.gameOver.rejected} : ${localizedSaveError}`
                 : `${fr.gameOver.verificationPending} : ${localizedSaveError}`}
-              {saveFailureKind === 'terminal' && saveDiagnostic && (
+              <p>
+                {saveFailureKind === 'terminal'
+                  ? gameOverCopy.save.terminalOutcome
+                  : gameOverCopy.save.retryOutcome}
+              </p>
+              {saveDiagnostic && (
                 <details className="game-over-diagnostic">
                   <summary>{gameOverCopy.save.supportDetails}</summary>
                   <pre>{formatRunSaveDiagnostic(saveDiagnostic, gameOverCopy.save.diagnostic)}</pre>
                   <button type="button" onClick={() => void handleCopyDiagnostic()}>
-                    {diagnosticCopied
+                    {diagnosticCopyStatus === 'copied'
                       ? gameOverCopy.save.diagnosticCopied
                       : gameOverCopy.save.copyDiagnostic}
                   </button>
+                  {diagnosticCopyStatus === 'failed' && (
+                    <p role="status">{gameOverCopy.save.diagnosticCopyFailed}</p>
+                  )}
                 </details>
               )}
             </div>

@@ -13,7 +13,10 @@ import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runSta
 import { shouldApplyRunRewards } from '@/game/run/runState';
 import { runError, runStartValidationMessage } from '@/i18n/runErrorContent';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { RunVerificationRejectedError } from '@/services/runAttemptService';
+import {
+  RunVerificationRejectedError,
+  RunVerificationRetryableError,
+} from '@/services/runAttemptService';
 import { runAuthorityService } from '@/services/runAuthorityService';
 import {
   runEndFailure as endFailure,
@@ -748,6 +751,11 @@ export function createRunLifecycleSlice(
                 saveStatus: 'failed',
                 saveError: runError.journalSyncFailed,
                 saveFailureKind: 'retryable',
+                saveDiagnostic: {
+                  attemptId: syncedAttempt.attemptId,
+                  engineVersion: syncedAttempt.engineVersion,
+                  rejectionCode: 'journal_sync_failed',
+                },
               });
               return false;
             }
@@ -791,6 +799,11 @@ export function createRunLifecycleSlice(
               saveStatus: 'failed',
               saveError: runError.sealFailed,
               saveFailureKind: 'retryable',
+              saveDiagnostic: {
+                attemptId: syncedAttempt.attemptId,
+                engineVersion: syncedAttempt.engineVersion,
+                rejectionCode: 'attempt_seal_failed',
+              },
               authorityAttempt: syncedAttempt,
             });
             return false;
@@ -829,6 +842,14 @@ export function createRunLifecycleSlice(
               saveStatus: 'failed',
               saveError: verification.error?.message ?? runError.verificationFailed(),
               saveFailureKind: 'retryable',
+              saveDiagnostic: {
+                attemptId: syncedAttempt.attemptId,
+                engineVersion: syncedAttempt.engineVersion,
+                rejectionCode:
+                  verification.error instanceof RunVerificationRetryableError
+                    ? verification.error.code
+                    : 'verification_unavailable',
+              },
               authorityAttempt: syncedAttempt,
             });
             return false;

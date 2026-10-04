@@ -23,7 +23,17 @@ const attemptMocks = vi.hoisted(() => {
     }
   }
 
+  class RetryableError extends Error {
+    constructor(
+      readonly code: string,
+      message: string,
+    ) {
+      super(message);
+    }
+  }
+
   return {
+    RetryableError,
     start: vi.fn(),
     findOpen: vi.fn(),
     append: vi.fn(),
@@ -43,6 +53,7 @@ vi.mock('@/services/runAttemptService', () => ({
   verifyRunAttempt: attemptMocks.verify,
   recoverVerifiedRunAttempt: attemptMocks.recover,
   RunVerificationRejectedError: attemptMocks.RejectedError,
+  RunVerificationRetryableError: attemptMocks.RetryableError,
 }));
 
 vi.mock('@/services/container', () => ({
@@ -544,6 +555,46 @@ describe('authoritative run lifecycle and recovery', () => {
       rewardsApplied: false,
     });
     expect(useRunStore.getState().completedRunSnapshot?.runId).toBe(RUN_UUID);
+    await useRunStore.getState().endRun(false, RUN_UUID);
+    expect(attemptMocks.verify).toHaveBeenCalledTimes(1);
+    expect(attemptMocks.seal).toHaveBeenCalledTimes(1);
+    expect(useRunStore.getState().serverProgression).toBeNull();
+  });
+
+  it('retains the exact finish command and snapshot when retrying a server verification error', async () => {
+    attemptMocks.verify.mockResolvedValueOnce({
+      data: null,
+      error: new attemptMocks.RetryableError(
+        'verification_in_progress',
+        runError.verificationInProgress(12),
+      ),
+    });
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: false,
+      retryable: true,
+    });
+    const failed = structuredClone({
+      snapshot: useRunStore.getState().completedRunSnapshot,
+      attempt: useRunStore.getState().authorityAttempt,
+    });
+    expect(useRunStore.getState().saveDiagnostic).toEqual({
+      attemptId: ATTEMPT_ID,
+      engineVersion: 'run-engine-v1',
+      rejectionCode: 'verification_in_progress',
+    });
+    useRunStore.setState({ gold: 999, totalWavesCompleted: 99 });
+    await expect(useRunStore.getState().endRun(true, RUN_UUID)).resolves.toMatchObject({
+      success: true,
+      outcome: 'saved',
+    });
+    expect(attemptMocks.seal.mock.calls).toEqual([
+      [ATTEMPT_ID, failed.attempt!.finishCommandId, failed.attempt!.nextSequence - 1],
+      [ATTEMPT_ID, failed.attempt!.finishCommandId, failed.attempt!.nextSequence - 1],
+    ]);
+    expect(attemptMocks.append).toHaveBeenCalledTimes(1);
+    expect(useRunStore.getState().completedRunSnapshot).toEqual(failed.snapshot);
+    expect(useRunStore.getState().authorityAttempt?.commands).toEqual(failed.attempt!.commands);
+    expect(useRunStore.getState().saveDiagnostic).toBeNull();
   });
 
   it('refuses to replace an active run without an explicit abandonment', async () => {

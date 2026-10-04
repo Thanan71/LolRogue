@@ -164,7 +164,7 @@ export default function App() {
       <AuthBootstrap />
       {shouldLoadRunNotifications ? (
         <Suspense fallback={null}>
-          <NotificationRegion />
+          <NotificationRegion showRunSaveNotifications={pathname !== '/game-over'} />
         </Suspense>
       ) : null}
       <Suspense fallback={<RouteLoadingFallback />}>
