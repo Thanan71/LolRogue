@@ -67,3 +67,25 @@ régénérer les types et rejouer achats/Daily/restauration sur une base vide et
 base contenant des données. Le schéma `private` doit rester absent des schémas
 exposés PostgREST ; les grants nécessaires aux projections de classement ne
 constituent pas une autorisation pour les tables internes déplacées.
+
+## Preuves exécutables
+
+`tests/serverOnlyTables.database.test.ts` est découvert automatiquement par
+`npm run test:db`. `npm run db:validate` reconstruit la base locale puis lance ce
+test avec les autres contrats. Il compare les 22 tables du catalogue réel au
+manifeste, exige RLS partout et vérifie la classification des accès clients.
+Pour chaque table interne, il vérifie aussi les ACL de table et de colonne,
+les grants hérités des rôles `anon`/`authenticated`, `PUBLIC`, l’absence de policy
+et la lecture autorisée du serveur.
+
+Les preuves comportementales exécutent `SELECT`, `INSERT`, `UPDATE` et `DELETE`
+avec les vrais rôles PostgreSQL dans des transactions annulées, puis des lectures
+Data API avec une session anonyme, un compte authentifié et un compte promu
+administrateur. Chaque refus doit être une erreur PostgreSQL `42501` ; une liste
+vide ne suffit pas. Le test vérifie également que le catalogue Daily reste
+accessible par sa RPC bornée et supprime son compte éphémère.
+
+La preuve locale nécessite `SUPABASE_DB_URL` et les trois variables habituelles
+de `test:db`. `DB_TEST_REQUIRED=1` interdit une exécution silencieusement ignorée
+quand ces paramètres sont absents. La recette est locale ; son succès ne prouve
+pas que les ACL de production n’ont jamais dérivé.
