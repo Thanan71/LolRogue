@@ -43,3 +43,27 @@ les vues `security_invoker`. `private` ne signifie donc pas automatiquement
 « aucun grant client ».
 
 Référence : [sécuriser la Data API Supabase](https://supabase.com/docs/guides/api/securing-your-api).
+
+## Décision sur le schéma private
+
+Un déplacement vers `private` non exposé a été évalué pour chaque table interne :
+
+| Table | Dépendances à traiter lors d’un déplacement | Décision du Sprint F |
+| --- | --- | --- |
+| `daily_challenge_rulesets` | RPC `get_daily_challenge`, helpers Daily, déclencheurs de démarrage et de résultat, FK des tentatives et résultats, types générés. Les corps SQL/PLpgSQL qualifient explicitement `public.daily_challenge_rulesets`. | Conserver `public` avec RLS et zéro grant client. Une migration atomique des fonctions et de leurs versions historiques doit précéder un changement de schéma. |
+| `progression_commands` | `unlock_champion_enhancement` déclare une variable `%ROWTYPE` et effectue lecture, insertion et mise à jour avec le nom qualifié ; les migrations de quarantaine et les contrôles d’idempotence référencent ce journal. | Conserver la frontière actuelle ; déplacer la table seule casserait les achats idempotents à l’exécution. |
+| `progression_enhancement_security_baselines` | Archive écrite par migration, sans RPC métier active ; types générés et procédures d’audit/restauration à adapter. Un déplacement est techniquement plus simple. | Conserver l’archive à son emplacement documenté : le gain de frontière supplémentaire ne justifie pas une migration isolée de l’audit historique dans ce sprint. La prochaine revue des exceptions réévalue ce choix. |
+
+La décision conserve les révocations explicites déjà migrées et RLS sans policy.
+Aucune policy permissive de confort n’est ajoutée. Les accès serveur restent :
+`SELECT` pour `service_role` sur le catalogue Daily ; les droits existants de
+maintenance sur les deux journaux internes. Les fonctions `SECURITY DEFINER`
+gardent leur surface d’exécution bornée par
+`config/security-definer-privileges.json`.
+
+Un futur déplacement devra conserver les signatures des RPC exposées, remplacer
+leurs références qualifiées, vérifier les privilèges de schéma **et** de table,
+régénérer les types et rejouer achats/Daily/restauration sur une base vide et une
+base contenant des données. Le schéma `private` doit rester absent des schémas
+exposés PostgREST ; les grants nécessaires aux projections de classement ne
+constituent pas une autorisation pour les tables internes déplacées.
