@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   evaluateAdvisorFindings,
@@ -20,6 +21,73 @@ function reports({ security = [], performance = [] } = {}) {
 }
 
 describe('Supabase advisor policy', () => {
+  const internalException = {
+    type: 'security',
+    cacheKey: 'rls_enabled_no_policy_public_internal',
+    object: { schema: 'public', name: 'internal' },
+    name: 'rls_enabled_no_policy',
+    level: 'INFO',
+    justification: 'Internal server-only table deliberately has no client read policy.',
+    expiresAt: '2026-10-31',
+  };
+
+  it('never globally ignores RLS without policies, even when unknown findings are accepted', () => {
+    const result = evaluateAdvisorFindings(
+      policy({ rejectUnknownFindings: false, exceptions: [internalException] }),
+      reports({
+        security: [
+          { ...internalException, cacheKey: 'rls_enabled_no_policy_public_new_private_data' },
+        ],
+      }),
+    );
+    expect(result.blockers).toEqual([expect.objectContaining({ code: 'unknown-finding' })]);
+  });
+
+  it.each([
+    { object: undefined },
+    { object: { schema: 'public', name: '*' } },
+    { object: { schema: '*', name: 'internal' } },
+    { object: { schema: 'public', name: 'another_table' } },
+    { cacheKey: 'rls_enabled_no_policy' },
+    { cacheKey: 'rls_enabled_no_policy_public_*' },
+    { type: 'performance' },
+    { level: 'WARN' },
+    { level: 'ERROR' },
+  ])('rejects unscoped or non-INFO RLS exceptions: %j', (override) => {
+    expect(() =>
+      validateAdvisorPolicy(policy({ exceptions: [{ ...internalException, ...override }] })),
+    ).toThrow('rls_enabled_no_policy');
+  });
+
+  it('binds the repository INFO allowlist to exactly the documented internal tables', () => {
+    const configured = JSON.parse(
+      readFileSync(new URL('../config/supabase-advisors.json', import.meta.url), 'utf8'),
+    );
+    const tables = JSON.parse(
+      readFileSync(new URL('../config/public-table-access.json', import.meta.url), 'utf8'),
+    );
+    expect(validateAdvisorPolicy(configured)).toBe(configured);
+    expect(configured.rejectUnknownFindings).toBe(true);
+    expect(configured.enforceExpiration).toBe(true);
+    const exceptions = configured.exceptions.filter(
+      (exception) => exception.name === 'rls_enabled_no_policy',
+    );
+    expect(
+      exceptions.map((exception) => exception.object).sort((a, b) => a.name.localeCompare(b.name)),
+    ).toEqual(
+      tables.tables
+        .filter((entry) => entry.exposure === 'server-only')
+        .map((entry) => ({ schema: tables.schema, name: entry.name }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    );
+    const result = evaluateAdvisorFindings(
+      configured,
+      reports({ security: exceptions }),
+      new Date('2026-10-04T12:00:00Z'),
+    );
+    expect(result.blockers).toEqual([]);
+  });
+
   it('always blocks every security ERROR finding', () => {
     const result = evaluateAdvisorFindings(
       policy(),
@@ -85,6 +153,7 @@ describe('Supabase advisor policy', () => {
     const exception = {
       type: 'security',
       cacheKey: 'rls_enabled_no_policy_public_internal',
+      object: { schema: 'public', name: 'internal' },
       name: 'rls_enabled_no_policy',
       level: 'INFO',
       justification: 'Internal server-only table deliberately has no client read policy.',
@@ -104,6 +173,7 @@ describe('Supabase advisor policy', () => {
     const exception = {
       type: 'security',
       cacheKey: 'rls_enabled_no_policy_public_internal',
+      object: { schema: 'public', name: 'internal' },
       name: 'rls_enabled_no_policy',
       level: 'INFO',
       justification: 'Internal server-only table deliberately has no client read policy.',
