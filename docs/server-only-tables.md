@@ -89,3 +89,19 @@ La preuve locale nécessite `SUPABASE_DB_URL` et les trois variables habituelles
 de `test:db`. `DB_TEST_REQUIRED=1` interdit une exécution silencieusement ignorée
 quand ces paramètres sont absents. La recette est locale ; son succès ne prouve
 pas que les ACL de production n’ont jamais dérivé.
+
+## Exceptions advisors INFO
+
+`config/supabase-advisors.json` accepte uniquement les trois objets internes
+listés ci-dessus pour `rls_enabled_no_policy`, avec leur justification et une
+expiration au **31 octobre 2026**. Chaque exception fournit le schéma, le nom
+exact de la table et la clé advisor correspondante. Les jokers, une clé globale,
+un objet différent ou un niveau autre que `security/INFO` sont invalides.
+`tests/supabaseAdvisorPolicy.test.mjs` confronte cette liste à l’inventaire ;
+`npm run db:advisors` l’applique aux advisors de la base locale et le preflight
+existant l’applique en lecture à la base liée.
+
+Avant expiration, relire la décision `private`, réexécuter les tests de privilèges
+et les advisors, puis justifier explicitement chaque éventuel renouvellement.
+Une nouvelle table sans policy requiert sa propre classification et une preuve
+d’absence de grants ; son ajout à la liste n’est jamais automatique.

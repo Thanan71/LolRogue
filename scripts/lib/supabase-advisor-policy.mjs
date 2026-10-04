@@ -1,6 +1,8 @@
 const ADVISOR_TYPES = ['security', 'performance'];
 const ADVISOR_LEVELS = ['INFO', 'WARN', 'ERROR'];
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const IDENTIFIER_PATTERN = /^[a-z_][a-z0-9_]*$/;
+const NO_POLICY_FINDING = 'rls_enabled_no_policy';
 
 function assert(condition, message) {
   if (!condition) throw new Error(`Invalid Supabase advisor policy: ${message}`);
@@ -45,6 +47,24 @@ export function validateAdvisorPolicy(policy) {
       `${label}.name is required.`,
     );
     assert(ADVISOR_LEVELS.includes(exception.level), `${label}.level is invalid.`);
+    if (exception.name === NO_POLICY_FINDING) {
+      assert(
+        exception.type === 'security' && exception.level === 'INFO',
+        `${label}: rls_enabled_no_policy exceptions must be security INFO.`,
+      );
+      assert(
+        typeof exception.object?.schema === 'string' &&
+          IDENTIFIER_PATTERN.test(exception.object.schema) &&
+          typeof exception.object?.name === 'string' &&
+          IDENTIFIER_PATTERN.test(exception.object.name),
+        `${label}: rls_enabled_no_policy requires an exact object schema and name.`,
+      );
+      assert(
+        exception.cacheKey ===
+          `${NO_POLICY_FINDING}_${exception.object.schema}_${exception.object.name}`,
+        `${label}: rls_enabled_no_policy cacheKey must identify its exact object.`,
+      );
+    }
     assert(
       typeof exception.justification === 'string' && exception.justification.length >= 20,
       `${label}.justification must contain at least 20 characters.`,
