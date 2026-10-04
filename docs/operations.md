@@ -178,7 +178,7 @@ WHERE n.nspname = 'public' AND c.relkind = 'v';
 -- Ces trois tables internes ne doivent avoir aucun privilège client, ni de colonne.
 SELECT c.relname, c.relrowsecurity, r.role_name,
   has_table_privilege(r.role_name, c.oid,
-    'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') AS client_table_grant,
+    'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER,MAINTAIN') AS client_table_grant,
   has_any_column_privilege(r.role_name, c.oid,
     'SELECT,INSERT,UPDATE,REFERENCES') AS client_column_grant
 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
@@ -305,9 +305,10 @@ déclenche ou si le SLO passe sous 99 %.
 
 ### Diagnostics applicatifs
 
-Analytics comportementale reste désactivée. Speed Insights est activé pour les
-Web Vitals conformément à `docs/legal-and-privacy.md` ; la revue externe avant
-bêta reste requise. Les compteurs SLI navigateur restent en mémoire et ne sont pas
+`src/main.tsx` monte Vercel Web Analytics et Speed Insights : la télémétrie web et
+les Web Vitals sont intégrés conformément à `docs/legal-and-privacy.md` ; leur
+configuration distante et la revue externe avant bêta restent à vérifier. Aucun
+événement de gameplay n'est envoyé par les compteurs SLI navigateur, qui restent en mémoire et ne sont pas
 envoyés automatiquement. Le logging applicatif en base est désactivé par défaut.
 Pour l'activer explicitement :
 

@@ -36,6 +36,7 @@ Sources à revalider avant chaque release :
 | Diagnostic | opération, durée, erreur nettoyée | disponibilité et sécurité | utilisateur concerné/opérateurs | 14 jours maximum |
 | Support incident | références minimales du dossier, statut serveur, décision et audit d'un éventuel geste | assistance et prévention du double crédit | support/opérateurs habilités, canal privé requis | 90 jours après clôture, sauf exception motivée et datée |
 | Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
+| Audience web | télémétrie de navigation du composant Vercel Web Analytics intégré dans `src/main.tsx` | mesure d'audience du site | Vercel / exploitant | configuration distante, durée et information utilisateur à vérifier avant bêta |
 | Calibration terrain | agrégats de runs déjà vérifiées, cellules `n >= 30` et empreintes de loadout | confronter simulation et usage réel | administrateurs uniquement | vue calculée, aucune copie persistée |
 | Calibration optionnelle | offres vues/refusées, raison structurée d'abandon | étude produit future | aucune collecte active | 30 jours maximum si opt-in livré |
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
@@ -78,11 +79,13 @@ est une mesure de jeu auditable et contestable auprès de l'exploitant.
 
 ## Stockage navigateur, cookies et télémétrie
 
-Il n'existe actuellement aucun SDK publicitaire ni analytics comportementale de type
-profilage marketing. Vercel Speed Insights est activé uniquement pour mesurer les
-performances Web Vitals du site et transmettre les métriques techniques nécessaires
-à cette mesure. Cette collecte doit rester minimisée et être réévaluée dans la revue
-RGPD/ePrivacy avant une bêta publique.
+`src/main.tsx` intègre à la fois Vercel Web Analytics et Vercel Speed Insights.
+La mesure d'audience web et les Web Vitals ne doivent donc pas être décrits comme
+désactivés. Le dépôt ne démontre pas les réglages de collecte/rétention du projet
+distant. Vérifier ces réglages, les données effectivement transmises et
+l'information utilisateur dans la revue RGPD/ePrivacy avant une bêta publique.
+Les compteurs SLI techniques ajoutés au sprint F restent locaux et ne transmettent
+ni journal de gameplay ni événement métier à ces composants.
 
 Les données locales sont strictement fonctionnelles : session Supabase, réglages,
 progression invitée, reprise de run et état des tutoriels. Aucun bandeau de
