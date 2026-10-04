@@ -44,3 +44,26 @@ La seconde commande valide les migrations et les tests réels, notamment
 `verifiedRunAttempts.database.test.ts` et `mapEconomyProgression.database.test.ts`.
 Elle s'exécute uniquement sur la base locale jetable. Une validation locale ne
 prouve pas que la production utilise déjà le même code.
+
+## Compensation indépendante du résultat
+
+Règle retenue : aucune compensation automatique. Un geste indépendant du
+résultat peut être étudié manuellement pour un incident confirmé ; il n'est ni
+promis au joueur ni crédité par cette procédure. Il ne remplace jamais une run
+rejetée par une victoire et ne modifie ni score Daily, ni classement, ni historique
+de résultats vérifiés.
+
+Toute proposition précise l'incident, la fenêtre UTC confirmée, la population
+affectée prouvée côté serveur, la nature et le montant forfaitaire du geste, ses
+limites et l'approbateur produit. Elle ne dépend pas des gains déclarés par le
+joueur. Sans ces éléments, la décision est « refusée » ou « en attente », jamais
+« exécutée ». Le même utilisateur ne reçoit pas plusieurs gestes pour le même
+incident.
+
+Il n'existe pas de voie d'attribution exceptionnelle dédiée dans cette livraison.
+Avant toute compensation effective, livrer et faire revoir un mécanisme serveur
+avec contrôle opérateur, plafond, transaction et clé d'idempotence
+`(incident_id, user_id, compensation_kind)`, puis le tester sur une base isolée.
+Une modification manuelle de `players`, du ledger ou d'une attempt ne constitue
+pas ce mécanisme. L'approbation produit du geste et la disponibilité du mécanisme
+sont deux conditions séparées.
