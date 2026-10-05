@@ -1,6 +1,5 @@
 import { execFile } from 'node:child_process';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs, promisify } from 'node:util';
@@ -9,7 +8,7 @@ import { build } from 'esbuild-authority';
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
 const artifactPath = 'config/authority-field-calibration-baseline-v1.json';
 const conditionalArtifactPath = 'config/authority-field-calibration-conditionals-v1.json';
-const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'lolrogue-field-calibration-'));
+const temporaryRoot = await mkdtemp(path.join(repositoryRoot, '.lolrogue-field-calibration-'));
 const outputPath = path.join(temporaryRoot, 'authority-field-calibration.mjs');
 const execFileAsync = promisify(execFile);
 const { values } = parseArgs({
