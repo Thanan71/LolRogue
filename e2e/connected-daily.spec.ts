@@ -7,6 +7,9 @@ const onlineEnvironmentAvailable = Boolean(
 test('un compte démarre et reprend le Daily autoritaire uniquement par l’interface', async ({
   page,
 }) => {
+  if (process.env.E2E_REQUIRE_CONNECTED === '1') {
+    expect(onlineEnvironmentAvailable, 'La gate connectée exige Supabase local.').toBe(true);
+  }
   test.skip(!onlineEnvironmentAvailable, 'Supabase local est requis pour ce parcours connecté.');
   test.setTimeout(90_000);
 

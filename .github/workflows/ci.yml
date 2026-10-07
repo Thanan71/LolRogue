@@ -170,6 +170,10 @@ jobs:
       - name: Export local Supabase credentials
         run: |
           eval "$(./node_modules/.bin/supabase status -o env)"
+          : "${API_URL:?Supabase API_URL missing}"
+          : "${ANON_KEY:?Supabase ANON_KEY missing}"
+          : "${SERVICE_ROLE_KEY:?Supabase SERVICE_ROLE_KEY missing}"
+          : "${DB_URL:?Supabase DB_URL missing}"
           echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
           echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
@@ -242,6 +246,8 @@ jobs:
         run: npm run test:e2e
 
       - name: Run connected Daily and Sprint G browser tests
+        env:
+          E2E_REQUIRE_CONNECTED: '1'
         run: |
           VITE_PUBLIC_SUPABASE_URL="$E2E_SUPABASE_URL" \
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \

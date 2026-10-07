@@ -29,6 +29,16 @@ test('Sprint G connecté : historique paginé et notes lues synchronisées entre
   browser,
   baseURL,
 }) => {
+  if (process.env.E2E_REQUIRE_CONNECTED === '1') {
+    expect(credentialsAvailable, 'La gate connectée exige les credentials Supabase locaux.').toBe(
+      true,
+    );
+    expect(isLoopbackEndpoint(supabaseUrl!), 'API Supabase locale obligatoire.').toBe(true);
+    expect(
+      isLoopbackEndpoint(databaseUrl!, ['postgres:', 'postgresql:']),
+      'PostgreSQL local obligatoire.',
+    ).toBe(true);
+  }
   test.skip(!credentialsAvailable, 'Supabase local et ses credentials sont requis.');
   test.skip(
     !isLoopbackEndpoint(supabaseUrl!) ||
