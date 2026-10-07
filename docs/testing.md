@@ -216,6 +216,29 @@ réellement.
 fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni
 Supabase ni les tests et sert de preuve locale de discovery.
 
+## Réutilisation signée du build dans le même run
+
+`build/assets` construit le `dist` de production une fois avec `APP_COMMIT_SHA`.
+Il signe avec Ed25519 un inventaire SHA-256 complet lié au SHA checkouté, au dépôt,
+au numéro de run, à sa tentative et au profil `production`. La clé privée reste
+en mémoire ; seule la clé publique passe par la sortie authentifiée du job.
+Le bundle contient uniquement `dist` et la provenance signée.
+
+`browser` télécharge l’ID immuable produit par ce même run, avec une erreur
+bloquante en cas de digest invalide. Avant chaque démarrage de la matrice,
+`scripts/ci-build-artifact.mjs restore` vérifie la signature avec la clé reçue
+du job producteur, chaque champ de provenance, le SHA de déploiement et tous les
+fichiers, y compris l’absence de fichiers supplémentaires et de liens. La matrice
+sert ensuite ce build sans le reconstruire. La suite fonctionnelle conserve son
+serveur de développement avec la rune dédiée et sa base jetable ; elle ne partage
+ni session navigateur ni credentials avec le build transféré.
+
+La signature authentifie un transfert entre jobs du même workflow. Elle ne
+constitue pas une attestation externe de release. Aucun téléchargement inter-run,
+cache `dist`, secret de signature persistant ou droit OIDC supplémentaire n’est
+introduit. Localement, la configuration production reconstruit par défaut ;
+`CI_REUSE_BUILD=1` exige les sorties du producteur et échoue si elles manquent.
+
 ## Clean-room CI
 
 La job `clean-room` repart d'un checkout sans `node_modules`, `dist` ni couverture et

@@ -1267,7 +1267,7 @@ entre jobs.
 - [x] Garder une commande locale « tout-en-un ».
 - [x] En CI, produire des checks nommés et lisibles : static, unit, security,
   build/assets, DB, browser.
-- [ ] Éviter de reconstruire les mêmes artefacts plusieurs fois quand un artefact
+- [x] Éviter de reconstruire les mêmes artefacts plusieurs fois quand un artefact
   signé du même SHA peut être réutilisé sans réduire l'isolation de `clean-room`.
 - [ ] Conserver `clean-room` comme validation indépendante sans cache applicatif.
 
