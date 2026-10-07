@@ -1417,12 +1417,14 @@ contenus de gameplay et chaînes dynamiques ; ce sujet n'est plus différé en P
 
 **Taille : M/L**
 
-Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
+Décision utilisateur Sprint G : **PWA installable, sans mode hors ligne**.
 
-- [ ] Décider officiellement : pas de PWA, ou PWA invitée.
-- [ ] Si PWA : cache versionné, invalidation assets, offline shell et mises à jour sûres.
-- [ ] Ne jamais permettre de démarrer une run authentifiée hors ligne.
-- [ ] Tester upgrade du service worker sans casser une run active.
+- [x] Décider officiellement : PWA en ligne uniquement (`productDecisions` v3).
+- [x] Ajouter manifeste, icônes, lancement en ligne ; aucun cache applicatif ni offline shell.
+- [x] Ne jamais permettre de démarrer une run authentifiée hors ligne.
+- [x] Vérifier qu'une mise à jour du manifeste ne casse pas une run active ; sans service worker, l'upgrade de worker est sans objet.
+
+Preuves : `e2e/pwa-online.spec.ts`, `runSaveRecovery.test.ts`, `docs/product-decisions.md`.
 
 ---
 
@@ -1577,7 +1579,7 @@ techniques ni afficher une modale à chaque déploiement.**
     tout-en-un conservée.
 37. [ ] `P3-PROD-01` historique de runs exploitable.
 38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
-39. [ ] `P3-PROD-03` décision PWA/offline.
+39. [x] `P3-PROD-03` PWA installable en ligne, sans mode hors ligne.
 40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
 40 bis. [ ] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
 
