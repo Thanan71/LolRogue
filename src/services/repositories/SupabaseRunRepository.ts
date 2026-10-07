@@ -12,8 +12,10 @@ import type {
   IRunRepository,
   IRunStatsRepository,
   RunHistoryCursor,
+  RunHistoryDetails,
   RunHistoryEntry,
   RunHistoryQuery,
+  RunHistorySummary,
   RunRejectionCursor,
   RunRejectionEntry,
 } from '../interfaces/IRunRepository';
@@ -27,8 +29,7 @@ function isHistoryCursor(timestamp: string, id: string): boolean {
   );
 }
 
-type RunHistoryRow = Run & {
-  run_team_members: RunTeamMember[] | null;
+type RunHistoryRow = RunHistorySummary & {
   run_attempts: Pick<
     Database['public']['Tables']['run_attempts']['Row'],
     'difficulty' | 'mode' | 'engine_version' | 'gameplay_ruleset_version' | 'ruleset_version'
@@ -36,7 +37,7 @@ type RunHistoryRow = Run & {
 };
 
 const RUN_HISTORY_SELECT =
-  '*, run_team_members(*), run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)';
+  'id, player_id, won, run_level, waves_completed, total_kills, completed_at, created_at, progression_source, run_attempt_id, run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)';
 
 export class SupabaseRunRepository implements IRunRepository {
   private supabase: SupabaseClient<Database>;
@@ -117,10 +118,9 @@ export class SupabaseRunRepository implements IRunRepository {
     if (error) return { data: null, nextCursor: null, error };
 
     const entries = ((data ?? []) as unknown as RunHistoryRow[]).map((raw) => {
-      const { run_team_members, run_attempts, ...run } = raw;
+      const { run_attempts, ...run } = raw;
       return {
         run,
-        teamMembers: run_team_members ?? [],
         attempt: run_attempts
           ? {
               difficulty: run_attempts.difficulty,
@@ -142,6 +142,14 @@ export class SupabaseRunRepository implements IRunRepository {
           ? { createdAt: last.run.created_at, id: last.run.id }
           : null,
     };
+  }
+
+  async getRunHistoryDetails(
+    runId: string,
+  ): Promise<{ data: RunHistoryDetails | null; error: Error | null }> {
+    const [run, team] = await Promise.all([this.getRun(runId), this.getRunTeamMembers(runId)]);
+    if (run.error || team.error) return { data: null, error: run.error ?? team.error };
+    return { data: run.data ? { run: run.data, teamMembers: team.data ?? [] } : null, error: null };
   }
 
   async getPlayerRunRejections(

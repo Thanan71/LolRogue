@@ -7,11 +7,19 @@ import { ProfilePage } from '@/pages/ProfilePage';
 import { useAuthStore } from '@/stores/authStore';
 import type { Player, Run, RunTeamMember } from '@/types/models';
 
-const historyMocks = vi.hoisted(() => ({ getPlayerRunHistory: vi.fn() }));
+const historyMocks = vi.hoisted(() => ({
+  getPlayerRunHistory: vi.fn(),
+  getRunHistoryDetails: vi.fn(),
+}));
 
 vi.mock('@/services/container', () => ({
   RepositoryContainerFactory: {
-    create: () => ({ run: { getPlayerRunHistory: historyMocks.getPlayerRunHistory } }),
+    create: () => ({
+      run: {
+        getPlayerRunHistory: historyMocks.getPlayerRunHistory,
+        getRunHistoryDetails: historyMocks.getRunHistoryDetails,
+      },
+    }),
   },
 }));
 
@@ -43,6 +51,17 @@ describe('comparable profile history', () => {
   });
 
   beforeEach(() => {
+    historyMocks.getRunHistoryDetails.mockReset();
+    historyMocks.getRunHistoryDetails.mockResolvedValue({
+      data: {
+        run,
+        teamMembers: [
+          { champion_id: 'Garen', final_level: 6 } as RunTeamMember,
+          { champion_id: 'Lux', final_level: 5 } as RunTeamMember,
+        ],
+      },
+      error: null,
+    });
     historyMocks.getPlayerRunHistory.mockReset();
     historyMocks.getPlayerRunHistory.mockResolvedValue({
       data: [
@@ -93,7 +112,10 @@ describe('comparable profile history', () => {
       }),
     );
     const summary = await screen.findByText('Victoire', { selector: 'span' });
+    expect(historyMocks.getRunHistoryDetails).not.toHaveBeenCalled();
     fireEvent.click(summary.closest('summary') ?? summary);
+    await screen.findByText(/Garen niv. 6, Lux niv. 5/);
+    expect(historyMocks.getRunHistoryDetails).toHaveBeenCalledWith('run-13');
 
     expect(screen.getByText('Anciennes versions · non comparable')).toBeVisible();
     expect(screen.getByText('run-engine-v13 · jeu v13 · progression v2')).toBeVisible();
@@ -125,6 +147,11 @@ describe('comparable profile history', () => {
       error: null,
     });
 
+    const legacy = await historyMocks.getPlayerRunHistory.getMockImplementation()?.();
+    historyMocks.getRunHistoryDetails.mockResolvedValue({
+      data: { run: legacy.data[0].run, teamMembers: [] },
+      error: null,
+    });
     render(
       <MemoryRouter>
         <ProfilePage />
@@ -134,6 +161,7 @@ describe('comparable profile history', () => {
     expect(await screen.findByText('Legacy · non comparable')).toBeVisible();
     const summary = await screen.findByText('Défaite', { selector: 'span' });
     fireEvent.click(summary.closest('summary') ?? summary);
+    await screen.findByText('Équipe non conservée');
 
     expect(screen.getByText(/Connexion perdue/)).toBeVisible();
     expect(screen.getByText(/Partie historique/)).toBeVisible();
@@ -318,6 +346,62 @@ describe('comparable profile history', () => {
 
     await waitFor(() => expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledTimes(2));
     expect(await screen.findByText('Aucune partie enregistrée')).toBeVisible();
+  });
+
+  it('reports unexpected initial and later page exceptions without exposing stale rows', async () => {
+    const first = await historyMocks.getPlayerRunHistory.getMockImplementation()?.();
+    historyMocks.getPlayerRunHistory
+      .mockRejectedValueOnce(new Error('network exception'))
+      .mockResolvedValueOnce({ ...first, nextCursor: { createdAt: run.created_at, id: run.id } })
+      .mockRejectedValueOnce(new Error('page exception'));
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    await screen.findByText('Historique indisponible');
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer le chargement' }));
+    await screen.findByText('Victoire', { selector: 'span' });
+    fireEvent.click(screen.getByRole('button', { name: 'Charger les parties suivantes' }));
+    await screen.findByText('Historique indisponible');
+    expect(screen.getByText('Victoire', { selector: 'span' })).toBeVisible();
+  });
+
+  it('uses singular labels and the username when no display name is set', async () => {
+    useAuthStore.setState({
+      player: {
+        ...useAuthStore.getState().player,
+        display_name: '',
+        total_candies: 1,
+        total_runs_completed: 1,
+        total_wins: 1,
+      } as Player,
+    });
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole('heading', { name: 'player' })).toBeVisible();
+    expect(screen.getByText('bonbon', { exact: true })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '← Menu' }));
+  });
+
+  it('ignores an initial rejected promise after unmount', async () => {
+    let fail: (reason: Error) => void = () => {};
+    historyMocks.getPlayerRunHistory.mockReturnValueOnce(
+      new Promise((_, reject) => {
+        fail = reject;
+      }),
+    );
+    const view = render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    view.unmount();
+    await act(async () => fail(new Error('stale initial load')));
+    expect(screen.queryByText('Historique indisponible')).not.toBeInTheDocument();
   });
 
   it('keeps local profiles out of the remote history repository', () => {

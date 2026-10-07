@@ -6,7 +6,6 @@ import type { Run } from '@/types/models';
 
 const current: RunHistoryEntry = {
   run: { progression_source: 'verified' } as Run,
-  teamMembers: [],
   attempt: {
     engineVersion: CURRENT_AUTHORITY_VERSION.engine,
     gameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,

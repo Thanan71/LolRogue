@@ -42,6 +42,11 @@ describe('run history Supabase schema contract', () => {
     const select = vi.mocked(query.select).mock.calls[0]?.[0];
     expect(select).toContain('gameplay_ruleset_version, ruleset_version');
     expect(select).not.toContain('progression_ruleset_version');
+    expect(select).not.toContain('*');
+    expect(select).not.toContain('run_team_members');
+    expect(select).not.toContain('run_ledger');
+    expect(select).not.toContain('seed');
+    expect(select).not.toContain('result');
     expect(result.error).toBeNull();
     expect(result.data?.[0]?.attempt).toMatchObject({
       engineVersion: 'run-engine-v13',
@@ -86,5 +91,32 @@ describe('run history Supabase schema contract', () => {
     query.select.mockClear();
     await new SupabaseRunRepository(supabase).getPlayerRunHistory('player-1');
     expect(query.select.mock.calls[0][0]).not.toContain('!inner');
+  });
+  it('fetches full details separately and reports either relation error without partial data', async () => {
+    const repository = new SupabaseRunRepository({} as SupabaseClient<Database>);
+    const getRun = vi
+      .spyOn(repository, 'getRun')
+      .mockResolvedValue({ data: { id: 'run' } as never, error: null });
+    const getTeam = vi
+      .spyOn(repository, 'getRunTeamMembers')
+      .mockResolvedValue({ data: [], error: null });
+    expect(await repository.getRunHistoryDetails('run')).toMatchObject({
+      data: { run: { id: 'run' }, teamMembers: [] },
+      error: null,
+    });
+    expect(getRun).toHaveBeenCalledWith('run');
+    expect(getTeam).toHaveBeenCalledWith('run');
+    const error = new Error('details unavailable');
+    getTeam.mockResolvedValueOnce({ data: null, error });
+    expect(await repository.getRunHistoryDetails('run')).toEqual({ data: null, error });
+    getRun.mockResolvedValueOnce({ data: null, error });
+    expect(await repository.getRunHistoryDetails('run')).toEqual({ data: null, error });
+    getTeam.mockResolvedValueOnce({ data: null, error: null });
+    expect(await repository.getRunHistoryDetails('run')).toMatchObject({
+      data: { teamMembers: [] },
+      error: null,
+    });
+    getRun.mockResolvedValueOnce({ data: null, error: null });
+    expect(await repository.getRunHistoryDetails('run')).toEqual({ data: null, error: null });
   });
 });

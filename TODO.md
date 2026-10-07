@@ -1401,7 +1401,7 @@ Preuve locale du 7 octobre 2026 : `check`, `db:validate` et contrôles spéciali
 - [x] Afficher clairement « legacy / non comparable ».
 - [x] Ajouter détail de rejet technique uniquement pour le propriétaire/admin.
 - [x] Pagination par curseur si le volume devient significatif.
-- [ ] Éviter de charger toutes les relations lourdes pour une simple liste.
+- [x] Éviter de charger toutes les relations lourdes pour une simple liste.
 
 ---
 
@@ -1575,7 +1575,7 @@ techniques ni afficher une modale à chaque déploiement.**
 
 36. [ ] `P2-CI-02` gates séparées par responsabilité, avec commande locale
     tout-en-un conservée.
-37. [ ] `P3-PROD-01` historique de runs exploitable.
+37. [x] `P3-PROD-01` historique de runs exploitable.
 38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
 39. [ ] `P3-PROD-03` décision PWA/offline.
 40. [ ] `P3-PROD-04` enrichissement avec gate moteur.

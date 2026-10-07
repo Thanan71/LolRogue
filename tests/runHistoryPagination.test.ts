@@ -66,4 +66,86 @@ describe('run history keyset pagination', () => {
     await repository.getPlayerRunHistory('owner', 1000);
     expect(query.range).toHaveBeenCalledWith(0, 100);
   });
+  it('supports empty history and positive outcome filters without losing error details', async () => {
+    const { query, repository } = fixture();
+    query.range.mockResolvedValue({ data: null, error: null });
+    expect(
+      await repository.getPlayerRunHistory('owner', 0, { filters: { outcome: 'victory' } }),
+    ).toEqual({ data: [], nextCursor: null, error: null });
+    expect(query.eq).toHaveBeenCalledWith('won', true);
+    expect(
+      await repository.getPlayerRunHistory('owner', 20, {
+        cursor: { createdAt: 'bad-date', id: ids[0] },
+      }),
+    ).toMatchObject({ error: expect.any(Error) });
+    expect(
+      await repository.getPlayerRunHistory('owner', 20, {
+        cursor: { createdAt: '2026-99-99T10:00:00Z', id: ids[0] },
+      }),
+    ).toMatchObject({ error: expect.any(Error) });
+  });
+  it('returns bounded rejection pages, preserves microseconds and handles errors without partial diagnostics', async () => {
+    const rpc = vi.fn();
+    const repository = new SupabaseRunRepository({ rpc } as unknown as SupabaseClient<Database>);
+    const raw = (id: string) => ({
+      attempt_id: id,
+      started_at: timestamp,
+      rejected_at: timestamp,
+      difficulty: 'hard',
+      mode: 'normal',
+      engine_version: 'run-engine-v21',
+      gameplay_ruleset_version: 21,
+      progression_ruleset_version: 3,
+      rejection_code: 'pending_choice',
+    });
+    rpc.mockResolvedValueOnce({ data: [raw(ids[0]), raw(ids[1])], error: null });
+    const page = await repository.getPlayerRunRejections('owner', 1);
+    expect(page.data).toEqual([
+      {
+        attemptId: ids[0],
+        startedAt: timestamp,
+        rejectedAt: timestamp,
+        difficulty: 'hard',
+        mode: 'normal',
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: 21,
+        progressionRulesetVersion: 3,
+        rejectionCode: 'pending_choice',
+      },
+    ]);
+    expect(page.nextCursor).toEqual({ startedAt: timestamp, id: ids[0] });
+    expect(rpc).toHaveBeenCalledWith('get_player_run_rejections', {
+      p_player_id: 'owner',
+      p_limit: 2,
+    });
+    rpc.mockResolvedValueOnce({ data: [raw(ids[1])], error: null });
+    expect(
+      (await repository.getPlayerRunRejections('owner', 1, page.nextCursor!)).nextCursor,
+    ).toBeNull();
+    expect(rpc).toHaveBeenLastCalledWith('get_player_run_rejections', {
+      p_player_id: 'owner',
+      p_limit: 2,
+      p_before_started_at: timestamp,
+      p_before_id: ids[0],
+    });
+    rpc.mockResolvedValueOnce({ data: null, error: null });
+    expect(await repository.getPlayerRunRejections('owner')).toEqual({
+      data: [],
+      nextCursor: null,
+      error: null,
+    });
+    const error = new Error('access denied');
+    rpc.mockResolvedValueOnce({ data: null, error });
+    expect(await repository.getPlayerRunRejections('owner', 0)).toEqual({
+      data: null,
+      nextCursor: null,
+      error,
+    });
+    expect(
+      await repository.getPlayerRunRejections('owner', 20, {
+        startedAt: timestamp,
+        id: 'injected',
+      }),
+    ).toMatchObject({ data: null, nextCursor: null, error: expect.any(Error) });
+  });
 });

@@ -1,15 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { historyComparison } from '@/components/history/historyComparison';
 import { RunHistoryFilters } from '@/components/history/RunHistoryFilters';
+import { RunHistoryItem } from '@/components/history/RunHistoryItem';
 import { RunRejectionHistory } from '@/components/history/RunRejectionHistory';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
-import { riotChampionIconUrl } from '@/config/riotAssets';
 import { ROUTES } from '@/config/routes';
-import { championDB } from '@/data/championDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
-import { augmentName, localizeChampion, runeName } from '@/i18n/content';
-import { formatDate, formatNumber } from '@/i18n/format';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { runHistoryCopy } from '@/i18n/runHistoryContent';
 import { RepositoryContainerFactory } from '@/services/container';
@@ -26,22 +23,6 @@ const profilePluralRules = new Intl.PluralRules(locale);
 
 function pluralLabel(value: number, singular: string, pluralForm: string): string {
   return profilePluralRules.select(value) === 'one' ? singular : pluralForm;
-}
-
-function localizedChampionName(championId: string): string {
-  const champion = championDB.getById(championId);
-  return champion ? localizeChampion(champion).name : championId;
-}
-
-function localizedMode(mode: string): string {
-  return fr.profile.modes[mode as keyof typeof fr.profile.modes] ?? fr.profile.unknownMode;
-}
-
-function localizedDifficulty(difficulty: string): string {
-  return (
-    fr.profile.difficulties[difficulty as keyof typeof fr.profile.difficulties] ??
-    fr.profile.unknownDifficulty
-  );
 }
 
 export function ProfilePage() {
@@ -211,139 +192,9 @@ export function ProfilePage() {
               <StateView kind="empty" title={fr.profile.noRuns} />
             )}
             <ul className="ui-list">
-              {runs.map((entry) => {
-                const { run, attempt, teamMembers } = entry;
-                const contentLabels = [
-                  ...run.rune_ids.map((id) => runeName(id)),
-                  ...run.augment_ids.map((id) => augmentName(id, id)),
-                ];
-                return (
-                  <li
-                    key={run.id}
-                    className={`ui-list-item profile-run profile-run--${run.won ? 'victory' : 'defeat'}`}
-                  >
-                    <details>
-                      <summary>
-                        <span className="profile-run__summary">
-                          <span
-                            className={`profile-run__result profile-run__result--${run.won ? 'victory' : 'defeat'}`}
-                          >
-                            {run.won ? fr.common.victory : fr.common.defeat}
-                          </span>
-                          <span className="profile-run__headline">
-                            {fr.common.level} {formatNumber(run.run_level)} ·{' '}
-                            {formatNumber(run.waves_completed)}{' '}
-                            {pluralLabel(run.waves_completed, fr.profile.wave, fr.profile.waves)} ·{' '}
-                            {formatNumber(run.total_kills)}{' '}
-                            {pluralLabel(
-                              run.total_kills,
-                              fr.profile.elimination,
-                              fr.profile.eliminations,
-                            )}
-                          </span>
-                          <span className="run-history-comparison">
-                            {runHistoryCopy[historyComparison(entry)]}
-                          </span>
-                          <small>
-                            {formatDate(run.completed_at ?? run.created_at, {
-                              dateStyle: 'medium',
-                              timeStyle: 'short',
-                            })}
-                          </small>
-                        </span>
-                        {teamMembers.length > 0 && (
-                          <span
-                            className="profile-run__portraits"
-                            role="group"
-                            aria-label={fr.profile.team}
-                          >
-                            {teamMembers.slice(0, 5).map((member, index) => (
-                              <img
-                                key={`${member.champion_id}-${index}`}
-                                src={riotChampionIconUrl(member.champion_id)}
-                                alt={localizedChampionName(member.champion_id)}
-                                width={40}
-                                height={40}
-                                loading="lazy"
-                                decoding="async"
-                              />
-                            ))}
-                          </span>
-                        )}
-                      </summary>
-                      <dl className="ui-definition-list">
-                        <div>
-                          <dt>{fr.profile.comparisonGroup}</dt>
-                          <dd>
-                            {attempt
-                              ? fr.profile.comparisonDetails(
-                                  localizedMode(attempt.mode),
-                                  localizedDifficulty(attempt.difficulty),
-                                  formatNumber(attempt.gameplayRulesetVersion),
-                                )
-                              : fr.profile.legacyRun}
-                            {attempt && (
-                              <p>
-                                {runHistoryCopy.versions(
-                                  attempt.engineVersion,
-                                  formatNumber(attempt.gameplayRulesetVersion),
-                                  formatNumber(attempt.progressionRulesetVersion),
-                                )}
-                              </p>
-                            )}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>{fr.profile.team}</dt>
-                          <dd>
-                            {teamMembers.length > 0
-                              ? teamMembers
-                                  .map((member) =>
-                                    fr.profile.teamMember(
-                                      localizedChampionName(member.champion_id),
-                                      formatNumber(member.final_level),
-                                    ),
-                                  )
-                                  .join(', ')
-                              : fr.profile.teamUnavailable}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>{fr.profile.economy}</dt>
-                          <dd>
-                            {formatNumber(run.gold_earned)} {fr.profile.goldEarned} ·{' '}
-                            {formatNumber(run.total_gold_spent)} {fr.profile.goldSpent} ·{' '}
-                            {formatNumber(run.items_purchased)}{' '}
-                            {pluralLabel(run.items_purchased, fr.profile.item, fr.profile.items)}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>{fr.profile.combatStats}</dt>
-                          <dd>
-                            {formatNumber(run.total_damage_dealt)} {fr.profile.damage} ·{' '}
-                            {formatNumber(run.total_healing_done)} {fr.profile.healing} ·{' '}
-                            {formatNumber(run.total_shielding_done)} {fr.profile.shielding}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>{fr.profile.content}</dt>
-                          <dd>
-                            {contentLabels.length > 0 ? (
-                              <span className="profile-run__chips">
-                                {contentLabels.map((label, index) => (
-                                  <span key={`${label}-${index}`}>{label}</span>
-                                ))}
-                              </span>
-                            ) : (
-                              fr.profile.none
-                            )}
-                          </dd>
-                        </div>
-                      </dl>
-                    </details>
-                  </li>
-                );
-              })}
+              {runs.map((entry) => (
+                <RunHistoryItem key={entry.run.id} entry={entry} repository={repositories.run} />
+              ))}
             </ul>
             {moreError && (
               <StateView

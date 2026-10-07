@@ -221,9 +221,14 @@ describeLive('repositories against migrated local Supabase', () => {
         progressionRulesetVersion: fixture.progressionRulesetVersion,
       },
       run: { id: fixture.runId, run_attempt_id: expect.any(String) },
-      teamMembers: [{ champion_id: 'Garen', final_level: 6 }],
     });
 
+    expect(Object.keys(history.data![0].run)).not.toEqual(
+      expect.arrayContaining(['run_ledger', 'rune_ids', 'augment_ids', 'total_healing_done']),
+    );
+    const details = await repository.getRunHistoryDetails(fixture.runId);
+    expect(details.error).toBeNull();
+    expect(details.data?.teamMembers).toMatchObject([{ champion_id: 'Garen', final_level: 6 }]);
     const team = await repository.getRunTeamMembers(fixture.runId);
     expect(team.error).toBeNull();
     expect(team.data).toMatchObject([{ champion_id: 'Garen', run_id: fixture.runId }]);
@@ -242,7 +247,6 @@ describeLive('repositories against migrated local Supabase', () => {
         difficulty: 'hard',
         engineVersion: fixture.engineVersion,
       },
-      teamMembers: [{ champion_id: 'Garen', run_id: fixture.runId }],
     });
 
     const emptyPage = await repository.getPlayerRunHistory(randomUUID(), 1);

@@ -389,13 +389,14 @@ describe('SupabaseRunRepository history', () => {
     );
 
     expect(mockSupabase.from).toHaveBeenCalledWith('runs');
-    expect(queryChain.select).toHaveBeenCalledWith(expect.stringContaining('run_team_members(*)'));
+    expect(queryChain.select).toHaveBeenCalledWith(expect.stringContaining('id, player_id, won'));
+    expect(queryChain.select.mock.calls[0][0]).not.toContain('run_team_members');
+    expect(queryChain.select.mock.calls[0][0]).not.toContain('*');
     expect(queryChain.eq).toHaveBeenCalledWith('player_id', 'player-1');
     expect(queryChain.range).toHaveBeenCalledWith(0, 20);
     expect(result.error).toBeNull();
     expect(result.data?.[0]).toMatchObject({
       run: { id: 'run-v13' },
-      teamMembers: [{ champion_id: 'Garen', final_level: 6 }],
       attempt: {
         difficulty: 'hard',
         engineVersion: 'run-engine-v13',
@@ -405,7 +406,6 @@ describe('SupabaseRunRepository history', () => {
     });
     expect(result.data?.[1]).toMatchObject({
       run: { id: 'run-legacy' },
-      teamMembers: [],
       attempt: null,
     });
   });

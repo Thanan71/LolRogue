@@ -43,9 +43,27 @@ export interface RunRejectionCursor {
   id: string;
 }
 
-export interface RunHistoryEntry {
+export type RunHistorySummary = Pick<
+  Run,
+  | 'id'
+  | 'player_id'
+  | 'won'
+  | 'run_level'
+  | 'waves_completed'
+  | 'total_kills'
+  | 'completed_at'
+  | 'created_at'
+  | 'progression_source'
+  | 'run_attempt_id'
+>;
+
+export interface RunHistoryDetails {
   run: Run;
   teamMembers: RunTeamMember[];
+}
+
+export interface RunHistoryEntry {
+  run: RunHistorySummary;
   attempt: {
     difficulty: string;
     mode: string;
@@ -70,7 +88,7 @@ export interface IRunRepository {
     offset?: number,
   ): Promise<{ data: Run[] | null; error: Error | null }>;
 
-  /** Read comparable history with its authoritative version and team snapshot. */
+  /** Read lightweight history summaries with authoritative version metadata. */
   getPlayerRunHistory(
     playerId: string,
     limit?: number,
@@ -80,6 +98,11 @@ export interface IRunRepository {
     nextCursor: RunHistoryCursor | null;
     error: Error | null;
   }>;
+
+  /** Full run and team are fetched only when a history row is opened. */
+  getRunHistoryDetails(
+    runId: string,
+  ): Promise<{ data: RunHistoryDetails | null; error: Error | null }>;
 
   /** Owner/admin-only sanitized diagnostics; the database enforces access. */
   getPlayerRunRejections(
