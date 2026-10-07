@@ -8,6 +8,7 @@ function run(args) {
 
 run(['scripts/check-authority-registry.mjs']);
 run(['scripts/check-current-authority-source.mjs']);
+run(['scripts/check-authority-content-hash.mjs']);
 run([
   'node_modules/vitest/vitest.mjs',
   'run',

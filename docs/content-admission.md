@@ -24,3 +24,16 @@ catalogue ou un handler sans publier un nouveau moteur/ruleset fait échouer
 restées inchangées. Les migrations de gameplay et de Daily, les capabilities,
 les catalogues de traduction et les baselines doivent correspondre au registre.
 Les notes de publication et changements d'interface seuls ne changent pas le moteur.
+
+## Attempts ouvertes et archives
+
+La gate vérifie les bundles de chaque version enregistrée, leur hash, leurs
+migrations et leur vérificateur. Toute version encore rejouable doit être incluse
+dans le déploiement `verify-run` ; un fichier absent, un hash altéré ou une version
+non déclarée bloque le contrôle. Les versions v19 et v20 restent `replay-only` et
+v21 reste courante pour ce lot. Les archives antérieures restent enregistrées
+avec leur politique explicite `unsupported`.
+
+Un futur archivage exige un relevé serveur des attempts encore ouvertes et leur
+TTL maximum avant changement de statut ; les fichiers sont conservés pour les
+preuves historiques. Cette tâche n'archive aucune version ni attempt supplémentaire.
