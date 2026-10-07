@@ -48,6 +48,21 @@ describe('content admission engine support gate', () => {
     }
   });
 
+  it('requires authoritative handlers for every declared event outcome', () => {
+    const types = readFileSync(new URL('../src/game/map/types.ts', import.meta.url), 'utf8');
+    const outcomeType = types.split('export type EventOutcomeType =')[1]?.split(';')[0] ?? '';
+    const declared = [...outcomeType.matchAll(/'([^']+)'/gu)].map((match) => match[1]);
+    const authority = readFileSync(
+      new URL('../src/game/authority/AuthorityRunEngine.ts', import.meta.url),
+      'utf8',
+    );
+    const handler =
+      authority.split('switch (outcome.type)')[1]?.split('private resolveTreasure')[0] ?? '';
+    const handled = [...handler.matchAll(/case '([^']+)':/gu)].map((match) => match[1]);
+    expect(declared.length).toBeGreaterThan(0);
+    expect(new Set(handled)).toEqual(new Set(declared));
+  });
+
   it('requires real RuneManager branches for every catalog condition', () => {
     const source = readFileSync(
       new URL('../src/game/runes/RuneManager.ts', import.meta.url),
