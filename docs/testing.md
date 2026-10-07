@@ -242,7 +242,10 @@ introduit. Localement, la configuration production reconstruit par défaut ;
 ## Clean-room CI
 
 La job `clean-room` repart d'un checkout sans `node_modules`, `dist` ni couverture et
-n'utilise pas le cache npm de `setup-node`. Les assets Riot sont un paquet versionné :
+n'utilise pas le cache npm de `setup-node`. Son cache npm est un répertoire neuf
+du runner. Il n’a aucune dépendance sur les autres jobs, aucun téléchargement de
+`dist` et impose `CI_REUSE_BUILD=0`. Le checkout refuse aussi `ci-build` et une
+clé de producteur héritée. Les assets Riot sont un paquet versionné :
 ils sont donc vérifiés, pas téléchargés silencieusement.
 
 Supabase est d'abord restauré à la migration v9 (`20260730300000`), puis migré vers
@@ -254,7 +257,8 @@ Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec l
 contrat `vercel.json` et vérifie les deep links, la CSP, les assets d'entrée et un vrai
 404 pour un asset absent.
 
-Le job E2E dédié vérifie lui-même son checkout sans résidus. La suite fonctionnelle
+Le job `browser` vérifie lui-même son checkout sans résidus avant de restaurer
+le build signé. La suite fonctionnelle
 utilise deux workers Chromium et contient deux runs UI complètes : victoire six
 biomes grâce à une rune de test injectée au build, et défaite réelle. Les specs
 d'interface plus courtes peuvent injecter les stores pour isoler leur contrat et

@@ -1269,7 +1269,7 @@ entre jobs.
   build/assets, DB, browser.
 - [x] Éviter de reconstruire les mêmes artefacts plusieurs fois quand un artefact
   signé du même SHA peut être réutilisé sans réduire l'isolation de `clean-room`.
-- [ ] Conserver `clean-room` comme validation indépendante sans cache applicatif.
+- [x] Conserver `clean-room` comme validation indépendante sans cache applicatif.
 
 ---
 
@@ -1573,7 +1573,7 @@ techniques ni afficher une modale à chaque déploiement.**
 
 ## Sprint G — architecture et produit
 
-36. [ ] `P2-CI-02` gates séparées par responsabilité, avec commande locale
+36. [x] `P2-CI-02` gates séparées par responsabilité, avec commande locale
     tout-en-un conservée.
 37. [ ] `P3-PROD-01` historique de runs exploitable.
 38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.

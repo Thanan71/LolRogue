@@ -251,6 +251,10 @@ jobs:
         run: npm run db:stop
 
   clean-room:
+    name: clean-room
+    env:
+      APP_COMMIT_SHA: ${{ github.sha }}
+      CI_REUSE_BUILD: '0'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -267,11 +271,18 @@ jobs:
           test ! -d dist
           test ! -d coverage
           test ! -d test-results
+          test ! -d ci-build
+          test -z "${CI_BUILD_PUBLIC_KEY:-}"
 
       - name: Use Node.js 24 without dependency cache
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
+
+      - name: Select a fresh isolated npm cache
+        run: |
+          cache_directory="$(mktemp -d "$RUNNER_TEMP/lolrogue-clean-room-npm-XXXXXX")"
+          echo "NPM_CONFIG_CACHE=$cache_directory" >> "$GITHUB_ENV"
 
       - name: Install exactly the lockfile
         run: npm ci
@@ -318,6 +329,7 @@ jobs:
           name: clean-room-diagnostics
           path: |
             coverage/
+            performance-report/
             playwright-report/
             test-results/
           if-no-files-found: ignore
