@@ -26,8 +26,13 @@ Les jobs du workflow reprennent ces responsabilités : `static`, `unit`, `securi
 `build/assets`, `DB` et `browser`. `unit` couvre aussi les tests i18n sans les
 réexécuter dans un second job. La mesure Web Vitals utilise le build déjà produit
 par `build/assets`. `clean-room` reste une septième validation indépendante.
-Les déclencheurs existants sont conservés ; ces jobs ne deviennent pas des
-required checks de branche pour livrer les sprints.
+
+Les checks de compatibilité `validate`, `database` et `e2e` conservent les noms
+attendus par les protections GitHub existantes de `dev` et `main`. Ils exigent
+respectivement toutes les gates source/build, `DB` et `browser`. Ils s'exécutent
+même après un échec et refusent toute dépendance échouée, annulée ou ignorée ;
+`clean-room` reste requis directement. Aucun réglage de protection n'est modifié.
+Les déclencheurs existants sont conservés.
 
 ## Seeds variables reproductibles
 
