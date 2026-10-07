@@ -1463,7 +1463,7 @@ techniques ni afficher une modale à chaque déploiement.**
   non lues au lieu d'enchaîner plusieurs popups.
 - [x] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
   « Marquer comme lu ».
-- [ ] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
+- [x] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
   clé versionnée et un fallback sûr si le stockage navigateur est indisponible.
 - [ ] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
   d'éviter de réafficher la même note sur un autre appareil ; ne pas détourner
