@@ -1465,7 +1465,7 @@ techniques ni afficher une modale à chaque déploiement.**
   « Marquer comme lu ».
 - [x] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
   clé versionnée et un fallback sûr si le stockage navigateur est indisponible.
-- [ ] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
+- [x] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
   d'éviter de réafficher la même note sur un autre appareil ; ne pas détourner
   `last_login_at`, qui est mis à jour lors de l'établissement de session.
 - [ ] Prévoir un fallback local si la persistance serveur de l'état « lu » est

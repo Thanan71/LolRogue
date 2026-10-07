@@ -23,6 +23,27 @@ export type Database = {
   };
   public: {
     Tables: {
+      player_patch_note_state: {
+        Row: {
+          user_id: string;
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          last_seen_sequence?: number;
+          last_seen_version?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       champion_enhancements: {
         Row: {
           champion_id: string;
@@ -1655,6 +1676,15 @@ export type Database = {
       };
     };
     Functions: {
+      mark_patch_notes_seen: {
+        Args: { p_sequence: number; p_version: string };
+        Returns: {
+          user_id: string;
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at: string;
+        };
+      };
       append_run_attempt_commands: {
         Args: { p_attempt_id: string; p_commands: Json };
         Returns: Json;
