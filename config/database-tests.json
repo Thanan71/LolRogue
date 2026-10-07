@@ -83,7 +83,6 @@
       "file": "tests/runHistory.database.test.ts",
       "expression": "const describeLive = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
       "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
-
     }
   ]
 }

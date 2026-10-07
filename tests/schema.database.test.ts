@@ -223,6 +223,9 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20260904151818_gameplay_ruleset_v21_balance_acceptance.sql',
       '../supabase/migrations/20260906071542_aggregate_verified_field_calibration.sql',
       '../supabase/migrations/20260906071543_allow_terminal_defeat_participation.sql',
+      '../supabase/migrations/20261007170143_run_history_rejection_details.sql',
+      '../supabase/migrations/20261007170158_player_patch_note_read_state.sql',
+      '../supabase/migrations/20261007170953_run_history_cursor_index.sql',
     ]);
   });
 
