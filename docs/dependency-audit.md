@@ -71,6 +71,13 @@ haute ou critique, sans exception.
 
 ## Validation requise après correction
 
+Le 7 octobre 2026, le clone propre a détecté
+[GHSA-68fv-2mgg-jv7q](https://github.com/advisories/GHSA-68fv-2mgg-jv7q)
+sur `source-map-js@1.2.1`. Le lockfile résout désormais cette dépendance transitive
+en `1.2.2`, version corrigée compatible avec les plages déclarées. Aucun override
+ni exception d'audit n'est ajouté. Le contrôle `npm run audit:security` et le build
+doivent passer sur cette nouvelle résolution.
+
 - `npm ci`, TypeScript, Biome et le build Vite/Rolldown ;
 - `npm run audit:security` sans exception haute ou critique ;
 - Vitest avec couverture et tests Supabase live ;
