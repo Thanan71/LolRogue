@@ -176,6 +176,7 @@ et les contrôles de hash confirment que `run-engine-v21` reste valide.
 La clôture du P0 reste conditionnée à l'audit humain avec lecteur d'écran et à une
 preuve sur la preview du SHA candidat. Les tests automatisés et les captures du
 navigateur ne constituent pas un audit humain de lecteur d'écran.
+Preuve Sprint G : `docs/sprint-g-i18n.md`, parcours FR → EN desktop et mobile validé localement.
 
 ### Acceptation
 

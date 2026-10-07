@@ -265,80 +265,93 @@ async function installCompletedRun(page: Page) {
   });
 }
 
-test('switches from French to English across a complete offline player journey', async ({
-  page,
-}) => {
-  test.setTimeout(60_000);
-  await keepJourneyOffline(page);
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-
-  await page.goto('/auth');
-  await page.evaluate(() => localStorage.clear());
-  await page.reload();
-  await expect(page.getByLabel('Langue')).toHaveValue('fr-FR');
-  await expect(page.getByRole('button', { name: 'Jouer en invité' })).toBeVisible();
-
-  await page.getByLabel('Langue').selectOption('en-US');
-  await expect(page.getByLabel('Language')).toHaveValue('en-US');
-  await expectEnglishSurface(
+for (const viewport of [
+  { name: 'desktop', width: 1280, height: 800 },
+  { name: 'mobile', width: 390, height: 844 },
+]) {
+  test(`switches from French to English across a complete player journey (${viewport.name})`, async ({
     page,
-    'authentication',
-    page.getByRole('button', { name: 'Play as guest' }),
-  );
+  }) => {
+    test.setTimeout(60_000);
+    await page.setViewportSize(viewport);
+    await keepJourneyOffline(page);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
 
-  await page.getByRole('button', { name: 'Play as guest' }).click();
-  await expect(page).toHaveURL('/');
-  await page.evaluate(() => {
-    localStorage.setItem('lolrogue:tutorial:map:v1', 'done');
-    localStorage.setItem('lolrogue:tutorial:combat:v1', 'done');
+    await page.goto('/auth');
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await expect(page.getByLabel('Langue')).toHaveValue('fr-FR');
+    await expect(page.getByRole('button', { name: 'Jouer en invité' })).toBeVisible();
+
+    await page.getByLabel('Langue').selectOption('en-US');
+    await expect(page.getByLabel('Language')).toHaveValue('en-US');
+    await expectEnglishSurface(
+      page,
+      'authentication',
+      page.getByRole('button', { name: 'Play as guest' }),
+    );
+
+    await page.getByRole('button', { name: 'Play as guest' }).click();
+    await expect(page).toHaveURL('/');
+    await page.evaluate(() => {
+      localStorage.setItem('lolrogue:tutorial:map:v1', 'done');
+      localStorage.setItem('lolrogue:tutorial:combat:v1', 'done');
+    });
+    await expectEnglishSurface(
+      page,
+      'menu',
+      page.getByRole('button', { name: 'Play', exact: true }),
+    );
+
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await expect(page).toHaveURL('/starter-select');
+    await expectEnglishSurface(
+      page,
+      'starter selection',
+      page.getByRole('heading', { name: 'Build your team' }),
+    );
+
+    for (let selected = 0; selected < 2; selected += 1) {
+      await page
+        .locator('button.champion-card[aria-pressed="false"]:not(:disabled)')
+        .first()
+        .click();
+    }
+    const confirmSelection = page.getByRole('button', { name: 'Confirm selection' });
+    await expect(confirmSelection).toBeEnabled();
+    await expectEnglishSurface(page, 'selected starter badges', confirmSelection);
+    await expect(page.locator('button.champion-card[aria-pressed="true"]').first()).toHaveAttribute(
+      'data-selected-label',
+      'On the team',
+    );
+    await confirmSelection.click();
+    await expect(page).toHaveURL('/run');
+
+    await installJourneyMap(page, 'before-combat');
+    await expectEnglishSurface(page, 'run map', page.getByRole('heading', { name: 'Run map' }));
+    const combatNode = page.getByRole('button', { name: /Combat, column 3.*accessible/i });
+    await expect(combatNode).toBeVisible();
+    await combatNode.dispatchEvent('click');
+    await expect(page).toHaveURL('/combat');
+    await expectEnglishSurface(page, 'combat', page.getByText(/Combat — Round \d+/));
+
+    await installJourneyMap(page, 'after-combat');
+    await navigateSpa(page, '/run');
+    const inventory = page.getByRole('region', { name: 'Inventory' });
+    await expect(inventory.getByText('Long Sword', { exact: true })).toBeVisible();
+    await expectEnglishSurface(page, 'inventory', inventory);
+
+    const treasureNode = page.getByRole('button', { name: /Treasure, column 4.*accessible/i });
+    await treasureNode.dispatchEvent('click');
+    await expect(page).toHaveURL('/treasure');
+    await expectEnglishSurface(
+      page,
+      'treasure encounter',
+      page.getByRole('heading', { name: 'Rewards collected!' }),
+    );
+
+    await installCompletedRun(page);
+    await navigateSpa(page, '/game-over');
+    await expectEnglishSurface(page, 'game over', page.getByRole('heading', { name: 'Victory!' }));
   });
-  await expectEnglishSurface(page, 'menu', page.getByRole('button', { name: 'Play', exact: true }));
-
-  await page.getByRole('button', { name: 'Play', exact: true }).click();
-  await expect(page).toHaveURL('/starter-select');
-  await expectEnglishSurface(
-    page,
-    'starter selection',
-    page.getByRole('heading', { name: 'Build your team' }),
-  );
-
-  for (let selected = 0; selected < 2; selected += 1) {
-    await page.locator('button.champion-card[aria-pressed="false"]:not(:disabled)').first().click();
-  }
-  const confirmSelection = page.getByRole('button', { name: 'Confirm selection' });
-  await expect(confirmSelection).toBeEnabled();
-  await expectEnglishSurface(page, 'selected starter badges', confirmSelection);
-  await expect(page.locator('button.champion-card[aria-pressed="true"]').first()).toHaveAttribute(
-    'data-selected-label',
-    'On the team',
-  );
-  await confirmSelection.click();
-  await expect(page).toHaveURL('/run');
-
-  await installJourneyMap(page, 'before-combat');
-  await expectEnglishSurface(page, 'run map', page.getByRole('heading', { name: 'Run map' }));
-  const combatNode = page.getByRole('button', { name: /Combat, column 3.*accessible/i });
-  await expect(combatNode).toBeVisible();
-  await combatNode.dispatchEvent('click');
-  await expect(page).toHaveURL('/combat');
-  await expectEnglishSurface(page, 'combat', page.getByText(/Combat — Round \d+/));
-
-  await installJourneyMap(page, 'after-combat');
-  await navigateSpa(page, '/run');
-  const inventory = page.getByRole('region', { name: 'Inventory' });
-  await expect(inventory.getByText('Long Sword', { exact: true })).toBeVisible();
-  await expectEnglishSurface(page, 'inventory', inventory);
-
-  const treasureNode = page.getByRole('button', { name: /Treasure, column 4.*accessible/i });
-  await treasureNode.dispatchEvent('click');
-  await expect(page).toHaveURL('/treasure');
-  await expectEnglishSurface(
-    page,
-    'treasure encounter',
-    page.getByRole('heading', { name: 'Rewards collected!' }),
-  );
-
-  await installCompletedRun(page);
-  await navigateSpa(page, '/game-over');
-  await expectEnglishSurface(page, 'game over', page.getByRole('heading', { name: 'Victory!' }));
-});
+}
