@@ -19,6 +19,7 @@ export const ROUTES = {
   CREDITS: '/credits',
   RULES: '/rules',
   LEGAL: '/legal',
+  PATCH_NOTES: '/patch-notes',
   ADMIN: '/admin',
 } as const;
 

@@ -111,6 +111,9 @@ const MenuPage = lazy(() =>
 const LegalPage = lazy(() =>
   import('./pages/LegalPage').then((module) => ({ default: module.LegalPage })),
 );
+const PatchNotesPage = lazy(() =>
+  import('./pages/PatchNotesPage').then((module) => ({ default: module.PatchNotesPage })),
+);
 const NotFoundPage = lazy(() =>
   import('./pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage })),
 );
@@ -170,6 +173,7 @@ export default function App() {
       <Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
           <Route path="/legal" element={<LegalPage />} />
+          <Route path="/patch-notes" element={<PatchNotesPage />} />
           {/* Auth page - accessible without authentication */}
           <Route
             path="/auth"

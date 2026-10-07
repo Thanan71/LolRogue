@@ -1,0 +1,35 @@
+.patch-note,
+.patch-note-summary {
+  padding: 1.25rem;
+  border: 1px solid var(--color-border, #637081);
+  border-radius: 0.75rem;
+  background: var(--color-surface, #151d2b);
+  color: var(--color-text, #f2f4f8);
+  overflow-wrap: anywhere;
+}
+
+.patch-note {
+  margin-block: 1.25rem;
+}
+.patch-note h2,
+.patch-note-summary h2 {
+  margin-top: 0;
+}
+.patch-note li + li {
+  margin-top: 0.6rem;
+}
+.patch-notes-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.patch-notes-filter select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0.5rem;
+}
+.patch-notes-page a,
+.patch-note-summary a {
+  color: #c9dfff;
+}

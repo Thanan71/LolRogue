@@ -20,6 +20,7 @@ const ROUTE_TITLES = {
     '/credits': 'Crédits',
     '/rules': 'Guide et règles',
     '/legal': 'Informations légales et confidentialité',
+    '/patch-notes': 'Notes de mise à jour',
     '/admin': 'Administration',
   },
   'en-US': {
@@ -41,6 +42,7 @@ const ROUTE_TITLES = {
     '/credits': 'Credits',
     '/rules': 'Guide and rules',
     '/legal': 'Legal and privacy information',
+    '/patch-notes': 'Patch notes',
     '/admin': 'Administration',
   },
 } as const satisfies Record<Locale, Readonly<Record<string, string>>>;

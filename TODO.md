@@ -1456,7 +1456,7 @@ techniques ni afficher une modale à chaque déploiement.**
 
 - [x] Ajouter une source versionnée de patch notes dans le code avec catégories
   `Nouveau`, `Équilibrage` et `Correctifs`, titre, date, version et entrées lisibles.
-- [ ] Ajouter une page permanente `/patch-notes` consultable depuis le menu, avec
+- [x] Ajouter une page permanente `/patch-notes` consultable depuis le menu, avec
   historique et filtres/catégories sans dépendre d'une modale.
 - [ ] Afficher au retour au menu principal un résumé **non bloquant** uniquement si une
   publication plus récente que la dernière vue existe ; regrouper plusieurs versions

@@ -6,6 +6,7 @@ import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { formatNumber, plural } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
+import { getPatchNotesContent } from '@/i18n/patchNotesContent';
 import { routeTitle } from '@/i18n/routeTitles';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
@@ -307,6 +308,9 @@ export function MenuPage() {
         </nav>
 
         <div className="main-menu__utility" role="group" aria-label={fr.menu.accountLinks}>
+          <Link className="main-menu__utility-btn" to={ROUTES.PATCH_NOTES}>
+            {getPatchNotesContent().title}
+          </Link>
           <button
             type="button"
             className="main-menu__utility-btn"
