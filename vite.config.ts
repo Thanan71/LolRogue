@@ -129,6 +129,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     manifest: true,
+    // Keep native preload hints; ESM still loads normally when modulepreload is unavailable.
+    modulePreload: { polyfill: false },
     rolldownOptions: {
       output: {
         codeSplitting: {
@@ -147,6 +149,20 @@ export default defineConfig({
               name: 'react-vendor',
               test: (id) => /node_modules[\\/](react|react-dom|react-router|zustand)[\\/]/.test(id),
               priority: 1,
+            },
+            {
+              // Share static lazy UI copy without pulling in gameplay or eager locale setup.
+              name: 'ui-catalogs',
+              test: /\/src\/(i18n\/(patchNotesContent|runHistoryContent|runErrorContent|runPreparationContent|combatContent|encounterContent|gameOverContent|enhancementContent|tutorialContent|adminExportContent|adminErrorContent|runMutationContent|legal\.fr|legal\.en)|data\/patchNotes)\.ts$/,
+              includeDependenciesRecursively: false,
+              priority: 0,
+            },
+            {
+              // The patch-note page and read-state service are consumed together; keep runStore out.
+              name: 'patch-notes',
+              test: /\/src\/(pages\/PatchNotesPage\.tsx|hooks\/usePatchNotes\.ts|patchNotes\/.*\.ts)$/,
+              includeDependenciesRecursively: false,
+              priority: 0,
             },
           ],
         },
