@@ -250,6 +250,14 @@
       "level": "WARN",
       "justification": "Lecture propriétaire et lecture administrateur sont séparées pour audit ; leur coût et une politique combinée doivent être mesurés avant modification.",
       "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_runs_runs_player_history_cursor_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de pagination historique mesuré sur 10 000 lignes locales avec limite par curseur ; les compteurs sont remis à zéro après db reset. Voir docs/run-history-cursor-index.md.",
+      "expiresAt": "2026-10-31"
     }
   ]
 }

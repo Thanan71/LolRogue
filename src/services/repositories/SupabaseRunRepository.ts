@@ -11,11 +11,33 @@ import type { Run, RunTeamMember } from '@/types/models';
 import type {
   IRunRepository,
   IRunStatsRepository,
+  RunHistoryCursor,
+  RunHistoryDetails,
   RunHistoryEntry,
+  RunHistoryQuery,
+  RunHistorySummary,
+  RunRejectionCursor,
+  RunRejectionEntry,
 } from '../interfaces/IRunRepository';
 
+// Preserve Postgres microsecond precision and reject PostgREST filter syntax.
+function isHistoryCursor(timestamp: string, id: string): boolean {
+  return (
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(timestamp) &&
+    Number.isFinite(Date.parse(timestamp)) &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  );
+}
+
+type RunHistoryRow = RunHistorySummary & {
+  run_attempts: Pick<
+    Database['public']['Tables']['run_attempts']['Row'],
+    'difficulty' | 'mode' | 'engine_version' | 'gameplay_ruleset_version' | 'ruleset_version'
+  > | null;
+};
+
 const RUN_HISTORY_SELECT =
-  '*, run_team_members(*), run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)';
+  'id, player_id, won, run_level, waves_completed, total_kills, completed_at, created_at, progression_source, run_attempt_id, run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)';
 
 export class SupabaseRunRepository implements IRunRepository {
   private supabase: SupabaseClient<Database>;
@@ -56,22 +78,49 @@ export class SupabaseRunRepository implements IRunRepository {
   async getPlayerRunHistory(
     playerId: string,
     limit = 20,
-    offset = 0,
-  ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('runs')
-      .select(RUN_HISTORY_SELECT)
-      .eq('player_id', playerId)
-      .order('completed_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    options: RunHistoryQuery = {},
+  ): Promise<{
+    data: RunHistoryEntry[] | null;
+    nextCursor: RunHistoryCursor | null;
+    error: Error | null;
+  }> {
+    const { filters = {}, cursor } = options;
+    if (cursor && !isHistoryCursor(cursor.createdAt, cursor.id)) {
+      return { data: null, nextCursor: null, error: new Error('invalid_history_cursor') };
+    }
+    const pageSize = Math.max(1, Math.min(Math.trunc(limit) || 20, 100));
+    const attemptFilters = [
+      ['difficulty', filters.difficulty],
+      ['mode', filters.mode],
+      ['engine_version', filters.engineVersion?.trim() || undefined],
+      ['gameplay_ruleset_version', filters.gameplayRulesetVersion],
+      ['ruleset_version', filters.progressionRulesetVersion],
+    ] as const;
+    const select = attemptFilters.some(([, value]) => value !== undefined)
+      ? RUN_HISTORY_SELECT.replace('runs_run_attempt_id_fkey(', 'runs_run_attempt_id_fkey!inner(')
+      : RUN_HISTORY_SELECT;
+    let query = this.supabase.from('runs').select(select).eq('player_id', playerId);
+    if (filters.outcome) query = query.eq('won', filters.outcome === 'victory');
+    for (const [column, value] of attemptFilters) {
+      if (value !== undefined) query = query.eq(`run_attempts.${column}`, value);
+    }
+    if (cursor)
+      query = query
+        .lte('created_at', cursor.createdAt)
+        .or(
+          `created_at.lt.${cursor.createdAt},and(created_at.eq.${cursor.createdAt},id.lt.${cursor.id})`,
+        );
+    const { data, error } = await query
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .range(0, pageSize);
 
-    if (error) return { data: null, error };
+    if (error) return { data: null, nextCursor: null, error };
 
-    const entries = (data ?? []).map((raw) => {
-      const { run_team_members, run_attempts, ...run } = raw;
+    const entries = ((data ?? []) as unknown as RunHistoryRow[]).map((raw) => {
+      const { run_attempts, ...run } = raw;
       return {
         run,
-        teamMembers: run_team_members ?? [],
         attempt: run_attempts
           ? {
               difficulty: run_attempts.difficulty,
@@ -83,7 +132,64 @@ export class SupabaseRunRepository implements IRunRepository {
           : null,
       } satisfies RunHistoryEntry;
     });
-    return { data: entries, error: null };
+    const page = entries.slice(0, pageSize);
+    const last = page[page.length - 1];
+    return {
+      data: page,
+      error: null,
+      nextCursor:
+        entries.length > pageSize && last
+          ? { createdAt: last.run.created_at, id: last.run.id }
+          : null,
+    };
+  }
+
+  async getRunHistoryDetails(
+    runId: string,
+  ): Promise<{ data: RunHistoryDetails | null; error: Error | null }> {
+    const [run, team] = await Promise.all([this.getRun(runId), this.getRunTeamMembers(runId)]);
+    if (run.error || team.error) return { data: null, error: run.error ?? team.error };
+    return { data: run.data ? { run: run.data, teamMembers: team.data ?? [] } : null, error: null };
+  }
+
+  async getPlayerRunRejections(
+    playerId: string,
+    limit = 20,
+    cursor?: RunRejectionCursor,
+  ): Promise<{
+    data: RunRejectionEntry[] | null;
+    nextCursor: RunRejectionCursor | null;
+    error: Error | null;
+  }> {
+    if (cursor && !isHistoryCursor(cursor.startedAt, cursor.id))
+      return { data: null, nextCursor: null, error: new Error('invalid_history_cursor') };
+    const pageSize = Math.max(1, Math.min(Math.trunc(limit) || 20, 100));
+    const { data, error } = await this.supabase.rpc('get_player_run_rejections', {
+      p_player_id: playerId,
+      p_limit: pageSize + 1,
+      ...(cursor ? { p_before_started_at: cursor.startedAt, p_before_id: cursor.id } : {}),
+    });
+    if (error) return { data: null, nextCursor: null, error };
+    const entries = (data ?? []).slice(0, pageSize).map((entry) => ({
+      attemptId: entry.attempt_id,
+      startedAt: entry.started_at,
+      rejectedAt: entry.rejected_at,
+      difficulty: entry.difficulty,
+      mode: entry.mode,
+      engineVersion: entry.engine_version,
+      gameplayRulesetVersion: entry.gameplay_ruleset_version,
+      progressionRulesetVersion: entry.progression_ruleset_version,
+      rejectionCode: entry.rejection_code,
+    }));
+    const last = entries[entries.length - 1];
+    return {
+      data: entries,
+      error: null,
+      nextCursor:
+        data && data.length > pageSize && last
+          ? { startedAt: last.startedAt, id: last.attemptId }
+          : null,
+    };
   }
 
   async getRunTeamMembers(
