@@ -91,7 +91,16 @@ describeLive('patch-note reading ownership live contract', () => {
         p_sequence: 99,
         p_version: 'forged',
       });
-      expect(foreignRpc.data).toBeNull();
+      expect(foreignRpc.error).toBeNull();
+      // A SQL function returning a composite can serialize zero rows as an all-null record.
+      // Neither representation may contain an identity or any publication marker.
+      expect([
+        null,
+        { user_id: null, last_seen_sequence: null, last_seen_version: null, updated_at: null },
+      ]).toContainEqual(foreignRpc.data);
+      const callerRows = await stranger.from('player_patch_note_state').select('*');
+      expect(callerRows.error).toBeNull();
+      expect(callerRows.data).toEqual([]);
       const guestRead = await anonymous.from('player_patch_note_state').select('*');
       expect(guestRead.error).not.toBeNull();
       const guestRpc = await anonymous.rpc('mark_patch_notes_seen', {
@@ -101,7 +110,12 @@ describeLive('patch-note reading ownership live contract', () => {
       });
       expect(guestRpc.error).not.toBeNull();
       const retained = await first.from('player_patch_note_state').select('*').single();
-      expect(retained.data?.last_seen_sequence).toBe(2);
+      expect(retained.error).toBeNull();
+      expect(retained.data).toMatchObject({
+        user_id: accounts[0].id,
+        last_seen_sequence: 2,
+        last_seen_version: 'release-2',
+      });
       const loginAfter = await service
         .from('players')
         .select('last_login_at')
