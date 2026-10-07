@@ -87,9 +87,9 @@ describe('comparable profile history', () => {
     );
 
     await waitFor(() =>
-      expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20),
+      expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20, 0, {}),
     );
-    const summary = await screen.findByText(/Victoire/);
+    const summary = await screen.findByText('Victoire', { selector: 'span' });
     fireEvent.click(summary.closest('summary') ?? summary);
 
     expect(screen.getByText(/normal · difficile · règles de jeu v13/)).toBeVisible();
@@ -126,13 +126,46 @@ describe('comparable profile history', () => {
       </MemoryRouter>,
     );
 
-    const summary = await screen.findByText(/Défaite/);
+    const summary = await screen.findByText('Défaite', { selector: 'span' });
     fireEvent.click(summary.closest('summary') ?? summary);
 
     expect(screen.getByText(/Connexion perdue/)).toBeVisible();
     expect(screen.getByText(/Partie historique/)).toBeVisible();
     expect(screen.getByText('Équipe non conservée')).toBeVisible();
     expect(screen.getByText('aucun')).toBeVisible();
+  });
+
+  it('applies all filters on the server and resets them', async () => {
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    await screen.findByText('Victoire', { selector: 'span' });
+    fireEvent.change(screen.getByLabelText('Résultat'), { target: { value: 'defeat' } });
+    fireEvent.change(screen.getByLabelText('Difficulté'), { target: { value: 'hard' } });
+    fireEvent.change(screen.getByLabelText('Mode'), { target: { value: 'daily' } });
+    fireEvent.change(screen.getByLabelText('Moteur'), { target: { value: 'run-engine-v21' } });
+    fireEvent.change(screen.getByLabelText('Version des règles de jeu'), {
+      target: { value: '21' },
+    });
+    fireEvent.change(screen.getByLabelText('Version des règles de progression'), {
+      target: { value: '2' },
+    });
+    await waitFor(() =>
+      expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-1', 20, 0, {
+        outcome: 'defeat',
+        difficulty: 'hard',
+        mode: 'daily',
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: 21,
+        progressionRulesetVersion: 2,
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Réinitialiser les filtres' }));
+    await waitFor(() =>
+      expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-1', 20, 0, {}),
+    );
   });
 
   it('updates the synchronization status when connectivity changes', async () => {
@@ -169,7 +202,7 @@ describe('comparable profile history', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText('Victoire')).toBeVisible();
+    expect(await screen.findByText('Victoire', { selector: 'span' })).toBeVisible();
     historyMocks.getPlayerRunHistory.mockResolvedValueOnce({
       data: null,
       error: new Error('profile switched while offline'),
@@ -188,8 +221,8 @@ describe('comparable profile history', () => {
     });
 
     expect(await screen.findByText('Historique indisponible')).toBeVisible();
-    expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-2', 20);
-    expect(screen.queryByText('Victoire')).not.toBeInTheDocument();
+    expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-2', 20, 0, {});
+    expect(screen.queryByText('Victoire', { selector: 'span' })).not.toBeInTheDocument();
   });
 
   it('shows repository failures and retries the nested history query', async () => {
@@ -241,6 +274,6 @@ describe('comparable profile history', () => {
     view.unmount();
     await act(async () => resolveHistory?.({ data: [], error: null }));
 
-    expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20);
+    expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20, 0, {});
   });
 });

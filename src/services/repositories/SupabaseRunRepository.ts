@@ -12,7 +12,16 @@ import type {
   IRunRepository,
   IRunStatsRepository,
   RunHistoryEntry,
+  RunHistoryFilters,
 } from '../interfaces/IRunRepository';
+
+type RunHistoryRow = Run & {
+  run_team_members: RunTeamMember[] | null;
+  run_attempts: Pick<
+    Database['public']['Tables']['run_attempts']['Row'],
+    'difficulty' | 'mode' | 'engine_version' | 'gameplay_ruleset_version' | 'ruleset_version'
+  > | null;
+};
 
 const RUN_HISTORY_SELECT =
   '*, run_team_members(*), run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)';
@@ -57,17 +66,30 @@ export class SupabaseRunRepository implements IRunRepository {
     playerId: string,
     limit = 20,
     offset = 0,
+    filters: RunHistoryFilters = {},
   ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('runs')
-      .select(RUN_HISTORY_SELECT)
-      .eq('player_id', playerId)
+    const attemptFilters = [
+      ['difficulty', filters.difficulty],
+      ['mode', filters.mode],
+      ['engine_version', filters.engineVersion?.trim() || undefined],
+      ['gameplay_ruleset_version', filters.gameplayRulesetVersion],
+      ['ruleset_version', filters.progressionRulesetVersion],
+    ] as const;
+    const select = attemptFilters.some(([, value]) => value !== undefined)
+      ? RUN_HISTORY_SELECT.replace('runs_run_attempt_id_fkey(', 'runs_run_attempt_id_fkey!inner(')
+      : RUN_HISTORY_SELECT;
+    let query = this.supabase.from('runs').select(select).eq('player_id', playerId);
+    if (filters.outcome) query = query.eq('won', filters.outcome === 'victory');
+    for (const [column, value] of attemptFilters) {
+      if (value !== undefined) query = query.eq(`run_attempts.${column}`, value);
+    }
+    const { data, error } = await query
       .order('completed_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .range(offset, offset + Math.max(1, Math.min(limit, 100)) - 1);
 
     if (error) return { data: null, error };
 
-    const entries = (data ?? []).map((raw) => {
+    const entries = ((data ?? []) as unknown as RunHistoryRow[]).map((raw) => {
       const { run_team_members, run_attempts, ...run } = raw;
       return {
         run,

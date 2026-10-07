@@ -7,6 +7,15 @@
 
 import type { Run, RunTeamMember } from '@/types/models';
 
+export interface RunHistoryFilters {
+  outcome?: 'victory' | 'defeat';
+  difficulty?: 'easy' | 'normal' | 'hard';
+  mode?: 'normal' | 'daily';
+  engineVersion?: string;
+  gameplayRulesetVersion?: number;
+  progressionRulesetVersion?: number;
+}
+
 export interface RunHistoryEntry {
   run: Run;
   teamMembers: RunTeamMember[];
@@ -39,6 +48,7 @@ export interface IRunRepository {
     playerId: string,
     limit?: number,
     offset?: number,
+    filters?: RunHistoryFilters,
   ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }>;
 
   /**

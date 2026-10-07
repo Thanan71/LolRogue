@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { RunHistoryFilters } from '@/components/history/RunHistoryFilters';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
 import { riotChampionIconUrl } from '@/config/riotAssets';
 import { ROUTES } from '@/config/routes';
@@ -9,7 +10,10 @@ import { augmentName, localizeChampion, runeName } from '@/i18n/content';
 import { formatDate, formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { RepositoryContainerFactory } from '@/services/container';
-import type { RunHistoryEntry } from '@/services/interfaces/IRunRepository';
+import type {
+  RunHistoryFilters as HistoryFilters,
+  RunHistoryEntry,
+} from '@/services/interfaces/IRunRepository';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -40,6 +44,7 @@ export function ProfilePage() {
   const navigate = useAppNavigate();
   const player = useAuthStore((state) => state.player);
   const isGuest = useAuthStore((state) => state.isGuest);
+  const [filters, setFilters] = useState<HistoryFilters>({});
   const [runs, setRuns] = useState<RunHistoryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +65,7 @@ export function ProfilePage() {
     setRuns([]);
     setIsLoading(true);
     setError(null);
-    void repositories.run.getPlayerRunHistory(playerId, 20).then((result) => {
+    void repositories.run.getPlayerRunHistory(playerId, 20, 0, filters).then((result) => {
       if (cancelled) return;
       if (result.error) {
         setRuns([]);
@@ -73,7 +78,7 @@ export function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [playerId, isGuest, reloadKey]);
+  }, [playerId, isGuest, reloadKey, filters]);
 
   return (
     <PageShell width="content">
@@ -90,10 +95,6 @@ export function ProfilePage() {
         <StateView kind="empty" title={fr.profile.local}>
           <p>{fr.profile.loginRequired}</p>
           <Button onClick={() => navigate(ROUTES.AUTH)}>{fr.profile.login}</Button>
-        </StateView>
-      ) : isLoading ? (
-        <StateView kind="loading" title={fr.profile.loading}>
-          {fr.profile.loadingDetail}
         </StateView>
       ) : (
         <>
@@ -138,6 +139,12 @@ export function ProfilePage() {
           </Panel>
           <Panel aria-label={fr.profile.history}>
             <h2>{fr.profile.recentHistory}</h2>
+            <RunHistoryFilters value={filters} onChange={setFilters} />
+            {isLoading && (
+              <StateView kind="loading" title={fr.profile.loading}>
+                {fr.profile.loadingDetail}
+              </StateView>
+            )}
             {error && (
               <StateView
                 kind="error"
@@ -148,7 +155,9 @@ export function ProfilePage() {
                 {error}
               </StateView>
             )}
-            {!error && runs.length === 0 && <StateView kind="empty" title={fr.profile.noRuns} />}
+            {!error && !isLoading && runs.length === 0 && (
+              <StateView kind="empty" title={fr.profile.noRuns} />
+            )}
             <ul className="ui-list">
               {runs.map(({ run, attempt, teamMembers }) => {
                 const contentLabels = [
