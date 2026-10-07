@@ -1400,7 +1400,7 @@ Preuve locale du 7 octobre 2026 : `check`, `db:validate` et contrôles spéciali
 - [x] Ajouter filtres victoire/défaite, difficulté, mode, moteur/ruleset.
 - [x] Afficher clairement « legacy / non comparable ».
 - [x] Ajouter détail de rejet technique uniquement pour le propriétaire/admin.
-- [ ] Pagination par curseur si le volume devient significatif.
+- [x] Pagination par curseur si le volume devient significatif.
 - [ ] Éviter de charger toutes les relations lourdes pour une simple liste.
 
 ---

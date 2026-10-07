@@ -55,20 +55,21 @@ describe('run history Supabase schema contract', () => {
       eq: vi.fn(),
       order: vi.fn(),
       range: vi.fn(),
-      returns: vi.fn(),
     };
     query.select.mockReturnValue(query);
     query.eq.mockReturnValue(query);
     query.order.mockReturnValue(query);
     query.range.mockResolvedValue({ data: [], error: null });
     const supabase = { from: vi.fn(() => query) } as unknown as SupabaseClient<Database>;
-    await new SupabaseRunRepository(supabase).getPlayerRunHistory('player-1', 20, 0, {
-      outcome: 'defeat',
-      difficulty: 'hard',
-      mode: 'daily',
-      engineVersion: 'run-engine-v21',
-      gameplayRulesetVersion: 21,
-      progressionRulesetVersion: 2,
+    await new SupabaseRunRepository(supabase).getPlayerRunHistory('player-1', 20, {
+      filters: {
+        outcome: 'defeat',
+        difficulty: 'hard',
+        mode: 'daily',
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: 21,
+        progressionRulesetVersion: 2,
+      },
     });
     expect(query.select).toHaveBeenCalledWith(
       expect.stringContaining('runs_run_attempt_id_fkey!inner('),

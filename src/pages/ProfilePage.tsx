@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { historyComparison } from '@/components/history/historyComparison';
 import { RunHistoryFilters } from '@/components/history/RunHistoryFilters';
 import { RunRejectionHistory } from '@/components/history/RunRejectionHistory';
@@ -15,6 +15,7 @@ import { runHistoryCopy } from '@/i18n/runHistoryContent';
 import { RepositoryContainerFactory } from '@/services/container';
 import type {
   RunHistoryFilters as HistoryFilters,
+  RunHistoryCursor,
   RunHistoryEntry,
 } from '@/services/interfaces/IRunRepository';
 import { supabase } from '@/services/supabaseClient';
@@ -49,6 +50,11 @@ export function ProfilePage() {
   const isGuest = useAuthStore((state) => state.isGuest);
   const [filters, setFilters] = useState<HistoryFilters>({});
   const [runs, setRuns] = useState<RunHistoryEntry[]>([]);
+  const [nextCursor, setNextCursor] = useState<RunHistoryCursor | null>(null);
+  const [moreError, setMoreError] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const historyRequest = useRef(0);
+  const morePending = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -64,24 +70,67 @@ export function ProfilePage() {
       setIsLoading(false);
       return;
     }
+    const request = ++historyRequest.current;
     let cancelled = false;
+    setNextCursor(null);
+    setMoreError(null);
+    setLoadingMore(false);
+    morePending.current = false;
     setRuns([]);
     setIsLoading(true);
     setError(null);
-    void repositories.run.getPlayerRunHistory(playerId, 20, 0, filters).then((result) => {
-      if (cancelled) return;
-      if (result.error) {
+    void repositories.run
+      .getPlayerRunHistory(playerId, 20, { filters })
+      .then((result) => {
+        if (cancelled || request !== historyRequest.current) return;
+        if (result.error) {
+          setRuns([]);
+          setError(fr.profile.historyLoadError);
+        } else {
+          setRuns(result.data ?? []);
+          setNextCursor(result.nextCursor ?? null);
+        }
+        setIsLoading(false);
+      })
+      .catch(() => {
+        if (cancelled || request !== historyRequest.current) return;
         setRuns([]);
         setError(fr.profile.historyLoadError);
-      } else {
-        setRuns(result.data ?? []);
-      }
-      setIsLoading(false);
-    });
+        setIsLoading(false);
+      });
     return () => {
       cancelled = true;
+      historyRequest.current += 1;
     };
   }, [playerId, isGuest, reloadKey, filters]);
+
+  const loadMore = async () => {
+    if (!playerId || isGuest || !nextCursor || morePending.current) return;
+    const request = historyRequest.current;
+    morePending.current = true;
+    setLoadingMore(true);
+    setMoreError(null);
+    try {
+      const result = await repositories.run.getPlayerRunHistory(playerId, 20, {
+        filters,
+        cursor: nextCursor,
+      });
+      if (request !== historyRequest.current) return;
+      if (result.error) {
+        setMoreError(fr.profile.historyLoadError);
+        return;
+      }
+      setRuns((previous) => [...previous, ...(result.data ?? [])]);
+      setNextCursor(result.nextCursor ?? null);
+    } catch {
+      if (request === historyRequest.current) setMoreError(fr.profile.historyLoadError);
+    } finally {
+      if (request === historyRequest.current) {
+        setLoadingMore(false);
+        morePending.current = false;
+      }
+    }
+  };
 
   return (
     <PageShell width="content">
@@ -296,6 +345,28 @@ export function ProfilePage() {
                 );
               })}
             </ul>
+            {moreError && (
+              <StateView
+                kind="error"
+                title={fr.profile.historyUnavailable}
+                actionLabel={fr.profile.retry}
+                onAction={() => {
+                  void loadMore();
+                }}
+              >
+                {moreError}
+              </StateView>
+            )}
+            {nextCursor && (
+              <Button
+                disabled={loadingMore}
+                onClick={() => {
+                  void loadMore();
+                }}
+              >
+                {loadingMore ? runHistoryCopy.loadingMore : runHistoryCopy.next}
+              </Button>
+            )}
           </Panel>
           <RunRejectionHistory key={player.id} playerId={player.id} repository={repositories.run} />
         </>

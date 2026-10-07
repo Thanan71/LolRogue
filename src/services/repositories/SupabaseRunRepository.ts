@@ -11,11 +11,21 @@ import type { Run, RunTeamMember } from '@/types/models';
 import type {
   IRunRepository,
   IRunStatsRepository,
+  RunHistoryCursor,
   RunHistoryEntry,
-  RunHistoryFilters,
+  RunHistoryQuery,
   RunRejectionCursor,
   RunRejectionEntry,
 } from '../interfaces/IRunRepository';
+
+// Preserve Postgres microsecond precision and reject PostgREST filter syntax.
+function isHistoryCursor(timestamp: string, id: string): boolean {
+  return (
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(timestamp) &&
+    Number.isFinite(Date.parse(timestamp)) &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  );
+}
 
 type RunHistoryRow = Run & {
   run_team_members: RunTeamMember[] | null;
@@ -67,9 +77,17 @@ export class SupabaseRunRepository implements IRunRepository {
   async getPlayerRunHistory(
     playerId: string,
     limit = 20,
-    offset = 0,
-    filters: RunHistoryFilters = {},
-  ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }> {
+    options: RunHistoryQuery = {},
+  ): Promise<{
+    data: RunHistoryEntry[] | null;
+    nextCursor: RunHistoryCursor | null;
+    error: Error | null;
+  }> {
+    const { filters = {}, cursor } = options;
+    if (cursor && !isHistoryCursor(cursor.createdAt, cursor.id)) {
+      return { data: null, nextCursor: null, error: new Error('invalid_history_cursor') };
+    }
+    const pageSize = Math.max(1, Math.min(Math.trunc(limit) || 20, 100));
     const attemptFilters = [
       ['difficulty', filters.difficulty],
       ['mode', filters.mode],
@@ -85,11 +103,18 @@ export class SupabaseRunRepository implements IRunRepository {
     for (const [column, value] of attemptFilters) {
       if (value !== undefined) query = query.eq(`run_attempts.${column}`, value);
     }
+    if (cursor)
+      query = query
+        .lte('created_at', cursor.createdAt)
+        .or(
+          `created_at.lt.${cursor.createdAt},and(created_at.eq.${cursor.createdAt},id.lt.${cursor.id})`,
+        );
     const { data, error } = await query
-      .order('completed_at', { ascending: false })
-      .range(offset, offset + Math.max(1, Math.min(limit, 100)) - 1);
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .range(0, pageSize);
 
-    if (error) return { data: null, error };
+    if (error) return { data: null, nextCursor: null, error };
 
     const entries = ((data ?? []) as unknown as RunHistoryRow[]).map((raw) => {
       const { run_team_members, run_attempts, ...run } = raw;
@@ -107,7 +132,16 @@ export class SupabaseRunRepository implements IRunRepository {
           : null,
       } satisfies RunHistoryEntry;
     });
-    return { data: entries, error: null };
+    const page = entries.slice(0, pageSize);
+    const last = page[page.length - 1];
+    return {
+      data: page,
+      error: null,
+      nextCursor:
+        entries.length > pageSize && last
+          ? { createdAt: last.run.created_at, id: last.run.id }
+          : null,
+    };
   }
 
   async getPlayerRunRejections(
@@ -119,6 +153,8 @@ export class SupabaseRunRepository implements IRunRepository {
     nextCursor: RunRejectionCursor | null;
     error: Error | null;
   }> {
+    if (cursor && !isHistoryCursor(cursor.startedAt, cursor.id))
+      return { data: null, nextCursor: null, error: new Error('invalid_history_cursor') };
     const pageSize = Math.max(1, Math.min(Math.trunc(limit) || 20, 100));
     const { data, error } = await this.supabase.rpc('get_player_run_rejections', {
       p_player_id: playerId,

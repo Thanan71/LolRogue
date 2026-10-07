@@ -151,4 +151,68 @@ describeLive('history diagnostics live RLS and keyset', () => {
     expect(secondPage.data?.map((row) => row.attemptId)).toEqual([firstId]);
     expect(secondPage.nextCursor).toBeNull();
   });
+  it('keeps equal-timestamp runs stable across pages and filters authoritative metadata on the server', async () => {
+    const owner = await account('run-pages');
+    const start = await owner.client.rpc('start_run_attempt', {
+      p_command_id: randomUUID(),
+      p_team: ['Garen'],
+      p_rune_ids: [],
+      p_difficulty: 'hard',
+      p_mode: 'normal',
+    });
+    expect(start.error).toBeNull();
+    const attemptId = (start.data as { attempt_id: string }).attempt_id;
+    const timestamp = '2026-10-07T10:00:00.123456+00:00';
+    const ids = [randomUUID(), randomUUID(), randomUUID()].sort().reverse();
+    const rows = ids.map((id, index) => ({
+      id,
+      player_id: owner.playerId,
+      run_uuid: `history_${id}`,
+      created_at: timestamp,
+      run_attempt_id: index === 0 ? attemptId : null,
+      progression_source: 'legacy',
+      won: index === 0,
+    }));
+    expect((await service.from('runs').insert(rows)).error).toBeNull();
+    const repository = new SupabaseRunRepository(owner.client);
+    const first = await repository.getPlayerRunHistory(owner.playerId, 2);
+    expect(first.error).toBeNull();
+    expect(first.data?.map((row) => row.run.id)).toEqual(ids.slice(0, 2));
+    expect(first.nextCursor?.createdAt).toContain('.123456');
+    const newerId = randomUUID();
+    expect(
+      (
+        await service.from('runs').insert({
+          id: newerId,
+          player_id: owner.playerId,
+          run_uuid: `history_${newerId}`,
+          progression_source: 'legacy',
+          created_at: '2026-10-07T11:00:00Z',
+        })
+      ).error,
+    ).toBeNull();
+    const second = await repository.getPlayerRunHistory(owner.playerId, 2, {
+      cursor: first.nextCursor!,
+    });
+    expect(second.error).toBeNull();
+    expect(second.data?.map((row) => row.run.id)).toEqual(ids.slice(2));
+    expect(second.nextCursor).toBeNull();
+    const filtered = await repository.getPlayerRunHistory(owner.playerId, 20, {
+      filters: {
+        outcome: 'victory',
+        difficulty: 'hard',
+        mode: 'normal',
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: 21,
+        progressionRulesetVersion: (start.data as { ruleset_version: number }).ruleset_version,
+      },
+    });
+    expect(filtered.error).toBeNull();
+    expect(filtered.data?.map((row) => row.run.id)).toEqual([ids[0]]);
+    const noMatching = await repository.getPlayerRunHistory(owner.playerId, 20, {
+      filters: { mode: 'daily' },
+    });
+    expect(noMatching.error).toBeNull();
+    expect(noMatching.data).toEqual([]);
+  });
 });

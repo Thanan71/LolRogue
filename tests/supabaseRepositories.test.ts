@@ -386,13 +386,12 @@ describe('SupabaseRunRepository history', () => {
     const result = await new SupabaseRunRepository(mockSupabase).getPlayerRunHistory(
       'player-1',
       20,
-      5,
     );
 
     expect(mockSupabase.from).toHaveBeenCalledWith('runs');
     expect(queryChain.select).toHaveBeenCalledWith(expect.stringContaining('run_team_members(*)'));
     expect(queryChain.eq).toHaveBeenCalledWith('player_id', 'player-1');
-    expect(queryChain.range).toHaveBeenCalledWith(5, 24);
+    expect(queryChain.range).toHaveBeenCalledWith(0, 20);
     expect(result.error).toBeNull();
     expect(result.data?.[0]).toMatchObject({
       run: { id: 'run-v13' },
@@ -418,7 +417,7 @@ describe('SupabaseRunRepository history', () => {
 
     await expect(
       new SupabaseRunRepository(mockSupabase).getPlayerRunHistory('player-1'),
-    ).resolves.toEqual({ data: null, error });
+    ).resolves.toEqual({ data: null, nextCursor: null, error });
   });
 });
 

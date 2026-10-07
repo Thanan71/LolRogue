@@ -16,6 +16,16 @@ export interface RunHistoryFilters {
   progressionRulesetVersion?: number;
 }
 
+export interface RunHistoryCursor {
+  createdAt: string;
+  id: string;
+}
+
+export interface RunHistoryQuery {
+  filters?: RunHistoryFilters;
+  cursor?: RunHistoryCursor;
+}
+
 export interface RunRejectionEntry {
   attemptId: string;
   startedAt: string;
@@ -64,9 +74,12 @@ export interface IRunRepository {
   getPlayerRunHistory(
     playerId: string,
     limit?: number,
-    offset?: number,
-    filters?: RunHistoryFilters,
-  ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }>;
+    query?: RunHistoryQuery,
+  ): Promise<{
+    data: RunHistoryEntry[] | null;
+    nextCursor: RunHistoryCursor | null;
+    error: Error | null;
+  }>;
 
   /** Owner/admin-only sanitized diagnostics; the database enforces access. */
   getPlayerRunRejections(

@@ -232,7 +232,7 @@ describeLive('repositories against migrated local Supabase', () => {
   it('calls getPlayerRunHistory against local Supabase with real pagination semantics', async () => {
     const repository = new SupabaseRunRepository(fixture.client);
 
-    const firstPage = await repository.getPlayerRunHistory(fixture.playerId, 1, 0);
+    const firstPage = await repository.getPlayerRunHistory(fixture.playerId, 1);
     expect(firstPage.error).toBeNull();
     expect(firstPage.data).toHaveLength(1);
     expect(firstPage.data?.[0]).toMatchObject({
@@ -245,8 +245,8 @@ describeLive('repositories against migrated local Supabase', () => {
       teamMembers: [{ champion_id: 'Garen', run_id: fixture.runId }],
     });
 
-    const emptyPage = await repository.getPlayerRunHistory(randomUUID(), 1, 0);
-    expect(emptyPage).toEqual({ data: [], error: null });
+    const emptyPage = await repository.getPlayerRunHistory(randomUUID(), 1);
+    expect(emptyPage).toEqual({ data: [], nextCursor: null, error: null });
   });
 
   it('uses real anonymous leaderboard and Daily contracts', async () => {
