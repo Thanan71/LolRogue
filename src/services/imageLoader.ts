@@ -1,3 +1,4 @@
+import { recordTechnicalMetric } from '@/observability/technicalMetrics';
 import { recordTechnicalEvent } from '@/utils/observability';
 import {
   createPlaceholderSvg,
@@ -33,7 +34,16 @@ export class ImageLoader {
     this.pending.set(cacheKey, promise);
 
     try {
-      return await promise;
+      const result = await promise;
+      recordTechnicalMetric({
+        metric: 'asset',
+        outcome: result.source === 'placeholder' ? 'error' : 'ok',
+        code: result.source === 'placeholder' ? 'placeholder' : 'ok',
+      });
+      return result;
+    } catch (error) {
+      recordTechnicalMetric({ metric: 'asset', outcome: 'error', code: 'request_failed' });
+      throw error;
     } finally {
       this.pending.delete(cacheKey);
     }

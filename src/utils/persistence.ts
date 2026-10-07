@@ -1,4 +1,5 @@
 import type { StateStorage } from 'zustand/middleware';
+import { recordTechnicalMetric } from '@/observability/technicalMetrics';
 import { recordTechnicalEvent } from './observability';
 import {
   parseBoundedStorageJson,
@@ -15,6 +16,7 @@ function quarantineKey(name: string): string {
 }
 
 export function quarantinePersistedState(name: string, payload: unknown, reason: string): void {
+  recordTechnicalMetric({ metric: 'rehydration', outcome: 'error', code: 'invalid_state' });
   try {
     recordTechnicalEvent({ type: 'rehydration_error', store: name, reason });
   } catch {

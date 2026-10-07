@@ -12,6 +12,7 @@ import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStar
 import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { shouldApplyRunRewards } from '@/game/run/runState';
 import { runError, runStartValidationMessage } from '@/i18n/runErrorContent';
+import { recordTechnicalMetric } from '@/observability/technicalMetrics';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import {
   RunVerificationRejectedError,
@@ -511,6 +512,12 @@ export function createRunLifecycleSlice(
         }
         state = get();
 
+        recordTechnicalMetric({
+          metric: 'run_finalization',
+          outcome: state.completedRunSnapshot?.runId === state.runId ? 'retry' : 'initial',
+          engineVersion: state.authorityAttempt?.engineVersion,
+          gameplayRulesetVersion: state.authorityAttempt?.rulesetVersion,
+        });
         if (state.completedRunSnapshot?.runId === state.runId) {
           recordTechnicalEvent(
             { type: 'retry', operation: 'run_finalization', attempt: 1 },
@@ -773,6 +780,10 @@ export function createRunLifecycleSlice(
             syncedAttempt.attemptId,
             finishCommandId,
             expectedSequence,
+            {
+              engineVersion: syncedAttempt.engineVersion,
+              gameplayRulesetVersion: syncedAttempt.rulesetVersion,
+            },
           );
           if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
             set({

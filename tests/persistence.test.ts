@@ -1,4 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  getTechnicalMetricSnapshot,
+  resetTechnicalMetrics,
+} from '@/observability/technicalMetrics';
 import {
   getPersistedQuarantine,
   isRecord,
@@ -8,6 +12,7 @@ import {
 } from '@/utils/persistence';
 
 describe('persisted store recovery', () => {
+  beforeEach(resetTechnicalMetrics);
   it('merges older compatible state with current defaults', () => {
     expect(recoverPersistedState({ volume: 20 }, { volume: 80, muted: false })).toEqual({
       volume: 20,
@@ -29,7 +34,10 @@ describe('persisted store recovery', () => {
       setItem: vi.fn(),
     });
 
-    expect(safeLocalStorage.getItem('broken')).toBeNull();
+    expect(safeLocalStorage.getItem('lolrogue-run-storage')).toBeNull();
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { metric: 'rehydration', outcome: 'error', code: 'storage_unavailable', count: 1 },
+    ]);
     expect(removeItem).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });
@@ -79,6 +87,9 @@ describe('persisted store recovery', () => {
       reason: 'unsupported_version_or_invalid_state',
       payload: { enabled: 'yes' },
     });
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { metric: 'rehydration', outcome: 'error', code: 'invalid_state', count: 1 },
+    ]);
     vi.unstubAllGlobals();
   });
 
