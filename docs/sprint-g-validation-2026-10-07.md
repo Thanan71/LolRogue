@@ -9,7 +9,7 @@ rollback et performance sont des commits distincts sur l'intégration.
 
 | Tâche | Branche depuis dev | Commits de sous-tâches | Dernier commit |
 | --- | --- | ---: | --- |
-| P2-CI-02 | `feat/sprint-g-ci-gates` | 4 | `b5c3193` |
+| P2-CI-02 | `feat/sprint-g-ci-gates` | 5 | `075eb7f` |
 | P3-PROD-01 | `feat/sprint-g-run-history` | 5 | `65638ee` |
 | P0-I18N-01, preuve automatique | `feat/sprint-g-i18n` | 1 | `194b711` |
 | P3-PROD-03 | `feat/sprint-g-pwa` | 4 | `48c9f2c` |
@@ -24,6 +24,8 @@ faux timeouts dus à la contention CPU. Les seuils restent inchangés.
 - CI répartie entre statique, unités/couverture, sécurité, build/assets, DB,
   navigateur et clean-room ; la commande `npm run check` reste disponible.
   Le transfert du build est signé et vérifié pour le même SHA/run/attempt.
+  Les checks `validate`, `database` et `e2e` agrègent strictement les nouvelles
+  gates pour satisfaire les protections GitHub existantes sans les modifier.
 - Historique filtré côté serveur, labels de comparaison, curseur préservant les
   microsecondes, index mesuré, détails/équipe chargés à l'ouverture et diagnostics
   de rejet limités au propriétaire ou à un administrateur reconnu côté serveur.
