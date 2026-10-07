@@ -13,7 +13,11 @@
       "name": "rls_enabled_no_policy",
       "level": "INFO",
       "justification": "Catalogue serveur en lecture uniquement via des RPC SECURITY DEFINER bornées ; aucune politique Data API n'est volontairement exposée.",
-      "expiresAt": "2026-10-31"
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "daily_challenge_rulesets"
+      }
     },
     {
       "type": "security",
@@ -21,7 +25,11 @@
       "name": "rls_enabled_no_policy",
       "level": "INFO",
       "justification": "Journal interne idempotent écrit par les RPC autoritaires d'achat d'amélioration ; RLS sans policy et droits clients révoqués bloquent l'accès Data API direct.",
-      "expiresAt": "2026-10-31"
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "progression_commands"
+      }
     },
     {
       "type": "security",
@@ -29,7 +37,11 @@
       "name": "rls_enabled_no_policy",
       "level": "INFO",
       "justification": "Archive interne de quarantaine et d'audit des rangs historiques, alimentée par migration et réservée au serveur ; aucune lecture Data API client.",
-      "expiresAt": "2026-10-31"
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "progression_enhancement_security_baselines"
+      }
     },
     {
       "type": "performance",
