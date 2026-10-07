@@ -631,8 +631,26 @@ describe('authoritative run lifecycle and recovery', () => {
       outcome: 'saved',
     });
     expect(attemptMocks.seal.mock.calls).toEqual([
-      [ATTEMPT_ID, failed.attempt!.finishCommandId, failed.attempt!.nextSequence - 1],
-      [ATTEMPT_ID, failed.attempt!.finishCommandId, failed.attempt!.nextSequence - 1],
+      [
+        ATTEMPT_ID,
+        failed.attempt!.finishCommandId,
+        failed.attempt!.nextSequence - 1,
+        {
+          engineVersion: failed.attempt!.engineVersion,
+          gameplayRulesetVersion: failed.attempt!.gameplayRulesetVersion,
+          progressionRulesetVersion: failed.attempt!.rulesetVersion,
+        },
+      ],
+      [
+        ATTEMPT_ID,
+        failed.attempt!.finishCommandId,
+        failed.attempt!.nextSequence - 1,
+        {
+          engineVersion: failed.attempt!.engineVersion,
+          gameplayRulesetVersion: failed.attempt!.gameplayRulesetVersion,
+          progressionRulesetVersion: failed.attempt!.rulesetVersion,
+        },
+      ],
     ]);
     expect(attemptMocks.append).toHaveBeenCalledTimes(1);
     expect(useRunStore.getState().completedRunSnapshot).toEqual(failed.snapshot);
