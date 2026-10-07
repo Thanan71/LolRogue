@@ -4,6 +4,10 @@ import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { findNode } from '@/game/map/mapUtils';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { runError } from '@/i18n/runErrorContent';
+import {
+  getTechnicalMetricSnapshot,
+  resetTechnicalMetrics,
+} from '@/observability/technicalMetrics';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -143,6 +147,7 @@ function verifiedStartResponse() {
 
 describe('authoritative run lifecycle and recovery', () => {
   beforeEach(() => {
+    resetTechnicalMetrics();
     vi.clearAllMocks();
     getChampionMastery.mockResolvedValue({ data: [], error: null });
     attemptMocks.findOpen.mockResolvedValue({ data: null, error: null });
@@ -279,6 +284,22 @@ describe('authoritative run lifecycle and recovery', () => {
     expect(attemptMocks.append).toHaveBeenCalledTimes(2);
     expect(attemptMocks.append.mock.calls[1][1]).toHaveLength(1);
     expect(attemptMocks.seal).toHaveBeenCalledTimes(1);
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      {
+        metric: 'run_finalization',
+        outcome: 'initial',
+        engineVersion: 'run-engine-v1',
+        gameplayRulesetVersion: 1,
+        count: 1,
+      },
+      {
+        metric: 'run_finalization',
+        outcome: 'retry',
+        engineVersion: 'run-engine-v1',
+        gameplayRulesetVersion: 1,
+        count: 1,
+      },
+    ]);
     expect(attemptMocks.verify).toHaveBeenCalledWith(ATTEMPT_ID);
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
@@ -380,6 +401,10 @@ describe('authoritative run lifecycle and recovery', () => {
         ATTEMPT_ID,
         originalAttempt!.finishCommandId,
         originalAttempt!.nextSequence - 1,
+        {
+          engineVersion: originalAttempt!.engineVersion,
+          gameplayRulesetVersion: originalAttempt!.rulesetVersion,
+        },
       ]);
     }
     expect(attemptMocks.append).toHaveBeenCalledTimes(1);
@@ -457,7 +482,10 @@ describe('authoritative run lifecycle and recovery', () => {
       { sequence: 2, kind: 'choose_augment', payload: { augment_id: augmentId } },
       { sequence: 3, kind: 'abandon_run', payload: {} },
     ]);
-    expect(attemptMocks.seal).toHaveBeenCalledWith(ATTEMPT_ID, expect.any(String), 3);
+    expect(attemptMocks.seal).toHaveBeenCalledWith(ATTEMPT_ID, expect.any(String), 3, {
+      engineVersion: 'run-engine-v13',
+      gameplayRulesetVersion: 1,
+    });
   });
 
   it('does not let a hanging profile refresh block a durable verification', async () => {

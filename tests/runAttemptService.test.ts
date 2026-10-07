@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { runError } from '@/i18n/runErrorContent';
 import {
+  getTechnicalMetricSnapshot,
+  resetTechnicalMetrics,
+} from '@/observability/technicalMetrics';
+import {
   appendRunAttemptCommands,
   findOpenRunAttempt,
   RUN_FINALIZATION_REQUEST_TIMEOUT_MS,
@@ -92,6 +96,7 @@ function statusResponse(overrides: Record<string, unknown> = {}) {
 
 describe('runAttemptService', () => {
   beforeEach(() => {
+    resetTechnicalMetrics();
     vi.clearAllMocks();
     supabaseMocks.rpc.mockReset();
     supabaseMocks.invoke.mockReset();
@@ -187,6 +192,14 @@ describe('runAttemptService', () => {
       p_difficulty: 'hard',
       p_mode: 'normal',
     });
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      {
+        metric: 'run_start',
+        outcome: 'ok',
+        engineVersion: 'run-engine-v1',
+        gameplayRulesetVersion: 2,
+      },
+    ]);
     expect(result).toMatchObject({
       error: null,
       data: {
@@ -536,6 +549,26 @@ describe('runAttemptService', () => {
     const failedSeal = await sealRunAttempt(ATTEMPT_ID, COMMAND_ID, 1);
     expect(failedSeal.data).toBeNull();
     expect(failedSeal.error?.message).toBe('offline');
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { metric: 'run_seal', outcome: 'error', code: 'request_failed', engineVersion: 'unknown' },
+    ]);
+  });
+
+  it('counts a malformed successful HTTP response as a failed seal with the resumed version', async () => {
+    supabaseMocks.rpc.mockResolvedValueOnce({ data: {}, error: null });
+    await sealRunAttempt(ATTEMPT_ID, COMMAND_ID, 1, {
+      engineVersion: 'run-engine-v19',
+      gameplayRulesetVersion: 19,
+    });
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      {
+        metric: 'run_seal',
+        outcome: 'error',
+        code: 'invalid_response',
+        engineVersion: 'run-engine-v19',
+        gameplayRulesetVersion: 19,
+      },
+    ]);
   });
 
   it('recovers rejected attempts as terminal and refuses unfinished attempts', async () => {

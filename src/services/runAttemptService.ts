@@ -1,5 +1,9 @@
-import type { Json } from '@/types/database';
 import { verificationRejectionMessage, verificationRetryableMessage } from '@/i18n/runErrorContent';
+import {
+  recordTechnicalMetric,
+  type TechnicalAttemptContext,
+} from '@/observability/technicalMetrics';
+import type { Json } from '@/types/database';
 import {
   MAX_TEAM_SIZE,
   type RunItemLedgerEvent,
@@ -381,8 +385,18 @@ export async function startRunAttempt(
           p_difficulty: input.difficulty,
           p_mode: input.mode,
         });
-  if (result.error) return { data: null, error: result.error };
+  if (result.error) {
+    recordTechnicalMetric({ metric: 'run_start', outcome: 'error', code: 'request_failed' });
+    return { data: null, error: result.error };
+  }
   const parsed = parseStartResult(result.data);
+  recordTechnicalMetric({
+    metric: 'run_start',
+    outcome: parsed ? 'ok' : 'error',
+    code: parsed ? 'ok' : 'invalid_response',
+    engineVersion: parsed?.engineVersion,
+    gameplayRulesetVersion: parsed?.rulesetVersion,
+  });
   return parsed
     ? { data: parsed, error: null }
     : { data: null, error: new Error('Invalid start_run_attempt response') };
@@ -412,14 +426,29 @@ export async function sealRunAttempt(
   attemptId: string,
   finishCommandId: string,
   expectedSequence: number,
+  metricContext: TechnicalAttemptContext = {},
 ): Promise<{ data: SealRunAttemptResult | null; error: Error | null }> {
   const result = await callAttemptRpc('seal_run_attempt', {
     p_attempt_id: attemptId,
     p_finish_command_id: finishCommandId,
     p_expected_sequence: expectedSequence,
   });
-  if (result.error) return { data: null, error: result.error };
+  if (result.error) {
+    recordTechnicalMetric({
+      metric: 'run_seal',
+      outcome: 'error',
+      code: 'request_failed',
+      ...metricContext,
+    });
+    return { data: null, error: result.error };
+  }
   const parsed = parseSealResult(result.data);
+  recordTechnicalMetric({
+    metric: 'run_seal',
+    outcome: parsed ? 'ok' : 'error',
+    code: parsed ? 'ok' : 'invalid_response',
+    ...metricContext,
+  });
   return parsed
     ? { data: parsed, error: null }
     : { data: null, error: new Error('Invalid seal_run_attempt response') };
