@@ -336,6 +336,12 @@ export default defineConfig({
           functions: 100,
           lines: 100,
         },
+        'src/services/repositories/runHistoryQueries.ts': {
+          statements: 100,
+          branches: 97,
+          functions: 100,
+          lines: 100,
+        },
         'src/services/repositories/SupabaseDailyRunRepository.ts': {
           statements: 97,
           branches: 93,
