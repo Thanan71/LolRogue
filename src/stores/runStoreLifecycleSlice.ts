@@ -181,6 +181,9 @@ export function createRunLifecycleSlice(
             return startFailure('auth_not_ready', runError.profileNotReady, true);
           }
           const authUser = authState.authStatus === 'ready' ? authState.user : null;
+          if (authUser && globalThis.navigator?.onLine === false) {
+            return startFailure('start_failed', runError.onlineStartRequired, true);
+          }
           const resumableStart =
             authUser && get().pendingAuthorityStart?.ownerUserId === authUser.id
               ? get().pendingAuthorityStart
