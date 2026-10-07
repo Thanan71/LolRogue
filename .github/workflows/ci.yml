@@ -11,6 +11,44 @@ permissions:
   contents: read
 
 jobs:
+  # Existing dev/main protections require these names. They aggregate the split
+  # gates and fail on any failed, cancelled or skipped dependency.
+  validate:
+    name: validate
+    needs: [static, unit, security, build-assets]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require all source and build gates
+        env:
+          GATES_SUCCEEDED: ${{ needs.static.result == 'success' && needs.unit.result == 'success' && needs.security.result == 'success' && needs.build-assets.result == 'success' }}
+        run: test "$GATES_SUCCEEDED" = true
+
+  required-database:
+    name: database
+    needs: database
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require the live database gate
+        env:
+          GATES_SUCCEEDED: ${{ needs.database.result == 'success' }}
+        run: test "$GATES_SUCCEEDED" = true
+
+  e2e:
+    name: e2e
+    needs: browser
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require source, connected and production browser gates
+        env:
+          GATES_SUCCEEDED: ${{ needs.browser.result == 'success' }}
+        run: test "$GATES_SUCCEEDED" = true
+
   static:
     name: static
     runs-on: ubuntu-latest
