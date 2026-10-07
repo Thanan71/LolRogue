@@ -1473,7 +1473,7 @@ techniques ni afficher une modale à chaque déploiement.**
   Menu, reprise ou lancement d'une run.
 - [x] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
   reduced motion et petits écrans ; ne jamais ouvrir la modale au milieu d'une run.
-- [ ] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
+- [x] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
   version déjà lue, nouvelle version, invité, compte connecté et simple redéploiement.
 
 ### Acceptation
@@ -1579,7 +1579,7 @@ techniques ni afficher une modale à chaque déploiement.**
 38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
 39. [ ] `P3-PROD-03` décision PWA/offline.
 40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
-40 bis. [ ] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
+40 bis. [x] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
 
 ## Sprint H — validations humaines et externes
 

@@ -56,3 +56,219 @@ test('mobile history supports keyboard, category filtering, read feedback and re
     page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
   ).toHaveCount(0);
 });
+
+test('guest sees a publication once after explicit acknowledgement and a plain redeployment stays quiet', async ({
+  page,
+}) => {
+  await enterGuest(page);
+  await page.getByRole('button', { name: 'J’ai compris' }).click();
+  await expect(page.locator('#patch-notes-menu-link')).toBeFocused();
+  await expect(page.locator('#patch-notes-menu-link')).not.toContainText('Nouveau');
+  await page.reload();
+  await expect(
+    page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+  ).toHaveCount(0);
+  await page.goto('/?deployment=another-sha');
+  await expect(
+    page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+  ).toHaveCount(0);
+  await page.getByRole('link', { name: 'Notes de mise à jour', exact: true }).click();
+  await expect(page.locator('article')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Marquer comme lu' })).toHaveCount(0);
+});
+
+test('a new explicit publication reappears and reading it clears all unread versions together', async ({
+  page,
+}) => {
+  await enterGuest(page);
+  await page.getByRole('button', { name: 'J’ai compris' }).click();
+  await page.evaluate(async () => {
+    const { PATCH_NOTES } = await import('/src/data/patchNotes.ts');
+    const notes = PATCH_NOTES as Array<(typeof PATCH_NOTES)[number]>;
+    notes.push({
+      ...notes[0],
+      sequence: 2,
+      version: 'test-release-2',
+      title: { 'fr-FR': 'Publication suivante', 'en-US': 'Next publication' },
+    });
+    notes.push({
+      ...notes[0],
+      sequence: 3,
+      version: 'test-release-3',
+      title: { 'fr-FR': 'Troisième publication', 'en-US': 'Third publication' },
+    });
+  });
+  await page.locator('#patch-notes-menu-link').click();
+  await page.getByRole('link', { name: 'Retour au menu' }).click();
+  const summary = page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ });
+  await expect(summary).toContainText('2 publications à découvrir');
+  await expect(summary).toContainText('Publication suivante');
+  await expect(summary).toContainText('Troisième publication');
+  await summary.getByRole('button', { name: 'J’ai compris' }).click();
+  await expect(summary).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem('lolrogue:patch-notes:v1:guest')!).lastSeenSequence,
+    ),
+  ).toBe(3);
+});
+
+test('blocked guest storage does not interrupt run start and retains reading during SPA navigation', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Storage.prototype.setItem = () => {
+      throw new Error('storage unavailable');
+    };
+  });
+  await enterGuest(page);
+  await page.getByRole('button', { name: 'J’ai compris' }).click();
+  await page.getByRole('button', { name: 'Jouer', exact: true }).click();
+  await expect(page).toHaveURL('/starter-select');
+  await page.evaluate(() => {
+    history.pushState(null, '', '/');
+    dispatchEvent(new PopStateEvent('popstate'));
+  });
+  await expect(
+    page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+  ).toHaveCount(0);
+});
+
+async function connectedFixture(
+  page: Page,
+  record: () => { sequence: number; version: string } | null,
+  save: (sequence: number, version: string) => void,
+  unavailable = false,
+) {
+  const id = '70000000-0000-4000-8000-000000000001';
+  await page.route('**/rest/v1/player_patch_note_state*', async (route) => {
+    const current = record();
+    await route.fulfill({
+      status: unavailable ? 503 : 200,
+      contentType: 'application/json',
+      body: JSON.stringify(
+        unavailable
+          ? { message: 'temporarily unavailable' }
+          : current
+            ? { last_seen_sequence: current.sequence, last_seen_version: current.version }
+            : null,
+      ),
+    });
+  });
+  await page.route('**/rest/v1/rpc/mark_patch_notes_seen', async (route) => {
+    const body = route.request().postDataJSON();
+    expect(body.p_user_id).toBe(id);
+    if (!unavailable) save(body.p_sequence, body.p_version);
+    await route.fulfill({
+      status: unavailable ? 503 : 200,
+      contentType: 'application/json',
+      body: JSON.stringify(
+        unavailable
+          ? { message: 'temporarily unavailable' }
+          : {
+              user_id: id,
+              last_seen_sequence: body.p_sequence,
+              last_seen_version: body.p_version,
+              updated_at: '2026-10-07T00:00:00Z',
+            },
+      ),
+    });
+  });
+  await enterGuest(page);
+  await page.evaluate(async (userId) => {
+    const { useAuthStore } = await import('/src/stores/authStore.ts');
+    useAuthStore.setState({
+      user: { id: userId, email: 'patch-notes@example.test' } as never,
+      isGuest: false,
+      isAuthenticated: true,
+      authStatus: 'ready',
+      isLoading: false,
+    });
+  }, id);
+  return id;
+}
+
+test('account reads synchronize to a second device and stay isolated from the guest marker', async ({
+  page,
+  browser,
+}) => {
+  let server: { sequence: number; version: string } | null = null;
+  const save = (sequence: number, version: string) => {
+    server = { sequence, version };
+  };
+  await connectedFixture(page, () => server, save);
+  await expect(
+    page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'J’ai compris' }).click();
+  await expect.poll(() => server?.sequence).toBe(1);
+  const anotherDevice = await browser.newContext();
+  try {
+    const secondPage = await anotherDevice.newPage();
+    await connectedFixture(secondPage, () => server, save);
+    await expect
+      .poll(() =>
+        secondPage.evaluate(
+          () =>
+            JSON.parse(
+              localStorage.getItem(
+                'lolrogue:patch-notes:v1:user:70000000-0000-4000-8000-000000000001',
+              ) ?? '{}',
+            ).lastSeenSequence,
+        ),
+      )
+      .toBe(1);
+    await expect(
+      secondPage.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+    ).toHaveCount(0);
+    // The guest on the same device still has its own unread marker.
+    await secondPage.evaluate(async () => {
+      const { useAuthStore } = await import('/src/stores/authStore.ts');
+      useAuthStore.setState({ user: null, isGuest: true, authStatus: 'guest' });
+    });
+    await expect(
+      secondPage.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+    ).toBeVisible();
+  } finally {
+    await anotherDevice.close();
+  }
+});
+
+test('server errors fall back locally while account run launch remains enabled', async ({
+  page,
+}) => {
+  await connectedFixture(
+    page,
+    () => null,
+    () => {},
+    true,
+  );
+  await expect(
+    page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'J’ai compris' }).click();
+  await page.locator('#patch-notes-menu-link').click();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Lecture enregistrée sur cet appareil' }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Retour au menu' }).click();
+  await expect(
+    page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+  ).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Jouer', exact: true })).toBeEnabled();
+});
+
+test('menu updates stay hidden while a run is active and leave continuation available', async ({
+  page,
+}) => {
+  await enterGuest(page);
+  await page.evaluate(async () => {
+    const { useRunStore } = await import('/src/stores/runStore.ts');
+    useRunStore.setState({ isActive: true });
+  });
+  await expect(
+    page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
+  ).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Continuer la partie' })).toBeEnabled();
+});
