@@ -1457,26 +1457,26 @@ techniques ni afficher une modale à chaque déploiement.**
 
 ### Actions
 
-- [ ] Ajouter une source versionnée de patch notes dans le code avec catégories
+- [x] Ajouter une source versionnée de patch notes dans le code avec catégories
   `Nouveau`, `Équilibrage` et `Correctifs`, titre, date, version et entrées lisibles.
-- [ ] Ajouter une page permanente `/patch-notes` consultable depuis le menu, avec
+- [x] Ajouter une page permanente `/patch-notes` consultable depuis le menu, avec
   historique et filtres/catégories sans dépendre d'une modale.
-- [ ] Afficher au retour au menu principal un résumé **non bloquant** uniquement si une
+- [x] Afficher au retour au menu principal un résumé **non bloquant** uniquement si une
   publication plus récente que la dernière vue existe ; regrouper plusieurs versions
   non lues au lieu d'enchaîner plusieurs popups.
-- [ ] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
+- [x] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
   « Marquer comme lu ».
-- [ ] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
+- [x] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
   clé versionnée et un fallback sûr si le stockage navigateur est indisponible.
-- [ ] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
+- [x] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
   d'éviter de réafficher la même note sur un autre appareil ; ne pas détourner
   `last_login_at`, qui est mis à jour lors de l'établissement de session.
-- [ ] Prévoir un fallback local si la persistance serveur de l'état « lu » est
+- [x] Prévoir un fallback local si la persistance serveur de l'état « lu » est
   momentanément indisponible ; une erreur de patch notes ne doit jamais bloquer Auth,
   Menu, reprise ou lancement d'une run.
-- [ ] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
+- [x] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
   reduced motion et petits écrans ; ne jamais ouvrir la modale au milieu d'une run.
-- [ ] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
+- [x] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
   version déjà lue, nouvelle version, invité, compte connecté et simple redéploiement.
 
 ### Acceptation
@@ -1582,7 +1582,7 @@ techniques ni afficher une modale à chaque déploiement.**
 38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
 39. [x] `P3-PROD-03` PWA installable en ligne, sans mode hors ligne.
 40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
-40 bis. [ ] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
+40 bis. [x] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
 
 ## Sprint H — validations humaines et externes
 

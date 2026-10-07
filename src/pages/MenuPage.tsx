@@ -1,11 +1,14 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { PatchNotesSummary } from '@/components/PatchNotesSummary';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
+import { usePatchNotes } from '@/hooks/usePatchNotes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { formatNumber, plural } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
+import { getPatchNotesContent } from '@/i18n/patchNotesContent';
 import { routeTitle } from '@/i18n/routeTitles';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
@@ -14,6 +17,7 @@ import { playUIClick } from '@/audio';
 
 export function MenuPage() {
   const navigate = useAppNavigate();
+  const { unread: unreadUpdates } = usePatchNotes();
   const isActive = useRunStore((s) => s.isActive);
   const runLevel = useRunStore((s) => s.runLevel);
   const currentBiome = useRunStore((s) => s.currentBiome);
@@ -129,6 +133,8 @@ export function MenuPage() {
             </div>
           )}
         </header>
+
+        <PatchNotesSummary />
 
         <div className="main-menu__dashboard">
           <section className="main-menu__command" aria-labelledby="expedition-title">
@@ -307,6 +313,16 @@ export function MenuPage() {
         </nav>
 
         <div className="main-menu__utility" role="group" aria-label={fr.menu.accountLinks}>
+          <Link
+            id="patch-notes-menu-link"
+            className="main-menu__utility-btn"
+            to={ROUTES.PATCH_NOTES}
+          >
+            {getPatchNotesContent().title}
+            {unreadUpdates.length > 0 && (
+              <span className="patch-note-badge">{getPatchNotesContent().categories.new}</span>
+            )}
+          </Link>
           <button
             type="button"
             className="main-menu__utility-btn"
