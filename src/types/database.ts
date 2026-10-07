@@ -1677,7 +1677,7 @@ export type Database = {
     };
     Functions: {
       mark_patch_notes_seen: {
-        Args: { p_sequence: number; p_version: string };
+        Args: { p_user_id: string; p_sequence: number; p_version: string };
         Returns: {
           user_id: string;
           last_seen_sequence: number;

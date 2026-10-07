@@ -1468,7 +1468,7 @@ techniques ni afficher une modale à chaque déploiement.**
 - [x] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
   d'éviter de réafficher la même note sur un autre appareil ; ne pas détourner
   `last_login_at`, qui est mis à jour lors de l'établissement de session.
-- [ ] Prévoir un fallback local si la persistance serveur de l'état « lu » est
+- [x] Prévoir un fallback local si la persistance serveur de l'état « lu » est
   momentanément indisponible ; une erreur de patch notes ne doit jamais bloquer Auth,
   Menu, reprise ou lancement d'une run.
 - [ ] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,

@@ -18,14 +18,14 @@ CREATE POLICY patch_notes_own_update ON public.player_patch_note_state FOR UPDAT
   WITH CHECK ((SELECT auth.uid()) = user_id);
 
 -- Atomic monotonic merge: a stale device cannot overwrite a later publication.
--- Invoker privileges and ownership RLS still apply; callers cannot supply a user ID.
-CREATE FUNCTION public.mark_patch_notes_seen(p_sequence INTEGER, p_version TEXT)
+-- Invoker privileges and ownership RLS still apply; an expected user ID prevents a late retry from writing after an account switch.
+CREATE FUNCTION public.mark_patch_notes_seen(p_user_id UUID, p_sequence INTEGER, p_version TEXT)
 RETURNS public.player_patch_note_state
 LANGUAGE SQL SECURITY INVOKER SET search_path = ''
 AS $$
   INSERT INTO public.player_patch_note_state AS state
     (user_id, last_seen_sequence, last_seen_version)
-  VALUES (auth.uid(), p_sequence, p_version)
+  SELECT auth.uid(), p_sequence, p_version WHERE p_user_id = auth.uid()
   ON CONFLICT (user_id) DO UPDATE SET
     last_seen_sequence = GREATEST(state.last_seen_sequence, EXCLUDED.last_seen_sequence),
     last_seen_version = CASE WHEN EXCLUDED.last_seen_sequence > state.last_seen_sequence
@@ -34,5 +34,5 @@ AS $$
       THEN now() ELSE state.updated_at END
   RETURNING state.*;
 $$;
-REVOKE ALL ON FUNCTION public.mark_patch_notes_seen(INTEGER, TEXT) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.mark_patch_notes_seen(INTEGER, TEXT) TO authenticated;
+REVOKE ALL ON FUNCTION public.mark_patch_notes_seen(UUID, INTEGER, TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.mark_patch_notes_seen(UUID, INTEGER, TEXT) TO authenticated;

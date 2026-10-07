@@ -11,7 +11,7 @@ import '@/styles/patch-notes.css';
 export function PatchNotesPage() {
   const language = useSettingsStore((state) => state.language);
   const content = getPatchNotesContent(language);
-  const { unread, markRead } = usePatchNotes();
+  const { unread, markRead, localFallback } = usePatchNotes();
   const [hasMarkedRead, setHasMarkedRead] = useState(false);
   const [category, setCategory] = useState<PatchNoteCategory | 'all'>('all');
   const publications = [...PATCH_NOTES]
@@ -41,6 +41,7 @@ export function PatchNotesPage() {
         leading={<Link to={ROUTES.MENU}>{content.back}</Link>}
       />
       {hasMarkedRead && <p role="status">{content.read}</p>}
+      {localFallback && <p role="status">{content.localFallback}</p>}
       <label className="patch-notes-filter">
         <span>{content.filter}</span>
         <select
