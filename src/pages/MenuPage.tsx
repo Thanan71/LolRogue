@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { PatchNotesSummary } from '@/components/PatchNotesSummary';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
@@ -130,6 +131,8 @@ export function MenuPage() {
             </div>
           )}
         </header>
+
+        <PatchNotesSummary />
 
         <div className="main-menu__dashboard">
           <section className="main-menu__command" aria-labelledby="expedition-title">
