@@ -1461,7 +1461,7 @@ techniques ni afficher une modale à chaque déploiement.**
 - [x] Afficher au retour au menu principal un résumé **non bloquant** uniquement si une
   publication plus récente que la dernière vue existe ; regrouper plusieurs versions
   non lues au lieu d'enchaîner plusieurs popups.
-- [ ] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
+- [x] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
   « Marquer comme lu ».
 - [ ] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
   clé versionnée et un fallback sûr si le stockage navigateur est indisponible.

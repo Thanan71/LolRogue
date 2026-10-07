@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { PageHeader, PageShell } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { PATCH_NOTES, type PatchNoteCategory } from '@/data/patchNotes';
+import { usePatchNotes } from '@/hooks/usePatchNotes';
 import { getPatchNotesContent } from '@/i18n/patchNotesContent';
 import { useSettingsStore } from '@/stores/settingsStore';
 import '@/styles/patch-notes.css';
@@ -10,6 +11,8 @@ import '@/styles/patch-notes.css';
 export function PatchNotesPage() {
   const language = useSettingsStore((state) => state.language);
   const content = getPatchNotesContent(language);
+  const { unread, markRead } = usePatchNotes();
+  const [hasMarkedRead, setHasMarkedRead] = useState(false);
   const [category, setCategory] = useState<PatchNoteCategory | 'all'>('all');
   const publications = [...PATCH_NOTES]
     .sort((a, b) => b.sequence - a.sequence)
@@ -22,8 +25,22 @@ export function PatchNotesPage() {
       <PageHeader
         title={content.title}
         subtitle={content.history}
+        actions={
+          unread.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => {
+                markRead();
+                setHasMarkedRead(true);
+              }}
+            >
+              {content.markRead}
+            </button>
+          ) : undefined
+        }
         leading={<Link to={ROUTES.MENU}>{content.back}</Link>}
       />
+      {hasMarkedRead && <p role="status">{content.read}</p>}
       <label className="patch-notes-filter">
         <span>{content.filter}</span>
         <select

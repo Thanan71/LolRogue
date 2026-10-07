@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { unreadPatchNotes } from '@/data/patchNotes';
+import { latestPatchNote, unreadPatchNotes } from '@/data/patchNotes';
 import { useAuthStore } from '@/stores/authStore';
 
 interface PatchNotesState {
@@ -12,5 +12,12 @@ export function usePatchNotes() {
   const isGuest = useAuthStore((state) => state.isGuest);
   const identity = !isGuest && userId ? `user:${userId}` : 'guest';
   const lastSeen = usePatchNotesState((state) => state.seenByIdentity[identity] ?? 0);
-  return { unread: unreadPatchNotes(lastSeen), identity };
+  function markRead() {
+    const latest = latestPatchNote();
+    if (!latest) return;
+    usePatchNotesState.setState((state) => ({
+      seenByIdentity: { ...state.seenByIdentity, [identity]: Math.max(lastSeen, latest.sequence) },
+    }));
+  }
+  return { unread: unreadPatchNotes(lastSeen), identity, markRead };
 }

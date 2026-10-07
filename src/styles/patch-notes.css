@@ -33,3 +33,29 @@
 .patch-note-summary a {
   color: #c9dfff;
 }
+
+.patch-note-badge {
+  display: inline-block;
+  margin-inline-start: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.4rem;
+  background: #c9dfff;
+  color: #172235;
+  font-size: 0.85rem;
+}
+.patch-note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+.patch-note-actions button,
+.patch-notes-page button {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #c9dfff;
+  border-radius: 0.4rem;
+  background: #172235;
+  color: #f2f4f8;
+  cursor: pointer;
+}
