@@ -8,11 +8,11 @@ async function readProjectFile(path) {
 }
 
 describe('CI infrastructure regressions', () => {
-  it('fetches full Git history for rollback contract tests in validate', async () => {
+  it('fetches full Git history for rollback contract tests in unit', async () => {
     const workflow = await readProjectFile('.github/workflows/ci.yml');
-    const validateJob = workflow.slice(workflow.indexOf('  validate:'), workflow.indexOf('  e2e:'));
+    const unitJob = workflow.slice(workflow.indexOf('  unit:'), workflow.indexOf('  security:'));
 
-    expect(validateJob).toContain('fetch-depth: 0');
+    expect(unitJob).toContain('fetch-depth: 0');
   });
 
   it('forces Supabase CLI agent mode when consuming JSON query output', async () => {

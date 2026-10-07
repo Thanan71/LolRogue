@@ -1265,7 +1265,7 @@ build et production-build. C'est robuste mais peu diagnostique et répète du tr
 entre jobs.
 
 - [x] Garder une commande locale « tout-en-un ».
-- [ ] En CI, produire des checks nommés et lisibles : static, unit, security,
+- [x] En CI, produire des checks nommés et lisibles : static, unit, security,
   build/assets, DB, browser.
 - [ ] Éviter de reconstruire les mêmes artefacts plusieurs fois quand un artefact
   signé du même SHA peut être réutilisé sans réduire l'isolation de `clean-room`.

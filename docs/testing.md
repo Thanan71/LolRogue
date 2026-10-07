@@ -22,6 +22,13 @@ suites font déjà partie de `check:unit`. Les preuves locales restent le contra
 de livraison des sprints ; aucune CI distante ou protection payante nouvelle
 n’est requise pour fusionner une tâche.
 
+Les jobs du workflow reprennent ces responsabilités : `static`, `unit`, `security`,
+`build/assets`, `DB` et `browser`. `unit` couvre aussi les tests i18n sans les
+réexécuter dans un second job. La mesure Web Vitals utilise le build déjà produit
+par `build/assets`. `clean-room` reste une septième validation indépendante.
+Les déclencheurs existants sont conservés ; ces jobs ne deviennent pas des
+required checks de branche pour livrer les sprints.
+
 ## Seeds variables reproductibles
 
 La seed fixe **20260801** de la CI principale reste inchangée. Le workflow
@@ -77,7 +84,7 @@ pas devenir permissives silencieusement.
 ## Sorties
 
 La console n'affiche que le résumé global. Vitest produit aussi `coverage/index.html`,
-`coverage/lcov.info` et `coverage/coverage-summary.json`. La job `validate` archive le
+`coverage/lcov.info` et `coverage/coverage-summary.json`. La job `unit` archive le
 dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
@@ -250,7 +257,7 @@ un LCP et une interaction INP non nuls ; le p75 de LCP/CLS/INP est comparé aux 
 de laboratoire. Le détail est écrit dans
 `performance-report/web-vitals-report.json`.
 
-Le job CI `validate` exécute cette commande sans tolérance d'échec et archive tout le
+Le job CI `build/assets` exécute cette commande sans tolérance d'échec et archive tout le
 dossier `performance-report/` pendant 30 jours. Les cinq points, le warm-up, le profil,
 le SHA et l'agrégat restent donc consultables entre les runs, au lieu de ne conserver
 qu'une valeur console. La télémétrie terrain Vercel reste hors de cette gate.

@@ -189,6 +189,6 @@ Mesure locale du **13 août 2026** :
 | INP | 104 ms | 300 ms |
 
 Le rapport `performance-report/web-vitals-report.json` conserve le warm-up, chaque
-échantillon, le profil, les budgets et le SHA. Le job CI `validate` exécute la gate
+échantillon, le profil, les budgets et le SHA. Le job CI `build/assets` exécute la gate
 après le build et archive le dossier complet pendant 30 jours. Speed Insights reste
 une source terrain distincte, non bloquante et soumise à la revue confidentialité.
