@@ -300,14 +300,16 @@ describe('authoritative run lifecycle and recovery', () => {
         metric: 'run_finalization',
         outcome: 'initial',
         engineVersion: 'run-engine-v1',
-        gameplayRulesetVersion: 1,
+        gameplayRulesetVersion: null,
+        progressionRulesetVersion: 1,
         count: 1,
       },
       {
         metric: 'run_finalization',
         outcome: 'retry',
         engineVersion: 'run-engine-v1',
-        gameplayRulesetVersion: 1,
+        gameplayRulesetVersion: null,
+        progressionRulesetVersion: 1,
         count: 1,
       },
     ]);
@@ -321,6 +323,9 @@ describe('authoritative run lifecycle and recovery', () => {
   });
 
   it('recovers an already verified seal without invoking Edge again', async () => {
+    useRunStore.setState({
+      authorityAttempt: authorityAttempt({ rulesetVersion: 3, gameplayRulesetVersion: 21 }),
+    });
     attemptMocks.seal.mockResolvedValue({
       data: {
         attemptId: ATTEMPT_ID,
@@ -340,6 +345,14 @@ describe('authoritative run lifecycle and recovery', () => {
     });
 
     expect(attemptMocks.recover).toHaveBeenCalledWith(ATTEMPT_ID);
+    expect(attemptMocks.seal).toHaveBeenCalledWith(ATTEMPT_ID, expect.any(String), 1, {
+      engineVersion: 'run-engine-v1',
+      gameplayRulesetVersion: 21,
+      progressionRulesetVersion: 3,
+    });
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { metric: 'run_finalization', gameplayRulesetVersion: 21, progressionRulesetVersion: 3 },
+    ]);
     expect(attemptMocks.verify).not.toHaveBeenCalled();
     expect(useRunStore.getState().serverProgression).toMatchObject({
       progressionSource: 'verified',
@@ -414,7 +427,8 @@ describe('authoritative run lifecycle and recovery', () => {
         originalAttempt!.nextSequence - 1,
         {
           engineVersion: originalAttempt!.engineVersion,
-          gameplayRulesetVersion: originalAttempt!.rulesetVersion,
+          gameplayRulesetVersion: originalAttempt!.gameplayRulesetVersion,
+          progressionRulesetVersion: originalAttempt!.rulesetVersion,
         },
       ]);
     }
@@ -495,7 +509,8 @@ describe('authoritative run lifecycle and recovery', () => {
     ]);
     expect(attemptMocks.seal).toHaveBeenCalledWith(ATTEMPT_ID, expect.any(String), 3, {
       engineVersion: 'run-engine-v13',
-      gameplayRulesetVersion: 1,
+      gameplayRulesetVersion: undefined,
+      progressionRulesetVersion: 1,
     });
   });
 
@@ -729,8 +744,9 @@ describe('authoritative run lifecycle and recovery', () => {
         attemptId: ATTEMPT_ID,
         runUuid: RUN_UUID,
         status: 'started',
-        rulesetVersion: 1,
-        engineVersion: 'run-engine-v1',
+        rulesetVersion: 3,
+        gameplayRulesetVersion: 21,
+        engineVersion: 'run-engine-v21',
         seed: 987654,
         mode: 'normal',
         difficulty: 'normal',
@@ -762,6 +778,8 @@ describe('authoritative run lifecycle and recovery', () => {
       authorityAttempt: {
         attemptId: ATTEMPT_ID,
         ownerUserId: 'user-1',
+        rulesetVersion: 3,
+        gameplayRulesetVersion: 21,
         enhancementSnapshot: { Garen: { hp_1: 1 } },
       },
     });

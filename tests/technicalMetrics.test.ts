@@ -35,6 +35,7 @@ describe('minimized technical metrics', () => {
         userId: 'private-user',
         commands: ['gameplay'],
         engineVersion: 'private-engine',
+        progressionRulesetVersion: 'private-rule',
       } as unknown as TechnicalMetric,
       60_000,
     );
@@ -46,6 +47,7 @@ describe('minimized technical metrics', () => {
         code: 'request_failed',
         engineVersion: 'unknown',
         gameplayRulesetVersion: null,
+        progressionRulesetVersion: null,
         clientEngineVersion: CURRENT_AUTHORITY_VERSION.engine,
         clientGameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,
       },
@@ -120,6 +122,24 @@ describe('minimized technical metrics', () => {
       },
     ]);
     expect(evaluateTechnicalMetrics()).toHaveLength(1);
+  });
+
+  it('keeps independent progression rulesets in distinct buckets for the same gameplay version', () => {
+    for (const progressionRulesetVersion of [2, 3]) {
+      recordTechnicalMetric({
+        metric: 'run_seal',
+        outcome: 'ok',
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: 21,
+        progressionRulesetVersion,
+      });
+    }
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { gameplayRulesetVersion: 21, progressionRulesetVersion: 2, count: 1 },
+      { gameplayRulesetVersion: 21, progressionRulesetVersion: 3, count: 1 },
+    ]);
+    expect(getTechnicalMetricSnapshot().buckets).toHaveLength(2);
+    expect(evaluateTechnicalMetrics()).toMatchObject([{ count: 2 }]);
   });
 
   it('counts finalization retries against all attempts and flags every hydration error', () => {

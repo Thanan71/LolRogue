@@ -214,6 +214,12 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
     runUuid: result.run_uuid,
     status: result.status,
     rulesetVersion: result.ruleset_version,
+    gameplayRulesetVersion:
+      isInteger(result.gameplay_ruleset_version) &&
+      result.gameplay_ruleset_version > 0 &&
+      result.gameplay_ruleset_version <= 32767
+        ? result.gameplay_ruleset_version
+        : undefined,
     engineVersion: result.engine_version,
     seed: result.seed,
     mode: result.mode,
@@ -311,6 +317,12 @@ function parseStatusResult(value: unknown): RunAttemptStatusResult | null {
     runUuid: result.run_uuid,
     status: result.status,
     rulesetVersion: result.ruleset_version,
+    gameplayRulesetVersion:
+      isInteger(result.gameplay_ruleset_version) &&
+      result.gameplay_ruleset_version > 0 &&
+      result.gameplay_ruleset_version <= 32767
+        ? result.gameplay_ruleset_version
+        : undefined,
     engineVersion: result.engine_version,
     seed: result.seed,
     mode: result.mode,
@@ -395,7 +407,8 @@ export async function startRunAttempt(
     outcome: parsed ? 'ok' : 'error',
     code: parsed ? 'ok' : 'invalid_response',
     engineVersion: parsed?.engineVersion,
-    gameplayRulesetVersion: parsed?.rulesetVersion,
+    gameplayRulesetVersion: parsed?.gameplayRulesetVersion,
+    progressionRulesetVersion: parsed?.rulesetVersion,
   });
   return parsed
     ? { data: parsed, error: null }
