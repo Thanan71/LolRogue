@@ -1471,7 +1471,7 @@ techniques ni afficher une modale à chaque déploiement.**
 - [x] Prévoir un fallback local si la persistance serveur de l'état « lu » est
   momentanément indisponible ; une erreur de patch notes ne doit jamais bloquer Auth,
   Menu, reprise ou lancement d'une run.
-- [ ] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
+- [x] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
   reduced motion et petits écrans ; ne jamais ouvrir la modale au milieu d'une run.
 - [ ] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
   version déjà lue, nouvelle version, invité, compte connecté et simple redéploiement.

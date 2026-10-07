@@ -59,3 +59,26 @@
   color: #f2f4f8;
   cursor: pointer;
 }
+
+.patch-notes-page :is(a, button, select):focus-visible,
+.patch-note-summary :is(a, button):focus-visible {
+  outline: 3px solid #f2ca6d;
+  outline-offset: 4px;
+}
+@media (max-width: 420px) {
+  .patch-note,
+  .patch-note-summary {
+    padding: 1rem;
+  }
+  .patch-note-actions > * {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .patch-note,
+  .patch-note-summary,
+  .patch-note-badge {
+    animation: none;
+    transition: none;
+  }
+}

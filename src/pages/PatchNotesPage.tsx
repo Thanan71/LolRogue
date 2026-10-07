@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeader, PageShell } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { PATCH_NOTES, type PatchNoteCategory } from '@/data/patchNotes';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { usePatchNotes } from '@/hooks/usePatchNotes';
 import { getPatchNotesContent } from '@/i18n/patchNotesContent';
 import { useSettingsStore } from '@/stores/settingsStore';
 import '@/styles/patch-notes.css';
 
 export function PatchNotesPage() {
+  const navigate = useAppNavigate();
+  const filterRef = useRef<HTMLSelectElement>(null);
   const language = useSettingsStore((state) => state.language);
   const content = getPatchNotesContent(language);
   const { unread, markRead, localFallback } = usePatchNotes();
@@ -21,7 +24,17 @@ export function PatchNotesPage() {
     );
 
   return (
-    <PageShell width="content" className="patch-notes-page" aria-label={content.title}>
+    <PageShell
+      width="content"
+      className="patch-notes-page"
+      aria-label={content.title}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          navigate(ROUTES.MENU);
+        }
+      }}
+    >
       <PageHeader
         title={content.title}
         subtitle={content.history}
@@ -32,6 +45,7 @@ export function PatchNotesPage() {
               onClick={() => {
                 markRead();
                 setHasMarkedRead(true);
+                filterRef.current?.focus();
               }}
             >
               {content.markRead}
@@ -45,6 +59,7 @@ export function PatchNotesPage() {
       <label className="patch-notes-filter">
         <span>{content.filter}</span>
         <select
+          ref={filterRef}
           value={category}
           onChange={(event) => setCategory(event.target.value as typeof category)}
         >

@@ -313,7 +313,11 @@ export function MenuPage() {
         </nav>
 
         <div className="main-menu__utility" role="group" aria-label={fr.menu.accountLinks}>
-          <Link className="main-menu__utility-btn" to={ROUTES.PATCH_NOTES}>
+          <Link
+            id="patch-notes-menu-link"
+            className="main-menu__utility-btn"
+            to={ROUTES.PATCH_NOTES}
+          >
             {getPatchNotesContent().title}
             {unreadUpdates.length > 0 && (
               <span className="patch-note-badge">{getPatchNotesContent().categories.new}</span>
