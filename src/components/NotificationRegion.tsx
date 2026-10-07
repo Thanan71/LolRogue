@@ -58,14 +58,15 @@ export function NotificationRegion({
     );
   };
 
-  if (!message || (!showRunSaveNotifications && !enhancementError)) return null;
+  const visibleMessage = showRunSaveNotifications ? message : enhancementError;
+  if (!visibleMessage) return null;
   return (
     <div
       role={isCritical ? 'alert' : 'status'}
       aria-live={isCritical ? 'assertive' : 'polite'}
       className="notification-region"
     >
-      <div>{message}</div>
+      <div>{visibleMessage}</div>
       {showRunSaveNotifications && saveStatus === 'failed' && saveFailureKind === 'terminal' && (
         <div>{gameOverCopy.save.terminalOutcome}</div>
       )}

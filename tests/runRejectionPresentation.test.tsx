@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NotificationRegion } from '@/components/NotificationRegion';
@@ -9,6 +9,7 @@ import { gameOverCopy } from '@/i18n/gameOverContent';
 import { runError } from '@/i18n/runErrorContent';
 import { GameOverPage } from '@/pages/GameOverPage';
 import { useAuthStore } from '@/stores/authStore';
+import { useEnhancementStore } from '@/stores/enhancementStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import type { RunSummary } from '@/types/run';
@@ -39,6 +40,7 @@ function renderGameOver() {
 
 describe('rejected progression presentation', () => {
   beforeEach(() => {
+    useEnhancementStore.setState({ error: null });
     useAuthStore.setState({ user: null, player: null, isGuest: true, isAuthenticated: false });
     useRunStore.setState({
       ...RUN_INITIAL_STATE,
@@ -56,6 +58,7 @@ describe('rejected progression presentation', () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+    useEnhancementStore.setState({ error: null });
     useRunStore.setState(RUN_INITIAL_STATE);
   });
 
@@ -114,6 +117,55 @@ describe('rejected progression presentation', () => {
     render(<NotificationRegion showRunSaveNotifications={false} />);
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
+
+  it.each([
+    ['saving', null],
+    ['failed', 'retryable'],
+    ['failed', 'terminal'],
+  ] as const)(
+    'keeps an enhancement error separate from %s/%s notifications on Game Over',
+    (saveStatus, saveFailureKind) => {
+      const enhancementError = 'Enhancement request failed';
+      useEnhancementStore.setState({ error: enhancementError });
+      useRunStore.setState({ saveStatus: 'idle' });
+      const view = render(<NotificationRegion />);
+      expect(screen.getByRole('alert')).toHaveTextContent(enhancementError);
+
+      act(() => {
+        useRunStore.setState({
+          saveStatus,
+          saveFailureKind,
+          saveError: runError.verificationFailed(),
+        });
+      });
+      const runMessage =
+        saveStatus === 'saving'
+          ? fr.notifications.saving
+          : saveFailureKind === 'terminal'
+            ? runError.missingChoice
+            : runError.verificationFailed();
+      expect(screen.getByRole('alert')).toHaveTextContent(runMessage);
+
+      view.rerender(<NotificationRegion showRunSaveNotifications={false} />);
+      expect(screen.getByRole('alert')).toHaveTextContent(enhancementError);
+      expect(screen.getByRole('alert')).not.toHaveTextContent(runMessage);
+      expect(screen.queryByText(gameOverCopy.save.terminalOutcome)).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: fr.notifications.retrySave }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/bonbons|candies/iu)).not.toBeInTheDocument();
+
+      view.rerender(<NotificationRegion />);
+      expect(screen.getByRole('alert')).toHaveTextContent(runMessage);
+      if (saveFailureKind === 'retryable') {
+        expect(screen.getByRole('button', { name: fr.notifications.retrySave })).toBeVisible();
+      } else {
+        expect(
+          screen.queryByRole('button', { name: fr.notifications.retrySave }),
+        ).not.toBeInTheDocument();
+      }
+    },
+  );
 
   it('offers retry with a folded diagnostic for a server error', () => {
     useRunStore.setState({
