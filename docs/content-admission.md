@@ -25,6 +25,19 @@ restées inchangées. Les migrations de gameplay et de Daily, les capabilities,
 les catalogues de traduction et les baselines doivent correspondre au registre.
 Les notes de publication et changements d'interface seuls ne changent pas le moteur.
 
+## Courbes après chaque lot
+
+`npm run balance:check` recalcule les artefacts versionnés : cohortes authority,
+premiers combats Top, matrice champions, économie de carte et calibration terrain.
+Il rejoue aussi les scénarios source/Edge et les seuils de difficulté, rendement,
+affordabilité, composition et déterminisme. Une différence avec un artefact publié
+est un échec ; la nouvelle baseline doit être revue avec sa version de moteur.
+
+La gate rapide `content:check` doit être suivie de ce contrôle de lot avant la PR.
+Les courbes synthétiques ne remplacent pas les playtests ni les échantillons
+terrain requis pour publier une nouvelle bande cible. La politique existante
+reste en observation, sans ajustement automatique.
+
 ## Attempts ouvertes et archives
 
 La gate vérifie les bundles de chaque version enregistrée, leur hash, leurs
