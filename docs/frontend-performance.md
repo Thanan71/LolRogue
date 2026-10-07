@@ -1,6 +1,6 @@
 # Performance frontend
 
-Dernière mesure bundle : **23 septembre 2026**, Node 24, build Vite de production local.
+Dernière mesure bundle : **7 octobre 2026**, Node 24, build Vite de production local.
 
 ## Référence avant P2-PERF-01
 
@@ -192,3 +192,19 @@ Le rapport `performance-report/web-vitals-report.json` conserve le warm-up, chaq
 échantillon, le profil, les budgets et le SHA. Le job CI `build/assets` exécute la gate
 après le build et archive le dossier complet pendant 30 jours. Speed Insights reste
 une source terrain distincte, non bloquante et soumise à la revue confidentialité.
+
+## Sprint G — budget des nouvelles fonctionnalités
+
+Les filtres d’historique, diagnostics de rejet, publications et états de lecture
+ajoutent du code produit. Le plafond global gzip passe de 650 000 à **660 000
+octets** (+1,54 %) et le chargement initial de 215 000 à **220 000 octets**
+(+2,33 %), conformément à la décision utilisateur du 7 octobre 2026.
+La marge globale minimale de **10 %** reste obligatoire : le total doit donc
+rester inférieur ou égal à **594 000 octets**. Les budgets par chunk, la route
+Auth à 225 000 octets, les assets, LCP/CLS/INP et la couverture restent inchangés.
+
+Les requêtes d’historique sont chargées à la demande. Les routes et catalogues
+conservent le découpage de Vite et son préchargement standard. La mesure inclut
+aussi le script de langue copié en fin de build, le SHA complet et un profil
+Supabase configuré. Les preuves et les limites de livraison sont consignées
+dans `docs/sprint-g-validation-2026-10-07.md`.
