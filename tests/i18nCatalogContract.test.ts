@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { PATCH_NOTES } from '@/data/patchNotes';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
 import { championContent } from '@/i18n/championContent';
@@ -11,7 +12,9 @@ import { gameOverContent } from '@/i18n/gameOverContent';
 import { inventoryContent } from '@/i18n/inventoryContent';
 import { legalEn } from '@/i18n/legal.en';
 import { legalFr } from '@/i18n/legal.fr';
+import { getPatchNotesContent } from '@/i18n/patchNotesContent';
 import { runErrorContent } from '@/i18n/runErrorContent';
+import { runHistoryContent } from '@/i18n/runHistoryContent';
 import { runPreparationContent } from '@/i18n/runPreparationContent';
 import { tutorialContent } from '@/i18n/tutorialContent';
 
@@ -34,7 +37,19 @@ const catalogs = {
   inventory: inventoryContent,
   legal: { 'fr-FR': legalFr, 'en-US': legalEn },
   main: { 'fr-FR': fr, 'en-US': en },
+  patchNotes: { 'fr-FR': getPatchNotesContent('fr-FR'), 'en-US': getPatchNotesContent('en-US') },
+  patchPublications: {
+    'fr-FR': PATCH_NOTES.map((note) => ({
+      title: note.title['fr-FR'],
+      entries: note.entries.map((entry) => entry.text['fr-FR']),
+    })),
+    'en-US': PATCH_NOTES.map((note) => ({
+      title: note.title['en-US'],
+      entries: note.entries.map((entry) => entry.text['en-US']),
+    })),
+  },
   runError: runErrorContent,
+  runHistory: runHistoryContent,
   runPreparation: runPreparationContent,
   tutorial: tutorialContent,
 } as const satisfies Readonly<Record<string, LocaleCatalog>>;
@@ -54,7 +69,9 @@ const catalogModules = {
   'inventoryContent.ts': 'inventory',
   'legal.en.ts': 'legal',
   'legal.fr.ts': 'legal',
+  'patchNotesContent.ts': 'patchNotes',
   'runErrorContent.ts': 'runError',
+  'runHistoryContent.ts': 'runHistory',
   'runPreparationContent.ts': 'runPreparation',
   'tutorialContent.ts': 'tutorial',
 } as const satisfies Readonly<Record<string, keyof typeof catalogs>>;
@@ -72,6 +89,8 @@ const specializedModuleContracts = {
 } as const;
 
 const specializedTests = import.meta.glob('./*.test.{ts,tsx}');
+// Publication data is imported from src/data/patchNotes.ts rather than i18n/.
+const externalCatalogs = ['patchPublications'] as const;
 
 type InvariantRule = string | RegExp;
 
@@ -139,7 +158,10 @@ const intentionallyIdenticalPaths: Readonly<
   gameOver: [],
   inventory: ['$.augments.fortune.name', '$.items.infinity_edge.passives.ie_passive.name'],
   legal: ['$.metadata.navigation', '$.metadata.service', '$.privacy.maximum'],
+  patchNotes: [],
+  patchPublications: [],
   runError: [],
+  runHistory: ['$.mode'],
   runPreparation: [
     '$.spellUpgrade.availability.maximum',
     '$.starter.journeyRunes',
@@ -161,7 +183,10 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   inventory: [],
   legal: [],
   main: [],
+  patchNotes: [],
+  patchPublications: [],
   runError: [],
+  runHistory: [],
   runPreparation: [],
   tutorial: [],
 };
@@ -258,7 +283,7 @@ describe('exposed i18n catalog contract', () => {
     expect(registeredModules, 'New i18n modules need explicit translation coverage').toEqual(
       discoveredModules,
     );
-    expect([...new Set(Object.values(catalogModules))].sort()).toEqual(
+    expect([...new Set([...Object.values(catalogModules), ...externalCatalogs])].sort()).toEqual(
       Object.keys(catalogs).sort(),
     );
     for (const testFile of Object.values(specializedModuleContracts)) {

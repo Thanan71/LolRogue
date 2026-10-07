@@ -124,12 +124,12 @@ const frFR: RunErrorCatalog = {
 };
 
 const enUS: RunErrorCatalog = {
-  onlineStartRequired: 'Reconnect to the network to start an account run.',
   startInProgress: 'A run start is already being verified.',
   activeRun: 'Finish or explicitly abandon the active run before starting another.',
   activeRunAnotherTab: (runId) =>
     `Run ${runId} is active in another tab. Resume it instead of starting another.`,
   profileNotReady: 'Your authenticated profile is not ready. Retry loading it before starting.',
+  onlineStartRequired: 'Reconnect to the network to start an account run.',
   invalidTeam: 'The starting team is invalid.',
   invalidTeamSize: (maximum) => `Select between 1 and ${formatNumber(maximum, 'en-US')} champions.`,
   invalidStarterCount: (required) =>
