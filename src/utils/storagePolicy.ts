@@ -1,4 +1,6 @@
 /** Pure browser-storage boundary: safe during locale bootstrap, without services. */
+import { recordTechnicalMetric } from '@/observability/technicalMetrics';
+
 export const STORAGE_POLICIES = {
   'lolrogue-run-storage': { maxChars: 2 * 1024 * 1024, version: 7 },
   'lolrogue-settings': { maxChars: 16 * 1024, version: 3 },
@@ -37,6 +39,8 @@ export function readStorageText(name: string): string | null {
   try {
     const raw = globalThis.localStorage.getItem(name);
     if (raw !== null && raw.length > storageMaxChars(name)) {
+      if (name in STORAGE_POLICIES)
+        recordTechnicalMetric({ metric: 'rehydration', outcome: 'error', code: 'invalid_state' });
       removeStorageEntry(name);
       return null;
     }
@@ -44,6 +48,12 @@ export function readStorageText(name: string): string | null {
   } catch {
     // A failed read does not establish corruption. Keep the durable value for
     // a later retry, even when removeItem would still be allowed.
+    if (name in STORAGE_POLICIES)
+      recordTechnicalMetric({
+        metric: 'rehydration',
+        outcome: 'error',
+        code: 'storage_unavailable',
+      });
     return null;
   }
 }

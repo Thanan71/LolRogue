@@ -154,6 +154,68 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
   aucune clé privée ;
 - vérifier les en-têtes de réponse de la page.
 
+### Preuves de sécurité et de rétention sur la cible
+
+Consigner le SHA, l'environnement, l'heure UTC et le résultat de chaque contrôle
+dans la fiche de release privée. `npm run db:security` et `npm run db:validate`
+contrôlent la stack **locale** ; ils ne remplacent pas un relevé de production.
+Après déploiement ou restauration, exécuter les lectures distantes :
+
+```sh
+npm run db:migrations:check:linked
+node scripts/check-supabase-advisors.mjs --linked
+```
+
+Depuis une connexion SQL opérateur à la cible, vérifier les invariants suivants
+(aucune commande ci-dessous ne déclenche de purge) :
+
+```sql
+-- Chaque vue publique doit porter security_invoker=true.
+SELECT c.relname, c.reloptions
+FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public' AND c.relkind = 'v';
+
+-- Ces trois tables internes ne doivent avoir aucun privilège client, ni de colonne.
+SELECT c.relname, c.relrowsecurity, r.role_name,
+  has_table_privilege(r.role_name, c.oid,
+    'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER,MAINTAIN') AS client_table_grant,
+  has_any_column_privilege(r.role_name, c.oid,
+    'SELECT,INSERT,UPDATE,REFERENCES') AS client_column_grant
+FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+CROSS JOIN (VALUES ('anon'), ('authenticated')) AS r(role_name)
+WHERE n.nspname = 'public' AND c.relname IN (
+  'daily_challenge_rulesets', 'progression_commands',
+  'progression_enhancement_security_baselines');
+
+-- Un seul job actif de chaque nom, rôle postgres et horaire attendu.
+SELECT jobname, schedule, username, active, command
+FROM cron.job
+WHERE jobname IN ('lolrogue-purge-expired-client-logs',
+                 'lolrogue-purge-expired-social-data');
+
+SELECT j.jobname, d.status, d.start_time, d.end_time
+FROM cron.job j JOIN cron.job_run_details d USING (jobid)
+WHERE j.jobname IN ('lolrogue-purge-expired-client-logs',
+                   'lolrogue-purge-expired-social-data')
+ORDER BY d.start_time DESC LIMIT 20;
+
+SELECT * FROM private.social_retention_metrics;
+```
+
+Attendus : six lignes de grants avec RLS actif et deux flags faux ; cron logs à
+`17 3 * * *`, cron social à `43 4 1 * *`, exécutés par `postgres`. Un job absent,
+inactif, dupliqué ou en échec bloque la déclaration de rétention opérationnelle.
+Une métrique encore absente après restauration signifie « exécution non prouvée ».
+Suivre `backup-and-restore.md` pour un exercice contrôlé sur cible isolée. Toute
+exception advisor doit désigner exactement l'objet et sa justification ; ne
+jamais masquer globalement `rls_enabled_no_policy`.
+
+L'inventaire exhaustif des tables, rôles et accès passe par
+`config/public-table-access.json` et `docs/server-only-tables.md`. Les requêtes
+ci-dessus complètent ce contrat par un relevé de cible ; elles ne remplacent pas
+`serverOnlyTables.database.test.ts` et `securityDefinerPrivileges.database.test.ts`
+contre une base migrée.
+
 ## Migrations et retour arrière
 
 Les migrations sont progressives et ne doivent pas modifier rétroactivement un
@@ -226,39 +288,29 @@ requête runbook équivalente est `public.authority_recent_rejections`. Ces sort
 contiennent seulement `attempt_id`, versions, date et code ; une alerte externe ne
 doit jamais inclure commandes, payload, journal, identité ou état joueur.
 
-Le SLI sur 30 jours peut être contrôlé depuis une connexion opérateur directe :
+Le rapport canonique en lecture seule est `scripts/sql/technical-slo.sql`, à
+exécuter depuis une connexion PostgreSQL opérateur à la cible. Il inclut au
+dénominateur les attempts scellées depuis au moins 120 secondes, y compris celles
+qui restent bloquées ou ont expiré. Les attempts encore dans le délai de grâce
+sont exclues de cette cohorte mature. Une absence d'échantillons donne « inconnu »,
+jamais 100 %. Il expose également les parts `verified/rejected/expired`, les
+tentatives en attente et le p95 start → verified par moteur/ruleset.
 
-```sql
-WITH terminal_attempts AS (
-  SELECT
-    finished_at,
-    COALESCE(verified_at, rejected_at) AS terminal_at
-  FROM public.run_attempts
-  WHERE finished_at >= NOW() - INTERVAL '30 days'
-    AND status IN ('verified', 'rejected')
-)
-SELECT
-  COUNT(*) AS terminal_attempts,
-  COUNT(*) FILTER (
-    WHERE terminal_at <= finished_at + INTERVAL '120 seconds'
-  ) AS within_slo,
-  ROUND(
-    100 * COUNT(*) FILTER (
-      WHERE terminal_at <= finished_at + INTERVAL '120 seconds'
-    )::NUMERIC / NULLIF(COUNT(*), 0),
-    2
-  ) AS slo_percent
-FROM terminal_attempts;
-```
+Les autres indicateurs, leurs seuils et les limites de mesure côté navigateur
+sont définis dans `docs/observability.md`. Les compteurs locaux en mémoire ne
+mesurent pas la disponibilité de l'ensemble des joueurs.
 
 Suivre `docs/incident-runbooks.md#rejets-authority-anormaux` si une alerte se
 déclenche ou si le SLO passe sous 99 %.
 
 ### Diagnostics applicatifs
 
-Analytics et Speed Insights sont désactivés tant qu'une politique de confidentialité
-et une base légale ne sont pas définies. Le logging applicatif en base est lui aussi
-désactivé par défaut. Pour l'activer explicitement :
+`src/main.tsx` monte Vercel Web Analytics et Speed Insights : la télémétrie web et
+les Web Vitals sont intégrés conformément à `docs/legal-and-privacy.md` ; leur
+configuration distante et la revue externe avant bêta restent à vérifier. Aucun
+événement de gameplay n'est envoyé par les compteurs SLI navigateur, qui restent en mémoire et ne sont pas
+envoyés automatiquement. Le logging applicatif en base est désactivé par défaut.
+Pour l'activer explicitement :
 
 ```env
 VITE_ENABLE_DB_LOGGING=true

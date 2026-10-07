@@ -751,12 +751,14 @@ Les advisors signalent des tables RLS sans policy (`daily_challenge_rulesets`,
 clients sont actuellement absents, ce qui limite le risque, mais la frontière est
 peu explicite.
 
-- [ ] Documenter pour chaque table : exposée Data API ou interne.
-- [ ] Pour les tables purement internes, évaluer un déplacement vers un schéma
+- [x] Documenter pour chaque table : exposée Data API ou interne.
+- [x] Pour les tables purement internes, évaluer un déplacement vers un schéma
   `private` non exposé.
-- [ ] À défaut, conserver `RLS + aucun grant` et ajouter un test de privilèges.
-- [ ] Configurer une allowlist des advisors INFO volontairement acceptés avec raison.
-- [ ] Ne jamais ignorer globalement `rls_enabled_no_policy`.
+- [x] À défaut, conserver `RLS + aucun grant` et ajouter un test de privilèges.
+- [x] Configurer une allowlist des advisors INFO volontairement acceptés avec raison.
+- [x] Ne jamais ignorer globalement `rls_enabled_no_policy`.
+
+Preuve locale du 7 octobre 2026 : inventaire des 22 tables, refus SQL/Data API réels et advisors dans [la validation Sprint F](docs/sprint-f-validation-2026-10-07.md).
 
 ---
 
@@ -784,15 +786,17 @@ déjà été rejetées avec le même code.
 
 **Taille : M**
 
-- [ ] Mapper les `rejection_code` serveur vers des messages français actionnables.
-- [ ] Distinguer : tentative expirée, trace invalide, conflit de version, choix
+- [x] Mapper les `rejection_code` serveur vers des messages français actionnables.
+- [x] Distinguer : tentative expirée, trace invalide, conflit de version, choix
   manquant, séquence incorrecte, erreur serveur retryable.
-- [ ] Ne pas afficher un message technique brut comme seul feedback.
-- [ ] Conserver un détail technique dépliable/copiable pour support.
-- [ ] Pour une erreur terminale, expliquer clairement qu'aucune récompense n'est
+- [x] Ne pas afficher un message technique brut comme seul feedback.
+- [x] Conserver un détail technique dépliable/copiable pour support.
+- [x] Pour une erreur terminale, expliquer clairement qu'aucune récompense n'est
   créditée et pourquoi le retry ne changera pas le résultat.
-- [ ] Pour une erreur retryable, proposer le retry sans reconstruire la commande.
-- [ ] Tester Game Over + refresh + retour menu après rejet.
+- [x] Pour une erreur retryable, proposer le retry sans reconstruire la commande.
+- [x] Tester Game Over + refresh + retour menu après rejet.
+
+Preuve locale du 7 octobre 2026 : présentation FR/EN, 4 E2E Chromium et preview mobile avec limites explicites dans [la validation Sprint F](docs/sprint-f-validation-2026-10-07.md).
 
 ---
 
@@ -800,14 +804,16 @@ déjà été rejetées avec le même code.
 
 **Taille : M — décision produit + sécurité.**
 
-- [ ] Formaliser la règle : aucune récompense rétroactive sans preuve serveur
+- [x] Formaliser la règle : aucune récompense rétroactive sans preuve serveur
   suffisante.
-- [ ] Décider si une compensation non liée au résultat de la run est possible pour
+- [x] Décider si une compensation non liée au résultat de la run est possible pour
   les utilisateurs affectés par un incident confirmé.
-- [ ] Garder une liste d'incidents par version moteur et fenêtre temporelle.
-- [ ] Ne jamais « réparer » une trace rejetée en insérant manuellement un résultat
+- [x] Garder une liste d'incidents par version moteur et fenêtre temporelle.
+- [x] Ne jamais « réparer » une trace rejetée en insérant manuellement un résultat
   supposé.
-- [ ] Documenter la procédure support et l'audit des compensations éventuelles.
+- [x] Documenter la procédure support et l'audit des compensations éventuelles.
+
+Preuve : [politique incident](docs/run-incident-policy.md) et [registre](docs/run-incidents.md), sans compensation automatique ni mécanisme d'attribution activé.
 
 ---
 
@@ -1339,10 +1345,12 @@ Mesures minimales :
 - taux d'assets cassés ;
 - erreurs de réhydratation.
 
-- [ ] Définir les seuils d'alerte.
-- [ ] Ne collecter que des métriques techniques minimisées.
-- [ ] Ajouter `engineVersion`, ruleset et code, sans journal de gameplay complet.
-- [ ] Documenter la rétention et l'accès opérateur.
+- [x] Définir les seuils d'alerte.
+- [x] Ne collecter que des métriques techniques minimisées.
+- [x] Ajouter `engineVersion`, ruleset et code, sans journal de gameplay complet.
+- [x] Documenter la rétention et l'accès opérateur.
+
+Preuve locale du 7 octobre 2026 : compteurs minimisés et rapport SLO PostgreSQL dans [la validation Sprint F](docs/sprint-f-validation-2026-10-07.md), sans pipeline globale activée.
 
 ---
 
@@ -1370,14 +1378,16 @@ Le dépôt documente les procédures, mais la preuve distante reste requise.
 
 **Taille : M**
 
-- [ ] `docs/beta-readiness.md` : repasser les gates ouvertes en bloqué.
-- [ ] `docs/feature-status.md` : ajouter « risque réouvert » / « validation live requise ».
-- [ ] `docs/dependency-audit.md` : corriger la contradiction Node24 / types Node26.
-- [ ] `docs/legal-and-privacy.md` : remplacer la purge sociale « maintenance appelle
+- [x] `docs/beta-readiness.md` : repasser les gates ouvertes en bloqué.
+- [x] `docs/feature-status.md` : ajouter « risque réouvert » / « validation live requise ».
+- [x] `docs/dependency-audit.md` : corriger la contradiction Node24 / types Node26.
+- [x] `docs/legal-and-privacy.md` : remplacer la purge sociale « maintenance appelle
   mensuellement » par l'état réel tant que le cron n'est pas déployé.
-- [ ] `docs/operations.md` : ajouter la vérification advisors/grants/cron au runbook.
-- [ ] `docs/data-and-persistence.md` : documenter les tests de contrat réels des repositories.
-- [ ] Relier chaque claim critique à une commande ou un test exécutable.
+- [x] `docs/operations.md` : ajouter la vérification advisors/grants/cron au runbook.
+- [x] `docs/data-and-persistence.md` : documenter les tests de contrat réels des repositories.
+- [x] Relier chaque claim critique à une commande ou un test exécutable.
+
+Preuve locale du 7 octobre 2026 : `check`, `db:validate` et contrôles spécialisés dans [la validation Sprint F](docs/sprint-f-validation-2026-10-07.md) ; bêta toujours bloquée.
 
 ---
 
@@ -1555,11 +1565,11 @@ techniques ni afficher une modale à chaque déploiement.**
 
 ## Sprint F — fiabilité produit et exploitation
 
-31. [ ] `P1-SEC-03` frontière explicite des tables server-only.
-32. [ ] `P1-RUN-02` UX des progressions rejetées.
-33. [ ] `P1-RUN-03` traitement des attempts affectées par un bug client.
-34. [ ] `P2-OBS-01` SLI/SLO techniques minimisés.
-35. [ ] `P2-DOC-01` statuts recalculés et preuves exécutables.
+31. [x] `P1-SEC-03` frontière explicite des tables server-only.
+32. [x] `P1-RUN-02` UX des progressions rejetées.
+33. [x] `P1-RUN-03` traitement des attempts affectées par un bug client.
+34. [x] `P2-OBS-01` SLI/SLO techniques minimisés.
+35. [x] `P2-DOC-01` statuts recalculés et preuves exécutables.
 
 ## Sprint G — architecture et produit
 

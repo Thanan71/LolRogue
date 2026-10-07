@@ -76,6 +76,33 @@ describe('bounded run hydration and deterministic malformed-payload corpus', () 
     vi.unstubAllGlobals();
   });
 
+  it.each([undefined, 21])(
+    'preserves optional gameplay metadata during hydration (%s)',
+    async (gameplayVersion) => {
+      const state = validState();
+      state.authorityAttempt = { ...validAttempt(), rulesetVersion: 3 };
+      if (gameplayVersion !== undefined)
+        state.authorityAttempt.gameplayRulesetVersion = gameplayVersion;
+      expect(isPersistedRunState(state)).toBe(true);
+      storage.set(RUN_STORAGE_KEY, JSON.stringify({ version: 7, state }));
+      await useRunStore.persist.rehydrate();
+      expect(useRunStore.getState().authorityAttempt?.rulesetVersion).toBe(3);
+      expect(useRunStore.getState().authorityAttempt?.gameplayRulesetVersion).toBe(gameplayVersion);
+    },
+  );
+
+  it.each([-1, 1.5, 32768, '21', null])(
+    'rejects malformed persisted gameplay metadata (%s)',
+    (gameplayVersion) => {
+      const state = validState();
+      state.authorityAttempt = {
+        ...validAttempt(),
+        gameplayRulesetVersion: gameplayVersion,
+      } as RunAuthorityAttempt;
+      expect(isPersistedRunState(state)).toBe(false);
+    },
+  );
+
   it.each(['SecurityError', 'QuotaExceededError'])(
     'preserves the run and its quarantine during temporarily unreadable hydration (%s)',
     async (errorName) => {

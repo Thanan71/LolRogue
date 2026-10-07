@@ -3,6 +3,32 @@
 Ce document définit la source de vérité de chaque domaine. Une modification de
 persistance doit conserver cette séparation et mettre à jour les tests associés.
 
+## Preuves de contrat et portée
+
+`npm run db:validate` réinitialise uniquement la stack Supabase locale jetable,
+applique les migrations, vérifie RLS/grants/advisors, compare les types générés et
+exécute les tests `*.database.test.ts` découverts automatiquement. Lancer
+`npm run test:db:list` pour contrôler la liste. Ces preuves ne remplacent pas la
+comparaison des migrations et les smoke tests sur le SHA effectivement déployé.
+
+| Frontière | Preuve réelle | Invariants couverts |
+| --- | --- | --- |
+| Repositories → PostgREST | `repositoryIntegration.database.test.ts` | Sessions réelles, profil et `null`, historique avec jointures FK/versions/pagination, classements anonymes, maîtrise/améliorations, lectures admin, RPC de logs, erreurs PostgreSQL/PostgREST. |
+| Client → autorité | `verifiedRunAttempts.database.test.ts`, `openRunAttemptRead.database.test.ts` | Propriétaire de l'attempt, journal immuable, récupération, finalisation idempotente, refus de trace et absence de crédit. |
+| Ledger → progression | `mapEconomyProgression.database.test.ts`, `authoritativeDaily.database.test.ts` | Progression recalculée côté serveur, absence de double crédit et parité Daily. |
+| Rôles → tables/fonctions | `serverOnlyTables.database.test.ts`, `securityDefinerPrivileges.database.test.ts`, `adminPrivileges.database.test.ts` | Inventaire exhaustif, absence de privilèges clients sur tables internes, RPC explicites, permissions admin. |
+| Données → rétention/diagnostics | `legalPrivacy.database.test.ts`, `logSecurity.database.test.ts` | Bornes temporelles, cron, accès maintenance et sanitation/quota des logs. |
+
+`supabaseRepositories.test.ts` couvre les mappings et erreurs avec des doubles de
+test ; il ne prouve pas qu'une colonne, relation ou RPC existe. Sans credentials
+de la stack locale, la suite unitaire ignore les tests DB : un `npm test` vert
+seul ne valide donc pas ces frontières. Utiliser la gate DB, qui fournit les
+credentials locaux sans les enregistrer dans le dépôt.
+
+La décision de conserver les trois tables internes dans `public` avec RLS et
+sans grants clients est détaillée dans `server-only-tables.md` et vérifiée depuis
+`config/public-table-access.json`. Le nom du schéma ne donne aucun droit d'accès.
+
 ## Matrice des responsabilités
 
 | Domaine | Pendant l'exécution | Source durable connectée | Mode invité | Écriture |

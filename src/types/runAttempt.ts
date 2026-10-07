@@ -53,7 +53,10 @@ export interface RunAuthorityAttempt {
   runUuid: string;
   ownerUserId: string;
   seed: number;
+  /** Progression ruleset; independent from the gameplay ruleset. */
   rulesetVersion: number;
+  /** Missing on locally persisted attempts created before this field was retained. */
+  gameplayRulesetVersion?: number;
   engineVersion: string;
   difficulty: AuthorityDifficulty;
   mode: AuthorityRunMode;
@@ -96,7 +99,9 @@ export interface StartRunAttemptResult {
   attemptId: string;
   runUuid: string;
   status: 'started';
+  /** public.run_attempts.ruleset_version references progression_rulesets. */
   rulesetVersion: number;
+  gameplayRulesetVersion?: number;
   engineVersion: string;
   seed: number;
   mode: AuthorityRunMode;
@@ -139,6 +144,7 @@ export interface RunAttemptStatusResult {
   runUuid: string;
   status: RunAttemptStatus;
   rulesetVersion: number;
+  gameplayRulesetVersion?: number;
   engineVersion: string;
   seed: number;
   mode: AuthorityRunMode;

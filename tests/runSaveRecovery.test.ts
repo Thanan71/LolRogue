@@ -4,6 +4,10 @@ import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { findNode } from '@/game/map/mapUtils';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { runError } from '@/i18n/runErrorContent';
+import {
+  getTechnicalMetricSnapshot,
+  resetTechnicalMetrics,
+} from '@/observability/technicalMetrics';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -23,7 +27,17 @@ const attemptMocks = vi.hoisted(() => {
     }
   }
 
+  class RetryableError extends Error {
+    constructor(
+      readonly code: string,
+      message: string,
+    ) {
+      super(message);
+    }
+  }
+
   return {
+    RetryableError,
     start: vi.fn(),
     findOpen: vi.fn(),
     append: vi.fn(),
@@ -43,6 +57,7 @@ vi.mock('@/services/runAttemptService', () => ({
   verifyRunAttempt: attemptMocks.verify,
   recoverVerifiedRunAttempt: attemptMocks.recover,
   RunVerificationRejectedError: attemptMocks.RejectedError,
+  RunVerificationRetryableError: attemptMocks.RetryableError,
 }));
 
 vi.mock('@/services/container', () => ({
@@ -143,6 +158,7 @@ function verifiedStartResponse() {
 
 describe('authoritative run lifecycle and recovery', () => {
   beforeEach(() => {
+    resetTechnicalMetrics();
     vi.clearAllMocks();
     getChampionMastery.mockResolvedValue({ data: [], error: null });
     attemptMocks.findOpen.mockResolvedValue({ data: null, error: null });
@@ -279,6 +295,24 @@ describe('authoritative run lifecycle and recovery', () => {
     expect(attemptMocks.append).toHaveBeenCalledTimes(2);
     expect(attemptMocks.append.mock.calls[1][1]).toHaveLength(1);
     expect(attemptMocks.seal).toHaveBeenCalledTimes(1);
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      {
+        metric: 'run_finalization',
+        outcome: 'initial',
+        engineVersion: 'run-engine-v1',
+        gameplayRulesetVersion: null,
+        progressionRulesetVersion: 1,
+        count: 1,
+      },
+      {
+        metric: 'run_finalization',
+        outcome: 'retry',
+        engineVersion: 'run-engine-v1',
+        gameplayRulesetVersion: null,
+        progressionRulesetVersion: 1,
+        count: 1,
+      },
+    ]);
     expect(attemptMocks.verify).toHaveBeenCalledWith(ATTEMPT_ID);
     expect(useRunStore.getState()).toMatchObject({
       isActive: false,
@@ -289,6 +323,9 @@ describe('authoritative run lifecycle and recovery', () => {
   });
 
   it('recovers an already verified seal without invoking Edge again', async () => {
+    useRunStore.setState({
+      authorityAttempt: authorityAttempt({ rulesetVersion: 3, gameplayRulesetVersion: 21 }),
+    });
     attemptMocks.seal.mockResolvedValue({
       data: {
         attemptId: ATTEMPT_ID,
@@ -308,6 +345,14 @@ describe('authoritative run lifecycle and recovery', () => {
     });
 
     expect(attemptMocks.recover).toHaveBeenCalledWith(ATTEMPT_ID);
+    expect(attemptMocks.seal).toHaveBeenCalledWith(ATTEMPT_ID, expect.any(String), 1, {
+      engineVersion: 'run-engine-v1',
+      gameplayRulesetVersion: 21,
+      progressionRulesetVersion: 3,
+    });
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { metric: 'run_finalization', gameplayRulesetVersion: 21, progressionRulesetVersion: 3 },
+    ]);
     expect(attemptMocks.verify).not.toHaveBeenCalled();
     expect(useRunStore.getState().serverProgression).toMatchObject({
       progressionSource: 'verified',
@@ -380,6 +425,11 @@ describe('authoritative run lifecycle and recovery', () => {
         ATTEMPT_ID,
         originalAttempt!.finishCommandId,
         originalAttempt!.nextSequence - 1,
+        {
+          engineVersion: originalAttempt!.engineVersion,
+          gameplayRulesetVersion: originalAttempt!.gameplayRulesetVersion,
+          progressionRulesetVersion: originalAttempt!.rulesetVersion,
+        },
       ]);
     }
     expect(attemptMocks.append).toHaveBeenCalledTimes(1);
@@ -457,7 +507,11 @@ describe('authoritative run lifecycle and recovery', () => {
       { sequence: 2, kind: 'choose_augment', payload: { augment_id: augmentId } },
       { sequence: 3, kind: 'abandon_run', payload: {} },
     ]);
-    expect(attemptMocks.seal).toHaveBeenCalledWith(ATTEMPT_ID, expect.any(String), 3);
+    expect(attemptMocks.seal).toHaveBeenCalledWith(ATTEMPT_ID, expect.any(String), 3, {
+      engineVersion: 'run-engine-v13',
+      gameplayRulesetVersion: undefined,
+      progressionRulesetVersion: 1,
+    });
   });
 
   it('does not let a hanging profile refresh block a durable verification', async () => {
@@ -544,6 +598,64 @@ describe('authoritative run lifecycle and recovery', () => {
       rewardsApplied: false,
     });
     expect(useRunStore.getState().completedRunSnapshot?.runId).toBe(RUN_UUID);
+    await useRunStore.getState().endRun(false, RUN_UUID);
+    expect(attemptMocks.verify).toHaveBeenCalledTimes(1);
+    expect(attemptMocks.seal).toHaveBeenCalledTimes(1);
+    expect(useRunStore.getState().serverProgression).toBeNull();
+  });
+
+  it('retains the exact finish command and snapshot when retrying a server verification error', async () => {
+    attemptMocks.verify.mockResolvedValueOnce({
+      data: null,
+      error: new attemptMocks.RetryableError(
+        'verification_in_progress',
+        runError.verificationInProgress(12),
+      ),
+    });
+    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
+      success: false,
+      retryable: true,
+    });
+    const failed = structuredClone({
+      snapshot: useRunStore.getState().completedRunSnapshot,
+      attempt: useRunStore.getState().authorityAttempt,
+    });
+    expect(useRunStore.getState().saveDiagnostic).toEqual({
+      attemptId: ATTEMPT_ID,
+      engineVersion: 'run-engine-v1',
+      rejectionCode: 'verification_in_progress',
+    });
+    useRunStore.setState({ gold: 999, totalWavesCompleted: 99 });
+    await expect(useRunStore.getState().endRun(true, RUN_UUID)).resolves.toMatchObject({
+      success: true,
+      outcome: 'saved',
+    });
+    expect(attemptMocks.seal.mock.calls).toEqual([
+      [
+        ATTEMPT_ID,
+        failed.attempt!.finishCommandId,
+        failed.attempt!.nextSequence - 1,
+        {
+          engineVersion: failed.attempt!.engineVersion,
+          gameplayRulesetVersion: failed.attempt!.gameplayRulesetVersion,
+          progressionRulesetVersion: failed.attempt!.rulesetVersion,
+        },
+      ],
+      [
+        ATTEMPT_ID,
+        failed.attempt!.finishCommandId,
+        failed.attempt!.nextSequence - 1,
+        {
+          engineVersion: failed.attempt!.engineVersion,
+          gameplayRulesetVersion: failed.attempt!.gameplayRulesetVersion,
+          progressionRulesetVersion: failed.attempt!.rulesetVersion,
+        },
+      ],
+    ]);
+    expect(attemptMocks.append).toHaveBeenCalledTimes(1);
+    expect(useRunStore.getState().completedRunSnapshot).toEqual(failed.snapshot);
+    expect(useRunStore.getState().authorityAttempt?.commands).toEqual(failed.attempt!.commands);
+    expect(useRunStore.getState().saveDiagnostic).toBeNull();
   });
 
   it('refuses to replace an active run without an explicit abandonment', async () => {
@@ -650,8 +762,9 @@ describe('authoritative run lifecycle and recovery', () => {
         attemptId: ATTEMPT_ID,
         runUuid: RUN_UUID,
         status: 'started',
-        rulesetVersion: 1,
-        engineVersion: 'run-engine-v1',
+        rulesetVersion: 3,
+        gameplayRulesetVersion: 21,
+        engineVersion: 'run-engine-v21',
         seed: 987654,
         mode: 'normal',
         difficulty: 'normal',
@@ -683,6 +796,8 @@ describe('authoritative run lifecycle and recovery', () => {
       authorityAttempt: {
         attemptId: ATTEMPT_ID,
         ownerUserId: 'user-1',
+        rulesetVersion: 3,
+        gameplayRulesetVersion: 21,
         enhancementSnapshot: { Garen: { hp_1: 1 } },
       },
     });

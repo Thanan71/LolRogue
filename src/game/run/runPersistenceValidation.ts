@@ -373,6 +373,7 @@ const authorityAttempt: Check = (value) => {
     ownerUserId: id,
     seed,
     rulesetVersion: positive,
+    gameplayRulesetVersion: (version: unknown) => positive(version) && (version as number) <= 32767,
     engineVersion: id,
     difficulty,
     mode,
@@ -405,9 +406,13 @@ const authorityAttempt: Check = (value) => {
       fields,
       Object.keys(fields).filter(
         (key) =>
-          !['masterySnapshot', 'dailyDate', 'dailyRulesetVersion', 'dailyScoreVersion'].includes(
-            key,
-          ),
+          ![
+            'masterySnapshot',
+            'dailyDate',
+            'dailyRulesetVersion',
+            'dailyScoreVersion',
+            'gameplayRulesetVersion',
+          ].includes(key),
       ),
     )(value) ||
     !isRecord(value)

@@ -40,6 +40,39 @@
       "id": "P0-REL-01",
       "status": "verified",
       "checks": ["npm run release:readiness:check"]
+    },
+    {
+      "id": "P0-I18N-01",
+      "status": "open",
+      "checks": [
+        "npm run test -- tests/i18nSourceContract.test.ts tests/i18nCatalogContract.test.ts",
+        "npm run test:e2e -- e2e/i18n-english-journey.spec.ts"
+      ]
+    },
+    {
+      "id": "P0-BAL-01",
+      "status": "verified",
+      "checks": ["npm run balance:check", "npm run db:validate"]
+    },
+    {
+      "id": "P0-BAL-02",
+      "status": "verified",
+      "checks": ["npm run balance:check", "npm run db:validate"]
+    },
+    {
+      "id": "P0-BAL-03",
+      "status": "verified",
+      "checks": ["npm run balance:check", "npm run db:validate"]
+    },
+    {
+      "id": "P0-BAL-04",
+      "status": "verified",
+      "checks": ["npm run balance:check", "npm run db:validate"]
+    },
+    {
+      "id": "P0-BAL-05",
+      "status": "verified",
+      "checks": ["npm run balance:check", "npm run db:validate"]
     }
   ],
   "requiredCiJobs": ["validate", "e2e", "database", "clean-room"],

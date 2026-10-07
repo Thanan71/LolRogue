@@ -5,6 +5,11 @@
   "requiredFiles": ["tests/repositoryIntegration.database.test.ts"],
   "skipAllowlist": [
     {
+      "file": "tests/technicalSlo.database.test.ts",
+      "expression": "const describeDatabase = process.env.SUPABASE_DB_URL ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without a PostgreSQL URL; DB_TEST_REQUIRED fails when missing."
+    },
+    {
       "file": "tests/adminPrivileges.database.test.ts",
       "expression": "const describeDatabase = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
       "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
@@ -58,6 +63,11 @@
       "file": "tests/securityDefinerPrivileges.database.test.ts",
       "expression": "const describeLive = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
       "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/serverOnlyTables.database.test.ts",
+      "expression": "const describeDatabase = hasCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
     },
     {
       "file": "tests/verifiedRunAttempts.database.test.ts",

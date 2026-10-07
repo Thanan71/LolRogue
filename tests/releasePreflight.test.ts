@@ -105,6 +105,33 @@ describe('release preflight', () => {
     expect(result.stdout).toContain('[ci-duplicate]');
   });
 
+  it('refuse une fiche qui omet un P0 actuel ou le duplique', () => {
+    const { sheetPath, documentationPath } = fixture();
+    const sheet = JSON.parse(readFileSync(sheetPath, 'utf8'));
+    sheet.p0Gates = sheet.p0Gates.filter((gate: { id: string }) => gate.id !== 'P0-I18N-01');
+    sheet.p0Gates.push(sheet.p0Gates[0]);
+    writeFileSync(sheetPath, JSON.stringify(sheet));
+
+    const result = runPreflight(sheetPath, documentationPath);
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain('[p0-inventory] P0-I18N-01 manque');
+    expect(result.stdout).toContain('est inconnu ou dupliqué');
+  });
+
+  it('garde le P0 i18n ouvert et refuse les preuves vides', () => {
+    const { sheetPath, documentationPath } = fixture();
+    const sheet = JSON.parse(readFileSync(sheetPath, 'utf8'));
+    sheet.p0Gates[0].checks = ['   '];
+    writeFileSync(sheetPath, JSON.stringify(sheet));
+
+    const result = runPreflight(sheetPath, documentationPath);
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain('[p0] P0-I18N-01 reste ouvert');
+    expect(result.stdout).toContain('[p0-proof]');
+  });
+
   it('échoue lorsque la documentation affiche un état vert contradictoire', () => {
     const { sheetPath, documentationPath } = fixture();
     writeFileSync(documentationPath, '<!-- release-readiness:status=ready -->');

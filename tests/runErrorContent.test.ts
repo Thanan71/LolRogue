@@ -22,7 +22,7 @@ describe('runErrorContent', () => {
     );
     expect(verificationRejectionMessage('run_attempt_expired', null)).toBeTruthy();
     expect(verificationRejectionMessage('illegal_trace', 7)).not.toContain('illegal_trace');
-    expect(verificationRejectionMessage('illegal_trace', 7)).toContain('commande 8');
+    expect(verificationRejectionMessage('illegal_trace', 7)).toContain('action 8');
     expect(
       localizePersistedRunError(
         'Run verification failed (verified_progression_commit_failed). Retry after checking the server status.',

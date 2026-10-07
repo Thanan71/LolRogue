@@ -6,6 +6,18 @@ comportement. Ce libellé ne garantit ni l'absence de risque courant, ni la
 readiness d'une release, ni un état opérationnel définitif : seule la gate
 objective de `beta-readiness.md` peut autoriser un candidat.
 
+Réaudit documentaire du 4 octobre 2026 : **validation live requise** pour les
+capacités connectées. Aucune lecture de production ni promotion n'est attestée
+par cette matrice. **Risque réouvert** signifie qu'une preuve nécessaire manque,
+même si l'implémentation et ses tests existent.
+
+| Claim critique | État recalculé | Contrôle exécutable / preuve manquante |
+| --- | --- | --- |
+| Internationalisation complète | **Risque réouvert : P0-I18N-01 ouvert** | `npm run test -- tests/i18nSourceContract.test.ts tests/i18nCatalogContract.test.ts` ; parcours `e2e/i18n-english-journey.spec.ts` ; revue humaine FR/EN avec lecteur d'écran et preview candidate encore requise. |
+| Base, privilèges et rétention | **Validation live requise** | `npm run db:validate` sur base locale ; `npm run db:migrations:check:linked`, advisors liés et requêtes grants/cron de `operations.md` sur la cible. |
+| Sécurité des dépendances | À recalculer à chaque candidat | `npm run audit:security` et `npm run node:contract` ; un audit historique ne décrit pas le lockfile actuel. |
+| Publication bêta | **Bloquée** | `npm run release:preflight` ; statut cohérent contrôlé par `npm run release:readiness:check`. |
+
 | Fonctionnalité | Implémentation de référence | Preuves principales | Statut |
 | --- | --- | --- | --- |
 | Décisions produit transverses | `productDecisions`, contrat produit v2 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta ; calibration en observation tant que le terrain et les playtests manquent |
@@ -32,7 +44,7 @@ objective de `beta-readiness.md` peut autoriser un candidat.
 | Responsive et accessibilité automatisée | shell partagé, styles mobiles, focus et mouvement réduit | specs `auth-menu`, `game-screens`, `accessibility*` | Livré au niveau automatisé ; revue lecteur d'écran humaine restante |
 | Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 227 fichiers versionnés, dont 40 icônes de compétences |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
-| Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Livré : aucune alerte haute/critique au 8 août 2026 |
+| Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Gate disponible ; résultat courant à exécuter sur le SHA candidat |
 | Budgets de performance | plafond global 640 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `test:performance-budgets`, `test:performance-preview` | Bundle conforme au 23 septembre 2026 : 10,47 % de marge après traduction complète et projection texte FR ; dernière mesure lab documentée : p75 LCP 1 396 ms, CLS 0, INP 104 ms |
 | Exploitation et restauration | `operations`, `incident-runbooks`, `backup-and-restore`, `release-and-support` | runbooks versionnés et critères de preuve | Livré côté procédures ; exercice distant requis avant bêta |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |

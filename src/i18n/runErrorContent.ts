@@ -28,6 +28,9 @@ export type RunErrorCatalog = Readonly<{
   attemptOwnerChanged: string;
   attemptExpired: string;
   traceRejected: (commandIndex: number | null) => string;
+  versionConflict: string;
+  missingChoice: string;
+  incorrectSequence: string;
   journalSyncFailed: string;
   sealFailed: string;
   verificationFailed: () => string;
@@ -35,6 +38,7 @@ export type RunErrorCatalog = Readonly<{
   saveInterrupted: string;
   verificationInProgress: (retryAfterSeconds: number | null) => string;
   verifierUpdating: string;
+  versionContractUnavailable: string;
   journalNotSealed: string;
   attemptNotFound: string;
   unexpected: string;
@@ -88,9 +92,16 @@ const frFR: RunErrorCatalog = {
   missingServerAttempt:
     'Cette partie ne possède aucune tentative serveur et ne peut pas accorder de progression authentifiée.',
   attemptOwnerChanged: 'Cette tentative appartient à un autre compte authentifié.',
-  attemptExpired: 'Cette tentative de partie vérifiée a expiré.',
+  attemptExpired:
+    'Le délai de validation de cette partie est dépassé. Commencez une nouvelle partie pour obtenir une progression vérifiée.',
   traceRejected: (commandIndex) =>
-    `La trace de la partie a été refusée${commandIndex === null ? '.' : ` à la commande ${formatNumber(commandIndex + 1, 'fr-FR')}.`}`,
+    `Le serveur n’a pas pu valider les actions de cette partie${commandIndex === null ? '.' : ` à l’action ${formatNumber(commandIndex + 1, 'fr-FR')}.`} Commencez une nouvelle partie ; si cela se reproduit, copiez le diagnostic pour le support.`,
+  versionConflict:
+    'La version de cette partie ne correspond pas à celle attendue par le serveur. Actualisez le jeu avant de commencer une nouvelle partie.',
+  missingChoice:
+    'Une amélioration obligatoire n’a pas été enregistrée avant la suite de la partie. Commencez une nouvelle partie ; si cela se reproduit, copiez le diagnostic pour le support.',
+  incorrectSequence:
+    'Les actions enregistrées ne sont pas dans l’ordre attendu. Commencez une nouvelle partie ; si cela se reproduit, copiez le diagnostic pour le support.',
   journalSyncFailed: 'Le journal des commandes de la partie n’a pas pu être synchronisé.',
   sealFailed: 'La tentative de partie n’a pas pu être scellée.',
   verificationFailed: () =>
@@ -102,7 +113,9 @@ const frFR: RunErrorCatalog = {
       ? `La vérification est déjà en cours. Réessayez dans environ ${formatNumber(retryAfterSeconds, 'fr-FR')} ${retryAfterSeconds === 1 ? 'seconde' : 'secondes'}.`
       : 'La vérification est déjà en cours. Réessayez dans quelques secondes.',
   verifierUpdating:
-    'Le vérificateur est en cours de mise à jour pour cette version. Réessayez bientôt.',
+    'Le vérificateur ne peut pas valider cette version pour le moment. Réessayez plus tard ; si cela persiste, copiez le diagnostic pour le support.',
+  versionContractUnavailable:
+    'La configuration de version du serveur empêche la vérification de cette partie. Réessayez plus tard ; si cela persiste, copiez le diagnostic pour le support.',
   journalNotSealed: 'Le journal de la partie n’est pas encore scellé. Relancez la vérification.',
   attemptNotFound: 'Cette tentative n’existe plus sur le serveur.',
   unexpected: 'Une erreur inattendue empêche la progression de la partie.',
@@ -139,9 +152,16 @@ const enUS: RunErrorCatalog = {
   missingServerAttempt:
     'This run has no server attempt and cannot grant authenticated progression.',
   attemptOwnerChanged: 'This run attempt belongs to another authenticated account.',
-  attemptExpired: 'This verified run attempt has expired.',
+  attemptExpired:
+    'The validation window for this run has expired. Start a new run to earn verified progression.',
   traceRejected: (commandIndex) =>
-    `The run trace was rejected${commandIndex === null ? '.' : ` at command ${formatNumber(commandIndex + 1, 'en-US')}.`}`,
+    `The server could not validate this run’s actions${commandIndex === null ? '.' : ` at action ${formatNumber(commandIndex + 1, 'en-US')}.`} Start a new run; if this happens again, copy the diagnostic for support.`,
+  versionConflict:
+    'This run’s version does not match the version expected by the server. Refresh the game before starting a new run.',
+  missingChoice:
+    'A required upgrade was not recorded before the run continued. Start a new run; if this happens again, copy the diagnostic for support.',
+  incorrectSequence:
+    'The recorded actions are not in the expected order. Start a new run; if this happens again, copy the diagnostic for support.',
   journalSyncFailed: 'The run command journal could not be synchronized.',
   sealFailed: 'The run attempt could not be sealed.',
   verificationFailed: () =>
@@ -152,7 +172,10 @@ const enUS: RunErrorCatalog = {
     retryAfterSeconds
       ? `Verification is already in progress. Retry in about ${formatNumber(retryAfterSeconds, 'en-US')} ${retryAfterSeconds === 1 ? 'second' : 'seconds'}.`
       : 'Verification is already in progress. Retry in a few seconds.',
-  verifierUpdating: 'The verifier is being updated for this run version. Retry shortly.',
+  verifierUpdating:
+    'The verifier cannot validate this version right now. Try again later; if it persists, copy the diagnostic for support.',
+  versionContractUnavailable:
+    'A server version configuration issue is preventing this run from being verified. Try again later; if it persists, copy the diagnostic for support.',
   journalNotSealed: 'The run journal has not been sealed yet. Retry verification.',
   attemptNotFound: 'This run attempt no longer exists on the server.',
   unexpected: 'An unexpected error is preventing run progression.',
@@ -188,11 +211,15 @@ const STATIC_KEYS = [
   'missingServerAttempt',
   'attemptOwnerChanged',
   'attemptExpired',
+  'versionConflict',
+  'missingChoice',
+  'incorrectSequence',
   'journalSyncFailed',
   'sealFailed',
   'finalizationFailed',
   'saveInterrupted',
   'verifierUpdating',
+  'versionContractUnavailable',
   'journalNotSealed',
   'attemptNotFound',
   'unexpected',
@@ -200,6 +227,9 @@ const STATIC_KEYS = [
 
 export function localizePersistedRunError(message: string | null): string {
   if (!message) return runError.unexpected;
+  if (message === frFR.verificationFailed() || message === enUS.verificationFailed()) {
+    return runError.verificationFailed();
+  }
   for (const key of STATIC_KEYS) {
     if (message === frFR[key] || message === enUS[key]) return runError[key];
   }
@@ -218,23 +248,48 @@ export function localizePersistedRunError(message: string | null): string {
 export function verificationRetryableMessage(
   code: string,
   retryAfterSeconds: number | null,
+  contentLocale: Locale = locale,
 ): string {
+  const copy = runErrorContent[contentLocale];
   switch (code) {
     case 'verification_in_progress':
-      return runError.verificationInProgress(retryAfterSeconds);
+      return copy.verificationInProgress(retryAfterSeconds);
     case 'unsupported_attempt_version':
-      return runError.verifierUpdating;
+      return copy.verifierUpdating;
+    case 'invalid_attempt_version_contract':
+      return copy.versionContractUnavailable;
     case 'run_attempt_not_sealed':
-      return runError.journalNotSealed;
+      return copy.journalNotSealed;
     default:
-      return runError.verificationFailed();
+      return copy.verificationFailed();
   }
 }
 
-export function verificationRejectionMessage(code: string, commandIndex: number | null): string {
-  if (code === 'run_attempt_expired') return runError.attemptExpired;
-  if (code === 'run_attempt_not_found') return runError.attemptNotFound;
-  return runError.traceRejected(commandIndex);
+export function verificationRejectionMessage(
+  code: string,
+  commandIndex: number | null,
+  contentLocale: Locale = locale,
+): string {
+  const copy = runErrorContent[contentLocale];
+  switch (code) {
+    case 'run_attempt_expired':
+      return copy.attemptExpired;
+    case 'run_attempt_not_found':
+      return copy.attemptNotFound;
+    case 'unsupported_attempt_version':
+    case 'invalid_attempt_version_contract':
+    case 'engine_version_mismatch':
+    case 'ruleset_version_mismatch':
+      return copy.versionConflict;
+    case 'pending_choice':
+      return copy.missingChoice;
+    case 'invalid_sequence':
+    case 'command_sequence_mismatch':
+      return copy.incorrectSequence;
+    default:
+      // Unknown server codes remain useful to support, never raw player-facing copy.
+      return copy.traceRejected(commandIndex);
+  }
 }
 
 export function runStartValidationMessage(

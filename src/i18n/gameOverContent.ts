@@ -11,6 +11,9 @@ export type GameOverContentCatalog = Readonly<{
     supportDetails: string;
     diagnosticCopied: string;
     copyDiagnostic: string;
+    diagnosticCopyFailed: string;
+    terminalOutcome: string;
+    retryOutcome: string;
     diagnostic: Readonly<{
       attemptId: string;
       authorityVersion: string;
@@ -75,6 +78,12 @@ const frFR: GameOverContentCatalog = {
     supportDetails: 'Détails techniques pour le support',
     diagnosticCopied: 'Diagnostic copié',
     copyDiagnostic: 'Copier le diagnostic',
+    diagnosticCopyFailed:
+      'Copie impossible. Sélectionnez le détail ci-dessus pour le copier manuellement.',
+    terminalOutcome:
+      'Aucune récompense n’est créditée. Ce refus est définitif pour cette tentative : renvoyer les mêmes actions ne changera pas le résultat.',
+    retryOutcome:
+      'La progression reste en attente. Réessayez dans quelques instants : la même demande sera renvoyée, sans modifier votre partie.',
     diagnostic: {
       attemptId: 'Identifiant de tentative',
       authorityVersion: 'Version de l’autorité',
@@ -128,6 +137,11 @@ const enUS: GameOverContentCatalog = {
     supportDetails: 'Technical details for support',
     diagnosticCopied: 'Diagnostic copied',
     copyDiagnostic: 'Copy diagnostic',
+    diagnosticCopyFailed: 'Unable to copy. Select the details above to copy them manually.',
+    terminalOutcome:
+      'No rewards are credited. This rejection is final for this attempt: resending the same actions will not change the outcome.',
+    retryOutcome:
+      'Progression is still pending. Try again shortly: the same request will be sent without changing your run.',
     diagnostic: {
       attemptId: 'Attempt ID',
       authorityVersion: 'Authority version',

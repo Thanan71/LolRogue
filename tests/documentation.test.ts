@@ -172,7 +172,9 @@ describe('documentation maintenue', () => {
     const todo = read('TODO.md');
 
     expect(matrix).toContain('Fonctionnalité | Implémentation de référence | Preuves principales');
-    expect(matrix).toContain('aucune alerte haute/critique au 8 août 2026');
+    expect(matrix).toContain('Validation live requise');
+    expect(matrix).toContain('P0-I18N-01 ouvert');
+    expect(matrix).toContain('npm run audit:security');
     for (const proof of [
       'authorityRunEngine.test.ts',
       'six-biome-run.spec.ts',

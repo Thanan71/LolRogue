@@ -12,8 +12,12 @@ import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStar
 import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { shouldApplyRunRewards } from '@/game/run/runState';
 import { runError, runStartValidationMessage } from '@/i18n/runErrorContent';
+import { recordTechnicalMetric } from '@/observability/technicalMetrics';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { RunVerificationRejectedError } from '@/services/runAttemptService';
+import {
+  RunVerificationRejectedError,
+  RunVerificationRetryableError,
+} from '@/services/runAttemptService';
 import { runAuthorityService } from '@/services/runAuthorityService';
 import {
   runEndFailure as endFailure,
@@ -311,6 +315,7 @@ export function createRunLifecycleSlice(
               ownerUserId: authUser.id,
               seed: attempt.seed,
               rulesetVersion: attempt.rulesetVersion,
+              gameplayRulesetVersion: attempt.gameplayRulesetVersion,
               engineVersion: attempt.engineVersion,
               difficulty: attempt.difficulty,
               mode: attempt.mode,
@@ -508,6 +513,13 @@ export function createRunLifecycleSlice(
         }
         state = get();
 
+        recordTechnicalMetric({
+          metric: 'run_finalization',
+          outcome: state.completedRunSnapshot?.runId === state.runId ? 'retry' : 'initial',
+          engineVersion: state.authorityAttempt?.engineVersion,
+          gameplayRulesetVersion: state.authorityAttempt?.gameplayRulesetVersion,
+          progressionRulesetVersion: state.authorityAttempt?.rulesetVersion,
+        });
         if (state.completedRunSnapshot?.runId === state.runId) {
           recordTechnicalEvent(
             { type: 'retry', operation: 'run_finalization', attempt: 1 },
@@ -748,6 +760,11 @@ export function createRunLifecycleSlice(
                 saveStatus: 'failed',
                 saveError: runError.journalSyncFailed,
                 saveFailureKind: 'retryable',
+                saveDiagnostic: {
+                  attemptId: syncedAttempt.attemptId,
+                  engineVersion: syncedAttempt.engineVersion,
+                  rejectionCode: 'journal_sync_failed',
+                },
               });
               return false;
             }
@@ -765,6 +782,11 @@ export function createRunLifecycleSlice(
             syncedAttempt.attemptId,
             finishCommandId,
             expectedSequence,
+            {
+              engineVersion: syncedAttempt.engineVersion,
+              gameplayRulesetVersion: syncedAttempt.gameplayRulesetVersion,
+              progressionRulesetVersion: syncedAttempt.rulesetVersion,
+            },
           );
           if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
             set({
@@ -791,6 +813,11 @@ export function createRunLifecycleSlice(
               saveStatus: 'failed',
               saveError: runError.sealFailed,
               saveFailureKind: 'retryable',
+              saveDiagnostic: {
+                attemptId: syncedAttempt.attemptId,
+                engineVersion: syncedAttempt.engineVersion,
+                rejectionCode: 'attempt_seal_failed',
+              },
               authorityAttempt: syncedAttempt,
             });
             return false;
@@ -829,6 +856,14 @@ export function createRunLifecycleSlice(
               saveStatus: 'failed',
               saveError: verification.error?.message ?? runError.verificationFailed(),
               saveFailureKind: 'retryable',
+              saveDiagnostic: {
+                attemptId: syncedAttempt.attemptId,
+                engineVersion: syncedAttempt.engineVersion,
+                rejectionCode:
+                  verification.error instanceof RunVerificationRetryableError
+                    ? verification.error.code
+                    : 'verification_unavailable',
+              },
               authorityAttempt: syncedAttempt,
             });
             return false;
