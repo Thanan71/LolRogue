@@ -6,12 +6,12 @@
  */
 import { BALANCE_CALIBRATION_DECISION } from './balanceCalibrationDecision';
 
-export const PRODUCT_DECISIONS_VERSION = 2 as const;
+export const PRODUCT_DECISIONS_VERSION = 3 as const;
 
 export const PRODUCT_DECISIONS = {
   launchLanguage: {
     locale: 'fr',
-    englishStatus: 'later_through_i18n',
+    englishStatus: 'supported_through_i18n',
   },
   guestProgression: {
     storage: 'local_only',
@@ -47,6 +47,10 @@ export const PRODUCT_DECISIONS = {
     separateKillXp: false,
   },
   offline: {
+    installation: 'online_only_pwa',
+    offlineLaunch: false,
+    serviceWorker: false,
+    applicationCache: false,
     guestRuns: 'official_local_guest_progression',
     authenticatedRunStart: 'online_authority_required',
     authenticatedInterruption: 'preserve_local_state_and_retry_authority',

@@ -11,11 +11,13 @@ import type { Run, RunTeamMember } from '@/types/models';
 import type {
   IRunRepository,
   IRunStatsRepository,
+  RunHistoryCursor,
+  RunHistoryDetails,
   RunHistoryEntry,
+  RunHistoryQuery,
+  RunRejectionCursor,
+  RunRejectionEntry,
 } from '../interfaces/IRunRepository';
-
-const RUN_HISTORY_SELECT =
-  '*, run_team_members(*), run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)';
 
 export class SupabaseRunRepository implements IRunRepository {
   private supabase: SupabaseClient<Database>;
@@ -56,34 +58,35 @@ export class SupabaseRunRepository implements IRunRepository {
   async getPlayerRunHistory(
     playerId: string,
     limit = 20,
-    offset = 0,
-  ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }> {
-    const { data, error } = await this.supabase
-      .from('runs')
-      .select(RUN_HISTORY_SELECT)
-      .eq('player_id', playerId)
-      .order('completed_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    options: RunHistoryQuery = {},
+  ): Promise<{
+    data: RunHistoryEntry[] | null;
+    nextCursor: RunHistoryCursor | null;
+    error: Error | null;
+  }> {
+    const history = await import('./runHistoryQueries');
+    return history.getPlayerRunHistory(this.supabase, playerId, limit, options);
+  }
 
-    if (error) return { data: null, error };
+  async getRunHistoryDetails(
+    runId: string,
+  ): Promise<{ data: RunHistoryDetails | null; error: Error | null }> {
+    const [run, team] = await Promise.all([this.getRun(runId), this.getRunTeamMembers(runId)]);
+    if (run.error || team.error) return { data: null, error: run.error ?? team.error };
+    return { data: run.data ? { run: run.data, teamMembers: team.data ?? [] } : null, error: null };
+  }
 
-    const entries = (data ?? []).map((raw) => {
-      const { run_team_members, run_attempts, ...run } = raw;
-      return {
-        run,
-        teamMembers: run_team_members ?? [],
-        attempt: run_attempts
-          ? {
-              difficulty: run_attempts.difficulty,
-              mode: run_attempts.mode,
-              engineVersion: run_attempts.engine_version,
-              gameplayRulesetVersion: run_attempts.gameplay_ruleset_version,
-              progressionRulesetVersion: run_attempts.ruleset_version,
-            }
-          : null,
-      } satisfies RunHistoryEntry;
-    });
-    return { data: entries, error: null };
+  async getPlayerRunRejections(
+    playerId: string,
+    limit = 20,
+    cursor?: RunRejectionCursor,
+  ): Promise<{
+    data: RunRejectionEntry[] | null;
+    nextCursor: RunRejectionCursor | null;
+    error: Error | null;
+  }> {
+    const history = await import('./runHistoryQueries');
+    return history.getPlayerRunRejections(this.supabase, playerId, limit, cursor);
   }
 
   async getRunTeamMembers(

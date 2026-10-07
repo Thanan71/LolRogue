@@ -13,11 +13,11 @@ jamais une preuve de release.
 | --- | --- | --- |
 | P0 formalisés | **Bloqué : P0-I18N-01 ouvert** | Tous les P0 du backlog doivent figurer dans la fiche, sans doublon, avec statut `verified` et commandes de contrôle. La revue humaine FR/EN et sa preview restent à prouver. |
 | Identité du candidat | **Bloqué** | SHA Git complet de 40 caractères, identique à `HEAD`. |
-| Trois CI complètes post-P0 | **Bloqué** | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `validate`, `e2e`, `database` et `clean-room` réussis. |
+| Trois CI complètes post-P0 | **Bloqué** | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `static`, `unit`, `security`, `build/assets`, `DB`, `browser` et `clean-room` réussis. |
 | Preview exacte | **Bloqué** | URL HTTPS du candidat et validation de tous les assets par `test:deployed-assets`. |
 | Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `db:migrations:check:linked`. |
-| Tests DB et sécurité views/grants | **Bloqué** | Job `database` réussi sur chacune des trois CI ; il exécute `db:validate` et `db:security`. |
-| E2E | **Bloqué** | Job `e2e` réussi sur chacune des trois CI du candidat. |
+| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `db:validate` et `db:security`. |
+| E2E | **Bloqué** | Job `browser` réussi sur chacune des trois CI du candidat. |
 | Advisors Supabase | **Bloqué** | Politique liée sécurité + performance conforme, résultat `passed`, URL de preuve et date postérieure au dernier correctif P0. |
 | Validations externes | **Bloqué** | Preuves datées pour accessibilité humaine, droit/RGPD, canal de support et autorisation Riot. |
 
@@ -55,8 +55,8 @@ gate à **bloqué**.
 
 ## Portée des contrôles
 
-Le job `database` couvre la base réellement migrée, les tests de repositories,
-les politiques RLS et la sécurité des vues et grants. Le job `e2e` couvre les
+Le job `DB` couvre la base réellement migrée, les tests de repositories,
+les politiques RLS et la sécurité des vues et grants. Le job `browser` couvre les
 parcours victoire, défaite et Daily autoritaire sans mutation directe du store.
 Le job `clean-room` reconstruit le dépôt sans artefact local. Le preflight ajoute
 la comparaison des migrations liées, l'exécution de la politique versionnée des

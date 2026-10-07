@@ -157,6 +157,27 @@ function verifiedStartResponse() {
 }
 
 describe('authoritative run lifecycle and recovery', () => {
+  it('refuses an offline account start before creating or consuming an attempt', async () => {
+    vi.stubGlobal('navigator', { onLine: false });
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+
+    const result = await useRunStore.getState().startRun(['Garen', 'Annie']);
+
+    expect(result).toEqual({
+      success: false,
+      code: 'start_failed',
+      error: runError.onlineStartRequired,
+      retryable: true,
+    });
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+    expect(attemptMocks.findOpen).not.toHaveBeenCalled();
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      authorityAttempt: null,
+      pendingAuthorityStart: null,
+    });
+  });
+
   beforeEach(() => {
     resetTechnicalMetrics();
     vi.clearAllMocks();
