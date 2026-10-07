@@ -18,4 +18,12 @@ test('le build de production reste utilisable', async ({ page, context, browserN
     await expect(settingsButton).toBeEnabled();
     await context.setOffline(false);
   }
+  await page.locator('#patch-notes-menu-link').click();
+  await expect(page).toHaveURL('/patch-notes');
+  await expect(
+    page.getByRole('heading', { name: 'Notes de mise à jour', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Les nouveautés à portée de main' }),
+  ).toBeVisible();
 });

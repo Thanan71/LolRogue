@@ -5,6 +5,7 @@ export type RunErrorCatalog = Readonly<{
   activeRun: string;
   activeRunAnotherTab: (runId: string) => string;
   profileNotReady: string;
+  onlineStartRequired: string;
   invalidTeam: string;
   invalidTeamSize: (maximum: number) => string;
   invalidStarterCount: (required: number) => string;
@@ -65,6 +66,7 @@ const frFR: RunErrorCatalog = {
     `La partie ${runId} est active dans un autre onglet. Reprenez-la au lieu d’en commencer une autre.`,
   profileNotReady:
     'Votre profil authentifié n’est pas prêt. Relancez son chargement avant de commencer.',
+  onlineStartRequired: 'Reconnectez-vous au réseau pour commencer une partie connectée.',
   invalidTeam: 'L’équipe de départ est invalide.',
   invalidTeamSize: (maximum) =>
     `Sélectionnez entre 1 et ${formatNumber(maximum, 'fr-FR')} champions.`,
@@ -127,6 +129,7 @@ const enUS: RunErrorCatalog = {
   activeRunAnotherTab: (runId) =>
     `Run ${runId} is active in another tab. Resume it instead of starting another.`,
   profileNotReady: 'Your authenticated profile is not ready. Retry loading it before starting.',
+  onlineStartRequired: 'Reconnect to the network to start an account run.',
   invalidTeam: 'The starting team is invalid.',
   invalidTeamSize: (maximum) => `Select between 1 and ${formatNumber(maximum, 'en-US')} champions.`,
   invalidStarterCount: (required) =>
@@ -192,6 +195,7 @@ const STATIC_KEYS = [
   'startInProgress',
   'activeRun',
   'profileNotReady',
+  'onlineStartRequired',
   'invalidTeam',
   'duplicateChampion',
   'unknownChampion',

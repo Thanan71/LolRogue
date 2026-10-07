@@ -7,11 +7,19 @@ import { ProfilePage } from '@/pages/ProfilePage';
 import { useAuthStore } from '@/stores/authStore';
 import type { Player, Run, RunTeamMember } from '@/types/models';
 
-const historyMocks = vi.hoisted(() => ({ getPlayerRunHistory: vi.fn() }));
+const historyMocks = vi.hoisted(() => ({
+  getPlayerRunHistory: vi.fn(),
+  getRunHistoryDetails: vi.fn(),
+}));
 
 vi.mock('@/services/container', () => ({
   RepositoryContainerFactory: {
-    create: () => ({ run: { getPlayerRunHistory: historyMocks.getPlayerRunHistory } }),
+    create: () => ({
+      run: {
+        getPlayerRunHistory: historyMocks.getPlayerRunHistory,
+        getRunHistoryDetails: historyMocks.getRunHistoryDetails,
+      },
+    }),
   },
 }));
 
@@ -20,6 +28,7 @@ vi.mock('@/audio', () => ({ playUIClick: vi.fn(), playUIHover: vi.fn(), playSFX:
 
 const run = {
   id: 'run-13',
+  progression_source: 'verified',
   won: true,
   run_level: 6,
   waves_completed: 42,
@@ -42,6 +51,17 @@ describe('comparable profile history', () => {
   });
 
   beforeEach(() => {
+    historyMocks.getRunHistoryDetails.mockReset();
+    historyMocks.getRunHistoryDetails.mockResolvedValue({
+      data: {
+        run,
+        teamMembers: [
+          { champion_id: 'Garen', final_level: 6 } as RunTeamMember,
+          { champion_id: 'Lux', final_level: 5 } as RunTeamMember,
+        ],
+      },
+      error: null,
+    });
     historyMocks.getPlayerRunHistory.mockReset();
     historyMocks.getPlayerRunHistory.mockResolvedValue({
       data: [
@@ -87,11 +107,18 @@ describe('comparable profile history', () => {
     );
 
     await waitFor(() =>
-      expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20),
+      expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20, {
+        filters: {},
+      }),
     );
-    const summary = await screen.findByText(/Victoire/);
+    const summary = await screen.findByText('Victoire', { selector: 'span' });
+    expect(historyMocks.getRunHistoryDetails).not.toHaveBeenCalled();
     fireEvent.click(summary.closest('summary') ?? summary);
+    await screen.findByText(/Garen niv. 6, Lux niv. 5/);
+    expect(historyMocks.getRunHistoryDetails).toHaveBeenCalledWith('run-13');
 
+    expect(screen.getByText('Anciennes versions · non comparable')).toBeVisible();
+    expect(screen.getByText('run-engine-v13 · jeu v13 · progression v2')).toBeVisible();
     expect(screen.getByText(/normal · difficile · règles de jeu v13/)).toBeVisible();
     expect(screen.getByText(/Garen niv. 6, Lux niv. 5/)).toBeVisible();
     expect(screen.getByText(/820 or gagné · 600 or dépensé · 4 objets achetés/)).toBeVisible();
@@ -120,19 +147,128 @@ describe('comparable profile history', () => {
       error: null,
     });
 
+    const legacy = await historyMocks.getPlayerRunHistory.getMockImplementation()?.();
+    historyMocks.getRunHistoryDetails.mockResolvedValue({
+      data: { run: legacy.data[0].run, teamMembers: [] },
+      error: null,
+    });
     render(
       <MemoryRouter>
         <ProfilePage />
       </MemoryRouter>,
     );
 
-    const summary = await screen.findByText(/Défaite/);
+    expect(await screen.findByText('Legacy · non comparable')).toBeVisible();
+    const summary = await screen.findByText('Défaite', { selector: 'span' });
     fireEvent.click(summary.closest('summary') ?? summary);
+    await screen.findByText('Équipe non conservée');
 
     expect(screen.getByText(/Connexion perdue/)).toBeVisible();
     expect(screen.getByText(/Partie historique/)).toBeVisible();
     expect(screen.getByText('Équipe non conservée')).toBeVisible();
     expect(screen.getByText('aucun')).toBeVisible();
+  });
+
+  it('applies all filters on the server and resets them', async () => {
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    await screen.findByText('Victoire', { selector: 'span' });
+    fireEvent.change(screen.getByLabelText('Résultat'), { target: { value: 'defeat' } });
+    fireEvent.change(screen.getByLabelText('Difficulté'), { target: { value: 'hard' } });
+    fireEvent.change(screen.getByLabelText('Mode'), { target: { value: 'daily' } });
+    fireEvent.change(screen.getByLabelText('Moteur'), { target: { value: 'run-engine-v21' } });
+    fireEvent.change(screen.getByLabelText('Version des règles de jeu'), {
+      target: { value: '21' },
+    });
+    fireEvent.change(screen.getByLabelText('Version des règles de progression'), {
+      target: { value: '2' },
+    });
+    await waitFor(() =>
+      expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-1', 20, {
+        filters: {
+          outcome: 'defeat',
+          difficulty: 'hard',
+          mode: 'daily',
+          engineVersion: 'run-engine-v21',
+          gameplayRulesetVersion: 21,
+          progressionRulesetVersion: 2,
+        },
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Réinitialiser les filtres' }));
+    await waitFor(() =>
+      expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-1', 20, {
+        filters: {},
+      }),
+    );
+  });
+
+  it('appends later pages, preserves rows after a page failure and resets the cursor on filtering', async () => {
+    const first = await historyMocks.getPlayerRunHistory.getMockImplementation()?.();
+    historyMocks.getPlayerRunHistory
+      .mockResolvedValueOnce({ ...first, nextCursor: { createdAt: run.created_at, id: run.id } })
+      .mockResolvedValueOnce({ data: null, error: new Error('offline'), nextCursor: null })
+      .mockResolvedValueOnce({
+        data: [{ ...first.data[0], run: { ...run, id: 'second-run', won: false } }],
+        error: null,
+        nextCursor: null,
+      });
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    await screen.findByText('Victoire', { selector: 'span' });
+    fireEvent.click(screen.getByRole('button', { name: 'Charger les parties suivantes' }));
+    await screen.findByText('Historique indisponible');
+    expect(screen.getByText('Victoire', { selector: 'span' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer le chargement' }));
+    expect(await screen.findByText('Défaite', { selector: 'span' })).toBeVisible();
+    expect(screen.getByText('Victoire', { selector: 'span' })).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: 'Charger les parties suivantes' }),
+    ).not.toBeInTheDocument();
+    expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20, {
+      filters: {},
+      cursor: { createdAt: run.created_at, id: run.id },
+    });
+    fireEvent.change(screen.getByLabelText('Résultat'), { target: { value: 'victory' } });
+    await waitFor(() =>
+      expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-1', 20, {
+        filters: { outcome: 'victory' },
+      }),
+    );
+  });
+
+  it('ignores a later page when the account changes before it resolves', async () => {
+    const first = await historyMocks.getPlayerRunHistory.getMockImplementation()?.();
+    let finishPage: (value: unknown) => void = () => {};
+    historyMocks.getPlayerRunHistory
+      .mockResolvedValueOnce({ ...first, nextCursor: { createdAt: run.created_at, id: run.id } })
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          finishPage = resolve;
+        }),
+      )
+      .mockResolvedValueOnce({ data: [], error: null, nextCursor: null });
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    await screen.findByText('Victoire', { selector: 'span' });
+    fireEvent.click(screen.getByRole('button', { name: 'Charger les parties suivantes' }));
+    act(() =>
+      useAuthStore.setState({
+        player: { ...useAuthStore.getState().player, id: 'player-2' } as Player,
+      }),
+    );
+    await screen.findByText('Aucune partie enregistrée');
+    await act(async () => finishPage({ ...first, nextCursor: null }));
+    expect(screen.queryByText('Victoire', { selector: 'span' })).not.toBeInTheDocument();
   });
 
   it('updates the synchronization status when connectivity changes', async () => {
@@ -169,7 +305,7 @@ describe('comparable profile history', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText('Victoire')).toBeVisible();
+    expect(await screen.findByText('Victoire', { selector: 'span' })).toBeVisible();
     historyMocks.getPlayerRunHistory.mockResolvedValueOnce({
       data: null,
       error: new Error('profile switched while offline'),
@@ -188,8 +324,10 @@ describe('comparable profile history', () => {
     });
 
     expect(await screen.findByText('Historique indisponible')).toBeVisible();
-    expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-2', 20);
-    expect(screen.queryByText('Victoire')).not.toBeInTheDocument();
+    expect(historyMocks.getPlayerRunHistory).toHaveBeenLastCalledWith('player-2', 20, {
+      filters: {},
+    });
+    expect(screen.queryByText('Victoire', { selector: 'span' })).not.toBeInTheDocument();
   });
 
   it('shows repository failures and retries the nested history query', async () => {
@@ -208,6 +346,62 @@ describe('comparable profile history', () => {
 
     await waitFor(() => expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledTimes(2));
     expect(await screen.findByText('Aucune partie enregistrée')).toBeVisible();
+  });
+
+  it('reports unexpected initial and later page exceptions without exposing stale rows', async () => {
+    const first = await historyMocks.getPlayerRunHistory.getMockImplementation()?.();
+    historyMocks.getPlayerRunHistory
+      .mockRejectedValueOnce(new Error('network exception'))
+      .mockResolvedValueOnce({ ...first, nextCursor: { createdAt: run.created_at, id: run.id } })
+      .mockRejectedValueOnce(new Error('page exception'));
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    await screen.findByText('Historique indisponible');
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer le chargement' }));
+    await screen.findByText('Victoire', { selector: 'span' });
+    fireEvent.click(screen.getByRole('button', { name: 'Charger les parties suivantes' }));
+    await screen.findByText('Historique indisponible');
+    expect(screen.getByText('Victoire', { selector: 'span' })).toBeVisible();
+  });
+
+  it('uses singular labels and the username when no display name is set', async () => {
+    useAuthStore.setState({
+      player: {
+        ...useAuthStore.getState().player,
+        display_name: '',
+        total_candies: 1,
+        total_runs_completed: 1,
+        total_wins: 1,
+      } as Player,
+    });
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole('heading', { name: 'player' })).toBeVisible();
+    expect(screen.getByText('bonbon', { exact: true })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '← Menu' }));
+  });
+
+  it('ignores an initial rejected promise after unmount', async () => {
+    let fail: (reason: Error) => void = () => {};
+    historyMocks.getPlayerRunHistory.mockReturnValueOnce(
+      new Promise((_, reject) => {
+        fail = reject;
+      }),
+    );
+    const view = render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    view.unmount();
+    await act(async () => fail(new Error('stale initial load')));
+    expect(screen.queryByText('Historique indisponible')).not.toBeInTheDocument();
   });
 
   it('keeps local profiles out of the remote history repository', () => {
@@ -241,6 +435,6 @@ describe('comparable profile history', () => {
     view.unmount();
     await act(async () => resolveHistory?.({ data: [], error: null }));
 
-    expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20);
+    expect(historyMocks.getPlayerRunHistory).toHaveBeenCalledWith('player-1', 20, { filters: {} });
   });
 });

@@ -176,6 +176,7 @@ et les contrôles de hash confirment que `run-engine-v21` reste valide.
 La clôture du P0 reste conditionnée à l'audit humain avec lecteur d'écran et à une
 preuve sur la preview du SHA candidat. Les tests automatisés et les captures du
 navigateur ne constituent pas un audit humain de lecteur d'écran.
+Preuve Sprint G : `docs/sprint-g-i18n.md`, parcours FR → EN desktop et mobile validé localement.
 
 ### Acceptation
 
@@ -1264,12 +1265,12 @@ Actuellement `npm run check` fait format, lint, types, audit, couverture, asset 
 build et production-build. C'est robuste mais peu diagnostique et répète du travail
 entre jobs.
 
-- [ ] Garder une commande locale « tout-en-un ».
-- [ ] En CI, produire des checks nommés et lisibles : static, unit, security,
+- [x] Garder une commande locale « tout-en-un ».
+- [x] En CI, produire des checks nommés et lisibles : static, unit, security,
   build/assets, DB, browser.
-- [ ] Éviter de reconstruire les mêmes artefacts plusieurs fois quand un artefact
+- [x] Éviter de reconstruire les mêmes artefacts plusieurs fois quand un artefact
   signé du même SHA peut être réutilisé sans réduire l'isolation de `clean-room`.
-- [ ] Conserver `clean-room` comme validation indépendante sans cache applicatif.
+- [x] Conserver `clean-room` comme validation indépendante sans cache applicatif.
 
 ---
 
@@ -1397,11 +1398,11 @@ Preuve locale du 7 octobre 2026 : `check`, `db:validate` et contrôles spéciali
 
 **Taille : M**
 
-- [ ] Ajouter filtres victoire/défaite, difficulté, mode, moteur/ruleset.
-- [ ] Afficher clairement « legacy / non comparable ».
-- [ ] Ajouter détail de rejet technique uniquement pour le propriétaire/admin.
-- [ ] Pagination par curseur si le volume devient significatif.
-- [ ] Éviter de charger toutes les relations lourdes pour une simple liste.
+- [x] Ajouter filtres victoire/défaite, difficulté, mode, moteur/ruleset.
+- [x] Afficher clairement « legacy / non comparable ».
+- [x] Ajouter détail de rejet technique uniquement pour le propriétaire/admin.
+- [x] Pagination par curseur si le volume devient significatif.
+- [x] Éviter de charger toutes les relations lourdes pour une simple liste.
 
 ---
 
@@ -1417,12 +1418,14 @@ contenus de gameplay et chaînes dynamiques ; ce sujet n'est plus différé en P
 
 **Taille : M/L**
 
-Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
+Décision utilisateur Sprint G : **PWA installable, sans mode hors ligne**.
 
-- [ ] Décider officiellement : pas de PWA, ou PWA invitée.
-- [ ] Si PWA : cache versionné, invalidation assets, offline shell et mises à jour sûres.
-- [ ] Ne jamais permettre de démarrer une run authentifiée hors ligne.
-- [ ] Tester upgrade du service worker sans casser une run active.
+- [x] Décider officiellement : PWA en ligne uniquement (`productDecisions` v3).
+- [x] Ajouter manifeste, icônes, lancement en ligne ; aucun cache applicatif ni offline shell.
+- [x] Ne jamais permettre de démarrer une run authentifiée hors ligne.
+- [x] Vérifier qu'une mise à jour du manifeste ne casse pas une run active ; sans service worker, l'upgrade de worker est sans objet.
+
+Preuves : `e2e/pwa-online.spec.ts`, `runSaveRecovery.test.ts`, `docs/product-decisions.md`.
 
 ---
 
@@ -1430,11 +1433,13 @@ Le contrat actuel garantit seulement l'invité déjà chargé hors ligne.
 
 **Taille : continue**
 
-- [ ] Aucun champion/rune/augment/item/encounter ajouté sans handler supporté.
-- [ ] Ajouter un test de catalogue qui bloque toute mécanique non implémentée.
-- [ ] Versionner chaque changement affectant le replay / Daily.
-- [ ] Mesurer les courbes de difficulté après chaque lot de contenu.
-- [ ] Conserver les anciens bundles nécessaires aux attempts ouvertes.
+- [x] Aucun champion/rune/augment/item/encounter ajouté sans handler supporté.
+- [x] Ajouter un test de catalogue qui bloque toute mécanique non implémentée.
+- [x] Versionner chaque changement affectant le replay / Daily.
+- [x] Mesurer les courbes de difficulté après chaque lot de contenu.
+- [x] Conserver les anciens bundles nécessaires aux attempts ouvertes.
+
+Preuve locale : `content:check`, `balance:check` (141 tests et artefacts versionnés), `docs/content-admission.md`. Aucun contenu moteur ajouté dans ce lot.
 
 ---
 
@@ -1454,26 +1459,26 @@ techniques ni afficher une modale à chaque déploiement.**
 
 ### Actions
 
-- [ ] Ajouter une source versionnée de patch notes dans le code avec catégories
+- [x] Ajouter une source versionnée de patch notes dans le code avec catégories
   `Nouveau`, `Équilibrage` et `Correctifs`, titre, date, version et entrées lisibles.
-- [ ] Ajouter une page permanente `/patch-notes` consultable depuis le menu, avec
+- [x] Ajouter une page permanente `/patch-notes` consultable depuis le menu, avec
   historique et filtres/catégories sans dépendre d'une modale.
-- [ ] Afficher au retour au menu principal un résumé **non bloquant** uniquement si une
+- [x] Afficher au retour au menu principal un résumé **non bloquant** uniquement si une
   publication plus récente que la dernière vue existe ; regrouper plusieurs versions
   non lues au lieu d'enchaîner plusieurs popups.
-- [ ] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
+- [x] Ajouter un badge/indicateur « Nouveau » et une action explicite « J'ai compris » /
   « Marquer comme lu ».
-- [ ] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
+- [x] Pour un invité, persister la dernière version vue via `safeLocalStorage` avec une
   clé versionnée et un fallback sûr si le stockage navigateur est indisponible.
-- [ ] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
+- [x] Pour un compte connecté, synchroniser la dernière version vue côté serveur afin
   d'éviter de réafficher la même note sur un autre appareil ; ne pas détourner
   `last_login_at`, qui est mis à jour lors de l'établissement de session.
-- [ ] Prévoir un fallback local si la persistance serveur de l'état « lu » est
+- [x] Prévoir un fallback local si la persistance serveur de l'état « lu » est
   momentanément indisponible ; une erreur de patch notes ne doit jamais bloquer Auth,
   Menu, reprise ou lancement d'une run.
-- [ ] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
+- [x] Tester focus initial, fermeture clavier, retour du focus, lecteur d'écran,
   reduced motion et petits écrans ; ne jamais ouvrir la modale au milieu d'une run.
-- [ ] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
+- [x] Ajouter tests unitaires du calcul « versions non lues » et E2E : première visite,
   version déjà lue, nouvelle version, invité, compte connecté et simple redéploiement.
 
 ### Acceptation
@@ -1573,13 +1578,13 @@ techniques ni afficher une modale à chaque déploiement.**
 
 ## Sprint G — architecture et produit
 
-36. [ ] `P2-CI-02` gates séparées par responsabilité, avec commande locale
+36. [x] `P2-CI-02` gates séparées par responsabilité, avec commande locale
     tout-en-un conservée.
-37. [ ] `P3-PROD-01` historique de runs exploitable.
+37. [x] `P3-PROD-01` historique de runs exploitable.
 38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
-39. [ ] `P3-PROD-03` décision PWA/offline.
-40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
-40 bis. [ ] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
+39. [x] `P3-PROD-03` PWA installable en ligne, sans mode hors ligne.
+40. [x] `P3-PROD-04` enrichissement avec gate moteur.
+40 bis. [x] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
 
 ## Sprint H — validations humaines et externes
 

@@ -7,6 +7,33 @@ compteurs V8 ne varient pas selon l'ordonnancement ; `npm test` conserve le
 parallélisme courant. Une suite qui dépend de l'ordre ou d'un état global non nettoyé
 doit donc échouer localement comme en CI.
 
+## Gates locales par responsabilité
+
+`npm run check` conserve la validation locale complète : `check:static` (format,
+lint, CSP, types, contrat Node, cohérence release et support du contenu),
+`check:unit` (suite Vitest avec couverture), `check:security` (audit),
+`test:assets-clean` (build dans un répertoire jetable) puis `check:build`
+(build, contrat de production et budgets des assets). Les sous-commandes isolent
+la responsabilité qui échoue sans supprimer la commande habituelle.
+
+La base jetable et les navigateurs restent explicites : `check:db` et
+`check:browser`. `i18n:check` permet de rejouer le contrat des traductions ; ses
+suites font déjà partie de `check:unit`. Les preuves locales restent le contrat
+de livraison des sprints ; aucune CI distante ou protection payante nouvelle
+n’est requise pour fusionner une tâche.
+
+Les jobs du workflow reprennent ces responsabilités : `static`, `unit`, `security`,
+`build/assets`, `DB` et `browser`. `unit` couvre aussi les tests i18n sans les
+réexécuter dans un second job. La mesure Web Vitals utilise le build déjà produit
+par `build/assets`. `clean-room` reste une septième validation indépendante.
+
+Les checks de compatibilité `validate`, `database` et `e2e` conservent les noms
+attendus par les protections GitHub existantes de `dev` et `main`. Ils exigent
+respectivement toutes les gates source/build, `DB` et `browser`. Ils s'exécutent
+même après un échec et refusent toute dépendance échouée, annulée ou ignorée ;
+`clean-room` reste requis directement. Aucun réglage de protection n'est modifié.
+Les déclencheurs existants sont conservés.
+
 ## Seeds variables reproductibles
 
 La seed fixe **20260801** de la CI principale reste inchangée. Le workflow
@@ -62,7 +89,7 @@ pas devenir permissives silencieusement.
 ## Sorties
 
 La console n'affiche que le résumé global. Vitest produit aussi `coverage/index.html`,
-`coverage/lcov.info` et `coverage/coverage-summary.json`. La job `validate` archive le
+`coverage/lcov.info` et `coverage/coverage-summary.json`. La job `unit` archive le
 dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 
 Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
@@ -194,10 +221,36 @@ réellement.
 fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni
 Supabase ni les tests et sert de preuve locale de discovery.
 
+## Réutilisation signée du build dans le même run
+
+`build/assets` construit le `dist` de production une fois avec `APP_COMMIT_SHA`.
+Il signe avec Ed25519 un inventaire SHA-256 complet lié au SHA checkouté, au dépôt,
+au numéro de run, à sa tentative et au profil `production`. La clé privée reste
+en mémoire ; seule la clé publique passe par la sortie authentifiée du job.
+Le bundle contient uniquement `dist` et la provenance signée.
+
+`browser` télécharge l’ID immuable produit par ce même run, avec une erreur
+bloquante en cas de digest invalide. Avant chaque démarrage de la matrice,
+`scripts/ci-build-artifact.mjs restore` vérifie la signature avec la clé reçue
+du job producteur, chaque champ de provenance, le SHA de déploiement et tous les
+fichiers, y compris l’absence de fichiers supplémentaires et de liens. La matrice
+sert ensuite ce build sans le reconstruire. La suite fonctionnelle conserve son
+serveur de développement avec la rune dédiée et sa base jetable ; elle ne partage
+ni session navigateur ni credentials avec le build transféré.
+
+La signature authentifie un transfert entre jobs du même workflow. Elle ne
+constitue pas une attestation externe de release. Aucun téléchargement inter-run,
+cache `dist`, secret de signature persistant ou droit OIDC supplémentaire n’est
+introduit. Localement, la configuration production reconstruit par défaut ;
+`CI_REUSE_BUILD=1` exige les sorties du producteur et échoue si elles manquent.
+
 ## Clean-room CI
 
 La job `clean-room` repart d'un checkout sans `node_modules`, `dist` ni couverture et
-n'utilise pas le cache npm de `setup-node`. Les assets Riot sont un paquet versionné :
+n'utilise pas le cache npm de `setup-node`. Son cache npm est un répertoire neuf
+du runner. Il n’a aucune dépendance sur les autres jobs, aucun téléchargement de
+`dist` et impose `CI_REUSE_BUILD=0`. Le checkout refuse aussi `ci-build` et une
+clé de producteur héritée. Les assets Riot sont un paquet versionné :
 ils sont donc vérifiés, pas téléchargés silencieusement.
 
 Supabase est d'abord restauré à la migration v9 (`20260730300000`), puis migré vers
@@ -209,7 +262,8 @@ Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec l
 contrat `vercel.json` et vérifie les deep links, la CSP, les assets d'entrée et un vrai
 404 pour un asset absent.
 
-Le job E2E dédié vérifie lui-même son checkout sans résidus. La suite fonctionnelle
+Le job `browser` vérifie lui-même son checkout sans résidus avant de restaurer
+le build signé. La suite fonctionnelle
 utilise deux workers Chromium et contient deux runs UI complètes : victoire six
 biomes grâce à une rune de test injectée au build, et défaite réelle. Les specs
 d'interface plus courtes peuvent injecter les stores pour isoler leur contrat et
@@ -235,7 +289,7 @@ un LCP et une interaction INP non nuls ; le p75 de LCP/CLS/INP est comparé aux 
 de laboratoire. Le détail est écrit dans
 `performance-report/web-vitals-report.json`.
 
-Le job CI `validate` exécute cette commande sans tolérance d'échec et archive tout le
+Le job CI `build/assets` exécute cette commande sans tolérance d'échec et archive tout le
 dossier `performance-report/` pendant 30 jours. Les cinq points, le warm-up, le profil,
 le SHA et l'agrégat restent donc consultables entre les runs, au lieu de ne conserver
 qu'une valeur console. La télémétrie terrain Vercel reste hors de cette gate.

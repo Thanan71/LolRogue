@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 
 const expectedIndexes = new Map([
+  ['runs_player_history_cursor_idx', ['runs', '(player_id, created_at DESC, id DESC)']],
   ['daily_runs_invalidated_by_idx', ['daily_runs', '(invalidated_by)', 'IS NOT NULL']],
   [
     'daily_score_invalidation_audit_actor_idx',

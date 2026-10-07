@@ -7,9 +7,63 @@
 
 import type { Run, RunTeamMember } from '@/types/models';
 
-export interface RunHistoryEntry {
+export interface RunHistoryFilters {
+  outcome?: 'victory' | 'defeat';
+  difficulty?: 'easy' | 'normal' | 'hard';
+  mode?: 'normal' | 'daily';
+  engineVersion?: string;
+  gameplayRulesetVersion?: number;
+  progressionRulesetVersion?: number;
+}
+
+export interface RunHistoryCursor {
+  createdAt: string;
+  id: string;
+}
+
+export interface RunHistoryQuery {
+  filters?: RunHistoryFilters;
+  cursor?: RunHistoryCursor;
+}
+
+export interface RunRejectionEntry {
+  attemptId: string;
+  startedAt: string;
+  rejectedAt: string;
+  difficulty: string;
+  mode: string;
+  engineVersion: string;
+  gameplayRulesetVersion: number;
+  progressionRulesetVersion: number;
+  rejectionCode: string;
+}
+
+export interface RunRejectionCursor {
+  startedAt: string;
+  id: string;
+}
+
+export type RunHistorySummary = Pick<
+  Run,
+  | 'id'
+  | 'player_id'
+  | 'won'
+  | 'run_level'
+  | 'waves_completed'
+  | 'total_kills'
+  | 'completed_at'
+  | 'created_at'
+  | 'progression_source'
+  | 'run_attempt_id'
+>;
+
+export interface RunHistoryDetails {
   run: Run;
   teamMembers: RunTeamMember[];
+}
+
+export interface RunHistoryEntry {
+  run: RunHistorySummary;
   attempt: {
     difficulty: string;
     mode: string;
@@ -34,12 +88,32 @@ export interface IRunRepository {
     offset?: number,
   ): Promise<{ data: Run[] | null; error: Error | null }>;
 
-  /** Read comparable history with its authoritative version and team snapshot. */
+  /** Read lightweight history summaries with authoritative version metadata. */
   getPlayerRunHistory(
     playerId: string,
     limit?: number,
-    offset?: number,
-  ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }>;
+    query?: RunHistoryQuery,
+  ): Promise<{
+    data: RunHistoryEntry[] | null;
+    nextCursor: RunHistoryCursor | null;
+    error: Error | null;
+  }>;
+
+  /** Full run and team are fetched only when a history row is opened. */
+  getRunHistoryDetails(
+    runId: string,
+  ): Promise<{ data: RunHistoryDetails | null; error: Error | null }>;
+
+  /** Owner/admin-only sanitized diagnostics; the database enforces access. */
+  getPlayerRunRejections(
+    playerId: string,
+    limit?: number,
+    cursor?: RunRejectionCursor,
+  ): Promise<{
+    data: RunRejectionEntry[] | null;
+    nextCursor: RunRejectionCursor | null;
+    error: Error | null;
+  }>;
 
   /**
    * Get team members for a run

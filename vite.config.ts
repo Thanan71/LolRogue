@@ -186,6 +186,39 @@ export default defineConfig({
     },
     react(),
     {
+      name: 'pwa-installation-assets',
+      configureServer(server) {
+        const files = new Map([
+          ['/manifest.webmanifest', 'application/manifest+json'],
+          ['/pwa/icon-192.png', 'image/png'],
+          ['/pwa/icon-512.png', 'image/png'],
+          ['/pwa/maskable-512.png', 'image/png'],
+          ['/pwa/apple-touch-icon.png', 'image/png'],
+        ]);
+        server.middlewares.use((request, response, next) => {
+          const pathname = request.url?.split('?')[0] ?? '';
+          const type = files.get(pathname);
+          if (!type) return next();
+          response.setHeader('Content-Type', type);
+          response.setHeader('Cache-Control', 'no-cache');
+          response.end(
+            readFileSync(path.resolve(import.meta.dirname, 'public', pathname.slice(1))),
+          );
+        });
+      },
+      async writeBundle() {
+        await copyFile(
+          path.resolve(import.meta.dirname, 'public/manifest.webmanifest'),
+          path.resolve(import.meta.dirname, 'dist/manifest.webmanifest'),
+        );
+        await cp(
+          path.resolve(import.meta.dirname, 'public/pwa'),
+          path.resolve(import.meta.dirname, 'dist/pwa'),
+          { recursive: true },
+        );
+      },
+    },
+    {
       name: 'copy-versioned-riot-assets',
       apply: 'build',
       async writeBundle() {
@@ -298,6 +331,12 @@ export default defineConfig({
           lines: 95,
         },
         'src/services/repositories/SupabaseRunRepository.ts': {
+          statements: 100,
+          branches: 97,
+          functions: 100,
+          lines: 100,
+        },
+        'src/services/repositories/runHistoryQueries.ts': {
           statements: 100,
           branches: 97,
           functions: 100,

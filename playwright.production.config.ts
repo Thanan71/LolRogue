@@ -28,9 +28,11 @@ export default defineConfig({
   ],
   webServer: {
     command:
-      'VITE_E2E_VICTORY_RUNE=1 npm run build && npm run preview -- --host 127.0.0.1 --port 4174',
+      process.env.CI_REUSE_BUILD === '1'
+        ? 'node scripts/ci-build-artifact.mjs restore && npm run preview -- --host 127.0.0.1 --port 4174'
+        : 'npm run build && npm run preview -- --host 127.0.0.1 --port 4174',
     url: 'http://127.0.0.1:4174',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env.CI && process.env.CI_REUSE_BUILD !== '1',
     timeout: 180_000,
   },
 });

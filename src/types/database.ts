@@ -585,6 +585,27 @@ export type Database = {
           },
         ];
       };
+      player_patch_note_state: {
+        Row: {
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          last_seen_sequence?: number;
+          last_seen_version?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       player_unlocks: {
         Row: {
           champion_id: string | null;
@@ -1834,12 +1855,46 @@ export type Database = {
       expire_stale_run_attempts: { Args: Record<PropertyKey, never>; Returns: Json };
       get_daily_challenge: { Args: Record<PropertyKey, never>; Returns: Json };
       get_my_leaderboard_rank: { Args: Record<PropertyKey, never>; Returns: number };
+      get_player_run_rejections: {
+        Args: {
+          p_before_id?: string;
+          p_before_started_at?: string;
+          p_limit?: number;
+          p_player_id: string;
+        };
+        Returns: {
+          attempt_id: string;
+          difficulty: string;
+          engine_version: string;
+          gameplay_ruleset_version: number;
+          mode: string;
+          progression_ruleset_version: number;
+          rejected_at: string;
+          rejection_code: string;
+          started_at: string;
+        }[];
+      };
       get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       invalidate_daily_score: {
         Args: { p_daily_run_id: string; p_reason: string };
         Returns: undefined;
       };
       is_current_user_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      mark_patch_notes_seen: {
+        Args: { p_sequence: number; p_user_id: string; p_version: string };
+        Returns: {
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'player_patch_note_state';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       mastery_current_level_candies: { Args: { p_candies: number }; Returns: number };
       mastery_level_from_candies: { Args: { p_candies: number }; Returns: number };
       mastery_unlock_ids: { Args: { p_candies: number }; Returns: string[] };

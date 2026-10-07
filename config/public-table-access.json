@@ -58,6 +58,11 @@
       "reason": "Lecture et purge administratives sous RLS ; ingestion minimisée via submit_client_logs."
     },
     {
+      "name": "player_patch_note_state",
+      "exposure": "client-data-api",
+      "reason": "Lecture et acquittement des publications du compte sous RLS propriétaire ; fusion monotone via mark_patch_notes_seen."
+    },
+    {
       "name": "player_unlocks",
       "exposure": "client-data-api",
       "reason": "Lecture des déblocages du compte sous RLS ; progression écrite côté serveur."
