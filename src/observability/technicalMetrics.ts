@@ -246,7 +246,7 @@ export function resetTechnicalMetrics(): void {
   droppedByMinute.clear();
 }
 
-if (import.meta.env.VITE_ENABLE_DB_LOGGING === 'true' && typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && import.meta.env?.VITE_ENABLE_DB_LOGGING === 'true') {
   // Opt-in support console export. No network, mutable counters or game state are exposed.
   Object.defineProperty(window, 'lolrogueTechnicalMetrics', {
     configurable: true,
