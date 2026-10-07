@@ -1433,11 +1433,13 @@ Preuves : `e2e/pwa-online.spec.ts`, `runSaveRecovery.test.ts`, `docs/product-dec
 
 **Taille : continue**
 
-- [ ] Aucun champion/rune/augment/item/encounter ajouté sans handler supporté.
-- [ ] Ajouter un test de catalogue qui bloque toute mécanique non implémentée.
-- [ ] Versionner chaque changement affectant le replay / Daily.
-- [ ] Mesurer les courbes de difficulté après chaque lot de contenu.
-- [ ] Conserver les anciens bundles nécessaires aux attempts ouvertes.
+- [x] Aucun champion/rune/augment/item/encounter ajouté sans handler supporté.
+- [x] Ajouter un test de catalogue qui bloque toute mécanique non implémentée.
+- [x] Versionner chaque changement affectant le replay / Daily.
+- [x] Mesurer les courbes de difficulté après chaque lot de contenu.
+- [x] Conserver les anciens bundles nécessaires aux attempts ouvertes.
+
+Preuve locale : `content:check`, `balance:check` (141 tests et artefacts versionnés), `docs/content-admission.md`. Aucun contenu moteur ajouté dans ce lot.
 
 ---
 
@@ -1581,7 +1583,7 @@ techniques ni afficher une modale à chaque déploiement.**
 37. [x] `P3-PROD-01` historique de runs exploitable.
 38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
 39. [x] `P3-PROD-03` PWA installable en ligne, sans mode hors ligne.
-40. [ ] `P3-PROD-04` enrichissement avec gate moteur.
+40. [x] `P3-PROD-04` enrichissement avec gate moteur.
 40 bis. [x] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
 
 ## Sprint H — validations humaines et externes
