@@ -14,3 +14,13 @@ références de champions et les contrats de parité avec l'autorité. Elle bloq
 un nouveau contenu sans support, traduction ou version de replay correspondante.
 Le lot Sprint G ajoute les contrôles de publication ; il ne modifie aucune
 mécanique ni courbe du moteur v21.
+
+## Replay et Daily
+
+La gate recompile le moteur courant en mémoire avec la configuration du bundle
+de référence et compare son SHA-256 au registre. Modifier une compétence, un
+catalogue ou un handler sans publier un nouveau moteur/ruleset fait échouer
+`check-current-authority-source.mjs`, même si les déclarations de version sont
+restées inchangées. Les migrations de gameplay et de Daily, les capabilities,
+les catalogues de traduction et les baselines doivent correspondre au registre.
+Les notes de publication et changements d'interface seuls ne changent pas le moteur.
