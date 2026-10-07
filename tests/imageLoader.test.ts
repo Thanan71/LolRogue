@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import {
+  getTechnicalMetricSnapshot,
+  resetTechnicalMetrics,
+} from '@/observability/technicalMetrics';
 import { DDRAGON_CONFIG, DDRAGON_VERSION, setDdragonVersion } from '../src/config/ddragon';
 import { ImageLoader } from '../src/services/imageLoader';
 import { createPlaceholderSvg } from '../src/services/imageLoader.types';
@@ -33,6 +37,7 @@ describe('ImageLoader', () => {
   let loader: ImageLoader;
 
   beforeEach(() => {
+    resetTechnicalMetrics();
     loader = new ImageLoader();
   });
 
@@ -95,6 +100,9 @@ describe('ImageLoader', () => {
     });
 
     expect(result.source).toBe('cache');
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { metric: 'asset', outcome: 'ok', count: 1 },
+    ]);
     expect(result.url).toBe(dataUrl);
   });
 
@@ -105,6 +113,9 @@ describe('ImageLoader', () => {
     );
 
     expect(result.source).toBe('placeholder');
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { metric: 'asset', outcome: 'error', code: 'placeholder', count: 1 },
+    ]);
     expect(result.url).toMatch(/^data:image\/svg\+xml;charset=utf-8,/);
   });
 });
