@@ -16,7 +16,7 @@ La mise à jour groupée de l'outillage a porté la base sur :
 - Supabase JS `2.117.2` et CLI `2.118.0` ;
 - `@types/node` `24.13.3`.
 
-Le runtime, `.nvmrc` et les quatre jobs CI ciblent désormais Node 24, pris en charge
+Le runtime, `.nvmrc` et les sept jobs CI ciblent désormais Node 24, pris en charge
 par Vercel. `@types/node` est épinglé sur la même majeure afin que les scripts ne
 puissent pas compiler par erreur contre une API apparue après Node 24. TypeScript 7
 reste une montée majeure et demeure couvert par le typage, le build, les tests et

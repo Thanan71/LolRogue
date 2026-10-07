@@ -75,7 +75,7 @@
       "checks": ["npm run balance:check", "npm run db:validate"]
     }
   ],
-  "requiredCiJobs": ["validate", "e2e", "database", "clean-room"],
+  "requiredCiJobs": ["static", "unit", "security", "build/assets", "DB", "browser", "clean-room"],
   "ciRuns": [],
   "supabaseAdvisors": {
     "status": "pending",

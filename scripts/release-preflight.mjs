@@ -104,7 +104,7 @@ function inspectRecordedEvidence(sheet) {
   }
 
   const requiredJobs = Array.isArray(sheet.requiredCiJobs) ? sheet.requiredCiJobs : [];
-  for (const job of ['validate', 'e2e', 'database', 'clean-room']) {
+  for (const job of ['static', 'unit', 'security', 'build/assets', 'DB', 'browser', 'clean-room']) {
     if (!requiredJobs.includes(job)) block('ci-contract', `le job CI requis ${job} manque`);
   }
 

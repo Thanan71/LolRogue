@@ -56,3 +56,6 @@ supabase/functions/verify-run/run-authority.bundle.js
 graphify-out
 AGENTS.md
 .codex
+
+# Same-run signed CI build transfer (generated, never a cache).
+ci-build/

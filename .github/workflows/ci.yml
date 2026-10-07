@@ -11,10 +11,10 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  static:
+    name: static
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     steps:
       - name: Enforce dev-only PRs to main
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
@@ -29,6 +29,26 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate static source and content support
+        run: npm run check:static
+
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -41,11 +61,76 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate
-        run: npm run check
+      - name: Run unit and i18n contracts with coverage
+        run: npm run check:unit
 
-      - name: Enforce versioned performance budgets
-        run: npm run test:performance-budgets
+      - name: Upload detailed coverage report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-report
+          path: coverage/
+          if-no-files-found: warn
+          retention-days: 14
+
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit dependency security
+        run: npm run check:security
+
+  build-assets:
+    name: build/assets
+    env:
+      APP_COMMIT_SHA: ${{ github.sha }}
+    outputs:
+      artifact-id: ${{ steps.build-artifact.outputs.artifact-id }}
+      public-key: ${{ steps.sign-build.outputs.public-key }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and verify production assets and budgets
+        run: npm run check:build
+
+      - name: Sign exact-SHA build inventory
+        id: sign-build
+        run: node scripts/ci-build-artifact.mjs pack
+
+      - name: Upload immutable signed build
+        id: build-artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: production-build-${{ github.sha }}-${{ github.run_attempt }}
+          path: ci-build/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Install controlled performance browser
         run: npx playwright install --with-deps chromium
@@ -62,16 +147,47 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Upload detailed coverage report
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: coverage-report
-          path: coverage/
-          if-no-files-found: warn
-          retention-days: 14
+  database:
+    name: DB
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-  e2e:
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start local Supabase
+        run: npm run db:start
+
+      - name: Export local Supabase credentials
+        run: |
+          eval "$(./node_modules/.bin/supabase status -o env)"
+          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+
+      - name: Validate schema and live integration
+        run: npm run check:db
+
+      - name: Stop local Supabase
+        if: always()
+        run: npm run db:stop
+
+  browser:
+    name: browser
+    needs: build-assets
+    env:
+      APP_COMMIT_SHA: ${{ github.sha }}
+      CI_BUILD_PUBLIC_KEY: ${{ needs.build-assets.outputs.public-key }}
+      CI_REUSE_BUILD: '1'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -95,6 +211,16 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Download build from this workflow run by immutable ID
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          artifact-ids: ${{ needs.build-assets.outputs.artifact-id }}
+          path: ci-build/
+          digest-mismatch: error
+
+      - name: Verify signature, SHA, run and file inventory before serving
+        run: node scripts/ci-build-artifact.mjs restore
 
       - name: Start disposable Supabase for connected browser tests
         run: npm run db:start
@@ -124,40 +250,11 @@ jobs:
         if: always()
         run: npm run db:stop
 
-  database:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Use Node.js 24
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Start local Supabase
-        run: npm run db:start
-
-      - name: Export local Supabase credentials
-        run: |
-          eval "$(./node_modules/.bin/supabase status -o env)"
-          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
-          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
-
-      - name: Validate schema and live integration
-        run: npm run db:validate
-
-      - name: Stop local Supabase
-        if: always()
-        run: npm run db:stop
-
   clean-room:
+    name: clean-room
+    env:
+      APP_COMMIT_SHA: ${{ github.sha }}
+      CI_REUSE_BUILD: '0'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -174,11 +271,18 @@ jobs:
           test ! -d dist
           test ! -d coverage
           test ! -d test-results
+          test ! -d ci-build
+          test -z "${CI_BUILD_PUBLIC_KEY:-}"
 
       - name: Use Node.js 24 without dependency cache
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
+
+      - name: Select a fresh isolated npm cache
+        run: |
+          cache_directory="$(mktemp -d "$RUNNER_TEMP/lolrogue-clean-room-npm-XXXXXX")"
+          echo "NPM_CONFIG_CACHE=$cache_directory" >> "$GITHUB_ENV"
 
       - name: Install exactly the lockfile
         run: npm ci
@@ -225,6 +329,7 @@ jobs:
           name: clean-room-diagnostics
           path: |
             coverage/
+            performance-report/
             playwright-report/
             test-results/
           if-no-files-found: ignore
