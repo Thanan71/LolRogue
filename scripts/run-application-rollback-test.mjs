@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
@@ -7,6 +7,7 @@ import {
   readCandidateMigrationVersions,
   readWorkspaceMigrationVersions,
 } from './lib/migration-manifest.mjs';
+import { installRollbackDependencies } from './lib/rollback-dependencies.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const contract = JSON.parse(
@@ -21,10 +22,6 @@ const missingEnvironment = requiredEnvironment.filter((name) => !process.env[nam
 if (missingEnvironment.length > 0) {
   throw new Error(`Rollback DB test requires ${missingEnvironment.join(', ')}.`);
 }
-if (!existsSync(resolve(root, 'node_modules/vitest/vitest.mjs'))) {
-  throw new Error('Rollback DB test requires dependencies installed with npm ci.');
-}
-
 const rollbackVersions = readCandidateMigrationVersions(contract.applicationSha, root);
 const currentVersions = readWorkspaceMigrationVersions(root);
 const compatibility = assertRollbackCompatibleMigrationManifest(rollbackVersions, currentVersions);
@@ -60,11 +57,7 @@ try {
   );
   if (worktree.status !== 0) throw new Error(worktree.stderr || worktree.stdout);
   worktreeCreated = true;
-  symlinkSync(
-    resolve(root, 'node_modules'),
-    resolve(checkout, 'node_modules'),
-    process.platform === 'win32' ? 'junction' : 'dir',
-  );
+  installRollbackDependencies(checkout);
 
   process.stdout.write(
     `Testing rollback application ${contract.applicationSha} at migration ${compatibility.rollbackLatest} against current ${compatibility.currentLatest} (appended: ${compatibility.appendedVersions.join(', ')}).\n`,
