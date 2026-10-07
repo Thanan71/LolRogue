@@ -1834,6 +1834,25 @@ export type Database = {
       expire_stale_run_attempts: { Args: Record<PropertyKey, never>; Returns: Json };
       get_daily_challenge: { Args: Record<PropertyKey, never>; Returns: Json };
       get_my_leaderboard_rank: { Args: Record<PropertyKey, never>; Returns: number };
+      get_player_run_rejections: {
+        Args: {
+          p_player_id: string;
+          p_limit?: number;
+          p_before_started_at?: string;
+          p_before_id?: string;
+        };
+        Returns: {
+          attempt_id: string;
+          started_at: string;
+          rejected_at: string;
+          difficulty: string;
+          mode: string;
+          engine_version: string;
+          gameplay_ruleset_version: number;
+          progression_ruleset_version: number;
+          rejection_code: string;
+        }[];
+      };
       get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       invalidate_daily_score: {
         Args: { p_daily_run_id: string; p_reason: string };

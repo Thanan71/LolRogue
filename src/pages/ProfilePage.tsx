@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { historyComparison } from '@/components/history/historyComparison';
 import { RunHistoryFilters } from '@/components/history/RunHistoryFilters';
+import { RunRejectionHistory } from '@/components/history/RunRejectionHistory';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
 import { riotChampionIconUrl } from '@/config/riotAssets';
 import { ROUTES } from '@/config/routes';
@@ -296,6 +297,7 @@ export function ProfilePage() {
               })}
             </ul>
           </Panel>
+          <RunRejectionHistory key={player.id} playerId={player.id} repository={repositories.run} />
         </>
       )}
     </PageShell>

@@ -16,6 +16,23 @@ export interface RunHistoryFilters {
   progressionRulesetVersion?: number;
 }
 
+export interface RunRejectionEntry {
+  attemptId: string;
+  startedAt: string;
+  rejectedAt: string;
+  difficulty: string;
+  mode: string;
+  engineVersion: string;
+  gameplayRulesetVersion: number;
+  progressionRulesetVersion: number;
+  rejectionCode: string;
+}
+
+export interface RunRejectionCursor {
+  startedAt: string;
+  id: string;
+}
+
 export interface RunHistoryEntry {
   run: Run;
   teamMembers: RunTeamMember[];
@@ -50,6 +67,17 @@ export interface IRunRepository {
     offset?: number,
     filters?: RunHistoryFilters,
   ): Promise<{ data: RunHistoryEntry[] | null; error: Error | null }>;
+
+  /** Owner/admin-only sanitized diagnostics; the database enforces access. */
+  getPlayerRunRejections(
+    playerId: string,
+    limit?: number,
+    cursor?: RunRejectionCursor,
+  ): Promise<{
+    data: RunRejectionEntry[] | null;
+    nextCursor: RunRejectionCursor | null;
+    error: Error | null;
+  }>;
 
   /**
    * Get team members for a run

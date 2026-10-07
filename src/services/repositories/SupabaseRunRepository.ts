@@ -13,6 +13,8 @@ import type {
   IRunStatsRepository,
   RunHistoryEntry,
   RunHistoryFilters,
+  RunRejectionCursor,
+  RunRejectionEntry,
 } from '../interfaces/IRunRepository';
 
 type RunHistoryRow = Run & {
@@ -106,6 +108,44 @@ export class SupabaseRunRepository implements IRunRepository {
       } satisfies RunHistoryEntry;
     });
     return { data: entries, error: null };
+  }
+
+  async getPlayerRunRejections(
+    playerId: string,
+    limit = 20,
+    cursor?: RunRejectionCursor,
+  ): Promise<{
+    data: RunRejectionEntry[] | null;
+    nextCursor: RunRejectionCursor | null;
+    error: Error | null;
+  }> {
+    const pageSize = Math.max(1, Math.min(Math.trunc(limit) || 20, 100));
+    const { data, error } = await this.supabase.rpc('get_player_run_rejections', {
+      p_player_id: playerId,
+      p_limit: pageSize + 1,
+      ...(cursor ? { p_before_started_at: cursor.startedAt, p_before_id: cursor.id } : {}),
+    });
+    if (error) return { data: null, nextCursor: null, error };
+    const entries = (data ?? []).slice(0, pageSize).map((entry) => ({
+      attemptId: entry.attempt_id,
+      startedAt: entry.started_at,
+      rejectedAt: entry.rejected_at,
+      difficulty: entry.difficulty,
+      mode: entry.mode,
+      engineVersion: entry.engine_version,
+      gameplayRulesetVersion: entry.gameplay_ruleset_version,
+      progressionRulesetVersion: entry.progression_ruleset_version,
+      rejectionCode: entry.rejection_code,
+    }));
+    const last = entries[entries.length - 1];
+    return {
+      data: entries,
+      error: null,
+      nextCursor:
+        data && data.length > pageSize && last
+          ? { startedAt: last.startedAt, id: last.attemptId }
+          : null,
+    };
   }
 
   async getRunTeamMembers(
