@@ -21,6 +21,7 @@ const contentTypes = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.webp': 'image/webp',
@@ -44,7 +45,11 @@ function safeAssetPath(pathname) {
 const server = createServer(async (request, response) => {
   for (const [key, value] of Object.entries(securityHeaders)) response.setHeader(key, value);
   const pathname = new URL(request.url ?? '/', 'http://clean-room.test').pathname;
-  if (pathname.startsWith('/assets/')) {
+  if (
+    pathname.startsWith('/assets/') ||
+    pathname.startsWith('/pwa/') ||
+    pathname === '/manifest.webmanifest'
+  ) {
     const target = safeAssetPath(pathname);
     try {
       if (!target || !(await stat(target)).isFile()) throw new Error('missing');
@@ -70,6 +75,25 @@ if (!address || typeof address === 'string') throw new Error('Unable to start bu
 const baseUrl = `http://127.0.0.1:${address.port}`;
 
 try {
+  const installManifestResponse = await fetch(`${baseUrl}/manifest.webmanifest`);
+  const installManifest =
+    /** @type {{ display: string, icons: Array<{ src: string, sizes: string }> }} */ (
+      await installManifestResponse.json()
+    );
+  if (
+    !index.toString('utf8').includes('rel="manifest"') ||
+    installManifest.display !== 'standalone'
+  ) {
+    throw new Error('The installable online PWA manifest is missing from the build.');
+  }
+  for (const icon of installManifest.icons) {
+    const response = await fetch(`${baseUrl}${icon.src}`);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    const size = Number(icon.sizes.split('x')[0]);
+    if (!response.ok || bytes.readUInt32BE(16) !== size || bytes.readUInt32BE(20) !== size) {
+      throw new Error(`Invalid PWA icon: ${icon.src}`);
+    }
+  }
   if (!index.toString('utf8').includes(`name="lolrogue-commit" content="${expectedCommitSha}"`)) {
     throw new Error(`The production build does not identify commit ${expectedCommitSha}.`);
   }

@@ -1,4 +1,4 @@
-# Décisions produit transverses — version 2
+# Décisions produit transverses — version 3
 
 Ces décisions sont figées pour la bêta. Elles complètent les règles détaillées dans
 `gameplay.md` et le contrat de persistance ; toute modification doit changer le
@@ -6,8 +6,9 @@ contrat `src/product/productDecisions.ts`, ses tests et les textes visibles conc
 
 ## Langue et identité
 
-- **Langue de lancement : français.** L'anglais viendra comme second dictionnaire
-  i18n complet. Une page ne doit pas mélanger les deux langues entre-temps.
+- **Langues : français et anglais.** Le français reste la langue par défaut,
+  avec dictionnaires et catalogues FR/EN complets. L'audit humain avec lecteur
+  d'écran reste requis avant clôture du P0 i18n.
 - **Invité : progression locale et isolée.** Elle n'est jamais fusionnée, importée
   ou copiée automatiquement lors d'une connexion. Changer d'identité purge les
   caches privés de l'identité précédente.
@@ -46,6 +47,15 @@ silencieuse est en revanche interdite.
 
 ## Réseau et hors-ligne
 
+- **PWA installable, en ligne uniquement.** Décision Sprint G : installation
+  via le navigateur, sans shell hors ligne, cache applicatif ni service worker.
+  La présence d'un service worker n'est pas requise pour l'installation
+  ([MDN](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable)).
+  Une nouvelle ouverture nécessite le réseau. Une partie déjà chargée conserve
+  ses mécanismes de reprise existants ; l'installation n'ajoute aucun mode hors ligne.
+- Les mises à jour arrivent à la prochaine navigation/recharge volontaire ;
+  aucun worker ni rechargement automatique ne remplace les fichiers pendant
+  une partie active. Le cache HTTP des assets hachés reste le cache web habituel.
 - Une run invitée est officiellement locale, uniquement pour la progression
   invitée du navigateur.
 - Une run authentifiée exige l'autorité en ligne pour démarrer et être vérifiée.
