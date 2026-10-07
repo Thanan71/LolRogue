@@ -40,7 +40,7 @@ export const runHistoryContent = {
     reset: 'Réinitialiser les filtres',
     legacy: 'Legacy · non comparable',
     nonComparable: 'Anciennes versions · non comparable',
-    comparable: 'Versions actuelles',
+    comparable: 'Versions de jeu actuelles',
     versions: (engine, gameplay, progression) =>
       `${engine} · jeu v${gameplay} · progression v${progression}`,
     next: 'Charger les parties suivantes',
@@ -67,7 +67,7 @@ export const runHistoryContent = {
     reset: 'Reset filters',
     legacy: 'Legacy · not comparable',
     nonComparable: 'Older versions · not comparable',
-    comparable: 'Current versions',
+    comparable: 'Current gameplay versions',
     versions: (engine, gameplay, progression) =>
       `${engine} · gameplay v${gameplay} · progression v${progression}`,
     next: 'Load more runs',

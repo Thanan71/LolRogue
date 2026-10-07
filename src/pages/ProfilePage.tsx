@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { historyComparison } from '@/components/history/historyComparison';
 import { RunHistoryFilters } from '@/components/history/RunHistoryFilters';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
 import { riotChampionIconUrl } from '@/config/riotAssets';
@@ -9,6 +10,7 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { augmentName, localizeChampion, runeName } from '@/i18n/content';
 import { formatDate, formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
+import { runHistoryCopy } from '@/i18n/runHistoryContent';
 import { RepositoryContainerFactory } from '@/services/container';
 import type {
   RunHistoryFilters as HistoryFilters,
@@ -159,7 +161,8 @@ export function ProfilePage() {
               <StateView kind="empty" title={fr.profile.noRuns} />
             )}
             <ul className="ui-list">
-              {runs.map(({ run, attempt, teamMembers }) => {
+              {runs.map((entry) => {
+                const { run, attempt, teamMembers } = entry;
                 const contentLabels = [
                   ...run.rune_ids.map((id) => runeName(id)),
                   ...run.augment_ids.map((id) => augmentName(id, id)),
@@ -187,6 +190,9 @@ export function ProfilePage() {
                               fr.profile.elimination,
                               fr.profile.eliminations,
                             )}
+                          </span>
+                          <span className="run-history-comparison">
+                            {runHistoryCopy[historyComparison(entry)]}
                           </span>
                           <small>
                             {formatDate(run.completed_at ?? run.created_at, {
@@ -226,6 +232,15 @@ export function ProfilePage() {
                                   formatNumber(attempt.gameplayRulesetVersion),
                                 )
                               : fr.profile.legacyRun}
+                            {attempt && (
+                              <p>
+                                {runHistoryCopy.versions(
+                                  attempt.engineVersion,
+                                  formatNumber(attempt.gameplayRulesetVersion),
+                                  formatNumber(attempt.progressionRulesetVersion),
+                                )}
+                              </p>
+                            )}
                           </dd>
                         </div>
                         <div>

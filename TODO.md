@@ -1398,7 +1398,7 @@ Preuve locale du 7 octobre 2026 : `check`, `db:validate` et contrôles spéciali
 **Taille : M**
 
 - [x] Ajouter filtres victoire/défaite, difficulté, mode, moteur/ruleset.
-- [ ] Afficher clairement « legacy / non comparable ».
+- [x] Afficher clairement « legacy / non comparable ».
 - [ ] Ajouter détail de rejet technique uniquement pour le propriétaire/admin.
 - [ ] Pagination par curseur si le volume devient significatif.
 - [ ] Éviter de charger toutes les relations lourdes pour une simple liste.

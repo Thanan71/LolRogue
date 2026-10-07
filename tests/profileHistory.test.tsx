@@ -20,6 +20,7 @@ vi.mock('@/audio', () => ({ playUIClick: vi.fn(), playUIHover: vi.fn(), playSFX:
 
 const run = {
   id: 'run-13',
+  progression_source: 'verified',
   won: true,
   run_level: 6,
   waves_completed: 42,
@@ -92,6 +93,8 @@ describe('comparable profile history', () => {
     const summary = await screen.findByText('Victoire', { selector: 'span' });
     fireEvent.click(summary.closest('summary') ?? summary);
 
+    expect(screen.getByText('Anciennes versions · non comparable')).toBeVisible();
+    expect(screen.getByText('run-engine-v13 · jeu v13 · progression v2')).toBeVisible();
     expect(screen.getByText(/normal · difficile · règles de jeu v13/)).toBeVisible();
     expect(screen.getByText(/Garen niv. 6, Lux niv. 5/)).toBeVisible();
     expect(screen.getByText(/820 or gagné · 600 or dépensé · 4 objets achetés/)).toBeVisible();
@@ -126,6 +129,7 @@ describe('comparable profile history', () => {
       </MemoryRouter>,
     );
 
+    expect(await screen.findByText('Legacy · non comparable')).toBeVisible();
     const summary = await screen.findByText('Défaite', { selector: 'span' });
     fireEvent.click(summary.closest('summary') ?? summary);
 
