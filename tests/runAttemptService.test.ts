@@ -7,6 +7,7 @@ import {
 import {
   appendRunAttemptCommands,
   findOpenRunAttempt,
+  getRunAttemptStatus,
   RUN_FINALIZATION_REQUEST_TIMEOUT_MS,
   RunVerificationRejectedError,
   RunVerificationRetryableError,
@@ -169,6 +170,9 @@ describe('runAttemptService', () => {
     const runeIds = ['press_the_attack', 'glacial_augment', 'grasp_of_the_undying'];
     supabaseMocks.rpc.mockResolvedValue({
       data: startResponse({
+        ruleset_version: 3,
+        gameplay_ruleset_version: 21,
+        engine_version: 'run-engine-v21',
         initial_team: team,
         rune_ids: runeIds,
         enhancement_snapshot: { Garen: { hp_1: 1 }, Lux: { ap_1: 1 } },
@@ -196,8 +200,9 @@ describe('runAttemptService', () => {
       {
         metric: 'run_start',
         outcome: 'ok',
-        engineVersion: 'run-engine-v1',
-        gameplayRulesetVersion: 2,
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: 21,
+        progressionRulesetVersion: 3,
       },
     ]);
     expect(result).toMatchObject({
@@ -206,11 +211,51 @@ describe('runAttemptService', () => {
         attemptId: ATTEMPT_ID,
         runUuid: ATTEMPT_RUN_UUID,
         seed: 42,
-        rulesetVersion: 2,
+        rulesetVersion: 3,
+        gameplayRulesetVersion: 21,
         initialTeam: team,
         runeIds,
         enhancementSnapshot: { Garen: { hp_1: 1 }, Lux: { ap_1: 1 } },
       },
+    });
+  });
+
+  it('keeps gameplay unknown for an older response instead of copying progression or the engine', async () => {
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: startResponse({
+        ruleset_version: 3,
+        gameplay_ruleset_version: undefined,
+        engine_version: 'run-engine-v21',
+      }),
+      error: null,
+    });
+    const result = await startRunAttempt({
+      commandId: COMMAND_ID,
+      mode: 'normal',
+      team: ['Garen'],
+      runeIds: ['press_the_attack'],
+      difficulty: 'hard',
+    });
+    expect(result.data?.gameplayRulesetVersion).toBeUndefined();
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      {
+        metric: 'run_start',
+        outcome: 'ok',
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: null,
+        progressionRulesetVersion: 3,
+      },
+    ]);
+  });
+
+  it('keeps gameplay and progression metadata distinct in a recovered server status', async () => {
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: statusResponse({ ruleset_version: 3, gameplay_ruleset_version: 21 }),
+      error: null,
+    });
+    expect(await getRunAttemptStatus(ATTEMPT_ID)).toMatchObject({
+      error: null,
+      data: { rulesetVersion: 3, gameplayRulesetVersion: 21 },
     });
   });
 

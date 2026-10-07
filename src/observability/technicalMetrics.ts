@@ -83,6 +83,7 @@ const codes = [
 export interface TechnicalAttemptContext {
   engineVersion?: string;
   gameplayRulesetVersion?: number;
+  progressionRulesetVersion?: number;
 }
 
 export interface TechnicalMetric extends TechnicalAttemptContext {
@@ -100,6 +101,7 @@ export interface TechnicalMetricBucket {
   endpoint: (typeof TECHNICAL_ENDPOINTS)[number];
   engineVersion: string;
   gameplayRulesetVersion: number | null;
+  progressionRulesetVersion: number | null;
   clientEngineVersion: string;
   clientGameplayRulesetVersion: number;
   count: number;
@@ -146,6 +148,13 @@ export function recordTechnicalMetric(input: TechnicalMetric, now = Date.now()):
       input.gameplayRulesetVersion! <= CURRENT_AUTHORITY_VERSION.gameplay
         ? input.gameplayRulesetVersion!
         : null,
+    // Both database ruleset keys are SMALLINTs, but progression has its own lifecycle.
+    progressionRulesetVersion:
+      Number.isSafeInteger(input.progressionRulesetVersion) &&
+      input.progressionRulesetVersion! > 0 &&
+      input.progressionRulesetVersion! <= 32767
+        ? input.progressionRulesetVersion!
+        : null,
     clientEngineVersion: CURRENT_AUTHORITY_VERSION.engine,
     clientGameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,
     count: 1,
@@ -158,6 +167,7 @@ export function recordTechnicalMetric(input: TechnicalMetric, now = Date.now()):
     bucket.endpoint,
     bucket.engineVersion,
     bucket.gameplayRulesetVersion,
+    bucket.progressionRulesetVersion,
   ]);
   const existing = buckets.get(key);
   if (existing) existing.count += 1;

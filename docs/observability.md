@@ -43,6 +43,15 @@ pour diagnostiquer les reprises historiques ; une version indisponible reste
 `unknown`/`null`, elle n'est jamais remplacée par la version du client. Ces ratios
 locaux ne prouvent pas un SLO sur l'ensemble des joueurs.
 
+Les rulesets gameplay et progression sont deux dimensions indépendantes :
+`rulesetVersion` dans l'état de run désigne `public.run_attempts.ruleset_version`,
+clé vers `progression_rulesets`, et alimente `progressionRulesetVersion` dans les
+compteurs. `gameplayRulesetVersion` provient exclusivement du champ serveur
+`gameplay_ruleset_version`, conservé au start et dans l'état persistant. Les anciens
+états sans ce champ restent compatibles ; leur gameplay est inconnu (`null`) pour
+seal/retry. Aucune version n'est déduite du suffixe du moteur ni copiée d'une ruleset
+à l'autre.
+
 ## Rapport serveur et accès opérateur
 
 `scripts/sql/technical-slo.sql` est un rapport SELECT exécutable depuis une connexion

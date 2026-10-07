@@ -312,6 +312,7 @@ export function createRunLifecycleSlice(
               ownerUserId: authUser.id,
               seed: attempt.seed,
               rulesetVersion: attempt.rulesetVersion,
+              gameplayRulesetVersion: attempt.gameplayRulesetVersion,
               engineVersion: attempt.engineVersion,
               difficulty: attempt.difficulty,
               mode: attempt.mode,
@@ -513,7 +514,8 @@ export function createRunLifecycleSlice(
           metric: 'run_finalization',
           outcome: state.completedRunSnapshot?.runId === state.runId ? 'retry' : 'initial',
           engineVersion: state.authorityAttempt?.engineVersion,
-          gameplayRulesetVersion: state.authorityAttempt?.rulesetVersion,
+          gameplayRulesetVersion: state.authorityAttempt?.gameplayRulesetVersion,
+          progressionRulesetVersion: state.authorityAttempt?.rulesetVersion,
         });
         if (state.completedRunSnapshot?.runId === state.runId) {
           recordTechnicalEvent(
@@ -774,7 +776,8 @@ export function createRunLifecycleSlice(
             expectedSequence,
             {
               engineVersion: syncedAttempt.engineVersion,
-              gameplayRulesetVersion: syncedAttempt.rulesetVersion,
+              gameplayRulesetVersion: syncedAttempt.gameplayRulesetVersion,
+              progressionRulesetVersion: syncedAttempt.rulesetVersion,
             },
           );
           if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
