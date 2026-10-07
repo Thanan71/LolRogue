@@ -7,6 +7,21 @@ compteurs V8 ne varient pas selon l'ordonnancement ; `npm test` conserve le
 parallélisme courant. Une suite qui dépend de l'ordre ou d'un état global non nettoyé
 doit donc échouer localement comme en CI.
 
+## Gates locales par responsabilité
+
+`npm run check` conserve la validation locale complète : `check:static` (format,
+lint, CSP, types, contrat Node, cohérence release et support du contenu),
+`check:unit` (suite Vitest avec couverture), `check:security` (audit),
+`test:assets-clean` (build dans un répertoire jetable) puis `check:build`
+(build, contrat de production et budgets des assets). Les sous-commandes isolent
+la responsabilité qui échoue sans supprimer la commande habituelle.
+
+La base jetable et les navigateurs restent explicites : `check:db` et
+`check:browser`. `i18n:check` permet de rejouer le contrat des traductions ; ses
+suites font déjà partie de `check:unit`. Les preuves locales restent le contrat
+de livraison des sprints ; aucune CI distante ou protection payante nouvelle
+n’est requise pour fusionner une tâche.
+
 ## Seeds variables reproductibles
 
 La seed fixe **20260801** de la CI principale reste inchangée. Le workflow

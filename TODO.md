@@ -1264,7 +1264,7 @@ Actuellement `npm run check` fait format, lint, types, audit, couverture, asset 
 build et production-build. C'est robuste mais peu diagnostique et répète du travail
 entre jobs.
 
-- [ ] Garder une commande locale « tout-en-un ».
+- [x] Garder une commande locale « tout-en-un ».
 - [ ] En CI, produire des checks nommés et lisibles : static, unit, security,
   build/assets, DB, browser.
 - [ ] Éviter de reconstruire les mêmes artefacts plusieurs fois quand un artefact

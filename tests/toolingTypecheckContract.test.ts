@@ -47,6 +47,7 @@ describe('tooling TypeScript boundaries', () => {
     );
     expect(packageJson.scripts['typecheck:scripts']).toContain('tsconfig.scripts.json');
     expect(packageJson.scripts['typecheck:e2e']).toContain('tsconfig.e2e.json');
-    expect(packageJson.scripts.check).toContain('npm run typecheck');
+    expect(packageJson.scripts.check).toContain('npm run check:static');
+    expect(packageJson.scripts['check:static']).toContain('npm run typecheck');
   });
 });
