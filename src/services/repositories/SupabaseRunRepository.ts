@@ -15,7 +15,6 @@ import type {
   RunHistoryDetails,
   RunHistoryEntry,
   RunHistoryQuery,
-  RunHistorySummary,
   RunRejectionCursor,
   RunRejectionEntry,
 } from '../interfaces/IRunRepository';
@@ -29,15 +28,14 @@ function isHistoryCursor(timestamp: string, id: string): boolean {
   );
 }
 
-type RunHistoryRow = RunHistorySummary & {
-  run_attempts: Pick<
-    Database['public']['Tables']['run_attempts']['Row'],
-    'difficulty' | 'mode' | 'engine_version' | 'gameplay_ruleset_version' | 'ruleset_version'
-  > | null;
-};
-
+// Keep both projections literal so Supabase infers them from the generated
+// schema. An unchecked string replacement would hide relationship/column drift.
+const RUN_HISTORY_SUMMARY_SELECT =
+  'id, player_id, won, run_level, waves_completed, total_kills, completed_at, created_at, progression_source, run_attempt_id';
 const RUN_HISTORY_SELECT =
-  'id, player_id, won, run_level, waves_completed, total_kills, completed_at, created_at, progression_source, run_attempt_id, run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)';
+  `${RUN_HISTORY_SUMMARY_SELECT}, run_attempts!runs_run_attempt_id_fkey(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)` as const;
+const RUN_HISTORY_FILTERED_SELECT =
+  `${RUN_HISTORY_SUMMARY_SELECT}, run_attempts!runs_run_attempt_id_fkey!inner(difficulty, mode, engine_version, gameplay_ruleset_version, ruleset_version)` as const;
 
 export class SupabaseRunRepository implements IRunRepository {
   private supabase: SupabaseClient<Database>;
@@ -97,7 +95,7 @@ export class SupabaseRunRepository implements IRunRepository {
       ['ruleset_version', filters.progressionRulesetVersion],
     ] as const;
     const select = attemptFilters.some(([, value]) => value !== undefined)
-      ? RUN_HISTORY_SELECT.replace('runs_run_attempt_id_fkey(', 'runs_run_attempt_id_fkey!inner(')
+      ? RUN_HISTORY_FILTERED_SELECT
       : RUN_HISTORY_SELECT;
     let query = this.supabase.from('runs').select(select).eq('player_id', playerId);
     if (filters.outcome) query = query.eq('won', filters.outcome === 'victory');
@@ -117,7 +115,7 @@ export class SupabaseRunRepository implements IRunRepository {
 
     if (error) return { data: null, nextCursor: null, error };
 
-    const entries = ((data ?? []) as unknown as RunHistoryRow[]).map((raw) => {
+    const entries = (data ?? []).map((raw) => {
       const { run_attempts, ...run } = raw;
       return {
         run,
