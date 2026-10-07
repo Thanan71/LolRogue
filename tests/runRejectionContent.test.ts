@@ -32,6 +32,18 @@ describe.each(['fr-FR', 'en-US'] as const)('run rejection explanations in %s', (
       expect(message).not.toContain(code);
     },
   );
+
+  it.each([
+    ['unsupported_attempt_version', 'verifierUpdating'],
+    ['invalid_attempt_version_contract', 'versionContractUnavailable'],
+  ] as const)('explains retryable %s without discarding the run', (code, key) => {
+    const message = verificationRetryableMessage(code, null, locale);
+    expect(message).toBe(copy[key]);
+    expect(message).toContain('support');
+    expect(message).not.toContain(code);
+    expect(message).not.toMatch(/nouvelle partie|new run|mise à jour|being updated/iu);
+    expect(localizePersistedRunError(message)).toBe(runErrorContent['fr-FR'][key]);
+  });
 });
 
 describe('retryable verification feedback', () => {

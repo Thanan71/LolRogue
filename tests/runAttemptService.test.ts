@@ -1,3 +1,4 @@
+import { FunctionsHttpError } from '@supabase/supabase-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { runError } from '@/i18n/runErrorContent';
 import {
@@ -464,6 +465,34 @@ describe('runAttemptService', () => {
       message: runError.verificationInProgress(12),
     });
   });
+
+  it.each([
+    [503, 'unsupported_attempt_version', 'verifierUpdating'],
+    [500, 'invalid_attempt_version_contract', 'versionContractUnavailable'],
+  ] as const)(
+    'keeps HTTP %i version error %s retryable with recovery advice',
+    async (status, code, key) => {
+      supabaseMocks.invoke.mockResolvedValueOnce({
+        data: null,
+        error: new FunctionsHttpError(
+          new Response(JSON.stringify({ error: code }), {
+            status,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+        ),
+      });
+
+      const result = await verifyRunAttempt(ATTEMPT_ID);
+
+      expect(result.data).toBeNull();
+      expect(result.error).toBeInstanceOf(RunVerificationRetryableError);
+      expect(result.error).not.toBeInstanceOf(RunVerificationRejectedError);
+      expect(result.error).toMatchObject({ code, message: runError[key], retryAfterSeconds: null });
+      expect(result.error?.message).not.toMatch(
+        /nouvelle partie|new run|mise à jour|being updated/iu,
+      );
+    },
+  );
 
   it('recovers a multi-champion canonical response through status without calling Edge', async () => {
     supabaseMocks.rpc.mockResolvedValue({
