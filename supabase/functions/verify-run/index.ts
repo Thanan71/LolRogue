@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.110.8';
 import { resolveAuthorityVerifier } from './authority-version-resolver.generated.ts';
+import { buildVerifiedEconomyResult } from './champion-economy.ts';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -463,6 +464,27 @@ Deno.serve(async (request) => {
       error: 'run_verification_rejected',
       rejection_code: 'invalid_verifier_result',
     });
+  }
+  if (claim.economy_version !== undefined && claim.economy_version !== null) {
+    const accessSnapshot = record(claim.champion_access_snapshot);
+    const economy = snapshot ? buildVerifiedEconomyResult(snapshot) : null;
+    if (
+      claim.economy_version !== 1 ||
+      accessSnapshot?.version !== 1 ||
+      accessSnapshot.enabled !== true ||
+      accessSnapshot.economyVersion !== 1 ||
+      !economy
+    ) {
+      if (
+        !(await persistRejection(admin, attemptId, claim.lease_token, 'invalid_economy_contract'))
+      )
+        return json(500, { error: 'verification_rejection_commit_failed' });
+      return json(422, {
+        error: 'run_verification_rejected',
+        rejection_code: 'invalid_economy_contract',
+      });
+    }
+    verifiedResult.economy = economy;
   }
   const resultHash = await sha256(verifiedResult);
   const { data: completionData, error: completionError } = await admin.rpc(
