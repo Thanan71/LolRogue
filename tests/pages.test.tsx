@@ -7,6 +7,11 @@ import { vi } from 'vitest';
 import { playSFX } from '@/audio/AudioManager';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { RunMapScreen } from '@/components/RunMapScreen';
+import {
+  CHAMPION_CATALOG_VERSION,
+  CHAMPION_ECONOMY_CATALOG,
+  CHAMPION_ECONOMY_VERSION,
+} from '@/domain/championEconomy';
 import { AUTHORITY_ENGINE_VERSION } from '@/game/authority';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { type NodeMap, NodeType } from '@/game/map/types';
@@ -21,10 +26,13 @@ import { RestPage } from '@/pages/RestPage';
 import { ShopPage } from '@/pages/ShopPage';
 import { StarterSelectPage } from '@/pages/StarterSelectPage';
 import { TreasurePage } from '@/pages/TreasurePage';
+import { loadChampionEconomy } from '@/services/championEconomyService';
 import { useAuthStore } from '@/stores/authStore';
+import { useChampionEconomyStore } from '@/stores/championEconomyStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import { useSettingsStore } from '@/stores/settingsStore';
+import type { ChampionEconomySnapshot } from '@/types/championEconomy';
 import {
   type ChampionRunStats,
   type CompletedRunSnapshot,
@@ -43,6 +51,26 @@ vi.mock('@/audio/AudioManager', () => ({
 vi.mock('@/components/ParticleBackground', () => ({
   ParticleBackground: () => null,
 }));
+
+vi.mock('@/services/championEconomyService', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/services/championEconomyService')>()),
+  loadChampionEconomy: vi.fn(),
+}));
+
+function economyOffSnapshot(): ChampionEconomySnapshot {
+  return {
+    enabled: false,
+    economyVersion: CHAMPION_ECONOMY_VERSION,
+    catalogVersion: CHAMPION_CATALOG_VERSION,
+    gameplayRulesetVersion: 21,
+    serverNow: '2026-10-08T12:00:00.000Z',
+    rotation: null,
+    catalog: [...CHAMPION_ECONOMY_CATALOG],
+    wallet: null,
+    ownedChampionIds: [],
+    firstWinChampionIds: [],
+  };
+}
 
 function renderAt(element: React.ReactNode, path = '/') {
   return render(<MemoryRouter initialEntries={[path]}>{element}</MemoryRouter>);
@@ -104,6 +132,11 @@ function championStats(
 
 describe('P2 page smoke tests', () => {
   beforeEach(() => {
+    useChampionEconomyStore.getState().reset();
+    vi.mocked(loadChampionEconomy).mockResolvedValue(economyOffSnapshot());
+    // These historical page checks start with the public OFF contract ready;
+    // route refreshes use the same fixture instead of the configured database.
+    useChampionEconomyStore.setState({ snapshot: economyOffSnapshot(), status: 'ready' });
     useSettingsStore.setState({ language: 'fr-FR' });
     useAuthStore.setState({
       user: null,
