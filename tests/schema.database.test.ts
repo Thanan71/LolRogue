@@ -226,6 +226,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20261007170143_run_history_rejection_details.sql',
       '../supabase/migrations/20261007170158_player_patch_note_read_state.sql',
       '../supabase/migrations/20261007170953_run_history_cursor_index.sql',
+      '../supabase/migrations/20261008171535_champion_economy_ledger_and_access.sql',
     ]);
   });
 

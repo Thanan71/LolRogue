@@ -5,6 +5,13 @@ traverse six biomes, alterne combats et rencontres, puis enregistre la progressi
 permanente dans Supabase pour les comptes connectés. Un mode invité permet de jouer
 sans compte avec une sauvegarde limitée au navigateur.
 
+L'économie des champions, activable côté serveur, sépare les Candies de maîtrise
+des Éclats du compte : trois champions gratuits, cinq en rotation hebdomadaire
+UTC et des achats permanents à 400 Éclats gagnés par le gameplay vérifié. Le Daily
+garde son roster commun ; les invités ne possèdent pas de wallet. Les comptes
+existants conservent leur roster à l'activation. Voir
+[le contrat et le rollout](docs/champion-economy.md) ; le flag est OFF par défaut.
+
 ## Stack et prérequis
 
 - Node.js 24 dans sa branche majeure, et npm ;

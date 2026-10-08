@@ -3,6 +3,7 @@ import { PATCH_NOTES } from '@/data/patchNotes';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
 import { championContent } from '@/i18n/championContent';
+import { getChampionEconomyContent } from '@/i18n/championEconomyContent';
 import { combatContent } from '@/i18n/combatContent';
 import { documentContent } from '@/i18n/documentContent';
 import { en } from '@/i18n/en';
@@ -30,6 +31,10 @@ const catalogs = {
     'en-US': getAdminFieldCalibrationCopy('en-US'),
   },
   champion: championContent,
+  championEconomy: {
+    'fr-FR': getChampionEconomyContent('fr-FR'),
+    'en-US': getChampionEconomyContent('en-US'),
+  },
   combat: combatContent,
   document: documentContent,
   enhancement: enhancementContent,
@@ -60,6 +65,7 @@ const catalogModules = {
   'adminExportContent.ts': 'adminExport',
   'adminFieldCalibration.ts': 'adminFieldCalibration',
   'championContent.ts': 'champion',
+  'championEconomyContent.ts': 'championEconomy',
   'combatContent.ts': 'combat',
   'documentContent.ts': 'document',
   'en.ts': 'main',
@@ -133,6 +139,7 @@ const intentionallyIdenticalPaths: Readonly<
     '$.Thresh.passive.name',
     '$.Vladimir.spells.VladimirQ.name',
   ],
+  championEconomy: [],
   combat: [
     '$.logs.crowdControl.silence',
     '$.page.steps.action',
@@ -176,6 +183,7 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   adminExport: [],
   adminFieldCalibration: [],
   champion: [],
+  championEconomy: [],
   combat: ['$.logs.action', '$.stage.actionTarget'],
   document: [],
   enhancement: [],

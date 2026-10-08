@@ -66,8 +66,8 @@ uniquement `requiredCurrentMigrationVersion`, puis exécuter les tests de contra
 et `npm run test:db:rollback` sur la base locale migrée. Le probe utilise le code
 historique et ses dépendances verrouillées, installées dans un checkout temporaire
 avec les scripts d'installation désactivés, puis crée et nettoie ses propres
-fixtures sans modifier le schéma. Pour le sprint G, la version courante attendue
-est `20261007170953`.
+fixtures sans modifier le schéma. Pour P3-ECO-01, la version courante attendue
+est `20261008171535`.
 
 Critères : rollback si Auth, démarrage, reprise ou finalisation d'une run échoue au
 smoke test, si le taux d'erreur critique augmente durablement, ou si une migration

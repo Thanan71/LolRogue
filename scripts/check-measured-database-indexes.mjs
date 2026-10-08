@@ -31,6 +31,10 @@ const expectedIndexes = new Map([
 ]);
 
 const intentionallyUnindexedForeignKeys = new Set([
+  'champion_economy_config_gameplay_ruleset_version_fkey',
+  'champion_rotations_ruleset_version_fkey',
+  'shard_transactions_gameplay_ruleset_version_fkey',
+  'shard_transactions_rotation_id_fkey',
   'daily_challenge_rulesets_gameplay_ruleset_version_fkey',
   'daily_runs_daily_ruleset_version_fkey',
   'daily_runs_gameplay_ruleset_version_fkey',

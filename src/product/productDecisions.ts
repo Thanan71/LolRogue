@@ -6,7 +6,7 @@
  */
 import { BALANCE_CALIBRATION_DECISION } from './balanceCalibrationDecision';
 
-export const PRODUCT_DECISIONS_VERSION = 3 as const;
+export const PRODUCT_DECISIONS_VERSION = 4 as const;
 
 export const PRODUCT_DECISIONS = {
   launchLanguage: {
@@ -16,6 +16,23 @@ export const PRODUCT_DECISIONS = {
   guestProgression: {
     storage: 'local_only',
     automaticAccountMerge: false,
+  },
+  championEconomy: {
+    version: 1,
+    candies: 'champion_mastery_only',
+    shards: 'verified_gameplay_account_wallet',
+    gold: 'run_only',
+    permanentFreeChampionIds: ['Garen', 'Annie', 'Ashe'],
+    rotationSize: 5,
+    rotationBoundary: 'monday_00_00_utc',
+    championPriceShards: 400,
+    guestShards: 'none',
+    legacyAccess: 'permanent_grant_before_first_activation',
+    dailyRoster: 'shared_daily_ruleset_offer_independent_of_ownership',
+    firstWinBonus: 'once_per_account_rotation_champion_in_verified_winning_team',
+    realMoneyPurchases: false,
+    currencyConversions: false,
+    enabledByDefault: false,
   },
   daily: {
     timezone: 'UTC',

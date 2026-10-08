@@ -1,8 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  accessOrder,
+  ChampionAccessBadge,
+  ChampionAccessControls,
+  type ChampionAccessFilter,
+  type ChampionAccessSort,
+  ChampionEconomyPanel,
+  ChampionPurchaseAction,
+  ChampionRotationBonus,
+  championMatchesAccess,
+} from '@/components/ChampionEconomy';
 import { EnhancementTree } from '@/components/EnhancementTree';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useChampionEconomyRoute } from '@/hooks/useChampionEconomyRoute';
 import { localizeChampion } from '@/i18n/content';
 import { formatChampionTag, plural } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
@@ -16,6 +28,9 @@ import { DatabaseChampionDetail } from './database/DatabaseChampionDetail';
 export function DatabasePage() {
   const navigate = useAppNavigate();
   const [search, setSearch] = useState('');
+  const economy = useChampionEconomyRoute();
+  const [accessFilter, setAccessFilter] = useState<ChampionAccessFilter>('all');
+  const [accessSort, setAccessSort] = useState<ChampionAccessSort>('name');
   const [selectedChampion, setSelectedChampion] = useState<Champion | null>(null);
   const [activeTab, setActiveTab] = useState<'info' | 'enhancements'>('info');
   const sidebarRef = useRef<HTMLElement>(null);
@@ -45,15 +60,37 @@ export function DatabasePage() {
   const allChampions = useMemo(() => championDB.getAll().map(localizeChampion), []);
 
   const filteredChampions = useMemo(() => {
-    if (!search.trim()) return allChampions;
     const q = search.toLocaleLowerCase(locale);
-    return allChampions.filter(
+    const catalogIds = new Set(economy.snapshot?.catalog.map((entry) => entry.championId));
+    const matching = allChampions.filter(
       (champion) =>
-        champion.name.toLocaleLowerCase(locale).includes(q) ||
-        champion.title.toLocaleLowerCase(locale).includes(q) ||
-        champion.tags.some((tag) => formatChampionTag(tag).toLocaleLowerCase(locale).includes(q)),
+        (!economy.snapshot?.enabled ||
+          accessFilter === 'all' ||
+          (catalogIds.has(champion.id) &&
+            championMatchesAccess(economy.getAccess(champion.id), accessFilter))) &&
+        (champion.name.toLocaleLowerCase(locale).includes(q) ||
+          champion.title.toLocaleLowerCase(locale).includes(q) ||
+          champion.tags.some((tag) =>
+            formatChampionTag(tag).toLocaleLowerCase(locale).includes(q),
+          )),
     );
-  }, [allChampions, search]);
+    return economy.snapshot?.enabled
+      ? matching.sort(
+          (left, right) =>
+            (accessSort === 'access'
+              ? accessOrder[economy.getAccess(left.id)] - accessOrder[economy.getAccess(right.id)]
+              : 0) || left.name.localeCompare(right.name, locale),
+        )
+      : matching;
+  }, [
+    allChampions,
+    search,
+    accessFilter,
+    accessSort,
+    economy.snapshot,
+    economy.getAccess,
+    economy.serverNow,
+  ]);
 
   const handleUnlockNode = useCallback(
     async (nodeId: string) => {
@@ -117,6 +154,13 @@ export function DatabasePage() {
         </span>
       </header>
 
+      <ChampionEconomyPanel
+        snapshot={economy.snapshot}
+        status={economy.status}
+        serverNow={economy.serverNow}
+        onRefresh={economy.refresh}
+      />
+
       <div className="database-body">
         <aside ref={sidebarRef} className="database-sidebar">
           <label className="sr-only" htmlFor="champion-search">
@@ -130,6 +174,14 @@ export function DatabasePage() {
             onChange={(e) => setSearch(e.target.value)}
             className="database-search"
           />
+          {economy.snapshot?.enabled && (
+            <ChampionAccessControls
+              filter={accessFilter}
+              onFilter={setAccessFilter}
+              sort={accessSort}
+              onSort={setAccessSort}
+            />
+          )}
           <ul className="database-list">
             {filteredChampions.map((champ) => (
               <li key={champ.id}>
@@ -157,6 +209,14 @@ export function DatabasePage() {
                     <div className="database-list-item-tags">
                       {champ.tags.map(formatChampionTag).join(', ')}
                     </div>
+                    {economy.snapshot?.enabled && (
+                      <ChampionAccessBadge
+                        championId={champ.id}
+                        snapshot={economy.snapshot}
+                        access={economy.getAccess(champ.id)}
+                        serverNow={economy.serverNow}
+                      />
+                    )}
                   </div>
                 </button>
               </li>
@@ -165,7 +225,13 @@ export function DatabasePage() {
               <li className="database-empty" role="status">
                 <strong>{fr.database.emptyTitle}</strong>
                 <span>{fr.database.emptyHelp}</span>
-                <button type="button" onClick={() => setSearch('')}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch('');
+                    setAccessFilter('all');
+                  }}
+                >
                   {fr.database.clearSearch}
                 </button>
               </li>
@@ -190,6 +256,22 @@ export function DatabasePage() {
                 </button>
                 <strong>{selectedChampion.name}</strong>
               </div>
+              {economy.snapshot?.enabled && (
+                <div className="champion-economy__detail">
+                  <ChampionAccessBadge
+                    championId={selectedChampion.id}
+                    snapshot={economy.snapshot}
+                    access={economy.getAccess(selectedChampion.id)}
+                    serverNow={economy.serverNow}
+                  />
+                  <ChampionRotationBonus championId={selectedChampion.id} />
+                  <ChampionPurchaseAction
+                    championId={selectedChampion.id}
+                    championName={selectedChampion.name}
+                    returnFocusId="database-champion-detail"
+                  />
+                </div>
+              )}
               <div
                 className="database-tabs"
                 role="tablist"

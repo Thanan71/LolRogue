@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PatchNotesSummary } from '@/components/PatchNotesSummary';
+import { ChampionEconomyPanel } from '@/components/ChampionEconomy';
 import { ParticleBackground } from '@/components/ParticleBackground';
+import { PatchNotesSummary } from '@/components/PatchNotesSummary';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
-import { usePatchNotes } from '@/hooks/usePatchNotes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useChampionEconomyRoute } from '@/hooks/useChampionEconomyRoute';
+import { usePatchNotes } from '@/hooks/usePatchNotes';
 import { formatNumber, plural } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { getPatchNotesContent } from '@/i18n/patchNotesContent';
@@ -17,6 +19,7 @@ import { playUIClick } from '@/audio';
 
 export function MenuPage() {
   const navigate = useAppNavigate();
+  const economy = useChampionEconomyRoute();
   const { unread: unreadUpdates } = usePatchNotes();
   const isActive = useRunStore((s) => s.isActive);
   const runLevel = useRunStore((s) => s.runLevel);
@@ -135,6 +138,12 @@ export function MenuPage() {
         </header>
 
         <PatchNotesSummary />
+        <ChampionEconomyPanel
+          snapshot={economy.snapshot}
+          status={economy.status}
+          serverNow={economy.serverNow}
+          onRefresh={economy.refresh}
+        />
 
         <div className="main-menu__dashboard">
           <section className="main-menu__command" aria-labelledby="expedition-title">

@@ -1,4 +1,4 @@
-# Décisions produit transverses — version 3
+# Décisions produit transverses — version 4
 
 Ces décisions sont figées pour la bêta. Elles complètent les règles détaillées dans
 `gameplay.md` et le contrat de persistance ; toute modification doit changer le
@@ -15,6 +15,37 @@ contrat `src/product/productDecisions.ts`, ses tests et les textes visibles conc
 
 Ce choix évite une fusion ambiguë entre une progression locale modifiable et une
 progression authentifiée accordée par le serveur.
+
+## Roster et Éclats — économie v1
+
+Les Candies restent la maîtrise propre à chaque champion ; l'or reste propre à
+la run. Aucune conversion entre ces monnaies n'existe. Les Éclats appartiennent
+au compte et proviennent exclusivement du gameplay vérifié, sans argent réel,
+publicité récompensée ni loot box. Les invités ne reçoivent pas d'Éclats.
+
+Garen, Annie et Ashe sont gratuits en permanence. Une rotation commune de cinq
+autres champions implémentés change le lundi à 00:00 UTC. Chaque achat permanent
+coûte 400 Éclats dans le catalogue v1. La maîtrise survit aux changements de
+rotation et à l'achat. Les comptes créés avant la première activation conservent
+tous les champions disponibles, avec un unlock permanent `legacy_grant`.
+
+Une run vérifiée ayant terminé une vague rapporte 25 Éclats, plus 10 par biome
+terminé et 50 pour une victoire. Une première victoire rapporte aussi 50 par
+champion de rotation présent dans l'équipe, une fois par compte/champion/période,
+y compris si le champion a été acheté durant cette période. Une défaite ne
+consomme pas ce bonus. Le barème de base n'est pas multiplié par la taille d'équipe.
+
+Le Daily conserve son offre commune actuelle de six champions, indépendante des
+achats et de la maîtrise. Cette exception préserve la comparabilité des départs.
+Le serveur fige cette offre et la rotation dans chaque tentative. La période du
+bonus est celle du démarrage ; finir après le changement de semaine ne modifie
+pas le contrat. Les anciennes tentatives et celles démarrées avec le flag OFF
+ne reçoivent pas rétroactivement des Éclats.
+
+Le flag serveur `champion_economy_enabled` reste désactivé par défaut. Sa première
+activation attribue les grants avant d'appliquer les restrictions. Le désactiver
+rend tout le roster implémenté accessible et conserve wallets, ledger, achats
+et maîtrise. Le rollout et les preuves sont décrits dans `champion-economy.md`.
 
 ## Run et combat
 

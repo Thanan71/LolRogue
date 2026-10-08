@@ -1,0 +1,21 @@
+{
+  "migration": "20261008171535",
+  "previousMigration": "20261007170953",
+  "migrationSha256": "7f4dc5f63da2c736264da9f59129a081cc1dda1d3f65625a2d3bb2363e2fb485",
+  "nodeVersion": "v24.20.0",
+  "cliVersion": "2.118.0",
+  "restoredAccountCount": 2,
+  "legacyUnlocksPerAccount": 10,
+  "historicalWalletBalance": 0,
+  "restoreIncludesSchemaAndData": true,
+  "restoredSchemaOwnersPreserved": true,
+  "restoredSchemas": ["public", "private", "auth", "supabase_migrations"],
+  "originalMasteryCandies": 183,
+  "retainedMasteryCandies": 183,
+  "duplicateActivationAddsUnlocks": false,
+  "postActivationOwnedChampionCount": 0,
+  "postActivationPermanentFreeCount": 3,
+  "postActivationRotationCount": 5,
+  "killSwitchPreservesData": true,
+  "passed": true
+}

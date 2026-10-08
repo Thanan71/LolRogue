@@ -4,9 +4,11 @@ import type { User } from '@supabase/supabase-js';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
+import { CHAMPION_ECONOMY_CATALOG } from '@/domain/championEconomy';
 import { DailyRunPage } from '@/pages/DailyRunPage';
 import { StarterSelectPage } from '@/pages/StarterSelectPage';
 import { useAuthStore } from '@/stores/authStore';
+import { useChampionEconomyStore } from '@/stores/championEconomyStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -92,6 +94,23 @@ describe('authoritative Daily pages', () => {
       error: null,
     });
     useRunStore.setState({ ...RUN_INITIAL_STATE });
+    useChampionEconomyStore.getState().reset('user-1');
+    useChampionEconomyStore.setState({
+      snapshot: {
+        enabled: false,
+        economyVersion: 1,
+        catalogVersion: 1,
+        gameplayRulesetVersion: 21,
+        serverNow: '2026-07-26T12:00:00.000Z',
+        rotation: null,
+        catalog: CHAMPION_ECONOMY_CATALOG.map((entry) => ({ ...entry })),
+        wallet: null,
+        ownedChampionIds: [],
+        firstWinChampionIds: [],
+      },
+      status: 'ready',
+      refresh: vi.fn(async () => undefined),
+    });
     useDailyRunStore.setState({
       dateKey: '2026-07-25',
       seed: 1,
@@ -186,6 +205,46 @@ describe('authoritative Daily pages', () => {
     expect(garen).toHaveAttribute('aria-pressed', 'true');
     expect(annie).toBeDisabled();
     expect(screen.getByText(/1\/1 emplacement sélectionné/i)).toBeInTheDocument();
+  });
+
+  it('allows the authoritative Daily offer to start even when the economy snapshot is unavailable', async () => {
+    useChampionEconomyStore.setState({
+      snapshot: null,
+      status: 'error',
+      error: 'economy_unavailable',
+    });
+    const originalStart = useRunStore.getState().startRun;
+    const startRun = vi.fn<typeof originalStart>(async () => ({
+      success: false,
+      code: 'start_failed',
+      error: 'server_unavailable',
+      retryable: true,
+    }));
+    useRunStore.setState({ startRun });
+    try {
+      render(
+        <MemoryRouter initialEntries={['/starter-select?mode=daily']}>
+          <StarterSelectPage />
+        </MemoryRouter>,
+      );
+      const chooseLux = await screen.findByRole('button', { name: 'Choisir Lux' });
+      expect(chooseLux).toBeEnabled();
+      fireEvent.click(chooseLux);
+      expect(chooseLux).toHaveAttribute('aria-pressed', 'true');
+      const confirm = screen.getByRole('button', { name: 'Confirmer le choix' });
+      expect(confirm).toBeEnabled();
+      fireEvent.click(confirm);
+      await waitFor(() => expect(startRun).toHaveBeenCalledTimes(1));
+      expect(startRun).toHaveBeenCalledWith(['Lux'], {
+        mode: 'daily',
+        seed: challenge.seed,
+        runeIds: [],
+        difficulty: 'normal',
+      });
+      expect(useChampionEconomyStore.getState().snapshot).toBeNull();
+    } finally {
+      useRunStore.setState({ startRun: originalStart });
+    }
   });
 
   it('drops a persisted multi-champion Daily team even when every starter is offered', async () => {

@@ -38,6 +38,8 @@ sans grants clients est détaillée dans `server-only-tables.md` et vérifiée d
 | Partie en cours | `runStore` + journal local | `run_attempts` et `run_attempt_commands` | `lolrogue-run-storage` | RPC d'attempt étroites |
 | Résultat de partie | replay du moteur autoritaire | `runs` et `run_team_members` | local uniquement | Edge Function `verify-run` puis RPC service-role |
 | Maîtrise | cache `masteryStore` associé à l'identité active | `champion_mastery.unlocked_ids` | snapshot `guestSnapshot` dans `lolrogue-mastery-storage` | crédit atomique d'une run vérifiée |
+| Éclats et propriété | cache mémoire `championEconomyStore` associé à l'identité active | `account_wallets`, ledger append-only `shard_transactions`, `account_champion_unlocks` | aucune wallet ni propriété durable | `purchase_champion` authentifiée et finalisation vérifiée atomique |
+| Rotation gratuite | snapshot daté du serveur | `champion_rotations`, `champion_rotation_entries`, catalogue/config versionnés | lecture publique de l'offre serveur | matérialisation privée, activation réservée à la maintenance |
 | Améliorations | `enhancementStore` | `champion_enhancements`; solde dans `players.total_candies` | indisponible sans compte | RPC `unlock_champion_enhancement` |
 | Daily run en cours | `runStore`; `dailyRunStore` ne garde que date/seed/expiration/complétion | attempt serveur avec seed UTC | état de run dans `lolrogue-run-storage`, métadonnées dans `lolrogue-daily-run` | même journal vérifié qu'une run normale |
 | Classement daily | store après lecture | vue sanitisée `daily_leaderboard` issue des runs vérifiées | `lolrogue-daily-leaderboard` | trigger serveur après replay autoritaire |
@@ -140,13 +142,44 @@ rangs) est dérivé du replay puis inséré dans la même transaction que la run
 progression. Si cette transaction échoue, aucun sous-ensemble n'est considéré
 comme sauvegardé et l'attempt reste réconciliable ou rejeté selon son statut.
 
-Une partie invitée ne contacte pas la base. Seul le navigateur courant possède
+Une partie invitée lit l'offre gratuite datée du serveur lorsque Supabase est
+configuré, sans écrire de résultat économique. Seul le navigateur courant possède
 l'état et la progression. Cette progression vit dans un namespace `guestSnapshot`
 et n'est jamais fusionnée, importée ou copiée automatiquement lors de la création
 ou de la connexion à un compte. À l'inverse, un compte ne persiste jamais sa
 maîtrise dans ce snapshot local : chaque changement d'identité vide les caches,
 puis attend profil, maîtrise et améliorations Supabase avant d'ouvrir les routes
 de jeu.
+
+## Ledger d'Éclats et accès au roster
+
+La migration `20261008171535_champion_economy_ledger_and_access.sql` ajoute les
+wallets, transactions, unlocks, périodes/entrées de rotation, catalogue, configuration
+et commandes d'achat. RLS et grants n'autorisent que les lectures privées du
+propriétaire sur wallet/ledger/unlocks. L'offre publique passe par
+`get_champion_economy_snapshot`, sans paramètre d'horloge client. Aucune écriture
+directe n'est accordée au navigateur, y compris sur ses propres données.
+
+`purchase_champion` vérifie le devis versionné, verrouille la wallet et écrit
+débit, ledger, unlock et commande dans une seule transaction. Un UUID de commande
+réutilisé avec un payload différent est refusé ; un retry identique retrouve son
+résultat sans débit supplémentaire. Une seconde commande pour un champion déjà
+acheté échoue sans dépenser. Le store garde l'UUID après une réponse réseau ambiguë.
+
+Les RPC de démarrage vérifient l'accès et figent `champion_access_snapshot` et
+`economy_version`. Le Daily conserve sa propre offre commune. La finalisation
+service-only crédite exclusivement les métriques du replay terminé, avec unicité
+par attempt et par compte/rotation/champion pour le bonus de victoire. Wallet,
+progression et réponse persistée restent atomiques. Un abandon avant la première
+vague, un résultat rejeté, une ancienne attempt ou une attempt démarrée flag OFF
+ne créent pas d'Éclats.
+
+`shard_transactions` refuse UPDATE/DELETE, sauf cascade lors de la suppression
+complète du compte. Les rotations historiques sont conservées pour audit.
+L'audit maintenance compare le ledger à la balance et aux cumuls, sans modifier
+les données. Les ajustements passent par une commande service-only idempotente
+qui ajoute une nouvelle transaction. Aucun cache économique n'est enregistré
+dans `localStorage` ni fusionné depuis un invité.
 
 ## Démarrage et remplacement d'une run
 

@@ -3,6 +3,26 @@
   "schema": "public",
   "tables": [
     {
+      "name": "account_champion_unlocks",
+      "exposure": "client-data-api",
+      "reason": "Lecture des achats et accès permanents du compte sous RLS propriétaire ; écritures exclusivement par RPC transactionnelle."
+    },
+    {
+      "name": "account_wallets",
+      "exposure": "client-data-api",
+      "reason": "Lecture de la wallet du compte sous RLS propriétaire ; aucun solde modifiable directement via la Data API."
+    },
+    {
+      "name": "champion_economy_catalog",
+      "exposure": "server-only",
+      "reason": "Catalogue de prix versionné publié par snapshot RPC borné ; aucune écriture ou lecture client directe."
+    },
+    {
+      "name": "champion_economy_config",
+      "exposure": "server-only",
+      "reason": "Flag économie et cutoff historique contrôlés par activation service-only ; publication bornée via snapshot."
+    },
+    {
       "name": "champion_enhancements",
       "exposure": "client-data-api",
       "reason": "Lecture des améliorations du compte sous RLS ; achats via RPC autoritaire."
@@ -11,6 +31,21 @@
       "name": "champion_mastery",
       "exposure": "client-data-api",
       "reason": "Lecture des maîtrises autorisées sous RLS ; récompenses validées côté serveur."
+    },
+    {
+      "name": "champion_purchase_commands",
+      "exposure": "server-only",
+      "reason": "Journal idempotent privé des achats de champions ; aucun accès Data API des rôles clients."
+    },
+    {
+      "name": "champion_rotation_entries",
+      "exposure": "server-only",
+      "reason": "Roster hebdomadaire matérialisé et historique publiés par la RPC snapshot ; aucun accès client direct."
+    },
+    {
+      "name": "champion_rotations",
+      "exposure": "server-only",
+      "reason": "Périodes hebdomadaires UTC immuables résolues côté serveur ; seul le snapshot courant est publié aux clients."
     },
     {
       "name": "daily_challenge_rulesets",
@@ -116,6 +151,11 @@
       "name": "runs",
       "exposure": "client-data-api",
       "reason": "Historique personnel et lecture administrative sous RLS ; enregistrement validé côté serveur."
+    },
+    {
+      "name": "shard_transactions",
+      "exposure": "client-data-api",
+      "reason": "Ledger append-only des Éclats en lecture propriétaire sous RLS ; gains et débits exclusivement autoritaires."
     }
   ]
 }

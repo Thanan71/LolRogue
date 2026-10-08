@@ -281,9 +281,12 @@ jobs:
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Run browser tests
-        run: npm run test:e2e
+        run: |
+          VITE_PUBLIC_SUPABASE_URL="$E2E_SUPABASE_URL" \
+          VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
+          npm run test:e2e
 
-      - name: Run connected Daily and Sprint G browser tests
+      - name: Run connected Daily, Sprint G and champion economy browser tests
         env:
           E2E_REQUIRE_CONNECTED: '1'
         run: |
@@ -291,7 +294,7 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
           SUPABASE_SERVICE_ROLE_KEY="$E2E_SUPABASE_SERVICE_ROLE_KEY" \
           SUPABASE_DB_URL="$E2E_SUPABASE_DB_URL" \
-          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts --project=chromium
+          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts --project=chromium
 
       - name: Run production browser matrix
         run: npm run test:e2e:production

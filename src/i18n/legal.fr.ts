@@ -15,12 +15,14 @@ export const legalFr = {
     paragraphs: [
       'Le service est fourni gratuitement, sans garantie de disponibilité ni de conservation d’une progression de test. Toute tentative de falsification de score, contournement de sécurité, harcèlement ou usage automatisé abusif peut entraîner l’invalidation d’un score ou la suspension de l’accès.',
       'Le projet ne vend aucun contenu et n’autorise aucune exploitation commerciale. Un audit juridique externe et une analyse d’autorisation Riot restent obligatoires avant toute diffusion commerciale ou lancement public présenté comme juridiquement validé.',
+      'Les récompenses en Éclats proviennent uniquement de parties vérifiées. Les Éclats débloquent des champions et ne peuvent pas être achetés contre de l’argent réel, convertis ou transférés entre comptes. Les Candies de maîtrise sont indépendantes des achats.',
     ],
   },
   privacy: {
     title: 'Confidentialité',
     paragraphs: [
       'Pour un compte connecté, le service traite l’adresse e-mail d’authentification, le profil, les préférences de classement, la progression, les parties, leurs commandes et les métriques de combat. Ces données servent à authentifier, reprendre et vérifier les parties, attribuer la progression, sécuriser le classement et diagnostiquer les erreurs.',
+      'Le solde d’Éclats, ses transactions, les achats et les accès permanents sont privés et conservés jusqu’à la suppression du compte. Les agrégats d’exploitation sont calculés depuis ces données fonctionnelles sans publier d’identifiants. Aucun solde d’Éclats durable n’est conservé pour les invités.',
       'Le classement ne publie jamais l’e-mail, le nom de compte ou l’identifiant joueur. Il affiche un alias choisi ou un pseudonyme anonyme, les statistiques classées et, pour le classement global, l’avatar facultatif du profil. L’utilisateur peut retirer tous ses scores publics depuis les réglages.',
     ],
     dailyPublic: 'Classement quotidien public',

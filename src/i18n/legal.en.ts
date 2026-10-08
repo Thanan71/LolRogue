@@ -15,12 +15,14 @@ export const legalEn = {
     paragraphs: [
       'The service is provided free of charge, without guarantees of availability or preservation of test progress. Score tampering, security bypasses, harassment, or abusive automation may invalidate a score or suspend access.',
       'The project sells no content and does not authorize commercial exploitation. An external legal audit and a Riot authorization assessment remain mandatory before any commercial distribution or public launch presented as legally cleared.',
+      'Shard rewards come only from verified runs. Shards unlock champions and cannot be bought with real money, converted, or transferred between accounts. Mastery Candies are independent of purchases.',
     ],
   },
   privacy: {
     title: 'Privacy',
     paragraphs: [
       'For a signed-in account, the service processes the authentication email address, profile, leaderboard preferences, progress, runs, their commands, and combat metrics. This data is used to authenticate, resume and verify runs, grant progress, secure the leaderboard, and diagnose errors.',
+      'Shard balances, transactions, purchases, and permanent access are private and retained until account deletion. Operational aggregates are derived from this functional data without publishing identifiers. Guests have no durable Shard balance.',
       'The leaderboard never publishes an email address, account name, or player ID. It displays a chosen alias or anonymous pseudonym, ranked statistics, and, for the global leaderboard, the optional profile avatar. Users can remove all public scores from settings.',
     ],
     dailyPublic: 'Public daily leaderboard',

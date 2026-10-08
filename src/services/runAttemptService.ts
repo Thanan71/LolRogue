@@ -23,6 +23,7 @@ import type {
   StartRunAttemptInput,
   StartRunAttemptResult,
 } from '@/types/runAttempt';
+import { parseChampionRunAccessSnapshot } from './championEconomyRunContract';
 import { supabase } from './supabaseClient';
 
 type JsonRecord = Record<string, Json | undefined>;
@@ -171,6 +172,16 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
   if (!result) return null;
   const enhancementSnapshot = parseEnhancementSnapshot(result.enhancement_snapshot);
   const masterySnapshot = parseMasterySnapshot(result.mastery_snapshot);
+  const rawAccess = result.champion_access_snapshot;
+  const accessSnapshot = parseChampionRunAccessSnapshot(rawAccess);
+  const economyVersion = result.economy_version;
+  if (
+    (rawAccess !== undefined && rawAccess !== null && !accessSnapshot) ||
+    (economyVersion !== undefined && economyVersion !== null && economyVersion !== 1) ||
+    (economyVersion === 1 && accessSnapshot?.economyVersion !== 1) ||
+    (accessSnapshot && accessSnapshot.economyVersion !== (economyVersion ?? null))
+  )
+    return null;
   const dailyDate = typeof result.daily_date === 'string' ? result.daily_date : null;
   const dailyRulesetVersion = isInteger(result.daily_ruleset_version)
     ? result.daily_ruleset_version
@@ -231,6 +242,9 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
     runeIds: result.rune_ids,
     enhancementSnapshot,
     masterySnapshot,
+    ...(rawAccess !== undefined || economyVersion !== undefined
+      ? { championAccessSnapshot: accessSnapshot, economyVersion: economyVersion ?? null }
+      : {}),
     startedAt: result.started_at,
     expiresAt: result.expires_at,
     lastSequence: result.last_sequence,
@@ -701,6 +715,27 @@ function parseVerifiedResponse(value: unknown): VerifyRunAttemptResult | null {
   const envelope = asRecord(value);
   if (!envelope) return null;
   const response = asRecord(envelope.response) ?? envelope;
+  const hasShardResult = [
+    'shards_earned',
+    'shards_balance',
+    'shard_economy_version',
+    'shard_rotation_first_win_champion_ids',
+  ].some((key) => response[key] !== undefined);
+  const shardChampions = response.shard_rotation_first_win_champion_ids;
+  if (
+    hasShardResult &&
+    (!isInteger(response.shards_earned) ||
+      response.shards_earned < 0 ||
+      !isInteger(response.shards_balance) ||
+      response.shards_balance < 0 ||
+      (response.shard_economy_version !== null && response.shard_economy_version !== 1) ||
+      !isStringArray(shardChampions) ||
+      shardChampions.length > MAX_TEAM_SIZE ||
+      new Set(shardChampions).size !== shardChampions.length ||
+      (response.shard_economy_version === null &&
+        (response.shards_earned !== 0 || shardChampions.length !== 0)))
+  )
+    return null;
   if (
     !isUuid(response.run_id) ||
     typeof response.replayed !== 'boolean' ||
@@ -732,6 +767,14 @@ function parseVerifiedResponse(value: unknown): VerifyRunAttemptResult | null {
       candiesPerChampion: response.candies_per_champion,
       progressionVersion: response.progression_version,
       progressionSource: response.progression_source,
+      ...(hasShardResult
+        ? {
+            shardsEarned: response.shards_earned as number,
+            shardsBalance: response.shards_balance as number,
+            shardEconomyVersion: response.shard_economy_version as 1 | null,
+            shardRotationFirstWinChampionIds: [...(shardChampions as string[])],
+          }
+        : {}),
     },
     summary: response.summary === undefined ? null : parseRunSummary(response.summary),
   };

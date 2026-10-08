@@ -12,6 +12,11 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getPlayer: vi.fn(),
   touchLastLogin: vi.fn(),
+  resetEconomy: vi.fn(),
+  initializeEconomy: vi.fn(),
+  activateMastery: vi.fn(),
+  resetEnhancements: vi.fn(),
+  initializeEnhancements: vi.fn(),
   listener: null as ((event: string, session: Session | null) => void) | null,
   unsubscribe: vi.fn(),
   run: {
@@ -45,13 +50,21 @@ vi.mock('@/stores/masteryStore', () => ({
       isHydrated: true,
       activateGuestScope: vi.fn(),
       clearSession: vi.fn(),
-      activateAuthenticatedScope: vi.fn(),
+      activateAuthenticatedScope: mocks.activateMastery,
     }),
+  },
+}));
+vi.mock('@/stores/championEconomyStore', () => ({
+  useChampionEconomyStore: {
+    getState: () => ({ reset: mocks.resetEconomy, initialize: mocks.initializeEconomy }),
   },
 }));
 vi.mock('@/stores/enhancementStore', () => ({
   useEnhancementStore: {
-    getState: () => ({ reset: vi.fn(), initialize: vi.fn().mockResolvedValue(undefined) }),
+    getState: () => ({
+      reset: mocks.resetEnhancements,
+      initialize: mocks.initializeEnhancements,
+    }),
   },
 }));
 vi.mock('@/stores/runStore', () => ({ useRunStore: { getState: () => mocks.run } }));
@@ -99,6 +112,8 @@ describe('auth identity lifecycle', () => {
     mocks.listener = null;
     mocks.run = { isActive: false, isEnding: false, authorityAttempt: null };
     mocks.touchLastLogin.mockResolvedValue({ data: null, error: null });
+    mocks.initializeEconomy.mockResolvedValue(undefined);
+    mocks.initializeEnhancements.mockResolvedValue(undefined);
     mocks.signOut.mockResolvedValue(undefined);
     resetStore();
   });
@@ -151,6 +166,60 @@ describe('auth identity lifecycle', () => {
     });
     unsubscribe();
     expect(mocks.unsubscribe).toHaveBeenCalledOnce();
+  });
+
+  it('never hydrates an obsolete account after its last-login request completes late', async () => {
+    let resolveLastLogin!: (value: { data: null; error: null }) => void;
+    mocks.signIn
+      .mockResolvedValueOnce({ user: user('a'), session: session('a'), error: null })
+      .mockResolvedValueOnce({ user: user('b'), session: session('b'), error: null });
+    mocks.getPlayer
+      .mockResolvedValueOnce({ data: player('a'), error: null })
+      .mockResolvedValueOnce({ data: player('b'), error: null });
+    mocks.touchLastLogin.mockReturnValueOnce(
+      new Promise((resolve) => (resolveLastLogin = resolve)),
+    );
+
+    const loginA = useAuthStore.getState().login('a@example.test', 'secret');
+    await act(async () => Promise.resolve());
+    expect(mocks.touchLastLogin).toHaveBeenCalledOnce();
+    await expect(useAuthStore.getState().login('b@example.test', 'secret')).resolves.toEqual({
+      success: true,
+    });
+    resolveLastLogin({ data: null, error: null });
+    await expect(loginA).resolves.toMatchObject({ success: false });
+
+    expect(mocks.resetEconomy.mock.calls).toEqual([['b']]);
+    expect(mocks.activateMastery.mock.calls).toEqual([['b']]);
+    expect(mocks.initializeEnhancements.mock.calls).toEqual([['b', 0]]);
+    expect(useAuthStore.getState()).toMatchObject({ user: { id: 'b' }, authStatus: 'ready' });
+  });
+
+  it('never replaces the current mastery after obsolete economy hydration completes', async () => {
+    let resolveEconomy!: () => void;
+    mocks.signIn
+      .mockResolvedValueOnce({ user: user('a'), session: session('a'), error: null })
+      .mockResolvedValueOnce({ user: user('b'), session: session('b'), error: null });
+    mocks.getPlayer
+      .mockResolvedValueOnce({ data: player('a'), error: null })
+      .mockResolvedValueOnce({ data: player('b'), error: null });
+    mocks.initializeEconomy.mockReturnValueOnce(
+      new Promise<void>((resolve) => (resolveEconomy = resolve)),
+    );
+
+    const loginA = useAuthStore.getState().login('a@example.test', 'secret');
+    await act(async () => Promise.resolve());
+    expect(mocks.initializeEconomy).toHaveBeenCalledWith('a');
+    await expect(useAuthStore.getState().login('b@example.test', 'secret')).resolves.toEqual({
+      success: true,
+    });
+    resolveEconomy();
+    await expect(loginA).resolves.toMatchObject({ success: false });
+
+    expect(mocks.activateMastery.mock.calls).toEqual([['b']]);
+    expect(mocks.resetEnhancements).toHaveBeenCalledOnce();
+    expect(mocks.initializeEnhancements.mock.calls).toEqual([['b', 0]]);
+    expect(useAuthStore.getState()).toMatchObject({ user: { id: 'b' }, authStatus: 'ready' });
   });
 
   it('keeps the current identity when Supabase refuses sign out', async () => {

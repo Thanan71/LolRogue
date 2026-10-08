@@ -41,6 +41,7 @@ import {
 } from '@/utils/observability';
 import { calculateMaxHP } from '@/utils/statCalculator';
 import { useAuthStore } from './authStore';
+import { useChampionEconomyStore } from './championEconomyStore';
 import { calculateDailyScore, useDailyRunStore } from './dailyRunStore';
 import { useEnhancementStore } from './enhancementStore';
 import { useMasteryStore } from './masteryStore';
@@ -207,6 +208,25 @@ export function createRunLifecycleSlice(
           const team: TeamMember[] = teamValidation.championIds.map((id) => ({
             championId: id,
           }));
+          if (!authUser && mode === 'normal') {
+            await useChampionEconomyStore.getState().initialize(null);
+            const economyStore = useChampionEconomyStore.getState();
+            if (useAuthStore.getState().user)
+              return startFailure('account_changed', runError.accountChanged, true);
+            if (!economyStore.snapshot || economyStore.status !== 'ready')
+              return startFailure(
+                'champion_roster_unavailable',
+                runError.championRosterUnavailable,
+                true,
+              );
+            if (
+              economyStore.snapshot.enabled &&
+              team.some((member) => economyStore.getAccess(member.championId) === 'locked')
+            ) {
+              void economyStore.refresh();
+              return startFailure('champion_locked', runError.championLocked);
+            }
+          }
 
           let canonicalMode = mode;
           const requestedRuneIds = resumableStart
@@ -284,19 +304,35 @@ export function createRunLifecycleSlice(
               const rawError = attemptResult.error?.message ?? '';
               const staleDailyOffer =
                 mode === 'daily' && rawError.includes('daily_starter_not_offered');
+              const expiredRotation =
+                rawError.includes('champion_rotation_expired') ||
+                rawError.includes('champion_access_expired');
+              const lockedChampion = rawError.includes('champion_locked');
+              const staleRoster = expiredRotation || lockedChampion;
               const error = rawError.includes('run_attempt_already_open')
                 ? runError.previousAttemptOpen
                 : staleDailyOffer
                   ? runError.dailyStarterChanged
-                  : runError.startFailed;
+                  : expiredRotation
+                    ? runError.championRotationExpired
+                    : lockedChampion
+                      ? runError.championLocked
+                      : runError.startFailed;
               set({
                 saveError: error,
-                ...(staleDailyOffer ? { pendingAuthorityStart: null } : {}),
+                ...(staleDailyOffer || staleRoster ? { pendingAuthorityStart: null } : {}),
               });
+              if (staleRoster) void useChampionEconomyStore.getState().refresh();
               return startFailure(
-                staleDailyOffer ? 'daily_starter_not_offered' : 'start_failed',
+                staleDailyOffer
+                  ? 'daily_starter_not_offered'
+                  : expiredRotation
+                    ? 'champion_rotation_expired'
+                    : lockedChampion
+                      ? 'champion_locked'
+                      : 'start_failed',
                 error,
-                !staleDailyOffer,
+                !staleDailyOffer && !staleRoster,
               );
             }
             if (useAuthStore.getState().user?.id !== authUser.id) {
@@ -329,6 +365,12 @@ export function createRunLifecycleSlice(
               runeIds: [...attempt.runeIds],
               enhancementSnapshot: attempt.enhancementSnapshot,
               masterySnapshot: attempt.masterySnapshot,
+              ...(attempt.championAccessSnapshot !== undefined
+                ? {
+                    championAccessSnapshot: attempt.championAccessSnapshot,
+                    economyVersion: attempt.economyVersion ?? null,
+                  }
+                : {}),
               startedAt: attempt.startedAt,
               expiresAt: attempt.expiresAt,
               status: attempt.status,
@@ -895,6 +937,8 @@ export function createRunLifecycleSlice(
           // The durable server result is the completion boundary. Profile and
           // mastery hydration are best-effort and must never block Game Over.
           void runLifecycleService.refreshVerifiedProgression(user.id);
+          if (serverProgression.shardEconomyVersion === 1)
+            void useChampionEconomyStore.getState().refresh();
         }
 
         if (snapshot.mode === 'daily' && snapshot.daily) {
