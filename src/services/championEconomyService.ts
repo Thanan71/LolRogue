@@ -12,6 +12,28 @@ export class ChampionEconomyError extends Error {
   }
 }
 
+export const CHAMPION_ECONOMY_REQUEST_TIMEOUT_MS = 15_000;
+
+async function boundedEconomyRequest<T>(
+  request: (signal: AbortSignal) => PromiseLike<T>,
+): Promise<T> {
+  const controller = new AbortController();
+  let deadline: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      Promise.resolve(request(controller.signal)),
+      new Promise<never>((_, reject) => {
+        deadline = setTimeout(() => {
+          controller.abort();
+          reject(new ChampionEconomyError('economy_unavailable'));
+        }, CHAMPION_ECONOMY_REQUEST_TIMEOUT_MS);
+      }),
+    ]);
+  } finally {
+    if (deadline) clearTimeout(deadline);
+  }
+}
+
 const ERROR_CODES = [
   'authentication_required',
   'champion_economy_disabled',
@@ -128,7 +150,9 @@ function businessError(error: { message: string }): ChampionEconomyError {
 }
 
 export async function loadChampionEconomy(): Promise<ChampionEconomySnapshot> {
-  const { data, error } = await supabase.rpc('get_champion_economy_snapshot');
+  const { data, error } = await boundedEconomyRequest((signal) =>
+    supabase.rpc('get_champion_economy_snapshot').abortSignal(signal),
+  );
   if (error) throw businessError(error);
   return parseChampionEconomySnapshot(data);
 }
@@ -138,12 +162,16 @@ export async function purchaseAccountChampion(
   quote: ChampionPurchaseQuote,
   commandId: string,
 ): Promise<ChampionPurchaseResult> {
-  const { data, error } = await supabase.rpc('purchase_champion', {
-    p_command_id: commandId,
-    p_champion_id: championId,
-    p_expected_price: quote.priceShards,
-    p_expected_catalog_version: quote.catalogVersion,
-  });
+  const { data, error } = await boundedEconomyRequest((signal) =>
+    supabase
+      .rpc('purchase_champion', {
+        p_command_id: commandId,
+        p_champion_id: championId,
+        p_expected_price: quote.priceShards,
+        p_expected_catalog_version: quote.catalogVersion,
+      })
+      .abortSignal(signal),
+  );
   if (error) throw businessError(error);
   const result = record(data);
   if (!result || typeof result.replayed !== 'boolean')

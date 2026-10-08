@@ -28,9 +28,10 @@ interface ChampionEconomyStore {
 }
 
 let identityGeneration = 0;
+let snapshotRevision = 0;
 let serverAnchor = 0;
 let monotonicAnchor = 0;
-let activeRefresh: { generation: number; promise: Promise<void> } | null = null;
+let activeRefresh: { generation: number; revision: number; promise: Promise<void> } | null = null;
 let pendingPurchase: {
   championId: string;
   quote: ChampionPurchaseQuote;
@@ -72,6 +73,7 @@ export const useChampionEconomyStore = create<ChampionEconomyStore>((set, get) =
   },
   reset: (userId = null) => {
     identityGeneration += 1;
+    snapshotRevision += 1;
     pendingPurchase = null;
     activeRefresh = null;
     serverAnchor = 0;
@@ -79,22 +81,25 @@ export const useChampionEconomyStore = create<ChampionEconomyStore>((set, get) =
   },
   refresh: async () => {
     const generation = identityGeneration;
-    if (activeRefresh?.generation === generation) return activeRefresh.promise;
+    const revision = snapshotRevision;
+    if (activeRefresh?.generation === generation && activeRefresh.revision === revision)
+      return activeRefresh.promise;
     const promise = (async () => {
       set({ status: 'loading', error: null });
       try {
         const result = isSupabaseConfigured ? await loadChampionEconomy() : legacySnapshot();
-        if (generation !== identityGeneration) return;
+        if (generation !== identityGeneration || revision !== snapshotRevision) return;
         const snapshot = get().userId
           ? result
           : { ...result, wallet: null, ownedChampionIds: [], firstWinChampionIds: [] };
         captureClock(snapshot);
         set({ snapshot, status: 'ready', error: null });
       } catch (error) {
-        if (generation === identityGeneration) set({ status: 'error', error: errorCode(error) });
+        if (generation === identityGeneration && revision === snapshotRevision)
+          set({ status: 'error', error: errorCode(error) });
       }
     })();
-    activeRefresh = { generation, promise };
+    activeRefresh = { generation, revision, promise };
     await promise;
     if (activeRefresh?.promise === promise) activeRefresh = null;
   },
@@ -133,6 +138,7 @@ export const useChampionEconomyStore = create<ChampionEconomyStore>((set, get) =
       const result = await purchaseAccountChampion(championId, quote, commandId);
       if (generation !== identityGeneration)
         throw new ChampionEconomyError('economy_identity_changed');
+      snapshotRevision += 1;
       pendingPurchase = null;
       captureClock(result.snapshot);
       set({ snapshot: result.snapshot, status: 'ready' });

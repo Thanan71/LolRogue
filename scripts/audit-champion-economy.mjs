@@ -35,9 +35,9 @@ if (!report || report.dryRun !== true || typeof report.consistent !== 'boolean')
 process.stdout.write(
   `${JSON.stringify({ scope: linked ? 'linked' : 'local', ...report }, null, 2)}\n`,
 );
-if (!report.consistent) {
+if (!report.consistent || report.anomalousRewardCount > 0) {
   process.stderr.write(
-    'Economy ledger and wallet diverge. No data was changed. Investigate before an audited adjustment.\n',
+    'Economy reconciliation found inconsistent balances or rewards. No data was changed. Investigate before an audited adjustment.\n',
   );
   process.exitCode = 1;
 }

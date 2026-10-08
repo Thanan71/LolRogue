@@ -42,6 +42,40 @@ beforeEach(() => {
 });
 
 describe('account economy cache and purchases', () => {
+  it.each(['success', 'failure'])(
+    'does not let a stale refresh %s overwrite a confirmed purchase',
+    async (outcome) => {
+      await useChampionEconomyStore.getState().initialize('account-a');
+      let resolveRefresh: ((snapshot: ChampionEconomySnapshot) => void) | undefined;
+      let rejectRefresh: ((error: Error) => void) | undefined;
+      mocks.load.mockImplementationOnce(
+        () =>
+          new Promise((resolve, reject) => {
+            resolveRefresh = resolve;
+            rejectRefresh = reject;
+          }),
+      );
+      const refresh = useChampionEconomyStore.getState().refresh();
+      const purchased = {
+        ...fixture(),
+        ownedChampionIds: ['Lux'],
+        wallet: {
+          shardsBalance: 1,
+          lifetimeEarned: 401,
+          lifetimeSpent: 400,
+        },
+      };
+      mocks.purchase.mockResolvedValueOnce({ replayed: false, snapshot: purchased });
+      await useChampionEconomyStore.getState().purchase('Lux');
+      if (outcome === 'success') resolveRefresh?.(fixture());
+      else rejectRefresh?.(new Error('outdated failure'));
+      await refresh;
+      expect(useChampionEconomyStore.getState().snapshot).toEqual(purchased);
+      expect(useChampionEconomyStore.getState().status).toBe('ready');
+      expect(useChampionEconomyStore.getState().error).toBeNull();
+      expect(useChampionEconomyStore.getState().getAccess('Lux')).toBe('owned');
+    },
+  );
   it('rejects negative/unsafe balances, contradictory totals and malformed rotations', () => {
     expect(parseChampionEconomySnapshot(fixture())).toEqual(fixture());
     for (const wallet of [
