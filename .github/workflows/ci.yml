@@ -281,10 +281,10 @@ jobs:
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Run browser tests
-        env:
-          VITE_PUBLIC_SUPABASE_URL: ''
-          VITE_PUBLIC_SUPABASE_ANON_KEY: ''
-        run: npm run test:e2e
+        run: |
+          VITE_PUBLIC_SUPABASE_URL="$E2E_SUPABASE_URL" \
+          VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
+          npm run test:e2e
 
       - name: Run connected Daily, Sprint G and champion economy browser tests
         env:
