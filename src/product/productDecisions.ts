@@ -22,7 +22,7 @@ export const PRODUCT_DECISIONS = {
     candies: 'champion_mastery_only',
     shards: 'verified_gameplay_account_wallet',
     gold: 'run_only',
-    permanentFreeChampionIds: ['garen', 'annie', 'ashe'],
+    permanentFreeChampionIds: ['Garen', 'Annie', 'Ashe'],
     rotationSize: 5,
     rotationBoundary: 'monday_00_00_utc',
     championPriceShards: 400,
