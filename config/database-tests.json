@@ -83,6 +83,11 @@
       "file": "tests/runHistory.database.test.ts",
       "expression": "const describeLive = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
       "reason": "Skip only when the generic unit suite runs without local Supabase credentials."
+    },
+    {
+      "file": "tests/championEconomy.database.test.ts",
+      "expression": "const describeLive = hasCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
     }
   ]
 }
