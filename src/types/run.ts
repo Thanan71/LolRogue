@@ -287,6 +287,9 @@ export type RunLifecycleErrorCode =
   | 'secure_command_unavailable'
   | 'start_failed'
   | 'daily_starter_not_offered'
+  | 'champion_locked'
+  | 'champion_rotation_expired'
+  | 'champion_roster_unavailable'
   | 'account_changed'
   | 'stale_run'
   | 'finalization_in_progress'
@@ -640,4 +643,9 @@ export interface ServerRunProgression {
   candiesPerChampion: number;
   progressionVersion: number;
   progressionSource: 'verified';
+  /** Global account currency returned by the server; never derived from Candies. */
+  shardsEarned?: number;
+  shardsBalance?: number;
+  shardEconomyVersion?: 1 | null;
+  shardRotationFirstWinChampionIds?: string[];
 }

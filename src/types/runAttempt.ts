@@ -1,4 +1,5 @@
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
+import type { ChampionRunAccessSnapshot } from './championEconomy';
 
 export type AuthorityRunMode = 'normal' | 'daily';
 export type AuthorityDifficulty = 'easy' | 'normal' | 'hard';
@@ -68,6 +69,9 @@ export interface RunAuthorityAttempt {
   enhancementSnapshot: RunEnhancementSnapshot;
   /** Missing only on a locally persisted pre-v8 attempt. */
   masterySnapshot?: RunMasterySnapshot;
+  /** Frozen server roster/rotation; absent only on attempts created before the economy. */
+  championAccessSnapshot?: ChampionRunAccessSnapshot | null;
+  economyVersion?: 1 | null;
   startedAt: string;
   expiresAt: string;
   status: RunAttemptStatus;
@@ -113,6 +117,8 @@ export interface StartRunAttemptResult {
   runeIds: string[];
   enhancementSnapshot: RunEnhancementSnapshot;
   masterySnapshot: RunMasterySnapshot;
+  championAccessSnapshot?: ChampionRunAccessSnapshot | null;
+  economyVersion?: 1 | null;
   startedAt: string;
   expiresAt: string;
   lastSequence: number;

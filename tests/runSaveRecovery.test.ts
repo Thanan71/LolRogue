@@ -48,6 +48,17 @@ const attemptMocks = vi.hoisted(() => {
   };
 });
 const getChampionMastery = vi.hoisted(() => vi.fn());
+const economyState = vi.hoisted(() => ({
+  snapshot: { enabled: false } as { enabled: boolean } | null,
+  status: 'ready',
+  initialize: vi.fn(),
+  refresh: vi.fn(),
+  reset: vi.fn(),
+  getAccess: vi.fn(),
+}));
+vi.mock('@/stores/championEconomyStore', () => ({
+  useChampionEconomyStore: { getState: () => economyState },
+}));
 
 vi.mock('@/services/runAttemptService', () => ({
   startRunAttempt: attemptMocks.start,
@@ -181,6 +192,11 @@ describe('authoritative run lifecycle and recovery', () => {
   beforeEach(() => {
     resetTechnicalMetrics();
     vi.clearAllMocks();
+    economyState.snapshot = { enabled: false };
+    economyState.status = 'ready';
+    economyState.initialize.mockResolvedValue(undefined);
+    economyState.refresh.mockResolvedValue(undefined);
+    economyState.getAccess.mockReturnValue('permanent_free');
     getChampionMastery.mockResolvedValue({ data: [], error: null });
     attemptMocks.findOpen.mockResolvedValue({ data: null, error: null });
     attemptMocks.append.mockResolvedValue({
@@ -223,6 +239,103 @@ describe('authoritative run lifecycle and recovery', () => {
       refreshPlayer: vi.fn().mockResolvedValue(undefined),
     });
     setActiveVerifiedRun();
+  });
+
+  it.each(['champion_locked', 'champion_rotation_expired'])(
+    'refreshes stale roster after server refusal %s',
+    async (code) => {
+      useRunStore.setState({ ...RUN_INITIAL_STATE });
+      attemptMocks.start.mockResolvedValue({ data: null, error: new Error(code) });
+      expect(await useRunStore.getState().startRun(['Garen', 'Annie'])).toMatchObject({
+        success: false,
+        code,
+        retryable: false,
+      });
+      expect(useRunStore.getState()).toMatchObject({
+        isActive: false,
+        pendingAuthorityStart: null,
+      });
+      expect(economyState.refresh).toHaveBeenCalledOnce();
+    },
+  );
+
+  it('preserves a server access snapshot after its rotation expires locally', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    const frozen = {
+      version: 1 as const,
+      enabled: true,
+      economyVersion: 1 as const,
+      catalogVersion: 1,
+      rotationId: '2026-W41-v1-r21',
+      rotationStartsAt: '2026-10-05T00:00:00Z',
+      rotationEndsAt: '2026-10-12T00:00:00Z',
+      allowedChampionIds: ['Garen', 'Annie'],
+      rotationChampionIds: ['Annie'],
+    };
+    const started = verifiedStartResponse();
+    attemptMocks.start.mockResolvedValue({
+      data: { ...started.data, championAccessSnapshot: frozen, economyVersion: 1 },
+      error: null,
+    });
+    economyState.getAccess.mockReturnValue('locked');
+    expect(await useRunStore.getState().startRun(['Garen', 'Annie'])).toMatchObject({
+      success: true,
+    });
+    expect(useRunStore.getState().authorityAttempt?.championAccessSnapshot).toEqual(frozen);
+    expect(economyState.getAccess).not.toHaveBeenCalled();
+  });
+
+  it('blocks a guest normal start until the canonical roster is available', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    useAuthStore.setState({ user: null, player: null, isAuthenticated: false, isGuest: true });
+    economyState.snapshot = null;
+    economyState.status = 'error';
+    expect(await useRunStore.getState().startRun(['Garen', 'Annie'])).toMatchObject({
+      success: false,
+      code: 'champion_roster_unavailable',
+      retryable: true,
+    });
+    expect(economyState.initialize).toHaveBeenCalledWith(null);
+    expect(useRunStore.getState().isActive).toBe(false);
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+  });
+
+  it('restricts guest standard access while preserving the Daily exemption', async () => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    useAuthStore.setState({ user: null, player: null, isAuthenticated: false, isGuest: true });
+    economyState.snapshot = { enabled: true };
+    economyState.getAccess.mockReturnValue('locked');
+    expect(await useRunStore.getState().startRun(['Garen', 'Annie'])).toMatchObject({
+      success: false,
+      code: 'champion_locked',
+    });
+    expect(await useRunStore.getState().startRun(['Garen'], { mode: 'daily' })).toMatchObject({
+      success: true,
+      mode: 'daily',
+    });
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+  });
+
+  it('refreshes the global wallet only after a verified economic outcome', async () => {
+    attemptMocks.verify.mockResolvedValue({
+      data: {
+        progression: {
+          ...progression,
+          shardsEarned: 25,
+          shardsBalance: 425,
+          shardEconomyVersion: 1,
+        },
+        summary: null,
+      },
+      error: null,
+    });
+    expect(await useRunStore.getState().endRun(false, RUN_UUID)).toMatchObject({ success: true });
+    expect(economyState.refresh).toHaveBeenCalledOnce();
+    expect(useRunStore.getState().serverProgression).toMatchObject({
+      candiesEarned: 13,
+      shardsEarned: 25,
+      shardsBalance: 425,
+    });
   });
 
   afterEach(() => {
