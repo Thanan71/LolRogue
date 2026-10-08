@@ -63,7 +63,7 @@ export function StarterSelectPage() {
   const isDaily = resumableStart ? resumableStart.mode === 'daily' : requestedDaily;
   const economy = useChampionEconomyRoute();
   const economyRoster = !!economy.snapshot?.enabled && !isDaily && !resumableStart;
-  const economyNotLoaded = isSupabaseConfigured && !economy.snapshot && !resumableStart;
+  const economyNotLoaded = isSupabaseConfigured && !economy.snapshot && !resumableStart && !isDaily;
   const [accessFilter, setAccessFilter] = useState<ChampionAccessFilter>('all');
   const [accessSort, setAccessSort] = useState<ChampionAccessSort>('name');
   const [previewChampion, setPreviewChampion] = useState<Champion | null>(null);

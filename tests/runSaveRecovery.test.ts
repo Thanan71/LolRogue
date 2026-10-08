@@ -241,23 +241,24 @@ describe('authoritative run lifecycle and recovery', () => {
     setActiveVerifiedRun();
   });
 
-  it.each(['champion_locked', 'champion_rotation_expired'])(
-    'refreshes stale roster after server refusal %s',
-    async (code) => {
-      useRunStore.setState({ ...RUN_INITIAL_STATE });
-      attemptMocks.start.mockResolvedValue({ data: null, error: new Error(code) });
-      expect(await useRunStore.getState().startRun(['Garen', 'Annie'])).toMatchObject({
-        success: false,
-        code,
-        retryable: false,
-      });
-      expect(useRunStore.getState()).toMatchObject({
-        isActive: false,
-        pendingAuthorityStart: null,
-      });
-      expect(economyState.refresh).toHaveBeenCalledOnce();
-    },
-  );
+  it.each([
+    ['champion_locked', 'champion_locked'],
+    ['champion_rotation_expired', 'champion_rotation_expired'],
+    ['champion_access_expired', 'champion_rotation_expired'],
+  ])('refreshes stale roster after server refusal %s', async (serverCode, code) => {
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    attemptMocks.start.mockResolvedValue({ data: null, error: new Error(serverCode) });
+    expect(await useRunStore.getState().startRun(['Garen', 'Annie'])).toMatchObject({
+      success: false,
+      code,
+      retryable: false,
+    });
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      pendingAuthorityStart: null,
+    });
+    expect(economyState.refresh).toHaveBeenCalledOnce();
+  });
 
   it('preserves a server access snapshot after its rotation expires locally', async () => {
     useRunStore.setState({ ...RUN_INITIAL_STATE });

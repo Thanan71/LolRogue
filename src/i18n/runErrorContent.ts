@@ -83,7 +83,7 @@ const frFR: RunErrorCatalog = {
     'L’offre du défi quotidien a changé. Sélectionnez le nouveau champion proposé.',
   championLocked: 'Ce champion est verrouillé. Choisissez un champion disponible ou débloquez-le.',
   championRotationExpired:
-    'La rotation gratuite a changé. Choisissez un champion dans la nouvelle sélection.',
+    'Les accès aux champions ont changé. Choisissez un champion dans la sélection actualisée.',
   championRosterUnavailable:
     'Impossible de vérifier les champions disponibles. Vérifiez la connexion puis réessayez.',
   staleRun: 'La partie demandée n’est plus la partie active.',
@@ -148,7 +148,7 @@ const enUS: RunErrorCatalog = {
   startFailed: 'The verified run could not be started.',
   dailyStarterChanged: 'The daily challenge offer changed. Select the newly offered champion.',
   championLocked: 'This champion is locked. Choose an available champion or unlock it.',
-  championRotationExpired: 'The free rotation changed. Choose a champion from the updated roster.',
+  championRotationExpired: 'Champion access changed. Choose a champion from the updated roster.',
   championRosterUnavailable:
     'Unable to check available champions. Check your connection and try again.',
   staleRun: 'The requested run is no longer the active run.',

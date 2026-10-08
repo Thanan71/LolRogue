@@ -304,7 +304,9 @@ export function createRunLifecycleSlice(
               const rawError = attemptResult.error?.message ?? '';
               const staleDailyOffer =
                 mode === 'daily' && rawError.includes('daily_starter_not_offered');
-              const expiredRotation = rawError.includes('champion_rotation_expired');
+              const expiredRotation =
+                rawError.includes('champion_rotation_expired') ||
+                rawError.includes('champion_access_expired');
               const lockedChampion = rawError.includes('champion_locked');
               const staleRoster = expiredRotation || lockedChampion;
               const error = rawError.includes('run_attempt_already_open')
