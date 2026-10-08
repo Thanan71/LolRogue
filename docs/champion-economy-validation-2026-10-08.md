@@ -28,6 +28,14 @@ preuves humaines et externes ; cette tâche ne les clôture pas.
 | Régressions ciblées | Changement A→B pendant last-login/hydratation, refresh tardif après achat, timeout 15 s et retry UUID, Daily sans catalogue | Aucune balance/propriété de l'ancien compte ne remplace le compte actif |
 | UI | 16 tests, 2 parcours mobiles FR/EN au clavier, Axe sans violation dans les dialogues | Confirmation de prix capturé, montant manquant, bouton pending, filtres et focus |
 | Parcours connecté source | PASS, 30,4 s | Auth réelle, combat UI, RPC et Edge local réels ; aucun résultat verified injecté |
+| Upgrade après restauration | PASS | [Preuve anonyme](restore-drills/champion-economy-2026-10-08-local.json) : schémas public/private/Auth/history, propriétaires et deux comptes restaurés, maîtrise 183 inchangée, 10 legacy chacun, wallets 0, seconde activation sans doublon |
+| Kill-switch et nouvelle identité | PASS | Après activation : 0 achat, 3 gratuits +5 rotation ; arrêt conserve les données et la coupure initiale |
+| Réconciliation locale | PASS | `economy:audit -- --local` : consistent=true, 0 divergence, 0 gain suspect, aucun changement de données |
+| Ancienne application sur nouveau schéma | 8 tests PASS | SHA historique `85fc6bc1f9ea17b62103d0a85a2bdfe6b5bacd45`, sans reset du schéma lors du probe |
+| Suite générale | 61 scénarios PASS sur deux profils locaux | 59 sur profil sans Supabase, 2 fixtures de synchronisation sur profil public local ; la passe CI complète utilise le public local, flag OFF |
+| Production locale connectée | PASS, 34 s au SHA `848886afaaf28e3c3644afb1152ac6266cdea72a` | Identité de build contrôlée ; vraie auth, RPC/Edge, 10 portraits, mobile/clavier et deux transitions de période |
+| Matrice production | 6/6 PASS, 29,5 s sur le même build | Chromium, Firefox et WebKit, desktop/mobile ; flag OFF public déterministe |
+| Web Vitals laboratoire | PASS, p75 sur 5 échantillons | Pixel 5, CPU ×4, 150 ms / 1,6 Mbit/s : LCP 1 612 ms, CLS 0,0812, INP 88 ms ; budgets 2 500 / 0,1 / 300 |
 
 Le parcours connecté joue Darius en rotation et Garen, gagne une vague puis
 abandonne. Le serveur rejoue cette attempt et retourne une vague gagnée, zéro
@@ -64,19 +72,44 @@ le plafond total de 660 000 à 670 000 ; les limites initial/Auth, par chunk,
 assets et Web Vitals restent inchangées. Le rapport final est produit sous
 `performance-report/bundle-report.json` avec le SHA fourni au build candidat.
 
-## Contrôles complémentaires du candidat
+## Profils de validation du candidat
 
-La validation avant PR comprend également la restauration représentative suivie
-de migration, l'audit local sans écriture, le probe de rollback de l'ancienne
-application, la suite générale, le parcours connecté sur preview de production
-locale et la matrice Chromium/Firefox/WebKit desktop/mobile. Les résultats de
-ces contrôles doivent être consignés avant de clôturer le checklist archivé.
+La restauration est bornée aux quatre schémas de l'application et Auth ; elle
+ne prétend pas exercer les schémas internes Realtime/Storage ni une restauration
+hébergée de production. Après le drill et chaque parcours économique, la base
+locale retrouve le schéma courant, le flag OFF, l'horloge d'origine et aucune
+fixture économique restante. La restauration distante de P2-OPS-01 reste ouverte.
 
-La suite générale impose un profil public Supabase vide pour rester indépendante
-du projet distant. Les stricts connectés exigent les credentials de la base locale
-et échouent lorsqu'ils manquent. La matrice historique stubbe uniquement la lecture
+La suite générale utilise l'URL et la clé publique du Supabase local jetable,
+flag OFF, pour rester indépendante du projet distant tout en conservant les
+fixtures de synchronisation connectée. Les trois fichiers stricts sont exclus de
+la générale et exigent `E2E_REQUIRE_CONNECTED=1` ainsi que les credentials de la
+base locale ; ils échouent lorsque ceux-ci manquent. La matrice historique stubbe uniquement la lecture
 publique du flag OFF ; elle ne valide pas les wallets. Le parcours économie ON
 de production utilise les vrais RPC, tables et replay Edge de la base locale.
+
+La preview compilée utilise uniquement l'URL et la clé publique locales. Le test
+garde service-role/DB dans Node ; le serveur preview n'en hérite pas. Son JSON
+conserve le SHA observé dans `deployment-identity.json`. Les captures source Vite
+ne constituent pas une preuve d'assets : les portraits sont vérifiés sur le build
+de production avec les fichiers Riot effectivement copiés.
+
+Le dist comporte 307 fichiers et reste identique avant/après la matrice et les
+mesures, empreinte globale
+`6ad7d6df07be40cc0adfd4eb46afac336cb144085033c5268ca2a0c045c050e4`.
+Les rapports incluent 13 chunks et 236 242 octets transférés pour Auth après
+interaction, sans chargement différé interdit. Les changements ultérieurs de
+documentation ou de configuration CI ne modifient pas le source de l'application.
+
+Firefox macOS utilise un fichier temporaire `application.ini` et un lien vers
+son `omni.ja` d'origine via `XUL_APP_FILE`, pour contourner le refus local d'accès
+au dossier de profil. Le moteur Playwright 1543 et le dépôt ne sont pas modifiés.
+La CI Linux utilise le lancement standard ; cette preuve locale ne prétend pas
+réparer les permissions du lancement macOS standard.
+
+Le build connecté mesure 597 501 octets gzip au total, 216 830 initiaux et
+220 875 pour Auth, avec 10,82 % de marge et 7 892 045 octets d'assets. Le profil
+local connecté explique l'écart avec la mesure `npm run check` ci-dessus.
 
 ## Rollout restant
 

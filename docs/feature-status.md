@@ -46,7 +46,7 @@ même si l'implémentation et ses tests existent.
 | Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 227 fichiers versionnés, dont 40 icônes de compétences |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
 | Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Gate disponible ; résultat courant à exécuter sur le SHA candidat |
-| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `test:performance-budgets`, `test:performance-preview` | Bundle conforme au 23 septembre 2026 : 10,47 % de marge après traduction complète et projection texte FR ; dernière mesure lab documentée : p75 LCP 1 396 ms, CLS 0, INP 104 ms |
+| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `test:performance-budgets`, `test:performance-preview` | Validé localement le 8 octobre 2026 : 10,82 % de marge sur le build connecté ; p75 LCP 1 612 ms, CLS 0,0812, INP 88 ms ; détails dans la preuve économie |
 | Exploitation et restauration | `operations`, `incident-runbooks`, `backup-and-restore`, `release-and-support` | runbooks versionnés et critères de preuve | Livré côté procédures ; exercice distant requis avant bêta |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |
 
