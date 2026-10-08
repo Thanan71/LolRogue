@@ -20,7 +20,7 @@ même si l'implémentation et ses tests existent.
 
 | Fonctionnalité | Implémentation de référence | Preuves principales | Statut |
 | --- | --- | --- | --- |
-| Décisions produit transverses | `productDecisions`, contrat produit v2 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta ; calibration en observation tant que le terrain et les playtests manquent |
+| Décisions produit transverses | `productDecisions`, contrat produit v4 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta ; calibration en observation tant que le terrain et les playtests manquent |
 | Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `release:preflight`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |
 | Auth et mode invité | `authStore`, `AuthBootstrap`, repositories Auth | `authStore.test.ts`, `auth-menu-responsive.spec.ts` | Livré |
 | Démarrage et reprise de run | `runStartCoordinator`, `runStoreLifecycleSlice`, gardes de routes | `runStartValidation.test.ts`, `runReloadRecovery.test.ts`, `routeAccess.test.ts` | Livré |
@@ -35,6 +35,7 @@ même si l'implémentation et ses tests existent.
 | Contrat d'équilibrage | analyse des catalogues/nœuds dans `game/balance/contentBalance`, vraies runs multi-politiques via `simulateAuthorityCohort`, comparaison terrain et matrice 5v5 exhaustive | `contentCatalogAnalysis.test.ts`, `authorityCohortAcceptance.test.ts`, `authorityFieldCalibrationBaseline.test.ts`, `fieldCalibrationComparison.test.ts`, `championCombatMatrix.test.ts`, `mapEconomyBaseline.test.ts` | Sept baselines v15–v21 ; v21 ferme les gates automatisées P0-BAL-02, tandis que la calibration terrain compare les politiques sûre/économique sans mélanger les rulesets ; seuls les playtests humains restent ouverts |
 | Fin victoire, défaite et abandon | `runFinalization`, outbox et snapshot final | `runFinalization.test.ts`, `runSaveRecovery.test.ts`, `six-biome-run.spec.ts` | Livré |
 | Progression connectée autoritaire | attempts, journal, `verify-run`, `complete_run_verification` | `authorityRunEngine.test.ts`, `verifiedRunAttempts.database.test.ts`, `mapEconomyProgression.database.test.ts` | Livré en progression v3 : ledger v2 et budget de candies fixe réparti par participation, sans réécriture du ledger v1 |
+| Collection, rotation et Éclats | `championEconomy`, wallet/ledger SQL, snapshot de démarrage et RPC d’achat | `championEconomy.test.ts`, `championEconomyStore.test.ts`, `championEconomy.database.test.ts`, `champion-economy-connected.spec.ts` ; [preuves et activation](champion-economy-validation-2026-10-08.md) | Implémenté en économie v1, flag OFF par défaut ; migration/activation distantes à effectuer lors du rollout |
 | Maîtrise et améliorations | stores dédiés et RPC atomique | `mastery.test.ts`, `enhancementStoreRecovery.test.ts`, `authoritativeDaily.database.test.ts` | Livré |
 | Progression et personnalisation | slots serveur, contrat cosmétique/saison, historique comparable | `personalizationContract.test.ts`, `profileHistory.test.tsx` | Contrat livré ; cosmétiques et quêtes volontairement non activés |
 | Daily officiel et classement public réduit | rulesets Daily, replay et vue `daily_leaderboard` | `authoritativeDaily.database.test.ts`, `dailyPages.test.tsx`, `schema.database.test.ts` | Livré en Daily v21, score v15 sans points d'or ; invité local non officiel |
@@ -45,7 +46,7 @@ même si l'implémentation et ses tests existent.
 | Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 227 fichiers versionnés, dont 40 icônes de compétences |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
 | Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Gate disponible ; résultat courant à exécuter sur le SHA candidat |
-| Budgets de performance | plafond global 640 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `test:performance-budgets`, `test:performance-preview` | Bundle conforme au 23 septembre 2026 : 10,47 % de marge après traduction complète et projection texte FR ; dernière mesure lab documentée : p75 LCP 1 396 ms, CLS 0, INP 104 ms |
+| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `test:performance-budgets`, `test:performance-preview` | Bundle conforme au 23 septembre 2026 : 10,47 % de marge après traduction complète et projection texte FR ; dernière mesure lab documentée : p75 LCP 1 396 ms, CLS 0, INP 104 ms |
 | Exploitation et restauration | `operations`, `incident-runbooks`, `backup-and-restore`, `release-and-support` | runbooks versionnés et critères de preuve | Livré côté procédures ; exercice distant requis avant bêta |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |
 

@@ -177,7 +177,22 @@ Les PV absents dans l'état sérialisé signifient toujours « PV maximum ». Un
 positif peut relever un champion KO, tandis qu'un bonus de statistiques matérialise
 les PV implicites au nouveau maximum sans effacer une blessure ou un KO explicite.
 
-À la fin d'une run, le pool de candies vaut :
+L'accès initial au roster est indépendant de la maîtrise : lorsque l'économie
+est activée, trois champions sont gratuits en permanence, cinq sont en rotation
+hebdomadaire UTC et les autres sont disponibles après achat permanent en Éclats.
+Le serveur revalide chaque sélection au démarrage et fige son accès. Une rotation
+expirée impose d'actualiser le sélecteur, sans changer une tentative déjà créée.
+Le Daily conserve son offre commune de six champions, indépendante de la
+propriété du compte. Les recrutements pendant la run suivent leurs règles
+habituelles ; acheter un champion concerne l'accès au départ, pas son recrutement.
+
+Les Éclats de fin de run ont un barème séparé et versionné : 25 après une vague
+validée, 10 par biome réellement terminé et 50 en cas de victoire. La première
+victoire de chaque champion de la rotation figée rapporte 50 supplémentaires,
+une fois par compte/champion/période. Ces gains exigent une run vérifiée et un
+compte ; la taille d'équipe ne multiplie pas la récompense de base.
+
+À la fin d'une run, le pool de candies inchangé vaut :
 
 ```text
 base + vagues × candiesParVague + biomes × candiesParBiome
