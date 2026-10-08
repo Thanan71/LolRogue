@@ -1,9 +1,7 @@
 {
   "schemaVersion": 1,
   "blockingLevels": {
-    "security": [
-      "ERROR"
-    ],
+    "security": ["ERROR"],
     "performance": []
   },
   "rejectUnknownFindings": true,
