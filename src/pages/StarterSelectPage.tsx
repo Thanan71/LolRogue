@@ -1,5 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import {
+  accessOrder,
+  ChampionAccessBadge,
+  ChampionAccessControls,
+  type ChampionAccessFilter,
+  type ChampionAccessSort,
+  ChampionEconomyPanel,
+  ChampionPurchaseAction,
+  ChampionRotationBonus,
+  championMatchesAccess,
+} from '@/components/ChampionEconomy';
+import { Dialog } from '@/components/ui/Feedback';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
 import { ROUTES } from '@/config/routes';
 import { implementedChampions } from '@/data/champion';
@@ -7,9 +19,12 @@ import { championDB } from '@/data/championDatabase';
 import { getKeystoneRunes } from '@/data/items/runeDatabase';
 import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useChampionEconomyRoute } from '@/hooks/useChampionEconomyRoute';
+import { getChampionEconomyContent } from '@/i18n/championEconomyContent';
+import { locale } from '@/i18n/fr';
 import { getStarterPersonalization } from '@/services/masteryService';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
-import { supabase } from '@/services/supabaseClient';
+import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -26,8 +41,11 @@ import { localizeChampion } from '@/i18n/content';
 import { formatChampionTag, formatNumber } from '@/i18n/format';
 import { runeDescription, runeNameFr } from '@/i18n/runes.fr';
 import { runPreparationCopy } from '@/i18n/runPreparationContent';
+import { DatabaseChampionDetail } from './database/DatabaseChampionDetail';
+import '@/styles/database.css';
 
 const starterCopy = runPreparationCopy.starter;
+const economyCopy = getChampionEconomyContent();
 
 function pickRandom<T>(arr: T[], count: number, rng: SeededRNG): T[] {
   return rng.pickN(arr, count);
@@ -43,6 +61,12 @@ export function StarterSelectPage() {
   const resumableStart =
     user && pendingAuthorityStart?.ownerUserId === user.id ? pendingAuthorityStart : null;
   const isDaily = resumableStart ? resumableStart.mode === 'daily' : requestedDaily;
+  const economy = useChampionEconomyRoute();
+  const economyRoster = !!economy.snapshot?.enabled && !isDaily && !resumableStart;
+  const economyNotLoaded = isSupabaseConfigured && !economy.snapshot && !resumableStart;
+  const [accessFilter, setAccessFilter] = useState<ChampionAccessFilter>('all');
+  const [accessSort, setAccessSort] = useState<ChampionAccessSort>('name');
+  const [previewChampion, setPreviewChampion] = useState<Champion | null>(null);
   const [selectionSeed] = useState(() => (isDaily ? getDailySeed() : Date.now()));
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null);
   const [isLoadingDaily, setIsLoadingDaily] = useState(isDaily && !isGuest);
@@ -67,6 +91,10 @@ export function StarterSelectPage() {
         .map((championId) => championDB.getById(championId))
         .filter((champion): champion is Champion => champion !== undefined);
     }
+    if (economyRoster) {
+      const catalogIds = new Set(economy.snapshot?.catalog.map((entry) => entry.championId));
+      return implementedChampions.filter((champion) => catalogIds.has(champion.id));
+    }
     const rerollSeed = selectionSeed + starterRerollsUsed * 2_654_435_761;
     const rng = isDaily ? createDailyRNG() : new SeededRNG(rerollSeed);
     return pickRandom(
@@ -82,6 +110,8 @@ export function StarterSelectPage() {
     selectionSeed,
     starterPersonalization.rosterOfferSize,
     starterRerollsUsed,
+    economyRoster,
+    economy.snapshot?.catalog,
   ]);
   const starterSlotLimit =
     resumableStart?.team.length ?? getRequiredStarterCount(isDaily ? 'daily' : 'normal');
@@ -96,6 +126,25 @@ export function StarterSelectPage() {
   const [isStarting, setIsStarting] = useState(false);
   const navigate = useAppNavigate();
   const selectedStarters = choices.filter((champion) => selectedStarterIds.includes(champion.id));
+  const visibleChoices = economyRoster
+    ? choices
+        .filter((champion) => championMatchesAccess(economy.getAccess(champion.id), accessFilter))
+        .sort(
+          (left, right) =>
+            (accessSort === 'access'
+              ? accessOrder[economy.getAccess(left.id)] - accessOrder[economy.getAccess(right.id)]
+              : 0) ||
+            localizeChampion(left).name.localeCompare(localizeChampion(right).name, locale),
+        )
+    : choices;
+
+  useEffect(() => {
+    if (!economyRoster) return;
+    setSelectedStarterIds((current) => {
+      const next = current.filter((id) => economy.getAccess(id) !== 'locked');
+      return next.length === current.length ? current : next;
+    });
+  }, [economyRoster, economy.getAccess, economy.serverNow]);
 
   useEffect(() => {
     if (!resumableStart) return;
@@ -145,6 +194,15 @@ export function StarterSelectPage() {
   }, [isAuthLoading, isDaily, isGuest, isInitialized, user?.id]);
 
   async function handleConfirm() {
+    if (economyNotLoaded) return;
+    if (economyRoster && selectedStarterIds.some((id) => economy.getAccess(id) === 'locked')) {
+      setSelectedStarterIds((current) =>
+        current.filter((id) => economy.getAccess(id) !== 'locked'),
+      );
+      setError(economyCopy.rotationExpired);
+      void economy.refresh();
+      return;
+    }
     playUIClick();
     if (selectedStarterIds.length !== starterSlotLimit) return;
     setError(null);
@@ -262,23 +320,103 @@ export function StarterSelectPage() {
         </span>
       </div>
 
-      <div className="starter-select__grid">
-        {choices.map((champ) => (
-          <ChampionCard
-            key={champ.id}
-            champion={champ}
-            selected={selectedStarterIds.includes(champ.id)}
-            disabled={
-              resumableStart !== null ||
-              (!selectedStarterIds.includes(champ.id) &&
-                selectedStarterIds.length >= starterSlotLimit)
-            }
-            onSelect={() => toggleStarter(champ.id)}
-          />
-        ))}
-      </div>
+      <ChampionEconomyPanel
+        snapshot={economy.snapshot}
+        status={economy.status}
+        serverNow={economy.serverNow}
+        onRefresh={economy.refresh}
+      />
+      {economy.snapshot?.enabled && isDaily && (
+        <p className="champion-economy__daily">{economyCopy.dailyExemption}</p>
+      )}
+      {economyRoster && (
+        <ChampionAccessControls
+          filter={accessFilter}
+          onFilter={setAccessFilter}
+          sort={accessSort}
+          onSort={setAccessSort}
+        />
+      )}
 
-      {!isDaily && !resumableStart && starterPersonalization.rerolls > 0 && (
+      <div className="starter-select__grid">
+        {visibleChoices.map((champ) =>
+          economyRoster ? (
+            <div
+              className="champion-economy-card"
+              key={champ.id}
+              id={`starter-economy-${champ.id}`}
+              tabIndex={-1}
+            >
+              <ChampionCard
+                champion={champ}
+                selected={selectedStarterIds.includes(champ.id)}
+                disabled={
+                  economy.getAccess(champ.id) === 'locked' ||
+                  (!selectedStarterIds.includes(champ.id) &&
+                    selectedStarterIds.length >= starterSlotLimit)
+                }
+                onSelect={() => toggleStarter(champ.id)}
+              />
+              <div className="champion-economy-card__status">
+                <ChampionAccessBadge
+                  championId={champ.id}
+                  snapshot={economy.snapshot}
+                  access={economy.getAccess(champ.id)}
+                  serverNow={economy.serverNow}
+                />
+                <ChampionRotationBonus championId={champ.id} />
+              </div>
+              <div className="champion-economy-card__actions">
+                <button
+                  className="champion-economy-card__details"
+                  type="button"
+                  onClick={() => setPreviewChampion(champ)}
+                >
+                  {economyCopy.details(localizeChampion(champ).name)}
+                </button>
+                <ChampionPurchaseAction
+                  championId={champ.id}
+                  championName={localizeChampion(champ).name}
+                  returnFocusId={`starter-economy-${champ.id}`}
+                  onBeforePurchase={() => setAccessFilter('all')}
+                />
+              </div>
+            </div>
+          ) : (
+            <ChampionCard
+              key={champ.id}
+              champion={champ}
+              selected={selectedStarterIds.includes(champ.id)}
+              disabled={
+                resumableStart !== null ||
+                economyNotLoaded ||
+                (!selectedStarterIds.includes(champ.id) &&
+                  selectedStarterIds.length >= starterSlotLimit)
+              }
+              onSelect={() => toggleStarter(champ.id)}
+            />
+          ),
+        )}
+      </div>
+      {economyRoster && visibleChoices.length === 0 && <p role="status">{economyCopy.noResults}</p>}
+      <Dialog
+        open={previewChampion !== null}
+        title={previewChampion ? economyCopy.details(localizeChampion(previewChampion).name) : ''}
+        onClose={() => setPreviewChampion(null)}
+        actions={
+          <button type="button" onClick={() => setPreviewChampion(null)}>
+            {economyCopy.close}
+          </button>
+        }
+      >
+        {previewChampion && (
+          <div className="champion-economy__preview">
+            <DatabaseChampionDetail champion={previewChampion} />
+          </div>
+        )}
+      </Dialog>
+
+      {!isDaily && !resumableStart && !economyRoster && starterPersonalization.rerolls > 0 && (
         <button
           type="button"
           className="starter-select__back"
@@ -374,7 +512,10 @@ export function StarterSelectPage() {
             className="starter-select__confirm"
             type="button"
             disabled={
-              selectedStarterIds.length !== starterSlotLimit || isStarting || isLoadingDaily
+              selectedStarterIds.length !== starterSlotLimit ||
+              isStarting ||
+              isLoadingDaily ||
+              economyNotLoaded
             }
             onClick={() => void handleConfirm()}
           >
