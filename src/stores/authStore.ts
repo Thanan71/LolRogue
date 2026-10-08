@@ -4,6 +4,7 @@ import { fr } from '@/i18n/fr';
 import { RepositoryContainerFactory } from '@/services/container';
 import type { IRepositoryContainer } from '@/services/interfaces';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
+import { useChampionEconomyStore } from '@/stores/championEconomyStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import type { Player } from '@/types/models';
 import { readGuestMode, setStoredGuestMode } from '@/utils/ancillaryStorage';
@@ -111,6 +112,7 @@ export function localizeAuthError(error: unknown): string {
 }
 
 async function resetProgressionCaches(target: 'guest' | 'signed-out'): Promise<void> {
+  useChampionEconomyStore.getState().reset();
   if (target === 'guest') useMasteryStore.getState().activateGuestScope();
   else useMasteryStore.getState().clearSession();
   const { useEnhancementStore } = await import('@/stores/enhancementStore');
@@ -118,6 +120,8 @@ async function resetProgressionCaches(target: 'guest' | 'signed-out'): Promise<v
 }
 
 async function hydrateAuthenticatedProgression(userId: string, player: Player): Promise<void> {
+  useChampionEconomyStore.getState().reset(userId);
+  await useChampionEconomyStore.getState().initialize(userId);
   useMasteryStore.getState().activateAuthenticatedScope(userId);
   const { useEnhancementStore } = await import('@/stores/enhancementStore');
   useEnhancementStore.getState().reset();
