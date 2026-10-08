@@ -3,8 +3,8 @@ import { BALANCE_CALIBRATION_DECISION } from '@/product/balanceCalibrationDecisi
 import { PRODUCT_DECISIONS, PRODUCT_DECISIONS_VERSION } from '@/product/productDecisions';
 
 describe('décisions produit transverses', () => {
-  it('fige le contrat de lancement v3', () => {
-    expect(PRODUCT_DECISIONS_VERSION).toBe(3);
+  it('fige le contrat de lancement v4', () => {
+    expect(PRODUCT_DECISIONS_VERSION).toBe(4);
     expect(PRODUCT_DECISIONS.launchLanguage.locale).toBe('fr');
     expect(PRODUCT_DECISIONS.launchLanguage.englishStatus).toBe('supported_through_i18n');
     expect(PRODUCT_DECISIONS.guestProgression.automaticAccountMerge).toBe(false);
