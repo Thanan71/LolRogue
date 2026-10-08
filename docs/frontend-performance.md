@@ -208,3 +208,14 @@ conservent le découpage de Vite et son préchargement standard. La mesure inclu
 aussi le script de langue copié en fin de build, le SHA complet et un profil
 Supabase configuré. Les preuves et les limites de livraison sont consignées
 dans `docs/sprint-g-validation-2026-10-07.md`.
+
+## P3-ECO-01 — budget de l'économie des champions
+
+Le catalogue d'accès, les Éclats, les confirmations d'achat et leurs traductions
+portent le plafond global de 660 000 à **670 000 octets gzip** (+1,52 %), avec
+l'autorisation utilisateur du 8 octobre 2026. La marge minimale reste **10 %** :
+le total effectif doit rester inférieur ou égal à **603 000 octets**.
+Le chargement initial reste plafonné à 220 000 octets, Auth à 225 000 octets.
+Les limites par chunk, les assets, les Web Vitals et les seuils de couverture
+restent inchangés. La mesure finale figure dans
+`docs/champion-economy-validation-2026-10-08.md`.

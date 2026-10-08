@@ -1,4 +1,5 @@
 import { decodeCombatActionTrace } from '@/game/battle/actionTrace';
+import { parseChampionRunAccessSnapshot } from '@/services/championEconomyRunContract';
 import { BIOMES, type RunState } from '@/types/run';
 import { isRecord } from '@/utils/persistence';
 
@@ -384,6 +385,10 @@ const authorityAttempt: Check = (value) => {
     runeIds: array(id, 100),
     enhancementSnapshot: dictionary(dictionary(integer, 500), 200),
     masterySnapshot: dictionary(integer, 200),
+    championAccessSnapshot: nullable(
+      (snapshot) => parseChampionRunAccessSnapshot(snapshot) !== null,
+    ),
+    economyVersion: nullable(oneOf([1])),
     startedAt: date,
     expiresAt: date,
     status: oneOf([
@@ -412,6 +417,8 @@ const authorityAttempt: Check = (value) => {
             'dailyRulesetVersion',
             'dailyScoreVersion',
             'gameplayRulesetVersion',
+            'championAccessSnapshot',
+            'economyVersion',
           ].includes(key),
       ),
     )(value) ||
@@ -424,7 +431,10 @@ const authorityAttempt: Check = (value) => {
     dedupeKey: string;
   }>;
   const team = value.initialTeam as string[];
+  const accessSnapshot = parseChampionRunAccessSnapshot(value.championAccessSnapshot);
   return (
+    (value.economyVersion !== 1 || accessSnapshot?.economyVersion === 1) &&
+    (!accessSnapshot || accessSnapshot.economyVersion === (value.economyVersion ?? null)) &&
     team.length > 0 &&
     new Set(team).size === team.length &&
     commands.every((entry, index) => entry.sequence === index + 1) &&
@@ -470,6 +480,10 @@ export function isPersistedRunState(value: unknown): value is Partial<RunState> 
           candiesPerChampion: nonnegative,
           progressionVersion: positive,
           progressionSource: oneOf(['verified']),
+          shardsEarned: integer,
+          shardsBalance: integer,
+          shardEconomyVersion: nullable(oneOf([1])),
+          shardRotationFirstWinChampionIds: array(id, 5),
         },
         [
           'runId',

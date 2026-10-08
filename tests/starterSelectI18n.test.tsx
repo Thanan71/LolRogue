@@ -3,6 +3,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { CHAMPION_ECONOMY_CATALOG } from '@/domain/championEconomy';
 import {
   type RunPreparationContentCatalog,
   runPreparationContent,
@@ -68,13 +69,37 @@ function setStoredLocale(locale: 'fr-FR' | 'en-US'): void {
 }
 
 async function prepareStarterState() {
-  const [{ useAuthStore }, { useDailyRunStore }, { RUN_INITIAL_STATE }, { useRunStore }] =
-    await Promise.all([
-      import('@/stores/authStore'),
-      import('@/stores/dailyRunStore'),
-      import('@/stores/runInitialState'),
-      import('@/stores/runStore'),
-    ]);
+  const [
+    { useAuthStore },
+    { useDailyRunStore },
+    { RUN_INITIAL_STATE },
+    { useRunStore },
+    { useChampionEconomyStore },
+  ] = await Promise.all([
+    import('@/stores/authStore'),
+    import('@/stores/dailyRunStore'),
+    import('@/stores/runInitialState'),
+    import('@/stores/runStore'),
+    import('@/stores/championEconomyStore'),
+  ]);
+
+  useChampionEconomyStore.getState().reset();
+  useChampionEconomyStore.setState({
+    snapshot: {
+      enabled: false,
+      economyVersion: 1,
+      catalogVersion: 1,
+      gameplayRulesetVersion: 21,
+      serverNow: '2026-09-08T12:00:00.000Z',
+      rotation: null,
+      catalog: CHAMPION_ECONOMY_CATALOG.map((entry) => ({ ...entry })),
+      wallet: null,
+      ownedChampionIds: [],
+      firstWinChampionIds: [],
+    },
+    status: 'ready',
+    refresh: vi.fn(async () => undefined),
+  });
 
   useAuthStore.setState({
     user: null,

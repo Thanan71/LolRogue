@@ -262,6 +262,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text-summary', 'json-summary', 'json', 'html', 'lcov'],
       include: [
+        'src/domain/**/*.ts',
         'src/game/**/*.ts',
         'src/services/**/*.ts',
         'src/stores/**/*.ts',

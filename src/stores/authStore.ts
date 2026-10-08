@@ -4,6 +4,7 @@ import { fr } from '@/i18n/fr';
 import { RepositoryContainerFactory } from '@/services/container';
 import type { IRepositoryContainer } from '@/services/interfaces';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
+import { useChampionEconomyStore } from '@/stores/championEconomyStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import type { Player } from '@/types/models';
 import { readGuestMode, setStoredGuestMode } from '@/utils/ancillaryStorage';
@@ -110,18 +111,34 @@ export function localizeAuthError(error: unknown): string {
   return fr.auth.genericError;
 }
 
-async function resetProgressionCaches(target: 'guest' | 'signed-out'): Promise<void> {
+async function resetProgressionCaches(
+  target: 'guest' | 'signed-out',
+  generation: number,
+): Promise<void> {
+  if (!isCurrent(generation)) return;
+  useChampionEconomyStore.getState().reset();
   if (target === 'guest') useMasteryStore.getState().activateGuestScope();
   else useMasteryStore.getState().clearSession();
   const { useEnhancementStore } = await import('@/stores/enhancementStore');
+  if (!isCurrent(generation)) return;
   useEnhancementStore.getState().reset();
 }
 
-async function hydrateAuthenticatedProgression(userId: string, player: Player): Promise<void> {
+async function hydrateAuthenticatedProgression(
+  userId: string,
+  player: Player,
+  generation: number,
+): Promise<void> {
+  if (!isCurrent(generation)) return;
+  useChampionEconomyStore.getState().reset(userId);
+  await useChampionEconomyStore.getState().initialize(userId);
+  if (!isCurrent(generation)) return;
   useMasteryStore.getState().activateAuthenticatedScope(userId);
   const { useEnhancementStore } = await import('@/stores/enhancementStore');
+  if (!isCurrent(generation)) return;
   useEnhancementStore.getState().reset();
   await useEnhancementStore.getState().initialize(userId, player.total_candies);
+  if (!isCurrent(generation)) return;
   if (!useMasteryStore.getState().isHydrated) {
     throw new Error(fr.auth.masteryUnavailable);
   }
@@ -190,7 +207,8 @@ async function establishSession(session: Session, generation: number): Promise<A
     const player = await waitForPlayer(session.user.id);
     if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     const refreshedPlayer = await withLastLogin(player);
-    await hydrateAuthenticatedProgression(session.user.id, refreshedPlayer);
+    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+    await hydrateAuthenticatedProgression(session.user.id, refreshedPlayer, generation);
     if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     setStoredGuestMode(false);
     useAuthStore.setState({
@@ -208,7 +226,8 @@ async function establishSession(session: Session, generation: number): Promise<A
     return { success: true };
   } catch (error) {
     if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
-    await resetProgressionCaches('signed-out');
+    await resetProgressionCaches('signed-out', generation);
+    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     const message = localizeAuthError(error);
     useAuthStore.setState({
       session,
@@ -227,7 +246,7 @@ async function establishSession(session: Session, generation: number): Promise<A
 }
 
 async function establishSignedOut(generation: number, preserveGuest: boolean): Promise<void> {
-  await resetProgressionCaches(preserveGuest ? 'guest' : 'signed-out');
+  await resetProgressionCaches(preserveGuest ? 'guest' : 'signed-out', generation);
   if (!isCurrent(generation)) return;
   useAuthStore.setState({
     session: null,
@@ -304,6 +323,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       if (isSupabaseConfigured) await container.auth.signOut();
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
       setStoredGuestMode(false);
       await establishSignedOut(generation, false);
       return { success: true };
@@ -323,7 +343,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
     const generation = nextGeneration();
     set({ isLoading: true, isInitialized: false, error: null });
-    await resetProgressionCaches('guest');
+    await resetProgressionCaches('guest', generation);
     if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     setStoredGuestMode(true);
     set({

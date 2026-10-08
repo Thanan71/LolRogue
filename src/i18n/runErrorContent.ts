@@ -14,6 +14,9 @@ export type RunErrorCatalog = Readonly<{
   unsupportedChampion: string;
   startFailed: string;
   dailyStarterChanged: string;
+  championLocked: string;
+  championRotationExpired: string;
+  championRosterUnavailable: string;
   staleRun: string;
   finalizationInProgress: string;
   accountChanged: string;
@@ -78,6 +81,11 @@ const frFR: RunErrorCatalog = {
   startFailed: 'La partie vérifiée n’a pas pu démarrer.',
   dailyStarterChanged:
     'L’offre du défi quotidien a changé. Sélectionnez le nouveau champion proposé.',
+  championLocked: 'Ce champion est verrouillé. Choisissez un champion disponible ou débloquez-le.',
+  championRotationExpired:
+    'Les accès aux champions ont changé. Choisissez un champion dans la sélection actualisée.',
+  championRosterUnavailable:
+    'Impossible de vérifier les champions disponibles. Vérifiez la connexion puis réessayez.',
   staleRun: 'La partie demandée n’est plus la partie active.',
   finalizationInProgress: 'La finalisation d’une autre partie est déjà en cours.',
   accountChanged: 'Le compte authentifié a changé pendant l’opération.',
@@ -139,6 +147,10 @@ const enUS: RunErrorCatalog = {
   unsupportedChampion: 'The team contains an unsupported champion.',
   startFailed: 'The verified run could not be started.',
   dailyStarterChanged: 'The daily challenge offer changed. Select the newly offered champion.',
+  championLocked: 'This champion is locked. Choose an available champion or unlock it.',
+  championRotationExpired: 'Champion access changed. Choose a champion from the updated roster.',
+  championRosterUnavailable:
+    'Unable to check available champions. Check your connection and try again.',
   staleRun: 'The requested run is no longer the active run.',
   finalizationInProgress: 'Another run finalization is already in progress.',
   accountChanged: 'The authenticated account changed during the operation.',
@@ -202,6 +214,9 @@ const STATIC_KEYS = [
   'unsupportedChampion',
   'startFailed',
   'dailyStarterChanged',
+  'championLocked',
+  'championRotationExpired',
+  'championRosterUnavailable',
   'staleRun',
   'finalizationInProgress',
   'accountChanged',

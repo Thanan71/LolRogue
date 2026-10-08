@@ -61,6 +61,11 @@ describe('public table boundary manifest', () => {
       expect(entry.reason.length).toBeGreaterThan(30);
     }
     expect(internalTables.map((entry) => entry.name)).toEqual([
+      'champion_economy_catalog',
+      'champion_economy_config',
+      'champion_purchase_commands',
+      'champion_rotation_entries',
+      'champion_rotations',
       'daily_challenge_rulesets',
       'progression_commands',
       'progression_enhancement_security_baselines',

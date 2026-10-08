@@ -30,12 +30,18 @@ et la preview dès que la fiche est complète.
 Réconciliation du 4 octobre 2026 : les onze P0 actuels sont recensés, y compris
 les cinq P0 d'équilibrage et le P0 i18n auparavant absents de la fiche. Le statut
 `verified` d'un invariant de code n'atteste ni du déploiement ni d'un test récent
-sur le candidat. L'inventaire lit seulement les identifiants des titres du
-backlog ; il ne transforme jamais ses cases cochées en preuves de release.
+sur le candidat. Depuis le nettoyage du 7 octobre, les titres de `TODO.md`
+conservent le P0 i18n ouvert et un inventaire compact des dix invariants P0
+livrés ; les travaux et critères détaillés sont dans le
+[snapshot intégral du backlog](archive/todo-snapshot-2026-10-07.md).
+L'inventaire lit seulement ces identifiants ; il ne transforme jamais des cases
+cochées ou un archivage en preuves de release.
 
-Les gates locales servent à livrer les tâches des sprints. Le report des required
-checks distants dans `TODO.md` n'assouplit pas les conditions de bêta : les trois
-CI candidates, la preview exacte et les preuves live restent ici **bloquantes**.
+Les gates locales servent à préparer les tâches des sprints. Les protections
+GitHub de `main` et `dev` exigent les checks distants ; les compléments de
+`P2-CI-01` concernent la preuve d'annulation/neutralisation et les runs concurrents.
+Les trois CI candidates, la preview exacte et les preuves live restent ici
+**bloquantes** pour la bêta.
 
 ## Fiche de release obligatoire
 

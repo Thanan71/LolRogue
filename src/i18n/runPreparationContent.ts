@@ -94,6 +94,11 @@ const frFR: RunPreparationContentCatalog = {
       start_failed: 'La partie vérifiée n’a pas pu démarrer.',
       daily_starter_not_offered:
         'L’offre du défi quotidien a changé. Choisis le nouveau champion proposé.',
+      champion_locked: 'Ce champion est verrouillé. Choisis un champion disponible ou débloque-le.',
+      champion_rotation_expired:
+        'Les accès aux champions ont changé. Choisis un champion dans la sélection actualisée.',
+      champion_roster_unavailable:
+        'Impossible de vérifier les champions disponibles. Vérifie ta connexion puis réessaie.',
       account_changed: 'Le compte authentifié a changé pendant le démarrage.',
       stale_run: 'La partie demandée n’est plus la partie active.',
       finalization_in_progress: 'La finalisation d’une autre partie est déjà en cours.',
@@ -197,6 +202,11 @@ const enUS: RunPreparationContentCatalog = {
       start_failed: 'The verified run could not be started.',
       daily_starter_not_offered:
         'The daily challenge offer changed. Choose the newly offered champion.',
+      champion_locked: 'This champion is locked. Choose an available champion or unlock it.',
+      champion_rotation_expired:
+        'Champion access changed. Choose a champion from the updated roster.',
+      champion_roster_unavailable:
+        'Unable to check available champions. Check your connection and try again.',
       account_changed: 'The authenticated account changed while the run was starting.',
       stale_run: 'The requested run is no longer the active run.',
       finalization_in_progress: 'Another run is still being finalized.',

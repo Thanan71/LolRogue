@@ -131,7 +131,7 @@ describe('documentation maintenue', () => {
 
   it('fait dériver la readiness de preuves objectives plutôt que du TODO historique', () => {
     const readiness = read('docs/beta-readiness.md');
-    const todo = read('TODO.md');
+    const archivedTodo = read('docs/archive/todo-snapshot-2026-10-07.md');
     const releaseSheet = JSON.parse(read('config/beta-release.json'));
 
     expect(readiness).toContain('<!-- release-readiness:status=blocked -->');
@@ -149,9 +149,11 @@ describe('documentation maintenue', () => {
         checkedAt: null,
       },
     });
-    expect(todo).toContain("## P0-REL-01 — Réparer la gate bêta pour qu'elle reflète l'état réel");
-    expect(todo).toContain('Passer immédiatement le statut bêta à **bloqué**');
-    expect(todo).toContain('Exiger trois CI **postérieures au dernier correctif P0**');
+    expect(archivedTodo).toContain(
+      "## P0-REL-01 — Réparer la gate bêta pour qu'elle reflète l'état réel",
+    );
+    expect(archivedTodo).toContain('Passer immédiatement le statut bêta à **bloqué**');
+    expect(archivedTodo).toContain('Exiger trois CI **postérieures au dernier correctif P0**');
   });
 
   it('ne réintroduit pas les guides historiques ponctuels', () => {
@@ -279,7 +281,7 @@ describe('documentation maintenue', () => {
   });
 
   it('documente les preuves v20 historiques et la fermeture automatisée v21', () => {
-    const todo = read('TODO.md');
+    const archivedTodo = read('docs/archive/todo-snapshot-2026-10-07.md');
     const authority = read('docs/authority-versioning.md');
     const balance = read('docs/content-balance.md');
     const gameplay = read('docs/gameplay.md');
@@ -287,12 +289,12 @@ describe('documentation maintenue', () => {
     const testing = read('docs/testing.md');
     const matrix = read('docs/feature-status.md');
 
-    expect(todo).toContain('11. [x] `P1-BAL-02`');
-    expect(todo).toContain('7. [x] `P0-BAL-02`');
-    expect(todo).toContain('1 170 métriques de non-régression');
-    expect(todo).toContain('borne Wilson basse');
-    expect(todo).toContain("revue de PR ; l'automatisation");
-    expect(todo).toContain('`≤ 5×`');
+    expect(archivedTodo).toContain('11. [x] `P1-BAL-02`');
+    expect(archivedTodo).toContain('7. [x] `P0-BAL-02`');
+    expect(archivedTodo).toContain('1 170 métriques de non-régression');
+    expect(archivedTodo).toContain('borne Wilson basse');
+    expect(archivedTodo).toContain("revue de PR ; l'automatisation");
+    expect(archivedTodo).toContain('`≤ 5×`');
     expect(authority).toContain('836 449 octets');
     expect(authority).toContain('55df03729dc47417db3efb28ba534cbbf830f9cd3c771e4fdcda8d33eb9996eb');
     expect(authority).toContain('8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91');

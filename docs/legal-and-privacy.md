@@ -1,6 +1,6 @@
 # Légal et confidentialité
 
-Version produit : 4 octobre 2026. Région préparée : France et Union européenne.
+Version produit : 8 octobre 2026. Région préparée : France et Union européenne.
 Ce document décrit le produit actuel ; il ne constitue pas un avis juridique.
 
 ## Statut de diffusion
@@ -30,6 +30,7 @@ Sources à revalider avant chaque release :
 | Auth | e-mail, session, identifiant Auth | connexion et sécurité | utilisateur/opérateurs | vie du compte |
 | Profil | nom de compte, affichage, avatar, préférences publiques | progression et profil | privé, sauf champs de classement décrits ci-dessous | vie du compte |
 | Gameplay | runs, attempts, commandes, équipe, inventaire, métriques | reprise, vérification, progression | utilisateur/opérateurs | vie du compte |
+| Économie de roster | solde d'Éclats, transactions, achats et grants, période du bonus | propriété permanente et intégrité des récompenses | propriétaire/opérateurs ; agrégats maintenance sans identifiants | vie du compte, suppression avec le compte |
 | Daily public | alias/pseudonyme, rang, score, vagues, niveau, versions | classement comparable | public | 13 mois maximum |
 | Global public | alias/pseudonyme, avatar facultatif, niveau, victoires et taux | classement global | public tant que non opt-out | vie du compte ou opt-out |
 | Modération | score signalé, auteur, motif, décision | intégrité du classement | modérateurs | ouverts jusqu'à décision ; traités 24 mois |
@@ -58,6 +59,14 @@ via `legalPrivacy.database.test.ts`, sans prouver l'exécution du cron distant.
 La procédure de support et les restrictions sur toute compensation sont dans
 `run-incident-policy.md`. Le registre public `run-incidents.md` ne contient que
 les versions, fenêtres temporelles et constats techniques anonymisés.
+
+Les Éclats sont une monnaie de jeu dont les récompenses proviennent de runs
+vérifiées ; toute correction opérateur passe par un ajustement audité.
+Ils ne sont pas achetables contre de l'argent réel, convertibles, transférables
+entre comptes ou échangeables contre une valeur monétaire. Aucun achat externe,
+publicité récompensée ou loot box n'est introduit. Les agrégats d'exploitation
+de l'économie sont calculés depuis le ledger fonctionnel existant, sans nouvelle
+collecte comportementale. Le navigateur ne conserve aucun solde économique durable.
 
 Le protocole détaillé de calibration est dans `docs/field-calibration.md`. Les
 agrégats terrain ne créent aucune nouvelle ligne : ils dérivent exclusivement des
