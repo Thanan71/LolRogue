@@ -143,7 +143,11 @@ export const useChampionEconomyStore = create<ChampionEconomyStore>((set, get) =
         if (code !== 'economy_unavailable' && code !== 'invalid_economy_snapshot')
           pendingPurchase = null;
         set({ error: code });
-        if (code === 'champion_price_changed' || code === 'champion_already_owned')
+        if (
+          code === 'champion_price_changed' ||
+          code === 'champion_already_owned' ||
+          code === 'insufficient_shards'
+        )
           await get().refresh();
       }
       throw error instanceof ChampionEconomyError ? error : new ChampionEconomyError(code);
