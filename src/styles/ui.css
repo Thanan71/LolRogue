@@ -520,7 +520,7 @@
 }
 
 .settings-toggle input:focus-visible + .settings-toggle__track {
-  outline: 3px solid var(--color-focus-ring);
+  outline: 3px solid var(--color-focus);
   outline-offset: 3px;
 }
 

@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { latestPatchNote, PATCH_NOTES } from '@/data/patchNotes';
 import { usePatchNotes } from '@/hooks/usePatchNotes';
 import { loadServerPatchNotesState, saveServerPatchNotesState } from '@/patchNotes/server';
 import { readPatchNotesState, writePatchNotesState } from '@/patchNotes/storage';
@@ -16,6 +17,7 @@ vi.mock('@/stores/authStore', async () => {
   return { useAuthStore: create(() => ({ user: null, isGuest: true })) };
 });
 let number = 0;
+const latestSequence = latestPatchNote()!.sequence;
 const marker = (sequence: number, pendingSync = false) => ({
   version: 1 as const,
   lastSeenSequence: sequence,
@@ -37,18 +39,30 @@ beforeEach(() => {
 });
 describe('account patch-note synchronization', () => {
   it('loads server reading before showing unread notes on a second device', async () => {
-    vi.mocked(loadServerPatchNotesState).mockResolvedValue(marker(1));
+    vi.mocked(loadServerPatchNotesState).mockResolvedValue(marker(latestSequence));
     const { result } = renderHook(usePatchNotes);
     expect(result.current.unread).toEqual([]);
     await waitFor(() =>
-      expect(readPatchNotesState(`user:sync-${number}`)?.lastSeenSequence).toBe(1),
+      expect(readPatchNotesState(`user:sync-${number}`)?.lastSeenSequence).toBe(latestSequence),
     );
     expect(result.current.unread).toEqual([]);
+  });
+  it('keeps the new shipped publication unread after the previous release was acknowledged', async () => {
+    const previousSequence = Math.max(
+      ...PATCH_NOTES.filter((note) => note.sequence < latestSequence).map((note) => note.sequence),
+      0,
+    );
+    vi.mocked(loadServerPatchNotesState).mockResolvedValue(marker(previousSequence));
+    const { result } = renderHook(usePatchNotes);
+    await waitFor(() => expect(result.current.unread).toEqual([latestPatchNote()]));
+    act(() => result.current.markRead());
+    expect(result.current.unread).toEqual([]);
+    expect(readPatchNotesState(`user:sync-${number}`)?.lastSeenSequence).toBe(latestSequence);
   });
   it('waits for a fresh server marker when the same account signs out and logs back in', async () => {
     const id = `sync-${number}`;
     const first = renderHook(usePatchNotes);
-    await waitFor(() => expect(first.result.current.unread).toHaveLength(1));
+    await waitFor(() => expect(first.result.current.unread).toHaveLength(PATCH_NOTES.length));
     first.unmount();
     act(() => useAuthStore.setState({ user: null, isGuest: false }));
     let resolveRead!: (record: ReturnType<typeof marker>) => void;
@@ -62,10 +76,10 @@ describe('account patch-note synchronization', () => {
     const returning = renderHook(usePatchNotes);
     expect(returning.result.current.unread).toEqual([]);
     await act(async () => {
-      resolveRead(marker(1));
+      resolveRead(marker(latestSequence));
     });
     expect(returning.result.current.unread).toEqual([]);
-    expect(readPatchNotesState(`user:${id}`)?.lastSeenSequence).toBe(1);
+    expect(readPatchNotesState(`user:${id}`)?.lastSeenSequence).toBe(latestSequence);
   });
   it('ignores an abandoned read after signout even when the same account returns before it resolves', async () => {
     const id = `sync-${number}`;
@@ -95,14 +109,14 @@ describe('account patch-note synchronization', () => {
     expect(returning.result.current.unread).toEqual([]);
     expect(readPatchNotesState(`user:${id}`)).toBeNull();
     await act(async () => {
-      resolveNew(marker(1));
+      resolveNew(marker(latestSequence));
     });
-    expect(readPatchNotesState(`user:${id}`)?.lastSeenSequence).toBe(1);
+    expect(readPatchNotesState(`user:${id}`)?.lastSeenSequence).toBe(latestSequence);
   });
   it('marks locally immediately when the server fails and retries on reconnect', async () => {
     vi.mocked(saveServerPatchNotesState).mockRejectedValueOnce(new Error('offline'));
     const { result } = renderHook(usePatchNotes);
-    await waitFor(() => expect(result.current.unread).toHaveLength(1));
+    await waitFor(() => expect(result.current.unread).toHaveLength(PATCH_NOTES.length));
     act(() => result.current.markRead());
     expect(result.current.unread).toEqual([]);
     await waitFor(() => expect(result.current.localFallback).toBe(true));
@@ -112,12 +126,12 @@ describe('account patch-note synchronization', () => {
     expect(readPatchNotesState(`user:sync-${number}`)?.pendingSync).toBe(false);
   });
   it('retries an unsynchronized local marker on the next menu mount', async () => {
-    writePatchNotesState(`user:sync-${number}`, marker(1, true));
+    writePatchNotesState(`user:sync-${number}`, marker(latestSequence, true));
     renderHook(usePatchNotes);
     await waitFor(() =>
       expect(saveServerPatchNotesState).toHaveBeenCalledWith(
         `sync-${number}`,
-        expect.objectContaining({ lastSeenSequence: 1 }),
+        expect.objectContaining({ lastSeenSequence: latestSequence }),
       ),
     );
   });
@@ -131,11 +145,11 @@ describe('account patch-note synchronization', () => {
     );
     const { result } = renderHook(usePatchNotes);
     act(() => setAccount(`other-${number}`));
-    await waitFor(() => expect(result.current.unread).toHaveLength(1));
+    await waitFor(() => expect(result.current.unread).toHaveLength(PATCH_NOTES.length));
     await act(async () => {
       resolveFirst(marker(100));
     });
-    expect(result.current.unread).toHaveLength(1);
+    expect(result.current.unread).toHaveLength(PATCH_NOTES.length);
     expect(readPatchNotesState(`user:other-${number}`)).toBeNull();
   });
   it('falls back after failed server read while all menu actions remain independent', async () => {
@@ -143,7 +157,7 @@ describe('account patch-note synchronization', () => {
       new Error('table temporarily unavailable'),
     );
     const { result } = renderHook(usePatchNotes);
-    await waitFor(() => expect(result.current.unread).toHaveLength(1));
+    await waitFor(() => expect(result.current.unread).toHaveLength(PATCH_NOTES.length));
     expect(result.current.localFallback).toBe(true);
     act(() => result.current.markRead());
     expect(result.current.unread).toEqual([]);

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { User } from '@supabase/supabase-js';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi } from 'vitest';
 import { playSFX } from '@/audio/AudioManager';
@@ -191,6 +191,32 @@ describe('P2 page smoke tests', () => {
     fireEvent.change(screen.getByLabelText('Langue'), { target: { value: 'en-US' } });
 
     expect(useSettingsStore.getState().language).toBe('en-US');
+  });
+
+  it('waits for initial authentication before accepting guest play', async () => {
+    const originalEnterGuest = useAuthStore.getState().enterGuestMode;
+    const enterGuest = vi.fn().mockResolvedValue({ success: true });
+    useAuthStore.setState({
+      isAuthenticated: false,
+      isGuest: false,
+      isLoading: true,
+      isInitialized: false,
+      enterGuestMode: enterGuest,
+    });
+    try {
+      renderAt(<AuthPage />, '/auth');
+      const guest = screen.getByRole('button', { name: 'Jouer en invité' });
+      expect(guest).toBeDisabled();
+      fireEvent.click(guest);
+      expect(enterGuest).not.toHaveBeenCalled();
+
+      act(() => useAuthStore.setState({ isLoading: false, isInitialized: true }));
+      expect(guest).toBeEnabled();
+      fireEvent.click(guest);
+      await waitFor(() => expect(enterGuest).toHaveBeenCalledOnce());
+    } finally {
+      useAuthStore.setState({ enterGuestMode: originalEnterGuest });
+    }
   });
 
   it('renders the guest menu', () => {

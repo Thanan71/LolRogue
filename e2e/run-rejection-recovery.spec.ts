@@ -1,4 +1,10 @@
 import { expect, type Page, test } from '@playwright/test';
+import {
+  CHAMPION_CATALOG_VERSION,
+  CHAMPION_ECONOMY_CATALOG,
+  CHAMPION_ECONOMY_VERSION,
+  getRotationForInstant,
+} from '../src/domain/championEconomy';
 import { gameOverContent } from '../src/i18n/gameOverContent';
 import { runErrorContent } from '../src/i18n/runErrorContent';
 
@@ -6,12 +12,37 @@ const ATTEMPT_ID = '11111111-1111-4111-8111-111111111111';
 
 async function openGuest(page: Page, language: 'fr-FR' | 'en-US' = 'fr-FR') {
   await page.route('**/*', async (route) => {
-    const host = new URL(route.request().url()).hostname;
+    const url = new URL(route.request().url());
+    if (url.pathname.endsWith('/rpc/get_champion_economy_snapshot')) {
+      const serverNow = new Date().toISOString();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        json: {
+          enabled: true,
+          economyVersion: CHAMPION_ECONOMY_VERSION,
+          catalogVersion: CHAMPION_CATALOG_VERSION,
+          gameplayRulesetVersion: 21,
+          serverNow,
+          rotation: getRotationForInstant(serverNow, 21),
+          catalog: [...CHAMPION_ECONOMY_CATALOG],
+          wallet: null,
+          ownedChampionIds: [],
+          firstWinChampionIds: [],
+        },
+      });
+      return;
+    }
+    const host = url.hostname;
     if (host === '127.0.0.1' || host === 'localhost') await route.continue();
     else await route.abort('blockedbyclient');
   });
   await page.goto('/auth');
   if (language === 'en-US') await page.getByLabel('Langue').selectOption(language);
+  await page.waitForFunction(async () => {
+    const { useAuthStore } = await import('/src/stores/authStore.ts');
+    return useAuthStore.getState().isInitialized;
+  });
   await page
     .getByRole('button', { name: language === 'fr-FR' ? 'Jouer en invité' : 'Play as guest' })
     .click();
@@ -31,7 +62,8 @@ async function finishWithRejection(page: Page, retryable = false) {
           import('/src/services/runAttemptService.ts'),
           import('/src/i18n/runErrorContent.ts'),
         ]);
-      await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20261004 });
+      const started = await useRunStore.getState().startRun(['Annie', 'Ashe'], { seed: 20261004 });
+      if (!started.success) throw new Error(`Unable to start rejection fixture: ${started.code}`);
       const run = useRunStore.getState();
       const userId = '22222222-2222-4222-8222-222222222222';
       useAuthStore.setState({
@@ -53,9 +85,9 @@ async function finishWithRejection(page: Page, retryable = false) {
           engineVersion: 'run-engine-v1',
           difficulty: 'normal',
           mode: 'normal',
-          initialTeam: ['Garen', 'Lux'],
+          initialTeam: ['Annie', 'Ashe'],
           runeIds: [],
-          enhancementSnapshot: { Garen: {}, Lux: {} },
+          enhancementSnapshot: { Annie: {}, Ashe: {} },
           startedAt: run.startedAt!,
           expiresAt: new Date(Date.now() + 3600000).toISOString(),
           status: 'started',

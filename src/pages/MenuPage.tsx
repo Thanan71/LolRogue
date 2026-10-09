@@ -137,14 +137,6 @@ export function MenuPage() {
           )}
         </header>
 
-        <PatchNotesSummary />
-        <ChampionEconomyPanel
-          snapshot={economy.snapshot}
-          status={economy.status}
-          serverNow={economy.serverNow}
-          onRefresh={economy.refresh}
-        />
-
         <div className="main-menu__dashboard">
           <section className="main-menu__command" aria-labelledby="expedition-title">
             <div className="main-menu__section-heading">
@@ -227,6 +219,14 @@ export function MenuPage() {
             </button>
           </section>
         </div>
+
+        <PatchNotesSummary />
+        <ChampionEconomyPanel
+          snapshot={economy.snapshot}
+          status={economy.status}
+          serverNow={economy.serverNow}
+          onRefresh={economy.refresh}
+        />
 
         <nav className="main-menu__navigation" aria-label={fr.menu.headquarters}>
           <div className="main-menu__section-heading main-menu__section-heading--compact">

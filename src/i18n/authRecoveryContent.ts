@@ -1,0 +1,53 @@
+import { type Locale, locale } from './fr';
+
+export const authRecoveryContent = {
+  'fr-FR': {
+    forgot: 'Mot de passe oublié ?',
+    requestTitle: 'Retrouver mon compte',
+    requestDescription: 'Indique ton adresse e-mail pour recevoir un lien de réinitialisation.',
+    send: 'Envoyer le lien',
+    sending: 'Envoi du lien…',
+    sent: 'Si un compte utilise cette adresse, un lien de réinitialisation a été envoyé. Vérifie aussi les courriers indésirables.',
+    backToLogin: 'Retour à la connexion',
+    recoveryTitle: 'Choisir un nouveau mot de passe',
+    recoveryDescription: 'Entre et confirme ton nouveau mot de passe pour retrouver ton compte.',
+    password: 'Nouveau mot de passe',
+    confirmPassword: 'Confirmer le mot de passe',
+    passwordHelp: '6 caractères minimum.',
+    mismatch: 'Les deux mots de passe doivent être identiques.',
+    update: 'Enregistrer le mot de passe',
+    updating: 'Enregistrement…',
+    updated: 'Ton mot de passe a été mis à jour.',
+    expired:
+      'Ce lien est invalide ou a expiré. Demande un nouveau lien pour réinitialiser ton mot de passe.',
+    requestFailed: 'Le lien n’a pas pu être envoyé. Vérifie ta connexion et réessaie.',
+    updateFailed: 'Le mot de passe n’a pas pu être enregistré. Réessaie.',
+    newLink: 'Demander un nouveau lien',
+    backToMenu: 'Revenir au menu',
+  },
+  'en-US': {
+    forgot: 'Forgot password?',
+    requestTitle: 'Recover my account',
+    requestDescription: 'Enter your email address to receive a password reset link.',
+    send: 'Send reset link',
+    sending: 'Sending link…',
+    sent: 'If an account uses this address, a password reset link has been sent. Check your spam folder too.',
+    backToLogin: 'Back to sign in',
+    recoveryTitle: 'Choose a new password',
+    recoveryDescription: 'Enter and confirm your new password to recover your account.',
+    password: 'New password',
+    confirmPassword: 'Confirm password',
+    passwordHelp: 'At least 6 characters.',
+    mismatch: 'Both passwords must match.',
+    update: 'Save password',
+    updating: 'Saving…',
+    updated: 'Your password has been updated.',
+    expired: 'This link is invalid or has expired. Request a new link to reset your password.',
+    requestFailed: 'The link could not be sent. Check your connection and try again.',
+    updateFailed: 'The password could not be saved. Try again.',
+    newLink: 'Request a new link',
+    backToMenu: 'Return to menu',
+  },
+} satisfies Record<Locale, Record<string, string>>;
+
+export const authRecoveryCopy = authRecoveryContent[locale];

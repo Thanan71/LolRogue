@@ -7,6 +7,9 @@ import { isActionTargeting } from '@/game/battle/targetResolver';
 import type { BattleAction, BattleEvent, BattleTeam, TeamSide } from '@/game/battle/types';
 import { ActionType as BattleActionType, BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
+import type { EffectManager } from '@/game/effects/EffectManager';
+import { snapshotCombatStatuses } from '@/game/presentation/combatStatuses';
+import { advanceManualBlockedTurn } from '@/game/presentation/manualCombatAdapter';
 import { buildSpellImpactPreview } from '@/game/presentation/spellPreview';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleLoadout } from '@/game/rules/types';
@@ -27,6 +30,7 @@ function toCombatantInfo(
   currentMp: number,
   maxMp: number,
   isDefeated: boolean,
+  effectManager: EffectManager,
 ): CombatantInfo {
   const slots: Array<'Q' | 'W' | 'E' | 'R'> = ['Q', 'W', 'E', 'R'];
   const spells: SpellInfo[] = [];
@@ -45,7 +49,7 @@ function toCombatantInfo(
         cooldownMax: champ.getMaxCooldown(slot),
         cooldownCurrent: champ.getCooldown(slot),
         cost,
-        isReady: champ.isSpellReady(slot) && currentMp >= cost,
+        isReady: effectManager.canCast() && champ.isSpellReady(slot) && currentMp >= cost,
         targeting: spell.targeting,
         iconUrl: riotSpellIconUrl(champ.id, spell.image),
         impacts: buildSpellImpactPreview(spell, rank, champ.getEnhancedStats()),
@@ -65,6 +69,7 @@ function toCombatantInfo(
     isDefeated,
     side,
     spells,
+    statuses: isDefeated ? [] : snapshotCombatStatuses(effectManager),
   };
 }
 
@@ -82,6 +87,7 @@ function syncTeams(bm: BattleManager): void {
         c.currentMp,
         c.maxMp,
         c.isDefeated,
+        c.effectManager,
       ),
     );
   const enemy = bm
@@ -96,6 +102,7 @@ function syncTeams(bm: BattleManager): void {
         c.currentMp,
         c.maxMp,
         c.isDefeated,
+        c.effectManager,
       ),
     );
   store.setTeams(player, enemy);
@@ -417,6 +424,20 @@ export function useBattleManager({
     return result;
   }, []);
 
+  const advanceBlockedTurn = useCallback(() => {
+    const bm = bmRef.current;
+    const entry = bm?.currentTurnEntry;
+    if (
+      !bm ||
+      !entry ||
+      entry.side !== 'player' ||
+      bm.getAvailableActions(entry.champion).length > 0
+    )
+      return;
+    advanceManualBlockedTurn(bm);
+    syncTeams(bm);
+  }, []);
+
   const getAvailableActions = useCallback(() => {
     const bm = bmRef.current;
     if (!bm) return [];
@@ -427,6 +448,7 @@ export function useBattleManager({
 
   return {
     processTurn,
+    advanceBlockedTurn,
     submitAction,
     getAvailableActions,
     /** Get final HP and mana state for player champions after battle. */

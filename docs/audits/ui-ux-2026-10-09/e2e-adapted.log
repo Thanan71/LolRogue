@@ -1,0 +1,17 @@
+
+Running 8 tests using 2 workers
+
+(node:61603) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:61602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › ../../../../private/tmp/lolrogue-uiux-adapted-tests/accessibility-display.spec.ts:46:5 › les réglages modifient leurs consommateurs réels (7.9s)
+  ✓  1 [chromium] › ../../../../private/tmp/lolrogue-uiux-adapted-tests/accessibility-display.spec.ts:22:5 › le mouvement réduit neutralise CSS, canvas, SVG et animation de combat (8.4s)
+  ✓  4 [chromium] › ../../../../private/tmp/lolrogue-uiux-adapted-tests/accessibility-display.spec.ts:96:5 › le mode Windows High Contrast conserve contrôles, état et focus (4.6s)
+  ✓  3 [chromium] › ../../../../private/tmp/lolrogue-uiux-adapted-tests/accessibility-display.spec.ts:74:5 › le zoom 200 % conserve un reflow horizontal sur les routes principales (6.6s)
+  ✓  6 [chromium] › ../../../../private/tmp/lolrogue-uiux-adapted-tests/accessibility.spec.ts:138:5 › Auth et Database sont utilisables avec les flèches et le clavier (19.6s)
+  ✓  7 [chromium] › ../../../../private/tmp/lolrogue-uiux-adapted-tests/onboarding.spec.ts:11:5 › le guide explique la boucle, les modes et filtre les règles actives (6.1s)
+  ✓  8 [chromium] › ../../../../private/tmp/lolrogue-uiux-adapted-tests/onboarding.spec.ts:29:5 › le tutoriel carte apparaît une fois puis reste réouvrable (8.6s)
+  ✓  5 [chromium] › ../../../../private/tmp/lolrogue-uiux-adapted-tests/accessibility.spec.ts:24:5 › les routes principales respectent les règles axe critiques (50.2s)
+
+  8 passed (1.1m)

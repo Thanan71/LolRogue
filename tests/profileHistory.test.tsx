@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fr } from '@/i18n/fr';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { useAuthStore } from '@/stores/authStore';
 import type { Player, Run, RunTeamMember } from '@/types/models';
@@ -10,6 +11,19 @@ import type { Player, Run, RunTeamMember } from '@/types/models';
 const historyMocks = vi.hoisted(() => ({
   getPlayerRunHistory: vi.fn(),
   getRunHistoryDetails: vi.fn(),
+  endRun: vi.fn(),
+  exitGuestMode: vi.fn(),
+  activeRun: false,
+}));
+
+vi.mock('@/stores/runStore', () => ({
+  useRunStore: {
+    getState: () => ({
+      isActive: historyMocks.activeRun,
+      runId: 'guest-active',
+      endRun: historyMocks.endRun,
+    }),
+  },
 }));
 
 vi.mock('@/services/container', () => ({
@@ -45,12 +59,28 @@ const run = {
   created_at: '2026-08-08T09:00:00.000Z',
 } as Run;
 
+function renderLoginTransition() {
+  return render(
+    <MemoryRouter initialEntries={['/profile']}>
+      <Routes>
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/auth" element={<h1>Login ready</h1>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
 describe('comparable profile history', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
   beforeEach(() => {
+    historyMocks.activeRun = false;
+    historyMocks.endRun.mockReset();
+    historyMocks.exitGuestMode.mockReset();
+    historyMocks.endRun.mockResolvedValue({ success: true });
+    historyMocks.exitGuestMode.mockResolvedValue({ success: true });
     historyMocks.getRunHistoryDetails.mockReset();
     historyMocks.getRunHistoryDetails.mockResolvedValue({
       data: {
@@ -96,6 +126,7 @@ describe('comparable profile history', () => {
       isAuthenticated: true,
       isInitialized: true,
       isLoading: false,
+      exitGuestMode: historyMocks.exitGuestMode,
     });
   });
 
@@ -415,6 +446,93 @@ describe('comparable profile history', () => {
 
     expect(screen.getByText('Profil local')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Se connecter pour synchroniser' }));
+    expect(historyMocks.getPlayerRunHistory).not.toHaveBeenCalled();
+  });
+
+  it('preserves an active guest run when login abandonment is declined', async () => {
+    historyMocks.activeRun = true;
+    useAuthStore.setState({ player: null, isGuest: true, isAuthenticated: false });
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Se connecter pour synchroniser' }));
+    await waitFor(() => expect(window.confirm).toHaveBeenCalledOnce());
+    expect(historyMocks.endRun).not.toHaveBeenCalled();
+    expect(historyMocks.exitGuestMode).not.toHaveBeenCalled();
+    expect(screen.getByText('Profil local')).toBeVisible();
+  });
+
+  it('ends an active guest run only after confirmation before opening login', async () => {
+    historyMocks.activeRun = true;
+    useAuthStore.setState({ player: null, isGuest: true, isAuthenticated: false });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(
+      <MemoryRouter initialEntries={['/profile']}>
+        <Routes>
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/auth" element={<h1>Login ready</h1>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Se connecter pour synchroniser' }));
+    await screen.findByRole('heading', { name: 'Login ready' });
+    expect(historyMocks.endRun).toHaveBeenCalledWith(false, 'guest-active');
+    expect(historyMocks.exitGuestMode).toHaveBeenCalledOnce();
+    expect(historyMocks.endRun.mock.invocationCallOrder[0]).toBeLessThan(
+      historyMocks.exitGuestMode.mock.invocationCallOrder[0]!,
+    );
+  });
+
+  it.each([
+    { error: 'Guest transition refused', expected: 'Guest transition refused' },
+    { error: undefined, expected: fr.auth.activeRunGuestExit },
+  ])(
+    'keeps the profile usable when guest exit is refused ($error)',
+    async ({ error, expected }) => {
+      useAuthStore.setState({ player: null, isGuest: true, isAuthenticated: false });
+      historyMocks.exitGuestMode.mockResolvedValue({ success: false, error });
+      renderLoginTransition();
+
+      const login = screen.getByRole('button', { name: 'Se connecter pour synchroniser' });
+      fireEvent.click(login);
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(expected);
+      expect(screen.queryByRole('heading', { name: 'Login ready' })).not.toBeInTheDocument();
+      expect(login).toBeEnabled();
+      expect(historyMocks.endRun).not.toHaveBeenCalled();
+      expect(historyMocks.exitGuestMode).toHaveBeenCalledOnce();
+    },
+  );
+
+  it('preserves the active guest run and allows another attempt when abandonment throws', async () => {
+    historyMocks.activeRun = true;
+    useAuthStore.setState({ player: null, isGuest: true, isAuthenticated: false });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    historyMocks.endRun.mockRejectedValue(new Error('Failed to finish local run'));
+    renderLoginTransition();
+
+    const login = screen.getByRole('button', { name: 'Se connecter pour synchroniser' });
+    fireEvent.click(login);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(fr.auth.activeRunGuestExit);
+    expect(screen.queryByRole('heading', { name: 'Login ready' })).not.toBeInTheDocument();
+    expect(login).toBeEnabled();
+    expect(historyMocks.activeRun).toBe(true);
+    expect(historyMocks.exitGuestMode).not.toHaveBeenCalled();
+  });
+
+  it('opens login for a signed-out profile without leaving guest mode or loading remote history', async () => {
+    useAuthStore.setState({ player: null, isGuest: false, isAuthenticated: false });
+    renderLoginTransition();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Se connecter pour synchroniser' }));
+
+    await screen.findByRole('heading', { name: 'Login ready' });
+    expect(historyMocks.exitGuestMode).not.toHaveBeenCalled();
+    expect(historyMocks.endRun).not.toHaveBeenCalled();
     expect(historyMocks.getPlayerRunHistory).not.toHaveBeenCalled();
   });
 

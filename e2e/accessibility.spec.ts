@@ -58,7 +58,7 @@ test('les routes principales respectent les règles axe critiques', async ({ pag
 
   await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');
-    const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20260801 });
+    const started = await useRunStore.getState().startRun(['Annie', 'Ashe'], { seed: 20260801 });
     if (!started.success) throw new Error(`Unable to start accessibility run: ${started.code}`);
   });
   await page.goto('/run');
@@ -145,7 +145,7 @@ test('Auth et Database sont utilisables avec les flèches et le clavier', async 
 
   await page.getByRole('button', { name: 'Jouer en invité' }).click();
   await page.getByRole('button', { name: 'Champions' }).click();
-  const champion = page.getByRole('button', { name: /Garen/ }).first();
+  const champion = page.getByRole('button', { name: /Annie/ }).first();
   await champion.focus();
   await page.keyboard.press('Enter');
   await expect(champion).toHaveAttribute('aria-pressed', 'true');

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { ActionTargeting, ActionType, TeamSide } from '@/game/battle/types';
+import type { CCType } from '@/game/effects/types';
 import type { SpellImpactPreview } from '@/game/presentation/spellPreview';
 
 export interface SpellInfo {
@@ -12,6 +13,14 @@ export interface SpellInfo {
   targeting: ActionTargeting;
   iconUrl?: string;
   impacts?: SpellImpactPreview[];
+}
+
+export interface CombatStatusInfo {
+  id: string;
+  kind: CCType | 'shield' | 'buff' | 'debuff' | 'dot' | 'hot' | 'revive';
+  turnsRemaining: number;
+  amount?: number;
+  stacks?: number;
 }
 
 export interface CombatantInfo {
@@ -27,6 +36,8 @@ export interface CombatantInfo {
   isDefeated: boolean;
   side: 'player' | 'enemy';
   spells: SpellInfo[];
+  /** Immutable display snapshot of active engine effects. */
+  statuses?: CombatStatusInfo[];
 }
 
 export interface LogEntry {

@@ -1,20 +1,24 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
+import { RecruitStatList } from '@/components/RecruitStatList';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
+import { isPassiveCombatReady, isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import type { ShopItem } from '@/game/map/types';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { formatStatValue, normalizeStatKey } from '@/game/stats/statContract';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useRecruitPreview } from '@/hooks/useRecruitPreview';
 import { itemDescription, itemName, localizeChampion } from '@/i18n/content';
-import { getEncounterPresentation } from '@/i18n/encounterContent';
-import { formatNumber } from '@/i18n/format';
+import { getEncounterPresentation, recruitPreviewCopy } from '@/i18n/encounterContent';
+import { formatChampionTag, formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { localizeShopMutationError } from '@/i18n/runMutationContent';
 import { useRunStore } from '@/stores/runStore';
 import { MAX_INVENTORY_ITEMS } from '@/types/run';
+import { stripMarkup } from '@/utils/text';
 import '@/styles/shop.css';
 
 // ─── Helper Components ─────────────────────────────────────────────────────
@@ -97,6 +101,8 @@ function ChampionCard({
 }) {
   const sourceChampion = championDB.getById(champId);
   const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
+  const preview = useRecruitPreview(champId);
+  const previewCopy = recruitPreviewCopy[locale];
   const disabled = !canAfford || teamFull || alreadyOnTeam;
   let label = `${fr.encounter.recruitAction} — ${formatNumber(cost)} ${fr.common.gold}`;
   if (alreadyOnTeam) label = fr.encounter.alreadyOnTeam;
@@ -123,6 +129,48 @@ function ChampionCard({
           <p className="shop-card__subtitle">{champ?.title ?? fr.encounter.champion}</p>
         </div>
       </div>
+      {preview && (
+        <div className="shop-card__recruit-preview">
+          <p className="shop-card__arrival-level">
+            {previewCopy.arrivalLevel} : {formatNumber(preview.level)}
+          </p>
+          <RecruitStatList stats={preview.stats} className="shop-card__recruit-stats" />
+          <p className="shop-card__stats-note">{previewCopy.bonuses}</p>
+        </div>
+      )}
+      {champ && (
+        <details className="shop-card__champion-details">
+          <summary>{previewCopy.inspect}</summary>
+          <ul className="shop-card__roles" aria-label={previewCopy.roles}>
+            {champ.tags.map((tag) => (
+              <li key={tag}>{formatChampionTag(tag)}</li>
+            ))}
+          </ul>
+          <h4>{fr.database.abilities}</h4>
+          <dl className="shop-card__abilities">
+            {champ.spells.map((spell) => (
+              <div key={spell.id}>
+                <dt>{spell.name}</dt>
+                <dd>
+                  {isSpellCombatReady(spell)
+                    ? stripMarkup(spell.description)
+                    : fr.database.unavailableCombatDescription}
+                </dd>
+              </div>
+            ))}
+            <div>
+              <dt>
+                {fr.database.passive} : {champ.passive.name}
+              </dt>
+              <dd>
+                {isPassiveCombatReady(champ.id, champ.passive)
+                  ? stripMarkup(champ.passive.description)
+                  : fr.database.unavailableCombatDescription}
+              </dd>
+            </div>
+          </dl>
+        </details>
+      )}
       <button
         type="button"
         className="shop-card__buy shop-card__buy--recruit"

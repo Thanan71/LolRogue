@@ -1,0 +1,20 @@
+
+Running 13 tests using 1 worker
+
+(node:83865) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/combat-map-presentation.spec.ts:162:1 › la carte et le combat restent lisibles et animés sur mobile (9.1s)
+  ✓   2 [chromium] › e2e/combat-map-presentation.spec.ts:273:1 › une compétence offensive garde l’ennemi comme cible malgré son bonus personnel (6.3s)
+  ✓   3 [chromium] › e2e/combat-map-presentation.spec.ts:300:1 › deux champions identiques restent séparés par leur camp dans toute la présentation (6.1s)
+  ✓   4 [chromium] › e2e/combat-map-presentation.spec.ts:338:3 › les états et les sorts indisponibles restent consultables avec grand texte à 320px (6.2s)
+  ✓   5 [chromium] › e2e/combat-map-presentation.spec.ts:338:3 › les états et les sorts indisponibles restent consultables avec grand texte à 390px (6.0s)
+  ✓   6 [chromium] › e2e/run-loadout-panels.spec.ts:83:3 › équipement, statistiques et sorts restent pratiques en mobile-390 (3.8s)
+  ✓   7 [chromium] › e2e/run-loadout-panels.spec.ts:83:3 › équipement, statistiques et sorts restent pratiques en desktop-1440 (4.0s)
+  ✓   8 [chromium] › e2e/starter-select-responsive.spec.ts:148:3 › starter and rune layout stays readable at 320x568 (2.2s)
+  ✓   9 [chromium] › e2e/starter-select-responsive.spec.ts:148:3 › starter and rune layout stays readable at 390x844 (2.1s)
+  ✓  10 [chromium] › e2e/starter-select-responsive.spec.ts:180:1 › the complete selection can be performed with the keyboard at 320px (1.9s)
+  ✓  11 [chromium] › e2e/starter-select-responsive.spec.ts:221:1 › a missing rune image keeps a visible themed fallback (1.9s)
+  ✓  12 [chromium] › e2e/starter-select-responsive.spec.ts:234:1 › touch selection exposes a start error without overlap at 320px (2.3s)
+  ✓  13 [chromium] › e2e/starter-select-responsive.spec.ts:302:1 › touch selection and Back remain activatable at 390px (2.4s)
+
+  13 passed (55.3s)

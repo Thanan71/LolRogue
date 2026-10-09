@@ -4,7 +4,9 @@ import { expect, type Page, test } from '@playwright/test';
 /** Presentation-only fixtures; connected-champion-economy covers actual authority and persistence. */
 async function installEconomyUi(page: Page, english: boolean) {
   await page.goto('/auth');
-  if (english) await page.getByLabel('Langue').selectOption('en-US');
+  if (english) {
+    await Promise.all([page.waitForEvent('load'), page.getByLabel('Langue').selectOption('en-US')]);
+  }
   await page.getByRole('button', { name: english ? 'Play as guest' : 'Jouer en invité' }).click();
   await expect(page).toHaveURL('/');
   await expect(page.getByRole('heading', { name: 'LoL Rogue', exact: true })).toBeVisible();
@@ -31,6 +33,9 @@ async function installEconomyUi(page: Page, english: boolean) {
       },
       isGuest: false,
       isAuthenticated: true,
+      authStatus: 'ready',
+      isLoading: false,
+      isInitialized: true,
     });
     useChampionEconomyStore.setState({
       userId: 'economy-ui-fixture',
@@ -85,6 +90,15 @@ for (const english of [false, true]) {
     await page.setViewportSize({ width: 370, height: 740 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await installEconomyUi(page, english);
+    const accessFilter = page.getByRole('combobox', {
+      name: english ? 'Filter champions by access' : 'Filtrer les champions par accès',
+    });
+    await expect(accessFilter).toHaveValue('available');
+    await expect(
+      page.getByRole('button', { name: english ? 'Choose Lux' : 'Choisir Lux', exact: true }),
+    ).toHaveCount(0);
+    await accessFilter.selectOption('all');
+    await page.getByRole('searchbox').fill('Lux');
     const choose = page.getByRole('button', {
       name: english ? 'Choose Lux' : 'Choisir Lux',
       exact: true,

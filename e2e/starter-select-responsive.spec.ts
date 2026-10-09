@@ -21,8 +21,22 @@ async function openStarterSelection(page: Page) {
   await expect(page.getByRole('heading', { name: 'Compose ton équipe' })).toBeVisible();
 }
 
-async function expectResponsiveStarterLayout(page: Page) {
-  const layout = await page.evaluate(() => {
+async function openRunes(page: Page, keyboard = false) {
+  const disclosure = page.locator('.starter-select__rune-disclosure');
+  const summary = disclosure.locator('summary');
+  await expect(disclosure).not.toHaveAttribute('open');
+  if (keyboard) {
+    await summary.focus();
+    await page.keyboard.press('Enter');
+  } else {
+    await summary.tap();
+  }
+  await expect(disclosure).toHaveAttribute('open');
+  await expect(page.getByRole('checkbox').first()).toBeAttached();
+}
+
+async function expectResponsiveStarterLayout(page: Page, expandedRunes = false) {
+  const layout = await page.evaluate((runesExpanded) => {
     const root = document.querySelector<HTMLElement>('.starter-select');
     const cards = [...document.querySelectorAll<HTMLElement>('.champion-card')];
     const runeDescriptions = [
@@ -31,9 +45,12 @@ async function expectResponsiveStarterLayout(page: Page) {
     const actions = document.querySelector<HTMLElement>('.starter-select__actions');
     const confirm = document.querySelector<HTMLButtonElement>('.starter-select__confirm');
     const back = document.querySelector<HTMLButtonElement>('.starter-select__back');
-    const lastRune = document.querySelector<HTMLElement>('.starter-rune:last-child');
     const journey = document.querySelector<HTMLElement>('.starter-select__journey');
     const runeIcon = document.querySelector<HTMLElement>('.starter-rune__icon');
+    const runeDisclosure = document.querySelector<HTMLDetailsElement>(
+      '.starter-select__rune-disclosure',
+    );
+    const footer = document.querySelector<HTMLElement>('.starter-select__action-footer');
     if (
       !root ||
       cards.length < 2 ||
@@ -41,9 +58,10 @@ async function expectResponsiveStarterLayout(page: Page) {
       !actions ||
       !confirm ||
       !back ||
-      !lastRune ||
       !journey ||
-      !runeIcon
+      !runeIcon ||
+      !runeDisclosure ||
+      !footer
     ) {
       throw new Error('Starter selection layout is incomplete.');
     }
@@ -58,7 +76,6 @@ async function expectResponsiveStarterLayout(page: Page) {
       ...runeDescriptions.map((description) => description.getBoundingClientRect().width),
     );
     const confirmRect = confirm.getBoundingClientRect();
-    const lastRuneRect = lastRune.getBoundingClientRect();
     const backRect = back.getBoundingClientRect();
     const journeyRect = journey.getBoundingClientRect();
     const runeIconRect = runeIcon.getBoundingClientRect();
@@ -78,31 +95,53 @@ async function expectResponsiveStarterLayout(page: Page) {
       descriptionsAreUnclamped: runeDescriptions.every(
         (description) => getComputedStyle(description).webkitLineClamp === 'none',
       ),
-      actionGap: confirmRect.top - lastRuneRect.bottom,
+      runesExpanded: runeDisclosure.open,
+      expectedRunesExpanded: runesExpanded,
+      footerPosition: getComputedStyle(footer).position,
+      confirmTop: confirmRect.top,
+      confirmBottom: confirmRect.bottom,
+      confirmLeft: confirmRect.left,
+      confirmRight: confirmRect.right,
+      viewportHeight: innerHeight,
+      viewportWidth: innerWidth,
+      confirmIsUncovered:
+        document.elementFromPoint(
+          confirmRect.left + confirmRect.width / 2,
+          confirmRect.top + confirmRect.height / 2,
+        ) === confirm,
       horizontalOverflow:
         document.documentElement.scrollWidth - document.documentElement.clientWidth,
       documentHeight: document.documentElement.scrollHeight,
     };
-  });
+  }, expandedRunes);
 
   expect(layout.rootPosition).not.toBe('fixed');
   expect(layout.actionsDirection).toBe('column');
   expect(layout.cardsShareFirstRow).toBe(true);
   expect(layout.cardWidth).toBeGreaterThanOrEqual(130);
-  expect(layout.narrowestDescription).toBeGreaterThanOrEqual(180);
   expect(layout.confirmHeight).toBeGreaterThanOrEqual(44);
   expect(layout.confirmHeight).toBeLessThanOrEqual(56);
   expect(layout.backHeight).toBeGreaterThanOrEqual(44);
   expect(layout.backBorderStyle).not.toBe('none');
   expect(layout.journeyDisplay).not.toBe('none');
   expect(layout.journeyHeight).toBeGreaterThan(20);
-  expect(layout.runeIconWidth).toBeGreaterThanOrEqual(32);
-  expect(layout.descriptionsAreUnclamped).toBe(true);
-  expect(layout.actionGap).toBeGreaterThan(8);
+  expect(layout.runesExpanded).toBe(layout.expectedRunesExpanded);
+  if (expandedRunes) {
+    expect(layout.narrowestDescription).toBeGreaterThanOrEqual(180);
+    expect(layout.runeIconWidth).toBeGreaterThanOrEqual(32);
+    expect(layout.descriptionsAreUnclamped).toBe(true);
+  } else {
+    expect(layout.documentHeight).toBeLessThan(2_200);
+    await expect(page.getByRole('checkbox')).toHaveCount(0);
+  }
+  expect(layout.footerPosition).toBe('fixed');
+  expect(layout.confirmTop).toBeGreaterThanOrEqual(0);
+  expect(layout.confirmBottom).toBeLessThanOrEqual(layout.viewportHeight);
+  expect(layout.confirmLeft).toBeGreaterThanOrEqual(0);
+  expect(layout.confirmRight).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(layout.confirmIsUncovered).toBe(true);
+  await expect(page.locator('.starter-select__confirm')).toBeInViewport({ ratio: 1 });
   expect(layout.horizontalOverflow).toBeLessThanOrEqual(1);
-  // Full rune effects are intentionally not line-clamped on mobile. Keep the
-  // flow bounded without hiding rule text from the player.
-  expect(layout.documentHeight).toBeLessThan(2_200);
 }
 
 for (const viewport of MOBILE_VIEWPORTS) {
@@ -110,6 +149,12 @@ for (const viewport of MOBILE_VIEWPORTS) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await openStarterSelection(page);
     await expectResponsiveStarterLayout(page);
+    await openRunes(page);
+    await expectResponsiveStarterLayout(page, true);
+    await page.locator('.starter-rune').last().scrollIntoViewIfNeeded();
+    await expectResponsiveStarterLayout(page, true);
+    await page.locator('.starter-select__rune-disclosure summary').tap();
+    await expect(page.locator('.starter-select__rune-disclosure')).not.toHaveAttribute('open');
     const images = page.locator('.champion-card__splash');
     for (let index = 0; index < (await images.count()); index++) {
       const image = images.nth(index);
@@ -148,12 +193,15 @@ test('the complete selection can be performed with the keyboard at 320px', async
   await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
   await expect(confirm).toBeEnabled();
 
+  await openRunes(page, true);
   const runes = page.getByRole('checkbox');
   const firstRune = runes.nth(0);
   await firstRune.focus();
   await page.keyboard.press('Space');
   await expect(firstRune).toBeChecked();
-  await expect(page.getByText('1/3 sélectionnée', { exact: true })).toBeVisible();
+  await expect(page.locator('.starter-select__rune-disclosure summary')).toContainText(
+    '1/3 sélectionnée',
+  );
 
   await runes.nth(1).focus();
   await page.keyboard.press('Space');
@@ -173,6 +221,7 @@ test('the complete selection can be performed with the keyboard at 320px', async
 test('a missing rune image keeps a visible themed fallback', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openStarterSelection(page);
+  await openRunes(page);
 
   const firstIcon = page.locator('.starter-rune__icon').first();
   const image = firstIcon.locator('img');
@@ -210,12 +259,15 @@ test('touch selection exposes a start error without overlap at 320px', async ({ 
   await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
   await expect(confirm).toBeEnabled();
 
-  await page.getByRole('checkbox').first().tap();
+  // Runes remain optional when starting and when an error must be announced.
+  await expect(page.locator('.starter-select__rune-disclosure')).not.toHaveAttribute('open');
   await confirm.tap();
 
   const alert = page.getByRole('alert');
   await expect(alert).toHaveText('La partie vérifiée n’a pas pu démarrer.');
   await expect(page).toHaveURL('/starter-select');
+  await expect(alert).toBeInViewport({ ratio: 1 });
+  await expect(confirm).toBeInViewport({ ratio: 1 });
 
   const geometry = await page.evaluate(() => {
     const alert = document.querySelector<HTMLElement>('.starter-select__error');
@@ -227,13 +279,24 @@ test('touch selection exposes a start error without overlap at 320px', async ({ 
       alertWidth: alertRect.width,
       gap: confirmRect.top - alertRect.bottom,
       confirmHeight: confirmRect.height,
+      alertTop: alertRect.top,
+      confirmBottom: confirmRect.bottom,
+      viewportHeight: innerHeight,
+      confirmIsUncovered:
+        document.elementFromPoint(
+          confirmRect.left + confirmRect.width / 2,
+          confirmRect.top + confirmRect.height / 2,
+        ) === confirm,
     };
   });
 
   expect(geometry.alertWidth).toBeGreaterThan(250);
-  expect(geometry.gap).toBeGreaterThan(8);
+  expect(geometry.gap).toBeGreaterThanOrEqual(0);
   expect(geometry.confirmHeight).toBeGreaterThanOrEqual(44);
   expect(geometry.confirmHeight).toBeLessThanOrEqual(56);
+  expect(geometry.alertTop).toBeGreaterThanOrEqual(0);
+  expect(geometry.confirmBottom).toBeLessThanOrEqual(geometry.viewportHeight);
+  expect(geometry.confirmIsUncovered).toBe(true);
 });
 
 test('touch selection and Back remain activatable at 390px', async ({ page }) => {
@@ -247,7 +310,8 @@ test('touch selection and Back remain activatable at 390px', async ({ page }) =>
   await secondChampion.tap();
   await expect(firstChampion).toHaveAttribute('aria-pressed', 'true');
   await expect(secondChampion).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('checkbox').first().tap();
+  await openRunes(page);
+  await page.locator('.starter-rune').first().tap();
   await expect(page.getByRole('checkbox').first()).toBeChecked();
 
   const confirm = page.getByRole('button', { name: 'Confirmer le choix' });
@@ -266,10 +330,16 @@ test('touch selection and Back remain activatable at 390px', async ({ page }) =>
   await returnChampions.nth(1).tap();
   await expect(returnChampions.nth(0)).toHaveAttribute('aria-pressed', 'true');
   await expect(returnChampions.nth(1)).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('checkbox').first().tap();
+  await expect(page.locator('.starter-select__rune-disclosure')).not.toHaveAttribute('open');
   const returnConfirm = page.getByRole('button', { name: 'Confirmer le choix' });
   await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
   await expect(returnConfirm).toBeEnabled();
   await returnConfirm.tap();
   await expect(page).toHaveURL('/run');
+  expect(
+    await page.evaluate(async () => {
+      const { useRunStore } = await import('/src/stores/runStore.ts');
+      return useRunStore.getState().runeIds;
+    }),
+  ).toEqual([]);
 });
