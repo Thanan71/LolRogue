@@ -2000,6 +2000,10 @@
   color: var(--color-mana);
 }
 
+.combat-log__entry--run_counter_gain {
+  color: #dcc5ff;
+}
+
 .combat-log__entry--turn_skipped {
   color: var(--color-warning);
 }

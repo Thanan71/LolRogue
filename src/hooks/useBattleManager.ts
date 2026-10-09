@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { riotSpellIconUrl } from '@/config/riotSpellAssets';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
-import { BattleManager } from '@/game/battle/BattleManager';
+import { BattleManager, type BattleManagerOptions } from '@/game/battle/BattleManager';
 import { isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { isActionTargeting } from '@/game/battle/targetResolver';
 import type { BattleAction, BattleEvent, BattleTeam, TeamSide } from '@/game/battle/types';
@@ -15,6 +15,7 @@ import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleLoadout } from '@/game/rules/types';
 import { combatCopy } from '@/i18n/combatContent';
 import { localizeSpell } from '@/i18n/content';
+import { localizeRunProgressDefinition } from '@/i18n/runProgressContent';
 import { type CombatantInfo, type SpellInfo, useBattleStore } from '@/stores/battleStore';
 import type { FinalCombatantState } from '@/types/run';
 
@@ -70,6 +71,12 @@ function toCombatantInfo(
     side,
     spells,
     statuses: isDefeated ? [] : snapshotCombatStatuses(effectManager),
+    ...(champ.getPassive().runProgression?.length
+      ? {
+          runProgression: champ.getPassive().runProgression,
+          runProgress: champ.getRunProgressSnapshot(),
+        }
+      : {}),
   };
 }
 
@@ -272,6 +279,33 @@ function handleEvent(bm: BattleManager, event: BattleEvent): void {
       });
       break;
 
+    case 'run_counter_gain': {
+      syncTeams(bm);
+      const team =
+        event.sourceSide === 'player' ? bm.getPlayerCombatants() : bm.getEnemyCombatants();
+      const source = team.find((combatant) => combatant.targetId === event.sourceCombatantId);
+      const definition = source?.champion
+        .getPassive()
+        .runProgression?.find((candidate) => candidate.key === event.key);
+      store.addLog({
+        type: 'run_counter_gain',
+        message: combatCopy.logs.runCounterGain(
+          source?.champion.name ?? event.source,
+          definition ? localizeRunProgressDefinition(definition).name : combatCopy.logs.runProgress,
+          event.amount,
+          event.value,
+        ),
+        amount: event.amount,
+        counterKey: event.key,
+        counterValue: event.value,
+        sourceCombatantId: event.sourceCombatantId,
+        targetCombatantId: event.targetCombatantId,
+        sourceSide: event.sourceSide,
+        targetSide: event.targetSide,
+      });
+      break;
+    }
+
     case 'defeat':
       syncTeams(bm);
       store.addLog({ type: 'defeat', message: combatCopy.logs.defeated(event.champion) });
@@ -306,6 +340,7 @@ interface UseBattleManagerOptions {
   initialMpOverrides?: Record<string, number>;
   random?: () => number;
   ruleLoadout?: CombatRuleLoadout;
+  combatantTiers?: BattleManagerOptions['combatantTiers'];
 }
 
 export function useBattleManager({
@@ -317,6 +352,7 @@ export function useBattleManager({
   initialMpOverrides,
   random,
   ruleLoadout,
+  combatantTiers,
 }: UseBattleManagerOptions) {
   const bmRef = useRef<BattleManager | null>(null);
   const phase = useBattleStore((state) => state.phase);
@@ -351,6 +387,7 @@ export function useBattleManager({
       initialMpOverrides,
       random,
       rules: ruleLoadout ? new CombatRuleRuntime(ruleLoadout, random) : undefined,
+      combatantTiers,
     });
 
     const eventHandler = (e: BattleEvent) => handleEvent(bm, e);
@@ -376,7 +413,15 @@ export function useBattleManager({
       bm.off('event', eventHandler);
       bmRef.current = null;
     };
-  }, [playerTeam, enemyTeam, initialHpOverrides, initialMpOverrides, random, ruleLoadout]);
+  }, [
+    playerTeam,
+    enemyTeam,
+    initialHpOverrides,
+    initialMpOverrides,
+    random,
+    ruleLoadout,
+    combatantTiers,
+  ]);
 
   // Check for battle completion
   useEffect(() => {

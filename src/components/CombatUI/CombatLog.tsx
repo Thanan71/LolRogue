@@ -16,6 +16,7 @@ const icons: Record<string, string> = {
   revive: '\u2728',
   crowd_control: '\u2726',
   turn_skipped: '\u23F8',
+  run_counter_gain: '\u2726',
 };
 
 export const CombatLog: React.FC = () => {
@@ -44,7 +45,13 @@ export const CombatLog: React.FC = () => {
           <div className="combat-log__empty">{fr.combat.notStarted}</div>
         ) : (
           recent.map((e) => (
-            <div key={e.id} className={`combat-log__entry combat-log__entry--${e.type}`}>
+            <div
+              key={e.id}
+              className={`combat-log__entry combat-log__entry--${e.type}`}
+              data-counter-key={e.counterKey}
+              data-counter-amount={e.counterKey ? e.amount : undefined}
+              data-counter-value={e.counterValue}
+            >
               <span aria-hidden="true" className="combat-log__icon">
                 {icons[e.type] || '\u2022'}
               </span>

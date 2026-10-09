@@ -132,6 +132,50 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 3,
+    version: '2026.10.09.1',
+    publishedOn: '2026-10-09',
+    title: { 'fr-FR': 'Veigar fait grandir son pouvoir', 'en-US': 'Veigar grows his power' },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Veigar rejoint les champions jouables : Coup malin, Matière noire différée, étourdissement ciblé et Explosion primordiale renforcée par les PV manquants.',
+          'en-US':
+            'Veigar joins the playable champions with Baleful Strike, delayed Dark Matter, a targeted stun and Primordial Burst amplified by missing HP.',
+        },
+      },
+      {
+        category: 'balance',
+        text: {
+          'fr-FR':
+            'Veigar gagne +1 puissance par ennemi normal éliminé avec une compétence, +3 par élite et +10 par boss, jusqu’à +200. Ce bonus dure uniquement pendant le run.',
+          'en-US':
+            'Veigar gains +1 ability power per normal enemy killed with an ability, +3 per elite and +10 per boss, up to +200. This bonus lasts only for the current run.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Consulte les points de pouvoir et leur bonus en combat, dans les fiches de ton équipe et dans le journal. Ils sont conservés entre les combats et après un rechargement.',
+          'en-US':
+            'Check power points and their bonus in combat, your team details and the combat log. They persist between battles and after a reload.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Veigar peut être débloqué pour 400 éclats ou joué lorsqu’il est proposé dans la rotation hebdomadaire ou le défi quotidien.',
+          'en-US':
+            'Unlock Veigar for 400 shards, or play him when offered in the weekly rotation or Daily challenge.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {
