@@ -123,11 +123,13 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
   const options = { auth: { persistSession: false, autoRefreshToken: false } };
   const service = createClient<Database>(supabaseUrl!, serviceRoleKey!, options);
   const actor = createClient<Database>(supabaseUrl!, anonKey!, options);
-  const firstWeek = '2026-10-26T12:00:00.000Z';
-  const secondWeek = '2026-11-02T12:00:00.000Z';
-  const thirdWeek = '2026-11-09T12:00:00.000Z';
-  const rotation = getRotationForInstant(firstWeek, 21);
-  const nextRotation = getRotationForInstant(secondWeek, 21);
+  // Catalogue v2 adds Veigar to the pool. These consecutive UTC weeks still
+  // exercise Darius leaving the rotation, then remaining purchasable.
+  const firstWeek = '2026-10-12T12:00:00.000Z';
+  const secondWeek = '2026-10-19T12:00:00.000Z';
+  const thirdWeek = '2026-10-26T12:00:00.000Z';
+  const rotation = getRotationForInstant(firstWeek, 22);
+  const nextRotation = getRotationForInstant(secondWeek, 22);
   const championId = rotation.championIds.find((id) => !nextRotation.championIds.includes(id))!;
   expect(championId).toBe('Darius');
   const suffix = randomUUID().replaceAll('-', '').slice(0, 12);
@@ -219,10 +221,12 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     expect(start.ok()).toBe(true);
     const started = record(await start.json());
     expect(started.economy_version).toBe(1);
+    expect(started.gameplay_ruleset_version).toBe(22);
     expect(started.rune_ids).not.toContain('e2e_assured_victory');
     expect(started.champion_access_snapshot).toMatchObject({
       enabled: true,
       economyVersion: 1,
+      catalogVersion: 2,
       rotationId: rotation.id,
       rotationChampionIds: rotation.championIds,
     });

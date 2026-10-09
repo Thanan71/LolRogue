@@ -123,9 +123,17 @@ const version = {
   v21: {
     artifact: 'config/authority-cohort-baselines-v21.json',
     entrySource: `
-    export {
-      generateAuthorityCohortBaselineV21 as generateAuthorityCohortBaseline,
+    import { getAuthorityVerifier } from './supabase/functions/verify-run/run-authority-v21.bundle.ts';
+    import {
+      AUTHORITY_COHORT_BASELINE_V21_IDENTITY,
+      generateAuthorityCohortBaselineV21,
     } from './src/game/balance/authorityCohortBaselineV21Fixture.ts';
+    export function generateAuthorityCohortBaseline() {
+      const identity = AUTHORITY_COHORT_BASELINE_V21_IDENTITY;
+      const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
+      if (!authority) throw new Error('The archived v21 authority verifier is unavailable.');
+      return generateAuthorityCohortBaselineV21(authority);
+    }
   `,
   },
 }[values.engine];

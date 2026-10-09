@@ -60,14 +60,23 @@ connu comme sain puis **Instant Rollback**. Vérifier ensuite les variables : un
 rollback instantané réutilise la configuration du build historique et ne reconstruit
 pas les variables modifiées depuis.
 
-Le contrat `config/application-rollback.json` conserve le SHA de l'application
-précédente et sa dernière migration. Après chaque migration ajoutée, mettre à jour
-uniquement `requiredCurrentMigrationVersion`, puis exécuter les tests de contrat
-et `npm run test:db:rollback` sur la base locale migrée. Le probe utilise le code
+Le contrat `config/application-rollback.json` conserve le SHA d'un client compatible
+et sa dernière migration. Après chaque migration ajoutée, vérifier son manifeste
+(préfixe du schéma courant ou identique) et sa prise en charge du moteur actif,
+puis mettre à jour `requiredCurrentMigrationVersion`. Si le moteur actif change,
+choisir un nouveau checkpoint compatible avant l'activation. Exécuter les tests
+de contrat et `npm run test:db:rollback` sur la base locale migrée. Le probe utilise le code
 historique et ses dépendances verrouillées, installées dans un checkout temporaire
 avec les scripts d'installation désactivés, puis crée et nettoie ses propres
 fixtures sans modifier le schéma. Pour P3-CHAMP-01, la version courante attendue
-est `20261009174447`.
+est `20261009174447`. Le checkpoint `b1ca9020c2b4e744c34b90053da0af542aea06d2`
+est un **candidat client compatible**, pas un déploiement de production déjà connu
+comme sain. Construire et déployer ce checkpoint, puis valider Auth, démarrage,
+combat, reprise et compteurs de run avant l'activation SQL du moteur 22.
+Après cette activation, un client limité au moteur 21 n'est plus une cible valide
+de rollback applicatif : il ne connaît ni les attempts v22 ni leurs compteurs.
+Conserver un déploiement sain compatible v22 et relever son identifiant avant
+de promouvoir les versions suivantes.
 
 Critères : rollback si Auth, démarrage, reprise ou finalisation d'une run échoue au
 smoke test, si le taux d'erreur critique augmente durablement, ou si une migration

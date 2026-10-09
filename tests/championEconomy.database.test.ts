@@ -1,7 +1,11 @@
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { calculateShardReward, getRotationForInstant } from '@/domain/championEconomy';
+import {
+  CHAMPION_CATALOG_VERSION,
+  calculateShardReward,
+  getRotationForInstant,
+} from '@/domain/championEconomy';
 import type { ChampionEconomySnapshot, ChampionPurchaseResult } from '@/types/championEconomy';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
@@ -156,7 +160,7 @@ describeLive('champion economy live authority', () => {
     championId: string,
     commandId = randomUUID(),
     price = 400,
-    version = 1,
+    version: number = CHAMPION_CATALOG_VERSION,
   ) {
     return client.rpc('purchase_champion', {
       p_command_id: commandId,
@@ -237,6 +241,7 @@ describeLive('champion economy live authority', () => {
       const encoded = Buffer.from(originalConfig).toString('base64');
       localSql(`UPDATE public.champion_economy_config SET enabled = (source.value->>'enabled')::boolean,
         activated_at = (source.value->>'activated_at')::timestamptz,
+        legacy_catalog_version = (source.value->>'legacy_catalog_version')::smallint,
         updated_at = (source.value->>'updated_at')::timestamptz
         FROM (SELECT convert_from(decode('${encoded}', 'base64'), 'UTF8')::jsonb AS value) AS source
         WHERE singleton;`);
@@ -252,18 +257,18 @@ describeLive('champion economy live authority', () => {
 
   it('grandfathers pre-activation accounts exactly once without inventing shards', async () => {
     const current = await snapshot(legacy.client);
-    expect(current.ownedChampionIds).toHaveLength(10);
+    expect(current.ownedChampionIds).toHaveLength(current.catalog.length);
     expect(current.wallet?.shardsBalance).toBe(0);
     const source = await legacy.client.from('account_champion_unlocks').select('source,price_paid');
     expect(source.error).toBeNull();
-    expect(source.data).toHaveLength(10);
+    expect(source.data).toHaveLength(current.catalog.length);
     expect(source.data?.every((row) => row.source === 'legacy_grant' && row.price_paid === 0)).toBe(
       true,
     );
     const reenabled = await server.rpc('set_champion_economy_enabled', { p_enabled: true });
     expect(reenabled.error).toBeNull();
     expect(reenabled.data.activatedAt).toBe(activationTime);
-    expect((await snapshot(legacy.client)).ownedChampionIds).toHaveLength(10);
+    expect((await snapshot(legacy.client)).ownedChampionIds).toHaveLength(current.catalog.length);
   });
 
   it('publishes a common bounded rotation while keeping guest wallets absent', async () => {
@@ -289,6 +294,28 @@ describeLive('champion economy live authority', () => {
       endsAt: new Date(first.rotation!.endsAt).toISOString(),
     }).toEqual(getRotationForInstant(first.serverNow, first.gameplayRulesetVersion));
     expect((await purchase(anonymous, 'Darius')).error?.code).toBe('42501');
+  });
+
+  it('keeps the v1 legacy grant frozen when the active catalogue grows to Veigar', async () => {
+    const original = localSql('SELECT activated_at::text FROM public.champion_economy_config;');
+    localSql(
+      "UPDATE public.champion_economy_config SET legacy_catalog_version=1, activated_at=clock_timestamp()+interval '1 hour' WHERE singleton;",
+    );
+    try {
+      const importedLegacy = await account();
+      const state = await snapshot(importedLegacy.client);
+      expect(state.catalogVersion).toBe(2);
+      expect(state.catalog.some((entry) => entry.championId === 'Veigar')).toBe(true);
+      expect(state.ownedChampionIds).toHaveLength(10);
+      expect(state.ownedChampionIds).not.toContain('Veigar');
+      await credit(importedLegacy.id, 400);
+      expect((await purchase(importedLegacy.client, 'Veigar')).error).toBeNull();
+      expect((await snapshot(importedLegacy.client)).ownedChampionIds).toContain('Veigar');
+    } finally {
+      localSql(
+        `UPDATE public.champion_economy_config SET legacy_catalog_version=2, activated_at='${original}'::timestamptz WHERE singleton;`,
+      );
+    }
   });
 
   it('enforces owner-only reads and denies direct balance, ledger and unlock writes', async () => {
@@ -412,7 +439,7 @@ describeLive('champion economy live authority', () => {
       ['Missing', 400, 1, 'invalid_champion'],
       ['Garen', 400, 1, 'champion_not_purchasable'],
       ['Darius', 399, 1, 'champion_price_changed'],
-      ['Darius', 400, 2, 'champion_price_changed'],
+      ['Darius', 400, 1, 'champion_price_changed'],
     ] as const) {
       expect(
         (await purchase(owner.client, championId, randomUUID(), price, version)).error?.message,
@@ -484,7 +511,9 @@ describeLive('champion economy live authority', () => {
       });
       expect(historical.error).toBeNull();
       expect(historical.data.economy_version).toBeNull();
-      expect(historical.data.champion_access_snapshot.allowedChampionIds).toHaveLength(10);
+      expect(historical.data.champion_access_snapshot.allowedChampionIds).toHaveLength(
+        state.catalog.length,
+      );
       expect((await purchase(fresh.client, locked)).error?.message).toContain(
         'champion_economy_disabled',
       );
@@ -603,6 +632,48 @@ describeLive('champion economy live authority', () => {
     expect(unauthorized.error?.code).toBe('42501');
   });
 
+  it('stores verified run counters without changing permanent reward formulas', async () => {
+    const owner = await account();
+    await credit(owner.id, 400);
+    expect((await purchase(owner.client, 'Veigar')).error).toBeNull();
+    const run = await attempt(owner.client, ['Veigar']);
+    const base = verifiedResult(['Veigar'], 1);
+    const withProgress = (progress: Record<string, number>) => ({
+      ...base,
+      team_members: base.team_members.map((member) => ({ ...member, run_progress: progress })),
+    });
+    const invalidCounters: Record<string, number>[] = [
+      { 'veigar.phenomenal_power': -1 },
+      { 'veigar.phenomenal_power': 0.5 },
+      { 'constructor.counter': 1 },
+    ];
+    for (const progress of invalidCounters) {
+      expect((await complete(run, withProgress(progress))).error?.message).toContain(
+        'invalid_verified_run_progress',
+      );
+    }
+    const result = withProgress({ 'veigar.phenomenal_power': 17 });
+    const verified = await complete(run, result);
+    expect(verified.error).toBeNull();
+    expect(verified.data).toMatchObject({
+      engine_version: 'run-engine-v22',
+      gameplay_ruleset_version: 22,
+      shards_earned: 25,
+    });
+    const stored = sqlJson<{ team_members: { run_progress: Record<string, number> }[] }>(
+      `SELECT result FROM public.run_attempts WHERE id=${uuid(run.id)};`,
+    );
+    expect(stored.team_members[0].run_progress).toEqual({
+      'veigar.phenomenal_power': 17,
+    });
+    const replayed = await complete(run, result);
+    expect(replayed.error).toBeNull();
+    expect(replayed.data.replayed).toBe(true);
+    const control = await complete(await attempt(owner.client), verifiedResult(['Garen'], 1));
+    expect(control.error).toBeNull();
+    expect(verified.data.candies_earned).toBe(control.data.candies_earned);
+  });
+
   it('awards zero for no completed wave and rolls back invalid replay metrics completely', async () => {
     const owner = await account();
     const run = await attempt(owner.client);
@@ -715,14 +786,14 @@ describeLive('champion economy live authority', () => {
     const materialized = sqlJson<string[]>(
       "SELECT json_agg(champion_id ORDER BY display_order) FROM public.champion_rotation_entries WHERE rotation_id='2026-W53-v1-r21';",
     );
-    localSql(`INSERT INTO public.champion_economy_catalog SELECT 2, champion_id, 800, permanent_free FROM public.champion_economy_catalog WHERE catalog_version=1;
-      DO $$ BEGIN PERFORM private.materialize_champion_rotation('2026-12-31T12:00:00Z',21::smallint,2::smallint); END $$;`);
+    localSql(`INSERT INTO public.champion_economy_catalog SELECT 99, champion_id, 800, permanent_free FROM public.champion_economy_catalog WHERE catalog_version=1;
+      DO $$ BEGIN PERFORM private.materialize_champion_rotation('2026-12-31T12:00:00Z',21::smallint,99::smallint); END $$;`);
     expect(
       sqlJson<string[]>(
         "SELECT json_agg(champion_id ORDER BY display_order) FROM public.champion_rotation_entries WHERE rotation_id='2026-W53-v1-r21';",
       ),
     ).toEqual(materialized);
-    localSql('DELETE FROM public.champion_economy_catalog WHERE catalog_version=2;');
+    localSql('DELETE FROM public.champion_economy_catalog WHERE catalog_version=99;');
   });
 
   it('makes ledger history immutable and reconciliation read-only with consistent totals', async () => {

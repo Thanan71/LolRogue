@@ -47,7 +47,10 @@ import {
   generateAuthorityCohortBaselineV20,
 } from '@/game/balance/authorityCohortBaselineV20Fixture';
 import { AUTHORITY_COHORT_BASELINE_V21 } from '@/game/balance/authorityCohortBaselineV21';
-import { AUTHORITY_COHORT_BASELINE_V21_IDENTITY } from '@/game/balance/authorityCohortBaselineV21Fixture';
+import {
+  AUTHORITY_COHORT_BASELINE_V21_IDENTITY,
+  createAuthorityCohortBaselineV21Fixture,
+} from '@/game/balance/authorityCohortBaselineV21Fixture';
 import type { AuthorityCohortReport } from '@/game/balance/authorityCohortReport';
 import { BIOMES } from '@/types/run';
 import baselineV15Json from '../config/authority-cohort-baselines-v15.json';
@@ -347,7 +350,7 @@ describe('authority cohort baseline', () => {
     expect(JSON.stringify(loaded)).not.toContain('"trace"');
   }, 30_000);
 
-  it('strictly loads the current v21 PR baseline across 45 cells and 30 paired seeds', () => {
+  it('strictly loads the archived v21 PR baseline across 45 cells and 30 paired seeds', () => {
     const loaded = loadAuthorityCohortBaseline(
       baselineV21Json,
       AUTHORITY_COHORT_BASELINE_V21_IDENTITY,
@@ -355,8 +358,8 @@ describe('authority cohort baseline', () => {
 
     expect(loaded).toEqual(AUTHORITY_COHORT_BASELINE_V21);
     expect(AUTHORITY_COHORT_BASELINE_V21_IDENTITY).toMatchObject({
-      engineVersion: AUTHORITY_ENGINE_VERSION,
-      contentHash: AUTHORITY_CONTENT_HASH,
+      engineVersion: 'run-engine-v21',
+      contentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
       balanceModelVersion: 2,
     });
     expect(loaded.entries[V21_BASELINE_KEY]).toMatchObject({
@@ -368,6 +371,21 @@ describe('authority cohort baseline', () => {
     });
     expect(loaded.entries[V21_BASELINE_KEY]?.source.seeds).toHaveLength(30);
     expect(loaded.entries[V21_BASELINE_KEY]?.reports).toHaveLength(45);
+  });
+
+  it('rejects the current engine before attempting a historical v21 simulation', () => {
+    expect(() =>
+      createAuthorityCohortBaselineV21Fixture({
+        engineVersion: AUTHORITY_ENGINE_VERSION,
+        contentHash: AUTHORITY_CONTENT_HASH,
+        createSession: () => {
+          throw new Error('Current source must not run the v21 fixture.');
+        },
+        verify: () => {
+          throw new Error('Current source must not verify the v21 fixture.');
+        },
+      }),
+    ).toThrow('immutable archived authority identity');
   });
 
   it('rejects unknown fields, missing metrics and incoherent index identities', () => {

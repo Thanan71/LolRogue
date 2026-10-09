@@ -30,7 +30,7 @@ describe('Riot asset delivery', () => {
     expect(manifest.files).toHaveLength(
       manifest.champions.length + Object.keys(manifest.items).length,
     );
-    expect(spellManifest.files).toHaveLength(40);
+    expect(spellManifest.files).toHaveLength(44);
     for (const file of allManifestFiles) {
       const bytes = readFileSync(new URL(`../public/${file.path}`, import.meta.url));
       expect(bytes).toHaveLength(file.bytes);
@@ -67,9 +67,22 @@ describe('Riot asset delivery', () => {
     }
   });
 
-  it('ships the forty native square Data Dragon spell icons without atlas cropping', () => {
+  it('ships the 44 native square Data Dragon spell icons without atlas cropping', () => {
     const spellPaths = spellManifest.files;
-    expect(spellPaths).toHaveLength(40);
+    expect(spellPaths).toHaveLength(44);
+    expect(spellManifest.spells.Veigar).toEqual([
+      'VeigarBalefulStrike.png',
+      'VeigarDarkMatter.png',
+      'VeigarEventHorizon.png',
+      'VeigarR.png',
+    ]);
+    expect(
+      spellPaths.filter((file) => /\/Veigar[^/]+\.png$/u.test(file.path)).map((file) => file.path),
+    ).toEqual(
+      spellManifest.spells.Veigar.map(
+        (filename) => `assets/riot/${spellManifest.dataDragonVersion}/spells/${filename}`,
+      ),
+    );
     for (const file of spellPaths) {
       const bytes = readFileSync(new URL(`../public/${file.path}`, import.meta.url));
       expect(bytes.readUInt32BE(16)).toBe(64);

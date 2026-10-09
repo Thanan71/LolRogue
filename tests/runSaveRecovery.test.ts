@@ -1,7 +1,9 @@
 import type { User } from '@supabase/supabase-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
+import { synchronizeMapFrontier } from '@/game/map/mapProgression';
 import { findNode } from '@/game/map/mapUtils';
+import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { runError } from '@/i18n/runErrorContent';
 import {
@@ -890,7 +892,7 @@ describe('authoritative run lifecycle and recovery', () => {
     expect(useRunStore.getState().isActive).toBe(false);
   });
 
-  it('starts authenticated gameplay only from the canonical server seed and run UUID', async () => {
+  it('starts authenticated gameplay only from the canonical server seed, UUID and catalogue', async () => {
     useRunStore.setState({ ...RUN_INITIAL_STATE });
     attemptMocks.start.mockResolvedValue({
       data: {
@@ -936,6 +938,10 @@ describe('authoritative run lifecycle and recovery', () => {
         enhancementSnapshot: { Garen: { hp_1: 1 } },
       },
     });
+    const expectedMaps = generateRunMap(987654, getRunChampionCatalog('run-engine-v21'));
+    synchronizeMapFrontier(expectedMaps, 0, [expectedMaps[0]!.startNodeId]);
+    expect(useRunStore.getState().biomeMaps).toEqual(expectedMaps);
+    expect(JSON.stringify(useRunStore.getState().biomeMaps)).not.toContain('Veigar');
   });
 
   it('keeps the start idempotency key and does not create a local run when start fails', async () => {
