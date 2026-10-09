@@ -29,10 +29,7 @@ if (command === 'pack') {
   if (!process.env.GITHUB_OUTPUT)
     throw new Error('Packing a CI build requires the producer output channel.');
   await appendFile(process.env.GITHUB_OUTPUT, `public-key=${publicKey}\n`);
-  await appendFile(
-    process.env.GITHUB_OUTPUT,
-    `producer-run-attempt=${identity.runAttempt}\n`,
-  );
+  await appendFile(process.env.GITHUB_OUTPUT, `producer-run-attempt=${identity.runAttempt}\n`);
   console.log(`Signed production build for ${identity.commit}.`);
 } else if (command === 'restore') {
   await verifyBuildArtifact(artifactRoot, identity, process.env.CI_BUILD_PUBLIC_KEY);
