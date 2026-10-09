@@ -138,6 +138,7 @@ jobs:
     outputs:
       artifact-id: ${{ steps.build-artifact.outputs.artifact-id }}
       public-key: ${{ steps.sign-build.outputs.public-key }}
+      producer-run-attempt: ${{ steps.sign-build.outputs.producer-run-attempt }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -229,6 +230,7 @@ jobs:
     env:
       APP_COMMIT_SHA: ${{ github.sha }}
       CI_BUILD_PUBLIC_KEY: ${{ needs.build-assets.outputs.public-key }}
+      CI_BUILD_PRODUCER_RUN_ATTEMPT: ${{ needs.build-assets.outputs.producer-run-attempt }}
       CI_REUSE_BUILD: '1'
     runs-on: ubuntu-latest
     timeout-minutes: 30
