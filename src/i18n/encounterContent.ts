@@ -3,6 +3,23 @@ import type { Biome } from '@/types/run';
 
 export type EncounterContentLocale = 'fr-FR' | 'en-US';
 
+export const recruitPreviewCopy = {
+  'fr-FR': {
+    arrivalLevel: 'Niveau à l’arrivée',
+    stats: 'Statistiques au recrutement',
+    bonuses: 'Maîtrise, améliorations et bonus actuels de la run inclus.',
+    inspect: 'Voir les rôles et compétences',
+    roles: 'Rôles du champion',
+  },
+  'en-US': {
+    arrivalLevel: 'Joining level',
+    stats: 'Stats on recruitment',
+    bonuses: 'Includes mastery, enhancements, and current run bonuses.',
+    inspect: 'View roles and abilities',
+    roles: 'Champion roles',
+  },
+} as const;
+
 export interface EncounterPresentationSource {
   readonly type: EncounterType;
   readonly name?: string | null;
