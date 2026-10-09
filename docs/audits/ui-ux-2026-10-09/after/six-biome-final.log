@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:85471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › e2e/six-biome-run.spec.ts:370:1 › a guest run reaches a real defeat through the UI (2.6m)
+  ✓  2 [chromium] › e2e/six-biome-run.spec.ts:376:1 › a guest run can pursue all six biomes through the UI (2.6m)
+
+  Slow test file: [chromium] › e2e/six-biome-run.spec.ts (5.2m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  2 passed (5.2m)
