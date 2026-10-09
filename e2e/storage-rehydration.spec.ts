@@ -1,11 +1,38 @@
 import { expect, type Page, test } from '@playwright/test';
+import {
+  CHAMPION_CATALOG_VERSION,
+  CHAMPION_ECONOMY_CATALOG,
+  CHAMPION_ECONOMY_VERSION,
+  getRotationForInstant,
+} from '../src/domain/championEconomy';
 import { STORAGE_POLICIES } from '../src/utils/storagePolicy';
 
 async function observeOfflinePage(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.route('**/*', async (route) => {
-    const host = new URL(route.request().url()).hostname;
+    const url = new URL(route.request().url());
+    if (url.pathname.endsWith('/rpc/get_champion_economy_snapshot')) {
+      const serverNow = new Date().toISOString();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        json: {
+          enabled: true,
+          economyVersion: CHAMPION_ECONOMY_VERSION,
+          catalogVersion: CHAMPION_CATALOG_VERSION,
+          gameplayRulesetVersion: 21,
+          serverNow,
+          rotation: getRotationForInstant(serverNow, 21),
+          catalog: [...CHAMPION_ECONOMY_CATALOG],
+          wallet: null,
+          ownedChampionIds: [],
+          firstWinChampionIds: [],
+        },
+      });
+      return;
+    }
+    const host = url.hostname;
     if (host === '127.0.0.1' || host === 'localhost') await route.continue();
     else await route.abort('blockedbyclient');
   });
@@ -14,6 +41,10 @@ async function observeOfflinePage(page: Page) {
 
 async function enterGuest(page: Page) {
   await page.goto('/auth');
+  await page.waitForFunction(async () => {
+    const { useAuthStore } = await import('/src/stores/authStore.ts');
+    return useAuthStore.getState().isInitialized;
+  });
   await page.getByRole('button', { name: 'Jouer en invité' }).click();
   await expect(page).toHaveURL('/');
   await expect(page.getByRole('region', { name: 'Boucle de jeu' })).toBeVisible();
@@ -101,7 +132,7 @@ test('a valid guest run and legacy tutorial completion survive real browser relo
   await page.evaluate(async () => {
     localStorage.setItem('lolrogue:tutorial:map:v1', 'done');
     const { useRunStore } = await import('/src/stores/runStore.ts');
-    const result = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20260928 });
+    const result = await useRunStore.getState().startRun(['Annie', 'Ashe'], { seed: 20260928 });
     if (!result.success) throw new Error(result.code);
   });
   await page.goto('/run');

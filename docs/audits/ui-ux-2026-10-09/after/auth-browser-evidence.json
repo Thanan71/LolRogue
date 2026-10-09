@@ -1,0 +1,113 @@
+[
+  {
+    "name": "guest-profile-cancel",
+    "path": "/profile",
+    "isLoading": false,
+    "isInitialized": true,
+    "authStatus": "guest",
+    "error": null,
+    "isPasswordRecovery": false,
+    "isRecoveryLoading": false,
+    "body": "Profil\n← Menu\nProfil\n\nProgression et historique\n\nProfil local\n\nConnecte-toi pour conserver ton profil et ton historique de parties.\n\nSe connecter pour synchroniser",
+    "formCount": 0,
+    "overflow": 0,
+    "active": true
+  },
+  {
+    "name": "guest-direct-login-refusal",
+    "path": "/auth",
+    "isLoading": false,
+    "isInitialized": true,
+    "authStatus": "guest",
+    "error": "Termine ou abandonne la partie active avant de changer de compte.",
+    "isPasswordRecovery": false,
+    "isRecoveryLoading": false,
+    "body": "Connexion\nLoL Rogue\n\nUN ROGUELIKE LEAGUE OF LEGENDS\n\nPORTAIL DE JEU\nReprends ton ascension\n\nConnecte-toi pour retrouver ta progression.\n\nLangue\nFrançais\nAnglais\nConnexion\nCréer un compte\nTermine ou abandonne la partie active avant de changer de compte.\nAdresse e-mail *\nMot de passe *\nCONNEXION\nMot de passe oublié ?\nOU\n\nDécouvre le jeu immédiatement, sans sauvegarde en ligne.\n\nJouer en invité\n\nEn continuant, tu acceptes les conditions d’utilisation et la politique de confidentialité.",
+    "formCount": 1,
+    "overflow": 0,
+    "providerCalls": 0
+  },
+  {
+    "name": "expired-link-fr-FR",
+    "path": "/auth",
+    "isLoading": false,
+    "isInitialized": true,
+    "authStatus": "signedOut",
+    "error": "Ce lien est invalide ou a expiré. Demande un nouveau lien pour réinitialiser ton mot de passe.",
+    "isPasswordRecovery": true,
+    "isRecoveryLoading": false,
+    "body": "Connexion\nLoL Rogue\n\nUN ROGUELIKE LEAGUE OF LEGENDS\n\nPORTAIL DE JEU\nChoisir un nouveau mot de passe\n\nEntre et confirme ton nouveau mot de passe pour retrouver ton compte.\n\nLangue\nFrançais\nAnglais\nCe lien est invalide ou a expiré. Demande un nouveau lien pour réinitialiser ton mot de passe.\nDEMANDER UN NOUVEAU LIEN\nRetour à la connexion\n\nEn continuant, tu acceptes les conditions d’utilisation et la politique de confidentialité.",
+    "formCount": 0,
+    "overflow": 0
+  },
+  {
+    "name": "expired-link-en-US",
+    "path": "/auth",
+    "isLoading": false,
+    "isInitialized": true,
+    "authStatus": "signedOut",
+    "error": "This link is invalid or has expired. Request a new link to reset your password.",
+    "isPasswordRecovery": true,
+    "isRecoveryLoading": false,
+    "body": "Log in\nLoL Rogue\n\nA LEAGUE OF LEGENDS ROGUELIKE\n\nGAME PORTAL\nChoose a new password\n\nEnter and confirm your new password to recover your account.\n\nLanguage\nFrench\nEnglish\nThis link is invalid or has expired. Request a new link to reset your password.\nREQUEST A NEW LINK\nBack to sign in\n\nBy continuing, you agree to the terms of use and privacy policy.",
+    "formCount": 0,
+    "overflow": 0
+  },
+  {
+    "name": "reset-email-pending",
+    "path": "/auth",
+    "isLoading": false,
+    "isInitialized": true,
+    "authStatus": "signedOut",
+    "error": null,
+    "isPasswordRecovery": false,
+    "isRecoveryLoading": true,
+    "body": "Connexion\nLoL Rogue\n\nUN ROGUELIKE LEAGUE OF LEGENDS\n\nPORTAIL DE JEU\nRetrouver mon compte\n\nIndique ton adresse e-mail pour recevoir un lien de réinitialisation.\n\nLangue\nFrançais\nAnglais\nAdresse e-mail *\nENVOI DU LIEN…\nRetour à la connexion\n\nEn continuant, tu acceptes les conditions d’utilisation et la politique de confidentialité.",
+    "formCount": 1,
+    "overflow": 0
+  },
+  {
+    "name": "reset-email-success",
+    "path": "/auth",
+    "isLoading": false,
+    "isInitialized": true,
+    "authStatus": "signedOut",
+    "error": null,
+    "isPasswordRecovery": false,
+    "isRecoveryLoading": false,
+    "body": "Connexion\nLoL Rogue\n\nUN ROGUELIKE LEAGUE OF LEGENDS\n\nPORTAIL DE JEU\nRetrouver mon compte\n\nIndique ton adresse e-mail pour recevoir un lien de réinitialisation.\n\nLangue\nFrançais\nAnglais\nSi un compte utilise cette adresse, un lien de réinitialisation a été envoyé. Vérifie aussi les courriers indésirables.\nAdresse e-mail *\nENVOYER LE LIEN\nRetour à la connexion\n\nEn continuant, tu acceptes les conditions d’utilisation et la politique de confidentialité.",
+    "formCount": 1,
+    "overflow": 0,
+    "options": {
+      "redirectTo": "http://127.0.0.1:4182/auth?mode=recovery"
+    }
+  },
+  {
+    "name": "password-mismatch",
+    "path": "/auth",
+    "isLoading": false,
+    "isInitialized": true,
+    "authStatus": "signedOut",
+    "error": null,
+    "isPasswordRecovery": true,
+    "isRecoveryLoading": false,
+    "body": "Connexion\nLoL Rogue\n\nUN ROGUELIKE LEAGUE OF LEGENDS\n\nPORTAIL DE JEU\nChoisir un nouveau mot de passe\n\nEntre et confirme ton nouveau mot de passe pour retrouver ton compte.\n\nLangue\nFrançais\nAnglais\nNouveau mot de passe\n\n6 caractères minimum.\n\nConfirmer le mot de passe\n\nLes deux mots de passe doivent être identiques.\n\nENREGISTRER LE MOT DE PASSE\nRetour à la connexion\n\nEn continuant, tu acceptes les conditions d’utilisation et la politique de confidentialité.",
+    "formCount": 1,
+    "overflow": 0,
+    "updateCalls": 0
+  },
+  {
+    "name": "password-updated-menu",
+    "path": "/",
+    "isLoading": false,
+    "isInitialized": true,
+    "authStatus": "ready",
+    "error": null,
+    "isPasswordRecovery": false,
+    "isRecoveryLoading": false,
+    "body": "Connexion\nLoL Rogue\n\nUN ROGUELIKE LEAGUE OF LEGENDS\n\nPORTAIL DE JEU\nReprends ton ascension\n\nConnecte-toi pour retrouver ta progression.\n\nLangue\nFrançais\nAnglais\nConnexion\nCréer un compte\nTon mot de passe a été mis à jour.\nAdresse e-mail *\nMot de passe *\nCONNEXION\nMot de passe oublié ?\nOU\n\nDécouvre le jeu immédiatement, sans sauvegarde en ligne.\n\nJouer en invité\n\nEn continuant, tu acceptes les conditions d’utilisation et la politique de confidentialité.",
+    "formCount": 1,
+    "overflow": 0,
+    "updateCalls": 1
+  }
+]

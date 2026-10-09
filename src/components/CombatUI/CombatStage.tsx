@@ -1,4 +1,5 @@
 import type { ActionType } from '@/game/battle/types';
+import { combatantConditions } from '@/game/presentation/combatStatuses';
 import { getCombatVisualProfile, slotForAction } from '@/game/presentation/combatVisuals';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { combatCopy } from '@/i18n/combatContent';
@@ -7,6 +8,7 @@ import { fr } from '@/i18n/fr';
 import type { CombatantInfo, CombatVisualEvent } from '@/stores/battleStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { TargetingType } from '@/types/champion';
+import { CombatStatusBadges, combatantStatusDescription } from './CombatStatusBadges';
 
 interface CombatStageProps {
   round: number;
@@ -59,10 +61,12 @@ function CombatantCard({
       <div className={`combat-stage__fighter combat-stage__fighter--${role}`} aria-hidden="true" />
     );
   }
+  const conditions = combatantConditions(combatant);
+  const statusDescription = combatantStatusDescription(combatant);
   return (
     <article
-      className={`combat-stage__fighter combat-stage__fighter--${role} combat-stage__fighter--${combatant.side}`}
-      aria-label={`${role === 'source' ? fr.combat.attacker : fr.combat.target} : ${combatant.name}`}
+      className={`combat-stage__fighter combat-stage__fighter--${role} combat-stage__fighter--${combatant.side}${conditions.incapacitated ? ' combat-stage__fighter--incapacitated' : ''}${conditions.lowHealth ? ' combat-stage__fighter--low-health' : ''}${conditions.shielded ? ' combat-stage__fighter--shielded' : ''}${combatant.isDefeated ? ' combat-stage__fighter--defeated' : ''}`}
+      aria-label={`${role === 'source' ? fr.combat.attacker : fr.combat.target} : ${combatant.name}${statusDescription ? `, ${statusDescription}` : ''}`}
     >
       <span className="combat-stage__fighter-role">
         {role === 'source' ? fr.combat.attacker : fr.combat.target}
@@ -98,6 +102,7 @@ function CombatantCard({
         {formatNumber(Math.max(0, Math.round(combatant.currentHp)))} /{' '}
         {formatNumber(Math.round(combatant.maxHp))} {combatCopy.stage.hpShort}
       </span>
+      <CombatStatusBadges combatant={combatant} />
     </article>
   );
 }

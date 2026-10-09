@@ -86,7 +86,7 @@
 }
 
 .run-inventory__filter span {
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -221,7 +221,7 @@
 }
 
 .run-inventory-item__copy small {
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   font-size: 0.62rem;
 }
 

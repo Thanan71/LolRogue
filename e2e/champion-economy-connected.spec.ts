@@ -78,6 +78,17 @@ async function closeTutorial(page: Page, name: string): Promise<void> {
   }
 }
 
+async function showFullChampionCatalog(page: Page): Promise<void> {
+  const accessFilter = page.getByLabel('Filtrer les champions par accès');
+  await accessFilter.selectOption('all');
+  await expect(accessFilter).toHaveValue('all');
+  const economyDisclosure = page.locator('.starter-select__economy-disclosure');
+  if ((await economyDisclosure.getAttribute('open')) === null) {
+    await economyDisclosure.locator('summary').click();
+  }
+  await expect(economyDisclosure).toHaveAttribute('open');
+}
+
 async function reloadAndRevalidateSelector(page: Page): Promise<void> {
   await page.reload();
   // Existing authority recovery revalidates a saved terminal attempt after reload.
@@ -86,6 +97,7 @@ async function reloadAndRevalidateSelector(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Nouvelle partie', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Nouvelle partie', exact: true }).click();
   await expect(page).toHaveURL('/starter-select');
+  await showFullChampionCatalog(page);
 }
 
 /** Real auth/RPC/Edge replay: no routed responses, injected stores or SQL verified-run fixtures. */
@@ -177,6 +189,8 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     await page.getByRole('button', { name: 'Retour au menu', exact: true }).click();
     await page.getByRole('button', { name: 'Jouer', exact: true }).click();
     await expect(page).toHaveURL('/starter-select');
+    await expect(page.getByLabel('Filtrer les champions par accès')).toHaveValue('available');
+    await showFullChampionCatalog(page);
     await expect(page.locator('.champion-economy-card')).toHaveCount(10);
     await page.getByLabel('Filtrer les champions par accès').selectOption('available');
     await expect(page.locator('.champion-economy-card')).toHaveCount(8);
@@ -185,8 +199,18 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     await expect(championCard.getByText('Rotation hebdomadaire', { exact: true })).toBeVisible();
     await championCard.getByRole('button', { name: `Choisir ${championId}`, exact: true }).click();
     await page.getByRole('button', { name: 'Choisir Garen', exact: true }).click();
+    const runeDisclosure = page.locator('.starter-select__rune-disclosure');
+    await expect(runeDisclosure).not.toHaveAttribute('open');
+    await runeDisclosure.locator('summary').click();
+    await expect(runeDisclosure).toHaveAttribute('open');
     const runes = page.getByRole('checkbox');
-    for (let index = 0; index < 3; index++) await runes.nth(index).check();
+    for (let index = 0; index < 3; index++) {
+      if (!(await runes.nth(index).isChecked())) {
+        await runes.nth(index).focus();
+        await page.keyboard.press('Space');
+      }
+      await expect(runes.nth(index)).toBeChecked();
+    }
     const startResponse = page.waitForResponse(
       (response) => new URL(response.url()).pathname === '/rest/v1/rpc/start_run_attempt',
     );
@@ -259,6 +283,7 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
       shard_rotation_first_win_champion_ids: [],
     });
     await expect(page).toHaveURL('/starter-select');
+    await showFullChampionCatalog(page);
     await expect(wallet.getByText('25 Éclats', { exact: true })).toBeVisible();
     await expect(championCard.getByText('Verrouillé', { exact: true })).toBeVisible();
     await expect(
@@ -338,6 +363,8 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     await page.getByRole('button', { name: 'Connexion', exact: true }).click();
     await expect(page).toHaveURL('/');
     await page.getByRole('button', { name: 'Jouer', exact: true }).click();
+    await expect(page).toHaveURL('/starter-select');
+    await showFullChampionCatalog(page);
     await expect(championCard.getByText('Possédé', { exact: true })).toBeVisible();
     await expect(championCard.getByRole('button', { name: `Choisir ${championId}` })).toBeEnabled();
     const preservedMastery = await actor

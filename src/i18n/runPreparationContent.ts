@@ -37,6 +37,24 @@ export type RunPreparationContentCatalog = Readonly<{
     statLabels: Readonly<Record<PreparationStat, string>>;
     selectedChampionBadge: string;
     chooseChampion: (name: string) => string;
+    catalogTitle: string;
+    searchLabel: string;
+    searchPlaceholder: string;
+    roleLabel: string;
+    allRoles: string;
+    results: (shown: number, total: number) => string;
+    noResults: string;
+    clearFilters: string;
+    previousPage: string;
+    nextPage: string;
+    page: (current: number, total: number) => string;
+    paginationLabel: string;
+    teamTitle: string;
+    emptySlot: (slot: number) => string;
+    removeChampion: (name: string) => string;
+    optionalRunes: string;
+    detailsShort: string;
+    economyDetails: string;
   }>;
   spellUpgrade: Readonly<{
     utilityEffect: string;
@@ -140,6 +158,24 @@ const frFR: RunPreparationContentCatalog = {
     },
     selectedChampionBadge: 'Dans l’équipe',
     chooseChampion: (name) => `Choisir ${name}`,
+    catalogTitle: 'Choisis tes champions',
+    searchLabel: 'Rechercher un champion',
+    searchPlaceholder: 'Nom ou rôle…',
+    roleLabel: 'Rôle',
+    allRoles: 'Tous les rôles',
+    results: (shown, total) => `${number('fr-FR', shown)} sur ${number('fr-FR', total)} champions`,
+    noResults: 'Aucun champion ne correspond à ces filtres.',
+    clearFilters: 'Effacer les filtres',
+    previousPage: 'Page précédente',
+    nextPage: 'Page suivante',
+    page: (current, total) => `Page ${number('fr-FR', current)} sur ${number('fr-FR', total)}`,
+    paginationLabel: 'Pages du catalogue de champions',
+    teamTitle: 'Ton équipe',
+    emptySlot: (slot) => `Emplacement ${number('fr-FR', slot)} libre`,
+    removeChampion: (name) => `Retirer ${name} de l’équipe`,
+    optionalRunes: 'Runes facultatives',
+    detailsShort: 'Statistiques et sorts',
+    economyDetails: 'Accès aux champions et monnaies',
   },
   spellUpgrade: {
     utilityEffect: 'Effet utilitaire',
@@ -248,6 +284,24 @@ const enUS: RunPreparationContentCatalog = {
     },
     selectedChampionBadge: 'On the team',
     chooseChampion: (name) => `Choose ${name}`,
+    catalogTitle: 'Choose your champions',
+    searchLabel: 'Search champions',
+    searchPlaceholder: 'Name or role…',
+    roleLabel: 'Role',
+    allRoles: 'All roles',
+    results: (shown, total) => `${number('en-US', shown)} of ${number('en-US', total)} champions`,
+    noResults: 'No champions match these filters.',
+    clearFilters: 'Clear filters',
+    previousPage: 'Previous page',
+    nextPage: 'Next page',
+    page: (current, total) => `Page ${number('en-US', current)} of ${number('en-US', total)}`,
+    paginationLabel: 'Champion catalog pages',
+    teamTitle: 'Your team',
+    emptySlot: (slot) => `Slot ${number('en-US', slot)} available`,
+    removeChampion: (name) => `Remove ${name} from the team`,
+    optionalRunes: 'Optional runes',
+    detailsShort: 'Stats and abilities',
+    economyDetails: 'Champion access and currencies',
   },
   spellUpgrade: {
     utilityEffect: 'Utility effect',

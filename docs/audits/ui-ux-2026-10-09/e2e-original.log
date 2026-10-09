@@ -1,0 +1,197 @@
+
+Running 25 tests using 2 workers
+
+(node:60675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [chromium] › e2e/accessibility-display.spec.ts:46:1 › les réglages modifient leurs consommateurs réels (15.6s)
+  ✘   1 [chromium] › e2e/accessibility-display.spec.ts:22:1 › le mouvement réduit neutralise CSS, canvas, SVG et animation de combat (15.5s)
+(node:60770) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [chromium] › e2e/accessibility-display.spec.ts:74:1 › le zoom 200 % conserve un reflow horizontal sur les routes principales (7.5s)
+  ✓   4 [chromium] › e2e/accessibility-display.spec.ts:96:1 › le mode Windows High Contrast conserve contrôles, état et focus (3.1s)
+  ✓   6 [chromium] › e2e/accessibility.spec.ts:138:1 › Auth et Database sont utilisables avec les flèches et le clavier (3.8s)
+  ✓   7 [chromium] › e2e/auth-menu-responsive.spec.ts:146:3 › Auth and Menu stay operable at 320x568 (5.6s)
+  ✓   8 [chromium] › e2e/auth-menu-responsive.spec.ts:146:3 › Auth and Menu stay operable at 375x667 (4.3s)
+  ✓   9 [chromium] › e2e/auth-menu-responsive.spec.ts:146:3 › Auth and Menu stay operable at 390x844 (3.1s)
+  ✓  10 [chromium] › e2e/auth-menu-responsive.spec.ts:146:3 › Auth and Menu stay operable at 1280x720 (4.8s)
+  ✘   5 [chromium] › e2e/accessibility.spec.ts:24:1 › les routes principales respectent les règles axe critiques (24.9s)
+(node:60957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [chromium] › e2e/auth-menu-responsive.spec.ts:146:3 › Auth and Menu stay operable at 1280x720 at 200% zoom (6.3s)
+  ✘  12 [chromium] › e2e/combat-map-presentation.spec.ts:146:1 › la carte et le combat restent lisibles et animés sur mobile (5.3s)
+(node:60999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 [chromium] › e2e/combat-map-presentation.spec.ts:235:1 › une compétence offensive garde l’ennemi comme cible malgré son bonus personnel (3.8s)
+(node:61005) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [chromium] › e2e/database-mobile-navigation.spec.ts:5:1 › la sélection mobile ouvre la fiche et permet de revenir au champion choisi (5.7s)
+  ✘  14 [chromium] › e2e/combat-map-presentation.spec.ts:261:1 › deux champions identiques restent séparés par leur camp dans toute la présentation (4.9s)
+(node:61052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 [chromium] › e2e/onboarding.spec.ts:11:1 › le guide explique la boucle, les modes et filtre les règles actives (6.1s)
+  ✘  17 [chromium] › e2e/onboarding.spec.ts:29:1 › le tutoriel carte apparaît une fois puis reste réouvrable (6.5s)
+(node:61103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  18 [chromium] › e2e/run-loadout-panels.spec.ts:82:3 › équipement, statistiques et sorts restent pratiques en mobile-390 (6.0s)
+(node:61121) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 [chromium] › e2e/run-loadout-panels.spec.ts:82:3 › équipement, statistiques et sorts restent pratiques en desktop-1440 (6.0s)
+  ✘  20 [chromium] › e2e/starter-select-responsive.spec.ts:109:3 › starter and rune layout stays readable at 320x568 (6.1s)
+(node:61166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:61167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 [chromium] › e2e/starter-select-responsive.spec.ts:135:1 › the complete selection can be performed with the keyboard at 320px (10.3s)
+  ✘  22 [chromium] › e2e/starter-select-responsive.spec.ts:109:3 › starter and rune layout stays readable at 390x844 (10.3s)
+(node:61238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 [chromium] › e2e/starter-select-responsive.spec.ts:173:1 › a missing rune image keeps a visible themed fallback (12.3s)
+  ✓  24 [chromium] › e2e/starter-select-responsive.spec.ts:185:1 › touch selection exposes a start error without overlap at 320px (8.3s)
+  ✓  25 [chromium] › e2e/starter-select-responsive.spec.ts:239:1 › touch selection and Back remain activatable at 390px (4.7s)
+
+
+  1) [chromium] › e2e/accessibility-display.spec.ts:22:1 › le mouvement réduit neutralise CSS, canvas, SVG et animation de combat
+
+    Error: page.evaluate: Error: Unable to start reduced-motion run: champion_locked
+        at eval (eval at evaluate (:311:30), <anonymous>:8:33)
+        at async <anonymous>:337:30
+        at eval (eval at evaluate (:311:30), <anonymous>:8:33)
+        at async <anonymous>:337:30
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/accessibility-display.spec.ts:37:14
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/accessibility-display-le-m-fc2c4--SVG-et-animation-de-combat-chromium/error-context.md
+
+  2) [chromium] › e2e/accessibility.spec.ts:24:1 › les routes principales respectent les règles axe critiques
+
+    Error: page.evaluate: Error: Unable to start accessibility run: champion_locked
+        at eval (eval at evaluate (:311:30), <anonymous>:8:33)
+        at async <anonymous>:337:30
+        at eval (eval at evaluate (:311:30), <anonymous>:8:33)
+        at async <anonymous>:337:30
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/accessibility.spec.ts:59:14
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/accessibility-les-routes-p-13590-nt-les-règles-axe-critiques-chromium/error-context.md
+
+  3) [chromium] › e2e/combat-map-presentation.spec.ts:146:1 › la carte et le combat restent lisibles et animés sur mobile
+
+    Error: page.evaluate: Error: Unable to start fixture run: champion_locked
+        at eval (eval at evaluate (:311:30), <anonymous>:12:33)
+        at async <anonymous>:337:30
+        at eval (eval at evaluate (:311:30), <anonymous>:12:33)
+        at async <anonymous>:337:30
+        at installPresentationRunFixture (/Users/nathanpicot/traveau perso/LolRogue/e2e/combat-map-presentation.spec.ts:43:14)
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/combat-map-presentation.spec.ts:153:9
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/combat-map-presentation-la-e541b-sibles-et-animés-sur-mobile-chromium/error-context.md
+
+  4) [chromium] › e2e/combat-map-presentation.spec.ts:235:1 › une compétence offensive garde l’ennemi comme cible malgré son bonus personnel
+
+    Error: page.evaluate: Error: Unable to start fixture run: champion_locked
+        at eval (eval at evaluate (:311:30), <anonymous>:12:33)
+        at async <anonymous>:337:30
+        at eval (eval at evaluate (:311:30), <anonymous>:12:33)
+        at async <anonymous>:337:30
+        at installPresentationRunFixture (/Users/nathanpicot/traveau perso/LolRogue/e2e/combat-map-presentation.spec.ts:43:14)
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/combat-map-presentation.spec.ts:241:9
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/combat-map-presentation-un-448a2--malgré-son-bonus-personnel-chromium/error-context.md
+
+  5) [chromium] › e2e/combat-map-presentation.spec.ts:261:1 › deux champions identiques restent séparés par leur camp dans toute la présentation
+
+    Error: page.evaluate: Error: Unable to start fixture run: champion_locked
+        at eval (eval at evaluate (:311:30), <anonymous>:12:33)
+        at async <anonymous>:337:30
+        at eval (eval at evaluate (:311:30), <anonymous>:12:33)
+        at async <anonymous>:337:30
+        at installPresentationRunFixture (/Users/nathanpicot/traveau perso/LolRogue/e2e/combat-map-presentation.spec.ts:43:14)
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/combat-map-presentation.spec.ts:267:9
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/combat-map-presentation-de-f3dd0--dans-toute-la-présentation-chromium/error-context.md
+
+  6) [chromium] › e2e/onboarding.spec.ts:29:1 › le tutoriel carte apparaît une fois puis reste réouvrable
+
+    Error: page.evaluate: Error: Unable to start onboarding run: champion_locked
+        at eval (eval at evaluate (:311:30), <anonymous>:8:33)
+        at async <anonymous>:337:30
+        at eval (eval at evaluate (:311:30), <anonymous>:8:33)
+        at async <anonymous>:337:30
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/onboarding.spec.ts:31:14
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/onboarding-le-tutoriel-car-01af6--fois-puis-reste-réouvrable-chromium/error-context.md
+
+  7) [chromium] › e2e/run-loadout-panels.spec.ts:82:3 › équipement, statistiques et sorts restent pratiques en mobile-390
+
+    Error: page.evaluate: Error: Unable to start fixture run: champion_locked
+        at eval (eval at evaluate (:311:30), <anonymous>:10:33)
+        at async <anonymous>:337:30
+        at eval (eval at evaluate (:311:30), <anonymous>:10:33)
+        at async <anonymous>:337:30
+        at installLoadoutFixture (/Users/nathanpicot/traveau perso/LolRogue/e2e/run-loadout-panels.spec.ts:41:14)
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/run-loadout-panels.spec.ts:88:11
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/run-loadout-panels-équipem-e9fef-ent-pratiques-en-mobile-390-chromium/error-context.md
+
+  8) [chromium] › e2e/run-loadout-panels.spec.ts:82:3 › équipement, statistiques et sorts restent pratiques en desktop-1440
+
+    Error: page.evaluate: Error: Unable to start fixture run: champion_locked
+        at eval (eval at evaluate (:311:30), <anonymous>:10:33)
+        at async <anonymous>:337:30
+        at eval (eval at evaluate (:311:30), <anonymous>:10:33)
+        at async <anonymous>:337:30
+        at installLoadoutFixture (/Users/nathanpicot/traveau perso/LolRogue/e2e/run-loadout-panels.spec.ts:41:14)
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/run-loadout-panels.spec.ts:88:11
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/run-loadout-panels-équipem-4586b-t-pratiques-en-desktop-1440-chromium/error-context.md
+
+  9) [chromium] › e2e/starter-select-responsive.spec.ts:109:3 › starter and rune layout stays readable at 320x568
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 2200
+    Received:   3824
+
+      103 |   // Full rune effects are intentionally not line-clamped on mobile. Keep the
+      104 |   // flow bounded without hiding rule text from the player.
+    > 105 |   expect(layout.documentHeight).toBeLessThan(2_200);
+          |                                 ^
+      106 | }
+      107 |
+      108 | for (const viewport of MOBILE_VIEWPORTS) {
+        at expectResponsiveStarterLayout (/Users/nathanpicot/traveau perso/LolRogue/e2e/starter-select-responsive.spec.ts:105:33)
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/starter-select-responsive.spec.ts:112:5
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/starter-select-responsive--16e2e-t-stays-readable-at-320x568-chromium/error-context.md
+
+  10) [chromium] › e2e/starter-select-responsive.spec.ts:109:3 › starter and rune layout stays readable at 390x844
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 2200
+    Received:   3702
+
+      103 |   // Full rune effects are intentionally not line-clamped on mobile. Keep the
+      104 |   // flow bounded without hiding rule text from the player.
+    > 105 |   expect(layout.documentHeight).toBeLessThan(2_200);
+          |                                 ^
+      106 | }
+      107 |
+      108 | for (const viewport of MOBILE_VIEWPORTS) {
+        at expectResponsiveStarterLayout (/Users/nathanpicot/traveau perso/LolRogue/e2e/starter-select-responsive.spec.ts:105:33)
+        at /Users/nathanpicot/traveau perso/LolRogue/e2e/starter-select-responsive.spec.ts:112:5
+
+    Error Context: ../../../../tmp/lolrogue-uiux-test-results/starter-select-responsive--23222-t-stays-readable-at-390x844-chromium/error-context.md
+
+  10 failed
+    [chromium] › e2e/accessibility-display.spec.ts:22:1 › le mouvement réduit neutralise CSS, canvas, SVG et animation de combat
+    [chromium] › e2e/accessibility.spec.ts:24:1 › les routes principales respectent les règles axe critiques
+    [chromium] › e2e/combat-map-presentation.spec.ts:146:1 › la carte et le combat restent lisibles et animés sur mobile
+    [chromium] › e2e/combat-map-presentation.spec.ts:235:1 › une compétence offensive garde l’ennemi comme cible malgré son bonus personnel
+    [chromium] › e2e/combat-map-presentation.spec.ts:261:1 › deux champions identiques restent séparés par leur camp dans toute la présentation
+    [chromium] › e2e/onboarding.spec.ts:29:1 › le tutoriel carte apparaît une fois puis reste réouvrable
+    [chromium] › e2e/run-loadout-panels.spec.ts:82:3 › équipement, statistiques et sorts restent pratiques en mobile-390
+    [chromium] › e2e/run-loadout-panels.spec.ts:82:3 › équipement, statistiques et sorts restent pratiques en desktop-1440
+    [chromium] › e2e/starter-select-responsive.spec.ts:109:3 › starter and rune layout stays readable at 320x568
+    [chromium] › e2e/starter-select-responsive.spec.ts:109:3 › starter and rune layout stays readable at 390x844
+  15 passed (2.1m)

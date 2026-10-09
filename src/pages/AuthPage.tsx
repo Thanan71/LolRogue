@@ -5,13 +5,15 @@ import { ParticleBackground } from '@/components/ParticleBackground';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { authRecoveryCopy } from '@/i18n/authRecoveryContent';
 import { fr, locale } from '@/i18n/fr';
+import { PasswordRecoveryForm } from '@/pages/auth/PasswordRecoveryForm';
 import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { type Language, useSettingsStore } from '@/stores/settingsStore';
 import '@/styles/auth.css';
 
-type AuthMode = 'login' | 'signup';
+type AuthMode = 'login' | 'signup' | 'reset';
 
 const benefitNumberFormatter = new Intl.NumberFormat(locale, {
   minimumIntegerDigits: 2,
@@ -37,20 +39,29 @@ export function AuthPage() {
     clearError,
     clearSuccessMessage,
     enterGuestMode,
+    isPasswordRecovery,
+    cancelPasswordRecovery,
   } = useAuthStore();
+  const showRecoveryForm = mode === 'reset' || isPasswordRecovery;
+
+  function backToLogin() {
+    cancelPasswordRecovery();
+    setMode('login');
+    navigate(ROUTES.AUTH, { replace: true });
+  }
 
   const hasRedirected = useRef(false);
   const identityTransitionRef = useRef(false);
 
   // Redirect if already authenticated (only once)
   useEffect(() => {
-    if (isAuthenticated && !hasRedirected.current) {
+    if (isAuthenticated && !isPasswordRecovery && !hasRedirected.current) {
       hasRedirected.current = true;
       void import('@/stores/runStore').then(({ useRunStore }) => {
         navigate(useRunStore.getState().isActive ? ROUTES.RUN : ROUTES.MENU);
       });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isPasswordRecovery, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +96,7 @@ export function AuthPage() {
   };
 
   const handleGuestPlay = async () => {
-    if (identityTransitionRef.current) return;
+    if (isLoading || identityTransitionRef.current) return;
     identityTransitionRef.current = true;
     playUIClick();
     try {
@@ -150,8 +161,24 @@ export function AuthPage() {
         <section className="auth-page__container" aria-label={fr.auth.accessLabel}>
           <div className="auth-page__card-header">
             <span className="auth-page__card-kicker">{fr.auth.portal}</span>
-            <h2>{mode === 'login' ? fr.auth.loginTitle : fr.auth.signupTitle}</h2>
-            <p>{mode === 'login' ? fr.auth.loginDescription : fr.auth.signupDescription}</p>
+            <h2>
+              {showRecoveryForm
+                ? mode === 'reset'
+                  ? authRecoveryCopy.requestTitle
+                  : authRecoveryCopy.recoveryTitle
+                : mode === 'login'
+                  ? fr.auth.loginTitle
+                  : fr.auth.signupTitle}
+            </h2>
+            <p>
+              {showRecoveryForm
+                ? mode === 'reset'
+                  ? authRecoveryCopy.requestDescription
+                  : authRecoveryCopy.recoveryDescription
+                : mode === 'login'
+                  ? fr.auth.loginDescription
+                  : fr.auth.signupDescription}
+            </p>
             <div className="auth-page__language">
               <label className="auth-page__label" htmlFor="auth-language">
                 {fr.settings.language}
@@ -176,55 +203,57 @@ export function AuthPage() {
             </div>
           )}
 
-          <div
-            className="auth-page__tabs"
-            role="tablist"
-            aria-label={fr.auth.tabsLabel}
-            onKeyDown={(event) => {
-              if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
-              event.preventDefault();
-              const nextMode = mode === 'login' ? 'signup' : 'login';
-              setMode(nextMode);
-              window.requestAnimationFrame(() =>
-                document.getElementById(`auth-tab-${nextMode}`)?.focus(),
-              );
-            }}
-          >
-            <button
-              type="button"
-              role="tab"
-              id="auth-tab-login"
-              aria-selected={mode === 'login'}
-              aria-controls="auth-panel"
-              tabIndex={mode === 'login' ? 0 : -1}
-              className={`auth-page__tab ${mode === 'login' ? 'auth-page__tab--active' : ''}`}
-              onClick={() => {
-                playUIClick();
-                setMode('login');
-                clearError();
-                clearSuccessMessage();
+          {!showRecoveryForm && (
+            <div
+              className="auth-page__tabs"
+              role="tablist"
+              aria-label={fr.auth.tabsLabel}
+              onKeyDown={(event) => {
+                if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+                event.preventDefault();
+                const nextMode = mode === 'login' ? 'signup' : 'login';
+                setMode(nextMode);
+                window.requestAnimationFrame(() =>
+                  document.getElementById(`auth-tab-${nextMode}`)?.focus(),
+                );
               }}
             >
-              {fr.auth.login}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              id="auth-tab-signup"
-              aria-selected={mode === 'signup'}
-              aria-controls="auth-panel"
-              tabIndex={mode === 'signup' ? 0 : -1}
-              className={`auth-page__tab ${mode === 'signup' ? 'auth-page__tab--active' : ''}`}
-              onClick={() => {
-                playUIClick();
-                setMode('signup');
-                clearError();
-                clearSuccessMessage();
-              }}
-            >
-              {fr.auth.signup}
-            </button>
-          </div>
+              <button
+                type="button"
+                role="tab"
+                id="auth-tab-login"
+                aria-selected={mode === 'login'}
+                aria-controls="auth-panel"
+                tabIndex={mode === 'login' ? 0 : -1}
+                className={`auth-page__tab ${mode === 'login' ? 'auth-page__tab--active' : ''}`}
+                onClick={() => {
+                  playUIClick();
+                  setMode('login');
+                  clearError();
+                  clearSuccessMessage();
+                }}
+              >
+                {fr.auth.login}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="auth-tab-signup"
+                aria-selected={mode === 'signup'}
+                aria-controls="auth-panel"
+                tabIndex={mode === 'signup' ? 0 : -1}
+                className={`auth-page__tab ${mode === 'signup' ? 'auth-page__tab--active' : ''}`}
+                onClick={() => {
+                  playUIClick();
+                  setMode('signup');
+                  clearError();
+                  clearSuccessMessage();
+                }}
+              >
+                {fr.auth.signup}
+              </button>
+            </div>
+          )}
 
           {error && (
             <div className="auth-page__error" role="alert">
@@ -238,115 +267,148 @@ export function AuthPage() {
             </div>
           )}
 
-          <form
-            className="auth-page__form"
-            id="auth-panel"
-            role="tabpanel"
-            aria-labelledby={mode === 'login' ? 'auth-tab-login' : 'auth-tab-signup'}
-            aria-busy={isLoading}
-            onSubmit={handleSubmit}
-          >
-            {mode === 'signup' && (
-              <>
-                <div className="auth-page__form-group">
-                  <label className="auth-page__label" htmlFor="username">
-                    {fr.auth.username}
-                  </label>
-                  <input
-                    id="username"
-                    type="text"
-                    className="auth-page__input"
-                    placeholder={fr.auth.usernamePlaceholder}
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    autoComplete="username"
-                    disabled={isLoading}
-                  />
-                </div>
-
-                <div className="auth-page__form-group">
-                  <label className="auth-page__label" htmlFor="display-name">
-                    {fr.auth.displayName}
-                  </label>
-                  <input
-                    id="display-name"
-                    type="text"
-                    className="auth-page__input"
-                    placeholder={fr.auth.displayNamePlaceholder}
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    autoComplete="name"
-                    disabled={isLoading}
-                  />
-                </div>
-              </>
-            )}
-
-            <div className="auth-page__form-group">
-              <label className="auth-page__label" htmlFor="email">
-                {fr.auth.email}
-              </label>
-              <input
-                id="email"
-                type="email"
-                className="auth-page__input"
-                placeholder={fr.auth.emailPlaceholder}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="auth-page__form-group">
-              <label className="auth-page__label" htmlFor="password">
-                {fr.auth.password}
-              </label>
-              <input
-                id="password"
-                type="password"
-                className="auth-page__input"
-                placeholder={
-                  mode === 'signup'
-                    ? fr.auth.passwordSignupPlaceholder
-                    : fr.auth.passwordPlaceholder
-                }
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-                disabled={isLoading}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="auth-page__submit"
-              disabled={!isSupabaseConfigured || isLoading || !isFormValid()}
+          {showRecoveryForm ? (
+            <PasswordRecoveryForm
+              requestOnly={mode === 'reset'}
+              onRequestLink={() => {
+                setMode('reset');
+                clearError();
+                clearSuccessMessage();
+              }}
+              onBack={backToLogin}
+            />
+          ) : (
+            <form
+              className="auth-page__form"
+              id="auth-panel"
+              role="tabpanel"
+              aria-labelledby={mode === 'login' ? 'auth-tab-login' : 'auth-tab-signup'}
+              aria-busy={isLoading}
+              onSubmit={handleSubmit}
             >
-              {isLoading ? (
+              {mode === 'signup' && (
                 <>
-                  <span className="auth-page__spinner" aria-hidden="true" />
-                  {mode === 'login' ? fr.auth.loggingIn : fr.auth.creatingAccount}
-                </>
-              ) : mode === 'login' ? (
-                fr.auth.login
-              ) : (
-                fr.auth.signup
-              )}
-            </button>
-          </form>
+                  <div className="auth-page__form-group">
+                    <label className="auth-page__label" htmlFor="username">
+                      {fr.auth.username}
+                    </label>
+                    <input
+                      id="username"
+                      type="text"
+                      className="auth-page__input"
+                      placeholder={fr.auth.usernamePlaceholder}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      autoComplete="username"
+                      disabled={isLoading}
+                    />
+                  </div>
 
-          <div className="auth-page__guest">
-            <div className="auth-page__divider" aria-hidden="true">
-              <div className="auth-page__divider-line" />
-              <span className="auth-page__divider-text">{fr.auth.or}</span>
-              <div className="auth-page__divider-line" />
-            </div>
-            <p>{fr.auth.guestDescription}</p>
-            <button type="button" className="auth-page__guest-btn" onClick={handleGuestPlay}>
-              {fr.auth.guest}
+                  <div className="auth-page__form-group">
+                    <label className="auth-page__label" htmlFor="display-name">
+                      {fr.auth.displayName}
+                    </label>
+                    <input
+                      id="display-name"
+                      type="text"
+                      className="auth-page__input"
+                      placeholder={fr.auth.displayNamePlaceholder}
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      autoComplete="name"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="auth-page__form-group">
+                <label className="auth-page__label" htmlFor="email">
+                  {fr.auth.email}
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  className="auth-page__input"
+                  placeholder={fr.auth.emailPlaceholder}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="auth-page__form-group">
+                <label className="auth-page__label" htmlFor="password">
+                  {fr.auth.password}
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  className="auth-page__input"
+                  placeholder={
+                    mode === 'signup'
+                      ? fr.auth.passwordSignupPlaceholder
+                      : fr.auth.passwordPlaceholder
+                  }
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="auth-page__submit"
+                disabled={!isSupabaseConfigured || isLoading || !isFormValid()}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="auth-page__spinner" aria-hidden="true" />
+                    {mode === 'login' ? fr.auth.loggingIn : fr.auth.creatingAccount}
+                  </>
+                ) : mode === 'login' ? (
+                  fr.auth.login
+                ) : (
+                  fr.auth.signup
+                )}
+              </button>
+            </form>
+          )}
+
+          {!showRecoveryForm && mode === 'login' && (
+            <button
+              className="auth-page__text-action"
+              type="button"
+              onClick={() => {
+                clearError();
+                clearSuccessMessage();
+                setMode('reset');
+              }}
+            >
+              {authRecoveryCopy.forgot}
             </button>
-          </div>
+          )}
+
+          {!showRecoveryForm && (
+            <div className="auth-page__guest">
+              <div className="auth-page__divider" aria-hidden="true">
+                <div className="auth-page__divider-line" />
+                <span className="auth-page__divider-text">{fr.auth.or}</span>
+                <div className="auth-page__divider-line" />
+              </div>
+              <p>{fr.auth.guestDescription}</p>
+              <button
+                type="button"
+                className="auth-page__guest-btn"
+                onClick={handleGuestPlay}
+                disabled={isLoading}
+              >
+                {fr.auth.guest}
+              </button>
+            </div>
+          )}
         </section>
       </main>
 

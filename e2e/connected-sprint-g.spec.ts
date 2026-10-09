@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
+import { latestPatchNote } from '../src/data/patchNotes';
 import type { Database } from '../src/types/database';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
@@ -47,6 +48,8 @@ test('Sprint G connecté : historique paginé et notes lues synchronisées entre
   );
   test.setTimeout(120_000);
   page.setDefaultTimeout(15_000);
+  const latestPublication = latestPatchNote();
+  if (!latestPublication) throw new Error('Le registre de publications doit contenir une note.');
 
   function localSql(statement: string): void {
     const connection = new URL(databaseUrl!);
@@ -215,7 +218,7 @@ test('Sprint G connecté : historique paginé et notes lues synchronisées entre
       ).error,
     ).toBeNull();
 
-    const summary = page.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ });
+    const summary = page.getByRole('region', { name: /Les nouveautés du jeu/ });
     await expect(summary).toBeVisible();
     const markReadResponse = page.waitForResponse(
       (response) => new URL(response.url()).pathname === '/rest/v1/rpc/mark_patch_notes_seen',
@@ -229,7 +232,8 @@ test('Sprint G connecté : historique paginé et notes lues synchronisées entre
       last_seen_version: string;
     };
     expect(readState.user_id).toBe(userId);
-    expect(readState.last_seen_sequence).toBeGreaterThan(0);
+    expect(readState.last_seen_sequence).toBe(latestPublication.sequence);
+    expect(readState.last_seen_version).toBe(latestPublication.version);
     const persisted = await service
       .from('player_patch_note_state')
       .select('last_seen_sequence, last_seen_version')
@@ -335,18 +339,14 @@ test('Sprint G connecté : historique paginé et notes lues synchronisées entre
     await secondPage.getByRole('button', { name: 'Connexion', exact: true }).click();
     await expect(secondPage).toHaveURL('/', { timeout: 30_000 });
     expect((await secondRead).ok()).toBe(true);
-    await expect(
-      secondPage.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
-    ).toHaveCount(0);
+    await expect(secondPage.getByRole('region', { name: /Les nouveautés du jeu/ })).toHaveCount(0);
     await expect(secondPage.locator('#patch-notes-menu-link')).not.toContainText('Nouveau');
     const redeployedRead = secondPage.waitForResponse(
       (response) => new URL(response.url()).pathname === '/rest/v1/player_patch_note_state',
     );
     await secondPage.goto('/?deployment=sprint-g-another-sha');
     expect((await redeployedRead).ok()).toBe(true);
-    await expect(
-      secondPage.getByRole('region', { name: /Du nouveau depuis ta dernière visite/ }),
-    ).toHaveCount(0);
+    await expect(secondPage.getByRole('region', { name: /Les nouveautés du jeu/ })).toHaveCount(0);
     await secondPage.getByRole('button', { name: 'Déconnexion', exact: true }).click();
     await expect(secondPage).toHaveURL('/auth');
   } finally {

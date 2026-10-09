@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PATCH_NOTES } from '@/data/patchNotes';
+import { authRecoveryContent } from '@/i18n/authRecoveryContent';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
 import { championContent } from '@/i18n/championContent';
@@ -26,6 +27,7 @@ const i18nModules = import.meta.glob('../src/i18n/**/*.ts');
 
 const catalogs = {
   adminExport: adminExportContent,
+  authRecovery: authRecoveryContent,
   adminFieldCalibration: {
     'fr-FR': getAdminFieldCalibrationCopy('fr-FR'),
     'en-US': getAdminFieldCalibrationCopy('en-US'),
@@ -63,6 +65,7 @@ const catalogs = {
 // coverage. Discovering the files prevents new catalogs from silently opting out.
 const catalogModules = {
   'adminExportContent.ts': 'adminExport',
+  'authRecoveryContent.ts': 'authRecovery',
   'adminFieldCalibration.ts': 'adminFieldCalibration',
   'championContent.ts': 'champion',
   'championEconomyContent.ts': 'championEconomy',
@@ -104,6 +107,7 @@ const intentionallyIdenticalPaths: Readonly<
   Record<Exclude<keyof typeof catalogs, 'main'>, readonly InvariantRule[]>
 > = {
   adminExport: ['$.biomes.jungle'],
+  authRecovery: [],
   adminFieldCalibration: [
     '$.biome.base',
     '$.biome.jungle',
@@ -181,6 +185,7 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   Record<keyof typeof catalogs, readonly string[]>
 > = {
   adminExport: [],
+  authRecovery: [],
   adminFieldCalibration: [],
   champion: [],
   championEconomy: [],

@@ -1,13 +1,15 @@
 import { useCallback, useMemo, useState } from 'react';
 import { playUIClick } from '@/audio';
 import { EncounterLayout } from '@/components/EncounterLayout';
+import { RecruitStatList } from '@/components/RecruitStatList';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useRecruitPreview } from '@/hooks/useRecruitPreview';
 import { localizeChampion } from '@/i18n/content';
-import { getEncounterPresentation } from '@/i18n/encounterContent';
+import { getEncounterPresentation, recruitPreviewCopy } from '@/i18n/encounterContent';
 import { formatChampionTag, formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { useRunStore } from '@/stores/runStore';
@@ -78,6 +80,8 @@ export function RecruitPage() {
 
   const sourceChampion = encounter ? championDB.getById(encounter.championId) : null;
   const champ = sourceChampion ? localizeChampion(sourceChampion) : null;
+  const preview = useRecruitPreview(encounter?.championId ?? '', encounter?.statMultiplier ?? 1);
+  const previewCopy = recruitPreviewCopy[locale];
   const encounterPresentation = getEncounterPresentation(locale, {
     type: 'recruit',
     name: encounter?.name,
@@ -218,51 +222,14 @@ export function RecruitPage() {
                     </span>
                   ))}
                 </div>
-                {champ && (
-                  <dl className="recruit-page__stats" aria-label={fr.encounter.championStats}>
-                    <div>
-                      <dt>{fr.stats.short.hp}</dt>
-                      <dd className="recruit-page__stat recruit-page__stat--hp">
-                        {formatNumber(Math.round(champ.stats.hp))}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{fr.stats.short.attackDamage}</dt>
-                      <dd className="recruit-page__stat recruit-page__stat--attack">
-                        {formatNumber(Math.round(champ.stats.attackDamage))}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{fr.stats.short.armor}</dt>
-                      <dd className="recruit-page__stat recruit-page__stat--armor">
-                        {formatNumber(Math.round(champ.stats.armor))}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{fr.stats.short.magicResist}</dt>
-                      <dd className="recruit-page__stat recruit-page__stat--resist">
-                        {formatNumber(Math.round(champ.stats.magicResist))}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt title={fr.stats.attackSpeed}>{fr.stats.short.attackSpeed}</dt>
-                      <dd className="recruit-page__stat recruit-page__stat--speed">
-                        {formatNumber(champ.stats.attackSpeed, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{fr.stats.short.crit}</dt>
-                      <dd className="recruit-page__stat recruit-page__stat--crit">
-                        {formatNumber(champ.stats.crit / 100, {
-                          style: 'percent',
-                          maximumFractionDigits: 0,
-                        })}
-                      </dd>
-                    </div>
-                  </dl>
+                {preview && (
+                  <>
+                    <p className="recruit-page__arrival-level">
+                      {previewCopy.arrivalLevel} : {formatNumber(preview.level)}
+                    </p>
+                    <RecruitStatList stats={preview.stats} className="recruit-page__stats" />
+                    <p className="recruit-page__stats-note">{previewCopy.bonuses}</p>
+                  </>
                 )}
               </div>
             </div>

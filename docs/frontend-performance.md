@@ -219,3 +219,18 @@ Le chargement initial reste plafonné à 220 000 octets, Auth à 225 000 octets.
 Les limites par chunk, les assets, les Web Vitals et les seuils de couverture
 restent inchangés. La mesure finale figure dans
 `docs/champion-economy-validation-2026-10-08.md`.
+
+## Corrections UI/UX — budget global
+
+Le 9 octobre 2026, la CI de la PR #201 mesure **606 610 octets gzip** après
+les corrections UI/UX, les états de combat lisibles et la récupération de mot
+de passe en FR/EN. Le plafond de 670 000 octets laisse alors **9,46 %** de marge,
+sous le minimum obligatoire de 10 %.
+
+Pour accompagner ces fonctionnalités tout en conservant la simplicité du code,
+le budget v7 porte uniquement le plafond global à **690 000 octets**
+(+2,99 %). La mesure CI conserve ainsi **12,09 %** de marge, et le maximum
+effectif avec la règle de 10 % devient **621 000 octets**. Les catalogues et
+leurs traductions conservent leur packaging actuel. Les budgets initial/Auth,
+par chunk, d'assets et de Web Vitals, les seuils de couverture et les checks
+existants restent inchangés.

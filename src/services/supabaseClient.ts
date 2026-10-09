@@ -5,6 +5,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import '@/auth/passwordRecovery';
 import { createObservedFetch } from '@/observability/observedFetch';
 import { createSupabaseAuthStorage } from '@/services/supabaseAuthStorage';
 import type { Database } from '@/types/database';

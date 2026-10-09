@@ -49,6 +49,89 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 2,
+    version: '2026.10.09',
+    publishedOn: '2026-10-09',
+    title: {
+      'fr-FR': 'Une interface plus claire, du menu au combat',
+      'en-US': 'A clearer interface, from menu to combat',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Trouve tes champions avec la recherche, les filtres de rôle et les pages du catalogue. Ton équipe et les actions de départ restent accessibles pendant la préparation.',
+          'en-US':
+            'Find champions with search, role filters, and catalog pages. Your team and start actions stay within reach while preparing your run.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les runes sont facultatives : tu peux démarrer sans rune ou consulter leurs effets avant de faire ton choix.',
+          'en-US':
+            'Runes are optional: start without a rune or inspect their effects before choosing.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'En combat manuel, choisis ton action et sa cible, puis confirme pour jouer le tour. Tu peux activer le mode automatique quand tu le souhaites.',
+          'en-US':
+            'In manual combat, choose an action and its target, then confirm to play the turn. Switch to automatic mode whenever you want.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les portraits signalent les états des champions, comme l’étourdissement, avec leur durée restante pour mieux comprendre les tours de combat.',
+          'en-US':
+            'Portraits show champion statuses, such as stuns, with their remaining duration to make combat turns easier to follow.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'La navigation au clavier, le focus et les infobulles des compétences sont plus pratiques. Les textes, contrastes et panneaux restent plus lisibles sur les petits écrans.',
+          'en-US':
+            'Keyboard navigation, focus, and ability tooltips are easier to use. Text, contrast, and panels are clearer on small screens.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'La connexion depuis une partie invitée affiche les erreurs sans bloquer l’écran et demande confirmation avant l’abandon. Le parcours « Mot de passe oublié » permet de demander un lien et de choisir un nouveau mot de passe.',
+          'en-US':
+            'Signing in from a guest run shows errors without blocking the screen and asks for confirmation before abandoning the run. The Forgot password flow lets you request a link and choose a new password.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Avant de recruter, consulte le niveau d’arrivée et les statistiques prévues avec la maîtrise et les bonus actuels. En boutique, les rôles, compétences et passifs sont consultables avant l’achat.',
+          'en-US':
+            'Before recruiting, inspect the joining level and projected stats with mastery and current bonuses. In shops, review roles, abilities, and passives before buying.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Le menu met « Jouer » en premier pour lancer ta prochaine partie plus rapidement, tout en gardant les nouveautés disponibles.',
+          'en-US':
+            'The menu puts Play first so you can start your next run faster, while keeping game updates available.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

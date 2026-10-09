@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-09",
+  "branch": "feat/ui-ux-audit-fixes",
+  "baseCommit": "f2a05034ad3acbc8538db26fecbed8e5e01bd723",
+  "status": "validated_locally",
+  "unit": {
+    "fullInitial": {
+      "passed": 2300,
+      "failed": 4,
+      "skipped": 83,
+      "failedFiles": 5
+    },
+    "initialFailuresResolvedByTargetedReruns": true,
+    "latestTargetedPassed": 93
+  },
+  "browser": {
+    "distinctE2ePassed": 52,
+    "fullGuestRunsPassed": 2,
+    "authIsolatedChecksPassed": 8,
+    "connectedProvider": "mocked_or_not_run"
+  },
+  "checks": {
+    "typecheck": true,
+    "format": true,
+    "lint": true,
+    "csp": true,
+    "content": true,
+    "build": true,
+    "productionBuild": true
+  },
+  "selection": {
+    "syntheticCatalogSize": 180,
+    "pageSize": 12,
+    "mobile390Height": 2176,
+    "mobile320Height": 2181,
+    "horizontalOverflow": 0,
+    "confirmationVisible": true
+  },
+  "combatTooltip320Large": {
+    "left": 8,
+    "right": 308.796875,
+    "top": 296.109375,
+    "bottom": 710.578125,
+    "horizontalOverflow": 0,
+    "singlePinnedPanel": true
+  },
+  "authority": {
+    "engineVersion": "run-engine-v21",
+    "contentHash": "9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6",
+    "registryEntries": 21,
+    "publishedEngineAndBundleChanged": false
+  },
+  "remote": {
+    "pushed": false,
+    "deployed": false,
+    "databaseChanged": false,
+    "realRecoveryEmailTested": false
+  }
+}

@@ -105,17 +105,27 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
   }
   await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
 
+  const runeDisclosure = page.locator('.starter-select__rune-disclosure');
+  await expect(runeDisclosure).not.toHaveAttribute('open');
+  await runeDisclosure.locator('summary').click();
+  await expect(runeDisclosure).toHaveAttribute('open');
   const runes = page.getByRole('checkbox');
   let selected = 0;
   if (assuredVictory) {
     const victoryRune = page.getByRole('checkbox', { name: /E2E — Victoire assurée/ });
     await expect(victoryRune).toBeVisible();
-    await victoryRune.check();
+    if (!(await victoryRune.isChecked())) {
+      await victoryRune.focus();
+      await page.keyboard.press('Space');
+    }
+    await expect(victoryRune).toBeChecked();
     selected = 1;
   }
   for (let index = 0; index < (await runes.count()) && selected < 3; index += 1) {
     if (!(await runes.nth(index).isChecked())) {
-      await runes.nth(index).check();
+      await runes.nth(index).focus();
+      await page.keyboard.press('Space');
+      await expect(runes.nth(index)).toBeChecked();
       selected += 1;
     }
   }

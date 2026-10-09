@@ -36,7 +36,7 @@ test('le mouvement réduit neutralise CSS, canvas, SVG et animation de combat', 
 
   await page.evaluate(async () => {
     const { useRunStore } = await import('/src/stores/runStore.ts');
-    const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20260801 });
+    const started = await useRunStore.getState().startRun(['Annie', 'Ashe'], { seed: 20260801 });
     if (!started.success) throw new Error(`Unable to start reduced-motion run: ${started.code}`);
   });
   await page.goto('/run');
