@@ -46,7 +46,7 @@ function hasEffect(spell: Spell, types: ReadonlySet<string>): boolean {
 }
 
 const SUPPORT_EFFECTS = new Set(['heal', 'hot', 'shield']);
-const OFFENSIVE_EFFECTS = new Set(['damage', 'dot', 'cc', 'debuff', 'execute']);
+const OFFENSIVE_EFFECTS = new Set(['damage', 'delayed_damage', 'dot', 'cc', 'debuff', 'execute']);
 
 function executeThreshold(effect: SpellEffect): number | null {
   return effect.type === 'execute' ? normalizeThreshold(effect.threshold, 0) : null;
