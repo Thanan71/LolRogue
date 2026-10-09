@@ -33,6 +33,14 @@ Les notes de mise à jour **2026.10.09 / publication 2** couvrent ces changement
 
 Les anciens tests utilisant Lux comme starter gratuit ont reçu des fixtures légales ou des équipes explicitement réservées à la présentation. Le serveur de test a été redémarré après les modifications pour éviter que les imports de fixtures et les composants utilisent des versions différentes des stores après HMR.
 
+## Suivi de la CI — PR #201
+
+Le premier passage distant valide les 2 312 tests unitaires et les 2 392 tests du clonage propre, mais refuse deux seuils de couverture de branches ainsi que la marge du budget JavaScript. Les corrections ajoutent les cas de récupération sans navigateur/session et de sortie du mode invité refusée ou interrompue. Les 33 tests ciblés passent, avec 100 % de branches pour `SupabaseAuthRepository` et 94,73 % pour `ProfilePage`.
+
+Le budget global passe de 670 000 à 690 000 octets gzip (+2,99 %) pour accompagner ces fonctionnalités tout en conservant la simplicité du code. `check:build` passe à 606 610 octets, avec 12,09 % de marge; la marge minimale de 10 % et les autres plafonds restent identiques. Le [justificatif de performance](../../frontend-performance.md) décrit cet ajustement.
+
+Le scénario connecté utilise le nouveau libellé des nouveautés et vérifie exactement la dernière séquence et version renvoyées par la RPC, puis leur persistance sur une autre session et après rechargement. Son typecheck et les 20 tests des publications passent localement; le parcours connecté se valide dans la CI.
+
 ## Captures et mesures après correction
 
 Les captures sont conservées localement et exclues de Git. Les liens d’images ci-dessous sont consultables dans ce workspace; les mesures et comptes rendus textuels sont versionnés.

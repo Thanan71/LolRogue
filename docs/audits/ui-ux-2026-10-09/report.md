@@ -209,7 +209,7 @@ Le test de « zoom 200 % » utilise un viewport de 640 px : c'est une simulation
 
 Après correction, organiser un test avec de nouveaux joueurs : démarrer une partie sans aide, expliquer les monnaies et la sauvegarde invitée, effectuer une attaque volontaire, comprendre un sort indisponible et comparer deux recrutements. Mesurer les erreurs et demandes d'aide plutôt que déduire la facilité du parcours des seules captures.
 
-## État de livraison de cet audit
+## État de livraison lors de l’audit initial
 
 Rapport, captures et preuves ajoutés localement. Aucun composant applicatif, test existant ou schéma de base de données modifié. Aucun commit, push, PR ou déploiement réalisé.
 
