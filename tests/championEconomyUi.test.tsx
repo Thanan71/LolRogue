@@ -249,6 +249,13 @@ describe('champion economy purchase UI', () => {
   it('shows three permanent free plus five rotating champions and selectable access immediately after buying a locked champion', async () => {
     purchase.mockImplementation(async () => completePurchase());
     renderStarter();
+    expect(screen.getByRole('combobox', { name: 'Filtrer les champions par accès' })).toHaveValue(
+      'available',
+    );
+    expect(screen.queryByRole('button', { name: 'Choisir Lux' })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Filtrer les champions par accès' }), {
+      target: { value: 'all' },
+    });
     expect(screen.getAllByText('Gratuit permanent')).toHaveLength(3);
     expect(screen.getAllByText('Rotation hebdomadaire')).toHaveLength(5);
     expect(screen.getAllByText('Verrouillé')).toHaveLength(2);
@@ -291,7 +298,9 @@ describe('champion economy purchase UI', () => {
     expect(screen.getAllByRole('button', { name: /^Choisir / })).toHaveLength(6);
     expect(screen.queryByText('Éclats de champion')).not.toBeInTheDocument();
     expect(screen.queryByText('Verrouillé')).not.toBeInTheDocument();
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('combobox', { name: 'Filtrer les champions par accès' }),
+    ).not.toBeInTheDocument();
   });
 
   it('blocks an online run while the access contract is missing and offers a localized refresh', () => {
@@ -382,6 +391,9 @@ describe('champion economy purchase UI', () => {
 
   it('keeps locked champion stats and spells available without enabling selection', () => {
     renderStarter();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Filtrer les champions par accès' }), {
+      target: { value: 'locked' },
+    });
     const details = screen.getByRole('button', { name: 'Voir les statistiques et sorts de Lux' });
     details.focus();
     fireEvent.click(details);
@@ -405,8 +417,18 @@ describe('champion economy purchase UI', () => {
       await act(async () => {
         vi.advanceTimersByTime(60_000);
       });
-      expect(selectDarius).toHaveAttribute('aria-pressed', 'false');
-      expect(selectDarius).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'Choisir Darius' })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Retirer Darius de l’équipe' }),
+      ).not.toBeInTheDocument();
+      fireEvent.change(screen.getByRole('combobox', { name: 'Filtrer les champions par accès' }), {
+        target: { value: 'all' },
+      });
+      expect(screen.getByRole('button', { name: 'Choisir Darius' })).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
+      expect(screen.getByRole('button', { name: 'Choisir Darius' })).toBeDisabled();
       expect(refresh).toHaveBeenCalledTimes(initialRefreshes + 1);
       await act(async () => {
         vi.advanceTimersByTime(60_000);
