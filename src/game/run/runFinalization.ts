@@ -35,6 +35,7 @@ export async function finalizeCombatRun(
         currentMp: finalState?.currentMp ?? (won ? member.currentMp : 0),
         level: member.level ?? 1,
         currentXp: member.currentXp ?? 0,
+        runProgress: finalState?.runProgress ?? member.runProgress,
       };
     }),
   );

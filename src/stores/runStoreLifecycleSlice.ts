@@ -7,10 +7,12 @@ import {
   createRunCommandId as createCommandId,
   isSamePendingRunStart as samePendingStart,
 } from '@/game/run/runAuthorityJournal';
+import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStartCoordinator';
 import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { shouldApplyRunRewards } from '@/game/run/runState';
+import { cloneRunProgressSnapshot } from '@/game/runProgression';
 import { runError, runStartValidationMessage } from '@/i18n/runErrorContent';
 import { recordTechnicalMetric } from '@/observability/technicalMetrics';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
@@ -388,7 +390,10 @@ export function createRunLifecycleSlice(
 
           // Authenticated content is generated only after the server has frozen
           // the seed/ruleset; guest mode keeps its local deterministic seed.
-          const biomeMaps = generateBiomeMaps(seed);
+          const biomeMaps = generateBiomeMaps(
+            seed,
+            getRunChampionCatalog(authorityAttempt?.engineVersion),
+          );
           const startBiome = biomeMaps[0]?.biome ?? null;
           const frontierNodeIds = biomeMaps[0]?.startNodeId ? [biomeMaps[0].startNodeId] : [];
           synchronizeMapFrontier(biomeMaps, 0, frontierNodeIds);
@@ -626,11 +631,13 @@ export function createRunLifecycleSlice(
                     : useMasteryStore.getState().getChampionMastery(member.championId).level,
                 )
               : 100;
+            const runProgress = cloneRunProgressSnapshot(member.runProgress);
             return {
               championId: member.championId,
               level: member.level ?? 1,
               currentHp: member.currentHp ?? maxHp,
               currentMp: member.currentMp ?? champ?.stats.mp ?? 0,
+              ...(Object.keys(runProgress).length === 0 ? {} : { runProgress }),
             };
           });
 
