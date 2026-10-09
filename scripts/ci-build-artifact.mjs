@@ -5,11 +5,15 @@ import { packageBuildArtifact, verifyBuildArtifact } from './lib/ci-build-artifa
 
 const root = resolve(import.meta.dirname, '..');
 const artifactRoot = join(root, 'ci-build');
+const command = process.argv[2];
 const identity = {
   commit: process.env.GITHUB_SHA,
   repository: process.env.GITHUB_REPOSITORY,
   runId: process.env.GITHUB_RUN_ID,
-  runAttempt: process.env.GITHUB_RUN_ATTEMPT,
+  runAttempt:
+    command === 'restore'
+      ? process.env.CI_BUILD_PRODUCER_RUN_ATTEMPT
+      : process.env.GITHUB_RUN_ATTEMPT,
   profile: 'production',
 };
 const checkoutSha = execFileSync('git', ['rev-parse', 'HEAD'], {
@@ -19,14 +23,18 @@ const checkoutSha = execFileSync('git', ['rev-parse', 'HEAD'], {
 if (checkoutSha !== identity.commit)
   throw new Error('Checkout SHA differs from expected workflow SHA.');
 
-if (process.argv[2] === 'pack') {
+if (command === 'pack') {
   execFileSync('git', ['diff', '--quiet', 'HEAD'], { cwd: root });
   const publicKey = await packageBuildArtifact(join(root, 'dist'), artifactRoot, identity);
   if (!process.env.GITHUB_OUTPUT)
     throw new Error('Packing a CI build requires the producer output channel.');
   await appendFile(process.env.GITHUB_OUTPUT, `public-key=${publicKey}\n`);
+  await appendFile(
+    process.env.GITHUB_OUTPUT,
+    `producer-run-attempt=${identity.runAttempt}\n`,
+  );
   console.log(`Signed production build for ${identity.commit}.`);
-} else if (process.argv[2] === 'restore') {
+} else if (command === 'restore') {
   await verifyBuildArtifact(artifactRoot, identity, process.env.CI_BUILD_PUBLIC_KEY);
   await rm(join(root, 'dist'), { recursive: true, force: true });
   await cp(join(artifactRoot, 'dist'), join(root, 'dist'), { recursive: true });
