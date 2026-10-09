@@ -1,4 +1,5 @@
 import {
+  AUTHORITY_ENGINE_CHAMPION_CATALOGS,
   AUTHORITY_ENGINE_FEATURE_MASKS,
   AUTHORITY_FEATURE_BITS,
   CURRENT_AUTHORITY_VERSION,
@@ -20,6 +21,7 @@ export interface AuthorityVersionFeatures {
   automaticTraceSuffix: boolean;
   canonicalStats: boolean;
   contentBalance: boolean;
+  runProgression: boolean;
 }
 
 export interface AuthorityVersionMetadata {
@@ -28,6 +30,7 @@ export interface AuthorityVersionMetadata {
   dailyScore: number;
   progression: number;
   command: number;
+  championCatalog: number;
   status: AuthorityVersionStatus;
   rulesetCode: string;
   contentHash: string;
@@ -46,6 +49,12 @@ function getAuthorityFeatureMask(engine: string): number | undefined {
 export function isKnownAuthorityEngine(engine: string): boolean {
   const mask = getAuthorityFeatureMask(engine);
   return mask !== undefined && mask >= 0;
+}
+
+export function getAuthorityChampionCatalogVersion(engine: string): number | undefined {
+  const match = /^run-engine-v([1-9]\d*)$/.exec(engine);
+  const catalog = match ? AUTHORITY_ENGINE_CHAMPION_CATALOGS[Number(match[1])] : undefined;
+  return catalog !== undefined && catalog > 0 ? catalog : undefined;
 }
 
 export function hasAuthorityFeature(engine: string, feature: AuthorityFeature): boolean {

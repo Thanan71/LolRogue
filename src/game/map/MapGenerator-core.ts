@@ -2,9 +2,10 @@
  * Procedural Map Generator - Core Algorithm
  */
 
-import { implementedChampions } from '@/data/champion';
 import { getItemDefinition, ITEM_DATABASE } from '@/data/items';
 import { createCombatEncounterForNode } from '@/game/run/encounterResolver';
+import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
+import type { Champion } from '@/types/champion';
 import { createScopedRunRng } from '@/utils/runRandom';
 import type { Biome } from '../../types/run';
 import { generateShopRotation, generateWildRecruit } from '../recruitment/RecruitmentService';
@@ -71,7 +72,12 @@ function createEncounterId(type: string, biome: Biome, rand: () => number): stri
   return `${type}_${biome}_${Math.floor(rand() * 1_000_000_000).toString(36)}`;
 }
 
-function generateShopEncounter(biome: Biome, runLevel: number, rand: () => number): ShopEncounter {
+function generateShopEncounter(
+  biome: Biome,
+  runLevel: number,
+  rand: () => number,
+  champions: readonly Champion[],
+): ShopEncounter {
   const itemCount = 2 + Math.floor(rand() * 3);
   const shuffled = seededShuffle(SHOPABLE_ITEM_IDS, rand);
   const selectedItemIds = shuffled.slice(0, itemCount);
@@ -86,6 +92,7 @@ function generateShopEncounter(biome: Biome, runLevel: number, rand: () => numbe
     [],
     1 + Math.floor(rand() * 2),
     rand,
+    champions,
   );
 
   const shopNames: Record<Biome, string> = {
@@ -142,6 +149,7 @@ function generateEventEncounter(
   biome: Biome,
   runLevel: number,
   rand: () => number,
+  champions: readonly Champion[],
 ): EventEncounter {
   const eventPool: Array<{
     name: string;
@@ -212,7 +220,7 @@ function generateEventEncounter(
           type: 'champion_recruit',
           weight: 1,
           description: 'A champion appears from the altar!',
-          championId: implementedChampions[Math.floor(rand() * implementedChampions.length)].id,
+          championId: champions[Math.floor(rand() * champions.length)].id,
         },
       ],
     },
@@ -252,8 +260,9 @@ function generateRecruitEncounter(
   biome: Biome,
   runLevel: number,
   rand: () => number,
+  champions: readonly Champion[],
 ): RecruitEncounter {
-  const recruit = generateWildRecruit(biome, runLevel, [], rand);
+  const recruit = generateWildRecruit(biome, runLevel, [], rand, champions);
   const championId = recruit?.championId ?? 'Garen';
   const cost = recruit?.cost ?? Math.round(100 + runLevel * 40);
   const successChance = recruit?.successChance ?? 0.75;
@@ -316,6 +325,7 @@ function generateEncounterForNode(
   biome: Biome,
   runLevel: number,
   rand: () => number,
+  champions: readonly Champion[],
 ): Encounter | null {
   switch (nodeType) {
     case NodeType.Combat:
@@ -323,13 +333,13 @@ function generateEncounterForNode(
     case NodeType.Boss:
       return createCombatEncounterForNode(biome, runLevel, nodeType, rand);
     case NodeType.Shop:
-      return generateShopEncounter(biome, runLevel, rand);
+      return generateShopEncounter(biome, runLevel, rand, champions);
     case NodeType.Rest:
       return generateRestEncounter(biome, runLevel, rand);
     case NodeType.Event:
-      return generateEventEncounter(biome, runLevel, rand);
+      return generateEventEncounter(biome, runLevel, rand, champions);
     case NodeType.Recruit:
-      return generateRecruitEncounter(biome, runLevel, rand);
+      return generateRecruitEncounter(biome, runLevel, rand, champions);
     case NodeType.Treasure:
       return generateTreasureEncounter(biome, runLevel, rand);
     case NodeType.Start:
@@ -346,7 +356,12 @@ function createMapRandom(seed: number, scope: string): () => number {
   return () => rng.next();
 }
 
-export function generateMap(biome: Biome, runLevel: number, seed?: number): NodeMap {
+export function generateMap(
+  biome: Biome,
+  runLevel: number,
+  seed?: number,
+  champions: readonly Champion[] = getRunChampionCatalog(),
+): NodeMap {
   const effectiveSeed = seed ?? Date.now();
   const config = buildConfig(biome, runLevel, effectiveSeed);
   const mapScope = `map:${biome}:${runLevel}`;
@@ -394,7 +409,13 @@ export function generateMap(biome: Biome, runLevel: number, seed?: number): Node
         columnPressure,
         row === riskRow,
       );
-      const encounter = generateEncounterForNode(nodeType, biome, runLevel, encounterRandom);
+      const encounter = generateEncounterForNode(
+        nodeType,
+        biome,
+        runLevel,
+        encounterRandom,
+        champions,
+      );
 
       const node: MapNode = {
         id: `node_${biome}_${nodeIdCounter++}`,
@@ -480,13 +501,16 @@ export function generateMap(biome: Biome, runLevel: number, seed?: number): Node
   };
 }
 
-export function generateRunMap(seed?: number): NodeMap[] {
+export function generateRunMap(
+  seed?: number,
+  champions: readonly Champion[] = getRunChampionCatalog(),
+): NodeMap[] {
   const biomeOrder: Biome[] = ['top_lane', 'jungle', 'mid_lane', 'bot_lane', 'river', 'base'];
   const effectiveSeed = seed ?? Date.now();
 
   return biomeOrder.map((biome, index) => {
     const biomeSeed = effectiveSeed + index * 1000;
     const runLevel = index + 1;
-    return generateMap(biome, runLevel, biomeSeed);
+    return generateMap(biome, runLevel, biomeSeed, champions);
   });
 }
