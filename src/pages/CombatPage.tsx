@@ -135,6 +135,7 @@ export function CombatPage() {
   const [autoActionRemainingMs, setAutoActionRemainingMs] = useState<number | null>(null);
   const [targetSelection, setTargetSelection] = useState<CombatTargetSelection>();
   const [pendingActionType, setPendingActionType] = useState<ActionType>();
+  const stagedActorRef = useRef<string | null>(null);
   const hasNavigatedAfterLossRef = useRef(false);
 
   // Reset the ref when battlePhase changes to starting (new combat)
@@ -149,6 +150,7 @@ export function CombatPage() {
   useEffect(() => {
     setTargetSelection(undefined);
     setPendingActionType(undefined);
+    stagedActorRef.current = null;
   }, [currentTurnChampionId, currentTurnSide]);
 
   // Navigate away if the run is no longer active (only once after a loss)
@@ -375,7 +377,7 @@ export function CombatPage() {
     [navigate, playerInstances, supportsManualCombat],
   );
 
-  const { processTurn, submitAction, getAvailableActions } = useBattleManager({
+  const { processTurn, advanceBlockedTurn, submitAction, getAvailableActions } = useBattleManager({
     playerTeam: playerInstances,
     enemyTeam: enemyInstances,
     autoPlay: requiresServerAutoPlay ? true : autoPlay,
@@ -395,26 +397,30 @@ export function CombatPage() {
 
   const chooseAction = useCallback(
     (actionType: ActionType) => {
-      if (requiresServerAutoPlay) return;
+      if (requiresServerAutoPlay || autoPlay || !isPlayerTurn || battlePhase !== 'turn_active')
+        return;
       const option = getAvailableActions().find((candidate) => candidate.type === actionType);
       if (!option) return;
 
-      if (option.requiresTarget && !optionAcceptsTarget(option, targetSelection, currentTurnSide)) {
+      if (
+        !option.requiresTarget ||
+        !optionAcceptsTarget(option, targetSelection, currentTurnSide)
+      ) {
         setTargetSelection(undefined);
-        setPendingActionType(actionType);
-        return;
       }
-
-      const accepted = submitAction({
-        type: actionType,
-        targetId: option.requiresTarget ? targetSelection?.targetId : undefined,
-      });
-      if (accepted) {
-        setTargetSelection(undefined);
-        setPendingActionType(undefined);
-      }
+      setPendingActionType(actionType);
+      stagedActorRef.current = `${currentTurnSide}:${currentTurnChampionId}`;
     },
-    [currentTurnSide, getAvailableActions, requiresServerAutoPlay, submitAction, targetSelection],
+    [
+      autoPlay,
+      battlePhase,
+      currentTurnSide,
+      currentTurnChampionId,
+      getAvailableActions,
+      isPlayerTurn,
+      requiresServerAutoPlay,
+      targetSelection,
+    ],
   );
 
   const handleCast = useCallback(
@@ -428,16 +434,14 @@ export function CombatPage() {
 
   const handleTargetSelect = useCallback(
     (targetId: string, side: TeamSide) => {
+      if (requiresServerAutoPlay || autoPlay || !isPlayerTurn || battlePhase !== 'turn_active')
+        return;
       const options = getAvailableActions();
       const selection = { targetId, side } satisfies CombatTargetSelection;
       if (pendingActionType) {
         const pending = options.find((candidate) => candidate.type === pendingActionType);
         if (!pending || !optionAcceptsTarget(pending, selection, currentTurnSide)) return;
-        const accepted = submitAction({ type: pendingActionType, targetId });
-        if (accepted) {
-          setTargetSelection(undefined);
-          setPendingActionType(undefined);
-        }
+        setTargetSelection(selection);
         return;
       }
 
@@ -450,19 +454,69 @@ export function CombatPage() {
         setTargetSelection(selection);
       }
     },
-    [currentTurnSide, getAvailableActions, pendingActionType, submitAction],
+    [
+      autoPlay,
+      battlePhase,
+      currentTurnSide,
+      getAvailableActions,
+      isPlayerTurn,
+      pendingActionType,
+      requiresServerAutoPlay,
+    ],
   );
 
-  const autoActionDelayMs = getAutoTurnDelayMs(battleSpeed);
-  const shouldAutoAdvance = shouldAutoAdvanceCombatTurn({
-    phase: battlePhase,
-    isAuthorityRun: requiresServerAutoPlay,
+  const confirmAction = useCallback(() => {
+    if (requiresServerAutoPlay || autoPlay || !isPlayerTurn || battlePhase !== 'turn_active')
+      return;
+    const current = useBattleStore.getState();
+    if (stagedActorRef.current !== `${current.currentTurnSide}:${current.currentTurnChampionId}`)
+      return;
+    const option = getAvailableActions().find((candidate) => candidate.type === pendingActionType);
+    if (
+      !option ||
+      (option.requiresTarget && !optionAcceptsTarget(option, targetSelection, currentTurnSide))
+    )
+      return;
+    if (
+      submitAction({
+        type: option.type,
+        targetId: option.requiresTarget ? targetSelection?.targetId : undefined,
+      })
+    ) {
+      stagedActorRef.current = null;
+      setTargetSelection(undefined);
+      setPendingActionType(undefined);
+    }
+  }, [
     autoPlay,
+    battlePhase,
+    currentTurnSide,
+    getAvailableActions,
     isPlayerTurn,
-  });
+    pendingActionType,
+    requiresServerAutoPlay,
+    submitAction,
+    targetSelection,
+  ]);
 
-  // Enemy turns continue automatically in manual mode. Player turns only receive
-  // a timer after the player explicitly enables auto-play.
+  const autoActionDelayMs = getAutoTurnDelayMs(battleSpeed);
+  const forcedTurn =
+    !requiresServerAutoPlay &&
+    !autoPlay &&
+    isPlayerTurn &&
+    battlePhase === 'turn_active' &&
+    Boolean(currentChampion) &&
+    getAvailableActions().length === 0;
+  const shouldAutoAdvance =
+    shouldAutoAdvanceCombatTurn({
+      phase: battlePhase,
+      isAuthorityRun: requiresServerAutoPlay,
+      autoPlay,
+      isPlayerTurn,
+    }) || forcedTurn;
+
+  // Enemy/auto turns advance on a timer. A player with no legal command also
+  // advances through the engine's skipped-turn cycle; this never selects an action.
   useEffect(() => {
     if (!shouldAutoAdvance) {
       setAutoActionRemainingMs(null);
@@ -485,9 +539,11 @@ export function CombatPage() {
         current.phase === 'turn_active' &&
         current.currentTurnChampionId === scheduledTurn.championId &&
         current.currentTurnSide === scheduledTurn.side &&
-        current.round === scheduledTurn.round
+        current.round === scheduledTurn.round &&
+        (!forcedTurn || getAvailableActions().length === 0)
       ) {
-        processTurn();
+        if (forcedTurn) advanceBlockedTurn();
+        else processTurn();
       }
       setAutoActionRemainingMs(null);
     }, autoActionDelayMs);
@@ -498,22 +554,40 @@ export function CombatPage() {
     };
   }, [
     autoActionDelayMs,
+    advanceBlockedTurn,
     currentTurnChampionId,
     currentTurnSide,
+    forcedTurn,
+    getAvailableActions,
     processTurn,
     round,
     shouldAutoAdvance,
   ]);
 
   // Keyboard shortcuts
-  const canCast = !requiresServerAutoPlay && isPlayerTurn && battlePhase === 'turn_active';
+  const canCast =
+    !requiresServerAutoPlay && !autoPlay && isPlayerTurn && battlePhase === 'turn_active';
   const canCastSlot = useCallback(
     (slot: 'Q' | 'W' | 'E' | 'R') => {
       if (!canCast || !currentSpell) return false;
       const sp = currentSpell.find((s) => s.slot === slot);
-      return !!sp && sp.isReady;
+      return (
+        !!sp &&
+        sp.isReady &&
+        getAvailableActions().some((option) => option.type === SLOT_TO_ACTION[slot])
+      );
     },
-    [canCast, currentSpell],
+    [canCast, currentSpell, getAvailableActions],
+  );
+
+  const visibleActionOptions = canCast ? getAvailableActions() : [];
+  const pendingOption = visibleActionOptions.find(
+    (candidate) => candidate.type === pendingActionType,
+  );
+  const canConfirm = Boolean(
+    pendingOption &&
+      (!pendingOption.requiresTarget ||
+        optionAcceptsTarget(pendingOption, targetSelection, currentTurnSide)),
   );
 
   useKeyboardShortcuts({
@@ -521,23 +595,14 @@ export function CombatPage() {
     onCastW: canCastSlot('W') ? () => handleCast('W') : undefined,
     onCastE: canCastSlot('E') ? () => handleCast('E') : undefined,
     onCastR: canCastSlot('R') ? () => handleCast('R') : undefined,
-    onNextTurn:
-      !requiresServerAutoPlay && !autoPlay && isPlayerTurn && battlePhase === 'turn_active'
-        ? processTurn
-        : undefined,
+    onNextTurn: canConfirm ? confirmAction : undefined,
+    onConfirm: canConfirm ? confirmAction : undefined,
     onBack: canLeaveActiveCombat(battlePhase) ? () => navigate(ROUTES.RUN) : undefined,
     enabled: keyboardShortcutsEnabled && battlePhase !== 'finished',
   });
 
   if (!isActive) return null;
 
-  const visibleActionOptions =
-    !requiresServerAutoPlay && isPlayerTurn && battlePhase === 'turn_active'
-      ? getAvailableActions()
-      : [];
-  const pendingOption = visibleActionOptions.find(
-    (candidate) => candidate.type === pendingActionType,
-  );
   const selectableTargetKeys = new Set(
     (pendingOption
       ? [pendingOption]
@@ -553,6 +618,7 @@ export function CombatPage() {
   );
   const showPlayerControls =
     !requiresServerAutoPlay &&
+    !autoPlay &&
     isPlayerTurn &&
     currentChampion !== undefined &&
     !currentChampion.isDefeated;
@@ -564,64 +630,91 @@ export function CombatPage() {
       battlePhase === 'starting' ||
       battlePhase === 'turn_transition');
 
-  const commandStatus = pendingOption
-    ? {
-        label: combatCopy.page.command.targetRequired,
-        text: fr.combat.chooseTarget,
-      }
-    : selectedTarget
+  const pendingActionName =
+    pendingOption?.type === ActionType.BasicAttack
+      ? fr.combat.baseAttack
+      : currentChampion?.spells.find((spell) => SLOT_TO_ACTION[spell.slot] === pendingOption?.type)
+          ?.name;
+  const pendingTargetName = pendingOption?.requiresTarget
+    ? selectedTarget?.name
+    : pendingOption?.targeting === TargetingType.Self
+      ? currentChampion?.name
+      : pendingOption?.targeting === TargetingType.Allies
+        ? fr.combat.playerTeam
+        : fr.combat.enemyTeam;
+  const confirmationLabel =
+    canConfirm && pendingActionName
+      ? combatCopy.page.command.confirm(pendingActionName, pendingTargetName)
+      : combatCopy.page.command.confirmSelection;
+  const commandStatus = canConfirm
+    ? { label: combatCopy.page.command.commandReady, text: confirmationLabel }
+    : pendingOption
       ? {
-          label: combatCopy.page.command.targetReady,
-          text: combatCopy.page.command.selectedTarget(selectedTarget.name),
+          label: combatCopy.page.command.targetRequired,
+          text: fr.combat.chooseTarget,
         }
-      : battlePhase === 'finished'
+      : selectedTarget
         ? {
-            label: combatCopy.page.command.combatFinished,
-            text: combatCopy.page.command.combatFinishedDetail,
+            label: combatCopy.page.command.targetReady,
+            text: combatCopy.page.command.selectedTarget(selectedTarget.name),
           }
-        : requiresServerAutoPlay
+        : battlePhase === 'finished'
           ? {
-              label: combatCopy.page.command.serverResolution,
-              text: fr.combat.serverAutoRequired,
+              label: combatCopy.page.command.combatFinished,
+              text: combatCopy.page.command.combatFinishedDetail,
             }
-          : autoActionRemainingMs !== null
+          : requiresServerAutoPlay
             ? {
-                label: isPlayerTurn
-                  ? combatCopy.page.command.automaticAction
-                  : combatCopy.page.command.enemyTurn,
-                text: isPlayerTurn
-                  ? combatCopy.page.command.automaticPlayerDetail
-                  : combatCopy.page.command.automaticEnemyDetail,
+                label: combatCopy.page.command.serverResolution,
+                text: fr.combat.serverAutoRequired,
               }
-            : isPlayerTurn && autoPlay
+            : autoActionRemainingMs !== null
               ? {
-                  label: combatCopy.page.command.autoplayActive,
-                  text: combatCopy.page.command.autoplayDetail,
+                  label: isPlayerTurn
+                    ? forcedTurn
+                      ? combatCopy.page.command.forcedTurn
+                      : combatCopy.page.command.automaticAction
+                    : combatCopy.page.command.enemyTurn,
+                  text: isPlayerTurn
+                    ? forcedTurn
+                      ? combatCopy.page.command.forcedTurnDetail
+                      : combatCopy.page.command.automaticPlayerDetail
+                    : combatCopy.page.command.automaticEnemyDetail,
                 }
-              : isPlayerTurn
+              : isPlayerTurn && autoPlay
                 ? {
-                    label: combatCopy.page.command.yourTurn,
-                    text: combatCopy.page.command.yourTurnDetail,
+                    label: combatCopy.page.command.autoplayActive,
+                    text: combatCopy.page.command.autoplayDetail,
                   }
-                : battlePhase === 'idle' || battlePhase === 'starting'
+                : isPlayerTurn
                   ? {
-                      label: combatCopy.page.command.preparation,
-                      text: combatCopy.page.command.preparationDetail,
+                      label: combatCopy.page.command.yourTurn,
+                      text: combatCopy.page.command.yourTurnDetail,
                     }
-                  : {
-                      label: combatCopy.page.command.enemyTurn,
-                      text: combatCopy.page.command.enemyTurnDetail,
-                    };
-  const targetStepText = pendingOption
-    ? combatCopy.page.command.selectValidPortrait
-    : (selectedTarget?.name ?? combatCopy.page.command.targetDependsOnAction);
+                  : battlePhase === 'idle' || battlePhase === 'starting'
+                    ? {
+                        label: combatCopy.page.command.preparation,
+                        text: combatCopy.page.command.preparationDetail,
+                      }
+                    : {
+                        label: combatCopy.page.command.enemyTurn,
+                        text: combatCopy.page.command.enemyTurnDetail,
+                      };
+  const targetStepText =
+    pendingOption && !canConfirm
+      ? combatCopy.page.command.selectValidPortrait
+      : (pendingTargetName ??
+        selectedTarget?.name ??
+        combatCopy.page.command.targetDependsOnAction);
   const arenaStatus =
     autoActionRemainingMs !== null
       ? combatCopy.page.status.countdown(
           requiresServerAutoPlay
             ? combatCopy.page.command.serverResolution
             : isPlayerTurn
-              ? combatCopy.page.command.automaticAction
+              ? forcedTurn
+                ? combatCopy.page.command.forcedTurn
+                : combatCopy.page.command.automaticAction
               : combatCopy.page.status.enemyAction,
           formatNumber(autoActionRemainingMs / 1000, {
             minimumFractionDigits: 1,
@@ -685,6 +778,9 @@ export function CombatPage() {
           onClick={() => {
             if (requiresServerAutoPlay) return;
             playUIClick();
+            setPendingActionType(undefined);
+            stagedActorRef.current = null;
+            setTargetSelection(undefined);
             setAutoPlay(!autoPlay);
           }}
           className="combat-auto-toggle"
@@ -860,10 +956,26 @@ export function CombatPage() {
                   onClick={() => chooseAction(ActionType.BasicAttack)}
                   className="combat-action-button"
                   aria-label={fr.combat.baseAttack}
+                  aria-pressed={pendingActionType === ActionType.BasicAttack}
                 >
                   ⚔ {fr.combat.attack}
                 </button>
-                <AbilityBar champion={currentChampion} onCast={handleCast} />
+                <AbilityBar
+                  champion={currentChampion}
+                  onCast={handleCast}
+                  selectedSlot={
+                    currentChampion.spells.find(
+                      (spell) => SLOT_TO_ACTION[spell.slot] === pendingActionType,
+                    )?.slot
+                  }
+                  availableSlots={currentChampion.spells
+                    .filter((spell) =>
+                      visibleActionOptions.some(
+                        (option) => option.type === SLOT_TO_ACTION[spell.slot],
+                      ),
+                    )
+                    .map((spell) => spell.slot)}
+                />
               </div>
 
               <div className="combat-command__target">
@@ -880,12 +992,13 @@ export function CombatPage() {
                   </span>
                   <button
                     type="button"
-                    onClick={processTurn}
+                    onClick={confirmAction}
+                    disabled={!canConfirm}
                     className="combat-action-button combat-action-button--confirm"
-                    aria-label={combatCopy.page.spaceAria(fr.combat.executeTurn)}
-                    aria-keyshortcuts="Space"
+                    aria-label={combatCopy.page.spaceAria(confirmationLabel)}
+                    aria-keyshortcuts="Space Enter"
                   >
-                    ▶ {fr.combat.executeTurn}
+                    ▶ {confirmationLabel}
                     <span className="combat-action-button__shortcut">
                       {combatCopy.page.spaceShortcut}
                     </span>

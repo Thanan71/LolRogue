@@ -8,6 +8,9 @@ import { reduceBattleMetrics } from '../src/game/battle/battleMetrics';
 import type { BattleAction, BattleTeam } from '../src/game/battle/types';
 import { ActionType, BattlePhase } from '../src/game/battle/types';
 import { ChampionInstance, SPELL_SLOTS } from '../src/game/ChampionInstance';
+import { CCEffect } from '../src/game/effects/CCEffect';
+import { CCType } from '../src/game/effects/types';
+import { advanceManualBlockedTurn } from '../src/game/presentation/manualCombatAdapter';
 import type { Champion, ChampionStats, Passive, Spell } from '../src/types';
 
 function makeTestChampion(overrides: Partial<Champion> = {}): Champion {
@@ -506,6 +509,35 @@ describe('BattleManager', () => {
 });
 
 describe('P1 manual combat choices', () => {
+  it('never uses an AI action when advancing a blocked manual turn, including after CC protection restores control', () => {
+    const teams = makeTeams(['P1'], ['E1'], { P1: 400, E1: 300 });
+    const battle = new BattleManager(teams.playerTeam, teams.enemyTeam, { autoActions: false });
+    battle.startBattle();
+    const player = battle.getPlayerCombatants()[0];
+    for (let index = 0; index < 6; index++) {
+      while (battle.currentTurnEntry?.side === 'enemy') battle.processCurrentTurn();
+      player.effectManager.apply(
+        new CCEffect({
+          sourceId: 'E1',
+          targetId: player.targetId,
+          ccType: CCType.Stun,
+          duration: 1,
+        }),
+      );
+      const hpBefore = battle.getEnemyCombatants()[0].currentHp;
+      advanceManualBlockedTurn(battle);
+      expect(battle.getEnemyCombatants()[0].currentHp).toBe(hpBefore);
+      expect(battle.getPlayerActionTrace()).toEqual([]);
+      if (battle.currentTurnEntry?.side === 'player') {
+        expect(battle.getAvailableActions(player.champion).length).toBeGreaterThan(0);
+        battle.processCurrentTurn();
+        expect(battle.getPlayerActionTrace()).toHaveLength(1);
+        expect(battle.getPlayerActionTrace()[0].automatic).toBe(true);
+        return;
+      }
+    }
+    throw new Error('Crowd-control protection did not return the decision to the player');
+  });
   it('restores persisted mana and clamps it to the combatant resource bounds', () => {
     const teams = makeTeams(['P1', 'P2'], ['E1'], { P1: 400, P2: 350 });
     const battle = new BattleManager(teams.playerTeam, teams.enemyTeam, {

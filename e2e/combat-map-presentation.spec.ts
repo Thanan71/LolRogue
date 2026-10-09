@@ -8,7 +8,20 @@ async function expectNoHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
-  expect(overflow).toBeLessThanOrEqual(1);
+  const offenders =
+    overflow > 1
+      ? await page.evaluate(() =>
+          [...document.querySelectorAll<HTMLElement>('main *')]
+            .flatMap((element) => {
+              const rect = element.getBoundingClientRect();
+              return rect.right > innerWidth + 1
+                ? [{ className: element.className, right: rect.right, width: rect.width }]
+                : [];
+            })
+            .slice(0, 20),
+        )
+      : [];
+  expect(overflow, JSON.stringify(offenders)).toBeLessThanOrEqual(1);
 }
 
 async function enterGuestWithTutorialsDismissed(page: Page) {
@@ -43,10 +56,11 @@ async function installPresentationRunFixture(
   await page.evaluate(
     async ({ championId, opponentId }) => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
-      const companionId = championId === 'Garen' ? 'Lux' : 'Garen';
+      // Start with a legal guest roster before installing the presentation-only team.
+      const companionId = 'Ashe';
       const started = await useRunStore
         .getState()
-        .startRun([championId, companionId], { seed: 20260813 });
+        .startRun(['Annie', companionId], { seed: 20260813 });
       if (!started.success) throw new Error(`Unable to start fixture run: ${started.code}`);
       const team = useRunStore.getState().team;
 
@@ -117,7 +131,9 @@ async function installPresentationRunFixture(
 
       useRunStore.setState({
         team: team.map((member) =>
-          member.championId === companionId ? { ...member, currentHp: 0 } : member,
+          member.championId === companionId
+            ? { ...member, currentHp: 0 }
+            : { ...member, championId },
         ),
         biomeMaps: [
           {
@@ -206,8 +222,27 @@ test('la carte et le combat restent lisibles et animés sur mobile', async ({ pa
     expect(icon.source).toMatch(/^\/assets\/riot\/16\.6\.1\/spells\/.+\.png$/);
   }
 
+  const beforeCommand = await page.evaluate(async () => {
+    const { useBattleStore } = await import('/src/stores/battleStore.ts');
+    const { enemyTeam, log } = useBattleStore.getState();
+    return {
+      hp: enemyTeam.map((member) => member.currentHp),
+      actions: log.filter((entry) => entry.type === 'action').length,
+    };
+  });
   await page.getByRole('button', { name: /Sort Q : Entrave de lumière/ }).click();
   await page.getByRole('button', { name: 'Cibler Malphite' }).click();
+  expect(
+    await page.evaluate(async () => {
+      const { useBattleStore } = await import('/src/stores/battleStore.ts');
+      const { enemyTeam, log } = useBattleStore.getState();
+      return {
+        hp: enemyTeam.map((member) => member.currentHp),
+        actions: log.filter((entry) => entry.type === 'action').length,
+      };
+    }),
+  ).toEqual(beforeCommand);
+  await page.getByRole('button', { name: /^Confirmer :/ }).click();
 
   const effect = page.locator('.combat-stage[data-combat-effect]');
   const effectSnapshot = await effect.evaluate((element) => ({
@@ -221,8 +256,11 @@ test('la carte et le combat restent lisibles et animés sur mobile', async ({ pa
     source: 'Lux',
     target: 'Malphite',
     attacker: 'Attaquant : Lux',
-    victim: 'Cible : Malphite',
+    victim: expect.stringMatching(/^Cible : Malphite/),
   });
+  await expect(effect.getByRole('list', { name: 'États de Malphite' })).toContainText(
+    'Immobilisé · 2 tours',
+  );
   expect(effectSnapshot.action).toContain('Entrave de lumière');
   expect(effectSnapshot.action).toContain('Lux → Malphite');
   await expectNoHorizontalOverflow(page);
@@ -245,6 +283,7 @@ test('une compétence offensive garde l’ennemi comme cible malgré son bonus p
   await expect(page).toHaveURL('/combat');
   await page.getByRole('button', { name: /Sort Q : Coup décisif/ }).click();
   await page.getByRole('button', { name: 'Cibler Malphite' }).click();
+  await page.getByRole('button', { name: /^Confirmer :/ }).click();
 
   const effect = page.locator('.combat-stage[data-combat-effect]');
   await expect(effect).toHaveAttribute('data-combat-source', 'Garen');
@@ -279,6 +318,7 @@ test('deux champions identiques restent séparés par leur camp dans toute la pr
 
   await page.getByRole('button', { name: /Sort Q : Coup décisif/ }).click();
   await enemyTarget.click();
+  await page.getByRole('button', { name: /^Confirmer :/ }).click();
 
   const effect = page.locator('.combat-stage[data-combat-effect]');
   await expect(
@@ -293,3 +333,87 @@ test('deux champions identiques restent séparés par leur camp dans toute la pr
   await expect(effect).not.toHaveClass(/combat-stage--self/);
   await expectNoHorizontalOverflow(page);
 });
+
+for (const width of [320, 390]) {
+  test(`les états et les sorts indisponibles restent consultables avec grand texte à ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 844 });
+    await servePackagedAssets(page);
+    await enterGuestWithTutorialsDismissed(page);
+    await installPresentationRunFixture(page);
+    await page.goto('/run');
+    await page
+      .getByRole('button', { name: /Combat, colonne 3.*accessible/i })
+      .dispatchEvent('click');
+    await expect(page.getByRole('button', { name: /Sort Q : Entrave de lumière/ })).toBeVisible();
+    // Render multiple concurrent effects deterministically; engine snapshots and
+    // duration expiry are covered separately by combatStatuses unit tests.
+    await page.evaluate(async () => {
+      const [{ useBattleStore }, { useSettingsStore }, { CCType }] = await Promise.all([
+        import('/src/stores/battleStore.ts'),
+        import('/src/stores/settingsStore.ts'),
+        import('/src/game/effects/types.ts'),
+      ]);
+      useSettingsStore.getState().setTextSize('large');
+      const state = useBattleStore.getState();
+      useBattleStore.setState({
+        playerTeam: state.playerTeam.map((member) =>
+          member.id === 'Lux'
+            ? {
+                ...member,
+                statuses: [{ id: 'fixture-silence', kind: CCType.Silence, turnsRemaining: 1 }],
+                spells: member.spells.map((spell) => ({
+                  ...spell,
+                  isReady: false,
+                  cooldownCurrent: 2,
+                })),
+              }
+            : member,
+        ),
+        enemyTeam: state.enemyTeam.map((member) => ({
+          ...member,
+          statuses: [
+            { id: 'fixture-stun', kind: CCType.Stun, turnsRemaining: 2 },
+            { id: 'fixture-shield', kind: 'shield', turnsRemaining: 1, amount: 120 },
+          ],
+        })),
+      });
+    });
+    const enemy = page.locator('.combatant-portrait--enemy');
+    await expect(enemy.getByRole('list', { name: 'États de Malphite' })).toContainText(
+      'Étourdi · 2 tours',
+    );
+    await expect(enemy.getByRole('list', { name: 'États de Malphite' })).toContainText(
+      'Bouclier 120 · 1 tour',
+    );
+    await expect(
+      page.locator('.combatant-portrait--player').getByRole('list', { name: 'États de Lux' }),
+    ).toContainText('Silence · 1 tour');
+    const spell = page.getByRole('button', { name: /Sort Q : Entrave de lumière/ });
+    await expect(spell).toHaveAttribute('aria-disabled', 'true');
+    await spell.focus();
+    await expect(spell).toBeFocused();
+    const inspect = page.getByRole('button', { name: 'Détails du sort Entrave de lumière' });
+    await inspect.focus();
+    await page.keyboard.press('Enter');
+    const details = page.getByRole('dialog', { name: 'Détails du sort Entrave de lumière' });
+    await expect(details).toBeVisible();
+    const box = await details.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(7);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(width - 7);
+    expect(box!.y).toBeGreaterThanOrEqual(7);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(837);
+    await page.getByRole('button', { name: /Sort W : Barrière prismatique/ }).hover();
+    await expect(details).toBeVisible();
+    await expect(page.getByRole('tooltip')).toHaveCount(0);
+    await testInfo.attach(`combat-states-large-${width}`, {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: 'image/png',
+    });
+    await details.getByRole('button', { name: 'Fermer les détails du sort' }).click();
+    await expect(inspect).toBeFocused();
+    await expectNoHorizontalOverflow(page);
+  });
+}
