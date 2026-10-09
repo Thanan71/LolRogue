@@ -193,9 +193,14 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     await expect(page).toHaveURL('/starter-select');
     await expect(page.getByLabel('Filtrer les champions par accès')).toHaveValue('available');
     await showFullChampionCatalog(page);
-    await expect(page.locator('.champion-economy-card')).toHaveCount(10);
+    await expect(page.locator('.champion-economy-card')).toHaveCount(11);
+    await expect(page.getByText('Gratuit permanent', { exact: true })).toHaveCount(3);
+    await expect(page.getByText('Rotation hebdomadaire', { exact: true })).toHaveCount(5);
+    await expect(page.getByText('Verrouillé', { exact: true })).toHaveCount(3);
+    await expect(page.getByRole('button', { name: 'Choisir Veigar', exact: true })).toBeDisabled();
     await page.getByLabel('Filtrer les champions par accès').selectOption('available');
     await expect(page.locator('.champion-economy-card')).toHaveCount(8);
+    await expect(page.getByRole('button', { name: 'Choisir Veigar', exact: true })).toHaveCount(0);
     await page.getByLabel('Filtrer les champions par accès').selectOption('all');
     const championCard = page.locator(`#starter-economy-${championId}`);
     await expect(championCard.getByText('Rotation hebdomadaire', { exact: true })).toBeVisible();
@@ -402,7 +407,7 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     expect(unlock.data).toEqual({ champion_id: championId, source: 'purchase', price_paid: 400 });
     if (process.env.E2E_EXPECT_COMMIT_SHA) {
       const cards = page.locator('.champion-economy-card');
-      await expect(cards).toHaveCount(10);
+      await expect(cards).toHaveCount(11);
       for (const card of await cards.all()) {
         const portrait = card.locator('.champion-card__splash');
         await portrait.scrollIntoViewIfNeeded();

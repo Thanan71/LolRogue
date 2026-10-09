@@ -17,6 +17,20 @@ const { values } = parseArgs({
   },
 });
 
+async function resolveRegisteredAuthorityBundle(engineVersion) {
+  const registry = JSON.parse(
+    await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8'),
+  );
+  const entry = registry.versions.find((candidate) => candidate.engine === engineVersion);
+  if (!entry || typeof entry.bundle !== 'string') {
+    throw new Error(`Authority registry does not retain ${engineVersion}.`);
+  }
+  return `./${entry.bundle}`;
+}
+
+const v22Bundle =
+  values.engine === 'v22' ? await resolveRegisteredAuthorityBundle('run-engine-v22') : null;
+
 const version = {
   v15: {
     artifact: 'config/authority-cohort-baselines-v15.json',
@@ -136,9 +150,25 @@ const version = {
     }
   `,
   },
+  v22: {
+    artifact: 'config/authority-cohort-baselines-v22.json',
+    entrySource: `
+    import { getAuthorityVerifier } from ${JSON.stringify(v22Bundle)};
+    import {
+      AUTHORITY_COHORT_BASELINE_V22_IDENTITY,
+      generateAuthorityCohortBaselineV22,
+    } from './src/game/balance/authorityCohortBaselineV22Fixture.ts';
+    export function generateAuthorityCohortBaseline() {
+      const identity = AUTHORITY_COHORT_BASELINE_V22_IDENTITY;
+      const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
+      if (!authority) throw new Error('The registered v22 authority verifier is unavailable.');
+      return generateAuthorityCohortBaselineV22(authority);
+    }
+  `,
+  },
 }[values.engine];
 
-if (!version) throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20, v21.');
+if (!version) throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20, v21, v22.');
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
 
 function serializeBaseline(document) {
