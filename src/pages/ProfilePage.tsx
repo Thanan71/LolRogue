@@ -4,6 +4,7 @@ import { RunHistoryItem } from '@/components/history/RunHistoryItem';
 import { RunRejectionHistory } from '@/components/history/RunRejectionHistory';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
+import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { formatNumber } from '@/i18n/format';
@@ -43,6 +44,41 @@ export function ProfilePage() {
   const playerId = player?.id;
 
   const retry = useCallback(() => setReloadKey((key) => key + 1), []);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionError, setTransitionError] = useState<string | null>(null);
+  const transitionPending = useRef(false);
+
+  async function handleLogin() {
+    if (transitionPending.current) return;
+    transitionPending.current = true;
+    setIsTransitioning(true);
+    setTransitionError(null);
+    try {
+      const { useRunStore } = await import('@/stores/runStore');
+      const run = useRunStore.getState();
+      const canContinue = await finalizeActiveRunBeforeTransition({
+        isActive: run.isActive,
+        runId: run.runId,
+        confirmationMessage: fr.run.abandonmentConfirmation,
+        confirm: (message) => window.confirm(message),
+        endRun: (runId) => run.endRun(false, runId),
+      });
+      if (!canContinue) return;
+      if (useAuthStore.getState().isGuest) {
+        const result = await useAuthStore.getState().exitGuestMode();
+        if (!result.success) {
+          setTransitionError(result.error ?? fr.auth.activeRunGuestExit);
+          return;
+        }
+      }
+      navigate(ROUTES.AUTH);
+    } catch {
+      setTransitionError(fr.auth.activeRunGuestExit);
+    } finally {
+      transitionPending.current = false;
+      setIsTransitioning(false);
+    }
+  }
 
   useEffect(() => {
     if (!playerId || isGuest) {
@@ -127,7 +163,10 @@ export function ProfilePage() {
       {isGuest || !player ? (
         <StateView kind="empty" title={fr.profile.local}>
           <p>{fr.profile.loginRequired}</p>
-          <Button onClick={() => navigate(ROUTES.AUTH)}>{fr.profile.login}</Button>
+          {transitionError && <p role="alert">{transitionError}</p>}
+          <Button disabled={isTransitioning} onClick={() => void handleLogin()}>
+            {fr.profile.login}
+          </Button>
         </StateView>
       ) : (
         <>

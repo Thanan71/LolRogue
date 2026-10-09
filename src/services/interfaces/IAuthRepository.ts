@@ -29,6 +29,12 @@ export interface IAuthRepository {
    */
   signIn(email: string, password: string): Promise<AuthResponseResult>;
 
+  /** Send a recovery email without disclosing whether the account exists. */
+  requestPasswordReset(email: string): Promise<{ error: Error | null }>;
+
+  /** Update the password of the authenticated recovery session. */
+  updatePassword(input: { password: string }): Promise<{ user: User | null; error: Error | null }>;
+
   /**
    * Sign out the current user
    */

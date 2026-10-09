@@ -9,6 +9,8 @@ const mocks = vi.hoisted(() => ({
   signIn: vi.fn(),
   signUp: vi.fn(),
   signOut: vi.fn(),
+  requestPasswordReset: vi.fn(),
+  updatePassword: vi.fn(),
   getSession: vi.fn(),
   getPlayer: vi.fn(),
   touchLastLogin: vi.fn(),
@@ -34,6 +36,8 @@ vi.mock('@/services/container', () => ({
         signIn: mocks.signIn,
         signUp: mocks.signUp,
         signOut: mocks.signOut,
+        requestPasswordReset: mocks.requestPasswordReset,
+        updatePassword: mocks.updatePassword,
         getSession: mocks.getSession,
         onAuthStateChange: (listener: typeof mocks.listener) => {
           mocks.listener = listener;
@@ -102,6 +106,9 @@ function resetStore(): void {
     isInitialized: true,
     isAdmin: false,
     error: null,
+    successMessage: null,
+    isPasswordRecovery: false,
+    isRecoveryLoading: false,
   });
 }
 
@@ -297,6 +304,130 @@ describe('auth identity lifecycle', () => {
       isAuthenticated: false,
       authStatus: 'signedOut',
     });
+  });
+
+  it('refuses guest login and signup before creating a provider session during an active run', async () => {
+    mocks.run.isActive = true;
+    useAuthStore.setState({ isGuest: true, authStatus: 'guest' });
+    await expect(useAuthStore.getState().login('a@example.test', 'secret')).resolves.toMatchObject({
+      success: false,
+    });
+    await expect(
+      useAuthStore.getState().signUp('a@example.test', 'secret', 'a'),
+    ).resolves.toMatchObject({ success: false });
+    expect(mocks.signIn).not.toHaveBeenCalled();
+    expect(mocks.signUp).not.toHaveBeenCalled();
+    expect(useAuthStore.getState()).toMatchObject({
+      authStatus: 'guest',
+      isLoading: false,
+      isInitialized: true,
+      isGuest: true,
+      error: 'Termine ou abandonne la partie active avant de changer de compte.',
+    });
+  });
+
+  it('clears loading when a guest run starts while the provider login is pending', async () => {
+    let complete!: (result: { user: User; session: Session; error: null }) => void;
+    mocks.signIn.mockReturnValue(
+      new Promise((resolve) => {
+        complete = resolve;
+      }),
+    );
+    useAuthStore.setState({ isGuest: true, authStatus: 'guest' });
+    const login = useAuthStore.getState().login('a@example.test', 'secret');
+    await act(async () => Promise.resolve());
+    mocks.run.isActive = true;
+    complete({ user: user('a'), session: session('a'), error: null });
+    await expect(login).resolves.toMatchObject({ success: false });
+    expect(useAuthStore.getState()).toMatchObject({
+      authStatus: 'guest',
+      isLoading: false,
+      isInitialized: true,
+    });
+    expect(mocks.getPlayer).not.toHaveBeenCalled();
+  });
+
+  it('keeps the recovery email form available while requesting a non-enumerating reset email', async () => {
+    let complete!: (result: { error: null }) => void;
+    mocks.requestPasswordReset.mockReturnValue(
+      new Promise((resolve) => {
+        complete = resolve;
+      }),
+    );
+    const request = useAuthStore.getState().requestPasswordReset(' a@example.test ');
+    expect(useAuthStore.getState()).toMatchObject({
+      isLoading: false,
+      isInitialized: true,
+      isRecoveryLoading: true,
+    });
+    expect(mocks.requestPasswordReset).toHaveBeenCalledWith('a@example.test');
+    complete({ error: null });
+    await expect(request).resolves.toEqual({ success: true });
+    expect(useAuthStore.getState().successMessage).toMatch(/Si un compte utilise cette adresse/);
+    expect(useAuthStore.getState().isRecoveryLoading).toBe(false);
+  });
+
+  it('makes recovery email failures retryable without changing identity', async () => {
+    mocks.requestPasswordReset.mockRejectedValue(new Error('Failed to fetch'));
+    await expect(
+      useAuthStore.getState().requestPasswordReset('a@example.test'),
+    ).resolves.toMatchObject({ success: false });
+    expect(useAuthStore.getState()).toMatchObject({
+      isRecoveryLoading: false,
+      isLoading: false,
+      authStatus: 'signedOut',
+    });
+  });
+
+  it('waits for a new password before hydrating a PASSWORD_RECOVERY session', async () => {
+    const unsubscribe = useAuthStore.getState().subscribeToAuthChanges();
+    mocks.listener?.('PASSWORD_RECOVERY', session('a'));
+    await act(async () => Promise.resolve());
+    expect(useAuthStore.getState()).toMatchObject({
+      isPasswordRecovery: true,
+      isAuthenticated: false,
+      isInitialized: true,
+      isLoading: false,
+    });
+    expect(mocks.getPlayer).not.toHaveBeenCalled();
+    mocks.listener?.('TOKEN_REFRESHED', session('a'));
+    mocks.listener?.('USER_UPDATED', session('a'));
+    expect(useAuthStore.getState().isPasswordRecovery).toBe(true);
+    expect(mocks.getPlayer).not.toHaveBeenCalled();
+    mocks.updatePassword.mockResolvedValue({ user: user('a'), error: null });
+    mocks.getPlayer.mockResolvedValue({ data: player('a'), error: null });
+    await expect(useAuthStore.getState().updateRecoveredPassword('new-secret')).resolves.toEqual({
+      success: true,
+    });
+    expect(mocks.updatePassword).toHaveBeenCalledWith({ password: 'new-secret' });
+    expect(useAuthStore.getState()).toMatchObject({
+      isPasswordRecovery: false,
+      isRecoveryLoading: false,
+      isAuthenticated: true,
+      authStatus: 'ready',
+    });
+    unsubscribe();
+  });
+
+  it('requires a recovery session and reports an expired update link', async () => {
+    await expect(
+      useAuthStore.getState().updateRecoveredPassword('new-secret'),
+    ).resolves.toMatchObject({ success: false });
+    expect(mocks.updatePassword).not.toHaveBeenCalled();
+    useAuthStore.setState({ session: session('a'), isPasswordRecovery: true });
+    mocks.updatePassword.mockResolvedValue({
+      user: null,
+      error: Object.assign(new Error('session expired'), { code: 'session_not_found' }),
+    });
+    await expect(
+      useAuthStore.getState().updateRecoveredPassword('new-secret'),
+    ).resolves.toMatchObject({ success: false });
+    expect(useAuthStore.getState()).toMatchObject({
+      session: null,
+      isRecoveryLoading: false,
+      isLoading: false,
+    });
+    expect(useAuthStore.getState().error).toMatch(/lien est invalide ou a expiré/);
   });
 
   it.each(['missing', 'getter', 'quota'] as const)(

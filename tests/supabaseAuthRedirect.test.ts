@@ -30,4 +30,21 @@ describe('SupabaseAuthRepository confirmation redirect', () => {
       },
     });
   });
+
+  it('sends password recovery to the current app recovery form', async () => {
+    vi.stubGlobal('window', { location: { origin: 'https://lolrogue.example.test' } });
+    const resetPasswordForEmail = vi.fn().mockResolvedValue({ error: null });
+    const updateUser = vi.fn().mockResolvedValue({ data: { user: { id: 'a' } }, error: null });
+    const repository = new SupabaseAuthRepository({
+      auth: { resetPasswordForEmail, updateUser },
+    } as never);
+    await expect(repository.requestPasswordReset('player@example.test')).resolves.toEqual({
+      error: null,
+    });
+    expect(resetPasswordForEmail).toHaveBeenCalledWith('player@example.test', {
+      redirectTo: 'https://lolrogue.example.test/auth?mode=recovery',
+    });
+    await repository.updatePassword({ password: 'new-secret' });
+    expect(updateUser).toHaveBeenCalledWith({ password: 'new-secret' });
+  });
 });
