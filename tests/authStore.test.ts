@@ -283,6 +283,74 @@ describe('auth identity lifecycle', () => {
     expect(mocks.signOut).not.toHaveBeenCalled();
   });
 
+  it('reconnects the verified owner after a session expires during a run', async () => {
+    mocks.run = {
+      isActive: true,
+      isEnding: false,
+      authorityAttempt: { ownerUserId: 'a' },
+    };
+    // The account store is signed out after a session expires or the browser reloads.
+    mocks.signIn.mockResolvedValue({ user: user('a'), session: session('a'), error: null });
+    mocks.getPlayer.mockResolvedValue({ data: player('a'), error: null });
+
+    await expect(useAuthStore.getState().login('a@example.test', 'secret')).resolves.toEqual({
+      success: true,
+    });
+    expect(mocks.signIn).toHaveBeenCalledOnce();
+    expect(mocks.signOut).not.toHaveBeenCalled();
+    expect(useAuthStore.getState()).toMatchObject({
+      authStatus: 'ready',
+      isAuthenticated: true,
+      user: { id: 'a' },
+    });
+    // Reconnection must never abandon or replace the still active run.
+    expect(mocks.run).toMatchObject({
+      isActive: true,
+      authorityAttempt: { ownerUserId: 'a' },
+    });
+  });
+
+  it('restores the owner session while a completed run awaits receipt recovery', async () => {
+    mocks.run = {
+      isActive: true,
+      isEnding: false,
+      authorityAttempt: { ownerUserId: 'a' },
+    };
+    mocks.getSession.mockResolvedValue({ session: session('a'), error: null });
+    mocks.getPlayer.mockResolvedValue({ data: player('a'), error: null });
+
+    await useAuthStore.getState().checkSession();
+
+    expect(useAuthStore.getState()).toMatchObject({
+      authStatus: 'ready',
+      isAuthenticated: true,
+      user: { id: 'a' },
+    });
+    expect(mocks.run.isActive).toBe(true);
+  });
+
+  it('refuses a different account when the local run belongs to its original owner', async () => {
+    mocks.run = {
+      isActive: true,
+      isEnding: false,
+      authorityAttempt: { ownerUserId: 'a' },
+    };
+    mocks.signIn.mockResolvedValue({ user: user('b'), session: session('b'), error: null });
+
+    await expect(useAuthStore.getState().login('b@example.test', 'secret')).resolves.toMatchObject({
+      success: false,
+      error: 'Termine ou abandonne la partie active avant de changer de compte.',
+    });
+    expect(mocks.signIn).toHaveBeenCalledOnce();
+    expect(mocks.getPlayer).not.toHaveBeenCalled();
+    expect(useAuthStore.getState()).toMatchObject({
+      isAuthenticated: false,
+      isInitialized: true,
+      isLoading: false,
+    });
+    expect(mocks.run.authorityAttempt?.ownerUserId).toBe('a');
+  });
+
   it('persists only a versioned guest preference and never an authenticated identity', async () => {
     await expect(useAuthStore.getState().enterGuestMode()).resolves.toEqual({ success: true });
     expect(JSON.parse(localStorage.getItem('lolrogue-guest-mode')!)).toEqual({
