@@ -216,6 +216,19 @@
   margin: 0;
 }
 
+.recruit-page__arrival-level {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.recruit-page__stats-note {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 .recruit-page__stats > div {
   display: flex;
   justify-content: space-between;
@@ -233,6 +246,11 @@
 
 .recruit-page__stats dt {
   color: var(--color-text-muted);
+}
+
+.recruit-page__stats dd {
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .recruit-page__stat--hp {

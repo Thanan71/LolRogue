@@ -29,6 +29,35 @@ type ChampionContentSource = Readonly<{
 }>;
 
 const implementedFrFR = {
+  Veigar: {
+    title: 'Seigneur du mal',
+    passive: {
+      name: 'Pouvoir maléfique phénoménal',
+      description:
+        'Gagne 1 point en éliminant un ennemi normal avec une compétence, 3 pour un élite et 10 pour un boss. Chaque point donne +1 puissance, jusqu’à 200. Ces points persistent uniquement pendant le run. Les touches et les assistances ne donnent aucun point.',
+    },
+    spells: {
+      VeigarBalefulStrike: {
+        name: 'Coup malin',
+        description: 'Inflige des dégâts magiques à un ennemi.',
+      },
+      VeigarDarkMatter: {
+        name: 'Matière noire',
+        description:
+          'Prépare une frappe qui inflige des dégâts magiques une seule fois, au début du prochain tour de la cible.',
+      },
+      VeigarEventHorizon: {
+        name: 'Horizon des événements',
+        description:
+          'Étourdit un ennemi pendant 1 tour. La cage est représentée par un contrôle ciblé.',
+      },
+      VeigarR: {
+        name: 'Explosion primordiale',
+        description:
+          'Inflige des dégâts magiques à un ennemi, multipliés de ×1 à ×2 selon la proportion de PV manquants.',
+      },
+    },
+  },
   Garen: {
     title: 'Force de Demacia',
     passive: {
@@ -340,6 +369,34 @@ type MatchingLocaleCatalog<T extends ChampionContentOverridesById> = Readonly<{
 }>;
 
 const implementedEnUS = {
+  Veigar: {
+    title: 'the Tiny Master of Evil',
+    passive: {
+      name: 'Phenomenal Evil Power',
+      description:
+        'Gain 1 point for killing a normal enemy with an ability, 3 for an elite and 10 for a boss. Each point grants +1 ability power, up to 200. Points persist only during this run. Hits and assists grant no points.',
+    },
+    spells: {
+      VeigarBalefulStrike: {
+        name: 'Baleful Strike',
+        description: 'Deals magic damage to one enemy.',
+      },
+      VeigarDarkMatter: {
+        name: 'Dark Matter',
+        description: 'Prepares one magic damage impact at the start of the target’s next turn.',
+      },
+      VeigarEventHorizon: {
+        name: 'Event Horizon',
+        description:
+          'Stuns one enemy for 1 turn. The cage is represented by targeted crowd control.',
+      },
+      VeigarR: {
+        name: 'Primordial Burst',
+        description:
+          'Deals magic damage to one enemy, multiplied from ×1 to ×2 according to its missing HP fraction.',
+      },
+    },
+  },
   Garen: {
     title: 'the Might of Demacia',
     passive: {

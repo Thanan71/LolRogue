@@ -3,9 +3,10 @@ import { BALANCE_CALIBRATION_DECISION } from '@/product/balanceCalibrationDecisi
 import { PRODUCT_DECISIONS, PRODUCT_DECISIONS_VERSION } from '@/product/productDecisions';
 
 describe('décisions produit transverses', () => {
-  it('fige le contrat de lancement v2', () => {
-    expect(PRODUCT_DECISIONS_VERSION).toBe(2);
+  it('fige le contrat de lancement v4', () => {
+    expect(PRODUCT_DECISIONS_VERSION).toBe(4);
     expect(PRODUCT_DECISIONS.launchLanguage.locale).toBe('fr');
+    expect(PRODUCT_DECISIONS.launchLanguage.englishStatus).toBe('supported_through_i18n');
     expect(PRODUCT_DECISIONS.guestProgression.automaticAccountMerge).toBe(false);
     expect(PRODUCT_DECISIONS.daily).toMatchObject({
       timezone: 'UTC',
@@ -39,6 +40,10 @@ describe('décisions produit transverses', () => {
 
   it('laisse les analytics désactivées et sépare invité et autorité', () => {
     expect(PRODUCT_DECISIONS.offline).toMatchObject({
+      installation: 'online_only_pwa',
+      offlineLaunch: false,
+      serviceWorker: false,
+      applicationCache: false,
       guestRuns: 'official_local_guest_progression',
       authenticatedRunStart: 'online_authority_required',
       automaticIdentityConversion: false,

@@ -101,7 +101,8 @@ d'autres comptes.
 1. Authentifier le demandeur via sa session ou une procédure hors bande approuvée.
 2. Geler l'export à un instant UTC et extraire uniquement les données reliées à son
    `auth.users.id` : profil, maîtrise, améliorations, runs, tentatives/commandes et
-   participations daily. Exclure secrets internes et données d'autres joueurs.
+   participations daily, wallet d'Éclats, transactions, unlocks permanents et
+   commandes d'achat. Exclure secrets internes et données d'autres joueurs.
 3. Produire JSON/CSV UTF-8, vérifier manuellement l'identité des lignes, chiffrer le
    fichier et transmettre le secret par un canal distinct.
 4. Supprimer l'archive de travail après confirmation et consigner seulement preuve,
@@ -113,13 +114,21 @@ d'autres comptes.
 1. Authentifier et confirmer explicitement le caractère irréversible ; suspendre si
    une obligation de conservation documentée s'applique.
 2. Proposer l'export avant suppression et identifier l'UUID exact deux fois.
-3. Dans une transaction privilégiée, supprimer d'abord les `daily_runs` du joueur :
-   leurs références `ON DELETE RESTRICT` vers runs/attempts empêchent une confiance
-   aveugle dans la cascade. Supprimer ensuite l'utilisateur depuis Supabase
-   Authentication. Les autres données possédées suivent les cascades ; les logs
-   dont l'identité est nullable sont anonymisés par `SET NULL`.
+3. Dans une transaction privilégiée consacrée à l'effacement complet, supprimer
+   les `daily_runs` du joueur et casser le cycle historique runs/attempts : pour
+   les seuls attempts de cet UUID, passer le statut à `expired`, vider
+   `verified_at`, `rejected_at` et `result_run_id`, puis renseigner `expired_at`.
+   Les références `ON DELETE RESTRICT` empêchent une confiance aveugle dans la
+   cascade. Supprimer ensuite cet utilisateur de `auth.users` dans la même
+   transaction SQL privilégiée d'effacement. Les autres
+   données possédées suivent les cascades ; les logs dont l'identité est nullable
+   sont anonymisés par `SET NULL`. Ne pas utiliser cette préparation pour une
+   suppression partielle de run ou de ledger.
 4. Vérifier l'absence dans `auth.users`, `players`, maîtrise, améliorations, runs et
-   attempts, invalider les sessions puis demander au joueur d'effacer son état local.
+   attempts, `account_wallets`, `shard_transactions`, `account_champion_unlocks` et
+   `champion_purchase_commands`, invalider les sessions puis demander au joueur
+   d'effacer son état local. La suppression complète du compte autorise la cascade
+   du ledger ; aucune suppression partielle de son historique n'est permise.
 5. Consigner demande, validations, opérateur et résultat sans conserver les données
    supprimées. Ne jamais supprimer directement `players` en laissant `auth.users`.
 

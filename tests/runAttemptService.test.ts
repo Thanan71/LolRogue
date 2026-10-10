@@ -1,8 +1,14 @@
+import { FunctionsHttpError } from '@supabase/supabase-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { runError } from '@/i18n/runErrorContent';
 import {
+  getTechnicalMetricSnapshot,
+  resetTechnicalMetrics,
+} from '@/observability/technicalMetrics';
+import {
   appendRunAttemptCommands,
   findOpenRunAttempt,
+  getRunAttemptStatus,
   RUN_FINALIZATION_REQUEST_TIMEOUT_MS,
   RunVerificationRejectedError,
   RunVerificationRetryableError,
@@ -92,6 +98,7 @@ function statusResponse(overrides: Record<string, unknown> = {}) {
 
 describe('runAttemptService', () => {
   beforeEach(() => {
+    resetTechnicalMetrics();
     vi.clearAllMocks();
     supabaseMocks.rpc.mockReset();
     supabaseMocks.invoke.mockReset();
@@ -164,6 +171,9 @@ describe('runAttemptService', () => {
     const runeIds = ['press_the_attack', 'glacial_augment', 'grasp_of_the_undying'];
     supabaseMocks.rpc.mockResolvedValue({
       data: startResponse({
+        ruleset_version: 3,
+        gameplay_ruleset_version: 21,
+        engine_version: 'run-engine-v21',
         initial_team: team,
         rune_ids: runeIds,
         enhancement_snapshot: { Garen: { hp_1: 1 }, Lux: { ap_1: 1 } },
@@ -187,17 +197,66 @@ describe('runAttemptService', () => {
       p_difficulty: 'hard',
       p_mode: 'normal',
     });
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      {
+        metric: 'run_start',
+        outcome: 'ok',
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: 21,
+        progressionRulesetVersion: 3,
+      },
+    ]);
     expect(result).toMatchObject({
       error: null,
       data: {
         attemptId: ATTEMPT_ID,
         runUuid: ATTEMPT_RUN_UUID,
         seed: 42,
-        rulesetVersion: 2,
+        rulesetVersion: 3,
+        gameplayRulesetVersion: 21,
         initialTeam: team,
         runeIds,
         enhancementSnapshot: { Garen: { hp_1: 1 }, Lux: { ap_1: 1 } },
       },
+    });
+  });
+
+  it('keeps gameplay unknown for an older response instead of copying progression or the engine', async () => {
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: startResponse({
+        ruleset_version: 3,
+        gameplay_ruleset_version: undefined,
+        engine_version: 'run-engine-v21',
+      }),
+      error: null,
+    });
+    const result = await startRunAttempt({
+      commandId: COMMAND_ID,
+      mode: 'normal',
+      team: ['Garen'],
+      runeIds: ['press_the_attack'],
+      difficulty: 'hard',
+    });
+    expect(result.data?.gameplayRulesetVersion).toBeUndefined();
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      {
+        metric: 'run_start',
+        outcome: 'ok',
+        engineVersion: 'run-engine-v21',
+        gameplayRulesetVersion: null,
+        progressionRulesetVersion: 3,
+      },
+    ]);
+  });
+
+  it('keeps gameplay and progression metadata distinct in a recovered server status', async () => {
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: statusResponse({ ruleset_version: 3, gameplay_ruleset_version: 21 }),
+      error: null,
+    });
+    expect(await getRunAttemptStatus(ATTEMPT_ID)).toMatchObject({
+      error: null,
+      data: { rulesetVersion: 3, gameplayRulesetVersion: 21 },
     });
   });
 
@@ -465,6 +524,34 @@ describe('runAttemptService', () => {
     });
   });
 
+  it.each([
+    [503, 'unsupported_attempt_version', 'verifierUpdating'],
+    [500, 'invalid_attempt_version_contract', 'versionContractUnavailable'],
+  ] as const)(
+    'keeps HTTP %i version error %s retryable with recovery advice',
+    async (status, code, key) => {
+      supabaseMocks.invoke.mockResolvedValueOnce({
+        data: null,
+        error: new FunctionsHttpError(
+          new Response(JSON.stringify({ error: code }), {
+            status,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+        ),
+      });
+
+      const result = await verifyRunAttempt(ATTEMPT_ID);
+
+      expect(result.data).toBeNull();
+      expect(result.error).toBeInstanceOf(RunVerificationRetryableError);
+      expect(result.error).not.toBeInstanceOf(RunVerificationRejectedError);
+      expect(result.error).toMatchObject({ code, message: runError[key], retryAfterSeconds: null });
+      expect(result.error?.message).not.toMatch(
+        /nouvelle partie|new run|mise à jour|being updated/iu,
+      );
+    },
+  );
+
   it('recovers a multi-champion canonical response through status without calling Edge', async () => {
     supabaseMocks.rpc.mockResolvedValue({
       data: statusResponse({
@@ -536,9 +623,29 @@ describe('runAttemptService', () => {
     const failedSeal = await sealRunAttempt(ATTEMPT_ID, COMMAND_ID, 1);
     expect(failedSeal.data).toBeNull();
     expect(failedSeal.error?.message).toBe('offline');
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      { metric: 'run_seal', outcome: 'error', code: 'request_failed', engineVersion: 'unknown' },
+    ]);
   });
 
-  it('recovers rejected attempts as terminal and refuses unfinished attempts', async () => {
+  it('counts a malformed successful HTTP response as a failed seal with the resumed version', async () => {
+    supabaseMocks.rpc.mockResolvedValueOnce({ data: {}, error: null });
+    await sealRunAttempt(ATTEMPT_ID, COMMAND_ID, 1, {
+      engineVersion: 'run-engine-v19',
+      gameplayRulesetVersion: 19,
+    });
+    expect(getTechnicalMetricSnapshot().buckets).toMatchObject([
+      {
+        metric: 'run_seal',
+        outcome: 'error',
+        code: 'invalid_response',
+        engineVersion: 'run-engine-v19',
+        gameplayRulesetVersion: 19,
+      },
+    ]);
+  });
+
+  it('recovers rejected or expired attempts as terminal and refuses unfinished attempts', async () => {
     supabaseMocks.rpc.mockResolvedValueOnce({
       data: statusResponse({ status: 'rejected', rejection_code: 'illegal_trace' }),
       error: null,
@@ -546,6 +653,18 @@ describe('runAttemptService', () => {
     const rejected = await recoverVerifiedRunAttempt(ATTEMPT_ID);
     expect(rejected.error).toBeInstanceOf(RunVerificationRejectedError);
     expect((rejected.error as RunVerificationRejectedError).code).toBe('illegal_trace');
+
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: statusResponse({ status: 'expired', response: null }),
+      error: null,
+    });
+    const expired = await recoverVerifiedRunAttempt(ATTEMPT_ID);
+    expect(expired.data).toBeNull();
+    expect(expired.error).toBeInstanceOf(RunVerificationRejectedError);
+    expect(expired.error).toMatchObject({
+      code: 'run_attempt_expired',
+      message: runError.attemptExpired,
+    });
 
     supabaseMocks.rpc.mockResolvedValueOnce({
       data: statusResponse({ status: 'started', response: null }),

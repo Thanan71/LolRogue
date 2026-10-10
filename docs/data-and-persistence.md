@@ -3,6 +3,32 @@
 Ce document définit la source de vérité de chaque domaine. Une modification de
 persistance doit conserver cette séparation et mettre à jour les tests associés.
 
+## Preuves de contrat et portée
+
+`npm run db:validate` réinitialise uniquement la stack Supabase locale jetable,
+applique les migrations, vérifie RLS/grants/advisors, compare les types générés et
+exécute les tests `*.database.test.ts` découverts automatiquement. Lancer
+`npm run test:db:list` pour contrôler la liste. Ces preuves ne remplacent pas la
+comparaison des migrations et les smoke tests sur le SHA effectivement déployé.
+
+| Frontière | Preuve réelle | Invariants couverts |
+| --- | --- | --- |
+| Repositories → PostgREST | `repositoryIntegration.database.test.ts` | Sessions réelles, profil et `null`, historique avec jointures FK/versions/pagination, classements anonymes, maîtrise/améliorations, lectures admin, RPC de logs, erreurs PostgreSQL/PostgREST. |
+| Client → autorité | `verifiedRunAttempts.database.test.ts`, `openRunAttemptRead.database.test.ts` | Propriétaire de l'attempt, journal immuable, récupération, finalisation idempotente, refus de trace et absence de crédit. |
+| Ledger → progression | `mapEconomyProgression.database.test.ts`, `authoritativeDaily.database.test.ts` | Progression recalculée côté serveur, absence de double crédit et parité Daily. |
+| Rôles → tables/fonctions | `serverOnlyTables.database.test.ts`, `securityDefinerPrivileges.database.test.ts`, `adminPrivileges.database.test.ts` | Inventaire exhaustif, absence de privilèges clients sur tables internes, RPC explicites, permissions admin. |
+| Données → rétention/diagnostics | `legalPrivacy.database.test.ts`, `logSecurity.database.test.ts` | Bornes temporelles, cron, accès maintenance et sanitation/quota des logs. |
+
+`supabaseRepositories.test.ts` couvre les mappings et erreurs avec des doubles de
+test ; il ne prouve pas qu'une colonne, relation ou RPC existe. Sans credentials
+de la stack locale, la suite unitaire ignore les tests DB : un `npm test` vert
+seul ne valide donc pas ces frontières. Utiliser la gate DB, qui fournit les
+credentials locaux sans les enregistrer dans le dépôt.
+
+La décision de conserver les trois tables internes dans `public` avec RLS et
+sans grants clients est détaillée dans `server-only-tables.md` et vérifiée depuis
+`config/public-table-access.json`. Le nom du schéma ne donne aucun droit d'accès.
+
 ## Matrice des responsabilités
 
 | Domaine | Pendant l'exécution | Source durable connectée | Mode invité | Écriture |
@@ -12,6 +38,8 @@ persistance doit conserver cette séparation et mettre à jour les tests associ�
 | Partie en cours | `runStore` + journal local | `run_attempts` et `run_attempt_commands` | `lolrogue-run-storage` | RPC d'attempt étroites |
 | Résultat de partie | replay du moteur autoritaire | `runs` et `run_team_members` | local uniquement | Edge Function `verify-run` puis RPC service-role |
 | Maîtrise | cache `masteryStore` associé à l'identité active | `champion_mastery.unlocked_ids` | snapshot `guestSnapshot` dans `lolrogue-mastery-storage` | crédit atomique d'une run vérifiée |
+| Éclats et propriété | cache mémoire `championEconomyStore` associé à l'identité active | `account_wallets`, ledger append-only `shard_transactions`, `account_champion_unlocks` | aucune wallet ni propriété durable | `purchase_champion` authentifiée et finalisation vérifiée atomique |
+| Rotation gratuite | snapshot daté du serveur | `champion_rotations`, `champion_rotation_entries`, catalogue/config versionnés | lecture publique de l'offre serveur | matérialisation privée, activation réservée à la maintenance |
 | Améliorations | `enhancementStore` | `champion_enhancements`; solde dans `players.total_candies` | indisponible sans compte | RPC `unlock_champion_enhancement` |
 | Daily run en cours | `runStore`; `dailyRunStore` ne garde que date/seed/expiration/complétion | attempt serveur avec seed UTC | état de run dans `lolrogue-run-storage`, métadonnées dans `lolrogue-daily-run` | même journal vérifié qu'une run normale |
 | Classement daily | store après lecture | vue sanitisée `daily_leaderboard` issue des runs vérifiées | `lolrogue-daily-leaderboard` | trigger serveur après replay autoritaire |
@@ -114,13 +142,44 @@ rangs) est dérivé du replay puis inséré dans la même transaction que la run
 progression. Si cette transaction échoue, aucun sous-ensemble n'est considéré
 comme sauvegardé et l'attempt reste réconciliable ou rejeté selon son statut.
 
-Une partie invitée ne contacte pas la base. Seul le navigateur courant possède
+Une partie invitée lit l'offre gratuite datée du serveur lorsque Supabase est
+configuré, sans écrire de résultat économique. Seul le navigateur courant possède
 l'état et la progression. Cette progression vit dans un namespace `guestSnapshot`
 et n'est jamais fusionnée, importée ou copiée automatiquement lors de la création
 ou de la connexion à un compte. À l'inverse, un compte ne persiste jamais sa
 maîtrise dans ce snapshot local : chaque changement d'identité vide les caches,
 puis attend profil, maîtrise et améliorations Supabase avant d'ouvrir les routes
 de jeu.
+
+## Ledger d'Éclats et accès au roster
+
+La migration `20261008171535_champion_economy_ledger_and_access.sql` ajoute les
+wallets, transactions, unlocks, périodes/entrées de rotation, catalogue, configuration
+et commandes d'achat. RLS et grants n'autorisent que les lectures privées du
+propriétaire sur wallet/ledger/unlocks. L'offre publique passe par
+`get_champion_economy_snapshot`, sans paramètre d'horloge client. Aucune écriture
+directe n'est accordée au navigateur, y compris sur ses propres données.
+
+`purchase_champion` vérifie le devis versionné, verrouille la wallet et écrit
+débit, ledger, unlock et commande dans une seule transaction. Un UUID de commande
+réutilisé avec un payload différent est refusé ; un retry identique retrouve son
+résultat sans débit supplémentaire. Une seconde commande pour un champion déjà
+acheté échoue sans dépenser. Le store garde l'UUID après une réponse réseau ambiguë.
+
+Les RPC de démarrage vérifient l'accès et figent `champion_access_snapshot` et
+`economy_version`. Le Daily conserve sa propre offre commune. La finalisation
+service-only crédite exclusivement les métriques du replay terminé, avec unicité
+par attempt et par compte/rotation/champion pour le bonus de victoire. Wallet,
+progression et réponse persistée restent atomiques. Un abandon avant la première
+vague, un résultat rejeté, une ancienne attempt ou une attempt démarrée flag OFF
+ne créent pas d'Éclats.
+
+`shard_transactions` refuse UPDATE/DELETE, sauf cascade lors de la suppression
+complète du compte. Les rotations historiques sont conservées pour audit.
+L'audit maintenance compare le ledger à la balance et aux cumuls, sans modifier
+les données. Les ajustements passent par une commande service-only idempotente
+qui ajoute une nouvelle transaction. Aucun cache économique n'est enregistré
+dans `localStorage` ni fusionné depuis un invité.
 
 ## Démarrage et remplacement d'une run
 

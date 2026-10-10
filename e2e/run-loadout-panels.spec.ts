@@ -43,7 +43,8 @@ async function installLoadoutFixture(page: Page) {
       import('/src/game/inventory/inventoryRules.ts'),
       import('/src/stores/runStore.ts'),
     ]);
-    const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20260814 });
+    // Equipment presentation is independent of weekly champion access.
+    const started = await useRunStore.getState().startRun(['Annie', 'Ashe'], { seed: 20260814 });
     if (!started.success) throw new Error(`Unable to start fixture run: ${started.code}`);
     const sword = getCanonicalRunItem('long_sword');
     const armor = getCanonicalRunItem('cloth_armor');
@@ -86,7 +87,7 @@ for (const viewport of VIEWPORTS) {
     await servePackagedAssets(page);
     await enterGuest(page);
     await installLoadoutFixture(page);
-    await page.getByRole('button', { name: 'Continuer la partie' }).click();
+    await page.goto('/run');
     await expect(page).toHaveURL('/run');
 
     const upgrade = page.getByRole('region', { name: 'Amélioration de sort' });

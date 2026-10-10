@@ -25,6 +25,7 @@ const IMPLEMENTED_CHAMPION_IDS = [
   'Leona',
   'Malphite',
   'Warwick',
+  'Veigar',
 ] as const;
 
 const IMPLEMENTED_SPELL_IDS = [
@@ -68,6 +69,10 @@ const IMPLEMENTED_SPELL_IDS = [
   'WarwickW',
   'WarwickE',
   'WarwickR',
+  'VeigarBalefulStrike',
+  'VeigarDarkMatter',
+  'VeigarEventHorizon',
+  'VeigarR',
 ] as const;
 const implementedChampionIds = new Set<string>(IMPLEMENTED_CHAMPION_IDS);
 

@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 
 const expectedIndexes = new Map([
+  ['runs_player_history_cursor_idx', ['runs', '(player_id, created_at DESC, id DESC)']],
   ['daily_runs_invalidated_by_idx', ['daily_runs', '(invalidated_by)', 'IS NOT NULL']],
   [
     'daily_score_invalidation_audit_actor_idx',
@@ -30,6 +31,10 @@ const expectedIndexes = new Map([
 ]);
 
 const intentionallyUnindexedForeignKeys = new Set([
+  'champion_economy_config_gameplay_ruleset_version_fkey',
+  'champion_rotations_ruleset_version_fkey',
+  'shard_transactions_gameplay_ruleset_version_fkey',
+  'shard_transactions_rotation_id_fkey',
   'daily_challenge_rulesets_gameplay_ruleset_version_fkey',
   'daily_runs_daily_ruleset_version_fkey',
   'daily_runs_gameplay_ruleset_version_fkey',

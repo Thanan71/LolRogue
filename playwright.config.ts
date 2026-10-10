@@ -2,7 +2,13 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  testIgnore: /production-matrix\.spec\.ts/,
+  testIgnore: [
+    /production-matrix\.spec\.ts/,
+    // Real connected scenarios run only in their mandatory dedicated CI gate.
+    ...(process.env.E2E_REQUIRE_CONNECTED === '1'
+      ? []
+      : [/(?:connected-(?:daily|sprint-g)|champion-economy-connected)\.spec\.ts$/]),
+  ],
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,

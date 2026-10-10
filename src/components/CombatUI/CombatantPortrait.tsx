@@ -1,8 +1,12 @@
 import type React from 'react';
 import type { CSSProperties } from 'react';
+import { RunProgressCounters } from '@/components/RunProgressCounters';
+import { combatantConditions } from '@/game/presentation/combatStatuses';
 import { combatCopy } from '@/i18n/combatContent';
 import { formatNumber } from '@/i18n/format';
+import { runProgressSummary } from '@/i18n/runProgressContent';
 import type { CombatantInfo } from '../../stores/battleStore';
+import { CombatStatusBadges, combatantStatusDescription } from './CombatStatusBadges';
 
 interface Props {
   combatant: CombatantInfo;
@@ -24,6 +28,13 @@ export const CombatantPortrait: React.FC<Props> = ({
   onSelect,
 }) => {
   const { name, level, currentHp, maxHp, currentMp, maxMp, iconUrl, isDefeated, side } = combatant;
+  const conditions = combatantConditions(combatant);
+  const statusDescription = combatantStatusDescription(combatant);
+  const progressDescription = combatant.runProgression
+    ?.map((definition) =>
+      runProgressSummary(definition, combatant.runProgress?.[definition.key] ?? 0),
+    )
+    .join(', ');
   const hpPct = maxHp > 0 ? Math.min(100, Math.max(0, (currentHp / maxHp) * 100)) : 0;
   const mpPct = maxMp > 0 ? Math.min(100, Math.max(0, (currentMp / maxMp) * 100)) : 0;
   const hpAriaMax = Math.max(0, Math.round(maxHp));
@@ -38,6 +49,10 @@ export const CombatantPortrait: React.FC<Props> = ({
     isAttacking && 'combatant-portrait--attacking',
     isActualTarget && 'combatant-portrait--targeted',
     isDefeated && 'combatant-portrait--defeated',
+    conditions.incapacitated && 'combatant-portrait--incapacitated',
+    conditions.silenced && 'combatant-portrait--silenced',
+    conditions.lowHealth && 'combatant-portrait--low-health',
+    conditions.shielded && 'combatant-portrait--shielded',
     onSelect && 'combatant-portrait--selectable',
   ]
     .filter(Boolean)
@@ -49,7 +64,11 @@ export const CombatantPortrait: React.FC<Props> = ({
       role={onSelect ? 'button' : undefined}
       tabIndex={onSelect ? 0 : undefined}
       aria-pressed={onSelect ? isSelected : undefined}
-      aria-label={onSelect ? combatCopy.portrait.target(name) : undefined}
+      aria-label={
+        onSelect
+          ? `${combatCopy.portrait.target(name)}${statusDescription ? `, ${statusDescription}` : ''}${progressDescription ? `, ${progressDescription}` : ''}`
+          : undefined
+      }
       onClick={onSelect}
       onKeyDown={(event) => {
         if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
@@ -118,6 +137,12 @@ export const CombatantPortrait: React.FC<Props> = ({
             </div>
           </div>
         )}
+        <CombatStatusBadges combatant={combatant} />
+        <RunProgressCounters
+          definitions={combatant.runProgression}
+          snapshot={combatant.runProgress}
+          variant="compact"
+        />
         {enhancementBonuses && enhancementBonuses.length > 0 && (
           <div className="combatant-portrait__bonuses">
             {enhancementBonuses.slice(0, 3).map((bonus, i) => (

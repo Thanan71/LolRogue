@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { ActionTargeting, ActionType, TeamSide } from '@/game/battle/types';
+import type { CCType } from '@/game/effects/types';
 import type { SpellImpactPreview } from '@/game/presentation/spellPreview';
+import type { RunProgressionDefinition } from '@/types/champion';
 
 export interface SpellInfo {
   slot: 'Q' | 'W' | 'E' | 'R';
@@ -12,6 +14,14 @@ export interface SpellInfo {
   targeting: ActionTargeting;
   iconUrl?: string;
   impacts?: SpellImpactPreview[];
+}
+
+export interface CombatStatusInfo {
+  id: string;
+  kind: CCType | 'shield' | 'buff' | 'debuff' | 'dot' | 'hot' | 'revive';
+  turnsRemaining: number;
+  amount?: number;
+  stacks?: number;
 }
 
 export interface CombatantInfo {
@@ -27,6 +37,11 @@ export interface CombatantInfo {
   isDefeated: boolean;
   side: 'player' | 'enemy';
   spells: SpellInfo[];
+  /** Immutable display snapshot of active engine effects. */
+  statuses?: CombatStatusInfo[];
+  /** Immutable engine data for declared counters retained during this run. */
+  runProgression?: readonly RunProgressionDefinition[];
+  runProgress?: Readonly<Record<string, number>>;
 }
 
 export interface LogEntry {
@@ -44,10 +59,17 @@ export interface LogEntry {
     | 'shield'
     | 'revive'
     | 'crowd_control'
-    | 'turn_skipped';
+    | 'turn_skipped'
+    | 'run_counter_gain';
   message: string;
   amount?: number;
   isCrit?: boolean;
+  counterKey?: string;
+  counterValue?: number;
+  sourceCombatantId?: string;
+  targetCombatantId?: string;
+  sourceSide?: TeamSide;
+  targetSide?: TeamSide;
 }
 
 export interface CombatVisualEvent {

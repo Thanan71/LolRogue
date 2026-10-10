@@ -28,12 +28,15 @@ export function GameOverPage() {
   const activeRunId = useRunStore((state) => state.runId);
   const completedRunSnapshot = useRunStore((state) => state.completedRunSnapshot);
   const serverProgression = useRunStore((state) => state.serverProgression);
+  const hasAuthorityAttempt = useRunStore((state) => state.authorityAttempt !== null);
   const hasAuthenticatedAccount = useAuthStore((state) => state.user !== null);
   const [isErrorVisible, setIsErrorVisible] = useState(true);
-  const [diagnosticCopied, setDiagnosticCopied] = useState(false);
+  const [diagnosticCopyStatus, setDiagnosticCopyStatus] = useState<'idle' | 'copied' | 'failed'>(
+    'idle',
+  );
   const summary = completedRunSnapshot?.summary ?? routeSummary;
   const rewards = useMemo(() => {
-    if (!summary) return null;
+    if (!summary || saveFailureKind === 'terminal') return null;
     if (serverProgression) {
       const championIds = [
         ...new Set(
@@ -54,9 +57,19 @@ export function GameOverPage() {
               ),
       };
     }
-    // An authenticated account must never see a speculative local reward.
-    return hasAuthenticatedAccount ? null : calculateRunCandyRewards(summary);
-  }, [completedRunSnapshot, hasAuthenticatedAccount, serverProgression, summary]);
+    // A server attempt stays authoritative while authentication is hydrating.
+    return hasAuthenticatedAccount || hasAuthorityAttempt || saveDiagnostic
+      ? null
+      : calculateRunCandyRewards(summary);
+  }, [
+    completedRunSnapshot,
+    hasAuthorityAttempt,
+    hasAuthenticatedAccount,
+    saveDiagnostic,
+    saveFailureKind,
+    serverProgression,
+    summary,
+  ]);
 
   useEffect(() => {
     if (summary) playSFX(summary.won ? 'victory' : 'defeat');
@@ -81,11 +94,15 @@ export function GameOverPage() {
   }
 
   async function handleCopyDiagnostic() {
-    if (!saveDiagnostic || !navigator.clipboard) return;
-    await navigator.clipboard.writeText(
-      formatRunSaveDiagnostic(saveDiagnostic, gameOverCopy.save.diagnostic),
-    );
-    setDiagnosticCopied(true);
+    if (!saveDiagnostic) return;
+    try {
+      await navigator.clipboard.writeText(
+        formatRunSaveDiagnostic(saveDiagnostic, gameOverCopy.save.diagnostic),
+      );
+      setDiagnosticCopyStatus('copied');
+    } catch {
+      setDiagnosticCopyStatus('failed');
+    }
   }
 
   const runLevel = summary?.runLevel ?? 1;
@@ -101,7 +118,8 @@ export function GameOverPage() {
   const totalShielding =
     summary?.championStats.reduce((sum, stats) => sum + stats.shieldingDone, 0) ?? 0;
   const goldEarned = summary?.goldEarned ?? 0;
-  const isBusy = saveStatus === 'saving' || saveStatus === 'retrying';
+  const isBusy =
+    saveStatus === 'saving' || saveStatus === 'retrying' || saveStatus === 'recovering';
   const isRetryableSaveError = saveStatus === 'failed' && saveFailureKind !== 'terminal';
   const rewardEntries = rewards
     ? Object.entries(rewards.byChampion).filter(([, candies]) => candies > 0)
@@ -174,7 +192,11 @@ export function GameOverPage() {
             {isBusy && (
               <p role="status" className="game-over-save-status game-over-save-status--saving">
                 <span aria-hidden="true" className="game-over-save-status__dot" />
-                {saveStatus === 'retrying' ? fr.gameOver.retrying : fr.gameOver.saving}
+                {saveStatus === 'recovering'
+                  ? fr.gameOver.recovering
+                  : saveStatus === 'retrying'
+                    ? fr.gameOver.retrying
+                    : fr.gameOver.saving}
               </p>
             )}
             {saveStatus === 'saved' && (
@@ -197,15 +219,23 @@ export function GameOverPage() {
               {saveFailureKind === 'terminal'
                 ? `${fr.gameOver.rejected} : ${localizedSaveError}`
                 : `${fr.gameOver.verificationPending} : ${localizedSaveError}`}
-              {saveFailureKind === 'terminal' && saveDiagnostic && (
+              <p>
+                {saveFailureKind === 'terminal'
+                  ? gameOverCopy.save.terminalOutcome
+                  : gameOverCopy.save.retryOutcome}
+              </p>
+              {saveDiagnostic && (
                 <details className="game-over-diagnostic">
                   <summary>{gameOverCopy.save.supportDetails}</summary>
                   <pre>{formatRunSaveDiagnostic(saveDiagnostic, gameOverCopy.save.diagnostic)}</pre>
                   <button type="button" onClick={() => void handleCopyDiagnostic()}>
-                    {diagnosticCopied
+                    {diagnosticCopyStatus === 'copied'
                       ? gameOverCopy.save.diagnosticCopied
                       : gameOverCopy.save.copyDiagnostic}
                   </button>
+                  {diagnosticCopyStatus === 'failed' && (
+                    <p role="status">{gameOverCopy.save.diagnosticCopyFailed}</p>
+                  )}
                 </details>
               )}
             </div>

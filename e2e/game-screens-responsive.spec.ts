@@ -24,13 +24,6 @@ async function enterGuest(page: Page) {
   await expect(page).toHaveURL('/');
 }
 
-async function navigateSpa(page: Page, path: string) {
-  await page.evaluate((nextPath) => {
-    window.history.pushState(null, '', nextPath);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  }, path);
-}
-
 for (const viewport of VIEWPORTS) {
   test(`game shells stay reachable at ${viewport.name}`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
@@ -50,7 +43,7 @@ for (const viewport of VIEWPORTS) {
     await page.evaluate(async () => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
       const { createRunLedger } = await import('/src/game/run/runLedger.ts');
-      const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 1 });
+      const started = await useRunStore.getState().startRun(['Annie', 'Ashe'], { seed: 1 });
       if (!started.success) throw new Error(`Unable to start result fixture: ${started.code}`);
       const runId = useRunStore.getState().runId;
       const championIds = ['Garen', 'Ashe', 'Lux', 'Leona', 'Warwick'];
@@ -84,7 +77,7 @@ for (const viewport of VIEWPORTS) {
         throw new Error('Responsive result fixture did not survive normal rehydration');
       }
     });
-    await navigateSpa(page, '/game-over');
+    await page.goto('/game-over');
     await expect(page.getByRole('heading', { name: 'Victoire !' })).toBeVisible();
     const menu = page.getByRole('button', { name: 'Menu principal' });
     await menu.scrollIntoViewIfNeeded();
@@ -100,10 +93,10 @@ for (const viewport of VIEWPORTS) {
     await page.evaluate(async () => {
       const { useRunStore } = await import('/src/stores/runStore.ts');
       useRunStore.setState({ completedRunSnapshot: null, saveStatus: 'idle' });
-      const started = await useRunStore.getState().startRun(['Garen', 'Lux'], { seed: 20260801 });
+      const started = await useRunStore.getState().startRun(['Annie', 'Ashe'], { seed: 20260801 });
       if (!started.success) throw new Error(`Unable to start responsive run: ${started.code}`);
     });
-    await navigateSpa(page, '/run');
+    await page.goto('/run');
     await expect(page.getByRole('button', { name: /tutoriel carte/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await testInfo.attach(`run-map-${viewport.name}`, {

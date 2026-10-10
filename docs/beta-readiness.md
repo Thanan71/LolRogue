@@ -11,13 +11,13 @@ jamais une preuve de release.
 
 | Gate objective | État actuel | Preuve exigée par le preflight |
 | --- | --- | --- |
-| P0 formalisés | Vérifié dans le dépôt | Chaque P0 possède le statut `verified` et au moins une commande de contrôle dans la fiche de release. |
+| P0 formalisés | **Bloqué : P0-I18N-01 ouvert** | Tous les P0 du backlog doivent figurer dans la fiche, sans doublon, avec statut `verified` et commandes de contrôle. La revue humaine FR/EN et sa preview restent à prouver. |
 | Identité du candidat | **Bloqué** | SHA Git complet de 40 caractères, identique à `HEAD`. |
-| Trois CI complètes post-P0 | **Bloqué** | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `validate`, `e2e`, `database` et `clean-room` réussis. |
+| Trois CI complètes post-P0 | **Bloqué** | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `static`, `unit`, `security`, `build/assets`, `DB`, `browser` et `clean-room` réussis. |
 | Preview exacte | **Bloqué** | URL HTTPS du candidat et validation de tous les assets par `test:deployed-assets`. |
 | Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `db:migrations:check:linked`. |
-| Tests DB et sécurité views/grants | **Bloqué** | Job `database` réussi sur chacune des trois CI ; il exécute `db:validate` et `db:security`. |
-| E2E | **Bloqué** | Job `e2e` réussi sur chacune des trois CI du candidat. |
+| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `db:validate` et `db:security`. |
+| E2E | **Bloqué** | Job `browser` réussi sur chacune des trois CI du candidat. |
 | Advisors Supabase | **Bloqué** | Politique liée sécurité + performance conforme, résultat `passed`, URL de preuve et date postérieure au dernier correctif P0. |
 | Validations externes | **Bloqué** | Preuves datées pour accessibilité humaine, droit/RGPD, canal de support et autorisation Riot. |
 
@@ -26,6 +26,22 @@ manuelle. `npm run release:readiness:check` échoue si le statut déclaré ou ce
 page contredit les preuves enregistrées. `npm run release:preflight` reste
 volontairement en échec tant qu'une gate manque et revérifie GitHub, la base liée
 et la preview dès que la fiche est complète.
+
+Réconciliation du 4 octobre 2026 : les onze P0 actuels sont recensés, y compris
+les cinq P0 d'équilibrage et le P0 i18n auparavant absents de la fiche. Le statut
+`verified` d'un invariant de code n'atteste ni du déploiement ni d'un test récent
+sur le candidat. Depuis le nettoyage du 7 octobre, les titres de `TODO.md`
+conservent le P0 i18n ouvert et un inventaire compact des dix invariants P0
+livrés ; les travaux et critères détaillés sont dans le
+[snapshot intégral du backlog](archive/todo-snapshot-2026-10-07.md).
+L'inventaire lit seulement ces identifiants ; il ne transforme jamais des cases
+cochées ou un archivage en preuves de release.
+
+Les gates locales servent à préparer les tâches des sprints. Les protections
+GitHub de `main` et `dev` exigent les checks distants ; les compléments de
+`P2-CI-01` concernent la preuve d'annulation/neutralisation et les runs concurrents.
+Les trois CI candidates, la preview exacte et les preuves live restent ici
+**bloquantes** pour la bêta.
 
 ## Fiche de release obligatoire
 
@@ -45,8 +61,8 @@ gate à **bloqué**.
 
 ## Portée des contrôles
 
-Le job `database` couvre la base réellement migrée, les tests de repositories,
-les politiques RLS et la sécurité des vues et grants. Le job `e2e` couvre les
+Le job `DB` couvre la base réellement migrée, les tests de repositories,
+les politiques RLS et la sécurité des vues et grants. Le job `browser` couvre les
 parcours victoire, défaite et Daily autoritaire sans mutation directe du store.
 Le job `clean-room` reconstruit le dépôt sans artefact local. Le preflight ajoute
 la comparaison des migrations liées, l'exécution de la politique versionnée des

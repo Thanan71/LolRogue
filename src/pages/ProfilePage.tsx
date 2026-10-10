@@ -1,15 +1,21 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { RunHistoryFilters } from '@/components/history/RunHistoryFilters';
+import { RunHistoryItem } from '@/components/history/RunHistoryItem';
+import { RunRejectionHistory } from '@/components/history/RunRejectionHistory';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
-import { riotChampionIconUrl } from '@/config/riotAssets';
 import { ROUTES } from '@/config/routes';
-import { championDB } from '@/data/championDatabase';
+import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
-import { augmentName, localizeChampion, runeName } from '@/i18n/content';
-import { formatDate, formatNumber } from '@/i18n/format';
+import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
+import { runHistoryCopy } from '@/i18n/runHistoryContent';
 import { RepositoryContainerFactory } from '@/services/container';
-import type { RunHistoryEntry } from '@/services/interfaces/IRunRepository';
+import type {
+  RunHistoryFilters as HistoryFilters,
+  RunHistoryCursor,
+  RunHistoryEntry,
+} from '@/services/interfaces/IRunRepository';
 import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -20,27 +26,17 @@ function pluralLabel(value: number, singular: string, pluralForm: string): strin
   return profilePluralRules.select(value) === 'one' ? singular : pluralForm;
 }
 
-function localizedChampionName(championId: string): string {
-  const champion = championDB.getById(championId);
-  return champion ? localizeChampion(champion).name : championId;
-}
-
-function localizedMode(mode: string): string {
-  return fr.profile.modes[mode as keyof typeof fr.profile.modes] ?? fr.profile.unknownMode;
-}
-
-function localizedDifficulty(difficulty: string): string {
-  return (
-    fr.profile.difficulties[difficulty as keyof typeof fr.profile.difficulties] ??
-    fr.profile.unknownDifficulty
-  );
-}
-
 export function ProfilePage() {
   const navigate = useAppNavigate();
   const player = useAuthStore((state) => state.player);
   const isGuest = useAuthStore((state) => state.isGuest);
+  const [filters, setFilters] = useState<HistoryFilters>({});
   const [runs, setRuns] = useState<RunHistoryEntry[]>([]);
+  const [nextCursor, setNextCursor] = useState<RunHistoryCursor | null>(null);
+  const [moreError, setMoreError] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const historyRequest = useRef(0);
+  const morePending = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -48,6 +44,41 @@ export function ProfilePage() {
   const playerId = player?.id;
 
   const retry = useCallback(() => setReloadKey((key) => key + 1), []);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionError, setTransitionError] = useState<string | null>(null);
+  const transitionPending = useRef(false);
+
+  async function handleLogin() {
+    if (transitionPending.current) return;
+    transitionPending.current = true;
+    setIsTransitioning(true);
+    setTransitionError(null);
+    try {
+      const { useRunStore } = await import('@/stores/runStore');
+      const run = useRunStore.getState();
+      const canContinue = await finalizeActiveRunBeforeTransition({
+        isActive: run.isActive,
+        runId: run.runId,
+        confirmationMessage: fr.run.abandonmentConfirmation,
+        confirm: (message) => window.confirm(message),
+        endRun: (runId) => run.endRun(false, runId),
+      });
+      if (!canContinue) return;
+      if (useAuthStore.getState().isGuest) {
+        const result = await useAuthStore.getState().exitGuestMode();
+        if (!result.success) {
+          setTransitionError(result.error ?? fr.auth.activeRunGuestExit);
+          return;
+        }
+      }
+      navigate(ROUTES.AUTH);
+    } catch {
+      setTransitionError(fr.auth.activeRunGuestExit);
+    } finally {
+      transitionPending.current = false;
+      setIsTransitioning(false);
+    }
+  }
 
   useEffect(() => {
     if (!playerId || isGuest) {
@@ -56,24 +87,67 @@ export function ProfilePage() {
       setIsLoading(false);
       return;
     }
+    const request = ++historyRequest.current;
     let cancelled = false;
+    setNextCursor(null);
+    setMoreError(null);
+    setLoadingMore(false);
+    morePending.current = false;
     setRuns([]);
     setIsLoading(true);
     setError(null);
-    void repositories.run.getPlayerRunHistory(playerId, 20).then((result) => {
-      if (cancelled) return;
-      if (result.error) {
+    void repositories.run
+      .getPlayerRunHistory(playerId, 20, { filters })
+      .then((result) => {
+        if (cancelled || request !== historyRequest.current) return;
+        if (result.error) {
+          setRuns([]);
+          setError(fr.profile.historyLoadError);
+        } else {
+          setRuns(result.data ?? []);
+          setNextCursor(result.nextCursor ?? null);
+        }
+        setIsLoading(false);
+      })
+      .catch(() => {
+        if (cancelled || request !== historyRequest.current) return;
         setRuns([]);
         setError(fr.profile.historyLoadError);
-      } else {
-        setRuns(result.data ?? []);
-      }
-      setIsLoading(false);
-    });
+        setIsLoading(false);
+      });
     return () => {
       cancelled = true;
+      historyRequest.current += 1;
     };
-  }, [playerId, isGuest, reloadKey]);
+  }, [playerId, isGuest, reloadKey, filters]);
+
+  const loadMore = async () => {
+    if (!playerId || isGuest || !nextCursor || morePending.current) return;
+    const request = historyRequest.current;
+    morePending.current = true;
+    setLoadingMore(true);
+    setMoreError(null);
+    try {
+      const result = await repositories.run.getPlayerRunHistory(playerId, 20, {
+        filters,
+        cursor: nextCursor,
+      });
+      if (request !== historyRequest.current) return;
+      if (result.error) {
+        setMoreError(fr.profile.historyLoadError);
+        return;
+      }
+      setRuns((previous) => [...previous, ...(result.data ?? [])]);
+      setNextCursor(result.nextCursor ?? null);
+    } catch {
+      if (request === historyRequest.current) setMoreError(fr.profile.historyLoadError);
+    } finally {
+      if (request === historyRequest.current) {
+        setLoadingMore(false);
+        morePending.current = false;
+      }
+    }
+  };
 
   return (
     <PageShell width="content">
@@ -89,11 +163,10 @@ export function ProfilePage() {
       {isGuest || !player ? (
         <StateView kind="empty" title={fr.profile.local}>
           <p>{fr.profile.loginRequired}</p>
-          <Button onClick={() => navigate(ROUTES.AUTH)}>{fr.profile.login}</Button>
-        </StateView>
-      ) : isLoading ? (
-        <StateView kind="loading" title={fr.profile.loading}>
-          {fr.profile.loadingDetail}
+          {transitionError && <p role="alert">{transitionError}</p>}
+          <Button disabled={isTransitioning} onClick={() => void handleLogin()}>
+            {fr.profile.login}
+          </Button>
         </StateView>
       ) : (
         <>
@@ -138,6 +211,12 @@ export function ProfilePage() {
           </Panel>
           <Panel aria-label={fr.profile.history}>
             <h2>{fr.profile.recentHistory}</h2>
+            <RunHistoryFilters value={filters} onChange={setFilters} />
+            {isLoading && (
+              <StateView kind="loading" title={fr.profile.loading}>
+                {fr.profile.loadingDetail}
+              </StateView>
+            )}
             {error && (
               <StateView
                 kind="error"
@@ -148,130 +227,38 @@ export function ProfilePage() {
                 {error}
               </StateView>
             )}
-            {!error && runs.length === 0 && <StateView kind="empty" title={fr.profile.noRuns} />}
+            {!error && !isLoading && runs.length === 0 && (
+              <StateView kind="empty" title={fr.profile.noRuns} />
+            )}
             <ul className="ui-list">
-              {runs.map(({ run, attempt, teamMembers }) => {
-                const contentLabels = [
-                  ...run.rune_ids.map((id) => runeName(id)),
-                  ...run.augment_ids.map((id) => augmentName(id, id)),
-                ];
-                return (
-                  <li
-                    key={run.id}
-                    className={`ui-list-item profile-run profile-run--${run.won ? 'victory' : 'defeat'}`}
-                  >
-                    <details>
-                      <summary>
-                        <span className="profile-run__summary">
-                          <span
-                            className={`profile-run__result profile-run__result--${run.won ? 'victory' : 'defeat'}`}
-                          >
-                            {run.won ? fr.common.victory : fr.common.defeat}
-                          </span>
-                          <span className="profile-run__headline">
-                            {fr.common.level} {formatNumber(run.run_level)} ·{' '}
-                            {formatNumber(run.waves_completed)}{' '}
-                            {pluralLabel(run.waves_completed, fr.profile.wave, fr.profile.waves)} ·{' '}
-                            {formatNumber(run.total_kills)}{' '}
-                            {pluralLabel(
-                              run.total_kills,
-                              fr.profile.elimination,
-                              fr.profile.eliminations,
-                            )}
-                          </span>
-                          <small>
-                            {formatDate(run.completed_at ?? run.created_at, {
-                              dateStyle: 'medium',
-                              timeStyle: 'short',
-                            })}
-                          </small>
-                        </span>
-                        {teamMembers.length > 0 && (
-                          <span
-                            className="profile-run__portraits"
-                            role="group"
-                            aria-label={fr.profile.team}
-                          >
-                            {teamMembers.slice(0, 5).map((member, index) => (
-                              <img
-                                key={`${member.champion_id}-${index}`}
-                                src={riotChampionIconUrl(member.champion_id)}
-                                alt={localizedChampionName(member.champion_id)}
-                                width={40}
-                                height={40}
-                                loading="lazy"
-                                decoding="async"
-                              />
-                            ))}
-                          </span>
-                        )}
-                      </summary>
-                      <dl className="ui-definition-list">
-                        <div>
-                          <dt>{fr.profile.comparisonGroup}</dt>
-                          <dd>
-                            {attempt
-                              ? fr.profile.comparisonDetails(
-                                  localizedMode(attempt.mode),
-                                  localizedDifficulty(attempt.difficulty),
-                                  formatNumber(attempt.gameplayRulesetVersion),
-                                )
-                              : fr.profile.legacyRun}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>{fr.profile.team}</dt>
-                          <dd>
-                            {teamMembers.length > 0
-                              ? teamMembers
-                                  .map((member) =>
-                                    fr.profile.teamMember(
-                                      localizedChampionName(member.champion_id),
-                                      formatNumber(member.final_level),
-                                    ),
-                                  )
-                                  .join(', ')
-                              : fr.profile.teamUnavailable}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>{fr.profile.economy}</dt>
-                          <dd>
-                            {formatNumber(run.gold_earned)} {fr.profile.goldEarned} ·{' '}
-                            {formatNumber(run.total_gold_spent)} {fr.profile.goldSpent} ·{' '}
-                            {formatNumber(run.items_purchased)}{' '}
-                            {pluralLabel(run.items_purchased, fr.profile.item, fr.profile.items)}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>{fr.profile.combatStats}</dt>
-                          <dd>
-                            {formatNumber(run.total_damage_dealt)} {fr.profile.damage} ·{' '}
-                            {formatNumber(run.total_healing_done)} {fr.profile.healing} ·{' '}
-                            {formatNumber(run.total_shielding_done)} {fr.profile.shielding}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>{fr.profile.content}</dt>
-                          <dd>
-                            {contentLabels.length > 0 ? (
-                              <span className="profile-run__chips">
-                                {contentLabels.map((label, index) => (
-                                  <span key={`${label}-${index}`}>{label}</span>
-                                ))}
-                              </span>
-                            ) : (
-                              fr.profile.none
-                            )}
-                          </dd>
-                        </div>
-                      </dl>
-                    </details>
-                  </li>
-                );
-              })}
+              {runs.map((entry) => (
+                <RunHistoryItem key={entry.run.id} entry={entry} repository={repositories.run} />
+              ))}
             </ul>
+            {moreError && (
+              <StateView
+                kind="error"
+                title={fr.profile.historyUnavailable}
+                actionLabel={fr.profile.retry}
+                onAction={() => {
+                  void loadMore();
+                }}
+              >
+                {moreError}
+              </StateView>
+            )}
+            {nextCursor && (
+              <Button
+                disabled={loadingMore}
+                onClick={() => {
+                  void loadMore();
+                }}
+              >
+                {loadingMore ? runHistoryCopy.loadingMore : runHistoryCopy.next}
+              </Button>
+            )}
           </Panel>
+          <RunRejectionHistory key={player.id} playerId={player.id} repository={repositories.run} />
         </>
       )}
     </PageShell>

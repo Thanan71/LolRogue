@@ -1,25 +1,31 @@
 # Audit des dépendances
 
-État réévalué le **9 août 2026** avec le lockfile courant et `npm audit`, sans
+Versions relues dans le lockfile le **4 octobre 2026**. Les résultats d'audit
+historiques ci-dessous sont datés et doivent être recalculés avec `npm audit`, sans
 `--force`. Ce document décrit l'état observé ; le script
 `scripts/check-dependency-audit.mjs` reste le garde-fou exécutable.
 
-## Versions réellement installées
+## Versions résolues dans le lockfile
 
 La mise à jour groupée de l'outillage a porté la base sur :
 
 - Node `24.x` pour l'exécution du projet et la compatibilité Vercel ;
-- React/React DOM `19.2.8`, React Router DOM `7.18.2` et Zustand `5.0.14` ;
-- Vite `8.1.5`, `@vitejs/plugin-react` `6.0.4` et TypeScript `7.0.2` ;
-- Vitest/coverage `4.1.10`, Playwright `1.62.0`, jsdom `30.0.1` et Biome `2.5.6` ;
-- Supabase JS `2.111.0` et CLI `2.110.0` ;
+- React/React DOM `19.3.0`, React Router DOM `7.18.4` et Zustand `5.0.15` ;
+- Vite `8.3.1`, `@vitejs/plugin-react` `6.1.1` et TypeScript `7.0.2` ;
+- Vitest/coverage `5.0.2`, Playwright `1.63.0`, jsdom `30.1.1` et Biome `2.5.14` ;
+- Supabase JS `2.117.2` et CLI `2.118.0` ;
 - `@types/node` `24.13.3`.
 
-Le runtime, `.nvmrc` et les quatre jobs CI ciblent désormais Node 24, pris en charge
+Le runtime, `.nvmrc` et les sept jobs CI ciblent désormais Node 24, pris en charge
 par Vercel. `@types/node` est épinglé sur la même majeure afin que les scripts ne
 puissent pas compiler par erreur contre une API apparue après Node 24. TypeScript 7
 reste une montée majeure et demeure couvert par le typage, le build, les tests et
 la génération des types Supabase.
+
+Preuves reproductibles : `npm run node:contract` compare runtime déclaré,
+`.nvmrc`, workflows et types verrouillés ; `npm ls --depth=0` révèle les versions
+installées et `npm run audit:security` refuse toute alerte haute/critique courante.
+Exécuter ces commandes sous Node 24 : un shell resté sur Node 22 n'est pas conforme.
 
 Le bundle autoritaire conserve l'alias isolé `esbuild-authority@0.25.0`. Il n'est
 chargé que par `scripts/build-authority-bundle.mjs` afin de ne pas modifier le hash
@@ -64,6 +70,13 @@ avec Web Storage bloqué. Le contrôle d'audit conserve son refus de toute alert
 haute ou critique, sans exception.
 
 ## Validation requise après correction
+
+Le 7 octobre 2026, le clone propre a détecté
+[GHSA-68fv-2mgg-jv7q](https://github.com/advisories/GHSA-68fv-2mgg-jv7q)
+sur `source-map-js@1.2.1`. Le lockfile résout désormais cette dépendance transitive
+en `1.2.2`, version corrigée compatible avec les plages déclarées. Aucun override
+ni exception d'audit n'est ajouté. Le contrôle `npm run audit:security` et le build
+doivent passer sur cette nouvelle résolution.
 
 - `npm ci`, TypeScript, Biome et le build Vite/Rolldown ;
 - `npm run audit:security` sans exception haute ou critique ;

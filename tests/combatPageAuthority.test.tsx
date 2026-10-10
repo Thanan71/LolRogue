@@ -7,13 +7,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ROUTES } from '@/config/routes';
 import type { AuthorityVersionMetadata } from '@/game/authority/versionRegistry';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
-import { ActionType } from '@/game/battle/types';
+import { ActionType, type BattleActionOption } from '@/game/battle/types';
+import { CCType } from '@/game/effects/types';
 import { NodeType } from '@/game/map/types';
 import { CombatPage } from '@/pages/CombatPage';
 import { useAuthStore } from '@/stores/authStore';
-import { useBattleStore } from '@/stores/battleStore';
+import { type CombatantInfo, useBattleStore } from '@/stores/battleStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
+import { TargetingType } from '@/types/champion';
 import type { FinalCombatantState } from '@/types/run';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
 import rawRegistry from '../config/authority-versions.json';
@@ -39,6 +41,9 @@ const combatMocks = vi.hoisted(() => ({
   autoPlay: null as boolean | null,
   initialMpOverrides: undefined as Record<string, number> | undefined,
   processTurn: vi.fn(),
+  advanceBlockedTurn: vi.fn(),
+  submitAction: vi.fn(),
+  getAvailableActions: vi.fn<() => BattleActionOption[]>(),
 }));
 
 vi.mock('@/audio', () => ({
@@ -66,8 +71,9 @@ vi.mock('@/hooks/useBattleManager', () => ({
     combatMocks.initialMpOverrides = options.initialMpOverrides;
     return {
       processTurn: combatMocks.processTurn,
-      submitAction: vi.fn(),
-      getAvailableActions: vi.fn(() => []),
+      advanceBlockedTurn: combatMocks.advanceBlockedTurn,
+      submitAction: combatMocks.submitAction,
+      getAvailableActions: combatMocks.getAvailableActions,
       getFinalPlayerStates: vi.fn(() => []),
       getManager: vi.fn(() => ({
         getFinalPlayerStates: () => combatMocks.finalPlayerStates,
@@ -76,17 +82,26 @@ vi.mock('@/hooks/useBattleManager', () => ({
   },
 }));
 
-vi.mock('@/hooks/useKeyboardShortcuts', () => ({
-  useKeyboardShortcuts: vi.fn(),
-}));
-
 vi.mock('@/hooks/useRunImagePreload', () => ({
   useRunImagePreload: vi.fn(),
 }));
 
 vi.mock('@/components/CombatUI/AbilityBar', () => ({ AbilityBar: () => null }));
 vi.mock('@/components/CombatUI/BattleSpeedControl', () => ({ BattleSpeedControl: () => null }));
-vi.mock('@/components/CombatUI/CombatantPortrait', () => ({ CombatantPortrait: () => null }));
+vi.mock('@/components/CombatUI/CombatantPortrait', () => ({
+  CombatantPortrait: ({
+    combatant,
+    onSelect,
+  }: {
+    combatant: CombatantInfo;
+    onSelect?: () => void;
+  }) =>
+    onSelect ? (
+      <button type="button" onClick={onSelect}>
+        Cibler {combatant.name}
+      </button>
+    ) : null,
+}));
 vi.mock('@/components/CombatUI/CombatLog', () => ({ CombatLog: () => null }));
 vi.mock('@/components/CombatUI/TurnIndicator', () => ({ TurnIndicator: () => null }));
 
@@ -120,12 +135,16 @@ function attempt(engineVersion = 'run-engine-v1'): RunAuthorityAttempt {
 describe('CombatPage authority finalization', () => {
   beforeEach(() => {
     localStorage.setItem('lolrogue:tutorial:combat:v1', 'done');
+    localStorage.setItem('lolrogue:tutorial:combat:v2', 'done');
     combatMocks.navigate.mockReset();
     combatMocks.onComplete = null;
     combatMocks.finalPlayerStates = [];
     combatMocks.autoPlay = null;
     combatMocks.initialMpOverrides = undefined;
     combatMocks.processTurn.mockReset();
+    combatMocks.advanceBlockedTurn.mockReset();
+    combatMocks.submitAction.mockReset().mockReturnValue(true);
+    combatMocks.getAvailableActions.mockReset().mockReturnValue([]);
     vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(
       'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     );
@@ -372,7 +391,7 @@ describe('CombatPage authority finalization', () => {
     const view = render(<CombatPage />);
 
     expect(
-      view.getByText('Mode manuel — choisissez une action ou appuyez sur Espace.'),
+      view.getByText('Mode manuel — préparez une action et sa cible, puis confirmez.'),
     ).toBeVisible();
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1500);
@@ -388,6 +407,169 @@ describe('CombatPage authority finalization', () => {
       await vi.advanceTimersByTimeAsync(1200);
     });
     expect(combatMocks.processTurn).toHaveBeenCalledTimes(1);
+  });
+
+  it('stages action and target without executing, then submits exactly the confirmed command', async () => {
+    const user = userEvent.setup();
+    useRunStore.setState({ authorityAttempt: null });
+    const player: CombatantInfo = {
+      targetId: 'player:Garen:0',
+      id: 'Garen',
+      name: 'Garen',
+      level: 1,
+      currentHp: 500,
+      maxHp: 620,
+      currentMp: 100,
+      maxMp: 100,
+      iconUrl: '',
+      isDefeated: false,
+      side: 'player',
+      spells: [],
+    };
+    const enemy: CombatantInfo = {
+      ...player,
+      targetId: 'enemy:Warwick:0',
+      id: 'Warwick',
+      name: 'Warwick',
+      side: 'enemy',
+    };
+    useBattleStore.setState({
+      phase: 'turn_active',
+      round: 1,
+      currentTurnChampionId: player.targetId,
+      currentTurnSide: 'player',
+      isPlayerTurn: true,
+      playerTeam: [player],
+      enemyTeam: [enemy],
+    });
+    combatMocks.getAvailableActions.mockReturnValue([
+      {
+        type: ActionType.BasicAttack,
+        cost: 0,
+        cooldownTurns: 0,
+        targeting: TargetingType.Enemy,
+        requiresTarget: true,
+        validTargetIds: [enemy.targetId],
+      },
+    ]);
+    const view = render(<CombatPage />);
+    expect(
+      view.getByRole('button', { name: 'Choisissez une action et sa cible (Espace)' }),
+    ).toBeDisabled();
+    await user.keyboard(' ');
+    expect(combatMocks.processTurn).not.toHaveBeenCalled();
+    await user.click(view.getByRole('button', { name: 'Attaque de base' }));
+    expect(combatMocks.submitAction).not.toHaveBeenCalled();
+    await user.click(view.getByRole('button', { name: 'Cibler Warwick' }));
+    expect(combatMocks.submitAction).not.toHaveBeenCalled();
+    await user.click(
+      view.getByRole('button', { name: 'Confirmer : Attaque de base → Warwick (Espace)' }),
+    );
+    expect(combatMocks.submitAction).toHaveBeenCalledExactlyOnceWith({
+      type: ActionType.BasicAttack,
+      targetId: enemy.targetId,
+    });
+    expect(combatMocks.processTurn).not.toHaveBeenCalled();
+    expect(
+      view.getByRole('button', { name: 'Choisissez une action et sa cible (Espace)' }),
+    ).toBeDisabled();
+  });
+
+  it('stages a self spell with Q and confirms with Enter without requiring an enemy target', async () => {
+    const user = userEvent.setup();
+    useRunStore.setState({ authorityAttempt: null });
+    const player: CombatantInfo = {
+      targetId: 'player:Garen:0',
+      id: 'Garen',
+      name: 'Garen',
+      level: 1,
+      currentHp: 500,
+      maxHp: 620,
+      currentMp: 100,
+      maxMp: 100,
+      iconUrl: '',
+      isDefeated: false,
+      side: 'player',
+      spells: [
+        {
+          slot: 'Q',
+          name: 'Courage',
+          cost: 0,
+          cooldownMax: 3,
+          cooldownCurrent: 0,
+          isReady: true,
+          targeting: TargetingType.Self,
+        },
+      ],
+    };
+    useBattleStore.setState({
+      phase: 'turn_active',
+      round: 1,
+      currentTurnChampionId: player.targetId,
+      currentTurnSide: 'player',
+      isPlayerTurn: true,
+      playerTeam: [player],
+      enemyTeam: [],
+    });
+    combatMocks.getAvailableActions.mockReturnValue([
+      {
+        type: ActionType.SpellQ,
+        cost: 0,
+        cooldownTurns: 3,
+        targeting: TargetingType.Self,
+        requiresTarget: false,
+        validTargetIds: [player.targetId],
+      },
+    ]);
+    const view = render(<CombatPage />);
+    await user.keyboard('q');
+    expect(combatMocks.submitAction).not.toHaveBeenCalled();
+    expect(
+      view.getByRole('button', { name: 'Confirmer : Courage → Garen (Espace)' }),
+    ).toBeEnabled();
+    await user.keyboard('{Enter}');
+    expect(combatMocks.submitAction).toHaveBeenCalledExactlyOnceWith({
+      type: ActionType.SpellQ,
+      targetId: undefined,
+    });
+    expect(combatMocks.processTurn).not.toHaveBeenCalled();
+  });
+
+  it('advances an incapacitated turn through the blocked-turn helper without selecting an AI command', async () => {
+    vi.useFakeTimers();
+    useRunStore.setState({ authorityAttempt: null });
+    const player: CombatantInfo = {
+      targetId: 'player:Garen:0',
+      id: 'Garen',
+      name: 'Garen',
+      level: 1,
+      currentHp: 500,
+      maxHp: 620,
+      currentMp: 0,
+      maxMp: 0,
+      iconUrl: '',
+      isDefeated: false,
+      side: 'player',
+      spells: [],
+      statuses: [{ id: 'stun', kind: CCType.Stun, turnsRemaining: 1 }],
+    };
+    useBattleStore.setState({
+      phase: 'turn_active',
+      round: 1,
+      currentTurnChampionId: player.targetId,
+      currentTurnSide: 'player',
+      isPlayerTurn: true,
+      playerTeam: [player],
+      enemyTeam: [],
+    });
+    const view = render(<CombatPage />);
+    expect(view.getByText('Tour sans action dans 1,2 s')).toBeVisible();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1200);
+    });
+    expect(combatMocks.advanceBlockedTurn).toHaveBeenCalledTimes(1);
+    expect(combatMocks.processTurn).not.toHaveBeenCalled();
+    expect(combatMocks.submitAction).not.toHaveBeenCalled();
   });
 
   it('keeps pre-combat HP persisted until the delayed completion callback runs', () => {

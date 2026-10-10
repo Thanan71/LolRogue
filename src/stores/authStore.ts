@@ -1,9 +1,12 @@
 import type { Session, Subscription, User } from '@supabase/supabase-js';
 import { create } from 'zustand';
+import { initialPasswordRecovery } from '@/auth/passwordRecovery';
+import { authRecoveryCopy } from '@/i18n/authRecoveryContent';
 import { fr } from '@/i18n/fr';
 import { RepositoryContainerFactory } from '@/services/container';
 import type { IRepositoryContainer } from '@/services/interfaces';
 import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
+import { useChampionEconomyStore } from '@/stores/championEconomyStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import type { Player } from '@/types/models';
 import { readGuestMode, setStoredGuestMode } from '@/utils/ancillaryStorage';
@@ -35,6 +38,8 @@ export interface AuthState {
   isAdmin: boolean;
   error: string | null;
   successMessage: string | null;
+  isPasswordRecovery: boolean;
+  isRecoveryLoading: boolean;
 }
 
 export interface AuthActions {
@@ -54,6 +59,9 @@ export interface AuthActions {
   checkAdminStatus: () => Promise<boolean>;
   enterGuestMode: () => Promise<AuthActionResult>;
   exitGuestMode: () => Promise<AuthActionResult>;
+  requestPasswordReset: (email: string) => Promise<AuthActionResult>;
+  updateRecoveredPassword: (password: string) => Promise<AuthActionResult>;
+  cancelPasswordRecovery: () => void;
   subscribeToAuthChanges: () => () => void;
 }
 
@@ -61,6 +69,7 @@ export type AuthStore = AuthState & AuthActions;
 
 let identityGeneration = 0;
 let authSubscription: Subscription | null = null;
+let recoveryCallbackPending = initialPasswordRecovery.requested;
 
 function nextGeneration(): number {
   identityGeneration += 1;
@@ -110,18 +119,34 @@ export function localizeAuthError(error: unknown): string {
   return fr.auth.genericError;
 }
 
-async function resetProgressionCaches(target: 'guest' | 'signed-out'): Promise<void> {
+async function resetProgressionCaches(
+  target: 'guest' | 'signed-out',
+  generation: number,
+): Promise<void> {
+  if (!isCurrent(generation)) return;
+  useChampionEconomyStore.getState().reset();
   if (target === 'guest') useMasteryStore.getState().activateGuestScope();
   else useMasteryStore.getState().clearSession();
   const { useEnhancementStore } = await import('@/stores/enhancementStore');
+  if (!isCurrent(generation)) return;
   useEnhancementStore.getState().reset();
 }
 
-async function hydrateAuthenticatedProgression(userId: string, player: Player): Promise<void> {
+async function hydrateAuthenticatedProgression(
+  userId: string,
+  player: Player,
+  generation: number,
+): Promise<void> {
+  if (!isCurrent(generation)) return;
+  useChampionEconomyStore.getState().reset(userId);
+  await useChampionEconomyStore.getState().initialize(userId);
+  if (!isCurrent(generation)) return;
   useMasteryStore.getState().activateAuthenticatedScope(userId);
   const { useEnhancementStore } = await import('@/stores/enhancementStore');
+  if (!isCurrent(generation)) return;
   useEnhancementStore.getState().reset();
   await useEnhancementStore.getState().initialize(userId, player.total_candies);
+  if (!isCurrent(generation)) return;
   if (!useMasteryStore.getState().isHydrated) {
     throw new Error(fr.auth.masteryUnavailable);
   }
@@ -164,14 +189,63 @@ const INITIAL_STATE: AuthState = {
   isAdmin: false,
   error: null,
   successMessage: null,
+  isPasswordRecovery: initialPasswordRecovery.requested,
+  isRecoveryLoading: false,
 };
+
+function rejectAccountChange(generation: number): AuthActionResult {
+  const error = fr.auth.activeRunAccountChange;
+  if (isCurrent(generation)) {
+    const state = useAuthStore.getState();
+    useAuthStore.setState({
+      authStatus: state.isGuest ? 'guest' : state.isAuthenticated ? 'ready' : 'signedOut',
+      isLoading: false,
+      isInitialized: true,
+      error,
+    });
+  }
+  return { success: false, error };
+}
+
+async function establishRecoverySession(session: Session, generation: number): Promise<void> {
+  if (await hasBlockingRun(session.user.id)) {
+    rejectAccountChange(generation);
+    return;
+  }
+  if (!isCurrent(generation)) return;
+  setStoredGuestMode(false);
+  useAuthStore.setState({
+    session,
+    user: session.user,
+    player: null,
+    authStatus: 'signedOut',
+    isPasswordRecovery: true,
+    isLoading: false,
+    isInitialized: true,
+    isAuthenticated: false,
+    isGuest: false,
+    isAdmin: false,
+    error: null,
+  });
+}
+
+function recoveryError(error: unknown, fallback: string): string {
+  const code =
+    typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : '';
+  const message = getErrorMessage(error);
+  if (
+    /otp_expired|session_not_found|refresh_token_not_found|bad_jwt/i.test(code) ||
+    /expired|invalid.*(?:token|link)|session.*missing|auth session missing/i.test(message)
+  )
+    return authRecoveryCopy.expired;
+  if (/password|rate limit|too many requests|fetch|network|connection/i.test(message))
+    return localizeAuthError(error);
+  return fallback;
+}
 
 async function establishSession(session: Session, generation: number): Promise<AuthActionResult> {
   if (await hasBlockingRun(session.user.id)) {
-    return {
-      success: false,
-      error: fr.auth.activeRunAccountChange,
-    };
+    return rejectAccountChange(generation);
   }
   if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
   useAuthStore.setState({
@@ -184,13 +258,15 @@ async function establishSession(session: Session, generation: number): Promise<A
     isAuthenticated: false,
     isGuest: false,
     isAdmin: false,
+    isPasswordRecovery: false,
     error: null,
   });
   try {
     const player = await waitForPlayer(session.user.id);
     if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     const refreshedPlayer = await withLastLogin(player);
-    await hydrateAuthenticatedProgression(session.user.id, refreshedPlayer);
+    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+    await hydrateAuthenticatedProgression(session.user.id, refreshedPlayer, generation);
     if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     setStoredGuestMode(false);
     useAuthStore.setState({
@@ -208,7 +284,8 @@ async function establishSession(session: Session, generation: number): Promise<A
     return { success: true };
   } catch (error) {
     if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
-    await resetProgressionCaches('signed-out');
+    await resetProgressionCaches('signed-out', generation);
+    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     const message = localizeAuthError(error);
     useAuthStore.setState({
       session,
@@ -227,7 +304,7 @@ async function establishSession(session: Session, generation: number): Promise<A
 }
 
 async function establishSignedOut(generation: number, preserveGuest: boolean): Promise<void> {
-  await resetProgressionCaches(preserveGuest ? 'guest' : 'signed-out');
+  await resetProgressionCaches(preserveGuest ? 'guest' : 'signed-out', generation);
   if (!isCurrent(generation)) return;
   useAuthStore.setState({
     session: null,
@@ -239,6 +316,8 @@ async function establishSignedOut(generation: number, preserveGuest: boolean): P
     isAuthenticated: false,
     isGuest: preserveGuest,
     isAdmin: false,
+    isPasswordRecovery: false,
+    isRecoveryLoading: false,
   });
 }
 
@@ -246,6 +325,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   ...INITIAL_STATE,
 
   login: async (email, password) => {
+    // Refuse before contacting the provider: the guest run must be explicitly
+    // finished by the user, and no remote session should replace its identity.
+    if (await hasBlockingRun(get().user?.email === email ? (get().user?.id ?? null) : null)) {
+      return rejectAccountChange(identityGeneration);
+    }
     if (!isSupabaseConfigured) {
       const error = fr.auth.unavailable;
       set({ error, isLoading: false, isInitialized: true, authStatus: 'signedOut' });
@@ -268,6 +352,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   signUp: async (email, password, username, displayName) => {
+    if (await hasBlockingRun(null)) return rejectAccountChange(identityGeneration);
     if (!isSupabaseConfigured) {
       const error = fr.auth.unavailable;
       set({ error, isLoading: false, isInitialized: true, authStatus: 'signedOut' });
@@ -304,6 +389,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       if (isSupabaseConfigured) await container.auth.signOut();
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
       setStoredGuestMode(false);
       await establishSignedOut(generation, false);
       return { success: true };
@@ -323,7 +409,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
     const generation = nextGeneration();
     set({ isLoading: true, isInitialized: false, error: null });
-    await resetProgressionCaches('guest');
+    await resetProgressionCaches('guest', generation);
     if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
     setStoredGuestMode(true);
     set({
@@ -353,6 +439,70 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     return { success: true };
   },
 
+  requestPasswordReset: async (email) => {
+    if (get().isRecoveryLoading) return { success: false };
+    if (!isSupabaseConfigured) {
+      set({ error: fr.auth.unavailable });
+      return { success: false, error: fr.auth.unavailable };
+    }
+    const generation = identityGeneration;
+    set({ isRecoveryLoading: true, error: null, successMessage: null });
+    try {
+      const result = await container.auth.requestPasswordReset(email.trim());
+      if (result.error) throw result.error;
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+      set({ successMessage: authRecoveryCopy.sent });
+      return { success: true };
+    } catch (error) {
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+      const message = recoveryError(error, authRecoveryCopy.requestFailed);
+      set({ error: message });
+      return { success: false, error: message };
+    } finally {
+      if (isCurrent(generation)) set({ isRecoveryLoading: false });
+    }
+  },
+
+  cancelPasswordRecovery: () => {
+    recoveryCallbackPending = false;
+    set({ isPasswordRecovery: false, error: null, successMessage: null });
+  },
+
+  updateRecoveredPassword: async (password) => {
+    const session = get().session;
+    if (!get().isPasswordRecovery || !session) {
+      set({ error: authRecoveryCopy.expired });
+      return { success: false, error: authRecoveryCopy.expired };
+    }
+    if (get().isRecoveryLoading) return { success: false };
+    if (password.length < 6) {
+      set({ error: fr.auth.weakPassword });
+      return { success: false, error: fr.auth.weakPassword };
+    }
+    if (await hasBlockingRun(session.user.id)) return rejectAccountChange(identityGeneration);
+    const generation = identityGeneration;
+    set({ isRecoveryLoading: true, error: null, successMessage: null });
+    try {
+      const result = await container.auth.updatePassword({ password });
+      if (result.error) throw result.error;
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+      if (!result.user) throw new Error('Auth session missing');
+      set({ isPasswordRecovery: false });
+      await establishSession({ ...session, user: result.user }, generation);
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+      set({ successMessage: authRecoveryCopy.updated });
+      return { success: true };
+    } catch (error) {
+      if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+      const message = recoveryError(error, authRecoveryCopy.updateFailed);
+      set({ error: message });
+      if (message === authRecoveryCopy.expired) set({ session: null, user: null });
+      return { success: false, error: message };
+    } finally {
+      if (isCurrent(generation)) set({ isRecoveryLoading: false });
+    }
+  },
+
   refreshPlayer: async () => {
     const { session } = get();
     if (!session) return { success: false, error: fr.auth.noActiveSession };
@@ -368,21 +518,35 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   checkSession: async () => {
     const generation = nextGeneration();
+    const recovering = get().isPasswordRecovery || recoveryCallbackPending;
     set({ authStatus: 'bootstrapping', isLoading: true, isInitialized: false });
     if (!isSupabaseConfigured) {
       await establishSignedOut(generation, get().isGuest);
+      if (recovering && isCurrent(generation))
+        set({ isPasswordRecovery: true, error: fr.auth.unavailable });
       return;
     }
     try {
       const result = await container.auth.getSession();
       if (result.error) throw result.error;
-      if (result.session) await establishSession(result.session, generation);
+      if (get().isPasswordRecovery || recoveryCallbackPending) {
+        recoveryCallbackPending = false;
+        if (result.session && !initialPasswordRecovery.failed) {
+          await establishRecoverySession(result.session, generation);
+        } else {
+          await establishSignedOut(generation, get().isGuest);
+          if (isCurrent(generation))
+            set({ isPasswordRecovery: true, error: authRecoveryCopy.expired });
+        }
+      } else if (result.session) await establishSession(result.session, generation);
       else await establishSignedOut(generation, get().isGuest);
     } catch (error) {
       if (!isCurrent(generation)) return;
-      const message = localizeAuthError(error);
+      const message = recovering
+        ? recoveryError(error, authRecoveryCopy.expired)
+        : localizeAuthError(error);
       await establishSignedOut(generation, get().isGuest);
-      set({ error: message });
+      set({ error: message, isPasswordRecovery: recovering });
     }
   },
 
@@ -398,12 +562,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   subscribeToAuthChanges: () => {
     authSubscription?.unsubscribe();
     const result = container.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' && session) {
+        void establishRecoverySession(session, nextGeneration());
+        return;
+      }
       if (event === 'TOKEN_REFRESHED' && session && session.user.id === get().user?.id) {
         set({ session, user: session.user });
         return;
       }
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
         if (!session) return;
+        if (get().isPasswordRecovery) {
+          set({ session, user: session.user });
+          return;
+        }
         void establishSession(session, nextGeneration());
         return;
       }

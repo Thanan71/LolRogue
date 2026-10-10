@@ -79,6 +79,10 @@ export const COMBAT_VISUAL_TITLE_IDS = [
   'Soraka:spell_w',
   'Soraka:spell_e',
   'Soraka:spell_r',
+  'Veigar:spell_q',
+  'Veigar:spell_w',
+  'Veigar:spell_e',
+  'Veigar:spell_r',
   'Warwick:spell_q',
   'Warwick:spell_w',
   'Warwick:spell_e',
@@ -206,6 +210,10 @@ const visualTitlesFr = {
   'Soraka:spell_w': 'Grâce astrale',
   'Soraka:spell_e': 'Zone de silence',
   'Soraka:spell_r': 'Souhait cosmique',
+  'Veigar:spell_q': 'Projectile maléfique',
+  'Veigar:spell_w': 'Chute de matière noire',
+  'Veigar:spell_e': 'Entrave cosmique',
+  'Veigar:spell_r': 'Explosion primordiale',
   'Warwick:spell_q': 'Morsure',
   'Warwick:spell_w': 'Piste sanglante',
   'Warwick:spell_e': 'Hurlement de peur',
@@ -254,6 +262,10 @@ const visualTitlesEn = {
   'Soraka:spell_w': 'Astral Grace',
   'Soraka:spell_e': 'Zone of Silence',
   'Soraka:spell_r': 'Cosmic Wish',
+  'Veigar:spell_q': 'Baleful Bolt',
+  'Veigar:spell_w': 'Dark Matter Fall',
+  'Veigar:spell_e': 'Cosmic Binding',
+  'Veigar:spell_r': 'Primordial Burst',
   'Warwick:spell_q': 'Bite',
   'Warwick:spell_w': 'Blood Trail',
   'Warwick:spell_e': 'Howl of Fear',
@@ -390,19 +402,26 @@ const frFR = {
     command: {
       targetRequired: 'Cible requise',
       targetReady: 'Cible prête',
+      commandReady: 'Commande prête',
+      confirmSelection: 'Choisissez une action et sa cible',
+      confirm: (action: string, target?: string) =>
+        `Confirmer : ${action}${target ? ` → ${target}` : ''}`,
       selectedTarget: (name: string) =>
         `${name} est sélectionné. Choisissez maintenant une action.`,
       combatFinished: 'Combat terminé',
       combatFinishedDetail: 'Consultez le journal ou poursuivez depuis le résultat du combat.',
       serverResolution: 'Résolution serveur',
       automaticAction: 'Action automatique',
+      forcedTurn: 'Tour sans action',
+      forcedTurnDetail:
+        'Ce champion ne peut effectuer aucune action. Le tour avance sans commande.',
       enemyTurn: 'Tour adverse',
       automaticPlayerDetail: 'Votre prochaine action est en cours de résolution automatique.',
       automaticEnemyDetail: 'L’action ennemie est en cours de résolution.',
       autoplayActive: 'Jeu automatique actif',
       autoplayDetail: 'Vos actions sont choisies automatiquement pour ce tour.',
       yourTurn: 'À vous de jouer',
-      yourTurnDetail: 'Choisissez une action, puis une cible lorsqu’elle est demandée.',
+      yourTurnDetail: 'Choisissez une action, sa cible, puis confirmez la commande.',
       preparation: 'Préparation',
       preparationDetail: 'Les commandes seront disponibles au début de votre tour.',
       enemyTurnDetail: 'Les commandes sont verrouillées pendant l’action ennemie.',
@@ -412,7 +431,7 @@ const frFR = {
     status: {
       enemyAction: 'Action ennemie',
       countdown: (label: string, seconds: string) => `${label} dans ${seconds} s`,
-      manual: 'Mode manuel — choisissez une action ou appuyez sur Espace.',
+      manual: 'Mode manuel — préparez une action et sa cible, puis confirmez.',
       waitingForEnemy: "En attente du tour de l'ennemi…",
     },
     tutorial: {
@@ -425,11 +444,11 @@ const frFR = {
         },
         {
           title: 'Action et cible',
-          body: 'Choisis Attaque, Q, W, E ou R, puis une cible autorisée. Le bouton Exécuter le tour confirme la commande.',
+          body: 'Choisis Attaque, Q, W, E ou R, puis une cible autorisée. Rien ne se déclenche avant le bouton Confirmer, qui affiche la commande complète.',
         },
         {
           title: 'Coût et recharge',
-          body: 'Chaque sort affiche son coût en PM et sa recharge. Un sort indisponible est désactivé et son état est annoncé.',
+          body: 'Chaque sort affiche son coût en PM et sa recharge. Même indisponible, il reste consultable au clavier ou avec son bouton de détails.',
         },
         {
           title: 'Statuts et journal',
@@ -452,9 +471,31 @@ const frFR = {
     spaceShortcut: '[Espace]',
     shortcuts: {
       spells: 'Q / W / E / R : choisir un sort disponible.',
-      execute: 'Espace : exécuter le tour manuel.',
+      execute: 'Espace / Entrée : confirmer la commande préparée.',
       leave: 'Échap : retourner à la carte lorsque le combat est terminé.',
       focus: 'Tab puis Entrée ou Espace : activer le contrôle ayant le focus.',
+    },
+  },
+  statuses: {
+    forChampion: (name: string) => `États de ${name}`,
+    turns: (count: number) =>
+      `${formatCombatNumber('fr-FR', count)} ${count === 1 ? 'tour' : 'tours'}`,
+    defeated: 'Hors combat',
+    lowHealth: 'PV faibles',
+    labels: {
+      stun: 'Étourdi',
+      snare: 'Immobilisé',
+      silence: 'Silence',
+      slow: 'Ralenti',
+      knockup: 'Projeté',
+      fear: 'Peur',
+      charm: 'Charmé',
+      shield: 'Bouclier',
+      buff: 'Renforcé',
+      debuff: 'Affaibli',
+      dot: 'Dégâts persistants',
+      hot: 'Soins persistants',
+      revive: 'Protection de résurrection',
     },
   },
   portrait: {
@@ -485,6 +526,9 @@ const frFR = {
     phase: (phase: CombatPhaseId) => `Phase : ${phaseLabelsFr[phase]}`,
   },
   tooltip: {
+    inspect: (name: string) => `Détails du sort ${name}`,
+    close: 'Fermer les détails du sort',
+    unavailable: 'Indisponible pour cette action',
     mana: 'PM :',
     estimatedEffects: 'Effets estimés',
     estimateNote: 'Les dégâts sont estimés avant l’armure et la résistance de la cible.',
@@ -496,7 +540,7 @@ const frFR = {
       }`,
     ready: '✅ Prêt à lancer',
     press: 'Appuyez sur',
-    toCast: 'pour lancer',
+    toCast: 'pour choisir; confirmez ensuite la commande',
   },
   preview: {
     damage: {
@@ -559,6 +603,9 @@ const frFR = {
       `${source} → ${target}: ${control} (${formatCombatNumber('fr-FR', duration)} ${duration === 1 ? 'tour' : 'tours'})`,
     turnSkipped: (champion: string, controls: string) =>
       `${champion} perd son action (${controls})`,
+    runProgress: 'Progression du run',
+    runCounterGain: (champion: string, counter: string, amount: number, value: number) =>
+      `${champion} : ${counter} +${formatCombatNumber('fr-FR', amount)} (total ${formatCombatNumber('fr-FR', value)})`,
     damage: (source: string, target: string, amount: number, isCrit: boolean) =>
       `${source} → ${target}: ${formatCombatNumber('fr-FR', amount)} dégâts${isCrit ? ' CRITIQUE !' : ''}`,
     heal: (source: string, target: string, amount: number) =>
@@ -600,18 +647,24 @@ const enUS = {
     command: {
       targetRequired: 'Target required',
       targetReady: 'Target ready',
+      commandReady: 'Command ready',
+      confirmSelection: 'Choose an action and its target',
+      confirm: (action: string, target?: string) =>
+        `Confirm: ${action}${target ? ` → ${target}` : ''}`,
       selectedTarget: (name: string) => `${name} is selected. Now choose an action.`,
       combatFinished: 'Combat over',
       combatFinishedDetail: 'Review the log or continue from the combat result.',
       serverResolution: 'Server resolution',
       automaticAction: 'Automatic action',
+      forcedTurn: 'No available action',
+      forcedTurnDetail: 'This champion has no legal action. The turn advances without a command.',
       enemyTurn: 'Enemy turn',
       automaticPlayerDetail: 'Your next action is being resolved automatically.',
       automaticEnemyDetail: 'The enemy action is being resolved.',
       autoplayActive: 'Autoplay active',
       autoplayDetail: 'Your actions are selected automatically for this turn.',
       yourTurn: 'Your turn',
-      yourTurnDetail: 'Choose an action, then a target when prompted.',
+      yourTurnDetail: 'Choose an action, its target, then confirm the command.',
       preparation: 'Preparing',
       preparationDetail: 'Commands will become available at the start of your turn.',
       enemyTurnDetail: 'Commands are locked during the enemy action.',
@@ -621,7 +674,7 @@ const enUS = {
     status: {
       enemyAction: 'Enemy action',
       countdown: (label: string, seconds: string) => `${label} in ${seconds}s`,
-      manual: 'Manual mode — choose an action or press Space.',
+      manual: 'Manual mode — prepare an action and its target, then confirm.',
       waitingForEnemy: "Waiting for the enemy's turn…",
     },
     tutorial: {
@@ -634,11 +687,11 @@ const enUS = {
         },
         {
           title: 'Action and target',
-          body: 'Choose Attack, Q, W, E, or R, then an allowed target. The Execute turn button confirms the command.',
+          body: 'Choose Attack, Q, W, E, or R, then an allowed target. Nothing executes until you press Confirm, which shows the complete command.',
         },
         {
           title: 'Cost and cooldown',
-          body: 'Each spell shows its MP cost and cooldown. An unavailable spell is disabled and its status is announced.',
+          body: 'Each spell shows its MP cost and cooldown. Unavailable spells can still be inspected by keyboard or with their details button.',
         },
         {
           title: 'Statuses and log',
@@ -661,9 +714,31 @@ const enUS = {
     spaceShortcut: '[Space]',
     shortcuts: {
       spells: 'Q / W / E / R: choose an available spell.',
-      execute: 'Space: execute the manual turn.',
+      execute: 'Space / Enter: confirm the prepared command.',
       leave: 'Escape: return to the map once combat is over.',
       focus: 'Tab, then Enter or Space: activate the focused control.',
+    },
+  },
+  statuses: {
+    forChampion: (name: string) => `Statuses for ${name}`,
+    turns: (count: number) =>
+      `${formatCombatNumber('en-US', count)} ${count === 1 ? 'turn' : 'turns'}`,
+    defeated: 'Defeated',
+    lowHealth: 'Low HP',
+    labels: {
+      stun: 'Stunned',
+      snare: 'Rooted',
+      silence: 'Silenced',
+      slow: 'Slowed',
+      knockup: 'Airborne',
+      fear: 'Feared',
+      charm: 'Charmed',
+      shield: 'Shield',
+      buff: 'Buffed',
+      debuff: 'Debuffed',
+      dot: 'Damage over time',
+      hot: 'Healing over time',
+      revive: 'Revive protection',
     },
   },
   portrait: {
@@ -693,6 +768,9 @@ const enUS = {
     phase: (phase: CombatPhaseId) => `Phase: ${phaseLabelsEn[phase]}`,
   },
   tooltip: {
+    inspect: (name: string) => `Details for ${name}`,
+    close: 'Close spell details',
+    unavailable: 'Unavailable for this action',
     mana: 'MP:',
     estimatedEffects: 'Estimated effects',
     estimateNote: 'Damage is estimated before the target’s armor and magic resistance.',
@@ -704,7 +782,7 @@ const enUS = {
       } remaining`,
     ready: '✅ Ready to cast',
     press: 'Press',
-    toCast: 'to cast',
+    toCast: 'to select; then confirm the command',
   },
   preview: {
     damage: {
@@ -767,6 +845,9 @@ const enUS = {
       `${source} → ${target}: ${control} (${formatCombatNumber('en-US', duration)} ${duration === 1 ? 'turn' : 'turns'})`,
     turnSkipped: (champion: string, controls: string) =>
       `${champion} loses their action (${controls})`,
+    runProgress: 'Run progression',
+    runCounterGain: (champion: string, counter: string, amount: number, value: number) =>
+      `${champion}: ${counter} +${formatCombatNumber('en-US', amount)} (total ${formatCombatNumber('en-US', value)})`,
     damage: (source: string, target: string, amount: number, isCrit: boolean) =>
       `${source} → ${target}: ${formatCombatNumber('en-US', amount)} damage${isCrit ? ' CRITICAL!' : ''}`,
     heal: (source: string, target: string, amount: number) =>

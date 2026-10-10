@@ -1,12 +1,33 @@
 # Progression et personnalisation
 
+## Maîtrise et propriété des champions
+
+Les Candies restent propres au champion et déterminent sa maîtrise. Les Éclats
+sont un solde global du compte et achètent l'accès permanent au roster ; l'or
+reste dans la run. Aucune conversion entre ces trois monnaies n'existe. Un achat
+ne retire aucune Candy et ne modifie aucun niveau, statistique ou unlock de maîtrise.
+
+Lorsque l'économie v1 est activée, Garen, Annie et Ashe restent gratuits ; cinq
+autres champions sont gratuits chaque semaine, du lundi 00:00 UTC au suivant.
+Un champion acheté reste disponible après sa rotation. Un champion essayé puis
+verrouillé conserve sa maîtrise, retrouvée intacte après achat. Le prix canonique
+v1 est 400 Éclats. Les comptes antérieurs à la première activation conservent leur
+ancien roster par des grants permanents. Les invités conservent leur maîtrise
+locale, sans wallet ni achats durables.
+
+Seules les runs vérifiées rapportent des Éclats : 25 après une vague validée,
+10 par biome terminé, 50 pour une victoire, et 50 par champion de rotation dont
+la première victoire de la période n'a pas encore été réclamée. Le snapshot du
+démarrage détermine cette période. Voir `champion-economy.md` pour l'autorité,
+l'activation et le kill-switch ; les seuils et calculs de maîtrise sont inchangés.
+
 ## Slots de starter
 
-Les slots supplémentaires font partie de l'équilibrage : commencer avec deux ou
-trois champions augmente directement survie, actions disponibles et synergies. Le
-contrat reste donc serveur : un slot par défaut, deuxième au niveau de maîtrise 1,
-troisième au niveau 3, maximum trois. Le serveur recalcule la limite au démarrage et
-fige le snapshot pour la run et le Daily ; le client ne peut pas l'augmenter.
+Le contrat actuel fixe deux starters en Standard et un en Daily. Le serveur
+vérifie cette limite au démarrage puis fige l'équipe. La personnalisation de
+maîtrise peut élargir l'offre ou les rerolls ; elle n'ajoute pas de membre initial.
+Changer le nombre de starters modifierait survie, actions et synergies et exige
+donc un nouveau contrat d'équilibrage autoritaire.
 
 ## Cosmétiques
 

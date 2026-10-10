@@ -59,6 +59,7 @@ describe('locale-dependent presentation formats', () => {
 
   it('keeps locale-sensitive values away from fixed and raw source formatting', () => {
     const recruitSource = readFileSync('src/pages/RecruitPage.tsx', 'utf8');
+    const recruitStatsSource = readFileSync('src/components/RecruitStatList.tsx', 'utf8');
     const combatSource = readFileSync('src/pages/CombatPage.tsx', 'utf8');
     const combatStageSource = readFileSync('src/components/CombatUI/CombatStage.tsx', 'utf8');
     const battleSpeedSource = readFileSync(
@@ -82,9 +83,11 @@ describe('locale-dependent presentation formats', () => {
     expect(recruitSource).toContain('const formattedRecruitCost = formatNumber(recruitCost);');
     expect(recruitSource).not.toContain('${encounter?.cost ?? 0}');
     for (const stat of ['hp', 'attackDamage', 'armor', 'magicResist']) {
-      expect(recruitSource).toContain(`formatNumber(Math.round(champ.stats.${stat}))`);
+      expect(recruitStatsSource).toContain(`'${stat}'`);
     }
-    expect(recruitSource).toContain("style: 'percent'");
+    expect(recruitStatsSource).toContain("style: 'percent'");
+    expect(recruitStatsSource).toContain('formatNumber(stats[stat]');
+    expect(recruitSource).toContain('<RecruitStatList');
     expect(combatSource).not.toContain('(autoActionRemainingMs / 1000).toFixed');
     expect(combatSource).toContain('{formatNumber(round)}');
     expect(combatStageSource).toContain('{formatNumber(round)}');
@@ -114,7 +117,9 @@ describe('locale-dependent presentation formats', () => {
       restSource,
       eventSource,
     ]) {
-      expect(source).toContain("import { formatNumber } from '@/i18n/format';");
+      expect(source).toMatch(
+        /import\s+\{[^}]*\bformatNumber\b[^}]*\}\s+from\s+['"]@\/i18n\/format['"]/,
+      );
     }
     expect(runMapSource).toContain('{formatNumber(gold)}');
     expect(runMapSource).not.toContain('{gold} {fr.common.gold}');

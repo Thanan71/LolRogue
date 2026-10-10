@@ -1,5 +1,5 @@
 /**
- * Champion data exports — Phase 2: 10 simple champions.
+ * Maintained, combat-ready champion kits.
  */
 
 export { annie } from './Annie';
@@ -11,6 +11,7 @@ export { leona } from './Leona';
 export { lux } from './Lux';
 export { malphite } from './Malphite';
 export { soraka } from './Soraka';
+export { veigar } from './Veigar';
 export { warwick } from './Warwick';
 
 import type { Champion } from '@/types/champion';
@@ -23,9 +24,10 @@ import { leona } from './Leona';
 import { lux } from './Lux';
 import { malphite } from './Malphite';
 import { soraka } from './Soraka';
+import { veigar } from './Veigar';
 import { warwick } from './Warwick';
 
-/** All 10 implemented champions. */
+/** Maintained kits override the presentation-only Data Dragon catalogue. */
 export const implementedChampions: Champion[] = [
   garen,
   annie,
@@ -37,4 +39,5 @@ export const implementedChampions: Champion[] = [
   leona,
   malphite,
   warwick,
+  veigar,
 ];

@@ -7,6 +7,7 @@
 import { createBuff } from '@/game/effects/BuffDebuffEffect';
 import { CCEffect } from '@/game/effects/CCEffect';
 import { DamageEffect } from '@/game/effects/DamageEffect';
+import { DelayedDamageEffect } from '@/game/effects/DelayedDamageEffect';
 import { EffectManager } from '@/game/effects/EffectManager';
 import { normalizePercent, normalizeTurnDuration } from '@/game/effects/effectUnits';
 import { HealEffect } from '@/game/effects/HealEffect';
@@ -18,7 +19,7 @@ import type {
   CombatRuleInstantEffect,
   CombatRuleResolution,
 } from '@/game/rules/types';
-import { type SpellEffect, TargetingType } from '@/types/champion';
+import { type RunProgressionTargetTier, type SpellEffect, TargetingType } from '@/types/champion';
 import {
   calculateADDamage,
   calculateAPDamage,
@@ -26,6 +27,7 @@ import {
   critDamage,
 } from '@/utils/damage';
 import type { ChampionInstance } from '../ChampionInstance';
+import { resolveRunProgressionGains } from '../runProgression';
 import { isBattleActionUnlocked } from './actionTimingRules';
 import type { CombatActionTrace } from './actionTrace';
 import {
@@ -36,6 +38,7 @@ import {
 } from './BattleActionValidator';
 import { type BattleEventCallback, BattleEventJournal } from './BattleEventJournal';
 import { BattleSpellEffectResolver } from './BattleSpellEffectResolver';
+import { getCombatantTargetId } from './combatantIdentity';
 import { isPassiveCombatReady } from './combatContentSupport';
 import { selectContextualBattleAction } from './contextualBattleAi';
 import { canLoseActionToHardCrowdControl, recentHardCrowdControlLosses } from './crowdControlRules';
@@ -88,6 +91,8 @@ export interface BattleManagerOptions {
   random?: () => number;
   /** Combat-local rule bus for runes, augments, items and enhancements. */
   rules?: CombatRuleRuntime;
+  /** Canonical encounter tiers indexed by stable runtime combatant ID, never display name. */
+  combatantTiers?: Readonly<Record<string, RunProgressionTargetTier>>;
 }
 
 export class BattleManager {
@@ -106,6 +111,9 @@ export class BattleManager {
   private readonly _random: () => number;
   private readonly _rules: CombatRuleRuntime | null;
   private _activeActionType: ActionType | null = null;
+  private readonly _combatantTiers: Readonly<Record<string, RunProgressionTargetTier>>;
+  private _runProgressKillTargets: Set<string> | null = null;
+  private _runProgressCombatEnded = false;
   private _actionCallback: ActionCallback | null = null;
   private _playerActionTrace: CombatActionTrace = [];
   private readonly _lastDamagedRound = new Map<string, number>();
@@ -134,6 +142,13 @@ export class BattleManager {
     this._initialMpOverrides = options.initialMpOverrides;
     this._random = options.random ?? Math.random;
     this._rules = options.rules ?? null;
+    this._combatantTiers = options.combatantTiers ? { ...options.combatantTiers } : {};
+    if (
+      [..._playerTeam.champions, ..._enemyTeam.champions].some(
+        (champion) => champion.passive.runProgression?.length,
+      )
+    )
+      this._runProgressKillTargets = new Set();
     this._initCombatants();
   }
 
@@ -190,6 +205,7 @@ export class BattleManager {
     maxHp: number;
     currentMp: number;
     maxMp: number;
+    runProgress?: Record<string, number>;
   }[] {
     return this._playerCombatants.map((c) => ({
       championId: c.champion.id,
@@ -197,6 +213,9 @@ export class BattleManager {
       maxHp: c.maxHp,
       currentMp: c.currentMp,
       maxMp: c.maxMp,
+      ...(Object.keys(c.champion.getRunProgressSnapshot()).length > 0
+        ? { runProgress: c.champion.getRunProgressSnapshot() }
+        : {}),
     }));
   }
 
@@ -455,6 +474,8 @@ export class BattleManager {
   }
 
   private _initCombatants(): void {
+    this._runProgressKillTargets?.clear();
+    this._runProgressCombatEnded = false;
     this._lastDamagedRound.clear();
     this._hardCrowdControlLossRounds.clear();
     this._passiveCounters.clear();
@@ -473,7 +494,7 @@ export class BattleManager {
             ? Math.max(0, overriddenHp)
             : Math.min(overriddenHp, stats.hp)
           : stats.hp;
-      const targetId = getUniqueTargetId(playerChampions, index);
+      const targetId = getCombatantTargetId(playerChampions, index);
       const overriddenMp = mpOverrides?.[c.id];
       const initMp =
         overriddenMp === undefined || !Number.isFinite(overriddenMp)
@@ -500,7 +521,7 @@ export class BattleManager {
     this._enemyCombatants = enemyChampions.map((c, index) => {
       // Use enhanced stats if available, otherwise fall back to base stats
       const stats = c.getEnhancedStats ? c.getEnhancedStats() : c.getStats();
-      const targetId = getUniqueTargetId(enemyChampions, index);
+      const targetId = getCombatantTargetId(enemyChampions, index);
       return {
         targetId,
         champion: c,
@@ -720,6 +741,7 @@ export class BattleManager {
     triggerPassives = true,
     isCrit = false,
     triggerRules = true,
+    abilityDamage = false,
   ): void {
     if (damage <= 0 || target.isDefeated) return;
     const wasDefeated = target.isDefeated;
@@ -798,6 +820,9 @@ export class BattleManager {
     if (triggerPassives && remaining > 0) {
       this._applyOnDamagePassives(attacker, target);
     }
+    if (hpDamage > 0 && attacker.side !== target.side) {
+      this._applyRunProgression(attacker, target, 'onDamage', abilityDamage);
+    }
     const afterRules =
       triggerRules && remaining > 0 && this._rules
         ? this._rules.dispatch({
@@ -840,6 +865,15 @@ export class BattleManager {
           defeatedBy: attacker.champion.id,
         });
         this._applyOnKillPassives(attacker);
+        const killIdentity = `${target.side}:${target.targetId}`;
+        if (
+          attacker.side !== target.side &&
+          this._runProgressKillTargets &&
+          !this._runProgressKillTargets.has(killIdentity)
+        ) {
+          this._runProgressKillTargets.add(killIdentity);
+          this._applyRunProgression(attacker, target, 'onKill', abilityDamage);
+        }
         if (this._rules) {
           this._resolveRuleEffects(
             this._rules.dispatch({
@@ -937,10 +971,16 @@ export class BattleManager {
   ): number {
     const baseDamage =
       effect.baseDamage?.[rankIndex] ?? effect.baseDamage?.[effect.baseDamage.length - 1] ?? 0;
-    const rawDamage =
+    const baseRawDamage =
       baseDamage +
       attackerStats.attackDamage * (effect.adRatio ?? 0) +
       attackerStats.abilityPower * (effect.apRatio ?? 0);
+    const missingHealthFraction =
+      target.maxHp > 0 ? Math.max(0, Math.min(1, 1 - target.currentHp / target.maxHp)) : 0;
+    const missingHealthScaling = Number.isFinite(effect.missingHealthScaling)
+      ? Math.max(0, effect.missingHealthScaling ?? 0)
+      : 0;
+    const rawDamage = baseRawDamage * (1 + missingHealthFraction * missingHealthScaling);
     const defense = this._getCombatStats(target);
     if (effect.damageType === 'magical' || effect.damageType === 'ap') {
       return calculateAPDamage(rawDamage, 1, defense.magicResist);
@@ -1016,10 +1056,27 @@ export class BattleManager {
   private _tickTurnEffects(combatant: CombatantState, effectIds: readonly string[]): void {
     const results = combatant.effectManager.tickSelected(effectIds);
     for (const { effect, event } of results) {
-      const source = this._findCombatantByTargetId(effect.sourceId) ?? combatant;
+      const sourceSide =
+        effect instanceof DamageEffect || effect instanceof DelayedDamageEffect
+          ? effect.sourceSide
+          : undefined;
+      const source = this._findCombatantByTargetId(effect.sourceId, sourceSide) ?? combatant;
       const value = event.value ?? 0;
-      if (effect instanceof DamageEffect && value > 0 && !combatant.isDefeated) {
-        this._applyDamageToTarget(source, combatant, value, effect.damageType, false);
+      if (
+        (effect instanceof DamageEffect || effect instanceof DelayedDamageEffect) &&
+        value > 0 &&
+        !combatant.isDefeated
+      ) {
+        this._applyDamageToTarget(
+          source,
+          combatant,
+          value,
+          effect.damageType,
+          false,
+          false,
+          true,
+          effect instanceof DelayedDamageEffect || effect.abilityDamage,
+        );
       } else if (effect instanceof HealEffect && value > 0) {
         this._applyHeal(source, combatant, value);
       }
@@ -1330,9 +1387,10 @@ export class BattleManager {
     this._syncEffectState(combatant);
   }
 
-  private _findCombatantByTargetId(targetId: string): CombatantState | undefined {
+  private _findCombatantByTargetId(targetId: string, side?: TeamSide): CombatantState | undefined {
     return [...this._playerCombatants, ...this._enemyCombatants].find(
-      (combatant) => combatant.targetId === targetId,
+      (combatant) =>
+        combatant.targetId === targetId && (side === undefined || combatant.side === side),
     );
   }
 
@@ -1362,6 +1420,7 @@ export class BattleManager {
       const winner: TeamSide | 'draw' =
         !playerAlive && !enemyAlive ? 'draw' : playerAlive ? 'player' : 'enemy';
       this._rules?.dispatch({ type: 'battle_end', winner, actors: this._getRuleActors() });
+      this._applyCombatEndRunProgression();
       this._emit({ type: 'battle_end', winner, rounds: this._round });
       return true;
     }
@@ -1370,6 +1429,7 @@ export class BattleManager {
       this._phase = BattlePhase.Finished;
       this._resetAllCooldowns();
       this._rules?.dispatch({ type: 'battle_end', winner: 'draw', actors: this._getRuleActors() });
+      this._applyCombatEndRunProgression();
       this._emit({ type: 'battle_end', winner: 'draw', rounds: this._round });
       return true;
     }
@@ -1378,6 +1438,44 @@ export class BattleManager {
 
   private _dispatchTurnEnd(combatant: CombatantState): void {
     this._rules?.dispatch({ type: 'turn_end', actor: this._toRuleActor(combatant) });
+  }
+
+  private _applyRunProgression(
+    source: CombatantState,
+    target: CombatantState,
+    hook: 'onDamage' | 'onKill' | 'onCombatEnd',
+    ability: boolean,
+  ): void {
+    const definitions = source.champion.passive.runProgression;
+    if (!definitions?.length) return;
+    const targetTier =
+      target.side === 'enemy' ? (this._combatantTiers[target.targetId] ?? 'normal') : 'normal';
+    for (const gain of resolveRunProgressionGains(definitions, { hook, targetTier, ability })) {
+      const previous = source.champion.getRunCounter(gain.key);
+      const value = source.champion.incrementRunCounter(gain.key, gain.amount);
+      const amount = value - previous;
+      if (amount <= 0) continue;
+      this._emit({
+        type: 'run_counter_gain',
+        source: source.champion.id,
+        target: target.champion.id,
+        sourceCombatantId: source.targetId,
+        targetCombatantId: target.targetId,
+        sourceSide: source.side,
+        targetSide: target.side,
+        key: gain.key,
+        amount,
+        value,
+      });
+    }
+  }
+
+  private _applyCombatEndRunProgression(): void {
+    if (!this._runProgressKillTargets || this._runProgressCombatEnded) return;
+    this._runProgressCombatEnded = true;
+    for (const combatant of [...this._playerCombatants, ...this._enemyCombatants]) {
+      this._applyRunProgression(combatant, combatant, 'onCombatEnd', false);
+    }
   }
 
   private _toRuleActor(combatant: CombatantState): CombatRuleActor {
@@ -1517,13 +1615,4 @@ export class BattleManager {
     const list = side === 'player' ? this._playerCombatants : this._enemyCombatants;
     return list.find((c) => c.targetId === id || c.champion.id === id);
   }
-}
-
-function getUniqueTargetId(champions: readonly ChampionInstance[], index: number): string {
-  const championId = champions[index].id;
-  if (champions.filter((champion) => champion.id === championId).length === 1) return championId;
-  const occurrence = champions
-    .slice(0, index + 1)
-    .filter((champion) => champion.id === championId).length;
-  return `${championId}#${occurrence}`;
 }

@@ -34,6 +34,13 @@ test-results/
 playwright-report/
 blob-report/
 
+# Local UI/UX audit screenshots
+docs/audits/**/*.png
+docs/audits/**/*.jpg
+docs/audits/**/*.jpeg
+docs/audits/**/*.webp
+docs/audits/**/*.gif
+
 # Generated local performance artifact
 performance-report/
 
@@ -56,3 +63,6 @@ supabase/functions/verify-run/run-authority.bundle.js
 graphify-out
 AGENTS.md
 .codex
+
+# Same-run signed CI build transfer (generated, never a cache).
+ci-build/

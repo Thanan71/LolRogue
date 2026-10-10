@@ -23,6 +23,127 @@ export type Database = {
   };
   public: {
     Tables: {
+      account_champion_unlocks: {
+        Row: {
+          champion_id: string;
+          price_paid: number;
+          source: string;
+          transaction_id: string | null;
+          unlocked_at: string;
+          user_id: string;
+        };
+        Insert: {
+          champion_id: string;
+          price_paid?: number;
+          source: string;
+          transaction_id?: string | null;
+          unlocked_at?: string;
+          user_id: string;
+        };
+        Update: {
+          champion_id?: string;
+          price_paid?: number;
+          source?: string;
+          transaction_id?: string | null;
+          unlocked_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'account_champion_unlocks_transaction_id_fkey';
+            columns: ['transaction_id'];
+            isOneToOne: true;
+            referencedRelation: 'shard_transactions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      account_wallets: {
+        Row: {
+          lifetime_shards_earned: number;
+          lifetime_shards_spent: number;
+          shards_balance: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          lifetime_shards_earned?: number;
+          lifetime_shards_spent?: number;
+          shards_balance?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          lifetime_shards_earned?: number;
+          lifetime_shards_spent?: number;
+          shards_balance?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      champion_economy_catalog: {
+        Row: {
+          catalog_version: number;
+          champion_id: string;
+          permanent_free: boolean;
+          price_shards: number;
+        };
+        Insert: {
+          catalog_version: number;
+          champion_id: string;
+          permanent_free?: boolean;
+          price_shards: number;
+        };
+        Update: {
+          catalog_version?: number;
+          champion_id?: string;
+          permanent_free?: boolean;
+          price_shards?: number;
+        };
+        Relationships: [];
+      };
+      champion_economy_config: {
+        Row: {
+          activated_at: string | null;
+          catalog_version: number;
+          economy_version: number;
+          enabled: boolean;
+          gameplay_ruleset_version: number;
+          legacy_catalog_version: number | null;
+          singleton: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          activated_at?: string | null;
+          catalog_version?: number;
+          economy_version?: number;
+          enabled?: boolean;
+          gameplay_ruleset_version: number;
+          legacy_catalog_version?: number | null;
+          singleton?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          activated_at?: string | null;
+          catalog_version?: number;
+          economy_version?: number;
+          enabled?: boolean;
+          gameplay_ruleset_version?: number;
+          legacy_catalog_version?: number | null;
+          singleton?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'champion_economy_config_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+        ];
+      };
       champion_enhancements: {
         Row: {
           champion_id: string;
@@ -125,6 +246,102 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'players';
             referencedColumns: ['id'];
+          },
+        ];
+      };
+      champion_purchase_commands: {
+        Row: {
+          command_id: string;
+          created_at: string;
+          payload_hash: string;
+          transaction_id: string;
+          user_id: string;
+        };
+        Insert: {
+          command_id: string;
+          created_at?: string;
+          payload_hash: string;
+          transaction_id: string;
+          user_id: string;
+        };
+        Update: {
+          command_id?: string;
+          created_at?: string;
+          payload_hash?: string;
+          transaction_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'champion_purchase_commands_transaction_id_fkey';
+            columns: ['transaction_id'];
+            isOneToOne: true;
+            referencedRelation: 'shard_transactions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      champion_rotation_entries: {
+        Row: {
+          champion_id: string;
+          display_order: number;
+          rotation_id: string;
+        };
+        Insert: {
+          champion_id: string;
+          display_order: number;
+          rotation_id: string;
+        };
+        Update: {
+          champion_id?: string;
+          display_order?: number;
+          rotation_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'champion_rotation_entries_rotation_id_fkey';
+            columns: ['rotation_id'];
+            isOneToOne: false;
+            referencedRelation: 'champion_rotations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      champion_rotations: {
+        Row: {
+          algorithm_version: number;
+          catalog_version: number;
+          created_at: string;
+          ends_at: string;
+          id: string;
+          ruleset_version: number;
+          starts_at: string;
+        };
+        Insert: {
+          algorithm_version: number;
+          catalog_version: number;
+          created_at?: string;
+          ends_at: string;
+          id: string;
+          ruleset_version: number;
+          starts_at: string;
+        };
+        Update: {
+          algorithm_version?: number;
+          catalog_version?: number;
+          created_at?: string;
+          ends_at?: string;
+          id?: string;
+          ruleset_version?: number;
+          starts_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'champion_rotations_ruleset_version_fkey';
+            columns: ['ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
           },
         ];
       };
@@ -585,6 +802,27 @@ export type Database = {
           },
         ];
       };
+      player_patch_note_state: {
+        Row: {
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          last_seen_sequence?: number;
+          last_seen_version?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       player_unlocks: {
         Row: {
           champion_id: string | null;
@@ -925,6 +1163,7 @@ export type Database = {
       };
       run_attempts: {
         Row: {
+          champion_access_snapshot: Json | null;
           command_schema_version: number;
           created_at: string;
           daily_date: string | null;
@@ -932,6 +1171,7 @@ export type Database = {
           daily_ruleset_version: number | null;
           daily_score_version: number | null;
           difficulty: string;
+          economy_version: number | null;
           engine_version: string;
           enhancement_snapshot: NonNullable<Json>;
           expired_at: string | null;
@@ -963,6 +1203,7 @@ export type Database = {
           sealed_journal_hash: string | null;
           sealed_sequence: number | null;
           seed: number;
+          shard_reward_context: Json | null;
           start_command_id: string;
           start_payload_hash: string;
           started_at: string;
@@ -973,6 +1214,7 @@ export type Database = {
           verified_at: string | null;
         };
         Insert: {
+          champion_access_snapshot?: Json | null;
           command_schema_version: number;
           created_at?: string;
           daily_date?: string | null;
@@ -980,6 +1222,7 @@ export type Database = {
           daily_ruleset_version?: number | null;
           daily_score_version?: number | null;
           difficulty: string;
+          economy_version?: number | null;
           engine_version: string;
           enhancement_snapshot?: NonNullable<Json>;
           expired_at?: string | null;
@@ -1011,6 +1254,7 @@ export type Database = {
           sealed_journal_hash?: string | null;
           sealed_sequence?: number | null;
           seed: number;
+          shard_reward_context?: Json | null;
           start_command_id: string;
           start_payload_hash: string;
           started_at?: string;
@@ -1021,6 +1265,7 @@ export type Database = {
           verified_at?: string | null;
         };
         Update: {
+          champion_access_snapshot?: Json | null;
           command_schema_version?: number;
           created_at?: string;
           daily_date?: string | null;
@@ -1028,6 +1273,7 @@ export type Database = {
           daily_ruleset_version?: number | null;
           daily_score_version?: number | null;
           difficulty?: string;
+          economy_version?: number | null;
           engine_version?: string;
           enhancement_snapshot?: NonNullable<Json>;
           expired_at?: string | null;
@@ -1059,6 +1305,7 @@ export type Database = {
           sealed_journal_hash?: string | null;
           sealed_sequence?: number | null;
           seed?: number;
+          shard_reward_context?: Json | null;
           start_command_id?: string;
           start_payload_hash?: string;
           started_at?: string;
@@ -1376,6 +1623,87 @@ export type Database = {
           },
         ];
       };
+      shard_transactions: {
+        Row: {
+          amount: number;
+          balance_after: number;
+          champion_id: string | null;
+          created_at: string;
+          economy_version: number;
+          gameplay_ruleset_version: number | null;
+          id: string;
+          idempotency_key: string;
+          reason: string;
+          rotation_id: string | null;
+          run_attempt_id: string | null;
+          user_id: string;
+        };
+        Insert: {
+          amount: number;
+          balance_after: number;
+          champion_id?: string | null;
+          created_at?: string;
+          economy_version: number;
+          gameplay_ruleset_version?: number | null;
+          id?: string;
+          idempotency_key: string;
+          reason: string;
+          rotation_id?: string | null;
+          run_attempt_id?: string | null;
+          user_id: string;
+        };
+        Update: {
+          amount?: number;
+          balance_after?: number;
+          champion_id?: string | null;
+          created_at?: string;
+          economy_version?: number;
+          gameplay_ruleset_version?: number | null;
+          id?: string;
+          idempotency_key?: string;
+          reason?: string;
+          rotation_id?: string | null;
+          run_attempt_id?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'shard_transactions_gameplay_ruleset_version_fkey';
+            columns: ['gameplay_ruleset_version'];
+            isOneToOne: false;
+            referencedRelation: 'gameplay_rulesets';
+            referencedColumns: ['version'];
+          },
+          {
+            foreignKeyName: 'shard_transactions_rotation_id_fkey';
+            columns: ['rotation_id'];
+            isOneToOne: false;
+            referencedRelation: 'champion_rotations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'shard_transactions_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: false;
+            referencedRelation: 'authority_recent_rejections';
+            referencedColumns: ['attempt_id'];
+          },
+          {
+            foreignKeyName: 'shard_transactions_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: false;
+            referencedRelation: 'run_attempts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'shard_transactions_run_attempt_id_fkey';
+            columns: ['run_attempt_id'];
+            isOneToOne: false;
+            referencedRelation: 'verified_run_starter_cohorts';
+            referencedColumns: ['attempt_id'];
+          },
+        ];
+      };
     };
     Views: {
       admin_player_stats: {
@@ -1655,11 +1983,20 @@ export type Database = {
       };
     };
     Functions: {
+      adjust_champion_shards: {
+        Args: { p_amount: number; p_command_id: string; p_user_id: string };
+        Returns: Json;
+      };
       append_run_attempt_commands: {
         Args: { p_attempt_id: string; p_commands: Json };
         Returns: Json;
       };
+      audit_champion_economy: { Args: Record<PropertyKey, never>; Returns: Json };
       claim_run_verification: {
+        Args: { p_attempt_id: string; p_worker_id: string };
+        Returns: Json;
+      };
+      claim_run_verification_pre_champion_economy: {
         Args: { p_attempt_id: string; p_worker_id: string };
         Returns: Json;
       };
@@ -1669,6 +2006,15 @@ export type Database = {
       };
       comparable_starter_count: { Args: { p_mode: string }; Returns: number };
       complete_run_verification: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_pre_champion_economy: {
         Args: {
           p_attempt_id: string;
           p_lease_token: string;
@@ -1785,6 +2131,15 @@ export type Database = {
         };
         Returns: Json;
       };
+      complete_run_verification_v21_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
       complete_run_verification_v6: {
         Args: {
           p_attempt_id: string;
@@ -1832,14 +2187,49 @@ export type Database = {
       daily_utc_date: { Args: { p_instant: string }; Returns: string };
       daily_utc_expiration: { Args: { p_daily_date: string }; Returns: string };
       expire_stale_run_attempts: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_champion_economy_snapshot: { Args: Record<PropertyKey, never>; Returns: Json };
       get_daily_challenge: { Args: Record<PropertyKey, never>; Returns: Json };
       get_my_leaderboard_rank: { Args: Record<PropertyKey, never>; Returns: number };
+      get_player_run_rejections: {
+        Args: {
+          p_before_id?: string;
+          p_before_started_at?: string;
+          p_limit?: number;
+          p_player_id: string;
+        };
+        Returns: {
+          attempt_id: string;
+          difficulty: string;
+          engine_version: string;
+          gameplay_ruleset_version: number;
+          mode: string;
+          progression_ruleset_version: number;
+          rejected_at: string;
+          rejection_code: string;
+          started_at: string;
+        }[];
+      };
       get_run_attempt_status: { Args: { p_attempt_id: string }; Returns: Json };
       invalidate_daily_score: {
         Args: { p_daily_run_id: string; p_reason: string };
         Returns: undefined;
       };
       is_current_user_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      mark_patch_notes_seen: {
+        Args: { p_sequence: number; p_user_id: string; p_version: string };
+        Returns: {
+          last_seen_sequence: number;
+          last_seen_version: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'player_patch_note_state';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       mastery_current_level_candies: { Args: { p_candies: number }; Returns: number };
       mastery_level_from_candies: { Args: { p_candies: number }; Returns: number };
       mastery_unlock_ids: { Args: { p_candies: number }; Returns: string[] };
@@ -1852,6 +2242,15 @@ export type Database = {
           p_value: Json;
         };
         Returns: number;
+      };
+      purchase_champion: {
+        Args: {
+          p_champion_id: string;
+          p_command_id: string;
+          p_expected_catalog_version: number;
+          p_expected_price: number;
+        };
+        Returns: Json;
       };
       purge_expired_logs: { Args: Record<PropertyKey, never>; Returns: number };
       purge_expired_social_data: { Args: Record<PropertyKey, never>; Returns: number };
@@ -1881,6 +2280,7 @@ export type Database = {
         Args: { p_attempt_id: string; p_expected_sequence: number; p_finish_command_id: string };
         Returns: Json;
       };
+      set_champion_economy_enabled: { Args: { p_enabled: boolean }; Returns: Json };
       set_leaderboard_privacy: {
         Args: { p_opt_out: boolean; p_public_display_name: string };
         Returns: undefined;
@@ -1889,11 +2289,25 @@ export type Database = {
         Args: { p_command_id: string; p_rune_ids: string[]; p_team: string[] };
         Returns: Json;
       };
+      start_daily_run_attempt_pre_champion_economy: {
+        Args: { p_command_id: string; p_rune_ids: string[]; p_team: string[] };
+        Returns: Json;
+      };
       start_daily_run_attempt_v7: {
         Args: { p_command_id: string; p_rune_ids: string[]; p_team: string[] };
         Returns: Json;
       };
       start_run_attempt: {
+        Args: {
+          p_command_id: string;
+          p_difficulty: string;
+          p_mode?: string;
+          p_rune_ids: string[];
+          p_team: string[];
+        };
+        Returns: Json;
+      };
+      start_run_attempt_pre_champion_economy: {
         Args: {
           p_command_id: string;
           p_difficulty: string;

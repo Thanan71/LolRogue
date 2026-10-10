@@ -1,0 +1,84 @@
+.patch-note,
+.patch-note-summary {
+  padding: 1.25rem;
+  border: 1px solid var(--color-border, #637081);
+  border-radius: 0.75rem;
+  background: var(--color-surface, #151d2b);
+  color: var(--color-text, #f2f4f8);
+  overflow-wrap: anywhere;
+}
+
+.patch-note {
+  margin-block: 1.25rem;
+}
+.patch-note h2,
+.patch-note-summary h2 {
+  margin-top: 0;
+}
+.patch-note li + li {
+  margin-top: 0.6rem;
+}
+.patch-notes-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.patch-notes-filter select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0.5rem;
+}
+.patch-notes-page a,
+.patch-note-summary a {
+  color: #c9dfff;
+}
+
+.patch-note-badge {
+  display: inline-block;
+  margin-inline-start: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.4rem;
+  background: #c9dfff;
+  color: #172235;
+  font-size: 0.85rem;
+}
+.patch-note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+.patch-note-actions button,
+.patch-notes-page button {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #c9dfff;
+  border-radius: 0.4rem;
+  background: #172235;
+  color: #f2f4f8;
+  cursor: pointer;
+}
+
+.patch-notes-page :is(a, button, select):focus-visible,
+.patch-note-summary :is(a, button):focus-visible {
+  outline: 3px solid #f2ca6d;
+  outline-offset: 4px;
+}
+@media (max-width: 420px) {
+  .patch-note,
+  .patch-note-summary {
+    padding: 1rem;
+  }
+  .patch-note-actions > * {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .patch-note,
+  .patch-note-summary,
+  .patch-note-badge {
+    animation: none;
+    transition: none;
+  }
+}

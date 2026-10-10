@@ -1,5 +1,9 @@
-import type { Json } from '@/types/database';
 import { verificationRejectionMessage, verificationRetryableMessage } from '@/i18n/runErrorContent';
+import {
+  recordTechnicalMetric,
+  type TechnicalAttemptContext,
+} from '@/observability/technicalMetrics';
+import type { Json } from '@/types/database';
 import {
   MAX_TEAM_SIZE,
   type RunItemLedgerEvent,
@@ -19,6 +23,7 @@ import type {
   StartRunAttemptInput,
   StartRunAttemptResult,
 } from '@/types/runAttempt';
+import { parseChampionRunAccessSnapshot } from './championEconomyRunContract';
 import { supabase } from './supabaseClient';
 
 type JsonRecord = Record<string, Json | undefined>;
@@ -167,6 +172,16 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
   if (!result) return null;
   const enhancementSnapshot = parseEnhancementSnapshot(result.enhancement_snapshot);
   const masterySnapshot = parseMasterySnapshot(result.mastery_snapshot);
+  const rawAccess = result.champion_access_snapshot;
+  const accessSnapshot = parseChampionRunAccessSnapshot(rawAccess);
+  const economyVersion = result.economy_version;
+  if (
+    (rawAccess !== undefined && rawAccess !== null && !accessSnapshot) ||
+    (economyVersion !== undefined && economyVersion !== null && economyVersion !== 1) ||
+    (economyVersion === 1 && accessSnapshot?.economyVersion !== 1) ||
+    (accessSnapshot && accessSnapshot.economyVersion !== (economyVersion ?? null))
+  )
+    return null;
   const dailyDate = typeof result.daily_date === 'string' ? result.daily_date : null;
   const dailyRulesetVersion = isInteger(result.daily_ruleset_version)
     ? result.daily_ruleset_version
@@ -210,6 +225,12 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
     runUuid: result.run_uuid,
     status: result.status,
     rulesetVersion: result.ruleset_version,
+    gameplayRulesetVersion:
+      isInteger(result.gameplay_ruleset_version) &&
+      result.gameplay_ruleset_version > 0 &&
+      result.gameplay_ruleset_version <= 32767
+        ? result.gameplay_ruleset_version
+        : undefined,
     engineVersion: result.engine_version,
     seed: result.seed,
     mode: result.mode,
@@ -221,6 +242,9 @@ function parseStartResult(value: unknown): StartRunAttemptResult | null {
     runeIds: result.rune_ids,
     enhancementSnapshot,
     masterySnapshot,
+    ...(rawAccess !== undefined || economyVersion !== undefined
+      ? { championAccessSnapshot: accessSnapshot, economyVersion: economyVersion ?? null }
+      : {}),
     startedAt: result.started_at,
     expiresAt: result.expires_at,
     lastSequence: result.last_sequence,
@@ -307,6 +331,12 @@ function parseStatusResult(value: unknown): RunAttemptStatusResult | null {
     runUuid: result.run_uuid,
     status: result.status,
     rulesetVersion: result.ruleset_version,
+    gameplayRulesetVersion:
+      isInteger(result.gameplay_ruleset_version) &&
+      result.gameplay_ruleset_version > 0 &&
+      result.gameplay_ruleset_version <= 32767
+        ? result.gameplay_ruleset_version
+        : undefined,
     engineVersion: result.engine_version,
     seed: result.seed,
     mode: result.mode,
@@ -381,8 +411,19 @@ export async function startRunAttempt(
           p_difficulty: input.difficulty,
           p_mode: input.mode,
         });
-  if (result.error) return { data: null, error: result.error };
+  if (result.error) {
+    recordTechnicalMetric({ metric: 'run_start', outcome: 'error', code: 'request_failed' });
+    return { data: null, error: result.error };
+  }
   const parsed = parseStartResult(result.data);
+  recordTechnicalMetric({
+    metric: 'run_start',
+    outcome: parsed ? 'ok' : 'error',
+    code: parsed ? 'ok' : 'invalid_response',
+    engineVersion: parsed?.engineVersion,
+    gameplayRulesetVersion: parsed?.gameplayRulesetVersion,
+    progressionRulesetVersion: parsed?.rulesetVersion,
+  });
   return parsed
     ? { data: parsed, error: null }
     : { data: null, error: new Error('Invalid start_run_attempt response') };
@@ -412,14 +453,29 @@ export async function sealRunAttempt(
   attemptId: string,
   finishCommandId: string,
   expectedSequence: number,
+  metricContext: TechnicalAttemptContext = {},
 ): Promise<{ data: SealRunAttemptResult | null; error: Error | null }> {
   const result = await callAttemptRpc('seal_run_attempt', {
     p_attempt_id: attemptId,
     p_finish_command_id: finishCommandId,
     p_expected_sequence: expectedSequence,
   });
-  if (result.error) return { data: null, error: result.error };
+  if (result.error) {
+    recordTechnicalMetric({
+      metric: 'run_seal',
+      outcome: 'error',
+      code: 'request_failed',
+      ...metricContext,
+    });
+    return { data: null, error: result.error };
+  }
   const parsed = parseSealResult(result.data);
+  recordTechnicalMetric({
+    metric: 'run_seal',
+    outcome: parsed ? 'ok' : 'error',
+    code: parsed ? 'ok' : 'invalid_response',
+    ...metricContext,
+  });
   return parsed
     ? { data: parsed, error: null }
     : { data: null, error: new Error('Invalid seal_run_attempt response') };
@@ -659,6 +715,27 @@ function parseVerifiedResponse(value: unknown): VerifyRunAttemptResult | null {
   const envelope = asRecord(value);
   if (!envelope) return null;
   const response = asRecord(envelope.response) ?? envelope;
+  const hasShardResult = [
+    'shards_earned',
+    'shards_balance',
+    'shard_economy_version',
+    'shard_rotation_first_win_champion_ids',
+  ].some((key) => response[key] !== undefined);
+  const shardChampions = response.shard_rotation_first_win_champion_ids;
+  if (
+    hasShardResult &&
+    (!isInteger(response.shards_earned) ||
+      response.shards_earned < 0 ||
+      !isInteger(response.shards_balance) ||
+      response.shards_balance < 0 ||
+      (response.shard_economy_version !== null && response.shard_economy_version !== 1) ||
+      !isStringArray(shardChampions) ||
+      shardChampions.length > MAX_TEAM_SIZE ||
+      new Set(shardChampions).size !== shardChampions.length ||
+      (response.shard_economy_version === null &&
+        (response.shards_earned !== 0 || shardChampions.length !== 0)))
+  )
+    return null;
   if (
     !isUuid(response.run_id) ||
     typeof response.replayed !== 'boolean' ||
@@ -690,6 +767,14 @@ function parseVerifiedResponse(value: unknown): VerifyRunAttemptResult | null {
       candiesPerChampion: response.candies_per_champion,
       progressionVersion: response.progression_version,
       progressionSource: response.progression_source,
+      ...(hasShardResult
+        ? {
+            shardsEarned: response.shards_earned as number,
+            shardsBalance: response.shards_balance as number,
+            shardEconomyVersion: response.shard_economy_version as 1 | null,
+            shardRotationFirstWinChampionIds: [...(shardChampions as string[])],
+          }
+        : {}),
     },
     summary: response.summary === undefined ? null : parseRunSummary(response.summary),
   };
@@ -701,6 +786,15 @@ export async function recoverVerifiedRunAttempt(
   const status = await getRunAttemptStatus(attemptId);
   if (status.error || !status.data) {
     return { data: null, error: status.error ?? new Error('Run attempt status is unavailable') };
+  }
+  if (status.data.status === 'expired') {
+    return {
+      data: null,
+      error: new RunVerificationRejectedError(
+        'run_attempt_expired',
+        verificationRejectionMessage('run_attempt_expired', null),
+      ),
+    };
   }
   if (status.data.status === 'rejected') {
     return {

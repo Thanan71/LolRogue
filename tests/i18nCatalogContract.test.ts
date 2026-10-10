@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { PATCH_NOTES } from '@/data/patchNotes';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
+import { authRecoveryContent } from '@/i18n/authRecoveryContent';
 import { championContent } from '@/i18n/championContent';
+import { getChampionEconomyContent } from '@/i18n/championEconomyContent';
 import { combatContent } from '@/i18n/combatContent';
 import { documentContent } from '@/i18n/documentContent';
 import { en } from '@/i18n/en';
@@ -11,8 +14,11 @@ import { gameOverContent } from '@/i18n/gameOverContent';
 import { inventoryContent } from '@/i18n/inventoryContent';
 import { legalEn } from '@/i18n/legal.en';
 import { legalFr } from '@/i18n/legal.fr';
+import { getPatchNotesContent } from '@/i18n/patchNotesContent';
 import { runErrorContent } from '@/i18n/runErrorContent';
+import { runHistoryContent } from '@/i18n/runHistoryContent';
 import { runPreparationContent } from '@/i18n/runPreparationContent';
+import { getRunProgressContent } from '@/i18n/runProgressContent';
 import { tutorialContent } from '@/i18n/tutorialContent';
 
 type Locale = 'fr-FR' | 'en-US';
@@ -22,11 +28,16 @@ const i18nModules = import.meta.glob('../src/i18n/**/*.ts');
 
 const catalogs = {
   adminExport: adminExportContent,
+  authRecovery: authRecoveryContent,
   adminFieldCalibration: {
     'fr-FR': getAdminFieldCalibrationCopy('fr-FR'),
     'en-US': getAdminFieldCalibrationCopy('en-US'),
   },
   champion: championContent,
+  championEconomy: {
+    'fr-FR': getChampionEconomyContent('fr-FR'),
+    'en-US': getChampionEconomyContent('en-US'),
+  },
   combat: combatContent,
   document: documentContent,
   enhancement: enhancementContent,
@@ -34,8 +45,21 @@ const catalogs = {
   inventory: inventoryContent,
   legal: { 'fr-FR': legalFr, 'en-US': legalEn },
   main: { 'fr-FR': fr, 'en-US': en },
+  patchNotes: { 'fr-FR': getPatchNotesContent('fr-FR'), 'en-US': getPatchNotesContent('en-US') },
+  patchPublications: {
+    'fr-FR': PATCH_NOTES.map((note) => ({
+      title: note.title['fr-FR'],
+      entries: note.entries.map((entry) => entry.text['fr-FR']),
+    })),
+    'en-US': PATCH_NOTES.map((note) => ({
+      title: note.title['en-US'],
+      entries: note.entries.map((entry) => entry.text['en-US']),
+    })),
+  },
   runError: runErrorContent,
+  runHistory: runHistoryContent,
   runPreparation: runPreparationContent,
+  runProgress: { 'fr-FR': getRunProgressContent('fr-FR'), 'en-US': getRunProgressContent('en-US') },
   tutorial: tutorialContent,
 } as const satisfies Readonly<Record<string, LocaleCatalog>>;
 
@@ -43,8 +67,10 @@ const catalogs = {
 // coverage. Discovering the files prevents new catalogs from silently opting out.
 const catalogModules = {
   'adminExportContent.ts': 'adminExport',
+  'authRecoveryContent.ts': 'authRecovery',
   'adminFieldCalibration.ts': 'adminFieldCalibration',
   'championContent.ts': 'champion',
+  'championEconomyContent.ts': 'championEconomy',
   'combatContent.ts': 'combat',
   'documentContent.ts': 'document',
   'en.ts': 'main',
@@ -54,8 +80,11 @@ const catalogModules = {
   'inventoryContent.ts': 'inventory',
   'legal.en.ts': 'legal',
   'legal.fr.ts': 'legal',
+  'patchNotesContent.ts': 'patchNotes',
   'runErrorContent.ts': 'runError',
+  'runHistoryContent.ts': 'runHistory',
   'runPreparationContent.ts': 'runPreparation',
+  'runProgressContent.ts': 'runProgress',
   'tutorialContent.ts': 'tutorial',
 } as const satisfies Readonly<Record<string, keyof typeof catalogs>>;
 
@@ -72,6 +101,8 @@ const specializedModuleContracts = {
 } as const;
 
 const specializedTests = import.meta.glob('./*.test.{ts,tsx}');
+// Publication data is imported from src/data/patchNotes.ts rather than i18n/.
+const externalCatalogs = ['patchPublications'] as const;
 
 type InvariantRule = string | RegExp;
 
@@ -79,6 +110,7 @@ const intentionallyIdenticalPaths: Readonly<
   Record<Exclude<keyof typeof catalogs, 'main'>, readonly InvariantRule[]>
 > = {
   adminExport: ['$.biomes.jungle'],
+  authRecovery: [],
   adminFieldCalibration: [
     '$.biome.base',
     '$.biome.jungle',
@@ -114,6 +146,13 @@ const intentionallyIdenticalPaths: Readonly<
     '$.Thresh.passive.name',
     '$.Vladimir.spells.VladimirQ.name',
   ],
+  championEconomy: [],
+  runProgress: [
+    '$.tiers.boss',
+    '$.shortStats.abilityPower',
+    '$.shortStats.attackDamage',
+    '$.shortStats.armor',
+  ],
   combat: [
     '$.logs.crowdControl.silence',
     '$.page.steps.action',
@@ -139,7 +178,10 @@ const intentionallyIdenticalPaths: Readonly<
   gameOver: [],
   inventory: ['$.augments.fortune.name', '$.items.infinity_edge.passives.ie_passive.name'],
   legal: ['$.metadata.navigation', '$.metadata.service', '$.privacy.maximum'],
+  patchNotes: [],
+  patchPublications: [],
   runError: [],
+  runHistory: ['$.mode'],
   runPreparation: [
     '$.spellUpgrade.availability.maximum',
     '$.starter.journeyRunes',
@@ -152,8 +194,10 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   Record<keyof typeof catalogs, readonly string[]>
 > = {
   adminExport: [],
+  authRecovery: [],
   adminFieldCalibration: [],
   champion: [],
+  championEconomy: [],
   combat: ['$.logs.action', '$.stage.actionTarget'],
   document: [],
   enhancement: [],
@@ -161,8 +205,12 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   inventory: [],
   legal: [],
   main: [],
+  patchNotes: [],
+  patchPublications: [],
   runError: [],
+  runHistory: [],
   runPreparation: [],
+  runProgress: [],
   tutorial: [],
 };
 
@@ -258,7 +306,7 @@ describe('exposed i18n catalog contract', () => {
     expect(registeredModules, 'New i18n modules need explicit translation coverage').toEqual(
       discoveredModules,
     );
-    expect([...new Set(Object.values(catalogModules))].sort()).toEqual(
+    expect([...new Set([...Object.values(catalogModules), ...externalCatalogs])].sort()).toEqual(
       Object.keys(catalogs).sort(),
     );
     for (const testFile of Object.values(specializedModuleContracts)) {

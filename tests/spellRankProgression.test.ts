@@ -65,7 +65,7 @@ describe('maintained spell rank progression', () => {
         }
       }
     }
-    expect(transitions).toBe(136);
+    expect(transitions).toBe(150);
   });
 
   it('keeps non-combat vision at one rank and out of upgrade choices', () => {

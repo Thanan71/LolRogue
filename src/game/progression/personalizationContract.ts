@@ -90,6 +90,13 @@ export const COSMETIC_CONCEPTS: CosmeticConcept[] = [
     unlock: 'mastery_level_2',
     gameplayModifiers: [],
   },
+  {
+    id: 'veigar_arcane',
+    championId: 'Veigar',
+    palette: ['#7c3aed', '#facc15'],
+    unlock: 'mastery_level_2',
+    gameplayModifiers: [],
+  },
 ];
 
 export const ACHIEVEMENT_POLICY = {

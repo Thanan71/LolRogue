@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.110.8';
 import { resolveAuthorityVerifier } from './authority-version-resolver.generated.ts';
+import { buildVerifiedEconomyResult } from './champion-economy.ts';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -69,9 +70,16 @@ async function persistRejection(
   return !error && result?.status === 'rejected';
 }
 
-function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonRecord | null {
+function buildVerifiedResult(
+  snapshot: JsonRecord,
+  engineVersion: string,
+  validateRunProgress?: (championId: string, progress: unknown) => boolean,
+): JsonRecord | null {
   const usesParticipationLedger =
-    engineVersion === 'run-engine-v20' || engineVersion === 'run-engine-v21';
+    engineVersion === 'run-engine-v20' ||
+    engineVersion === 'run-engine-v21' ||
+    engineVersion === 'run-engine-v22';
+  const usesRunProgression = engineVersion === 'run-engine-v22';
   const expectedLedgerVersion = usesParticipationLedger ? 2 : 1;
   const team = Array.isArray(snapshot.team) ? snapshot.team : null;
   const championStats = Array.isArray(snapshot.championStats) ? snapshot.championStats : null;
@@ -122,8 +130,18 @@ function buildVerifiedResult(snapshot: JsonRecord, engineVersion: string): JsonR
     }
     const stat = (key: string) =>
       Math.max(0, Math.round(typeof stats[key] === 'number' ? stats[key] : 0));
+    let runProgress: JsonRecord | null = null;
+    if (usesRunProgression && member.runProgress !== undefined) {
+      if (!validateRunProgress?.(member.championId, member.runProgress)) return null;
+      runProgress = Object.fromEntries(
+        Object.entries(member.runProgress as Record<string, number>).filter(
+          ([, value]) => value > 0,
+        ),
+      );
+    }
     return {
       champion_id: member.championId,
+      ...(runProgress && Object.keys(runProgress).length > 0 ? { run_progress: runProgress } : {}),
       ...(usesParticipationLedger
         ? {
             waves_participated: stat('wavesParticipated'),
@@ -454,7 +472,9 @@ Deno.serve(async (request) => {
   }
 
   const snapshot = record(verification.result.snapshot);
-  const verifiedResult = snapshot ? buildVerifiedResult(snapshot, claim.engine_version) : null;
+  const verifiedResult = snapshot
+    ? buildVerifiedResult(snapshot, claim.engine_version, verifier.validateRunProgress)
+    : null;
   if (!verifiedResult) {
     if (!(await persistRejection(admin, attemptId, claim.lease_token, 'invalid_verifier_result'))) {
       return json(500, { error: 'verification_rejection_commit_failed' });
@@ -463,6 +483,27 @@ Deno.serve(async (request) => {
       error: 'run_verification_rejected',
       rejection_code: 'invalid_verifier_result',
     });
+  }
+  if (claim.economy_version !== undefined && claim.economy_version !== null) {
+    const accessSnapshot = record(claim.champion_access_snapshot);
+    const economy = snapshot ? buildVerifiedEconomyResult(snapshot) : null;
+    if (
+      claim.economy_version !== 1 ||
+      accessSnapshot?.version !== 1 ||
+      accessSnapshot.enabled !== true ||
+      accessSnapshot.economyVersion !== 1 ||
+      !economy
+    ) {
+      if (
+        !(await persistRejection(admin, attemptId, claim.lease_token, 'invalid_economy_contract'))
+      )
+        return json(500, { error: 'verification_rejection_commit_failed' });
+      return json(422, {
+        error: 'run_verification_rejected',
+        rejection_code: 'invalid_economy_contract',
+      });
+    }
+    verifiedResult.economy = economy;
   }
   const resultHash = await sha256(verifiedResult);
   const { data: completionData, error: completionError } = await admin.rpc(

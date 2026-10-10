@@ -1,5 +1,6 @@
 import { implementedChampions } from '@/data/champion';
 import { championDB } from '@/data/championDatabase';
+import { cloneRunProgressSnapshot } from '@/game/runProgression';
 import { MAX_TEAM_SIZE, type TeamMember } from '@/types/run';
 
 export type TeamRuleFailure =
@@ -123,6 +124,10 @@ export function normalizeTeamMembers(team: unknown): TeamMember[] {
         ([key, value]) => key.length > 0 && Number.isFinite(value),
       ),
     );
+    const runProgress = cloneRunProgressSnapshot(
+      member.runProgress,
+      championDB.getById(resolved.value)?.passive.runProgression ?? [],
+    );
 
     normalized.push({
       championId: resolved.value,
@@ -136,6 +141,7 @@ export function normalizeTeamMembers(team: unknown): TeamMember[] {
         ? {}
         : { currentMp: finiteState(member.currentMp) }),
       ...(Object.keys(statBoosts).length === 0 ? {} : { statBoosts }),
+      ...(Object.keys(runProgress).length === 0 ? {} : { runProgress }),
       ...(member.spellRanks ? { spellRanks: { ...member.spellRanks } } : {}),
     });
   }

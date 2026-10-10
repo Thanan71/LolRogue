@@ -5,6 +5,8 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import '@/auth/passwordRecovery';
+import { createObservedFetch } from '@/observability/observedFetch';
 import { createSupabaseAuthStorage } from '@/services/supabaseAuthStorage';
 import type { Database } from '@/types/database';
 import { logger } from '@/utils/logger';
@@ -27,6 +29,7 @@ export const supabase = createClient<Database>(
   supabaseUrl || 'http://127.0.0.1:54321',
   supabaseAnonKey || 'offline-anon-key',
   {
+    global: { fetch: createObservedFetch(supabaseUrl || 'http://127.0.0.1:54321') },
     auth: {
       storage: createSupabaseAuthStorage(),
       persistSession: isSupabaseConfigured,

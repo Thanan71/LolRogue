@@ -65,6 +65,20 @@ export class SupabaseAuthRepository implements IAuthRepository {
     if (error) throw error;
   }
 
+  async requestPasswordReset(email: string): Promise<{ error: Error | null }> {
+    const redirectTo =
+      typeof window === 'undefined' ? undefined : `${window.location.origin}/auth?mode=recovery`;
+    const { error } = await this.supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    return { error };
+  }
+
+  async updatePassword(input: {
+    password: string;
+  }): Promise<{ user: User | null; error: Error | null }> {
+    const { data, error } = await this.supabase.auth.updateUser(input);
+    return { user: data?.user ?? null, error };
+  }
+
   async getSession(): Promise<{ session: Session | null; error: Error | null }> {
     const { data, error } = await this.supabase.auth.getSession();
     return {

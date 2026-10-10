@@ -1,6 +1,6 @@
 # Performance frontend
 
-Dernière mesure bundle : **23 septembre 2026**, Node 24, build Vite de production local.
+Dernière mesure bundle : **7 octobre 2026**, Node 24, build Vite de production local.
 
 ## Référence avant P2-PERF-01
 
@@ -189,6 +189,67 @@ Mesure locale du **13 août 2026** :
 | INP | 104 ms | 300 ms |
 
 Le rapport `performance-report/web-vitals-report.json` conserve le warm-up, chaque
-échantillon, le profil, les budgets et le SHA. Le job CI `validate` exécute la gate
+échantillon, le profil, les budgets et le SHA. Le job CI `build/assets` exécute la gate
 après le build et archive le dossier complet pendant 30 jours. Speed Insights reste
 une source terrain distincte, non bloquante et soumise à la revue confidentialité.
+
+## Sprint G — budget des nouvelles fonctionnalités
+
+Les filtres d’historique, diagnostics de rejet, publications et états de lecture
+ajoutent du code produit. Le plafond global gzip passe de 650 000 à **660 000
+octets** (+1,54 %) et le chargement initial de 215 000 à **220 000 octets**
+(+2,33 %), conformément à la décision utilisateur du 7 octobre 2026.
+La marge globale minimale de **10 %** reste obligatoire : le total doit donc
+rester inférieur ou égal à **594 000 octets**. Les budgets par chunk, la route
+Auth à 225 000 octets, les assets, LCP/CLS/INP et la couverture restent inchangés.
+
+Les requêtes d’historique sont chargées à la demande. Les routes et catalogues
+conservent le découpage de Vite et son préchargement standard. La mesure inclut
+aussi le script de langue copié en fin de build, le SHA complet et un profil
+Supabase configuré. Les preuves et les limites de livraison sont consignées
+dans `docs/sprint-g-validation-2026-10-07.md`.
+
+## P3-ECO-01 — budget de l'économie des champions
+
+Le catalogue d'accès, les Éclats, les confirmations d'achat et leurs traductions
+portent le plafond global de 660 000 à **670 000 octets gzip** (+1,52 %), avec
+l'autorisation utilisateur du 8 octobre 2026. La marge minimale reste **10 %** :
+le total effectif doit rester inférieur ou égal à **603 000 octets**.
+Le chargement initial reste plafonné à 220 000 octets, Auth à 225 000 octets.
+Les limites par chunk, les assets, les Web Vitals et les seuils de couverture
+restent inchangés. La mesure finale figure dans
+`docs/champion-economy-validation-2026-10-08.md`.
+
+## Corrections UI/UX — budget global
+
+Le 9 octobre 2026, la CI de la PR #201 mesure **606 610 octets gzip** après
+les corrections UI/UX, les états de combat lisibles et la récupération de mot
+de passe en FR/EN. Le plafond de 670 000 octets laisse alors **9,46 %** de marge,
+sous le minimum obligatoire de 10 %.
+
+Pour accompagner ces fonctionnalités tout en conservant la simplicité du code,
+le budget v7 porte uniquement le plafond global à **690 000 octets**
+(+2,99 %). La mesure CI conserve ainsi **12,09 %** de marge, et le maximum
+effectif avec la règle de 10 % devient **621 000 octets**. Les catalogues et
+leurs traductions conservent leur packaging actuel. Les budgets initial/Auth,
+par chunk, d'assets et de Web Vitals, les seuils de couverture et les checks
+existants restent inchangés.
+
+## P3-CHAMP-01 — marge des routes initiale et Auth
+
+La CI de la PR #203, au commit `2f1eab8`, mesure **219 793 octets gzip** au
+chargement initial et **224 578 octets** pour `/auth`. Il ne reste respectivement
+que 207 et 422 octets sous les plafonds v7. Le build clean-room du commit
+`700668c`, avec son profil Supabase local, mesurait 220 261 et 225 047 octets.
+Les deux profils doivent rester couverts par les budgets bloquants.
+
+Conformément à l'autorisation utilisateur de relever les plafonds pour préserver
+la qualité du code, le budget v8 porte le chargement initial à **225 000 octets**
+(+2,27 %) et `/auth` à **230 000 octets** (+2,22 %). Les compteurs de run, le
+catalogue Veigar et leurs traductions conservent le découpage et le chargement
+standard de l'application.
+
+Le total mesuré en CI reste à **613 318 octets gzip** sur un plafond de 690 000,
+soit **11,11 % de marge**. La marge minimale obligatoire de 10 %, les plafonds par
+chunk et d'assets, les Web Vitals et les seuils de couverture restent inchangés.
+Cette mesure de taille ne remplace pas la vérification des Web Vitals.

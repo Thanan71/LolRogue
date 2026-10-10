@@ -1,4 +1,7 @@
+import { championDB } from '@/data/championDatabase';
 import { decodeCombatActionTrace } from '@/game/battle/actionTrace';
+import { isRunProgressSnapshot } from '@/game/runProgression';
+import { parseChampionRunAccessSnapshot } from '@/services/championEconomyRunContract';
 import { BIOMES, type RunState } from '@/types/run';
 import { isRecord } from '@/utils/persistence';
 
@@ -59,7 +62,7 @@ const nodeType = oneOf([
 ]);
 const ids = array(id);
 const stats = dictionary(number, 32);
-const teamMember = shape(
+const teamMemberShape = shape(
   {
     championId: id,
     currentHp: nonnegative,
@@ -69,9 +72,19 @@ const teamMember = shape(
     statMultiplier: nonnegative,
     statBoosts: stats,
     spellRanks: shape({ Q: integer, W: integer, E: integer, R: integer }, []),
+    runProgress: isRunProgressSnapshot,
   },
   ['championId'],
 );
+const hasDeclaredRunProgress: Check = (value) => {
+  if (!isRecord(value)) return false;
+  if (value.runProgress === undefined) return true;
+  const champion = championDB.getById(value.championId as string);
+  return Boolean(
+    champion && isRunProgressSnapshot(value.runProgress, champion.passive.runProgression ?? []),
+  );
+};
+const teamMember: Check = (value) => teamMemberShape(value) && hasDeclaredRunProgress(value);
 const shopItem = shape(
   {
     itemId: id,
@@ -295,7 +308,17 @@ const completion = shape({
   goldBalance: nonnegative,
   summary,
   teamMembers: array(
-    shape({ championId: id, level: positive, currentHp: nonnegative, currentMp: nonnegative }),
+    (value) =>
+      shape(
+        {
+          championId: id,
+          level: positive,
+          currentHp: nonnegative,
+          currentMp: nonnegative,
+          runProgress: isRunProgressSnapshot,
+        },
+        ['championId', 'level', 'currentHp', 'currentMp'],
+      )(value) && hasDeclaredRunProgress(value),
     5,
   ),
   startedAt: nullable(date),
@@ -373,6 +396,7 @@ const authorityAttempt: Check = (value) => {
     ownerUserId: id,
     seed,
     rulesetVersion: positive,
+    gameplayRulesetVersion: (version: unknown) => positive(version) && (version as number) <= 32767,
     engineVersion: id,
     difficulty,
     mode,
@@ -383,6 +407,10 @@ const authorityAttempt: Check = (value) => {
     runeIds: array(id, 100),
     enhancementSnapshot: dictionary(dictionary(integer, 500), 200),
     masterySnapshot: dictionary(integer, 200),
+    championAccessSnapshot: nullable(
+      (snapshot) => parseChampionRunAccessSnapshot(snapshot) !== null,
+    ),
+    economyVersion: nullable(oneOf([1])),
     startedAt: date,
     expiresAt: date,
     status: oneOf([
@@ -405,9 +433,15 @@ const authorityAttempt: Check = (value) => {
       fields,
       Object.keys(fields).filter(
         (key) =>
-          !['masterySnapshot', 'dailyDate', 'dailyRulesetVersion', 'dailyScoreVersion'].includes(
-            key,
-          ),
+          ![
+            'masterySnapshot',
+            'dailyDate',
+            'dailyRulesetVersion',
+            'dailyScoreVersion',
+            'gameplayRulesetVersion',
+            'championAccessSnapshot',
+            'economyVersion',
+          ].includes(key),
       ),
     )(value) ||
     !isRecord(value)
@@ -419,7 +453,10 @@ const authorityAttempt: Check = (value) => {
     dedupeKey: string;
   }>;
   const team = value.initialTeam as string[];
+  const accessSnapshot = parseChampionRunAccessSnapshot(value.championAccessSnapshot);
   return (
+    (value.economyVersion !== 1 || accessSnapshot?.economyVersion === 1) &&
+    (!accessSnapshot || accessSnapshot.economyVersion === (value.economyVersion ?? null)) &&
     team.length > 0 &&
     new Set(team).size === team.length &&
     commands.every((entry, index) => entry.sequence === index + 1) &&
@@ -450,7 +487,7 @@ export function isPersistedRunState(value: unknown): value is Partial<RunState> 
       }),
     ),
     isEnding: boolean,
-    saveStatus: oneOf(['idle', 'saving', 'saved', 'failed', 'retrying']),
+    saveStatus: oneOf(['idle', 'saving', 'saved', 'failed', 'retrying', 'recovering']),
     saveError: nullable(text()),
     saveFailureKind: nullable(oneOf(['retryable', 'terminal'])),
     saveDiagnostic: nullable(shape({ attemptId: id, engineVersion: id, rejectionCode: id })),
@@ -465,6 +502,10 @@ export function isPersistedRunState(value: unknown): value is Partial<RunState> 
           candiesPerChampion: nonnegative,
           progressionVersion: positive,
           progressionSource: oneOf(['verified']),
+          shardsEarned: integer,
+          shardsBalance: integer,
+          shardEconomyVersion: nullable(oneOf([1])),
+          shardRotationFirstWinChampionIds: array(id, 5),
         },
         [
           'runId',

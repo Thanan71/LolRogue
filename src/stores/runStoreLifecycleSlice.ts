@@ -7,13 +7,19 @@ import {
   createRunCommandId as createCommandId,
   isSamePendingRunStart as samePendingStart,
 } from '@/game/run/runAuthorityJournal';
+import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStartCoordinator';
 import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { shouldApplyRunRewards } from '@/game/run/runState';
+import { cloneRunProgressSnapshot } from '@/game/runProgression';
 import { runError, runStartValidationMessage } from '@/i18n/runErrorContent';
+import { recordTechnicalMetric } from '@/observability/technicalMetrics';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import { RunVerificationRejectedError } from '@/services/runAttemptService';
+import {
+  RunVerificationRejectedError,
+  RunVerificationRetryableError,
+} from '@/services/runAttemptService';
 import { runAuthorityService } from '@/services/runAuthorityService';
 import {
   runEndFailure as endFailure,
@@ -37,6 +43,7 @@ import {
 } from '@/utils/observability';
 import { calculateMaxHP } from '@/utils/statCalculator';
 import { useAuthStore } from './authStore';
+import { useChampionEconomyStore } from './championEconomyStore';
 import { calculateDailyScore, useDailyRunStore } from './dailyRunStore';
 import { useEnhancementStore } from './enhancementStore';
 import { useMasteryStore } from './masteryStore';
@@ -177,6 +184,9 @@ export function createRunLifecycleSlice(
             return startFailure('auth_not_ready', runError.profileNotReady, true);
           }
           const authUser = authState.authStatus === 'ready' ? authState.user : null;
+          if (authUser && globalThis.navigator?.onLine === false) {
+            return startFailure('start_failed', runError.onlineStartRequired, true);
+          }
           const resumableStart =
             authUser && get().pendingAuthorityStart?.ownerUserId === authUser.id
               ? get().pendingAuthorityStart
@@ -200,6 +210,25 @@ export function createRunLifecycleSlice(
           const team: TeamMember[] = teamValidation.championIds.map((id) => ({
             championId: id,
           }));
+          if (!authUser && mode === 'normal') {
+            await useChampionEconomyStore.getState().initialize(null);
+            const economyStore = useChampionEconomyStore.getState();
+            if (useAuthStore.getState().user)
+              return startFailure('account_changed', runError.accountChanged, true);
+            if (!economyStore.snapshot || economyStore.status !== 'ready')
+              return startFailure(
+                'champion_roster_unavailable',
+                runError.championRosterUnavailable,
+                true,
+              );
+            if (
+              economyStore.snapshot.enabled &&
+              team.some((member) => economyStore.getAccess(member.championId) === 'locked')
+            ) {
+              void economyStore.refresh();
+              return startFailure('champion_locked', runError.championLocked);
+            }
+          }
 
           let canonicalMode = mode;
           const requestedRuneIds = resumableStart
@@ -277,19 +306,35 @@ export function createRunLifecycleSlice(
               const rawError = attemptResult.error?.message ?? '';
               const staleDailyOffer =
                 mode === 'daily' && rawError.includes('daily_starter_not_offered');
+              const expiredRotation =
+                rawError.includes('champion_rotation_expired') ||
+                rawError.includes('champion_access_expired');
+              const lockedChampion = rawError.includes('champion_locked');
+              const staleRoster = expiredRotation || lockedChampion;
               const error = rawError.includes('run_attempt_already_open')
                 ? runError.previousAttemptOpen
                 : staleDailyOffer
                   ? runError.dailyStarterChanged
-                  : runError.startFailed;
+                  : expiredRotation
+                    ? runError.championRotationExpired
+                    : lockedChampion
+                      ? runError.championLocked
+                      : runError.startFailed;
               set({
                 saveError: error,
-                ...(staleDailyOffer ? { pendingAuthorityStart: null } : {}),
+                ...(staleDailyOffer || staleRoster ? { pendingAuthorityStart: null } : {}),
               });
+              if (staleRoster) void useChampionEconomyStore.getState().refresh();
               return startFailure(
-                staleDailyOffer ? 'daily_starter_not_offered' : 'start_failed',
+                staleDailyOffer
+                  ? 'daily_starter_not_offered'
+                  : expiredRotation
+                    ? 'champion_rotation_expired'
+                    : lockedChampion
+                      ? 'champion_locked'
+                      : 'start_failed',
                 error,
-                !staleDailyOffer,
+                !staleDailyOffer && !staleRoster,
               );
             }
             if (useAuthStore.getState().user?.id !== authUser.id) {
@@ -311,6 +356,7 @@ export function createRunLifecycleSlice(
               ownerUserId: authUser.id,
               seed: attempt.seed,
               rulesetVersion: attempt.rulesetVersion,
+              gameplayRulesetVersion: attempt.gameplayRulesetVersion,
               engineVersion: attempt.engineVersion,
               difficulty: attempt.difficulty,
               mode: attempt.mode,
@@ -321,6 +367,12 @@ export function createRunLifecycleSlice(
               runeIds: [...attempt.runeIds],
               enhancementSnapshot: attempt.enhancementSnapshot,
               masterySnapshot: attempt.masterySnapshot,
+              ...(attempt.championAccessSnapshot !== undefined
+                ? {
+                    championAccessSnapshot: attempt.championAccessSnapshot,
+                    economyVersion: attempt.economyVersion ?? null,
+                  }
+                : {}),
               startedAt: attempt.startedAt,
               expiresAt: attempt.expiresAt,
               status: attempt.status,
@@ -338,7 +390,10 @@ export function createRunLifecycleSlice(
 
           // Authenticated content is generated only after the server has frozen
           // the seed/ruleset; guest mode keeps its local deterministic seed.
-          const biomeMaps = generateBiomeMaps(seed);
+          const biomeMaps = generateBiomeMaps(
+            seed,
+            getRunChampionCatalog(authorityAttempt?.engineVersion),
+          );
           const startBiome = biomeMaps[0]?.biome ?? null;
           const frontierNodeIds = biomeMaps[0]?.startNodeId ? [biomeMaps[0].startNodeId] : [];
           synchronizeMapFrontier(biomeMaps, 0, frontierNodeIds);
@@ -508,6 +563,13 @@ export function createRunLifecycleSlice(
         }
         state = get();
 
+        recordTechnicalMetric({
+          metric: 'run_finalization',
+          outcome: state.completedRunSnapshot?.runId === state.runId ? 'retry' : 'initial',
+          engineVersion: state.authorityAttempt?.engineVersion,
+          gameplayRulesetVersion: state.authorityAttempt?.gameplayRulesetVersion,
+          progressionRulesetVersion: state.authorityAttempt?.rulesetVersion,
+        });
         if (state.completedRunSnapshot?.runId === state.runId) {
           recordTechnicalEvent(
             { type: 'retry', operation: 'run_finalization', attempt: 1 },
@@ -517,7 +579,13 @@ export function createRunLifecycleSlice(
 
         set({
           isEnding: true,
-          saveStatus: state.completedRunSnapshot?.runId === state.runId ? 'retrying' : 'saving',
+          saveStatus:
+            state.completedRunSnapshot?.runId === state.runId &&
+            state.authorityAttempt?.status === 'verified'
+              ? 'recovering'
+              : state.completedRunSnapshot?.runId === state.runId
+                ? 'retrying'
+                : 'saving',
           saveError: null,
           saveFailureKind: null,
         });
@@ -569,11 +637,13 @@ export function createRunLifecycleSlice(
                     : useMasteryStore.getState().getChampionMastery(member.championId).level,
                 )
               : 100;
+            const runProgress = cloneRunProgressSnapshot(member.runProgress);
             return {
               championId: member.championId,
               level: member.level ?? 1,
               currentHp: member.currentHp ?? maxHp,
               currentMp: member.currentMp ?? champ?.stats.mp ?? 0,
+              ...(Object.keys(runProgress).length === 0 ? {} : { runProgress }),
             };
           });
 
@@ -692,42 +762,100 @@ export function createRunLifecycleSlice(
           }
 
           let syncedAttempt = authorityAttempt;
-          let finishCommandId = syncedAttempt.finishCommandId;
-          if (!finishCommandId) {
-            finishCommandId = createCommandId();
+          // A persisted success is an untrusted hint to read the durable
+          // receipt. Never append commands or seal it again on this path.
+          if (syncedAttempt.status !== 'verified') {
+            let finishCommandId = syncedAttempt.finishCommandId;
             if (!finishCommandId) {
-              set({
-                ...RUN_INITIAL_STATE,
-                completedRunSnapshot: snapshot,
-                saveStatus: 'failed',
-                saveError: runError.secureFinishCommandUnavailable,
-                saveFailureKind: 'terminal',
-              });
-              return true;
+              finishCommandId = createCommandId();
+              if (!finishCommandId) {
+                set({
+                  ...RUN_INITIAL_STATE,
+                  completedRunSnapshot: snapshot,
+                  saveStatus: 'failed',
+                  saveError: runError.secureFinishCommandUnavailable,
+                  saveFailureKind: 'terminal',
+                });
+                return true;
+              }
+              syncedAttempt = { ...syncedAttempt, finishCommandId };
+              set({ authorityAttempt: syncedAttempt });
             }
-            syncedAttempt = { ...syncedAttempt, finishCommandId };
-            set({ authorityAttempt: syncedAttempt });
-          }
 
-          const pendingCommands = syncedAttempt.commands.filter(
-            (command) => command.sequence > syncedAttempt.lastAcknowledgedSequence,
-          );
-          for (let offset = 0; offset < pendingCommands.length; offset += 50) {
-            const batch = pendingCommands.slice(offset, offset + 50);
-            const appendResult = await runAuthorityService.appendCommands(
-              syncedAttempt.attemptId,
-              batch,
+            const pendingCommands = syncedAttempt.commands.filter(
+              (command) => command.sequence > syncedAttempt.lastAcknowledgedSequence,
             );
-            if (
-              appendResult.data?.status === 'expired' ||
-              appendResult.data?.status === 'rejected'
-            ) {
+            for (let offset = 0; offset < pendingCommands.length; offset += 50) {
+              const batch = pendingCommands.slice(offset, offset + 50);
+              const appendResult = await runAuthorityService.appendCommands(
+                syncedAttempt.attemptId,
+                batch,
+              );
+              if (
+                appendResult.data?.status === 'expired' ||
+                appendResult.data?.status === 'rejected'
+              ) {
+                set({
+                  ...RUN_INITIAL_STATE,
+                  completedRunSnapshot: snapshot,
+                  saveStatus: 'failed',
+                  saveError:
+                    appendResult.data.status === 'expired'
+                      ? runError.attemptExpired
+                      : runError.traceRejected(null),
+                  saveFailureKind: 'terminal',
+                  saveDiagnostic: {
+                    attemptId: syncedAttempt.attemptId,
+                    engineVersion: syncedAttempt.engineVersion,
+                    rejectionCode:
+                      appendResult.data.status === 'expired'
+                        ? 'run_attempt_expired'
+                        : 'trace_rejected',
+                  },
+                });
+                return true;
+              }
+              if (appendResult.error || !appendResult.data) {
+                set({
+                  isEnding: false,
+                  saveStatus: 'failed',
+                  saveError: runError.journalSyncFailed,
+                  saveFailureKind: 'retryable',
+                  saveDiagnostic: {
+                    attemptId: syncedAttempt.attemptId,
+                    engineVersion: syncedAttempt.engineVersion,
+                    rejectionCode: 'journal_sync_failed',
+                  },
+                });
+                return false;
+              }
+              syncedAttempt = {
+                ...syncedAttempt,
+                status: appendResult.data.status,
+                lastAcknowledgedSequence: appendResult.data.lastSequence,
+                journalHash: appendResult.data.journalHash,
+              };
+              set({ authorityAttempt: syncedAttempt });
+            }
+
+            const expectedSequence = syncedAttempt.nextSequence - 1;
+            const sealResult = await runAuthorityService.sealAttempt(
+              syncedAttempt.attemptId,
+              finishCommandId,
+              expectedSequence,
+              {
+                engineVersion: syncedAttempt.engineVersion,
+                gameplayRulesetVersion: syncedAttempt.gameplayRulesetVersion,
+                progressionRulesetVersion: syncedAttempt.rulesetVersion,
+              },
+            );
+            if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
               set({
                 ...RUN_INITIAL_STATE,
                 completedRunSnapshot: snapshot,
                 saveStatus: 'failed',
                 saveError:
-                  appendResult.data.status === 'expired'
+                  sealResult.data.status === 'expired'
                     ? runError.attemptExpired
                     : runError.traceRejected(null),
                 saveFailureKind: 'terminal',
@@ -735,79 +863,57 @@ export function createRunLifecycleSlice(
                   attemptId: syncedAttempt.attemptId,
                   engineVersion: syncedAttempt.engineVersion,
                   rejectionCode:
-                    appendResult.data.status === 'expired'
-                      ? 'run_attempt_expired'
-                      : 'trace_rejected',
+                    sealResult.data.status === 'expired' ? 'run_attempt_expired' : 'trace_rejected',
                 },
               });
               return true;
             }
-            if (appendResult.error || !appendResult.data) {
+            if (sealResult.error || !sealResult.data) {
               set({
                 isEnding: false,
                 saveStatus: 'failed',
-                saveError: runError.journalSyncFailed,
+                saveError: runError.sealFailed,
                 saveFailureKind: 'retryable',
+                saveDiagnostic: {
+                  attemptId: syncedAttempt.attemptId,
+                  engineVersion: syncedAttempt.engineVersion,
+                  rejectionCode: 'attempt_seal_failed',
+                },
+                authorityAttempt: syncedAttempt,
               });
               return false;
             }
+
             syncedAttempt = {
               ...syncedAttempt,
-              status: appendResult.data.status,
-              lastAcknowledgedSequence: appendResult.data.lastSequence,
-              journalHash: appendResult.data.journalHash,
+              status: sealResult.data.status === 'verified' ? 'verified' : 'verifying',
+              lastAcknowledgedSequence: sealResult.data.lastSequence,
+              journalHash: sealResult.data.journalHash,
             };
             set({ authorityAttempt: syncedAttempt });
           }
 
-          const expectedSequence = syncedAttempt.nextSequence - 1;
-          const sealResult = await runAuthorityService.sealAttempt(
-            syncedAttempt.attemptId,
-            finishCommandId,
-            expectedSequence,
-          );
-          if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
-            set({
-              ...RUN_INITIAL_STATE,
-              completedRunSnapshot: snapshot,
-              saveStatus: 'failed',
-              saveError:
-                sealResult.data.status === 'expired'
-                  ? runError.attemptExpired
-                  : runError.traceRejected(null),
-              saveFailureKind: 'terminal',
-              saveDiagnostic: {
-                attemptId: syncedAttempt.attemptId,
-                engineVersion: syncedAttempt.engineVersion,
-                rejectionCode:
-                  sealResult.data.status === 'expired' ? 'run_attempt_expired' : 'trace_rejected',
-              },
-            });
-            return true;
+          const verification =
+            syncedAttempt.status === 'verified'
+              ? await runAuthorityService.recoverAttempt(syncedAttempt.attemptId)
+              : await runAuthorityService.verifyAttempt(syncedAttempt.attemptId);
+          // A late receipt must not complete a different run or restore the
+          // previous account's rewards after logout/account switching.
+          if (
+            get().runId !== snapshot.runId ||
+            get().authorityAttempt?.attemptId !== syncedAttempt.attemptId
+          ) {
+            return false;
           }
-          if (sealResult.error || !sealResult.data) {
+          if (useAuthStore.getState().user?.id !== user.id) {
             set({
               isEnding: false,
               saveStatus: 'failed',
-              saveError: runError.sealFailed,
+              saveError: runError.attemptOwnerChanged,
               saveFailureKind: 'retryable',
-              authorityAttempt: syncedAttempt,
             });
             return false;
           }
-
-          syncedAttempt = {
-            ...syncedAttempt,
-            status: sealResult.data.status === 'verified' ? 'verified' : 'verifying',
-            lastAcknowledgedSequence: sealResult.data.lastSequence,
-            journalHash: sealResult.data.journalHash,
-          };
-          set({ authorityAttempt: syncedAttempt });
-
-          const verification =
-            sealResult.data.status === 'verified'
-              ? await runAuthorityService.recoverAttempt(syncedAttempt.attemptId)
-              : await runAuthorityService.verifyAttempt(syncedAttempt.attemptId);
           if (verification.error || !verification.data) {
             if (verification.error instanceof RunVerificationRejectedError) {
               set({
@@ -829,6 +935,14 @@ export function createRunLifecycleSlice(
               saveStatus: 'failed',
               saveError: verification.error?.message ?? runError.verificationFailed(),
               saveFailureKind: 'retryable',
+              saveDiagnostic: {
+                attemptId: syncedAttempt.attemptId,
+                engineVersion: syncedAttempt.engineVersion,
+                rejectionCode:
+                  verification.error instanceof RunVerificationRetryableError
+                    ? verification.error.code
+                    : 'verification_unavailable',
+              },
               authorityAttempt: syncedAttempt,
             });
             return false;
@@ -857,6 +971,8 @@ export function createRunLifecycleSlice(
           // The durable server result is the completion boundary. Profile and
           // mastery hydration are best-effort and must never block Game Over.
           void runLifecycleService.refreshVerifiedProgression(user.id);
+          if (serverProgression.shardEconomyVersion === 1)
+            void useChampionEconomyStore.getState().refresh();
         }
 
         if (snapshot.mode === 'daily' && snapshot.daily) {
@@ -914,6 +1030,9 @@ export function createRunLifecycleSlice(
           { runId: requestedRunId, commandId: get().authorityAttempt?.finishCommandId },
         );
         logger.error('[runStore.endRun] Unexpected finalization failure:', error);
+        if (get().runId !== requestedRunId) {
+          return endFailure(requestedRunId, 'stale_run', runError.staleRun);
+        }
         set({
           isEnding: false,
           saveStatus: 'failed',

@@ -1,0 +1,53 @@
+{
+  "fixture": {
+    "guests": ["Annie", "Ashe"],
+    "localEconomyCatalogFixture": true,
+    "mockedProviderSuccess": true,
+    "realAuthRequestsSent": false
+  },
+  "before": {
+    "isLoading": false,
+    "isInitialized": true,
+    "isGuest": true,
+    "error": null,
+    "authStatus": "guest",
+    "runActive": true
+  },
+  "result": {
+    "success": false,
+    "error": "Termine ou abandonne la partie active avant de changer de compte."
+  },
+  "after": {
+    "isLoading": true,
+    "isInitialized": false,
+    "isGuest": true,
+    "error": null,
+    "authStatus": "bootstrapping",
+    "runActive": true
+  },
+  "ui": {
+    "path": "/auth",
+    "text": "Connexion\nChargement…",
+    "formCount": 0,
+    "spinnerCount": 2
+  },
+  "blockedExternalRequests": [
+    {
+      "url": "https://va.vercel-scripts.com/v1/script.debug.js",
+      "method": "GET"
+    },
+    {
+      "url": "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js",
+      "method": "GET"
+    },
+    {
+      "url": "https://misdmtpfcbxbhheacehm.supabase.co/rest/v1/rpc/get_champion_economy_snapshot",
+      "method": "POST"
+    },
+    {
+      "url": "https://misdmtpfcbxbhheacehm.supabase.co/rest/v1/rpc/get_champion_economy_snapshot",
+      "method": "POST"
+    }
+  ],
+  "errors": []
+}

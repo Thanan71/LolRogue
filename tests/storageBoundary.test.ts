@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { PATCH_NOTES_STORAGE_PREFIX } from '@/patchNotes/storage';
 import {
   getPersistedQuarantine,
   isRecord,
@@ -18,7 +19,14 @@ import {
   writeStorageText,
 } from '@/utils/storagePolicy';
 
-const keys = Object.keys(STORAGE_POLICIES);
+// Patch-note records are scoped to an identity and use the safe boundary's default size cap.
+// Keep concrete guest/account keys in the full failure corpus and allow the prefix only in its owner.
+const reviewedStorageFamilies = new Map([['patchNotes/storage.ts', PATCH_NOTES_STORAGE_PREFIX]]);
+const keys = [
+  ...Object.keys(STORAGE_POLICIES),
+  `${PATCH_NOTES_STORAGE_PREFIX}guest`,
+  `${PATCH_NOTES_STORAGE_PREFIX}user:70000000-0000-4000-8000-000000000001`,
+];
 const failureKeys = [
   ...keys,
   ...Object.entries(STORAGE_POLICIES)
@@ -306,6 +314,10 @@ describe('application storage access inventory', () => {
       for (const literal of source.matchAll(/['"](lolrogue[-:][^'"\n]*)['"]/g)) {
         // Web Locks names and the reviewed quarantine family are not fixed cache entries.
         if (['lolrogue-run-start', 'lolrogue-quarantine:'].includes(literal[1])) continue;
+        if (reviewedStorageFamilies.get(relative(root, file)) === literal[1]) {
+          expect(storageMaxChars(`${literal[1]}guest`)).toBe(16 * 1024);
+          continue;
+        }
         expect(keys, `${relative(root, file)}: unregistered storage name`).toContain(literal[1]);
       }
     }

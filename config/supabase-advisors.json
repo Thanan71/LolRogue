@@ -13,7 +13,11 @@
       "name": "rls_enabled_no_policy",
       "level": "INFO",
       "justification": "Catalogue serveur en lecture uniquement via des RPC SECURITY DEFINER bornées ; aucune politique Data API n'est volontairement exposée.",
-      "expiresAt": "2026-10-31"
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "daily_challenge_rulesets"
+      }
     },
     {
       "type": "security",
@@ -21,7 +25,11 @@
       "name": "rls_enabled_no_policy",
       "level": "INFO",
       "justification": "Journal interne idempotent écrit par les RPC autoritaires d'achat d'amélioration ; RLS sans policy et droits clients révoqués bloquent l'accès Data API direct.",
-      "expiresAt": "2026-10-31"
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "progression_commands"
+      }
     },
     {
       "type": "security",
@@ -29,7 +37,11 @@
       "name": "rls_enabled_no_policy",
       "level": "INFO",
       "justification": "Archive interne de quarantaine et d'audit des rangs historiques, alimentée par migration et réservée au serveur ; aucune lecture Data API client.",
-      "expiresAt": "2026-10-31"
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "progression_enhancement_security_baselines"
+      }
     },
     {
       "type": "performance",
@@ -237,6 +249,122 @@
       "name": "multiple_permissive_policies",
       "level": "WARN",
       "justification": "Lecture propriétaire et lecture administrateur sont séparées pour audit ; leur coût et une politique combinée doivent être mesurés avant modification.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_runs_runs_player_history_cursor_idx",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index de pagination historique mesuré sur 10 000 lignes locales avec limite par curseur ; les compteurs sont remis à zéro après db reset. Voir docs/run-history-cursor-index.md.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_public_champion_economy_catalog",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Table économie interne, RLS activée sans policy et tous droits clients révoqués ; exposition limitée aux RPC explicitement auditées.",
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "champion_economy_catalog"
+      }
+    },
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_public_champion_economy_config",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Table économie interne, RLS activée sans policy et tous droits clients révoqués ; exposition limitée aux RPC explicitement auditées.",
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "champion_economy_config"
+      }
+    },
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_public_champion_purchase_commands",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Table économie interne, RLS activée sans policy et tous droits clients révoqués ; exposition limitée aux RPC explicitement auditées.",
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "champion_purchase_commands"
+      }
+    },
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_public_champion_rotation_entries",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Table économie interne, RLS activée sans policy et tous droits clients révoqués ; exposition limitée aux RPC explicitement auditées.",
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "champion_rotation_entries"
+      }
+    },
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_public_champion_rotations",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Table économie interne, RLS activée sans policy et tous droits clients révoqués ; exposition limitée aux RPC explicitement auditées.",
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "public",
+        "name": "champion_rotations"
+      }
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_champion_economy_config_champion_economy_config_gameplay_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Configuration singleton à une seule ligne ; version gameplay immuable, aucun scan métier filtré par cette FK et aucun effacement de version autorisé.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_champion_rotations_champion_rotations_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Historique hebdomadaire borné, interrogé par identifiant/période ; versions gameplay immuables sans suppression parent, index version isolée non justifié.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_shard_transactions_shard_transactions_gameplay_ruleset_version_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Traçabilité append-only vers version gameplay immuable ; lecture propriétaire par user_id et audit agrégé, aucune requête isolée ou suppression parent par version.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unindexed_foreign_keys_public_shard_transactions_shard_transactions_rotation_id_fkey",
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "justification": "Rotations historiques conservées sans suppression ; lecture par compte et rotation via clé unique first-win, aucun accès métier filtré seulement sur la période.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_shard_transactions_shard_transactions_user_created",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Lecture propriétaire chronologique du ledger avec curseur date/id ; statistiques locales fraîchement réinitialisées sans trafic représentatif, conserver cette clé de lecture bornée et réévaluer sous trafic avant expiration.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_shard_transactions_shard_transactions_attempt",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index FK nécessaire aux effacements de compte/tentatives et à la traçabilité des crédits autoritaires ; compteurs locaux fraîchement réinitialisés, pas de suppression sur ce seul signal.",
       "expiresAt": "2026-10-31"
     }
   ]

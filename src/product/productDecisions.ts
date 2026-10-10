@@ -6,16 +6,33 @@
  */
 import { BALANCE_CALIBRATION_DECISION } from './balanceCalibrationDecision';
 
-export const PRODUCT_DECISIONS_VERSION = 2 as const;
+export const PRODUCT_DECISIONS_VERSION = 4 as const;
 
 export const PRODUCT_DECISIONS = {
   launchLanguage: {
     locale: 'fr',
-    englishStatus: 'later_through_i18n',
+    englishStatus: 'supported_through_i18n',
   },
   guestProgression: {
     storage: 'local_only',
     automaticAccountMerge: false,
+  },
+  championEconomy: {
+    version: 1,
+    candies: 'champion_mastery_only',
+    shards: 'verified_gameplay_account_wallet',
+    gold: 'run_only',
+    permanentFreeChampionIds: ['Garen', 'Annie', 'Ashe'],
+    rotationSize: 5,
+    rotationBoundary: 'monday_00_00_utc',
+    championPriceShards: 400,
+    guestShards: 'none',
+    legacyAccess: 'permanent_grant_before_first_activation',
+    dailyRoster: 'shared_daily_ruleset_offer_independent_of_ownership',
+    firstWinBonus: 'once_per_account_rotation_champion_in_verified_winning_team',
+    realMoneyPurchases: false,
+    currencyConversions: false,
+    enabledByDefault: false,
   },
   daily: {
     timezone: 'UTC',
@@ -47,6 +64,10 @@ export const PRODUCT_DECISIONS = {
     separateKillXp: false,
   },
   offline: {
+    installation: 'online_only_pwa',
+    offlineLaunch: false,
+    serviceWorker: false,
+    applicationCache: false,
     guestRuns: 'official_local_guest_progression',
     authenticatedRunStart: 'online_authority_required',
     authenticatedInterruption: 'preserve_local_state_and_retry_authority',

@@ -105,17 +105,27 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
   }
   await expect(page.locator('.starter-select__selection-status')).toContainText('2/2');
 
+  const runeDisclosure = page.locator('.starter-select__rune-disclosure');
+  await expect(runeDisclosure).not.toHaveAttribute('open');
+  await runeDisclosure.locator('summary').click();
+  await expect(runeDisclosure).toHaveAttribute('open');
   const runes = page.getByRole('checkbox');
   let selected = 0;
   if (assuredVictory) {
     const victoryRune = page.getByRole('checkbox', { name: /E2E — Victoire assurée/ });
     await expect(victoryRune).toBeVisible();
-    await victoryRune.check();
+    if (!(await victoryRune.isChecked())) {
+      await victoryRune.focus();
+      await page.keyboard.press('Space');
+    }
+    await expect(victoryRune).toBeChecked();
     selected = 1;
   }
   for (let index = 0; index < (await runes.count()) && selected < 3; index += 1) {
     if (!(await runes.nth(index).isChecked())) {
-      await runes.nth(index).check();
+      await runes.nth(index).focus();
+      await page.keyboard.press('Space');
+      await expect(runes.nth(index)).toBeChecked();
       selected += 1;
     }
   }
@@ -165,17 +175,41 @@ async function resolveCombat(page: Page, trace: string[]) {
   // CombatPage intentionally resets autoplay when a new battle enters its
   // `starting` phase. Clicking Auto before that effect has settled races the
   // reset and can leave the CI run parked forever on its first player turn.
+  // An enemy may also end the fight before any player turn becomes actionable.
   await expect
-    .poll(async () => (await readCombatSnapshot(page)).phase, {
-      message: 'The battle should be ready before enabling autoplay.',
-      timeout: 10_000,
-    })
-    .toBe('turn_active');
+    .poll(
+      async () => {
+        const snapshot = await readCombatSnapshot(page);
+        if (snapshot.phase === 'turn_active' && snapshot.currentTurnSide === 'player') {
+          return 'player_turn';
+        }
+        if (snapshot.phase === 'finished' && snapshot.winner) {
+          const path = new URL(page.url()).pathname;
+          const outcomeVisible = await page
+            .getByText(/VICTOIRE !|DÉFAITE/, { exact: true })
+            .isVisible();
+          if (path === '/run' || path === '/game-over' || outcomeVisible) return 'finished';
+        }
+        return snapshot.phase === 'finished' ? 'awaiting_outcome' : snapshot.phase;
+      },
+      {
+        message: 'The battle must expose a player turn or a real terminal outcome.',
+        timeout: 10_000,
+      },
+    )
+    .toMatch(/^(player_turn|finished)$/);
 
-  const auto = page.locator('.combat-auto-toggle');
-  await expect(auto).toBeEnabled();
-  if ((await auto.getAttribute('aria-pressed')) !== 'true') await auto.click();
-  await expect(auto).toHaveAttribute('aria-pressed', 'true');
+  const readySnapshot = await readCombatSnapshot(page);
+  if (readySnapshot.phase === 'finished') {
+    expect(readySnapshot.winner).toMatch(/^(player|enemy)$/);
+  } else {
+    expect(readySnapshot.phase).toBe('turn_active');
+    expect(readySnapshot.currentTurnSide).toBe('player');
+    const auto = page.locator('.combat-auto-toggle');
+    await expect(auto).toBeEnabled();
+    if ((await auto.getAttribute('aria-pressed')) !== 'true') await auto.click();
+    await expect(auto).toHaveAttribute('aria-pressed', 'true');
+  }
 
   const initialSnapshot = await readCombatSnapshot(page);
   trace.push(`combat:start:${JSON.stringify(initialSnapshot)}`);

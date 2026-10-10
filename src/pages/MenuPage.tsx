@@ -1,11 +1,16 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChampionEconomyPanel } from '@/components/ChampionEconomy';
 import { ParticleBackground } from '@/components/ParticleBackground';
+import { PatchNotesSummary } from '@/components/PatchNotesSummary';
 import { ROUTES } from '@/config/routes';
 import { finalizeActiveRunBeforeTransition } from '@/game/run/abandonment';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useChampionEconomyRoute } from '@/hooks/useChampionEconomyRoute';
+import { usePatchNotes } from '@/hooks/usePatchNotes';
 import { formatNumber, plural } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
+import { getPatchNotesContent } from '@/i18n/patchNotesContent';
 import { routeTitle } from '@/i18n/routeTitles';
 import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
@@ -14,6 +19,8 @@ import { playUIClick } from '@/audio';
 
 export function MenuPage() {
   const navigate = useAppNavigate();
+  const economy = useChampionEconomyRoute();
+  const { unread: unreadUpdates } = usePatchNotes();
   const isActive = useRunStore((s) => s.isActive);
   const runLevel = useRunStore((s) => s.runLevel);
   const currentBiome = useRunStore((s) => s.currentBiome);
@@ -213,6 +220,14 @@ export function MenuPage() {
           </section>
         </div>
 
+        <PatchNotesSummary />
+        <ChampionEconomyPanel
+          snapshot={economy.snapshot}
+          status={economy.status}
+          serverNow={economy.serverNow}
+          onRefresh={economy.refresh}
+        />
+
         <nav className="main-menu__navigation" aria-label={fr.menu.headquarters}>
           <div className="main-menu__section-heading main-menu__section-heading--compact">
             <span className="main-menu__eyebrow">{fr.menu.headquarters}</span>
@@ -307,6 +322,16 @@ export function MenuPage() {
         </nav>
 
         <div className="main-menu__utility" role="group" aria-label={fr.menu.accountLinks}>
+          <Link
+            id="patch-notes-menu-link"
+            className="main-menu__utility-btn"
+            to={ROUTES.PATCH_NOTES}
+          >
+            {getPatchNotesContent().title}
+            {unreadUpdates.length > 0 && (
+              <span className="patch-note-badge">{getPatchNotesContent().categories.new}</span>
+            )}
+          </Link>
           <button
             type="button"
             className="main-menu__utility-btn"

@@ -6,7 +6,12 @@ import { readAuthorityVersionRegistry } from './lib/authority-version-registry.m
 export const AUTHORITY_RESOLVER_PATH =
   'supabase/functions/verify-run/authority-version-resolver.generated.ts';
 export const CLIENT_CAPABILITIES_PATH = 'src/game/authority/versionCapabilities.generated.ts';
-const CLIENT_AUTHORITY_FEATURES = ['canonicalProgression', 'manualCombat', 'canonicalEncounters'];
+const CLIENT_AUTHORITY_FEATURES = [
+  'canonicalProgression',
+  'manualCombat',
+  'canonicalEncounters',
+  'runProgression',
+];
 
 export function renderAuthorityResolver(registry) {
   const replayable = registry.versions.filter((version) => version.status !== 'unsupported');
@@ -47,8 +52,10 @@ export function renderClientCapabilities(registry) {
     ...registry.versions.map((version) => Number(version.engine.replace('run-engine-v', ''))),
   );
   const engineMasks = Array.from({ length: highestEngineNumber + 1 }, () => -1);
+  const engineChampionCatalogs = Array.from({ length: highestEngineNumber + 1 }, () => -1);
   for (const version of registry.versions) {
     const engineNumber = Number(version.engine.replace('run-engine-v', ''));
+    engineChampionCatalogs[engineNumber] = version.championCatalog;
     engineMasks[engineNumber] = CLIENT_AUTHORITY_FEATURES.reduce(
       (mask, feature) => mask | (version.features[feature] ? featureBits[feature] : 0),
       0,
@@ -59,6 +66,8 @@ export function renderClientCapabilities(registry) {
 
 export const AUTHORITY_FEATURE_BITS = ${JSON.stringify(featureBits)} as const;
 export const AUTHORITY_ENGINE_FEATURE_MASKS: readonly number[] = ${JSON.stringify(engineMasks)};
+export const AUTHORITY_ENGINE_CHAMPION_CATALOGS: readonly number[] = ${JSON.stringify(engineChampionCatalogs)};
+export const CURRENT_AUTHORITY_CHAMPION_CATALOG = ${current.championCatalog};
 export const CURRENT_AUTHORITY_VERSION = ${JSON.stringify(
     {
       engine: current.engine,

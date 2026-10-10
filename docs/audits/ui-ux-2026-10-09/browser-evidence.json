@@ -1,0 +1,5871 @@
+[
+  {
+    "device": "desktop",
+    "name": "auth",
+    "path": "/auth",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 900,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Connexion",
+        "disabled": false,
+        "x": 878,
+        "y": 317,
+        "w": 204,
+        "h": 44
+      },
+      {
+        "name": "Créer un compte",
+        "disabled": false,
+        "x": 1086,
+        "y": 317,
+        "w": 204,
+        "h": 44
+      },
+      {
+        "name": "CONNEXION",
+        "disabled": true,
+        "x": 873,
+        "y": 576,
+        "w": 422,
+        "h": 48
+      },
+      {
+        "name": "Jouer en invité",
+        "disabled": false,
+        "x": 873,
+        "y": 714,
+        "w": 422,
+        "h": 48
+      }
+    ],
+    "tinyText": [],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "signup",
+    "path": "/auth",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1035,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Connexion",
+        "disabled": false,
+        "x": 878,
+        "y": 292,
+        "w": 204,
+        "h": 44
+      },
+      {
+        "name": "Créer un compte",
+        "disabled": false,
+        "x": 1086,
+        "y": 292,
+        "w": 204,
+        "h": 44
+      },
+      {
+        "name": "CRÉER UN COMPTE",
+        "disabled": true,
+        "x": 873,
+        "y": 736,
+        "w": 422,
+        "h": 48
+      },
+      {
+        "name": "Jouer en invité",
+        "disabled": false,
+        "x": 873,
+        "y": 874,
+        "w": 422,
+        "h": 48
+      }
+    ],
+    "tinyText": [],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "menu",
+    "path": "/",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1044,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "J’ai compris",
+        "disabled": false,
+        "x": 339,
+        "y": 234,
+        "w": 112,
+        "h": 44
+      },
+      {
+        "name": "Plus tard",
+        "disabled": false,
+        "x": 466,
+        "y": 234,
+        "w": 89,
+        "h": 44
+      },
+      {
+        "name": "Jouer",
+        "disabled": false,
+        "x": 189,
+        "y": 604,
+        "w": 423,
+        "h": 56
+      },
+      {
+        "name": "Défi quotidien",
+        "disabled": false,
+        "x": 624,
+        "y": 604,
+        "w": 282,
+        "h": 56
+      },
+      {
+        "name": "Comprendre les règles",
+        "disabled": false,
+        "x": 974,
+        "y": 598,
+        "w": 284,
+        "h": 44
+      },
+      {
+        "name": "Champions",
+        "disabled": false,
+        "x": 453,
+        "y": 728,
+        "w": 398,
+        "h": 64
+      },
+      {
+        "name": "Guide et règles",
+        "disabled": false,
+        "x": 859,
+        "y": 728,
+        "w": 398,
+        "h": 64
+      },
+      {
+        "name": "Profil et historique",
+        "disabled": false,
+        "x": 453,
+        "y": 800,
+        "w": 398,
+        "h": 64
+      },
+      {
+        "name": "Réglages",
+        "disabled": false,
+        "x": 859,
+        "y": 800,
+        "w": 398,
+        "h": 64
+      },
+      {
+        "name": "Crédits",
+        "disabled": false,
+        "x": 423,
+        "y": 902,
+        "w": 79,
+        "h": 49
+      },
+      {
+        "name": "Connexion / Créer un compte",
+        "disabled": false,
+        "x": 1064,
+        "y": 902,
+        "w": 216,
+        "h": 49
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "UN ROGUELIKE LEAGUE OF LEGENDS",
+        "class": "main-menu__subtitle",
+        "font": "10.88px"
+      },
+      {
+        "text": "Sauvegarde locale uniquement",
+        "class": "",
+        "font": "10.88px"
+      },
+      {
+        "text": "CENTRE DE COMMANDEMENT",
+        "class": "main-menu__eyebrow",
+        "font": "10.72px"
+      },
+      {
+        "text": "QUARTIER GÉNÉRAL",
+        "class": "main-menu__eyebrow",
+        "font": "10.72px"
+      },
+      {
+        "text": "Catalogue et maîtrises",
+        "class": "",
+        "font": "10.56px"
+      },
+      {
+        "text": "Mécaniques de la Faille",
+        "class": "",
+        "font": "10.56px"
+      },
+      {
+        "text": "Résultats et progression",
+        "class": "",
+        "font": "10.56px"
+      },
+      {
+        "text": "Audio, confort et affichage",
+        "class": "",
+        "font": "10.56px"
+      },
+      {
+        "text": "V0.1.0",
+        "class": "main-menu__version",
+        "font": "10.56px"
+      },
+      {
+        "text": "Projet de fans — sans affiliation avec Riot Games",
+        "class": "main-menu__disclaimer",
+        "font": "10.56px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "database",
+    "path": "/database",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 900,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour au menu",
+        "disabled": false,
+        "x": 24,
+        "y": 14,
+        "w": 138,
+        "h": 44
+      },
+      {
+        "name": "Aatrox\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 463,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ahri\nMage, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 577,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Akali\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 692,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Akshan\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 806,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Alistar\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 921,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ambessa\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1036,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Amumu\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1150,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Anivia\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1265,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Annie\nMage\nGratuit permanent",
+        "disabled": false,
+        "x": 8,
+        "y": 1379,
+        "w": 319,
+        "h": 95
+      },
+      {
+        "name": "Aphelios\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1474,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ashe\nTireur\nGratuit permanent",
+        "disabled": false,
+        "x": 8,
+        "y": 1588,
+        "w": 319,
+        "h": 95
+      },
+      {
+        "name": "Aurelion Sol\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1683,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Aurora\nMage, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1798,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Azir\nMage, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1912,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Bard\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2027,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Bel'Veth\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2141,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Blitzcrank\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2256,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Brand\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2370,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Braum\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2485,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Briar\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2600,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Caitlyn\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2714,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Camille\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2829,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Cassiopeia\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2943,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Cho'Gath\nTank, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3058,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Corki\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3172,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Darius\nCombattant, Tank\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 3287,
+        "w": 319,
+        "h": 119
+      },
+      {
+        "name": "Diana\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3405,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Dr. Mundo\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3520,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Draven\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3634,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ekko\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3749,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Elise\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3864,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Evelynn\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3978,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ezreal\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4093,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Fiddlesticks\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4207,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Fiora\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4322,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Fizz\nAssassin, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4436,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Galio\nTank, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4551,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Gangplank\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4665,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Garen\nCombattant, Tank\nGratuit permanent",
+        "disabled": false,
+        "x": 8,
+        "y": 4780,
+        "w": 319,
+        "h": 95
+      },
+      {
+        "name": "Gnar\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4875,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Gragas\nCombattant, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4989,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Graves\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5104,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Gwen\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5218,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Hecarim\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5333,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Heimerdinger\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5447,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Hwei\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5562,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Illaoi\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5676,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Irelia\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5791,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ivern\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5906,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Janna\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6020,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Jarvan IV\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6135,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Jax\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6249,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Jayce\nCombattant, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6364,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Jhin\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6478,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Jinx\nTireur\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 6593,
+        "w": 319,
+        "h": 119
+      },
+      {
+        "name": "K'Santé\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6711,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kai'Sa\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6826,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kalista\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6941,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Karma\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7055,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Karthus\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7170,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kassadin\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7284,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Katarina\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7399,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kayle\nMage, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7513,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kayn\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7628,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kennen\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7742,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kha'Zix\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7857,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kindred\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7971,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kled\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8086,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Kog'Maw\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8201,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "LeBlanc\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8315,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Lee Sin\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8430,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Leona\nTank, Support\nVerrouillé",
+        "disabled": false,
+        "x": 8,
+        "y": 8544,
+        "w": 319,
+        "h": 95
+      },
+      {
+        "name": "Lillia\nCombattant, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8639,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Lissandra\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8753,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Lucian\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8868,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Lulu\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8983,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Lux\nMage, Support\nVerrouillé",
+        "disabled": false,
+        "x": 8,
+        "y": 9097,
+        "w": 319,
+        "h": 95
+      },
+      {
+        "name": "Maître Yi\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9192,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Malphite\nTank, Mage\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 9306,
+        "w": 319,
+        "h": 119
+      },
+      {
+        "name": "Malzahar\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9425,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Maokai\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9539,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Mel\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9654,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Milio\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9769,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Miss Fortune\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9883,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Mordekaiser\nCombattant, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9998,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Morgana\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10112,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Naafiri\nAssassin, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10227,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Nami\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10341,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Nasus\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10456,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Nautilus\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10570,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Neeko\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10685,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Nidalee\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10799,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Nilah\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10914,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Nocturne\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11029,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Nunu et Willump\nTank, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11143,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Olaf\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11258,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Orianna\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11372,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ornn\nTank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11487,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Pantheon\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11601,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Poppy\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11716,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Pyke\nSupport, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11830,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Qiyana\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11945,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Quinn\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12059,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Rakan\nSupport\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12174,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Rammus\nTank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12289,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Rek'Sai\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12403,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Rell\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12518,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Renata Glasc\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12632,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Renekton\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12747,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Rengar\nAssassin, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12861,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Riven\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12976,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Rumble\nCombattant, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13090,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ryze\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13205,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Samira\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13319,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Sejuani\nTank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13434,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Senna\nSupport, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13549,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Séraphine\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13663,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Sett\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13778,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Shaco\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13892,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Shen\nTank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14007,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Shyvana\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14121,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Singed\nTank, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14236,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Sion\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14350,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Sivir\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14465,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Skarner\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14579,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Smolder\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14694,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Sona\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14809,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Soraka\nSupport, Mage\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 14923,
+        "w": 319,
+        "h": 119
+      },
+      {
+        "name": "Swain\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15042,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Sylas\nMage, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15156,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Syndra\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15271,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Tahm Kench\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15385,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Taliyah\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15500,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Talon\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15614,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Taric\nSupport, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15729,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Teemo\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15844,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Thresh\nSupport, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15958,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Tristana\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16073,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Trundle\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16187,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Tryndamere\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16302,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Twisted Fate\nMage, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16416,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Twitch\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16531,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Udyr\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16645,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Urgot\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16760,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Varus\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16874,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Vayne\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16989,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Veigar\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17104,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Vel'Koz\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17218,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Vex\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17333,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Vi\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17447,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Viego\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17562,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Viktor\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17676,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Vladimir\nMage, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17791,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Volibear\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17905,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Warwick\nCombattant, Tank\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 18020,
+        "w": 319,
+        "h": 119
+      },
+      {
+        "name": "Wukong\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18138,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Xayah\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18253,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Xerath\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18368,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Xin Zhao\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18482,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Yasuo\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18597,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Yone\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18711,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Yorick\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18826,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Yunara\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18940,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Yuumi\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19055,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Zaahen\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19169,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Zac\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19284,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Zed\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19398,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Zeri\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19513,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Ziggs\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19628,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Zilean\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19742,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Zoé\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19857,
+        "w": 319,
+        "h": 115
+      },
+      {
+        "name": "Zyra\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19971,
+        "w": 319,
+        "h": 115
+      }
+    ],
+    "tinyText": [],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "settings",
+    "path": "/settings",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1061,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour au menu",
+        "disabled": false,
+        "x": 208,
+        "y": 72,
+        "w": 154,
+        "h": 46
+      },
+      {
+        "name": "Couper le son",
+        "disabled": false,
+        "x": 1065,
+        "y": 371,
+        "w": 138,
+        "h": 46
+      }
+    ],
+    "tinyText": [],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "toggle-focus",
+    "focus": {
+      "label": "Activé",
+      "focused": true,
+      "input": {
+        "outline": "rgb(100, 226, 213) solid 3px",
+        "width": 1
+      },
+      "track": {
+        "outline": "rgb(245, 239, 228) none 3px",
+        "focusRing": ""
+      }
+    }
+  },
+  {
+    "device": "desktop",
+    "name": "starter",
+    "path": "/starter-select",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 3453,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour",
+        "disabled": false,
+        "x": 120,
+        "y": 41,
+        "w": 77,
+        "h": 44
+      },
+      {
+        "name": "Choisir Annie",
+        "disabled": false,
+        "x": 120,
+        "y": 428,
+        "w": 389,
+        "h": 496
+      },
+      {
+        "name": "Voir les statistiques et sorts de Annie",
+        "disabled": false,
+        "x": 120,
+        "y": 969,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Ashe",
+        "disabled": false,
+        "x": 525,
+        "y": 428,
+        "w": 389,
+        "h": 496
+      },
+      {
+        "name": "Voir les statistiques et sorts de Ashe",
+        "disabled": false,
+        "x": 525,
+        "y": 969,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Darius",
+        "disabled": false,
+        "x": 931,
+        "y": 428,
+        "w": 389,
+        "h": 442
+      },
+      {
+        "name": "Voir les statistiques et sorts de Darius",
+        "disabled": false,
+        "x": 931,
+        "y": 915,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Se connecter pour acheter Darius",
+        "disabled": false,
+        "x": 931,
+        "y": 969,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Garen",
+        "disabled": false,
+        "x": 120,
+        "y": 1031,
+        "w": 389,
+        "h": 496
+      },
+      {
+        "name": "Voir les statistiques et sorts de Garen",
+        "disabled": false,
+        "x": 120,
+        "y": 1571,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Jinx",
+        "disabled": false,
+        "x": 525,
+        "y": 1031,
+        "w": 389,
+        "h": 442
+      },
+      {
+        "name": "Voir les statistiques et sorts de Jinx",
+        "disabled": false,
+        "x": 525,
+        "y": 1517,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Se connecter pour acheter Jinx",
+        "disabled": false,
+        "x": 525,
+        "y": 1571,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Leona",
+        "disabled": true,
+        "x": 931,
+        "y": 1031,
+        "w": 389,
+        "h": 442
+      },
+      {
+        "name": "Voir les statistiques et sorts de Leona",
+        "disabled": false,
+        "x": 931,
+        "y": 1517,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Se connecter pour acheter Leona",
+        "disabled": false,
+        "x": 931,
+        "y": 1571,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Lux",
+        "disabled": true,
+        "x": 120,
+        "y": 1633,
+        "w": 389,
+        "h": 442
+      },
+      {
+        "name": "Voir les statistiques et sorts de Lux",
+        "disabled": false,
+        "x": 120,
+        "y": 2119,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Se connecter pour acheter Lux",
+        "disabled": false,
+        "x": 120,
+        "y": 2173,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Malphite",
+        "disabled": false,
+        "x": 525,
+        "y": 1633,
+        "w": 389,
+        "h": 442
+      },
+      {
+        "name": "Voir les statistiques et sorts de Malphite",
+        "disabled": false,
+        "x": 525,
+        "y": 2119,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Se connecter pour acheter Malphite",
+        "disabled": false,
+        "x": 525,
+        "y": 2173,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Soraka",
+        "disabled": false,
+        "x": 931,
+        "y": 1633,
+        "w": 389,
+        "h": 442
+      },
+      {
+        "name": "Voir les statistiques et sorts de Soraka",
+        "disabled": false,
+        "x": 931,
+        "y": 2119,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Se connecter pour acheter Soraka",
+        "disabled": false,
+        "x": 931,
+        "y": 2173,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Choisir Warwick",
+        "disabled": false,
+        "x": 120,
+        "y": 2235,
+        "w": 389,
+        "h": 442
+      },
+      {
+        "name": "Voir les statistiques et sorts de Warwick",
+        "disabled": false,
+        "x": 120,
+        "y": 2722,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "Se connecter pour acheter Warwick",
+        "disabled": false,
+        "x": 120,
+        "y": 2776,
+        "w": 389,
+        "h": 46
+      },
+      {
+        "name": "CONFIRMER LE CHOIX",
+        "disabled": true,
+        "x": 540,
+        "y": 3355,
+        "w": 360,
+        "h": 50
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "MAGE",
+        "class": "champion-card__tag champion-card__tag--Mage",
+        "font": "10.88px"
+      },
+      {
+        "text": "TIREUR",
+        "class": "champion-card__tag champion-card__tag--Marksman",
+        "font": "10.88px"
+      },
+      {
+        "text": "COMBATTANT",
+        "class": "champion-card__tag champion-card__tag--Fighter",
+        "font": "10.88px"
+      },
+      {
+        "text": "TANK",
+        "class": "champion-card__tag champion-card__tag--Tank",
+        "font": "10.88px"
+      },
+      {
+        "text": "COMBATTANT",
+        "class": "champion-card__tag champion-card__tag--Fighter",
+        "font": "10.88px"
+      },
+      {
+        "text": "TANK",
+        "class": "champion-card__tag champion-card__tag--Tank",
+        "font": "10.88px"
+      },
+      {
+        "text": "TIREUR",
+        "class": "champion-card__tag champion-card__tag--Marksman",
+        "font": "10.88px"
+      },
+      {
+        "text": "TANK",
+        "class": "champion-card__tag champion-card__tag--Tank",
+        "font": "10.88px"
+      },
+      {
+        "text": "SUPPORT",
+        "class": "champion-card__tag champion-card__tag--Support",
+        "font": "10.88px"
+      },
+      {
+        "text": "MAGE",
+        "class": "champion-card__tag champion-card__tag--Mage",
+        "font": "10.88px"
+      },
+      {
+        "text": "SUPPORT",
+        "class": "champion-card__tag champion-card__tag--Support",
+        "font": "10.88px"
+      },
+      {
+        "text": "TANK",
+        "class": "champion-card__tag champion-card__tag--Tank",
+        "font": "10.88px"
+      },
+      {
+        "text": "MAGE",
+        "class": "champion-card__tag champion-card__tag--Mage",
+        "font": "10.88px"
+      },
+      {
+        "text": "SUPPORT",
+        "class": "champion-card__tag champion-card__tag--Support",
+        "font": "10.88px"
+      },
+      {
+        "text": "MAGE",
+        "class": "champion-card__tag champion-card__tag--Mage",
+        "font": "10.88px"
+      },
+      {
+        "text": "COMBATTANT",
+        "class": "champion-card__tag champion-card__tag--Fighter",
+        "font": "10.88px"
+      },
+      {
+        "text": "TANK",
+        "class": "champion-card__tag champion-card__tag--Tank",
+        "font": "10.88px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "map-tutorial",
+    "path": "/run",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 910,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "← Menu",
+        "disabled": false,
+        "x": 62,
+        "y": 162,
+        "w": 78,
+        "h": 44
+      },
+      {
+        "name": "? Tutoriel carte",
+        "disabled": false,
+        "x": 229,
+        "y": 162,
+        "w": 119,
+        "h": 44
+      },
+      {
+        "name": "⌖\nRecentrer",
+        "disabled": false,
+        "x": 919,
+        "y": 337,
+        "w": 104,
+        "h": 43
+      },
+      {
+        "name": "Sélectionner Annie, niveau 1, 720 sur 720 PV, expérience 0/100 XP",
+        "disabled": false,
+        "x": 1077,
+        "y": 84,
+        "w": 159,
+        "h": 72
+      },
+      {
+        "name": "Sélectionner Ashe, niveau 1, 550 sur 550 PV, expérience 0/100 XP",
+        "disabled": false,
+        "x": 1244,
+        "y": 84,
+        "w": 159,
+        "h": 72
+      },
+      {
+        "name": "Tous 0",
+        "disabled": false,
+        "x": 1081,
+        "y": 628,
+        "w": 104,
+        "h": 44
+      },
+      {
+        "name": "Sac 0",
+        "disabled": false,
+        "x": 1188,
+        "y": 628,
+        "w": 104,
+        "h": 44
+      },
+      {
+        "name": "Équipés 0",
+        "disabled": false,
+        "x": 1295,
+        "y": 628,
+        "w": 104,
+        "h": 44
+      },
+      {
+        "name": "Trier",
+        "disabled": true,
+        "x": 1077,
+        "y": 684,
+        "w": 326,
+        "h": 44
+      },
+      {
+        "name": "Fermer le tutoriel",
+        "disabled": false,
+        "x": 944,
+        "y": 365,
+        "w": 23,
+        "h": 27
+      },
+      {
+        "name": "Précédent",
+        "disabled": true,
+        "x": 473,
+        "y": 494,
+        "w": 116,
+        "h": 46
+      },
+      {
+        "name": "Suivant",
+        "disabled": false,
+        "x": 872,
+        "y": 494,
+        "w": 95,
+        "h": 46
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "EXPÉDITION · BIOME 1 SUR 6",
+        "class": "run-map-heading__eyebrow",
+        "font": "10.4px"
+      },
+      {
+        "text": "TRÉSOR",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "VAGUE",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "NIVEAU",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "Légende · Runes · Améliorations",
+        "class": "",
+        "font": "10.24px"
+      },
+      {
+        "text": "ITINÉRAIRE DU BIOME",
+        "class": "run-map-map__eyebrow",
+        "font": "8.8px"
+      },
+      {
+        "text": "ESCOUADE ACTIVE",
+        "class": "run-team-stats__eyebrow",
+        "font": "10px"
+      },
+      {
+        "text": "1",
+        "class": "run-team-stats__level",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "720/720",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "0/100 XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "1",
+        "class": "run-team-stats__level",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "550/550",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "0/100 XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "FICHE SÉLECTIONNÉE",
+        "class": "run-team-stats__eyebrow",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ATQ",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "PUI",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ARM",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "RM",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "I. ATQ",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "V. DÉP",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "CRIT",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ÉQUIPEMENT DE LA PARTIE",
+        "class": "run-inventory__eyebrow",
+        "font": "9.92px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "map",
+    "path": "/run",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 910,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "← Menu",
+        "disabled": false,
+        "x": 62,
+        "y": 162,
+        "w": 78,
+        "h": 44
+      },
+      {
+        "name": "? Tutoriel carte",
+        "disabled": false,
+        "x": 229,
+        "y": 162,
+        "w": 119,
+        "h": 44
+      },
+      {
+        "name": "⌖\nRecentrer",
+        "disabled": false,
+        "x": 919,
+        "y": 337,
+        "w": 104,
+        "h": 43
+      },
+      {
+        "name": "Sélectionner Annie, niveau 1, 720 sur 720 PV, expérience 0/100 XP",
+        "disabled": false,
+        "x": 1077,
+        "y": 84,
+        "w": 159,
+        "h": 72
+      },
+      {
+        "name": "Sélectionner Ashe, niveau 1, 550 sur 550 PV, expérience 0/100 XP",
+        "disabled": false,
+        "x": 1244,
+        "y": 84,
+        "w": 159,
+        "h": 72
+      },
+      {
+        "name": "Tous 0",
+        "disabled": false,
+        "x": 1081,
+        "y": 628,
+        "w": 104,
+        "h": 44
+      },
+      {
+        "name": "Sac 0",
+        "disabled": false,
+        "x": 1188,
+        "y": 628,
+        "w": 104,
+        "h": 44
+      },
+      {
+        "name": "Équipés 0",
+        "disabled": false,
+        "x": 1295,
+        "y": 628,
+        "w": 104,
+        "h": 44
+      },
+      {
+        "name": "Trier",
+        "disabled": true,
+        "x": 1077,
+        "y": 684,
+        "w": 326,
+        "h": 44
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "EXPÉDITION · BIOME 1 SUR 6",
+        "class": "run-map-heading__eyebrow",
+        "font": "10.4px"
+      },
+      {
+        "text": "TRÉSOR",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "VAGUE",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "NIVEAU",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "Légende · Runes · Améliorations",
+        "class": "",
+        "font": "10.24px"
+      },
+      {
+        "text": "ITINÉRAIRE DU BIOME",
+        "class": "run-map-map__eyebrow",
+        "font": "8.8px"
+      },
+      {
+        "text": "ESCOUADE ACTIVE",
+        "class": "run-team-stats__eyebrow",
+        "font": "10px"
+      },
+      {
+        "text": "1",
+        "class": "run-team-stats__level",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "720/720",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "0/100 XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "1",
+        "class": "run-team-stats__level",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "550/550",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "0/100 XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "FICHE SÉLECTIONNÉE",
+        "class": "run-team-stats__eyebrow",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ATQ",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "PUI",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ARM",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "RM",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "I. ATQ",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "V. DÉP",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "CRIT",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ÉQUIPEMENT DE LA PARTIE",
+        "class": "run-inventory__eyebrow",
+        "font": "9.92px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "inventory-colors",
+    "inventoryColors": [
+      {
+        "text": "0",
+        "color": "rgb(127, 142, 156)",
+        "font": "11.52px",
+        "parentClass": "run-inventory__filter",
+        "parentBackground": "rgb(26, 45, 61)"
+      },
+      {
+        "text": "0",
+        "color": "rgb(127, 142, 156)",
+        "font": "11.52px",
+        "parentClass": "run-inventory__filter",
+        "parentBackground": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "0",
+        "color": "rgb(127, 142, 156)",
+        "font": "11.52px",
+        "parentClass": "run-inventory__filter",
+        "parentBackground": "rgba(0, 0, 0, 0)"
+      }
+    ]
+  },
+  {
+    "device": "desktop",
+    "name": "combat-tutorial",
+    "path": "/combat",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 900,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour à la carte",
+        "disabled": true,
+        "x": 8,
+        "y": 17,
+        "w": 120,
+        "h": 36
+      },
+      {
+        "name": "Vitesse 1×",
+        "disabled": false,
+        "x": 981,
+        "y": 13,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "Vitesse 2×",
+        "disabled": false,
+        "x": 1029,
+        "y": 13,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "Vitesse 3×",
+        "disabled": false,
+        "x": 1077,
+        "y": 13,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "? Règles du combat",
+        "disabled": false,
+        "x": 1134,
+        "y": 22,
+        "w": 156,
+        "h": 27
+      },
+      {
+        "name": "Activer le mode automatique",
+        "disabled": false,
+        "x": 1298,
+        "y": 17,
+        "w": 134,
+        "h": 36
+      },
+      {
+        "name": "",
+        "disabled": false,
+        "x": 380,
+        "y": 829,
+        "w": 199,
+        "h": 44
+      },
+      {
+        "name": "Fermer le tutoriel",
+        "disabled": false,
+        "x": 944,
+        "y": 365,
+        "w": 23,
+        "h": 27
+      },
+      {
+        "name": "Précédent",
+        "disabled": true,
+        "x": 473,
+        "y": 494,
+        "w": 116,
+        "h": 46
+      },
+      {
+        "name": "Suivant",
+        "disabled": false,
+        "x": 872,
+        "y": 494,
+        "w": 95,
+        "h": 46
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "TOUR 0",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "CIBLE",
+        "class": "combat-stage__fighter-role",
+        "font": "8.96px"
+      },
+      {
+        "text": "ÉQUIPE ENNEMIE",
+        "class": "combat-stage__fighter-side",
+        "font": "9.28px"
+      },
+      {
+        "text": "365 / 365 PV",
+        "class": "combat-stage__health-copy",
+        "font": "9.28px"
+      },
+      {
+        "text": "En attente du tour de l'ennemi…",
+        "class": "combat-stage__status",
+        "font": "10.24px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "combat",
+    "path": "/combat",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 900,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour à la carte",
+        "disabled": true,
+        "x": 8,
+        "y": 17,
+        "w": 120,
+        "h": 36
+      },
+      {
+        "name": "Vitesse 1×",
+        "disabled": false,
+        "x": 981,
+        "y": 13,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "Vitesse 2×",
+        "disabled": false,
+        "x": 1029,
+        "y": 13,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "Vitesse 3×",
+        "disabled": false,
+        "x": 1077,
+        "y": 13,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "? Règles du combat",
+        "disabled": false,
+        "x": 1134,
+        "y": 22,
+        "w": 156,
+        "h": 27
+      },
+      {
+        "name": "Activer le mode automatique",
+        "disabled": false,
+        "x": 1298,
+        "y": 17,
+        "w": 134,
+        "h": 36
+      },
+      {
+        "name": "Attaque de base",
+        "disabled": false,
+        "x": 563,
+        "y": 658,
+        "w": 99,
+        "h": 44
+      },
+      {
+        "name": "Sort Q : Désintégration, prêt",
+        "disabled": false,
+        "x": 683,
+        "y": 654,
+        "w": 52,
+        "h": 52
+      },
+      {
+        "name": "Sort W : Incinération, prêt",
+        "disabled": false,
+        "x": 743,
+        "y": 654,
+        "w": 52,
+        "h": 52
+      },
+      {
+        "name": "Sort E : Bouclier en fusion, prêt",
+        "disabled": false,
+        "x": 803,
+        "y": 654,
+        "w": 52,
+        "h": 52
+      },
+      {
+        "name": "Sort R : Invocation : Tibbers, prêt",
+        "disabled": false,
+        "x": 863,
+        "y": 654,
+        "w": 52,
+        "h": 52
+      },
+      {
+        "name": "Exécuter le tour (Espace)",
+        "disabled": false,
+        "x": 1101,
+        "y": 668,
+        "w": 206,
+        "h": 44
+      },
+      {
+        "name": "",
+        "disabled": false,
+        "x": 380,
+        "y": 849,
+        "w": 199,
+        "h": 44
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "TOUR 1",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "ATTAQUANT",
+        "class": "combat-stage__fighter-role",
+        "font": "8.96px"
+      },
+      {
+        "text": "VOTRE ÉQUIPE",
+        "class": "combat-stage__fighter-side",
+        "font": "9.28px"
+      },
+      {
+        "text": "720 / 720 PV",
+        "class": "combat-stage__health-copy",
+        "font": "9.28px"
+      },
+      {
+        "text": "CIBLE",
+        "class": "combat-stage__fighter-role",
+        "font": "8.96px"
+      },
+      {
+        "text": "ÉQUIPE ENNEMIE",
+        "class": "combat-stage__fighter-side",
+        "font": "9.28px"
+      },
+      {
+        "text": "365 / 365 PV",
+        "class": "combat-stage__health-copy",
+        "font": "9.28px"
+      },
+      {
+        "text": "Mode manuel — choisissez une action ou appuyez sur Espace.",
+        "class": "combat-stage__status",
+        "font": "10.24px"
+      },
+      {
+        "text": "1 · ACTION",
+        "class": "combat-command__step-label",
+        "font": "10px"
+      },
+      {
+        "text": "Désintégration",
+        "class": "combat-ability__name",
+        "font": "7.68px"
+      },
+      {
+        "text": "Incinération",
+        "class": "combat-ability__name",
+        "font": "7.68px"
+      },
+      {
+        "text": "Bouclier en fusion",
+        "class": "combat-ability__name",
+        "font": "7.68px"
+      },
+      {
+        "text": "Invocation : Tibbers",
+        "class": "combat-ability__name",
+        "font": "7.68px"
+      },
+      {
+        "text": "2 · CIBLE",
+        "class": "combat-command__step-label",
+        "font": "10px"
+      },
+      {
+        "text": "3 · CONFIRMATION",
+        "class": "combat-command__step-label",
+        "font": "10px"
+      },
+      {
+        "text": "[Espace]",
+        "class": "combat-action-button__shortcut",
+        "font": "10px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "desktop",
+    "name": "combat-immediate-action",
+    "before": {
+      "round": 1,
+      "turnIndex": 0,
+      "actor": "Annie",
+      "log": ["=== Tour 1 ==="]
+    },
+    "after": {
+      "round": 1,
+      "turnIndex": 1,
+      "actor": "Ashe",
+      "log": ["=== Tour 1 ===", "Annie: Attaque de base", "Annie → Warwick: 42 dégâts"]
+    },
+    "confirmationClicked": false
+  },
+  {
+    "device": "desktop",
+    "name": "game-over",
+    "path": "/game-over",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1352,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Nouvelle partie",
+        "disabled": false,
+        "x": 728,
+        "y": 593,
+        "w": 262,
+        "h": 48
+      },
+      {
+        "name": "Menu principal",
+        "disabled": false,
+        "x": 728,
+        "y": 649,
+        "w": 262,
+        "h": 48
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "MEILLEURE CONTRIBUTION DE LA PARTIE",
+        "class": "game-over-champion-breakdown__mvp",
+        "font": "9.92px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "auth",
+    "path": "/auth",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 844,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Connexion",
+        "disabled": false,
+        "x": 38,
+        "y": 308,
+        "w": 156,
+        "h": 44
+      },
+      {
+        "name": "Créer un compte",
+        "disabled": false,
+        "x": 197,
+        "y": 308,
+        "w": 156,
+        "h": 44
+      },
+      {
+        "name": "CONNEXION",
+        "disabled": true,
+        "x": 33,
+        "y": 543,
+        "w": 325,
+        "h": 48
+      },
+      {
+        "name": "Jouer en invité",
+        "disabled": false,
+        "x": 33,
+        "y": 694,
+        "w": 325,
+        "h": 48
+      }
+    ],
+    "tinyText": [],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "signup",
+    "path": "/auth",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 990,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Connexion",
+        "disabled": false,
+        "x": 38,
+        "y": 289,
+        "w": 156,
+        "h": 44
+      },
+      {
+        "name": "Créer un compte",
+        "disabled": false,
+        "x": 197,
+        "y": 289,
+        "w": 156,
+        "h": 44
+      },
+      {
+        "name": "CRÉER UN COMPTE",
+        "disabled": true,
+        "x": 33,
+        "y": 696,
+        "w": 325,
+        "h": 48
+      },
+      {
+        "name": "Jouer en invité",
+        "disabled": false,
+        "x": 33,
+        "y": 847,
+        "w": 325,
+        "h": 48
+      }
+    ],
+    "tinyText": [],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "menu",
+    "path": "/",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1640,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "J’ai compris",
+        "disabled": false,
+        "x": 27,
+        "y": 348,
+        "w": 336,
+        "h": 44
+      },
+      {
+        "name": "Plus tard",
+        "disabled": false,
+        "x": 27,
+        "y": 408,
+        "w": 336,
+        "h": 44
+      },
+      {
+        "name": "Jouer",
+        "disabled": false,
+        "x": 23,
+        "y": 850,
+        "w": 344,
+        "h": 56
+      },
+      {
+        "name": "Défi quotidien",
+        "disabled": false,
+        "x": 23,
+        "y": 918,
+        "w": 344,
+        "h": 56
+      },
+      {
+        "name": "Comprendre les règles",
+        "disabled": false,
+        "x": 23,
+        "y": 1088,
+        "w": 344,
+        "h": 44
+      },
+      {
+        "name": "Champions",
+        "disabled": false,
+        "x": 23,
+        "y": 1222,
+        "w": 169,
+        "h": 56
+      },
+      {
+        "name": "Guide et règles",
+        "disabled": false,
+        "x": 198,
+        "y": 1222,
+        "w": 169,
+        "h": 56
+      },
+      {
+        "name": "Profil et historique",
+        "disabled": false,
+        "x": 23,
+        "y": 1284,
+        "w": 169,
+        "h": 56
+      },
+      {
+        "name": "Réglages",
+        "disabled": false,
+        "x": 198,
+        "y": 1284,
+        "w": 169,
+        "h": 56
+      },
+      {
+        "name": "Crédits",
+        "disabled": false,
+        "x": 10,
+        "y": 1422,
+        "w": 370,
+        "h": 44
+      },
+      {
+        "name": "Connexion / Créer un compte",
+        "disabled": false,
+        "x": 10,
+        "y": 1474,
+        "w": 370,
+        "h": 44
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "UN ROGUELIKE LEAGUE OF LEGENDS",
+        "class": "main-menu__subtitle",
+        "font": "9.92px"
+      },
+      {
+        "text": "Sauvegarde locale uniquement",
+        "class": "",
+        "font": "10.88px"
+      },
+      {
+        "text": "CENTRE DE COMMANDEMENT",
+        "class": "main-menu__eyebrow",
+        "font": "10.72px"
+      },
+      {
+        "text": "QUARTIER GÉNÉRAL",
+        "class": "main-menu__eyebrow",
+        "font": "10.72px"
+      },
+      {
+        "text": "V0.1.0",
+        "class": "main-menu__version",
+        "font": "10.56px"
+      },
+      {
+        "text": "Projet de fans — sans affiliation avec Riot Games",
+        "class": "main-menu__disclaimer",
+        "font": "10.56px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "database",
+    "path": "/database",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1121,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour au menu",
+        "disabled": false,
+        "x": 12,
+        "y": -265,
+        "w": 138,
+        "h": 44
+      },
+      {
+        "name": "Aatrox\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 283,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ahri\nMage, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 398,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Akali\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 512,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Akshan\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 627,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Alistar\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 741,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ambessa\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 856,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Amumu\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 970,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Anivia\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1085,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Annie\nMage\nGratuit permanent",
+        "disabled": false,
+        "x": 8,
+        "y": 1199,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Aphelios\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1294,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ashe\nTireur\nGratuit permanent",
+        "disabled": false,
+        "x": 8,
+        "y": 1409,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Aurelion Sol\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1503,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Aurora\nMage, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1618,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Azir\nMage, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1733,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Bard\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1847,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Bel'Veth\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 1962,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Blitzcrank\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2076,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Brand\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2191,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Braum\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2305,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Briar\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2420,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Caitlyn\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2534,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Camille\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2649,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Cassiopeia\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2763,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Cho'Gath\nTank, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2878,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Corki\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 2993,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Darius\nCombattant, Tank\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 3107,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Diana\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3202,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Dr. Mundo\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3316,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Draven\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3431,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ekko\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3545,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Elise\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3660,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Evelynn\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3775,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ezreal\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 3889,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Fiddlesticks\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4004,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Fiora\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4118,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Fizz\nAssassin, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4233,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Galio\nTank, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4347,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Gangplank\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4462,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Garen\nCombattant, Tank\nGratuit permanent",
+        "disabled": false,
+        "x": 8,
+        "y": 4576,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Gnar\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4671,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Gragas\nCombattant, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4786,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Graves\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 4900,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Gwen\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5015,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Hecarim\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5129,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Heimerdinger\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5244,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Hwei\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5358,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Illaoi\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5473,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Irelia\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5587,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ivern\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5702,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Janna\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5817,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Jarvan IV\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 5931,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Jax\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6046,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Jayce\nCombattant, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6160,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Jhin\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6275,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Jinx\nTireur\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 6389,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "K'Santé\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6484,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kai'Sa\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6599,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kalista\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6713,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Karma\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6828,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Karthus\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 6942,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kassadin\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7057,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Katarina\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7171,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kayle\nMage, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7286,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kayn\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7400,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kennen\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7515,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kha'Zix\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7629,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kindred\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7744,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kled\nCombattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7859,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Kog'Maw\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 7973,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "LeBlanc\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8088,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Lee Sin\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8202,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Leona\nTank, Support\nVerrouillé",
+        "disabled": false,
+        "x": 8,
+        "y": 8317,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Lillia\nCombattant, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8411,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Lissandra\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8526,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Lucian\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8641,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Lulu\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8755,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Lux\nMage, Support\nVerrouillé",
+        "disabled": false,
+        "x": 8,
+        "y": 8870,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Maître Yi\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 8964,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Malphite\nTank, Mage\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 9079,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Malzahar\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9174,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Maokai\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9288,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Mel\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9403,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Milio\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9517,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Miss Fortune\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9632,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Mordekaiser\nCombattant, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9746,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Morgana\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9861,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Naafiri\nAssassin, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 9975,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Nami\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10090,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Nasus\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10205,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Nautilus\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10319,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Neeko\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10434,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Nidalee\nAssassin, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10548,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Nilah\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10663,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Nocturne\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10777,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Nunu et Willump\nTank, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 10892,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Olaf\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11006,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Orianna\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11121,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ornn\nTank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11236,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Pantheon\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11350,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Poppy\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11465,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Pyke\nSupport, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11579,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Qiyana\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11694,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Quinn\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11808,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Rakan\nSupport\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 11923,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Rammus\nTank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12037,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Rek'Sai\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12152,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Rell\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12266,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Renata Glasc\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12381,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Renekton\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12496,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Rengar\nAssassin, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12610,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Riven\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12725,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Rumble\nCombattant, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12839,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ryze\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 12954,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Samira\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13068,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Sejuani\nTank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13183,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Senna\nSupport, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13297,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Séraphine\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13412,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Sett\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13526,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Shaco\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13641,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Shen\nTank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13756,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Shyvana\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13870,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Singed\nTank, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 13985,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Sion\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14099,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Sivir\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14214,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Skarner\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14328,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Smolder\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14443,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Sona\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14557,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Soraka\nSupport, Mage\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 14672,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Swain\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14767,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Sylas\nMage, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14881,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Syndra\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 14996,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Tahm Kench\nTank, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15110,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Taliyah\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15225,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Talon\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15339,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Taric\nSupport, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15454,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Teemo\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15568,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Thresh\nSupport, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15683,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Tristana\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15798,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Trundle\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 15912,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Tryndamere\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16027,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Twisted Fate\nMage, Tireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16141,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Twitch\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16256,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Udyr\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16370,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Urgot\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16485,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Varus\nTireur, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16599,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Vayne\nTireur, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16714,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Veigar\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16828,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Vel'Koz\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 16943,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Vex\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17058,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Vi\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17172,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Viego\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17287,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Viktor\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17401,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Vladimir\nMage, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17516,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Volibear\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17630,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Warwick\nCombattant, Tank\nRotation hebdomadaire\n2 j 10 h restantes",
+        "disabled": false,
+        "x": 8,
+        "y": 17745,
+        "w": 374,
+        "h": 95
+      },
+      {
+        "name": "Wukong\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17840,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Xayah\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 17954,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Xerath\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18069,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Xin Zhao\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18183,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Yasuo\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18298,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Yone\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18412,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Yorick\nCombattant, Tank\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18527,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Yunara\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18641,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Yuumi\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18756,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Zaahen\nCombattant, Assassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18870,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Zac\nTank, Combattant\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 18985,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Zed\nAssassin\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19100,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Zeri\nTireur\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19214,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Ziggs\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19329,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Zilean\nSupport, Mage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19443,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Zoé\nMage\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19558,
+        "w": 374,
+        "h": 115
+      },
+      {
+        "name": "Zyra\nMage, Support\nConsultation uniquement — champion indisponible en combat",
+        "disabled": false,
+        "x": 8,
+        "y": 19672,
+        "w": 374,
+        "h": 115
+      }
+    ],
+    "tinyText": [],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "settings",
+    "path": "/settings",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1645,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour au menu",
+        "disabled": false,
+        "x": 12,
+        "y": 20,
+        "w": 154,
+        "h": 46
+      },
+      {
+        "name": "Couper le son",
+        "disabled": false,
+        "x": 29,
+        "y": 437,
+        "w": 332,
+        "h": 46
+      }
+    ],
+    "tinyText": [],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "toggle-focus",
+    "focus": {
+      "label": "Activé",
+      "focused": true,
+      "input": {
+        "outline": "rgb(100, 226, 213) solid 3px",
+        "width": 1
+      },
+      "track": {
+        "outline": "rgb(245, 239, 228) none 3px",
+        "focusRing": ""
+      }
+    }
+  },
+  {
+    "device": "mobile",
+    "name": "starter",
+    "path": "/starter-select",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 3588,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour",
+        "disabled": false,
+        "x": 12,
+        "y": 16,
+        "w": 77,
+        "h": 44
+      },
+      {
+        "name": "Choisir Annie",
+        "disabled": false,
+        "x": 12,
+        "y": 593,
+        "w": 177,
+        "h": 253
+      },
+      {
+        "name": "Voir les statistiques et sorts de Annie",
+        "disabled": false,
+        "x": 12,
+        "y": 891,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Ashe",
+        "disabled": false,
+        "x": 201,
+        "y": 593,
+        "w": 177,
+        "h": 253
+      },
+      {
+        "name": "Voir les statistiques et sorts de Ashe",
+        "disabled": false,
+        "x": 201,
+        "y": 891,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Darius",
+        "disabled": false,
+        "x": 12,
+        "y": 963,
+        "w": 177,
+        "h": 253
+      },
+      {
+        "name": "Voir les statistiques et sorts de Darius",
+        "disabled": false,
+        "x": 12,
+        "y": 1285,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Se connecter pour acheter Darius",
+        "disabled": false,
+        "x": 12,
+        "y": 1353,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Garen",
+        "disabled": false,
+        "x": 201,
+        "y": 963,
+        "w": 177,
+        "h": 346
+      },
+      {
+        "name": "Voir les statistiques et sorts de Garen",
+        "disabled": false,
+        "x": 201,
+        "y": 1353,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Jinx",
+        "disabled": false,
+        "x": 12,
+        "y": 1426,
+        "w": 177,
+        "h": 253
+      },
+      {
+        "name": "Voir les statistiques et sorts de Jinx",
+        "disabled": false,
+        "x": 12,
+        "y": 1747,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Se connecter pour acheter Jinx",
+        "disabled": false,
+        "x": 12,
+        "y": 1816,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Leona",
+        "disabled": true,
+        "x": 201,
+        "y": 1426,
+        "w": 177,
+        "h": 277
+      },
+      {
+        "name": "Voir les statistiques et sorts de Leona",
+        "disabled": false,
+        "x": 201,
+        "y": 1747,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Se connecter pour acheter Leona",
+        "disabled": false,
+        "x": 201,
+        "y": 1816,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Lux",
+        "disabled": true,
+        "x": 12,
+        "y": 1888,
+        "w": 177,
+        "h": 277
+      },
+      {
+        "name": "Voir les statistiques et sorts de Lux",
+        "disabled": false,
+        "x": 12,
+        "y": 2210,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Se connecter pour acheter Lux",
+        "disabled": false,
+        "x": 12,
+        "y": 2279,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Malphite",
+        "disabled": false,
+        "x": 201,
+        "y": 1888,
+        "w": 177,
+        "h": 253
+      },
+      {
+        "name": "Voir les statistiques et sorts de Malphite",
+        "disabled": false,
+        "x": 201,
+        "y": 2210,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Se connecter pour acheter Malphite",
+        "disabled": false,
+        "x": 201,
+        "y": 2279,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Soraka",
+        "disabled": false,
+        "x": 12,
+        "y": 2351,
+        "w": 177,
+        "h": 267
+      },
+      {
+        "name": "Voir les statistiques et sorts de Soraka",
+        "disabled": false,
+        "x": 12,
+        "y": 2686,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Se connecter pour acheter Soraka",
+        "disabled": false,
+        "x": 12,
+        "y": 2755,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Choisir Warwick",
+        "disabled": false,
+        "x": 201,
+        "y": 2351,
+        "w": 177,
+        "h": 267
+      },
+      {
+        "name": "Voir les statistiques et sorts de Warwick",
+        "disabled": false,
+        "x": 201,
+        "y": 2686,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "Se connecter pour acheter Warwick",
+        "disabled": false,
+        "x": 201,
+        "y": 2755,
+        "w": 177,
+        "h": 61
+      },
+      {
+        "name": "CONFIRMER LE CHOIX",
+        "disabled": true,
+        "x": 15,
+        "y": 3520,
+        "w": 360,
+        "h": 48
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "MAGE",
+        "class": "champion-card__tag champion-card__tag--Mage",
+        "font": "8.8px"
+      },
+      {
+        "text": "PV",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "720",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "ATQ",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "50",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "DÉF",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "30",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "PUI",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "25",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "VIT",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "3",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "CRIT",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "0",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "TIREUR",
+        "class": "champion-card__tag champion-card__tag--Marksman",
+        "font": "8.8px"
+      },
+      {
+        "text": "PV",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "550",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "ATQ",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "59",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "DÉF",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "27",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "PUI",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "25",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "VIT",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "1",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "CRIT",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "0",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      },
+      {
+        "text": "COMBATTANT",
+        "class": "champion-card__tag champion-card__tag--Fighter",
+        "font": "8.8px"
+      },
+      {
+        "text": "TANK",
+        "class": "champion-card__tag champion-card__tag--Tank",
+        "font": "8.8px"
+      },
+      {
+        "text": "PV",
+        "class": "champion-card__stat-label",
+        "font": "9.6px"
+      },
+      {
+        "text": "675",
+        "class": "champion-card__stat-value",
+        "font": "9.6px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "map-tutorial",
+    "path": "/run",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1757,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "← Menu",
+        "disabled": false,
+        "x": 30,
+        "y": 161,
+        "w": 330,
+        "h": 44
+      },
+      {
+        "name": "? Tutoriel carte",
+        "disabled": false,
+        "x": 143,
+        "y": 213,
+        "w": 105,
+        "h": 58
+      },
+      {
+        "name": "⌖\nRecentrer",
+        "disabled": false,
+        "x": 265,
+        "y": 472,
+        "w": 104,
+        "h": 43
+      },
+      {
+        "name": "Sélectionner Annie, niveau 1, 720 sur 720 PV, expérience 0/100 XP",
+        "disabled": false,
+        "x": 21,
+        "y": 996,
+        "w": 170,
+        "h": 72
+      },
+      {
+        "name": "Sélectionner Ashe, niveau 1, 550 sur 550 PV, expérience 0/100 XP",
+        "disabled": false,
+        "x": 199,
+        "y": 996,
+        "w": 170,
+        "h": 72
+      },
+      {
+        "name": "Tous 0",
+        "disabled": false,
+        "x": 25,
+        "y": 1543,
+        "w": 91,
+        "h": 44
+      },
+      {
+        "name": "Sac 0",
+        "disabled": false,
+        "x": 119,
+        "y": 1543,
+        "w": 91,
+        "h": 44
+      },
+      {
+        "name": "Équipés 0",
+        "disabled": false,
+        "x": 213,
+        "y": 1543,
+        "w": 91,
+        "h": 44
+      },
+      {
+        "name": "Trier",
+        "disabled": true,
+        "x": 316,
+        "y": 1539,
+        "w": 53,
+        "h": 52
+      },
+      {
+        "name": "Fermer le tutoriel",
+        "disabled": false,
+        "x": 330,
+        "y": 326,
+        "w": 23,
+        "h": 27
+      },
+      {
+        "name": "Précédent",
+        "disabled": true,
+        "x": 37,
+        "y": 472,
+        "w": 116,
+        "h": 46
+      },
+      {
+        "name": "Suivant",
+        "disabled": false,
+        "x": 258,
+        "y": 472,
+        "w": 95,
+        "h": 46
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "EXPÉDITION · BIOME 1 SUR 6",
+        "class": "run-map-heading__eyebrow",
+        "font": "10.4px"
+      },
+      {
+        "text": "TRÉSOR",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "VAGUE",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "NIVEAU",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "Légende · Runes · Améliorations",
+        "class": "",
+        "font": "10.24px"
+      },
+      {
+        "text": "ITINÉRAIRE DU BIOME",
+        "class": "run-map-map__eyebrow",
+        "font": "8.8px"
+      },
+      {
+        "text": "ESCOUADE ACTIVE",
+        "class": "run-team-stats__eyebrow",
+        "font": "10px"
+      },
+      {
+        "text": "1",
+        "class": "run-team-stats__level",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "720/720",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "0/100 XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "1",
+        "class": "run-team-stats__level",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "550/550",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "0/100 XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "FICHE SÉLECTIONNÉE",
+        "class": "run-team-stats__eyebrow",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ATQ",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "PUI",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ARM",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "RM",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "I. ATQ",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "V. DÉP",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "CRIT",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ÉQUIPEMENT DE LA PARTIE",
+        "class": "run-inventory__eyebrow",
+        "font": "9.92px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "map",
+    "path": "/run",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1757,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "← Menu",
+        "disabled": false,
+        "x": 30,
+        "y": 161,
+        "w": 330,
+        "h": 44
+      },
+      {
+        "name": "? Tutoriel carte",
+        "disabled": false,
+        "x": 143,
+        "y": 213,
+        "w": 105,
+        "h": 58
+      },
+      {
+        "name": "⌖\nRecentrer",
+        "disabled": false,
+        "x": 265,
+        "y": 472,
+        "w": 104,
+        "h": 43
+      },
+      {
+        "name": "Sélectionner Annie, niveau 1, 720 sur 720 PV, expérience 0/100 XP",
+        "disabled": false,
+        "x": 21,
+        "y": 996,
+        "w": 170,
+        "h": 72
+      },
+      {
+        "name": "Sélectionner Ashe, niveau 1, 550 sur 550 PV, expérience 0/100 XP",
+        "disabled": false,
+        "x": 199,
+        "y": 996,
+        "w": 170,
+        "h": 72
+      },
+      {
+        "name": "Tous 0",
+        "disabled": false,
+        "x": 25,
+        "y": 1543,
+        "w": 91,
+        "h": 44
+      },
+      {
+        "name": "Sac 0",
+        "disabled": false,
+        "x": 119,
+        "y": 1543,
+        "w": 91,
+        "h": 44
+      },
+      {
+        "name": "Équipés 0",
+        "disabled": false,
+        "x": 213,
+        "y": 1543,
+        "w": 91,
+        "h": 44
+      },
+      {
+        "name": "Trier",
+        "disabled": true,
+        "x": 316,
+        "y": 1539,
+        "w": 53,
+        "h": 52
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "EXPÉDITION · BIOME 1 SUR 6",
+        "class": "run-map-heading__eyebrow",
+        "font": "10.4px"
+      },
+      {
+        "text": "TRÉSOR",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "VAGUE",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "NIVEAU",
+        "class": "",
+        "font": "8.96px"
+      },
+      {
+        "text": "Légende · Runes · Améliorations",
+        "class": "",
+        "font": "10.24px"
+      },
+      {
+        "text": "ITINÉRAIRE DU BIOME",
+        "class": "run-map-map__eyebrow",
+        "font": "8.8px"
+      },
+      {
+        "text": "ESCOUADE ACTIVE",
+        "class": "run-team-stats__eyebrow",
+        "font": "10px"
+      },
+      {
+        "text": "1",
+        "class": "run-team-stats__level",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "720/720",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "0/100 XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "1",
+        "class": "run-team-stats__level",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "550/550",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "0/100 XP",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "FICHE SÉLECTIONNÉE",
+        "class": "run-team-stats__eyebrow",
+        "font": "10px"
+      },
+      {
+        "text": "PV",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ATQ",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "PUI",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ARM",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "RM",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "I. ATQ",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "V. DÉP",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "CRIT",
+        "class": "",
+        "font": "10px"
+      },
+      {
+        "text": "ÉQUIPEMENT DE LA PARTIE",
+        "class": "run-inventory__eyebrow",
+        "font": "9.92px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "inventory-colors",
+    "inventoryColors": [
+      {
+        "text": "0",
+        "color": "rgb(127, 142, 156)",
+        "font": "11.52px",
+        "parentClass": "run-inventory__filter",
+        "parentBackground": "rgb(26, 45, 61)"
+      },
+      {
+        "text": "0",
+        "color": "rgb(127, 142, 156)",
+        "font": "11.52px",
+        "parentClass": "run-inventory__filter",
+        "parentBackground": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "0",
+        "color": "rgb(127, 142, 156)",
+        "font": "11.52px",
+        "parentClass": "run-inventory__filter",
+        "parentBackground": "rgba(0, 0, 0, 0)"
+      }
+    ]
+  },
+  {
+    "device": "mobile",
+    "name": "combat-tutorial",
+    "path": "/combat",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 958,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour à la carte",
+        "disabled": true,
+        "x": 8,
+        "y": 8,
+        "w": 120,
+        "h": 36
+      },
+      {
+        "name": "Vitesse 1×",
+        "disabled": false,
+        "x": 133,
+        "y": 88,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "Vitesse 2×",
+        "disabled": false,
+        "x": 181,
+        "y": 88,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "Vitesse 3×",
+        "disabled": false,
+        "x": 229,
+        "y": 88,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "? Règles du combat",
+        "disabled": false,
+        "x": 8,
+        "y": 150,
+        "w": 156,
+        "h": 27
+      },
+      {
+        "name": "Activer le mode automatique",
+        "disabled": false,
+        "x": 172,
+        "y": 145,
+        "w": 134,
+        "h": 36
+      },
+      {
+        "name": "",
+        "disabled": false,
+        "x": 8,
+        "y": 919,
+        "w": 199,
+        "h": 44
+      },
+      {
+        "name": "Fermer le tutoriel",
+        "disabled": false,
+        "x": 330,
+        "y": 326,
+        "w": 23,
+        "h": 27
+      },
+      {
+        "name": "Précédent",
+        "disabled": true,
+        "x": 37,
+        "y": 472,
+        "w": 116,
+        "h": 46
+      },
+      {
+        "name": "Suivant",
+        "disabled": false,
+        "x": 258,
+        "y": 472,
+        "w": 95,
+        "h": 46
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "TOUR 0",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "CIBLE",
+        "class": "combat-stage__fighter-role",
+        "font": "7.68px"
+      },
+      {
+        "text": "ÉQUIPE ENNEMIE",
+        "class": "combat-stage__fighter-side",
+        "font": "9.28px"
+      },
+      {
+        "text": "365 / 365 PV",
+        "class": "combat-stage__health-copy",
+        "font": "9.28px"
+      },
+      {
+        "text": "En attente du tour de l'ennemi…",
+        "class": "combat-stage__status",
+        "font": "10.24px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "combat",
+    "path": "/combat",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1185,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Retour à la carte",
+        "disabled": true,
+        "x": 8,
+        "y": -333,
+        "w": 120,
+        "h": 36
+      },
+      {
+        "name": "Vitesse 1×",
+        "disabled": false,
+        "x": 156,
+        "y": -253,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "Vitesse 2×",
+        "disabled": false,
+        "x": 204,
+        "y": -253,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "Vitesse 3×",
+        "disabled": false,
+        "x": 252,
+        "y": -253,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "name": "? Règles du combat",
+        "disabled": false,
+        "x": 8,
+        "y": -191,
+        "w": 156,
+        "h": 27
+      },
+      {
+        "name": "Activer le mode automatique",
+        "disabled": false,
+        "x": 172,
+        "y": -196,
+        "w": 134,
+        "h": 36
+      },
+      {
+        "name": "Attaque de base",
+        "disabled": false,
+        "x": 183,
+        "y": 454,
+        "w": 99,
+        "h": 44
+      },
+      {
+        "name": "Sort Q : Désintégration, prêt",
+        "disabled": false,
+        "x": 79,
+        "y": 517,
+        "w": 52,
+        "h": 52
+      },
+      {
+        "name": "Sort W : Incinération, prêt",
+        "disabled": false,
+        "x": 139,
+        "y": 517,
+        "w": 52,
+        "h": 52
+      },
+      {
+        "name": "Sort E : Bouclier en fusion, prêt",
+        "disabled": false,
+        "x": 199,
+        "y": 517,
+        "w": 52,
+        "h": 52
+      },
+      {
+        "name": "Sort R : Invocation : Tibbers, prêt",
+        "disabled": false,
+        "x": 259,
+        "y": 517,
+        "w": 52,
+        "h": 52
+      },
+      {
+        "name": "Exécuter le tour (Espace)",
+        "disabled": false,
+        "x": 92,
+        "y": 669,
+        "w": 206,
+        "h": 44
+      },
+      {
+        "name": "",
+        "disabled": false,
+        "x": 8,
+        "y": 846,
+        "w": 199,
+        "h": 44
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "TOUR 1",
+        "class": "",
+        "font": "10.4px"
+      },
+      {
+        "text": "ATTAQUANT",
+        "class": "combat-stage__fighter-role",
+        "font": "7.68px"
+      },
+      {
+        "text": "VOTRE ÉQUIPE",
+        "class": "combat-stage__fighter-side",
+        "font": "9.28px"
+      },
+      {
+        "text": "720 / 720 PV",
+        "class": "combat-stage__health-copy",
+        "font": "9.28px"
+      },
+      {
+        "text": "CIBLE",
+        "class": "combat-stage__fighter-role",
+        "font": "7.68px"
+      },
+      {
+        "text": "ÉQUIPE ENNEMIE",
+        "class": "combat-stage__fighter-side",
+        "font": "9.28px"
+      },
+      {
+        "text": "365 / 365 PV",
+        "class": "combat-stage__health-copy",
+        "font": "9.28px"
+      },
+      {
+        "text": "Mode manuel — choisissez une action ou appuyez sur Espace.",
+        "class": "combat-stage__status",
+        "font": "10.24px"
+      },
+      {
+        "text": "1 · ACTION",
+        "class": "combat-command__step-label",
+        "font": "10px"
+      },
+      {
+        "text": "Désintégration",
+        "class": "combat-ability__name",
+        "font": "7.68px"
+      },
+      {
+        "text": "Incinération",
+        "class": "combat-ability__name",
+        "font": "7.68px"
+      },
+      {
+        "text": "Bouclier en fusion",
+        "class": "combat-ability__name",
+        "font": "7.68px"
+      },
+      {
+        "text": "Invocation : Tibbers",
+        "class": "combat-ability__name",
+        "font": "7.68px"
+      },
+      {
+        "text": "2 · CIBLE",
+        "class": "combat-command__step-label",
+        "font": "10px"
+      },
+      {
+        "text": "3 · CONFIRMATION",
+        "class": "combat-command__step-label",
+        "font": "10px"
+      },
+      {
+        "text": "[Espace]",
+        "class": "combat-action-button__shortcut",
+        "font": "10px"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "device": "mobile",
+    "name": "combat-immediate-action",
+    "before": {
+      "round": 1,
+      "turnIndex": 0,
+      "actor": "Annie",
+      "log": ["=== Tour 1 ==="]
+    },
+    "after": {
+      "round": 1,
+      "turnIndex": 1,
+      "actor": "Ashe",
+      "log": ["=== Tour 1 ===", "Annie: Attaque de base", "Annie → Warwick: 42 dégâts"]
+    },
+    "confirmationClicked": false
+  },
+  {
+    "device": "mobile",
+    "name": "large-tooltip",
+    "tooltip": {
+      "x": 96,
+      "right": 408,
+      "width": 312,
+      "height": 360.453125,
+      "viewport": 390,
+      "scrollHeight": 358,
+      "clientHeight": 358,
+      "pointerEvents": "none",
+      "rootFont": "19.2px"
+    }
+  },
+  {
+    "device": "mobile",
+    "name": "disabled-spell-inspection",
+    "disabledFocus": {
+      "disabled": true,
+      "focused": false,
+      "wrapperTabIndex": -1
+    },
+    "hoverTooltipVisible": true,
+    "fixture": "Current combatant MP=0, cooldown=2; local presentation state only."
+  },
+  {
+    "device": "mobile",
+    "name": "game-over",
+    "path": "/game-over",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1723,
+    "overflow": 0,
+    "buttons": [
+      {
+        "name": "Nouvelle partie",
+        "disabled": false,
+        "x": 46,
+        "y": 800,
+        "w": 298,
+        "h": 48
+      },
+      {
+        "name": "Menu principal",
+        "disabled": false,
+        "x": 46,
+        "y": 856,
+        "w": 298,
+        "h": 48
+      }
+    ],
+    "tinyText": [
+      {
+        "text": "MEILLEURE CONTRIBUTION DE LA PARTIE",
+        "class": "game-over-champion-breakdown__mvp",
+        "font": "9.92px"
+      }
+    ],
+    "errors": []
+  }
+]

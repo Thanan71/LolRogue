@@ -8,6 +8,7 @@ export const IMPLEMENTED_CHAMPION_IDS = [
   'Lux',
   'Malphite',
   'Soraka',
+  'Veigar',
   'Warwick',
 ];
 

@@ -1,4 +1,5 @@
 import { type Passive, type Spell, type SpellEffect, TargetingType } from '@/types/champion';
+import { isRunProgressionDefinition } from '../runProgression';
 
 export const IMPLEMENTED_PASSIVE_CHAMPIONS = new Set([
   'Annie',
@@ -15,6 +16,7 @@ export const IMPLEMENTED_PASSIVE_CHAMPIONS = new Set([
 
 const SUPPORTED_EFFECT_TYPES = new Set([
   'damage',
+  'delayed_damage',
   'heal',
   'shield',
   'execute',
@@ -26,7 +28,14 @@ const SUPPORTED_EFFECT_TYPES = new Set([
   'revive',
 ]);
 
-const HOSTILE_EFFECT_TYPES = new Set(['damage', 'dot', 'cc', 'debuff', 'execute']);
+const HOSTILE_EFFECT_TYPES = new Set([
+  'damage',
+  'delayed_damage',
+  'dot',
+  'cc',
+  'debuff',
+  'execute',
+]);
 const HOSTILE_TARGETING_TYPES = new Set([
   TargetingType.Enemy,
   TargetingType.Enemies,
@@ -41,7 +50,19 @@ function rankValue(values: readonly number[] | undefined, rankIndex: number): nu
 export function isSpellEffectConfigured(effect: SpellEffect, rankIndex: number): boolean {
   if (!SUPPORTED_EFFECT_TYPES.has(effect.type)) return false;
   switch (effect.type) {
+    case 'delayed_damage':
+      return (
+        effect.duration === 1 &&
+        (Number.isFinite(rankValue(effect.baseDamage, rankIndex)) ||
+          (effect.adRatio ?? 0) !== 0 ||
+          (effect.apRatio ?? 0) !== 0)
+      );
     case 'damage':
+      if (
+        effect.missingHealthScaling !== undefined &&
+        (!Number.isFinite(effect.missingHealthScaling) || effect.missingHealthScaling < 0)
+      )
+        return false;
       return (
         Number.isFinite(rankValue(effect.baseDamage, rankIndex)) ||
         (effect.adRatio ?? 0) !== 0 ||
@@ -109,6 +130,14 @@ export function isSpellCombatReady(spell: Spell, rank = 1): boolean {
 }
 
 export function isPassiveCombatReady(championId: string, passive: Passive): boolean {
+  if (passive.runProgression?.length) {
+    return (
+      passive.runProgression.every(isRunProgressionDefinition) &&
+      new Set(passive.runProgression.map((definition) => definition.key)).size ===
+        passive.runProgression.length &&
+      passive.effects.every((effect) => isSpellEffectConfigured(effect, 0))
+    );
+  }
   return (
     IMPLEMENTED_PASSIVE_CHAMPIONS.has(championId) &&
     passive.effects.length > 0 &&

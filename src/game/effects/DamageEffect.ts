@@ -18,9 +18,14 @@ export interface DamageEffectParams {
   canCrit?: boolean;
   stacks?: number;
   maxStacks?: number;
+  /** Spell-authored damage retains its provenance when it ticks on a later turn. */
+  abilityDamage?: boolean;
+  sourceSide?: 'player' | 'enemy';
 }
 
 export class DamageEffect extends Effect<DamageEffectData> {
+  readonly abilityDamage: boolean;
+  readonly sourceSide: 'player' | 'enemy' | undefined;
   constructor(params: DamageEffectParams) {
     super({
       id: generateEffectId('dmg'),
@@ -38,6 +43,8 @@ export class DamageEffect extends Effect<DamageEffectData> {
       maxStacks: Math.max(1, Math.floor(params.maxStacks ?? 1)),
     });
     this.data.stacks = Math.min(this.data.stacks, this.data.maxStacks);
+    this.abilityDamage = params.abilityDamage ?? false;
+    this.sourceSide = params.sourceSide;
   }
 
   get damageType(): DamageType {
