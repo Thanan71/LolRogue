@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import type { AuthorityCohortRuntime } from '@/game/balance/authorityCohort';
 import {
   type ChampionCombatMatrixEvent,
   type ChampionCombatMatrixRuntime,
@@ -25,6 +26,10 @@ interface InstrumentedBattle {
 interface InstrumentedAuthorityModule {
   readonly AUTHORITY_ENGINE_VERSION: string;
   readonly AUTHORITY_CONTENT_HASH: string;
+  getAuthorityVerifier(
+    engineVersion: string,
+    contentHash: string,
+  ): AuthorityCohortRuntime | undefined;
   readonly championDB: { getById(championId: string): unknown };
   readonly ChampionInstance: new (champion: unknown, level: number) => unknown;
   readonly BattleManager: new (
@@ -42,7 +47,7 @@ interface InstrumentedAuthorityModule {
  * Adds test-only exports in a temporary copy. The committed authority archive stays
  * byte-identical while the exact classes embedded in that archive run the matrix.
  */
-async function importInstrumentedAuthorityBundle(
+export async function importInstrumentedAuthorityBundle(
   bundlePath: string,
 ): Promise<InstrumentedAuthorityModule> {
   const source = await readFile(bundlePath, 'utf8');

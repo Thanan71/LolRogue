@@ -1,3 +1,5 @@
+import { championDB } from '@/data/championDatabase';
+import { isRunProgressSnapshot } from '@/game/runProgression';
 import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
@@ -28,6 +30,13 @@ const AUTHORITY_VERIFIERS = [
     replay: replayAuthorityRun,
     createSession: createAuthorityReplaySession,
     verify: verifyAuthorityRun,
+    /** Edge finalization validates counters against the same frozen champion kit as replay. */
+    validateRunProgress: (championId: string, progress: unknown): boolean => {
+      const champion = championDB.getById(championId);
+      return Boolean(
+        champion && isRunProgressSnapshot(progress, champion.passive.runProgression ?? []),
+      );
+    },
   },
 ] as const;
 

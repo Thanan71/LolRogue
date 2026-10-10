@@ -1,5 +1,6 @@
 const SUPPORTED_EFFECT_TYPES = new Set([
   'damage',
+  'delayed_damage',
   'heal',
   'shield',
   'execute',
@@ -26,6 +27,7 @@ function isEffectConfigured(effect) {
         (effect.apRatio ?? 0) !== 0
       );
     case 'dot':
+    case 'delayed_damage':
       return (
         (effect.duration ?? 0) > 0 &&
         (Number.isFinite(rankValue(effect.baseDamage)) ||

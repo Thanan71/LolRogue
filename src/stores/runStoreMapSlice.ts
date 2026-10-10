@@ -8,11 +8,12 @@ import {
   toEncounterNodeType,
 } from '@/game/map/mapProgression';
 import { completeNode as completeNodeUtil, findNode } from '@/game/map/mapUtils';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import {
   appendRunAuthorityCommand,
   usesCanonicalProgression,
 } from '@/game/run/runAuthorityJournal';
-import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
+import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { normalizeRunDomainState } from '@/game/run/runDomainInvariants';
 import { getShopItemCost, getShopRecruitCost } from '@/game/run/runEncounterRules';
@@ -79,7 +80,11 @@ export function createRunMapSlice(
     // ── Run Map (using MapGenerator-core + mapUtils) ────────────────────
 
     generateRunMap: (seed?: number) => {
-      const biomeMaps = generateBiomeMaps(get().authorityAttempt?.seed ?? seed);
+      const attempt = get().authorityAttempt;
+      const biomeMaps = generateBiomeMaps(
+        attempt?.seed ?? seed,
+        getRunChampionCatalog(attempt?.engineVersion),
+      );
       const startBiome = biomeMaps[0]?.biome ?? null;
       const frontierNodeIds = biomeMaps[0]?.startNodeId ? [biomeMaps[0].startNodeId] : [];
       synchronizeMapFrontier(biomeMaps, 0, frontierNodeIds);

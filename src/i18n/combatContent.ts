@@ -79,6 +79,10 @@ export const COMBAT_VISUAL_TITLE_IDS = [
   'Soraka:spell_w',
   'Soraka:spell_e',
   'Soraka:spell_r',
+  'Veigar:spell_q',
+  'Veigar:spell_w',
+  'Veigar:spell_e',
+  'Veigar:spell_r',
   'Warwick:spell_q',
   'Warwick:spell_w',
   'Warwick:spell_e',
@@ -206,6 +210,10 @@ const visualTitlesFr = {
   'Soraka:spell_w': 'Grâce astrale',
   'Soraka:spell_e': 'Zone de silence',
   'Soraka:spell_r': 'Souhait cosmique',
+  'Veigar:spell_q': 'Projectile maléfique',
+  'Veigar:spell_w': 'Chute de matière noire',
+  'Veigar:spell_e': 'Entrave cosmique',
+  'Veigar:spell_r': 'Explosion primordiale',
   'Warwick:spell_q': 'Morsure',
   'Warwick:spell_w': 'Piste sanglante',
   'Warwick:spell_e': 'Hurlement de peur',
@@ -254,6 +262,10 @@ const visualTitlesEn = {
   'Soraka:spell_w': 'Astral Grace',
   'Soraka:spell_e': 'Zone of Silence',
   'Soraka:spell_r': 'Cosmic Wish',
+  'Veigar:spell_q': 'Baleful Bolt',
+  'Veigar:spell_w': 'Dark Matter Fall',
+  'Veigar:spell_e': 'Cosmic Binding',
+  'Veigar:spell_r': 'Primordial Burst',
   'Warwick:spell_q': 'Bite',
   'Warwick:spell_w': 'Blood Trail',
   'Warwick:spell_e': 'Howl of Fear',
@@ -591,6 +603,9 @@ const frFR = {
       `${source} → ${target}: ${control} (${formatCombatNumber('fr-FR', duration)} ${duration === 1 ? 'tour' : 'tours'})`,
     turnSkipped: (champion: string, controls: string) =>
       `${champion} perd son action (${controls})`,
+    runProgress: 'Progression du run',
+    runCounterGain: (champion: string, counter: string, amount: number, value: number) =>
+      `${champion} : ${counter} +${formatCombatNumber('fr-FR', amount)} (total ${formatCombatNumber('fr-FR', value)})`,
     damage: (source: string, target: string, amount: number, isCrit: boolean) =>
       `${source} → ${target}: ${formatCombatNumber('fr-FR', amount)} dégâts${isCrit ? ' CRITIQUE !' : ''}`,
     heal: (source: string, target: string, amount: number) =>
@@ -830,6 +845,9 @@ const enUS = {
       `${source} → ${target}: ${control} (${formatCombatNumber('en-US', duration)} ${duration === 1 ? 'turn' : 'turns'})`,
     turnSkipped: (champion: string, controls: string) =>
       `${champion} loses their action (${controls})`,
+    runProgress: 'Run progression',
+    runCounterGain: (champion: string, counter: string, amount: number, value: number) =>
+      `${champion}: ${counter} +${formatCombatNumber('en-US', amount)} (total ${formatCombatNumber('en-US', value)})`,
     damage: (source: string, target: string, amount: number, isCrit: boolean) =>
       `${source} → ${target}: ${formatCombatNumber('en-US', amount)} damage${isCrit ? ' CRITICAL!' : ''}`,
     heal: (source: string, target: string, amount: number) =>

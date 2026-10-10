@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { implementedChampions } from '@/data/champion';
 import {
   createEarlyTopCohortCells,
   EARLY_TOP_COHORT_DIFFICULTIES,
@@ -8,6 +7,7 @@ import {
   EARLY_TOP_COHORT_STARTER_IDS,
   type EarlyTopCohortDocument,
 } from '@/game/balance/earlyTopCohort';
+import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
 
 const v17Artifact = JSON.parse(
   readFileSync(new URL('../config/early-top-cohort-v17.json', import.meta.url), 'utf8'),
@@ -17,9 +17,11 @@ const v18Artifact = JSON.parse(
 ) as EarlyTopCohortDocument;
 
 describe('P0-BAL-05 early Top cohort fixture', () => {
-  it('stratifies all ten starters across all three difficulties', () => {
+  it('stratifies the historical v21 ten-champion pool across all three difficulties', () => {
     expect([...EARLY_TOP_COHORT_STARTER_IDS].sort()).toEqual(
-      implementedChampions.map((champion) => champion.id).sort(),
+      getRunChampionCatalog('run-engine-v21')
+        .map((champion) => champion.id)
+        .sort(),
     );
     const cells = createEarlyTopCohortCells();
     expect(cells).toHaveLength(30);

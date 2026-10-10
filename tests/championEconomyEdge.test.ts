@@ -3,8 +3,18 @@ import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 import { runInNewContext } from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
-import { replayAuthorityRun } from '@/game/authority';
+import {
+  AUTHORITY_CONTENT_HASH,
+  AUTHORITY_ENGINE_VERSION,
+  getAuthorityVerifier,
+  replayAuthorityRun,
+} from '@/game/authority';
 import { buildVerifiedEconomyResult } from '../supabase/functions/verify-run/champion-economy';
+import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
+import {
+  VEIGAR_FIRST_COMBAT_ATTEMPT,
+  VEIGAR_FIRST_COMBAT_COMMANDS,
+} from './helpers/veigarRunProgressionFixture';
 
 const attemptId = '11111111-1111-4111-8111-111111111111';
 const source = readFileSync(
@@ -25,7 +35,12 @@ const replay = replayAuthorityRun(
   [{ sequence: 1, kind: 'abandon_run', payload: {} }],
 );
 
-function handlerFixture(extra: Record<string, unknown> = {}, snapshot: unknown = replay.snapshot) {
+function handlerFixture(
+  extra: Record<string, unknown> = {},
+  snapshot: unknown = replay.snapshot,
+  authority?: NonNullable<ReturnType<typeof getAuthorityVerifier>>,
+  useRealReplay = false,
+) {
   let handler: ((request: Request) => Promise<Response>) | undefined;
   const claim = {
     claimed: true,
@@ -62,7 +77,9 @@ function handlerFixture(extra: Record<string, unknown> = {}, snapshot: unknown =
       error: null,
     }),
   };
-  const verify = vi.fn().mockReturnValue({ ok: true, result: { ...replay, snapshot } });
+  const verify = useRealReplay
+    ? vi.fn(authority!.verify)
+    : vi.fn().mockReturnValue({ ok: true, result: { ...replay, snapshot } });
   const script = stripTypeScriptTypes(source.replace(/^import[\s\S]*?;\n/gm, ''));
   runInNewContext(script, {
     Deno: {
@@ -79,7 +96,7 @@ function handlerFixture(extra: Record<string, unknown> = {}, snapshot: unknown =
       },
     },
     createClient: (_url: string, key: string) => (key === 'service' ? { rpc: adminRpc } : caller),
-    resolveAuthorityVerifier: async () => ({ verify }),
+    resolveAuthorityVerifier: async () => ({ ...authority, verify }),
     buildVerifiedEconomyResult,
     Response,
     crypto,
@@ -99,6 +116,96 @@ function handlerFixture(extra: Record<string, unknown> = {}, snapshot: unknown =
 }
 
 describe('Edge economy authority boundary', () => {
+  it('finalizes real v22 replay counters and participation without trusting forged client values', async () => {
+    const authority = (await resolveBundledAuthorityVerifier(
+      AUTHORITY_ENGINE_VERSION,
+      AUTHORITY_CONTENT_HASH,
+    ))!;
+    const commands = [
+      ...VEIGAR_FIRST_COMBAT_COMMANDS,
+      { sequence: 3, kind: 'abandon_run', payload: {} },
+    ];
+    const fixture = handlerFixture(
+      {
+        engine_version: AUTHORITY_ENGINE_VERSION,
+        gameplay_content_hash: AUTHORITY_CONTENT_HASH,
+        seed: VEIGAR_FIRST_COMBAT_ATTEMPT.seed,
+        difficulty: VEIGAR_FIRST_COMBAT_ATTEMPT.difficulty,
+        initial_team: ['Veigar', 'Garen'],
+        commands,
+        economy_version: null,
+        champion_access_snapshot: null,
+      },
+      undefined,
+      authority,
+      true,
+    );
+    expect(
+      (
+        await fixture.invoke({
+          run_progress: { 'veigar.phenomenal_power': 200 },
+          team_members: [
+            { champion_id: 'Veigar', run_progress: { 'veigar.phenomenal_power': 200 } },
+          ],
+        })
+      ).status,
+    ).toBe(200);
+    expect(fixture.verify.mock.calls[0]![0].team).toEqual([
+      { championId: 'Veigar' },
+      { championId: 'Garen' },
+    ]);
+    const payload = fixture.adminRpc.mock.calls.find(
+      ([name]) => name === 'complete_run_verification',
+    )?.[1] as { p_result: Record<string, unknown> };
+    expect(payload.p_result.ledger).toMatchObject({ version: 2 });
+    const members = payload.p_result.team_members as Record<string, unknown>[];
+    expect(members.find((member) => member.champion_id === 'Veigar')).toMatchObject({
+      run_progress: { 'veigar.phenomenal_power': 1 },
+      waves_participated: 1,
+    });
+    expect(members.find((member) => member.champion_id === 'Garen')).not.toHaveProperty(
+      'run_progress',
+    );
+  });
+
+  it.each([201, -1, 1.5])(
+    'rejects an invalid v22 replay counter (%s) before finalization',
+    async (value) => {
+      const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH)!;
+      const snapshot = structuredClone(
+        replayAuthorityRun(VEIGAR_FIRST_COMBAT_ATTEMPT, VEIGAR_FIRST_COMBAT_COMMANDS).snapshot,
+      );
+      snapshot.team[0]!.runProgress = { 'veigar.phenomenal_power': value };
+      const fixture = handlerFixture(
+        {
+          engine_version: AUTHORITY_ENGINE_VERSION,
+          gameplay_content_hash: AUTHORITY_CONTENT_HASH,
+          economy_version: null,
+          champion_access_snapshot: null,
+        },
+        snapshot,
+        authority,
+      );
+      const response = await fixture.invoke();
+      expect(response.status).toBe(422);
+      expect(await response.json()).toMatchObject({ rejection_code: 'invalid_verifier_result' });
+      expect(
+        fixture.adminRpc.mock.calls.some(([name]) => name === 'complete_run_verification'),
+      ).toBe(false);
+    },
+  );
+
+  it('keeps v21 finalization free of a forged counter field', async () => {
+    const snapshot = structuredClone(replay.snapshot);
+    snapshot.team[0]!.runProgress = { 'veigar.phenomenal_power': 200 };
+    const fixture = handlerFixture({}, snapshot);
+    expect((await fixture.invoke()).status).toBe(200);
+    const payload = fixture.adminRpc.mock.calls.find(
+      ([name]) => name === 'complete_run_verification',
+    )?.[1] as { p_result: { team_members: Record<string, unknown>[] } };
+    expect(payload.p_result.team_members[0]).not.toHaveProperty('run_progress');
+  });
+
   it('builds economics only from the trusted replay despite forged request fields', async () => {
     const fixture = handlerFixture();
     const response = await fixture.invoke({

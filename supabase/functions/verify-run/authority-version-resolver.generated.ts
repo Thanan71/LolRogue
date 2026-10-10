@@ -25,8 +25,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v2",
@@ -50,8 +52,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v3",
@@ -75,8 +79,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v4",
@@ -100,8 +106,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v5",
@@ -125,8 +133,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v6",
@@ -150,8 +160,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v7",
@@ -175,8 +187,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v8",
@@ -200,8 +214,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v9",
@@ -225,8 +241,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": false,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v10",
@@ -250,8 +268,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": false,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v11",
@@ -275,8 +295,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": false,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v12",
@@ -300,8 +322,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": false
-    }
+      "contentBalance": false,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v13",
@@ -325,8 +349,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v14",
@@ -350,8 +376,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v15",
@@ -375,8 +403,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v16",
@@ -400,8 +430,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v17",
@@ -425,8 +457,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v18",
@@ -450,8 +484,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v19",
@@ -475,8 +511,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v20",
@@ -500,8 +538,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
   },
   {
     "engine": "run-engine-v21",
@@ -509,10 +549,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 3,
     "command": 2,
-    "status": "current",
+    "status": "replay-only",
     "rulesetCode": "2026-09-balance-acceptance-v21",
     "contentHash": "9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6",
-    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "bundle": "supabase/functions/verify-run/run-authority-v21.bundle.ts",
     "migration": "supabase/migrations/20260904151818_gameplay_ruleset_v21_balance_acceptance.sql",
     "features": {
       "canonicalProgression": true,
@@ -525,15 +565,45 @@ export const AUTHORITY_VERSION_REGISTRY = [
       "clientAuthorityParity": true,
       "automaticTraceSuffix": true,
       "canonicalStats": true,
-      "contentBalance": true
-    }
+      "contentBalance": true,
+      "runProgression": false
+    },
+    "championCatalog": 1
+  },
+  {
+    "engine": "run-engine-v22",
+    "gameplay": 22,
+    "dailyScore": 15,
+    "progression": 3,
+    "command": 2,
+    "status": "current",
+    "rulesetCode": "2026-10-veigar-run-progression-v22",
+    "contentHash": "2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84",
+    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "migration": "supabase/migrations/20261009173939_gameplay_ruleset_v22_veigar_run_progression.sql",
+    "features": {
+      "canonicalProgression": true,
+      "manualCombat": true,
+      "canonicalEncounters": true,
+      "combatActionTrace": true,
+      "runLedger": true,
+      "mastery": true,
+      "domainInvariants": true,
+      "clientAuthorityParity": true,
+      "automaticTraceSuffix": true,
+      "canonicalStats": true,
+      "contentBalance": true,
+      "runProgression": true
+    },
+    "championCatalog": 2
   }
 ] as const;
 
 const verifierLoaders = {
   "run-engine-v19": () => import("./run-authority-v19.bundle.ts"), // loader-0
   "run-engine-v20": () => import("./run-authority-v20.bundle.ts"), // loader-1
-  "run-engine-v21": () => import("./run-authority.bundle.js"), // loader-2
+  "run-engine-v21": () => import("./run-authority-v21.bundle.ts"), // loader-2
+  "run-engine-v22": () => import("./run-authority.bundle.js"), // loader-3
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {

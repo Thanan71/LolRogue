@@ -1,3 +1,4 @@
+import { RunProgressCounters } from '@/components/RunProgressCounters';
 import { DDRAGON_CONFIG } from '@/config/ddragon';
 import { isPassiveCombatReady, isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { localizeChampion } from '@/i18n/content';
@@ -81,6 +82,7 @@ export function DatabaseChampionDetail({ champion }: { champion: Champion }) {
           </div>
         </div>
       </div>
+      <RunProgressCounters definitions={champion.passive.runProgression} variant="rules" />
     </div>
   );
 }

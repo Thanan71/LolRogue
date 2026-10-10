@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { PATCH_NOTES } from '@/data/patchNotes';
-import { authRecoveryContent } from '@/i18n/authRecoveryContent';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
+import { authRecoveryContent } from '@/i18n/authRecoveryContent';
 import { championContent } from '@/i18n/championContent';
 import { getChampionEconomyContent } from '@/i18n/championEconomyContent';
 import { combatContent } from '@/i18n/combatContent';
@@ -18,6 +18,7 @@ import { getPatchNotesContent } from '@/i18n/patchNotesContent';
 import { runErrorContent } from '@/i18n/runErrorContent';
 import { runHistoryContent } from '@/i18n/runHistoryContent';
 import { runPreparationContent } from '@/i18n/runPreparationContent';
+import { getRunProgressContent } from '@/i18n/runProgressContent';
 import { tutorialContent } from '@/i18n/tutorialContent';
 
 type Locale = 'fr-FR' | 'en-US';
@@ -58,6 +59,7 @@ const catalogs = {
   runError: runErrorContent,
   runHistory: runHistoryContent,
   runPreparation: runPreparationContent,
+  runProgress: { 'fr-FR': getRunProgressContent('fr-FR'), 'en-US': getRunProgressContent('en-US') },
   tutorial: tutorialContent,
 } as const satisfies Readonly<Record<string, LocaleCatalog>>;
 
@@ -82,6 +84,7 @@ const catalogModules = {
   'runErrorContent.ts': 'runError',
   'runHistoryContent.ts': 'runHistory',
   'runPreparationContent.ts': 'runPreparation',
+  'runProgressContent.ts': 'runProgress',
   'tutorialContent.ts': 'tutorial',
 } as const satisfies Readonly<Record<string, keyof typeof catalogs>>;
 
@@ -144,6 +147,12 @@ const intentionallyIdenticalPaths: Readonly<
     '$.Vladimir.spells.VladimirQ.name',
   ],
   championEconomy: [],
+  runProgress: [
+    '$.tiers.boss',
+    '$.shortStats.abilityPower',
+    '$.shortStats.attackDamage',
+    '$.shortStats.armor',
+  ],
   combat: [
     '$.logs.crowdControl.silence',
     '$.page.steps.action',
@@ -201,6 +210,7 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   runError: [],
   runHistory: [],
   runPreparation: [],
+  runProgress: [],
   tutorial: [],
 };
 

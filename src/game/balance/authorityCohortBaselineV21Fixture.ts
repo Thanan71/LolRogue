@@ -1,4 +1,4 @@
-import { getAuthorityVerifier } from '@/game/authority';
+import type { AuthorityCohortRuntime } from './authorityCohort';
 import {
   type AuthorityCohortBaselineDocument,
   type AuthorityCohortBaselineIdentity,
@@ -23,12 +23,15 @@ export interface AuthorityCohortBaselineV21Fixture {
   readonly document: AuthorityCohortBaselineDocument;
 }
 
-export function createAuthorityCohortBaselineV21Fixture(): AuthorityCohortBaselineV21Fixture {
-  const authority = getAuthorityVerifier(
-    AUTHORITY_COHORT_BASELINE_V21_IDENTITY.engineVersion,
-    AUTHORITY_COHORT_BASELINE_V21_IDENTITY.contentHash,
-  );
-  if (!authority) throw new Error('The current v21 authority verifier is unavailable.');
+export function createAuthorityCohortBaselineV21Fixture(
+  authority: AuthorityCohortRuntime,
+): AuthorityCohortBaselineV21Fixture {
+  if (
+    authority.engineVersion !== AUTHORITY_COHORT_BASELINE_V21_IDENTITY.engineVersion ||
+    authority.contentHash !== AUTHORITY_COHORT_BASELINE_V21_IDENTITY.contentHash
+  ) {
+    throw new Error('The v21 baseline requires its immutable archived authority identity.');
+  }
   const plan = createAuthorityCohortExecutionPlan('pr');
   const execution = executeAuthorityCohortPlan({ authority, plan });
   if (execution.report.groups.length !== 1) {
@@ -51,6 +54,8 @@ export function createAuthorityCohortBaselineV21Fixture(): AuthorityCohortBaseli
   };
 }
 
-export function generateAuthorityCohortBaselineV21(): AuthorityCohortBaselineDocument {
-  return createAuthorityCohortBaselineV21Fixture().document;
+export function generateAuthorityCohortBaselineV21(
+  authority: AuthorityCohortRuntime,
+): AuthorityCohortBaselineDocument {
+  return createAuthorityCohortBaselineV21Fixture(authority).document;
 }

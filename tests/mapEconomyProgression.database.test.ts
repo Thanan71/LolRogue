@@ -1,7 +1,8 @@
-import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 
 const migrationSql = readFileSync(
   new URL(
@@ -127,8 +128,8 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
       });
       expect(started.error).toBeNull();
       expect(started.data).toMatchObject({
-        engine_version: 'run-engine-v21',
-        gameplay_ruleset_version: 21,
+        engine_version: CURRENT_AUTHORITY_VERSION.engine,
+        gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
         ruleset_version: 3,
       });
       const attemptId = (started.data as { attempt_id: string }).attempt_id;
@@ -200,8 +201,8 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
         candies_per_champion: 0,
         candies_by_champion: { Garen: 15, Lux: 5 },
         progression_version: 3,
-        gameplay_ruleset_version: 21,
-        engine_version: 'run-engine-v21',
+        gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
+        engine_version: CURRENT_AUTHORITY_VERSION.engine,
       });
 
       const replayed = await admin.rpc('complete_run_verification', {

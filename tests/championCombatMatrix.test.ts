@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import matrixJson from '../config/champion-combat-matrix-current.json';
+import { implementedChampions } from '@/data/champion';
 import {
   CHAMPION_COMBAT_MATRIX_CHAMPION_IDS,
   CHAMPION_COMBAT_MATRIX_SEEDS,
@@ -10,15 +10,19 @@ import {
   runChampionCombatMatrix,
 } from '@/game/balance/championCombatMatrix';
 import { createSourceChampionCombatRuntime } from '@/game/balance/championCombatSourceRuntime';
-import { implementedChampions } from '@/data/champion';
+import matrixJson from '../config/champion-combat-matrix-current.json';
 import { loadInstrumentedAuthorityCombatRuntime } from './helpers/instrumentedAuthorityCombatRuntime';
 
 const matrix = matrixJson as unknown as ChampionCombatMatrixComparison;
 
 describe('champion combat acceptance matrix', () => {
   it('enumerates every complementary 5v5 partition exactly once', () => {
+    // The paired P0 acceptance population remains the frozen v21 ten-champion roster.
+    // Veigar has its own zero-stack, capped-damage and full-run acceptance campaign.
     expect(CHAMPION_COMBAT_MATRIX_CHAMPION_IDS).toEqual(
-      implementedChampions.map((champion) => champion.id),
+      implementedChampions
+        .filter((champion) => champion.id !== 'Veigar')
+        .map((champion) => champion.id),
     );
     const partitions = createChampionCombatMatrixPartitions();
     expect(partitions).toHaveLength(126);

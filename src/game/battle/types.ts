@@ -233,6 +233,20 @@ export interface ReviveEvent {
   targetSide: TeamSide;
 }
 
+export interface RunCounterGainEvent {
+  type: 'run_counter_gain';
+  source: string;
+  target: string;
+  sourceCombatantId: string;
+  targetCombatantId: string;
+  sourceSide: TeamSide;
+  targetSide: TeamSide;
+  key: string;
+  /** Effective gain after the definition's cap. */
+  amount: number;
+  value: number;
+}
+
 export type BattleEvent =
   | DamageEvent
   | DefeatEvent
@@ -244,7 +258,8 @@ export type BattleEvent =
   | TurnSkippedEvent
   | HealEvent
   | ShieldEvent
-  | ReviveEvent;
+  | ReviveEvent
+  | RunCounterGainEvent;
 
 // ─── Battle Result ──────────────────────────────────────────────────────────
 

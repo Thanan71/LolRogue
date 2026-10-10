@@ -45,25 +45,29 @@ function readDailyRulesetContracts() {
 }
 
 describe('authority progression engine versioning', () => {
-  it('archives v20 and publishes v21 without changing progression schemas', () => {
-    const v20 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v20');
+  it('archives v21 and publishes v22 without changing account progression schemas', () => {
+    const v21 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v21');
 
-    expect(v20).toMatchObject({
-      gameplay: 20,
+    expect(v21).toMatchObject({
+      gameplay: 21,
+      championCatalog: 1,
       dailyScore: 15,
       progression: 3,
       command: 2,
       status: 'replay-only',
-      bundle: 'supabase/functions/verify-run/run-authority-v20.bundle.ts',
+      bundle: 'supabase/functions/verify-run/run-authority-v21.bundle.ts',
+      features: { runProgression: false },
     });
     expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
-      engine: 'run-engine-v21',
-      gameplay: 21,
+      engine: 'run-engine-v22',
+      gameplay: 22,
+      championCatalog: 2,
       dailyScore: 15,
       progression: 3,
       command: 2,
       status: 'current',
-      rulesetCode: '2026-09-balance-acceptance-v21',
+      rulesetCode: '2026-10-veigar-run-progression-v22',
+      features: { runProgression: true },
     });
   });
 
