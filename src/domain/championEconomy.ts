@@ -8,7 +8,7 @@ import type {
 } from '../types/championEconomy';
 
 export const CHAMPION_ECONOMY_VERSION = 1 as const;
-export const CHAMPION_CATALOG_VERSION = 1 as const;
+export const CHAMPION_CATALOG_VERSION = 2 as const;
 export const CHAMPION_ROTATION_ALGORITHM_VERSION = 1 as const;
 export const CHAMPION_PRICE_SHARDS = 400;
 export const CHAMPION_ROTATION_SIZE = 5;
@@ -26,8 +26,10 @@ export const ECONOMY_V1_CHAMPION_IDS: readonly string[] = [
   'Soraka',
   'Warwick',
 ];
+/** v1 remains frozen for existing access snapshots and rotation contracts. */
+export const ECONOMY_V2_CHAMPION_IDS: readonly string[] = [...ECONOMY_V1_CHAMPION_IDS, 'Veigar'];
 export const CHAMPION_ECONOMY_CATALOG: readonly ChampionEconomyCatalogEntry[] =
-  ECONOMY_V1_CHAMPION_IDS.map((championId) => ({
+  ECONOMY_V2_CHAMPION_IDS.map((championId) => ({
     championId,
     priceShards: CHAMPION_PRICE_SHARDS,
     permanentFree: PERMANENT_FREE_CHAMPION_IDS.includes(championId),
@@ -41,7 +43,9 @@ const ROTATION_EPOCH = Date.UTC(2026, 0, 5);
 export function getRotationForInstant(
   serverNow: string | number,
   gameplayRulesetVersion: number,
-  allowedChampionIds: readonly string[] = ECONOMY_V1_CHAMPION_IDS,
+  allowedChampionIds: readonly string[] = gameplayRulesetVersion >= 22
+    ? ECONOMY_V2_CHAMPION_IDS
+    : ECONOMY_V1_CHAMPION_IDS,
 ): ChampionRotation {
   const instant = typeof serverNow === 'string' ? Date.parse(serverNow) : serverNow;
   if (

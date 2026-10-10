@@ -1,10 +1,12 @@
 import { championDB } from '@/data/championDatabase';
 import { ITEM_DATABASE } from '@/data/items';
+import { getCombatantTargetId } from '@/game/battle/combatantIdentity';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { validateItemAddition } from '@/game/inventory/inventoryRules';
 import { getFinalBoss, getRandomEncounter } from '@/game/map/encounters';
 import type { CombatEncounter, EnemyDefinition } from '@/game/map/types';
 import { NodeType } from '@/game/map/types';
+import type { RunProgressionTargetTier } from '@/types/champion';
 import type { ItemDefinition } from '@/types/inventory';
 import {
   BIOME_INFO,
@@ -21,7 +23,20 @@ import { DIFFICULTY_RULES } from './difficultyRules';
 import { drawItemDefinitionForBiome } from './itemDropRules';
 import { getStarterBudgetProfile } from './starterBudget';
 
+export { getCombatantTargetId } from '@/game/battle/combatantIdentity';
 export { DIFFICULTY_RULES } from './difficultyRules';
+
+/** Enemy grades come exclusively from the canonical encounter node, never a client action. */
+export function buildCombatantTiers(
+  enemies: readonly Pick<ChampionInstance, 'id'>[],
+  nodeType: NodeType,
+): Record<string, RunProgressionTargetTier> {
+  const tier =
+    nodeType === NodeType.Boss ? 'boss' : nodeType === NodeType.Elite ? 'elite' : 'normal';
+  return Object.fromEntries(
+    enemies.map((_, index) => [getCombatantTargetId(enemies, index), tier]),
+  );
+}
 
 export const COMBAT_ENCOUNTER_RULESET_VERSION = 9;
 export const BIOME_DIFFICULTY_STAT_BUDGET_WEIGHT = 0.25;

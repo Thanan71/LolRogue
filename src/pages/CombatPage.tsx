@@ -19,7 +19,11 @@ import type { BattleActionOption, BattleEvent, TeamSide } from '@/game/battle/ty
 import { ActionType } from '@/game/battle/types';
 import { NodeType } from '@/game/map/types';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
-import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
+import {
+  buildCombatantTiers,
+  buildResolvedEnemyTeam,
+  resolveCombatEncounter,
+} from '@/game/run/encounterResolver';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { buildRunPlayerTeam } from '@/game/run/runCombatant';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
@@ -354,6 +358,11 @@ export function CombatPage() {
     usesLegacyEncounterRulesForAttempt,
   ]);
 
+  const combatantTiers = useMemo(
+    () => buildCombatantTiers(enemyInstances, currentNode?.type ?? NodeType.Combat),
+    [enemyInstances, currentNode?.type],
+  );
+
   const handleComplete = useCallback(
     (
       winner: 'player' | 'enemy' | 'draw',
@@ -386,6 +395,7 @@ export function CombatPage() {
     initialMpOverrides,
     random: battleRandom,
     ruleLoadout,
+    combatantTiers,
   });
 
   const currentChampion = [...playerTeam, ...enemyTeam].find(

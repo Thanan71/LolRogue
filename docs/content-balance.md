@@ -3,13 +3,14 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 2` décrit le contenu publié avec le
-`gameplay_ruleset_version = 21` et le Daily `score_version = 15`. La calibration
+`gameplay_ruleset_version = 22` et le Daily `score_version = 15`. La calibration
 early Top et le budget de formation global sont introduits en v18 ; la v19 publie
 les règles système du sprint combat, la v20 la carte, l'économie et la progression
-par participation, puis la v21 publie les gates mesurées de P0-BAL-02. Le moteur v20
-est archivé pour terminer les runs déjà ouvertes. Toute autre modification d'ennemi,
-récompense, prix, drop, effet ou stacking exige une nouvelle version et un nouveau
-hash autoritaire.
+par participation, puis la v21 publie les gates mesurées de P0-BAL-02. La v22 ajoute
+Veigar et les compteurs de progression propres aux champions pendant une run. Les
+moteurs v20 et v21 sont archivés pour terminer les runs déjà ouvertes. Toute autre
+modification d'ennemi, récompense, prix, drop, effet ou stacking exige une nouvelle
+version et un nouveau hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `contentCatalogAnalysis.test.ts` appelle `analyzeContentCatalog()` sur 100 seeds de
@@ -177,22 +178,23 @@ Les neuf tests passent sous Node 24 sans modifier les catalogues d'augments, les
 tables de drops, les items, les encounters ou les règles de contenu. La stabilisation
 early Top ne compense donc pas sa difficulté en rouvrant P0-BAL-04.
 
-La baseline courante v21 est chargée depuis
-`config/authority-cohort-baselines-v21.json` et reproduite par la source v21. Elle
+La baseline courante v22 est chargée depuis
+`config/authority-cohort-baselines-v22.json` et reproduite par le bundle enregistré
+v22, au hash `2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84`. Elle
 couvre les 45 cellules du profil PR sur 30 seeds appariées : difficulté, composition
 d'équipe, maîtrise, runes, enhancements et politique restent visibles séparément.
-Les sept baselines authority v15 à v21 restent reproductibles ; v15 à v20 sont des
+Les huit baselines authority v15 à v22 restent reproductibles ; v15 à v21 sont des
 archives immuables dont les identités moteur/hash/modèle/policy sont littérales et dont
 la reproduction emploie exclusivement leur bundle versionné, jamais les constantes du
 moteur courant.
 
-`npm run balance:baseline:generate` génère la v21 sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-v21.json` met à jour son artefact
-commité. Les commandes `balance:baseline:generate:v15` à `:v20` servent uniquement à
+`npm run balance:baseline:generate` génère la v22 sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-v22.json` met à jour son artefact
+commité. Les commandes `balance:baseline:generate:v15` à `:v21` servent uniquement à
 auditer les archives historiques. Une nouvelle publication ajoute son propre couple
 fixture/loader/JSON sans réécrire les versions précédentes.
 `npm run balance:baseline:check`, inclus dans `npm run balance:artifacts:check`, exige
-une reproduction byte-for-byte des sept artefacts.
+une reproduction byte-for-byte des huit artefacts.
 
 ### Gates de cohortes P0-BAL-02
 
@@ -200,10 +202,10 @@ une reproduction byte-for-byte des sept artefacts.
 45 cellules × 30 seeds. `authorityCohortAcceptance` regroupe 15 familles sémantiques
 et n'échoue sur la hiérarchie Easy ≥ Normal ≥ Hard que lorsque les intervalles Wilson
 révèlent une inversion significative. La même exécution mesure la concentration des
-morts et compare 1 170 métriques au golden v21 commité : baisse de victoire supérieure
+morts et compare 1 170 métriques au golden v22 commité : baisse de victoire supérieure
 à 5 points, recul médian supérieur à 0,5 biome ou dérive économique supérieure à 10 %.
 
-La mesure de référence passe sans violation. Hard/Top concentre 177 morts sur 445
+La référence historique v21 passe sans violation. Hard/Top y concentre 177 morts sur 445
 (39,78 %) ; sa borne Wilson basse de 35,33 % reste sous le seuil d'échec strict de
 40 % et produit donc un avertissement visible, pas un succès masqué. Le golden rend
 une dérive non approuvée bloquante ; lorsqu'il est volontairement régénéré, son diff
@@ -211,14 +213,25 @@ reste la preuve à approuver en revue de PR. La CI conserve le rapport
 `authority-cohort-acceptance.json` pour les profils PR, nightly et release, exécutés
 respectivement avec 30, 500 et 1 000 seeds par cellule.
 
+La référence v22 évalue les mêmes 45 cellules et 1 170 métriques sans violation.
+Hard/Top concentre 177 morts sur 440 (40,23 %) ; sa borne Wilson basse de 35,75 %
+reste sous le seuil strict de 40 %. Cet avertissement reste visible dans le rapport,
+sans relever le seuil ni remplacer les données historiques v21. Le CLI refuse une
+baseline d'un autre moteur ou hash avant de lancer les simulations.
+
 ### Matrice de combat des champions
 
 La preuve d'acceptation combat est distincte des cohortes de runs. Elle énumère les
-126 partitions complémentaires de cinq champions parmi les dix maintenus, joue
+126 partitions complémentaires de cinq champions parmi les dix du pool v21 figé, joue
 chaque partition avec les côtés inversés et réutilise les mêmes 30 seeds. Chaque
 runtime exécute donc 7 560 combats automatisés au niveau 1. Un taux décisif exclut
 les draws de son dénominateur et le gate P1 exige au moins une victoire **et** une
 défaite pour chaque champion ; un draw ne peut ainsi masquer un taux réel de 0 %.
+
+Veigar dispose d'une campagne distincte v22 sur 180 runs appariés avec Annie et
+Lux, complétée par les sondes zéro point et plafond/R. Les onze champions maintenus
+ne changent pas la population de la matrice historique. Voir le
+[rapport P3-CHAMP-01](balance/P3-CHAMP-01-veigar-v22.md).
 
 `npm run balance:combat:matrix:generate` sélectionne le moteur `current` dans
 `config/authority-versions.json` et, par défaut, son prédécesseur gameplay. Le moteur

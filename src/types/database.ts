@@ -110,6 +110,7 @@ export type Database = {
           economy_version: number;
           enabled: boolean;
           gameplay_ruleset_version: number;
+          legacy_catalog_version: number | null;
           singleton: boolean;
           updated_at: string;
         };
@@ -119,6 +120,7 @@ export type Database = {
           economy_version?: number;
           enabled?: boolean;
           gameplay_ruleset_version: number;
+          legacy_catalog_version?: number | null;
           singleton?: boolean;
           updated_at?: string;
         };
@@ -128,6 +130,7 @@ export type Database = {
           economy_version?: number;
           enabled?: boolean;
           gameplay_ruleset_version?: number;
+          legacy_catalog_version?: number | null;
           singleton?: boolean;
           updated_at?: string;
         };
@@ -2120,6 +2123,15 @@ export type Database = {
         Returns: Json;
       };
       complete_run_verification_v20_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_v21_contract: {
         Args: {
           p_attempt_id: string;
           p_lease_token: string;

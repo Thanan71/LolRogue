@@ -1,6 +1,7 @@
 import { createBuff, createDebuff } from '@/game/effects/BuffDebuffEffect';
 import { CCEffect } from '@/game/effects/CCEffect';
 import { DamageEffect } from '@/game/effects/DamageEffect';
+import { DelayedDamageEffect } from '@/game/effects/DelayedDamageEffect';
 import { ExecuteEffect } from '@/game/effects/ExecuteEffect';
 import {
   normalizePercent,
@@ -46,6 +47,7 @@ interface BattleSpellEffectHost {
     triggerPassives?: boolean,
     isCrit?: boolean,
     triggerRules?: boolean,
+    abilityDamage?: boolean,
   ) => void;
   calculateEffectDamage: (
     effect: SpellEffect,
@@ -95,6 +97,10 @@ export class BattleSpellEffectResolver {
                 areaMultiplier,
             ),
             toCombatDamageType(effect.damageType),
+            true,
+            false,
+            true,
+            true,
           );
         }
         break;
@@ -276,6 +282,7 @@ export class BattleSpellEffectResolver {
               false,
               false,
               false,
+              true,
             );
           }
         }
@@ -301,6 +308,30 @@ export class BattleSpellEffectResolver {
               damageType: toCombatDamageType(effect.damageType),
               duration,
               canCrit: false,
+              abilityDamage: true,
+              sourceSide: attacker.side,
+            }),
+          );
+        }
+        break;
+      }
+      case 'delayed_damage': {
+        for (const [targetIndex, target] of hostileTargets.entries()) {
+          const areaMultiplier =
+            targeting === TargetingType.Area ? getAreaDamageMultiplier(targetIndex) : 1;
+          const magnitude = Math.round(
+            this.host.calculateEffectDamage(effect, attacker, atkStats, target, rankIdx) *
+              areaMultiplier,
+          );
+          if (magnitude <= 0) continue;
+          target.effectManager.apply(
+            new DelayedDamageEffect({
+              name: `${attacker.champion.id} delayed spell`,
+              sourceId: attacker.targetId,
+              targetId: target.targetId,
+              magnitude,
+              damageType: toCombatDamageType(effect.damageType),
+              sourceSide: attacker.side,
             }),
           );
         }

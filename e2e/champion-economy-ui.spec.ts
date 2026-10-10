@@ -45,15 +45,15 @@ async function installEconomyUi(page: Page, english: boolean) {
       snapshot: {
         enabled: true,
         economyVersion: 1,
-        catalogVersion: 1,
-        gameplayRulesetVersion: 21,
+        catalogVersion: 2,
+        gameplayRulesetVersion: 22,
         serverNow: new Date(clock).toISOString(),
         rotation: {
-          id: '2026-W41-v1-r21',
+          id: '2026-W41-v1-r22',
           startsAt: '2026-10-05T00:00:00.000Z',
           endsAt: '2026-10-12T00:00:00.000Z',
           championIds: ['Darius', 'Jinx', 'Leona', 'Malphite', 'Soraka'],
-          rulesetVersion: 21,
+          rulesetVersion: 22,
           algorithmVersion: 1,
         },
         catalog: CHAMPION_ECONOMY_CATALOG.map((entry) => ({ ...entry })),
@@ -65,9 +65,17 @@ async function installEconomyUi(page: Page, english: boolean) {
       getAccess: (id: string) =>
         getChampionAccess(id, useChampionEconomyStore.getState().snapshot!, clock),
       refresh: async () => undefined,
-      purchase: async (id: string, quote?: { priceShards: number }) => {
+      purchase: async (
+        id: string,
+        quote?: { priceShards: number; economyVersion: number; catalogVersion: number },
+      ) => {
         const current = useChampionEconomyStore.getState().snapshot!;
-        if (id !== 'Lux' || quote?.priceShards !== 400)
+        if (
+          id !== 'Lux' ||
+          quote?.priceShards !== 400 ||
+          quote.economyVersion !== 1 ||
+          quote.catalogVersion !== 2
+        )
           throw new Error('unexpected_ui_fixture_purchase');
         const next = {
           ...current,

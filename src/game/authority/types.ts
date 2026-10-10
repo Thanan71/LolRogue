@@ -1,5 +1,5 @@
-import type { SpellSlot } from '@/game/ChampionInstance';
 import type { BattleMetrics } from '@/game/battle/types';
+import type { SpellSlot } from '@/game/ChampionInstance';
 import type {
   Biome,
   ChampionRunStats,
@@ -96,6 +96,7 @@ export interface AuthorityTeamMember {
   statBoosts: Record<string, number>;
   statMultiplier: number;
   spellRanks: Record<SpellSlot, number>;
+  runProgress?: Record<string, number>;
 }
 
 export type AuthorityPendingNodeType = RunNodeType | 'start' | 'exit';
@@ -217,6 +218,7 @@ export interface AuthorityCombatantResources {
   currentMp: number;
   maxMp: number;
   defeated: boolean;
+  runProgress?: Record<string, number>;
 }
 
 export interface AuthorityCombatTeamResources {
@@ -233,6 +235,7 @@ export interface AuthorityPostCombatResources {
   maxMp: number;
   level: number;
   currentXp: number;
+  runProgress?: Record<string, number>;
 }
 
 export interface AuthorityCombatRewardSummary {

@@ -202,96 +202,110 @@ Nasus, Smolder, Senna, Aurelion Sol ou Kindred.
 
 ### Fonctionnalité I.1 — État de progression intra-run par champion
 
-- [ ] Ajouter un état de progression runtime/serialisable attaché à une instance de
+- [x] Ajouter un état de progression runtime/serialisable attaché à une instance de
   champion, distinct de la maîtrise permanente du compte.
-  - [ ] Définir une structure générique de type \`runProgress\` / \`championRunState\`.
-  - [ ] Stocker les compteurs par clé stable plutôt que par propriété spécifique à Veigar.
-  - [ ] Garantir qu'un champion absent du système conserve un état vide sans coût métier.
-  - [ ] Sérialiser cet état dans les snapshots de run.
-  - [ ] Réhydrater l'état après refresh/reconnexion.
-  - [ ] Inclure l'état dans le replay authority et la validation de tentative.
-  - [ ] Vérifier que l'état ne fuit jamais entre deux runs.
-  - [ ] Ajouter une migration uniquement si une persistance DB supplémentaire est réellement requise.
-- [ ] Définir des helpers génériques de lecture/écriture.
-  - [ ] \`getRunCounter(key)\`.
-  - [ ] \`incrementRunCounter(key, amount)\`.
-  - [ ] \`setRunCounter(key, value)\`.
-  - [ ] Refuser les clés/valeurs invalides ou non finies.
-  - [ ] Centraliser les limites/caps quand un champion en a besoin.
+  - [x] Définir une structure générique de type \`runProgress\` / \`championRunState\`.
+  - [x] Stocker les compteurs par clé stable plutôt que par propriété spécifique à Veigar.
+  - [x] Garantir qu'un champion absent du système conserve un état vide sans coût métier.
+  - [x] Sérialiser cet état dans les snapshots de run.
+  - [x] Réhydrater l'état après refresh/reconnexion.
+  - [x] Inclure l'état dans le replay authority et la validation de tentative.
+  - [x] Vérifier que l'état ne fuit jamais entre deux runs.
+  - [x] Ajouter une migration uniquement si une persistance DB supplémentaire est réellement requise.
+- [x] Définir des helpers génériques de lecture/écriture.
+  - [x] \`getRunCounter(key)\`.
+  - [x] \`incrementRunCounter(key, amount)\`.
+  - [x] \`setRunCounter(key, value)\`.
+  - [x] Refuser les clés/valeurs invalides ou non finies.
+  - [x] Centraliser les limites/caps quand un champion en a besoin.
 
 ### Fonctionnalité I.2 — Événements de combat exploitables par les passifs de stacking
 
-- [ ] Exposer des événements autoritaires assez précis pour attribuer les stacks.
-  - [ ] Distinguer dégâts, kill, assist si nécessaire, fin de combat et boss.
-  - [ ] Identifier sans ambiguïté le champion source et la cible.
-  - [ ] Garantir l'idempotence d'une attribution lors d'un replay.
-  - [ ] Ne jamais attribuer de stack depuis l'UI ou un compteur client.
-- [ ] Ajouter un contrat de déclencheur passif générique.
-  - [ ] Permettre un hook \`onDamage\`.
-  - [ ] Permettre un hook \`onKill\`.
-  - [ ] Permettre un hook \`onCombatEnd\` si nécessaire.
-  - [ ] Interdire qu'un hook fasse diverger client et authority.
+- [x] Exposer des événements autoritaires assez précis pour attribuer les stacks.
+  - [x] Distinguer dégâts, kill, assist si nécessaire, fin de combat et boss.
+  - [x] Identifier sans ambiguïté le champion source et la cible.
+  - [x] Garantir l'idempotence d'une attribution lors d'un replay.
+  - [x] Ne jamais attribuer de stack depuis l'UI ou un compteur client.
+- [x] Ajouter un contrat de déclencheur passif générique.
+  - [x] Permettre un hook \`onDamage\`.
+  - [x] Permettre un hook \`onKill\`.
+  - [x] Permettre un hook \`onCombatEnd\` si nécessaire.
+  - [x] Interdire qu'un hook fasse diverger client et authority.
 
 ### Fonctionnalité I.3 — Passif de Veigar
 
-- [ ] Implémenter \`Pouvoir maléfique phénoménal\` dans le format roguelike.
-  - [ ] Définir précisément les sources de stacks.
-  - [ ] Recommandation initiale : +1 stack sur kill via compétence.
-  - [ ] Recommandation initiale : +3 sur élite tuée par Veigar.
-  - [ ] Recommandation initiale : +10 sur boss tué par Veigar.
-  - [ ] Décider si un simple hit de compétence donne aussi des stacks.
-  - [ ] Si oui, limiter par cible/combat pour éviter le farm infini.
-  - [ ] Convertir les stacks en AP bonus selon une règle unique et testée.
-  - [ ] Afficher les stacks dans l'UI de combat et la fiche champion.
-  - [ ] Afficher le gain de stacks dans le journal de combat.
-- [ ] Vérifier la persistance.
-  - [ ] Les stacks survivent entre combats.
-  - [ ] Les stacks survivent entre biomes.
-  - [ ] Les stacks survivent à un refresh.
-  - [ ] Les stacks disparaissent à la fin/abandon de la run.
+- [x] Implémenter \`Pouvoir maléfique phénoménal\` dans le format roguelike.
+  - [x] Définir précisément les sources de stacks.
+  - [x] Appliquer +1 point sur une élimination normale via compétence.
+  - [x] Appliquer +3 points sur un élite éliminé par Veigar.
+  - [x] Appliquer +10 points sur un boss éliminé par Veigar.
+  - [x] Ne pas attribuer de points aux simples touches ni aux assistances.
+  - [x] Attribuer une seule fois par cible et combat, avec un plafond de 200 points.
+  - [x] Convertir les stacks en AP bonus selon une règle unique et testée.
+  - [x] Afficher les stacks dans l'UI de combat et la fiche champion.
+  - [x] Afficher le gain de stacks dans le journal de combat.
+- [x] Vérifier la persistance.
+  - [x] Les stacks survivent entre combats.
+  - [x] Les stacks survivent entre biomes.
+  - [x] Les stacks survivent à un refresh.
+  - [x] Les stacks disparaissent à la fin/abandon de la run.
 
 ### Fonctionnalité I.4 — Kit jouable de Veigar
 
-- [ ] Ajouter \`Veigar.ts\` au catalogue maintenu.
-  - [ ] Q : burst monocible ou double cible simplifié.
-  - [ ] W : dégâts différés simplifiés sans position spatiale.
-  - [ ] E : stun/control adapté au moteur sans zone spatiale.
-  - [ ] R : gros burst avec scaling sur PV manquants si retenu.
-  - [ ] Passif : stacks de puissance intra-run.
-- [ ] Définir les traductions FR/EN.
-  - [ ] Nom, titre, sorts, passif.
-  - [ ] Descriptions exactes du comportement roguelike, pas de copie trompeuse du LoL live.
-  - [ ] Tooltips de stacks/AP bonus.
-- [ ] Ajouter assets et icônes versionnés.
+- [x] Ajouter \`Veigar.ts\` au catalogue maintenu.
+  - [x] Q : burst monocible ou double cible simplifié.
+  - [x] W : dégâts différés simplifiés sans position spatiale.
+  - [x] E : stun/control adapté au moteur sans zone spatiale.
+  - [x] R : gros burst avec scaling sur PV manquants si retenu.
+  - [x] Passif : stacks de puissance intra-run.
+- [x] Définir les traductions FR/EN.
+  - [x] Nom, titre, sorts, passif.
+  - [x] Descriptions exactes du comportement roguelike, pas de copie trompeuse du LoL live.
+  - [x] Tooltips de stacks/AP bonus.
+- [x] Ajouter assets et icônes versionnés.
 
 ### Fonctionnalité I.5 — Tests et balance Veigar
 
-- [ ] Tests unitaires.
-  - [ ] gain de stack correct ;
-  - [ ] absence de double attribution ;
-  - [ ] restauration après sérialisation ;
-  - [ ] reset entre runs ;
-  - [ ] scaling AP correct ;
-  - [ ] replay déterministe.
-- [ ] Tests E2E.
-  - [ ] démarrer une run avec Veigar ;
-  - [ ] gagner des stacks ;
-  - [ ] changer de biome ;
-  - [ ] reload ;
-  - [ ] confirmer que les stacks sont identiques.
-- [ ] Balance.
-  - [ ] mesurer AP moyen fin Top/Jungle/Mid/Enemy Base ;
-  - [ ] éviter qu'un Veigar sans stacks soit injouable ;
-  - [ ] éviter qu'un bon run fasse exploser les limites de dégâts ;
-  - [ ] comparer victoire/dégâts à Annie et Lux.
+- [x] Tests unitaires.
+  - [x] gain de stack correct ;
+  - [x] absence de double attribution ;
+  - [x] restauration après sérialisation ;
+  - [x] reset entre runs ;
+  - [x] scaling AP correct ;
+  - [x] replay déterministe.
+- [x] Tests E2E.
+  - [x] démarrer une run avec Veigar ;
+  - [x] gagner des stacks ;
+  - [x] changer de biome ;
+  - [x] reload ;
+  - [x] confirmer que les stacks sont identiques.
+- [x] Balance.
+  - [x] mesurer AP moyen fin Top/Jungle/Mid/Enemy Base ;
+  - [x] éviter qu'un Veigar sans stacks soit injouable ;
+  - [x] éviter qu'un bon run fasse exploser les limites de dégâts ;
+  - [x] comparer victoire/dégâts à Annie et Lux.
 
 ### Acceptation Sprint I
 
-- [ ] Veigar est jouable de bout en bout.
-- [ ] Le système de stacks est générique et non codé en dur dans l'UI.
-- [ ] Les stacks sont persistants dans une run, jamais entre deux runs.
-- [ ] Client, replay et authority produisent exactement les mêmes stacks.
-- [ ] Les tests CI, E2E, i18n et balance pertinents passent.
+- [x] Veigar est jouable de bout en bout.
+- [x] Le système de stacks est générique et non codé en dur dans l'UI.
+- [x] Les stacks sont persistants dans une run, jamais entre deux runs.
+- [x] Client, replay et authority produisent exactement les mêmes stacks.
+- [x] Les tests CI, E2E, i18n et balance pertinents passent.
+
+Livraison : compteurs déclaratifs, kit Veigar, interface FR/EN et contrats v22.
+Les résultats canoniques conservent les compteurs dans leur JSON existant ; aucune
+progression de compte ne provient de ces points. Les anciens runs gardent leur
+moteur et leur catalogue figés. Les icônes Riot sont versionnées et le patch note
+`2026.10.09.1` décrit cette livraison.
+
+Le [rapport de balance](docs/balance/P3-CHAMP-01-veigar-v22.md) compare 180 runs
+appariés source/Edge et distingue les biomes atteints des champions survivants.
+L’absence de Veigar vivant après la Base limite les conclusions de fin de run ;
+cette campagne automatisée ne clôture pas les playtests humains P2-BAL-01.
+Le [contrat de publication](docs/champion-run-progression.md) exige Edge et client
+compatibles avant les deux migrations. Aucune migration ni fonction distante
+n’est appliquée par cette livraison de code.
 
 ---
 

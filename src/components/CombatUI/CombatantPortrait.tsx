@@ -1,8 +1,10 @@
 import type React from 'react';
 import type { CSSProperties } from 'react';
+import { RunProgressCounters } from '@/components/RunProgressCounters';
 import { combatantConditions } from '@/game/presentation/combatStatuses';
 import { combatCopy } from '@/i18n/combatContent';
 import { formatNumber } from '@/i18n/format';
+import { runProgressSummary } from '@/i18n/runProgressContent';
 import type { CombatantInfo } from '../../stores/battleStore';
 import { CombatStatusBadges, combatantStatusDescription } from './CombatStatusBadges';
 
@@ -28,6 +30,11 @@ export const CombatantPortrait: React.FC<Props> = ({
   const { name, level, currentHp, maxHp, currentMp, maxMp, iconUrl, isDefeated, side } = combatant;
   const conditions = combatantConditions(combatant);
   const statusDescription = combatantStatusDescription(combatant);
+  const progressDescription = combatant.runProgression
+    ?.map((definition) =>
+      runProgressSummary(definition, combatant.runProgress?.[definition.key] ?? 0),
+    )
+    .join(', ');
   const hpPct = maxHp > 0 ? Math.min(100, Math.max(0, (currentHp / maxHp) * 100)) : 0;
   const mpPct = maxMp > 0 ? Math.min(100, Math.max(0, (currentMp / maxMp) * 100)) : 0;
   const hpAriaMax = Math.max(0, Math.round(maxHp));
@@ -59,7 +66,7 @@ export const CombatantPortrait: React.FC<Props> = ({
       aria-pressed={onSelect ? isSelected : undefined}
       aria-label={
         onSelect
-          ? `${combatCopy.portrait.target(name)}${statusDescription ? `, ${statusDescription}` : ''}`
+          ? `${combatCopy.portrait.target(name)}${statusDescription ? `, ${statusDescription}` : ''}${progressDescription ? `, ${progressDescription}` : ''}`
           : undefined
       }
       onClick={onSelect}
@@ -131,6 +138,11 @@ export const CombatantPortrait: React.FC<Props> = ({
           </div>
         )}
         <CombatStatusBadges combatant={combatant} />
+        <RunProgressCounters
+          definitions={combatant.runProgression}
+          snapshot={combatant.runProgress}
+          variant="compact"
+        />
         {enhancementBonuses && enhancementBonuses.length > 0 && (
           <div className="combatant-portrait__bonuses">
             {enhancementBonuses.slice(0, 3).map((bonus, i) => (

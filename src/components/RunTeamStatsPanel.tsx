@@ -1,5 +1,7 @@
 import { useId, useMemo, useState } from 'react';
+import { RunProgressCounters } from '@/components/RunProgressCounters';
 import { championDB } from '@/data/championDatabase';
+import { applyRunProgressStatBonuses } from '@/game/runProgression';
 import { formatStatValue } from '@/game/stats/statContract';
 import { itemName } from '@/i18n/content';
 import { formatNumber } from '@/i18n/format';
@@ -8,6 +10,7 @@ import { enhancementService, enhancementTreeProvider } from '@/services/enhancem
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useRunStore } from '@/stores/runStore';
+import type { RunProgressionDefinition } from '@/types/champion';
 import { type InventoryEntry, MAX_ITEMS_PER_CHAMPION, type TeamMember } from '@/types/run';
 import type { CalculatedStats } from '@/utils/champion';
 import { calculateFullStats } from '@/utils/statCalculator';
@@ -29,6 +32,7 @@ interface ChampionSheet {
   xpDisplay: string;
   xpProgress: number;
   items: InventoryEntry[];
+  runProgression: readonly RunProgressionDefinition[] | undefined;
 }
 
 const DETAIL_STATS = [
@@ -186,15 +190,19 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
           masteryChampions[member.championId.toLowerCase()]?.level ??
           0);
       const level = member.level ?? 1;
-      const stats = calculateFullStats(
-        champion,
-        level,
-        enhancementBonuses,
-        inventory,
-        member.championId,
-        masteryLevel,
-        member.statBoosts,
-        member.statMultiplier,
+      const stats = applyRunProgressStatBonuses(
+        calculateFullStats(
+          champion,
+          level,
+          enhancementBonuses,
+          inventory,
+          member.championId,
+          masteryLevel,
+          member.statBoosts,
+          member.statMultiplier,
+        ),
+        champion.passive.runProgression,
+        member.runProgress ?? null,
       );
       const currentHp = Math.min(stats.hp, Math.max(0, member.currentHp ?? stats.hp));
       const currentXp = member.currentXp ?? 0;
@@ -207,6 +215,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
           level,
           currentHp,
           stats,
+          runProgression: champion.passive.runProgression,
           xpDisplay:
             level >= 18
               ? fr.run.maximumLevel
@@ -351,6 +360,11 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                   </div>
                 ))}
               </dl>
+
+              <RunProgressCounters
+                definitions={selectedSheet.runProgression}
+                snapshot={selectedSheet.member.runProgress}
+              />
 
               <div className="run-team-stats__equipment">
                 <div className="run-team-stats__equipment-heading">

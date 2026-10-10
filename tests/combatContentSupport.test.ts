@@ -4,7 +4,6 @@ import { TargetingType } from '@/types';
 import { championDB } from '../src/data/championDatabase';
 import {
   getSpellTargetingIssues,
-  IMPLEMENTED_PASSIVE_CHAMPIONS,
   isPassiveCombatReady,
   isSpellCombatReady,
   isSpellEffectConfigured,
@@ -13,9 +12,10 @@ import {
 
 describe('published combat content support', () => {
   it('keeps every maintained passive executable and hides generated incomplete passives', () => {
+    const maintainedIds = new Set(implementedChampions.map((champion) => champion.id));
     for (const champion of championDB.getAll()) {
       const ready = isPassiveCombatReady(champion.id, champion.passive);
-      expect(ready).toBe(IMPLEMENTED_PASSIVE_CHAMPIONS.has(champion.id));
+      expect(ready, champion.id).toBe(maintainedIds.has(champion.id));
       if (!ready) expect(UNAVAILABLE_COMBAT_DESCRIPTION.length).toBeGreaterThan(0);
     }
   });

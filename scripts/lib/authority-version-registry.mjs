@@ -13,6 +13,7 @@ export const AUTHORITY_FEATURES = [
   'automaticTraceSuffix',
   'canonicalStats',
   'contentBalance',
+  'runProgression',
 ];
 
 const STATUSES = new Set(['current', 'replay-only', 'unsupported']);
@@ -51,6 +52,10 @@ export async function readAuthorityVersionRegistry() {
     assert(
       Number.isInteger(version.command) && version.command > 0,
       `${label}.command is invalid.`,
+    );
+    assert(
+      Number.isInteger(version.championCatalog) && version.championCatalog > 0,
+      `${label}.championCatalog is invalid.`,
     );
     assert(STATUSES.has(version.status), `${label}.status is invalid.`);
     assert(

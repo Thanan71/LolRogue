@@ -13,7 +13,7 @@
  *   base      → (uniform — all roles equally likely)
  */
 
-import { implementedChampions } from '@/data/champion';
+import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
 import type { Champion, ChampionTag } from '@/types/champion';
 import type { Biome } from '@/types/run';
 import { normalizeRecruitmentGoldCost } from './recruitmentRules';
@@ -162,9 +162,13 @@ interface WeightedEntry {
   weight: number;
 }
 
-function getWeightedPool(biome: Biome, excludeIds: string[]): WeightedEntry[] {
+function getWeightedPool(
+  biome: Biome,
+  excludeIds: string[],
+  champions: readonly Champion[],
+): WeightedEntry[] {
   const exclude = new Set(excludeIds.map((id) => id.toLowerCase()));
-  return implementedChampions
+  return champions
     .filter((c) => !exclude.has(c.id.toLowerCase()))
     .map((champion) => ({
       champion,
@@ -195,8 +199,9 @@ export function generateRecruitOffers(
   excludeIds: string[] = [],
   config: RecruitmentConfig = DEFAULT_RECRUITMENT_CONFIG,
   rand: () => number = Math.random,
+  champions: readonly Champion[] = getRunChampionCatalog(),
 ): RecruitOffer[] {
-  const pool = getWeightedPool(biome, excludeIds);
+  const pool = getWeightedPool(biome, excludeIds, champions);
   if (pool.length === 0) return [];
   const offerCount = Math.min(config.offerCount, pool.length);
   const offers: RecruitOffer[] = [];
@@ -220,13 +225,14 @@ export function generateShopRotation(
   teamIds: string[] = [],
   count: number = 2,
   rand: () => number = Math.random,
+  champions: readonly Champion[] = getRunChampionCatalog(),
 ): { championId: string; cost: number }[] {
   const config: RecruitmentConfig = {
     ...DEFAULT_RECRUITMENT_CONFIG,
     offerCount: count,
     priceMultiplier: 1.0,
   };
-  const offers = generateRecruitOffers(biome, runLevel, teamIds, config, rand);
+  const offers = generateRecruitOffers(biome, runLevel, teamIds, config, rand, champions);
   return offers.map((offer) => ({
     championId: offer.champion.id,
     cost: offer.cost,
@@ -238,8 +244,9 @@ export function generateWildRecruit(
   runLevel: number,
   teamIds: string[] = [],
   rand: () => number = Math.random,
+  champions: readonly Champion[] = getRunChampionCatalog(),
 ): { championId: string; cost: number; successChance: number; statMultiplier: number } | null {
-  const pool = getWeightedPool(biome, teamIds);
+  const pool = getWeightedPool(biome, teamIds, champions);
   if (pool.length === 0) return null;
   const chosen = weightedPick(pool, rand);
   if (!chosen) return null;

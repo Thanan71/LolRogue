@@ -11,6 +11,7 @@
     "Lux",
     "Malphite",
     "Soraka",
+    "Veigar",
     "Warwick"
   ],
   "spells": {
@@ -67,6 +68,12 @@
       "SorakaW.png",
       "SorakaE.png",
       "SorakaR.png"
+    ],
+    "Veigar": [
+      "VeigarBalefulStrike.png",
+      "VeigarDarkMatter.png",
+      "VeigarEventHorizon.png",
+      "VeigarR.png"
     ],
     "Warwick": [
       "WarwickQ.png",
@@ -285,6 +292,30 @@
       "bytes": 7235,
       "sha256": "376a84bdde4b45f1e15921b4c30df8c13007a21b7ee6c3e62dc9937b9916105d",
       "source": "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/spell/UFSlash.png"
+    },
+    {
+      "path": "assets/riot/16.6.1/spells/VeigarBalefulStrike.png",
+      "bytes": 5740,
+      "sha256": "1298edf57583a83f656532444ead7a4286bfe79e799d1c17e0894461ef071948",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/spell/VeigarBalefulStrike.png"
+    },
+    {
+      "path": "assets/riot/16.6.1/spells/VeigarDarkMatter.png",
+      "bytes": 4827,
+      "sha256": "e7db23b742a19073d130ead27515aa9bdccdbdb330ee5caf0faa60f73a626d35",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/spell/VeigarDarkMatter.png"
+    },
+    {
+      "path": "assets/riot/16.6.1/spells/VeigarEventHorizon.png",
+      "bytes": 6350,
+      "sha256": "2a1ef699ac906e9cff9a8d264ad3faaf97d8c702cc7c34bd97840fdd7450682e",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/spell/VeigarEventHorizon.png"
+    },
+    {
+      "path": "assets/riot/16.6.1/spells/VeigarR.png",
+      "bytes": 5210,
+      "sha256": "5ad85859ef07f09b96be2c768aaf91a5d50c864b2ed3b5b59f47ea3c89b94b2b",
+      "source": "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/spell/VeigarR.png"
     },
     {
       "path": "assets/riot/16.6.1/spells/Volley.png",

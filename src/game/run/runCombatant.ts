@@ -14,7 +14,7 @@ import {
 
 type RunCombatMember = Pick<
   TeamMember,
-  'championId' | 'level' | 'spellRanks' | 'statBoosts' | 'statMultiplier'
+  'championId' | 'level' | 'spellRanks' | 'statBoosts' | 'statMultiplier' | 'runProgress'
 >;
 
 export interface RunCombatantRules {
@@ -102,7 +102,13 @@ export function buildRunPlayerTeam(
   for (const member of team) {
     const champion = championDB.getById(member.championId);
     if (!champion) continue;
-    const instance = new ChampionInstance(champion, member.level ?? 1, member.statMultiplier ?? 1);
+    const instance = new ChampionInstance(
+      champion,
+      member.level ?? 1,
+      member.statMultiplier ?? 1,
+      {},
+      member.runProgress,
+    );
     instance.setMasteryLevel(rules.getMasteryLevel(member.championId));
     for (const slot of SPELL_SLOTS) instance.setSpellRank(slot, member.spellRanks?.[slot] ?? 1);
     applyRunBonuses(instance, member, rules, augmentManager);

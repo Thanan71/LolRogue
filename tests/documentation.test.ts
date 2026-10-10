@@ -280,7 +280,7 @@ describe('documentation maintenue', () => {
     expect(persistence).toContain('Dans le ruleset Daily v21 actif');
   });
 
-  it('documente les preuves v20 historiques et la fermeture automatisée v21', () => {
+  it('distingue les preuves v20/v21 historiques de la baseline courante v22', () => {
     const archivedTodo = read('docs/archive/todo-snapshot-2026-10-07.md');
     const authority = read('docs/authority-versioning.md');
     const balance = read('docs/content-balance.md');
@@ -303,7 +303,11 @@ describe('documentation maintenue', () => {
         '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
       );
     }
-    expect(balance).toContain('sept baselines authority v15 à v21');
+    expect(balance).toContain('huit baselines authority v15 à v22');
+    expect(balance).toMatch(/v15 à v21 sont des\s+archives/);
+    expect(balance).toContain('config/authority-cohort-baselines-v22.json');
+    expect(balance).toContain('golden v22 commité');
+    expect(balance).toContain('La référence historique v21 passe sans violation');
     expect(balance).toContain('analyse 1 000 seeds');
     expect(balance).toContain('rejoue 1 200 runs');
     expect(balance).toContain('v20 au moteur v21');

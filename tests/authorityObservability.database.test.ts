@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import type { Database } from '@/types/database';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
@@ -87,7 +88,7 @@ describeDatabase('authority observability contract', () => {
       administrator.client
         .from('authority_attempt_aggregates')
         .select('*')
-        .eq('engine_version', 'run-engine-v21'),
+        .eq('engine_version', CURRENT_AUTHORITY_VERSION.engine),
       administrator.client.from('authority_recent_rejections').select('*'),
     ]);
     expect(hiddenFromPlayer).toMatchObject({ data: [], error: null });
@@ -95,8 +96,8 @@ describeDatabase('authority observability contract', () => {
     expect(aggregates.error).toBeNull();
     expect(aggregates.data).toHaveLength(1);
     expect(aggregates.data?.[0]).toMatchObject({
-      engine_version: 'run-engine-v21',
-      gameplay_ruleset_version: 21,
+      engine_version: CURRENT_AUTHORITY_VERSION.engine,
+      gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
       attempt_count: 1,
       started_count: 0,
       verified_count: 0,
@@ -111,8 +112,8 @@ describeDatabase('authority observability contract', () => {
       data: [
         {
           attempt_id: attemptId,
-          engine_version: 'run-engine-v21',
-          gameplay_ruleset_version: 21,
+          engine_version: CURRENT_AUTHORITY_VERSION.engine,
+          gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
           rejection_code: 'pending_choice',
         },
       ],

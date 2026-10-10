@@ -1,0 +1,66 @@
+.run-progress {
+  min-width: 0;
+  padding: 0.875rem;
+  border: 1px solid rgba(178, 155, 236, 0.4);
+  border-radius: 0.625rem;
+  background: rgba(61, 41, 98, 0.24);
+  color: var(--color-text-primary, #f1f0f7);
+  overflow-wrap: anywhere;
+}
+
+.run-progress h4 {
+  margin: 0 0 0.625rem;
+  font-size: 1rem;
+}
+.run-progress__counter + .run-progress__counter {
+  margin-top: 0.75rem;
+}
+.run-progress__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.375rem 0.625rem;
+}
+.run-progress__value {
+  font-variant-numeric: tabular-nums;
+}
+.run-progress__bonus {
+  color: #dcc5ff;
+  font-weight: 700;
+}
+.run-progress p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+.run-progress__rules summary {
+  cursor: pointer;
+  padding: 0.625rem 0;
+  min-height: 2.75rem;
+}
+.run-progress__rules summary:focus-visible {
+  outline: 2px solid #dcc5ff;
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+.run-progress__rules ul {
+  padding-inline-start: 1.25rem;
+  margin: 0.25rem 0;
+}
+.run-progress__rules li {
+  line-height: 1.5;
+}
+.run-progress--compact {
+  border: 0;
+  padding: 0;
+  background: none;
+  font-size: max(12px, 0.75rem);
+}
+.run-progress--compact .run-progress__summary {
+  gap: 0.125rem 0.375rem;
+}
+.run-progress--compact strong {
+  font-weight: 500;
+}
+.run-progress--rules {
+  margin-top: 1rem;
+}

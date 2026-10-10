@@ -78,6 +78,16 @@ export const CHAMPION_DESIGN: Record<string, ChampionDesignProfile> = {
     weaknesses: ['portée courte', 'dépendant des cibles blessées', 'sensible au burst'],
     synergies: ['Lux', 'Soraka', 'Ashe'],
   },
+  Veigar: {
+    role: 'mage à progression de run / finition',
+    strengths: [
+      'puissance permanente intra-run',
+      'burst sur cibles blessées',
+      'étourdissement ciblé',
+    ],
+    weaknesses: ['fragile', 'dépendant du mana', 'progression exigeant le dernier coup'],
+    synergies: ['Garen', 'Leona', 'Soraka'],
+  },
 };
 
 export interface BiomeDesignProfile {

@@ -6,26 +6,43 @@ import {
   AUTHORITY_ENGINE_VERSION,
   getAuthorityVerifier,
 } from '@/game/authority';
+import type { AuthorityCohortRuntime } from './authorityCohort';
 import { evaluateAuthorityCohortAcceptance } from './authorityCohortAcceptance';
 import {
   type AuthorityCohortBaselineComparison,
   type AuthorityCohortBaselineDocument,
   compareAuthorityCohortBaseline,
 } from './authorityCohortBaseline';
-import { AUTHORITY_COHORT_BASELINE_V21 } from './authorityCohortBaselineV21';
-import {
-  type AuthorityCohortExecutionProfileName,
-  AUTHORITY_COHORT_EXECUTION_PROFILES,
-} from './authorityCohortProfiles';
+import { AUTHORITY_COHORT_BASELINE_V22 } from './authorityCohortBaselineV22';
+import { AUTHORITY_COHORT_BASELINE_V22_IDENTITY } from './authorityCohortBaselineV22Fixture';
 import {
   type AuthorityCohortExecutionReportDocument,
   createAuthorityCohortExecutionPlan,
   executeAuthorityCohortPlan,
 } from './authorityCohortExecution';
+import {
+  AUTHORITY_COHORT_EXECUTION_PROFILES,
+  type AuthorityCohortExecutionProfileName,
+} from './authorityCohortProfiles';
 
 const REPORT_FILE = 'authority-cohort-report.json';
 const EXTREME_TRACES_FILE = 'authority-cohort-extreme-traces.json';
 const ACCEPTANCE_FILE = 'authority-cohort-acceptance.json';
+
+export function getAuthorityCohortExecutionBaseline(
+  authority: Pick<AuthorityCohortRuntime, 'engineVersion' | 'contentHash'>,
+): AuthorityCohortBaselineDocument {
+  const identity = AUTHORITY_COHORT_BASELINE_V22_IDENTITY;
+  if (
+    authority.engineVersion !== identity.engineVersion ||
+    authority.contentHash !== identity.contentHash
+  ) {
+    throw new Error(
+      `No approved cohort baseline for ${authority.engineVersion}/${authority.contentHash}.`,
+    );
+  }
+  return AUTHORITY_COHORT_BASELINE_V22;
+}
 
 function parseProfile(value: string | undefined): AuthorityCohortExecutionProfileName {
   if (value !== 'pr' && value !== 'nightly' && value !== 'release') {
@@ -106,6 +123,7 @@ export async function runAuthorityCohortExecutionCli(arguments_: readonly string
   const outputDirectory = path.resolve(values['output-directory']);
   const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
   if (!authority) throw new Error('The current source authority verifier is unavailable.');
+  const baseline = getAuthorityCohortExecutionBaseline(authority);
 
   const plan = createAuthorityCohortExecutionPlan(profile);
   const result = executeAuthorityCohortPlan({ authority, plan });
@@ -113,10 +131,7 @@ export async function runAuthorityCohortExecutionCli(arguments_: readonly string
     profile === 'pr'
       ? result
       : executeAuthorityCohortPlan({ authority, plan: createAuthorityCohortExecutionPlan('pr') });
-  const regression = createRegressionComparisons(
-    regressionResult.report,
-    AUTHORITY_COHORT_BASELINE_V21,
-  );
+  const regression = createRegressionComparisons(regressionResult.report, baseline);
   const acceptance = evaluateAuthorityCohortAcceptance({
     report: result.report,
     comparisons: regression.comparisons,

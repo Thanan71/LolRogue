@@ -93,6 +93,8 @@ export interface SpellEffect {
   maxStacks?: number;
   /** Fraction or percentage of maximum HP restored by a revive. */
   revivePercent?: number;
+  /** Damage multiplier added at 100% missing target HP (1 means up to double damage). */
+  missingHealthScaling?: number;
 }
 
 // ─── Champion Stats (base + per-level growth) ───────────────────────────────
@@ -154,6 +156,28 @@ export interface Spell {
 
 // ─── Passive ────────────────────────────────────────────────────────────────
 
+export type RunProgressionTargetTier = 'normal' | 'elite' | 'boss';
+export type RunProgressStat = 'abilityPower' | 'attackDamage' | 'armor' | 'magicResist';
+
+/** The first matching rule grants a counter gain; rules are mutually exclusive per hook. */
+export interface RunProgressionTrigger {
+  amount: number;
+  targetTier?: RunProgressionTargetTier;
+  abilityOnly?: boolean;
+}
+
+/** Serializable passive rules: no callbacks or champion-specific runtime branches. */
+export interface RunProgressionDefinition {
+  key: string;
+  name: string;
+  description: string;
+  cap: number;
+  statBonuses?: Partial<Record<RunProgressStat, number>>;
+  onDamage?: RunProgressionTrigger[];
+  onKill?: RunProgressionTrigger[];
+  onCombatEnd?: RunProgressionTrigger[];
+}
+
 export interface Passive {
   name: string;
   description: string;
@@ -167,6 +191,8 @@ export interface Passive {
   };
   /** Structured effects this passive produces */
   effects: SpellEffect[];
+  /** Counters retained only for the current run, separate from combat effects and mastery. */
+  runProgression?: RunProgressionDefinition[];
 }
 
 // ─── Champion (fully parsed) ────────────────────────────────────────────────

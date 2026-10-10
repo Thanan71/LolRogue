@@ -1,3 +1,4 @@
+import { cloneRunProgressSnapshot } from '@/game/runProgression';
 import type { TeamMember } from '@/types/run';
 import { addXp } from '@/utils/xpSystem';
 
@@ -9,6 +10,7 @@ export interface PostCombatMemberUpdate {
   currentMp?: number;
   level: number;
   currentXp: number;
+  runProgress?: Record<string, number>;
 }
 
 export interface PostCombatTeamResult {
@@ -21,6 +23,7 @@ interface PostCombatFinalState {
   championId: string;
   currentHp: number;
   currentMp?: number;
+  runProgress?: Record<string, number>;
 }
 
 /**
@@ -44,6 +47,7 @@ export function resolvePostCombatTeam(input: {
     const currentLevel = member.level ?? 1;
     const xp = addXp(currentLevel, member.currentXp ?? 0, input.xpPerChampion);
     const finalState = finalByChampion.get(member.championId);
+    const runProgress = cloneRunProgressSnapshot(finalState?.runProgress ?? member.runProgress);
     const maxHp = Math.max(1, input.getPreLevelMaxHp(member));
     const maxMp = Math.max(0, input.getPreLevelMaxMp(member));
     const hpBeforeHeal = finalState?.currentHp ?? member.currentHp ?? maxHp;
@@ -60,6 +64,7 @@ export function resolvePostCombatTeam(input: {
       currentMp: Math.min(maxMp, Math.max(0, mpBeforeRecovery) + recoveredMp),
       level: xp.newLevel,
       currentXp: xp.remainingXp,
+      ...(Object.keys(runProgress).length === 0 ? {} : { runProgress }),
     };
   });
   return {
