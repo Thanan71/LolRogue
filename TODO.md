@@ -242,7 +242,7 @@ d'annulation ou de neutralisation sur une PR de contrôle reste à documenter.
 
 **Taille : L**
 
-Le dépôt documente les procédures, mais la preuve distante reste requise.
+Le dépôt documente les procédures. La preuve distante reste nécessaire **pour clore ce ticket d'amélioration**, mais elle n'est pas une condition d'achat pour la bêta technique sans abonnement : la preuve gratuite (dump chiffré, restauration locale jetable, tests et RPO/RTO mesurés) est suivie dans [la matrice zéro budget](docs/beta-zero-budget.md). Une restauration locale ne garantit pas le délai de restauration d'une production hébergée.
 
 - [ ] **Cadrer Restauration distante isolée.**
   - [ ] Restaurer un backup sur un projet Supabase isolé distant. La répétition locale
@@ -254,7 +254,7 @@ Le dépôt documente les procédures, mais la preuve distante reste requise.
   - [ ] Tester une run sauvegardée/reprise, historique, Candies, Éclats et contrôles admin sur la cible restaurée.
 - [ ] **Tester et justifier la clôture.**
   - [ ] Mesurer RTO/RPO, noter écarts du runbook puis détruire la cible jetable selon procédure.
-  - [ ] La répétition locale précédente ne suffit pas : preuve distante avec date et projet isolé.
+  - [ ] La répétition locale ne suffit pas **à clore P2-OPS-01** : obtenir une preuve distante avec date et projet isolé, lorsqu'un environnement hébergé temporaire est accessible sans achat ou qu'une décision de budget l'autorise.
   - [ ] Toute anomalie RLS, perte de données ou version manquante bloque la clôture.
 
 La répétition locale et les incidents simulés sont archivés dans le [snapshot du
