@@ -95,7 +95,7 @@
 - [ ] Définir évènements minimalistes, agrégés et respectueux de la vie privée : nœud acheté, spécialisation choisie, reset, solde, progression, victoire par build.
 - [ ] Distinguer achats permanents et récompenses authority ; aucun point de statistiques ne modifie le solde.
 - [ ] Mesurer taux d'achat, nœuds bloquants, builds dominants, préférences de branche et corrélations victoire/difficulté avec effectifs et intervalles.
-- [ ] Exposer l'analyse dans le périmètre admin **ADM-19..24**, sans inventer un deuxième tableau de bord ou une deuxième table de Candies.
+- [ ] Exposer l'analyse dans le périmètre admin **ADM-20**, sans inventer un deuxième tableau de bord ou une deuxième table de Candies.
 - [ ] Tester droits admin, agrégations serveur, cardinalités et seuil « échantillon insuffisant ».
 **DoD :** une source de métriques cohérente, aucun double dashboard.
 
