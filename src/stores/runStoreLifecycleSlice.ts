@@ -579,7 +579,13 @@ export function createRunLifecycleSlice(
 
         set({
           isEnding: true,
-          saveStatus: state.completedRunSnapshot?.runId === state.runId ? 'retrying' : 'saving',
+          saveStatus:
+            state.completedRunSnapshot?.runId === state.runId &&
+            state.authorityAttempt?.status === 'verified'
+              ? 'recovering'
+              : state.completedRunSnapshot?.runId === state.runId
+                ? 'retrying'
+                : 'saving',
           saveError: null,
           saveFailureKind: null,
         });
@@ -756,42 +762,100 @@ export function createRunLifecycleSlice(
           }
 
           let syncedAttempt = authorityAttempt;
-          let finishCommandId = syncedAttempt.finishCommandId;
-          if (!finishCommandId) {
-            finishCommandId = createCommandId();
+          // A persisted success is an untrusted hint to read the durable
+          // receipt. Never append commands or seal it again on this path.
+          if (syncedAttempt.status !== 'verified') {
+            let finishCommandId = syncedAttempt.finishCommandId;
             if (!finishCommandId) {
-              set({
-                ...RUN_INITIAL_STATE,
-                completedRunSnapshot: snapshot,
-                saveStatus: 'failed',
-                saveError: runError.secureFinishCommandUnavailable,
-                saveFailureKind: 'terminal',
-              });
-              return true;
+              finishCommandId = createCommandId();
+              if (!finishCommandId) {
+                set({
+                  ...RUN_INITIAL_STATE,
+                  completedRunSnapshot: snapshot,
+                  saveStatus: 'failed',
+                  saveError: runError.secureFinishCommandUnavailable,
+                  saveFailureKind: 'terminal',
+                });
+                return true;
+              }
+              syncedAttempt = { ...syncedAttempt, finishCommandId };
+              set({ authorityAttempt: syncedAttempt });
             }
-            syncedAttempt = { ...syncedAttempt, finishCommandId };
-            set({ authorityAttempt: syncedAttempt });
-          }
 
-          const pendingCommands = syncedAttempt.commands.filter(
-            (command) => command.sequence > syncedAttempt.lastAcknowledgedSequence,
-          );
-          for (let offset = 0; offset < pendingCommands.length; offset += 50) {
-            const batch = pendingCommands.slice(offset, offset + 50);
-            const appendResult = await runAuthorityService.appendCommands(
-              syncedAttempt.attemptId,
-              batch,
+            const pendingCommands = syncedAttempt.commands.filter(
+              (command) => command.sequence > syncedAttempt.lastAcknowledgedSequence,
             );
-            if (
-              appendResult.data?.status === 'expired' ||
-              appendResult.data?.status === 'rejected'
-            ) {
+            for (let offset = 0; offset < pendingCommands.length; offset += 50) {
+              const batch = pendingCommands.slice(offset, offset + 50);
+              const appendResult = await runAuthorityService.appendCommands(
+                syncedAttempt.attemptId,
+                batch,
+              );
+              if (
+                appendResult.data?.status === 'expired' ||
+                appendResult.data?.status === 'rejected'
+              ) {
+                set({
+                  ...RUN_INITIAL_STATE,
+                  completedRunSnapshot: snapshot,
+                  saveStatus: 'failed',
+                  saveError:
+                    appendResult.data.status === 'expired'
+                      ? runError.attemptExpired
+                      : runError.traceRejected(null),
+                  saveFailureKind: 'terminal',
+                  saveDiagnostic: {
+                    attemptId: syncedAttempt.attemptId,
+                    engineVersion: syncedAttempt.engineVersion,
+                    rejectionCode:
+                      appendResult.data.status === 'expired'
+                        ? 'run_attempt_expired'
+                        : 'trace_rejected',
+                  },
+                });
+                return true;
+              }
+              if (appendResult.error || !appendResult.data) {
+                set({
+                  isEnding: false,
+                  saveStatus: 'failed',
+                  saveError: runError.journalSyncFailed,
+                  saveFailureKind: 'retryable',
+                  saveDiagnostic: {
+                    attemptId: syncedAttempt.attemptId,
+                    engineVersion: syncedAttempt.engineVersion,
+                    rejectionCode: 'journal_sync_failed',
+                  },
+                });
+                return false;
+              }
+              syncedAttempt = {
+                ...syncedAttempt,
+                status: appendResult.data.status,
+                lastAcknowledgedSequence: appendResult.data.lastSequence,
+                journalHash: appendResult.data.journalHash,
+              };
+              set({ authorityAttempt: syncedAttempt });
+            }
+
+            const expectedSequence = syncedAttempt.nextSequence - 1;
+            const sealResult = await runAuthorityService.sealAttempt(
+              syncedAttempt.attemptId,
+              finishCommandId,
+              expectedSequence,
+              {
+                engineVersion: syncedAttempt.engineVersion,
+                gameplayRulesetVersion: syncedAttempt.gameplayRulesetVersion,
+                progressionRulesetVersion: syncedAttempt.rulesetVersion,
+              },
+            );
+            if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
               set({
                 ...RUN_INITIAL_STATE,
                 completedRunSnapshot: snapshot,
                 saveStatus: 'failed',
                 saveError:
-                  appendResult.data.status === 'expired'
+                  sealResult.data.status === 'expired'
                     ? runError.attemptExpired
                     : runError.traceRejected(null),
                 saveFailureKind: 'terminal',
@@ -799,94 +863,57 @@ export function createRunLifecycleSlice(
                   attemptId: syncedAttempt.attemptId,
                   engineVersion: syncedAttempt.engineVersion,
                   rejectionCode:
-                    appendResult.data.status === 'expired'
-                      ? 'run_attempt_expired'
-                      : 'trace_rejected',
+                    sealResult.data.status === 'expired' ? 'run_attempt_expired' : 'trace_rejected',
                 },
               });
               return true;
             }
-            if (appendResult.error || !appendResult.data) {
+            if (sealResult.error || !sealResult.data) {
               set({
                 isEnding: false,
                 saveStatus: 'failed',
-                saveError: runError.journalSyncFailed,
+                saveError: runError.sealFailed,
                 saveFailureKind: 'retryable',
                 saveDiagnostic: {
                   attemptId: syncedAttempt.attemptId,
                   engineVersion: syncedAttempt.engineVersion,
-                  rejectionCode: 'journal_sync_failed',
+                  rejectionCode: 'attempt_seal_failed',
                 },
+                authorityAttempt: syncedAttempt,
               });
               return false;
             }
+
             syncedAttempt = {
               ...syncedAttempt,
-              status: appendResult.data.status,
-              lastAcknowledgedSequence: appendResult.data.lastSequence,
-              journalHash: appendResult.data.journalHash,
+              status: sealResult.data.status === 'verified' ? 'verified' : 'verifying',
+              lastAcknowledgedSequence: sealResult.data.lastSequence,
+              journalHash: sealResult.data.journalHash,
             };
             set({ authorityAttempt: syncedAttempt });
           }
 
-          const expectedSequence = syncedAttempt.nextSequence - 1;
-          const sealResult = await runAuthorityService.sealAttempt(
-            syncedAttempt.attemptId,
-            finishCommandId,
-            expectedSequence,
-            {
-              engineVersion: syncedAttempt.engineVersion,
-              gameplayRulesetVersion: syncedAttempt.gameplayRulesetVersion,
-              progressionRulesetVersion: syncedAttempt.rulesetVersion,
-            },
-          );
-          if (sealResult.data?.status === 'expired' || sealResult.data?.status === 'rejected') {
-            set({
-              ...RUN_INITIAL_STATE,
-              completedRunSnapshot: snapshot,
-              saveStatus: 'failed',
-              saveError:
-                sealResult.data.status === 'expired'
-                  ? runError.attemptExpired
-                  : runError.traceRejected(null),
-              saveFailureKind: 'terminal',
-              saveDiagnostic: {
-                attemptId: syncedAttempt.attemptId,
-                engineVersion: syncedAttempt.engineVersion,
-                rejectionCode:
-                  sealResult.data.status === 'expired' ? 'run_attempt_expired' : 'trace_rejected',
-              },
-            });
-            return true;
+          const verification =
+            syncedAttempt.status === 'verified'
+              ? await runAuthorityService.recoverAttempt(syncedAttempt.attemptId)
+              : await runAuthorityService.verifyAttempt(syncedAttempt.attemptId);
+          // A late receipt must not complete a different run or restore the
+          // previous account's rewards after logout/account switching.
+          if (
+            get().runId !== snapshot.runId ||
+            get().authorityAttempt?.attemptId !== syncedAttempt.attemptId
+          ) {
+            return false;
           }
-          if (sealResult.error || !sealResult.data) {
+          if (useAuthStore.getState().user?.id !== user.id) {
             set({
               isEnding: false,
               saveStatus: 'failed',
-              saveError: runError.sealFailed,
+              saveError: runError.attemptOwnerChanged,
               saveFailureKind: 'retryable',
-              saveDiagnostic: {
-                attemptId: syncedAttempt.attemptId,
-                engineVersion: syncedAttempt.engineVersion,
-                rejectionCode: 'attempt_seal_failed',
-              },
-              authorityAttempt: syncedAttempt,
             });
             return false;
           }
-
-          syncedAttempt = {
-            ...syncedAttempt,
-            status: sealResult.data.status === 'verified' ? 'verified' : 'verifying',
-            lastAcknowledgedSequence: sealResult.data.lastSequence,
-            journalHash: sealResult.data.journalHash,
-          };
-          set({ authorityAttempt: syncedAttempt });
-
-          const verification =
-            sealResult.data.status === 'verified'
-              ? await runAuthorityService.recoverAttempt(syncedAttempt.attemptId)
-              : await runAuthorityService.verifyAttempt(syncedAttempt.attemptId);
           if (verification.error || !verification.data) {
             if (verification.error instanceof RunVerificationRejectedError) {
               set({
@@ -1003,6 +1030,9 @@ export function createRunLifecycleSlice(
           { runId: requestedRunId, commandId: get().authorityAttempt?.finishCommandId },
         );
         logger.error('[runStore.endRun] Unexpected finalization failure:', error);
+        if (get().runId !== requestedRunId) {
+          return endFailure(requestedRunId, 'stale_run', runError.staleRun);
+        }
         set({
           isEnding: false,
           saveStatus: 'failed',

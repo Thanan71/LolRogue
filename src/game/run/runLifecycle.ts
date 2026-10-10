@@ -23,7 +23,12 @@ export function getRunLifecyclePhase(state: LifecycleState): RunLifecyclePhase {
   const hasCurrentCompletion =
     state.completedRunSnapshot !== null && state.completedRunSnapshot.runId === state.runId;
   if (hasCurrentCompletion && state.isActive) {
-    if (state.isEnding || state.saveStatus === 'saving' || state.saveStatus === 'retrying') {
+    if (
+      state.isEnding ||
+      state.saveStatus === 'saving' ||
+      state.saveStatus === 'retrying' ||
+      state.saveStatus === 'recovering'
+    ) {
       return 'finalizing';
     }
     if (state.saveStatus === 'failed' && state.saveFailureKind === 'retryable') {

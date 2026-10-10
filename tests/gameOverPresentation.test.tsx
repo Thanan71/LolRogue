@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 
-import { render, screen, within } from '@testing-library/react';
+import type { User } from '@supabase/supabase-js';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fr } from '@/i18n/fr';
 import { gameOverContent } from '@/i18n/gameOverContent';
 import { GameOverPage } from '@/pages/GameOverPage';
 import { useAuthStore } from '@/stores/authStore';
+import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import type { ChampionRunStats, RunSummary } from '@/types/run';
 
@@ -42,14 +45,81 @@ describe('Game Over champion presentation', () => {
       isAuthenticated: false,
     });
     useRunStore.setState({
-      saveStatus: 'idle',
-      saveError: null,
-      saveFailureKind: null,
-      saveDiagnostic: null,
-      completedRunSnapshot: null,
-      serverProgression: null,
+      ...RUN_INITIAL_STATE,
     });
   });
+
+  afterEach(() => {
+    cleanup();
+    useRunStore.setState({ ...RUN_INITIAL_STATE });
+    useAuthStore.setState(useAuthStore.getInitialState());
+  });
+
+  it.each([true, false])(
+    'shows recovery without errors, retry controls or estimated rewards (authenticated=%s)',
+    (authenticated) => {
+      const summary: RunSummary = {
+        won: true,
+        runLevel: 5,
+        wavesCompleted: 16,
+        biomesVisited: ['top_lane', 'jungle'],
+        goldEarned: 500,
+        goldSpent: 300,
+        goldBalance: 200,
+        itemEvents: [],
+        totalKills: 5,
+        totalDamage: 1_200,
+        championStats: [championStats('Garen', 900), championStats('Lux', 300)],
+      };
+      useAuthStore.setState({
+        user: authenticated ? ({ id: 'user-1' } as User) : null,
+        authStatus: authenticated ? 'ready' : 'bootstrapping',
+        isGuest: false,
+        isAuthenticated: authenticated,
+      });
+      useRunStore.setState({
+        saveStatus: 'recovering',
+        serverProgression: null,
+        authorityAttempt: {
+          attemptId: '11111111-1111-4111-8111-111111111111',
+          runUuid: '22222222-2222-4222-8222-222222222222',
+          ownerUserId: 'user-1',
+          seed: 42,
+          rulesetVersion: 1,
+          engineVersion: 'run-engine-v22',
+          difficulty: 'normal',
+          mode: 'normal',
+          initialTeam: ['Garen', 'Lux'],
+          runeIds: [],
+          enhancementSnapshot: {},
+          startedAt: '2026-10-10T12:00:00.000Z',
+          expiresAt: '2026-10-11T12:00:00.000Z',
+          status: 'verified',
+          commands: [],
+          nextSequence: 1,
+          lastAcknowledgedSequence: 0,
+          journalHash: 'persisted-journal-hash',
+          finishCommandId: '33333333-3333-4333-8333-333333333333',
+        },
+      });
+
+      render(
+        <MemoryRouter initialEntries={[{ pathname: '/game-over', state: { summary } }]}>
+          <GameOverPage />
+        </MemoryRouter>,
+      );
+
+      expect(screen.getByRole('status')).toHaveTextContent(fr.gameOver.recovering);
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: fr.gameOver.retryVerification }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('server-progression')).not.toBeInTheDocument();
+      expect(screen.queryByText(fr.gameOver.rewards)).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: fr.gameOver.newRun })).toBeDisabled();
+      expect(screen.getByRole('button', { name: fr.gameOver.mainMenu })).toBeDisabled();
+    },
+  );
 
   it('shows champion portraits, the damage MVP and contribution to team damage', () => {
     const summary: RunSummary = {
