@@ -1,14 +1,8 @@
 # TODO — backlog actif de LolRogue
 
-Nettoyage du backlog : **7 octobre 2026**. Les travaux terminés et les anciens
-sprints sont conservés intégralement dans le [snapshot du 7 octobre](docs/archive/todo-snapshot-2026-10-07.md).
-Le [snapshot avant réaudit du 8 août](docs/archive/todo-snapshot-2026-08-08-1837.md)
-reste également disponible.
+**Dernière consolidation : 10 octobre 2026 (propositions, aucune nouvelle fonctionnalité cochée).** Ce fichier est le **point d'entrée** du backlog : priorités, tâches ouvertes existantes, sprints champions et gates de release. Les **nouveaux plans détaillés** sont répartis par domaine dans `docs/backlog/` pour éviter un fichier illisible.
 
-Ce fichier conserve les quatorze tâches ouvertes, leurs critères d'acceptation et les
-gates de release. Les travaux livrés restent documentés dans Git,
-[`docs/feature-status.md`](docs/feature-status.md) et les archives. L'archivage ne
-constitue aucune preuve de déploiement ni de préparation à la bêta.
+Le nettoyage historique du **7 octobre 2026** est conservé dans le [snapshot](docs/archive/todo-snapshot-2026-10-07.md) ; le [snapshot du 8 août](docs/archive/todo-snapshot-2026-08-08-1837.md) reste disponible. Les travaux livrés restent documentés dans Git, [la matrice des fonctionnalités](docs/feature-status.md) et les archives. Les cases cochées ne constituent **ni une preuve de déploiement distant ni une autorisation de bêta**.
 
 ## 1. Convention du backlog
 
@@ -41,6 +35,39 @@ Une tâche n'est terminée que lorsque :
 - la documentation qui prétend un statut est mise à jour ;
 - les CI pertinentes passent sur un clone propre ;
 - une preuve de validation est conservée dans la PR/commit ou la fiche de release.
+
+## Vue d'ensemble — où trouver chaque chantier ?
+
+| Chantier | Statut | Priorité de départ | Détail et critères |
+| --- | --- | --- | --- |
+| **Validation bêta, sécurité, cohérence** | Ouvert selon cases ci-dessous | P0/P1/P2 | `P0-I18N-01`, `P1-SEC-01`, `P2-BAL-01`, `P2-CI-01`, `P2-OPS-01`, `P3-A11Y-01`, `P3-LEGAL-01` et gate de bêta |
+| **Nettoyage technique / scripts npm** | À faire ; audit statique réalisé | P2, déploiement P1 | [ARCH — 18 tâches / 5 sprints](docs/backlog/architecture-maintenance.md) |
+| **Arbres Candies** | À auditer puis corriger avant extension | P1 puis P2/P3 | [TREE — 10 lots très détaillés](docs/backlog/champion-enhancement-trees.md) |
+| **Bot tactique selon champion/équipe** | À concevoir derrière flag ; legacy conservé | P1 puis P2 | [AI — 49 tâches / 9 sprints](docs/backlog/tactical-bot.md) |
+| **Administration** | À fiabiliser, puis étendre | P1 puis P2 | [ADM — 36 tâches / 7 sprints](docs/backlog/admin-console.md) |
+| **Économie des champions** | Code livré, flag OFF, rollout distant distinct | P3 | `P3-ECO-01` + [procédure](docs/champion-economy.md) |
+| **Nouveaux champions** | Veigar réalisé en code ; cinq sprints en attente | P3 | `P3-CHAMP-01..06` ci-dessous ; [archive Veigar](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md) |
+
+**Mode de lecture :** conserver ici les *identifiants historiques* `P0-*`, `P1-*`, `P2-*`, `P3-*` ; les séries `ARCH-*`, `TREE-*`, `AI-*` et `ADM-*` décrivent les tâches nouvelles dans des dossiers. Les **décisions de produit proposées** (reset Candies, pondérations du bot, politique de modération) restent des cases à valider, pas des fonctions existantes.
+
+### Dépendances et incompatibilités évitées
+
+1. **Candies ≠ Éclats.** `TREE` améliore les nœuds et l'économie des améliorations ; `P3-ECO-01` garde achats/rotation champions à 400 Éclats. `ADM-02/20` ne créent pas de seconde monnaie ou de deuxième ledger.
+2. **Version authority.** `run-engine-v22` actif et bundles historiques restent figés. `AI-038` prévoit une nouvelle version *uniquement* si la politique autoritaire change ; `ARCH` ne réécrit aucun ancien hash. `P0-RUN-01` (registre de versions) reste livré, pas rouvert en doublon.
+3. **Arbre Assassin / Katarina.** `TREE-01..04` réparent tous les arbres actuels ; `P3-CHAMP-03 / K.5` possède toujours le travail de support des resets et actions bonus pour Katarina. Les deux lots doivent mutualiser les tests/catalogues, jamais développer deux mécanismes.
+4. **UX/architecture.** `ARCH-12..15` fournit la structure partagée ; `ADM-32` et `AI-036` réutilisent leurs composants/hook et ne lancent pas de deuxième refonte transversale.
+5. **Mesure et équilibrage.** `P2-BAL-01` conserve la validation par **playtests humains** ; `AI-042/047`, `TREE-09/10` et `ADM-17..21` fournissent simulations/affichage/analyses sans cocher le playtest à sa place.
+6. **Données admin.** `ADM-01` traite la métrique `active_today` absente/fictive ; `ADM-02` traite l'intégrité Candies ; `ADM-07/11` résout pagination/export au lieu d'inventer de faux totaux à partir des listes tronquées.
+7. **Sécurité et déploiement.** `ARCH-05/06` préserve `main → LolRogue`, `dev → LolRogueDev` et interdit les autres branches. Pas de clé `service_role` en frontend ; migrations append-only + tests RLS pour TREE/ADM.
+8. **Bêta.** Aucun nouveau code d'initiative n'est marqué « livré » ou intégré artificiellement au registre des **11 invariants P0** suivi par `release:preflight`. Les régressions réellement bloquantes feront l'objet d'un arbitrage explicite et de la mise à jour simultanée de la gate.
+
+### Séquençage recommandé des nouveaux dossiers
+
+- **Vague A — sécuriser la base :** `ADM-01..06` et `TREE-01..04` ; en parallèle `ARCH-01..07` sans modification du gameplay.
+- **Vague B — modulariser :** `ARCH-08..15`, puis `TREE-05..07`, `ADM-07..16` ; chaque PR conserve contrats client/DB et sauvegardes.
+- **Vague C — intelligence tactique :** `AI-001..034` sur `dev`, tests et comparaisons contre `legacy` ; ne publier la politique dans l'authority qu'après `AI-035..044` et validation de version.
+- **Vague D — produit et exploitation :** `TREE-08..10`, `ADM-17..36`, `AI-045..049` ; rollout et activation seulement après gates, playtests et vérification de cible.
+- **En parallèle selon capacité :** `P3-CHAMP-02..06` dans l'ordre documenté ; aucune spécialisation ne suppose des mécaniques non encore implémentées.
 
 ---
 
@@ -193,121 +220,14 @@ Aucune production active ni fermeture des blockers bêta n’est annoncée.
 ---
 
 
-## P3-CHAMP-01 — Sprint I : Veigar — scaling permanent pendant la run
+## P3-CHAMP-01 — Sprint I : Veigar — **livré en code, archivé**
 
-**Taille : L**  
-**Objectif :** ajouter Veigar comme premier champion centré sur une progression
-intra-run persistante et créer une mécanique de stacks générique réutilisable pour
-Nasus, Smolder, Senna, Aurelion Sol ou Kindred.
-
-### Fonctionnalité I.1 — État de progression intra-run par champion
-
-- [x] Ajouter un état de progression runtime/serialisable attaché à une instance de
-  champion, distinct de la maîtrise permanente du compte.
-  - [x] Définir une structure générique de type \`runProgress\` / \`championRunState\`.
-  - [x] Stocker les compteurs par clé stable plutôt que par propriété spécifique à Veigar.
-  - [x] Garantir qu'un champion absent du système conserve un état vide sans coût métier.
-  - [x] Sérialiser cet état dans les snapshots de run.
-  - [x] Réhydrater l'état après refresh/reconnexion.
-  - [x] Inclure l'état dans le replay authority et la validation de tentative.
-  - [x] Vérifier que l'état ne fuit jamais entre deux runs.
-  - [x] Ajouter une migration uniquement si une persistance DB supplémentaire est réellement requise.
-- [x] Définir des helpers génériques de lecture/écriture.
-  - [x] \`getRunCounter(key)\`.
-  - [x] \`incrementRunCounter(key, amount)\`.
-  - [x] \`setRunCounter(key, value)\`.
-  - [x] Refuser les clés/valeurs invalides ou non finies.
-  - [x] Centraliser les limites/caps quand un champion en a besoin.
-
-### Fonctionnalité I.2 — Événements de combat exploitables par les passifs de stacking
-
-- [x] Exposer des événements autoritaires assez précis pour attribuer les stacks.
-  - [x] Distinguer dégâts, kill, assist si nécessaire, fin de combat et boss.
-  - [x] Identifier sans ambiguïté le champion source et la cible.
-  - [x] Garantir l'idempotence d'une attribution lors d'un replay.
-  - [x] Ne jamais attribuer de stack depuis l'UI ou un compteur client.
-- [x] Ajouter un contrat de déclencheur passif générique.
-  - [x] Permettre un hook \`onDamage\`.
-  - [x] Permettre un hook \`onKill\`.
-  - [x] Permettre un hook \`onCombatEnd\` si nécessaire.
-  - [x] Interdire qu'un hook fasse diverger client et authority.
-
-### Fonctionnalité I.3 — Passif de Veigar
-
-- [x] Implémenter \`Pouvoir maléfique phénoménal\` dans le format roguelike.
-  - [x] Définir précisément les sources de stacks.
-  - [x] Appliquer +1 point sur une élimination normale via compétence.
-  - [x] Appliquer +3 points sur un élite éliminé par Veigar.
-  - [x] Appliquer +10 points sur un boss éliminé par Veigar.
-  - [x] Ne pas attribuer de points aux simples touches ni aux assistances.
-  - [x] Attribuer une seule fois par cible et combat, avec un plafond de 200 points.
-  - [x] Convertir les stacks en AP bonus selon une règle unique et testée.
-  - [x] Afficher les stacks dans l'UI de combat et la fiche champion.
-  - [x] Afficher le gain de stacks dans le journal de combat.
-- [x] Vérifier la persistance.
-  - [x] Les stacks survivent entre combats.
-  - [x] Les stacks survivent entre biomes.
-  - [x] Les stacks survivent à un refresh.
-  - [x] Les stacks disparaissent à la fin/abandon de la run.
-
-### Fonctionnalité I.4 — Kit jouable de Veigar
-
-- [x] Ajouter \`Veigar.ts\` au catalogue maintenu.
-  - [x] Q : burst monocible ou double cible simplifié.
-  - [x] W : dégâts différés simplifiés sans position spatiale.
-  - [x] E : stun/control adapté au moteur sans zone spatiale.
-  - [x] R : gros burst avec scaling sur PV manquants si retenu.
-  - [x] Passif : stacks de puissance intra-run.
-- [x] Définir les traductions FR/EN.
-  - [x] Nom, titre, sorts, passif.
-  - [x] Descriptions exactes du comportement roguelike, pas de copie trompeuse du LoL live.
-  - [x] Tooltips de stacks/AP bonus.
-- [x] Ajouter assets et icônes versionnés.
-
-### Fonctionnalité I.5 — Tests et balance Veigar
-
-- [x] Tests unitaires.
-  - [x] gain de stack correct ;
-  - [x] absence de double attribution ;
-  - [x] restauration après sérialisation ;
-  - [x] reset entre runs ;
-  - [x] scaling AP correct ;
-  - [x] replay déterministe.
-- [x] Tests E2E.
-  - [x] démarrer une run avec Veigar ;
-  - [x] gagner des stacks ;
-  - [x] changer de biome ;
-  - [x] reload ;
-  - [x] confirmer que les stacks sont identiques.
-- [x] Balance.
-  - [x] mesurer AP moyen fin Top/Jungle/Mid/Enemy Base ;
-  - [x] éviter qu'un Veigar sans stacks soit injouable ;
-  - [x] éviter qu'un bon run fasse exploser les limites de dégâts ;
-  - [x] comparer victoire/dégâts à Annie et Lux.
-
-### Acceptation Sprint I
-
-- [x] Veigar est jouable de bout en bout.
-- [x] Le système de stacks est générique et non codé en dur dans l'UI.
-- [x] Les stacks sont persistants dans une run, jamais entre deux runs.
-- [x] Client, replay et authority produisent exactement les mêmes stacks.
-- [x] Les tests CI, E2E, i18n et balance pertinents passent.
-
-Livraison : compteurs déclaratifs, kit Veigar, interface FR/EN et contrats v22.
-Les résultats canoniques conservent les compteurs dans leur JSON existant ; aucune
-progression de compte ne provient de ces points. Les anciens runs gardent leur
-moteur et leur catalogue figés. Les icônes Riot sont versionnées et le patch note
-`2026.10.09.1` décrit cette livraison.
-
-Le [rapport de balance](docs/balance/P3-CHAMP-01-veigar-v22.md) compare 180 runs
-appariés source/Edge et distingue les biomes atteints des champions survivants.
-L’absence de Veigar vivant après la Base limite les conclusions de fin de run ;
-cette campagne automatisée ne clôture pas les playtests humains P2-BAL-01.
-Le [contrat de publication](docs/champion-run-progression.md) exige Edge et client
-compatibles avant les deux migrations. Aucune migration ni fonction distante
-n’est appliquée par cette livraison de code.
+- [x] Kit Veigar, états intra-run, stacking autoritaire, tests de parité et preuves de balance v22 livrés en code ; **pas de preuve d'activation distante**.
+- [x] Sous-tâches et critères complets conservés dans [l'archive du sprint I](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md).
+- [ ] Suivre séparément la publication des migrations/Edge et les vérifications distantes selon [le contrat de progression](docs/champion-run-progression.md) ; **ne pas considérer le rollout comme déjà effectué**.
 
 ---
+
 
 ## P3-CHAMP-02 — Sprint J : Renekton — moteur de ressources Fury/Energy/etc.
 
@@ -948,15 +868,24 @@ Invariant livré ; [preuve et critères archivés](docs/archive/todo-snapshot-20
 
 # 2. Ordre d'exécution recommandé
 
-1. `P0-I18N-01` : audit humain FR/EN avec lecteur d'écran sur la preview du SHA candidat.
-2. `P2-BAL-01` : playtests humains et calibration des bandes Easy/Normal/Hard.
-3. `P2-OPS-01` : restauration d'un backup sur un projet Supabase hébergé isolé.
-4. `P3-A11Y-01` : validation humaine multi-lecteurs d'écran, zoom et clavier.
-5. `P3-LEGAL-01` : fermeture des blockers externes de diffusion.
+### Gate de bêta et décisions en cours (inchangées)
 
-Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant suit `docs/champion-economy.md` avant tout élargissement du roster. Les sprints `P3-CHAMP-01` à `P3-CHAMP-06` détaillent ensuite l'extension du roster dans l'ordre Veigar → Renekton → Katarina → Heimerdinger → Kayn → Sylas. Les travaux différés `P1-SEC-01` et les deux actions restantes de `P2-CI-01` restent
-ouverts selon les décisions ci-dessous. Les sprints déjà livrés
-sont archivés ; l'internationalisation n'apparaît qu'une fois dans cet ordre.
+1. `P0-I18N-01` : audit humain FR/EN avec lecteur d'écran sur la preview du SHA candidat.
+2. `P2-BAL-01` : playtests humains et calibration des bandes Easy/Normal/Hard, distincts des simulations bot.
+3. `P2-OPS-01` : restauration d'un backup sur un projet Supabase hébergé isolé.
+4. `P3-A11Y-01` : validation humaine lecteurs d'écran, zoom et clavier.
+5. `P3-LEGAL-01` : fermeture des blockers externes avant diffusion publique.
+
+### Travaux d'ingénierie proposés (non déclarés livrés)
+
+1. **Fiabilité avant fonctionnalités** : `ADM-S1` + `TREE-01..04`, avec correctifs SQL/RLS et parité combat.
+2. **Nettoyage sans risque de gameplay** : `ARCH-S1` et `ARCH-S2` ; alias CI conservés et blocage des déploiements hors `main`/`dev`.
+3. **Interfaces métier** : `ARCH-S3/S4`, `ADM-S2/S3` et `TREE-05..07` ; une seule couche de repositories/services.
+4. **Bot stratégique** : `AI-S1..S9`, en conservant `legacy` ; pas de nouvelle version authority tant que parité/vérification non acquises.
+5. **Mesure / UI / exploitation** : `TREE-08..10`, `ADM-S4..S7` et `ARCH-S5`.
+6. **Champions supplémentaires** : `P3-CHAMP-02..06`, dans l'ordre Renekton → Katarina → Heimerdinger → Kayn → Sylas, avec prérequis moteur mutualisés.
+
+Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant suit `docs/champion-economy.md` avant tout élargissement du roster. `P1-SEC-01` reste différé pour raison de coût, `P2-CI-01` reste ouvert sur les exercices de runs annulés/concurrents ; aucune activation de ces fonctionnalités n'est implicite.
 
 ## Décisions et travaux différés
 
