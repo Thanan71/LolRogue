@@ -304,9 +304,7 @@ test('une action ennemie garde attaquant et cible sur la même ligne du duel', a
   await installPresentationRunFixture(page, 'Lux', 'Garen');
   await page.goto('/run');
 
-  await page
-    .getByRole('button', { name: /Combat, colonne 3.*accessible/i })
-    .dispatchEvent('click');
+  await page.getByRole('button', { name: /Combat, colonne 3.*accessible/i }).dispatchEvent('click');
   await expect(page).toHaveURL('/combat');
 
   await page.evaluate(async () => {
