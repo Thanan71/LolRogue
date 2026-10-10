@@ -342,6 +342,7 @@ describe('auth identity lifecycle', () => {
       error: 'Termine ou abandonne la partie active avant de changer de compte.',
     });
     expect(mocks.signIn).toHaveBeenCalledOnce();
+    expect(mocks.signOut).toHaveBeenCalledOnce();
     expect(mocks.getPlayer).not.toHaveBeenCalled();
     expect(useAuthStore.getState()).toMatchObject({
       isAuthenticated: false,
