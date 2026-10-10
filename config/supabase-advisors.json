@@ -1,7 +1,9 @@
 {
   "schemaVersion": 1,
   "blockingLevels": {
-    "security": ["ERROR"],
+    "security": [
+      "ERROR"
+    ],
     "performance": []
   },
   "rejectUnknownFindings": true,
@@ -366,6 +368,14 @@
       "level": "INFO",
       "justification": "Index FK nécessaire aux effacements de compte/tentatives et à la traçabilité des crédits autoritaires ; compteurs locaux fraîchement réinitialisés, pas de suppression sur ce seul signal.",
       "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "security",
+      "cacheKey": "auth_leaked_password_protection",
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "justification": "L'option Supabase Leaked Password Protection est réservée à Pro. En plan Free, cette alerte unique WARN est documentée et compensée partiellement par la politique Auth gratuite ; elle ne neutralise aucun avis ERROR ni autre alerte non connue. Voir docs/beta-zero-budget.md.",
+      "expiresAt": "2027-01-31"
     }
   ]
 }
