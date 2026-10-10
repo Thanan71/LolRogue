@@ -306,6 +306,20 @@ test('une action ennemie garde attaquant et cible sur la même ligne du duel', a
 
   await page.getByRole('button', { name: /Combat, colonne 3.*accessible/i }).dispatchEvent('click');
   await expect(page).toHaveURL('/combat');
+  await expect
+    .poll(
+      () =>
+        page.evaluate(async () => {
+          const { useBattleStore } = await import('/src/stores/battleStore.ts');
+          const state = useBattleStore.getState();
+          return (
+            state.enemyTeam.some((member) => !member.isDefeated) &&
+            state.playerTeam.some((member) => !member.isDefeated)
+          );
+        }),
+      { message: 'Le combat doit hydrater les deux équipes avant le test de présentation.' },
+    )
+    .toBe(true);
 
   await page.evaluate(async () => {
     const [{ useBattleStore }, { ActionType }] = await Promise.all([
