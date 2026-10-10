@@ -69,6 +69,12 @@ la comparaison des migrations liées, l'exécution de la politique versionnée d
 advisors sécurité + performance et le contrôle des assets servis par l'URL preview
 exacte.
 
+## Politique sans abonnement payant
+
+La [matrice bêta à budget zéro](beta-zero-budget.md) distingue les preuves gratuites des options payantes reportées. Aucun achat Supabase Pro, troisième projet hébergé permanent, monitoring Pro ou consultation juridique payante n'est une condition technique implicite de cette fiche. Le contrôle des mots de passe compromis proposé dans `P1-SEC-01` reste optionnel ; la configuration de sécurité Auth gratuite doit être validée séparément avant accueil de testeurs.
+
+Le test de restauration hébergée `P2-OPS-01` reste un chantier ouvert, distinct des preuves de restauration locale et des sauvegardes logiques chiffrées. L'alpha privée à budget zéro peut utiliser un environnement local jetable ; une restauration locale ne démontre pas un RTO de production. La bêta publique conserve **toutes** les gates objectives de `config/beta-release.json`, ainsi que les obligations RGPD et Riot. N'inscrire aucun statut `passed` sans preuve réelle et datée.
+
 ## Validations humaines et externes
 
 La revue lecteur d'écran doit consigner appareil, OS, navigateur, technologie
