@@ -241,4 +241,50 @@ describe('Supabase advisor policy', () => {
       },
     ]);
   });
+  it('autorise seulement le WARN payant Leaked Password Protection, sans neutraliser les autres alertes', () => {
+    const configured = JSON.parse(
+      readFileSync(new URL('../config/supabase-advisors.json', import.meta.url), 'utf8'),
+    );
+    const paid = configured.exceptions.find(
+      (entry) => entry.name === 'auth_leaked_password_protection',
+    );
+    expect(paid).toMatchObject({
+      type: 'security',
+      cacheKey: 'auth_leaked_password_protection',
+      level: 'WARN',
+    });
+    const finding = {
+      cacheKey: paid.cacheKey,
+      name: paid.name,
+      level: paid.level,
+    };
+    const date = new Date('2026-10-10T12:00:00Z');
+    expect(
+      evaluateAdvisorFindings(configured, reports({ security: [finding] }), date).blockers,
+    ).toEqual([]);
+    expect(
+      evaluateAdvisorFindings(
+        configured,
+        reports({ security: [{ ...finding, level: 'ERROR' }] }),
+        date,
+      ).blockers,
+    ).toEqual([expect.objectContaining({ code: 'security-blocking-level' })]);
+    expect(
+      evaluateAdvisorFindings(
+        configured,
+        reports({
+          security: [{ ...finding, cacheKey: 'auth_another_security_alert' }],
+        }),
+        date,
+      ).blockers,
+    ).toEqual([expect.objectContaining({ code: 'unknown-finding' })]);
+    expect(
+      evaluateAdvisorFindings(
+        configured,
+        reports({ security: [finding] }),
+        new Date('2027-02-01T00:00:00Z'),
+      ).blockers,
+    ).toEqual([expect.objectContaining({ code: 'expired-exception' })]);
+  });
+
 });
