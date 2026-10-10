@@ -152,8 +152,7 @@ navigateur ne constituent pas un audit humain de lecteur d'écran.
 
 **Taille : S**
 
-**Différé par décision de coût :** ne pas activer cette option payante tant qu'elle
-n'est pas souhaitée.
+**Option Supabase Pro non bloquante pour la bêta à budget zéro :** ne pas activer Leaked Password Protection sans décision de dépense explicite. La mesure gratuite de remplacement est une longueur minimale robuste configurée dans Supabase Auth, avec validation des parcours d'inscription, de changement et de récupération de mot de passe. Elle ne détecte pas les mots de passe déjà compromis. Voir [la politique bêta sans abonnement](docs/beta-zero-budget.md).
 
 - [ ] **Cadrer Politique de mot de passe Supabase.**
   - [ ] Activer **Leaked Password Protection** dans Supabase Auth.
@@ -171,7 +170,7 @@ n'est pas souhaitée.
   - [ ] Advisor Supabase vérifié uniquement après activation approuvée.
   - [ ] Ne pas cocher ni activer la protection tant que la décision de coût demeure différée.
 
-**Acceptation :** l'advisor `auth_leaked_password_protection` ne doit plus apparaître.
+**Acceptation P1 optionnelle (si offre Pro approuvée) :** l'advisor `auth_leaked_password_protection` ne doit plus apparaître. **Ce ticket n'est pas une gate obligatoire de bêta gratuite** et ne doit pas être coché sans activation réelle.
 
 ---
 
@@ -1013,7 +1012,7 @@ Invariant livré ; [preuve et critères archivés](docs/archive/todo-snapshot-20
 
 1. `P0-I18N-01` : audit humain FR/EN avec lecteur d'écran sur la preview du SHA candidat.
 2. `P2-BAL-01` : playtests humains et calibration des bandes Easy/Normal/Hard, distincts des simulations bot.
-3. `P2-OPS-01` : restauration d'un backup sur un projet Supabase hébergé isolé.
+3. `P2-OPS-01` : exercice hébergé différé (amélioration opérationnelle, non gate de la bêta sans abonnement) ; revalider localement une restauration isolée depuis un dump vérifié, sans toucher aux projets `LolRogue` et `LolRogueDev`.
 4. `P3-A11Y-01` : validation humaine lecteurs d'écran, zoom et clavier.
 5. `P3-LEGAL-01` : fermeture des blockers externes avant diffusion publique.
 
@@ -1026,7 +1025,7 @@ Invariant livré ; [preuve et critères archivés](docs/archive/todo-snapshot-20
 5. **Mesure / UI / exploitation** : `TREE-08..10`, `ADM-S4..S7` et `ARCH-S5`.
 6. **Champions supplémentaires** : `P3-CHAMP-02..06`, dans l'ordre Renekton → Katarina → Heimerdinger → Kayn → Sylas, avec prérequis moteur mutualisés.
 
-Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant suit `docs/champion-economy.md` avant tout élargissement du roster. `P1-SEC-01` reste différé pour raison de coût, `P2-CI-01` reste ouvert sur les exercices de runs annulés/concurrents ; aucune activation de ces fonctionnalités n'est implicite.
+Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant suit `docs/champion-economy.md` avant tout élargissement du roster. `P1-SEC-01` reste différé pour raison de coût (mesures gratuites d'Auth à valider séparément), `P2-OPS-01` garde son exercice hébergé non bloquant et `P2-CI-01` reste ouvert sur les exercices de runs annulés/concurrents ; aucune activation de ces fonctionnalités n'est implicite.
 
 ## Décisions et travaux différés
 
@@ -1041,6 +1040,8 @@ Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant s
 ---
 
 # 3. Nouvelle gate de bêta proposée
+
+**Budget maximal pour les services additionnels : 0 €** ; détail, limites et distinction entre alpha privée et bêta publique dans [docs/beta-zero-budget.md](docs/beta-zero-budget.md). Les options payantes (`P1-SEC-01`, troisième projet Supabase hébergé, audit juridique professionnel) ne peuvent pas être exigées uniquement par confort. Les obligations de sécurité, RGPD et propriété intellectuelle restent à traiter ; la gate objective `config/beta-release.json` n'est pas contournée.
 
 La bêta technique ne redevient candidate que lorsque :
 
@@ -1062,8 +1063,8 @@ La bêta technique ne redevient candidate que lorsque :
   versionnées de la baseline ;
 - [x] règles cooldown/MP/ciblage/Electrocute couvertes en parité UI + authority ;
 - [ ] cron de rétention vérifiés ;
-- [ ] audit mots de passe compromis activé ;
-- [ ] runbook restauration testé sur environnement isolé ;
+- [ ] configuration gratuite de sécurité Auth vérifiée sur `LolRogueDev` puis production (longueur minimale >= 12 caractères, parcours inscription/modification/récupération et limites anti-abus contrôlés) ; **Leaked Password Protection Pro hors gate** ;
+- [ ] restauration isolée locale du backup le plus récent, vérification des empreintes, de la confidentialité, des flux Auth/RLS et du RPO/RTO documentés ; exercice hébergé `P2-OPS-01` optionnel pour ce jalon ;
 - [ ] revue accessibilité humaine effectuée ;
 - [ ] blockers juridiques externes fermés pour toute diffusion publique.
 
