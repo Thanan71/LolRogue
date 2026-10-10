@@ -91,9 +91,11 @@ async function showFullChampionCatalog(page: Page): Promise<void> {
 
 async function reloadAndRevalidateSelector(page: Page): Promise<void> {
   await page.reload();
-  // Existing authority recovery revalidates a saved terminal attempt after reload.
-  await expect(page.getByRole('button', { name: 'Relancer la vérification' })).toBeVisible();
-  await page.getByRole('button', { name: 'Relancer la vérification' }).click();
+  // A saved attempt automatically recovers its server receipt after reload.
+  await expect(page.locator('.game-over-save-state').getByRole('status')).toContainText(
+    'Partie vérifiée et progression enregistrée.',
+  );
+  await expect(page.getByRole('button', { name: 'Relancer la vérification' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Nouvelle partie', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Nouvelle partie', exact: true }).click();
   await expect(page).toHaveURL('/starter-select');

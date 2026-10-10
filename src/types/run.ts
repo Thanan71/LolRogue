@@ -186,7 +186,7 @@ export interface RunState {
   /** Prevents duplicate completion/reward processing. */
   isEnding: boolean;
   /** Current persistence state for the completed run. */
-  saveStatus: 'idle' | 'saving' | 'saved' | 'failed' | 'retrying';
+  saveStatus: 'idle' | 'saving' | 'saved' | 'failed' | 'retrying' | 'recovering';
   saveError: string | null;
   saveFailureKind: 'retryable' | 'terminal' | null;
   saveDiagnostic: RunSaveDiagnostic | null;

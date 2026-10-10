@@ -487,7 +487,7 @@ export function isPersistedRunState(value: unknown): value is Partial<RunState> 
       }),
     ),
     isEnding: boolean,
-    saveStatus: oneOf(['idle', 'saving', 'saved', 'failed', 'retrying']),
+    saveStatus: oneOf(['idle', 'saving', 'saved', 'failed', 'retrying', 'recovering']),
     saveError: nullable(text()),
     saveFailureKind: nullable(oneOf(['retryable', 'terminal'])),
     saveDiagnostic: nullable(shape({ attemptId: id, engineVersion: id, rejectionCode: id })),

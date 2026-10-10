@@ -1083,6 +1083,7 @@ export const en = {
     ended: 'Your run is over.',
     retrying: 'Retrying verification…',
     saving: 'Saving run…',
+    recovering: 'Retrieving the saved result…',
     verifiedSaved: 'Run verified and progress saved.',
     saved: 'Run saved.',
     retryVerification: 'Retry verification',

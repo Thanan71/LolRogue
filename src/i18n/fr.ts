@@ -1092,6 +1092,7 @@ const french = {
     ended: 'Ta partie est terminée.',
     retrying: 'Nouvelle tentative de vérification…',
     saving: 'Enregistrement de la partie…',
+    recovering: 'Récupération du résultat enregistré…',
     verifiedSaved: 'Partie vérifiée et progression enregistrée.',
     saved: 'Partie enregistrée.',
     retryVerification: 'Relancer la vérification',

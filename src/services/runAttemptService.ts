@@ -787,6 +787,15 @@ export async function recoverVerifiedRunAttempt(
   if (status.error || !status.data) {
     return { data: null, error: status.error ?? new Error('Run attempt status is unavailable') };
   }
+  if (status.data.status === 'expired') {
+    return {
+      data: null,
+      error: new RunVerificationRejectedError(
+        'run_attempt_expired',
+        verificationRejectionMessage('run_attempt_expired', null),
+      ),
+    };
+  }
   if (status.data.status === 'rejected') {
     return {
       data: null,

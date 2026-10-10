@@ -42,8 +42,14 @@ function migrateValidatedRunState(persisted: unknown, version: number): RunState
     state.authorityAttempt?.status === 'expired';
   const needsAuthorityRevalidation =
     !hasTerminalFailure && state.authorityAttempt !== null && state.completedRunSnapshot !== null;
+  const needsSavedResultRecovery =
+    needsAuthorityRevalidation &&
+    (state.saveStatus === 'saved' ||
+      state.saveStatus === 'recovering' ||
+      state.authorityAttempt?.status === 'verified');
   const hasInterruptedSave =
     !hasTerminalFailure &&
+    !needsSavedResultRecovery &&
     (needsAuthorityRevalidation || ['saving', 'retrying'].includes(state.saveStatus));
   const domainState = normalizeRunDomainState({
     team:
@@ -238,11 +244,16 @@ function migrateValidatedRunState(persisted: unknown, version: number): RunState
     seed: needsAuthorityRevalidation ? state.completedRunSnapshot!.seed : state.seed,
     // Serialized "verified" data is merely an untrusted cache, never a server receipt.
     serverProgression: null,
-    authorityAttempt:
-      state.authorityAttempt?.status === 'verified'
-        ? { ...state.authorityAttempt, status: 'verifying' }
-        : state.authorityAttempt,
-    saveStatus: hasTerminalFailure || hasInterruptedSave ? 'failed' : state.saveStatus,
+    // This local status only selects a read of the server receipt. It cannot
+    // restore progression or authorize another reward grant.
+    authorityAttempt: needsSavedResultRecovery
+      ? { ...state.authorityAttempt!, status: 'verified' }
+      : state.authorityAttempt,
+    saveStatus: needsSavedResultRecovery
+      ? 'recovering'
+      : hasTerminalFailure || hasInterruptedSave
+        ? 'failed'
+        : state.saveStatus,
     saveError: hasTerminalFailure
       ? (state.saveError ??
         (state.authorityAttempt?.status === 'expired'
@@ -250,14 +261,18 @@ function migrateValidatedRunState(persisted: unknown, version: number): RunState
           : state.authorityAttempt?.status === 'rejected'
             ? runError.traceRejected(null)
             : runError.finalizationFailed))
-      : hasInterruptedSave
-        ? runError.saveInterrupted
-        : state.saveError,
+      : needsSavedResultRecovery
+        ? null
+        : hasInterruptedSave
+          ? runError.saveInterrupted
+          : state.saveError,
     saveFailureKind: hasTerminalFailure
       ? 'terminal'
-      : hasInterruptedSave
-        ? 'retryable'
-        : state.saveFailureKind,
+      : needsSavedResultRecovery
+        ? null
+        : hasInterruptedSave
+          ? 'retryable'
+          : state.saveFailureKind,
     ledger,
     runLevel,
     currentWave,
