@@ -8,15 +8,18 @@ Ce document décrit le produit actuel ; il ne constitue pas un avis juridique.
 LolRogue est un prototype de fans gratuit et non commercial. La monétisation est
 interdite par le contrat produit. La bêta publique reste bloquée tant que les éléments
 suivants ne sont pas obtenus : identité complète de l'éditeur, canal privé d'exercice
-des droits, revue RGPD/ePrivacy par un professionnel et analyse écrite de la
+des droits, évaluation RGPD/ePrivacy documentée avec les ressources officielles de
+la CNIL (revue spécialisée supplémentaire si nécessaire) et clarification de la
 compatibilité du jeu avec la politique Riot.
 
 La politique officielle Riot « Legal Jibber Jabber », consultée le 8 août 2026,
 demande un projet communautaire gratuit/non commercial et un avis visible indiquant
 que Riot ne soutient ni ne sponsorise le projet. Elle précise également de ne pas
 utiliser la propriété intellectuelle Riot dans un jeu ou une application. Le
-disclaimer seul ne résout donc pas ce risque : une autorisation ou un avis juridique
-est requis avant diffusion publique.
+disclaimer seul ne résout donc pas ce risque : une **autorisation appropriée de Riot**
+ou le **remplacement des éléments Riot par du contenu original/licencié** est requis
+avant diffusion publique. Un avis juridique peut éclairer les risques, mais ne
+constitue pas en lui-même une licence d'utilisation.
 
 Sources à revalider avant chaque release :
 
@@ -120,6 +123,6 @@ opposition, portabilité et suppression sans demander de secret dans une issue G
 - [ ] Identité/adresse de l'éditeur et directeur de publication complétées.
 - [ ] Canal privé d'exercice des droits et délai de réponse testés.
 - [ ] Région Supabase, sous-traitants, transferts et DPA vérifiés.
-- [ ] Revue RGPD/ePrivacy obtenue et datée.
-- [ ] Compatibilité Riot confirmée par un conseil et, si nécessaire, Riot.
+- [ ] Autoaudit RGPD/ePrivacy daté (registre, finalités, sous-traitants, cookies et télémétrie, droits, sécurité et conservation), écarts corrigés et preuves documentées à l'aide des ressources CNIL ; escalade spécialisée si risque identifié non résolu.
+- [ ] Autorisation applicable confirmée auprès de Riot, ou retrait/remplacement complet des éléments protégés avant diffusion publique ; un simple disclaimer ou audit gratuit ne dispense pas d'autorisation.
 - [ ] Aucun paiement, publicité, sponsoring ou vente activé avant ces validations.
