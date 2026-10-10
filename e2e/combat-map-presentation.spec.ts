@@ -297,6 +297,63 @@ test('une compétence offensive garde l’ennemi comme cible malgré son bonus p
   await expectNoHorizontalOverflow(page);
 });
 
+test('une action ennemie garde attaquant et cible sur la même ligne du duel', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await servePackagedAssets(page);
+  await enterGuestWithTutorialsDismissed(page);
+  await installPresentationRunFixture(page, 'Lux', 'Garen');
+  await page.goto('/run');
+
+  await page
+    .getByRole('button', { name: /Combat, colonne 3.*accessible/i })
+    .dispatchEvent('click');
+  await expect(page).toHaveURL('/combat');
+
+  await page.evaluate(async () => {
+    const [{ useBattleStore }, { ActionType }] = await Promise.all([
+      import('/src/stores/battleStore.ts'),
+      import('/src/game/battle/types.ts'),
+    ]);
+    const state = useBattleStore.getState();
+    const source = state.enemyTeam.find((member) => !member.isDefeated);
+    const target = state.playerTeam.find((member) => !member.isDefeated);
+    if (!source || !target) throw new Error('Enemy-action presentation fixture is incomplete.');
+
+    useBattleStore.getState().showVisualEvent({
+      kind: 'damage',
+      action: ActionType.BasicAttack,
+      sourceId: source.id,
+      sourceCombatantId: source.targetId,
+      sourceSide: 'enemy',
+      targetId: target.id,
+      targetCombatantId: target.targetId,
+      targetSide: 'player',
+      amount: 44,
+    });
+  });
+
+  const effect = page.locator('.combat-stage[data-combat-effect]');
+  await expect(effect).toHaveClass(/combat-stage--from-enemy/);
+  const geometry = await effect.evaluate((element) => {
+    const source = element.querySelector<HTMLElement>('.combat-stage__fighter--source');
+    const target = element.querySelector<HTMLElement>('.combat-stage__fighter--target');
+    if (!source || !target) throw new Error('Duel fighters are missing.');
+
+    const sourceRect = source.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    return {
+      sourceGridRow: getComputedStyle(source).gridRowStart,
+      targetGridRow: getComputedStyle(target).gridRowStart,
+      sourceCenterY: sourceRect.top + sourceRect.height / 2,
+      targetCenterY: targetRect.top + targetRect.height / 2,
+    };
+  });
+
+  expect(geometry.sourceGridRow).toBe('1');
+  expect(geometry.targetGridRow).toBe('1');
+  expect(Math.abs(geometry.sourceCenterY - geometry.targetCenterY)).toBeLessThanOrEqual(1);
+});
+
 test('deux champions identiques restent séparés par leur camp dans toute la présentation', async ({
   page,
 }) => {
