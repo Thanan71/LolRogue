@@ -37,6 +37,7 @@
 ## Limites et décisions à ne pas masquer
 
 - **Ce qui est exclu de la gate pour raison de coût** : Supabase Pro Leaked Password Protection, troisième projet hébergé dédié à la restauration, monitoring commercial, revue professionnelle RGPD systématique.
+- **Exception advisors précise** : `config/supabase-advisors.json` autorise seulement `security/auth_leaked_password_protection` de niveau `WARN`, jusqu'au **31 janvier 2027**. Toute `ERROR`, alerte inconnue, changement de niveau ou expiration doit bloquer le contrôle. Cette exception est testée et doit être reconsidérée à échéance.
 - **Ce qui n'est jamais exclu** : tests de sécurité DB/RLS, reprise des données à partir d'une sauvegarde réellement utilisable, preuves exactes de release, respect du RGPD, solution licite pour l'IP, canaux privés d'exercice des droits.
 - **Ce qui demeure ouvert** : `P1-SEC-01` (protection native payante facultative), `P2-OPS-01` (preuve de restauration hébergée additionnelle), et toutes les gates dont les preuves sont encore absentes.
 - **Limite de disponibilité** : le Free peut mettre des projets en pause pour inactivité ; les quotas Vercel Hobby/Supabase Free peuvent interrompre le service. Aucun SLA ni RTO de 4 h ne doit être présenté comme garanti avant validation réaliste.
