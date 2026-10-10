@@ -7,11 +7,9 @@ sauvegarde quotidienne doit être active en production ; sinon l'opérateur prod
 un dump logique chiffré hors plateforme au moins quotidiennement. Un futur besoin
 de RPO inférieur à 24 h impose PITR avant de modifier cet engagement.
 
-L'opérateur vérifie chaque jour qu'un point de restauration récent existe. Une fois
-par trimestre et avant toute migration destructive, il restaure la sauvegarde dans
-un projet Supabase temporaire dédié. La fiche de preuve contient date UTC, source,
-empreintes SHA-256, projet cible, durée, nombre de contrôles réussis et signataire.
-Sans cette preuve récente, la release reste bloquée.
+L'opérateur vérifie chaque jour qu'un point de restauration récent existe. À budget zéro, le scénario préalable à l'alpha et à la bêta technique repose sur un **dump logique chiffré hors plateforme** et sa restauration dans une stack Supabase **locale jetable et isolée**. La fiche de preuve contient date UTC, source, empreintes SHA-256, cible locale, durée, nombre de contrôles réussis et signataire. Une preuve locale récente issue du backup réellement disponible est obligatoire ; sans sauvegarde exploitable ou si les contrôles d'intégrité échouent, ne pas inviter de testeurs créant des données persistantes.
+
+Le chantier `P2-OPS-01` ajoute un **exercice hébergé** sur projet temporaire dédié, non requis pour fermer la gate technique sans achat. Ce chantier ne doit pas être déclaré terminé sur la seule preuve locale : un RTO de production de 4 h ne peut pas être garanti par une restauration locale. Pour toute diffusion publique ou hausse importante de données réelles, revalider les garanties opérationnelles et les limites de reprise ; ne jamais promettre un RTO non démontré.
 
 Les sauvegardes DB n'incluent pas le contenu Supabase Storage. LolRogue n'en dépend
 actuellement pas pour ses assets Riot, versionnés dans Git. Si Storage est ajouté,
@@ -75,10 +73,9 @@ La fiche JSON contient les instants UTC, environnements, opérateur, commit, RPO
 contrôles et résultat, sans secret ni donnée joueur. La preuve locale du 12 août 2026
 est conservée dans
 [`restore-drills/2026-08-12-local.json`](restore-drills/2026-08-12-local.json).
-Elle ne remplace pas la restauration trimestrielle dans un projet Supabase hébergé
-dédié : le TODO reste ouvert tant que cette preuve distante n'existe pas.
+Elle **ne prouve pas** une restauration en hébergement Supabase ; le ticket `P2-OPS-01` reste ouvert jusqu'à sa preuve distante. En revanche, un nouvel exercice local reproductible, alimenté par un dump disponible, est la voie gratuite de validation de la bêta technique décrite dans [la matrice zéro budget](beta-zero-budget.md). La preuve du 12 août est historique : elle doit être renouvelée sur le candidat.
 
-### Exercice hébergé requis
+### Exercice hébergé complémentaire (`P2-OPS-01`, non bloquant à budget zéro)
 
 1. Créer un projet Supabase temporaire dans la région de production, sans domaine
    Vercel, utilisateurs réels ni télémétrie sortante.
