@@ -176,6 +176,13 @@ async function hasBlockingRun(targetUserId: string | null): Promise<boolean> {
   return owner !== targetUserId || targetUserId === null;
 }
 
+/** A guest run has no account owner and must be explicitly finalized before login. */
+async function hasBlockingGuestRun(): Promise<boolean> {
+  const { useRunStore } = await import('@/stores/runStore');
+  const run = useRunStore.getState();
+  return (run.isActive || run.isEnding) && run.authorityAttempt === null;
+}
+
 const guestAtStartup = readGuestMode();
 const INITIAL_STATE: AuthState = {
   session: null,
@@ -325,11 +332,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   ...INITIAL_STATE,
 
   login: async (email, password) => {
-    // Refuse before contacting the provider: the guest run must be explicitly
-    // finished by the user, and no remote session should replace its identity.
-    if (await hasBlockingRun(get().user?.email === email ? (get().user?.id ?? null) : null)) {
-      return rejectAccountChange(identityGeneration);
-    }
+    // A guest run must be finalized explicitly. For an authenticated run we
+    // cannot determine ownership from an email or a signed-out store: validate
+    // the provider's verified user ID in establishSession after sign-in.
+    if (await hasBlockingGuestRun()) return rejectAccountChange(identityGeneration);
     if (!isSupabaseConfigured) {
       const error = fr.auth.unavailable;
       set({ error, isLoading: false, isInitialized: true, authStatus: 'signedOut' });
