@@ -29,7 +29,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Tester la présence des 105 entrées initiales dans l'inventaire, y compris hooks `prebuild`/`postbuild` et références indirectes.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-02 — Créer une CLI sans dépendance superflue
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-02 — Créer une CLI sans dépendance superflue
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Ajouter `scripts/cli.mjs` et des routeurs `scripts/commands/{balance,database,assets,release,testing}/` ; préserver le code des scripts métier existants.
   - [ ] Fournir `--help`, messages d'erreur utiles, validation des arguments et code de sortie non nul en cas d'échec.
@@ -43,7 +45,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Tester appel valide, argument manquant, option inconnue, commande inexistante et interruption de sous-processus.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-03 — Réduire les commandes publiques et dédupliquer les versions
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-03 — Réduire les commandes publiques et dédupliquer les versions
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Remplacer les alias `balance:baseline:generate:v15`…`v22` et `balance:early-top:generate:v17`… par des options `--engine` documentées.
   - [ ] Lire la version par défaut depuis `config/authority-versions.json` : la commande `generate` du moteur courant ne doit plus retomber sur `v21` pendant que `v22` est actif.
@@ -57,7 +61,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Comparer génération/check sur moteurs v15 à v22 et vérifier que la version par défaut n'est pas silencieusement v21.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-04 — Sécuriser les scripts critiques
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-04 — Sécuriser les scripts critiques
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Tester les modes lecture/`--check` sans modifier les fichiers suivis ; documenter précisément les générateurs qui écrivent volontairement.
   - [ ] Introduire `--dry-run`/confirmation explicite pour les commandes destructives, en respectant les contrats Supabase CLI existants.
@@ -90,7 +96,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Tester dev/prod/local, valeurs globales Preview contradictoires et clés manquantes ; confirmer aucune clé `service_role` dans `dist/`.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-06 — Protéger chaque commande DB distante
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-06 — Protéger chaque commande DB distante
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Passer en revue `migrate`, `edge:deploy`, `backend:deploy`, commandes `--linked` et `--project-ref` ; expliciter quelles entrées peuvent atteindre la production.
   - [ ] Conserver le blocage `backend:deploy` hors `main`/`dev` et exiger une cible explicite contrôlée pour toute opération distancée ; ne pas transformer `db:reset` local en opération distante.
@@ -104,7 +112,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Rejouer `main`, `dev`, `feature/*`, detached HEAD et `--project-ref` incorrect dans des tests entièrement simulés.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-07 — Extraire les plugins Vite et les responsabilités Vitest
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-07 — Extraire les plugins Vite et les responsabilités Vitest
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Extraire les plugins internes d'injection d'identité, ressources PWA, assets Riot et catalogue champion dans `build/plugins/` ou `tooling/vite/`.
   - [ ] Séparer la configuration couverture Vitest des politiques de déploiement tout en maintenant les mêmes seuils, exclusions et budgets.
@@ -137,7 +147,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Injecter un import React fictif dans `src/game` pour prouver que le test le détecte, puis restaurer.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-09 — Découper `runStoreLifecycleSlice.ts` (~41 Ko)
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-09 — Découper `runStoreLifecycleSlice.ts` (~41 Ko)
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Séparer les orchestrations `start`, `end/finalize`, `retry/save`, `sync progression` et `authority journal` des mutations Zustand.
   - [ ] Conserver les signatures publiques `useRunStore` et l'unique politique de persistance/merge ; aucune migration de sauvegarde sans test de migration.
@@ -151,7 +163,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Comparer snapshots legacy, appels concurrents de démarrage, rechargement en cours de sauvegarde et idempotence.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-10 — Stabiliser le conteneur de repositories
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-10 — Stabiliser le conteneur de repositories
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Conserver `RepositoryContainer` et ses interfaces comme point d'accès DB ; éviter de créer un deuxième système DI parallèle.
   - [ ] Isoler le rafraîchissement des données serveur et l'état UI pour éviter qu'un service métier dépende directement des hooks/stores.
@@ -165,7 +179,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Tester invités hors ligne, droits connectés, refus RLS et refresh de progression avec identité changée.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-11 — Contrats de données et invariants
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-11 — Contrats de données et invariants
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Documenter la propriété de chaque type : catalogue champion, instance de combat, état run, tentative authority, progression de compte et devise.
   - [ ] Ajouter des tests de frontières et d'import ; suivre explicitement schémas générés `src/types/database.ts` versus modèles métiers.
@@ -197,7 +213,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Vérifier l'absence d'imports résiduels, builds navigateur, routes et bundle size à chaque étape.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-13 — Alléger `CombatPage.tsx` (~39 Ko)
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-13 — Alléger `CombatPage.tsx` (~39 Ko)
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Extraire un hook/contrôleur des décisions UI : sélection des actions et cibles, autoplay, statut du combat, effets visuels.
   - [ ] Conserver validations dans `BattleActionValidator` et calculs dans le moteur, pas de règles dupliquées en JSX.
@@ -211,7 +229,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Tester combat manuel, auto ×1/×2/×3, cible alliée/ennemie et reprise après navigation.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-14 — Alléger `StarterSelectPage.tsx` (~31 Ko)
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-14 — Alléger `StarterSelectPage.tsx` (~31 Ko)
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Extraire la préparation de run et la sélection du mode Daily/standard, filtres du catalogue, affichage de l'économie.
   - [ ] Remplacer l'instanciation directe de `SupabaseDailyRunRepository` dans la page par une orchestration testable et des interfaces existantes.
@@ -224,7 +244,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Tester champion gratuit/acheté/rotation, invité, erreur réseau, persistance et navigation vers run.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-15 — Refactor moteur `BattleManager`/`AuthorityRunEngine` sous contrat
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-15 — Refactor moteur `BattleManager`/`AuthorityRunEngine` sous contrat
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Extraire en petites unités les résolveurs/gestionnaires déjà identifiés sans changer ordre RNG, ordre événements ni sérialisation.
   - [ ] Ne modifier le moteur autoritaire courant qu'avec versioning/parité si la sémantique change ; jamais réécrire un bundle `replay-only` ou `unsupported`.
@@ -256,7 +278,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Tester build neuf depuis clone sans cache et comparaison des hashes d'authority archivés.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-17 — Rationaliser CSS et composants
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-17 — Rationaliser CSS et composants
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Cartographier les 26 feuilles sous `src/styles` et les doublons de tokens/composants ; relever spécificité et dépendances aux imports.
   - [ ] Garder les variables de design, accessibilité, réduction d'animation, focus et responsive ; mutualiser seulement après vérification visuelle.
@@ -269,7 +293,9 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [ ] Captures desktop/mobile, focus visible, zoom 400 %, reduced-motion et contrastes comparés avant/après.
   - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.### ARCH-18 — Audit des dépendances et qualité
+  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+
+### ARCH-18 — Audit des dépendances et qualité
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Vérifier packages directs/indirects, versions épinglées, patch Supabase Auth, imports morts et scripts non référencés ; ne retirer que sur preuve.
   - [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance:check` et workflows spécialisés pertinents.
