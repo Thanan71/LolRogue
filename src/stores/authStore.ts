@@ -347,6 +347,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const result = await container.auth.signIn(email, password);
       if (result.error) throw result.error;
       if (!result.session) throw new Error(fr.auth.missingSession);
+      // The provider can only prove ownership after validating credentials.
+      // Never let a different signed-in identity inherit a local authoritative run.
+      if (await hasBlockingRun(result.session.user.id)) {
+        await container.auth.signOut();
+        return rejectAccountChange(identityGeneration);
+      }
       return await establishSession(result.session, generation);
     } catch (error) {
       if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
