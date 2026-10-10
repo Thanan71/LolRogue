@@ -176,6 +176,23 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 4,
+    version: '2026.10.10',
+    publishedOn: '2026-10-10',
+    title: { 'fr-FR': 'Sauvegarde après rechargement', 'en-US': 'Saved runs after reloading' },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Après un rechargement, une partie déjà sauvegardée retrouve automatiquement son résultat validé. Elle n’est plus affichée en échec et ses récompenses ne sont pas attribuées une deuxième fois.',
+          'en-US':
+            'After reloading, an already saved run automatically retrieves its verified result. It no longer appears as a failed save, and its rewards are not granted a second time.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

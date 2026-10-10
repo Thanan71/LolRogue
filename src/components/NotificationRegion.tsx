@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { fr } from '@/i18n/fr';
 import { gameOverCopy } from '@/i18n/gameOverContent';
 import { localizePersistedRunError, verificationRejectionMessage } from '@/i18n/runErrorContent';
+import { useAuthStore } from '@/stores/authStore';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
 
@@ -14,13 +15,27 @@ export function NotificationRegion({
   const saveError = useRunStore((state) => state.saveError);
   const saveFailureKind = useRunStore((state) => state.saveFailureKind);
   const saveDiagnostic = useRunStore((state) => state.saveDiagnostic);
+  const completedRunId = useRunStore((state) => state.completedRunSnapshot?.runId);
+  const authReady = useAuthStore((state) => state.authStatus === 'ready');
+  const userId = useAuthStore((state) => state.user?.id);
   const enhancementError = useEnhancementStore((state) => state.error);
   const [message, setMessage] = useState<string | null>(null);
   const isCritical =
     (showRunSaveNotifications && saveStatus === 'failed') || Boolean(enhancementError);
 
   useEffect(() => {
+    if (!authReady || saveStatus !== 'recovering' || !completedRunId) return;
+    const state = useRunStore.getState();
+    const snapshot = state.completedRunSnapshot;
+    if (state.saveStatus !== 'recovering' || snapshot?.runId !== completedRunId) return;
+    // Runs on the completion screen and menu; endRun deduplicates Strict Mode
+    // effects and only reads an already completed attempt's server receipt.
+    void state.endRun(snapshot.won, snapshot.runId, snapshot.summary);
+  }, [authReady, completedRunId, saveStatus, userId]);
+
+  useEffect(() => {
     if (!showRunSaveNotifications) return;
+    if (saveStatus === 'recovering') setMessage(fr.gameOver.recovering);
     if (saveStatus === 'saving' || saveStatus === 'retrying') {
       setMessage(fr.notifications.saving);
     }

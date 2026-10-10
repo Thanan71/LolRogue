@@ -645,7 +645,7 @@ describe('runAttemptService', () => {
     ]);
   });
 
-  it('recovers rejected attempts as terminal and refuses unfinished attempts', async () => {
+  it('recovers rejected or expired attempts as terminal and refuses unfinished attempts', async () => {
     supabaseMocks.rpc.mockResolvedValueOnce({
       data: statusResponse({ status: 'rejected', rejection_code: 'illegal_trace' }),
       error: null,
@@ -653,6 +653,18 @@ describe('runAttemptService', () => {
     const rejected = await recoverVerifiedRunAttempt(ATTEMPT_ID);
     expect(rejected.error).toBeInstanceOf(RunVerificationRejectedError);
     expect((rejected.error as RunVerificationRejectedError).code).toBe('illegal_trace');
+
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: statusResponse({ status: 'expired', response: null }),
+      error: null,
+    });
+    const expired = await recoverVerifiedRunAttempt(ATTEMPT_ID);
+    expect(expired.data).toBeNull();
+    expect(expired.error).toBeInstanceOf(RunVerificationRejectedError);
+    expect(expired.error).toMatchObject({
+      code: 'run_attempt_expired',
+      message: runError.attemptExpired,
+    });
 
     supabaseMocks.rpc.mockResolvedValueOnce({
       data: statusResponse({ status: 'started', response: null }),

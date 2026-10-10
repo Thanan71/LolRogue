@@ -28,6 +28,7 @@ export function GameOverPage() {
   const activeRunId = useRunStore((state) => state.runId);
   const completedRunSnapshot = useRunStore((state) => state.completedRunSnapshot);
   const serverProgression = useRunStore((state) => state.serverProgression);
+  const hasAuthorityAttempt = useRunStore((state) => state.authorityAttempt !== null);
   const hasAuthenticatedAccount = useAuthStore((state) => state.user !== null);
   const [isErrorVisible, setIsErrorVisible] = useState(true);
   const [diagnosticCopyStatus, setDiagnosticCopyStatus] = useState<'idle' | 'copied' | 'failed'>(
@@ -56,10 +57,13 @@ export function GameOverPage() {
               ),
       };
     }
-    // An authenticated account must never see a speculative local reward.
-    return hasAuthenticatedAccount || saveDiagnostic ? null : calculateRunCandyRewards(summary);
+    // A server attempt stays authoritative while authentication is hydrating.
+    return hasAuthenticatedAccount || hasAuthorityAttempt || saveDiagnostic
+      ? null
+      : calculateRunCandyRewards(summary);
   }, [
     completedRunSnapshot,
+    hasAuthorityAttempt,
     hasAuthenticatedAccount,
     saveDiagnostic,
     saveFailureKind,
@@ -114,7 +118,8 @@ export function GameOverPage() {
   const totalShielding =
     summary?.championStats.reduce((sum, stats) => sum + stats.shieldingDone, 0) ?? 0;
   const goldEarned = summary?.goldEarned ?? 0;
-  const isBusy = saveStatus === 'saving' || saveStatus === 'retrying';
+  const isBusy =
+    saveStatus === 'saving' || saveStatus === 'retrying' || saveStatus === 'recovering';
   const isRetryableSaveError = saveStatus === 'failed' && saveFailureKind !== 'terminal';
   const rewardEntries = rewards
     ? Object.entries(rewards.byChampion).filter(([, candies]) => candies > 0)
@@ -187,7 +192,11 @@ export function GameOverPage() {
             {isBusy && (
               <p role="status" className="game-over-save-status game-over-save-status--saving">
                 <span aria-hidden="true" className="game-over-save-status__dot" />
-                {saveStatus === 'retrying' ? fr.gameOver.retrying : fr.gameOver.saving}
+                {saveStatus === 'recovering'
+                  ? fr.gameOver.recovering
+                  : saveStatus === 'retrying'
+                    ? fr.gameOver.retrying
+                    : fr.gameOver.saving}
               </p>
             )}
             {saveStatus === 'saved' && (

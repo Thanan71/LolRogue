@@ -11,6 +11,7 @@ import {
   resetTechnicalMetrics,
 } from '@/observability/technicalMetrics';
 import { useAuthStore } from '@/stores/authStore';
+import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import type { Player } from '@/types/models';
@@ -167,6 +168,48 @@ function verifiedStartResponse() {
     },
     error: null,
   };
+}
+
+async function reloadSavedAuthoritativeRun({
+  mode = 'normal',
+  won = false,
+}: {
+  mode?: 'normal' | 'daily';
+  won?: boolean;
+} = {}) {
+  const entries = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => entries.get(key) ?? null,
+    setItem: (key: string, value: string) => entries.set(key, value),
+    removeItem: (key: string) => entries.delete(key),
+  });
+  useRunStore.setState({ mode, authorityAttempt: authorityAttempt({ mode }) });
+  if (won) {
+    attemptMocks.seal.mockResolvedValueOnce({
+      data: {
+        attemptId: ATTEMPT_ID,
+        runUuid: RUN_UUID,
+        status: 'finished',
+        lastSequence: 0,
+        journalHash: 'initial-hash',
+        accepted: true,
+        replayed: false,
+      },
+      error: null,
+    });
+  }
+  await expect(useRunStore.getState().endRun(won, RUN_UUID)).resolves.toMatchObject({
+    success: true,
+    outcome: 'saved',
+  });
+  const originalAttempt = structuredClone(useRunStore.getState().authorityAttempt!);
+  const snapshot = structuredClone(useRunStore.getState().completedRunSnapshot!);
+  const saved = entries.get('lolrogue-run-storage')!;
+  useRunStore.setState({ ...RUN_INITIAL_STATE });
+  entries.set('lolrogue-run-storage', saved);
+  await useRunStore.persist.rehydrate();
+  vi.clearAllMocks();
+  return { originalAttempt, snapshot };
 }
 
 describe('authoritative run lifecycle and recovery', () => {
@@ -509,12 +552,14 @@ describe('authoritative run lifecycle and recovery', () => {
       outcome: 'saved',
     });
     const originalAttempt = structuredClone(useRunStore.getState().authorityAttempt);
+    const canonicalSummary = structuredClone(useRunStore.getState().completedRunSnapshot!.summary);
     expect(originalAttempt?.status).toBe('verified');
     const saved = entries.get('lolrogue-run-storage')!;
     // The cache is attacker-controlled: an inflated displayed reward is not a receipt.
     const forged = JSON.parse(saved);
     forged.state.serverProgression.candiesEarned = 999_999;
     forged.state.serverProgression.candiesPerChampion = 999_999;
+    forged.state.completedRunSnapshot.summary.totalKills = 999_999;
     useRunStore.setState({ ...RUN_INITIAL_STATE });
     entries.set('lolrogue-run-storage', JSON.stringify(forged));
     await useRunStore.persist.rehydrate();
@@ -523,58 +568,231 @@ describe('authoritative run lifecycle and recovery', () => {
       isActive: true,
       isEnding: false,
       runId: RUN_UUID,
-      saveStatus: 'failed',
-      saveFailureKind: 'retryable',
+      saveStatus: 'recovering',
+      saveFailureKind: null,
       serverProgression: null,
-      authorityAttempt: { ...originalAttempt, status: 'verifying' },
+      authorityAttempt: originalAttempt,
     });
     // Starting another run cannot bypass the unresolved recovery.
     await expect(useRunStore.getState().startRun(['Garen', 'Annie'])).resolves.toMatchObject({
       success: false,
       code: 'active_run',
     });
-    attemptMocks.seal.mockResolvedValue({
-      data: {
-        attemptId: ATTEMPT_ID,
-        runUuid: RUN_UUID,
-        status: 'verified',
-        lastSequence: originalAttempt!.lastAcknowledgedSequence,
-        journalHash: originalAttempt!.journalHash,
-        accepted: true,
-        replayed: true,
-      },
+    const snapshot = useRunStore.getState().completedRunSnapshot!;
+    vi.clearAllMocks();
+    attemptMocks.recover.mockResolvedValue({
+      data: { progression: { ...progression, replayed: true }, summary: canonicalSummary },
       error: null,
     });
     attemptMocks.recover.mockResolvedValueOnce({ data: null, error: new Error('offline') });
-    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
-      success: false,
-      retryable: true,
+    await expect(
+      useRunStore.getState().endRun(snapshot.won, snapshot.runId, snapshot.summary),
+    ).resolves.toMatchObject({ success: false, retryable: true });
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: true,
+      isEnding: false,
+      saveStatus: 'failed',
+      saveFailureKind: 'retryable',
+      serverProgression: null,
+      completedRunSnapshot: snapshot,
+      authorityAttempt: originalAttempt,
     });
-    expect(useRunStore.getState().serverProgression).toBeNull();
 
-    await expect(useRunStore.getState().endRun(false, RUN_UUID)).resolves.toMatchObject({
-      success: true,
-      outcome: 'saved',
-    });
-    expect(attemptMocks.seal).toHaveBeenCalledTimes(3);
-    for (const call of attemptMocks.seal.mock.calls) {
-      expect(call).toEqual([
-        ATTEMPT_ID,
-        originalAttempt!.finishCommandId,
-        originalAttempt!.nextSequence - 1,
-        {
-          engineVersion: originalAttempt!.engineVersion,
-          gameplayRulesetVersion: originalAttempt!.gameplayRulesetVersion,
-          progressionRulesetVersion: originalAttempt!.rulesetVersion,
-        },
-      ]);
-    }
-    expect(attemptMocks.append).toHaveBeenCalledTimes(1);
-    expect(attemptMocks.verify).toHaveBeenCalledTimes(1);
+    await expect(
+      useRunStore.getState().endRun(snapshot.won, snapshot.runId, snapshot.summary),
+    ).resolves.toMatchObject({ success: true, outcome: 'saved' });
+    expect(attemptMocks.append).not.toHaveBeenCalled();
+    expect(attemptMocks.seal).not.toHaveBeenCalled();
+    expect(attemptMocks.verify).not.toHaveBeenCalled();
     expect(attemptMocks.recover).toHaveBeenCalledTimes(2);
+    expect(attemptMocks.recover.mock.calls).toEqual([[ATTEMPT_ID], [ATTEMPT_ID]]);
     expect(attemptMocks.start).not.toHaveBeenCalled();
-    expect(useRunStore.getState().authorityAttempt?.commands).toEqual(originalAttempt!.commands);
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      saveStatus: 'saved',
+      saveError: null,
+      saveFailureKind: null,
+      authorityAttempt: originalAttempt,
+      completedRunSnapshot: { summary: canonicalSummary },
+    });
     expect(useRunStore.getState().serverProgression).toEqual({ ...progression, replayed: true });
+  });
+
+  it('coalesces simultaneous recovery requests into one server receipt read', async () => {
+    const { snapshot, originalAttempt } = await reloadSavedAuthoritativeRun();
+    let releaseRecovery!: () => void;
+    attemptMocks.recover.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          releaseRecovery = () =>
+            resolve({
+              data: { progression: { ...progression, replayed: true }, summary: snapshot.summary },
+              error: null,
+            });
+        }),
+    );
+
+    const first = useRunStore.getState().endRun(snapshot.won, snapshot.runId, snapshot.summary);
+    const second = useRunStore.getState().endRun(snapshot.won, snapshot.runId, snapshot.summary);
+    await vi.waitFor(() => expect(attemptMocks.recover).toHaveBeenCalledOnce());
+    expect(useRunStore.getState().saveStatus).toBe('recovering');
+    releaseRecovery();
+
+    await expect(Promise.all([first, second])).resolves.toEqual([
+      { success: true, runId: RUN_UUID, outcome: 'saved' },
+      { success: true, runId: RUN_UUID, outcome: 'saved' },
+    ]);
+    expect(attemptMocks.recover).toHaveBeenCalledOnce();
+    expect(attemptMocks.append).not.toHaveBeenCalled();
+    expect(attemptMocks.seal).not.toHaveBeenCalled();
+    expect(attemptMocks.verify).not.toHaveBeenCalled();
+    expect(attemptMocks.start).not.toHaveBeenCalled();
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      saveStatus: 'saved',
+      authorityAttempt: originalAttempt,
+      completedRunSnapshot: snapshot,
+    });
+  });
+
+  it('ignores a recovered receipt when the account changed while reading it', async () => {
+    const { snapshot, originalAttempt } = await reloadSavedAuthoritativeRun();
+    let releaseRecovery!: () => void;
+    attemptMocks.recover.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          releaseRecovery = () =>
+            resolve({
+              data: { progression, summary: { ...snapshot.summary, totalKills: 999 } },
+              error: null,
+            });
+        }),
+    );
+    const pending = useRunStore.getState().endRun(snapshot.won, snapshot.runId, snapshot.summary);
+    await vi.waitFor(() => expect(attemptMocks.recover).toHaveBeenCalledOnce());
+    useAuthStore.setState({ user: { id: 'user-2' } as User });
+    releaseRecovery();
+
+    await expect(pending).resolves.toMatchObject({ success: false });
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: true,
+      authorityAttempt: originalAttempt,
+      completedRunSnapshot: snapshot,
+      serverProgression: null,
+    });
+    expect(useRunStore.getState().saveStatus).not.toBe('saved');
+    expect(attemptMocks.append).not.toHaveBeenCalled();
+    expect(attemptMocks.seal).not.toHaveBeenCalled();
+    expect(attemptMocks.verify).not.toHaveBeenCalled();
+    expect(useAuthStore.getState().refreshPlayer).not.toHaveBeenCalled();
+  });
+
+  it('ignores a recovered receipt when another run replaced the pending completion', async () => {
+    const { snapshot } = await reloadSavedAuthoritativeRun();
+    let releaseRecovery!: () => void;
+    attemptMocks.recover.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          releaseRecovery = () =>
+            resolve({ data: { progression, summary: snapshot.summary }, error: null });
+        }),
+    );
+    const pending = useRunStore.getState().endRun(snapshot.won, snapshot.runId, snapshot.summary);
+    await vi.waitFor(() => expect(attemptMocks.recover).toHaveBeenCalledOnce());
+    const replacementRunId = '44444444-4444-4444-8444-444444444444';
+    useRunStore.setState({
+      ...RUN_INITIAL_STATE,
+      isActive: true,
+      runId: replacementRunId,
+      team: [{ championId: 'Annie' }],
+      authorityAttempt: authorityAttempt({ runUuid: replacementRunId, initialTeam: ['Annie'] }),
+    });
+    const replacement = useRunStore.getState();
+    releaseRecovery();
+
+    await expect(pending).resolves.toMatchObject({ success: false });
+    expect(useRunStore.getState()).toBe(replacement);
+    expect(useRunStore.getState()).toMatchObject({
+      runId: replacementRunId,
+      isActive: true,
+      saveStatus: 'idle',
+      completedRunSnapshot: null,
+      serverProgression: null,
+      team: [{ championId: 'Annie' }],
+    });
+    expect(useAuthStore.getState().refreshPlayer).not.toHaveBeenCalled();
+  });
+
+  it.each(['trace_rejected', 'run_attempt_expired'])(
+    'closes a rejected or expired recovered receipt (%s) without granting progression',
+    async (code) => {
+      const { snapshot } = await reloadSavedAuthoritativeRun();
+      attemptMocks.recover.mockResolvedValueOnce({
+        data: null,
+        error: new attemptMocks.RejectedError(
+          code,
+          'The server receipt is unavailable permanently.',
+        ),
+      });
+
+      await expect(
+        useRunStore.getState().endRun(snapshot.won, snapshot.runId, snapshot.summary),
+      ).resolves.toMatchObject({ success: true, outcome: 'terminal' });
+      expect(useRunStore.getState()).toMatchObject({
+        isActive: false,
+        isEnding: false,
+        saveStatus: 'failed',
+        saveFailureKind: 'terminal',
+        completedRunSnapshot: snapshot,
+        serverProgression: null,
+        saveDiagnostic: { attemptId: ATTEMPT_ID, rejectionCode: code },
+      });
+      expect(attemptMocks.recover).toHaveBeenCalledExactlyOnceWith(ATTEMPT_ID);
+      expect(attemptMocks.append).not.toHaveBeenCalled();
+      expect(attemptMocks.seal).not.toHaveBeenCalled();
+      expect(attemptMocks.verify).not.toHaveBeenCalled();
+      expect(attemptMocks.start).not.toHaveBeenCalled();
+      expect(useAuthStore.getState().refreshPlayer).not.toHaveBeenCalled();
+    },
+  );
+
+  it('recovers a completed Daily through its existing receipt without resubmitting a score', async () => {
+    useDailyRunStore.setState(useDailyRunStore.getInitialState());
+    const { snapshot, originalAttempt } = await reloadSavedAuthoritativeRun({
+      mode: 'daily',
+      won: true,
+    });
+    const dailyMetadata = useDailyRunStore.getState();
+    expect(snapshot).toMatchObject({ mode: 'daily', daily: { abandoned: false } });
+    expect(dailyMetadata.hasCompletedToday).toBe(true);
+    expect(useRunStore.getState()).toMatchObject({
+      mode: 'daily',
+      saveStatus: 'recovering',
+      serverProgression: null,
+    });
+    attemptMocks.recover.mockResolvedValueOnce({
+      data: { progression: { ...progression, replayed: true }, summary: snapshot.summary },
+      error: null,
+    });
+
+    await expect(
+      useRunStore.getState().endRun(snapshot.won, snapshot.runId, snapshot.summary),
+    ).resolves.toMatchObject({ success: true, outcome: 'saved' });
+    expect(useRunStore.getState()).toMatchObject({
+      isActive: false,
+      saveStatus: 'saved',
+      authorityAttempt: originalAttempt,
+      completedRunSnapshot: snapshot,
+      serverProgression: { ...progression, replayed: true },
+    });
+    expect(useDailyRunStore.getState().getLeaderboard()).toEqual([]);
+    expect(useDailyRunStore.getState().dateKey).toBe(dailyMetadata.dateKey);
+    expect(useDailyRunStore.getState().hasCompletedToday).toBe(true);
+    expect(attemptMocks.recover).toHaveBeenCalledExactlyOnceWith(ATTEMPT_ID);
+    expect(attemptMocks.append).not.toHaveBeenCalled();
+    expect(attemptMocks.seal).not.toHaveBeenCalled();
+    expect(attemptMocks.verify).not.toHaveBeenCalled();
+    expect(attemptMocks.start).not.toHaveBeenCalled();
   });
 
   it('preserves exit, augment and next-biome commands through the final seal', async () => {
