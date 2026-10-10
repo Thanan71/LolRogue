@@ -156,6 +156,8 @@ export interface TeamMember {
   statBoosts?: Record<string, number>;
   /** Base-stat quality rolled when this champion was recruited. */
   statMultiplier?: number;
+  /** Passive counters earned during this run; empty counters are omitted. */
+  runProgress?: Record<string, number>;
   spellRanks?: Partial<Record<'Q' | 'W' | 'E' | 'R', number>>;
 }
 
@@ -444,6 +446,7 @@ export interface RunActions {
       level: number;
       currentXp: number;
       statBoosts?: Record<string, number>;
+      runProgress?: Record<string, number>;
     }[],
   ) => void;
 }
@@ -584,6 +587,7 @@ export interface RunSaveTeamMember {
   level: number;
   currentHp: number;
   currentMp: number;
+  runProgress?: Record<string, number>;
 }
 
 /** Resources captured from the live combat before its page can unmount. */
@@ -593,6 +597,7 @@ export interface FinalCombatantState {
   maxHp: number;
   currentMp: number;
   maxMp: number;
+  runProgress?: Record<string, number>;
 }
 
 /** Immutable local display snapshot captured when a run first ends. */

@@ -23,10 +23,11 @@ métadonnées et que chaque bundle historique enregistre le verifier attendu.
 
 ## Réduire la taille du déploiement Edge
 
-Seules v19 et v20 (`replay-only`) ainsi que v21 (`current`) sont embarquées par
+Les versions v19, v20 et v21 (`replay-only`) ainsi que v22 (`current`) sont embarquées par
 `verify-run`. Les versions v1 à v18 sont `unsupported` et leurs bundles immuables
 sont conservés dans `supabase/authority-archive/`, hors du déploiement. L'archivage
-de v14 à v18 fait passer les bundles déployés de 6 625 211 à 2 519 010 octets.
+de v14 à v18 avait fait passer les bundles déployés de 6 625 211 à 2 519 010 octets
+lors de la publication v21.
 
 Les attempts v14 à v18 ne peuvent donc plus être validés par la fonction Edge
 (`unsupported_attempt_version`). Les tests et générateurs de baselines historiques

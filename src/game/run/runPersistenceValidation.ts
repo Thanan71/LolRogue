@@ -1,4 +1,6 @@
+import { championDB } from '@/data/championDatabase';
 import { decodeCombatActionTrace } from '@/game/battle/actionTrace';
+import { isRunProgressSnapshot } from '@/game/runProgression';
 import { parseChampionRunAccessSnapshot } from '@/services/championEconomyRunContract';
 import { BIOMES, type RunState } from '@/types/run';
 import { isRecord } from '@/utils/persistence';
@@ -60,7 +62,7 @@ const nodeType = oneOf([
 ]);
 const ids = array(id);
 const stats = dictionary(number, 32);
-const teamMember = shape(
+const teamMemberShape = shape(
   {
     championId: id,
     currentHp: nonnegative,
@@ -70,9 +72,19 @@ const teamMember = shape(
     statMultiplier: nonnegative,
     statBoosts: stats,
     spellRanks: shape({ Q: integer, W: integer, E: integer, R: integer }, []),
+    runProgress: isRunProgressSnapshot,
   },
   ['championId'],
 );
+const hasDeclaredRunProgress: Check = (value) => {
+  if (!isRecord(value)) return false;
+  if (value.runProgress === undefined) return true;
+  const champion = championDB.getById(value.championId as string);
+  return Boolean(
+    champion && isRunProgressSnapshot(value.runProgress, champion.passive.runProgression ?? []),
+  );
+};
+const teamMember: Check = (value) => teamMemberShape(value) && hasDeclaredRunProgress(value);
 const shopItem = shape(
   {
     itemId: id,
@@ -296,7 +308,17 @@ const completion = shape({
   goldBalance: nonnegative,
   summary,
   teamMembers: array(
-    shape({ championId: id, level: positive, currentHp: nonnegative, currentMp: nonnegative }),
+    (value) =>
+      shape(
+        {
+          championId: id,
+          level: positive,
+          currentHp: nonnegative,
+          currentMp: nonnegative,
+          runProgress: isRunProgressSnapshot,
+        },
+        ['championId', 'level', 'currentHp', 'currentMp'],
+      )(value) && hasDeclaredRunProgress(value),
     5,
   ),
   startedAt: nullable(date),

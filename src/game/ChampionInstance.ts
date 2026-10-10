@@ -13,6 +13,11 @@ import {
   applyMasteryBonus,
   applyEnhancementBonuses as applySharedEnhancementBonuses,
 } from '@/utils/statCalculator';
+import {
+  applyRunProgressStatBonuses,
+  cloneRunProgressSnapshot,
+  isRunCounterKey,
+} from './runProgression';
 
 /** Valid spell slots matching LoL key bindings. */
 export type SpellSlot = 'Q' | 'W' | 'E' | 'R';
@@ -54,12 +59,14 @@ export class ChampionInstance {
   private readonly _healthMultiplier: number;
   private readonly _damageMultiplier: number;
   private _masteryLevel = 0;
+  private _runProgress: Record<string, number> | null = null;
 
   constructor(
     champion: Champion,
     startingLevel = 1,
     statMultiplier = 1,
     combatScaling: CombatScalingProfile = {},
+    runProgress?: Record<string, number>,
   ) {
     this.id = champion.id;
     this.key = champion.key;
@@ -90,6 +97,7 @@ export class ChampionInstance {
     // Initialize all cooldowns to 0 (ready)
     this._cooldowns = { Q: 0, W: 0, E: 0, R: 0 };
     this._spellRanks = { Q: 1, W: 1, E: 1, R: 1 };
+    this.restoreRunProgress(runProgress);
   }
 
   // ── Level ────────────────────────────────────────────────────────────────
@@ -127,26 +135,30 @@ export class ChampionInstance {
 
   /** Compute stats scaled to the current level. */
   getStats(): CalculatedStats {
-    return this.applyHealthMultiplier(
-      applyMasteryBonus(
-        ChampionInstance.applyStatMultiplier(
-          calculateStats(this.baseStats, this._level),
-          this._statMultiplier,
+    return this.applyRunProgressBonuses(
+      this.applyHealthMultiplier(
+        applyMasteryBonus(
+          ChampionInstance.applyStatMultiplier(
+            calculateStats(this.baseStats, this._level),
+            this._statMultiplier,
+          ),
+          this._masteryLevel,
         ),
-        this._masteryLevel,
       ),
     );
   }
 
   /** Compute stats at an arbitrary level without changing current level. */
   getStatsAtLevel(level: number): CalculatedStats {
-    return this.applyHealthMultiplier(
-      applyMasteryBonus(
-        ChampionInstance.applyStatMultiplier(
-          calculateStats(this.baseStats, clampLevel(level)),
-          this._statMultiplier,
+    return this.applyRunProgressBonuses(
+      this.applyHealthMultiplier(
+        applyMasteryBonus(
+          ChampionInstance.applyStatMultiplier(
+            calculateStats(this.baseStats, clampLevel(level)),
+            this._statMultiplier,
+          ),
+          this._masteryLevel,
         ),
-        this._masteryLevel,
       ),
     );
   }
@@ -175,9 +187,64 @@ export class ChampionInstance {
       ),
       this._masteryLevel,
     );
-    return this.applyHealthMultiplier(
-      ChampionInstance.applyEnhancementBonuses(unscaledHealthStats, bonuses),
+    return this.applyRunProgressBonuses(
+      this.applyHealthMultiplier(
+        ChampionInstance.applyEnhancementBonuses(unscaledHealthStats, bonuses),
+      ),
     );
+  }
+
+  private applyRunProgressBonuses(stats: CalculatedStats): CalculatedStats {
+    return applyRunProgressStatBonuses(stats, this.passive.runProgression, this._runProgress);
+  }
+
+  getRunCounter(key: string): number {
+    return isRunCounterKey(key) ? (this._runProgress?.[key] ?? 0) : 0;
+  }
+
+  /** Invalid or undeclared counter input is ignored; declared values are capped centrally. */
+  setRunCounter(key: string, value: number): number {
+    const definition = this.passive.runProgression?.find((candidate) => candidate.key === key);
+    if (
+      !isRunCounterKey(key) ||
+      !definition ||
+      !Number.isSafeInteger(definition.cap) ||
+      definition.cap < 0 ||
+      !Number.isSafeInteger(value) ||
+      value < 0
+    )
+      return this.getRunCounter(key);
+    const next = Math.min(value, definition.cap);
+    if (next === 0) {
+      if (this._runProgress) {
+        delete this._runProgress[key];
+        if (Object.keys(this._runProgress).length === 0) this._runProgress = null;
+      }
+    } else {
+      this._runProgress ??= {};
+      this._runProgress[key] = next;
+    }
+    return next;
+  }
+
+  incrementRunCounter(key: string, amount: number): number {
+    const current = this.getRunCounter(key);
+    if (!Number.isSafeInteger(amount) || amount < 0) return current;
+    const definition = this.passive.runProgression?.find((candidate) => candidate.key === key);
+    if (!definition || !Number.isSafeInteger(definition.cap)) return current;
+    return this.setRunCounter(
+      key,
+      current + Math.min(amount, Math.max(0, definition.cap - current)),
+    );
+  }
+
+  getRunProgressSnapshot(): Record<string, number> {
+    return this._runProgress ? { ...this._runProgress } : {};
+  }
+
+  restoreRunProgress(snapshot?: Record<string, number>): void {
+    const restored = cloneRunProgressSnapshot(snapshot, this.passive.runProgression ?? []);
+    this._runProgress = Object.keys(restored).length > 0 ? restored : null;
   }
 
   /**
@@ -352,6 +419,7 @@ export class ChampionInstance {
       },
       passiveName: this.passive.name,
       cooldowns: { ...this._cooldowns },
+      ...(this._runProgress ? { runProgress: this.getRunProgressSnapshot() } : {}),
     };
   }
 }
@@ -379,4 +447,5 @@ export interface ChampionSnapshot {
   spellIds: Record<SpellSlot, string | undefined>;
   passiveName: string;
   cooldowns: Record<SpellSlot, number>;
+  runProgress?: Record<string, number>;
 }

@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { ITEM_DATABASE } from '@/data/items/itemDatabase';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import {
   calculateMapRouteBounds,
   createMapEconomyBaseline,
@@ -106,9 +107,9 @@ describe('P1-BAL-02 pre-change map and economy baseline', () => {
     expect(candidate).toMatchObject({
       schemaVersion: 2,
       identity: {
-        engineVersion: 'run-engine-v21',
-        gameplayRulesetVersion: 21,
-        contentHash: '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
+        engineVersion: CURRENT_AUTHORITY_VERSION.engine,
+        gameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,
+        contentHash: CURRENT_AUTHORITY_VERSION.contentHash,
         seedCount: 1_000,
       },
     });

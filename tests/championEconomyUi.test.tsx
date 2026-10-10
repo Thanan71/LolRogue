@@ -31,15 +31,15 @@ function snapshot(): ChampionEconomySnapshot {
   return {
     enabled: true,
     economyVersion: 1,
-    catalogVersion: 1,
-    gameplayRulesetVersion: 21,
+    catalogVersion: 2,
+    gameplayRulesetVersion: 22,
     serverNow: '2026-10-08T12:00:00.000Z',
     rotation: {
-      id: '2026-W41-v1-r21',
+      id: '2026-W41-v1-r22',
       startsAt: '2026-10-05T00:00:00.000Z',
       endsAt: '2026-10-12T00:00:00.000Z',
       championIds: ['Darius', 'Jinx', 'Leona', 'Malphite', 'Soraka'],
-      rulesetVersion: 21,
+      rulesetVersion: 22,
       algorithmVersion: 1,
     },
     catalog: CHAMPION_ECONOMY_CATALOG.map((entry) => ({ ...entry })),
@@ -131,7 +131,7 @@ describe('champion economy purchase UI', () => {
     expect(purchase).toHaveBeenCalledWith('Lux', {
       priceShards: 400,
       economyVersion: 1,
-      catalogVersion: 1,
+      catalogVersion: 2,
     });
     expect(screen.getByRole('button', { name: 'Achat en cours…' })).toBeDisabled();
     await act(async () => resolve(completePurchase()));
@@ -155,7 +155,7 @@ describe('champion economy purchase UI', () => {
     purchase
       .mockImplementationOnce(async () => {
         const current = snapshot();
-        current.catalogVersion = 2;
+        current.catalogVersion = 3;
         current.catalog = current.catalog.map((entry) =>
           entry.championId === 'Lux' ? { ...entry, priceShards: 450 } : entry,
         );
@@ -176,7 +176,7 @@ describe('champion economy purchase UI', () => {
     await waitFor(() => expect(purchase).toHaveBeenCalledTimes(2));
     expect(purchase.mock.calls[1]).toEqual([
       'Lux',
-      { priceShards: 450, economyVersion: 1, catalogVersion: 2 },
+      { priceShards: 450, economyVersion: 1, catalogVersion: 3 },
     ]);
   });
 
@@ -253,17 +253,20 @@ describe('champion economy purchase UI', () => {
       'available',
     );
     expect(screen.queryByRole('button', { name: 'Choisir Lux' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Choisir Veigar' })).not.toBeInTheDocument();
     fireEvent.change(screen.getByRole('combobox', { name: 'Filtrer les champions par accès' }), {
       target: { value: 'all' },
     });
     expect(screen.getAllByText('Gratuit permanent')).toHaveLength(3);
     expect(screen.getAllByText('Rotation hebdomadaire')).toHaveLength(5);
-    expect(screen.getAllByText('Verrouillé')).toHaveLength(2);
+    expect(screen.getAllByText('Verrouillé')).toHaveLength(3);
     const selectLux = screen.getByRole('button', { name: 'Choisir Lux' });
     expect(selectLux).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Choisir Veigar' })).toBeDisabled();
     fireEvent.change(screen.getByRole('combobox', { name: 'Filtrer les champions par accès' }), {
       target: { value: 'locked' },
     });
+    expect(screen.getByRole('button', { name: 'Choisir Veigar' })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: /Acheter Lux/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Confirmer l’achat' }));
     await waitFor(() => expect(selectLux).toBeEnabled());
@@ -273,6 +276,8 @@ describe('champion economy purchase UI', () => {
     expect(screen.getByRole('combobox', { name: 'Filtrer les champions par accès' })).toHaveValue(
       'all',
     );
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: '' } });
+    expect(screen.getByRole('button', { name: 'Choisir Veigar' })).toBeDisabled();
   });
 
   it('leaves the six-champion Daily offer playable regardless of ownership', () => {
@@ -381,7 +386,8 @@ describe('champion economy purchase UI', () => {
     });
     expect(screen.getByRole('button', { name: /Lux.*Verrouillé/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Warwick.*Verrouillé/ })).toBeInTheDocument();
-    expect(document.querySelectorAll('button[id^="database-champion-"]')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: /Veigar.*Verrouillé/ })).toBeInTheDocument();
+    expect(document.querySelectorAll('button[id^="database-champion-"]')).toHaveLength(3);
     expect(screen.queryByText('Katarina', { exact: true })).not.toBeInTheDocument();
     fireEvent.change(screen.getByRole('combobox', { name: 'Filtrer les champions par accès' }), {
       target: { value: 'all' },

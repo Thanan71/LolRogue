@@ -123,11 +123,13 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
   const options = { auth: { persistSession: false, autoRefreshToken: false } };
   const service = createClient<Database>(supabaseUrl!, serviceRoleKey!, options);
   const actor = createClient<Database>(supabaseUrl!, anonKey!, options);
-  const firstWeek = '2026-10-26T12:00:00.000Z';
-  const secondWeek = '2026-11-02T12:00:00.000Z';
-  const thirdWeek = '2026-11-09T12:00:00.000Z';
-  const rotation = getRotationForInstant(firstWeek, 21);
-  const nextRotation = getRotationForInstant(secondWeek, 21);
+  // Catalogue v2 adds Veigar to the pool. These consecutive UTC weeks still
+  // exercise Darius leaving the rotation, then remaining purchasable.
+  const firstWeek = '2026-10-12T12:00:00.000Z';
+  const secondWeek = '2026-10-19T12:00:00.000Z';
+  const thirdWeek = '2026-10-26T12:00:00.000Z';
+  const rotation = getRotationForInstant(firstWeek, 22);
+  const nextRotation = getRotationForInstant(secondWeek, 22);
   const championId = rotation.championIds.find((id) => !nextRotation.championIds.includes(id))!;
   expect(championId).toBe('Darius');
   const suffix = randomUUID().replaceAll('-', '').slice(0, 12);
@@ -191,9 +193,14 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     await expect(page).toHaveURL('/starter-select');
     await expect(page.getByLabel('Filtrer les champions par accès')).toHaveValue('available');
     await showFullChampionCatalog(page);
-    await expect(page.locator('.champion-economy-card')).toHaveCount(10);
+    await expect(page.locator('.champion-economy-card')).toHaveCount(11);
+    await expect(page.getByText('Gratuit permanent', { exact: true })).toHaveCount(3);
+    await expect(page.getByText('Rotation hebdomadaire', { exact: true })).toHaveCount(5);
+    await expect(page.getByText('Verrouillé', { exact: true })).toHaveCount(3);
+    await expect(page.getByRole('button', { name: 'Choisir Veigar', exact: true })).toBeDisabled();
     await page.getByLabel('Filtrer les champions par accès').selectOption('available');
     await expect(page.locator('.champion-economy-card')).toHaveCount(8);
+    await expect(page.getByRole('button', { name: 'Choisir Veigar', exact: true })).toHaveCount(0);
     await page.getByLabel('Filtrer les champions par accès').selectOption('all');
     const championCard = page.locator(`#starter-economy-${championId}`);
     await expect(championCard.getByText('Rotation hebdomadaire', { exact: true })).toBeVisible();
@@ -219,10 +226,12 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     expect(start.ok()).toBe(true);
     const started = record(await start.json());
     expect(started.economy_version).toBe(1);
+    expect(started.gameplay_ruleset_version).toBe(22);
     expect(started.rune_ids).not.toContain('e2e_assured_victory');
     expect(started.champion_access_snapshot).toMatchObject({
       enabled: true,
       economyVersion: 1,
+      catalogVersion: 2,
       rotationId: rotation.id,
       rotationChampionIds: rotation.championIds,
     });
@@ -398,7 +407,7 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     expect(unlock.data).toEqual({ champion_id: championId, source: 'purchase', price_paid: 400 });
     if (process.env.E2E_EXPECT_COMMIT_SHA) {
       const cards = page.locator('.champion-economy-card');
-      await expect(cards).toHaveCount(10);
+      await expect(cards).toHaveCount(11);
       for (const card of await cards.all()) {
         const portrait = card.locator('.champion-card__splash');
         await portrait.scrollIntoViewIfNeeded();

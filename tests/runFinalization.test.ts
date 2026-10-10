@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { finalizeCombatRun } from '@/game/run/runFinalization';
+import { cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
@@ -76,5 +76,34 @@ describe('terminal run finalization', () => {
     const member = useRunStore.getState().completedRunSnapshot?.teamMembers[0];
     expect(member?.currentHp).toBeGreaterThan(0);
     expect(member?.currentMp).toBeGreaterThan(0);
+  });
+
+  it('freezes terminal run counters independently from live combat objects', async () => {
+    setGuestRun('guest-veigar-defeat');
+    useRunStore.setState({
+      team: [{ championId: 'Veigar', currentHp: 400, level: 2 }],
+      ledger: createRunLedger(['Veigar']),
+    });
+    const runProgress = { 'veigar.phenomenal_power': 7 };
+    await expect(
+      finalizeCombatRun('enemy', [
+        {
+          championId: 'Veigar',
+          currentHp: 0,
+          maxHp: 700,
+          currentMp: 20,
+          maxMp: 500,
+          runProgress,
+        },
+      ]),
+    ).resolves.toMatchObject({ completed: true });
+    runProgress['veigar.phenomenal_power'] = 200;
+    expect(useRunStore.getState().completedRunSnapshot?.teamMembers[0]?.runProgress).toEqual({
+      'veigar.phenomenal_power': 7,
+    });
+    useRunStore.setState({ team: [{ championId: 'Veigar' }] });
+    expect(useRunStore.getState().completedRunSnapshot?.teamMembers[0]?.runProgress).toEqual({
+      'veigar.phenomenal_power': 7,
+    });
   });
 });

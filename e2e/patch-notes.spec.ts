@@ -10,7 +10,13 @@ async function enterGuest(page: Page) {
 async function publicationCatalog(page: Page) {
   return page.evaluate(async () => {
     const { latestPatchNote, PATCH_NOTES } = await import('/src/data/patchNotes.ts');
-    return { count: PATCH_NOTES.length, latestSequence: latestPatchNote()!.sequence };
+    return {
+      count: PATCH_NOTES.length,
+      latestSequence: latestPatchNote()!.sequence,
+      balanceCount: PATCH_NOTES.filter((note) =>
+        note.entries.some((entry) => entry.category === 'balance'),
+      ).length,
+    };
   });
 }
 
@@ -49,13 +55,22 @@ test('mobile history supports keyboard, category filtering, read feedback and re
   await page.setViewportSize({ width: 320, height: 640 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await enterGuest(page);
+  const catalog = await publicationCatalog(page);
   await page.getByRole('link', { name: /Notes de mise à jour/ }).click();
   await expect(page).toHaveURL('/patch-notes');
   await expect(page).toHaveTitle('Notes de mise à jour — LoL Rogue');
   await expect(page.locator('main')).toBeFocused();
   const filter = page.getByRole('combobox', { name: 'Filtrer par catégorie' });
   await filter.selectOption('balance');
-  await expect(page.getByRole('heading', { name: 'Équilibrage', exact: true })).toBeVisible();
+  expect(catalog.balanceCount).toBeGreaterThan(0);
+  const articles = page.getByRole('article');
+  await expect(articles).toHaveCount(catalog.balanceCount);
+  await expect(page.getByRole('heading', { name: 'Équilibrage', exact: true })).toHaveCount(
+    catalog.balanceCount,
+  );
+  for (const article of await articles.all()) {
+    await expect(article.getByRole('heading', { name: 'Équilibrage', exact: true })).toBeVisible();
+  }
   await expect(page.getByRole('heading', { name: 'Correctifs', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Marquer comme lu' }).click();
   await expect(filter).toBeFocused();

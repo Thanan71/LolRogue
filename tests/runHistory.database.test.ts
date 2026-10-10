@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import { SupabaseRunRepository } from '@/services/repositories/SupabaseRunRepository';
 import type { Database } from '@/types/database';
 
@@ -202,8 +203,8 @@ describeLive('history diagnostics live RLS and keyset', () => {
         outcome: 'victory',
         difficulty: 'hard',
         mode: 'normal',
-        engineVersion: 'run-engine-v21',
-        gameplayRulesetVersion: 21,
+        engineVersion: CURRENT_AUTHORITY_VERSION.engine,
+        gameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,
         progressionRulesetVersion: (start.data as { ruleset_version: number }).ruleset_version,
       },
     });

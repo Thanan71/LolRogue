@@ -4,6 +4,7 @@ import {
   CHAMPION_ECONOMY_CATALOG,
   calculateShardReward,
   ECONOMY_V1_CHAMPION_IDS,
+  ECONOMY_V2_CHAMPION_IDS,
   getChampionAccess,
   getRotationForInstant,
   PERMANENT_FREE_CHAMPION_IDS,
@@ -26,8 +27,16 @@ function snapshot(instant = '2026-10-08T12:00:00Z'): ChampionEconomySnapshot {
 }
 
 describe('versioned champion economy', () => {
-  it('contains precisely the implemented v21 roster and one canonical price', () => {
-    expect([...ECONOMY_V1_CHAMPION_IDS]).toEqual(implementedChampions.map((c) => c.id).sort());
+  it('publishes Veigar in v2 while retaining the frozen v1 roster and price', () => {
+    expect([...ECONOMY_V2_CHAMPION_IDS].sort()).toEqual(
+      implementedChampions.map((c) => c.id).sort(),
+    );
+    expect(ECONOMY_V1_CHAMPION_IDS).not.toContain('Veigar');
+    expect(CHAMPION_ECONOMY_CATALOG.find((entry) => entry.championId === 'Veigar')).toEqual({
+      championId: 'Veigar',
+      priceShards: 400,
+      permanentFree: false,
+    });
     expect(new Set(CHAMPION_ECONOMY_CATALOG.map((entry) => entry.priceShards))).toEqual(
       new Set([400]),
     );

@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { getAuthorityVerifier } from '@/game/authority';
 import {
   createAuthorityCohortBaselineKey,
   loadAuthorityCohortBaseline,
@@ -15,6 +14,7 @@ import {
   createAuthorityFieldCalibrationConditionalsV1,
   loadAuthorityFieldCalibrationConditionalsV1,
 } from '@/game/balance/authorityFieldCalibrationConditionalsV1';
+import { resolveRegisteredAuthorityVerifier } from './helpers/authorityBundleResolver';
 
 const committedBaseline = JSON.parse(
   readFileSync(
@@ -73,9 +73,12 @@ describe('multi-policy field-calibration baseline v1', () => {
     }
   });
 
-  it('publishes reproducible champion and augment conditionals from the paired runs', () => {
+  it('publishes reproducible champion and augment conditionals from the paired runs', async () => {
     const identity = FIELD_CALIBRATION_BASELINE_V1_IDENTITIES[0];
-    const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
+    const authority = await resolveRegisteredAuthorityVerifier(
+      identity.engineVersion,
+      identity.contentHash,
+    );
     if (!authority) throw new Error('The v21 authority verifier is unavailable.');
     const fixture = createAuthorityFieldCalibrationBaselineV1(authority);
     const generated = createAuthorityFieldCalibrationConditionalsV1(fixture);

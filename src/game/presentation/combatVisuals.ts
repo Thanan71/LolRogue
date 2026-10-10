@@ -279,6 +279,32 @@ const PROFILES: Record<string, Partial<Record<ActionType, CombatVisualProfile>>>
       title: spellVisualTitle('Soraka', ActionType.SpellR),
     },
   },
+  Veigar: {
+    [ActionType.SpellQ]: {
+      shape: 'projectile',
+      tone: 'shadow',
+      glyph: '◆',
+      title: spellVisualTitle('Veigar', ActionType.SpellQ),
+    },
+    [ActionType.SpellW]: {
+      shape: 'meteor',
+      tone: 'shadow',
+      glyph: '✹',
+      title: spellVisualTitle('Veigar', ActionType.SpellW),
+    },
+    [ActionType.SpellE]: {
+      shape: 'vortex',
+      tone: 'arcane',
+      glyph: '◌',
+      title: spellVisualTitle('Veigar', ActionType.SpellE),
+    },
+    [ActionType.SpellR]: {
+      shape: 'burst',
+      tone: 'shadow',
+      glyph: '✦',
+      title: spellVisualTitle('Veigar', ActionType.SpellR),
+    },
+  },
   Warwick: {
     [ActionType.SpellQ]: {
       shape: 'slash',

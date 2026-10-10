@@ -17,13 +17,18 @@ import {
   type ShopItem,
   type TreasureEncounter,
 } from '@/game/map/types';
+import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import { assertValidRuleCatalogs } from '@/game/rules/catalogValidation';
 import { buildCombatRuleLoadout } from '@/game/rules/loadout';
-import { getRecruitStartingLevel } from '@/game/recruitment/recruitmentRules';
 import { validateAugmentSelection } from '@/game/run/augmentSelectionRules';
-import { buildResolvedEnemyTeam, resolveCombatEncounter } from '@/game/run/encounterResolver';
+import {
+  buildCombatantTiers,
+  buildResolvedEnemyTeam,
+  resolveCombatEncounter,
+} from '@/game/run/encounterResolver';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
+import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
 import {
   buildRunPlayerTeam,
   calculateRunMemberMaxHp,
@@ -54,6 +59,7 @@ import {
 import { completeCombatProgression, transitionToNextBiome } from '@/game/run/runProgression';
 import { canUpgradeSpell, queueSpellUpgradeChoices } from '@/game/run/spellUpgradeRules';
 import { validateTeamAddition } from '@/game/run/teamRules';
+import { cloneRunProgressSnapshot } from '@/game/runProgression';
 import {
   type InventoryEntry,
   type Item,
@@ -87,9 +93,9 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v21';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-v22';
 export const AUTHORITY_CONTENT_HASH =
-  '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6';
+  '2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84';
 
 assertValidRuleCatalogs();
 
@@ -166,7 +172,7 @@ class AuthorityReplayState {
   constructor(attempt: AuthorityRunAttempt) {
     validateAttempt(attempt);
     this.attempt = cloneRunAttempt(attempt);
-    this.maps = generateRunMap(this.attempt.seed);
+    this.maps = generateRunMap(this.attempt.seed, getRunChampionCatalog(AUTHORITY_ENGINE_VERSION));
     const firstMap = this.maps[0];
     if (!firstMap) fail('invalid_content', 'The ruleset generated no biome map.');
     this.expectedNodeIds = [firstMap.startNodeId];
@@ -291,6 +297,7 @@ class AuthorityReplayState {
         ...member,
         statBoosts: { ...member.statBoosts },
         spellRanks: { ...member.spellRanks },
+        ...(member.runProgress ? { runProgress: { ...member.runProgress } } : {}),
       })),
       inventory: this.inventory.map((entry) => ({
         ...entry,
@@ -442,7 +449,11 @@ class AuthorityReplayState {
       },
       playerTeam: this.cloneCombatTeamResources(summary.playerTeam),
       enemyTeam: this.cloneCombatTeamResources(summary.enemyTeam),
-      playerAfterEncounter: summary.playerAfterEncounter?.map((member) => ({ ...member })) ?? null,
+      playerAfterEncounter:
+        summary.playerAfterEncounter?.map((member) => ({
+          ...member,
+          ...(member.runProgress ? { runProgress: { ...member.runProgress } } : {}),
+        })) ?? null,
       reward: summary.reward ? { ...summary.reward } : null,
     }));
   }
@@ -526,6 +537,7 @@ class AuthorityReplayState {
       autoActions: usesCanonicalAutoPlay,
       maxRounds: 50,
       maxTeamSize: MAX_TEAM_SIZE,
+      combatantTiers: buildCombatantTiers(enemies, combatNodeType),
       initialHpOverrides:
         Object.keys(initialHpOverrides).length > 0 ? initialHpOverrides : undefined,
       initialMpOverrides:
@@ -637,6 +649,9 @@ class AuthorityReplayState {
       if (member) {
         member.currentHp = finalState.currentHp;
         member.currentMp = finalState.currentMp;
+        const runProgress = cloneRunProgressSnapshot(finalState.runProgress);
+        if (Object.keys(runProgress).length > 0) member.runProgress = runProgress;
+        else delete member.runProgress;
       }
     }
     const consumedItems = new Set(battle.getConsumedItemInstanceIds());
@@ -741,6 +756,9 @@ class AuthorityReplayState {
       currentMp: combatant.currentMp,
       maxMp: combatant.maxMp,
       defeated: combatant.isDefeated,
+      ...(Object.keys(combatant.champion.getRunProgressSnapshot()).length > 0
+        ? { runProgress: combatant.champion.getRunProgressSnapshot() }
+        : {}),
     }));
   }
 
@@ -753,6 +771,7 @@ class AuthorityReplayState {
       maxMp: this.getMemberMaxMp(member),
       level: member.level,
       currentXp: member.currentXp,
+      ...(member.runProgress ? { runProgress: { ...member.runProgress } } : {}),
     }));
   }
 
@@ -760,8 +779,14 @@ class AuthorityReplayState {
     resources: AuthorityCombatTeamResources,
   ): AuthorityCombatTeamResources {
     return {
-      initial: resources.initial.map((member) => ({ ...member })),
-      final: resources.final.map((member) => ({ ...member })),
+      initial: resources.initial.map((member) => ({
+        ...member,
+        ...(member.runProgress ? { runProgress: { ...member.runProgress } } : {}),
+      })),
+      final: resources.final.map((member) => ({
+        ...member,
+        ...(member.runProgress ? { runProgress: { ...member.runProgress } } : {}),
+      })),
     };
   }
 

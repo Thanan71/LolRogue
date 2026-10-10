@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { replayAuthorityRun } from '@/game/authority';
 import { buildVerifiedEconomyResult } from '../supabase/functions/verify-run/champion-economy';
+import { resolveRegisteredAuthorityVerifier } from './helpers/authorityBundleResolver';
 
 const terminal = { terminal: true, won: false, totalWavesCompleted: 0, currentBiomeIndex: 0 };
 
@@ -46,8 +46,13 @@ describe('verified economic replay facts', () => {
     });
   });
 
-  it('accepts a real terminal v21 replay without altering combat or mastery semantics', () => {
-    const replay = replayAuthorityRun(
+  it('accepts a real terminal v21 replay without altering combat or mastery semantics', async () => {
+    const verifier = await resolveRegisteredAuthorityVerifier(
+      'run-engine-v21',
+      '9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6',
+    );
+    expect(verifier).toBeDefined();
+    const replay = verifier!.replay(
       {
         runUuid: '11111111-1111-4111-8111-111111111111',
         seed: 4242,
