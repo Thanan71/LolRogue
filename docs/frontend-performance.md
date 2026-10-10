@@ -234,3 +234,22 @@ effectif avec la règle de 10 % devient **621 000 octets**. Les catalogues et
 leurs traductions conservent leur packaging actuel. Les budgets initial/Auth,
 par chunk, d'assets et de Web Vitals, les seuils de couverture et les checks
 existants restent inchangés.
+
+## P3-CHAMP-01 — marge des routes initiale et Auth
+
+La CI de la PR #203, au commit `2f1eab8`, mesure **219 793 octets gzip** au
+chargement initial et **224 578 octets** pour `/auth`. Il ne reste respectivement
+que 207 et 422 octets sous les plafonds v7. Le build clean-room du commit
+`700668c`, avec son profil Supabase local, mesurait 220 261 et 225 047 octets.
+Les deux profils doivent rester couverts par les budgets bloquants.
+
+Conformément à l'autorisation utilisateur de relever les plafonds pour préserver
+la qualité du code, le budget v8 porte le chargement initial à **225 000 octets**
+(+2,27 %) et `/auth` à **230 000 octets** (+2,22 %). Les compteurs de run, le
+catalogue Veigar et leurs traductions conservent le découpage et le chargement
+standard de l'application.
+
+Le total mesuré en CI reste à **613 318 octets gzip** sur un plafond de 690 000,
+soit **11,11 % de marge**. La marge minimale obligatoire de 10 %, les plafonds par
+chunk et d'assets, les Web Vitals et les seuils de couverture restent inchangés.
+Cette mesure de taille ne remplace pas la vérification des Web Vitals.

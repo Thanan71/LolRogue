@@ -3,13 +3,14 @@
 ## Version et portée
 
 Le modèle d'analyse `BALANCE_MODEL_VERSION = 2` décrit le contenu publié avec le
-`gameplay_ruleset_version = 21` et le Daily `score_version = 15`. La calibration
+`gameplay_ruleset_version = 22` et le Daily `score_version = 15`. La calibration
 early Top et le budget de formation global sont introduits en v18 ; la v19 publie
 les règles système du sprint combat, la v20 la carte, l'économie et la progression
-par participation, puis la v21 publie les gates mesurées de P0-BAL-02. Le moteur v20
-est archivé pour terminer les runs déjà ouvertes. Toute autre modification d'ennemi,
-récompense, prix, drop, effet ou stacking exige une nouvelle version et un nouveau
-hash autoritaire.
+par participation, puis la v21 publie les gates mesurées de P0-BAL-02. La v22 ajoute
+Veigar et les compteurs de progression propres aux champions pendant une run. Les
+moteurs v20 et v21 sont archivés pour terminer les runs déjà ouvertes. Toute autre
+modification d'ennemi, récompense, prix, drop, effet ou stacking exige une nouvelle
+version et un nouveau hash autoritaire.
 
 La source machine est `src/game/balance/contentBalance.ts`. Le test
 `contentCatalogAnalysis.test.ts` appelle `analyzeContentCatalog()` sur 100 seeds de
