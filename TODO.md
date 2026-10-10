@@ -1,14 +1,8 @@
 # TODO — backlog actif de LolRogue
 
-Nettoyage du backlog : **7 octobre 2026**. Les travaux terminés et les anciens
-sprints sont conservés intégralement dans le [snapshot du 7 octobre](docs/archive/todo-snapshot-2026-10-07.md).
-Le [snapshot avant réaudit du 8 août](docs/archive/todo-snapshot-2026-08-08-1837.md)
-reste également disponible.
+**Dernière consolidation : 10 octobre 2026 (propositions, aucune nouvelle fonctionnalité cochée).** Ce fichier est le **point d'entrée** du backlog : priorités, tâches ouvertes existantes, sprints champions et gates de release. Les **nouveaux plans détaillés** sont répartis par domaine dans `docs/backlog/` pour éviter un fichier illisible.
 
-Ce fichier conserve les quatorze tâches ouvertes, leurs critères d'acceptation et les
-gates de release. Les travaux livrés restent documentés dans Git,
-[`docs/feature-status.md`](docs/feature-status.md) et les archives. L'archivage ne
-constitue aucune preuve de déploiement ni de préparation à la bêta.
+Le nettoyage historique du **7 octobre 2026** est conservé dans le [snapshot](docs/archive/todo-snapshot-2026-10-07.md) ; le [snapshot du 8 août](docs/archive/todo-snapshot-2026-08-08-1837.md) reste disponible. Les travaux livrés restent documentés dans Git, [la matrice des fonctionnalités](docs/feature-status.md) et les archives. Les cases cochées ne constituent **ni une preuve de déploiement distant ni une autorisation de bêta**.
 
 ## 1. Convention du backlog
 
@@ -28,6 +22,17 @@ constitue aucune preuve de déploiement ni de préparation à la bêta.
 - **M** : environ 1–2 jours de travail concentré ;
 - **L** : plusieurs jours, migration ou refonte transverse.
 
+### Granularité obligatoire des tâches
+
+Toute **tâche à réaliser** (contrairement aux cases « critères d'acceptation ») doit suivre le modèle de `P3-CHAMP-02 / J.1` :
+
+- **au moins deux actions principales cochables** : spécification/contrat puis implémentation/intégration ; une troisième consacrée aux preuves est recommandée ;
+- **des sous-tâches cochables concrètes** pour chaque action : modèle ou fichier concerné, règles exactes, cas limites, impact UI/DB/Edge, compatibilité et erreurs pertinentes ;
+- **une validation explicite** : tests nominaux/négatifs, sérialisation/replay/déploiement si concernés, et preuve sur le SHA candidat ;
+- **une dépendance claire** vers les autres tickets responsables des mêmes mécanismes ; ne pas recréer une fonctionnalité sous un nouvel identifiant.
+
+Les plans détaillés `ARCH`, `TREE`, `AI` et `ADM` adoptent tous ce format. Les critères de release/acceptation restent des **gates**, pas des tâches d'implémentation à dupliquer.
+
 ### Définition de Done obligatoire
 
 Une tâche n'est terminée que lorsque :
@@ -41,6 +46,39 @@ Une tâche n'est terminée que lorsque :
 - la documentation qui prétend un statut est mise à jour ;
 - les CI pertinentes passent sur un clone propre ;
 - une preuve de validation est conservée dans la PR/commit ou la fiche de release.
+
+## Vue d'ensemble — où trouver chaque chantier ?
+
+| Chantier | Statut | Priorité de départ | Détail et critères |
+| --- | --- | --- | --- |
+| **Validation bêta, sécurité, cohérence** | Ouvert selon cases ci-dessous | P0/P1/P2 | `P0-I18N-01`, `P1-SEC-01`, `P2-BAL-01`, `P2-CI-01`, `P2-OPS-01`, `P3-A11Y-01`, `P3-LEGAL-01` et gate de bêta |
+| **Nettoyage technique / scripts npm** | À faire ; audit statique réalisé | P2, déploiement P1 | [ARCH — 18 tâches / 5 sprints](docs/backlog/architecture-maintenance.md) |
+| **Arbres Candies** | À auditer puis corriger avant extension | P1 puis P2/P3 | [TREE — 10 lots très détaillés](docs/backlog/champion-enhancement-trees.md) |
+| **Bot tactique selon champion/équipe** | À concevoir derrière flag ; legacy conservé | P1 puis P2 | [AI — 49 tâches / 9 sprints](docs/backlog/tactical-bot.md) |
+| **Administration** | À fiabiliser, puis étendre | P1 puis P2 | [ADM — 36 tâches / 7 sprints](docs/backlog/admin-console.md) |
+| **Économie des champions** | Code livré, flag OFF, rollout distant distinct | P3 | `P3-ECO-01` + [procédure](docs/champion-economy.md) |
+| **Nouveaux champions** | Veigar réalisé en code ; cinq sprints en attente | P3 | `P3-CHAMP-01..06` ci-dessous ; [archive Veigar](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md) |
+
+**Mode de lecture :** conserver ici les *identifiants historiques* `P0-*`, `P1-*`, `P2-*`, `P3-*` ; les séries `ARCH-*`, `TREE-*`, `AI-*` et `ADM-*` décrivent les tâches nouvelles dans des dossiers. Les **décisions de produit proposées** (reset Candies, pondérations du bot, politique de modération) restent des cases à valider, pas des fonctions existantes.
+
+### Dépendances et incompatibilités évitées
+
+1. **Candies ≠ Éclats.** `TREE` améliore les nœuds et l'économie des améliorations ; `P3-ECO-01` garde achats/rotation champions à 400 Éclats. `ADM-02/20` ne créent pas de seconde monnaie ou de deuxième ledger.
+2. **Version authority.** `run-engine-v22` actif et bundles historiques restent figés. `AI-038` prévoit une nouvelle version *uniquement* si la politique autoritaire change ; `ARCH` ne réécrit aucun ancien hash. `P0-RUN-01` (registre de versions) reste livré, pas rouvert en doublon.
+3. **Arbre Assassin / Katarina.** `TREE-01..04` réparent tous les arbres actuels ; `P3-CHAMP-03 / K.5` possède toujours le travail de support des resets et actions bonus pour Katarina. Les deux lots doivent mutualiser les tests/catalogues, jamais développer deux mécanismes.
+4. **UX/architecture.** `ARCH-12..15` fournit la structure partagée ; `ADM-32` et `AI-036` réutilisent leurs composants/hook et ne lancent pas de deuxième refonte transversale.
+5. **Mesure et équilibrage.** `P2-BAL-01` conserve la validation par **playtests humains** ; `AI-042/047`, `TREE-09/10` et `ADM-17..21` fournissent simulations/affichage/analyses sans cocher le playtest à sa place.
+6. **Données admin.** `ADM-01` traite la métrique `active_today` absente/fictive ; `ADM-02` traite l'intégrité Candies ; `ADM-07/11` résout pagination/export au lieu d'inventer de faux totaux à partir des listes tronquées.
+7. **Sécurité et déploiement.** `ARCH-05/06` préserve `main → LolRogue`, `dev → LolRogueDev` et interdit les autres branches. Pas de clé `service_role` en frontend ; migrations append-only + tests RLS pour TREE/ADM.
+8. **Bêta.** Aucun nouveau code d'initiative n'est marqué « livré » ou intégré artificiellement au registre des **11 invariants P0** suivi par `release:preflight`. Les régressions réellement bloquantes feront l'objet d'un arbitrage explicite et de la mise à jour simultanée de la gate.
+
+### Séquençage recommandé des nouveaux dossiers
+
+- **Vague A — sécuriser la base :** `ADM-01..06` et `TREE-01..04` ; en parallèle `ARCH-01..07` sans modification du gameplay.
+- **Vague B — modulariser :** `ARCH-08..15`, puis `TREE-05..07`, `ADM-07..16` ; chaque PR conserve contrats client/DB et sauvegardes.
+- **Vague C — intelligence tactique :** `AI-001..034` sur `dev`, tests et comparaisons contre `legacy` ; ne publier la politique dans l'authority qu'après `AI-035..044` et validation de version.
+- **Vague D — produit et exploitation :** `TREE-08..10`, `ADM-17..36`, `AI-045..049` ; rollout et activation seulement après gates, playtests et vérification de cible.
+- **En parallèle selon capacité :** `P3-CHAMP-02..06` dans l'ordre documenté ; aucune spécialisation ne suppose des mécaniques non encore implémentées.
 
 ---
 
@@ -76,8 +114,18 @@ anglaise.
 
 ### Actions
 
-- [ ] Auditer manuellement desktop/mobile + lecteur d'écran pour les textes que le scan
-  statique ne peut pas garantir.
+- [ ] **Cadrer Audit humain i18n.**
+  - [ ] Auditer manuellement desktop/mobile + lecteur d'écran pour les textes que le scan
+      statique ne peut pas garantir.
+  - [ ] Établir une matrice pages, dialogues, messages d'erreur, ARIA, tooltip, contenu dynamique et écran mobile par locale.
+  - [ ] Tester une run complète FR puis EN avec un lecteur d'écran réel et navigation clavier sans recours à une simple capture.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Documenter l'appareil, navigateur, version candidate et chaque texte/fallback incorrect avec chemin de reproduction.
+  - [ ] Corriger l'origine des textes manquants via les catalogues existants et revoir les outils de détection statique.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Rejouer les parcours FR/EN après correction en vérifiant zéro texte résiduel hors noms propres autorisés.
+  - [ ] Parcours FR/EN, zoom et lecteur d'écran vérifiés par un testeur humain sur le SHA candidat.
+  - [ ] Conserver une preuve datée et lier les anomalies au correctif puis à la vérification finale.
 
 Les travaux automatisés sont archivés dans le [snapshot du 7 octobre](docs/archive/todo-snapshot-2026-10-07.md) et documentés dans [la validation i18n Sprint G](docs/sprint-g-i18n.md).
 
@@ -107,11 +155,21 @@ navigateur ne constituent pas un audit humain de lecteur d'écran.
 **Différé par décision de coût :** ne pas activer cette option payante tant qu'elle
 n'est pas souhaitée.
 
-- [ ] Activer **Leaked Password Protection** dans Supabase Auth.
-- [ ] Vérifier la politique minimale de longueur/complexité et les messages UI.
-- [ ] Tester inscription et changement de mot de passe avec un mot de passe refusé.
-- [ ] Documenter le réglage dans les runbooks d'environnement.
-- [ ] Ajouter ce paramètre à la checklist de création/restauration d'un projet Supabase.
+- [ ] **Cadrer Politique de mot de passe Supabase.**
+  - [ ] Activer **Leaked Password Protection** dans Supabase Auth.
+  - [ ] Vérifier la politique minimale de longueur/complexité et les messages UI.
+  - [ ] Tester inscription et changement de mot de passe avec un mot de passe refusé.
+  - [ ] Vérifier le coût, la disponibilité de l'option par environnement et la décision explicite d'activation avant tout changement payant.
+  - [ ] Comparer règles de rejet côté Auth avec messages d'inscription/changement de mot de passe de l'application.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Documenter le réglage dans les runbooks d'environnement.
+  - [ ] Ajouter ce paramètre à la checklist de création/restauration d'un projet Supabase.
+  - [ ] Configurer d'abord LolRogueDev et tester un mot de passe compromis, un mot de passe valide et la récupération de compte.
+  - [ ] Prévoir une procédure de retour arrière et vérifier que les erreurs Auth ne divulguent pas d'information sur les comptes.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Documenter précisément les réglages production distincts de dev, sans afficher les secrets.
+  - [ ] Advisor Supabase vérifié uniquement après activation approuvée.
+  - [ ] Ne pas cocher ni activer la protection tant que la décision de coût demeure différée.
 
 **Acceptation :** l'advisor `auth_leaked_password_protection` ne doit plus apparaître.
 
@@ -121,9 +179,19 @@ n'est pas souhaitée.
 
 **Taille : M/L**
 
-- [ ] Organiser des playtests humains par difficulté, taille d'équipe et expérience ;
-  fixer ensuite les bandes de victoire Easy/Normal/Hard au lieu de les déduire de
-  l'autoplay seul.
+- [ ] **Cadrer Protocole de playtests.**
+  - [ ] Organiser des playtests humains par difficulté, taille d'équipe et expérience ;
+      fixer ensuite les bandes de victoire Easy/Normal/Hard au lieu de les déduire de
+      l'autoplay seul.
+  - [ ] Recruter des profils débutant/intermédiaire/expérimenté et définir consentement, jeu testé et taille d'échantillon avant mesure.
+  - [ ] Attribuer seeds, difficulté, tailles d'équipe et version d'engine afin de comparer des parties dans les mêmes conditions.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Consigner victoires/défaites, progression par biome, composition, durée, points de blocage et retours qualitatifs.
+  - [ ] Comparer aux cohortes authority appariées sans considérer l'autoplay comme un substitut aux décisions humaines.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Proposer ensuite des intervalles/bandes Easy/Normal/Hard, avec N et biais documentés ; exiger revue avant tuning.
+  - [ ] Ne pas déduire d'équilibre sur un échantillon trop faible.
+  - [ ] Conserver protocole, résultats humains, limites et décisions liées au moteur/version testés.
 
 Les critères automatisés sont conservés dans le [snapshot du 7 octobre](docs/archive/todo-snapshot-2026-10-07.md).
 
@@ -152,9 +220,19 @@ leurs mises à jour sont proposées par Dependabot. Preuve :
 
 Il reste à consigner le scénario négatif et à gérer les runs concurrents :
 
-- [ ] Interdire le merge avec check annulé/neutralisé.
-- [ ] Ajouter `concurrency` pour annuler les anciens runs d'une même PR sans annuler
-  une release en cours.
+- [ ] **Cadrer Protection effective des merges.**
+  - [ ] Interdire le merge avec check annulé/neutralisé.
+  - [ ] Identifier les quatre checks requis et les jobs agrégateurs `validate`, `e2e`, `database`, `clean-room` sans changer leur nom.
+  - [ ] Sur PR de contrôle, simuler un job annulé et un job neutralisé, puis constater l'interdiction effective du merge.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Ajouter `concurrency` pour annuler les anciens runs d'une même PR sans annuler
+      une release en cours.
+  - [ ] Définir `concurrency.group` par PR/ref et `cancel-in-progress` approprié sans interrompre les releases en cours.
+  - [ ] Vérifier que les alias `needs: ...` sont évalués sur success seulement, y compris skipped/cancelled.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Consigner liens vers workflows, commits, configuration rulesets et captures/preuves de refus côté GitHub.
+  - [ ] Un scénario négatif prouve que le merge est réellement bloqué.
+  - [ ] Tests des runs concurrents sans annulation d'une publication production déjà engagée.
 
 Les alias exigent déjà la réussite de toutes leurs dépendances ; l'exercice
 d'annulation ou de neutralisation sur une PR de contrôle reste à documenter.
@@ -167,8 +245,18 @@ d'annulation ou de neutralisation sur une PR de contrôle reste à documenter.
 
 Le dépôt documente les procédures, mais la preuve distante reste requise.
 
-- [ ] Restaurer un backup sur un projet Supabase isolé distant. La répétition locale
-  jetable est réussie ; la cible hébergée dédiée reste à fournir.
+- [ ] **Cadrer Restauration distante isolée.**
+  - [ ] Restaurer un backup sur un projet Supabase isolé distant. La répétition locale
+      jetable est réussie ; la cible hébergée dédiée reste à fournir.
+  - [ ] Préparer une cible Supabase hébergée jetable et confirmer qu'elle n'est ni LolRogue ni LolRogueDev.
+  - [ ] Identifier le backup chiffré/versionné, les migrations et variables nécessaires sans recopier de secrets dans la PR.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Restaurer la base, vérifier intégrité référentielle, permissions RLS/RPC et comptes de test anonymisés.
+  - [ ] Tester une run sauvegardée/reprise, historique, Candies, Éclats et contrôles admin sur la cible restaurée.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Mesurer RTO/RPO, noter écarts du runbook puis détruire la cible jetable selon procédure.
+  - [ ] La répétition locale précédente ne suffit pas : preuve distante avec date et projet isolé.
+  - [ ] Toute anomalie RLS, perte de données ou version manquante bloque la clôture.
 
 La répétition locale et les incidents simulés sont archivés dans le [snapshot du
 7 octobre](docs/archive/todo-snapshot-2026-10-07.md). La preuve locale se trouve dans
@@ -193,121 +281,14 @@ Aucune production active ni fermeture des blockers bêta n’est annoncée.
 ---
 
 
-## P3-CHAMP-01 — Sprint I : Veigar — scaling permanent pendant la run
+## P3-CHAMP-01 — Sprint I : Veigar — **livré en code, archivé**
 
-**Taille : L**  
-**Objectif :** ajouter Veigar comme premier champion centré sur une progression
-intra-run persistante et créer une mécanique de stacks générique réutilisable pour
-Nasus, Smolder, Senna, Aurelion Sol ou Kindred.
-
-### Fonctionnalité I.1 — État de progression intra-run par champion
-
-- [x] Ajouter un état de progression runtime/serialisable attaché à une instance de
-  champion, distinct de la maîtrise permanente du compte.
-  - [x] Définir une structure générique de type \`runProgress\` / \`championRunState\`.
-  - [x] Stocker les compteurs par clé stable plutôt que par propriété spécifique à Veigar.
-  - [x] Garantir qu'un champion absent du système conserve un état vide sans coût métier.
-  - [x] Sérialiser cet état dans les snapshots de run.
-  - [x] Réhydrater l'état après refresh/reconnexion.
-  - [x] Inclure l'état dans le replay authority et la validation de tentative.
-  - [x] Vérifier que l'état ne fuit jamais entre deux runs.
-  - [x] Ajouter une migration uniquement si une persistance DB supplémentaire est réellement requise.
-- [x] Définir des helpers génériques de lecture/écriture.
-  - [x] \`getRunCounter(key)\`.
-  - [x] \`incrementRunCounter(key, amount)\`.
-  - [x] \`setRunCounter(key, value)\`.
-  - [x] Refuser les clés/valeurs invalides ou non finies.
-  - [x] Centraliser les limites/caps quand un champion en a besoin.
-
-### Fonctionnalité I.2 — Événements de combat exploitables par les passifs de stacking
-
-- [x] Exposer des événements autoritaires assez précis pour attribuer les stacks.
-  - [x] Distinguer dégâts, kill, assist si nécessaire, fin de combat et boss.
-  - [x] Identifier sans ambiguïté le champion source et la cible.
-  - [x] Garantir l'idempotence d'une attribution lors d'un replay.
-  - [x] Ne jamais attribuer de stack depuis l'UI ou un compteur client.
-- [x] Ajouter un contrat de déclencheur passif générique.
-  - [x] Permettre un hook \`onDamage\`.
-  - [x] Permettre un hook \`onKill\`.
-  - [x] Permettre un hook \`onCombatEnd\` si nécessaire.
-  - [x] Interdire qu'un hook fasse diverger client et authority.
-
-### Fonctionnalité I.3 — Passif de Veigar
-
-- [x] Implémenter \`Pouvoir maléfique phénoménal\` dans le format roguelike.
-  - [x] Définir précisément les sources de stacks.
-  - [x] Appliquer +1 point sur une élimination normale via compétence.
-  - [x] Appliquer +3 points sur un élite éliminé par Veigar.
-  - [x] Appliquer +10 points sur un boss éliminé par Veigar.
-  - [x] Ne pas attribuer de points aux simples touches ni aux assistances.
-  - [x] Attribuer une seule fois par cible et combat, avec un plafond de 200 points.
-  - [x] Convertir les stacks en AP bonus selon une règle unique et testée.
-  - [x] Afficher les stacks dans l'UI de combat et la fiche champion.
-  - [x] Afficher le gain de stacks dans le journal de combat.
-- [x] Vérifier la persistance.
-  - [x] Les stacks survivent entre combats.
-  - [x] Les stacks survivent entre biomes.
-  - [x] Les stacks survivent à un refresh.
-  - [x] Les stacks disparaissent à la fin/abandon de la run.
-
-### Fonctionnalité I.4 — Kit jouable de Veigar
-
-- [x] Ajouter \`Veigar.ts\` au catalogue maintenu.
-  - [x] Q : burst monocible ou double cible simplifié.
-  - [x] W : dégâts différés simplifiés sans position spatiale.
-  - [x] E : stun/control adapté au moteur sans zone spatiale.
-  - [x] R : gros burst avec scaling sur PV manquants si retenu.
-  - [x] Passif : stacks de puissance intra-run.
-- [x] Définir les traductions FR/EN.
-  - [x] Nom, titre, sorts, passif.
-  - [x] Descriptions exactes du comportement roguelike, pas de copie trompeuse du LoL live.
-  - [x] Tooltips de stacks/AP bonus.
-- [x] Ajouter assets et icônes versionnés.
-
-### Fonctionnalité I.5 — Tests et balance Veigar
-
-- [x] Tests unitaires.
-  - [x] gain de stack correct ;
-  - [x] absence de double attribution ;
-  - [x] restauration après sérialisation ;
-  - [x] reset entre runs ;
-  - [x] scaling AP correct ;
-  - [x] replay déterministe.
-- [x] Tests E2E.
-  - [x] démarrer une run avec Veigar ;
-  - [x] gagner des stacks ;
-  - [x] changer de biome ;
-  - [x] reload ;
-  - [x] confirmer que les stacks sont identiques.
-- [x] Balance.
-  - [x] mesurer AP moyen fin Top/Jungle/Mid/Enemy Base ;
-  - [x] éviter qu'un Veigar sans stacks soit injouable ;
-  - [x] éviter qu'un bon run fasse exploser les limites de dégâts ;
-  - [x] comparer victoire/dégâts à Annie et Lux.
-
-### Acceptation Sprint I
-
-- [x] Veigar est jouable de bout en bout.
-- [x] Le système de stacks est générique et non codé en dur dans l'UI.
-- [x] Les stacks sont persistants dans une run, jamais entre deux runs.
-- [x] Client, replay et authority produisent exactement les mêmes stacks.
-- [x] Les tests CI, E2E, i18n et balance pertinents passent.
-
-Livraison : compteurs déclaratifs, kit Veigar, interface FR/EN et contrats v22.
-Les résultats canoniques conservent les compteurs dans leur JSON existant ; aucune
-progression de compte ne provient de ces points. Les anciens runs gardent leur
-moteur et leur catalogue figés. Les icônes Riot sont versionnées et le patch note
-`2026.10.09.1` décrit cette livraison.
-
-Le [rapport de balance](docs/balance/P3-CHAMP-01-veigar-v22.md) compare 180 runs
-appariés source/Edge et distingue les biomes atteints des champions survivants.
-L’absence de Veigar vivant après la Base limite les conclusions de fin de run ;
-cette campagne automatisée ne clôture pas les playtests humains P2-BAL-01.
-Le [contrat de publication](docs/champion-run-progression.md) exige Edge et client
-compatibles avant les deux migrations. Aucune migration ni fonction distante
-n’est appliquée par cette livraison de code.
+- [x] Kit Veigar, états intra-run, stacking autoritaire, tests de parité et preuves de balance v22 livrés en code ; **pas de preuve d'activation distante**.
+- [x] Sous-tâches et critères complets conservés dans [l'archive du sprint I](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md).
+- [ ] Suivre séparément la publication des migrations/Edge et les vérifications distantes selon [le contrat de progression](docs/champion-run-progression.md) ; **ne pas considérer le rollout comme déjà effectué**.
 
 ---
+
 
 ## P3-CHAMP-02 — Sprint J : Renekton — moteur de ressources Fury/Energy/etc.
 
@@ -395,12 +376,22 @@ ressources spéciales.
 
 ### Fonctionnalité J.6 — Tests et balance Renekton
 
-- [ ] Tests unitaires de gain/dépense/clamp.
-- [ ] Tests de variante renforcée à 49/50/51 Fury.
-- [ ] Tests de retry/replay sans double gain.
-- [ ] Tests E2E d'une séquence attaque → gain Fury → sort renforcé.
-- [ ] Régression complète des 10 champions Mana/sans Mana existants.
-- [ ] Balance du rythme d'accès aux sorts renforcés.
+- [ ] **Cadrer Batterie Fury / ressources.**
+  - [ ] Tests unitaires de gain/dépense/clamp.
+  - [ ] Tests de variante renforcée à 49/50/51 Fury.
+  - [ ] Tests de retry/replay sans double gain.
+  - [ ] Créer fixtures `CombatResourceState` Mana, Fury, Energy et None, y compris 0/max et coût variable.
+  - [ ] Tester que le moteur calcule et débite atomiquement le coût depuis la règle canonique, jamais depuis `action.cost` falsifié.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Tests E2E d'une séquence attaque → gain Fury → sort renforcé.
+  - [ ] Régression complète des 10 champions Mana/sans Mana existants.
+  - [ ] Balance du rythme d'accès aux sorts renforcés.
+  - [ ] Vérifier que les variantes 49/50/51 Fury produisent le bon effet, une seule dépense et la même trace en replay.
+  - [ ] Comparer les snapshots du roster historique avant/après adaptateur Mana, y compris champions sans ressource.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Associer mesure de fréquence des empowered skills, victoire et consommation de Fury à chaque difficulté et version.
+  - [ ] Tests client/Edge et E2E sur démarrage, run sauvegardée et attaque améliorée.
+  - [ ] Aucune régression du comportement ancien ni dérive du RNG autoritaire.
 
 ### Acceptation Sprint J
 
@@ -490,14 +481,24 @@ contrôlé de cooldown resets / actions bonus déclenchées par élimination.
 
 ### Fonctionnalité K.6 — Tests et balance Katarina
 
-- [ ] kill simple → cooldown reset attendu ;
-- [ ] kill par DoT → comportement documenté ;
-- [ ] action bonus disponible une seule fois par round ;
-- [ ] aucun chain infini ;
-- [ ] autoplay et manuel cohérents ;
-- [ ] replay authority identique ;
-- [ ] test 1v5 pour prévenir snowball incontrôlé ;
-- [ ] comparer burst/survie à Jinx, Darius et Annie.
+- [ ] **Cadrer Batterie resets et éliminations.**
+  - [ ] kill simple → cooldown reset attendu ;
+  - [ ] kill par DoT → comportement documenté ;
+  - [ ] action bonus disponible une seule fois par round ;
+  - [ ] aucun chain infini ;
+  - [ ] Construire fixtures de kills directs, DoT, exécutions simultanées et cible déjà morte pour identifier le killer.
+  - [ ] Tester réduction/reset exact des cooldowns, clamp 0 et interdiction d'un slot non existant.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] autoplay et manuel cohérents ;
+  - [ ] replay authority identique ;
+  - [ ] test 1v5 pour prévenir snowball incontrôlé ;
+  - [ ] comparer burst/survie à Jinx, Darius et Annie.
+  - [ ] Vérifier au plus une action bonus par round avec file de tours stable et prévention de boucle infinie.
+  - [ ] Mesurer éliminations en chaîne 1v5, durée des rounds, dégâts et taux de victoire par seed appariée.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Vérifier lecture/écriture du journal et parité manuel/autoplay/Edge avec les mêmes commandes.
+  - [ ] Inclure tests des anciennes runs sans événement onKill ou action bonus.
+  - [ ] Les seuils de snowball sont documentés avant activation du nouveau champion.
 
 ### Acceptation Sprint K
 
@@ -595,16 +596,26 @@ sans les confondre avec les champions permanents de l'équipe.
 
 ### Fonctionnalité L.6 — Tests et balance Heimerdinger
 
-- [ ] création de 1/2/3 summons ;
-- [ ] limite max ;
-- [ ] refresh/replay ;
-- [ ] ordre d'action stable ;
-- [ ] destruction ;
-- [ ] AoE ;
-- [ ] attribution dégâts/kills ;
-- [ ] fin de combat nettoie les summons ;
-- [ ] autoplay et authority identiques ;
-- [ ] balance du snowball à 3 tourelles.
+- [ ] **Cadrer Batterie invocations.**
+  - [ ] création de 1/2/3 summons ;
+  - [ ] limite max ;
+  - [ ] refresh/replay ;
+  - [ ] ordre d'action stable ;
+  - [ ] destruction ;
+  - [ ] Valider nombre, quota, identité stable, ownership et nettoyage des summons à fin de combat.
+  - [ ] Vérifier l'ordre de tour quand summon créée/détruite, et l'attribution des dégâts/éliminations au propriétaire.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] AoE ;
+  - [ ] attribution dégâts/kills ;
+  - [ ] fin de combat nettoie les summons ;
+  - [ ] autoplay et authority identiques ;
+  - [ ] balance du snowball à 3 tourelles.
+  - [ ] Tester une AoE sur unités invoquées et le refus de cibler un summon déjà supprimé.
+  - [ ] Comparer snapshot, refresh et replay avec 0, 1, 2 et 3 tourelles sans changement de seed.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Mesurer DPS soutenu et snowball dans combats longs avec le même roster/équipement.
+  - [ ] Comparer manuel/autoplay/Edge et éviter tout summon fantôme après reprise.
+  - [ ] Les métriques comptent séparément champion et summons sans double récompense.
 
 ### Acceptation Sprint L
 
@@ -698,24 +709,44 @@ en conservant identité, niveau, progression, items, mastery et historique.
 
 ### Fonctionnalité M.5 — Compatibilité avec progression et économie
 
-- [ ] Ownership porte sur Kayn, pas sur chaque forme.
-- [ ] Candies/mastery portent sur Kayn.
-- [ ] La rotation gratuite rend toutes les formes accessibles via Kayn.
-- [ ] Les métriques stockent champion racine + forme utilisée.
-- [ ] L'historique de run affiche la forme finale.
-- [ ] Les Daily/replays snapshotent la forme et le moment du choix.
+- [ ] **Cadrer Identité Kayn et formes.**
+  - [ ] Ownership porte sur Kayn, pas sur chaque forme.
+  - [ ] Candies/mastery portent sur Kayn.
+  - [ ] La rotation gratuite rend toutes les formes accessibles via Kayn.
+  - [ ] Spécifier une identité de champion racine stable pour achat, rotation, Candies et maîtrise, distincte de la forme en combat.
+  - [ ] Conserver le catalogue et les accès existants en considérant Rouge/Bleue comme états internes, jamais des champions achetables.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Les métriques stockent champion racine + forme utilisée.
+  - [ ] L'historique de run affiche la forme finale.
+  - [ ] Les Daily/replays snapshotent la forme et le moment du choix.
+  - [ ] Stocker explicitement forme courante, date/étape de choix et version de règles dans le snapshot sérialisé.
+  - [ ] Mettre à jour l'historique pour afficher le nom de forme finale avec son champion racine d'origine.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Tester changements de forme sur Daily/guest/compte connecté sans multiplier le wallet ni les récompenses.
+  - [ ] Réouverture d'un ancien snapshot sans forme ne crée aucun achat ou bonus.
+  - [ ] Logs et statistiques restent corrélables par champion racine et forme sans ambiguïté.
 
 ### Fonctionnalité M.6 — Tests et balance Kayn
 
-- [ ] transformation Rouge ;
-- [ ] transformation Bleue ;
-- [ ] refresh avant/après choix ;
-- [ ] migration HP/ressource/cooldown ;
-- [ ] items/mastery conservés ;
-- [ ] impossible de transformer deux fois ;
-- [ ] replay authority identique ;
-- [ ] balance base vs formes ;
-- [ ] délai moyen avant transformation mesuré.
+- [ ] **Cadrer Batterie transformation.**
+  - [ ] transformation Rouge ;
+  - [ ] transformation Bleue ;
+  - [ ] refresh avant/après choix ;
+  - [ ] migration HP/ressource/cooldown ;
+  - [ ] items/mastery conservés ;
+  - [ ] Tester choix Rouge et Bleu à leurs conditions exactes, y compris choix refusé avant seuil.
+  - [ ] Comparer HP, max HP, ressource canonique, effets, cooldowns et passifs lors du basculement.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] impossible de transformer deux fois ;
+  - [ ] replay authority identique ;
+  - [ ] balance base vs formes ;
+  - [ ] délai moyen avant transformation mesuré.
+  - [ ] Vérifier qu'un refresh juste avant/après choix n'ajoute ni transformation ni ressource ni bonus d'objet.
+  - [ ] Empêcher second choix ou forme hybride ; tester sauvegarde/replay et retours d'erreur.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Mesurer délai moyen, puissance avant/après transformation et victoires par seed/difficulté.
+  - [ ] Inclure migrations/snapshots anciens avec champion racine sans forme choisie.
+  - [ ] Comparer parité autoritaire avec file de tours identique.
 
 ### Acceptation Sprint M
 
@@ -838,16 +869,26 @@ puisse utiliser temporairement une compétence provenant d'un autre champion.
 
 ### Fonctionnalité N.7 — Tests et balance Sylas
 
-- [ ] vol réussi ;
-- [ ] vol refusé proprement ;
-- [ ] remplacement/expiration ;
-- [ ] utilisation puis retour au R normal ;
-- [ ] refresh/replay ;
-- [ ] source des dégâts correcte ;
-- [ ] métriques attribuées à Sylas ;
-- [ ] coût/cooldown correct ;
-- [ ] autoplay sait utiliser un R volé ;
-- [ ] aucun ultime volé ne casse les invariants d'équipe ou de combat.
+- [ ] **Cadrer Batterie ultimes volés.**
+  - [ ] vol réussi ;
+  - [ ] vol refusé proprement ;
+  - [ ] remplacement/expiration ;
+  - [ ] utilisation puis retour au R normal ;
+  - [ ] refresh/replay ;
+  - [ ] Définir tableau de compatibilité pour chaque R disponible, incluant refus de mécanique non supportée.
+  - [ ] Tester vol réussi/refusé, durée, expiration, coût canonique et cooldown restant après remplacement.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] source des dégâts correcte ;
+  - [ ] métriques attribuées à Sylas ;
+  - [ ] coût/cooldown correct ;
+  - [ ] autoplay sait utiliser un R volé ;
+  - [ ] aucun ultime volé ne casse les invariants d'équipe ou de combat.
+  - [ ] Vérifier ownership et source des dégâts attribués à Sylas sans modifier la définition du champion donneur.
+  - [ ] Comparer ultimes consommables, ciblage allié/ennemi, ressources et retour au R normal après expiration.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Tester reload, auto et replay Edge sur séquence vol → lancement → expiration.
+  - [ ] Les sorts incompatibles échouent proprement avec motif et aucune mutation d'état.
+  - [ ] Aucune duplication d'effet, monnaie ou récompense lors d'un replay.
 
 ### Acceptation Sprint N
 
@@ -879,12 +920,22 @@ le moteur.
 
 **Taille : M**
 
-- [ ] NVDA + Firefox : parcours Auth → Starter → Map → Combat → Game Over.
-- [ ] VoiceOver + Safari macOS.
-- [ ] VoiceOver + Safari iOS sur petit écran.
-- [ ] Zoom 200/400 % et navigation clavier réelle.
-- [ ] Consigner les défauts dans des issues dédiées et bloquer la release sur tout
-  défaut empêchant le parcours.
+- [ ] **Cadrer Parcours accessibilité réel.**
+  - [ ] NVDA + Firefox : parcours Auth → Starter → Map → Combat → Game Over.
+  - [ ] VoiceOver + Safari macOS.
+  - [ ] VoiceOver + Safari iOS sur petit écran.
+  - [ ] Définir parcours représentatifs Auth → sélection → carte → combat → récompenses et au moins un message d'erreur.
+  - [ ] Exécuter NVDA+Firefox, VoiceOver+Safari macOS et VoiceOver+Safari iOS avec appareil/navigateur documentés.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Zoom 200/400 % et navigation clavier réelle.
+  - [ ] Consigner les défauts dans des issues dédiées et bloquer la release sur tout
+      défaut empêchant le parcours.
+  - [ ] Vérifier navigation clavier complète, focus après dialogues, annonces dynamiques et sortie de modale.
+  - [ ] Tester 320 px, zoom 200/400 %, contrastes, réduction d'animation et textes FR/EN.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Créer pour chaque anomalie issue avec sévérité, étapes de reproduction et preuve de correction sur preview candidate.
+  - [ ] Un parcours inaccessible est un bloqueur de bêta, pas seulement une remarque d'audit.
+  - [ ] Conserver les résultats humains datés indépendamment des tests E2E automatisés.
 
 ---
 
@@ -892,12 +943,22 @@ le moteur.
 
 **Taille : externe / non estimable**
 
-- [ ] Compléter identité/adresse éditeur et directeur de publication.
-- [ ] Publier/tester un canal privé pour les demandes de droits.
-- [ ] Vérifier région Supabase, DPA, transferts et sous-traitants.
-- [ ] Obtenir une revue RGPD/ePrivacy professionnelle.
-- [ ] Obtenir une analyse écrite de compatibilité avec la propriété intellectuelle Riot.
-- [ ] Interdire monétisation/publicité/sponsoring tant que ces points ne sont pas clos.
+- [ ] **Cadrer Conformité diffusion publique.**
+  - [ ] Compléter identité/adresse éditeur et directeur de publication.
+  - [ ] Publier/tester un canal privé pour les demandes de droits.
+  - [ ] Vérifier région Supabase, DPA, transferts et sous-traitants.
+  - [ ] Identifier responsables de publication, identité et coordonnées obligatoires, canal de demande de droits.
+  - [ ] Examiner localisation Supabase, sous-traitants, transferts éventuels, DPA et politique de conservation des données.
+- [ ] **Exécuter les opérations et traiter les cas limites.**
+  - [ ] Obtenir une revue RGPD/ePrivacy professionnelle.
+  - [ ] Obtenir une analyse écrite de compatibilité avec la propriété intellectuelle Riot.
+  - [ ] Interdire monétisation/publicité/sponsoring tant que ces points ne sont pas clos.
+  - [ ] Obtenir revue spécialisée RGPD/ePrivacy et statut des recommandations avant communication publique.
+  - [ ] Obtenir analyse écrite de compatibilité des actifs Riot et des usages permis pour LolRogue.
+- [ ] **Tester et justifier la clôture.**
+  - [ ] Maintenir blocage publicité, sponsoring et monétisation tant qu'une incompatibilité ou autorisation manquante persiste.
+  - [ ] Conserver avis, dates, responsables et actions correctives sans publier de données privées.
+  - [ ] Aucun statut « prêt à diffuser » attribué sans preuves externes suffisantes.
 
 # Inventaire des invariants P0 livrés
 
@@ -948,15 +1009,24 @@ Invariant livré ; [preuve et critères archivés](docs/archive/todo-snapshot-20
 
 # 2. Ordre d'exécution recommandé
 
-1. `P0-I18N-01` : audit humain FR/EN avec lecteur d'écran sur la preview du SHA candidat.
-2. `P2-BAL-01` : playtests humains et calibration des bandes Easy/Normal/Hard.
-3. `P2-OPS-01` : restauration d'un backup sur un projet Supabase hébergé isolé.
-4. `P3-A11Y-01` : validation humaine multi-lecteurs d'écran, zoom et clavier.
-5. `P3-LEGAL-01` : fermeture des blockers externes de diffusion.
+### Gate de bêta et décisions en cours (inchangées)
 
-Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant suit `docs/champion-economy.md` avant tout élargissement du roster. Les sprints `P3-CHAMP-01` à `P3-CHAMP-06` détaillent ensuite l'extension du roster dans l'ordre Veigar → Renekton → Katarina → Heimerdinger → Kayn → Sylas. Les travaux différés `P1-SEC-01` et les deux actions restantes de `P2-CI-01` restent
-ouverts selon les décisions ci-dessous. Les sprints déjà livrés
-sont archivés ; l'internationalisation n'apparaît qu'une fois dans cet ordre.
+1. `P0-I18N-01` : audit humain FR/EN avec lecteur d'écran sur la preview du SHA candidat.
+2. `P2-BAL-01` : playtests humains et calibration des bandes Easy/Normal/Hard, distincts des simulations bot.
+3. `P2-OPS-01` : restauration d'un backup sur un projet Supabase hébergé isolé.
+4. `P3-A11Y-01` : validation humaine lecteurs d'écran, zoom et clavier.
+5. `P3-LEGAL-01` : fermeture des blockers externes avant diffusion publique.
+
+### Travaux d'ingénierie proposés (non déclarés livrés)
+
+1. **Fiabilité avant fonctionnalités** : `ADM-S1` + `TREE-01..04`, avec correctifs SQL/RLS et parité combat.
+2. **Nettoyage sans risque de gameplay** : `ARCH-S1` et `ARCH-S2` ; alias CI conservés et blocage des déploiements hors `main`/`dev`.
+3. **Interfaces métier** : `ARCH-S3/S4`, `ADM-S2/S3` et `TREE-05..07` ; une seule couche de repositories/services.
+4. **Bot stratégique** : `AI-S1..S9`, en conservant `legacy` ; pas de nouvelle version authority tant que parité/vérification non acquises.
+5. **Mesure / UI / exploitation** : `TREE-08..10`, `ADM-S4..S7` et `ARCH-S5`.
+6. **Champions supplémentaires** : `P3-CHAMP-02..06`, dans l'ordre Renekton → Katarina → Heimerdinger → Kayn → Sylas, avec prérequis moteur mutualisés.
+
+Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant suit `docs/champion-economy.md` avant tout élargissement du roster. `P1-SEC-01` reste différé pour raison de coût, `P2-CI-01` reste ouvert sur les exercices de runs annulés/concurrents ; aucune activation de ces fonctionnalités n'est implicite.
 
 ## Décisions et travaux différés
 
