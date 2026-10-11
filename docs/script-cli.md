@@ -33,9 +33,9 @@ dans l'ordre du registre ; pour les baselines authority, cela inclut les moteurs
 historiques et le moteur courant. Il est incompatible avec `--engine`.
 Aucun hash historique n'est recalculé ou remplacé.
 
-Les anciens alias qui contiennent déjà `--engine` conservent leur moteur fixé.
-La CLI refuse les options dupliquées : pour choisir un autre moteur, utiliser
-l'appel canonique `npm run balance -- … --engine <version>`.
+La table d'équivalence indique les moteurs fixés des alias retirés. Pour
+reproduire leur comportement, utiliser l'appel canonique avec le même
+`--engine`. La CLI refuse les options dupliquées.
 
 Les campagnes Early Top et affordability correspondent à des protocoles
 historiques précis. Leur génération nécessite une version prise en charge ;
@@ -72,8 +72,8 @@ au fichier commité ; une divergence ne réécrit pas ce fichier. Les générate
 écrivent uniquement lorsque leur commande de génération est choisie. La
 vérification d'une baseline ne modifie pas son artefact.
 
-Les anciennes commandes de génération conservent aussi leur option `--check`
-lorsque le script métier la proposait. Ce mode reproduit l'artefact sans le
+Les commandes de génération acceptent aussi `--check` lorsque le script métier
+le propose. Ce mode reproduit l'artefact sans le
 réécrire et son plan indique `read-only`. `--check` et `--output` sont incompatibles.
 
 ```bash
@@ -128,11 +128,14 @@ dans [l'inventaire JSON](scripts-inventory.json). Le snapshot initial conserve l
 105 entrées, y compris `postinstall`, `prebuild` et `postbuild`. L'inventaire
 comprend aussi les chaînes npm et les hooks implicites.
 
-Les appelants actifs utilisent les groupes canoniques. Les alias restent
-disponibles jusqu'à la CI verte de cette migration. Le retrait est encadré par
-[un manifeste de preuves](../config/script-alias-retirement.json), qui conserve
-le SHA vérifié, les liens des checks et les références historiques autorisées.
-L'inventaire refuse tout appel actif vers un alias retiré.
+Les appelants actifs utilisent les groupes canoniques. Après leur migration et
+les 18 checks verts de la [PR #213](https://github.com/Thanan71/LolRogue/pull/213),
+72 alias ont été retirés : 40 entrées npm restent publiques. Ce choix préserve
+les commandes usuelles, les hooks, les gates CI et les contrats de reproduction.
+[Le manifeste de preuves](../config/script-alias-retirement.json) conserve le SHA
+vérifié, les liens des checks et les références historiques autorisées.
+L'inventaire refuse tout appel actif vers un alias retiré, sans imposer un plafond
+artificiel au nombre de commandes.
 
 `balance:repro` reste disponible pour les commandes de reproduction conservées
 dans les artefacts de balance, et `authority:generate` pour les indications des

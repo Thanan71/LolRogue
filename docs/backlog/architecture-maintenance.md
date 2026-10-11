@@ -1,6 +1,6 @@
 # ARCH — Architecture, maintenance et scripts
 
-**Statut : ARCH-S1 implémenté, retrait des alias différé jusqu’à une PR de migration des appelants ; ARCH-S2 à ARCH-S5 proposés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
+**Statut : ARCH-S1 implémenté, appelants migrés et alias retirés après CI verte ; ARCH-S2 à ARCH-S5 proposés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
 
 [Retour au TODO](../../TODO.md) · [Bot tactique](tactical-bot.md) · [Arbres de Candies](champion-enhancement-trees.md) · [Administration](admin-console.md)
 
@@ -15,7 +15,7 @@
 
 ## ARCH-S1 — Catalogue de scripts et CLI (P2, taille L)
 
-Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-inventory.md) et [inventaire machine](../scripts-inventory.json). Les 105 alias initiaux restent disponibles ; cinq groupes canoniques et deux commandes d’inventaire sont ajoutés. La réduction à environ 30–40 entrées interviendra après migration des appelants dans une PR séparée et CI verte. Aucun avertissement de dépréciation n’est activé avant cette étape.
+Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-inventory.md) et [inventaire machine](../scripts-inventory.json). Les 105 noms initiaux restent dans l'historique. La migration des appelants a été livrée dans la [PR #213](https://github.com/Thanan71/LolRogue/pull/213), avec 18 checks verts au SHA `1b7ab8eea16574e81394c2212417d432d5459c0c`. Après recherche globale sans appel actif restant, 72 alias sont retirés et 40 entrées restent publiques. Le [manifeste de retrait](../../config/script-alias-retirement.json) conserve la preuve CI et les exceptions historiques bornées ; l'inventaire bloque tout appel actif à un alias retiré. `balance:repro` et `authority:generate` restent disponibles pour les contrats inscrits dans les artefacts figés et les résolveurs générés.
 
 ### ARCH-01 — Inventorier les scripts, propriétaires et appelants
 - [x] **Définir le contrat et les cas à couvrir.**
@@ -57,7 +57,7 @@ Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-in
   - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
 - [x] **Réaliser les changements et conserver les compatibilités.**
   - [x] Conserver temporairement `build`, `prebuild`, `postbuild`, `test`, `check`, `check:static`, `check:unit`, `check:db`, `check:browser`, `check:build`, `backend:deploy` et tous les noms appelés par CI/documentation.
-  - [ ] Migrer tous les appelants en PR séparée, retirer les alias uniquement après recherche globale et CI verte ; viser environ 30–40 entrées npm publiques, sans en faire un critère artificiel.
+  - [x] Migrer tous les appelants en PR séparée, retirer les alias uniquement après recherche globale et CI verte ; viser environ 30–40 entrées npm publiques, sans en faire un critère artificiel.
   - [x] Mettre un avertissement de dépréciation seulement après migration de tous les consommateurs et écrire la table d'équivalence.
   - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
 - [x] **Prouver le résultat avant clôture.**
