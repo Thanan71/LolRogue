@@ -1,26 +1,22 @@
 import { spawnSync } from 'node:child_process';
+import { createDatabaseReadScope, parseDatabaseScopeArguments } from './lib/remote-operation.mjs';
 
-const args = process.argv.slice(2);
-if (
-  args.some((arg) => !['--local', '--linked'].includes(arg)) ||
-  (args.includes('--local') && args.includes('--linked'))
-) {
-  throw new Error('Usage: npm run database -- economy audit [--local | --linked]');
-}
-const linked = args.includes('--linked');
+const options = parseDatabaseScopeArguments(process.argv.slice(2));
+const linked = options.linked;
+const scope = createDatabaseReadScope(options);
 const result = spawnSync(
-  'supabase',
+  scope.supabase,
   [
     'db',
     'query',
-    linked ? '--linked' : '--local',
+    ...scope.arguments(),
     'SELECT public.audit_champion_economy() AS report;',
     '--agent',
     'yes',
     '--output-format',
     'json',
   ],
-  { encoding: 'utf8' },
+  { cwd: scope.root, env: scope.env, encoding: 'utf8' },
 );
 if (result.error) throw result.error;
 if (result.status !== 0) {

@@ -43,7 +43,7 @@ donnée personnelle.
    visible dans Supabase.
 2. Déterminer si la transaction SQL a échoué entièrement ou si une opération hors
    transaction a laissé un état partiel. Comparer l'historique distant aux fichiers
-   versionnés avec `npx supabase migration list --linked`.
+   versionnés avec `npm run database -- migrations check --linked --project-ref <project-ref>`.
 3. Si le schéma courant reste compatible, corriger par une **nouvelle** migration,
    la valider localement avec `npm run database -- validate --yes`, puis appliquer cette migration.
 4. Si le schéma est incompatible avec le frontend courant, remettre immédiatement

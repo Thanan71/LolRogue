@@ -7,7 +7,10 @@ import {
   readCandidateMigrationVersions,
   readWorkspaceMigrationVersions,
 } from './lib/migration-manifest.mjs';
+import { assertLocalDatabaseEnvironment } from './lib/remote-operation.mjs';
 import { installRollbackDependencies } from './lib/rollback-dependencies.mjs';
+
+assertLocalDatabaseEnvironment();
 
 const root = resolve(import.meta.dirname, '..');
 const contract = JSON.parse(

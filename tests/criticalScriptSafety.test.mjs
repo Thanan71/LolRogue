@@ -228,6 +228,11 @@ function copyScriptFixture(root, scriptName) {
     new URL('../scripts/lib/critical-command.mjs', import.meta.url),
     path.join(root, 'scripts/lib/critical-command.mjs'),
   );
+  for (const helper of ['remote-operation.mjs', 'environment-config.mjs', 'supabase-local-env.mjs'])
+    copyFileSync(
+      new URL(`../scripts/lib/${helper}`, import.meta.url),
+      path.join(root, 'scripts/lib', helper),
+    );
   writeFileSync(
     path.join(root, 'package.json'),
     JSON.stringify({ devDependencies: { supabase: '2.119.0' } }),
@@ -242,6 +247,29 @@ function copyScriptFixture(root, scriptName) {
 }
 
 describe('backup and restore safety', () => {
+  it.each([
+    { SUPABASE_WORKDIR: '/other/workspace' },
+    { SUPABASE_PROJECT_ID: 'other-project' },
+    { SUPABASE_DB_URL: 'postgresql://postgres:PRIVATE@remote.example/postgres' },
+  ])('rejects local stack target overrides before even status or restart', (overrides) => {
+    const root = fixture();
+    const script = copyScriptFixture(root, 'run-local-db-tests.mjs');
+    const marker = path.join(root, 'supabase-called');
+    const executable = path.join(root, 'node_modules/.bin/supabase');
+    writeFileSync(
+      executable,
+      `#!${process.execPath}\nrequire('node:fs').writeFileSync(${JSON.stringify(marker)}, 'called'); process.exit(1);\n`,
+    );
+    chmodSync(executable, 0o755);
+    const result = spawnSync(process.execPath, [script], {
+      cwd: os.tmpdir(),
+      encoding: 'utf8',
+      env: { ...process.env, ...overrides },
+    });
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).not.toContain('PRIVATE');
+    expect(() => readFileSync(marker)).toThrow();
+  });
   it('requires explicit local restore confirmation and rejects hosted overrides', () => {
     expect(() => parseLocalRestoreArguments(['--local'])).toThrow('--yes to confirm');
     expect(() => parseLocalRestoreArguments(['--yes'])).toThrow('only accepts --local');
@@ -259,7 +287,7 @@ describe('backup and restore safety', () => {
     writeFileSync(executable, '#!/bin/sh\nexit 94\n');
     chmodSync(executable, 0o755);
     const destination = path.join(root, 'dump-output');
-    const result = spawnSync(process.execPath, [script, '--dry-run'], {
+    const result = spawnSync(process.execPath, [script, '--local', '--dry-run'], {
       encoding: 'utf8',
       cwd: os.tmpdir(),
       env: {
@@ -280,7 +308,7 @@ describe('backup and restore safety', () => {
     const executable = path.join(root, 'node_modules/.bin/supabase');
     writeFileSync(executable, '#!/bin/sh\necho PRIVATE_PASSWORD >&2\nexit 27\n');
     chmodSync(executable, 0o755);
-    const result = spawnSync(process.execPath, [script], {
+    const result = spawnSync(process.execPath, [script, '--local'], {
       encoding: 'utf8',
       env: {
         ...process.env,
@@ -303,7 +331,7 @@ describe('backup and restore safety', () => {
     );
     chmodSync(executable, 0o755);
     const destination = path.join(root, 'dump-output');
-    const result = spawnSync(process.execPath, [script], {
+    const result = spawnSync(process.execPath, [script, '--local'], {
       encoding: 'utf8',
       env: {
         ...process.env,

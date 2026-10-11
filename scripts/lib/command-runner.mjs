@@ -7,11 +7,11 @@ import { requirePinnedCli } from './critical-command.mjs';
 /**
  * Run argument vectors sequentially, preserving child output, failures and interruptions.
  * @param {{command:string,args:string[]}[]} plan
- * @param {{cwd?:string,env?:NodeJS.ProcessEnv,signalSource?:NodeJS.EventEmitter}} options
+ * @param {{cwd?:string,env?:NodeJS.ProcessEnv,signalSource?:NodeJS.EventEmitter,beforeStep?:()=>unknown}} options
  */
 export async function runCommandPlan(
   plan,
-  { cwd, env = process.env, signalSource = process } = {},
+  { cwd, env = process.env, signalSource = process, beforeStep } = {},
 ) {
   let child;
   let interrupted;
@@ -58,6 +58,7 @@ export async function runCommandPlan(
     }
     for (const step of plan) {
       if (interrupted) break;
+      await beforeStep?.();
       const result = await new Promise((resolve, reject) => {
         child = spawn(step.command, step.args, {
           cwd,

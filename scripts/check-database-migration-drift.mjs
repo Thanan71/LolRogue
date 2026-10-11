@@ -3,21 +3,21 @@ import {
   compareMigrationManifests,
   parseSupabaseMigrationList,
   readCandidateMigrationVersions,
-  readOnlyMigrationListArguments,
   readWorkspaceMigrationVersions,
 } from './lib/migration-manifest.mjs';
+import { createDatabaseReadScope, parseDatabaseScopeArguments } from './lib/remote-operation.mjs';
 
-const linked = process.argv.includes('--linked');
-const candidateOptionIndex = process.argv.indexOf('--candidate-sha');
-const candidateSha = candidateOptionIndex === -1 ? null : process.argv[candidateOptionIndex + 1];
-if (candidateOptionIndex !== -1 && !candidateSha) {
-  throw new Error('--candidate-sha requires a full Git SHA.');
-}
+const options = parseDatabaseScopeArguments(process.argv.slice(2), { candidate: true });
+const linked = options.linked;
+const candidateSha = options.candidateSha;
+const scope = createDatabaseReadScope(options);
 const expected = candidateSha
   ? readCandidateMigrationVersions(candidateSha)
   : readWorkspaceMigrationVersions();
 
-const result = spawnSync('supabase', readOnlyMigrationListArguments(linked), {
+const result = spawnSync(scope.supabase, ['migration', 'list', ...scope.arguments()], {
+  cwd: scope.root,
+  env: scope.env,
   encoding: 'utf8',
 });
 if (result.error) throw result.error;
@@ -37,7 +37,7 @@ if (!Array.isArray(migrations) || migrations.length === 0) {
 const applied = migrations.map((migration) => migration.remote).filter(Boolean);
 const { missing, unknown, orderDivergent, expectedSharedOrder, appliedSharedOrder } =
   compareMigrationManifests(expected, applied);
-const target = linked ? 'linked production project' : 'local migrated schema';
+const target = linked ? `linked approved project (${options.projectRef})` : 'local migrated schema';
 
 if (missing.length > 0 || unknown.length > 0 || orderDivergent) {
   const details = [

@@ -265,6 +265,23 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 8,
+    version: '0.2.3',
+    publishedOn: '2026-10-11',
+    title: { 'fr-FR': 'Mises à jour plus fiables', 'en-US': 'More reliable updates' },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'La configuration des environnements et les contrôles de publication ont été renforcés pour fiabiliser les prochaines mises à jour. Les outils de build et de tests ont aussi été réorganisés, avec les mêmes règles de jeu et garanties de vérification.',
+          'en-US':
+            'Environment configuration and release checks have been strengthened to make upcoming updates more reliable. Build and test tools have also been reorganized while preserving the game rules and verification guarantees.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

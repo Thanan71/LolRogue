@@ -46,7 +46,7 @@ n'envoie pas de mails.
    la migration révoque immédiatement l'ancien chemin `client_reported` et fait
    expirer les attempts ouverts antérieurs à la quarantaine des améliorations.
 4. Depuis un checkout propre de `dev` ou `main`, exécuter
-   `npm run release -- deploy --yes`. La commande sélectionne explicitement le projet
+   `npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet
    Supabase et la cible Vercel, prévisualise les migrations, puis publie la fonction
    encore dormante et le client compatible avant d'appliquer les migrations.
 5. Attendre le contrôle final du manifeste distant ; sur `main`, la commande promeut
@@ -162,8 +162,8 @@ contrôlent la stack **locale** ; ils ne remplacent pas un relevé de production
 Après déploiement ou restauration, exécuter les lectures distantes :
 
 ```sh
-npm run database -- migrations check --linked
-node scripts/check-supabase-advisors.mjs --linked
+npm run database -- migrations check --linked --project-ref <project-ref>
+node scripts/check-supabase-advisors.mjs --linked --project-ref <project-ref>
 ```
 
 Depuis une connexion SQL opérateur à la cible, vérifier les invariants suivants
@@ -222,7 +222,7 @@ Les migrations sont progressives et ne doivent pas modifier rétroactivement un
 fichier déjà appliqué sur une base partagée. Ajouter une nouvelle migration
 horodatée et la tester avec `npm run database -- validate --yes`.
 Avant une promotion, relier explicitement le bon projet puis exécuter
-`npm run database -- migrations check --linked`. Cette commande est en lecture seule et bloque
+`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque
 si une migration du commit manque sur le projet ou si le projet contient une
 version absente du dépôt.
 
@@ -235,7 +235,7 @@ règles ou le contenu autoritaire, suivre `docs/authority-versioning.md`, conser
 l'ancien vérificateur en `replay-only` pendant au moins la durée maximale d'un
 attempt, puis seulement activer la nouvelle version.
 
-`npm run release -- deploy --yes` constitue le chemin normal de publication complète. Il
+`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il
 refuse toute branche autre que `dev` ou `main`, relie respectivement `LolRogueDev`
 ou `LolRogue`, prévisualise les montées de version, publie `verify-run`, déploie le
 frontend Vercel en Preview ou Production, applique les migrations sur la référence
@@ -247,7 +247,7 @@ Une nouvelle version de moteur comprise par le navigateur doit être livrée en
 trois étapes afin qu'aucun ancien frontend ne démarre une ruleset qu'il ne sait pas
 journaliser :
 
-1. `npm run release -- deploy --yes` publie le vérificateur compatible avec les anciennes et
+1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et
    nouvelles versions ;
 2. la même commande déploie le frontend et attend la réussite de Vercel, sans
    encore affecter le domaine Production de `main` ;

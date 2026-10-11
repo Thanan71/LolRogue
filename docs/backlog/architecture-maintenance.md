@@ -1,6 +1,6 @@
 # ARCH — Architecture, maintenance et scripts
 
-**Statut : ARCH-S1 implémenté, appelants migrés et alias retirés après CI verte ; ARCH-S2 à ARCH-S5 proposés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
+**Statut : ARCH-S1 implémenté, appelants migrés et alias retirés après CI verte ; ARCH-S2 implémenté ; ARCH-S3 à ARCH-S5 proposés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
 
 [Retour au TODO](../../TODO.md) · [Bot tactique](tactical-bot.md) · [Arbres de Candies](champion-enhancement-trees.md) · [Administration](admin-console.md)
 
@@ -86,53 +86,55 @@ La version par défaut vient du registre authority (actuellement `run-engine-0.2
 
 ## ARCH-S2 — Configuration et déploiement (P1, taille M/L)
 
+Livrables : [contrat des environnements](../environment-contract.md), [preuve de validation S2](../architecture-s2-validation-2026-10-11.md), plugins dans `tooling/vite/plugins/`, politique Vitest dans `tooling/vitest/testPolicy.ts` et gardes `scripts/lib/remote-operation.mjs`. Les tests des commandes distantes sont entièrement simulés ; aucun déploiement ni changement de base distante ne fait partie de cette implémentation.
+
 ### ARCH-05 — Source unique de configuration d'environnement
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Mutualiser les références publiques Supabase de `vite.config.ts` et `scripts/deploy-backend.mjs` dans un module compatible Node/Vite ; aucune clé privée versionnée.
-  - [ ] Documenter les environnements local, preview `dev` et production `main`, ainsi que la provenance des variables Vercel.
-  - [ ] Énumérer les variables autorisées au navigateur et la matrice environnement → branche → projet Supabase.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Vérifier que les builds preview `dev` ciblent toujours LolRogueDev même si des variables Preview globales ciblent la production.
-  - [ ] Tester les erreurs de configuration (branche inconnue, SHA invalide, clés absentes, mélange de projets).
-  - [ ] Supprimer les copies manuelles de refs sans toucher aux secrets, puis vérifier la priorité des variables Vercel.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Tester dev/prod/local, valeurs globales Preview contradictoires et clés manquantes ; confirmer aucune clé `service_role` dans `dist/`.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Mutualiser les références publiques Supabase de `vite.config.ts` et `scripts/deploy-backend.mjs` dans un module compatible Node/Vite ; aucune clé privée versionnée.
+  - [x] Documenter les environnements local, preview `dev` et production `main`, ainsi que la provenance des variables Vercel.
+  - [x] Énumérer les variables autorisées au navigateur et la matrice environnement → branche → projet Supabase.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Vérifier que les builds preview `dev` ciblent toujours LolRogueDev même si des variables Preview globales ciblent la production.
+  - [x] Tester les erreurs de configuration (branche inconnue, SHA invalide, clés absentes, mélange de projets).
+  - [x] Supprimer les copies manuelles de refs sans toucher aux secrets, puis vérifier la priorité des variables Vercel.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Tester dev/prod/local, valeurs globales Preview contradictoires et clés manquantes ; confirmer aucune clé `service_role` dans `dist/`.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-06 — Protéger chaque commande DB distante
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Passer en revue `migrate`, `edge:deploy`, `backend:deploy`, commandes `--linked` et `--project-ref` ; expliciter quelles entrées peuvent atteindre la production.
-  - [ ] Conserver le blocage `backend:deploy` hors `main`/`dev` et exiger une cible explicite contrôlée pour toute opération distancée ; ne pas transformer `db:reset` local en opération distante.
-  - [ ] Qualifier chaque commande SQL/Edge de locale, liée au projet ou distante ; interdire les noms de cible implicites en prod.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Tester avec des faux exécutables/processus sans pousser de migration réelle ; consigner les cibles dans les logs sans secrets.
-  - [ ] Vérifier ordre migration/Edge/frontend/rollout/rollback, en préservant les contrats authority existants.
-  - [ ] Introduire un préflight qui vérifie branche, projet distant et confirmation avant opération mutable.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Rejouer `main`, `dev`, `feature/*`, detached HEAD et `--project-ref` incorrect dans des tests entièrement simulés.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Passer en revue `migrate`, `edge:deploy`, `backend:deploy`, commandes `--linked` et `--project-ref` ; expliciter quelles entrées peuvent atteindre la production.
+  - [x] Conserver le blocage `backend:deploy` hors `main`/`dev` et exiger une cible explicite contrôlée pour toute opération distancée ; ne pas transformer `db:reset` local en opération distante.
+  - [x] Qualifier chaque commande SQL/Edge de locale, liée au projet ou distante ; interdire les noms de cible implicites en prod.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Tester avec des faux exécutables/processus sans pousser de migration réelle ; consigner les cibles dans les logs sans secrets.
+  - [x] Vérifier ordre migration/Edge/frontend/rollout/rollback, en préservant les contrats authority existants.
+  - [x] Introduire un préflight qui vérifie branche, projet distant et confirmation avant opération mutable.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Rejouer `main`, `dev`, `feature/*`, detached HEAD et `--project-ref` incorrect dans des tests entièrement simulés.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-07 — Extraire les plugins Vite et les responsabilités Vitest
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Extraire les plugins internes d'injection d'identité, ressources PWA, assets Riot et catalogue champion dans `build/plugins/` ou `tooling/vite/`.
-  - [ ] Séparer la configuration couverture Vitest des politiques de déploiement tout en maintenant les mêmes seuils, exclusions et budgets.
-  - [ ] Recenser les plugins Vite et leurs entrées/sorties, plus les seuils Vitest existants avant extraction.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Vérifier octet par octet ou avec manifest/hash les fichiers produits : assets, méta-SHA, manifest, routes profondes.
-  - [ ] Maintenir la règle actuelle `publicDir: false` et le pipeline d'assets intégrité Riot, sauf décision explicitement testée.
-  - [ ] Déplacer à fonctionnalités identiques les plugins internes sans modifier l'ordre d'exécution ni les paths d'assets.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Comparer manifests, identité SHA, chemins PWA et chunks navigateur avant/après sur build propre.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Extraire les plugins internes d'injection d'identité, ressources PWA, assets Riot et catalogue champion dans `build/plugins/` ou `tooling/vite/`.
+  - [x] Séparer la configuration couverture Vitest des politiques de déploiement tout en maintenant les mêmes seuils, exclusions et budgets.
+  - [x] Recenser les plugins Vite et leurs entrées/sorties, plus les seuils Vitest existants avant extraction.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Vérifier octet par octet ou avec manifest/hash les fichiers produits : assets, méta-SHA, manifest, routes profondes.
+  - [x] Maintenir la règle actuelle `publicDir: false` et le pipeline d'assets intégrité Riot, sauf décision explicitement testée.
+  - [x] Déplacer à fonctionnalités identiques les plugins internes sans modifier l'ordre d'exécution ni les paths d'assets.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Comparer manifests, identité SHA, chemins PWA et chunks navigateur avant/après sur build propre.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 **Acceptation S2 :** matrices `dev`/`main`/branche interdite testées ; `check:build`, contrôles d'assets et tests de déploiement inchangés ; aucune fuite de `service_role`.
 
 ## ARCH-S3 — Frontières métier et stores (P2, taille L/XL)

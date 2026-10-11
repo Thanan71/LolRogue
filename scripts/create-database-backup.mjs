@@ -11,38 +11,43 @@ import {
   requireNode24,
   requirePinnedCli,
 } from './lib/critical-command.mjs';
+import { resolveBackupSource, supabaseEnvironment } from './lib/remote-operation.mjs';
 
 const execFileAsync = promisify(execFile);
 
-export async function createDatabaseBackup(argv = process.argv.slice(2)) {
-  const unknown = argv.find((argument) => !['--dry-run', '--help', '-h'].includes(argument));
-  if (unknown) throw new Error(`Unknown database backup option: ${describeArgument(unknown)}`);
+/** @param {string[]} argv @param {import('./lib/remote-operation.mjs').RemoteContext} dependencies */
+export async function createDatabaseBackup(argv = process.argv.slice(2), dependencies = {}) {
+  const root = dependencies.root ?? repositoryRoot;
+  const env = dependencies.env ?? process.env;
+  const seen = new Set();
+  let projectRef;
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index];
+    if (seen.has(argument))
+      throw new Error('A database backup option was specified more than once.');
+    seen.add(argument);
+    if (argument === '--project-ref') {
+      projectRef = argv[++index];
+      if (!projectRef || projectRef.startsWith('-'))
+        throw new Error('--project-ref requires a value.');
+    } else if (!['--local', '--dry-run', '--help', '-h'].includes(argument))
+      throw new Error(`Unknown database backup option: ${describeArgument(argument)}`);
+  }
   if (argv.includes('--help') || argv.includes('-h')) {
     console.log(
-      'Usage: backup:database [--dry-run]\nRequires SUPABASE_DB_URL. Dumps database files without changing the source database.',
+      'Usage: npm run release -- backup (--local | --project-ref <approved-ref>) [--dry-run]\nRequires SUPABASE_DB_URL. Dumps database files without changing the source database.',
     );
     return;
   }
   requireNode24();
-  const supabase = requirePinnedCli('supabase');
-  const databaseUrl = process.env.SUPABASE_DB_URL;
-  const outputDirectory = path.resolve(
-    repositoryRoot,
-    process.env.BACKUP_DIRECTORY ?? 'database-backup',
-  );
+  const supabase = requirePinnedCli('supabase', 'supabase', root);
+  const databaseUrl = env.SUPABASE_DB_URL;
+  const outputDirectory = path.resolve(root, env.BACKUP_DIRECTORY ?? 'database-backup');
 
-  if (!databaseUrl) {
-    throw new Error('SUPABASE_DB_URL is required.');
-  }
-  let source;
-  try {
-    source = new URL(databaseUrl);
-  } catch {
-    throw new Error('SUPABASE_DB_URL must be a PostgreSQL connection URL.');
-  }
-  if (!['postgres:', 'postgresql:'].includes(source.protocol) || !source.hostname) {
-    throw new Error('SUPABASE_DB_URL must be a PostgreSQL connection URL.');
-  }
+  const local = argv.includes('--local');
+  const validateTarget = () =>
+    resolveBackupSource({ projectRef, local }, { ...dependencies, root, env });
+  const source = validateTarget();
   if (argv.includes('--dry-run')) {
     console.log(
       `[backup:database] dry-run: read ${source.hostname}:${source.port || '5432'}; write roles.sql, schema.sql, data.sql and checksums in ${outputDirectory}.`,
@@ -53,10 +58,11 @@ export async function createDatabaseBackup(argv = process.argv.slice(2)) {
   await mkdir(outputDirectory, { recursive: true });
 
   const dump = async (argumentsList) => {
+    validateTarget();
     try {
       await execFileAsync(supabase, ['db', 'dump', '--db-url', databaseUrl, ...argumentsList], {
-        cwd: repositoryRoot,
-        env: { ...process.env, CI: 'true' },
+        cwd: root,
+        env: { ...supabaseEnvironment(env), CI: 'true' },
         maxBuffer: 1024 * 1024 * 10,
       });
     } catch (error) {

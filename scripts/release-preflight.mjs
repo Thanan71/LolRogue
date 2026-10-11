@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { resolveRemoteOperation } from './lib/remote-operation.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
@@ -12,6 +13,12 @@ const MIGRATION_VERSION_PATTERN = /^\d{14}$/;
 
 const options = new Set(process.argv.slice(2));
 const documentationOnly = options.has('--verify-documentation');
+if (process.argv.filter((argument) => argument === '--project-ref').length > 1)
+  throw new Error('--project-ref may only be provided once.');
+const refIndex = process.argv.indexOf('--project-ref');
+const projectRef = refIndex === -1 ? undefined : process.argv[refIndex + 1];
+if (refIndex !== -1 && (!projectRef || projectRef.startsWith('-')))
+  throw new Error('--project-ref requires a value.');
 const sheetPath = path.resolve(root, process.env.RELEASE_SHEET_PATH || 'config/beta-release.json');
 const documentationPath = path.resolve(
   root,
@@ -121,7 +128,9 @@ function inspectRecordedEvidence(sheet) {
   const advisors = sheet.supabaseAdvisors || {};
   if (
     !Array.isArray(advisors.checks) ||
-    !advisors.checks.includes('node scripts/check-supabase-advisors.mjs --linked')
+    !advisors.checks.includes(
+      'node scripts/check-supabase-advisors.mjs --linked --project-ref <project-ref>',
+    )
   ) {
     block(
       'advisors-contract',
@@ -243,9 +252,12 @@ function inspectLiveEvidence(sheet) {
   }
 
   try {
+    resolveRemoteOperation({ projectRef, linked: true }, { root });
     run('node', [
       'scripts/check-database-migration-drift.mjs',
       '--linked',
+      '--project-ref',
+      projectRef,
       '--candidate-sha',
       candidate.sha,
     ]);
@@ -254,7 +266,8 @@ function inspectLiveEvidence(sheet) {
   }
 
   try {
-    run('node', ['scripts/check-supabase-advisors.mjs', '--linked']);
+    resolveRemoteOperation({ projectRef, linked: true }, { root });
+    run('node', ['scripts/check-supabase-advisors.mjs', '--linked', '--project-ref', projectRef]);
   } catch (error) {
     block('advisors-live', `politique advisors liée non conforme: ${error.message}`);
   }

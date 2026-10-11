@@ -89,3 +89,68 @@ La validation d'intégration ajoute le build réel et le contrôle de `dist/` av
 des sentinelles privées injectées hors allowlist. Les parcours navigateur et les
 tests existants vérifient l'identité du build, les assets, la PWA et les options
 E2E. Aucun déploiement ou changement de base n'est nécessaire pour ces contrôles.
+
+## Provenance Vercel et responsabilités
+
+Dans Vercel, les variables du processus proviennent des scopes Development,
+Preview ou Production. Une valeur Preview propre à une branche prend la priorité
+sur la valeur Preview globale ; la paire publique Dev du dépôt reste prioritaire
+pour les previews de ce projet. Les variables système Git doivent être exposées
+pour fournir le SHA. Le déploiement backend transmet `LOLROGUE_DEPLOY_BRANCH`
+après validation de la branche réelle. Aucun secret Vercel n'est lu ou modifié
+par la configuration commune.
+
+| Module | Entrées et préconditions | Responsabilité |
+| --- | --- | --- |
+| `environment-config.mjs` | Snapshot processus, champs publics des fichiers, branche/SHA valides | Cibles approuvées, sélection publique et validation sans mutation |
+| `vite.config.ts` | Mode Vite et configuration résolue | Injecter uniquement les cinq champs publics et composer les plugins |
+| Plugins `tooling/vite/plugins/` | Racine du dépôt et SHA validé | Catalogue client, identité HTML, fichiers PWA et assets Riot contrôlés |
+| `vitest.config.ts` / `testPolicy.ts` | Suites et politique de couverture existantes | Exécuter les tests sans politique de déploiement |
+| `remote-operation.mjs` | Branche Git réelle, ref explicite, lien local et confirmation | Refuser toute cible distante non approuvée avant exécution |
+| `deploy-backend.mjs` | Branche/ref/confirmation vérifiées, CLI épinglés accessibles | Prévisualiser puis publier Edge/frontend, migrer et contrôler avant promotion |
+
+La [documentation Vercel](https://vercel.com/docs/environment-variables) décrit
+les scopes et la priorité des variables de branche. La
+[documentation Vite](https://vite.dev/guide/env-and-mode) décrit le chargement des
+fichiers par mode ; ici `envPrefix: []` empêche leur exposition automatique.
+
+## Commandes opérateur
+
+Exemple pour LolRogueDev depuis la branche réelle `dev` :
+
+```bash
+LOLROGUE_PROJECT_REF=misdmtpfcbxbhheacehm
+npm run database -- link --project-ref "$LOLROGUE_PROJECT_REF" --yes
+npm run database -- migrate --project-ref "$LOLROGUE_PROJECT_REF" --preview
+npm run database -- migrations check --linked --project-ref "$LOLROGUE_PROJECT_REF"
+npm run backend:deploy -- --project-ref "$LOLROGUE_PROJECT_REF" --dry-run
+npm run backend:deploy -- --project-ref "$LOLROGUE_PROJECT_REF" --yes
+```
+
+Pour la production, choisir explicitement `mmpvmclqdgfnpfgcqnyu` depuis `main`.
+Les refs sont publiques. Les identifiants restent dans le gestionnaire de secrets,
+jamais dans ces commandes ou leurs logs. Les branches de travail et detached HEAD
+sont refusés ; un `--branch` ne remplace pas la branche réelle. Une ref liée
+incorrecte impose de relier explicitement le bon projet. `--dry-run` affiche le
+plan sans opération distante ; `--preview` consulte réellement les migrations
+sans les appliquer. La commande locale `database reset` n'a aucun mode distant.
+
+L'ordre backend reste validation authority, liaison, preview migrations, Edge,
+frontend compatible, migrations, contrôle du manifeste et promotion Production.
+Un échec interrompt les étapes suivantes ; la promotion ne peut pas précéder le
+contrôle des migrations. Les procédures de retour arrière restent dans
+[operations.md](operations.md) et les exercices locaux de rollback dans
+[testing.md](testing.md).
+
+Les gardes refusent aussi les redirections de dépôt Git, `SUPABASE_WORKDIR`,
+`SUPABASE_PROJECT_ID`, les profils Supabase autres que le profil cloud `supabase`,
+les hôtes de services/Docker distants, les contextes Docker distants et les
+redirections explicites Podman ou libpq
+`PGHOSTADDR`/`PGSERVICE`/`PGSERVICEFILE`. Les enfants Supabase exécutent le profil
+cloud fixé et reçoivent la ref explicite même avec `--linked`. Le lien est revérifié
+avant chaque étape liée pour détecter un changement entre deux opérations.
+Les tests DB et les wrappers locaux appliquent ces gardes avant leur premier
+effet ; les tests de liste et les vérifications documentaires restent sans effet.
+
+La stack locale conserve son prérequis Docker. Les contextes Desktop/Colima
+locaux sont acceptés ; ce sprint n'introduit pas de support Podman.

@@ -1,4 +1,10 @@
 import { spawnSync } from 'node:child_process';
+import { repositoryRoot, requireNode24, requirePinnedCli } from './lib/critical-command.mjs';
+import { assertLocalDatabaseEnvironment, supabaseEnvironment } from './lib/remote-operation.mjs';
+
+requireNode24();
+assertLocalDatabaseEnvironment();
+const supabase = requirePinnedCli('supabase');
 
 const expectedIndexes = new Map([
   ['runs_player_history_cursor_idx', ['runs', '(player_id, created_at DESC, id DESC)']],
@@ -46,7 +52,10 @@ const intentionallyUnindexedForeignKeys = new Set([
 const removedIndexes = new Set(['run_attempts_finished_queue']);
 
 function runSupabase(args) {
-  const result = spawnSync('supabase', [...args, '--agent', 'yes', '--output-format', 'json'], {
+  assertLocalDatabaseEnvironment();
+  const result = spawnSync(supabase, [...args, '--agent', 'yes', '--output-format', 'json'], {
+    cwd: repositoryRoot,
+    env: supabaseEnvironment(),
     encoding: 'utf8',
   });
   if (result.stderr) process.stderr.write(result.stderr);

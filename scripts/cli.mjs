@@ -10,6 +10,7 @@ import { validateAuthorityVersionRegistry } from './lib/authority-version-regist
 import { commandGroups, commandsForGroup } from './lib/command-catalog.mjs';
 import { runCommandPlan } from './lib/command-runner.mjs';
 import { isDirectExecution, requireNode24 } from './lib/critical-command.mjs';
+import { supabaseEnvironment } from './lib/remote-operation.mjs';
 
 const repositoryRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const globalOptions = {
@@ -149,12 +150,15 @@ export async function createCommandPlan(parsed, context) {
   const businessOptions = Object.fromEntries(
     Object.entries(parsed.options).filter(([name]) => !Object.hasOwn(globalOptions, name)),
   );
-  return routers[parsed.group](parsed.command, businessOptions, context);
+  return routers[parsed.group](parsed.command, businessOptions, {
+    ...context,
+    dryRun: parsed.options['dry-run'] === true,
+  });
 }
 
 /**
  * @param {string[]} arguments_
- * @param {{root?:string, stdout?:{write:(value:string)=>unknown}, stderr?:{write:(value:string)=>unknown}, execute?:typeof runCommandPlan, readBranch?:()=>string}} dependencies
+ * @param {{root?:string, stdout?:{write:(value:string)=>unknown}, stderr?:{write:(value:string)=>unknown}, execute?:typeof runCommandPlan, readBranch?:()=>string, readLinkedRef?:()=>string, env?:NodeJS.ProcessEnv}} dependencies
  */
 export async function runCli(
   arguments_,
@@ -164,6 +168,8 @@ export async function runCli(
     stderr = process.stderr,
     execute = runCommandPlan,
     readBranch,
+    readLinkedRef,
+    env = process.env,
   } = {},
 ) {
   let parsed;
@@ -180,7 +186,7 @@ export async function runCli(
     const currentEngine = registry.versions
       .find((entry) => entry.status === 'current')
       .engine.replace('run-engine-', '');
-    const context = { root, registry, currentEngine, readBranch };
+    const context = { root, registry, currentEngine, readBranch, readLinkedRef, env };
     const plan = await createCommandPlan(parsed, context);
     const risk =
       (parsed.options.check && parsed.command.risk === 'generate') ||
@@ -201,7 +207,20 @@ export async function runCli(
         'CLI_CONFIRMATION_REQUIRED',
         `${parsed.group} ${parsed.command.path.join(' ')} requires --yes; inspect --dry-run first.`,
       );
-    const exitCode = await execute(plan, { cwd: root });
+    const guarded =
+      parsed.group === 'database' ||
+      parsed.options.linked ||
+      parsed.command.target.kind === 'edge-deploy' ||
+      parsed.command.target.kind === 'database-link' ||
+      (parsed.command.target.kind === 'database-migrate' && !parsed.options.local) ||
+      (parsed.group === 'release' &&
+        ['deploy', 'backup', 'restore-drill'].includes(parsed.command.path[0])) ||
+      parsed.command.target.kind === 'edge-serve';
+    const exitCode = await execute(plan, {
+      cwd: root,
+      env: guarded ? supabaseEnvironment(env) : env,
+      beforeStep: guarded ? () => createCommandPlan(parsed, context) : undefined,
+    });
     if (exitCode !== 0)
       stderr.write(
         `${JSON.stringify({ error: { code: 'CLI_CHILD_FAILED', command: `${parsed.group} ${parsed.command.path.join(' ')}`, message: 'A child command failed or was interrupted.', exitCode } })}\n`,

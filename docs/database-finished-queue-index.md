@@ -40,7 +40,7 @@ Les statistiques ont été lues sans écriture avec :
 
 ```bash
 npm run database -- finished-queue stats
-npm run database -- finished-queue stats --linked
+npm run database -- finished-queue stats --linked --project-ref <project-ref>
 ```
 
 | Base | Dernier reset | Âge à la mesure | `finished_queue` | clé primaire |

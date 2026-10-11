@@ -14,7 +14,7 @@ maintenir. `repositoryIntegration.database.test.ts` instancie les repositories a
 de vrais clients anon/authenticated contre PostgREST local et exerce notamment le
 nested select `runs_run_attempt_id_fkey`. `npm run database -- migrations check` compare les
 migrations du dépôt au schéma local appliqué, tandis que
-`npm run database -- migrations check --linked` effectue la même gate en lecture seule sur le
+`npm run database -- migrations check --linked --project-ref <project-ref>` effectue la même gate en lecture seule sur le
 projet Supabase lié avant toute promotion.
 
 Les stores et services métier passent par les repositories. Trois exceptions sont

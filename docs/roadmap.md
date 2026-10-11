@@ -59,7 +59,7 @@ La checklist opérable et les critères de rollback normatifs sont dans
 
 - [ ] Toute évolution SQL possède une nouvelle migration horodatée.
 - [ ] `npm run database -- validate --yes` réussit sur une base locale jetable.
-- [ ] `npm run database -- migrations check --linked` confirme la parité du commit et du projet
+- [ ] `npm run database -- migrations check --linked --project-ref <project-ref>` confirme la parité du commit et du projet
       Supabase ciblé, dernière version comprise.
 - [ ] Les types ont été régénérés avec `npm run database -- types generate` si le schéma a changé.
 - [ ] Les nouvelles tables et RPC ont des tests Auth/RLS positifs et négatifs.

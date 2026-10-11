@@ -73,16 +73,20 @@ schéma. Sur le projet distant correspondant à la branche effective `dev` ou `m
 prévisualiser les migrations avant de les appliquer :
 
 ```bash
-./node_modules/.bin/supabase link --project-ref PROJECT_REF
+npm run database -- link --project-ref PROJECT_REF --yes
 npm run database -- migrate --project-ref PROJECT_REF --preview
 npm run database -- migrate --project-ref PROJECT_REF --yes
 ```
 
-Le déploiement complet est automatisé et limité aux branches de release :
+Le déploiement complet est automatisé et limité aux branches de release. La référence
+explicite doit correspondre à la branche réelle et `--yes` confirme la mutation :
 
 ```bash
-npm run release -- deploy --yes
+npm run release -- deploy --project-ref PROJECT_REF --yes
 ```
+
+La [configuration des environnements](docs/environment-contract.md) décrit les
+variables publiques autorisées, leur priorité et les préflights distants.
 
 La branche `dev` cible Supabase `LolRogueDev` et un déploiement Vercel Preview ;
 la branche `main` cible Supabase `LolRogue` et Vercel Production. La commande

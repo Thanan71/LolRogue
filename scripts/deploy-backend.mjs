@@ -1,4 +1,4 @@
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import {
   describeArgument,
@@ -8,27 +8,18 @@ import {
   requirePinnedCli,
   requireSuccessfulCommand,
 } from './lib/critical-command.mjs';
-
-const DEPLOY_TARGETS = Object.freeze({
-  main: Object.freeze({
-    projectName: 'LolRogue',
-    projectRef: 'mmpvmclqdgfnpfgcqnyu',
-    vercelProject: 'lol-rogue',
-    vercelTarget: 'production',
-  }),
-  dev: Object.freeze({
-    projectName: 'LolRogueDev',
-    projectRef: 'misdmtpfcbxbhheacehm',
-    vercelProject: 'lol-rogue',
-    vercelTarget: 'preview',
-  }),
-});
+import { resolveDeploymentTarget } from './lib/environment-config.mjs';
+import {
+  readEffectiveBranch,
+  resolveRemoteOperation,
+  supabaseEnvironment,
+} from './lib/remote-operation.mjs';
 
 const FRONTEND_DEPLOYMENT_URL = '<frontend-deployment-url>';
 const VERCEL_CLI_ARGUMENTS = ['--offline', '--yes', '--package=vercel@59.11.7', 'vercel'];
 
 export function resolveBackendDeployTarget(branch) {
-  return DEPLOY_TARGETS[branch] ?? null;
+  return resolveDeploymentTarget(branch);
 }
 
 export function createBackendDeployPlan(branch) {
@@ -81,7 +72,16 @@ export function createBackendDeployPlan(branch) {
     {
       phase: 'verify-migrations',
       command: 'npm',
-      args: ['run', 'database', '--', 'migrations', 'check', '--linked'],
+      args: [
+        'run',
+        'database',
+        '--',
+        'migrations',
+        'check',
+        '--linked',
+        '--project-ref',
+        target.projectRef,
+      ],
     },
     ...(target.vercelTarget === 'production'
       ? [
@@ -97,24 +97,30 @@ export function createBackendDeployPlan(branch) {
 
 function getCurrentBranch(root) {
   try {
-    return execFileSync('git', ['branch', '--show-current'], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-      cwd: root,
-    }).trim();
+    return readEffectiveBranch(root);
   } catch (error) {
     throw new Error('Unable to determine the current Git branch.', { cause: error });
   }
 }
 
 export function parseBackendDeployArguments(argv) {
-  const options = { dryRun: false, branch: null, help: false };
+  /** @type {{dryRun:boolean, branch:string|null, projectRef:string|null, help:boolean, yes:boolean}} */
+  const options = { dryRun: false, branch: null, projectRef: null, help: false, yes: false };
+  const seen = new Set();
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
+    if (seen.has(argument))
+      throw new Error('A backend deployment option was specified more than once.');
+    seen.add(argument);
     if (argument === '--dry-run') options.dryRun = true;
     else if (argument === '--help' || argument === '-h') options.help = true;
     else if (argument === '--yes') {
-      // Accepted for the canonical CLI's explicit deployment confirmation.
+      options.yes = true;
+    } else if (argument === '--project-ref') {
+      const projectRef = argv[++index];
+      if (!projectRef || projectRef.startsWith('-'))
+        throw new Error('--project-ref requires a value.');
+      options.projectRef = projectRef;
     } else if (argument === '--branch') {
       const branch = argv[++index];
       if (!branch || branch.startsWith('-')) throw new Error('--branch requires main or dev.');
@@ -129,6 +135,8 @@ export function parseBackendDeployArguments(argv) {
  * @typedef {Object} DeploymentDependencies
  * @property {string} [root]
  * @property {(root: string) => string} [readBranch]
+ * @property {(root: string) => string} [readLinkedRef]
+ * @property {NodeJS.ProcessEnv} [env]
  * @property {import('./lib/critical-command.mjs').CommandRunner} [runCommand]
  * @property {typeof requirePinnedCli} [requireTool]
  * @property {typeof requireNode24} [assertNode]
@@ -140,6 +148,8 @@ export function deployBackend(argv = process.argv.slice(2), dependencies = {}) {
   const {
     root = repositoryRoot,
     readBranch = getCurrentBranch,
+    readLinkedRef,
+    env = process.env,
     runCommand = spawnSync,
     requireTool = requirePinnedCli,
     assertNode = requireNode24,
@@ -148,7 +158,7 @@ export function deployBackend(argv = process.argv.slice(2), dependencies = {}) {
   const options = parseBackendDeployArguments(argv);
   if (options.help) {
     stdout.write(
-      'Usage: backend:deploy [--dry-run] [--branch main|dev] [--yes]\nOnly the actual main/dev Git branch may deploy; --branch must match it.\n',
+      'Usage: backend:deploy --project-ref <approved-ref> --yes [--dry-run] [--branch main|dev]\nOnly the actual main/dev Git branch may deploy; --branch must match it.\n',
     );
     return;
   }
@@ -168,6 +178,17 @@ export function deployBackend(argv = process.argv.slice(2), dependencies = {}) {
       `[backend:deploy] BLOCKED: --branch must match the actual Git branch (${branch}).`,
     );
   }
+  const guardContext = { root, readBranch, readLinkedRef, env };
+  resolveRemoteOperation(
+    {
+      projectRef: options.projectRef ?? undefined,
+      mutation: true,
+      yes: options.yes,
+      dryRun: options.dryRun,
+      allowDerived: true,
+    },
+    guardContext,
+  );
   // The local dependency is checked before building, linking, or contacting either provider.
   const executables = {
     supabase: requireTool('supabase', 'supabase', root),
@@ -179,6 +200,7 @@ export function deployBackend(argv = process.argv.slice(2), dependencies = {}) {
       `Vercel ${target.vercelProject} (${target.vercelTarget})\n`,
   );
   if (options.dryRun) {
+    stdout.write(`[backend:deploy] Execute only with --project-ref ${target.projectRef} --yes.\n`);
     for (const step of plan)
       stdout.write(
         `[backend:deploy] dry-run ${step.phase}: ${step.command} ${step.args.join(' ')}\n`,
@@ -192,7 +214,7 @@ export function deployBackend(argv = process.argv.slice(2), dependencies = {}) {
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: process.env,
+    env: supabaseEnvironment(env),
   });
   try {
     requireSuccessfulCommand('Pinned Vercel CLI preflight', vercelPreflight);
@@ -211,7 +233,7 @@ export function deployBackend(argv = process.argv.slice(2), dependencies = {}) {
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: process.env,
+    env: supabaseEnvironment(env),
   };
   const projectsResult = runCommand(
     executables.supabase,
@@ -247,6 +269,15 @@ export function deployBackend(argv = process.argv.slice(2), dependencies = {}) {
 
   let frontendUrl = '';
   for (const step of plan) {
+    resolveRemoteOperation(
+      {
+        projectRef: target.projectRef,
+        mutation: true,
+        yes: options.yes,
+        linked: !['validate-edge', 'link-database'].includes(step.phase),
+      },
+      guardContext,
+    );
     stdout.write(`[backend:deploy] ${step.phase}\n`);
     const args = step.args.map((argument) => {
       if (argument !== FRONTEND_DEPLOYMENT_URL) return argument;
@@ -259,8 +290,8 @@ export function deployBackend(argv = process.argv.slice(2), dependencies = {}) {
       stdio: step.captureStdout ? ['inherit', 'pipe', 'inherit'] : 'inherit',
       cwd: root,
       env: {
-        ...process.env,
-        PATH: `${path.join(root, 'node_modules', '.bin')}${path.delimiter}${process.env.PATH ?? ''}`,
+        ...supabaseEnvironment(env),
+        PATH: `${path.join(root, 'node_modules', '.bin')}${path.delimiter}${env.PATH ?? ''}`,
       },
     });
     if (step.captureStdout && result.stdout) stdout.write(result.stdout);

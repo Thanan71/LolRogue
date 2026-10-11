@@ -92,8 +92,10 @@ La console n'affiche que le résumé global. Vitest produit aussi `coverage/inde
 `coverage/lcov.info` et `coverage/coverage-summary.json`. La job `unit` archive le
 dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 
-Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
-RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
+Les tests Supabase restent dans `npm run test:db` et exigent des URLs Postgres et
+PostgREST locales (loopback) ; leur objectif est la preuve RLS/RPC. Une URL distante
+est refusée avant le lancement des tests. Les contrôles opérateur distants utilisent
+les commandes liées avec une référence explicite, sur la branche `main` ou `dev`.
 
 ## Gates d'équilibrage versionnées
 
@@ -189,7 +191,7 @@ une exception expirée fait échouer le contrôle.
 
 `npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`
 l'exécute après le reset et l'audit de sécurité, tandis que le preflight de release
-relance `node scripts/check-supabase-advisors.mjs --linked` sur le projet Supabase
+relance `node scripts/check-supabase-advisors.mjs --linked --project-ref <project-ref>` sur le projet Supabase
 explicitement lié. Les 29 exceptions actuelles ont été revues le 1er octobre 2026
 et expirent le **31 octobre 2026 inclus** ; dès le 1er novembre, le contrôle refuse
 les constats encore présents. Le [compte rendu de revue](supabase-advisors-review-20261001.md)
@@ -213,7 +215,7 @@ tests en parallèle.
 Toute occurrence de `skip`, `skipIf` ou `todo` dans ces suites fait échouer
 `npm run test:db`, sauf correspondance exacte avec une entrée justifiée de
 `skipAllowlist`. Les seules exceptions actuelles sont les gardes qui permettent à la
-suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes --yes` passe par
+suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes` passe par
 `run-local-db-tests.mjs`, fournit les identifiants locaux à `test:db` et les exécute
 réellement.
 

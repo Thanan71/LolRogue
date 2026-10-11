@@ -1,8 +1,20 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { repositoryRoot, requireNode24, requirePinnedCli } from './lib/critical-command.mjs';
+import {
+  assertLocalDatabaseEnvironment,
+  supabaseEnvironment,
+  validateDatabaseUrl,
+} from './lib/remote-operation.mjs';
 import { parseSupabaseEnv } from './lib/supabase-local-env.mjs';
 
-const status = spawnSync('supabase', ['status', '-o', 'env'], { encoding: 'utf8' });
+requireNode24();
+assertLocalDatabaseEnvironment();
+const status = spawnSync(requirePinnedCli('supabase'), ['status', '-o', 'env'], {
+  cwd: repositoryRoot,
+  env: supabaseEnvironment(),
+  encoding: 'utf8',
+});
 if (status.status !== 0) {
   process.stderr.write(status.stderr);
   process.exit(status.status ?? 1);
@@ -10,6 +22,7 @@ if (status.status !== 0) {
 
 const { DB_URL: databaseUrl } = parseSupabaseEnv(status.stdout);
 if (!databaseUrl) throw new Error('Supabase status did not return DB_URL');
+validateDatabaseUrl(databaseUrl, { local: true });
 
 const query = `
   SELECT view_schema.nspname || '.' || view_class.relname
