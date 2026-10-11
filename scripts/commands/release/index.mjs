@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
+import { resolveBackendDeployTarget } from '../../deploy-backend.mjs';
 import { commandCatalog } from '../../lib/command-catalog.mjs';
-import { nodeCommand, targetPlan } from '../../lib/command-runner.mjs';
+import { nodeCommand, targetPlan, toolCommand } from '../../lib/command-runner.mjs';
 
 export function validateDeploymentBranch(options, context) {
   const branch = context.readBranch
@@ -24,10 +25,22 @@ export function validateDeploymentBranch(options, context) {
       { code: 'CLI_DEPLOYMENT_BRANCH' },
     );
   }
+  return branch;
 }
 
 export function buildReleasePlan(command, options, context) {
-  if (command.target.kind === 'edge-bundle') {
+  if (['edge-bundle', 'edge-serve', 'edge-deploy'].includes(command.target.kind)) {
+    let remoteTarget;
+    if (command.target.kind === 'edge-deploy') {
+      remoteTarget = resolveBackendDeployTarget(validateDeploymentBranch({}, context));
+      if (options['project-ref'] && options['project-ref'] !== remoteTarget.projectRef)
+        throw Object.assign(
+          new Error('The project reference must match the effective branch target.'),
+          {
+            code: 'CLI_DEPLOYMENT_TARGET',
+          },
+        );
+    }
     const check = commandCatalog.find(
       (entry) => entry.group === 'release' && entry.path.join(' ') === 'authority check',
     );
@@ -35,6 +48,16 @@ export function buildReleasePlan(command, options, context) {
     return [
       ...targetPlan(check.target, context),
       nodeCommand(context.root, 'scripts/build-authority-bundle.mjs'),
+      ...(command.target.kind === 'edge-bundle'
+        ? []
+        : [
+            toolCommand(context.root, 'supabase', [
+              'functions',
+              remoteTarget ? 'deploy' : 'serve',
+              'verify-run',
+              ...(remoteTarget ? ['--project-ref', remoteTarget.projectRef, '--yes'] : []),
+            ]),
+          ]),
     ];
   }
   const args = [];

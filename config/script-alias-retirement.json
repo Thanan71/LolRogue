@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "baselineSha256": "2137eaac5df588ec6234baaf20a18293faa99c1d2bbd1e94e0853f8629579469",
+  "retiredAliases": [],
+  "migrationEvidence": null,
+  "historicalSources": [
+    {
+      "path": "docs/archive/",
+      "prefix": true,
+      "reason": "Frozen historical sprint and release evidence; operational commands use the current CLI."
+    },
+    {
+      "path": "docs/sprint-f-validation-2026-10-07.md",
+      "reason": "Dated validation evidence records commands actually executed before caller migration."
+    },
+    {
+      "path": "docs/sprint-g-validation-2026-10-07.md",
+      "reason": "Dated validation evidence records commands actually executed before caller migration."
+    },
+    {
+      "path": "docs/champion-economy-validation-2026-10-08.md",
+      "reason": "Dated validation evidence records commands actually executed before caller migration."
+    }
+  ]
+}

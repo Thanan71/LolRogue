@@ -12,8 +12,8 @@ Le client résout ses comportements via `features`, notamment
 `features.canonicalProgression`. Le resolver Edge est généré depuis le même registre :
 
 ```bash
-npm run authority:generate
-npm run edge:bundle
+npm run release -- authority generate
+npm run release -- edge bundle
 ```
 
 Le fichier `authority-version-resolver.generated.ts` doit être commité. Il ne doit pas
@@ -35,8 +35,8 @@ continuent de charger les bundles archivés pour permettre leur audit.
 
 Pour archiver une autre version, déplacer son bundle sans en modifier les octets,
 mettre à jour son chemin et son statut dans le registre, adapter les références
-des outils d'audit, puis exécuter `npm run authority:generate` et
-`npm run edge:bundle`. Déplacer le fichier seul ne suffit pas : le statut
+des outils d'audit, puis exécuter `npm run release -- authority generate` et
+`npm run release -- edge bundle`. Déplacer le fichier seul ne suffit pas : le statut
 `unsupported` retire aussi son import du resolver déployé.
 
 ## Publier la version suivante
@@ -48,8 +48,8 @@ Pour passer, par exemple, de v17 à v18 :
 2. ajouter une seule entrée v18 dans `config/authority-versions.json`, avec les
    capacités complètes et le chemin de la nouvelle migration ;
 3. déclarer v18 et son hash dans le moteur, puis exécuter
-   `npm run authority:generate` ;
-4. lancer `npm run edge:bundle`, les tests et la validation de base de données ;
+   `npm run release -- authority generate` ;
+4. lancer `npm run release -- edge bundle`, les tests et la validation de base de données ;
 5. déployer `verify-run`, puis le client, avant d'activer la migration.
 
 Il n'existe aucune liste parallèle de moteurs canoniques ou rejouables à éditer.
@@ -126,7 +126,7 @@ Le bundle v20 est archivé byte-for-byte dans `run-authority-v20.bundle.ts`
 en `replay-only` et v21 devient l'unique moteur `current`. Le wrapper v21 délègue les
 attempts historiques au contrat v20 archivé ; les deux fonctions retirent l'exécution
 à `PUBLIC`, `anon`, `authenticated` et au wrapper historique lui-même, tandis que seul
-le contrat courant est accordé à `service_role`. `npm run backend:deploy` publie la
+le contrat courant est accordé à `service_role`. `npm run release -- deploy --yes` publie la
 fonction Edge, déploie le frontend compatible puis active la migration sur le projet
 associé à la branche (`dev` vers `LolRogueDev`, `main` vers `LolRogue`). La commande
 ne promeut le build Production de `main` qu'après le contrôle du manifeste distant

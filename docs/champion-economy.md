@@ -74,7 +74,7 @@ sans effacer les données déjà acquises.
 ## Déploiement contrôlé
 
 1. Vérifier le projet cible, le SHA candidat et le ruleset actif. Exécuter
-   `npm run check`, `npm run db:validate`, la matrice E2E et le parcours connecté
+   `npm run check`, `npm run database -- validate --yes`, la matrice E2E et le parcours connecté
    `e2e/champion-economy-connected.spec.ts` en environnement isolé. Ce dernier
    simule le temps exclusivement sur un Supabase local et restaure cette horloge.
 2. Après sauvegarde, appliquer les migrations avec la procédure normale de
@@ -85,7 +85,7 @@ sans effacer les données déjà acquises.
 3. Activer sur la cible dev/preview autorisée, créer un compte **après** activation,
    puis vérifier 3 + 5, un crédit authority, un achat unique à 400, la conservation
    de la maîtrise et une reconnexion. Vérifier aussi les accès legacy et le Daily.
-4. Relancer `npm run economy:audit -- --linked`, examiner les refus et les compteurs
+4. Relancer `npm run database -- economy audit --linked`, examiner les refus et les compteurs
    agrégés. N'autoriser la production qu'après le smoke du SHA effectivement
    déployé. Toute incompatibilité catalogue/ruleset bloque l'activation côté serveur.
 
@@ -113,7 +113,7 @@ initiale et les données existantes.
 
 ## Audit, réconciliation et confidentialité
 
-`npm run economy:audit` utilise la base locale ; `--linked` demande explicitement
+`npm run database -- economy audit` utilise la base locale ; `--linked` demande explicitement
 la base liée. Le script n'exécute qu'un SELECT de l'audit agrégé. Il échoue si
 wallet et somme du ledger divergent ou si un gain suspect est détecté. Aucune
 correction automatique n'existe. La fonction expose gains/dépenses, soldes

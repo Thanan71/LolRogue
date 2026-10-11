@@ -14,14 +14,14 @@ même si l'implémentation et ses tests existent.
 | Claim critique | État recalculé | Contrôle exécutable / preuve manquante |
 | --- | --- | --- |
 | Internationalisation complète | **Risque réouvert : P0-I18N-01 ouvert** | `npm run test -- tests/i18nSourceContract.test.ts tests/i18nCatalogContract.test.ts` ; parcours `e2e/i18n-english-journey.spec.ts` ; revue humaine FR/EN avec lecteur d'écran et preview candidate encore requise. |
-| Base, privilèges et rétention | **Validation live requise** | `npm run db:validate` sur base locale ; `npm run db:migrations:check:linked`, advisors liés et requêtes grants/cron de `operations.md` sur la cible. |
-| Sécurité des dépendances | À recalculer à chaque candidat | `npm run audit:security` et `npm run node:contract` ; un audit historique ne décrit pas le lockfile actuel. |
-| Publication bêta | **Bloquée** | `npm run release:preflight` ; statut cohérent contrôlé par `npm run release:readiness:check`. |
+| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked`, advisors liés et requêtes grants/cron de `operations.md` sur la cible. |
+| Sécurité des dépendances | À recalculer à chaque candidat | `npm run testing -- security` et `npm run node:contract` ; un audit historique ne décrit pas le lockfile actuel. |
+| Publication bêta | **Bloquée** | `npm run release -- preflight` ; statut cohérent contrôlé par `npm run release -- readiness check`. |
 
 | Fonctionnalité | Implémentation de référence | Preuves principales | Statut |
 | --- | --- | --- | --- |
 | Décisions produit transverses | `productDecisions`, contrat produit v4 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta ; calibration en observation tant que le terrain et les playtests manquent |
-| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `release:preflight`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |
+| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `npm run release -- preflight`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |
 | Auth et mode invité | `authStore`, `AuthBootstrap`, repositories Auth | `authStore.test.ts`, `auth-menu-responsive.spec.ts` | Livré |
 | Démarrage et reprise de run | `runStartCoordinator`, `runStoreLifecycleSlice`, gardes de routes | `runStartValidation.test.ts`, `runReloadRecovery.test.ts`, `routeAccess.test.ts` | Livré |
 | Carte à branche unique | `mapProgression`, `runStoreMapSlice`, `AuthorityRunEngine` | `mapProgression.test.ts`, `authorityRunEngine.test.ts` | Livré |
@@ -43,10 +43,10 @@ même si l'implémentation et ses tests existent.
 | Légal et confidentialité | route publique, inventaire des données, rétention et purge | `legalPrivacyContract.test.ts`, `legalPage.test.tsx` | Contrat produit livré ; audit externe et autorisation Riot restent bloquants |
 | Administration | route admin, RPC/vues bornées et export CSV neutralisé | `adminData.test.tsx`, `adminCsv.test.ts`, `logSecurity.database.test.ts` | Livré pour les opérations documentées |
 | Responsive et accessibilité automatisée | shell partagé, styles mobiles, focus et mouvement réduit | specs `auth-menu`, `game-screens`, `accessibility*` | Livré au niveau automatisé ; revue lecteur d'écran humaine restante |
-| Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `test:assets-clean`, `assets:verify:dist` | Livré : 227 fichiers versionnés, dont 40 icônes de compétences |
+| Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `npm run assets -- clean-build`, `npm run assets -- verify --dist` | Livré : 227 fichiers versionnés, dont 40 icônes de compétences |
 | Navigateurs de production | `playwright.production.config.ts` | `production-matrix.spec.ts` | Chromium, Firefox et WebKit, desktop/mobile |
-| Audit des dépendances | `check-dependency-audit.mjs` | `npm run audit:security` | Gate disponible ; résultat courant à exécuter sur le SHA candidat |
-| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `test:performance-budgets`, `test:performance-preview` | Validé localement le 8 octobre 2026 : 10,82 % de marge sur le build connecté ; p75 LCP 1 612 ms, CLS 0,0812, INP 88 ms ; détails dans la preuve économie |
+| Audit des dépendances | `check-dependency-audit.mjs` | `npm run testing -- security` | Gate disponible ; résultat courant à exécuter sur le SHA candidat |
+| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `npm run testing -- performance budgets`, `npm run testing -- performance preview` | Validé localement le 8 octobre 2026 : 10,82 % de marge sur le build connecté ; p75 LCP 1 612 ms, CLS 0,0812, INP 88 ms ; détails dans la preuve économie |
 | Exploitation et restauration | `operations`, `incident-runbooks`, `backup-and-restore`, `release-and-support` | runbooks versionnés et critères de preuve | Livré côté procédures ; exercice distant requis avant bêta |
 | Équilibrage et contenu enrichi | règles actuelles et tests déterministes | tests de contenu actuels | À faire en P3 |
 

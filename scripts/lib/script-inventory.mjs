@@ -11,12 +11,42 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import {
+  classifyScriptReference,
+  loadScriptAliasRetirement,
+  RETIREMENT_PATH,
+} from './script-alias-retirement.mjs';
 
 export const INVENTORY_PATH = 'docs/scripts-inventory.json';
 export const EQUIVALENCE_PATH = 'docs/script-inventory.md';
 export const BASELINE_PATH = 'config/scripts-inventory-baseline.json';
-const GENERATED_PATHS = new Set([INVENTORY_PATH, EQUIVALENCE_PATH]);
-const TEXT_EXTENSIONS = /\.(?:md|mjs|cjs|js|jsx|ts|tsx|yml|yaml|sh)$/;
+const GENERATED_PATHS = new Set([
+  INVENTORY_PATH,
+  EQUIVALENCE_PATH,
+  BASELINE_PATH,
+  'package.json',
+  'package-lock.json',
+]);
+const EXCLUDED_DIRECTORIES = new Set([
+  '.git',
+  '.serena',
+  '.vercel',
+  'node_modules',
+  'graphify-out',
+  'dist',
+  'build',
+  'ci-build',
+  'coverage',
+  'performance-report',
+  'balance-report',
+  'test-seed-results',
+  'strict-typecheck-results',
+  'test-results',
+  'playwright-report',
+  'blob-report',
+]);
+const EXCLUDED_OUTPUT_PATHS = new Set(['public/lol/data', 'supabase/.branches', 'supabase/.temp']);
+const TEXT_EXTENSIONS = /\.(?:md|mjs|cjs|js|jsx|ts|tsx|yml|yaml|sh|json|toml|html)$/;
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 const sorted = (values) => [...new Set(values)].sort(compare);
 
@@ -43,13 +73,24 @@ function collectSourcePaths(root) {
     const absolute = resolve(root, path);
     if (!existsSync(absolute)) return;
     for (const entry of readdirSync(absolute, { withFileTypes: true })) {
-      const next = `${path}/${entry.name}`;
-      if (entry.isDirectory()) visit(next);
-      else if (TEXT_EXTENSIONS.test(next) && !GENERATED_PATHS.has(next)) paths.push(next);
+      const next = path ? `${path}/${entry.name}` : entry.name;
+      if (
+        entry.isDirectory() &&
+        !EXCLUDED_DIRECTORIES.has(entry.name) &&
+        !EXCLUDED_OUTPUT_PATHS.has(next)
+      )
+        visit(next);
+      else if (
+        entry.isFile() &&
+        TEXT_EXTENSIONS.test(next) &&
+        !GENERATED_PATHS.has(next) &&
+        !/\.(?:bundle|generated)\.(?:js|ts)$/.test(next)
+      ) {
+        paths.push(next);
+      }
     }
   }
-  for (const directory of ['.github/workflows', 'docs', 'tests', 'scripts']) visit(directory);
-  if (existsSync(resolve(root, 'README.md'))) paths.push('README.md');
+  visit('');
   return sorted(paths);
 }
 
@@ -57,20 +98,39 @@ function sourceKind(path) {
   if (path.startsWith('.github/workflows/')) return 'workflow';
   if (path === 'README.md' || path.startsWith('docs/')) return 'documentation';
   if (path.startsWith('tests/')) return 'test';
+  if (path.startsWith('e2e/')) return 'e2e';
+  if (path.startsWith('config/')) return 'configuration';
+  if (path.startsWith('src/') || path.startsWith('api/') || path.startsWith('supabase/'))
+    return 'source';
   return 'script';
 }
 
 /** Literal npm calls and subprocess argument arrays; dynamic calls remain explicit evidence. */
 export function extractNpmReferences(text, file) {
   const references = [];
+  function fixtureReason(line) {
+    const marker = /^\s*\/\/\s*script-inventory-fixture:\s*(\S.*)/.exec(
+      text.split('\n')[line - 2] ?? '',
+    );
+    return marker ? { fixtureReason: marker[1].trim() } : {};
+  }
   function isNpmArgumentArray(index) {
     const prefix = text.slice(Math.max(0, index - 350), index);
-    if (
-      /(?:spawn(?:Sync)?|execFile(?:Sync)?|run)\s*\(\s*(?:['"]npm(?:\.cmd)?['"]|npmCommand|npmExecutable)\s*,\s*$/.test(
+    const call =
+      /(?:spawn(?:Sync)?|execFile(?:Sync)?|run)\s*\(\s*(['"]npm(?:\.cmd)?['"]|[A-Za-z_$][\w$]*)\s*,\s*$/.exec(
         prefix,
-      )
-    )
-      return true;
+      );
+    if (call) {
+      if (/^['"]/.test(call[1]) || ['npmCommand', 'npmExecutable'].includes(call[1])) return true;
+      const declaration = new RegExp(`\\b(?:const|let)\\s+${call[1]}\\s*=\\s*([^;]+);`).exec(
+        text,
+      )?.[1];
+      if (declaration) {
+        const values = [...declaration.matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1]);
+        if (values.length && values.every((value) => value === 'npm' || value === 'npm.cmd'))
+          return true;
+      }
+    }
     return (
       /args:\s*$/.test(prefix) &&
       /command:\s*['"]npm(?:\.cmd)?['"]/.test(prefix.slice(prefix.lastIndexOf('{')))
@@ -84,7 +144,8 @@ export function extractNpmReferences(text, file) {
     },
     {
       kind: 'process-arguments',
-      expression: /\[\s*['"]run['"]\s*,\s*['"]([A-Za-z0-9][A-Za-z0-9:._-]*)['"]/g,
+      expression:
+        /\[\s*(?:['"]--[^'"]+['"]\s*,\s*)*['"](?:run|run-script)['"]\s*,\s*['"]([A-Za-z0-9][A-Za-z0-9:._-]*)['"]/g,
     },
     { kind: 'npm-lifecycle', expression: /\bnpm\s+(test|start)(?=\s|[;`'"\)]|$)/g },
   ];
@@ -99,12 +160,15 @@ export function extractNpmReferences(text, file) {
         line,
         kind,
         source: sourceKind(file),
+        ...fixtureReason(line),
         excerpt: text.split('\n')[line - 1].trim().slice(0, 220),
       });
     }
   }
   // Repository runners use named literal variables to select their npm child command.
-  for (const match of text.matchAll(/\[\s*['"]run['"]\s*,\s*([A-Za-z_$][\w$]*)\s*[,\]]/g)) {
+  for (const match of text.matchAll(
+    /\[\s*(?:['"]--[^'"]+['"]\s*,\s*)*['"](?:run|run-script)['"]\s*,\s*([A-Za-z_$][\w$]*)\s*[,\]]/g,
+  )) {
     if (!isNpmArgumentArray(match.index)) continue;
     const declaration = new RegExp(`\\b(?:const|let)\\s+${match[1]}\\s*=\\s*([^;]+);`);
     const value = declaration.exec(text)?.[1];
@@ -120,6 +184,7 @@ export function extractNpmReferences(text, file) {
         line,
         kind: 'dynamic-process-arguments',
         source: sourceKind(file),
+        ...fixtureReason(line),
         excerpt: text.split('\n')[line - 1].trim().slice(0, 220),
       });
   }
@@ -313,16 +378,20 @@ export function buildScriptInventory(root = process.cwd(), { catalog = [] } = {}
   if (!scripts || Array.isArray(scripts)) fail('package.json has no scripts object.');
   if (!Array.isArray(catalog)) fail('canonical command catalog must be an array.');
   const baseline = loadScriptInventoryBaseline(root);
-  for (const name of Object.keys(baseline.scripts)) {
-    if (!Object.hasOwn(scripts, name))
-      fail(`initial public alias ${name} was removed before consumer migration.`);
-  }
   const descriptors = new Map();
   for (const descriptor of catalog) {
     for (const alias of descriptor.aliases ?? []) {
       if (descriptors.has(alias)) fail(`canonical CLI declares duplicate alias ${alias}.`);
       descriptors.set(alias, descriptor);
     }
+  }
+  const retirement = loadScriptAliasRetirement(root, BASELINE_PATH, baseline, descriptors);
+  const retired = new Set(retirement.retiredAliases);
+  for (const name of Object.keys(baseline.scripts)) {
+    if (!Object.hasOwn(scripts, name) && !retired.has(name))
+      fail(`initial public alias ${name} was removed before consumer migration.`);
+    if (Object.hasOwn(scripts, name) && retired.has(name))
+      fail(`retired alias ${name} is still public; retirement evidence must match package.json.`);
   }
 
   const sourcePaths = collectSourcePaths(root);
@@ -375,20 +444,55 @@ export function buildScriptInventory(root = process.cwd(), { catalog = [] } = {}
       }
     }
   }
-  const unknownReferences = references.filter(({ name }) => name && !Object.hasOwn(scripts, name));
-  const unresolvedReferences = references.filter(({ name }) => !name);
-  const executableUnknowns = unknownReferences.filter(({ source }) =>
-    ['workflow', 'script', 'npm-chain'].includes(source),
+  const classifiedReferences = references.map((reference) =>
+    classifyScriptReference(reference, retirement),
   );
-  if (executableUnknowns.length) {
+  const unknownReferences = classifiedReferences.filter(
+    ({ name }) => name && !Object.hasOwn(scripts, name) && !retired.has(name),
+  );
+  const unresolvedReferences = classifiedReferences.filter(({ name }) => !name);
+  const activeUnknowns = unknownReferences.filter(
+    ({ classification }) => classification === 'active',
+  );
+  if (activeUnknowns.length) {
     fail(
-      `unknown npm reference ${executableUnknowns[0].name} at ${executableUnknowns[0].file}:${executableUnknowns[0].line}.`,
+      `unknown npm reference ${activeUnknowns[0].name} at ${activeUnknowns[0].file}:${activeUnknowns[0].line}.`,
+    );
+  }
+  const staleConsumers = classifiedReferences.filter(
+    ({ name, classification }) => name && retired.has(name) && classification === 'active',
+  );
+  if (staleConsumers.length) {
+    fail(
+      `active caller of retired alias ${staleConsumers[0].name} at ${staleConsumers[0].file}:${staleConsumers[0].line}.`,
+    );
+  }
+  const unresolvedActive = unresolvedReferences.filter(
+    ({ classification }) => classification === 'active',
+  );
+  if (retired.size && unresolvedActive.length) {
+    fail(
+      `unresolved npm caller at ${unresolvedActive[0].file}:${unresolvedActive[0].line} prevents retirement.`,
     );
   }
 
-  const entries = sorted(Object.keys(scripts)).map((name) => {
-    const callers = references
-      .filter((reference) => reference.name === name)
+  const historicalDependencies = new Map(
+    Object.entries(baseline.scripts).map(([name, command]) => [
+      name,
+      sorted([
+        ...extractNpmReferences(command, BASELINE_PATH)
+          .map(({ name: target }) => target)
+          .filter(Boolean),
+        ...['pre', 'post']
+          .map((prefix) => `${prefix}${name}`)
+          .filter((hook) => Object.hasOwn(baseline.scripts, hook)),
+      ]),
+    ]),
+  );
+
+  const entries = sorted([...Object.keys(scripts), ...retired]).map((name) => {
+    const callers = classifiedReferences
+      .filter((reference) => reference.name === name && reference.classification !== 'test-fixture')
       .map(({ name: _, ...reference }) => reference);
     const indirectCallers = [];
     const visited = new Set([name]);
@@ -401,11 +505,40 @@ export function buildScriptInventory(root = process.cwd(), { catalog = [] } = {}
         if (!targets.includes(current.name) || visited.has(parent)) continue;
         visited.add(parent);
         const via = [parent, ...current.via];
-        for (const reference of references.filter((ref) => ref.name === parent && !ref.parent)) {
+        for (const reference of classifiedReferences.filter(
+          (ref) => ref.name === parent && !ref.parent && ref.classification !== 'test-fixture',
+        )) {
           const { name: _, ...caller } = reference;
           indirectCallers.push({ ...caller, via });
         }
         queue.push({ name: parent, via });
+      }
+    }
+    const historicalVisited = new Set([name]);
+    /** @type {{name: string, via: string[]}[]} */
+    const historicalQueue = [{ name, via: [] }];
+    while (historicalQueue.length) {
+      const current = historicalQueue.shift();
+      if (!current) continue;
+      for (const [parent, targets] of historicalDependencies) {
+        if (!targets.includes(current.name) || historicalVisited.has(parent)) continue;
+        historicalVisited.add(parent);
+        const via = [parent, ...current.via];
+        for (const reference of classifiedReferences.filter(
+          (ref) => ref.name === parent && ref.classification === 'historical',
+        )) {
+          const { name: _, ...caller } = reference;
+          if (
+            !indirectCallers.some(
+              (existing) =>
+                existing.file === caller.file &&
+                existing.line === caller.line &&
+                existing.via.join(':') === via.join(':'),
+            )
+          )
+            indirectCallers.push({ ...caller, via, dependencySource: BASELINE_PATH });
+        }
+        historicalQueue.push({ name: parent, via });
       }
     }
     const groupCommands = catalog.filter((command) => command.group === name);
@@ -423,35 +556,42 @@ export function buildScriptInventory(root = process.cwd(), { catalog = [] } = {}
             ],
           }
         : undefined);
-    const details = metadata(name, scripts[name], descriptor);
+    const command = scripts[name] ?? baseline.scripts[name];
+    const details = metadata(name, command, descriptor);
     const allCallers = [...callers, ...indirectCallers];
     const external = allCallers.some(({ source }) =>
       ['workflow', 'documentation', 'npm-lifecycle'].includes(source),
     );
     return {
       name,
-      command: scripts[name],
+      command: scripts[name] ?? null,
       initial: Object.hasOwn(baseline.scripts, name),
       initialCommand: baseline.scripts[name] ?? null,
       commandChanged:
         Object.hasOwn(baseline.scripts, name) && baseline.scripts[name] !== scripts[name],
-      public: true,
+      public: !retired.has(name),
+      retired: retired.has(name),
       contract: external ? 'external' : 'internal',
       kind: groupCommands.length ? 'canonical-group' : 'script',
       ...(groupCommands.length
         ? { subcommandRisks: sorted(groupCommands.map(({ risk }) => risk)) }
         : {}),
-      classifications: classifications(name, scripts[name], allCallers, details.risk),
+      classifications: classifications(name, command, allCallers, details.risk),
       ...details,
       replacement: replacementFor(name, descriptor),
-      compatibility: Object.hasOwn(baseline.scripts, name)
-        ? 'retained; migrate consumers in a separate PR before removal or deprecation'
-        : 'added public entry; initial aliases remain compatible',
+      compatibility: retired.has(name)
+        ? 'retired after caller migration and recorded green CI; use the canonical replacement'
+        : Object.hasOwn(baseline.scripts, name)
+          ? 'retained; migrate consumers in a separate PR before removal or deprecation'
+          : 'added public entry; initial aliases remain compatible',
       referenceStatus:
         callers.length || indirectCallers.length
           ? 'referenced'
           : 'unreferenced; utility review required, not evidence of disuse',
       dependencies: sorted(dependencies.get(name)),
+      historicalDependencies: historicalDependencies.get(name) ?? [],
+      activeCallers: callers.filter(({ classification }) => classification === 'active'),
+      historicalCallers: callers.filter(({ classification }) => classification === 'historical'),
       callers: callers.sort(
         (a, b) => compare(a.file, b.file) || a.line - b.line || compare(a.kind, b.kind),
       ),
@@ -462,29 +602,36 @@ export function buildScriptInventory(root = process.cwd(), { catalog = [] } = {}
     };
   });
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     baseline: BASELINE_PATH,
     initialCount: Object.keys(baseline.scripts).length,
-    currentCount: entries.length,
+    currentCount: Object.keys(scripts).length,
+    retiredCount: retired.size,
+    retirement: RETIREMENT_PATH,
+    migrationEvidence: retirement.migrationEvidence ?? null,
+    historicalSources: retirement.historicalSources,
     canonicalGroups: sorted(
       catalog
         .map(({ group }) => group)
         .filter((group) => typeof group === 'string' && Object.hasOwn(scripts, group)),
     ),
-    scanRoots: [
-      '.github/workflows',
-      'README.md',
-      'docs',
-      'tests',
-      'scripts',
-      'package.json#scripts',
-    ],
+    scanRoots: ['repository text sources and root tool configuration', 'package.json#scripts'],
+    scannedPaths: sourcePaths,
+    scanExclusions: {
+      paths: sorted(GENERATED_PATHS),
+      directories: sorted(EXCLUDED_DIRECTORIES),
+      outputPaths: sorted(EXCLUDED_OUTPUT_PATHS),
+      suffixes: ['.bundle.js', '.bundle.ts', '.generated.js', '.generated.ts'],
+    },
     scanPolicy:
       'Literal npm commands, literal/resolved subprocess arrays, npm chains and implicit hooks; excerpts are references, not proof of execution. Generated inventory files excluded to avoid self-references.',
     compatibilityPolicy:
-      'Every initial alias remains public. Unreferenced does not mean unused. External CI/documentation/hook consumers and transitive calls must migrate before removal.',
+      'Initial history is immutable. Retirement requires a canonical replacement, no active consumers and recorded green CI of the migration PR. Historical proof and explicitly marked test fixtures stay visible. Unreferenced does not mean unused.',
     unknownReferences,
     unresolvedReferences,
+    fixtureReferences: classifiedReferences.filter(
+      ({ classification }) => classification === 'test-fixture',
+    ),
     scripts: entries,
   };
 }
@@ -499,11 +646,11 @@ export function renderScriptInventory(inventory) {
     '',
     'Fichier généré par `node scripts/generate-scripts-inventory.mjs`. Source machine : [scripts-inventory.json](scripts-inventory.json).',
     '',
-    `${inventory.initialCount} alias initiaux conservés, ${inventory.currentCount} entrées actuelles. Les catégories, propriétaires, entrées, préconditions, arguments et risques détaillés figurent dans le JSON.`,
+    `${inventory.initialCount} noms initiaux conservés dans l’historique, ${inventory.currentCount} entrées publiques actuelles, ${inventory.retiredCount} alias retirés. Les catégories, propriétaires, entrées, préconditions, arguments et risques détaillés figurent dans le JSON.`,
     '',
-    `Entrées publiques canoniques : ${inventory.canonicalGroups.map((group) => `\`npm run ${group} -- <sous-commande>\``).join(', ') || 'aucun groupe déclaré'}. Les raccourcis initiaux restent disponibles.`,
+    `Entrées publiques canoniques : ${inventory.canonicalGroups.map((group) => `\`npm run ${group} -- <sous-commande>\``).join(', ') || 'aucun groupe déclaré'}. La colonne de compatibilité distingue les alias disponibles des alias retirés.`,
     '',
-    'Les consommateurs sont des références textuelles exactes (fichier et ligne), des chaînes npm et des hooks implicites. Une référence dans un test ou un document ne prouve pas une exécution. « Non référencé » impose une revue d’utilité avant toute suppression. Aucun alias n’est déprécié dans ARCH-S1 ; leur retrait exige une PR de migration distincte et une CI verte.',
+    'Les consommateurs sont des références textuelles exactes (fichier et ligne), des chaînes npm et des hooks implicites. Une référence dans un test ou un document ne prouve pas une exécution. « Non référencé » impose une revue d’utilité avant toute suppression. Le retrait exige une PR de migration distincte, ses checks verts enregistrés et aucun appelant actif restant. Les preuves historiques explicites et les fixtures de test marquées restent identifiables dans le JSON.',
     '',
     '| Nom npm initial ou ajouté | Appel canonique | Consommateurs directs et indirects | Contrat / compatibilité |',
     '| --- | --- | --- | --- |',
@@ -515,15 +662,18 @@ export function renderScriptInventory(inventory) {
     const consumers = consumerFiles.map((file) => {
       const direct = entry.callers.filter((caller) => caller.file === file).length;
       const indirect = entry.indirectCallers.filter((caller) => caller.file === file).length;
-      return `${file} (${direct} direct, ${indirect} indirect)`;
+      const historical = [...entry.callers, ...entry.indirectCallers].filter(
+        (caller) => caller.file === file && caller.classification === 'historical',
+      ).length;
+      return `${file} (${direct} direct, ${indirect} indirect${historical ? `, ${historical} historique` : ''})`;
     });
     lines.push(
-      `| \`${markdownCell(entry.name)}\` | \`${markdownCell(entry.replacement)}\` | ${markdownCell(consumers.join('; ') || 'Non référencé ; revue d’utilité requise')} | ${entry.contract} ; ${entry.initial ? 'alias conservé' : 'nouvelle entrée'} |`,
+      `| \`${markdownCell(entry.name)}\` | \`${markdownCell(entry.replacement)}\` | ${markdownCell(consumers.join('; ') || 'Non référencé ; revue d’utilité requise')} | ${entry.contract} ; ${entry.retired ? 'alias retiré' : entry.initial ? 'alias conservé' : 'nouvelle entrée'} |`,
     );
   }
   lines.push(
     '',
-    'Les sources à commande dynamique non résolue et les références documentaires inconnues sont listées séparément dans le JSON. Une référence inconnue dans un workflow, un script exécutable ou une chaîne npm fait échouer la génération.',
+    'Les sources à commande dynamique non résolue et les références inconnues sont listées séparément dans le JSON. Toute référence active inconnue ou à un alias retiré fait échouer la génération, y compris dans les tests, la documentation opérationnelle, les sources et les configurations. Une commande npm dynamique active non résolue bloque le retrait.',
     '',
   );
   return {

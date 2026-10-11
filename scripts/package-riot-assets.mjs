@@ -63,7 +63,7 @@ for (const candidate of parsedCandidates) {
   }
 }
 if (!Array.isArray(parsedSource)) {
-  throw new Error('Run npm run ddragon:parse before packaging champion data.');
+  throw new Error('Run npm run assets -- parse before packaging champion data.');
 }
 const shippedChampionIds = parsedSource.map((champion) => champion.id);
 if (

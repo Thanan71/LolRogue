@@ -115,7 +115,7 @@ try {
     const committed = await readFile(artifactPath, 'utf8');
     if (serialized !== committed) {
       throw new Error(
-        'The current champion combat matrix is stale. Run npm run balance:combat:matrix:generate.',
+        'The current champion combat matrix is stale. Run npm run balance -- combat matrix generate.',
       );
     }
     process.stdout.write(

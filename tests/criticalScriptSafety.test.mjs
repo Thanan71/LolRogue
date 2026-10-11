@@ -171,7 +171,10 @@ describe('read-only database types check', () => {
         stdout: matches ? before.toString() : 'different output\n',
       });
     if (matches) expect(() => checkDatabaseTypes([], options)).not.toThrow();
-    else expect(() => checkDatabaseTypes([], options)).toThrow('Run npm run db:types');
+    else
+      expect(() => checkDatabaseTypes([], options)).toThrow(
+        'Run npm run database -- types generate',
+      );
     expect(readFileSync(file)).toEqual(before);
     expect(options.runCommand.mock.calls[0][1]).toEqual(['gen', 'types', 'typescript', '--local']);
     expect(options.runCommand.mock.calls[1][1]).toEqual([

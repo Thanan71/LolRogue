@@ -19,27 +19,30 @@
     {
       "id": "P0-SEC-01",
       "status": "verified",
-      "checks": ["npm run db:security"]
+      "checks": ["npm run database -- security"]
     },
     {
       "id": "P0-SEC-02",
       "status": "verified",
-      "checks": ["npm run db:security", "npm run db:validate"]
+      "checks": ["npm run database -- security", "npm run database -- validate --yes"]
     },
     {
       "id": "P0-DATA-01",
       "status": "verified",
-      "checks": ["npm run db:validate"]
+      "checks": ["npm run database -- validate --yes"]
     },
     {
       "id": "P0-RUN-01",
       "status": "verified",
-      "checks": ["npm run edge:bundle", "npm run test -- tests/authorityRegistry.test.ts"]
+      "checks": [
+        "npm run release -- edge bundle",
+        "npm run test -- tests/authorityRegistry.test.ts"
+      ]
     },
     {
       "id": "P0-REL-01",
       "status": "verified",
-      "checks": ["npm run release:readiness:check"]
+      "checks": ["npm run release -- readiness check"]
     },
     {
       "id": "P0-I18N-01",
@@ -52,27 +55,27 @@
     {
       "id": "P0-BAL-01",
       "status": "verified",
-      "checks": ["npm run balance:check", "npm run db:validate"]
+      "checks": ["npm run balance -- check", "npm run database -- validate --yes"]
     },
     {
       "id": "P0-BAL-02",
       "status": "verified",
-      "checks": ["npm run balance:check", "npm run db:validate"]
+      "checks": ["npm run balance -- check", "npm run database -- validate --yes"]
     },
     {
       "id": "P0-BAL-03",
       "status": "verified",
-      "checks": ["npm run balance:check", "npm run db:validate"]
+      "checks": ["npm run balance -- check", "npm run database -- validate --yes"]
     },
     {
       "id": "P0-BAL-04",
       "status": "verified",
-      "checks": ["npm run balance:check", "npm run db:validate"]
+      "checks": ["npm run balance -- check", "npm run database -- validate --yes"]
     },
     {
       "id": "P0-BAL-05",
       "status": "verified",
-      "checks": ["npm run balance:check", "npm run db:validate"]
+      "checks": ["npm run balance -- check", "npm run database -- validate --yes"]
     }
   ],
   "requiredCiJobs": ["static", "unit", "security", "build/assets", "DB", "browser", "clean-room"],

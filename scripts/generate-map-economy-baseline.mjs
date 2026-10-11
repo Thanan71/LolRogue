@@ -53,7 +53,7 @@ try {
     if (serialized !== committed) {
       throw new Error(
         `The ${baseline.identity.engineVersion} map/economy baseline is stale. ` +
-          'Run npm run balance:map-economy:generate.',
+          'Run npm run balance -- map-economy generate.',
       );
     }
     process.stdout.write(

@@ -19,7 +19,7 @@ Validations effectuées sur la branche `feat/sprint-g-ci-gates` avec Node 24 :
 - Le transfert CLI `pack` → `restore` d’un vrai `dist`, signé avec le SHA du
   checkout, puis la matrice `chromium-production` réussissent : un scénario
   Playwright passé, en servant le build vérifié sans reconstruire.
-- `test:assets-clean` réussit avec 773 fichiers de dépôt copiés dans un
+- `npm run assets -- clean-build` réussit avec 773 fichiers de dépôt copiés dans un
   répertoire temporaire, sans réutilisation de `dist`.
 - `actionlint` 1.7.12 (archive officielle vérifiée par SHA-256) valide le
   workflow complet ; le YAML expose bien les sept jobs. `git diff --check`

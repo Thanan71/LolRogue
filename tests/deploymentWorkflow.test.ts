@@ -44,7 +44,7 @@ describe('deployment workflow contract', () => {
       'VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}',
     );
     expect(previewWorkflow).toContain('npm run build');
-    expect(previewWorkflow).toContain('npm run test:deployed-assets');
+    expect(previewWorkflow).toContain('npm run assets -- deployed verify');
     expect(previewWorkflow).not.toContain('lol-rogue.vercel.app');
   });
 
@@ -88,6 +88,6 @@ describe('deployment workflow contract', () => {
     expect(productionWorkflow).not.toContain(
       'DEPLOYMENT_URL: ${{ github.event.client_payload.url }}',
     );
-    expect(productionWorkflow).toContain('npm run test:deployed-assets');
+    expect(productionWorkflow).toContain('npm run assets -- deployed verify');
   });
 });

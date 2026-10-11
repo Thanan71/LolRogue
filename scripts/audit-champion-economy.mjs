@@ -5,7 +5,7 @@ if (
   args.some((arg) => !['--local', '--linked'].includes(arg)) ||
   (args.includes('--local') && args.includes('--linked'))
 ) {
-  throw new Error('Usage: npm run economy:audit -- [--local | --linked]');
+  throw new Error('Usage: npm run database -- economy audit [--local | --linked]');
 }
 const linked = args.includes('--linked');
 const result = spawnSync(

@@ -9,15 +9,15 @@ Identité : `run-engine-v22`, hash `2e0c2b73796122049cd8493b56e9ed9329a9fde25e27
 Reproduction avec Node 24 :
 
 ```sh
-npm run edge:bundle
-npm run balance:veigar:generate
-npm run balance:veigar:check
+npm run release -- edge bundle
+npm run balance -- veigar generate --engine v22
+npm run balance -- veigar check --all
 npx vitest run tests/veigarRunProgressionBalance.test.ts tests/championRunProgression.test.ts --maxWorkers=1
 ```
 
-Les trois duos Garen + Veigar/Annie/Lux utilisent les mêmes 30 seeds, en Normal puis en Easy : 180 runs par runtime, exécutés dans le moteur source et le bundle Edge exact. Maîtrises, améliorations et runes initiales sont vides. La politique `survival-greedy@1` est identique ; ses recrutements, objets et choix d'augments restent actifs. Les formations et équipements peuvent donc diverger pendant la run. Chaque trace complète est vérifiée à nouveau jusqu'à son état terminal ; commandes, résultats et observations sont identiques entre source et Edge. Chaque observation contient sa commande `balance:repro` et son seed.
+Les trois duos Garen + Veigar/Annie/Lux utilisent les mêmes 30 seeds, en Normal puis en Easy : 180 runs par runtime, exécutés dans le moteur source et le bundle Edge exact. Maîtrises, améliorations et runes initiales sont vides. La politique `survival-greedy@1` est identique ; ses recrutements, objets et choix d'augments restent actifs. Les formations et équipements peuvent donc diverger pendant la run. Chaque trace complète est vérifiée à nouveau jusqu'à son état terminal ; commandes, résultats et observations sont identiques entre source et Edge. Chaque observation conserve sa commande de reproduction historique et son seed. Pour la rejouer aujourd'hui, utiliser `npm run balance -- repro` avec les mêmes arguments.
 
-`balance:veigar:check` est inclus dans `balance:artifacts:check`, appelé par `balance:check`. La CI contrôle donc aussi la reproduction exacte de cet [artefact v22](../../config/veigar-run-progression-balance-v22.json).
+`npm run balance -- veigar check --all` est inclus dans `npm run balance -- artifacts check`, appelé par `npm run balance -- check`. La CI contrôle donc aussi la reproduction exacte de cet [artefact v22](../../config/veigar-run-progression-balance-v22.json).
 
 | Difficulté | Mage | Victoires de run / 30 | Combats gagnés / joués | Dégâts du mage, moyenne des 30 runs |
 | --- | --- | --- | --- | --- |

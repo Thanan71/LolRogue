@@ -183,9 +183,12 @@ export async function runCli(
     const context = { root, registry, currentEngine, readBranch };
     const plan = await createCommandPlan(parsed, context);
     const risk =
-      parsed.options.check && parsed.command.risk === 'generate'
+      (parsed.options.check && parsed.command.risk === 'generate') ||
+      (parsed.command.target.kind === 'database-migrate' && parsed.options.preview)
         ? 'read-only'
-        : parsed.command.risk;
+        : parsed.command.target.kind === 'database-migrate' && parsed.options.local
+          ? 'destructive-local'
+          : parsed.command.risk;
     if (!plan.length) fail('CLI_PLAN_EMPTY', 'The command resolved to an empty plan.');
     if (parsed.options['dry-run']) {
       stdout.write(

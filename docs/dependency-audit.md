@@ -24,7 +24,7 @@ la génération des types Supabase.
 
 Preuves reproductibles : `npm run node:contract` compare runtime déclaré,
 `.nvmrc`, workflows et types verrouillés ; `npm ls --depth=0` révèle les versions
-installées et `npm run audit:security` refuse toute alerte haute/critique courante.
+installées et `npm run testing -- security` refuse toute alerte haute/critique courante.
 Exécuter ces commandes sous Node 24 : un shell resté sur Node 22 n'est pas conforme.
 
 Le bundle autoritaire conserve l'alias isolé `esbuild-authority@0.25.0`. Il n'est
@@ -44,7 +44,7 @@ causes :
 L'exception React Router temporaire et son analyse conditionnelle ont été retirées
 du script : il n'existe plus d'alerte haute acceptée par dérogation.
 
-Au 9 août, `npm audit` et `npm run audit:security` retournent :
+L'audit consigné le 9 août retournait :
 
 ```text
 npm audit: no high or critical vulnerabilities.
@@ -75,11 +75,11 @@ Le 7 octobre 2026, le clone propre a détecté
 [GHSA-68fv-2mgg-jv7q](https://github.com/advisories/GHSA-68fv-2mgg-jv7q)
 sur `source-map-js@1.2.1`. Le lockfile résout désormais cette dépendance transitive
 en `1.2.2`, version corrigée compatible avec les plages déclarées. Aucun override
-ni exception d'audit n'est ajouté. Le contrôle `npm run audit:security` et le build
+ni exception d'audit n'est ajouté. Le contrôle `npm run testing -- security` et le build
 doivent passer sur cette nouvelle résolution.
 
 - `npm ci`, TypeScript, Biome et le build Vite/Rolldown ;
-- `npm run audit:security` sans exception haute ou critique ;
+- `npm run testing -- security` sans exception haute ou critique ;
 - Vitest avec couverture et tests Supabase live ;
 - les parcours Playwright dev et la matrice du build de production ;
 - le bundle esbuild du moteur autoritaire et son contrôle de hash ;

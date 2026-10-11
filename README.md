@@ -56,30 +56,32 @@ serveur, limités, sanitisés et supprimés après 14 jours.
 ## Supabase local et migrations
 
 ```bash
-npm run db:start
-npm run db:reset -- --yes
-npm run db:lint
-npm run db:types
-npm run edge:serve
-npm run db:stop
+npm run database -- start
+npm run database -- reset --yes
+npm run database -- lint
+npm run database -- types generate
+npm run release -- edge serve
+npm run database -- stop
 ```
 
-`db:reset` exige `--yes`, utilise exclusivement la base locale et propose
+`npm run database -- reset` exige `--yes`, utilise exclusivement la base locale et propose
 `--dry-run` pour consulter la commande avant exécution. Le
 schéma initial est dans
 `supabase/migrations/00000000000000_schema.sql`; les migrations horodatées qui
 suivent mettent à niveau une base ayant déjà exécuté une ancienne version du
-schéma. Sur un projet distant existant, utiliser :
+schéma. Sur le projet distant correspondant à la branche effective `dev` ou `main`,
+prévisualiser les migrations avant de les appliquer :
 
 ```bash
-supabase link --project-ref PROJECT_REF
-npm run migrate
+./node_modules/.bin/supabase link --project-ref PROJECT_REF
+npm run database -- migrate --project-ref PROJECT_REF --preview
+npm run database -- migrate --project-ref PROJECT_REF --yes
 ```
 
 Le déploiement complet est automatisé et limité aux branches de release :
 
 ```bash
-npm run backend:deploy
+npm run release -- deploy --yes
 ```
 
 La branche `dev` cible Supabase `LolRogueDev` et un déploiement Vercel Preview ;
@@ -113,11 +115,11 @@ npm run test:coverage # tests avec seuils de couverture
 npm run test:e2e      # parcours UI, dont une victoire six biomes et une défaite réelles
 npm run test:e2e:production # smoke test des 3 moteurs, desktop et mobile
 npm run test:db       # intégration Auth/RLS sur une vraie instance de test
-npm run test:production-build # deep links, headers et 404 du build servi
-npm run test:performance-budgets # budgets bundle, routes et assets
-npm run test:deployed-assets # vérifie les 187 assets sur DEPLOYMENT_URL/Vercel
-npm run edge:bundle   # bundle du replay serveur + contrôle du hash de contenu
-npm run audit:security # audit critique/haut et contrôle des exceptions bornées
+npm run testing -- production-build # deep links, headers et 404 du build servi
+npm run testing -- performance budgets # budgets bundle, routes et assets
+npm run assets -- deployed verify # vérifie les 187 assets sur DEPLOYMENT_URL/Vercel
+npm run release -- edge bundle   # bundle du replay serveur + contrôle du hash de contenu
+npm run testing -- security # audit critique/haut et contrôle des exceptions bornées
 npm run check         # format, lint, types, audit, couverture et build
 ```
 
@@ -169,7 +171,7 @@ Le cache brut `public/lol/data` est un espace de génération local : Vite l'exc
 explicitement de `dist` et il n'est jamais nécessaire à un build normal.
 
 ```bash
-npm run assets:update
+npm run assets -- update
 ```
 
 Cette commande télécharge la version déclarée dans

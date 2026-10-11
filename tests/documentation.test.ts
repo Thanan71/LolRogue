@@ -93,7 +93,7 @@ describe('documentation maintenue', () => {
     expect(backup).toContain('Test de restauration isolé');
     expect(backup).toContain('SHA256SUMS');
     expect(backup).toContain('run_attempt_commands');
-    expect(backup).toContain('npm run ops:restore-drill');
+    expect(backup).toContain('npm run release -- restore-drill');
 
     const restoreEvidence = JSON.parse(read('docs/restore-drills/2026-08-12-local.json'));
     expect(restoreEvidence).toMatchObject({
@@ -176,7 +176,7 @@ describe('documentation maintenue', () => {
     expect(matrix).toContain('Fonctionnalité | Implémentation de référence | Preuves principales');
     expect(matrix).toContain('Validation live requise');
     expect(matrix).toContain('P0-I18N-01 ouvert');
-    expect(matrix).toContain('npm run audit:security');
+    expect(matrix).toContain('npm run testing -- security');
     for (const proof of [
       'authorityRunEngine.test.ts',
       'six-biome-run.spec.ts',

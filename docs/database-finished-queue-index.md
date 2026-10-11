@@ -39,8 +39,8 @@ Les vues d'exploitation ne changent pas ce constat :
 Les statistiques ont été lues sans écriture avec :
 
 ```bash
-npm run db:finished-queue:stats
-npm run db:finished-queue:stats -- --linked
+npm run database -- finished-queue stats
+npm run database -- finished-queue stats --linked
 ```
 
 | Base | Dernier reset | Âge à la mesure | `finished_queue` | clé primaire |
@@ -59,7 +59,7 @@ La commande suivante crée 200 000 attempts dans une table temporaire, dont
 10 000 (5 %) au statut `finished`, puis annule entièrement la transaction :
 
 ```bash
-npm run db:finished-queue:measure
+npm run database -- finished-queue measure
 ```
 
 Elle mesure deux formes distinctes :
@@ -95,6 +95,6 @@ L'index `run_attempts_finished_queue` est supprimé :
 
 La migration `20260813024748_drop_unused_finished_attempt_queue_index.sql` porte
 la suppression. L'exception `unused_index` correspondante est retirée de la
-configuration advisor et la gate `npm run db:indexes:check` interdit le retour de
+configuration advisor et la gate `npm run database -- indexes check` interdit le retour de
 l'index. Si un véritable worker de file globale est ajouté plus tard, il devra
 réintroduire un index adapté à sa requête mesurée.

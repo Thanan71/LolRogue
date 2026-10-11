@@ -3,7 +3,7 @@
 <!-- release-readiness:status=blocked -->
 
 **Statut objectif : BLOQUÉ.** La source de vérité est
-`config/beta-release.json`, évaluée par `npm run release:preflight`. Une case
+`config/beta-release.json`, évaluée par `npm run release -- preflight`. Une case
 cochée dans `TODO.md`, un audit antérieur ou une CI historique ne constituent
 jamais une preuve de release.
 
@@ -14,16 +14,16 @@ jamais une preuve de release.
 | P0 formalisés | **Bloqué : P0-I18N-01 ouvert** | Tous les P0 du backlog doivent figurer dans la fiche, sans doublon, avec statut `verified` et commandes de contrôle. La revue humaine FR/EN et sa preview restent à prouver. |
 | Identité du candidat | **Bloqué** | SHA Git complet de 40 caractères, identique à `HEAD`. |
 | Trois CI complètes post-P0 | **Bloqué** | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `static`, `unit`, `security`, `build/assets`, `DB`, `browser` et `clean-room` réussis. |
-| Preview exacte | **Bloqué** | URL HTTPS du candidat et validation de tous les assets par `test:deployed-assets`. |
-| Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `db:migrations:check:linked`. |
-| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `db:validate` et `db:security`. |
+| Preview exacte | **Bloqué** | URL HTTPS du candidat et validation de tous les assets par `npm run assets -- deployed verify`. |
+| Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `npm run database -- migrations check --linked`. |
+| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes --yes` et `npm run database -- security`. |
 | E2E | **Bloqué** | Job `browser` réussi sur chacune des trois CI du candidat. |
 | Advisors Supabase | **Bloqué** | Politique liée sécurité + performance conforme, résultat `passed`, URL de preuve et date postérieure au dernier correctif P0. |
 | Validations externes | **Bloqué** | Preuves datées pour accessibilité humaine, droit/RGPD, canal de support et autorisation Riot. |
 
 Ce tableau décrit la fiche versionnée actuelle ; il n'est pas une validation
-manuelle. `npm run release:readiness:check` échoue si le statut déclaré ou cette
-page contredit les preuves enregistrées. `npm run release:preflight` reste
+manuelle. `npm run release -- readiness check` échoue si le statut déclaré ou cette
+page contredit les preuves enregistrées. `npm run release -- preflight` reste
 volontairement en échec tant qu'une gate manque et revérifie GitHub, la base liée
 et la preview dès que la fiche est complète.
 

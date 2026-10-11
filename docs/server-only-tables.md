@@ -37,7 +37,7 @@ La présence dans `public`, schéma exposé, ne constitue pas à elle seule un g
 
 Les vues publiques de classement et les vues administratives sont une surface
 API distincte, protégée par `security_invoker` et le contrat existant de
-`npm run db:security`. Les tables de projection de `private` ne sont pas des
+`npm run database -- security`. Les tables de projection de `private` ne sont pas des
 endpoints Data API ; certaines colonnes restent lisibles pour faire fonctionner
 les vues `security_invoker`. `private` ne signifie donc pas automatiquement
 « aucun grant client ».
@@ -71,7 +71,7 @@ constituent pas une autorisation pour les tables internes déplacées.
 ## Preuves exécutables
 
 `tests/serverOnlyTables.database.test.ts` est découvert automatiquement par
-`npm run test:db`. `npm run db:validate` reconstruit la base locale puis lance ce
+`npm run test:db`. `npm run database -- validate --yes` reconstruit la base locale puis lance ce
 test avec les autres contrats. Il compare les 22 tables du catalogue réel au
 manifeste, exige RLS partout et vérifie la classification des accès clients.
 Pour chaque table interne, il vérifie aussi les ACL de table et de colonne,
@@ -98,7 +98,7 @@ expiration au **31 octobre 2026**. Chaque exception fournit le schéma, le nom
 exact de la table et la clé advisor correspondante. Les jokers, une clé globale,
 un objet différent ou un niveau autre que `security/INFO` sont invalides.
 `tests/supabaseAdvisorPolicy.test.mjs` confronte cette liste à l’inventaire ;
-`npm run db:advisors` l’applique aux advisors de la base locale et le preflight
+`npm run database -- advisors` l’applique aux advisors de la base locale et le preflight
 existant l’applique en lecture à la base liée.
 
 Avant expiration, relire la décision `private`, réexécuter les tests de privilèges

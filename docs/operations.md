@@ -40,13 +40,13 @@ n'envoie pas de mails.
 ## Déployer
 
 1. Appliquer et valider les migrations sur une base locale.
-2. Lancer `npm ci`, `npm run edge:bundle`, `npm run check`,
+2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,
    `npm run test:db` et `npm run test:e2e`.
 3. Sauvegarder la base distante et prévoir une courte fenêtre de déploiement :
    la migration révoque immédiatement l'ancien chemin `client_reported` et fait
    expirer les attempts ouverts antérieurs à la quarantaine des améliorations.
 4. Depuis un checkout propre de `dev` ou `main`, exécuter
-   `npm run backend:deploy`. La commande sélectionne explicitement le projet
+   `npm run release -- deploy --yes`. La commande sélectionne explicitement le projet
    Supabase et la cible Vercel, prévisualise les migrations, puis publie la fonction
    encore dormante et le client compatible avant d'appliquer les migrations.
 5. Attendre le contrôle final du manifeste distant ; sur `main`, la commande promeut
@@ -76,7 +76,7 @@ La migration `20260809090000_harden_leaderboard_views.sql` recrée les deux vues
 classement avec `security_invoker=true`. Elle initialise des projections sanitisées
 dans le schéma non exposé `private`, puis les maintient par trigger sans élargir les
 droits sur `players` ou `daily_runs`. Après déploiement, exécuter la gate
-`npm run db:security`, contrôler que l'advisor Supabase ne signale plus aucun
+`npm run database -- security`, contrôler que l'advisor Supabase ne signale plus aucun
 `security_definer_view`, puis tester les deux vues avec les rôles `anon`,
 `authenticated` et `service_role`.
 
@@ -86,7 +86,7 @@ les grants des fonctions privilégiées avant de réaccorder uniquement le manif
 à `handle_new_user`, `expire_stale_run_attempts`, `invalidate_daily_score` et à la
 purge sociale. Le démarrage expire les attempts obsolètes du compte ; le worker
 expire aussi un attempt scellé avant son claim. Déployer ensemble migration,
-fonction Edge et client, puis exécuter `npm run db:security`.
+fonction Edge et client, puis exécuter `npm run database -- security`.
 
 La migration `20260726210000_atomic_run_finalization.sql` supprime l'ancien RPC
 `save_run_loadout`. Vérifier avant déploiement que le client publié utilise
@@ -139,7 +139,7 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 - confirmer dans les advisors Supabase qu'il ne reste aucun
   `security_definer_view`, puis vérifier dans `pg_class.reloptions` que
   `leaderboard` et `daily_leaderboard` portent `security_invoker=true` ;
-- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run db:security` et
+- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et
   confirmer qu'aucun trigger, helper historique ou purge n'est appelable avec un
   JWT navigateur ;
 - si les diagnostics sont activés, confirmer qu'un `INSERT` direct dans `logs`
@@ -157,12 +157,12 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 ### Preuves de sécurité et de rétention sur la cible
 
 Consigner le SHA, l'environnement, l'heure UTC et le résultat de chaque contrôle
-dans la fiche de release privée. `npm run db:security` et `npm run db:validate`
+dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`
 contrôlent la stack **locale** ; ils ne remplacent pas un relevé de production.
 Après déploiement ou restauration, exécuter les lectures distantes :
 
 ```sh
-npm run db:migrations:check:linked
+npm run database -- migrations check --linked
 node scripts/check-supabase-advisors.mjs --linked
 ```
 
@@ -220,22 +220,22 @@ contre une base migrée.
 
 Les migrations sont progressives et ne doivent pas modifier rétroactivement un
 fichier déjà appliqué sur une base partagée. Ajouter une nouvelle migration
-horodatée et la tester avec `npm run db:validate`.
+horodatée et la tester avec `npm run database -- validate --yes`.
 Avant une promotion, relier explicitement le bon projet puis exécuter
-`npm run db:migrations:check:linked`. Cette commande est en lecture seule et bloque
+`npm run database -- migrations check --linked`. Cette commande est en lecture seule et bloque
 si une migration du commit manque sur le projet ou si le projet contient une
 version absente du dépôt.
 
 Le couple `engine_version`/`content_hash` d'un `gameplay_ruleset` est immuable dès
 qu'un attempt l'utilise. `config/authority-versions.json` formalise aussi les
 versions gameplay, progression et commande, les capacités et le statut de chaque
-moteur. `npm run edge:bundle` recalcule les hashes et échoue si le client, le
+moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le
 resolver Edge, un bundle historique ou un ruleset divergent. Pour changer les
 règles ou le contenu autoritaire, suivre `docs/authority-versioning.md`, conserver
 l'ancien vérificateur en `replay-only` pendant au moins la durée maximale d'un
 attempt, puis seulement activer la nouvelle version.
 
-`npm run backend:deploy` constitue le chemin normal de publication complète. Il
+`npm run release -- deploy --yes` constitue le chemin normal de publication complète. Il
 refuse toute branche autre que `dev` ou `main`, relie respectivement `LolRogueDev`
 ou `LolRogue`, prévisualise les montées de version, publie `verify-run`, déploie le
 frontend Vercel en Preview ou Production, applique les migrations sur la référence
@@ -247,7 +247,7 @@ Une nouvelle version de moteur comprise par le navigateur doit être livrée en
 trois étapes afin qu'aucun ancien frontend ne démarre une ruleset qu'il ne sait pas
 journaliser :
 
-1. `npm run backend:deploy` publie le vérificateur compatible avec les anciennes et
+1. `npm run release -- deploy --yes` publie le vérificateur compatible avec les anciennes et
    nouvelles versions ;
 2. la même commande déploie le frontend et attend la réussite de Vercel, sans
    encore affecter le domaine Production de `main` ;
@@ -257,7 +257,7 @@ journaliser :
 Le moteur v3 accepte les journaux `resolve_combat` v2 sans trace et les rejoue en
 auto. Le moteur v4 conserve cette compatibilité et introduit la progression de
 biome canonique. Les bundles historiques importés par la fonction restent
-immuables et sont contrôlés par `npm run edge:bundle`.
+immuables et sont contrôlés par `npm run release -- edge bundle`.
 
 Une migration destructive doit inclure une sauvegarde, une estimation d'impact et
 une procédure de restauration. Le retour arrière applicatif se fait en redéployant

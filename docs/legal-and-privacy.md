@@ -53,7 +53,7 @@ Cette description est celle du schéma du dépôt. **Validation live requise** :
 aucun nouveau relevé de production n'est attesté par cette mise à jour. Avant de
 déclarer la purge opérationnelle, vérifier l'historique des migrations,
 `cron.job`, les dernières exécutions et `private.social_retention_metrics` selon
-`operations.md`. `npm run db:validate` prouve localement les limites de rétention
+`operations.md`. `npm run database -- validate --yes` prouve localement les limites de rétention
 via `legalPrivacy.database.test.ts`, sans prouver l'exécution du cron distant.
 
 La procédure de support et les restrictions sur toute compensation sont dans

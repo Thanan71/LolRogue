@@ -70,7 +70,7 @@ Une tâche n'est terminée que lorsque :
 5. **Mesure et équilibrage.** `P2-BAL-01` conserve la validation par **playtests humains** ; `AI-042/047`, `TREE-09/10` et `ADM-17..21` fournissent simulations/affichage/analyses sans cocher le playtest à sa place.
 6. **Données admin.** `ADM-01` traite la métrique `active_today` absente/fictive ; `ADM-02` traite l'intégrité Candies ; `ADM-07/11` résout pagination/export au lieu d'inventer de faux totaux à partir des listes tronquées.
 7. **Sécurité et déploiement.** `ARCH-05/06` préserve `main → LolRogue`, `dev → LolRogueDev` et interdit les autres branches. Pas de clé `service_role` en frontend ; migrations append-only + tests RLS pour TREE/ADM.
-8. **Bêta.** Aucun nouveau code d'initiative n'est marqué « livré » ou intégré artificiellement au registre des **11 invariants P0** suivi par `release:preflight`. Les régressions réellement bloquantes feront l'objet d'un arbitrage explicite et de la mise à jour simultanée de la gate.
+8. **Bêta.** Aucun nouveau code d'initiative n'est marqué « livré » ou intégré artificiellement au registre des **11 invariants P0** suivi par `npm run release -- preflight`. Les régressions réellement bloquantes feront l'objet d'un arbitrage explicite et de la mise à jour simultanée de la gate.
 
 ### Séquençage recommandé des nouveaux dossiers
 
@@ -963,7 +963,7 @@ le moteur.
 
 # Inventaire des invariants P0 livrés
 
-Ces dix identifiants restent visibles pour que `release:preflight` conserve son
+Ces dix identifiants restent visibles pour que `npm run release -- preflight` conserve son
 inventaire de onze P0, avec `P0-I18N-01` encore ouvert ci-dessus. Les titres ne
 prouvent ni la validation du SHA candidat ni l'état live : la fiche
 `config/beta-release.json` et ses contrôles restent obligatoires.
@@ -1035,7 +1035,7 @@ Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant s
   tant que cette option payante n'est pas souhaitée.
 - `P2-CI-01` conserve l'exercice d'annulation/neutralisation et la gestion des
   runs concurrents. Les protections et les required checks distants sont actifs.
-- Les autres tâches utilisent `npm run check`, `npm run db:validate` et les gates
+- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates
   locales spécialisées comme preuves. Les checks requis de la branche cible
   conditionnent le merge des PR.
 
@@ -1054,7 +1054,7 @@ La bêta technique ne redevient candidate que lorsque :
 - [ ] trois CI complètes consécutives **après** le dernier P0 ;
 - [ ] preview du SHA candidat validée, pas une ancienne prod ;
 - [ ] taux de rejet authority vérifié après déploiement du correctif ;
-- [x] `balance:check` rejoue de vraies runs authority et vérifie le bundle/version/hash
+- [x] `npm run balance -- check` rejoue de vraies runs authority et vérifie le bundle/version/hash
   candidats, au lieu de parcourir synthétiquement tous les nœuds ;
 - [ ] Daily officiel déterministe et identique entre un compte neuf et un compte maxé ;
 - [ ] aucun starter à 0 % sur les premiers combats de la cohorte de release ;

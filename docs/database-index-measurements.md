@@ -1,6 +1,6 @@
 # Mesure des index de base de données
 
-Dernière mesure : **9 août 2026**, sur Supabase local après `db:reset`.
+Dernière mesure : **9 août 2026**, sur Supabase local après réinitialisation de la base.
 
 Cette note rattache chaque index de `P2-DB-01` à une requête ou à une opération
 référentielle réelle. Elle suit les recommandations Supabase : lire le plan avec
@@ -44,7 +44,7 @@ conservent `(created_at DESC, level)`. Aucun nouvel index ne duplique ces chemin
 
 ## Protocole reproductible
 
-La commande locale `npm run db:indexes:measure` :
+La commande locale `npm run database -- indexes measure` :
 
 1. charge un volume synthétique dans une transaction annulée à la fin ;
 2. mesure les plans avant puis après les index avec
@@ -100,7 +100,7 @@ historique ; il ne couvre que les tentatives vérifiées avec un résultat assoc
 
 ## Contrat advisor local
 
-`npm run db:indexes:check` vérifie les huit définitions retenues, dont l'index de
+`npm run database -- indexes check` vérifie les huit définitions retenues, dont l'index de
 calibration partiel, et rejoue le Performance Advisor. La gate refuse le retour de
 l'une des cinq alertes FK corrigées et toute nouvelle FK non couverte. Six
 avertissements de versions restent explicitement attendus jusqu'à ce qu'une nouvelle
