@@ -47,7 +47,7 @@ try {
               : 'getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH)'
           };
           const edgeAuthority = edge.getAuthorityVerifier(${JSON.stringify(entry.engine)}, ${JSON.stringify(entry.contentHash)});
-          if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact registered Edge verifier is unavailable. Run npm run edge:bundle first.');
+          if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact registered Edge verifier is unavailable. Run npm run release -- edge bundle first.');
           return generateVeigarRunProgressionBalanceDocument({
             sourceAuthority, edgeAuthority,
             sourceClasses: ${values.engine === 'v22' ? 'edge' : '{ championDB, BattleManager, ChampionInstance }'}, edgeClasses: edge,

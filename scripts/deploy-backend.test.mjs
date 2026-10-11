@@ -52,11 +52,12 @@ describe('backend deploy branch routing', () => {
     expect(plan?.find(({ phase }) => phase === 'deploy-edge')?.args).toContain(projectRef);
     expect(plan?.find(({ phase }) => phase === 'preview-migrations')?.args).toEqual([
       'run',
-      'migrate',
+      'database',
       '--',
+      'migrate',
       '--project-ref',
       projectRef,
-      '--dry-run',
+      '--preview',
     ]);
     expect(plan?.find(({ phase }) => phase === 'deploy-frontend')).toMatchObject({
       command: 'npx',
@@ -76,8 +77,9 @@ describe('backend deploy branch routing', () => {
     expect(frontendArgs.includes('--skip-domain')).toBe(branch === 'main');
     expect(plan?.find(({ phase }) => phase === 'migrate-database')?.args).toEqual([
       'run',
-      'migrate',
+      'database',
       '--',
+      'migrate',
       '--project-ref',
       projectRef,
       '--yes',
@@ -231,7 +233,7 @@ describe('backend deploy preflight and subprocess contracts', () => {
     const implementation = options.runCommand.getMockImplementation();
     if (!implementation) throw new Error('Missing mock implementation.');
     options.runCommand.mockImplementation((command, args, spawnOptions) =>
-      args.includes('edge:bundle')
+      args.includes('bundle')
         ? /** @type {import('./lib/critical-command.mjs').CommandResult} */ (result)
         : implementation(command, args, spawnOptions),
     );

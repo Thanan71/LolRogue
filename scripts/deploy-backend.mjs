@@ -39,7 +39,7 @@ export function createBackendDeployPlan(branch) {
     {
       phase: 'validate-edge',
       command: 'npm',
-      args: ['run', 'edge:bundle'],
+      args: ['run', 'release', '--', 'edge', 'bundle'],
     },
     {
       phase: 'link-database',
@@ -49,7 +49,7 @@ export function createBackendDeployPlan(branch) {
     {
       phase: 'preview-migrations',
       command: 'npm',
-      args: ['run', 'migrate', '--', '--project-ref', target.projectRef, '--dry-run'],
+      args: ['run', 'database', '--', 'migrate', '--project-ref', target.projectRef, '--preview'],
     },
     {
       phase: 'deploy-edge',
@@ -76,12 +76,12 @@ export function createBackendDeployPlan(branch) {
     {
       phase: 'migrate-database',
       command: 'npm',
-      args: ['run', 'migrate', '--', '--project-ref', target.projectRef, '--yes'],
+      args: ['run', 'database', '--', 'migrate', '--project-ref', target.projectRef, '--yes'],
     },
     {
       phase: 'verify-migrations',
       command: 'npm',
-      args: ['run', 'db:migrations:check:linked'],
+      args: ['run', 'database', '--', 'migrations', 'check', '--linked'],
     },
     ...(target.vercelTarget === 'production'
       ? [

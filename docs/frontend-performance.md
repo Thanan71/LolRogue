@@ -83,7 +83,7 @@ notifications globale déclenchait malgré tout `runStore` sur `/auth`. Elle est
 différée sur les routes publiques. La mesure finale de `/auth` charge dix ressources
 JavaScript pour **184 308 octets transférés**, sans requête vers `champion-data`,
 `DatabasePage`, `AdminPage` ou `LegalPage`. Le détail est écrit dans
-`performance-report/preview-report.json` par `npm run test:performance-preview`.
+`performance-report/preview-report.json` par `npm run testing -- performance preview`.
 
 ## Révision pour la calibration terrain
 
@@ -150,7 +150,7 @@ Le plafond total passe de 640 000 à **650 000 octets** (+1,56 %) et celui de
 la règle minimale de **10 %** ne change pas. Le chargement initial (213 334
 octets) et Auth (217 391 octets) restent sous leurs plafonds inchangés de
 215 000 et 225 000 octets. Les autres chunks, les assets et les limites
-Web Vitals restent inchangés. `test:performance-budgets` reste bloquant ;
+Web Vitals restent inchangés. `npm run testing -- performance budgets` reste bloquant ;
 ces mesures de taille ne constituent pas à elles seules une mesure Web Vitals.
 
 ## Audit Web Vitals avant P2-PERF-02

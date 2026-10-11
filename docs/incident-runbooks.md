@@ -45,7 +45,7 @@ donnée personnelle.
    transaction a laissé un état partiel. Comparer l'historique distant aux fichiers
    versionnés avec `npx supabase migration list --linked`.
 3. Si le schéma courant reste compatible, corriger par une **nouvelle** migration,
-   la valider localement avec `npm run db:validate`, puis appliquer cette migration.
+   la valider localement avec `npm run database -- validate --yes`, puis appliquer cette migration.
 4. Si le schéma est incompatible avec le frontend courant, remettre immédiatement
    en service le dernier déploiement Vercel compatible. Ne pas modifier un fichier
    de migration déjà appliqué et ne pas réactiver un RPC retiré.
@@ -106,7 +106,7 @@ jusqu'à correction.
 3. Vérifier la run autoritaire, le `content_hash`, les commandes et l'unicité du
    daily. Les runs rejetées ne doivent produire ni progression ni classement.
 4. Corriger le vérificateur par une nouvelle version immuable, reconstruire avec
-   `npm run edge:bundle`, déployer la fonction, puis activer le nouveau ruleset.
+   `npm run release -- edge bundle`, déployer la fonction, puis activer le nouveau ruleset.
 5. Recalculer uniquement depuis les données autoritaires conservées. Documenter
    toute invalidation et prévenir les joueurs si leur rang visible change.
 

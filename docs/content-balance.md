@@ -40,8 +40,10 @@ La stabilisation early Top conserve `config/early-top-cohort-v17.json`,
 appariées, avec victoire de run, victoire du premier combat, encounter de mort dans les
 trois premiers combats Top, ressources PV/MP, or, affordability et commandes de
 reproduction des seeds extrêmes. Les fixtures sont régénérées par
-`npm run balance:early-top:generate:v17`, `:v18` et `:v21` avec une sortie explicite ;
-la commande sans suffixe génère la v21. `npm run balance:early-top:check` exige leur
+`npm run balance -- early-top generate --engine v17`, avec `--engine v18` ou
+`--engine v21` pour les deux autres versions, et une sortie explicite `--output`.
+Ces protocoles historiques exigent une version explicite.
+`npm run balance -- early-top check --all` exige leur
 reproduction byte-for-byte. La v17 fige le signal à 0 % avant tout tuning, la v18 la
 sortie du blocage et la v21 les plages d'acceptation finales.
 
@@ -92,7 +94,7 @@ mesure Top-only ci-dessous reste la référence pour décider si l'économie ear
 
 ### Décision d'affordability early
 
-`npm run balance:early-top:affordability` rejoue les mêmes 30 cellules × 30 seeds,
+`npm run balance -- early-top affordability check` rejoue les mêmes 30 cellules × 30 seeds,
 mais construit cette mesure depuis les observations brutes de chaque run. Seules les
 visites dont `biome === 'top_lane'` sont retenues ; l'or gagné est la somme des rewards
 des combats Top par run, et non le ledger de la run entière. Le rapport conserve pour
@@ -119,8 +121,8 @@ la zone préliminaire à 28,0 %, et les prix des bottes (300), de la potion (50)
 que les récompenses `top_*` restent inchangés. L'effet causal de l'économie pourra
 être isolé dans la calibration complète de `P1-BAL-02` avec un seuil explicite.
 
-`npm run balance:early-top:affordability:generate:v17` et
-`npm run balance:early-top:affordability:generate` exposent les deux rapports JSON.
+`npm run balance -- early-top affordability generate --engine v17` et
+`npm run balance -- early-top affordability generate --engine v18` exposent les deux rapports JSON.
 Les métriques appariées restent identiques après publication ; seule l'enveloppe
 d'identité authority v18 change. Deux générations propres de la passe B v18 sont
 byte-identiques (SHA-256
@@ -160,14 +162,14 @@ de sort ne lui est appliqué avant la correction de son E et de l'IA prévue par
 `P1-BAL-01`.
 
 La comparaison n'agrège pas le MP entre starters : Garen n'utilise pas de mana, ce
-qui rendrait cette dimension trompeuse. `npm run balance:early-top:starters` verrouille
+qui rendrait cette dimension trompeuse. `npm run balance -- early-top starters check` verrouille
 les 30 cellules et la décision no-op. Deux générations Node 24 de
 `scripts/generate-early-top-cohort.mjs --engine v18` sont byte-identiques au
 SHA-256 `bc12293b13df09d1aae329fce6f40054c78875362dce105657b6dbd6a82e9d42`.
 
 ### Gate de non-régression P0-BAL-04
 
-`npm run balance:early-top:catalog-gates` réutilise directement les deux suites de
+`npm run balance -- early-top catalog check` réutilise directement les deux suites de
 P0-BAL-04 au lieu de recopier leurs valeurs. `economyBalance.test.ts` conserve ses six
 invariants sur le snowball des augments, les budgets Silver, le tirage pondéré des
 raretés, les tiers par biome et la Base, l'échantillon déterministe de 10 000 drops et
@@ -188,17 +190,17 @@ archives immuables dont les identités moteur/hash/modèle/policy sont littéral
 la reproduction emploie exclusivement leur bundle versionné, jamais les constantes du
 moteur courant.
 
-`npm run balance:baseline:generate` génère la `0.2.0` sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-0.2.0.json` met à jour son artefact
-commité. Les commandes `balance:baseline:generate:v15` à `:v22` servent uniquement à
-auditer les archives historiques. Une nouvelle publication ajoute son propre couple
+`npm run balance -- baseline generate` génère la `0.2.0` sur la sortie standard ; l'option
+`--output config/authority-cohort-baselines-0.2.0.json` met à jour son artefact
+commité. L'option `--engine v15` à `--engine v22` sélectionne explicitement une
+archive historique à auditer. Une nouvelle publication ajoute son propre couple
 fixture/loader/JSON sans réécrire les versions précédentes.
-`npm run balance:baseline:check`, inclus dans `npm run balance:artifacts:check`, exige
+`npm run balance -- baseline check --all`, inclus dans `npm run balance -- artifacts check`, exige
 une reproduction byte-for-byte des neuf artefacts.
 
 ### Gates de cohortes P0-BAL-02
 
-`npm run balance:cohort -- --profile pr --output-directory balance-report` exécute
+`npm run balance -- cohort --profile pr --output-directory balance-report` exécute
 45 cellules × 30 seeds. `authorityCohortAcceptance` regroupe 15 familles sémantiques
 et n'échoue sur la hiérarchie Easy ≥ Normal ≥ Hard que lorsque les intervalles Wilson
 révèlent une inversion significative. La même exécution mesure la concentration des
@@ -233,7 +235,7 @@ Lux, complétée par les sondes zéro point et plafond/R. Les onze champions mai
 ne changent pas la population de la matrice historique. Voir le
 [rapport P3-CHAMP-01](balance/P3-CHAMP-01-veigar-v22.md).
 
-`npm run balance:combat:matrix:generate` sélectionne le moteur `current` dans
+`npm run balance -- combat matrix generate` sélectionne le moteur `current` dans
 `config/authority-versions.json` et, par défaut, son prédécesseur gameplay. Le moteur
 précédent est chargé depuis son bundle archivé, puis le candidat est exécuté depuis
 son bundle et sa source. Le rapport contient les identités réellement résolues et
@@ -295,7 +297,7 @@ objectif de taux de victoire ; les playtests humains restent ouverts dans P2-BAL
 `config/map-economy-baseline-v20.json` conserve la publication historique et
 `config/map-economy-baseline-v21.json` porte l'identité courante sur les mêmes
 mesures byte-identiques. Chaque artefact analyse 1 000 seeds avec une programmation
-dynamique sur le DAG de chaque carte. `npm run balance:map-economy:check` exige la
+dynamique sur le DAG de chaque carte. `npm run balance -- map-economy check` exige la
 reproduction v21 byte-for-byte et borne, sur la run complète, l'écart entre routes à
 trois combats et une élite. Chaque chemin traverse un shop en Jungle et un recrutement
 en Mid ; seule la Base se termine par un boss.
@@ -325,10 +327,10 @@ trouve dans `config/authority-field-calibration-baseline-v1.json`, conserve 30 s
 appariées pour chaque difficulté et indexe séparément `safety-first@1` et
 `economy-first@1`. Son sidecar
 `config/authority-field-calibration-conditionals-v1.json` conserve les signaux
-champions et augments issus exactement des mêmes runs. `npm run
-balance:field-baseline:generate` régénère les deux artefacts depuis le bundle v21
+champions et augments issus exactement des mêmes runs.
+`npm run balance -- field-baseline generate` régénère les deux artefacts depuis le bundle v21
 déclaré dans le registre, même lorsque ce moteur devient une archive. Le check
-byte-for-byte fait partie de `balance:artifacts:check` ; aucun numéro de ruleset n'est
+byte-for-byte fait partie de `npm run balance -- artifacts check` ; aucun numéro de ruleset n'est
 incrémenté pour modifier seulement une politique de simulation. V1/v21 reste
 immuable : une future autorité publie une nouvelle version des deux artefacts.
 

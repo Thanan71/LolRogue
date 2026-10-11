@@ -302,7 +302,7 @@ La version par défaut vient du registre authority (actuellement `run-engine-0.2
 ### ARCH-18 — Audit des dépendances et qualité
 - [ ] **Définir le contrat et les cas à couvrir.**
   - [ ] Vérifier packages directs/indirects, versions épinglées, patch Supabase Auth, imports morts et scripts non référencés ; ne retirer que sur preuve.
-  - [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance:check` et workflows spécialisés pertinents.
+  - [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.
   - [ ] Fixer une baseline mesurée des temps CI, tailles de bundles et dépendances utilisées.
   - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
 - [ ] **Réaliser les changements et conserver les compatibilités.**

@@ -29,8 +29,8 @@ L'allowlist se trouve dans `scripts/riot-asset-catalog.mjs`. Le manifest
 - l'URL source, la taille et le SHA-256 de chaque PNG ;
 - le SHA-256 du catalogue de champions importé par l'application.
 
-`npm run assets:verify` contrôle le manifest avant chaque build.
-`npm run assets:verify:dist` contrôle les mêmes fichiers après copie dans `dist`.
+`npm run assets -- verify` contrôle le manifest avant chaque build.
+`npm run assets -- verify --dist` contrôle les mêmes fichiers après copie dans `dist`.
 Une absence, un octet modifié, un fichier non PNG ou une divergence de version
 fait échouer le build.
 
@@ -44,18 +44,18 @@ arts optionnels viennent du CDN Data Dragon et retombent sur le portrait local
 1. Modifier les versions dans `scripts/ddragon-version.json`.
 2. Adapter l'allowlist dans `scripts/riot-asset-catalog.mjs` si le contenu jouable
    change.
-3. Exécuter `npm run assets:update`.
+3. Exécuter `npm run assets -- update`.
 4. Examiner le diff du manifest, du catalogue généré et des PNG.
 5. Exécuter `npm run check` et l'E2E avant publication.
 
-`assets:update` télécharge les données brutes épinglées, régénère les champions,
+`npm run assets -- update` télécharge les données brutes épinglées, régénère les champions,
 extrait uniquement les 187 assets nécessaires et recalcule leurs empreintes. Les
 688 icônes du catalogue Data Dragon des objets ne sont notamment pas embarquées.
 Il ne faut jamais utiliser un endpoint `latest`.
 
 ## Test de clone propre et CSP
 
-`npm run test:assets-clean` recrée un projet temporaire à partir des seuls fichiers
+`npm run assets -- clean-build` recrée un projet temporaire à partir des seuls fichiers
 Git non ignorés, exclut explicitement `public/lol/data/`, lance le build complet et
 vérifie les URLs critiques dans `dist`. Il est inclus dans `npm run check`.
 

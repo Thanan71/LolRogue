@@ -37,7 +37,7 @@ Preuves exécutables des invariants existants :
 
 ```sh
 npm run test -- tests/runSaveRecovery.test.ts tests/runAttemptService.test.ts
-npm run db:validate
+npm run database -- validate --yes
 ```
 
 La seconde commande valide les migrations et les tests réels, notamment

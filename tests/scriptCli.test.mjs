@@ -390,7 +390,12 @@ describe('script CLI contract', () => {
   });
 });
 
-describe('npm compatibility alias plans', () => {
+describe('frozen legacy command equivalence', () => {
+  function canonicalInvocation(alias) {
+    const command = commandCatalog.find((entry) => entry.aliases.includes(alias));
+    expect(command, `Missing canonical replacement for ${alias}`).toBeDefined();
+    return [command.group, ...command.path, ...(command.aliasOptions[alias] ?? [])];
+  }
   // Expand only the frozen, simple balance chains, never execute a manifest command.
   function legacyPlan(alias, visited = new Set()) {
     if (visited.has(alias)) throw new Error(`Recursive legacy alias ${alias}.`);
@@ -444,12 +449,7 @@ describe('npm compatibility alias plans', () => {
   it.each(aliases)(
     'retains %s tools, version flags, historical defaults and chain order without npm recursion',
     async (alias) => {
-      const currentScripts = JSON.parse(
-        readFileSync(path.join(root, 'package.json'), 'utf8'),
-      ).scripts;
-      const invocation = currentScripts[alias].split(/\s+/);
-      expect(invocation.slice(0, 3)).toEqual(['node', 'scripts/cli.mjs', 'balance']);
-      const parsed = parseCommand(invocation.slice(2));
+      const parsed = parseCommand(canonicalInvocation(alias));
       const plan = await createCommandPlan(parsed, context);
       expect(
         plan.every(
@@ -462,12 +462,63 @@ describe('npm compatibility alias plans', () => {
     },
   );
 
-  it('preserves flexible cohort and reproduction legacy arguments through their existing Node entry points', () => {
-    const currentScripts = JSON.parse(
-      readFileSync(path.join(root, 'package.json'), 'utf8'),
-    ).scripts;
-    expect(currentScripts['balance:cohort']).toBe(initialScripts['balance:cohort']);
-    expect(currentScripts['balance:repro']).toBe(initialScripts['balance:repro']);
+  it('preserves cohort and reproduction business entry points and their required arguments', async () => {
+    const cohort = await createCommandPlan(
+      parseCommand([
+        ...canonicalInvocation('balance:cohort'),
+        '--profile',
+        'pr',
+        '--output-directory',
+        'report',
+      ]),
+      context,
+    );
+    expect(cohort).toEqual([
+      {
+        command: process.execPath,
+        args: [
+          path.join(root, 'scripts/run-authority-cohorts.mjs'),
+          '--profile',
+          'pr',
+          '--output-directory',
+          'report',
+        ],
+      },
+    ]);
+    const reproduction = await createCommandPlan(
+      parseCommand([
+        ...canonicalInvocation('balance:repro'),
+        '--scenario-json',
+        '{}',
+        '--seed',
+        '123',
+        '--engine',
+        `run-engine-${context.currentEngine}`,
+        '--content-hash',
+        'frozen-hash',
+        '--max-commands',
+        '10',
+        '--max-run-ms',
+        '250',
+      ]),
+      context,
+    );
+    expect(reproduction[0].command).toBe(process.execPath);
+    expect(reproduction[0].args).toEqual([
+      path.join(root, 'scripts/run-balance-repro.mjs'),
+      '--scenario-json',
+      '{}',
+      '--seed',
+      '123',
+      '--engine',
+      `run-engine-${context.currentEngine}`,
+      '--content-hash',
+      'frozen-hash',
+      '--max-commands',
+      '10',
+      '--max-run-ms',
+      '250',
+    ]);
   });
 
   const checkCompatibleAliases = commandCatalog
@@ -476,10 +527,7 @@ describe('npm compatibility alias plans', () => {
   it.each(checkCompatibleAliases)(
     'keeps the initially exposed --check option on %s and reports a read-only plan',
     (alias) => {
-      const currentScripts = JSON.parse(
-        readFileSync(path.join(root, 'package.json'), 'utf8'),
-      ).scripts;
-      const invocation = currentScripts[alias].split(/\s+/).slice(2);
+      const invocation = canonicalInvocation(alias);
       const result = executeCli([...invocation, '--check', '--dry-run']);
       expect(result.status).toBe(0);
       const plan = JSON.parse(result.stdout);
@@ -501,13 +549,169 @@ describe('npm compatibility alias plans', () => {
     },
   );
 
-  it('uses one group npm entry per router while retaining all existing aliases', () => {
+  it('uses one group npm entry per router independently of historical alias retirement', () => {
     const currentScripts = JSON.parse(
       readFileSync(path.join(root, 'package.json'), 'utf8'),
     ).scripts;
     for (const group of commandGroups)
       expect(currentScripts[group]).toBe(`node scripts/cli.mjs ${group}`);
-    for (const alias of Object.keys(initialScripts)) expect(currentScripts).toHaveProperty(alias);
+  });
+});
+
+describe('canonical operations without retired npm dependencies', () => {
+  it('validates a local database through the same eight operations in order', async () => {
+    const plan = await createCommandPlan(parseCommand(['database', 'validate']), context);
+    expect(plan.map((step) => path.relative(root, step.args[0]))).toEqual([
+      'scripts/reset-local-database.mjs',
+      'scripts/run-local-db-lint.mjs',
+      'scripts/check-local-db-security.mjs',
+      'scripts/check-supabase-advisors.mjs',
+      'scripts/check-measured-database-indexes.mjs',
+      'scripts/check-database-migration-drift.mjs',
+      'scripts/check-database-types.mjs',
+      'scripts/run-local-db-tests.mjs',
+    ]);
+    expect(plan[0].args.slice(1)).toEqual(['--yes']);
+    expect(plan[3].args.slice(1)).toEqual(['--local']);
+  });
+
+  it('generates types through the pinned local wrapper instead of an npm alias or shell redirect', async () => {
+    const plan = await createCommandPlan(parseCommand(['database', 'types', 'generate']), context);
+    expect(plan).toEqual([
+      {
+        command: process.execPath,
+        args: [path.join(root, 'scripts/generate-database-types.mjs')],
+      },
+    ]);
+  });
+
+  it.each(['database', 'release', 'assets', 'balance'])(
+    '%s business targets never delegate to retired npm aliases',
+    (group) => {
+      expect(
+        commandCatalog
+          .filter((command) => command.group === group)
+          .some((command) => command.target.kind === 'npm'),
+      ).toBe(false);
+    },
+  );
+
+  it('preserves the exact localization test suite from the initial manifest', async () => {
+    const plan = await createCommandPlan(parseCommand(['testing', 'i18n', 'check']), context);
+    expect(plan[0].args).toEqual(initialScripts['i18n:check'].split(' ').slice(1));
+  });
+
+  it('serves only after checking and bundling authority, using the installed Supabase CLI', async () => {
+    const plan = await createCommandPlan(parseCommand(['release', 'edge', 'serve']), context);
+    expect(plan.slice(0, 2).map((step) => path.relative(root, step.args[0]))).toEqual([
+      'scripts/check-authority-registry.mjs',
+      'scripts/build-authority-bundle.mjs',
+    ]);
+    expect(plan[2]).toEqual({
+      command: path.join(root, 'node_modules/.bin/supabase'),
+      args: ['functions', 'serve', 'verify-run'],
+    });
+  });
+
+  it.each(['main', 'dev'])(
+    'resolves migrate and edge deployment to the approved %s target, regardless of the linked project',
+    async (branch) => {
+      const projectRef = branch === 'dev' ? 'misdmtpfcbxbhheacehm' : 'mmpvmclqdgfnpfgcqnyu';
+      const targetContext = { ...context, readBranch: () => branch };
+      const migrations = await createCommandPlan(
+        parseCommand(['database', 'migrate']),
+        targetContext,
+      );
+      expect(migrations[0].args).toEqual(['db', 'push', '--project-ref', projectRef, '--yes']);
+      const edge = await createCommandPlan(
+        parseCommand(['release', 'edge', 'deploy']),
+        targetContext,
+      );
+      expect(edge.at(-1).args).toEqual([
+        'functions',
+        'deploy',
+        'verify-run',
+        '--project-ref',
+        projectRef,
+        '--yes',
+      ]);
+    },
+  );
+
+  it.each([
+    ['database', 'migrate'],
+    ['release', 'edge', 'deploy'],
+  ])(
+    'blocks feature branches and mismatched targets before any remote effect: %j',
+    async (...invocation) => {
+      await expect(
+        createCommandPlan(parseCommand(invocation), {
+          ...context,
+          readBranch: () => 'feature/untrusted',
+        }),
+      ).rejects.toMatchObject({ code: 'CLI_DEPLOYMENT_BRANCH' });
+      await expect(
+        createCommandPlan(
+          parseCommand([...invocation, '--project-ref', 'mmpvmclqdgfnpfgcqnyu']),
+          context,
+        ),
+      ).rejects.toMatchObject({ code: 'CLI_DEPLOYMENT_TARGET' });
+    },
+  );
+
+  it('previews remote migrations without confirmation or mutation and preserves Supabase dry-run semantics', async () => {
+    const execute = vi.fn(async () => 0);
+    const io = streams();
+    expect(
+      await runCli(['database', 'migrate', '--preview'], {
+        ...io,
+        execute,
+        readBranch: () => 'dev',
+      }),
+    ).toBe(0);
+    expect(execute.mock.calls[0][0][0].args).toEqual([
+      'db',
+      'push',
+      '--project-ref',
+      'misdmtpfcbxbhheacehm',
+      '--dry-run',
+    ]);
+    expect(
+      await runCli(['database', 'migrate', '--preview', '--dry-run'], {
+        ...io,
+        execute,
+        readBranch: () => 'dev',
+      }),
+    ).toBe(0);
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(io.output()).risk).toBe('read-only');
+  });
+
+  it('allows explicit local migrations on a feature branch, requires confirmation for writes, and rejects ambiguous targets', async () => {
+    const execute = vi.fn(async () => 0);
+    const io = streams();
+    const dependencies = { ...io, execute, readBranch: () => 'feature/local-test' };
+    expect(await runCli(['database', 'migrate', '--local'], dependencies)).toBe(1);
+    expect(execute).not.toHaveBeenCalled();
+    expect(await runCli(['database', 'migrate', '--local', '--yes'], dependencies)).toBe(0);
+    expect(execute.mock.calls[0][0][0].args).toEqual(['db', 'push', '--local', '--yes']);
+    await expect(
+      createCommandPlan(
+        parseCommand(['database', 'migrate', '--local', '--project-ref', 'misdmtpfcbxbhheacehm']),
+        context,
+      ),
+    ).rejects.toMatchObject({ code: 'CLI_OPTION_CONFLICT' });
+  });
+
+  it('forwards linked queue statistics without changing the default local operation', async () => {
+    const plan = await createCommandPlan(
+      parseCommand(['database', 'finished-queue', 'stats', '--linked']),
+      context,
+    );
+    expect(plan[0].args).toEqual([
+      path.join(root, 'scripts/inspect-finished-queue-index-stats.mjs'),
+      '--linked',
+    ]);
   });
 });
 

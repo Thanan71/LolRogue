@@ -89,6 +89,8 @@ describe('P0 balance authority ruleset', () => {
     expect(frontendDeployment).toBeGreaterThan(edgeDeployment);
     expect(databasePush).toBeGreaterThan(frontendDeployment);
     expect(frontendPromotion).toBeGreaterThan(databasePush);
-    expect(backendDeploySource).toContain("args: ['run', 'db:migrations:check:linked']");
+    expect(backendDeploySource).toContain(
+      "args: ['run', 'database', '--', 'migrations', 'check', '--linked']",
+    );
   });
 });

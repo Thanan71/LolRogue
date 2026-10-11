@@ -59,6 +59,7 @@ qui détruisent des données locales ou modifient un service distant exigent
 npm run database -- reset --dry-run
 npm run database -- reset --yes
 npm run database -- types check
+npm run testing -- database --list
 npm run assets -- verify
 npm run assets -- verify --dist
 npm run testing -- static
@@ -98,6 +99,22 @@ conserve son code de sortie ; SIGINT et SIGTERM sont transmis au processus actif
 Les commandes sont exécutées depuis la racine du dépôt, même si la CLI est
 appelée par son chemin absolu depuis un autre dossier.
 
+Les migrations distantes et le déploiement de `verify-run` contrôlent également
+la branche réelle et le projet associé. Un `--project-ref` différent de celui de
+`dev` ou `main` échoue avant toute opération. Pour une migration, `--preview`
+exécute la prévisualisation Supabase sans appliquer de changement ; `--dry-run`
+affiche seulement le plan de la CLI sans exécuter ses opérations.
+
+```bash
+# Depuis dev ou main, avec le projet correspondant :
+npm run database -- migrate --project-ref <project-ref> --preview
+npm run database -- migrate --project-ref <project-ref> --yes
+npm run release -- edge deploy --project-ref <project-ref> --yes
+
+# Base locale uniquement :
+npm run database -- migrate --local --yes
+```
+
 ## Inventaire et compatibilité
 
 ```bash
@@ -111,6 +128,13 @@ dans [l'inventaire JSON](scripts-inventory.json). Le snapshot initial conserve l
 105 entrées, y compris `postinstall`, `prebuild` et `postbuild`. L'inventaire
 comprend aussi les chaînes npm et les hooks implicites.
 
-Les alias existants restent disponibles pendant cette étape. Leur retrait
-nécessite une PR de migration des consommateurs, une recherche globale et une
-CI verte. L'absence de référence n'est pas une preuve qu'un script est inutile.
+Les appelants actifs utilisent les groupes canoniques. Les alias restent
+disponibles jusqu'à la CI verte de cette migration. Le retrait est encadré par
+[un manifeste de preuves](../config/script-alias-retirement.json), qui conserve
+le SHA vérifié, les liens des checks et les références historiques autorisées.
+L'inventaire refuse tout appel actif vers un alias retiré.
+
+`balance:repro` reste disponible pour les commandes de reproduction conservées
+dans les artefacts de balance, et `authority:generate` pour les indications des
+résolveurs générés. Les documents archivés et les artefacts figés conservent leurs
+commandes historiques ; leur présence est distinguée des usages actifs.

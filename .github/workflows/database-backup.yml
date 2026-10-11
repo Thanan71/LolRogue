@@ -33,7 +33,7 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           BACKUP_DIRECTORY: database-backup
-        run: npm run backup:database
+        run: npm run release -- backup
 
       - name: Verify backup checksums
         working-directory: database-backup

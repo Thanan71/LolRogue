@@ -29,7 +29,7 @@ fiche ; une commande destructive exige confirmation par une seconde personne.
 ## Checklist de release
 
 La personne qui publie renseigne d'abord la fiche versionnée
-`config/beta-release.json`, puis exécute `npm run release:preflight`. Cette fiche
+`config/beta-release.json`, puis exécute `npm run release -- preflight`. Cette fiche
 conserve le SHA exact, la preview, le manifeste ordonné des migrations live avec sa
 dernière version et l'heure du relevé, les trois CI post-P0 et les preuves externes ;
 elle reste bloquante tant qu'un champ objectif manque. La
@@ -38,12 +38,12 @@ l'opérateur rollback et l'heure UTC.
 
 ### Avant promotion
 
-- [ ] `npm run release:preflight` conclut `READY` sur le SHA exact à promouvoir.
+- [ ] `npm run release -- preflight` conclut `READY` sur le SHA exact à promouvoir.
 - [ ] Branche à jour, CI verte, diff sans secret et dépendances auditées.
 - [ ] `npm ci`, `npm run check`, `npm run test:e2e`, `npm run test:e2e:production`,
-      `npm run db:validate`, `npm run test:db` et `npm run test:deployed-assets`
+      `npm run database -- validate --yes`, `npm run test:db` et `npm run assets -- deployed verify`
       réussissent sous Node 24.
-- [ ] `npm run db:migrations:check:linked` confirme que la dernière migration du
+- [ ] `npm run database -- migrations check --linked` confirme que la dernière migration du
       projet Supabase lié correspond à celle du commit candidat ; consigner les
       versions ordonnées, la dernière version et l'heure du relevé dans la fiche.
 - [ ] Le contrôle de drift reste strictement en lecture seule : il exécute seulement
@@ -67,7 +67,7 @@ l'opérateur rollback et l'heure UTC.
 
 ### Ordre de promotion
 
-1. Exécuter `npm run backend:deploy` depuis `dev` ou `main`.
+1. Exécuter `npm run release -- deploy --yes` depuis `dev` ou `main`.
 2. La commande déploie la fonction compatible puis publie le frontend sans activer
    encore la ruleset ; le build Production de `main` reste sans domaine.
 3. Elle applique les migrations sur le projet Supabase confirmé et contrôle leur

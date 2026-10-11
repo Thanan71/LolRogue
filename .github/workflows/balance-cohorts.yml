@@ -44,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Verify versioned balance artifacts
-        run: npm run balance:artifacts:check
+        run: npm run balance -- artifacts check
 
       - name: Select cohort volume
         id: volume
@@ -62,7 +62,7 @@ jobs:
 
       - name: Run versioned authority cohorts
         run: >-
-          npm run balance:cohort --
+          npm run balance -- cohort
           --profile "${{ steps.volume.outputs.profile }}"
           --output-directory balance-report
 

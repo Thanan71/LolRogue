@@ -8,12 +8,14 @@ describe('performance lab CI contract', () => {
       readFile(new URL('../scripts/measure-local-preview.mjs', import.meta.url), 'utf8'),
     ]);
 
-    expect(workflow).toContain('run: npm run test:performance-preview');
+    expect(workflow).toContain('run: npm run testing -- performance preview');
     expect(workflow).toContain('run: npx playwright install --with-deps chromium');
     expect(workflow.indexOf('install --with-deps chromium')).toBeLessThan(
-      workflow.indexOf('run: npm run test:performance-preview'),
+      workflow.indexOf('run: npm run testing -- performance preview'),
     );
-    expect(workflow).not.toMatch(/test:performance-preview[\s\S]{0,120}continue-on-error:\s*true/);
+    expect(workflow).not.toMatch(
+      /npm run testing -- performance preview[\s\S]{0,120}continue-on-error:\s*true/,
+    );
     expect(workflow).toContain('name: performance-reports');
     expect(workflow).toContain('retention-days: 30');
     expect(measurement).toContain("'web-vitals-report.json'");

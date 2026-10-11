@@ -31,8 +31,8 @@ secrets. Choisir un répertoire hors du dépôt et vérifier le plan avant le du
 
 ```bash
 export BACKUP_DIRECTORY="$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)"
-npm run backup:database -- --dry-run
-npm run backup:database
+npm run release -- backup --dry-run
+npm run release -- backup
 (cd "$BACKUP_DIRECTORY" && shasum -a 256 -c SHA256SUMS)
 ```
 
@@ -67,13 +67,13 @@ Avant l'exercice hébergé, exécuter la procédure destructive sur une deuxièm
 Supabase locale, créée sur des ports dédiés et supprimée à la fin :
 
 ```bash
-npm run ops:restore-drill -- --dry-run
-npm run ops:restore-drill -- \
+npm run release -- restore-drill --dry-run
+npm run release -- restore-drill \
   --yes \
   --evidence=docs/restore-drills/AAAA-MM-JJ-local.json
 ```
 
-L'alias impose `--local`. `--dry-run` ne lance aucun sous-processus, ne crée pas de
+La commande impose `--local`. `--dry-run` ne lance aucun sous-processus, ne crée pas de
 stack et n'écrit pas de preuve. L'exercice exige `--yes` même en CI : il modifie les
 fixtures locales avant de les nettoyer. Les flags de cible distante sont refusés ;
 Node 24, le CLI Supabase épinglé, `psql` et Docker sont vérifiés avant les mutations.
@@ -103,7 +103,7 @@ dédié : le TODO reste ouvert tant que cette preuve distante n'existe pas.
    de rôles personnalisés ne sont pas couverts par toutes les sauvegardes et doivent
    être recréés depuis le gestionnaire de secrets.
 4. Lier une copie de travail jetable au projet restauré, déployer `verify-run`, puis
-   exécuter `npm run db:lint` et les contrôles SQL de lecture ci-dessous.
+   exécuter `npm run database -- lint` et les contrôles SQL de lecture ci-dessous.
 5. Avec deux comptes synthétiques, exécuter les tests Auth/RLS positifs et négatifs,
    une run vérifiée, un retry idempotent et un daily. Comparer les volumes de tables
    critiques à la source au moment du dump.

@@ -103,7 +103,7 @@ révocation est urgente.
 
 Le manifest `config/security-definer-privileges.json` constitue la liste exhaustive
 des fonctions privilégiées directement exécutables par `anon`, `authenticated` ou
-`service_role`. `npm run db:security` compare les ACL réelles à ce manifest et
+`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et
 refuse tout grant supplémentaire, tout grant `PUBLIC` ou tout `search_path` non
 vide. À ce jour, aucun warning Supabase relatif aux fonctions privilégiées n'est
 accepté globalement : toute nouvelle alerte est bloquante jusqu'à ajout d'une
