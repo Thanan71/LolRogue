@@ -1,13 +1,14 @@
 import { isPersistedRunState } from '@/game/run/runPersistenceValidation';
-import { isRecord } from '@/utils/persistence';
+import type { AuthorityRunMode } from '@/types/runAttempt';
 import { readBoundedStorageJson } from '@/utils/storagePolicy';
+import { isRecord } from '@/utils/valueGuards';
 
 const RUN_STORAGE_KEY = 'lolrogue-run-storage';
 const RUN_START_LOCK = 'lolrogue-run-start';
 
 export interface PersistedActiveRun {
   runId: string;
-  mode: 'normal' | 'daily';
+  mode: AuthorityRunMode;
 }
 
 export function getPersistedActiveRun(): PersistedActiveRun | null {

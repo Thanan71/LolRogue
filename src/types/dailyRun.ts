@@ -76,3 +76,11 @@ export interface DailyRunState {
   /** Server-provided UTC expiration for authenticated challenges. */
   expiresAt: string | null;
 }
+
+export interface DailyCompletionInput {
+  playerName: string;
+  score: number;
+  wavesCompleted: number;
+  runLevel: number;
+  persistInLocalLeaderboard: boolean;
+}

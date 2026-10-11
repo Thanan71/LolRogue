@@ -7,6 +7,7 @@
 
 // Auth interfaces and types
 export * from './IAuthRepository';
+export * from './IChampionEconomyRepository';
 // DailyRun and Leaderboard interfaces and types
 export * from './IDailyRunRepository';
 // Enhancement interfaces and types

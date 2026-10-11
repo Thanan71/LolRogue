@@ -1,8 +1,9 @@
+import type { AuthorityDifficulty, AuthorityRunMode } from '@/game/authority/types';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import type { ChampionRunAccessSnapshot } from './championEconomy';
 
-export type AuthorityRunMode = 'normal' | 'daily';
-export type AuthorityDifficulty = 'easy' | 'normal' | 'hard';
+/** Browser callers retain this entry point; the replay contract owns these values. */
+export type { AuthorityDifficulty, AuthorityRunMode } from '@/game/authority/types';
 
 export type RunAttemptStatus =
   | 'started'

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type {
   DailyChallenge,
+  DailyCompletionInput,
   DailyLeaderboard,
   DailyLeaderboardEntry,
   DailyRunState,
@@ -158,14 +159,6 @@ function saveLeaderboard(leaderboard: DailyLeaderboard): void {
   } catch {
     // Guest leaderboard is best effort and never affects authenticated progression.
   }
-}
-
-interface DailyCompletionInput {
-  playerName: string;
-  score: number;
-  wavesCompleted: number;
-  runLevel: number;
-  persistInLocalLeaderboard: boolean;
 }
 
 interface DailyMetadataActions {

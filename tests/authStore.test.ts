@@ -3,6 +3,7 @@
 import type { Session, User } from '@supabase/supabase-js';
 import { act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fr } from '@/i18n/fr';
 import type { Player } from '@/types/models';
 
 const mocks = vi.hoisted(() => ({
@@ -81,6 +82,29 @@ function user(id: string): User {
 
 function session(id: string): Session {
   return { user: user(id), access_token: `token-${id}`, refresh_token: `refresh-${id}` } as Session;
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((yes) => {
+    resolve = yes;
+  });
+  return { promise, resolve };
+}
+
+function readyAccount(
+  currentSession: Session,
+  currentPlayer = player(currentSession.user.id),
+): void {
+  useAuthStore.setState({
+    session: currentSession,
+    user: currentSession.user,
+    player: currentPlayer,
+    authStatus: 'ready',
+    isAuthenticated: true,
+    isGuest: false,
+    isLoading: false,
+  });
 }
 
 function player(id: string): Player {
@@ -173,6 +197,86 @@ describe('auth identity lifecycle', () => {
     });
     unsubscribe();
     expect(mocks.unsubscribe).toHaveBeenCalledOnce();
+  });
+
+  it('keeps the newest same-account refresh when profile replies finish in reverse order', async () => {
+    readyAccount(session('a'));
+    const older = deferred<{ data: Player; error: null }>();
+    const newer = deferred<{ data: Player; error: null }>();
+    mocks.getPlayer.mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
+    const first = useAuthStore.getState().refreshPlayer();
+    await vi.waitFor(() => expect(mocks.getPlayer).toHaveBeenCalledTimes(1));
+    const second = useAuthStore.getState().refreshPlayer();
+    await vi.waitFor(() => expect(mocks.getPlayer).toHaveBeenCalledTimes(2));
+    newer.resolve({ data: { ...player('a'), total_candies: 90 }, error: null });
+    await expect(second).resolves.toEqual({ success: true });
+    older.resolve({ data: { ...player('a'), total_candies: 10 }, error: null });
+    await expect(first).resolves.toEqual({ success: false, error: fr.auth.staleSession });
+    expect(useAuthStore.getState()).toMatchObject({
+      authStatus: 'ready',
+      player: { user_id: 'a', total_candies: 90 },
+    });
+    expect(mocks.touchLastLogin).toHaveBeenCalledTimes(1);
+    expect(mocks.initializeEnhancements).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a profile response after A to B to A replaces the original session', async () => {
+    const originalSession = session('a');
+    readyAccount(originalSession);
+    const pending = deferred<{ data: Player; error: null }>();
+    mocks.getPlayer.mockReturnValueOnce(pending.promise);
+    const refreshing = useAuthStore.getState().refreshPlayer();
+    await vi.waitFor(() => expect(mocks.getPlayer).toHaveBeenCalledTimes(1));
+    readyAccount(session('b'));
+    const replacementSession = session('a');
+    const replacementPlayer = { ...player('a'), total_candies: 90 };
+    readyAccount(replacementSession, replacementPlayer);
+    pending.resolve({ data: { ...player('a'), total_candies: 10 }, error: null });
+    await expect(refreshing).resolves.toEqual({ success: false, error: fr.auth.staleSession });
+    expect(useAuthStore.getState().session).toBe(replacementSession);
+    expect(useAuthStore.getState().player).toBe(replacementPlayer);
+    expect(mocks.touchLastLogin).not.toHaveBeenCalled();
+    expect(mocks.resetEconomy).not.toHaveBeenCalled();
+    expect(mocks.initializeEnhancements).not.toHaveBeenCalled();
+  });
+
+  it('rejects a late refresh when the user reference changes with the same account UUID', async () => {
+    readyAccount(session('a'));
+    const pending = deferred<{ data: Player; error: null }>();
+    mocks.getPlayer.mockReturnValueOnce(pending.promise);
+    const refreshing = useAuthStore.getState().refreshPlayer();
+    await vi.waitFor(() => expect(mocks.getPlayer).toHaveBeenCalledTimes(1));
+    const replacementUser = user('a');
+    const replacementPlayer = { ...player('a'), total_candies: 90 };
+    useAuthStore.setState({
+      user: replacementUser,
+      player: replacementPlayer,
+      authStatus: 'ready',
+    });
+    pending.resolve({ data: { ...player('a'), total_candies: 10 }, error: null });
+    await expect(refreshing).resolves.toEqual({ success: false, error: fr.auth.staleSession });
+    expect(useAuthStore.getState().user).toBe(replacementUser);
+    expect(useAuthStore.getState().player).toBe(replacementPlayer);
+    expect(mocks.touchLastLogin).not.toHaveBeenCalled();
+  });
+
+  it('stops subsequent progression hydration when identity changes during economy refresh', async () => {
+    readyAccount(session('a'));
+    mocks.getPlayer.mockResolvedValueOnce({ data: player('a'), error: null });
+    const pending = deferred<void>();
+    mocks.initializeEconomy.mockReturnValueOnce(pending.promise);
+    const refreshing = useAuthStore.getState().refreshPlayer();
+    await vi.waitFor(() => expect(mocks.initializeEconomy).toHaveBeenCalledTimes(1));
+    const replacementSession = session('a');
+    const replacementPlayer = { ...player('a'), total_candies: 90 };
+    readyAccount(replacementSession, replacementPlayer);
+    pending.resolve();
+    await expect(refreshing).resolves.toEqual({ success: false, error: fr.auth.staleSession });
+    expect(useAuthStore.getState().session).toBe(replacementSession);
+    expect(useAuthStore.getState().player).toBe(replacementPlayer);
+    expect(mocks.activateMastery).not.toHaveBeenCalled();
+    expect(mocks.resetEnhancements).not.toHaveBeenCalled();
+    expect(mocks.initializeEnhancements).not.toHaveBeenCalled();
   });
 
   it('never hydrates an obsolete account after its last-login request completes late', async () => {

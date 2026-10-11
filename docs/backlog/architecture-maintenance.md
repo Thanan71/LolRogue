@@ -1,6 +1,6 @@
 # ARCH — Architecture, maintenance et scripts
 
-**Statut : ARCH-S1 implémenté, appelants migrés et alias retirés après CI verte ; ARCH-S2 implémenté ; ARCH-S3 à ARCH-S5 proposés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
+**Statut : ARCH-S1 implémenté, appelants migrés et alias retirés après CI verte ; ARCH-S2 implémenté ; ARCH-S3 implémenté ; ARCH-S4 et ARCH-S5 proposés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
 
 [Retour au TODO](../../TODO.md) · [Bot tactique](tactical-bot.md) · [Arbres de Candies](champion-enhancement-trees.md) · [Administration](admin-console.md)
 
@@ -140,67 +140,67 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
 ## ARCH-S3 — Frontières métier et stores (P2, taille L/XL)
 
 ### ARCH-08 — Cartographier les dépendances
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Générer la carte `pages → hooks → services → repositories` et les cycles éventuels, avec preuves par imports.
-  - [ ] Définir une règle CI vérifiable : `src/game` n'importe ni `pages`, ni `stores`, ni `services/supabaseClient`.
-  - [ ] Définir les couches permises et les exceptions d'import justifiées par le replay ou les interfaces communes.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Éviter les imports massifs via les barrels `src/services/index.ts` ; privilégier les entrées de domaine explicites.
-  - [ ] Mesurer le graphe avant/après pour détecter les régressions réelles et éviter les renommages cosmétiques.
-  - [ ] Mettre une règle automatique avec message indiquant l'import interdit et sa cible de remplacement.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Injecter un import React fictif dans `src/game` pour prouver que le test le détecte, puis restaurer.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Générer la carte `pages → hooks → services → repositories` et les cycles éventuels, avec preuves par imports.
+  - [x] Définir une règle CI vérifiable : `src/game` n'importe ni `pages`, ni `stores`, ni `services/supabaseClient`.
+  - [x] Définir les couches permises et les exceptions d'import justifiées par le replay ou les interfaces communes.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Éviter les imports massifs via les barrels `src/services/index.ts` ; privilégier les entrées de domaine explicites.
+  - [x] Mesurer le graphe avant/après pour détecter les régressions réelles et éviter les renommages cosmétiques.
+  - [x] Mettre une règle automatique avec message indiquant l'import interdit et sa cible de remplacement.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Injecter un import React fictif dans `src/game` pour prouver que le test le détecte, puis restaurer.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-09 — Découper `runStoreLifecycleSlice.ts` (~41 Ko)
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Séparer les orchestrations `start`, `end/finalize`, `retry/save`, `sync progression` et `authority journal` des mutations Zustand.
-  - [ ] Conserver les signatures publiques `useRunStore` et l'unique politique de persistance/merge ; aucune migration de sauvegarde sans test de migration.
-  - [ ] Cartographier les transitions `start`, `save`, `retry`, `finalize`, `reload` et leurs effets observables.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Injecter les services/repositories au lieu de consulter plusieurs stores directement depuis des règles métier, lorsque possible.
-  - [ ] Tester double clic, rechargement en sauvegarde, retry après réseau, run ancienne version et idempotence.
-  - [ ] Déplacer orchestration dans des services réutilisables et laisser les slices Zustand gérer uniquement les mutations d'état.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Comparer snapshots legacy, appels concurrents de démarrage, rechargement en cours de sauvegarde et idempotence.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Séparer les orchestrations `start`, `end/finalize`, `retry/save`, `sync progression` et `authority journal` des mutations Zustand.
+  - [x] Conserver les signatures publiques `useRunStore` et l'unique politique de persistance/merge ; aucune migration de sauvegarde sans test de migration.
+  - [x] Cartographier les transitions `start`, `save`, `retry`, `finalize`, `reload` et leurs effets observables.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Injecter les services/repositories au lieu de consulter plusieurs stores directement depuis des règles métier, lorsque possible.
+  - [x] Tester double clic, rechargement en sauvegarde, retry après réseau, run ancienne version et idempotence.
+  - [x] Déplacer orchestration dans des services réutilisables et laisser les slices Zustand gérer uniquement les mutations d'état.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Comparer snapshots legacy, appels concurrents de démarrage, rechargement en cours de sauvegarde et idempotence.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-10 — Stabiliser le conteneur de repositories
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Conserver `RepositoryContainer` et ses interfaces comme point d'accès DB ; éviter de créer un deuxième système DI parallèle.
-  - [ ] Isoler le rafraîchissement des données serveur et l'état UI pour éviter qu'un service métier dépende directement des hooks/stores.
-  - [ ] Lister interfaces réutilisées et contrats de dépendance du `RepositoryContainer` existant.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Vérifier auth/RLS et contrats de sérialisation avec tests base réelle ; maintenir le mode invité sans DB.
-  - [ ] Éviter de déplacer ou modifier les méthodes de repositories sans consommateurs/tests mis à jour.
-  - [ ] Introduire injection explicite dans les services critiques, sans multiplier les conteneurs ou clients Supabase.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Tester invités hors ligne, droits connectés, refus RLS et refresh de progression avec identité changée.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Conserver `RepositoryContainer` et ses interfaces comme point d'accès DB ; éviter de créer un deuxième système DI parallèle.
+  - [x] Isoler le rafraîchissement des données serveur et l'état UI pour éviter qu'un service métier dépende directement des hooks/stores.
+  - [x] Lister interfaces réutilisées et contrats de dépendance du `RepositoryContainer` existant.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Vérifier auth/RLS et contrats de sérialisation avec tests base réelle ; maintenir le mode invité sans DB.
+  - [x] Éviter de déplacer ou modifier les méthodes de repositories sans consommateurs/tests mis à jour.
+  - [x] Introduire injection explicite dans les services critiques, sans multiplier les conteneurs ou clients Supabase.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Tester invités hors ligne, droits connectés, refus RLS et refresh de progression avec identité changée.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-11 — Contrats de données et invariants
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Documenter la propriété de chaque type : catalogue champion, instance de combat, état run, tentative authority, progression de compte et devise.
-  - [ ] Ajouter des tests de frontières et d'import ; suivre explicitement schémas générés `src/types/database.ts` versus modèles métiers.
-  - [ ] Faire une matrice d'appartenance pour types UI, modèles DB, contrats authority et données jeu immuables.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Éviter la création de types en double entre `src/types`, `src/game` et `src/features` ; rediriger progressivement vers des exports stables.
-  - [ ] Remplacer les duplications par des imports explicites, en gardant les adaptateurs de compatibilité existants.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Contrôler compilations app/scripts/e2e et migration des snapshots sans conversion de nombres ou enums.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Documenter la propriété de chaque type : catalogue champion, instance de combat, état run, tentative authority, progression de compte et devise.
+  - [x] Ajouter des tests de frontières et d'import ; suivre explicitement schémas générés `src/types/database.ts` versus modèles métiers.
+  - [x] Faire une matrice d'appartenance pour types UI, modèles DB, contrats authority et données jeu immuables.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Éviter la création de types en double entre `src/types`, `src/game` et `src/features` ; rediriger progressivement vers des exports stables.
+  - [x] Remplacer les duplications par des imports explicites, en gardant les adaptateurs de compatibilité existants.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Contrôler compilations app/scripts/e2e et migration des snapshots sans conversion de nombres ou enums.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 **Acceptation S3 :** sauvegardes anciennes restaurées, composants inchangés extérieurement, invariants authoritative conservés et aucune nouvelle dépendance circulaire.
 
 ## ARCH-S4 — Modules UI orientés fonctionnalités (P2, taille XL)

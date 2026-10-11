@@ -15,10 +15,9 @@ import {
   getEnhancementNodeContent,
   getEnhancementValidationMessage,
 } from '@/i18n/enhancementContent';
-import { RepositoryContainerFactory } from '@/services/container';
+import { accountProgressionService } from '@/services/accountProgressionService';
+import { applicationRepositories as container } from '@/services/container/applicationRepositories';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import type { IRepositoryContainer } from '@/services/interfaces';
-import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -29,9 +28,6 @@ import type {
   PlayerEnhancementState,
 } from '@/types/enhancementTree';
 import { logger } from '@/utils/logger';
-
-// Create repository container for dependency injection
-const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
 interface PendingUnlockCommand {
   commandId: string;
@@ -44,6 +40,7 @@ interface PendingUnlockCommand {
  * instead of attempting (and charging for) a second rank.
  */
 const pendingUnlockCommands = new Map<string, PendingUnlockCommand>();
+let progressionGeneration = 0;
 
 function getPendingUnlockKey(userId: string, championId: string, nodeId: string): string {
   return `${userId}:${championId}:${nodeId}`;
@@ -75,19 +72,21 @@ function getUnlockValidationReason(
   return { code: 'fallback' };
 }
 
-async function refreshCanonicalCandyBalance(): Promise<number | undefined> {
-  const auth = useAuthStore.getState();
-  if (!auth.user) return auth.player?.total_candies;
+async function refreshCanonicalCandyBalance(
+  userId: string,
+  isCurrent: () => boolean,
+): Promise<number | undefined> {
+  if (!isCurrent()) return undefined;
   try {
-    const result = await container.player.getPlayer(auth.user.id);
-    if (result.data && useAuthStore.getState().user?.id === auth.user.id) {
+    const result = await accountProgressionService.loadPlayer({ userId, isCurrent });
+    if (result.status === 'loaded' && result.data && isCurrent()) {
       useAuthStore.getState().setPlayerCandyBalance(result.data.total_candies);
       return result.data.total_candies;
     }
   } catch (error) {
     logger.warn('[EnhancementStore] Failed to refresh candy balance:', error);
   }
-  return useAuthStore.getState().player?.total_candies;
+  return isCurrent() ? useAuthStore.getState().player?.total_candies : undefined;
 }
 
 function applyCanonicalCandyBalance(candies: number): void {
@@ -175,6 +174,17 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
   // Initialize with player data
   initialize: async (authUserId: string, initialCandies = 0) => {
+    const auth = useAuthStore.getState();
+    if (auth.isGuest || auth.user?.id !== authUserId) {
+      get().reset();
+      return;
+    }
+    const generation = ++progressionGeneration;
+    const isCurrent = () =>
+      progressionGeneration === generation &&
+      get().ownerUserId === authUserId &&
+      useAuthStore.getState().user?.id === authUserId &&
+      !useAuthStore.getState().isGuest;
     set({
       enhancements: {},
       championMasteryLevels: {},
@@ -188,14 +198,12 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     });
 
     try {
-      // Fetch all enhancement states from database
-      const states = await container.enhancement.getAllEnhancementStates(authUserId);
-
-      // Fetch all champion mastery levels from the champion_mastery table
-      const { data: masteryData, error: masteryError } =
-        await container.mastery.getChampionMastery(authUserId);
-      if (masteryError) throw masteryError;
-      if (get().ownerUserId !== authUserId) return;
+      const result = await accountProgressionService.loadEnhancements({
+        userId: authUserId,
+        isCurrent,
+      });
+      if (result.status !== 'loaded' || !isCurrent()) return;
+      const { states, masteries: masteryData } = result.data;
 
       const enhancements: Record<string, PlayerEnhancementState> = {};
       const championMasteryLevels: Record<string, number> = {};
@@ -224,7 +232,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       });
     } catch (error) {
       logger.error('[EnhancementStore] Failed to initialize:', error);
-      if (get().ownerUserId !== authUserId) return;
+      if (!isCurrent()) return;
       set({
         error: enhancementContent[useSettingsStore.getState().language].store.loadError,
         isLoading: false,
@@ -323,13 +331,21 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     const localizedNodeName = getEnhancementNodeContent(contentLocale, nodeToUnlock.id).name;
 
     const { user: currentUser, isGuest } = useAuthStore.getState();
-    if (isGuest || !currentUser) {
+    if (isGuest || !currentUser || get().ownerUserId !== currentUser.id) {
       set({
         error: storeContent.accountRequired,
         statusMessage: null,
       });
       return false;
     }
+
+    const generation = progressionGeneration;
+    const ownerUserId = get().ownerUserId;
+    const isCurrent = () =>
+      progressionGeneration === generation &&
+      get().ownerUserId === ownerUserId &&
+      useAuthStore.getState().user?.id === currentUser.id &&
+      !useAuthStore.getState().isGuest;
 
     const expectedRank = currentState.unlockedNodes[nodeId] ?? 0;
     const pendingKey = getPendingUnlockKey(currentUser.id, selectedChampion.id, nodeId);
@@ -389,6 +405,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         expectedRank,
         commandId,
       );
+      if (!isCurrent()) return false;
 
       if (!result.success) {
         // A transport error may happen after the database committed. The
@@ -406,7 +423,8 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
             statusMessage: storeContent.unlockSucceeded(localizedNodeName),
           }));
 
-          const refreshedCandies = await refreshCanonicalCandyBalance();
+          const refreshedCandies = await refreshCanonicalCandyBalance(currentUser.id, isCurrent);
+          if (!isCurrent()) return false;
           if (refreshedCandies !== undefined) {
             set({ availableCandies: refreshedCandies });
           }
@@ -421,7 +439,8 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
             error: result.error,
           });
         }
-        const refreshedCandies = await refreshCanonicalCandyBalance();
+        const refreshedCandies = await refreshCanonicalCandyBalance(currentUser.id, isCurrent);
+        if (!isCurrent()) return false;
         set((current) => ({
           availableCandies: refreshedCandies ?? current.availableCandies,
           error: storeContent.saveFailed,
@@ -450,13 +469,14 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       return true;
     } catch (error) {
       logger.error('[EnhancementStore] Failed to unlock node:', error);
+      if (!isCurrent()) return false;
       set({
         error: storeContent.saveFailed,
         statusMessage: null,
       });
       return false;
     } finally {
-      set({ isLoading: false });
+      if (isCurrent()) set({ isLoading: false });
     }
   },
 
@@ -472,6 +492,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
   // Reset store
   reset: () => {
+    progressionGeneration += 1;
     pendingUnlockCommands.clear();
     set({
       enhancements: {},

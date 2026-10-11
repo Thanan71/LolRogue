@@ -1022,7 +1022,7 @@ Invariant livré ; [preuve et critères archivés](docs/archive/todo-snapshot-20
 
 1. **Fiabilité avant fonctionnalités** : `ADM-S1` + `TREE-01..04`, avec correctifs SQL/RLS et parité combat.
 2. **Nettoyage sans risque de gameplay** : [ARCH-S1 implémenté](docs/backlog/architecture-maintenance.md#arch-s1--catalogue-de-scripts-et-cli-p2-taille-l), appelants migrés dans la PR #213 puis 72 alias retirés après ses 18 checks verts ; 40 entrées npm restent publiques. [ARCH-S2 implémenté](docs/backlog/architecture-maintenance.md#arch-s2--configuration-et-déploiement-p1-taille-ml) : configuration commune, cibles distantes contrôlées et plugins Vite/Vitest séparés ; preuves dans [la validation S2](docs/architecture-s2-validation-2026-10-11.md). Le blocage des déploiements hors `main`/`dev` est maintenu.
-3. **Interfaces métier** : `ARCH-S3/S4`, `ADM-S2/S3` et `TREE-05..07` ; une seule couche de repositories/services.
+3. **Interfaces métier** : [ARCH-S3 implémenté](docs/backlog/architecture-maintenance.md#arch-s3--frontières-métier-et-stores-p2-taille-lxl) : frontières d’import contrôlées, orchestration des runs injectée, conteneur applicatif unique et contrats de données partagés ; preuves dans [la validation S3](docs/architecture-s3-validation-2026-10-11.md). `ARCH-S4`, `ADM-S2/S3` et `TREE-05..07` restent à traiter.
 4. **Bot stratégique** : `AI-S1..S9`, en conservant `legacy` ; pas de nouvelle version authority tant que parité/vérification non acquises.
 5. **Mesure / UI / exploitation** : `TREE-08..10`, `ADM-S4..S7` et `ARCH-S5`.
 6. **Champions supplémentaires** : `P3-CHAMP-02..06`, dans l'ordre Renekton → Katarina → Heimerdinger → Kayn → Sylas, avec prérequis moteur mutualisés.

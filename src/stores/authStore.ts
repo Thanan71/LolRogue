@@ -3,15 +3,12 @@ import { create } from 'zustand';
 import { initialPasswordRecovery } from '@/auth/passwordRecovery';
 import { authRecoveryCopy } from '@/i18n/authRecoveryContent';
 import { fr } from '@/i18n/fr';
-import { RepositoryContainerFactory } from '@/services/container';
-import type { IRepositoryContainer } from '@/services/interfaces';
-import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
+import { applicationRepositories as container } from '@/services/container/applicationRepositories';
+import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useChampionEconomyStore } from '@/stores/championEconomyStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import type { Player } from '@/types/models';
 import { readGuestMode, setStoredGuestMode } from '@/utils/ancillaryStorage';
-
-const container: IRepositoryContainer = RepositoryContainerFactory.create(supabase);
 
 export type AuthStatus =
   | 'bootstrapping'
@@ -122,13 +119,14 @@ export function localizeAuthError(error: unknown): string {
 async function resetProgressionCaches(
   target: 'guest' | 'signed-out',
   generation: number,
+  isCurrentScope: () => boolean = () => isCurrent(generation),
 ): Promise<void> {
-  if (!isCurrent(generation)) return;
+  if (!isCurrentScope()) return;
   useChampionEconomyStore.getState().reset();
   if (target === 'guest') useMasteryStore.getState().activateGuestScope();
   else useMasteryStore.getState().clearSession();
   const { useEnhancementStore } = await import('@/stores/enhancementStore');
-  if (!isCurrent(generation)) return;
+  if (!isCurrentScope()) return;
   useEnhancementStore.getState().reset();
 }
 
@@ -136,26 +134,33 @@ async function hydrateAuthenticatedProgression(
   userId: string,
   player: Player,
   generation: number,
+  isCurrentScope: () => boolean = () => isCurrent(generation),
 ): Promise<void> {
-  if (!isCurrent(generation)) return;
+  if (!isCurrentScope()) return;
   useChampionEconomyStore.getState().reset(userId);
   await useChampionEconomyStore.getState().initialize(userId);
-  if (!isCurrent(generation)) return;
+  if (!isCurrentScope()) return;
   useMasteryStore.getState().activateAuthenticatedScope(userId);
   const { useEnhancementStore } = await import('@/stores/enhancementStore');
-  if (!isCurrent(generation)) return;
+  if (!isCurrentScope()) return;
   useEnhancementStore.getState().reset();
   await useEnhancementStore.getState().initialize(userId, player.total_candies);
-  if (!isCurrent(generation)) return;
+  if (!isCurrentScope()) return;
   if (!useMasteryStore.getState().isHydrated) {
     throw new Error(fr.auth.masteryUnavailable);
   }
 }
 
-async function waitForPlayer(userId: string, retries = 8): Promise<Player> {
+async function waitForPlayer(
+  userId: string,
+  isCurrentScope: () => boolean,
+  retries = 8,
+): Promise<Player> {
   let lastError: Error | null = null;
   for (let attempt = 0; attempt < retries; attempt += 1) {
+    if (!isCurrentScope()) throw new Error(fr.auth.staleSession);
     const result = await container.player.getPlayer(userId);
+    if (!isCurrentScope()) throw new Error(fr.auth.staleSession);
     if (result.data) return result.data;
     lastError = result.error;
     if (attempt + 1 < retries) await new Promise((resolve) => setTimeout(resolve, 250));
@@ -250,11 +255,15 @@ function recoveryError(error: unknown, fallback: string): string {
   return fallback;
 }
 
-async function establishSession(session: Session, generation: number): Promise<AuthActionResult> {
-  if (await hasBlockingRun(session.user.id)) {
-    return rejectAccountChange(generation);
-  }
-  if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+async function establishSession(
+  session: Session,
+  generation: number,
+  isExpectedIdentity?: () => boolean,
+): Promise<AuthActionResult> {
+  const blockingRun = await hasBlockingRun(session.user.id);
+  if (!isCurrent(generation) || isExpectedIdentity?.() === false)
+    return { success: false, error: fr.auth.staleSession };
+  if (blockingRun) return rejectAccountChange(generation);
   useAuthStore.setState({
     session,
     user: session.user,
@@ -268,13 +277,27 @@ async function establishSession(session: Session, generation: number): Promise<A
     isPasswordRecovery: false,
     error: null,
   });
+  const isCurrentSession = () => {
+    const current = useAuthStore.getState();
+    return (
+      isCurrent(generation) &&
+      current.session === session &&
+      current.user === session.user &&
+      !current.isGuest
+    );
+  };
   try {
-    const player = await waitForPlayer(session.user.id);
-    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+    const player = await waitForPlayer(session.user.id, isCurrentSession);
+    if (!isCurrentSession()) return { success: false, error: fr.auth.staleSession };
     const refreshedPlayer = await withLastLogin(player);
-    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
-    await hydrateAuthenticatedProgression(session.user.id, refreshedPlayer, generation);
-    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+    if (!isCurrentSession()) return { success: false, error: fr.auth.staleSession };
+    await hydrateAuthenticatedProgression(
+      session.user.id,
+      refreshedPlayer,
+      generation,
+      isCurrentSession,
+    );
+    if (!isCurrentSession()) return { success: false, error: fr.auth.staleSession };
     setStoredGuestMode(false);
     useAuthStore.setState({
       session,
@@ -290,9 +313,9 @@ async function establishSession(session: Session, generation: number): Promise<A
     });
     return { success: true };
   } catch (error) {
-    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
-    await resetProgressionCaches('signed-out', generation);
-    if (!isCurrent(generation)) return { success: false, error: fr.auth.staleSession };
+    if (!isCurrentSession()) return { success: false, error: fr.auth.staleSession };
+    await resetProgressionCaches('signed-out', generation, isCurrentSession);
+    if (!isCurrentSession()) return { success: false, error: fr.auth.staleSession };
     const message = localizeAuthError(error);
     useAuthStore.setState({
       session,
@@ -516,9 +539,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   refreshPlayer: async () => {
-    const { session } = get();
+    const { session, user } = get();
     if (!session) return { success: false, error: fr.auth.noActiveSession };
-    return establishSession(session, nextGeneration());
+    return establishSession(
+      session,
+      nextGeneration(),
+      () => get().session === session && get().user === user && !get().isGuest,
+    );
   },
 
   setPlayerCandyBalance: (candies: number) => {

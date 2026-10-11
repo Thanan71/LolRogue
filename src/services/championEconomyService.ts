@@ -3,7 +3,8 @@ import type {
   ChampionPurchaseQuote,
   ChampionPurchaseResult,
 } from '@/types/championEconomy';
-import { supabase } from './supabaseClient';
+import { applicationRepositories } from './container/applicationRepositories';
+import type { IRepositoryContainer } from './interfaces/IRepositoryContainer';
 
 export class ChampionEconomyError extends Error {
   constructor(public readonly code: string) {
@@ -149,32 +150,34 @@ function businessError(error: { message: string }): ChampionEconomyError {
   );
 }
 
-export async function loadChampionEconomy(): Promise<ChampionEconomySnapshot> {
-  const { data, error } = await boundedEconomyRequest((signal) =>
-    supabase.rpc('get_champion_economy_snapshot').abortSignal(signal),
-  );
-  if (error) throw businessError(error);
-  return parseChampionEconomySnapshot(data);
+export function createChampionEconomyService(
+  repositories: Pick<IRepositoryContainer, 'championEconomy'>,
+) {
+  async function loadChampionEconomy(): Promise<ChampionEconomySnapshot> {
+    const { data, error } = await boundedEconomyRequest((signal) =>
+      repositories.championEconomy.getSnapshot(signal),
+    );
+    if (error) throw businessError(error);
+    return parseChampionEconomySnapshot(data);
+  }
+
+  async function purchaseAccountChampion(
+    championId: string,
+    quote: ChampionPurchaseQuote,
+    commandId: string,
+  ): Promise<ChampionPurchaseResult> {
+    const { data, error } = await boundedEconomyRequest((signal) =>
+      repositories.championEconomy.purchaseChampion(championId, quote, commandId, signal),
+    );
+    if (error) throw businessError(error);
+    const result = record(data);
+    if (!result || typeof result.replayed !== 'boolean')
+      throw new ChampionEconomyError('invalid_economy_snapshot');
+    return { replayed: result.replayed, snapshot: parseChampionEconomySnapshot(result.snapshot) };
+  }
+
+  return { loadChampionEconomy, purchaseAccountChampion };
 }
 
-export async function purchaseAccountChampion(
-  championId: string,
-  quote: ChampionPurchaseQuote,
-  commandId: string,
-): Promise<ChampionPurchaseResult> {
-  const { data, error } = await boundedEconomyRequest((signal) =>
-    supabase
-      .rpc('purchase_champion', {
-        p_command_id: commandId,
-        p_champion_id: championId,
-        p_expected_price: quote.priceShards,
-        p_expected_catalog_version: quote.catalogVersion,
-      })
-      .abortSignal(signal),
-  );
-  if (error) throw businessError(error);
-  const result = record(data);
-  if (!result || typeof result.replayed !== 'boolean')
-    throw new ChampionEconomyError('invalid_economy_snapshot');
-  return { replayed: result.replayed, snapshot: parseChampionEconomySnapshot(result.snapshot) };
-}
+export const { loadChampionEconomy, purchaseAccountChampion } =
+  createChampionEconomyService(applicationRepositories);

@@ -1,4 +1,6 @@
-/** Domain aliases backed by the generated Supabase schema. */
+/** Database row aliases and repository projections backed by the generated schema.
+ * Gameplay and UI models live in their named contracts (for example, mastery.ts).
+ */
 
 import type { Tables, TablesInsert, TablesUpdate } from './database';
 
@@ -11,6 +13,7 @@ export type PlayerProfileUpdate = Pick<TablesUpdate<'players'>, 'display_name' |
 
 // ─── Champion Mastery ─────────────────────────────────────────────────────────
 
+/** Database row; distinct from the calculated ChampionMastery in mastery.ts. */
 export type ChampionMastery = Tables<'champion_mastery'>;
 
 // ─── Player Unlocks ───────────────────────────────────────────────────────────

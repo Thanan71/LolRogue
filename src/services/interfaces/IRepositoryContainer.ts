@@ -13,6 +13,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 // Import all repository interfaces
 import type { IAuthRepository } from './IAuthRepository';
+import type { IChampionEconomyRepository } from './IChampionEconomyRepository';
 import type { IDailyRunRepository, ILeaderboardRepository } from './IDailyRunRepository';
 import type { IEnhancementRepository } from './IEnhancementRepository';
 import type { IMasteryRepository, IPlayerUnlockRepository } from './IMasteryRepository';
@@ -50,6 +51,9 @@ export interface IRepositoryContainer {
 
   /** Enhancement repository for enhancement operations */
   readonly enhancement: IEnhancementRepository;
+
+  /** Champion economy RPCs, sharing the same authenticated client. */
+  readonly championEconomy: IChampionEconomyRepository;
 }
 
 /**

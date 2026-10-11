@@ -2,7 +2,7 @@ import { CCEffect } from '@/game/effects/CCEffect';
 import type { EffectManager } from '@/game/effects/EffectManager';
 import { ShieldEffect } from '@/game/effects/ShieldEffect';
 import { CCType, EffectCategory } from '@/game/effects/types';
-import type { CombatantInfo, CombatStatusInfo } from '@/stores/battleStore';
+import type { CombatantInfo, CombatStatusInfo } from '@/types/combatPresentation';
 
 const CATEGORY_KIND = {
   [EffectCategory.Buff]: 'buff',

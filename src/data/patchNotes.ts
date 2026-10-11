@@ -282,6 +282,35 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 9,
+    version: '0.2.4',
+    publishedOn: '2026-10-11',
+    title: {
+      'fr-FR': 'Runs et progression plus fiables',
+      'en-US': 'More reliable runs and progression',
+    },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Le démarrage, la sauvegarde et la reprise des runs utilisent une orchestration commune, tout en conservant les sauvegardes existantes et les résultats validés par le serveur.',
+          'en-US':
+            'Run starts, saves and recovery now share a common orchestration while preserving existing saves and server-verified results.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les réponses réseau retardées sont ignorées après un changement de compte ou de run. Les rafraîchissements de progression concurrents ne remplacent plus les données les plus récentes.',
+          'en-US':
+            'Delayed network responses are ignored after switching accounts or runs. Concurrent progression refreshes no longer overwrite newer data.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

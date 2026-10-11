@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { replayAuthorityRun } from '@/game/authority';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { buildRunPlayerTeam } from '@/game/run/runCombatant';
-import { migratePersistedRunState, RUN_STORAGE_KEY } from '@/game/run/runPersistence';
+import { migratePersistedRunState, RUN_STORAGE_KEY } from '@/stores/persistence/runPersistence';
 import { isPersistedRunState } from '@/game/run/runPersistenceValidation';
 import { normalizeTeamMembers } from '@/game/run/teamRules';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';

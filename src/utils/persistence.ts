@@ -7,6 +7,7 @@ import {
   removeStorageEntry,
   writeStorageText,
 } from './storagePolicy';
+import { isRecord } from './valueGuards';
 
 export const PERSISTENCE_QUARANTINE_PREFIX = 'lolrogue-quarantine:';
 export const QUARANTINE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -141,6 +142,4 @@ export function recoverVersionedState<T extends object>(
   }
 }
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
+export { isRecord } from './valueGuards';

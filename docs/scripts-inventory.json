@@ -179,6 +179,7 @@
     "docs/accessibility.md",
     "docs/administration.md",
     "docs/architecture-s2-validation-2026-10-11.md",
+    "docs/architecture-s3-validation-2026-10-11.md",
     "docs/archive/audit-initial-2026-07-23.md",
     "docs/archive/delivery-history-2026-07-august.md",
     "docs/archive/p3-champ-01-veigar-completed-2026-10-10.md",
@@ -202,6 +203,7 @@
     "docs/backup-and-restore.md",
     "docs/balance/P3-CHAMP-01-veigar-v22.md",
     "docs/beta-readiness.md",
+    "docs/business-dependency-boundaries.md",
     "docs/champion-economy-validation-2026-10-08.md",
     "docs/champion-economy.md",
     "docs/champion-run-progression.md",
@@ -215,6 +217,7 @@
     "docs/database-finished-queue-index.md",
     "docs/database-index-measurements.md",
     "docs/dependency-audit.md",
+    "docs/domain-data-contracts.md",
     "docs/environment-contract.md",
     "docs/feature-status.md",
     "docs/field-calibration.md",
@@ -229,6 +232,7 @@
     "docs/product-glossary.md",
     "docs/progression-personalization.md",
     "docs/release-and-support.md",
+    "docs/repository-contracts.md",
     "docs/restore-drills/2026-08-12-local.json",
     "docs/restore-drills/champion-economy-2026-10-08-local.json",
     "docs/roadmap.md",
@@ -282,6 +286,7 @@
     "scripts/build-authority-bundle.mjs",
     "scripts/check-authority-content-hash.mjs",
     "scripts/check-authority-registry.mjs",
+    "scripts/check-business-boundaries.mjs",
     "scripts/check-content-support.mjs",
     "scripts/check-csp-inline-styles.mjs",
     "scripts/check-current-authority-source.mjs",
@@ -321,6 +326,7 @@
     "scripts/generate-veigar-run-progression-balance.mjs",
     "scripts/inspect-finished-queue-index-stats.mjs",
     "scripts/lib/authority-version-registry.mjs",
+    "scripts/lib/business-boundaries.mjs",
     "scripts/lib/ci-build-artifact.mjs",
     "scripts/lib/client-champion-catalog.mjs",
     "scripts/lib/command-catalog.mjs",
@@ -560,16 +566,13 @@
     "src/game/run/runCombatant.ts",
     "src/game/run/runDomainInvariants.ts",
     "src/game/run/runEncounterRules.ts",
-    "src/game/run/runFinalization.ts",
     "src/game/run/runHealth.ts",
     "src/game/run/runLedger.ts",
     "src/game/run/runLifecycle.ts",
-    "src/game/run/runPersistence.ts",
     "src/game/run/runPersistenceValidation.ts",
     "src/game/run/runProgression.ts",
     "src/game/run/runRewardPolicy.ts",
     "src/game/run/runRewards.ts",
-    "src/game/run/runStartCoordinator.ts",
     "src/game/run/runStartValidation.ts",
     "src/game/run/runState.ts",
     "src/game/run/spellUpgradeRules.ts",
@@ -664,16 +667,19 @@
     "src/patchNotes/storage.ts",
     "src/product/balanceCalibrationDecision.ts",
     "src/product/productDecisions.ts",
+    "src/services/accountProgressionService.ts",
     "src/services/championEconomyRunContract.ts",
     "src/services/championEconomyService.ts",
     "src/services/championImageLoader.ts",
     "src/services/container/RepositoryContainer.ts",
+    "src/services/container/applicationRepositories.ts",
     "src/services/container/index.ts",
     "src/services/enhancementService.ts",
     "src/services/imageLoader.ts",
     "src/services/imageLoader.types.ts",
     "src/services/index.ts",
     "src/services/interfaces/IAuthRepository.ts",
+    "src/services/interfaces/IChampionEconomyRepository.ts",
     "src/services/interfaces/IDailyRunRepository.ts",
     "src/services/interfaces/IEnhancementRepository.ts",
     "src/services/interfaces/IMasteryRepository.ts",
@@ -683,6 +689,7 @@
     "src/services/interfaces/index.ts",
     "src/services/masteryService.ts",
     "src/services/repositories/SupabaseAuthRepository.ts",
+    "src/services/repositories/SupabaseChampionEconomyRepository.ts",
     "src/services/repositories/SupabaseDailyRunRepository.ts",
     "src/services/repositories/SupabaseEnhancementRepository.ts",
     "src/services/repositories/SupabaseMasteryRepository.ts",
@@ -692,6 +699,14 @@
     "src/services/repositories/runHistoryQueries.ts",
     "src/services/runAttemptService.ts",
     "src/services/runAuthorityService.ts",
+    "src/services/runLifecycle/contracts.ts",
+    "src/services/runLifecycle/runAuthorityJournal.ts",
+    "src/services/runLifecycle/runAuthoritySubmission.ts",
+    "src/services/runLifecycle/runFinalization.ts",
+    "src/services/runLifecycle/runProgressionSync.ts",
+    "src/services/runLifecycle/runSnapshot.ts",
+    "src/services/runLifecycle/runStart.ts",
+    "src/services/runLifecycle/runStartCoordinator.ts",
     "src/services/runLifecycleService.ts",
     "src/services/runService.ts",
     "src/services/supabaseAuthStorage.ts",
@@ -703,7 +718,10 @@
     "src/stores/dailyRunStore.ts",
     "src/stores/enhancementStore.ts",
     "src/stores/masteryStore.ts",
+    "src/stores/persistence/runPersistence.ts",
+    "src/stores/runCombatFinalization.ts",
     "src/stores/runInitialState.ts",
+    "src/stores/runLifecycleDependencies.ts",
     "src/stores/runStore.ts",
     "src/stores/runStoreDomainSlice.ts",
     "src/stores/runStoreLifecycleSlice.ts",
@@ -711,6 +729,7 @@
     "src/stores/settingsStore.ts",
     "src/types/champion.ts",
     "src/types/championEconomy.ts",
+    "src/types/combatPresentation.ts",
     "src/types/dailyRun.ts",
     "src/types/database.ts",
     "src/types/enhancementTree.ts",
@@ -740,6 +759,7 @@
     "src/utils/statConversion.ts",
     "src/utils/storagePolicy.ts",
     "src/utils/text.ts",
+    "src/utils/valueGuards.ts",
     "src/utils/xpSystem.ts",
     "src/vite-env.d.ts",
     "supabase/README.md",
@@ -749,6 +769,7 @@
     "tailwind.config.ts",
     "tests/abandonment.test.ts",
     "tests/abilityParser.test.ts",
+    "tests/accountProgressionService.test.ts",
     "tests/actionTimingRules.test.ts",
     "tests/adminCsv.test.ts",
     "tests/adminData.test.tsx",
@@ -790,6 +811,7 @@
     "tests/battlePassives.test.ts",
     "tests/battleTargetResolver.test.ts",
     "tests/biomeTransition.test.ts",
+    "tests/businessBoundaries.test.mjs",
     "tests/championClientCatalog.test.ts",
     "tests/championCombatMatrix.test.ts",
     "tests/championContent.test.ts",
@@ -850,6 +872,7 @@
     "tests/dialogAccessibility.test.tsx",
     "tests/documentContent.test.tsx",
     "tests/documentation.test.ts",
+    "tests/domainDataContracts.test.ts",
     "tests/earlyTopAcceptance.test.ts",
     "tests/earlyTopAffordability.test.ts",
     "tests/earlyTopCohort.test.ts",
@@ -955,6 +978,7 @@
     "tests/runInventoryPanel.test.tsx",
     "tests/runLedger.test.ts",
     "tests/runLifecycle.test.ts",
+    "tests/runLifecycleOrchestration.test.ts",
     "tests/runMapPresentation.test.tsx",
     "tests/runOutcome.test.ts",
     "tests/runPersistenceFuzz.test.ts",
@@ -22015,7 +22039,7 @@
     },
     {
       "name": "check:static",
-      "command": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+      "command": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
       "initial": true,
       "initialCommand": "npm run format:check && npm run lint && npm run csp:styles:check && npm run typecheck && npm run node:contract && npm run release:readiness:check && npm run content:check",
       "commandChanged": true,
@@ -26699,7 +26723,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -26711,7 +26735,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -27235,7 +27259,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -27247,7 +27271,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -27791,7 +27815,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -27819,7 +27843,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -30650,7 +30674,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -30983,7 +31007,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -31954,7 +31978,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -31974,7 +31998,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -32476,6 +32500,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/business-dependency-boundaries.md",
+          "line": 96,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test -- tests/businessBoundaries.test.mjs",
+          "classification": "active"
+        },
+        {
           "file": "docs/data-and-persistence.md",
           "line": 24,
           "kind": "npm-lifecycle",
@@ -32489,6 +32521,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Internationalisation complète | **Risque réouvert : P0-I18N-01 ouvert** | `npm run test -- tests/i18nSourceContract.test.ts tests/i18nCatalogContract.test.ts` ; parcours `e2e/i18n-english-journey.spec.ts` ; revue humai",
+          "classification": "active"
+        },
+        {
+          "file": "docs/repository-contracts.md",
+          "line": 52,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test -- tests/accountProgressionService.test.ts tests/repositoryContainer.test.ts tests/runService.test.ts tests/championEconomyService.test.ts tests/enhancementStoreRecovery.test.ts",
           "classification": "active"
         },
         {
@@ -32535,6 +32575,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/business-dependency-boundaries.md",
+          "line": 96,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test -- tests/businessBoundaries.test.mjs",
+          "classification": "active"
+        },
+        {
           "file": "docs/data-and-persistence.md",
           "line": 24,
           "kind": "npm-lifecycle",
@@ -32548,6 +32596,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Internationalisation complète | **Risque réouvert : P0-I18N-01 ouvert** | `npm run test -- tests/i18nSourceContract.test.ts tests/i18nCatalogContract.test.ts` ; parcours `e2e/i18n-english-journey.spec.ts` ; revue humai",
+          "classification": "active"
+        },
+        {
+          "file": "docs/repository-contracts.md",
+          "line": 52,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test -- tests/accountProgressionService.test.ts tests/repositoryContainer.test.ts tests/runService.test.ts tests/championEconomyService.test.ts tests/enhancementStoreRecovery.test.ts",
           "classification": "active"
         },
         {
@@ -35165,7 +35221,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -35174,7 +35230,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -35445,7 +35501,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -35454,7 +35510,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -36132,7 +36188,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -36160,7 +36216,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
