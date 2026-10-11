@@ -370,7 +370,7 @@ jobs:
 
       - name: Prove a clean latest-schema reset and live RLS/RPC behavior
         run: |
-          npm run db:reset
+          npm run db:reset -- --yes
           npm run db:lint
           npm run test:db
 
