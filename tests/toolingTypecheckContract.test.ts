@@ -19,6 +19,8 @@ describe('tooling TypeScript boundaries', () => {
     expect(libraries.some((entry: string) => entry.startsWith('dom'))).toBe(false);
     expect(config.include).toContain('scripts/**/*.mjs');
     expect(config.include).toContain('scripts/**/*.ts');
+    expect(config.include).toContain('tooling/**/*.ts');
+    expect(config.include).toContain('vitest.config.ts');
 
     const fixture = readFileSync(resolve(root, 'scripts/typecheck/node-globals.ts'), 'utf8');
     expect(fixture.match(/@ts-expect-error/g)).toHaveLength(2);

@@ -22,7 +22,10 @@ describe('reproducible variable test-order seeds', () => {
   );
 
   it('keeps the existing fixed default in the main CI configuration', () => {
-    const config = readFileSync(new URL('../vite.config.ts', import.meta.url), 'utf8');
+    const config = readFileSync(
+      new URL('../tooling/vitest/testPolicy.ts', import.meta.url),
+      'utf8',
+    );
     expect(config).toMatch(/shuffle:\s*true/);
     expect(config).toContain('seed: 20_260_801');
     expect(FIXED_TEST_ORDER_SEED).toBe(20_260_801);
