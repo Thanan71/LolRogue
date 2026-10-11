@@ -166,11 +166,11 @@ describe('champion economy purchase UI', () => {
     renderPurchase();
     fireEvent.click(screen.getByRole('button', { name: /Acheter Lux/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Confirmer l’achat' }));
-    await screen.findByRole('button', { name: 'Revoir le prix actualisé' });
-    expect(screen.getByRole('button', { name: 'Revoir le prix actualisé' })).toHaveFocus();
+    const reviewPrice = await screen.findByRole('button', { name: 'Revoir le prix actualisé' });
+    await waitFor(() => expect(reviewPrice).toHaveFocus());
     expect(screen.queryByRole('button', { name: 'Confirmer l’achat' })).not.toBeInTheDocument();
     expect(purchase).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByRole('button', { name: 'Revoir le prix actualisé' }));
+    fireEvent.click(reviewPrice);
     expect(screen.getAllByText('450 Éclats')).toHaveLength(2);
     fireEvent.click(screen.getByRole('button', { name: 'Confirmer l’achat' }));
     await waitFor(() => expect(purchase).toHaveBeenCalledTimes(2));
