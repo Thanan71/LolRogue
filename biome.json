@@ -12,6 +12,7 @@
       "!!node_modules",
       "!!config/authority-cohort-baselines-*.json",
       "!!config/map-economy-baseline-*.json",
+      "!!docs/scripts-inventory.json",
       "!!public/lol/data",
       "!!src/data/generated/*.json",
       "!!supabase/**/run-authority-*.bundle.ts",
