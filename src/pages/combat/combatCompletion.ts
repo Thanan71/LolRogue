@@ -8,7 +8,7 @@ import { NodeType } from '@/game/map/types';
 import { itemDefinitionToRunItem, resolveCombatEncounter } from '@/game/run/encounterResolver';
 import { resolvePostCombatTeam } from '@/game/run/postCombatRules';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
-import { finalizeCombatRun } from '@/game/run/runFinalization';
+import { finalizeCombatRun } from '@/stores/runCombatFinalization';
 import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { useRunStore } from '@/stores/runStore';
 import { useSettingsStore } from '@/stores/settingsStore';

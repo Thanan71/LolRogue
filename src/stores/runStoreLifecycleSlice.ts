@@ -9,7 +9,7 @@ import {
 } from '@/game/run/runAuthorityJournal';
 import { getRunChampionCatalog } from '@/game/run/runChampionCatalog';
 import { buildRunSummaryFromLedger, cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
-import { getPersistedActiveRun, withExclusiveRunStart } from '@/game/run/runStartCoordinator';
+import { getPersistedActiveRun, withExclusiveRunStart } from '@/services/runLifecycle/runStartCoordinator';
 import { getRequiredStarterCount, validateRunStartTeam } from '@/game/run/runStartValidation';
 import { shouldApplyRunRewards } from '@/game/run/runState';
 import { cloneRunProgressSnapshot } from '@/game/runProgression';

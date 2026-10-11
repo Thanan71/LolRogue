@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { finalizeCombatRun } from '@/game/run/runFinalization';
+import { finalizeCombatRun } from '@/stores/runCombatFinalization';
 import { cloneRunLedger, createRunLedger } from '@/game/run/runLedger';
 import { useAuthStore } from '@/stores/authStore';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';

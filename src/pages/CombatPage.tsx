@@ -27,7 +27,7 @@ import {
 } from '@/game/run/encounterResolver';
 import { canLeaveActiveCombat } from '@/game/run/routeAccess';
 import { buildRunPlayerTeam } from '@/game/run/runCombatant';
-import { finalizeCombatRun } from '@/game/run/runFinalization';
+import { finalizeCombatRun } from '@/stores/runCombatFinalization';
 import { getRequiredStarterCount } from '@/game/run/runStartValidation';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useBattleManager } from '@/hooks/useBattleManager';

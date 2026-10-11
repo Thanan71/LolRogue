@@ -3,7 +3,7 @@ import { decodeCombatActionTrace } from '@/game/battle/actionTrace';
 import { isRunProgressSnapshot } from '@/game/runProgression';
 import { parseChampionRunAccessSnapshot } from '@/services/championEconomyRunContract';
 import { BIOMES, type RunState } from '@/types/run';
-import { isRecord } from '@/utils/persistence';
+import { isRecord } from '@/utils/valueGuards';
 
 type Check = (value: unknown) => boolean;
 const text =
