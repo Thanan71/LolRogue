@@ -102,6 +102,11 @@ Authentication → Providers → Email. La procédure détaillée est dans
 
 ## Commandes de qualité
 
+Les commandes regroupées `balance`, `database`, `assets`, `release` et `testing`
+proposent une aide avec `npm run <groupe> -- --help`. Le [guide de la CLI](docs/script-cli.md)
+décrit les options et confirmations ; l'[inventaire des scripts](docs/script-inventory.md)
+relie chaque ancien alias à sa commande canonique et à ses appelants.
+
 ```bash
 npm test              # tests unitaires et tests de structure SQL
 npm run test:coverage # tests avec seuils de couverture

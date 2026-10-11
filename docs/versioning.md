@@ -29,6 +29,12 @@ anciennes notes portent un identifiant daté tel que `2026.10.10`.
 
 ## Compatibilité et clés techniques
 
+La maintenance de l'outillage ARCH-S1 publie le jeu et sa note en `0.2.1`.
+Elle conserve `run-engine-0.2.0`, le code gameplay `0.2.0` et leurs hashes :
+le comportement des runs ne change pas. Les versions du jeu et du contrat
+autoritaire évoluent donc indépendamment lorsqu'une publication ne modifie
+pas les règles déterministes.
+
 Les anciennes versions `run-engine-v22`, les codes historiques et les anciens
 identifiants de notes restent inchangés. Leurs bundles, hashes et artefacts de
 balance demeurent figés. Les nouvelles versions ne réécrivent pas l'histoire

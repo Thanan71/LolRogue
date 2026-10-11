@@ -3,6 +3,9 @@ const booleanOption = (description) => ({ type: 'boolean', description });
 const engine = stringOption('Registered authority engine, e.g. v22 or 0.2.0; defaults to current.');
 const output = stringOption('Destination relative to the repository root.');
 const all = booleanOption('Check every published artifact in registry order.');
+const check = booleanOption(
+  'Compatibility check mode: reproduce the artifact without writing it. Conflicts with --output.',
+);
 
 function command(group, path, aliases, description, target, extra = {}) {
   return {
@@ -43,7 +46,7 @@ export const commandCatalog = [
     node('generate-authority-cohort-baseline'),
     {
       risk: 'generate',
-      options: { engine, output },
+      options: { engine, output, check },
       artifact: 'authority-cohort-baselines',
       aliasOptions: historicalOptions('balance:baseline:generate', baselineEngines),
     },
@@ -71,7 +74,7 @@ export const commandCatalog = [
     node('generate-early-top-cohort'),
     {
       risk: 'generate',
-      options: { engine, output },
+      options: { engine, output, check },
       artifact: 'early-top-cohort',
       supportedEngines: earlyTopEngines,
       aliasOptions: {
@@ -143,6 +146,7 @@ export const commandCatalog = [
       risk: 'generate',
       options: {
         output,
+        check,
         'baseline-engine': stringOption('Full registered baseline identity, e.g. run-engine-v22.'),
       },
     },
@@ -165,7 +169,7 @@ export const commandCatalog = [
     ['balance:map-economy:generate'],
     'Generate the current map and economy baseline.',
     node('generate-map-economy-baseline'),
-    { risk: 'generate', options: { output } },
+    { risk: 'generate', options: { output, check } },
   ),
   command(
     'balance',
@@ -180,7 +184,7 @@ export const commandCatalog = [
     ['balance:field-baseline:generate'],
     'Generate the field calibration baseline.',
     node('generate-authority-field-calibration-baseline'),
-    { risk: 'generate', options: { output } },
+    { risk: 'generate', options: { output, check } },
   ),
   command(
     'balance',
@@ -197,7 +201,7 @@ export const commandCatalog = [
     node('generate-veigar-run-progression-balance'),
     {
       risk: 'generate',
-      options: { engine, output },
+      options: { engine, output, check },
       artifact: 'veigar-run-progression-balance',
       supportedEngines: ['v22', '0.2.0'],
     },

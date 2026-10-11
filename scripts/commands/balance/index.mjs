@@ -47,14 +47,16 @@ export function publishedEngines(command, context) {
 }
 
 export function buildBalancePlan(command, options, context) {
+  if (options.check && options.output)
+    throw Object.assign(new Error('--check and --output are mutually exclusive.'), {
+      code: 'CLI_OPTION_CONFLICT',
+    });
   if (
     options['baseline-engine'] &&
     !context.registry.versions.some((entry) => entry.engine === options['baseline-engine'])
   ) {
     throw Object.assign(
-      new Error(
-        `Unknown baseline authority ${options['baseline-engine']}; use a full registered engine identity.`,
-      ),
+      new Error('Unknown baseline authority; use a full registered engine identity.'),
       { code: 'CLI_ENGINE_UNKNOWN' },
     );
   }
@@ -100,7 +102,7 @@ export function buildBalancePlan(command, options, context) {
   if (command.options.engine && command.path[0] !== 'repro') {
     const engines = options.all
       ? publishedEngines(command, context)
-      : [options.engine ?? context.currentEngine];
+      : [(options.engine ?? context.currentEngine).replace(/^run-engine-/, '')];
     if (!engines.length)
       throw Object.assign(new Error(`No published ${command.artifact} artifacts are registered.`), {
         code: 'CLI_ARTIFACT_MISSING',
@@ -108,7 +110,7 @@ export function buildBalancePlan(command, options, context) {
     for (const engine of engines) {
       if (!context.registry.versions.some((entry) => entry.engine === `run-engine-${engine}`)) {
         throw Object.assign(
-          new Error(`Unknown authority engine ${engine}. Use v22 or 0.2.0, not a date.`),
+          new Error('Unknown authority engine. Use a registered version such as v22 or 0.2.0.'),
           { code: 'CLI_ENGINE_UNKNOWN' },
         );
       }
@@ -125,6 +127,7 @@ export function buildBalancePlan(command, options, context) {
       targetPlan(command.target, context, [
         '--engine',
         engine,
+        ...(options.check ? ['--check'] : []),
         ...(options.output ? ['--output', options.output] : []),
       ]),
     );

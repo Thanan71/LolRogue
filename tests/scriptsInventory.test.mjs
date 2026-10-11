@@ -7,6 +7,7 @@ import {
   readdirSync,
   rmSync,
   statSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -327,5 +328,38 @@ describe('public npm script inventory', () => {
     expect(readFileSync(resolve(root, INVENTORY_PATH), 'utf8')).toBe(original);
     expect(existsSync(resolve(root, 'docs/.scripts-inventory.lock'))).toBe(false);
     expect(readdirSync(resolve(root, 'docs')).some((path) => path.endsWith('.tmp'))).toBe(false);
+  });
+
+  it('executes a symlinked entrypoint and keeps --help/--check scoped to the current fixture', () => {
+    const root = fixture();
+    const linkedExecutable = resolve(root, 'linked-inventory.mjs');
+    symlinkSync(executable, linkedExecutable);
+    const help = spawnSync(process.execPath, [linkedExecutable, '--help'], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    expect(help.status, help.stderr).toBe(0);
+    expect(help.stdout).toContain('Usage: node scripts/generate-scripts-inventory.mjs');
+    expect(existsSync(resolve(root, INVENTORY_PATH))).toBe(false);
+    const generated = spawnSync(process.execPath, [linkedExecutable], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    expect(generated.status, generated.stderr).toBe(0);
+    const before = readFileSync(resolve(root, INVENTORY_PATH));
+    const check = spawnSync(process.execPath, [linkedExecutable, '--check'], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    expect(check.status, check.stderr).toBe(0);
+    expect(check.stdout).toContain('Script inventory is current');
+    write(root, 'README.md', 'Additional fixture caller: npm run useful.\n');
+    const stale = spawnSync(process.execPath, [linkedExecutable, '--check'], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    expect(stale.status).toBe(1);
+    expect(stale.stderr).toContain('Script inventory is stale');
+    expect(readFileSync(resolve(root, INVENTORY_PATH))).toEqual(before);
   });
 });

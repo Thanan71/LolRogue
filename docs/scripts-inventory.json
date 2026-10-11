@@ -24,7 +24,7 @@
     {
       "name": "compile",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 48,
+      "line": 49,
       "kind": "npm-run",
       "source": "test",
       "excerpt": "build: 'npm run compile',"
@@ -32,7 +32,7 @@
     {
       "name": "prepare",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 49,
+      "line": 50,
       "kind": "npm-run",
       "source": "test",
       "excerpt": "prebuild: 'npm run prepare',"
@@ -40,7 +40,7 @@
     {
       "name": "audit",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 50,
+      "line": 51,
       "kind": "npm-run",
       "source": "test",
       "excerpt": "postbuild: 'npm run audit',"
@@ -48,7 +48,7 @@
     {
       "name": "audit",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 54,
+      "line": 55,
       "kind": "npm-run",
       "source": "test",
       "excerpt": "check: 'npm run build && npm run audit',"
@@ -56,7 +56,7 @@
     {
       "name": "compile",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 64,
+      "line": 65,
       "kind": "process-arguments",
       "source": "test",
       "excerpt": "\"spawnSync('npm', ['run', 'compile']);\\nrun('gh', ['run', 'view']);\\n\","
@@ -64,7 +64,7 @@
     {
       "name": "missing-script",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 226,
+      "line": 227,
       "kind": "npm-run",
       "source": "test",
       "excerpt": "write(root, '.github/workflows/broken.yml', 'run: npm run missing-script\\n');"
@@ -72,7 +72,7 @@
     {
       "name": "removed-historical-alias",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 242,
+      "line": 243,
       "kind": "npm-run",
       "source": "test",
       "excerpt": "write(root, 'docs/archive/past.md', 'Previously: npm run removed-historical-alias.\\n');"
@@ -80,7 +80,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 288,
+      "line": 289,
       "kind": "npm-run",
       "source": "test",
       "excerpt": "write(root, 'README.md', 'Additional caller: npm run useful.\\n');"
@@ -88,10 +88,18 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 323,
+      "line": 324,
       "kind": "npm-run",
       "source": "test",
       "excerpt": "write(root, 'README.md', 'npm run useful\\n');"
+    },
+    {
+      "name": "useful",
+      "file": "tests/scriptsInventory.test.mjs",
+      "line": 356,
+      "kind": "npm-run",
+      "source": "test",
+      "excerpt": "write(root, 'README.md', 'Additional fixture caller: npm run useful.\\n');"
     }
   ],
   "unresolvedReferences": [
@@ -99,7 +107,7 @@
       "name": null,
       "variable": "selectedFromUser",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 177,
+      "line": 178,
       "kind": "dynamic-process-arguments",
       "source": "test",
       "excerpt": "\"spawnSync(npmCommand, ['run', selectedFromUser]);\","
@@ -142,7 +150,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run assets",
       "compatibility": "added public entry; initial aliases remain compatible",
@@ -151,14 +159,14 @@
       "callers": [
         {
           "file": "docs/script-cli.md",
-          "line": 57,
+          "line": 62,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run assets -- verify"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 58,
+          "line": 63,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run assets -- verify --dist"
@@ -198,7 +206,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run assets -- package",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -269,7 +277,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run assets -- update",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -332,7 +340,7 @@
         "supported": [
           "--dist"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run assets -- verify",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -794,7 +802,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 54,
+          "line": 55,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "check: 'npm run build && npm run audit',",
@@ -805,7 +813,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -818,7 +826,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -831,7 +839,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 176,
+          "line": 177,
           "kind": "process-arguments",
           "source": "test",
           "excerpt": "\"const step = { command: 'npm', args: ['run', 'build'] };\",",
@@ -842,7 +850,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 256,
+          "line": 257,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -926,7 +934,7 @@
         "supported": [
           "--dist"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run assets -- verify --dist",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -1353,7 +1361,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 54,
+          "line": 55,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "check: 'npm run build && npm run audit',",
@@ -1364,7 +1372,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -1377,7 +1385,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -1390,7 +1398,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 176,
+          "line": 177,
           "kind": "process-arguments",
           "source": "test",
           "excerpt": "\"const step = { command: 'npm', args: ['run', 'build'] };\",",
@@ -1401,7 +1409,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 256,
+          "line": 257,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -1482,7 +1490,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- security",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -1867,7 +1875,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -1878,7 +1886,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -1944,7 +1952,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run release -- authority check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -2509,7 +2517,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 54,
+          "line": 55,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "check: 'npm run build && npm run audit',",
@@ -2521,7 +2529,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -2535,7 +2543,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -2549,7 +2557,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 176,
+          "line": 177,
           "kind": "process-arguments",
           "source": "test",
           "excerpt": "\"const step = { command: 'npm', args: ['run', 'build'] };\",",
@@ -2561,7 +2569,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 256,
+          "line": 257,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -2656,7 +2664,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run release -- authority generate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -2742,7 +2750,7 @@
         "supported": [
           "--branch"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run release -- deploy",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -2828,7 +2836,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run release -- backup",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -2895,7 +2903,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance",
       "compatibility": "added public entry; initial aliases remain compatible",
@@ -2953,49 +2961,56 @@
         },
         {
           "file": "docs/script-cli.md",
-          "line": 41,
+          "line": 38,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "l'appel canonique `npm run balance -- … --engine <version>`."
+        },
+        {
+          "file": "docs/script-cli.md",
+          "line": 46,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run balance -- early-top generate --engine v21"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 42,
+          "line": 47,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run balance -- early-top check --all"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 43,
+          "line": 48,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run balance -- early-top affordability generate --engine v18"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 44,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run balance -- veigar check --all"
         },
         {
           "file": "scripts/cli.mjs",
-          "line": 145,
+          "line": 143,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'Example: npm run balance -- baseline check --all',"
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 202,
+          "line": 203,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "replacement: 'npm run balance -- baseline generate',"
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 214,
+          "line": 215,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(entry.replacement).toBe('npm run balance -- baseline generate --engine v22');"
@@ -3035,7 +3050,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- artifacts check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3096,7 +3111,7 @@
           "--all",
           "--engine"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline check --all",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3145,10 +3160,11 @@
       "arguments": {
         "fixed": [],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3200,10 +3216,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate --engine v15",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3247,10 +3264,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate --engine v16",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3294,10 +3312,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate --engine v17",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3341,10 +3360,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate --engine v18",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3388,10 +3408,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate --engine v19",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3435,10 +3456,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate --engine v20",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3482,10 +3504,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate --engine v21",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3529,10 +3552,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- baseline generate --engine v22",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3573,7 +3597,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3655,7 +3679,7 @@
           "--output-directory",
           "--profile"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run balance -- cohort",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3713,7 +3737,7 @@
         "supported": [
           "--baseline-engine"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- combat matrix check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3755,9 +3779,10 @@
         "fixed": [],
         "supported": [
           "--baseline-engine",
+          "--check",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- combat matrix generate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3813,7 +3838,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top affordability check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3868,7 +3893,7 @@
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top affordability generate --engine v18",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3923,7 +3948,7 @@
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top affordability generate --engine v17",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -3972,7 +3997,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top catalog check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4026,7 +4051,7 @@
           "--all",
           "--engine"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top check --all",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4078,10 +4103,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top generate --engine v21",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4125,10 +4151,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top generate --engine v17",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4180,10 +4207,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top generate --engine v18",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4227,10 +4255,11 @@
           "--engine"
         ],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top generate --engine v21",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4271,7 +4300,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- early-top starters check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4320,7 +4349,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- field-baseline check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4361,9 +4390,10 @@
       "arguments": {
         "fixed": [],
         "supported": [
+          "--check",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- field-baseline generate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4412,7 +4442,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- map-economy check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4461,9 +4491,10 @@
       "arguments": {
         "fixed": [],
         "supported": [
+          "--check",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- map-economy generate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4520,7 +4551,7 @@
           "--scenario-json",
           "--seed"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run balance -- repro",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4581,7 +4612,7 @@
           "--all",
           "--engine"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- veigar check --all",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4630,10 +4661,11 @@
       "arguments": {
         "fixed": [],
         "supported": [
+          "--check",
           "--engine",
           "--output"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run balance -- veigar generate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4682,7 +4714,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run build",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -4730,21 +4762,21 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 54,
+          "line": 55,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "check: 'npm run build && npm run audit',"
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 176,
+          "line": 177,
           "kind": "process-arguments",
           "source": "test",
           "excerpt": "\"const step = { command: 'npm', args: ['run', 'build'] };\","
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 256,
+          "line": 257,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';"
@@ -5056,7 +5088,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -5067,7 +5099,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -5134,7 +5166,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -5331,14 +5363,14 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');"
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');"
@@ -5393,7 +5425,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- browser",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -5446,7 +5478,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- build",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -5736,7 +5768,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -5746,7 +5778,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -5808,7 +5840,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- validate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -5866,7 +5898,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- security",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -6154,7 +6186,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -6164,7 +6196,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -6226,7 +6258,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- static",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -6528,7 +6560,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -6538,7 +6570,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -6601,7 +6633,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- unit",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -6889,7 +6921,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -6899,7 +6931,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -6959,7 +6991,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run content:check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -7281,7 +7313,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -7292,7 +7324,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -7365,7 +7397,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run csp:styles:check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -7694,7 +7726,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -7705,7 +7737,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -7785,7 +7817,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run database",
       "compatibility": "added public entry; initial aliases remain compatible",
@@ -7801,21 +7833,21 @@
         },
         {
           "file": "docs/script-cli.md",
-          "line": 54,
+          "line": 59,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- reset --dry-run"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 55,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- reset --yes"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 56,
+          "line": 61,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- types check"
@@ -7858,7 +7890,7 @@
           "--local"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- advisors",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -7943,7 +7975,7 @@
           "line": 4,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les",
+          "excerpt": "`npm run db:validate` compare les types générés et formatés en mémoire au fichier",
           "via": [
             "db:validate"
           ]
@@ -8104,7 +8136,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- finished-queue measure",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -8161,7 +8193,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- finished-queue stats",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -8225,7 +8257,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- indexes check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -8310,7 +8342,7 @@
           "line": 4,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les",
+          "excerpt": "`npm run db:validate` compare les types générés et formatés en mémoire au fichier",
           "via": [
             "db:validate"
           ]
@@ -8471,7 +8503,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- indexes measure",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -8528,7 +8560,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- lint",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -8620,7 +8652,7 @@
           "line": 4,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les",
+          "excerpt": "`npm run db:validate` compare les types générés et formatés en mémoire au fichier",
           "via": [
             "db:validate"
           ]
@@ -8783,7 +8815,7 @@
           "--candidate-sha",
           "--linked"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- migrations check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -8792,7 +8824,7 @@
       "callers": [
         {
           "file": "docs/data-access.md",
-          "line": 13,
+          "line": 15,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "nested select `runs_run_attempt_id_fkey`. `npm run db:migrations:check` compare les"
@@ -8854,7 +8886,7 @@
           "line": 4,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les",
+          "excerpt": "`npm run db:validate` compare les types générés et formatés en mémoire au fichier",
           "via": [
             "db:validate"
           ]
@@ -9018,7 +9050,7 @@
           "--candidate-sha",
           "--linked"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- migrations check --linked",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -9027,7 +9059,7 @@
       "callers": [
         {
           "file": "docs/data-access.md",
-          "line": 15,
+          "line": 17,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run db:migrations:check:linked` effectue la même gate en lecture seule sur le"
@@ -9110,7 +9142,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- reset",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -9188,7 +9220,7 @@
           "line": 4,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les",
+          "excerpt": "`npm run db:validate` compare les types générés et formatés en mémoire au fichier",
           "via": [
             "db:validate"
           ]
@@ -9348,7 +9380,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- security",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -9454,7 +9486,7 @@
           "line": 4,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les",
+          "excerpt": "`npm run db:validate` compare les types générés et formatés en mémoire au fichier",
           "via": [
             "db:validate"
           ]
@@ -9615,7 +9647,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- start",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -9687,7 +9719,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- stop",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -9761,7 +9793,7 @@
           "--write"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- types generate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -9774,6 +9806,13 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run db:types"
+        },
+        {
+          "file": "docs/data-access.md",
+          "line": 5,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "suivi, puis refuse toute différence avant les tests DB. `npm run db:types` écrit"
         },
         {
           "file": "docs/roadmap.md",
@@ -9832,7 +9871,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- types check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -9896,7 +9935,7 @@
           "line": 4,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les",
+          "excerpt": "`npm run db:validate` compare les types générés et formatés en mémoire au fichier",
           "via": [
             "db:validate"
           ]
@@ -10058,7 +10097,7 @@
           "--yes"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- validate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -10092,7 +10131,7 @@
           "line": 4,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les"
+          "excerpt": "`npm run db:validate` compare les types générés et formatés en mémoire au fichier"
         },
         {
           "file": "docs/data-and-persistence.md",
@@ -10242,7 +10281,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run assets -- download",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -10313,7 +10352,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run assets -- parse",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -10389,7 +10428,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run dev",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -10441,7 +10480,7 @@
           "--linked",
           "--local"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- economy audit",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -10505,7 +10544,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run release -- edge bundle",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -11030,7 +11069,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 54,
+          "line": 55,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "check: 'npm run build && npm run audit',",
@@ -11041,7 +11080,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -11054,7 +11093,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -11067,7 +11106,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 176,
+          "line": 177,
           "kind": "process-arguments",
           "source": "test",
           "excerpt": "\"const step = { command: 'npm', args: ['run', 'build'] };\",",
@@ -11078,7 +11117,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 256,
+          "line": 257,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -11156,7 +11195,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run edge:deploy",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -11197,7 +11236,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run edge:serve",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -11249,7 +11288,7 @@
           "--write"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run format",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -11288,7 +11327,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run format:check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -11603,7 +11642,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -11614,7 +11653,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -11687,7 +11726,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run i18n:check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -11741,7 +11780,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run lint",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -12056,7 +12095,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -12067,7 +12106,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -12140,7 +12179,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run migrate",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -12201,7 +12240,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run node:contract",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -12530,7 +12569,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -12541,7 +12580,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -12620,7 +12659,7 @@
         "supported": [
           "--evidence"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run release -- restore-drill",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -12683,7 +12722,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run postbuild",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -13067,7 +13106,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 54,
+          "line": 55,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "check: 'npm run build && npm run audit',",
@@ -13077,7 +13116,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -13089,7 +13128,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -13101,7 +13140,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 176,
+          "line": 177,
           "kind": "process-arguments",
           "source": "test",
           "excerpt": "\"const step = { command: 'npm', args: ['run', 'build'] };\",",
@@ -13111,7 +13150,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 256,
+          "line": 257,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -13187,7 +13226,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run postinstall",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -13378,7 +13417,7 @@
         },
         {
           "file": "scripts/lib/command-catalog.mjs",
-          "line": 16,
+          "line": 19,
           "source": "script",
           "kind": "implicit-install-hook",
           "excerpt": "preconditions: ['Run npm ci before execution; --dry-run only prints a plan.'],"
@@ -13467,7 +13506,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run prebuild",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -13852,7 +13891,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 54,
+          "line": 55,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "check: 'npm run build && npm run audit',",
@@ -13862,7 +13901,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -13874,7 +13913,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -13886,7 +13925,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 176,
+          "line": 177,
           "kind": "process-arguments",
           "source": "test",
           "excerpt": "\"const step = { command: 'npm', args: ['run', 'build'] };\",",
@@ -13896,7 +13935,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 256,
+          "line": 257,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -13971,7 +14010,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run preview",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -14018,7 +14057,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run release",
       "compatibility": "added public entry; initial aliases remain compatible",
@@ -14027,14 +14066,14 @@
       "callers": [
         {
           "file": "docs/script-cli.md",
-          "line": 71,
+          "line": 80,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- deploy --dry-run"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 72,
+          "line": 81,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- deploy --yes"
@@ -14074,7 +14113,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run release -- preflight",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -14154,7 +14193,7 @@
           "--verify-documentation"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run release -- readiness check",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -14483,7 +14522,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -14494,7 +14533,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -14567,7 +14606,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run scripts:inventory",
       "compatibility": "added public entry; initial aliases remain compatible",
@@ -14576,7 +14615,7 @@
       "callers": [
         {
           "file": "docs/script-cli.md",
-          "line": 95,
+          "line": 104,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run scripts:inventory"
@@ -14616,7 +14655,7 @@
           "--check"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run scripts:inventory:check",
       "compatibility": "added public entry; initial aliases remain compatible",
@@ -14625,7 +14664,7 @@
       "callers": [
         {
           "file": "docs/script-cli.md",
-          "line": 96,
+          "line": 105,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run scripts:inventory:check"
@@ -14938,7 +14977,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -14949,7 +14988,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -15025,7 +15064,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- test",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -15103,7 +15142,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run assets -- clean-build",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -15396,7 +15435,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -15406,7 +15445,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -15471,7 +15510,7 @@
           "--coverage"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- unit",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -15800,7 +15839,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -15811,7 +15850,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -15879,7 +15918,7 @@
         "supported": [
           "--list"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- database",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -15902,7 +15941,7 @@
         },
         {
           "file": "docs/data-access.md",
-          "line": 9,
+          "line": 11,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` découvre automatiquement tous les fichiers"
@@ -15981,7 +16020,7 @@
         {
           "variable": "testScript",
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 174,
+          "line": 175,
           "kind": "dynamic-process-arguments",
           "source": "test",
           "excerpt": "\"spawnSync(npmCommand, ['run', testScript]);\","
@@ -16027,7 +16066,7 @@
         "supported": [
           "--list"
         ],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- database --list",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -16091,7 +16130,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- rollback",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -16116,7 +16155,7 @@
         {
           "variable": "testScript",
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 174,
+          "line": 175,
           "kind": "dynamic-process-arguments",
           "source": "test",
           "excerpt": "\"spawnSync(npmCommand, ['run', testScript]);\","
@@ -16156,7 +16195,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run assets -- deployed verify",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -16238,7 +16277,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run test:e2e",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -16341,7 +16380,7 @@
           "--config"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run test:e2e:production",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -16451,7 +16490,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- performance budgets",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -16787,7 +16826,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -16798,7 +16837,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -16865,7 +16904,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- performance preview",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -16949,7 +16988,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run testing -- production-build",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -17271,7 +17310,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -17282,7 +17321,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -17345,7 +17384,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run test:seed",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -17442,7 +17481,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run test:watch",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -17487,7 +17526,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options"
       },
       "replacement": "npm run testing",
       "compatibility": "added public entry; initial aliases remain compatible",
@@ -17496,14 +17535,14 @@
       "callers": [
         {
           "file": "docs/script-cli.md",
-          "line": 59,
+          "line": 64,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- static"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 60,
+          "line": 65,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- unit"
@@ -17541,7 +17580,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run typecheck",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -17888,7 +17927,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -17899,7 +17938,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -17974,7 +18013,7 @@
           "--no"
         ],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run typecheck:app",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -18343,7 +18382,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -18355,7 +18394,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -18452,7 +18491,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run typecheck:e2e",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -18821,7 +18860,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -18833,7 +18872,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -18930,7 +18969,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run typecheck:scripts",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",
@@ -19299,7 +19338,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 59,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'README.md', 'Build validation: npm run check.\\n');",
@@ -19311,7 +19350,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 60,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, '.github/workflows/ci.yml', 'steps:\\n  - run: npm ci\\n  - run: npm run check\\n');",
@@ -19409,7 +19448,7 @@
       "arguments": {
         "fixed": [],
         "supported": [],
-        "forwarding": "npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags"
+        "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run typecheck:strict",
       "compatibility": "retained; migrate consumers in a separate PR before removal or deprecation",

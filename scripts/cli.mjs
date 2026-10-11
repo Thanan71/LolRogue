@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { buildAssetsPlan } from './commands/assets/index.mjs';
 import { buildBalancePlan } from './commands/balance/index.mjs';
 import { buildDatabasePlan } from './commands/database/index.mjs';
@@ -9,7 +9,7 @@ import { buildTestingPlan } from './commands/testing/index.mjs';
 import { validateAuthorityVersionRegistry } from './lib/authority-version-registry.mjs';
 import { commandGroups, commandsForGroup } from './lib/command-catalog.mjs';
 import { runCommandPlan } from './lib/command-runner.mjs';
-import { requireNode24 } from './lib/critical-command.mjs';
+import { isDirectExecution, requireNode24 } from './lib/critical-command.mjs';
 
 const repositoryRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const globalOptions = {
@@ -38,12 +38,13 @@ function parseOptions(args, definitions) {
     if (!token.startsWith('--'))
       fail(
         'CLI_ARGUMENT_UNKNOWN',
-        `Unexpected argument ${token}; only documented options are accepted.`,
+        'Unexpected positional argument; only documented options are accepted.',
       );
     const equals = token.indexOf('=');
     const name = token.slice(2, equals === -1 ? undefined : equals);
     const definition = definitions[name];
-    if (!definition) fail('CLI_OPTION_UNKNOWN', `Unknown option --${name}. Use --help.`);
+    if (!definition)
+      fail('CLI_OPTION_UNKNOWN', 'Unknown option. Use --help for supported options.');
     if (Object.hasOwn(options, name))
       fail('CLI_OPTION_DUPLICATE', `Option --${name} was specified more than once.`);
     if (definition.type === 'boolean') {
@@ -87,7 +88,7 @@ export function parseCommand(arguments_) {
   }
   const group = args.shift();
   if (!commandGroups.includes(group))
-    fail('CLI_GROUP_UNKNOWN', `Unknown group ${group}; choose ${commandGroups.join(', ')}.`);
+    fail('CLI_GROUP_UNKNOWN', `Unknown group; choose ${commandGroups.join(', ')}.`);
   while (args[0] === '--') args.shift();
   if (args.length === 0 || args[0] === '--help') {
     if (args.length > 1)
@@ -101,10 +102,7 @@ export function parseCommand(arguments_) {
     candidate.path.every((part, index) => args[index] === part),
   );
   if (!command)
-    fail(
-      'CLI_COMMAND_UNKNOWN',
-      `Unknown ${group} command ${args.filter((token) => !token.startsWith('--')).join(' ')}. Use npm run ${group} -- --help.`,
-    );
+    fail('CLI_COMMAND_UNKNOWN', `Unknown ${group} command. Use npm run ${group} -- --help.`);
   const options = parseOptions(args.slice(command.path.length), {
     ...globalOptions,
     ...command.options,
@@ -184,14 +182,18 @@ export async function runCli(
       .engine.replace('run-engine-', '');
     const context = { root, registry, currentEngine, readBranch };
     const plan = await createCommandPlan(parsed, context);
+    const risk =
+      parsed.options.check && parsed.command.risk === 'generate'
+        ? 'read-only'
+        : parsed.command.risk;
     if (!plan.length) fail('CLI_PLAN_EMPTY', 'The command resolved to an empty plan.');
     if (parsed.options['dry-run']) {
       stdout.write(
-        `${JSON.stringify({ command: `${parsed.group} ${parsed.command.path.join(' ')}`, risk: parsed.command.risk, currentEngine, steps: plan }, null, 2)}\n`,
+        `${JSON.stringify({ command: `${parsed.group} ${parsed.command.path.join(' ')}`, risk, currentEngine, steps: plan }, null, 2)}\n`,
       );
       return 0;
     }
-    if (['destructive-local', 'remote'].includes(parsed.command.risk) && !parsed.options.yes)
+    if (['destructive-local', 'remote'].includes(risk) && !parsed.options.yes)
       fail(
         'CLI_CONFIRMATION_REQUIRED',
         `${parsed.group} ${parsed.command.path.join(' ')} requires --yes; inspect --dry-run first.`,
@@ -210,6 +212,6 @@ export async function runCli(
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isDirectExecution(import.meta.url)) {
   process.exitCode = await runCli(process.argv.slice(2));
 }

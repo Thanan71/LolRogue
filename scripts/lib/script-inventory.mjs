@@ -4,8 +4,8 @@ import {
   existsSync,
   mkdirSync,
   openSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   renameSync,
   rmSync,
   writeFileSync,
@@ -273,8 +273,9 @@ function metadata(name, command, descriptor) {
       supported: descriptor
         ? sorted(Object.keys(descriptor.options ?? {}).map((flag) => `--${flag}`))
         : [],
-      forwarding:
-        'npm run <name> -- <arguments>; underlying tool remains the authority for legacy flags',
+      forwarding: command.includes('scripts/cli.mjs')
+        ? 'npm run <name> -- <arguments>; CLI validates documented options strictly; use the canonical command to override fixed alias options'
+        : 'npm run <name> -- <arguments>; underlying tool validates legacy flags',
     },
   };
 }

@@ -231,6 +231,23 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 6,
+    version: '0.2.1',
+    publishedOn: '2026-10-11',
+    title: { 'fr-FR': 'Maintenance des mises à jour', 'en-US': 'Release maintenance' },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les outils de vérification et de publication ont été améliorés pour fiabiliser les prochaines mises à jour.',
+          'en-US':
+            'Verification and release tools have been improved to make upcoming updates more reliable.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

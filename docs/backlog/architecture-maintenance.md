@@ -1,6 +1,6 @@
 # ARCH — Architecture, maintenance et scripts
 
-**Statut : proposé, non implémenté.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
+**Statut : ARCH-S1 implémenté, retrait des alias différé jusqu’à une PR de migration des appelants ; ARCH-S2 à ARCH-S5 proposés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
 
 [Retour au TODO](../../TODO.md) · [Bot tactique](tactical-bot.md) · [Arbres de Candies](champion-enhancement-trees.md) · [Administration](admin-console.md)
 
@@ -15,69 +15,73 @@
 
 ## ARCH-S1 — Catalogue de scripts et CLI (P2, taille L)
 
+Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-inventory.md) et [inventaire machine](../scripts-inventory.json). Les 105 alias initiaux restent disponibles ; cinq groupes canoniques et deux commandes d’inventaire sont ajoutés. La réduction à environ 30–40 entrées interviendra après migration des appelants dans une PR séparée et CI verte. Aucun avertissement de dépréciation n’est activé avant cette étape.
+
 ### ARCH-01 — Inventorier les scripts, propriétaires et appelants
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Extraire la liste des 105 entrées `scripts` de `package.json` ; classer usage courant, CI, déploiement, génération, maintenance, diagnostic, historique.
-  - [ ] Scanner les références exactes à `npm run …` dans `.github/workflows`, `README.md`, `docs`, tests et scripts ; marquer « contrat externe » / « interne ».
-  - [ ] Figer le périmètre des commandes publiques utilisées par développeurs, CI et release, sans supposer qu'un script absent de la recherche est inutile.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Identifier les scripts exposés mais jamais appelés ; vérifier leur utilité avant dépréciation. Ne pas confondre « non référencé » et « inutilisé ».
-  - [ ] Publier un tableau ancien nom → nouvel appel → consommateurs → compatibilité prévue.
-  - [ ] Produire un inventaire machine-readable `scripts-inventory.json` sous docs ou outillage avec propriétaire, risques, arguments et commande de remplacement.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Tester la présence des 105 entrées initiales dans l'inventaire, y compris hooks `prebuild`/`postbuild` et références indirectes.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Extraire la liste des 105 entrées `scripts` de `package.json` ; classer usage courant, CI, déploiement, génération, maintenance, diagnostic, historique.
+  - [x] Scanner les références exactes à `npm run …` dans `.github/workflows`, `README.md`, `docs`, tests et scripts ; marquer « contrat externe » / « interne ».
+  - [x] Figer le périmètre des commandes publiques utilisées par développeurs, CI et release, sans supposer qu'un script absent de la recherche est inutile.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Identifier les scripts exposés mais jamais appelés ; vérifier leur utilité avant dépréciation. Ne pas confondre « non référencé » et « inutilisé ».
+  - [x] Publier un tableau ancien nom → nouvel appel → consommateurs → compatibilité prévue.
+  - [x] Produire un inventaire machine-readable `scripts-inventory.json` sous docs ou outillage avec propriétaire, risques, arguments et commande de remplacement.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Tester la présence des 105 entrées initiales dans l'inventaire, y compris hooks `prebuild`/`postbuild` et références indirectes.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-02 — Créer une CLI sans dépendance superflue
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Ajouter `scripts/cli.mjs` et des routeurs `scripts/commands/{balance,database,assets,release,testing}/` ; préserver le code des scripts métier existants.
-  - [ ] Fournir `--help`, messages d'erreur utiles, validation des arguments et code de sortie non nul en cas d'échec.
-  - [ ] Choisir une grammaire de sous-commandes et options sans ambiguïté (`--`, `--engine`, `--help`) et des erreurs structurées.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Définir les commandes canoniques : `balance -- baseline generate --engine v22`, `balance -- baseline check --all`, `balance -- check` et équivalents DB/assets.
-  - [ ] Ajouter des tests CLI : aide, arguments invalides, sélection de version, erreurs propagées ; refuser les commandes silencieuses.
-  - [ ] Conserver les appels Node avec propagation de `stdout`, `stderr` et du code de retour pour les commandes chaînées.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Tester appel valide, argument manquant, option inconnue, commande inexistante et interruption de sous-processus.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Ajouter `scripts/cli.mjs` et des routeurs `scripts/commands/{balance,database,assets,release,testing}/` ; préserver le code des scripts métier existants.
+  - [x] Fournir `--help`, messages d'erreur utiles, validation des arguments et code de sortie non nul en cas d'échec.
+  - [x] Choisir une grammaire de sous-commandes et options sans ambiguïté (`--`, `--engine`, `--help`) et des erreurs structurées.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Définir les commandes canoniques : `balance -- baseline generate --engine v22`, `balance -- baseline check --all`, `balance -- check` et équivalents DB/assets.
+  - [x] Ajouter des tests CLI : aide, arguments invalides, sélection de version, erreurs propagées ; refuser les commandes silencieuses.
+  - [x] Conserver les appels Node avec propagation de `stdout`, `stderr` et du code de retour pour les commandes chaînées.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Tester appel valide, argument manquant, option inconnue, commande inexistante et interruption de sous-processus.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-03 — Réduire les commandes publiques et dédupliquer les versions
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Remplacer les alias `balance:baseline:generate:v15`…`v22` et `balance:early-top:generate:v17`… par des options `--engine` documentées.
-  - [ ] Lire la version par défaut depuis `config/authority-versions.json` : la commande `generate` du moteur courant ne doit plus retomber sur `v21` pendant que `v22` est actif.
-  - [ ] Lister explicitement les alias conservés provisoirement et la source de version canonique actuelle dans le registre.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Conserver temporairement `build`, `prebuild`, `postbuild`, `test`, `check`, `check:static`, `check:unit`, `check:db`, `check:browser`, `check:build`, `backend:deploy` et tous les noms appelés par CI/documentation.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Remplacer les alias `balance:baseline:generate:v15`…`v22` et `balance:early-top:generate:v17`… par des options `--engine` documentées.
+  - [x] Lire la version par défaut depuis `config/authority-versions.json` : la commande `generate` du moteur courant ne doit plus retomber sur `v21` pendant que `v22` est actif.
+  - [x] Lister explicitement les alias conservés provisoirement et la source de version canonique actuelle dans le registre.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Conserver temporairement `build`, `prebuild`, `postbuild`, `test`, `check`, `check:static`, `check:unit`, `check:db`, `check:browser`, `check:build`, `backend:deploy` et tous les noms appelés par CI/documentation.
   - [ ] Migrer tous les appelants en PR séparée, retirer les alias uniquement après recherche globale et CI verte ; viser environ 30–40 entrées npm publiques, sans en faire un critère artificiel.
-  - [ ] Mettre un avertissement de dépréciation seulement après migration de tous les consommateurs et écrire la table d'équivalence.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Comparer génération/check sur moteurs v15 à v22 et vérifier que la version par défaut n'est pas silencieusement v21.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+  - [x] Mettre un avertissement de dépréciation seulement après migration de tous les consommateurs et écrire la table d'équivalence.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Comparer génération/check sur moteurs v15 à v22 et vérifier que la version par défaut n'est pas silencieusement v21.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-04 — Sécuriser les scripts critiques
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Tester les modes lecture/`--check` sans modifier les fichiers suivis ; documenter précisément les générateurs qui écrivent volontairement.
-  - [ ] Introduire `--dry-run`/confirmation explicite pour les commandes destructives, en respectant les contrats Supabase CLI existants.
-  - [ ] Distinguer actions qui lisent, génèrent localement, détruisent ou déploient afin de définir le niveau de confirmation.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Distinguer scripts utilisés dans `postinstall`, génération à la demande et opérations distantes ; conserver le patch Supabase Auth tant qu'une preuve de retrait sûr manque.
-  - [ ] Vérifier les chemins depuis la racine et l'exécution sous Node 24 sur Linux/macOS ; éviter `npx` non épinglé pour un outil sensible.
-  - [ ] Faire échouer les commandes dangereuses avant le premier effet externe si cible, droits ou préconditions manquent.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Simuler branche interdite, CLI absente, échec patch Supabase et reset destructif sans toucher à une vraie base.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Tester les modes lecture/`--check` sans modifier les fichiers suivis ; documenter précisément les générateurs qui écrivent volontairement.
+  - [x] Introduire `--dry-run`/confirmation explicite pour les commandes destructives, en respectant les contrats Supabase CLI existants.
+  - [x] Distinguer actions qui lisent, génèrent localement, détruisent ou déploient afin de définir le niveau de confirmation.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Distinguer scripts utilisés dans `postinstall`, génération à la demande et opérations distantes ; conserver le patch Supabase Auth tant qu'une preuve de retrait sûr manque.
+  - [x] Vérifier les chemins depuis la racine et l'exécution sous Node 24 sur Linux/macOS ; éviter `npx` non épinglé pour un outil sensible.
+  - [x] Faire échouer les commandes dangereuses avant le premier effet externe si cible, droits ou préconditions manquent.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Simuler branche interdite, CLI absente, échec patch Supabase et reset destructif sans toucher à une vraie base.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+La version par défaut vient du registre authority (actuellement `run-engine-0.2.0`). Les anciennes commandes early-top/affordability conservent explicitement leurs moteurs v21/v18 ; la CLI refuse un moteur non pris en charge au lieu de modifier leurs protocoles historiques.
+
 **Acceptation S1 :** même sortie et mêmes artefacts pour les commandes existantes et nouvelles ; `npm ci`/CI ne régressent pas ; aucun nom de check GitHub requis n'est cassé.
 
 ## ARCH-S2 — Configuration et déploiement (P1, taille M/L)

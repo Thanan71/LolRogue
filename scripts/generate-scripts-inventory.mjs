@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
+import { isDirectExecution } from './lib/critical-command.mjs';
 import {
   checkScriptInventory,
   generateScriptInventory,
@@ -51,6 +52,6 @@ export async function runScriptInventory({
   }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isDirectExecution(import.meta.url)) {
   process.exitCode = await runScriptInventory();
 }

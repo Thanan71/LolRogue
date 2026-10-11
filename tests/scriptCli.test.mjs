@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -88,7 +88,7 @@ describe('script CLI contract', () => {
   });
 
   it('accepts an npm-style separator and explicit historical/semantic engine forms', () => {
-    for (const engine of ['v22', '0.2.0']) {
+    for (const engine of ['v22', '0.2.0', 'run-engine-v22', 'run-engine-0.2.0']) {
       const result = executeCli([
         'balance',
         '--',
@@ -98,8 +98,58 @@ describe('script CLI contract', () => {
         '--dry-run',
       ]);
       expect(result.status).toBe(0);
-      expect(JSON.parse(result.stdout).steps[0].args).toContain(engine);
+      expect(JSON.parse(result.stdout).steps[0].args).toContain(engine.replace(/^run-engine-/, ''));
     }
+  });
+
+  it('executes the direct entry point through a symlink and anchors the real repository', () => {
+    const directory = temporaryDirectory();
+    const link = path.join(directory, 'checkout');
+    symlinkSync(root, link, 'dir');
+    const help = spawnSync(process.execPath, [path.join(link, 'scripts/cli.mjs'), '--help'], {
+      encoding: 'utf8',
+      cwd: directory,
+    });
+    expect(help.status).toBe(0);
+    expect(help.stdout).toContain('Usage: npm run <group>');
+    const preview = spawnSync(
+      process.execPath,
+      [path.join(link, 'scripts/cli.mjs'), 'balance', 'baseline', 'generate', '--dry-run'],
+      { encoding: 'utf8', cwd: directory },
+    );
+    expect(preview.status).toBe(0);
+    expect(JSON.parse(preview.stdout).steps[0].args[0]).toBe(
+      path.join(root, 'scripts/generate-authority-cohort-baseline.mjs'),
+    );
+  });
+
+  it.each([
+    (secret) => [secret],
+    (secret) => ['balance', secret],
+    (secret) => ['assets', 'verify', secret],
+    (secret) => ['assets', 'verify', `-${secret}`],
+    (secret) => ['assets', 'verify', `--${secret}`],
+    (secret) => ['database', 'reset', `--db-url=${secret}`],
+    (secret) => ['balance', 'baseline', 'generate', '--engine', secret, '--dry-run'],
+    (secret) => [
+      'balance',
+      'combat',
+      'matrix',
+      'generate',
+      '--baseline-engine',
+      secret,
+      '--dry-run',
+    ],
+  ])('rejects mistaken credential arguments without echoing their values', (argumentsForSecret) => {
+    const secret =
+      'postgresql://fake_user:FAKE_PASSWORD@db.invalid:5432/postgres?service_role=FAKE_ROLE';
+    const result = executeCli(argumentsForSecret(secret));
+    expect(result.status).toBe(1);
+    expect(result.stdout).toBe('');
+    expect(JSON.parse(result.stderr).error.code).toMatch(/^CLI_/);
+    expect(result.stderr).not.toContain('FAKE_PASSWORD');
+    expect(result.stderr).not.toContain('FAKE_ROLE');
+    expect(result.stderr).not.toContain('fake_user');
   });
 
   it('executes a real read-only authority check through the canonical route', () => {
@@ -419,6 +469,37 @@ describe('npm compatibility alias plans', () => {
     expect(currentScripts['balance:cohort']).toBe(initialScripts['balance:cohort']);
     expect(currentScripts['balance:repro']).toBe(initialScripts['balance:repro']);
   });
+
+  const checkCompatibleAliases = commandCatalog
+    .filter((command) => command.group === 'balance' && command.options.check)
+    .flatMap((command) => command.aliases);
+  it.each(checkCompatibleAliases)(
+    'keeps the initially exposed --check option on %s and reports a read-only plan',
+    (alias) => {
+      const currentScripts = JSON.parse(
+        readFileSync(path.join(root, 'package.json'), 'utf8'),
+      ).scripts;
+      const invocation = currentScripts[alias].split(/\s+/).slice(2);
+      const result = executeCli([...invocation, '--check', '--dry-run']);
+      expect(result.status).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.risk).toBe('read-only');
+      expect(normalizePlan(plan.steps)).toEqual(
+        normalizePlan(
+          legacyPlan(alias).map((step) => ({ ...step, args: [...step.args, '--check'] })),
+        ),
+      );
+      const invalid = executeCli([
+        ...invocation,
+        '--check',
+        '--output',
+        '/tmp/must-not-write.json',
+        '--dry-run',
+      ]);
+      expect(invalid.status).toBe(1);
+      expect(JSON.parse(invalid.stderr).error.code).toBe('CLI_OPTION_CONFLICT');
+    },
+  );
 
   it('uses one group npm entry per router while retaining all existing aliases', () => {
     const currentScripts = JSON.parse(
