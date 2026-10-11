@@ -6,11 +6,12 @@
  */
 
 import type { Run, RunTeamMember } from '@/types/models';
+import type { AuthorityDifficulty, AuthorityRunMode } from '@/types/runAttempt';
 
 export interface RunHistoryFilters {
   outcome?: 'victory' | 'defeat';
-  difficulty?: 'easy' | 'normal' | 'hard';
-  mode?: 'normal' | 'daily';
+  difficulty?: AuthorityDifficulty;
+  mode?: AuthorityRunMode;
   engineVersion?: string;
   gameplayRulesetVersion?: number;
   progressionRulesetVersion?: number;

@@ -4,14 +4,15 @@
  */
 
 import {
-  calculateRunCandyAllocation,
   calculateRunCandiesPerChampion,
+  calculateRunCandyAllocation,
   type RunRewardParticipant,
 } from '@/game/run/runRewardPolicy';
 import {
   type ChampionMastery,
   MASTERY_THRESHOLDS,
   MAX_MASTERY_LEVEL,
+  type MasteryMap,
   type MasteryUnlock,
   STAT_BONUS_PER_LEVEL,
 } from '@/types/mastery';
@@ -187,13 +188,13 @@ export function getUnlockIdsForLevel(
 // --- Candy Award (full update) ---
 
 export interface CandyAwardResult {
-  updatedMasteries: Record<string, ChampionMastery>;
+  updatedMasteries: MasteryMap;
   newUnlocks: MasteryUnlock[];
   candiesAwarded: Record<string, number>;
 }
 
 export function awardCandies(
-  currentMasteries: Record<string, ChampionMastery>,
+  currentMasteries: MasteryMap,
   championIds: string[],
   wavesCompleted: number,
   biomesVisited: number,
@@ -208,7 +209,7 @@ export function awardCandies(
     won,
     participation,
   );
-  const updatedMasteries: Record<string, ChampionMastery> = { ...currentMasteries };
+  const updatedMasteries: MasteryMap = { ...currentMasteries };
   const newUnlocks: MasteryUnlock[] = [];
   for (const id of championIds) {
     const prev = updatedMasteries[id] ?? buildChampionMastery(id, 0, []);
