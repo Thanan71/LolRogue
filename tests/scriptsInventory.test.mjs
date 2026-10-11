@@ -280,6 +280,7 @@ describe('public npm script inventory', () => {
     const root = fixture();
     const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
     delete packageJson.scripts.useful;
+    packageJson.scripts.testing = 'node scripts/cli.mjs testing';
     write(root, 'package.json', JSON.stringify(packageJson));
     const catalog = [
       {
@@ -303,7 +304,7 @@ describe('public npm script inventory', () => {
     expect(() => buildScriptInventory(root)).toThrow('canonical catalog replacement');
     const inventory = buildScriptInventory(root, { catalog });
     expect(inventory.initialCount).toBe(9);
-    expect(inventory.currentCount).toBe(8);
+    expect(inventory.currentCount).toBe(9);
     expect(inventory.retiredCount).toBe(1);
     expect(inventory.scripts.find(({ name }) => name === 'useful')).toMatchObject({
       initial: true,
@@ -314,6 +315,16 @@ describe('public npm script inventory', () => {
       replacement: 'npm run testing -- useful',
     });
     expect(inventory.migrationEvidence.headSha).toBe('a'.repeat(40));
+    expect(inventory.scripts.find(({ name }) => name === 'build')).toMatchObject({
+      public: true,
+      retired: false,
+      compatibility: 'retained public contract after caller migration; remains available',
+    });
+    expect(inventory.scripts.find(({ name }) => name === 'testing')).toMatchObject({
+      public: true,
+      retired: false,
+      compatibility: 'added public entry; retired aliases require their canonical replacement',
+    });
     expect(renderScriptInventory(inventory)[EQUIVALENCE_PATH]).toContain('alias retiré');
   });
 

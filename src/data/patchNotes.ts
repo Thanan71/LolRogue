@@ -248,6 +248,23 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 7,
+    version: '0.2.2',
+    publishedOn: '2026-10-11',
+    title: { 'fr-FR': 'Maintenance simplifiée', 'en-US': 'Simplified maintenance' },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les outils de maintenance et les vérifications avant publication sont regroupés pour faciliter et fiabiliser les prochaines mises à jour du jeu.',
+          'en-US':
+            'Maintenance tools and pre-release checks are grouped together to make upcoming game updates easier and more reliable.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

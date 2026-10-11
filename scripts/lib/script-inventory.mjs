@@ -582,8 +582,12 @@ export function buildScriptInventory(root = process.cwd(), { catalog = [] } = {}
       compatibility: retired.has(name)
         ? 'retired after caller migration and recorded green CI; use the canonical replacement'
         : Object.hasOwn(baseline.scripts, name)
-          ? 'retained; migrate consumers in a separate PR before removal or deprecation'
-          : 'added public entry; initial aliases remain compatible',
+          ? retired.size
+            ? 'retained public contract after caller migration; remains available'
+            : 'retained; migrate consumers in a separate PR before removal or deprecation'
+          : retired.size
+            ? 'added public entry; retired aliases require their canonical replacement'
+            : 'added public entry; initial aliases remain compatible',
       referenceStatus:
         callers.length || indirectCallers.length
           ? 'referenced'
