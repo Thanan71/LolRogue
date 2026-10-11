@@ -13,8 +13,8 @@ import {
   type AuthorityCohortBaselineDocument,
   compareAuthorityCohortBaseline,
 } from './authorityCohortBaseline';
-import { AUTHORITY_COHORT_BASELINE_V22 } from './authorityCohortBaselineV22';
-import { AUTHORITY_COHORT_BASELINE_V22_IDENTITY } from './authorityCohortBaselineV22Fixture';
+import { AUTHORITY_COHORT_CURRENT_BASELINE } from './authorityCohortCurrentBaseline';
+import { AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY } from './authorityCohortCurrentBaselineFixture';
 import {
   type AuthorityCohortExecutionReportDocument,
   createAuthorityCohortExecutionPlan,
@@ -32,7 +32,7 @@ const ACCEPTANCE_FILE = 'authority-cohort-acceptance.json';
 export function getAuthorityCohortExecutionBaseline(
   authority: Pick<AuthorityCohortRuntime, 'engineVersion' | 'contentHash'>,
 ): AuthorityCohortBaselineDocument {
-  const identity = AUTHORITY_COHORT_BASELINE_V22_IDENTITY;
+  const identity = AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY;
   if (
     authority.engineVersion !== identity.engineVersion ||
     authority.contentHash !== identity.contentHash
@@ -41,7 +41,7 @@ export function getAuthorityCohortExecutionBaseline(
       `No approved cohort baseline for ${authority.engineVersion}/${authority.contentHash}.`,
     );
   }
-  return AUTHORITY_COHORT_BASELINE_V22;
+  return AUTHORITY_COHORT_CURRENT_BASELINE;
 }
 
 function parseProfile(value: string | undefined): AuthorityCohortExecutionProfileName {

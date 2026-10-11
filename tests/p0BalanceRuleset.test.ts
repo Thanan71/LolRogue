@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import rawRegistry from '../config/authority-versions.json';
 
 const migration = readFileSync(
   new URL(
@@ -62,9 +63,12 @@ describe('P0 balance authority ruleset', () => {
     );
   });
 
-  it('serializes the participation ledger for both progression-v3 engines', () => {
-    expect(verifyRunSource).toContain("engineVersion === 'run-engine-v20'");
-    expect(verifyRunSource).toContain("engineVersion === 'run-engine-v21'");
+  it('keeps participation capabilities for both historical progression-v3 engines', () => {
+    for (const engine of ['run-engine-v20', 'run-engine-v21']) {
+      expect(
+        rawRegistry.versions.find((version) => version.engine === engine)?.features.canonicalStats,
+      ).toBe(true);
+    }
   });
 
   it('logs sanitized database diagnostics when verified progression cannot commit', () => {

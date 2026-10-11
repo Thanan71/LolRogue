@@ -34,7 +34,7 @@ export function isRunProgressionDefinition(definition: RunProgressionDefinition)
   )
     return false;
   return (
-    (['onDamage', 'onKill', 'onCombatEnd'] as const).every(
+    (['onDamage', 'onKill', 'onAssist', 'onCombatEnd'] as const).every(
       (hook) =>
         definition[hook] === undefined ||
         (definition[hook]?.length !== 0 &&
@@ -46,7 +46,10 @@ export function isRunProgressionDefinition(definition: RunProgressionDefinition)
                 ['normal', 'elite', 'boss'].includes(trigger.targetTier)) &&
               (trigger.abilityOnly === undefined || typeof trigger.abilityOnly === 'boolean'),
           ) === true),
-    ) && (['onDamage', 'onKill', 'onCombatEnd'] as const).some((hook) => definition[hook]?.length)
+    ) &&
+    (['onDamage', 'onKill', 'onAssist', 'onCombatEnd'] as const).some(
+      (hook) => definition[hook]?.length,
+    )
   );
 }
 
@@ -85,7 +88,7 @@ export function cloneRunProgressSnapshot(
 }
 
 export interface RunProgressionContext {
-  hook: 'onDamage' | 'onKill' | 'onCombatEnd';
+  hook: 'onDamage' | 'onKill' | 'onAssist' | 'onCombatEnd';
   targetTier?: RunProgressionTargetTier;
   ability: boolean;
 }

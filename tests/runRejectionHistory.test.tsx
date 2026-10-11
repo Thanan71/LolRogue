@@ -17,6 +17,25 @@ const entry = {
   rejectionCode: 'pending_choice',
 };
 describe('owner rejection history', () => {
+  it('shows the semantic release in a current rejection diagnostic', async () => {
+    const getPlayerRunRejections = vi.fn().mockResolvedValue({
+      data: [{ ...entry, engineVersion: 'run-engine-0.2.0', gameplayRulesetVersion: 23 }],
+      error: null,
+      nextCursor: null,
+    });
+    render(
+      <RunRejectionHistory
+        playerId="owner"
+        repository={{ getPlayerRunRejections } as unknown as IRunRepository}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Afficher les tentatives rejetées' }));
+    expect(
+      await screen.findByText('run-engine-0.2.0 · jeu v0.2.0 · progression v2'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/jeu v23/u)).not.toBeInTheDocument();
+  });
+
   it('loads only on demand, renders localized guidance and keeps technical detail collapsed', async () => {
     const getPlayerRunRejections = vi
       .fn()

@@ -1,5 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.110.8';
-import { resolveAuthorityVerifier } from './authority-version-resolver.generated.ts';
+import {
+  AUTHORITY_VERSION_REGISTRY,
+  resolveAuthorityVerifier,
+} from './authority-version-resolver.generated.ts';
 import { buildVerifiedEconomyResult } from './champion-economy.ts';
 
 const CORS_HEADERS = {
@@ -75,11 +78,10 @@ function buildVerifiedResult(
   engineVersion: string,
   validateRunProgress?: (championId: string, progress: unknown) => boolean,
 ): JsonRecord | null {
-  const usesParticipationLedger =
-    engineVersion === 'run-engine-v20' ||
-    engineVersion === 'run-engine-v21' ||
-    engineVersion === 'run-engine-v22';
-  const usesRunProgression = engineVersion === 'run-engine-v22';
+  const version = AUTHORITY_VERSION_REGISTRY.find((entry) => entry.engine === engineVersion);
+  if (!version) return null;
+  const usesParticipationLedger = version.features.canonicalStats;
+  const usesRunProgression = version.features.runProgression;
   const expectedLedgerVersion = usesParticipationLedger ? 2 : 1;
   const team = Array.isArray(snapshot.team) ? snapshot.team : null;
   const championStats = Array.isArray(snapshot.championStats) ? snapshot.championStats : null;

@@ -21,6 +21,7 @@ import { createScopedRunRng } from '@/utils/runRandom';
 import { calculateXpGain } from '@/utils/xpSystem';
 import { DIFFICULTY_RULES } from './difficultyRules';
 import { drawItemDefinitionForBiome } from './itemDropRules';
+import { getRunChampionForEngine } from './runChampionCatalog';
 import { getStarterBudgetProfile } from './starterBudget';
 
 export { getCombatantTargetId } from '@/game/battle/combatantIdentity';
@@ -273,16 +274,24 @@ export function resolveCombatEncounter(
   };
 }
 
-export function buildResolvedEnemyTeam(encounter: ResolvedCombatEncounter): ChampionInstance[] {
+export function buildResolvedEnemyTeam(
+  encounter: ResolvedCombatEncounter,
+  engineVersion?: string,
+): ChampionInstance[] {
   const instances: ChampionInstance[] = [];
   for (const enemy of encounter.enemies) {
     const champion = championDB.getById(enemy.championId);
     if (champion) {
       instances.push(
-        new ChampionInstance(champion, enemy.level, enemy.statMultiplier, {
-          healthMultiplier: enemy.healthMultiplier,
-          damageMultiplier: enemy.damageMultiplier,
-        }),
+        new ChampionInstance(
+          getRunChampionForEngine(champion, engineVersion),
+          enemy.level,
+          enemy.statMultiplier,
+          {
+            healthMultiplier: enemy.healthMultiplier,
+            damageMultiplier: enemy.damageMultiplier,
+          },
+        ),
       );
     }
   }

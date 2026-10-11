@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import artifact from '@/../config/veigar-run-progression-balance-v22.json';
+import artifact from '@/../config/veigar-run-progression-balance-0.2.0.json';
 import { championDB } from '@/data/championDatabase';
 import {
   AUTHORITY_CONTENT_HASH,
@@ -20,7 +20,7 @@ import { BattleManager } from '@/game/battle/BattleManager';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { importInstrumentedAuthorityBundle } from './helpers/instrumentedAuthorityCombatRuntime';
 
-describe('Veigar v22 balance campaign', () => {
+describe('Veigar 0.2.0 balance campaign', () => {
   it('uses paired fresh teams with the identical policy controls', () => {
     expect(VEIGAR_BALANCE_SEEDS).toHaveLength(30);
     for (const id of ['Veigar', 'Annie', 'Lux']) {
@@ -110,7 +110,7 @@ describe('Veigar v22 balance campaign', () => {
       AUTHORITY_CONTENT_HASH,
     );
     if (!sourceAuthority || !edgeAuthority)
-      throw new Error('Current v22 verifiers are unavailable.');
+      throw new Error('Current 0.2.0 verifiers are unavailable.');
     const sourceClasses = { championDB, BattleManager, ChampionInstance };
     const edgeClasses = edge as unknown as VeigarBalanceBattleClasses;
     const sourceProbes = createVeigarBalanceCombatProbes(

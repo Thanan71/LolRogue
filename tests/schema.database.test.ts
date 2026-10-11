@@ -229,6 +229,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20261008171535_champion_economy_ledger_and_access.sql',
       '../supabase/migrations/20261009173939_gameplay_ruleset_v22_veigar_run_progression.sql',
       '../supabase/migrations/20261009174447_champion_catalog_v2_veigar.sql',
+      '../supabase/migrations/20261010120531_gameplay_ruleset_0_2_0_veigar_assists.sql',
     ]);
   });
 

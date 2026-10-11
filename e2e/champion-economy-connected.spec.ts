@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { expect, type Page, test } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { getRotationForInstant } from '../src/domain/championEconomy';
+import { CURRENT_AUTHORITY_VERSION } from '../src/game/authority/versionRegistry';
 import type { Database } from '../src/types/database';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
@@ -130,8 +131,8 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
   const firstWeek = '2026-10-12T12:00:00.000Z';
   const secondWeek = '2026-10-19T12:00:00.000Z';
   const thirdWeek = '2026-10-26T12:00:00.000Z';
-  const rotation = getRotationForInstant(firstWeek, 22);
-  const nextRotation = getRotationForInstant(secondWeek, 22);
+  const rotation = getRotationForInstant(firstWeek, CURRENT_AUTHORITY_VERSION.gameplay);
+  const nextRotation = getRotationForInstant(secondWeek, CURRENT_AUTHORITY_VERSION.gameplay);
   const championId = rotation.championIds.find((id) => !nextRotation.championIds.includes(id))!;
   expect(championId).toBe('Darius');
   const suffix = randomUUID().replaceAll('-', '').slice(0, 12);
@@ -228,7 +229,8 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     expect(start.ok()).toBe(true);
     const started = record(await start.json());
     expect(started.economy_version).toBe(1);
-    expect(started.gameplay_ruleset_version).toBe(22);
+    expect(started.gameplay_ruleset_version).toBe(CURRENT_AUTHORITY_VERSION.gameplay);
+    expect(started.engine_version).toBe(CURRENT_AUTHORITY_VERSION.engine);
     expect(started.rune_ids).not.toContain('e2e_assured_victory');
     expect(started.champion_access_snapshot).toMatchObject({
       enabled: true,

@@ -58,59 +58,67 @@ describe('admin data feedback', () => {
     expect(select).toHaveBeenCalledWith('authority');
   });
 
-  it('shows authority alerts and the bounded recent rejection runbook', () => {
-    render(
-      <AdminAuthorityPanel
-        aggregates={[
-          {
-            windowStartedAt: new Date().toISOString(),
-            engineVersion: 'run-engine-v13',
-            gameplayRulesetVersion: 13,
-            rejectionCode: 'pending_choice',
-            attemptCount: 5,
-            startedCount: 0,
-            finishedCount: 0,
-            verifiedCount: 0,
-            rejectedCount: 5,
-            expiredCount: 0,
-          },
-        ]}
-        signals={[
-          {
-            engineVersion: 'run-engine-v13',
-            gameplayRulesetVersion: 13,
-            attemptCount: 5,
-            rejectedCount: 5,
-            rejectionRate: 1,
-            rejectionCodes: ['pending_choice'],
-            unknownCodes: [],
-            reasons: ['rejection_rate'],
-          },
-        ]}
-        rejections={[
-          {
-            attemptId: '11111111-1111-4111-8111-111111111111',
-            rejectedAt: '2026-08-09T12:10:00.000Z',
-            engineVersion: 'run-engine-v13',
-            gameplayRulesetVersion: 13,
-            rejectionCode: 'pending_choice',
-          },
-        ]}
-        fieldCohorts={[]}
-        fieldChampionCohorts={[]}
-        fieldAugmentCohorts={[]}
-        loading={false}
-        error={null}
-        onRefresh={vi.fn()}
-      />,
-    );
+  it.each([
+    ['run-engine-v13', 13, '13'],
+    ['run-engine-0.2.0', 23, '0.2.0'],
+  ] as const)(
+    'shows authority alerts and public gameplay labels for %s',
+    (engineVersion, gameplayRulesetVersion, label) => {
+      render(
+        <AdminAuthorityPanel
+          aggregates={[
+            {
+              windowStartedAt: new Date().toISOString(),
+              engineVersion,
+              gameplayRulesetVersion,
+              rejectionCode: 'pending_choice',
+              attemptCount: 5,
+              startedCount: 0,
+              finishedCount: 0,
+              verifiedCount: 0,
+              rejectedCount: 5,
+              expiredCount: 0,
+            },
+          ]}
+          signals={[
+            {
+              engineVersion,
+              gameplayRulesetVersion,
+              attemptCount: 5,
+              rejectedCount: 5,
+              rejectionRate: 1,
+              rejectionCodes: ['pending_choice'],
+              unknownCodes: [],
+              reasons: ['rejection_rate'],
+            },
+          ]}
+          rejections={[
+            {
+              attemptId: '11111111-1111-4111-8111-111111111111',
+              rejectedAt: '2026-08-09T12:10:00.000Z',
+              engineVersion,
+              gameplayRulesetVersion,
+              rejectionCode: 'pending_choice',
+            },
+          ]}
+          fieldCohorts={[]}
+          fieldChampionCohorts={[]}
+          fieldAugmentCohorts={[]}
+          loading={false}
+          error={null}
+          onRefresh={vi.fn()}
+        />,
+      );
 
-    expect(screen.getByRole('alert')).toHaveTextContent(/100,0\s*% de rejets/u);
-    expect(
-      screen.getByRole('table', { name: 'Derniers rejets de vérification de l’autorité' }),
-    ).toHaveTextContent('11111111-1111-4111-8111-111111111111');
-    expect(screen.getAllByText('pending_choice')).toHaveLength(1);
-  });
+      expect(screen.getByRole('alert')).toHaveTextContent(/100,0\s*% de rejets/u);
+      expect(
+        screen.getByRole('table', { name: 'Derniers rejets de vérification de l’autorité' }),
+      ).toHaveTextContent('11111111-1111-4111-8111-111111111111');
+      expect(screen.getAllByText('pending_choice')).toHaveLength(1);
+      expect(screen.getByRole('alert')).toHaveTextContent(`v${label}`);
+      expect(screen.getByRole('cell', { name: `v${label}` })).toBeInTheDocument();
+    },
+  );
 
   it('shows interval-aware simulation and field comparisons without authorizing tuning', () => {
     render(

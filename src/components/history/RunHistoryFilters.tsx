@@ -1,8 +1,12 @@
 import { Button } from '@/components/ui';
+import { AUTHORITY_ENGINE_VERSION_ORDINALS } from '@/game/authority/versionCapabilities.generated';
+import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import { fr } from '@/i18n/fr';
 import { runHistoryCopy as copy } from '@/i18n/runHistoryContent';
 import type { RunHistoryFilters as Filters } from '@/services/interfaces/IRunRepository';
 import '@/styles/run-history.css';
+
+const gameplayVersions = Object.values(AUTHORITY_ENGINE_VERSION_ORDINALS).sort((a, b) => b - a);
 
 export function RunHistoryFilters({
   value,
@@ -72,14 +76,23 @@ export function RunHistoryFilters({
       </label>
       <label>
         {copy.gameplayRuleset}
-        <input
-          type="number"
-          min={1}
-          max={32767}
-          step={1}
+        <select
           value={value.gameplayRulesetVersion ?? ''}
           onChange={(event) => update('gameplayRulesetVersion', event.target.value)}
-        />
+        >
+          <option value="">{copy.all}</option>
+          {value.gameplayRulesetVersion !== undefined &&
+            !gameplayVersions.includes(value.gameplayRulesetVersion) && (
+              <option value={value.gameplayRulesetVersion}>
+                v{getAuthorityGameplayVersionLabel(value.gameplayRulesetVersion)}
+              </option>
+            )}
+          {gameplayVersions.map((version) => (
+            <option key={version} value={version}>
+              v{getAuthorityGameplayVersionLabel(version)}
+            </option>
+          ))}
+        </select>
       </label>
       <label>
         {copy.progressionRuleset}

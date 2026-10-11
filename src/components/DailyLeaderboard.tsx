@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import { Button } from '@/components/ui';
+import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import { formatNumber, formatUtcDateKey } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
@@ -183,7 +184,9 @@ export function DailyLeaderboard() {
             >
               <option value="">{fr.daily.allVersions}</option>
               {currentGameplayVersion !== null && (
-                <option value={currentGameplayVersion}>v{currentGameplayVersion}</option>
+                <option value={currentGameplayVersion}>
+                  v{getAuthorityGameplayVersionLabel(currentGameplayVersion)}
+                </option>
               )}
             </select>
           </label>

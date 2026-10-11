@@ -1,3 +1,4 @@
+import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import type {
   VerifiedFieldAugmentCohort,
   VerifiedFieldCalibrationCohort,
@@ -98,10 +99,10 @@ export function AdminAuthorityPanel({
               {signals.map((signal) => (
                 <p key={`${signal.engineVersion}-${signal.gameplayRulesetVersion}`}>
                   {signal.engineVersion} / {fr.admin.gameplay} {fr.admin.versionShort}
-                  {signal.gameplayRulesetVersion} : {formatAdminPercent(signal.rejectionRate)}{' '}
-                  {fr.admin.rejectionRate} ({formatAdminNumber(signal.rejectedCount)}/
-                  {formatAdminNumber(signal.attemptCount)}) —{' '}
-                  {signal.reasons.map((reason) => fr.admin.authorityReasons[reason]).join(', ')}
+                  {getAuthorityGameplayVersionLabel(signal.gameplayRulesetVersion)} :{' '}
+                  {formatAdminPercent(signal.rejectionRate)} {fr.admin.rejectionRate} (
+                  {formatAdminNumber(signal.rejectedCount)}/{formatAdminNumber(signal.attemptCount)}
+                  ) — {signal.reasons.map((reason) => fr.admin.authorityReasons[reason]).join(', ')}
                   {signal.unknownCodes.length > 0
                     ? ` — ${fr.admin.newCodes} : ${signal.unknownCodes.join(', ')}`
                     : ''}
@@ -157,7 +158,7 @@ export function AdminAuthorityPanel({
                     <td>{rejection.engineVersion}</td>
                     <td>
                       {fr.admin.versionShort}
-                      {rejection.gameplayRulesetVersion}
+                      {getAuthorityGameplayVersionLabel(rejection.gameplayRulesetVersion)}
                     </td>
                     <td>
                       <code>{rejection.rejectionCode}</code>

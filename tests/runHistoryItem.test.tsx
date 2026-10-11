@@ -30,6 +30,38 @@ function openRow() {
 }
 
 describe('lazy history row details', () => {
+  it.each([
+    ['run-engine-v22', 22, '22'],
+    ['run-engine-0.2.0', 23, '0.2.0'],
+  ] as const)(
+    'uses the public gameplay label for %s without changing the historical engine',
+    (engineVersion, gameplayRulesetVersion, label) => {
+      render(
+        <RunHistoryItem
+          entry={{
+            run,
+            attempt: {
+              mode: 'normal',
+              difficulty: 'normal',
+              engineVersion,
+              gameplayRulesetVersion,
+              progressionRulesetVersion: 3,
+            },
+          }}
+          repository={{} as IRunRepository}
+        />,
+      );
+
+      expect(screen.getByText(`normal · normale · règles de jeu v${label}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(`${engineVersion} · jeu v${label} · progression v3`),
+      ).toBeInTheDocument();
+      if (gameplayRulesetVersion === 23) {
+        expect(screen.queryByText(/jeu v23/u)).not.toBeInTheDocument();
+      }
+    },
+  );
+
   it('fetches on expansion, retries a failed request and caches successful details across toggles', async () => {
     const getRunHistoryDetails = vi
       .fn()

@@ -1,5 +1,5 @@
 import type { Champion, Spell } from '@/types/champion';
-import { championContent } from './championContent';
+import { championContent, getChampionPassiveContent } from './championContent';
 import { locale } from './fr';
 import { inventoryContent } from './inventoryContent';
 
@@ -41,8 +41,7 @@ export function localizeChampion(champion: Champion): Champion {
     spells: champion.spells.map((spell) => localizeSpell(spell, champion.id)),
     passive: {
       ...champion.passive,
-      name: copy.passive.name,
-      description: copy.passive.description,
+      ...getChampionPassiveContent(champion, locale),
     },
   };
 }

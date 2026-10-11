@@ -93,6 +93,8 @@ export interface BattleManagerOptions {
   rules?: CombatRuleRuntime;
   /** Canonical encounter tiers indexed by stable runtime combatant ID, never display name. */
   combatantTiers?: Readonly<Record<string, RunProgressionTargetTier>>;
+  /** False for historical engines whose run counters only credit kills. */
+  runProgressionAssists?: boolean;
 }
 
 export class BattleManager {
@@ -112,7 +114,12 @@ export class BattleManager {
   private readonly _rules: CombatRuleRuntime | null;
   private _activeActionType: ActionType | null = null;
   private readonly _combatantTiers: Readonly<Record<string, RunProgressionTargetTier>>;
+  private readonly _runProgressionAssists: boolean;
   private _runProgressKillTargets: Set<string> | null = null;
+  private _runProgressAssistContributors: Map<
+    string,
+    Map<string, { source: CombatantState; ability: boolean }>
+  > | null = null;
   private _runProgressCombatEnded = false;
   private _actionCallback: ActionCallback | null = null;
   private _playerActionTrace: CombatActionTrace = [];
@@ -143,12 +150,20 @@ export class BattleManager {
     this._random = options.random ?? Math.random;
     this._rules = options.rules ?? null;
     this._combatantTiers = options.combatantTiers ? { ...options.combatantTiers } : {};
+    this._runProgressionAssists = options.runProgressionAssists ?? true;
     if (
       [..._playerTeam.champions, ..._enemyTeam.champions].some(
         (champion) => champion.passive.runProgression?.length,
       )
     )
       this._runProgressKillTargets = new Set();
+    if (
+      this._runProgressionAssists &&
+      [..._playerTeam.champions, ..._enemyTeam.champions].some((champion) =>
+        champion.passive.runProgression?.some((definition) => definition.onAssist?.length),
+      )
+    )
+      this._runProgressAssistContributors = new Map();
     this._initCombatants();
   }
 
@@ -475,6 +490,7 @@ export class BattleManager {
 
   private _initCombatants(): void {
     this._runProgressKillTargets?.clear();
+    this._runProgressAssistContributors?.clear();
     this._runProgressCombatEnded = false;
     this._lastDamagedRound.clear();
     this._hardCrowdControlLossRounds.clear();
@@ -817,6 +833,8 @@ export class BattleManager {
       sourceSide: attacker.side,
       targetSide: target.side,
     });
+    if (effectiveDamage > 0 && attacker.side !== target.side)
+      this._recordRunProgressAssistContribution(attacker, target, abilityDamage);
     if (triggerPassives && remaining > 0) {
       this._applyOnDamagePassives(attacker, target);
     }
@@ -873,6 +891,7 @@ export class BattleManager {
         ) {
           this._runProgressKillTargets.add(killIdentity);
           this._applyRunProgression(attacker, target, 'onKill', abilityDamage);
+          this._applyRunProgressAssistRewards(attacker, target);
         }
         if (this._rules) {
           this._resolveRuleEffects(
@@ -1440,12 +1459,43 @@ export class BattleManager {
     this._rules?.dispatch({ type: 'turn_end', actor: this._toRuleActor(combatant) });
   }
 
+  private _recordRunProgressAssistContribution(
+    source: CombatantState,
+    target: CombatantState,
+    ability: boolean,
+  ): void {
+    if (
+      !this._runProgressAssistContributors ||
+      !source.champion.passive.runProgression?.some((definition) => definition.onAssist?.length)
+    )
+      return;
+    const targetIdentity = `${target.side}:${target.targetId}`;
+    const sourceIdentity = `${source.side}:${source.targetId}`;
+    const contributors = this._runProgressAssistContributors.get(targetIdentity) ?? new Map();
+    const previous = contributors.get(sourceIdentity);
+    contributors.set(sourceIdentity, { source, ability: ability || previous?.ability === true });
+    this._runProgressAssistContributors.set(targetIdentity, contributors);
+  }
+
+  private _applyRunProgressAssistRewards(killer: CombatantState, target: CombatantState): void {
+    if (!this._runProgressAssistContributors) return;
+    const targetIdentity = `${target.side}:${target.targetId}`;
+    const contributors = this._runProgressAssistContributors.get(targetIdentity);
+    this._runProgressAssistContributors.delete(targetIdentity);
+    for (const { source, ability } of contributors?.values() ?? []) {
+      // The ledger retains assists after a contributor's death; only the killer is excluded.
+      if (source !== killer && source.side === killer.side)
+        this._applyRunProgression(source, target, 'onAssist', ability);
+    }
+  }
+
   private _applyRunProgression(
     source: CombatantState,
     target: CombatantState,
-    hook: 'onDamage' | 'onKill' | 'onCombatEnd',
+    hook: 'onDamage' | 'onKill' | 'onAssist' | 'onCombatEnd',
     ability: boolean,
   ): void {
+    if (hook === 'onAssist' && !this._runProgressionAssists) return;
     const definitions = source.champion.passive.runProgression;
     if (!definitions?.length) return;
     const targetTier =

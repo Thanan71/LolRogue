@@ -291,16 +291,16 @@ test('Sprint G connecté : historique paginé et notes lues synchronisées entre
     await page.getByRole('combobox', { name: 'Mode', exact: true }).selectOption('normal');
     await page.getByRole('searchbox', { name: 'Moteur', exact: true }).fill(attempt.engine_version);
     await page
-      .getByRole('spinbutton', { name: 'Version des règles de jeu', exact: true })
-      .fill(String(attempt.gameplay_ruleset_version));
+      .getByRole('combobox', { name: 'Version des règles de jeu', exact: true })
+      .selectOption(String(attempt.gameplay_ruleset_version));
     await page
       .getByRole('spinbutton', { name: 'Version des règles de progression', exact: true })
       .fill(String(attempt.ruleset_version));
     await expect(historyRows).toHaveCount(1);
     await expect(historyRows.first()).toContainText('73 vagues');
     await page
-      .getByRole('spinbutton', { name: 'Version des règles de jeu', exact: true })
-      .fill(String(attempt.gameplay_ruleset_version + 1));
+      .getByRole('combobox', { name: 'Version des règles de jeu', exact: true })
+      .selectOption(String(attempt.gameplay_ruleset_version - 1));
     await expect(page.getByText('Aucune partie enregistrée', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Réinitialiser les filtres' }).click();
     await expect(historyRows).toHaveCount(20);

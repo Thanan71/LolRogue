@@ -39,6 +39,7 @@ const combatMocks = vi.hoisted(() => ({
       ) => void),
   finalPlayerStates: [] as FinalCombatantState[],
   autoPlay: null as boolean | null,
+  runProgressionAssists: undefined as boolean | undefined,
   initialMpOverrides: undefined as Record<string, number> | undefined,
   processTurn: vi.fn(),
   advanceBlockedTurn: vi.fn(),
@@ -57,6 +58,7 @@ vi.mock('@/hooks/useAppNavigate', () => ({
 vi.mock('@/hooks/useBattleManager', () => ({
   useBattleManager: (options: {
     autoPlay?: boolean;
+    runProgressionAssists?: boolean;
     initialMpOverrides?: Record<string, number>;
     onComplete?: (
       winner: 'player' | 'enemy' | 'draw',
@@ -68,6 +70,7 @@ vi.mock('@/hooks/useBattleManager', () => ({
   }) => {
     combatMocks.onComplete = options.onComplete ?? null;
     combatMocks.autoPlay = options.autoPlay ?? null;
+    combatMocks.runProgressionAssists = options.runProgressionAssists;
     combatMocks.initialMpOverrides = options.initialMpOverrides;
     return {
       processTurn: combatMocks.processTurn,
@@ -140,6 +143,7 @@ describe('CombatPage authority finalization', () => {
     combatMocks.onComplete = null;
     combatMocks.finalPlayerStates = [];
     combatMocks.autoPlay = null;
+    combatMocks.runProgressionAssists = undefined;
     combatMocks.initialMpOverrides = undefined;
     combatMocks.processTurn.mockReset();
     combatMocks.advanceBlockedTurn.mockReset();
@@ -229,6 +233,16 @@ describe('CombatPage authority finalization', () => {
       isGuest: false,
       user: null,
     });
+  });
+
+  it.each([
+    ['run-engine-v22', false],
+    ['run-engine-0.2.0', true],
+    [undefined, true],
+  ] as const)('passes the published assist capability to combat for %s', (engine, expected) => {
+    useRunStore.setState({ authorityAttempt: engine ? attempt(engine) : null });
+    render(<CombatPage />);
+    expect(combatMocks.runProgressionAssists).toBe(expected);
   });
 
   it('persists before navigation and route unmount cannot cancel finalization', async () => {

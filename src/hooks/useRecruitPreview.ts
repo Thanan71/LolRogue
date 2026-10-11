@@ -21,6 +21,7 @@ export function useRecruitPreview(championId: string, statMultiplier = 1) {
         runLevel,
         team,
         {
+          engineVersion: authorityAttempt?.engineVersion,
           inventory,
           augmentIds,
           currentBiomeIndex,

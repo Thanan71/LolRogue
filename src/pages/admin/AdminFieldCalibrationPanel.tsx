@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import {
   compareVerifiedFieldAugmentCalibration,
   compareVerifiedFieldCalibration,
@@ -70,7 +71,7 @@ function cellLabel(
   >,
 ): string {
   return [
-    `${copy.cell.gameplay} v${cell.gameplayRulesetVersion}`,
+    `${copy.cell.gameplay} v${getAuthorityGameplayVersionLabel(cell.gameplayRulesetVersion)}`,
     cell.engineVersion,
     copy.difficulty[cell.difficulty],
     copy.mode[cell.mode],

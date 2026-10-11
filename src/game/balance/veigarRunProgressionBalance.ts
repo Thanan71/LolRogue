@@ -26,9 +26,10 @@ const CHECKPOINT_BIOMES = [
 export function createVeigarBalanceScenario(
   championId: string,
   difficulty: AuthorityDifficulty = 'normal',
+  engineVersion = 'run-engine-0.2.0',
 ): BalanceScenario {
   return {
-    id: `veigar-v22-garen-${championId.toLowerCase()}-${difficulty}-fresh`,
+    id: `veigar-${engineVersion.replace('run-engine-', '')}-garen-${championId.toLowerCase()}-${difficulty}-fresh`,
     difficulty,
     team: [{ championId: 'Garen' }, { championId }],
     runeIds: [],
@@ -177,7 +178,7 @@ function runPairedCohort(
       };
     },
   };
-  const scenario = createVeigarBalanceScenario(championId, difficulty);
+  const scenario = createVeigarBalanceScenario(championId, difficulty, authority.engineVersion);
   const cohort = simulateAuthorityCohort({
     authority: observingAuthority,
     policy: survivalGreedyPolicy,
@@ -331,8 +332,8 @@ export function createVeigarBalanceCombatProbes(
 /** Stop after the actual first seeded Top encounter, then independently replay that legal prefix. */
 function probeEarlyTopCombat(authority: AuthorityCohortRuntime, championId: string, seed: number) {
   const scenario = {
-    ...createVeigarBalanceScenario(championId),
-    id: `veigar-v22-solo-${championId.toLowerCase()}-top-probe`,
+    ...createVeigarBalanceScenario(championId, 'normal', authority.engineVersion),
+    id: `veigar-${authority.engineVersion.replace('run-engine-', '')}-solo-${championId.toLowerCase()}-top-probe`,
     team: [{ championId }],
   };
   const attempt = survivalGreedyPolicy.buildAttempt({ scenario, seed });
@@ -393,11 +394,11 @@ export function generateVeigarRunProgressionBalanceDocument(input: {
 }) {
   const seeds = input.seeds ?? VEIGAR_BALANCE_SEEDS;
   if (
-    input.sourceAuthority.engineVersion !== 'run-engine-v22' ||
+    !['run-engine-v22', 'run-engine-0.2.0'].includes(input.sourceAuthority.engineVersion) ||
     input.edgeAuthority.engineVersion !== input.sourceAuthority.engineVersion ||
     input.edgeAuthority.contentHash !== input.sourceAuthority.contentHash
   )
-    throw new Error('Expected matching current v22 source/Edge identities.');
+    throw new Error('Expected matching supported source/Edge identities.');
   const reports = (['normal', 'easy'] as const).flatMap((difficulty) =>
     VEIGAR_BALANCE_CHAMPIONS.map((championId) => {
       const sourceCohort = runPairedCohort(input.sourceAuthority, championId, seeds, difficulty);

@@ -9,6 +9,7 @@ import { TurnIndicator } from '@/components/CombatUI/TurnIndicator';
 import { ContextTutorial } from '@/components/ContextTutorial';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data';
+import { CURRENT_AUTHORITY_VERSION, hasAuthorityFeature } from '@/game/authority/versionRegistry';
 import {
   DEFAULT_COMBAT_AUTOPLAY,
   getAutoTurnDelayMs,
@@ -132,6 +133,10 @@ export function CombatPage() {
   const usesLegacyEncounterRulesForAttempt =
     authorityAttempt !== null && usesLegacyEncounterRules(authorityAttempt.engineVersion);
   const supportsManualCombat = supportsManualAuthorityCombat(authorityAttempt?.engineVersion);
+  const runProgressionAssists = hasAuthorityFeature(
+    authorityAttempt?.engineVersion ?? CURRENT_AUTHORITY_VERSION.engine,
+    'runProgressionAssists',
+  );
   const requiresServerAutoPlay =
     (isAuthorityRun && !supportsManualCombat) || combatRecoveryRequired;
 
@@ -205,6 +210,7 @@ export function CombatPage() {
 
   const playerInstances = useMemo(() => {
     return buildRunPlayerTeam(team, {
+      engineVersion: authorityAttempt?.engineVersion,
       inventory,
       augmentIds,
       currentBiomeIndex,
@@ -344,8 +350,10 @@ export function CombatPage() {
         inventory,
         starterTeamSize: authorityAttempt?.initialTeam.length ?? getRequiredStarterCount(runMode),
       }),
+      authorityAttempt?.engineVersion,
     );
   }, [
+    authorityAttempt?.engineVersion,
     currentEncounter?.id,
     currentEncounter?.type,
     currentNode,
@@ -396,6 +404,7 @@ export function CombatPage() {
     random: battleRandom,
     ruleLoadout,
     combatantTiers,
+    runProgressionAssists,
   });
 
   const currentChampion = [...playerTeam, ...enemyTeam].find(

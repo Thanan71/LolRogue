@@ -3,9 +3,9 @@ import { AUTHORITY_CONTENT_HASH, AUTHORITY_ENGINE_VERSION } from '@/game/authori
 import { createAuthorityCohortBaselineKey } from '@/game/balance/authorityCohortBaseline';
 import { AUTHORITY_COHORT_BASELINE_V21_IDENTITY } from '@/game/balance/authorityCohortBaselineV21Fixture';
 import {
-  AUTHORITY_COHORT_BASELINE_V22_IDENTITY,
-  createAuthorityCohortBaselineV22Fixture,
-} from '@/game/balance/authorityCohortBaselineV22Fixture';
+  AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY,
+  createAuthorityCohortCurrentBaselineFixture,
+} from '@/game/balance/authorityCohortCurrentBaselineFixture';
 import {
   getAuthorityCohortExecutionBaseline,
   haveSameAuthorityCohortSeeds,
@@ -18,23 +18,23 @@ describe('authority cohort execution CLI', () => {
     expect(haveSameAuthorityCohortSeeds([1, 2, 3], [1, 2, 4])).toBe(false);
   });
 
-  it('selects the separate approved v22 PR baseline for the exact current identity', () => {
+  it('selects the separate approved 0.2.0 PR baseline for the exact current identity', () => {
     const baseline = getAuthorityCohortExecutionBaseline({
       engineVersion: AUTHORITY_ENGINE_VERSION,
       contentHash: AUTHORITY_CONTENT_HASH,
     });
-    const key = createAuthorityCohortBaselineKey(AUTHORITY_COHORT_BASELINE_V22_IDENTITY);
+    const key = createAuthorityCohortBaselineKey(AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY);
     expect(Object.keys(baseline.entries)).toEqual([key]);
-    expect(baseline.entries[key]?.identity).toEqual(AUTHORITY_COHORT_BASELINE_V22_IDENTITY);
+    expect(baseline.entries[key]?.identity).toEqual(AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY);
     expect(baseline.entries[key]?.source.cellCount).toBe(45);
     expect(baseline.entries[key]?.source.seeds).toHaveLength(30);
   });
 
-  it('rejects historical, changed-hash and future identities instead of reusing v22', () => {
+  it('rejects historical, changed-hash and future identities instead of reusing 0.2.0', () => {
     for (const identity of [
       AUTHORITY_COHORT_BASELINE_V21_IDENTITY,
-      { ...AUTHORITY_COHORT_BASELINE_V22_IDENTITY, contentHash: '0'.repeat(64) },
-      { ...AUTHORITY_COHORT_BASELINE_V22_IDENTITY, engineVersion: 'run-engine-v23' },
+      { ...AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY, contentHash: '0'.repeat(64) },
+      { ...AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY, engineVersion: 'run-engine-0.3.0' },
     ]) {
       expect(() => getAuthorityCohortExecutionBaseline(identity)).toThrow(
         /No approved cohort baseline/,
@@ -42,13 +42,13 @@ describe('authority cohort execution CLI', () => {
     }
   });
 
-  it('rejects a mismatched v22 generator runtime before running any simulation', () => {
+  it('rejects a mismatched 0.2.0 generator runtime before running any simulation', () => {
     for (const identity of [
       AUTHORITY_COHORT_BASELINE_V21_IDENTITY,
-      { ...AUTHORITY_COHORT_BASELINE_V22_IDENTITY, contentHash: '0'.repeat(64) },
+      { ...AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY, contentHash: '0'.repeat(64) },
     ]) {
       expect(() =>
-        createAuthorityCohortBaselineV22Fixture({
+        createAuthorityCohortCurrentBaselineFixture({
           ...identity,
           createSession: () => {
             throw new Error('Unexpected simulation');
