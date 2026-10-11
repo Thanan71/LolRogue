@@ -224,6 +224,3 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
     }
   }
 }
-
-// Singleton instance
-export const supabaseEnhancementRepository = new SupabaseEnhancementRepository();

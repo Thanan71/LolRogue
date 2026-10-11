@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
@@ -19,7 +20,14 @@ vi.mock('@/services/container', () => ({
 }));
 
 import { fr } from '@/i18n/fr';
-import { getPlayerRunHistory, getPlayerRunStats, getRunDetails } from '@/services/runService';
+import { RepositoryContainer } from '@/services/container/RepositoryContainer';
+import {
+  createRunHistoryService,
+  getPlayerRunHistory,
+  getPlayerRunStats,
+  getRunDetails,
+} from '@/services/runService';
+import type { Database } from '@/types/database';
 import type { Player } from '@/types/models';
 
 const player = {
@@ -32,6 +40,20 @@ const player = {
 describe('runService orchestration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('allows explicit history dependencies without using the application composition root', async () => {
+    const repositories = new RepositoryContainer({} as SupabaseClient<Database>);
+    const getPlayerRuns = vi
+      .spyOn(repositories.run, 'getPlayerRuns')
+      .mockResolvedValue({ data: [], error: null });
+    const service = createRunHistoryService(repositories);
+    await expect(service.getPlayerRunHistory(player, 5, 10)).resolves.toEqual({
+      data: [],
+      error: null,
+    });
+    expect(getPlayerRuns).toHaveBeenCalledWith('player-1', 5, 10);
+    expect(mocks.getPlayerRuns).not.toHaveBeenCalled();
   });
 
   it('refuses history and aggregate reads without an authenticated player', async () => {

@@ -4,8 +4,7 @@ import { DailyLeaderboard } from '@/components/DailyLeaderboard';
 import { Button, PageHeader, PageShell, Panel, StateView } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
-import { supabase } from '@/services/supabaseClient';
+import { applicationRepositories } from '@/services/container/applicationRepositories';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { useRunStore } from '@/stores/runStore';
@@ -50,7 +49,7 @@ export function DailyRunPage() {
     let cancelled = false;
     setIsChecking(true);
     setAvailabilityError(null);
-    void new SupabaseDailyRunRepository(supabase).getDailyChallenge().then((result) => {
+    void applicationRepositories.dailyRun.getDailyChallenge().then((result) => {
       if (cancelled) return;
       if (result.error) {
         setAvailabilityError(fr.daily.unavailableDetail);

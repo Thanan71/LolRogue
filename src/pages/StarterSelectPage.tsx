@@ -22,9 +22,9 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useChampionEconomyRoute } from '@/hooks/useChampionEconomyRoute';
 import { getChampionEconomyContent } from '@/i18n/championEconomyContent';
 import { locale } from '@/i18n/fr';
+import { applicationRepositories } from '@/services/container/applicationRepositories';
 import { getStarterPersonalization } from '@/services/masteryService';
-import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
-import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
+import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -196,7 +196,7 @@ export function StarterSelectPage() {
 
     let cancelled = false;
     setIsLoadingDaily(true);
-    void new SupabaseDailyRunRepository(supabase).getDailyChallenge().then((result) => {
+    void applicationRepositories.dailyRun.getDailyChallenge().then((result) => {
       if (cancelled) return;
       if (result.error || !result.data) {
         setError(starterCopy.dailyAuthoritativeLoadFailed);
@@ -261,7 +261,7 @@ export function StarterSelectPage() {
       });
       if (!result.success) {
         if (result.code === 'daily_starter_not_offered') {
-          const refreshed = await new SupabaseDailyRunRepository(supabase).getDailyChallenge();
+          const refreshed = await applicationRepositories.dailyRun.getDailyChallenge();
           if (refreshed.data && !refreshed.error) {
             setDailyChallenge(refreshed.data);
             useDailyRunStore.getState().syncChallenge(refreshed.data);

@@ -4,6 +4,7 @@ import {
   RepositoryContainer,
   RepositoryContainerFactory,
 } from '@/services/container/RepositoryContainer';
+import { createRepositories } from '@/services/repositories';
 import type { Database } from '@/types/database';
 
 const supabase = {} as SupabaseClient<Database>;
@@ -21,9 +22,10 @@ describe('RepositoryContainer orchestration', () => {
       container.dailyRun,
       container.leaderboard,
       container.enhancement,
+      container.championEconomy,
     ];
 
-    expect(repositories).toHaveLength(9);
+    expect(repositories).toHaveLength(10);
     expect(container.auth).toBe(repositories[0]);
     expect(container.player).toBe(repositories[1]);
     expect(container.run).toBe(repositories[2]);
@@ -33,6 +35,7 @@ describe('RepositoryContainer orchestration', () => {
     expect(container.dailyRun).toBe(repositories[6]);
     expect(container.leaderboard).toBe(repositories[7]);
     expect(container.enhancement).toBe(repositories[8]);
+    expect(container.championEconomy).toBe(repositories[9]);
   });
 
   it('clears all cached instances without changing the client contract', () => {
@@ -47,6 +50,7 @@ describe('RepositoryContainer orchestration', () => {
       dailyRun: container.dailyRun,
       leaderboard: container.leaderboard,
       enhancement: container.enhancement,
+      championEconomy: container.championEconomy,
     };
 
     container.clear();
@@ -60,6 +64,7 @@ describe('RepositoryContainer orchestration', () => {
     expect(container.dailyRun).not.toBe(previous.dailyRun);
     expect(container.leaderboard).not.toBe(previous.leaderboard);
     expect(container.enhancement).not.toBe(previous.enhancement);
+    expect(container.championEconomy).not.toBe(previous.championEconomy);
   });
 
   it('supports logged proxies while retaining repository methods', () => {
@@ -67,6 +72,7 @@ describe('RepositoryContainer orchestration', () => {
     expect(typeof container.auth.signIn).toBe('function');
     expect(typeof container.run.getPlayerRuns).toBe('function');
     expect(typeof container.enhancement.unlockNode).toBe('function');
+    expect(typeof container.championEconomy.purchaseChampion).toBe('function');
   });
 
   it('does not share repositories across independent composition roots', () => {
@@ -74,5 +80,21 @@ describe('RepositoryContainer orchestration', () => {
     const second = RepositoryContainerFactory.create(supabase);
     expect(second).not.toBe(first);
     expect(second.run).not.toBe(first.run);
+  });
+
+  it('preserves the legacy collection shape through the same container factory', () => {
+    const collection = createRepositories(supabase, false);
+    expect(Object.keys(collection)).toEqual([
+      'auth',
+      'player',
+      'run',
+      'runStats',
+      'mastery',
+      'playerUnlock',
+      'dailyRun',
+      'leaderboard',
+    ]);
+    expect(typeof collection.run.getPlayerRunHistory).toBe('function');
+    expect(typeof collection.dailyRun.getDailyChallenge).toBe('function');
   });
 });

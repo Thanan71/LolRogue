@@ -2,16 +2,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { garen } from '@/data/champion/Garen';
 import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
 import { useSettingsStore } from '@/stores/settingsStore';
+import type { PlayerEnhancementState } from '@/types/enhancementTree';
 
 const dependencies = vi.hoisted(() => {
   const unlockNode = vi.fn();
+  const getPlayer = vi.fn();
+  const getChampionMastery = vi.fn();
+  const getAllEnhancementStates = vi.fn();
   const refreshPlayer = vi.fn();
   const setPlayerCandyBalance = vi.fn((candies: number) => {
     authState.player = { total_candies: candies };
   });
   const randomUUID = vi.fn();
   const authState = {
-    user: { id: 'user-1' },
+    user: { id: 'user-1' } as { id: string } | null,
     player: { total_candies: 20 },
     isGuest: false,
     refreshPlayer,
@@ -24,6 +28,9 @@ const dependencies = vi.hoisted(() => {
     refreshPlayer,
     setPlayerCandyBalance,
     unlockNode,
+    getPlayer,
+    getChampionMastery,
+    getAllEnhancementStates,
   };
 });
 
@@ -33,11 +40,12 @@ vi.mock('@/services/container', () => ({
       enhancement: {
         unlockNode: dependencies.unlockNode,
         getEnhancementState: vi.fn(),
-        getAllEnhancementStates: vi.fn(),
+        getAllEnhancementStates: dependencies.getAllEnhancementStates,
       },
       mastery: {
-        getChampionMastery: vi.fn(),
+        getChampionMastery: dependencies.getChampionMastery,
       },
+      player: { getPlayer: dependencies.getPlayer },
     }),
   },
 }));
@@ -80,9 +88,21 @@ function successfulUnlock(commandId: string, replayed: boolean): UnlockNodeResul
   };
 }
 
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((yes) => {
+    resolve = yes;
+  });
+  return { promise, resolve };
+}
+
 describe('enhancement unlock recovery', () => {
   beforeEach(() => {
     dependencies.unlockNode.mockReset();
+    dependencies.getPlayer.mockReset().mockResolvedValue({ data: null, error: null });
+    dependencies.getChampionMastery.mockReset().mockResolvedValue({ data: [], error: null });
+    dependencies.getAllEnhancementStates.mockReset().mockResolvedValue(new Map());
+    dependencies.setPlayerCandyBalance.mockClear();
     dependencies.refreshPlayer.mockReset().mockResolvedValue(undefined);
     dependencies.randomUUID.mockReset();
     dependencies.authState.user = { id: 'user-1' };
@@ -103,6 +123,109 @@ describe('enhancement unlock recovery', () => {
       championMasteryLevels: { Garen: 0 },
       availableCandies: 20,
       isLoading: false,
+      error: null,
+      ownerUserId: 'user-1',
+    });
+  });
+
+  it('keeps an offline guest initialization outside all server repositories', async () => {
+    dependencies.authState.isGuest = true;
+    dependencies.authState.user = null;
+    await useEnhancementStore.getState().initialize('user-1', 20);
+    expect(dependencies.getAllEnhancementStates).not.toHaveBeenCalled();
+    expect(dependencies.getChampionMastery).not.toHaveBeenCalled();
+    expect(useEnhancementStore.getState()).toMatchObject({
+      ownerUserId: null,
+      isInitialized: false,
+      isLoading: false,
+    });
+  });
+
+  it('ignores a late account snapshot and stops the following mastery read', async () => {
+    const pending = deferred<Map<string, PlayerEnhancementState>>();
+    dependencies.getAllEnhancementStates.mockReturnValueOnce(pending.promise);
+    const loading = useEnhancementStore.getState().initialize('user-1', 20);
+    dependencies.authState.user = { id: 'user-2' };
+    useEnhancementStore.getState().reset();
+    pending.resolve(
+      new Map([['Garen', { unlockedNodes: { fighter_core_1: 1 }, totalCandiesSpent: 20 }]]),
+    );
+    await loading;
+    expect(dependencies.getChampionMastery).not.toHaveBeenCalled();
+    expect(useEnhancementStore.getState()).toMatchObject({
+      enhancements: {},
+      ownerUserId: null,
+      isLoading: false,
+    });
+  });
+
+  it('keeps the newest same-account initialization when replies complete in reverse order', async () => {
+    const pending = deferred<Map<string, PlayerEnhancementState>>();
+    dependencies.getAllEnhancementStates.mockReturnValueOnce(pending.promise);
+    const first = useEnhancementStore.getState().initialize('user-1', 20);
+    dependencies.getAllEnhancementStates.mockResolvedValueOnce(
+      new Map([['Lux', { unlockedNodes: {}, totalCandiesSpent: 0 }]]),
+    );
+    await useEnhancementStore.getState().initialize('user-1', 40);
+    pending.resolve(new Map([['Garen', { unlockedNodes: {}, totalCandiesSpent: 0 }]]));
+    await first;
+    expect(useEnhancementStore.getState()).toMatchObject({
+      enhancements: { Lux: { unlockedNodes: {}, totalCandiesSpent: 0 } },
+      availableCandies: 40,
+      isInitialized: true,
+      isLoading: false,
+    });
+    expect(dependencies.getChampionMastery).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not apply a committed unlock reply to a replaced account', async () => {
+    const pending = deferred<UnlockNodeResult>();
+    dependencies.randomUUID.mockReturnValue('late-command');
+    dependencies.unlockNode.mockReturnValueOnce(pending.promise);
+    const unlocking = useEnhancementStore.getState().unlockNode('fighter_core_1');
+    dependencies.authState.user = { id: 'user-2' };
+    useEnhancementStore.getState().reset();
+    useEnhancementStore.setState({ ownerUserId: 'user-2', availableCandies: 125, isLoading: true });
+    pending.resolve(successfulUnlock('late-command', false));
+    await expect(unlocking).resolves.toBe(false);
+    expect(dependencies.setPlayerCandyBalance).not.toHaveBeenCalled();
+    expect(useEnhancementStore.getState()).toMatchObject({
+      ownerUserId: 'user-2',
+      availableCandies: 125,
+      enhancements: {},
+      isLoading: true,
+    });
+  });
+
+  it('refuses a cached tree owned by another account before sending an unlock', async () => {
+    dependencies.authState.user = { id: 'user-2' };
+    await expect(useEnhancementStore.getState().unlockNode('fighter_core_1')).resolves.toBe(false);
+    expect(dependencies.unlockNode).not.toHaveBeenCalled();
+    expect(dependencies.randomUUID).not.toHaveBeenCalled();
+  });
+
+  it('does not apply the canonical balance if identity changes while reconciling an unlock', async () => {
+    const pending = deferred<{ data: { total_candies: number }; error: null }>();
+    dependencies.randomUUID.mockReturnValue('balance-command');
+    dependencies.unlockNode.mockResolvedValueOnce({
+      success: false,
+      newState: { unlockedNodes: {}, totalCandiesSpent: 0 },
+      candyCost: 0,
+      nodeId: 'fighter_core_1',
+      error: 'Failed to fetch',
+    } satisfies UnlockNodeResult);
+    dependencies.getPlayer.mockReturnValueOnce(pending.promise);
+    const unlocking = useEnhancementStore.getState().unlockNode('fighter_core_1');
+    await vi.waitFor(() => expect(dependencies.getPlayer).toHaveBeenCalledWith('user-1'));
+    dependencies.authState.user = { id: 'user-2' };
+    useEnhancementStore.getState().reset();
+    useEnhancementStore.setState({ ownerUserId: 'user-2', availableCandies: 125 });
+    pending.resolve({ data: { total_candies: 0 }, error: null });
+    await expect(unlocking).resolves.toBe(false);
+    expect(dependencies.setPlayerCandyBalance).not.toHaveBeenCalled();
+    expect(useEnhancementStore.getState()).toMatchObject({
+      ownerUserId: 'user-2',
+      availableCandies: 125,
       error: null,
     });
   });

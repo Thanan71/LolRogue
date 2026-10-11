@@ -7,6 +7,7 @@
 
 // Auth Repository
 export { SupabaseAuthRepository } from './SupabaseAuthRepository';
+export { SupabaseChampionEconomyRepository } from './SupabaseChampionEconomyRepository';
 // Daily Run and Leaderboard Repositories
 export {
   SupabaseDailyRunRepository,
@@ -16,7 +17,6 @@ export {
 export {
   type ChampionEnhancementDB,
   SupabaseEnhancementRepository,
-  supabaseEnhancementRepository,
 } from './SupabaseEnhancementRepository';
 
 // Mastery Repositories
@@ -33,18 +33,7 @@ export { SupabaseRunRepository, SupabaseRunStatsRepository } from './SupabaseRun
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
-import { createLoggedRepository } from '@/utils/RepositoryLogger';
-import { SupabaseAuthRepository } from './SupabaseAuthRepository';
-import {
-  SupabaseDailyRunRepository,
-  SupabaseLeaderboardRepository,
-} from './SupabaseDailyRunRepository';
-import {
-  SupabaseMasteryRepository,
-  SupabasePlayerUnlockRepository,
-} from './SupabaseMasteryRepository';
-import { SupabasePlayerRepository } from './SupabasePlayerRepository';
-import { SupabaseRunRepository, SupabaseRunStatsRepository } from './SupabaseRunRepository';
+import { RepositoryContainerFactory } from '../container/RepositoryContainer';
 
 /**
  * Factory function to create all repositories from a Supabase client.
@@ -57,39 +46,17 @@ export function createRepositories(
   supabase: SupabaseClient<Database>,
   enableLogging: boolean = import.meta.env.VITE_ENABLE_DB_LOGGING === 'true',
 ) {
-  // Create base repositories
-  const repositories = {
-    auth: new SupabaseAuthRepository(supabase),
-    player: new SupabasePlayerRepository(supabase),
-    run: new SupabaseRunRepository(supabase),
-    runStats: new SupabaseRunStatsRepository(supabase),
-    mastery: new SupabaseMasteryRepository(supabase),
-    playerUnlock: new SupabasePlayerUnlockRepository(supabase),
-    dailyRun: new SupabaseDailyRunRepository(supabase),
-    leaderboard: new SupabaseLeaderboardRepository(supabase),
+  const container = RepositoryContainerFactory.create(supabase, { enableLogging });
+  return {
+    auth: container.auth,
+    player: container.player,
+    run: container.run,
+    runStats: container.runStats,
+    mastery: container.mastery,
+    playerUnlock: container.playerUnlock,
+    dailyRun: container.dailyRun,
+    leaderboard: container.leaderboard,
   };
-
-  // Wrap with logging if enabled
-  if (enableLogging) {
-    return {
-      auth: createLoggedRepository(repositories.auth, 'SupabaseAuthRepository'),
-      player: createLoggedRepository(repositories.player, 'SupabasePlayerRepository'),
-      run: createLoggedRepository(repositories.run, 'SupabaseRunRepository'),
-      runStats: createLoggedRepository(repositories.runStats, 'SupabaseRunStatsRepository'),
-      mastery: createLoggedRepository(repositories.mastery, 'SupabaseMasteryRepository'),
-      playerUnlock: createLoggedRepository(
-        repositories.playerUnlock,
-        'SupabasePlayerUnlockRepository',
-      ),
-      dailyRun: createLoggedRepository(repositories.dailyRun, 'SupabaseDailyRunRepository'),
-      leaderboard: createLoggedRepository(
-        repositories.leaderboard,
-        'SupabaseLeaderboardRepository',
-      ),
-    };
-  }
-
-  return repositories;
 }
 
 export type RepositoryCollection = ReturnType<typeof createRepositories>;

@@ -3,8 +3,8 @@ import { Button } from '@/components/ui';
 import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import { formatNumber, formatUtcDateKey } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
-import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
-import { isSupabaseConfigured, supabase } from '@/services/supabaseClient';
+import { applicationRepositories } from '@/services/container/applicationRepositories';
+import { isSupabaseConfigured } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 import { useDailyRunStore } from '@/stores/dailyRunStore';
 import type { DailyLeaderboardEntry } from '@/types/dailyRun';
@@ -55,7 +55,7 @@ export function DailyLeaderboard() {
       return;
     }
 
-    const repository = new SupabaseDailyRunRepository(supabase);
+    const repository = applicationRepositories.dailyRun;
     const challenge = await repository.getDailyChallenge();
     if (challenge.error || !challenge.data) {
       setError(fr.daily.challengeLoadError);
@@ -92,7 +92,7 @@ export function DailyLeaderboard() {
     setIsReporting(true);
     setReportFeedback(null);
     try {
-      const result = await new SupabaseDailyRunRepository(supabase).reportDailyScore(
+      const result = await applicationRepositories.dailyRun.reportDailyScore(
         reportedEntryId,
         reportReason.trim(),
       );

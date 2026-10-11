@@ -10,16 +10,14 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
 import { runHistoryCopy } from '@/i18n/runHistoryContent';
-import { RepositoryContainerFactory } from '@/services/container';
+import { applicationRepositories as repositories } from '@/services/container/applicationRepositories';
 import type {
   RunHistoryFilters as HistoryFilters,
   RunHistoryCursor,
   RunHistoryEntry,
 } from '@/services/interfaces/IRunRepository';
-import { supabase } from '@/services/supabaseClient';
 import { useAuthStore } from '@/stores/authStore';
 
-const repositories = RepositoryContainerFactory.create(supabase);
 const profilePluralRules = new Intl.PluralRules(locale);
 
 function pluralLabel(value: number, singular: string, pluralForm: string): string {
