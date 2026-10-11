@@ -286,6 +286,7 @@ Aucune production active ni fermeture des blockers bêta n’est annoncée.
 - [x] Kit Veigar, états intra-run, stacking autoritaire, tests de parité et preuves de balance v22 livrés en code ; **pas de preuve d'activation distante**.
 - [x] Sous-tâches et critères complets conservés dans [l'archive du sprint I](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md).
 - [ ] Suivre séparément la publication des migrations/Edge et les vérifications distantes selon [le contrat de progression](docs/champion-run-progression.md) ; **ne pas considérer le rollout comme déjà effectué**.
+- [x] Version `0.2.0` : gains de pouvoir sur les assistances attribuées à Veigar (+1 / +3 / +10, plafond +200), avec reprise des anciennes runs v22 selon leurs règles figées. Nouvelle campagne dans `config/veigar-run-progression-balance-0.2.0.json` ; publication distante à suivre séparément.
 
 ---
 

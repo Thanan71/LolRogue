@@ -1,6 +1,7 @@
 import { useId, useMemo, useState } from 'react';
 import { RunProgressCounters } from '@/components/RunProgressCounters';
 import { championDB } from '@/data/championDatabase';
+import { getRunChampionForEngine } from '@/game/run/runChampionCatalog';
 import { applyRunProgressStatBonuses } from '@/game/runProgression';
 import { formatStatValue } from '@/game/stats/statContract';
 import { itemName } from '@/i18n/content';
@@ -160,13 +161,15 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
   const authorityMasterySnapshot = useRunStore(
     (state) => state.authorityAttempt?.masterySnapshot ?? null,
   );
+  const authorityEngineVersion = useRunStore((state) => state.authorityAttempt?.engineVersion);
   const enhancementStates = useEnhancementStore((state) => state.enhancements);
   const masteryChampions = useMasteryStore((state) => state.champions);
 
   const sheets = useMemo(() => {
     return team.flatMap<ChampionSheet>((member) => {
-      const champion = championDB.getById(member.championId);
-      if (!champion) return [];
+      const sourceChampion = championDB.getById(member.championId);
+      if (!sourceChampion) return [];
+      const champion = getRunChampionForEngine(sourceChampion, authorityEngineVersion);
 
       const unlockedNodes = authorityEnhancementSnapshot
         ? (authorityEnhancementSnapshot[member.championId] ??
@@ -228,6 +231,7 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
       ];
     });
   }, [
+    authorityEngineVersion,
     authorityEnhancementSnapshot,
     authorityMasterySnapshot,
     enhancementStates,

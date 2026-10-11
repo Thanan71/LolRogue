@@ -1,7 +1,9 @@
 import {
   AUTHORITY_ENGINE_CHAMPION_CATALOGS,
   AUTHORITY_ENGINE_FEATURE_MASKS,
+  AUTHORITY_ENGINE_VERSION_ORDINALS,
   AUTHORITY_FEATURE_BITS,
+  AUTHORITY_GAMEPLAY_RELEASE_LABELS,
   CURRENT_AUTHORITY_VERSION,
 } from './versionCapabilities.generated';
 
@@ -22,6 +24,7 @@ export interface AuthorityVersionFeatures {
   canonicalStats: boolean;
   contentBalance: boolean;
   runProgression: boolean;
+  runProgressionAssists: boolean;
 }
 
 export interface AuthorityVersionMetadata {
@@ -41,9 +44,15 @@ export interface AuthorityVersionMetadata {
 
 export type AuthorityFeature = keyof typeof AUTHORITY_FEATURE_BITS;
 
+function getAuthorityEngineOrdinal(engine: string): number | undefined {
+  return Object.prototype.hasOwnProperty.call(AUTHORITY_ENGINE_VERSION_ORDINALS, engine)
+    ? AUTHORITY_ENGINE_VERSION_ORDINALS[engine]
+    : undefined;
+}
+
 function getAuthorityFeatureMask(engine: string): number | undefined {
-  const match = /^run-engine-v([1-9]\d*)$/.exec(engine);
-  return match ? AUTHORITY_ENGINE_FEATURE_MASKS[Number(match[1])] : undefined;
+  const ordinal = getAuthorityEngineOrdinal(engine);
+  return ordinal === undefined ? undefined : AUTHORITY_ENGINE_FEATURE_MASKS[ordinal];
 }
 
 export function isKnownAuthorityEngine(engine: string): boolean {
@@ -52,12 +61,17 @@ export function isKnownAuthorityEngine(engine: string): boolean {
 }
 
 export function getAuthorityChampionCatalogVersion(engine: string): number | undefined {
-  const match = /^run-engine-v([1-9]\d*)$/.exec(engine);
-  const catalog = match ? AUTHORITY_ENGINE_CHAMPION_CATALOGS[Number(match[1])] : undefined;
+  const ordinal = getAuthorityEngineOrdinal(engine);
+  const catalog = ordinal === undefined ? undefined : AUTHORITY_ENGINE_CHAMPION_CATALOGS[ordinal];
   return catalog !== undefined && catalog > 0 ? catalog : undefined;
 }
 
 export function hasAuthorityFeature(engine: string, feature: AuthorityFeature): boolean {
   const mask = getAuthorityFeatureMask(engine);
   return mask !== undefined && mask >= 0 && (mask & AUTHORITY_FEATURE_BITS[feature]) !== 0;
+}
+
+/** Public release labels; legacy ordinal versions retain their original display. */
+export function getAuthorityGameplayVersionLabel(gameplay: number): string {
+  return AUTHORITY_GAMEPLAY_RELEASE_LABELS[gameplay] ?? String(gameplay);
 }

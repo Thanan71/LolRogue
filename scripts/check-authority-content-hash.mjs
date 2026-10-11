@@ -21,7 +21,7 @@ const bundleFiles = authorityFiles
   .map((file) => `supabase/${file}`)
   .filter(
     (file) =>
-      /run-authority(?:-v\d+)?\.bundle\.(?:ts|js)$/.test(file) &&
+      /run-authority(?:-(?:v\d+|\d+\.\d+\.\d+))?\.bundle\.(?:ts|js)$/.test(file) &&
       !file.endsWith('/run-authority.bundle.js'),
   );
 for (const bundle of bundleFiles) {
@@ -38,7 +38,7 @@ const migrationSources = await Promise.all(
 );
 const registeredEngines = new Set(registry.versions.map((version) => version.engine));
 for (const [file, source] of migrationSources) {
-  for (const [, engine] of source.matchAll(/['"](run-engine-v[1-9]\d*)['"]/g)) {
+  for (const [, engine] of source.matchAll(/['"](run-engine-(?:v[1-9]\d*|\d+\.\d+\.\d+))['"]/g)) {
     if (!registeredEngines.has(engine)) {
       throw new Error(`Migration ${file} publishes unknown authority engine ${engine}.`);
     }

@@ -6,6 +6,7 @@ import {
   calculateShardReward,
   getRotationForInstant,
 } from '@/domain/championEconomy';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import type { ChampionEconomySnapshot, ChampionPurchaseResult } from '@/types/championEconomy';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
@@ -656,8 +657,8 @@ describeLive('champion economy live authority', () => {
     const verified = await complete(run, result);
     expect(verified.error).toBeNull();
     expect(verified.data).toMatchObject({
-      engine_version: 'run-engine-v22',
-      gameplay_ruleset_version: 22,
+      engine_version: CURRENT_AUTHORITY_VERSION.engine,
+      gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
       shards_earned: 25,
     });
     const stored = sqlJson<{ team_members: { run_progress: Record<string, number> }[] }>(
@@ -672,6 +673,31 @@ describeLive('champion economy live authority', () => {
     const control = await complete(await attempt(owner.client), verifiedResult(['Garen'], 1));
     expect(control.error).toBeNull();
     expect(verified.data.candies_earned).toBe(control.data.candies_earned);
+  });
+
+  it('still finalizes historical v22 counters exactly once after the semantic release is active', async () => {
+    const owner = await account();
+    const run = await attempt(owner.client);
+    localSql(`UPDATE public.run_attempts SET engine_version='run-engine-v22',
+      gameplay_ruleset_version=22,
+      gameplay_content_hash=(SELECT content_hash FROM public.gameplay_rulesets WHERE version=22)
+      WHERE id=${uuid(run.id)};`);
+    const base = verifiedResult(['Garen'], 1);
+    const result = {
+      ...base,
+      team_members: base.team_members.map((member) => ({ ...member, run_progress: {} })),
+    };
+    const verified = await complete(run, result);
+    expect(verified.error).toBeNull();
+    expect(verified.data).toMatchObject({
+      engine_version: 'run-engine-v22',
+      gameplay_ruleset_version: 22,
+      shards_earned: 25,
+    });
+    const replayed = await complete(run, result);
+    expect(replayed.error).toBeNull();
+    expect(replayed.data.replayed).toBe(true);
+    expect((await snapshot(owner.client)).wallet?.shardsBalance).toBe(25);
   });
 
   it('awards zero for no completed wave and rolls back invalid replay metrics completely', async () => {

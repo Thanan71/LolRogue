@@ -184,6 +184,30 @@ describe('authoritative Daily pages', () => {
     );
   });
 
+  it('shows the semantic gameplay release while querying its numeric database key', async () => {
+    dailyMocks.getChallenge.mockResolvedValue({
+      data: { ...challenge, gameplayRulesetVersion: 23, engineVersion: 'run-engine-0.2.0' },
+      error: null,
+    });
+    render(
+      <MemoryRouter>
+        <DailyRunPage />
+      </MemoryRouter>,
+    );
+
+    const release = await screen.findByRole('option', { name: 'v0.2.0' });
+    expect(release).toHaveValue('23');
+    expect(screen.queryByRole('option', { name: 'v23' })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Règles de jeu' }), {
+      target: { value: '23' },
+    });
+    await waitFor(() =>
+      expect(dailyMocks.getLeaderboard).toHaveBeenLastCalledWith(
+        expect.objectContaining({ gameplayRulesetVersion: 23 }),
+      ),
+    );
+  });
+
   it('renders exactly the starter offer supplied by the server', async () => {
     render(
       <MemoryRouter initialEntries={[{ pathname: '/starter-select', state: { mode: 'daily' } }]}>

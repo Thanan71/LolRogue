@@ -1,7 +1,7 @@
 {
   "name": "lolrogue",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "engines": {
     "node": "24.x"
@@ -77,8 +77,8 @@
     "balance:combat:matrix:generate": "node scripts/generate-champion-combat-matrix.mjs",
     "balance:map-economy:check": "node scripts/generate-map-economy-baseline.mjs --check",
     "balance:map-economy:generate": "node scripts/generate-map-economy-baseline.mjs",
-    "balance:baseline:check": "node scripts/generate-authority-cohort-baseline.mjs --engine v15 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v16 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v17 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v18 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v19 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v20 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v21 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v22 --check",
-    "balance:baseline:generate": "node scripts/generate-authority-cohort-baseline.mjs --engine v22",
+    "balance:baseline:check": "node scripts/generate-authority-cohort-baseline.mjs --engine v15 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v16 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v17 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v18 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v19 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v20 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v21 --check && node scripts/generate-authority-cohort-baseline.mjs --engine v22 --check && node scripts/generate-authority-cohort-baseline.mjs --engine 0.2.0 --check",
+    "balance:baseline:generate": "node scripts/generate-authority-cohort-baseline.mjs --engine 0.2.0",
     "balance:baseline:generate:v15": "node scripts/generate-authority-cohort-baseline.mjs --engine v15",
     "balance:baseline:generate:v16": "node scripts/generate-authority-cohort-baseline.mjs --engine v16",
     "balance:baseline:generate:v17": "node scripts/generate-authority-cohort-baseline.mjs --engine v17",
@@ -102,7 +102,7 @@
     "balance:cohort": "node scripts/run-authority-cohorts.mjs",
     "balance:repro": "node scripts/run-balance-repro.mjs",
     "balance:veigar:generate": "node scripts/generate-veigar-run-progression-balance.mjs",
-    "balance:veigar:check": "node scripts/generate-veigar-run-progression-balance.mjs --check",
+    "balance:veigar:check": "node scripts/generate-veigar-run-progression-balance.mjs --engine v22 --check && node scripts/generate-veigar-run-progression-balance.mjs --check",
     "assets:update": "npm run ddragon:download && npm run ddragon:parse && npm run assets:package && npm run assets:verify",
     "check:static": "npm run format:check && npm run lint && npm run csp:styles:check && npm run typecheck && npm run node:contract && npm run release:readiness:check && npm run content:check",
     "check:unit": "npm run test:coverage",

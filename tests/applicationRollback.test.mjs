@@ -31,7 +31,7 @@ describe('application rollback contract', () => {
     }
   });
 
-  it('connaît le moteur actif v22, son catalogue et sa progression de run', () => {
+  it('connaît le moteur actif, son catalogue et ses capacités de progression de run', () => {
     const currentRegistry = JSON.parse(
       readFileSync(new URL('../config/authority-versions.json', import.meta.url), 'utf8'),
     );
@@ -45,13 +45,18 @@ describe('application rollback contract', () => {
       (version) => version.engine === current.engine,
     );
 
-    expect(current.gameplay).toBeGreaterThanOrEqual(22);
+    expect(current.gameplay).toBeGreaterThanOrEqual(23);
     expect(compatible).toMatchObject({
       engine: current.engine,
       gameplay: current.gameplay,
       contentHash: current.contentHash,
       championCatalog: current.championCatalog,
-      features: { manualCombat: true, canonicalEncounters: true, runProgression: true },
+      features: {
+        manualCombat: true,
+        canonicalEncounters: true,
+        runProgression: true,
+        runProgressionAssists: true,
+      },
     });
     expect(['current', 'replay-only']).toContain(compatible.status);
   });

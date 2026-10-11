@@ -8,6 +8,7 @@ import {
   type ChampionContentCopy,
   type ChampionContentLocale,
   championContent,
+  getChampionPassiveContent,
 } from '@/i18n/championContent';
 import type { Champion } from '@/types/champion';
 import dataDragonVersions from '../scripts/ddragon-version.json';
@@ -329,6 +330,39 @@ describe('championContent', () => {
           expect(localizedSpell.effects).toBe(spell.effects);
         });
       }
+    },
+  );
+
+  it.each(LOCALES)(
+    'keeps the passive prose consistent with current and historical assist rules in %s',
+    async (locale) => {
+      const source = championDB.getById('Veigar')!;
+      const historical: Champion = {
+        ...source,
+        passive: {
+          ...source.passive,
+          runProgression: source.passive.runProgression!.map((definition) => ({
+            ...definition,
+            onAssist: undefined,
+          })),
+        },
+      };
+      const original = JSON.stringify(source);
+      const currentCopy = getChampionPassiveContent(source, locale)!;
+      const historicalCopy = getChampionPassiveContent(historical, locale)!;
+      expect(currentCopy.description).toContain(
+        locale === 'fr-FR' ? 'assistance attribuée' : 'credited assist',
+      );
+      expect(historicalCopy.description).toContain(
+        locale === 'fr-FR'
+          ? 'Les touches et les assistances ne donnent aucun point.'
+          : 'Hits and assists grant no points.',
+      );
+      const { localizeChampion } = await loadChampionLocalizers(locale);
+      expect(localizeChampion(historical).passive.description).toBe(historicalCopy.description);
+      expect(localizeChampion(source).passive.description).toBe(currentCopy.description);
+      expect(JSON.stringify(source)).toBe(original);
+      expect(historical.passive.runProgression![0].onAssist).toBeUndefined();
     },
   );
 

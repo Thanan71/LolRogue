@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { StateView } from '@/components/ui';
 import { riotChampionIconUrl } from '@/config/riotAssets';
 import { championDB } from '@/data/championDatabase';
+import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import { augmentName, localizeChampion, runeName } from '@/i18n/content';
 import { formatDate, formatNumber } from '@/i18n/format';
 import { fr, locale } from '@/i18n/fr';
@@ -104,14 +105,14 @@ export function RunHistoryItem({
                     fr.profile.difficulties[
                       attempt.difficulty as keyof typeof fr.profile.difficulties
                     ] ?? fr.profile.unknownDifficulty,
-                    formatNumber(attempt.gameplayRulesetVersion),
+                    getAuthorityGameplayVersionLabel(attempt.gameplayRulesetVersion),
                   )
                 : fr.profile.legacyRun}
               {attempt && (
                 <p>
                   {copy.versions(
                     attempt.engineVersion,
-                    formatNumber(attempt.gameplayRulesetVersion),
+                    getAuthorityGameplayVersionLabel(attempt.gameplayRulesetVersion),
                     formatNumber(attempt.progressionRulesetVersion),
                   )}
                 </p>

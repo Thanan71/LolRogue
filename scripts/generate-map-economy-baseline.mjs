@@ -45,14 +45,14 @@ try {
   const serialized = `${JSON.stringify(baseline, null, 2)}\n`;
   const artifactPath = path.join(
     repositoryRoot,
-    `config/map-economy-baseline-v${baseline.identity.gameplayRulesetVersion}.json`,
+    `config/map-economy-baseline-${baseline.identity.engineVersion.replace('run-engine-', '')}.json`,
   );
 
   if (values.check) {
     const committed = await readFile(artifactPath, 'utf8');
     if (serialized !== committed) {
       throw new Error(
-        `The v${baseline.identity.gameplayRulesetVersion} map/economy baseline is stale. ` +
+        `The ${baseline.identity.engineVersion} map/economy baseline is stale. ` +
           'Run npm run balance:map-economy:generate.',
       );
     }

@@ -65,15 +65,16 @@ function runLocalSql(sql: string): void {
   const dbPort = config.match(/^\[db\]\s*\nport\s*=\s*(\d+)/m)?.[1];
   if (!projectId || !dbPort) throw new Error('Local Supabase database config is incomplete');
 
-  const args = [
-    `postgresql://postgres:postgres@127.0.0.1:${dbPort}/postgres`,
-    '--no-psqlrc',
-    '--quiet',
-    '--set',
-    'ON_ERROR_STOP=1',
-  ];
+  const databaseUrl =
+    process.env.SUPABASE_DB_URL ?? `postgresql://postgres:postgres@127.0.0.1:${dbPort}/postgres`;
+  const connection = new URL(databaseUrl);
+  if (!['localhost', '127.0.0.1', '[::1]'].includes(connection.hostname))
+    throw new Error('Field calibration SQL fixtures require a disposable loopback database');
+  const args = [databaseUrl, '--no-psqlrc', '--quiet', '--set', 'ON_ERROR_STOP=1'];
   let result = spawnSync('psql', args, { encoding: 'utf8', input: sql });
   if (result.error && 'code' in result.error && result.error.code === 'ENOENT') {
+    if (connection.port !== dbPort)
+      throw new Error('psql is required when testing a separate local Supabase project');
     result = spawnSync(
       'docker',
       [

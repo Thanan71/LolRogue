@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Panel, StateView } from '@/components/ui';
+import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import { formatDate, formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
 import { verificationRejectionMessage } from '@/i18n/runErrorContent';
@@ -107,7 +108,7 @@ export function RunRejectionHistory({
                     <dd>
                       {copy.versions(
                         entry.engineVersion,
-                        formatNumber(entry.gameplayRulesetVersion),
+                        getAuthorityGameplayVersionLabel(entry.gameplayRulesetVersion),
                         formatNumber(entry.progressionRulesetVersion),
                       )}
                     </dd>

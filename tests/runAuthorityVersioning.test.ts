@@ -45,7 +45,7 @@ function readDailyRulesetContracts() {
 }
 
 describe('authority progression engine versioning', () => {
-  it('archives v21 and publishes v22 without changing account progression schemas', () => {
+  it('preserves historical runs and publishes semantic release 0.2.0 without changing account progression schemas', () => {
     const v21 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v21');
 
     expect(v21).toMatchObject({
@@ -58,16 +58,25 @@ describe('authority progression engine versioning', () => {
       bundle: 'supabase/functions/verify-run/run-authority-v21.bundle.ts',
       features: { runProgression: false },
     });
-    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
-      engine: 'run-engine-v22',
+    expect(
+      AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v22'),
+    ).toMatchObject({
+      status: 'replay-only',
       gameplay: 22,
+      bundle: 'supabase/functions/verify-run/run-authority-v22.bundle.ts',
+      contentHash: '2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84',
+      features: { runProgression: true, runProgressionAssists: false },
+    });
+    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
+      engine: 'run-engine-0.2.0',
+      gameplay: 23,
       championCatalog: 2,
       dailyScore: 15,
       progression: 3,
       command: 2,
       status: 'current',
-      rulesetCode: '2026-10-veigar-run-progression-v22',
-      features: { runProgression: true },
+      rulesetCode: '0.2.0',
+      features: { runProgression: true, runProgressionAssists: true },
     });
   });
 

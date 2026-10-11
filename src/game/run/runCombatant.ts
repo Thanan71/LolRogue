@@ -2,6 +2,7 @@ import { championDB } from '@/data/championDatabase';
 import { AUGMENT_DATABASE, ITEM_DATABASE } from '@/data/items';
 import { AugmentManager } from '@/game/augments/AugmentManager';
 import { ChampionInstance } from '@/game/ChampionInstance';
+import { getRunChampionForEngine } from '@/game/run/runChampionCatalog';
 import { SPELL_SLOTS } from '@/game/run/spellUpgradeRules';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import type { InventoryEntry, TeamMember } from '@/types/run';
@@ -18,6 +19,7 @@ type RunCombatMember = Pick<
 >;
 
 export interface RunCombatantRules {
+  engineVersion?: string;
   inventory: readonly InventoryEntry[];
   augmentIds: readonly string[];
   currentBiomeIndex: number;
@@ -103,7 +105,7 @@ export function buildRunPlayerTeam(
     const champion = championDB.getById(member.championId);
     if (!champion) continue;
     const instance = new ChampionInstance(
-      champion,
+      getRunChampionForEngine(champion, rules.engineVersion),
       member.level ?? 1,
       member.statMultiplier ?? 1,
       {},

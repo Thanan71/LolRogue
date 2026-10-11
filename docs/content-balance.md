@@ -178,23 +178,23 @@ Les neuf tests passent sous Node 24 sans modifier les catalogues d'augments, les
 tables de drops, les items, les encounters ou les règles de contenu. La stabilisation
 early Top ne compense donc pas sa difficulté en rouvrant P0-BAL-04.
 
-La baseline courante v22 est chargée depuis
-`config/authority-cohort-baselines-v22.json` et reproduite par le bundle enregistré
-v22, au hash `2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84`. Elle
+La baseline courante `0.2.0` est chargée depuis
+`config/authority-cohort-baselines-0.2.0.json` et reproduite par le bundle enregistré
+`run-engine-0.2.0`. Elle
 couvre les 45 cellules du profil PR sur 30 seeds appariées : difficulté, composition
 d'équipe, maîtrise, runes, enhancements et politique restent visibles séparément.
-Les huit baselines authority v15 à v22 restent reproductibles ; v15 à v21 sont des
+Les huit baselines authority v15 à v22 restent reproductibles ; v15 à v22 sont des
 archives immuables dont les identités moteur/hash/modèle/policy sont littérales et dont
 la reproduction emploie exclusivement leur bundle versionné, jamais les constantes du
 moteur courant.
 
-`npm run balance:baseline:generate` génère la v22 sur la sortie standard ; l'option
-`-- --output config/authority-cohort-baselines-v22.json` met à jour son artefact
-commité. Les commandes `balance:baseline:generate:v15` à `:v21` servent uniquement à
+`npm run balance:baseline:generate` génère la `0.2.0` sur la sortie standard ; l'option
+`-- --output config/authority-cohort-baselines-0.2.0.json` met à jour son artefact
+commité. Les commandes `balance:baseline:generate:v15` à `:v22` servent uniquement à
 auditer les archives historiques. Une nouvelle publication ajoute son propre couple
 fixture/loader/JSON sans réécrire les versions précédentes.
 `npm run balance:baseline:check`, inclus dans `npm run balance:artifacts:check`, exige
-une reproduction byte-for-byte des huit artefacts.
+une reproduction byte-for-byte des neuf artefacts.
 
 ### Gates de cohortes P0-BAL-02
 
@@ -202,7 +202,7 @@ une reproduction byte-for-byte des huit artefacts.
 45 cellules × 30 seeds. `authorityCohortAcceptance` regroupe 15 familles sémantiques
 et n'échoue sur la hiérarchie Easy ≥ Normal ≥ Hard que lorsque les intervalles Wilson
 révèlent une inversion significative. La même exécution mesure la concentration des
-morts et compare 1 170 métriques au golden v22 commité : baisse de victoire supérieure
+morts et compare 1 170 métriques au golden `0.2.0` commité : baisse de victoire supérieure
 à 5 points, recul médian supérieur à 0,5 biome ou dérive économique supérieure à 10 %.
 
 La référence historique v21 passe sans violation. Hard/Top y concentre 177 morts sur 445
@@ -411,3 +411,8 @@ jusqu'à leur confrontation à des playtests humains consentis ; sans échantill
 suffisant, le TODO de calibration reste ouvert. Le protocole opérationnel, l'opt-in
 et la rétention maximale sont figés dans `docs/field-calibration.md` ; aucun playtest
 humain n'est déclaré réalisé par cette documentation.
+
+La preuve historique Veigar v22 reste dans `config/veigar-run-progression-balance-v22.json`,
+reproduite contre ses classes figées avec `--engine v22`. La campagne assistances
+`0.2.0` publie son artefact séparé `config/veigar-run-progression-balance-0.2.0.json`.
+Les campagnes automatisées ne remplacent pas les playtests humains.

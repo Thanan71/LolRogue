@@ -341,6 +341,7 @@ interface UseBattleManagerOptions {
   random?: () => number;
   ruleLoadout?: CombatRuleLoadout;
   combatantTiers?: BattleManagerOptions['combatantTiers'];
+  runProgressionAssists?: BattleManagerOptions['runProgressionAssists'];
 }
 
 export function useBattleManager({
@@ -353,6 +354,7 @@ export function useBattleManager({
   random,
   ruleLoadout,
   combatantTiers,
+  runProgressionAssists,
 }: UseBattleManagerOptions) {
   const bmRef = useRef<BattleManager | null>(null);
   const phase = useBattleStore((state) => state.phase);
@@ -388,6 +390,7 @@ export function useBattleManager({
       random,
       rules: ruleLoadout ? new CombatRuleRuntime(ruleLoadout, random) : undefined,
       combatantTiers,
+      runProgressionAssists,
     });
 
     const eventHandler = (e: BattleEvent) => handleEvent(bm, e);
@@ -421,6 +424,7 @@ export function useBattleManager({
     random,
     ruleLoadout,
     combatantTiers,
+    runProgressionAssists,
   ]);
 
   // Check for battle completion

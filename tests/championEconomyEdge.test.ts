@@ -10,6 +10,7 @@ import {
   replayAuthorityRun,
 } from '@/game/authority';
 import { buildVerifiedEconomyResult } from '../supabase/functions/verify-run/champion-economy';
+import rawRegistry from '../config/authority-versions.json';
 import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
 import {
   VEIGAR_FIRST_COMBAT_ATTEMPT,
@@ -96,6 +97,7 @@ function handlerFixture(
       },
     },
     createClient: (_url: string, key: string) => (key === 'service' ? { rpc: adminRpc } : caller),
+    AUTHORITY_VERSION_REGISTRY: rawRegistry.versions,
     resolveAuthorityVerifier: async () => ({ ...authority, verify }),
     buildVerifiedEconomyResult,
     Response,
@@ -116,7 +118,43 @@ function handlerFixture(
 }
 
 describe('Edge economy authority boundary', () => {
-  it('finalizes real v22 replay counters and participation without trusting forged client values', async () => {
+  it.each(['run-engine-v20', 'run-engine-v21', 'run-engine-v22', AUTHORITY_ENGINE_VERSION])(
+    'preserves canonical participation when serializing replay %s',
+    async (engine) => {
+      const version = rawRegistry.versions.find((entry) => entry.engine === engine)!;
+      const authority = (await resolveBundledAuthorityVerifier(
+        version.engine,
+        version.contentHash,
+      ))!;
+      const fixture = handlerFixture(
+        { engine_version: version.engine, gameplay_content_hash: version.contentHash },
+        undefined,
+        authority,
+        true,
+      );
+      expect((await fixture.invoke()).status).toBe(200);
+      const payload = fixture.adminRpc.mock.calls.find(
+        ([name]) => name === 'complete_run_verification',
+      )?.[1].p_result as {
+        ledger: { version: number };
+        team_members: {
+          champion_id: string;
+          waves_participated: number;
+          biomes_participated: string[];
+          run_progress?: Record<string, number>;
+        }[];
+      };
+      expect(payload.ledger.version).toBe(2);
+      expect(payload.team_members[0]).toMatchObject({
+        champion_id: 'Garen',
+        waves_participated: 0,
+        biomes_participated: [],
+      });
+      expect(payload.team_members[0]).not.toHaveProperty('run_progress');
+    },
+  );
+
+  it('finalizes real semantic-release replay counters and participation without trusting forged client values', async () => {
     const authority = (await resolveBundledAuthorityVerifier(
       AUTHORITY_ENGINE_VERSION,
       AUTHORITY_CONTENT_HASH,

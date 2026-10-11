@@ -17,6 +17,12 @@ export const VEIGAR_FIRST_COMBAT_ATTEMPT: AuthorityRunAttempt = {
   masterySnapshot: {},
 };
 
+/** Veigar contributes before dying; Garen then defeats Darius and credits one assist. */
+export const VEIGAR_ASSIST_COMBAT_ATTEMPT: AuthorityRunAttempt = {
+  ...VEIGAR_FIRST_COMBAT_ATTEMPT,
+  seed: 1,
+};
+
 export const VEIGAR_FIRST_COMBAT_COMMANDS: AuthorityRunCommand[] = [
   { sequence: 1, kind: 'move_node', payload: { node_id: 'node_top_lane_0' } },
   {

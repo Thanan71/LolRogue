@@ -193,6 +193,44 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 5,
+    version: '0.2.0',
+    publishedOn: '2026-10-11',
+    title: {
+      'fr-FR': 'Veigar profite aussi des assistances',
+      'en-US': 'Veigar gains power from assists',
+    },
+    entries: [
+      {
+        category: 'balance',
+        text: {
+          'fr-FR':
+            'Les assistances attribuées à Veigar lui donnent désormais des points de pouvoir : +1 sur un ennemi normal, +3 sur un élite et +10 sur un boss. Ses éliminations gardent leurs gains habituels ; chaque point donne +1 puissance, jusqu’à +200 pendant le run.',
+          'en-US':
+            'Credited assists now grant Veigar power points: +1 for a normal enemy, +3 for an elite and +10 for a boss. His kills keep their usual rewards; each point grants +1 ability power, up to +200 during the run.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les fiches et les tooltips expliquent les gains par élimination et par assistance. Les runs déjà commencés conservent leurs règles d’origine.',
+          'en-US':
+            'Champion details and tooltips explain kill and assist rewards. Runs already in progress keep their original rules.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les versions du jeu et des nouvelles règles de run utilisent désormais le format major.minor.patch, à partir de 0.2.0. La date de publication reste indiquée séparément.',
+          'en-US':
+            'Game versions and new run rules now use the major.minor.patch format, starting with 0.2.0. The publication date remains separate.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

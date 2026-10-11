@@ -33,15 +33,23 @@ const copy = {
       'veigar.phenomenal_power': {
         name: 'Pouvoir maléfique phénoménal',
         description:
+          'Veigar gagne de la puissance grâce à ses éliminations et aux assistances qui lui sont attribuées. Les simples touches ne donnent aucun point.',
+        killOnlyDescription:
           'Veigar gagne de la puissance en éliminant lui-même ses ennemis. Les dégâts et les assistances ne donnent aucun point.',
       },
     },
-    trigger: (hook: 'onDamage' | 'onKill' | 'onCombatEnd', target: string, ability: boolean) =>
+    trigger: (
+      hook: 'onDamage' | 'onKill' | 'onAssist' | 'onCombatEnd',
+      target: string,
+      ability: boolean,
+    ) =>
       hook === 'onCombatEnd'
         ? 'Fin de combat'
         : hook === 'onDamage'
           ? `Dégâts ${ability ? 'par compétence ' : ''}sur ${target}`
-          : `Élimination ${ability ? 'par compétence ' : ''}d’un ${target}`,
+          : hook === 'onAssist'
+            ? `Assistance attribuée ${ability ? 'par compétence ' : ''}sur un ${target}`
+            : `Élimination ${ability ? 'par compétence ' : ''}d’un ${target}`,
   },
   'en-US': {
     heading: 'Run progression',
@@ -62,15 +70,23 @@ const copy = {
       'veigar.phenomenal_power': {
         name: 'Phenomenal evil power',
         description:
+          'Veigar gains ability power from his kills and credited assists. Hits alone grant no points.',
+        killOnlyDescription:
           'Veigar gains ability power by defeating enemies himself. Damage and assists grant no points.',
       },
     },
-    trigger: (hook: 'onDamage' | 'onKill' | 'onCombatEnd', target: string, ability: boolean) =>
+    trigger: (
+      hook: 'onDamage' | 'onKill' | 'onAssist' | 'onCombatEnd',
+      target: string,
+      ability: boolean,
+    ) =>
       hook === 'onCombatEnd'
         ? 'End of battle'
         : hook === 'onDamage'
           ? `${ability ? 'Ability damage' : 'Damage'} to a ${target}`
-          : `${ability ? 'Ability kill' : 'Kill'} of a ${target}`,
+          : hook === 'onAssist'
+            ? `Credited ${ability ? 'ability assist' : 'assist'} on a ${target}`
+            : `${ability ? 'Ability kill' : 'Kill'} of a ${target}`,
   },
 } as const;
 
@@ -83,7 +99,15 @@ export function localizeRunProgressDefinition(
   language: RunProgressLocale = locale,
 ) {
   const translations = copy[language].counters;
-  return translations[definition.key as keyof typeof translations] ?? definition;
+  const translated = translations[definition.key as keyof typeof translations];
+  if (!translated) return definition;
+  return {
+    name: translated.name,
+    description:
+      (definition.onAssist?.length ?? 0) > 0
+        ? translated.description
+        : translated.killOnlyDescription,
+  };
 }
 
 export function runProgressBonusText(
@@ -113,7 +137,7 @@ export function runProgressRules(
 ) {
   const content = copy[language];
   const number = numberFormatters[language];
-  return (['onDamage', 'onKill', 'onCombatEnd'] as const).flatMap((hook) =>
+  return (['onDamage', 'onKill', 'onAssist', 'onCombatEnd'] as const).flatMap((hook) =>
     (definition[hook] ?? []).map((trigger: RunProgressionTrigger) => {
       const target = trigger.targetTier ? content.tiers[trigger.targetTier] : content.anyEnemy;
       return `${content.trigger(hook, target, Boolean(trigger.abilityOnly))} : +${number.format(trigger.amount)}`;
