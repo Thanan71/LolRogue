@@ -14,14 +14,14 @@ même si l'implémentation et ses tests existent.
 | Claim critique | État recalculé | Contrôle exécutable / preuve manquante |
 | --- | --- | --- |
 | Internationalisation complète | **Risque réouvert : P0-I18N-01 ouvert** | `npm run test -- tests/i18nSourceContract.test.ts tests/i18nCatalogContract.test.ts` ; parcours `e2e/i18n-english-journey.spec.ts` ; revue humaine FR/EN avec lecteur d'écran et preview candidate encore requise. |
-| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked`, advisors liés et requêtes grants/cron de `operations.md` sur la cible. |
+| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked --project-ref <project-ref>`, advisors liés et requêtes grants/cron de `operations.md` sur la cible. |
 | Sécurité des dépendances | À recalculer à chaque candidat | `npm run testing -- security` et `npm run node:contract` ; un audit historique ne décrit pas le lockfile actuel. |
-| Publication bêta | **Bloquée** | `npm run release -- preflight` ; statut cohérent contrôlé par `npm run release -- readiness check`. |
+| Publication bêta | **Bloquée** | `npm run release -- preflight --project-ref <project-ref>` ; statut cohérent contrôlé par `npm run release -- readiness check`. |
 
 | Fonctionnalité | Implémentation de référence | Preuves principales | Statut |
 | --- | --- | --- | --- |
 | Décisions produit transverses | `productDecisions`, contrat produit v4 | `productDecisions.test.ts`, `documentation.test.ts` | Figées pour la bêta ; calibration en observation tant que le terrain et les playtests manquent |
-| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `npm run release -- preflight`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |
+| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `npm run release -- preflight --project-ref <project-ref>`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |
 | Auth et mode invité | `authStore`, `AuthBootstrap`, repositories Auth | `authStore.test.ts`, `auth-menu-responsive.spec.ts` | Livré |
 | Démarrage et reprise de run | `runStartCoordinator`, `runStoreLifecycleSlice`, gardes de routes | `runStartValidation.test.ts`, `runReloadRecovery.test.ts`, `routeAccess.test.ts` | Livré |
 | Carte à branche unique | `mapProgression`, `runStoreMapSlice`, `AuthorityRunEngine` | `mapProgression.test.ts`, `authorityRunEngine.test.ts` | Livré |

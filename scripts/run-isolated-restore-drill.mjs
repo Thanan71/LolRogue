@@ -12,6 +12,11 @@ import {
   requirePinnedCli,
   requireSuccessfulCommand,
 } from './lib/critical-command.mjs';
+import {
+  assertLocalDatabaseEnvironment,
+  supabaseEnvironment,
+  validateDatabaseUrl,
+} from './lib/remote-operation.mjs';
 import { parseSupabaseEnv, resolveSupabaseTestEnv } from './lib/supabase-local-env.mjs';
 
 const root = resolve(import.meta.dirname, '..');
@@ -40,8 +45,10 @@ const excludedTargetServices = [
 ];
 
 function run(command, args, options = {}) {
+  assertLocalDatabaseEnvironment();
   const result = spawnSync(command, args, {
     cwd: root,
+    env: supabaseEnvironment(),
     encoding: 'utf8',
     ...options,
   });
@@ -54,10 +61,7 @@ function run(command, args, options = {}) {
 }
 
 function assertLoopbackDatabase(url, label) {
-  const parsed = new URL(url);
-  if (!['127.0.0.1', 'localhost', '::1'].includes(parsed.hostname)) {
-    throw new Error(`${label} must be a loopback database, received ${parsed.hostname}.`);
-  }
+  const parsed = validateDatabaseUrl(url, { local: true });
   if (parsed.pathname !== '/postgres') {
     throw new Error(`${label} must use the disposable postgres database.`);
   }
@@ -178,6 +182,7 @@ function prepareTargetWorkdir(temporaryRoot) {
 
 function requireApiEnvironment(values, label) {
   const environment = resolveSupabaseTestEnv(values);
+  assertLocalDatabaseEnvironment({ VITE_PUBLIC_SUPABASE_URL: environment.apiUrl });
   const missing = Object.entries(environment)
     .filter(([, value]) => !value)
     .map(([name]) => name);
@@ -525,6 +530,7 @@ async function runRestoreDrill() {
     return;
   }
   requireNode24();
+  assertLocalDatabaseEnvironment();
   requirePinnedCli('supabase');
   const sourceTarget = localDatabaseTarget(root);
   const requestedEvidence = evidenceDestination();
@@ -691,8 +697,10 @@ async function runRestoreDrill() {
       }
     }
     if (targetStarted) {
+      assertLocalDatabaseEnvironment();
       spawnSync(requirePinnedCli('supabase'), ['stop', '--workdir', temporaryRoot, '--no-backup'], {
         cwd: root,
+        env: supabaseEnvironment(),
         stdio: 'inherit',
       });
     }

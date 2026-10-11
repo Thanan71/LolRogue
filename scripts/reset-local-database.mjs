@@ -8,6 +8,7 @@ import {
   requirePinnedCli,
   requireSuccessfulCommand,
 } from './lib/critical-command.mjs';
+import { assertLocalDatabaseEnvironment, supabaseEnvironment } from './lib/remote-operation.mjs';
 
 /** @param {string[]} argv @param {import('./lib/critical-command.mjs').LocalCommandDependencies} dependencies */
 export function resetLocalDatabase(argv = process.argv.slice(2), dependencies = {}) {
@@ -42,13 +43,18 @@ export function resetLocalDatabase(argv = process.argv.slice(2), dependencies = 
       'Local database reset deletes its data. Inspect --dry-run, then pass --yes to confirm.',
     );
   const target = localDatabaseTarget(root);
+  assertLocalDatabaseEnvironment(process.env, root);
   const executable = requireTool('supabase', 'supabase', root);
   const args = ['db', 'reset', '--local', '--yes'];
   stdout.write(
     `[db:reset] ${dryRun ? 'dry-run: ' : ''}local ${target}; supabase ${args.join(' ')}\n`,
   );
   if (dryRun) return;
-  const result = runCommand(executable, args, { cwd: root, stdio: 'inherit', env: process.env });
+  const result = runCommand(executable, args, {
+    cwd: root,
+    stdio: 'inherit',
+    env: supabaseEnvironment(),
+  });
   requireSuccessfulCommand('Local database reset', result);
 }
 

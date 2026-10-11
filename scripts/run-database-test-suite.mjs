@@ -1,10 +1,11 @@
-import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { resolve } from 'node:path';
 import {
   assertDatabaseTestSkipPolicy,
   discoverDatabaseTests,
   loadDatabaseTestContract,
 } from './lib/database-test-discovery.mjs';
+import { assertLocalDatabaseEnvironment } from './lib/remote-operation.mjs';
 
 const contract = loadDatabaseTestContract();
 const tests = discoverDatabaseTests(undefined, contract);
@@ -17,6 +18,7 @@ process.stdout.write(
 );
 
 if (process.argv.includes('--list')) process.exit(0);
+assertLocalDatabaseEnvironment();
 
 const result = spawnSync(
   process.execPath,

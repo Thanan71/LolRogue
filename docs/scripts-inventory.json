@@ -178,6 +178,7 @@
     "config/veigar-run-progression-balance-v22.json",
     "docs/accessibility.md",
     "docs/administration.md",
+    "docs/architecture-s2-validation-2026-10-11.md",
     "docs/archive/audit-initial-2026-07-23.md",
     "docs/archive/delivery-history-2026-07-august.md",
     "docs/archive/p3-champ-01-veigar-completed-2026-10-10.md",
@@ -214,6 +215,7 @@
     "docs/database-finished-queue-index.md",
     "docs/database-index-measurements.md",
     "docs/dependency-audit.md",
+    "docs/environment-contract.md",
     "docs/feature-status.md",
     "docs/field-calibration.md",
     "docs/frontend-performance.md",
@@ -326,8 +328,10 @@
     "scripts/lib/critical-command.mjs",
     "scripts/lib/database-test-discovery.mjs",
     "scripts/lib/database-types.mjs",
+    "scripts/lib/environment-config.mjs",
     "scripts/lib/migration-manifest.mjs",
     "scripts/lib/node-version-contract.mjs",
+    "scripts/lib/remote-operation.mjs",
     "scripts/lib/rollback-dependencies.mjs",
     "scripts/lib/script-alias-retirement.mjs",
     "scripts/lib/script-inventory.mjs",
@@ -866,6 +870,7 @@
     "tests/enhancementContent.test.ts",
     "tests/enhancementStoreRecovery.test.ts",
     "tests/enhancementTreeI18n.test.tsx",
+    "tests/environmentConfig.test.mjs",
     "tests/executeBalance.test.ts",
     "tests/feedbackTruth.test.tsx",
     "tests/fieldCalibrationComparison.test.ts",
@@ -925,6 +930,7 @@
     "tests/profileHistory.test.tsx",
     "tests/recruitPreview.test.tsx",
     "tests/releasePreflight.test.ts",
+    "tests/remoteOperationSafety.test.mjs",
     "tests/repositoryContainer.test.ts",
     "tests/repositoryIntegration.database.test.ts",
     "tests/rollbackDependencies.test.mjs",
@@ -1020,14 +1026,22 @@
     "tests/uiPrimitives.test.tsx",
     "tests/veigarRunProgressionBalance.test.ts",
     "tests/verifiedRunAttempts.database.test.ts",
+    "tests/vitePlugins.test.ts",
+    "tests/vitestConfiguration.test.ts",
     "tests/xpSystem.test.ts",
+    "tooling/vite/plugins/championCatalog.ts",
+    "tooling/vite/plugins/deploymentIdentity.ts",
+    "tooling/vite/plugins/pwaAssets.ts",
+    "tooling/vite/plugins/riotAssets.ts",
+    "tooling/vitest/testPolicy.ts",
     "tsconfig.e2e.json",
     "tsconfig.json",
     "tsconfig.node.json",
     "tsconfig.scripts.json",
     "tsconfig.scripts.strict.json",
     "vercel.json",
-    "vite.config.ts"
+    "vite.config.ts",
+    "vitest.config.ts"
   ],
   "scanExclusions": {
     "paths": [
@@ -1137,7 +1151,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 393,
+      "line": 395,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1148,7 +1162,7 @@
     {
       "name": "unknown",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 398,
+      "line": 400,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1159,7 +1173,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 408,
+      "line": 410,
       "kind": "process-arguments",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1170,7 +1184,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 428,
+      "line": 430,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1181,7 +1195,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 433,
+      "line": 435,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1192,7 +1206,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 448,
+      "line": 450,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1203,7 +1217,7 @@
     {
       "name": "compile",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 484,
+      "line": 486,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1214,7 +1228,7 @@
     {
       "name": "removed-historical-alias",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 494,
+      "line": 496,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1225,7 +1239,7 @@
     {
       "name": "unknown-output-command",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 547,
+      "line": 549,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "generated output deliberately includes invalid npm caller text.",
@@ -1236,7 +1250,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 574,
+      "line": 576,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1247,7 +1261,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 610,
+      "line": 612,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1258,7 +1272,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 643,
+      "line": 645,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1284,7 +1298,7 @@
       "name": null,
       "variable": "userSelection",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 414,
+      "line": 416,
       "kind": "dynamic-process-arguments",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1384,7 +1398,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 393,
+      "line": 395,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1395,7 +1409,7 @@
     {
       "name": "unknown",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 398,
+      "line": 400,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1406,7 +1420,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 408,
+      "line": 410,
       "kind": "process-arguments",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1418,7 +1432,7 @@
       "name": null,
       "variable": "userSelection",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 414,
+      "line": 416,
       "kind": "dynamic-process-arguments",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1429,7 +1443,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 428,
+      "line": 430,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1440,7 +1454,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 433,
+      "line": 435,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1451,7 +1465,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 448,
+      "line": 450,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1462,7 +1476,7 @@
     {
       "name": "compile",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 484,
+      "line": 486,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1473,7 +1487,7 @@
     {
       "name": "removed-historical-alias",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 494,
+      "line": 496,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1484,7 +1498,7 @@
     {
       "name": "unknown-output-command",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 547,
+      "line": 549,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "generated output deliberately includes invalid npm caller text.",
@@ -1495,7 +1509,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 574,
+      "line": 576,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1506,7 +1520,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 610,
+      "line": 612,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1517,7 +1531,7 @@
     {
       "name": "useful",
       "file": "tests/scriptsInventory.test.mjs",
-      "line": 643,
+      "line": 645,
       "kind": "npm-run",
       "source": "test",
       "fixtureReason": "intentional isolated test input, never a repository command.",
@@ -1598,7 +1612,7 @@
         },
         {
           "file": "README.md",
-          "line": 120,
+          "line": 124,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run assets -- deployed verify # vérifie les 187 assets sur DEPLOYMENT_URL/Vercel",
@@ -1606,7 +1620,7 @@
         },
         {
           "file": "README.md",
-          "line": 174,
+          "line": 178,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run assets -- update",
@@ -1734,7 +1748,7 @@
         },
         {
           "file": "tests/deploymentWorkflow.test.ts",
-          "line": 91,
+          "line": 92,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(productionWorkflow).toContain('npm run assets -- deployed verify');",
@@ -1820,7 +1834,7 @@
         },
         {
           "file": "README.md",
-          "line": 120,
+          "line": 124,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run assets -- deployed verify # vérifie les 187 assets sur DEPLOYMENT_URL/Vercel",
@@ -1828,7 +1842,7 @@
         },
         {
           "file": "README.md",
-          "line": 174,
+          "line": 178,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run assets -- update",
@@ -1983,7 +1997,7 @@
         },
         {
           "file": "tests/deploymentWorkflow.test.ts",
-          "line": 91,
+          "line": 92,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(productionWorkflow).toContain('npm run assets -- deployed verify');",
@@ -2053,7 +2067,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -2064,7 +2078,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -2075,7 +2089,7 @@
         },
         {
           "file": "README.md",
-          "line": 206,
+          "line": 210,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -2094,6 +2108,19 @@
           "classification": "active",
           "via": [
             "check"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 90,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
           ]
         },
         {
@@ -2192,7 +2219,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -2317,7 +2344,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -2328,7 +2355,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -2351,7 +2378,7 @@
         },
         {
           "file": "scripts/test-clean-asset-build.mjs",
-          "line": 58,
+          "line": 59,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "const build = spawnSync('npm', ['run', 'build'], {",
@@ -2431,7 +2458,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -2442,7 +2469,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 508,
+          "line": 510,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -2454,7 +2481,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -3528,7 +3555,7 @@
       "commandChanged": false,
       "public": true,
       "retired": false,
-      "contract": "internal",
+      "contract": "external",
       "kind": "script",
       "classifications": [
         "deployment"
@@ -3540,7 +3567,7 @@
         "Repository checkout and locked Node 24 dependencies"
       ],
       "preconditions": [
-        "Effective Git branch is dev or main; credentials and locked deployment tools are configured; --yes confirms execution.",
+        "Effective Git branch is dev or main; an explicit matching --project-ref, credentials and locked deployment tools are configured; --yes confirms execution.",
         "Node 24; main targets production and dev targets LolRogueDev; never expose service-role keys"
       ],
       "effects": [
@@ -3553,18 +3580,53 @@
       "arguments": {
         "fixed": [],
         "supported": [
-          "--branch"
+          "--branch",
+          "--project-ref"
         ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
-      "replacement": "npm run release -- deploy",
+      "replacement": "npm run release -- deploy --project-ref <project-ref> --yes",
       "compatibility": "retained public contract after caller migration; remains available",
-      "referenceStatus": "unreferenced; utility review required, not evidence of disuse",
+      "referenceStatus": "referenced",
       "dependencies": [],
       "historicalDependencies": [],
-      "activeCallers": [],
+      "activeCallers": [
+        {
+          "file": "docs/environment-contract.md",
+          "line": 126,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run backend:deploy -- --project-ref \"$LOLROGUE_PROJECT_REF\" --dry-run",
+          "classification": "active"
+        },
+        {
+          "file": "docs/environment-contract.md",
+          "line": 127,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run backend:deploy -- --project-ref \"$LOLROGUE_PROJECT_REF\" --yes",
+          "classification": "active"
+        }
+      ],
       "historicalCallers": [],
-      "callers": [],
+      "callers": [
+        {
+          "file": "docs/environment-contract.md",
+          "line": 126,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run backend:deploy -- --project-ref \"$LOLROGUE_PROJECT_REF\" --dry-run",
+          "classification": "active"
+        },
+        {
+          "file": "docs/environment-contract.md",
+          "line": 127,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run backend:deploy -- --project-ref \"$LOLROGUE_PROJECT_REF\" --yes",
+          "classification": "active"
+        }
+      ],
       "indirectCallers": []
     },
     {
@@ -3600,10 +3662,13 @@
       ],
       "arguments": {
         "fixed": [],
-        "supported": [],
+        "supported": [
+          "--local",
+          "--project-ref"
+        ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
-      "replacement": "npm run release -- backup",
+      "replacement": "npm run release -- backup --project-ref <project-ref>",
       "compatibility": "retired after caller migration and recorded green CI; use the canonical replacement",
       "referenceStatus": "unreferenced; utility review required, not evidence of disuse",
       "dependencies": [],
@@ -3724,7 +3789,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -4004,7 +4069,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 100,
+          "line": 102,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run balance -- check` reproduit byte-for-byte les sept baselines authority v15 à",
@@ -4012,7 +4077,7 @@
         },
         {
           "file": "scripts/cli.mjs",
-          "line": 143,
+          "line": 144,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'Example: npm run balance -- baseline check --all',",
@@ -4119,7 +4184,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -4399,7 +4464,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 100,
+          "line": 102,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run balance -- check` reproduit byte-for-byte les sept baselines authority v15 à",
@@ -4407,7 +4472,7 @@
         },
         {
           "file": "scripts/cli.mjs",
-          "line": 143,
+          "line": 144,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'Example: npm run balance -- baseline check --all',",
@@ -19708,7 +19773,7 @@
         },
         {
           "file": "README.md",
-          "line": 206,
+          "line": 210,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -19724,7 +19789,7 @@
         },
         {
           "file": "scripts/test-clean-asset-build.mjs",
-          "line": 58,
+          "line": 59,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "const build = spawnSync('npm', ['run', 'build'], {",
@@ -19748,7 +19813,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 508,
+          "line": 510,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -19784,7 +19849,7 @@
         },
         {
           "file": "README.md",
-          "line": 206,
+          "line": 210,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -19809,7 +19874,7 @@
         },
         {
           "file": "scripts/test-clean-asset-build.mjs",
-          "line": 58,
+          "line": 59,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "const build = spawnSync('npm', ['run', 'build'], {",
@@ -19833,7 +19898,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 508,
+          "line": 510,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -19874,7 +19939,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -19886,7 +19951,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -19905,6 +19970,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 90,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
+          "classification": "active",
+          "via": [
             "check:build"
           ]
         },
@@ -20012,7 +20088,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -20148,7 +20224,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -20160,7 +20236,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -20220,7 +20296,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -20232,7 +20308,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -20321,7 +20397,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -20329,7 +20405,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -20361,7 +20437,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -20417,7 +20493,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -20425,7 +20501,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -20465,7 +20541,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -20473,7 +20549,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -20591,7 +20667,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -20599,7 +20675,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -20685,7 +20761,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -20777,7 +20853,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -20785,7 +20861,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -20825,7 +20901,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -20833,7 +20909,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -20900,7 +20976,7 @@
       "activeCallers": [
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -20911,7 +20987,7 @@
       "callers": [
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -20978,6 +21054,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 90,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
+          "classification": "active"
+        },
+        {
           "file": "package.json",
           "line": 33,
           "kind": "npm-run",
@@ -20995,6 +21079,14 @@
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:build",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 90,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
           "classification": "active"
         },
         {
@@ -21021,7 +21113,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -21032,7 +21124,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -21148,7 +21240,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -21273,7 +21365,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -21284,7 +21376,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -21339,7 +21431,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -21350,7 +21442,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -21429,7 +21521,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -21448,7 +21540,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -21511,6 +21603,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 88,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "déjà autorisés ; `npm run check:security` ne signale aucune vulnérabilité",
+          "classification": "active"
+        },
+        {
           "file": "package.json",
           "line": 33,
           "kind": "npm-run",
@@ -21528,6 +21628,14 @@
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:security",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 88,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "déjà autorisés ; `npm run check:security` ne signale aucune vulnérabilité",
           "classification": "active"
         },
         {
@@ -21554,7 +21662,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -21565,7 +21673,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -21681,7 +21789,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -21806,7 +21914,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -21817,7 +21925,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -21872,7 +21980,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -21883,7 +21991,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -21971,8 +22079,16 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active"
+        },
+        {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -21999,6 +22115,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active"
+        },
+        {
           "file": "package.json",
           "line": 33,
           "kind": "npm-run",
@@ -22009,7 +22133,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -22030,7 +22154,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -22041,7 +22165,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -22157,7 +22281,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -22282,7 +22406,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -22293,7 +22417,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -22348,7 +22472,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -22359,7 +22483,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -22436,6 +22560,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 83,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:unit` passe : 2 835 tests, 265 fichiers, 83 tests conditionnels",
+          "classification": "active"
+        },
+        {
           "file": "package.json",
           "line": 33,
           "kind": "npm-run",
@@ -22453,6 +22585,14 @@
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:unit",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 83,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:unit` passe : 2 835 tests, 265 fichiers, 83 tests conditionnels",
           "classification": "active"
         },
         {
@@ -22479,7 +22619,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -22490,7 +22630,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -22606,7 +22746,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -22731,7 +22871,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -22742,7 +22882,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -22797,7 +22937,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -22808,7 +22948,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -23371,6 +23511,14 @@
         },
         {
           "file": "README.md",
+          "line": 76,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- link --project-ref PROJECT_REF --yes",
+          "classification": "active"
+        },
+        {
+          "file": "README.md",
           "line": 77,
           "kind": "npm-run",
           "source": "documentation",
@@ -23475,7 +23623,7 @@
         },
         {
           "file": "docs/backup-and-restore.md",
-          "line": 106,
+          "line": 111,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "exécuter `npm run database -- lint` et les contrôles SQL de lecture ci-dessous.",
@@ -23486,7 +23634,7 @@
           "line": 18,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `npm run database -- migrations check --linked`. |",
+          "excerpt": "| Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `npm run database -- migrations check --linked --project-ref <project-ref>`. |",
           "classification": "active"
         },
         {
@@ -23494,7 +23642,7 @@
           "line": 19,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes --yes` et `npm run database -- security`. |",
+          "excerpt": "| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes` et `npm run database -- security`. |",
           "classification": "active"
         },
         {
@@ -23502,7 +23650,7 @@
           "line": 19,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes --yes` et `npm run database -- security`. |",
+          "excerpt": "| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes` et `npm run database -- security`. |",
           "classification": "active"
         },
         {
@@ -23518,7 +23666,7 @@
           "line": 88,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "4. Relancer `npm run database -- economy audit --linked`, examiner les refus et les compteurs",
+          "excerpt": "4. Relancer `npm run database -- economy audit --linked --project-ref <project-ref>`, examiner les refus et les compteurs",
           "classification": "active"
         },
         {
@@ -23526,7 +23674,7 @@
           "line": 116,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run database -- economy audit` utilise la base locale ; `--linked` demande explicitement",
+          "excerpt": "`npm run database -- economy audit` utilise la base locale ; `--linked --project-ref <project-ref>` demande explicitement",
           "classification": "active"
         },
         {
@@ -23558,7 +23706,7 @@
           "line": 17,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run database -- migrations check --linked` effectue la même gate en lecture seule sur le",
+          "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>` effectue la même gate en lecture seule sur le",
           "classification": "active"
         },
         {
@@ -23582,7 +23730,7 @@
           "line": 43,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run database -- finished-queue stats --linked",
+          "excerpt": "npm run database -- finished-queue stats --linked --project-ref <project-ref>",
           "classification": "active"
         },
         {
@@ -23618,11 +23766,27 @@
           "classification": "active"
         },
         {
-          "file": "docs/feature-status.md",
-          "line": 17,
+          "file": "docs/environment-contract.md",
+          "line": 123,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked`, advisors liés et requêtes grants/cron de `operations",
+          "excerpt": "npm run database -- link --project-ref \"$LOLROGUE_PROJECT_REF\" --yes",
+          "classification": "active"
+        },
+        {
+          "file": "docs/environment-contract.md",
+          "line": 124,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- migrate --project-ref \"$LOLROGUE_PROJECT_REF\" --preview",
+          "classification": "active"
+        },
+        {
+          "file": "docs/environment-contract.md",
+          "line": 125,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- migrations check --linked --project-ref \"$LOLROGUE_PROJECT_REF\"",
           "classification": "active"
         },
         {
@@ -23630,7 +23794,23 @@
           "line": 17,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked`, advisors liés et requêtes grants/cron de `operations",
+          "excerpt": "| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked --project-ref <project-ref>`, advisors liés et requête",
+          "classification": "active"
+        },
+        {
+          "file": "docs/feature-status.md",
+          "line": 17,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked --project-ref <project-ref>`, advisors liés et requête",
+          "classification": "active"
+        },
+        {
+          "file": "docs/incident-runbooks.md",
+          "line": 46,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "versionnés avec `npm run database -- migrations check --linked --project-ref <project-ref>`.",
           "classification": "active"
         },
         {
@@ -23694,7 +23874,7 @@
           "line": 165,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run database -- migrations check --linked",
+          "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
           "classification": "active"
         },
         {
@@ -23710,7 +23890,7 @@
           "line": 225,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run database -- migrations check --linked`. Cette commande est en lecture seule et bloque",
+          "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
           "classification": "active"
         },
         {
@@ -23726,7 +23906,15 @@
           "line": 46,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] `npm run database -- migrations check --linked` confirme que la dernière migration du",
+          "excerpt": "- [ ] `npm run database -- migrations check --linked --project-ref <project-ref>` confirme que la dernière migration du",
+          "classification": "active"
+        },
+        {
+          "file": "docs/release-and-support.md",
+          "line": 50,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`, jamais `push`, `up`, `repair` ou `fetch`.",
           "classification": "active"
         },
         {
@@ -23742,7 +23930,7 @@
           "line": 62,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] `npm run database -- migrations check --linked` confirme la parité du commit et du projet",
+          "excerpt": "- [ ] `npm run database -- migrations check --linked --project-ref <project-ref>` confirme la parité du commit et du projet",
           "classification": "active"
         },
         {
@@ -23795,7 +23983,15 @@
         },
         {
           "file": "docs/script-cli.md",
-          "line": 110,
+          "line": 111,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- link --project-ref <project-ref> --yes",
+          "classification": "active"
+        },
+        {
+          "file": "docs/script-cli.md",
+          "line": 112,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrate --project-ref <project-ref> --preview",
@@ -23803,7 +23999,7 @@
         },
         {
           "file": "docs/script-cli.md",
-          "line": 111,
+          "line": 113,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrate --project-ref <project-ref> --yes",
@@ -23812,6 +24008,14 @@
         {
           "file": "docs/script-cli.md",
           "line": 115,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
+          "classification": "active"
+        },
+        {
+          "file": "docs/script-cli.md",
+          "line": 118,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrate --local --yes",
@@ -23851,7 +24055,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 190,
+          "line": 192,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`",
@@ -23859,7 +24063,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 190,
+          "line": 192,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`",
@@ -23867,18 +24071,10 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 216,
+          "line": 218,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes --yes` passe par",
-          "classification": "active"
-        },
-        {
-          "file": "scripts/audit-champion-economy.mjs",
-          "line": 8,
-          "kind": "npm-run",
-          "source": "script",
-          "excerpt": "throw new Error('Usage: npm run database -- economy audit [--local | --linked]');",
+          "excerpt": "suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes` passe par",
           "classification": "active"
         },
         {
@@ -23899,7 +24095,7 @@
         },
         {
           "file": "scripts/deploy-backend.mjs",
-          "line": 52,
+          "line": 43,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "args: ['run', 'database', '--', 'migrate', '--project-ref', target.projectRef, '--preview'],",
@@ -23907,7 +24103,7 @@
         },
         {
           "file": "scripts/deploy-backend.mjs",
-          "line": 79,
+          "line": 70,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "args: ['run', 'database', '--', 'migrate', '--project-ref', target.projectRef, '--yes'],",
@@ -23915,10 +24111,10 @@
         },
         {
           "file": "scripts/deploy-backend.mjs",
-          "line": 84,
+          "line": 75,
           "kind": "process-arguments",
           "source": "script",
-          "excerpt": "args: ['run', 'database', '--', 'migrations', 'check', '--linked'],",
+          "excerpt": "args: [",
           "classification": "active"
         },
         {
@@ -23931,10 +24127,26 @@
         },
         {
           "file": "supabase/README.md",
-          "line": 66,
+          "line": 47,
           "kind": "npm-run",
           "source": "source",
-          "excerpt": "npm run database -- start",
+          "excerpt": "npm run database -- link --project-ref YOUR_PROJECT_REF --yes",
+          "classification": "active"
+        },
+        {
+          "file": "supabase/README.md",
+          "line": 48,
+          "kind": "npm-run",
+          "source": "source",
+          "excerpt": "npm run database -- migrate --project-ref YOUR_PROJECT_REF --preview",
+          "classification": "active"
+        },
+        {
+          "file": "supabase/README.md",
+          "line": 49,
+          "kind": "npm-run",
+          "source": "source",
+          "excerpt": "npm run database -- migrate --project-ref YOUR_PROJECT_REF --yes",
           "classification": "active"
         },
         {
@@ -23942,12 +24154,20 @@
           "line": 67,
           "kind": "npm-run",
           "source": "source",
-          "excerpt": "npm run database -- validate --yes",
+          "excerpt": "npm run database -- start",
           "classification": "active"
         },
         {
           "file": "supabase/README.md",
           "line": 68,
+          "kind": "npm-run",
+          "source": "source",
+          "excerpt": "npm run database -- validate --yes",
+          "classification": "active"
+        },
+        {
+          "file": "supabase/README.md",
+          "line": 69,
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run database -- types generate",
@@ -24103,6 +24323,14 @@
         },
         {
           "file": "README.md",
+          "line": 76,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- link --project-ref PROJECT_REF --yes",
+          "classification": "active"
+        },
+        {
+          "file": "README.md",
           "line": 77,
           "kind": "npm-run",
           "source": "documentation",
@@ -24207,7 +24435,7 @@
         },
         {
           "file": "docs/backup-and-restore.md",
-          "line": 106,
+          "line": 111,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "exécuter `npm run database -- lint` et les contrôles SQL de lecture ci-dessous.",
@@ -24218,7 +24446,7 @@
           "line": 18,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `npm run database -- migrations check --linked`. |",
+          "excerpt": "| Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `npm run database -- migrations check --linked --project-ref <project-ref>`. |",
           "classification": "active"
         },
         {
@@ -24226,7 +24454,7 @@
           "line": 19,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes --yes` et `npm run database -- security`. |",
+          "excerpt": "| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes` et `npm run database -- security`. |",
           "classification": "active"
         },
         {
@@ -24234,7 +24462,7 @@
           "line": 19,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes --yes` et `npm run database -- security`. |",
+          "excerpt": "| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes` et `npm run database -- security`. |",
           "classification": "active"
         },
         {
@@ -24250,7 +24478,7 @@
           "line": 88,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "4. Relancer `npm run database -- economy audit --linked`, examiner les refus et les compteurs",
+          "excerpt": "4. Relancer `npm run database -- economy audit --linked --project-ref <project-ref>`, examiner les refus et les compteurs",
           "classification": "active"
         },
         {
@@ -24258,7 +24486,7 @@
           "line": 116,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run database -- economy audit` utilise la base locale ; `--linked` demande explicitement",
+          "excerpt": "`npm run database -- economy audit` utilise la base locale ; `--linked --project-ref <project-ref>` demande explicitement",
           "classification": "active"
         },
         {
@@ -24290,7 +24518,7 @@
           "line": 17,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run database -- migrations check --linked` effectue la même gate en lecture seule sur le",
+          "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>` effectue la même gate en lecture seule sur le",
           "classification": "active"
         },
         {
@@ -24314,7 +24542,7 @@
           "line": 43,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run database -- finished-queue stats --linked",
+          "excerpt": "npm run database -- finished-queue stats --linked --project-ref <project-ref>",
           "classification": "active"
         },
         {
@@ -24350,11 +24578,27 @@
           "classification": "active"
         },
         {
-          "file": "docs/feature-status.md",
-          "line": 17,
+          "file": "docs/environment-contract.md",
+          "line": 123,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked`, advisors liés et requêtes grants/cron de `operations",
+          "excerpt": "npm run database -- link --project-ref \"$LOLROGUE_PROJECT_REF\" --yes",
+          "classification": "active"
+        },
+        {
+          "file": "docs/environment-contract.md",
+          "line": 124,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- migrate --project-ref \"$LOLROGUE_PROJECT_REF\" --preview",
+          "classification": "active"
+        },
+        {
+          "file": "docs/environment-contract.md",
+          "line": 125,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- migrations check --linked --project-ref \"$LOLROGUE_PROJECT_REF\"",
           "classification": "active"
         },
         {
@@ -24362,7 +24606,23 @@
           "line": 17,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked`, advisors liés et requêtes grants/cron de `operations",
+          "excerpt": "| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked --project-ref <project-ref>`, advisors liés et requête",
+          "classification": "active"
+        },
+        {
+          "file": "docs/feature-status.md",
+          "line": 17,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| Base, privilèges et rétention | **Validation live requise** | `npm run database -- validate --yes` sur base locale ; `npm run database -- migrations check --linked --project-ref <project-ref>`, advisors liés et requête",
+          "classification": "active"
+        },
+        {
+          "file": "docs/incident-runbooks.md",
+          "line": 46,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "versionnés avec `npm run database -- migrations check --linked --project-ref <project-ref>`.",
           "classification": "active"
         },
         {
@@ -24426,7 +24686,7 @@
           "line": 165,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run database -- migrations check --linked",
+          "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
           "classification": "active"
         },
         {
@@ -24442,7 +24702,7 @@
           "line": 225,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run database -- migrations check --linked`. Cette commande est en lecture seule et bloque",
+          "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
           "classification": "active"
         },
         {
@@ -24458,7 +24718,15 @@
           "line": 46,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] `npm run database -- migrations check --linked` confirme que la dernière migration du",
+          "excerpt": "- [ ] `npm run database -- migrations check --linked --project-ref <project-ref>` confirme que la dernière migration du",
+          "classification": "active"
+        },
+        {
+          "file": "docs/release-and-support.md",
+          "line": 50,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`, jamais `push`, `up`, `repair` ou `fetch`.",
           "classification": "active"
         },
         {
@@ -24474,7 +24742,7 @@
           "line": 62,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] `npm run database -- migrations check --linked` confirme la parité du commit et du projet",
+          "excerpt": "- [ ] `npm run database -- migrations check --linked --project-ref <project-ref>` confirme la parité du commit et du projet",
           "classification": "active"
         },
         {
@@ -24527,7 +24795,15 @@
         },
         {
           "file": "docs/script-cli.md",
-          "line": 110,
+          "line": 111,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- link --project-ref <project-ref> --yes",
+          "classification": "active"
+        },
+        {
+          "file": "docs/script-cli.md",
+          "line": 112,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrate --project-ref <project-ref> --preview",
@@ -24535,7 +24811,7 @@
         },
         {
           "file": "docs/script-cli.md",
-          "line": 111,
+          "line": 113,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrate --project-ref <project-ref> --yes",
@@ -24544,6 +24820,14 @@
         {
           "file": "docs/script-cli.md",
           "line": 115,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
+          "classification": "active"
+        },
+        {
+          "file": "docs/script-cli.md",
+          "line": 118,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrate --local --yes",
@@ -24583,7 +24867,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 190,
+          "line": 192,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`",
@@ -24591,7 +24875,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 190,
+          "line": 192,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`",
@@ -24599,10 +24883,10 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 216,
+          "line": 218,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes --yes` passe par",
+          "excerpt": "suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes` passe par",
           "classification": "active"
         },
         {
@@ -24612,14 +24896,6 @@
           "source": "npm-chain",
           "excerpt": "npm run database -- validate --yes",
           "parent": "check:db",
-          "classification": "active"
-        },
-        {
-          "file": "scripts/audit-champion-economy.mjs",
-          "line": 8,
-          "kind": "npm-run",
-          "source": "script",
-          "excerpt": "throw new Error('Usage: npm run database -- economy audit [--local | --linked]');",
           "classification": "active"
         },
         {
@@ -24640,7 +24916,7 @@
         },
         {
           "file": "scripts/deploy-backend.mjs",
-          "line": 52,
+          "line": 43,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "args: ['run', 'database', '--', 'migrate', '--project-ref', target.projectRef, '--preview'],",
@@ -24648,7 +24924,7 @@
         },
         {
           "file": "scripts/deploy-backend.mjs",
-          "line": 79,
+          "line": 70,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "args: ['run', 'database', '--', 'migrate', '--project-ref', target.projectRef, '--yes'],",
@@ -24656,10 +24932,10 @@
         },
         {
           "file": "scripts/deploy-backend.mjs",
-          "line": 84,
+          "line": 75,
           "kind": "process-arguments",
           "source": "script",
-          "excerpt": "args: ['run', 'database', '--', 'migrations', 'check', '--linked'],",
+          "excerpt": "args: [",
           "classification": "active"
         },
         {
@@ -24672,10 +24948,26 @@
         },
         {
           "file": "supabase/README.md",
-          "line": 66,
+          "line": 47,
           "kind": "npm-run",
           "source": "source",
-          "excerpt": "npm run database -- start",
+          "excerpt": "npm run database -- link --project-ref YOUR_PROJECT_REF --yes",
+          "classification": "active"
+        },
+        {
+          "file": "supabase/README.md",
+          "line": 48,
+          "kind": "npm-run",
+          "source": "source",
+          "excerpt": "npm run database -- migrate --project-ref YOUR_PROJECT_REF --preview",
+          "classification": "active"
+        },
+        {
+          "file": "supabase/README.md",
+          "line": 49,
+          "kind": "npm-run",
+          "source": "source",
+          "excerpt": "npm run database -- migrate --project-ref YOUR_PROJECT_REF --yes",
           "classification": "active"
         },
         {
@@ -24683,12 +24975,20 @@
           "line": 67,
           "kind": "npm-run",
           "source": "source",
-          "excerpt": "npm run database -- validate --yes",
+          "excerpt": "npm run database -- start",
           "classification": "active"
         },
         {
           "file": "supabase/README.md",
           "line": 68,
+          "kind": "npm-run",
+          "source": "source",
+          "excerpt": "npm run database -- validate --yes",
+          "classification": "active"
+        },
+        {
+          "file": "supabase/README.md",
+          "line": 69,
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run database -- types generate",
@@ -24725,7 +25025,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -24770,7 +25070,11 @@
         "fixed": [
           "--local"
         ],
-        "supported": [],
+        "supported": [
+          "--linked",
+          "--local",
+          "--project-ref"
+        ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
       "replacement": "npm run database -- advisors",
@@ -24911,7 +25215,8 @@
       "arguments": {
         "fixed": [],
         "supported": [
-          "--linked"
+          "--linked",
+          "--project-ref"
         ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
@@ -25210,7 +25515,8 @@
         "fixed": [],
         "supported": [
           "--candidate-sha",
-          "--linked"
+          "--linked",
+          "--project-ref"
         ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
@@ -25287,11 +25593,12 @@
         ],
         "supported": [
           "--candidate-sha",
-          "--linked"
+          "--linked",
+          "--project-ref"
         ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
-      "replacement": "npm run database -- migrations check --linked",
+      "replacement": "npm run database -- migrations check --linked --project-ref <project-ref>",
       "compatibility": "retired after caller migration and recorded green CI; use the canonical replacement",
       "referenceStatus": "unreferenced; utility review required, not evidence of disuse",
       "dependencies": [],
@@ -25336,7 +25643,7 @@
         "supported": [],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
-      "replacement": "npm run database -- reset",
+      "replacement": "npm run database -- reset --yes",
       "compatibility": "retired after caller migration and recorded green CI; use the canonical replacement",
       "referenceStatus": "referenced",
       "dependencies": [],
@@ -25983,7 +26290,8 @@
         "fixed": [],
         "supported": [
           "--linked",
-          "--local"
+          "--local",
+          "--project-ref"
         ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
@@ -26242,7 +26550,7 @@
         ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
-      "replacement": "npm run release -- edge deploy --yes",
+      "replacement": "npm run release -- edge deploy --project-ref <project-ref> --yes",
       "compatibility": "retired after caller migration and recorded green CI; use the canonical replacement",
       "referenceStatus": "unreferenced; utility review required, not evidence of disuse",
       "dependencies": [],
@@ -26434,7 +26742,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -26446,7 +26754,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -26465,6 +26773,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -26572,7 +26891,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -26708,7 +27027,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -26720,7 +27039,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -26780,7 +27099,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -26792,7 +27111,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -26816,7 +27135,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -26959,7 +27278,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -26971,7 +27290,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -26990,6 +27309,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -27097,7 +27427,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -27233,7 +27563,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -27245,7 +27575,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -27305,7 +27635,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -27317,7 +27647,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -27341,7 +27671,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -27391,7 +27721,7 @@
         ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
-      "replacement": "npm run database -- migrate --yes",
+      "replacement": "npm run database -- migrate --project-ref <project-ref> --yes",
       "compatibility": "retired after caller migration and recorded green CI; use the canonical replacement",
       "referenceStatus": "unreferenced; utility review required, not evidence of disuse",
       "dependencies": [],
@@ -27520,7 +27850,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -27532,7 +27862,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -27551,6 +27881,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -27658,7 +27999,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -27794,7 +28135,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -27806,7 +28147,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -27866,7 +28207,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -27878,7 +28219,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -27902,7 +28243,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -27952,7 +28293,7 @@
         ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
-      "replacement": "npm run release -- restore-drill",
+      "replacement": "npm run release -- restore-drill --yes",
       "compatibility": "retired after caller migration and recorded green CI; use the canonical replacement",
       "referenceStatus": "unreferenced; utility review required, not evidence of disuse",
       "dependencies": [],
@@ -28070,7 +28411,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -28083,7 +28424,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -28096,7 +28437,7 @@
         },
         {
           "file": "README.md",
-          "line": 206,
+          "line": 210,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -28114,6 +28455,18 @@
           "classification": "active",
           "via": [
             "check",
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 90,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
+          "classification": "active",
+          "via": [
             "check:build",
             "build"
           ]
@@ -28230,7 +28583,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -28377,7 +28730,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -28390,7 +28743,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -28414,7 +28767,7 @@
         },
         {
           "file": "scripts/test-clean-asset-build.mjs",
-          "line": 58,
+          "line": 59,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "const build = spawnSync('npm', ['run', 'build'], {",
@@ -28499,7 +28852,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -28512,7 +28865,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 508,
+          "line": 510,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -28523,7 +28876,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -28691,7 +29044,7 @@
         },
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 51,
+          "line": 53,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -28699,7 +29052,7 @@
         },
         {
           "file": ".github/workflows/test-order-seeds.yml",
-          "line": 76,
+          "line": 78,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -28723,7 +29076,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -28803,7 +29156,7 @@
         },
         {
           "file": "scripts/lib/command-catalog.mjs",
-          "line": 19,
+          "line": 22,
           "source": "script",
           "kind": "implicit-install-hook",
           "excerpt": "preconditions: ['Run npm ci before execution; --dry-run only prints a plan.'],",
@@ -28851,7 +29204,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 57,
+          "line": 59,
           "source": "test",
           "kind": "implicit-install-hook",
           "excerpt": "expect(workflow).toContain('run: npm ci');",
@@ -28859,7 +29212,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "source": "test",
           "kind": "implicit-install-hook",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",
@@ -28977,7 +29330,7 @@
         },
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 51,
+          "line": 53,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -28985,7 +29338,7 @@
         },
         {
           "file": ".github/workflows/test-order-seeds.yml",
-          "line": 76,
+          "line": 78,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -29018,7 +29371,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -29107,7 +29460,7 @@
         },
         {
           "file": "scripts/lib/command-catalog.mjs",
-          "line": 19,
+          "line": 22,
           "source": "script",
           "kind": "implicit-install-hook",
           "excerpt": "preconditions: ['Run npm ci before execution; --dry-run only prints a plan.'],",
@@ -29155,7 +29508,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 57,
+          "line": 59,
           "source": "test",
           "kind": "implicit-install-hook",
           "excerpt": "expect(workflow).toContain('run: npm ci');",
@@ -29163,7 +29516,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "source": "test",
           "kind": "implicit-install-hook",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",
@@ -29280,7 +29633,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -29293,7 +29646,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -29306,7 +29659,7 @@
         },
         {
           "file": "README.md",
-          "line": 206,
+          "line": 210,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -29324,6 +29677,18 @@
           "classification": "active",
           "via": [
             "check",
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 90,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
+          "classification": "active",
+          "via": [
             "check:build",
             "build"
           ]
@@ -29440,7 +29805,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -29587,7 +29952,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -29600,7 +29965,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -29624,7 +29989,7 @@
         },
         {
           "file": "scripts/test-clean-asset-build.mjs",
-          "line": 58,
+          "line": 59,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "const build = spawnSync('npm', ['run', 'build'], {",
@@ -29709,7 +30074,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -29722,7 +30087,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 508,
+          "line": 510,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -29733,7 +30098,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -29897,10 +30262,10 @@
       "activeCallers": [
         {
           "file": ".github/workflows/database-backup.yml",
-          "line": 36,
+          "line": 38,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run release -- backup",
+          "excerpt": "npm run release -- backup --project-ref \"$LOLROGUE_PROJECT_REF\"",
           "classification": "active"
         },
         {
@@ -29913,15 +30278,15 @@
         },
         {
           "file": "README.md",
-          "line": 84,
+          "line": 85,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run release -- deploy --yes",
+          "excerpt": "npm run release -- deploy --project-ref PROJECT_REF --yes",
           "classification": "active"
         },
         {
           "file": "README.md",
-          "line": 121,
+          "line": 125,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- edge bundle   # bundle du replay serveur + contrôle du hash de contenu",
@@ -30012,7 +30377,7 @@
           "line": 129,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "le contrat courant est accordé à `service_role`. `npm run release -- deploy --yes` publie la",
+          "excerpt": "le contrat courant est accordé à `service_role`. `npm run release -- deploy --project-ref <project-ref> --yes` publie la",
           "classification": "active"
         },
         {
@@ -30020,7 +30385,7 @@
           "line": 34,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run release -- backup --dry-run",
+          "excerpt": "npm run release -- backup --project-ref <project-ref> --dry-run",
           "classification": "active"
         },
         {
@@ -30028,12 +30393,12 @@
           "line": 35,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run release -- backup",
+          "excerpt": "npm run release -- backup --project-ref <project-ref>",
           "classification": "active"
         },
         {
           "file": "docs/backup-and-restore.md",
-          "line": 70,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- restore-drill --dry-run",
@@ -30041,7 +30406,7 @@
         },
         {
           "file": "docs/backup-and-restore.md",
-          "line": 71,
+          "line": 76,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- restore-drill \\",
@@ -30060,7 +30425,7 @@
           "line": 6,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`config/beta-release.json`, évaluée par `npm run release -- preflight`. Une case",
+          "excerpt": "`config/beta-release.json`, évaluée par `npm run release -- preflight --project-ref <project-ref>`. Une case",
           "classification": "active"
         },
         {
@@ -30076,7 +30441,7 @@
           "line": 26,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "page contredit les preuves enregistrées. `npm run release -- preflight` reste",
+          "excerpt": "page contredit les preuves enregistrées. `npm run release -- preflight --project-ref <project-ref>` reste",
           "classification": "active"
         },
         {
@@ -30084,7 +30449,7 @@
           "line": 19,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Publication bêta | **Bloquée** | `npm run release -- preflight` ; statut cohérent contrôlé par `npm run release -- readiness check`. |",
+          "excerpt": "| Publication bêta | **Bloquée** | `npm run release -- preflight --project-ref <project-ref>` ; statut cohérent contrôlé par `npm run release -- readiness check`. |",
           "classification": "active"
         },
         {
@@ -30092,7 +30457,7 @@
           "line": 19,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Publication bêta | **Bloquée** | `npm run release -- preflight` ; statut cohérent contrôlé par `npm run release -- readiness check`. |",
+          "excerpt": "| Publication bêta | **Bloquée** | `npm run release -- preflight --project-ref <project-ref>` ; statut cohérent contrôlé par `npm run release -- readiness check`. |",
           "classification": "active"
         },
         {
@@ -30100,7 +30465,7 @@
           "line": 24,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `npm run release -- preflight`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |",
+          "excerpt": "| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `npm run release -- preflight --project-ref <project-ref>`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le prefl",
           "classification": "active"
         },
         {
@@ -30124,7 +30489,7 @@
           "line": 49,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run release -- deploy --yes`. La commande sélectionne explicitement le projet",
+          "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet",
           "classification": "active"
         },
         {
@@ -30140,7 +30505,7 @@
           "line": 238,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run release -- deploy --yes` constitue le chemin normal de publication complète. Il",
+          "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
           "classification": "active"
         },
         {
@@ -30148,7 +30513,7 @@
           "line": 250,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "1. `npm run release -- deploy --yes` publie le vérificateur compatible avec les anciennes et",
+          "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
           "classification": "active"
         },
         {
@@ -30164,7 +30529,7 @@
           "line": 32,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`config/beta-release.json`, puis exécute `npm run release -- preflight`. Cette fiche",
+          "excerpt": "`config/beta-release.json`, puis exécute `npm run release -- preflight --project-ref <project-ref>`. Cette fiche",
           "classification": "active"
         },
         {
@@ -30172,7 +30537,7 @@
           "line": 41,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] `npm run release -- preflight` conclut `READY` sur le SHA exact à promouvoir.",
+          "excerpt": "- [ ] `npm run release -- preflight --project-ref <project-ref>` conclut `READY` sur le SHA exact à promouvoir.",
           "classification": "active"
         },
         {
@@ -30180,7 +30545,7 @@
           "line": 70,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "1. Exécuter `npm run release -- deploy --yes` depuis `dev` ou `main`.",
+          "excerpt": "1. Exécuter `npm run release -- deploy --project-ref <project-ref> --yes` depuis `dev` ou `main`.",
           "classification": "active"
         },
         {
@@ -30196,20 +30561,28 @@
           "line": 82,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run release -- deploy --yes",
+          "excerpt": "npm run release -- deploy --project-ref <project-ref> --yes",
           "classification": "active"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 112,
+          "line": 114,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- edge deploy --project-ref <project-ref> --yes",
           "classification": "active"
         },
         {
+          "file": "scripts/create-database-backup.mjs",
+          "line": 38,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "'Usage: npm run release -- backup (--local | --project-ref <approved-ref>) [--dry-run]\\nRequires SUPABASE_DB_URL. Dumps database files without changing the source database.',",
+          "classification": "active"
+        },
+        {
           "file": "scripts/deploy-backend.mjs",
-          "line": 42,
+          "line": 33,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "args: ['run', 'release', '--', 'edge', 'bundle'],",
@@ -30225,7 +30598,7 @@
         },
         {
           "file": "supabase/README.md",
-          "line": 69,
+          "line": 70,
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run release -- edge bundle",
@@ -30233,7 +30606,7 @@
         },
         {
           "file": "supabase/README.md",
-          "line": 90,
+          "line": 91,
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run release -- edge serve",
@@ -30241,10 +30614,10 @@
         },
         {
           "file": "supabase/README.md",
-          "line": 97,
+          "line": 98,
           "kind": "npm-run",
           "source": "source",
-          "excerpt": "npm run release -- deploy --yes",
+          "excerpt": "npm run release -- deploy --project-ref <project-ref> --yes",
           "classification": "active"
         },
         {
@@ -30286,10 +30659,10 @@
       "callers": [
         {
           "file": ".github/workflows/database-backup.yml",
-          "line": 36,
+          "line": 38,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run release -- backup",
+          "excerpt": "npm run release -- backup --project-ref \"$LOLROGUE_PROJECT_REF\"",
           "classification": "active"
         },
         {
@@ -30302,15 +30675,15 @@
         },
         {
           "file": "README.md",
-          "line": 84,
+          "line": 85,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run release -- deploy --yes",
+          "excerpt": "npm run release -- deploy --project-ref PROJECT_REF --yes",
           "classification": "active"
         },
         {
           "file": "README.md",
-          "line": 121,
+          "line": 125,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- edge bundle   # bundle du replay serveur + contrôle du hash de contenu",
@@ -30401,7 +30774,7 @@
           "line": 129,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "le contrat courant est accordé à `service_role`. `npm run release -- deploy --yes` publie la",
+          "excerpt": "le contrat courant est accordé à `service_role`. `npm run release -- deploy --project-ref <project-ref> --yes` publie la",
           "classification": "active"
         },
         {
@@ -30409,7 +30782,7 @@
           "line": 34,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run release -- backup --dry-run",
+          "excerpt": "npm run release -- backup --project-ref <project-ref> --dry-run",
           "classification": "active"
         },
         {
@@ -30417,12 +30790,12 @@
           "line": 35,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run release -- backup",
+          "excerpt": "npm run release -- backup --project-ref <project-ref>",
           "classification": "active"
         },
         {
           "file": "docs/backup-and-restore.md",
-          "line": 70,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- restore-drill --dry-run",
@@ -30430,7 +30803,7 @@
         },
         {
           "file": "docs/backup-and-restore.md",
-          "line": 71,
+          "line": 76,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- restore-drill \\",
@@ -30449,7 +30822,7 @@
           "line": 6,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`config/beta-release.json`, évaluée par `npm run release -- preflight`. Une case",
+          "excerpt": "`config/beta-release.json`, évaluée par `npm run release -- preflight --project-ref <project-ref>`. Une case",
           "classification": "active"
         },
         {
@@ -30465,7 +30838,7 @@
           "line": 26,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "page contredit les preuves enregistrées. `npm run release -- preflight` reste",
+          "excerpt": "page contredit les preuves enregistrées. `npm run release -- preflight --project-ref <project-ref>` reste",
           "classification": "active"
         },
         {
@@ -30473,7 +30846,7 @@
           "line": 19,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Publication bêta | **Bloquée** | `npm run release -- preflight` ; statut cohérent contrôlé par `npm run release -- readiness check`. |",
+          "excerpt": "| Publication bêta | **Bloquée** | `npm run release -- preflight --project-ref <project-ref>` ; statut cohérent contrôlé par `npm run release -- readiness check`. |",
           "classification": "active"
         },
         {
@@ -30481,7 +30854,7 @@
           "line": 19,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Publication bêta | **Bloquée** | `npm run release -- preflight` ; statut cohérent contrôlé par `npm run release -- readiness check`. |",
+          "excerpt": "| Publication bêta | **Bloquée** | `npm run release -- preflight --project-ref <project-ref>` ; statut cohérent contrôlé par `npm run release -- readiness check`. |",
           "classification": "active"
         },
         {
@@ -30489,7 +30862,7 @@
           "line": 24,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `npm run release -- preflight`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le preflight objectif échoue |",
+          "excerpt": "| Gate de sortie bêta | `beta-readiness`, `config/beta-release.json` et CI | `npm run release -- preflight --project-ref <project-ref>`, CI candidates, migrations liées et contrôle preview | **Bloquée** tant que le prefl",
           "classification": "active"
         },
         {
@@ -30513,7 +30886,7 @@
           "line": 49,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run release -- deploy --yes`. La commande sélectionne explicitement le projet",
+          "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet",
           "classification": "active"
         },
         {
@@ -30529,7 +30902,7 @@
           "line": 238,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`npm run release -- deploy --yes` constitue le chemin normal de publication complète. Il",
+          "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
           "classification": "active"
         },
         {
@@ -30537,7 +30910,7 @@
           "line": 250,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "1. `npm run release -- deploy --yes` publie le vérificateur compatible avec les anciennes et",
+          "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
           "classification": "active"
         },
         {
@@ -30553,7 +30926,7 @@
           "line": 32,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "`config/beta-release.json`, puis exécute `npm run release -- preflight`. Cette fiche",
+          "excerpt": "`config/beta-release.json`, puis exécute `npm run release -- preflight --project-ref <project-ref>`. Cette fiche",
           "classification": "active"
         },
         {
@@ -30561,7 +30934,7 @@
           "line": 41,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] `npm run release -- preflight` conclut `READY` sur le SHA exact à promouvoir.",
+          "excerpt": "- [ ] `npm run release -- preflight --project-ref <project-ref>` conclut `READY` sur le SHA exact à promouvoir.",
           "classification": "active"
         },
         {
@@ -30569,7 +30942,7 @@
           "line": 70,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "1. Exécuter `npm run release -- deploy --yes` depuis `dev` ou `main`.",
+          "excerpt": "1. Exécuter `npm run release -- deploy --project-ref <project-ref> --yes` depuis `dev` ou `main`.",
           "classification": "active"
         },
         {
@@ -30585,12 +30958,12 @@
           "line": 82,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "npm run release -- deploy --yes",
+          "excerpt": "npm run release -- deploy --project-ref <project-ref> --yes",
           "classification": "active"
         },
         {
           "file": "docs/script-cli.md",
-          "line": 112,
+          "line": 114,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- edge deploy --project-ref <project-ref> --yes",
@@ -30615,8 +30988,16 @@
           "classification": "active"
         },
         {
+          "file": "scripts/create-database-backup.mjs",
+          "line": 38,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "'Usage: npm run release -- backup (--local | --project-ref <approved-ref>) [--dry-run]\\nRequires SUPABASE_DB_URL. Dumps database files without changing the source database.',",
+          "classification": "active"
+        },
+        {
           "file": "scripts/deploy-backend.mjs",
-          "line": 42,
+          "line": 33,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "args: ['run', 'release', '--', 'edge', 'bundle'],",
@@ -30632,7 +31013,7 @@
         },
         {
           "file": "supabase/README.md",
-          "line": 69,
+          "line": 70,
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run release -- edge bundle",
@@ -30640,7 +31021,7 @@
         },
         {
           "file": "supabase/README.md",
-          "line": 90,
+          "line": 91,
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run release -- edge serve",
@@ -30648,10 +31029,10 @@
         },
         {
           "file": "supabase/README.md",
-          "line": 97,
+          "line": 98,
           "kind": "npm-run",
           "source": "source",
-          "excerpt": "npm run release -- deploy --yes",
+          "excerpt": "npm run release -- deploy --project-ref <project-ref> --yes",
           "classification": "active"
         },
         {
@@ -30722,7 +31103,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -30734,7 +31115,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -30746,7 +31127,7 @@
         },
         {
           "file": "README.md",
-          "line": 206,
+          "line": 210,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -30766,6 +31147,30 @@
           "via": [
             "check",
             "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 90,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
           ]
         },
         {
@@ -30872,7 +31277,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -31008,7 +31413,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -31020,7 +31425,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -31044,7 +31449,7 @@
         },
         {
           "file": "scripts/test-clean-asset-build.mjs",
-          "line": 58,
+          "line": 59,
           "kind": "process-arguments",
           "source": "script",
           "excerpt": "const build = spawnSync('npm', ['run', 'build'], {",
@@ -31128,7 +31533,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -31140,7 +31545,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 508,
+          "line": 510,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "packageJson.scripts.compile = 'npm run build';",
@@ -31152,7 +31557,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -31188,7 +31593,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -31231,10 +31636,12 @@
       ],
       "arguments": {
         "fixed": [],
-        "supported": [],
+        "supported": [
+          "--project-ref"
+        ],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
-      "replacement": "npm run release -- preflight",
+      "replacement": "npm run release -- preflight --project-ref <project-ref>",
       "compatibility": "retired after caller migration and recorded green CI; use the canonical replacement",
       "referenceStatus": "unreferenced; utility review required, not evidence of disuse",
       "dependencies": [],
@@ -31473,7 +31880,7 @@
       "activeCallers": [
         {
           "file": "docs/script-cli.md",
-          "line": 121,
+          "line": 130,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run scripts:inventory",
@@ -31484,7 +31891,7 @@
       "callers": [
         {
           "file": "docs/script-cli.md",
-          "line": 121,
+          "line": 130,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run scripts:inventory",
@@ -31536,7 +31943,7 @@
       "activeCallers": [
         {
           "file": "docs/script-cli.md",
-          "line": 122,
+          "line": 131,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run scripts:inventory:check",
@@ -31556,7 +31963,7 @@
       "callers": [
         {
           "file": "docs/script-cli.md",
-          "line": 122,
+          "line": 131,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run scripts:inventory:check",
@@ -31598,7 +32005,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -31610,7 +32017,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -31629,6 +32036,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -31736,7 +32154,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -31872,7 +32290,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -31884,7 +32302,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -31944,7 +32362,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -31956,7 +32374,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -31980,7 +32398,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -32035,7 +32453,7 @@
       "activeCallers": [
         {
           "file": "README.md",
-          "line": 113,
+          "line": 117,
           "kind": "npm-lifecycle",
           "source": "documentation",
           "excerpt": "npm test              # tests unitaires et tests de structure SQL",
@@ -32094,7 +32512,7 @@
       "callers": [
         {
           "file": "README.md",
-          "line": 113,
+          "line": 117,
           "kind": "npm-lifecycle",
           "source": "documentation",
           "excerpt": "npm test              # tests unitaires et tests de structure SQL",
@@ -32374,7 +32792,7 @@
       "activeCallers": [
         {
           "file": "README.md",
-          "line": 114,
+          "line": 118,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:coverage # tests avec seuils de couverture",
@@ -32402,7 +32820,7 @@
       "callers": [
         {
           "file": "README.md",
-          "line": 114,
+          "line": 118,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:coverage # tests avec seuils de couverture",
@@ -32452,7 +32870,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -32464,7 +32882,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -32483,6 +32901,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:unit"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 83,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:unit` passe : 2 835 tests, 265 fichiers, 83 tests conditionnels",
+          "classification": "active",
+          "via": [
             "check:unit"
           ]
         },
@@ -32590,7 +33019,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -32726,7 +33155,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -32738,7 +33167,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -32798,7 +33227,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -32810,7 +33239,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -32888,7 +33317,7 @@
         },
         {
           "file": "README.md",
-          "line": 117,
+          "line": 121,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:db       # intégration Auth/RLS sur une vraie instance de test",
@@ -32939,12 +33368,12 @@
           "line": 95,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve",
+          "excerpt": "Les tests Supabase restent dans `npm run test:db` et exigent des URLs Postgres et",
           "classification": "active"
         },
         {
           "file": "docs/testing.md",
-          "line": 214,
+          "line": 216,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db`, sauf correspondance exacte avec une entrée justifiée de",
@@ -32952,7 +33381,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 221,
+          "line": 223,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni",
@@ -32961,7 +33390,7 @@
         {
           "variable": "testScript",
           "file": "scripts/run-local-db-tests.mjs",
-          "line": 62,
+          "line": 77,
           "kind": "dynamic-process-arguments",
           "source": "script",
           "excerpt": "const tests = spawnSync(npmCommand, ['run', testScript], {",
@@ -33005,7 +33434,7 @@
         },
         {
           "file": "README.md",
-          "line": 117,
+          "line": 121,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:db       # intégration Auth/RLS sur une vraie instance de test",
@@ -33056,12 +33485,12 @@
           "line": 95,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve",
+          "excerpt": "Les tests Supabase restent dans `npm run test:db` et exigent des URLs Postgres et",
           "classification": "active"
         },
         {
           "file": "docs/testing.md",
-          "line": 214,
+          "line": 216,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db`, sauf correspondance exacte avec une entrée justifiée de",
@@ -33069,7 +33498,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 221,
+          "line": 223,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni",
@@ -33078,7 +33507,7 @@
         {
           "variable": "testScript",
           "file": "scripts/run-local-db-tests.mjs",
-          "line": 62,
+          "line": 77,
           "kind": "dynamic-process-arguments",
           "source": "script",
           "excerpt": "const tests = spawnSync(npmCommand, ['run', testScript], {",
@@ -33216,7 +33645,7 @@
         {
           "variable": "testScript",
           "file": "scripts/run-local-db-tests.mjs",
-          "line": 62,
+          "line": 77,
           "kind": "dynamic-process-arguments",
           "source": "script",
           "excerpt": "const tests = spawnSync(npmCommand, ['run', testScript], {",
@@ -33245,7 +33674,7 @@
         {
           "variable": "testScript",
           "file": "scripts/run-local-db-tests.mjs",
-          "line": 62,
+          "line": 77,
           "kind": "dynamic-process-arguments",
           "source": "script",
           "excerpt": "const tests = spawnSync(npmCommand, ['run', testScript], {",
@@ -33357,7 +33786,7 @@
         },
         {
           "file": "README.md",
-          "line": 115,
+          "line": 119,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:e2e      # parcours UI, dont une victoire six biomes et une défaite réelles",
@@ -33427,7 +33856,7 @@
         },
         {
           "file": "README.md",
-          "line": 115,
+          "line": 119,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:e2e      # parcours UI, dont une victoire six biomes et une défaite réelles",
@@ -33487,7 +33916,7 @@
       "indirectCallers": [
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -33549,7 +33978,7 @@
         },
         {
           "file": "README.md",
-          "line": 116,
+          "line": 120,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:e2e:production # smoke test des 3 moteurs, desktop et mobile",
@@ -33619,7 +34048,7 @@
         },
         {
           "file": "README.md",
-          "line": 116,
+          "line": 120,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:e2e:production # smoke test des 3 moteurs, desktop et mobile",
@@ -33679,7 +34108,7 @@
       "indirectCallers": [
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -34190,7 +34619,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/test-order-seeds.yml",
-          "line": 80,
+          "line": 82,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run test:seed -- \"$TEST_ORDER_SEED\"",
@@ -34230,7 +34659,7 @@
         },
         {
           "file": "tests/testOrderSeeds.test.mjs",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "reproduce: 'npm run test:seed -- 123',",
@@ -34238,7 +34667,7 @@
         },
         {
           "file": "tests/testOrderSeeds.test.mjs",
-          "line": 60,
+          "line": 63,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run test:seed -- 123 tests/persistence.test.ts',",
@@ -34246,7 +34675,7 @@
         },
         {
           "file": "tests/testOrderSeeds.test.mjs",
-          "line": 93,
+          "line": 96,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "reproduce: 'npm run test:seed -- 321 no-matching-test-order-cli-fixture',",
@@ -34257,7 +34686,7 @@
       "callers": [
         {
           "file": ".github/workflows/test-order-seeds.yml",
-          "line": 80,
+          "line": 82,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run test:seed -- \"$TEST_ORDER_SEED\"",
@@ -34297,7 +34726,7 @@
         },
         {
           "file": "tests/testOrderSeeds.test.mjs",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "reproduce: 'npm run test:seed -- 123',",
@@ -34305,7 +34734,7 @@
         },
         {
           "file": "tests/testOrderSeeds.test.mjs",
-          "line": 60,
+          "line": 63,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run test:seed -- 123 tests/persistence.test.ts',",
@@ -34313,7 +34742,7 @@
         },
         {
           "file": "tests/testOrderSeeds.test.mjs",
-          "line": 93,
+          "line": 96,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "reproduce: 'npm run test:seed -- 321 no-matching-test-order-cli-fixture',",
@@ -34421,7 +34850,7 @@
         },
         {
           "file": "README.md",
-          "line": 118,
+          "line": 122,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- production-build # deep links, headers et 404 du build servi",
@@ -34429,7 +34858,7 @@
         },
         {
           "file": "README.md",
-          "line": 119,
+          "line": 123,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- performance budgets # budgets bundle, routes et assets",
@@ -34437,7 +34866,7 @@
         },
         {
           "file": "README.md",
-          "line": 122,
+          "line": 126,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- security # audit critique/haut et contrôle des exceptions bornées",
@@ -34605,7 +35034,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 220,
+          "line": 222,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- database --list` applique ces mêmes règles et affiche, dans l'ordre, chaque",
@@ -34613,7 +35042,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 278,
+          "line": 280,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- performance budgets`. Ils couvrent le JavaScript total, le plus gros",
@@ -34621,7 +35050,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 283,
+          "line": 285,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après le build, `npm run testing -- performance preview` démarre une vraie preview Vite,",
@@ -34629,7 +35058,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 299,
+          "line": 301,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- styles check` analyse tous les fichiers source et refuse les styles",
@@ -34637,7 +35066,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 303,
+          "line": 305,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "la carte. `productionConfig.test.ts` et `npm run testing -- production-build` vérifient les politiques",
@@ -34717,7 +35146,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 425,
+          "line": 427,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "{ aliases: ['useful'], path: ['useful'], replacement: 'npm run testing -- useful' },",
@@ -34725,7 +35154,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 469,
+          "line": 471,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "{ aliases: ['compile'], path: ['compile'], replacement: 'npm run testing -- compile' },",
@@ -34789,7 +35218,7 @@
         },
         {
           "file": "README.md",
-          "line": 118,
+          "line": 122,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- production-build # deep links, headers et 404 du build servi",
@@ -34797,7 +35226,7 @@
         },
         {
           "file": "README.md",
-          "line": 119,
+          "line": 123,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- performance budgets # budgets bundle, routes et assets",
@@ -34805,7 +35234,7 @@
         },
         {
           "file": "README.md",
-          "line": 122,
+          "line": 126,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- security # audit critique/haut et contrôle des exceptions bornées",
@@ -34973,7 +35402,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 220,
+          "line": 222,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- database --list` applique ces mêmes règles et affiche, dans l'ordre, chaque",
@@ -34981,7 +35410,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 278,
+          "line": 280,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- performance budgets`. Ils couvrent le JavaScript total, le plus gros",
@@ -34989,7 +35418,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 283,
+          "line": 285,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après le build, `npm run testing -- performance preview` démarre une vraie preview Vite,",
@@ -34997,7 +35426,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 299,
+          "line": 301,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- styles check` analyse tous les fichiers source et refuse les styles",
@@ -35005,7 +35434,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 303,
+          "line": 305,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "la carte. `productionConfig.test.ts` et `npm run testing -- production-build` vérifient les politiques",
@@ -35130,7 +35559,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 425,
+          "line": 427,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "{ aliases: ['useful'], path: ['useful'], replacement: 'npm run testing -- useful' },",
@@ -35138,7 +35567,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 469,
+          "line": 471,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "{ aliases: ['compile'], path: ['compile'], replacement: 'npm run testing -- compile' },",
@@ -35193,7 +35622,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -35205,7 +35634,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -35225,6 +35654,39 @@
           "via": [
             "check",
             "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 88,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "déjà autorisés ; `npm run check:security` ne signale aucune vulnérabilité",
+          "classification": "active",
+          "via": [
+            "check:security"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 90,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
+          "classification": "active",
+          "via": [
+            "check:build"
           ]
         },
         {
@@ -35331,7 +35793,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -35467,7 +35929,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -35479,7 +35941,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -35539,7 +36001,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -35551,7 +36013,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -35575,7 +36037,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -35635,7 +36097,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 53,
+          "line": 55,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run typecheck",
@@ -35643,7 +36105,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 127,
+          "line": 129,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run typecheck` compile trois contrats indépendants avant les tests : application,",
@@ -35651,7 +36113,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",
@@ -35659,7 +36121,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 51,
+          "line": 53,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts['check:static']).toContain('npm run typecheck');",
@@ -35679,7 +36141,7 @@
       "callers": [
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 53,
+          "line": 55,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run typecheck",
@@ -35687,7 +36149,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 127,
+          "line": 129,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run typecheck` compile trois contrats indépendants avant les tests : application,",
@@ -35704,7 +36166,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",
@@ -35712,7 +36174,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 51,
+          "line": 53,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts['check:static']).toContain('npm run typecheck');",
@@ -35745,7 +36207,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -35757,7 +36219,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -35776,6 +36238,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -35883,7 +36356,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -36019,7 +36492,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -36031,7 +36504,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -36091,7 +36564,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -36103,7 +36576,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -36127,7 +36600,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -36181,7 +36654,7 @@
       "activeCallers": [
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 46,
+          "line": 48,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run typecheck:app && npm run typecheck:scripts && npm run typecheck:e2e',",
@@ -36210,7 +36683,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 46,
+          "line": 48,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run typecheck:app && npm run typecheck:scripts && npm run typecheck:e2e',",
@@ -36245,7 +36718,7 @@
         },
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 53,
+          "line": 55,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run typecheck",
@@ -36256,7 +36729,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -36269,7 +36742,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -36289,6 +36762,18 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
             "check:static",
             "typecheck"
           ]
@@ -36405,7 +36890,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -36552,7 +37037,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 127,
+          "line": 129,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run typecheck` compile trois contrats indépendants avant les tests : application,",
@@ -36563,7 +37048,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -36576,7 +37061,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -36641,7 +37126,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -36654,7 +37139,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",
@@ -36665,7 +37150,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -36691,7 +37176,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -36703,7 +37188,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 51,
+          "line": 53,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts['check:static']).toContain('npm run typecheck');",
@@ -36755,7 +37240,7 @@
       "activeCallers": [
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 46,
+          "line": 48,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run typecheck:app && npm run typecheck:scripts && npm run typecheck:e2e',",
@@ -36784,7 +37269,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 46,
+          "line": 48,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run typecheck:app && npm run typecheck:scripts && npm run typecheck:e2e',",
@@ -36819,7 +37304,7 @@
         },
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 53,
+          "line": 55,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run typecheck",
@@ -36830,7 +37315,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -36843,7 +37328,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -36863,6 +37348,18 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
             "check:static",
             "typecheck"
           ]
@@ -36979,7 +37476,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -37126,7 +37623,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 127,
+          "line": 129,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run typecheck` compile trois contrats indépendants avant les tests : application,",
@@ -37137,7 +37634,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -37150,7 +37647,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -37215,7 +37712,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -37228,7 +37725,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",
@@ -37239,7 +37736,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -37265,7 +37762,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -37277,7 +37774,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 51,
+          "line": 53,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts['check:static']).toContain('npm run typecheck');",
@@ -37329,7 +37826,7 @@
       "activeCallers": [
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 46,
+          "line": 48,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run typecheck:app && npm run typecheck:scripts && npm run typecheck:e2e',",
@@ -37358,7 +37855,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 46,
+          "line": 48,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run typecheck:app && npm run typecheck:scripts && npm run typecheck:e2e',",
@@ -37393,7 +37890,7 @@
         },
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 53,
+          "line": 55,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run typecheck",
@@ -37404,7 +37901,7 @@
         },
         {
           "file": "README.md",
-          "line": 123,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check         # format, lint, types, audit, couverture et build",
@@ -37417,7 +37914,7 @@
         },
         {
           "file": "README.md",
-          "line": 180,
+          "line": 184,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -37437,6 +37934,18 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 81,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active",
+          "via": [
             "check:static",
             "typecheck"
           ]
@@ -37553,7 +38062,7 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 305,
+          "line": 307,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
@@ -37700,7 +38209,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 127,
+          "line": 129,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run typecheck` compile trois contrats indépendants avant les tests : application,",
@@ -37711,7 +38220,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 137,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "les inclusions et le branchement des trois compilations dans `npm run check`.",
@@ -37724,7 +38233,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 261,
+          "line": 263,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -37789,7 +38298,7 @@
         },
         {
           "file": "tests/scriptsInventory.test.mjs",
-          "line": 471,
+          "line": 473,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "write(root, 'docs/archive/previous-validation.md', 'Validated: npm run check\\n');",
@@ -37802,7 +38311,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",
@@ -37813,7 +38322,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(readFileSync('.github/workflows/ci.yml', 'utf8')).toContain('run: npm run check');",
@@ -37839,7 +38348,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 50,
+          "line": 52,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts.check).toContain('npm run check:static');",
@@ -37851,7 +38360,7 @@
         },
         {
           "file": "tests/toolingTypecheckContract.test.ts",
-          "line": 51,
+          "line": 53,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(packageJson.scripts['check:static']).toContain('npm run typecheck');",
@@ -37904,15 +38413,23 @@
       "activeCallers": [
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 55,
+          "line": 57,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run typecheck:strict",
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 87,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run typecheck:strict` passe avec les quatre diagnostics upstream exacts",
+          "classification": "active"
+        },
+        {
           "file": "docs/testing.md",
-          "line": 141,
+          "line": 143,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run typecheck:strict` compile réellement l'application/tests, les scripts et",
@@ -37920,7 +38437,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",
@@ -37941,10 +38458,18 @@
       "callers": [
         {
           "file": ".github/workflows/strict-typecheck.yml",
-          "line": 55,
+          "line": 57,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run typecheck:strict",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s2-validation-2026-10-11.md",
+          "line": 87,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- `npm run typecheck:strict` passe avec les quatre diagnostics upstream exacts",
           "classification": "active"
         },
         {
@@ -37958,7 +38483,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 141,
+          "line": 143,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run typecheck:strict` compile réellement l'application/tests, les scripts et",
@@ -37966,7 +38491,7 @@
         },
         {
           "file": "tests/strictTypecheckWorkflow.test.ts",
-          "line": 63,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(commands).toEqual(['npm ci', 'npm run typecheck', 'npm run typecheck:strict']);",

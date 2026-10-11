@@ -126,7 +126,7 @@ Le bundle v20 est archivé byte-for-byte dans `run-authority-v20.bundle.ts`
 en `replay-only` et v21 devient l'unique moteur `current`. Le wrapper v21 délègue les
 attempts historiques au contrat v20 archivé ; les deux fonctions retirent l'exécution
 à `PUBLIC`, `anon`, `authenticated` et au wrapper historique lui-même, tandis que seul
-le contrat courant est accordé à `service_role`. `npm run release -- deploy --yes` publie la
+le contrat courant est accordé à `service_role`. `npm run release -- deploy --project-ref <project-ref> --yes` publie la
 fonction Edge, déploie le frontend compatible puis active la migration sur le projet
 associé à la branche (`dev` vers `LolRogueDev`, `main` vers `LolRogue`). La commande
 ne promeut le build Production de `main` qu'après le contrôle du manifeste distant

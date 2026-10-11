@@ -2,6 +2,9 @@ const stringOption = (description, extra = {}) => ({ type: 'string', description
 const booleanOption = (description) => ({ type: 'boolean', description });
 const engine = stringOption('Registered authority engine, e.g. v22 or 0.2.0; defaults to current.');
 const output = stringOption('Destination relative to the repository root.');
+const projectRef = stringOption(
+  'Explicit approved Supabase project reference of the effective dev/main branch.',
+);
 const all = booleanOption('Check every published artifact in registry order.');
 const check = booleanOption(
   'Compatibility check mode: reproduce the artifact without writing it. Conflicts with --output.',
@@ -271,6 +274,14 @@ export const commandCatalog = [
 
   command(
     'database',
+    'link',
+    [],
+    'Link only the explicit approved target of the effective dev/main branch; requires --yes.',
+    { kind: 'database-link' },
+    { risk: 'remote', options: { 'project-ref': projectRef } },
+  ),
+  command(
+    'database',
     'start',
     ['db:start'],
     'Start the local Supabase stack.',
@@ -291,7 +302,7 @@ export const commandCatalog = [
     ['db:reset'],
     'Reset only the local database; requires --yes.',
     node('reset-local-database'),
-    { risk: 'destructive-local' },
+    { risk: 'destructive-local', aliasOptions: { 'db:reset': ['--yes'] } },
   ),
   command(
     'database',
@@ -324,9 +335,12 @@ export const commandCatalog = [
     {
       options: {
         linked: booleanOption('Check the linked remote project.'),
+        'project-ref': projectRef,
         'candidate-sha': stringOption('Git candidate SHA to compare.'),
       },
-      aliasOptions: { 'db:migrations:check:linked': ['--linked'] },
+      aliasOptions: {
+        'db:migrations:check:linked': ['--linked', '--project-ref', '<project-ref>'],
+      },
     },
   ),
   command(
@@ -341,7 +355,14 @@ export const commandCatalog = [
     'advisors',
     ['db:advisors'],
     'Run advisors against the local database.',
-    node('check-supabase-advisors', ['--local']),
+    node('check-supabase-advisors'),
+    {
+      options: {
+        local: booleanOption('Check the local database (default).'),
+        linked: booleanOption('Check the approved linked project.'),
+        'project-ref': projectRef,
+      },
+    },
   ),
   command(
     'database',
@@ -364,7 +385,12 @@ export const commandCatalog = [
     ['db:finished-queue:stats'],
     'Inspect finished queue index statistics.',
     node('inspect-finished-queue-index-stats'),
-    { options: { linked: booleanOption('Inspect the linked project without modification.') } },
+    {
+      options: {
+        linked: booleanOption('Inspect the linked project without modification.'),
+        'project-ref': projectRef,
+      },
+    },
   ),
   command(
     'database',
@@ -398,7 +424,7 @@ export const commandCatalog = [
         'project-ref': stringOption('Must match the approved target of the effective branch.'),
         preview: booleanOption('Ask Supabase to preview migrations without applying them.'),
       },
-      aliasOptions: { migrate: ['--yes'] },
+      aliasOptions: { migrate: ['--project-ref', '<project-ref>', '--yes'] },
       preconditions: ['Effective Git branch is dev or main; its approved Supabase target is used.'],
     },
   ),
@@ -412,6 +438,7 @@ export const commandCatalog = [
       options: {
         local: booleanOption('Audit the local database (default).'),
         linked: booleanOption('Audit the linked project without modification.'),
+        'project-ref': projectRef,
       },
     },
   ),
@@ -484,10 +511,12 @@ export const commandCatalog = [
     {
       risk: 'remote',
       options: {
+        'project-ref': projectRef,
         branch: stringOption('Must match the effective Git branch.', { choices: ['main', 'dev'] }),
       },
+      aliasOptions: { 'backend:deploy': ['--project-ref', '<project-ref>', '--yes'] },
       preconditions: [
-        'Effective Git branch is dev or main; credentials and locked deployment tools are configured; --yes confirms execution.',
+        'Effective Git branch is dev or main; an explicit matching --project-ref, credentials and locked deployment tools are configured; --yes confirms execution.',
       ],
     },
   ),
@@ -497,6 +526,10 @@ export const commandCatalog = [
     ['release:preflight'],
     'Run the existing release preflight.',
     node('release-preflight'),
+    {
+      options: { 'project-ref': projectRef },
+      aliasOptions: { 'release:preflight': ['--project-ref', '<project-ref>'] },
+    },
   ),
   command(
     'release',
@@ -547,7 +580,7 @@ export const commandCatalog = [
       options: {
         'project-ref': stringOption('Must match the approved target of the effective branch.'),
       },
-      aliasOptions: { 'edge:deploy': ['--yes'] },
+      aliasOptions: { 'edge:deploy': ['--project-ref', '<project-ref>', '--yes'] },
       preconditions: ['Effective Git branch is dev or main; its approved Supabase target is used.'],
     },
   ),
@@ -560,6 +593,7 @@ export const commandCatalog = [
     {
       risk: 'destructive-local',
       options: { evidence: stringOption('Evidence file inside the repository.') },
+      aliasOptions: { 'ops:restore-drill': ['--yes'] },
     },
   ),
   command(
@@ -570,6 +604,11 @@ export const commandCatalog = [
     node('create-database-backup'),
     {
       risk: 'generate',
+      options: {
+        'project-ref': projectRef,
+        local: booleanOption('Back up only a loopback database URL.'),
+      },
+      aliasOptions: { 'backup:database': ['--project-ref', '<project-ref>'] },
       preconditions: [
         'SUPABASE_DB_URL is configured; BACKUP_DIRECTORY selects the output; never print credentials.',
       ],

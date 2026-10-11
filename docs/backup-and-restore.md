@@ -31,10 +31,15 @@ secrets. Choisir un répertoire hors du dépôt et vérifier le plan avant le du
 
 ```bash
 export BACKUP_DIRECTORY="$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)"
-npm run release -- backup --dry-run
-npm run release -- backup
+npm run release -- backup --project-ref <project-ref> --dry-run
+npm run release -- backup --project-ref <project-ref>
 (cd "$BACKUP_DIRECTORY" && shasum -a 256 -c SHA256SUMS)
 ```
+
+Une sauvegarde distante exige la branche réelle `main` ou `dev` et une référence
+explicite correspondant à cette branche. L’hôte de `SUPABASE_DB_URL` doit identifier
+ce même projet, y compris via un pooler Supabase. Les identifiants ne sont jamais
+affichés. Une sauvegarde locale exige `--local` et une URL loopback.
 
 Le mode `--dry-run` affiche l'hôte et les fichiers prévus sans lancer le CLI ni
 créer de répertoire. Le dump lit la source ; il écrit seulement les fichiers de

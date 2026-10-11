@@ -64,7 +64,7 @@ Une tâche n'est terminée que lorsque :
 ### Dépendances et incompatibilités évitées
 
 1. **Candies ≠ Éclats.** `TREE` améliore les nœuds et l'économie des améliorations ; `P3-ECO-01` garde achats/rotation champions à 400 Éclats. `ADM-02/20` ne créent pas de seconde monnaie ou de deuxième ledger.
-2. **Version authority.** `run-engine-v22` actif et bundles historiques restent figés. `AI-038` prévoit une nouvelle version *uniquement* si la politique autoritaire change ; `ARCH` ne réécrit aucun ancien hash. `P0-RUN-01` (registre de versions) reste livré, pas rouvert en doublon.
+2. **Version authority.** `run-engine-0.2.0` actif et bundles historiques restent figés. `AI-038` prévoit une nouvelle version *uniquement* si la politique autoritaire change ; `ARCH` ne réécrit aucun ancien hash. `P0-RUN-01` (registre de versions) reste livré, pas rouvert en doublon.
 3. **Arbre Assassin / Katarina.** `TREE-01..04` réparent tous les arbres actuels ; `P3-CHAMP-03 / K.5` possède toujours le travail de support des resets et actions bonus pour Katarina. Les deux lots doivent mutualiser les tests/catalogues, jamais développer deux mécanismes.
 4. **UX/architecture.** `ARCH-12..15` fournit la structure partagée ; `ADM-32` et `AI-036` réutilisent leurs composants/hook et ne lancent pas de deuxième refonte transversale.
 5. **Mesure et équilibrage.** `P2-BAL-01` conserve la validation par **playtests humains** ; `AI-042/047`, `TREE-09/10` et `ADM-17..21` fournissent simulations/affichage/analyses sans cocher le playtest à sa place.
@@ -1021,7 +1021,7 @@ Invariant livré ; [preuve et critères archivés](docs/archive/todo-snapshot-20
 ### Travaux d'ingénierie proposés (non déclarés livrés)
 
 1. **Fiabilité avant fonctionnalités** : `ADM-S1` + `TREE-01..04`, avec correctifs SQL/RLS et parité combat.
-2. **Nettoyage sans risque de gameplay** : [ARCH-S1 implémenté](docs/backlog/architecture-maintenance.md#arch-s1--catalogue-de-scripts-et-cli-p2-taille-l), appelants migrés dans la PR #213 puis 72 alias retirés après ses 18 checks verts ; 40 entrées npm restent publiques. `ARCH-S2` reste à faire. Le blocage des déploiements hors `main`/`dev` est maintenu.
+2. **Nettoyage sans risque de gameplay** : [ARCH-S1 implémenté](docs/backlog/architecture-maintenance.md#arch-s1--catalogue-de-scripts-et-cli-p2-taille-l), appelants migrés dans la PR #213 puis 72 alias retirés après ses 18 checks verts ; 40 entrées npm restent publiques. [ARCH-S2 implémenté](docs/backlog/architecture-maintenance.md#arch-s2--configuration-et-déploiement-p1-taille-ml) : configuration commune, cibles distantes contrôlées et plugins Vite/Vitest séparés ; preuves dans [la validation S2](docs/architecture-s2-validation-2026-10-11.md). Le blocage des déploiements hors `main`/`dev` est maintenu.
 3. **Interfaces métier** : `ARCH-S3/S4`, `ADM-S2/S3` et `TREE-05..07` ; une seule couche de repositories/services.
 4. **Bot stratégique** : `AI-S1..S9`, en conservant `legacy` ; pas de nouvelle version authority tant que parité/vérification non acquises.
 5. **Mesure / UI / exploitation** : `TREE-08..10`, `ADM-S4..S7` et `ARCH-S5`.

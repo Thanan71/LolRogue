@@ -44,8 +44,9 @@ supabase db reset
 ## Fresh hosted project
 
 ```bash
-supabase link --project-ref YOUR_PROJECT_REF
-supabase db push
+npm run database -- link --project-ref YOUR_PROJECT_REF --yes
+npm run database -- migrate --project-ref YOUR_PROJECT_REF --preview
+npm run database -- migrate --project-ref YOUR_PROJECT_REF --yes
 ```
 
 `supabase db push` applies only migrations that are not already recorded in the
@@ -94,7 +95,7 @@ Pour un projet hébergé, utiliser l'orchestrateur depuis la branche de release
 correspondante :
 
 ```bash
-npm run release -- deploy --yes
+npm run release -- deploy --project-ref <project-ref> --yes
 ```
 
 Il associe `dev` à `LolRogueDev` et `main` à `LolRogue`, vérifie les migrations

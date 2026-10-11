@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
@@ -15,10 +16,6 @@ const archivedV20 = readFileSync(
 );
 const verifyRunSource = readFileSync(
   new URL('../supabase/functions/verify-run/index.ts', import.meta.url),
-  'utf8',
-);
-const backendDeploySource = readFileSync(
-  new URL('../scripts/deploy-backend.mjs', import.meta.url),
   'utf8',
 );
 
@@ -81,16 +78,39 @@ describe('P0 balance authority ruleset', () => {
   });
 
   it('deploys Edge and the compatible frontend before activating the database ruleset', () => {
-    const edgeDeployment = backendDeploySource.indexOf("phase: 'deploy-edge'");
-    const frontendDeployment = backendDeploySource.indexOf("phase: 'deploy-frontend'");
-    const databasePush = backendDeploySource.indexOf("phase: 'migrate-database'");
-    const frontendPromotion = backendDeploySource.indexOf("phase: 'promote-frontend'");
+    const moduleUrl = new URL('../scripts/deploy-backend.mjs', import.meta.url).href;
+    const plan: { phase: string; args: string[] }[] = JSON.parse(
+      execFileSync(
+        process.execPath,
+        [
+          '--input-type=module',
+          '--eval',
+          `import { createBackendDeployPlan } from ${JSON.stringify(moduleUrl)};
+process.stdout.write(JSON.stringify(createBackendDeployPlan('main')));`,
+        ],
+        { encoding: 'utf8' },
+      ),
+    );
+    const phases = plan.map((step) => step.phase);
+    const edgeDeployment = phases.indexOf('deploy-edge');
+    const frontendDeployment = phases.indexOf('deploy-frontend');
+    const databasePush = phases.indexOf('migrate-database');
+    const frontendPromotion = phases.indexOf('promote-frontend');
     expect(edgeDeployment).toBeGreaterThan(-1);
     expect(frontendDeployment).toBeGreaterThan(edgeDeployment);
     expect(databasePush).toBeGreaterThan(frontendDeployment);
     expect(frontendPromotion).toBeGreaterThan(databasePush);
-    expect(backendDeploySource).toContain(
-      "args: ['run', 'database', '--', 'migrations', 'check', '--linked']",
-    );
+    expect(phases.indexOf('verify-migrations')).toBeGreaterThan(databasePush);
+    expect(frontendPromotion).toBeGreaterThan(phases.indexOf('verify-migrations'));
+    expect(plan.find((step) => step.phase === 'verify-migrations')?.args).toEqual([
+      'run',
+      'database',
+      '--',
+      'migrations',
+      'check',
+      '--linked',
+      '--project-ref',
+      'mmpvmclqdgfnpfgcqnyu',
+    ]);
   });
 });

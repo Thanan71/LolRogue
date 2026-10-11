@@ -1,24 +1,35 @@
 import { spawnSync } from 'node:child_process';
+import { repositoryRoot, requireNode24, requirePinnedCli } from './lib/critical-command.mjs';
+import { assertLocalDatabaseEnvironment, supabaseEnvironment } from './lib/remote-operation.mjs';
 import {
   missingSupabaseTestEnv,
   parseSupabaseEnv,
   resolveSupabaseTestEnv,
 } from './lib/supabase-local-env.mjs';
 
+requireNode24();
+assertLocalDatabaseEnvironment();
+const supabase = requirePinnedCli('supabase');
+const localOptions = { cwd: repositoryRoot, env: supabaseEnvironment() };
+
 function readStatus() {
-  return spawnSync('supabase', ['status', '-o', 'env'], { encoding: 'utf8' });
+  assertLocalDatabaseEnvironment();
+  return spawnSync(supabase, ['status', '-o', 'env'], { ...localOptions, encoding: 'utf8' });
 }
 
 function restartStack() {
   process.stderr.write('Supabase API unavailable; recreating the complete local stack…\n');
-  const stop = spawnSync('supabase', ['stop', '--no-backup'], { stdio: 'inherit' });
+  assertLocalDatabaseEnvironment();
+  const stop = spawnSync(supabase, ['stop', '--no-backup'], { ...localOptions, stdio: 'inherit' });
   if (stop.status !== 0) process.exit(stop.status ?? 1);
-  const start = spawnSync('supabase', ['start'], { stdio: 'inherit' });
+  assertLocalDatabaseEnvironment();
+  const start = spawnSync(supabase, ['start'], { ...localOptions, stdio: 'inherit' });
   if (start.status !== 0) process.exit(start.status ?? 1);
 }
 
 async function apiIsHealthy(apiUrl) {
   if (!apiUrl) return false;
+  assertLocalDatabaseEnvironment({ VITE_PUBLIC_SUPABASE_URL: apiUrl });
   try {
     const response = await fetch(`${apiUrl}/auth/v1/health`, {
       signal: AbortSignal.timeout(5_000),
@@ -58,8 +69,13 @@ if (
 }
 
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+assertLocalDatabaseEnvironment({
+  SUPABASE_DB_URL: statusValues.DB_URL,
+  VITE_PUBLIC_SUPABASE_URL: local.apiUrl,
+});
 const testScript = process.argv.includes('--rollback') ? 'test:db:rollback' : 'test:db';
 const tests = spawnSync(npmCommand, ['run', testScript], {
+  cwd: repositoryRoot,
   stdio: 'inherit',
   env: {
     ...process.env,

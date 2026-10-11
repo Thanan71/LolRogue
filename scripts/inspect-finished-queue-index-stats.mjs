@@ -1,11 +1,9 @@
 import { spawnSync } from 'node:child_process';
+import { createDatabaseReadScope, parseDatabaseScopeArguments } from './lib/remote-operation.mjs';
 
-const linked = process.argv.includes('--linked');
-const unexpectedArguments = process.argv.slice(2).filter((argument) => argument !== '--linked');
-
-if (unexpectedArguments.length > 0) {
-  throw new Error(`Unknown arguments: ${unexpectedArguments.join(', ')}`);
-}
+const options = parseDatabaseScopeArguments(process.argv.slice(2));
+const linked = options.linked;
+const scope = createDatabaseReadScope(options);
 
 const sql = `
 SELECT
@@ -30,18 +28,9 @@ ORDER BY index_stats.indexrelname;
 `;
 
 const result = spawnSync(
-  'supabase',
-  [
-    'db',
-    'query',
-    linked ? '--linked' : '--local',
-    sql,
-    '--agent',
-    'yes',
-    '--output-format',
-    'json',
-  ],
-  { encoding: 'utf8' },
+  scope.supabase,
+  ['db', 'query', ...scope.arguments(), sql, '--agent', 'yes', '--output-format', 'json'],
+  { cwd: scope.root, env: scope.env, encoding: 'utf8' },
 );
 
 if (result.stderr) process.stderr.write(result.stderr);

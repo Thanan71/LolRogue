@@ -22,6 +22,8 @@ const context = {
     .find((entry) => entry.status === 'current')
     .engine.replace('run-engine-', ''),
   readBranch: () => 'dev',
+  readLinkedRef: () => 'misdmtpfcbxbhheacehm',
+  env: {},
 };
 const temporaryDirectories = [];
 afterEach(() => {
@@ -231,13 +233,31 @@ describe('script CLI contract', () => {
     },
   );
 
-  it('keeps local/linked economy audit mutually exclusive and explicit', () => {
+  it('keeps local/linked economy audit mutually exclusive and explicit', async () => {
     const result = executeCli(['database', 'economy', 'audit', '--local', '--linked', '--dry-run']);
     expect(result.status).toBe(1);
     expect(JSON.parse(result.stderr).error.code).toBe('CLI_OPTION_CONFLICT');
-    const linked = executeCli(['database', 'economy', 'audit', '--linked', '--dry-run']);
-    expect(linked.status).toBe(0);
-    expect(JSON.parse(linked.stdout).steps[0].args).toContain('--linked');
+    const linked = streams();
+    expect(
+      await runCli(
+        [
+          'database',
+          'economy',
+          'audit',
+          '--linked',
+          '--project-ref',
+          'misdmtpfcbxbhheacehm',
+          '--dry-run',
+        ],
+        {
+          ...linked,
+          readBranch: context.readBranch,
+          readLinkedRef: context.readLinkedRef,
+          env: {},
+        },
+      ),
+    ).toBe(0);
+    expect(JSON.parse(linked.output()).steps[0].args).toContain('--linked');
   });
 
   it.each([
@@ -297,11 +317,18 @@ describe('script CLI contract', () => {
   ])('requires explicit confirmation before mutable execution: %j', async (...args) => {
     const execute = vi.fn().mockResolvedValue(0);
     const io = streams();
-    expect(await runCli(args, { ...io, execute, readBranch: () => 'dev' })).toBe(1);
+    if (args[0] === 'release' && args[1] === 'deploy')
+      args.push('--project-ref', 'misdmtpfcbxbhheacehm');
+    expect(await runCli(args, { ...io, execute, readBranch: () => 'dev', env: {} })).toBe(1);
     expect(JSON.parse(io.error()).error.code).toBe('CLI_CONFIRMATION_REQUIRED');
     expect(execute).not.toHaveBeenCalled();
     expect(
-      await runCli([...args, '--yes'], { ...streams(), execute, readBranch: () => 'dev' }),
+      await runCli([...args, '--yes'], {
+        ...streams(),
+        execute,
+        readBranch: () => 'dev',
+        env: {},
+      }),
     ).toBe(0);
     expect(execute).toHaveBeenCalledOnce();
   });
@@ -368,9 +395,25 @@ describe('script CLI contract', () => {
             option.choices?.[0] ?? (name === 'seed' ? '1' : 'fixture'),
           ]),
       );
+      if (
+        ['database-migrate', 'database-link', 'edge-deploy'].includes(command.target.kind) ||
+        (command.group === 'release' && command.path[0] === 'deploy')
+      )
+        options['project-ref'] = 'misdmtpfcbxbhheacehm';
+      if (command.group === 'release' && command.path[0] === 'backup') options.local = true;
       if (command.supportedEngines && !command.supportedEngines.includes(context.currentEngine))
         options.engine = command.supportedEngines.at(-1);
-      const plan = await createCommandPlan({ group: command.group, command, options }, context);
+      const commandContext =
+        command.group === 'release' && command.path[0] === 'backup'
+          ? {
+              ...context,
+              env: { SUPABASE_DB_URL: 'postgresql://postgres:fixture@127.0.0.1/postgres' },
+            }
+          : context;
+      const plan = await createCommandPlan(
+        { group: command.group, command, options },
+        commandContext,
+      );
       expect(plan.length, command.replacement).toBeGreaterThan(0);
       expect(
         plan.every((step) => typeof step.command === 'string' && Array.isArray(step.args)),
@@ -614,17 +657,28 @@ describe('canonical operations without retired npm dependencies', () => {
   });
 
   it.each(['main', 'dev'])(
-    'resolves migrate and edge deployment to the approved %s target, regardless of the linked project',
+    'resolves migrate and edge deployment to the approved %s target, after verifying the explicit reference and linked project',
     async (branch) => {
       const projectRef = branch === 'dev' ? 'misdmtpfcbxbhheacehm' : 'mmpvmclqdgfnpfgcqnyu';
-      const targetContext = { ...context, readBranch: () => branch };
+      const targetContext = {
+        ...context,
+        readBranch: () => branch,
+        readLinkedRef: () => projectRef,
+      };
       const migrations = await createCommandPlan(
-        parseCommand(['database', 'migrate']),
+        parseCommand(['database', 'migrate', '--project-ref', projectRef]),
         targetContext,
       );
-      expect(migrations[0].args).toEqual(['db', 'push', '--project-ref', projectRef, '--yes']);
+      expect(migrations[0].args).toEqual([
+        'db',
+        'push',
+        '--linked',
+        '--project-ref',
+        projectRef,
+        '--yes',
+      ]);
       const edge = await createCommandPlan(
-        parseCommand(['release', 'edge', 'deploy']),
+        parseCommand(['release', 'edge', 'deploy', '--project-ref', projectRef]),
         targetContext,
       );
       expect(edge.at(-1).args).toEqual([
@@ -663,25 +717,33 @@ describe('canonical operations without retired npm dependencies', () => {
     const execute = vi.fn(async () => 0);
     const io = streams();
     expect(
-      await runCli(['database', 'migrate', '--preview'], {
+      await runCli(['database', 'migrate', '--project-ref', 'misdmtpfcbxbhheacehm', '--preview'], {
         ...io,
         execute,
         readBranch: () => 'dev',
+        readLinkedRef: () => 'misdmtpfcbxbhheacehm',
+        env: {},
       }),
     ).toBe(0);
     expect(execute.mock.calls[0][0][0].args).toEqual([
       'db',
       'push',
+      '--linked',
       '--project-ref',
       'misdmtpfcbxbhheacehm',
       '--dry-run',
     ]);
     expect(
-      await runCli(['database', 'migrate', '--preview', '--dry-run'], {
-        ...io,
-        execute,
-        readBranch: () => 'dev',
-      }),
+      await runCli(
+        ['database', 'migrate', '--project-ref', 'misdmtpfcbxbhheacehm', '--preview', '--dry-run'],
+        {
+          ...io,
+          execute,
+          readBranch: () => 'dev',
+          readLinkedRef: () => 'misdmtpfcbxbhheacehm',
+          env: {},
+        },
+      ),
     ).toBe(0);
     expect(execute).toHaveBeenCalledTimes(1);
     expect(JSON.parse(io.output()).risk).toBe('read-only');
@@ -705,12 +767,21 @@ describe('canonical operations without retired npm dependencies', () => {
 
   it('forwards linked queue statistics without changing the default local operation', async () => {
     const plan = await createCommandPlan(
-      parseCommand(['database', 'finished-queue', 'stats', '--linked']),
+      parseCommand([
+        'database',
+        'finished-queue',
+        'stats',
+        '--linked',
+        '--project-ref',
+        'misdmtpfcbxbhheacehm',
+      ]),
       context,
     );
     expect(plan[0].args).toEqual([
       path.join(root, 'scripts/inspect-finished-queue-index-stats.mjs'),
       '--linked',
+      '--project-ref',
+      'misdmtpfcbxbhheacehm',
     ]);
   });
 });

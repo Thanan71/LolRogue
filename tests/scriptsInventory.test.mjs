@@ -386,6 +386,8 @@ describe('public npm script inventory', () => {
       'src/broken.ts',
       'config/commands.json',
       'vite.config.ts',
+      'vitest.config.ts',
+      'tooling/vite/plugins/broken.ts',
       'AGENTS.md',
       'docs/current.md',
     ]) {

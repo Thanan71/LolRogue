@@ -6,6 +6,7 @@ import {
   requirePinnedCli,
   requireSuccessfulCommand,
 } from './critical-command.mjs';
+import { assertLocalDatabaseEnvironment, supabaseEnvironment } from './remote-operation.mjs';
 
 /**
  * Complete the local tool preflight before the caller reads or writes tracked types.
@@ -21,6 +22,7 @@ export function createLocalDatabaseTypesGenerator(dependencies = {}) {
     stderr = process.stderr,
   } = dependencies;
   assertNode();
+  assertLocalDatabaseEnvironment(process.env, root);
   const target = localDatabaseTarget(root);
   const supabase = requireTool('supabase', 'supabase', root);
   const biome = requireTool('biome', '@biomejs/biome', root);
@@ -30,7 +32,7 @@ export function createLocalDatabaseTypesGenerator(dependencies = {}) {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
     maxBuffer: 16 * 1024 * 1024,
-    env: process.env,
+    env: supabaseEnvironment(),
   };
   return {
     root,

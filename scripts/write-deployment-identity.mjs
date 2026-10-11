@@ -1,15 +1,7 @@
 import { writeFile } from 'node:fs/promises';
+import { resolveDeploymentCommitSha } from './lib/environment-config.mjs';
 
-const shaPattern = /^[0-9a-f]{40}$/;
-const deploymentCommitSha =
-  process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
-
-if (deploymentCommitSha !== 'local' && !shaPattern.test(deploymentCommitSha)) {
-  throw new Error('APP_COMMIT_SHA or VERCEL_GIT_COMMIT_SHA must be a full lowercase Git SHA.');
-}
-if (process.env.VERCEL && deploymentCommitSha === 'local') {
-  throw new Error('VERCEL_GIT_COMMIT_SHA must be exposed to identify the deployed commit.');
-}
+const deploymentCommitSha = resolveDeploymentCommitSha();
 
 await writeFile(
   new URL('../dist/deployment-identity.json', import.meta.url),

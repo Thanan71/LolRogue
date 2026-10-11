@@ -1,8 +1,18 @@
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { repositoryRoot, requireNode24, requirePinnedCli } from './lib/critical-command.mjs';
+import {
+  assertLocalDatabaseEnvironment,
+  supabaseEnvironment,
+  validateDatabaseUrl,
+} from './lib/remote-operation.mjs';
 
-const sqlFile = resolve('scripts/sql/measure-finished-queue-index.sql');
-const status = spawnSync('supabase', ['status', '-o', 'json'], {
+requireNode24();
+assertLocalDatabaseEnvironment();
+const sqlFile = resolve(repositoryRoot, 'scripts/sql/measure-finished-queue-index.sql');
+const status = spawnSync(requirePinnedCli('supabase'), ['status', '-o', 'json'], {
+  cwd: repositoryRoot,
+  env: supabaseEnvironment(),
   encoding: 'utf8',
 });
 
@@ -11,6 +21,7 @@ if (status.error) throw status.error;
 if (status.status !== 0) process.exit(status.status ?? 1);
 
 const { DB_URL: localDatabaseUrl } = JSON.parse(status.stdout);
+validateDatabaseUrl(localDatabaseUrl, { local: true });
 if (typeof localDatabaseUrl !== 'string' || !localDatabaseUrl.includes('127.0.0.1')) {
   throw new Error('Supabase local DB_URL is required for finished queue index measurements');
 }

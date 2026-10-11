@@ -105,6 +105,8 @@ function deploymentHarness(branch = 'dev') {
     options: {
       root: '/repository',
       readBranch: vi.fn(() => branch),
+      readLinkedRef: vi.fn(() => resolveBackendDeployTarget(branch)?.projectRef ?? ''),
+      env: {},
       requireTool: vi.fn((name) => `/repository/node_modules/.bin/${name}`),
       assertNode: vi.fn(),
       runCommand: vi.fn(
@@ -127,6 +129,50 @@ function deploymentHarness(branch = 'dev') {
 }
 
 describe('backend deploy preflight and subprocess contracts', () => {
+  it.each([
+    ['--yes'],
+    ['--project-ref', 'misdmtpfcbxbhheacehm'],
+    ['--project-ref', 'mmpvmclqdgfnpfgcqnyu', '--yes'],
+    ['--project-ref', 'misdmtpfcbxbhheacehm', '--yes', '--yes'],
+    ['--project-ref', 'misdmtpfcbxbhheacehm', '--project-ref', 'misdmtpfcbxbhheacehm', '--yes'],
+  ])(
+    'requires an unambiguous explicit target and confirmation before tools or effects: %j',
+    (...argv) => {
+      const { options } = deploymentHarness();
+      expect(() => deployBackend(argv, options)).toThrow();
+      expect(options.requireTool).not.toHaveBeenCalled();
+      expect(options.runCommand).not.toHaveBeenCalled();
+    },
+  );
+
+  it('stops after linking if the effective branch changes before migration preview', () => {
+    const { options } = deploymentHarness();
+    let branch = 'dev';
+    options.readBranch.mockImplementation(() => branch);
+    const run = options.runCommand.getMockImplementation();
+    if (!run) throw new Error('Missing fake command runner.');
+    options.runCommand.mockImplementation((command, args, spawnOptions) => {
+      const result = run(command, args, spawnOptions);
+      if (args[0] === 'link') branch = 'main';
+      return result;
+    });
+    expect(() =>
+      deployBackend(['--project-ref', 'misdmtpfcbxbhheacehm', '--yes'], options),
+    ).toThrow('approved effective branch target');
+    expect(options.runCommand.mock.calls.at(-1)?.[1][0]).toBe('link');
+    expect(options.runCommand).toHaveBeenCalledTimes(5);
+  });
+
+  it('stops after linking if another caller relinks to a different project', () => {
+    const { options } = deploymentHarness();
+    options.readLinkedRef.mockReturnValue('mmpvmclqdgfnpfgcqnyu');
+    expect(() =>
+      deployBackend(['--project-ref', 'misdmtpfcbxbhheacehm', '--yes'], options),
+    ).toThrow('linked Supabase project');
+    expect(options.runCommand.mock.calls.at(-1)?.[1][0]).toBe('link');
+    expect(options.runCommand).toHaveBeenCalledTimes(5);
+  });
+
   it.each(['feature/example', '', 'fix/maintenance'])(
     'cannot override forbidden Git branch %s with --branch dev',
     (branch) => {
@@ -143,7 +189,7 @@ describe('backend deploy preflight and subprocess contracts', () => {
     expect(options.runCommand).not.toHaveBeenCalled();
   });
 
-  it.each(['--unknown', '--project-ref', '--token'])(
+  it.each(['--unknown', '--db-url', '--token'])(
     'refuses unsupported option %s before any subprocess',
     (argument) => {
       const { options } = deploymentHarness();
@@ -171,7 +217,16 @@ describe('backend deploy preflight and subprocess contracts', () => {
   it('checks every required CLI before the first local build or remote effect', () => {
     const { options } = deploymentHarness();
     options.runCommand.mockReturnValue({ status: 1, stderr: 'Not present in offline cache.' });
-    expect(() => deployBackend([], options)).toThrow('Install it explicitly');
+    expect(() =>
+      deployBackend(
+        [
+          '--project-ref',
+          resolveBackendDeployTarget(options.readBranch())?.projectRef ?? '',
+          '--yes',
+        ],
+        options,
+      ),
+    ).toThrow('Install it explicitly');
     expect(options.runCommand).toHaveBeenCalledTimes(1);
     expect(options.runCommand.mock.calls[0]?.[1]).toEqual([
       '--offline',
@@ -187,20 +242,38 @@ describe('backend deploy preflight and subprocess contracts', () => {
     options.requireTool.mockImplementation(() => {
       throw new Error('Missing Supabase CLI; run npm ci.');
     });
-    expect(() => deployBackend([], options)).toThrow('Missing Supabase');
+    expect(() =>
+      deployBackend(
+        [
+          '--project-ref',
+          resolveBackendDeployTarget(options.readBranch())?.projectRef ?? '',
+          '--yes',
+        ],
+        options,
+      ),
+    ).toThrow('Missing Supabase');
     expect(options.runCommand).not.toHaveBeenCalled();
   });
 
   it('rejects an incompatible Vercel cache entry before any deployment step', () => {
     const { options } = deploymentHarness();
     options.runCommand.mockReturnValue({ status: 0, stdout: '63.1.2\n' });
-    expect(() => deployBackend([], options)).toThrow('incompatible version');
+    expect(() =>
+      deployBackend(
+        [
+          '--project-ref',
+          resolveBackendDeployTarget(options.readBranch())?.projectRef ?? '',
+          '--yes',
+        ],
+        options,
+      ),
+    ).toThrow('incompatible version');
     expect(options.runCommand).toHaveBeenCalledTimes(1);
   });
 
   it('uses the pinned binaries from the repository and preserves production promotion order', () => {
     const { options, output } = deploymentHarness('main');
-    deployBackend(['--yes'], options);
+    deployBackend(['--project-ref', 'mmpvmclqdgfnpfgcqnyu', '--yes'], options);
     expect(options.runCommand.mock.calls[4]?.[0]).toBe('/repository/node_modules/.bin/supabase');
     expect(options.runCommand.mock.calls[7]?.[0]).toBe('npx');
     expect(options.runCommand.mock.calls.at(-1)?.slice(0, 2)).toEqual([
@@ -240,7 +313,14 @@ describe('backend deploy preflight and subprocess contracts', () => {
     /** @type {import('./lib/critical-command.mjs').CommandFailure | undefined} */
     let failure;
     try {
-      deployBackend([], options);
+      deployBackend(
+        [
+          '--project-ref',
+          resolveBackendDeployTarget(options.readBranch())?.projectRef ?? '',
+          '--yes',
+        ],
+        options,
+      );
     } catch (error) {
       failure = /** @type {import('./lib/critical-command.mjs').CommandFailure} */ (error);
     }
@@ -257,7 +337,16 @@ describe('backend deploy preflight and subprocess contracts', () => {
         ? { status: 0, stdout: 'invalid' }
         : implementation(command, args, spawnOptions),
     );
-    expect(() => deployBackend([], options)).toThrow('valid frontend deployment URL');
+    expect(() =>
+      deployBackend(
+        [
+          '--project-ref',
+          resolveBackendDeployTarget(options.readBranch())?.projectRef ?? '',
+          '--yes',
+        ],
+        options,
+      ),
+    ).toThrow('valid frontend deployment URL');
     expect(options.runCommand).toHaveBeenCalledTimes(8);
   });
 
@@ -266,7 +355,16 @@ describe('backend deploy preflight and subprocess contracts', () => {
     options.runCommand
       .mockReturnValueOnce({ status: 0, stdout: '59.11.7\n' })
       .mockReturnValueOnce({ status: 0, stdout: '[]' });
-    expect(() => deployBackend([], options)).toThrow('cannot access LolRogueDev');
+    expect(() =>
+      deployBackend(
+        [
+          '--project-ref',
+          resolveBackendDeployTarget(options.readBranch())?.projectRef ?? '',
+          '--yes',
+        ],
+        options,
+      ),
+    ).toThrow('cannot access LolRogueDev');
     expect(options.runCommand).toHaveBeenCalledTimes(2);
   });
 
@@ -277,7 +375,16 @@ describe('backend deploy preflight and subprocess contracts', () => {
       options.runCommand
         .mockReturnValueOnce({ status: 0, stdout: '59.11.7\n' })
         .mockReturnValueOnce({ status: 0, stdout });
-      expect(() => deployBackend([], options)).toThrow('Deployment did not start');
+      expect(() =>
+        deployBackend(
+          [
+            '--project-ref',
+            resolveBackendDeployTarget(options.readBranch())?.projectRef ?? '',
+            '--yes',
+          ],
+          options,
+        ),
+      ).toThrow('Deployment did not start');
       expect(options.runCommand).toHaveBeenCalledTimes(2);
     },
   );
@@ -288,7 +395,16 @@ describe('backend deploy preflight and subprocess contracts', () => {
       .mockReturnValueOnce({ status: 0, stdout: '59.11.7\n' })
       .mockReturnValueOnce({ status: 0, stdout: JSON.stringify([{ id: 'misdmtpfcbxbhheacehm' }]) })
       .mockReturnValueOnce({ status: 9, stderr: 'Not authorized' });
-    expect(() => deployBackend([], options)).toThrow('Vercel project access preflight');
+    expect(() =>
+      deployBackend(
+        [
+          '--project-ref',
+          resolveBackendDeployTarget(options.readBranch())?.projectRef ?? '',
+          '--yes',
+        ],
+        options,
+      ),
+    ).toThrow('Vercel project access preflight');
     expect(options.runCommand).toHaveBeenCalledTimes(3);
   });
 });

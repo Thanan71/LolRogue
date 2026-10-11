@@ -79,7 +79,7 @@ réécrire et son plan indique `read-only`. `--check` et `--output` sont incompa
 ```bash
 # Depuis dev ou main uniquement :
 npm run release -- deploy --dry-run
-npm run release -- deploy --yes
+npm run release -- deploy --project-ref <project-ref> --yes
 ```
 
 Le déploiement contrôle la branche Git réelle. `dev` cible LolRogueDev et la
@@ -100,20 +100,29 @@ Les commandes sont exécutées depuis la racine du dépôt, même si la CLI est
 appelée par son chemin absolu depuis un autre dossier.
 
 Les migrations distantes et le déploiement de `verify-run` contrôlent également
-la branche réelle et le projet associé. Un `--project-ref` différent de celui de
+la branche réelle et le projet associé. Toute lecture distante et toute mutation
+distante exigent une référence explicite ; un `--project-ref` différent de celui de
 `dev` ou `main` échoue avant toute opération. Pour une migration, `--preview`
 exécute la prévisualisation Supabase sans appliquer de changement ; `--dry-run`
 affiche seulement le plan de la CLI sans exécuter ses opérations.
 
 ```bash
 # Depuis dev ou main, avec le projet correspondant :
+npm run database -- link --project-ref <project-ref> --yes
 npm run database -- migrate --project-ref <project-ref> --preview
 npm run database -- migrate --project-ref <project-ref> --yes
 npm run release -- edge deploy --project-ref <project-ref> --yes
+npm run database -- migrations check --linked --project-ref <project-ref>
 
 # Base locale uniquement :
 npm run database -- migrate --local --yes
 ```
+
+Les commandes liées contrôlent aussi la référence enregistrée dans
+`supabase/.temp/project-ref` avant chaque exécution. Les branches de travail et le
+mode detached HEAD ne peuvent pas atteindre une base distante. `database reset`
+reste exclusivement local. La [matrice des environnements](environment-contract.md)
+détaille la provenance des variables et les commandes opérateur.
 
 ## Inventaire et compatibilité
 

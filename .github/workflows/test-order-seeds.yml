@@ -8,6 +8,8 @@ on:
       - 'scripts/lib/test-order-seeds.mjs'
       - 'tests/**'
       - 'vite.config.ts'
+      - 'vitest.config.ts'
+      - 'tooling/**'
       - 'package*.json'
       - 'patches/**'
   schedule:
