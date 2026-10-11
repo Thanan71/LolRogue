@@ -68,12 +68,13 @@ describe('deployment workflow contract', () => {
     expect(vercelConfig).not.toContain('"source": "/(.*)",\n      "destination": "/index.html"');
   });
 
-  it('verrouille les builds dev et main sur leur projet Supabase', () => {
-    expect(viteConfig).toContain('process.env.LOLROGUE_DEPLOY_BRANCH');
-    expect(viteConfig).toContain("const devSupabaseProjectRef = 'misdmtpfcbxbhheacehm'");
-    expect(viteConfig).toContain("const productionSupabaseProjectRef = 'mmpvmclqdgfnpfgcqnyu'");
-    expect(viteConfig).toContain('Vercel dev deployments must target the LolRogueDev');
-    expect(viteConfig).toContain('Vercel main deployments must target the LolRogue');
+  it('utilise la configuration partagée et une liste explicite des variables navigateur', () => {
+    expect(viteConfig).toContain('resolveBuildEnvironment');
+    expect(viteConfig).toContain('readPublicEnvironmentFile');
+    expect(viteConfig).toContain('envPrefix: []');
+    expect(viteConfig).toContain('define: environment.define');
+    expect(viteConfig).not.toContain('const devSupabaseProjectRef');
+    expect(viteConfig).not.toContain('const productionSupabaseProjectRef');
   });
 
   it("vérifie la production via l'alias public et le SHA attendu", () => {

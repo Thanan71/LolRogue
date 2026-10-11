@@ -1,13 +1,13 @@
 import { readFile, stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
+import { resolveDeploymentCommitSha } from './lib/environment-config.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const dist = join(root, 'dist');
 const vercel = JSON.parse(await readFile(join(root, 'vercel.json'), 'utf8'));
 const index = await readFile(join(dist, 'index.html'));
-const expectedCommitSha =
-  process.env.APP_COMMIT_SHA?.trim() || process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'local';
+const expectedCommitSha = resolveDeploymentCommitSha();
 /** @type {Record<string, string>} */
 const securityHeaders = Object.fromEntries(
   vercel.headers.flatMap((entry) => entry.headers.map(({ key, value }) => [key, value])),
