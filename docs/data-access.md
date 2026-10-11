@@ -1,7 +1,9 @@
 # Accès aux données
 
 `src/types/database.ts` est généré par Supabase CLI depuis le schéma local appliqué.
-`npm run db:validate` régénère, formate et refuse tout diff avant les tests DB. Les
+`npm run db:validate` compare les types générés et formatés en mémoire au fichier
+suivi, puis refuse toute différence avant les tests DB. `npm run db:types` écrit
+explicitement les types lors d'une mise à jour du schéma. Les
 modèles persistés de `types/models.ts` sont des alias `Tables`, `TablesInsert` ou
 `TablesUpdate` et ne recopient plus le schéma manuellement. Tous les clients passés
 aux repositories utilisent `SupabaseClient<Database>`.

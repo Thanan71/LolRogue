@@ -57,14 +57,15 @@ serveur, limités, sanitisés et supprimés après 14 jours.
 
 ```bash
 npm run db:start
-npm run db:reset
+npm run db:reset -- --yes
 npm run db:lint
 npm run db:types
 npm run edge:serve
 npm run db:stop
 ```
 
-`db:reset` est destructif et ne doit viser qu'une instance locale ou jetable. Le
+`db:reset` exige `--yes`, utilise exclusivement la base locale et propose
+`--dry-run` pour consulter la commande avant exécution. Le
 schéma initial est dans
 `supabase/migrations/00000000000000_schema.sql`; les migrations horodatées qui
 suivent mettent à niveau une base ayant déjà exécuté une ancienne version du
@@ -89,12 +90,22 @@ Sur `main`, le build Production est d'abord créé sans changer le domaine publi
 puis promu seulement après ce contrôle. Toute autre branche est bloquée avant le
 premier appel distant.
 
+Les précontrôles utilisent Supabase depuis les dépendances verrouillées du dépôt.
+Vercel `59.11.7` doit être disponible dans le cache npm avant le déploiement ; sa
+préparation explicite est `npx --yes --package=vercel@59.11.7 vercel --version`.
+Le déploiement emploie ensuite cette version en mode `--offline`.
+
 Ne jamais utiliser `db reset` sur la production. Le projet n'utilise pas de système
 de mailing : la confirmation d'adresse doit être désactivée dans
 Authentication → Providers → Email. La procédure détaillée est dans
 [supabase/README.md](supabase/README.md).
 
 ## Commandes de qualité
+
+Les commandes regroupées `balance`, `database`, `assets`, `release` et `testing`
+proposent une aide avec `npm run <groupe> -- --help`. Le [guide de la CLI](docs/script-cli.md)
+décrit les options et confirmations ; l'[inventaire des scripts](docs/script-inventory.md)
+relie chaque ancien alias à sa commande canonique et à ses appelants.
 
 ```bash
 npm test              # tests unitaires et tests de structure SQL

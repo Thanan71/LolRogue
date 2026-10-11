@@ -4,6 +4,14 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
+import {
+  isDirectExecution,
+  localDatabaseTarget,
+  parseLocalRestoreArguments,
+  requireNode24,
+  requirePinnedCli,
+  requireSuccessfulCommand,
+} from './lib/critical-command.mjs';
 import { parseSupabaseEnv, resolveSupabaseTestEnv } from './lib/supabase-local-env.mjs';
 
 const root = resolve(import.meta.dirname, '..');
@@ -31,30 +39,17 @@ const excludedTargetServices = [
   'supavisor',
 ];
 
-if (!process.argv.includes('--local')) {
-  throw new Error(
-    'The restore drill is destructive and only accepts --local. A hosted target must follow the reviewed manual runbook.',
-  );
-}
-
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: root,
     encoding: 'utf8',
     ...options,
   });
-  if (result.error) throw result.error;
-  if (result.status !== 0) {
-    throw new Error(
-      [
-        `${command} ${args.join(' ')} failed with exit code ${result.status}.`,
-        result.stdout,
-        result.stderr,
-      ]
-        .filter(Boolean)
-        .join('\n'),
-    );
-  }
+  // SQL command arguments and Supabase status output can contain private credentials.
+  requireSuccessfulCommand(
+    `Restore drill ${command === 'psql' ? 'SQL' : command.endsWith('supabase') ? 'Supabase' : 'subprocess'}`,
+    result,
+  );
   return result;
 }
 
@@ -69,7 +64,7 @@ function assertLoopbackDatabase(url, label) {
 }
 
 function statusEnvironment(workdir) {
-  const result = run('npx', ['supabase', 'status', '--workdir', workdir, '-o', 'env']);
+  const result = run(requirePinnedCli('supabase'), ['status', '--workdir', workdir, '-o', 'env']);
   return parseSupabaseEnv(result.stdout);
 }
 
@@ -108,8 +103,7 @@ function restoreSql(databaseUrl, files) {
 
 function dump(sourceWorkdir, backupDir, name, extraArgs = []) {
   const file = join(backupDir, name);
-  run('npx', [
-    'supabase',
+  run(requirePinnedCli('supabase'), [
     'db',
     'dump',
     '--workdir',
@@ -522,29 +516,48 @@ async function simulateCompromisedLeaderboard(targetDatabaseUrl, targetEnvironme
   };
 }
 
-const temporaryRoot = mkdtempSync(join(tmpdir(), 'lolrogue-restore-drill-'));
-const backupDir = join(temporaryRoot, 'backup');
-const markerId = randomUUID();
-const requestedEvidence = evidenceDestination();
-let snapshotAt;
-let sourceDatabaseUrl;
-let targetStarted = false;
-let markerCreated = false;
-let sourceFixture;
-let recoveryStartedAt;
+async function runRestoreDrill() {
+  const options = parseLocalRestoreArguments(process.argv.slice(2));
+  if (options.help) {
+    console.log(
+      'Usage: ops:restore-drill -- [--dry-run | --yes] [--evidence=repository/path.json]\nOnly --local is supported; remote targets are forbidden.',
+    );
+    return;
+  }
+  requireNode24();
+  requirePinnedCli('supabase');
+  const sourceTarget = localDatabaseTarget(root);
+  const requestedEvidence = evidenceDestination();
+  if (options.dryRun) {
+    console.log(
+      `[ops:restore-drill] dry-run: source ${sourceTarget}; disposable target 127.0.0.1:${targetPorts.db}; create/remove local synthetic fixtures, dump, restore and verify; evidence ${requestedEvidence ?? '(none)'}.`,
+    );
+    return;
+  }
+  run('psql', ['--version']);
+  run('docker', ['info', '--format', '{{.ServerVersion}}']);
+  const temporaryRoot = mkdtempSync(join(tmpdir(), 'lolrogue-restore-drill-'));
+  const backupDir = join(temporaryRoot, 'backup');
+  const markerId = randomUUID();
+  let snapshotAt;
+  let sourceDatabaseUrl;
+  let targetStarted = false;
+  let markerCreated = false;
+  let sourceFixture;
+  let recoveryStartedAt;
 
-try {
-  const source = statusEnvironment(root);
-  sourceDatabaseUrl = source.DB_URL;
-  if (!sourceDatabaseUrl) throw new Error('The source Supabase stack has no local DB_URL.');
-  assertLoopbackDatabase(sourceDatabaseUrl, 'Source');
-  const sourceEnvironment = requireApiEnvironment(source, 'Source Supabase API');
-  sourceFixture = await createSourceFixtures(sourceEnvironment, markerId.slice(0, 8));
-  snapshotAt = new Date().toISOString();
+  try {
+    const source = statusEnvironment(root);
+    sourceDatabaseUrl = source.DB_URL;
+    if (!sourceDatabaseUrl) throw new Error('The source Supabase stack has no local DB_URL.');
+    assertLoopbackDatabase(sourceDatabaseUrl, 'Source');
+    const sourceEnvironment = requireApiEnvironment(source, 'Source Supabase API');
+    sourceFixture = await createSourceFixtures(sourceEnvironment, markerId.slice(0, 8));
+    snapshotAt = new Date().toISOString();
 
-  executeSql(
-    sourceDatabaseUrl,
-    `
+    executeSql(
+      sourceDatabaseUrl,
+      `
       DROP TABLE IF EXISTS public.restore_drill_marker;
       CREATE TABLE public.restore_drill_marker (
         id UUID PRIMARY KEY,
@@ -553,136 +566,145 @@ try {
       INSERT INTO public.restore_drill_marker (id, snapshot_at)
       VALUES ('${markerId}', '${snapshotAt}');
     `,
-  );
-  markerCreated = true;
+    );
+    markerCreated = true;
 
-  mkdirSync(backupDir, { recursive: true });
-  const roles = dump(root, backupDir, 'roles.sql', ['--role-only']);
-  const schema = dump(root, backupDir, 'schema.sql');
-  const data = dump(root, backupDir, 'data.sql', [
-    '--data-only',
-    '--use-copy',
-    '--exclude',
-    'storage.buckets_vectors',
-    '--exclude',
-    'storage.vector_indexes',
-  ]);
-  const historySchema = dump(root, backupDir, 'history-schema.sql', [
-    '--schema',
-    'supabase_migrations',
-  ]);
-  const historyData = dump(root, backupDir, 'history-data.sql', [
-    '--schema',
-    'supabase_migrations',
-    '--data-only',
-    '--use-copy',
-  ]);
-  const replicaMode = join(backupDir, 'replica-mode.sql');
-  writeFileSync(replicaMode, 'SET session_replication_role = replica;\n');
-  const checksums = writeChecksums(
-    [roles, schema, data, historySchema, historyData],
-    join(backupDir, 'SHA256SUMS'),
-  );
+    mkdirSync(backupDir, { recursive: true });
+    const roles = dump(root, backupDir, 'roles.sql', ['--role-only']);
+    const schema = dump(root, backupDir, 'schema.sql');
+    const data = dump(root, backupDir, 'data.sql', [
+      '--data-only',
+      '--use-copy',
+      '--exclude',
+      'storage.buckets_vectors',
+      '--exclude',
+      'storage.vector_indexes',
+    ]);
+    const historySchema = dump(root, backupDir, 'history-schema.sql', [
+      '--schema',
+      'supabase_migrations',
+    ]);
+    const historyData = dump(root, backupDir, 'history-data.sql', [
+      '--schema',
+      'supabase_migrations',
+      '--data-only',
+      '--use-copy',
+    ]);
+    const replicaMode = join(backupDir, 'replica-mode.sql');
+    writeFileSync(replicaMode, 'SET session_replication_role = replica;\n');
+    const checksums = writeChecksums(
+      [roles, schema, data, historySchema, historyData],
+      join(backupDir, 'SHA256SUMS'),
+    );
 
-  executeSql(sourceDatabaseUrl, 'DROP TABLE public.restore_drill_marker;');
-  markerCreated = false;
-  await removeSourceFixtures(sourceFixture);
+    executeSql(sourceDatabaseUrl, 'DROP TABLE public.restore_drill_marker;');
+    markerCreated = false;
+    await removeSourceFixtures(sourceFixture);
 
-  recoveryStartedAt = new Date();
-  prepareTargetWorkdir(temporaryRoot);
-  run('npx', [
-    'supabase',
-    'start',
-    '--workdir',
-    temporaryRoot,
-    '--exclude',
-    excludedTargetServices.join(','),
-  ]);
-  targetStarted = true;
+    recoveryStartedAt = new Date();
+    prepareTargetWorkdir(temporaryRoot);
+    run(requirePinnedCli('supabase'), [
+      'start',
+      '--workdir',
+      temporaryRoot,
+      '--exclude',
+      excludedTargetServices.join(','),
+    ]);
+    targetStarted = true;
 
-  const target = statusEnvironment(temporaryRoot);
-  const targetDatabaseUrl = target.DB_URL;
-  if (!targetDatabaseUrl) throw new Error('The isolated target has no DB_URL.');
-  assertLoopbackDatabase(targetDatabaseUrl, 'Target');
-  if (targetDatabaseUrl === sourceDatabaseUrl) {
-    throw new Error('The restore target resolves to the source database.');
-  }
-  const targetEnvironment = requireApiEnvironment(target, 'Target Supabase API');
-
-  restoreSql(targetDatabaseUrl, [roles, schema, replicaMode, data]);
-  executeSql(targetDatabaseUrl, 'DROP SCHEMA IF EXISTS supabase_migrations CASCADE;');
-  restoreSql(targetDatabaseUrl, [historySchema, historyData]);
-
-  const restoredMarker = executeSql(
-    targetDatabaseUrl,
-    `SELECT id FROM public.restore_drill_marker WHERE id = '${markerId}';`,
-  );
-  if (!restoredMarker.includes(markerId)) {
-    throw new Error('The restored database does not contain the source recovery marker.');
-  }
-  const services = await verifyRestoredServices({
-    sourceDatabaseUrl,
-    targetDatabaseUrl,
-    targetEnvironment,
-    fixture: sourceFixture,
-  });
-  const verifiedAt = new Date();
-  const verifyRunIncident = await simulateVerifyRunOutage(targetEnvironment, sourceFixture);
-  const leaderboardIncident = await simulateCompromisedLeaderboard(
-    targetDatabaseUrl,
-    targetEnvironment,
-    sourceFixture,
-  );
-  const rpoMs = recoveryStartedAt.getTime() - Date.parse(snapshotAt);
-  const rtoMs = verifiedAt.getTime() - recoveryStartedAt.getTime();
-  if (rpoMs < 0 || rpoMs > rpoObjectiveMs) {
-    throw new Error(`Measured RPO ${isoDuration(rpoMs)} exceeds the 24h objective.`);
-  }
-  if (rtoMs < 0 || rtoMs > rtoObjectiveMs) {
-    throw new Error(`Measured RTO ${isoDuration(rtoMs)} exceeds the 4h objective.`);
-  }
-  const evidence = {
-    schemaVersion: 1,
-    drill: 'P2-OPS-01',
-    scope: 'local-isolated',
-    sourceEnvironment: 'local:lolrogue',
-    targetEnvironment: 'local:ephemeral-supabase',
-    operator: process.env.RESTORE_DRILL_OPERATOR || repositoryValue(['config', 'user.name']),
-    commit: repositoryValue(['rev-parse', 'HEAD']),
-    snapshotAt,
-    recoveryStartedAt: recoveryStartedAt.toISOString(),
-    verifiedAt: verifiedAt.toISOString(),
-    objectives: { rpo: '24h', rto: '4h' },
-    measured: { rpoMs, rpo: isoDuration(rpoMs), rtoMs, rto: isoDuration(rtoMs) },
-    backupChecksums: checksums,
-    checks: { ...services, verifyRunIncident, leaderboardIncident },
-    result: 'passed',
-  };
-  writeEvidence(requestedEvidence, evidence);
-
-  process.stdout.write(
-    `Isolated restore succeeded (${sourceProjectId} -> ${targetProjectId}, snapshot ${snapshotAt}, RPO ${evidence.measured.rpo}, RTO ${evidence.measured.rto}, ${services.migrations} migrations, Auth/RLS/cron/function/storage healthy).\n`,
-  );
-} finally {
-  if (sourceFixture) {
-    try {
-      await removeSourceFixtures(sourceFixture);
-    } catch (error) {
-      process.stderr.write(`Failed to remove source users: ${error.message}\n`);
+    const target = statusEnvironment(temporaryRoot);
+    const targetDatabaseUrl = target.DB_URL;
+    if (!targetDatabaseUrl) throw new Error('The isolated target has no DB_URL.');
+    assertLoopbackDatabase(targetDatabaseUrl, 'Target');
+    if (targetDatabaseUrl === sourceDatabaseUrl) {
+      throw new Error('The restore target resolves to the source database.');
     }
-  }
-  if (markerCreated && sourceDatabaseUrl) {
-    try {
-      executeSql(sourceDatabaseUrl, 'DROP TABLE IF EXISTS public.restore_drill_marker;');
-    } catch (error) {
-      process.stderr.write(`Failed to remove the source marker: ${error.message}\n`);
+    const targetEnvironment = requireApiEnvironment(target, 'Target Supabase API');
+
+    restoreSql(targetDatabaseUrl, [roles, schema, replicaMode, data]);
+    executeSql(targetDatabaseUrl, 'DROP SCHEMA IF EXISTS supabase_migrations CASCADE;');
+    restoreSql(targetDatabaseUrl, [historySchema, historyData]);
+
+    const restoredMarker = executeSql(
+      targetDatabaseUrl,
+      `SELECT id FROM public.restore_drill_marker WHERE id = '${markerId}';`,
+    );
+    if (!restoredMarker.includes(markerId)) {
+      throw new Error('The restored database does not contain the source recovery marker.');
     }
-  }
-  if (targetStarted) {
-    spawnSync('npx', ['supabase', 'stop', '--workdir', temporaryRoot, '--no-backup'], {
-      cwd: root,
-      stdio: 'inherit',
+    const services = await verifyRestoredServices({
+      sourceDatabaseUrl,
+      targetDatabaseUrl,
+      targetEnvironment,
+      fixture: sourceFixture,
     });
+    const verifiedAt = new Date();
+    const verifyRunIncident = await simulateVerifyRunOutage(targetEnvironment, sourceFixture);
+    const leaderboardIncident = await simulateCompromisedLeaderboard(
+      targetDatabaseUrl,
+      targetEnvironment,
+      sourceFixture,
+    );
+    const rpoMs = recoveryStartedAt.getTime() - Date.parse(snapshotAt);
+    const rtoMs = verifiedAt.getTime() - recoveryStartedAt.getTime();
+    if (rpoMs < 0 || rpoMs > rpoObjectiveMs) {
+      throw new Error(`Measured RPO ${isoDuration(rpoMs)} exceeds the 24h objective.`);
+    }
+    if (rtoMs < 0 || rtoMs > rtoObjectiveMs) {
+      throw new Error(`Measured RTO ${isoDuration(rtoMs)} exceeds the 4h objective.`);
+    }
+    const evidence = {
+      schemaVersion: 1,
+      drill: 'P2-OPS-01',
+      scope: 'local-isolated',
+      sourceEnvironment: 'local:lolrogue',
+      targetEnvironment: 'local:ephemeral-supabase',
+      operator: process.env.RESTORE_DRILL_OPERATOR || repositoryValue(['config', 'user.name']),
+      commit: repositoryValue(['rev-parse', 'HEAD']),
+      snapshotAt,
+      recoveryStartedAt: recoveryStartedAt.toISOString(),
+      verifiedAt: verifiedAt.toISOString(),
+      objectives: { rpo: '24h', rto: '4h' },
+      measured: { rpoMs, rpo: isoDuration(rpoMs), rtoMs, rto: isoDuration(rtoMs) },
+      backupChecksums: checksums,
+      checks: { ...services, verifyRunIncident, leaderboardIncident },
+      result: 'passed',
+    };
+    writeEvidence(requestedEvidence, evidence);
+
+    process.stdout.write(
+      `Isolated restore succeeded (${sourceProjectId} -> ${targetProjectId}, snapshot ${snapshotAt}, RPO ${evidence.measured.rpo}, RTO ${evidence.measured.rto}, ${services.migrations} migrations, Auth/RLS/cron/function/storage healthy).\n`,
+    );
+  } finally {
+    if (sourceFixture) {
+      try {
+        await removeSourceFixtures(sourceFixture);
+      } catch (error) {
+        process.stderr.write(`Failed to remove source users: ${error.message}\n`);
+      }
+    }
+    if (markerCreated && sourceDatabaseUrl) {
+      try {
+        executeSql(sourceDatabaseUrl, 'DROP TABLE IF EXISTS public.restore_drill_marker;');
+      } catch (error) {
+        process.stderr.write(`Failed to remove the source marker: ${error.message}\n`);
+      }
+    }
+    if (targetStarted) {
+      spawnSync(requirePinnedCli('supabase'), ['stop', '--workdir', temporaryRoot, '--no-backup'], {
+        cwd: root,
+        stdio: 'inherit',
+      });
+    }
+    rmSync(temporaryRoot, { recursive: true, force: true });
   }
-  rmSync(temporaryRoot, { recursive: true, force: true });
+}
+
+if (isDirectExecution(import.meta.url)) {
+  try {
+    await runRestoreDrill();
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = error.exitCode ?? 1;
+  }
 }

@@ -25,23 +25,31 @@ jour à 03:23 UTC et peut aussi être lancé manuellement. Il utilise le secret 
 SHA-256. Le secret doit contenir la chaîne de connexion PostgreSQL encodée fournie
 par le bouton **Connect** du Dashboard Supabase.
 
-Pour produire le même backup localement, utiliser un répertoire hors du dépôt :
+Pour produire le même backup localement, utiliser Node 24, installer les outils
+épinglés avec `npm ci`, puis injecter `SUPABASE_DB_URL` depuis le gestionnaire de
+secrets. Choisir un répertoire hors du dépôt et vérifier le plan avant le dump :
 
 ```bash
-SUPABASE_DB_URL='CONNECTION_STRING' \\
-BACKUP_DIRECTORY="$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)" \\
+export BACKUP_DIRECTORY="$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)"
+npm run backup:database -- --dry-run
 npm run backup:database
-cd "$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)" && sha256sum -c SHA256SUMS
+(cd "$BACKUP_DIRECTORY" && shasum -a 256 -c SHA256SUMS)
 ```
+
+Le mode `--dry-run` affiche l'hôte et les fichiers prévus sans lancer le CLI ni
+créer de répertoire. Le dump lit la source ; il écrit seulement les fichiers de
+sauvegarde et leurs empreintes dans `BACKUP_DIRECTORY`.
 
 Récupérer la chaîne de connexion depuis **Connect** dans le Dashboard. La fournir
 interactivement ou par gestionnaire de secrets, jamais dans Git ni l'historique du
-shell. Dans un répertoire chiffré hors du dépôt :
+shell. Pour effectuer les dumps manuellement, définir depuis la racine du dépôt
+`export SUPABASE_CLI="$PWD/node_modules/.bin/supabase"`, puis se placer dans un
+répertoire chiffré hors du dépôt :
 
 ```bash
-npx supabase db dump --db-url "CONNECTION_STRING" -f roles.sql --role-only
-npx supabase db dump --db-url "CONNECTION_STRING" -f schema.sql
-npx supabase db dump --db-url "CONNECTION_STRING" -f data.sql --use-copy --data-only \
+"$SUPABASE_CLI" db dump --db-url "$SUPABASE_DB_URL" -f roles.sql --role-only
+"$SUPABASE_CLI" db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+"$SUPABASE_CLI" db dump --db-url "$SUPABASE_DB_URL" -f data.sql --use-copy --data-only \
   -x "storage.buckets_vectors" -x "storage.vector_indexes"
 shasum -a 256 roles.sql schema.sql data.sql > SHA256SUMS
 ```
@@ -59,9 +67,16 @@ Avant l'exercice hébergé, exécuter la procédure destructive sur une deuxièm
 Supabase locale, créée sur des ports dédiés et supprimée à la fin :
 
 ```bash
+npm run ops:restore-drill -- --dry-run
 npm run ops:restore-drill -- \
+  --yes \
   --evidence=docs/restore-drills/AAAA-MM-JJ-local.json
 ```
+
+L'alias impose `--local`. `--dry-run` ne lance aucun sous-processus, ne crée pas de
+stack et n'écrit pas de preuve. L'exercice exige `--yes` même en CI : il modifie les
+fixtures locales avant de les nettoyer. Les flags de cible distante sont refusés ;
+Node 24, le CLI Supabase épinglé, `psql` et Docker sont vérifiés avant les mutations.
 
 Le script refuse toute base non loopback et toute cible égale à la source. Il ajoute
 deux comptes synthétiques et un marqueur, produit rôles, schéma, données et historique

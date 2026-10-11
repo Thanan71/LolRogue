@@ -1021,7 +1021,7 @@ Invariant livré ; [preuve et critères archivés](docs/archive/todo-snapshot-20
 ### Travaux d'ingénierie proposés (non déclarés livrés)
 
 1. **Fiabilité avant fonctionnalités** : `ADM-S1` + `TREE-01..04`, avec correctifs SQL/RLS et parité combat.
-2. **Nettoyage sans risque de gameplay** : `ARCH-S1` et `ARCH-S2` ; alias CI conservés et blocage des déploiements hors `main`/`dev`.
+2. **Nettoyage sans risque de gameplay** : [ARCH-S1 implémenté](docs/backlog/architecture-maintenance.md#arch-s1--catalogue-de-scripts-et-cli-p2-taille-l), alias conservés jusqu’à leur migration en PR séparée ; `ARCH-S2` reste à faire. Le blocage des déploiements hors `main`/`dev` est maintenu.
 3. **Interfaces métier** : `ARCH-S3/S4`, `ADM-S2/S3` et `TREE-05..07` ; une seule couche de repositories/services.
 4. **Bot stratégique** : `AI-S1..S9`, en conservant `legacy` ; pas de nouvelle version authority tant que parité/vérification non acquises.
 5. **Mesure / UI / exploitation** : `TREE-08..10`, `ADM-S4..S7` et `ARCH-S5`.

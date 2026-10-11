@@ -4,23 +4,28 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { build } from 'esbuild-authority';
+import { validateAuthorityVersionRegistry } from './lib/authority-version-registry.mjs';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
+const registry = validateAuthorityVersionRegistry(
+  JSON.parse(await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8')),
+);
+const currentVersions = registry.versions.filter((entry) => entry.status === 'current');
+if (currentVersions.length !== 1)
+  throw new Error('Authority registry must contain one current engine.');
+const currentEngine = currentVersions[0].engine.replace(/^run-engine-/, '');
 const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'lolrogue-cohort-baseline-'));
 const outputPath = path.join(temporaryRoot, 'authority-cohort-baseline.mjs');
 const { values } = parseArgs({
   strict: true,
   options: {
     check: { type: 'boolean', default: false },
-    engine: { type: 'string', default: '0.2.0' },
+    engine: { type: 'string', default: currentEngine },
     output: { type: 'string' },
   },
 });
 
 async function resolveRegisteredAuthorityBundle(engineVersion) {
-  const registry = JSON.parse(
-    await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8'),
-  );
   const entry = registry.versions.find((candidate) => candidate.engine === engineVersion);
   if (!entry || typeof entry.bundle !== 'string') {
     throw new Error(`Authority registry does not retain ${engineVersion}.`);

@@ -1,0 +1,629 @@
+const stringOption = (description, extra = {}) => ({ type: 'string', description, ...extra });
+const booleanOption = (description) => ({ type: 'boolean', description });
+const engine = stringOption('Registered authority engine, e.g. v22 or 0.2.0; defaults to current.');
+const output = stringOption('Destination relative to the repository root.');
+const all = booleanOption('Check every published artifact in registry order.');
+const check = booleanOption(
+  'Compatibility check mode: reproduce the artifact without writing it. Conflicts with --output.',
+);
+
+function command(group, path, aliases, description, target, extra = {}) {
+  return {
+    group,
+    path: path.split(' '),
+    aliases,
+    owner: group === 'database' ? 'database-maintainers' : `${group}-maintainers`,
+    risk: 'read-only',
+    options: {},
+    inputs: ['Repository checkout and locked Node 24 dependencies'],
+    preconditions: ['Run npm ci before execution; --dry-run only prints a plan.'],
+    replacement: `npm run ${group} -- ${path}`,
+    aliasOptions: {},
+    description,
+    target,
+    ...extra,
+  };
+}
+
+const node = (script, args = []) => ({ kind: 'node', script: `scripts/${script}.mjs`, args });
+const npm = (alias) => ({ kind: 'npm', alias });
+const historicalAliases = (base, engines) => engines.map((value) => `${base}:${value}`);
+const historicalOptions = (base, engines) =>
+  Object.fromEntries(engines.map((value) => [`${base}:${value}`, ['--engine', value]]));
+const baselineEngines = ['v15', 'v16', 'v17', 'v18', 'v19', 'v20', 'v21', 'v22'];
+const earlyTopEngines = ['v17', 'v18', 'v21'];
+
+/** Canonical commands and compatibility aliases; the inventory imports this source of truth. */
+export const commandCatalog = [
+  command(
+    'balance',
+    'baseline generate',
+    [
+      'balance:baseline:generate',
+      ...historicalAliases('balance:baseline:generate', baselineEngines),
+    ],
+    'Generate a frozen or current authority cohort baseline.',
+    node('generate-authority-cohort-baseline'),
+    {
+      risk: 'generate',
+      options: { engine, output, check },
+      artifact: 'authority-cohort-baselines',
+      aliasOptions: historicalOptions('balance:baseline:generate', baselineEngines),
+    },
+  ),
+  command(
+    'balance',
+    'baseline check',
+    ['balance:baseline:check'],
+    'Reproduce authority cohort baselines without writing them.',
+    node('generate-authority-cohort-baseline', ['--check']),
+    {
+      options: { engine, all },
+      artifact: 'authority-cohort-baselines',
+      aliasOptions: { 'balance:baseline:check': ['--all'] },
+    },
+  ),
+  command(
+    'balance',
+    'early-top generate',
+    [
+      'balance:early-top:generate',
+      ...historicalAliases('balance:early-top:generate', earlyTopEngines),
+    ],
+    'Generate a historical early Top cohort; choose an explicit supported engine.',
+    node('generate-early-top-cohort'),
+    {
+      risk: 'generate',
+      options: { engine, output, check },
+      artifact: 'early-top-cohort',
+      supportedEngines: earlyTopEngines,
+      aliasOptions: {
+        'balance:early-top:generate': ['--engine', 'v21'],
+        ...historicalOptions('balance:early-top:generate', earlyTopEngines),
+      },
+    },
+  ),
+  command(
+    'balance',
+    'early-top check',
+    ['balance:early-top:check'],
+    'Reproduce all published early Top cohorts.',
+    node('generate-early-top-cohort', ['--check']),
+    {
+      options: { engine, all },
+      artifact: 'early-top-cohort',
+      supportedEngines: earlyTopEngines,
+      aliasOptions: { 'balance:early-top:check': ['--all'] },
+    },
+  ),
+  command(
+    'balance',
+    'early-top affordability generate',
+    ['balance:early-top:affordability:generate', 'balance:early-top:affordability:generate:v17'],
+    'Generate a historical early Top affordability report.',
+    node('generate-early-top-affordability'),
+    {
+      risk: 'generate',
+      options: { engine, output },
+      supportedEngines: ['v17', 'v18'],
+      aliasOptions: {
+        'balance:early-top:affordability:generate': ['--engine', 'v18'],
+        'balance:early-top:affordability:generate:v17': ['--engine', 'v17'],
+      },
+    },
+  ),
+  command(
+    'balance',
+    'early-top affordability check',
+    ['balance:early-top:affordability'],
+    'Verify early Top affordability.',
+    { kind: 'vitest', args: ['run', 'tests/earlyTopAffordability.test.ts'] },
+  ),
+  command(
+    'balance',
+    'early-top catalog check',
+    ['balance:early-top:catalog-gates'],
+    'Verify economy catalog gates.',
+    {
+      kind: 'vitest',
+      args: ['run', 'tests/economyBalance.test.ts', 'tests/economyBalanceRuleset.test.ts'],
+    },
+  ),
+  command(
+    'balance',
+    'early-top starters check',
+    ['balance:early-top:starters'],
+    'Verify starter survivability.',
+    { kind: 'vitest', args: ['run', 'tests/earlyTopStarterSurvivability.test.ts'] },
+  ),
+  command(
+    'balance',
+    'combat matrix generate',
+    ['balance:combat:matrix:generate'],
+    'Generate the current champion combat matrix.',
+    node('generate-champion-combat-matrix'),
+    {
+      risk: 'generate',
+      options: {
+        output,
+        check,
+        'baseline-engine': stringOption('Full registered baseline identity, e.g. run-engine-v22.'),
+      },
+    },
+  ),
+  command(
+    'balance',
+    'combat matrix check',
+    ['balance:combat:matrix:check'],
+    'Reproduce the current champion combat matrix.',
+    node('generate-champion-combat-matrix', ['--check']),
+    {
+      options: {
+        'baseline-engine': stringOption('Full registered baseline identity, e.g. run-engine-v22.'),
+      },
+    },
+  ),
+  command(
+    'balance',
+    'map-economy generate',
+    ['balance:map-economy:generate'],
+    'Generate the current map and economy baseline.',
+    node('generate-map-economy-baseline'),
+    { risk: 'generate', options: { output, check } },
+  ),
+  command(
+    'balance',
+    'map-economy check',
+    ['balance:map-economy:check'],
+    'Reproduce the current map and economy baseline.',
+    node('generate-map-economy-baseline', ['--check']),
+  ),
+  command(
+    'balance',
+    'field-baseline generate',
+    ['balance:field-baseline:generate'],
+    'Generate the field calibration baseline.',
+    node('generate-authority-field-calibration-baseline'),
+    { risk: 'generate', options: { output, check } },
+  ),
+  command(
+    'balance',
+    'field-baseline check',
+    ['balance:field-baseline:check'],
+    'Reproduce the field calibration baseline.',
+    node('generate-authority-field-calibration-baseline', ['--check']),
+  ),
+  command(
+    'balance',
+    'veigar generate',
+    ['balance:veigar:generate'],
+    'Generate Veigar progression balance evidence.',
+    node('generate-veigar-run-progression-balance'),
+    {
+      risk: 'generate',
+      options: { engine, output, check },
+      artifact: 'veigar-run-progression-balance',
+      supportedEngines: ['v22', '0.2.0'],
+    },
+  ),
+  command(
+    'balance',
+    'veigar check',
+    ['balance:veigar:check'],
+    'Reproduce the historical and current Veigar balance evidence.',
+    node('generate-veigar-run-progression-balance', ['--check']),
+    {
+      options: { engine, all },
+      artifact: 'veigar-run-progression-balance',
+      supportedEngines: ['v22', '0.2.0'],
+      aliasOptions: { 'balance:veigar:check': ['--all'] },
+    },
+  ),
+  command(
+    'balance',
+    'cohort',
+    ['balance:cohort'],
+    'Run authority cohorts for a named profile.',
+    node('run-authority-cohorts'),
+    {
+      risk: 'generate',
+      options: {
+        profile: stringOption('Cohort profile.', {
+          choices: ['pr', 'nightly', 'release'],
+          required: true,
+        }),
+        'output-directory': stringOption('Report directory.', { required: true }),
+      },
+    },
+  ),
+  command(
+    'balance',
+    'repro',
+    ['balance:repro'],
+    'Reproduce a single authority run in source and Edge.',
+    node('run-balance-repro'),
+    {
+      options: {
+        'scenario-json': stringOption('URI encoded scenario JSON.', { required: true }),
+        seed: stringOption('Safe integer run seed.', { required: true, integer: true }),
+        engine,
+        'content-hash': stringOption('Expected content hash.'),
+        policy: stringOption('Registered balance policy.'),
+        'max-commands': stringOption('Positive command limit.', { positiveInteger: true }),
+        'max-run-ms': stringOption('Positive time limit.', { positiveInteger: true }),
+      },
+    },
+  ),
+  command(
+    'balance',
+    'artifacts check',
+    ['balance:artifacts:check'],
+    'Reproduce all balance artifacts in the established order.',
+    { kind: 'balance-artifacts' },
+  ),
+  command(
+    'balance',
+    'check',
+    ['balance:check'],
+    'Reproduce all artifacts, then run the balance regression suite.',
+    { kind: 'balance-check' },
+  ),
+
+  command(
+    'database',
+    'start',
+    ['db:start'],
+    'Start the local Supabase stack.',
+    { kind: 'supabase', args: ['start'] },
+    { risk: 'generate', preconditions: ['Docker and locked Supabase CLI are installed.'] },
+  ),
+  command(
+    'database',
+    'stop',
+    ['db:stop'],
+    'Stop the local Supabase stack.',
+    { kind: 'supabase', args: ['stop'] },
+    { risk: 'generate' },
+  ),
+  command(
+    'database',
+    'reset',
+    ['db:reset'],
+    'Reset only the local database; requires --yes.',
+    node('reset-local-database'),
+    { risk: 'destructive-local' },
+  ),
+  command(
+    'database',
+    'lint',
+    ['db:lint'],
+    'Lint the local PostgreSQL schema.',
+    node('run-local-db-lint'),
+  ),
+  command(
+    'database',
+    'types generate',
+    ['db:types'],
+    'Generate local database types.',
+    npm('db:types'),
+    { risk: 'generate' },
+  ),
+  command(
+    'database',
+    'types check',
+    ['db:types:check'],
+    'Compare generated local types without writing tracked files.',
+    node('check-database-types'),
+  ),
+  command(
+    'database',
+    'migrations check',
+    ['db:migrations:check', 'db:migrations:check:linked'],
+    'Check local or explicitly linked migration drift.',
+    node('check-database-migration-drift'),
+    {
+      options: {
+        linked: booleanOption('Check the linked remote project.'),
+        'candidate-sha': stringOption('Git candidate SHA to compare.'),
+      },
+      aliasOptions: { 'db:migrations:check:linked': ['--linked'] },
+    },
+  ),
+  command(
+    'database',
+    'security',
+    ['db:security'],
+    'Audit local schema privileges.',
+    node('check-local-db-security'),
+  ),
+  command(
+    'database',
+    'advisors',
+    ['db:advisors'],
+    'Run advisors against the local database.',
+    node('check-supabase-advisors', ['--local']),
+  ),
+  command(
+    'database',
+    'indexes check',
+    ['db:indexes:check'],
+    'Check measured index policies.',
+    node('check-measured-database-indexes'),
+  ),
+  command(
+    'database',
+    'indexes measure',
+    ['db:indexes:measure'],
+    'Measure indexes against the local fixture database.',
+    node('measure-database-indexes'),
+    { risk: 'generate' },
+  ),
+  command(
+    'database',
+    'finished-queue stats',
+    ['db:finished-queue:stats'],
+    'Inspect finished queue index statistics.',
+    node('inspect-finished-queue-index-stats'),
+  ),
+  command(
+    'database',
+    'finished-queue measure',
+    ['db:finished-queue:measure'],
+    'Measure the local finished queue index.',
+    node('measure-finished-queue-index'),
+    { risk: 'generate' },
+  ),
+  command(
+    'database',
+    'validate',
+    ['db:validate', 'check:db'],
+    'Reset and validate the local database; requires --yes.',
+    npm('db:validate'),
+    { risk: 'destructive-local' },
+  ),
+  command(
+    'database',
+    'economy audit',
+    ['economy:audit'],
+    'Run the existing read-only champion economy audit.',
+    node('audit-champion-economy'),
+    {
+      options: {
+        local: booleanOption('Audit the local database (default).'),
+        linked: booleanOption('Audit the linked project without modification.'),
+      },
+    },
+  ),
+
+  command(
+    'assets',
+    'download',
+    ['ddragon:download'],
+    'Download Riot assets using the established script.',
+    { kind: 'node', script: 'scripts/download-ddragon.js', args: [] },
+    { risk: 'generate' },
+  ),
+  command(
+    'assets',
+    'parse',
+    ['ddragon:parse'],
+    'Parse the downloaded champion catalog.',
+    { kind: 'node', script: 'scripts/parse-champions.js', args: [] },
+    { risk: 'generate' },
+  ),
+  command(
+    'assets',
+    'package',
+    ['assets:package'],
+    'Package local Riot assets.',
+    node('package-riot-assets'),
+    { risk: 'generate' },
+  ),
+  command(
+    'assets',
+    'verify',
+    ['assets:verify', 'assets:verify:dist'],
+    'Verify source or built Riot assets.',
+    node('verify-riot-assets'),
+    {
+      options: { dist: booleanOption('Verify dist instead of source.') },
+      aliasOptions: { 'assets:verify:dist': ['--dist'] },
+    },
+  ),
+  command(
+    'assets',
+    'update',
+    ['assets:update'],
+    'Download, parse, package and verify Riot assets in order.',
+    { kind: 'assets-update' },
+    { risk: 'generate' },
+  ),
+  command(
+    'assets',
+    'clean-build',
+    ['test:assets-clean'],
+    'Verify assets from a clean isolated build.',
+    node('test-clean-asset-build'),
+    { risk: 'generate' },
+  ),
+  command(
+    'assets',
+    'deployed verify',
+    ['test:deployed-assets'],
+    'Verify assets on the configured deployment.',
+    node('verify-deployed-assets'),
+  ),
+
+  command(
+    'release',
+    'deploy',
+    ['backend:deploy'],
+    'Deploy only the effective dev or main branch; requires --yes.',
+    node('deploy-backend'),
+    {
+      risk: 'remote',
+      options: {
+        branch: stringOption('Must match the effective Git branch.', { choices: ['main', 'dev'] }),
+      },
+      preconditions: [
+        'Effective Git branch is dev or main; credentials and locked deployment tools are configured; --yes confirms execution.',
+      ],
+    },
+  ),
+  command(
+    'release',
+    'preflight',
+    ['release:preflight'],
+    'Run the existing release preflight.',
+    node('release-preflight'),
+  ),
+  command(
+    'release',
+    'readiness check',
+    ['release:readiness:check'],
+    'Verify documented readiness gates.',
+    node('release-preflight', ['--verify-documentation']),
+  ),
+  command(
+    'release',
+    'authority generate',
+    ['authority:generate'],
+    'Generate authority resolver metadata.',
+    node('generate-authority-resolver'),
+    { risk: 'generate' },
+  ),
+  command(
+    'release',
+    'authority check',
+    ['authority:check'],
+    'Validate every authority registry entry.',
+    node('check-authority-registry'),
+  ),
+  command(
+    'release',
+    'edge bundle',
+    ['edge:bundle'],
+    'Validate and build the authority bundle.',
+    { kind: 'edge-bundle' },
+    { risk: 'generate' },
+  ),
+  command(
+    'release',
+    'restore-drill',
+    ['ops:restore-drill'],
+    'Run a destructive restore drill in a disposable local stack; requires --yes.',
+    node('run-isolated-restore-drill', ['--local']),
+    {
+      risk: 'destructive-local',
+      options: { evidence: stringOption('Evidence file inside the repository.') },
+    },
+  ),
+  command(
+    'release',
+    'backup',
+    ['backup:database'],
+    'Create a database backup from explicit SUPABASE_DB_URL configuration.',
+    node('create-database-backup'),
+    {
+      risk: 'generate',
+      preconditions: [
+        'SUPABASE_DB_URL is configured; BACKUP_DIRECTORY selects the output; never print credentials.',
+      ],
+    },
+  ),
+
+  command(
+    'testing',
+    'check',
+    ['check'],
+    'Run the established local validation pipeline.',
+    npm('check'),
+    { risk: 'generate' },
+  ),
+  command(
+    'testing',
+    'static',
+    ['check:static'],
+    'Run formatting, lint, type and content checks.',
+    npm('check:static'),
+  ),
+  command(
+    'testing',
+    'unit',
+    ['check:unit', 'test:coverage'],
+    'Run unit coverage with established thresholds.',
+    npm('check:unit'),
+    { risk: 'generate' },
+  ),
+  command('testing', 'test', ['test'], 'Run the unit suite.', { kind: 'vitest', args: ['run'] }),
+  command(
+    'testing',
+    'security',
+    ['check:security', 'audit:security'],
+    'Run dependency security checks.',
+    node('check-dependency-audit'),
+  ),
+  command(
+    'testing',
+    'build',
+    ['check:build'],
+    'Build and verify production outputs and budgets.',
+    npm('check:build'),
+    { risk: 'generate' },
+  ),
+  command(
+    'testing',
+    'database',
+    ['test:db', 'test:db:list'],
+    'Run or list the existing database regression suite.',
+    node('run-database-test-suite'),
+    {
+      risk: 'generate',
+      options: { list: booleanOption('List tests without running them.') },
+      aliasOptions: { 'test:db:list': ['--list'] },
+    },
+  ),
+  command(
+    'testing',
+    'rollback',
+    ['test:db:rollback'],
+    'Verify the configured application rollback checkpoint.',
+    node('run-application-rollback-test'),
+    { risk: 'generate' },
+  ),
+  command(
+    'testing',
+    'browser',
+    ['check:browser'],
+    'Run both browser suites through their retained contracts.',
+    npm('check:browser'),
+    { risk: 'generate' },
+  ),
+  command(
+    'testing',
+    'production-build',
+    ['test:production-build'],
+    'Verify the built production artifact.',
+    node('verify-production-build'),
+  ),
+  command(
+    'testing',
+    'performance budgets',
+    ['test:performance-budgets'],
+    'Check production size and performance budgets.',
+    node('check-performance-budgets'),
+  ),
+  command(
+    'testing',
+    'performance preview',
+    ['test:performance-preview'],
+    'Measure the local preview with the established fixture.',
+    node('measure-local-preview'),
+    { risk: 'generate' },
+  ),
+];
+
+export const commandGroups = ['balance', 'database', 'assets', 'release', 'testing'];
+export function commandsForGroup(group) {
+  return commandCatalog.filter((entry) => entry.group === group);
+}

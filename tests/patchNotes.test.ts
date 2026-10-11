@@ -42,7 +42,7 @@ describe('publication unread calculation', () => {
     expect(unreadPatchNotes(5, catalog)).toEqual([]);
   });
   it('publishes bilingual assist rules with a semantic version without rewriting historical notes', () => {
-    const publication = latestPatchNote()!;
+    const publication = PATCH_NOTES.find((note) => note.sequence === 5)!;
     expect(publication.version).toBe('0.2.0');
     expect(publication.publishedOn).toBe('2026-10-11');
     expect(publication.version).toMatch(/^\d+\.\d+\.\d+$/);
