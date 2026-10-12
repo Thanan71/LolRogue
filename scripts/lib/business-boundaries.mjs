@@ -129,7 +129,7 @@ export function extractImportEvidence(path, source) {
       node.source
     ) {
       add(node, node.source, 'export');
-    } else if (node.type === 'TSImportType') add(node, node.argument, 'import-type');
+    } else if (node.type === 'TSImportType') add(node, node.source ?? node.argument, 'import-type');
     else if (
       node.type === 'TSImportEqualsDeclaration' &&
       node.moduleReference.type === 'TSExternalModuleReference'
