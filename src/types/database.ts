@@ -32,6 +32,7 @@ export type Database = {
           unlocked_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           champion_id: string;
           price_paid?: number;
@@ -66,6 +67,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           lifetime_shards_earned?: number;
           lifetime_shards_spent?: number;
@@ -89,6 +91,7 @@ export type Database = {
           permanent_free: boolean;
           price_shards: number;
         };
+        ComputedFields: never;
         Insert: {
           catalog_version: number;
           champion_id: string;
@@ -114,6 +117,7 @@ export type Database = {
           singleton: boolean;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           activated_at?: string | null;
           catalog_version?: number;
@@ -154,6 +158,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           champion_id: string;
           created_at?: string;
@@ -194,6 +199,7 @@ export type Database = {
           unlocked_ids: string[];
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           champion_id: string;
           created_at?: string;
@@ -257,6 +263,7 @@ export type Database = {
           transaction_id: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           command_id: string;
           created_at?: string;
@@ -287,6 +294,7 @@ export type Database = {
           display_order: number;
           rotation_id: string;
         };
+        ComputedFields: never;
         Insert: {
           champion_id: string;
           display_order: number;
@@ -317,6 +325,7 @@ export type Database = {
           ruleset_version: number;
           starts_at: string;
         };
+        ComputedFields: never;
         Insert: {
           algorithm_version: number;
           catalog_version: number;
@@ -361,6 +370,7 @@ export type Database = {
           victory_bonus: number;
           wave_points: number;
         };
+        ComputedFields: never;
         Insert: {
           biome_points: number;
           code: string;
@@ -422,6 +432,7 @@ export type Database = {
           waves_completed: number;
           won: boolean;
         };
+        ComputedFields: never;
         Insert: {
           completed_at?: string | null;
           created_at?: string;
@@ -530,6 +541,7 @@ export type Database = {
           invalidated_at: string;
           reason: string;
         };
+        ComputedFields: never;
         Insert: {
           actor_user_id?: string | null;
           created_at?: string;
@@ -567,6 +579,7 @@ export type Database = {
           reviewed_by: string | null;
           status: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           daily_run_id: string;
@@ -610,6 +623,7 @@ export type Database = {
           ruleset_version: number;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           active?: boolean;
           candy_cost: number;
@@ -652,6 +666,7 @@ export type Database = {
           gameplay_ruleset_version: number;
           max_stacks: number;
         };
+        ComputedFields: never;
         Insert: {
           active?: boolean;
           content_id: string;
@@ -688,6 +703,7 @@ export type Database = {
           max_commands: number;
           version: number;
         };
+        ComputedFields: never;
         Insert: {
           attempt_ttl?: string;
           code: string;
@@ -720,6 +736,7 @@ export type Database = {
           is_active: boolean;
           starts_at: string;
         };
+        ComputedFields: never;
         Insert: {
           code: string;
           created_at?: string;
@@ -753,6 +770,7 @@ export type Database = {
           table_name: string | null;
           user_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           details?: NonNullable<Json>;
@@ -809,6 +827,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           last_seen_sequence: number;
           last_seen_version: string;
@@ -833,6 +852,7 @@ export type Database = {
           unlock_id: string;
           unlock_type: string;
         };
+        ComputedFields: never;
         Insert: {
           champion_id?: string | null;
           earned_at?: string;
@@ -887,6 +907,7 @@ export type Database = {
           user_id: string;
           username: string;
         };
+        ComputedFields: never;
         Insert: {
           avatar_url?: string | null;
           created_at?: string;
@@ -934,6 +955,7 @@ export type Database = {
           ruleset_version: number;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           active?: boolean;
           champion_id: string;
@@ -971,6 +993,7 @@ export type Database = {
           ruleset_version: number;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           command_id: string;
           command_type: string;
@@ -1011,6 +1034,7 @@ export type Database = {
           retained_verified_nodes: NonNullable<Json>;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           baseline_code: string;
           captured_at?: string;
@@ -1046,6 +1070,7 @@ export type Database = {
           version: number;
           victory_bonus: number;
         };
+        ComputedFields: never;
         Insert: {
           base_candies: number;
           candies_per_biome: number;
@@ -1085,6 +1110,7 @@ export type Database = {
           notes: string;
           policy: string;
         };
+        ComputedFields: never;
         Insert: {
           baseline_code: string;
           created_at?: string;
@@ -1115,6 +1141,7 @@ export type Database = {
           received_at: string;
           sequence: number;
         };
+        ComputedFields: never;
         Insert: {
           attempt_id: string;
           chain_hash: string;
@@ -1213,6 +1240,7 @@ export type Database = {
           verification_attempts: number;
           verified_at: string | null;
         };
+        ComputedFields: never;
         Insert: {
           champion_access_snapshot?: Json | null;
           command_schema_version: number;
@@ -1388,6 +1416,7 @@ export type Database = {
           time_alive_seconds: number;
           waves_participated: number | null;
         };
+        ComputedFields: never;
         Insert: {
           assists?: number;
           biomes_participated?: string[] | null;
@@ -1497,6 +1526,7 @@ export type Database = {
           waves_completed: number;
           won: boolean;
         };
+        ComputedFields: never;
         Insert: {
           augment_ids?: string[];
           biomes_visited?: string[];
@@ -1638,6 +1668,7 @@ export type Database = {
           run_attempt_id: string | null;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           amount: number;
           balance_after: number;
@@ -1724,6 +1755,7 @@ export type Database = {
           username: string | null;
           win_rate: number | null;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string | null;
           display_name?: string | null;
@@ -1765,6 +1797,7 @@ export type Database = {
           stat_name: string | null;
           stat_value: string | null;
         };
+        ComputedFields: never;
         Relationships: [];
       };
       admin_verified_field_augment_cohorts: {
@@ -1792,6 +1825,7 @@ export type Database = {
           win_rate_wilson_low: number | null;
           wins: number | null;
         };
+        ComputedFields: never;
         Relationships: [
           {
             foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
@@ -1830,6 +1864,7 @@ export type Database = {
           win_rate_wilson_low: number | null;
           wins: number | null;
         };
+        ComputedFields: never;
         Relationships: [
           {
             foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
@@ -1868,6 +1903,7 @@ export type Database = {
           win_rate_wilson_low: number | null;
           wins: number | null;
         };
+        ComputedFields: never;
         Relationships: [
           {
             foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
@@ -1891,6 +1927,7 @@ export type Database = {
           verified_count: number | null;
           window_started_at: string | null;
         };
+        ComputedFields: never;
         Relationships: [
           {
             foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
@@ -1909,6 +1946,7 @@ export type Database = {
           rejected_at: string | null;
           rejection_code: string | null;
         };
+        ComputedFields: never;
         Relationships: [
           {
             foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
@@ -1934,6 +1972,7 @@ export type Database = {
           waves_completed: number | null;
           won: boolean | null;
         };
+        ComputedFields: never;
         Relationships: [];
       };
       leaderboard: {
@@ -1947,6 +1986,7 @@ export type Database = {
           total_wins: number | null;
           win_rate: number | null;
         };
+        ComputedFields: never;
         Relationships: [];
       };
       verified_run_starter_cohorts: {
@@ -1964,6 +2004,7 @@ export type Database = {
           waves_completed: number | null;
           won: boolean | null;
         };
+        ComputedFields: never;
         Relationships: [
           {
             foreignKeyName: 'run_attempts_gameplay_ruleset_version_fkey';
