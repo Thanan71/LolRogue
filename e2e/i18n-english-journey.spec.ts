@@ -1,4 +1,11 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
+import {
+  CHAMPION_CATALOG_VERSION,
+  CHAMPION_ECONOMY_CATALOG,
+  CHAMPION_ECONOMY_VERSION,
+  getRotationForInstant,
+} from '@/domain/championEconomy';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionCapabilities.generated';
 import type { CombatEncounter, MapNode, TreasureEncounter } from '@/game/map/types';
 
 const FRENCH_UI_MARKERS = [
@@ -33,6 +40,28 @@ const FRENCH_UI_MARKERS = [
 async function keepJourneyOffline(page: Page) {
   await page.route('**/*', async (route) => {
     const url = new URL(route.request().url());
+    // The public catalog is required even for guest starters; serve its real contract locally.
+    if (url.pathname.endsWith('/rpc/get_champion_economy_snapshot')) {
+      const serverNow = new Date().toISOString();
+      const gameplayRulesetVersion = CURRENT_AUTHORITY_VERSION.gameplay;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        json: {
+          enabled: true,
+          economyVersion: CHAMPION_ECONOMY_VERSION,
+          catalogVersion: CHAMPION_CATALOG_VERSION,
+          gameplayRulesetVersion,
+          serverNow,
+          rotation: getRotationForInstant(serverNow, gameplayRulesetVersion),
+          catalog: [...CHAMPION_ECONOMY_CATALOG],
+          wallet: null,
+          ownedChampionIds: [],
+          firstWinChampionIds: [],
+        },
+      });
+      return;
+    }
     if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') {
       await route.continue();
       return;

@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
-import { getAuthorityGameplayVersionLabel } from '../src/game/authority/versionRegistry';
 import { validateAuthorityVersionRegistry } from '../scripts/lib/authority-version-registry.mjs';
+import { getAuthorityGameplayVersionLabel } from '../src/game/authority/versionRegistry';
 
 const registry = JSON.parse(
   await readFile(new URL('../config/authority-versions.json', import.meta.url), 'utf8'),
@@ -10,6 +10,7 @@ const registry = JSON.parse(
 describe('semantic authority registry versions', () => {
   it('labels a new release semantically while preserving historical ordinal labels', () => {
     expect(getAuthorityGameplayVersionLabel(23)).toBe('0.2.0');
+    expect(getAuthorityGameplayVersionLabel(24)).toBe('0.2.5');
     expect(getAuthorityGameplayVersionLabel(22)).toBe('22');
     expect(getAuthorityGameplayVersionLabel(99)).toBe('99');
   });
@@ -17,8 +18,8 @@ describe('semantic authority registry versions', () => {
   it('admits semantic releases alongside immutable historical identities', () => {
     expect(validateAuthorityVersionRegistry(structuredClone(registry))).toEqual(registry);
     expect(registry.versions.at(-1)).toMatchObject({
-      engine: 'run-engine-0.2.0',
-      rulesetCode: '0.2.0',
+      engine: 'run-engine-0.2.5',
+      rulesetCode: '0.2.5',
     });
   });
 

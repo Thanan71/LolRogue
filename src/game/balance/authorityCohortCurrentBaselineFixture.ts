@@ -1,4 +1,4 @@
-import { AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH } from '../authority/AuthorityRunEngine';
+import { AUTHORITY_CONTENT_HASH, AUTHORITY_ENGINE_VERSION } from '../authority/AuthorityRunEngine';
 import type { AuthorityCohortRuntime } from './authorityCohort';
 import {
   type AuthorityCohortBaselineDocument,
@@ -27,32 +27,54 @@ export interface AuthorityCohortCurrentBaselineFixture {
 export function createAuthorityCohortCurrentBaselineFixture(
   authority: AuthorityCohortRuntime,
 ): AuthorityCohortCurrentBaselineFixture {
+  return createAuthorityCohortBaselineFixtureForIdentity(
+    authority,
+    AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY,
+  );
+}
+
+function createAuthorityCohortBaselineFixtureForIdentity(
+  authority: AuthorityCohortRuntime,
+  identity: AuthorityCohortBaselineIdentity,
+): AuthorityCohortCurrentBaselineFixture {
   if (
-    authority.engineVersion !== AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY.engineVersion ||
-    authority.contentHash !== AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY.contentHash
+    authority.engineVersion !== identity.engineVersion ||
+    authority.contentHash !== identity.contentHash
   ) {
-    throw new Error('The 0.2.0 baseline requires its exact approved authority identity.');
+    throw new Error(
+      `The ${identity.engineVersion} baseline requires its exact approved authority identity.`,
+    );
   }
   const plan = createAuthorityCohortExecutionPlan('pr');
   const execution = executeAuthorityCohortPlan({ authority, plan });
   if (execution.report.groups.length !== 1) {
-    throw new Error('The 0.2.0 PR baseline requires exactly one authority identity.');
+    throw new Error(
+      `The ${identity.engineVersion} PR baseline requires exactly one authority identity.`,
+    );
   }
   const group = execution.report.groups[0]!;
-  const expectedKey = createAuthorityCohortBaselineKey(AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY);
+  const expectedKey = createAuthorityCohortBaselineKey(identity);
   if (group.baselineKey !== expectedKey) {
     throw new Error(
-      `The 0.2.0 PR baseline identity is ${group.baselineKey}, expected ${expectedKey}.`,
+      `The ${identity.engineVersion} PR baseline identity is ${group.baselineKey}, expected ${expectedKey}.`,
     );
   }
   return {
     execution,
     document: createAuthorityCohortBaselineDocument({
-      identity: AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY,
+      identity,
       seeds: plan.seeds,
       reports: group.reports,
     }),
   };
+}
+
+/** Historical generation receives a frozen registry identity instead of the current identity. */
+export function generateAuthorityCohortBaselineForIdentity(
+  authority: AuthorityCohortRuntime,
+  identity: AuthorityCohortBaselineIdentity,
+): AuthorityCohortBaselineDocument {
+  return createAuthorityCohortBaselineFixtureForIdentity(authority, identity).document;
 }
 
 export function generateAuthorityCohortCurrentBaseline(

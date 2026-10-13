@@ -56,79 +56,84 @@ describe('combat locale formatting', () => {
       speed: 'Speed 2×',
       phase: 'Phase: Turn in progress',
     },
-  ])('formats arena values and speed controls in $locale', async (expected) => {
-    setStoredLocale(expected.locale);
-    vi.resetModules();
+  ])(
+    'formats arena values and speed controls in $locale',
+    async (expected) => {
+      setStoredLocale(expected.locale);
+      vi.resetModules();
 
-    const [
-      { CombatStage },
-      { BattleSpeedControl },
-      { CombatUI },
-      { useBattleStore },
-      { useSettingsStore },
-    ] = await Promise.all([
-      import('@/components/CombatUI/CombatStage'),
-      import('@/components/CombatUI/BattleSpeedControl'),
-      import('@/components/CombatUI/CombatUI'),
-      import('@/stores/battleStore'),
-      import('@/stores/settingsStore'),
-    ]);
-    useSettingsStore.setState({ battleSpeed: 1, particlesEnabled: true });
-    useBattleStore.setState({
-      phase: 'turn_active',
-      round: 1_280,
-      currentTurnChampionId: null,
-      currentTurnSide: null,
-      playerTeam: [],
-      enemyTeam: [],
-      winner: null,
-      isPlayerTurn: false,
-    });
+      const [
+        { CombatStage },
+        { BattleSpeedControl },
+        { CombatUI },
+        { useBattleStore },
+        { useSettingsStore },
+      ] = await Promise.all([
+        import('@/features/combat/ui/CombatStage'),
+        import('@/features/combat/ui/BattleSpeedControl'),
+        import('@/features/combat/ui/CombatUI'),
+        import('@/stores/battleStore'),
+        import('@/stores/settingsStore'),
+      ]);
+      useSettingsStore.setState({ battleSpeed: 1, particlesEnabled: true });
+      useBattleStore.setState({
+        phase: 'turn_active',
+        round: 1_280,
+        currentTurnChampionId: null,
+        currentTurnSide: null,
+        playerTeam: [],
+        enemyTeam: [],
+        winner: null,
+        isPlayerTurn: false,
+      });
 
-    const source = combatant('Lux', 'Lux', 'player', 1_280, 2_400);
-    const target = combatant('Garen', 'Garen', 'enemy', 640, 2_000);
-    const view = render(
-      <>
-        <CombatStage
-          round={1_280}
-          currentTurnChampionId={source.targetId}
-          currentTurnSide="player"
-          playerTeam={[source]}
-          enemyTeam={[target]}
-          visualEvent={{
-            id: 1,
-            kind: 'damage',
-            action: ActionType.BasicAttack,
-            sourceId: source.id,
-            sourceCombatantId: source.targetId,
-            sourceSide: 'player',
-            targetId: target.id,
-            targetCombatantId: target.targetId,
-            targetSide: 'enemy',
-            amount: 1_280,
-          }}
-          status=""
-        />
-        <BattleSpeedControl />
-        <CombatUI />
-      </>,
-    );
+      const source = combatant('Lux', 'Lux', 'player', 1_280, 2_400);
+      const target = combatant('Garen', 'Garen', 'enemy', 640, 2_000);
+      const view = render(
+        <>
+          <CombatStage
+            round={1_280}
+            currentTurnChampionId={source.targetId}
+            currentTurnSide="player"
+            playerTeam={[source]}
+            enemyTeam={[target]}
+            visualEvent={{
+              id: 1,
+              kind: 'damage',
+              action: ActionType.BasicAttack,
+              sourceId: source.id,
+              sourceCombatantId: source.targetId,
+              sourceSide: 'player',
+              targetId: target.id,
+              targetCombatantId: target.targetId,
+              targetSide: 'enemy',
+              amount: 1_280,
+            }}
+            status=""
+          />
+          <BattleSpeedControl />
+          <CombatUI />
+        </>,
+      );
 
-    expect(view.container.querySelector('.combat-stage__topline span')?.textContent).toBe(
-      expected.round,
-    );
-    expect(view.container.querySelector('.combat-stage__health-copy')?.textContent).toBe(
-      expected.health,
-    );
-    expect(view.container.querySelector('.combat-stage__amount')?.textContent).toBe(
-      expected.damage,
-    );
-    expect(screen.getByRole('radio', { name: expected.speed })).toHaveTextContent('2×');
-    expect(view.container.querySelector('.combat-overlay__round')?.textContent).toBe(
-      expected.round,
-    );
-    expect(view.container.querySelector('.combat-overlay__phase')).toHaveTextContent(
-      expected.phase,
-    );
-  });
+      expect(view.container.querySelector('.combat-stage__topline span')?.textContent).toBe(
+        expected.round,
+      );
+      expect(view.container.querySelector('.combat-stage__health-copy')?.textContent).toBe(
+        expected.health,
+      );
+      expect(view.container.querySelector('.combat-stage__amount')?.textContent).toBe(
+        expected.damage,
+      );
+      expect(screen.getByRole('radio', { name: expected.speed })).toHaveTextContent('2×');
+      expect(view.container.querySelector('.combat-overlay__round')?.textContent).toBe(
+        expected.round,
+      );
+      expect(view.container.querySelector('.combat-overlay__phase')).toHaveTextContent(
+        expected.phase,
+      );
+      // Switching locale rebuilds the complete module graph under V8 coverage.
+    },
+    15_000,
+  );
 });

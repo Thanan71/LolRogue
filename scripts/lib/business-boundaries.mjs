@@ -28,6 +28,8 @@ export function dependencyLayer(path) {
   if (path.startsWith('src/services/interfaces/')) return 'interfaces';
   if (path.startsWith('src/services/repositories/')) return 'repositories';
   if (path.startsWith('src/services/container/')) return 'container';
+  if (path === 'src/infrastructure/repositories/applicationRepositories.ts') return 'container';
+  if (path.startsWith('src/infrastructure/repositories/')) return 'repositories';
   if (path === 'src/services/supabaseClient.ts' || path === 'src/services/supabaseAuthStorage.ts') {
     return 'transport';
   }
@@ -266,6 +268,9 @@ function forbiddenTarget(edge) {
       'transport',
       'repositories',
       'container',
+      'features',
+      'shared',
+      'infrastructure',
     ].includes(layer)
   ) {
     return 'ui-or-transport';
@@ -318,6 +323,27 @@ function findReachableImports(graph, roots, predicate, { includeTypes = true } =
 export function checkBusinessBoundaries(graph) {
   const violations = [];
   for (const edge of graph.edges) {
+    if (
+      edge.source.startsWith('src/features/') &&
+      (edge.target?.startsWith('src/components/CombatUI/') ||
+        edge.target?.startsWith('src/components/ui/') ||
+        edge.target?.startsWith('src/pages/combat/') ||
+        edge.target?.startsWith('src/pages/starter/') ||
+        [
+          'src/pages/CombatPage.tsx',
+          'src/pages/StarterSelectPage.tsx',
+          'src/pages/DailyRunPage.tsx',
+          'src/components/DailyLeaderboard.tsx',
+          'src/hooks/useBattleManager.ts',
+        ].includes(edge.target))
+    ) {
+      violations.push({
+        ...edge,
+        rule: 'feature-compatibility-direction',
+        chain: [edge.source, edge.target],
+        message: `${edge.source}:${edge.line} imports compatibility entry ${edge.specifier}. Import the explicit src/features implementation or src/shared/ui component; compatibility entries may depend on features, never the reverse.`,
+      });
+    }
     if (edge.target === 'src/services/index.ts') {
       violations.push({
         ...edge,

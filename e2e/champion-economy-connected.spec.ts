@@ -92,13 +92,16 @@ async function showFullChampionCatalog(page: Page): Promise<void> {
 
 async function reloadAndRevalidateSelector(page: Page): Promise<void> {
   await page.reload();
-  // A saved attempt automatically recovers its server receipt after reload.
-  await expect(page.locator('.game-over-save-state').getByRole('status')).toContainText(
-    'Partie vérifiée et progression enregistrée.',
-  );
-  await expect(page.getByRole('button', { name: 'Relancer la vérification' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Nouvelle partie', exact: true })).toBeEnabled();
-  await page.getByRole('button', { name: 'Nouvelle partie', exact: true }).click();
+  const savedStatus = page.locator('.game-over-save-state').getByRole('status');
+  const selectorHeading = page.getByRole('heading', { name: 'Compose ton équipe', exact: true });
+  // Recovery may finish before the route guard mounts, leaving the completed run on the selector.
+  await expect(selectorHeading.or(savedStatus)).toBeVisible();
+  if (new URL(page.url()).pathname === '/game-over') {
+    await expect(savedStatus).toContainText('Partie vérifiée et progression enregistrée.');
+    await expect(page.getByRole('button', { name: 'Relancer la vérification' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Nouvelle partie', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Nouvelle partie', exact: true }).click();
+  }
   await expect(page).toHaveURL('/starter-select');
   await showFullChampionCatalog(page);
 }

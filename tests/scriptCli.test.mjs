@@ -90,7 +90,14 @@ describe('script CLI contract', () => {
   });
 
   it('accepts an npm-style separator and explicit historical/semantic engine forms', () => {
-    for (const engine of ['v22', '0.2.0', 'run-engine-v22', 'run-engine-0.2.0']) {
+    for (const engine of [
+      'v22',
+      '0.2.0',
+      '0.2.5',
+      'run-engine-v22',
+      'run-engine-0.2.0',
+      'run-engine-0.2.5',
+    ]) {
       const result = executeCli([
         'balance',
         '--',
@@ -168,11 +175,11 @@ describe('script CLI contract', () => {
     );
     expect(result.status).toBe(0);
     const plan = JSON.parse(result.stdout);
-    expect(plan.currentEngine).toBe('0.2.0');
+    expect(plan.currentEngine).toBe('0.2.5');
     expect(plan.steps[0].args).toEqual([
       path.join(root, 'scripts/generate-authority-cohort-baseline.mjs'),
       '--engine',
-      '0.2.0',
+      '0.2.5',
     ]);
   });
 
@@ -180,7 +187,18 @@ describe('script CLI contract', () => {
     const result = executeCli(['balance', 'baseline', 'check', '--all', '--dry-run']);
     expect(result.status).toBe(0);
     const engines = JSON.parse(result.stdout).steps.map((step) => step.args.at(-1));
-    expect(engines).toEqual(['v15', 'v16', 'v17', 'v18', 'v19', 'v20', 'v21', 'v22', '0.2.0']);
+    expect(engines).toEqual([
+      'v15',
+      'v16',
+      'v17',
+      'v18',
+      'v19',
+      'v20',
+      'v21',
+      'v22',
+      '0.2.0',
+      '0.2.5',
+    ]);
   });
 
   it('preserves output and full baseline identity options for business generators', () => {
@@ -214,7 +232,7 @@ describe('script CLI contract', () => {
     expect(JSON.parse(field.stdout).steps[0].args.slice(1)).toEqual(['--output', 'out/field.json']);
   });
 
-  it.each(['0.2.0', 'run-engine-0.2.0'])(
+  it.each(['0.2.5', 'run-engine-0.2.5'])(
     'normalizes the current reproduction identity %s for the retained business script',
     (engine) => {
       const result = executeCli([
@@ -229,9 +247,33 @@ describe('script CLI contract', () => {
         '--dry-run',
       ]);
       expect(result.status).toBe(0);
-      expect(JSON.parse(result.stdout).steps[0].args).toContain('run-engine-0.2.0');
+      expect(JSON.parse(result.stdout).steps[0].args).toContain('run-engine-0.2.5');
     },
   );
+
+  it('keeps the frozen 0.2.0 baseline available through an explicit read-only command', () => {
+    const result = executeCli(['balance', 'baseline', 'check', '--engine', '0.2.0', '--dry-run']);
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout).steps[0].args).toEqual([
+      path.join(root, 'scripts/generate-authority-cohort-baseline.mjs'),
+      '--check',
+      '--engine',
+      '0.2.0',
+    ]);
+    const incompatible = executeCli([
+      'balance',
+      'repro',
+      '--scenario-json',
+      '{}',
+      '--seed',
+      '1',
+      '--engine',
+      '0.2.0',
+      '--dry-run',
+    ]);
+    expect(incompatible.status).toBe(1);
+    expect(JSON.parse(incompatible.stderr).error.code).toBe('CLI_ENGINE_UNSUPPORTED');
+  });
 
   it('keeps local/linked economy audit mutually exclusive and explicit', async () => {
     const result = executeCli(['database', 'economy', 'audit', '--local', '--linked', '--dry-run']);
@@ -283,12 +325,13 @@ describe('script CLI contract', () => {
     expect(result.status).toBe(0);
     const steps = JSON.parse(result.stdout).steps;
     const names = steps.map((step) => path.basename(step.args[0] ?? step.command));
-    expect(names.slice(0, 9)).toEqual(Array(9).fill('generate-authority-cohort-baseline.mjs'));
-    expect(names.slice(9, 12)).toEqual(Array(3).fill('generate-early-top-cohort.mjs'));
-    expect(names.slice(12, 17)).toEqual([
+    expect(names.slice(0, 10)).toEqual(Array(10).fill('generate-authority-cohort-baseline.mjs'));
+    expect(names.slice(10, 13)).toEqual(Array(3).fill('generate-early-top-cohort.mjs'));
+    expect(names.slice(13, 19)).toEqual([
       'generate-champion-combat-matrix.mjs',
       'generate-map-economy-baseline.mjs',
       'generate-authority-field-calibration-baseline.mjs',
+      'generate-veigar-run-progression-balance.mjs',
       'generate-veigar-run-progression-balance.mjs',
       'generate-veigar-run-progression-balance.mjs',
     ]);
@@ -434,6 +477,20 @@ describe('script CLI contract', () => {
 });
 
 describe('frozen legacy command equivalence', () => {
+  // Preserve equivalence against the registry generation captured by the frozen manifest.
+  // Current commands are checked separately with 0.2.5 and all retained/new artifacts.
+  const legacyContext = {
+    ...context,
+    currentEngine: '0.2.0',
+    registry: {
+      ...registry,
+      versions: registry.versions
+        .filter((entry) => entry.engine !== 'run-engine-0.2.5')
+        .map((entry) =>
+          entry.engine === 'run-engine-0.2.0' ? { ...entry, status: 'current' } : entry,
+        ),
+    },
+  };
   function canonicalInvocation(alias) {
     const command = commandCatalog.find((entry) => entry.aliases.includes(alias));
     expect(command, `Missing canonical replacement for ${alias}`).toBeDefined();
@@ -460,7 +517,7 @@ describe('frozen legacy command equivalence', () => {
     });
   }
 
-  function normalizePlan(plan) {
+  function normalizePlan(plan, currentEngine = context.currentEngine) {
     return plan.map((step) => {
       const node = path.basename(step.command) === 'node';
       const tool = node ? path.relative(root, step.args[0]) : path.basename(step.command);
@@ -469,7 +526,7 @@ describe('frozen legacy command equivalence', () => {
         tool === 'scripts/generate-veigar-run-progression-balance.mjs' &&
         !args.includes('--engine')
       )
-        args.push('--engine', context.currentEngine);
+        args.push('--engine', currentEngine);
       const options = [];
       const positionals = [];
       for (let index = 0; index < args.length; index += 1) {
@@ -493,7 +550,7 @@ describe('frozen legacy command equivalence', () => {
     'retains %s tools, version flags, historical defaults and chain order without npm recursion',
     async (alias) => {
       const parsed = parseCommand(canonicalInvocation(alias));
-      const plan = await createCommandPlan(parsed, context);
+      const plan = await createCommandPlan(parsed, legacyContext);
       expect(
         plan.every(
           (step) =>
@@ -501,7 +558,9 @@ describe('frozen legacy command equivalence', () => {
             step.command === path.join(root, 'node_modules/.bin/vitest'),
         ),
       ).toBe(true);
-      expect(normalizePlan(plan)).toEqual(normalizePlan(legacyPlan(alias)));
+      expect(normalizePlan(plan, legacyContext.currentEngine)).toEqual(
+        normalizePlan(legacyPlan(alias), legacyContext.currentEngine),
+      );
     },
   );
 
@@ -577,7 +636,17 @@ describe('frozen legacy command equivalence', () => {
       expect(plan.risk).toBe('read-only');
       expect(normalizePlan(plan.steps)).toEqual(
         normalizePlan(
-          legacyPlan(alias).map((step) => ({ ...step, args: [...step.args, '--check'] })),
+          legacyPlan(alias).map((step) => ({
+            ...step,
+            args: [
+              ...step.args.map((value) =>
+                alias === 'balance:baseline:generate' && value === '0.2.0'
+                  ? context.currentEngine
+                  : value,
+              ),
+              '--check',
+            ],
+          })),
         ),
       );
       const invalid = executeCli([

@@ -206,66 +206,68 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
 ## ARCH-S4 — Modules UI orientés fonctionnalités (P2, taille XL)
 
 ### ARCH-12 — Migrer par tranche, pas par renommage global
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Introduire progressivement `src/features/{combat,champions,champion-economy,progression,runs,daily,inventory,authentication,administration}`.
-  - [ ] Conserver `src/game/{battle,authority,rules,effects,map,balance}` ; déplacer seulement l'UI et les orchestrations concernées.
-  - [ ] Choisir un seul module pilote et mesurer ses consommateurs avant déplacement ; documenter l'API publique.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Introduire `src/shared/{ui,i18n,styles,assets,utils}` et `src/infrastructure/{supabase,repositories,persistence,observability}` uniquement lorsqu'un module en a besoin.
-  - [ ] Ne pas casser les imports historiques d'un coup ; tests et builds après chaque déplacement.
-  - [ ] Migrer imports par petites PR sans créer une structure miroir qui double stores, services ou règles.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Vérifier l'absence d'imports résiduels, builds navigateur, routes et bundle size à chaque étape.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Introduire progressivement `src/features/{combat,champions,champion-economy,progression,runs,daily,inventory,authentication,administration}`.
+  - [x] Conserver `src/game/{battle,authority,rules,effects,map,balance}` ; déplacer seulement l'UI et les orchestrations concernées.
+  - [x] Choisir un seul module pilote et mesurer ses consommateurs avant déplacement ; documenter l'API publique.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Introduire `src/shared/{ui,i18n,styles,assets,utils}` et `src/infrastructure/{supabase,repositories,persistence,observability}` uniquement lorsqu'un module en a besoin.
+  - [x] Ne pas casser les imports historiques d'un coup ; tests et builds après chaque déplacement.
+  - [x] Migrer imports par petites PR sans créer une structure miroir qui double stores, services ou règles.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Vérifier l'absence d'imports résiduels, builds navigateur, routes et bundle size à chaque étape.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-13 — Alléger `CombatPage.tsx` (~39 Ko)
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Extraire un hook/contrôleur des décisions UI : sélection des actions et cibles, autoplay, statut du combat, effets visuels.
-  - [ ] Conserver validations dans `BattleActionValidator` et calculs dans le moteur, pas de règles dupliquées en JSX.
-  - [ ] Recenser les actions UI versus règles métier, y compris ciblage, autoplay, délais et états chargés.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Tester manuel/auto, contrôles clavier/tactile, multi-cibles, refresh et authority.
-  - [ ] Coordonner cette extraction avec `AI-001` et suivants : l'IA reste dans le moteur et ne dépend pas du contrôleur React.
-  - [ ] Extraire un contrôleur UI sans remplacer le validateur canonique ni appliquer deux fois une action.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Tester combat manuel, auto ×1/×2/×3, cible alliée/ennemie et reprise après navigation.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Extraire un hook/contrôleur des décisions UI : sélection des actions et cibles, autoplay, statut du combat, effets visuels.
+  - [x] Conserver validations dans `BattleActionValidator` et calculs dans le moteur, pas de règles dupliquées en JSX.
+  - [x] Recenser les actions UI versus règles métier, y compris ciblage, autoplay, délais et états chargés.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Tester manuel/auto, contrôles clavier/tactile, multi-cibles, refresh et authority.
+  - [x] Coordonner cette extraction avec `AI-001` et suivants : l'IA reste dans le moteur et ne dépend pas du contrôleur React.
+  - [x] Extraire un contrôleur UI sans remplacer le validateur canonique ni appliquer deux fois une action.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Tester combat manuel, auto ×1/×2/×3, cible alliée/ennemie et reprise après navigation.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-14 — Alléger `StarterSelectPage.tsx` (~31 Ko)
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Extraire la préparation de run et la sélection du mode Daily/standard, filtres du catalogue, affichage de l'économie.
-  - [ ] Remplacer l'instanciation directe de `SupabaseDailyRunRepository` dans la page par une orchestration testable et des interfaces existantes.
-  - [ ] Définir séparément les contrats de sélection de champion, filtrage, mode Daily et accès économique.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Vérifier modes invité/connecté, choix des champions, roster acheté/rotation, rechargement et i18n.
-  - [ ] Introduire un service/app hook unique pour le Daily au lieu de `new SupabaseDailyRunRepository` depuis JSX.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Tester champion gratuit/acheté/rotation, invité, erreur réseau, persistance et navigation vers run.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Extraire la préparation de run et la sélection du mode Daily/standard, filtres du catalogue, affichage de l'économie.
+  - [x] Remplacer l'instanciation directe de `SupabaseDailyRunRepository` dans la page par une orchestration testable et des interfaces existantes.
+  - [x] Définir séparément les contrats de sélection de champion, filtrage, mode Daily et accès économique.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Vérifier modes invité/connecté, choix des champions, roster acheté/rotation, rechargement et i18n.
+  - [x] Introduire un service/app hook unique pour le Daily au lieu de `new SupabaseDailyRunRepository` depuis JSX.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Tester champion gratuit/acheté/rotation, invité, erreur réseau, persistance et navigation vers run.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-15 — Refactor moteur `BattleManager`/`AuthorityRunEngine` sous contrat
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Extraire en petites unités les résolveurs/gestionnaires déjà identifiés sans changer ordre RNG, ordre événements ni sérialisation.
-  - [ ] Ne modifier le moteur autoritaire courant qu'avec versioning/parité si la sémantique change ; jamais réécrire un bundle `replay-only` ou `unsupported`.
-  - [ ] Repérer les étapes pures et l'ordre exact de consommation RNG avant tout déplacement de résolveur.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Ajouter tests de snapshots/replay/seed et comparer sortie des builds avec les fixtures avant/après.
-  - [ ] Isoler les résolveurs en maintenant l'ordre des callbacks et le format de chaque commande autoritaire.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Comparer traces octet à octet, seeds versionnées, snapshots de versions historiques et rapports de cohorte.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Extraire en petites unités les résolveurs/gestionnaires déjà identifiés sans changer ordre RNG, ordre événements ni sérialisation.
+  - [x] Ne modifier le moteur autoritaire courant qu'avec versioning/parité si la sémantique change ; jamais réécrire un bundle `replay-only` ou `unsupported`.
+  - [x] Repérer les étapes pures et l'ordre exact de consommation RNG avant tout déplacement de résolveur.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Ajouter tests de snapshots/replay/seed et comparer sortie des builds avec les fixtures avant/après.
+  - [x] Isoler les résolveurs en maintenant l'ordre des callbacks et le format de chaque commande autoritaire.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Comparer traces octet à octet, seeds versionnées, snapshots de versions historiques et rapports de cohorte.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+Preuves : [validation ARCH-S4](../architecture-s4-validation-2026-10-13.md), [contrat des modules](../feature-module-contract.md), [contrat combat](../feature-combat-contract.md), [contrat sélection](../feature-starter-contract.md) et [contrat moteur](../engine-refactor-contract.md). Le pilote est Daily ; les autres domaines sont migrés uniquement lorsqu’une tranche le nécessite. Les résultats distants du commit final sont consignés dans la PR.
+
 **Acceptation S4 :** UX inchangée, modules autonomes, testabilité augmentée, pas de divergence client/authority.
 
 ## ARCH-S5 — Artefacts, CSS et dette suivie (P2, taille M/L)

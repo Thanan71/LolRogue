@@ -7,20 +7,25 @@ import { parseArgs } from 'node:util';
 import { build } from 'esbuild-authority';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
+const registry = JSON.parse(
+  await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8'),
+);
+const currentEngine = registry.versions
+  .find((version) => version.status === 'current')
+  .engine.replace(/^run-engine-/, '');
 const { values } = parseArgs({
   strict: true,
   options: {
     check: { type: 'boolean', default: false },
-    engine: { type: 'string', default: '0.2.0' },
+    engine: { type: 'string', default: currentEngine },
     output: { type: 'string' },
   },
 });
-if (!['v22', '0.2.0'].includes(values.engine)) throw new Error('--engine must be v22 or 0.2.0.');
-const registry = JSON.parse(
-  await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8'),
-);
+if (!['v22', '0.2.0', '0.2.5'].includes(values.engine))
+  throw new Error('--engine must be v22, 0.2.0 or 0.2.5.');
 const entry = registry.versions.find((version) => version.engine === `run-engine-${values.engine}`);
 if (!entry) throw new Error(`Unknown registered authority ${values.engine}.`);
+const isCurrent = entry.status === 'current';
 const artifactPath = path.join(
   repositoryRoot,
   `config/veigar-run-progression-balance-${values.engine}.json`,
@@ -42,7 +47,7 @@ try {
         export async function generate(bundlePath) {
           const edge = await importInstrumentedAuthorityBundle(bundlePath);
           const sourceAuthority = ${
-            values.engine === 'v22'
+            !isCurrent
               ? `edge.getAuthorityVerifier(${JSON.stringify(entry.engine)}, ${JSON.stringify(entry.contentHash)})`
               : 'getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH)'
           };
@@ -50,7 +55,7 @@ try {
           if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact registered Edge verifier is unavailable. Run npm run release -- edge bundle first.');
           return generateVeigarRunProgressionBalanceDocument({
             sourceAuthority, edgeAuthority,
-            sourceClasses: ${values.engine === 'v22' ? 'edge' : '{ championDB, BattleManager, ChampionInstance }'}, edgeClasses: edge,
+            sourceClasses: ${!isCurrent ? 'edge' : '{ championDB, BattleManager, ChampionInstance }'}, edgeClasses: edge,
           });
         }
       `,

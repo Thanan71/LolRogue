@@ -5,7 +5,7 @@ import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
-import { applicationRepositories } from '@/services/container/applicationRepositories';
+import { dailyRunApplication } from '@/features/daily/application/dailyRunApplication';
 import { useAudioStore } from '@/stores/audioStore';
 import { useAuthStore } from '@/stores/authStore';
 import {
@@ -55,7 +55,7 @@ export function SettingsPage() {
     privacyRequestVersion.current = requestVersion;
     setSavingPrivacy(true);
     setPrivacyStatus(null);
-    const result = await applicationRepositories.dailyRun
+    const result = await dailyRunApplication
       .setLeaderboardPrivacy(publicName.trim() || null, leaderboardOptOut)
       .catch(() => ({ error: new Error('privacy request failed') }));
     if (

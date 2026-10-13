@@ -394,7 +394,9 @@ export function generateVeigarRunProgressionBalanceDocument(input: {
 }) {
   const seeds = input.seeds ?? VEIGAR_BALANCE_SEEDS;
   if (
-    !['run-engine-v22', 'run-engine-0.2.0'].includes(input.sourceAuthority.engineVersion) ||
+    !['run-engine-v22', 'run-engine-0.2.0', 'run-engine-0.2.5'].includes(
+      input.sourceAuthority.engineVersion,
+    ) ||
     input.edgeAuthority.engineVersion !== input.sourceAuthority.engineVersion ||
     input.edgeAuthority.contentHash !== input.sourceAuthority.contentHash
   )

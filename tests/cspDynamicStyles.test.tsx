@@ -2,9 +2,9 @@
 
 import { fireEvent, render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
 import { RunMapCanvas } from '@/components/RunMapCanvas';
 import { TeamPanel } from '@/components/RunMapPanels';
+import { CombatantPortrait } from '@/features/combat/ui/CombatantPortrait';
 import { type NodeMap, NodeType } from '@/game/map/types';
 
 describe('CSP dynamic style contracts', () => {

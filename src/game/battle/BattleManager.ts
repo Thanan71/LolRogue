@@ -5,14 +5,13 @@
  */
 
 import { createBuff } from '@/game/effects/BuffDebuffEffect';
-import { CCEffect } from '@/game/effects/CCEffect';
 import { DamageEffect } from '@/game/effects/DamageEffect';
 import { DelayedDamageEffect } from '@/game/effects/DelayedDamageEffect';
 import { EffectManager } from '@/game/effects/EffectManager';
 import { normalizePercent, normalizeTurnDuration } from '@/game/effects/effectUnits';
 import { HealEffect } from '@/game/effects/HealEffect';
 import { ShieldEffect } from '@/game/effects/ShieldEffect';
-import { CCType, DamageType, type StatKey } from '@/game/effects/types';
+import { DamageType, type StatKey } from '@/game/effects/types';
 import type { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type {
   CombatRuleActor,
@@ -30,6 +29,7 @@ import type { ChampionInstance } from '../ChampionInstance';
 import { resolveRunProgressionGains } from '../runProgression';
 import { isBattleActionUnlocked } from './actionTimingRules';
 import type { CombatActionTrace } from './actionTrace';
+import { executeValidatedBattleAction } from './BattleActionExecutor';
 import {
   getBattleActionDefinition,
   type ResolvableCombatant,
@@ -37,6 +37,7 @@ import {
   validateBattleAction,
 } from './BattleActionValidator';
 import { type BattleEventCallback, BattleEventJournal } from './BattleEventJournal';
+import { resolveBattleRuleEffect } from './BattleRuleEffectResolver';
 import { BattleSpellEffectResolver } from './BattleSpellEffectResolver';
 import { getCombatantTargetId } from './combatantIdentity';
 import { isPassiveCombatReady } from './combatContentSupport';
@@ -673,64 +674,23 @@ export class BattleManager {
 
   private _executeAction(attacker: CombatantState, action: ValidatedBattleAction): void {
     this._activeActionType = action.type;
-    this._applyBeforeActionPassives(attacker, action);
-
-    // ── Basic Attack: keep existing AD-only logic ──
-    if (action.type === ActionType.BasicAttack) {
-      const target = action.targets[0];
-      this._performBasicAttack(attacker, target);
-      this._applyAfterBasicAttackPassives(attacker, target);
-      this._activeActionType = null;
-      return;
-    }
-
-    // ── Spell Action: read spell definition and process effects ──
-    const spellSlot = action.spellSlot;
-    if (!spellSlot) {
-      this._activeActionType = null;
-      return;
-    }
-    const spell = attacker.champion.getSpell(spellSlot);
-    if (!spell) {
-      this._activeActionType = null;
-      return;
-    }
-
-    // Validation has completed before either resource is mutated.
-    if (
-      !attacker.champion.useSpell(
-        spellSlot,
-        this._rules?.getCooldownMultiplier(attacker.champion.id, spellSlot === 'R') ?? 1,
-      )
-    ) {
-      this._activeActionType = null;
-      return;
-    }
-    attacker.currentMp = Math.max(0, attacker.currentMp - action.cost);
-    this._rules?.dispatch({
-      type: 'ability_cast',
-      actor: this._toRuleActor(attacker),
-      action: action.type,
-    });
-
-    // Use enhanced stats for spell damage calculation (getEnhancedStats always returns valid stats)
-    const atkStats = this._getCombatStats(attacker);
-
-    for (const effect of spell.effects) {
-      this._applySpellEffect(
-        effect,
-        attacker,
-        action.targets,
-        atkStats,
-        action.rankIndex,
-        action.targeting,
-      );
-    }
-    this._applyAfterSpellPassives(attacker, action);
+    executeValidatedBattleAction(
+      {
+        rules: this._rules,
+        applyBeforeActionPassives: this._applyBeforeActionPassives.bind(this),
+        performBasicAttack: this._performBasicAttack.bind(this),
+        applyAfterBasicAttackPassives: this._applyAfterBasicAttackPassives.bind(this),
+        applyAfterSpellPassives: this._applyAfterSpellPassives.bind(this),
+        toRuleActor: this._toRuleActor.bind(this),
+        getCombatStats: this._getCombatStats.bind(this),
+        applySpellEffect: this._applySpellEffect.bind(this),
+      },
+      attacker,
+      action,
+    );
     this._activeActionType = null;
   }
 
-  /** Resolve every published spell-effect family against validated targets. */
   private _applySpellEffect(
     effect: SpellEffect,
     attacker: CombatantState,
@@ -1570,83 +1530,16 @@ export class BattleManager {
   }
 
   private _resolveRuleEffect(effect: CombatRuleInstantEffect): void {
-    const source = this._findCombatantByChampionId(effect.sourceId);
-    const target = this._findCombatantByChampionId(effect.targetId);
-    if (!source || !target || effect.amount <= 0) return;
-    if (effect.type === 'heal') {
-      this._applyHeal(source, target, effect.amount);
-    } else if (effect.type === 'damage') {
-      this._applyDamageToTarget(
-        source,
-        target,
-        effect.amount,
-        DamageType.True,
-        false,
-        false,
-        false,
-      );
-    } else if (effect.type === 'mana') {
-      target.currentMp = Math.min(target.maxMp, target.currentMp + effect.amount);
-    } else if (effect.type === 'shield' && !target.isDefeated) {
-      target.effectManager.apply(
-        new ShieldEffect({
-          name: 'Rule shield',
-          sourceId: source.targetId,
-          targetId: target.targetId,
-          magnitude: effect.amount,
-          duration: 2,
-        }),
-      );
-      this._syncEffectState(target);
-      this._emit({
-        type: 'shield',
-        source: source.champion.id,
-        target: target.champion.id,
-        amount: effect.amount,
-        countsAsShield: true,
-        sourceCombatantId: source.targetId,
-        targetCombatantId: target.targetId,
-        sourceSide: source.side,
-        targetSide: target.side,
-      });
-    } else if (effect.type === 'dot' && !target.isDefeated) {
-      target.effectManager.apply(
-        new DamageEffect({
-          name: 'Rule damage over time',
-          sourceId: source.targetId,
-          targetId: target.targetId,
-          magnitude: effect.amount,
-          damageType: DamageType.True,
-          duration: Math.max(1, Math.round(effect.duration ?? 1)),
-          canCrit: false,
-        }),
-      );
-    } else if ((effect.type === 'slow' || effect.type === 'snare') && !target.isDefeated) {
-      const ccType = effect.type === 'slow' ? CCType.Slow : CCType.Snare;
-      const duration = Math.max(1, Math.round(effect.duration ?? 1));
-      target.effectManager.apply(
-        new CCEffect({
-          name: `Rule ${effect.type}`,
-          sourceId: source.targetId,
-          targetId: target.targetId,
-          ccType,
-          duration,
-          slowAmount: effect.type === 'slow' ? effect.amount : undefined,
-        }),
-      );
-      this._syncEffectState(target);
-      this._emit({
-        type: 'crowd_control_applied',
-        source: source.champion.id,
-        target: target.champion.id,
-        sourceCombatantId: source.targetId,
-        targetCombatantId: target.targetId,
-        sourceSide: source.side,
-        targetSide: target.side,
-        ccType,
-        duration,
-      });
-    }
+    resolveBattleRuleEffect(
+      {
+        findCombatantByChampionId: this._findCombatantByChampionId.bind(this),
+        applyHeal: this._applyHeal.bind(this),
+        applyDamageToTarget: this._applyDamageToTarget.bind(this),
+        syncEffectState: this._syncEffectState.bind(this),
+        emit: this._emit.bind(this),
+      },
+      effect,
+    );
   }
 
   private _findCombatantByChampionId(championId: string): CombatantState | undefined {

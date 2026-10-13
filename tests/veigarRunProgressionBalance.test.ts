@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import artifact from '@/../config/veigar-run-progression-balance-0.2.0.json';
+import previousArtifact from '@/../config/veigar-run-progression-balance-0.2.0.json';
+import artifact from '@/../config/veigar-run-progression-balance-0.2.5.json';
 import { championDB } from '@/data/championDatabase';
 import {
   AUTHORITY_CONTENT_HASH,
@@ -20,7 +21,7 @@ import { BattleManager } from '@/game/battle/BattleManager';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { importInstrumentedAuthorityBundle } from './helpers/instrumentedAuthorityCombatRuntime';
 
-describe('Veigar 0.2.0 balance campaign', () => {
+describe('Veigar current balance campaign', () => {
   it('uses paired fresh teams with the identical policy controls', () => {
     expect(VEIGAR_BALANCE_SEEDS).toHaveLength(30);
     for (const id of ['Veigar', 'Annie', 'Lux']) {
@@ -42,6 +43,15 @@ describe('Veigar 0.2.0 balance campaign', () => {
       contentHash: AUTHORITY_CONTENT_HASH,
     });
     expect(artifact.reports.every((report) => report.runs === 30)).toBe(true);
+  });
+
+  it('preserves all 180 paired outcomes and safety probes from 0.2.0 byte-for-byte after identity normalization', () => {
+    const normalized = JSON.stringify(artifact)
+      .split('0.2.5')
+      .join('0.2.0')
+      .split(AUTHORITY_CONTENT_HASH)
+      .join(previousArtifact.authority.contentHash);
+    expect(normalized).toBe(JSON.stringify(previousArtifact));
   });
 
   it('reports absent or dead checkpoint populations explicitly instead of inventing end-run means', () => {
@@ -109,8 +119,7 @@ describe('Veigar 0.2.0 balance campaign', () => {
       AUTHORITY_ENGINE_VERSION,
       AUTHORITY_CONTENT_HASH,
     );
-    if (!sourceAuthority || !edgeAuthority)
-      throw new Error('Current 0.2.0 verifiers are unavailable.');
+    if (!sourceAuthority || !edgeAuthority) throw new Error('Current verifiers are unavailable.');
     const sourceClasses = { championDB, BattleManager, ChampionInstance };
     const edgeClasses = edge as unknown as VeigarBalanceBattleClasses;
     const sourceProbes = createVeigarBalanceCombatProbes(

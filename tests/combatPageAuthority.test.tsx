@@ -55,7 +55,7 @@ vi.mock('@/hooks/useAppNavigate', () => ({
   useAppNavigate: () => combatMocks.navigate,
 }));
 
-vi.mock('@/hooks/useBattleManager', () => ({
+vi.mock('@/features/combat/hooks/useBattleManager', () => ({
   useBattleManager: (options: {
     autoPlay?: boolean;
     runProgressionAssists?: boolean;
@@ -89,9 +89,9 @@ vi.mock('@/hooks/useRunImagePreload', () => ({
   useRunImagePreload: vi.fn(),
 }));
 
-vi.mock('@/components/CombatUI/AbilityBar', () => ({ AbilityBar: () => null }));
-vi.mock('@/components/CombatUI/BattleSpeedControl', () => ({ BattleSpeedControl: () => null }));
-vi.mock('@/components/CombatUI/CombatantPortrait', () => ({
+vi.mock('@/features/combat/ui/AbilityBar', () => ({ AbilityBar: () => null }));
+vi.mock('@/features/combat/ui/BattleSpeedControl', () => ({ BattleSpeedControl: () => null }));
+vi.mock('@/features/combat/ui/CombatantPortrait', () => ({
   CombatantPortrait: ({
     combatant,
     onSelect,
@@ -105,8 +105,8 @@ vi.mock('@/components/CombatUI/CombatantPortrait', () => ({
       </button>
     ) : null,
 }));
-vi.mock('@/components/CombatUI/CombatLog', () => ({ CombatLog: () => null }));
-vi.mock('@/components/CombatUI/TurnIndicator', () => ({ TurnIndicator: () => null }));
+vi.mock('@/features/combat/ui/CombatLog', () => ({ CombatLog: () => null }));
+vi.mock('@/features/combat/ui/TurnIndicator', () => ({ TurnIndicator: () => null }));
 
 const RUN_UUID = 'attempt_22222222-2222-4222-8222-222222222222';
 const realEndRun = useRunStore.getState().endRun;
@@ -278,6 +278,32 @@ describe('CombatPage authority finalization', () => {
       expect.objectContaining({ state: expect.any(Object) }),
     );
     expect(endRun).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a late durable completion from navigating over a newly started run', async () => {
+    let resolveSave: ((saved: Awaited<ReturnType<typeof realEndRun>>) => void) | undefined;
+    const endRun = vi.fn(
+      () =>
+        new Promise<Awaited<ReturnType<typeof realEndRun>>>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+    useRunStore.setState({ endRun });
+    const view = render(<CombatPage />);
+    act(() =>
+      combatMocks.onComplete?.('enemy', [
+        { championId: 'Garen', currentHp: 0, maxHp: 620, currentMp: 17, maxMp: 100 },
+      ]),
+    );
+    view.unmount();
+    useRunStore.setState({ runId: 'new-run', isActive: true, completedRunSnapshot: null });
+    await act(async () => {
+      resolveSave?.({ success: true, runId: RUN_UUID, outcome: 'saved' });
+      await Promise.resolve();
+    });
+    expect(endRun).toHaveBeenCalledOnce();
+    expect(combatMocks.navigate).not.toHaveBeenCalled();
+    expect(useRunStore.getState().runId).toBe('new-run');
   });
 
   it('starts a guest combat in manual mode and toggles auto once from the focused button', async () => {

@@ -1,6 +1,6 @@
 const stringOption = (description, extra = {}) => ({ type: 'string', description, ...extra });
 const booleanOption = (description) => ({ type: 'boolean', description });
-const engine = stringOption('Registered authority engine, e.g. v22 or 0.2.0; defaults to current.');
+const engine = stringOption('Registered authority engine, e.g. v22 or 0.2.5; defaults to current.');
 const output = stringOption('Destination relative to the repository root.');
 const projectRef = stringOption(
   'Explicit approved Supabase project reference of the effective dev/main branch.',
@@ -206,7 +206,7 @@ export const commandCatalog = [
       risk: 'generate',
       options: { engine, output, check },
       artifact: 'veigar-run-progression-balance',
-      supportedEngines: ['v22', '0.2.0'],
+      supportedEngines: ['v22', '0.2.0', '0.2.5'],
     },
   ),
   command(
@@ -218,7 +218,7 @@ export const commandCatalog = [
     {
       options: { engine, all },
       artifact: 'veigar-run-progression-balance',
-      supportedEngines: ['v22', '0.2.0'],
+      supportedEngines: ['v22', '0.2.0', '0.2.5'],
       aliasOptions: { 'balance:veigar:check': ['--all'] },
     },
   ),

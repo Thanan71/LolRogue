@@ -23,8 +23,9 @@ métadonnées et que chaque bundle historique enregistre le verifier attendu.
 
 ## Réduire la taille du déploiement Edge
 
-Les versions v19, v20 et v21 (`replay-only`) ainsi que v22 (`current`) sont embarquées par
-`verify-run`. Les versions v1 à v18 sont `unsupported` et leurs bundles immuables
+Les versions v19 à v22 et `run-engine-0.2.0` (`replay-only`), ainsi que
+`run-engine-0.2.5` (`current`), sont embarquées par `verify-run`.
+Les versions v1 à v18 sont `unsupported` et leurs bundles immuables
 sont conservés dans `supabase/authority-archive/`, hors du déploiement. L'archivage
 de v14 à v18 avait fait passer les bundles déployés de 6 625 211 à 2 519 010 octets
 lors de la publication v21.
@@ -132,3 +133,29 @@ associé à la branche (`dev` vers `LolRogueDev`, `main` vers `LolRogue`). La co
 ne promeut le build Production de `main` qu'après le contrôle du manifeste distant
 et ne poursuit jamais après l'échec d'une étape, afin d'éviter toute fenêtre où v21
 serait créable sans client ou resolver compatible.
+
+## Publication structurelle 0.2.5 — ARCH-S4
+
+L'extraction des modules d'exécution modifie les octets compilés du moteur. Elle
+publie donc `run-engine-0.2.5`, code public `0.2.5`, clé gameplay DB `24`, hash
+`9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa`.
+Score Daily `15`, progression `3`, commandes `2` et catalogue champions `2`
+restent identiques. Les anciennes identités techniques ne sont pas réécrites.
+
+Le bundle 0.2.0 est conservé octet pour octet et devient `replay-only`. La migration
+`20261011134126_gameplay_ruleset_0_2_5_engine_modules.sql` conserve les tentatives
+existantes et publie la nouvelle identité avec ses catalogues vérifiés. Les preuves
+avant/après, les 23 bundles historiques et les contrats de finalisation sont
+décrits dans [engine-refactor-contract.md](engine-refactor-contract.md).
+
+Le checkpoint de retour applicatif est un commit compatible avec ce nouveau
+moteur, antérieur aux migrations UI d'ARCH-S4 ; il est enregistré dans
+`config/application-rollback.json`. Ses dépendances verrouillées et son probe DB
+sont exécutés sur le schéma local migré. Ce checkpoint est un candidat technique,
+pas un déploiement de production connu comme sain.
+
+Après merge, la commande de déploiement reste
+`npm run release -- deploy --project-ref <project-ref> --yes` sur la cible de branche
+approuvée. Elle publie Edge puis le frontend compatible avant d'appliquer la
+migration. Le travail de PR ne déploie aucun backend et n'applique aucune migration
+distante.

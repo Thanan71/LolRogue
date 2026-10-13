@@ -2,11 +2,11 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { championDB } from '@/data/championDatabase';
+import { useBattleManager } from '@/features/combat/hooks/useBattleManager';
 import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { CCEffect } from '@/game/effects/CCEffect';
 import { CCType } from '@/game/effects/types';
-import { useBattleManager } from '@/hooks/useBattleManager';
 import { useBattleStore } from '@/stores/battleStore';
 
 describe('combat status store synchronization', () => {

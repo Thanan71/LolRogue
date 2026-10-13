@@ -110,7 +110,7 @@ export function buildBalancePlan(command, options, context) {
     for (const engine of engines) {
       if (!context.registry.versions.some((entry) => entry.engine === `run-engine-${engine}`)) {
         throw Object.assign(
-          new Error('Unknown authority engine. Use a registered version such as v22 or 0.2.0.'),
+          new Error('Unknown authority engine. Use a registered version such as v22 or 0.2.5.'),
           { code: 'CLI_ENGINE_UNKNOWN' },
         );
       }

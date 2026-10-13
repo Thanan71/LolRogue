@@ -80,20 +80,22 @@ const EXPECTED_VISUAL_PARAMETERS: Readonly<
 };
 
 const COMBAT_SOURCE_FILES = [
-  'src/pages/CombatPage.tsx',
-  'src/pages/combat/combatPresenter.ts',
-  'src/components/CombatUI/AbilityBar.tsx',
-  'src/components/CombatUI/BattleSpeedControl.tsx',
-  'src/components/CombatUI/CombatLog.tsx',
-  'src/components/CombatUI/CombatStage.tsx',
-  'src/components/CombatUI/CombatUI.tsx',
-  'src/components/CombatUI/CombatantPortrait.tsx',
-  'src/components/CombatUI/SpellTooltip.tsx',
-  'src/components/CombatUI/TurnIndicator.tsx',
-  'src/components/CombatUI/index.ts',
+  'src/features/combat/hooks/useCombatController.ts',
+  'src/features/combat/hooks/useCombatEncounter.ts',
+  'src/features/combat/ui/CombatScreen.tsx',
+  'src/features/combat/ui/CombatView.tsx',
+  'src/features/combat/presentation/combatPresenter.ts',
+  'src/features/combat/ui/AbilityBar.tsx',
+  'src/features/combat/ui/BattleSpeedControl.tsx',
+  'src/features/combat/ui/CombatLog.tsx',
+  'src/features/combat/ui/CombatStage.tsx',
+  'src/features/combat/ui/CombatUI.tsx',
+  'src/features/combat/ui/CombatantPortrait.tsx',
+  'src/features/combat/ui/SpellTooltip.tsx',
+  'src/features/combat/ui/TurnIndicator.tsx',
   'src/game/presentation/combatVisuals.ts',
   'src/game/presentation/spellPreview.ts',
-  'src/hooks/useBattleManager.ts',
+  'src/features/combat/hooks/useBattleManager.ts',
 ] as const;
 
 const portrait: CombatantInfo = {
@@ -321,8 +323,8 @@ describe('combat content catalog', () => {
     setStoredLocale('fr-FR');
     vi.resetModules();
     const [frenchModule, frenchPresenter] = await Promise.all([
-      import('@/components/CombatUI/CombatantPortrait'),
-      import('@/pages/combat/combatPresenter'),
+      import('@/features/combat/ui/CombatantPortrait'),
+      import('@/features/combat/presentation/combatPresenter'),
     ]);
     const frenchBonuses = [
       frenchPresenter.formatCombatFlatBonus(1280, 'PV'),
@@ -362,8 +364,8 @@ describe('combat content catalog', () => {
     setStoredLocale('en-US');
     vi.resetModules();
     const [englishModule, englishPresenter] = await Promise.all([
-      import('@/components/CombatUI/CombatantPortrait'),
-      import('@/pages/combat/combatPresenter'),
+      import('@/features/combat/ui/CombatantPortrait'),
+      import('@/features/combat/presentation/combatPresenter'),
     ]);
     const englishBonuses = [
       englishPresenter.formatCombatFlatBonus(1280, 'HP'),
@@ -398,7 +400,8 @@ describe('combat content catalog', () => {
     expect(englishContainer.querySelector('.combatant-portrait__bonus-overflow')?.textContent).toBe(
       '+1,280',
     );
-  });
+    // Both dictionaries are imported from a cold graph under V8 coverage.
+  }, 15_000);
 
   it('contains no raw user copy in the complete combat presentation scope', () => {
     const findings = COMBAT_SOURCE_FILES.flatMap((path) =>
