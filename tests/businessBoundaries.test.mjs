@@ -44,6 +44,15 @@ describe('deterministic game import boundary', () => {
     ['@/services/supabaseClient', 'src/services/supabaseClient.ts'],
     ['@/services/runService', 'src/services/runService.ts'],
     ['@/services/container', 'src/services/container/index.ts'],
+    [
+      '@/features/combat/hooks/useCombatController',
+      'src/features/combat/hooks/useCombatController.ts',
+    ],
+    ['@/shared/ui/Controls', 'src/shared/ui/Controls.tsx'],
+    [
+      '@/infrastructure/repositories/applicationRepositories',
+      'src/infrastructure/repositories/applicationRepositories.ts',
+    ],
     ['@/services/repositories/PlayerRepository', 'src/services/repositories/PlayerRepository.ts'],
   ])('rejects the resolved layer %s', (specifier, path) => {
     const violations = checkBusinessBoundaries(
@@ -163,19 +172,40 @@ describe('bounded Edge replay locator', () => {
 });
 
 describe('explicit service entries and import graph evidence', () => {
-  it.each(['src/pages/ProfilePage.tsx', 'src/hooks/useProfile.ts', 'src/stores/authStore.ts'])(
-    'blocks a new broad service barrel consumer from %s',
-    (path) => {
+  it.each([
+    ['@/pages/CombatPage', 'src/pages/CombatPage.tsx'],
+    ['@/components/ui/Controls', 'src/components/ui/Controls.tsx'],
+    ['@/hooks/useBattleManager', 'src/hooks/useBattleManager.ts'],
+  ])(
+    'blocks feature imports returning through the migrated compatibility entry %s',
+    (specifier, target) => {
       const graph = graphFor(
-        "import { getPlayerRunStats } from '@/services';",
-        [['src/services/index.ts']],
-        path,
+        `import { value } from '${specifier}';`,
+        [[target]],
+        'src/features/daily/ui/Fixture.tsx',
       );
-      const violations = checkBusinessBoundaries(graph);
-      expect(violations[0].rule).toBe('explicit-service-entry');
-      expect(violations[0].message).toContain('named domain service');
+      expect(
+        checkBusinessBoundaries(graph).some(
+          (violation) => violation.rule === 'feature-compatibility-direction',
+        ),
+      ).toBe(true);
     },
   );
+  it.each([
+    'src/pages/ProfilePage.tsx',
+    'src/hooks/useProfile.ts',
+    'src/stores/authStore.ts',
+    'src/features/daily/hooks/useDailyRunController.ts',
+  ])('blocks a new broad service barrel consumer from %s', (path) => {
+    const graph = graphFor(
+      "import { getPlayerRunStats } from '@/services';",
+      [['src/services/index.ts']],
+      path,
+    );
+    const violations = checkBusinessBoundaries(graph);
+    expect(violations[0].rule).toBe('explicit-service-entry');
+    expect(violations[0].message).toContain('named domain service');
+  });
   it('parses JSX, inline type imports and type re-exports distinctly', () => {
     const edges = extractImportEvidence(
       'src/pages/Fixture.tsx',
@@ -296,5 +326,22 @@ describe('explicit service entries and import graph evidence', () => {
     );
     expect(violation.rule).toBe('repository-container-boundary');
     expect(violation.message).toContain('@/services/container/applicationRepositories');
+  });
+
+  it('rejects a feature importing a relocated concrete infrastructure adapter', () => {
+    const target = 'src/infrastructure/repositories/SupabaseDailyRunRepository.ts';
+    const graph = graphFor(
+      "import { SupabaseDailyRunRepository } from '@/infrastructure/repositories/SupabaseDailyRunRepository';",
+      [[target]],
+      'src/features/daily/hooks/useDailyRunController.ts',
+    );
+    expect(
+      checkBusinessBoundaries(graph).some(
+        (violation) => violation.rule === 'repository-container-boundary',
+      ),
+    ).toBe(true);
+    expect(dependencyLayer('src/infrastructure/repositories/applicationRepositories.ts')).toBe(
+      'container',
+    );
   });
 });
