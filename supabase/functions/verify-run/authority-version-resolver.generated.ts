@@ -625,11 +625,39 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 3,
     "command": 2,
-    "status": "current",
+    "status": "replay-only",
     "rulesetCode": "0.2.0",
     "contentHash": "c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16",
-    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "bundle": "supabase/functions/verify-run/run-authority-0.2.0.bundle.js",
     "migration": "supabase/migrations/20261010120531_gameplay_ruleset_0_2_0_veigar_assists.sql",
+    "features": {
+      "canonicalProgression": true,
+      "manualCombat": true,
+      "canonicalEncounters": true,
+      "combatActionTrace": true,
+      "runLedger": true,
+      "mastery": true,
+      "domainInvariants": true,
+      "clientAuthorityParity": true,
+      "automaticTraceSuffix": true,
+      "canonicalStats": true,
+      "contentBalance": true,
+      "runProgression": true,
+      "runProgressionAssists": true
+    },
+    "championCatalog": 2
+  },
+  {
+    "engine": "run-engine-0.2.5",
+    "gameplay": 24,
+    "dailyScore": 15,
+    "progression": 3,
+    "command": 2,
+    "status": "current",
+    "rulesetCode": "0.2.5",
+    "contentHash": "9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa",
+    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "migration": "supabase/migrations/20261011134126_gameplay_ruleset_0_2_5_engine_modules.sql",
     "features": {
       "canonicalProgression": true,
       "manualCombat": true,
@@ -654,7 +682,8 @@ const verifierLoaders = {
   "run-engine-v20": () => import("./run-authority-v20.bundle.ts"), // loader-1
   "run-engine-v21": () => import("./run-authority-v21.bundle.ts"), // loader-2
   "run-engine-v22": () => import("./run-authority-v22.bundle.ts"), // loader-3
-  "run-engine-0.2.0": () => import("./run-authority.bundle.js"), // loader-4
+  "run-engine-0.2.0": () => import("./run-authority-0.2.0.bundle.js"), // loader-4
+  "run-engine-0.2.5": () => import("./run-authority.bundle.js"), // loader-5
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {

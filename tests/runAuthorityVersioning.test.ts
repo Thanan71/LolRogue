@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { usesLegacyEncounterRules } from '@/pages/combat/legacyCombatEncounter';
 import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
@@ -14,7 +15,6 @@ import {
 } from '@/game/authority/versionRegistry';
 import { usesCanonicalProgression } from '@/game/run/runAuthorityJournal';
 import { transitionToNextBiome } from '@/game/run/runProgression';
-import { usesLegacyEncounterRules } from '@/pages/combat/legacyCombatEncounter';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
 import rawRegistry from '../config/authority-versions.json';
 import progressionGolden from './fixtures/authority-progression-golden.json';
@@ -45,7 +45,7 @@ function readDailyRulesetContracts() {
 }
 
 describe('authority progression engine versioning', () => {
-  it('preserves historical runs and publishes semantic release 0.2.0 without changing account progression schemas', () => {
+  it('preserves historical runs and publishes semantic structural release 0.2.5 without changing account progression schemas', () => {
     const v21 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v21');
 
     expect(v21).toMatchObject({
@@ -67,15 +67,23 @@ describe('authority progression engine versioning', () => {
       contentHash: '2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84',
       features: { runProgression: true, runProgressionAssists: false },
     });
-    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
-      engine: 'run-engine-0.2.0',
+    expect(
+      AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-0.2.0'),
+    ).toMatchObject({
+      status: 'replay-only',
       gameplay: 23,
+      contentHash: 'c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16',
+      bundle: 'supabase/functions/verify-run/run-authority-0.2.0.bundle.js',
+    });
+    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
+      engine: 'run-engine-0.2.5',
+      gameplay: 24,
       championCatalog: 2,
       dailyScore: 15,
       progression: 3,
       command: 2,
       status: 'current',
-      rulesetCode: '0.2.0',
+      rulesetCode: '0.2.5',
       features: { runProgression: true, runProgressionAssists: true },
     });
   });

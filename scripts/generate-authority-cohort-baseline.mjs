@@ -14,8 +14,6 @@ const currentVersions = registry.versions.filter((entry) => entry.status === 'cu
 if (currentVersions.length !== 1)
   throw new Error('Authority registry must contain one current engine.');
 const currentEngine = currentVersions[0].engine.replace(/^run-engine-/, '');
-const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'lolrogue-cohort-baseline-'));
-const outputPath = path.join(temporaryRoot, 'authority-cohort-baseline.mjs');
 const { values } = parseArgs({
   strict: true,
   options: {
@@ -36,8 +34,36 @@ async function resolveRegisteredAuthorityBundle(engineVersion) {
 const v22Bundle =
   values.engine === 'v22' ? await resolveRegisteredAuthorityBundle('run-engine-v22') : null;
 
-const currentBundle =
-  values.engine === '0.2.0' ? await resolveRegisteredAuthorityBundle('run-engine-0.2.0') : null;
+async function registeredSemanticVersion(engine) {
+  const engineVersion = `run-engine-${engine}`;
+  const entry = registry.versions.find((candidate) => candidate.engine === engineVersion);
+  const bundle = await resolveRegisteredAuthorityBundle(engineVersion);
+  const identity = {
+    engineVersion,
+    contentHash: entry.contentHash,
+    balanceModelVersion: 2,
+    policy: { id: 'survival-greedy', version: 1 },
+  };
+  return {
+    artifact: `config/authority-cohort-baselines-${engine}.json`,
+    entrySource: `
+      import { getAuthorityVerifier } from ${JSON.stringify(bundle)};
+      import {
+        generateAuthorityCohortBaselineForIdentity,
+      } from './src/game/balance/authorityCohortCurrentBaselineFixture.ts';
+      export function generateAuthorityCohortBaseline() {
+        const identity = ${JSON.stringify(identity)};
+        const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
+        if (!authority) throw new Error('The registered ${engine} authority verifier is unavailable.');
+        return generateAuthorityCohortBaselineForIdentity(authority, identity);
+      }
+    `,
+  };
+}
+
+const semanticVersion = ['0.2.0', '0.2.5'].includes(values.engine)
+  ? await registeredSemanticVersion(values.engine)
+  : null;
 
 const version = {
   v15: {
@@ -174,26 +200,12 @@ const version = {
     }
   `,
   },
-  '0.2.0': {
-    artifact: 'config/authority-cohort-baselines-0.2.0.json',
-    entrySource: `
-    import { getAuthorityVerifier } from ${JSON.stringify(currentBundle)};
-    import {
-      AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY,
-      generateAuthorityCohortCurrentBaseline,
-    } from './src/game/balance/authorityCohortCurrentBaselineFixture.ts';
-    export function generateAuthorityCohortBaseline() {
-      const identity = AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY;
-      const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
-      if (!authority) throw new Error('The registered 0.2.0 authority verifier is unavailable.');
-      return generateAuthorityCohortCurrentBaseline(authority);
-    }
-  `,
-  },
+  '0.2.0': semanticVersion,
+  '0.2.5': semanticVersion,
 }[values.engine];
 
 if (!version)
-  throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20, v21, v22, 0.2.0.');
+  throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20, v21, v22, 0.2.0, 0.2.5.');
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
 
 function serializeBaseline(document) {
@@ -208,6 +220,9 @@ function serializeBaseline(document) {
   for (const [token, seeds] of replacements) serialized = serialized.replace(token, seeds);
   return `${serialized}\n`;
 }
+
+const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'lolrogue-cohort-baseline-'));
+const outputPath = path.join(temporaryRoot, 'authority-cohort-baseline.mjs');
 
 try {
   await build({
