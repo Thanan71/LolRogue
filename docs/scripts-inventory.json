@@ -165,6 +165,7 @@
     "config/early-top-cohort-v17.json",
     "config/early-top-cohort-v18.json",
     "config/early-top-cohort-v21.json",
+    "config/generated-artifacts.json",
     "config/map-economy-baseline-0.2.0.json",
     "config/map-economy-baseline-0.2.5.json",
     "config/map-economy-baseline-v19.json",
@@ -185,6 +186,7 @@
     "docs/architecture-s3-validation-2026-10-11.md",
     "docs/architecture-s4-cohort-cli-validation.md",
     "docs/architecture-s4-validation-2026-10-13.md",
+    "docs/architecture-s5-validation-2026-10-13.md",
     "docs/archive/audit-initial-2026-07-23.md",
     "docs/archive/delivery-history-2026-07-august.md",
     "docs/archive/p3-champ-01-veigar-completed-2026-10-10.md",
@@ -217,6 +219,7 @@
     "docs/content-admission.md",
     "docs/content-balance.md",
     "docs/csp-inline-style-inventory.md",
+    "docs/css-maintenance.md",
     "docs/data-access.md",
     "docs/data-and-persistence.md",
     "docs/database-finished-queue-index.md",
@@ -232,6 +235,7 @@
     "docs/field-calibration.md",
     "docs/frontend-performance.md",
     "docs/gameplay.md",
+    "docs/generated-artifacts.md",
     "docs/incident-runbooks.md",
     "docs/legal-and-privacy.md",
     "docs/observability.md",
@@ -268,6 +272,7 @@
     "e2e/combat-map-presentation.spec.ts",
     "e2e/connected-daily.spec.ts",
     "e2e/connected-sprint-g.spec.ts",
+    "e2e/css-maintenance.spec.ts",
     "e2e/database-mobile-navigation.spec.ts",
     "e2e/game-screens-responsive.spec.ts",
     "e2e/i18n-english-journey.spec.ts",
@@ -302,6 +307,7 @@
     "scripts/check-database-migration-drift.mjs",
     "scripts/check-database-types.mjs",
     "scripts/check-dependency-audit.mjs",
+    "scripts/check-generated-artifacts.mjs",
     "scripts/check-local-db-security.mjs",
     "scripts/check-measured-database-indexes.mjs",
     "scripts/check-node-version-contract.mjs",
@@ -334,6 +340,7 @@
     "scripts/generate-test-order-seeds.mjs",
     "scripts/generate-veigar-run-progression-balance.mjs",
     "scripts/inspect-finished-queue-index-stats.mjs",
+    "scripts/lib/artifact-snapshot.mjs",
     "scripts/lib/authority-version-registry.mjs",
     "scripts/lib/business-boundaries.mjs",
     "scripts/lib/ci-build-artifact.mjs",
@@ -343,7 +350,11 @@
     "scripts/lib/critical-command.mjs",
     "scripts/lib/database-test-discovery.mjs",
     "scripts/lib/database-types.mjs",
+    "scripts/lib/dependency-audit.mjs",
     "scripts/lib/environment-config.mjs",
+    "scripts/lib/generated-artifacts.mjs",
+    "scripts/lib/generated-authority-artifacts.mjs",
+    "scripts/lib/generated-riot-artifacts.mjs",
     "scripts/lib/migration-manifest.mjs",
     "scripts/lib/node-version-contract.mjs",
     "scripts/lib/remote-operation.mjs",
@@ -919,6 +930,7 @@
     "tests/databaseTestSkipPolicy.test.mjs",
     "tests/databaseTypeGeneration.test.mjs",
     "tests/dbLogger.test.ts",
+    "tests/dependencyAudit.test.mjs",
     "tests/deployedAssetsVerifier.test.ts",
     "tests/deploymentWorkflow.test.ts",
     "tests/dialogAccessibility.test.tsx",
@@ -959,6 +971,7 @@
     "tests/fixtures/user-copy-scanner/localized-copy.tsx",
     "tests/gameOverContent.test.ts",
     "tests/gameOverPresentation.test.tsx",
+    "tests/generatedArtifacts.test.mjs",
     "tests/helpers/authorityBundleResolver.ts",
     "tests/helpers/engineRefactorFixture.ts",
     "tests/helpers/instrumentedAuthorityCombatRuntime.ts",
@@ -1703,10 +1716,66 @@
         },
         {
           "file": "README.md",
-          "line": 178,
+          "line": 187,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run assets -- update",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 20,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 20,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 20,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 25,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: raw Data Dragon/Community Dragon cache is ignored; full upstream reproduction needs npm run assets -- download. Static integrity is checked offline.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 104,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- package\",",
           "classification": "active"
         },
         {
@@ -1811,6 +1880,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run assets -- clean-build` (build dans un répertoire jetable) puis `check:build`",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/lib/generated-riot-artifacts.mjs",
+          "line": 74,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "`deterministic projection is stale: ${generated}${file}. Run npm run assets -- package.`,",
           "classification": "active"
         },
         {
@@ -1925,10 +2002,66 @@
         },
         {
           "file": "README.md",
-          "line": 178,
+          "line": 187,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run assets -- update",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 20,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 20,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 20,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 25,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: raw Data Dragon/Community Dragon cache is ignored; full upstream reproduction needs npm run assets -- download. Static integrity is checked offline.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- package\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 104,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run assets -- package\",",
           "classification": "active"
         },
         {
@@ -2063,6 +2196,14 @@
           "classification": "active"
         },
         {
+          "file": "scripts/lib/generated-riot-artifacts.mjs",
+          "line": 74,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "`deterministic projection is stale: ${generated}${file}. Run npm run assets -- package.`,",
+          "classification": "active"
+        },
+        {
           "file": "scripts/package-riot-assets.mjs",
           "line": 66,
           "kind": "npm-run",
@@ -2161,7 +2302,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -2172,7 +2313,7 @@
         },
         {
           "file": "README.md",
-          "line": 210,
+          "line": 224,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -2204,6 +2345,43 @@
             "check:build",
             "build",
             "prebuild"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 34,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "L'installation complète prend 4,37 s et `npm run check:build` 6,05 s, mesurés par",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check"
           ]
         },
         {
@@ -2302,10 +2480,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check"
@@ -2359,7 +2537,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -3542,7 +3720,7 @@
       "commandChanged": false,
       "public": true,
       "retired": false,
-      "contract": "internal",
+      "contract": "external",
       "kind": "script",
       "classifications": [
         "generation",
@@ -3577,6 +3755,22 @@
       "historicalDependencies": [],
       "activeCallers": [
         {
+          "file": "config/generated-artifacts.json",
+          "line": 136,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run authority:generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "docs/generated-artifacts.md",
+          "line": 26,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| Résolveur Edge et capacités client `*.generated.ts` | Registre ; `npm run authority:generate` | Suivis ; `verify-run`, capacités de run et filtres d'historique | Comparaison exacte avec les deux renderers existants, ex",
+          "classification": "active"
+        },
+        {
           "file": "scripts/check-authority-registry.mjs",
           "line": 20,
           "kind": "npm-run",
@@ -3598,12 +3792,44 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "return `// Generated from config/authority-versions.json by npm run authority:generate.",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/lib/generated-authority-artifacts.mjs",
+          "line": 35,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "throw new Error(`Generated artifacts: stale ${file}. Run npm run authority:generate.`);",
+          "classification": "active"
+        },
+        {
+          "file": "tests/generatedArtifacts.test.mjs",
+          "line": 313,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "if (invocation === 'npm run authority:generate') continue;",
           "classification": "active"
         }
       ],
       "historicalCallers": [],
       "callers": [
         {
+          "file": "config/generated-artifacts.json",
+          "line": 136,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run authority:generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "docs/generated-artifacts.md",
+          "line": 26,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| Résolveur Edge et capacités client `*.generated.ts` | Registre ; `npm run authority:generate` | Suivis ; `verify-run`, capacités de run et filtres d'historique | Comparaison exacte avec les deux renderers existants, ex",
+          "classification": "active"
+        },
+        {
           "file": "scripts/check-authority-registry.mjs",
           "line": 20,
           "kind": "npm-run",
@@ -3625,6 +3851,22 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "return `// Generated from config/authority-versions.json by npm run authority:generate.",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/lib/generated-authority-artifacts.mjs",
+          "line": 35,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "throw new Error(`Generated artifacts: stale ${file}. Run npm run authority:generate.`);",
+          "classification": "active"
+        },
+        {
+          "file": "tests/generatedArtifacts.test.mjs",
+          "line": 313,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "if (invocation === 'npm run authority:generate') continue;",
           "classification": "active"
         }
       ],
@@ -3871,6 +4113,150 @@
           "classification": "active"
         },
         {
+          "file": "config/generated-artifacts.json",
+          "line": 196,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- baseline generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 205,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- baseline check --all\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 208,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- baseline check --all.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 214,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- early-top generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 220,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- early-top check --all\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 223,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- early-top check --all.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 229,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- map-economy generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 238,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- map-economy check\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 241,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- map-economy check.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 250,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- veigar generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 259,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- veigar check --all\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 262,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- veigar check --all.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 271,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- field-baseline generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 280,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- field-baseline check\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 283,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- field-baseline check.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 289,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- combat matrix generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 298,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- combat matrix check\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 301,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- combat matrix check.\"",
+          "classification": "active"
+        },
+        {
           "file": "docs/architecture-s4-cohort-cli-validation.md",
           "line": 10,
           "kind": "npm-run",
@@ -3895,11 +4281,19 @@
           "classification": "active"
         },
         {
-          "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 81,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "| `npm run balance -- check` | PASS ; cohortes historiques, 7 560 combats, 1 000 seeds carte, trois versions Veigar à 180 runs appariées puis 148 tests / 31 fichiers |",
+          "classification": "active"
+        },
+        {
+          "file": "docs/backlog/architecture-maintenance.md",
+          "line": 314,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         },
         {
@@ -4084,6 +4478,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "byte-for-byte fait partie de `npm run balance -- artifacts check` ; aucun numéro de ruleset n'est",
+          "classification": "active"
+        },
+        {
+          "file": "docs/dependency-audit.md",
+          "line": 191,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run balance -- check` reproduit les dix baselines authority, les trois",
           "classification": "active"
         },
         {
@@ -4322,6 +4724,150 @@
           "classification": "active"
         },
         {
+          "file": "config/generated-artifacts.json",
+          "line": 196,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- baseline generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 205,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- baseline check --all\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 208,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- baseline check --all.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 214,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- early-top generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 220,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- early-top check --all\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 223,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- early-top check --all.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 229,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- map-economy generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 238,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- map-economy check\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 241,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- map-economy check.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 250,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- veigar generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 259,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- veigar check --all\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 262,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- veigar check --all.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 271,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- field-baseline generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 280,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- field-baseline check\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 283,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- field-baseline check.\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 289,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run balance -- combat matrix generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 298,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"npm run balance -- combat matrix check\"",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 301,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- combat matrix check.\"",
+          "classification": "active"
+        },
+        {
           "file": "docs/architecture-s4-cohort-cli-validation.md",
           "line": 10,
           "kind": "npm-run",
@@ -4346,11 +4892,19 @@
           "classification": "active"
         },
         {
-          "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 81,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "| `npm run balance -- check` | PASS ; cohortes historiques, 7 560 combats, 1 000 seeds carte, trois versions Veigar à 180 runs appariées puis 148 tests / 31 fichiers |",
+          "classification": "active"
+        },
+        {
+          "file": "docs/backlog/architecture-maintenance.md",
+          "line": 314,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         },
         {
@@ -4535,6 +5089,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "byte-for-byte fait partie de `npm run balance -- artifacts check` ; aucun numéro de ruleset n'est",
+          "classification": "active"
+        },
+        {
+          "file": "docs/dependency-audit.md",
+          "line": 191,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run balance -- check` reproduit les dix baselines authority, les trois",
           "classification": "active"
         },
         {
@@ -22848,7 +23410,7 @@
         },
         {
           "file": "README.md",
-          "line": 210,
+          "line": 224,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -22924,7 +23486,7 @@
         },
         {
           "file": "README.md",
-          "line": 210,
+          "line": 224,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -23026,7 +23588,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -23056,6 +23618,40 @@
           "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
           "classification": "active",
           "via": [
+            "check:build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 34,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "L'installation complète prend 4,37 s et `npm run check:build` 6,05 s, mesurés par",
+          "classification": "active",
+          "via": [
+            "check:build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
+          "classification": "active",
+          "via": [
+            "check:build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:build"
           ]
         },
@@ -23163,10 +23759,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -23225,7 +23821,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -23480,7 +24076,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -23492,6 +24088,14 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
           "classification": "active"
         },
         {
@@ -23512,10 +24116,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         },
         {
@@ -23536,7 +24140,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -23750,7 +24354,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -23762,6 +24366,14 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
           "classification": "active"
         },
         {
@@ -23836,10 +24448,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         },
         {
@@ -23878,7 +24490,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -24051,10 +24663,10 @@
       "activeCallers": [
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         }
       ],
@@ -24062,10 +24674,10 @@
       "callers": [
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         }
       ],
@@ -24137,6 +24749,22 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 34,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "L'installation complète prend 4,37 s et `npm run check:build` 6,05 s, mesurés par",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
+          "classification": "active"
+        },
+        {
           "file": "package.json",
           "line": 33,
           "kind": "npm-run",
@@ -24162,6 +24790,22 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 34,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "L'installation complète prend 4,37 s et `npm run check:build` 6,05 s, mesurés par",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
           "classification": "active"
         },
         {
@@ -24199,7 +24843,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -24214,6 +24858,17 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
+          "classification": "active",
+          "via": [
+            "check"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
           "classification": "active",
           "via": [
             "check"
@@ -24315,10 +24970,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check"
@@ -24372,7 +25027,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -24596,10 +25251,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         }
       ],
@@ -24615,10 +25270,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         }
       ],
@@ -24748,7 +25403,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -24763,6 +25418,17 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
+          "classification": "active",
+          "via": [
+            "check"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
           "classification": "active",
           "via": [
             "check"
@@ -24864,10 +25530,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check"
@@ -24921,7 +25587,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -25090,7 +25756,7 @@
     },
     {
       "name": "check:static",
-      "command": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+      "command": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
       "initial": true,
       "initialCommand": "npm run format:check && npm run lint && npm run csp:styles:check && npm run typecheck && npm run node:contract && npm run release:readiness:check && npm run content:check",
       "commandChanged": true,
@@ -25240,7 +25906,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -25255,6 +25921,17 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
+          "classification": "active",
+          "via": [
+            "check"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
           "classification": "active",
           "via": [
             "check"
@@ -25356,10 +26033,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check"
@@ -25413,7 +26090,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -25705,7 +26382,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -25720,6 +26397,17 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
+          "classification": "active",
+          "via": [
+            "check"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
           "classification": "active",
           "via": [
             "check"
@@ -25821,10 +26509,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check"
@@ -25878,7 +26566,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -26689,6 +27377,22 @@
           "classification": "active"
         },
         {
+          "file": "config/generated-artifacts.json",
+          "line": 182,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run database -- types generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 187,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: exact schema reproduction requires the disposable local database and npm run database -- types check; static check does not claim schema parity.\"",
+          "classification": "active"
+        },
+        {
           "file": "docs/administration.md",
           "line": 106,
           "kind": "npm-run",
@@ -26906,7 +27610,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 79,
+          "line": 85,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- security`, contrôler que l'advisor Supabase ne signale plus aucun",
@@ -26914,7 +27618,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 89,
+          "line": 95,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fonction Edge et client, puis exécuter `npm run database -- security`.",
@@ -26922,7 +27626,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 142,
+          "line": 148,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et",
@@ -26930,7 +27634,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 160,
+          "line": 166,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -26938,7 +27642,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 160,
+          "line": 166,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -26946,7 +27650,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 165,
+          "line": 171,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
@@ -26954,7 +27658,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 223,
+          "line": 229,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "horodatée et la tester avec `npm run database -- validate --yes`.",
@@ -26962,7 +27666,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 225,
+          "line": 231,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
@@ -27501,6 +28205,22 @@
           "classification": "active"
         },
         {
+          "file": "config/generated-artifacts.json",
+          "line": 182,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run database -- types generate\",",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 187,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproduction\": \"conditional: exact schema reproduction requires the disposable local database and npm run database -- types check; static check does not claim schema parity.\"",
+          "classification": "active"
+        },
+        {
           "file": "docs/administration.md",
           "line": 106,
           "kind": "npm-run",
@@ -27718,7 +28438,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 79,
+          "line": 85,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- security`, contrôler que l'advisor Supabase ne signale plus aucun",
@@ -27726,7 +28446,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 89,
+          "line": 95,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fonction Edge et client, puis exécuter `npm run database -- security`.",
@@ -27734,7 +28454,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 142,
+          "line": 148,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et",
@@ -27742,7 +28462,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 160,
+          "line": 166,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -27750,7 +28470,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 160,
+          "line": 166,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -27758,7 +28478,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 165,
+          "line": 171,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
@@ -27766,7 +28486,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 223,
+          "line": 229,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "horodatée et la tester avec `npm run database -- validate --yes`.",
@@ -27774,7 +28494,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 225,
+          "line": 231,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
@@ -28100,10 +28820,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check:db"
@@ -29774,7 +30494,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -29786,7 +30506,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -29829,7 +30549,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -29859,6 +30579,18 @@
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
           "classification": "active",
           "via": [
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:static"
           ]
         },
@@ -29966,10 +30698,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -30028,7 +30760,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -30310,7 +31042,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -30322,7 +31054,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -30365,7 +31097,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -30395,6 +31127,18 @@
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
           "classification": "active",
           "via": [
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:static"
           ]
         },
@@ -30502,10 +31246,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -30564,7 +31308,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -30847,7 +31591,7 @@
       "activeCallers": [
         {
           "file": "docs/dependency-audit.md",
-          "line": 25,
+          "line": 27,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Preuves reproductibles : `npm run node:contract` compare runtime déclaré,",
@@ -30866,7 +31610,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -30875,7 +31619,7 @@
       "callers": [
         {
           "file": "docs/dependency-audit.md",
-          "line": 25,
+          "line": 27,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Preuves reproductibles : `npm run node:contract` compare runtime déclaré,",
@@ -30894,7 +31638,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -30937,7 +31681,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -30967,6 +31711,18 @@
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
           "classification": "active",
           "via": [
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:static"
           ]
         },
@@ -31074,10 +31830,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -31136,7 +31892,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -31499,7 +32255,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -31512,7 +32268,7 @@
         },
         {
           "file": "README.md",
-          "line": 210,
+          "line": 224,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -31542,6 +32298,43 @@
           "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
           "classification": "active",
           "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 34,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "L'installation complète prend 4,37 s et `npm run check:build` 6,05 s, mesurés par",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:build",
             "build"
           ]
@@ -31658,10 +32451,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -31725,7 +32518,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -32142,6 +32935,22 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 33,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "Data Dragon, ni état Supabase local. Le cache npm dédié est vide avant `npm ci`.",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 39,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "repart aussi sans ces répertoires ni cache npm : `npm ci` prend 3,18 s et",
+          "classification": "active"
+        },
+        {
           "file": "docs/backlog/architecture-maintenance.md",
           "line": 85,
           "source": "documentation",
@@ -32151,10 +32960,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "source": "documentation",
           "kind": "implicit-install-hook",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         },
         {
@@ -32175,15 +32984,31 @@
         },
         {
           "file": "docs/dependency-audit.md",
-          "line": 81,
+          "line": 61,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "de version ; le lockfile et `npm ci` fixent leur résolution. Les pins Supabase,",
+          "classification": "active"
+        },
+        {
+          "file": "docs/dependency-audit.md",
+          "line": 181,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "- `npm ci`, TypeScript, Biome et le build Vite/Rolldown ;",
           "classification": "active"
         },
         {
+          "file": "docs/generated-artifacts.md",
+          "line": 96,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "ou cache de génération a passé `npm ci` (4,37 s, cache npm isolé) et le contrôle du build (6,05 s).",
+          "classification": "active"
+        },
+        {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -32235,6 +33060,14 @@
           "source": "script",
           "kind": "implicit-install-hook",
           "excerpt": "preconditions: ['Run npm ci before execution; --dry-run only prints a plan.'],",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/lib/command-catalog.mjs",
+          "line": 549,
+          "source": "script",
+          "kind": "implicit-install-hook",
+          "excerpt": "preconditions: ['Git checkout and npm ci; no database or upstream download required.'],",
           "classification": "active"
         },
         {
@@ -32428,6 +33261,22 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 33,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "Data Dragon, ni état Supabase local. Le cache npm dédié est vide avant `npm ci`.",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 39,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "repart aussi sans ces répertoires ni cache npm : `npm ci` prend 3,18 s et",
+          "classification": "active"
+        },
+        {
           "file": "docs/archive/speed-insights-installation-2026-08-08.md",
           "line": 5,
           "source": "documentation",
@@ -32446,10 +33295,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "source": "documentation",
           "kind": "implicit-install-hook",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active"
         },
         {
@@ -32470,15 +33319,31 @@
         },
         {
           "file": "docs/dependency-audit.md",
-          "line": 81,
+          "line": 61,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "de version ; le lockfile et `npm ci` fixent leur résolution. Les pins Supabase,",
+          "classification": "active"
+        },
+        {
+          "file": "docs/dependency-audit.md",
+          "line": 181,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "- `npm ci`, TypeScript, Biome et le build Vite/Rolldown ;",
           "classification": "active"
         },
         {
+          "file": "docs/generated-artifacts.md",
+          "line": 96,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "ou cache de génération a passé `npm ci` (4,37 s, cache npm isolé) et le contrôle du build (6,05 s).",
+          "classification": "active"
+        },
+        {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -32539,6 +33404,14 @@
           "source": "script",
           "kind": "implicit-install-hook",
           "excerpt": "preconditions: ['Run npm ci before execution; --dry-run only prints a plan.'],",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/lib/command-catalog.mjs",
+          "line": 549,
+          "source": "script",
+          "kind": "implicit-install-hook",
+          "excerpt": "preconditions: ['Git checkout and npm ci; no database or upstream download required.'],",
           "classification": "active"
         },
         {
@@ -32721,7 +33594,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -32734,7 +33607,7 @@
         },
         {
           "file": "README.md",
-          "line": 210,
+          "line": 224,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -32764,6 +33637,43 @@
           "excerpt": "- Le build Preview réel décrit plus haut passe `npm run check:build`.",
           "classification": "active",
           "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 34,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "L'installation complète prend 4,37 s et `npm run check:build` 6,05 s, mesurés par",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:build",
             "build"
           ]
@@ -32880,10 +33790,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -32947,7 +33857,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -33311,7 +34221,8 @@
       "risk": "read-only",
       "inputs": [
         "Release policy, Git identity, environment target and backup/restore configuration",
-        "Repository checkout and locked Node 24 dependencies"
+        "Repository checkout and locked Node 24 dependencies",
+        "config/generated-artifacts.json and its committed sources and outputs"
       ],
       "preconditions": [
         "Node 24; main targets production and dev targets LolRogueDev; never expose service-role keys",
@@ -33368,6 +34279,14 @@
           "classification": "active"
         },
         {
+          "file": "README.md",
+          "line": 171,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "vérifier et conserver dans Git. `npm run release -- artifacts check` contrôle leur",
+          "classification": "active"
+        },
+        {
           "file": "TODO.md",
           "line": 73,
           "kind": "npm-run",
@@ -33397,6 +34316,14 @@
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"checks\": [\"npm run release -- readiness check\"]",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 159,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run release -- edge bundle\",",
           "classification": "active"
         },
         {
@@ -33568,6 +34495,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/generated-artifacts.md",
+          "line": 8,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run release -- artifacts check",
+          "classification": "active"
+        },
+        {
           "file": "docs/incident-runbooks.md",
           "line": 109,
           "kind": "npm-run",
@@ -33577,7 +34512,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -33585,7 +34520,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 49,
+          "line": 55,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet",
@@ -33593,7 +34528,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 232,
+          "line": 238,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le",
@@ -33601,7 +34536,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 238,
+          "line": 244,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
@@ -33609,7 +34544,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 250,
+          "line": 256,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
@@ -33617,7 +34552,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 260,
+          "line": 266,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "immuables et sont contrôlés par `npm run release -- edge bundle`.",
@@ -33672,6 +34607,14 @@
           "classification": "active"
         },
         {
+          "file": "scripts/check-generated-artifacts.mjs",
+          "line": 12,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "'Usage: npm run release -- artifacts check\\nChecks generated artefacts in memory, without writing or downloading files.\\n',",
+          "classification": "active"
+        },
+        {
           "file": "scripts/create-database-backup.mjs",
           "line": 38,
           "kind": "npm-run",
@@ -33693,6 +34636,14 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact registered Edge verifier is unavailable. Run npm run release -- edge bundle first.');",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/lib/generated-authority-artifacts.mjs",
+          "line": 111,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "`Generated artifacts: current authority bundle is stale: ${current.engine}. Review source versioning before npm run release -- edge bundle.`,",
           "classification": "active"
         },
         {
@@ -33749,7 +34700,16 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "parent": "check:static",
+          "classification": "active"
+        },
+        {
+          "file": "package.json",
+          "line": 37,
+          "kind": "npm-run",
+          "source": "npm-chain",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -33789,6 +34749,14 @@
           "classification": "active"
         },
         {
+          "file": "README.md",
+          "line": 171,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "vérifier et conserver dans Git. `npm run release -- artifacts check` contrôle leur",
+          "classification": "active"
+        },
+        {
           "file": "TODO.md",
           "line": 73,
           "kind": "npm-run",
@@ -33818,6 +34786,14 @@
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"checks\": [\"npm run release -- readiness check\"]",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 159,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run release -- edge bundle\",",
           "classification": "active"
         },
         {
@@ -33989,6 +34965,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/generated-artifacts.md",
+          "line": 8,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run release -- artifacts check",
+          "classification": "active"
+        },
+        {
           "file": "docs/incident-runbooks.md",
           "line": 109,
           "kind": "npm-run",
@@ -33998,7 +34982,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -34006,7 +34990,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 49,
+          "line": 55,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet",
@@ -34014,7 +34998,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 232,
+          "line": 238,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le",
@@ -34022,7 +35006,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 238,
+          "line": 244,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
@@ -34030,7 +35014,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 250,
+          "line": 256,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
@@ -34038,7 +35022,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 260,
+          "line": 266,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "immuables et sont contrôlés par `npm run release -- edge bundle`.",
@@ -34106,8 +35090,25 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
+          "classification": "active"
+        },
+        {
+          "file": "package.json",
+          "line": 37,
+          "kind": "npm-run",
+          "source": "npm-chain",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "parent": "check:static",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/check-generated-artifacts.mjs",
+          "line": 12,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "'Usage: npm run release -- artifacts check\\nChecks generated artefacts in memory, without writing or downloading files.\\n',",
           "classification": "active"
         },
         {
@@ -34132,6 +35133,14 @@
           "kind": "npm-run",
           "source": "script",
           "excerpt": "if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact registered Edge verifier is unavailable. Run npm run release -- edge bundle first.');",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/lib/generated-authority-artifacts.mjs",
+          "line": 111,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "`Generated artifacts: current authority bundle is stale: ${current.engine}. Review source versioning before npm run release -- edge bundle.`,",
           "classification": "active"
         },
         {
@@ -34238,7 +35247,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -34250,7 +35259,7 @@
         },
         {
           "file": "README.md",
-          "line": 210,
+          "line": 224,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -34294,6 +35303,44 @@
             "check:build",
             "build",
             "prebuild"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 34,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "L'installation complète prend 4,37 s et `npm run check:build` 6,05 s, mesurés par",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
+            "check:static"
           ]
         },
         {
@@ -34400,10 +35447,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -34462,7 +35509,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -35077,7 +36124,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -35097,7 +36144,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -35140,7 +36187,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -35170,6 +36217,18 @@
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
           "classification": "active",
           "via": [
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:static"
           ]
         },
@@ -35277,10 +36336,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -35339,7 +36398,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -36053,7 +37112,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -36083,6 +37142,18 @@
           "excerpt": "- `npm run check:unit` passe : 2 835 tests, 265 fichiers, 83 tests conditionnels",
           "classification": "active",
           "via": [
+            "check:unit"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:unit"
           ]
         },
@@ -36190,10 +37261,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -36252,7 +37323,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -36512,7 +37583,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 44,
+          "line": 50,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -36629,7 +37700,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 44,
+          "line": 50,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -36973,7 +38044,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 44,
+          "line": 50,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -37043,7 +38114,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 44,
+          "line": 50,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -37087,10 +38158,10 @@
       "indirectCallers": [
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check:browser"
@@ -37279,10 +38350,10 @@
       "indirectCallers": [
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check:browser"
@@ -38085,7 +39156,7 @@
         },
         {
           "file": "docs/dependency-audit.md",
-          "line": 27,
+          "line": 29,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "installées et `npm run testing -- security` refuse toute alerte haute/critique courante.",
@@ -38093,7 +39164,7 @@
         },
         {
           "file": "docs/dependency-audit.md",
-          "line": 78,
+          "line": 178,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "ni exception d'audit n'est ajouté. Le contrôle `npm run testing -- security` et le build",
@@ -38101,7 +39172,7 @@
         },
         {
           "file": "docs/dependency-audit.md",
-          "line": 82,
+          "line": 182,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- `npm run testing -- security` sans exception haute ou critique ;",
@@ -38336,7 +39407,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -38345,7 +39416,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -38453,7 +39524,7 @@
         },
         {
           "file": "docs/dependency-audit.md",
-          "line": 27,
+          "line": 29,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "installées et `npm run testing -- security` refuse toute alerte haute/critique courante.",
@@ -38461,7 +39532,7 @@
         },
         {
           "file": "docs/dependency-audit.md",
-          "line": 78,
+          "line": 178,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "ni exception d'audit n'est ajouté. Le contrôle `npm run testing -- security` et le build",
@@ -38469,7 +39540,7 @@
         },
         {
           "file": "docs/dependency-audit.md",
-          "line": 82,
+          "line": 182,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- `npm run testing -- security` sans exception haute ou critique ;",
@@ -38616,7 +39687,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -38625,7 +39696,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -38805,7 +39876,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -38858,6 +39929,40 @@
           "classification": "active",
           "via": [
             "check:build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 34,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "L'installation complète prend 4,37 s et `npm run check:build` 6,05 s, mesurés par",
+          "classification": "active",
+          "via": [
+            "check:build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 40,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
+          "classification": "active",
+          "via": [
+            "check:build"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
+            "check:static"
           ]
         },
         {
@@ -38964,10 +40069,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -39026,7 +40131,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -39303,7 +40408,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -39331,7 +40436,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -39390,7 +40495,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -39420,6 +40525,18 @@
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
           "classification": "active",
           "via": [
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:static"
           ]
         },
@@ -39527,10 +40644,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -39589,7 +40706,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -39913,7 +41030,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -39945,6 +41062,19 @@
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
           "classification": "active",
           "via": [
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:static",
             "typecheck"
           ]
@@ -40061,10 +41191,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -40128,7 +41258,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -40410,6 +41540,22 @@
       "historicalDependencies": [],
       "activeCallers": [
         {
+          "file": "docs/css-maintenance.md",
+          "line": 166,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck:e2e",
+          "classification": "active"
+        },
+        {
+          "file": "docs/css-maintenance.md",
+          "line": 231,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "Biome sur les quatre feuilles et le harness, `npm run typecheck:e2e` et",
+          "classification": "active"
+        },
+        {
           "file": "tests/toolingTypecheckContract.test.ts",
           "line": 48,
           "kind": "npm-run",
@@ -40429,6 +41575,22 @@
       ],
       "historicalCallers": [],
       "callers": [
+        {
+          "file": "docs/css-maintenance.md",
+          "line": 166,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck:e2e",
+          "classification": "active"
+        },
+        {
+          "file": "docs/css-maintenance.md",
+          "line": 231,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "Biome sur les quatre feuilles et le harness, `npm run typecheck:e2e` et",
+          "classification": "active"
+        },
         {
           "file": "package.json",
           "line": 24,
@@ -40499,7 +41661,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -40531,6 +41693,19 @@
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
           "classification": "active",
           "via": [
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:static",
             "typecheck"
           ]
@@ -40647,10 +41822,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -40714,7 +41889,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -41085,7 +42260,7 @@
         },
         {
           "file": "README.md",
-          "line": 184,
+          "line": 193,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "[docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute",
@@ -41117,6 +42292,19 @@
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
           "classification": "active",
           "via": [
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 79,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |",
+          "classification": "active",
+          "via": [
+            "check",
             "check:static",
             "typecheck"
           ]
@@ -41233,10 +42421,10 @@
         },
         {
           "file": "docs/backlog/architecture-maintenance.md",
-          "line": 309,
+          "line": 314,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "- [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
+          "excerpt": "- [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.",
           "classification": "active",
           "via": [
             "check",
@@ -41300,7 +42488,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 43,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -41599,6 +42787,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 82,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run typecheck:strict` | PASS ; quatre diagnostics upstream autorisés inchangés |",
+          "classification": "active"
+        },
+        {
           "file": "docs/testing.md",
           "line": 143,
           "kind": "npm-run",
@@ -41641,6 +42837,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- `npm run typecheck:strict` passe avec les quatre diagnostics upstream exacts",
+          "classification": "active"
+        },
+        {
+          "file": "docs/architecture-s5-validation-2026-10-13.md",
+          "line": 82,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "| `npm run typecheck:strict` | PASS ; quatre diagnostics upstream autorisés inchangés |",
           "classification": "active"
         },
         {

@@ -540,6 +540,17 @@ export const commandCatalog = [
   ),
   command(
     'release',
+    'artifacts check',
+    [],
+    'Verify generated files, archived hashes and source drift without writing.',
+    node('check-generated-artifacts'),
+    {
+      inputs: ['config/generated-artifacts.json and its committed sources and outputs'],
+      preconditions: ['Git checkout and npm ci; no database or upstream download required.'],
+    },
+  ),
+  command(
+    'release',
     'authority generate',
     ['authority:generate'],
     'Generate authority resolver metadata.',

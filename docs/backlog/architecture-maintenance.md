@@ -1,6 +1,6 @@
 # ARCH — Architecture, maintenance et scripts
 
-**Statut : ARCH-S1 implémenté, appelants migrés et alias retirés après CI verte ; ARCH-S2 implémenté ; ARCH-S3 implémenté ; ARCH-S4 et ARCH-S5 proposés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier.
+**Statut : ARCH-S1 implémenté, appelants migrés et alias retirés après CI verte ; ARCH-S2, ARCH-S3, ARCH-S4 et ARCH-S5 implémentés.** **Source :** audit statique de `dev` le 10/10/2026. **Responsable logique :** outillage + architecture. Les tâches ARCH concernent la structure, pas l'ajout de nouvelles fonctionnalités métier. Les validations et opérations distantes restent distinctes.
 
 [Retour au TODO](../../TODO.md) · [Bot tactique](tactical-bot.md) · [Arbres de Candies](champion-enhancement-trees.md) · [Administration](admin-console.md)
 
@@ -272,52 +272,57 @@ Preuves : [validation ARCH-S4](../architecture-s4-validation-2026-10-13.md), [co
 
 ## ARCH-S5 — Artefacts, CSS et dette suivie (P2, taille M/L)
 
+Implémentation `0.2.6` : [validation et mesures](../architecture-s5-validation-2026-10-13.md),
+[contrat des artefacts](../generated-artifacts.md), [maintenance CSS](../css-maintenance.md)
+et [audit des dépendances](../dependency-audit.md). Les résultats CI du commit candidat
+sont consignés dans la PR vers `dev` ; fusion et déploiement restent séparés.
+
 ### ARCH-16 — Classer les fichiers générés
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Définir pour `src/data/generated`, `config`, bundles authority, types DB et `public/assets` : source, commande de génération, contrôle d'intégrité, politique Git et consommateur.
-  - [ ] Vérifier pourquoi `run-authority.bundle.js` apparaît suivi malgré sa règle `.gitignore` ; conserver sa présence si nécessaire au registre/gates.
-  - [ ] Identifier la source-of-truth, le générateur, la rétention et les références croisées de chaque artefact.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Ne supprimer aucun bundle/version de DB/archive sans matrice de compatibilité et tests.
-  - [ ] Ranger les rapports temporaires dans les répertoires ignorés appropriés ; pas de snapshots bruyants dans le backlog actif.
-  - [ ] Ajouter une vérification de dérive en lecture seule plutôt qu'une suppression automatisée des archives.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Tester build neuf depuis clone sans cache et comparaison des hashes d'authority archivés.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Définir pour `src/data/generated`, `config`, bundles authority, types DB et `public/assets` : source, commande de génération, contrôle d'intégrité, politique Git et consommateur.
+  - [x] Vérifier pourquoi `run-authority.bundle.js` apparaît suivi malgré sa règle `.gitignore` ; conserver sa présence si nécessaire au registre/gates.
+  - [x] Identifier la source-of-truth, le générateur, la rétention et les références croisées de chaque artefact.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Ne supprimer aucun bundle/version de DB/archive sans matrice de compatibilité et tests.
+  - [x] Ranger les rapports temporaires dans les répertoires ignorés appropriés ; pas de snapshots bruyants dans le backlog actif.
+  - [x] Ajouter une vérification de dérive en lecture seule plutôt qu'une suppression automatisée des archives.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Tester build neuf depuis clone sans cache et comparaison des hashes d'authority archivés.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-17 — Rationaliser CSS et composants
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Cartographier les 26 feuilles sous `src/styles` et les doublons de tokens/composants ; relever spécificité et dépendances aux imports.
-  - [ ] Garder les variables de design, accessibilité, réduction d'animation, focus et responsive ; mutualiser seulement après vérification visuelle.
-  - [ ] Inventorier variables CSS, cascade, styles importés par page et comportements mobile/accessibilité.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Ne pas ajouter un deuxième design system durant la refonte admin/arbre ; réutiliser `shared/ui`.
-  - [ ] Mutualiser des tokens uniquement après preuve de parité visuelle, sans retoucher le moteur ni les données.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Captures desktop/mobile, focus visible, zoom 400 %, reduced-motion et contrastes comparés avant/après.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Cartographier les 26 feuilles sous `src/styles` et les doublons de tokens/composants ; relever spécificité et dépendances aux imports.
+  - [x] Garder les variables de design, accessibilité, réduction d'animation, focus et responsive ; mutualiser seulement après vérification visuelle.
+  - [x] Inventorier variables CSS, cascade, styles importés par page et comportements mobile/accessibilité.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Ne pas ajouter un deuxième design system durant la refonte admin/arbre ; réutiliser `shared/ui`.
+  - [x] Mutualiser des tokens uniquement après preuve de parité visuelle, sans retoucher le moteur ni les données.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Captures desktop/mobile, focus visible, reflow équivalent à 400 %, reduced-motion et contrastes comparés avant/après ; limites de la preuve automatisée documentées.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-18 — Audit des dépendances et qualité
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Vérifier packages directs/indirects, versions épinglées, patch Supabase Auth, imports morts et scripts non référencés ; ne retirer que sur preuve.
-  - [ ] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.
-  - [ ] Fixer une baseline mesurée des temps CI, tailles de bundles et dépendances utilisées.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Documenter avant/après : temps d'installation, durée de CI, taille bundle navigateur/Edge, nombre de scripts npm, fichiers couplés.
-  - [ ] Mettre à jour `README.md` et docs d'exploitation, et archiver les seuls éléments effectivement terminés.
-  - [ ] Retirer une dépendance seulement après recherche d'import runtime/script et remplacement du patch si applicable.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Vérifier audit, compilation et CI propre puis documenter gains chiffrés et éventuels compromis.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Vérifier packages directs/indirects, versions épinglées, patch Supabase Auth, imports morts et scripts non référencés ; ne retirer que sur preuve.
+  - [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.
+  - [x] Fixer une baseline mesurée des temps CI, tailles de bundles et dépendances utilisées.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Documenter avant/après : temps d'installation, durée de CI, taille bundle navigateur/Edge, nombre de scripts npm, fichiers couplés.
+  - [x] Mettre à jour `README.md` et docs d'exploitation, et archiver les seuls éléments effectivement terminés.
+  - [x] Retirer une dépendance seulement après recherche d'import runtime/script et remplacement du patch si applicable.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Vérifier audit, compilation et CI propre puis documenter gains chiffrés et éventuels compromis.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 **Acceptation générale ARCH :** aucune fonctionnalité perdue, pas de changement silencieux de contrat de déploiement/authority ; démonstration chiffrée de la simplification.
 
 ## Interfaces et doublons évités

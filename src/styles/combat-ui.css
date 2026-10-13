@@ -1,14 +1,6 @@
 .combat-page {
-  position: relative;
-  width: 100%;
-  min-height: 100dvh;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
+  /* Keep this override after game-mobile.css; the common shell lives in ui.css. */
   overflow: hidden;
-  color: var(--color-text-primary);
-  background: var(--gradient-page);
-  font-family: var(--font-ui);
 }
 
 .combat-header {
@@ -1221,6 +1213,10 @@
   background: var(--color-surface-elevated);
   border: 0.0625rem solid var(--color-border);
   border-radius: var(--radius-md);
+}
+
+.combat-command__target .combat-command__step-label {
+  color: var(--color-text-secondary);
 }
 
 .combat-command__target-value {

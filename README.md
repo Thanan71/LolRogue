@@ -143,12 +143,15 @@ recrée automatiquement une instance locale jetable.
 src/
 ├── components/          composants React partagés et gardes de routes
 ├── data/                définitions de champions, objets, runes et augments
+├── features/            modules Daily, combat et préparation des champions
 ├── game/                règles déterministes et replay autoritaire
+├── infrastructure/      composition unique des dépôts applicatifs
 ├── pages/               écrans chargés paresseusement par React Router
 ├── services/
 │   ├── interfaces/      contrats des dépôts
 │   ├── repositories/    implémentations Supabase
-│   └── container/       composition et injection des dépendances
+│   └── container/       façade de compatibilité du conteneur applicatif
+├── shared/              composants UI et hooks communs
 ├── stores/              état Zustand et orchestration de l'interface
 ├── types/               modèles applicatifs et types Supabase générés
 └── utils/               calculs et utilitaires transverses
@@ -164,11 +167,17 @@ Les règles pures appartiennent à `src/game`, l'accès distant passe par les
 interfaces de dépôt, et les stores coordonnent l'état d'écran. Les détails sur la
 propriété de chaque donnée sont dans [docs/data-and-persistence.md](docs/data-and-persistence.md).
 
+Les [contrats des artefacts](docs/generated-artifacts.md) indiquent quoi générer,
+vérifier et conserver dans Git. `npm run release -- artifacts check` contrôle leur
+dérive sans écrire de fichier. Le [contrat CSS](docs/css-maintenance.md) décrit la
+cascade et les preuves visuelles ; l'[audit des dépendances](docs/dependency-audit.md)
+conserve les décisions et la dette restante.
+
 ## Assets
 
-Les 172 portraits du catalogue serveur et les 15 icônes d'objets utilisés — soit
-187 fichiers — sont tous versionnés sous `public/assets/riot/<version>` avec leurs
-SHA-256. Seuls 10
+Les 172 portraits du catalogue serveur, les 15 icônes d'objets utilisés et les
+44 icônes de sorts — soit 231 fichiers — sont versionnés sous
+`public/assets/riot/<version>` avec leurs SHA-256. Onze
 champions sont actuellement jouables, mais la page Database et le catalogue
 serveur exposent l'ensemble. Le catalogue importé est sous `src/data/generated`.
 Le cache brut `public/lol/data` est un espace de génération local : Vite l'exclut
@@ -184,6 +193,11 @@ paquet minimal et recalcule son manifest d'intégrité. Voir
 [docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute
 aussi un build temporaire sans aucun fichier ignoré pour reproduire un clone
 propre.
+
+Le serveur de développement sert les fichiers Riot déclarés dans les manifestes,
+le décor de combat et le script de locale. Une ressource manquante renvoie 404 ;
+le cache brut reste exclu. Après une mise à jour des manifestes, redémarrer Vite
+pour charger leur nouvelle liste de fichiers.
 
 ## Documentation
 

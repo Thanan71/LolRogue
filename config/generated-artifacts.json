@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "scopes": [
+    "src/data/generated",
+    "config",
+    "supabase/authority-archive",
+    "src/game/authority/versionCapabilities.generated.ts",
+    "src/types/database.ts",
+    "public/assets"
+  ],
+  "families": [
+    {
+      "id": "riot-parsed",
+      "patterns": ["src/data/generated/champions-parsed.json"],
+      "sources": [
+        "scripts/ddragon-version.json",
+        "scripts/parse-champions.js",
+        "scripts/package-riot-assets.mjs"
+      ],
+      "generator": "npm run assets -- download && npm run assets -- parse && npm run assets -- package",
+      "git": "tracked",
+      "consumers": ["src/data/championDatabase.ts", "scripts/package-riot-assets.mjs"],
+      "integrity": ["pinned-version", "manifest-sha256", "catalogue-ids"],
+      "retention": "Keep the release input for every authority bundle; never rewrite an archived engine.",
+      "reproduction": "conditional: raw Data Dragon/Community Dragon cache is ignored; full upstream reproduction needs npm run assets -- download. Static integrity is checked offline."
+    },
+    {
+      "id": "riot-client",
+      "patterns": [
+        "src/data/generated/champions-client.json",
+        "src/data/generated/champion-content.fr-FR.json",
+        "src/data/generated/riot-spell-assets-client.json"
+      ],
+      "sources": [
+        "src/data/generated/champions-parsed.json",
+        "src/data/generated/riot-spell-assets-manifest.json",
+        "scripts/lib/client-champion-catalog.mjs",
+        "scripts/package-riot-assets.mjs"
+      ],
+      "generator": "npm run assets -- package",
+      "git": "tracked",
+      "consumers": [
+        "src/i18n/championContent.ts",
+        "src/config/riotSpellAssets.ts",
+        "tooling/vite/plugins/championCatalog.ts"
+      ],
+      "integrity": ["byte-exact-regenerated-projections"],
+      "retention": "Version the compact runtime projections with their parsed input.",
+      "reproduction": "offline: reproduced in memory from committed sources."
+    },
+    {
+      "id": "riot-english",
+      "patterns": ["src/data/generated/champion-content.en-US.json"],
+      "sources": [
+        "scripts/ddragon-version.json",
+        "src/data/generated/champions-parsed.json",
+        "scripts/generate-champion-i18n.mjs"
+      ],
+      "generator": "node scripts/generate-champion-i18n.mjs",
+      "git": "tracked",
+      "consumers": ["src/i18n/championContent.ts"],
+      "integrity": ["pinned-source-url", "locale", "content-sha256", "catalogue-ids"],
+      "retention": "Version the upstream text snapshot; require an explicit reviewed update.",
+      "reproduction": "conditional: English source text comes from pinned Riot endpoints; offline check verifies identity, ids and contentSha256, not a network redownload."
+    },
+    {
+      "id": "riot-manifests",
+      "patterns": [
+        "src/data/generated/riot-assets-manifest.json",
+        "src/data/generated/riot-spell-assets-manifest.json"
+      ],
+      "sources": [
+        "scripts/ddragon-version.json",
+        "scripts/riot-asset-catalog.mjs",
+        "scripts/package-riot-assets.mjs"
+      ],
+      "generator": "npm run assets -- package",
+      "git": "tracked",
+      "consumers": [
+        "scripts/verify-riot-assets.mjs",
+        "scripts/test-clean-asset-build.mjs",
+        "tooling/vite/plugins/riotAssets.ts"
+      ],
+      "integrity": [
+        "pinned-versions",
+        "implemented-champion-and-item-source",
+        "asset-sha256-and-bytes",
+        "parsed-sha256"
+      ],
+      "retention": "Keep the manifests with all release assets.",
+      "reproduction": "offline: all manifested bytes and deterministic projections are checked; packaging uses ignored raw inputs."
+    },
+    {
+      "id": "riot-assets",
+      "patterns": [
+        "public/assets/riot/*/champions/*.png",
+        "public/assets/riot/*/items/*.png",
+        "public/assets/riot/*/spells/*.png"
+      ],
+      "sources": [
+        "src/data/generated/riot-assets-manifest.json",
+        "src/data/generated/riot-spell-assets-manifest.json"
+      ],
+      "generator": "npm run assets -- package",
+      "git": "tracked",
+      "consumers": [
+        "src/config/riotSpellAssets.ts",
+        "scripts/verify-riot-assets.mjs",
+        "tooling/vite/plugins/riotAssets.ts"
+      ],
+      "integrity": ["manifest-sha256-and-bytes", "png-signature", "exact-directory-membership"],
+      "retention": "Keep the pinned minimal release package in Git; raw downloads stay ignored.",
+      "reproduction": "offline: every shipped asset is read and hashed."
+    },
+    {
+      "id": "auth-registry",
+      "patterns": ["config/authority-versions.json"],
+      "sources": ["docs/authority-versioning.md"],
+      "generator": null,
+      "git": "manual-source",
+      "consumers": [
+        "scripts/lib/authority-version-registry.mjs",
+        "scripts/generate-authority-resolver.mjs"
+      ],
+      "integrity": ["strict-registry-schema", "one-current-version"],
+      "retention": "Manual source of truth. Retain every historical engine and its published content hash.",
+      "reproduction": "manual: publish versions through the documented authority workflow."
+    },
+    {
+      "id": "auth-projections",
+      "patterns": [
+        "src/game/authority/versionCapabilities.generated.ts",
+        "supabase/functions/verify-run/authority-version-resolver.generated.ts"
+      ],
+      "sources": ["config/authority-versions.json", "scripts/generate-authority-resolver.mjs"],
+      "generator": "npm run authority:generate",
+      "git": "tracked",
+      "consumers": [
+        "src/game/authority/versionRegistry.ts",
+        "supabase/functions/verify-run/index.ts"
+      ],
+      "integrity": ["byte-exact-regenerated-projections"],
+      "retention": "Version resolver/capabilities with the registry; never hand edit them.",
+      "reproduction": "offline: reproduced in memory using the existing generator renderers."
+    },
+    {
+      "id": "auth-bundles",
+      "patterns": [
+        "supabase/functions/verify-run/run-authority*.bundle.js",
+        "supabase/functions/verify-run/run-authority*.bundle.ts",
+        "supabase/authority-archive/run-authority*.bundle.ts"
+      ],
+      "sources": [
+        "config/authority-versions.json",
+        "src/game/authority/index.ts",
+        "scripts/build-authority-bundle.mjs",
+        "tests/fixtures/engine-refactor-contract.json"
+      ],
+      "generator": "npm run release -- edge bundle",
+      "git": "tracked",
+      "consumers": [
+        "supabase/functions/verify-run/authority-version-resolver.generated.ts",
+        "scripts/check-authority-content-hash.mjs"
+      ],
+      "integrity": [
+        "all-registry-content-hashes",
+        "23-frozen-bundle-byte-hashes",
+        "byte-exact-current-build-write-false",
+        "git-tracking"
+      ],
+      "retention": "Keep unsupported archives forever unless a separate compatibility migration authorizes removal. Only the current bundle may be regenerated.",
+      "reproduction": "offline: current bundle reproduced without writes; historical bytes checked against the existing pre-refactor fixture."
+    },
+    {
+      "id": "database-types",
+      "patterns": ["src/types/database.ts"],
+      "sources": [
+        "supabase/config.toml",
+        "scripts/lib/database-types.mjs",
+        "scripts/generate-database-types.mjs"
+      ],
+      "generator": "npm run database -- types generate",
+      "git": "tracked",
+      "consumers": ["src/services/supabaseClient.ts", "scripts/check-database-types.mjs"],
+      "integrity": ["tracked-presence", "local-schema-comparison-in-database-gate"],
+      "retention": "Version formatted types; schema source of truth is the ordered supabase/migrations/*.sql chain.",
+      "reproduction": "conditional: exact schema reproduction requires the disposable local database and npm run database -- types check; static check does not claim schema parity."
+    },
+    {
+      "id": "balance-cohorts",
+      "patterns": ["config/authority-cohort-baselines-*.json"],
+      "sources": [
+        "config/authority-versions.json",
+        "scripts/generate-authority-cohort-baseline.mjs"
+      ],
+      "generator": "npm run balance -- baseline generate",
+      "git": "tracked",
+      "consumers": [
+        "src/game/balance/authorityCohortCurrentBaselineFixture.ts",
+        "scripts/generate-authority-cohort-baseline.mjs"
+      ],
+      "integrity": [
+        "valid-json",
+        "classified-versioned-output",
+        "npm run balance -- baseline check --all"
+      ],
+      "retention": "Keep frozen compatible engine/seed baselines; explicit generators alone may create reviewed new files.",
+      "reproduction": "conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- baseline check --all."
+    },
+    {
+      "id": "balance-early-top",
+      "patterns": ["config/early-top-cohort-*.json"],
+      "sources": ["config/authority-versions.json", "scripts/generate-early-top-cohort.mjs"],
+      "generator": "npm run balance -- early-top generate",
+      "git": "tracked",
+      "consumers": ["src/game/balance/earlyTopCohort.ts", "scripts/generate-early-top-cohort.mjs"],
+      "integrity": [
+        "valid-json",
+        "classified-versioned-output",
+        "npm run balance -- early-top check --all"
+      ],
+      "retention": "Keep frozen compatible engine/seed baselines; explicit generators alone may create reviewed new files.",
+      "reproduction": "conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- early-top check --all."
+    },
+    {
+      "id": "balance-map-economy",
+      "patterns": ["config/map-economy-baseline-*.json"],
+      "sources": ["config/authority-versions.json", "scripts/generate-map-economy-baseline.mjs"],
+      "generator": "npm run balance -- map-economy generate",
+      "git": "tracked",
+      "consumers": [
+        "src/game/balance/mapEconomyBaseline.ts",
+        "scripts/generate-map-economy-baseline.mjs"
+      ],
+      "integrity": [
+        "valid-json",
+        "classified-versioned-output",
+        "npm run balance -- map-economy check"
+      ],
+      "retention": "Keep frozen compatible engine/seed baselines; explicit generators alone may create reviewed new files.",
+      "reproduction": "conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- map-economy check."
+    },
+    {
+      "id": "balance-veigar",
+      "patterns": ["config/veigar-run-progression-balance-*.json"],
+      "sources": [
+        "config/authority-versions.json",
+        "scripts/generate-veigar-run-progression-balance.mjs"
+      ],
+      "generator": "npm run balance -- veigar generate",
+      "git": "tracked",
+      "consumers": [
+        "src/game/balance/veigarRunProgressionBalance.ts",
+        "scripts/generate-veigar-run-progression-balance.mjs"
+      ],
+      "integrity": [
+        "valid-json",
+        "classified-versioned-output",
+        "npm run balance -- veigar check --all"
+      ],
+      "retention": "Keep frozen compatible engine/seed baselines; explicit generators alone may create reviewed new files.",
+      "reproduction": "conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- veigar check --all."
+    },
+    {
+      "id": "balance-field",
+      "patterns": ["config/authority-field-calibration-*.json"],
+      "sources": [
+        "config/authority-versions.json",
+        "scripts/generate-authority-field-calibration-baseline.mjs"
+      ],
+      "generator": "npm run balance -- field-baseline generate",
+      "git": "tracked",
+      "consumers": [
+        "src/game/balance/fieldCalibrationComparison.ts",
+        "scripts/generate-authority-field-calibration-baseline.mjs"
+      ],
+      "integrity": [
+        "valid-json",
+        "classified-versioned-output",
+        "npm run balance -- field-baseline check"
+      ],
+      "retention": "Keep frozen compatible engine/seed baselines; explicit generators alone may create reviewed new files.",
+      "reproduction": "conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- field-baseline check."
+    },
+    {
+      "id": "balance-matrix",
+      "patterns": ["config/champion-combat-matrix-current.json"],
+      "sources": ["config/authority-versions.json", "scripts/generate-champion-combat-matrix.mjs"],
+      "generator": "npm run balance -- combat matrix generate",
+      "git": "tracked",
+      "consumers": [
+        "src/game/balance/championCombatMatrix.ts",
+        "scripts/generate-champion-combat-matrix.mjs"
+      ],
+      "integrity": [
+        "valid-json",
+        "classified-versioned-output",
+        "npm run balance -- combat matrix check"
+      ],
+      "retention": "Keep frozen compatible engine/seed baselines; explicit generators alone may create reviewed new files.",
+      "reproduction": "conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- combat matrix check."
+    },
+    {
+      "id": "manual-config",
+      "patterns": [
+        "config/application-rollback.json",
+        "config/beta-release.json",
+        "config/csp-inline-styles.json",
+        "config/database-tests.json",
+        "config/generated-artifacts.json",
+        "config/performance-budgets.json",
+        "config/public-table-access.json",
+        "config/script-alias-retirement.json",
+        "config/scripts-inventory-baseline.json",
+        "config/security-definer-privileges.json",
+        "config/supabase-advisors.json"
+      ],
+      "sources": ["docs/backlog/architecture-maintenance.md"],
+      "generator": null,
+      "git": "manual-source",
+      "consumers": ["scripts/lib/command-catalog.mjs", "scripts/lib/generated-artifacts.mjs"],
+      "integrity": ["valid-json", "exact-classification"],
+      "retention": "Manual policy and operational contracts; consumers retain their existing dedicated gates.",
+      "reproduction": "manual: edit and review each policy; no universal config generator."
+    },
+    {
+      "id": "authored-ui-asset",
+      "patterns": ["public/assets/ui/combat-arena.webp"],
+      "sources": ["src/styles/combat-ui.css"],
+      "generator": null,
+      "git": "tracked",
+      "consumers": ["src/styles/combat-ui.css"],
+      "integrity": ["tracked-presence"],
+      "retention": "Reviewed authored illustration; source bitmap is versioned, not reproducibly generated.",
+      "reproduction": "manual: authored image has no deterministic generator."
+    }
+  ]
+}

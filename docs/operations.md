@@ -9,6 +9,10 @@ Ce document est le point d'entrée opérationnel. Les procédures détaillées s
 - `docs/release-and-support.md` pour environnements, rotation, release, smoke test,
   export et suppression de compte ;
 - `docs/administration.md` pour promouvoir ou révoquer un administrateur.
+- `docs/generated-artifacts.md` pour régénérer et vérifier les artefacts sans
+  supprimer les versions historiques ;
+- `docs/css-maintenance.md` et `docs/dependency-audit.md` pour les contrôles de
+  maintenance et les décisions de dette technique.
 
 Une fiche de release privée doit fournir les project refs et responsables réels.
 Les runbooks versionnés ne contiennent volontairement ni secret ni identifiant de
@@ -16,9 +20,11 @@ production.
 
 ## Environnements
 
-La matrice normative et les contrôles de séparation sont dans
-`docs/release-and-support.md`. Development, Preview et Production utilisent trois
-bases distinctes ; une preview ne doit jamais cibler les données de production.
+La résolution normative des cibles est dans `docs/environment-contract.md` ;
+les contrôles de séparation sont dans `docs/release-and-support.md`.
+Les previews `dev` et de PR utilisent LolRogueDev. La branche `main` cible
+LolRogue en Production ; sa preview conserve cette même cible selon le contrat
+normatif, avec des variables publiques explicites du processus.
 
 Chaque environnement Vercel pointe vers un projet Supabase correspondant. Les
 variables navigateur obligatoires sont :
