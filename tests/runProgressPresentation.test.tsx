@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, renderHook, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
-import { CombatLog } from '@/components/CombatUI/CombatLog';
 import { RunProgressCounters } from '@/components/RunProgressCounters';
 import { RunTeamStatsPanel } from '@/components/RunTeamStatsPanel';
 import { veigar } from '@/data/champion/Veigar';
 import { championDB } from '@/data/championDatabase';
+import { useBattleManager } from '@/features/combat/hooks/useBattleManager';
+import { CombatantPortrait } from '@/features/combat/ui/CombatantPortrait';
+import { CombatLog } from '@/features/combat/ui/CombatLog';
 import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
-import { useBattleManager } from '@/hooks/useBattleManager';
 import { combatContent } from '@/i18n/combatContent';
 import {
   localizeRunProgressDefinition,

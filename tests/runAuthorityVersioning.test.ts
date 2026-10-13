@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { usesLegacyEncounterRules } from '@/pages/combat/legacyCombatEncounter';
+import { usesLegacyEncounterRules } from '@/features/combat/application/legacyCombatEncounter';
 import {
   AUTHORITY_CONTENT_HASH,
   AUTHORITY_ENGINE_VERSION,
