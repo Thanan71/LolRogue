@@ -230,3 +230,16 @@ atteste le rendu et la préférence, sans prétendre remplacer ce scénario.
 Les maxima de spécificité, imports, couches et media queries restent inchangés.
 Biome sur les quatre feuilles et le harness, `npm run typecheck:e2e` et
 `git diff --check` passent. Aucun PNG ni JSON de capture n'est ajouté au dépôt.
+
+Le scénario tactile à 320px a également révélé une course dans son locator de
+test : le catalogue public peut remplacer l'offre initiale pendant que `tap()`
+attend l'activation d'une carte. Cette carte conserve son identité, mais
+`nth(0)` désigne ensuite un autre champion. Une reproduction avec la vraie
+réponse RPC publique retardée d'une seconde a enregistré un premier tap sur
+Darius puis un deuxième sur Ashe, tandis que le premier locator désignait
+désormais Annie, non sélectionnée. Le scénario initial échoue **2/10** sans
+trace ; le scénario corrigé attend les deux cartes activables, fige leurs IDs
+et vérifie le feedback après chaque tap, puis passe **10/10 sans retry ni trace**.
+Les deux choix tactiles, l'erreur de démarrage et les assertions de géométrie à
+320px restent vérifiés. Aucun composant, store, CSS ni délai de test n'est
+modifié pour cette correction ; les typages E2E et Biome ciblé passent.

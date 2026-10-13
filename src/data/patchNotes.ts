@@ -349,6 +349,44 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 11,
+    version: '0.2.6',
+    publishedOn: '2026-10-13',
+    title: {
+      'fr-FR': 'Maintenance de l’interface et des livraisons',
+      'en-US': 'Interface and release maintenance',
+    },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les styles communs de l’interface sont regroupés en conservant le rendu sur ordinateur et mobile, le focus clavier et les préférences de réduction des animations. Le libellé de cible en combat gagne en contraste.',
+          'en-US':
+            'Shared interface styles are consolidated while preserving desktop and mobile rendering, keyboard focus and reduced-motion preferences. The battle target label has better contrast.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les contrôles de livraison vérifient les fichiers générés et les ressources du jeu sans modifier les anciennes versions. Un audit de sécurité incomplet bloque désormais la validation. Les règles et les sauvegardes restent compatibles.',
+          'en-US':
+            'Release checks verify generated files and game assets without modifying historical versions. An incomplete security audit now blocks validation. Rules and saves remain compatible.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les portraits, les icônes de sorts et le décor de combat se chargent aussi correctement dans le serveur de développement.',
+          'en-US':
+            'Portraits, spell icons and the battle backdrop now also load correctly in the development server.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {
