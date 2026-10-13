@@ -102,3 +102,25 @@ Les tests de frontières injectent React et des imports de stores/DB dans des mo
 Les 47 tests de frontières passent, y compris les imports calculés ambigus, les réexports de type, l'évasion vers un dossier d'outillage non analysé, les nouveaux cycles valeur, une dépendance service→store cachée par un helper et l'accès aux repositories concrets par le conteneur. Les preuves d'imports et les SCC se régénèrent avec l'option `--report` ci-dessus ; les compteurs de la table concernent les sources applicatives, pas les tests.
 
 Le hash du bundle déterministe est resté `c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16` pour `run-engine-0.2.0` après les déplacements et l'extraction du helper. Ni les archives d'autorité, ni leurs identifiants, ni les migrations SQL n'ont été changés.
+
+## Tranche ARCH-S4
+
+Les features Daily, Combat et Champions contiennent désormais leur orchestration UI.
+Le point unique de composition repositories se trouve dans
+`src/infrastructure/repositories/applicationRepositories.ts`, avec réexport de
+compatibilité depuis `services/container`. Les adaptateurs concrets de ces deux
+arborescences restent interdits aux appelants UI ; un contrat est injecté.
+Les primitives UI existantes sont dans `shared/ui`, avec façades historiques.
+Le cœur `game` n'importe ni features, UI partagée ni infrastructure.
+
+Le checker interdit également les imports des features revenant aux façades déjà
+migrées. Les bridges UI non migrés restent explicites dans le
+[contrat des modules](feature-module-contract.md). Après : 429 fichiers, 2 001
+imports, 1 819 internes et 457 de types ; aucun consommateur du barrel services,
+aucune violation et le même SCC valeur de six stores.
+
+Le refactor runtime produit une nouvelle identité `run-engine-0.2.5`, hash
+`9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa`.
+L'ancien hash 0.2.0 et les 23 bundles historiques sont conservés. Les preuves
+RNG, événements, commandes et replay avant/après sont dans le
+[contrat moteur](engine-refactor-contract.md).

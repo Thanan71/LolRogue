@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 
+import type { User } from '@supabase/supabase-js';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -168,10 +169,16 @@ describe('starter selection i18n', () => {
     expect(view.container).not.toHaveTextContent('Sélectionne un champion');
   });
 
+  // Locale resets reload the stores and starter graph from cold modules under V8 coverage.
   it('refreshes a stale Daily offer from its stable code without parsing server prose', async () => {
     setStoredLocale('fr-FR');
     vi.resetModules();
     const { useRunStore } = await prepareStarterState();
+    const { useAuthStore } = await import('@/stores/authStore');
+    useAuthStore.setState({
+      user: { id: 'daily-i18n-user', email: 'daily-i18n@example.test' } as User,
+      isGuest: false,
+    });
     const startResult: RunStartResult = {
       success: false,
       code: 'daily_starter_not_offered',
@@ -189,20 +196,31 @@ describe('starter selection i18n', () => {
       </MemoryRouter>,
     );
 
-    fireEvent.click(screen.getAllByRole('button', { name: /^Choisir / })[0]);
+    fireEvent.click((await screen.findAllByRole('button', { name: /^Choisir / }))[0]);
     fireEvent.click(screen.getByRole('button', { name: 'Confirmer le choix' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       runPreparationContent['fr-FR'].starter.dailyOfferChanged,
     );
     expect(screen.queryByText('opaque backend failure')).not.toBeInTheDocument();
-    expect(preparationMocks.getDailyChallenge).toHaveBeenCalledOnce();
+    expect(preparationMocks.getDailyChallenge).toHaveBeenCalledTimes(2);
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Confirmer le choix' })).toBeDisabled(),
     );
-  });
+  }, 15_000);
 
-  it('contains no raw user copy in the starter selection page', () => {
-    expect(scanUserCopyFile(`${process.cwd()}/src/pages/StarterSelectPage.tsx`)).toEqual([]);
+  it('contains no raw user copy in the starter route, controller or presentation', () => {
+    const paths = [
+      'src/pages/StarterSelectPage.tsx',
+      'src/features/champions/hooks/useStarterSelection.ts',
+      'src/features/champions/ui/StarterSelectScreen.tsx',
+      'src/features/champions/ui/StarterTeamPanel.tsx',
+      'src/features/champions/ui/StarterCatalog.tsx',
+      'src/features/champions/ui/StarterSelectionFooter.tsx',
+      'src/features/champions/ui/ChampionCard.tsx',
+    ];
+    for (const path of paths) {
+      expect(scanUserCopyFile(`${process.cwd()}/${path}`), path).toEqual([]);
+    }
   });
 });

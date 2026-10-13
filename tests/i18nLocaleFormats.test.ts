@@ -60,14 +60,14 @@ describe('locale-dependent presentation formats', () => {
   it('keeps locale-sensitive values away from fixed and raw source formatting', () => {
     const recruitSource = readFileSync('src/pages/RecruitPage.tsx', 'utf8');
     const recruitStatsSource = readFileSync('src/components/RecruitStatList.tsx', 'utf8');
-    const combatSource = readFileSync('src/pages/CombatPage.tsx', 'utf8');
-    const combatStageSource = readFileSync('src/components/CombatUI/CombatStage.tsx', 'utf8');
-    const battleSpeedSource = readFileSync(
-      'src/components/CombatUI/BattleSpeedControl.tsx',
-      'utf8',
-    );
-    const dailyRunSource = readFileSync('src/pages/DailyRunPage.tsx', 'utf8');
-    const leaderboardSource = readFileSync('src/components/DailyLeaderboard.tsx', 'utf8');
+    const combatSource = [
+      readFileSync('src/features/combat/ui/CombatView.tsx', 'utf8'),
+      readFileSync('src/features/combat/hooks/useCombatController.ts', 'utf8'),
+    ].join('\n');
+    const combatStageSource = readFileSync('src/features/combat/ui/CombatStage.tsx', 'utf8');
+    const battleSpeedSource = readFileSync('src/features/combat/ui/BattleSpeedControl.tsx', 'utf8');
+    const dailyRunSource = readFileSync('src/features/daily/ui/DailyRunScreen.tsx', 'utf8');
+    const leaderboardSource = readFileSync('src/features/daily/ui/DailyLeaderboard.tsx', 'utf8');
     const rulesSource = readFileSync('src/pages/RulesPage.tsx', 'utf8');
     const runMapSource = readFileSync('src/components/RunMapScreen.tsx', 'utf8');
     const shopSource = readFileSync('src/pages/ShopPage.tsx', 'utf8');

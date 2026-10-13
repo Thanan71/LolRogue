@@ -16,6 +16,7 @@
       "!!public/lol/data",
       "!!src/data/generated/*.json",
       "!!supabase/**/run-authority-*.bundle.ts",
+      "!!supabase/**/run-authority-*.bundle.js",
       "!!supabase/functions/verify-run/authority-version-resolver.generated.ts",
       "!!src/game/authority/versionCapabilities.generated.ts"
     ]

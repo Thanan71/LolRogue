@@ -1,4 +1,11 @@
 import { expect, type Page, type TestInfo, test } from '@playwright/test';
+import {
+  CHAMPION_CATALOG_VERSION,
+  CHAMPION_ECONOMY_CATALOG,
+  CHAMPION_ECONOMY_VERSION,
+  getRotationForInstant,
+} from '@/domain/championEconomy';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionCapabilities.generated';
 
 const REQUIRED_ENCOUNTERS = [
   'combat',
@@ -65,6 +72,29 @@ function labelMatchesEncounter(label: string, encounter: string): boolean {
 }
 
 async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
+  // Keep the public economy enabled, with Warwick available in this fixed valid rotation.
+  const serverNow = '2026-02-02T12:00:00.000Z';
+  const gameplayRulesetVersion = CURRENT_AUTHORITY_VERSION.gameplay;
+  const rotation = getRotationForInstant(serverNow, gameplayRulesetVersion);
+  expect(rotation.championIds).toContain('Warwick');
+  await page.route('**/rpc/get_champion_economy_snapshot', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      json: {
+        enabled: true,
+        economyVersion: CHAMPION_ECONOMY_VERSION,
+        catalogVersion: CHAMPION_CATALOG_VERSION,
+        gameplayRulesetVersion,
+        serverNow,
+        rotation,
+        catalog: [...CHAMPION_ECONOMY_CATALOG],
+        wallet: null,
+        ownedChampionIds: [],
+        firstWinChampionIds: [],
+      },
+    });
+  });
   await page.goto('/auth');
   await page.getByRole('button', { name: 'Jouer en invité' }).click();
   await page.getByRole('button', { name: 'Réglages' }).click();

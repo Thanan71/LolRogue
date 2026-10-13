@@ -63,6 +63,8 @@ Les tests d’injection vérifient ces interdictions, dont UI déplacée et comp
 
 Les tests des fichiers de présentation et les listes i18n/coverage suivent maintenant
 les implémentations ; les imports publics historiques sont encore exercés par les
-tests et routes. Les plafonds de couverture, de poids des bundles et les contrôles de
-build sont conservés. Les preuves finales sont dans
+tests et routes. Les seuils de couverture et les contrôles de build sont conservés.
+Le plafond global JavaScript passe à 700 000 octets avec la même marge obligatoire
+de 10 % ; les autres plafonds restent identiques. Le motif et les mesures figurent
+dans [frontend-performance.md](frontend-performance.md). Les preuves finales sont dans
 [architecture-s4-validation-2026-10-13.md](architecture-s4-validation-2026-10-13.md).

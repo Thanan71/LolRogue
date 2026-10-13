@@ -253,3 +253,19 @@ Le total mesuré en CI reste à **613 318 octets gzip** sur un plafond de 690 00
 soit **11,11 % de marge**. La marge minimale obligatoire de 10 %, les plafonds par
 chunk et d'assets, les Web Vitals et les seuils de couverture restent inchangés.
 Cette mesure de taille ne remplace pas la vérification des Web Vitals.
+
+## ARCH-S4 — modules et protection des requêtes obsolètes
+
+Le build local final mesure **621 103 octets gzip** après l'extraction des modules
+UI et du contrôle commun de compte. Le plafond v8 de 690 000 octets laisse
+**9,985 %** de marge ; le maximum effectif de 621 000 octets est dépassé de
+103 octets. Le contrôle partagé protège les réponses retardées et les départs
+après A → B → A sans dupliquer l'état du compte.
+
+Conformément à l'autorisation utilisateur de conserver la qualité du code, le
+budget v9 porte uniquement le plafond global à **700 000 octets** (+1,45 %).
+Avec la même marge obligatoire de **10 %**, le maximum effectif devient
+**630 000 octets** ; la mesure locale conserve **11,27 %** de marge globale.
+Les plafonds initial/Auth, par chunk, d'assets et de Web Vitals, ainsi que les
+seuils de couverture, restent inchangés. La séparation des modules, les ports
+explicites et les protections asynchrones sont conservés.

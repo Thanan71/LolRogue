@@ -311,6 +311,44 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 10,
+    version: '0.2.5',
+    publishedOn: '2026-10-13',
+    title: {
+      'fr-FR': 'Préparation et combats plus robustes',
+      'en-US': 'More robust preparation and battles',
+    },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'La préparation des champions, le défi quotidien et les contrôles de combat ont été réorganisés pour faciliter les prochaines améliorations, tout en conservant les règles et les sauvegardes existantes.',
+          'en-US':
+            'Champion preparation, the daily challenge and battle controls have been reorganized to make future improvements easier while preserving existing rules and saves.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Tu peux réessayer de charger les champions du défi quotidien après une erreur réseau. Les réponses retardées après un changement de compte et les confirmations de départ répétées sont mieux prises en charge.',
+          'en-US':
+            'You can retry loading Daily champions after a network error. Delayed responses after switching accounts and repeated start confirmations are handled more reliably.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les transitions de combat évitent les actions automatiques en double et les redirections tardives vers une ancienne run. La vérification des résultats conserve la compatibilité des runs précédentes.',
+          'en-US':
+            'Battle transitions prevent duplicate automatic actions and delayed redirects to an old run. Result verification remains compatible with previous runs.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {
