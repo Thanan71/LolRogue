@@ -1,14 +1,6 @@
 .database-page {
-  position: relative;
-  width: 100%;
-  min-height: 100dvh;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
+  /* Keep this override after game-mobile.css; the common shell lives in ui.css. */
   overflow: hidden;
-  color: var(--color-text-primary);
-  background: var(--gradient-page);
-  font-family: var(--font-ui);
 }
 
 .database-header {
@@ -222,7 +214,7 @@
 }
 
 .database-detail:focus-visible {
-  outline: 3px solid var(--color-focus);
+  outline: var(--focus-ring-width) solid var(--color-focus);
   outline-offset: -3px;
 }
 
