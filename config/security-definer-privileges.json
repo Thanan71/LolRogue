@@ -2,6 +2,21 @@
   "version": 1,
   "functions": [
     {
+      "signature": "private.admin_explorer_page(text, jsonb, jsonb, timestamp with time zone, integer, boolean)",
+      "roles": ["authenticated"],
+      "justification": "Return bounded administrative pages and atomic exports only after a live database-admin identity check."
+    },
+    {
+      "signature": "private.admin_player_detail(uuid, timestamp with time zone)",
+      "roles": ["authenticated"],
+      "justification": "Project a bounded player profile and separate ledgers only after a live database-admin identity check."
+    },
+    {
+      "signature": "private.admin_run_detail(uuid, text, jsonb, timestamp with time zone, integer)",
+      "roles": ["authenticated"],
+      "justification": "Project run or attempt lifecycle and allowlisted actions only after a live database-admin identity check."
+    },
+    {
       "signature": "public.adjust_champion_shards(uuid, bigint, uuid)",
       "roles": ["service_role"],
       "justification": "Append an explicitly audited idempotent administrative shard adjustment without editing ledger history."

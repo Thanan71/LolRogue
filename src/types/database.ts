@@ -2080,6 +2080,34 @@ export type Database = {
         Args: { p_amount: number; p_command_id: string; p_user_id: string };
         Returns: Json;
       };
+      admin_export_runs: {
+        Args: { p_filters?: Json; p_max_rows?: number; p_population?: string; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_get_attempt_detail: {
+        Args: { p_attempt_id: string; p_cursor?: Json; p_page_size?: number; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_get_player_detail: {
+        Args: { p_player_id: string; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_get_run_detail: {
+        Args: { p_cursor?: Json; p_page_size?: number; p_run_id: string; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_search_attempts: {
+        Args: { p_cursor?: Json; p_filters?: Json; p_page_size?: number; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_search_players: {
+        Args: { p_cursor?: Json; p_filters?: Json; p_page_size?: number; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_search_runs: {
+        Args: { p_cursor?: Json; p_filters?: Json; p_page_size?: number; p_snapshot?: string };
+        Returns: Json;
+      };
       append_run_attempt_commands: {
         Args: { p_attempt_id: string; p_commands: Json };
         Returns: Json;
