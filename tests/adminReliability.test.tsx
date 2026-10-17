@@ -274,7 +274,9 @@ describe('independent admin resources', () => {
     vi.useRealTimers();
     fireEvent.click(screen.getByRole('button', { name: fr.admin.retry }));
     await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
-    expect(screen.getByRole('button', { name: fr.admin.invalidateScore })).toBeEnabled();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: fr.admin.invalidateScore })).toBeEnabled(),
+    );
     expect(mocks.rpc).toHaveBeenCalledTimes(1);
   });
 

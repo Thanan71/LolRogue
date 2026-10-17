@@ -70,8 +70,9 @@ Marge JavaScript finale locale : **11,95 %**. Les 40 entrées npm publiques sont
 | Gate | Résultat acquis |
 | --- | --- |
 | Base recréée | PASS ; 69 migrations, lint, ACL, RLS, advisors, neuf index mesurés et types générés concordants |
-| Suite DB complète | PASS ; 174 tests / 21 fichiers, zéro skip, phase Vitest 45,27 s ; inclut 22 tests ADM-S2 et parseurs UI sur réponses réelles |
+| Suite DB complète | PASS ; 174 tests / 21 fichiers, zéro skip, phase Vitest finale 46,17 s ; inclut 22 tests ADM-S2 et parseurs UI sur réponses réelles |
 | Rollback applicatif | PASS ; 10/10 tests, checkpoint `968c0b3a` sur migration courante `20261017055016` |
+| Couverture complète | PASS ; 3 260 tests, 130 skips liés à la base (suite DB séparée obligatoire) ; 285 fichiers verts, 377,96 s ; statements 86,35 %, branches 78,73 %, fonctions 91,06 %, lignes 88,40 % |
 | Frontend ciblé | PASS ; 18 tests pagination/projection commune, 17 joueurs, 22 runs/export ; contrat de langues 7/7 après ajout des invariants exacts |
 | Nouveaux navigateurs | PASS ; 4/4 sans retry, FR desktop et EN 320 px/clavier/axe ; export 1 001 lignes, détail/retour, pagination joueurs 123 |
 | Statique / sécurité / strict | PASS ; inventaire, frontières, format/lint, CSS, types app/scripts/E2E, contenu et aucun high/critical ; quatre diagnostics upstream stricts exactement autorisés |
@@ -84,8 +85,24 @@ l’économie pendant d’autres vérifications locales. La relance passe les 17
 sans modifier leurs délais ni leur code. La première couverture complète a aussi
 signalé 13 nouveaux libellés volontairement identiques FR/EN (Page, Candies,
 Champion, Type, Date UTC, Biome, Mode, Normal, Runes) ; l’allowlist exacte a été
-complétée, sans assouplir la détection des traductions manquantes. Les suites
-complètes sont relancées après ce correctif.
+complétée, sans assouplir la détection des traductions manquantes. La relance complète passe les 3 260 tests unitaires et tous les seuils de couverture.
+
+La revue finale du lint PostgreSQL a corrigé quatre déclarations de volatilité :
+les helpers qui convertissent des dates utilisent `STABLE`, tandis que la projection
+d’équipe, limitée aux entiers/booléens/textes, reste `IMMUTABLE`. Une variable morte
+est retirée. Le lint strict public/private n’émet plus aucun avertissement. Les
+22 cas DB passent après ce changement ; la même requête préparée est relue en UTC
+puis Pacific/Kiritimati (UTC+14), sans conversion de date figée. Cette correction
+est limitée à la nouvelle migration et ne change aucune ACL ni règle de gameplay.
+
+La CI à ordre variable `890373536` a révélé une attente trop précoce dans le
+test admin de timeout de modération : l’erreur disparaît dès le début du refresh,
+avant que la lecture soit terminée. Le test attend maintenant aussi le retour
+du bouton disponible. Le comportement de l’application et les assertions de
+sécurité restent inchangés ; le fichier passe avec cette même graine.
+
+Les deux parcours admin historiques adaptés à la nouvelle pagination passent
+également : 2/2, sans retry, FR/EN dont 320 px.
 
 Les mesures EXPLAIN sur 1 005 runs/page 100 donnent 174,6 ms à froid, puis 46,6 et
 36,8 ms selon tri, en transactions annulées. Ces trois échantillons locaux
@@ -95,8 +112,8 @@ Les résultats globaux (couverture complète, ordre variable, cohortes, navigate
 source/connectés et six projets production), les durées, éventuels retries et le
 SHA final sont consignés dans la [PR #224](https://github.com/Thanan71/LolRogue/pull/224)
 et ses checks. Le candidat code du clone et de la preview est suivi uniquement
-d’assertions de tests et de cette clôture documentaire, sans modification de
-l’application. Graphify est rafraîchi en code-only ; ses sorties et les captures
+d’assertions de tests, de cette clôture documentaire et du marquage de volatilité
+SQL décrit ci-dessus, sans modification de l’application frontend. Graphify est rafraîchi en code-only ; ses sorties et les captures
 restent hors commit.
 
 Aucune fusion, migration distante ni déploiement manuel ne découle de ces preuves.
