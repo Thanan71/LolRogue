@@ -108,6 +108,16 @@
       "file": "tests/adminExplorerPrivileges.database.test.ts",
       "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
       "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminAnalytics.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminAnalyticsPrivileges.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
     }
   ]
 }

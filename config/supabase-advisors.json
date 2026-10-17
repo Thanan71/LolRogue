@@ -366,6 +366,34 @@
       "level": "INFO",
       "justification": "Index FK nécessaire aux effacements de compte/tentatives et à la traçabilité des crédits autoritaires ; compteurs locaux fraîchement réinitialisés, pas de suppression sur ce seul signal.",
       "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_private_admin_analytics_coverage",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Marqueur non personnel privé, immuable et sans lecture Data API ; RLS sans policy et droits anon/authenticated/service_role intégralement révoqués, accès réservé au helper admin contrôlé.",
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "private",
+        "name": "admin_analytics_coverage"
+      }
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_run_attempts_run_attempts_analytics_started_at",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index temporel des séries ADM-S3 mesuré sur 20 000 tentatives : 228 à 31 blocs pour une journée ; le reset frais remet les compteurs d’utilisation à zéro.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_run_attempts_run_attempts_analytics_verified_at",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index temporel partiel des fins vérifiées ADM-S3 mesuré sur 20 000 lignes : 530 à 26 blocs ; le reset frais remet les compteurs d’utilisation à zéro.",
+      "expiresAt": "2026-10-31"
     }
   ]
 }

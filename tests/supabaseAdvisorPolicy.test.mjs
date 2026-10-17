@@ -75,10 +75,12 @@ describe('Supabase advisor policy', () => {
     expect(
       exceptions.map((exception) => exception.object).sort((a, b) => a.name.localeCompare(b.name)),
     ).toEqual(
-      tables.tables
-        .filter((entry) => entry.exposure === 'server-only')
-        .map((entry) => ({ schema: tables.schema, name: entry.name }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+      [
+        ...tables.tables
+          .filter((entry) => entry.exposure === 'server-only')
+          .map((entry) => ({ schema: tables.schema, name: entry.name })),
+        { schema: 'private', name: 'admin_analytics_coverage' },
+      ].sort((a, b) => a.name.localeCompare(b.name)),
     );
     const result = evaluateAdvisorFindings(
       configured,
