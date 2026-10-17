@@ -8,16 +8,12 @@ import { AdminErrorNotice } from './admin/AdminErrorNotice';
 import { AdminModerationPanel } from './admin/AdminModerationPanel';
 import { AdminSectionFeedback, AdminTableCount } from './admin/AdminSectionFeedback';
 import { AdminTabList } from './admin/AdminTabList';
-import { formatAdminMetric } from './admin/adminMetrics';
+import { AdminPlayersPanel } from './admin/players/AdminPlayersPanel';
+import { useAdminPlayersExplorer } from './admin/players/useAdminPlayersExplorer';
+import { AdminRunsPanel } from './admin/runs/AdminRunsPanel';
+import { useAdminRunExplorer } from './admin/runs/useAdminRunExplorer';
 import { useAdminData } from './admin/useAdminData';
-import {
-  exportRunsToCSV,
-  formatAdminCount,
-  formatAdminDate,
-  formatAdminNumber,
-  formatAdminPercent,
-  getLogLevelClass,
-} from './adminPageUtils';
+import { formatAdminDate, formatAdminNumber, getLogLevelClass } from './adminPageUtils';
 import '@/styles/admin.css';
 
 const LOG_LEVEL_LABELS: Readonly<Record<string, string>> = {
@@ -36,10 +32,6 @@ const LOG_OPERATION_LABELS: Readonly<Record<string, string>> = {
   other: fr.admin.otherOperation,
 };
 
-function biomeName(biomeId: string): string {
-  return fr.run.biomeNames[biomeId as keyof typeof fr.run.biomeNames] ?? biomeId;
-}
-
 export function AdminPage() {
   const { player, isAdmin } = useAuthStore();
   const navigate = useNavigate();
@@ -53,34 +45,26 @@ export function AdminPage() {
     fieldCohorts,
     fieldChampionCohorts,
     fieldAugmentCohorts,
-    playerStats,
     logs,
     statsLoading,
     authorityLoading,
     logsLoading,
-    playersLoading,
-    runsLoading,
-    runs,
     moderationLoading,
     moderationReports,
     errors,
     sections,
-    playersTotal,
     logsTotal,
-    runsTotal,
     moderationTotal,
-    runFilter,
-    setRunFilter,
     logFilter,
     setLogFilter,
     fetchStats,
     fetchAuthorityObservability,
-    fetchPlayerStats,
     fetchLogs,
-    fetchRuns,
     fetchModerationReports,
     invalidateDailyScore,
   } = useAdminData(isAdmin);
+  const playersExplorer = useAdminPlayersExplorer();
+  const runExplorer = useAdminRunExplorer();
 
   if (!isAdmin) {
     return (
@@ -251,307 +235,16 @@ export function AdminPage() {
         )}
 
         {activeTab === 'players' && (
-          <section
-            className="players-tab"
-            role="tabpanel"
-            id="admin-panel-players"
-            aria-labelledby="admin-tab-players"
-          >
-            <AdminErrorNotice
-              message={errors.players}
-              onRetry={fetchPlayerStats}
-              retrying={playersLoading}
-            />
-            <AdminSectionFeedback state={sections.players} />
-            <AdminTableCount displayed={playerStats.length} total={playersTotal} />
-            <div className="players-header">
-              <h3>{fr.admin.playerList}</h3>
-              <button onClick={fetchPlayerStats} disabled={playersLoading}>
-                {fr.admin.refresh}
-              </button>
-            </div>
-
-            {playersLoading && !sections.players.hasData ? (
-              <div className="loading">{fr.admin.loadingPlayers}</div>
-            ) : errors.players && !sections.players.hasData ? null : (
-              <div className="players-table-container">
-                <table className="players-table">
-                  <caption className="sr-only">{fr.admin.playersCaption}</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">{fr.admin.username}</th>
-                      <th scope="col">{fr.admin.level}</th>
-                      <th scope="col">{fr.admin.runs}</th>
-                      <th scope="col">{fr.admin.victories}</th>
-                      <th scope="col">{fr.admin.winRate}</th>
-                      <th scope="col">{fr.common.candies}</th>
-                      <th scope="col">{fr.admin.lastLogin}</th>
-                      <th scope="col">{fr.admin.registeredAt}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {playerStats.map((p) => (
-                      <tr key={p.id}>
-                        <td>
-                          <div className="player-name">
-                            {p.display_name || p.username}
-                            {p.is_admin && (
-                              <span className="admin-badge">{fr.admin.adminRole}</span>
-                            )}
-                          </div>
-                        </td>
-                        <td>{formatAdminMetric(p.level, 'accounts', fr.admin.unavailable)}</td>
-                        <td>
-                          {formatAdminMetric(
-                            p.total_runs_completed,
-                            'accounts',
-                            fr.admin.unavailable,
-                          )}
-                        </td>
-                        <td>{formatAdminMetric(p.total_wins, 'accounts', fr.admin.unavailable)}</td>
-                        <td>
-                          {p.win_rate === null || p.win_rate === undefined
-                            ? fr.admin.unavailable
-                            : formatAdminPercent(p.win_rate / 100)}
-                        </td>
-                        <td>
-                          {formatAdminMetric(p.total_candies, 'accounts', fr.admin.unavailable)}
-                        </td>
-                        <td>
-                          {p.last_login_at ? formatAdminDate(p.last_login_at) : fr.admin.never}
-                        </td>
-                        <td>{p.created_at ? formatAdminDate(p.created_at) : fr.admin.never}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {playerStats.length === 0 && <div className="no-data">{fr.admin.noPlayers}</div>}
-              </div>
-            )}
-          </section>
+          <AdminPlayersPanel
+            explorer={playersExplorer}
+            onOpenRuns={(playerId) => {
+              runExplorer.setPlayerFilter(playerId);
+              setActiveTab('runs');
+            }}
+          />
         )}
 
-        {activeTab === 'runs' && (
-          <section
-            className="runs-tab"
-            role="tabpanel"
-            id="admin-panel-runs"
-            aria-labelledby="admin-tab-runs"
-          >
-            <AdminErrorNotice message={errors.runs} onRetry={fetchRuns} retrying={runsLoading} />
-            <AdminSectionFeedback state={sections.runs} />
-            <AdminTableCount displayed={runs.length} total={runsTotal} />
-            <div className="runs-header">
-              <h3>{fr.admin.runHistory}</h3>
-              <div className="runs-actions">
-                <button
-                  className="export-btn"
-                  onClick={() => exportRunsToCSV(runs)}
-                  disabled={runsLoading || runs.length === 0}
-                  title={fr.admin.exportCurrentRows}
-                >
-                  📥 {fr.admin.exportCurrentRows}
-                </button>
-                <button onClick={fetchRuns} disabled={runsLoading}>
-                  🔄 {fr.admin.refresh}
-                </button>
-              </div>
-            </div>
-
-            <div className="runs-filters">
-              <h4>{fr.admin.filters}</h4>
-              <div className="filter-row">
-                <label htmlFor="admin-run-result">{fr.admin.result}</label>
-                <select
-                  id="admin-run-result"
-                  value={runFilter.won}
-                  onChange={(e) =>
-                    setRunFilter({ ...runFilter, won: e.target.value as 'all' | 'true' | 'false' })
-                  }
-                >
-                  <option value="all">{fr.admin.allResults}</option>
-                  <option value="true">{fr.admin.winsOnly}</option>
-                  <option value="false">{fr.admin.lossesOnly}</option>
-                </select>
-
-                <label htmlFor="admin-run-min-waves">{fr.admin.minWaves}</label>
-                <input
-                  id="admin-run-min-waves"
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  value={runFilter.minWaves}
-                  onChange={(e) => setRunFilter({ ...runFilter, minWaves: e.target.value })}
-                  className="admin-number-filter"
-                />
-
-                <label htmlFor="admin-run-max-waves">{fr.admin.maxWaves}</label>
-                <input
-                  id="admin-run-max-waves"
-                  type="number"
-                  min="0"
-                  placeholder="∞"
-                  value={runFilter.maxWaves}
-                  onChange={(e) => setRunFilter({ ...runFilter, maxWaves: e.target.value })}
-                  className="admin-number-filter"
-                />
-
-                <label htmlFor="admin-run-sort">{fr.admin.sortBy}</label>
-                <select
-                  id="admin-run-sort"
-                  value={runFilter.sortBy}
-                  onChange={(e) =>
-                    setRunFilter({
-                      ...runFilter,
-                      sortBy: e.target.value as 'completed_at' | 'waves_completed' | 'run_level',
-                    })
-                  }
-                >
-                  <option value="completed_at">{fr.admin.completedAt}</option>
-                  <option value="waves_completed">{fr.admin.wavesCompleted}</option>
-                  <option value="run_level">{fr.admin.runLevel}</option>
-                </select>
-
-                <label htmlFor="admin-run-order">{fr.admin.order}</label>
-                <select
-                  id="admin-run-order"
-                  value={runFilter.sortOrder}
-                  onChange={(e) =>
-                    setRunFilter({ ...runFilter, sortOrder: e.target.value as 'asc' | 'desc' })
-                  }
-                >
-                  <option value="desc">{fr.admin.descending}</option>
-                  <option value="asc">{fr.admin.ascending}</option>
-                </select>
-
-                <label htmlFor="admin-run-limit">{fr.admin.limit}</label>
-                <select
-                  id="admin-run-limit"
-                  value={runFilter.limit}
-                  onChange={(e) => setRunFilter({ ...runFilter, limit: parseInt(e.target.value) })}
-                >
-                  <option value="50">{formatAdminNumber(50)}</option>
-                  <option value="100">{formatAdminNumber(100)}</option>
-                  <option value="500">{formatAdminNumber(500)}</option>
-                  <option value="1000">{formatAdminNumber(1000)}</option>
-                </select>
-
-                <button onClick={fetchRuns} disabled={runsLoading}>
-                  {fr.admin.apply}
-                </button>
-              </div>
-            </div>
-
-            {runsLoading && !sections.runs.hasData ? (
-              <div className="loading">{fr.admin.loadingRuns}</div>
-            ) : errors.runs && !sections.runs.hasData ? null : (
-              <>
-                <div className="runs-table-container">
-                  <table className="runs-table">
-                    <caption className="sr-only">{fr.admin.filteredRunsCaption}</caption>
-                    <thead>
-                      <tr>
-                        <th scope="col">{fr.admin.date}</th>
-                        <th scope="col">{fr.admin.player}</th>
-                        <th scope="col">{fr.admin.result}</th>
-                        <th scope="col">{fr.admin.level}</th>
-                        <th scope="col">{fr.admin.waves}</th>
-                        <th scope="col">{fr.admin.biomes}</th>
-                        <th scope="col">{fr.admin.kills}</th>
-                        <th scope="col">{fr.admin.damage}</th>
-                        <th scope="col">{fr.admin.gold}</th>
-                        <th scope="col">{fr.common.candies}</th>
-                        <th scope="col">{fr.admin.duration}</th>
-                        <th scope="col">{fr.admin.team}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {runs.map((run) => (
-                        <tr key={run.id} className={run.won ? 'win-row' : 'loss-row'}>
-                          <td>{run.completed_at ? formatAdminDate(run.completed_at) : '-'}</td>
-                          <td>
-                            <div className="player-name">
-                              {run.player_display_name || run.player_username || fr.admin.unknown}
-                            </div>
-                          </td>
-                          <td>
-                            <span className={`result-badge ${run.won ? 'win' : 'loss'}`}>
-                              {run.won ? `✓ ${fr.admin.victory}` : `✗ ${fr.admin.defeat}`}
-                            </span>
-                          </td>
-                          <td className="level-cell">
-                            {formatAdminMetric(run.run_level, 'runs', fr.admin.unavailable)}
-                          </td>
-                          <td className="waves-cell">
-                            {formatAdminMetric(run.waves_completed, 'runs', fr.admin.unavailable)}
-                          </td>
-                          <td
-                            className="biomes-cell"
-                            title={run.biomes_visited?.map(biomeName).join(' → ')}
-                          >
-                            {formatAdminCount(
-                              run.biomes_visited?.length ?? 0,
-                              fr.admin.biome,
-                              fr.admin.biomePlural,
-                            )}
-                          </td>
-                          <td>
-                            {formatAdminMetric(run.total_kills, 'runs', fr.admin.unavailable)}
-                          </td>
-                          <td>
-                            {formatAdminMetric(
-                              run.total_damage_dealt,
-                              'runs',
-                              fr.admin.unavailable,
-                            )}
-                          </td>
-                          <td>
-                            {formatAdminMetric(run.gold_earned, 'runs', fr.admin.unavailable)}
-                          </td>
-                          <td className="candies-cell">
-                            {formatAdminMetric(run.candies_earned, 'runs', fr.admin.unavailable)}
-                          </td>
-                          <td>
-                            {run.duration_seconds !== null && run.duration_seconds !== undefined
-                              ? formatAdminCount(
-                                  Math.floor(run.duration_seconds / 60),
-                                  fr.admin.minute,
-                                  fr.admin.minutes,
-                                )
-                              : fr.admin.unavailable}
-                          </td>
-                          <td className="team-cell">
-                            <details className="admin-details">
-                              <summary>
-                                {formatAdminCount(
-                                  run.team_members?.length ?? 0,
-                                  fr.admin.champion,
-                                  fr.admin.champions,
-                                )}
-                              </summary>
-                              <ul>
-                                {run.team_members?.map((member) => (
-                                  <li key={member.id}>
-                                    {member.champion_id}: {fr.admin.levelShort}{' '}
-                                    {formatAdminNumber(member.final_level)}{' '}
-                                    {member.survived ? '✓' : '✗'} ({fr.admin.killsShort}:{' '}
-                                    {formatAdminNumber(member.kills)} {fr.admin.damageShort}:{' '}
-                                    {formatAdminNumber(member.damage_dealt)})
-                                  </li>
-                                ))}
-                              </ul>
-                            </details>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {runs.length === 0 && <div className="no-data">{fr.admin.noRuns}</div>}
-                </div>
-              </>
-            )}
-          </section>
-        )}
+        {activeTab === 'runs' && <AdminRunsPanel explorer={runExplorer} />}
 
         {activeTab === 'moderation' && (
           <AdminModerationPanel

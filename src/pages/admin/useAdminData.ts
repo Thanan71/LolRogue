@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
   VerifiedFieldAugmentCohort,
   VerifiedFieldCalibrationCohort,
@@ -13,26 +13,21 @@ import {
   evaluateAuthorityRejectionAlerts,
 } from '@/observability/authorityRejectionMonitor';
 import { supabase } from '@/services/supabaseClient';
-import { useAccountScope } from '@/shared/hooks/useAccountScope';
-import { useAuthStore } from '@/stores/authStore';
 import type { Database, Json } from '@/types/database';
-import type { AdminPlayerStat, Log } from '@/types/models';
-import type { AdminRun } from '../adminPageUtils';
+import type { Log } from '@/types/models';
 import { AdminMutationOutcomeUnknown, runAdminMutation } from './adminMutationRequest';
 import {
   type AdminLogFilter,
   type AdminModerationReport,
-  type AdminRunFilter,
   type AdminTablePage,
   fetchAdminLogsPage,
   fetchAdminModerationPage,
-  fetchAdminPlayersPage,
-  fetchAdminRunsPage,
 } from './adminTableQueries';
+import { useAdminExplorerScope } from './explorer/useAdminExplorerScope';
 import { ADMIN_REQUEST_TIMEOUT_MS, useAdminSection } from './useAdminSection';
 
 export type AdminTab = 'dashboard' | 'authority' | 'logs' | 'players' | 'runs' | 'moderation';
-export type AdminDataSection = 'stats' | 'authority' | 'logs' | 'players' | 'runs' | 'moderation';
+export type AdminDataSection = 'stats' | 'authority' | 'logs' | 'moderation';
 export type AdminDataErrors = Record<AdminDataSection, string | null>;
 
 export type { AdminModerationReport } from './adminTableQueries';
@@ -269,9 +264,7 @@ const EMPTY_AUTHORITY: AuthorityData = {
   champions: [],
   augments: [],
 };
-const EMPTY_PLAYERS: AdminTablePage<AdminPlayerStat> = { rows: [], total: 0 };
 const EMPTY_LOGS: AdminTablePage<Log> = { rows: [], total: 0 };
-const EMPTY_RUNS: AdminTablePage<AdminRun> = { rows: [], total: 0 };
 const EMPTY_REPORTS: AdminTablePage<AdminModerationReport> = { rows: [], total: 0 };
 const emptyStats = (data: AdminStats) => Object.keys(data).length === 0;
 const emptyAuthority = (data: AuthorityData) =>
@@ -283,74 +276,8 @@ const emptyAuthority = (data: AuthorityData) =>
 const emptyTable = (data: { rows: unknown[] }) => data.rows.length === 0;
 
 export function useAdminData(isAdmin: boolean) {
-  const account = useAccountScope();
-  const granted = useAuthStore((state) => state.isAdmin);
-  const permissionEpoch = useRef(0);
-  const [permissionVersion, setPermissionVersion] = useState(0);
-  useEffect(
-    () =>
-      useAuthStore.subscribe((next, previous) => {
-        if (next.isAdmin !== previous.isAdmin) {
-          permissionEpoch.current += 1;
-          setPermissionVersion(permissionEpoch.current);
-        }
-      }),
-    [],
-  );
-  const {
-    accountEpoch,
-    user,
-    session,
-    isGuest,
-    isInitialized,
-    isAuthLoading,
-    captureAccountScope,
-  } = account;
-  const enabled =
-    isAdmin &&
-    granted &&
-    isInitialized &&
-    !isAuthLoading &&
-    !isGuest &&
-    user !== null &&
-    session !== null;
-  const scope = useMemo(
-    () => ({
-      accountEpoch,
-      permissionVersion,
-      user,
-      session,
-      isAdmin,
-      isGuest,
-      isInitialized,
-      isAuthLoading,
-    }),
-    [
-      accountEpoch,
-      permissionVersion,
-      user,
-      session,
-      isAdmin,
-      isGuest,
-      isInitialized,
-      isAuthLoading,
-    ],
-  );
-  const captureScope = useCallback(() => {
-    const accountIsCurrent = captureAccountScope();
-    const version = permissionEpoch.current;
-    return () =>
-      accountIsCurrent() && version === permissionEpoch.current && useAuthStore.getState().isAdmin;
-  }, [captureAccountScope]);
+  const { enabled, scope, captureScope } = useAdminExplorerScope(isAdmin);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
-  const [runFilter, setRunFilter] = useState<AdminRunFilter>({
-    won: 'all',
-    minWaves: '',
-    maxWaves: '',
-    sortBy: 'completed_at',
-    sortOrder: 'desc',
-    limit: 100,
-  });
   const [logFilter, setLogFilter] = useState<AdminLogFilter>({
     level: 'all',
     operation: 'all',
@@ -462,14 +389,9 @@ export function useAdminData(isAdmin: boolean) {
       augments: (augmentResult.data ?? []).flatMap((row) => mapVerifiedFieldAugment(row) ?? []),
     };
   }, []);
-  const loadPlayers = useCallback((signal: AbortSignal) => fetchAdminPlayersPage({}, signal), []);
   const loadLogs = useCallback(
     (signal: AbortSignal) => fetchAdminLogsPage(logFilter, signal),
     [logFilter],
-  );
-  const loadRuns = useCallback(
-    (signal: AbortSignal) => fetchAdminRunsPage(runFilter, signal),
-    [runFilter],
   );
   const loadReports = useCallback(
     (signal: AbortSignal) => fetchAdminModerationPage({}, signal),
@@ -488,24 +410,11 @@ export function useAdminData(isAdmin: boolean) {
     load: loadAuthority,
     isEmpty: emptyAuthority,
   });
-  const players = useAdminSection({
-    ...common,
-    initialData: EMPTY_PLAYERS,
-    load: loadPlayers,
-    isEmpty: emptyTable,
-  });
   const logs = useAdminSection({
     ...common,
     queryKey: JSON.stringify(logFilter),
     initialData: EMPTY_LOGS,
     load: loadLogs,
-    isEmpty: emptyTable,
-  });
-  const runs = useAdminSection({
-    ...common,
-    queryKey: JSON.stringify(runFilter),
-    initialData: EMPTY_RUNS,
-    load: loadRuns,
     isEmpty: emptyTable,
   });
   const moderation = useAdminSection({
@@ -564,7 +473,7 @@ export function useAdminData(isAdmin: boolean) {
     },
     [enabled, captureScope, moderation.reload, moderation.reportError],
   );
-  const sections = { stats, authority, players, logs, runs, moderation };
+  const sections = { stats, authority, logs, moderation };
   return {
     activeTab,
     setActiveTab,
@@ -575,34 +484,24 @@ export function useAdminData(isAdmin: boolean) {
     fieldCohorts: authority.data.cohorts,
     fieldChampionCohorts: authority.data.champions,
     fieldAugmentCohorts: authority.data.augments,
-    playerStats: players.data.rows,
     logs: logs.data.rows,
-    runs: runs.data.rows,
     moderationReports: moderation.data.rows,
-    playersTotal: players.hasData ? players.data.total : null,
     logsTotal: logs.hasData ? logs.data.total : null,
-    runsTotal: runs.hasData ? runs.data.total : null,
     moderationTotal: moderation.hasData ? moderation.data.total : null,
     loading: Object.values(sections).some((section) => section.loading),
     statsLoading: stats.loading,
     authorityLoading: authority.loading,
-    playersLoading: players.loading,
     logsLoading: logs.loading,
-    runsLoading: runs.loading,
     moderationLoading: moderation.loading,
     sections,
     errors: Object.fromEntries(
       Object.entries(sections).map(([key, value]) => [key, value.error]),
     ) as AdminDataErrors,
-    runFilter,
-    setRunFilter,
     logFilter,
     setLogFilter,
     fetchStats: stats.reload,
     fetchAuthorityObservability: authority.reload,
-    fetchPlayerStats: players.reload,
     fetchLogs: logs.reload,
-    fetchRuns: runs.reload,
     fetchModerationReports: moderation.reload,
     invalidateDailyScore,
   };

@@ -91,28 +91,27 @@ async function backend(page: Page, emptyPlayers = false) {
       });
       return;
     }
-    if (table === 'admin_player_stats') {
+    if (table === 'admin_search_players') {
       const rows = emptyPlayers
         ? []
-        : Array.from({ length: 100 }, (_, index) => ({
-            id: `player-${index}`,
+        : Array.from({ length: 50 }, (_, index) => ({
+            id: `00000000-0000-4000-8000-${String(index + 100).padStart(12, '0')}`,
             username: `Player ${index}`,
-            display_name: null,
+            displayName: null,
             level: 1,
-            total_runs_completed: 0,
-            total_wins: 0,
-            win_rate: 0,
-            total_candies: 0,
-            last_login_at: null,
-            created_at: '2026-10-17T04:00:00Z',
-            is_admin: false,
+            verifiedRuns: 0,
+            verifiedWins: 0,
+            candiesBalance: '0',
+            createdAt: '2026-10-17T04:00:00Z',
+            lastLoginAt: null,
           }));
-      expect(route.request().headers().prefer).toContain('count=exact');
       await route.fulfill({
-        json: rows,
-        headers: {
-          'access-control-expose-headers': 'content-range',
-          'content-range': emptyPlayers ? '*/0' : '0-99/1001',
+        json: {
+          items: rows,
+          total: emptyPlayers ? 0 : 1001,
+          hasMore: !emptyPlayers,
+          nextCursor: emptyPlayers ? null : { id: rows.at(-1)?.id, value: '2026-10-17T04:00:00Z' },
+          snapshotAt: '2026-10-17T05:00:00Z',
         },
       });
       return;
@@ -166,10 +165,8 @@ test('admin sections recover independently and distinguish absent metrics, exact
 
   await page.getByRole('tab', { name: /Joueurs/ }).click();
   const players = page.getByRole('tabpanel', { name: /Joueurs/ });
-  await expect(players.getByRole('row')).toHaveCount(101);
-  await expect(players.getByRole('status')).toContainText(
-    /Lignes affichées : 100.*Total correspondant aux filtres : 1\s001/,
-  );
+  await expect(players.getByRole('row')).toHaveCount(51);
+  await expect(players.getByRole('status')).toContainText(/Affichées : 50.*Total filtré : 1\s001/);
 
   await page.getByRole('tab', { name: /Journaux/ }).click();
   const logs = page.getByRole('tabpanel', { name: /Journaux/ });
@@ -177,7 +174,7 @@ test('admin sections recover independently and distinguish absent metrics, exact
   api.logsFail = false;
   await logs.getByRole('button', { name: 'Réessayer', exact: true }).click();
   await expect(logs.getByRole('cell', { name: 'admin-ui-fixture', exact: true })).toBeVisible();
-  expect(api.reads.get('admin_player_stats')).toBe(1);
+  expect(api.reads.get('admin_search_players')).toBe(1);
   expect(api.reads.get('admin_stats')).toBe(1);
 
   await page.getByRole('tab', { name: /Tableau de bord/ }).click();
@@ -213,6 +210,6 @@ test('English admin definitions and a true empty count remain usable at 320px', 
   await captureAdminPage(page, testInfo, 'admin-mobile-en');
   await page.getByRole('tab', { name: /Players/ }).click();
   const players = page.getByRole('tabpanel', { name: /Players/ });
-  await expect(players.getByRole('status')).toContainText(/Total matching the filters\s*:\s*0/);
-  await expect(players.getByText('No players found')).toBeVisible();
+  await expect(players.getByRole('status')).toContainText(/Filtered total\s*:\s*0/);
+  await expect(players.getByText(/No players/)).toBeVisible();
 });

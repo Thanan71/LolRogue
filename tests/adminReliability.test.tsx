@@ -28,15 +28,11 @@ import { useAuthStore } from '@/stores/authStore';
 
 const mocks = vi.hoisted(() => ({
   stats: vi.fn(),
-  players: vi.fn(),
-  runs: vi.fn(),
   logs: vi.fn(),
   moderation: vi.fn(),
   rpc: vi.fn(),
 }));
 vi.mock('@/pages/admin/adminTableQueries', () => ({
-  fetchAdminPlayersPage: mocks.players,
-  fetchAdminRunsPage: mocks.runs,
   fetchAdminLogsPage: mocks.logs,
   fetchAdminModerationPage: mocks.moderation,
 }));
@@ -78,7 +74,7 @@ beforeEach(() => {
   mocks.stats
     .mockReset()
     .mockResolvedValue({ data: [{ stat_name: 'total_players', stat_value: '10' }], error: null });
-  for (const load of [mocks.players, mocks.runs, mocks.logs, mocks.moderation])
+  for (const load of [mocks.logs, mocks.moderation])
     load.mockReset().mockResolvedValue({ rows: [], total: 0 });
   useAuthStore.setState({
     ...accountA,
@@ -348,16 +344,16 @@ describe('independent admin resources', () => {
     mocks.stats.mockReturnValueOnce(pending.promise);
     mocks.logs.mockRejectedValueOnce(new Error('private SQL error'));
     const { result } = renderHook(() => useAdminData(true));
-    await waitFor(() => expect(result.current.sections.players.hasData).toBe(true));
+    await waitFor(() => expect(result.current.sections.moderation.hasData).toBe(true));
     expect(result.current.statsLoading).toBe(true);
-    expect(result.current.playersLoading).toBe(false);
-    expect(result.current.playersTotal).toBe(0);
+    expect(result.current.moderationLoading).toBe(false);
+    expect(result.current.moderationTotal).toBe(0);
     expect(result.current.errors.logs).toBe(fr.admin.requestFailed);
     await act(async () => {
       await result.current.fetchLogs();
     });
     expect(result.current.errors.logs).toBeNull();
-    expect(mocks.players).toHaveBeenCalledTimes(1);
+    expect(mocks.moderation).toHaveBeenCalledTimes(1);
     expect(mocks.stats).toHaveBeenCalledTimes(1);
     await act(async () => pending.resolve({ data: [], error: null }));
   });
@@ -514,8 +510,8 @@ describe('independent admin resources', () => {
       pending.resolve({ data: [{ stat_name: 'total_players', stat_value: '999' }], error: null }),
     );
     expect(result.current.stats).toEqual({});
-    expect(result.current.playerStats).toEqual([]);
-    expect(result.current.playersTotal).toBeNull();
+    expect(result.current.moderationReports).toEqual([]);
+    expect(result.current.moderationTotal).toBeNull();
     expect(result.current.sections.stats.status).toBe('idle');
   });
 
