@@ -1,5 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { parseAdminExplorerPage } from '@/pages/admin/explorer/adminExplorerClient';
+import { parseAdminPlayerDetail } from '@/pages/admin/players/adminPlayerProjection';
+import { parseAdminAttemptItem, parseAdminRunItem } from '@/pages/admin/runs/adminRunContracts';
+import { parseAdminRunDetail } from '@/pages/admin/runs/adminRunQueries';
 import {
   cleanupExplorer,
   type ExplorerAccount,
@@ -205,6 +209,7 @@ describeDatabase('admin explorer exact server projections', () => {
     const exported = await rpcData(admin.client, 'admin_export_runs', args);
     expect(exported.items).toHaveLength(1005);
     expect(exported.total).toBe(1005);
+    expect(exported.items.map(parseAdminRunItem)).toHaveLength(1005);
     expect(exported.items[0].team[0].damageDealt).toBe('9007199254740993');
     expect(exported.items[0].seed).toBe('9007199254740993');
     const again = await rpcData(admin.client, 'admin_export_runs', {
@@ -228,6 +233,7 @@ describeDatabase('admin explorer exact server projections', () => {
     };
     const page = await rpcData(admin.client, 'admin_search_attempts', args);
     expect(page.total).toBe(1);
+    expect(parseAdminExplorerPage(page, parseAdminAttemptItem).items[0].id).toBe(saved.attemptId);
     expect(page.items[0]).toMatchObject({ id: saved.attemptId, resultRunId: saved.runId });
     expect(
       (await rpcData(admin.client, 'admin_export_runs', { ...args, p_population: 'attempts' }))
@@ -244,6 +250,7 @@ describeDatabase('admin explorer exact server projections', () => {
   it('projects paginated action fields without secrets, raw traces or raw authority results', async () => {
     const args = { p_run_id: saved.runId, p_page_size: 2 };
     const first = await rpcData(admin.client, 'admin_get_run_detail', args);
+    expect(parseAdminRunDetail(first).run?.id).toBe(saved.runId);
     expect(first).toMatchObject({
       total: 5,
       hasMore: true,
@@ -340,6 +347,7 @@ describeDatabase('admin explorer exact server projections', () => {
       mastery: { items: [], total: 0 },
       enhancements: { items: [], total: 0 },
     });
+    expect(parseAdminPlayerDetail(profile).profile.id).toBe(owner.playerId);
     expect(profile.candies.transactions.items[0]).toMatchObject({
       kind: 'unattributed',
       amount: '137',

@@ -65,9 +65,40 @@ reste différé et l’isolation de la route Auth est vérifiée par manifest.
 
 Marge JavaScript finale locale : **11,95 %**. Les 40 entrées npm publiques sont conservées.
 
-## Résultats
+## Résultats locaux et clôture
 
-La clôture de cette tranche distingue preuves locales, état de CI, fusion et
-application distante. Les résultats définitifs seront consignés dans la PR et
-ce rapport après les gates finales. Aucune migration distante ni déploiement
-manuel ne découle des tests locaux.
+| Gate | Résultat acquis |
+| --- | --- |
+| Base recréée | PASS ; 69 migrations, lint, ACL, RLS, advisors, neuf index mesurés et types générés concordants |
+| Suite DB complète | PASS ; 174 tests / 21 fichiers, zéro skip, phase Vitest 45,27 s ; inclut 22 tests ADM-S2 et parseurs UI sur réponses réelles |
+| Rollback applicatif | PASS ; 10/10 tests, checkpoint `968c0b3a` sur migration courante `20261017055016` |
+| Frontend ciblé | PASS ; 18 tests pagination/projection commune, 17 joueurs, 22 runs/export ; contrat de langues 7/7 après ajout des invariants exacts |
+| Nouveaux navigateurs | PASS ; 4/4 sans retry, FR desktop et EN 320 px/clavier/axe ; export 1 001 lignes, détail/retour, pagination joueurs 123 |
+| Statique / sécurité / strict | PASS ; inventaire, frontières, format/lint, CSS, types app/scripts/E2E, contenu et aucun high/critical ; quatre diagnostics upstream stricts exactement autorisés |
+| Clone indépendant du code | PASS sur `2e6722b6` ; installation 4,63 s, artefacts 0,79 s, build 8,28 s ; aucun cache/npm privé ni Git alternate, Git propre avant/après |
+| Invariants | PASS ; 24 bundles identiques et empreintes vérifiées, 68 migrations historiques identiques, dépendances inchangées, aucun asset/binaire ajouté |
+| Preview du code | HTML, entrée JS et identité HTTP 200 ; commit `2e6722b6`, hostname public du backend conforme à la cible Dev approuvée |
+
+La première exécution DB a dépassé cinq secondes sur deux tests existants de
+l’économie pendant d’autres vérifications locales. La relance passe les 174 cas
+sans modifier leurs délais ni leur code. La première couverture complète a aussi
+signalé 13 nouveaux libellés volontairement identiques FR/EN (Page, Candies,
+Champion, Type, Date UTC, Biome, Mode, Normal, Runes) ; l’allowlist exacte a été
+complétée, sans assouplir la détection des traductions manquantes. Les suites
+complètes sont relancées après ce correctif.
+
+Les mesures EXPLAIN sur 1 005 runs/page 100 donnent 174,6 ms à froid, puis 46,6 et
+36,8 ms selon tri, en transactions annulées. Ces trois échantillons locaux
+n’établissent pas de garantie de production et ne justifient aucun nouvel index.
+
+Les résultats globaux (couverture complète, ordre variable, cohortes, navigateurs
+source/connectés et six projets production), les durées, éventuels retries et le
+SHA final sont consignés dans la [PR #224](https://github.com/Thanan71/LolRogue/pull/224)
+et ses checks. Le candidat code du clone et de la preview est suivi uniquement
+d’assertions de tests et de cette clôture documentaire, sans modification de
+l’application. Graphify est rafraîchi en code-only ; ses sorties et les captures
+restent hors commit.
+
+Aucune fusion, migration distante ni déploiement manuel ne découle de ces preuves.
+La preview automatique n’atteste pas que les nouvelles RPC sont installées sur
+la base Dev ; son application exige la procédure d’exploitation sur cible explicite.
