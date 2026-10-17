@@ -2,7 +2,7 @@
 BEGIN;
 
 CREATE FUNCTION private.admin_explorer_filters(p_filters JSONB, p_population TEXT)
-RETURNS JSONB LANGUAGE plpgsql IMMUTABLE SECURITY INVOKER SET search_path = '' AS $$
+RETURNS JSONB LANGUAGE plpgsql STABLE SECURITY INVOKER SET search_path = '' AS $$
 DECLARE
   v JSONB := COALESCE(p_filters, '{}'::JSONB);
   k TEXT;
@@ -66,7 +66,7 @@ EXCEPTION WHEN invalid_text_representation OR datetime_field_overflow OR invalid
 END $$;
 
 CREATE FUNCTION private.admin_run_item(r public.runs, p public.players, a public.run_attempts)
-RETURNS JSONB LANGUAGE sql IMMUTABLE SECURITY INVOKER SET search_path = '' AS $$
+RETURNS JSONB LANGUAGE sql STABLE SECURITY INVOKER SET search_path = '' AS $$
  SELECT jsonb_build_object(
   'id',r.id,'runUuid',r.run_uuid,'seed',r.seed::TEXT,'playerId',r.player_id,'username',p.username,'displayName',p.display_name,
   'won',r.won,'runLevel',r.run_level,'wavesCompleted',r.waves_completed,'biomesVisited',r.biomes_visited,
@@ -90,7 +90,7 @@ RETURNS JSONB LANGUAGE sql IMMUTABLE SECURITY INVOKER SET search_path = '' AS $$
 $$;
 
 CREATE FUNCTION private.admin_attempt_item(a public.run_attempts, p public.players)
-RETURNS JSONB LANGUAGE sql IMMUTABLE SECURITY INVOKER SET search_path = '' AS $$
+RETURNS JSONB LANGUAGE sql STABLE SECURITY INVOKER SET search_path = '' AS $$
  SELECT jsonb_build_object('id',a.id,'playerId',a.player_id,'username',p.username,'displayName',p.display_name,'status',a.status,
  'mode',a.mode,'difficulty',a.difficulty,'engineVersion',a.engine_version,'gameplayVersion',a.gameplay_ruleset_version,
  'progressionVersion',a.ruleset_version,'commandSchemaVersion',a.command_schema_version,'economyVersion',a.economy_version,
@@ -275,7 +275,7 @@ BEGIN
 END $$;
 
 CREATE FUNCTION private.admin_action_item(c public.run_attempt_commands)
-RETURNS JSONB LANGUAGE sql IMMUTABLE SECURITY INVOKER SET search_path = '' AS $$
+RETURNS JSONB LANGUAGE sql STABLE SECURITY INVOKER SET search_path = '' AS $$
  SELECT jsonb_build_object('sequence',c.sequence,'receivedAt',c.received_at,
  'kind',CASE WHEN c.kind=ANY(ARRAY['move_node','resolve_combat','shop_buy_item','shop_recruit','rest','recruit','event','treasure','resolve_node','equip_item','unequip_item','sell_item','choose_augment','upgrade_spell','abandon_run']) THEN c.kind ELSE 'unsupported' END,
  'nodeId',CASE WHEN c.kind=ANY(ARRAY['move_node','resolve_combat','shop_buy_item','shop_recruit','rest','recruit','event','treasure','resolve_node']) AND c.payload->>'node_id' ~ '^[A-Za-z0-9_:.-]{1,128}$' THEN c.payload->>'node_id' END,
@@ -292,7 +292,7 @@ RETURNS JSONB LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = '' AS $
 DECLARE
  r public.runs%ROWTYPE; a public.run_attempts%ROWTYPE; p public.players%ROWTYPE;
  stamp TIMESTAMPTZ:=COALESCE(p_snapshot,statement_timestamp()); run_item JSONB; attempt_item JSONB; timeline JSONB;
- actions JSONB; result JSONB; after_sequence INTEGER:=0;
+ actions JSONB; after_sequence INTEGER:=0;
 BEGIN
  IF auth.uid() IS NULL OR NOT public.is_current_user_admin() THEN RAISE EXCEPTION 'admin_access_denied' USING ERRCODE='42501'; END IF;
  IF p_kind NOT IN ('run','attempt') OR NOT isfinite(stamp) OR stamp>statement_timestamp() OR p_page_size IS NULL OR p_page_size NOT BETWEEN 1 AND 100 THEN
