@@ -13,6 +13,21 @@
       "reason": "Lecture de la wallet du compte sous RLS propriétaire ; aucun solde modifiable directement via la Data API."
     },
     {
+      "name": "candy_accounts",
+      "exposure": "client-data-api",
+      "reason": "Lecture administrative des soldes d'ouverture et de la couverture sous RLS ; aucune écriture client ou service directe."
+    },
+    {
+      "name": "candy_ledger_settings",
+      "exposure": "client-data-api",
+      "reason": "Lecture administrative de la date de couverture sous RLS ; configuration immuable et aucune écriture Data API."
+    },
+    {
+      "name": "candy_transactions",
+      "exposure": "client-data-api",
+      "reason": "Lecture administrative du ledger Candies sous RLS ; événements append-only écrits exclusivement par fonctions privées."
+    },
+    {
       "name": "champion_economy_catalog",
       "exposure": "server-only",
       "reason": "Catalogue de prix versionné publié par snapshot RPC borné ; aucune écriture ou lecture client directe."

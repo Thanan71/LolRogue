@@ -82,6 +82,99 @@ export type Database = {
         };
         Relationships: [];
       };
+      candy_accounts: {
+        Row: {
+          history_complete: boolean;
+          opened_at: string;
+          opening_balance: number;
+          player_id: string;
+        };
+        Insert: {
+          history_complete: boolean;
+          opened_at?: string;
+          opening_balance: number;
+          player_id: string;
+        };
+        Update: {
+          history_complete?: boolean;
+          opened_at?: string;
+          opening_balance?: number;
+          player_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'candy_accounts_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: true;
+            referencedRelation: 'admin_player_stats';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'candy_accounts_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: true;
+            referencedRelation: 'players';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      candy_ledger_settings: {
+        Row: {
+          singleton: boolean;
+          started_at: string;
+        };
+        Insert: {
+          singleton?: boolean;
+          started_at?: string;
+        };
+        Update: {
+          singleton?: boolean;
+          started_at?: string;
+        };
+        Relationships: [];
+      };
+      candy_transactions: {
+        Row: {
+          amount: number;
+          created_at: string;
+          id: number;
+          kind: string;
+          player_id: string;
+          source_key: string;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string;
+          id?: never;
+          kind: string;
+          player_id: string;
+          source_key: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          id?: never;
+          kind?: string;
+          player_id?: string;
+          source_key?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'candy_transactions_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: false;
+            referencedRelation: 'admin_player_stats';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'candy_transactions_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: false;
+            referencedRelation: 'players';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       champion_economy_catalog: {
         Row: {
           catalog_version: number;
