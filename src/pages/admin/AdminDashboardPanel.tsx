@@ -1,28 +1,22 @@
 import { fr } from '@/i18n/fr';
-import { formatAdminNumber } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
+import { AdminSectionFeedback } from './AdminSectionFeedback';
+import {
+  ADMIN_METRIC_KEYS,
+  formatAdminMetric,
+  getAdminMetricDefinition,
+  getAdminMetricValue,
+} from './adminMetrics';
 import type { AdminTab } from './useAdminData';
+import type { AdminSectionFeedback as Feedback } from './useAdminSection';
 
 interface AdminDashboardPanelProps {
   loading: boolean;
-  stats: Record<string, string>;
+  stats: Record<string, string | null>;
   onSelectTab: (tab: AdminTab) => void;
   onRefresh: () => void;
   error: string | null;
-}
-
-const DASHBOARD_STATS = [
-  ['total_players', fr.admin.totalPlayers],
-  ['active_today', fr.admin.activeToday],
-  ['total_runs', fr.admin.totalRuns],
-  ['total_daily_runs', fr.admin.dailyRuns],
-  ['total_wins', fr.admin.totalWins],
-  ['total_candies_earned', fr.admin.candiesEarned],
-] as const;
-
-function formatDashboardStat(value: string | undefined): string {
-  const numericValue = Number(value ?? 0);
-  return Number.isFinite(numericValue) ? formatAdminNumber(numericValue) : (value ?? '0');
+  state?: Feedback;
 }
 
 export function AdminDashboardPanel({
@@ -31,6 +25,7 @@ export function AdminDashboardPanel({
   onSelectTab,
   onRefresh,
   error,
+  state,
 }: AdminDashboardPanelProps) {
   return (
     <section
@@ -40,28 +35,48 @@ export function AdminDashboardPanel({
       aria-labelledby="admin-tab-dashboard"
     >
       <AdminErrorNotice message={error} onRetry={onRefresh} retrying={loading} />
-      {loading ? (
+      {state && <AdminSectionFeedback state={state} />}
+      {loading && !state?.hasData ? (
         <div className="loading">{fr.admin.loading}</div>
       ) : (
         <div className="stats-grid">
-          {DASHBOARD_STATS.map(([key, label]) => (
-            <div className="stat-card" key={key}>
-              <div className="stat-value">{formatDashboardStat(stats[key])}</div>
-              <div className="stat-label">{label}</div>
-            </div>
-          ))}
+          {ADMIN_METRIC_KEYS.map((key) => {
+            const definition = getAdminMetricDefinition(key);
+            return (
+              <div className="stat-card" key={key} data-metric={key}>
+                <div className="stat-value">
+                  {formatAdminMetric(
+                    getAdminMetricValue(key, stats),
+                    definition.unit,
+                    fr.admin.unavailable,
+                  )}
+                </div>
+                <div className="stat-label">{definition.label}</div>
+                <details className="admin-details">
+                  <summary>
+                    {fr.admin.metricDetails} — {definition.label}
+                  </summary>
+                  <p>{definition.formula}</p>
+                  <p>{definition.source}</p>
+                  <p>
+                    {definition.period} · {definition.timezone}
+                  </p>
+                  <p>{definition.unitLabel}</p>
+                  <p>{definition.population}</p>
+                  <p>{definition.verification}</p>
+                  <p>{definition.aggregation}</p>
+                </details>
+              </div>
+            );
+          })}
         </div>
       )}
 
       <div className="admin-quick-actions">
         <h3>{fr.admin.quickActions}</h3>
         <div className="action-buttons">
-          <button onClick={() => onSelectTab('logs')} disabled={loading}>
-            {fr.admin.viewLogs}
-          </button>
-          <button onClick={() => onSelectTab('players')} disabled={loading}>
-            {fr.admin.managePlayers}
-          </button>
+          <button onClick={() => onSelectTab('logs')}>{fr.admin.viewLogs}</button>
+          <button onClick={() => onSelectTab('players')}>{fr.admin.managePlayers}</button>
           <button onClick={onRefresh} disabled={loading}>
             {fr.admin.refreshStats}
           </button>

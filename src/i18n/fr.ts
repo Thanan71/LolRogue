@@ -262,6 +262,18 @@ const french = {
     localRunPreserved: 'La partie locale est conservée. Recharge la page pour reprendre.',
   },
   admin: {
+    requestTimedOut: 'Le délai de chargement est dépassé. Réessayez cette section.',
+    moderationResultUnknown:
+      'Le résultat de l’invalidation est inconnu. Actualisez les signalements avant toute nouvelle invalidation.',
+    unavailable: 'Indisponible',
+    staleData: 'Données périmées : la dernière lecture réussie reste affichée.',
+    refreshingData: 'Actualisation en cours ; les dernières données restent affichées.',
+    lastUpdated: 'Dernière lecture réussie',
+    metricDetails: 'Définition de l’indicateur',
+    displayedRows: 'Lignes affichées',
+    matchingTotal: 'Total correspondant aux filtres',
+    pageSampleOnly: 'Statistiques des lignes affichées uniquement',
+    exportCurrentRows: 'Exporter les lignes affichées',
     accessDenied: 'Accès refusé',
     noPermission: "Vous n'avez pas les permissions nécessaires pour accéder à cette page.",
     home: "Retour à l'accueil",
