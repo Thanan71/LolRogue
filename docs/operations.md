@@ -21,6 +21,11 @@ Une fiche de release privée doit fournir les project refs et responsables réel
 Les runbooks versionnés ne contiennent volontairement ni secret ni identifiant de
 production.
 
+Les fiches joueurs et historiques de l’application **0.2.8** nécessitent en plus
+`20261017055016_admin_player_run_explorer.sql` (69e migration), après le registre
+Candies. Voir [le contrat ADM-S2](admin-explorer.md). Ne pas confondre tests locaux,
+PR verte et migrations effectivement appliquées à une cible distante.
+
 ## Environnements
 
 La résolution normative des cibles est dans `docs/environment-contract.md` ;

@@ -284,3 +284,18 @@ budget v10 porte uniquement les assets déployables à **8 050 000 octets**
 de 10 %, les budgets initial/Auth, par chunk et de Web Vitals restent inchangés.
 Les mesures finales comparées au parent sont consignées dans la
 [validation ADM-S1](admin-s1-validation-2026-10-17.md).
+
+## ADM-S2 — fiches joueurs et historiques
+
+Le premier build de ce lot ajoute 15 391 octets de JavaScript gzip au parent
+`ae51c452` et atteint 642 427 octets. Sous le plafond v10, sa marge de 8,22 %
+échoue au minimum bloquant de 10 %. Les traductions FR/EN portent l’initial à
+226 373 octets et Auth à 231 177 ; les assets atteignent 8 070 267 octets.
+
+Le budget **v11** porte le JS total à **730 000 octets**, l’initial à **230 000**,
+Auth à **235 000** et les assets à **8 150 000**. Ce changement mesuré respecte
+l’autorisation utilisateur de préserver les modules et la qualité du code.
+Les 10 % de marge, plafonds par chunk, couverture et Web Vitals restent bloquants.
+L’isolation Auth continue d’exclure les écrans admin, Database et données champions.
+Les mesures finales et preuves figurent dans la
+[validation ADM-S2](admin-s2-validation-2026-10-17.md).

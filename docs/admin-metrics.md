@@ -197,6 +197,11 @@ résultats reste dans ADM-11. Les lignes conservées après un échec de refresh
 leur état périmé visible ; aucun export ne constitue une photographie globale de
 la base prise à un autre instant.
 
+Le comportement historique de listes décrit ci-dessus correspond à ADM-S1.
+Depuis **0.2.8**, la pagination et les exports sont remplacés par le
+[contrat ADM-S2](admin-explorer.md) ; les tests des anciennes requêtes de joueurs
+et de runs ont été migrés vers les RPC dédiées et leurs projections sûres.
+
 ## Vérifications et état de livraison
 
 - [`adminTableQueries.test.ts`](../tests/adminTableQueries.test.ts) couvre counts

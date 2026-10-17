@@ -425,6 +425,35 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 13,
+    version: '0.2.8',
+    publishedOn: '2026-10-17',
+    title: {
+      'fr-FR': 'Fiches joueurs et historiques de runs',
+      'en-US': 'Player profiles and run histories',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les listes admin disposent de recherche, de filtres et de pagination côté serveur. Les fiches joueurs regroupent progression, maîtrises et historiques, avec des soldes Candies et Shards distincts et les données manquantes signalées.',
+          'en-US':
+            'Admin lists now support server-side search, filters and pagination. Player profiles bring together progression, masteries and histories, with separate Candy and Shard balances and explicit missing data.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'L’explorateur distingue les runs enregistrées des tentatives autoritaires et affiche leur composition, leurs versions et leur journal disponible. Les exports CSV portent sur la page ou sur la sélection complète, avec confirmation et limite explicite.',
+          'en-US':
+            'The explorer distinguishes saved runs from authority attempts and shows their teams, versions and available journals. CSV exports cover the current page or the complete filtered selection, with confirmation and an explicit limit.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {
