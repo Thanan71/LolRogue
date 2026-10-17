@@ -1,4 +1,6 @@
 import { readBoundedStorageJson } from '@/utils/storagePolicy';
+import { frAdminPlayersExplorer } from './adminExplorer';
+import { adminRunExplorerContent } from './adminRunExplorer';
 import { en } from './en';
 
 const formatFrenchNumber = (value: number): string => value.toLocaleString('fr-FR');
@@ -262,6 +264,20 @@ const french = {
     localRunPreserved: 'La partie locale est conservée. Recharge la page pour reprendre.',
   },
   admin: {
+    playerExplorer: frAdminPlayersExplorer,
+    runExplorer: adminRunExplorerContent['fr-FR'],
+    explorerInvalidResponse: "La réponse de l'explorateur est incomplète. Actualise les données.",
+    explorerPagination: {
+      label: 'Pagination des résultats admin',
+      previous: 'Page précédente',
+      next: 'Page suivante',
+      pageSize: 'Lignes par page',
+      page: 'Page',
+      displayed: 'Affichées :',
+      total: 'Total filtré :',
+      snapshotNote:
+        'Les nouvelles inscriptions ou runs sont exclues jusqu’à l’actualisation. Des modifications ou suppressions historiques restent possibles.',
+    },
     requestTimedOut: 'Le délai de chargement est dépassé. Réessayez cette section.',
     moderationResultUnknown:
       'Le résultat de l’invalidation est inconnu. Actualisez les signalements avant toute nouvelle invalidation.',

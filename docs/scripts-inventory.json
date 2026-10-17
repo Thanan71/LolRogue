@@ -181,8 +181,10 @@
     "config/veigar-run-progression-balance-0.2.5.json",
     "config/veigar-run-progression-balance-v22.json",
     "docs/accessibility.md",
+    "docs/admin-explorer.md",
     "docs/admin-metrics.md",
     "docs/admin-s1-validation-2026-10-17.md",
+    "docs/admin-s2-validation-2026-10-17.md",
     "docs/administration.md",
     "docs/architecture-s2-validation-2026-10-11.md",
     "docs/architecture-s3-validation-2026-10-11.md",
@@ -268,6 +270,8 @@
     "e2e/accessibility-display.spec.ts",
     "e2e/accessibility.spec.ts",
     "e2e/admin-data-reliability.spec.ts",
+    "e2e/admin-players-explorer.spec.ts",
+    "e2e/admin-run-explorer.spec.ts",
     "e2e/auth-menu-responsive.spec.ts",
     "e2e/champion-economy-connected.spec.ts",
     "e2e/champion-economy-ui.spec.ts",
@@ -278,6 +282,7 @@
     "e2e/css-maintenance.spec.ts",
     "e2e/database-mobile-navigation.spec.ts",
     "e2e/game-screens-responsive.spec.ts",
+    "e2e/helpers/admin-explorer.ts",
     "e2e/i18n-english-journey.spec.ts",
     "e2e/onboarding.spec.ts",
     "e2e/patch-notes.spec.ts",
@@ -653,8 +658,10 @@
     "src/hooks/useReducedMotion.ts",
     "src/hooks/useRunImagePreload.ts",
     "src/i18n/adminErrorContent.ts",
+    "src/i18n/adminExplorer.ts",
     "src/i18n/adminExportContent.ts",
     "src/i18n/adminFieldCalibration.ts",
+    "src/i18n/adminRunExplorer.ts",
     "src/i18n/authRecoveryContent.ts",
     "src/i18n/championContent.ts",
     "src/i18n/championEconomyContent.ts",
@@ -718,6 +725,30 @@
     "src/pages/admin/adminMetrics.ts",
     "src/pages/admin/adminMutationRequest.ts",
     "src/pages/admin/adminTableQueries.ts",
+    "src/pages/admin/explorer/AdminPagination.tsx",
+    "src/pages/admin/explorer/adminExplorerClient.ts",
+    "src/pages/admin/explorer/adminExplorerTypes.ts",
+    "src/pages/admin/explorer/useAdminExplorerScope.ts",
+    "src/pages/admin/players/AdminPlayerHistories.tsx",
+    "src/pages/admin/players/AdminPlayerProfile.tsx",
+    "src/pages/admin/players/AdminPlayersPanel.tsx",
+    "src/pages/admin/players/adminPlayerFormat.ts",
+    "src/pages/admin/players/adminPlayerProjection.ts",
+    "src/pages/admin/players/adminPlayerQueries.ts",
+    "src/pages/admin/players/adminPlayerTypes.ts",
+    "src/pages/admin/players/useAdminPlayersExplorer.ts",
+    "src/pages/admin/runs/AdminRunDetail.tsx",
+    "src/pages/admin/runs/AdminRunExportDialog.tsx",
+    "src/pages/admin/runs/AdminRunFilterForm.tsx",
+    "src/pages/admin/runs/AdminRunsPanel.tsx",
+    "src/pages/admin/runs/adminRunContracts.ts",
+    "src/pages/admin/runs/adminRunCsv.ts",
+    "src/pages/admin/runs/adminRunDisplay.ts",
+    "src/pages/admin/runs/adminRunExport.ts",
+    "src/pages/admin/runs/adminRunFilters.ts",
+    "src/pages/admin/runs/adminRunQueries.ts",
+    "src/pages/admin/runs/useAdminRunExplorer.ts",
+    "src/pages/admin/runs/useAdminRunExport.ts",
     "src/pages/admin/useAdminData.ts",
     "src/pages/admin/useAdminSection.ts",
     "src/pages/adminPageUtils.ts",
@@ -842,13 +873,21 @@
     "tests/actionTimingRules.test.ts",
     "tests/adminCsv.test.ts",
     "tests/adminData.test.tsx",
+    "tests/adminExplorer.database.test.ts",
+    "tests/adminExplorerPage.test.tsx",
+    "tests/adminExplorerPrivileges.database.test.ts",
     "tests/adminFieldCalibrationData.test.ts",
     "tests/adminI18n.test.ts",
     "tests/adminMetrics.database.test.ts",
     "tests/adminMetricsPrivileges.database.test.ts",
+    "tests/adminPlayerQueries.test.ts",
+    "tests/adminPlayersExplorer.test.tsx",
     "tests/adminPrivileges.database.test.ts",
     "tests/adminPrivileges.test.ts",
     "tests/adminReliability.test.tsx",
+    "tests/adminRunContracts.test.ts",
+    "tests/adminRunExplorer.test.tsx",
+    "tests/adminRunExport.test.ts",
     "tests/adminTableQueries.test.ts",
     "tests/ancillaryStorage.test.ts",
     "tests/applicationRollback.test.mjs",
@@ -977,6 +1016,7 @@
     "tests/fieldCalibrationComparison.test.ts",
     "tests/fieldCalibrationIsolation.test.ts",
     "tests/fieldCalibrationPrivacy.database.test.ts",
+    "tests/fixtures/adminPlayerExplorer.ts",
     "tests/fixtures/authority-progression-golden.json",
     "tests/fixtures/engine-refactor-contract.json",
     "tests/fixtures/user-copy-scanner/hardcoded-copy.tsx",
@@ -984,6 +1024,8 @@
     "tests/gameOverContent.test.ts",
     "tests/gameOverPresentation.test.tsx",
     "tests/generatedArtifacts.test.mjs",
+    "tests/helpers/adminExplorerFixtures.ts",
+    "tests/helpers/adminRunExplorerFixtures.ts",
     "tests/helpers/authorityBundleResolver.ts",
     "tests/helpers/engineRefactorFixture.ts",
     "tests/helpers/instrumentedAuthorityCombatRuntime.ts",
@@ -2325,7 +2367,7 @@
         },
         {
           "file": "README.md",
-          "line": 225,
+          "line": 226,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -2562,7 +2604,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -23435,7 +23477,7 @@
         },
         {
           "file": "README.md",
-          "line": 225,
+          "line": 226,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -23511,7 +23553,7 @@
         },
         {
           "file": "README.md",
-          "line": 225,
+          "line": 226,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -23857,7 +23899,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -24176,7 +24218,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -24526,7 +24568,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -25079,7 +25121,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -25639,7 +25681,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -26142,7 +26184,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -26618,7 +26660,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -27446,7 +27488,7 @@
         },
         {
           "file": "docs/administration.md",
-          "line": 114,
+          "line": 119,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et",
@@ -27662,7 +27704,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 88,
+          "line": 93,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- security`, contrôler que l'advisor Supabase ne signale plus aucun",
@@ -27670,7 +27712,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 98,
+          "line": 103,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fonction Edge et client, puis exécuter `npm run database -- security`.",
@@ -27678,7 +27720,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 151,
+          "line": 156,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et",
@@ -27686,15 +27728,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 169,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
-          "classification": "active"
-        },
-        {
-          "file": "docs/operations.md",
-          "line": 169,
+          "line": 174,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -27705,12 +27739,20 @@
           "line": 174,
           "kind": "npm-run",
           "source": "documentation",
+          "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
+          "classification": "active"
+        },
+        {
+          "file": "docs/operations.md",
+          "line": 179,
+          "kind": "npm-run",
+          "source": "documentation",
           "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
           "classification": "active"
         },
         {
           "file": "docs/operations.md",
-          "line": 232,
+          "line": 237,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "horodatée et la tester avec `npm run database -- validate --yes`.",
@@ -27718,7 +27760,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 234,
+          "line": 239,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
@@ -28274,7 +28316,7 @@
         },
         {
           "file": "docs/administration.md",
-          "line": 114,
+          "line": 119,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et",
@@ -28490,7 +28532,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 88,
+          "line": 93,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- security`, contrôler que l'advisor Supabase ne signale plus aucun",
@@ -28498,7 +28540,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 98,
+          "line": 103,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fonction Edge et client, puis exécuter `npm run database -- security`.",
@@ -28506,7 +28548,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 151,
+          "line": 156,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et",
@@ -28514,15 +28556,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 169,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
-          "classification": "active"
-        },
-        {
-          "file": "docs/operations.md",
-          "line": 169,
+          "line": 174,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -28533,12 +28567,20 @@
           "line": 174,
           "kind": "npm-run",
           "source": "documentation",
+          "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
+          "classification": "active"
+        },
+        {
+          "file": "docs/operations.md",
+          "line": 179,
+          "kind": "npm-run",
+          "source": "documentation",
           "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
           "classification": "active"
         },
         {
           "file": "docs/operations.md",
-          "line": 232,
+          "line": 237,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "horodatée et la tester avec `npm run database -- validate --yes`.",
@@ -28546,7 +28588,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 234,
+          "line": 239,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
@@ -30812,7 +30854,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -31360,7 +31402,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -31944,7 +31986,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -32320,7 +32362,7 @@
         },
         {
           "file": "README.md",
-          "line": 225,
+          "line": 226,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -32582,7 +32624,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -33088,7 +33130,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -33439,7 +33481,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -33703,7 +33745,7 @@
         },
         {
           "file": "README.md",
-          "line": 225,
+          "line": 226,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -33965,7 +34007,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -34620,7 +34662,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -34628,7 +34670,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 58,
+          "line": 63,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet",
@@ -34636,7 +34678,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 241,
+          "line": 246,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le",
@@ -34644,7 +34686,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 247,
+          "line": 252,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
@@ -34652,7 +34694,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 259,
+          "line": 264,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
@@ -34660,7 +34702,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 269,
+          "line": 274,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "immuables et sont contrôlés par `npm run release -- edge bundle`.",
@@ -35090,7 +35132,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -35098,7 +35140,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 58,
+          "line": 63,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet",
@@ -35106,7 +35148,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 241,
+          "line": 246,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le",
@@ -35114,7 +35156,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 247,
+          "line": 252,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
@@ -35122,7 +35164,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 259,
+          "line": 264,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
@@ -35130,7 +35172,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 269,
+          "line": 274,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "immuables et sont contrôlés par `npm run release -- edge bundle`.",
@@ -35367,7 +35409,7 @@
         },
         {
           "file": "README.md",
-          "line": 225,
+          "line": 226,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le build de production est généré par `npm run build` dans `dist/`. Vercel utilise",
@@ -35630,7 +35672,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -36519,7 +36561,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -37444,7 +37486,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -37704,7 +37746,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 53,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -37821,7 +37863,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 53,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -38165,7 +38207,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 53,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -38235,7 +38277,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 53,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -40263,7 +40305,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -40838,7 +40880,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -41390,7 +41432,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -42021,7 +42063,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -42620,7 +42662,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 52,
+          "line": 57,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",

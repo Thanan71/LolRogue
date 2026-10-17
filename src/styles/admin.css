@@ -1103,3 +1103,172 @@
   font-size: 1rem;
   overflow-wrap: anywhere;
 }
+
+/* Player and run explorers */
+.admin-explorer-heading,
+.admin-explorer-pagination-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.admin-explorer-filters,
+.admin-explorer-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: var(--space-3);
+  margin-block: var(--space-4);
+  align-items: end;
+}
+
+form.admin-explorer-filters {
+  display: block;
+}
+
+.admin-explorer-filters :is(fieldset, details) {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.admin-explorer-field,
+.admin-explorer-filters .filter-group,
+.admin-explorer-pagination-actions label {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.admin-page :is(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.6rem;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font: inherit;
+  color-scheme: dark;
+}
+
+.admin-page :is(button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+
+.admin-explorer-pagination,
+.admin-profile-facts,
+.admin-explorer-facts,
+.admin-run-builds,
+.admin-run-timeline {
+  margin-block: var(--space-4);
+}
+
+.admin-explorer-note,
+.admin-explorer-help {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.admin-profile-facts,
+.admin-explorer-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-3);
+}
+
+.admin-profile-facts dd,
+.admin-explorer-facts dd {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-profile-facts dt,
+.admin-explorer-facts dt {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.admin-player-detail,
+.admin-run-detail,
+.admin-explorer-pagination {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-run-detail > .admin-back-btn {
+  position: static;
+  margin-bottom: var(--space-3);
+}
+
+.admin-run-population {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.admin-run-population label {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+.admin-page :is(.admin-run-population input, input[type="checkbox"]) {
+  min-height: auto;
+}
+
+.admin-export-dialog {
+  width: min(34rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  padding: var(--space-5);
+  color: var(--color-text-primary);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  overflow-wrap: anywhere;
+}
+
+.admin-export-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.admin-explorer-pagination-actions button,
+.admin-run-detail button,
+.admin-run-explorer td button {
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  color: var(--color-text-primary);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.admin-page button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-player-detail h4,
+.admin-run-detail h3 {
+  margin-block: var(--space-5) var(--space-2);
+  color: var(--color-text-primary);
+}
+
+.admin-player-detail .admin-explorer-heading,
+.admin-run-detail > h3 {
+  margin-bottom: var(--space-3);
+}

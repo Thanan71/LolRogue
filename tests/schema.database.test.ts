@@ -232,6 +232,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20261010120531_gameplay_ruleset_0_2_0_veigar_assists.sql',
       '../supabase/migrations/20261011134126_gameplay_ruleset_0_2_5_engine_modules.sql',
       '../supabase/migrations/20261017042727_admin_metrics_candy_ledger.sql',
+      '../supabase/migrations/20261017055016_admin_player_run_explorer.sql',
     ]);
   });
 

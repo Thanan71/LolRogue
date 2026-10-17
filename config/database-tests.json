@@ -98,6 +98,16 @@
       "file": "tests/championEconomy.database.test.ts",
       "expression": "const describeLive = hasCredentials ? describe : describe.skip;",
       "reason": "Skip only in the generic unit suite without loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminExplorer.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminExplorerPrivileges.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
     }
   ]
 }

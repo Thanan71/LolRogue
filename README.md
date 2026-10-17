@@ -211,6 +211,7 @@ pour charger leur nouvelle liste de fichiers.
 - [Légal et confidentialité](docs/legal-and-privacy.md)
 - [Administration sécurisée](docs/administration.md)
 - [Définitions et fiabilité des métriques admin](docs/admin-metrics.md)
+- [Fiches joueurs, historiques et exports admin](docs/admin-explorer.md)
 - [Déploiement et exploitation](docs/operations.md)
 - [Runbooks d'incident](docs/incident-runbooks.md)
 - [Sauvegarde et restauration](docs/backup-and-restore.md)

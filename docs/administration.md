@@ -4,13 +4,18 @@ Le panneau `/admin` présente les statistiques, joueurs, runs et logs. La garde
 React améliore l'expérience, mais l'autorisation réelle est imposée par PostgreSQL
 avec RLS et `is_current_user_admin()`.
 
-L'application 0.2.7 expose quinze indicateurs avec leur définition FR/EN et des
+L'application 0.2.8 expose quinze indicateurs avec leur définition FR/EN et des
 totaux serveur distincts des lignes affichées. Le [contrat des métriques](admin-metrics.md)
 précise les connexions du jour UTC, le registre Candies, les valeurs inconnues,
 les droits et les limites des exports. La migration
 `20261017042727_admin_metrics_candy_ledger.sql` est nécessaire pour ces nouvelles
 données ; avant son application, les clés absentes et les anciens « gains »
 calculés depuis les soldes s'affichent comme indisponibles.
+
+Les [fiches joueurs et l’explorateur de runs](admin-explorer.md) ajoutent recherche,
+pagination serveur, détails sûrs et export filtré borné à 5 000 lignes. Ils
+nécessitent aussi la migration `20261017055016_admin_player_run_explorer.sql`.
+Les déploiements distants restent des opérations séparées de la livraison code.
 
 ## Promouvoir un administrateur
 

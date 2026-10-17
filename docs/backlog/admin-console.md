@@ -1,6 +1,6 @@
 # ADM — Administration fiable et exploitable
 
-**Statut : ADM-S1 implémenté ; ADM-S2 à S7 restent planifiés.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
+**Statut : ADM-S1 et ADM-S2 implémentés ; ADM-S3 à S7 restent planifiés.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
 
 ## État initial et frontières
 
@@ -112,80 +112,85 @@
 ## ADM-S2 — Fiches joueurs et historiques de runs (P1/P2 ; ADM-07..11)
 
 ### ADM-07 — Pagination réelle côté serveur
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Remplacer `.limit(100)` joueurs et limite bornée des runs par une pagination serveur par curseur ou `range` + count.
-  - [ ] Garantir ordre stable (date + ID), filtres/sort persistants et récupération des membres d'équipe par pages.
-  - [ ] Choisir curseur stable ou range + count et double tri date/ID ; pageSize borné.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Éviter `N+1` et requêtes `.in(...)` démesurées ; tester pagination concurrente avec insertions.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester insertion concurrente, dernière page partielle, retour arrière et grands volumes.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Remplacer `.limit(100)` joueurs et limite bornée des runs par une pagination serveur par curseur ou `range` + count.
+  - [x] Garantir ordre stable (date + ID), filtres/sort persistants et récupération des membres d'équipe par pages.
+  - [x] Choisir curseur stable ou range + count et double tri date/ID ; pageSize borné.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Éviter `N+1` et requêtes `.in(...)` démesurées ; tester pagination concurrente avec insertions.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester insertion concurrente, dernière page partielle, retour arrière et grands volumes.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-08 — Recherche et filtres joueurs
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Rechercher par identifiant/nom/pseudo selon permissions ; filtres inscription, activité, runs vérifiées et état du compte.
-  - [ ] Faire rechercher côté serveur, protéger chaînes utilisateur, valider limites et prévoir debounce contrôlé.
-  - [ ] Définir champs de recherche autorisés, index compatibles et traitement des caractères spéciaux.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Résultats complets paginés, jamais recherche uniquement parmi les 100 lignes locales.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester casse, Unicode, entrée vide, recherche hors page courante et injection de filtre.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Rechercher par identifiant/nom/pseudo selon permissions ; filtres inscription, activité, runs vérifiées et état du compte.
+  - [x] Faire rechercher côté serveur, protéger chaînes utilisateur, valider limites et prévoir debounce contrôlé.
+  - [x] Définir champs de recherche autorisés, index compatibles et traitement des caractères spéciaux.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Résultats complets paginés, jamais recherche uniquement parmi les 100 lignes locales.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester casse, Unicode, entrée vide, recherche hors page courante et injection de filtre.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-09 — Fiche joueur opérationnelle
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Afficher profil minimal utile, dates, activité, statistiques vérifiées, maîtrise, arbres et soldes Candies/Éclats séparés.
-  - [ ] Rendre visible provenance des données, valeurs absentes, historique d'achats et raisons des écarts de ledger.
-  - [ ] Lister les champs non sensibles d'une fiche joueur et les sources vérifiées de soldes/maîtrise.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Mettre données sensibles derrière permission explicite, masquer emails/identifiants non nécessaires.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester compte sans runs, ancien utilisateur, invité, données partiellement absentes et permission.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Afficher profil minimal utile, dates, activité, statistiques vérifiées, maîtrise, arbres et soldes Candies/Éclats séparés.
+  - [x] Rendre visible provenance des données, valeurs absentes, historique d'achats et raisons des écarts de ledger.
+  - [x] Lister les champs non sensibles d'une fiche joueur et les sources vérifiées de soldes/maîtrise.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Mettre données sensibles derrière permission explicite, masquer emails/identifiants non nécessaires.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester compte sans runs, ancien utilisateur, invité, données partiellement absentes et permission.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-10 — Explorateur de runs
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Étendre filtres existants : joueur, date, difficulté, mode, résultat, biome, longueur, champion et moteur/versions.
-  - [ ] Utiliser filtrage/count serveur ; distinguer `runs` persistées et `attempts` authority non finalisés.
-  - [ ] Définir schéma de filtres serveur réutilisable et frontière runs sauvegardées versus attempts.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Préserver les filtres après détail/retour et fournir lien permanent seulement si politique de confidentialité l'autorise.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester filtres combinés, tri stable, run rejetée, intervalle date et URL de retour.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Étendre filtres existants : joueur, date, difficulté, mode, résultat, biome, longueur, champion et moteur/versions.
+  - [x] Utiliser filtrage/count serveur ; distinguer `runs` persistées et `attempts` authority non finalisés.
+  - [x] Définir schéma de filtres serveur réutilisable et frontière runs sauvegardées versus attempts.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Préserver les filtres après détail/retour et fournir lien permanent seulement si politique de confidentialité l'autorise.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester filtres combinés, tri stable, run rejetée, intervalle date et URL de retour.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-11 — Détail run et exports exacts
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Afficher timeline et journal sûr : composition, builds, actions, progression, gains vérifiés, codes de rejet et version de moteur.
-  - [ ] Conserver les exports CSV existants et leur anti-injection formule ; proposer export **de tous les résultats filtrés** par pagination serveur ou export borné annoncé.
-  - [ ] Définir périmètre exporté (page ou totalité filtrée), plafond et confirmation de volume.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Tester UTF-8, tri, nombre total, idempotence, anonymisation et gros volumes ; aucune élévation de droits.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester export >100 lignes, caractères CSV dangereux, UTF-8, consentement et autorisations.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Afficher timeline et journal sûr : composition, builds, actions, progression, gains vérifiés, codes de rejet et version de moteur.
+  - [x] Conserver les exports CSV existants et leur anti-injection formule ; proposer export **de tous les résultats filtrés** par pagination serveur ou export borné annoncé.
+  - [x] Définir périmètre exporté (page ou totalité filtrée), plafond et confirmation de volume.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Tester UTF-8, tri, nombre total, idempotence, anonymisation et gros volumes ; aucune élévation de droits.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester export >100 lignes, caractères CSV dangereux, UTF-8, consentement et autorisations.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 **Gate ADM-S2 :** au-delà de 100 joueurs/1000 runs les comptes et exports restent exacts ; chaque fiche est accessible uniquement selon permissions.
+
+
+Contrat : [fiches et explorateur](../admin-explorer.md). Preuves locales et limites :
+[validation ADM-S2](../admin-s2-validation-2026-10-17.md). Migration distante, fusion
+et déploiement sont des étapes distinctes de cette clôture code.
 
 ## ADM-S3 — Analytics temporels et rétention (P2 ; ADM-12..16)
 
