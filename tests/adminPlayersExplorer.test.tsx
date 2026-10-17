@@ -18,7 +18,10 @@ import {
   parseAdminPlayerDetail,
   parseAdminPlayerItem,
 } from '@/pages/admin/players/adminPlayerProjection';
-import { useAdminPlayersExplorer } from '@/pages/admin/players/useAdminPlayersExplorer';
+import {
+  type AdminPlayersExplorer,
+  useAdminPlayersExplorer,
+} from '@/pages/admin/players/useAdminPlayersExplorer';
 import { useAuthStore } from '@/stores/authStore';
 import {
   ADMIN_PLAYER_SNAPSHOT,
@@ -43,6 +46,18 @@ function deferred<T>() {
     resolve = done;
   });
   return { promise, resolve };
+}
+
+async function waitForPlayerList(
+  result: { readonly current: AdminPlayersExplorer },
+  firstPlayerId = adminPlayerFixture().id,
+) {
+  await waitFor(() => {
+    expect(result.current.list.hasData).toBe(true);
+    expect(result.current.list.loading).toBe(false);
+    expect(result.current.list.stale).toBe(false);
+    expect(result.current.list.data?.items[0].id).toBe(firstPlayerId);
+  });
 }
 const accountA = { user: { id: 'admin-a' } as User, session: { access_token: 'a' } as Session };
 const accountB = { user: { id: 'admin-b' } as User, session: { access_token: 'b' } as Session };
@@ -83,6 +98,8 @@ describe('player explorer requests and navigation', () => {
     });
     expect(mocks.page).toHaveBeenCalledTimes(2);
     expect(mocks.page.mock.calls[1][0].search).toBe('Élise%_,.()');
+    expect(result.current.list.hasData).toBe(true);
+    expect(result.current.list.loading).toBe(false);
     await act(async () => {
       pending.resolve(page(100, 1, 100));
     });
@@ -96,49 +113,61 @@ describe('player explorer requests and navigation', () => {
       .mockResolvedValueOnce(page(101))
       .mockResolvedValueOnce(page(51));
     const { result } = renderHook(() => useAdminPlayersExplorer());
-    await waitFor(() => expect(result.current.list.hasData).toBe(true));
+    await waitForPlayerList(result);
     act(() => result.current.next());
-    await waitFor(() =>
-      expect(result.current.list.data?.items[0].id).toBe(adminPlayerFixture(51).id),
-    );
+    await waitForPlayerList(result, adminPlayerFixture(51).id);
     expect(mocks.page.mock.calls[1].slice(1, 4)).toEqual([
       { entity: 'players', after: 50 },
       ADMIN_PLAYER_SNAPSHOT,
       50,
     ]);
     act(() => result.current.next());
-    await waitFor(() => expect(result.current.list.data?.items).toHaveLength(23));
+    await waitForPlayerList(result, adminPlayerFixture(101).id);
+    expect(result.current.list.data?.items).toHaveLength(23);
     expect(result.current.pageIndex).toBe(3);
     expect(result.current.list.data?.hasMore).toBe(false);
     act(() => result.current.next());
     expect(mocks.page).toHaveBeenCalledTimes(3);
     act(() => result.current.previous());
-    await waitFor(() =>
-      expect(result.current.list.data?.items[0].id).toBe(adminPlayerFixture(51).id),
-    );
+    await waitForPlayerList(result, adminPlayerFixture(51).id);
     expect(result.current.pageIndex).toBe(2);
     expect(mocks.page.mock.calls[3][2]).toBe(ADMIN_PLAYER_SNAPSHOT);
     act(() => result.current.setFilter('verifiedRuns', 'none'));
-    await waitFor(() => expect(mocks.page).toHaveBeenCalledTimes(5));
+    await waitForPlayerList(result);
+    expect(mocks.page).toHaveBeenCalledTimes(5);
     expect(result.current.pageIndex).toBe(1);
     expect(mocks.page.mock.calls[4].slice(1, 3)).toEqual([null, null]);
     expect(mocks.page.mock.calls[4][0].verifiedRuns).toBe('none');
   });
 
   it('keeps list filters and page while a detail fails, retries independently, and returns to the list', async () => {
-    mocks.detail.mockRejectedValueOnce(new Error('network detail failure'));
+    mocks.detail
+      .mockResolvedValue(parseAdminPlayerDetail(adminPlayerDetailFixture(2)))
+      .mockRejectedValueOnce(new Error('network detail failure'));
     const { result } = renderHook(() => useAdminPlayersExplorer());
-    await waitFor(() => expect(result.current.list.hasData).toBe(true));
+    await waitForPlayerList(result);
+    const filteredPage = deferred<ReturnType<typeof page>>();
+    mocks.page.mockReturnValueOnce(filteredPage.promise);
     act(() => result.current.setFilter('accountState', 'registered'));
-    await waitFor(() => expect(mocks.page).toHaveBeenCalledTimes(2));
-    act(() => result.current.openProfile(adminPlayerFixture().id));
+    expect(result.current.list.loading).toBe(true);
+    // A dispatched read is not a ready list: opening is guarded until its response is applied.
+    act(() => result.current.openProfile(adminPlayerFixture(2).id));
+    expect(result.current.selectedId).toBeNull();
+    expect(mocks.detail).not.toHaveBeenCalled();
+    await act(async () => {
+      filteredPage.resolve(page(2));
+    });
+    await waitForPlayerList(result, adminPlayerFixture(2).id);
+    expect(result.current.filters.accountState).toBe('registered');
+    expect(mocks.page.mock.calls[1][0].accountState).toBe('registered');
+    act(() => result.current.openProfile(adminPlayerFixture(2).id));
     await waitFor(() => expect(result.current.detail.error).not.toBeNull());
     expect(result.current.list.hasData).toBe(true);
     expect(result.current.filters.accountState).toBe('registered');
     await act(async () => {
       expect(await result.current.detail.reload()).toBe(true);
     });
-    expect(result.current.detail.data?.profile.id).toBe(adminPlayerFixture().id);
+    expect(result.current.detail.data?.profile.id).toBe(adminPlayerFixture(2).id);
     expect(mocks.page).toHaveBeenCalledTimes(2);
     act(() => result.current.closeProfile());
     expect(result.current.selectedId).toBeNull();
@@ -148,19 +177,24 @@ describe('player explorer requests and navigation', () => {
 
   it('does not request an invalid UTC interval, and resets pagination when page size changes', async () => {
     const { result } = renderHook(() => useAdminPlayersExplorer());
-    await waitFor(() => expect(result.current.list.hasData).toBe(true));
+    await waitForPlayerList(result);
     act(() => {
       result.current.setFilter('registeredFrom', '2026-10-17');
     });
-    await waitFor(() => expect(mocks.page).toHaveBeenCalledTimes(2));
+    await waitForPlayerList(result);
+    expect(mocks.page).toHaveBeenCalledTimes(2);
     act(() => result.current.setFilter('registeredTo', '2026-10-16'));
     expect(result.current.datesValid).toBe(false);
     expect(result.current.list.data).toBeNull();
     expect(mocks.page).toHaveBeenCalledTimes(2);
     act(() => result.current.resetFilters());
-    await waitFor(() => expect(mocks.page).toHaveBeenCalledTimes(3));
+    await waitForPlayerList(result);
+    expect(mocks.page).toHaveBeenCalledTimes(3);
+    mocks.page.mockResolvedValueOnce(page(1, 100));
     act(() => result.current.changePageSize(100));
-    await waitFor(() => expect(mocks.page).toHaveBeenCalledTimes(4));
+    await waitForPlayerList(result);
+    expect(mocks.page).toHaveBeenCalledTimes(4);
+    expect(result.current.list.data?.items).toHaveLength(100);
     expect(mocks.page.mock.calls[3].slice(1, 4)).toEqual([null, null, 100]);
     act(() => result.current.changePageSize(101));
     expect(result.current.pageSize).toBe(100);
@@ -168,7 +202,7 @@ describe('player explorer requests and navigation', () => {
 
   it('retains stale same-page results on a read error, blocks navigation and recovers without changing filters', async () => {
     const { result } = renderHook(() => useAdminPlayersExplorer());
-    await waitFor(() => expect(result.current.list.hasData).toBe(true));
+    await waitForPlayerList(result);
     mocks.page.mockRejectedValueOnce(new Error('network'));
     await act(async () => {
       expect(await result.current.list.reload()).toBe(false);
@@ -192,14 +226,12 @@ describe('player explorer requests and navigation', () => {
       useAuthStore.setState(accountB);
       useAuthStore.setState(accountA);
     });
-    await waitFor(() =>
-      expect(result.current.list.data?.items[0].id).toBe(adminPlayerFixture(2).id),
-    );
+    await waitForPlayerList(result, adminPlayerFixture(2).id);
     expect(signal.aborted).toBe(true);
     await act(async () => {
       oldPage.resolve(page());
     });
-    expect(result.current.list.data?.items[0].id).toBe(adminPlayerFixture(2).id);
+    await waitForPlayerList(result, adminPlayerFixture(2).id);
     const oldDetail = deferred<ReturnType<typeof parseAdminPlayerDetail>>();
     mocks.detail.mockReturnValueOnce(oldDetail.promise);
     act(() => result.current.openProfile(adminPlayerFixture(2).id));
@@ -219,7 +251,7 @@ describe('player explorer requests and navigation', () => {
 
   it('clears cached data on permission rejection and does not request without current admin rights', async () => {
     const { result, unmount } = renderHook(() => useAdminPlayersExplorer());
-    await waitFor(() => expect(result.current.list.hasData).toBe(true));
+    await waitForPlayerList(result);
     mocks.page.mockRejectedValueOnce({ code: '42501' });
     await act(async () => {
       await result.current.list.reload();
@@ -242,9 +274,10 @@ describe('player explorer presentation', () => {
   it('shows independently labelled filters, a precise total, unknown wallets and explicit ledger/progression sources', async () => {
     const onOpenRuns = vi.fn();
     render(<Harness onOpenRuns={onOpenRuns} />);
-    await screen.findByRole('button', {
+    const openProfile = await screen.findByRole('button', {
       name: `${fr.admin.playerExplorer.openProfile} — Élise%_,.()`,
     });
+    await waitFor(() => expect(openProfile).toBeEnabled());
     expect(
       screen.getByRole('searchbox', { name: fr.admin.playerExplorer.search }),
     ).toBeInTheDocument();
@@ -277,9 +310,10 @@ describe('player explorer presentation', () => {
   });
   it('offers only the real account states and explains why a guest search is empty', async () => {
     render(<Harness />);
-    await screen.findByRole('button', {
+    const openProfile = await screen.findByRole('button', {
       name: `${fr.admin.playerExplorer.openProfile} — Élise%_,.()`,
     });
+    await waitFor(() => expect(openProfile).toBeEnabled());
     mocks.page.mockResolvedValueOnce(page(1, 50, 0));
     fireEvent.change(screen.getByRole('combobox', { name: fr.admin.playerExplorer.accountState }), {
       target: { value: 'guest' },

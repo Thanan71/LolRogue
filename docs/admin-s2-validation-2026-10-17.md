@@ -98,8 +98,17 @@ est limitée à la nouvelle migration et ne change aucune ACL ni règle de gamep
 La CI à ordre variable `890373536` a révélé une attente trop précoce dans le
 test admin de timeout de modération : l’erreur disparaît dès le début du refresh,
 avant que la lecture soit terminée. Le test attend maintenant aussi le retour
-du bouton disponible. Le comportement de l’application et les assertions de
-sécurité restent inchangés ; le fichier passe avec cette même graine.
+du bouton disponible. Une seconde graine, `1218617903`, a révélé le même défaut
+d’attente dans le scénario de détail joueur : l’appel au mock ne garantit pas
+que sa réponse soit appliquée. Les tests joueurs et runs attendent maintenant
+l’état prêt et l’identité des données avant chaque action gardée. Le scénario
+joueur utilise aussi une réponse filtrée différée et une autre identité pour
+vérifier le refus pendant chargement, puis la bonne ouverture après réponse.
+Les assertions métier et de sécurité, ainsi que le code de l’application,
+restent inchangés. Les trois graines concernées sont rejouées sur les fichiers
+ciblés avant la relance complète de CI. Une matrice supplémentaire des trois
+fichiers asynchrones passe sur dix graines (48 cas par graine, **480 exécutions**),
+sans modifier les délais ni retirer d’assertion métier.
 
 Les deux parcours admin historiques adaptés à la nouvelle pagination passent
 également : 2/2, sans retry, FR/EN dont 320 px.

@@ -260,6 +260,7 @@ describe('independent admin resources', () => {
     const invalidate = await screen.findByRole('button', {
       name: fr.admin.invalidateScore,
     });
+    await waitFor(() => expect(invalidate).toBeEnabled());
     vi.useFakeTimers();
     fireEvent.click(invalidate);
     expect(screen.getByRole('button', { name: fr.admin.invalidating })).toBeDisabled();
@@ -350,7 +351,7 @@ describe('independent admin resources', () => {
     expect(result.current.statsLoading).toBe(true);
     expect(result.current.moderationLoading).toBe(false);
     expect(result.current.moderationTotal).toBe(0);
-    expect(result.current.errors.logs).toBe(fr.admin.requestFailed);
+    await waitFor(() => expect(result.current.errors.logs).toBe(fr.admin.requestFailed));
     await act(async () => {
       await result.current.fetchLogs();
     });

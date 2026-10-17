@@ -51,6 +51,16 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
+function expectReadyList(
+  explorer: ReturnType<typeof useAdminRunExplorer>,
+  id = adminRunFixture().id,
+) {
+  expect(explorer.section.status).toBe('ready');
+  expect(explorer.section.loading).toBe(false);
+  expect(explorer.section.error).toBeNull();
+  expect(explorer.section.data.items[0]?.id).toBe(id);
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   account.current = true;
@@ -72,7 +82,7 @@ describe('admin run explorer state', () => {
     const second = { ...adminRunPageFixture([adminRunFixture({ id: 'run-2' })]), total: 2 };
     search.mockImplementation(async ({ cursor }) => (cursor ? second : first));
     const { result } = renderHook(() => useAdminRunExplorer());
-    await waitFor(() => expect(result.current.section.hasData).toBe(true));
+    await waitFor(() => expectReadyList(result.current));
     act(() =>
       result.current.changeDraft({
         ...result.current.draft,
@@ -91,28 +101,31 @@ describe('admin run explorer state', () => {
         from: '2026-10-17T00:00:00.000Z',
       }),
     );
-    await waitFor(() => expect(result.current.section.loading).toBe(false));
+    await waitFor(() => expectReadyList(result.current));
     act(() => result.current.next());
-    await waitFor(() => expect(result.current.section.data.items[0]?.id).toBe('run-2'));
+    await waitFor(() => expectReadyList(result.current, 'run-2'));
     expect(search.mock.lastCall?.[0]).toMatchObject({
       cursor: { after: 'page1' },
       snapshot: runSnapshot,
     });
     act(() => result.current.previous());
-    await waitFor(() =>
-      expect(result.current.section.data.items[0]?.id).toBe(adminRunFixture().id),
-    );
+    await waitFor(() => expectReadyList(result.current));
     expect(search.mock.lastCall?.[0]).toMatchObject({ cursor: null, snapshot: runSnapshot });
   });
 
   it('preserves filters and the current page after opening and closing safe details', async () => {
     const { result } = renderHook(() => useAdminRunExplorer());
-    await waitFor(() => expect(result.current.section.hasData).toBe(true));
+    await waitFor(() => expectReadyList(result.current));
     act(() => result.current.setPlayerFilter(adminRunFixture().playerId));
-    await waitFor(() => expect(result.current.section.loading).toBe(false));
+    await waitFor(() => expectReadyList(result.current));
     const calls = search.mock.calls.length;
     act(() => result.current.openDetail(adminRunFixture().id));
-    await waitFor(() => expect(result.current.detail.hasData).toBe(true));
+    await waitFor(() => {
+      expect(result.current.detail.status).toBe('ready');
+      expect(result.current.detail.loading).toBe(false);
+      expect(result.current.detail.error).toBeNull();
+      expect(result.current.detail.data?.run?.id).toBe(adminRunFixture().id);
+    });
     act(() => result.current.closeDetail());
     expect(result.current.filters.playerId).toBe(adminRunFixture().playerId);
     expect(result.current.pageIndex).toBe(1);
@@ -126,7 +139,7 @@ describe('admin run explorer state', () => {
         : { ...adminRunPageFixture(), total: 2, hasMore: true, nextCursor: { after: 'page1' } },
     );
     const { result } = renderHook(() => useAdminRunExplorer());
-    await waitFor(() => expect(result.current.section.hasData).toBe(true));
+    await waitFor(() => expectReadyList(result.current));
     act(() => result.current.next());
     await waitFor(() => expect(result.current.section.error).not.toBeNull());
     expect(result.current.section.data.items).toEqual([]);
@@ -139,7 +152,7 @@ describe('admin run explorer state', () => {
         : { ...adminRunPageFixture(), total: 2, hasMore: true, nextCursor: { after: 'page1' } },
     );
     const { result } = renderHook(() => useAdminRunExplorer());
-    await waitFor(() => expect(result.current.section.hasData).toBe(true));
+    await waitFor(() => expectReadyList(result.current));
     act(() => result.current.next());
     await waitFor(() => expect(result.current.section.error).not.toBeNull());
     expect(result.current.section.hasData).toBe(false);
@@ -158,7 +171,13 @@ describe('admin run explorer state', () => {
     });
     render(<Harness />);
     fireEvent.click(screen.getByRole('radio', { name: 'Tentatives authority' }));
-    await waitFor(() => expect(search.mock.lastCall?.[0].population).toBe('attempts'));
+    await waitFor(() => {
+      expect(screen.getByRole('radio', { name: 'Tentatives authority' })).toBeChecked();
+      expect(screen.getByRole('table', { name: 'Tentatives authority' })).toBeVisible();
+      expect(screen.getByRole('cell', { name: 'Rejetée' })).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Appliquer les filtres' })).toBeEnabled();
+    });
+    expect(search.mock.lastCall?.[0].population).toBe('attempts');
     expect(screen.getByLabelText('Vagues minimum')).toBeDisabled();
     expect(screen.getByLabelText('Biome')).toBeDisabled();
     expect(screen.getByLabelText('Ordre')).toBeDisabled();
@@ -228,7 +247,7 @@ describe('admin run export lifecycle', () => {
     const pending = deferred<Awaited<ReturnType<typeof fetchAdminRunExport>>>();
     exportAll.mockReturnValue(pending.promise);
     const { result } = renderHook(() => useAdminRunExplorer());
-    await waitFor(() => expect(result.current.section.hasData).toBe(true));
+    await waitFor(() => expectReadyList(result.current));
     act(() => result.current.exporting.confirm());
     let work!: Promise<void>;
     act(() => {
@@ -248,7 +267,7 @@ describe('admin run export lifecycle', () => {
   it('rejects a partial, duplicate or changed export instead of downloading it', async () => {
     exportAll.mockResolvedValue({ items: [], total: 1, snapshotAt: runSnapshot });
     const { result } = renderHook(() => useAdminRunExplorer());
-    await waitFor(() => expect(result.current.section.hasData).toBe(true));
+    await waitFor(() => expectReadyList(result.current));
     act(() => result.current.exporting.confirm());
     await act(async () => {
       await result.current.exporting.start();
@@ -261,7 +280,7 @@ describe('admin run export lifecycle', () => {
     const pending = deferred<Awaited<ReturnType<typeof fetchAdminRunExport>>>();
     exportAll.mockReturnValue(pending.promise);
     const { result } = renderHook(() => useAdminRunExplorer());
-    await waitFor(() => expect(result.current.section.hasData).toBe(true));
+    await waitFor(() => expectReadyList(result.current));
     vi.useFakeTimers();
     try {
       act(() => result.current.exporting.confirm());
@@ -292,7 +311,7 @@ describe('admin run export lifecycle', () => {
     const pending = deferred<Awaited<ReturnType<typeof fetchAdminRunExport>>>();
     exportAll.mockReturnValue(pending.promise);
     const { result, rerender } = renderHook(() => useAdminRunExplorer());
-    await waitFor(() => expect(result.current.section.hasData).toBe(true));
+    await waitFor(() => expectReadyList(result.current));
     act(() => result.current.exporting.confirm());
     let work!: Promise<void>;
     act(() => {
