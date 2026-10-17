@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { fr } from '@/i18n/fr';
 import { formatAdminDate, formatAdminDay, formatAdminNumber } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
+import { AdminSectionFeedback, AdminTableCount } from './AdminSectionFeedback';
 import type { AdminModerationReport } from './useAdminData';
+import type { AdminSectionFeedback as Feedback } from './useAdminSection';
 
 export function AdminModerationPanel({
   reports,
@@ -10,12 +12,16 @@ export function AdminModerationPanel({
   error,
   onRetry,
   onInvalidate,
+  state,
+  total = null,
 }: {
   reports: AdminModerationReport[];
   loading: boolean;
   error: string | null;
   onRetry: () => void;
   onInvalidate: (dailyRunId: string, reason: string) => Promise<boolean>;
+  state?: Feedback;
+  total?: number | null;
 }) {
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -40,6 +46,8 @@ export function AdminModerationPanel({
       aria-labelledby="admin-tab-moderation"
     >
       <AdminErrorNotice message={error} onRetry={onRetry} retrying={loading} />
+      {state && <AdminSectionFeedback state={state} />}
+      <AdminTableCount displayed={reports.length} total={total} />
       <div className="runs-header">
         <div>
           <h3>{fr.admin.dailyReports}</h3>
@@ -50,9 +58,9 @@ export function AdminModerationPanel({
         </button>
       </div>
 
-      {loading ? (
+      {loading && !state?.hasData ? (
         <div className="loading">{fr.admin.loadingReports}</div>
-      ) : (
+      ) : error && !state?.hasData ? null : (
         <div className="runs-table-container">
           <table className="runs-table">
             <caption className="sr-only">{fr.admin.moderationCaption}</caption>
@@ -97,7 +105,13 @@ export function AdminModerationPanel({
                     <td>
                       <button
                         type="button"
-                        disabled={length < 10 || length > 500 || pendingId !== null}
+                        disabled={
+                          length < 10 ||
+                          length > 500 ||
+                          pendingId !== null ||
+                          loading ||
+                          error !== null
+                        }
                         onClick={() => void invalidate(report)}
                       >
                         {pendingId === report.id ? fr.admin.invalidating : fr.admin.invalidateScore}

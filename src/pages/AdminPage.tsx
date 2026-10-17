@@ -6,7 +6,9 @@ import { AdminAuthorityPanel } from './admin/AdminAuthorityPanel';
 import { AdminDashboardPanel } from './admin/AdminDashboardPanel';
 import { AdminErrorNotice } from './admin/AdminErrorNotice';
 import { AdminModerationPanel } from './admin/AdminModerationPanel';
+import { AdminSectionFeedback, AdminTableCount } from './admin/AdminSectionFeedback';
 import { AdminTabList } from './admin/AdminTabList';
+import { formatAdminMetric } from './admin/adminMetrics';
 import { useAdminData } from './admin/useAdminData';
 import {
   exportRunsToCSV,
@@ -53,7 +55,6 @@ export function AdminPage() {
     fieldAugmentCohorts,
     playerStats,
     logs,
-    loading,
     statsLoading,
     authorityLoading,
     logsLoading,
@@ -63,6 +64,11 @@ export function AdminPage() {
     moderationLoading,
     moderationReports,
     errors,
+    sections,
+    playersTotal,
+    logsTotal,
+    runsTotal,
+    moderationTotal,
     runFilter,
     setRunFilter,
     logFilter,
@@ -108,7 +114,8 @@ export function AdminPage() {
       <div className="admin-content">
         {activeTab === 'dashboard' && (
           <AdminDashboardPanel
-            loading={loading || statsLoading}
+            loading={statsLoading}
+            state={sections.stats}
             stats={stats}
             onSelectTab={setActiveTab}
             onRefresh={fetchStats}
@@ -123,11 +130,9 @@ export function AdminPage() {
             id="admin-panel-logs"
             aria-labelledby="admin-tab-logs"
           >
-            <AdminErrorNotice
-              message={errors.logs}
-              onRetry={fetchLogs}
-              retrying={loading || logsLoading}
-            />
+            <AdminErrorNotice message={errors.logs} onRetry={fetchLogs} retrying={logsLoading} />
+            <AdminSectionFeedback state={sections.logs} />
+            <AdminTableCount displayed={logs.length} total={logsTotal} />
             <div className="logs-filters">
               <h3>{fr.admin.filters}</h3>
               <div className="filter-row">
@@ -171,15 +176,15 @@ export function AdminPage() {
                   <option value="1000">{formatAdminNumber(1000)}</option>
                 </select>
 
-                <button onClick={fetchLogs} disabled={loading || logsLoading}>
+                <button onClick={fetchLogs} disabled={logsLoading}>
                   {fr.admin.apply}
                 </button>
               </div>
             </div>
 
-            {loading || logsLoading ? (
+            {logsLoading && !sections.logs.hasData ? (
               <div className="loading">{fr.admin.loadingLogs}</div>
-            ) : (
+            ) : errors.logs && !sections.logs.hasData ? null : (
               <div className="logs-table-container">
                 <table className="logs-table">
                   <caption className="sr-only">{fr.admin.logsCaption}</caption>
@@ -205,9 +210,9 @@ export function AdminPage() {
                         <td>{log.method}</td>
                         <td>{LOG_OPERATION_LABELS[log.operation ?? ''] ?? log.operation}</td>
                         <td>
-                          {log.duration_ms
-                            ? `${formatAdminNumber(log.duration_ms)} ${fr.admin.milliseconds}`
-                            : '-'}
+                          {log.duration_ms === null || log.duration_ms === undefined
+                            ? fr.admin.unavailable
+                            : `${formatAdminNumber(log.duration_ms)} ${fr.admin.milliseconds}`}
                         </td>
                         <td>
                           {log.error_message ? (
@@ -232,13 +237,14 @@ export function AdminPage() {
 
         {activeTab === 'authority' && (
           <AdminAuthorityPanel
+            state={sections.authority}
             aggregates={authorityAggregates}
             signals={authoritySignals}
             rejections={authorityRejections}
             fieldCohorts={fieldCohorts}
             fieldChampionCohorts={fieldChampionCohorts}
             fieldAugmentCohorts={fieldAugmentCohorts}
-            loading={loading || authorityLoading}
+            loading={authorityLoading}
             error={errors.authority}
             onRefresh={() => void fetchAuthorityObservability()}
           />
@@ -254,18 +260,20 @@ export function AdminPage() {
             <AdminErrorNotice
               message={errors.players}
               onRetry={fetchPlayerStats}
-              retrying={loading || playersLoading}
+              retrying={playersLoading}
             />
+            <AdminSectionFeedback state={sections.players} />
+            <AdminTableCount displayed={playerStats.length} total={playersTotal} />
             <div className="players-header">
               <h3>{fr.admin.playerList}</h3>
-              <button onClick={fetchPlayerStats} disabled={loading || playersLoading}>
+              <button onClick={fetchPlayerStats} disabled={playersLoading}>
                 {fr.admin.refresh}
               </button>
             </div>
 
-            {loading || playersLoading ? (
+            {playersLoading && !sections.players.hasData ? (
               <div className="loading">{fr.admin.loadingPlayers}</div>
-            ) : (
+            ) : errors.players && !sections.players.hasData ? null : (
               <div className="players-table-container">
                 <table className="players-table">
                   <caption className="sr-only">{fr.admin.playersCaption}</caption>
@@ -292,11 +300,23 @@ export function AdminPage() {
                             )}
                           </div>
                         </td>
-                        <td>{formatAdminNumber(p.level ?? 0)}</td>
-                        <td>{formatAdminNumber(p.total_runs_completed ?? 0)}</td>
-                        <td>{formatAdminNumber(p.total_wins ?? 0)}</td>
-                        <td>{formatAdminPercent((p.win_rate ?? 0) / 100)}</td>
-                        <td>{formatAdminNumber(p.total_candies ?? 0)}</td>
+                        <td>{formatAdminMetric(p.level, 'accounts', fr.admin.unavailable)}</td>
+                        <td>
+                          {formatAdminMetric(
+                            p.total_runs_completed,
+                            'accounts',
+                            fr.admin.unavailable,
+                          )}
+                        </td>
+                        <td>{formatAdminMetric(p.total_wins, 'accounts', fr.admin.unavailable)}</td>
+                        <td>
+                          {p.win_rate === null || p.win_rate === undefined
+                            ? fr.admin.unavailable
+                            : formatAdminPercent(p.win_rate / 100)}
+                        </td>
+                        <td>
+                          {formatAdminMetric(p.total_candies, 'accounts', fr.admin.unavailable)}
+                        </td>
                         <td>
                           {p.last_login_at ? formatAdminDate(p.last_login_at) : fr.admin.never}
                         </td>
@@ -318,23 +338,21 @@ export function AdminPage() {
             id="admin-panel-runs"
             aria-labelledby="admin-tab-runs"
           >
-            <AdminErrorNotice
-              message={errors.runs}
-              onRetry={fetchRuns}
-              retrying={loading || runsLoading}
-            />
+            <AdminErrorNotice message={errors.runs} onRetry={fetchRuns} retrying={runsLoading} />
+            <AdminSectionFeedback state={sections.runs} />
+            <AdminTableCount displayed={runs.length} total={runsTotal} />
             <div className="runs-header">
               <h3>{fr.admin.runHistory}</h3>
               <div className="runs-actions">
                 <button
                   className="export-btn"
                   onClick={() => exportRunsToCSV(runs)}
-                  disabled={loading || runsLoading || runs.length === 0}
-                  title={fr.admin.exportCsv}
+                  disabled={runsLoading || runs.length === 0}
+                  title={fr.admin.exportCurrentRows}
                 >
-                  📥 {fr.admin.exportCsv}
+                  📥 {fr.admin.exportCurrentRows}
                 </button>
-                <button onClick={fetchRuns} disabled={loading || runsLoading}>
+                <button onClick={fetchRuns} disabled={runsLoading}>
                   🔄 {fr.admin.refresh}
                 </button>
               </div>
@@ -418,38 +436,16 @@ export function AdminPage() {
                   <option value="1000">{formatAdminNumber(1000)}</option>
                 </select>
 
-                <button onClick={fetchRuns} disabled={loading || runsLoading}>
+                <button onClick={fetchRuns} disabled={runsLoading}>
                   {fr.admin.apply}
                 </button>
               </div>
             </div>
 
-            {loading || runsLoading ? (
+            {runsLoading && !sections.runs.hasData ? (
               <div className="loading">{fr.admin.loadingRuns}</div>
-            ) : (
+            ) : errors.runs && !sections.runs.hasData ? null : (
               <>
-                <div className="runs-summary">
-                  <span className="summary-text">
-                    {formatAdminCount(runs.length, fr.admin.displayedRun, fr.admin.displayedRuns)}
-                  </span>
-                  {runs.length > 0 && (
-                    <>
-                      <span className="summary-stat">
-                        {fr.admin.winRate}:{' '}
-                        {formatAdminPercent(runs.filter((run) => run.won).length / runs.length)}
-                      </span>
-                      <span className="summary-stat">
-                        {fr.admin.averageWaves}:{' '}
-                        {formatAdminNumber(
-                          runs.reduce((sum, run) => sum + (run.waves_completed ?? 0), 0) /
-                            runs.length,
-                          { minimumFractionDigits: 1, maximumFractionDigits: 1 },
-                        )}
-                      </span>
-                    </>
-                  )}
-                </div>
-
                 <div className="runs-table-container">
                   <table className="runs-table">
                     <caption className="sr-only">{fr.admin.filteredRunsCaption}</caption>
@@ -483,9 +479,11 @@ export function AdminPage() {
                               {run.won ? `✓ ${fr.admin.victory}` : `✗ ${fr.admin.defeat}`}
                             </span>
                           </td>
-                          <td className="level-cell">{formatAdminNumber(run.run_level ?? 0)}</td>
+                          <td className="level-cell">
+                            {formatAdminMetric(run.run_level, 'runs', fr.admin.unavailable)}
+                          </td>
                           <td className="waves-cell">
-                            {formatAdminNumber(run.waves_completed ?? 0)}
+                            {formatAdminMetric(run.waves_completed, 'runs', fr.admin.unavailable)}
                           </td>
                           <td
                             className="biomes-cell"
@@ -497,20 +495,30 @@ export function AdminPage() {
                               fr.admin.biomePlural,
                             )}
                           </td>
-                          <td>{formatAdminNumber(run.total_kills ?? 0)}</td>
-                          <td>{formatAdminNumber(run.total_damage_dealt ?? 0)}</td>
-                          <td>{formatAdminNumber(run.gold_earned ?? 0)}</td>
-                          <td className="candies-cell">
-                            {formatAdminNumber(run.candies_earned ?? 0)}
+                          <td>
+                            {formatAdminMetric(run.total_kills, 'runs', fr.admin.unavailable)}
                           </td>
                           <td>
-                            {run.duration_seconds
+                            {formatAdminMetric(
+                              run.total_damage_dealt,
+                              'runs',
+                              fr.admin.unavailable,
+                            )}
+                          </td>
+                          <td>
+                            {formatAdminMetric(run.gold_earned, 'runs', fr.admin.unavailable)}
+                          </td>
+                          <td className="candies-cell">
+                            {formatAdminMetric(run.candies_earned, 'runs', fr.admin.unavailable)}
+                          </td>
+                          <td>
+                            {run.duration_seconds !== null && run.duration_seconds !== undefined
                               ? formatAdminCount(
                                   Math.floor(run.duration_seconds / 60),
                                   fr.admin.minute,
                                   fr.admin.minutes,
                                 )
-                              : '-'}
+                              : fr.admin.unavailable}
                           </td>
                           <td className="team-cell">
                             <details className="admin-details">
@@ -547,8 +555,10 @@ export function AdminPage() {
 
         {activeTab === 'moderation' && (
           <AdminModerationPanel
+            state={sections.moderation}
+            total={moderationTotal}
             reports={moderationReports}
-            loading={loading || moderationLoading}
+            loading={moderationLoading}
             error={errors.moderation}
             onRetry={() => void fetchModerationReports()}
             onInvalidate={invalidateDailyScore}

@@ -210,6 +210,7 @@ pour charger leur nouvelle liste de fichiers.
 - [Social, confidentialité et classement](docs/social-leaderboard.md)
 - [Légal et confidentialité](docs/legal-and-privacy.md)
 - [Administration sécurisée](docs/administration.md)
+- [Définitions et fiabilité des métriques admin](docs/admin-metrics.md)
 - [Déploiement et exploitation](docs/operations.md)
 - [Runbooks d'incident](docs/incident-runbooks.md)
 - [Sauvegarde et restauration](docs/backup-and-restore.md)

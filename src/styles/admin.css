@@ -1072,3 +1072,34 @@
     width: 100%;
   }
 }
+.admin-data-status {
+  padding: 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+}
+
+.stat-card .admin-details {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.stat-card .stat-value {
+  overflow-wrap: anywhere;
+}
+
+.dashboard-tab .stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+
+.dashboard-tab .stat-value {
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
+  line-height: 1.3;
+}
+
+.stat-card[data-metric="candies_ledger_started_at"] .stat-value {
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}

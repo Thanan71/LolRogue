@@ -387,6 +387,44 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 12,
+    version: '0.2.7',
+    publishedOn: '2026-10-17',
+    title: {
+      'fr-FR': 'Statistiques d’administration fiables',
+      'en-US': 'Reliable administration statistics',
+    },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les statistiques d’administration distinguent les totaux réels des lignes affichées. Les connexions quotidiennes sont définies en UTC et les données absentes sont indiquées comme indisponibles.',
+          'en-US':
+            'Administration statistics distinguish full totals from displayed rows. Daily logins are defined in UTC and missing data is marked as unavailable.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Le suivi des Candies distingue le solde, les gains, les dépenses et les remboursements enregistrés. Les historiques incomplets sont signalés sans inventer de gains à partir d’un solde.',
+          'en-US':
+            'Candy accounting distinguishes balances, earnings, spending and recorded refunds. Incomplete histories are identified without inferring earnings from balances.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Chaque section admin se charge et se relance indépendamment. Les réponses obsolètes sont ignorées et les données périmées sont signalées. Les contrôles d’accès restent appliqués par la base de données.',
+          'en-US':
+            'Each admin section loads and retries independently. Outdated responses are ignored and stale data is identified. Access controls remain enforced by the database.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

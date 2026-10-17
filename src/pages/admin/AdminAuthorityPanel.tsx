@@ -18,7 +18,9 @@ import {
 } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
 import { AdminFieldCalibrationPanel } from './AdminFieldCalibrationPanel';
+import { AdminSectionFeedback } from './AdminSectionFeedback';
 import type { AdminAuthorityRejection } from './useAdminData';
+import type { AdminSectionFeedback as Feedback } from './useAdminSection';
 
 interface AdminAuthorityPanelProps {
   aggregates: AuthorityAttemptAggregate[];
@@ -30,6 +32,7 @@ interface AdminAuthorityPanelProps {
   loading: boolean;
   error: string | null;
   onRefresh: () => void;
+  state?: Feedback;
 }
 
 export function AdminAuthorityPanel({
@@ -42,6 +45,7 @@ export function AdminAuthorityPanel({
   loading,
   error,
   onRefresh,
+  state,
 }: AdminAuthorityPanelProps) {
   const totals = aggregates.reduce(
     (sum, aggregate) => ({
@@ -71,6 +75,7 @@ export function AdminAuthorityPanel({
       aria-labelledby="admin-tab-authority"
     >
       <AdminErrorNotice message={error} onRetry={onRefresh} retrying={loading} />
+      {state && <AdminSectionFeedback state={state} />}
       <div className="authority-header">
         <div>
           <h3>{fr.admin.authorityTitle}</h3>
@@ -89,9 +94,9 @@ export function AdminAuthorityPanel({
         </button>
       </div>
 
-      {loading ? (
+      {loading && !state?.hasData ? (
         <div className="loading">{fr.admin.loadingAuthority}</div>
-      ) : (
+      ) : error && !state?.hasData ? null : (
         <>
           {signals.length > 0 ? (
             <div className="authority-alerts" role="alert">

@@ -258,6 +258,18 @@ export const en = {
     localRunPreserved: 'The local run is preserved. Reload the page to resume.',
   },
   admin: {
+    requestTimedOut: 'Loading timed out. Retry this section.',
+    moderationResultUnknown:
+      'The invalidation outcome is unknown. Refresh the reports before attempting another invalidation.',
+    unavailable: 'Unavailable',
+    staleData: 'Stale data: the last successful result is still displayed.',
+    refreshingData: 'Refreshing; the last successful result is still displayed.',
+    lastUpdated: 'Last successful read',
+    metricDetails: 'Metric definition',
+    displayedRows: 'Displayed rows',
+    matchingTotal: 'Total matching the filters',
+    pageSampleOnly: 'Statistics for the displayed rows only',
+    exportCurrentRows: 'Export displayed rows',
     accessDenied: 'Access denied',
     noPermission: 'You do not have permission to access this page.',
     home: 'Back home',
