@@ -293,6 +293,7 @@ export const en = {
     title: 'Admin panel',
     welcome: 'Welcome',
     dashboard: 'Dashboard',
+    analytics: 'Time analytics',
     logs: 'Logs',
     players: 'Players',
     runs: 'Runs',

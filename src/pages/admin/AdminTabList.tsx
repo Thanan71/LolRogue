@@ -8,6 +8,7 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string }> = [
   { id: 'logs', label: `📋 ${fr.admin.logs}` },
   { id: 'players', label: `👥 ${fr.admin.players}` },
   { id: 'runs', label: `🎮 ${fr.admin.runs}` },
+  { id: 'analytics', label: `📈 ${fr.admin.analytics}` },
   { id: 'moderation', label: `⚖️ ${fr.admin.moderation}` },
 ];
 

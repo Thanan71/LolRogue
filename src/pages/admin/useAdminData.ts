@@ -26,7 +26,14 @@ import {
 import { useAdminExplorerScope } from './explorer/useAdminExplorerScope';
 import { ADMIN_REQUEST_TIMEOUT_MS, useAdminSection } from './useAdminSection';
 
-export type AdminTab = 'dashboard' | 'authority' | 'logs' | 'players' | 'runs' | 'moderation';
+export type AdminTab =
+  | 'dashboard'
+  | 'authority'
+  | 'logs'
+  | 'players'
+  | 'runs'
+  | 'analytics'
+  | 'moderation';
 export type AdminDataSection = 'stats' | 'authority' | 'logs' | 'moderation';
 export type AdminDataErrors = Record<AdminDataSection, string | null>;
 
