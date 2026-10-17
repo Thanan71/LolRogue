@@ -65,16 +65,39 @@ Le budget v10 relève uniquement les assets de 8 000 000 à 8 050 000 octets
 code. Le plafond JavaScript reste 700 000 octets avec 10 % de marge obligatoire ;
 les autres budgets et seuils de couverture sont inchangés.
 
+Le clone neuf du candidat code `8a82b89413b4092dfbde72b3a204dc8e6855b54f`
+mesure finalement 627 036 octets gzip, 220 859 au chargement initial et
+225 648 pour Auth. Le plus gros chunk reste à 466 265 octets bruts ; les assets
+atteignent 8 011 051 octets avec le SHA complet, soit 8 010 981 après normalisation
+des 70 octets de métadonnées. La marge JavaScript est **10,42 %**. Les vérifications
+de budgets et l'isolation Auth (neuf entrées du manifest) passent.
+
+Ce clone utilise `git clone --no-local`, sans alternate Git, environnement privé,
+cache Data Dragon ni cache npm préexistant. `npm ci` prend 9,43 s, la vérification
+des artefacts 3,93 s et `check:build` 34,16 s. Git reste propre avant/après ; les
+24 bundles sont identiques et leurs empreintes recalculées, les 67 migrations
+historiques et les dépendances sont inchangées, aucun asset/binaire n'est ajouté.
+La clôture documentaire suit ce candidat sans changer son code applicatif.
+
 ## Gates complètes
 
 | Gate | Résultat local |
 | --- | --- |
 | Base recréée, ACL, RLS, advisors, index, types et manifeste | PASS ; 68 migrations, dernière `20261017042727` ; 152 tests / 19 fichiers, aucun skip, phase Vitest 80,52 s |
+| Rollback applicatif explicite | PASS ; 10/10 tests en 3,93 s, checkpoint `968c0b3a` sur la migration courante `20261017042727` |
 | Contrôles ciblés UI et requêtes | PASS ; 41 tests Admin / 4 fichiers, 29 tests de requêtes ; TypeScript app et E2E verts |
 | Nouveaux parcours Admin | PASS ; 2/2 sans retry, desktop FR et mobile EN 320 px ; captures hors dépôt |
+| Suite navigateur source | PASS ; 74/74, un worker, zéro retry, 11,6 min |
+| Statique final et build principal | PASS ; inventaire, frontières, format, lint, CSS, types, contenu, bundle et budgets |
 | TypeScript strict | PASS ; quatre diagnostics upstream précisément autorisés, inchangés |
 | Artefacts | PASS ; 17 familles, 303 fichiers et 24 versions authority ; aucune écriture par le checker |
 | Graphify | Rafraîchissement code-only incrémental effectué, sorties ignorées par Git |
+| Clone indépendant | PASS sur `8a82b89` ; installation, artefacts, build, invariants et Git propre |
+| Preview du candidat code | HTTP 200 pour HTML, module d'entrée et identité `8a82b89` ; hostname du backend public vérifié contre la cible Dev approuvée |
 
-Les résultats restants du candidat, du clone neuf et de la CI sont ajoutés après
-leur exécution. Ces contrôles ciblés ne les remplacent pas.
+Les suites complètes (couverture, cohortes, navigateurs source et connectés,
+six projets production), leurs éventuelles limitations locales, les durées des
+jobs et les résultats du SHA final sont consignés dans la
+[PR #223](https://github.com/Thanan71/LolRogue/pull/223) et ses checks. Le tableau
+ci-dessus rapporte les preuves locales déjà acquises sur le candidat code ; il
+ne remplace ni ces gates complètes ni une migration distante.

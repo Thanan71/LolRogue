@@ -101,6 +101,10 @@ les gains à vie et les événements depuis le ledger. Elles ne mesurent pas tou
 les émissions historiques incluant les comptes effacés. Aucun historique personnel
 supplémentaire n'est conservé pour empêcher cette diminution.
 
+L'[export de compte opérateur](release-and-support.md#export-de-compte) inclut
+les ouvertures et événements de ce seul joueur via `players.id`. La configuration
+globale `candy_ledger_settings` n'est pas une donnée personnelle à exporter.
+
 ## Garanties d'écriture
 
 - Le snapshot d'ouverture et l'installation des gardes partagent une transaction

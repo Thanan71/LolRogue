@@ -102,7 +102,10 @@ d'autres comptes.
 2. Geler l'export à un instant UTC et extraire uniquement les données reliées à son
    `auth.users.id` : profil, maîtrise, améliorations, runs, tentatives/commandes et
    participations daily, wallet d'Éclats, transactions, unlocks permanents et
-   commandes d'achat. Exclure secrets internes et données d'autres joueurs.
+   commandes d'achat. Pour les Candies, inclure `candy_accounts` et
+   `candy_transactions` filtrés sur le `players.id` lié à cet utilisateur ;
+   `candy_ledger_settings` est une configuration globale sans donnée personnelle.
+   Exclure secrets internes et données d'autres joueurs.
 3. Produire JSON/CSV UTF-8, vérifier manuellement l'identité des lignes, chiffrer le
    fichier et transmettre le secret par un canal distinct.
 4. Supprimer l'archive de travail après confirmation et consigner seulement preuve,
@@ -126,7 +129,8 @@ d'autres comptes.
    suppression partielle de run ou de ledger.
 4. Vérifier l'absence dans `auth.users`, `players`, maîtrise, améliorations, runs et
    attempts, `account_wallets`, `shard_transactions`, `account_champion_unlocks` et
-   `champion_purchase_commands`, invalider les sessions puis demander au joueur
+   `champion_purchase_commands`, `candy_accounts` et `candy_transactions` pour
+   l'ancien `players.id`, invalider les sessions puis demander au joueur
    d'effacer son état local. La suppression complète du compte autorise la cascade
    du ledger ; aucune suppression partielle de son historique n'est permise.
 5. Consigner demande, validations, opérateur et résultat sans conserver les données

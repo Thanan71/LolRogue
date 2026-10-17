@@ -33007,6 +33007,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s1-validation-2026-10-17.md",
+          "line": 76,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "cache Data Dragon ni cache npm préexistant. `npm ci` prend 9,43 s, la vérification",
+          "classification": "active"
+        },
+        {
           "file": "docs/architecture-s5-validation-2026-10-13.md",
           "line": 33,
           "source": "documentation",
@@ -33338,6 +33346,14 @@
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "cache npm, passe `npm ci` et `npm run check:build` sous Node 24.19.0/npm 11.17.0.",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-s1-validation-2026-10-17.md",
+          "line": 76,
+          "source": "documentation",
+          "kind": "implicit-install-hook",
+          "excerpt": "cache Data Dragon ni cache npm préexistant. `npm ci` prend 9,43 s, la vérification",
           "classification": "active"
         },
         {
