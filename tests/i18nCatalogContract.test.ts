@@ -66,6 +66,8 @@ const catalogs = {
 // Every i18n module must either join this contract or identify its specialized
 // coverage. Discovering the files prevents new catalogs from silently opting out.
 const catalogModules = {
+  'adminExplorer.ts': 'main',
+  'adminRunExplorer.ts': 'main',
   'adminExportContent.ts': 'adminExport',
   'authRecoveryContent.ts': 'authRecovery',
   'adminFieldCalibration.ts': 'adminFieldCalibration',

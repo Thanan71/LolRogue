@@ -1,3 +1,6 @@
+import { enAdminPlayersExplorer } from './adminExplorer';
+import { adminRunExplorerContent } from './adminRunExplorer';
+
 const formatEnglishNumber = (value: number): string => value.toLocaleString('en-US');
 const formatEnglishPercent = (percent: number): string =>
   new Intl.NumberFormat('en-US', {
@@ -258,6 +261,20 @@ export const en = {
     localRunPreserved: 'The local run is preserved. Reload the page to resume.',
   },
   admin: {
+    playerExplorer: enAdminPlayersExplorer,
+    runExplorer: adminRunExplorerContent['en-US'],
+    explorerInvalidResponse: 'The explorer response is incomplete. Refresh the data.',
+    explorerPagination: {
+      label: 'Admin results pagination',
+      previous: 'Previous page',
+      next: 'Next page',
+      pageSize: 'Rows per page',
+      page: 'Page',
+      displayed: 'Displayed:',
+      total: 'Filtered total:',
+      snapshotNote:
+        'New accounts or runs are excluded until refresh. Historical updates or deletions remain possible.',
+    },
     requestTimedOut: 'Loading timed out. Retry this section.',
     moderationResultUnknown:
       'The invalidation outcome is unknown. Refresh the reports before attempting another invalidation.',
